@@ -55,17 +55,27 @@ function candidatosEstadoCargo(uf, cargo) {
   return doEstado[CARGO_LABEL[cargo]] || [];
 }
 
+// Senado renova 1/3 ou 2/3 das cadeiras a cada 4 anos, alternando (art. 46,
+// §2º da Constituição — cada estado+DF tem 3 senadores, mandato de 8 anos).
+// 2022 foi ciclo de 1/3 (1 vaga por estado — é o que candidatosEstadoCargo
+// reflete, porque só tem o resultado real de 2022). 2026 é ciclo de 2/3: 2
+// vagas por estado, o dobro de 2022 — não dá pra derivar isso do resultado
+// de 2022 (ao contrário de Estadual/Federal, cuja quantidade de cadeiras
+// não muda de uma eleição pra outra). Mesmo valor pros 26 estados + DF.
+const VAGAS_SENADOR_2026 = 2;
+
 // Total de vagas em disputa num estado+cargo — número fixo por lei (art. 45
-// da Constituição pra Federal, Constituição estadual pra Estadual, 1/3 ou
-// 2/3 do Senado por ciclo pra Senador), não depende de quantos partidos já
-// têm candidato cadastrado. SEMPRE soma a partir de candidatosEstadoCargo
-// (o resultado real e completo de 2022, imutável) — nunca a partir de
-// candidatos2026EstadoCargo nem de pcState.palpiteEdicao, que podem estar
-// parciais enquanto as atas de 2026 ainda estão sendo processadas (ver
-// dados/estados/registro-2026.js e .claude/agents/atualizador-atas-2026.md).
-// Foi exatamente essa mistura que fez o total de vagas de SC cair de
-// 40→30 (Estadual) e 16→12 (Federal) quando os primeiros dados reais de
-// 2026 entraram — 02/08/2026.
+// da Constituição pra Federal, Constituição estadual pra Estadual, ver
+// VAGAS_SENADOR_2026 acima pro Senador), não depende de quantos partidos já
+// têm candidato cadastrado. Estadual/Federal SEMPRE somam a partir de
+// candidatosEstadoCargo (o resultado real e completo de 2022, imutável) —
+// nunca a partir de candidatos2026EstadoCargo nem de pcState.palpiteEdicao,
+// que podem estar parciais enquanto as atas de 2026 ainda estão sendo
+// processadas (ver dados/estados/registro-2026.js e
+// .claude/agents/atualizador-atas-2026.md). Foi exatamente essa mistura que
+// fez o total de vagas de SC cair de 40→30 (Estadual) e 16→12 (Federal)
+// quando os primeiros dados reais de 2026 entraram — 02/08/2026.
 function vagasFixasCargo(uf, cargo) {
+  if (cargo === "senador") return VAGAS_SENADOR_2026;
   return candidatosEstadoCargo(uf, cargo).reduce((s, p) => s + (Number(p.vagas2022) || 0), 0);
 }
