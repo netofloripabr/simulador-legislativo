@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 SC (atas de convenção)
 
-Gerado em 2026-08-02 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
+Gerado em 2026-08-03 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -18,12 +18,14 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 609-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 30 |
 | 624-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 19 |
 | 680-pl-convencao.pdf | PL | não | 61 |
+| 694-psd-convencao.pdf | PSD | não | 34 |
 | 702-mdb-convencao.pdf | MDB | não | 46 |
 | 733-dc-convencao.pdf | DC | não | 17 |
 | 769-44-união-11-pp-convencao.pdf | UNIÃO/PP | não | 60 |
 | 775-avante-convencao.pdf | AVANTE | não | 28 |
 | 776-republicanos-convencao.pdf | REPUBLICANOS | não | 45 |
 | 803-agir-executiva.pdf | AGIR | não | 9 |
+| 814-psdb-cidadania-retificadora.pdf | ? | sim | 22 |
 | documentoAta.pdf (1).pdf | UP | não | 10 |
 | documentoAta.pdf (2).pdf | AGIR | não | 10 |
 | documentoAta.pdf (3).pdf | PT/PC do B/PV | não | 52 |
@@ -32,7 +34,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | documentoAta.pdf (6).pdf | PDT | não | 45 |
 | documentoAtaRetificadora_1.pdf.pdf | PSB | sim | 4 |
 
-Total de candidaturas: **654** — confiança alta: **635**, a revisar (partido não identificado): **19**
+Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido não identificado): **42**
 
 ## Alertas automáticos
 
@@ -46,7 +48,7 @@ Total de candidaturas: **654** — confiança alta: **635**, a revisar (partido 
 - Número 36222 repetido em AGIR/Deputado Estadual para: Aguinaldo Vargas De Vargas, Silvana Walger — conferir manualmente.
 - Número 36777 repetido em AGIR/Deputado Estadual para: Henrique Todeschini Da Silva, Henrique Todeschini Da Silva — conferir manualmente.
 - Número 36123 repetido em AGIR/Deputado Estadual para: Robson Zagre, Robson Zagre — conferir manualmente.
-- 19 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 42 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -62,9 +64,32 @@ Total de candidaturas: **654** — confiança alta: **635**, a revisar (partido 
 | Rafael Caleffi | Senador (1º suplente) | 680-pl-convencao.pdf |
 | Andrey Otavio Tomazi | Senador (2º suplente) | 680-pl-convencao.pdf |
 | Balduino Rodrigues Ferreira | Senador (2º suplente) | 680-pl-convencao.pdf |
+| João Rodrigues | Governador | 694-psd-convencao.pdf |
 | Esperidião Amin Helou Filho | Senador | 769-44-união-11-pp-convencao.pdf |
 | Clenilton Carlos Pereira | Senador (1º suplente) | 769-44-união-11-pp-convencao.pdf |
 | Genesio Moises Spillere | Senador (2º suplente) | 769-44-união-11-pp-convencao.pdf |
+| Arlei Da Silva | Deputado Federal | 814-psdb-cidadania-retificadora.pdf |
+| Barbara Kawall Connolly Barreiros | Deputado Federal | 814-psdb-cidadania-retificadora.pdf |
+| Roseli Moraes Silva | Deputado Federal | 814-psdb-cidadania-retificadora.pdf |
+| Adelar José Tolfo | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Arildo Fernandes Da Silva | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Bruno Horwatitsch Cunha | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Crislane Evaristo Fernandes | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Edson Luiz Duarte | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Fabiana Da Silva | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Jefferson Schmidt | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Jessica Degering Rodrigues | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Jucemar Custódio | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Kariny Naiara Muller Brum | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Leonardo Garcia Heinzen | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Marcos Luiz Vieira | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Mirna Rubia Da Silva Commandulli | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Patricia Da Silva Sobreda | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Paulo Spengler | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Renato Geske | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Sonia Salete Vedovatto | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Sérgio Freitas | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
+| Tcharles Purim | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
 | Décio Nery De Lima | Senador | documentoAta.pdf (3).pdf |
 | Afrânio Tadeu Boppré | Senador | documentoAta.pdf (4).pdf |
 | Aparecida Da Silva | Senador (2º suplente) | documentoAta.pdf (4).pdf |
