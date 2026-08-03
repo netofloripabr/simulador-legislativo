@@ -238,7 +238,7 @@ function renderColaborativo() {
     return;
   }
   if (pcState.tela === "carregando") {
-    el.innerHTML = `<div class="glass-card"><h2>Prospecção Coletiva</h2><div class="pc-status">Carregando…</div></div>`;
+    el.innerHTML = telaCarregando();
     return;
   }
   if (pcState.tela === "landing") return renderLanding();
@@ -422,7 +422,7 @@ function renderLobby() {
 // de montarSecaoImpressaoCargo), só que renderizado pra tela em vez de PDF.
 async function renderCompartilhado() {
   const el = document.getElementById("pcConteudo");
-  el.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando…</div></div>`;
+  el.innerHTML = telaCarregando();
   const dados = await buscarRascunhoPublicoDe(pcState.verPerfilId);
   if (!dados) {
     el.innerHTML = `<div class="glass-card" style="max-width:520px; margin:0 auto; text-align:center;">
@@ -741,7 +741,7 @@ async function garantirMeusGruposCarregados() {
 
 async function renderGrupoHub() {
   const conteudo = document.getElementById("pcConteudo");
-  conteudo.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando seus grupos…</div></div>`;
+  conteudo.innerHTML = telaCarregando("Carregando seus grupos…");
   await garantirMeusGruposCarregados();
 
   const linhasGrupo = pcState.meusGrupos.map((g) => `
@@ -853,7 +853,7 @@ function montarComparacaoGrupo(registros, cargo) {
 
 async function renderGrupoMembro() {
   const conteudo = document.getElementById("pcConteudo");
-  conteudo.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando comparação do grupo…</div></div>`;
+  conteudo.innerHTML = telaCarregando("Carregando comparação do grupo…");
   pcState.estado = "SC"; // único estado com dado hoje — ver CLAUDE.md
   if (!pcState.grupoComparacao) {
     pcState.grupoComparacao = await buscarComparacaoGrupo(pcState.grupoAtivo.id);
@@ -904,6 +904,24 @@ function normalizarBusca(s) {
 // novo formato do pipeline de resultados 2022 Brasil).
 function nomeExibicao(c) {
   return c.nomeUrna || c.nome;
+}
+
+// Tela de "Carregando…" padrão — mesmo ícone com brilho de renderLanding
+// (a capa), reaproveitado em toda tela que precisa buscar algo antes de
+// mostrar conteúdo (troca de cargo, grupos, quadro de médias etc.), pra não
+// cada uma inventar o próprio "Carregando" sem graça. mensagem (opcional)
+// troca o texto padrão quando faz sentido ser mais específico.
+function telaCarregando(mensagem) {
+  return `<div class="glass-card" style="max-width:420px; margin:0 auto; min-height:50vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+    <div class="pc-loading-icon" style="width:64px; height:64px; margin:0 auto 16px; border-radius:50%; background:linear-gradient(135deg,#3dffb0,#0dbf7c); display:flex; align-items:center; justify-content:center; box-shadow:0 0 9px rgba(61,255,176,.5);">
+      <svg viewBox="0 0 16 16" style="width:28px; height:28px; color:#04140d;">
+        <path d="M2 6.3L8 2.5l6 3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M3.4 7.3v5M6.3 7.3v5M9.7 7.3v5M12.6 7.3v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
+        <path d="M2 13h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>
+      </svg>
+    </div>
+    <div class="pc-status">${mensagem || "Carregando…"}</div>
+  </div>`;
 }
 
 // Nome de federação (ex.: "PT/PC do B/PV", "UNIÃO/PP") armazenado sem
@@ -1380,7 +1398,7 @@ function renderCargoIndisponivel(cargo) {
 
 async function renderCargoEstadual() {
   const conteudo = document.getElementById("pcCargoConteudo");
-  conteudo.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando…</div></div>`;
+  conteudo.innerHTML = telaCarregando();
   const chaveCargoEstado = `${pcState.estado}::${pcState.cargoAtivo}`;
   if (!pcState.palpiteEdicao || pcState.cargoPalpiteEdicao !== chaveCargoEstado) {
     await garantirRascunhosCarregados();
@@ -2536,7 +2554,7 @@ function renderRankingPlaceholder() {
 
 async function renderMeuPalpite() {
   const conteudo = document.getElementById("pcConteudo");
-  conteudo.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando seu palpite…</div></div>`;
+  conteudo.innerHTML = telaCarregando("Carregando seu palpite…");
 
   if (!pcState.palpiteEdicao) {
     await garantirRascunhosCarregados();

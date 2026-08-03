@@ -289,6 +289,11 @@
   #modoColaborativoWrap button:disabled{ opacity:.35; cursor:default; }
   #modoColaborativoWrap .pc-erro{ color: var(--pc-danger); font-size: 12.5px; margin-top: 8px; min-height: 16px; }
   #modoColaborativoWrap .pc-status{ color: var(--pc-accent-2); font-size: 12.5px; margin-top: 8px; min-height: 16px; }
+  /* Ícone com brilho da capa (renderLanding), reaproveitado em toda tela de
+     "Carregando…" — ver telaCarregando() em interface/prospeccao.js e o
+     placeholder estático em index.html (esse antes do JS carregar). */
+  .pc-loading-icon{ animation: pc-pulse 1.6s ease-in-out infinite; }
+  @keyframes pc-pulse{ 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.72; transform:scale(.94); } }
   #modoColaborativoWrap table{ width:100%; border-collapse:collapse; font-size:13px; }
   #modoColaborativoWrap th{
     text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.06em;
