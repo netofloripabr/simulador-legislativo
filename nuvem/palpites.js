@@ -156,6 +156,51 @@ async function salvarPalpiteCompleto(perfilId, palpiteEdicao) {
   return { error };
 }
 
+// Rascunho por cargo — autosave contínuo enquanto a pessoa edita (ver
+// nuvem/migracao-6-rascunho-por-cargo.sql), pra reabrir o app e continuar
+// de onde parou em vez de recomeçar do zero. Diferente de
+// salvarPalpiteCompleto/candidatos (que alimenta o Quadro de Médias
+// público) e diferente de "listas_salvas" (versões nomeadas que a pessoa
+// decide guardar de propósito, ver migracao-5) — isso aqui é só "onde eu
+// parei", privado, sobrescrito a cada edição.
+const COLUNA_RASCUNHO_POR_CARGO = { estadual: "rascunho_estadual", federal: "rascunho_federal", senador: "rascunho_senador" };
+
+async function salvarRascunhoCargo(perfilId, cargo, lista) {
+  const coluna = COLUNA_RASCUNHO_POR_CARGO[cargo];
+  if (!coluna) return { error: new Error(`cargo desconhecido: ${cargo}`) };
+  // Lê a linha inteira antes de escrever (mesmo cuidado de
+  // salvarVagasPorPartido acima) pra não zerar as outras colunas
+  // (candidatos, os outros 2 rascunhos) que esse upsert não está mexendo.
+  const { data: atual } = await supabaseClient
+    .from("palpites")
+    .select("candidatos, rascunho_estadual, rascunho_federal, rascunho_senador")
+    .eq("perfil_id", perfilId)
+    .maybeSingle();
+  const { error } = await supabaseClient.from("palpites").upsert({
+    perfil_id: perfilId,
+    candidatos: atual ? atual.candidatos : [],
+    rascunho_estadual: atual ? atual.rascunho_estadual : null,
+    rascunho_federal: atual ? atual.rascunho_federal : null,
+    rascunho_senador: atual ? atual.rascunho_senador : null,
+    [coluna]: lista,
+    atualizado_em: new Date().toISOString(),
+  });
+  return { error };
+}
+
+async function carregarRascunhosPorCargo(perfilId) {
+  const { data, error } = await supabaseClient
+    .from("palpites")
+    .select("rascunho_estadual, rascunho_federal, rascunho_senador")
+    .eq("perfil_id", perfilId)
+    .maybeSingle();
+  if (error) {
+    console.error("Erro ao carregar rascunhos:", error);
+    return null;
+  }
+  return data;
+}
+
 // Ponto de partida dos boxes: a distribuição real de 2022 (soma sempre 40).
 function vagasPorPartidoPadrao() {
   const vagas = {};

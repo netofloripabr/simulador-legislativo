@@ -21,6 +21,8 @@ let pcState = {
   palpiteEdicao: null,
   cargoPalpiteEdicao: null, // qual cargo o palpiteEdicao atual pertence — recarrega quando muda de aba
   palpitesPorCargo: null, // { estadual, federal, senador } — usado só na Revisão, pra editar os 3 cargos ali sem perder o que já foi mexido em cada um (ver garantirPalpitesPorCargo)
+  rascunhosCache: null, // { estadual, federal, senador } — rascunho salvo (autosave) de cada cargo pro estado atual, carregado 1x por garantirRascunhosCarregados()
+  rascunhosCacheEstado: null, // qual estado o rascunhosCache acima pertence — invalida o cache se o estado mudar
   historicoPalpite: [], // snapshots pro botão "Voltar" da tela de seleção
   avisoLimiteVagasAberto: false, // modal "só dá pra marcar até o total de vagas"
   candidatos2022Aberto: null, // nome do partido (ou federação) com o modal "nominata completa de 2022" aberto
@@ -124,6 +126,7 @@ async function initColaborativo() {
       // antes cai direto no painel principal.
       pcState.subaba = pcState.palpiteEdicao ? "painel" : "selecao";
       pcState.estado = "SC";
+      await garantirRascunhosCarregados();
       pcState.tela = "app";
       renderColaborativo();
       return;
@@ -144,6 +147,59 @@ function normalizarPalpiteEdicao() {
   pcState.palpiteEdicao.forEach((p) => {
     p.candidatos.forEach((c) => { if (c.votosEditado === undefined) c.votosEditado = false; });
   });
+}
+
+// ===== Rascunho por cargo (autosave contínuo) =====
+// Chave de rascunho no modo convidado (sem perfil) — window.storage tem o
+// shim pra localStorage definido em index.html, funciona igual com ou sem
+// claude.ai. Logado usa Supabase (rascunho_estadual/federal/senador em
+// "palpites", nuvem/palpites.js + nuvem/migracao-6-rascunho-por-cargo.sql).
+function _chaveRascunhoConvidado(uf, cargo) {
+  return `pc-rascunho:${uf}:${cargo}`;
+}
+
+// Carrega o rascunho salvo dos 3 cargos pro estado atual e guarda em
+// pcState.rascunhosCache — 1x por estado escolhido (ver os 2 únicos lugares
+// que atribuem pcState.estado: initColaborativo e o picker de estado). O
+// resto do app consulta esse cache de forma síncrona (renderCargoEstadual,
+// garantirPalpitesPorCargo) em vez de cada um precisar virar async.
+async function garantirRascunhosCarregados() {
+  if (!pcState.estado || pcState.rascunhosCacheEstado === pcState.estado) return;
+  const cache = {};
+  if (pcState.perfil) {
+    const dados = await carregarRascunhosPorCargo(pcState.perfil.id);
+    CARGOS.forEach((c) => {
+      const coluna = COLUNA_RASCUNHO_POR_CARGO[c.id];
+      const lista = dados ? dados[coluna] : null;
+      cache[c.id] = (lista && lista.length) ? lista : null;
+    });
+  } else {
+    for (const c of CARGOS) {
+      try {
+        const r = await window.storage.get(_chaveRascunhoConvidado(pcState.estado, c.id));
+        const lista = r && r.value ? JSON.parse(r.value) : null;
+        cache[c.id] = (lista && lista.length) ? lista : null;
+      } catch (e) { cache[c.id] = null; }
+    }
+  }
+  pcState.rascunhosCache = cache;
+  pcState.rascunhosCacheEstado = pcState.estado;
+}
+
+// Salva (com debounce — não dispara 1 request por tecla) o rascunho de um
+// cargo, logado ou convidado. Chamado depois de toda edição relevante nas
+// telas de Seleção e Revisão.
+const _timersAutoSaveRascunho = {};
+function agendarAutoSaveRascunho(cargo, lista) {
+  if (!pcState.estado || !lista || !lista.length) return;
+  clearTimeout(_timersAutoSaveRascunho[cargo]);
+  _timersAutoSaveRascunho[cargo] = setTimeout(() => {
+    if (pcState.perfil) {
+      salvarRascunhoCargo(pcState.perfil.id, cargo, lista);
+    } else {
+      try { window.storage.set(_chaveRascunhoConvidado(pcState.estado, cargo), JSON.stringify(lista)); } catch (e) { /* localStorage indisponível, ignora */ }
+    }
+  }, 900);
 }
 
 function renderColaborativo() {
@@ -273,8 +329,9 @@ function renderTelaEstado() {
   picker.scrollTop = scItem.offsetTop + scItem.offsetHeight / 2 - picker.clientHeight / 2;
   atualizarPicker();
 
-  document.getElementById("pcBtnConfirmarEstado").addEventListener("click", () => {
+  document.getElementById("pcBtnConfirmarEstado").addEventListener("click", async () => {
     pcState.estado = ufCentralizado;
+    await garantirRascunhosCarregados();
     if (!pcState.palpiteEdicao) pcState.palpiteEdicao = montarEstadoPalpite("assembleia", null, null, "estadual", pcState.estado);
     pcState.tela = "selecao-convidado";
     renderColaborativo();
@@ -1036,12 +1093,17 @@ async function renderCargoEstadual() {
   conteudo.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando…</div></div>`;
   const chaveCargoEstado = `${pcState.estado}::${pcState.cargoAtivo}`;
   if (!pcState.palpiteEdicao || pcState.cargoPalpiteEdicao !== chaveCargoEstado) {
-    // Cada partido começa com a própria vagas2022 real daquele estado+cargo
-    // (ver fallback em montarEstadoPalpite) — não usa mais um "padrão" fixo
-    // de um estado só, que ficava errado assim que outro estado carregasse.
-    pcState.palpiteEdicao = montarEstadoPalpite("assembleia", null, null, pcState.cargoAtivo, pcState.estado);
+    await garantirRascunhosCarregados();
+    // Prioridade: rascunho salvo (autosave, ver garantirRascunhosCarregados)
+    // > cada partido começando com a própria vagas2022 real daquele
+    // estado+cargo (fallback em montarEstadoPalpite) — não usa mais um
+    // "padrão" fixo de um estado só, que ficava errado assim que outro
+    // estado carregasse.
+    const rascunho = pcState.rascunhosCache && pcState.rascunhosCache[pcState.cargoAtivo];
+    pcState.palpiteEdicao = rascunho || montarEstadoPalpite("assembleia", null, null, pcState.cargoAtivo, pcState.estado);
     pcState.cargoPalpiteEdicao = chaveCargoEstado;
   }
+  agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
 
   const cargoInfo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
   // Total de vagas do cargo ativo (40 pra Dep. Estadual, 16 pra Dep.
@@ -1931,9 +1993,14 @@ function garantirPalpitesPorCargo() {
     if (c.id === pcState.cargoAtivo && pcState.palpiteEdicao) {
       pcState.palpitesPorCargo[c.id] = pcState.palpiteEdicao;
     } else if (!pcState.palpitesPorCargo[c.id]) {
-      pcState.palpitesPorCargo[c.id] = montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
+      // Prioridade: rascunho salvo (já carregado em pcState.rascunhosCache
+      // por garantirRascunhosCarregados, chamado antes de qualquer tela
+      // aparecer — ver initColaborativo e o picker de estado) > base nova.
+      const rascunho = pcState.rascunhosCache && pcState.rascunhosCache[c.id];
+      pcState.palpitesPorCargo[c.id] = rascunho || montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
     }
   });
+  CARGOS.forEach((c) => agendarAutoSaveRascunho(c.id, pcState.palpitesPorCargo[c.id]));
 }
 
 // Monta uma seção limpa (sem caixa de voto editável, sem botões de ajuste —
@@ -2182,7 +2249,11 @@ async function renderMeuPalpite() {
   conteudo.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando seu palpite…</div></div>`;
 
   if (!pcState.palpiteEdicao) {
-    if (pcState.perfil) {
+    await garantirRascunhosCarregados();
+    const rascunho = pcState.rascunhosCache && pcState.rascunhosCache.estadual;
+    if (rascunho) {
+      pcState.palpiteEdicao = rascunho;
+    } else if (pcState.perfil) {
       const salvo = await carregarMeuPalpite(pcState.perfil.id);
       pcState.palpiteEdicao = salvo ? salvo.candidatos : montarEstadoPalpite(pcState.perfil.escopo, pcState.perfil.partido_escopo, pcState.vagasPorPartido, "estadual", pcState.estado);
     } else {
@@ -2190,6 +2261,7 @@ async function renderMeuPalpite() {
       pcState.palpiteEdicao = montarEstadoPalpite("assembleia", null, pcState.vagasPorPartido, "estadual", pcState.estado);
     }
   }
+  agendarAutoSaveRascunho("estadual", pcState.palpiteEdicao);
 
   // partidos em modo "detalhado" derivam os marcados da própria votação
   // (top N por votos, N = vagas2022); partidos em modo simplificado usam
