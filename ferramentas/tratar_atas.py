@@ -342,7 +342,11 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
         "// humana antes desses dados virarem \"fato\" no projeto (mesmo processo de",
         "// dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não",
         "// foram copiados para este arquivo (não são usados pelo simulador).",
-        "const CANDIDATOS_2026_SC_PROVISORIO = {",
+        # "var", não "const": script clássico (sem type="module") só expõe em
+        # window[...] (é assim que registro-2026.js lê) uma declaração top-level
+        # com "var" — "const"/"let" ficam fora de window, e candidatos2026EstadoCargo
+        # cairia sempre pro fallback de 2022 sem erro nenhum aparecer no console.
+        f"var CANDIDATOS_2026_{uf.upper()}_PROVISORIO = {{",
     ]
     for cargo, cands in sorted(por_cargo.items()):
         linhas_js.append(f"  {js_string(cargo)}: [")
