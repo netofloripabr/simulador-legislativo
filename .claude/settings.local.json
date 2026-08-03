@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pandoc -t markdown \"/Users/neto/Downloads/Deputados Eleitos ALESC 2022.docx\")",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(python3 -c \"import docx\")",
+      "Bash(mkdir -p docx_unpack)",
+      "Bash(unzip -o -q \"/Users/neto/Downloads/Deputados Eleitos ALESC 2022.docx\" -d docx_unpack)",
+      "Bash(node -e *)",
+      "WebSearch",
+      "WebFetch(domain:www.tre-sc.jus.br)",
+      "Bash(ls -la ~/Downloads/*.zip ~/Downloads/*.sha512 2>/dev/null)",
+      "Bash(unzip -l /Users/neto/Downloads/votacao_secao_2022_SC.zip)",
+      "Bash(unzip -o -q /Users/neto/Downloads/votacao_secao_2022_SC.zip -d .)",
+      "Bash(python3)",
+      "Bash(python3 -c ' *)",
+      "Skill(artifact-capabilities)",
+      "Skill(artifact-capabilities:*)"
+    ]
+  }
+}

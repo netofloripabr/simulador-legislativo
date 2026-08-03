@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Simulador Eleitoral ALESC — 40 Vagas</title>
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<script>
+// Fora do claude.ai, window.storage não existe — este substituto usa o
+// armazenamento do próprio navegador (localStorage) para que "Salvar cenário"
+// e "Restaurar" continuem funcionando quando o arquivo é aberto localmente.
+if(typeof window.storage === 'undefined'){
+  window.storage = {
+    async get(key){ const v = localStorage.getItem(key); return v!==null ? {key, value:v, shared:false} : null; },
+    async set(key, value){ localStorage.setItem(key, value); return {key, value, shared:false}; },
+    async delete(key){ localStorage.removeItem(key); return {key, deleted:true, shared:false}; },
+    async list(prefix){ const keys = Object.keys(localStorage).filter(k => !prefix || k.startsWith(prefix)); return {keys, prefix, shared:false}; }
+  };
+}
+</script>
+<body>
+<div class="wrap">
+
+  <header id="siteHeader">
+    <div class="title-block">
+      <div class="eyebrow">Alesc · Legislatura 2027–2031</div>
+      <h1>Simulador Eleitoral — 40 Vagas</h1>
+      <div class="subtitle">Comparativo de partidos 2022 → 2026. Expanda um partido para incluir/ajustar candidatos da simulação.</div>
+    </div>
+    <div class="seats-badge">
+      <div class="num" id="totalVagasEl">40</div>
+      <div class="lbl">cadeiras</div>
+    </div>
+  </header>
+
+  <div class="mode-tabs">
+    <button class="tab-btn mode-btn active" id="btnModoSimulador">Simulador (individual)</button>
+    <button class="tab-btn mode-btn" id="btnModoColaborativo">Prospecção Coletiva</button>
+  </div>
+
+  <div id="modoSimuladorWrap">
+
+  <div class="action-bar">
+    <button class="btn-highlight" id="addRandomCandBtn">✚ Novo Candidato</button>
+    <button class="tab-btn" id="btnVerParametro"><svg width="11" height="11" viewBox="0 0 16 16" style="vertical-align:middle;"><path d="M5 3 L11 8 L5 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Ver parâmetro 2022 completo</button>
+    <button class="ghost" id="saveBtnTop">Salvar cenário</button>
+    <button class="ghost" id="resetBtnTop">Restaurar tudo (base 2022)</button>
+  </div>
+
+  <div id="viewParametro" class="tab-view" style="display:none;"></div>
+
+  <div id="viewSimulador" class="tab-view">
+  <div class="card" id="bancadaCard" style="margin-bottom:20px;"></div>
+  <div class="grid">
+    <div class="card">
+      <h2>Partidos — Votos e Vagas (clique no partido para abrir candidatos)</h2>
+
+      <div class="qe-box" id="refBox"></div>
+      <div class="qe-box" id="qeBox"></div>
+      <div class="qe-box" id="saldoBox"></div>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width:4%"></th>
+            <th style="width:17%">Partido</th>
+            <th class="num" style="width:8%">Vagas 22</th>
+            <th class="num" style="width:7%">% 22</th>
+            <th class="num" style="width:15%">Votos 26</th>
+            <th class="num" style="width:9%">QP
+              <span class="info-tip">i<span class="tip-box"><b>Quociente Partidário</b> (Código Eleitoral, art. 107).<br><br>
+                Fórmula: votos do partido ÷ QE, parte inteira (sem arredondar).<br><br>
+                São as vagas que o partido garante diretamente, antes da distribuição das sobras.</span></span>
+            </th>
+            <th class="num" style="width:9%">Vagas 26
+              <span class="info-tip">i<span class="tip-box"><b>Resultado final projetado.</b><br><br>
+                QP + sobras distribuídas pelo método das médias (art. 109): a cada rodada, o partido com
+                maior média (votos ÷ (vagas obtidas + 1)) recebe 1 vaga, repetindo até preencher todas as 40.<br><br>
+                Equivale ao método D'Hondt. Não considera o mínimo de votação nominal por candidato
+                (10%/20% do QE) — em disputas muito apertadas pela última vaga, pode diferir em 1 do resultado oficial.</span></span>
+            </th>
+            <th class="num" style="width:7%">% 26</th>
+            <th class="num" style="width:7%">Δ
+              <span class="info-tip">i<span class="tip-box">Diferença entre as vagas projetadas para 2026 e as vagas reais de 2022
+                (Vagas 26 − Vagas 22). Positivo = ganha vaga, negativo = perde vaga.</span></span>
+            </th>
+            <th class="row-actions"></th>
+          </tr>
+        </thead>
+        <tbody id="partyRows"></tbody>
+      </table>
+
+      <button class="add-row" id="addPartyBtn">+ adicionar partido</button>
+
+      <div class="legend">
+        <span><span class="dot" style="background:var(--accent-2)"></span> ganha vaga</span>
+        <span><span class="dot" style="background:var(--danger)"></span> perde vaga</span>
+        <span><span class="dot" style="background:var(--ink-dim)"></span> mantém</span>
+        <span>✓ TSE 2022 = candidato real (votação por seção, eleitos e não eleitos)</span>
+        <span>legenda partidária = voto de legenda do partido, não vinculado a candidato</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Parâmetros do cenário</h2>
+
+      <div class="toggle-row">
+        <label>Auto-balancear votos (soma sempre fixa)</label>
+        <label class="switch">
+          <input type="checkbox" id="autoBalanceToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="field-row">
+        <label>Eleitorado apto (2026)</label>
+        <input class="cell" id="eleitorado2026Input" placeholder="ex: 5729914">
+      </div>
+
+      <div class="toggle-row">
+        <label>Votos válidos proporcionais ao eleitorado</label>
+        <label class="switch">
+          <input type="checkbox" id="vincularEleitoradoToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="field-row">
+        <label>Votos válidos totais (2026)</label>
+        <input class="cell" id="totalVotosInput" placeholder="ex: 4300000">
+      </div>
+      <div class="param-summary" id="taxaInfo" style="margin-bottom:14px;"></div>
+      <div class="field-row">
+        <label>Vagas em disputa</label>
+        <input class="cell" id="totalVagasInput" value="40">
+      </div>
+
+      <div class="balance-bar" id="balanceBar"></div>
+      <div class="status" id="balanceMsg" style="margin-bottom:14px;"></div>
+
+      <h2 style="margin-top:6px">Método de cálculo</h2>
+      <div style="color:var(--ink-dim); font-size:12.5px; line-height:1.6;">
+        <b style="color:var(--ink)">QP (Quociente Partidário)</b>: votos do partido ÷ QE, parte inteira
+        (Código Eleitoral, art. 107) — vagas garantidas diretamente pelo coeficiente.<br>
+        <b style="color:var(--ink)">Vagas 26</b>: QP + sobras distribuídas pelo método das médias
+        (art. 109), equivalente ao resultado final apurado pelo TSE — sem coligação, regra vigente
+        desde 2020.<br><br>
+        <span style="color:var(--ink-dim)">Limite conhecido: o modelo não verifica o mínimo de votação
+        nominal por candidato (10%/20% do QE, art. 108/109) exigido para ocupar a vaga — em disputas
+        muito apertadas pela última cadeira, o resultado oficial pode diferir em 1 vaga.</span>
+      </div>
+
+      <div class="foot-actions">
+        <button class="primary" id="saveBtn">Salvar cenário</button>
+        <button class="ghost" id="resetBtn">Restaurar base 2022</button>
+      </div>
+      <div class="status" id="statusMsg"></div>
+    </div>
+  </div>
+  </div>
+
+  </div><!-- /modoSimuladorWrap -->
+
+  <div id="modoColaborativoWrap" style="display:none;"></div>
+
+</div>
+
+<div class="modal-overlay" id="candModalOverlay">
+  <div class="modal-box">
+    <h2 style="margin-top:0;">Novo candidato</h2>
+    <div class="field-row">
+      <label>Nome</label>
+      <input class="cell" id="modalNome" style="width:220px;" placeholder="Nome do candidato">
+    </div>
+    <div class="field-row">
+      <label>Partido</label>
+      <select class="cell" id="modalPartido" style="width:220px;"></select>
+    </div>
+    <div class="field-row">
+      <label>Base eleitoral (município)</label>
+      <input class="cell" id="modalMunicipio" style="width:220px;" list="municipiosList" placeholder="Município">
+      <datalist id="municipiosList"></datalist>
+    </div>
+    <div class="field-row">
+      <label>Votos 2026</label>
+      <input class="cell" id="modalVotos" style="width:220px;" placeholder="ex: 15000">
+    </div>
+    <div class="foot-actions" style="justify-content:space-between;">
+      <button class="ghost" id="modalRandomBtn">🎲 preencher aleatório</button>
+      <span style="display:flex; gap:10px;">
+        <button class="ghost" id="modalCancelBtn">Cancelar</button>
+        <button class="primary" id="modalConfirmBtn">Adicionar candidato</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<script src="dados/base-2022.js?cb=171"></script>
+<script src="dados/estados/sc-2022-federal.js?cb=171"></script>
+<script src="dados/estados/sc-2022-senador.js?cb=171"></script>
+
+<!-- Dados de 2022 dos outros 26 estados (Dep. Estadual + Dep. Federal +
+     Senador juntos, um arquivo por UF) — ver ferramentas/tratar_resultados_2022.py
+     e dados/estados/registro-2022.js (liga tudo pelo nome da UF). -->
+<script src="dados/estados/ac-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/al-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/am-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/ap-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/ba-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/ce-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/df-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/es-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/go-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/ma-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/mg-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/ms-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/mt-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/pa-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/pb-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/pr-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/pe-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/pi-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/rj-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/rn-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/rs-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/ro-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/rr-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/sp-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/se-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/to-2022-resultado-provisorio.js?cb=171"></script>
+<script src="dados/estados/registro-2022.js?cb=171"></script>
+
+<script src="dados/estados/sc-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/ac-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/al-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/am-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/ap-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/ba-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/ce-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/df-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/es-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/go-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/ma-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/mg-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/ms-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/mt-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/pa-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/pb-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/pr-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/pe-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/pi-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/rj-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/rn-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/rs-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/ro-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/rr-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/sp-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/se-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/to-2026-provisorio.js?cb=171"></script>
+<script src="dados/estados/registro-2026.js?cb=171"></script>
+
+<script src="dados/estados-brasil.js?cb=171"></script>
+<script src="dados/partidos-brasil.js?cb=171"></script>
+<script src="dados/candidatos-extra-2022.js?cb=171"></script>
+<script src="calculo/eleitoral.js?cb=171"></script>
+<script src="interface/app.js?cb=171"></script>
+
+<!-- Prospecção Coletiva: modo colaborativo, backend compartilhado (Supabase).
+     Se o CDN abaixo não carregar, o Simulador individual acima continua
+     funcionando normalmente — ver nuvem/cliente.js. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="nuvem/config.js?cb=171"></script>
+<script src="nuvem/cliente.js?cb=171"></script>
+<script src="nuvem/autenticacao.js?cb=171"></script>
+<script src="nuvem/palpites.js?cb=171"></script>
+<script src="interface/prospeccao.js?cb=171"></script>
+</body>
+</html>
