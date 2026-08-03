@@ -217,12 +217,37 @@ async function buscarTodosPalpitesPublicos() {
   return data || [];
 }
 
-// Agrega todos os palpites públicos num único cenário "médio" — mesma forma
-// de state.parties, pronto pra alimentar dhondt()/quocienteEleitoral()/
-// desenharHemiciclo() já existentes. Cobre os 27 partidos de BASE_2022.
-// Partidos/candidatos sem nenhum palpite caem de volta no valor real de 2022
-// (marcado como "sem palpites ainda").
-function calcularMediaPalpites(palpitesPublicos) {
+// Busca o rascunho público (3 cargos) de UMA pessoa — usado pelo link de
+// Compartilhar (ver renderCompartilhado em interface/prospeccao.js) e por
+// buscarComparacaoGrupo (nuvem/grupos.js). Diferente de
+// buscarTodosPalpitesPublicos: essa vem de "rascunhos_publicos"
+// (nuvem/migracao-7-rascunhos-publicos.sql), que cobre os 3 cargos —
+// "palpites_publicos" só guarda o último cargo depositado.
+async function buscarRascunhoPublicoDe(perfilId) {
+  const { data, error } = await supabaseClient
+    .from("rascunhos_publicos")
+    .select("*")
+    .eq("perfil_id", perfilId)
+    .maybeSingle();
+  if (error) {
+    console.error("Erro ao carregar rascunho público:", error);
+    return null;
+  }
+  return data;
+}
+
+// Agrega uma lista de palpites (formato {candidatos: [...]}) num único
+// cenário "médio" — mesma forma de state.parties, pronto pra alimentar
+// dhondt()/quocienteEleitoral()/desenharHemiciclo() já existentes.
+// cargo/uf (opcionais, default "estadual"/"SC" — comportamento de sempre,
+// usado pelo Quadro de Médias) decidem contra qual base 2022 comparar;
+// Grupos (nuvem/grupos.js) chama isso 1x por cargo, remapeando antes
+// rascunho_<cargo> pra "candidatos" em cada registro. Partidos/candidatos
+// sem nenhum palpite caem de volta no valor real de 2022 (marcado como
+// "sem palpites ainda").
+function calcularMediaPalpites(palpitesPublicos, cargo, uf) {
+  cargo = cargo || "estadual";
+  uf = uf || "SC";
   const somas = {}; // chave -> { soma, contagem }
   palpitesPublicos.forEach((registro) => {
     (registro.candidatos || []).forEach((partido) => {
@@ -235,9 +260,12 @@ function calcularMediaPalpites(palpitesPublicos) {
     });
   });
 
-  // BASE_2022 já cobre os 27 partidos (ver montarEstadoPalpite acima) —
-  // CANDIDATOS_EXTRA_2022 não entra mais aqui, senão duplica partido.
-  const partiesMedia = BASE_2022.map((p) => {
+  // candidatosEstadoCargo("SC","estadual") é o próprio BASE_2022 (ver
+  // dados/estados/registro-2022.js) — usar a função em vez da constante
+  // direta é o que permite reaproveitar isto pra Federal/Senador/outros
+  // estados sem duplicar a função inteira.
+  const baseCargo = candidatosEstadoCargo(uf, cargo);
+  const partiesMedia = baseCargo.map((p) => {
     const candidatos = p.candidatos.map((c) => {
       const chave = chaveCandidato(c.nome, p.nome, c.id);
       const agregado = somas[chave];

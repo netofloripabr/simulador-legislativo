@@ -23,6 +23,13 @@ let pcState = {
   palpitesPorCargo: null, // { estadual, federal, senador } — usado só na Revisão, pra editar os 3 cargos ali sem perder o que já foi mexido em cada um (ver garantirPalpitesPorCargo)
   rascunhosCache: null, // { estadual, federal, senador } — rascunho salvo (autosave) de cada cargo pro estado atual, carregado 1x por garantirRascunhosCarregados()
   rascunhosCacheEstado: null, // qual estado o rascunhosCache acima pertence — invalida o cache se o estado mudar
+  verPerfilId: null, // perfil_id sendo visto em tela "compartilhado" (link ?ver=)
+  pendenteAcao: null, // "compartilhar" | "grupo" | null — pra onde ir depois de completar o cadastro vindo do Lobby
+  telaGrupo: null, // null (hub) | "criar" | "entrar" | "membro" — sub-navegação dentro da subaba "grupo"
+  meusGrupos: null, // cache dos grupos da pessoa (array), carregado 1x por sessão
+  grupoAtivo: null, // grupo sendo visto em telaGrupo "membro"
+  grupoComparacao: null, // cache do resultado de buscarComparacaoGrupo(grupoAtivo.id)
+  cargoAtivoGrupo: "estadual", // qual cargo a comparação do grupo está mostrando (estadual|federal|senador)
   historicoPalpite: [], // snapshots pro botão "Voltar" da tela de seleção
   avisoLimiteVagasAberto: false, // modal "só dá pra marcar até o total de vagas"
   candidatos2022Aberto: null, // nome do partido (ou federação) com o modal "nominata completa de 2022" aberto
@@ -101,11 +108,30 @@ function trocarModo(modo) {
 document.getElementById("btnModoSimulador").addEventListener("click", () => trocarModo("simulador"));
 document.getElementById("btnModoColaborativo").addEventListener("click", () => trocarModo("colaborativo"));
 
+// Link de Compartilhar (ver mostrarLinkCompartilhavel) — index.html?ver=<id>.
+// Query string, não hash: sobrevive a preview de link (WhatsApp etc.), que
+// costuma cortar fragmento depois de #. Quem abre esse link não precisa de
+// conta nem login — passa direto pra tela de leitura, sem chamar
+// initColaborativo()/checar sessão, igual o resto do fluxo faz.
+const _paramsIniciais = new URLSearchParams(window.location.search);
+const _perfilCompartilhado = _paramsIniciais.get("ver");
+
 // O sistema inteiro começa pela P-01 (capa da Prospecção Coletiva) — não mais
 // pelo Simulador individual. O Simulador antigo continua existindo e
 // acessível pela aba, mas deixou de ser a tela padrão (ver conversa: ele vai
 // virar outra função dentro do sistema, ainda não tratada).
-trocarModo("colaborativo");
+if (_perfilCompartilhado) {
+  document.getElementById("modoSimuladorWrap").style.display = "none";
+  document.getElementById("modoColaborativoWrap").style.display = "block";
+  document.getElementById("siteHeader").style.display = "none";
+  document.querySelector(".mode-tabs").style.display = "none";
+  pcState.iniciado = true;
+  pcState.tela = "compartilhado";
+  pcState.verPerfilId = _perfilCompartilhado;
+  renderColaborativo();
+} else {
+  trocarModo("colaborativo");
+}
 
 async function initColaborativo() {
   if (!supabaseClient) {
@@ -225,6 +251,7 @@ function renderColaborativo() {
   if (pcState.tela === "login") return renderTelaLogin();
   if (pcState.tela === "cadastro") return renderTelaCadastro();
   if (pcState.tela === "app") return renderAppColaborativo();
+  if (pcState.tela === "compartilhado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderCompartilhado(); }
 }
 
 // ---------- Abertura (sem login) ----------
@@ -364,7 +391,15 @@ function renderLobby() {
     </div>`;
 
   document.getElementById("pcBtnCompartilhar").addEventListener("click", () => {
-    document.getElementById("pcConclusaoStatus").textContent = "Compartilhamento chega em breve — por enquanto, salve em PDF pra enviar.";
+    // Lobby só aparece pra quem ainda não tem conta (renderDepositoConfirmado
+    // só cai aqui no ramo "sem perfil") — gerar link de compartilhamento
+    // exige uma linha em "palpites" (RLS: só o dono escreve), por isso
+    // precisa de cadastro antes. pendenteRegistro migra o palpite de
+    // convidado; pendenteAcao decide pra onde ir depois de criar a conta.
+    pcState.pendenteRegistro = true;
+    pcState.pendenteAcao = "compartilhar";
+    pcState.tela = "cadastro";
+    renderColaborativo();
   });
   document.getElementById("pcBtnListaCompleta").addEventListener("click", () => {
     pcState.tela = "detalhado-convidado";
@@ -378,6 +413,63 @@ function renderLobby() {
   document.getElementById("pcBtnSalvarPdf").addEventListener("click", () => {
     window.print();
   });
+}
+
+// Tela de leitura de um link de Compartilhar (?ver=<perfil_id>) — sem
+// login, sem edição, só mostra os 3 cargos que aquela pessoa já preencheu
+// (rascunho_estadual/federal/senador, ver nuvem/migracao-7-rascunhos-publicos.sql).
+// Reaproveita classificarEleitosPorPartido/proximosSuplentes (mesma lógica
+// de montarSecaoImpressaoCargo), só que renderizado pra tela em vez de PDF.
+async function renderCompartilhado() {
+  const el = document.getElementById("pcConteudo");
+  el.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando…</div></div>`;
+  const dados = await buscarRascunhoPublicoDe(pcState.verPerfilId);
+  if (!dados) {
+    el.innerHTML = `<div class="glass-card" style="max-width:520px; margin:0 auto; text-align:center;">
+      <h2>Link não encontrado</h2>
+      <div class="pc-sub">Esse link não é válido, ou a pessoa apagou a própria lista.</div>
+      <button class="primary" id="pcBtnCompartilhadoVoltar" style="margin-top:14px;">Montar minha própria lista</button>
+    </div>`;
+    document.getElementById("pcBtnCompartilhadoVoltar").addEventListener("click", () => { window.location.href = window.location.pathname; });
+    return;
+  }
+  // Só SC tem dado carregado hoje (ver CLAUDE.md/PROJETO.md) — classificarEleitosPorPartido
+  // precisa de pcState.estado pra achar vagasFixasCargo/candidatosEstadoCargo.
+  pcState.estado = "SC";
+  const linha = (c, i, rotulo) => `
+    <div style="display:flex; align-items:baseline; gap:8px; padding:6px 0; border-bottom:1px solid #16241e; font-size:12.5px;">
+      <span style="width:22px; color:var(--pc-ink-dim); flex-shrink:0;">${i + 1}º</span>
+      <span style="flex:1; min-width:0;">${c.nome}<br><span style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${rotulo ? ` · ${rotulo}` : ""}</span></span>
+      <span style="flex-shrink:0; color:var(--pc-ink-dim);">${c.votos.toLocaleString("pt-BR")}</span>
+    </div>`;
+  const secaoCargo = (cargoDef) => {
+    const lista = dados[`rascunho_${cargoDef.id}`];
+    if (!lista || !lista.length) {
+      return `<div class="glass-card" style="margin-bottom:12px;"><h2 style="margin-bottom:2px;">${cargoDef.label}</h2><div class="pc-sub">Ainda não preencheu esse cargo.</div></div>`;
+    }
+    const eleitos = classificarEleitosPorPartido(lista, cargoDef.id);
+    const suplentes = proximosSuplentes(15, lista);
+    return `<div class="glass-card" style="margin-bottom:12px;">
+      <h2 style="margin-bottom:2px;">${cargoDef.label}</h2>
+      <div class="pc-sub" style="margin-bottom:8px;">${eleitos.length} eleitos marcados${suplentes.length ? ` + ${suplentes.length} próximos da vaga` : ""}</div>
+      ${eleitos.map((c, i) => linha(c, i)).join("") || '<div class="pc-sub">Nenhum candidato marcado ainda.</div>'}
+      ${suplentes.map((c, i) => linha(c, eleitos.length + i, "próximo")).join("")}
+    </div>`;
+  };
+  el.innerHTML = `
+    <div class="glass-card" style="max-width:640px; margin:0 auto 12px;">
+      <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--pc-ink-dim); margin-bottom:4px;">Palpite compartilhado</div>
+      <h2 style="margin-bottom:2px;">${dados.nome_exibicao}</h2>
+      <div class="pc-sub">Prospecção Coletiva ALESC 2026 — Santa Catarina</div>
+    </div>
+    <div style="max-width:640px; margin:0 auto;">
+      ${CARGOS.map(secaoCargo).join("")}
+      <div class="glass-card" style="text-align:center;">
+        <div class="pc-sub" style="margin-bottom:10px;">Curioso? Monte sua própria lista.</div>
+        <button class="primary" id="pcBtnCompartilhadoMontar">Começar minha lista</button>
+      </div>
+    </div>`;
+  document.getElementById("pcBtnCompartilhadoMontar").addEventListener("click", () => { window.location.href = window.location.pathname; });
 }
 
 // ---------- Login / Cadastro ----------
@@ -519,7 +611,13 @@ function renderTelaCadastro() {
       if (pcState.palpiteEdicao) await salvarPalpiteCompleto(data.user.id, pcState.palpiteEdicao);
       pcState.pendenteRegistro = false;
     }
+    // Veio do botão "Compartilhar"/"Criar grupos" sem conta ainda — depois
+    // do cadastro, cai direto na tela certa em vez do painel genérico.
+    const acaoPendente = pcState.pendenteAcao;
+    pcState.pendenteAcao = null;
     await initColaborativo();
+    if (acaoPendente === "compartilhar") { pcState.subaba = "painel"; renderAppColaborativo(); }
+    else if (acaoPendente === "grupo") { pcState.subaba = "grupo"; renderAppColaborativo(); }
   });
 }
 
@@ -527,7 +625,7 @@ function renderTelaCadastro() {
 
 function renderAppColaborativo() {
   const el = document.getElementById("modoColaborativoWrap");
-  const mostrarVoltar = ["selecao", "revisao", "palpite", "medias", "ranking"].includes(pcState.subaba);
+  const mostrarVoltar = ["selecao", "revisao", "palpite", "medias", "ranking", "grupo"].includes(pcState.subaba);
   el.innerHTML = `
     <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
       <div><h2 style="margin:0;">Olá, ${pcState.perfil.nome}</h2>
@@ -552,6 +650,7 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "painel") renderPainelPrincipal();
   else if (pcState.subaba === "palpite") renderMeuPalpite();
   else if (pcState.subaba === "medias") renderQuadroMedias();
+  else if (pcState.subaba === "grupo") renderGrupoHub();
   else renderRankingPlaceholder();
 }
 
@@ -578,20 +677,211 @@ function renderPainelPrincipal() {
           <div style="font-weight:700; margin-bottom:4px;">Ranking</div>
           <div style="font-size:12px; color:var(--pc-ink-dim);">Disponível após o resultado oficial de 2026</div>
         </button>
-        <div style="text-align:left; padding:16px; opacity:0.55; border:1px solid rgba(120,130,180,0.2); border-radius:10px;">
-          <div style="font-weight:700; margin-bottom:4px;">Criar grupos</div>
-          <div style="font-size:12px; color:var(--pc-ink-dim);">Em breve — compare com colegas em grupos privados</div>
-        </div>
+        <button class="ghost" id="pcCardGrupos" style="text-align:left; padding:16px;">
+          <div style="font-weight:700; margin-bottom:4px;">Grupos</div>
+          <div style="font-size:12px; color:var(--pc-ink-dim);">Compare sua lista com um grupo privado de amigos</div>
+        </button>
+        <button class="ghost" id="pcCardCompartilhar" style="text-align:left; padding:16px;">
+          <div style="font-weight:700; margin-bottom:4px;">Compartilhar minha lista</div>
+          <div style="font-size:12px; color:var(--pc-ink-dim);">Gera um link somente-leitura pra mandar pra alguém</div>
+        </button>
         <div style="text-align:left; padding:16px; opacity:0.55; border:1px solid rgba(120,130,180,0.2); border-radius:10px;">
           <div style="font-weight:700; margin-bottom:4px;">Atualizar lista base</div>
           <div style="font-size:12px; color:var(--pc-ink-dim);">Em breve — administração dos candidatos oficiais de 2026</div>
         </div>
       </div>
+      <div id="pcLinkCompartilhavelWrap"></div>
     </div>`;
   document.getElementById("pcCardBoxes").addEventListener("click", () => { pcState.subaba = "selecao"; renderAppColaborativo(); });
   document.getElementById("pcCardPalpite").addEventListener("click", () => { pcState.subaba = "palpite"; renderAppColaborativo(); });
   document.getElementById("pcCardMedias").addEventListener("click", () => { pcState.subaba = "medias"; renderAppColaborativo(); });
   document.getElementById("pcCardRanking").addEventListener("click", () => { pcState.subaba = "ranking"; renderAppColaborativo(); });
+  document.getElementById("pcCardGrupos").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
+  document.getElementById("pcCardCompartilhar").addEventListener("click", mostrarLinkCompartilhavel);
+}
+
+// Revela o link somente-leitura logo abaixo dos cards do Painel — reaproveita
+// o mesmo perfil_id que já é público via rascunhos_publicos (Migração 7),
+// não precisa gerar nem guardar nada novo, só montar a URL.
+function mostrarLinkCompartilhavel() {
+  const link = `${window.location.origin}${window.location.pathname}?ver=${pcState.perfil.id}`;
+  const wrap = document.getElementById("pcLinkCompartilhavelWrap");
+  if (!wrap) return;
+  wrap.innerHTML = `
+    <div class="field-row" style="margin-top:14px;">
+      <label>Link pra compartilhar (qualquer pessoa consegue abrir, sem precisar de conta)</label>
+      <div style="display:flex; gap:8px;">
+        <input class="cell" id="pcCampoLinkCompartilhar" readonly value="${link}" style="flex:1;">
+        <button class="ghost" id="pcBtnCopiarLink">Copiar</button>
+      </div>
+    </div>
+    <div class="pc-status" id="pcStatusCopiarLink"></div>`;
+  document.getElementById("pcBtnCopiarLink").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      document.getElementById("pcStatusCopiarLink").textContent = "Link copiado!";
+    } catch (e) {
+      document.getElementById("pcCampoLinkCompartilhar").select();
+      document.getElementById("pcStatusCopiarLink").textContent = "Não consegui copiar sozinho — selecionei o texto, use Cmd/Ctrl+C.";
+    }
+  });
+}
+
+// ---------- Grupos privados de comparação ----------
+// Ver nuvem/migracao-8-grupos.sql (schema) e nuvem/grupos.js (CRUD). Uma
+// pessoa cria um grupo com nome e ganha um código de convite de 6
+// caracteres; quem tem o código entra; a comparação usa os rascunhos por
+// cargo (Migração 7), não o palpite público de um cargo só (mesma razão de
+// Compartilhar, acima).
+
+async function garantirMeusGruposCarregados() {
+  if (pcState.meusGrupos) return;
+  pcState.meusGrupos = await meusGrupos(pcState.perfil.id);
+}
+
+async function renderGrupoHub() {
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando seus grupos…</div></div>`;
+  await garantirMeusGruposCarregados();
+
+  const linhasGrupo = pcState.meusGrupos.map((g) => `
+    <button class="ghost" data-pc-abrir-grupo="${g.id}" style="text-align:left; padding:14px 16px; width:100%; margin-bottom:8px;">
+      <div style="font-weight:700;">${g.nome}</div>
+      <div style="font-size:11px; color:var(--pc-ink-dim); font-family:var(--mono);">código ${g.codigo_convite}</div>
+    </button>`).join("");
+
+  conteudo.innerHTML = `
+    <div class="glass-card">
+      <h2>Grupos</h2>
+      <div class="pc-sub" style="margin-bottom:14px;">Compare sua lista só com quem você convidar.</div>
+      <div style="display:flex; gap:10px; margin-bottom:16px;">
+        <button class="primary" id="pcBtnCriarGrupo">Criar grupo</button>
+        <button class="ghost" id="pcBtnEntrarGrupo">Entrar com código</button>
+      </div>
+      ${pcState.meusGrupos.length ? linhasGrupo : '<div class="pc-sub">Você ainda não está em nenhum grupo.</div>'}
+    </div>`;
+
+  document.getElementById("pcBtnCriarGrupo").addEventListener("click", () => { pcState.telaGrupo = "criar"; renderGrupoCriar(); });
+  document.getElementById("pcBtnEntrarGrupo").addEventListener("click", () => { pcState.telaGrupo = "entrar"; renderGrupoEntrar(); });
+  document.querySelectorAll("[data-pc-abrir-grupo]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pcState.grupoAtivo = pcState.meusGrupos.find((g) => g.id === btn.getAttribute("data-pc-abrir-grupo"));
+      pcState.grupoComparacao = null;
+      renderGrupoMembro();
+    });
+  });
+}
+
+function renderGrupoCriar() {
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = `
+    <div class="glass-card" style="max-width:420px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
+      <h2>Criar grupo</h2>
+      <div class="field-row"><label>Nome do grupo</label><input class="cell" id="pcNomeGrupo" placeholder="ex: Amigos do bairro"></div>
+      <div class="pc-erro" id="pcErroGrupo"></div>
+      <button class="primary" id="pcBtnConfirmarCriarGrupo" style="margin-top:6px;">Criar</button>
+    </div>`;
+  document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", () => { pcState.telaGrupo = null; renderGrupoHub(); });
+  document.getElementById("pcBtnConfirmarCriarGrupo").addEventListener("click", async () => {
+    const nome = document.getElementById("pcNomeGrupo").value.trim();
+    if (!nome) { document.getElementById("pcErroGrupo").textContent = "Dá um nome pro grupo."; return; }
+    const { data, error } = await criarGrupo(pcState.perfil.id, nome);
+    if (error) { document.getElementById("pcErroGrupo").textContent = error.message; return; }
+    pcState.meusGrupos = [...(pcState.meusGrupos || []), data];
+    pcState.grupoAtivo = data;
+    pcState.grupoComparacao = null;
+    renderGrupoMembro();
+  });
+}
+
+function renderGrupoEntrar() {
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = `
+    <div class="glass-card" style="max-width:420px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
+      <h2>Entrar com código</h2>
+      <div class="field-row"><label>Código de convite</label><input class="cell" id="pcCodigoGrupo" maxlength="6" style="text-transform:uppercase; font-family:var(--mono); letter-spacing:0.1em;" placeholder="ABC123"></div>
+      <div class="pc-erro" id="pcErroGrupo"></div>
+      <button class="primary" id="pcBtnConfirmarEntrarGrupo" style="margin-top:6px;">Entrar</button>
+    </div>`;
+  document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", () => { pcState.telaGrupo = null; renderGrupoHub(); });
+  document.getElementById("pcBtnConfirmarEntrarGrupo").addEventListener("click", async () => {
+    const codigo = document.getElementById("pcCodigoGrupo").value.trim();
+    if (!codigo) { document.getElementById("pcErroGrupo").textContent = "Digita o código que te passaram."; return; }
+    const { data, error } = await entrarNoGrupo(pcState.perfil.id, codigo);
+    if (error) { document.getElementById("pcErroGrupo").textContent = error.message; return; }
+    if (!pcState.meusGrupos.some((g) => g.id === data.id)) pcState.meusGrupos = [...pcState.meusGrupos, data];
+    pcState.grupoAtivo = data;
+    pcState.grupoComparacao = null;
+    renderGrupoMembro();
+  });
+}
+
+// Mesma lógica de agregação do Quadro de Médias (calcularMediaPalpites +
+// dhondt), só que a partir da comparação de UM grupo e UM cargo por vez —
+// diferente de renderQuadroMedias, não pode fixar "40"/BASE_2022, porque
+// aqui o cargo muda (interruptor Estadual/Federal/Senador abaixo).
+function montarComparacaoGrupo(registros, cargo) {
+  const remapeados = registros
+    .map((r) => ({ perfil_id: r.perfil_id, candidatos: r[`rascunho_${cargo}`] }))
+    .filter((r) => r.candidatos && r.candidatos.length);
+  if (!remapeados.length) {
+    return '<div class="pc-sub">Ninguém do grupo preencheu esse cargo ainda.</div>';
+  }
+  const { parties, totalPalpites } = calcularMediaPalpites(remapeados, cargo, pcState.estado);
+  const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
+  const seatsProj = dhondt(parties, totalVagasCargo);
+  const listaSeats = parties.map((p, i) => ({ nome: p.nome, seats: seatsProj[i] || 0 }));
+  const qe = quocienteEleitoral(parties.reduce((s, p) => s + partyVotos(p), 0), totalVagasCargo);
+  const linhasPartido = parties
+    .map((p, i) => ({ p, votos: partyVotos(p), vagas: seatsProj[i] || 0 }))
+    .sort((a, b) => b.vagas - a.vagas)
+    .map(({ p, votos, vagas }) => `
+      <tr><td>${p.nome}</td><td class="num">${p.vagas2022}</td>
+        <td class="num" style="font-family:var(--mono)">${votos.toLocaleString("pt-BR")}</td>
+        <td class="num" style="font-weight:700">${vagas}</td></tr>`).join("");
+  return `
+    <div class="pc-sub" style="margin-bottom:8px;">Baseado em ${totalPalpites} pessoa${totalPalpites === 1 ? "" : "s"} do grupo que já preencheu esse cargo.</div>
+    ${desenharHemiciclo(listaSeats, totalVagasCargo)}
+    <table style="margin-top:10px;">
+      <thead><tr><th>Partido</th><th class="num">Vagas 22</th><th class="num">Votos médios</th><th class="num">Vagas (média)</th></tr></thead>
+      <tbody>${linhasPartido}</tbody>
+    </table>
+    ${qe ? `<div class="pc-sub" style="margin-top:8px;">Quociente eleitoral (médias do grupo): ${qe.toLocaleString("pt-BR")} votos/vaga.</div>` : ""}`;
+}
+
+async function renderGrupoMembro() {
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = `<div class="glass-card"><div class="pc-status">Carregando comparação do grupo…</div></div>`;
+  pcState.estado = "SC"; // único estado com dado hoje — ver CLAUDE.md
+  if (!pcState.grupoComparacao) {
+    pcState.grupoComparacao = await buscarComparacaoGrupo(pcState.grupoAtivo.id);
+  }
+  const registros = pcState.grupoComparacao;
+  const botoesCargo = CARGOS.map((c) => `
+    <button data-pc-cargo-grupo="${c.id}" class="${pcState.cargoAtivoGrupo === c.id ? "active" : ""}">${c.label}</button>`).join("");
+
+  conteudo.innerHTML = `
+    <div class="glass-card">
+      <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
+      <h2>${pcState.grupoAtivo.nome}</h2>
+      <div class="pc-sub">${registros.length} membro${registros.length === 1 ? "" : "s"} · código pra convidar mais gente: <b style="font-family:var(--mono); color:var(--pc-ink);">${pcState.grupoAtivo.codigo_convite}</b></div>
+      <div class="pc-cargo-switch" style="margin:14px 0;">${botoesCargo}</div>
+      <div id="pcGrupoComparacaoConteudo">${montarComparacaoGrupo(registros, pcState.cargoAtivoGrupo)}</div>
+      <div style="margin-top:14px;">
+        <div class="pc-sub" style="margin-bottom:6px;">Quem está no grupo:</div>
+        ${registros.map((r) => `<span style="display:inline-block; margin:2px 4px 2px 0; padding:3px 10px; border-radius:999px; background:#0c1c16; font-size:11.5px; color:var(--pc-ink-dim);">${r.nome_exibicao}</span>`).join("")}
+      </div>
+    </div>`;
+
+  document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", () => { pcState.grupoAtivo = null; pcState.grupoComparacao = null; renderGrupoHub(); });
+  document.querySelectorAll("[data-pc-cargo-grupo]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pcState.cargoAtivoGrupo = btn.getAttribute("data-pc-cargo-grupo");
+      renderGrupoMembro();
+    });
+  });
 }
 
 // ---------- Seleção de candidatos: painel eleitoral + sanfona por partido ----------
