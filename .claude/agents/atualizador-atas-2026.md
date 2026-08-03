@@ -68,6 +68,19 @@ mas por trás dela tem uma API REST simples, sem autenticação:
    ponto de rollback caso a extração saia errada num dia. Nunca faça
    `git push` — fica só local.
 
+## Total de vagas por cargo é fato fixo, não soma
+
+Em 02/08/2026 o total de vagas de SC caiu de 40→30 (Estadual) e 16→12
+(Federal) assim que os primeiros dados reais de 2026 entraram, porque o app
+calculava esse total somando `vagas2022` dos partidos presentes na lista
+carregada — e partido sem ata processada ainda simplesmente sumia da soma.
+Corrigido com `vagasFixasCargo(uf, cargo)` em `dados/estados/registro-2022.js`,
+que sempre soma a partir do resultado real e completo de 2022
+(`candidatosEstadoCargo`), nunca da lista parcial de 2026. Se ao mexer nesse
+código você vir de novo um `.reduce((s,p)=>s+p.vagas2022,0)` calculando
+"total de vagas do cargo" em `interface/prospeccao.js`, é uma regressão —
+troque por `vagasFixasCargo(pcState.estado, cargo)`.
+
 ## O que NUNCA fazer
 
 - Nunca escrever em `dados/base-2022.js`, `dados/candidatos-extra-2022.js`
