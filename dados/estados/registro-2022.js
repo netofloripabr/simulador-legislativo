@@ -54,3 +54,18 @@ function candidatosEstadoCargo(uf, cargo) {
   if (!doEstado) return [];
   return doEstado[CARGO_LABEL[cargo]] || [];
 }
+
+// Total de vagas em disputa num estado+cargo — número fixo por lei (art. 45
+// da Constituição pra Federal, Constituição estadual pra Estadual, 1/3 ou
+// 2/3 do Senado por ciclo pra Senador), não depende de quantos partidos já
+// têm candidato cadastrado. SEMPRE soma a partir de candidatosEstadoCargo
+// (o resultado real e completo de 2022, imutável) — nunca a partir de
+// candidatos2026EstadoCargo nem de pcState.palpiteEdicao, que podem estar
+// parciais enquanto as atas de 2026 ainda estão sendo processadas (ver
+// dados/estados/registro-2026.js e .claude/agents/atualizador-atas-2026.md).
+// Foi exatamente essa mistura que fez o total de vagas de SC cair de
+// 40→30 (Estadual) e 16→12 (Federal) quando os primeiros dados reais de
+// 2026 entraram — 02/08/2026.
+function vagasFixasCargo(uf, cargo) {
+  return candidatosEstadoCargo(uf, cargo).reduce((s, p) => s + (Number(p.vagas2022) || 0), 0);
+}

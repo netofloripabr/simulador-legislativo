@@ -646,13 +646,13 @@ function partido2022Ref(nomePartido) {
     || null;
 }
 
-// Total de vagas do cargo carregado em pcState.palpiteEdicao no momento —
-// 40 pra Dep. Estadual, 16 pra Dep. Federal, 1 pro Senador (SC/2022). Soma a
-// vagas2022 de cada partido porque é o único lugar que já guarda esse total
-// por cargo (ver montarEstadoPalpite em nuvem/palpites.js).
+// Total de vagas do cargo ativo — 40 pra Dep. Estadual, 16 pra Dep. Federal,
+// 1 pro Senador (SC/2022). Vem de vagasFixasCargo (dados/estados/registro-2022.js),
+// nunca de pcState.palpiteEdicao: esse número é fixo por lei, não pode
+// variar conforme quantos partidos já têm ata de 2026 processada.
 function totalVagasCargoAtivo() {
   if (!pcState.palpiteEdicao) return 0;
-  return pcState.palpiteEdicao.reduce((s, p) => s + (Number(p.vagas2022) || 0), 0);
+  return vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
 }
 
 function totalMarcadosCargoAtivo() {
@@ -721,7 +721,7 @@ function desfazerPalpite() {
 // (certo pro Auto de um partido só, sem esse efeito cascata).
 function partidosEscaladosProjecao2026(base) {
   const lista = base || pcState.palpiteEdicao;
-  const totalVagasCargo = lista.reduce((s, p) => s + (Number(p.vagas2022) || 0), 0);
+  const totalVagasCargo = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
   const totalValidosAtual = lista.reduce((s, p) => s + partyVotos(p), 0);
   const totalValidosMeta = totalValidosProjetado2026();
   const escala = totalValidosAtual > 0 ? totalValidosMeta / totalValidosAtual : 1;
@@ -901,7 +901,7 @@ function balancearTudoSelecao() {
   const fotoAntes = pcState.palpiteEdicao.map((p) => ({ nome: p.nome, vagas2022: p.vagas2022, candidatos: p.candidatos.map((c) => ({ ...c })) }));
   pcState.palpiteEdicao.forEach((p) => balancearPartidoSelecao(p, fotoAntes));
 
-  const totalVagasCargo = pcState.palpiteEdicao.reduce((s, p) => s + (Number(p.vagas2022) || 0), 0);
+  const totalVagasCargo = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
   const totalDepoisDoPreenchimento = pcState.palpiteEdicao.reduce((s, p) => s + partyVotos(p), 0);
   const meta = totalVagasCargo ? totalValidosProjetado2026() : 0;
   if (meta > 0 && totalDepoisDoPreenchimento > 0) {
@@ -1044,10 +1044,11 @@ async function renderCargoEstadual() {
   }
 
   const cargoInfo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
-  // Total de vagas do cargo ativo — soma a vagas2022 real de cada partido no
-  // dado carregado (40 pra Dep. Estadual, 16 pra Dep. Federal, 1 pra Senador
-  // em SC/2022), em vez de fixar "40" e quebrar nos outros dois cargos.
-  const totalVagasCargo = pcState.palpiteEdicao.reduce((s, p) => s + (Number(p.vagas2022) || 0), 0);
+  // Total de vagas do cargo ativo (40 pra Dep. Estadual, 16 pra Dep.
+  // Federal, 1 pra Senador em SC/2022) — número fixo, vem de
+  // vagasFixasCargo, nunca de somar o dado carregado (ver comentário em
+  // dados/estados/registro-2022.js).
+  const totalVagasCargo = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
   const totalIndicado = pcState.palpiteEdicao.reduce((s, p) => s + p.candidatos.filter((c) => c.marcadoEleito).length, 0);
   const somaTotal = pcState.palpiteEdicao.reduce((s, p) => s + p.candidatos.filter((c) => c.marcadoEleito).reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
   // "Válidos estimados" precisa ser do ESTADO/cargo ativo, não fixo em SC —
@@ -1850,10 +1851,15 @@ function attachListenersSelecao() {
 // ganha um aviso com o tanto de votos que faltaria, pro partido ou pro
 // próprio candidato, pra virar eleição de fato. Pura informação; a escolha
 // continua inteira da pessoa.
-function classificarEleitosPorPartido(listaParam) {
+function classificarEleitosPorPartido(listaParam, cargo) {
   const lista = listaParam || pcState.palpiteEdicao;
   const totalValidos = lista.reduce((s, p) => s + partyVotos(p), 0);
-  const totalVagasCargo = lista.reduce((s, p) => s + (Number(p.vagas2022) || 0), 0);
+  // Número fixo (não soma a partir de "lista", que pode estar parcial
+  // enquanto nem todo partido tem ata de 2026 processada) — precisa do
+  // "cargo" explícito porque essa função é chamada com listas de cargos
+  // diferentes do pcState.cargoAtivo (Revisão e impressão mostram os 3
+  // cargos ao mesmo tempo, ver renderRevisaoDeposito/montarSecaoImpressaoCargo).
+  const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo || pcState.cargoAtivo);
   const qe = quocienteEleitoral(totalValidos, totalVagasCargo);
   const { counts: cadeirasPorPartido, corte } = dhondtComCorte(lista, totalVagasCargo);
   const resultado = [];
@@ -1936,7 +1942,7 @@ function garantirPalpitesPorCargo() {
 function montarSecaoImpressaoCargo(cargo) {
   const cargoInfo = CARGOS.find((c) => c.id === cargo);
   const lista = pcState.palpitesPorCargo[cargo];
-  const eleitos = classificarEleitosPorPartido(lista);
+  const eleitos = classificarEleitosPorPartido(lista, cargo);
   const suplentes = proximosSuplentes(30, lista);
   const linha = (c, i, rotulo) => `
     <div style="display:flex; justify-content:space-between; gap:10px; padding:4px 0; border-bottom:1px solid #ddd; font-size:12px;">
@@ -1960,7 +1966,7 @@ function renderRevisaoDeposito() {
 
   const secoesHtml = CARGOS.map((cargoDef) => {
     const lista = pcState.palpitesPorCargo[cargoDef.id];
-    const eleitos = classificarEleitosPorPartido(lista);
+    const eleitos = classificarEleitosPorPartido(lista, cargoDef.id);
     const suplentes = proximosSuplentes(30, lista);
     const temInconsistencia = eleitos.some((c) => !c.consistente);
     if (temInconsistencia) temInconsistenciaGeral = true;
