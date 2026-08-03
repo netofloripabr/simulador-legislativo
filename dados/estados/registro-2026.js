@@ -126,5 +126,37 @@ function candidatos2026EstadoCargo(uf, cargoLabel) {
       partidoOriginal: c.partidoOriginal || partido,
     });
   });
+
+  // Partido/federação que ainda não tem NENHUMA ata de 2026 processada pra
+  // esse cargo (convenção ainda não aconteceu, ou a ata ainda não foi
+  // baixada — ver ferramentas/tratar_atas.py e
+  // .claude/agents/atualizador-atas-2026.md) some inteiro do `grupos`
+  // acima, porque ele só é montado a partir de `lista2026`. Sem entrar aqui
+  // como placeholder, a vagas2022 desse partido some do total do cargo (ex.:
+  // SC Dep. Estadual caiu de 40 pra 30 vagas assim que os primeiros dados
+  // reais de 2026 entraram) — mas o número de vagas em disputa é um fato
+  // fixo da lei eleitoral, não pode depender de quantas atas já foram lidas.
+  // Preenche com o próprio candidato real de 2022 até a ata dele existir.
+  doEstado2022.forEach((p) => {
+    const p26 = nomeFederacao2026(uf, p.nome);
+    if (grupos[p26]) return;
+    grupos[p26] = { nome: p26, vagas2022: vagas2022PorPartido26[p26] || 0, candidatos: [] };
+    p.candidatos.forEach((c) => {
+      grupos[p26].candidatos.push({
+        id: c.id,
+        nome: c.nome,
+        nomeUrna: c.nomeUrna || "",
+        municipio: "",
+        votos: c.votos,
+        fonte: "2022-sem-ata-2026",
+        eleito2022: !!c.eleito2022,
+        invalidado2022: !!c.invalidado2022,
+        motivoInvalidacao: c.motivoInvalidacao,
+        partidoOrigem2022: null,
+        partidoOriginal: p.nome,
+      });
+    });
+  });
+
   return Object.values(grupos);
 }

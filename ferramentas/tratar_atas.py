@@ -129,21 +129,35 @@ def pdf_para_texto(caminho_pdf):
     return resultado.stdout
 
 
+def normalizar_nome_partido(nome):
+    """Colapsa quebra de linha/espaço duplo (o anexo em PDF às vezes quebra o
+    nome da federação no meio) e tira número de registro colado em sigla de
+    federação (ex.: "44-UNIÃO/11-PP" -> "UNIÃO/PP") — sem isso, o nome
+    extraído da ata não bate com FEDERACOES_2026 (dados/estados/registro-2026.js),
+    a vagas2022 daquela federação some silenciosamente (fica 0) e o total de
+    vagas do cargo dá errado. Ver dados/estados/registro-2026.js."""
+    if nome is None:
+        return None
+    nome = re.sub(r"\s+", " ", nome).strip()
+    nome = re.sub(r"\d+-\s*(?=[A-ZÀ-Ÿ])", "", nome)
+    return nome.strip()
+
+
 def extrair_titulo_partido(texto):
     """Extrai partido/federação e sigla(s) do cabeçalho da ata."""
     m = re.search(r"Ata (?:de|da)(?: Convenção)? Estadual do Partido\s+\d+\s*-\s*([A-Za-zÀ-ÿ]+)", texto)
     if m:
-        return m.group(1).strip()
+        return normalizar_nome_partido(m.group(1))
     m = re.search(r"Ata (?:de|da) Convenção Estadual da Federação[^(]*\(([^)]+)\)", texto)
     if m:
-        return m.group(1).strip()
+        return normalizar_nome_partido(m.group(1))
     m = re.search(r"Ata Retificadora Convenção Estadual do Partido\s+\d+\s*-\s*([A-Za-zÀ-ÿ]+)", texto)
     if m:
-        return m.group(1).strip()
+        return normalizar_nome_partido(m.group(1))
     # rodapé "SANTA CATARINA - SC   NN - SIGLA" / "...Localidade  Partido/Federação"
     m = re.search(r"^\s*[A-ZÀ-Ÿ ]+\s*-\s*[A-Z]{2}\s+\d+\s*-\s*([A-Za-zÀ-ÿ/ ]+)$", texto, re.MULTILINE)
     if m:
-        return m.group(1).strip()
+        return normalizar_nome_partido(m.group(1))
     return None
 
 

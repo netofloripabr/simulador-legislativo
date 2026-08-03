@@ -15,14 +15,12 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 43-pode-convencao.pdf | PODE | não | 54 |
 | 487-novo-convencao.pdf | NOVO | não | 55 |
 | 557-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
-| 609-25-prd-77-solidariedade-convencao.pdf | 25-
-                           PRD/77-SOLIDARIEDADE | não | 30 |
+| 609-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 30 |
 | 624-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 19 |
 | 680-pl-convencao.pdf | PL | não | 61 |
 | 702-mdb-convencao.pdf | MDB | não | 46 |
 | 733-dc-convencao.pdf | DC | não | 17 |
-| 769-44-união-11-pp-convencao.pdf | 44-
-                                UNIÃO/11-PP | não | 60 |
+| 769-44-união-11-pp-convencao.pdf | UNIÃO/PP | não | 60 |
 | 775-avante-convencao.pdf | AVANTE | não | 28 |
 | 776-republicanos-convencao.pdf | REPUBLICANOS | não | 45 |
 | 803-agir-executiva.pdf | AGIR | não | 9 |
