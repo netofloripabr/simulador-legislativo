@@ -831,9 +831,24 @@ function montarComparacaoGrupo(registros, cargo) {
   }
   const { parties, totalPalpites } = calcularMediaPalpites(remapeados, cargo, pcState.estado);
   const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
-  const seatsProj = dhondt(parties, totalVagasCargo);
+  // Senador é majoritário (mesmo motivo do branch em
+  // classificarEleitosPorPartido, achado em 04/08/2026) — aqui as "vagas"
+  // por partido vêm de contar quantos dos totalVagasCargo mais votados
+  // (juntando todos os partidos numa fila só) são de cada um, não de
+  // D'Hondt. Sem quociente eleitoral: esse conceito não existe pra cargo
+  // majoritário.
+  let seatsProj, qe;
+  if (cargo === "senador") {
+    const todosCand = [];
+    parties.forEach((p, i) => p.candidatos.forEach((c) => todosCand.push({ partidoIdx: i, votos: Number(c.votos) || 0 })));
+    const vencedores = [...todosCand].sort((a, b) => b.votos - a.votos).slice(0, totalVagasCargo);
+    seatsProj = parties.map((_, i) => vencedores.filter((c) => c.partidoIdx === i).length);
+    qe = null;
+  } else {
+    seatsProj = dhondt(parties, totalVagasCargo);
+    qe = quocienteEleitoral(parties.reduce((s, p) => s + partyVotos(p), 0), totalVagasCargo);
+  }
   const listaSeats = parties.map((p, i) => ({ nome: p.nome, seats: seatsProj[i] || 0 }));
-  const qe = quocienteEleitoral(parties.reduce((s, p) => s + partyVotos(p), 0), totalVagasCargo);
   const linhasPartido = parties
     .map((p, i) => ({ p, votos: partyVotos(p), vagas: seatsProj[i] || 0 }))
     .sort((a, b) => b.vagas - a.vagas)
@@ -976,8 +991,8 @@ function fatorCrescimentoEleitorado() {
 // pessoa vai preenchendo), diferente do quociente ATUAL (calculado só com a
 // votação já digitada, que começa bem menor e sobe conforme mais partidos
 // são preenchidos).
-function totalValidosProjetado2026() {
-  const totalValidos2022 = (candidatosEstadoCargo(pcState.estado, pcState.cargoAtivo) || [])
+function totalValidosProjetado2026(cargo) {
+  const totalValidos2022 = (candidatosEstadoCargo(pcState.estado, cargo || pcState.cargoAtivo) || [])
     .reduce((s, p) => s + p.candidatos.reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
   return totalValidos2022 * fatorCrescimentoEleitorado();
 }
@@ -1946,7 +1961,20 @@ function attachListenersSelecao() {
       const [nomePartido, chave] = e.target.dataset.pcVoto.split("::");
       const p = pcState.palpiteEdicao.find((pp) => pp.nome === nomePartido);
       const c = p.candidatos.find((cc) => String(cc.chave) === chave);
-      const val = Number(String(e.target.value).replace(/\D/g, "")) || 0;
+      let val = Number(String(e.target.value).replace(/\D/g, "")) || 0;
+      // A soma dos votos de candidatos MARCADOS como eleito nunca pode
+      // passar da projeção de votos válidos de 2026 pro cargo/estado (é a
+      // mesma soma que "Soma de Votos" mostra no Painel Eleitoral, logo
+      // acima) — não existe eleição real onde a soma dos eleitos supera o
+      // total de votos válidos. Candidato NÃO marcado fica livre (pode ser
+      // um número provisório de rascunho, ainda não decidiu se é eleito).
+      if (c.marcadoEleito) {
+        const somaSemEste = pcState.palpiteEdicao.reduce((s, pp) => s + pp.candidatos
+          .filter((cc) => cc.marcadoEleito && cc !== c)
+          .reduce((s2, cc) => s2 + (Number(cc.votos) || 0), 0), 0);
+        const tetoProjecao = Math.round(totalValidosProjetado2026());
+        val = Math.min(val, Math.max(0, tetoProjecao - somaSemEste));
+      }
       if (val === c.votos) return;
       snapshotPalpite();
       c.votos = val;
@@ -2223,13 +2251,24 @@ function attachListenersSelecao() {
 // continua inteira da pessoa.
 function classificarEleitosPorPartido(listaParam, cargo) {
   const lista = listaParam || pcState.palpiteEdicao;
-  const totalValidos = lista.reduce((s, p) => s + partyVotos(p), 0);
   // Número fixo (não soma a partir de "lista", que pode estar parcial
   // enquanto nem todo partido tem ata de 2026 processada) — precisa do
   // "cargo" explícito porque essa função é chamada com listas de cargos
   // diferentes do pcState.cargoAtivo (Revisão e impressão mostram os 3
   // cargos ao mesmo tempo, ver renderRevisaoDeposito/montarSecaoImpressaoCargo).
-  const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo || pcState.cargoAtivo);
+  const cargoResolvido = cargo || pcState.cargoAtivo;
+  const totalVagasCargo = vagasFixasCargo(pcState.estado, cargoResolvido);
+  // Senador é cargo MAJORITÁRIO (art. 46 da Constituição) — as vagas em
+  // disputa (2 no ciclo 2026, ver VAGAS_SENADOR_2026) vão pra quem tiver
+  // mais voto individual, sem quociente eleitoral nem D'Hondt: esses dois
+  // são regra de proporcional (Dep. Estadual/Federal), não existem pra
+  // Senado. Ramo separado, achado em 04/08/2026 — antes disso a Revisão
+  // tratava Senador como se fosse proporcional, o que podia marcar como
+  // "inconsistente" um candidato que na verdade venceria (ou o contrário).
+  if (cargoResolvido === "senador") {
+    return classificarEleitosMajoritario(lista, totalVagasCargo);
+  }
+  const totalValidos = lista.reduce((s, p) => s + partyVotos(p), 0);
   const qe = quocienteEleitoral(totalValidos, totalVagasCargo);
   const { counts: cadeirasPorPartido, corte } = dhondtComCorte(lista, totalVagasCargo);
   const resultado = [];
@@ -2277,6 +2316,50 @@ function classificarEleitosPorPartido(listaParam, cargo) {
       }
       resultado.push({ chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos: Number(c.votos) || 0, tag: i < qp ? "QP" : "média", consistente, gap });
     });
+  });
+  return resultado.sort((a, b) => b.votos - a.votos);
+}
+
+// Vencedores de cargo MAJORITÁRIO (Senador — ver ramo em
+// classificarEleitosPorPartido acima). As N vagas em disputa vão pra quem
+// tiver mais votos individuais, juntando os candidatos de TODOS os
+// partidos numa fila só — sem quociente eleitoral, sem D'Hondt, sem
+// "cadeira por partido" (o partido/coligação só decide QUEM pode
+// concorrer, não quantas vagas ele "ganha"). Mesmo formato de retorno de
+// classificarEleitosPorPartido (chave/nome/partido/votos/tag/consistente/
+// gap), pra servir nos mesmos lugares (Revisão, impressão, compartilhado)
+// sem precisar adaptar quem chama.
+function classificarEleitosMajoritario(lista, totalVagasCargo) {
+  // "partido" aqui precisa ser p.nome (o nome do card/federação), igual ao
+  // ramo proporcional acima — é essa string que os editores de voto da
+  // Revisão (data-pc-voto-revisao, data-pc-fechar-vaga) usam pra achar de
+  // volta o partido em pcState.palpitesPorCargo; usar c.partidoOriginal
+  // aqui quebraria esse lookup sempre que o candidato for de federação.
+  const todosReais = [];
+  lista.forEach((p) => {
+    p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => {
+      todosReais.push({ ...c, _partidoExibicao: p.nome });
+    });
+  });
+  const ordenados = [...todosReais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+  const verdadeirosEleitos = new Set(ordenados.slice(0, totalVagasCargo).map((c) => c.chave));
+  const ultimoEleitoDeVerdade = totalVagasCargo > 0 ? ordenados[totalVagasCargo - 1] : null;
+  const votosDoUltimoEleitoDeVerdade = ultimoEleitoDeVerdade ? (Number(ultimoEleitoDeVerdade.votos) || 0) : 0;
+
+  const marcados = todosReais.filter((c) => c.marcadoEleito);
+  const marcadosOrdenados = [...marcados].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+  const resultado = marcadosOrdenados.map((c) => {
+    const consistente = verdadeirosEleitos.has(c.chave);
+    let gap = null;
+    if (!consistente) {
+      // gap.partido fica null de propósito (não existe "quociente
+      // partidário" pra cargo majoritário) — o texto/botão da Revisão que
+      // usa gap.partido (linha ~2451/2458) já trata null como "não se
+      // aplica a este cargo", ver comentário lá.
+      const gapIndividual = Math.max(0, votosDoUltimoEleitoDeVerdade - (Number(c.votos) || 0) + 1);
+      gap = { individual: gapIndividual, partido: null, acrescimo: gapIndividual };
+    }
+    return { chave: c.chave, nome: nomeExibicao(c), partido: c._partidoExibicao, votos: Number(c.votos) || 0, tag: "majoritário", consistente, gap };
   });
   return resultado.sort((a, b) => b.votos - a.votos);
 }
@@ -2363,7 +2446,9 @@ function renderRevisaoDeposito() {
           <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${c.votos.toLocaleString("pt-BR")}" style="width:100px; font-size:12.5px; font-weight:600; text-align:right; flex-shrink:0;">
         </div>
         ${!c.consistente ? `<div style="margin:4px 0 0 30px; font-size:10.5px; color:var(--pc-warning); line-height:1.45;">
-          Com a votação atual, essa vaga ainda não fecha: o partido precisaria de mais <b>${c.gap.partido.toLocaleString("pt-BR")}</b> votos no total${c.gap.individual !== null ? `, ou ${c.nome} de pelo menos <b>${(c.votos + c.gap.individual).toLocaleString("pt-BR")}</b> votos próprios` : ""}.
+          ${c.gap.partido !== null
+            ? `Com a votação atual, essa vaga ainda não fecha: o partido precisaria de mais <b>${c.gap.partido.toLocaleString("pt-BR")}</b> votos no total${c.gap.individual !== null ? `, ou ${c.nome} de pelo menos <b>${(c.votos + c.gap.individual).toLocaleString("pt-BR")}</b> votos próprios` : ""}.`
+            : `Com a votação atual, essa vaga ainda não fecha: ${c.nome} precisaria de pelo menos <b>${(c.votos + c.gap.individual).toLocaleString("pt-BR")}</b> votos próprios pra ultrapassar quem hoje ocupa essa vaga (cargo majoritário — não existe "quociente do partido" aqui, é voto individual direto).`}
           <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">
             ${(() => {
               const acrescimo = c.gap.acrescimo;
@@ -2456,7 +2541,17 @@ function renderRevisaoDeposito() {
       const lista = pcState.palpitesPorCargo[cargo];
       const p = lista.find((pp) => pp.nome === nomePartido);
       const c = p.candidatos.find((cc) => String(cc.chave) === chave);
-      const val = Number(String(e.target.value).replace(/\D/g, "")) || 0;
+      let val = Number(String(e.target.value).replace(/\D/g, "")) || 0;
+      // Mesmo teto do input da tela de Seleção (ver data-pc-voto ali) — a
+      // soma dos votos dos candidatos marcados como eleito NESSE cargo não
+      // pode passar da projeção de votos válidos de 2026 pra ele.
+      if (c.marcadoEleito) {
+        const somaSemEste = lista.reduce((s, pp) => s + pp.candidatos
+          .filter((cc) => cc.marcadoEleito && cc !== c)
+          .reduce((s2, cc) => s2 + (Number(cc.votos) || 0), 0), 0);
+        const tetoProjecao = Math.round(totalValidosProjetado2026(cargo));
+        val = Math.min(val, Math.max(0, tetoProjecao - somaSemEste));
+      }
       if (val === c.votos) return;
       // Desfazer (Seleção) só sabe voltar o cargo ativo — snapshot só faz
       // sentido pra edição desse cargo especificamente aqui na Revisão.
