@@ -67,6 +67,8 @@ const PC_ICONES = {
   alerta: '<path d="M8 2.3l6.2 10.7a1 1 0 01-.87 1.5H2.67a1 1 0 01-.87-1.5L8 2.3z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M8 6.6v3.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><circle cx="8" cy="11.7" r=".9" fill="currentColor"></circle>',
   completar: '<path d="M8.6 2L9.7 5.3 13 6.4 9.7 7.5 8.6 10.8 7.5 7.5 4.2 6.4 7.5 5.3z" fill="currentColor"></path><path d="M12.8 9.6l.55 1.65L15 12l-1.65.55L12.8 14l-.55-1.45L10.6 12l1.65-.75z" fill="currentColor"></path>',
   ano2022: '<text x="8" y="7.3" text-anchor="middle" font-size="6" font-weight="800" fill="currentColor" font-family="var(--sans)">20</text><text x="8" y="13.6" text-anchor="middle" font-size="6" font-weight="800" fill="currentColor" font-family="var(--sans)">22</text>',
+  mais: '<path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>',
+  chave: '<circle cx="5.2" cy="5.2" r="2.4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M7 7l6.3 6.3M11 9.3l1.6 1.6M13 7.3l1.3 1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   lista: '<path d="M2.5 4.5h2M6 4.5h7.5M2.5 8h2M6 8h7.5M2.5 11.5h2M6 11.5h7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   calendario: '<rect x="2.5" y="3.3" width="11" height="10.2" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.2"></rect><path d="M2.5 6.4h11M5.3 2v2.4M10.7 2v2.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   convidar: '<circle cx="6.3" cy="6" r="2.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M2.3 14c0-2.4 1.8-4.3 4-4.3s4 1.9 4 4.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><path d="M12 5v4M10 7h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
@@ -803,20 +805,23 @@ async function renderGrupoHub() {
   await garantirMeusGruposCarregados();
 
   const linhasGrupo = pcState.meusGrupos.map((g) => `
-    <button class="ghost" data-pc-abrir-grupo="${g.id}" style="text-align:left; padding:14px 16px; width:100%; margin-bottom:8px;">
-      <div style="font-weight:700;">${g.nome}</div>
-      <div style="font-size:11px; color:var(--pc-ink-dim); font-family:var(--mono);">código ${g.codigo_convite}</div>
+    <button class="pc-lobby-linha" data-pc-abrir-grupo="${g.id}" style="width:100%; background:none; border:none; cursor:pointer; text-align:left; font-family:var(--sans);">
+      <span style="display:flex; align-items:center; gap:10px; color:var(--pc-ink); min-width:0;">
+        <span style="color:var(--pc-accent); display:flex; flex-shrink:0;">${iconeSvg("grupos", 16)}</span>
+        <span style="font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${g.nome}</span>
+      </span>
+      <span style="font-size:11px; color:var(--pc-ink-dim); font-family:var(--mono); flex-shrink:0;">${g.codigo_convite}</span>
     </button>`).join("");
 
   conteudo.innerHTML = `
-    <div class="glass-card">
-      <h2>Grupos</h2>
-      <div class="pc-sub" style="margin-bottom:14px;">Compare sua lista só com quem você convidar.</div>
-      <div style="display:flex; gap:10px; margin-bottom:16px;">
-        <button class="primary" id="pcBtnCriarGrupo">Criar grupo</button>
-        <button class="ghost" id="pcBtnEntrarGrupo">Entrar com código</button>
-      </div>
-      ${pcState.meusGrupos.length ? linhasGrupo : '<div class="pc-sub">Você ainda não está em nenhum grupo.</div>'}
+    <h2 style="margin-bottom:14px;">Grupos</h2>
+    <div class="pc-lobby-card">
+      ${pcState.meusGrupos.length ? linhasGrupo : `<div class="pc-lobby-linha"><span style="font-size:12.5px; color:var(--pc-ink-dim);">Você ainda não está em nenhum grupo.</span></div>`}
+    </div>
+    <div class="pc-lobby-menu-tit">Novo grupo</div>
+    <div class="pc-lobby-menu-faixa">
+      <button class="pc-lobby-menu-item" id="pcBtnCriarGrupo">${iconeSvg("mais", 28)}<span>Criar grupo</span></button>
+      <button class="pc-lobby-menu-item" id="pcBtnEntrarGrupo">${iconeSvg("chave", 28)}<span>Entrar com código</span></button>
     </div>`;
 
   document.getElementById("pcBtnCriarGrupo").addEventListener("click", () => { pcState.telaGrupo = "criar"; renderGrupoCriar(); });
@@ -936,15 +941,20 @@ async function renderGrupoMembro() {
     <button data-pc-cargo-grupo="${c.id}" class="${pcState.cargoAtivoGrupo === c.id ? "active" : ""}">${c.label}</button>`).join("");
 
   conteudo.innerHTML = `
+    <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
+    <h2 style="margin-bottom:4px;">${pcState.grupoAtivo.nome}</h2>
+    <div class="pc-lobby-card">
+      <div class="pc-lobby-linha">
+        <span style="font-size:12px; color:var(--pc-ink-dim);">${registros.length} membro${registros.length === 1 ? "" : "s"}</span>
+        <span style="font-size:12px; color:var(--pc-ink-dim); display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}<b style="font-family:var(--mono); color:var(--pc-ink); font-weight:600;">${pcState.grupoAtivo.codigo_convite}</b></span>
+      </div>
+    </div>
     <div class="glass-card">
-      <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
-      <h2>${pcState.grupoAtivo.nome}</h2>
-      <div class="pc-sub">${registros.length} membro${registros.length === 1 ? "" : "s"} · código pra convidar mais gente: <b style="font-family:var(--mono); color:var(--pc-ink);">${pcState.grupoAtivo.codigo_convite}</b></div>
-      <div class="pc-cargo-switch" style="margin:14px 0;">${botoesCargo}</div>
+      <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
       <div id="pcGrupoComparacaoConteudo">${montarComparacaoGrupo(registros, pcState.cargoAtivoGrupo)}</div>
       <div style="margin-top:14px;">
         <div class="pc-sub" style="margin-bottom:6px;">Quem está no grupo:</div>
-        ${registros.map((r) => `<span style="display:inline-block; margin:2px 4px 2px 0; padding:3px 10px; border-radius:999px; background:#0c1c16; font-size:11.5px; color:var(--pc-ink-dim);">${r.nome_exibicao}</span>`).join("")}
+        ${registros.map((r) => `<span style="display:inline-block; margin:2px 4px 2px 0; padding:3px 10px; border-radius:999px; background:var(--pc-lobby-tom-3); font-size:11.5px; color:var(--pc-ink-dim);">${r.nome_exibicao}</span>`).join("")}
       </div>
     </div>`;
 
