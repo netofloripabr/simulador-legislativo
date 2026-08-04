@@ -58,6 +58,24 @@ na arquitetura (privacidade, monetização, coexistência de modos de
 preenchimento, escopo do painel administrativo). Ao planejar qualquer
 mudança maior, confira esse arquivo primeiro.
 
+## Permissões combinadas com o usuário
+
+Em 04/08/2026 o usuário pediu "permissão geral pra todas as ações, sempre".
+Registrando o que isso cobre de fato, pra não depender de lembrar de uma
+conversa antiga:
+
+- **`git push` para `origin/main` não precisa de confirmação a cada vez**
+  neste projeto — pode commitar e empurrar direto quando fizer sentido
+  dentro do trabalho pedido, sem parar pra perguntar antes.
+- Isso não muda nada da categoria de ações que são sempre bloqueadas
+  independente de autorização (credenciais, exclusão permanente de dado,
+  movimentação financeira) — nenhuma dessas é esperada neste projeto de
+  qualquer forma.
+- Ações fora do escopo comum deste repositório (ex.: mexer em configuração
+  de conta, publicar em outro lugar que não seja este repositório) ainda
+  devem ser confirmadas normalmente — essa autorização é sobre o fluxo de
+  trabalho git deste projeto, não um cheque em branco geral.
+
 ## Histórico
 
 Este projeto começou como um único arquivo HTML no claude.ai e foi dividido
