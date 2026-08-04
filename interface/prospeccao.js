@@ -2246,7 +2246,15 @@ function classificarEleitosPorPartido(listaParam, cargo) {
       .filter((c) => c.fonte !== "legenda")
       .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
     const verdadeirosEleitos = new Set(reaisOrdenados.slice(0, cadeirasReais).map((c) => c.chave));
-    const votosDoUltimoEleitoDeVerdade = cadeirasReais > 0 ? (Number(reaisOrdenados[cadeirasReais - 1].votos) || 0) : 0;
+    // dhondtComCorte calcula cadeiras a partir dos VOTOS do partido, sem
+    // saber quantos candidatos de verdade existem na lista (pode ficar
+    // maior que reaisOrdenados.length se a chapa do partido estiver
+    // incompleta — ex.: só fictício/real parcial ainda, ou um "palpite"
+    // salvo de uma rodada de dados anterior). Sem essa proteção, a tela de
+    // Revisão inteira quebrava com "Cannot read properties of undefined
+    // (reading 'votos')" — achado em 04/08/2026.
+    const ultimoEleitoDeVerdade = cadeirasReais > 0 ? reaisOrdenados[cadeirasReais - 1] : null;
+    const votosDoUltimoEleitoDeVerdade = ultimoEleitoDeVerdade ? (Number(ultimoEleitoDeVerdade.votos) || 0) : 0;
 
     const ordenados = [...marcados].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
     ordenados.forEach((c, i) => {

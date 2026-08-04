@@ -75,6 +75,15 @@ import unicodedata
 from pathlib import Path
 from datetime import date
 
+# Investigado em 03/08/2026 (rodada nacional, 26 UFs): é NORMAL um partido
+# ter candidato real só em "Deputado Federal" e nenhum em "Deputado
+# Estadual" pra mesma ata/UF — não é bug de classificação daqui. Ex.: a ata
+# do DC/SC diz explicitamente "o partido deliberado por não lançar
+# candidaturas ao cargo de Deputado(a) Estadual neste pleito"; a do
+# MISSÃO (recorrente em vários estados) simplesmente não tem seção de
+# Deputado Estadual no documento. Antes de "corrigir" esse padrão de novo,
+# ler o texto puro (pdftotext -layout) da ata em questão pra confirmar se é
+# isso ou se é de fato um caso novo de má classificação.
 CARGO_NORMALIZADO = {
     "governador": "Governador",
     "vice-governador": "Vice-Governador",
@@ -100,6 +109,20 @@ RE_LINHA_ORDEM_NOME = re.compile(r"^\s*(\d+)\s*-\s*([A-ZÀ-Ÿ][A-ZÀ-Ÿ'ÇÃÕÁ
 RE_LINHA_URNA_NUMERO_GENERO = re.compile(
     r"^\s*(.+?)\s{2,}(\d[\d\.]*|-)\s{2,}(Masculino|Feminino)\s*$", re.IGNORECASE
 )
+
+
+def limpar_nome_urna(texto):
+    """Tira caractere solto de formulário (checkbox/marcador do PDF) que às
+    vezes gruda no início do "Nome para Urna" na extração de texto — achado
+    em 03/08/2026 na rodada nacional (ex.: "]MARLEIDE CUNHA" em RN,
+    ": RODRIGO FISCAL DO POVO" em RS — o "]"/":" está no PDF de origem, não
+    é erro do regex). Preserva nome de urna que legitimamente começa com
+    "#" (estilo hashtag/slogan, permitido pelo TSE — ex.: "#tô com Lora",
+    candidata real em BA)."""
+    texto = texto.strip()
+    while texto and not (texto[0].isalnum() or texto[0] == "#"):
+        texto = texto[1:].lstrip()
+    return texto
 
 # padrão auxiliar (texto corrido) só pra recuperar o partido de candidatos
 # "coligado" que o anexo estruturado não informa
@@ -219,7 +242,7 @@ def extrair_lista_estruturada(texto, arquivo, partido_doc):
                         "cargo": cargo_atual,
                         "ordem": int(ordem),
                         "nome": nome_completo.strip().title(),
-                        "nomeUrna": nome_urna.strip().title(),
+                        "nomeUrna": limpar_nome_urna(nome_urna).title(),
                         "numero": numero,
                         "genero": genero.upper(),
                         "partido": partido,

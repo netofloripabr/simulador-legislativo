@@ -1,13 +1,43 @@
-// Candidatos 2026 (TO) — PROVISÓRIO. Mistura candidatos REAIS extraídos
-// de ata de convenção (quando existem, confianca:"alta"/"media") com
-// candidatos FICTÍCIOS gerados automaticamente (fonte:"ficticio") pros
-// partidos que ainda não têm nenhuma ata processada nesse cargo — ver
-// ferramentas/gerar_ficticios_2026.py. NENHUM candidato fictício é uma
-// pessoa real. Troque cada partido pelo real assim que a ata sair, um de
-// cada vez (mesma regra de dados/correcoes-nomes.md: nada vira "fato"
-// sem confirmação humana).
+// Candidatos 2026 (TO) — PROVISÓRIO, extraído das Atas de Convenção
+// Partidária depositadas em ATAS/TO/, publicadas em
+// https://divulgacandcontas.tse.jus.br/divulga/#/ata
+//
+// NÃO é o registro oficial de candidatura (RRC) — é o que cada partido/
+// federação anunciou na própria convenção (formulário 'Lista de candidatos'
+// anexo a cada ata). Pode mudar até o fim do prazo de registro na Justiça
+// Eleitoral (~agosto/2026). Tratar como rascunho até confirmar contra a
+// lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
+// para 2026 — ver ferramentas/tratar_atas.py).
+//
+// Gerado por ferramentas/tratar_atas.py em 2026-08-03.
+// Ver dados/estados/to-2026-conferencia.md para o que precisa de revisão
+// humana antes desses dados virarem "fato" no projeto (mesmo processo de
+// dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
+// foram copiados para este arquivo (não são usados pelo simulador).
+//
+// Partido/cargo sem ata real processada ainda mantém o candidato
+// fictício que já estava aqui (fonte:"ficticio", gerado por
+// ferramentas/gerar_ficticios_2026.py) em vez de sumir da lista — a
+// interface marca esses visualmente. Nunca reescrever esse merge pra
+// um overwrite total do arquivo (decisão do usuário, 03/08/2026).
 var CANDIDATOS_2026_TO_PROVISORIO = {
   "Deputado Estadual": [
+    { id:"dc-cinthia-cristina-moreira-simplicio", nome:"Cinthia Cristina Moreira Simplicio", nomeUrna:"Cynthia Soberano", numero:27777, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"dc-claudete-soares-gregorio", nome:"Claudete Soares Gregorio", nomeUrna:"Claudete Soares", numero:27300, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"dc-divino-de-freita-souza", nome:"Divino De Freita Souza", nomeUrna:"Passaro Preto", numero:27000, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"dc-ivaildo-pereira-da-cruz", nome:"Ivaildo Pereira Da Cruz", nomeUrna:"Du Pereira", numero:27123, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"dc-jose-romildo-bezerra-leite", nome:"Jose Romildo Bezerra Leite", nomeUrna:"Romildo Bezerra", numero:27222, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"dc-levino-neto-costa-da-silva", nome:"Levino Neto Costa Da Silva", nomeUrna:"Levino Neto", numero:27111, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"dc-raimundo-nonato-soares-rodrigues", nome:"Raimundo Nonato Soares Rodrigues", nomeUrna:"Pr. Raimundo Brasa Viva", numero:27001, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"dc-romodes-lopes-da-silva", nome:"Romodes Lopes Da Silva", nomeUrna:"Xexeu De Pres. Kennedy", numero:27245, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"dc-sandra-regina-ferreira-costa", nome:"Sandra Regina Ferreira Costa", nomeUrna:"Sandra Costa", numero:27022, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"dc-silvino-vitor-peres-de-santana", nome:"Silvino Vitor Peres De Santana", nomeUrna:"Silvino Vitor", numero:27077, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"psol-rede-nilma-ferreira-de-sousa", nome:"Nilma Ferreira De Sousa", nomeUrna:"Nilma Guerreira", numero:50000, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-nilma-ferreira-de-sousa", nome:"Nilma Ferreira De Sousa", nomeUrna:"Nilma Guerreira", numero:50000, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-silvio-de-sousa", nome:"Silvio De Sousa", nomeUrna:"Silvio De Sousa", numero:50100, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-silvio-de-sousa", nome:"Silvio De Sousa", nomeUrna:"Silvio De Sousa", numero:50100, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-nilma-ferreira-de-sousa", nome:"Nilma Ferreira De Sousa", nomeUrna:"Nilma Guerreira", numero:50000, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-silvio-de-sousa", nome:"Silvio De Sousa", nomeUrna:"Silvio De Sousa", numero:50100, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
     { id:"republicanos-to-ficticio-1", nome:"Rodrigo Freitas Bezerra", nomeUrna:"Rodrigo Bezerra", numero:4301, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"republicanos-to-ficticio-2", nome:"André de Carvalho Melo", nomeUrna:"André Melo", numero:4302, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"republicanos-to-ficticio-3", nome:"Sandra Almeida Brito", nomeUrna:"Sandra Brito", numero:4303, partido:"REPUBLICANOS", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
@@ -73,9 +103,6 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"prd-solidariedade-to-ficticio-63", nome:"Renata Almeida Farias", nomeUrna:"Renata Farias", numero:8363, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"SOLIDARIEDADE" },
     { id:"prd-solidariedade-to-ficticio-64", nome:"Gustavo Pereira Reis", nomeUrna:"Gustavo Reis", numero:8364, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"SOLIDARIEDADE" },
     { id:"prd-solidariedade-to-ficticio-65", nome:"Vinícius Barros Amaral", nomeUrna:"Vinícius Amaral", numero:8365, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"SOLIDARIEDADE" },
-    { id:"dc-to-ficticio-66", nome:"Cristina Moreira Melo", nomeUrna:"Cristina Melo", numero:6666, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
-    { id:"dc-to-ficticio-67", nome:"Juliana Rodrigues Andrade", nomeUrna:"Juliana Andrade", numero:6667, partido:"DC", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
-    { id:"dc-to-ficticio-68", nome:"Sandra Cardoso Melo", nomeUrna:"Sandra Melo", numero:6668, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"mdb-to-ficticio-69", nome:"Vinícius Rodrigues Melo", nomeUrna:"Vinícius Melo", numero:3469, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"mdb-to-ficticio-70", nome:"Rafael dos Santos Farias", nomeUrna:"Rafael Farias", numero:3470, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"mdb-to-ficticio-71", nome:"Vinícius Pereira Junior", nomeUrna:"Vinícius Junior", numero:3471, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
@@ -88,9 +115,6 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"prtb-to-ficticio-78", nome:"Elaine Moreira Andrade", nomeUrna:"Elaine Andrade", numero:4478, partido:"PRTB", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"prtb-to-ficticio-79", nome:"Vinícius Martins Farias", nomeUrna:"Vinícius Farias", numero:4479, partido:"PRTB", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"prtb-to-ficticio-80", nome:"Elaine Rocha Melo", nomeUrna:"Elaine Melo", numero:4480, partido:"PRTB", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
-    { id:"psol-rede-to-ficticio-81", nome:"Elaine Ribeiro Andrade", nomeUrna:"Elaine Andrade", numero:5181, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSOL" },
-    { id:"psol-rede-to-ficticio-82", nome:"Fernanda Barbosa Peixoto", nomeUrna:"Fernanda Peixoto", numero:5182, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSOL" },
-    { id:"psol-rede-to-ficticio-83", nome:"Rafael Dias Brito", nomeUrna:"Rafael Brito", numero:5183, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSOL" },
     { id:"pt-pc-do-b-pv-to-ficticio-84", nome:"Fernanda Gomes Neto", nomeUrna:"Fernanda Neto", numero:2584, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PT" },
     { id:"pt-pc-do-b-pv-to-ficticio-85", nome:"Gustavo de Carvalho Vieira", nomeUrna:"Gustavo Vieira", numero:2585, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PT" },
     { id:"pt-pc-do-b-pv-to-ficticio-86", nome:"Fernanda da Silva Melo", nomeUrna:"Fernanda Melo", numero:2586, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PT" },
@@ -99,6 +123,43 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"ptb-to-ficticio-89", nome:"Marcos de Carvalho Monteiro", nomeUrna:"Marcos Monteiro", numero:9689, partido:"PTB", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
   ],
   "Deputado Federal": [
+    { id:"missao-brunna-fernandes-da-silva", nome:"Brunna Fernandes Da Silva", nomeUrna:"Brunna Silva", numero:1415, partido:"MISSÃO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"567-missao-retificadora.pdf" },
+    { id:"dc-cesar-costa-de-oliveira", nome:"Cesar Costa De Oliveira", nomeUrna:"Cesar Ryco", numero:2788, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"missao-claudiomara-pires-gama", nome:"Claudiomara Pires Gama", nomeUrna:"Claudiomara Gama", numero:1401, partido:"MISSÃO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"567-missao-retificadora.pdf" },
+    { id:"dc-hangretty-da-silva-ferreira-de-sa", nome:"Hangretty Da Silva Ferreira De Sá", nomeUrna:"Hangretty Hanssey", numero:2727, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"missao-daniel-felipe-da-silva-bastos", nome:"Daniel Felipe Da Silva Bastos", nomeUrna:"Daniel Bastos", numero:1433, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"567-missao-retificadora.pdf" },
+    { id:"dc-maria-aldenora-neta-silva-macile", nome:"Maria Aldenora Neta Silva Macile", nomeUrna:"Mari Marcile", numero:2777, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"missao-evando-junior-alves", nome:"Evando Junior Alves", nomeUrna:"Evando Alves", numero:1400, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"567-missao-retificadora.pdf" },
+    { id:"missao-mateus-de-araujo-santos", nome:"Mateus De Araujo Santos", nomeUrna:"Mateus Santos", numero:1410, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"567-missao-retificadora.pdf" },
+    { id:"missao-rosanio-fernandes-de-melo", nome:"Rosanio Fernandes De Melo", nomeUrna:"Rosânio Fernandes", numero:1444, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"567-missao-retificadora.pdf" },
+    { id:"missao-waldeson-andrade-venceslau", nome:"Waldeson Andrade Venceslau", nomeUrna:"Waldeson Venceslau", numero:1414, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"567-missao-retificadora.pdf" },
+    { id:"psol-rede-adalton-da-silva", nome:"Adalton Da Silva", nomeUrna:"Adalton Pedreiro", numero:5013, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-adalton-da-silva", nome:"Adalton Da Silva", nomeUrna:"Adalton Pedreiro", numero:5013, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-agnaldo-pereira-lima", nome:"Agnaldo Pereira Lima", nomeUrna:"Marabá", numero:1800, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-agnaldo-pereira-lima", nome:"Agnaldo Pereira Lima", nomeUrna:"Marabá", numero:1800, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-benones-dos-santos-soares", nome:"Benones Dos Santos Soares", nomeUrna:"Benones Dos Santos", numero:5051, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-benones-dos-santos-soares", nome:"Benones Dos Santos Soares", nomeUrna:"Benones Dos Santos", numero:5051, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-cleiton-vieira-da-silva", nome:"Cleiton Vieira Da Silva", nomeUrna:"Cleiton Vieira", numero:5055, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-cleiton-vieira-da-silva", nome:"Cleiton Vieira Da Silva", nomeUrna:"Cleiton Vieira", numero:5055, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-claudia-moreira-berger-milbratz", nome:"Cláudia Moreira Berger Milbratz", nomeUrna:"Dra. Cláudia Milbratz", numero:1833, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-claudia-moreira-berger-milbratz", nome:"Cláudia Moreira Berger Milbratz", nomeUrna:"Dra. Cláudia Milbratz", numero:1833, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-cicera-marcia-do-nascimento-bandeira", nome:"Cícera Marcia Do Nascimento Bandeira", nomeUrna:"Márcia Bandeira", numero:5033, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-cicera-marcia-do-nascimento-bandeira", nome:"Cícera Marcia Do Nascimento Bandeira", nomeUrna:"Márcia Bandeira", numero:5033, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-edgar-gomes-ferreira", nome:"Edgar Gomes Ferreira", nomeUrna:"Edgar Gomes", numero:5050, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-edgar-gomes-ferreira", nome:"Edgar Gomes Ferreira", nomeUrna:"Edgar Gomes", numero:5050, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-mayany-patricio-da-silva", nome:"Mayany Patrício Da Silva", nomeUrna:"Mayany Patrício", numero:1888, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-lilia-batista-costa", nome:"Lilia Batista Costa", nomeUrna:"Lilia Manicure", numero:1813, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-zaira-vitor-silva", nome:"Zaira Vitor Silva", nomeUrna:"Zaira Silva", numero:1818, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-zaira-vitor-silva", nome:"Zaira Vitor Silva", nomeUrna:"Zaira Silva", numero:1818, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-adalton-da-silva", nome:"Adalton Da Silva", nomeUrna:"Adalton Pedreiro", numero:5013, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-agnaldo-pereira-lima", nome:"Agnaldo Pereira Lima", nomeUrna:"Marabá", numero:1800, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-benones-dos-santos-soares", nome:"Benones Dos Santos Soares", nomeUrna:"Benones Dos Santos", numero:5051, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-cleiton-vieira-da-silva", nome:"Cleiton Vieira Da Silva", nomeUrna:"Cleiton Vieira", numero:5055, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-claudia-moreira-berger-milbratz", nome:"Cláudia Moreira Berger Milbratz", nomeUrna:"Dra. Cláudia Milbratz", numero:1833, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-cicera-marcia-do-nascimento-bandeira", nome:"Cícera Marcia Do Nascimento Bandeira", nomeUrna:"Márcia Bandeira", numero:5033, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-edgar-gomes-ferreira", nome:"Edgar Gomes Ferreira", nomeUrna:"Edgar Gomes", numero:5050, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-lilia-batista-costa", nome:"Lilia Batista Costa", nomeUrna:"Lilia Manicure", numero:1813, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-zaira-vitor-silva", nome:"Zaira Vitor Silva", nomeUrna:"Zaira Silva", numero:1818, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
     { id:"republicanos-to-ficticio-1", nome:"Eduardo Correia Azevedo", nomeUrna:"Eduardo Azevedo", numero:4301, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"republicanos-to-ficticio-2", nome:"Tiago Correia Pinto", nomeUrna:"Tiago Pinto", numero:4302, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"republicanos-to-ficticio-3", nome:"Rafael da Silva Junior", nomeUrna:"Rafael Junior", numero:4303, partido:"REPUBLICANOS", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
@@ -126,9 +187,6 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"psdb-cidadania-to-ficticio-25", nome:"Ana Costa Pinto", nomeUrna:"Ana Pinto", numero:9825, partido:"PSDB/CIDADANIA", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"CIDADANIA" },
     { id:"psdb-cidadania-to-ficticio-26", nome:"Gustavo Machado Bezerra", nomeUrna:"Gustavo Bezerra", numero:9826, partido:"PSDB/CIDADANIA", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"CIDADANIA" },
     { id:"psdb-cidadania-to-ficticio-27", nome:"Cristina Nascimento Reis", nomeUrna:"Cristina Reis", numero:9827, partido:"PSDB/CIDADANIA", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"CIDADANIA" },
-    { id:"dc-to-ficticio-28", nome:"Larissa Costa Neto", nomeUrna:"Larissa Neto", numero:6628, partido:"DC", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
-    { id:"dc-to-ficticio-29", nome:"Fernanda Ribeiro Sobrinho", nomeUrna:"Fernanda Sobrinho", numero:6629, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
-    { id:"dc-to-ficticio-30", nome:"Larissa Rodrigues Neto", nomeUrna:"Larissa Neto", numero:6630, partido:"DC", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"mdb-to-ficticio-31", nome:"João Martins Cunha", nomeUrna:"João Cunha", numero:3431, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"mdb-to-ficticio-32", nome:"Cristina Lima Melo", nomeUrna:"Cristina Melo", numero:3432, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"mdb-to-ficticio-33", nome:"Rodrigo Rocha Bezerra", nomeUrna:"Rodrigo Bezerra", numero:3433, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
@@ -162,9 +220,6 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"psdb-cidadania-to-ficticio-61", nome:"Simone Moreira Farias", nomeUrna:"Simone Farias", numero:9861, partido:"PSDB/CIDADANIA", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSDB" },
     { id:"psdb-cidadania-to-ficticio-62", nome:"Renata Gomes Brito", nomeUrna:"Renata Brito", numero:9862, partido:"PSDB/CIDADANIA", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSDB" },
     { id:"psdb-cidadania-to-ficticio-63", nome:"Marcos Barbosa Filho", nomeUrna:"Marcos Filho", numero:9863, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSDB" },
-    { id:"psol-rede-to-ficticio-64", nome:"Rafael Teixeira Nunes", nomeUrna:"Rafael Nunes", numero:5164, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSOL" },
-    { id:"psol-rede-to-ficticio-65", nome:"Marcos Cardoso Monteiro", nomeUrna:"Marcos Monteiro", numero:5165, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSOL" },
-    { id:"psol-rede-to-ficticio-66", nome:"André Costa Farias", nomeUrna:"André Farias", numero:5166, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSOL" },
     { id:"pt-pc-do-b-pv-to-ficticio-67", nome:"Marcos dos Santos Siqueira", nomeUrna:"Marcos Siqueira", numero:2567, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PT" },
     { id:"pt-pc-do-b-pv-to-ficticio-68", nome:"Marcos Lima Vieira", nomeUrna:"Marcos Vieira", numero:2568, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PT" },
     { id:"pt-pc-do-b-pv-to-ficticio-69", nome:"João Pereira Xavier", nomeUrna:"João Xavier", numero:2569, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PT" },
@@ -174,17 +229,23 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"pt-pc-do-b-pv-to-ficticio-73", nome:"Cristina de Carvalho Castro", nomeUrna:"Cristina Castro", numero:2573, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PV" },
     { id:"pt-pc-do-b-pv-to-ficticio-74", nome:"João de Carvalho Nunes", nomeUrna:"João Nunes", numero:2574, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PV" },
     { id:"pt-pc-do-b-pv-to-ficticio-75", nome:"Bruna Correia Azevedo", nomeUrna:"Bruna Azevedo", numero:2575, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PV" },
-    { id:"psol-rede-to-ficticio-76", nome:"Diego Ferreira Sobrinho", nomeUrna:"Diego Sobrinho", numero:5176, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"REDE" },
-    { id:"psol-rede-to-ficticio-77", nome:"Bruna da Silva Monteiro", nomeUrna:"Bruna Monteiro", numero:5177, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"REDE" },
-    { id:"psol-rede-to-ficticio-78", nome:"Marcos da Silva Castro", nomeUrna:"Marcos Castro", numero:5178, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"REDE" },
+  ],
+  "Governador": [
+    { id:"psol-rede-witer-fonseca-neves", nome:"Witer Fonseca Neves", nomeUrna:"Prof Witer Naves", numero:50, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-witer-fonseca-neves", nome:"Witer Fonseca Neves", nomeUrna:"Prof Witer Naves", numero:50, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-witer-fonseca-neves", nome:"Witer Fonseca Neves", nomeUrna:"Prof Witer Naves", numero:50, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
   ],
   "Senador": [
+    { id:"dc-flavio-alves-braga", nome:"Flávio Alves Braga", nomeUrna:"Dr. Flavio Braga", numero:277, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"389-dc-convencao.pdf" },
+    { id:"psol-rede-fabio-paulino-ribeiro", nome:"Fábio Paulino Ribeiro", nomeUrna:"Fábio Ribeiro", numero:180, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-fabio-paulino-ribeiro", nome:"Fábio Paulino Ribeiro", nomeUrna:"Fábio Ribeiro", numero:180, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-osvaldo-soares-neto", nome:"Osvaldo Soares Neto", nomeUrna:"Prof Osvaldo", numero:500, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-osvaldo-soares-neto", nome:"Osvaldo Soares Neto", nomeUrna:"Prof Osvaldo", numero:500, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-fabio-paulino-ribeiro", nome:"Fábio Paulino Ribeiro", nomeUrna:"Fábio Ribeiro", numero:180, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-osvaldo-soares-neto", nome:"Osvaldo Soares Neto", nomeUrna:"Prof Osvaldo", numero:500, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
     { id:"uniao-pp-to-ficticio-1", nome:"Bruna Correia Junior", nomeUrna:"Bruna Junior", numero:1701, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"UNIÃO" },
     { id:"uniao-pp-to-ficticio-2", nome:"Sandra Ferreira Andrade", nomeUrna:"Sandra Andrade", numero:1702, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"UNIÃO" },
     { id:"uniao-pp-to-ficticio-3", nome:"Sandra Cardoso Filho", nomeUrna:"Sandra Filho", numero:1703, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"UNIÃO" },
-    { id:"dc-to-ficticio-4", nome:"Gustavo Correia Junior", nomeUrna:"Gustavo Junior", numero:6604, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
-    { id:"dc-to-ficticio-5", nome:"Larissa Ribeiro Xavier", nomeUrna:"Larissa Xavier", numero:6605, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
-    { id:"dc-to-ficticio-6", nome:"Patrícia de Souza Cunha", nomeUrna:"Patrícia Cunha", numero:6606, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"patriota-to-ficticio-7", nome:"Larissa Machado Neto", nomeUrna:"Larissa Neto", numero:9607, partido:"PATRIOTA", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"patriota-to-ficticio-8", nome:"Felipe da Silva Neto", nomeUrna:"Felipe Neto", numero:9608, partido:"PATRIOTA", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"patriota-to-ficticio-9", nome:"Bruna Rodrigues Monteiro", nomeUrna:"Bruna Monteiro", numero:9609, partido:"PATRIOTA", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
@@ -203,11 +264,29 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"psb-to-ficticio-22", nome:"Bruna Pereira Cunha", nomeUrna:"Bruna Cunha", numero:3222, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"psb-to-ficticio-23", nome:"Diego Lima Neto", nomeUrna:"Diego Neto", numero:3223, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
     { id:"psb-to-ficticio-24", nome:"Cristina Dias Reis", nomeUrna:"Cristina Reis", numero:3224, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
-    { id:"psol-rede-to-ficticio-25", nome:"Juliana Barbosa Siqueira", nomeUrna:"Juliana Siqueira", numero:5125, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSOL" },
-    { id:"psol-rede-to-ficticio-26", nome:"Larissa de Araújo Sales", nomeUrna:"Larissa Sales", numero:5126, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSOL" },
-    { id:"psol-rede-to-ficticio-27", nome:"Marcos Ribeiro Castro", nomeUrna:"Marcos Castro", numero:5127, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PSOL" },
     { id:"pt-pc-do-b-pv-to-ficticio-28", nome:"Diego Rodrigues Guimarães", nomeUrna:"Diego Guimarães", numero:2528, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PT" },
     { id:"pt-pc-do-b-pv-to-ficticio-29", nome:"Sandra Moreira Bezerra", nomeUrna:"Sandra Bezerra", numero:2529, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PT" },
     { id:"pt-pc-do-b-pv-to-ficticio-30", nome:"Ana Ribeiro Bezerra", nomeUrna:"Ana Bezerra", numero:2530, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio", partidoOriginal:"PT" },
+  ],
+  "Senador (1º suplente)": [
+    { id:"psol-rede-arenaldo-gomes-ferreira", nome:"Arenaldo Gomes Ferreira", nomeUrna:"Arenaldo Gomes", numero:null, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-arenaldo-gomes-ferreira", nome:"Arenaldo Gomes Ferreira", nomeUrna:"Arenaldo Gomes", numero:null, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-giane-oliveira-da-silva", nome:"Giane Oliveira Da Silva", nomeUrna:"Giane Da Arca Rainha Animais", numero:null, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"psol-rede-fabiano-roberto-matos-do-vale", nome:"Fabiano Roberto Matos Do Vale", nomeUrna:"Fabiano Matos", numero:null, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-arenaldo-gomes-ferreira", nome:"Arenaldo Gomes Ferreira", nomeUrna:"Arenaldo Gomes", numero:null, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-giane-oliveira-da-silva", nome:"Giane Oliveira Da Silva", nomeUrna:"Giane Da Arca Rainha Animais", numero:null, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+  ],
+  "Senador (2º suplente)": [
+    { id:"psol-rede-dayana-hermano-silva-vieira", nome:"Dayana Hermano Silva Vieira", nomeUrna:"Dayana Vieira", numero:null, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"psol-rede-deusivete-sousa-dos-santos", nome:"Deusivete Sousa Dos Santos", nomeUrna:"Deusivete Dos Santos", numero:null, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-dayana-hermano-silva-vieira", nome:"Dayana Hermano Silva Vieira", nomeUrna:"Dayana Vieira", numero:null, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-deusivete-sousa-dos-santos", nome:"Deusivete Sousa Dos Santos", nomeUrna:"Deusivete Dos Santos", numero:null, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-dayana-hermano-silva-vieira", nome:"Dayana Hermano Silva Vieira", nomeUrna:"Dayana Vieira", numero:null, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-deusivete-sousa-dos-santos", nome:"Deusivete Sousa Dos Santos", nomeUrna:"Deusivete Dos Santos", numero:null, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+  ],
+  "Vice-Governador": [
+    { id:"psol-rede-maria-lucia-soares-viana", nome:"Maria Lúcia Soares Viana", nomeUrna:"Lúcia Viana", numero:null, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"155-psol-rede-convencao.pdf" },
+    { id:"sem-partido-maria-lucia-soares-viana", nome:"Maria Lúcia Soares Viana", nomeUrna:"Lúcia Viana", numero:null, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
+    { id:"sem-partido-maria-lucia-soares-viana", nome:"Maria Lúcia Soares Viana", nomeUrna:"Lúcia Viana", numero:null, partido:null, genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"448-psol-rede-retificadora.pdf" },
   ],
 };
