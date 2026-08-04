@@ -10,6 +10,13 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 
 | Arquivo | Partido detectado | Retificadora | Candidaturas extraídas |
 |---|---|---|---|
+| 166-psb-convencao.pdf | PSB | não | 4 |
+| 172-psol-rede-convencao.pdf | PSOL/REDE | não | 48 |
+| 183-pdt-convencao.pdf | PDT | não | 45 |
+| 189-up-convencao.pdf | UP | não | 10 |
+| 195-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 52 |
+| 199-psb-retificadora.pdf | PSB | sim | 4 |
+| 225-agir-convencao.pdf | AGIR | não | 10 |
 | 326-missão-convencao.pdf | MISSÃO | não | 50 |
 | 347-pstu-convencao.pdf | PSTU | não | 10 |
 | 43-pode-convencao.pdf | PODE | não | 54 |
@@ -26,13 +33,6 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 776-republicanos-convencao.pdf | REPUBLICANOS | não | 45 |
 | 803-agir-executiva.pdf | AGIR | não | 9 |
 | 814-psdb-cidadania-retificadora.pdf | ? | sim | 22 |
-| documentoAta.pdf (1).pdf | UP | não | 10 |
-| documentoAta.pdf (2).pdf | AGIR | não | 10 |
-| documentoAta.pdf (3).pdf | PT/PC do B/PV | não | 52 |
-| documentoAta.pdf (4).pdf | PSOL/REDE | não | 48 |
-| documentoAta.pdf (5).pdf | PSB | não | 4 |
-| documentoAta.pdf (6).pdf | PDT | não | 45 |
-| documentoAtaRetificadora_1.pdf.pdf | PSB | sim | 4 |
 
 Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido não identificado): **42**
 
@@ -42,18 +42,24 @@ Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido 
 - Candidatura de Angela Albino (PSB, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alan Alves Moreira (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ana Cecilia Sirino (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Número 14 repetido em MISSÃO/Governador para: Marcelo Marcel Franco Jose Da Silva, Marcelo Rodrigues — conferir manualmente.
-- Número 144 repetido em MISSÃO/Senador para: Diego Santos Vieira, Edupercio Pratts, Túlio De Amorim Pfuetzenreiter — conferir manualmente.
 - Número 3636 repetido em AGIR/Deputado Federal para: Jackson Raymundo Martins, Jackson Raymundo Martins — conferir manualmente.
-- Número 36222 repetido em AGIR/Deputado Estadual para: Aguinaldo Vargas De Vargas, Silvana Walger — conferir manualmente.
 - Número 36777 repetido em AGIR/Deputado Estadual para: Henrique Todeschini Da Silva, Henrique Todeschini Da Silva — conferir manualmente.
 - Número 36123 repetido em AGIR/Deputado Estadual para: Robson Zagre, Robson Zagre — conferir manualmente.
+- Número 36222 repetido em AGIR/Deputado Estadual para: Silvana Walger, Aguinaldo Vargas De Vargas — conferir manualmente.
+- Número 14 repetido em MISSÃO/Governador para: Marcelo Marcel Franco Jose Da Silva, Marcelo Rodrigues — conferir manualmente.
+- Número 144 repetido em MISSÃO/Senador para: Diego Santos Vieira, Edupercio Pratts, Túlio De Amorim Pfuetzenreiter — conferir manualmente.
 - 42 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
+| Afrânio Tadeu Boppré | Senador | 172-psol-rede-convencao.pdf |
+| Aparecida Da Silva | Senador (2º suplente) | 172-psol-rede-convencao.pdf |
+| Luci Teresinha Choinacki | Senador (1º suplente) | 172-psol-rede-convencao.pdf |
+| Décio Nery De Lima | Senador | 195-pt-pc-do-b-pv-convencao.pdf |
+| Gelson Luiz Merísio | Governador | 199-psb-retificadora.pdf |
+| Angela Albino | Vice-Governador | 199-psb-retificadora.pdf |
 | Adriano Bornschein Silva | Vice-Governador | 487-novo-convencao.pdf |
 | Jovino Marques Gonçalves | Deputado Federal | 557-pt-pc-do-b-pv-executiva.pdf |
 | Jorginho Dos Santos Mello | Governador | 680-pl-convencao.pdf |
@@ -90,12 +96,6 @@ Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido 
 | Sonia Salete Vedovatto | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
 | Sérgio Freitas | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
 | Tcharles Purim | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Décio Nery De Lima | Senador | documentoAta.pdf (3).pdf |
-| Afrânio Tadeu Boppré | Senador | documentoAta.pdf (4).pdf |
-| Aparecida Da Silva | Senador (2º suplente) | documentoAta.pdf (4).pdf |
-| Luci Teresinha Choinacki | Senador (1º suplente) | documentoAta.pdf (4).pdf |
-| Gelson Luiz Merísio | Governador | documentoAtaRetificadora_1.pdf.pdf |
-| Angela Albino | Vice-Governador | documentoAtaRetificadora_1.pdf.pdf |
 
 ## Status de confirmação
 
