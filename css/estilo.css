@@ -234,6 +234,12 @@
     --pc-bg-a: #081712; --pc-bg-b: #0c231a; --pc-ink: #eefff6; --pc-ink-dim: #7fa895;
     --pc-glass: #0f231b; --pc-glass-border: #163a2c;
     --pc-accent: #3dffb0; --pc-accent-2: #3dffb0; --pc-danger: #e0607a; --pc-warning: #c98a2b;
+    /* Sobretons de verde (nunca cores novas) pro padrão "Lobby" — ver
+       renderPainelPrincipal e .pc-lobby-* abaixo. Confirmado com o usuário
+       em 04/08/2026 após várias rodadas de protótipo: estilo flat 2D
+       (sem blur/glow/gradiente), profundidade só por camada de tom. */
+    --pc-lobby-tom-2: #101f19; --pc-lobby-tom-3: #12251d;
+    --pc-lobby-verde-media: #22916a; --pc-lobby-verde-forte: #155c46;
     background: radial-gradient(circle at 50% 15%, var(--pc-bg-b) 0%, var(--pc-bg-a) 60%);
     border-radius: 16px; padding: 28px; margin: -2px auto 0;
     color: var(--pc-ink); font-family: var(--sans);
@@ -264,6 +270,44 @@
   #modoColaborativoWrap .glass-card{
     background: var(--pc-glass); border: 1px solid var(--pc-glass-border);
     border-radius: 14px; padding: 22px 24px; margin-bottom: 18px;
+  }
+  /* Padrão "Lobby" (renderPainelPrincipal) — flat 2D, profundidade por
+     camada de tom, sem blur/glow/gradiente. Protótipo aprovado em
+     04/08/2026 depois de várias rodadas de ajuste com o usuário. */
+  #modoColaborativoWrap .pc-lobby-card{
+    background: var(--pc-lobby-tom-2); border-radius: 18px; padding: 2px 16px; margin-bottom: 18px;
+  }
+  #modoColaborativoWrap .pc-lobby-linha{
+    display:flex; justify-content:space-between; align-items:center; padding:13px 0;
+    border-bottom:1px solid var(--pc-glass-border);
+  }
+  #modoColaborativoWrap .pc-lobby-linha:last-child{ border-bottom:none; }
+  #modoColaborativoWrap .pc-lobby-barra{
+    height:7px; border-radius:999px; background:#182f24; overflow:hidden; display:flex;
+  }
+  #modoColaborativoWrap .pc-lobby-menu-tit{
+    font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    color: var(--pc-ink-dim); margin-bottom:8px;
+  }
+  #modoColaborativoWrap .pc-lobby-menu-faixa{
+    display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; padding:2px 16px 6px 0; margin:0 -16px 18px 0;
+  }
+  #modoColaborativoWrap .pc-lobby-menu-faixa::-webkit-scrollbar{ display:none; }
+  #modoColaborativoWrap .pc-lobby-menu-item{
+    flex-shrink:0; width:104px; background: var(--pc-lobby-tom-3); border:none; border-radius:18px;
+    padding:14px; display:flex; flex-direction:column; align-items:flex-start; gap:22px; cursor:pointer;
+    font-family: var(--sans); color: var(--pc-ink);
+  }
+  #modoColaborativoWrap .pc-lobby-menu-item span{ font-size:11px; font-weight:600; text-align:left; }
+  #modoColaborativoWrap .pc-lobby-menu-item:disabled{ opacity:.5; cursor:default; }
+  #modoColaborativoWrap .pc-lobby-icon-btn{
+    background: var(--pc-lobby-tom-3); border:none; border-radius:12px; width:38px; height:38px;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color: var(--pc-accent); flex-shrink:0;
+  }
+  #modoColaborativoWrap .pc-lobby-cta{
+    width:100%; background: var(--pc-accent); border:none; border-radius:18px 18px 0 0;
+    padding:12px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+    font-family: var(--sans); color:#04140d; font-size:13.5px; font-weight:700; margin-top:6px;
   }
   #modoColaborativoWrap h2{ color: var(--pc-ink); font-size: 15px; text-transform:none; letter-spacing:0; margin: 0 0 14px; }
   #modoColaborativoWrap .pc-sub{ color: var(--pc-ink-dim); font-size: 13px; margin-top: -8px; margin-bottom: 16px; }

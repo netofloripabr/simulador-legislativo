@@ -67,6 +67,11 @@ const PC_ICONES = {
   alerta: '<path d="M8 2.3l6.2 10.7a1 1 0 01-.87 1.5H2.67a1 1 0 01-.87-1.5L8 2.3z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M8 6.6v3.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><circle cx="8" cy="11.7" r=".9" fill="currentColor"></circle>',
   completar: '<path d="M8.6 2L9.7 5.3 13 6.4 9.7 7.5 8.6 10.8 7.5 7.5 4.2 6.4 7.5 5.3z" fill="currentColor"></path><path d="M12.8 9.6l.55 1.65L15 12l-1.65.55L12.8 14l-.55-1.45L10.6 12l1.65-.75z" fill="currentColor"></path>',
   ano2022: '<text x="8" y="7.3" text-anchor="middle" font-size="6" font-weight="800" fill="currentColor" font-family="var(--sans)">20</text><text x="8" y="13.6" text-anchor="middle" font-size="6" font-weight="800" fill="currentColor" font-family="var(--sans)">22</text>',
+  lista: '<path d="M2.5 4.5h2M6 4.5h7.5M2.5 8h2M6 8h7.5M2.5 11.5h2M6 11.5h7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
+  calendario: '<rect x="2.5" y="3.3" width="11" height="10.2" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.2"></rect><path d="M2.5 6.4h11M5.3 2v2.4M10.7 2v2.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
+  convidar: '<circle cx="6.3" cy="6" r="2.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M2.3 14c0-2.4 1.8-4.3 4-4.3s4 1.9 4 4.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><path d="M12 5v4M10 7h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
+  compartilhar: '<circle cx="12" cy="3.6" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><circle cx="4" cy="8" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><circle cx="12" cy="12.4" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><path d="M5.5 7.1l5-2.6M5.5 8.9l5 2.6" stroke="currentColor" stroke-width="1.1"></path>',
+  checkCirculo: '<circle cx="8" cy="8" r="5.7" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M5.4 8.2l1.8 1.8 3.4-3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
 };
 function iconeSvg(nome, tamanho) {
   const t = tamanho || 16;
@@ -654,50 +659,103 @@ function renderAppColaborativo() {
   else renderRankingPlaceholder();
 }
 
-function renderPainelPrincipal() {
-  const totalMarcado = pcState.palpiteEdicao ? pcState.palpiteEdicao.reduce((s, p) => s + p.candidatos.filter((c) => c.marcadoEleito).length, 0) : 0;
-  document.getElementById("pcConteudo").innerHTML = `
-    <div class="glass-card">
-      <h2>Painel principal</h2>
-      <div class="pc-sub" style="margin-bottom:16px;">Sua lista atual: ${totalMarcado}/40 Deputados eleitos marcados.</div>
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:12px;">
-        <button class="ghost" id="pcCardBoxes" style="text-align:left; padding:16px;">
-          <div style="font-weight:700; margin-bottom:4px;">Ajustar seleção de candidatos</div>
-          <div style="font-size:12px; color:var(--pc-ink-dim);">Voltar pra tela de partidos e candidatos</div>
-        </button>
-        <button class="ghost" id="pcCardPalpite" style="text-align:left; padding:16px;">
-          <div style="font-weight:700; margin-bottom:4px;">Preencher votação completa</div>
-          <div style="font-size:12px; color:var(--pc-ink-dim);">Marque candidatos específicos ou entre com os votos de cada um</div>
-        </button>
-        <button class="ghost" id="pcCardMedias" style="text-align:left; padding:16px;">
-          <div style="font-weight:700; margin-bottom:4px;">Quadro de médias</div>
-          <div style="font-size:12px; color:var(--pc-ink-dim);">Veja a projeção coletiva de todo mundo</div>
-        </button>
-        <button class="ghost" id="pcCardRanking" style="text-align:left; padding:16px;">
-          <div style="font-weight:700; margin-bottom:4px;">Ranking</div>
-          <div style="font-size:12px; color:var(--pc-ink-dim);">Disponível após o resultado oficial de 2026</div>
-        </button>
-        <button class="ghost" id="pcCardGrupos" style="text-align:left; padding:16px;">
-          <div style="font-weight:700; margin-bottom:4px;">Grupos</div>
-          <div style="font-size:12px; color:var(--pc-ink-dim);">Compare sua lista com um grupo privado de amigos</div>
-        </button>
-        <button class="ghost" id="pcCardCompartilhar" style="text-align:left; padding:16px;">
-          <div style="font-weight:700; margin-bottom:4px;">Compartilhar minha lista</div>
-          <div style="font-size:12px; color:var(--pc-ink-dim);">Gera um link somente-leitura pra mandar pra alguém</div>
-        </button>
-        <div style="text-align:left; padding:16px; opacity:0.55; border:1px solid rgba(120,130,180,0.2); border-radius:10px;">
-          <div style="font-weight:700; margin-bottom:4px;">Atualizar lista base</div>
-          <div style="font-size:12px; color:var(--pc-ink-dim);">Em breve — administração dos candidatos oficiais de 2026</div>
+// Primeiro domingo de outubro de 2026 (calendário eleitoral — 1º turno das
+// eleições gerais). Só usado pro contador de dias do Lobby.
+const DATA_ELEICAO_2026 = new Date("2026-10-04T00:00:00-03:00");
+
+function diasAteEleicao() {
+  return Math.max(0, Math.ceil((DATA_ELEICAO_2026 - new Date()) / 86400000));
+}
+
+// Painel principal ("Lobby") — padrão flat 2D confirmado com o usuário em
+// 04/08/2026 depois de várias rodadas de protótipo (ver ferramenta de
+// visualização da conversa): profundidade só por camada de tom (nunca
+// blur/glow/gradiente), sobretons de verde, sem barra inferior de atalhos
+// (ela já mostraria os mesmos destinos do menu daqui, duplicado).
+async function renderPainelPrincipal() {
+  const el = document.getElementById("pcConteudo");
+  el.innerHTML = telaCarregando("Carregando seu painel…");
+
+  await garantirRascunhosCarregados();
+  await garantirMeusGruposCarregados();
+
+  // Status "geral" soma os 3 cargos (Estadual+Federal+Senador) — diferente
+  // do resto do app, que sempre trabalha 1 cargo ativo por vez.
+  let totalMarcado = 0, totalVagas = 0;
+  CARGOS.forEach((c) => {
+    const lista = pcState.rascunhosCache[c.id] || montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
+    totalMarcado += lista.reduce((s, p) => s + p.candidatos.filter((cc) => cc.marcadoEleito).length, 0);
+    totalVagas += vagasFixasCargo(pcState.estado, c.id);
+  });
+  const completa = totalVagas > 0 && totalMarcado >= totalVagas;
+  const fracaoPreenchida = totalVagas ? Math.min(1, totalMarcado / totalVagas) : 0;
+  // 3 tons de verde repartindo a barra pelo PESO de cada cargo no total de
+  // vagas (não por quanto já foi preenchido em cada um) — é só pra mostrar
+  // visualmente "isto soma os 3 cargos", ver conversa com o usuário.
+  const pesoEstadual = totalVagas ? vagasFixasCargo(pcState.estado, "estadual") / totalVagas : 0;
+  const pesoFederal = totalVagas ? vagasFixasCargo(pcState.estado, "federal") / totalVagas : 0;
+  const pesoSenador = totalVagas ? 1 - pesoEstadual - pesoFederal : 0;
+
+  // Atividade de amigos: melhor esforço, olha só o primeiro grupo da pessoa
+  // (se tiver) — quem atualizou a lista por último, excluindo ela mesma.
+  let atividadeAmigo = null;
+  if (pcState.meusGrupos && pcState.meusGrupos.length) {
+    const comparacao = await buscarComparacaoGrupo(pcState.meusGrupos[0].id);
+    const outros = comparacao
+      .filter((r) => r.perfil_id !== pcState.perfil.id)
+      .sort((a, b) => new Date(b.atualizado_em) - new Date(a.atualizado_em));
+    if (outros.length) atividadeAmigo = outros[0].nome_exibicao;
+  }
+
+  el.innerHTML = `
+    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:14px;">
+      ${completa ? `<button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>` : ""}
+      <button class="pc-lobby-icon-btn" id="pcBtnConvidarLobby" title="Convidar amigos">${iconeSvg("convidar", 16)}</button>
+    </div>
+
+    <div class="pc-lobby-card">
+      <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:baseline;">
+          <span style="font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:6px; color:var(--pc-ink);">${completa ? `<span style="color:var(--pc-accent); display:flex;">${iconeSvg("checkCirculo", 14)}</span>Lista completa` : "Sua lista"}</span>
+          <span style="font-size:11.5px; font-weight:600; color:${completa ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${totalMarcado}<span style="color:#4c6459;">/${totalVagas}</span></span>
+        </div>
+        <div class="pc-lobby-barra">
+          <div style="width:${(fracaoPreenchida * pesoEstadual * 100).toFixed(1)}%; background:var(--pc-accent);"></div>
+          <div style="width:${(fracaoPreenchida * pesoFederal * 100).toFixed(1)}%; background:var(--pc-lobby-verde-media);"></div>
+          <div style="width:${(fracaoPreenchida * pesoSenador * 100).toFixed(1)}%; background:var(--pc-lobby-verde-forte);"></div>
         </div>
       </div>
-      <div id="pcLinkCompartilhavelWrap"></div>
-    </div>`;
-  document.getElementById("pcCardBoxes").addEventListener("click", () => { pcState.subaba = "selecao"; renderAppColaborativo(); });
-  document.getElementById("pcCardPalpite").addEventListener("click", () => { pcState.subaba = "palpite"; renderAppColaborativo(); });
-  document.getElementById("pcCardMedias").addEventListener("click", () => { pcState.subaba = "medias"; renderAppColaborativo(); });
-  document.getElementById("pcCardRanking").addEventListener("click", () => { pcState.subaba = "ranking"; renderAppColaborativo(); });
-  document.getElementById("pcCardGrupos").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
-  document.getElementById("pcCardCompartilhar").addEventListener("click", mostrarLinkCompartilhavel);
+      <div class="pc-lobby-linha">
+        <span style="font-size:12px; color:var(--pc-ink-dim); display:flex; align-items:center; gap:6px;">${iconeSvg("calendario", 14)}Faltam ${diasAteEleicao()} dias pra eleição</span>
+      </div>
+      ${atividadeAmigo ? `<div class="pc-lobby-linha">
+        <span style="font-size:12px; color:var(--pc-accent); font-weight:600; display:flex; align-items:center; gap:6px;">${iconeSvg("grupos", 14)}${atividadeAmigo} atualizou a lista</span>
+      </div>` : ""}
+    </div>
+
+    <div class="pc-lobby-menu-tit">Menu</div>
+    <div class="pc-lobby-menu-faixa">
+      <button class="pc-lobby-menu-item" id="pcMenuPalpite">${iconeSvg("ballot", 28)}<span>Preencher votação completa</span></button>
+      <button class="pc-lobby-menu-item" id="pcMenuMedias">${iconeSvg("chart", 28)}<span>Quadro de médias</span></button>
+      <button class="pc-lobby-menu-item" id="pcMenuGrupos">${iconeSvg("grupos", 28)}<span>Grupos</span></button>
+      <button class="pc-lobby-menu-item" id="pcMenuRanking" disabled title="Disponível depois do resultado oficial de 2026">${iconeSvg("ranking", 28)}<span>Ranking</span></button>
+    </div>
+
+    <button class="pc-lobby-cta" id="pcBtnContinuarLista">
+      <span>${completa ? "Revisar minha lista" : "Continuar minha lista"}</span>
+      ${iconeSvg("send", 18)}
+    </button>
+    <div id="pcLinkCompartilhavelWrap"></div>
+  `;
+
+  document.getElementById("pcBtnContinuarLista").addEventListener("click", () => { pcState.subaba = "selecao"; renderAppColaborativo(); });
+  document.getElementById("pcMenuPalpite").addEventListener("click", () => { pcState.subaba = "palpite"; renderAppColaborativo(); });
+  document.getElementById("pcMenuMedias").addEventListener("click", () => { pcState.subaba = "medias"; renderAppColaborativo(); });
+  document.getElementById("pcMenuGrupos").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
+  document.getElementById("pcMenuRanking").addEventListener("click", () => { pcState.subaba = "ranking"; renderAppColaborativo(); });
+  document.getElementById("pcBtnConvidarLobby").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
+  const btnCompartilhar = document.getElementById("pcBtnCompartilharLobby");
+  if (btnCompartilhar) btnCompartilhar.addEventListener("click", mostrarLinkCompartilhavel);
 }
 
 // Revela o link somente-leitura logo abaixo dos cards do Painel — reaproveita
