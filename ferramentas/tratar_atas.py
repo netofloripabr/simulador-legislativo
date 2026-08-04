@@ -320,28 +320,140 @@ def js_string(valor):
     return "null" if valor is None else json.dumps(valor, ensure_ascii=False)
 
 
+CAMPO_CANDIDATO_RE = re.compile(r'(\w+):("(?:[^"\\]|\\.)*"|null|true|false|-?\d+)')
+
+# Ordem "preferida" de escrita — só pra manter as linhas legíveis/estáveis.
+# Qualquer campo fora desta lista (ex.: partidoOriginal, que
+# gerar_ficticios_2026.py adiciona em candidato de federação) ainda é escrito,
+# só que depois destes, em ordem alfabética — nunca descartado. Ver
+# linha_candidato_js().
+CAMPOS_CANDIDATO_ORDEM = ["id", "nome", "nomeUrna", "numero", "partido", "genero",
+                          "coligado", "confianca", "fonteArquivo", "fonte"]
+
+
+def parse_linha_candidato(linha):
+    """Lê de volta uma linha `{ id:"x", nome:"y", ... },` do .js gerado (ou do
+    fictício) pros tipos Python correspondentes. Parser propositalmente simples
+    (regex chave:valor) porque o arquivo é sempre gerado por script, nunca
+    editado à mão linha a linha."""
+    campos = {}
+    for chave, valor in CAMPO_CANDIDATO_RE.findall(linha):
+        if valor == "null":
+            campos[chave] = None
+        elif valor == "true":
+            campos[chave] = True
+        elif valor == "false":
+            campos[chave] = False
+        elif valor and valor[0] == '"':
+            campos[chave] = json.loads(valor)
+        else:
+            campos[chave] = int(valor)
+    return campos
+
+
+def ler_provisorio_existente(caminho_js):
+    """Lê um dados/estados/{uf}-2026-provisorio.js já existente (se houver) e
+    devolve {cargo: [candidato, ...]}. Usado só pra NÃO perder candidato
+    nenhum (tipicamente fictício, de gerar_ficticios_2026.py) de partido que
+    ainda não tem ata real processada — ver merge em alimentar()."""
+    if not caminho_js.exists():
+        return {}
+    por_cargo = {}
+    cargo_atual = None
+    for linha in caminho_js.read_text(encoding="utf-8").splitlines():
+        m_cargo = re.match(r'\s*"([^"]+)":\s*\[', linha)
+        if m_cargo:
+            cargo_atual = m_cargo.group(1)
+            por_cargo.setdefault(cargo_atual, [])
+            continue
+        if cargo_atual and "{" in linha and "}" in linha:
+            campos = parse_linha_candidato(linha)
+            if campos.get("id"):
+                por_cargo[cargo_atual].append(campos)
+    return por_cargo
+
+
+def _campo_js(chave, valor):
+    if chave == "coligado" or isinstance(valor, bool):
+        return f"{chave}:{'true' if valor else 'false'}"
+    if isinstance(valor, int):
+        return f"{chave}:{valor}"
+    return f"{chave}:{js_string(valor)}"
+
+
+def linha_candidato_js(c):
+    """Escreve todos os campos do candidato, não só os conhecidos — um
+    candidato preservado do arquivo antigo (ex.: fictício de federação, com
+    partidoOriginal) não pode perder campo só porque este script não sabia
+    dele. CAMPOS_CANDIDATO_ORDEM só decide a ordem de exibição."""
+    vistos = set()
+    partes = []
+    for chave in CAMPOS_CANDIDATO_ORDEM:
+        if chave in c:
+            partes.append(_campo_js(chave, c[chave]))
+            vistos.add(chave)
+    for chave in sorted(c):
+        if chave not in vistos:
+            partes.append(_campo_js(chave, c[chave]))
+    return f"    {{ {', '.join(partes)} }},"
+
+
 def alimentar(resultado_verificar, saida_dir, uf="SC"):
     """Rotina 3: escreve dados/estados/{uf}-2026-provisorio.js + relatório .md
-    de pendências. NÃO toca em base-2022.js / candidatos-extra-2022.js."""
+    de pendências. NÃO toca em base-2022.js / candidatos-extra-2022.js.
+
+    NUNCA sobrescreve um partido/cargo inteiro que ainda não tem ata real —
+    faz merge com o que já estava no arquivo (tipicamente candidato fictício
+    de gerar_ficticios_2026.py, com fonte:"ficticio", que a interface marca
+    visualmente como tal). Só troca fictício por real partido a partido,
+    conforme a ata de cada um sai — nunca perde a chapa inteira de um partido
+    só porque essa rodada só trouxe ata de outro."""
     saida_dir = Path(saida_dir)
     saida_dir.mkdir(parents=True, exist_ok=True)
+    caminho_js = saida_dir / f"{uf.lower()}-2026-provisorio.js"
+
+    existente_por_cargo = ler_provisorio_existente(caminho_js)
 
     por_cargo = {}
+    partidos_reais_por_cargo = {}
     ids_vistos = {}
     for c in sorted(resultado_verificar["candidaturasFinais"], key=lambda c: (c["cargo"], c["ordem"])):
         cargo = c["cargo"]
         por_cargo.setdefault(cargo, [])
         base_partido = c["partido"] or c["partidoDocumento"] or "sem-partido"
+        partidos_reais_por_cargo.setdefault(cargo, set()).add(base_partido)
         base_id = slugify(f"{base_partido}-{c['nome']}")
         n = ids_vistos.get(base_id, 0)
         ids_vistos[base_id] = n + 1
         cand_id = base_id if n == 0 else f"{base_id}-{n+1}"
-        por_cargo[cargo].append({**c, "id": cand_id})
+        # Dict "limpo" de propósito (não `{**c, ...}`) — c carrega campos
+        # internos do processamento (cargo, ordem, partidoDocumento,
+        # retificadora...) que não podem vazar pro .js gerado.
+        por_cargo[cargo].append({
+            "id": cand_id,
+            "nome": c["nome"],
+            "nomeUrna": c["nomeUrna"],
+            "numero": c["numero"],
+            "partido": c["partido"],
+            "genero": c["genero"],
+            "coligado": c["coligado"],
+            "confianca": c["confianca"],
+            "fonteArquivo": c["arquivoFonte"],
+        })
+
+    candidatos_preservados = 0
+    for cargo, candidatos_antigos in existente_por_cargo.items():
+        partidos_ja_reais = partidos_reais_por_cargo.get(cargo, set())
+        por_cargo.setdefault(cargo, [])
+        for cand in candidatos_antigos:
+            if cand.get("partido") not in partidos_ja_reais:
+                por_cargo[cargo].append(cand)
+                candidatos_preservados += 1
 
     hoje = date.today().isoformat()
     linhas_js = [
-        "// Candidatos 2026 (SC) — PROVISÓRIO, extraído das Atas de Convenção",
-        "// Partidária depositadas em ATAS/SC/, publicadas em",
+        f"// Candidatos 2026 ({uf.upper()}) — PROVISÓRIO, extraído das Atas de Convenção",
+        f"// Partidária depositadas em ATAS/{uf.upper()}/, publicadas em",
         "// https://divulgacandcontas.tse.jus.br/divulga/#/ata",
         "//",
         "// NÃO é o registro oficial de candidatura (RRC) — é o que cada partido/",
@@ -352,10 +464,16 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
         "// para 2026 — ver ferramentas/tratar_atas.py).",
         "//",
         f"// Gerado por ferramentas/tratar_atas.py em {hoje}.",
-        "// Ver dados/estados/sc-2026-conferencia.md para o que precisa de revisão",
+        f"// Ver dados/estados/{uf.lower()}-2026-conferencia.md para o que precisa de revisão",
         "// humana antes desses dados virarem \"fato\" no projeto (mesmo processo de",
         "// dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não",
         "// foram copiados para este arquivo (não são usados pelo simulador).",
+        "//",
+        "// Partido/cargo sem ata real processada ainda mantém o candidato",
+        "// fictício que já estava aqui (fonte:\"ficticio\", gerado por",
+        "// ferramentas/gerar_ficticios_2026.py) em vez de sumir da lista — a",
+        "// interface marca esses visualmente. Nunca reescrever esse merge pra",
+        "// um overwrite total do arquivo (decisão do usuário, 03/08/2026).",
         # "var", não "const": script clássico (sem type="module") só expõe em
         # window[...] (é assim que registro-2026.js lê) uma declaração top-level
         # com "var" — "const"/"let" ficam fora de window, e candidatos2026EstadoCargo
@@ -365,22 +483,10 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
     for cargo, cands in sorted(por_cargo.items()):
         linhas_js.append(f"  {js_string(cargo)}: [")
         for c in cands:
-            campos = [
-                f"id:{js_string(c['id'])}",
-                f"nome:{js_string(c['nome'])}",
-                f"nomeUrna:{js_string(c['nomeUrna'])}",
-                f"numero:{c['numero'] if c['numero'] is not None else 'null'}",
-                f"partido:{js_string(c['partido'])}",
-                f"genero:{js_string(c['genero'])}",
-                f"coligado:{'true' if c['coligado'] else 'false'}",
-                f"confianca:{js_string(c['confianca'])}",
-                f"fonteArquivo:{js_string(c['arquivoFonte'])}",
-            ]
-            linhas_js.append(f"    {{ {', '.join(campos)} }},")
+            linhas_js.append(linha_candidato_js(c))
         linhas_js.append("  ],")
     linhas_js.append("};")
 
-    caminho_js = saida_dir / f"{uf.lower()}-2026-provisorio.js"
     caminho_js.write_text("\n".join(linhas_js) + "\n", encoding="utf-8")
 
     linhas_md = [
@@ -405,6 +511,10 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
     total_alta = sum(1 for c in resultado_verificar["candidaturasFinais"] if c["confianca"] == "alta")
     linhas_md.append(f"Total de candidaturas: **{total}** — confiança alta: **{total_alta}**, "
                       f"a revisar (partido não identificado): **{len(resultado_verificar['semPartido'])}**")
+    if candidatos_preservados:
+        linhas_md.append("")
+        linhas_md.append(f"Candidatos fictícios preservados (partido/cargo ainda sem ata real): "
+                          f"**{candidatos_preservados}** — ver `fonte:\"ficticio\"` no .js gerado.")
     linhas_md.append("")
 
     if resultado_verificar["alertas"]:
