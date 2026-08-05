@@ -1915,21 +1915,27 @@ async function renderCargoEstadual() {
         </div>
       </div>`;
     })() : ""}
-    <div id="pcPainelEleitoralCard" class="pc-lobby-card" style="padding:2px 18px;">
-      <div class="pc-lobby-linha">
-        <span style="font-size:12.5px; font-weight:600; color:var(--pc-ink);">Seus Eleitos</span>
-        <span style="font-size:20px; font-weight:600; font-variant-numeric:tabular-nums;${totalIndicado !== 0 && totalIndicado !== totalVagasCargo ? " color:var(--pc-warning);" : " color:var(--pc-accent);"}">${totalIndicado}<span style="font-size:12px; color:var(--pc-ink-dim); font-weight:400;">/${totalVagasCargo}</span></span>
-      </div>
-      <div class="pc-lobby-linha">
-        <span style="font-size:12px; color:var(--pc-ink-dim); display:flex; align-items:center; gap:4px;">Soma de Votos ${infoTip("Referência de votos válidos estimados: projeta o total de 2022 pelo crescimento do eleitorado até 2026, mantendo as taxas históricas de branco, nulo e comparecimento.")}</span>
-        <span style="font-size:13px; font-weight:600; color:var(--pc-ink); font-variant-numeric:tabular-nums;">${somaTotal.toLocaleString("pt-BR")} <span style="font-size:10px; color:var(--pc-ink-dim); font-weight:400;">de ~${Math.round(votosValidos2026Proj).toLocaleString("pt-BR")}</span></span>
-      </div>
-      <div class="pc-lobby-linha">
-        <span style="font-size:12px; color:var(--pc-ink-dim);">Plenário — ${totalVagasCargo} vagas</span>
-        <button id="pcAbrirInstrucao" class="pc-lobby-icon-btn" style="width:30px; height:30px;" title="Dica, como montar a lista?">${iconeSvg("alerta", 13)}</button>
+    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:18px 24px;">
+      <div style="display:flex; align-items:center; gap:28px;">
+        <div style="flex-shrink:0; text-align:center; line-height:1.25;">
+          <div id="pcTituloPainelLinha1" style="font-size:12.5px; font-weight:700; color:var(--pc-ink); white-space:nowrap;">PAINEL</div>
+          <div id="pcTituloPainelLinha2" style="font-size:12.5px; font-weight:700; color:var(--pc-ink); white-space:nowrap;">ELEITORAL</div>
+        </div>
+        <div style="width:1px; height:34px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
+        <div style="flex-shrink:0;">
+          <div style="font-size:11px; color:var(--pc-ink-dim); margin-bottom:2px;">Seus Eleitos</div>
+          <div style="font-size:28px; font-weight:700; line-height:1.1;${totalIndicado !== 0 && totalIndicado !== totalVagasCargo ? " color:#ff9500; text-shadow:0 0 12px rgba(255,149,0,.6);" : " color:var(--pc-ink);"}">${totalIndicado}<span style="font-size:13px; color:var(--pc-ink-dim); font-weight:400;"> /${totalVagasCargo}</span></div>
+        </div>
+        <div style="width:1px; height:34px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:11px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Soma de Votos ${infoTip("Referência de votos válidos estimados: projeta o total de 2022 pelo crescimento do eleitorado até 2026, mantendo as taxas históricas de branco, nulo e comparecimento.")}</div>
+          <div style="font-size:16px; font-weight:700; color:var(--pc-ink); line-height:1.2;">${somaTotal.toLocaleString("pt-BR")} <span style="font-size:10.5px; color:var(--pc-ink-dim); font-weight:400;">de ~${Math.round(votosValidos2026Proj).toLocaleString("pt-BR")}</span></div>
+        </div>
+        <button id="pcAbrirInstrucao" class="pc-mini-btn" style="flex-shrink:0;" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
       </div>
     </div>
-    <div class="pc-lobby-card" style="padding:14px;">
+    <div class="glass-card" style="padding:14px;">
+      <div class="pc-sub" style="margin:0 0 14px;">Plenário — ${totalVagasCargo} vagas</div>
       ${hemiciclo}
       <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
     </div>
@@ -1954,8 +1960,26 @@ async function renderCargoEstadual() {
     </div>
   `;
 
+  ajustarTituloPainelEleitoral();
   ajustarBackdropSticky();
   attachListenersSelecao();
+}
+
+// "PAINEL" / "ELEITORAL" tratado como logotipo: duas linhas centralizadas
+// formando um retângulo — mede a largura real de "ELEITORAL" (mais larga,
+// já que tem mais letras) e espalha as letras de "PAINEL" (letter-spacing)
+// até bater a mesma largura. Não dá pra fazer só em CSS porque a largura de
+// cada palavra depende da fonte renderizada; por isso mede depois do render.
+function ajustarTituloPainelEleitoral() {
+  const linha1 = document.getElementById("pcTituloPainelLinha1");
+  const linha2 = document.getElementById("pcTituloPainelLinha2");
+  if (!linha1 || !linha2) return;
+  linha1.style.letterSpacing = "0px";
+  const alvo = linha2.getBoundingClientRect().width;
+  const natural = linha1.getBoundingClientRect().width;
+  const letras = linha1.textContent.length;
+  const espaco = (alvo - natural) / letras;
+  linha1.style.letterSpacing = `${espaco}px`;
 }
 
 // Estica o preenchimento do backdrop (ver #pcStickyBackdrop no CSS) até
