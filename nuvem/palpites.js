@@ -217,6 +217,124 @@ async function buscarTodosPalpitesPublicos() {
   return data || [];
 }
 
+// Igual a buscarTodosPalpitesPublicos, mas via "rascunhos_publicos"
+// (Migração 7) — cobre os 3 cargos (rascunho_estadual/federal/senador) de
+// TODA pessoa cadastrada, não só o último cargo depositado por cada uma.
+// Alimenta calcularMedianaPalpites abaixo.
+async function buscarTodosRascunhosPublicos() {
+  const { data, error } = await supabaseClient.from("rascunhos_publicos").select("*");
+  if (error) {
+    console.error("Erro ao carregar rascunhos públicos:", error);
+    return [];
+  }
+  return data || [];
+}
+
+// Mediana aparada: ordena as amostras, descarta os 10% mais altos e mais
+// baixos ANTES de tirar a mediana — protege contra um BLOCO de respostas
+// extremas na mesma direção (ex.: 15% de gente testando número aleatório
+// alto), coisa que a mediana pura sozinha já resiste bem a outlier ISOLADO,
+// mas não a um bloco assim. Só apara com amostra suficiente (N≥10) —
+// combinado e confirmado com o usuário em 04/08/2026: abaixo disso, aparar
+// 10% de cada ponta pode sobrar pouca coisa (ou nada) pra calcular em cima.
+function medianaAparada(valores) {
+  const ordenados = [...valores].sort((a, b) => a - b);
+  const n = ordenados.length;
+  if (n === 0) return 0;
+  const apara = n >= 10 ? Math.floor(n * 0.1) : 0;
+  const aparados = apara > 0 ? ordenados.slice(apara, n - apara) : ordenados;
+  const m = aparados.length;
+  const meio = Math.floor(m / 2);
+  return m % 2 === 0 ? Math.round((aparados[meio - 1] + aparados[meio]) / 2) : aparados[meio];
+}
+
+// Mesma forma de retorno de calcularMediaPalpites (parties/totalPalpites,
+// pronta pra dhondt()/quocienteEleitoral()/desenharHemiciclo()) — mas cada
+// candidato usa a MEDIANA APARADA dos votos que todo mundo deu pra ele em
+// vez da média simples. "amostras" (quantas pessoas votaram nesse
+// candidato específico) e "semPalpites" vão junto, pra tela poder mostrar
+// o tamanho da amostra por trás do número.
+function calcularMedianaPalpites(registros, cargo, uf) {
+  cargo = cargo || "estadual";
+  uf = uf || "SC";
+  const amostras = {}; // chave -> [votos...]
+  registros.forEach((r) => {
+    (r[`rascunho_${cargo}`] || []).forEach((partido) => {
+      (partido.candidatos || []).forEach((c) => {
+        const chave = c.chave || chaveCandidato(c.nome, partido.nome);
+        if (!amostras[chave]) amostras[chave] = [];
+        amostras[chave].push(Number(c.votos) || 0);
+      });
+    });
+  });
+
+  const baseCargo = candidatosEstadoCargo(uf, cargo);
+  const partiesMediana = baseCargo.map((p) => {
+    const candidatos = p.candidatos.map((c) => {
+      const chave = chaveCandidato(c.nome, p.nome, c.id);
+      const valores = amostras[chave];
+      const votos = valores && valores.length ? medianaAparada(valores) : c.votos;
+      return {
+        chave, nome: c.nome, nomeUrna: c.nomeUrna || "", municipio: c.municipio,
+        votos2022: c.votos, fonte: c.fonte, eleito2022: !!c.eleito2022, invalidado2022: !!c.invalidado2022,
+        votos, amostras: valores ? valores.length : 0, semPalpites: !valores || !valores.length,
+      };
+    });
+    return { nome: p.nome, vagas2022: p.vagas2022, candidatos };
+  });
+
+  const participantes = new Set(registros.map((r) => r.perfil_id));
+  return { parties: partiesMediana, totalPalpites: participantes.size };
+}
+
+// Projeta quem seria eleito a partir de uma agregação já calculada
+// (calcularMedianaPalpites) — reaproveita a MESMA regra eleitoral do resto
+// do app: proporcional (quociente + D'Hondt, dhondtComCorte) pra
+// Estadual/Federal, majoritário (mais votado individual, juntando todos os
+// partidos numa fila só) pro Senador — mesmo motivo do branch em
+// classificarEleitosPorPartido (interface/prospeccao.js, achado em
+// 04/08/2026). Devolve tudo ordenado por votos (eleitos misturados com os
+// mais próximos da vaga — "suplentes"), cada item com `eleito:true/false`.
+function projetarEleitosMediana(parties, cargo, uf, limiteExibicao) {
+  const totalVagasCargo = vagasFixasCargo(uf, cargo);
+  let resultado = [];
+
+  if (cargo === "senador") {
+    const todos = [];
+    // Mesmo filtro de classificarEleitosMajoritario (interface/prospeccao.js)
+    // — voto de legenda não é uma pessoa, não pode "ganhar vaga" aqui.
+    // Nenhum dado de Senador carregado hoje tem fonte:"legenda", mas sem
+    // esse filtro um dado futuro assim poderia concorrer por engano —
+    // achado pela auditoria eleitoral em 05/08/2026.
+    parties.forEach((p) => p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todos.push({ ...c, partido: p.nome })));
+    const ordenados = [...todos].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+    resultado = ordenados.map((c, i) => ({ ...c, eleito: i < totalVagasCargo }));
+  } else {
+    const { counts } = dhondtComCorte(parties, totalVagasCargo);
+    parties.forEach((p, i) => {
+      const cadeiras = counts[i] || 0;
+      const ordenados = [...p.candidatos].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+      ordenados.forEach((c, j) => resultado.push({ ...c, partido: p.nome, eleito: j < cadeiras }));
+    });
+    resultado.sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+  }
+
+  if (!limiteExibicao) return resultado;
+  // O corte de limiteExibicao NUNCA pode esconder um eleito de verdade —
+  // achado pela auditoria eleitoral em 05/08/2026: cortar "cego" pela
+  // posição no ranking geral de votos individuais escondia eleitos de
+  // partido pequeno/eficiente no D'Hondt (que elege gente com voto
+  // individual mais baixo que muito não-eleito de partido grande),
+  // quebrando a promessa de a lista bater com o hemiciclo. Todo eleito
+  // sempre entra; o limite só reduz quantos suplentes (não-eleitos, os
+  // mais votados primeiro) completam a lista.
+  const eleitos = resultado.filter((c) => c.eleito);
+  const naoEleitos = resultado.filter((c) => !c.eleito);
+  const vagasSuplentes = Math.max(0, limiteExibicao - eleitos.length);
+  return [...eleitos, ...naoEleitos.slice(0, vagasSuplentes)]
+    .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+}
+
 // Busca o rascunho público (3 cargos) de UMA pessoa — usado pelo link de
 // Compartilhar (ver renderCompartilhado em interface/prospeccao.js) e por
 // buscarComparacaoGrupo (nuvem/grupos.js). Diferente de

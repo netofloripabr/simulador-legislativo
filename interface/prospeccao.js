@@ -2928,39 +2928,75 @@ function attachListenersPalpite() {
 
 // ---------- Quadro de médias ----------
 
+// Quadro de médias — pesquisa em tempo real. Diferente do resto do app
+// (que trabalha o palpite de UMA pessoa), aqui é a agregação pública de
+// TODA gente cadastrada: cada candidato usa a mediana aparada dos votos
+// que cada pessoa deu pra ele (calcularMedianaPalpites em
+// nuvem/palpites.js — mais resistente a resposta isolada/bloco de
+// respostas extremas do que média simples), e quem "estaria eleito" sai
+// da MESMA regra eleitoral real usada em todo o resto do app (quociente +
+// D'Hondt pra Estadual/Federal, majoritário pro Senador — ver
+// projetarEleitosMediana). Concebido com o usuário em 04/08/2026.
 async function renderQuadroMedias() {
   const conteudo = document.getElementById("pcConteudo");
-  conteudo.innerHTML = `<div class="glass-card"><div class="pc-status">Calculando médias de todos os palpites…</div></div>`;
+  conteudo.innerHTML = telaCarregando("Calculando a mediana de todos os palpites…");
 
-  const todos = await buscarTodosPalpitesPublicos();
-  const { parties, totalPalpites } = calcularMediaPalpites(todos);
-  const seatsProj = dhondt(parties, 40);
-  const listaSeats = BASE_2022.map((p, i) => ({ nome: p.nome, seats: seatsProj[i] || 0 }));
-  const qe = quocienteEleitoral(parties.reduce((s, p) => s + partyVotos(p), 0), 40);
+  if (!pcState.cargoAtivoMedias) pcState.cargoAtivoMedias = "estadual";
+  const cargo = pcState.cargoAtivoMedias;
+  const registros = await buscarTodosRascunhosPublicos();
+  const { parties, totalPalpites } = calcularMedianaPalpites(registros, cargo, pcState.estado);
+  const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
+  // Limite de exibição: vagas do cargo + 50% de margem pra suplentes —
+  // regra combinada com o usuário em 04/08/2026, pensada pra funcionar em
+  // QUALQUER disputa do país (não um número fixo tipo "70", que só valia
+  // pro Estadual de 40 vagas). Senador é exceção: cargo majoritário, poucas
+  // vagas (1 ou 2 por ciclo) — a mesma fórmula daria um número pequeno
+  // demais pra dar contexto (3), então usa um teto fixo de 5 candidatos.
+  const limiteExibicao = cargo === "senador" ? 5 : Math.round(totalVagasCargo * 1.5);
+  const projecao = projetarEleitosMediana(parties, cargo, pcState.estado, limiteExibicao);
 
-  const linhasPartido = parties
-    .map((p, i) => ({ p, i, votos: partyVotos(p), vagas: seatsProj[i] || 0 }))
-    .sort((a, b) => b.vagas - a.vagas)
-    .map(({ p, votos, vagas }) => `
-      <tr>
-        <td>${p.nome}</td>
-        <td class="num">${p.vagas2022}</td>
-        <td class="num" style="font-family:var(--mono)">${votos.toLocaleString("pt-BR")}</td>
-        <td class="num" style="font-weight:700">${vagas}</td>
-      </tr>`).join("");
+  const seatsProj = cargo === "senador"
+    ? Object.values(projecao.filter((c) => c.eleito).reduce((acc, c) => {
+        acc[c.partido] = acc[c.partido] || { nome: c.partido, seats: 0 };
+        acc[c.partido].seats++;
+        return acc;
+      }, {}))
+    : (() => {
+        const { counts } = dhondtComCorte(parties, totalVagasCargo);
+        return parties.map((p, i) => ({ nome: p.nome, seats: counts[i] || 0 }));
+      })();
+
+  const botoesCargo = CARGOS.map((c) => `
+    <button data-pc-cargo-medias="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
+
+  const linha = (c, i) => `
+    <div class="pc-lobby-linha">
+      <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
+        <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:${c.eleito ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${i + 1}º</span>
+        <span style="min-width:0;">
+          <div style="font-size:13px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.nomeUrna || c.nome}${c.eleito ? ` <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#04140d; background:var(--pc-accent); border-radius:999px; padding:1px 6px;">eleito</span>` : ""}</div>
+          <div style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${c.semPalpites ? " · sem palpite (usa 2022)" : ` · ${c.amostras} palpite${c.amostras === 1 ? "" : "s"}`}</div>
+        </span>
+      </span>
+      <span style="font-size:12.5px; font-weight:600; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; flex-shrink:0;">${Number(c.votos || 0).toLocaleString("pt-BR")}</span>
+    </div>`;
 
   conteudo.innerHTML = `
-    <div class="glass-card">
-      <h2>Quadro de médias — projeção coletiva</h2>
-      <div class="pc-sub">Baseado em ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} registrado${totalPalpites === 1 ? "" : "s"}. Partidos sem nenhum palpite mostram o valor real de 2022 como referência neutra.</div>
-      ${desenharHemiciclo(listaSeats, 40)}
+    <h2 style="margin-bottom:4px;">Quadro de médias</h2>
+    <div class="pc-sub" style="margin-bottom:14px;">Pesquisa em tempo real — mediana aparada de ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} público${totalPalpites === 1 ? "" : "s"}. Quem estaria eleito, pela mesma regra do resultado oficial.</div>
+    <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
+    <div class="pc-lobby-card" style="padding:14px;">
+      ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(61,255,176,.14)", vago: "#182f24", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
     </div>
-    <div class="glass-card">
-      <table>
-        <thead><tr><th>Partido</th><th class="num">Vagas 22</th><th class="num">Votos médios 26</th><th class="num">Vagas 26 (média)</th></tr></thead>
-        <tbody>${linhasPartido}</tbody>
-      </table>
-      ${qe ? `<div class="pc-sub" style="margin-top:10px;">Quociente eleitoral (com base nas médias): ${qe.toLocaleString("pt-BR")} votos/vaga.</div>` : ""}
+    <div class="pc-lobby-card">
+      ${projecao.length ? projecao.map(linha).join("") : `<div class="pc-lobby-linha"><span style="font-size:12.5px; color:var(--pc-ink-dim);">Ninguém preencheu esse cargo ainda.</span></div>`}
     </div>
   `;
+
+  document.querySelectorAll("[data-pc-cargo-medias]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pcState.cargoAtivoMedias = btn.getAttribute("data-pc-cargo-medias");
+      renderQuadroMedias();
+    });
+  });
 }
