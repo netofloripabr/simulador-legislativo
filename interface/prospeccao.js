@@ -2660,6 +2660,18 @@ function montarSecaoImpressaoCargo(cargo) {
   `;
 }
 
+// Texto do tooltip "i" no selo "eleito · QP/média/majoritário" da Revisão
+// — explica o MECANISMO de verdade por trás de cada tag, em vez de deixar
+// a sigla sozinha. Pedido do usuário em 05/08/2026 (junto com a correção
+// do texto "você não marcou esse" que estava quebrando linha feio — virou
+// tooltip próprio, ver warnTip em linhaEleitoReal).
+function explicacaoTag(tag) {
+  if (tag === "QP") return "Elegeu-se pelo <b>quociente partidário</b> (Código Eleitoral, art. 107): o partido teve votos suficientes pra garantir essa vaga direto, sem depender de sobra.";
+  if (tag === "média") return "Elegeu-se pela <b>distribuição de sobras</b> (método das médias, art. 109): depois das vagas garantidas pelo quociente partidário, as vagas restantes vão pro partido com a maior média (votos ÷ (vagas já obtidas + 1)) a cada rodada — por isso alguém com menos voto individual pode se eleger antes de outro com mais voto, se o partido dele estiver melhor posicionado nessa média.";
+  if (tag === "majoritário") return "Cargo majoritário (Senado): não existe quociente partidário nem sobra aqui — as vagas vão direto pra quem tiver mais voto individual, juntando todos os partidos numa fila só.";
+  return "";
+}
+
 function renderRevisaoDeposito() {
   const conteudo = document.getElementById("pcConteudo");
   garantirPalpitesPorCargo();
@@ -2692,8 +2704,11 @@ function renderRevisaoDeposito() {
     const linhaEleitoReal = (c, i) => `
       <div style="display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:1px solid #16241e; font-size:12.5px;">
         <span style="width:22px; color:var(--pc-ink-dim); flex-shrink:0;">${i + 1}º</span>
-        <span style="flex-shrink:0; font-family:var(--mono); font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#04140d; background:var(--pc-accent); border-radius:999px; padding:2px 7px;">eleito · ${c.tag}</span>
-        <span style="flex:1; min-width:0;">${c.nome}<br><span style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${!c.marcadoPeloUsuario ? ' · <span style="color:var(--pc-warning);">você não marcou esse</span>' : ""}</span></span>
+        <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-family:var(--mono); font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#04140d; background:var(--pc-accent); border-radius:999px; padding:2px 7px;">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag))}</span>
+        <span style="flex:1; min-width:0; display:flex; align-items:center; gap:5px;">
+          <span style="min-width:0;">${c.nome}<br><span style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}</span></span>
+          ${!c.marcadoPeloUsuario ? warnTip("Você não marcou esse candidato como eleito no seu palpite — é quem realmente fecharia essa vaga com a votação de hoje.") : ""}
+        </span>
         <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${c.votos.toLocaleString("pt-BR")}" style="width:100px; font-size:12.5px; font-weight:600; text-align:right; flex-shrink:0;">
       </div>`;
 
