@@ -321,6 +321,26 @@ function desenharHemiciclo(listaPartidos, totalVagas, coresMono){
         seatIdx++;
       }
     }
+  } else if (totalVagas <= 5) {
+    // Poucas vagas (ex.: Senador, 2) — o arco pensado pra 40 cadeiras
+    // espalha os poucos assentos de forma estranha (círculos longe um do
+    // outro, meio perdidos no espaço do card). Com tão poucas vagas fica
+    // melhor uma fileira única, círculos grandes lado a lado, centralizada
+    // e dimensionada pra aproveitar a largura disponível — mesma ideia da
+    // grade waffle acima (deixar o espaço mandar no tamanho), só que em
+    // círculo por ainda ser proporcional (não > 40), não quadrado. Achado
+    // com o usuário em 06/08/2026 olhando o Plenário do Senador.
+    const x0 = 30, x1 = 370, y0 = 90, y1 = 170;
+    const larguraUtil = x1 - x0;
+    const gap = 14;
+    const raioCirculo = Math.min((larguraUtil - gap * (totalVagas - 1)) / (2 * totalVagas), RAIO_BASE * 4.2);
+    const larguraTotal = totalVagas * (raioCirculo * 2) + (totalVagas - 1) * gap;
+    const xInicial = (x0 + x1) / 2 - larguraTotal / 2 + raioCirculo;
+    const y = (y0 + y1) / 2;
+    seatList.forEach((partido, i) => {
+      const x = xInicial + i * (raioCirculo * 2 + gap);
+      circles += desenharAssento(x, y, raioCirculo, partido);
+    });
   } else {
     const raios = [80,118,156];
     const linhas = splitProporcional(totalVagas, raios);
