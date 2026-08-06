@@ -248,9 +248,13 @@
        do .wrap em telas largas, com fonte pequena boiando no espaço vazio.
        Em celular (viewport < 640px) isso não muda nada, já ocupa 100%. */
     max-width: 640px;
+    overflow-x: hidden;
   }
   @media (max-width: 680px){
     #modoColaborativoWrap{ padding: 18px 14px; border-radius: 12px; }
+  }
+  @media (max-width: 420px){
+    #modoColaborativoWrap .pc-btn-label{ display:none; }
   }
   /* .info-tip/.tip-box (interface/app.js: infoTip/warnTip) usam as cores do
      tema escuro do Simulador por padrão — aqui remapeamos pro verde-neon. */
@@ -267,6 +271,46 @@
   #modoColaborativoWrap .info-tip.warn{ border-color: var(--pc-danger); color: var(--pc-danger); background: rgba(224,96,122,0.12); }
   #modoColaborativoWrap .info-tip.warn .tip-box{ border-color: var(--pc-danger); }
   #modoColaborativoWrap .info-tip.warn .tip-box::after{ border-top-color: var(--pc-danger); }
+
+  /* Termômetro de quociente/sobra (card de partido, Seleção) — barra em
+     segmentos-pílula, uma posição por vaga marcada, nunca mostra nome de
+     candidato. Verde sólido = quociente partidário; hachurado âmbar = sobra
+     garantida hoje; tracejado rosa/vazado = fora hoje. Confirmado com o
+     usuário em 06/08/2026 após várias rodadas de protótipo visual. */
+  /* flex-wrap + min-width igual à altura: os segmentos encolhem
+     proporcionalmente conforme o partido tem mais marcados (ex.: SP, onde
+     um partido pode passar de 30) até virarem um círculo perfeito — só
+     nesse ponto quebram pra uma linha nova, em vez de espremer a ponto de
+     sumir. border-radius:999px serve pro segmento largo (vira pílula) e
+     pro círculo mínimo (vira bolinha) com a mesma regra. Confirmado com o
+     usuário em 06/08/2026. */
+  #modoColaborativoWrap .pc-term-bar{ display:flex; flex-wrap:wrap; gap:5px; margin:14px 0 8px; }
+  #modoColaborativoWrap .pc-term-seg{
+    position:relative; flex:1 1 0%; min-width:11px; max-width:32px; height:11px; border-radius:999px; cursor:help;
+  }
+  #modoColaborativoWrap .pc-term-seg.qp{ background: var(--pc-lobby-verde-media); }
+  #modoColaborativoWrap .pc-term-seg.sobra{
+    border:1.5px solid var(--pc-warning);
+    background: repeating-linear-gradient(45deg, rgba(201,138,43,.28) 0 3px, transparent 3px 6px);
+  }
+  #modoColaborativoWrap .pc-term-seg.fora{ border:1.5px dashed var(--pc-danger); background:transparent; }
+  #modoColaborativoWrap .pc-term-seg .tip-box{
+    display:none; position:absolute; bottom:135%; left:50%; transform:translateX(-50%);
+    width:220px; background:rgba(12,28,22,.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border:1px solid var(--pc-warning); border-radius:7px; padding:9px 11px;
+    font-family:var(--sans); font-size:11px; font-style:normal; font-weight:400; color:var(--pc-ink);
+    line-height:1.5; z-index:50; box-shadow:0 6px 18px rgba(0,0,0,.4); text-align:left; white-space:normal;
+    cursor:auto;
+  }
+  #modoColaborativoWrap .pc-term-seg:hover .tip-box{ display:block; }
+  #modoColaborativoWrap .pc-term-seg .tip-box b{ color: var(--pc-accent); }
+  #modoColaborativoWrap .pc-term-seg .tip-box::after{
+    content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+    border:6px solid transparent; border-top-color:var(--pc-warning);
+  }
+  #modoColaborativoWrap .pc-term-legenda{ display:flex; gap:16px; font-size:11px; color:var(--pc-ink-dim); flex-wrap:wrap; }
+  #modoColaborativoWrap .pc-term-legenda span{ display:inline-flex; align-items:center; gap:6px; }
+  #modoColaborativoWrap .pc-term-dot{ width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; }
   #modoColaborativoWrap .glass-card{
     background: var(--pc-glass); border: 1px solid var(--pc-glass-border);
     border-radius: 14px; padding: 22px 24px; margin-bottom: 18px;

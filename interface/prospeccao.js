@@ -1693,6 +1693,20 @@ async function renderCargoEstadual() {
     ? partidosOrdenados.filter((p) => normalizarBusca(nomePartidoExibicao(p.nome)).includes(filtroPartido))
     : partidosOrdenados;
 
+  // Base do termômetro (barraTermometro, abaixo): D'Hondt rodado direto
+  // sobre o voto BRUTO já digitado (pcState.palpiteEdicao, sem escala) —
+  // a mesma fonte que eleitosReaisPorPartido usa na Revisão. Antes o
+  // termômetro comparava com necessarioParaVagas (que escala TODOS os
+  // partidos pra uma projeção fixa de 2026), o que divergia da Revisão de
+  // verdade sempre que os outros partidos ainda não tinham sido
+  // preenchidos — auditoria com revisor-regra-eleitoral em 06/08/2026
+  // encontrou casos de até 40 vagas de diferença nesse cenário (normal:
+  // é assim que a tela pede pra preencher, partido por partido). Rodado
+  // uma vez só aqui fora do .map, não a cada card.
+  const { counts: cadeirasReaisPorPartido, corte: corteRealCargo } = dhondtComCorte(pcState.palpiteEdicao, totalVagasCargo);
+  const totalValidosRealCargo = pcState.palpiteEdicao.reduce((s, pp) => s + partyVotos(pp), 0);
+  const qeRealCargo = quocienteEleitoral(totalValidosRealCargo, totalVagasCargo);
+
   const blocos = partidosParaMostrar.map((p) => {
     const marcados = p.candidatos.filter((c) => c.marcadoEleito).length;
     const st = statusPartidoSelecao(p);
@@ -1863,6 +1877,50 @@ async function renderCargoEstadual() {
       `;
     }
 
+    // Termômetro de quociente/sobra — mostra, POSIÇÃO por posição (nunca
+    // nome de candidato), se cada vaga marcada estaria garantida por
+    // quociente partidário (art. 107), por sobra/método das médias (art.
+    // 109) ou fora hoje — reaproveita necessarioParaVagas (já validado, é a
+    // mesma conta da caixa "Quociente do cargo" acima) rodada pra cada
+    // posição k=1..marcados, em vez de inventar uma matemática nova. Só
+    // informativo, nunca trava o preenchimento (mesmo espírito do
+    // "Harmonizar tudo" na Revisão — ver harmonizarCargo).
+    const barraTermometro = (() => {
+      if (!marcados) return "";
+      const marcadosOrdenados = [...p.candidatos].filter((c) => c.marcadoEleito).sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+      const pIdx = pcState.palpiteEdicao.indexOf(p);
+      // cadeirasReaisTotal/qpRealTotal são o direito de VERDADE do partido
+      // (pode passar de "marcados", se o partido já teria direito a mais
+      // vagas do que a pessoa marcou até agora) — mas a barra só tem um
+      // segmento por candidato MARCADO, então capa os dois em "marcados"
+      // antes de montar a legenda, senão "3 Sobra" aparecia na legenda sem
+      // nenhum segmento correspondente na barra (achado testando ao vivo
+      // em 06/08/2026).
+      const cadeirasReaisTotal = cadeirasReaisPorPartido[pIdx] || 0;
+      const qpRealTotal = qeRealCargo ? Math.min(cadeirasReaisTotal, Math.floor(somaVotosIndicados / qeRealCargo)) : 0;
+      const cadeirasReais = Math.min(cadeirasReaisTotal, marcados);
+      const qpReal = Math.min(qpRealTotal, marcados);
+      const sobraCount = cadeirasReais - qpReal;
+      const foraCount = Math.max(0, marcados - cadeirasReais);
+      const segmentos = marcadosOrdenados.map((c, i) => {
+        const k = i + 1;
+        if (k <= qpReal) {
+          return `<div class="pc-term-seg qp"><span class="tip-box"><b>${k}ª vaga</b> — quociente partidário (art. 107): garantida com a votação de hoje, não depende de sobra.</span></div>`;
+        }
+        if (k <= cadeirasReais) {
+          return `<div class="pc-term-seg sobra"><span class="tip-box"><b>${k}ª vaga (sobra — art. 109)</b> — garantida com a votação já digitada: o partido está entre os ${totalVagasCargo} melhores quocientes do cargo neste momento.</span></div>`;
+        }
+        const necessarioK = Math.max(0, Math.floor(corteRealCargo * k) + 1);
+        const faltam = Math.max(0, necessarioK - somaVotosIndicados);
+        return `<div class="pc-term-seg fora"><span class="tip-box"><b>${k}ª — fora hoje</b> — com a votação já digitada por todo mundo, essa posição não fecharia vaga agora. Faltam ${Math.round(faltam).toLocaleString("pt-BR")} votos no total do partido pra entrar na disputa.</span></div>`;
+      }).join("");
+      const legendaPartes = [];
+      if (qpReal > 0) legendaPartes.push(`<span><span class="pc-term-dot" style="background:var(--pc-lobby-verde-media);"></span>${qpReal} QE</span>`);
+      if (sobraCount > 0) legendaPartes.push(`<span><span class="pc-term-dot" style="background:var(--pc-warning);"></span>${sobraCount} Sobra</span>`);
+      if (foraCount > 0) legendaPartes.push(`<span><span class="pc-term-dot" style="background:var(--pc-danger);"></span>fora</span>`);
+      return `<div class="pc-term-bar">${segmentos}</div><div class="pc-term-legenda">${legendaPartes.join("")}</div>`;
+    })();
+
     return `
       <div data-pc-partido-card="${p.nome}" style="border:1px solid rgba(120,130,180,0.2); border-radius:10px; margin-bottom:8px;">
         <div style="display:flex; align-items:center; gap:8px; padding:13px 14px 10px;">
@@ -1888,6 +1946,7 @@ async function renderCargoEstadual() {
             </div>
           </div>
         </div>
+        ${barraTermometro ? `<div style="margin:0 14px 10px;">${barraTermometro}</div>` : ""}
         <div style="margin:0 14px; padding:8px 0 10px; border-top:1px solid rgba(120,130,180,0.14); font-size:11px; color:var(--pc-ink-dim); font-family:var(--mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Eleições 2022 · ${resumoVotos2022Html}</div>
         <button data-pc-toggle-partido="${p.nome}" class="pc-expand-handle" title="${isExpanded ? "Recolher" : "Ver candidatos"}">
           <span></span>
@@ -2038,12 +2097,12 @@ async function renderCargoEstadual() {
       ${hemiciclo}
       <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
     </div>
-    <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px;">
+    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
       <button id="pcBtnBuscaPartidoToggle" class="pc-mini-btn" title="Buscar partido por nome" style="${pcState.buscaPartidoAberta ? "background:rgba(61,255,176,.18); border-color:var(--pc-accent); color:var(--pc-accent);" : ""}">
         <svg viewBox="0 0 16 16" width="14" height="14"><circle cx="6.6" cy="6.6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7L13.5 13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
       </button>
-      <button class="ghost" id="pcBtnVoltarSelecao" title="Desfaz a última alteração feita nesta tela" ${pcState.historicoPalpite.length ? "" : "disabled"}>Desfazer</button>
-      <button class="ghost" id="pcBtnZerarTudo" style="display:flex; align-items:center; gap:5px;">${iconeSvg("borracha", 14)} Zerar${infoTip("Zere o jogo!<br><br>Aqui você limpa a votação de todo mundo.<br><br>Indicado para aquele jogador mais avançado que deseja indicar a votação de muitos candidatos.")}</button>
+      <button class="ghost" id="pcBtnVoltarSelecao" title="Desfaz a última alteração feita nesta tela" style="display:flex; align-items:center; gap:5px;" ${pcState.historicoPalpite.length ? "" : "disabled"}>${iconeSvg("reset", 14)}<span class="pc-btn-label">Desfazer</span></button>
+      <button class="ghost" id="pcBtnZerarTudo" title="Zerar votação de todos" style="display:flex; align-items:center; gap:5px;">${iconeSvg("borracha", 14)}<span class="pc-btn-label">Zerar</span>${infoTip("Zere o jogo!<br><br>Aqui você limpa a votação de todo mundo.<br><br>Indicado para aquele jogador mais avançado que deseja indicar a votação de muitos candidatos.")}</button>
       <button id="pcBtnTop2022" class="pc-mini-btn" title="Top 100 mais votados em 2022">${iconeSvg("ano2022", 15)}</button>
       <div style="flex:1;"></div>
       <button id="pcBtnPreencherAutoTudo" class="primary" style="display:flex; align-items:center; gap:8px;">${iconeSvg("completar", 18)} Auto${infoTip("PREENCHIMENTO AUTOMÁTICO<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.")}</button>
