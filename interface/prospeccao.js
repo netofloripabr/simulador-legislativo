@@ -1923,8 +1923,8 @@ async function renderCargoEstadual() {
 
     return `
       <div data-pc-partido-card="${p.nome}" style="border:1px solid rgba(120,130,180,0.2); border-radius:10px; margin-bottom:8px;">
-        <div style="display:flex; align-items:center; gap:8px; padding:13px 14px 10px;">
-          <button data-pc-toggle-partido="${p.nome}" style="display:flex; align-items:center; gap:10px; flex:1; min-width:0; text-align:left; background:none; border:none; cursor:pointer; color:var(--pc-ink); font-family:var(--sans); padding:0;">
+        <div style="display:flex; align-items:center; flex-wrap:wrap; row-gap:10px; gap:8px; padding:13px 14px 10px;">
+          <button data-pc-toggle-partido="${p.nome}" style="display:flex; align-items:center; gap:10px; flex:1 1 auto; min-width:70px; text-align:left; background:none; border:none; cursor:pointer; color:var(--pc-ink); font-family:var(--sans); padding:0;">
             <span style="width:9px; height:9px; border-radius:50%; background:${st.cor}; flex-shrink:0;"></span>
             <span style="font-weight:700; font-size:15.5px;">${nomePartidoExibicao(p.nome)}</span>
           </button>
