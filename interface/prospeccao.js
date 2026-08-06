@@ -1282,6 +1282,105 @@ function balancearPartidoSelecao(p, base) {
   });
 }
 
+// "Harmonizar tudo" — substitui a lógica de "corrigir um candidato/partido
+// de cada vez" (fecharVagaPartido/distribuirComQuemTemMenos abaixo), que
+// nunca convergia: D'Hondt decide as vagas de TODOS os partidos JUNTOS, um
+// corte só vale pro cargo inteiro — corrigir o partido A desloca esse
+// corte, o que pode tirar a vaga de quem estava por último no partido B,
+// gerando um aviso novo lá. Achado com o usuário em 05/08/2026 (relato:
+// "aplico a correção sugerida e gera erro em efeito cascata, soma pra um e
+// falta pra outro" — o usuário tinha razão, é uma limitação real do
+// método de sugestão candidato-a-candidato, não erro de uso).
+//
+// Prova matemática por trás da harmonização (por que resolve em UM passo
+// só, sem cascata): existe sempre um "corte" C tal que, se cada partido
+// com s(P) vagas MARCADAS tiver votos = s(P) × C exatamente, o resultado
+// de D'Hondt bate exatamente com as vagas marcadas — a última cadeira de
+// cada partido (quociente votos/s(P)) empata exatamente em C, e a cadeira
+// seguinte (votos/(s(P)+1)) fica abaixo de C pra todo mundo ao mesmo
+// tempo. Usa a mesma projeção de votos válidos já mostrada em "Soma de
+// Votos" como referência de C (não inventa total novo), e distribui o
+// total de cada partido entre os marcados por peso relativo (2022).
+// Partido sem ninguém marcado é escalado pra ficar com folga ABAIXO de C,
+// senão "invadiria" uma vaga que ninguém pediu pra ele.
+function harmonizarCargo(lista, cargo) {
+  const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
+  if (!totalVagasCargo) return;
+  if (cargo === "senador") { harmonizarCargoMajoritario(lista, totalVagasCargo); return; }
+
+  const meta = totalValidosProjetado2026(cargo);
+  const corte = meta / totalVagasCargo;
+
+  lista.forEach((p) => {
+    const marcados = p.candidatos.filter((c) => c.marcadoEleito && c.fonte !== "legenda");
+    const naoMarcados = p.candidatos.filter((c) => !c.marcadoEleito && c.fonte !== "legenda");
+    if (marcados.length > 0) {
+      const alvoPartido = Math.round(marcados.length * corte);
+      const pesoBase = marcados.reduce((s, c) => s + (Number(c.votos2022) || 1), 0) || 1;
+      let acumulado = 0;
+      marcados.forEach((c, i) => {
+        const parte = i === marcados.length - 1
+          ? Math.max(1, alvoPartido - acumulado) // último absorve o resto do arredondamento
+          : Math.max(1, Math.round(alvoPartido * ((Number(c.votos2022) || 1) / pesoBase)));
+        c.votos = parte;
+        c.votosEditado = true;
+        acumulado += parte;
+      });
+      // Não marcados: reduz a SOMA deles a quase zero — não basta limitar
+      // cada um individualmente abaixo do menor marcado (bug achado pela
+      // auditoria eleitoral em 05/08/2026: partyVotos() soma TODO MUNDO do
+      // partido, marcado ou não; numa chapa real com 30-40 não-marcados,
+      // cada um abaixo do piso mas a SOMA deles ainda pesa dezenas de
+      // milhares de votos — o suficiente pra inflar o total do partido e
+      // deslocar o corte real do D'Hondt pra bem longe do "corte" teórico
+      // usado aqui, quebrando a garantia matemática da harmonização).
+      // Preserva a ORDEM relativa entre os não-marcados (escala
+      // proporcional, não zera igual pra todos), só encolhe a escala —
+      // assim a lista de suplentes ainda reflete quem tinha mais peso.
+      const somaNaoMarcadosAtual = naoMarcados.reduce((s, c) => s + (Number(c.votos) || 0), 0);
+      const pisoNaoMarcado = Math.max(0, Math.min(...marcados.map((c) => c.votos)) - 1);
+      const somaAlvoNaoMarcados = Math.min(pisoNaoMarcado, Math.round(alvoPartido * 0.001));
+      if (somaNaoMarcadosAtual > 0) {
+        const escalaNaoMarcados = somaAlvoNaoMarcados / somaNaoMarcadosAtual;
+        naoMarcados.forEach((c) => {
+          c.votos = Math.min(pisoNaoMarcado, Math.round((Number(c.votos) || 0) * escalaNaoMarcados));
+          c.votosEditado = true;
+        });
+      }
+    } else {
+      // Partido sem ninguém marcado: garante que o total do partido fica
+      // com folga abaixo do corte.
+      const totalAtual = partyVotos(p);
+      if (totalAtual >= corte) {
+        const escala = totalAtual > 0 ? (corte * 0.95) / totalAtual : 0;
+        p.candidatos.forEach((c) => {
+          c.votos = Math.round((Number(c.votos) || 0) * escala);
+          c.votosEditado = true;
+        });
+      }
+    }
+  });
+}
+
+// Versão majoritária (Senador) do "Harmonizar tudo" — não existe partido
+// nem corte aqui (ver classificarEleitosMajoritario), é fila única por
+// voto individual. Só precisa garantir que todo marcado fique ACIMA de
+// qualquer não-marcado, preservando a ordem relativa entre os marcados.
+function harmonizarCargoMajoritario(lista, totalVagasCargo) {
+  const todos = [];
+  lista.forEach((p) => p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todos.push(c)));
+  const marcados = todos.filter((c) => c.marcadoEleito);
+  const naoMarcados = todos.filter((c) => !c.marcadoEleito);
+  if (!marcados.length) return;
+  const pisoNaoMarcado = naoMarcados.length ? Math.max(...naoMarcados.map((c) => Number(c.votos) || 0)) : 0;
+  [...marcados]
+    .sort((a, b) => (Number(b.votos2022) || 0) - (Number(a.votos2022) || 0))
+    .forEach((c, i) => {
+      c.votos = pisoNaoMarcado + (marcados.length - i) * 1000;
+      c.votosEditado = true;
+    });
+}
+
 // Botão "Ajustar automaticamente" que aparece junto do aviso de vaga
 // inconsistente (ver classificarEleitosPorPartido/linhaEleito): dá direto
 // pro PRÓPRIO candidato do aviso os votos que faltam pra ele ultrapassar
@@ -2540,7 +2639,7 @@ function renderRevisaoDeposito() {
 
     return `
       <details class="pc-acc" ${cargoDef.id === pcState.cargoAtivo ? "open" : ""}>
-        <summary><span style="flex:1;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim); font-size:11px;">— ${eleitos.length} eleitos + ${suplentes.length} suplentes${temInconsistencia ? " · avisos pendentes" : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
+        <summary><span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim); font-size:11px;">— ${eleitos.length} eleitos + ${suplentes.length} suplentes${temInconsistencia ? " · avisos pendentes" : ""}</span></span>${temInconsistencia ? `<button data-pc-harmonizar="${cargoDef.id}" class="pc-mini-btn" style="flex-shrink:0; width:auto; height:28px; border-radius:999px; padding:0 12px; margin-right:6px; white-space:nowrap; gap:5px;" title="Harmonizar tudo">${iconeSvg("completar", 13)} Harmonizar tudo</button>` : ""}<svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">${linhas}</div>
       </details>`;
   }).join("");
@@ -2575,12 +2674,21 @@ function renderRevisaoDeposito() {
 
       ${temInconsistenciaGeral ? `<div style="display:flex; gap:9px; margin:0 0 14px; padding:10px 12px; border:1px solid #2a4438; border-radius:8px; font-size:11px; color:var(--pc-ink-dim); line-height:1.5;">
         <div style="flex-shrink:0; color:var(--pc-ink-dim); margin-top:1px;">${iconeSvg("alerta", 14)}</div>
-        <div>As vagas de cada cargo são disputadas entre todos os partidos ao mesmo tempo — corrigir a vaga de um candidato marcado pode abrir um aviso novo em outro partido, porque fechar uma vaga aqui pode tirar a vaga de quem estava na última posição em outro lugar. É assim que a disputa por sobras funciona; não precisa zerar todos os avisos pra salvar.</div>
+        <div><b style="color:var(--pc-ink);">Você não precisa zerar todos os avisos pra depositar a cédula</b> — dá pra salvar assim mesmo. As vagas de cada cargo são disputadas entre todos os partidos ao mesmo tempo, então corrigir um candidato de cada vez pode não resolver (fechar uma vaga aqui pode abrir um aviso novo em outro partido — é a disputa por sobras funcionando, não um erro). Se quiser mesmo assim deixar tudo consistente de uma vez, use o botão <b style="color:var(--pc-ink);">"Harmonizar tudo"</b> dentro de cada cargo — ele recalcula todos os partidos juntos, sem esse efeito cascata.</div>
       </div>` : ""}
 
       ${secoesHtml}
     </div>`;
 
+  document.querySelectorAll("[data-pc-harmonizar]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const cargo = btn.getAttribute("data-pc-harmonizar");
+      harmonizarCargo(pcState.palpitesPorCargo[cargo], cargo);
+      renderRevisaoDeposito();
+    });
+  });
   document.querySelectorAll("[data-pc-fechar-vaga]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();

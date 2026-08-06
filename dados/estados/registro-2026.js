@@ -93,13 +93,35 @@ function candidatos2026EstadoCargo(uf, cargoLabel) {
     vagas2022PorPartido26[p26] = (vagas2022PorPartido26[p26] || 0) + (Number(p.vagas2022) || 0);
   });
 
+  // Nomes civis de TODOS os candidatos 2026 do estado, em QUALQUER cargo —
+  // usado abaixo pra travar o casamento por nome de urna quando duas
+  // pessoas DIFERENTES escolhem o mesmo apelido (achado real: "Paulinha" é
+  // nome de urna tanto de Ana Paula da Silva, PODE, candidata a Federal em
+  // 2026, quanto de Ana Paula De Souza, REPUBLICANOS, candidata a Estadual
+  // — sem essa trava, a segunda "herdava" por engano os 58.694 votos reais
+  // de 2022 da primeira só por coincidência de apelido. Achado com o
+  // usuário em 05/08/2026).
+  const nomesCivis2026DoEstado = new Set();
+  Object.values(dados2026).forEach((candidatosDoCargo) => {
+    candidatosDoCargo.forEach((c) => nomesCivis2026DoEstado.add(_normalizarNome2026(c.nome)));
+  });
+
   const grupos = {};
   lista2026.forEach((c) => {
     const partido = c.partido || "SEM PARTIDO";
     if (!grupos[partido]) {
       grupos[partido] = { nome: partido, vagas2022: vagas2022PorPartido26[partido] || 0, candidatos: [] };
     }
-    const ref2022 = indice2022[_normalizarNome2026(c.nomeUrna || c.nome)] || indice2022PorNome[_normalizarNome2026(c.nome)] || null;
+    let ref2022 = indice2022[_normalizarNome2026(c.nomeUrna || c.nome)] || indice2022PorNome[_normalizarNome2026(c.nome)] || null;
+    // O casamento por nome de urna (não pelo nome civil) só é confiável
+    // quando a pessoa do registro de 2022 não é OUTRA pessoa diferente que
+    // já está em 2026 sob o próprio nome civil — nesse caso o apelido é só
+    // coincidência entre duas pessoas reais, não continuidade da mesma.
+    if (ref2022) {
+      const civilBate = _normalizarNome2026(ref2022.nome) === _normalizarNome2026(c.nome);
+      const pessoaDe2022JaEstaEm2026ComOutroNome = !civilBate && nomesCivis2026DoEstado.has(_normalizarNome2026(ref2022.nome));
+      if (pessoaDe2022JaEstaEm2026ComOutroNome) ref2022 = null;
+    }
     // Só marca "trocou de partido" quando o partido de 2022 (já convertido
     // pra federação, se for o caso) é DIFERENTE do partido de 2026 — pra não
     // mostrar "eleito PT" em cima de alguém que só migrou pra federação
