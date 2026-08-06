@@ -1546,12 +1546,29 @@ function adicionarCandidatoNoPartido(p) {
 // Senador) e delega o conteúdo pro cargo ativo. Só "estadual" tem candidatos
 // carregados — os outros dois mostram um aviso, sem inventar dado fictício
 // no código real (ver CARGOS acima e PROJETO.md, Fase 2.8).
-function renderSelecaoCandidatos() {
+async function renderSelecaoCandidatos() {
   const el = document.getElementById("pcConteudo");
-  const botoes = CARGOS.map((c) => `
+  // Garante pcState.palpiteEdicao do cargo ativo ANTES de montar os
+  // pontinhos das abas — sem isso o pontinho do cargo recém-clicado usava
+  // o dado do cargo anterior (ver garantirPalpiteEdicaoAtivo).
+  const cargoAtivoInfo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
+  if (cargoAtivoInfo.disponivel) await garantirPalpiteEdicaoAtivo();
+  // Pontinho aceso (.pc-tab-dot.done, já existia no CSS mas nunca era
+  // aplicado) = esse cargo já tem todas as vagas marcadas — mesma regra
+  // que já habilita o botão "Avançar" daquele cargo. Só olha cargos que já
+  // têm rascunho carregado (ativo, ou já visitado antes e cacheado em
+  // pcState.palpitesPorCargo) — não força carregar um cargo que a pessoa
+  // ainda nem abriu só pra decidir a cor do pontinho.
+  const botoes = CARGOS.map((c) => {
+    const lista = c.id === pcState.cargoAtivo ? pcState.palpiteEdicao : (pcState.palpitesPorCargo && pcState.palpitesPorCargo[c.id]);
+    const totalVagasC = vagasFixasCargo(pcState.estado, c.id);
+    const totalIndicadoC = lista ? lista.reduce((s, p) => s + p.candidatos.filter((cc) => cc.marcadoEleito).length, 0) : 0;
+    const concluido = !!lista && totalVagasC > 0 && totalIndicadoC === totalVagasC;
+    return `
     <button data-pc-cargo="${c.id}" class="${pcState.cargoAtivo === c.id ? "active" : ""}${c.disponivel ? "" : " indisponivel"}">
-      ${c.label}<span class="pc-tab-dot"></span>
-    </button>`).join("");
+      ${c.label}<span class="pc-tab-dot${concluido ? " done" : ""}" title="${concluido ? "Todas as vagas marcadas" : ""}"></span>
+    </button>`;
+  }).join("");
   el.innerHTML = `
     <div id="pcStickyBackdrop"><div id="pcStickyBackdropFill"></div></div>
     <div class="pc-cargo-switch">${botoes}</div>
@@ -1559,13 +1576,21 @@ function renderSelecaoCandidatos() {
   `;
   document.querySelectorAll("[data-pc-cargo]").forEach((btn) => {
     btn.addEventListener("click", () => {
+      // Sem isso, o cargo que a pessoa está DEIXANDO perdia o rascunho de
+      // pcState.palpitesPorCargo (só existia em pcState.palpiteEdicao,
+      // esvaziado na troca) — o pontinho de "concluído" apagava ao voltar
+      // pra essa aba depois, mesmo com tudo ainda marcado. Achado testando
+      // o pontinho em 06/08/2026.
+      if (pcState.palpiteEdicao) {
+        if (!pcState.palpitesPorCargo) pcState.palpitesPorCargo = {};
+        pcState.palpitesPorCargo[pcState.cargoAtivo] = pcState.palpiteEdicao;
+      }
       pcState.cargoAtivo = btn.dataset.pcCargo;
       renderSelecaoCandidatos();
     });
   });
-  const cargo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
-  if (cargo.disponivel) renderCargoEstadual();
-  else renderCargoIndisponivel(cargo);
+  if (cargoAtivoInfo.disponivel) renderCargoEstadual();
+  else renderCargoIndisponivel(cargoAtivoInfo);
 }
 
 // Cargos ainda sem candidatos carregados (Dep. Federal, Senador) — estrutura
@@ -1578,9 +1603,15 @@ function renderCargoIndisponivel(cargo) {
     </div>`;
 }
 
-async function renderCargoEstadual() {
-  const conteudo = document.getElementById("pcCargoConteudo");
-  conteudo.innerHTML = telaCarregando();
+// Garante que pcState.palpiteEdicao já é o rascunho do CARGO ATIVO —
+// extraído do topo de renderCargoEstadual (abaixo) porque o interruptor de
+// cargo (renderSelecaoCandidatos) também precisa disso PRONTO antes de
+// decidir o pontinho de "concluído" de cada aba. Sem isso, o pontinho do
+// cargo recém-clicado sempre mostrava o estado do cargo anterior — a
+// aba trocava de conteúdo mas o dot ficava "um clique atrasado" (achado
+// testando o interruptor de cargo em 06/08/2026). Idempotente: chamar de
+// novo não recarrega nada se já está em dia.
+async function garantirPalpiteEdicaoAtivo() {
   const chaveCargoEstado = `${pcState.estado}::${pcState.cargoAtivo}`;
   if (!pcState.palpiteEdicao || pcState.cargoPalpiteEdicao !== chaveCargoEstado) {
     await garantirRascunhosCarregados();
@@ -1593,6 +1624,12 @@ async function renderCargoEstadual() {
     pcState.palpiteEdicao = rascunho || montarEstadoPalpite("assembleia", null, null, pcState.cargoAtivo, pcState.estado);
     pcState.cargoPalpiteEdicao = chaveCargoEstado;
   }
+}
+
+async function renderCargoEstadual() {
+  const conteudo = document.getElementById("pcCargoConteudo");
+  conteudo.innerHTML = telaCarregando();
+  await garantirPalpiteEdicaoAtivo();
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
 
   const cargoInfo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
