@@ -1707,6 +1707,26 @@ async function renderCargoEstadual() {
   const totalValidosRealCargo = pcState.palpiteEdicao.reduce((s, pp) => s + partyVotos(pp), 0);
   const qeRealCargo = quocienteEleitoral(totalValidosRealCargo, totalVagasCargo);
 
+  // Senador é majoritário (art. 46) — não existe quociente/QP/sobra, quem
+  // tem mais voto entre TODOS os candidatos de TODOS os partidos vence,
+  // sem olhar partido. O termômetro precisa da mesma comparação cruzada
+  // que classificarEleitosMajoritario já usa, não da conta proporcional
+  // acima — bug encontrado testando ao vivo em 06/08/2026 (a barra estava
+  // rotulando vaga de Senador como "sobra", conceito que só existe em
+  // eleição proporcional).
+  let rankingSenador = null;
+  if (pcState.cargoAtivo === "senador") {
+    const todosReais = [];
+    pcState.palpiteEdicao.forEach((pp) => {
+      pp.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todosReais.push(c));
+    });
+    const ordenados = [...todosReais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+    rankingSenador = {
+      chavesEleitos: new Set(ordenados.slice(0, totalVagasCargo).map((c) => c.chave)),
+      votosDoUltimoEleito: totalVagasCargo > 0 && ordenados[totalVagasCargo - 1] ? (Number(ordenados[totalVagasCargo - 1].votos) || 0) : 0,
+    };
+  }
+
   const blocos = partidosParaMostrar.map((p) => {
     const marcados = p.candidatos.filter((c) => c.marcadoEleito).length;
     const st = statusPartidoSelecao(p);
@@ -1840,7 +1860,11 @@ async function renderCargoEstadual() {
       // dhondtComCorte (ver necessarioParaVagas acima). Deixa explícito de
       // onde cada vaga marcada realmente viria, em vez de uma suposição fixa
       // de "todas menos a última são QP".
-      const refQuociente = marcados > 0 && infoVagas && infoVagas.qe ? (() => {
+      // Senador é majoritário (art. 46) — quociente eleitoral/QP/sobra só
+      // existem em eleição proporcional (Estadual e Federal), por isso essa
+      // caixa de referência não faz sentido nessa aba (PROJETO.md, Fase
+      // 2.8). Achado ao testar o Interruptor de cargo em 06/08/2026.
+      const refQuociente = marcados > 0 && pcState.cargoAtivo !== "senador" && infoVagas && infoVagas.qe ? (() => {
         const parteQp = infoVagas.qp > 0 ? `<b style="color:var(--pc-ink);">${infoVagas.qp}</b> por quociente direto (art. 107)` : "";
         const parteSobra = infoVagas.sobra > 0 ? `<b style="color:var(--pc-ink);">${infoVagas.sobra}</b> por sobra/média (art. 109${infoVagas.qp === 0 ? " — depende de como os outros partidos se saem" : ""})` : "";
         const breakdown = parteQp && parteSobra ? `${parteQp} + ${parteSobra}` : (parteQp || parteSobra || "nenhuma vaga garantida ainda");
@@ -1888,6 +1912,27 @@ async function renderCargoEstadual() {
     const barraTermometro = (() => {
       if (!marcados) return "";
       const marcadosOrdenados = [...p.candidatos].filter((c) => c.marcadoEleito).sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+
+      if (rankingSenador) {
+        // Majoritário: só existe "eleito" (entre os mais votados do cargo
+        // inteiro, cruzando todos os partidos) ou "fora" — sem QP nem
+        // sobra, esses dois só existem em eleição proporcional.
+        let eleitoCount = 0;
+        const segmentos = marcadosOrdenados.map((c, i) => {
+          const k = i + 1;
+          if (rankingSenador.chavesEleitos.has(c.chave)) {
+            eleitoCount++;
+            return `<div class="pc-term-seg qp"><span class="tip-box"><b>${k}ª colocação do partido</b> — está entre os ${totalVagasCargo} mais votados do cargo (eleição majoritária, art. 46), cruzando todos os partidos.</span></div>`;
+          }
+          const faltam = Math.max(0, rankingSenador.votosDoUltimoEleito - (Number(c.votos) || 0));
+          return `<div class="pc-term-seg fora"><span class="tip-box"><b>${k}ª colocação do partido — fora hoje</b> — não está entre os ${totalVagasCargo} mais votados do cargo. Faltam ${Math.round(faltam).toLocaleString("pt-BR")} votos pra esse candidato entrar na disputa.</span></div>`;
+        }).join("");
+        const legendaPartes = [];
+        if (eleitoCount > 0) legendaPartes.push(`<span><span class="pc-term-dot" style="background:var(--pc-lobby-verde-media);"></span>${eleitoCount} eleito${eleitoCount === 1 ? "" : "s"}</span>`);
+        if (marcados - eleitoCount > 0) legendaPartes.push(`<span><span class="pc-term-dot" style="background:var(--pc-danger);"></span>fora</span>`);
+        return `<div class="pc-term-bar">${segmentos}</div><div class="pc-term-legenda">${legendaPartes.join("")}</div>`;
+      }
+
       const pIdx = pcState.palpiteEdicao.indexOf(p);
       // cadeirasReaisTotal/qpRealTotal são o direito de VERDADE do partido
       // (pode passar de "marcados", se o partido já teria direito a mais
