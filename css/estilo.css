@@ -277,16 +277,19 @@
      candidato. Verde sólido = quociente partidário; hachurado âmbar = sobra
      garantida hoje; tracejado rosa/vazado = fora hoje. Confirmado com o
      usuário em 06/08/2026 após várias rodadas de protótipo visual. */
-  /* flex-wrap + min-width igual à altura: os segmentos encolhem
-     proporcionalmente conforme o partido tem mais marcados (ex.: SP, onde
-     um partido pode passar de 30) até virarem um círculo perfeito — só
-     nesse ponto quebram pra uma linha nova, em vez de espremer a ponto de
-     sumir. border-radius:999px serve pro segmento largo (vira pílula) e
-     pro círculo mínimo (vira bolinha) com a mesma regra. Confirmado com o
-     usuário em 06/08/2026. */
+  /* Tamanho do segmento (--pc-term-w) calculado em JS depois do card estar
+     no DOM (ajustarBarrasTermometro, interface/prospeccao.js) — nem flex
+     nem grid puro conseguem, sozinhos, "encolher primeiro, quebrar linha
+     só depois, e todas as linhas do mesmo tamanho" ao mesmo tempo (flex
+     deixava a última linha, com poucos itens sobrando, esticar mais que
+     a primeira; grid preferia empilhar linhas no tamanho máximo em vez de
+     encolher). flex-wrap aqui só cuida de quebrar linha quando os
+     segmentos (já do tamanho calculado) não cabem mais. border-radius:999px
+     serve pro segmento largo (vira pílula) e pro círculo mínimo (vira
+     bolinha) com a mesma regra. */
   #modoColaborativoWrap .pc-term-bar{ display:flex; flex-wrap:wrap; gap:5px; margin:14px 0 8px; }
   #modoColaborativoWrap .pc-term-seg{
-    position:relative; flex:1 1 0%; min-width:11px; max-width:32px; height:11px; border-radius:999px; cursor:help;
+    position:relative; flex:0 0 auto; width:var(--pc-term-w, 30px); height:11px; border-radius:999px; cursor:help;
   }
   #modoColaborativoWrap .pc-term-seg.qp{ background: var(--pc-lobby-verde-media); }
   #modoColaborativoWrap .pc-term-seg.sobra{

@@ -2120,7 +2120,42 @@ async function renderCargoEstadual() {
 
   ajustarTituloPainelEleitoral();
   ajustarBackdropSticky();
+  ajustarBarrasTermometro();
   attachListenersSelecao();
+}
+
+// Tamanho dos segmentos do termômetro (barraTermometro, acima) — decidido
+// aqui, depois do card já estar no DOM, porque depende da largura real
+// (varia por aparelho). Duas prioridades, na ordem que o usuário pediu em
+// 06/08/2026: (1) se os marcados cabem numa linha só, os segmentos esticam
+// pra preencher a largura toda, sem limite de tamanho — mesmo efeito do
+// desenho original; (2) só quando não cabem nem no tamanho mínimo (11px,
+// vira círculo) é que quebra em várias linhas — e todas as linhas usam o
+// MESMO tamanho fixo (calculado dividindo os marcados em linhas
+// equilibradas), pra nunca ter uma linha maior que a outra (bug encontrado
+// testando com um partido de ~33 marcados, tipo São Paulo: com flex puro,
+// a última linha — com poucos itens sobrando — esticava mais que a
+// primeira; com grid puro, ele preferia empilhar linhas no tamanho máximo
+// em vez de encolher, o oposto do que foi pedido).
+function ajustarBarrasTermometro() {
+  document.querySelectorAll("#modoColaborativoWrap .pc-term-bar").forEach((bar) => {
+    const n = bar.children.length;
+    if (!n) return;
+    const GAP = 5, MIN = 11, MAX = 32;
+    const largura = bar.clientWidth;
+    if (!largura) return;
+    const larguraNumaLinhaSo = (largura - (n - 1) * GAP) / n;
+    let largItem;
+    if (larguraNumaLinhaSo >= MIN) {
+      largItem = larguraNumaLinhaSo;
+    } else {
+      const cabemPorLinha = Math.max(1, Math.floor((largura + GAP) / (MIN + GAP)));
+      const linhas = Math.ceil(n / cabemPorLinha);
+      const porLinha = Math.ceil(n / linhas);
+      largItem = Math.min(MAX, (largura - (porLinha - 1) * GAP) / porLinha);
+    }
+    bar.style.setProperty("--pc-term-w", Math.max(MIN, largItem) + "px");
+  });
 }
 
 // "PAINEL" / "ELEITORAL" tratado como logotipo: duas linhas centralizadas
