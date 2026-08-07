@@ -528,6 +528,21 @@
   }
   #modoColaborativoWrap .pc-switch input:checked + .pc-switch-slider:after{ opacity:1; }
 
+  /* Sobra/fora — mesma linguagem visual do termômetro (.pc-term-seg),
+     aplicada ao interruptor "eleito" de cada candidato: hachurado âmbar
+     quando a vaga só existe por disputa de médias (art. 109), tracejado
+     rosa/vazado quando marcado mas não fecharia vaga hoje. Pedido do
+     usuário em 07/08/2026. */
+  #modoColaborativoWrap .pc-switch.pc-switch-sobra input:checked + .pc-switch-slider{
+    background: repeating-linear-gradient(45deg, #c9a15a 0 3px, #8a6a2b 3px 6px);
+  }
+  #modoColaborativoWrap .pc-switch.pc-switch-sobra input:checked + .pc-switch-slider:after{ content:"SOBRA"; color:#1a1206; }
+  #modoColaborativoWrap .pc-switch.pc-switch-fora input:checked + .pc-switch-slider{
+    background:transparent; border:1.5px dashed var(--pc-danger);
+  }
+  #modoColaborativoWrap .pc-switch.pc-switch-fora input:checked + .pc-switch-slider:before{ background:var(--pc-danger); }
+  #modoColaborativoWrap .pc-switch.pc-switch-fora input:checked + .pc-switch-slider:after{ content:"FORA"; color:var(--pc-danger); }
+
   /* Quadrados informativos (P-05) */
   #modoColaborativoWrap .pc-tile-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:18px 0; }
   #modoColaborativoWrap .pc-tile{ position:relative; aspect-ratio:1; overflow:hidden; background:#0c1c16; border:1px solid #163a2c; border-radius:14px; display:flex; align-items:center; justify-content:center; padding:8px; }

@@ -467,7 +467,7 @@ async function renderCompartilhado() {
     <div class="glass-card" style="max-width:640px; margin:0 auto 12px;">
       <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--pc-ink-dim); margin-bottom:4px;">Palpite compartilhado</div>
       <h2 style="margin-bottom:2px;">${dados.nome_exibicao}</h2>
-      <div class="pc-sub">Prospecção Coletiva ALESC 2026 — Santa Catarina</div>
+      <div class="pc-sub">Prospecção Coletiva — Simulador Legislativo 2026 — Santa Catarina</div>
     </div>
     <div style="max-width:640px; margin:0 auto;">
       ${CARGOS.map(secaoCargo).join("")}
@@ -1847,6 +1847,31 @@ async function renderCargoEstadual() {
     // no cálculo do quociente partidário (partyVotos, calculo/eleitoral.js).
     // Não é só a soma de quem está marcado — isso subestimava o total real.
     const somaVotosIndicados = partyVotos(p);
+    // Classificação QP/sobra/fora de cada candidato MARCADO — mesma lógica
+    // do termômetro (barraTermometro, mais abaixo), calculada aqui em cima
+    // (antes do corpo/lista de candidatos) pra também colorir o
+    // interruptor "eleito" de cada linha, não só a barra: o interruptor
+    // deve refletir a mesma disputa de sobra/fora que a barra já mostra,
+    // não só ligado/desligado. Pedido do usuário em 07/08/2026.
+    const classificacaoPorChave = new Map();
+    if (marcados > 0) {
+      const marcadosOrdenadosClassif = [...p.candidatos].filter((c) => c.marcadoEleito).sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+      if (rankingSenador) {
+        marcadosOrdenadosClassif.forEach((c) => {
+          classificacaoPorChave.set(c.chave, rankingSenador.chavesEleitos.has(c.chave) ? "qp" : "fora");
+        });
+      } else {
+        const pIdxClassif = pcState.palpiteEdicao.indexOf(p);
+        const cadeirasReaisTotalClassif = cadeirasReaisPorPartido[pIdxClassif] || 0;
+        const qpRealTotalClassif = qeRealCargo ? Math.min(cadeirasReaisTotalClassif, Math.floor(somaVotosIndicados / qeRealCargo)) : 0;
+        const cadeirasReaisClassif = Math.min(cadeirasReaisTotalClassif, marcados);
+        const qpRealClassif = Math.min(qpRealTotalClassif, marcados);
+        marcadosOrdenadosClassif.forEach((c, i) => {
+          const k = i + 1;
+          classificacaoPorChave.set(c.chave, k <= qpRealClassif ? "qp" : k <= cadeirasReaisClassif ? "sobra" : "fora");
+        });
+      }
+    }
     // Referência real (quociente + sobra, ver necessarioParaVagas acima) pra
     // lembrar a lógica eleitoral enquanto a pessoa preenche — nunca trava
     // nada, só avisa quando a soma ainda não fecha essa conta (ver infoTip
@@ -1902,7 +1927,15 @@ async function renderCargoEstadual() {
           <span style="width:24px; font-size:13px; font-weight:700; color:var(--pc-ink-dim); text-align:right; flex-shrink:0;">${posIdx + 1}º</span>
           ${c.fonte === "legenda"
             ? `<span title="Voto de legenda não elege ninguém — soma no total do partido, mas não é uma pessoa marcável como eleita." style="width:46px; height:19px; flex-shrink:0;"></span>`
-            : `<label class="pc-switch" title="${c.marcadoEleito ? "Marcado como eleito" : "Marcar como eleito"}"><input type="checkbox" data-pc-marca="${p.nome}::${c.chave}" ${c.marcadoEleito ? "checked" : ""}><span class="pc-switch-slider"></span></label>`}
+            : (() => {
+                // Interruptor reflete a mesma disputa QP/sobra/fora do
+                // termômetro (barraTermometro) — não é só ligado/desligado.
+                // Pedido do usuário em 07/08/2026.
+                const classif = c.marcadoEleito ? classificacaoPorChave.get(c.chave) : null;
+                const claseExtra = classif === "sobra" ? " pc-switch-sobra" : classif === "fora" ? " pc-switch-fora" : "";
+                const tituloExtra = classif === "sobra" ? " — sobra, disputa de médias (art. 109)" : classif === "fora" ? " — marcado, mas não fecharia vaga com a votação de hoje" : "";
+                return `<label class="pc-switch${claseExtra}" title="${c.marcadoEleito ? "Marcado como eleito" + tituloExtra : "Marcar como eleito"}"><input type="checkbox" data-pc-marca="${p.nome}::${c.chave}" ${c.marcadoEleito ? "checked" : ""}><span class="pc-switch-slider"></span></label>`;
+              })()}
           <span style="flex:1; font-size:15px; font-weight:600; line-height:1.4;">${nomeExibicao(c)}${c.partidoOriginal && c.partidoOriginal !== p.nome ? ` <span style="font-size:11px; font-weight:700; color:var(--pc-accent);">(${c.partidoOriginal})</span>` : ""}${c.fonte === "legenda" ? ' <span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${c.fonte === "2022-sem-ata-2026" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">sem ata 2026</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada — este é o candidato real de 2022, usado só como referência temporária até a lista de 2026 chegar. Pode não ser candidato em 2026, pode ter trocado de cargo ou de partido.")}` : ""}${c.fonte === "ficticio" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">candidato fictício</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada. Este NÃO é um candidato real — é um nome de preenchimento (placeholder) só pra manter a chapa completa até a ata sair. Será substituído pelo candidato real assim que a ata for processada.")}` : ""}<br><span style="font-size:12.5px; font-weight:400; color:var(--pc-ink-dim); opacity:0.9;">eleição 2022: ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</span>${c.invalidado2022 ? warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`) : ""}</span>
           <input class="cell" data-pc-voto="${p.nome}::${c.chave}" value="${(Number(c.votos) || 0).toLocaleString("pt-BR")}" style="width:120px; font-size:14.5px; font-weight:600; text-align:right; flex-shrink:0;">
         </div>`).join("") : `<div class="pc-sub" style="text-align:center; padding:10px 0;">Nenhum candidato encontrado.</div>`;
