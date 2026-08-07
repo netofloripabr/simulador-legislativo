@@ -87,11 +87,27 @@ Depois de rodar as 26 UFs:
 - Nunca inventar partido que a ata não informa — cai na lista de
   pendências do `.md` de conferência, igual SC.
 
+## Pendência "sem partido" pode ser duplicata — cruzar por número antes de reportar
+
+Mesmo achado documentado em `.claude/agents/atualizador-atas-2026.md` (SC,
+07/08/2026): uma pendência "sem partido identificado" pode ser a MESMA
+pessoa que já tem entrada de alta confiança em outro arquivo daquela UF
+(mesmo número de candidato TSE, mesmo nome) — nesse caso é duplicata, não
+pendência nova. Antes de reportar, cruze o `numero` de cada pendência
+contra as outras entradas já carregadas pra aquela UF+cargo; se achar
+`confianca: "alta"` com o mesmo número, remova a entrada "sem partido" e
+reporte como "duplicata resolvida", não como pendência aberta.
+
 ## O que reportar no final
 
 Por UF processada: quantas atas novas (partido + tipo). Total agregado:
 candidaturas novas (reais, substituindo fictício), quantos candidatos
 fictícios ainda restam preservados (soma do "Candidatos fictícios
-preservados" de cada `{uf}-2026-conferencia.md`), quantos alertas/
-pendências novos, e se algo bloqueou a execução. UF sem ata nova nenhuma
-essa semana é resultado válido, não erro — só não gera commit pra ela.
+preservados" de cada `{uf}-2026-conferencia.md`), e se algo bloqueou a
+execução. UF sem ata nova nenhuma essa semana é resultado válido, não
+erro — só não gera commit pra ela.
+
+Pendências que sobrarem depois do cruzamento por número (seção anterior)
+**precisam ser listadas pelo NOME + UF + cargo**, não só por contador — um
+número sozinho já deixou um caso passar despercebido em SC. Pendência
+zero também deve ser dito explicitamente, nunca omitido.

@@ -96,10 +96,36 @@ troque por `vagasFixasCargo(pcState.estado, cargo)`.
   — são pipelines diferentes (esse aqui só trata ata real; o de fictícios é
   outra decisão, separada).
 
+## Pendência "sem partido" pode ser duplicata — cruzar por número antes de reportar
+
+Achado em 07/08/2026 (retificadora `814-psdb-cidadania-retificadora.pdf`):
+17 candidaturas caíram como "sem partido identificado" (confiança média)
+mas eram, na real, a MESMA pessoa que já tinha uma entrada de alta
+confiança em outro arquivo (mesmo número de candidato TSE, mesmo nome) —
+ficaram 4 dias na lista de pendências sem ninguém perceber, e a lista
+carregava as duas entradas ao mesmo tempo (duplicando o candidato de
+verdade). Antes de reportar uma pendência "sem partido" como nova, cruze o
+`numero` dela contra as outras entradas já em `dados/estados/sc-2026-
+provisorio.js` (mesmo estado+cargo): se achar uma entrada `confianca:
+"alta"` com o MESMO número, é duplicata — remova a entrada "sem partido" e
+mantenha só a de alta confiança (mesmo raciocínio de
+`sc-2026-conferencia.md`, seção "Status de confirmação", entradas de
+07/08/2026), reportando isso como "duplicata resolvida automaticamente",
+não como pendência aberta. Só fica como pendência de verdade quem NÃO tem
+nenhum número batendo em outro lugar do arquivo — aí sim precisa de
+alguém abrir o PDF pra descobrir o partido.
+
 ## O que reportar no final
 
 Resumo curto: quantas atas novas entraram (partido + tipo), quantas
-candidaturas novas no total, quantos alertas/pendências o relatório gerou
-(comparado à rodada anterior, se der pra saber pelo git diff), e se algo
-bloqueou a execução (ex.: `pdftotext` ausente). Nunca terminar em silêncio —
-mesmo "nenhuma ata nova hoje" é um resultado válido pra reportar.
+candidaturas novas no total, e se algo bloqueou a execução (ex.:
+`pdftotext` ausente). Nunca terminar em silêncio — mesmo "nenhuma ata nova
+hoje" é um resultado válido pra reportar.
+
+Pendências ("sem partido identificado") que sobrarem depois do cruzamento
+acima (ver seção anterior) **precisam ser listadas pelo NOME**, não só por
+número — um contador sozinho ("42 pendências") já deixou um caso passar 4
+dias sem ninguém notar. Formato mínimo: nome + cargo + arquivo de origem,
+igual à tabela de `sc-2026-conferencia.md`. Se a lista de pendências
+novas estiver vazia, diga isso explicitamente ("nenhuma pendência nova
+hoje") em vez de omitir a seção.
