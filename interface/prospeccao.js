@@ -3041,7 +3041,7 @@ function renderRevisaoDeposito() {
         <div style="margin-top:10px; background:#0e1f17; border:1px solid rgba(61,255,176,.3); border-radius:10px; padding:6px;">
           <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--pc-ink-dim); padding:6px 8px 4px;">Como completar os ${acrescimo.toLocaleString("pt-BR")} votos?</div>
           <button data-pc-fechar-vaga="${c.partido}" data-pc-chave="${c.chave}" data-pc-acrescimo="${acrescimo}" data-pc-cargo="${cargoDef.id}" style="width:100%; text-align:left; background:none; border:none; padding:9px 8px; border-radius:7px; cursor:pointer; display:flex; flex-direction:column; gap:2px;">
-            <span style="font-size:12.5px; font-weight:700; color:var(--pc-ink);">Dar direto pra ${c.nome}</span>
+            <span style="font-size:12.5px; font-weight:700; color:var(--pc-ink);">Direto pra ${c.nome}</span>
             <span style="font-size:10.5px; color:var(--pc-ink-dim); line-height:1.4;">Soma os ${acrescimo.toLocaleString("pt-BR")} votos só na conta dele — mais simples, mas ele fica com um número redondo "de fora".</span>
           </button>
           ${distribuivel ? `<div style="height:1px; background:#1d3a2c; margin:2px 4px;"></div>
