@@ -2896,25 +2896,25 @@ function renderRevisaoDeposito() {
       // margem onde ela é matematicamente correta.
       const mostrarMargem = cargoDef.id === "senador";
       return cardCandidato(`
-        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
-          <div style="min-width:0; flex:1; display:flex; gap:10px; align-items:flex-start;">
-            <div style="flex-shrink:0; width:34px; height:34px; border-radius:9px; background:rgba(61,255,176,.1); border:1px solid rgba(61,255,176,.3); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:var(--pc-accent);">${i + 1}</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="min-width:0; flex:1; display:flex; gap:12px; align-items:center;">
+            <div style="flex-shrink:0; width:38px; height:38px; border-radius:10px; background:rgba(61,255,176,.1); border:1px solid rgba(61,255,176,.3); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:var(--pc-accent);">${i + 1}</div>
             <div style="min-width:0;">
-              <div style="font-size:17px; font-weight:700; color:var(--pc-ink); display:flex; align-items:center; gap:5px;">
+              <div style="font-size:16px; font-weight:700; color:var(--pc-ink); display:flex; align-items:center; gap:5px;">
                 ${c.nome}
                 ${!c.marcadoPeloUsuario ? warnTip("Você não marcou esse candidato como eleito no seu palpite — é quem realmente fecharia essa vaga com a votação de hoje.") : ""}
               </div>
-              <div style="display:flex; align-items:center; gap:5px; margin-top:3px;">
-                <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-warning); flex-shrink:0;"></span>
-                <span style="font-size:12.5px; font-weight:700; color:#c9a15a;">${c.partido}</span>
+              <div style="display:flex; align-items:center; gap:5px; margin-top:2px;">
+                <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-accent); flex-shrink:0;"></span>
+                <span style="font-size:11px; font-weight:600; color:var(--pc-accent);">${c.partido}</span>
               </div>
             </div>
           </div>
-          <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag))}</span>
+          <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
         </div>
-        <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;">
           ${barraProgresso(100, 0.4)}
-          <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:14.5px; font-weight:700; text-align:right; flex-shrink:0;">
+          <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag))}</span>
         </div>
         ${mostrarMargem ? `<div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
           <span>mínimo pra eleger seria ${minimoParaEleger.toLocaleString("pt-BR")}</span><span style="color:var(--pc-accent);">+${margem.toLocaleString("pt-BR")} de folga</span>
@@ -2932,19 +2932,19 @@ function renderRevisaoDeposito() {
         ? `faltam ${acrescimo.toLocaleString("pt-BR")} votos próprios`
         : `faltam ${acrescimo.toLocaleString("pt-BR")} votos no total do partido`;
       return cardCandidato(`
-        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
           <div style="min-width:0; flex:1;">
-            <div style="font-size:17px; font-weight:700; color:var(--pc-ink);">${c.nome}</div>
-            <div style="display:flex; align-items:center; gap:5px; margin-top:3px;">
-              <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-warning); flex-shrink:0;"></span>
-              <span style="font-size:12.5px; font-weight:700; color:#c9a15a;">${c.partido}</span>
+            <div style="font-size:16px; font-weight:700; color:var(--pc-ink);">${c.nome}</div>
+            <div style="display:flex; align-items:center; gap:5px; margin-top:2px;">
+              <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-accent); flex-shrink:0;"></span>
+              <span style="font-size:11px; font-weight:600; color:var(--pc-accent);">${c.partido}</span>
             </div>
           </div>
-          <span style="flex-shrink:0; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-warning); background:rgba(201,138,43,.12);">seu palpite</span>
+          <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
         </div>
-        <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;">
           ${barraProgresso(pct)}
-          <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:14.5px; font-weight:700; text-align:right; flex-shrink:0;">
+          <span style="flex-shrink:0; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-warning); background:rgba(201,138,43,.12);">seu palpite</span>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
           <span>${legendaFaltam}</span><span>${pct}%</span>
