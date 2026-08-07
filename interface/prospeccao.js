@@ -2882,6 +2882,33 @@ function listaUnificadaRevisao(listaParam, cargo) {
         }
       });
     });
+
+    // Caso extremo: se TODO o cargo estiver com voto zerado (ex.: pessoa
+    // clicou "Zerar"), dhondtComCorte devolve todas as cadeiras em 0
+    // (atalho em calculo/eleitoral.js, não dá pra distribuir vaga sem
+    // nenhum voto pra comparar) — sem essa proteção, a lista mostrava "0
+    // eleitos" e quebrava a garantia de "sempre N eleitos" (confirmada
+    // com o usuário em 05/08/2026). Sem sinal de voto nenhum, não tem
+    // base matemática pra escolher quem "ganharia" de verdade — promove
+    // pra eleito, de forma determinística, quem tem mais voto de 2022
+    // (maior primeiro) até fechar o total de vagas. Reaproveita a mesma
+    // ideia de fallback que a função antiga (eleitosReaisPorPartido)
+    // tinha, adaptada pra lista única. Achado testando ao vivo em
+    // 07/08/2026.
+    if (resultado.filter((c) => c.eleito).length < totalVagasCargo) {
+      const votos2022PorChave = {};
+      lista.forEach((p) => p.candidatos.forEach((c) => { votos2022PorChave[c.chave] = Number(c.votos2022) || 0; }));
+      const faltam = totalVagasCargo - resultado.filter((c) => c.eleito).length;
+      resultado.filter((c) => !c.eleito)
+        .sort((a, b) => (votos2022PorChave[b.chave] || 0) - (votos2022PorChave[a.chave] || 0))
+        .slice(0, faltam)
+        .forEach((c) => {
+          c.eleito = true;
+          c.tag = "média";
+          c.detalhe = { votosPartido: 0, qe: 0, qp: 0, cadeirasReais: 0, cadeiraDoPartido: 0, mediaConquistada: 0 };
+          c.gap = null;
+        });
+    }
   }
 
   resultado.sort((a, b) => b.votos - a.votos);
