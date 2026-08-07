@@ -486,7 +486,7 @@ function renderTelaLogin() {
   el.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
       <h2>Entrar na Prospecção Coletiva</h2>
-      <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual — ALESC 2026.</div>
+      <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual — Simulador Legislativo 2026.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcLoginEmail" type="email"></div>
       <div class="field-row"><label>Senha</label><input class="cell" id="pcLoginSenha" type="password"></div>
       <div class="pc-erro" id="pcLoginErro">${pcState.erro || ""}</div>
@@ -1052,7 +1052,7 @@ function fatorCrescimentoEleitorado() {
 // 2022 de cada candidato carregado (candidatosEstadoCargo) e escala pelo
 // crescimento do eleitorado. Importante usar essa versão confinada, não o
 // total válido do estado inteiro: ~14 partidos pequenos de SC não têm
-// cadeira na Alesc e não estão carregados aqui, então o total "cheio"
+// cadeira eleita e não estão carregados aqui, então o total "cheio"
 // embute uma fatia de votos que este simulador nunca vai conseguir
 // preencher — usar ele como meta faria a automação inflar os partidos
 // modelados além do realista. É uma referência FIXA (não muda com o que a
@@ -1121,7 +1121,7 @@ function podeMarcarMaisUmEleito() {
 // salvo no navegador (sobrevive a recarregar a página), separado de
 // pcState.avisoLimiteVagasAberto (que só controla se o modal está na tela
 // agora). Falha silenciosa se localStorage não estiver disponível.
-const CHAVE_AVISO_LIMITE_OCULTO = "alesc-pc-aviso-limite-vagas-oculto";
+const CHAVE_AVISO_LIMITE_OCULTO = "simulador-legislativo-aviso-limite-vagas-oculto";
 function avisoLimiteVagasOcultoSalvo() {
   try { return localStorage.getItem(CHAVE_AVISO_LIMITE_OCULTO) === "1"; } catch (e) { return false; }
 }
@@ -1695,7 +1695,7 @@ async function renderCargoEstadual() {
   );
   // Fora de Santa Catarina, o hemiciclo vira grade waffle (1 quadrado = 1
   // cadeira) — formato que se adapta melhor a qualquer número de vagas sem
-  // depender do arco pensado pra 40 cadeiras da ALESC. Ver desenharHemiciclo
+  // depender do arco pensado pra 40 cadeiras da Assembleia de SC. Ver desenharHemiciclo
   // em calculo/eleitoral.js (coresMono.forcarGrade).
   const hemiciclo = desenharHemiciclo(composicao, totalVagasCargo, {
     preenchido: "var(--pc-glass-border)", texto: "var(--pc-ink)", porPartido: true,
@@ -3267,7 +3267,7 @@ function renderRevisaoDeposito() {
       document.body.appendChild(container);
     }
     container.innerHTML = `
-      <h1 style="font-size:18px; margin-bottom:2px;">Prospecção Coletiva ALESC 2026${pcState.perfil ? ` — ${pcState.perfil.nome}` : ""}</h1>
+      <h1 style="font-size:18px; margin-bottom:2px;">Prospecção Coletiva — Simulador Legislativo 2026${pcState.perfil ? ` — ${pcState.perfil.nome}` : ""}</h1>
       <div style="font-size:11px; color:#666; margin-bottom:6px;">${pcState.estado || "SC"} · gerado em ${new Date().toLocaleDateString("pt-BR")}</div>
       ${cargosParaGerar.map(montarSecaoImpressaoCargo).join("")}
     `;

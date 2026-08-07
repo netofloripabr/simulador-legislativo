@@ -693,7 +693,7 @@ function renderParametro(){
         Brancos: ${REF_2022.brancos.toLocaleString('pt-BR')} ·
         Nulos: ${REF_2022.nulos.toLocaleString('pt-BR')} ·
         Válidos: <b>${REF_2022.validos.toLocaleString('pt-BR')}</b><br><br>
-        <span style="color:var(--ink-dim)">Candidatos carregados (13 partidos com cadeira na Alesc): <b style="color:var(--ink)">${totalCandBase}</b>
+        <span style="color:var(--ink-dim)">Candidatos carregados (13 partidos com cadeira eleita em 2022): <b style="color:var(--ink)">${totalCandBase}</b>
         · votos somados desses candidatos + legenda: <b style="color:var(--ink)">${totalVotosBase.toLocaleString('pt-BR')}</b>
         (diferença para o total válido = votos de ~14 partidos sem cadeira, não modelados aqui)</span>
       </div>

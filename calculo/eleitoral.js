@@ -2,7 +2,7 @@
 
 let state = { totalVotos: null, totalVagas: 40, eleitorado2026: ELEITORADO_2026, autoBalance:true, vincularEleitorado:true, parties: [], expanded: {}, expandedMunicipios:{} };
 let candSeq = 1;
-const STORAGE_KEY = "alesc-2026-scenario-v3";
+const STORAGE_KEY = "simulador-legislativo-2026-scenario-v3";
 
 function cloneBase(){
   return BASE_2022.map(p => ({
