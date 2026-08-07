@@ -1397,6 +1397,52 @@ function harmonizarCargoMajoritario(lista, totalVagasCargo) {
     });
 }
 
+// Botão "mágico" da Revisão (readicionado em 06/08/2026, com escolha de
+// método): dá direto pro PRÓPRIO candidato do aviso os votos que faltam
+// pra ele ultrapassar quem hoje ocupa a última vaga real do partido —
+// nunca mexe em mais ninguém. É a forma mais simples de ajudar esse
+// candidato especificamente: quem preenche cada vaga dentro de um partido
+// é sempre decidido pela votação individual de cada um contra os outros,
+// nunca pelo total do partido — então reforçar OUTRAS pessoas (marcadas ou
+// não) só deixaria a concorrência interna mais forte contra o próprio
+// candidato do aviso, sem ajudá-lo. Marca votosEditado pra não ser
+// sobrescrito depois pelo Auto geral. Aviso importante (mostrado no menu):
+// como o total de votos do partido muda, isso ainda pode alterar o
+// resultado geral do cálculo das sobras entre partidos — confirmado ao
+// vivo (corrigir 1 candidato do MDB derrubou outro do PL).
+function fecharVagaPartido(nomePartido, chaveCandidato, acrescimo, listaParam) {
+  const lista = listaParam || pcState.palpiteEdicao;
+  const p = lista.find((p) => p.nome === nomePartido);
+  if (!p || !acrescimo) return;
+  const alvo = p.candidatos.find((c) => String(c.chave) === chaveCandidato);
+  if (!alvo) return;
+  alvo.votos = (Number(alvo.votos) || 0) + acrescimo;
+  alvo.votosEditado = true;
+}
+
+// Segunda opção do menu do botão mágico: em vez de dar os votos direto pro
+// candidato do aviso, distribui o total que falta pro partido (gapPartido)
+// entre os OUTROS candidatos do partido que já têm menos votos que ele —
+// sem nenhum deles ultrapassá-lo.
+function distribuirComQuemTemMenos(nomePartido, chaveCandidato, gapPartido, listaParam) {
+  const lista = listaParam || pcState.palpiteEdicao;
+  const p = lista.find((p) => p.nome === nomePartido);
+  if (!p || !gapPartido) return;
+  const alvo = p.candidatos.find((c) => String(c.chave) === chaveCandidato);
+  if (!alvo) return;
+  const votosAlvo = Number(alvo.votos) || 0;
+  const naoEleitosAbaixo = p.candidatos.filter((c) => !c.marcadoEleito && c.fonte !== "legenda" && (Number(c.votos) || 0) < votosAlvo);
+  if (!naoEleitosAbaixo.length) return;
+  const somaPeso = naoEleitosAbaixo.reduce((s, c) => s + (Number(c.votos) || 1), 0) || 1;
+  naoEleitosAbaixo.forEach((c) => {
+    const atual = Number(c.votos) || 0;
+    const parte = Math.round(gapPartido * ((Number(c.votos) || 1) / somaPeso));
+    const teto = Math.max(0, votosAlvo - 1 - atual);
+    c.votos = atual + Math.min(parte, teto);
+    c.votosEditado = true;
+  });
+}
+
 // Versão do botão "Auto" geral (fora de cada partido): roda
 // balancearPartidoSelecao em todos os partidos de uma vez, em vez de precisar
 // abrir um por um. Tira uma FOTO do cenário antes de começar — todos os
@@ -2699,9 +2745,10 @@ function eleitosReaisPorPartido(listaParam, cargo) {
     const todos = [];
     lista.forEach((p) => p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todos.push({ ...c, _partidoExibicao: p.nome })));
     const ordenados = [...todos].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
-    return ordenados.slice(0, totalVagasCargo).map((c) => ({
+    return ordenados.slice(0, totalVagasCargo).map((c, i) => ({
       chave: c.chave, nome: nomeExibicao(c), partido: c._partidoExibicao, votos: Number(c.votos) || 0,
       tag: "majoritário", marcadoPeloUsuario: !!c.marcadoEleito,
+      detalhe: { posicaoGeral: i + 1, totalVagasCargo },
     }));
   }
 
@@ -2718,9 +2765,16 @@ function eleitosReaisPorPartido(listaParam, cargo) {
       .filter((c) => c.fonte !== "legenda")
       .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
     reaisOrdenados.slice(0, cadeirasReais).forEach((c, i) => {
+      // Detalhe numérico DESSE caso específico, pra mostrar no tooltip em
+      // vez de só a explicação genérica da regra — pedido do usuário em
+      // 06/08/2026. Pra "média": a cadeira é a (i+1)-ésima do partido, e a
+      // média que a conquistou é justamente votosPartido/(i+1) (mesma
+      // fórmula do método das médias, art. 109).
+      const cadeiraDoPartido = i + 1;
       resultado.push({
         chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos: Number(c.votos) || 0,
         tag: i < qp ? "QP" : "média", marcadoPeloUsuario: !!c.marcadoEleito,
+        detalhe: { votosPartido, qe, qp, cadeirasReais, cadeiraDoPartido, mediaConquistada: votosPartido / cadeiraDoPartido },
       });
     });
   });
@@ -2810,10 +2864,26 @@ function montarSecaoImpressaoCargo(cargo) {
 // a sigla sozinha. Pedido do usuário em 05/08/2026 (junto com a correção
 // do texto "você não marcou esse" que estava quebrando linha feio — virou
 // tooltip próprio, ver warnTip em linhaEleitoReal).
-function explicacaoTag(tag) {
-  if (tag === "QP") return "Elegeu-se pelo <b>quociente partidário</b> (Código Eleitoral, art. 107): o partido teve votos suficientes pra garantir essa vaga direto, sem depender de sobra.";
-  if (tag === "média") return "Elegeu-se pela <b>distribuição de sobras</b> (método das médias, art. 109): depois das vagas garantidas pelo quociente partidário, as vagas restantes vão pro partido com a maior média (votos ÷ (vagas já obtidas + 1)) a cada rodada — por isso alguém com menos voto individual pode se eleger antes de outro com mais voto, se o partido dele estiver melhor posicionado nessa média.";
-  if (tag === "majoritário") return "Cargo majoritário (Senado): não existe quociente partidário nem sobra aqui — as vagas vão direto pra quem tiver mais voto individual, juntando todos os partidos numa fila só.";
+// `detalhe` (opcional, ver eleitosReaisPorPartido) acrescenta os números
+// DESSE caso específico depois da explicação genérica da regra — pedido do
+// usuário em 06/08/2026: "é possível indicar a votação do caso específico?
+// Quantos votos para cada cargo, e qual foi a votação da sobra?".
+function explicacaoTag(tag, detalhe) {
+  if (tag === "QP") {
+    const generico = "Elegeu-se pelo <b>quociente partidário</b> (Código Eleitoral, art. 107): o partido teve votos suficientes pra garantir essa vaga direto, sem depender de sobra.";
+    if (!detalhe) return generico;
+    return `${generico}<br><br>Nesse caso: o partido teve <b>${detalhe.votosPartido.toLocaleString("pt-BR")}</b> votos, o quociente eleitoral do cargo é <b>${detalhe.qe.toLocaleString("pt-BR")}</b> — ${detalhe.votosPartido.toLocaleString("pt-BR")} ÷ ${detalhe.qe.toLocaleString("pt-BR")} = <b>${detalhe.qp}</b> vaga${detalhe.qp === 1 ? "" : "s"} garantida${detalhe.qp === 1 ? "" : "s"} por quociente (essa é uma delas).`;
+  }
+  if (tag === "média") {
+    const generico = "Elegeu-se pela <b>distribuição de sobras</b> (método das médias, art. 109): depois das vagas garantidas pelo quociente partidário, as vagas restantes vão pro partido com a maior média (votos ÷ (vagas já obtidas + 1)) a cada rodada — por isso alguém com menos voto individual pode se eleger antes de outro com mais voto, se o partido dele estiver melhor posicionado nessa média.";
+    if (!detalhe) return generico;
+    return `${generico}<br><br>Nesse caso: essa foi a <b>${detalhe.cadeiraDoPartido}ª</b> cadeira do partido — ${detalhe.votosPartido.toLocaleString("pt-BR")} ÷ ${detalhe.cadeiraDoPartido} = média de <b>${Math.round(detalhe.mediaConquistada).toLocaleString("pt-BR")}</b> votos, a que garantiu essa vaga na disputa de sobra.`;
+  }
+  if (tag === "majoritário") {
+    const generico = "Cargo majoritário (Senado): não existe quociente partidário nem sobra aqui — as vagas vão direto pra quem tiver mais voto individual, juntando todos os partidos numa fila só.";
+    if (!detalhe) return generico;
+    return `${generico}<br><br>Nesse caso: <b>${detalhe.posicaoGeral}º</b> colocado entre todos os candidatos ao cargo, que tem <b>${detalhe.totalVagasCargo}</b> vaga${detalhe.totalVagasCargo === 1 ? "" : "s"} em disputa.`;
+  }
   return "";
 }
 
@@ -2882,7 +2952,11 @@ function renderRevisaoDeposito() {
     // Card fechado (fundo + borda + cantos arredondados) em vez de linha
     // com traço embaixo — separação mais visível entre candidatos, pedido
     // do usuário em 06/08/2026.
-    const cardCandidato = (conteudo) => `<div style="background:#0e1f17; border:1px solid #16241e; border-radius:12px; padding:12px 14px; margin-bottom:8px;">${conteudo}</div>`;
+    // --pc-lobby-tom-3 é a camada de tom mais clara já definida no padrão
+    // "Lobby" (css/estilo.css) — antes usava um verde quase idêntico ao
+    // fundo do acordeão (#0e1f17 vs #0c1c16), então os cards praticamente
+    // sumiam um dentro do outro. Pedido do usuário em 06/08/2026.
+    const cardCandidato = (conteudo) => `<div style="background:var(--pc-lobby-tom-3); border:1px solid #1d3a2c; border-radius:12px; padding:12px 14px; margin-bottom:8px;">${conteudo}</div>`;
 
     const linhaEleitoReal = (c, i) => {
       const votos = Number(c.votos) || 0;
@@ -2914,7 +2988,7 @@ function renderRevisaoDeposito() {
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;">
           ${barraProgresso(100, 0.4)}
-          <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag))}</span>
+          <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag, c.detalhe))}</span>
         </div>
         ${mostrarMargem ? `<div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
           <span>mínimo pra eleger seria ${minimoParaEleger.toLocaleString("pt-BR")}</span><span style="color:var(--pc-accent);">+${margem.toLocaleString("pt-BR")} de folga</span>
@@ -2931,6 +3005,23 @@ function renderRevisaoDeposito() {
       const legendaFaltam = usaIndividual
         ? `faltam ${acrescimo.toLocaleString("pt-BR")} votos próprios`
         : `faltam ${acrescimo.toLocaleString("pt-BR")} votos no total do partido`;
+      const menuAberto = pcState.menuMagicoAberto === c.chave;
+      const distribuivel = c.gap.partido !== null && c.gap.partido > 0;
+      const botaoMagico = acrescimo > 0 ? `<button data-pc-abrir-magico="${c.chave}" class="pc-mini-btn" style="flex-shrink:0; width:26px; height:26px; border-radius:50%; color:var(--pc-accent); border-color:rgba(61,255,176,.4); background:${menuAberto ? "rgba(61,255,176,.18)" : "rgba(61,255,176,.08)"};">${iconeSvg("completar", 13)}</button>` : "";
+      const menuMagico = menuAberto ? `
+        <div style="margin-top:10px; background:#0e1f17; border:1px solid rgba(61,255,176,.3); border-radius:10px; padding:6px;">
+          <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--pc-ink-dim); padding:6px 8px 4px;">Como completar os ${acrescimo.toLocaleString("pt-BR")} votos?</div>
+          <button data-pc-fechar-vaga="${c.partido}" data-pc-chave="${c.chave}" data-pc-acrescimo="${acrescimo}" data-pc-cargo="${cargoDef.id}" style="width:100%; text-align:left; background:none; border:none; padding:9px 8px; border-radius:7px; cursor:pointer; display:flex; flex-direction:column; gap:2px;">
+            <span style="font-size:12.5px; font-weight:700; color:var(--pc-ink);">Dar direto pra ${c.nome}</span>
+            <span style="font-size:10.5px; color:var(--pc-ink-dim); line-height:1.4;">Soma os ${acrescimo.toLocaleString("pt-BR")} votos só na conta dele — mais simples, mas ele fica com um número redondo "de fora".</span>
+          </button>
+          ${distribuivel ? `<div style="height:1px; background:#1d3a2c; margin:2px 4px;"></div>
+          <button data-pc-distribuir-menores="${c.partido}" data-pc-chave-menores="${c.chave}" data-pc-gap-menores="${c.gap.partido}" data-pc-cargo-menores="${cargoDef.id}" style="width:100%; text-align:left; background:none; border:none; padding:9px 8px; border-radius:7px; cursor:pointer; display:flex; flex-direction:column; gap:2px;">
+            <span style="font-size:12.5px; font-weight:700; color:var(--pc-ink);">Distribuir com quem tem menos</span>
+            <span style="font-size:10.5px; color:var(--pc-ink-dim); line-height:1.4;">Reparte os ${c.gap.partido.toLocaleString("pt-BR")} votos entre os colegas de partido que já têm menos voto que ele — sem passar do voto dele.</span>
+          </button>` : ""}
+          <div style="margin-top:4px; padding:6px 8px 2px; font-size:9.5px; color:var(--pc-warning); line-height:1.4; border-top:1px solid #1d3a2c;">Qualquer uma das opções ainda pode mudar o resultado de outro partido — a disputa de sobra é entre todos ao mesmo tempo.</div>
+        </div>` : "";
       return cardCandidato(`
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
           <div style="min-width:0; flex:1;">
@@ -2943,9 +3034,11 @@ function renderRevisaoDeposito() {
           <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
         </div>
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;">
+          ${botaoMagico}
           ${barraProgresso(pct)}
           <span style="flex-shrink:0; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-warning); background:rgba(201,138,43,.12);">seu palpite</span>
         </div>
+        ${menuMagico}
         <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
           <span>${legendaFaltam}</span><span>${pct}%</span>
         </div>
@@ -3013,6 +3106,38 @@ function renderRevisaoDeposito() {
       e.stopPropagation();
       const cargo = btn.getAttribute("data-pc-harmonizar");
       harmonizarCargo(pcState.palpitesPorCargo[cargo], cargo);
+      renderRevisaoDeposito();
+    });
+  });
+  // Botão mágico (✦) de cada candidato pendente — abre/fecha o menu com as
+  // 2 formas de completar o voto que falta. Clique, não hover (pedido do
+  // usuário em 06/08/2026).
+  document.querySelectorAll("[data-pc-abrir-magico]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const chave = btn.getAttribute("data-pc-abrir-magico");
+      pcState.menuMagicoAberto = pcState.menuMagicoAberto === chave ? null : chave;
+      renderRevisaoDeposito();
+    });
+  });
+  document.querySelectorAll("[data-pc-fechar-vaga]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const lista = pcState.palpitesPorCargo[btn.getAttribute("data-pc-cargo")];
+      fecharVagaPartido(btn.getAttribute("data-pc-fechar-vaga"), btn.getAttribute("data-pc-chave"), Number(btn.getAttribute("data-pc-acrescimo")), lista);
+      pcState.menuMagicoAberto = null;
+      renderRevisaoDeposito();
+    });
+  });
+  document.querySelectorAll("[data-pc-distribuir-menores]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const lista = pcState.palpitesPorCargo[btn.getAttribute("data-pc-cargo-menores")];
+      distribuirComQuemTemMenos(btn.getAttribute("data-pc-distribuir-menores"), btn.getAttribute("data-pc-chave-menores"), Number(btn.getAttribute("data-pc-gap-menores")), lista);
+      pcState.menuMagicoAberto = null;
       renderRevisaoDeposito();
     });
   });
