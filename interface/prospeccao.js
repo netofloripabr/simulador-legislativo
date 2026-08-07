@@ -3045,9 +3045,13 @@ function renderRevisaoDeposito() {
       `);
     };
 
-    const linhaSuplente = (c, i) => `
+    // Sem número de posição — só os eleitos de verdade (1 até o total de
+    // vagas) têm uma posição oficial; depois disso (suplente ou pendente)
+    // não existe "colocação" fixa pra mostrar. Corrigido pra ficar
+    // consistente com os pendentes, que nunca tiveram número. Pedido do
+    // usuário em 06/08/2026.
+    const linhaSuplente = (c) => `
       <div style="display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:1px solid #16241e; font-size:12.5px;">
-        <span style="width:22px; color:var(--pc-ink-dim); flex-shrink:0;">${eleitosReais.length + i + 1}º</span>
         <span style="flex-shrink:0; font-family:var(--mono); font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--pc-ink-dim); border:1px solid #2a4438; border-radius:999px; padding:2px 7px;">suplente</span>
         <span style="flex:1; min-width:0; color:var(--pc-ink-dim);">${c.nome}<br><span style="font-size:10.5px;">${c.partido}</span></span>
         <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${c.votos.toLocaleString("pt-BR")}" style="width:100px; font-size:12.5px; font-weight:600; text-align:right; flex-shrink:0; color:var(--pc-ink-dim);">
