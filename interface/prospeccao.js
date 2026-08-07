@@ -1283,8 +1283,9 @@ function balancearPartidoSelecao(p, base) {
 }
 
 // "Harmonizar tudo" — substitui a lógica de "corrigir um candidato/partido
-// de cada vez" (fecharVagaPartido/distribuirComQuemTemMenos abaixo), que
-// nunca convergia: D'Hondt decide as vagas de TODOS os partidos JUNTOS, um
+// de cada vez" (removida em 06/08/2026 — dava a falsa impressão de conserto
+// isolado quando não era), que nunca convergia: D'Hondt decide as vagas de
+// TODOS os partidos JUNTOS, um
 // corte só vale pro cargo inteiro — corrigir o partido A desloca esse
 // corte, o que pode tirar a vaga de quem estava por último no partido B,
 // gerando um aviso novo lá. Achado com o usuário em 05/08/2026 (relato:
@@ -1316,16 +1317,29 @@ function harmonizarCargo(lista, cargo) {
     const naoMarcados = p.candidatos.filter((c) => !c.marcadoEleito && c.fonte !== "legenda");
     if (marcados.length > 0) {
       const alvoPartido = Math.round(marcados.length * corte);
-      const pesoBase = marcados.reduce((s, c) => s + (Number(c.votos2022) || 1), 0) || 1;
-      let acumulado = 0;
-      marcados.forEach((c, i) => {
-        const parte = i === marcados.length - 1
-          ? Math.max(1, alvoPartido - acumulado) // último absorve o resto do arredondamento
-          : Math.max(1, Math.round(alvoPartido * ((Number(c.votos2022) || 1) / pesoBase)));
-        c.votos = parte;
-        c.votosEditado = true;
-        acumulado += parte;
-      });
+      // Respeita quem já editou o voto na mão (mesmo padrão já usado no
+      // botão "Auto" da Seleção, balancearPartidoSelecao) — só redistribui
+      // proporcionalmente por peso de 2022 quem ainda está "no automático".
+      // Antes esta função reescrevia TODO mundo marcado, mesmo quem a
+      // pessoa tinha ajustado com cuidado — pedido do usuário em
+      // 06/08/2026. Não marca votosEditado nos automáticos: senão a
+      // PRÓXIMA harmonização os trataria como editados e pararia de
+      // ajustá-los.
+      const editados = marcados.filter((c) => c.votosEditado);
+      const automaticos = marcados.filter((c) => !c.votosEditado);
+      const jaPreenchido = editados.reduce((s, c) => s + (Number(c.votos) || 0), 0);
+      const restante = Math.max(0, alvoPartido - jaPreenchido);
+      if (automaticos.length > 0) {
+        const pesoBase = automaticos.reduce((s, c) => s + (Number(c.votos2022) || 1), 0) || 1;
+        let acumulado = 0;
+        automaticos.forEach((c, i) => {
+          const parte = i === automaticos.length - 1
+            ? Math.max(1, restante - acumulado) // último absorve o resto do arredondamento
+            : Math.max(1, Math.round(restante * ((Number(c.votos2022) || 1) / pesoBase)));
+          c.votos = parte;
+          acumulado += parte;
+        });
+      }
       // Não marcados: reduz a SOMA deles a quase zero — não basta limitar
       // cada um individualmente abaixo do menor marcado (bug achado pela
       // auditoria eleitoral em 05/08/2026: partyVotos() soma TODO MUNDO do
@@ -1373,59 +1387,14 @@ function harmonizarCargoMajoritario(lista, totalVagasCargo) {
   const naoMarcados = todos.filter((c) => !c.marcadoEleito);
   if (!marcados.length) return;
   const pisoNaoMarcado = naoMarcados.length ? Math.max(...naoMarcados.map((c) => Number(c.votos) || 0)) : 0;
-  [...marcados]
+  // Mesmo respeito a voto editado na mão da versão proporcional acima —
+  // não mexe em quem já foi ajustado manualmente.
+  const automaticos = marcados.filter((c) => !c.votosEditado);
+  [...automaticos]
     .sort((a, b) => (Number(b.votos2022) || 0) - (Number(a.votos2022) || 0))
     .forEach((c, i) => {
-      c.votos = pisoNaoMarcado + (marcados.length - i) * 1000;
-      c.votosEditado = true;
+      c.votos = pisoNaoMarcado + (automaticos.length - i) * 1000;
     });
-}
-
-// Botão "Ajustar automaticamente" que aparece junto do aviso de vaga
-// inconsistente (ver classificarEleitosPorPartido/linhaEleito): dá direto
-// pro PRÓPRIO candidato do aviso os votos que faltam pra ele ultrapassar
-// quem hoje ocupa a última vaga real do partido — nunca mexe em mais
-// ninguém. É a única forma que garante ajudar esse candidato especificamente:
-// quem preenche cada vaga dentro de um partido é sempre decidido pela
-// votação individual de cada um contra os outros, nunca pelo total do
-// partido — então reforçar OUTRAS pessoas (marcadas ou não) só deixaria a
-// concorrência interna mais forte contra o próprio candidato do aviso, sem
-// ajudá-lo. Marca votosEditado pra não ser sobrescrito depois pelo Auto geral.
-function fecharVagaPartido(nomePartido, chaveCandidato, acrescimo, listaParam) {
-  const lista = listaParam || pcState.palpiteEdicao;
-  const p = lista.find((p) => p.nome === nomePartido);
-  if (!p || !acrescimo) return;
-  const alvo = p.candidatos.find((c) => String(c.chave) === chaveCandidato);
-  if (!alvo) return;
-  alvo.votos = (Number(alvo.votos) || 0) + acrescimo;
-  alvo.votosEditado = true;
-}
-
-// Segunda opção, ao lado de "Ajustar automaticamente": em vez de dar os
-// votos direto pro candidato do aviso, distribui o total que falta pro
-// partido (gapPartido) entre os OUTROS candidatos do partido que já têm
-// menos votos que ele — sem nenhum deles ultrapassá-lo. Pensada pra ser
-// usada DEPOIS de a pessoa já ter ajustado manualmente o próprio candidato
-// (na caixa de votos ao lado): dá pra pedir esse reforço nos concorrentes
-// mais fracos do partido pra fechar o total sem "inflar" ninguém acima
-// de quem já foi decidido manualmente.
-function distribuirComQuemTemMenos(nomePartido, chaveCandidato, gapPartido, listaParam) {
-  const lista = listaParam || pcState.palpiteEdicao;
-  const p = lista.find((p) => p.nome === nomePartido);
-  if (!p || !gapPartido) return;
-  const alvo = p.candidatos.find((c) => String(c.chave) === chaveCandidato);
-  if (!alvo) return;
-  const votosAlvo = Number(alvo.votos) || 0;
-  const naoEleitosAbaixo = p.candidatos.filter((c) => !c.marcadoEleito && c.fonte !== "legenda" && (Number(c.votos) || 0) < votosAlvo);
-  if (!naoEleitosAbaixo.length) return;
-  const somaPeso = naoEleitosAbaixo.reduce((s, c) => s + (Number(c.votos) || 1), 0) || 1;
-  naoEleitosAbaixo.forEach((c) => {
-    const atual = Number(c.votos) || 0;
-    const parte = Math.round(gapPartido * ((Number(c.votos) || 1) / somaPeso));
-    const teto = Math.max(0, votosAlvo - 1 - atual);
-    c.votos = atual + Math.min(parte, teto);
-    c.votosEditado = true;
-  });
 }
 
 // Versão do botão "Auto" geral (fora de cada partido): roda
@@ -2674,10 +2643,10 @@ function classificarEleitosPorPartido(listaParam, cargo) {
 // sem precisar adaptar quem chama.
 function classificarEleitosMajoritario(lista, totalVagasCargo) {
   // "partido" aqui precisa ser p.nome (o nome do card/federação), igual ao
-  // ramo proporcional acima — é essa string que os editores de voto da
-  // Revisão (data-pc-voto-revisao, data-pc-fechar-vaga) usam pra achar de
-  // volta o partido em pcState.palpitesPorCargo; usar c.partidoOriginal
-  // aqui quebraria esse lookup sempre que o candidato for de federação.
+  // ramo proporcional acima — é essa string que o editor de voto da
+  // Revisão (data-pc-voto-revisao) usa pra achar de volta o partido em
+  // pcState.palpitesPorCargo; usar c.partidoOriginal aqui quebraria esse
+  // lookup sempre que o candidato for de federação.
   const todosReais = [];
   lista.forEach((p) => {
     p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => {
@@ -2877,38 +2846,111 @@ function renderRevisaoDeposito() {
     const temInconsistencia = marcadosInconsistentes.length > 0;
     if (temInconsistencia) temInconsistenciaGeral = true;
 
-    const linhaEleitoReal = (c, i) => `
-      <div style="display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:1px solid #16241e; font-size:12.5px;">
-        <span style="width:22px; color:var(--pc-ink-dim); flex-shrink:0;">${i + 1}º</span>
-        <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-family:var(--mono); font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#04140d; background:var(--pc-accent); border-radius:999px; padding:2px 7px;">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag))}</span>
-        <span style="flex:1; min-width:0; display:flex; align-items:center; gap:5px;">
-          <span style="min-width:0;">${c.nome}<br><span style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}</span></span>
-          ${!c.marcadoPeloUsuario ? warnTip("Você não marcou esse candidato como eleito no seu palpite — é quem realmente fecharia essa vaga com a votação de hoje.") : ""}
-        </span>
-        <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${c.votos.toLocaleString("pt-BR")}" style="width:100px; font-size:12.5px; font-weight:600; text-align:right; flex-shrink:0;">
+    // "Mínimo pra eleger" — referência única de folga/progresso, mostrada
+    // em toda barra desta seção (eleito ou pendente): o corte de
+    // dhondtComCorte (proporcional) ou o voto do último colocado real
+    // (majoritário) — mesmo conceito de "linha de corte" já usado em
+    // outros lugares do app, agora também visível na Revisão. Pedido do
+    // usuário em 06/08/2026.
+    const totalVagasCargoDef = vagasFixasCargo(pcState.estado, cargoDef.id);
+    let minimoParaEleger = 0;
+    if (cargoDef.id === "senador") {
+      const todosReaisOrdenados = [];
+      lista.forEach((p) => p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todosReaisOrdenados.push(c)));
+      todosReaisOrdenados.sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+      minimoParaEleger = totalVagasCargoDef > 0 && todosReaisOrdenados[totalVagasCargoDef - 1] ? (Number(todosReaisOrdenados[totalVagasCargoDef - 1].votos) || 0) : 0;
+    } else {
+      const { corte } = dhondtComCorte(lista, totalVagasCargoDef);
+      minimoParaEleger = Math.ceil(corte);
+    }
+
+    // Barra fina (mesma família visual do termômetro da Seleção) no lugar
+    // do texto corrido — eleito mostra a folga acima do mínimo, pendente
+    // mostra o progresso até fechar a vaga. Sem botão de ajuste por
+    // candidato (removidos em 06/08/2026: davam a falsa impressão de
+    // conserto isolado, mas podiam empurrar outro partido pra fora sem
+    // avisar — "Harmonizar tudo" já resolve isso de forma coerente pro
+    // cargo inteiro).
+    // opacidade mais baixa pros eleitos (sempre 100% cheios — não precisam
+    // chamar atenção, já estão garantidos) e cheia pros pendentes (é o que
+    // ainda precisa de atenção). Pedido do usuário em 06/08/2026.
+    const barraProgresso = (pct, opacidade = 1) => `
+      <div style="position:relative; flex:1; height:4px; border-radius:999px; background:#182f24; overflow:hidden;">
+        <div style="position:absolute; left:0; top:0; height:100%; width:${Math.max(0, Math.min(100, pct))}%; border-radius:999px; background:var(--pc-accent); opacity:${opacidade};"></div>
       </div>`;
 
-    const linhaMarcadoInconsistente = (c) => `
-      <div style="padding:7px 0; border-bottom:1px solid #16241e; font-size:12.5px;">
-        <div style="display:flex; align-items:baseline; gap:8px;">
-          <span style="flex-shrink:0; font-family:var(--mono); font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--pc-warning); border:1px solid var(--pc-warning); border-radius:999px; padding:2px 7px;">seu palpite</span>
-          <span style="flex:1; min-width:0;">${c.nome}<br><span style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}</span></span>
-          <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${c.votos.toLocaleString("pt-BR")}" style="width:100px; font-size:12.5px; font-weight:600; text-align:right; flex-shrink:0;">
-        </div>
-        <div style="margin:4px 0 0 0; font-size:10.5px; color:var(--pc-warning); line-height:1.45;">
-          ${c.gap.partido !== null
-            ? `Com a votação atual, essa vaga ainda não fecha: o partido precisaria de mais <b>${c.gap.partido.toLocaleString("pt-BR")}</b> votos no total${c.gap.individual !== null ? `, ou ${c.nome} de pelo menos <b>${(c.votos + c.gap.individual).toLocaleString("pt-BR")}</b> votos próprios` : ""}.`
-            : `Com a votação atual, essa vaga ainda não fecha: ${c.nome} precisaria de pelo menos <b>${(c.votos + c.gap.individual).toLocaleString("pt-BR")}</b> votos próprios pra ultrapassar quem hoje ocupa essa vaga (cargo majoritário — não existe "quociente do partido" aqui, é voto individual direto).`}
-          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;">
-            ${(() => {
-              const acrescimo = c.gap.acrescimo;
-              if (!acrescimo) return "";
-              return `<button data-pc-fechar-vaga="${c.partido}" data-pc-chave="${c.chave}" data-pc-acrescimo="${acrescimo}" data-pc-cargo="${cargoDef.id}" class="pc-mini-btn">${iconeSvg("completar", 14)}<span class="pc-mini-tip" style="white-space:normal; width:230px; text-align:left; line-height:1.45; font-weight:400; padding:9px 11px;"><b style="display:block; margin-bottom:4px; color:var(--pc-accent); font-size:10.5px; text-transform:uppercase; letter-spacing:.03em;">Ajustar automaticamente</b>Dá direto pra ${c.nome} os <b>${acrescimo.toLocaleString("pt-BR")}</b> votos que faltam — sem tocar na votação de mais ninguém. Se a vaga disputada hoje é de alguém que você não marcou, é só o suficiente pra ${c.nome} ultrapassar essa pessoa; se é de outro candidato que você também marcou, é o necessário pro partido ganhar mais uma vaga real (senão o ajuste só empurraria esse outro marcado pra fora). Como o total de votos do partido muda, isso ainda pode alterar o resultado geral do cálculo das sobras entre partidos.</span></button>`;
-            })()}
-            ${c.gap.partido > 0 ? `<button data-pc-distribuir-menores="${c.partido}" data-pc-chave-menores="${c.chave}" data-pc-gap-menores="${c.gap.partido}" data-pc-cargo-menores="${cargoDef.id}" class="pc-mini-btn">${iconeSvg("chart", 14)}<span class="pc-mini-tip" style="white-space:normal; width:230px; text-align:left; line-height:1.45; font-weight:400; padding:9px 11px;"><b style="display:block; margin-bottom:4px; color:var(--pc-accent); font-size:10.5px; text-transform:uppercase; letter-spacing:.03em;">Distribuir com quem tem menos</b>Primeiro ajuste manualmente a votação de ${c.nome} na caixa ao lado, do jeito que você achar certo. Depois, este botão pega o total que ainda falta pro partido (<b>${c.gap.partido.toLocaleString("pt-BR")}</b> votos) e distribui proporcionalmente entre os OUTROS candidatos do partido que já têm menos votos que ${c.nome} — sem nenhum deles ultrapassá-lo.</span></button>` : ""}
+    // Card fechado (fundo + borda + cantos arredondados) em vez de linha
+    // com traço embaixo — separação mais visível entre candidatos, pedido
+    // do usuário em 06/08/2026.
+    const cardCandidato = (conteudo) => `<div style="background:#0e1f17; border:1px solid #16241e; border-radius:12px; padding:12px 14px; margin-bottom:8px;">${conteudo}</div>`;
+
+    const linhaEleitoReal = (c, i) => {
+      const votos = Number(c.votos) || 0;
+      const margem = Math.max(0, votos - minimoParaEleger);
+      // "Mínimo pra eleger" só é uma comparação justa no Senador (voto
+      // individual direto). Em Estadual/Federal é uma média do CARGO
+      // inteiro — comparar com o voto pessoal de alguém eleito por
+      // quociente partidário (QP) dava "+0 de folga" mesmo pra quem está
+      // 100% garantido pelo total do partido, não pelo próprio voto.
+      // Achado testando ao vivo em 06/08/2026 — por enquanto só mostra a
+      // margem onde ela é matematicamente correta.
+      const mostrarMargem = cargoDef.id === "senador";
+      return cardCandidato(`
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+          <div style="min-width:0; flex:1; display:flex; gap:10px; align-items:flex-start;">
+            <div style="flex-shrink:0; width:34px; height:34px; border-radius:9px; background:rgba(61,255,176,.1); border:1px solid rgba(61,255,176,.3); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:var(--pc-accent);">${i + 1}</div>
+            <div style="min-width:0;">
+              <div style="font-size:17px; font-weight:700; color:var(--pc-ink); display:flex; align-items:center; gap:5px;">
+                ${c.nome}
+                ${!c.marcadoPeloUsuario ? warnTip("Você não marcou esse candidato como eleito no seu palpite — é quem realmente fecharia essa vaga com a votação de hoje.") : ""}
+              </div>
+              <div style="display:flex; align-items:center; gap:5px; margin-top:3px;">
+                <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-warning); flex-shrink:0;"></span>
+                <span style="font-size:12.5px; font-weight:700; color:#c9a15a;">${c.partido}</span>
+              </div>
+            </div>
           </div>
+          <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag))}</span>
         </div>
-      </div>`;
+        <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
+          ${barraProgresso(100, 0.4)}
+          <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:14.5px; font-weight:700; text-align:right; flex-shrink:0;">
+        </div>
+        ${mostrarMargem ? `<div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
+          <span>mínimo pra eleger seria ${minimoParaEleger.toLocaleString("pt-BR")}</span><span style="color:var(--pc-accent);">+${margem.toLocaleString("pt-BR")} de folga</span>
+        </div>` : ""}
+      `);
+    };
+
+    const linhaMarcadoInconsistente = (c) => {
+      const votos = Number(c.votos) || 0;
+      const acrescimo = c.gap.acrescimo || 0;
+      const necessario = votos + acrescimo;
+      const pct = necessario > 0 ? Math.round((votos / necessario) * 100) : 0;
+      const usaIndividual = c.gap.individual !== null && c.gap.acrescimo === c.gap.individual;
+      const legendaFaltam = usaIndividual
+        ? `faltam ${acrescimo.toLocaleString("pt-BR")} votos próprios`
+        : `faltam ${acrescimo.toLocaleString("pt-BR")} votos no total do partido`;
+      return cardCandidato(`
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+          <div style="min-width:0; flex:1;">
+            <div style="font-size:17px; font-weight:700; color:var(--pc-ink);">${c.nome}</div>
+            <div style="display:flex; align-items:center; gap:5px; margin-top:3px;">
+              <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-warning); flex-shrink:0;"></span>
+              <span style="font-size:12.5px; font-weight:700; color:#c9a15a;">${c.partido}</span>
+            </div>
+          </div>
+          <span style="flex-shrink:0; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-warning); background:rgba(201,138,43,.12);">seu palpite</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
+          ${barraProgresso(pct)}
+          <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:14.5px; font-weight:700; text-align:right; flex-shrink:0;">
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
+          <span>${legendaFaltam}</span><span>${pct}%</span>
+        </div>
+      `);
+    };
 
     const linhaSuplente = (c, i) => `
       <div style="display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:1px solid #16241e; font-size:12.5px;">
@@ -2971,22 +3013,6 @@ function renderRevisaoDeposito() {
       e.stopPropagation();
       const cargo = btn.getAttribute("data-pc-harmonizar");
       harmonizarCargo(pcState.palpitesPorCargo[cargo], cargo);
-      renderRevisaoDeposito();
-    });
-  });
-  document.querySelectorAll("[data-pc-fechar-vaga]").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const lista = pcState.palpitesPorCargo[btn.getAttribute("data-pc-cargo")];
-      fecharVagaPartido(btn.getAttribute("data-pc-fechar-vaga"), btn.getAttribute("data-pc-chave"), Number(btn.getAttribute("data-pc-acrescimo")), lista);
-      renderRevisaoDeposito();
-    });
-  });
-  document.querySelectorAll("[data-pc-distribuir-menores]").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const lista = pcState.palpitesPorCargo[btn.getAttribute("data-pc-cargo-menores")];
-      distribuirComQuemTemMenos(btn.getAttribute("data-pc-distribuir-menores"), btn.getAttribute("data-pc-chave-menores"), Number(btn.getAttribute("data-pc-gap-menores")), lista);
       renderRevisaoDeposito();
     });
   });
