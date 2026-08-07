@@ -77,30 +77,36 @@ Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido 
 | Arlei Da Silva | Deputado Federal | 814-psdb-cidadania-retificadora.pdf |
 | Barbara Kawall Connolly Barreiros | Deputado Federal | 814-psdb-cidadania-retificadora.pdf |
 | Roseli Moraes Silva | Deputado Federal | 814-psdb-cidadania-retificadora.pdf |
-| Adelar José Tolfo | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Arildo Fernandes Da Silva | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Bruno Horwatitsch Cunha | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Crislane Evaristo Fernandes | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Edson Luiz Duarte | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Fabiana Da Silva | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Jefferson Schmidt | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Jessica Degering Rodrigues | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Jucemar Custódio | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Kariny Naiara Muller Brum | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Leonardo Garcia Heinzen | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Marcos Luiz Vieira | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Mirna Rubia Da Silva Commandulli | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Patricia Da Silva Sobreda | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Paulo Spengler | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Renato Geske | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Sonia Salete Vedovatto | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Sérgio Freitas | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
-| Tcharles Purim | Deputado Estadual | 814-psdb-cidadania-retificadora.pdf |
 
 ## Status de confirmação
 
-_(nenhuma linha confirmada ainda — preencher conforme for revisando, mesmo
-formato de dados/correcoes-nomes.md)_
-
 | Nome | Cargo | Partido | Status | Fonte |
 |---|---|---|---|---|
+| Adelar José Tolfo | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata de psdb-cidadania-adelar-jose-tolfo (mesmo número TSE 45345), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Arildo Fernandes Da Silva | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45777), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Bruno Horwatitsch Cunha | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 23123), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Crislane Evaristo Fernandes | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45333), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Edson Luiz Duarte | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45444), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Fabiana Da Silva | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 23456), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Jefferson Schmidt | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45678), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Jessica Degering Rodrigues | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45199), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Jucemar Custódio | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45222), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Kariny Naiara Muller Brum | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45588), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Leonardo Garcia Heinzen | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45455), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Marcos Luiz Vieira | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45699), entrada sem-partido removida (achado pelo usuário testando o app) | 624-psdb-cidadania-convencao.pdf |
+| Mirna Rubia Da Silva Commandulli | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 23000), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Patricia Da Silva Sobreda | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45000), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Paulo Spengler | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45145), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Renato Geske | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45051), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Sonia Salete Vedovatto | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45450), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Sérgio Freitas | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45555), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Tcharles Purim | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45045), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+
+_Ainda pendentes de verdade (sem duplicata pra cruzar, precisam de pesquisa
+contra o PDF de verdade): Arlei Da Silva, Barbara Kawall Connolly
+Barreiros, Roseli Moraes Silva (todos Deputado Federal,
+814-psdb-cidadania-retificadora.pdf) e Jovino Marques Gonçalves (Deputado
+Federal, 557-pt-pc-do-b-pv-executiva.pdf, arquivo diferente) — nenhum
+desses tem uma entrada "alta confiança" com o mesmo número TSE em outro
+lugar do arquivo, então não são duplicata de nada já carregado; alguém
+precisa abrir o PDF de verdade pra achar o partido._
