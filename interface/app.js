@@ -6,8 +6,9 @@ function chevron(open){
   </svg>`;
 }
 
-function infoTip(html){
-  return `<span class="info-tip">i<span class="tip-box">${html}</span></span>`;
+function infoTip(html, alinhamento){
+  const classeExtra = alinhamento === "right" ? " tip-box-right" : "";
+  return `<span class="info-tip">i<span class="tip-box${classeExtra}">${html}</span></span>`;
 }
 
 function warnTip(html){

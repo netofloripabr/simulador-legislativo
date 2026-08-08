@@ -159,6 +159,12 @@
     content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%);
     border:6px solid transparent; border-top-color:var(--accent);
   }
+  /* Variante pra ícone perto da borda direita da tela (ex.: badge "eleito ·
+     QP" no fim de cada linha da Revisão) — centralizar com left:50% empurra
+     metade da caixa de 260px pra fora do viewport. Ancora pela direita do
+     ícone em vez de centralizar. */
+  .info-tip .tip-box.tip-box-right{ left:auto; right:0; transform:none; }
+  .info-tip .tip-box.tip-box-right::after{ left:auto; right:10px; transform:none; }
   .info-tip.warn{ border-color:var(--danger); color:var(--danger); background:rgba(192,82,74,0.12); }
   .info-tip.warn:hover{ color:var(--danger); border-color:var(--danger); }
   .info-tip.warn .tip-box{ border-color:var(--danger); }

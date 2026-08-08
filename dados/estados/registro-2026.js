@@ -164,6 +164,14 @@ function candidatos2026EstadoCargo(uf, cargoLabel) {
     if (grupos[p26]) return;
     grupos[p26] = { nome: p26, vagas2022: vagas2022PorPartido26[p26] || 0, candidatos: [] };
     p.candidatos.forEach((c) => {
+      // Não inclui como placeholder quem já tem candidatura 2026 CONFIRMADA
+      // em outro cargo (mesmo nome civil já presente em nomesCivis2026DoEstado,
+      // calculado acima pra travar a colisão de nome de urna) — ex.: Júlio
+      // César Garcia rodou pra Dep. Estadual em 2022, mas a ata de 2026 já
+      // confirma ele em Dep. Federal; enquanto o PSD não solta a própria
+      // convenção de Estadual, o placeholder não pode inventar que ele
+      // continua concorrendo lá também. Achado com o usuário em 08/08/2026.
+      if (nomesCivis2026DoEstado.has(_normalizarNome2026(c.nome))) return;
       grupos[p26].candidatos.push({
         id: c.id,
         nome: c.nome,

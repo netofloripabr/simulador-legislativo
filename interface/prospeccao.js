@@ -41,6 +41,9 @@ let pcState = {
   modoPartido: {}, // nome do partido -> "detalhado" (default é o modo simplificado)
   erro: "",
   status: "",
+  modalNomeListaAberto: false, // modal "dê um nome pra essa lista" no primeiro Salvar da Revisão
+  listaSalvaId: null, // id exclusivo gerado no primeiro Salvar — reaproveitado nos salvamentos seguintes da mesma lista (edição, não duplicata)
+  listaSalvaNome: null, // nome escolhido pela pessoa nesse modal — só pergunta de novo se vier null (ex.: depois de "Sair")
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -234,6 +237,40 @@ function agendarAutoSaveRascunho(cargo, lista) {
       try { window.storage.set(_chaveRascunhoConvidado(pcState.estado, cargo), JSON.stringify(lista)); } catch (e) { /* localStorage indisponível, ignora */ }
     }
   }, 900);
+}
+
+// ===== Lista salva (nomeada, com id exclusivo) =====
+// Diferente do rascunho acima (autosave silencioso, "onde eu parei"): isso
+// aqui é o registro deliberado que a pessoa cria ao clicar "Salvar" na
+// Revisão pela primeira vez — pede um nome, gera um id que nunca muda
+// depois (mesmo id em salvamentos seguintes da mesma lista, ver
+// executarSalvarLista). Hoje só persiste local (window.storage) — serve
+// tanto convidado quanto logado; a sincronização com o Supabase
+// (nuvem/salvamentos.js, listas_salvas) fica pra quando existir a tela
+// "Meus Palpites" de verdade, com suporte a mais de uma lista por conta.
+function gerarIdLista() {
+  if (window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  return "lista-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+}
+
+function _chaveListaSalvaLocal(uf) {
+  return `simulador-legislativo-lista-salva:${uf}`;
+}
+
+async function persistirListaSalvaLocal() {
+  if (!pcState.estado || !pcState.listaSalvaId) return;
+  const registro = {
+    id: pcState.listaSalvaId,
+    nome: pcState.listaSalvaNome,
+    atualizadoEm: new Date().toISOString(),
+    palpitesPorCargo: pcState.palpitesPorCargo,
+  };
+  try {
+    const existente = await window.storage.get(_chaveListaSalvaLocal(pcState.estado));
+    const anterior = existente && existente.value ? JSON.parse(existente.value) : null;
+    registro.criadoEm = (anterior && anterior.id === registro.id && anterior.criadoEm) || registro.atualizadoEm;
+    await window.storage.set(_chaveListaSalvaLocal(pcState.estado), JSON.stringify(registro));
+  } catch (e) { /* localStorage indisponível, ignora — a pessoa ainda vê a lista salva na tela mesmo assim */ }
 }
 
 function renderColaborativo() {
@@ -1319,16 +1356,43 @@ function distribuirComQuemTemMenos(nomePartido, chaveCandidato, gapPartido, list
   const alvo = p.candidatos.find((c) => String(c.chave) === chaveCandidato);
   if (!alvo) return;
   const votosAlvo = Number(alvo.votos) || 0;
-  const naoEleitosAbaixo = p.candidatos.filter((c) => !c.marcadoEleito && c.fonte !== "legenda" && (Number(c.votos) || 0) < votosAlvo);
-  if (!naoEleitosAbaixo.length) return;
-  const somaPeso = naoEleitosAbaixo.reduce((s, c) => s + (Number(c.votos) || 1), 0) || 1;
-  naoEleitosAbaixo.forEach((c) => {
-    const atual = Number(c.votos) || 0;
-    const parte = Math.round(gapPartido * ((Number(c.votos) || 1) / somaPeso));
-    const teto = Math.max(0, votosAlvo - 1 - atual);
-    c.votos = atual + Math.min(parte, teto);
-    c.votosEditado = true;
-  });
+  const recipientes = p.candidatos.filter((c) => !c.marcadoEleito && c.fonte !== "legenda" && (Number(c.votos) || 0) < votosAlvo);
+  if (!recipientes.length) return;
+  // Distribui proporcional ao voto ATUAL de cada um (quem já tem mais,
+  // recebe mais — proporcionalidade decrescente) entre quem ainda tem
+  // espaço (teto = ficar 1 voto abaixo do alvo, nunca ultrapassar). O teto
+  // pode sobrar voto não distribuído numa rodada (quem bateu no teto não
+  // recebe a parte inteira) — sem redistribuir essa sobra entre quem ainda
+  // tem espaço, o total ficava sempre abaixo do gap pedido e a pessoa
+  // precisava clicar de novo várias vezes pra fechar a vaga (achado com o
+  // usuário em 08/08/2026). Repete em rodadas até esgotar o gap ou o
+  // espaço de todo mundo.
+  let restante = gapPartido;
+  for (let rodada = 0; rodada < recipientes.length && restante > 0; rodada++) {
+    const comEspaco = recipientes.filter((c) => (Number(c.votos) || 0) < votosAlvo - 1);
+    if (!comEspaco.length) break;
+    const somaPeso = comEspaco.reduce((s, c) => s + (Number(c.votos) || 1), 0) || 1;
+    let distribuidoNaRodada = 0;
+    comEspaco.forEach((c) => {
+      const atual = Number(c.votos) || 0;
+      const parte = Math.round(restante * ((Number(c.votos) || 1) / somaPeso));
+      const teto = Math.max(0, votosAlvo - 1 - atual);
+      const dado = Math.min(parte, teto);
+      c.votos = atual + dado;
+      c.votosEditado = true;
+      distribuidoNaRodada += dado;
+    });
+    restante -= distribuidoNaRodada;
+    if (distribuidoNaRodada === 0) break;
+  }
+  // Esgotou o espaço de todo mundo (todos a 1 voto do alvo) e ainda sobrou
+  // diferença — não dá mais pra manter "sem passar do voto dele" mantendo
+  // todos abaixo; o restante vai pro próprio alvo, senão a vaga nunca
+  // fechava e a pessoa ficava clicando pra sempre sem efeito.
+  if (restante > 0) {
+    alvo.votos = votosAlvo + restante;
+    alvo.votosEditado = true;
+  }
 }
 
 // Versão do botão "Auto" geral (fora de cada partido): roda
@@ -2585,11 +2649,17 @@ function classificarEleitosPorPartido(listaParam, cargo) {
         // só troca um problema pelo outro (ping-pong). Se a vaga for de
         // alguém que não foi marcado, ultrapassar é seguro — sobra a vaga
         // real de qualquer forma.
-        const trocariaOutroMarcado = !!(ultimoRealEleito && ultimoRealEleito.marcadoEleito && ultimoRealEleito.fonte !== "legenda");
         const gapIndividual = cadeirasReais > 0 ? Math.max(0, votosDoUltimoEleitoDeVerdade - (Number(c.votos) || 0) + 1) : null;
         const necessarioPartido = Math.floor(corte * (cadeirasReais + 1)) + 1;
         const gapPartido = Math.max(0, necessarioPartido - votosPartido);
-        const acrescimo = gapIndividual === null || trocariaOutroMarcado ? gapPartido : gapIndividual;
+        // Mesma correção de listaUnificadaRevisao: se tem outro não-eleito do
+        // mesmo partido com mais voto que este candidato (ranqueado acima
+        // dele, abaixo do corte), só bater o partido/último eleito não
+        // basta — precisa também superar esse rival de cima.
+        const posAtual = reaisOrdenados.findIndex((rc) => rc.chave === c.chave);
+        const rivalDeCima = posAtual > cadeirasReais ? reaisOrdenados[cadeirasReais] : null;
+        const gapRivalDeCima = rivalDeCima ? Math.max(0, (Number(rivalDeCima.votos) || 0) - (Number(c.votos) || 0) + 1) : 0;
+        const acrescimo = Math.max(gapPartido, gapIndividual || 0, gapRivalDeCima);
         gap = { individual: gapIndividual, partido: gapPartido, acrescimo };
       }
       resultado.push({ chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos: Number(c.votos) || 0, tag: i < qp ? "QP" : "média", consistente, gap });
@@ -2791,12 +2861,20 @@ function listaUnificadaRevisao(listaParam, cargo) {
           const necessarioPartido = Math.floor(corte * (cadeirasReais + 1)) + 1;
           const gapPartido = Math.max(0, necessarioPartido - votosPartido);
           const gapIndividual = cadeirasReais > 0 ? Math.max(0, votosDoUltimoEleitoDeVerdade - votos + 1) : null;
-          const trocariaOutroMarcado = !!(ultimoEleitoDeVerdade && ultimoEleitoDeVerdade.marcadoEleito && ultimoEleitoDeVerdade.fonte !== "legenda");
-          const acrescimo = gapIndividual === null || trocariaOutroMarcado ? gapPartido : gapIndividual;
+          // Quando tem outro candidato NÃO ELEITO do mesmo partido com mais
+          // voto que este (ranqueado entre ele e o corte — ex.: usuário
+          // marcou o 2º da fila, não o 1º), só bater o partido/último eleito
+          // não basta: a vaga nova iria pro rival de cima, não pra este.
+          // reaisOrdenados[cadeirasReais] é sempre quem tem MAIS voto entre
+          // os não eleitos (lista ordenada decrescente) — superar só ele já
+          // garante superar os outros rivais de cima também.
+          const rivalDeCima = i > cadeirasReais ? reaisOrdenados[cadeirasReais] : null;
+          const gapRivalDeCima = rivalDeCima ? Math.max(0, (Number(rivalDeCima.votos) || 0) - votos + 1) : 0;
+          const acrescimo = Math.max(gapPartido, gapIndividual || 0, gapRivalDeCima);
           resultado.push({
             chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos, eleito: false,
             tag: null, detalhe: null,
-            gap: { individual: gapIndividual, partido: gapPartido, acrescimo },
+            gap: { individual: gapIndividual, partido: gapPartido, acrescimo, votosPartido, temRivalAcima: !!rivalDeCima },
             marcadoPeloUsuario: !!c.marcadoEleito,
           });
         }
@@ -2835,6 +2913,32 @@ function listaUnificadaRevisao(listaParam, cargo) {
   let contador = 0;
   resultado.forEach((c) => { if (c.eleito) { contador++; c.posicaoEleicao = contador; } });
   return resultado;
+}
+
+// Efetiva o Salvar depois que a lista já tem nome (primeira vez, via modal
+// de nomear — ver pcBtnConfirmarNomeLista) ou já tinha (salvamento
+// seguinte da mesma lista, silencioso). gera o id exclusivo na primeira
+// vez só, e reaproveita depois — cada clique de Salvar é uma ATUALIZAÇÃO
+// da mesma lista, não uma lista nova.
+async function executarSalvarLista() {
+  pcState.listaSalvaId = pcState.listaSalvaId || gerarIdLista();
+  await persistirListaSalvaLocal();
+  // Convidado (sem cadastro) não tem perfil_id pra gravar em "palpites" no
+  // Supabase — mas a lista nomeada já foi persistida localmente acima, e os
+  // 3 cargos já vêm sendo salvos localmente o tempo todo por
+  // agendarAutoSaveRascunho enquanto a pessoa edita, então "Salvar" pro
+  // convidado não precisa gravar mais nada: só leva pro Lobby, onde dá pra
+  // continuar editando essa mesma lista à vontade. Cadastrado grava de
+  // verdade em "palpites" também (Quadro de Médias público).
+  if (pcState.perfil) {
+    const { error } = await salvarPalpiteCompleto(pcState.perfil.id, pcState.palpiteEdicao);
+    if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
+    pcState.subaba = "deposito-confirmado";
+    renderAppColaborativo();
+  } else {
+    pcState.tela = "deposito-confirmado";
+    renderColaborativo();
+  }
 }
 
 function renderRevisaoDeposito() {
@@ -2938,7 +3042,7 @@ function renderRevisaoDeposito() {
           </div>
           <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;">
             ${barraProgresso(100, 0.4)}
-            <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag, c.detalhe))}</span>
+            <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag, c.detalhe), "right")}</span>
           </div>
           ${mostrarMargem ? `<div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
             <span>mínimo pra eleger seria ${minimoParaEleger.toLocaleString("pt-BR")}</span><span style="color:var(--pc-accent);">+${margem.toLocaleString("pt-BR")} de folga</span>
@@ -2951,10 +3055,16 @@ function renderRevisaoDeposito() {
       const pct = necessario > 0 ? Math.round((votos / necessario) * 100) : 0;
       const usaIndividual = c.gap.individual !== null && c.gap.acrescimo === c.gap.individual;
       const legendaFaltam = acrescimo > 0
-        ? (usaIndividual ? `faltam ${acrescimo.toLocaleString("pt-BR")} votos próprios` : `faltam ${acrescimo.toLocaleString("pt-BR")} votos no total do partido`)
+        ? (usaIndividual
+            ? `faltam ${acrescimo.toLocaleString("pt-BR")} votos próprios`
+            : `faltam ${acrescimo.toLocaleString("pt-BR")} votos · partido tem ${(c.gap.votosPartido || 0).toLocaleString("pt-BR")} no total`)
         : "";
       const menuAberto = pcState.menuMagicoAberto === c.chave;
-      const distribuivel = c.gap.partido !== null && c.gap.partido > 0;
+      // Distribuir só ajuda quando não tem ninguém do mesmo partido, ainda
+      // não eleito, com mais voto que este candidato — essa opção só mexe
+      // em quem tem MENOS voto que ele, então não resolveria um rival de
+      // cima (aí só "Direto pra ele" funciona, ver acrescimo acima).
+      const distribuivel = c.gap.partido !== null && c.gap.partido > 0 && !c.gap.temRivalAcima;
       const mostrarMagico = c.marcadoPeloUsuario && acrescimo > 0;
       const botaoMagico = mostrarMagico ? `<button data-pc-abrir-magico="${c.chave}" class="pc-mini-btn" style="flex-shrink:0; width:26px; height:26px; border-radius:50%; color:var(--pc-accent); border-color:rgba(61,255,176,.4); background:${menuAberto ? "rgba(61,255,176,.18)" : "rgba(61,255,176,.08)"};">${iconeSvg("completar", 13)}</button>` : "";
       const menuMagico = menuAberto ? `
@@ -3031,7 +3141,41 @@ function renderRevisaoDeposito() {
       </div>` : ""}
 
       ${secoesHtml}
-    </div>`;
+    </div>
+    ${pcState.modalNomeListaAberto ? `
+    <div id="pcModalNomeListaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <h2 style="margin-bottom:4px; font-size:15px;">Dê um nome pra essa lista</h2>
+        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">Ajuda a reconhecer depois, se você salvar mais de uma. Essa lista ganha um identificador só dela.</div>
+        <input class="cell" id="pcInputNomeLista" placeholder="otimista - ${new Date().toLocaleDateString("pt-BR")}" style="width:100%; margin-bottom:6px;">
+        <div class="pc-erro" id="pcErroNomeLista" style="min-height:16px;"></div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="ghost" id="pcBtnCancelarNomeLista" style="flex:1;">Cancelar</button>
+          <button class="primary" id="pcBtnConfirmarNomeLista" style="flex:1;">Salvar</button>
+        </div>
+      </div>
+    </div>` : ""}`;
+  if (pcState.modalNomeListaAberto) {
+    const inputNome = document.getElementById("pcInputNomeLista");
+    inputNome.focus();
+    const confirmarNome = async () => {
+      const valor = inputNome.value.trim();
+      if (!valor) {
+        document.getElementById("pcErroNomeLista").textContent = "Digite um nome pra continuar.";
+        inputNome.focus();
+        return;
+      }
+      pcState.listaSalvaNome = valor;
+      pcState.modalNomeListaAberto = false;
+      await executarSalvarLista();
+    };
+    document.getElementById("pcBtnCancelarNomeLista").addEventListener("click", () => {
+      pcState.modalNomeListaAberto = false;
+      renderRevisaoDeposito();
+    });
+    document.getElementById("pcBtnConfirmarNomeLista").addEventListener("click", confirmarNome);
+    inputNome.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); confirmarNome(); } });
+  }
   // Botão mágico (✦) de cada candidato pendente — abre/fecha o menu com as
   // 2 formas de completar o voto que falta. Clique, não hover (pedido do
   // usuário em 06/08/2026).
@@ -3115,22 +3259,16 @@ function renderRevisaoDeposito() {
     else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
   });
   document.getElementById("pcBtnConfirmarDeposito").addEventListener("click", async () => {
-    // Convidado (sem cadastro) não tem perfil_id pra gravar em "palpites" no
-    // Supabase — mas os 3 cargos já vêm sendo salvos localmente o tempo
-    // todo por agendarAutoSaveRascunho (ver CARGOS.forEach acima nesta
-    // função) enquanto a pessoa edita, então "Salvar" pro convidado não
-    // precisa gravar nada novo: só confirma que a lista está pronta e leva
-    // pro Lobby, onde dá pra continuar editando essa mesma lista à vontade.
-    // Cadastrado grava de verdade em "palpites" (Quadro de Médias público).
-    if (pcState.perfil) {
-      const { error } = await salvarPalpiteCompleto(pcState.perfil.id, pcState.palpiteEdicao);
-      if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
-      pcState.subaba = "deposito-confirmado";
-      renderAppColaborativo();
-    } else {
-      pcState.tela = "deposito-confirmado";
-      renderColaborativo();
+    // Primeiro Salvar dessa lista (ainda sem nome) pede o nome antes de
+    // gravar qualquer coisa — ver executarSalvarLista pra o que acontece
+    // depois de confirmado. Salvamentos seguintes da MESMA lista (já tem
+    // nome) não perguntam de novo, só atualizam.
+    if (!pcState.listaSalvaNome) {
+      pcState.modalNomeListaAberto = true;
+      renderRevisaoDeposito();
+      return;
     }
+    await executarSalvarLista();
   });
   document.getElementById("pcBtnImprimir").addEventListener("click", (e) => {
     document.getElementById("pcImprimirPergunta").style.display = "block";
