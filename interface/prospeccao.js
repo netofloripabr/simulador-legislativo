@@ -83,6 +83,8 @@ const PC_ICONES = {
   convidar: '<circle cx="6.3" cy="6" r="2.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M2.3 14c0-2.4 1.8-4.3 4-4.3s4 1.9 4 4.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><path d="M12 5v4M10 7h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   compartilhar: '<circle cx="12" cy="3.6" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><circle cx="4" cy="8" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><circle cx="12" cy="12.4" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><path d="M5.5 7.1l5-2.6M5.5 8.9l5 2.6" stroke="currentColor" stroke-width="1.1"></path>',
   checkCirculo: '<circle cx="8" cy="8" r="5.7" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M5.4 8.2l1.8 1.8 3.4-3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
+  home: '<path d="M2.5 7.2L8 2.8l5.5 4.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4 6.3v6.4a.9.9 0 00.9.9h6.2a.9.9 0 00.9-.9V6.3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>',
+  perfil: '<circle cx="8" cy="5.6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M3 13.2c0-2.7 2.2-4.6 5-4.6s5 1.9 5 4.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
 };
 function iconeSvg(nome, tamanho) {
   const t = tamanho || 16;
@@ -350,6 +352,86 @@ async function depositarListaLocal(uf, id, anonimo) {
   return true;
 }
 
+// ===== Menu fixo (barra de atalhos embaixo, estilo do Painel) =====
+// Substitui o botão "← Painel principal" ad-hoc que cada subaba tinha —
+// combinado com o usuário em 08/08/2026 ("isso não deverá ser necessário
+// se tivermos a barra de atalhos aérea"). Aparece em toda tela alcançada
+// DEPOIS do Painel, exceto Seleção, Revisão e o próprio Painel (esses já
+// têm os mesmos destinos embutidos ou pedem foco sem distração — mesma
+// regra combinada pro filtro da Revisão não mudar mais nada da estrutura
+// além do pedido). destinoAtivo null = mostra a barra sem destacar nada.
+function renderMenuFixo(destinoAtivo) {
+  const gateConvidado = !pcState.perfil;
+  const itens = [
+    { id: "painel", icone: "home", label: "Início" },
+    { id: "minhas-listas", icone: "ballot", label: "Minhas listas" },
+    { id: "medias", icone: "chart", label: "Médias", gate: gateConvidado },
+    { id: "grupo", icone: "grupos", label: "Grupos", gate: gateConvidado },
+    { id: "ranking", icone: "ranking", label: "Ranking", disabled: true },
+  ];
+  const botoes = itens.map((it) => {
+    const ativo = it.id === destinoAtivo;
+    const cor = it.disabled ? "#3f5a4e" : (ativo ? "var(--pc-accent)" : "var(--pc-ink-dim)");
+    const titulo = it.disabled ? "Disponível depois do resultado oficial de 2026" : (it.gate ? "Precisa se cadastrar" : "");
+    return `<button data-pc-menu-fixo="${it.id}" ${it.disabled ? "disabled" : ""} title="${titulo}" style="flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 2px; color:${cor}; font-family:var(--sans); cursor:${it.disabled ? "default" : "pointer"}; position:relative;">
+      ${ativo && !it.disabled ? `<span style="position:absolute; top:2px; left:50%; transform:translateX(9px); width:5px; height:5px; border-radius:50%; background:var(--pc-accent);"></span>` : ""}
+      ${iconeSvg(it.icone, 20)}
+      <span style="font-size:10px; font-weight:600;">${it.label}</span>
+    </button>`;
+  }).join("");
+  return `<div style="position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:#0c1c16; border-top:1px solid #1c2f26;">
+    <div style="display:flex; width:100%; max-width:640px; padding:8px 4px calc(8px + env(safe-area-inset-bottom, 0px));">${botoes}</div>
+  </div>`;
+}
+
+// Chamado no fim de todo render de tela (renderColaborativo direto pras
+// telas "-convidado", renderAppColaborativo pras subabas) — mostra ou
+// esconde a barra e ajusta o respiro embaixo do conteúdo pra ela não
+// cobrir a última linha. destino null esconde a barra nessa tela.
+function atualizarMenuFixo(destino) {
+  const existente = document.getElementById("pcMenuFixoWrap");
+  if (existente) existente.remove();
+  const pcConteudo = document.getElementById("pcConteudo");
+  if (!destino) {
+    if (pcConteudo) pcConteudo.style.paddingBottom = "";
+    return;
+  }
+  const wrap = document.getElementById("modoColaborativoWrap");
+  if (!wrap) return;
+  const div = document.createElement("div");
+  div.id = "pcMenuFixoWrap";
+  div.innerHTML = renderMenuFixo(destino);
+  wrap.appendChild(div);
+  if (pcConteudo) pcConteudo.style.paddingBottom = "76px";
+  document.querySelectorAll("[data-pc-menu-fixo]:not(:disabled)").forEach((btn) => {
+    btn.addEventListener("click", () => irParaDestinoMenuFixo(btn.getAttribute("data-pc-menu-fixo")));
+  });
+}
+
+function irParaDestinoMenuFixo(destino) {
+  const gateConvidado = !pcState.perfil;
+  if (destino === "painel") {
+    if (pcState.perfil) { pcState.subaba = "painel"; renderAppColaborativo(); }
+    else { pcState.tela = "painel-convidado"; renderColaborativo(); }
+    return;
+  }
+  if (destino === "minhas-listas") {
+    if (pcState.perfil) { pcState.subaba = "minhas-listas"; renderAppColaborativo(); }
+    else { pcState.tela = "minhas-listas-convidado"; renderColaborativo(); }
+    return;
+  }
+  // Médias e Grupos pedem cadastro pro convidado (mesma regra do Painel) —
+  // pendenteAcao já sabe levar direto pra lá depois de criar a conta.
+  if (gateConvidado && (destino === "medias" || destino === "grupo")) {
+    pcState.pendenteRegistro = true;
+    pcState.pendenteAcao = destino;
+    pcState.tela = "cadastro";
+    renderColaborativo();
+    return;
+  }
+  if (pcState.perfil) { pcState.subaba = destino; renderAppColaborativo(); }
+}
+
 function renderColaborativo() {
   const el = document.getElementById("modoColaborativoWrap");
   if (pcState.tela === "erro-conexao") {
@@ -365,16 +447,16 @@ function renderColaborativo() {
   }
   if (pcState.tela === "landing") return renderLanding();
   if (pcState.tela === "estado") return renderTelaEstado();
-  if (pcState.tela === "selecao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderSelecaoCandidatos(); }
-  if (pcState.tela === "revisao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderRevisaoDeposito(); }
-  if (pcState.tela === "deposito-confirmado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderDepositoConfirmado(); }
-  if (pcState.tela === "painel-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderPainelPrincipal(); }
-  if (pcState.tela === "minhas-listas-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderMinhasListas(); }
-  if (pcState.tela === "detalhado-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderMeuPalpite(); }
+  if (pcState.tela === "selecao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderSelecaoCandidatos(); atualizarMenuFixo(null); return; }
+  if (pcState.tela === "revisao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderRevisaoDeposito(); atualizarMenuFixo(null); return; }
+  if (pcState.tela === "deposito-confirmado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderDepositoConfirmado(); atualizarMenuFixo(null); return; }
+  if (pcState.tela === "painel-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderPainelPrincipal(); atualizarMenuFixo(null); return; }
+  if (pcState.tela === "minhas-listas-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMinhasListas(); atualizarMenuFixo("minhas-listas"); return; }
+  if (pcState.tela === "detalhado-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMeuPalpite(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "login") return renderTelaLogin();
   if (pcState.tela === "cadastro") return renderTelaCadastro();
   if (pcState.tela === "app") return renderAppColaborativo();
-  if (pcState.tela === "compartilhado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderCompartilhado(); }
+  if (pcState.tela === "compartilhado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderCompartilhado(); atualizarMenuFixo(null); return; }
 }
 
 // ---------- Abertura (sem login) ----------
@@ -714,14 +796,12 @@ function renderTelaCadastro() {
 
 function renderAppColaborativo() {
   const el = document.getElementById("modoColaborativoWrap");
-  const mostrarVoltar = ["selecao", "revisao", "minhas-listas", "palpite", "medias", "ranking", "grupo"].includes(pcState.subaba);
   el.innerHTML = `
     <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
       <div><h2 style="margin:0;">Olá, ${pcState.perfil ? pcState.perfil.nome : "visitante"}</h2>
       <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: Assembleia toda"}</div></div>
       ${pcState.perfil ? `<button class="ghost" id="pcBtnSair">Sair</button>` : ""}
     </div>
-    ${mostrarVoltar ? `<button class="ghost" id="pcBtnVoltarPainel" style="margin-bottom:14px;">← Painel principal</button>` : ""}
     <div id="pcConteudo"></div>
   `;
   if (pcState.perfil) {
@@ -731,22 +811,19 @@ function renderAppColaborativo() {
       renderColaborativo();
     });
   }
-  if (mostrarVoltar) {
-    document.getElementById("pcBtnVoltarPainel").addEventListener("click", () => {
-      if (pcState.perfil) { pcState.subaba = "painel"; renderAppColaborativo(); }
-      else { pcState.tela = "painel-convidado"; renderColaborativo(); }
-    });
-  }
 
-  if (pcState.subaba === "selecao") renderSelecaoCandidatos();
-  else if (pcState.subaba === "revisao") renderRevisaoDeposito();
-  else if (pcState.subaba === "deposito-confirmado") renderDepositoConfirmado();
-  else if (pcState.subaba === "painel") renderPainelPrincipal();
-  else if (pcState.subaba === "minhas-listas") renderMinhasListas();
-  else if (pcState.subaba === "palpite") renderMeuPalpite();
-  else if (pcState.subaba === "medias") renderQuadroMedias();
-  else if (pcState.subaba === "grupo") renderGrupoHub();
-  else renderRankingPlaceholder();
+  // Destino ativo do menu fixo por subaba — null pras telas que não mostram
+  // a barra (Seleção, Revisão, o próprio Painel, e a tela antiga "palpite",
+  // órfã desde que "Preencher votação completa" virou "Minhas listas").
+  if (pcState.subaba === "selecao") { renderSelecaoCandidatos(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "revisao") { renderRevisaoDeposito(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "deposito-confirmado") { renderDepositoConfirmado(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "painel") { renderPainelPrincipal(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "minhas-listas") { renderMinhasListas(); atualizarMenuFixo("minhas-listas"); }
+  else if (pcState.subaba === "palpite") { renderMeuPalpite(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "medias") { renderQuadroMedias(); atualizarMenuFixo("medias"); }
+  else if (pcState.subaba === "grupo") { renderGrupoHub(); atualizarMenuFixo("grupo"); }
+  else { renderRankingPlaceholder(); atualizarMenuFixo("ranking"); }
 }
 
 // Primeiro domingo de outubro de 2026 (calendário eleitoral — 1º turno das
