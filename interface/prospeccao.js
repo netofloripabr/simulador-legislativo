@@ -429,6 +429,8 @@ function renderColaborativo() {
   if (pcState.tela === "detalhado-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMeuPalpite(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "login") return renderTelaLogin();
   if (pcState.tela === "cadastro") return renderTelaCadastro();
+  if (pcState.tela === "termos") return renderTelaLegal("termos");
+  if (pcState.tela === "privacidade") return renderTelaLegal("privacidade");
   if (pcState.tela === "app") return renderAppColaborativo();
   if (pcState.tela === "compartilhado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderCompartilhado(); atualizarMenuFixo(null); return; }
 }
@@ -614,6 +616,160 @@ function voltarDeLoginOuCadastro() {
   renderColaborativo();
 }
 
+// ---------- Termos de Uso / Política de Privacidade ----------
+
+// Conteúdo revisado com o usuário em 08/08/2026: sem nome pessoal nem
+// e-mail dele no texto, só o nome fantasia "Simulador Eleitoral
+// Legislativo, por meio de seus representantes legais". O e-mail de
+// contato pros pedidos de privacidade/dúvidas ainda não foi decidido —
+// fica como placeholder claro até o usuário informar (ver conversa de
+// 08/08/2026; não substituir por um e-mail real sem confirmação dele).
+const PC_EMAIL_CONTATO_LEGAL = "[e-mail de contato — a definir]";
+
+const PC_TEXTO_TERMOS = [
+  { t: "1. O que é este site", c: `O Simulador Eleitoral — Legislativo 2026 é uma ferramenta para simular e
+    projetar resultados das eleições legislativas de 2026 (por enquanto, Assembleia
+    Legislativa de Santa Catarina), com base em dados públicos oficiais de eleições
+    anteriores e nas atas de convenção partidária divulgadas pelo TSE/TRE-SC.<br><br>
+    <b>Este site é independente e não tem nenhum vínculo institucional com a ALESC
+    (Assembleia Legislativa de Santa Catarina), com o TSE, com o TRE-SC, com
+    nenhum partido político ou candidato.</b> As projeções aqui geradas são
+    simulações feitas por você e por outros usuários — não são pesquisa eleitoral
+    registrada, não têm validade oficial e não representam a opinião nem o
+    resultado real da eleição.<br><br>
+    Mantido por Simulador Eleitoral Legislativo, por meio de seus representantes legais.` },
+  { t: "2. Cadastro e conta", c: `Pra usar as funções que exigem conta (salvar listas, participar de grupos,
+    aparecer no ranking), você precisa se cadastrar com nome, e-mail, senha e
+    CPF. O CPF é usado só pra evitar que a mesma pessoa crie várias contas e
+    distorça o ranking/estatísticas — ele nunca é armazenado em texto puro (ver
+    a Política de Privacidade). Você é responsável por manter sua senha em
+    sigilo e por tudo que acontecer usando sua conta.` },
+  { t: "3. Uso permitido", c: `Você pode usar o site pra montar suas próprias projeções, participar de
+    grupos, comparar palpites e acompanhar o quadro de médias públicas. Não é
+    permitido: tentar acessar dados de outras contas, automatizar cadastros em
+    massa, usar o site pra divulgar conteúdo que não seja sobre a própria
+    simulação, ou tentar burlar as regras de limite (créditos, uma lista
+    oficial por vez, etc.).` },
+  { t: "4. Créditos", c: `O site usa um sistema de créditos pra liberar listas e grupos extras além
+    do primeiro gratuito. Hoje esse sistema ainda não processa pagamento real —
+    créditos são concedidos manualmente enquanto essa parte não estiver pronta.
+    Quando existir cobrança de verdade, este documento será atualizado antes
+    disso entrar no ar, com as condições de preço, reembolso e forma de
+    pagamento.` },
+  { t: "5. Isenção de responsabilidade", c: `As projeções são estimativas baseadas em dados históricos e nos palpites
+    dos usuários — não constituem previsão eleitoral, aconselhamento político
+    nem qualquer garantia de resultado. O site é oferecido "como está", sem
+    garantia de disponibilidade contínua. Erros de dados podem acontecer (ex.
+    atas de convenção ainda não processadas); se você encontrar um, pode
+    reportar pelo próprio site.` },
+  { t: "6. Alterações", c: `Estes termos podem ser atualizados conforme o site evolui. Mudanças
+    relevantes serão avisadas na tela. O uso continuado do site depois de uma
+    atualização vale como concordância com a nova versão.` },
+  { t: "7. Contato", c: `Dúvidas sobre estes termos: <b>${PC_EMAIL_CONTATO_LEGAL}</b>` },
+];
+
+const PC_TEXTO_PRIVACIDADE = [
+  { t: null, c: `Esta política explica quais dados pessoais o Simulador Eleitoral —
+    Legislativo 2026 coleta, por quê, e quais direitos você tem sobre eles,
+    conforme a Lei Geral de Proteção de Dados (Lei 13.709/2018 — LGPD).` },
+  { t: "1. Quem trata os seus dados", c: `Simulador Eleitoral Legislativo, por meio de seus representantes legais,
+    responsável pelo tratamento dos dados coletados através deste site.
+    Contato pra qualquer assunto de privacidade: <b>${PC_EMAIL_CONTATO_LEGAL}</b>` },
+  { t: "2. Quais dados coletamos", c: `<ul style="margin:0; padding-left:18px;">
+    <li><b>Pra criar sua conta:</b> nome, e-mail, senha e CPF.</li>
+    <li><b>CPF:</b> usado só pra impedir cadastro duplicado da mesma pessoa. Nunca é
+      guardado em texto puro — passa por um processo de hash (transformação
+      irreversível) antes de ser salvo, então nem nós conseguimos "ver" o
+      número original a partir do que fica armazenado.</li>
+    <li><b>Senha:</b> também nunca é guardada em texto puro — fica a cargo do
+      provedor de autenticação (Supabase Auth), que usa hash e criptografia
+      padrão de mercado.</li>
+    <li><b>Dados de uso do produto:</b> as listas de candidatos que você monta e
+      salva, os grupos que você cria ou participa, se prefere aparecer com
+      nome ou anônimo nas cédulas depositadas, e o histórico de créditos da
+      sua conta.</li>
+    <li><b>Dados técnicos automáticos:</b> informações padrão de navegação
+      (necessárias pro site funcionar) via nosso provedor de hospedagem
+      (GitHub Pages) e banco de dados (Supabase) — não coletamos dados de
+      localização, câmera, microfone ou contatos.</li>
+    </ul><br>Não coletamos dados sensíveis (saúde, biometria, origem racial, opinião
+    religiosa) e não pedimos nenhuma informação além do necessário pra fazer o
+    site funcionar.` },
+  { t: "3. Por que coletamos (base legal)", c: `<ul style="margin:0; padding-left:18px;">
+    <li><b>Execução de contrato:</b> nome, e-mail, senha e CPF são necessários pra
+      criar e manter sua conta — sem eles o serviço de cadastro não funciona.</li>
+    <li><b>Consentimento:</b> você marca explicitamente, no cadastro, que concorda
+      com o uso dos seus dados nos termos desta política.</li>
+    <li><b>Legítimo interesse:</b> dados de uso (listas, grupos, créditos) são
+      necessários pro funcionamento das próprias funcionalidades que você
+      escolhe usar (salvar uma lista, entrar num grupo).</li>
+    </ul>` },
+  { t: "4. Com quem compartilhamos", c: `Não vendemos nem compartilhamos seus dados com terceiros pra fins de
+    marketing ou publicidade. Seus dados ficam armazenados na infraestrutura
+    dos nossos provedores técnicos — <b>Supabase</b> (banco de dados e
+    autenticação) e <b>GitHub Pages</b> (hospedagem do site) — que atuam só como
+    operadores técnicos, seguindo nossas instruções, não como donos dos dados.<br><br>
+    Se você optar por depositar uma lista de forma pública (não anônima), seu
+    nome e a lista de candidatos ficam visíveis pra outros usuários no Quadro
+    de Médias — essa é uma escolha sua, feita no momento do depósito, e pode
+    ser trocada pra anônima em depósitos futuros.` },
+  { t: "5. Por quanto tempo guardamos", c: `Enquanto sua conta existir. Se você pedir a exclusão da conta, apagamos
+    seus dados pessoais (nome, e-mail, CPF em hash) — listas já depositadas de
+    forma pública podem ser mantidas de forma desvinculada da sua identidade
+    (anonimizadas), já que fazem parte do histórico agregado de outras
+    pessoas que usaram o Quadro de Médias.` },
+  { t: "6. Seus direitos", c: `Conforme o artigo 18 da LGPD, você pode a qualquer momento pedir:
+    <ul style="margin:8px 0; padding-left:18px;">
+    <li>Confirmação de que tratamos seus dados, e acesso a eles.</li>
+    <li>Correção de dados incompletos ou desatualizados.</li>
+    <li>Exclusão dos seus dados pessoais.</li>
+    <li>Portabilidade dos seus dados pra outro serviço.</li>
+    <li>Revogação do consentimento dado no cadastro.</li>
+    </ul>
+    Pra exercer qualquer um desses direitos, escreva pra
+    <b>${PC_EMAIL_CONTATO_LEGAL}</b>. Vamos responder o quanto antes.` },
+  { t: "7. Segurança", c: `Usamos práticas técnicas pra proteger seus dados: senhas e CPF nunca
+    ficam em texto puro, o banco de dados usa controle de acesso por linha
+    (cada pessoa só edita o que é dela) e toda comunicação com o site é
+    criptografada (HTTPS). Nenhum sistema é 100% infalível, mas trabalhamos
+    continuamente pra manter essas proteções em dia — inclusive corrigindo
+    falhas assim que identificadas.` },
+  { t: "8. Menores de idade", c: `Este site é voltado a eleitores(as) — pessoas com 16 anos ou mais (idade
+    mínima pra votar no Brasil). Não coletamos intencionalmente dados de
+    crianças.` },
+  { t: "9. Cookies e armazenamento local", c: `O site usa armazenamento local do navegador (localStorage) pra guardar
+    preferências e, no caso de visitantes sem conta, rascunhos temporários de
+    listas — isso fica só no seu próprio dispositivo, não é enviado pra
+    nenhum servidor. Não usamos cookies de rastreamento de terceiros nem
+    publicidade.` },
+  { t: "10. Alterações nesta política", c: `Podemos atualizar esta política conforme o site evolui. Mudanças
+    relevantes serão avisadas na tela antes de valerem.` },
+];
+
+// tipo: "termos" | "privacidade". Chegável hoje só pelo link no Cadastro
+// (pcState.telaLegalOrigem guarda onde a pessoa estava pra "← Voltar"
+// devolver pro lugar certo, hoje sempre "cadastro").
+function renderTelaLegal(tipo) {
+  const el = document.getElementById("modoColaborativoWrap");
+  const titulo = tipo === "termos" ? "Termos de uso" : "Política de privacidade";
+  const secoes = tipo === "termos" ? PC_TEXTO_TERMOS : PC_TEXTO_PRIVACIDADE;
+  el.innerHTML = `
+    <div class="glass-card" style="max-width:520px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarLegal" style="margin-bottom:14px;">← Voltar</button>
+      <h2>${titulo}</h2>
+      <div class="pc-sub" style="margin-bottom:18px;">Última atualização: 08/08/2026</div>
+      ${secoes.map((s) => `
+        <div style="margin-bottom:18px;">
+          ${s.t ? `<div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); margin-bottom:6px;">${s.t}</div>` : ""}
+          <div style="font-size:12.5px; line-height:1.65; color:var(--pc-ink-dim);">${s.c}</div>
+        </div>`).join("")}
+    </div>`;
+  document.getElementById("pcBtnVoltarLegal").addEventListener("click", () => {
+    pcState.tela = pcState.telaLegalOrigem || "cadastro";
+    renderColaborativo();
+  });
+}
+
 function renderTelaLogin() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
@@ -695,7 +851,11 @@ function renderTelaCadastro() {
 
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
         <input type="checkbox" id="pcCadLgpd" style="margin-top:2px;">
-        <span>Li e concordo com o uso dos meus dados (nome, e-mail e CPF) para criar minha conta, evitar cadastros duplicados e calcular o ranking, conforme a LGPD (Lei 13.709/2018). Posso pedir a exclusão dos meus dados a qualquer momento.</span>
+        <span>Li e concordo com o uso dos meus dados (nome, e-mail e CPF) para criar minha conta, conforme a
+          <a href="#" id="pcLinkPrivacidade" style="color:var(--pc-accent); text-decoration:underline;">Política de Privacidade</a>
+          e os
+          <a href="#" id="pcLinkTermos" style="color:var(--pc-accent); text-decoration:underline;">Termos de Uso</a>.
+          Posso pedir a exclusão dos meus dados a qualquer momento.</span>
       </label>
 
       <div class="pc-erro" id="pcCadErro">${pcState.erro || ""}</div>
@@ -715,6 +875,18 @@ function renderTelaCadastro() {
   document.getElementById("pcBtnIrLogin").addEventListener("click", () => {
     pcState.erro = "";
     pcState.tela = "login";
+    renderColaborativo();
+  });
+  document.getElementById("pcLinkPrivacidade").addEventListener("click", (e) => {
+    e.preventDefault();
+    pcState.telaLegalOrigem = "cadastro";
+    pcState.tela = "privacidade";
+    renderColaborativo();
+  });
+  document.getElementById("pcLinkTermos").addEventListener("click", (e) => {
+    e.preventDefault();
+    pcState.telaLegalOrigem = "cadastro";
+    pcState.tela = "termos";
     renderColaborativo();
   });
 
