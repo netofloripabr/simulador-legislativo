@@ -147,8 +147,14 @@ async function carregarSalvamentoCompleto(salvamentoId) {
 // depositado não aparece como opção de "tornar oficial" de novo, mas a
 // trava real é no banco).
 async function marcarSalvamentoOficial(salvamentoId) {
-  const { error } = await supabaseClient.from("salvamentos").update({ oficial: true }).eq("id", salvamentoId);
-  return { error };
+  // .select() depois do update pra pegar o mesmo caso de "RLS bloqueou sem
+  // gerar erro" já corrigido em excluirSalvamento — sem isso, tentar marcar
+  // como oficial um salvamento de outra pessoa (ou já depositado por engano)
+  // pareceria "sucesso" sem ter mudado nada.
+  const { data, error } = await supabaseClient.from("salvamentos").update({ oficial: true }).eq("id", salvamentoId).select();
+  if (error) return { error };
+  if (!data || !data.length) return { error: { message: "Não foi possível marcar essa lista como oficial." } };
+  return { error: null };
 }
 
 // "Depositar cédula": torna um salvamento definitivo. Marca depositado_em
@@ -180,8 +186,13 @@ async function depositarSalvamento(salvamentoId, anonimo) {
 }
 
 async function renomearSalvamento(salvamentoId, novoNome) {
-  const { error } = await supabaseClient.from("salvamentos").update({ nome: novoNome }).eq("id", salvamentoId);
-  return { error };
+  // Mesmo ajuste de marcarSalvamentoOficial/excluirSalvamento: sem
+  // .select(), um rename bloqueado pela RLS (lista de outra pessoa, ou já
+  // depositada) voltava "sem erro" mesmo sem ter mudado nada no banco.
+  const { data, error } = await supabaseClient.from("salvamentos").update({ nome: novoNome }).eq("id", salvamentoId).select();
+  if (error) return { error };
+  if (!data || !data.length) return { error: { message: "Não foi possível renomear essa lista." } };
+  return { error: null };
 }
 
 // Apaga o salvamento e as 3 listas de cargo junto (on delete cascade, ver
