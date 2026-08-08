@@ -48,6 +48,7 @@ let pcState = {
   listaEmVisualizacao: null, // lista depositada aberta em modo "Ver" (renderMinhasListas) — null = mostrando a lista de listas
   modalDepositarListaId: null, // id da lista com o modal de confirmação de depósito aberto
   avisoLimiteListaAberto: false, // aviso "compre crédito" ao tentar criar 2ª lista sem pagar
+  avisoLimiteGrupoAberto: false, // aviso "compre crédito" ao tentar criar 2º grupo sem pagar
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -260,8 +261,17 @@ function gerarIdLista() {
   return "lista-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
 }
 
+// Identifica de quem é o armazenamento local — perfil.id se logado, ou uma
+// chave fixa de convidado. Sem isso, duas contas diferentes testadas no
+// MESMO navegador (ex.: várias contas de teste) enxergavam as listas
+// salvas umas das outras, porque a chave só levava o estado (SC) em conta.
+// Achado com o usuário em 08/08/2026 testando contas de teste múltiplas.
+function _idConta() {
+  return pcState.perfil ? pcState.perfil.id : "convidado";
+}
+
 function _chaveListasSalvasLocal(uf) {
-  return `simulador-legislativo-listas-salvas:${uf}`;
+  return `simulador-legislativo-listas-salvas:${uf}:${_idConta()}`;
 }
 
 async function carregarListasSalvasLocais(uf) {
@@ -274,6 +284,38 @@ async function carregarListasSalvasLocais(uf) {
 
 async function salvarListasSalvasLocais(uf, listas) {
   try { await window.storage.set(_chaveListasSalvasLocal(uf), JSON.stringify(listas)); } catch (e) { /* localStorage indisponível, ignora */ }
+}
+
+// ===== Créditos (simulado — sem cobrança de verdade ainda) =====
+// A partir da 2ª lista ou do 2º grupo, a conta precisa de 1 crédito. Não
+// existe processamento de pagamento real (decisão explícita do usuário,
+// adiada) — isso aqui só guarda um saldo local pra dar pra TESTAR as duas
+// versões (conta grátis travada vs. conta com crédito) antes da parte de
+// cobrança existir. concederCreditosTeste fica exposta global de propósito
+// pra dar pra conceder crédito via console em contas de teste.
+function _chaveCreditos() {
+  return `simulador-legislativo-creditos:${_idConta()}`;
+}
+
+async function obterCreditos() {
+  try {
+    const r = await window.storage.get(_chaveCreditos());
+    return r && r.value ? Number(r.value) || 0 : 0;
+  } catch (e) { return 0; }
+}
+
+async function consumirCredito() {
+  const atual = await obterCreditos();
+  if (atual <= 0) return false;
+  try { await window.storage.set(_chaveCreditos(), String(atual - 1)); } catch (e) { /* ignora */ }
+  return true;
+}
+
+async function concederCreditosTeste(quantidade) {
+  const atual = await obterCreditos();
+  const novo = atual + (Number(quantidade) || 0);
+  try { await window.storage.set(_chaveCreditos(), String(novo)); } catch (e) { /* ignora */ }
+  return novo;
 }
 
 // Cria (1ª vez, pcState.listaSalvaId ainda null antes de executarSalvarLista
@@ -968,11 +1010,16 @@ async function renderMinhasListas() {
     </div>` : ""}
   `;
 
-  document.getElementById("pcBtnNovaLista").addEventListener("click", () => {
+  document.getElementById("pcBtnNovaLista").addEventListener("click", async () => {
     if (jaTemLista) {
-      pcState.avisoLimiteListaAberto = true;
-      renderMinhasListas();
-      return;
+      // 2ª lista em diante consome 1 crédito (sem cobrança de verdade
+      // ainda, ver concederCreditosTeste) — sem crédito, mostra o aviso.
+      const consumiu = await consumirCredito();
+      if (!consumiu) {
+        pcState.avisoLimiteListaAberto = true;
+        renderMinhasListas();
+        return;
+      }
     }
     pcState.listaSalvaId = null;
     pcState.listaSalvaNome = null;
@@ -1047,6 +1094,11 @@ async function renderGrupoHub() {
 
   conteudo.innerHTML = `
     <h2 style="margin-bottom:14px;">Grupos</h2>
+    ${pcState.avisoLimiteGrupoAberto ? `
+    <div style="background:var(--pc-lobby-tom-3); border:1px solid #234134; border-radius:12px; padding:14px; margin-bottom:16px;">
+      <div style="font-size:12.5px; font-weight:700; color:var(--pc-ink); margin-bottom:4px;">Ops...</div>
+      <div style="font-size:11.5px; color:var(--pc-ink-dim); line-height:1.5;">Nós conseguimos espaço gratuito para o usuário criar até um grupo, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
+    </div>` : ""}
     <div class="pc-lobby-card">
       ${pcState.meusGrupos.length ? linhasGrupo : `<div class="pc-lobby-linha"><span style="font-size:12.5px; color:var(--pc-ink-dim);">Você ainda não está em nenhum grupo.</span></div>`}
     </div>
@@ -1056,7 +1108,23 @@ async function renderGrupoHub() {
       <button class="pc-lobby-menu-item" id="pcBtnEntrarGrupo">${iconeSvg("chave", 28)}<span>Entrar com código</span></button>
     </div>`;
 
-  document.getElementById("pcBtnCriarGrupo").addEventListener("click", () => { pcState.telaGrupo = "criar"; renderGrupoCriar(); });
+  document.getElementById("pcBtnCriarGrupo").addEventListener("click", async () => {
+    // A partir do 2º grupo criado (não conta os que a pessoa só ENTROU
+    // com código de outro dono — só quem tem criado_por === o próprio
+    // perfil) precisa de 1 crédito — mesma regra e mesmo texto de
+    // "Minhas listas" (ver consumirCredito ali).
+    const jaCriouGrupo = pcState.meusGrupos.some((g) => g.criado_por === pcState.perfil.id);
+    if (jaCriouGrupo) {
+      const consumiu = await consumirCredito();
+      if (!consumiu) {
+        pcState.avisoLimiteGrupoAberto = true;
+        renderGrupoHub();
+        return;
+      }
+    }
+    pcState.telaGrupo = "criar";
+    renderGrupoCriar();
+  });
   document.getElementById("pcBtnEntrarGrupo").addEventListener("click", () => { pcState.telaGrupo = "entrar"; renderGrupoEntrar(); });
   document.querySelectorAll("[data-pc-abrir-grupo]").forEach((btn) => {
     btn.addEventListener("click", () => {
