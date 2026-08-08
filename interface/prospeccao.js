@@ -372,13 +372,11 @@ function renderTelaEstado() {
   });
 }
 
-// Tela depois que a pessoa deposita a cédula (ou pede a lista detalhada) sem
-// estar logada. Salvar em PDF fica de propósito discreto — o destaque vai
-// pras opções que envolvem voltar (compartilhar, aprofundar, ranking).
-// Chamado de "Lobby": só desbloqueia de verdade (compartilhar / grupos)
-// depois do cadastro + mini pesquisa por estado — isso ainda não está
-// implementado (ver PROJETO.md), por enquanto as duas opções abaixo ficam
-// abertas e o resto evolui depois.
+// Tela depois que a pessoa salva a lista (ou pede a versão detalhada) sem
+// estar logada. Regra do produto (07/08/2026): o visitante pode acessar e
+// alterar a própria lista (uma só) à vontade, sem cadastro; qualquer outra
+// função (compartilhar, grupos, ranking, depositar a cédula pra valer) pede
+// cadastro. Salvar em PDF também fica aberto — não expõe dado de ninguém.
 function renderLobby() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
@@ -387,9 +385,10 @@ function renderLobby() {
       <h2>Sua lista foi salva</h2>
       <div class="pc-sub" style="margin-bottom:18px;">O que você quer fazer agora?</div>
       <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="primary" id="pcBtnCompartilhar" style="text-align:left; padding:14px 16px;">Compartilhar com amigos</button>
+        <button class="primary" id="pcBtnEditarLista" style="text-align:left; padding:14px 16px;">Editar minha lista</button>
         <button class="primary" id="pcBtnListaCompleta" style="text-align:left; padding:14px 16px;">Criar a lista completa e detalhada de todos os candidatos</button>
-        <button class="primary" id="pcBtnRegistrar" style="text-align:left; padding:14px 16px;">Registrar minha lista para entrar no ranking de quem mais acertar</button>
+        <button class="ghost" id="pcBtnCompartilhar" style="text-align:left; padding:14px 16px;">Compartilhar com amigos ${infoTip("Precisa se cadastrar.")}</button>
+        <button class="ghost" id="pcBtnRegistrar" style="text-align:left; padding:14px 16px;">Registrar minha lista para entrar no ranking de quem mais acertar ${infoTip("Precisa se cadastrar.")}</button>
       </div>
       <div style="text-align:center; margin-top:18px;">
         <button class="ghost" id="pcBtnSalvarPdf" style="font-size:12px;">Salvar em PDF</button>
@@ -397,12 +396,15 @@ function renderLobby() {
       <div class="pc-status" id="pcConclusaoStatus" style="text-align:center; margin-top:8px;"></div>
     </div>`;
 
+  document.getElementById("pcBtnEditarLista").addEventListener("click", () => {
+    pcState.tela = "selecao-convidado";
+    renderColaborativo();
+  });
   document.getElementById("pcBtnCompartilhar").addEventListener("click", () => {
-    // Lobby só aparece pra quem ainda não tem conta (renderDepositoConfirmado
-    // só cai aqui no ramo "sem perfil") — gerar link de compartilhamento
-    // exige uma linha em "palpites" (RLS: só o dono escreve), por isso
-    // precisa de cadastro antes. pendenteRegistro migra o palpite de
-    // convidado; pendenteAcao decide pra onde ir depois de criar a conta.
+    // Gerar link de compartilhamento exige uma linha em "palpites" (RLS: só
+    // o dono escreve), por isso precisa de cadastro antes. pendenteRegistro
+    // migra o palpite de convidado; pendenteAcao decide pra onde ir depois
+    // de criar a conta.
     pcState.pendenteRegistro = true;
     pcState.pendenteAcao = "compartilhar";
     pcState.tela = "cadastro";
@@ -467,7 +469,7 @@ async function renderCompartilhado() {
     <div class="glass-card" style="max-width:640px; margin:0 auto 12px;">
       <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--pc-ink-dim); margin-bottom:4px;">Palpite compartilhado</div>
       <h2 style="margin-bottom:2px;">${dados.nome_exibicao}</h2>
-      <div class="pc-sub">Prospecção Coletiva — Simulador Legislativo 2026 — Santa Catarina</div>
+      <div class="pc-sub">Prospecção Coletiva — Simulador Eleitoral — Legislativo 2026 — Santa Catarina</div>
     </div>
     <div style="max-width:640px; margin:0 auto;">
       ${CARGOS.map(secaoCargo).join("")}
@@ -486,7 +488,7 @@ function renderTelaLogin() {
   el.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
       <h2>Entrar na Prospecção Coletiva</h2>
-      <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual — Simulador Legislativo 2026.</div>
+      <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual — Simulador Eleitoral — Legislativo 2026.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcLoginEmail" type="email"></div>
       <div class="field-row"><label>Senha</label><input class="cell" id="pcLoginSenha" type="password"></div>
       <div class="pc-erro" id="pcLoginErro">${pcState.erro || ""}</div>
@@ -2005,7 +2007,7 @@ async function renderCargoEstadual() {
           </div>
           <div>
             <b style="color:var(--pc-ink);">3. AVANÇAR</b><br>
-            Quando indicar a quantidade de votos eleitos proporcional ao número de vagas, a opção avançar será selecionável. Ao ativá-la, você acessa a sua lista de palpite dos parlamentares eleitos e dos suplentes. Depois disso, você pode "depositar a cédula" (salvar) e, se preferir, imprimir a sua lista.
+            Quando indicar a quantidade de votos eleitos proporcional ao número de vagas, a opção avançar será selecionável. Ao ativá-la, você acessa a sua lista de palpite dos parlamentares eleitos e dos suplentes, pronta pra revisar. Depois disso, você pode salvar a sua lista — dá pra editar depois quando quiser — e, se preferir, imprimir. Quando estiver pronto de verdade, é no lobby que você deposita a cédula pra valer: aí sim ela trava e não pode mais ser alterada.
             <div style="margin:6px 0 0; text-align:center;">
               <span style="display:inline-flex; align-items:center; padding:5px 16px; font-size:11.5px; font-weight:700; border-radius:999px; background:rgba(61,255,176,.08); border:1px solid var(--pc-accent); color:#c8ffe8;">Avançar</span>
             </div>
@@ -3004,10 +3006,7 @@ function renderRevisaoDeposito() {
 
       <div style="display:flex; align-items:center; justify-content:space-between;">
         <button class="ghost" id="pcBtnVoltarRevisao">← Ajustar</button>
-        <div style="display:flex; align-items:center; gap:6px;">
-          <button class="primary" id="pcBtnConfirmarDeposito" ${pcState.perfil ? "" : "disabled"}>Salvar</button>
-          ${pcState.perfil ? "" : infoTip("Para salvar sua lista, você precisa se cadastrar.")}
-        </div>
+        <button class="primary" id="pcBtnConfirmarDeposito">Salvar</button>
       </div>
       <div class="pc-status" id="pcDepositoStatus" style="text-align:right; margin-top:6px;"></div>
 
@@ -3115,12 +3114,22 @@ function renderRevisaoDeposito() {
     else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
   });
   document.getElementById("pcBtnConfirmarDeposito").addEventListener("click", async () => {
-    // Botão só fica habilitado com perfil cadastrado (ver disabled acima) —
-    // sem cadastro não tem onde salvar de verdade, por isso nem chega aqui.
-    const { error } = await salvarPalpiteCompleto(pcState.perfil.id, pcState.palpiteEdicao);
-    if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
-    pcState.subaba = "deposito-confirmado";
-    renderAppColaborativo();
+    // Convidado (sem cadastro) não tem perfil_id pra gravar em "palpites" no
+    // Supabase — mas os 3 cargos já vêm sendo salvos localmente o tempo
+    // todo por agendarAutoSaveRascunho (ver CARGOS.forEach acima nesta
+    // função) enquanto a pessoa edita, então "Salvar" pro convidado não
+    // precisa gravar nada novo: só confirma que a lista está pronta e leva
+    // pro Lobby, onde dá pra continuar editando essa mesma lista à vontade.
+    // Cadastrado grava de verdade em "palpites" (Quadro de Médias público).
+    if (pcState.perfil) {
+      const { error } = await salvarPalpiteCompleto(pcState.perfil.id, pcState.palpiteEdicao);
+      if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
+      pcState.subaba = "deposito-confirmado";
+      renderAppColaborativo();
+    } else {
+      pcState.tela = "deposito-confirmado";
+      renderColaborativo();
+    }
   });
   document.getElementById("pcBtnImprimir").addEventListener("click", (e) => {
     document.getElementById("pcImprimirPergunta").style.display = "block";
@@ -3141,7 +3150,7 @@ function renderRevisaoDeposito() {
       document.body.appendChild(container);
     }
     container.innerHTML = `
-      <h1 style="font-size:18px; margin-bottom:2px;">Prospecção Coletiva — Simulador Legislativo 2026${pcState.perfil ? ` — ${pcState.perfil.nome}` : ""}</h1>
+      <h1 style="font-size:18px; margin-bottom:2px;">Prospecção Coletiva — Simulador Eleitoral — Legislativo 2026${pcState.perfil ? ` — ${pcState.perfil.nome}` : ""}</h1>
       <div style="font-size:11px; color:#666; margin-bottom:6px;">${pcState.estado || "SC"} · gerado em ${new Date().toLocaleDateString("pt-BR")}</div>
       ${cargosParaGerar.map(montarSecaoImpressaoCargo).join("")}
     `;
