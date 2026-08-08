@@ -288,37 +288,11 @@ async function salvarListasSalvasLocais(uf, listas) {
   try { await window.storage.set(_chaveListasSalvasLocal(uf), JSON.stringify(listas)); } catch (e) { /* localStorage indisponível, ignora */ }
 }
 
-// ===== Créditos (simulado — sem cobrança de verdade ainda) =====
-// A partir da 2ª lista ou do 2º grupo, a conta precisa de 1 crédito. Não
-// existe processamento de pagamento real (decisão explícita do usuário,
-// adiada) — isso aqui só guarda um saldo local pra dar pra TESTAR as duas
-// versões (conta grátis travada vs. conta com crédito) antes da parte de
-// cobrança existir. concederCreditosTeste fica exposta global de propósito
-// pra dar pra conceder crédito via console em contas de teste.
-function _chaveCreditos() {
-  return `simulador-legislativo-creditos:${_idConta()}`;
-}
-
-async function obterCreditos() {
-  try {
-    const r = await window.storage.get(_chaveCreditos());
-    return r && r.value ? Number(r.value) || 0 : 0;
-  } catch (e) { return 0; }
-}
-
-async function consumirCredito() {
-  const atual = await obterCreditos();
-  if (atual <= 0) return false;
-  try { await window.storage.set(_chaveCreditos(), String(atual - 1)); } catch (e) { /* ignora */ }
-  return true;
-}
-
-async function concederCreditosTeste(quantidade) {
-  const atual = await obterCreditos();
-  const novo = atual + (Number(quantidade) || 0);
-  try { await window.storage.set(_chaveCreditos(), String(novo)); } catch (e) { /* ignora */ }
-  return novo;
-}
+// Créditos de verdade: nuvem/creditos.js (obterSaldoCreditos/
+// consumirCreditoConta), saldo mora no Supabase (creditos_conta, migração
+// 9) — nunca local, nunca solto em "perfis" (ver comentário lá pro
+// motivo de segurança). Só conta logada tem crédito; convidado é sempre
+// redirecionado pro cadastro ao bater o limite (ver renderMinhasListas).
 
 // Cria (1ª vez, pcState.listaSalvaId ainda null antes de executarSalvarLista
 // gerar um) ou atualiza (salvamentos seguintes, mesmo id) a lista ATIVA
@@ -998,16 +972,45 @@ function mostrarLinkCompartilhavel() {
 // e ver o conteúdo de uma depositada em modo leitura — nunca deixa editar
 // uma lista já depositada pela mesma tela de Revisão, pra não arriscar
 // mudar o conteúdo por baixo do selo "travada".
+// Carrega Minhas Listas no mesmo formato não importa a fonte: conta
+// logada vem do Supabase de verdade (salvamentos, trava por RLS de
+// verdade); convidado continua local (window.storage), porque
+// "salvamentos" exige perfil_id — sem cadastro não tem onde gravar isso
+// no banco. criadoEm serve de "atualizadoEm" também pro caso logado, já
+// que "salvamentos" não guarda um segundo timestamp de edição — perde um
+// pouco de nuance ("editada hoje" vs "criada em X"), aceitável por ora.
+async function _carregarMinhasListasNormalizado() {
+  if (pcState.perfil) {
+    const salvamentos = await carregarSalvamentosDe(pcState.perfil.id);
+    return salvamentos.filter((s) => s.estado === pcState.estado).map((s) => ({
+      id: s.id, nome: s.nome, criadoEm: s.criado_em, atualizadoEm: s.criado_em,
+      depositadoEm: s.depositado_em, anonimo: !!s.anonimo,
+    }));
+  }
+  return await carregarListasSalvasLocais(pcState.estado);
+}
+
 async function renderMinhasListas() {
   const el = document.getElementById("pcConteudo");
   el.innerHTML = telaCarregando("Carregando suas listas…");
-  const listas = await carregarListasSalvasLocais(pcState.estado);
+  const listas = await _carregarMinhasListasNormalizado();
 
   if (pcState.listaEmVisualizacao) {
+    // Local já vem com os candidatos junto; logado precisa buscar o
+    // salvamento completo (a lista resumida acima não traz candidatos).
+    let palpitesPorCargo;
+    if (pcState.perfil) {
+      const completo = await carregarSalvamentoCompleto(pcState.listaEmVisualizacao);
+      if (!completo) { pcState.listaEmVisualizacao = null; return renderMinhasListas(); }
+      palpitesPorCargo = completo.cargos;
+    } else {
+      const lista = listas.find((l) => l.id === pcState.listaEmVisualizacao);
+      if (!lista) { pcState.listaEmVisualizacao = null; return renderMinhasListas(); }
+      palpitesPorCargo = lista.palpitesPorCargo;
+    }
     const lista = listas.find((l) => l.id === pcState.listaEmVisualizacao);
-    if (!lista) { pcState.listaEmVisualizacao = null; return renderMinhasListas(); }
     const secoes = CARGOS.map((cargoDef) => {
-      const listaCargo = lista.palpitesPorCargo ? lista.palpitesPorCargo[cargoDef.id] : null;
+      const listaCargo = palpitesPorCargo ? palpitesPorCargo[cargoDef.id] : null;
       if (!listaCargo || !listaCargo.length) return "";
       const unificada = listaUnificadaRevisao(listaCargo, cargoDef.id);
       const linhas = unificada.map((c) => `
@@ -1019,8 +1022,8 @@ async function renderMinhasListas() {
     }).join("");
     el.innerHTML = `
       <button class="ghost" id="pcBtnVoltarMinhasListas" style="margin-bottom:14px;">← Minhas listas</button>
-      <h2 style="margin-bottom:2px;">${lista.nome}</h2>
-      <div class="pc-sub" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}Depositada em ${new Date(lista.depositadoEm).toLocaleDateString("pt-BR")} · travada, não pode mais mudar.</div>
+      <h2 style="margin-bottom:2px;">${lista ? lista.nome : ""}</h2>
+      <div class="pc-sub" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}Depositada em ${lista ? new Date(lista.depositadoEm).toLocaleDateString("pt-BR") : ""} · travada, não pode mais mudar.</div>
       ${secoes}`;
     document.getElementById("pcBtnVoltarMinhasListas").addEventListener("click", () => {
       pcState.listaEmVisualizacao = null;
@@ -1037,7 +1040,7 @@ async function renderMinhasListas() {
     <div class="pc-lobby-linha" style="align-items:center; gap:10px;">
       <div style="min-width:0; flex:1;">
         <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</div>
-        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Editada em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")}</div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Salva em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")}</div>
       </div>
       <div style="display:flex; gap:6px; flex-shrink:0;">
         <button class="ghost" data-pc-depositar-lista="${l.id}" style="padding:8px 12px; font-size:12px;">Depositar</button>
@@ -1089,14 +1092,24 @@ async function renderMinhasListas() {
 
   document.getElementById("pcBtnNovaLista").addEventListener("click", async () => {
     if (jaTemLista) {
-      // 2ª lista em diante consome 1 crédito (sem cobrança de verdade
-      // ainda, ver concederCreditosTeste) — sem crédito, mostra o aviso.
-      const consumiu = await consumirCredito();
+      // Convidado não tem como ter crédito de verdade (sem conta não tem
+      // onde guardar isso no banco) — vai direto pro cadastro. Logado
+      // consome 1 crédito de verdade via RPC (consumir_credito_proprio,
+      // migração 9); sem saldo, mostra o aviso.
+      if (!pcState.perfil) {
+        pcState.pendenteRegistro = true;
+        pcState.tela = "cadastro";
+        renderColaborativo();
+        return;
+      }
+      const { consumiu, error } = await consumirCreditoConta(pcState.perfil.id);
+      if (error) { pcState.erro = "Erro ao conferir crédito: " + error.message; }
       if (!consumiu) {
         pcState.avisoLimiteListaAberto = true;
         renderMinhasListas();
         return;
       }
+      pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
     }
     pcState.listaSalvaId = null;
     pcState.listaSalvaNome = null;
@@ -1106,19 +1119,34 @@ async function renderMinhasListas() {
     else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
   });
   document.querySelectorAll("[data-pc-editar-lista]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const lista = listas.find((l) => l.id === btn.getAttribute("data-pc-editar-lista"));
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-pc-editar-lista");
+      const lista = listas.find((l) => l.id === id);
       if (!lista) return;
       pcState.listaSalvaId = lista.id;
       pcState.listaSalvaNome = lista.nome;
-      pcState.palpitesPorCargo = lista.palpitesPorCargo;
-      pcState.palpiteEdicao = lista.palpitesPorCargo ? lista.palpitesPorCargo[pcState.cargoAtivo] : null;
+      if (pcState.perfil) {
+        const completo = await carregarSalvamentoCompleto(id);
+        if (!completo) return;
+        pcState.palpitesPorCargo = completo.cargos;
+      } else {
+        pcState.palpitesPorCargo = lista.palpitesPorCargo;
+      }
+      pcState.palpiteEdicao = pcState.palpitesPorCargo ? pcState.palpitesPorCargo[pcState.cargoAtivo] : null;
       if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
       else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
     });
   });
   document.querySelectorAll("[data-pc-depositar-lista]").forEach((btn) => {
     btn.addEventListener("click", () => {
+      // Depositar de verdade exige conta (é o que dá identidade — mesmo
+      // anônima — pra cédula travada) — convidado vai pro cadastro antes.
+      if (!pcState.perfil) {
+        pcState.pendenteRegistro = true;
+        pcState.tela = "cadastro";
+        renderColaborativo();
+        return;
+      }
       pcState.modalDepositarListaId = btn.getAttribute("data-pc-depositar-lista");
       renderMinhasListas();
     });
@@ -1136,7 +1164,12 @@ async function renderMinhasListas() {
     });
     document.getElementById("pcBtnConfirmarDepositar").addEventListener("click", async () => {
       const anonimo = document.getElementById("pcCheckAnonimo").checked;
-      await depositarListaLocal(pcState.estado, listaModal.id, anonimo);
+      if (pcState.perfil) {
+        const { error } = await depositarSalvamento(listaModal.id, anonimo);
+        if (error) { pcState.erro = "Erro ao depositar: " + error.message; }
+      } else {
+        await depositarListaLocal(pcState.estado, listaModal.id, anonimo);
+      }
       pcState.modalDepositarListaId = null;
       renderMinhasListas();
     });
@@ -1188,16 +1221,20 @@ async function renderGrupoHub() {
   document.getElementById("pcBtnCriarGrupo").addEventListener("click", async () => {
     // A partir do 2º grupo criado (não conta os que a pessoa só ENTROU
     // com código de outro dono — só quem tem criado_por === o próprio
-    // perfil) precisa de 1 crédito — mesma regra e mesmo texto de
-    // "Minhas listas" (ver consumirCredito ali).
+    // perfil) precisa de 1 crédito de verdade (RPC consumir_credito_proprio,
+    // migração 9) — mesma regra e mesmo texto de "Minhas listas". Grupos só
+    // é alcançado logado, então não precisa do desvio pro cadastro que
+    // Minhas Listas tem pro convidado.
     const jaCriouGrupo = pcState.meusGrupos.some((g) => g.criado_por === pcState.perfil.id);
     if (jaCriouGrupo) {
-      const consumiu = await consumirCredito();
+      const { consumiu, error } = await consumirCreditoConta(pcState.perfil.id);
+      if (error) { pcState.erro = "Erro ao conferir crédito: " + error.message; }
       if (!consumiu) {
         pcState.avisoLimiteGrupoAberto = true;
         renderGrupoHub();
         return;
       }
+      pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
     }
     pcState.telaGrupo = "criar";
     renderGrupoCriar();
@@ -3267,15 +3304,26 @@ function listaUnificadaRevisao(listaParam, cargo) {
 // vez só, e reaproveita depois — cada clique de Salvar é uma ATUALIZAÇÃO
 // da mesma lista, não uma lista nova.
 async function executarSalvarLista() {
-  pcState.listaSalvaId = pcState.listaSalvaId || gerarIdLista();
-  await persistirListaSalvaLocal();
-  // Convidado (sem cadastro) não tem perfil_id pra gravar em "palpites" no
-  // Supabase — mas a lista nomeada já foi persistida localmente acima, e os
-  // 3 cargos já vêm sendo salvos localmente o tempo todo por
-  // agendarAutoSaveRascunho enquanto a pessoa edita, então "Salvar" pro
-  // convidado não precisa gravar mais nada: só leva pro Lobby, onde dá pra
-  // continuar editando essa mesma lista à vontade. Cadastrado grava de
-  // verdade em "palpites" também (Quadro de Médias público).
+  // Logado grava em "salvamentos"/"listas_salvas" de verdade (Supabase) —
+  // cria na 1ª vez (listaSalvaId ainda null), atualiza em cima da mesma
+  // linha nas vezes seguintes (nunca duplica). Convidado continua local
+  // (window.storage), porque "salvamentos" exige perfil_id — sem cadastro
+  // não tem onde gravar isso no banco.
+  if (pcState.perfil) {
+    if (!pcState.listaSalvaId) {
+      const { data, error } = await salvarSalvamento(pcState.perfil.id, pcState.estado, pcState.listaSalvaNome, pcState.palpitesPorCargo);
+      if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
+      pcState.listaSalvaId = data.id;
+    } else {
+      const { error } = await atualizarSalvamento(pcState.listaSalvaId, pcState.palpitesPorCargo);
+      if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
+    }
+  } else {
+    pcState.listaSalvaId = pcState.listaSalvaId || gerarIdLista();
+    await persistirListaSalvaLocal();
+  }
+  // Continua gravando em "palpites" também (Quadro de Médias público) —
+  // tabela separada, 1 linha por pessoa, não mexe com "salvamentos".
   if (pcState.perfil) {
     const { error } = await salvarPalpiteCompleto(pcState.perfil.id, pcState.palpiteEdicao);
     if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
