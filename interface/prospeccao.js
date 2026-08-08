@@ -1838,6 +1838,25 @@ function statusPartidoSelecao(p) {
     : { cor: "var(--pc-warning)", texto: "faltam votos" };
 }
 
+// Teto de "naturalidade" do autopreenchimento — pedido do usuário em
+// 08/08/2026: nenhum candidato que recebe voto de forma automática (tanto
+// os "vazios" do bloco 1 quanto a curva decrescente do bloco 2, abaixo)
+// pode passar de 80% da votação do candidato mais votado em 2022 pra
+// aquele cargo, contando TODOS os partidos juntos — evita que a meta de
+// vagas ou o crescimento do eleitorado empurre alguém sozinho pra um
+// número fora da realidade histórica. Só vale pro auto-preenchimento —
+// quem o usuário digita à mão (votosEditado) nunca passa por aqui.
+function tetoAutoPreenchimento(uf, cargo) {
+  const todos = candidatosEstadoCargo(uf, cargo);
+  let maior = 0;
+  todos.forEach((p) => p.candidatos.forEach((c) => {
+    if (c.fonte === "legenda") return;
+    const v = Number(c.votos) || 0;
+    if (v > maior) maior = v;
+  }));
+  return Math.round(maior * 0.8);
+}
+
 // "Selecione apenas os candidatos que você acha que serão eleitos, por
 // ordem, e ele faz todo o resto" (legenda do preenchimento automático).
 // Dois passos, com uma distinção importante entre eles:
@@ -1857,6 +1876,7 @@ function statusPartidoSelecao(p) {
 //    quem tem dado real — é assim que uma lista de partido de verdade se
 //    comporta (declínio suave, não penhasco).
 function balancearPartidoSelecao(p, base) {
+  const teto = tetoAutoPreenchimento(pcState.estado, pcState.cargoAtivo);
   const marcados = p.candidatos.filter((c) => c.marcadoEleito);
   if (marcados.length) {
     const alvo = metaVotosMarcados(marcados, base);
@@ -1864,7 +1884,7 @@ function balancearPartidoSelecao(p, base) {
     const vazios = marcados.filter((c) => !c.votosEditado);
     const restante = Math.max(0, alvo - jaPreenchidos);
     const somaShare = vazios.reduce((s, c) => s + (Number(c.votos2022) || 1), 0) || 1;
-    vazios.forEach((c) => { c.votos = Math.round(restante * ((Number(c.votos2022) || 1) / somaShare)); });
+    vazios.forEach((c) => { c.votos = Math.min(teto, Math.round(restante * ((Number(c.votos2022) || 1) / somaShare))); });
   }
 
   const fator = fatorCrescimentoEleitorado();
@@ -1874,6 +1894,10 @@ function balancearPartidoSelecao(p, base) {
   // travava a curva num piso artificial (round(1 × 0,82) = round(0,82) = 1
   // pra sempre), fazendo uma fila inteira de candidatos "cair" e empacar em
   // 1 voto em vez de continuar decrescendo suavemente até perto de zero.
+  // Também é aparada pelo teto acima ANTES de virar base do próximo da fila
+  // — sem isso, um candidato capado ainda empurraria o próximo pra baixo
+  // como se não tivesse sido limitado, e a curva "pularia" de volta pra
+  // cima assim que a votação real de 2022 caísse abaixo do teto de novo.
   let ultimoValorReal = null;
   ordenados.forEach((c) => {
     if (c.fonte === "legenda") return;
@@ -1888,6 +1912,7 @@ function balancearPartidoSelecao(p, base) {
     } else {
       return;
     }
+    ultimoValorReal = Math.min(teto, ultimoValorReal);
     c.votos = Math.round(ultimoValorReal);
   });
 }
