@@ -1072,10 +1072,6 @@ async function renderPainelPrincipal() {
       <button class="pc-lobby-menu-item" id="pcMenuRanking" disabled title="Disponível depois do resultado oficial de 2026">${iconeSvg("ranking", 28)}<span>Ranking</span></button>
     </div>
 
-    <button class="pc-lobby-cta" id="pcBtnContinuarLista">
-      <span>${completa ? "Revisar minha lista" : "Continuar minha lista"}</span>
-      ${iconeSvg("send", 18)}
-    </button>
     <div id="pcLinkCompartilhavelWrap"></div>
   `;
 
@@ -1089,10 +1085,6 @@ async function renderPainelPrincipal() {
     pcState.tela = "cadastro";
     renderColaborativo();
   };
-  document.getElementById("pcBtnContinuarLista").addEventListener("click", () => {
-    if (pcState.perfil) { pcState.subaba = "selecao"; renderAppColaborativo(); }
-    else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
-  });
   document.getElementById("pcMenuListas").addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "minhas-listas"; renderAppColaborativo(); }
     else { pcState.tela = "minhas-listas-convidado"; renderColaborativo(); }
