@@ -1239,6 +1239,10 @@ async function renderGrupoHub() {
         renderGrupoHub();
         return;
       }
+      // Mesmo ajuste feito em "Minhas listas" (pcBtnNovaLista): sem isso, o
+      // aviso de uma tentativa antiga sem saldo ficava preso na tela pra
+      // sempre, mesmo depois de conseguir crédito e criar grupos novos.
+      pcState.avisoLimiteGrupoAberto = false;
       pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
     }
     pcState.telaGrupo = "criar";
