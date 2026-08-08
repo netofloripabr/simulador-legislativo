@@ -61,7 +61,6 @@ Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido 
 | Gelson Luiz Merísio | Governador | 199-psb-retificadora.pdf |
 | Angela Albino | Vice-Governador | 199-psb-retificadora.pdf |
 | Adriano Bornschein Silva | Vice-Governador | 487-novo-convencao.pdf |
-| Jovino Marques Gonçalves | Deputado Federal | 557-pt-pc-do-b-pv-executiva.pdf |
 | Jorginho Dos Santos Mello | Governador | 680-pl-convencao.pdf |
 | Adriano Bornschein Silva | Vice-Governador | 680-pl-convencao.pdf |
 | Carlos Nantes Bolsonaro | Senador | 680-pl-convencao.pdf |
@@ -74,10 +73,6 @@ Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido 
 | Esperidião Amin Helou Filho | Senador | 769-44-união-11-pp-convencao.pdf |
 | Clenilton Carlos Pereira | Senador (1º suplente) | 769-44-união-11-pp-convencao.pdf |
 | Genesio Moises Spillere | Senador (2º suplente) | 769-44-união-11-pp-convencao.pdf |
-| Arlei Da Silva | Deputado Federal | 814-psdb-cidadania-retificadora.pdf |
-| Barbara Kawall Connolly Barreiros | Deputado Federal | 814-psdb-cidadania-retificadora.pdf |
-| Roseli Moraes Silva | Deputado Federal | 814-psdb-cidadania-retificadora.pdf |
-
 ## Status de confirmação
 
 | Nome | Cargo | Partido | Status | Fonte |
@@ -101,12 +96,14 @@ Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido 
 | Sonia Salete Vedovatto | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45450), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
 | Sérgio Freitas | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45555), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
 | Tcharles Purim | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45045), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
+| Jovino Marques Gonçalves | Deputado Federal | PT/PC do B/PV | Resolvido 07/08/2026 — não era duplicata; ata executiva registra substituição de candidatura (CAMILO CÂNDIDO DA SILVA → JOVINO MARQUES GONÇALVES, número 6500, partido PCdoB dentro da federação PT/PC do B/PV), partido confirmado no texto corrido da ata | 557-pt-pc-do-b-pv-executiva.pdf |
+| Arlei Da Silva | Deputado Federal | PSDB/CIDADANIA | Resolvido 07/08/2026 — não era duplicata; partido confirmado no texto corrido da ata retificadora (não estruturado, script não conseguiu ler) | 814-psdb-cidadania-retificadora.pdf |
+| Barbara Kawall Connolly Barreiros | Deputado Federal | PSDB/CIDADANIA | Resolvido 07/08/2026 — não era duplicata; partido confirmado no texto corrido da ata retificadora (não estruturado, script não conseguiu ler) | 814-psdb-cidadania-retificadora.pdf |
+| Roseli Moraes Silva | Deputado Federal | PSDB/CIDADANIA | Resolvido 07/08/2026 — não era duplicata; partido confirmado no texto corrido da ata retificadora (não estruturado, script não conseguiu ler) | 814-psdb-cidadania-retificadora.pdf |
 
-_Ainda pendentes de verdade (sem duplicata pra cruzar, precisam de pesquisa
-contra o PDF de verdade): Arlei Da Silva, Barbara Kawall Connolly
-Barreiros, Roseli Moraes Silva (todos Deputado Federal,
-814-psdb-cidadania-retificadora.pdf) e Jovino Marques Gonçalves (Deputado
-Federal, 557-pt-pc-do-b-pv-executiva.pdf, arquivo diferente) — nenhum
-desses tem uma entrada "alta confiança" com o mesmo número TSE em outro
-lugar do arquivo, então não são duplicata de nada já carregado; alguém
-precisa abrir o PDF de verdade pra achar o partido._
+_Todas as pendências "sem partido identificado" registradas até 07/08/2026
+foram resolvidas: 18 eram duplicata de entrada já existente (mesmo número
+TSE), removidas; 4 (Arlei Da Silva, Barbara Kawall Connolly Barreiros,
+Roseli Moraes Silva, Jovino Marques Gonçalves) tiveram o partido confirmado
+lendo o texto corrido do PDF de origem, já aplicado em
+`dados/estados/sc-2026-provisorio.js`._
