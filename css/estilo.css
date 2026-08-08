@@ -456,6 +456,8 @@
     background:#0c1c16; border:1px solid #2a4438; color:var(--pc-ink-dim); cursor:pointer;
   }
   #modoColaborativoWrap .pc-mini-btn:hover{ background:rgba(61,255,176,.18); border-color:var(--pc-accent); color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-mini-btn:disabled{ opacity:.4; cursor:default; }
+  #modoColaborativoWrap .pc-mini-btn:disabled:hover{ background:#0c1c16; border-color:#2a4438; color:var(--pc-ink-dim); }
   #modoColaborativoWrap .pc-mini-btn .pc-mini-tip{
     display:none; position:absolute; bottom:130%; left:50%; transform:translateX(-50%);
     white-space:nowrap; background:#0c1c16; border:1px solid var(--pc-accent); border-radius:6px;
