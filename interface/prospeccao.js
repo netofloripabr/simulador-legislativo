@@ -3725,6 +3725,7 @@ function renderRevisaoDeposito() {
     <div class="glass-card" style="max-width:560px; margin:0 auto;">
       <h2>Revisão</h2>
       <div class="pc-sub">Revise os três cargos antes de salvar — dá pra ajustar cada um aqui mesmo, sem voltar pra outra tela.</div>
+      ${pcState.listaSalvaId ? `<div class="pc-sub" style="color:var(--pc-warning); margin-top:6px;">${iconeSvg("alerta", 12)} Você está editando "${pcState.listaSalvaNome || "uma lista salva"}". As mudanças só ficam valendo se clicar em Salvar de novo antes de sair — senão se perdem.</div>` : ""}
 
       <div style="display:flex; align-items:center; justify-content:space-between;">
         <button class="ghost" id="pcBtnVoltarRevisao">← Ajustar</button>
