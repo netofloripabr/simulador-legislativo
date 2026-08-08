@@ -45,6 +45,9 @@ let pcState = {
   listaSalvaId: null, // id exclusivo gerado no primeiro Salvar — reaproveitado nos salvamentos seguintes da mesma lista (edição, não duplicata)
   listaSalvaNome: null, // nome escolhido pela pessoa nesse modal — só pergunta de novo se vier null (ex.: depois de "Sair")
   modoAgrupadoRevisao: {}, // cargo -> true/false — filtro "lista única" (default) vs "agrupado por partido/federação" na Revisão
+  listaEmVisualizacao: null, // lista depositada aberta em modo "Ver" (renderMinhasListas) — null = mostrando a lista de listas
+  modalDepositarListaId: null, // id da lista com o modal de confirmação de depósito aberto
+  avisoLimiteListaAberto: false, // aviso "compre crédito" ao tentar criar 2ª lista sem pagar
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -241,38 +244,68 @@ function agendarAutoSaveRascunho(cargo, lista) {
   }, 900);
 }
 
-// ===== Lista salva (nomeada, com id exclusivo) =====
+// ===== Minhas listas (nomeadas, com id exclusivo, salvas OU depositadas) =====
 // Diferente do rascunho acima (autosave silencioso, "onde eu parei"): isso
 // aqui é o registro deliberado que a pessoa cria ao clicar "Salvar" na
 // Revisão pela primeira vez — pede um nome, gera um id que nunca muda
 // depois (mesmo id em salvamentos seguintes da mesma lista, ver
-// executarSalvarLista). Hoje só persiste local (window.storage) — serve
-// tanto convidado quanto logado; a sincronização com o Supabase
-// (nuvem/salvamentos.js, listas_salvas) fica pra quando existir a tela
-// "Meus Palpites" de verdade, com suporte a mais de uma lista por conta.
+// executarSalvarLista). Guarda um ARRAY de listas por estado (não só uma):
+// a pessoa vê todas em "Minhas listas" (renderMinhasListas), edita as em
+// aberto e deposita (trava pra sempre) quando quiser. Hoje só persiste
+// local (window.storage) — serve tanto convidado quanto logado; a
+// sincronização com o Supabase (nuvem/salvamentos.js, listas_salvas) fica
+// pra quando esse schema for reconferido.
 function gerarIdLista() {
   if (window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
   return "lista-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
 }
 
-function _chaveListaSalvaLocal(uf) {
-  return `simulador-legislativo-lista-salva:${uf}`;
+function _chaveListasSalvasLocal(uf) {
+  return `simulador-legislativo-listas-salvas:${uf}`;
 }
 
+async function carregarListasSalvasLocais(uf) {
+  if (!uf) return [];
+  try {
+    const r = await window.storage.get(_chaveListasSalvasLocal(uf));
+    return r && r.value ? JSON.parse(r.value) : [];
+  } catch (e) { return []; }
+}
+
+async function salvarListasSalvasLocais(uf, listas) {
+  try { await window.storage.set(_chaveListasSalvasLocal(uf), JSON.stringify(listas)); } catch (e) { /* localStorage indisponível, ignora */ }
+}
+
+// Cria (1ª vez, pcState.listaSalvaId ainda null antes de executarSalvarLista
+// gerar um) ou atualiza (salvamentos seguintes, mesmo id) a lista ATIVA
+// dentro do array — nunca mexe nas outras listas da pessoa.
 async function persistirListaSalvaLocal() {
   if (!pcState.estado || !pcState.listaSalvaId) return;
+  const listas = await carregarListasSalvasLocais(pcState.estado);
+  const idx = listas.findIndex((l) => l.id === pcState.listaSalvaId);
+  const agora = new Date().toISOString();
   const registro = {
     id: pcState.listaSalvaId,
     nome: pcState.listaSalvaNome,
-    atualizadoEm: new Date().toISOString(),
+    criadoEm: idx >= 0 ? listas[idx].criadoEm : agora,
+    atualizadoEm: agora,
+    depositadoEm: idx >= 0 ? listas[idx].depositadoEm : null,
+    anonimo: idx >= 0 ? !!listas[idx].anonimo : false,
     palpitesPorCargo: pcState.palpitesPorCargo,
   };
-  try {
-    const existente = await window.storage.get(_chaveListaSalvaLocal(pcState.estado));
-    const anterior = existente && existente.value ? JSON.parse(existente.value) : null;
-    registro.criadoEm = (anterior && anterior.id === registro.id && anterior.criadoEm) || registro.atualizadoEm;
-    await window.storage.set(_chaveListaSalvaLocal(pcState.estado), JSON.stringify(registro));
-  } catch (e) { /* localStorage indisponível, ignora — a pessoa ainda vê a lista salva na tela mesmo assim */ }
+  if (idx >= 0) listas[idx] = registro; else listas.push(registro);
+  await salvarListasSalvasLocais(pcState.estado, listas);
+}
+
+// Deposita (trava) uma lista já salva — ação separada e irreversível, só
+// muda depositadoEm/anonimo, nunca os candidatos/votos da lista em si.
+async function depositarListaLocal(uf, id, anonimo) {
+  const listas = await carregarListasSalvasLocais(uf);
+  const idx = listas.findIndex((l) => l.id === id);
+  if (idx < 0) return false;
+  listas[idx] = { ...listas[idx], depositadoEm: new Date().toISOString(), anonimo: !!anonimo };
+  await salvarListasSalvasLocais(uf, listas);
+  return true;
 }
 
 function renderColaborativo() {
@@ -294,6 +327,7 @@ function renderColaborativo() {
   if (pcState.tela === "revisao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderRevisaoDeposito(); }
   if (pcState.tela === "deposito-confirmado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderDepositoConfirmado(); }
   if (pcState.tela === "painel-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderPainelPrincipal(); }
+  if (pcState.tela === "minhas-listas-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderMinhasListas(); }
   if (pcState.tela === "detalhado-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderMeuPalpite(); }
   if (pcState.tela === "login") return renderTelaLogin();
   if (pcState.tela === "cadastro") return renderTelaCadastro();
@@ -471,10 +505,22 @@ async function renderCompartilhado() {
 
 // ---------- Login / Cadastro ----------
 
+// Volta pra onde fazia sentido antes de entrar em Login/Cadastro — pro
+// Painel principal (convidado) se a pessoa já tem lista em andamento
+// (veio de um gate tipo Grupos/Médias), senão pra abertura (primeira vez
+// no site). Sem isso as duas telas eram becos sem saída — achado pelo
+// usuário em 08/08/2026 depois de clicar num item travado do Lobby.
+function voltarDeLoginOuCadastro() {
+  pcState.erro = "";
+  if (pcState.estado) { pcState.tela = "painel-convidado"; } else { pcState.tela = "landing"; }
+  renderColaborativo();
+}
+
 function renderTelaLogin() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarLogin" style="margin-bottom:14px;">← Voltar</button>
       <h2>Entrar na Prospecção Coletiva</h2>
       <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual — Simulador Eleitoral — Legislativo 2026.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcLoginEmail" type="email"></div>
@@ -486,6 +532,7 @@ function renderTelaLogin() {
       </div>
     </div>`;
 
+  document.getElementById("pcBtnVoltarLogin").addEventListener("click", voltarDeLoginOuCadastro);
   document.getElementById("pcBtnIrCadastro").addEventListener("click", () => {
     pcState.erro = "";
     pcState.tela = "cadastro";
@@ -516,6 +563,7 @@ function renderTelaCadastro() {
   const opcoesPartido = PARTIDOS_BRASIL.map((p) => `<option value="${p.sigla}">${p.sigla}</option>`).join("");
   el.innerHTML = `
     <div class="glass-card" style="max-width:460px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarCadastro" style="margin-bottom:14px;">← Voltar</button>
       <h2>Criar conta</h2>
       <div class="pc-sub">Seu nome, e-mail e senha ficam guardados com segurança (via Supabase Auth) — nunca em texto puro em nenhum arquivo deste site.</div>
       <div class="field-row"><label>Nome</label><input class="cell" id="pcCadNome"></div>
@@ -565,6 +613,7 @@ function renderTelaCadastro() {
     });
   });
 
+  document.getElementById("pcBtnVoltarCadastro").addEventListener("click", voltarDeLoginOuCadastro);
   document.getElementById("pcBtnIrLogin").addEventListener("click", () => {
     pcState.erro = "";
     pcState.tela = "login";
@@ -623,7 +672,7 @@ function renderTelaCadastro() {
 
 function renderAppColaborativo() {
   const el = document.getElementById("modoColaborativoWrap");
-  const mostrarVoltar = ["selecao", "revisao", "palpite", "medias", "ranking", "grupo"].includes(pcState.subaba);
+  const mostrarVoltar = ["selecao", "revisao", "minhas-listas", "palpite", "medias", "ranking", "grupo"].includes(pcState.subaba);
   el.innerHTML = `
     <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
       <div><h2 style="margin:0;">Olá, ${pcState.perfil ? pcState.perfil.nome : "visitante"}</h2>
@@ -651,6 +700,7 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "revisao") renderRevisaoDeposito();
   else if (pcState.subaba === "deposito-confirmado") renderDepositoConfirmado();
   else if (pcState.subaba === "painel") renderPainelPrincipal();
+  else if (pcState.subaba === "minhas-listas") renderMinhasListas();
   else if (pcState.subaba === "palpite") renderMeuPalpite();
   else if (pcState.subaba === "medias") renderQuadroMedias();
   else if (pcState.subaba === "grupo") renderGrupoHub();
@@ -747,8 +797,8 @@ async function renderPainelPrincipal() {
 
     <div class="pc-lobby-menu-tit">Menu</div>
     <div class="pc-lobby-menu-faixa">
-      <button class="pc-lobby-menu-item" id="pcMenuPalpite">${iconeSvg("ballot", 28)}<span>Preencher votação completa</span></button>
-      <button class="pc-lobby-menu-item" id="pcMenuMedias" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("chart", 28)}<span>Quadro de médias</span></button>
+      <button class="pc-lobby-menu-item" id="pcMenuListas">${iconeSvg("ballot", 28)}<span>Minhas listas</span></button>
+      <button class="pc-lobby-menu-item" id="pcMenuMedias" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("chart", 28)}<span>Médias</span></button>
       <button class="pc-lobby-menu-item" id="pcMenuGrupos" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("grupos", 28)}<span>Grupos</span></button>
       <button class="pc-lobby-menu-item" id="pcMenuRanking" disabled title="Disponível depois do resultado oficial de 2026">${iconeSvg("ranking", 28)}<span>Ranking</span></button>
     </div>
@@ -774,9 +824,9 @@ async function renderPainelPrincipal() {
     if (pcState.perfil) { pcState.subaba = "selecao"; renderAppColaborativo(); }
     else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
   });
-  document.getElementById("pcMenuPalpite").addEventListener("click", () => {
-    if (pcState.perfil) { pcState.subaba = "palpite"; renderAppColaborativo(); }
-    else { pcState.tela = "detalhado-convidado"; renderColaborativo(); }
+  document.getElementById("pcMenuListas").addEventListener("click", () => {
+    if (pcState.perfil) { pcState.subaba = "minhas-listas"; renderAppColaborativo(); }
+    else { pcState.tela = "minhas-listas-convidado"; renderColaborativo(); }
   });
   document.getElementById("pcMenuMedias").addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("medias");
@@ -820,6 +870,153 @@ function mostrarLinkCompartilhavel() {
       document.getElementById("pcStatusCopiarLink").textContent = "Não consegui copiar sozinho — selecionei o texto, use Cmd/Ctrl+C.";
     }
   });
+}
+
+// ---------- Minhas listas (salvas + depositadas) ----------
+// Alcançada pelo atalho "Minhas listas" do Painel (pcMenuListas). Mostra as
+// listas em aberto (editáveis) e as depositadas (travadas), deixa depositar
+// uma lista em aberto (com aviso de irreversibilidade + opção de anonimato)
+// e ver o conteúdo de uma depositada em modo leitura — nunca deixa editar
+// uma lista já depositada pela mesma tela de Revisão, pra não arriscar
+// mudar o conteúdo por baixo do selo "travada".
+async function renderMinhasListas() {
+  const el = document.getElementById("pcConteudo");
+  el.innerHTML = telaCarregando("Carregando suas listas…");
+  const listas = await carregarListasSalvasLocais(pcState.estado);
+
+  if (pcState.listaEmVisualizacao) {
+    const lista = listas.find((l) => l.id === pcState.listaEmVisualizacao);
+    if (!lista) { pcState.listaEmVisualizacao = null; return renderMinhasListas(); }
+    const secoes = CARGOS.map((cargoDef) => {
+      const listaCargo = lista.palpitesPorCargo ? lista.palpitesPorCargo[cargoDef.id] : null;
+      if (!listaCargo || !listaCargo.length) return "";
+      const unificada = listaUnificadaRevisao(listaCargo, cargoDef.id);
+      const linhas = unificada.map((c) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 3px; border-bottom:1px solid rgba(120,130,180,0.14); font-size:12.5px;">
+          <span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.posicaoEleicao ? `<b style="color:var(--pc-accent);">${c.posicaoEleicao}º</b> ` : ""}${c.nome} <span style="color:var(--pc-ink-dim);">· ${c.partido}</span></span>
+          <span style="font-family:var(--mono); color:var(--pc-ink-dim); flex-shrink:0;">${c.votos.toLocaleString("pt-BR")}</span>
+        </div>`).join("");
+      return `<details class="pc-acc"><summary>${cargoDef.label}</summary><div class="pc-acc-body">${linhas}</div></details>`;
+    }).join("");
+    el.innerHTML = `
+      <button class="ghost" id="pcBtnVoltarMinhasListas" style="margin-bottom:14px;">← Minhas listas</button>
+      <h2 style="margin-bottom:2px;">${lista.nome}</h2>
+      <div class="pc-sub" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}Depositada em ${new Date(lista.depositadoEm).toLocaleDateString("pt-BR")} · travada, não pode mais mudar.</div>
+      ${secoes}`;
+    document.getElementById("pcBtnVoltarMinhasListas").addEventListener("click", () => {
+      pcState.listaEmVisualizacao = null;
+      renderMinhasListas();
+    });
+    return;
+  }
+
+  const abertas = listas.filter((l) => !l.depositadoEm).sort((a, b) => new Date(b.atualizadoEm) - new Date(a.atualizadoEm));
+  const depositadas = listas.filter((l) => l.depositadoEm).sort((a, b) => new Date(b.depositadoEm) - new Date(a.depositadoEm));
+  const jaTemLista = listas.length >= 1;
+
+  const linhaAberta = (l) => `
+    <div class="pc-lobby-linha" style="align-items:center; gap:10px;">
+      <div style="min-width:0; flex:1;">
+        <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Editada em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")}</div>
+      </div>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button class="ghost" data-pc-depositar-lista="${l.id}" style="padding:8px 12px; font-size:12px;">Depositar</button>
+        <button class="primary" data-pc-editar-lista="${l.id}" style="padding:8px 14px; font-size:12px;">Editar</button>
+      </div>
+    </div>`;
+  const linhaDepositada = (l) => `
+    <div class="pc-lobby-linha" style="align-items:center; gap:10px; opacity:.8;">
+      <div style="min-width:0; flex:1;">
+        <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 12)}<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</span></div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}</div>
+      </div>
+      <button class="ghost" data-pc-ver-lista="${l.id}" style="padding:8px 14px; font-size:12px; flex-shrink:0;">Ver</button>
+    </div>`;
+
+  const listaModal = pcState.modalDepositarListaId ? listas.find((l) => l.id === pcState.modalDepositarListaId) : null;
+
+  el.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+      <h2 style="margin:0;">Minhas listas</h2>
+      <button class="pc-lobby-icon-btn" id="pcBtnNovaLista" title="Nova lista">${iconeSvg("mais", 16)}</button>
+    </div>
+    <div class="pc-sub" style="margin-bottom:16px;">Listas em aberto podem ser editadas à vontade. Depositadas ficam travadas.</div>
+    ${pcState.avisoLimiteListaAberto ? `
+    <div style="background:var(--pc-lobby-tom-3); border:1px solid #234134; border-radius:12px; padding:14px; margin-bottom:16px;">
+      <div style="font-size:12.5px; font-weight:700; color:var(--pc-ink); margin-bottom:4px;">Ops...</div>
+      <div style="font-size:11.5px; color:var(--pc-ink-dim); line-height:1.5;">Nós conseguimos espaço gratuito para o usuário cadastrar até uma lista, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
+    </div>` : ""}
+    ${abertas.length ? `<div class="pc-lobby-menu-tit">Em aberto</div><div class="pc-lobby-card">${abertas.map(linhaAberta).join("")}</div>` : ""}
+    ${depositadas.length ? `<div class="pc-lobby-menu-tit">Depositadas</div><div class="pc-lobby-card">${depositadas.map(linhaDepositada).join("")}</div>` : ""}
+    ${!listas.length ? `<div class="pc-sub">Você ainda não salvou nenhuma lista.</div>` : ""}
+    ${listaModal ? `
+    <div id="pcModalDepositarOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 14)} IMPORTANTE</div>
+        <h2 style="margin-bottom:6px; font-size:15px;">Depositar "${listaModal.nome}"?</h2>
+        <div style="font-size:12.5px; line-height:1.6; color:var(--pc-ink-dim);">Depois de depositada, essa lista trava — não dá mais pra editar nem excluir. É a sua cédula pra valer.</div>
+        <label style="display:flex; align-items:center; gap:10px; margin:16px 0; font-size:13px; color:var(--pc-ink); cursor:pointer;">
+          <label class="switch"><input type="checkbox" id="pcCheckAnonimo"><span class="slider"></span></label>
+          Depositar de forma anônima
+        </label>
+        <div style="display:flex; gap:8px;">
+          <button class="ghost" id="pcBtnCancelarDepositar" style="flex:1;">Cancelar</button>
+          <button class="primary" id="pcBtnConfirmarDepositar" style="flex:1;">Depositar</button>
+        </div>
+      </div>
+    </div>` : ""}
+  `;
+
+  document.getElementById("pcBtnNovaLista").addEventListener("click", () => {
+    if (jaTemLista) {
+      pcState.avisoLimiteListaAberto = true;
+      renderMinhasListas();
+      return;
+    }
+    pcState.listaSalvaId = null;
+    pcState.listaSalvaNome = null;
+    pcState.palpitesPorCargo = null;
+    pcState.palpiteEdicao = null;
+    if (pcState.perfil) { pcState.subaba = "selecao"; renderAppColaborativo(); }
+    else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
+  });
+  document.querySelectorAll("[data-pc-editar-lista]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const lista = listas.find((l) => l.id === btn.getAttribute("data-pc-editar-lista"));
+      if (!lista) return;
+      pcState.listaSalvaId = lista.id;
+      pcState.listaSalvaNome = lista.nome;
+      pcState.palpitesPorCargo = lista.palpitesPorCargo;
+      pcState.palpiteEdicao = lista.palpitesPorCargo ? lista.palpitesPorCargo[pcState.cargoAtivo] : null;
+      if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
+      else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
+    });
+  });
+  document.querySelectorAll("[data-pc-depositar-lista]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pcState.modalDepositarListaId = btn.getAttribute("data-pc-depositar-lista");
+      renderMinhasListas();
+    });
+  });
+  document.querySelectorAll("[data-pc-ver-lista]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pcState.listaEmVisualizacao = btn.getAttribute("data-pc-ver-lista");
+      renderMinhasListas();
+    });
+  });
+  if (listaModal) {
+    document.getElementById("pcBtnCancelarDepositar").addEventListener("click", () => {
+      pcState.modalDepositarListaId = null;
+      renderMinhasListas();
+    });
+    document.getElementById("pcBtnConfirmarDepositar").addEventListener("click", async () => {
+      const anonimo = document.getElementById("pcCheckAnonimo").checked;
+      await depositarListaLocal(pcState.estado, listaModal.id, anonimo);
+      pcState.modalDepositarListaId = null;
+      renderMinhasListas();
+    });
+  }
 }
 
 // ---------- Grupos privados de comparação ----------
@@ -985,12 +1182,21 @@ async function renderGrupoMembro() {
       </div>
     </div>
     <div class="glass-card">
+      ${registros.length > 1 ? `
       <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
       <div id="pcGrupoComparacaoConteudo">${montarComparacaoGrupo(registros, pcState.cargoAtivoGrupo)}</div>
       <div style="margin-top:14px;">
         <div class="pc-sub" style="margin-bottom:6px;">Quem está no grupo:</div>
         ${registros.map((r) => `<span style="display:inline-block; margin:2px 4px 2px 0; padding:3px 10px; border-radius:999px; background:var(--pc-lobby-tom-3); font-size:11.5px; color:var(--pc-ink-dim);">${r.nome_exibicao}</span>`).join("")}
-      </div>
+      </div>` : `
+      <div style="text-align:center; padding:20px 10px;">
+        ${iconeSvg("convidar", 32)}
+        <h2 style="margin:10px 0 4px; font-size:15px;">Convide alguém pra ver a comparação</h2>
+        <div class="pc-sub" style="max-width:280px; margin:0 auto 16px;">Com só você no grupo ainda não tem o que comparar. Assim que mais alguém entrar com o código e preencher a própria lista, a projeção do grupo aparece aqui.</div>
+        <div style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:999px; background:var(--pc-lobby-tom-3);">
+          ${iconeSvg("chave", 14)}<b style="font-family:var(--mono); font-size:15px; letter-spacing:.05em;">${pcState.grupoAtivo.codigo_convite}</b>
+        </div>
+      </div>`}
     </div>`;
 
   document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", () => { pcState.grupoAtivo = null; pcState.grupoComparacao = null; renderGrupoHub(); });
