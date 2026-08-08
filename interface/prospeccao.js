@@ -620,11 +620,15 @@ function voltarDeLoginOuCadastro() {
 
 // Conteúdo revisado com o usuário em 08/08/2026: sem nome pessoal nem
 // e-mail dele no texto, só o nome fantasia "Simulador Eleitoral
-// Legislativo, por meio de seus representantes legais". O e-mail de
-// contato pros pedidos de privacidade/dúvidas ainda não foi decidido —
-// fica como placeholder claro até o usuário informar (ver conversa de
-// 08/08/2026; não substituir por um e-mail real sem confirmação dele).
-const PC_EMAIL_CONTATO_LEGAL = "[e-mail de contato — a definir]";
+// Legislativo, por meio de seus representantes legais".
+//
+// TEMPORÁRIO (08/08/2026): o usuário pediu pra usar o e-mail pessoal dele
+// aqui só pra não deixar o campo vazio enquanto o site está em fase de
+// teste — mas pediu EXPLICITAMENTE pra trocar isso por um e-mail
+// dedicado/institucional antes de publicar o site de verdade (divulgação
+// pro público). NÃO deixar essa linha como está numa checagem final de
+// pré-lançamento sem confirmar com ele antes.
+const PC_EMAIL_CONTATO_LEGAL = "valdemarmachadoneto89@gmail.com";
 
 const PC_TEXTO_TERMOS = [
   { t: "1. O que é este site", c: `O Simulador Eleitoral — Legislativo 2026 é uma ferramenta para simular e
