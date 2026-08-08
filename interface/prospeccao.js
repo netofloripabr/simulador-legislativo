@@ -1109,6 +1109,11 @@ async function renderMinhasListas() {
         renderMinhasListas();
         return;
       }
+      // Limpa o aviso "compre crédito" assim que a pessoa consegue criar
+      // uma lista de verdade — sem isso, o aviso de uma tentativa antiga
+      // sem saldo ficava preso na tela pra sempre, mesmo depois de ela
+      // conseguir crédito e criar novas listas com sucesso.
+      pcState.avisoLimiteListaAberto = false;
       pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
     }
     pcState.listaSalvaId = null;
