@@ -1472,18 +1472,28 @@ function renderGrupoEntrar() {
   });
 }
 
-// Mesma lógica de agregação do Quadro de Médias (calcularMediaPalpites +
+// Mesma lógica de agregação do Quadro de Médias (calcularMedianaPalpites +
 // dhondt), só que a partir da comparação de UM grupo e UM cargo por vez —
 // diferente de renderQuadroMedias, não pode fixar "40"/BASE_2022, porque
 // aqui o cargo muda (interruptor Estadual/Federal/Senador abaixo).
+//
+// Fonte trocada em 08/08/2026: só entra na comparação quem já DEPOSITOU a
+// cédula daquele cargo (grupo_comparacao, migração 10, lê de
+// listas_salvas_publicas) — antes usava o rascunho ao vivo (o que a pessoa
+// está editando agora, mesmo sem confirmar nada), decisão revertida a
+// pedido do usuário. calcularMedianaPalpites espera cada registro com uma
+// chave "rascunho_<cargo>" (usada também pelo Quadro de Médias, que lê de
+// rascunhos_publicos de verdade) — aqui só remapeamos "lista_<cargo>" (nome
+// real da coluna nova) pra esse mesmo formato, sem tocar na função
+// compartilhada.
 function montarComparacaoGrupo(registros, cargo) {
   const remapeados = registros
-    .map((r) => ({ perfil_id: r.perfil_id, candidatos: r[`rascunho_${cargo}`] }))
-    .filter((r) => r.candidatos && r.candidatos.length);
+    .filter((r) => r[`lista_${cargo}`] && r[`lista_${cargo}`].length)
+    .map((r) => ({ perfil_id: r.perfil_id, [`rascunho_${cargo}`]: r[`lista_${cargo}`] }));
   if (!remapeados.length) {
-    return '<div class="pc-sub">Ninguém do grupo preencheu esse cargo ainda.</div>';
+    return '<div class="pc-sub">Ninguém do grupo depositou esse cargo ainda.</div>';
   }
-  const { parties, totalPalpites } = calcularMediaPalpites(remapeados, cargo, pcState.estado);
+  const { parties, totalPalpites } = calcularMedianaPalpites(remapeados, cargo, pcState.estado);
   const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
   // Senador é majoritário (mesmo motivo do branch em
   // classificarEleitosPorPartido, achado em 04/08/2026) — aqui as "vagas"
@@ -1511,13 +1521,13 @@ function montarComparacaoGrupo(registros, cargo) {
         <td class="num" style="font-family:var(--mono)">${votos.toLocaleString("pt-BR")}</td>
         <td class="num" style="font-weight:700">${vagas}</td></tr>`).join("");
   return `
-    <div class="pc-sub" style="margin-bottom:8px;">Baseado em ${totalPalpites} pessoa${totalPalpites === 1 ? "" : "s"} do grupo que já preencheu esse cargo.</div>
+    <div class="pc-sub" style="margin-bottom:8px;">Baseado em ${totalPalpites} pessoa${totalPalpites === 1 ? "" : "s"} do grupo que já depositou a cédula desse cargo.</div>
     ${desenharHemiciclo(listaSeats, totalVagasCargo)}
     <table style="margin-top:10px;">
-      <thead><tr><th>Partido</th><th class="num">Vagas 22</th><th class="num">Votos médios</th><th class="num">Vagas (média)</th></tr></thead>
+      <thead><tr><th>Partido</th><th class="num">Vagas 22</th><th class="num">Votos (mediana)</th><th class="num">Vagas (mediana)</th></tr></thead>
       <tbody>${linhasPartido}</tbody>
     </table>
-    ${qe ? `<div class="pc-sub" style="margin-top:8px;">Quociente eleitoral (médias do grupo): ${qe.toLocaleString("pt-BR")} votos/vaga.</div>` : ""}`;
+    ${qe ? `<div class="pc-sub" style="margin-top:8px;">Quociente eleitoral (mediana do grupo): ${qe.toLocaleString("pt-BR")} votos/vaga.</div>` : ""}`;
 }
 
 async function renderGrupoMembro() {
@@ -1536,7 +1546,7 @@ async function renderGrupoMembro() {
     <h2 style="margin-bottom:4px;">${pcState.grupoAtivo.nome}</h2>
     <div class="pc-lobby-card">
       <div class="pc-lobby-linha">
-        <span style="font-size:12px; color:var(--pc-ink-dim);">${registros.length} membro${registros.length === 1 ? "" : "s"}</span>
+        <span style="font-size:12px; color:var(--pc-ink-dim);">${registros.length} pessoa${registros.length === 1 ? "" : "s"} com cédula depositada</span>
         <span style="font-size:12px; color:var(--pc-ink-dim); display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}<b style="font-family:var(--mono); color:var(--pc-ink); font-weight:600;">${pcState.grupoAtivo.codigo_convite}</b></span>
       </div>
     </div>
@@ -1545,13 +1555,13 @@ async function renderGrupoMembro() {
       <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
       <div id="pcGrupoComparacaoConteudo">${montarComparacaoGrupo(registros, pcState.cargoAtivoGrupo)}</div>
       <div style="margin-top:14px;">
-        <div class="pc-sub" style="margin-bottom:6px;">Quem está no grupo:</div>
+        <div class="pc-sub" style="margin-bottom:6px;">Quem já depositou:</div>
         ${registros.map((r) => `<span style="display:inline-block; margin:2px 4px 2px 0; padding:3px 10px; border-radius:999px; background:var(--pc-lobby-tom-3); font-size:11.5px; color:var(--pc-ink-dim);">${r.nome_exibicao}</span>`).join("")}
       </div>` : `
       <div style="text-align:center; padding:20px 10px;">
         ${iconeSvg("convidar", 32)}
-        <h2 style="margin:10px 0 4px; font-size:15px;">Convide alguém pra ver a comparação</h2>
-        <div class="pc-sub" style="max-width:280px; margin:0 auto 16px;">Com só você no grupo ainda não tem o que comparar. Assim que mais alguém entrar com o código e preencher a própria lista, a projeção do grupo aparece aqui.</div>
+        <h2 style="margin:10px 0 4px; font-size:15px;">Aguardando cédulas depositadas</h2>
+        <div class="pc-sub" style="max-width:280px; margin:0 auto 16px;">A comparação só aparece quando pelo menos 2 pessoas do grupo tiverem depositado a própria cédula (não basta preencher, precisa confirmar o depósito). Convide mais gente com o código abaixo.</div>
         <div style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:999px; background:var(--pc-lobby-tom-3);">
           ${iconeSvg("chave", 14)}<b style="font-family:var(--mono); font-size:15px; letter-spacing:.05em;">${pcState.grupoAtivo.codigo_convite}</b>
         </div>
