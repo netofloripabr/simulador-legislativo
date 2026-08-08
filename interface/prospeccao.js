@@ -44,6 +44,7 @@ let pcState = {
   modalNomeListaAberto: false, // modal "dê um nome pra essa lista" no primeiro Salvar da Revisão
   listaSalvaId: null, // id exclusivo gerado no primeiro Salvar — reaproveitado nos salvamentos seguintes da mesma lista (edição, não duplicata)
   listaSalvaNome: null, // nome escolhido pela pessoa nesse modal — só pergunta de novo se vier null (ex.: depois de "Sair")
+  modoAgrupadoRevisao: {}, // cargo -> true/false — filtro "lista única" (default) vs "agrupado por partido/federação" na Revisão
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -171,7 +172,8 @@ async function initColaborativo() {
   }
   // Sem sessão (ou sessão sem perfil ainda): não pede login de cara — começa
   // pela tela de abertura. Login só é pedido mais adiante, quando a pessoa
-  // decide "prosseguir" (ver renderLobby).
+  // decide "prosseguir" (ver renderPainelPrincipal, chamado como
+  // "painel-convidado" nesse fluxo).
   pcState.tela = "landing";
   renderColaborativo();
 }
@@ -291,7 +293,7 @@ function renderColaborativo() {
   if (pcState.tela === "selecao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderSelecaoCandidatos(); }
   if (pcState.tela === "revisao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderRevisaoDeposito(); }
   if (pcState.tela === "deposito-confirmado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderDepositoConfirmado(); }
-  if (pcState.tela === "lobby") return renderLobby();
+  if (pcState.tela === "painel-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderPainelPrincipal(); }
   if (pcState.tela === "detalhado-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; return renderMeuPalpite(); }
   if (pcState.tela === "login") return renderTelaLogin();
   if (pcState.tela === "cadastro") return renderTelaCadastro();
@@ -407,58 +409,6 @@ function renderTelaEstado() {
     if (!pcState.palpiteEdicao) pcState.palpiteEdicao = montarEstadoPalpite("assembleia", null, null, "estadual", pcState.estado);
     pcState.tela = "selecao-convidado";
     renderColaborativo();
-  });
-}
-
-// Tela depois que a pessoa salva a lista (ou pede a versão detalhada) sem
-// estar logada. Regra do produto (07/08/2026): o visitante pode acessar e
-// alterar a própria lista (uma só) à vontade, sem cadastro; qualquer outra
-// função (compartilhar, grupos, ranking, depositar a cédula pra valer) pede
-// cadastro. Salvar em PDF também fica aberto — não expõe dado de ninguém.
-function renderLobby() {
-  const el = document.getElementById("modoColaborativoWrap");
-  el.innerHTML = `
-    <div class="glass-card" style="max-width:560px; margin:0 auto;">
-      <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--pc-ink-dim); margin-bottom:4px;">Lobby</div>
-      <h2>Sua lista foi salva</h2>
-      <div class="pc-sub" style="margin-bottom:18px;">O que você quer fazer agora?</div>
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="primary" id="pcBtnEditarLista" style="text-align:left; padding:14px 16px;">Editar minha lista</button>
-        <button class="primary" id="pcBtnListaCompleta" style="text-align:left; padding:14px 16px;">Criar a lista completa e detalhada de todos os candidatos</button>
-        <button class="ghost" id="pcBtnCompartilhar" style="text-align:left; padding:14px 16px;">Compartilhar com amigos ${infoTip("Precisa se cadastrar.")}</button>
-        <button class="ghost" id="pcBtnRegistrar" style="text-align:left; padding:14px 16px;">Registrar minha lista para entrar no ranking de quem mais acertar ${infoTip("Precisa se cadastrar.")}</button>
-      </div>
-      <div style="text-align:center; margin-top:18px;">
-        <button class="ghost" id="pcBtnSalvarPdf" style="font-size:12px;">Salvar em PDF</button>
-      </div>
-      <div class="pc-status" id="pcConclusaoStatus" style="text-align:center; margin-top:8px;"></div>
-    </div>`;
-
-  document.getElementById("pcBtnEditarLista").addEventListener("click", () => {
-    pcState.tela = "selecao-convidado";
-    renderColaborativo();
-  });
-  document.getElementById("pcBtnCompartilhar").addEventListener("click", () => {
-    // Gerar link de compartilhamento exige uma linha em "palpites" (RLS: só
-    // o dono escreve), por isso precisa de cadastro antes. pendenteRegistro
-    // migra o palpite de convidado; pendenteAcao decide pra onde ir depois
-    // de criar a conta.
-    pcState.pendenteRegistro = true;
-    pcState.pendenteAcao = "compartilhar";
-    pcState.tela = "cadastro";
-    renderColaborativo();
-  });
-  document.getElementById("pcBtnListaCompleta").addEventListener("click", () => {
-    pcState.tela = "detalhado-convidado";
-    renderColaborativo();
-  });
-  document.getElementById("pcBtnRegistrar").addEventListener("click", () => {
-    pcState.pendenteRegistro = true;
-    pcState.tela = "cadastro";
-    renderColaborativo();
-  });
-  document.getElementById("pcBtnSalvarPdf").addEventListener("click", () => {
-    window.print();
   });
 }
 
@@ -665,6 +615,7 @@ function renderTelaCadastro() {
     await initColaborativo();
     if (acaoPendente === "compartilhar") { pcState.subaba = "painel"; renderAppColaborativo(); }
     else if (acaoPendente === "grupo") { pcState.subaba = "grupo"; renderAppColaborativo(); }
+    else if (acaoPendente === "medias") { pcState.subaba = "medias"; renderAppColaborativo(); }
   });
 }
 
@@ -675,20 +626,25 @@ function renderAppColaborativo() {
   const mostrarVoltar = ["selecao", "revisao", "palpite", "medias", "ranking", "grupo"].includes(pcState.subaba);
   el.innerHTML = `
     <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-      <div><h2 style="margin:0;">Olá, ${pcState.perfil.nome}</h2>
-      <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: Assembleia toda"}</div></div>
-      <button class="ghost" id="pcBtnSair">Sair</button>
+      <div><h2 style="margin:0;">Olá, ${pcState.perfil ? pcState.perfil.nome : "visitante"}</h2>
+      <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: Assembleia toda"}</div></div>
+      ${pcState.perfil ? `<button class="ghost" id="pcBtnSair">Sair</button>` : ""}
     </div>
     ${mostrarVoltar ? `<button class="ghost" id="pcBtnVoltarPainel" style="margin-bottom:14px;">← Painel principal</button>` : ""}
     <div id="pcConteudo"></div>
   `;
-  document.getElementById("pcBtnSair").addEventListener("click", async () => {
-    await sair();
-    pcState = { iniciado: true, sessao: null, perfil: null, tela: "login", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
-    renderColaborativo();
-  });
+  if (pcState.perfil) {
+    document.getElementById("pcBtnSair").addEventListener("click", async () => {
+      await sair();
+      pcState = { iniciado: true, sessao: null, perfil: null, tela: "login", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
+      renderColaborativo();
+    });
+  }
   if (mostrarVoltar) {
-    document.getElementById("pcBtnVoltarPainel").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
+    document.getElementById("pcBtnVoltarPainel").addEventListener("click", () => {
+      if (pcState.perfil) { pcState.subaba = "painel"; renderAppColaborativo(); }
+      else { pcState.tela = "painel-convidado"; renderColaborativo(); }
+    });
   }
 
   if (pcState.subaba === "selecao") renderSelecaoCandidatos();
@@ -719,7 +675,10 @@ async function renderPainelPrincipal() {
   el.innerHTML = telaCarregando("Carregando seu painel…");
 
   await garantirRascunhosCarregados();
-  await garantirMeusGruposCarregados();
+  // Convidado (sem cadastro) não tem perfil_id pra carregar grupos —
+  // pcState.meusGrupos fica null, o resto da função já trata isso como
+  // "sem grupo" (ver atividadeAmigo abaixo).
+  if (pcState.perfil) await garantirMeusGruposCarregados();
 
   // Status "geral" soma os 3 cargos (Estadual+Federal+Senador) — diferente
   // do resto do app, que sempre trabalha 1 cargo ativo por vez.
@@ -740,6 +699,8 @@ async function renderPainelPrincipal() {
 
   // Atividade de amigos: melhor esforço, olha só o primeiro grupo da pessoa
   // (se tiver) — quem atualizou a lista por último, excluindo ela mesma.
+  // Convidado nunca tem grupo carregado (ver guarda acima), então isso já
+  // fica null pra ele sem precisar de checagem extra.
   let atividadeAmigo = null;
   if (pcState.meusGrupos && pcState.meusGrupos.length) {
     const comparacao = await buscarComparacaoGrupo(pcState.meusGrupos[0].id);
@@ -749,10 +710,19 @@ async function renderPainelPrincipal() {
     if (outros.length) atividadeAmigo = outros[0].nome_exibicao;
   }
 
+  // Convidado só mexe na própria lista sem cadastro — compartilhar, grupos
+  // e quadro de médias pedem conta (mesma regra combinada com o usuário
+  // pro Lobby antigo, agora aplicada aqui). Fica visualmente apagado pra
+  // sinalizar que precisa se cadastrar, em vez de sumir — mantém a
+  // estrutura do painel igual pra logado e convidado.
+  const gateConvidado = !pcState.perfil;
+  const estiloApagado = gateConvidado ? "opacity:.45;" : "";
+  const tituloApagado = gateConvidado ? "Precisa se cadastrar" : "";
+
   el.innerHTML = `
     <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:14px;">
-      ${completa ? `<button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>` : ""}
-      <button class="pc-lobby-icon-btn" id="pcBtnConvidarLobby" title="Convidar amigos">${iconeSvg("convidar", 16)}</button>
+      ${completa && !gateConvidado ? `<button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>` : ""}
+      <button class="pc-lobby-icon-btn" id="pcBtnConvidarLobby" title="${gateConvidado ? tituloApagado : "Convidar amigos"}" style="${estiloApagado}">${iconeSvg("convidar", 16)}</button>
     </div>
 
     <div class="pc-lobby-card">
@@ -778,8 +748,8 @@ async function renderPainelPrincipal() {
     <div class="pc-lobby-menu-tit">Menu</div>
     <div class="pc-lobby-menu-faixa">
       <button class="pc-lobby-menu-item" id="pcMenuPalpite">${iconeSvg("ballot", 28)}<span>Preencher votação completa</span></button>
-      <button class="pc-lobby-menu-item" id="pcMenuMedias">${iconeSvg("chart", 28)}<span>Quadro de médias</span></button>
-      <button class="pc-lobby-menu-item" id="pcMenuGrupos">${iconeSvg("grupos", 28)}<span>Grupos</span></button>
+      <button class="pc-lobby-menu-item" id="pcMenuMedias" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("chart", 28)}<span>Quadro de médias</span></button>
+      <button class="pc-lobby-menu-item" id="pcMenuGrupos" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("grupos", 28)}<span>Grupos</span></button>
       <button class="pc-lobby-menu-item" id="pcMenuRanking" disabled title="Disponível depois do resultado oficial de 2026">${iconeSvg("ranking", 28)}<span>Ranking</span></button>
     </div>
 
@@ -790,12 +760,37 @@ async function renderPainelPrincipal() {
     <div id="pcLinkCompartilhavelWrap"></div>
   `;
 
-  document.getElementById("pcBtnContinuarLista").addEventListener("click", () => { pcState.subaba = "selecao"; renderAppColaborativo(); });
-  document.getElementById("pcMenuPalpite").addEventListener("click", () => { pcState.subaba = "palpite"; renderAppColaborativo(); });
-  document.getElementById("pcMenuMedias").addEventListener("click", () => { pcState.subaba = "medias"; renderAppColaborativo(); });
-  document.getElementById("pcMenuGrupos").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
+  // Convidado sem cadastro: qualquer destino que precise de conta
+  // (compartilhar, grupos, quadro de médias) leva pro cadastro em vez de
+  // quebrar tentando usar pcState.perfil.id — pendenteAcao decide pra onde
+  // volta depois de criar a conta (ver renderTelaCadastro).
+  const irParaCadastro = (acao) => {
+    pcState.pendenteRegistro = true;
+    pcState.pendenteAcao = acao;
+    pcState.tela = "cadastro";
+    renderColaborativo();
+  };
+  document.getElementById("pcBtnContinuarLista").addEventListener("click", () => {
+    if (pcState.perfil) { pcState.subaba = "selecao"; renderAppColaborativo(); }
+    else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
+  });
+  document.getElementById("pcMenuPalpite").addEventListener("click", () => {
+    if (pcState.perfil) { pcState.subaba = "palpite"; renderAppColaborativo(); }
+    else { pcState.tela = "detalhado-convidado"; renderColaborativo(); }
+  });
+  document.getElementById("pcMenuMedias").addEventListener("click", () => {
+    if (gateConvidado) return irParaCadastro("medias");
+    pcState.subaba = "medias"; renderAppColaborativo();
+  });
+  document.getElementById("pcMenuGrupos").addEventListener("click", () => {
+    if (gateConvidado) return irParaCadastro("grupo");
+    pcState.subaba = "grupo"; renderAppColaborativo();
+  });
   document.getElementById("pcMenuRanking").addEventListener("click", () => { pcState.subaba = "ranking"; renderAppColaborativo(); });
-  document.getElementById("pcBtnConvidarLobby").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
+  document.getElementById("pcBtnConvidarLobby").addEventListener("click", () => {
+    if (gateConvidado) return irParaCadastro("grupo");
+    pcState.subaba = "grupo"; renderAppColaborativo();
+  });
   const btnCompartilhar = document.getElementById("pcBtnCompartilharLobby");
   if (btnCompartilhar) btnCompartilhar.addEventListener("click", mostrarLinkCompartilhavel);
 }
@@ -3101,11 +3096,41 @@ function renderRevisaoDeposito() {
       `);
     };
 
-    const linhas = listaCompleta.map(linhaCandidato).join("");
+    // Filtro "lista única" (default, ordem só por voto cruzando partidos) vs
+    // "agrupado por partido/federação" (pedido do usuário em 08/08/2026) — só
+    // muda como listaCompleta é agrupada pra exibição, cardCandidato/
+    // linhaCandidato continuam os mesmos, sem mexer no resto da estrutura.
+    const agrupado = !!pcState.modoAgrupadoRevisao[cargoDef.id];
+    let linhas;
+    if (!agrupado) {
+      linhas = listaCompleta.map(linhaCandidato).join("");
+    } else {
+      const porPartido = new Map();
+      listaCompleta.forEach((c) => {
+        if (!porPartido.has(c.partido)) porPartido.set(c.partido, []);
+        porPartido.get(c.partido).push(c);
+      });
+      linhas = [...porPartido.entries()]
+        .sort((a, b) => b[1].filter((c) => c.eleito).length - a[1].filter((c) => c.eleito).length)
+        .map(([partido, candidatosPartido]) => `
+          <div style="display:flex; align-items:center; gap:6px; padding:10px 3px 6px; color:var(--pc-accent); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em;">
+            <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-accent); display:inline-block; flex-shrink:0;"></span>
+            <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${partido}</span>
+            <span style="color:var(--pc-ink-dim); font-weight:400; text-transform:none; flex-shrink:0;">— ${candidatosPartido.filter((c) => c.eleito).length} eleito${candidatosPartido.filter((c) => c.eleito).length === 1 ? "" : "s"}</span>
+          </div>
+          ${candidatosPartido.map(linhaCandidato).join("")}
+        `).join("");
+    }
+
+    const filtroAgrupado = `
+      <div style="display:flex; background:#0c1c16; border:1px solid #2a4438; border-radius:8px; padding:2px; gap:2px; flex-shrink:0;">
+        <button data-pc-modo-revisao="lista" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Lista única, ordenada por votos" style="width:24px; height:22px; border:none; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; background:${agrupado ? "transparent" : "var(--pc-accent)"}; color:${agrupado ? "var(--pc-ink-dim)" : "#04140d"};">${iconeSvg("lista", 12)}</button>
+        <button data-pc-modo-revisao="grupo" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Agrupado por partido/federação" style="width:24px; height:22px; border:none; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; background:${agrupado ? "var(--pc-accent)" : "transparent"}; color:${agrupado ? "#04140d" : "var(--pc-ink-dim)"};">${iconeSvg("grupos", 12)}</button>
+      </div>`;
 
     return `
       <details class="pc-acc" ${cargoDef.id === pcState.cargoAtivo ? "open" : ""}>
-        <summary><span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim); font-size:11px;">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} do seu palpite pendente${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
+        <summary><span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim); font-size:11px;">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} do seu palpite pendente${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span>${filtroAgrupado}<svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">${linhas}</div>
       </details>`;
   }).join("");
@@ -3176,6 +3201,19 @@ function renderRevisaoDeposito() {
     document.getElementById("pcBtnConfirmarNomeLista").addEventListener("click", confirmarNome);
     inputNome.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); confirmarNome(); } });
   }
+  // Filtro lista única vs. agrupado por partido/federação, no cabeçalho de
+  // cada cargo — preventDefault/stopPropagation pra não deixar o clique
+  // também abrir/fechar o <details> por baixo (pedido do usuário em
+  // 08/08/2026: só incluir os 2 ícones, sem mudar mais nada da estrutura).
+  document.querySelectorAll("[data-pc-modo-revisao]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const cargo = btn.getAttribute("data-pc-modo-revisao-cargo");
+      pcState.modoAgrupadoRevisao[cargo] = btn.getAttribute("data-pc-modo-revisao") === "grupo";
+      renderRevisaoDeposito();
+    });
+  });
   // Botão mágico (✦) de cada candidato pendente — abre/fecha o menu com as
   // 2 formas de completar o voto que falta. Clique, não hover (pedido do
   // usuário em 06/08/2026).
@@ -3322,7 +3360,7 @@ function renderDepositoConfirmado() {
     </div>`;
   document.getElementById("pcBtnIrPainel").addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "painel"; renderAppColaborativo(); }
-    else { pcState.tela = "lobby"; renderColaborativo(); }
+    else { pcState.tela = "painel-convidado"; renderColaborativo(); }
   });
 }
 
@@ -3400,7 +3438,7 @@ async function renderMeuPalpite() {
 
   document.getElementById("pcBtnSalvarPalpite").addEventListener("click", async () => {
     if (!pcState.perfil) {
-      pcState.tela = "lobby";
+      pcState.tela = "painel-convidado";
       renderColaborativo();
       return;
     }
