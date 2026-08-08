@@ -103,3 +103,14 @@ $$;
 
 -- Sem grant pra "authenticated" de propósito — só quem tem acesso direto
 -- ao SQL Editor do Supabase (você) consegue chamar esta função.
+--
+-- FALHA ENCONTRADA E CORRIGIDA em 08/08/2026, testando ao vivo: o comentário
+-- acima não bastava — o Postgres concede EXECUTE pra "PUBLIC" por padrão em
+-- toda função nova, a não ser que seja revogado explicitamente (foi feito
+-- pra consumir_credito acima, mas ficou faltando aqui). Sem este revoke,
+-- QUALQUER conta logada conseguia rodar
+-- supabaseClient.rpc("conceder_credito", {p_perfil_id: ..., p_quantidade: 999})
+-- direto do console do navegador e se dar crédito infinito — exatamente o
+-- problema que essa tabela separada existia pra evitar, só que por um
+-- caminho diferente (RPC em vez de update direto na tabela).
+revoke all on function public.conceder_credito(uuid, integer) from public, anon, authenticated;
