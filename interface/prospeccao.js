@@ -429,6 +429,8 @@ function renderColaborativo() {
   if (pcState.tela === "minhas-listas-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMinhasListas(); atualizarMenuFixo("minhas-listas"); return; }
   if (pcState.tela === "detalhado-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMeuPalpite(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "login") return renderTelaLogin();
+  if (pcState.tela === "recuperar-senha") return renderTelaRecuperarSenha();
+  if (pcState.tela === "nova-senha") return renderTelaNovaSenha();
   if (pcState.tela === "cadastro") return renderTelaCadastro();
   if (pcState.tela === "termos") return renderTelaLegal("termos");
   if (pcState.tela === "privacidade") return renderTelaLegal("privacidade");
@@ -791,6 +793,7 @@ function renderTelaLogin() {
       <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual, Deputado Federal e Senador.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcLoginEmail" type="email"></div>
       <div class="field-row"><label>Senha</label><input class="cell" id="pcLoginSenha" type="password"></div>
+      <div style="text-align:right; margin-top:-8px;"><a href="#" id="pcLinkEsqueciSenha" style="color:var(--pc-accent); font-size:12px; text-decoration:underline;">Esqueci minha senha</a></div>
       <div class="pc-erro" id="pcLoginErro">${pcState.erro || ""}</div>
       <div style="display:flex; gap:10px; margin-top:6px;">
         <button class="primary" id="pcBtnEntrar">Entrar</button>
@@ -802,6 +805,12 @@ function renderTelaLogin() {
   document.getElementById("pcBtnIrCadastro").addEventListener("click", () => {
     pcState.erro = "";
     pcState.tela = "cadastro";
+    renderColaborativo();
+  });
+  document.getElementById("pcLinkEsqueciSenha").addEventListener("click", (e) => {
+    e.preventDefault();
+    pcState.erro = "";
+    pcState.tela = "recuperar-senha";
     renderColaborativo();
   });
 
@@ -819,6 +828,60 @@ function renderTelaLogin() {
       renderTelaLogin();
       return;
     }
+    pcState.erro = "";
+    await initColaborativo();
+  });
+}
+
+function renderTelaRecuperarSenha() {
+  const el = document.getElementById("modoColaborativoWrap");
+  el.innerHTML = `
+    <div class="glass-card" style="max-width:420px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarRecuperar" style="margin-bottom:14px;">← Voltar</button>
+      <h2>Esqueci minha senha</h2>
+      <div class="pc-sub">Digite o e-mail da sua conta — mandamos um link pra você definir uma senha nova.</div>
+      <div class="field-row"><label>E-mail</label><input class="cell" id="pcRecuperarEmail" type="email"></div>
+      <div class="pc-erro" id="pcRecuperarErro"></div>
+      <div class="pc-status" id="pcRecuperarStatus"></div>
+      <button class="primary" id="pcBtnEnviarRecuperacao" style="margin-top:6px;">Enviar link</button>
+    </div>`;
+  document.getElementById("pcBtnVoltarRecuperar").addEventListener("click", () => {
+    pcState.tela = "login";
+    renderColaborativo();
+  });
+  document.getElementById("pcBtnEnviarRecuperacao").addEventListener("click", async (e) => {
+    const email = document.getElementById("pcRecuperarEmail").value.trim();
+    if (!email) { document.getElementById("pcRecuperarErro").textContent = "Digite seu e-mail."; return; }
+    e.target.disabled = true;
+    const { error } = await solicitarRecuperacaoSenha(email);
+    e.target.disabled = false;
+    if (error) { document.getElementById("pcRecuperarErro").textContent = "Não consegui enviar: " + error.message; return; }
+    document.getElementById("pcRecuperarErro").textContent = "";
+    document.getElementById("pcRecuperarStatus").textContent = "Se esse e-mail tiver uma conta, o link de recuperação já foi enviado. Confira sua caixa de entrada (e o spam).";
+    e.target.style.display = "none";
+  });
+}
+
+function renderTelaNovaSenha() {
+  const el = document.getElementById("modoColaborativoWrap");
+  el.innerHTML = `
+    <div class="glass-card" style="max-width:420px; margin:0 auto;">
+      <h2>Defina uma nova senha</h2>
+      <div class="pc-sub">Você clicou no link de recuperação — escolha sua nova senha abaixo.</div>
+      <div class="field-row"><label>Nova senha</label><input class="cell" id="pcNovaSenhaInput" type="password"></div>
+      <div class="pc-erro" id="pcNovaSenhaErro">${pcState.erro || ""}</div>
+      <button class="primary" id="pcBtnConfirmarNovaSenha" style="margin-top:6px;">Salvar nova senha</button>
+    </div>`;
+  document.getElementById("pcBtnConfirmarNovaSenha").addEventListener("click", async (e) => {
+    const novaSenha = document.getElementById("pcNovaSenhaInput").value;
+    if (!novaSenha || novaSenha.length < 6) {
+      document.getElementById("pcNovaSenhaErro").textContent = "A senha precisa ter pelo menos 6 caracteres.";
+      return;
+    }
+    e.target.disabled = true;
+    const { error } = await redefinirSenha(novaSenha);
+    e.target.disabled = false;
+    if (error) { document.getElementById("pcNovaSenhaErro").textContent = "Não consegui salvar: " + error.message; return; }
     pcState.erro = "";
     await initColaborativo();
   });

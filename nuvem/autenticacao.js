@@ -70,6 +70,25 @@ async function sair() {
   await supabaseClient.auth.signOut();
 }
 
+// "Esqueci minha senha" — manda um e-mail com link de recuperação via
+// Supabase Auth. redirectTo aponta de volta pro próprio site (mesma URL
+// atual, sem querystring) — o Supabase anexa um token de recuperação na
+// URL; o cliente detecta isso sozinho (onAuthStateChange dispara
+// "PASSWORD_RECOVERY", ver interface/prospeccao.js) e libera a tela de
+// definir nova senha.
+async function solicitarRecuperacaoSenha(email) {
+  const redirectTo = window.location.origin + window.location.pathname;
+  return await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo });
+}
+
+// Chamado depois que a pessoa clicou no link do e-mail e chegou na tela de
+// "defina uma nova senha" — nesse momento já existe uma sessão de
+// recuperação válida (criada pelo próprio Supabase ao processar o token da
+// URL), então só precisa trocar a senha.
+async function redefinirSenha(novaSenha) {
+  return await supabaseClient.auth.updateUser({ password: novaSenha });
+}
+
 async function sessaoAtual() {
   const { data } = await supabaseClient.auth.getSession();
   return data.session || null;
