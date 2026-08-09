@@ -2015,10 +2015,17 @@ function balancearTudoSelecao() {
   const meta = totalVagasCargo ? totalValidosProjetado2026() : 0;
   if (meta > 0 && totalDepoisDoPreenchimento > 0) {
     const escalaFinal = meta / totalDepoisDoPreenchimento;
+    const teto = tetoAutoPreenchimento(pcState.estado, pcState.cargoAtivo);
     pcState.palpiteEdicao.forEach((p) => {
       p.candidatos.forEach((c) => {
         if (c.fonte === "legenda") return;
         c.votos = Math.round((Number(c.votos) || 0) * escalaFinal);
+        // Bug encontrado testando ao vivo em 08/08/2026: essa reescala geral
+        // roda DEPOIS do teto já ter sido aplicado em balancearPartidoSelecao
+        // (candidato a candidato) e pode empurrar alguém de volta pra cima
+        // do limite — reaplica o teto aqui, no valor final de verdade.
+        // Nunca toca em quem a pessoa editou o voto à mão (votosEditado).
+        if (!c.votosEditado) c.votos = Math.min(c.votos, teto);
       });
     });
   }
