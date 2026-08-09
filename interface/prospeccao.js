@@ -3746,14 +3746,24 @@ function renderRevisaoDeposito() {
       });
       linhas = [...porPartido.entries()]
         .sort((a, b) => b[1].filter((c) => c.eleito).length - a[1].filter((c) => c.eleito).length)
-        .map(([partido, candidatosPartido]) => `
-          <div style="display:flex; align-items:center; gap:6px; padding:10px 3px 6px; color:var(--pc-accent); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em;">
+        .map(([partido, candidatosPartido]) => {
+          const qtdEleitos = candidatosPartido.filter((c) => c.eleito).length;
+          // Soma de votos do partido + quanto falta pra próxima vaga — pedido
+          // do usuário em 09/08/2026. gap.partido é igual pra todo mundo não
+          // eleito do mesmo partido (é uma conta por PARTIDO, não por
+          // candidato), então pega do primeiro não-eleito que achar.
+          const votosPartidoTotal = candidatosPartido.reduce((s, c) => s + (Number(c.votos) || 0), 0);
+          const naoEleito = candidatosPartido.find((c) => !c.eleito && c.gap);
+          const faltamProximaVaga = naoEleito ? naoEleito.gap.partido : null;
+          return `
+          <div style="display:flex; align-items:center; gap:6px; padding:10px 3px 6px; color:var(--pc-accent); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; flex-wrap:wrap;">
             <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-accent); display:inline-block; flex-shrink:0;"></span>
             <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${partido}</span>
-            <span style="color:var(--pc-ink-dim); font-weight:400; text-transform:none; flex-shrink:0;">— ${candidatosPartido.filter((c) => c.eleito).length} eleito${candidatosPartido.filter((c) => c.eleito).length === 1 ? "" : "s"}</span>
+            <span style="color:var(--pc-ink-dim); font-weight:400; text-transform:none; flex-shrink:0;">— ${qtdEleitos} eleito${qtdEleitos === 1 ? "" : "s"} · ${votosPartidoTotal.toLocaleString("pt-BR")} votos${faltamProximaVaga ? ` (faltam ${faltamProximaVaga.toLocaleString("pt-BR")} para a próxima vaga)` : ""}</span>
           </div>
           ${candidatosPartido.map(linhaCandidato).join("")}
-        `).join("");
+        `;
+        }).join("");
     }
 
     const filtroAgrupado = `
