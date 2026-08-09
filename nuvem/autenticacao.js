@@ -33,8 +33,24 @@ async function hashCPF(cpf) {
   return Array.from(new Uint8Array(buffer)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function cadastrar({ nome, email, senha, escopo, partidoEscopo, modoPreenchimento, mostrarNome, cpf, lgpdAceito }) {
+// Padrão mínimo de senha (referência usada pelo usuário, 09/08/2026): pelo
+// menos 8 caracteres, 1 letra, 1 número, 1 caractere especial.
+function senhaForte(senha) {
+  return String(senha || "").length >= 8
+    && /[a-zA-Z]/.test(senha)
+    && /[0-9]/.test(senha)
+    && /[^a-zA-Z0-9]/.test(senha);
+}
+
+// escopo/partidoEscopo/mostrarNome saíram da tela de Cadastro (pedido do
+// usuário em 09/08/2026 — "O que você quer prever?" confundia, e a escolha
+// de mostrar nome já é feita por cédula, no momento do depósito, não da
+// conta inteira) — todo cadastro novo nasce com escopo "assembleia" fixo e
+// mostrar_nome true (default inofensivo, não é mais lido em lugar nenhum
+// que importe pra privacidade — isso agora vive em salvamentos.anonimo).
+async function cadastrar({ nome, email, senha, telefone, modoPreenchimento, cpf, lgpdAceito }) {
   if (!cpfValido(cpf)) return { error: { message: "CPF inválido. Confira os números digitados." } };
+  if (!senhaForte(senha)) return { error: { message: "A senha precisa ter pelo menos 8 caracteres, com letra, número e caractere especial." } };
   if (!lgpdAceito) return { error: { message: "Precisa marcar a concordância com o uso dos dados pra continuar." } };
 
   const { data, error } = await supabaseClient.auth.signUp({ email, password: senha });
@@ -47,10 +63,11 @@ async function cadastrar({ nome, email, senha, escopo, partidoEscopo, modoPreenc
   const { error: erroPerfil } = await supabaseClient.from("perfis").insert({
     id: data.user.id,
     nome,
-    escopo,
-    partido_escopo: escopo === "partido" ? partidoEscopo : null,
+    telefone: telefone || null,
+    escopo: "assembleia",
+    partido_escopo: null,
     modo_preenchimento: modoPreenchimento,
-    mostrar_nome: mostrarNome,
+    mostrar_nome: true,
     cpf_hash: cpfHash,
     lgpd_aceite_em: new Date().toISOString(),
   });

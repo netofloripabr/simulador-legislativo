@@ -889,44 +889,25 @@ function renderTelaNovaSenha() {
 
 function renderTelaCadastro() {
   const el = document.getElementById("modoColaborativoWrap");
-  const opcoesPartido = PARTIDOS_BRASIL.map((p) => `<option value="${p.sigla}">${p.sigla}</option>`).join("");
   el.innerHTML = `
     <div class="glass-card" style="max-width:460px; margin:0 auto;">
       <button class="ghost" id="pcBtnVoltarCadastro" style="margin-bottom:14px;">← Voltar</button>
       <h2>Criar conta</h2>
-      <div class="pc-sub">Seu nome, e-mail e senha ficam guardados com segurança (via Supabase Auth) — nunca em texto puro em nenhum arquivo deste site.</div>
       <div class="field-row"><label>Nome</label><input class="cell" id="pcCadNome"></div>
+      <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Você pode divulgar seu palpite de forma anônima — essa escolha é feita depois, na hora de depositar cada cédula, não aqui.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcCadEmail" type="email"></div>
+      <div class="field-row"><label>Telefone</label><input class="cell" id="pcCadTelefone" inputmode="tel" placeholder="(00) 00000-0000"></div>
       <div class="field-row"><label>Senha</label><input class="cell" id="pcCadSenha" type="password"></div>
+      <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Pelo menos 8 caracteres, com letra, número e caractere especial.</div>
       <div class="field-row">
         <label>CPF</label>
         <input class="cell" id="pcCadCpf" inputmode="numeric" placeholder="Só números" maxlength="14">
       </div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CPF só pra impedir que a mesma pessoa crie mais de uma conta (protege o ranking) — guardamos um código derivado dele, nunca o CPF em texto puro.</div>
 
-      <div class="field-row">
-        <label>O que você quer prever?</label>
-        <div style="display:flex; gap:16px; margin-top:4px;">
-          <label style="display:flex; align-items:center; gap:6px; font-size:13px;"><input type="radio" name="pcEscopo" value="partido" checked> Só um partido</label>
-          <label style="display:flex; align-items:center; gap:6px; font-size:13px;"><input type="radio" name="pcEscopo" value="assembleia"> A Assembleia toda</label>
-        </div>
-      </div>
-      <div class="field-row" id="pcCadPartidoWrap">
-        <label>Qual partido</label>
-        <select class="cell" id="pcCadPartido">${opcoesPartido}</select>
-      </div>
-
-      <div class="toggle-row">
-        <label>Mostrar meu nome publicamente</label>
-        <label class="switch">
-          <input type="checkbox" id="pcCadMostrarNome" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
-
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
         <input type="checkbox" id="pcCadLgpd" style="margin-top:2px;">
-        <span>Li e concordo com o uso dos meus dados (nome, e-mail e CPF) para criar minha conta, conforme a
+        <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone e CPF) para criar minha conta, conforme a
           <a href="#" id="pcLinkPrivacidade" style="color:var(--pc-accent); text-decoration:underline;">Política de Privacidade</a>
           e os
           <a href="#" id="pcLinkTermos" style="color:var(--pc-accent); text-decoration:underline;">Termos de Uso</a>.
@@ -939,12 +920,6 @@ function renderTelaCadastro() {
         <button class="ghost" id="pcBtnIrLogin">Já tenho conta</button>
       </div>
     </div>`;
-
-  document.querySelectorAll('input[name="pcEscopo"]').forEach((r) => {
-    r.addEventListener("change", (e) => {
-      document.getElementById("pcCadPartidoWrap").style.display = e.target.value === "partido" ? "" : "none";
-    });
-  });
 
   document.getElementById("pcBtnVoltarCadastro").addEventListener("click", voltarDeLoginOuCadastro);
   document.getElementById("pcBtnIrLogin").addEventListener("click", () => {
@@ -968,12 +943,10 @@ function renderTelaCadastro() {
   document.getElementById("pcBtnCadastrar").addEventListener("click", async () => {
     const nome = document.getElementById("pcCadNome").value.trim();
     const email = document.getElementById("pcCadEmail").value.trim();
+    const telefone = document.getElementById("pcCadTelefone").value.trim();
     const senha = document.getElementById("pcCadSenha").value;
     const cpf = document.getElementById("pcCadCpf").value.trim();
     const lgpdAceito = document.getElementById("pcCadLgpd").checked;
-    const escopo = document.querySelector('input[name="pcEscopo"]:checked').value;
-    const partidoEscopo = document.getElementById("pcCadPartido").value;
-    const mostrarNome = document.getElementById("pcCadMostrarNome").checked;
 
     if (!nome || !email || !senha || !cpf) {
       pcState.erro = "Preencha nome, e-mail, senha e CPF.";
@@ -986,8 +959,7 @@ function renderTelaCadastro() {
       return;
     }
     const { error, data } = await cadastrar({
-      nome, email, senha, escopo,
-      partidoEscopo, modoPreenchimento: "detalhado", mostrarNome, cpf, lgpdAceito,
+      nome, email, senha, telefone, modoPreenchimento: "detalhado", cpf, lgpdAceito,
     });
     if (error) {
       pcState.erro = "Não consegui criar sua conta: " + error.message;
