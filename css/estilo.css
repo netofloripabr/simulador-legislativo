@@ -537,14 +537,15 @@
   #modoColaborativoWrap .pc-switch input:checked + .pc-switch-slider:after{ opacity:1; }
 
   /* Sobra/fora — mesma linguagem visual do termômetro (.pc-term-seg),
-     aplicada ao interruptor "eleito" de cada candidato: hachurado âmbar
+     aplicada ao interruptor "eleito" de cada candidato: laranja sólido
      quando a vaga só existe por disputa de médias (art. 109), tracejado
      rosa/vazado quando marcado mas não fecharia vaga hoje. Pedido do
-     usuário em 07/08/2026. */
+     usuário em 07/08/2026 — cor trocada de hachurado pra sólida em
+     09/08/2026 (o padrão listrado prejudicava a leitura do texto "SOBRA"). */
   #modoColaborativoWrap .pc-switch.pc-switch-sobra input:checked + .pc-switch-slider{
-    background: repeating-linear-gradient(45deg, #c9a15a 0 3px, #8a6a2b 3px 6px);
+    background: var(--pc-warning);
   }
-  #modoColaborativoWrap .pc-switch.pc-switch-sobra input:checked + .pc-switch-slider:after{ content:"SOBRA"; color:#1a1206; }
+  #modoColaborativoWrap .pc-switch.pc-switch-sobra input:checked + .pc-switch-slider:after{ content:"SOBRA"; color:#2b1c05; }
   #modoColaborativoWrap .pc-switch.pc-switch-fora input:checked + .pc-switch-slider{
     background:transparent; border:1.5px dashed var(--pc-danger);
   }

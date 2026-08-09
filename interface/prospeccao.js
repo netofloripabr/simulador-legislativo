@@ -2428,7 +2428,7 @@ async function renderCargoEstadual() {
       const marcadosOrdenadosClassif = [...p.candidatos].filter((c) => c.marcadoEleito).sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
       if (rankingSenador) {
         marcadosOrdenadosClassif.forEach((c) => {
-          classificacaoPorChave.set(c.chave, rankingSenador.chavesEleitos.has(c.chave) ? "qp" : "fora");
+          classificacaoPorChave.set(c.chave, { tipo: rankingSenador.chavesEleitos.has(c.chave) ? "qp" : "fora" });
         });
       } else {
         const pIdxClassif = pcState.palpiteEdicao.indexOf(p);
@@ -2438,7 +2438,12 @@ async function renderCargoEstadual() {
         const qpRealClassif = Math.min(qpRealTotalClassif, marcados);
         marcadosOrdenadosClassif.forEach((c, i) => {
           const k = i + 1;
-          classificacaoPorChave.set(c.chave, k <= qpRealClassif ? "qp" : k <= cadeirasReaisClassif ? "sobra" : "fora");
+          // Pra sobra, guarda também QUAL sobra (1ª, 2ª...) deste partido —
+          // dá pra referenciar o caso específico na legenda, em vez de um
+          // texto genérico igual pra qualquer sobra. Pedido do usuário em
+          // 09/08/2026.
+          const tipo = k <= qpRealClassif ? "qp" : k <= cadeirasReaisClassif ? "sobra" : "fora";
+          classificacaoPorChave.set(c.chave, tipo === "sobra" ? { tipo, numeroSobra: k - qpRealClassif } : { tipo });
         });
       }
     }
@@ -2502,8 +2507,8 @@ async function renderCargoEstadual() {
                 // termômetro (barraTermometro) — não é só ligado/desligado.
                 // Pedido do usuário em 07/08/2026.
                 const classif = c.marcadoEleito ? classificacaoPorChave.get(c.chave) : null;
-                const claseExtra = classif === "sobra" ? " pc-switch-sobra" : classif === "fora" ? " pc-switch-fora" : "";
-                const tituloExtra = classif === "sobra" ? " — sobra, disputa de médias (art. 109)" : classif === "fora" ? " — marcado, mas não fecharia vaga com a votação de hoje" : "";
+                const claseExtra = classif?.tipo === "sobra" ? " pc-switch-sobra" : classif?.tipo === "fora" ? " pc-switch-fora" : "";
+                const tituloExtra = classif?.tipo === "sobra" ? ` — levando a ${classif.numeroSobra}ª sobra do partido nesta rodada, por disputa de médias (art. 109)` : classif?.tipo === "fora" ? " — marcado, mas não fecharia vaga com a votação de hoje" : "";
                 return `<label class="pc-switch${claseExtra}" title="${c.marcadoEleito ? "Marcado como eleito" + tituloExtra : "Marcar como eleito"}"><input type="checkbox" data-pc-marca="${p.nome}::${c.chave}" ${c.marcadoEleito ? "checked" : ""}><span class="pc-switch-slider"></span></label>`;
               })()}
           <span style="flex:1; font-size:15px; font-weight:600; line-height:1.4;">${nomeExibicao(c)}${c.partidoOriginal && c.partidoOriginal !== p.nome ? ` <span style="font-size:11px; font-weight:700; color:var(--pc-accent);">(${c.partidoOriginal})</span>` : ""}${c.fonte === "legenda" ? ' <span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${c.fonte === "2022-sem-ata-2026" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">sem ata 2026</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada — este é o candidato real de 2022, usado só como referência temporária até a lista de 2026 chegar. Pode não ser candidato em 2026, pode ter trocado de cargo ou de partido.")}` : ""}${c.fonte === "ficticio" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">candidato fictício</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada. Este NÃO é um candidato real — é um nome de preenchimento (placeholder) só pra manter a chapa completa até a ata sair. Será substituído pelo candidato real assim que a ata for processada.")}` : ""}<br><span style="font-size:12.5px; font-weight:400; color:var(--pc-ink-dim); opacity:0.9;">eleição 2022: ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</span>${c.invalidado2022 ? warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`) : ""}</span>
