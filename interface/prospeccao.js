@@ -1892,7 +1892,10 @@ function balancearPartidoSelecao(p, base) {
     const vazios = marcados.filter((c) => !c.votosEditado);
     const restante = Math.max(0, alvo - jaPreenchidos);
     const somaShare = vazios.reduce((s, c) => s + (Number(c.votos2022) || 1), 0) || 1;
-    vazios.forEach((c) => { c.votos = Math.min(teto, Math.round(restante * ((Number(c.votos2022) || 1) / somaShare))); });
+    // Teto nunca abaixo do próprio voto real de 2022 do candidato — ele
+    // impede INFLAÇÃO artificial, não apaga um dado histórico real que já
+    // era mais alto (achado testando ao vivo em 09/08/2026).
+    vazios.forEach((c) => { c.votos = Math.min(Math.max(teto, Number(c.votos2022) || 0), Math.round(restante * ((Number(c.votos2022) || 1) / somaShare))); });
   }
 
   const fator = fatorCrescimentoEleitorado();
@@ -1915,12 +1918,15 @@ function balancearPartidoSelecao(p, base) {
     }
     if (Number(c.votos2022) > 0) {
       ultimoValorReal = Number(c.votos2022) * fator;
+      // Mesmo ajuste do bloco 1 acima: nunca suprimir abaixo do próprio
+      // voto real de 2022 do candidato.
+      ultimoValorReal = Math.min(Math.max(teto, Number(c.votos2022)), ultimoValorReal);
     } else if (ultimoValorReal !== null) {
       ultimoValorReal = ultimoValorReal * DECAIMENTO;
+      ultimoValorReal = Math.min(teto, ultimoValorReal);
     } else {
       return;
     }
-    ultimoValorReal = Math.min(teto, ultimoValorReal);
     c.votos = Math.round(ultimoValorReal);
   });
 }
@@ -2032,8 +2038,10 @@ function balancearTudoSelecao() {
         // roda DEPOIS do teto já ter sido aplicado em balancearPartidoSelecao
         // (candidato a candidato) e pode empurrar alguém de volta pra cima
         // do limite — reaplica o teto aqui, no valor final de verdade.
-        // Nunca toca em quem a pessoa editou o voto à mão (votosEditado).
-        if (!c.votosEditado) c.votos = Math.min(c.votos, teto);
+        // Nunca toca em quem a pessoa editou o voto à mão (votosEditado), e
+        // nunca suprime abaixo do próprio voto real de 2022 do candidato
+        // (ajuste de 09/08/2026, mesma lógica de balancearPartidoSelecao).
+        if (!c.votosEditado) c.votos = Math.min(c.votos, Math.max(teto, Number(c.votos2022) || 0));
       });
     });
   }
@@ -2764,8 +2772,9 @@ async function renderCargoEstadual() {
         </div>
       </div>`;
     })() : ""}
-    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:18px 24px;">
-      <div style="display:flex; align-items:center; gap:28px;">
+    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:18px 24px; position:relative;">
+      <button id="pcAbrirInstrucao" class="pc-mini-btn" style="position:absolute; top:10px; right:10px; z-index:1;" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
+      <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap; padding-right:32px;">
         <div style="flex-shrink:0; text-align:center; line-height:1.25;">
           <div id="pcTituloPainelLinha1" style="font-size:12.5px; font-weight:700; color:var(--pc-ink); white-space:nowrap;">PAINEL</div>
           <div id="pcTituloPainelLinha2" style="font-size:12.5px; font-weight:700; color:var(--pc-ink); white-space:nowrap;">ELEITORAL</div>
@@ -2776,11 +2785,10 @@ async function renderCargoEstadual() {
           <div style="font-size:28px; font-weight:700; line-height:1.1;${totalIndicado !== 0 && totalIndicado !== totalVagasCargo ? " color:#ff9500; text-shadow:0 0 12px rgba(255,149,0,.6);" : " color:var(--pc-ink);"}">${totalIndicado}<span style="font-size:13px; color:var(--pc-ink-dim); font-weight:400;"> /${totalVagasCargo}</span></div>
         </div>
         <div style="width:1px; height:34px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
-        <div style="flex:1; min-width:0;">
+        <div style="flex:1; min-width:160px;">
           <div style="font-size:11px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Soma de Votos ${infoTip("Referência de votos válidos estimados: projeta o total de 2022 pelo crescimento do eleitorado até 2026, mantendo as taxas históricas de branco, nulo e comparecimento.")}</div>
-          <div style="font-size:16px; font-weight:700; color:var(--pc-ink); line-height:1.2;">${somaTotal.toLocaleString("pt-BR")} <span style="font-size:10.5px; color:var(--pc-ink-dim); font-weight:400;">de ~${Math.round(votosValidos2026Proj).toLocaleString("pt-BR")}</span></div>
+          <div style="font-size:16px; font-weight:700; color:var(--pc-ink); line-height:1.2; overflow-wrap:break-word;">${somaTotal.toLocaleString("pt-BR")} <span style="font-size:10.5px; color:var(--pc-ink-dim); font-weight:400;">de ~${Math.round(votosValidos2026Proj).toLocaleString("pt-BR")}</span></div>
         </div>
-        <button id="pcAbrirInstrucao" class="pc-mini-btn" style="flex-shrink:0;" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
       </div>
     </div>
     <div class="glass-card" style="padding:14px;">
