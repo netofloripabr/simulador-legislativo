@@ -85,6 +85,7 @@ const PC_ICONES = {
   checkCirculo: '<circle cx="8" cy="8" r="5.7" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M5.4 8.2l1.8 1.8 3.4-3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   home: '<path d="M2.5 7.2L8 2.8l5.5 4.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4 6.3v6.4a.9.9 0 00.9.9h6.2a.9.9 0 00.9-.9V6.3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>',
   perfil: '<circle cx="8" cy="5.6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M3 13.2c0-2.7 2.2-4.6 5-4.6s5 1.9 5 4.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
+  impressora: '<rect x="4" y="1.8" width="8" height="3.4" fill="none" stroke="currentColor" stroke-width="1.2"></rect><rect x="2.3" y="5.2" width="11.4" height="5.6" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"></rect><rect x="4.3" y="9.4" width="7.4" height="4.8" fill="none" stroke="currentColor" stroke-width="1.2"></rect><circle cx="11" cy="7.4" r=".6" fill="currentColor"></circle>',
 };
 function iconeSvg(nome, tamanho) {
   const t = tamanho || 16;
@@ -632,15 +633,22 @@ const PC_EMAIL_CONTATO_LEGAL = "valdemarmachadoneto89@gmail.com";
 
 const PC_TEXTO_TERMOS = [
   { t: "1. O que é este site", c: `O Simulador Eleitoral — Legislativo 2026 é uma ferramenta para simular e
-    projetar resultados das eleições legislativas de 2026 (por enquanto, Assembleia
-    Legislativa de Santa Catarina), com base em dados públicos oficiais de eleições
-    anteriores e nas atas de convenção partidária divulgadas pelo TSE/TRE-SC.<br><br>
-    <b>Este site é independente e não tem nenhum vínculo institucional com a ALESC
-    (Assembleia Legislativa de Santa Catarina), com o TSE, com o TRE-SC, com
-    nenhum partido político ou candidato.</b> As projeções aqui geradas são
-    simulações feitas por você e por outros usuários — não são pesquisa eleitoral
-    registrada, não têm validade oficial e não representam a opinião nem o
-    resultado real da eleição.<br><br>
+    projetar resultados do processo eleitoral legislativo de 2026 — Deputado
+    Estadual, Deputado Federal e Senador —, começando por Santa Catarina, com
+    base em dados públicos oficiais de eleições anteriores e nas atas de
+    convenção partidária divulgadas pelo TSE. O plano é expandir gradualmente
+    esse mesmo modelo pros demais estados do país.<br><br>
+    <b>Este site é independente e não tem nenhum vínculo institucional com
+    nenhum órgão do poder legislativo, com o TSE, com nenhum tribunal
+    eleitoral regional, partido político ou candidato.</b> As projeções aqui
+    geradas são simulações feitas por você e por outros usuários — não são
+    pesquisa eleitoral registrada, não têm validade oficial e não
+    representam a opinião nem o resultado real da eleição.<br><br>
+    Este site também é um <b>game no estilo arcade</b> — pontuação, ranking e
+    disputa amistosa entre você e seus grupos — e não envolve apostas nem
+    jogo de azar nos termos da lei: não há cobrança para participar da
+    disputa em si, nem qualquer prêmio em dinheiro atrelado ao resultado do
+    seu palpite.<br><br>
     Mantido por Simulador Eleitoral Legislativo, por meio de seus representantes legais.` },
   { t: "2. Cadastro e conta", c: `Pra usar as funções que exigem conta (salvar listas, participar de grupos,
     aparecer no ranking), você precisa se cadastrar com nome, e-mail, senha e
@@ -779,8 +787,8 @@ function renderTelaLogin() {
   el.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
       <button class="ghost" id="pcBtnVoltarLogin" style="margin-bottom:14px;">← Voltar</button>
-      <h2>Entrar na Prospecção Coletiva</h2>
-      <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual — Simulador Eleitoral — Legislativo 2026.</div>
+      <h2>Entrar no Simulador Eleitoral — Legislativo 2026</h2>
+      <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual, Deputado Federal e Senador.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcLoginEmail" type="email"></div>
       <div class="field-row"><label>Senha</label><input class="cell" id="pcLoginSenha" type="password"></div>
       <div class="pc-erro" id="pcLoginErro">${pcState.erro || ""}</div>
@@ -949,7 +957,7 @@ function renderAppColaborativo() {
   el.innerHTML = `
     <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
       <div><h2 style="margin:0;">Olá, ${pcState.perfil ? pcState.perfil.nome : "visitante"}</h2>
-      <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: Assembleia toda"}</div></div>
+      <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: chapa completa"}</div></div>
       ${pcState.perfil ? `<button class="ghost" id="pcBtnSair">Sair</button>` : ""}
     </div>
     <div id="pcConteudo"></div>
@@ -2785,7 +2793,7 @@ async function renderCargoEstadual() {
         <svg viewBox="0 0 16 16" width="14" height="14"><circle cx="6.6" cy="6.6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7L13.5 13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
       </button>
       <button id="pcBtnVoltarSelecao" class="pc-mini-btn" title="Desfaz a última alteração feita nesta tela" ${pcState.historicoPalpite.length ? "" : "disabled"}>${iconeSvg("desfazer", 15)}</button>
-      <button class="ghost" id="pcBtnZerarTudo" title="Zerar votação de todos" style="display:flex; align-items:center; gap:5px;">${iconeSvg("borracha", 14)}<span class="pc-btn-label">Zerar</span>${infoTip("Zere o jogo!<br><br>Aqui você limpa a votação de todo mundo.<br><br>Indicado para aquele jogador mais avançado que deseja indicar a votação de muitos candidatos.")}</button>
+      <button class="ghost" id="pcBtnZerarTudo" title="Zerar votação de todos" style="display:flex; align-items:center; gap:5px;">${iconeSvg("borracha", 14)}${infoTip("Zere o jogo!<br><br>Aqui você limpa a votação de todo mundo.<br><br>Indicado para aquele jogador mais avançado que deseja indicar a votação de muitos candidatos.")}</button>
       <button id="pcBtnTop2022" class="pc-mini-btn" title="Top 100 mais votados em 2022">${iconeSvg("ano2022", 15)}</button>
       <div style="flex:1;"></div>
       <button id="pcBtnPreencherAutoTudo" class="primary" style="display:flex; align-items:center; gap:8px;">${iconeSvg("completar", 18)} Auto${infoTip("PREENCHIMENTO AUTOMÁTICO<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.")}</button>
@@ -3747,7 +3755,7 @@ function renderRevisaoDeposito() {
       </div>`;
 
     return `
-      <details class="pc-acc" ${cargoDef.id === pcState.cargoAtivo ? "open" : ""}>
+      <details class="pc-acc">
         <summary><span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim); font-size:11px;">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} do seu palpite pendente${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span>${filtroAgrupado}<svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">${linhas}</div>
       </details>`;
@@ -3765,7 +3773,7 @@ function renderRevisaoDeposito() {
       </div>
       <div class="pc-status" id="pcDepositoStatus" style="text-align:right; margin-top:6px;"></div>
 
-      <button class="ghost" id="pcBtnImprimir" style="width:100%; margin-top:10px;">Impressão / PDF</button>
+      <button class="ghost" id="pcBtnImprimir" ${pcState.listaSalvaId ? "" : "disabled"} title="${pcState.listaSalvaId ? "Impressão / PDF" : "Salve a lista primeiro pra poder imprimir"}" style="width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px;">${iconeSvg("impressora", 16)}${iconeSvg("send", 15)}</button>
       <div id="pcImprimirPergunta" style="display:none; margin-top:10px;">
         <div class="pc-sub" style="text-align:center; margin:6px 0;">Deseja gerar a lista de quais cargos?</div>
         <div class="pc-cargo-switch">
@@ -3779,18 +3787,18 @@ function renderRevisaoDeposito() {
 
       <div style="margin:18px 0 16px; border-top:1px solid var(--pc-glass-border);"></div>
 
-      ${temInconsistenciaGeral ? `<div style="display:flex; gap:9px; margin:0 0 14px; padding:10px 12px; border:1px solid #2a4438; border-radius:8px; font-size:11px; color:var(--pc-ink-dim); line-height:1.5;">
-        <div style="flex-shrink:0; color:var(--pc-ink-dim); margin-top:1px;">${iconeSvg("alerta", 14)}</div>
-        <div><b style="color:var(--pc-ink);">Você não precisa zerar todos os avisos pra salvar</b> — dá pra salvar assim mesmo. As vagas de cada cargo são disputadas entre todos os partidos ao mesmo tempo, então corrigir um candidato de cada vez pode não resolver (fechar uma vaga aqui pode abrir um aviso novo em outro partido — é a disputa por sobras funcionando, não um erro). Use a barra e o botão ✦ de cada candidato pendente pra ajustar aos poucos, ou edite os votos direto na caixa.</div>
-      </div>` : ""}
+      ${temInconsistenciaGeral ? `<details class="pc-acc" style="margin:0 0 14px;">
+        <summary style="display:flex; align-items:center; gap:7px; font-size:11px; color:var(--pc-ink-dim);">${iconeSvg("alerta", 14)}<b style="color:var(--pc-ink);">Você não precisa zerar todos os avisos pra salvar</b></summary>
+        <div class="pc-acc-body" style="font-size:11px; color:var(--pc-ink-dim); line-height:1.5; padding-top:6px;">— dá pra salvar assim mesmo. As vagas de cada cargo são disputadas entre todos os partidos ao mesmo tempo, então corrigir um candidato de cada vez pode não resolver (fechar uma vaga aqui pode abrir um aviso novo em outro partido — é a disputa por sobras funcionando, não um erro). Use a barra e o botão ✦ de cada candidato pendente pra ajustar aos poucos, ou edite os votos direto na caixa.</div>
+      </details>` : ""}
 
       ${secoesHtml}
     </div>
     ${pcState.modalNomeListaAberto ? `
     <div id="pcModalNomeListaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
       <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
-        <h2 style="margin-bottom:4px; font-size:15px;">Dê um nome pra essa lista</h2>
-        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">Ajuda a reconhecer depois, se você salvar mais de uma. Essa lista ganha um identificador só dela.</div>
+        <h2 style="margin-bottom:4px; font-size:15px;">Nomeie a sua lista</h2>
+        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">A nomeação é importante para gerar palpites diferentes conforme determinados grupos, ou para o cadastro de novas listas por conta da mudança de cenário durante o período eleitoral.</div>
         <input class="cell" id="pcInputNomeLista" placeholder="otimista - ${new Date().toLocaleDateString("pt-BR")}" style="width:100%; margin-bottom:6px;">
         <div class="pc-erro" id="pcErroNomeLista" style="min-height:16px;"></div>
         <div style="display:flex; gap:8px; margin-top:10px;">
