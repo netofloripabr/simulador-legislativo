@@ -626,13 +626,9 @@ function voltarDeLoginOuCadastro() {
 // e-mail dele no texto, só o nome fantasia "Simulador Eleitoral
 // Legislativo, por meio de seus representantes legais".
 //
-// TEMPORÁRIO (08/08/2026): o usuário pediu pra usar o e-mail pessoal dele
-// aqui só pra não deixar o campo vazio enquanto o site está em fase de
-// teste — mas pediu EXPLICITAMENTE pra trocar isso por um e-mail
-// dedicado/institucional antes de publicar o site de verdade (divulgação
-// pro público). NÃO deixar essa linha como está numa checagem final de
-// pré-lançamento sem confirmar com ele antes.
-const PC_EMAIL_CONTATO_LEGAL = "valdemarmachadoneto89@gmail.com";
+// E-mail de contato dedicado (não é mais o pessoal do usuário) criado por
+// ele em 09/08/2026 — resolve o placeholder temporário que existia antes.
+const PC_EMAIL_CONTATO_LEGAL = "simulalegis@gmail.com";
 
 const PC_TEXTO_TERMOS = [
   { t: "1. O que é este site", c: `O Simulador Eleitoral — Legislativo 2026 é uma ferramenta para simular e
