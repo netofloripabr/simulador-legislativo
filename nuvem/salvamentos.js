@@ -84,7 +84,7 @@ async function salvarSalvamento(perfilId, estado, nome, palpitesPorCargo, opts) 
 async function carregarSalvamentosDe(perfilId) {
   const { data, error } = await supabaseClient
     .from("salvamentos")
-    .select("id, estado, nome, oficial, depositado_em, anonimo, criado_em")
+    .select("id, estado, nome, oficial, depositado_em, anonimo, criado_em, codigo")
     .eq("perfil_id", perfilId)
     .order("criado_em", { ascending: false });
   if (error) {
@@ -175,14 +175,34 @@ async function marcarSalvamentoOficial(salvamentoId) {
 // duplo clique), a RLS não encontra a linha pra atualizar e o Supabase
 // devolve erro "no rows" — trate isso na tela como "já estava depositado",
 // não como falha de rede.
+// Código curto da cédula (ex.: "SL7X-2K9Q") — usado pra compartilhar e,
+// depois, pra consulta pública por código. Mesmo alfabeto/estilo do código
+// de convite de grupo (gerarCodigoConvite, nuvem/grupos.js): sem 0/O/1/I,
+// pra ninguém confundir na hora de digitar à mão.
+function gerarCodigoCedula() {
+  const alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const sorteia = (n) => Array.from({ length: n }, () => alfabeto[Math.floor(Math.random() * alfabeto.length)]).join("");
+  return `SL${sorteia(2)}-${sorteia(4)}`;
+}
+
 async function depositarSalvamento(salvamentoId, anonimo) {
-  const { data, error } = await supabaseClient
-    .from("salvamentos")
-    .update({ depositado_em: new Date().toISOString(), oficial: true, anonimo: !!anonimo })
-    .eq("id", salvamentoId)
-    .select()
-    .single();
-  return { data, error };
+  // Gera o código só agora (nunca antes do depósito) e tenta de novo em
+  // caso de colisão rara com um código já existente (mesmo padrão de
+  // criarGrupo, nuvem/grupos.js) — a constraint de unicidade é quem decide
+  // se colidiu, não uma checagem prévia (evita corrida entre checar e salvar).
+  for (let tentativa = 0; tentativa < 5; tentativa++) {
+    const codigo = gerarCodigoCedula();
+    const { data, error } = await supabaseClient
+      .from("salvamentos")
+      .update({ depositado_em: new Date().toISOString(), oficial: true, anonimo: !!anonimo, codigo })
+      .eq("id", salvamentoId)
+      .select()
+      .single();
+    if (!error) return { data, error: null };
+    const colisao = error.code === "23505" || /duplicate|unique/i.test(error.message || "");
+    if (!colisao) return { data: null, error };
+  }
+  return { data: null, error: { message: "Não consegui gerar um código único pra essa cédula. Tente depositar de novo." } };
 }
 
 async function renomearSalvamento(salvamentoId, novoNome) {

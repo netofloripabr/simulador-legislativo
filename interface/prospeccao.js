@@ -49,6 +49,8 @@ let pcState = {
   modoAgrupadoRevisao: {}, // cargo -> true/false — filtro "lista única" (default) vs "agrupado por partido/federação" na Revisão
   listaEmVisualizacao: null, // lista depositada aberta em modo "Ver" (renderMinhasListas) — null = mostrando a lista de listas
   modalDepositarListaId: null, // id da lista com o modal de confirmação de depósito aberto
+  modalCompartilharListaId: null, // id da lista com o modal de compartilhamento (código + imagem) aberto
+  dadosCompartilhar: null, // { carregando, lista, eleitos, imagemUrl } do modal de compartilhar acima — cache pra não recarregar a cada render
   avisoLimiteListaAberto: false, // aviso "compre crédito" ao tentar criar 2ª lista sem pagar
   avisoLimiteGrupoAberto: false, // aviso "compre crédito" ao tentar criar 2º grupo sem pagar
 };
@@ -89,6 +91,8 @@ const PC_ICONES = {
   perfil: '<circle cx="8" cy="5.6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M3 13.2c0-2.7 2.2-4.6 5-4.6s5 1.9 5 4.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   impressora: '<rect x="4" y="1.8" width="8" height="3.4" fill="none" stroke="currentColor" stroke-width="1.2"></rect><rect x="2.3" y="5.2" width="11.4" height="5.6" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"></rect><rect x="4.3" y="9.4" width="7.4" height="4.8" fill="none" stroke="currentColor" stroke-width="1.2"></rect><circle cx="11" cy="7.4" r=".6" fill="currentColor"></circle>',
   setaEsquerda: '<path d="M10 3.2L5 8l5 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>',
+  copiar: '<rect x="6" y="6" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect><path d="M4 9.5V3.7a1.2 1.2 0 011.2-1.2H9.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
+  baixar: '<path d="M8 2.5v7.3M5 7l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.8 12.2v1a1 1 0 001 1h8.4a1 1 0 001-1v-1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
 };
 function iconeSvg(nome, tamanho) {
   const t = tamanho || 16;
@@ -1373,10 +1377,138 @@ async function _carregarMinhasListasNormalizado() {
     const salvamentos = await carregarSalvamentosDe(pcState.perfil.id);
     return salvamentos.filter((s) => s.estado === pcState.estado).map((s) => ({
       id: s.id, nome: s.nome, criadoEm: s.criado_em, atualizadoEm: s.criado_em,
-      depositadoEm: s.depositado_em, anonimo: !!s.anonimo,
+      depositadoEm: s.depositado_em, anonimo: !!s.anonimo, codigo: s.codigo || null,
     }));
   }
   return await carregarListasSalvasLocais(pcState.estado);
+}
+
+// Quebra texto num <canvas> em várias linhas, sem passar de larguraMax —
+// usado só pelo título da imagem de compartilhamento (gerarImagemCedula),
+// que pode não caber numa linha só dependendo do nome da pessoa.
+function _quebrarLinhasCanvas(ctx, texto, larguraMax) {
+  const palavras = texto.split(" ");
+  const linhas = [];
+  let atual = "";
+  palavras.forEach((palavra) => {
+    const tentativa = atual ? `${atual} ${palavra}` : palavra;
+    if (ctx.measureText(tentativa).width > larguraMax && atual) {
+      linhas.push(atual);
+      atual = palavra;
+    } else {
+      atual = tentativa;
+    }
+  });
+  if (atual) linhas.push(atual);
+  return linhas;
+}
+
+// Imagem compartilhável (formato Stories, 1080x1920) da cédula depositada —
+// só o cargo Estadual por enquanto (Federal/Senador ficam pra uma próxima
+// rodada, já registrado no backlog). Respeita a mesma escolha anônimo/com
+// nome feita no depósito (nuvem/salvamentos.js: depositarSalvamento) —
+// nunca mostra o nome de quem pediu pra ficar anônimo.
+function gerarImagemCedula({ nomeExibido, eleitos, codigo }) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1920;
+  const ctx = canvas.getContext("2d");
+
+  const fundo = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  fundo.addColorStop(0, "#0c2a1e");
+  fundo.addColorStop(0.55, "#081712");
+  fundo.addColorStop(1, "#050d0a");
+  ctx.fillStyle = fundo;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#3dffb0";
+  ctx.font = "700 34px sans-serif";
+  ctx.fillText("SIMULALEGIS", canvas.width / 2, 150);
+
+  ctx.fillStyle = "#eefff6";
+  ctx.font = "700 56px sans-serif";
+  const linhasTitulo = _quebrarLinhasCanvas(ctx, "Minha lista pros eleitos de 2026", 860);
+  linhasTitulo.forEach((linha, i) => ctx.fillText(linha, canvas.width / 2, 250 + i * 64));
+
+  let y = 250 + linhasTitulo.length * 64 + 90;
+  ctx.textAlign = "left";
+  const maxNaImagem = 12;
+  eleitos.slice(0, maxNaImagem).forEach((c, i) => {
+    ctx.fillStyle = "#3dffb0";
+    ctx.font = "700 32px monospace";
+    ctx.fillText(`${i + 1}º`, 130, y);
+    ctx.fillStyle = "#eefff6";
+    ctx.font = "600 34px sans-serif";
+    ctx.fillText(c.nome, 210, y);
+    ctx.fillStyle = "#7fa895";
+    ctx.font = "400 26px sans-serif";
+    ctx.fillText(c.partido, 210, y + 34);
+    y += 84;
+  });
+  if (eleitos.length > maxNaImagem) {
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#7fa895";
+    ctx.font = "400 28px sans-serif";
+    ctx.fillText(`+ ${eleitos.length - maxNaImagem} eleitos`, canvas.width / 2, y + 14);
+  }
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#eefff6";
+  ctx.font = "600 32px sans-serif";
+  ctx.fillText(nomeExibido, canvas.width / 2, 1760);
+  ctx.fillStyle = "#3dffb0";
+  ctx.font = "700 38px monospace";
+  ctx.fillText(codigo, canvas.width / 2, 1815);
+  ctx.fillStyle = "#547566";
+  ctx.font = "400 24px sans-serif";
+  ctx.fillText("Agora é a sua vez de palpitar", canvas.width / 2, 1870);
+
+  return canvas;
+}
+
+// Painel de compartilhamento de uma cédula depositada — código + prévia da
+// imagem (gerarImagemCedula) + WhatsApp/Instagram/baixar. Dados vêm de
+// pcState.dadosCompartilhar, carregado de forma assíncrona pelo handler de
+// "Compartilhar" (ver renderMinhasListas) antes desta função ser chamada.
+function renderModalCompartilhar() {
+  const d = pcState.dadosCompartilhar;
+  if (!d) return "";
+  const lista = d.lista;
+  if (d.carregando) {
+    return `
+    <div id="pcModalCompartilharOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:340px; width:100%; background:rgba(15,35,27,.92); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:30px 20px; text-align:center;">
+        <div style="color:var(--pc-ink-dim); font-size:13px; margin-bottom:16px;">Carregando…</div>
+        <button class="ghost" id="pcBtnFecharCompartilhar" style="border:none; font-size:11.5px; color:var(--pc-ink-dim);">Cancelar</button>
+      </div>
+    </div>`;
+  }
+  const anonimo = lista.anonimo;
+  const nomeExibido = anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || lista.nome);
+  return `
+    <div id="pcModalCompartilharOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:340px; width:100%; max-height:90vh; overflow-y:auto; background:rgba(15,35,27,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("chave", 14)} CÉDULA DEPOSITADA</div>
+        <h2 style="margin-bottom:4px; font-size:15px;">Compartilhar "${lista.nome}"</h2>
+        <div style="font-size:12px; color:var(--pc-ink-dim); margin-bottom:16px; line-height:1.5;">Esse código é único dessa cédula — qualquer pessoa pode usá-lo pra conferir sua posição no ranking.</div>
+        ${anonimo ? `<div style="font-size:11px; color:var(--pc-ink-dim); background:#0c1c16; border-radius:8px; padding:9px 11px; margin-bottom:16px; line-height:1.5; display:flex; gap:8px; align-items:flex-start;">${iconeSvg("chave", 13)}<span>Essa lista foi depositada de forma anônima — seu nome não aparece na imagem nem em nenhum link gerado aqui.</span></div>` : ""}
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; background:#0c1c16; border:1px solid #2a4438; border-radius:10px; padding:10px 12px; margin-bottom:16px;">
+          <span style="font-family:var(--mono); font-size:15px; font-weight:700; letter-spacing:.06em; color:var(--pc-ink);">${lista.codigo}</span>
+          <button class="ghost" id="pcBtnCopiarCodigoCedula" style="padding:5px 10px; font-size:11px; display:flex; align-items:center; gap:4px;">${iconeSvg("copiar", 12)}COPIAR</button>
+        </div>
+        <div style="width:150px; aspect-ratio:9/16; margin:0 auto 16px; border-radius:14px; overflow:hidden; border:1px solid #1c3a2c; display:flex; align-items:center; justify-content:center; background:#081712;">
+          ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="Prévia da imagem compartilhável" style="width:100%; height:100%; object-fit:cover;">` : `<span style="font-size:11px; color:var(--pc-ink-dim);">Gerando…</span>`}
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <button class="ghost" id="pcBtnShareWhatsapp" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; padding:10px 8px;">${iconeSvg("send", 14)}WhatsApp</button>
+          <button class="ghost" id="pcBtnShareInstagram" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; padding:10px 8px;">${iconeSvg("compartilhar", 14)}Instagram</button>
+        </div>
+        <button class="ghost" id="pcBtnBaixarImagemCedula" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; padding:10px 8px;">${iconeSvg("baixar", 14)}Baixar imagem</button>
+        <div id="pcCompartilharStatus" style="font-size:11px; color:var(--pc-ink-dim); text-align:center; margin-top:10px; min-height:14px;"></div>
+        <div style="text-align:center; margin-top:4px;"><button class="ghost" id="pcBtnFecharCompartilhar" style="border:none; font-size:11.5px; color:var(--pc-ink-dim);">Fechar</button></div>
+      </div>
+    </div>`;
 }
 
 async function renderMinhasListas() {
@@ -1442,7 +1574,10 @@ async function renderMinhasListas() {
         <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 12)}<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</span></div>
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}</div>
       </div>
-      <button class="ghost" data-pc-ver-lista="${l.id}" style="padding:8px 14px; font-size:12px; flex-shrink:0;">Ver</button>
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        ${l.codigo ? `<button class="ghost" data-pc-compartilhar-lista="${l.id}" style="padding:8px 10px; font-size:12px; display:flex; align-items:center; gap:5px;">${iconeSvg("compartilhar", 13)}<span class="pc-btn-label">Compartilhar</span></button>` : ""}
+        <button class="ghost" data-pc-ver-lista="${l.id}" style="padding:8px 14px; font-size:12px;">Ver</button>
+      </div>
     </div>`;
 
   const listaModal = pcState.modalDepositarListaId ? listas.find((l) => l.id === pcState.modalDepositarListaId) : null;
@@ -1477,6 +1612,7 @@ async function renderMinhasListas() {
         </div>
       </div>
     </div>` : ""}
+    ${pcState.modalCompartilharListaId ? renderModalCompartilhar() : ""}
   `;
 
   document.getElementById("pcBtnNovaLista").addEventListener("click", async () => {
@@ -1551,6 +1687,25 @@ async function renderMinhasListas() {
       renderMinhasListas();
     });
   });
+  document.querySelectorAll("[data-pc-compartilhar-lista]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-pc-compartilhar-lista");
+      const lista = listas.find((l) => l.id === id);
+      if (!lista) return;
+      pcState.modalCompartilharListaId = id;
+      pcState.dadosCompartilhar = { carregando: true, lista };
+      renderMinhasListas();
+      // Imagem/ranking hoje só cobrem Dep. Estadual — Federal/Senador ficam
+      // pra uma próxima rodada (já registrado no backlog).
+      const completo = pcState.perfil ? await carregarSalvamentoCompleto(id) : null;
+      const cargoEstadual = completo && completo.cargos ? completo.cargos.estadual : null;
+      const eleitos = cargoEstadual && cargoEstadual.length ? classificarEleitosPorPartido(cargoEstadual, "estadual") : [];
+      const nomeExibido = lista.anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || lista.nome);
+      const imagemUrl = eleitos.length && lista.codigo ? gerarImagemCedula({ nomeExibido, eleitos, codigo: lista.codigo }).toDataURL("image/png") : null;
+      pcState.dadosCompartilhar = { carregando: false, lista, eleitos, imagemUrl };
+      renderMinhasListas();
+    });
+  });
   if (listaModal) {
     document.getElementById("pcBtnCancelarDepositar").addEventListener("click", () => {
       pcState.modalDepositarListaId = null;
@@ -1568,6 +1723,57 @@ async function renderMinhasListas() {
       renderMinhasListas();
     });
   }
+  if (pcState.modalCompartilharListaId) {
+    document.getElementById("pcBtnFecharCompartilhar").addEventListener("click", () => {
+      pcState.modalCompartilharListaId = null;
+      pcState.dadosCompartilhar = null;
+      renderMinhasListas();
+    });
+    const d = pcState.dadosCompartilhar;
+    if (d && !d.carregando) {
+      const origem = window.location.origin + window.location.pathname;
+      const textoCompartilhar = `Esta é a minha lista dos Deputados e Senadores eleitos para 2026. Agora é a sua vez!\n\n${origem} — código ${d.lista.codigo}`;
+      document.getElementById("pcBtnCopiarCodigoCedula").addEventListener("click", async (e) => {
+        try {
+          await navigator.clipboard.writeText(d.lista.codigo);
+          const status = document.getElementById("pcCompartilharStatus");
+          if (status) status.textContent = "Código copiado.";
+        } catch (err) { /* clipboard indisponível, ignora */ }
+      });
+      document.getElementById("pcBtnShareWhatsapp").addEventListener("click", () => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(textoCompartilhar)}`, "_blank");
+      });
+      document.getElementById("pcBtnShareInstagram").addEventListener("click", async () => {
+        const status = document.getElementById("pcCompartilharStatus");
+        if (!d.imagemUrl) return;
+        if (navigator.share && navigator.canShare) {
+          try {
+            const resp = await fetch(d.imagemUrl);
+            const blob = await resp.blob();
+            const arquivo = new File([blob], "minha-lista-2026.png", { type: "image/png" });
+            if (navigator.canShare({ files: [arquivo] })) {
+              await navigator.share({ files: [arquivo], text: textoCompartilhar });
+              return;
+            }
+          } catch (err) { /* cancelou o compartilhamento nativo ou falhou — cai no fallback abaixo */ }
+        }
+        _baixarImagemCedula(d.imagemUrl);
+        if (status) status.textContent = "Imagem baixada — abra o Instagram e poste nos Stories.";
+      });
+      document.getElementById("pcBtnBaixarImagemCedula").addEventListener("click", () => {
+        if (d.imagemUrl) _baixarImagemCedula(d.imagemUrl);
+      });
+    }
+  }
+}
+
+function _baixarImagemCedula(dataUrl) {
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.download = "minha-lista-2026.png";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 }
 
 // ---------- Grupos privados de comparação ----------
