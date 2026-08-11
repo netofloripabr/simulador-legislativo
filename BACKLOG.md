@@ -78,18 +78,20 @@ nome (`pcCheckAnonimo`). O compartilhamento (imagem, código, links de
 WhatsApp/Instagram) **respeita essa mesma escolha** — se a pessoa depositou
 anônima, nada do que for gerado pra compartilhar mostra o nome dela.
 
+**✅ Concluído**
+- Sistema de código único por cédula depositada (formato `SLxx-xxxx`, gerado
+  no momento do depósito, mesmo padrão do convite de grupo)
+- Botão "Compartilhar" em cada lista depositada de "Minhas listas"
+- Imagem compartilhável (Canvas → PNG, formato Stories) com os eleitos
+  previstos de Dep. Estadual — respeita a escolha anônimo/com nome
+- Baixar imagem + compartilhar via WhatsApp (texto pronto) + tentativa de
+  compartilhar direto pra Instagram via Web Share API (com baixar como
+  reserva quando o navegador não suporta)
+
 **⬜ Pendente**
-1. Sistema de código único por cédula depositada — esse é o "carimbo" daquele
-   depósito específico, é o que vale pra pontuação do ranking
-2. Consulta pública no site: buscar pelo nome ou pelo código de um colega
+1. Consulta pública no site: buscar pelo nome ou pelo código de um colega
    pra ver a posição dele
-3. Na tela "Minhas listas", cada lista depositada ganha um botão de
-   "Compartilhar" que gera uma imagem compartilhável da lista de eleitos
-   previstos (formato pensado pra Instagram Stories / Facebook, no estilo
-   dos posts de "minha lista" que já circulam nessas redes)
-4. A partir desse botão, abrir opção de compartilhar direto no WhatsApp/
-   Instagram, com texto pronto: *"Esta é a minha lista dos Deputados e
-   Senadores eleitos para 2026. Agora é a sua vez!"*
+2. Estender a imagem/resumo pra Dep. Federal e Senador (hoje só Estadual)
 
 ---
 
