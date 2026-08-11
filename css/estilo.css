@@ -370,6 +370,9 @@
     border-radius: 8px; padding: 9px 11px; font-family: var(--sans); width: 100%;
   }
   #modoColaborativoWrap input.cell:focus, #modoColaborativoWrap select.cell:focus{ outline:none; border-color: var(--pc-accent); }
+  /* Box de votação com ajuste manual (votosEditado=true) — diferencia de
+     valor automático/padrão sem precisar de texto, só a borda. */
+  #modoColaborativoWrap input.cell.pc-voto-manual{ border-color: rgba(61,255,176,.55); }
   #modoColaborativoWrap input[type="checkbox"]{ accent-color: var(--pc-accent); }
   #modoColaborativoWrap .field-row{ display:flex; flex-direction:column; align-items:stretch; gap:5px; margin-bottom:14px; }
   #modoColaborativoWrap .field-row label{ width:auto; }

@@ -32,6 +32,8 @@ let pcState = {
   cargoAtivoGrupo: "estadual", // qual cargo a comparação do grupo está mostrando (estadual|federal|senador)
   historicoPalpite: [], // snapshots pro botão "Voltar" da tela de seleção
   avisoLimiteVagasAberto: false, // modal "só dá pra marcar até o total de vagas"
+  confirmAutoPreenchimentoAberto: false, // modal de confirmação antes do autopreenchimento (✦)
+  confirmAutoPreenchimentoAcao: null, // { partido: <objeto do partido> } pro botão por partido, ou null pro "Auto" geral
   candidatos2022Aberto: null, // nome do partido (ou federação) com o modal "nominata completa de 2022" aberto
   top2022Aberto: false, // modal "100 mais votados de 2022" (todos os partidos do cargo/estado) aberto ou não
   buscaCandidatoAberta: {}, // nome do partido -> campo de busca por nome visível ou não (fica escondido por padrão)
@@ -1963,6 +1965,35 @@ function abrirAvisoLimiteVagasSeNecessario() {
   renderSelecaoCandidatos();
 }
 
+// Confirmação antes do autopreenchimento (✦, por partido ou "Auto" geral) —
+// pedido do usuário em 11/08/2026: a automação preenche os candidatos
+// marcados como eleito proporcionalmente até bater a votação necessária pra
+// fechar essas vagas (função balancearPartidoSelecao/balancearTudoSelecao já
+// faz isso), mas precisa perguntar antes de aplicar. Mesmo padrão de "não
+// mostrar novamente" salvo no navegador que o aviso de limite de vagas usa.
+const CHAVE_CONFIRMAR_AUTO_OCULTO = "simulador-legislativo-confirmar-autopreenchimento-oculto";
+function confirmarAutoOcultoSalvo() {
+  try { return localStorage.getItem(CHAVE_CONFIRMAR_AUTO_OCULTO) === "1"; } catch (e) { return false; }
+}
+function salvarConfirmarAutoOculto(oculto) {
+  try { localStorage.setItem(CHAVE_CONFIRMAR_AUTO_OCULTO, oculto ? "1" : "0"); } catch (e) { /* localStorage indisponível, ignora */ }
+}
+function pedirConfirmacaoAutoPreenchimento(partido) {
+  if (confirmarAutoOcultoSalvo()) {
+    executarAutoPreenchimento(partido);
+    return;
+  }
+  pcState.confirmAutoPreenchimentoAcao = partido ? { partido } : null;
+  pcState.confirmAutoPreenchimentoAberto = true;
+  renderSelecaoCandidatos();
+}
+function executarAutoPreenchimento(partido) {
+  snapshotPalpite();
+  if (partido) balancearPartidoSelecao(partido);
+  else balancearTudoSelecao();
+  renderSelecaoCandidatos();
+}
+
 function snapshotPalpite() {
   pcState.historicoPalpite.push(JSON.parse(JSON.stringify(pcState.palpiteEdicao)));
   if (pcState.historicoPalpite.length > 30) pcState.historicoPalpite.shift();
@@ -2723,7 +2754,7 @@ async function renderCargoEstadual() {
                 return `<label class="pc-switch${claseExtra}" title="${c.marcadoEleito ? "Marcado como eleito" + tituloExtra : "Marcar como eleito"}"><input type="checkbox" data-pc-marca="${p.nome}::${c.chave}" ${c.marcadoEleito ? "checked" : ""}><span class="pc-switch-slider"></span></label>`;
               })()}
           <span style="flex:1; font-size:15px; font-weight:600; line-height:1.4;">${nomeExibicao(c)}${c.partidoOriginal && c.partidoOriginal !== p.nome ? ` <span style="font-size:11px; font-weight:700; color:var(--pc-accent);">(${c.partidoOriginal})</span>` : ""}${c.fonte === "legenda" ? ' <span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${c.fonte === "2022-sem-ata-2026" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">sem ata 2026</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada — este é o candidato real de 2022, usado só como referência temporária até a lista de 2026 chegar. Pode não ser candidato em 2026, pode ter trocado de cargo ou de partido.")}` : ""}${c.fonte === "ficticio" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">candidato fictício</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada. Este NÃO é um candidato real — é um nome de preenchimento (placeholder) só pra manter a chapa completa até a ata sair. Será substituído pelo candidato real assim que a ata for processada.")}` : ""}<br><span style="font-size:12.5px; font-weight:400; color:var(--pc-ink-dim); opacity:0.9;">eleição 2022: ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</span>${c.invalidado2022 ? warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`) : ""}</span>
-          <input class="cell" data-pc-voto="${p.nome}::${c.chave}" value="${(Number(c.votos) || 0).toLocaleString("pt-BR")}" style="width:120px; font-size:14.5px; font-weight:600; text-align:right; flex-shrink:0;">
+          <input class="cell${c.votosEditado ? " pc-voto-manual" : ""}" title="${c.votosEditado ? "Ajustado manualmente" : "Valor automático/padrão"}" data-pc-voto="${p.nome}::${c.chave}" value="${(Number(c.votos) || 0).toLocaleString("pt-BR")}" style="width:120px; font-size:14.5px; font-weight:600; text-align:right; flex-shrink:0;">
         </div>`).join("") : `<div class="pc-sub" style="text-align:center; padding:10px 0;">Nenhum candidato encontrado.</div>`;
       // Mesma distinção QP ("quociente direto", art. 107) vs média/sobra
       // (art. 109) que a Revisão já mostra nos selos "eleito · QP"/"eleito ·
@@ -2931,6 +2962,28 @@ async function renderCargoEstadual() {
         </label>
       </div>
     </div>` : ""}
+    ${pcState.confirmAutoPreenchimentoAberto ? (() => {
+      const acao = pcState.confirmAutoPreenchimentoAcao;
+      const alvo = acao ? `do partido <b style="color:var(--pc-ink);">${acao.partido.nome}</b>` : "de todos os partidos deste cargo";
+      return `
+    <div id="pcConfirmAutoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:420px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11.5px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("completar", 14)} PREENCHIMENTO AUTOMÁTICO</div>
+        <h2 style="margin-bottom:6px;">Preencher automaticamente?</h2>
+        <div style="font-size:13.5px; line-height:1.7; color:var(--pc-ink-dim);">
+          Vou distribuir a votação dos candidatos marcados como eleito ${alvo}, proporcionalmente ao peso de cada um em 2022, até bater a votação necessária pra fechar essas vagas — e completar o resto da lista com uma estimativa. Números que você já ajustou à mão (borda verde) não são alterados.
+        </div>
+        <div style="display:flex; gap:8px; margin-top:20px;">
+          <button class="ghost" id="pcBtnCancelarAuto" style="flex:1;">Cancelar</button>
+          <button class="primary" id="pcBtnConfirmarAuto" style="flex:1;">Preencher</button>
+        </div>
+        <label style="display:flex; align-items:center; gap:8px; margin-top:14px; font-size:12px; color:var(--pc-ink-dim); cursor:pointer;">
+          <input type="checkbox" id="pcNaoConfirmarAuto" style="width:15px; height:15px; flex-shrink:0;">
+          Não perguntar de novo — preencher direto a partir de agora
+        </label>
+      </div>
+    </div>`;
+    })() : ""}
     ${pcState.candidatos2022Aberto ? (() => {
       const nomePartido = pcState.candidatos2022Aberto;
       const membros = (typeof MEMBROS_POR_FEDERACAO !== "undefined" && MEMBROS_POR_FEDERACAO[nomePartido]) || [nomePartido];
@@ -3240,9 +3293,7 @@ function attachListenersSelecao() {
   document.querySelectorAll("[data-pc-balancear]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const p = pcState.palpiteEdicao.find((pp) => pp.nome === btn.dataset.pcBalancear);
-      snapshotPalpite();
-      balancearPartidoSelecao(p);
-      renderSelecaoCandidatos();
+      pedirConfirmacaoAutoPreenchimento(p);
     });
   });
   document.querySelectorAll("[data-pc-reset]").forEach((btn) => {
@@ -3307,9 +3358,7 @@ function attachListenersSelecao() {
   });
   document.getElementById("pcBtnVoltarSelecao").addEventListener("click", desfazerPalpite);
   document.getElementById("pcBtnPreencherAutoTudo").addEventListener("click", () => {
-    snapshotPalpite();
-    balancearTudoSelecao();
-    renderSelecaoCandidatos();
+    pedirConfirmacaoAutoPreenchimento(null);
   });
   document.getElementById("pcBtnZerarTudo").addEventListener("click", () => {
     snapshotPalpite();
@@ -3353,6 +3402,35 @@ function attachListenersSelecao() {
     overlayAvisoLimite.addEventListener("click", (e) => {
       if (e.target.id === "pcAvisoLimiteOverlay") {
         pcState.avisoLimiteVagasAberto = false;
+        renderSelecaoCandidatos();
+      }
+    });
+  }
+  const cancelarAuto = document.getElementById("pcBtnCancelarAuto");
+  if (cancelarAuto) {
+    cancelarAuto.addEventListener("click", () => {
+      pcState.confirmAutoPreenchimentoAberto = false;
+      pcState.confirmAutoPreenchimentoAcao = null;
+      renderSelecaoCandidatos();
+    });
+  }
+  const confirmarAuto = document.getElementById("pcBtnConfirmarAuto");
+  if (confirmarAuto) {
+    confirmarAuto.addEventListener("click", () => {
+      const naoConfirmar = document.getElementById("pcNaoConfirmarAuto");
+      if (naoConfirmar && naoConfirmar.checked) salvarConfirmarAutoOculto(true);
+      const acao = pcState.confirmAutoPreenchimentoAcao;
+      pcState.confirmAutoPreenchimentoAberto = false;
+      pcState.confirmAutoPreenchimentoAcao = null;
+      executarAutoPreenchimento(acao ? acao.partido : null);
+    });
+  }
+  const overlayConfirmAuto = document.getElementById("pcConfirmAutoOverlay");
+  if (overlayConfirmAuto) {
+    overlayConfirmAuto.addEventListener("click", (e) => {
+      if (e.target.id === "pcConfirmAutoOverlay") {
+        pcState.confirmAutoPreenchimentoAberto = false;
+        pcState.confirmAutoPreenchimentoAcao = null;
         renderSelecaoCandidatos();
       }
     });

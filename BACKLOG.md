@@ -51,6 +51,8 @@ _Última atualização: 11/08/2026_
 - Vista agrupada por partido (soma de votos + falta-pra-próxima-vaga ao lado do nº de eleitos)
 - Bug: editar votos de vários candidatos de um partido não atualizava o painel
 - Ajuste do teto de 80% pra nunca suprimir abaixo do voto real de 2022
+- Box de votação com borda verde suave quando o ajuste foi manual (automático fica sem borda extra)
+- Autopreenchimento (✦, por partido ou "Auto" geral) agora pergunta antes de preencher, com opção "não perguntar de novo"
 
 **🔄 Em andamento**
 1. **CRÍTICO** — matemática eleitoral zero-sum na Revisão: votos e condição de eleito precisam se atualizar juntos
@@ -59,8 +61,6 @@ _Última atualização: 11/08/2026_
 **⬜ Pendente**
 3. Cabeçalho do cargo trunca texto (ex.: "5 do seu pal...") — mover o filtro pra dentro do card, só ao abrir
 4. Padronizar alinhamento das caixas de contagem de eleitos por partido
-5. Indicar visualmente quando o box de votação teve ajuste manual vs. automático (borda verde suave no ajuste manual)
-6. Autopreenchimento deve perguntar antes: preencher proporcionalmente até bater a quantidade de eleitos que o usuário já marcou
 
 ---
 
