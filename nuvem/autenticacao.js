@@ -48,7 +48,7 @@ function senhaForte(senha) {
 // conta inteira) — todo cadastro novo nasce com escopo "assembleia" fixo e
 // mostrar_nome true (default inofensivo, não é mais lido em lugar nenhum
 // que importe pra privacidade — isso agora vive em salvamentos.anonimo).
-async function cadastrar({ nome, email, senha, telefone, modoPreenchimento, cpf, lgpdAceito }) {
+async function cadastrar({ nome, email, senha, telefone, modoPreenchimento, cpf, lgpdAceito, cep, municipioResidencia, ufResidencia, genero }) {
   if (!cpfValido(cpf)) return { error: { message: "CPF inválido. Confira os números digitados." } };
   if (!senhaForte(senha)) return { error: { message: "A senha precisa ter pelo menos 8 caracteres, com letra, número e caractere especial." } };
   if (!lgpdAceito) return { error: { message: "Precisa marcar a concordância com o uso dos dados pra continuar." } };
@@ -70,6 +70,10 @@ async function cadastrar({ nome, email, senha, telefone, modoPreenchimento, cpf,
     mostrar_nome: true,
     cpf_hash: cpfHash,
     lgpd_aceite_em: new Date().toISOString(),
+    cep,
+    municipio_residencia: municipioResidencia,
+    uf_residencia: ufResidencia,
+    genero,
   });
   if (erroPerfil) {
     const duplicado = erroPerfil.code === "23505" || /duplicate|unique/i.test(erroPerfil.message || "");
@@ -139,7 +143,7 @@ async function entrarComGoogle() {
 // Completa o cadastro de quem entrou pelo Google: a sessão já existe, só
 // falta criar a linha em "perfis" com CPF (anti-duplicidade, mesma regra do
 // cadastro por e-mail) e o aceite da LGPD.
-async function completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito }) {
+async function completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito, cep, municipioResidencia, ufResidencia, genero }) {
   if (!cpfValido(cpf)) return { error: { message: "CPF inválido. Confira os números digitados." } };
   if (!lgpdAceito) return { error: { message: "Precisa marcar a concordância com o uso dos dados pra continuar." } };
   const sessao = await sessaoAtual();
@@ -155,6 +159,10 @@ async function completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito }) {
     mostrar_nome: true,
     cpf_hash: cpfHash,
     lgpd_aceite_em: new Date().toISOString(),
+    cep,
+    municipio_residencia: municipioResidencia,
+    uf_residencia: ufResidencia,
+    genero,
   }).select().maybeSingle();
   if (erroPerfil) {
     const duplicado = erroPerfil.code === "23505" || /duplicate|unique/i.test(erroPerfil.message || "");

@@ -898,6 +898,24 @@ function renderTelaNovaSenha() {
   });
 }
 
+// Resolve CEP → município/UF via ViaCEP (serviço público, sem chave). Não
+// pedimos município por texto livre nem numa lista pra digitar: o CEP é
+// mais rápido pra pessoa preencher e devolve o nome do município já
+// padronizado, o que importa pros painéis/pesquisas que vão agregar por
+// cidade (pedido do usuário, 11/08/2026).
+async function buscarCep(cep) {
+  const limpo = String(cep || "").replace(/\D/g, "");
+  if (limpo.length !== 8) return { error: "CEP inválido. Confira os números digitados." };
+  try {
+    const resp = await fetch(`https://viacep.com.br/ws/${limpo}/json/`);
+    const dados = await resp.json();
+    if (dados.erro) return { error: "CEP não encontrado. Confira o número." };
+    return { municipio: dados.localidade, uf: dados.uf };
+  } catch (e) {
+    return { error: "Não consegui consultar esse CEP agora. Confira sua internet e tente de novo." };
+  }
+}
+
 // Última etapa de quem entrou pelo Google: já existe sessão (nome/e-mail
 // vieram do Google), só falta CPF (anti-duplicidade) e o aceite da LGPD, que
 // o Google não fornece. Chamada por initColaborativo quando há sessão sem
@@ -917,10 +935,24 @@ function renderTelaCompletarPerfil() {
       </div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CPF só pra impedir que a mesma pessoa crie mais de uma conta (protege o ranking) — guardamos um código derivado dele, nunca o CPF em texto puro.</div>
       <div class="field-row"><label>Telefone</label><input class="cell" id="pcCompTelefone" inputmode="tel" placeholder="(00) 00000-0000"></div>
+      <div class="field-row">
+        <label>CEP</label>
+        <input class="cell" id="pcCompCep" inputmode="numeric" placeholder="00000-000" maxlength="9">
+      </div>
+      <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CEP só pra saber seu município — ajuda a gente a entender melhor quem está usando o Simulador.</div>
+      <div class="field-row">
+        <label>Gênero</label>
+        <select class="cell" id="pcCompGenero">
+          <option value="">Selecione</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Feminino">Feminino</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
 
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
         <input type="checkbox" id="pcCompLgpd" style="margin-top:2px;">
-        <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone e CPF) para criar minha conta, conforme a
+        <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone, CPF, CEP/município e gênero) para criar minha conta, conforme a
           <a href="#" id="pcLinkPrivacidadeComp" style="color:var(--pc-accent); text-decoration:underline;">Política de Privacidade</a>
           e os
           <a href="#" id="pcLinkTermosComp" style="color:var(--pc-accent); text-decoration:underline;">Termos de Uso</a>.
@@ -951,13 +983,15 @@ function renderTelaCompletarPerfil() {
     pcState = { iniciado: true, sessao: null, perfil: null, tela: "landing", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
     renderColaborativo();
   });
-  document.getElementById("pcBtnConcluirPerfil").addEventListener("click", async () => {
+  document.getElementById("pcBtnConcluirPerfil").addEventListener("click", async (e) => {
     const nome = document.getElementById("pcCompNome").value.trim();
     const cpf = document.getElementById("pcCompCpf").value.trim();
     const telefone = document.getElementById("pcCompTelefone").value.trim();
+    const cep = document.getElementById("pcCompCep").value.trim();
+    const genero = document.getElementById("pcCompGenero").value;
     const lgpdAceito = document.getElementById("pcCompLgpd").checked;
-    if (!nome || !cpf) {
-      pcState.erro = "Preencha nome e CPF.";
+    if (!nome || !cpf || !cep || !genero) {
+      pcState.erro = "Preencha nome, CPF, CEP e gênero.";
       renderTelaCompletarPerfil();
       return;
     }
@@ -966,8 +1000,20 @@ function renderTelaCompletarPerfil() {
       renderTelaCompletarPerfil();
       return;
     }
-    const { error } = await completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito });
+    e.target.disabled = true;
+    const cepResolvido = await buscarCep(cep);
+    if (cepResolvido.error) {
+      e.target.disabled = false;
+      pcState.erro = cepResolvido.error;
+      renderTelaCompletarPerfil();
+      return;
+    }
+    const { error } = await completarPerfilGoogle({
+      nome, cpf, telefone, lgpdAceito, genero,
+      cep: cep.replace(/\D/g, ""), municipioResidencia: cepResolvido.municipio, ufResidencia: cepResolvido.uf,
+    });
     if (error) {
+      e.target.disabled = false;
       pcState.erro = "Não consegui concluir: " + error.message;
       renderTelaCompletarPerfil();
       return;
@@ -998,10 +1044,24 @@ function renderTelaCadastro() {
         <input class="cell" id="pcCadCpf" inputmode="numeric" placeholder="Só números" maxlength="14">
       </div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CPF só pra impedir que a mesma pessoa crie mais de uma conta (protege o ranking) — guardamos um código derivado dele, nunca o CPF em texto puro.</div>
+      <div class="field-row">
+        <label>CEP</label>
+        <input class="cell" id="pcCadCep" inputmode="numeric" placeholder="00000-000" maxlength="9">
+      </div>
+      <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CEP só pra saber seu município — ajuda a gente a entender melhor quem está usando o Simulador.</div>
+      <div class="field-row">
+        <label>Gênero</label>
+        <select class="cell" id="pcCadGenero">
+          <option value="">Selecione</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Feminino">Feminino</option>
+          <option value="Outro">Outro</option>
+        </select>
+      </div>
 
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
         <input type="checkbox" id="pcCadLgpd" style="margin-top:2px;">
-        <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone e CPF) para criar minha conta, conforme a
+        <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone, CPF, CEP/município e gênero) para criar minha conta, conforme a
           <a href="#" id="pcLinkPrivacidade" style="color:var(--pc-accent); text-decoration:underline;">Política de Privacidade</a>
           e os
           <a href="#" id="pcLinkTermos" style="color:var(--pc-accent); text-decoration:underline;">Termos de Uso</a>.
@@ -1038,16 +1098,18 @@ function renderTelaCadastro() {
     renderColaborativo();
   });
 
-  document.getElementById("pcBtnCadastrar").addEventListener("click", async () => {
+  document.getElementById("pcBtnCadastrar").addEventListener("click", async (e) => {
     const nome = document.getElementById("pcCadNome").value.trim();
     const email = document.getElementById("pcCadEmail").value.trim();
     const telefone = document.getElementById("pcCadTelefone").value.trim();
     const senha = document.getElementById("pcCadSenha").value;
     const cpf = document.getElementById("pcCadCpf").value.trim();
+    const cep = document.getElementById("pcCadCep").value.trim();
+    const genero = document.getElementById("pcCadGenero").value;
     const lgpdAceito = document.getElementById("pcCadLgpd").checked;
 
-    if (!nome || !email || !senha || !cpf) {
-      pcState.erro = "Preencha nome, e-mail, senha e CPF.";
+    if (!nome || !email || !senha || !cpf || !cep || !genero) {
+      pcState.erro = "Preencha nome, e-mail, senha, CPF, CEP e gênero.";
       renderTelaCadastro();
       return;
     }
@@ -1056,10 +1118,20 @@ function renderTelaCadastro() {
       renderTelaCadastro();
       return;
     }
+    e.target.disabled = true;
+    const cepResolvido = await buscarCep(cep);
+    if (cepResolvido.error) {
+      e.target.disabled = false;
+      pcState.erro = cepResolvido.error;
+      renderTelaCadastro();
+      return;
+    }
     const { error, data } = await cadastrar({
-      nome, email, senha, telefone, modoPreenchimento: "detalhado", cpf, lgpdAceito,
+      nome, email, senha, telefone, modoPreenchimento: "detalhado", cpf, lgpdAceito, genero,
+      cep: cep.replace(/\D/g, ""), municipioResidencia: cepResolvido.municipio, ufResidencia: cepResolvido.uf,
     });
     if (error) {
+      e.target.disabled = false;
       pcState.erro = "Não consegui criar sua conta: " + error.message;
       renderTelaCadastro();
       return;
