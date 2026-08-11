@@ -923,11 +923,17 @@ async function buscarCep(cep) {
 function renderTelaCompletarPerfil() {
   const nomeGoogle = (pcState.sessao && pcState.sessao.user.user_metadata
     && (pcState.sessao.user.user_metadata.full_name || pcState.sessao.user.user_metadata.name)) || "";
+  // Essa tela também é usada pelo raro caso de sessão criada por e-mail/senha
+  // cujo insert em "perfis" falhou antes de terminar o cadastro (ex.: erro
+  // de rede) — nesse caso não veio do Google, então o texto não pode afirmar
+  // isso.
+  const veioDoGoogle = pcState.sessao && pcState.sessao.user.app_metadata
+    && pcState.sessao.user.app_metadata.provider === "google";
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
       <h2>Só mais um passo</h2>
-      <div class="pc-sub">Sua conta Google já está conectada — falta só isto pra liberar o Simulador.</div>
+      <div class="pc-sub">${veioDoGoogle ? "Sua conta Google já está conectada — falta só isto pra liberar o Simulador." : "Falta só isto pra liberar o Simulador."}</div>
       <div class="field-row"><label>Nome</label><input class="cell" id="pcCompNome" value="${nomeGoogle}"></div>
       <div class="field-row">
         <label>CPF</label>
