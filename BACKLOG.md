@@ -66,19 +66,28 @@ _Última atualização: 11/08/2026_
 
 ## Cédula depositada / Compartilhamento
 
-_Pedido do usuário em 11/08/2026 — o que acontece depois que a pessoa
-deposita a cédula: como ela vira pontuação de ranking, como dá pra
-consultar, e como vira conteúdo pra compartilhar._
+_Pedido do usuário em 11/08/2026, refinado em 11/08/2026 — o que acontece
+depois que a pessoa deposita a cédula: como ela vira pontuação de ranking,
+como dá pra consultar, e como vira conteúdo pra compartilhar._
+
+**Ancoragem confirmada com o usuário**: não é uma tela nova — vive dentro da
+tela **"Minhas listas"** que já existe (`renderMinhasListas`), que é pra onde
+a pessoa vai depois de salvar/nomear uma lista. O modal de "Depositar"
+(irreversível) já existe ali, com uma opção de depositar anônimo ou com
+nome (`pcCheckAnonimo`). O compartilhamento (imagem, código, links de
+WhatsApp/Instagram) **respeita essa mesma escolha** — se a pessoa depositou
+anônima, nada do que for gerado pra compartilhar mostra o nome dela.
 
 **⬜ Pendente**
 1. Sistema de código único por cédula depositada — esse é o "carimbo" daquele
    depósito específico, é o que vale pra pontuação do ranking
 2. Consulta pública no site: buscar pelo nome ou pelo código de um colega
    pra ver a posição dele
-3. Gerar uma imagem compartilhável da lista de eleitos previstos (formato
-   pensado pra Instagram Stories / Facebook, no estilo dos posts de
-   "minha lista" que já circulam nessas redes)
-4. Depois de depositar, abrir opção de compartilhar direto no WhatsApp/
+3. Na tela "Minhas listas", cada lista depositada ganha um botão de
+   "Compartilhar" que gera uma imagem compartilhável da lista de eleitos
+   previstos (formato pensado pra Instagram Stories / Facebook, no estilo
+   dos posts de "minha lista" que já circulam nessas redes)
+4. A partir desse botão, abrir opção de compartilhar direto no WhatsApp/
    Instagram, com texto pronto: *"Esta é a minha lista dos Deputados e
    Senadores eleitos para 2026. Agora é a sua vez!"*
 
