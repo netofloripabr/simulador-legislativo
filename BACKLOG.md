@@ -59,6 +59,28 @@ _Última atualização: 11/08/2026_
 **⬜ Pendente**
 3. Cabeçalho do cargo trunca texto (ex.: "5 do seu pal...") — mover o filtro pra dentro do card, só ao abrir
 4. Padronizar alinhamento das caixas de contagem de eleitos por partido
+5. Indicar visualmente quando o box de votação teve ajuste manual vs. automático (borda verde suave no ajuste manual)
+6. Autopreenchimento deve perguntar antes: preencher proporcionalmente até bater a quantidade de eleitos que o usuário já marcou
+
+---
+
+## Cédula depositada / Compartilhamento
+
+_Pedido do usuário em 11/08/2026 — o que acontece depois que a pessoa
+deposita a cédula: como ela vira pontuação de ranking, como dá pra
+consultar, e como vira conteúdo pra compartilhar._
+
+**⬜ Pendente**
+1. Sistema de código único por cédula depositada — esse é o "carimbo" daquele
+   depósito específico, é o que vale pra pontuação do ranking
+2. Consulta pública no site: buscar pelo nome ou pelo código de um colega
+   pra ver a posição dele
+3. Gerar uma imagem compartilhável da lista de eleitos previstos (formato
+   pensado pra Instagram Stories / Facebook, no estilo dos posts de
+   "minha lista" que já circulam nessas redes)
+4. Depois de depositar, abrir opção de compartilhar direto no WhatsApp/
+   Instagram, com texto pronto: *"Esta é a minha lista dos Deputados e
+   Senadores eleitos para 2026. Agora é a sua vez!"*
 
 ---
 
