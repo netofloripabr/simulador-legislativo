@@ -48,6 +48,14 @@ Ao adicionar uma função nova, pare e pergunte: isso é fato (dados), regra
    conferir visualmente — não basta o código "parecer" certo.
 3. Nunca editar `dados/base-2022.js` (os votos reais de 2022) sem citar a
    fonte da mudança.
+4. Toda tag `<script src="...">` em `index.html` tem um `?cb=NÚMERO` igual
+   (ex.: `?cb=256`) — é cache-busting manual. Editar um arquivo JS/CSS sem
+   subir esse número faz o navegador (e o preview) continuarem servindo a
+   versão antiga em cache, mesmo depois de recarregar a página — já causou
+   um bug real (10/08/2026, login com Google: função nova não existia até
+   perceber isso). Ao editar qualquer arquivo referenciado por `<script src>`,
+   suba o número `cb=` de TODAS as tags juntas (são um contador único
+   compartilhado, não um por arquivo) antes de considerar a mudança pronta.
 
 ## Visão de produto e roteiro
 

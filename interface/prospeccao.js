@@ -162,26 +162,31 @@ async function initColaborativo() {
   pcState.sessao = await sessaoAtual();
   if (pcState.sessao) {
     pcState.perfil = await meuPerfil();
-    if (pcState.perfil) {
-      const salvo = await carregarMeuPalpite(pcState.perfil.id);
-      if (salvo && salvo.candidatos && salvo.candidatos.length) {
-        pcState.palpiteEdicao = salvo.candidatos;
-        normalizarPalpiteEdicao();
-      }
-      // primeira vez (sem nada salvo) começa na seleção; quem já preencheu
-      // antes cai direto no painel principal.
-      pcState.subaba = pcState.palpiteEdicao ? "painel" : "selecao";
-      pcState.estado = "SC";
-      await garantirRascunhosCarregados();
-      pcState.tela = "app";
+    if (!pcState.perfil) {
+      // Sessão existe mas ainda não tem linha em "perfis" — hoje só acontece
+      // com quem acabou de entrar pelo Google (o Google não manda CPF nem
+      // aceite de LGPD, então falta completar isso antes de liberar o app).
+      pcState.tela = "completar-perfil";
       renderColaborativo();
       return;
     }
+    const salvo = await carregarMeuPalpite(pcState.perfil.id);
+    if (salvo && salvo.candidatos && salvo.candidatos.length) {
+      pcState.palpiteEdicao = salvo.candidatos;
+      normalizarPalpiteEdicao();
+    }
+    // primeira vez (sem nada salvo) começa na seleção; quem já preencheu
+    // antes cai direto no painel principal.
+    pcState.subaba = pcState.palpiteEdicao ? "painel" : "selecao";
+    pcState.estado = "SC";
+    await garantirRascunhosCarregados();
+    pcState.tela = "app";
+    renderColaborativo();
+    return;
   }
-  // Sem sessão (ou sessão sem perfil ainda): não pede login de cara — começa
-  // pela tela de abertura. Login só é pedido mais adiante, quando a pessoa
-  // decide "prosseguir" (ver renderPainelPrincipal, chamado como
-  // "painel-convidado" nesse fluxo).
+  // Sem sessão: não pede login de cara — começa pela tela de abertura. Login
+  // só é pedido mais adiante, quando a pessoa decide "prosseguir" (ver
+  // renderPainelPrincipal, chamado como "painel-convidado" nesse fluxo).
   pcState.tela = "landing";
   renderColaborativo();
 }
@@ -433,6 +438,7 @@ function renderColaborativo() {
   if (pcState.tela === "recuperar-senha") return renderTelaRecuperarSenha();
   if (pcState.tela === "nova-senha") return renderTelaNovaSenha();
   if (pcState.tela === "cadastro") return renderTelaCadastro();
+  if (pcState.tela === "completar-perfil") return renderTelaCompletarPerfil();
   if (pcState.tela === "termos") return renderTelaLegal("termos");
   if (pcState.tela === "privacidade") return renderTelaLegal("privacidade");
   if (pcState.tela === "app") return renderAppColaborativo();
@@ -796,6 +802,10 @@ function renderTelaLogin() {
         <button class="primary" id="pcBtnEntrar">Entrar</button>
         <button class="ghost" id="pcBtnIrCadastro">Criar conta</button>
       </div>
+      <div style="display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--pc-ink-dim); font-size:12px;">
+        <div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>ou<div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>
+      </div>
+      <button class="ghost" id="pcBtnEntrarGoogle" style="width:100%;">Entrar com Google</button>
     </div>`;
 
   document.getElementById("pcBtnVoltarLogin").addEventListener("click", voltarDeLoginOuCadastro);
@@ -809,6 +819,10 @@ function renderTelaLogin() {
     pcState.erro = "";
     pcState.tela = "recuperar-senha";
     renderColaborativo();
+  });
+  document.getElementById("pcBtnEntrarGoogle").addEventListener("click", async () => {
+    const { error } = await entrarComGoogle();
+    if (error) { pcState.erro = "Não consegui abrir o login do Google: " + error.message; renderTelaLogin(); }
   });
 
   document.getElementById("pcBtnEntrar").addEventListener("click", async () => {
@@ -884,12 +898,95 @@ function renderTelaNovaSenha() {
   });
 }
 
+// Última etapa de quem entrou pelo Google: já existe sessão (nome/e-mail
+// vieram do Google), só falta CPF (anti-duplicidade) e o aceite da LGPD, que
+// o Google não fornece. Chamada por initColaborativo quando há sessão sem
+// perfil ainda.
+function renderTelaCompletarPerfil() {
+  const nomeGoogle = (pcState.sessao && pcState.sessao.user.user_metadata
+    && (pcState.sessao.user.user_metadata.full_name || pcState.sessao.user.user_metadata.name)) || "";
+  const el = document.getElementById("modoColaborativoWrap");
+  el.innerHTML = `
+    <div class="glass-card" style="max-width:420px; margin:0 auto;">
+      <h2>Só mais um passo</h2>
+      <div class="pc-sub">Sua conta Google já está conectada — falta só isto pra liberar o Simulador.</div>
+      <div class="field-row"><label>Nome</label><input class="cell" id="pcCompNome" value="${nomeGoogle}"></div>
+      <div class="field-row">
+        <label>CPF</label>
+        <input class="cell" id="pcCompCpf" inputmode="numeric" placeholder="Só números" maxlength="14">
+      </div>
+      <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CPF só pra impedir que a mesma pessoa crie mais de uma conta (protege o ranking) — guardamos um código derivado dele, nunca o CPF em texto puro.</div>
+      <div class="field-row"><label>Telefone</label><input class="cell" id="pcCompTelefone" inputmode="tel" placeholder="(00) 00000-0000"></div>
+
+      <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
+        <input type="checkbox" id="pcCompLgpd" style="margin-top:2px;">
+        <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone e CPF) para criar minha conta, conforme a
+          <a href="#" id="pcLinkPrivacidadeComp" style="color:var(--pc-accent); text-decoration:underline;">Política de Privacidade</a>
+          e os
+          <a href="#" id="pcLinkTermosComp" style="color:var(--pc-accent); text-decoration:underline;">Termos de Uso</a>.
+          Posso pedir a exclusão dos meus dados a qualquer momento.</span>
+      </label>
+
+      <div class="pc-erro" id="pcCompErro">${pcState.erro || ""}</div>
+      <div style="display:flex; gap:10px; margin-top:6px;">
+        <button class="primary" id="pcBtnConcluirPerfil">Concluir cadastro</button>
+        <button class="ghost" id="pcBtnCancelarPerfil">Cancelar</button>
+      </div>
+    </div>`;
+
+  document.getElementById("pcLinkPrivacidadeComp").addEventListener("click", (e) => {
+    e.preventDefault();
+    pcState.telaLegalOrigem = "completar-perfil";
+    pcState.tela = "privacidade";
+    renderColaborativo();
+  });
+  document.getElementById("pcLinkTermosComp").addEventListener("click", (e) => {
+    e.preventDefault();
+    pcState.telaLegalOrigem = "completar-perfil";
+    pcState.tela = "termos";
+    renderColaborativo();
+  });
+  document.getElementById("pcBtnCancelarPerfil").addEventListener("click", async () => {
+    await sair();
+    pcState = { iniciado: true, sessao: null, perfil: null, tela: "landing", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
+    renderColaborativo();
+  });
+  document.getElementById("pcBtnConcluirPerfil").addEventListener("click", async () => {
+    const nome = document.getElementById("pcCompNome").value.trim();
+    const cpf = document.getElementById("pcCompCpf").value.trim();
+    const telefone = document.getElementById("pcCompTelefone").value.trim();
+    const lgpdAceito = document.getElementById("pcCompLgpd").checked;
+    if (!nome || !cpf) {
+      pcState.erro = "Preencha nome e CPF.";
+      renderTelaCompletarPerfil();
+      return;
+    }
+    if (!lgpdAceito) {
+      pcState.erro = "Marque a concordância com o uso dos dados pra continuar.";
+      renderTelaCompletarPerfil();
+      return;
+    }
+    const { error } = await completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito });
+    if (error) {
+      pcState.erro = "Não consegui concluir: " + error.message;
+      renderTelaCompletarPerfil();
+      return;
+    }
+    pcState.erro = "";
+    await initColaborativo();
+  });
+}
+
 function renderTelaCadastro() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
     <div class="glass-card" style="max-width:460px; margin:0 auto;">
       <button class="ghost" id="pcBtnVoltarCadastro" style="margin-bottom:14px;">← Voltar</button>
       <h2>Criar conta</h2>
+      <button class="ghost" id="pcBtnCadastrarGoogle" style="width:100%;">Cadastrar com Google</button>
+      <div style="display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--pc-ink-dim); font-size:12px;">
+        <div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>ou<div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>
+      </div>
       <div class="field-row"><label>Nome</label><input class="cell" id="pcCadNome"></div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Você pode divulgar seu palpite de forma anônima — essa escolha é feita depois, na hora de depositar cada cédula, não aqui.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcCadEmail" type="email"></div>
@@ -923,6 +1020,10 @@ function renderTelaCadastro() {
     pcState.erro = "";
     pcState.tela = "login";
     renderColaborativo();
+  });
+  document.getElementById("pcBtnCadastrarGoogle").addEventListener("click", async () => {
+    const { error } = await entrarComGoogle();
+    if (error) { pcState.erro = "Não consegui abrir o cadastro com Google: " + error.message; renderTelaCadastro(); }
   });
   document.getElementById("pcLinkPrivacidade").addEventListener("click", (e) => {
     e.preventDefault();

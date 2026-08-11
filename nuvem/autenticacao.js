@@ -125,3 +125,40 @@ async function meuPerfil() {
   }
   return data;
 }
+
+// Login social — manda pro Google e volta pro mesmo endereço do site. O
+// Google não entrega CPF nem um aceite de LGPD, então quem entra por aqui
+// pela primeira vez tem sessão mas ainda não tem linha em "perfis" — o app
+// detecta isso (initColaborativo, interface/prospeccao.js) e pede só esses
+// dois dados que faltam antes de liberar o resto (ver completarPerfilGoogle).
+async function entrarComGoogle() {
+  const redirectTo = window.location.origin + window.location.pathname;
+  return await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
+}
+
+// Completa o cadastro de quem entrou pelo Google: a sessão já existe, só
+// falta criar a linha em "perfis" com CPF (anti-duplicidade, mesma regra do
+// cadastro por e-mail) e o aceite da LGPD.
+async function completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito }) {
+  if (!cpfValido(cpf)) return { error: { message: "CPF inválido. Confira os números digitados." } };
+  if (!lgpdAceito) return { error: { message: "Precisa marcar a concordância com o uso dos dados pra continuar." } };
+  const sessao = await sessaoAtual();
+  if (!sessao) return { error: { message: "Sessão expirada. Entre novamente." } };
+  const cpfHash = await hashCPF(cpf);
+  const { data, error: erroPerfil } = await supabaseClient.from("perfis").insert({
+    id: sessao.user.id,
+    nome,
+    telefone: telefone || null,
+    escopo: "assembleia",
+    partido_escopo: null,
+    modo_preenchimento: "detalhado",
+    mostrar_nome: true,
+    cpf_hash: cpfHash,
+    lgpd_aceite_em: new Date().toISOString(),
+  }).select().maybeSingle();
+  if (erroPerfil) {
+    const duplicado = erroPerfil.code === "23505" || /duplicate|unique/i.test(erroPerfil.message || "");
+    return { error: { message: duplicado ? "Este CPF já está cadastrado em outra conta." : erroPerfil.message } };
+  }
+  return { data };
+}
