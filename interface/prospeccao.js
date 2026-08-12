@@ -2058,6 +2058,11 @@ function nomePartidoExibicao(nome) {
 // espaço (modal, contadores expandidos) o número continua por extenso.
 function formatVotosCompacto(n) {
   n = Number(n) || 0;
+  // "M" pra milhão (ex.: Soma de Votos, na casa dos milhões) além do "k" já
+  // usado pra quociente (dezenas/centenas de milhar) — sem isso, Soma de
+  // Votos aparecia como "1530k" em vez de "1,53M" (pedido do usuário em
+  // 12/08/2026, Painel Eleitoral compacto numa linha só).
+  if (n >= 1000000) return (n / 1000000).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "M";
   return n >= 1000 ? Math.round(n / 1000) + "k" : String(n);
 }
 
@@ -2669,6 +2674,14 @@ async function garantirPalpiteEdicaoAtivo() {
 
 async function renderCargoEstadual() {
   const conteudo = document.getElementById("pcCargoConteudo");
+  // Mesmo problema (e mesma correção) do botão ✦ na Revisão, achado pelo
+  // usuário em 12/08/2026: qualquer interação nesta tela reconstrói o HTML
+  // inteiro de novo, o que sozinho jogaria a rolagem de volta pro topo.
+  // Captura aqui, ANTES até da tela de carregamento substituir o conteúdo,
+  // e restaura no fim da função — só quando já havia conteúdo real antes
+  // (reRenderizando), pra não interferir na primeira entrada na tela.
+  const reRenderizando = !!conteudo.querySelector("#pcPainelEleitoralCard");
+  const scrollAnterior = window.scrollY;
   conteudo.innerHTML = telaCarregando();
   await garantirPalpiteEdicaoAtivo();
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
@@ -2697,6 +2710,20 @@ async function renderCargoEstadual() {
   const totalValidos2022Estado = (candidatosEstadoCargo(pcState.estado, pcState.cargoAtivo) || [])
     .reduce((s, p) => s + p.candidatos.reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
   const votosValidos2026Proj = totalValidosProjetado2026();
+  // Quociente ATUAL "de verdade" (só com a votação já digitada) e o
+  // PROJETADO pra 2026 (referência fixa) — hoje calculados de novo dentro
+  // de cada partido expandido (ver refQuociente mais abaixo). Hoisted pra
+  // cá porque agora também aparecem no Painel Eleitoral, sempre visíveis,
+  // não só depois de expandir um partido e marcar alguém (pedido do
+  // usuário em 12/08/2026 — "o quociente é um ponto central, deveria estar
+  // no card geral do cabeçalho"). Não existe pra Senador (majoritário, sem
+  // quociente/QP/sobra — mesma ressalva de refQuociente).
+  const qeAtualLive = pcState.cargoAtivo !== "senador"
+    ? quocienteEleitoral(pcState.palpiteEdicao.reduce((s, pp) => s + partyVotos(pp), 0), totalVagasCargo)
+    : null;
+  const qeProjetadoTopo = pcState.cargoAtivo !== "senador"
+    ? quocienteEleitoral(votosValidos2026Proj, totalVagasCargo)
+    : null;
   // Quociente eleitoral REAL de 2022 (não a projeção de 2026) — usado só
   // pra explicar, no rodapé "2022" de cada partido, quantas das vagas
   // vieram de quociente partidário puro (art. 107) e quantas vieram de
@@ -2719,6 +2746,11 @@ async function renderCargoEstadual() {
       return acc;
     }, {})
   );
+  // Plenário recolhível (pedido do usuário em 12/08/2026) — estado por
+  // cargo (Estadual/Federal/Senador têm plenários diferentes, cada um
+  // lembra se está recolhido ou não), guardado no mesmo mapa genérico que
+  // já existe pra outros "expandido/recolhido" da tela (pcState.expandido).
+  const plenarioColapsado = !!pcState.expandido["plenarioColapsado_" + pcState.cargoAtivo];
   // Fora de Santa Catarina, o hemiciclo vira grade waffle (1 quadrado = 1
   // cadeira) — formato que se adapta melhor a qualquer número de vagas sem
   // depender do arco pensado pra 40 cadeiras da Assembleia de SC. Ver desenharHemiciclo
@@ -2909,16 +2941,10 @@ async function renderCargoEstadual() {
     // na própria mensagem: puramente informativo).
     const infoVagas = necessarioParaVagas(marcados);
     const faltamQuociente = infoVagas ? Math.max(0, infoVagas.necessario - somaVotosIndicados) : 0;
-    // Quociente ATUAL "de verdade" (sem estimativa embutida pros candidatos
-    // ainda não tocados) — só pro badge de progresso "Quociente do cargo".
-    // infoVagas.qe (acima) já é a versão com estimativa realista, usada só
-    // no cálculo do alvo/automação — as duas precisam ficar separadas, senão
-    // o badge de progresso pularia pra perto da meta sem a pessoa ter
-    // preenchido nada de verdade.
-    const qeAtualLive = quocienteEleitoral(
-      pcState.palpiteEdicao.reduce((s, pp) => s + partyVotos(pp), 0),
-      totalVagasCargo
-    );
+    // qeAtualLive: "de verdade" (sem estimativa embutida pros candidatos
+    // ainda não tocados), diferente de infoVagas.qe (versão com estimativa
+    // realista, usada só no cálculo do alvo/automação) — agora hoisted pro
+    // topo de renderSelecaoCandidatos (também usado no Painel Eleitoral).
 
     let corpo = "";
     if (isExpanded) {
@@ -3005,7 +3031,7 @@ async function renderCargoEstadual() {
         // grande colorido + meta pequena do lado) — texto sozinho passava
         // batido; a pessoa precisa notar de cara que o quociente ainda está
         // longe da meta pra simulação parecer com uma eleição real.
-        const qeProjetado = quocienteEleitoral(totalValidosProjetado2026(), totalVagasCargo);
+        const qeProjetado = qeProjetadoTopo;
         const diffPct = qeProjetado ? Math.round(((qeAtualLive - qeProjetado) / qeProjetado) * 100) : null;
         const legenda = diffPct === null ? ""
           : diffPct < 0 ? `Ainda <b style="color:var(--pc-warning);">${Math.abs(diffPct)}% abaixo</b> da votação esperada pra 2026 — quanto mais perto da meta, mais realista fica a simulação.`
@@ -3267,29 +3293,41 @@ async function renderCargoEstadual() {
         </div>
       </div>`;
     })() : ""}
-    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:18px 24px; position:relative;">
-      <button id="pcAbrirInstrucao" class="pc-mini-btn" style="position:absolute; top:10px; right:10px; z-index:1;" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
-      <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap; padding-right:32px;">
-        <div style="flex-shrink:0; text-align:center; line-height:1.25;">
-          <div id="pcTituloPainelLinha1" style="font-size:12.5px; font-weight:700; color:var(--pc-ink); white-space:nowrap;">PAINEL</div>
-          <div id="pcTituloPainelLinha2" style="font-size:12.5px; font-weight:700; color:var(--pc-ink); white-space:nowrap;">ELEITORAL</div>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin:0 0 8px 2px;">
+      <span style="font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim);">Painel Eleitoral</span>
+      <button id="pcAbrirInstrucao" class="pc-mini-btn" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
+    </div>
+    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px;">
+      <div style="display:flex; align-items:center; gap:16px; overflow-x:auto;">
+        <div style="flex-shrink:0; white-space:nowrap;">
+          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px;">Seus Eleitos</div>
+          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1;${totalIndicado !== 0 && totalIndicado !== totalVagasCargo ? " color:#ff9500;" : " color:var(--pc-ink);"}">${totalIndicado}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /${totalVagasCargo}</span></div>
         </div>
-        <div style="width:1px; height:34px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
-        <div style="flex-shrink:0;">
-          <div style="font-size:11px; color:var(--pc-ink-dim); margin-bottom:2px;">Seus Eleitos</div>
-          <div style="font-size:28px; font-weight:700; line-height:1.1;${totalIndicado !== 0 && totalIndicado !== totalVagasCargo ? " color:#ff9500; text-shadow:0 0 12px rgba(255,149,0,.6);" : " color:var(--pc-ink);"}">${totalIndicado}<span style="font-size:13px; color:var(--pc-ink-dim); font-weight:400;"> /${totalVagasCargo}</span></div>
-        </div>
-        <div style="width:1px; height:34px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
-        <div style="flex:1; min-width:160px;">
-          <div style="font-size:11px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Soma de Votos ${infoTip("Referência de votos válidos estimados: projeta o total de 2022 pelo crescimento do eleitorado até 2026, mantendo as taxas históricas de branco, nulo e comparecimento.")}</div>
-          <div style="font-size:16px; font-weight:700; color:var(--pc-ink); line-height:1.2; overflow-wrap:break-word;">${somaTotal.toLocaleString("pt-BR")} <span style="font-size:10.5px; color:var(--pc-ink-dim); font-weight:400;">de ~${Math.round(votosValidos2026Proj).toLocaleString("pt-BR")}</span></div>
+        ${qeAtualLive !== null ? `
+        <div style="width:1px; height:28px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
+        <div style="flex-shrink:0; white-space:nowrap;">
+          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Quociente ${infoTip("O número grande é o quociente ATUAL (art. 106) — calculado só com a votação já digitada, sobe conforme mais partidos são preenchidos. A meta pequena é o quociente PROJETADO pra 2026 (referência fixa: 2022 escalado pelo crescimento do eleitorado, confinada aos partidos que este simulador modela). Pra a simulação se aproximar de uma eleição real, o atual precisa chegar perto da meta.")}</div>
+          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1;${qeAtualLive < qeProjetadoTopo ? " color:#ff9500;" : " color:var(--pc-ink);"}">${formatVotosCompacto(Math.round(qeAtualLive))}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /${formatVotosCompacto(Math.round(qeProjetadoTopo))}</span></div>
+        </div>` : ""}
+        <div style="width:1px; height:28px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
+        <div style="flex-shrink:0; white-space:nowrap;">
+          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Soma de Votos ${infoTip("Referência de votos válidos estimados: projeta o total de 2022 pelo crescimento do eleitorado até 2026, mantendo as taxas históricas de branco, nulo e comparecimento.")}</div>
+          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1; color:var(--pc-ink);">${formatVotosCompacto(somaTotal)}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /~${formatVotosCompacto(Math.round(votosValidos2026Proj))}</span></div>
         </div>
       </div>
     </div>
     <div class="glass-card" style="padding:14px;">
-      <div class="pc-sub" style="margin:0 0 14px;">Plenário — ${totalVagasCargo} vagas</div>
-      ${hemiciclo}
-      <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="pc-sub" style="margin:0;">Plenário — ${totalVagasCargo} vagas</div>
+        <button id="pcBtnColapsarPlenario" class="pc-mini-btn" title="${plenarioColapsado ? "Expandir" : "Recolher"}">
+          <svg viewBox="0 0 16 16" width="13" height="13" style="transform:${plenarioColapsado ? "rotate(-90deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
+      </div>
+      ${plenarioColapsado ? "" : `
+      <div style="margin-top:14px;">
+        ${hemiciclo}
+        <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
+      </div>`}
     </div>
     <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
       <button id="pcBtnBuscaPartidoToggle" class="pc-mini-btn" title="Buscar partido por nome" style="${pcState.buscaPartidoAberta ? "background:rgba(61,255,176,.18); border-color:var(--pc-accent); color:var(--pc-accent);" : ""}">
@@ -3312,10 +3350,10 @@ async function renderCargoEstadual() {
     </div>
   `;
 
-  ajustarTituloPainelEleitoral();
   ajustarBackdropSticky();
   ajustarBarrasTermometro();
   attachListenersSelecao();
+  if (reRenderizando) window.scrollTo(0, scrollAnterior);
 }
 
 // Tamanho dos segmentos do termômetro (barraTermometro, acima) — decidido
@@ -3352,23 +3390,6 @@ function ajustarBarrasTermometro() {
   });
 }
 
-// "PAINEL" / "ELEITORAL" tratado como logotipo: duas linhas centralizadas
-// formando um retângulo — mede a largura real de "ELEITORAL" (mais larga,
-// já que tem mais letras) e espalha as letras de "PAINEL" (letter-spacing)
-// até bater a mesma largura. Não dá pra fazer só em CSS porque a largura de
-// cada palavra depende da fonte renderizada; por isso mede depois do render.
-function ajustarTituloPainelEleitoral() {
-  const linha1 = document.getElementById("pcTituloPainelLinha1");
-  const linha2 = document.getElementById("pcTituloPainelLinha2");
-  if (!linha1 || !linha2) return;
-  linha1.style.letterSpacing = "0px";
-  const alvo = linha2.getBoundingClientRect().width;
-  const natural = linha1.getBoundingClientRect().width;
-  const letras = linha1.textContent.length;
-  const espaco = (alvo - natural) / letras;
-  linha1.style.letterSpacing = `${espaco}px`;
-}
-
 // Estica o preenchimento do backdrop (ver #pcStickyBackdrop no CSS) até
 // cobrir exatamente do topo até o fim do card "Painel eleitoral" — cobre o
 // vão entre o interruptor de cargo e o card, e o card inteiro, pra nada
@@ -3390,6 +3411,14 @@ function ajustarBackdropSticky() {
 }
 
 function attachListenersSelecao() {
+  const btnColapsarPlenario = document.getElementById("pcBtnColapsarPlenario");
+  if (btnColapsarPlenario) {
+    btnColapsarPlenario.addEventListener("click", () => {
+      const chave = "plenarioColapsado_" + pcState.cargoAtivo;
+      pcState.expandido[chave] = !pcState.expandido[chave];
+      renderSelecaoCandidatos();
+    });
+  }
   document.querySelectorAll("[data-pc-toggle-partido]").forEach((btn) => {
     btn.addEventListener("click", () => {
       pcState.expandido[btn.dataset.pcTogglePartido] = !pcState.expandido[btn.dataset.pcTogglePartido];

@@ -9,7 +9,14 @@
     --accent:#c9a13b;
     --accent-2:#4f8f6d;
     --danger:#c0524a;
-    --mono: 'JetBrains Mono', 'Courier New', monospace;
+    /* Pedido do usuário em 12/08/2026: nunca mais usar fonte monoespaçada
+       (JetBrains Mono) em número nenhum do app — sempre a fonte do
+       sistema. Em vez de trocar var(--mono) por var(--sans) nas ~26
+       ocorrências espalhadas por interface/app.js e interface/prospeccao.js,
+       redefinimos a própria variável --mono pra apontar pro mesmo stack de
+       --sans — atualiza tudo de uma vez, sem precisar tocar em cada lugar
+       que já usa var(--mono). */
+    --mono: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
   *{box-sizing:border-box;}
