@@ -34,10 +34,14 @@ Ao adicionar uma função nova, pare e pergunte: isso é fato (dados), regra
   Código Eleitoral (fração ≤ 0,5 despreza; > 0,5 soma 1).
 - QP = votos do partido ÷ QE, parte inteira (art. 107).
 - Sobras distribuídas pelo método das médias (art. 109) — implementado como
-  D'Hondt puro em `dhondt()`. **Limitação conhecida e aceita**: não verifica
-  o mínimo de votação nominal por candidato (10%/20% do QE) — pode divergir
-  em 1 vaga do resultado oficial em disputas muito apertadas pela última
-  cadeira. Não "corrigir" isso silenciosamente; se for mexer, avisar antes.
+  D'Hondt puro em `dhondt()`/`dhondtComCorte()`. **Não é mais uma
+  limitação** (corrigido em 12/08/2026, verificado via busca): o piso de
+  votos pra concorrer à sobra (art. 109 §2º, 80% do QE pro partido e 20%
+  do QE por candidato) foi **derrubado pelo STF em fevereiro/2024**,
+  valendo já a partir das eleições de 2024 — hoje todo partido/candidato
+  concorre à sobra sem piso mínimo, exatamente o que o código já fazia.
+  Não "corrigir" isso pra reintroduzir o piso; se surgir uma reforma
+  eleitoral nova mudando essa regra de novo, avisar antes de mexer aqui.
 - `window.storage` tem um shim em `index.html` que cai para `localStorage`
   quando rodando fora do claude.ai. Não remover.
 

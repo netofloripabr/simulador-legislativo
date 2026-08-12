@@ -3920,9 +3920,14 @@ function explicacaoTag(tag, detalhe) {
     return `${generico}<br><br>Nesse caso: o partido teve <b>${detalhe.votosPartido.toLocaleString("pt-BR")}</b> votos, o quociente eleitoral do cargo é <b>${detalhe.qe.toLocaleString("pt-BR")}</b> — ${detalhe.votosPartido.toLocaleString("pt-BR")} ÷ ${detalhe.qe.toLocaleString("pt-BR")} = <b>${detalhe.qp}</b> vaga${detalhe.qp === 1 ? "" : "s"} garantida${detalhe.qp === 1 ? "" : "s"} por quociente (essa é uma delas).`;
   }
   if (tag === "média") {
-    const generico = "Elegeu-se pela <b>distribuição de sobras</b> (método das médias, art. 109): depois das vagas garantidas pelo quociente partidário, as vagas restantes vão pro partido com a maior média (votos ÷ (vagas já obtidas + 1)) a cada rodada — por isso alguém com menos voto individual pode se eleger antes de outro com mais voto, se o partido dele estiver melhor posicionado nessa média.";
+    // Simplificado (pedido do usuário em 12/08/2026) — a regra dos
+    // 80%/20% do QE pra concorrer à sobra (art. 109 §2º) foi DERRUBADA
+    // pelo STF em fevereiro/2024, valendo já a partir das eleições de
+    // 2024 — por isso não aparece aqui. Não é uma simplificação nossa,
+    // é a regra vigente: todo partido concorre à sobra, sem piso mínimo.
+    const generico = "Elegeu-se pela <b>distribuição de sobras</b> (método das médias, art. 109): depois das vagas garantidas por quociente, o resto vai pro partido com a maior média de voto a cada rodada — não necessariamente pra quem tem mais voto individual.";
     if (!detalhe) return generico;
-    return `${generico}<br><br>Nesse caso: essa foi a <b>${detalhe.cadeiraDoPartido}ª</b> cadeira do partido — ${detalhe.votosPartido.toLocaleString("pt-BR")} ÷ ${detalhe.cadeiraDoPartido} = média de <b>${Math.round(detalhe.mediaConquistada).toLocaleString("pt-BR")}</b> votos, a que garantiu essa vaga na disputa de sobra.`;
+    return `${generico}<br><br>Nesse caso: essa foi a <b>${detalhe.rodadaSobra}ª</b> vaga de sobra distribuída nesse cargo (de <b>${detalhe.totalSobrasCargo}</b> no total, disputadas entre todos os partidos) — a <b>${detalhe.cadeiraDoPartido}ª</b> cadeira deste partido, com média de <b>${Math.round(detalhe.mediaConquistada).toLocaleString("pt-BR")}</b> votos (${detalhe.votosPartido.toLocaleString("pt-BR")} ÷ ${detalhe.cadeiraDoPartido}).`;
   }
   if (tag === "majoritário") {
     const generico = "Cargo majoritário (Senado): não existe quociente partidário nem sobra aqui — as vagas vão direto pra quem tiver mais voto individual, juntando todos os partidos numa fila só.";
@@ -3966,13 +3971,35 @@ function listaUnificadaRevisao(listaParam, cargo) {
       });
     });
   } else {
-    const { counts: cadeirasPorPartido, corte } = dhondtComCorte(lista, totalVagasCargo);
+    const { counts: cadeirasPorPartido, corte, historico } = dhondtComCorte(lista, totalVagasCargo);
     const totalValidos = lista.reduce((s, p) => s + partyVotos(p), 0);
     const qe = quocienteEleitoral(totalValidos, totalVagasCargo);
+    const qpPorPartido = lista.map((p, pIdx) => {
+      const cadeirasReais = cadeirasPorPartido[pIdx] || 0;
+      return qe ? Math.min(cadeirasReais, Math.floor(partyVotos(p) / qe)) : 0;
+    });
+    // Rodada GLOBAL de sobra (pedido do usuário em 12/08/2026: "em qual
+    // rodada de sobras a vaga foi conquistada"): percorre o histórico
+    // cronológico do D'Hondt (uma rodada = uma vaga do cargo inteiro,
+    // disputada entre TODOS os partidos) e numera só as rodadas que vêm
+    // depois do partido já ter esgotado o quociente direto (QP) — é isso
+    // que é "sobra" de verdade (art. 109), não a ordem geral do D'Hondt
+    // (que mistura QP e sobra na mesma passada, ver dhondtComCorte).
+    const contadorPorPartido = lista.map(() => 0);
+    const rodadaSobraPorPartido = lista.map(() => []); // [pIdx][cadeiraDoPartido - 1] = nº da rodada de sobra (1-based) ou undefined se essa cadeira foi por QP
+    let totalSobrasCargo = 0;
+    historico.forEach((pIdx) => {
+      contadorPorPartido[pIdx]++;
+      const cadeiraDoPartido = contadorPorPartido[pIdx];
+      if (cadeiraDoPartido > qpPorPartido[pIdx]) {
+        totalSobrasCargo++;
+        rodadaSobraPorPartido[pIdx][cadeiraDoPartido - 1] = totalSobrasCargo;
+      }
+    });
     lista.forEach((p, pIdx) => {
       const votosPartido = partyVotos(p);
       const cadeirasReais = cadeirasPorPartido[pIdx] || 0;
-      const qp = qe ? Math.min(cadeirasReais, Math.floor(votosPartido / qe)) : 0;
+      const qp = qpPorPartido[pIdx];
       const reaisOrdenados = [...p.candidatos]
         .filter((c) => c.fonte !== "legenda")
         .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
@@ -3986,7 +4013,7 @@ function listaUnificadaRevisao(listaParam, cargo) {
           resultado.push({
             chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos, eleito: true,
             tag: i < qp ? "QP" : "média",
-            detalhe: { votosPartido, qe, qp, cadeirasReais, cadeiraDoPartido, mediaConquistada: votosPartido / cadeiraDoPartido },
+            detalhe: { votosPartido, qe, qp, cadeirasReais, cadeiraDoPartido, mediaConquistada: votosPartido / cadeiraDoPartido, rodadaSobra: rodadaSobraPorPartido[pIdx][cadeiraDoPartido - 1], totalSobrasCargo },
             gap: null, marcadoPeloUsuario: !!c.marcadoEleito,
           });
         } else {
@@ -4086,6 +4113,15 @@ async function executarSalvarLista() {
 
 function renderRevisaoDeposito() {
   const conteudo = document.getElementById("pcConteudo");
+  // Toda ação dentro da Revisão (abrir o menu ✦, editar voto, trocar
+  // lista/grupo...) reconstrói o HTML inteiro de novo (mesmo padrão do
+  // resto do app). Sem isso, cada clique fechava os cards <details> que
+  // já estavam abertos e jogava a rolagem de volta pro topo da tela —
+  // achado pelo usuário em 12/08/2026 clicando no botão ✦ de um
+  // candidato pendente. `reRenderizando` distingue esse caso (preservar)
+  // de entrar na tela pela primeira vez (começar do topo, é o esperado).
+  const reRenderizando = !!conteudo.querySelector(".pc-acc");
+  const scrollAnterior = window.scrollY;
   garantirPalpitesPorCargo();
 
   let temInconsistenciaGeral = false;
@@ -4238,8 +4274,12 @@ function renderRevisaoDeposito() {
           ${barraProgresso(pct)}
         </div>
         ${menuMagico}
-        ${legendaFaltam ? `<div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
-          <span>${legendaFaltam}</span><span>${pct}%</span>
+        ${legendaFaltam ? `<div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
+          <span>${legendaFaltam}</span>
+          <span style="display:flex; align-items:center; gap:6px;">
+            <span>${pct}%</span>
+            ${mostrarMagico ? `<button data-pc-abrir-magico="${c.chave}" class="pc-mini-btn" title="Como completar os votos" style="width:20px; height:20px; padding:0; border-radius:50%; flex-shrink:0; color:var(--pc-accent); border-color:rgba(61,255,176,.4); background:${menuAberto ? "rgba(61,255,176,.18)" : "transparent"};"><svg viewBox="0 0 16 16" width="12" height="12" style="transform:rotate(${menuAberto ? "180deg" : "0deg"}); transition:transform .15s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>` : ""}
+          </span>
         </div>` : ""}
       `);
     };
@@ -4287,7 +4327,7 @@ function renderRevisaoDeposito() {
       </div>`;
 
     return `
-      <details class="pc-acc">
+      <details class="pc-acc" data-pc-cargo-acc="${cargoDef.id}"${pcState.expandido["revisao-" + cargoDef.id] ? " open" : ""}>
         <summary><span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim); font-size:11px;">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} do seu palpite pendente${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span>${filtroAgrupado}<svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">${linhas}</div>
       </details>`;
@@ -4373,9 +4413,22 @@ function renderRevisaoDeposito() {
       renderRevisaoDeposito();
     });
   });
+  // Lembra se cada card de cargo (Dep. Estadual/Federal/Senador) estava
+  // aberto ou fechado — sem isso, toda ação dentro da Revisão (inclusive
+  // o botão ✦ abaixo) reconstrói o HTML e os <details> voltam pro estado
+  // fechado do zero (ver `reRenderizando`/`scrollAnterior` no topo desta
+  // função). O evento nativo "toggle" não precisa de re-render, só grava
+  // o estado pra próxima vez.
+  document.querySelectorAll("details.pc-acc[data-pc-cargo-acc]").forEach((det) => {
+    det.addEventListener("toggle", () => {
+      pcState.expandido["revisao-" + det.getAttribute("data-pc-cargo-acc")] = det.open;
+    });
+  });
   // Botão mágico (✦) de cada candidato pendente — abre/fecha o menu com as
   // 2 formas de completar o voto que falta. Clique, não hover (pedido do
-  // usuário em 06/08/2026).
+  // usuário em 06/08/2026). Duas entradas pro mesmo menu: o ✦ ao lado da
+  // barra de progresso, e a seta ao lado de "faltam X votos" (pedido do
+  // usuário em 12/08/2026, mais visível pra quem não reparou no ✦).
   document.querySelectorAll("[data-pc-abrir-magico]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
@@ -4492,6 +4545,8 @@ function renderRevisaoDeposito() {
     `;
     window.print();
   });
+
+  if (reRenderizando) window.scrollTo(0, scrollAnterior);
 }
 
 function renderDepositoConfirmado() {

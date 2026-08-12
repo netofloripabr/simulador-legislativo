@@ -76,20 +76,29 @@ function dhondt(parties, seats){
 // mostrar, na tela de Revisão, quantos votos faltam pra uma indicação virar
 // eleição de verdade — sempre como informação, nunca forçando a escolha da
 // pessoa (ver PROJETO.md / conversa sobre autonomia do usuário).
+//
+// `historico` (pedido do usuário em 12/08/2026): a ordem cronológica de
+// qual partido (índice) ganhou cada uma das `seats` rodadas do D'Hondt —
+// já que este método distribui QP e sobra numa passada só (equivalência
+// matemática documentada no CLAUDE.md), dá pra reconstruir, cruzando com
+// o QP de cada partido, em qual rodada GLOBAL de sobra (entre todos os
+// partidos do cargo, não só dentro de um) uma vaga por média foi
+// conquistada — ver rodadaSobra em listaUnificadaRevisao().
 function dhondtComCorte(parties, seats){
   const counts = parties.map(()=>0);
   const votes = parties.map(p => partyVotos(p));
   let corte = 0;
-  if(votes.every(v => v===0)) return { counts, corte };
+  const historico = [];
+  if(votes.every(v => v===0)) return { counts, corte, historico };
   for(let s=0; s<seats; s++){
     let bestIdx=-1, bestAvg=-1;
     for(let i=0;i<parties.length;i++){
       const avg = votes[i] / (counts[i]+1);
       if(avg > bestAvg){ bestAvg = avg; bestIdx = i; }
     }
-    if(bestIdx>=0){ counts[bestIdx]++; corte = bestAvg; }
+    if(bestIdx>=0){ counts[bestIdx]++; corte = bestAvg; historico.push(bestIdx); }
   }
-  return { counts, corte };
+  return { counts, corte, historico };
 }
 
 function setPartyVotes(idx, newValue){
