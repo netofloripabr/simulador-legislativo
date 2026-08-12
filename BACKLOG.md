@@ -9,7 +9,7 @@
 > pra baixo). Pra pedir algo novo, é só falar — eu classifico na página
 > certa e coloco na ordem que fizer mais sentido.
 
-_Última atualização: 11/08/2026_
+_Última atualização: 12/08/2026_
 
 ---
 
@@ -54,13 +54,17 @@ _Última atualização: 11/08/2026_
 - Box de votação com borda verde suave quando o ajuste foi manual (automático fica sem borda extra)
 - Autopreenchimento (✦, por partido ou "Auto" geral) agora pergunta antes de preencher, com opção "não perguntar de novo"
 - **CRÍTICO** — matemática eleitoral zero-sum: o interruptor "eleito" não é mais clicável, é 100% calculado (sempre os N mais votados agora, N = quantidade escolhida no contador do partido). Editar um voto que muda o ranking corrige sozinho quem fica marcado — testado ao vivo
+- Bug do botão de autopreenchimento (✦, na Revisão): na real não era o botão que sumia — clicar nele reconstruía a tela e fechava os cards de cargo que já estavam abertos, dando a impressão de "voltar pro topo". Corrigido em 12/08/2026: estado aberto/fechado e posição de rolagem agora são preservados entre as atualizações da tela
+- 2ª forma de abrir o menu de autopreenchimento: seta ao lado de "faltam X votos", além do botão ✦ redondo (pedido do usuário, 12/08/2026)
+- Tooltip "eleito · média" simplificado + mostra em qual rodada de sobra GLOBAL (entre todos os partidos do cargo) aquela vaga foi conquistada, não só a cadeira dentro do próprio partido (pedido do usuário, 12/08/2026)
 
 **🔄 Em andamento**
-1. Bug: botão de autopreenchimento (✦) não aparece em todos os candidatos
+- _(nenhum agora)_
 
 **⬜ Pendente**
-2. Cabeçalho do cargo trunca texto (ex.: "5 do seu pal...") — mover o filtro pra dentro do card, só ao abrir
-3. Padronizar alinhamento das caixas de contagem de eleitos por partido
+1. Cabeçalho do cargo trunca texto (ex.: "5 do seu pal...") — mover o filtro pra dentro do card, só ao abrir
+2. Padronizar alinhamento das caixas de contagem de eleitos por partido
+3. Decisão de design pendente: hoje a Revisão mostra como "ELEITO" quem REALMENTE fecharia a vaga pela matemática completa, mesmo que a pessoa não tenha marcado esse candidato no palpite dela — gera confusão quando aparece "ELEITO" junto com o aviso "você não marcou esse candidato" (achado pelo usuário em 12/08/2026, exemplo: Acélio Casagrande). Usuário quer que a lista reflita o palpite escolhido por ele, com o alerta só indicando a divergência matemática — não decidido ainda como fica a "vaga extra" que o partido teria direito mas o usuário não preencheu. Retomar essa conversa antes de mexer
 
 ---
 
