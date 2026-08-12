@@ -33,6 +33,29 @@ mas por trás dela tem uma API REST simples, sem autenticação:
   `.js` do bundle em `https://divulgacandcontas.tse.jus.br/divulga/`, grep
   por `rest/arquivo` ou `abrirDocumento`).
 
+### RRC oficial do TSE (descoberto em 12/08/2026)
+
+A mesma SPA tem uma tela de "Candidaturas" (`#/candidato/...`) que expõe o
+**Registro de Candidatura (RRC)** — o cadastro formal na Justiça Eleitoral,
+mais autoritativo que a ata (a ata é só o que o partido ANUNCIA; o RRC é o
+que ele efetivamente registrou). Mesmo padrão: API REST sem autenticação.
+
+- **Lista de candidatos por cargo**: `GET https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/listar/{ano}/{uf}/{sqEleicao}/{codCargo}/candidatos`
+  — `codCargo`: `3`=Governador, `4`=Vice-Governador, `5`=Senador,
+  `6`=Deputado Federal, `7`=Deputado Estadual, `9`=Senador (1º suplente),
+  `10`=Senador (2º suplente). Cada candidato tem `numero`, `nomeCompleto`,
+  `nomeColigacao`, `partido.sigla` (partido individual, não a federação —
+  usar `FEDERACOES_2026` de `dados/estados/registro-2026.js` pra normalizar
+  antes de comparar contra o nosso arquivo).
+- Cobertura é PARCIAL até o fim do prazo de registro (~final de
+  agosto/2026) — em 12/08/2026, SC tinha só ~340/417 Deputado Estadual e
+  ~3/10 Governador cobertos. Candidato nosso que não aparece ainda no RRC
+  não é erro nenhum, é esperado.
+- `ferramentas/conferir_rrc.py` automatiza esse cruzamento (ver passo 8 em
+  "Como operar"). Validado em 12/08/2026: zero divergência de partido entre
+  os dois arquivos pra SC — é o tipo de checagem que dá confiança alta nas
+  correções feitas manualmente (abrir PDF de ata) no mesmo dia.
+
 ## Como operar
 
 1. `curl -s "https://divulgacandcontas.tse.jus.br/divulga/rest/v1/ata/partidoFederal/20322002026/SC/uf"`
@@ -67,6 +90,19 @@ mas por trás dela tem uma API REST simples, sem autenticação:
    com mensagem citando quais partidos/atas entraram e a data. Isso dá um
    ponto de rollback caso a extração saia errada num dia. Nunca faça
    `git push` — fica só local.
+8. Rode a conferência contra o RRC oficial do TSE (fonte mais autoritativa
+   que a ata — ver seção "RRC oficial do TSE" abaixo):
+   `python3 ferramentas/conferir_rrc.py --uf SC`
+   — gera `dados/estados/sc-2026-rrc-conferencia.md`. Esse script NUNCA
+   escreve em `sc-2026-provisorio.js` sozinho, só reporta. Leia o relatório
+   e inclua no resumo final: quantas divergências de partido (se houver
+   qualquer uma, é sério — RRC é mais autoritativo, então provavelmente é a
+   ata/extração que está errada, não o RRC) e quantos candidatos aparecem
+   no RRC sem entrada correspondente no nosso arquivo. Se a lista de
+   "sugestão de número" tiver itens óbvios (nome bate 100%, é só preencher
+   `numero:null` com o valor do RRC), pode aplicar e commitar junto — isso
+   não é "inventar dado", é completar com a fonte MAIS confiável que existe
+   pro campo que faltava.
 
 ## Total de vagas por cargo é fato fixo, não soma
 
@@ -129,3 +165,8 @@ dias sem ninguém notar. Formato mínimo: nome + cargo + arquivo de origem,
 igual à tabela de `sc-2026-conferencia.md`. Se a lista de pendências
 novas estiver vazia, diga isso explicitamente ("nenhuma pendência nova
 hoje") em vez de omitir a seção.
+
+Incluir também o resultado de `conferir_rrc.py` (passo 8): quantas
+confirmações, quantas divergências de partido (destacar se houver
+qualquer uma — não é esperado) e quantos candidatos novos apareceram no
+RRC sem estar no nosso arquivo ainda.
