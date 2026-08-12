@@ -3977,6 +3977,56 @@ function explicacaoTag(tag, detalhe) {
 // não é a posição geral de voto, é a ordem de eleição (pedido do usuário
 // em 06/08/2026: "mesmo que tenha um deputado com mais votos e não
 // eleito na frente").
+// Calcula a disputa de sobra completa de um cargo proporcional — QE, QP por
+// partido, e o detalhe RODADA A RODADA de quem competiu e quem venceu cada
+// vaga de sobra (método das médias, art. 109). Fonte única usada tanto pra
+// marcar cada candidato eleito por média (rodadaSobra/totalSobrasCargo, ver
+// listaUnificadaRevisao logo abaixo) quanto pro painel "Disputa de Sobra"
+// na Revisão (pedido do usuário em 12/08/2026, com mockup confirmado).
+// Só guarda o detalhe de médias das rodadas que SÃO sobra (depois que o
+// partido já esgotou o próprio QP) — rodadas de QP não entram em `rodadas`,
+// só contam pro histórico interno de cadeiras.
+function calcularDisputaSobra(lista, totalVagasCargo) {
+  const { cadeirasPorPartido, corte, historico } = (() => {
+    const r = dhondtComCorte(lista, totalVagasCargo);
+    return { cadeirasPorPartido: r.counts, corte: r.corte, historico: r.historico };
+  })();
+  const votosPorPartido = lista.map((p) => partyVotos(p));
+  const totalValidos = votosPorPartido.reduce((s, v) => s + v, 0);
+  const qe = quocienteEleitoral(totalValidos, totalVagasCargo);
+  const qpPorPartido = lista.map((p, pIdx) => {
+    const cadeirasReais = cadeirasPorPartido[pIdx] || 0;
+    return qe ? Math.min(cadeirasReais, Math.floor(votosPorPartido[pIdx] / qe)) : 0;
+  });
+  const totalQP = qpPorPartido.reduce((s, n) => s + n, 0);
+
+  const contadorPorPartido = lista.map(() => 0);
+  const rodadaSobraPorPartido = lista.map(() => []); // [pIdx][cadeiraDoPartido - 1] = nº da rodada de sobra (1-based) ou undefined se essa cadeira foi por QP
+  const rodadas = [];
+  let totalSobrasCargo = 0;
+
+  historico.forEach((pIdxVencedor) => {
+    const novaCadeira = contadorPorPartido[pIdxVencedor] + 1;
+    if (novaCadeira > qpPorPartido[pIdxVencedor]) {
+      totalSobrasCargo++;
+      rodadaSobraPorPartido[pIdxVencedor][novaCadeira - 1] = totalSobrasCargo;
+      // Média de TODOS os partidos nesta rodada, no instante exato da
+      // disputa (contadorPorPartido ainda não incrementado pro vencedor).
+      const medias = lista.map((p, pIdx) => ({
+        nome: p.nome, votos: votosPorPartido[pIdx], cadeiraAtual: contadorPorPartido[pIdx],
+        media: votosPorPartido[pIdx] / (contadorPorPartido[pIdx] + 1), venceu: pIdx === pIdxVencedor,
+      })).sort((a, b) => b.media - a.media);
+      rodadas.push({
+        numero: totalSobrasCargo, vencedorNome: lista[pIdxVencedor].nome,
+        vencedorMedia: medias.find((m) => m.venceu).media, medias,
+      });
+    }
+    contadorPorPartido[pIdxVencedor]++;
+  });
+
+  return { qe, cadeirasPorPartido, corte, qpPorPartido, totalQP, rodadaSobraPorPartido, totalSobrasCargo, rodadas };
+}
+
 function listaUnificadaRevisao(listaParam, cargo) {
   const lista = listaParam || pcState.palpiteEdicao;
   const cargoResolvido = cargo || pcState.cargoAtivo;
@@ -4000,31 +4050,7 @@ function listaUnificadaRevisao(listaParam, cargo) {
       });
     });
   } else {
-    const { counts: cadeirasPorPartido, corte, historico } = dhondtComCorte(lista, totalVagasCargo);
-    const totalValidos = lista.reduce((s, p) => s + partyVotos(p), 0);
-    const qe = quocienteEleitoral(totalValidos, totalVagasCargo);
-    const qpPorPartido = lista.map((p, pIdx) => {
-      const cadeirasReais = cadeirasPorPartido[pIdx] || 0;
-      return qe ? Math.min(cadeirasReais, Math.floor(partyVotos(p) / qe)) : 0;
-    });
-    // Rodada GLOBAL de sobra (pedido do usuário em 12/08/2026: "em qual
-    // rodada de sobras a vaga foi conquistada"): percorre o histórico
-    // cronológico do D'Hondt (uma rodada = uma vaga do cargo inteiro,
-    // disputada entre TODOS os partidos) e numera só as rodadas que vêm
-    // depois do partido já ter esgotado o quociente direto (QP) — é isso
-    // que é "sobra" de verdade (art. 109), não a ordem geral do D'Hondt
-    // (que mistura QP e sobra na mesma passada, ver dhondtComCorte).
-    const contadorPorPartido = lista.map(() => 0);
-    const rodadaSobraPorPartido = lista.map(() => []); // [pIdx][cadeiraDoPartido - 1] = nº da rodada de sobra (1-based) ou undefined se essa cadeira foi por QP
-    let totalSobrasCargo = 0;
-    historico.forEach((pIdx) => {
-      contadorPorPartido[pIdx]++;
-      const cadeiraDoPartido = contadorPorPartido[pIdx];
-      if (cadeiraDoPartido > qpPorPartido[pIdx]) {
-        totalSobrasCargo++;
-        rodadaSobraPorPartido[pIdx][cadeiraDoPartido - 1] = totalSobrasCargo;
-      }
-    });
+    const { qe, cadeirasPorPartido, corte, qpPorPartido, rodadaSobraPorPartido, totalSobrasCargo } = calcularDisputaSobra(lista, totalVagasCargo);
     lista.forEach((p, pIdx) => {
       const votosPartido = partyVotos(p);
       const cadeirasReais = cadeirasPorPartido[pIdx] || 0;
@@ -4154,6 +4180,10 @@ function renderRevisaoDeposito() {
   garantirPalpitesPorCargo();
 
   let temInconsistenciaGeral = false;
+  // Guarda a disputaSobra de cada cargo (calculada dentro do loop abaixo)
+  // pra reaproveitar no painel "Disputa de Sobra" — sem precisar calcular
+  // de novo fora do loop nem mudar o que CARGOS.map() devolve.
+  const disputaSobraPorCargo = {};
 
   const secoesHtml = CARGOS.map((cargoDef) => {
     const lista = pcState.palpitesPorCargo[cargoDef.id];
@@ -4178,6 +4208,11 @@ function renderRevisaoDeposito() {
     // outros lugares do app, agora também visível na Revisão. Pedido do
     // usuário em 06/08/2026.
     const totalVagasCargoDef = vagasFixasCargo(pcState.estado, cargoDef.id);
+    // Disputa de sobra completa deste cargo (painel "Disputa de Sobra",
+    // pedido do usuário em 12/08/2026, mockup confirmado) — null pro
+    // Senador, que não tem QE/QP/sobra (majoritário).
+    const disputaSobra = cargoDef.id !== "senador" ? calcularDisputaSobra(lista, totalVagasCargoDef) : null;
+    disputaSobraPorCargo[cargoDef.id] = disputaSobra;
     let minimoParaEleger = 0;
     if (cargoDef.id === "senador") {
       const todosReaisOrdenados = [];
@@ -4185,8 +4220,7 @@ function renderRevisaoDeposito() {
       todosReaisOrdenados.sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
       minimoParaEleger = totalVagasCargoDef > 0 && todosReaisOrdenados[totalVagasCargoDef - 1] ? (Number(todosReaisOrdenados[totalVagasCargoDef - 1].votos) || 0) : 0;
     } else {
-      const { corte } = dhondtComCorte(lista, totalVagasCargoDef);
-      minimoParaEleger = Math.ceil(corte);
+      minimoParaEleger = Math.ceil(disputaSobra.corte);
     }
 
     // Barra fina (mesma família visual do termômetro da Seleção) no lugar
@@ -4248,9 +4282,12 @@ function renderRevisaoDeposito() {
             </div>
             <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
           </div>
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; flex-wrap:wrap;">
             ${barraProgresso(100, 0.4)}
-            <span style="flex-shrink:0; display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag, c.detalhe), "right")}</span>
+            <span style="flex-shrink:0; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span style="display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag, c.detalhe), "right")}</span>
+              ${c.tag === "média" ? `<span style="display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; border-radius:6px; padding:3px 8px; color:var(--pc-warning); background:rgba(201,138,43,.14); border:1px solid rgba(201,138,43,.35);">sobra · rodada ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}${infoTip(explicacaoTag(c.tag, c.detalhe), "right")}</span>` : ""}
+            </span>
           </div>
           ${mostrarMargem ? `<div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
             <span>mínimo pra eleger seria ${minimoParaEleger.toLocaleString("pt-BR")}</span><span style="color:var(--pc-accent);">+${margem.toLocaleString("pt-BR")} de folga</span>
@@ -4358,11 +4395,59 @@ function renderRevisaoDeposito() {
     return `
       <details class="pc-acc" data-pc-cargo-acc="${cargoDef.id}"${pcState.expandido["revisao-" + cargoDef.id] ? " open" : ""}>
         <summary><span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim); font-size:11px;">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} do seu palpite pendente${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span>${filtroAgrupado}<svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
-        <div class="pc-acc-body">${linhas}</div>
+        <div class="pc-acc-body">
+          ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-bottom:12px; background:rgba(201,138,43,.08); border:1px solid rgba(201,138,43,.3); color:var(--pc-warning); font-family:var(--sans); font-size:12.5px; font-weight:700; border-radius:10px; padding:10px; cursor:pointer;">Ver disputa de sobra completa (${disputaSobra.rodadas.length} rodada${disputaSobra.rodadas.length === 1 ? "" : "s"})</button>` : ""}
+          ${linhas}
+        </div>
       </details>`;
   }).join("");
 
+  // Painel "Disputa de Sobra" (overlay) — pcState.disputaSobraAberta guarda
+  // o id do cargo aberto (ou null). Mesmo padrão visual dos outros overlays
+  // desta tela (pcInstrucaoOverlay/pcTop2022Overlay): fundo desfocado,
+  // cartão central, botão fechar. Pedido do usuário em 12/08/2026, mockup
+  // confirmado antes de implementar.
+  const painelDisputaSobraHtml = (() => {
+    const cargoAbertoId = pcState.disputaSobraAberta;
+    if (!cargoAbertoId) return "";
+    const cargoDef = CARGOS.find((c) => c.id === cargoAbertoId);
+    const disputaSobra = disputaSobraPorCargo[cargoAbertoId];
+    if (!cargoDef || !disputaSobra) return "";
+    const linhasRodadas = disputaSobra.rodadas.map((r) => `
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--pc-glass-border);">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="font-size:10px; color:#2b1600; background:var(--pc-warning); padding:2px 8px; border-radius:999px; font-weight:800;">Rodada ${r.numero}</span>
+          <span style="font-size:11px; color:var(--pc-ink-dim);">votos ÷ (vagas atuais + 1)</span>
+        </div>
+        ${r.medias.map((m) => `
+          <div style="display:grid; grid-template-columns:16px 1fr auto; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; font-size:12px;${m.venceu ? " background:rgba(201,138,43,.1); border:1px solid rgba(201,138,43,.3);" : ""}">
+            <span style="text-align:center;">${m.venceu ? "🏆" : ""}</span>
+            <span style="color:${m.venceu ? "var(--pc-ink)" : "var(--pc-ink-dim)"}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${m.nome}${m.venceu ? ` — ${r.vencedorNome}` : ""}</span>
+            <span style="font-weight:700; color:${m.venceu ? "var(--pc-warning)" : "var(--pc-ink-dim)"};">${Math.round(m.media).toLocaleString("pt-BR")}</span>
+          </div>`).join("")}
+      </div>`).join("");
+    return `
+      <div id="pcDisputaSobraOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+        <div style="max-width:460px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(15,35,27,.9); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(201,138,43,.3); border-radius:18px; padding:22px 20px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+            <div>
+              <h2 style="margin:0; font-size:16px;">Disputa de sobra — ${cargoDef.label}</h2>
+              <div class="pc-sub" style="margin-top:4px;">${disputaSobra.rodadas.length} vaga${disputaSobra.rodadas.length === 1 ? "" : "s"} decidida${disputaSobra.rodadas.length === 1 ? "" : "s"} por média, uma rodada de cada vez, entre todos os partidos</div>
+            </div>
+            <button id="pcFecharDisputaSobra" class="pc-mini-btn" title="Fechar" style="font-size:16px; line-height:1;">×</button>
+          </div>
+          <div style="display:flex; gap:16px; margin:16px 0 4px; padding:10px 12px; background:#081712; border-radius:10px;">
+            <div><div style="font-size:9.5px; color:var(--pc-ink-faint); margin-bottom:2px;">Quociente eleitoral</div><div style="font-size:15px; font-weight:700;">${Math.round(disputaSobra.qe).toLocaleString("pt-BR")}</div></div>
+            <div><div style="font-size:9.5px; color:var(--pc-ink-faint); margin-bottom:2px;">Vagas por QP</div><div style="font-size:15px; font-weight:700;">${disputaSobra.totalQP}</div></div>
+            <div><div style="font-size:9.5px; color:var(--pc-ink-faint); margin-bottom:2px;">Vagas por sobra</div><div style="font-size:15px; font-weight:700;">${disputaSobra.totalSobrasCargo}</div></div>
+          </div>
+          ${linhasRodadas}
+        </div>
+      </div>`;
+  })();
+
   conteudo.innerHTML = `
+    ${painelDisputaSobraHtml}
     <div class="glass-card" style="max-width:560px; margin:0 auto;">
       <h2>Revisão</h2>
       <div class="pc-sub">Revise os três cargos antes de salvar — dá pra ajustar cada um aqui mesmo, sem voltar pra outra tela.</div>
@@ -4453,6 +4538,21 @@ function renderRevisaoDeposito() {
       pcState.expandido["revisao-" + det.getAttribute("data-pc-cargo-acc")] = det.open;
     });
   });
+  // Painel "Disputa de Sobra" — abre com o id do cargo clicado, fecha
+  // voltando pra null. Mesmo padrão dos outros overlays desta tela.
+  document.querySelectorAll("[data-pc-abrir-disputa-sobra]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pcState.disputaSobraAberta = btn.getAttribute("data-pc-abrir-disputa-sobra");
+      renderRevisaoDeposito();
+    });
+  });
+  const btnFecharDisputaSobra = document.getElementById("pcFecharDisputaSobra");
+  if (btnFecharDisputaSobra) {
+    btnFecharDisputaSobra.addEventListener("click", () => {
+      pcState.disputaSobraAberta = null;
+      renderRevisaoDeposito();
+    });
+  }
   // Botão mágico (✦) de cada candidato pendente — abre/fecha o menu com as
   // 2 formas de completar o voto que falta. Clique, não hover (pedido do
   // usuário em 06/08/2026). Duas entradas pro mesmo menu: o ✦ ao lado da
