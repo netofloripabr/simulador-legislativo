@@ -59,6 +59,7 @@ _Última atualização: 12/08/2026_
 - Tooltip "eleito · média" simplificado + mostra em qual rodada de sobra GLOBAL (entre todos os partidos do cargo) aquela vaga foi conquistada, não só a cadeira dentro do próprio partido (pedido do usuário, 12/08/2026)
 - Painel Eleitoral reformulado: título sai de dentro do card (label simples acima), Seus Eleitos + Quociente do Cargo + Soma de Votos numa linha só — o Quociente, que antes só aparecia dentro de um partido expandido depois de marcar alguém, agora fica sempre visível (pedido do usuário: "é um ponto central", 12/08/2026)
 - Card do Plenário ganhou seta pra recolher/expandir o hemiciclo + legenda (estado lembrado por cargo)
+- Painel "Disputa de Sobra": selo "sobra · rodada X/Y" visível direto no card do candidato eleito por média + botão "Ver disputa de sobra completa" abrindo um painel com quociente/QP/sobra e a tabela rodada a rodada (mockup confirmado, implementado e testado ao vivo em 12/08/2026 — matemática bate: média de cada vencedor recalculada corretamente na rodada seguinte)
 
 **🔄 Em andamento**
 - _(nenhum agora)_
@@ -67,7 +68,6 @@ _Última atualização: 12/08/2026_
 1. Cabeçalho do cargo trunca texto (ex.: "5 do seu pal...") — mover o filtro pra dentro do card, só ao abrir
 2. Padronizar alinhamento das caixas de contagem de eleitos por partido
 3. Decisão de design pendente: hoje a Revisão mostra como "ELEITO" quem REALMENTE fecharia a vaga pela matemática completa, mesmo que a pessoa não tenha marcado esse candidato no palpite dela — gera confusão quando aparece "ELEITO" junto com o aviso "você não marcou esse candidato" (achado pelo usuário em 12/08/2026, exemplo: Acélio Casagrande). Usuário quer que a lista reflita o palpite escolhido por ele, com o alerta só indicando a divergência matemática — não decidido ainda como fica a "vaga extra" que o partido teria direito mas o usuário não preencheu. Retomar essa conversa antes de mexer
-4. Painel "Disputa de Sobra": selo "sobra · rodada X/Y" visível direto no card do candidato eleito por média (além do tooltip que já existe) + botão "Ver disputa de sobra completa" abrindo um painel com a tabela rodada a rodada — rascunho de mockup já escrito em 12/08/2026 (ainda não publicado nem confirmado com o usuário), zero implementado no código ainda
 
 ---
 
