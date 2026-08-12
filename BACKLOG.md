@@ -53,14 +53,14 @@ _Última atualização: 11/08/2026_
 - Ajuste do teto de 80% pra nunca suprimir abaixo do voto real de 2022
 - Box de votação com borda verde suave quando o ajuste foi manual (automático fica sem borda extra)
 - Autopreenchimento (✦, por partido ou "Auto" geral) agora pergunta antes de preencher, com opção "não perguntar de novo"
+- **CRÍTICO** — matemática eleitoral zero-sum: o interruptor "eleito" não é mais clicável, é 100% calculado (sempre os N mais votados agora, N = quantidade escolhida no contador do partido). Editar um voto que muda o ranking corrige sozinho quem fica marcado — testado ao vivo
 
 **🔄 Em andamento**
-1. **CRÍTICO** — matemática eleitoral zero-sum na Revisão: votos e condição de eleito precisam se atualizar juntos
-2. Bug: botão de autopreenchimento (✦) não aparece em todos os candidatos
+1. Bug: botão de autopreenchimento (✦) não aparece em todos os candidatos
 
 **⬜ Pendente**
-3. Cabeçalho do cargo trunca texto (ex.: "5 do seu pal...") — mover o filtro pra dentro do card, só ao abrir
-4. Padronizar alinhamento das caixas de contagem de eleitos por partido
+2. Cabeçalho do cargo trunca texto (ex.: "5 do seu pal...") — mover o filtro pra dentro do card, só ao abrir
+3. Padronizar alinhamento das caixas de contagem de eleitos por partido
 
 ---
 
