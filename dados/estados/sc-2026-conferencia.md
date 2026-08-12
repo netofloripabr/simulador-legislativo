@@ -58,11 +58,13 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 954-psol-rede-executiva.pdf | ? | não | 2 |
 | 978-44-união-11-pp-executiva.pdf | ? | não | 1 |
 
-Total de candidaturas: **794** — confiança alta: **754**, a revisar (partido não identificado): **40**
+Total de candidaturas: **702** — confiança alta: **702**, a revisar (partido não identificado): **0**
 
-_(Números acima já refletem a limpeza de duplicatas feita manualmente em
-12/08/2026 — ver seção "Duplicatas resolvidas em 12/08/2026" abaixo. O
-script `tratar_atas.py` sozinho, sem essa limpeza, tinha gerado 940
+_(Números acima já refletem DUAS rodadas de limpeza manual feitas em
+12/08/2026 — ver "Duplicatas resolvidas em 12/08/2026" e, principalmente,
+"Correções de partido/duplicata feitas com revisão humana em 12/08/2026"
+mais abaixo, que é a rodada que zerou as pendências. O script
+`tratar_atas.py` sozinho, sem nenhuma limpeza, tinha gerado 940
 candidaturas com 189 "a revisar".)_
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **22** — ver `fonte:"ficticio"` no .js gerado.
@@ -220,46 +222,16 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **22** —
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
-40 pendências reais, já deduplicadas (ver seção seguinte para o que foi
-removido automaticamente hoje). Vários nomes abaixo aparecem em mais de um
-arquivo — provavelmente a mesma pessoa mencionada em atas diferentes do
-mesmo bloco (convenção + retificadora(s), ou convenções de partidos aliados
-na mesma coligação). Como `numero` é nulo nesses casos (vice/suplente sem
-número próprio no anexo estruturado), não dá pra cruzar automaticamente por
-número — precisa de alguém confirmar no PDF se é 1 candidato ou mais de um.
+**Resolvida em 12/08/2026 (revisão humana, com o usuário) — 0 pendências.**
+Os 40 casos que estavam aqui foram todos confirmados abrindo o PDF de
+origem: o partido de cada um já estava escrito no texto da ata (campo
+"partido X" nas candidaturas majoritárias, ou o título/federação da
+própria ata para candidatos proporcionais incluídos por executiva) — o
+extrator só não estava lendo esse campo. Ver a seção "Correções de
+partido/duplicata feitas com revisão humana em 12/08/2026" logo abaixo
+para o detalhe candidato a candidato.
 
-| Nome | Cargo | Arquivo(s) de origem |
-|---|---|---|
-| Carlos Roberto Caetano | Deputado Estadual | 1036-psdb-cidadania-retificadora.pdf |
-| Eliane Regina Noal Battisti | Deputado Estadual | 1036-psdb-cidadania-retificadora.pdf |
-| José Júlio Guahnon | Deputado Estadual | 954-psol-rede-executiva.pdf |
-| José Napoleão Bonaparte Maia Rodrigues | Deputado Estadual | 978-44-união-11-pp-executiva.pdf |
-| Simone Moredo | Deputado Estadual | 954-psol-rede-executiva.pdf |
-| Teresinha Spohr | Deputado Estadual | 1036-psdb-cidadania-retificadora.pdf |
-| Marcos Vinícius Sodré E Silva Silvestre | Deputado Federal | 1516-psol-rede-retificadora.pdf |
-| Gelson Luiz Merísio | Governador | 1148-psb-retificadora.pdf + 199-psb-retificadora.pdf |
-| Jorginho Dos Santos Mello | Governador | 680-pl-convencao.pdf |
-| João Rodrigues | Governador | 694-psd-convencao.pdf |
-| Afrânio Tadeu Boppré | Senador | 172-psol-rede-convencao.pdf + 1233-psol-rede-retificadora.pdf + 1516-psol-rede-retificadora.pdf |
-| Carlos Nantes Bolsonaro | Senador | 680-pl-convencao.pdf |
-| Caroline Rodrigues De Toni | Senador | 680-pl-convencao.pdf |
-| Décio Nery De Lima | Senador | 195-pt-pc-do-b-pv-convencao.pdf + 1235-pt-pc-do-b-pv-retificadora.pdf |
-| Esperidião Amin Helou Filho | Senador | 769-44-união-11-pp-convencao.pdf |
-| Clenilton Carlos Pereira | Senador (1º suplente) | 769-44-união-11-pp-convencao.pdf |
-| Geraldo Wetzel Neto | Senador (1º suplente) | 1312-pl-executiva.pdf + 1337-novo-executiva.pdf + 1533-agir-executiva.pdf |
-| Juliano Avila Custodio | Senador (1º suplente) | 680-pl-convencao.pdf |
-| Luci Teresinha Choinacki | Senador (1º suplente) | 172-psol-rede-convencao.pdf + 1233-psol-rede-retificadora.pdf + 1516-psol-rede-retificadora.pdf |
-| Rafael Caleffi | Senador (1º suplente) | 680-pl-convencao.pdf |
-| Volnei Weber | Senador (1º suplente) | 1683-44-união-11-pp-executiva.pdf |
-| Andrey Otavio Tomazi | Senador (2º suplente) | 680-pl-convencao.pdf |
-| Aparecida Da Silva | Senador (2º suplente) | 172-psol-rede-convencao.pdf + 1233-psol-rede-retificadora.pdf + 1516-psol-rede-retificadora.pdf |
-| Balduino Rodrigues Ferreira | Senador (2º suplente) | 680-pl-convencao.pdf |
-| Eni José Voltolini | Senador (2º suplente) | 1683-44-união-11-pp-executiva.pdf |
-| Genesio Moises Spillere | Senador (2º suplente) | 769-44-união-11-pp-convencao.pdf |
-| Adriano Bornschein Silva | Vice-Governador | 487-novo-convencao.pdf + 680-pl-convencao.pdf |
-| Angela Albino | Vice-Governador | 1148-psb-retificadora.pdf + 199-psb-retificadora.pdf |
-
-## Duplicatas resolvidas em 12/08/2026
+## Rodada 1 — Duplicatas resolvidas automaticamente (12/08/2026)
 
 Rodada de hoje processou 24 atas novas (SC tinha ficado sem atualização de
 07/08 a 11/08/2026 — ver observação no relatório da rotina). O output bruto
@@ -287,6 +259,108 @@ editado diretamente para essa limpeza (não é o output original do
 script) — na próxima execução da rotina, se `tratar_atas.py` continuar
 gerando os mesmos duplicados, repetir a mesma limpeza até o bug do
 gerador ser corrigido.
+
+## Rodada 2 — Correções de partido/duplicata feitas com revisão humana em 12/08/2026
+
+Depois da Rodada 1, ainda sobravam 40 pendências "sem partido identificado".
+O usuário abriu o PDF de uma delas (1036-psdb-cidadania-retificadora.pdf) e
+percebeu que o partido estava lá, escrito no próprio texto da ata — o
+extrator (`tratar_atas.py`) só não estava lendo esse campo pra candidatos
+"INCLUSÃO" de retificadora/executiva nem pra candidaturas majoritárias
+(Governador, Vice, Senador e suplentes), que trazem o partido junto do nome
+em vez de num campo estruturado separado. Abrimos os PDFs de origem de
+**todas** as 40 pendências pra confirmar cada uma manualmente. Resultado:
+partido de todas as 40 confirmado no texto da própria ata — nenhuma ficou
+genuinamente ambígua.
+
+No processo, abrir as atas também expôs mais duas categorias de bug que não
+apareciam na lista de pendências (porque as duas entradas envolvidas já
+eram "alta confiança" — o cruzamento por número da Rodada 1 não pega esse
+caso):
+
+- **Partido "cru" em vez do nome de federação**: a retificadora
+  1235-pt-pc-do-b-pv-retificadora.pdf relistou as 35 candidaturas inteiras
+  da Federação Brasil da Esperança com o partido individual (`PT`, `PCdoB`,
+  `PV`) em vez do nome de federação (`PT/PC do B/PV`) usado no resto do
+  arquivo — isso duplicava CADA candidato do PT/PC do B/PV (mesmo nome,
+  mesmo número, "alta confiança" nos dois, só o texto do partido diferente:
+  `partido:"PT"` vs `partido:"PT/PC do B/PV"`). Importante: `partido` é o
+  campo que agrupa candidatos por partido na tela (`interface/prospeccao.js`)
+  e que casa com `vagas2022` via `FEDERACOES_2026` (`dados/estados/registro-
+  2026.js`) — usar o nome cru em vez do nome de federação faria esse
+  partido aparecer FRAGMENTADO em dois grupos na tela, com vagas2022 errado
+  nos dois. Corrigido: todas as 35 entradas passaram a usar o nome de
+  federação; a entrada duplicada (vinda da convenção original,
+  195-pt-pc-do-b-pv-convencao.pdf) foi removida.
+- **Retificadora/executiva relista o quadro inteiro e duplica**: AGIR,
+  MISSÃO, DC e PSB tiveram atas onde a retificadora/executiva relistou
+  candidatos que não mudaram nada, criando uma segunda cópia idêntica (ou
+  quase — às vezes só com o número corrigido) da mesma pessoa. 32 pessoas
+  duplicadas dessa forma; mantida sempre a versão mais recente (por data de
+  sincronização no TSE), removida a mais antiga.
+- **Número corrigido por retificadora não bate com o da convenção**: 4 casos
+  onde a pessoa é a mesma mas o número mudou entre versões (ex.: Marcos
+  Vinícius Sodré E Silva Silvestre, PSOL/REDE, 5052→5042 — a retificadora
+  1516 até tem um "Onde se lê... leia-se..." explícito pra essa correção).
+  Mantido sempre o número mais recente.
+- **PSB: números trocados entre duas retificadoras** — Alan Alves Moreira e
+  Ana Cecilia Sirino (Deputado Federal) apareciam com os números 4000/4040
+  invertidos entre 1148-psb-retificadora.pdf (05/08) e 199-psb-retificadora.pdf
+  (22/07). Mantida a versão mais recente (1148): Alan=4000, Ana Cecilia=4040.
+- **Mudança de cargo**: José Júlio Guahnon e Simone Moredo foram movidos de
+  Deputado Federal para Deputado Estadual por uma ata executiva
+  (954-psol-rede-executiva.pdf) — as entradas antigas como candidatos a
+  Deputado Federal (números 1800/1818) foram removidas, ficou só a nova
+  candidatura a Deputado Estadual (números 18800/18018).
+- **Candidato retirado da chapa**: Juliano Avila Custódio (1º suplente de
+  Senador na chapa de Caroline Rodrigues De Toni, PL) desistiu por motivos
+  pessoais antes do registro — três atas diferentes (1312-pl-executiva.pdf,
+  1337-novo-executiva.pdf, 1533-agir-executiva.pdf) confirmam que ele foi
+  substituído por Geraldo Wetzel Neto (NOVO). A entrada dele foi removida;
+  ficou só Geraldo Wetzel Neto.
+
+### Partido confirmado no texto da ata (40 candidatos)
+
+| Nome | Cargo | Partido confirmado | Fonte |
+|---|---|---|---|
+| Carlos Roberto Caetano | Deputado Estadual | PSDB/CIDADANIA | 1036-psdb-cidadania-retificadora.pdf |
+| Eliane Regina Noal Battisti | Deputado Estadual | PSDB/CIDADANIA | 1036-psdb-cidadania-retificadora.pdf |
+| Teresinha Spohr | Deputado Estadual | PSDB/CIDADANIA | 1036-psdb-cidadania-retificadora.pdf |
+| José Napoleão Bonaparte Maia Rodrigues | Deputado Estadual | UNIÃO/PP (filiado União Brasil) | 978-44-união-11-pp-executiva.pdf |
+| José Júlio Guahnon | Deputado Estadual (mudou de Federal) | PSOL/REDE | 954-psol-rede-executiva.pdf |
+| Simone Moredo | Deputado Estadual (mudou de Federal) | PSOL/REDE | 954-psol-rede-executiva.pdf |
+| Gelson Luiz Merísio | Governador | PSB | 1148-psb-retificadora.pdf |
+| Jorginho Dos Santos Mello | Governador | PL | 680-pl-convencao.pdf |
+| João Rodrigues | Governador | PSD | 694-psd-convencao.pdf |
+| Adriano Bornschein Silva | Vice-Governador | NOVO | 487-novo-convencao.pdf + 680-pl-convencao.pdf |
+| Angela Albino | Vice-Governadora | PDT | 1148-psb-retificadora.pdf |
+| Afrânio Tadeu Boppré | Senador | PSOL/REDE (texto: "partido PSOL") | 1516-psol-rede-retificadora.pdf |
+| Décio Nery De Lima | Senador | PT/PC do B/PV (texto: "partido PT") | 1235-pt-pc-do-b-pv-retificadora.pdf |
+| Esperidião Amin Helou Filho | Senador | UNIÃO/PP (filiado Progressistas) | 769-44-união-11-pp-convencao.pdf |
+| Carlos Nantes Bolsonaro | Senador | PL | 680-pl-convencao.pdf |
+| Caroline Rodrigues De Toni | Senadora | PL | 680-pl-convencao.pdf |
+| Rafael Caleffi | Senador (1º suplente de Carlos Nantes Bolsonaro) | PL | 680-pl-convencao.pdf |
+| Balduino Rodrigues Ferreira | Senador (2º suplente de Carlos Nantes Bolsonaro) | PL | 680-pl-convencao.pdf |
+| Andrey Otavio Tomazi | Senador (2º suplente de Caroline De Toni) | PL | 680-pl-convencao.pdf |
+| Geraldo Wetzel Neto | Senador (1º suplente de Caroline De Toni, substitui Juliano Ávila Custódio) | NOVO | 1312/1337/1533 (executivas) |
+| Volnei Weber | Senador (1º suplente de Esperidião Amin) | MDB | 1683-44-união-11-pp-executiva.pdf |
+| Eni José Voltolini | Senador (2º suplente de Esperidião Amin) | UNIÃO/PP (filiado Progressistas) | 1683-44-união-11-pp-executiva.pdf |
+| Clenilton Carlos Pereira | Senador (1º suplente de Antídio Aleixo Lunelli) | UNIÃO/PP (filiado União Brasil) | 769-44-união-11-pp-convencao.pdf |
+| Genesio Moises Spillere | Senador (2º suplente de Antídio Aleixo Lunelli) | UNIÃO/PP (filiado Progressistas) | 769-44-união-11-pp-convencao.pdf |
+| Luci Teresinha Choinacki | Senadora (1ª suplente de Afrânio Boppré) | PT/PC do B/PV (texto: "partido PT") | 1516-psol-rede-retificadora.pdf |
+| Aparecida Da Silva | Senadora (2ª suplente de Afrânio Boppré) | PT/PC do B/PV (texto: "partido PT") | 1516-psol-rede-retificadora.pdf |
+
+_(Nota: Elaine Cristina Huber, 1ª suplente de Décio Nery De Lima, já tinha
+entrada "alta confiança" duplicada com partido PDT em duas atas — resolvida
+como duplicata na mesma passada, não é uma pendência nova.)_
+
+### Removido (não é pendência, é dado errado/obsoleto)
+
+| Nome | Cargo | Motivo |
+|---|---|---|
+| Juliano Avila Custodio | Senador (1º suplente) | Desistiu da candidatura (confirmado em 3 atas); substituído por Geraldo Wetzel Neto |
+| José Júlio Guahnon (entrada antiga) | Deputado Federal, número 1800 | Candidato mudou de cargo para Deputado Estadual |
+| Simone Moredo (entrada antiga) | Deputado Federal, número 1818 | Candidata mudou de cargo para Deputado Estadual |
 
 ## Status de confirmação
 
