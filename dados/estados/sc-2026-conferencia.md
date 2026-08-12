@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 SC (atas de convenção)
 
-Gerado em 2026-08-03 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
+Gerado em 2026-08-12 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -10,7 +10,28 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 
 | Arquivo | Partido detectado | Retificadora | Candidaturas extraídas |
 |---|---|---|---|
+| 1036-psdb-cidadania-retificadora.pdf | ? | sim | 25 |
+| 1148-psb-retificadora.pdf | PSB | sim | 4 |
+| 1176-mdb-executiva.pdf | MDB | não | 0 |
+| 1233-psol-rede-retificadora.pdf | ? | sim | 48 |
+| 1235-pt-pc-do-b-pv-retificadora.pdf | ? | sim | 52 |
+| 1241-pode-executiva.pdf | PODE | não | 0 |
+| 1289-republicanos-executiva.pdf | REPUBLICANOS | não | 0 |
+| 1312-pl-executiva.pdf | PL | não | 1 |
+| 1322-psdb-cidadania-executiva.pdf | ? | não | 0 |
+| 1337-novo-executiva.pdf | NOVO | não | 1 |
+| 1356-dc-retificadora.pdf | DC | sim | 17 |
+| 1403-pco-convencao.pdf | PCO | não | 7 |
+| 1412-avante-executiva.pdf | AVANTE | não | 0 |
+| 1436-missão-retificadora.pdf | MISSÃO | sim | 37 |
+| 1516-psol-rede-retificadora.pdf | ? | sim | 48 |
+| 1533-agir-executiva.pdf | AGIR | não | 1 |
+| 1551-dc-retificadora.pdf | DC | sim | 17 |
+| 1593-avante-executiva.pdf | AVANTE | não | 1 |
+| 1656-psd-executiva.pdf | PSD | não | 0 |
 | 166-psb-convencao.pdf | PSB | não | 4 |
+| 1672-mdb-executiva.pdf | MDB | não | 0 |
+| 1683-44-união-11-pp-executiva.pdf | ? | não | 2 |
 | 172-psol-rede-convencao.pdf | PSOL/REDE | não | 48 |
 | 183-pdt-convencao.pdf | PDT | não | 45 |
 | 189-up-convencao.pdf | UP | não | 10 |
@@ -33,8 +54,18 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 776-republicanos-convencao.pdf | REPUBLICANOS | não | 45 |
 | 803-agir-executiva.pdf | AGIR | não | 9 |
 | 814-psdb-cidadania-retificadora.pdf | ? | sim | 22 |
+| 918-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
+| 954-psol-rede-executiva.pdf | ? | não | 2 |
+| 978-44-união-11-pp-executiva.pdf | ? | não | 1 |
 
-Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido não identificado): **42**
+Total de candidaturas: **794** — confiança alta: **754**, a revisar (partido não identificado): **40**
+
+_(Números acima já refletem a limpeza de duplicatas feita manualmente em
+12/08/2026 — ver seção "Duplicatas resolvidas em 12/08/2026" abaixo. O
+script `tratar_atas.py` sozinho, sem essa limpeza, tinha gerado 940
+candidaturas com 189 "a revisar".)_
+
+Candidatos fictícios preservados (partido/cargo ainda sem ata real): **22** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
@@ -42,68 +73,225 @@ Total de candidaturas: **710** — confiança alta: **668**, a revisar (partido 
 - Candidatura de Angela Albino (PSB, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alan Alves Moreira (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ana Cecilia Sirino (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Marcel Franco Jose Da Silva (MISSÃO, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Rodrigues (MISSÃO, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Diego Santos Vieira (MISSÃO, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edupercio Pratts (MISSÃO, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Túlio De Amorim Pfuetzenreiter (MISSÃO, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriana Custódio Lino (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Beatriz Koerich (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andiara Rafaela Ferreira Nogueira (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andressa De Oliveira (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anna Paola Reichert Pinheiro Alves Vargas (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Artur De Farias Vieira (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bruno Henrique Dias De Souza (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jhordam Brito Dos Santos (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jody Frank Romeiro Alves Queiroz (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Larissa Becker Kamers (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lucas Ferreira Silveira (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Boettcher (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Pablo Henrique Carvalho Tessari (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Josué Lima Pereira (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Santiago Da Silva Cesar (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vagner Visoli (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ademir Lima Dos Anjos (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antônio Alberto Moreira Ramos (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Clair Da Silva (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco Figura Neto (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Giliardi Dorn (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jackson Soares Da Silva (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Marcelo Galbiatti Biagiotti (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Letícia Paloma Kwoll Vargas (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luciana Lopes Ferreira (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Manoel Cabral Filho (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sergio De Giacometti (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Simone Aparecida Xavier (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Taize Zagonel (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Valdemir Antônio Dos Santos (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Número 2345 repetido em None/Deputado Federal para: Arlei Da Silva, Arlei Da Silva — conferir manualmente.
+- Número 2323 repetido em None/Deputado Federal para: Barbara Kawall Connolly Barreiros, Barbara Kawall Connolly Barreiros — conferir manualmente.
+- Número 2322 repetido em None/Deputado Federal para: Roseli Moraes Silva, Roseli Moraes Silva — conferir manualmente.
+- Número 45345 repetido em None/Deputado Estadual para: Adelar José Tolfo, Adelar José Tolfo — conferir manualmente.
+- Número 45777 repetido em None/Deputado Estadual para: Arildo Fernandes Da Silva, Arildo Fernandes Da Silva — conferir manualmente.
+- Número 23123 repetido em None/Deputado Estadual para: Bruno Horwatitsch Cunha, Bruno Horwatitsch Cunha — conferir manualmente.
+- Número 45333 repetido em None/Deputado Estadual para: Crislane Evaristo Fernandes, Crislane Evaristo Fernandes — conferir manualmente.
+- Número 45444 repetido em None/Deputado Estadual para: Edson Luiz Duarte, Edson Luiz Duarte — conferir manualmente.
+- Número 23456 repetido em None/Deputado Estadual para: Fabiana Da Silva, Fabiana Da Silva — conferir manualmente.
+- Número 45678 repetido em None/Deputado Estadual para: Jefferson Schmidt, Jefferson Schmidt — conferir manualmente.
+- Número 45199 repetido em None/Deputado Estadual para: Jessica Degering Rodrigues, Jessica Degering Rodrigues — conferir manualmente.
+- Número 45222 repetido em None/Deputado Estadual para: Jucemar Custódio, Jucemar Custódio — conferir manualmente.
+- Número 45588 repetido em None/Deputado Estadual para: Kariny Naiara Muller Brum, Kariny Naiara Muller Brum — conferir manualmente.
+- Número 45455 repetido em None/Deputado Estadual para: Leonardo Garcia Heinzen, Leonardo Garcia Heinzen — conferir manualmente.
+- Número 45699 repetido em None/Deputado Estadual para: Marcos Luiz Vieira, Marcos Luiz Vieira — conferir manualmente.
+- Número 23000 repetido em None/Deputado Estadual para: Mirna Rubia Da Silva Commandulli, Mirna Rubia Da Silva Commandulli — conferir manualmente.
+- Número 45000 repetido em None/Deputado Estadual para: Patricia Da Silva Sobreda, Patricia Da Silva Sobreda — conferir manualmente.
+- Número 45145 repetido em None/Deputado Estadual para: Paulo Spengler, Paulo Spengler — conferir manualmente.
+- Número 45051 repetido em None/Deputado Estadual para: Renato Geske, Renato Geske — conferir manualmente.
+- Número 45450 repetido em None/Deputado Estadual para: Sonia Salete Vedovatto, Sonia Salete Vedovatto — conferir manualmente.
+- Número 45555 repetido em None/Deputado Estadual para: Sérgio Freitas, Sérgio Freitas — conferir manualmente.
+- Número 45045 repetido em None/Deputado Estadual para: Tcharles Purim, Tcharles Purim — conferir manualmente.
+- Número 40 repetido em PSB/Governador para: Gelson Luiz Merísio, Gelson Luiz Merísio — conferir manualmente.
+- Número 4000 repetido em PSB/Deputado Federal para: Alan Alves Moreira, Ana Cecilia Sirino — conferir manualmente.
+- Número 4040 repetido em PSB/Deputado Federal para: Ana Cecilia Sirino, Alan Alves Moreira — conferir manualmente.
+- Número 500 repetido em None/Senador para: Afrânio Tadeu Boppré, Afrânio Tadeu Boppré — conferir manualmente.
+- Número 5008 repetido em None/Deputado Federal para: Beatriz Alves, Beatriz Alves — conferir manualmente.
+- Número 5010 repetido em None/Deputado Federal para: Elson Manoel Pereira, Elson Manoel Pereira — conferir manualmente.
+- Número 5093 repetido em None/Deputado Federal para: Givaldo Santos Santana, Givaldo Santos Santana — conferir manualmente.
+- Número 5024 repetido em None/Deputado Federal para: José Inácio Sperber, José Inácio Sperber — conferir manualmente.
+- Número 1800 repetido em None/Deputado Federal para: José Júlio Guahnon, José Júlio Guahnon — conferir manualmente.
+- Número 5080 repetido em None/Deputado Federal para: Jéssica Michels, Jéssica Michels — conferir manualmente.
+- Número 5005 repetido em None/Deputado Federal para: Leonhard Bravo Seyboth, Leonhard Bravo Seyboth — conferir manualmente.
+- Número 5020 repetido em None/Deputado Federal para: Lívia Ferreira Pessoa Santos, Lívia Ferreira Pessoa Santos — conferir manualmente.
+- Número 5013 repetido em None/Deputado Federal para: Marcos Cordeiro Bueno, Marcos Cordeiro Bueno — conferir manualmente.
+- Número 5055 repetido em None/Deputado Federal para: Mariana Souza Hreisemnou, Mariana Souza Hreisemnou — conferir manualmente.
+- Número 5075 repetido em None/Deputado Federal para: Mirê Sanchez Chagas, Mirê Sanchez Chagas — conferir manualmente.
+- Número 5040 repetido em None/Deputado Federal para: Nandja Schirlei Da Rocha, Nandja Schirlei Da Rocha — conferir manualmente.
+- Número 5077 repetido em None/Deputado Federal para: Samara Madureira Morais, Samara Madureira Morais — conferir manualmente.
+- Número 5018 repetido em None/Deputado Federal para: Simone Medeiros Martins, Simone Medeiros Martins — conferir manualmente.
+- Número 1818 repetido em None/Deputado Federal para: Simone Moredo, Simone Moredo — conferir manualmente.
+- Número 5001 repetido em None/Deputado Federal para: Thiago De Castro Moreti, Thiago De Castro Moreti — conferir manualmente.
+- Número 5050 repetido em None/Deputado Federal para: Valmir Braz De Souza, Valmir Braz De Souza — conferir manualmente.
+- Número 5000 repetido em None/Deputado Federal para: Victor Della Giustina Gaspodini, Victor Della Giustina Gaspodini — conferir manualmente.
+- Número 50005 repetido em None/Deputado Estadual para: Alex Sandro Gonzaga Stein, Alex Sandro Gonzaga Stein — conferir manualmente.
+- Número 18188 repetido em None/Deputado Estadual para: Amanda Ribeiro Proença, Amanda Ribeiro Proença — conferir manualmente.
+- Número 50789 repetido em None/Deputado Estadual para: Amarildo Narciso, Amarildo Narciso — conferir manualmente.
+- Número 50777 repetido em None/Deputado Estadual para: Ana Flávia Luiz, Ana Flávia Luiz — conferir manualmente.
+- Número 50123 repetido em None/Deputado Estadual para: Ana Paula Godoi Vaz, Ana Paula Godoi Vaz — conferir manualmente.
+- Número 50321 repetido em None/Deputado Estadual para: Andrew Leal, Andrew Leal — conferir manualmente.
+- Número 50000 repetido em None/Deputado Estadual para: Carlos Alexandre Nau, Carlos Alexandre Nau — conferir manualmente.
+- Número 50900 repetido em None/Deputado Estadual para: Carlos Silva, Carlos Silva — conferir manualmente.
+- Número 50505 repetido em None/Deputado Estadual para: Douglas Meriz, Douglas Meriz — conferir manualmente.
+- Número 50550 repetido em None/Deputado Estadual para: Edson Alipe Capistrano, Edson Alipe Capistrano — conferir manualmente.
+- Número 50456 repetido em None/Deputado Estadual para: Everton Meirinho De Oliveira, Everton Meirinho De Oliveira — conferir manualmente.
+- Número 50007 repetido em None/Deputado Estadual para: Fabio Henschel Sabel, Fabio Henschel Sabel — conferir manualmente.
+- Número 50369 repetido em None/Deputado Estadual para: Fábio Silveira De Oliveira, Fábio Silveira De Oliveira — conferir manualmente.
+- Número 50054 repetido em None/Deputado Estadual para: Genésio Adolfo Da Silva, Genésio Adolfo Da Silva — conferir manualmente.
+- Número 50111 repetido em None/Deputado Estadual para: Gerson Antônio Ribeiro, Gerson Antônio Ribeiro — conferir manualmente.
+- Número 50180 repetido em None/Deputado Estadual para: Ingrid Silva De Assis, Ingrid Silva De Assis — conferir manualmente.
+- Número 50555 repetido em None/Deputado Estadual para: Izabele Cristini Da Silva, Izabele Cristini Da Silva — conferir manualmente.
+- Número 50096 repetido em None/Deputado Estadual para: Josiane Dos Santos Marques, Josiane Dos Santos Marques — conferir manualmente.
+- Número 18000 repetido em None/Deputado Estadual para: Leandro Da Silva, Leandro Da Silva — conferir manualmente.
+- Número 50500 repetido em None/Deputado Estadual para: Leonel David Jesus Camasão Cordeiro, Leonel David Jesus Camasão Cordeiro — conferir manualmente.
+- Número 50600 repetido em None/Deputado Estadual para: Marcelo Henrique Pereira, Marcelo Henrique Pereira — conferir manualmente.
+- Número 50150 repetido em None/Deputado Estadual para: Marcos José De Abreu, Marcos José De Abreu — conferir manualmente.
+- Número 50100 repetido em None/Deputado Estadual para: Mariana Furlan Sartor, Mariana Furlan Sartor — conferir manualmente.
+- Número 50999 repetido em None/Deputado Estadual para: Vitória Pedroni, Vitória Pedroni — conferir manualmente.
+- Número 50044 repetido em None/Deputado Estadual para: Ágatha Ísis Brum Da Silva, Ágatha Ísis Brum Da Silva — conferir manualmente.
+- Número 50333 repetido em None/Deputado Estadual para: Ângelo Máximo De Lima, Ângelo Máximo De Lima — conferir manualmente.
+- Número 6500 repetido em None/Deputado Federal para: Camilo Candido Da Silva, Jovino Marques Gonçalves — conferir manualmente.
+- Número 2712 repetido em DC/Deputado Federal para: Antônio Alberto Moreira Ramos, Antônio Alberto Moreira Ramos — conferir manualmente.
+- Número 2755 repetido em DC/Deputado Federal para: Clair Da Silva, Clair Da Silva — conferir manualmente.
+- Número 2739 repetido em DC/Deputado Federal para: Claudiomir Castilho Ramos, Claudiomir Castilho Ramos — conferir manualmente.
+- Número 2730 repetido em DC/Deputado Federal para: Djeiksson Felipe Prior Stringhini, Djeiksson Felipe Prior Stringhini, Djeiksson Felipe Prior Stringhini — conferir manualmente.
+- Número 2727 repetido em DC/Deputado Federal para: Elias De Lima, Elias De Lima, Elias De Lima — conferir manualmente.
+- Número 2777 repetido em DC/Deputado Federal para: Francisca Kruck Rodrigues Da Silva, Francisca Kruck Rodrigues Da Silva, Francisca Kruck Rodrigues Da Silva — conferir manualmente.
+- Número 2723 repetido em DC/Deputado Federal para: Francisco Figura Neto, Francisco Figura Neto — conferir manualmente.
+- Número 2799 repetido em DC/Deputado Federal para: Giliardi Dorn, Giliardi Dorn — conferir manualmente.
+- Número 2789 repetido em DC/Deputado Federal para: Jackson Soares Da Silva, Jackson Soares Da Silva — conferir manualmente.
+- Número 2707 repetido em DC/Deputado Federal para: João Marcelo Galbiatti Biagiotti, João Marcelo Galbiatti Biagiotti — conferir manualmente.
+- Número 2733 repetido em DC/Deputado Federal para: Letícia Paloma Kwoll Vargas, Letícia Paloma Kwoll Vargas — conferir manualmente.
+- Número 2711 repetido em DC/Deputado Federal para: Luciana Lopes Ferreira, Luciana Lopes Ferreira — conferir manualmente.
+- Número 2700 repetido em DC/Deputado Federal para: Manoel Cabral Filho, João Natanael Dornelles Da Fontoura — conferir manualmente.
+- Número 2722 repetido em DC/Deputado Federal para: Sergio De Giacometti, Sergio De Giacometti — conferir manualmente.
+- Número 2788 repetido em DC/Deputado Federal para: Simone Aparecida Xavier, Simone Aparecida Xavier — conferir manualmente.
+- Número 2744 repetido em DC/Deputado Federal para: Taize Zagonel, Taize Zagonel — conferir manualmente.
+- Número 2701 repetido em DC/Deputado Federal para: Valdemir Antônio Dos Santos, Valdemir Antônio Dos Santos — conferir manualmente.
+- Número 14 repetido em MISSÃO/Governador para: Marcelo Marcel Franco Jose Da Silva, Marcelo Rodrigues — conferir manualmente.
+- Número 144 repetido em MISSÃO/Senador para: Diego Santos Vieira, Edupercio Pratts, Túlio De Amorim Pfuetzenreiter — conferir manualmente.
+- Número 14141 repetido em MISSÃO/Deputado Estadual para: Byanca Aparecida Mendes Dolzan Moritz, Byanca Aparecida Mendes Dolzan Moritz — conferir manualmente.
+- Número 14014 repetido em MISSÃO/Deputado Estadual para: Carol Formigoni Alves, Carol Formigoni Alves — conferir manualmente.
+- Número 14001 repetido em MISSÃO/Deputado Estadual para: Cleiton Siqueira, Davi Daniel Da Conceição — conferir manualmente.
+- Número 14007 repetido em MISSÃO/Deputado Estadual para: Franciele Cristina Villani, Franciele Cristina Villani — conferir manualmente.
+- Número 14140 repetido em MISSÃO/Deputado Estadual para: Gabriel Felipe De Oliveira, Gabriel Felipe De Oliveira — conferir manualmente.
+- Número 14999 repetido em MISSÃO/Deputado Estadual para: Jairo Fortunato, Jairo Fortunato — conferir manualmente.
+- Número 14444 repetido em MISSÃO/Deputado Estadual para: Leonardo Kamers Dos Santos, Leonardo Kamers Dos Santos — conferir manualmente.
+- Número 14144 repetido em MISSÃO/Deputado Estadual para: Marco Antônio Benedet Périco, Marco Antônio Benedet Périco — conferir manualmente.
+- Número 14000 repetido em MISSÃO/Deputado Estadual para: Margareth Hach Pratts, Margareth Hach Pratts — conferir manualmente.
+- Número 14077 repetido em MISSÃO/Deputado Estadual para: Maurício Correa, Maurício Correa — conferir manualmente.
+- Número 14555 repetido em MISSÃO/Deputado Estadual para: Maurício Souza Couto, Maurício Souza Couto — conferir manualmente.
+- Número 14100 repetido em MISSÃO/Deputado Estadual para: Nilson Vicenti, Nilson Vicenti — conferir manualmente.
+- Número 14777 repetido em MISSÃO/Deputado Estadual para: Ricardo Becker, Ricardo Becker — conferir manualmente.
+- Número 14111 repetido em MISSÃO/Deputado Estadual para: Yolanda Cargnin Da Silva, Yolanda Cargnin Da Silva — conferir manualmente.
 - Número 3636 repetido em AGIR/Deputado Federal para: Jackson Raymundo Martins, Jackson Raymundo Martins — conferir manualmente.
 - Número 36777 repetido em AGIR/Deputado Estadual para: Henrique Todeschini Da Silva, Henrique Todeschini Da Silva — conferir manualmente.
 - Número 36123 repetido em AGIR/Deputado Estadual para: Robson Zagre, Robson Zagre — conferir manualmente.
 - Número 36222 repetido em AGIR/Deputado Estadual para: Silvana Walger, Aguinaldo Vargas De Vargas — conferir manualmente.
-- Número 14 repetido em MISSÃO/Governador para: Marcelo Marcel Franco Jose Da Silva, Marcelo Rodrigues — conferir manualmente.
-- Número 144 repetido em MISSÃO/Senador para: Diego Santos Vieira, Edupercio Pratts, Túlio De Amorim Pfuetzenreiter — conferir manualmente.
-- 42 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 189 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
-| Nome | Cargo | Arquivo (documento da coligação) |
+40 pendências reais, já deduplicadas (ver seção seguinte para o que foi
+removido automaticamente hoje). Vários nomes abaixo aparecem em mais de um
+arquivo — provavelmente a mesma pessoa mencionada em atas diferentes do
+mesmo bloco (convenção + retificadora(s), ou convenções de partidos aliados
+na mesma coligação). Como `numero` é nulo nesses casos (vice/suplente sem
+número próprio no anexo estruturado), não dá pra cruzar automaticamente por
+número — precisa de alguém confirmar no PDF se é 1 candidato ou mais de um.
+
+| Nome | Cargo | Arquivo(s) de origem |
 |---|---|---|
-| Afrânio Tadeu Boppré | Senador | 172-psol-rede-convencao.pdf |
-| Aparecida Da Silva | Senador (2º suplente) | 172-psol-rede-convencao.pdf |
-| Luci Teresinha Choinacki | Senador (1º suplente) | 172-psol-rede-convencao.pdf |
-| Décio Nery De Lima | Senador | 195-pt-pc-do-b-pv-convencao.pdf |
-| Gelson Luiz Merísio | Governador | 199-psb-retificadora.pdf |
-| Angela Albino | Vice-Governador | 199-psb-retificadora.pdf |
-| Adriano Bornschein Silva | Vice-Governador | 487-novo-convencao.pdf |
+| Carlos Roberto Caetano | Deputado Estadual | 1036-psdb-cidadania-retificadora.pdf |
+| Eliane Regina Noal Battisti | Deputado Estadual | 1036-psdb-cidadania-retificadora.pdf |
+| José Júlio Guahnon | Deputado Estadual | 954-psol-rede-executiva.pdf |
+| José Napoleão Bonaparte Maia Rodrigues | Deputado Estadual | 978-44-união-11-pp-executiva.pdf |
+| Simone Moredo | Deputado Estadual | 954-psol-rede-executiva.pdf |
+| Teresinha Spohr | Deputado Estadual | 1036-psdb-cidadania-retificadora.pdf |
+| Marcos Vinícius Sodré E Silva Silvestre | Deputado Federal | 1516-psol-rede-retificadora.pdf |
+| Gelson Luiz Merísio | Governador | 1148-psb-retificadora.pdf + 199-psb-retificadora.pdf |
 | Jorginho Dos Santos Mello | Governador | 680-pl-convencao.pdf |
-| Adriano Bornschein Silva | Vice-Governador | 680-pl-convencao.pdf |
+| João Rodrigues | Governador | 694-psd-convencao.pdf |
+| Afrânio Tadeu Boppré | Senador | 172-psol-rede-convencao.pdf + 1233-psol-rede-retificadora.pdf + 1516-psol-rede-retificadora.pdf |
 | Carlos Nantes Bolsonaro | Senador | 680-pl-convencao.pdf |
 | Caroline Rodrigues De Toni | Senador | 680-pl-convencao.pdf |
-| Juliano Avila Custodio | Senador (1º suplente) | 680-pl-convencao.pdf |
-| Rafael Caleffi | Senador (1º suplente) | 680-pl-convencao.pdf |
-| Andrey Otavio Tomazi | Senador (2º suplente) | 680-pl-convencao.pdf |
-| Balduino Rodrigues Ferreira | Senador (2º suplente) | 680-pl-convencao.pdf |
-| João Rodrigues | Governador | 694-psd-convencao.pdf |
+| Décio Nery De Lima | Senador | 195-pt-pc-do-b-pv-convencao.pdf + 1235-pt-pc-do-b-pv-retificadora.pdf |
 | Esperidião Amin Helou Filho | Senador | 769-44-união-11-pp-convencao.pdf |
 | Clenilton Carlos Pereira | Senador (1º suplente) | 769-44-união-11-pp-convencao.pdf |
+| Geraldo Wetzel Neto | Senador (1º suplente) | 1312-pl-executiva.pdf + 1337-novo-executiva.pdf + 1533-agir-executiva.pdf |
+| Juliano Avila Custodio | Senador (1º suplente) | 680-pl-convencao.pdf |
+| Luci Teresinha Choinacki | Senador (1º suplente) | 172-psol-rede-convencao.pdf + 1233-psol-rede-retificadora.pdf + 1516-psol-rede-retificadora.pdf |
+| Rafael Caleffi | Senador (1º suplente) | 680-pl-convencao.pdf |
+| Volnei Weber | Senador (1º suplente) | 1683-44-união-11-pp-executiva.pdf |
+| Andrey Otavio Tomazi | Senador (2º suplente) | 680-pl-convencao.pdf |
+| Aparecida Da Silva | Senador (2º suplente) | 172-psol-rede-convencao.pdf + 1233-psol-rede-retificadora.pdf + 1516-psol-rede-retificadora.pdf |
+| Balduino Rodrigues Ferreira | Senador (2º suplente) | 680-pl-convencao.pdf |
+| Eni José Voltolini | Senador (2º suplente) | 1683-44-união-11-pp-executiva.pdf |
 | Genesio Moises Spillere | Senador (2º suplente) | 769-44-união-11-pp-convencao.pdf |
+| Adriano Bornschein Silva | Vice-Governador | 487-novo-convencao.pdf + 680-pl-convencao.pdf |
+| Angela Albino | Vice-Governador | 1148-psb-retificadora.pdf + 199-psb-retificadora.pdf |
+
+## Duplicatas resolvidas em 12/08/2026
+
+Rodada de hoje processou 24 atas novas (SC tinha ficado sem atualização de
+07/08 a 11/08/2026 — ver observação no relatório da rotina). O output bruto
+de `tratar_atas.py` trouxe 940 candidaturas, 189 delas "a revisar" (sem
+partido). Duas limpezas foram aplicadas manualmente antes de gravar o
+arquivo final (mesmo espírito do caso Marcos Vieira, 07/08/2026):
+
+1. **149 duplicatas "sem partido" vs. "alta confiança"** — mesmo
+   número+cargo já tinha uma entrada com partido identificado (principal
+   causa: retificadoras de PSDB/CIDADANIA, PSOL/REDE e PT/PC do B/PV
+   relistam o quadro inteiro de candidatos mas o anexo da retificadora não
+   trouxe o partido de forma clara para extração). Removida a entrada
+   "sem partido", mantida só a de alta confiança.
+2. **19 duplicatas exatas** (mesmo `id`, mesmo registro, gerado duas vezes)
+   — bug de `tratar_atas.py` ao processar candidatos coligados/sem
+   partido (Governador, Senador e suplentes, Vice-Governador) quando o
+   mesmo nome aparece em mais de uma ata do mesmo grupo (ex.: duas
+   retificadoras do PSB geraram duas cópias idênticas de Gelson Luiz
+   Merísio como candidato a Governador). Recomendo revisar a lógica de
+   dedup de `ferramentas/tratar_atas.py` para candidatos com
+   `partido:null` — hoje ela não cobre esse caso.
+
+Total removido: 168 linhas. `dados/estados/sc-2026-provisorio.js` foi
+editado diretamente para essa limpeza (não é o output original do
+script) — na próxima execução da rotina, se `tratar_atas.py` continuar
+gerando os mesmos duplicados, repetir a mesma limpeza até o bug do
+gerador ser corrigido.
+
 ## Status de confirmação
+
+_(nenhuma linha confirmada ainda — preencher conforme for revisando, mesmo
+formato de dados/correcoes-nomes.md)_
 
 | Nome | Cargo | Partido | Status | Fonte |
 |---|---|---|---|---|
-| Adelar José Tolfo | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata de psdb-cidadania-adelar-jose-tolfo (mesmo número TSE 45345), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Arildo Fernandes Da Silva | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45777), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Bruno Horwatitsch Cunha | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 23123), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Crislane Evaristo Fernandes | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45333), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Edson Luiz Duarte | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45444), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Fabiana Da Silva | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 23456), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Jefferson Schmidt | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45678), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Jessica Degering Rodrigues | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45199), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Jucemar Custódio | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45222), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Kariny Naiara Muller Brum | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45588), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Leonardo Garcia Heinzen | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45455), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Marcos Luiz Vieira | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45699), entrada sem-partido removida (achado pelo usuário testando o app) | 624-psdb-cidadania-convencao.pdf |
-| Mirna Rubia Da Silva Commandulli | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 23000), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Patricia Da Silva Sobreda | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45000), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Paulo Spengler | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45145), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Renato Geske | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45051), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Sonia Salete Vedovatto | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45450), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Sérgio Freitas | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45555), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Tcharles Purim | Deputado Estadual | PSDB/CIDADANIA | Resolvido 07/08/2026 — duplicata (número TSE 45045), entrada sem-partido removida | 624-psdb-cidadania-convencao.pdf |
-| Jovino Marques Gonçalves | Deputado Federal | PT/PC do B/PV | Resolvido 07/08/2026 — não era duplicata; ata executiva registra substituição de candidatura (CAMILO CÂNDIDO DA SILVA → JOVINO MARQUES GONÇALVES, número 6500, partido PCdoB dentro da federação PT/PC do B/PV), partido confirmado no texto corrido da ata | 557-pt-pc-do-b-pv-executiva.pdf |
-| Arlei Da Silva | Deputado Federal | PSDB/CIDADANIA | Resolvido 07/08/2026 — não era duplicata; partido confirmado no texto corrido da ata retificadora (não estruturado, script não conseguiu ler) | 814-psdb-cidadania-retificadora.pdf |
-| Barbara Kawall Connolly Barreiros | Deputado Federal | PSDB/CIDADANIA | Resolvido 07/08/2026 — não era duplicata; partido confirmado no texto corrido da ata retificadora (não estruturado, script não conseguiu ler) | 814-psdb-cidadania-retificadora.pdf |
-| Roseli Moraes Silva | Deputado Federal | PSDB/CIDADANIA | Resolvido 07/08/2026 — não era duplicata; partido confirmado no texto corrido da ata retificadora (não estruturado, script não conseguiu ler) | 814-psdb-cidadania-retificadora.pdf |
-
-_Todas as pendências "sem partido identificado" registradas até 07/08/2026
-foram resolvidas: 18 eram duplicata de entrada já existente (mesmo número
-TSE), removidas; 4 (Arlei Da Silva, Barbara Kawall Connolly Barreiros,
-Roseli Moraes Silva, Jovino Marques Gonçalves) tiveram o partido confirmado
-lendo o texto corrido do PDF de origem, já aplicado em
-`dados/estados/sc-2026-provisorio.js`._
