@@ -121,7 +121,62 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
 
 **⬜ Pendente**
 1. Confirmar a regra de vagas de Senador por estado em 2026 (renovação por terços — já mapeado no PROJETO.md, falta só validar a fonte)
-2. Ranking "Brasil" — pool geral, independente de quantos estados a pessoa participou
+
+---
+
+## Ranking
+
+_Ainda em concepção (pedido do usuário, 11/08/2026) — não é pra construir
+ainda, é pra fixar a ideia antes de chegar no fim da estrutura. Bloqueado
+de qualquer forma pelo resultado oficial de 2026 (só existe pontuação
+depois da eleição de verdade — Fase 6 do PROJETO.md)._
+
+**Conceitos fechados nessa rodada:**
+- Ranking = **pontuação do usuário**, sempre com o nome real do cadastro,
+  **sem opção de anônimo** (diferente da divulgação de lista, que é por
+  cédula e pode ser anônima — não confundir os dois).
+- Nome de trabalho pro título de destaque (tipo "melhor colocado"):
+  **"Cacique"** — pode mudar depois, mas é o nome usado por enquanto em
+  qualquer rascunho/protótipo.
+- Escopos geográficos: **Município → Estado → Brasil** (nessa ordem de
+  exibição, do mais local pro mais amplo). Município já vem de graça do
+  CEP capturado no cadastro (11/08/2026) — não precisa de trabalho extra
+  pra isso existir.
+- Categorias confirmadas até agora: **mais acertos** (composição certa dos
+  eleitos, critério principal) e **mais preciso** (menor distância entre
+  voto previsto e voto real, hoje é o critério de desempate). Usuário vai
+  sugerir mais categorias antes de fechar a lista completa.
+- **Engenharia**: pontuação não é calculada ao vivo — é um cálculo em lote,
+  rodado uma vez depois que o resultado oficial de 2026 for carregado
+  (mesmo processo de conferência já usado pra 2022). O resultado desse
+  cálculo fica numa tabela própria; cada "ranking" (por município/estado/
+  país/categoria) é só uma consulta ordenando essa tabela, não um
+  recálculo — mantém rápido mesmo com volume.
+- **UX proposta**: a posição da própria pessoa sempre em destaque no topo
+  (mesmo fora do top 10), dois seletores (escopo geográfico + categoria) em
+  vez de uma grade com tudo, lista dos mais bem colocados embaixo. Clicar
+  em alguém leva pro perfil público dela via código da cédula (mesmo
+  código do compartilhamento — ver seção "Cédula depositada" acima e a
+  tarefa #34, consulta por nome/código dentro dessa mesma tela).
+
+**⬜ Pendente**
+1. Fechar a lista de categorias (só "mais acertos" e "mais preciso" até agora)
+2. Consulta por nome/código dentro da tela de Ranking (tarefa já registrada — #34)
+3. Desenhar e implementar o cálculo em lote pós-resultado oficial (schema, função, tabela de pontuação)
+4. Protótipo visual da tela (seletores + destaque da posição própria + lista) antes de programar
+
+**⏸️ Ideia pausada — 155 usuários fictícios de "cold start"**
+Especificação de produto já fechada (ver histórico: contas reais e
+permanentes, 3 cargos, só SC, variação de ±20% por candidato em cima de
+uma lista de referência, "efeito boot" cancela 1 fictício por cédula real
+depositada). Usuário pediu pra amadurecer mais antes de seguir. Dois
+pontos em aberto quando retomar:
+- Quem preenche a lista de referência (o próprio usuário pelo site, ou
+  ele dita a lista pra mim registrar) — perguntado, ainda sem resposta.
+- Cada uma das 156 contas (referência + 155) precisa de nome brasileiro
+  realista (não pode parecer "bot"/marca) e e-mail próprio e único
+  (não precisa ser caixa de e-mail real, só sintaticamente válido e
+  distinto — Supabase não aceita e-mail repetido entre contas).
 
 ---
 
