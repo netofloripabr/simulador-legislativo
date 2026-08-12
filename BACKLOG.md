@@ -89,8 +89,13 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
   reserva quando o navegador não suporta)
 
 **⬜ Pendente**
-1. Consulta pública no site: buscar pelo nome ou pelo código de um colega
-   pra ver a posição dele
+1. Consulta pública **dentro da tela de Ranking** (não é página separada):
+   buscar um colega pelo nome ou pelo código da cédula (`SLxx-xxxx`) pra ver
+   a lista/posição dele. Ranking hoje é só um placeholder ("disponível
+   depois do resultado oficial de 2026") — a pontuação/colocação de fato
+   depende do resultado real, mas a busca-e-visualização de uma cédula
+   específica não depende disso, então dá pra liberar já (assunção — avisar
+   se for pra esperar o resultado oficial também).
 2. Estender a imagem/resumo pra Dep. Federal e Senador (hoje só Estadual)
 
 ---
