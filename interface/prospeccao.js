@@ -2195,8 +2195,18 @@ function pedirConfirmacaoAutoPreenchimento(partido) {
 }
 function executarAutoPreenchimento(partido) {
   snapshotPalpite();
-  if (partido) balancearPartidoSelecao(partido);
-  else balancearTudoSelecao();
+  if (partido) {
+    balancearPartidoSelecao(partido);
+    aplicarQuantidadeMarcados(partido, partido.candidatos.filter((c) => c.marcadoEleito).length);
+  } else {
+    balancearTudoSelecao();
+    // Preencheu votos de todos os partidos do cargo — a votação de alguém
+    // pode ter ultrapassado outro já marcado em qualquer um deles, então
+    // recalcula quem fica marcado em cada partido, um por um.
+    pcState.palpiteEdicao.forEach((p) => {
+      aplicarQuantidadeMarcados(p, p.candidatos.filter((c) => c.marcadoEleito).length);
+    });
+  }
   renderSelecaoCandidatos();
 }
 
@@ -2520,47 +2530,45 @@ function zerarPartidoSelecao(p) {
   p.candidatos.forEach((c) => { c.votos = 0; c.votosEditado = false; c.marcadoEleito = false; });
 }
 
-// Setas ao lado do contador "marcados/vagas2022": ajustam 1 eleito por vez
-// sem precisar abrir o partido e clicar candidato por candidato. Pegam
-// sempre a posição seguinte à do último marcado na lista ordenada pela
-// votação REAL de 2022 (não pelos votos projetados de 2026, que mudam toda
-// hora e podem se afastar de quem realmente tem chance — ver comentário em
-// renderCargoEstadual) — e nunca marcam voto de legenda, que não é pessoa
-// (mesma regra de zerarPartidoSelecao).
+// Quem fica marcado como eleito num partido NUNCA é uma escolha direta —
+// é sempre os N mais votados AGORA (votação 2026 atual, não 2022), N =
+// quantidade escolhida no contador do partido. Pedido do usuário em
+// 11/08/2026, depois de um bug real: editar o voto de um candidato pra
+// ultrapassar outro já marcado não atualizava ninguém, porque marcação e
+// votação eram dois estados independentes. Toda vez que a votação de
+// alguém muda (blur do campo de voto) ou a quantidade muda (steppers,
+// contador digitado, autopreenchimento), essa função roda de novo e
+// redefine do zero quem está marcado — nunca soma/subtrai em cima do
+// estado anterior. Nunca marca voto de legenda (não é uma pessoa).
+function aplicarQuantidadeMarcados(p, quantidade) {
+  const elegiveis = p.candidatos.filter((c) => c.fonte !== "legenda");
+  const ordenados = [...elegiveis].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+  const alvo = Math.max(0, Math.min(Math.round(Number(quantidade) || 0), ordenados.length));
+  const chavesMarcadas = new Set(ordenados.slice(0, alvo).map((c) => c.chave));
+  p.candidatos.forEach((c) => { c.marcadoEleito = c.fonte !== "legenda" && chavesMarcadas.has(c.chave); });
+}
+
+// Setas ao lado do contador "marcados/vagas2022": ajustam a quantidade em 1,
+// sem precisar digitar. Quem preenche essa quantidade é sempre recalculado
+// (ver aplicarQuantidadeMarcados acima) — a seta só muda o número.
 function incrementarEleitosPartido(p) {
-  const ordenados = [...p.candidatos].sort((a, b) => (Number(b.votos2022) || 0) - (Number(a.votos2022) || 0));
-  let idxUltimoMarcado = -1;
-  ordenados.forEach((c, i) => { if (c.marcadoEleito) idxUltimoMarcado = i; });
-  const proximo = ordenados.slice(idxUltimoMarcado + 1).find((c) => c.fonte !== "legenda");
-  if (proximo) proximo.marcadoEleito = true;
+  const atual = p.candidatos.filter((c) => c.marcadoEleito).length;
+  aplicarQuantidadeMarcados(p, atual + 1);
 }
 
 function decrementarEleitosPartido(p) {
-  const ordenados = [...p.candidatos].sort((a, b) => (Number(b.votos2022) || 0) - (Number(a.votos2022) || 0));
-  for (let i = ordenados.length - 1; i >= 0; i--) {
-    if (ordenados[i].marcadoEleito) { ordenados[i].marcadoEleito = false; return; }
-  }
+  const atual = p.candidatos.filter((c) => c.marcadoEleito).length;
+  aplicarQuantidadeMarcados(p, Math.max(0, atual - 1));
 }
 
-// Digitar direto no número do contador (em vez de clicar +/- um de cada
-// vez) — repete a mesma lógica de incrementar/decrementar até bater o
-// alvo, respeitando a mesma trava de vagas do cargo inteiro e parando se a
-// lista do partido esgotar antes de chegar lá.
+// Digitar direto no número do contador — mesma trava de vagas do cargo
+// inteiro que incrementar/decrementar respeitavam antes, só que aplicada de
+// uma vez (não precisa mais de loop candidato a candidato).
 function definirEleitosPartido(p, alvo) {
+  const marcadosOutrosPartidos = totalMarcadosCargoAtivo() - p.candidatos.filter((c) => c.marcadoEleito).length;
+  const limiteDisponivel = Math.max(0, totalVagasCargoAtivo() - marcadosOutrosPartidos);
   const alvoValido = Math.max(0, Math.round(Number(alvo) || 0));
-  let atual = p.candidatos.filter((c) => c.marcadoEleito).length;
-  while (atual < alvoValido && podeMarcarMaisUmEleito()) {
-    incrementarEleitosPartido(p);
-    const novo = p.candidatos.filter((c) => c.marcadoEleito).length;
-    if (novo === atual) break;
-    atual = novo;
-  }
-  while (atual > alvoValido) {
-    decrementarEleitosPartido(p);
-    const novo = p.candidatos.filter((c) => c.marcadoEleito).length;
-    if (novo === atual) break;
-    atual = novo;
-  }
+  aplicarQuantidadeMarcados(p, Math.min(alvoValido, limiteDisponivel));
 }
 
 function adicionarCandidatoNoPartido(p) {
@@ -2954,10 +2962,22 @@ async function renderCargoEstadual() {
                 // Interruptor reflete a mesma disputa QP/sobra/fora do
                 // termômetro (barraTermometro) — não é só ligado/desligado.
                 // Pedido do usuário em 07/08/2026.
+                //
+                // NÃO é mais clicável (pedido do usuário, 11/08/2026): antes
+                // dava pra marcar qualquer candidato à mão, e editar o voto
+                // de outro pra ultrapassá-lo não corrigia nada — o
+                // interruptor ficava "preso" num estado que não batia mais
+                // com a votação (achado ao vivo nessa mesma conversa). Agora
+                // é 100% calculado por aplicarQuantidadeMarcados: sempre os N
+                // primeiros por votação ATUAL (não 2022), N = a quantidade
+                // escolhida no contador do partido (steppers ao lado do
+                // nome). A pessoa só influencia quem é eleito editando voto
+                // ou mudando essa quantidade — nunca clicando aqui direto.
                 const classif = c.marcadoEleito ? classificacaoPorChave.get(c.chave) : null;
                 const claseExtra = classif?.tipo === "sobra" ? " pc-switch-sobra" : classif?.tipo === "fora" ? " pc-switch-fora" : "";
                 const tituloExtra = classif?.tipo === "sobra" ? ` — levando a ${classif.numeroSobra}ª sobra do partido nesta rodada, por disputa de médias (art. 109)` : classif?.tipo === "fora" ? " — marcado, mas não fecharia vaga com a votação de hoje" : "";
-                return `<label class="pc-switch${claseExtra}" title="${c.marcadoEleito ? "Marcado como eleito" + tituloExtra : "Marcar como eleito"}"><input type="checkbox" data-pc-marca="${p.nome}::${c.chave}" ${c.marcadoEleito ? "checked" : ""}><span class="pc-switch-slider"></span></label>`;
+                const tituloBase = c.marcadoEleito ? "Eleito — está entre os mais votados do partido" + tituloExtra : "Não eleito — fora dos mais votados do partido nesta quantidade";
+                return `<label class="pc-switch${claseExtra}" style="cursor:default;" title="${tituloBase}"><input type="checkbox" data-pc-marca="${p.nome}::${c.chave}" ${c.marcadoEleito ? "checked" : ""} disabled><span class="pc-switch-slider"></span></label>`;
               })()}
           <span style="flex:1; font-size:15px; font-weight:600; line-height:1.4;">${nomeExibicao(c)}${c.partidoOriginal && c.partidoOriginal !== p.nome ? ` <span style="font-size:11px; font-weight:700; color:var(--pc-accent);">(${c.partidoOriginal})</span>` : ""}${c.fonte === "legenda" ? ' <span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${c.fonte === "2022-sem-ata-2026" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">sem ata 2026</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada — este é o candidato real de 2022, usado só como referência temporária até a lista de 2026 chegar. Pode não ser candidato em 2026, pode ter trocado de cargo ou de partido.")}` : ""}${c.fonte === "ficticio" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">candidato fictício</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada. Este NÃO é um candidato real — é um nome de preenchimento (placeholder) só pra manter a chapa completa até a ata sair. Será substituído pelo candidato real assim que a ata for processada.")}` : ""}<br><span style="font-size:12.5px; font-weight:400; color:var(--pc-ink-dim); opacity:0.9;">eleição 2022: ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</span>${c.invalidado2022 ? warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`) : ""}</span>
           <input class="cell${c.votosEditado ? " pc-voto-manual" : ""}" title="${c.votosEditado ? "Ajustado manualmente" : "Valor automático/padrão"}" data-pc-voto="${p.nome}::${c.chave}" value="${(Number(c.votos) || 0).toLocaleString("pt-BR")}" style="width:120px; font-size:14.5px; font-weight:600; text-align:right; flex-shrink:0;">
@@ -3376,21 +3396,9 @@ function attachListenersSelecao() {
       renderSelecaoCandidatos();
     });
   });
-  document.querySelectorAll("input[data-pc-marca]").forEach((inp) => {
-    inp.addEventListener("change", (e) => {
-      const [nomePartido, chave] = e.target.dataset.pcMarca.split("::");
-      const p = pcState.palpiteEdicao.find((pp) => pp.nome === nomePartido);
-      const c = p.candidatos.find((cc) => String(cc.chave) === chave);
-      if (e.target.checked && !podeMarcarMaisUmEleito()) {
-        e.target.checked = false;
-        abrirAvisoLimiteVagasSeNecessario();
-        return;
-      }
-      snapshotPalpite();
-      c.marcadoEleito = e.target.checked;
-      renderSelecaoCandidatos();
-    });
-  });
+  // O interruptor "eleito" (data-pc-marca) não é mais clicável — é só
+  // leitura (checkbox disabled no template acima), calculado por
+  // aplicarQuantidadeMarcados. Não precisa de listener de clique/change.
   document.querySelectorAll("input[data-pc-voto]").forEach((inp) => {
     inp.addEventListener("blur", (e) => {
       const [nomePartido, chave] = e.target.dataset.pcVoto.split("::");
@@ -3414,6 +3422,12 @@ function attachListenersSelecao() {
       snapshotPalpite();
       c.votos = val;
       c.votosEditado = true;
+      // Esse voto pode ter feito o candidato ultrapassar (ou cair atrás de)
+      // outro do mesmo partido — recalcula quem fica marcado, mantendo a
+      // MESMA quantidade de eleitos que já estava escolhida pro partido
+      // (só muda QUEM preenche, nunca quantos).
+      const quantidadeAtual = p.candidatos.filter((cc) => cc.marcadoEleito).length;
+      aplicarQuantidadeMarcados(p, quantidadeAtual);
       renderSelecaoCandidatos();
     });
     // Enter e Tab pulam direto pro próximo quadro de votação (não pro
