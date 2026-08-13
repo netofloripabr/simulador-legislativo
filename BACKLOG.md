@@ -67,7 +67,31 @@ _Última atualização: 12/08/2026_
 **⬜ Pendente**
 1. Cabeçalho do cargo trunca texto (ex.: "5 do seu pal...") — mover o filtro pra dentro do card, só ao abrir
 2. Padronizar alinhamento das caixas de contagem de eleitos por partido
-3. Decisão de design pendente: hoje a Revisão mostra como "ELEITO" quem REALMENTE fecharia a vaga pela matemática completa, mesmo que a pessoa não tenha marcado esse candidato no palpite dela — gera confusão quando aparece "ELEITO" junto com o aviso "você não marcou esse candidato" (achado pelo usuário em 12/08/2026, exemplo: Acélio Casagrande). Usuário quer que a lista reflita o palpite escolhido por ele, com o alerta só indicando a divergência matemática — não decidido ainda como fica a "vaga extra" que o partido teria direito mas o usuário não preencheu. Retomar essa conversa antes de mexer
+
+**⏸️ Ideia pausada — aviso de "vaga não marcada" (candidato fecharia vaga mas você não marcou)**
+Conceito fechado em 12/08/2026 (caso Acélio Casagrande): a Revisão hoje
+troca quem aparece como "ELEITO" pelo vencedor REAL da matemática
+completa, mesmo que a pessoa não tenha marcado esse candidato — isso
+"rompe" com o princípio de que o palpite do usuário é soberano (o app
+orienta, não substitui a decisão de ninguém). Caminho decidido:
+- "ELEITO" na Revisão passa a refletir só quem o usuário marcou, nunca
+  mais é substituído por um candidato que ele não escolheu.
+- Quando a matemática mostra que um partido teria direito a mais vagas do
+  que o usuário marcou, isso vira um AVISO informativo (não uma
+  substituição) — sem botão de "marcar automaticamente", só informa; se a
+  pessoa concordar, ela mesma sobe o contador do partido.
+- "Quem perderia a vaga" (o lado espelhado do "faltam X votos" que já
+  existe) ficou de fora da conversa por enquanto, sem decisão.
+
+Mockup do aviso foi mostrado e ajustado: usuário quer o aviso FECHADO por
+padrão (só um mini ícone de exclamação no card do partido, não o bloco de
+texto todo já aberto), texto mais objetivo, e levantou uma preocupação
+real de performance/complexidade — rodar a matemática completa (quociente
++ sobra entre TODOS os partidos) toda hora enquanto a pessoa ainda está no
+começo do preenchimento (poucos candidatos marcados) pode pesar demais
+pra ficar recalculando o tempo todo. Pausado a pedido do usuário — **ele
+pediu pra eu lembrar de retomar essa conversa antes de finalizarmos** (ver
+também memória de escopo de lançamento).
 
 ---
 
