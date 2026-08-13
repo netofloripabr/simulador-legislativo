@@ -4273,14 +4273,16 @@ function renderRevisaoDeposito() {
       const votos = Number(c.votos) || 0;
 
       if (c.eleito) {
-        const margem = Math.max(0, votos - minimoParaEleger);
         // "Mínimo pra eleger" só é uma comparação justa no Senador (voto
         // individual direto). Em Estadual/Federal é uma média do CARGO
         // inteiro — comparar com o voto pessoal de alguém eleito por
         // quociente partidário (QP) dava "+0 de folga" mesmo pra quem
         // está 100% garantido pelo total do partido, não pelo próprio
-        // voto. Achado testando ao vivo em 06/08/2026 — só mostra a
-        // margem onde ela é matematicamente correta.
+        // voto. Achado testando ao vivo em 06/08/2026 — só mostra o
+        // mínimo onde ele é matematicamente correto. A "folga" (margem
+        // acima do mínimo) foi retirada a pedido do usuário em
+        // 13/08/2026 — não fazia sentido junto do conceito de sobra, que
+        // nem existe no majoritário.
         const mostrarMargem = cargoDef.id === "senador";
         return cardCandidato(`
           <div style="display:flex; align-items:center; gap:12px;">
@@ -4306,9 +4308,7 @@ function renderRevisaoDeposito() {
           <div style="margin-top:12px;">
             ${barraProgresso(100, 0.4)}
           </div>
-          ${mostrarMargem ? `<div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
-            <span>mínimo pra eleger seria ${minimoParaEleger.toLocaleString("pt-BR")}</span><span style="color:var(--pc-accent);">+${margem.toLocaleString("pt-BR")} de folga</span>
-          </div>` : ""}
+          ${mostrarMargem ? `<div style="font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">para eleger: ${minimoParaEleger.toLocaleString("pt-BR")}</div>` : ""}
         `);
       }
 
