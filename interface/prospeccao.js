@@ -3970,6 +3970,17 @@ function explicacaoTag(tag, detalhe) {
   return "";
 }
 
+// Versão sem HTML de explicacaoTag, pro atributo title="" (selo compacto
+// do card de candidato eleito, Revisão — layout lateral com o campo de
+// voto pedido pelo usuário em 13/08/2026: sem espaço pro ícone "i" de
+// tooltip, a explicação fica só no toque/hover nativo do navegador).
+function explicacaoTagTexto(tag, detalhe) {
+  return explicacaoTag(tag, detalhe)
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/?b>/gi, "")
+    .replace(/"/g, "'");
+}
+
 // Lista única da Revisão (substitui as 3 listas separadas — eleitos,
 // pendentes, suplentes — usadas até 06/08/2026): TODOS os candidatos
 // reais do cargo, ordenados por votação decrescente, cada um já marcado
@@ -4285,15 +4296,15 @@ function renderRevisaoDeposito() {
               </div>
             </div>
           </div>
-          <div style="display:flex; justify-content:flex-end; margin-top:10px;">
-            <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:4px 10px; margin-top:10px; flex-wrap:wrap;">
+            <div style="display:flex; flex-direction:column; align-items:flex-start; gap:6px; flex-shrink:0;">
+              <span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; text-transform:uppercase; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-accent); background:rgba(61,255,176,.12); cursor:help;">${c.tag === "majoritário" ? "eleito" : `eleito · ${c.tag}`}</span>
+              ${c.tag === "média" ? `<span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-warning); background:rgba(201,138,43,.14); border:1px solid rgba(201,138,43,.35); cursor:help;">sobra · rodada ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}</span>` : ""}
+            </div>
+            <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:15px; font-weight:800; text-align:right; flex-shrink:0; padding:9px 6px;">
           </div>
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; flex-wrap:wrap;">
+          <div style="margin-top:12px;">
             ${barraProgresso(100, 0.4)}
-            <span style="min-width:0; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-              <span style="display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag, c.detalhe), "right")}</span>
-              ${c.tag === "média" ? `<span style="display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; border-radius:6px; padding:3px 8px; color:var(--pc-warning); background:rgba(201,138,43,.14); border:1px solid rgba(201,138,43,.35);">sobra · rodada ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}${infoTip(explicacaoTag(c.tag, c.detalhe), "right")}</span>` : ""}
-            </span>
           </div>
           ${mostrarMargem ? `<div style="display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
             <span>mínimo pra eleger seria ${minimoParaEleger.toLocaleString("pt-BR")}</span><span style="color:var(--pc-accent);">+${margem.toLocaleString("pt-BR")} de folga</span>
