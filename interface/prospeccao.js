@@ -2876,9 +2876,12 @@ async function renderCargoEstadual() {
     const membrosFederacao = (typeof MEMBROS_POR_FEDERACAO !== "undefined" && MEMBROS_POR_FEDERACAO[p.nome])
       || [...new Set(p.candidatos.map((c) => c.partidoOriginal || p.nome))];
     // "Contador 1" — referência de 2022, sempre visível (fechado ou aberto),
-    // como um rodapé de uma linha só (trunca com "…" se não couber, ver
-    // white-space/overflow no style abaixo). Mesmo formato por extenso pros
-    // dois casos, pra legenda ficar padronizada: partido sozinho é "X votos
+    // como um rodapé. Quebra em 2+ linhas se não couber numa linha só (não
+    // corta com "…" — achado do usuário em federações com 2-3 partidos
+    // membro, 13/08/2026: "PSDB 211.313 votos · 2 eleitos · CIDADANIA
+    // 25.109 votos · 0 eleitos" não cabia numa linha em celular real).
+    // Mesmo formato por extenso pros dois casos, pra legenda ficar
+    // padronizada: partido sozinho é "X votos
     // · N eleitos"; federação repete esse mesmo padrão por partido membro,
     // sem "total combinado" (cada membro tem seu próprio dado real de 2022 —
     // somar os dois já deu número inconsistente antes, ver histórico).
@@ -3145,7 +3148,7 @@ async function renderCargoEstadual() {
           </div>
         </div>
         ${barraTermometro ? `<div style="margin:0 14px 10px;">${barraTermometro}</div>` : ""}
-        <div style="margin:0 14px; padding:8px 0 10px; border-top:1px solid rgba(120,130,180,0.14); font-size:11px; color:var(--pc-ink-dim); font-family:var(--mono); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Eleições 2022 · ${resumoVotos2022Html}</div>
+        <div style="margin:0 14px; padding:8px 0 10px; border-top:1px solid rgba(120,130,180,0.14); font-size:11px; color:var(--pc-ink-dim); font-family:var(--mono); line-height:1.5;">Eleições 2022 · ${resumoVotos2022Html}</div>
         <button data-pc-toggle-partido="${p.nome}" class="pc-expand-handle" title="${isExpanded ? "Recolher" : "Ver candidatos"}">
           <span></span>
         </button>
@@ -3297,7 +3300,8 @@ async function renderCargoEstadual() {
       <span style="font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim);">Painel Eleitoral</span>
       <button id="pcAbrirInstrucao" class="pc-mini-btn" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
     </div>
-    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px;">
+    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px; position:relative;">
+      <div style="position:absolute; top:1px; right:1px; bottom:1px; width:28px; border-radius:0 13px 13px 0; background:linear-gradient(to right, transparent, var(--pc-glass) 70%); pointer-events:none;"></div>
       <div style="display:flex; align-items:center; gap:16px; overflow-x:auto;">
         <div style="flex-shrink:0; white-space:nowrap;">
           <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px;">Seus Eleitos</div>
@@ -4280,11 +4284,13 @@ function renderRevisaoDeposito() {
                 <span style="font-size:11px; font-weight:600; color:var(--pc-accent);">${c.partido}</span>
               </div>
             </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; margin-top:10px;">
             <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
           </div>
           <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:12px; flex-wrap:wrap;">
             ${barraProgresso(100, 0.4)}
-            <span style="flex-shrink:0; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <span style="min-width:0; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
               <span style="display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; border-radius:6px; padding:3px 8px; color:var(--pc-accent); background:rgba(61,255,176,.12);">eleito · ${c.tag}${infoTip(explicacaoTag(c.tag, c.detalhe), "right")}</span>
               ${c.tag === "média" ? `<span style="display:flex; align-items:center; gap:3px; font-size:9.5px; font-weight:700; letter-spacing:.02em; border-radius:6px; padding:3px 8px; color:var(--pc-warning); background:rgba(201,138,43,.14); border:1px solid rgba(201,138,43,.35);">sobra · rodada ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}${infoTip(explicacaoTag(c.tag, c.detalhe), "right")}</span>` : ""}
             </span>
@@ -4328,11 +4334,11 @@ function renderRevisaoDeposito() {
         </div>` : "";
 
       return cardCandidato(`
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-          <div style="min-width:0; flex:1;">
-            <div style="font-size:16px; font-weight:700; color:var(--pc-ink);">${c.nome}</div>
-            <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">${c.partido}</div>
-          </div>
+        <div style="min-width:0;">
+          <div style="font-size:16px; font-weight:700; color:var(--pc-ink);">${c.nome}</div>
+          <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">${c.partido}</div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:10px;">
           <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
         </div>
         <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
