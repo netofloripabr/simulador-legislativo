@@ -3126,11 +3126,11 @@ async function renderCargoEstadual() {
             <span style="width:9px; height:9px; border-radius:50%; background:${st.cor}; flex-shrink:0;"></span>
             <span style="font-weight:700; font-size:15.5px;">${nomePartidoExibicao(p.nome)}</span>
           </button>
-          <div style="display:flex; align-items:center; gap:9px; flex-shrink:0;">
-            <button data-pc-ver2022="${p.nome}" class="pc-mini-btn">${iconeSvg("ano2022", 16)}<span class="pc-mini-tip">Ver nominata completa de 2022</span></button>
-            <button data-pc-reset="${p.nome}" class="pc-mini-btn">${iconeSvg("reset", 16)}<span class="pc-mini-tip" style="white-space:normal; width:170px; text-align:center;">Restaurar votação de 2022 — só tem efeito pra quem recebeu votos naquela eleição</span></button>
-            <button data-pc-zerar="${p.nome}" class="pc-mini-btn">${iconeSvg("borracha", 16)}<span class="pc-mini-tip">Zerar votação de todos</span></button>
-            <button data-pc-balancear="${p.nome}" class="pc-mini-btn">${iconeSvg("completar", 16)}<span class="pc-mini-tip" style="white-space:normal; width:220px; text-align:center;">PREENCHIMENTO AUTOMÁTICO (PARTIDO)<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos, mas limitado a esta lista.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.</span></button>
+          <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+            <button data-pc-ver2022="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("ano2022", 13)}<span class="pc-mini-tip">Ver nominata completa de 2022</span></button>
+            <button data-pc-reset="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("reset", 13)}<span class="pc-mini-tip" style="white-space:normal; width:170px; text-align:center;">Restaurar votação de 2022 — só tem efeito pra quem recebeu votos naquela eleição</span></button>
+            <button data-pc-zerar="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("borracha", 13)}<span class="pc-mini-tip">Zerar votação de todos</span></button>
+            <button data-pc-balancear="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("completar", 13)}<span class="pc-mini-tip" style="white-space:normal; width:220px; text-align:center;">PREENCHIMENTO AUTOMÁTICO (PARTIDO)<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos, mas limitado a esta lista.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.</span></button>
             <div class="pc-stepper-chip" title="Quantidade de Deputados eleitos indicados pra esse partido">
               <div class="pc-stepper">
                 <button data-pc-inc="${p.nome}" class="pc-stepper-btn" title="Adicionar 1 eleito" ${p.candidatos.some((c) => !c.marcadoEleito && c.fonte !== "legenda") && podeMarcarMaisUmEleito() ? "" : "disabled"}>
