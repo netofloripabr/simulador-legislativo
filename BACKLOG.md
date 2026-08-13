@@ -9,7 +9,7 @@
 > pra baixo). Pra pedir algo novo, é só falar — eu classifico na página
 > certa e coloco na ordem que fizer mais sentido.
 
-_Última atualização: 12/08/2026_
+_Última atualização: 13/08/2026_
 
 ---
 
@@ -37,8 +37,10 @@ _Última atualização: 12/08/2026_
 
 **⬜ Pendente**
 1. Ajustar textos: trocar "Gire e solte no seu estado" por "Selecione o estado"; remover o aviso "Lista de candidatos pronta" quando a lista final de 2026 estiver no ar (**avisar antes de executar**)
-2. Pré-selecionar o estado de residência usando a UF que já vem do CEP salvo no cadastro
-3. Permitir trocar de estado dentro do app + participação multi-estado
+2. Permitir trocar de estado dentro do app + participação multi-estado
+
+**❌ Descartado**
+- Pré-selecionar o estado de residência usando a UF do CEP salvo no cadastro — descartado pelo usuário em 12/08/2026, sem justificativa registrada além de "descartar"
 
 ---
 
@@ -60,13 +62,15 @@ _Última atualização: 12/08/2026_
 - Painel Eleitoral reformulado: título sai de dentro do card (label simples acima), Seus Eleitos + Quociente do Cargo + Soma de Votos numa linha só — o Quociente, que antes só aparecia dentro de um partido expandido depois de marcar alguém, agora fica sempre visível (pedido do usuário: "é um ponto central", 12/08/2026)
 - Card do Plenário ganhou seta pra recolher/expandir o hemiciclo + legenda (estado lembrado por cargo)
 - Painel "Disputa de Sobra": selo "sobra · rodada X/Y" visível direto no card do candidato eleito por média + botão "Ver disputa de sobra completa" abrindo um painel com quociente/QP/sobra e a tabela rodada a rodada (mockup confirmado, implementado e testado ao vivo em 12/08/2026 — matemática bate: média de cada vencedor recalculada corretamente na rodada seguinte)
+- **Achado ao investigar o item de corte de texto, 12/08/2026**: `index.html` não tinha `<meta name="viewport">`. Sem essa tag, qualquer navegador de celular renderiza o site numa largura virtual de 980px e reduz a escala pra caber na tela — quase certo que estava abrindo minúsculo/precisando de pinça-zoom em telefone real, e também mascarava vários cortes de texto que só aparecem na largura real do celular. Adicionada a tag; corte de texto confirmado ao vivo logo em seguida, já com a largura certa.
+- Cabeçalho do cargo na Revisão cortava texto (ex.: "5 do seu pal..."). Filtro lista/agrupado movido pra dentro do card (só aparece ao abrir) + texto agora quebra em 2 linhas em vez de cortar com "..." quando não cabe numa linha só (mockup com 3 opções de linha única + a opção de quebra de linha; usuário escolheu quebra de linha — texto completo sempre visível). Confirmado ao vivo em 12/08/2026 com a largura real de celular (375px)
+- Caixa do contador de eleitos por partido (Seleção) desalinhada: media 52px de altura contra 34px dos botões de ação ao lado, "flutuava" maior que o resto da linha. Reduzida pra 34px (setas e número um pouco menores) — mockup comparando antes/depois confirmado, aplicado e testado ao vivo em 12/08/2026
 
 **🔄 Em andamento**
 - _(nenhum agora)_
 
 **⬜ Pendente**
-1. Cabeçalho do cargo trunca texto (ex.: "5 do seu pal...") — mover o filtro pra dentro do card, só ao abrir
-2. Padronizar alinhamento das caixas de contagem de eleitos por partido
+1. Auditoria de corte de texto em largura real de celular — a correção da tag de viewport (item acima) revelou pelo menos mais dois pontos: "Soma de Votos" cortado na régua do Painel Eleitoral, e "2 el..." cortado no resumo de partido (vista agrupada). Também achado nesta rodada: nome do candidato ("Ana Camp...") cortado pela caixa de votos dentro do card do partido expandido. Precisa passar a régua em todas as telas do fluxo, não só aqui
 
 **⏸️ Ideia pausada — aviso de "vaga não marcada" (candidato fecharia vaga mas você não marcou)**
 Conceito fechado em 12/08/2026 (caso Acélio Casagrande): a Revisão hoje
@@ -195,6 +199,7 @@ depois da eleição de verdade — Fase 6 do PROJETO.md)._
 2. Consulta por nome/código dentro da tela de Ranking (tarefa já registrada — #34)
 3. Desenhar e implementar o cálculo em lote pós-resultado oficial (schema, função, tabela de pontuação)
 4. Protótipo visual da tela (seletores + destaque da posição própria + lista) antes de programar
+5. Testar o fluxo de Ranking **antes** do resultado oficial sair (pedido do usuário, 12/08/2026) — precisa definir como simular/mockar um "resultado oficial" de teste pra validar cálculo em lote + telas sem esperar a eleição de verdade
 
 **⏸️ Ideia pausada — 155 usuários fictícios de "cold start"**
 Especificação de produto já fechada (ver histórico: contas reais e

@@ -4394,8 +4394,9 @@ function renderRevisaoDeposito() {
 
     return `
       <details class="pc-acc" data-pc-cargo-acc="${cargoDef.id}"${pcState.expandido["revisao-" + cargoDef.id] ? " open" : ""}>
-        <summary><span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim); font-size:11px;">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} do seu palpite pendente${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span>${filtroAgrupado}<svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
+        <summary style="align-items:flex-start;"><span style="flex:1; min-width:0; line-height:1.35;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim);">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} do seu palpite pendente${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0; margin-top:3px;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">
+          <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">${filtroAgrupado}</div>
           ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-bottom:12px; background:rgba(201,138,43,.08); border:1px solid rgba(201,138,43,.3); color:var(--pc-warning); font-family:var(--sans); font-size:12.5px; font-weight:700; border-radius:10px; padding:10px; cursor:pointer;">Ver disputa de sobra completa (${disputaSobra.rodadas.length} rodada${disputaSobra.rodadas.length === 1 ? "" : "s"})</button>` : ""}
           ${linhas}
         </div>

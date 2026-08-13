@@ -496,10 +496,10 @@
   #modoColaborativoWrap .pc-expand-handle:hover span{ background:var(--pc-accent); opacity:1; }
 
   /* Setas de +1/-1 eleito ao lado do contador "marcados/vagas2022" (P-03) */
-  #modoColaborativoWrap .pc-stepper{ display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+  #modoColaborativoWrap .pc-stepper{ display:flex; flex-direction:column; gap:1px; flex-shrink:0; }
   #modoColaborativoWrap .pc-stepper-btn{
     display:flex; align-items:center; justify-content:center;
-    width:26px; height:18px; padding:0; border-radius:4px;
+    width:22px; height:14px; padding:0; border-radius:3px;
     background:rgba(61,255,176,.08); border:1px solid #2a4438; color:var(--pc-accent); cursor:pointer;
   }
   #modoColaborativoWrap .pc-stepper-btn:hover{ background:rgba(61,255,176,.18); border-color:var(--pc-accent); }
@@ -507,14 +507,18 @@
 
   /* Caixa do stepper + contador de eleitos — mesma borda/fundo do campo de
      votação (input.cell), pra usar o mesmo vocabulário visual do resto da
-     tela; o número em si é que carrega o peso/destaque. */
+     tela; o número em si é que carrega o peso/destaque. Altura fixa em
+     34px pra alinhar exatamente com os botões redondos de ação (mesma
+     linha) — achado do usuário, 12/08/2026: a caixa antes tinha 52px de
+     altura contra 34px dos ícones ao lado, "flutuava" maior que o resto. */
   #modoColaborativoWrap .pc-stepper-chip{
-    display:flex; align-items:center; gap:10px; flex-shrink:0;
+    display:flex; align-items:center; gap:8px; flex-shrink:0;
+    height:34px; box-sizing:border-box;
     background:#0c1c16; border:1px solid #2a4438; border-radius:9px;
-    padding:6px 14px 6px 8px;
+    padding:0 10px 0 6px;
   }
   #modoColaborativoWrap .pc-stepper-count{
-    font-family:var(--mono); font-size:23px; font-weight:900; color:var(--pc-accent);
+    font-family:var(--mono); font-size:19px; font-weight:900; color:var(--pc-accent);
     background:none; border:none; outline:none; width:2.1ch; text-align:center; padding:0;
   }
   #modoColaborativoWrap .pc-stepper-count:focus{ color:var(--pc-ink); }
