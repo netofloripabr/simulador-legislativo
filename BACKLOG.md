@@ -93,7 +93,7 @@ e mini-pesquisa ainda pendentes, ver mais abaixo._
 
 ---
 
-## Usuário final (painel — 0% construído antes de 14/08/2026)
+## Usuário final (painel — implementado 14/08/2026)
 
 _PROJETO.md, seção 3: "usuário final" = quem NÃO prevê, só consome dado
 estratégico agregado (ex.: partidos, empresários). Ponto em aberto #1 do
@@ -101,12 +101,25 @@ PROJETO.md (assunção de trabalho): só acesso agregado/anônimo, nunca
 perfil individual de quem pediu privacidade. Ponto em aberto #2: sem
 pagamento no site, acesso concedido manualmente por você._
 
-**⬜ Pendente**
-1. Definir como essa pessoa entra no sistema (cadastro próprio com
-   aprovação manual sua, ou conta criada por você direto?) — decisão de
-   produto, não decidi sozinho.
-2. Painel dedicado com dado agregado (parecido com o Quadro de Médias
-   público, mas com mais profundidade/filtro) — depende do item 1.
+**✅ Feito**
+1. Acesso: tabela própria `usuarios_finais` (migração 19), mesmo padrão de
+   segurança de `admins` — pessoa se cadastra normal (conta comum) e você
+   concede acesso manual via SQL Editor (`insert into usuarios_finais
+   (perfil_id, organizacao) values (...)`), resolvendo o item 1 na linha
+   da assunção do ponto em aberto #2.
+2. Painel "Dados estratégicos" (`renderPainelUsuarioFinal`, atalho em "Meu
+   perfil" só se `pcState.souUsuarioFinal`): filtro por gênero/UF de
+   residência + resultado agregado (vagas por partido) reaproveitando
+   `montarComparacaoGrupo` — mesma função já usada no comparativo de
+   grupo e na aba "Pesquisa" do admin, então nunca expõe nome/perfil
+   individual de quem previu.
+
+**⬜ Pendente / fora do escopo desta rodada**
+- Filtro por idade (não coletada no cadastro hoje, mesma limitação já
+  documentada na "Pesquisa" do admin).
+- Fluxo de cadastro/pagamento próprio pro usuário final (hoje é 100%
+  manual, aceitável enquanto não existir cobrança — ver PROJETO.md ponto
+  em aberto #2).
 
 ---
 

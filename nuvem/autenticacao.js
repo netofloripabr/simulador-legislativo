@@ -198,6 +198,21 @@ async function adminListarExecucoesRotina() {
   return data || [];
 }
 
+// ========== Painel do usuário final ==========
+// "usuario_final" vive numa tabela própria (migração 19), mesmo motivo de
+// segurança de admin/creditos_conta — ver souAdmin() acima.
+async function souUsuarioFinal() {
+  const { data, error } = await supabaseClient.rpc("sou_usuario_final");
+  if (error) { console.error("Erro ao checar usuário final:", error); return false; }
+  return !!data;
+}
+
+async function usuarioFinalPesquisaAgregada(estado, genero, ufResidencia) {
+  const { data, error } = await supabaseClient.rpc("usuario_final_pesquisa_agregada", { p_estado: estado, p_genero: genero || null, p_uf_residencia: ufResidencia || null });
+  if (error) { console.error("Erro ao carregar pesquisa agregada:", error); return []; }
+  return data || [];
+}
+
 // Login social — manda pro Google e volta pro mesmo endereço do site. O
 // Google não entrega CPF nem um aceite de LGPD, então quem entra por aqui
 // pela primeira vez tem sessão mas ainda não tem linha em "perfis" — o app

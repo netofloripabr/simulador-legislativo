@@ -10,11 +10,15 @@ let pcState = {
   sessao: null,
   perfil: null,
   souAdmin: false, // carregado em initColaborativo() logo depois do perfil — ver migração 18 (tabela admins)
+  souUsuarioFinal: false, // carregado junto com souAdmin — ver migração 19 (tabela usuarios_finais)
   modalReportarProblema: false, // ver renderMeuPerfil() / renderModalReportarProblema()
   adminSecao: "usuarios", // qual aba do Painel Admin está ativa
   adminPesquisaFiltro: null, // { genero, uf } — último filtro usado na seção "Pesquisa" do admin
   adminPesquisaResultados: null, // cache do resultado de adminPesquisaAgregada()
   adminPesquisaCargo: "estadual", // qual cargo a seção "Pesquisa" do admin está mostrando
+  ufPesquisaFiltro: null, // { genero, uf } — último filtro usado no Painel do usuário final
+  ufPesquisaResultados: null, // cache do resultado de usuarioFinalPesquisaAgregada()
+  ufPesquisaCargo: "estadual", // qual cargo o Painel do usuário final está mostrando
   // carregando | erro-conexao | landing | estado | selecao-convidado |
   // revisao-convidado | deposito-confirmado | lobby | detalhado-convidado |
   // login | cadastro | app
@@ -189,6 +193,7 @@ async function initColaborativo() {
       return;
     }
     pcState.souAdmin = await souAdmin();
+    pcState.souUsuarioFinal = await souUsuarioFinal();
     const salvo = await carregarMeuPalpite(pcState.perfil.id);
     if (salvo && salvo.candidatos && salvo.candidatos.length) {
       pcState.palpiteEdicao = salvo.candidatos;
@@ -1221,6 +1226,7 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "grupo") { renderGrupoHub(); atualizarMenuFixo("grupo"); }
   else if (pcState.subaba === "meu-perfil") { renderMeuPerfil(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "admin") { renderAdminPainel(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "usuario-final") { renderPainelUsuarioFinal(); atualizarMenuFixo(null); }
   else { renderRankingPlaceholder(); atualizarMenuFixo("ranking"); }
 }
 
@@ -1270,6 +1276,7 @@ async function renderMeuPerfil() {
 
       <button class="ghost" id="pcBtnReportarProblema" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">${iconeSvg("alerta", 15)}Reportar um problema</button>
       ${pcState.souAdmin ? `<button class="ghost" id="pcBtnAbrirAdmin" style="width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--pc-accent); border-color:var(--pc-accent);">${iconeSvg("chart", 15)}Painel do administrador</button>` : ""}
+      ${pcState.souUsuarioFinal ? `<button class="ghost" id="pcBtnAbrirUsuarioFinal" style="width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--pc-accent); border-color:var(--pc-accent);">${iconeSvg("chart", 15)}Painel de dados estratégicos</button>` : ""}
       <button class="ghost" id="pcBtnSairPerfil" style="width:100%; margin-top:10px; color:var(--pc-danger); border-color:var(--pc-danger);">Sair da conta</button>
     </div>
     ${pcState.modalReportarProblema ? renderModalReportarProblema() : ""}`;
@@ -1313,6 +1320,12 @@ async function renderMeuPerfil() {
   if (pcState.souAdmin) {
     document.getElementById("pcBtnAbrirAdmin").addEventListener("click", () => {
       pcState.subaba = "admin";
+      renderAppColaborativo();
+    });
+  }
+  if (pcState.souUsuarioFinal) {
+    document.getElementById("pcBtnAbrirUsuarioFinal").addEventListener("click", () => {
+      pcState.subaba = "usuario-final";
       renderAppColaborativo();
     });
   }
@@ -1526,6 +1539,77 @@ async function renderAdminPainel() {
       });
     });
   }
+}
+
+// ---------- Painel do usuário final ----------
+// Acesso restrito por pcState.souUsuarioFinal (migração 19, tabela
+// usuarios_finais — concedido manualmente, mesmo padrão do admin). PROJETO.md
+// seção 3: "parceiro estratégico" (partido, empresário) que não prevê, só
+// consome dados agregados — nunca perfil individual de quem previu (ponto em
+// aberto #1). Por isso reaproveita montarComparacaoGrupo, que já só agrega
+// por partido/vagas, igual à seção "Pesquisa" do admin — só troca a função
+// de origem dos dados (usuarioFinalPesquisaAgregada em vez de
+// adminPesquisaAgregada) e não tem as outras 4 abas administrativas.
+async function renderPainelUsuarioFinal() {
+  const el = document.getElementById("pcConteudo");
+  el.innerHTML = telaCarregando("Carregando painel de dados estratégicos…");
+  if (!pcState.souUsuarioFinal) {
+    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra parceiros com acesso liberado.</div></div>`;
+    return;
+  }
+
+  const filtro = pcState.ufPesquisaFiltro || {};
+  let resultadoHtml = "";
+  if (pcState.ufPesquisaResultados) {
+    const registros = pcState.ufPesquisaResultados;
+    if (!registros.length) {
+      resultadoHtml = `<div class="pc-sub" style="margin-top:14px;">Nenhuma cédula oficial encontrada com esses filtros.</div>`;
+    } else {
+      const cargo = pcState.ufPesquisaCargo || "estadual";
+      const botoesCargo = CARGOS.map((c) => `<button data-pc-uf-pesquisa-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
+      resultadoHtml = `
+        <div class="pc-sub" style="margin:14px 0 8px;">${registros.length} cédula${registros.length === 1 ? "" : "s"} encontrada${registros.length === 1 ? "" : "s"}</div>
+        <div class="pc-cargo-switch" style="margin-bottom:12px;">${botoesCargo}</div>
+        ${montarComparacaoGrupo(registros, cargo)}`;
+    }
+  }
+
+  el.innerHTML = `
+    <button class="ghost" id="pcBtnVoltarUsuarioFinal" style="margin-bottom:14px;">← Voltar</button>
+    <h2 style="margin-bottom:2px;">Dados estratégicos</h2>
+    <div class="pc-sub" style="margin-bottom:16px;">Resultados agregados das cédulas oficiais já depositadas — sem nome nem perfil individual de quem previu.</div>
+    <div class="glass-card">
+      <div class="pc-sub" style="margin-bottom:12px;">Filtra por recorte demográfico — dado disponível hoje é só gênero e UF de residência (idade ainda não é coletada no cadastro).</div>
+      <div class="field-row"><label>Gênero</label>
+        <select class="cell" id="pcUfFiltroGenero">
+          <option value="">Todos</option>
+          <option value="Masculino" ${filtro.genero === "Masculino" ? "selected" : ""}>Masculino</option>
+          <option value="Feminino" ${filtro.genero === "Feminino" ? "selected" : ""}>Feminino</option>
+          <option value="Outro" ${filtro.genero === "Outro" ? "selected" : ""}>Outro</option>
+        </select>
+      </div>
+      <div class="field-row"><label>UF de residência</label><input class="cell" id="pcUfFiltroUf" value="${filtro.uf || ""}" placeholder="ex: SC" maxlength="2" style="text-transform:uppercase;"></div>
+      <button class="primary" id="pcBtnUfPesquisar" style="width:100%;">Buscar</button>
+      ${resultadoHtml}
+    </div>`;
+
+  document.getElementById("pcBtnVoltarUsuarioFinal").addEventListener("click", () => {
+    pcState.subaba = "meu-perfil";
+    renderAppColaborativo();
+  });
+  document.getElementById("pcBtnUfPesquisar").addEventListener("click", async () => {
+    const genero = document.getElementById("pcUfFiltroGenero").value;
+    const uf = document.getElementById("pcUfFiltroUf").value.trim().toUpperCase();
+    pcState.ufPesquisaFiltro = { genero, uf };
+    pcState.ufPesquisaResultados = await usuarioFinalPesquisaAgregada(pcState.estado || "SC", genero, uf);
+    renderPainelUsuarioFinal();
+  });
+  document.querySelectorAll("[data-pc-uf-pesquisa-cargo]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pcState.ufPesquisaCargo = btn.getAttribute("data-pc-uf-pesquisa-cargo");
+      renderPainelUsuarioFinal();
+    });
+  });
 }
 
 // Primeiro domingo de outubro de 2026 (calendário eleitoral — 1º turno das
