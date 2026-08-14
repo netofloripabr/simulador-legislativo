@@ -75,6 +75,23 @@ Depois de rodar as 26 UFs:
 8. Se o repositório for git, um commit único cobrindo todas as UFs que
    tiveram mudança de verdade (`git add ATAS/ dados/estados/*-2026-provisorio.js dados/estados/*-2026-conferencia.md index.html && git commit -m "..."`),
    citando quais UFs/partidos entraram. Nunca `git push`.
+9. Registre a execução em `execucoes_rotina` (mesmo passo 9 da rotina de
+   SC, `.claude/agents/atualizador-atas-2026.md` — reaproveita a mesma
+   tabela/painel do admin, só troca `"rotina"` pra
+   `"atualizador-atas-nacional-2026"` e o `"detalhe"` pra resumir as 26
+   UFs de uma vez):
+
+```bash
+if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+  curl -s -X POST "https://qgjfkpsjveatonziwkvj.supabase.co/rest/v1/execucoes_rotina" \
+    -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+    -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+    -H "Content-Type: application/json" \
+    -d "{\"rotina\":\"atualizador-atas-nacional-2026\",\"sucesso\":true,\"detalhe\":\"<resumo curto: N UFs com ata nova, N candidaturas novas no total>\"}"
+else
+  echo "SUPABASE_SERVICE_ROLE_KEY não configurada neste ambiente — pulando registro em execucoes_rotina."
+fi
+```
 
 ## O que NUNCA fazer (igual à rotina de SC)
 

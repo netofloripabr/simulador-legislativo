@@ -80,10 +80,21 @@ e mini-pesquisa ainda pendentes, ver mais abaixo._
   5 seções do admin renderizam certo, marcar problema resolvido funciona,
   filtro de pesquisa funciona com dado real de candidato.
 
-**⬜ Pendente**
-1. Integrar `ferramentas/atualizador-atas-*` pra escrever em
-   `execucoes_rotina` a cada execução (service_role) — sem isso a seção
-   Rotinas do admin fica sempre vazia.
+**✅ Feito (parte 1 de 2) — passo de registro adicionado aos agentes, 14/08/2026**
+`.claude/agents/atualizador-atas-2026.md` e `-nacional-2026.md` ganharam um
+passo final que insere uma linha em `execucoes_rotina` via `curl` (REST do
+Supabase) depois de cada rodada — usa `$SUPABASE_SERVICE_ROLE_KEY` lida do
+ambiente, nunca escrita em arquivo nem digitada em conversa (é a chave
+"secret", só existe hoje no painel do Supabase). Pula com um aviso claro
+(sem travar o resto da rotina) se a variável não estiver configurada.
+
+**⬜ Pendente (parte 2 de 2) — falta a chave configurada, não é código**
+1. Não é algo que eu consiga terminar sozinho: preciso que você copie a
+   `service_role` (Project Settings → API, no painel do Supabase) e
+   configure como variável de ambiente `SUPABASE_SERVICE_ROLE_KEY` no
+   shell/ambiente de quem roda esses agentes — nunca cole essa chave numa
+   conversa comigo. Sem isso, a seção "Rotinas" do admin continua vazia
+   (o passo novo só reporta que pulou, não quebra nada).
 2. Idade/data de nascimento não é coletada no cadastro — a Pesquisa do
    admin só filtra por gênero/UF hoje. Perguntar se vale mudar o
    formulário de cadastro pra coletar isso.

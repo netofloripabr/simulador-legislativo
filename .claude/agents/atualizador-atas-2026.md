@@ -151,6 +151,43 @@ não como pendência aberta. Só fica como pendência de verdade quem NÃO tem
 nenhum número batendo em outro lugar do arquivo — aí sim precisa de
 alguém abrir o PDF pra descobrir o partido.
 
+## Passo 9 — registrar a execução em `execucoes_rotina` (painel do admin)
+
+A tabela `public.execucoes_rotina` (migração 18) existe pro Painel do
+administrador (`interface/prospeccao.js`, aba "Rotinas") mostrar se essa
+rotina rodou e quando — hoje ela fica sempre vazia porque nada nunca
+escreveu ali (item pendente documentado em BACKLOG.md desde a migração 18).
+Ninguém "authenticated" tem permissão de insert nessa tabela, de propósito
+(mesmo padrão de segurança de `admins`/`creditos_conta` — ver comentário na
+própria migração) — só o `service_role` ou alguém direto no SQL Editor.
+
+Depois de terminar os passos 1-8 (com sucesso ou não), registre a execução:
+
+```bash
+if [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+  curl -s -X POST "https://qgjfkpsjveatonziwkvj.supabase.co/rest/v1/execucoes_rotina" \
+    -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+    -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+    -H "Content-Type: application/json" \
+    -d "{\"rotina\":\"atualizador-atas-sc-2026\",\"sucesso\":true,\"detalhe\":\"<resumo curto: N atas novas, N pendências>\"}"
+else
+  echo "SUPABASE_SERVICE_ROLE_KEY não configurada neste ambiente — pulando registro em execucoes_rotina (só o Painel do administrador fica sem esse dado, o resto da rotina não é afetado)."
+fi
+```
+
+Ajuste `"sucesso"` pra `false` e o `"detalhe"` pra descrever o motivo se
+algum passo anterior falhou (ex.: `pdftotext` ausente). **Nunca** deixar de
+rodar os passos 1-8 por causa deste passo — ele é só um registro, roda por
+último e sua falha/ausência não deve travar nada.
+
+A chave `SUPABASE_SERVICE_ROLE_KEY` **nunca** deve aparecer em nenhum
+arquivo do repositório nem ser digitada em conversa — é a chave "secret"
+citada em `nuvem/config.js`. Pra isso funcionar, o usuário precisa
+configurá-la como variável de ambiente no shell de quem roda esse agente
+(fora desta conversa, ex.: `~/.zshrc` ou o ambiente do agendador), copiando
+o valor do painel Supabase (Project Settings → API → service_role). Até
+isso ser feito, este passo só reporta que pulou — não é um erro.
+
 ## O que reportar no final
 
 Resumo curto: quantas atas novas entraram (partido + tipo), quantas
