@@ -134,6 +134,19 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
 - Baixar imagem + compartilhar via WhatsApp (texto pronto) + tentativa de
   compartilhar direto pra Instagram via Web Share API (com baixar como
   reserva quando o navegador não suporta)
+- **Estendida pra Dep. Federal e Senador, 13/08/2026** (resolve também o
+  item equivalente que estava duplicado em "Revisão / Lobby"). O modal de
+  compartilhar ganhou um seletor de cargo (mesmo estilo do seletor já usado
+  na impressão) — só aparece quando a lista tem eleitos em mais de um
+  cargo; cargos sem nenhum eleito ficam desabilitados/apagados no seletor,
+  em vez de somem. `gerarImagemCedula()` ganhou um parâmetro `cargoLabel`
+  opcional (retrocompatível — sem ele, comportamento igual a antes) que
+  desenha o nome do cargo como subtítulo na imagem. Trocar de cargo no
+  seletor regenera a imagem na hora, sem recarregar nada (dados dos 3
+  cargos já vêm carregados juntos no clique de "Compartilhar"). Testado
+  via injeção direta de estado (sem precisar montar cadastro+depósito
+  completo pra testar) — confirmado visualmente que a troca gera a imagem
+  certa e o botão ativo fica destacado
 
 **⬜ Pendente**
 1. Consulta pública **dentro da tela de Ranking** (não é página separada):
@@ -143,7 +156,6 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
    depende do resultado real, mas a busca-e-visualização de uma cédula
    específica não depende disso, então dá pra liberar já (assunção — avisar
    se for pra esperar o resultado oficial também).
-2. Estender a imagem/resumo pra Dep. Federal e Senador (hoje só Estadual)
 
 ---
 
@@ -156,11 +168,11 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
 - Cards de cargo começam fechados por padrão
 - Texto do modal "Dê um nome pra essa lista" corrigido
 - Botão "← Ajustar" esclarecido
+- Botão salvar em destaque, canto superior direito do cabeçalho — já implementado (contorno verde, padrão de botão primário do app); usuário confirmou em 13/08/2026 que o estado atual já resolve, sem mudança de código necessária
+- Resumo de Dep. Federal e Senador na imagem compartilhável — feito, ver "Cédula depositada / Compartilhamento" (era o mesmo item duplicado nas duas seções)
 
 **⬜ Pendente**
-1. Botão salvar/exportar em destaque, canto superior direito do cabeçalho
-2. Interruptor pra gerar resumo de Dep. Federal e Senador (hoje só sai o de Dep. Estadual)
-3. Permitir escolher qual cédula depositada aparece em cada grupo (hoje é só uma "oficial" global)
+1. Permitir escolher qual cédula depositada aparece em cada grupo (hoje é só uma "oficial" global)
 
 ---
 

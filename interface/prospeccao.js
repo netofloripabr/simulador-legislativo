@@ -1404,11 +1404,13 @@ function _quebrarLinhasCanvas(ctx, texto, larguraMax) {
 }
 
 // Imagem compartilhável (formato Stories, 1080x1920) da cédula depositada —
-// só o cargo Estadual por enquanto (Federal/Senador ficam pra uma próxima
-// rodada, já registrado no backlog). Respeita a mesma escolha anônimo/com
-// nome feita no depósito (nuvem/salvamentos.js: depositarSalvamento) —
-// nunca mostra o nome de quem pediu pra ficar anônimo.
-function gerarImagemCedula({ nomeExibido, eleitos, codigo }) {
+// agora cobre os 3 cargos (Dep. Estadual, Dep. Federal, Senador), um por
+// vez conforme cargoLabel — antes só existia pra Estadual, estendida a
+// pedido do usuário em 13/08/2026 (já registrado no backlog). Respeita a
+// mesma escolha anônimo/com nome feita no depósito (nuvem/salvamentos.js:
+// depositarSalvamento) — nunca mostra o nome de quem pediu pra ficar
+// anônimo.
+function gerarImagemCedula({ nomeExibido, eleitos, codigo, cargoLabel }) {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
   canvas.height = 1920;
@@ -1431,7 +1433,15 @@ function gerarImagemCedula({ nomeExibido, eleitos, codigo }) {
   const linhasTitulo = _quebrarLinhasCanvas(ctx, "Minha lista pros eleitos de 2026", 860);
   linhasTitulo.forEach((linha, i) => ctx.fillText(linha, canvas.width / 2, 250 + i * 64));
 
-  let y = 250 + linhasTitulo.length * 64 + 90;
+  let y = 250 + linhasTitulo.length * 64;
+  if (cargoLabel) {
+    y += 56;
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#7fa895";
+    ctx.font = "700 30px sans-serif";
+    ctx.fillText(cargoLabel.toUpperCase(), canvas.width / 2, y);
+  }
+  y += 90;
   ctx.textAlign = "left";
   const maxNaImagem = 12;
   eleitos.slice(0, maxNaImagem).forEach((c, i) => {
@@ -1497,6 +1507,10 @@ function renderModalCompartilhar() {
           <span style="font-family:var(--mono); font-size:15px; font-weight:700; letter-spacing:.06em; color:var(--pc-ink);">${lista.codigo}</span>
           <button class="ghost" id="pcBtnCopiarCodigoCedula" style="padding:5px 10px; font-size:11px; display:flex; align-items:center; gap:4px;">${iconeSvg("copiar", 12)}COPIAR</button>
         </div>
+        ${CARGOS.filter((c) => d.cargosEleitos && d.cargosEleitos[c.id] && d.cargosEleitos[c.id].length).length > 1 ? `
+        <div class="pc-cargo-switch" style="margin-bottom:16px;">
+          ${CARGOS.map((c) => `<button data-pc-compartilhar-cargo="${c.id}" class="${c.id === d.cargoAtivo ? "active" : ""}" ${d.cargosEleitos[c.id].length ? "" : "disabled style=\"opacity:.35; cursor:default;\""}>${c.label}</button>`).join("")}
+        </div>` : ""}
         <div style="width:150px; aspect-ratio:9/16; margin:0 auto 16px; border-radius:14px; overflow:hidden; border:1px solid #1c3a2c; display:flex; align-items:center; justify-content:center; background:#081712;">
           ${d.imagemUrl ? `<img src="${d.imagemUrl}" alt="Prévia da imagem compartilhável" style="width:100%; height:100%; object-fit:cover;">` : `<span style="font-size:11px; color:var(--pc-ink-dim);">Gerando…</span>`}
         </div>
@@ -1695,14 +1709,21 @@ async function renderMinhasListas() {
       pcState.modalCompartilharListaId = id;
       pcState.dadosCompartilhar = { carregando: true, lista };
       renderMinhasListas();
-      // Imagem/ranking hoje só cobrem Dep. Estadual — Federal/Senador ficam
-      // pra uma próxima rodada (já registrado no backlog).
+      // Imagem cobre os 3 cargos agora (13/08/2026) — monta um mapa
+      // cargoId → eleitos e deixa a pessoa trocar dentro do modal
+      // (renderModalCompartilhar), em vez de fixar só Dep. Estadual.
       const completo = pcState.perfil ? await carregarSalvamentoCompleto(id) : null;
-      const cargoEstadual = completo && completo.cargos ? completo.cargos.estadual : null;
-      const eleitos = cargoEstadual && cargoEstadual.length ? classificarEleitosPorPartido(cargoEstadual, "estadual") : [];
+      const cargosEleitos = {};
+      CARGOS.forEach((cargoDef) => {
+        const listaCargo = completo && completo.cargos ? completo.cargos[cargoDef.id] : null;
+        cargosEleitos[cargoDef.id] = listaCargo && listaCargo.length ? classificarEleitosPorPartido(listaCargo, cargoDef.id) : [];
+      });
+      const cargoAtivo = CARGOS.find((c) => cargosEleitos[c.id].length)?.id || "estadual";
       const nomeExibido = lista.anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || lista.nome);
-      const imagemUrl = eleitos.length && lista.codigo ? gerarImagemCedula({ nomeExibido, eleitos, codigo: lista.codigo }).toDataURL("image/png") : null;
-      pcState.dadosCompartilhar = { carregando: false, lista, eleitos, imagemUrl };
+      const eleitos = cargosEleitos[cargoAtivo];
+      const cargoLabel = CARGOS.find((c) => c.id === cargoAtivo)?.label || "";
+      const imagemUrl = eleitos.length && lista.codigo ? gerarImagemCedula({ nomeExibido, eleitos, codigo: lista.codigo, cargoLabel }).toDataURL("image/png") : null;
+      pcState.dadosCompartilhar = { carregando: false, lista, cargosEleitos, cargoAtivo, imagemUrl };
       renderMinhasListas();
     });
   });
@@ -1731,6 +1752,18 @@ async function renderMinhasListas() {
     });
     const d = pcState.dadosCompartilhar;
     if (d && !d.carregando) {
+      document.querySelectorAll("[data-pc-compartilhar-cargo]").forEach((btn) => {
+        if (btn.disabled) return;
+        btn.addEventListener("click", () => {
+          const cargoId = btn.getAttribute("data-pc-compartilhar-cargo");
+          const eleitos = d.cargosEleitos[cargoId];
+          const cargoLabel = CARGOS.find((c) => c.id === cargoId)?.label || "";
+          const nomeExibido = d.lista.anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || d.lista.nome);
+          const imagemUrl = eleitos.length ? gerarImagemCedula({ nomeExibido, eleitos, codigo: d.lista.codigo, cargoLabel }).toDataURL("image/png") : null;
+          pcState.dadosCompartilhar = { ...d, cargoAtivo: cargoId, imagemUrl };
+          renderMinhasListas();
+        });
+      });
       const origem = window.location.origin + window.location.pathname;
       const textoCompartilhar = `Esta é a minha lista dos Deputados e Senadores eleitos para 2026. Agora é a sua vez!\n\n${origem} — código ${d.lista.codigo}`;
       document.getElementById("pcBtnCopiarCodigoCedula").addEventListener("click", async (e) => {
