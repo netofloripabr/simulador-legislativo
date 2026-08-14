@@ -258,9 +258,10 @@ pontos em aberto quando retomar:
 - Tema escuro com verde neon confirmado (substitui a ideia anterior de tema claro/glassmorphism)
 - Removida a fonte monoespaçada (JetBrains Mono) do app inteiro — todo número (tabelas, quociente, contadores) usa a fonte do sistema/Inter agora, igual ao resto do texto (pedido do usuário, 12/08/2026)
 
+- **Textura de fundo sutil em todas as telas, 14/08/2026** — a vinheta radial já existia (`#modoColaborativoWrap`, presente em toda a Prospecção Coletiva); faltava o grão/textura em si. Adicionado um ruído bem sutil (gerado por SVG, `feTurbulence`, sem precisar de arquivo de imagem) por cima da vinheta, opacidade bem baixa (0,035) de propósito — quase imperceptível num print comprimido, mas confirmado de verdade: renderizado num canvas isolado, o mesmo SVG produz variação real de pixel (alpha de 12 a 138), então a textura é real, só é discreta como pedido
+
 **⬜ Pendente**
-1. Padrão sutil de textura de fundo com blur nas bordas, em todas as telas
-2. Revisar se falta mais alguma coisa pra fechar de vez a identidade visual antes do lançamento (item antigo, pode já estar resolvido — validar com o usuário)
+1. Revisar se falta mais alguma coisa pra fechar de vez a identidade visual antes do lançamento (item antigo, pode já estar resolvido — validar com o usuário)
 
 ---
 

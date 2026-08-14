@@ -253,7 +253,13 @@
        (sem blur/glow/gradiente), profundidade só por camada de tom. */
     --pc-lobby-tom-2: #101f19; --pc-lobby-tom-3: #12251d;
     --pc-lobby-verde-media: #22916a; --pc-lobby-verde-forte: #155c46;
-    background: radial-gradient(circle at 50% 15%, var(--pc-bg-b) 0%, var(--pc-bg-a) 60%);
+    /* Vinheta radial (já existia) + grão bem sutil por cima (pedido do
+       usuário, "Visual/Identidade" no BACKLOG.md) — textura gerada por
+       SVG (feTurbulence), sem precisar de arquivo de imagem. Opacidade
+       bem baixa (0.035) de propósito: é textura, não ruído visível —
+       mal dá pra notar de longe, só tira a sensação de fundo 100% liso. */
+    background: radial-gradient(circle at 50% 15%, var(--pc-bg-b) 0%, var(--pc-bg-a) 60%) no-repeat,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E") repeat;
     border-radius: 16px; padding: 28px; margin: -2px auto 0;
     color: var(--pc-ink); font-family: var(--sans);
     /* limite único de largura pra toda a Prospecção Coletiva — sem isso,
