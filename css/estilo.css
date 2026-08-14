@@ -378,11 +378,11 @@
   #modoColaborativoWrap h2{ color: var(--pc-ink); font-size: 15px; text-transform:none; letter-spacing:0; margin: 0 0 14px; }
   #modoColaborativoWrap .pc-sub{ color: var(--pc-ink-dim); font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
   #modoColaborativoWrap label{ color: var(--pc-ink-dim); font-size: 13px; }
-  #modoColaborativoWrap input.cell, #modoColaborativoWrap select.cell{
+  #modoColaborativoWrap input.cell, #modoColaborativoWrap select.cell, #modoColaborativoWrap textarea.cell{
     background: #0c1c16; border: 1px solid #2a4438; color: var(--pc-ink);
     border-radius: 8px; padding: 9px 11px; font-family: var(--sans); width: 100%;
   }
-  #modoColaborativoWrap input.cell:focus, #modoColaborativoWrap select.cell:focus{ outline:none; border-color: var(--pc-accent); }
+  #modoColaborativoWrap input.cell:focus, #modoColaborativoWrap select.cell:focus, #modoColaborativoWrap textarea.cell:focus{ outline:none; border-color: var(--pc-accent); }
   /* Box de votação com ajuste manual (votosEditado=true) — diferencia de
      valor automático/padrão sem precisar de texto, só a borda. */
   #modoColaborativoWrap input.cell.pc-voto-manual{ border-color: rgba(61,255,176,.55); }

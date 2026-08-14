@@ -30,6 +30,116 @@ _Última atualização: 13/08/2026_
 
 ---
 
+## Meu Perfil / Admin (páginas novas, 14/08/2026)
+
+_Pedido do usuário: análise das páginas que faltavam ser desenhadas/
+implementadas, pensando nos vários tipos de usuário (PROJETO.md, seção 3
+— usuário meio, usuário final, administrador). "Meu perfil" e "Reportar
+problema" cobrem lacunas do usuário meio; o Painel Admin cobre o
+administrador (escopo já definido numa conversa anterior). Usuário final
+e mini-pesquisa ainda pendentes, ver mais abaixo._
+
+**✅ Concluído**
+- **Tela "Meu perfil"** (`renderMeuPerfil`) — não existia nenhuma tela de
+  conta até agora, só um botão solto "Sair" no cabeçalho. Editar nome/
+  telefone/CEP/município/gênero, trocar senha, "Reportar um problema"
+  (modal novo, grava em `problemas_reportados`) e — se admin — atalho pro
+  Painel Admin. O ícone de pessoa no cabeçalho (já existia em `PC_ICONES`,
+  nunca tinha sido usado) abre essa tela; "Sair" saiu do cabeçalho fixo e
+  mora aqui agora.
+- **Painel do administrador** (`renderAdminPainel`), cobrindo as 5 partes
+  já definidas: Usuários (cadastros/grupos/depósitos, total e 7/30 dias),
+  Problemas (lista + marcar resolvido), Pesquisa em tempo real (filtro por
+  gênero/UF de residência, reaproveita `montarComparacaoGrupo` — mesma
+  projeção de cadeiras já usada na comparação de grupo), Financeiro
+  (resumo de créditos em circulação), Rotinas (execuções de tarefa
+  agendada — tabela pronta, mas **a integração do atualizador de atas pra
+  escrever aqui ainda não foi feita**, fica vazio por enquanto). Acesso
+  gated por `pcState.souAdmin`.
+- **`nuvem/migracao-18-admin.sql`** (**precisa rodar no Supabase**, depois
+  da 15/16/17): tabela `admins` (mesmo padrão de segurança de
+  `creditos_conta`, migração 9 — tabela própria sem grant de escrita pra
+  `authenticated`, só você via SQL Editor torna alguém admin:
+  `insert into public.admins (perfil_id) values ('<uuid>');`), tabela
+  `problemas_reportados` (RLS: cada um vê os próprios, admin vê todos),
+  tabela `execucoes_rotina` (só leitura pra admin, escrita só por
+  service_role — integração pendente, ver acima), e 4 funções `security
+  definer` que checam `sou_admin()` antes de expor dado agregado
+  (`admin_estatisticas_usuarios`, `admin_pesquisa_agregada`,
+  `admin_estatisticas_creditos`) — sem isso, a RLS de `perfis`
+  (`auth.uid() = id`) impediria um admin de ver dado de qualquer pessoa
+  além dele mesmo.
+- Auditado com a skill Supabase Postgres Best Practices antes de commitar
+  (mesma skill instalada mais cedo hoje) — sem achado adicional além do
+  que já foi corrigido direto nesta migração.
+- Bug achado testando: `textarea.cell` (usado no modal de Reportar
+  problema) não tinha a mesma regra CSS de `input.cell`/`select.cell` —
+  ficava com fundo branco. Corrigido em `css/estilo.css`.
+- Testado com dados fake via injeção direta de estado + funções stubadas
+  (sem precisar de conta admin real, que eu não posso criar sozinho) — as
+  5 seções do admin renderizam certo, marcar problema resolvido funciona,
+  filtro de pesquisa funciona com dado real de candidato.
+
+**⬜ Pendente**
+1. Integrar `ferramentas/atualizador-atas-*` pra escrever em
+   `execucoes_rotina` a cada execução (service_role) — sem isso a seção
+   Rotinas do admin fica sempre vazia.
+2. Idade/data de nascimento não é coletada no cadastro — a Pesquisa do
+   admin só filtra por gênero/UF hoje. Perguntar se vale mudar o
+   formulário de cadastro pra coletar isso.
+3. Trocar e-mail de login — "Meu perfil" não cobre isso (é uma operação
+   separada do Supabase Auth, `auth.updateUser({email})`, não uma coluna
+   de `perfis`); avaliar se vale a pena depois.
+
+---
+
+## Usuário final (painel — 0% construído antes de 14/08/2026)
+
+_PROJETO.md, seção 3: "usuário final" = quem NÃO prevê, só consome dado
+estratégico agregado (ex.: partidos, empresários). Ponto em aberto #1 do
+PROJETO.md (assunção de trabalho): só acesso agregado/anônimo, nunca
+perfil individual de quem pediu privacidade. Ponto em aberto #2: sem
+pagamento no site, acesso concedido manualmente por você._
+
+**⬜ Pendente**
+1. Definir como essa pessoa entra no sistema (cadastro próprio com
+   aprovação manual sua, ou conta criada por você direto?) — decisão de
+   produto, não decidi sozinho.
+2. Painel dedicado com dado agregado (parecido com o Quadro de Médias
+   público, mas com mais profundidade/filtro) — depende do item 1.
+
+---
+
+## Mini-pesquisa (nunca implementada)
+
+_PROJETO.md, Fase 2.7: o plano original é que compartilhar/grupos só
+desbloqueiem de verdade depois do cadastro **e** de uma mini-pesquisa por
+estado (Presidente/Governador/Senador/Dep. Federal/Dep. Estadual + 2º
+turno) — mencionada duas vezes no documento, nunca desenhada nem
+implementada. Hoje compartilhar/grupos abrem direto depois do cadastro,
+sem passar por essa etapa._
+
+**⬜ Pendente**
+1. Desenhar o fluxo (mockup) antes de programar — quantas perguntas,
+   onde entra no onboarding, o que acontece pra quem já passou por ali
+   antes dessa etapa existir.
+2. Implementar.
+
+---
+
+## Onboarding / Estados vazios
+
+_PROJETO.md, Fase 3: "Telas de introdução/tutorial no primeiro acesso" —
+nunca implementado. Seção 8 também cita "estados vazios" como item ainda
+em validação._
+
+**⬜ Pendente**
+1. Telas de introdução/tutorial no primeiro acesso.
+2. Revisar estados vazios (telas sem nenhum dado ainda) em todo o app —
+   hoje cada tela trata isso um pouco diferente, vale um padrão único.
+
+---
+
 ## P02 — Escolha de estado
 
 **✅ Concluído**

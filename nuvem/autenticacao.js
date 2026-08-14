@@ -130,6 +130,74 @@ async function meuPerfil() {
   return data;
 }
 
+// "admin" vive numa tabela própria (migração 18), não como coluna em
+// "perfis" — mesmo motivo de segurança de creditos_conta (ver migração
+// 9): coluna solta em "perfis" seria alterável pelo próprio dono via
+// update. sou_admin() é a função SQL que só lê a própria linha da tabela
+// admins, sem expor a tabela inteira.
+async function souAdmin() {
+  const { data, error } = await supabaseClient.rpc("sou_admin");
+  if (error) { console.error("Erro ao checar admin:", error); return false; }
+  return !!data;
+}
+
+// Atualiza campos editáveis do próprio perfil (Meu perfil). E-mail não
+// entra aqui — trocar e-mail de login é uma operação separada do Supabase
+// Auth (auth.updateUser({email})), não uma coluna de "perfis".
+async function atualizarPerfil(perfilId, campos) {
+  const { error } = await supabaseClient.from("perfis").update(campos).eq("id", perfilId);
+  return { error };
+}
+
+async function trocarSenhaLogado(novaSenha) {
+  if (!senhaForte(novaSenha)) return { error: { message: "A senha precisa ter pelo menos 8 caracteres, com letra, número e caractere especial." } };
+  return await supabaseClient.auth.updateUser({ password: novaSenha });
+}
+
+// ========== Reportar problema ==========
+async function reportarProblema(perfilId, mensagem, tela) {
+  const { error } = await supabaseClient.from("problemas_reportados").insert({ perfil_id: perfilId, mensagem, tela: tela || null });
+  return { error };
+}
+
+// ========== Painel do administrador ==========
+async function adminEstatisticasUsuarios() {
+  const { data, error } = await supabaseClient.rpc("admin_estatisticas_usuarios");
+  if (error) { console.error("Erro ao carregar estatísticas de usuários:", error); return null; }
+  return Array.isArray(data) ? data[0] : data;
+}
+
+async function adminListarProblemas(status) {
+  let query = supabaseClient.from("problemas_reportados").select("*, perfis(nome)").order("criado_em", { ascending: false });
+  if (status) query = query.eq("status", status);
+  const { data, error } = await query;
+  if (error) { console.error("Erro ao carregar problemas reportados:", error); return []; }
+  return data || [];
+}
+
+async function adminMarcarProblemaResolvido(id) {
+  const { error } = await supabaseClient.from("problemas_reportados").update({ status: "resolvido", resolvido_em: new Date().toISOString() }).eq("id", id);
+  return { error };
+}
+
+async function adminPesquisaAgregada(estado, genero, ufResidencia) {
+  const { data, error } = await supabaseClient.rpc("admin_pesquisa_agregada", { p_estado: estado, p_genero: genero || null, p_uf_residencia: ufResidencia || null });
+  if (error) { console.error("Erro ao carregar pesquisa agregada:", error); return []; }
+  return data || [];
+}
+
+async function adminEstatisticasCreditos() {
+  const { data, error } = await supabaseClient.rpc("admin_estatisticas_creditos");
+  if (error) { console.error("Erro ao carregar estatísticas de créditos:", error); return null; }
+  return Array.isArray(data) ? data[0] : data;
+}
+
+async function adminListarExecucoesRotina() {
+  const { data, error } = await supabaseClient.from("execucoes_rotina").select("*").order("executado_em", { ascending: false }).limit(30);
+  if (error) { console.error("Erro ao carregar execuções de rotina:", error); return []; }
+  return data || [];
+}
+
 // Login social — manda pro Google e volta pro mesmo endereço do site. O
 // Google não entrega CPF nem um aceite de LGPD, então quem entra por aqui
 // pela primeira vez tem sessão mas ainda não tem linha em "perfis" — o app

@@ -9,6 +9,12 @@ let pcState = {
   iniciado: false,
   sessao: null,
   perfil: null,
+  souAdmin: false, // carregado em initColaborativo() logo depois do perfil — ver migração 18 (tabela admins)
+  modalReportarProblema: false, // ver renderMeuPerfil() / renderModalReportarProblema()
+  adminSecao: "usuarios", // qual aba do Painel Admin está ativa
+  adminPesquisaFiltro: null, // { genero, uf } — último filtro usado na seção "Pesquisa" do admin
+  adminPesquisaResultados: null, // cache do resultado de adminPesquisaAgregada()
+  adminPesquisaCargo: "estadual", // qual cargo a seção "Pesquisa" do admin está mostrando
   // carregando | erro-conexao | landing | estado | selecao-convidado |
   // revisao-convidado | deposito-confirmado | lobby | detalhado-convidado |
   // login | cadastro | app
@@ -182,6 +188,7 @@ async function initColaborativo() {
       renderColaborativo();
       return;
     }
+    pcState.souAdmin = await souAdmin();
     const salvo = await carregarMeuPalpite(pcState.perfil.id);
     if (salvo && salvo.candidatos && salvo.candidatos.length) {
       pcState.palpiteEdicao = salvo.candidatos;
@@ -1190,15 +1197,14 @@ function renderAppColaborativo() {
     <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
       <div><h2 style="margin:0;">Olá, ${pcState.perfil ? pcState.perfil.nome : "visitante"}</h2>
       <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: chapa completa"}</div></div>
-      ${pcState.perfil ? `<button class="ghost" id="pcBtnSair">Sair</button>` : ""}
+      ${pcState.perfil ? `<button class="pc-mini-btn" id="pcBtnAbrirPerfil" title="Meu perfil">${iconeSvg("perfil", 18)}</button>` : ""}
     </div>
     <div id="pcConteudo"></div>
   `;
   if (pcState.perfil) {
-    document.getElementById("pcBtnSair").addEventListener("click", async () => {
-      await sair();
-      pcState = { iniciado: true, sessao: null, perfil: null, tela: "login", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
-      renderColaborativo();
+    document.getElementById("pcBtnAbrirPerfil").addEventListener("click", () => {
+      pcState.subaba = "meu-perfil";
+      renderAppColaborativo();
     });
   }
 
@@ -1213,7 +1219,313 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "palpite") { renderMeuPalpite(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "medias") { renderQuadroMedias(); atualizarMenuFixo("medias"); }
   else if (pcState.subaba === "grupo") { renderGrupoHub(); atualizarMenuFixo("grupo"); }
+  else if (pcState.subaba === "meu-perfil") { renderMeuPerfil(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "admin") { renderAdminPainel(); atualizarMenuFixo(null); }
   else { renderRankingPlaceholder(); atualizarMenuFixo("ranking"); }
+}
+
+// Tela "Meu perfil" — dados da conta (editáveis), trocar senha, reportar
+// problema, atalho pro painel admin (só se pcState.souAdmin) e Sair (saiu
+// do header fixo, onde ficava solto — agora mora aqui, junto do resto das
+// ações de conta). Pedido do usuário, 14/08/2026: análise de páginas
+// faltantes identificou que não existia NENHUMA tela de conta até agora.
+async function renderMeuPerfil() {
+  const el = document.getElementById("pcConteudo");
+  el.innerHTML = telaCarregando("Carregando seu perfil…");
+  const p = pcState.perfil;
+  const sessao = pcState.sessao || await sessaoAtual();
+  const email = sessao ? sessao.user.email : "";
+
+  el.innerHTML = `
+    <button class="ghost" id="pcBtnVoltarMeuPerfil" style="margin-bottom:14px;">← Voltar</button>
+    <div class="glass-card" style="max-width:460px; margin:0 auto;">
+      <h2 style="margin-bottom:2px;">Meu perfil</h2>
+      <div class="pc-sub" style="margin-bottom:16px;">${email}</div>
+
+      <div class="field-row"><label>Nome</label><input class="cell" id="pcPerfilNome" value="${p.nome || ""}"></div>
+      <div class="field-row"><label>Telefone</label><input class="cell" id="pcPerfilTelefone" value="${p.telefone || ""}" placeholder="(48) 99999-9999"></div>
+      <div class="field-row"><label>CEP</label><input class="cell" id="pcPerfilCep" value="${p.cep || ""}"></div>
+      <div class="field-row"><label>Município</label><input class="cell" id="pcPerfilMunicipio" value="${p.municipio_residencia || ""}"></div>
+      <div class="field-row"><label>Gênero</label>
+        <select class="cell" id="pcPerfilGenero">
+          <option value="" ${!p.genero ? "selected" : ""}>Selecione</option>
+          <option value="Masculino" ${p.genero === "Masculino" ? "selected" : ""}>Masculino</option>
+          <option value="Feminino" ${p.genero === "Feminino" ? "selected" : ""}>Feminino</option>
+          <option value="Outro" ${p.genero === "Outro" ? "selected" : ""}>Outro</option>
+        </select>
+      </div>
+      <div class="pc-erro" id="pcPerfilErro"></div>
+      <button class="primary" id="pcBtnSalvarPerfil" style="width:100%; margin-top:6px;">Salvar alterações</button>
+      <div class="pc-status" id="pcPerfilStatus" style="text-align:center; margin-top:8px;"></div>
+
+      <div style="margin:22px 0 16px; border-top:1px solid var(--pc-glass-border);"></div>
+
+      <h2 style="font-size:15px; margin-bottom:10px;">Trocar senha</h2>
+      <div class="field-row"><label>Nova senha</label><input class="cell" type="password" id="pcPerfilNovaSenha" placeholder="mín. 8 caracteres, letra, número e símbolo"></div>
+      <div class="pc-erro" id="pcSenhaErro"></div>
+      <button class="ghost" id="pcBtnTrocarSenha" style="width:100%;">Trocar senha</button>
+      <div class="pc-status" id="pcSenhaStatus" style="text-align:center; margin-top:8px;"></div>
+
+      <div style="margin:22px 0 16px; border-top:1px solid var(--pc-glass-border);"></div>
+
+      <button class="ghost" id="pcBtnReportarProblema" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">${iconeSvg("alerta", 15)}Reportar um problema</button>
+      ${pcState.souAdmin ? `<button class="ghost" id="pcBtnAbrirAdmin" style="width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--pc-accent); border-color:var(--pc-accent);">${iconeSvg("chart", 15)}Painel do administrador</button>` : ""}
+      <button class="ghost" id="pcBtnSairPerfil" style="width:100%; margin-top:10px; color:var(--pc-danger); border-color:var(--pc-danger);">Sair da conta</button>
+    </div>
+    ${pcState.modalReportarProblema ? renderModalReportarProblema() : ""}`;
+
+  document.getElementById("pcBtnVoltarMeuPerfil").addEventListener("click", () => {
+    pcState.subaba = "painel";
+    renderAppColaborativo();
+  });
+  document.getElementById("pcBtnSalvarPerfil").addEventListener("click", async () => {
+    const nome = document.getElementById("pcPerfilNome").value.trim();
+    const erroEl = document.getElementById("pcPerfilErro");
+    if (!nome) { erroEl.textContent = "O nome não pode ficar em branco."; return; }
+    erroEl.textContent = "";
+    const campos = {
+      nome,
+      telefone: document.getElementById("pcPerfilTelefone").value.trim() || null,
+      cep: document.getElementById("pcPerfilCep").value.trim() || null,
+      municipio_residencia: document.getElementById("pcPerfilMunicipio").value.trim() || null,
+      genero: document.getElementById("pcPerfilGenero").value || null,
+    };
+    const { error } = await atualizarPerfil(p.id, campos);
+    const status = document.getElementById("pcPerfilStatus");
+    if (error) { erroEl.textContent = error.message; return; }
+    pcState.perfil = { ...p, ...campos };
+    status.textContent = "Salvo.";
+    setTimeout(() => { if (status) status.textContent = ""; }, 2500);
+  });
+  document.getElementById("pcBtnTrocarSenha").addEventListener("click", async () => {
+    const novaSenha = document.getElementById("pcPerfilNovaSenha").value;
+    const erroEl = document.getElementById("pcSenhaErro");
+    const { error } = await trocarSenhaLogado(novaSenha);
+    if (error) { erroEl.textContent = error.message; return; }
+    erroEl.textContent = "";
+    document.getElementById("pcPerfilNovaSenha").value = "";
+    document.getElementById("pcSenhaStatus").textContent = "Senha alterada.";
+  });
+  document.getElementById("pcBtnReportarProblema").addEventListener("click", () => {
+    pcState.modalReportarProblema = true;
+    renderMeuPerfil();
+  });
+  if (pcState.souAdmin) {
+    document.getElementById("pcBtnAbrirAdmin").addEventListener("click", () => {
+      pcState.subaba = "admin";
+      renderAppColaborativo();
+    });
+  }
+  document.getElementById("pcBtnSairPerfil").addEventListener("click", async () => {
+    await sair();
+    pcState = { iniciado: true, sessao: null, perfil: null, tela: "login", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
+    renderColaborativo();
+  });
+
+  if (pcState.modalReportarProblema) {
+    document.getElementById("pcBtnFecharReportarProblema").addEventListener("click", () => {
+      pcState.modalReportarProblema = false;
+      renderMeuPerfil();
+    });
+    document.getElementById("pcBtnEnviarProblema").addEventListener("click", async () => {
+      const mensagem = document.getElementById("pcProblemaMensagem").value.trim();
+      const erroEl = document.getElementById("pcProblemaErro");
+      if (!mensagem) { erroEl.textContent = "Descreve o que aconteceu, mesmo que curto."; return; }
+      erroEl.textContent = "";
+      const { error } = await reportarProblema(p.id, mensagem, pcState.subaba);
+      if (error) { erroEl.textContent = error.message; return; }
+      pcState.modalReportarProblema = false;
+      pcState.status = "Problema reportado — obrigado! A gente vai olhar.";
+      renderMeuPerfil();
+    });
+  }
+}
+
+function renderModalReportarProblema() {
+  return `
+    <div id="pcModalReportarProblemaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <h2 style="margin-bottom:4px; font-size:15px;">Reportar um problema</h2>
+        <div class="pc-sub" style="margin-bottom:14px;">Conta o que aconteceu — bug, tela travada, número que parece errado, qualquer coisa.</div>
+        <textarea class="cell" id="pcProblemaMensagem" rows="5" style="width:100%; resize:vertical; font-family:var(--sans);" placeholder="Descreva o problema..."></textarea>
+        <div class="pc-erro" id="pcProblemaErro"></div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button class="ghost" id="pcBtnFecharReportarProblema" style="flex:1;">Cancelar</button>
+          <button class="primary" id="pcBtnEnviarProblema" style="flex:1;">Enviar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ---------- Painel do administrador ----------
+// Acesso restrito por pcState.souAdmin (carregado em initColaborativo via
+// souAdmin(), que só é true se a conta estiver na tabela "admins" —
+// migração 18). Cada seção busca seus próprios dados sob demanda; nada é
+// pré-carregado pra quem não é admin.
+
+async function montarAdminUsuarios() {
+  const stats = await adminEstatisticasUsuarios();
+  if (!stats) return `<div class="pc-sub">Não consegui carregar as estatísticas.</div>`;
+  const cartao = (label, valor) => `
+    <div class="glass-card" style="padding:14px 16px; text-align:center;">
+      <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${valor}</div>
+      <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">${label}</div>
+    </div>`;
+  return `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      ${cartao("Total de cadastros", stats.total_cadastros)}
+      ${cartao("Cadastros (7 dias)", stats.cadastros_7_dias)}
+      ${cartao("Cadastros (30 dias)", stats.cadastros_30_dias)}
+      ${cartao("Grupos criados", stats.total_grupos)}
+      ${cartao("Cédulas depositadas", stats.total_cedulas_depositadas)}
+      ${cartao("Depositadas (7 dias)", stats.cedulas_depositadas_7_dias)}
+    </div>`;
+}
+
+async function montarAdminProblemas() {
+  const problemas = await adminListarProblemas();
+  if (!problemas.length) return `<div class="pc-sub">Nenhum problema reportado ainda.</div>`;
+  return problemas.map((p) => `
+    <div class="pc-lobby-card" style="margin-bottom:10px; ${p.status === "resolvido" ? "opacity:.6;" : ""}">
+      <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:6px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+          <span style="font-size:12.5px; font-weight:600;">${p.perfis ? p.perfis.nome : "—"}</span>
+          <span style="font-size:10px; color:var(--pc-ink-dim); flex-shrink:0;">${new Date(p.criado_em).toLocaleDateString("pt-BR")}</span>
+        </div>
+        <div style="font-size:12.5px; color:var(--pc-ink-dim); line-height:1.5;">${p.mensagem}</div>
+        ${p.tela ? `<div style="font-size:10px; color:var(--pc-ink-faint);">tela: ${p.tela}</div>` : ""}
+        ${p.status === "aberto"
+          ? `<button data-pc-resolver-problema="${p.id}" class="ghost" style="align-self:flex-start; font-size:11px; padding:5px 10px;">Marcar resolvido</button>`
+          : `<span style="font-size:10.5px; color:var(--pc-accent);">✓ resolvido</span>`}
+      </div>
+    </div>`).join("");
+}
+
+async function montarAdminPesquisa() {
+  const filtro = pcState.adminPesquisaFiltro || {};
+  let resultadoHtml = "";
+  if (pcState.adminPesquisaResultados) {
+    const registros = pcState.adminPesquisaResultados;
+    if (!registros.length) {
+      resultadoHtml = `<div class="pc-sub" style="margin-top:14px;">Nenhuma cédula oficial encontrada com esses filtros.</div>`;
+    } else {
+      const cargo = pcState.adminPesquisaCargo || "estadual";
+      const botoesCargo = CARGOS.map((c) => `<button data-pc-admin-pesquisa-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
+      resultadoHtml = `
+        <div class="pc-sub" style="margin:14px 0 8px;">${registros.length} cédula${registros.length === 1 ? "" : "s"} encontrada${registros.length === 1 ? "" : "s"}</div>
+        <div class="pc-cargo-switch" style="margin-bottom:12px;">${botoesCargo}</div>
+        ${montarComparacaoGrupo(registros, cargo)}`;
+    }
+  }
+  return `
+    <div class="pc-sub" style="margin-bottom:12px;">Filtra as cédulas OFICIAIS já depositadas (SC) por recorte demográfico — dado disponível hoje é só gênero e UF de residência (idade ainda não é coletada no cadastro).</div>
+    <div class="field-row"><label>Gênero</label>
+      <select class="cell" id="pcAdminFiltroGenero">
+        <option value="">Todos</option>
+        <option value="Masculino" ${filtro.genero === "Masculino" ? "selected" : ""}>Masculino</option>
+        <option value="Feminino" ${filtro.genero === "Feminino" ? "selected" : ""}>Feminino</option>
+        <option value="Outro" ${filtro.genero === "Outro" ? "selected" : ""}>Outro</option>
+      </select>
+    </div>
+    <div class="field-row"><label>UF de residência</label><input class="cell" id="pcAdminFiltroUf" value="${filtro.uf || ""}" placeholder="ex: SC" maxlength="2" style="text-transform:uppercase;"></div>
+    <button class="primary" id="pcBtnAdminPesquisar" style="width:100%;">Buscar</button>
+    ${resultadoHtml}`;
+}
+
+async function montarAdminFinanceiro() {
+  const stats = await adminEstatisticasCreditos();
+  if (!stats) return `<div class="pc-sub">Não consegui carregar os dados financeiros.</div>`;
+  return `
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="glass-card" style="padding:14px 16px; text-align:center;">
+        <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${stats.contas_com_credito}</div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">Contas com saldo</div>
+      </div>
+      <div class="glass-card" style="padding:14px 16px; text-align:center;">
+        <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${stats.total_creditos_em_circulacao}</div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">Créditos em circulação</div>
+      </div>
+    </div>
+    <div class="pc-sub" style="margin-top:14px; line-height:1.6;">Sem cobrança de verdade ainda — a única forma de conceder crédito hoje é rodar <code>select public.conceder_credito('&lt;uuid&gt;', N);</code> direto no SQL Editor do Supabase (ver nuvem/migracao-9-creditos.sql).</div>`;
+}
+
+async function montarAdminRotinas() {
+  const execucoes = await adminListarExecucoesRotina();
+  if (!execucoes.length) {
+    return `<div class="pc-sub">Nenhuma execução registrada ainda — a integração do atualizador de atas com essa tabela (pra ele avisar aqui quando rodar) ainda não foi feita.</div>`;
+  }
+  return execucoes.map((e) => `
+    <div class="pc-lobby-linha">
+      <span style="font-size:12.5px; font-weight:600;">${e.rotina}</span>
+      <span style="font-size:11px; color:${e.sucesso ? "var(--pc-accent)" : "var(--pc-danger)"}; flex-shrink:0;">${e.sucesso ? "✓ ok" : "✗ falhou"} · ${new Date(e.executado_em).toLocaleString("pt-BR")}</span>
+    </div>`).join("");
+}
+
+async function renderAdminPainel() {
+  const el = document.getElementById("pcConteudo");
+  el.innerHTML = telaCarregando("Carregando painel do administrador…");
+  if (!pcState.souAdmin) {
+    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra administradores.</div></div>`;
+    return;
+  }
+
+  const secoes = [
+    { id: "usuarios", label: "Usuários" },
+    { id: "problemas", label: "Problemas" },
+    { id: "pesquisa", label: "Pesquisa" },
+    { id: "financeiro", label: "Financeiro" },
+    { id: "rotinas", label: "Rotinas" },
+  ];
+  const botoesSecao = secoes.map((s) => `<button data-pc-admin-secao="${s.id}" class="${pcState.adminSecao === s.id ? "active" : ""}">${s.label}</button>`).join("");
+
+  let conteudoSecao = "";
+  if (pcState.adminSecao === "usuarios") conteudoSecao = await montarAdminUsuarios();
+  else if (pcState.adminSecao === "problemas") conteudoSecao = await montarAdminProblemas();
+  else if (pcState.adminSecao === "pesquisa") conteudoSecao = await montarAdminPesquisa();
+  else if (pcState.adminSecao === "financeiro") conteudoSecao = await montarAdminFinanceiro();
+  else conteudoSecao = await montarAdminRotinas();
+
+  el.innerHTML = `
+    <button class="ghost" id="pcBtnVoltarAdmin" style="margin-bottom:14px;">← Voltar</button>
+    <h2 style="margin-bottom:2px;">Painel do administrador</h2>
+    <div class="pc-sub" style="margin-bottom:14px;">Visão operacional do sistema — não substitui o Supabase, cobre só o essencial do dia a dia.</div>
+    <div class="pc-cargo-switch" style="margin-bottom:16px; flex-wrap:wrap; height:auto;">${botoesSecao}</div>
+    <div id="pcAdminConteudo">${conteudoSecao}</div>`;
+
+  document.getElementById("pcBtnVoltarAdmin").addEventListener("click", () => {
+    pcState.subaba = "meu-perfil";
+    renderAppColaborativo();
+  });
+  document.querySelectorAll("[data-pc-admin-secao]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      pcState.adminSecao = btn.getAttribute("data-pc-admin-secao");
+      renderAdminPainel();
+    });
+  });
+
+  if (pcState.adminSecao === "problemas") {
+    document.querySelectorAll("[data-pc-resolver-problema]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        await adminMarcarProblemaResolvido(btn.getAttribute("data-pc-resolver-problema"));
+        renderAdminPainel();
+      });
+    });
+  }
+  if (pcState.adminSecao === "pesquisa") {
+    document.getElementById("pcBtnAdminPesquisar").addEventListener("click", async () => {
+      const genero = document.getElementById("pcAdminFiltroGenero").value;
+      const uf = document.getElementById("pcAdminFiltroUf").value.trim().toUpperCase();
+      pcState.adminPesquisaFiltro = { genero, uf };
+      pcState.adminPesquisaResultados = await adminPesquisaAgregada(pcState.estado || "SC", genero, uf);
+      renderAdminPainel();
+    });
+    document.querySelectorAll("[data-pc-admin-pesquisa-cargo]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        pcState.adminPesquisaCargo = btn.getAttribute("data-pc-admin-pesquisa-cargo");
+        renderAdminPainel();
+      });
+    });
+  }
 }
 
 // Primeiro domingo de outubro de 2026 (calendário eleitoral — 1º turno das
