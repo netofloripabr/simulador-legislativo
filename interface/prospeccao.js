@@ -515,7 +515,7 @@ function renderTelaEstado() {
     <div class="glass-card" style="max-width:460px; margin:0 auto; min-height:70vh; display:flex; flex-direction:column; justify-content:center;">
       <div style="font-size:11px; color:var(--pc-ink-dim); text-transform:uppercase; letter-spacing:.06em; text-align:center;">2 de 8</div>
       <h2 style="text-align:center; margin-bottom:4px;">Onde você vai palpitar?</h2>
-      <div class="pc-sub" style="text-align:center; margin-bottom:6px;">Gire e solte no seu estado.</div>
+      <div class="pc-sub" style="text-align:center; margin-bottom:6px;">Selecione o estado.</div>
 
       <div class="pc-picker" id="pcPicker">
         <div class="pc-picker-center-band"></div>

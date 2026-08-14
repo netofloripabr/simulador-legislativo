@@ -34,10 +34,11 @@ _Última atualização: 13/08/2026_
 
 **✅ Concluído**
 - Tela de escolha de estado (27 estados + DF listados, só SC habilitado)
+- Texto trocado: "Gire e solte no seu estado" → "Selecione o estado" (14/08/2026)
 
 **⬜ Pendente**
-1. Ajustar textos: trocar "Gire e solte no seu estado" por "Selecione o estado"; remover o aviso "Lista de candidatos pronta" quando a lista final de 2026 estiver no ar (**avisar antes de executar**)
-2. Permitir trocar de estado dentro do app + participação multi-estado
+1. Permitir trocar de estado dentro do app + participação multi-estado
+2. Remover o aviso "Lista de candidatos pronta" quando a lista final de 2026 estiver no ar — **não fiz essa parte**, continua esperando confirmação de que a lista final oficial de candidatos de 2026 já está no ar (não tenho como saber esse status sozinho)
 
 **❌ Descartado**
 - Pré-selecionar o estado de residência usando a UF do CEP salvo no cadastro — descartado pelo usuário em 12/08/2026, sem justificativa registrada além de "descartar"
