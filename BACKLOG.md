@@ -190,8 +190,11 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
 
 ## Geral / Multi-estado
 
+**✅ Concluído**
+- Regra de vagas de Senador por estado em 2026 confirmada por fonte externa (14/08/2026) — 2026 é ano de renovação de 2/3 do Senado (nacionalmente, 54 cadeiras em disputa), SC tem 2 das suas 3 cadeiras em jogo (as de Esperidião Amin e Ivete da Silveira), exatamente o que já estava mapeado no PROJETO.md (Fase 2.6). Fontes: [Eleições 2026: por que SC elege dois senadores neste ano](https://www.4oito.com.br/noticia/eleicoes-2026-por-que-sc-elege-dois-senadores-neste-ano-85248), [Eleições estaduais em Santa Catarina em 2026 — Wikipédia](https://pt.wikipedia.org/wiki/Elei%C3%A7%C3%B5es_estaduais_em_Santa_Catarina_em_2026)
+
 **⬜ Pendente**
-1. Confirmar a regra de vagas de Senador por estado em 2026 (renovação por terços — já mapeado no PROJETO.md, falta só validar a fonte)
+- _(nenhum agora)_
 
 ---
 
