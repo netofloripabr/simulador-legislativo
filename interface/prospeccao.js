@@ -32,6 +32,10 @@ let pcState = {
   cargoAtivoGrupo: "estadual", // qual cargo a comparação do grupo está mostrando (estadual|federal|senador)
   grupoMinhasCedulas: null, // cache das cédulas depositadas da própria pessoa, pro seletor "sua cédula neste grupo" (migração 15)
   grupoCedulaEscolhida: null, // salvamento_id escolhido pra esse grupo, ou null = cai na oficial global
+  buscaCedulaTermo: "", // texto digitado na consulta pública de cédula (tela de Ranking)
+  buscaCedulaResultados: null, // null = ainda não buscou; array = resultado da última busca (pode ser vazio)
+  buscaCedulaCarregando: false,
+  buscaCedulaDetalhe: null, // resultado clicado, mostrando a lista completa de eleitos
   historicoPalpite: [], // snapshots pro botão "Voltar" da tela de seleção
   avisoLimiteVagasAberto: false, // modal "só dá pra marcar até o total de vagas"
   confirmAutoPreenchimentoAberto: false, // modal de confirmação antes do autopreenchimento (✦)
@@ -356,7 +360,7 @@ function renderMenuFixo(destinoAtivo) {
     { id: "minhas-listas", icone: "ballot", label: "Minhas listas" },
     { id: "medias", icone: "chart", label: "Médias", gate: gateConvidado },
     { id: "grupo", icone: "grupos", label: "Grupos", gate: gateConvidado },
-    { id: "ranking", icone: "ranking", label: "Ranking", disabled: true },
+    { id: "ranking", icone: "ranking", label: "Ranking" },
   ];
   const botoes = itens.map((it) => {
     const ativo = it.id === destinoAtivo;
@@ -409,6 +413,14 @@ function irParaDestinoMenuFixo(destino) {
     else { pcState.tela = "minhas-listas-convidado"; renderColaborativo(); }
     return;
   }
+  // Ranking: a pontuação em si depende do resultado oficial (ver aviso na
+  // própria tela), mas a consulta pública de cédula por nome/código não
+  // depende — por isso, diferente de Médias/Grupos, não pede cadastro.
+  if (destino === "ranking") {
+    if (pcState.perfil) { pcState.subaba = "ranking"; renderAppColaborativo(); }
+    else { pcState.tela = "ranking-convidado"; renderColaborativo(); }
+    return;
+  }
   // Médias e Grupos pedem cadastro pro convidado (mesma regra do Painel) —
   // pendenteAcao já sabe levar direto pra lá depois de criar a conta.
   if (gateConvidado && (destino === "medias" || destino === "grupo")) {
@@ -441,6 +453,7 @@ function renderColaborativo() {
   if (pcState.tela === "deposito-confirmado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderDepositoConfirmado(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "painel-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderPainelPrincipal(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "minhas-listas-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMinhasListas(); atualizarMenuFixo("minhas-listas"); return; }
+  if (pcState.tela === "ranking-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderRankingPlaceholder(); atualizarMenuFixo("ranking"); return; }
   if (pcState.tela === "detalhado-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMeuPalpite(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "login") return renderTelaLogin();
   if (pcState.tela === "recuperar-senha") return renderTelaRecuperarSenha();
@@ -1296,7 +1309,7 @@ async function renderPainelPrincipal() {
       <button class="pc-lobby-menu-item" id="pcMenuListas">${iconeSvg("ballot", 28)}<span>Minhas listas</span></button>
       <button class="pc-lobby-menu-item" id="pcMenuMedias" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("chart", 28)}<span>Médias</span></button>
       <button class="pc-lobby-menu-item" id="pcMenuGrupos" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("grupos", 28)}<span>Grupos</span></button>
-      <button class="pc-lobby-menu-item" id="pcMenuRanking" disabled title="Disponível depois do resultado oficial de 2026">${iconeSvg("ranking", 28)}<span>Ranking</span></button>
+      <button class="pc-lobby-menu-item" id="pcMenuRanking">${iconeSvg("ranking", 28)}<span>Ranking</span></button>
     </div>
 
     <div id="pcLinkCompartilhavelWrap"></div>
@@ -1315,6 +1328,10 @@ async function renderPainelPrincipal() {
   document.getElementById("pcMenuListas").addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "minhas-listas"; renderAppColaborativo(); }
     else { pcState.tela = "minhas-listas-convidado"; renderColaborativo(); }
+  });
+  document.getElementById("pcMenuRanking").addEventListener("click", () => {
+    if (pcState.perfil) { pcState.subaba = "ranking"; renderAppColaborativo(); }
+    else { pcState.tela = "ranking-convidado"; renderColaborativo(); }
   });
   document.getElementById("pcMenuMedias").addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("medias");
@@ -1527,6 +1544,25 @@ function renderModalCompartilhar() {
     </div>`;
 }
 
+// Monta os 3 acordeões de cargo (Estadual/Federal/Senador) com a lista de
+// eleitos/votos de um palpite já fechado — usado tanto em "Minhas listas"
+// (ver a própria cédula) quanto na busca pública de cédula (Ranking, ver
+// renderRankingPlaceholder). Extraído em 14/08/2026 pra não duplicar essa
+// montagem nos dois lugares.
+function montarSecoesCargosDetalhe(palpitesPorCargo) {
+  return CARGOS.map((cargoDef) => {
+    const listaCargo = palpitesPorCargo ? palpitesPorCargo[cargoDef.id] : null;
+    if (!listaCargo || !listaCargo.length) return "";
+    const unificada = listaUnificadaRevisao(listaCargo, cargoDef.id);
+    const linhas = unificada.map((c) => `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 3px; border-bottom:1px solid rgba(120,130,180,0.14); font-size:12.5px;">
+        <span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.posicaoEleicao ? `<b style="color:var(--pc-accent);">${c.posicaoEleicao}º</b> ` : ""}${c.nome} <span style="color:var(--pc-ink-dim);">· ${c.partido}</span></span>
+        <span style="font-family:var(--mono); color:var(--pc-ink-dim); flex-shrink:0;">${c.votos.toLocaleString("pt-BR")}</span>
+      </div>`).join("");
+    return `<details class="pc-acc"><summary>${cargoDef.label}</summary><div class="pc-acc-body">${linhas}</div></details>`;
+  }).join("");
+}
+
 async function renderMinhasListas() {
   const el = document.getElementById("pcConteudo");
   el.innerHTML = telaCarregando("Carregando suas listas…");
@@ -1546,17 +1582,7 @@ async function renderMinhasListas() {
       palpitesPorCargo = lista.palpitesPorCargo;
     }
     const lista = listas.find((l) => l.id === pcState.listaEmVisualizacao);
-    const secoes = CARGOS.map((cargoDef) => {
-      const listaCargo = palpitesPorCargo ? palpitesPorCargo[cargoDef.id] : null;
-      if (!listaCargo || !listaCargo.length) return "";
-      const unificada = listaUnificadaRevisao(listaCargo, cargoDef.id);
-      const linhas = unificada.map((c) => `
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 3px; border-bottom:1px solid rgba(120,130,180,0.14); font-size:12.5px;">
-          <span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.posicaoEleicao ? `<b style="color:var(--pc-accent);">${c.posicaoEleicao}º</b> ` : ""}${c.nome} <span style="color:var(--pc-ink-dim);">· ${c.partido}</span></span>
-          <span style="font-family:var(--mono); color:var(--pc-ink-dim); flex-shrink:0;">${c.votos.toLocaleString("pt-BR")}</span>
-        </div>`).join("");
-      return `<details class="pc-acc"><summary>${cargoDef.label}</summary><div class="pc-acc-body">${linhas}</div></details>`;
-    }).join("");
+    const secoes = montarSecoesCargosDetalhe(palpitesPorCargo);
     el.innerHTML = `
       <button class="ghost" id="pcBtnVoltarMinhasListas" style="margin-bottom:14px;">← Minhas listas</button>
       <h2 style="margin-bottom:2px;">${lista ? lista.nome : ""}</h2>
@@ -4806,8 +4832,33 @@ function renderDepositoConfirmado() {
   });
 }
 
+// Consulta pública de cédula (nome ou código) — pedido do usuário, ver
+// BACKLOG.md "Cédula depositada / Compartilhamento": a pontuação/ranking
+// de verdade depende do resultado oficial de 2026, mas achar e ver uma
+// cédula específica não depende disso, então já funciona agora, dentro
+// da mesma tela (placeholder do ranking em si).
 function renderRankingPlaceholder() {
-  document.getElementById("pcConteudo").innerHTML = `
+  const conteudo = document.getElementById("pcConteudo");
+
+  if (pcState.buscaCedulaDetalhe) {
+    const r = pcState.buscaCedulaDetalhe;
+    const secoes = montarSecoesCargosDetalhe({ estadual: r.lista_estadual, federal: r.lista_federal, senador: r.lista_senador });
+    conteudo.innerHTML = `
+      <div class="glass-card">
+        <button class="ghost" id="pcBtnVoltarBuscaCedula" style="margin-bottom:14px;">← Voltar pra busca</button>
+        <h2 style="margin-bottom:2px;">${r.nome_exibicao}</h2>
+        <div class="pc-sub" style="margin-bottom:14px;">${r.estado}${r.codigo ? ` · código ${r.codigo}` : ""}</div>
+        ${secoes || `<div class="pc-sub">Essa cédula não tem candidatos registrados.</div>`}
+      </div>`;
+    document.getElementById("pcBtnVoltarBuscaCedula").addEventListener("click", () => {
+      pcState.buscaCedulaDetalhe = null;
+      renderRankingPlaceholder();
+    });
+    return;
+  }
+
+  const resultados = pcState.buscaCedulaResultados;
+  conteudo.innerHTML = `
     <div class="glass-card">
       <h2>Ranking</h2>
       <div class="pc-sub">Disponível depois do resultado oficial da eleição de 2026.</div>
@@ -4815,7 +4866,43 @@ function renderRankingPlaceholder() {
         Critério principal: quem mais acertar a composição real da lista de eleitos.
         Critério de desempate: menor distância entre os votos previstos e os votos reais.
       </div>
+    </div>
+    <div class="glass-card" style="margin-top:14px;">
+      <h2 style="font-size:15px; margin-bottom:4px;">Consultar uma cédula</h2>
+      <div class="pc-sub" style="margin-bottom:12px;">Busque pelo nome de quem depositou ou pelo código da cédula (ex.: SL01-AB3D) — isso já funciona agora, não depende do resultado oficial.</div>
+      <div style="display:flex; gap:8px;">
+        <input class="cell" id="pcBuscaCedulaInput" placeholder="Nome ou código" value="${pcState.buscaCedulaTermo || ""}" style="flex:1;">
+        <button class="primary" id="pcBtnBuscarCedula" style="flex-shrink:0;">Buscar</button>
+      </div>
+      <div id="pcBuscaCedulaResultado" style="margin-top:14px;">
+        ${pcState.buscaCedulaCarregando ? `<div class="pc-sub">Buscando…</div>` : ""}
+        ${!pcState.buscaCedulaCarregando && resultados && resultados.length === 0 ? `<div class="pc-sub">Nada encontrado com esse nome ou código.</div>` : ""}
+        ${!pcState.buscaCedulaCarregando && resultados && resultados.length > 0 ? resultados.map((r) => `
+          <button data-pc-ver-cedula-publica="${r.salvamento_id}" class="pc-lobby-linha" style="width:100%; text-align:left; background:none; border:1px solid #2a4438; border-radius:10px; cursor:pointer; margin-bottom:6px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; color:var(--pc-ink);">${r.nome_exibicao}<span style="color:var(--pc-ink-dim);"> · ${r.estado}</span></span>
+            ${r.codigo ? `<span style="font-family:var(--mono); font-size:11px; color:var(--pc-ink-dim); flex-shrink:0;">${r.codigo}</span>` : ""}
+          </button>`).join("") : ""}
+      </div>
     </div>`;
+
+  const input = document.getElementById("pcBuscaCedulaInput");
+  const disparar = async () => {
+    pcState.buscaCedulaTermo = input.value;
+    pcState.buscaCedulaCarregando = true;
+    renderRankingPlaceholder();
+    pcState.buscaCedulaResultados = await buscarCedulaPublica(pcState.buscaCedulaTermo);
+    pcState.buscaCedulaCarregando = false;
+    renderRankingPlaceholder();
+  };
+  document.getElementById("pcBtnBuscarCedula").addEventListener("click", disparar);
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") disparar(); });
+  document.querySelectorAll("[data-pc-ver-cedula-publica]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-pc-ver-cedula-publica");
+      pcState.buscaCedulaDetalhe = pcState.buscaCedulaResultados.find((r) => r.salvamento_id === id);
+      renderRankingPlaceholder();
+    });
+  });
 }
 
 async function renderMeuPalpite() {

@@ -249,3 +249,24 @@ async function buscarSalvamentosPublicosOficiais(estado) {
   }
   return data || [];
 }
+
+// Consulta pública por nome ou código da cédula (tela de Ranking, pedido
+// do usuário — BACKLOG.md), usa salvamentos_depositados_publicos
+// (migração 15/16) — TODAS as cédulas depositadas, não só a oficial, pra
+// achar de verdade a cédula que a pessoa está procurando pelo código
+// específico dela. Código busca exato (é único); nome busca por trecho,
+// até 10 resultados. Cédula anônima nunca aparece na busca por nome
+// (nome_exibicao vira "Participante anônimo" na view), só por código.
+async function buscarCedulaPublica(termo) {
+  const termoLimpo = String(termo || "").trim();
+  if (!termoLimpo) return [];
+  const pareceCodigo = /^SL[A-Z0-9]{2}-[A-Z0-9]{4}$/i.test(termoLimpo);
+  let query = supabaseClient.from("salvamentos_depositados_publicos").select("*");
+  query = pareceCodigo ? query.ilike("codigo", termoLimpo) : query.ilike("nome_exibicao", `%${termoLimpo}%`).limit(10);
+  const { data, error } = await query;
+  if (error) {
+    console.error("Erro ao buscar cédula pública:", error);
+    return [];
+  }
+  return data || [];
+}

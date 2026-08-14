@@ -147,15 +147,25 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
   via injeção direta de estado (sem precisar montar cadastro+depósito
   completo pra testar) — confirmado visualmente que a troca gera a imagem
   certa e o botão ativo fica destacado
-
-**⬜ Pendente**
-1. Consulta pública **dentro da tela de Ranking** (não é página separada):
-   buscar um colega pelo nome ou pelo código da cédula (`SLxx-xxxx`) pra ver
-   a lista/posição dele. Ranking hoje é só um placeholder ("disponível
-   depois do resultado oficial de 2026") — a pontuação/colocação de fato
-   depende do resultado real, mas a busca-e-visualização de uma cédula
-   específica não depende disso, então dá pra liberar já (assunção — avisar
-   se for pra esperar o resultado oficial também).
+- **Consulta pública por nome/código dentro do Ranking, 14/08/2026** —
+  seguiu a assunção já registrada aqui: a busca-e-visualização de uma
+  cédula específica não depende do resultado oficial, só a pontuação/
+  colocação depende (essa continua bloqueada, mensagem de "disponível
+  depois do resultado oficial" continua na tela). O item "Ranking" do
+  menu (faixa do hub + barra fixa de baixo) estava com `disabled:true` —
+  **precisou ser habilitado**, senão ninguém conseguiria chegar na busca
+  nova; diferente de Médias/Grupos, não pede cadastro (é consulta
+  pública de verdade, funciona pra visitante também, testado ao vivo sem
+  login). Busca por código (`SLxx-xxxx`) é exata; por nome é por trecho,
+  até 10 resultados. Clicar num resultado mostra a lista completa
+  (Estadual/Federal/Senador), reaproveitando a mesma montagem visual de
+  "Minhas listas" (função nova `montarSecoesCargosDetalhe`, extraída pra
+  não duplicar). **Precisa rodar as migrações `nuvem/migracao-15-cedula-
+  escolhida-grupo.sql` e `nuvem/migracao-16-busca-cedula-publica.sql` no
+  Supabase antes de valer em produção** (a 16 expõe o código da cédula na
+  view pública — testado ao vivo: sem a migração rodada, a busca
+  degrada de forma segura pra "nada encontrado" em vez de quebrar a
+  tela, confirmado no console do navegador)
 
 ---
 
