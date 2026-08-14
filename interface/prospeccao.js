@@ -204,7 +204,10 @@ async function initColaborativo() {
     pcState.subaba = pcState.palpiteEdicao ? "painel" : "selecao";
     pcState.estado = "SC";
     await garantirRascunhosCarregados();
-    pcState.tela = "app";
+    // Mini-pesquisa obrigatória (migração 20) — só quem se cadastrou DEPOIS
+    // da migração roda tem mini_pesquisa_em null; contas de antes foram
+    // marcadas como já respondidas (grandfathering), não são interrompidas.
+    pcState.tela = pcState.perfil.mini_pesquisa_em ? "app" : "mini-pesquisa";
     renderColaborativo();
     return;
   }
@@ -472,6 +475,7 @@ function renderColaborativo() {
   if (pcState.tela === "nova-senha") return renderTelaNovaSenha();
   if (pcState.tela === "cadastro") return renderTelaCadastro();
   if (pcState.tela === "completar-perfil") return renderTelaCompletarPerfil();
+  if (pcState.tela === "mini-pesquisa") return renderTelaMiniPesquisa();
   if (pcState.tela === "termos") return renderTelaLegal("termos");
   if (pcState.tela === "privacidade") return renderTelaLegal("privacidade");
   if (pcState.tela === "app") return renderAppColaborativo();
@@ -1059,6 +1063,93 @@ function renderTelaCompletarPerfil() {
     }
     pcState.erro = "";
     await initColaborativo();
+  });
+}
+
+// Mini-pesquisa obrigatória, uma vez só, logo depois do cadastro (ver
+// initColaborativo — só quem tem perfil.mini_pesquisa_em null cai aqui;
+// contas de antes da migração 20 foram marcadas como já respondidas).
+// PROJETO.md, Fase 2.7: 5 cargos (Presidente/Governador/Senador/Dep.
+// Federal/Dep. Estadual) + 2º turno. Presidente e Governador são os únicos
+// cargos majoritários com 2º turno de verdade no sistema eleitoral
+// brasileiro (Senador é decidido em 1 turno só) — por isso só esses dois
+// perguntam sobre 2º turno; "simplificar" isso pro resto seria incorreto
+// (mesmo cuidado eleitoral documentado em CLAUDE.md).
+function renderTelaMiniPesquisa() {
+  const el = document.getElementById("modoColaborativoWrap");
+  el.innerHTML = `
+    <div class="glass-card" style="max-width:460px; margin:0 auto;">
+      <h2>Antes de começar, seu palpite rápido</h2>
+      <div class="pc-sub" style="margin-bottom:16px;">Só uma vez: quem você acha que vence cada disputa em 2026. Pra Presidente e Governador (não cobertos em detalhe aqui), é só o nome mesmo — pra Senador, Dep. Federal e Dep. Estadual você vai montar a cédula completa daqui a pouco.</div>
+
+      <div class="field-row"><label>Presidente</label><input class="cell" id="pcMpPresidente" placeholder="Nome do candidato"></div>
+      <div class="field-row"><label>Vai ter 2º turno?</label>
+        <select class="cell" id="pcMpPresidente2t">
+          <option value="">Selecione</option>
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
+        </select>
+      </div>
+
+      <div style="margin:16px 0; border-top:1px solid var(--pc-glass-border);"></div>
+
+      <div class="field-row"><label>Governador (SC)</label><input class="cell" id="pcMpGovernador" placeholder="Nome do candidato"></div>
+      <div class="field-row"><label>Vai ter 2º turno?</label>
+        <select class="cell" id="pcMpGovernador2t">
+          <option value="">Selecione</option>
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
+        </select>
+      </div>
+
+      <div style="margin:16px 0; border-top:1px solid var(--pc-glass-border);"></div>
+
+      <div class="field-row"><label>Senador (SC)</label><input class="cell" id="pcMpSenador" placeholder="Nome do candidato"></div>
+      <div class="field-row"><label>Dep. Federal (SC)</label><input class="cell" id="pcMpFederal" placeholder="Nome do candidato"></div>
+      <div class="field-row"><label>Dep. Estadual (SC)</label><input class="cell" id="pcMpEstadual" placeholder="Nome do candidato"></div>
+
+      <div class="pc-erro" id="pcMpErro"></div>
+      <div style="display:flex; gap:10px; margin-top:6px;">
+        <button class="primary" id="pcBtnMpContinuar" style="flex:1;">Continuar</button>
+        <button class="ghost" id="pcBtnMpSair">Sair</button>
+      </div>
+    </div>`;
+
+  document.getElementById("pcBtnMpSair").addEventListener("click", async () => {
+    await sair();
+    pcState = { iniciado: true, sessao: null, perfil: null, tela: "landing", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
+    renderColaborativo();
+  });
+  document.getElementById("pcBtnMpContinuar").addEventListener("click", async (e) => {
+    const respostas = {
+      presidente: document.getElementById("pcMpPresidente").value.trim(),
+      presidente_2_turno: document.getElementById("pcMpPresidente2t").value,
+      governador: document.getElementById("pcMpGovernador").value.trim(),
+      governador_2_turno: document.getElementById("pcMpGovernador2t").value,
+      senador: document.getElementById("pcMpSenador").value.trim(),
+      dep_federal: document.getElementById("pcMpFederal").value.trim(),
+      dep_estadual: document.getElementById("pcMpEstadual").value.trim(),
+    };
+    const erroEl = document.getElementById("pcMpErro");
+    if (!respostas.presidente || !respostas.governador || !respostas.senador || !respostas.dep_federal || !respostas.dep_estadual) {
+      erroEl.textContent = "Preenche um nome pra cada cargo — pode ser um palpite rápido, dá pra errar.";
+      return;
+    }
+    if (!respostas.presidente_2_turno || !respostas.governador_2_turno) {
+      erroEl.textContent = "Falta dizer se acha que vai ter 2º turno pra Presidente e Governador.";
+      return;
+    }
+    erroEl.textContent = "";
+    e.target.disabled = true;
+    const { error } = await salvarMiniPesquisa(pcState.perfil.id, respostas);
+    if (error) {
+      e.target.disabled = false;
+      erroEl.textContent = error.message;
+      return;
+    }
+    pcState.perfil = { ...pcState.perfil, mini_pesquisa_respostas: respostas, mini_pesquisa_em: new Date().toISOString() };
+    pcState.tela = "app";
+    renderColaborativo();
   });
 }
 

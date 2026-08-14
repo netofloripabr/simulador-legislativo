@@ -123,20 +123,28 @@ pagamento no site, acesso concedido manualmente por você._
 
 ---
 
-## Mini-pesquisa (nunca implementada)
+## Mini-pesquisa (implementada 14/08/2026)
 
 _PROJETO.md, Fase 2.7: o plano original é que compartilhar/grupos só
 desbloqueiem de verdade depois do cadastro **e** de uma mini-pesquisa por
 estado (Presidente/Governador/Senador/Dep. Federal/Dep. Estadual + 2º
 turno) — mencionada duas vezes no documento, nunca desenhada nem
-implementada. Hoje compartilhar/grupos abrem direto depois do cadastro,
-sem passar por essa etapa._
+implementada. Desenho fechado com o usuário em 14/08/2026 (3 perguntas de
+escopo respondidas antes de programar)._
 
-**⬜ Pendente**
-1. Desenhar o fluxo (mockup) antes de programar — quantas perguntas,
-   onde entra no onboarding, o que acontece pra quem já passou por ali
-   antes dessa etapa existir.
-2. Implementar.
+**✅ Feito**
+1. Escopo: os 5 cargos completos (nome do candidato que a pessoa acha que
+   vence). 2º turno só é perguntado pra Presidente e Governador — Senador
+   não tem 2º turno no sistema eleitoral brasileiro (majoritário mas
+   decidido em 1 turno só), então não fazia sentido perguntar ali.
+2. Gate: obrigatória logo depois do cadastro (email ou Google), antes de
+   liberar qualquer parte do app — não só ao tentar compartilhar/entrar em
+   grupo. `renderTelaMiniPesquisa()`, tela "mini-pesquisa".
+3. Não-retroativo: migração 20 adiciona `perfis.mini_pesquisa_respostas` +
+   `perfis.mini_pesquisa_em`, e faz backfill (`mini_pesquisa_em =
+   criado_em`) em toda conta existente na hora de rodar — só quem se
+   cadastra DEPOIS da migração nasce com `mini_pesquisa_em` null e cai na
+   tela obrigatória (`initColaborativo`, interface/prospeccao.js).
 
 ---
 

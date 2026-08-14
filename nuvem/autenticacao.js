@@ -149,6 +149,12 @@ async function atualizarPerfil(perfilId, campos) {
   return { error };
 }
 
+// Mini-pesquisa obrigatória de cadastro (migração 20) — colunas simples em
+// "perfis", mesmo caminho de atualizarPerfil() acima.
+async function salvarMiniPesquisa(perfilId, respostas) {
+  return await atualizarPerfil(perfilId, { mini_pesquisa_respostas: respostas, mini_pesquisa_em: new Date().toISOString() });
+}
+
 async function trocarSenhaLogado(novaSenha) {
   if (!senhaForte(novaSenha)) return { error: { message: "A senha precisa ter pelo menos 8 caracteres, com letra, número e caractere especial." } };
   return await supabaseClient.auth.updateUser({ password: novaSenha });
