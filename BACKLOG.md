@@ -167,6 +167,22 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
   view pública — testado ao vivo: sem a migração rodada, a busca
   degrada de forma segura pra "nada encontrado" em vez de quebrar a
   tela, confirmado no console do navegador)
+- **Skill "Supabase Postgres Best Practices" instalada e usada pra
+  auditar as migrações 15/16, 14/08/2026** (`.claude/skills/supabase-
+  postgres-best-practices`, oficial da Supabase, MIT). Achado real: a
+  coluna nova da migração 15 (`grupo_membros.salvamento_escolhido_id`)
+  não tinha índice — Postgres não indexa chave estrangeira sozinho, e
+  `grupo_comparacao` faz JOIN direto nela, então virava um scan
+  sequencial a cada consulta de comparação de grupo. Corrigido em
+  `nuvem/migracao-17-indice-cedula-escolhida-grupo.sql` (**precisa rodar
+  no Supabase, depois da 15**). Resto da auditoria (RLS, grants,
+  constraints) não achou mais nada — os grants das views novas já
+  seguem o princípio de menor privilégio (só SELECT, só pra anon/
+  authenticated, igual ao padrão já usado no resto do projeto). Ponto
+  de atenção pra mais pra frente, não urgente agora (banco pequeno): a
+  busca por nome (`ilike '%termo%'`) não usa índice — se a base de
+  cédulas depositadas crescer bastante, vale um índice de texto
+  (pg_trgm) na hora certa
 
 ---
 
