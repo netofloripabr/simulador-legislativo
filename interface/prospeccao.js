@@ -4641,6 +4641,13 @@ function explicacaoTag(tag, detalhe) {
     // é a regra vigente: todo partido concorre à sobra, sem piso mínimo.
     const generico = "Elegeu-se pela <b>distribuição de sobras</b> (método das médias, art. 109): depois das vagas garantidas por quociente, o resto vai pro partido com a maior média de voto a cada rodada — não necessariamente pra quem tem mais voto individual.";
     if (!detalhe) return generico;
+    // rodadaSobra pode não existir: eleito é a marcação da pessoa (ver
+    // listaUnificadaRevisao), então dá pra marcar mais candidatos de um
+    // partido do que a matemática real garantiria — nesse caso não tem uma
+    // "rodada de sobra" de verdade pra citar, só o resto da explicação.
+    if (detalhe.rodadaSobra === undefined) {
+      return `${generico}<br><br>Nesse caso: a <b>${detalhe.cadeiraDoPartido}ª</b> cadeira marcada deste partido, com média de <b>${Math.round(detalhe.mediaConquistada).toLocaleString("pt-BR")}</b> votos (${detalhe.votosPartido.toLocaleString("pt-BR")} ÷ ${detalhe.cadeiraDoPartido}) — além do que a matemática real (quociente + sobra) garantiria hoje pra este partido.`;
+    }
     return `${generico}<br><br>Nesse caso: essa foi a <b>${detalhe.rodadaSobra}ª</b> vaga de sobra distribuída nesse cargo (de <b>${detalhe.totalSobrasCargo}</b> no total, disputadas entre todos os partidos) — a <b>${detalhe.cadeiraDoPartido}ª</b> cadeira deste partido, com média de <b>${Math.round(detalhe.mediaConquistada).toLocaleString("pt-BR")}</b> votos (${detalhe.votosPartido.toLocaleString("pt-BR")} ÷ ${detalhe.cadeiraDoPartido}).`;
   }
   if (tag === "majoritário") {
@@ -4734,15 +4741,19 @@ function listaUnificadaRevisao(listaParam, cargo) {
     lista.forEach((p) => p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todos.push({ ...c, _partidoExibicao: p.nome })));
     const ordenados = [...todos].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
     const votosDoUltimo = totalVagasCargo > 0 && ordenados[totalVagasCargo - 1] ? (Number(ordenados[totalVagasCargo - 1].votos) || 0) : 0;
+    // Mesmo princípio do ramo proporcional abaixo (eleito soberano do
+    // usuário) — Senador é majoritário (sem QP/sobra), mas a regra de
+    // nunca substituir a marcação vale igual.
     ordenados.forEach((c, i) => {
-      const eleito = i < totalVagasCargo;
+      const eleito = !!c.marcadoEleito;
       const votos = Number(c.votos) || 0;
+      const consistenteComMatematicaReal = i < totalVagasCargo;
       resultado.push({
         chave: c.chave, nome: nomeExibicao(c), partido: c._partidoExibicao, votos, eleito,
         tag: eleito ? "majoritário" : null,
         detalhe: eleito ? { posicaoGeral: i + 1, totalVagasCargo } : null,
-        gap: eleito ? null : { individual: Math.max(0, votosDoUltimo - votos + 1), partido: null, acrescimo: Math.max(0, votosDoUltimo - votos + 1) },
-        marcadoPeloUsuario: !!c.marcadoEleito,
+        gap: eleito ? null : { individual: consistenteComMatematicaReal ? 0 : Math.max(0, votosDoUltimo - votos + 1), partido: null, acrescimo: consistenteComMatematicaReal ? 0 : Math.max(0, votosDoUltimo - votos + 1) },
+        marcadoPeloUsuario: eleito, consistenteComMatematicaReal,
       });
     });
   } else {
@@ -4756,16 +4767,38 @@ function listaUnificadaRevisao(listaParam, cargo) {
         .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
       const ultimoEleitoDeVerdade = cadeirasReais > 0 ? reaisOrdenados[cadeirasReais - 1] : null;
       const votosDoUltimoEleitoDeVerdade = ultimoEleitoDeVerdade ? (Number(ultimoEleitoDeVerdade.votos) || 0) : 0;
+      // "eleito" soberano do usuário (conceito fechado 12/08/2026, retomado
+      // 14/08/2026 com mockup validado) — nunca mais é quem a matemática
+      // real elegeria, é sempre e só quem a pessoa marcou em Seleção
+      // (c.marcadoEleito). cadeirasReais/qp/corte continuam calculados do
+      // mesmo jeito, só que agora são puramente informativos (viram aviso
+      // quando divergem, nunca substituem a marcação — ver
+      // consistenteComMatematicaReal abaixo e o aviso em linhaCandidato).
+      const marcadosOrdenados = reaisOrdenados.filter((c) => c.marcadoEleito);
       reaisOrdenados.forEach((c, i) => {
-        const eleito = i < cadeirasReais;
+        const eleito = !!c.marcadoEleito;
         const votos = Number(c.votos) || 0;
+        // Esse candidato específico é quem a matemática real elegeria
+        // nessa posição de voto — independente de estar marcado ou não.
+        const consistenteComMatematicaReal = i < cadeirasReais;
         if (eleito) {
-          const cadeiraDoPartido = i + 1;
+          const cadeiraDoPartido = marcadosOrdenados.findIndex((m) => m.chave === c.chave) + 1;
           resultado.push({
             chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos, eleito: true,
-            tag: i < qp ? "QP" : "média",
+            tag: cadeiraDoPartido <= qp ? "QP" : "média",
             detalhe: { votosPartido, qe, qp, cadeirasReais, cadeiraDoPartido, mediaConquistada: votosPartido / cadeiraDoPartido, rodadaSobra: rodadaSobraPorPartido[pIdx][cadeiraDoPartido - 1], totalSobrasCargo },
-            gap: null, marcadoPeloUsuario: !!c.marcadoEleito,
+            gap: null, marcadoPeloUsuario: true, consistenteComMatematicaReal,
+          });
+        } else if (consistenteComMatematicaReal) {
+          // Real vencedor, mas a pessoa não marcou — vira só um aviso (ver
+          // linhaCandidato), nunca reaparece como "eleito" sozinho: gap
+          // zerado de propósito, já que pela matemática real essa vaga já
+          // está garantida, só falta a pessoa marcar se concordar.
+          resultado.push({
+            chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos, eleito: false,
+            tag: null, detalhe: null,
+            gap: { individual: 0, partido: 0, acrescimo: 0, votosPartido, temRivalAcima: false },
+            marcadoPeloUsuario: false, consistenteComMatematicaReal: true,
           });
         } else {
           const necessarioPartido = Math.floor(corte * (cadeirasReais + 1)) + 1;
@@ -4785,38 +4818,21 @@ function listaUnificadaRevisao(listaParam, cargo) {
             chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos, eleito: false,
             tag: null, detalhe: null,
             gap: { individual: gapIndividual, partido: gapPartido, acrescimo, votosPartido, temRivalAcima: !!rivalDeCima },
-            marcadoPeloUsuario: !!c.marcadoEleito,
+            marcadoPeloUsuario: false, consistenteComMatematicaReal: false,
           });
         }
       });
     });
 
-    // Caso extremo: se TODO o cargo estiver com voto zerado (ex.: pessoa
-    // clicou "Zerar"), dhondtComCorte devolve todas as cadeiras em 0
-    // (atalho em calculo/eleitoral.js, não dá pra distribuir vaga sem
-    // nenhum voto pra comparar) — sem essa proteção, a lista mostrava "0
-    // eleitos" e quebrava a garantia de "sempre N eleitos" (confirmada
-    // com o usuário em 05/08/2026). Sem sinal de voto nenhum, não tem
-    // base matemática pra escolher quem "ganharia" de verdade — promove
-    // pra eleito, de forma determinística, quem tem mais voto de 2022
-    // (maior primeiro) até fechar o total de vagas. Reaproveita a mesma
-    // ideia de fallback que a função antiga (eleitosReaisPorPartido)
-    // tinha, adaptada pra lista única. Achado testando ao vivo em
-    // 07/08/2026.
-    if (resultado.filter((c) => c.eleito).length < totalVagasCargo) {
-      const votos2022PorChave = {};
-      lista.forEach((p) => p.candidatos.forEach((c) => { votos2022PorChave[c.chave] = Number(c.votos2022) || 0; }));
-      const faltam = totalVagasCargo - resultado.filter((c) => c.eleito).length;
-      resultado.filter((c) => !c.eleito)
-        .sort((a, b) => (votos2022PorChave[b.chave] || 0) - (votos2022PorChave[a.chave] || 0))
-        .slice(0, faltam)
-        .forEach((c) => {
-          c.eleito = true;
-          c.tag = "média";
-          c.detalhe = { votosPartido: 0, qe: 0, qp: 0, cadeirasReais: 0, cadeiraDoPartido: 0, mediaConquistada: 0 };
-          c.gap = null;
-        });
-    }
+    // (Removido 14/08/2026: o fallback antigo de "sempre N eleitos" que
+    // promovia candidatos extras por voto de 2022 quando o cargo inteiro
+    // estava zerado. Fazia sentido enquanto "eleito" era decidido pela
+    // matemática real — agora que é sempre a marcação da pessoa, forçar
+    // uma promoção extra violaria exatamente o princípio que este item
+    // implementa. Também ficou comprovadamente inatingível: o botão
+    // "Avançar" da Seleção só libera com totalIndicado === totalVagasCargo
+    // pra cada cargo, então quem chega na Revisão sempre já tem o número
+    // certo de marcados.)
   }
 
   resultado.sort((a, b) => b.votos - a.votos);
@@ -4893,7 +4909,11 @@ function renderRevisaoDeposito() {
     // seja eleito).
     const listaCompleta = listaUnificadaRevisao(lista, cargoDef.id);
     const totalEleitos = listaCompleta.filter((c) => c.eleito).length;
-    const marcadosInconsistentes = listaCompleta.filter((c) => !c.eleito && c.marcadoPeloUsuario);
+    // Antes (até 14/08/2026) contava candidatos marcados que a matemática
+    // real rejeitava — não existe mais, "eleito" agora É a marcação (ver
+    // listaUnificadaRevisao). O aviso que sobra é o oposto: candidatos que
+    // a matemática real elegeria e a pessoa não marcou.
+    const marcadosInconsistentes = listaCompleta.filter((c) => !c.eleito && c.consistenteComMatematicaReal);
     const temInconsistencia = marcadosInconsistentes.length > 0;
     if (temInconsistencia) temInconsistenciaGeral = true;
 
@@ -4971,7 +4991,6 @@ function renderRevisaoDeposito() {
             <div style="min-width:0; flex:1;">
               <div style="font-size:16px; font-weight:700; color:var(--pc-ink); display:flex; align-items:center; gap:5px;">
                 ${c.nome}
-                ${!c.marcadoPeloUsuario ? warnTip("Você não marcou esse candidato como eleito no seu palpite — é quem realmente fecharia essa vaga com a votação de hoje.") : ""}
               </div>
               <div style="display:flex; align-items:center; gap:5px; margin-top:2px;">
                 <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-accent); flex-shrink:0;"></span>
@@ -4982,7 +5001,7 @@ function renderRevisaoDeposito() {
           <div style="display:flex; align-items:center; justify-content:space-between; gap:4px 10px; margin-top:10px; flex-wrap:wrap;">
             <div style="display:flex; flex-direction:column; align-items:flex-start; gap:6px; flex-shrink:0;">
               <span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; text-transform:uppercase; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-accent); background:rgba(61,255,176,.12); cursor:help;">${c.tag === "majoritário" ? "eleito" : `eleito · ${c.tag}`}</span>
-              ${c.tag === "média" ? `<span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-warning); background:rgba(201,138,43,.14); border:1px solid rgba(201,138,43,.35); cursor:help;">sobra · rodada ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}</span>` : ""}
+              ${c.tag === "média" && c.detalhe.rodadaSobra !== undefined ? `<span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-warning); background:rgba(201,138,43,.14); border:1px solid rgba(201,138,43,.35); cursor:help;">sobra · rodada ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}</span>` : ""}
             </div>
             <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:15px; font-weight:800; text-align:right; flex-shrink:0; padding:9px 6px;">
           </div>
@@ -5033,6 +5052,11 @@ function renderRevisaoDeposito() {
         <div style="display:flex; justify-content:flex-end; margin-top:10px;">
           <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
         </div>
+        ${c.consistenteComMatematicaReal ? `
+        <div style="margin-top:12px; padding:10px 12px; background:rgba(201,138,43,.1); border:1px solid rgba(201,138,43,.3); border-radius:10px; display:flex; gap:8px; align-items:flex-start;">
+          <span style="color:var(--pc-warning); font-size:13px; flex-shrink:0;">${iconeSvg("alerta", 13)}</span>
+          <span style="font-size:11.5px; color:var(--pc-warning); line-height:1.5;">A matemática real (quociente + sobra) indica que ${c.nome} garantiria vaga com a votação de hoje — mas não está no seu palpite. Fica valendo sua escolha; isso é só um aviso.</span>
+        </div>` : `
         <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
           ${botaoMagico}
           ${barraProgresso(pct)}
@@ -5044,7 +5068,7 @@ function renderRevisaoDeposito() {
             <span>${pct}%</span>
             ${mostrarMagico ? `<button data-pc-abrir-magico="${c.chave}" class="pc-mini-btn" title="Como completar os votos" style="width:20px; height:20px; padding:0; border-radius:50%; flex-shrink:0; color:var(--pc-accent); border-color:rgba(61,255,176,.4); background:${menuAberto ? "rgba(61,255,176,.18)" : "transparent"};"><svg viewBox="0 0 16 16" width="12" height="12" style="transform:rotate(${menuAberto ? "180deg" : "0deg"}); transition:transform .15s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>` : ""}
           </span>
-        </div>` : ""}
+        </div>` : ""}`}
       `);
     };
 
@@ -5071,7 +5095,12 @@ function renderRevisaoDeposito() {
           // eleito do mesmo partido (é uma conta por PARTIDO, não por
           // candidato), então pega do primeiro não-eleito que achar.
           const votosPartidoTotal = candidatosPartido.reduce((s, c) => s + (Number(c.votos) || 0), 0);
-          const naoEleito = candidatosPartido.find((c) => !c.eleito && c.gap);
+          // Prefere um não-eleito que realmente precisa de voto (ignora quem
+          // já é vencedor real só não marcado — esse tem gap.partido zerado
+          // de propósito, ver listaUnificadaRevisao, e não representa "falta
+          // pra próxima vaga" de verdade).
+          const naoEleito = candidatosPartido.find((c) => !c.eleito && c.gap && !c.consistenteComMatematicaReal)
+            || candidatosPartido.find((c) => !c.eleito && c.gap);
           const faltamProximaVaga = naoEleito ? naoEleito.gap.partido : null;
           return `
           <div style="display:flex; align-items:center; gap:6px; padding:10px 3px 6px; color:var(--pc-accent); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; flex-wrap:wrap;">
@@ -5092,7 +5121,7 @@ function renderRevisaoDeposito() {
 
     return `
       <details class="pc-acc" data-pc-cargo-acc="${cargoDef.id}"${pcState.expandido["revisao-" + cargoDef.id] ? " open" : ""}>
-        <summary style="align-items:flex-start;"><span style="flex:1; min-width:0; line-height:1.35;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim);">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} do seu palpite pendente${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0; margin-top:3px;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
+        <summary style="align-items:flex-start;"><span style="flex:1; min-width:0; line-height:1.35;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim);">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} aviso${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0; margin-top:3px;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">
           <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">${filtroAgrupado}</div>
           ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-bottom:12px; background:rgba(201,138,43,.08); border:1px solid rgba(201,138,43,.3); color:var(--pc-warning); font-family:var(--sans); font-size:12.5px; font-weight:700; border-radius:10px; padding:10px; cursor:pointer;">Ver disputa de sobra completa (${disputaSobra.rodadas.length} rodada${disputaSobra.rodadas.length === 1 ? "" : "s"})</button>` : ""}

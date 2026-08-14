@@ -244,18 +244,35 @@ quociente/sobra, ficou fora dessa rodada. Testado ao vivo forçando
 mismatch via injeção de estado — ícone aparece/some corretamente
 conforme o contador se aproxima do valor real.
 
-**⬜ Pendente (parte 2 de 2) — "ELEITO" na Revisão ainda é substituído**
-A outra metade do conceito original **ainda não foi implementada**: hoje
-a Revisão (`listaUnificadaRevisao`) continua mostrando como "ELEITO" o
-vencedor REAL da matemática completa por partido, não necessariamente
-quem o usuário marcou em Seleção — isso também alimenta Minhas Listas,
-busca pública do Ranking e a imagem compartilhável (todas usam a mesma
-função). Mudar isso pra "só quem o usuário marcou, nunca substituído" é
-uma mudança de comportamento bem maior (mexe em 4 telas que já são
-funcionalidade testada e em produção) — não implementada ainda de
-propósito, precisa de confirmação explícita (e provavelmente mockup)
-antes de mexer, separada da parte 1 (que era só a preocupação de
-performance, já resolvida).
+**✅ Feito (parte 2 de 2) — "ELEITO" na Revisão agora é soberano do usuário, 14/08/2026**
+Mockup mostrado e confirmado antes de programar (comparação antes/depois +
+o que não muda). `listaUnificadaRevisao` reescrita: `eleito` deixou de vir
+da posição real no D'Hondt (`i < cadeirasReais`) e passou a ser
+`!!c.marcadoEleito` — direto, nunca mais substituído por quem a matemática
+completa elegeria. cadeirasReais/qp/corte continuam calculados do mesmo
+jeito, só que agora só alimentam `consistenteComMatematicaReal` (era isso
+ou aquilo, virou informação) e o `tag`/`detalhe` de QP-vs-sobra de quem
+FOI marcado (rank recalculado dentro do conjunto marcado, não do conjunto
+real). Quando um candidato não marcado é quem a matemática real elegeria,
+aparece um aviso objetivo no card dele (mesmo texto do mockup, "fica
+valendo sua escolha") em vez da barra de progresso — sem botão de marcar
+automático. Mesma regra estendida ao Senador (majoritário, sem QP/sobra,
+mas o princípio de nunca substituir vale igual). Removido o fallback
+antigo que promovia candidato extra por voto de 2022 quando o cargo
+ficava zerado — contradizia o novo princípio e já estava comprovadamente
+inatingível (o botão "Avançar" da Seleção só libera com o total de
+marcados batendo exato com as vagas do cargo). Efeito automático (mesma
+função por baixo): Minhas Listas, busca pública do Ranking e o resumo "X
+avisos" no cabeçalho de cada cargo já refletem a nova regra sem código
+extra — só a imagem compartilhável não mudou porque já usava
+`classificarEleitosPorPartido`, que sempre foi soberana do usuário.
+Testado ao vivo forçando 3 cenários via injeção de estado (candidato
+marcado abaixo do real, real vencedor não marcado, partido com mais
+marcados do que a matemática garante — inclusive o caso em que a "rodada
+de sobra" citada no tooltip não existe de verdade, corrigido pra cair num
+texto genérico em vez de vazar "undefined" na tela) — 0 erros no console,
+0 ocorrência de "undefined"/"NaN" no HTML renderizado, view agrupada por
+partido também conferida.
 
 ---
 
