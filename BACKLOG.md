@@ -227,30 +227,35 @@ em validação. Mockup validado com o usuário antes de programar._
 **⬜ Pendente**
 - _(nenhum agora — auditoria de corte de texto concluída)_
 
-**⏸️ Ideia pausada — aviso de "vaga não marcada" (candidato fecharia vaga mas você não marcou)**
-Conceito fechado em 12/08/2026 (caso Acélio Casagrande): a Revisão hoje
-troca quem aparece como "ELEITO" pelo vencedor REAL da matemática
-completa, mesmo que a pessoa não tenha marcado esse candidato — isso
-"rompe" com o princípio de que o palpite do usuário é soberano (o app
-orienta, não substitui a decisão de ninguém). Caminho decidido:
-- "ELEITO" na Revisão passa a refletir só quem o usuário marcou, nunca
-  mais é substituído por um candidato que ele não escolheu.
-- Quando a matemática mostra que um partido teria direito a mais vagas do
-  que o usuário marcou, isso vira um AVISO informativo (não uma
-  substituição) — sem botão de "marcar automaticamente", só informa; se a
-  pessoa concordar, ela mesma sobe o contador do partido.
-- "Quem perderia a vaga" (o lado espelhado do "faltam X votos" que já
-  existe) ficou de fora da conversa por enquanto, sem decisão.
+**✅ Feito (parte 1 de 2) — aviso de "vaga não marcada" na Seleção, 14/08/2026**
+Conceito fechado em 12/08/2026 (caso Acélio Casagrande), pausado por
+preocupação de performance (rodar quociente+sobra de TODOS os partidos
+toda hora enquanto a pessoa ainda está preenchendo). Retomado e resolvido
+em 14/08/2026: `cadeirasReaisPorPartido` (D'Hondt completo do cargo) já
+era calculado **1x por render**, fora do `.map` de partidos, só pro box
+"Quociente do Cargo" — reaproveitar esse mesmo resultado pro aviso não
+custa nada a mais, nunca roda por tecla digitada. Implementado: mini ícone
+de alerta (fechado por padrão, `.pc-mini-btn` + tooltip, mesmo padrão dos
+outros 4 ícones do card) aparece no card do partido só quando a matemática
+real indica mais vagas do que o usuário marcou; tooltip informa quantas,
+sem botão de "marcar automático" — só o usuário decide. Só pra cargos
+proporcionais (Estadual/Federal); Senador é majoritário, não tem
+quociente/sobra, ficou fora dessa rodada. Testado ao vivo forçando
+mismatch via injeção de estado — ícone aparece/some corretamente
+conforme o contador se aproxima do valor real.
 
-Mockup do aviso foi mostrado e ajustado: usuário quer o aviso FECHADO por
-padrão (só um mini ícone de exclamação no card do partido, não o bloco de
-texto todo já aberto), texto mais objetivo, e levantou uma preocupação
-real de performance/complexidade — rodar a matemática completa (quociente
-+ sobra entre TODOS os partidos) toda hora enquanto a pessoa ainda está no
-começo do preenchimento (poucos candidatos marcados) pode pesar demais
-pra ficar recalculando o tempo todo. Pausado a pedido do usuário — **ele
-pediu pra eu lembrar de retomar essa conversa antes de finalizarmos** (ver
-também memória de escopo de lançamento).
+**⬜ Pendente (parte 2 de 2) — "ELEITO" na Revisão ainda é substituído**
+A outra metade do conceito original **ainda não foi implementada**: hoje
+a Revisão (`listaUnificadaRevisao`) continua mostrando como "ELEITO" o
+vencedor REAL da matemática completa por partido, não necessariamente
+quem o usuário marcou em Seleção — isso também alimenta Minhas Listas,
+busca pública do Ranking e a imagem compartilhável (todas usam a mesma
+função). Mudar isso pra "só quem o usuário marcou, nunca substituído" é
+uma mudança de comportamento bem maior (mexe em 4 telas que já são
+funcionalidade testada e em produção) — não implementada ainda de
+propósito, precisa de confirmação explícita (e provavelmente mockup)
+antes de mexer, separada da parte 1 (que era só a preocupação de
+performance, já resolvida).
 
 ---
 

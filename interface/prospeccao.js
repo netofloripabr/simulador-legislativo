@@ -3513,6 +3513,14 @@ async function renderCargoEstadual() {
     const marcados = p.candidatos.filter((c) => c.marcadoEleito).length;
     const st = statusPartidoSelecao(p);
     const isExpanded = !!pcState.expandido[p.nome];
+    // Aviso "vaga não marcada" (conceito fechado com o usuário em
+    // 12/08/2026, BACKLOG.md — pausado só por preocupação de performance,
+    // resolvida em 14/08/2026 ao notar que cadeirasReaisPorPartido já é
+    // calculado 1x por render, fora do .map, pro Quociente do Cargo — reusar
+    // aqui não custa NADA a mais, nunca roda a cada tecla digitada. Só
+    // informa, nunca marca sozinho — quem decide continua sendo o usuário
+    // (interruptor "eleito" nunca é sobrescrito por isso).
+    const faltamMarcarVagas = rankingSenador ? 0 : Math.max(0, (cadeirasReaisPorPartido[pcState.palpiteEdicao.indexOf(p)] || 0) - marcados);
     // partido2022Ref só vale pra Dep. Estadual (dados/partidos-brasil.js é
     // a lista de vagas da Assembleia) — em Federal/Senador teria que usar
     // igual pra todo mundo, senão mistura vagas de cargos diferentes pro
@@ -3802,6 +3810,7 @@ async function renderCargoEstadual() {
             <span style="font-weight:700; font-size:15.5px;">${nomePartidoExibicao(p.nome)}</span>
           </button>
           <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+            ${faltamMarcarVagas > 0 ? `<button class="pc-mini-btn pc-mini-btn-sm" style="color:var(--pc-warning);" title="Aviso: mais ${faltamMarcarVagas} vaga${faltamMarcarVagas === 1 ? "" : "s"} pela matemática real">${iconeSvg("alerta", 13)}<span class="pc-mini-tip" style="white-space:normal; width:220px; text-align:center;">A matemática eleitoral (quociente + sobra) indica que esse partido teria direito a mais ${faltamMarcarVagas} vaga${faltamMarcarVagas === 1 ? "" : "s"} do que você marcou até agora. Só um aviso — quem decide quantos eleitos marcar continua sendo você.</span></button>` : ""}
             <button data-pc-ver2022="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("ano2022", 13)}<span class="pc-mini-tip">Ver nominata completa de 2022</span></button>
             <button data-pc-reset="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("reset", 13)}<span class="pc-mini-tip" style="white-space:normal; width:170px; text-align:center;">Restaurar votação de 2022 — só tem efeito pra quem recebeu votos naquela eleição</span></button>
             <button data-pc-zerar="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("borracha", 13)}<span class="pc-mini-tip">Zerar votação de todos</span></button>
