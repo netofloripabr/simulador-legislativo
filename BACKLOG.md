@@ -170,9 +170,10 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
 - Botão "← Ajustar" esclarecido
 - Botão salvar em destaque, canto superior direito do cabeçalho — já implementado (contorno verde, padrão de botão primário do app); usuário confirmou em 13/08/2026 que o estado atual já resolve, sem mudança de código necessária
 - Resumo de Dep. Federal e Senador na imagem compartilhável — feito, ver "Cédula depositada / Compartilhamento" (era o mesmo item duplicado nas duas seções)
+- **Escolher qual cédula depositada aparece em cada grupo, 14/08/2026** — antes a cédula "oficial" (a que vale no Quadro de Médias público) era a única opção e valia em TODOS os grupos ao mesmo tempo, sem variar por grupo. Agora, se a pessoa tem mais de uma cédula depositada, um seletor aparece na tela do grupo ("Sua cédula neste grupo") deixando escolher qual delas representa ela ali — só afeta aquele grupo, os outros continuam como estavam (ou na oficial, se nunca escolher nada). **Precisa rodar a migração `nuvem/migracao-15-cedula-escolhida-grupo.sql` no SQL Editor do Supabase antes de valer em produção** — coluna nova (`grupo_membros.salvamento_escolhido_id`) + view nova (`salvamentos_depositados_publicos`) + `grupo_comparacao` recriada pra resolver a escolha. Lógica client-side (`nuvem/grupos.js`, `interface/prospeccao.js`) testada com dados fake via injeção direta de estado (sem precisar montar cadastro+grupo+depósito reais) — seletor renderiza certo, troca chama a função certa e força recarregar a comparação
 
 **⬜ Pendente**
-1. Permitir escolher qual cédula depositada aparece em cada grupo (hoje é só uma "oficial" global)
+- _(nenhum agora)_
 
 ---
 

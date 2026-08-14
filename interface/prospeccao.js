@@ -30,6 +30,8 @@ let pcState = {
   grupoAtivo: null, // grupo sendo visto em telaGrupo "membro"
   grupoComparacao: null, // cache do resultado de buscarComparacaoGrupo(grupoAtivo.id)
   cargoAtivoGrupo: "estadual", // qual cargo a comparação do grupo está mostrando (estadual|federal|senador)
+  grupoMinhasCedulas: null, // cache das cédulas depositadas da própria pessoa, pro seletor "sua cédula neste grupo" (migração 15)
+  grupoCedulaEscolhida: null, // salvamento_id escolhido pra esse grupo, ou null = cai na oficial global
   historicoPalpite: [], // snapshots pro botão "Voltar" da tela de seleção
   avisoLimiteVagasAberto: false, // modal "só dá pra marcar até o total de vagas"
   confirmAutoPreenchimentoAberto: false, // modal de confirmação antes do autopreenchimento (✦)
@@ -1881,6 +1883,8 @@ async function renderGrupoHub() {
     btn.addEventListener("click", () => {
       pcState.grupoAtivo = pcState.meusGrupos.find((g) => g.id === btn.getAttribute("data-pc-abrir-grupo"));
       pcState.grupoComparacao = null;
+      pcState.grupoMinhasCedulas = null;
+      pcState.grupoCedulaEscolhida = null;
       renderGrupoMembro();
     });
   });
@@ -1905,6 +1909,8 @@ function renderGrupoCriar() {
     pcState.meusGrupos = [...(pcState.meusGrupos || []), data];
     pcState.grupoAtivo = data;
     pcState.grupoComparacao = null;
+    pcState.grupoMinhasCedulas = null;
+    pcState.grupoCedulaEscolhida = null;
     renderGrupoMembro();
   });
 }
@@ -1928,6 +1934,8 @@ function renderGrupoEntrar() {
     if (!pcState.meusGrupos.some((g) => g.id === data.id)) pcState.meusGrupos = [...pcState.meusGrupos, data];
     pcState.grupoAtivo = data;
     pcState.grupoComparacao = null;
+    pcState.grupoMinhasCedulas = null;
+    pcState.grupoCedulaEscolhida = null;
     renderGrupoMembro();
   });
 }
@@ -1997,6 +2005,18 @@ async function renderGrupoMembro() {
   if (!pcState.grupoComparacao) {
     pcState.grupoComparacao = await buscarComparacaoGrupo(pcState.grupoAtivo.id);
   }
+  // Escolha de cédula por grupo (migração 15, pedido do usuário 13/08/2026)
+  // — só faz sentido oferecer a troca se a pessoa tiver mais de uma cédula
+  // depositada; com uma só não existe escolha real (cai na oficial de
+  // qualquer forma).
+  if (pcState.perfil && !pcState.grupoMinhasCedulas) {
+    const todas = await carregarSalvamentosDe(pcState.perfil.id);
+    pcState.grupoMinhasCedulas = todas.filter((s) => s.depositado_em);
+    pcState.grupoCedulaEscolhida = pcState.grupoMinhasCedulas.length > 1
+      ? await minhaEscolhaNoGrupo(pcState.grupoAtivo.id, pcState.perfil.id)
+      : null;
+  }
+  const minhasCedulas = pcState.grupoMinhasCedulas || [];
   const registros = pcState.grupoComparacao;
   const botoesCargo = CARGOS.map((c) => `
     <button data-pc-cargo-grupo="${c.id}" class="${pcState.cargoAtivoGrupo === c.id ? "active" : ""}">${c.label}</button>`).join("");
@@ -2010,6 +2030,16 @@ async function renderGrupoMembro() {
         <span style="font-size:12px; color:var(--pc-ink-dim); display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}<b style="font-family:var(--mono); color:var(--pc-ink); font-weight:600;">${pcState.grupoAtivo.codigo_convite}</b></span>
       </div>
     </div>
+    ${minhasCedulas.length > 1 ? `
+    <div class="pc-lobby-card" style="margin-top:10px;">
+      <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:6px;">
+        <span style="font-size:12px; color:var(--pc-ink-dim);">Sua cédula neste grupo</span>
+        <select id="pcSelectCedulaGrupo" class="cell">
+          <option value="">Oficial (a que vale no Quadro de Médias público)</option>
+          ${minhasCedulas.map((s) => `<option value="${s.id}" ${pcState.grupoCedulaEscolhida === s.id ? "selected" : ""}>${s.nome}${s.oficial ? " · oficial" : ""}</option>`).join("")}
+        </select>
+      </div>
+    </div>` : ""}
     <div class="glass-card">
       ${registros.length > 1 ? `
       <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
@@ -2028,13 +2058,31 @@ async function renderGrupoMembro() {
       </div>`}
     </div>`;
 
-  document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", () => { pcState.grupoAtivo = null; pcState.grupoComparacao = null; renderGrupoHub(); });
+  document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", () => {
+    pcState.grupoAtivo = null;
+    pcState.grupoComparacao = null;
+    pcState.grupoMinhasCedulas = null;
+    pcState.grupoCedulaEscolhida = null;
+    renderGrupoHub();
+  });
   document.querySelectorAll("[data-pc-cargo-grupo]").forEach((btn) => {
     btn.addEventListener("click", () => {
       pcState.cargoAtivoGrupo = btn.getAttribute("data-pc-cargo-grupo");
       renderGrupoMembro();
     });
   });
+  const selectCedula = document.getElementById("pcSelectCedulaGrupo");
+  if (selectCedula) {
+    selectCedula.addEventListener("change", async () => {
+      const salvamentoId = selectCedula.value || null;
+      selectCedula.disabled = true;
+      const { error } = await escolherCedulaGrupo(pcState.grupoAtivo.id, pcState.perfil.id, salvamentoId);
+      if (error) { pcState.erro = "Erro ao trocar a cédula do grupo: " + error.message; }
+      pcState.grupoCedulaEscolhida = salvamentoId;
+      pcState.grupoComparacao = null; // força recarregar — a view grupo_comparacao muda com a escolha
+      renderGrupoMembro();
+    });
+  }
 }
 
 // ---------- Seleção de candidatos: painel eleitoral + sanfona por partido ----------

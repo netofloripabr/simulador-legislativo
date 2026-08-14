@@ -71,3 +71,32 @@ async function buscarComparacaoGrupo(grupoId) {
   }
   return data || [];
 }
+
+// Qual cédula (salvamento) a pessoa escolheu pra representar ela NESSE
+// grupo específico (migração 15) — null = ainda não escolheu nada, cai na
+// oficial global (comportamento de sempre).
+async function minhaEscolhaNoGrupo(grupoId, perfilId) {
+  const { data, error } = await supabaseClient
+    .from("grupo_membros")
+    .select("salvamento_escolhido_id")
+    .eq("grupo_id", grupoId)
+    .eq("perfil_id", perfilId)
+    .maybeSingle();
+  if (error) {
+    console.error("Erro ao carregar escolha de cédula do grupo:", error);
+    return null;
+  }
+  return data ? data.salvamento_escolhido_id : null;
+}
+
+// Define (ou limpa, passando null) qual cédula depositada representa a
+// pessoa nesse grupo — só afeta esse grupo, os outros grupos da pessoa
+// continuam como estavam.
+async function escolherCedulaGrupo(grupoId, perfilId, salvamentoId) {
+  const { error } = await supabaseClient
+    .from("grupo_membros")
+    .update({ salvamento_escolhido_id: salvamentoId })
+    .eq("grupo_id", grupoId)
+    .eq("perfil_id", perfilId);
+  return { error };
+}
