@@ -109,10 +109,27 @@ const PC_ICONES = {
   setaEsquerda: '<path d="M10 3.2L5 8l5 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>',
   copiar: '<rect x="6" y="6" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect><path d="M4 9.5V3.7a1.2 1.2 0 011.2-1.2H9.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   baixar: '<path d="M8 2.5v7.3M5 7l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.8 12.2v1a1 1 0 001 1h8.4a1 1 0 001-1v-1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
+  buscar: '<circle cx="6.8" cy="6.8" r="4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
 };
 function iconeSvg(nome, tamanho) {
   const t = tamanho || 16;
   return `<svg viewBox="0 0 16 16" width="${t}" height="${t}">${PC_ICONES[nome] || ""}</svg>`;
+}
+
+// Estado vazio padronizado (ícone + título + texto + botão de ação
+// opcional) — mockup validado com o usuário em 14/08/2026, substitui os 3
+// jeitos diferentes que existiam antes pra dizer "não tem nada aqui ainda"
+// (achado numa auditoria: .pc-sub solto, linha de lista fake, cor
+// hardcoded fora do tema). botaoLabel/botaoId só quando existe uma ação
+// real de próximo passo pra oferecer — telas de busca/filtro não têm CTA.
+function estadoVazio({ icone, titulo, texto, botaoLabel, botaoId }) {
+  return `
+    <div class="pc-estado-vazio">
+      <div class="pc-estado-vazio-icone">${iconeSvg(icone, 20)}</div>
+      <div class="pc-estado-vazio-titulo">${titulo}</div>
+      <div class="pc-estado-vazio-texto">${texto}</div>
+      ${botaoLabel ? `<button class="primary" id="${botaoId}" style="margin-top:14px;">${botaoLabel}</button>` : ""}
+    </div>`;
 }
 
 function trocarModo(modo) {
@@ -204,10 +221,12 @@ async function initColaborativo() {
     pcState.subaba = pcState.palpiteEdicao ? "painel" : "selecao";
     pcState.estado = "SC";
     await garantirRascunhosCarregados();
-    // Mini-pesquisa obrigatória (migração 20) — só quem se cadastrou DEPOIS
-    // da migração roda tem mini_pesquisa_em null; contas de antes foram
-    // marcadas como já respondidas (grandfathering), não são interrompidas.
-    pcState.tela = pcState.perfil.mini_pesquisa_em ? "app" : "mini-pesquisa";
+    // Onboarding + mini-pesquisa obrigatória (migração 20) — reaproveita o
+    // mesmo sinal (perfil.mini_pesquisa_em null) pras duas etapas, já que
+    // sempre andam juntas: quem nunca passou por ali vê onboarding →
+    // mini-pesquisa → app; contas de antes da migração foram marcadas como
+    // já respondidas (grandfathering) e vão direto pro app, sem interrupção.
+    pcState.tela = pcState.perfil.mini_pesquisa_em ? "app" : "onboarding";
     renderColaborativo();
     return;
   }
@@ -475,6 +494,7 @@ function renderColaborativo() {
   if (pcState.tela === "nova-senha") return renderTelaNovaSenha();
   if (pcState.tela === "cadastro") return renderTelaCadastro();
   if (pcState.tela === "completar-perfil") return renderTelaCompletarPerfil();
+  if (pcState.tela === "onboarding") return renderTelaOnboarding();
   if (pcState.tela === "mini-pesquisa") return renderTelaMiniPesquisa();
   if (pcState.tela === "termos") return renderTelaLegal("termos");
   if (pcState.tela === "privacidade") return renderTelaLegal("privacidade");
@@ -630,7 +650,7 @@ async function renderCompartilhado() {
     return `<div class="glass-card" style="margin-bottom:12px;">
       <h2 style="margin-bottom:2px;">${cargoDef.label}</h2>
       <div class="pc-sub" style="margin-bottom:8px;">${eleitos.length} eleitos marcados${suplentes.length ? ` + ${suplentes.length} próximos da vaga` : ""}</div>
-      ${eleitos.map((c, i) => linha(c, i)).join("") || '<div class="pc-sub">Nenhum candidato marcado ainda.</div>'}
+      ${eleitos.map((c, i) => linha(c, i)).join("") || estadoVazio({ icone: "ballot", titulo: "Nenhum candidato marcado", texto: "Essa pessoa ainda não marcou ninguém como eleito nesse cargo." })}
       ${suplentes.map((c, i) => linha(c, eleitos.length + i, "próximo")).join("")}
     </div>`;
   };
@@ -1066,6 +1086,60 @@ function renderTelaCompletarPerfil() {
   });
 }
 
+// Onboarding de primeiro acesso, 4 telas, uma vez só (PROJETO.md, Fase 3 —
+// "telas de introdução/tutorial", nunca implementado). Mockup validado com
+// o usuário em 14/08/2026. Usa o mesmo sinal de gate da mini-pesquisa
+// (perfil.mini_pesquisa_em null — ver initColaborativo) porque as duas
+// sempre andam juntas: não precisa de coluna própria no banco, já que
+// "Pular" e terminar as 4 telas levam pro mesmo lugar (mini-pesquisa) e o
+// que marca "já vi isso tudo" é sempre o fim da mini-pesquisa.
+const PC_ONBOARDING_PASSOS = [
+  { icone: "ballot", titulo: "O que é o Simulador", texto: "Você monta sua própria previsão de quem se elege em 2026 — como se fosse seu próprio instituto de pesquisa." },
+  { icone: "lista", titulo: "Como montar sua cédula", texto: "Escolha detalhado (voto a voto) ou simplificado (só quem se elege) — os dois valem pro ranking." },
+  { icone: "ranking", titulo: "Ranking e grupos", texto: "Deposite sua cédula pra entrar no ranking geral, ou compare em privado com um grupo de amigos." },
+  { icone: "completar", titulo: "Pronto pra começar", texto: "Antes de entrar, um palpite rápido pra Presidente e Governador — leva 1 minuto." },
+];
+
+function renderTelaOnboarding() {
+  if (!pcState.onboardingPasso) pcState.onboardingPasso = 0;
+  const passo = pcState.onboardingPasso;
+  const dados = PC_ONBOARDING_PASSOS[passo];
+  const ultimo = passo === PC_ONBOARDING_PASSOS.length - 1;
+  const el = document.getElementById("modoColaborativoWrap");
+  el.innerHTML = `
+    <div class="glass-card" style="max-width:380px; margin:0 auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+        <span style="font-size:11px; color:var(--pc-ink-dim);">${passo + 1} de ${PC_ONBOARDING_PASSOS.length}</span>
+        <button class="ghost" id="pcBtnOnboardingPular" style="padding:5px 12px; font-size:11.5px;">Pular</button>
+      </div>
+      ${estadoVazio({ icone: dados.icone, titulo: dados.titulo, texto: dados.texto })}
+      <div style="display:flex; gap:10px; margin-top:8px;">
+        ${passo > 0 ? `<button class="ghost" id="pcBtnOnboardingVoltar" style="flex:1;">Voltar</button>` : ""}
+        <button class="primary" id="pcBtnOnboardingProximo" style="flex:2;">${ultimo ? "Começar" : "Próximo"}</button>
+      </div>
+    </div>`;
+
+  document.getElementById("pcBtnOnboardingPular").addEventListener("click", () => {
+    pcState.tela = "mini-pesquisa";
+    renderColaborativo();
+  });
+  if (passo > 0) {
+    document.getElementById("pcBtnOnboardingVoltar").addEventListener("click", () => {
+      pcState.onboardingPasso = passo - 1;
+      renderTelaOnboarding();
+    });
+  }
+  document.getElementById("pcBtnOnboardingProximo").addEventListener("click", () => {
+    if (ultimo) {
+      pcState.tela = "mini-pesquisa";
+      renderColaborativo();
+    } else {
+      pcState.onboardingPasso = passo + 1;
+      renderTelaOnboarding();
+    }
+  });
+}
+
 // Mini-pesquisa obrigatória, uma vez só, logo depois do cadastro (ver
 // initColaborativo — só quem tem perfil.mini_pesquisa_em null cai aqui;
 // contas de antes da migração 20 foram marcadas como já respondidas).
@@ -1488,7 +1562,7 @@ async function montarAdminUsuarios() {
 
 async function montarAdminProblemas() {
   const problemas = await adminListarProblemas();
-  if (!problemas.length) return `<div class="pc-sub">Nenhum problema reportado ainda.</div>`;
+  if (!problemas.length) return estadoVazio({ icone: "alerta", titulo: "Nenhum problema reportado", texto: "Quando alguém reportar algo em Meu perfil, aparece aqui." });
   return problemas.map((p) => `
     <div class="pc-lobby-card" style="margin-bottom:10px; ${p.status === "resolvido" ? "opacity:.6;" : ""}">
       <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:6px;">
@@ -1511,7 +1585,7 @@ async function montarAdminPesquisa() {
   if (pcState.adminPesquisaResultados) {
     const registros = pcState.adminPesquisaResultados;
     if (!registros.length) {
-      resultadoHtml = `<div class="pc-sub" style="margin-top:14px;">Nenhuma cédula oficial encontrada com esses filtros.</div>`;
+      resultadoHtml = estadoVazio({ icone: "buscar", titulo: "Nenhuma cédula encontrada", texto: "Ninguém oficial bateu com esses filtros — tenta afrouxar o recorte." });
     } else {
       const cargo = pcState.adminPesquisaCargo || "estadual";
       const botoesCargo = CARGOS.map((c) => `<button data-pc-admin-pesquisa-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
@@ -1556,7 +1630,7 @@ async function montarAdminFinanceiro() {
 async function montarAdminRotinas() {
   const execucoes = await adminListarExecucoesRotina();
   if (!execucoes.length) {
-    return `<div class="pc-sub">Nenhuma execução registrada ainda — a integração do atualizador de atas com essa tabela (pra ele avisar aqui quando rodar) ainda não foi feita.</div>`;
+    return estadoVazio({ icone: "calendario", titulo: "Nenhuma execução registrada", texto: "As rotinas automáticas ainda não avisam aqui quando rodam." });
   }
   return execucoes.map((e) => `
     <div class="pc-lobby-linha">
@@ -1654,7 +1728,7 @@ async function renderPainelUsuarioFinal() {
   if (pcState.ufPesquisaResultados) {
     const registros = pcState.ufPesquisaResultados;
     if (!registros.length) {
-      resultadoHtml = `<div class="pc-sub" style="margin-top:14px;">Nenhuma cédula oficial encontrada com esses filtros.</div>`;
+      resultadoHtml = estadoVazio({ icone: "buscar", titulo: "Nenhuma cédula encontrada", texto: "Ninguém oficial bateu com esses filtros — tenta afrouxar o recorte." });
     } else {
       const cargo = pcState.ufPesquisaCargo || "estadual";
       const botoesCargo = CARGOS.map((c) => `<button data-pc-uf-pesquisa-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
@@ -2124,7 +2198,7 @@ async function renderMinhasListas() {
     </div>` : ""}
     ${abertas.length ? `<div class="pc-lobby-menu-tit">Em aberto</div><div class="pc-lobby-card">${abertas.map(linhaAberta).join("")}</div>` : ""}
     ${depositadas.length ? `<div class="pc-lobby-menu-tit">Depositadas</div><div class="pc-lobby-card">${depositadas.map(linhaDepositada).join("")}</div>` : ""}
-    ${!listas.length ? `<div class="pc-sub">Você ainda não salvou nenhuma lista.</div>` : ""}
+    ${!listas.length ? estadoVazio({ icone: "lista", titulo: "Nenhuma lista ainda", texto: "Monte sua primeira previsão e ela aparece aqui.", botaoLabel: "Criar minha lista", botaoId: "pcBtnEstadoVazioNovaLista" }) : ""}
     ${listaModal ? `
     <div id="pcModalDepositarOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
       <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
@@ -2177,6 +2251,11 @@ async function renderMinhasListas() {
     if (pcState.perfil) { pcState.subaba = "selecao"; renderAppColaborativo(); }
     else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
   });
+  if (document.getElementById("pcBtnEstadoVazioNovaLista")) {
+    document.getElementById("pcBtnEstadoVazioNovaLista").addEventListener("click", () => {
+      document.getElementById("pcBtnNovaLista").click();
+    });
+  }
   document.querySelectorAll("[data-pc-editar-lista]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const id = btn.getAttribute("data-pc-editar-lista");
@@ -2358,7 +2437,7 @@ async function renderGrupoHub() {
       <div style="font-size:11.5px; color:var(--pc-ink-dim); line-height:1.5;">Nós conseguimos espaço gratuito para o usuário criar até um grupo, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
     </div>` : ""}
     <div class="pc-lobby-card">
-      ${pcState.meusGrupos.length ? linhasGrupo : `<div class="pc-lobby-linha"><span style="font-size:12.5px; color:var(--pc-ink-dim);">Você ainda não está em nenhum grupo.</span></div>`}
+      ${pcState.meusGrupos.length ? linhasGrupo : estadoVazio({ icone: "grupos", titulo: "Nenhum grupo ainda", texto: "Crie um grupo ou entre com um código de convite, logo abaixo." })}
     </div>
     <div class="pc-lobby-menu-tit">Novo grupo</div>
     <div class="pc-lobby-menu-faixa">
@@ -2472,7 +2551,7 @@ function montarComparacaoGrupo(registros, cargo) {
     .filter((r) => r[`lista_${cargo}`] && r[`lista_${cargo}`].length)
     .map((r) => ({ perfil_id: r.perfil_id, [`rascunho_${cargo}`]: r[`lista_${cargo}`] }));
   if (!remapeados.length) {
-    return '<div class="pc-sub">Ninguém do grupo depositou esse cargo ainda.</div>';
+    return estadoVazio({ icone: "grupos", titulo: "Ninguém depositou ainda", texto: "Assim que alguém do grupo depositar a cédula desse cargo, a comparação aparece aqui." });
   }
   const { parties, totalPalpites } = calcularMedianaPalpites(remapeados, cargo, pcState.estado);
   const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
@@ -3237,9 +3316,8 @@ async function renderSelecaoCandidatos() {
 // pronta pra receber dados reais, sem simular nome de candidato.
 function renderCargoIndisponivel(cargo) {
   document.getElementById("pcCargoConteudo").innerHTML = `
-    <div class="glass-card" style="text-align:center; padding:2rem 1.5rem;">
-      <h2 style="margin-bottom:6px;">${cargo.label} ainda não disponível</h2>
-      <div class="pc-sub">A lista de candidatos desse cargo ainda não foi carregada. Continue pelo Dep. Estadual por enquanto.</div>
+    <div class="glass-card">
+      ${estadoVazio({ icone: "calendario", titulo: `${cargo.label} ainda não disponível`, texto: "A lista de candidatos desse cargo ainda não foi carregada. Continue pelo Dep. Estadual por enquanto." })}
     </div>`;
 }
 
@@ -3604,7 +3682,7 @@ async function renderCargoEstadual() {
               })()}
           <span style="flex:1; font-size:15px; font-weight:600; line-height:1.4;">${nomeExibicao(c)}${c.partidoOriginal && c.partidoOriginal !== p.nome ? ` <span style="font-size:11px; font-weight:700; color:var(--pc-accent);">(${c.partidoOriginal})</span>` : ""}${c.fonte === "legenda" ? ' <span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${c.fonte === "2022-sem-ata-2026" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">sem ata 2026</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada — este é o candidato real de 2022, usado só como referência temporária até a lista de 2026 chegar. Pode não ser candidato em 2026, pode ter trocado de cargo ou de partido.")}` : ""}${c.fonte === "ficticio" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">candidato fictício</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada. Este NÃO é um candidato real — é um nome de preenchimento (placeholder) só pra manter a chapa completa até a ata sair. Será substituído pelo candidato real assim que a ata for processada.")}` : ""}<br><span style="font-size:12.5px; font-weight:400; color:var(--pc-ink-dim); opacity:0.9;">eleição 2022: ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</span>${c.invalidado2022 ? warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`) : ""}</span>
           <input class="cell${c.votosEditado ? " pc-voto-manual" : ""}" title="${c.votosEditado ? "Ajustado manualmente" : "Valor automático/padrão"}" data-pc-voto="${p.nome}::${c.chave}" value="${(Number(c.votos) || 0).toLocaleString("pt-BR")}" style="width:120px; font-size:14.5px; font-weight:600; text-align:right; flex-shrink:0;">
-        </div>`).join("") : `<div class="pc-sub" style="text-align:center; padding:10px 0;">Nenhum candidato encontrado.</div>`;
+        </div>`).join("") : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato encontrado", texto: "Confira o nome digitado." });
       // Mesma distinção QP ("quociente direto", art. 107) vs média/sobra
       // (art. 109) que a Revisão já mostra nos selos "eleito · QP"/"eleito ·
       // média" — só que calculada aqui, na hora de marcar, com o mesmo
@@ -3862,7 +3940,7 @@ async function renderCargoEstadual() {
           <h2 style="margin-bottom:4px;">${nomePartidoExibicao(nomePartido)} — nominata 2022</h2>
           <div class="pc-sub" style="margin-bottom:2px;">${candidatos.length} candidato${candidatos.length === 1 ? "" : "s"}, do mais votado pro menos votado.</div>
           ${qe2022 ? `<div class="pc-sub" style="margin-bottom:14px;">Quociente eleitoral 2022: <b style="color:var(--pc-ink);">~${Math.round(qe2022).toLocaleString("pt-BR")}</b> votos/vaga</div>` : ""}
-          ${linhasCand || '<div class="pc-sub">Nenhum candidato de 2022 encontrado.</div>'}
+          ${linhasCand || estadoVazio({ icone: "buscar", titulo: "Nenhum candidato encontrado", texto: "Confira o nome digitado." })}
           ${candidatos.length ? totalHtml : ""}
           <button class="primary" id="pcFecharCandidatos2022" style="width:100%; margin-top:18px;">Fechar</button>
         </div>
@@ -3885,7 +3963,7 @@ async function renderCargoEstadual() {
         <div style="max-width:460px; width:100%; max-height:80vh; overflow-y:auto; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
           <h2 style="margin-bottom:4px;">${cargoInfo.label} — top ${top100.length} de 2022</h2>
           <div class="pc-sub" style="margin-bottom:14px;">Os candidatos mais votados na eleição real de 2022, de todos os partidos, do mais votado pro menos votado — só de referência, não muda seu palpite.</div>
-          ${linhasTop100 || '<div class="pc-sub">Nenhum candidato de 2022 encontrado.</div>'}
+          ${linhasTop100 || estadoVazio({ icone: "buscar", titulo: "Nenhum candidato encontrado", texto: "Confira o nome digitado." })}
           <button class="primary" id="pcFecharTop2022" style="width:100%; margin-top:18px;">Fechar</button>
         </div>
       </div>`;
@@ -3944,7 +4022,7 @@ async function renderCargoEstadual() {
       <input type="text" id="pcBuscaPartidoInput" class="cell" placeholder="Buscar partido por nome" value="${pcState.buscaPartido || ""}" style="width:100%; padding-left:34px;">
     </div>` : ""}
     <div class="glass-card">
-      ${blocos || `<div class="pc-sub" style="text-align:center; padding:10px 0;">Nenhum partido encontrado.</div>`}
+      ${blocos || estadoVazio({ icone: "buscar", titulo: "Nenhum partido encontrado", texto: "Confira o nome digitado." })}
     </div>
   `;
 
@@ -5363,7 +5441,7 @@ function renderRankingPlaceholder() {
       </div>
       <div id="pcBuscaCedulaResultado" style="margin-top:14px;">
         ${pcState.buscaCedulaCarregando ? `<div class="pc-sub">Buscando…</div>` : ""}
-        ${!pcState.buscaCedulaCarregando && resultados && resultados.length === 0 ? `<div class="pc-sub">Nada encontrado com esse nome ou código.</div>` : ""}
+        ${!pcState.buscaCedulaCarregando && resultados && resultados.length === 0 ? estadoVazio({ icone: "buscar", titulo: "Nada encontrado", texto: "Confira o nome ou código digitado." }) : ""}
         ${!pcState.buscaCedulaCarregando && resultados && resultados.length > 0 ? resultados.map((r) => `
           <button data-pc-ver-cedula-publica="${r.salvamento_id}" class="pc-lobby-linha" style="width:100%; text-align:left; background:none; border:1px solid #2a4438; border-radius:10px; cursor:pointer; margin-bottom:6px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
             <span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; color:var(--pc-ink);">${r.nome_exibicao}<span style="color:var(--pc-ink-dim);"> · ${r.estado}</span></span>
@@ -5658,7 +5736,7 @@ async function renderQuadroMedias() {
       ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(61,255,176,.14)", vago: "#182f24", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
     </div>
     <div class="pc-lobby-card">
-      ${projecao.length ? projecao.map(linha).join("") : `<div class="pc-lobby-linha"><span style="font-size:12.5px; color:var(--pc-ink-dim);">Ninguém preencheu esse cargo ainda.</span></div>`}
+      ${projecao.length ? projecao.map(linha).join("") : estadoVazio({ icone: "chart", titulo: "Ninguém preencheu esse cargo", texto: "Assim que alguém depositar uma cédula pública desse cargo, a mediana aparece aqui." })}
     </div>
   `;
 

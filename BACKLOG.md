@@ -148,16 +148,27 @@ escopo respondidas antes de programar)._
 
 ---
 
-## Onboarding / Estados vazios
+## Onboarding / Estados vazios (implementado 14/08/2026)
 
 _PROJETO.md, Fase 3: "Telas de introdução/tutorial no primeiro acesso" —
 nunca implementado. Seção 8 também cita "estados vazios" como item ainda
-em validação._
+em validação. Mockup validado com o usuário antes de programar._
 
-**⬜ Pendente**
-1. Telas de introdução/tutorial no primeiro acesso.
-2. Revisar estados vazios (telas sem nenhum dado ainda) em todo o app —
-   hoje cada tela trata isso um pouco diferente, vale um padrão único.
+**✅ Feito**
+1. Onboarding: 4 telas (`renderTelaOnboarding`, tela "onboarding") logo
+   depois do cadastro, antes da mini-pesquisa — "O que é o Simulador",
+   "Como montar sua cédula", "Ranking e grupos", "Pronto pra começar".
+   "Pular" sempre visível. Reaproveita o mesmo sinal de gate da
+   mini-pesquisa (`perfil.mini_pesquisa_em` null) — não precisa de coluna
+   própria, já que as duas telas sempre andam juntas e não são
+   retroativas (mesma migração 20).
+2. Estado vazio padronizado: `estadoVazio()` (ícone + título + texto +
+   botão de ação quando existe uma ação óbvia) substitui os 3 jeitos
+   diferentes que existiam antes (auditoria encontrou 18 ocorrências).
+   Aplicado nos 17 pontos que são tela do app de verdade — o 18º
+   (`montarSecaoImpressaoCargo`, o PDF/impressão) ficou de fora de
+   propósito: usa cor clara fixa porque é feito pra ser impresso em
+   papel branco, não pro tema escuro do app.
 
 ---
 

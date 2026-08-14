@@ -377,6 +377,12 @@
   }
   #modoColaborativoWrap h2{ color: var(--pc-ink); font-size: 15px; text-transform:none; letter-spacing:0; margin: 0 0 14px; }
   #modoColaborativoWrap .pc-sub{ color: var(--pc-ink-dim); font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
+  /* Estado vazio padronizado — mockup validado com o usuário em 14/08/2026
+     (ver estadoVazio() em interface/prospeccao.js). */
+  #modoColaborativoWrap .pc-estado-vazio{ text-align:center; padding:28px 16px; }
+  #modoColaborativoWrap .pc-estado-vazio-icone{ width:40px; height:40px; margin:0 auto 12px; border-radius:50%; background:rgba(61,255,176,.12); display:flex; align-items:center; justify-content:center; color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-estado-vazio-titulo{ color:var(--pc-ink); font-size:14px; font-weight:600; margin-bottom:4px; }
+  #modoColaborativoWrap .pc-estado-vazio-texto{ color:var(--pc-ink-dim); font-size:12.5px; line-height:1.5; }
   #modoColaborativoWrap label{ color: var(--pc-ink-dim); font-size: 13px; }
   #modoColaborativoWrap input.cell, #modoColaborativoWrap select.cell, #modoColaborativoWrap textarea.cell{
     background: #0c1c16; border: 1px solid #2a4438; color: var(--pc-ink);
