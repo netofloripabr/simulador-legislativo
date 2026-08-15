@@ -173,10 +173,14 @@ async function adminEstatisticasUsuarios() {
   return Array.isArray(data) ? data[0] : data;
 }
 
+// RPC em vez de select("*, perfis(nome)") direto: o embed de "perfis"
+// respeita a RLS da própria tabela (perfis_select_proprio — só o dono lê
+// a própria linha, sem exceção pra admin), então um select client-side
+// só traria o nome de quem reportou EM PROBLEMAS DO PRÓPRIO ADMIN — todo
+// resto vinha null. Achado em revisão de código, 15/08/2026, antes do
+// primeiro teste com admin de verdade (migração 22).
 async function adminListarProblemas(status) {
-  let query = supabaseClient.from("problemas_reportados").select("*, perfis(nome)").order("criado_em", { ascending: false });
-  if (status) query = query.eq("status", status);
-  const { data, error } = await query;
+  const { data, error } = await supabaseClient.rpc("admin_listar_problemas", { p_status: status || null });
   if (error) { console.error("Erro ao carregar problemas reportados:", error); return []; }
   return data || [];
 }

@@ -1546,7 +1546,7 @@ async function montarAdminUsuarios() {
   if (!stats) return `<div class="pc-sub">Não consegui carregar as estatísticas.</div>`;
   const cartao = (label, valor) => `
     <div class="glass-card" style="padding:14px 16px; text-align:center;">
-      <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${valor}</div>
+      <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${Number(valor || 0).toLocaleString("pt-BR")}</div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">${label}</div>
     </div>`;
   return `
@@ -1567,7 +1567,7 @@ async function montarAdminProblemas() {
     <div class="pc-lobby-card" style="margin-bottom:10px; ${p.status === "resolvido" ? "opacity:.6;" : ""}">
       <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:6px;">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-          <span style="font-size:12.5px; font-weight:600;">${p.perfis ? p.perfis.nome : "—"}</span>
+          <span style="font-size:12.5px; font-weight:600;">${p.nome || "—"}</span>
           <span style="font-size:10px; color:var(--pc-ink-dim); flex-shrink:0;">${new Date(p.criado_em).toLocaleDateString("pt-BR")}</span>
         </div>
         <div style="font-size:12.5px; color:var(--pc-ink-dim); line-height:1.5;">${p.mensagem}</div>
@@ -1616,11 +1616,11 @@ async function montarAdminFinanceiro() {
   return `
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
       <div class="glass-card" style="padding:14px 16px; text-align:center;">
-        <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${stats.contas_com_credito}</div>
+        <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${Number(stats.contas_com_credito || 0).toLocaleString("pt-BR")}</div>
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">Contas com saldo</div>
       </div>
       <div class="glass-card" style="padding:14px 16px; text-align:center;">
-        <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${stats.total_creditos_em_circulacao}</div>
+        <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${Number(stats.total_creditos_em_circulacao || 0).toLocaleString("pt-BR")}</div>
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">Créditos em circulação</div>
       </div>
     </div>
@@ -1643,7 +1643,16 @@ async function renderAdminPainel() {
   const el = document.getElementById("pcConteudo");
   el.innerHTML = telaCarregando("Carregando painel do administrador…");
   if (!pcState.souAdmin) {
-    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra administradores.</div></div>`;
+    // Sem isso, quem cair aqui sem ser admin (ex.: pcState.subaba="admin"
+    // restaurado de uma sessão antiga, depois de perder o acesso) ficava
+    // preso — nem botão de voltar nem menu fixo aparecem nessa subaba
+    // (atualizarMenuFixo(null), renderAppColaborativo). Achado em revisão
+    // de código, 15/08/2026, antes do primeiro teste com admin de verdade.
+    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra administradores.</div><button class="ghost" id="pcBtnVoltarAdminRestrito" style="width:100%; margin-top:10px;">← Voltar</button></div>`;
+    document.getElementById("pcBtnVoltarAdminRestrito").addEventListener("click", () => {
+      pcState.subaba = "meu-perfil";
+      renderAppColaborativo();
+    });
     return;
   }
 
@@ -1719,7 +1728,13 @@ async function renderPainelUsuarioFinal() {
   const el = document.getElementById("pcConteudo");
   el.innerHTML = telaCarregando("Carregando painel de dados estratégicos…");
   if (!pcState.souUsuarioFinal) {
-    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra parceiros com acesso liberado.</div></div>`;
+    // Mesmo ajuste de renderAdminPainel — sem botão de voltar, essa tela
+    // vira um beco sem saída (menu fixo fica escondido nessa subaba).
+    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra parceiros com acesso liberado.</div><button class="ghost" id="pcBtnVoltarUsuarioFinalRestrito" style="width:100%; margin-top:10px;">← Voltar</button></div>`;
+    document.getElementById("pcBtnVoltarUsuarioFinalRestrito").addEventListener("click", () => {
+      pcState.subaba = "meu-perfil";
+      renderAppColaborativo();
+    });
     return;
   }
 
