@@ -150,7 +150,7 @@ pagamento no site, acesso concedido manualmente por você._
 
 ---
 
-## Mini-pesquisa (implementada 14/08/2026)
+## Mini-pesquisa (implementada 14/08/2026, PAUSADA 15/08/2026)
 
 _PROJETO.md, Fase 2.7: o plano original é que compartilhar/grupos só
 desbloqueiem de verdade depois do cadastro **e** de uma mini-pesquisa por
@@ -159,7 +159,7 @@ turno) — mencionada duas vezes no documento, nunca desenhada nem
 implementada. Desenho fechado com o usuário em 14/08/2026 (3 perguntas de
 escopo respondidas antes de programar)._
 
-**✅ Feito**
+**✅ Feito (código mantido, só o gate está desligado)**
 1. Escopo: os 5 cargos completos (nome do candidato que a pessoa acha que
    vence). 2º turno só é perguntado pra Presidente e Governador — Senador
    não tem 2º turno no sistema eleitoral brasileiro (majoritário mas
@@ -173,15 +173,35 @@ escopo respondidas antes de programar)._
    cadastra DEPOIS da migração nasce com `mini_pesquisa_em` null e cai na
    tela obrigatória (`initColaborativo`, interface/prospeccao.js).
 
+**⏸️ Pausada 15/08/2026 (testada ao vivo pela primeira vez, com feedback)**
+- Usuário testou o fluxo de verdade (primeiro login real) e pediu pra
+  desligar por enquanto: "vamos pensar tudo isso após implementar a
+  primeira versão do sistema. Por enquanto, pode retirar a pesquisa
+  eleitoral."
+- Ideia nova levantada pra quando retomar: virar uma **"pesquisa
+  estimulada"** — em vez de campo de texto livre pro nome do candidato,
+  mostrar os candidatos JÁ REGISTRADOS pra escolher (mais parecido com
+  pesquisa eleitoral de verdade, evita erro de digitação/nome inventado).
+  Só vale pra Senador/Dep. Federal/Dep. Estadual (já temos a lista real);
+  Presidente/Governador continuam sem lista de candidatos no sistema.
+- Também pedido: tirar o botão "Sair" dessa tela quando voltar — a ideia é
+  a pessoa continuar pro app depois de responder, não ter uma saída fácil
+  no meio do caminho.
+- **Implementação da pausa**: `initColaborativo()` não checa mais
+  `mini_pesquisa_em` — todo cadastro/login cai direto em "app", igual era
+  antes dessas telas existirem. Nada foi apagado (função, migração,
+  colunas do banco continuam existindo), só o gate está desligado — fácil
+  reativar quando o desenho novo (pesquisa estimulada) estiver pronto.
+
 ---
 
-## Onboarding / Estados vazios (implementado 14/08/2026)
+## Onboarding / Estados vazios (onboarding implementado 14/08/2026, PAUSADO 15/08/2026 — estados vazios continua ativo)
 
 _PROJETO.md, Fase 3: "Telas de introdução/tutorial no primeiro acesso" —
 nunca implementado. Seção 8 também cita "estados vazios" como item ainda
 em validação. Mockup validado com o usuário antes de programar._
 
-**✅ Feito**
+**✅ Feito (estados vazios continua ativo — não foi pausado)**
 1. Onboarding: 4 telas (`renderTelaOnboarding`, tela "onboarding") logo
    depois do cadastro, antes da mini-pesquisa — "O que é o Simulador",
    "Como montar sua cédula", "Ranking e grupos", "Pronto pra começar".
@@ -196,6 +216,15 @@ em validação. Mockup validado com o usuário antes de programar._
    (`montarSecaoImpressaoCargo`, o PDF/impressão) ficou de fora de
    propósito: usa cor clara fixa porque é feito pra ser impresso em
    papel branco, não pro tema escuro do app.
+
+**⏸️ Onboarding pausado 15/08/2026 (testado ao vivo, mesma sessão da mini-pesquisa)**
+- Usuário pediu pra tirar por enquanto: "pode retirar aquelas instruções
+  no início da sessão. Vamos pensar em algo melhor depois." — sem
+  detalhar ainda o que seria "melhor", fica em aberto pra próxima
+  conversa sobre o assunto.
+- Mesma implementação da pausa da mini-pesquisa (é o mesmo gate,
+  compartilhado): `initColaborativo()` pula direto pra "app". Código de
+  `renderTelaOnboarding` continua no arquivo, só não é mais chamado.
 
 ---
 

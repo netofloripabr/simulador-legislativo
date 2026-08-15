@@ -221,12 +221,16 @@ async function initColaborativo() {
     pcState.subaba = pcState.palpiteEdicao ? "painel" : "selecao";
     pcState.estado = "SC";
     await garantirRascunhosCarregados();
-    // Onboarding + mini-pesquisa obrigatória (migração 20) — reaproveita o
-    // mesmo sinal (perfil.mini_pesquisa_em null) pras duas etapas, já que
-    // sempre andam juntas: quem nunca passou por ali vê onboarding →
-    // mini-pesquisa → app; contas de antes da migração foram marcadas como
-    // já respondidas (grandfathering) e vão direto pro app, sem interrupção.
-    pcState.tela = pcState.perfil.mini_pesquisa_em ? "app" : "onboarding";
+    // Onboarding + mini-pesquisa obrigatória (migração 20) — PAUSADAS a
+    // pedido do usuário em 15/08/2026, depois de testar ao vivo: quer
+    // pensar num onboarding melhor, e trocar a mini-pesquisa por uma
+    // "pesquisa estimulada" (candidatos reais pra escolher, não nome
+    // livre) — os dois ficam pra depois da primeira versão do sistema.
+    // Código mantido (renderTelaOnboarding/renderTelaMiniPesquisa,
+    // abaixo) pra reativar fácil quando chegar a hora — só o gate abaixo
+    // está desligado. Sem isso, cadastro/login cai direto no app, igual
+    // era antes dessas duas telas existirem.
+    pcState.tela = "app";
     renderColaborativo();
     return;
   }
