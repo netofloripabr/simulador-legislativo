@@ -448,18 +448,40 @@ depois da eleição de verdade — Fase 6 do PROJETO.md)._
 4. Protótipo visual da tela (seletores + destaque da posição própria + lista) antes de programar
 5. Testar o fluxo de Ranking **antes** do resultado oficial sair (pedido do usuário, 12/08/2026) — precisa definir como simular/mockar um "resultado oficial" de teste pra validar cálculo em lote + telas sem esperar a eleição de verdade
 
-**⏸️ Ideia pausada — 155 usuários fictícios de "cold start"**
-Especificação de produto já fechada (ver histórico: contas reais e
-permanentes, 3 cargos, só SC, variação de ±20% por candidato em cima de
-uma lista de referência, "efeito boot" cancela 1 fictício por cédula real
-depositada). Usuário pediu pra amadurecer mais antes de seguir. Dois
-pontos em aberto quando retomar:
-- Quem preenche a lista de referência (o próprio usuário pelo site, ou
-  ele dita a lista pra mim registrar) — perguntado, ainda sem resposta.
-- Cada uma das 156 contas (referência + 155) precisa de nome brasileiro
-  realista (não pode parecer "bot"/marca) e e-mail próprio e único
-  (não precisa ser caixa de e-mail real, só sintaticamente válido e
-  distinto — Supabase não aceita e-mail repetido entre contas).
+**✅ Feito — mecânica dos 155 usuários fictícios de "cold start", 15/08/2026**
+Especificação de produto fechada em 08/08/2026 (contas reais e
+permanentes, variação de ±20% por candidato em cima de uma lista de
+referência, "efeito boot" cancela 1 fictício por cédula real depositada).
+Mecânica técnica fechada e implementada em 15/08/2026:
+- Referência = a própria conta do usuário (Valdemar), preenchendo e
+  depositando o palpite real dele pra SC — ainda não preenchido.
+- Escopo: fictícios só populam `palpites` (rascunho ao vivo — o que
+  alimenta o Quadro de Médias), não depositam cédula, não aparecem no
+  Ranking. Decide performance e simplicidade sobre fidelidade total à
+  ideia original de "parecer pesquisa real" em toda tela.
+- Migração 21 (`nuvem/migracao-21-usuarios-ficticios.sql`, **rodada,
+  confirmada 15/08/2026**): `perfis.eh_ficticio`/`indice_ficticio`,
+  função `contagem_depositos_reais()`, `rascunhos_publicos` reescrita
+  aplicando o corte do efeito boot.
+- Script `ferramentas/gerar_usuarios_ficticios.py`: cria conta (Auth +
+  perfis + palpites) por índice, com voto variando ±20% em cima de um
+  JSON de referência. Idempotente (senha determinística + upsert) —
+  retomar um lote parado no meio não duplica nada.
+- **Testado com 5 contas em índice fora da faixa real (900+, de
+  propósito)**: confirmado por consulta direta que `contagem_depositos_
+  reais()` retorna o número certo de depósitos reais e que o filtro da
+  view exclui corretamente índices acima do corte — sem gastar posição
+  nenhuma do lote real de 1-155 num teste visual (decisão do usuário:
+  confiar na verificação por SQL). Essas 5 contas de teste ficaram
+  permanentes (sem `service_role` não dá pra apagar conta de Auth), mas
+  são inofensivas — índice 900+ nunca aparece em lugar nenhum do app e
+  nunca conflita com o lote real.
+
+**⬜ Pendente**
+1. Você preencher e depositar seu palpite real de SC (Estadual/Federal/
+   Senador) — vira a lista de referência de verdade.
+2. Rodar `ferramentas/gerar_usuarios_ficticios.py` pras 155 contas de
+   verdade (índices 1-155), a partir dessa referência.
 
 ---
 
