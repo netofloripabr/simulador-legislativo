@@ -39,6 +39,21 @@ problema" cobrem lacunas do usuário meio; o Painel Admin cobre o
 administrador (escopo já definido numa conversa anterior). Usuário final
 e mini-pesquisa ainda pendentes, ver mais abaixo._
 
+**Próximo passo prático (15/08/2026, migrações 15-20 já confirmadas rodadas)**:
+pra ver o Painel do administrador e o de Usuário final de verdade, sua
+conta precisa ser adicionada manualmente nas tabelas — ninguém vira admin
+sozinho, de propósito. No SQL Editor do Supabase:
+```sql
+-- Ache seu uuid (a conta que você já usa pra logar no site):
+select id, nome from public.perfis where nome ilike '%Valdemar%';
+
+-- Depois, com o uuid encontrado:
+insert into public.admins (perfil_id) values ('<uuid-encontrado>');
+-- Opcional, só se quiser testar o painel de Usuário final também:
+insert into public.usuarios_finais (perfil_id, organizacao) values ('<uuid-encontrado>', 'Teste');
+```
+Depois disso, o botão "Painel do administrador" aparece em Meu Perfil.
+
 **✅ Concluído**
 - **Tela "Meu perfil"** (`renderMeuPerfil`) — não existia nenhuma tela de
   conta até agora, só um botão solto "Sair" no cabeçalho. Editar nome/
@@ -53,11 +68,12 @@ e mini-pesquisa ainda pendentes, ver mais abaixo._
   gênero/UF de residência, reaproveita `montarComparacaoGrupo` — mesma
   projeção de cadeiras já usada na comparação de grupo), Financeiro
   (resumo de créditos em circulação), Rotinas (execuções de tarefa
-  agendada — tabela pronta, mas **a integração do atualizador de atas pra
-  escrever aqui ainda não foi feita**, fica vazio por enquanto). Acesso
+  agendada — registro em `execucoes_rotina` já implementado nos agentes
+  `atualizador-atas-*`, só falta você configurar a variável de ambiente
+  `SUPABASE_SERVICE_ROLE_KEY`, ver seção própria mais abaixo). Acesso
   gated por `pcState.souAdmin`.
-- **`nuvem/migracao-18-admin.sql`** (**precisa rodar no Supabase**, depois
-  da 15/16/17): tabela `admins` (mesmo padrão de segurança de
+- **`nuvem/migracao-18-admin.sql`** (**rodada no Supabase, confirmada
+  15/08/2026**): tabela `admins` (mesmo padrão de segurança de
   `creditos_conta`, migração 9 — tabela própria sem grant de escrita pra
   `authenticated`, só você via SQL Editor torna alguém admin:
   `insert into public.admins (perfil_id) values ('<uuid>');`), tabela
@@ -336,12 +352,13 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
   até 10 resultados. Clicar num resultado mostra a lista completa
   (Estadual/Federal/Senador), reaproveitando a mesma montagem visual de
   "Minhas listas" (função nova `montarSecoesCargosDetalhe`, extraída pra
-  não duplicar). **Precisa rodar as migrações `nuvem/migracao-15-cedula-
-  escolhida-grupo.sql` e `nuvem/migracao-16-busca-cedula-publica.sql` no
-  Supabase antes de valer em produção** (a 16 expõe o código da cédula na
-  view pública — testado ao vivo: sem a migração rodada, a busca
-  degrada de forma segura pra "nada encontrado" em vez de quebrar a
-  tela, confirmado no console do navegador)
+  não duplicar). **Migrações `nuvem/migracao-15-cedula-escolhida-grupo.sql`
+  e `nuvem/migracao-16-busca-cedula-publica.sql` rodadas no Supabase,
+  confirmadas 15/08/2026** (a 16 expõe o código da cédula na view pública
+  — achou e corrigiu um bug real rodando de verdade: `create or replace
+  view` não deixa mudar a ordem de colunas já existentes, só acrescentar
+  no final; `codigo` estava no meio da lista, corrigido pro final, commit
+  `8821357`)
 - **Skill "Supabase Postgres Best Practices" instalada e usada pra
   auditar as migrações 15/16, 14/08/2026** (`.claude/skills/supabase-
   postgres-best-practices`, oficial da Supabase, MIT). Achado real: a
@@ -349,8 +366,8 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
   não tinha índice — Postgres não indexa chave estrangeira sozinho, e
   `grupo_comparacao` faz JOIN direto nela, então virava um scan
   sequencial a cada consulta de comparação de grupo. Corrigido em
-  `nuvem/migracao-17-indice-cedula-escolhida-grupo.sql` (**precisa rodar
-  no Supabase, depois da 15**). Resto da auditoria (RLS, grants,
+  `nuvem/migracao-17-indice-cedula-escolhida-grupo.sql` (**rodada no
+  Supabase, confirmada 15/08/2026**). Resto da auditoria (RLS, grants,
   constraints) não achou mais nada — os grants das views novas já
   seguem o princípio de menor privilégio (só SELECT, só pra anon/
   authenticated, igual ao padrão já usado no resto do projeto). Ponto
@@ -372,7 +389,7 @@ anônima, nada do que for gerado pra compartilhar mostra o nome dela.
 - Botão "← Ajustar" esclarecido
 - Botão salvar em destaque, canto superior direito do cabeçalho — já implementado (contorno verde, padrão de botão primário do app); usuário confirmou em 13/08/2026 que o estado atual já resolve, sem mudança de código necessária
 - Resumo de Dep. Federal e Senador na imagem compartilhável — feito, ver "Cédula depositada / Compartilhamento" (era o mesmo item duplicado nas duas seções)
-- **Escolher qual cédula depositada aparece em cada grupo, 14/08/2026** — antes a cédula "oficial" (a que vale no Quadro de Médias público) era a única opção e valia em TODOS os grupos ao mesmo tempo, sem variar por grupo. Agora, se a pessoa tem mais de uma cédula depositada, um seletor aparece na tela do grupo ("Sua cédula neste grupo") deixando escolher qual delas representa ela ali — só afeta aquele grupo, os outros continuam como estavam (ou na oficial, se nunca escolher nada). **Precisa rodar a migração `nuvem/migracao-15-cedula-escolhida-grupo.sql` no SQL Editor do Supabase antes de valer em produção** — coluna nova (`grupo_membros.salvamento_escolhido_id`) + view nova (`salvamentos_depositados_publicos`) + `grupo_comparacao` recriada pra resolver a escolha. Lógica client-side (`nuvem/grupos.js`, `interface/prospeccao.js`) testada com dados fake via injeção direta de estado (sem precisar montar cadastro+grupo+depósito reais) — seletor renderiza certo, troca chama a função certa e força recarregar a comparação
+- **Escolher qual cédula depositada aparece em cada grupo, 14/08/2026** — antes a cédula "oficial" (a que vale no Quadro de Médias público) era a única opção e valia em TODOS os grupos ao mesmo tempo, sem variar por grupo. Agora, se a pessoa tem mais de uma cédula depositada, um seletor aparece na tela do grupo ("Sua cédula neste grupo") deixando escolher qual delas representa ela ali — só afeta aquele grupo, os outros continuam como estavam (ou na oficial, se nunca escolher nada). **Migração `nuvem/migracao-15-cedula-escolhida-grupo.sql` rodada no Supabase, confirmada 15/08/2026** — coluna nova (`grupo_membros.salvamento_escolhido_id`) + view nova (`salvamentos_depositados_publicos`) + `grupo_comparacao` recriada pra resolver a escolha. Lógica client-side (`nuvem/grupos.js`, `interface/prospeccao.js`) testada com dados fake via injeção direta de estado (sem precisar montar cadastro+grupo+depósito reais) — seletor renderiza certo, troca chama a função certa e força recarregar a comparação
 
 **⬜ Pendente**
 - _(nenhum agora)_
