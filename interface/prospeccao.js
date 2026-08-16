@@ -690,9 +690,9 @@ async function renderCompartilhado() {
   };
   el.innerHTML = `
     <div class="glass-card" style="max-width:640px; margin:0 auto 12px;">
-      <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--pc-ink-dim); margin-bottom:4px;">Palpite compartilhado</div>
-      <h2 style="margin-bottom:2px;">${dados.nome_exibicao}</h2>
-      <div class="pc-sub">Prospecção Coletiva — Simulador Eleitoral — Legislativo 2026 — Santa Catarina</div>
+      <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--pc-accent); font-weight:700; margin-bottom:4px;">Palpite compartilhado</div>
+      <div style="font-size:20px; font-weight:700; margin:0 0 4px;">${dados.nome_exibicao}</div>
+      <div class="pc-sub" style="margin:0;">Prospecção Coletiva — Simulador Eleitoral — Legislativo 2026 — Santa Catarina</div>
     </div>
     <div style="max-width:640px; margin:0 auto;">
       ${CARGOS.map(secaoCargo).join("")}
@@ -864,7 +864,7 @@ function renderTelaLegal(tipo) {
   el.innerHTML = `
     <div class="glass-card" style="max-width:520px; margin:0 auto;">
       <button class="ghost" id="pcBtnVoltarLegal" style="margin-bottom:14px;">← Voltar</button>
-      <h2>${titulo}</h2>
+      <div style="font-size:20px; font-weight:700; margin:0 0 4px;">${titulo}</div>
       <div class="pc-sub" style="margin-bottom:18px;">Última atualização: 08/08/2026</div>
       ${secoes.map((s) => `
         <div style="margin-bottom:18px;">
@@ -1444,8 +1444,8 @@ async function renderMeuPerfil() {
 
   el.innerHTML = `
     <button class="ghost" id="pcBtnVoltarMeuPerfil" style="margin-bottom:14px;">← Voltar</button>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Meus dados</div>
     <div class="glass-card" style="max-width:460px; margin:0 auto;">
-      <h2 style="margin-bottom:2px;">Meus dados</h2>
       <div class="pc-sub" style="margin-bottom:16px;">${email}</div>
 
       <div class="field-row"><label>Nome</label><input class="cell" id="pcPerfilNome" value="${p.nome || ""}"></div>
@@ -1725,8 +1725,10 @@ function renderModalReportarProblema() {
 async function montarAdminUsuarios() {
   const stats = await adminEstatisticasUsuarios();
   if (!stats) return `<div class="pc-sub">Não consegui carregar as estatísticas.</div>`;
+  // Padrão 8.1: métrica em cartão de tom (mesmo .pc-metric do Painel
+  // Eleitoral), não mais glass-card avulso.
   const cartao = (label, valor) => `
-    <div class="glass-card" style="padding:14px 16px; text-align:center;">
+    <div class="pc-metric" style="text-align:center;">
       <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${Number(valor || 0).toLocaleString("pt-BR")}</div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">${label}</div>
     </div>`;
@@ -1745,18 +1747,16 @@ async function montarAdminProblemas() {
   const problemas = await adminListarProblemas();
   if (!problemas.length) return estadoVazio({ icone: "alerta", titulo: "Nenhum problema reportado", texto: "Quando alguém reportar algo pelo Menu, aparece aqui." });
   return problemas.map((p) => `
-    <div class="pc-lobby-card" style="margin-bottom:10px; ${p.status === "resolvido" ? "opacity:.6;" : ""}">
-      <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:6px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-          <span style="font-size:12.5px; font-weight:600;">${p.nome || "—"}</span>
-          <span style="font-size:10px; color:var(--pc-ink-dim); flex-shrink:0;">${new Date(p.criado_em).toLocaleDateString("pt-BR")}</span>
-        </div>
-        <div style="font-size:12.5px; color:var(--pc-ink-dim); line-height:1.5;">${p.mensagem}</div>
-        ${p.tela ? `<div style="font-size:10px; color:var(--pc-ink-faint);">tela: ${p.tela}</div>` : ""}
-        ${p.status === "aberto"
-          ? `<button data-pc-resolver-problema="${p.id}" class="ghost" style="align-self:flex-start; font-size:11px; padding:5px 10px;">Marcar resolvido</button>`
-          : `<span style="font-size:10.5px; color:var(--pc-accent);">✓ resolvido</span>`}
+    <div class="pc-mini-card" style="flex-direction:column; align-items:stretch; gap:6px; ${p.status === "resolvido" ? "opacity:.6;" : ""}">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+        <span style="font-size:12.5px; font-weight:600;">${p.nome || "—"}</span>
+        <span style="font-size:10px; color:var(--pc-ink-dim); flex-shrink:0;">${new Date(p.criado_em).toLocaleDateString("pt-BR")}</span>
       </div>
+      <div style="font-size:12.5px; color:var(--pc-ink-dim); line-height:1.5;">${p.mensagem}</div>
+      ${p.tela ? `<div style="font-size:10px; color:var(--pc-ink-faint);">tela: ${p.tela}</div>` : ""}
+      ${p.status === "aberto"
+        ? `<button data-pc-resolver-problema="${p.id}" class="ghost" style="align-self:flex-start; font-size:11px; padding:5px 10px;">Marcar resolvido</button>`
+        : `<span style="font-size:10.5px; color:var(--pc-accent);">✓ resolvido</span>`}
     </div>`).join("");
 }
 
@@ -1813,11 +1813,11 @@ async function montarAdminRotinas() {
   if (!execucoes.length) {
     return estadoVazio({ icone: "calendario", titulo: "Nenhuma execução registrada", texto: "As rotinas automáticas ainda não avisam aqui quando rodam." });
   }
-  return execucoes.map((e) => `
+  return `<div class="pc-lobby-card">${execucoes.map((e) => `
     <div class="pc-lobby-linha">
       <span style="font-size:12.5px; font-weight:600;">${e.rotina}</span>
       <span style="font-size:11px; color:${e.sucesso ? "var(--pc-accent)" : "var(--pc-danger)"}; flex-shrink:0;">${e.sucesso ? "✓ ok" : "✗ falhou"} · ${new Date(e.executado_em).toLocaleString("pt-BR")}</span>
-    </div>`).join("");
+    </div>`).join("")}</div>`;
 }
 
 async function renderAdminPainel() {
@@ -1855,8 +1855,8 @@ async function renderAdminPainel() {
 
   el.innerHTML = `
     <button class="ghost" id="pcBtnVoltarAdmin" style="margin-bottom:14px;">← Voltar</button>
-    <h2 style="margin-bottom:2px;">Painel do administrador</h2>
-    <div class="pc-sub" style="margin-bottom:14px;">Visão operacional do sistema — não substitui o Supabase, cobre só o essencial do dia a dia.</div>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Painel do administrador</div>
+    <div class="pc-sub" style="margin:0 0 14px 2px;">Visão operacional do sistema — não substitui o Supabase, cobre só o essencial do dia a dia.</div>
     <div class="pc-cargo-switch" style="margin-bottom:16px; flex-wrap:wrap; height:auto;">${botoesSecao}</div>
     <div id="pcAdminConteudo">${conteudoSecao}</div>`;
 
@@ -1937,8 +1937,8 @@ async function renderPainelUsuarioFinal() {
 
   el.innerHTML = `
     <button class="ghost" id="pcBtnVoltarUsuarioFinal" style="margin-bottom:14px;">← Voltar</button>
-    <h2 style="margin-bottom:2px;">Dados estratégicos</h2>
-    <div class="pc-sub" style="margin-bottom:16px;">Resultados agregados das cédulas oficiais já depositadas — sem nome nem perfil individual de quem previu.</div>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Dados estratégicos</div>
+    <div class="pc-sub" style="margin:0 0 16px 2px;">Resultados agregados das cédulas oficiais já depositadas — sem nome nem perfil individual de quem previu.</div>
     <div class="glass-card">
       <div class="pc-sub" style="margin-bottom:12px;">Filtra por recorte demográfico — dado disponível hoje é só gênero e UF de residência (idade ainda não é coletada no cadastro).</div>
       <div class="field-row"><label>Gênero</label>
@@ -2562,8 +2562,8 @@ async function renderMinhasListas() {
         <button class="ghost" id="pcBtnVoltarMinhasListas">← Minhas listas</button>
         ${lista && lista.codigo ? `<button class="ghost" id="pcBtnCompartilharDetalheLista" style="display:flex; align-items:center; gap:6px; padding:8px 12px; font-size:12px;">${iconeSvg("compartilhar", 13)}<span class="pc-btn-label">Compartilhar</span></button>` : ""}
       </div>
-      <h2 style="margin-bottom:2px;">${lista ? lista.nome : ""}</h2>
-      <div class="pc-sub" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}Depositada em ${lista ? new Date(lista.depositadoEm).toLocaleDateString("pt-BR") : ""} · travada, não pode mais mudar.</div>
+      <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">${lista ? lista.nome : ""}</div>
+      <div class="pc-sub" style="margin:0 0 14px 2px; display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}Depositada em ${lista ? new Date(lista.depositadoEm).toLocaleDateString("pt-BR") : ""} · travada, não pode mais mudar.</div>
       ${secoes}
       ${pcState.modalCompartilharListaId ? renderModalCompartilhar() : ""}`;
     document.getElementById("pcBtnVoltarMinhasListas").addEventListener("click", () => {
@@ -2947,7 +2947,7 @@ function renderGrupoCriar() {
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
       <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
-      <h2>Criar grupo</h2>
+      <div style="font-size:20px; font-weight:700; margin:0 0 14px;">Criar grupo</div>
       <div class="field-row"><label>Nome do grupo</label><input class="cell" id="pcNomeGrupo" placeholder="ex: Amigos do bairro"></div>
       <div class="pc-erro" id="pcErroGrupo"></div>
       <button class="primary" id="pcBtnConfirmarCriarGrupo" style="margin-top:6px;">Criar</button>
@@ -2972,7 +2972,7 @@ function renderGrupoEntrar() {
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
       <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
-      <h2>Entrar com código</h2>
+      <div style="font-size:20px; font-weight:700; margin:0 0 14px;">Entrar com código</div>
       <div class="field-row"><label>Código de convite</label><input class="cell" id="pcCodigoGrupo" maxlength="6" style="text-transform:uppercase; font-family:var(--mono); letter-spacing:0.1em;" placeholder="ABC123"></div>
       <div class="pc-erro" id="pcErroGrupo"></div>
       <button class="primary" id="pcBtnConfirmarEntrarGrupo" style="margin-top:6px;">Entrar</button>
@@ -3075,7 +3075,7 @@ async function renderGrupoMembro() {
 
   conteudo.innerHTML = `
     <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
-    <h2 style="margin-bottom:4px;">${pcState.grupoAtivo.nome}</h2>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 10px 2px;">${pcState.grupoAtivo.nome}</div>
     <div class="pc-lobby-card">
       <div class="pc-lobby-linha">
         <span style="font-size:12px; color:var(--pc-ink-dim);">${registros.length} pessoa${registros.length === 1 ? "" : "s"} com cédula depositada</span>
@@ -5945,10 +5945,13 @@ function renderDepositoConfirmado() {
     { icone: "chart", label: "Avance na pontuação", info: "Você pontua por candidato eleito certo, pela proximidade da votação de cada um, pelas cadeiras por partido, pela enquete eleitoral e por um bônus de quem entrega a lista mais cedo." },
     { icone: "ranking", label: "Ranqueamento", info: "Você entra em 4 rankings ao mesmo tempo: geral (nacional), do seu estado, por categorias, e dos grupos particulares que você criar ou entrar." },
   ];
+  // Padrão visual 8.1 (PROJETO.md, 16/08/2026): os 4 quadrados antigos
+  // (.pc-tile, ícone gigante com rótulo por cima) viraram a grade de
+  // atalhos padrão — ícone-em-círculo + título + tooltip ⓘ preservado.
   const tilesHtml = tiles.map((t) => `
-    <div class="pc-tile">
-      <svg class="pc-tile-icon" viewBox="0 0 16 16">${PC_ICONES[t.icone]}</svg>
-      <span class="pc-tile-label">${t.label}${infoTip(t.info)}</span>
+    <div class="pc-lobby-atalho" style="cursor:default;">
+      <div class="pc-lobby-atalho-icone">${iconeSvg(t.icone, 19)}</div>
+      <div style="display:flex; align-items:center; gap:4px;"><div class="pc-lobby-atalho-titulo" style="font-size:12.5px; text-align:left;">${t.label}</div>${infoTip(t.info)}</div>
     </div>`).join("");
 
   conteudo.innerHTML = `
@@ -5956,7 +5959,7 @@ function renderDepositoConfirmado() {
       ${iconeSvg("ballot", 30)}
       <h2 style="margin-top:8px;">Sua lista foi salva</h2>
       <div style="font-size:16px; font-weight:700; color:var(--pc-accent); margin:6px 0 4px;">Agora o game começa de verdade</div>
-      <div class="pc-tile-grid">${tilesHtml}</div>
+      <div class="pc-lobby-atalhos" style="margin:18px 0; text-align:left;">${tilesHtml}</div>
       <button class="primary" id="pcBtnIrPainel">Avançar</button>
       <div style="font-size:10.5px; color:var(--pc-ink-dim); margin-top:8px;">O acesso a essas ferramentas fica disponível a partir do cadastro simples.</div>
     </div>`;
@@ -5978,12 +5981,10 @@ function renderRankingPlaceholder() {
     const r = pcState.buscaCedulaDetalhe;
     const secoes = montarSecoesCargosDetalhe({ estadual: r.lista_estadual, federal: r.lista_federal, senador: r.lista_senador });
     conteudo.innerHTML = `
-      <div class="glass-card">
-        <button class="ghost" id="pcBtnVoltarBuscaCedula" style="margin-bottom:14px;">← Voltar pra busca</button>
-        <h2 style="margin-bottom:2px;">${r.nome_exibicao}</h2>
-        <div class="pc-sub" style="margin-bottom:14px;">${r.estado}${r.codigo ? ` · código ${r.codigo}` : ""}</div>
-        ${secoes || `<div class="pc-sub">Essa cédula não tem candidatos registrados.</div>`}
-      </div>`;
+      <button class="ghost" id="pcBtnVoltarBuscaCedula" style="margin-bottom:14px;">← Voltar pra busca</button>
+      <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">${r.nome_exibicao}</div>
+      <div class="pc-sub" style="margin:0 0 14px 2px;">${r.estado}${r.codigo ? ` · código ${r.codigo}` : ""}</div>
+      ${secoes || `<div class="glass-card"><div class="pc-sub" style="margin:0;">Essa cédula não tem candidatos registrados.</div></div>`}`;
     document.getElementById("pcBtnVoltarBuscaCedula").addEventListener("click", () => {
       pcState.buscaCedulaDetalhe = null;
       renderRankingPlaceholder();
@@ -6304,8 +6305,8 @@ async function renderQuadroMedias() {
     </div>`;
 
   conteudo.innerHTML = `
-    <h2 style="margin-bottom:4px;">Mediana</h2>
-    <div class="pc-sub" style="margin-bottom:14px;">Pesquisa em tempo real — mediana aparada de ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} público${totalPalpites === 1 ? "" : "s"}. Quem estaria eleito, pela mesma regra do resultado oficial.</div>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Mediana</div>
+    <div class="pc-sub" style="margin:0 0 14px 2px;">Pesquisa em tempo real — mediana aparada de ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} público${totalPalpites === 1 ? "" : "s"}. Quem estaria eleito, pela mesma regra do resultado oficial.</div>
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
     <div class="pc-lobby-card" style="padding:14px;">
       ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(61,255,176,.14)", vago: "#182f24", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
