@@ -4936,6 +4936,12 @@ function listaUnificadaRevisao(listaParam, cargo) {
 // vez só, e reaproveita depois — cada clique de Salvar é uma ATUALIZAÇÃO
 // da mesma lista, não uma lista nova.
 async function executarSalvarLista() {
+  // Guarda ANTES de qualquer escrita — as duas ramificações abaixo
+  // preenchem pcState.listaSalvaId assim que salvam, então precisa
+  // capturar "ainda não tinha id" logo no início pra saber depois se
+  // este Salvar foi o primeiro ou uma atualização de uma lista já
+  // existente (ver uso no fim da função).
+  const primeiraVez = !pcState.listaSalvaId;
   // Logado grava em "salvamentos"/"listas_salvas" de verdade (Supabase) —
   // cria na 1ª vez (listaSalvaId ainda null), atualiza em cima da mesma
   // linha nas vezes seguintes (nunca duplica). Convidado continua local
@@ -4959,10 +4965,19 @@ async function executarSalvarLista() {
   if (pcState.perfil) {
     const { error } = await salvarPalpiteCompleto(pcState.perfil.id, pcState.palpiteEdicao);
     if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
-    pcState.subaba = "deposito-confirmado";
+    // A tela "Sua lista foi salva" (renderDepositoConfirmado) é a
+    // recepção de PRIMEIRA vez — convite pra convidar amigos, criar
+    // grupo etc. Salvamentos seguintes da MESMA lista (edição) não são
+    // primeira vez de nada, então pulam direto pro painel, que é onde o
+    // botão "Avançar" daquela tela levaria de qualquer forma. Pedido do
+    // usuário em 16/08/2026.
+    if (primeiraVez) { pcState.subaba = "deposito-confirmado"; } else { pcState.subaba = "painel"; }
     renderAppColaborativo();
-  } else {
+  } else if (primeiraVez) {
     pcState.tela = "deposito-confirmado";
+    renderColaborativo();
+  } else {
+    pcState.tela = "painel-convidado";
     renderColaborativo();
   }
 }
