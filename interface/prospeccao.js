@@ -2581,8 +2581,12 @@ async function renderMinhasListas() {
   const depositadas = listas.filter((l) => l.depositadoEm).sort((a, b) => new Date(b.depositadoEm) - new Date(a.depositadoEm));
   const jaTemLista = listas.length >= 1;
 
+  // Padrão visual 8.1 (PROJETO.md, 16/08/2026): cada lista é um mini-card
+  // com moldura própria em vez de linha solta dentro de um card único —
+  // mesmos data-attributes de antes, listeners intactos.
   const linhaAberta = (l) => `
-    <div class="pc-lobby-linha" style="align-items:center; gap:10px;">
+    <div class="pc-mini-card" style="flex-wrap:wrap;">
+      <div class="pc-mini-card-icone">${iconeSvg("ballot", 17)}</div>
       <div style="min-width:0; flex:1;">
         <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</div>
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Salva em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")}</div>
@@ -2593,10 +2597,11 @@ async function renderMinhasListas() {
       </div>
     </div>`;
   const linhaDepositada = (l) => `
-    <div class="pc-lobby-linha" style="align-items:center; gap:10px; opacity:.8;">
+    <div class="pc-mini-card" style="flex-wrap:wrap; opacity:.85;">
+      <div class="pc-mini-card-icone" style="background:rgba(201,138,43,.12); color:var(--pc-warning);">${iconeSvg("chave", 16)}</div>
       <div style="min-width:0; flex:1;">
-        <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 12)}<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</span></div>
-        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}</div>
+        <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}${l.codigo ? ` · <span style="font-family:var(--mono);">${l.codigo}</span>` : ""}</div>
       </div>
       <div style="display:flex; gap:6px; flex-shrink:0;">
         ${l.codigo ? `<button class="ghost" data-pc-compartilhar-lista="${l.id}" style="padding:8px 10px; font-size:12px; display:flex; align-items:center; gap:5px;">${iconeSvg("compartilhar", 13)}<span class="pc-btn-label">Compartilhar</span></button>` : ""}
@@ -2608,17 +2613,17 @@ async function renderMinhasListas() {
 
   el.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
-      <h2 style="margin:0;">Minhas listas</h2>
+      <div style="font-size:20px; font-weight:700; margin-left:2px;">Minhas listas</div>
       <button class="pc-lobby-icon-btn" id="pcBtnNovaLista" title="Nova lista">${iconeSvg("mais", 16)}</button>
     </div>
-    <div class="pc-sub" style="margin-bottom:16px;">Listas em aberto podem ser editadas à vontade. Depositadas ficam travadas.</div>
+    <div class="pc-sub" style="margin:4px 0 16px 2px;">Listas em aberto podem ser editadas à vontade. Depositadas ficam travadas.</div>
     ${pcState.avisoLimiteListaAberto ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Ops...</div>
       <div class="pc-aviso-corpo">Nós conseguimos espaço gratuito para o usuário cadastrar até uma lista, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
     </div>` : ""}
-    ${abertas.length ? `<div class="pc-lobby-menu-tit">Em aberto</div><div class="pc-lobby-card">${abertas.map(linhaAberta).join("")}</div>` : ""}
-    ${depositadas.length ? `<div class="pc-lobby-menu-tit">Depositadas</div><div class="pc-lobby-card">${depositadas.map(linhaDepositada).join("")}</div>` : ""}
+    ${abertas.length ? `<div class="pc-lobby-menu-tit">Em aberto</div>${abertas.map(linhaAberta).join("")}` : ""}
+    ${depositadas.length ? `<div class="pc-lobby-menu-tit" style="margin-top:${abertas.length ? "18px" : "0"};">Depositadas</div>${depositadas.map(linhaDepositada).join("")}` : ""}
     ${!listas.length ? estadoVazio({ icone: "lista", titulo: "Nenhuma lista ainda", texto: "Monte sua primeira previsão e ela aparece aqui.", botaoLabel: "Criar minha lista", botaoId: "pcBtnEstadoVazioNovaLista" }) : ""}
     ${listaModal ? `
     <div id="pcModalDepositarOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
@@ -2866,29 +2871,38 @@ async function renderGrupoHub() {
   conteudo.innerHTML = telaCarregando("Carregando seus grupos…");
   await garantirMeusGruposCarregados();
 
+  // Padrão visual 8.1 (PROJETO.md, 16/08/2026): cada grupo é um mini-card
+  // com ícone-em-quadrado + nome + membros/código + seta; as duas ações de
+  // "novo grupo" usam a mesma grade de atalhos do Painel (.pc-lobby-atalho),
+  // substituindo a faixa horizontal antiga (.pc-lobby-menu-faixa).
   const linhasGrupo = pcState.meusGrupos.map((g) => `
-    <button class="pc-lobby-linha" data-pc-abrir-grupo="${g.id}" style="width:100%; background:none; border:none; cursor:pointer; text-align:left; font-family:var(--sans);">
-      <span style="display:flex; align-items:center; gap:10px; color:var(--pc-ink); min-width:0;">
-        <span style="color:var(--pc-accent); display:flex; flex-shrink:0;">${iconeSvg("grupos", 16)}</span>
-        <span style="font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${g.nome}</span>
-      </span>
-      <span style="font-size:11px; color:var(--pc-ink-dim); font-family:var(--mono); flex-shrink:0;">${g.codigo_convite}</span>
+    <button class="pc-mini-card" data-pc-abrir-grupo="${g.id}">
+      <div class="pc-mini-card-icone">${iconeSvg("grupos", 17)}</div>
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${g.nome}</div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:1px; font-family:var(--mono);">código ${g.codigo_convite}</div>
+      </div>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--pc-ink-dim)" stroke-width="1.8" style="flex-shrink:0;"><path d="M9 6l6 6-6 6"></path></svg>
     </button>`).join("");
 
   conteudo.innerHTML = `
-    <h2 style="margin-bottom:14px;">Grupos</h2>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Grupos</div>
     ${pcState.avisoLimiteGrupoAberto ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Ops...</div>
       <div class="pc-aviso-corpo">Nós conseguimos espaço gratuito para o usuário criar até um grupo, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
     </div>` : ""}
-    <div class="pc-lobby-card">
-      ${pcState.meusGrupos.length ? linhasGrupo : estadoVazio({ icone: "grupos", titulo: "Nenhum grupo ainda", texto: "Crie um grupo ou entre com um código de convite, logo abaixo." })}
-    </div>
-    <div class="pc-lobby-menu-tit">Novo grupo</div>
-    <div class="pc-lobby-menu-faixa">
-      <button class="pc-lobby-menu-item" id="pcBtnCriarGrupo">${iconeSvg("mais", 28)}<span>Criar grupo</span></button>
-      <button class="pc-lobby-menu-item" id="pcBtnEntrarGrupo">${iconeSvg("chave", 28)}<span>Entrar com código</span></button>
+    ${pcState.meusGrupos.length ? `<div class="pc-lobby-menu-tit">Seus grupos</div>${linhasGrupo}` : `<div class="pc-lobby-card">${estadoVazio({ icone: "grupos", titulo: "Nenhum grupo ainda", texto: "Crie um grupo ou entre com um código de convite, logo abaixo." })}</div>`}
+    <div class="pc-lobby-menu-tit" style="margin-top:18px;">Novo grupo</div>
+    <div class="pc-lobby-atalhos">
+      <button class="pc-lobby-atalho" id="pcBtnCriarGrupo">
+        <div class="pc-lobby-atalho-icone">${iconeSvg("mais", 19)}</div>
+        <div><div class="pc-lobby-atalho-titulo">Criar grupo</div><div class="pc-lobby-atalho-sub">Você escolhe o nome</div></div>
+      </button>
+      <button class="pc-lobby-atalho" id="pcBtnEntrarGrupo">
+        <div class="pc-lobby-atalho-icone">${iconeSvg("chave", 19)}</div>
+        <div><div class="pc-lobby-atalho-titulo">Entrar com código</div><div class="pc-lobby-atalho-sub">Convite de um amigo</div></div>
+      </button>
     </div>`;
 
   document.getElementById("pcBtnCriarGrupo").addEventListener("click", async () => {
@@ -5977,32 +5991,38 @@ function renderRankingPlaceholder() {
     return;
   }
 
+  // Padrão visual 8.1 (PROJETO.md, 16/08/2026): cabeçalho vira banner de
+  // destaque (o Ranking em si ainda não abriu — o banner explica quando e
+  // como, no lugar de um card comum), resultados da busca viram mini-cards.
   const resultados = pcState.buscaCedulaResultados;
   conteudo.innerHTML = `
-    <div class="glass-card">
-      <h2>Ranking</h2>
-      <div class="pc-sub">Disponível depois do resultado oficial da eleição de 2026.</div>
-      <div style="font-size:13px; color:var(--pc-ink-dim);">
-        Critério principal: quem mais acertar a composição real da lista de eleitos.
-        Critério de desempate: menor distância entre os votos previstos e os votos reais.
-      </div>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Ranking</div>
+    <div class="pc-lobby-banner">
+      <div class="pc-lobby-banner-eyebrow">Depois da eleição</div>
+      <div class="pc-lobby-banner-titulo">Quem acertou mais, sobe</div>
+      <div class="pc-lobby-banner-corpo">O ranking abre com o resultado oficial de 2026: vale quem mais acertar a lista real de eleitos; o desempate é a menor distância entre votos previstos e reais.</div>
+      <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; color:var(--pc-accent); font-weight:700;">${iconeSvg("calendario", 14)}Faltam ${diasAteEleicao()} dias</div>
     </div>
-    <div class="glass-card" style="margin-top:14px;">
-      <h2 style="font-size:15px; margin-bottom:4px;">Consultar uma cédula</h2>
-      <div class="pc-sub" style="margin-bottom:12px;">Busque pelo nome de quem depositou ou pelo código da cédula (ex.: SL01-AB3D) — isso já funciona agora, não depende do resultado oficial.</div>
+    <div class="pc-lobby-menu-tit">Consultar uma cédula</div>
+    <div class="pc-lobby-card" style="padding:14px 16px;">
+      <div class="pc-sub" style="margin:0 0 12px;">Busque pelo nome de quem depositou ou pelo código da cédula (ex.: SL01-AB3D) — isso já funciona agora, não depende do resultado oficial.</div>
       <div style="display:flex; gap:8px;">
         <input class="cell" id="pcBuscaCedulaInput" placeholder="Nome ou código" value="${pcState.buscaCedulaTermo || ""}" style="flex:1;">
         <button class="primary" id="pcBtnBuscarCedula" style="flex-shrink:0;">Buscar</button>
       </div>
-      <div id="pcBuscaCedulaResultado" style="margin-top:14px;">
-        ${pcState.buscaCedulaCarregando ? `<div class="pc-sub">Buscando…</div>` : ""}
-        ${!pcState.buscaCedulaCarregando && resultados && resultados.length === 0 ? estadoVazio({ icone: "buscar", titulo: "Nada encontrado", texto: "Confira o nome ou código digitado." }) : ""}
-        ${!pcState.buscaCedulaCarregando && resultados && resultados.length > 0 ? resultados.map((r) => `
-          <button data-pc-ver-cedula-publica="${r.salvamento_id}" class="pc-lobby-linha" style="width:100%; text-align:left; background:none; border:1px solid #2a4438; border-radius:10px; cursor:pointer; margin-bottom:6px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
-            <span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; color:var(--pc-ink);">${r.nome_exibicao}<span style="color:var(--pc-ink-dim);"> · ${r.estado}</span></span>
-            ${r.codigo ? `<span style="font-family:var(--mono); font-size:11px; color:var(--pc-ink-dim); flex-shrink:0;">${r.codigo}</span>` : ""}
-          </button>`).join("") : ""}
-      </div>
+    </div>
+    <div id="pcBuscaCedulaResultado" style="margin-top:14px;">
+      ${pcState.buscaCedulaCarregando ? `<div class="pc-sub">Buscando…</div>` : ""}
+      ${!pcState.buscaCedulaCarregando && resultados && resultados.length === 0 ? estadoVazio({ icone: "buscar", titulo: "Nada encontrado", texto: "Confira o nome ou código digitado." }) : ""}
+      ${!pcState.buscaCedulaCarregando && resultados && resultados.length > 0 ? resultados.map((r) => `
+        <button data-pc-ver-cedula-publica="${r.salvamento_id}" class="pc-mini-card">
+          <div class="pc-mini-card-icone">${iconeSvg("ballot", 17)}</div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.nome_exibicao}</div>
+            <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:1px;">${r.estado}${r.codigo ? ` · <span style="font-family:var(--mono);">${r.codigo}</span>` : ""}</div>
+          </div>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--pc-ink-dim)" stroke-width="1.8" style="flex-shrink:0;"><path d="M9 6l6 6-6 6"></path></svg>
+        </button>`).join("") : ""}
     </div>`;
 
   const input = document.getElementById("pcBuscaCedulaInput");

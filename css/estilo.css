@@ -426,6 +426,19 @@
   }
   #modoColaborativoWrap .pc-lobby-mais-item:last-child{ border-bottom:none; }
   #modoColaborativoWrap .pc-lobby-mais-item span{ flex:1; text-align:left; font-size:12px; color:#a9c2b5; }
+  /* Mini-card de item dentro de lista (PROJETO.md 8.1) — cada item é um
+     cartãozinho com moldura própria, nunca linha de texto solta. Usado em
+     Grupos, Minhas Listas, resultados de busca de cédula etc. */
+  #modoColaborativoWrap .pc-mini-card{
+    background:#0e2018; border:1px solid #1d3a2c; border-radius:12px;
+    padding:12px 14px; margin-bottom:8px; display:flex; align-items:center; gap:12px;
+    font-family:var(--sans); color:var(--pc-ink);
+  }
+  #modoColaborativoWrap button.pc-mini-card{ width:100%; cursor:pointer; text-align:left; box-sizing:border-box; }
+  #modoColaborativoWrap .pc-mini-card-icone{
+    width:36px; height:36px; border-radius:10px; background:rgba(61,255,176,.1);
+    display:flex; align-items:center; justify-content:center; color:var(--pc-accent); flex-shrink:0;
+  }
   #modoColaborativoWrap h2{ color: var(--pc-ink); font-size: 15px; text-transform:none; letter-spacing:0; margin: 0 0 14px; }
   #modoColaborativoWrap .pc-sub{ color: var(--pc-ink-dim); font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
   /* Estado vazio padronizado — mockup validado com o usuário em 14/08/2026
