@@ -3845,17 +3845,17 @@ async function renderCargoEstadual() {
             <button data-pc-reset="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("reset", 13)}<span class="pc-mini-tip" style="white-space:normal; width:170px; text-align:center;">Restaurar votação de 2022 — só tem efeito pra quem recebeu votos naquela eleição</span></button>
             <button data-pc-zerar="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("borracha", 13)}<span class="pc-mini-tip">Zerar votação de todos</span></button>
             <button data-pc-balancear="${p.nome}" class="pc-mini-btn pc-mini-btn-sm">${iconeSvg("completar", 13)}<span class="pc-mini-tip" style="white-space:normal; width:220px; text-align:center;">PREENCHIMENTO AUTOMÁTICO (PARTIDO)<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos, mas limitado a esta lista.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.</span></button>
-            <div class="pc-stepper-chip" title="Quantidade de Deputados eleitos indicados pra esse partido">
-              <div class="pc-stepper">
-                <button data-pc-inc="${p.nome}" class="pc-stepper-btn" title="Adicionar 1 eleito" ${p.candidatos.some((c) => !c.marcadoEleito && c.fonte !== "legenda") && podeMarcarMaisUmEleito() ? "" : "disabled"}>
-                  <svg viewBox="0 0 16 16" width="10" height="10"><path d="M8 4l4 6H4z" fill="currentColor"></path></svg>
-                </button>
-                <button data-pc-dec="${p.nome}" class="pc-stepper-btn" title="Remover 1 eleito" ${marcados > 0 ? "" : "disabled"}>
-                  <svg viewBox="0 0 16 16" width="10" height="10"><path d="M8 12L4 6h8z" fill="currentColor"></path></svg>
-                </button>
-              </div>
-              <input type="text" inputmode="numeric" class="pc-stepper-count" data-pc-count="${p.nome}" value="${marcados}">
+          </div>
+          <div class="pc-stepper-chip" style="margin-left:auto;" title="Quantidade de Deputados eleitos indicados pra esse partido">
+            <div class="pc-stepper">
+              <button data-pc-inc="${p.nome}" class="pc-stepper-btn" title="Adicionar 1 eleito" ${p.candidatos.some((c) => !c.marcadoEleito && c.fonte !== "legenda") && podeMarcarMaisUmEleito() ? "" : "disabled"}>
+                <svg viewBox="0 0 16 16" width="10" height="10"><path d="M8 4l4 6H4z" fill="currentColor"></path></svg>
+              </button>
+              <button data-pc-dec="${p.nome}" class="pc-stepper-btn" title="Remover 1 eleito" ${marcados > 0 ? "" : "disabled"}>
+                <svg viewBox="0 0 16 16" width="10" height="10"><path d="M8 12L4 6h8z" fill="currentColor"></path></svg>
+              </button>
             </div>
+            <input type="text" inputmode="numeric" class="pc-stepper-count" data-pc-count="${p.nome}" value="${marcados}">
           </div>
         </div>
         ${barraTermometro ? `<div style="margin:0 14px 10px;">${barraTermometro}</div>` : ""}
