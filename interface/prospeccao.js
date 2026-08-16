@@ -3384,7 +3384,17 @@ async function renderCargoEstadual() {
   // (reRenderizando), pra não interferir na primeira entrada na tela.
   const reRenderizando = !!conteudo.querySelector("#pcPainelEleitoralCard");
   const scrollAnterior = window.scrollY;
-  conteudo.innerHTML = telaCarregando();
+  // Só mostra a tela de carregando na PRIMEIRA entrada (troca de cargo,
+  // que de fato pode esperar um fetch de rascunho) — numa re-renderização
+  // (busca, marcar eleito, etc.) o conteúdo antigo já está certo até o
+  // novo ficar pronto, e trocar por um placeholder bem mais curto no meio
+  // do caminho encolhia a página por uma fração de segundo, empurrando a
+  // rolagem pra cima (o navegador ajusta o scroll sozinho quando o
+  // conteúdo fica mais baixo que a posição atual) — daí "pulava" de volta
+  // quando o conteúdo real voltava. Restaurar scrollAnterior no fim não
+  // evitava esse flash intermediário ser visível. Achado pelo usuário
+  // (busca de partido) em 16/08/2026.
+  if (!reRenderizando) conteudo.innerHTML = telaCarregando();
   await garantirPalpiteEdicaoAtivo();
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
 
@@ -4210,7 +4220,14 @@ function attachListenersSelecao() {
       // o campo perder o foco.
       const novoInp = document.querySelector(`input[data-pc-busca-candidato="${nomePartido}"]`);
       if (novoInp) {
-        novoInp.focus();
+        // preventScroll:true — sem isso, focar um input que ficou fora da
+        // área visível (pode acontecer depois do reconstruir do innerHTML)
+        // faz o navegador rolar a tela sozinho até ele, por cima da rolagem
+        // que renderCargoEstadual() já tinha acabado de restaurar
+        // manualmente (ver scrollAnterior/reRenderizando no topo dessa
+        // função) — na prática a tela "pulava" pro topo a cada letra
+        // digitada na busca. Achado pelo usuário em 16/08/2026.
+        novoInp.focus({ preventScroll: true });
         novoInp.setSelectionRange(cursor, cursor);
       }
     });
@@ -4222,7 +4239,7 @@ function attachListenersSelecao() {
       renderCargoEstadual();
       if (pcState.buscaPartidoAberta) {
         const inp = document.getElementById("pcBuscaPartidoInput");
-        if (inp) inp.focus();
+        if (inp) inp.focus({ preventScroll: true });
       }
     });
   }
@@ -4235,9 +4252,11 @@ function attachListenersSelecao() {
       // O innerHTML inteiro é reconstruído (renderSelecaoCandidatos), então
       // o input original perde o foco — reencontra o novo e devolve o
       // cursor à posição de antes, senão cada letra digitada tira o foco.
+      // preventScroll:true (ver comentário acima, mesmo motivo) — sem isso
+      // essa era a busca que jogava a tela pro topo a cada tecla.
       const novoInp = document.getElementById("pcBuscaPartidoInput");
       if (novoInp) {
-        novoInp.focus();
+        novoInp.focus({ preventScroll: true });
         novoInp.setSelectionRange(cursor, cursor);
       }
     });
@@ -4250,7 +4269,7 @@ function attachListenersSelecao() {
       renderCargoEstadual();
       if (pcState.buscaCandidatoAberta[nomePartido]) {
         const inp = document.querySelector(`input[data-pc-busca-candidato="${nomePartido}"]`);
-        if (inp) inp.focus();
+        if (inp) inp.focus({ preventScroll: true });
       }
     });
   });
