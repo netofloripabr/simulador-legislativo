@@ -267,7 +267,20 @@
        do .wrap em telas largas, com fonte pequena boiando no espaço vazio.
        Em celular (viewport < 640px) isso não muda nada, já ocupa 100%. */
     max-width: 640px;
-    overflow-x: hidden;
+    /* Removido overflow-x:hidden em 16/08/2026: qualquer overflow-x
+       diferente de "visible" nesse elemento força o navegador a tratar
+       overflow-y como "auto" (regra do próprio CSS, não é bug), o que
+       transforma este wrap num container de rolagem — e quebra
+       position:sticky de TUDO dentro dele (interruptor de cargo, card do
+       Painel Eleitoral), porque o sticky passa a ser calculado contra
+       este elemento (que nunca rola de verdade, só cresce com o
+       conteúdo) em vez da página. A causa original do overflow horizontal
+       que motivou essa regra (barra de ações Desfazer/Zerar/Auto/Avançar
+       estourando em mobile) já foi corrigida com flex-wrap no mesmo
+       commit — testado em 320px/375px com a Seleção e a Revisão inteiras
+       expandidas, sem overflow. Se aparecer overflow horizontal de novo
+       no futuro, resolver na origem (o elemento específico que estoura),
+       não aqui — repor isto quebra o sticky de novo. */
   }
   @media (max-width: 680px){
     #modoColaborativoWrap{ padding: 18px 14px; border-radius: 12px; }
