@@ -4586,14 +4586,23 @@ function ajustarBackdropSticky() {
   const card = document.getElementById("pcPainelEleitoralCard");
   const interruptor = document.querySelector("#pcConteudo > .pc-cargo-switch");
   if (!preenchimento || !card || !interruptor) return;
-  // offsetHeight (não getBoundingClientRect) porque o card e o interruptor
-  // são sticky — a posição deles na tela muda com a rolagem, mas a altura
-  // própria de cada um (offsetHeight) não, então essa soma dá certo em
-  // qualquer momento, rolado ou não. Usar getBoundingClientRect aqui já deu
-  // bug: depois de rolar e a tela re-renderizar, a conta inflava e o blur
-  // cobria a página inteira.
-  const margemInterruptor = parseFloat(getComputedStyle(interruptor).marginBottom) || 0;
-  const alturaAteFimDoCard = interruptor.offsetHeight + margemInterruptor + card.offsetHeight;
+  // offsetTop (não getBoundingClientRect) porque o card e o interruptor são
+  // sticky — offsetTop devolve a posição de FLUXO NORMAL de cada um (antes
+  // do "grudar" da rolagem entrar em ação), que é exatamente o vão que essa
+  // camada precisa cobrir; getBoundingClientRect reflete a posição JÁ
+  // deslocada pela rolagem e já causou bug antes (a conta inflava e o blur
+  // cobria a página inteira).
+  //
+  // A conta antiga somava só interruptor.offsetHeight + card.offsetHeight,
+  // ignorando qualquer coisa NO MEIO dos dois (ex.: a faixa "Painel
+  // Eleitoral" entre as abas e o card) — ficava sempre curta demais, e o
+  // preenchimento acabava flutuando solto antes do card começar de
+  // verdade. card.offsetTop - interruptor.offsetTop pega a distância real
+  // do início ao fim, sem precisar enumerar o que existe no meio — cobre
+  // até qualquer elemento novo que entrar ali depois. Achado pelo usuário
+  // em 16/08/2026 (mesma sombra da correção original de 15/08, só que essa
+  // segunda causa nunca tinha sido pega).
+  const alturaAteFimDoCard = (card.offsetTop - interruptor.offsetTop) + card.offsetHeight;
   preenchimento.style.height = `${alturaAteFimDoCard}px`;
 }
 
