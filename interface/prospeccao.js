@@ -423,7 +423,7 @@ function renderMenuFixo(destinoAtivo) {
   const itens = [
     { id: "painel", icone: "home", label: "Início" },
     { id: "minhas-listas", icone: "ballot", label: "Minhas listas" },
-    { id: "medias", icone: "chart", label: "Médias", gate: gateConvidado },
+    { id: "medias", icone: "chart", label: "Mediana", gate: gateConvidado },
     { id: "grupo", icone: "grupos", label: "Grupos", gate: gateConvidado },
     { id: "ranking", icone: "ranking", label: "Ranking" },
   ];
@@ -815,14 +815,14 @@ const PC_TEXTO_PRIVACIDADE = [
     autenticação) e <b>GitHub Pages</b> (hospedagem do site) — que atuam só como
     operadores técnicos, seguindo nossas instruções, não como donos dos dados.<br><br>
     Se você optar por depositar uma lista de forma pública (não anônima), seu
-    nome e a lista de candidatos ficam visíveis pra outros usuários no Quadro
-    de Médias — essa é uma escolha sua, feita no momento do depósito, e pode
+    nome e a lista de candidatos ficam visíveis pra outros usuários na
+    Mediana — essa é uma escolha sua, feita no momento do depósito, e pode
     ser trocada pra anônima em depósitos futuros.` },
   { t: "5. Por quanto tempo guardamos", c: `Enquanto sua conta existir. Se você pedir a exclusão da conta, apagamos
     seus dados pessoais (nome, e-mail, CPF em hash) — listas já depositadas de
     forma pública podem ser mantidas de forma desvinculada da sua identidade
     (anonimizadas), já que fazem parte do histórico agregado de outras
-    pessoas que usaram o Quadro de Médias.` },
+    pessoas que usaram a Mediana.` },
   { t: "6. Seus direitos", c: `Conforme o artigo 18 da LGPD, você pode a qualquer momento pedir:
     <ul style="margin:8px 0; padding-left:18px;">
     <li>Confirmação de que tratamos seus dados, e acesso a eles.</li>
@@ -2066,7 +2066,7 @@ async function renderPainelPrincipal() {
     <div class="pc-lobby-menu-tit">Menu</div>
     <div class="pc-lobby-menu-faixa">
       <button class="pc-lobby-menu-item" id="pcMenuListas">${iconeSvg("ballot", 28)}<span>Minhas listas</span></button>
-      <button class="pc-lobby-menu-item" id="pcMenuMedias" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("chart", 28)}<span>Médias</span></button>
+      <button class="pc-lobby-menu-item" id="pcMenuMedias" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("chart", 28)}<span>Mediana</span></button>
       <button class="pc-lobby-menu-item" id="pcMenuGrupos" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("grupos", 28)}<span>Grupos</span></button>
       <button class="pc-lobby-menu-item" id="pcMenuRanking">${iconeSvg("ranking", 28)}<span>Ranking</span></button>
     </div>
@@ -2343,14 +2343,22 @@ async function renderMinhasListas() {
     const lista = listas.find((l) => l.id === pcState.listaEmVisualizacao);
     const secoes = montarSecoesCargosDetalhe(palpitesPorCargo);
     el.innerHTML = `
-      <button class="ghost" id="pcBtnVoltarMinhasListas" style="margin-bottom:14px;">← Minhas listas</button>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
+        <button class="ghost" id="pcBtnVoltarMinhasListas">← Minhas listas</button>
+        ${lista && lista.codigo ? `<button class="ghost" id="pcBtnCompartilharDetalheLista" style="display:flex; align-items:center; gap:6px; padding:8px 12px; font-size:12px;">${iconeSvg("compartilhar", 13)}<span class="pc-btn-label">Compartilhar</span></button>` : ""}
+      </div>
       <h2 style="margin-bottom:2px;">${lista ? lista.nome : ""}</h2>
       <div class="pc-sub" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}Depositada em ${lista ? new Date(lista.depositadoEm).toLocaleDateString("pt-BR") : ""} · travada, não pode mais mudar.</div>
-      ${secoes}`;
+      ${secoes}
+      ${pcState.modalCompartilharListaId ? renderModalCompartilhar() : ""}`;
     document.getElementById("pcBtnVoltarMinhasListas").addEventListener("click", () => {
       pcState.listaEmVisualizacao = null;
       renderMinhasListas();
     });
+    if (lista && lista.codigo) {
+      document.getElementById("pcBtnCompartilharDetalheLista").addEventListener("click", () => abrirModalCompartilharLista(lista.id, listas));
+    }
+    attachListenersModalCompartilhar();
     return;
   }
 
@@ -2390,9 +2398,9 @@ async function renderMinhasListas() {
     </div>
     <div class="pc-sub" style="margin-bottom:16px;">Listas em aberto podem ser editadas à vontade. Depositadas ficam travadas.</div>
     ${pcState.avisoLimiteListaAberto ? `
-    <div style="background:var(--pc-lobby-tom-3); border:1px solid #234134; border-radius:12px; padding:14px; margin-bottom:16px;">
-      <div style="font-size:12.5px; font-weight:700; color:var(--pc-ink); margin-bottom:4px;">Ops...</div>
-      <div style="font-size:11.5px; color:var(--pc-ink-dim); line-height:1.5;">Nós conseguimos espaço gratuito para o usuário cadastrar até uma lista, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
+    <div class="pc-aviso-card">
+      <div class="pc-aviso-titulo">Ops...</div>
+      <div class="pc-aviso-corpo">Nós conseguimos espaço gratuito para o usuário cadastrar até uma lista, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
     </div>` : ""}
     ${abertas.length ? `<div class="pc-lobby-menu-tit">Em aberto</div><div class="pc-lobby-card">${abertas.map(linhaAberta).join("")}</div>` : ""}
     ${depositadas.length ? `<div class="pc-lobby-menu-tit">Depositadas</div><div class="pc-lobby-card">${depositadas.map(linhaDepositada).join("")}</div>` : ""}
@@ -2494,30 +2502,7 @@ async function renderMinhasListas() {
     });
   });
   document.querySelectorAll("[data-pc-compartilhar-lista]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-pc-compartilhar-lista");
-      const lista = listas.find((l) => l.id === id);
-      if (!lista) return;
-      pcState.modalCompartilharListaId = id;
-      pcState.dadosCompartilhar = { carregando: true, lista };
-      renderMinhasListas();
-      // Imagem cobre os 3 cargos agora (13/08/2026) — monta um mapa
-      // cargoId → eleitos e deixa a pessoa trocar dentro do modal
-      // (renderModalCompartilhar), em vez de fixar só Dep. Estadual.
-      const completo = pcState.perfil ? await carregarSalvamentoCompleto(id) : null;
-      const cargosEleitos = {};
-      CARGOS.forEach((cargoDef) => {
-        const listaCargo = completo && completo.cargos ? completo.cargos[cargoDef.id] : null;
-        cargosEleitos[cargoDef.id] = listaCargo && listaCargo.length ? classificarEleitosPorPartido(listaCargo, cargoDef.id) : [];
-      });
-      const cargoAtivo = CARGOS.find((c) => cargosEleitos[c.id].length)?.id || "estadual";
-      const nomeExibido = lista.anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || lista.nome);
-      const eleitos = cargosEleitos[cargoAtivo];
-      const cargoLabel = CARGOS.find((c) => c.id === cargoAtivo)?.label || "";
-      const imagemUrl = eleitos.length && lista.codigo ? gerarImagemCedula({ nomeExibido, eleitos, codigo: lista.codigo, cargoLabel }).toDataURL("image/png") : null;
-      pcState.dadosCompartilhar = { carregando: false, lista, cargosEleitos, cargoAtivo, imagemUrl };
-      renderMinhasListas();
-    });
+    btn.addEventListener("click", () => abrirModalCompartilharLista(btn.getAttribute("data-pc-compartilhar-lista"), listas));
   });
   if (listaModal) {
     document.getElementById("pcBtnCancelarDepositar").addEventListener("click", () => {
@@ -2536,59 +2521,96 @@ async function renderMinhasListas() {
       renderMinhasListas();
     });
   }
-  if (pcState.modalCompartilharListaId) {
-    document.getElementById("pcBtnFecharCompartilhar").addEventListener("click", () => {
-      pcState.modalCompartilharListaId = null;
-      pcState.dadosCompartilhar = null;
-      renderMinhasListas();
+  attachListenersModalCompartilhar();
+}
+
+// Abre o modal de compartilhamento (código + imagem da cédula) de uma
+// lista depositada — extraído em 16/08/2026 pra ser chamado tanto da
+// listagem de "Minhas listas" quanto de dentro do detalhe de uma lista já
+// depositada (pcState.listaEmVisualizacao), que antes não tinha como abrir
+// esse modal sem voltar pra listagem primeiro.
+async function abrirModalCompartilharLista(id, listas) {
+  const lista = listas.find((l) => l.id === id);
+  if (!lista) return;
+  pcState.modalCompartilharListaId = id;
+  pcState.dadosCompartilhar = { carregando: true, lista };
+  renderMinhasListas();
+  // Imagem cobre os 3 cargos agora (13/08/2026) — monta um mapa
+  // cargoId → eleitos e deixa a pessoa trocar dentro do modal
+  // (renderModalCompartilhar), em vez de fixar só Dep. Estadual.
+  const completo = pcState.perfil ? await carregarSalvamentoCompleto(id) : null;
+  const cargosEleitos = {};
+  CARGOS.forEach((cargoDef) => {
+    const listaCargo = completo && completo.cargos ? completo.cargos[cargoDef.id] : null;
+    cargosEleitos[cargoDef.id] = listaCargo && listaCargo.length ? classificarEleitosPorPartido(listaCargo, cargoDef.id) : [];
+  });
+  const cargoAtivo = CARGOS.find((c) => cargosEleitos[c.id].length)?.id || "estadual";
+  const nomeExibido = lista.anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || lista.nome);
+  const eleitos = cargosEleitos[cargoAtivo];
+  const cargoLabel = CARGOS.find((c) => c.id === cargoAtivo)?.label || "";
+  const imagemUrl = eleitos.length && lista.codigo ? gerarImagemCedula({ nomeExibido, eleitos, codigo: lista.codigo, cargoLabel }).toDataURL("image/png") : null;
+  pcState.dadosCompartilhar = { carregando: false, lista, cargosEleitos, cargoAtivo, imagemUrl };
+  renderMinhasListas();
+}
+
+// Liga os botões DE DENTRO do modal de compartilhar (trocar cargo, copiar
+// código, WhatsApp/Instagram/baixar) — extraído em 16/08/2026 pelo mesmo
+// motivo de abrirModalCompartilharLista, chamado de qualquer tela que
+// possa ter esse modal aberto (checa pcState.modalCompartilharListaId
+// sozinho, seguro chamar sempre).
+function attachListenersModalCompartilhar() {
+  if (!pcState.modalCompartilharListaId) return;
+  document.getElementById("pcBtnFecharCompartilhar").addEventListener("click", () => {
+    pcState.modalCompartilharListaId = null;
+    pcState.dadosCompartilhar = null;
+    renderMinhasListas();
+  });
+  const d = pcState.dadosCompartilhar;
+  if (d && !d.carregando) {
+    document.querySelectorAll("[data-pc-compartilhar-cargo]").forEach((btn) => {
+      if (btn.disabled) return;
+      btn.addEventListener("click", () => {
+        const cargoId = btn.getAttribute("data-pc-compartilhar-cargo");
+        const eleitos = d.cargosEleitos[cargoId];
+        const cargoLabel = CARGOS.find((c) => c.id === cargoId)?.label || "";
+        const nomeExibido = d.lista.anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || d.lista.nome);
+        const imagemUrl = eleitos.length ? gerarImagemCedula({ nomeExibido, eleitos, codigo: d.lista.codigo, cargoLabel }).toDataURL("image/png") : null;
+        pcState.dadosCompartilhar = { ...d, cargoAtivo: cargoId, imagemUrl };
+        renderMinhasListas();
+      });
     });
-    const d = pcState.dadosCompartilhar;
-    if (d && !d.carregando) {
-      document.querySelectorAll("[data-pc-compartilhar-cargo]").forEach((btn) => {
-        if (btn.disabled) return;
-        btn.addEventListener("click", () => {
-          const cargoId = btn.getAttribute("data-pc-compartilhar-cargo");
-          const eleitos = d.cargosEleitos[cargoId];
-          const cargoLabel = CARGOS.find((c) => c.id === cargoId)?.label || "";
-          const nomeExibido = d.lista.anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || d.lista.nome);
-          const imagemUrl = eleitos.length ? gerarImagemCedula({ nomeExibido, eleitos, codigo: d.lista.codigo, cargoLabel }).toDataURL("image/png") : null;
-          pcState.dadosCompartilhar = { ...d, cargoAtivo: cargoId, imagemUrl };
-          renderMinhasListas();
-        });
-      });
-      const origem = window.location.origin + window.location.pathname;
-      const textoCompartilhar = `Esta é a minha lista dos Deputados e Senadores eleitos para 2026. Agora é a sua vez!\n\n${origem} — código ${d.lista.codigo}`;
-      document.getElementById("pcBtnCopiarCodigoCedula").addEventListener("click", async (e) => {
-        try {
-          await navigator.clipboard.writeText(d.lista.codigo);
-          const status = document.getElementById("pcCompartilharStatus");
-          if (status) status.textContent = "Código copiado.";
-        } catch (err) { /* clipboard indisponível, ignora */ }
-      });
-      document.getElementById("pcBtnShareWhatsapp").addEventListener("click", () => {
-        window.open(`https://wa.me/?text=${encodeURIComponent(textoCompartilhar)}`, "_blank");
-      });
-      document.getElementById("pcBtnShareInstagram").addEventListener("click", async () => {
+    const origem = window.location.origin + window.location.pathname;
+    const textoCompartilhar = `Esta é a minha lista dos Deputados e Senadores eleitos para 2026. Agora é a sua vez!\n\n${origem} — código ${d.lista.codigo}`;
+    document.getElementById("pcBtnCopiarCodigoCedula").addEventListener("click", async (e) => {
+      try {
+        await navigator.clipboard.writeText(d.lista.codigo);
         const status = document.getElementById("pcCompartilharStatus");
-        if (!d.imagemUrl) return;
-        if (navigator.share && navigator.canShare) {
-          try {
-            const resp = await fetch(d.imagemUrl);
-            const blob = await resp.blob();
-            const arquivo = new File([blob], "minha-lista-2026.png", { type: "image/png" });
-            if (navigator.canShare({ files: [arquivo] })) {
-              await navigator.share({ files: [arquivo], text: textoCompartilhar });
-              return;
-            }
-          } catch (err) { /* cancelou o compartilhamento nativo ou falhou — cai no fallback abaixo */ }
-        }
-        _baixarImagemCedula(d.imagemUrl);
-        if (status) status.textContent = "Imagem baixada — abra o Instagram e poste nos Stories.";
-      });
-      document.getElementById("pcBtnBaixarImagemCedula").addEventListener("click", () => {
-        if (d.imagemUrl) _baixarImagemCedula(d.imagemUrl);
-      });
-    }
+        if (status) status.textContent = "Código copiado.";
+      } catch (err) { /* clipboard indisponível, ignora */ }
+    });
+    document.getElementById("pcBtnShareWhatsapp").addEventListener("click", () => {
+      window.open(`https://wa.me/?text=${encodeURIComponent(textoCompartilhar)}`, "_blank");
+    });
+    document.getElementById("pcBtnShareInstagram").addEventListener("click", async () => {
+      const status = document.getElementById("pcCompartilharStatus");
+      if (!d.imagemUrl) return;
+      if (navigator.share && navigator.canShare) {
+        try {
+          const resp = await fetch(d.imagemUrl);
+          const blob = await resp.blob();
+          const arquivo = new File([blob], "minha-lista-2026.png", { type: "image/png" });
+          if (navigator.canShare({ files: [arquivo] })) {
+            await navigator.share({ files: [arquivo], text: textoCompartilhar });
+            return;
+          }
+        } catch (err) { /* cancelou o compartilhamento nativo ou falhou — cai no fallback abaixo */ }
+      }
+      _baixarImagemCedula(d.imagemUrl);
+      if (status) status.textContent = "Imagem baixada — abra o Instagram e poste nos Stories.";
+    });
+    document.getElementById("pcBtnBaixarImagemCedula").addEventListener("click", () => {
+      if (d.imagemUrl) _baixarImagemCedula(d.imagemUrl);
+    });
   }
 }
 
@@ -2630,9 +2652,9 @@ async function renderGrupoHub() {
   conteudo.innerHTML = `
     <h2 style="margin-bottom:14px;">Grupos</h2>
     ${pcState.avisoLimiteGrupoAberto ? `
-    <div style="background:var(--pc-lobby-tom-3); border:1px solid #234134; border-radius:12px; padding:14px; margin-bottom:16px;">
-      <div style="font-size:12.5px; font-weight:700; color:var(--pc-ink); margin-bottom:4px;">Ops...</div>
-      <div style="font-size:11.5px; color:var(--pc-ink-dim); line-height:1.5;">Nós conseguimos espaço gratuito para o usuário criar até um grupo, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
+    <div class="pc-aviso-card">
+      <div class="pc-aviso-titulo">Ops...</div>
+      <div class="pc-aviso-corpo">Nós conseguimos espaço gratuito para o usuário criar até um grupo, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
     </div>` : ""}
     <div class="pc-lobby-card">
       ${pcState.meusGrupos.length ? linhasGrupo : estadoVazio({ icone: "grupos", titulo: "Nenhum grupo ainda", texto: "Crie um grupo ou entre com um código de convite, logo abaixo." })}
@@ -2825,7 +2847,7 @@ async function renderGrupoMembro() {
       <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:6px;">
         <span style="font-size:12px; color:var(--pc-ink-dim);">Sua cédula neste grupo</span>
         <select id="pcSelectCedulaGrupo" class="cell">
-          <option value="">Oficial (a que vale no Quadro de Médias público)</option>
+          <option value="">Oficial (a que vale na Mediana pública)</option>
           ${minhasCedulas.map((s) => `<option value="${s.id}" ${pcState.grupoCedulaEscolhida === s.id ? "selected" : ""}>${s.nome}${s.oficial ? " · oficial" : ""}</option>`).join("")}
         </select>
       </div>
@@ -6029,14 +6051,14 @@ async function renderQuadroMedias() {
         <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:${c.eleito ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${i + 1}º</span>
         <span style="min-width:0;">
           <div style="font-size:13px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.nomeUrna || c.nome}${c.eleito ? ` <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#04140d; background:var(--pc-accent); border-radius:999px; padding:1px 6px;">eleito</span>` : ""}</div>
-          <div style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${c.semPalpites ? " · sem palpite (usa 2022)" : ` · ${c.amostras} palpite${c.amostras === 1 ? "" : "s"}`}</div>
+          <div style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${c.semPalpites ? " · sem palpite ainda" : ` · ${c.amostras} palpite${c.amostras === 1 ? "" : "s"}`}</div>
         </span>
       </span>
       <span style="font-size:12.5px; font-weight:600; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; flex-shrink:0;">${Number(c.votos || 0).toLocaleString("pt-BR")}</span>
     </div>`;
 
   conteudo.innerHTML = `
-    <h2 style="margin-bottom:4px;">Quadro de médias</h2>
+    <h2 style="margin-bottom:4px;">Mediana</h2>
     <div class="pc-sub" style="margin-bottom:14px;">Pesquisa em tempo real — mediana aparada de ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} público${totalPalpites === 1 ? "" : "s"}. Quem estaria eleito, pela mesma regra do resultado oficial.</div>
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
     <div class="pc-lobby-card" style="padding:14px;">

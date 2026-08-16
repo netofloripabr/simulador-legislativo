@@ -273,7 +273,11 @@ function calcularMedianaPalpites(registros, cargo, uf) {
     const candidatos = p.candidatos.map((c) => {
       const chave = chaveCandidato(c.nome, p.nome, c.id);
       const valores = amostras[chave];
-      const votos = valores && valores.length ? medianaAparada(valores) : c.votos;
+      // Sem fallback pro voto de 2022 (removido a pedido do usuário,
+      // 16/08/2026) — a Mediana é só a mediana dos palpites de verdade
+      // (inclusive dos 155 usuários fictícios), nunca dado da eleição
+      // passada. Quem ainda não recebeu nenhum palpite entra com 0.
+      const votos = valores && valores.length ? medianaAparada(valores) : 0;
       return {
         chave, nome: c.nome, nomeUrna: c.nomeUrna || "", municipio: c.municipio,
         votos2022: c.votos, fonte: c.fonte, eleito2022: !!c.eleito2022, invalidado2022: !!c.invalidado2022,
