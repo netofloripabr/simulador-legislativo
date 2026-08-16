@@ -3758,8 +3758,10 @@ async function renderSelecaoCandidatos() {
     </button>`;
   }).join("");
   el.innerHTML = `
-    <div id="pcStickyBackdrop"><div id="pcStickyBackdropFill"></div></div>
-    <div class="pc-cargo-switch">${botoes}</div>
+    <div id="pcStickyHeader">
+      <div class="pc-cargo-switch">${botoes}</div>
+      <div id="pcPainelSlot"></div>
+    </div>
     <div id="pcCargoConteudo"></div>
   `;
   document.querySelectorAll("[data-pc-cargo]").forEach((btn) => {
@@ -3784,6 +3786,8 @@ async function renderSelecaoCandidatos() {
 // Cargos ainda sem candidatos carregados (Dep. Federal, Senador) — estrutura
 // pronta pra receber dados reais, sem simular nome de candidato.
 function renderCargoIndisponivel(cargo) {
+  const slotPainel = document.getElementById("pcPainelSlot");
+  if (slotPainel) slotPainel.innerHTML = "";
   document.getElementById("pcCargoConteudo").innerHTML = `
     <div class="glass-card">
       ${estadoVazio({ icone: "calendario", titulo: `${cargo.label} ainda não disponível`, texto: "A lista de candidatos desse cargo ainda não foi carregada. Continue pelo Dep. Estadual por enquanto." })}
@@ -3853,7 +3857,11 @@ async function renderCargoEstadual() {
   // Captura aqui, ANTES até da tela de carregamento substituir o conteúdo,
   // e restaura no fim da função — só quando já havia conteúdo real antes
   // (reRenderizando), pra não interferir na primeira entrada na tela.
-  const reRenderizando = !!conteudo.querySelector("#pcPainelEleitoralCard");
+  // (O card do Painel Eleitoral mora no slot do cabeçalho fixo, fora de
+  // pcCargoConteudo, desde 16/08/2026 — o marcador de "já tinha conteúdo
+  // real" passa a ser o botão de recolher o Plenário, que só existe no
+  // render completo desta tela.)
+  const reRenderizando = !!conteudo.querySelector("#pcBtnColapsarPlenario");
   const scrollAnterior = window.scrollY;
   // Só mostra a tela de carregando na PRIMEIRA entrada (troca de cargo,
   // que de fato pode esperar um fetch de rascunho) — numa re-renderização
@@ -4349,6 +4357,34 @@ async function renderCargoEstadual() {
   }).join("");
 
   const instrucaoAberta = pcState.instrucaoSelecaoAberta !== false;
+  // Card do Painel Eleitoral — renderizado no slot do cabeçalho fixo
+  // (#pcPainelSlot, criado por renderSelecaoCandidatos), NÃO dentro de
+  // pcCargoConteudo: abas de cargo + este card formam um bloco único
+  // grudado no topo ao rolar, sem espaçamento entre eles (padrão pedido
+  // pelo usuário em 16/08/2026, no lugar do esquema antigo de dois
+  // stickies separados + camada de blur que gerava "sombra fantasma").
+  const painelHtml = `
+    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px;">
+      <div style="position:absolute; top:1px; right:1px; bottom:1px; width:28px; border-radius:0 13px 13px 0; background:linear-gradient(to right, transparent, var(--pc-glass) 70%); pointer-events:none;"></div>
+      <div style="display:flex; align-items:center; gap:16px; overflow-x:auto;">
+        <div style="flex-shrink:0; white-space:nowrap;">
+          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px;">Seus Eleitos</div>
+          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1;${totalIndicado !== 0 && totalIndicado !== totalVagasCargo ? " color:#ff9500;" : " color:var(--pc-ink);"}">${totalIndicado}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /${totalVagasCargo}</span></div>
+        </div>
+        ${qeAtualLive !== null ? `
+        <div style="width:1px; height:28px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
+        <div style="flex-shrink:0; white-space:nowrap;">
+          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Quociente ${infoTip("O número grande é o quociente ATUAL (art. 106) — calculado só com a votação já digitada, sobe conforme mais partidos são preenchidos. A meta pequena é o quociente PROJETADO pra 2026 (referência fixa: 2022 escalado pelo crescimento do eleitorado, confinada aos partidos que este simulador modela). Pra a simulação se aproximar de uma eleição real, o atual precisa chegar perto da meta.")}</div>
+          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1;${qeAtualLive < qeProjetadoTopo ? " color:#ff9500;" : " color:var(--pc-ink);"}">${formatVotosCompacto(Math.round(qeAtualLive))}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /${formatVotosCompacto(Math.round(qeProjetadoTopo))}</span></div>
+        </div>` : ""}
+        <div style="width:1px; height:28px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
+        <div style="flex-shrink:0; white-space:nowrap;">
+          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Soma de Votos ${infoTip("Referência de votos válidos estimados: projeta o total de 2022 pelo crescimento do eleitorado até 2026, mantendo as taxas históricas de branco, nulo e comparecimento.")}</div>
+          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1; color:var(--pc-ink);">${formatVotosCompacto(somaTotal)}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /~${formatVotosCompacto(Math.round(votosValidos2026Proj))}</span></div>
+        </div>
+      </div>
+    </div>`;
+
   conteudo.innerHTML = `
     ${instrucaoAberta ? `
     <div id="pcInstrucaoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
@@ -4488,30 +4524,6 @@ async function renderCargoEstadual() {
         </div>
       </div>`;
     })() : ""}
-    <div style="display:flex; align-items:center; justify-content:space-between; margin:0 0 8px 2px;">
-      <span style="font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim);">Painel Eleitoral</span>
-      <button id="pcAbrirInstrucao" class="pc-mini-btn" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
-    </div>
-    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px;">
-      <div style="position:absolute; top:1px; right:1px; bottom:1px; width:28px; border-radius:0 13px 13px 0; background:linear-gradient(to right, transparent, var(--pc-glass) 70%); pointer-events:none;"></div>
-      <div style="display:flex; align-items:center; gap:16px; overflow-x:auto;">
-        <div style="flex-shrink:0; white-space:nowrap;">
-          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px;">Seus Eleitos</div>
-          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1;${totalIndicado !== 0 && totalIndicado !== totalVagasCargo ? " color:#ff9500;" : " color:var(--pc-ink);"}">${totalIndicado}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /${totalVagasCargo}</span></div>
-        </div>
-        ${qeAtualLive !== null ? `
-        <div style="width:1px; height:28px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
-        <div style="flex-shrink:0; white-space:nowrap;">
-          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Quociente ${infoTip("O número grande é o quociente ATUAL (art. 106) — calculado só com a votação já digitada, sobe conforme mais partidos são preenchidos. A meta pequena é o quociente PROJETADO pra 2026 (referência fixa: 2022 escalado pelo crescimento do eleitorado, confinada aos partidos que este simulador modela). Pra a simulação se aproximar de uma eleição real, o atual precisa chegar perto da meta.")}</div>
-          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1;${qeAtualLive < qeProjetadoTopo ? " color:#ff9500;" : " color:var(--pc-ink);"}">${formatVotosCompacto(Math.round(qeAtualLive))}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /${formatVotosCompacto(Math.round(qeProjetadoTopo))}</span></div>
-        </div>` : ""}
-        <div style="width:1px; height:28px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
-        <div style="flex-shrink:0; white-space:nowrap;">
-          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Soma de Votos ${infoTip("Referência de votos válidos estimados: projeta o total de 2022 pelo crescimento do eleitorado até 2026, mantendo as taxas históricas de branco, nulo e comparecimento.")}</div>
-          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1; color:var(--pc-ink);">${formatVotosCompacto(somaTotal)}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /~${formatVotosCompacto(Math.round(votosValidos2026Proj))}</span></div>
-        </div>
-      </div>
-    </div>
     <div class="glass-card" style="padding:14px;">
       <div style="display:flex; align-items:center; justify-content:space-between;">
         <div class="pc-sub" style="margin:0;">Plenário — ${totalVagasCargo} vagas</div>
@@ -4532,6 +4544,7 @@ async function renderCargoEstadual() {
       <button id="pcBtnVoltarSelecao" class="pc-mini-btn" title="Desfaz a última alteração feita nesta tela" ${pcState.historicoPalpite.length ? "" : "disabled"}>${iconeSvg("desfazer", 15)}</button>
       <button class="ghost" id="pcBtnZerarTudo" title="Zerar votação de todos" style="display:flex; align-items:center; gap:5px;">${iconeSvg("borracha", 14)}${infoTip("Zere o jogo!<br><br>Aqui você limpa a votação de todo mundo.<br><br>Indicado para aquele jogador mais avançado que deseja indicar a votação de muitos candidatos.")}</button>
       <button id="pcBtnTop2022" class="pc-mini-btn" title="Top 100 mais votados em 2022">${iconeSvg("ano2022", 15)}</button>
+      <button id="pcAbrirInstrucao" class="pc-mini-btn" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
       <div style="flex:1;"></div>
       <button id="pcBtnPreencherAutoTudo" class="primary" style="display:flex; align-items:center; gap:8px;">${iconeSvg("completar", 18)} Auto${infoTip("PREENCHIMENTO AUTOMÁTICO<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.")}</button>
       <button class="primary" id="pcBtnDepositar" ${totalIndicado === totalVagasCargo ? "" : "disabled"} style="display:flex; align-items:center; gap:8px;">Avançar${infoTip(`Esse é o botão de avançar pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos — por enquanto está desabilitado.`)}</button>
@@ -4546,7 +4559,8 @@ async function renderCargoEstadual() {
     </div>
   `;
 
-  ajustarBackdropSticky();
+  const slotPainel = document.getElementById("pcPainelSlot");
+  if (slotPainel) slotPainel.innerHTML = painelHtml;
   ajustarBarrasTermometro();
   attachListenersSelecao();
   if (reRenderizando) window.scrollTo(0, scrollAnterior);
@@ -4586,34 +4600,9 @@ function ajustarBarrasTermometro() {
   });
 }
 
-// Estica o preenchimento do backdrop (ver #pcStickyBackdrop no CSS) até
-// cobrir exatamente do topo até o fim do card "Painel eleitoral" — cobre o
-// vão entre o interruptor de cargo e o card, e o card inteiro, pra nada
-// aparecer vazado por trás quando a lista rola por baixo dos dois fixos.
-function ajustarBackdropSticky() {
-  const preenchimento = document.getElementById("pcStickyBackdropFill");
-  const card = document.getElementById("pcPainelEleitoralCard");
-  const interruptor = document.querySelector("#pcConteudo > .pc-cargo-switch");
-  if (!preenchimento || !card || !interruptor) return;
-  // offsetTop (não getBoundingClientRect) porque o card e o interruptor são
-  // sticky — offsetTop devolve a posição de FLUXO NORMAL de cada um (antes
-  // do "grudar" da rolagem entrar em ação), que é exatamente o vão que essa
-  // camada precisa cobrir; getBoundingClientRect reflete a posição JÁ
-  // deslocada pela rolagem e já causou bug antes (a conta inflava e o blur
-  // cobria a página inteira).
-  //
-  // A conta antiga somava só interruptor.offsetHeight + card.offsetHeight,
-  // ignorando qualquer coisa NO MEIO dos dois (ex.: a faixa "Painel
-  // Eleitoral" entre as abas e o card) — ficava sempre curta demais, e o
-  // preenchimento acabava flutuando solto antes do card começar de
-  // verdade. card.offsetTop - interruptor.offsetTop pega a distância real
-  // do início ao fim, sem precisar enumerar o que existe no meio — cobre
-  // até qualquer elemento novo que entrar ali depois. Achado pelo usuário
-  // em 16/08/2026 (mesma sombra da correção original de 15/08, só que essa
-  // segunda causa nunca tinha sido pega).
-  const alturaAteFimDoCard = (card.offsetTop - interruptor.offsetTop) + card.offsetHeight;
-  preenchimento.style.height = `${alturaAteFimDoCard}px`;
-}
+// (ajustarBackdropSticky foi removida em 16/08/2026 — o cabeçalho fixo da
+// Seleção virou um bloco único #pcStickyHeader com fundo próprio, sem
+// precisar de camada de blur calculada em JS pra tapar vão entre stickies.)
 
 function attachListenersSelecao() {
   const btnColapsarPlenario = document.getElementById("pcBtnColapsarPlenario");

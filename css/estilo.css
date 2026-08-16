@@ -513,23 +513,22 @@
   #modoColaborativoWrap .pc-cargo-switch button{ flex:1; border:none; background:none; color:var(--pc-ink-dim); font-size:12.5px; font-family:inherit; font-weight:600; padding:9px 4px; border-radius:999px; cursor:pointer; }
   #modoColaborativoWrap .pc-cargo-switch button.active{ background:var(--pc-accent); color:#04140d; }
   #modoColaborativoWrap .pc-cargo-switch button.indisponivel{ opacity:.5; }
-  /* Só o interruptor de cargo no topo da tela de seleção (P-03) fica fixo ao
-     rolar — a versão dentro do card de impressão (P-04) não deve grudar. */
-  #modoColaborativoWrap #pcConteudo > .pc-cargo-switch{ position:sticky; top:0; z-index:15; }
-  #modoColaborativoWrap #pcPainelEleitoralCard{ position:sticky; top:54px; z-index:14; }
-  /* Camada de fundo (blur) atrás do interruptor + card fixos — sem isso, o
-     que rola por baixo aparecia "vazado" nos vãos entre os dois elementos
-     fixos (a margem entre eles, e a borda arredondada do card). Fica atrás
-     dos dois (z-index menor), sem ocupar espaço no layout (height:0) — só o
-     preenchimento interno é que cobre a altura de verdade, calculada em JS
-     (ajustarBackdropSticky, interface/prospeccao.js) porque depende da
-     altura real renderizada dos dois elementos.  */
-  #modoColaborativoWrap #pcStickyBackdrop{ position:sticky; top:0; height:0; z-index:12; pointer-events:none; }
-  #modoColaborativoWrap #pcStickyBackdropFill{
-    position:absolute; top:0; left:0; right:0;
-    background:rgba(8,23,18,.9); backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
-    border-radius:0 0 16px 16px;
+  /* Cabeçalho fixo da Seleção (P-03): interruptor de cargo + card do Painel
+     Eleitoral num BLOCO ÚNICO, sem espaçamento entre eles — padrão definido
+     pelo usuário em 16/08/2026 (imagem de referência: abas coladas direto no
+     card de dados). Substitui o esquema antigo de dois position:sticky
+     separados + camada de blur (#pcStickyBackdropFill) calculada em JS pra
+     tapar o vão — que vivia reaparecendo como "sombra fantasma" entre as
+     abas e o card. Um bloco só com fundo próprio não tem vão nenhum pra
+     tapar. O interruptor dentro da Revisão (P-04) e das outras telas não é
+     afetado (regra escopada no id do cabeçalho). */
+  #modoColaborativoWrap #pcStickyHeader{
+    position:sticky; top:0; z-index:15;
+    background:rgba(8,23,18,.92); backdrop-filter:blur(7px); -webkit-backdrop-filter:blur(7px);
+    border-radius:0 0 16px 16px; margin-bottom:16px;
   }
+  #modoColaborativoWrap #pcStickyHeader .pc-cargo-switch{ margin-bottom:0; }
+  #modoColaborativoWrap #pcStickyHeader .glass-card{ margin-bottom:0; }
   #modoColaborativoWrap .pc-tab-dot{ display:inline-block; width:5px; height:5px; border-radius:50%; margin-left:5px; border:1px solid currentColor; opacity:.5; vertical-align:middle; }
   #modoColaborativoWrap .pc-tab-dot.done{ background:currentColor; opacity:1; }
 
