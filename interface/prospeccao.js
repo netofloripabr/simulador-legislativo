@@ -5159,7 +5159,9 @@ function renderRevisaoDeposito() {
         ${c.consistenteComMatematicaReal ? `
         <div style="margin-top:12px; padding:10px 12px; background:rgba(201,138,43,.1); border:1px solid rgba(201,138,43,.3); border-radius:10px; display:flex; gap:8px; align-items:flex-start;">
           <span style="color:var(--pc-warning); font-size:13px; flex-shrink:0;">${iconeSvg("alerta", 13)}</span>
-          <span style="font-size:11.5px; color:var(--pc-warning); line-height:1.5;">A matemática real (quociente + sobra) indica que ${c.nome} garantiria vaga com a votação de hoje — mas não está no seu palpite. Fica valendo sua escolha; isso é só um aviso.</span>
+          <span style="font-size:11.5px; color:var(--pc-warning); line-height:1.5;">${cargoDef.id === "senador"
+            ? `A votação de hoje indica que ${c.nome} estaria entre os mais votados (eleição majoritária, voto direto) — mas não está no seu palpite. Fica valendo sua escolha; isso é só um aviso.`
+            : `A matemática real (quociente + sobra) indica que ${c.nome} garantiria vaga com a votação de hoje — mas não está no seu palpite. Fica valendo sua escolha; isso é só um aviso.`}</span>
         </div>` : `
         <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
           ${botaoMagico}
