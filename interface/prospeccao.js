@@ -3655,6 +3655,15 @@ function zerarTudoSelecao() {
 // o votosEditado (deixa de contar como edição manual).
 function resetarPartidoSelecao(p) {
   p.candidatos.forEach((c) => { c.votos = c.votos2022 || 0; c.votosEditado = false; });
+  // Mesma regra de qualquer outra mudança de votação (ver comentário de
+  // aplicarQuantidadeMarcados, abaixo): quem fica "eleito" nunca é uma
+  // escolha direta, é sempre os N mais votados AGORA — restaurar 2022 muda
+  // a votação de todo mundo, então precisa recalcular quem são os N mais
+  // votados com esses valores novos, preservando o N (quantidade) que já
+  // estava escolhida no contador do partido. Faltava essa chamada — os
+  // votos voltavam pra 2022 mas a etiqueta "eleito" ficava presa em quem
+  // estava marcado antes. Achado pelo usuário em 16/08/2026.
+  aplicarQuantidadeMarcados(p, p.candidatos.filter((c) => c.marcadoEleito).length);
 }
 
 // Zera a votação de todos os candidatos do partido — volta o quadro pro
