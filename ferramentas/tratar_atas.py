@@ -171,7 +171,17 @@ def extrair_titulo_partido(texto):
     m = re.search(r"Ata (?:de|da)(?: Convenção)? Estadual do Partido\s+\d+\s*-\s*([A-Za-zÀ-ÿ]+)", texto)
     if m:
         return normalizar_nome_partido(m.group(1))
-    m = re.search(r"Ata (?:de|da) Convenção Estadual da Federação[^(]*\(([^)]+)\)", texto)
+    # "Ata (de|da) Convenção..." cobre convenção normal; "Ata Retificadora
+    # Convenção..." (sem "de"/"da" antes de Retificadora) é o cabeçalho de
+    # atas retificadoras de federação (achado em 814-psdb-cidadania-
+    # retificadora.pdf: "Ata Retificadora Convenção Estadual da Federação
+    # FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA)") — sem esse segundo padrão,
+    # extrair_titulo_partido() retorna None pra essas atas, o candidato
+    # entra como "SEM PARTIDO" e a dedup de verificar() (que casa pela
+    # tupla partidoDocumento+cargo+ordem+nome) nunca reconhece que é o
+    # mesmo candidato da convenção original — ele fica duplicado no
+    # provisório em vez de substituído pela versão retificada.
+    m = re.search(r"Ata (?:Retificadora )?(?:de |da )?Convenção Estadual da Federação[^(]*\(([^)]+)\)", texto)
     if m:
         return normalizar_nome_partido(m.group(1))
     m = re.search(r"Ata Retificadora Convenção Estadual do Partido\s+\d+\s*-\s*([A-Za-zÀ-ÿ]+)", texto)
@@ -298,17 +308,41 @@ def verificar(resultado_tratar, partidos_conhecidos):
     números repetidos e partidos fora da lista conhecida."""
     candidaturas = resultado_tratar["candidaturas"]
 
-    chave = lambda c: (c["partidoDocumento"], c["cargo"], c["ordem"], c["nome"])
-    retificadas = {chave(c) for c in candidaturas if c["retificadora"]}
+    # Chave por NOME (não por "ordem", posição do candidato dentro do anexo
+    # de cada PDF) — uma ata retificadora pode reordenar ou incluir mais
+    # gente na lista, deslocando a "ordem" de quem já estava lá (achado com
+    # "Deputado Marcos Vieira", PSDB/CIDADANIA-SC: ordem 12 na convenção,
+    # 15 na 1ª retificadora, 17 na 2ª — mesma pessoa, chave antiga nunca
+    # batia, ele nunca era substituído, só acumulava). Nome de candidato
+    # dentro do mesmo partido+cargo é estável entre convenção e
+    # retificadora(s); duas pessoas diferentes com nome idêntico no mesmo
+    # partido+cargo cairiam de qualquer forma no alerta de "número
+    # repetido" abaixo, então essa simplificação não esconde esse caso.
+    chave = lambda c: (c["partidoDocumento"], c["cargo"], c["nome"])
+
+    # sqAta (prefixo numérico do nome do arquivo, ex.: "1036" em
+    # "1036-psdb-cidadania-retificadora.pdf") é atribuído pelo TSE em ordem
+    # crescente conforme a ata é depositada — maior sqAta = documento mais
+    # recente. Isso generaliza pra QUALQUER quantidade de retificadoras em
+    # cadeia (não só "convenção + 1 retificadora"): fica sempre a versão do
+    # documento mais novo, seja ele a convenção original ou a N-ésima
+    # retificadora.
+    def sqata(c):
+        m = re.match(r"(\d+)-", c["arquivoFonte"])
+        return int(m.group(1)) if m else 0
+
+    grupos = {}
+    for c in candidaturas:
+        grupos.setdefault(chave(c), []).append(c)
 
     alertas = []
     finais = []
-    for c in candidaturas:
-        if not c["retificadora"] and chave(c) in retificadas:
-            alertas.append(f"Candidatura de {c['nome']} ({c['partidoDocumento']}, {c['cargo']}) "
+    for grupo in grupos.values():
+        vencedor = max(grupo, key=sqata)
+        if len(grupo) > 1:
+            alertas.append(f"Candidatura de {vencedor['nome']} ({vencedor['partidoDocumento']}, {vencedor['cargo']}) "
                             f"tem versão retificadora — mantendo só a mais nova.")
-            continue
-        finais.append(c)
+        finais.append(vencedor)
 
     contagem = {}
     for c in finais:
@@ -469,7 +503,16 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
         partidos_ja_reais = partidos_reais_por_cargo.get(cargo, set())
         por_cargo.setdefault(cargo, [])
         for cand in candidatos_antigos:
-            if cand.get("partido") not in partidos_ja_reais:
+            # partido:null nunca é candidato fictício de verdade (ver
+            # gerar_ficticios_2026.py — fictício sempre nasce atrelado a um
+            # partido real, pra poder entrar no grupo certo na tela). Um
+            # antigo com partido null só existe por bug de extração (ex.:
+            # ata retificadora cujo cabeçalho não foi reconhecido, achado
+            # com o candidato "Deputado Marcos Vieira" duplicado em SC,
+            # 16/08/2026) — preservar isso pra sempre faria esse residual
+            # sobreviver a toda rodada futura, mesmo depois do bug corrigido
+            # e a ata sendo processada com o partido certo.
+            if cand.get("partido") and cand.get("partido") not in partidos_ja_reais:
                 por_cargo[cargo].append(cand)
                 candidatos_preservados += 1
 
