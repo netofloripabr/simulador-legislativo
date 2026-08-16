@@ -1264,7 +1264,7 @@ function renderTelaCadastro() {
     <div class="glass-card" style="max-width:460px; margin:0 auto;">
       <button class="ghost" id="pcBtnVoltarCadastro" style="margin-bottom:14px;">← Voltar</button>
       <h2>Criar conta</h2>
-      <button class="ghost" id="pcBtnCadastrarGoogle" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_SVG}Cadastrar com Google</button>
+      <button class="ghost" id="pcBtnCadastrarGoogle" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_SVG}Acessar com o Google</button>
       <div style="display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--pc-ink-dim); font-size:12px;">
         <div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>ou<div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>
       </div>
