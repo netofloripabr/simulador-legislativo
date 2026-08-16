@@ -116,6 +116,17 @@ function iconeSvg(nome, tamanho) {
   return `<svg viewBox="0 0 16 16" width="${t}" height="${t}">${PC_ICONES[nome] || ""}</svg>`;
 }
 
+// Logo oficial de 4 cores do Google, pros botões "Entrar/Cadastrar com
+// Google" (pedido do usuário, 15/08/2026 — facilita reconhecer o botão à
+// primeira vista). Não usa iconeSvg()/PC_ICONES porque aquele padrão é
+// monocromático (currentColor); a marca do Google é sempre colorida.
+const GOOGLE_G_SVG = `<svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+  <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+  <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+  <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/>
+  <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+</svg>`;
+
 // Estado vazio padronizado (ícone + título + texto + botão de ação
 // opcional) — mockup validado com o usuário em 14/08/2026, substitui os 3
 // jeitos diferentes que existiam antes pra dizer "não tem nada aqui ainda"
@@ -866,7 +877,7 @@ function renderTelaLogin() {
       <div style="display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--pc-ink-dim); font-size:12px;">
         <div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>ou<div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>
       </div>
-      <button class="ghost" id="pcBtnEntrarGoogle" style="width:100%;">Entrar com Google</button>
+      <button class="ghost" id="pcBtnEntrarGoogle" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_SVG}Entrar com Google</button>
     </div>`;
 
   document.getElementById("pcBtnVoltarLogin").addEventListener("click", voltarDeLoginOuCadastro);
@@ -1237,7 +1248,7 @@ function renderTelaCadastro() {
     <div class="glass-card" style="max-width:460px; margin:0 auto;">
       <button class="ghost" id="pcBtnVoltarCadastro" style="margin-bottom:14px;">← Voltar</button>
       <h2>Criar conta</h2>
-      <button class="ghost" id="pcBtnCadastrarGoogle" style="width:100%;">Cadastrar com Google</button>
+      <button class="ghost" id="pcBtnCadastrarGoogle" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_SVG}Cadastrar com Google</button>
       <div style="display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--pc-ink-dim); font-size:12px;">
         <div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>ou<div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>
       </div>
@@ -2865,7 +2876,7 @@ function salvarAvisoLimiteVagasOculto(oculto) {
 function abrirAvisoLimiteVagasSeNecessario() {
   if (avisoLimiteVagasOcultoSalvo()) return;
   pcState.avisoLimiteVagasAberto = true;
-  renderSelecaoCandidatos();
+  renderCargoEstadual();
 }
 
 // Confirmação antes do autopreenchimento (✦, por partido ou "Auto" geral) —
@@ -2888,7 +2899,7 @@ function pedirConfirmacaoAutoPreenchimento(partido) {
   }
   pcState.confirmAutoPreenchimentoAcao = partido ? { partido } : null;
   pcState.confirmAutoPreenchimentoAberto = true;
-  renderSelecaoCandidatos();
+  renderCargoEstadual();
 }
 function executarAutoPreenchimento(partido) {
   snapshotPalpite();
@@ -2904,7 +2915,7 @@ function executarAutoPreenchimento(partido) {
       aplicarQuantidadeMarcados(p, p.candidatos.filter((c) => c.marcadoEleito).length);
     });
   }
-  renderSelecaoCandidatos();
+  renderCargoEstadual();
 }
 
 function snapshotPalpite() {
@@ -2915,7 +2926,7 @@ function snapshotPalpite() {
 function desfazerPalpite() {
   if (!pcState.historicoPalpite.length) return;
   pcState.palpiteEdicao = pcState.historicoPalpite.pop();
-  renderSelecaoCandidatos();
+  renderCargoEstadual();
 }
 
 // Versão "escalada" dos partidos pra cálculo de corte/quociente: sobe o
@@ -3277,7 +3288,7 @@ function adicionarCandidatoNoPartido(p) {
     votos2022: 0, fonte: "manual", eleito2022: false, invalidado2022: false,
     votos: 0, votosEditado: false, marcadoEleito: false,
   });
-  renderSelecaoCandidatos();
+  renderCargoEstadual();
 }
 
 // Tela pai: desenha o interruptor de cargo (Dep. Estadual / Dep. Federal /
@@ -4000,7 +4011,7 @@ async function renderCargoEstadual() {
       <span style="font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim);">Painel Eleitoral</span>
       <button id="pcAbrirInstrucao" class="pc-mini-btn" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
     </div>
-    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px; position:relative;">
+    <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px;">
       <div style="position:absolute; top:1px; right:1px; bottom:1px; width:28px; border-radius:0 13px 13px 0; background:linear-gradient(to right, transparent, var(--pc-glass) 70%); pointer-events:none;"></div>
       <div style="display:flex; align-items:center; gap:16px; overflow-x:auto;">
         <div style="flex-shrink:0; white-space:nowrap;">
@@ -4120,13 +4131,13 @@ function attachListenersSelecao() {
     btnColapsarPlenario.addEventListener("click", () => {
       const chave = "plenarioColapsado_" + pcState.cargoAtivo;
       pcState.expandido[chave] = !pcState.expandido[chave];
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   }
   document.querySelectorAll("[data-pc-toggle-partido]").forEach((btn) => {
     btn.addEventListener("click", () => {
       pcState.expandido[btn.dataset.pcTogglePartido] = !pcState.expandido[btn.dataset.pcTogglePartido];
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   });
   // O interruptor "eleito" (data-pc-marca) não é mais clicável — é só
@@ -4161,7 +4172,7 @@ function attachListenersSelecao() {
       // (só muda QUEM preenche, nunca quantos).
       const quantidadeAtual = p.candidatos.filter((cc) => cc.marcadoEleito).length;
       aplicarQuantidadeMarcados(p, quantidadeAtual);
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
     // Enter e Tab pulam direto pro próximo quadro de votação (não pro
     // interruptor "eleito" do candidato seguinte, que é o que o Tab do
@@ -4192,7 +4203,7 @@ function attachListenersSelecao() {
       const cursor = e.target.selectionStart;
       if (!pcState.buscaCandidato) pcState.buscaCandidato = {};
       pcState.buscaCandidato[nomePartido] = valor;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
       // A busca reconstrói o innerHTML inteiro (renderSelecaoCandidatos), então
       // o input original perde o foco — reencontra o novo pelo mesmo atributo
       // e devolve o cursor à posição de antes, senão cada letra digitada faria
@@ -4208,7 +4219,7 @@ function attachListenersSelecao() {
   if (btnBuscaPartidoToggle) {
     btnBuscaPartidoToggle.addEventListener("click", () => {
       pcState.buscaPartidoAberta = !pcState.buscaPartidoAberta;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
       if (pcState.buscaPartidoAberta) {
         const inp = document.getElementById("pcBuscaPartidoInput");
         if (inp) inp.focus();
@@ -4220,7 +4231,7 @@ function attachListenersSelecao() {
     inputBuscaPartido.addEventListener("input", (e) => {
       const cursor = e.target.selectionStart;
       pcState.buscaPartido = e.target.value;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
       // O innerHTML inteiro é reconstruído (renderSelecaoCandidatos), então
       // o input original perde o foco — reencontra o novo e devolve o
       // cursor à posição de antes, senão cada letra digitada tira o foco.
@@ -4236,7 +4247,7 @@ function attachListenersSelecao() {
       const nomePartido = btn.dataset.pcBuscaToggle;
       if (!pcState.buscaCandidatoAberta) pcState.buscaCandidatoAberta = {};
       pcState.buscaCandidatoAberta[nomePartido] = !pcState.buscaCandidatoAberta[nomePartido];
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
       if (pcState.buscaCandidatoAberta[nomePartido]) {
         const inp = document.querySelector(`input[data-pc-busca-candidato="${nomePartido}"]`);
         if (inp) inp.focus();
@@ -4254,7 +4265,7 @@ function attachListenersSelecao() {
       const p = pcState.palpiteEdicao.find((pp) => pp.nome === btn.dataset.pcReset);
       snapshotPalpite();
       resetarPartidoSelecao(p);
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   });
   document.querySelectorAll("[data-pc-zerar]").forEach((btn) => {
@@ -4262,7 +4273,7 @@ function attachListenersSelecao() {
       const p = pcState.palpiteEdicao.find((pp) => pp.nome === btn.dataset.pcZerar);
       snapshotPalpite();
       zerarPartidoSelecao(p);
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   });
   document.querySelectorAll("[data-pc-inc]").forEach((btn) => {
@@ -4271,7 +4282,7 @@ function attachListenersSelecao() {
       const p = pcState.palpiteEdicao.find((pp) => pp.nome === btn.dataset.pcInc);
       snapshotPalpite();
       incrementarEleitosPartido(p);
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   });
   document.querySelectorAll("[data-pc-dec]").forEach((btn) => {
@@ -4279,7 +4290,7 @@ function attachListenersSelecao() {
       const p = pcState.palpiteEdicao.find((pp) => pp.nome === btn.dataset.pcDec);
       snapshotPalpite();
       decrementarEleitosPartido(p);
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   });
   document.querySelectorAll("input[data-pc-count]").forEach((inp) => {
@@ -4293,7 +4304,7 @@ function attachListenersSelecao() {
       }
       snapshotPalpite();
       definirEleitosPartido(p, alvo);
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
     inp.addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.blur(); });
   });
@@ -4306,7 +4317,7 @@ function attachListenersSelecao() {
     card.addEventListener("mouseleave", () => {
       if (!pcState.ordemPartidosFixa) return;
       pcState.ordemPartidosFixa = null; // libera a reordenação de verdade só agora, com o mouse já fora
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   });
   document.getElementById("pcBtnVoltarSelecao").addEventListener("click", desfazerPalpite);
@@ -4316,13 +4327,13 @@ function attachListenersSelecao() {
   document.getElementById("pcBtnZerarTudo").addEventListener("click", () => {
     snapshotPalpite();
     zerarTudoSelecao();
-    renderSelecaoCandidatos();
+    renderCargoEstadual();
   });
   const fecharInstrucao = document.getElementById("pcFecharInstrucao");
   if (fecharInstrucao) {
     fecharInstrucao.addEventListener("click", () => {
       pcState.instrucaoSelecaoAberta = false;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   }
   const overlayInstrucao = document.getElementById("pcInstrucaoOverlay");
@@ -4330,7 +4341,7 @@ function attachListenersSelecao() {
     overlayInstrucao.addEventListener("click", (e) => {
       if (e.target.id === "pcInstrucaoOverlay") {
         pcState.instrucaoSelecaoAberta = false;
-        renderSelecaoCandidatos();
+        renderCargoEstadual();
       }
     });
   }
@@ -4338,7 +4349,7 @@ function attachListenersSelecao() {
   if (abrirInstrucao) {
     abrirInstrucao.addEventListener("click", () => {
       pcState.instrucaoSelecaoAberta = true;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   }
   const fecharAvisoLimite = document.getElementById("pcFecharAvisoLimite");
@@ -4347,7 +4358,7 @@ function attachListenersSelecao() {
       const naoMostrar = document.getElementById("pcNaoMostrarAvisoLimite");
       if (naoMostrar && naoMostrar.checked) salvarAvisoLimiteVagasOculto(true);
       pcState.avisoLimiteVagasAberto = false;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   }
   const overlayAvisoLimite = document.getElementById("pcAvisoLimiteOverlay");
@@ -4355,7 +4366,7 @@ function attachListenersSelecao() {
     overlayAvisoLimite.addEventListener("click", (e) => {
       if (e.target.id === "pcAvisoLimiteOverlay") {
         pcState.avisoLimiteVagasAberto = false;
-        renderSelecaoCandidatos();
+        renderCargoEstadual();
       }
     });
   }
@@ -4364,7 +4375,7 @@ function attachListenersSelecao() {
     cancelarAuto.addEventListener("click", () => {
       pcState.confirmAutoPreenchimentoAberto = false;
       pcState.confirmAutoPreenchimentoAcao = null;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   }
   const confirmarAuto = document.getElementById("pcBtnConfirmarAuto");
@@ -4384,21 +4395,21 @@ function attachListenersSelecao() {
       if (e.target.id === "pcConfirmAutoOverlay") {
         pcState.confirmAutoPreenchimentoAberto = false;
         pcState.confirmAutoPreenchimentoAcao = null;
-        renderSelecaoCandidatos();
+        renderCargoEstadual();
       }
     });
   }
   document.querySelectorAll("[data-pc-ver2022]").forEach((btn) => {
     btn.addEventListener("click", () => {
       pcState.candidatos2022Aberto = btn.dataset.pcVer2022;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   });
   const fecharCandidatos2022 = document.getElementById("pcFecharCandidatos2022");
   if (fecharCandidatos2022) {
     fecharCandidatos2022.addEventListener("click", () => {
       pcState.candidatos2022Aberto = null;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   }
   const overlayCandidatos2022 = document.getElementById("pcCandidatos2022Overlay");
@@ -4406,19 +4417,19 @@ function attachListenersSelecao() {
     overlayCandidatos2022.addEventListener("click", (e) => {
       if (e.target.id === "pcCandidatos2022Overlay") {
         pcState.candidatos2022Aberto = null;
-        renderSelecaoCandidatos();
+        renderCargoEstadual();
       }
     });
   }
   document.getElementById("pcBtnTop2022").addEventListener("click", () => {
     pcState.top2022Aberto = true;
-    renderSelecaoCandidatos();
+    renderCargoEstadual();
   });
   const fecharTop2022 = document.getElementById("pcFecharTop2022");
   if (fecharTop2022) {
     fecharTop2022.addEventListener("click", () => {
       pcState.top2022Aberto = false;
-      renderSelecaoCandidatos();
+      renderCargoEstadual();
     });
   }
   const overlayTop2022 = document.getElementById("pcTop2022Overlay");
@@ -4426,7 +4437,7 @@ function attachListenersSelecao() {
     overlayTop2022.addEventListener("click", (e) => {
       if (e.target.id === "pcTop2022Overlay") {
         pcState.top2022Aberto = false;
-        renderSelecaoCandidatos();
+        renderCargoEstadual();
       }
     });
   }
