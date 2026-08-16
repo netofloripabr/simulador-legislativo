@@ -5,13 +5,28 @@
 // selosCandidato2022, corDoPartido). Não toca em `state`/app.js — estado
 // próprio (`pcState`) para não arriscar quebrar o Simulador individual.
 
+// Número de cache-busting (?cb=NN) lido direto do próprio <script src> —
+// mostrado no rodapé do Menu (renderMenuConta) pra facilitar reportar bug
+// ("isso é na versão X?"). Lido do DOM em vez de um valor fixo aqui pra
+// nunca precisar lembrar de bumpar em 2 lugares — já é obrigatório subir
+// esse número em TODAS as tags <script> junto (regra do CLAUDE.md), isso
+// só aproveita o que já teria que estar certo de qualquer forma.
+const PC_VERSAO_APP = (() => {
+  try {
+    const src = document.currentScript && document.currentScript.src;
+    const m = src && src.match(/[?&]cb=(\d+)/);
+    return m ? m[1] : "?";
+  } catch (e) { return "?"; }
+})();
+
 let pcState = {
   iniciado: false,
   sessao: null,
   perfil: null,
   souAdmin: false, // carregado em initColaborativo() logo depois do perfil — ver migração 18 (tabela admins)
   souUsuarioFinal: false, // carregado junto com souAdmin — ver migração 19 (tabela usuarios_finais)
-  modalReportarProblema: false, // ver renderMeuPerfil() / renderModalReportarProblema()
+  modalReportarProblema: false, // ver renderMenuConta() / renderModalReportarProblema()
+  modalExcluirConta: false, // ver renderMenuConta() / renderModalExcluirConta()
   adminSecao: "usuarios", // qual aba do Painel Admin está ativa
   adminPesquisaFiltro: null, // { genero, uf } — último filtro usado na seção "Pesquisa" do admin
   adminPesquisaResultados: null, // cache do resultado de adminPesquisaAgregada()
@@ -98,6 +113,7 @@ const PC_ICONES = {
   ano2022: '<text x="8" y="7.3" text-anchor="middle" font-size="6" font-weight="800" fill="currentColor" font-family="var(--sans)">20</text><text x="8" y="13.6" text-anchor="middle" font-size="6" font-weight="800" fill="currentColor" font-family="var(--sans)">22</text>',
   mais: '<path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>',
   chave: '<circle cx="5.2" cy="5.2" r="2.4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M7 7l6.3 6.3M11 9.3l1.6 1.6M13 7.3l1.3 1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
+  editar: '<path d="M11.1 2.6a1.5 1.5 0 012.1 2.1L5.6 12.3l-2.9.7.7-2.9z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   lista: '<path d="M2.5 4.5h2M6 4.5h7.5M2.5 8h2M6 8h7.5M2.5 11.5h2M6 11.5h7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   calendario: '<rect x="2.5" y="3.3" width="11" height="10.2" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.2"></rect><path d="M2.5 6.4h11M5.3 2v2.4M10.7 2v2.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   convidar: '<circle cx="6.3" cy="6" r="2.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M2.3 14c0-2.4 1.8-4.3 4-4.3s4 1.9 4 4.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><path d="M12 5v4M10 7h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
@@ -1382,13 +1398,13 @@ function renderAppColaborativo() {
     <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
       <div><h2 style="margin:0;">Olá, ${pcState.perfil ? pcState.perfil.nome : "visitante"}</h2>
       <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: chapa completa"}</div></div>
-      ${pcState.perfil ? `<button class="pc-mini-btn" id="pcBtnAbrirPerfil" title="Meu perfil">${iconeSvg("perfil", 18)}</button>` : ""}
+      ${pcState.perfil ? `<button class="pc-mini-btn" id="pcBtnAbrirPerfil" title="Menu">${iconeSvg("perfil", 18)}</button>` : ""}
     </div>
     <div id="pcConteudo"></div>
   `;
   if (pcState.perfil) {
     document.getElementById("pcBtnAbrirPerfil").addEventListener("click", () => {
-      pcState.subaba = "meu-perfil";
+      pcState.subaba = "menu";
       renderAppColaborativo();
     });
   }
@@ -1404,20 +1420,21 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "palpite") { renderMeuPalpite(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "medias") { renderQuadroMedias(); atualizarMenuFixo("medias"); }
   else if (pcState.subaba === "grupo") { renderGrupoHub(); atualizarMenuFixo("grupo"); }
+  else if (pcState.subaba === "menu") { renderMenuConta(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "meu-perfil") { renderMeuPerfil(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "ajuda") { renderCentralAjuda(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "admin") { renderAdminPainel(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "usuario-final") { renderPainelUsuarioFinal(); atualizarMenuFixo(null); }
   else { renderRankingPlaceholder(); atualizarMenuFixo("ranking"); }
 }
 
-// Tela "Meu perfil" — dados da conta (editáveis), trocar senha, reportar
-// problema, atalho pro painel admin (só se pcState.souAdmin) e Sair (saiu
-// do header fixo, onde ficava solto — agora mora aqui, junto do resto das
-// ações de conta). Pedido do usuário, 14/08/2026: análise de páginas
-// faltantes identificou que não existia NENHUMA tela de conta até agora.
+// Tela "Meus dados" — só os campos editáveis da conta + trocar senha.
+// Reportar problema, admin, notificações, ajuda e Sair moraram aqui até
+// 16/08/2026, agora vivem na tela "Menu" (renderMenuConta, abaixo) — essa
+// aqui ficou só com edição de dados de conta, acessada a partir de lá.
 async function renderMeuPerfil() {
   const el = document.getElementById("pcConteudo");
-  el.innerHTML = telaCarregando("Carregando seu perfil…");
+  el.innerHTML = telaCarregando("Carregando seus dados…");
   const p = pcState.perfil;
   const sessao = pcState.sessao || await sessaoAtual();
   const email = sessao ? sessao.user.email : "";
@@ -1425,7 +1442,7 @@ async function renderMeuPerfil() {
   el.innerHTML = `
     <button class="ghost" id="pcBtnVoltarMeuPerfil" style="margin-bottom:14px;">← Voltar</button>
     <div class="glass-card" style="max-width:460px; margin:0 auto;">
-      <h2 style="margin-bottom:2px;">Meu perfil</h2>
+      <h2 style="margin-bottom:2px;">Meus dados</h2>
       <div class="pc-sub" style="margin-bottom:16px;">${email}</div>
 
       <div class="field-row"><label>Nome</label><input class="cell" id="pcPerfilNome" value="${p.nome || ""}"></div>
@@ -1451,18 +1468,10 @@ async function renderMeuPerfil() {
       <div class="pc-erro" id="pcSenhaErro"></div>
       <button class="ghost" id="pcBtnTrocarSenha" style="width:100%;">Trocar senha</button>
       <div class="pc-status" id="pcSenhaStatus" style="text-align:center; margin-top:8px;"></div>
-
-      <div style="margin:22px 0 16px; border-top:1px solid var(--pc-glass-border);"></div>
-
-      <button class="ghost" id="pcBtnReportarProblema" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">${iconeSvg("alerta", 15)}Reportar um problema</button>
-      ${pcState.souAdmin ? `<button class="ghost" id="pcBtnAbrirAdmin" style="width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--pc-accent); border-color:var(--pc-accent);">${iconeSvg("chart", 15)}Painel do administrador</button>` : ""}
-      ${pcState.souUsuarioFinal ? `<button class="ghost" id="pcBtnAbrirUsuarioFinal" style="width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--pc-accent); border-color:var(--pc-accent);">${iconeSvg("chart", 15)}Painel de dados estratégicos</button>` : ""}
-      <button class="ghost" id="pcBtnSairPerfil" style="width:100%; margin-top:10px; color:var(--pc-danger); border-color:var(--pc-danger);">Sair da conta</button>
-    </div>
-    ${pcState.modalReportarProblema ? renderModalReportarProblema() : ""}`;
+    </div>`;
 
   document.getElementById("pcBtnVoltarMeuPerfil").addEventListener("click", () => {
-    pcState.subaba = "painel";
+    pcState.subaba = "menu";
     renderAppColaborativo();
   });
   document.getElementById("pcBtnSalvarPerfil").addEventListener("click", async () => {
@@ -1493,32 +1502,109 @@ async function renderMeuPerfil() {
     document.getElementById("pcPerfilNovaSenha").value = "";
     document.getElementById("pcSenhaStatus").textContent = "Senha alterada.";
   });
-  document.getElementById("pcBtnReportarProblema").addEventListener("click", () => {
-    pcState.modalReportarProblema = true;
-    renderMeuPerfil();
+}
+
+// Zera pcState e manda pro login — mesmo bloco usado no botão "Sair da
+// conta" de renderMenuConta, extraído aqui só pra não duplicar.
+async function executarSairDaConta() {
+  await sair();
+  pcState = { iniciado: true, sessao: null, perfil: null, tela: "login", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
+  renderColaborativo();
+}
+
+// Tela "Menu" — recepção de conta (card de perfil + Conta/Sobre/Sair),
+// redesenhada em 16/08/2026 a partir de referências visuais trazidas pelo
+// usuário (mockup aprovado antes de programar, ver histórico da conversa).
+// Cada linha daqui é só navegação/gatilho — a lógica de verdade continua
+// nas telas de destino (renderMeuPerfil, renderCentralAjuda, o modal de
+// reportar problema, etc.), sem duplicar nada.
+function renderMenuConta() {
+  const el = document.getElementById("pcConteudo");
+  const p = pcState.perfil;
+  const linhaMenu = (id, icone, cor, titulo, subtitulo) => `
+    <button id="${id}" style="all:unset; box-sizing:border-box; cursor:pointer; width:100%; display:flex; align-items:center; gap:13px; padding:14px 16px; border-bottom:1px solid var(--pc-glass-border);">
+      <div style="width:36px; height:36px; border-radius:10px; background:${cor}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${iconeSvg(icone, 17)}</div>
+      <div style="flex:1; text-align:left; min-width:0;">
+        <div style="font-size:14px; font-weight:600; color:var(--pc-ink);">${titulo}</div>
+        ${subtitulo ? `<div style="font-size:11.5px; color:var(--pc-ink-dim); margin-top:1px;">${subtitulo}</div>` : ""}
+      </div>
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--pc-ink-dim)" stroke-width="1.8" style="flex-shrink:0;"><path d="M9 6l6 6-6 6"></path></svg>
+    </button>`;
+
+  el.innerHTML = `
+    <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Menu</div>
+
+    <div class="glass-card" style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+      <div style="width:52px; height:52px; border-radius:50%; background:rgba(61,255,176,.12); border:1px solid rgba(61,255,176,.3); display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:700; color:var(--pc-accent); flex-shrink:0;">${(p.nome || "?").trim().charAt(0).toUpperCase()}</div>
+      <div style="min-width:0; flex:1;">
+        <div style="font-size:16px; font-weight:700;">${p.nome || "Sem nome"}</div>
+        <div style="font-size:12px; color:var(--pc-ink-dim); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${(pcState.sessao && pcState.sessao.user.email) || ""}</div>
+      </div>
+      <button id="pcBtnEditarPerfilMenu" class="pc-mini-btn" title="Editar meus dados" style="flex-shrink:0;">${iconeSvg("editar", 15)}</button>
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Conta</div>
+    <div class="glass-card" style="padding:0; overflow:hidden; margin-bottom:18px;">
+      ${linhaMenu("pcBtnMenuDados", "perfil", "rgba(61,255,176,.1)", "Meus dados", "Telefone, CEP, município, gênero")}
+      ${linhaMenu("pcBtnMenuSenha", "chave", "rgba(61,255,176,.1)", "Trocar senha", "Atualize sua senha de acesso")}
+      <div style="display:flex; align-items:center; gap:13px; padding:14px 16px; border-bottom:1px solid var(--pc-glass-border);">
+        <div style="width:36px; height:36px; border-radius:10px; background:rgba(61,255,176,.1); display:flex; align-items:center; justify-content:center; flex-shrink:0;">${iconeSvg("alerta", 17)}</div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-size:14px; font-weight:600;">Notificações por e-mail</div>
+          <div style="font-size:11.5px; color:var(--pc-ink-dim); margin-top:1px;">Avisos de grupo e da eleição (em breve)</div>
+        </div>
+        <label class="pc-switch" style="flex-shrink:0;"><input type="checkbox" id="pcToggleNotifEmail" ${p.notif_email ? "checked" : ""}><span class="pc-switch-slider"></span></label>
+      </div>
+      ${linhaMenu("pcBtnMenuReportar", "alerta", "rgba(201,138,43,.12)", "Reportar um problema", "Achou um bug? Nos conta aqui")}
+      ${linhaMenu("pcBtnMenuConvidar", "convidar", "rgba(61,255,176,.1)", "Convidar amigos", "Seu grupo e código de convite")}
+      ${pcState.souAdmin ? linhaMenu("pcBtnMenuAdmin", "chart", "rgba(61,255,176,.1)", "Painel do administrador", null) : ""}
+      ${pcState.souUsuarioFinal ? linhaMenu("pcBtnMenuUsuarioFinal", "chart", "rgba(61,255,176,.1)", "Painel de dados estratégicos", null) : ""}
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Sobre</div>
+    <div class="glass-card" style="padding:0; overflow:hidden; margin-bottom:18px;">
+      ${linhaMenu("pcBtnMenuAjuda", "ano2022", "rgba(61,255,176,.1)", "Central de ajuda", "Como funciona o quociente, sobra e Senador")}
+      ${linhaMenu("pcBtnMenuTermos", "ballot", "rgba(61,255,176,.1)", "Termos de uso", null)}
+      ${linhaMenu("pcBtnMenuPrivacidade", "chave", "rgba(61,255,176,.1)", "Política de privacidade", null)}
+    </div>
+
+    <button id="pcBtnMenuExcluirConta" class="ghost" style="width:100%; margin-bottom:10px; color:var(--pc-danger); border-color:var(--pc-danger); opacity:.75;">Excluir conta</button>
+    <button id="pcBtnMenuSair" class="ghost" style="width:100%; color:var(--pc-danger); border-color:var(--pc-danger);">Sair da conta</button>
+
+    <div style="text-align:center; font-size:11px; color:var(--pc-ink-dim); margin-top:18px;">
+      Simulador Eleitoral · Legislativo 2026
+      <div style="margin-top:4px; opacity:.7;">versão ${PC_VERSAO_APP}</div>
+    </div>
+
+    ${pcState.modalReportarProblema ? renderModalReportarProblema() : ""}
+    ${pcState.modalExcluirConta ? renderModalExcluirConta() : ""}`;
+
+  document.getElementById("pcBtnEditarPerfilMenu").addEventListener("click", () => { pcState.subaba = "meu-perfil"; renderAppColaborativo(); });
+  document.getElementById("pcBtnMenuDados").addEventListener("click", () => { pcState.subaba = "meu-perfil"; renderAppColaborativo(); });
+  document.getElementById("pcBtnMenuSenha").addEventListener("click", () => { pcState.subaba = "meu-perfil"; renderAppColaborativo(); });
+  document.getElementById("pcToggleNotifEmail").addEventListener("change", async (e) => {
+    const valor = e.target.checked;
+    pcState.perfil = { ...p, notif_email: valor };
+    await atualizarPerfil(p.id, { notif_email: valor });
   });
+  document.getElementById("pcBtnMenuReportar").addEventListener("click", () => { pcState.modalReportarProblema = true; renderMenuConta(); });
+  document.getElementById("pcBtnMenuConvidar").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
   if (pcState.souAdmin) {
-    document.getElementById("pcBtnAbrirAdmin").addEventListener("click", () => {
-      pcState.subaba = "admin";
-      renderAppColaborativo();
-    });
+    document.getElementById("pcBtnMenuAdmin").addEventListener("click", () => { pcState.subaba = "admin"; renderAppColaborativo(); });
   }
   if (pcState.souUsuarioFinal) {
-    document.getElementById("pcBtnAbrirUsuarioFinal").addEventListener("click", () => {
-      pcState.subaba = "usuario-final";
-      renderAppColaborativo();
-    });
+    document.getElementById("pcBtnMenuUsuarioFinal").addEventListener("click", () => { pcState.subaba = "usuario-final"; renderAppColaborativo(); });
   }
-  document.getElementById("pcBtnSairPerfil").addEventListener("click", async () => {
-    await sair();
-    pcState = { iniciado: true, sessao: null, perfil: null, tela: "login", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
-    renderColaborativo();
-  });
+  document.getElementById("pcBtnMenuAjuda").addEventListener("click", () => { pcState.subaba = "ajuda"; renderAppColaborativo(); });
+  document.getElementById("pcBtnMenuTermos").addEventListener("click", () => { pcState.telaLegalOrigem = "app"; pcState.tela = "termos"; renderColaborativo(); });
+  document.getElementById("pcBtnMenuPrivacidade").addEventListener("click", () => { pcState.telaLegalOrigem = "app"; pcState.tela = "privacidade"; renderColaborativo(); });
+  document.getElementById("pcBtnMenuExcluirConta").addEventListener("click", () => { pcState.modalExcluirConta = true; renderMenuConta(); });
+  document.getElementById("pcBtnMenuSair").addEventListener("click", executarSairDaConta);
 
   if (pcState.modalReportarProblema) {
     document.getElementById("pcBtnFecharReportarProblema").addEventListener("click", () => {
       pcState.modalReportarProblema = false;
-      renderMeuPerfil();
+      renderMenuConta();
     });
     document.getElementById("pcBtnEnviarProblema").addEventListener("click", async () => {
       const mensagem = document.getElementById("pcProblemaMensagem").value.trim();
@@ -1529,9 +1615,86 @@ async function renderMeuPerfil() {
       if (error) { erroEl.textContent = error.message; return; }
       pcState.modalReportarProblema = false;
       pcState.status = "Problema reportado — obrigado! A gente vai olhar.";
-      renderMeuPerfil();
+      renderMenuConta();
     });
   }
+
+  if (pcState.modalExcluirConta) {
+    document.getElementById("pcBtnFecharExcluirConta").addEventListener("click", () => {
+      pcState.modalExcluirConta = false;
+      renderMenuConta();
+    });
+    document.getElementById("pcBtnConfirmarExcluirConta").addEventListener("click", async () => {
+      const erroEl = document.getElementById("pcExcluirContaErro");
+      // Não temos acesso de servidor (service_role) pra apagar a conta de
+      // Auth de verdade a partir do site — só o registro da SOLICITAÇÃO,
+      // na mesma tabela/fluxo de "reportar problema" (problemas_reportados,
+      // já visível no Painel do administrador), pra alguém com acesso ao
+      // Supabase completar a exclusão manualmente. Deixar isso claro na
+      // tela em vez de fingir que já apagou tudo. Ver tarefa correspondente
+      // no BACKLOG antes de prometer exclusão automática de verdade.
+      const { error } = await reportarProblema(p.id, "Solicitação de exclusão de conta.", "exclusao-conta");
+      if (error) { erroEl.textContent = error.message; return; }
+      pcState.modalExcluirConta = false;
+      await executarSairDaConta();
+    });
+  }
+}
+
+function renderModalExcluirConta() {
+  return `
+    <div id="pcModalExcluirContaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(224,96,122,.4); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <h2 style="margin-bottom:4px; font-size:15px; color:var(--pc-danger);">Excluir conta</h2>
+        <div class="pc-sub" style="margin-bottom:14px; line-height:1.6;">Isso remove seu acesso e registra um pedido de exclusão dos seus dados (listas, grupos, palpites). Não dá pra desfazer depois de processado. Confirma?</div>
+        <div class="pc-erro" id="pcExcluirContaErro"></div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <button class="ghost" id="pcBtnFecharExcluirConta" style="flex:1;">Cancelar</button>
+          <button id="pcBtnConfirmarExcluirConta" style="flex:1; background:var(--pc-danger); border:1px solid var(--pc-danger); color:#2a0a10; font-family:var(--sans); font-weight:700; border-radius:8px; cursor:pointer;">Excluir</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// Central de ajuda — consolida num só lugar as explicações de regra
+// eleitoral que hoje só existem espalhadas em tooltips (ⓘ) pela tela de
+// Seleção (interface/prospeccao.js) e app.js — pedido do usuário,
+// 16/08/2026, junto do redesenho do Menu.
+function renderCentralAjuda() {
+  const el = document.getElementById("pcConteudo");
+  const secao = (titulo, corpo) => `
+    <div class="glass-card" style="margin-bottom:12px;">
+      <h2 style="font-size:15px; margin-bottom:8px;">${titulo}</h2>
+      <div style="font-size:13px; line-height:1.7; color:var(--pc-ink-dim);">${corpo}</div>
+    </div>`;
+  el.innerHTML = `
+    <button class="ghost" id="pcBtnVoltarAjuda" style="margin-bottom:14px;">← Voltar</button>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Central de ajuda</div>
+
+    ${secao("Dep. Estadual e Dep. Federal — proporcional", `
+      Essas duas eleições distribuem as vagas por <b style="color:var(--pc-ink);">partido</b>, não direto por candidato:<br><br>
+      <b style="color:var(--pc-ink);">Quociente eleitoral (QE)</b> — votos válidos ÷ vagas do cargo (art. 106). É o "preço" de uma vaga.<br>
+      <b style="color:var(--pc-ink);">Quociente partidário (QP)</b> — votos do partido ÷ QE, parte inteira (art. 107). Quantas vagas o partido já garante de cara.<br>
+      <b style="color:var(--pc-ink);">Sobra (método das médias, art. 109)</b> — vagas que sobram depois do QP de todos, distribuídas uma de cada vez pro partido com a maior média (votos ÷ (cadeiras atuais + 1)) naquela rodada — sem piso mínimo de votação (o piso do art. 109 §2º foi derrubado pelo STF em fevereiro/2024).<br><br>
+      Dentro do partido, quem primeiro ocupa as vagas é sempre quem tem mais voto — QP e sobra decidem QUANTAS vagas o partido leva, não QUEM dentro dele.
+    `)}
+
+    ${secao("Senador — majoritário", `
+      Diferente dos outros dois, o Senado é <b style="color:var(--pc-ink);">voto direto</b> (art. 46): não tem quociente, não tem partido "ganhando vagas" — os candidatos mais votados do estado inteiro, cruzando todos os partidos, são eleitos. Em SC, 2026 é ano de elegar 2 das 3 cadeiras.
+    `)}
+
+    ${secao("\"Eleito\" no simulador", `
+      Quem está marcado como eleito na sua lista é sempre a <b style="color:var(--pc-ink);">sua escolha</b> — nunca é substituído automaticamente pela matemática. Quando um candidato não marcado bateria a vaga pela conta real, você recebe um aviso — mas a decisão final é sempre sua.
+    `)}
+
+    ${secao("Isso é uma simulação", `
+      Os números de 2026 são estimativas (baseadas no resultado real de 2022, escalado pelo crescimento do eleitorado) até a eleição de verdade acontecer em outubro. Nenhuma lista aqui é uma pesquisa oficial nem uma aposta.
+    `)}`;
+
+  document.getElementById("pcBtnVoltarAjuda").addEventListener("click", () => {
+    pcState.subaba = "menu";
+    renderAppColaborativo();
+  });
 }
 
 function renderModalReportarProblema() {
@@ -1577,7 +1740,7 @@ async function montarAdminUsuarios() {
 
 async function montarAdminProblemas() {
   const problemas = await adminListarProblemas();
-  if (!problemas.length) return estadoVazio({ icone: "alerta", titulo: "Nenhum problema reportado", texto: "Quando alguém reportar algo em Meu perfil, aparece aqui." });
+  if (!problemas.length) return estadoVazio({ icone: "alerta", titulo: "Nenhum problema reportado", texto: "Quando alguém reportar algo pelo Menu, aparece aqui." });
   return problemas.map((p) => `
     <div class="pc-lobby-card" style="margin-bottom:10px; ${p.status === "resolvido" ? "opacity:.6;" : ""}">
       <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:6px;">
@@ -1665,7 +1828,7 @@ async function renderAdminPainel() {
     // de código, 15/08/2026, antes do primeiro teste com admin de verdade.
     el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra administradores.</div><button class="ghost" id="pcBtnVoltarAdminRestrito" style="width:100%; margin-top:10px;">← Voltar</button></div>`;
     document.getElementById("pcBtnVoltarAdminRestrito").addEventListener("click", () => {
-      pcState.subaba = "meu-perfil";
+      pcState.subaba = "menu";
       renderAppColaborativo();
     });
     return;
@@ -1695,7 +1858,7 @@ async function renderAdminPainel() {
     <div id="pcAdminConteudo">${conteudoSecao}</div>`;
 
   document.getElementById("pcBtnVoltarAdmin").addEventListener("click", () => {
-    pcState.subaba = "meu-perfil";
+    pcState.subaba = "menu";
     renderAppColaborativo();
   });
   document.querySelectorAll("[data-pc-admin-secao]").forEach((btn) => {
@@ -1747,7 +1910,7 @@ async function renderPainelUsuarioFinal() {
     // vira um beco sem saída (menu fixo fica escondido nessa subaba).
     el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra parceiros com acesso liberado.</div><button class="ghost" id="pcBtnVoltarUsuarioFinalRestrito" style="width:100%; margin-top:10px;">← Voltar</button></div>`;
     document.getElementById("pcBtnVoltarUsuarioFinalRestrito").addEventListener("click", () => {
-      pcState.subaba = "meu-perfil";
+      pcState.subaba = "menu";
       renderAppColaborativo();
     });
     return;
@@ -1789,7 +1952,7 @@ async function renderPainelUsuarioFinal() {
     </div>`;
 
   document.getElementById("pcBtnVoltarUsuarioFinal").addEventListener("click", () => {
-    pcState.subaba = "meu-perfil";
+    pcState.subaba = "menu";
     renderAppColaborativo();
   });
   document.getElementById("pcBtnUfPesquisar").addEventListener("click", async () => {

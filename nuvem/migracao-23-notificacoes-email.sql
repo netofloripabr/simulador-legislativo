@@ -1,0 +1,13 @@
+-- Migração 23: preferência de notificação por e-mail (tela Menu, item
+-- "Notificações", pedido do usuário em 16/08/2026, parte do redesenho do
+-- Menu/Perfil). Ainda NÃO existe nenhum mecanismo real de disparo de
+-- e-mail no projeto — esta migração só guarda a preferência da pessoa,
+-- pronta pra quando o envio de verdade for implementado (grupo te
+-- convidou, alguém entrou no seu grupo, lembrete de eleição etc.).
+--
+-- Default false (opt-in) — ninguém deve começar recebendo e-mail sem
+-- pedir. "perfis_update_proprio" (schema.sql) já deixa o dono atualizar
+-- qualquer coluna da própria linha, então nenhuma policy nova é
+-- necessária, só a coluna. Colar no SQL Editor do Supabase e rodar uma
+-- vez, depois da migração 22.
+alter table public.perfis add column if not exists notif_email boolean not null default false;
