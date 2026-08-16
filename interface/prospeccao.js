@@ -1834,7 +1834,12 @@ async function renderPainelPrincipal() {
   // do resto do app, que sempre trabalha 1 cargo ativo por vez.
   let totalMarcado = 0, totalVagas = 0;
   CARGOS.forEach((c) => {
-    const lista = pcState.rascunhosCache[c.id] || montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
+    const poolOficial = montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
+    const rascunho = pcState.rascunhosCache[c.id];
+    // rascunhoEhOrfao: mesma regra de garantirPalpiteEdicaoAtivo — não
+    // conta rascunho preso num elenco antigo que a fonte oficial já
+    // substituiu.
+    const lista = (rascunho && !rascunhoEhOrfao(rascunho, poolOficial)) ? rascunho : poolOficial;
     totalMarcado += lista.reduce((s, p) => s + p.candidatos.filter((cc) => cc.marcadoEleito).length, 0);
     totalVagas += vagasFixasCargo(pcState.estado, c.id);
   });
@@ -3359,6 +3364,34 @@ function renderCargoIndisponivel(cargo) {
 // aba trocava de conteúdo mas o dot ficava "um clique atrasado" (achado
 // testando o interruptor de cargo em 06/08/2026). Idempotente: chamar de
 // novo não recarrega nada se já está em dia.
+// Um rascunho salvo (autosave, "onde eu parei") fica ÓRFÃO quando a fonte
+// oficial de candidatos daquele estado+cargo muda de forma DEPOIS que a
+// pessoa já tinha mexido nele — ex.: alguém marca eleitos no Senador
+// enquanto esse cargo ainda caía no fallback de 2022 (sem ata real
+// processada ainda); quando a ata real de 2026 chega e substitui o
+// fallback, o pool oficial passa a ser gente inteiramente diferente, mas
+// o rascunho salvo (que tem prioridade, ver garantirPalpiteEdicaoAtivo)
+// continua de pé mostrando o elenco antigo pra sempre — nenhuma correção
+// nos dados resolve isso sozinha, porque o rascunho nem olha pro dado
+// oficial de novo depois de salvo uma vez. Regra: se NENHUM id de
+// candidato do rascunho aparece no pool oficial fresco, o rascunho é
+// tratado como órfão e descartado (recomeça do pool atual, como se nunca
+// tivesse sido salvo) — mantém rascunhos normais intactos (basta 1 id em
+// comum) e só reage quando o elenco trocou por completo. Regra geral,
+// não é gambiarra pontual pro Senador/SC — vale pra qualquer estado/cargo
+// em que isso se repita. Achado com o usuário (Senador/SC preso nos
+// candidatos de 2022) em 16/08/2026.
+function rascunhoEhOrfao(rascunho, poolOficial) {
+  if (!rascunho || !rascunho.length) return false;
+  if (!poolOficial || !poolOficial.length) return false;
+  const idsOficiais = new Set();
+  poolOficial.forEach((p) => p.candidatos.forEach((c) => idsOficiais.add(c.id)));
+  const idsRascunho = [];
+  rascunho.forEach((p) => p.candidatos.forEach((c) => idsRascunho.push(c.id)));
+  if (!idsRascunho.length) return false;
+  return !idsRascunho.some((id) => idsOficiais.has(id));
+}
+
 async function garantirPalpiteEdicaoAtivo() {
   const chaveCargoEstado = `${pcState.estado}::${pcState.cargoAtivo}`;
   if (!pcState.palpiteEdicao || pcState.cargoPalpiteEdicao !== chaveCargoEstado) {
@@ -3367,9 +3400,13 @@ async function garantirPalpiteEdicaoAtivo() {
     // > cada partido começando com a própria vagas2022 real daquele
     // estado+cargo (fallback em montarEstadoPalpite) — não usa mais um
     // "padrão" fixo de um estado só, que ficava errado assim que outro
-    // estado carregasse.
+    // estado carregasse. Exceto quando o rascunho é órfão (ver
+    // rascunhoEhOrfao acima) — nesse caso ele é ignorado e o pool oficial
+    // fresco vira o ponto de partida, do mesmo jeito que um rascunho
+    // inexistente.
     const rascunho = pcState.rascunhosCache && pcState.rascunhosCache[pcState.cargoAtivo];
-    pcState.palpiteEdicao = rascunho || montarEstadoPalpite("assembleia", null, null, pcState.cargoAtivo, pcState.estado);
+    const poolOficial = montarEstadoPalpite("assembleia", null, null, pcState.cargoAtivo, pcState.estado);
+    pcState.palpiteEdicao = (rascunho && !rascunhoEhOrfao(rascunho, poolOficial)) ? rascunho : poolOficial;
     pcState.cargoPalpiteEdicao = chaveCargoEstado;
   }
 }
@@ -4638,8 +4675,11 @@ function garantirPalpitesPorCargo() {
       // Prioridade: rascunho salvo (já carregado em pcState.rascunhosCache
       // por garantirRascunhosCarregados, chamado antes de qualquer tela
       // aparecer — ver initColaborativo e o picker de estado) > base nova.
+      // rascunhoEhOrfao: mesma regra de garantirPalpiteEdicaoAtivo — não
+      // usa rascunho preso num elenco que a fonte oficial já substituiu.
       const rascunho = pcState.rascunhosCache && pcState.rascunhosCache[c.id];
-      pcState.palpitesPorCargo[c.id] = rascunho || montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
+      const poolOficial = montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
+      pcState.palpitesPorCargo[c.id] = (rascunho && !rascunhoEhOrfao(rascunho, poolOficial)) ? rascunho : poolOficial;
     }
   });
   CARGOS.forEach((c) => agendarAutoSaveRascunho(c.id, pcState.palpitesPorCargo[c.id]));
