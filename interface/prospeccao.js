@@ -114,6 +114,7 @@ const PC_ICONES = {
   mais: '<path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>',
   chave: '<circle cx="5.2" cy="5.2" r="2.4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M7 7l6.3 6.3M11 9.3l1.6 1.6M13 7.3l1.3 1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   editar: '<path d="M11.1 2.6a1.5 1.5 0 012.1 2.1L5.6 12.3l-2.9.7.7-2.9z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
+  ajuda: '<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M6.2 6.3a1.9 1.9 0 013.6.8c0 1.3-1.8 1.3-1.8 2.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><circle cx="8" cy="11.6" r=".8" fill="currentColor"></circle>',
   lista: '<path d="M2.5 4.5h2M6 4.5h7.5M2.5 8h2M6 8h7.5M2.5 11.5h2M6 11.5h7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   calendario: '<rect x="2.5" y="3.3" width="11" height="10.2" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.2"></rect><path d="M2.5 6.4h11M5.3 2v2.4M10.7 2v2.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   convidar: '<circle cx="6.3" cy="6" r="2.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M2.3 14c0-2.4 1.8-4.3 4-4.3s4 1.9 4 4.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><path d="M12 5v4M10 7h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
@@ -123,6 +124,7 @@ const PC_ICONES = {
   perfil: '<circle cx="8" cy="5.6" r="2.6" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M3 13.2c0-2.7 2.2-4.6 5-4.6s5 1.9 5 4.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   impressora: '<rect x="4" y="1.8" width="8" height="3.4" fill="none" stroke="currentColor" stroke-width="1.2"></rect><rect x="2.3" y="5.2" width="11.4" height="5.6" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"></rect><rect x="4.3" y="9.4" width="7.4" height="4.8" fill="none" stroke="currentColor" stroke-width="1.2"></rect><circle cx="11" cy="7.4" r=".6" fill="currentColor"></circle>',
   setaEsquerda: '<path d="M10 3.2L5 8l5 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>',
+  setaDireita: '<path d="M6 3.2L11 8l-5 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>',
   copiar: '<rect x="6" y="6" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect><path d="M4 9.5V3.7a1.2 1.2 0 011.2-1.2H9.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   baixar: '<path d="M8 2.5v7.3M5 7l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.8 12.2v1a1 1 0 001 1h8.4a1 1 0 001-1v-1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   buscar: '<circle cx="6.8" cy="6.8" r="4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
@@ -519,6 +521,7 @@ function renderColaborativo() {
   if (pcState.tela === "painel-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderPainelPrincipal(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "minhas-listas-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMinhasListas(); atualizarMenuFixo("minhas-listas"); return; }
   if (pcState.tela === "ranking-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderRankingPlaceholder(); atualizarMenuFixo("ranking"); return; }
+  if (pcState.tela === "ajuda-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderCentralAjuda(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "detalhado-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMeuPalpite(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "login") return renderTelaLogin();
   if (pcState.tela === "recuperar-senha") return renderTelaRecuperarSenha();
@@ -1563,7 +1566,7 @@ function renderMenuConta() {
 
     <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Sobre</div>
     <div class="glass-card" style="padding:0; overflow:hidden; margin-bottom:18px;">
-      ${linhaMenu("pcBtnMenuAjuda", "ano2022", "rgba(61,255,176,.1)", "Central de ajuda", "Como funciona o quociente, sobra e Senador")}
+      ${linhaMenu("pcBtnMenuAjuda", "ajuda", "rgba(61,255,176,.1)", "Central de ajuda", "Como funciona o quociente, sobra e Senador")}
       ${linhaMenu("pcBtnMenuTermos", "ballot", "rgba(61,255,176,.1)", "Termos de uso", null)}
       ${linhaMenu("pcBtnMenuPrivacidade", "chave", "rgba(61,255,176,.1)", "Política de privacidade", null)}
     </div>
@@ -1692,8 +1695,8 @@ function renderCentralAjuda() {
     `)}`;
 
   document.getElementById("pcBtnVoltarAjuda").addEventListener("click", () => {
-    pcState.subaba = "menu";
-    renderAppColaborativo();
+    if (pcState.perfil) { pcState.subaba = "menu"; renderAppColaborativo(); }
+    else { pcState.tela = "painel-convidado"; renderColaborativo(); }
   });
 }
 
@@ -2037,11 +2040,20 @@ async function renderPainelPrincipal() {
   const estiloApagado = gateConvidado ? "opacity:.45;" : "";
   const tituloApagado = gateConvidado ? "Precisa se cadastrar" : "";
 
+  // Subtítulos dos atalhos — só dado já disponível/barato de buscar aqui
+  // (rascunhosCache e meusGrupos já carregados acima); Mediana fica com
+  // texto fixo porque contar palpites públicos de verdade puxaria TODOS os
+  // rascunhos públicos do estado só pra um número no Painel, caro demais
+  // pra essa tela. Redesenho pedido pelo usuário em 16/08/2026 (referência
+  // Nubank/BYD), mockup aprovado antes de programar.
+  const totalListas = (await _carregarMinhasListasNormalizado()).length;
+  const totalGrupos = pcState.meusGrupos ? pcState.meusGrupos.length : 0;
+
   el.innerHTML = `
-    <div style="display:flex; justify-content:flex-end; gap:8px; margin-bottom:14px;">
-      ${completa && !gateConvidado ? `<button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>` : ""}
-      <button class="pc-lobby-icon-btn" id="pcBtnConvidarLobby" title="${gateConvidado ? tituloApagado : "Convidar amigos"}" style="${estiloApagado}">${iconeSvg("convidar", 16)}</button>
-    </div>
+    ${completa && !gateConvidado ? `
+    <div style="display:flex; justify-content:flex-end; margin-bottom:14px;">
+      <button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>
+    </div>` : ""}
 
     <div class="pc-lobby-card">
       <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:8px;">
@@ -2063,12 +2075,36 @@ async function renderPainelPrincipal() {
       </div>` : ""}
     </div>
 
-    <div class="pc-lobby-menu-tit">Menu</div>
-    <div class="pc-lobby-menu-faixa">
-      <button class="pc-lobby-menu-item" id="pcMenuListas">${iconeSvg("ballot", 28)}<span>Minhas listas</span></button>
-      <button class="pc-lobby-menu-item" id="pcMenuMedias" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("chart", 28)}<span>Mediana</span></button>
-      <button class="pc-lobby-menu-item" id="pcMenuGrupos" style="${estiloApagado}" title="${tituloApagado}">${iconeSvg("grupos", 28)}<span>Grupos</span></button>
-      <button class="pc-lobby-menu-item" id="pcMenuRanking">${iconeSvg("ranking", 28)}<span>Ranking</span></button>
+    <div class="pc-lobby-banner">
+      <div class="pc-lobby-banner-eyebrow">Convide amigos</div>
+      <div class="pc-lobby-banner-titulo">Desafie quem mais entende de política</div>
+      <div class="pc-lobby-banner-corpo">Compare sua lista lado a lado com a de amigos, num grupo só seu.</div>
+      <button class="pc-lobby-banner-btn" id="pcBtnConviteBanner">Criar grupo ${iconeSvg("setaDireita", 13)}</button>
+    </div>
+
+    <div class="pc-lobby-menu-tit">Atalhos</div>
+    <div class="pc-lobby-atalhos">
+      <button class="pc-lobby-atalho" id="pcMenuListas">
+        <div class="pc-lobby-atalho-icone">${iconeSvg("ballot", 19)}</div>
+        <div><div class="pc-lobby-atalho-titulo">Minhas listas</div><div class="pc-lobby-atalho-sub">${totalListas ? `${totalListas} lista${totalListas === 1 ? "" : "s"}` : "Nenhuma ainda"}</div></div>
+      </button>
+      <button class="pc-lobby-atalho" id="pcMenuMedias" style="${estiloApagado}" title="${tituloApagado}">
+        <div class="pc-lobby-atalho-icone">${iconeSvg("chart", 19)}</div>
+        <div><div class="pc-lobby-atalho-titulo">Mediana</div><div class="pc-lobby-atalho-sub">${gateConvidado ? "Precisa se cadastrar" : "Pesquisa pública"}</div></div>
+      </button>
+      <button class="pc-lobby-atalho" id="pcMenuGrupos" style="${estiloApagado}" title="${tituloApagado}">
+        <div class="pc-lobby-atalho-icone">${iconeSvg("grupos", 19)}</div>
+        <div><div class="pc-lobby-atalho-titulo">Grupos</div><div class="pc-lobby-atalho-sub">${gateConvidado ? "Precisa se cadastrar" : (totalGrupos ? `${totalGrupos} grupo${totalGrupos === 1 ? "" : "s"}` : "Nenhum ainda")}</div></div>
+      </button>
+      <button class="pc-lobby-atalho" id="pcMenuRanking">
+        <div class="pc-lobby-atalho-icone">${iconeSvg("ranking", 19)}</div>
+        <div><div class="pc-lobby-atalho-titulo">Ranking</div><div class="pc-lobby-atalho-sub">Em breve</div></div>
+      </button>
+    </div>
+
+    <div class="pc-lobby-mais-tit">Mais funções</div>
+    <div class="pc-lobby-mais">
+      <button class="pc-lobby-mais-item" id="pcMenuAjudaLobby">${iconeSvg("ajuda", 15)}<span>Central de ajuda</span>${iconeSvg("setaDireita", 13)}</button>
     </div>
 
     <div id="pcLinkCompartilhavelWrap"></div>
@@ -2101,9 +2137,16 @@ async function renderPainelPrincipal() {
     pcState.subaba = "grupo"; renderAppColaborativo();
   });
   document.getElementById("pcMenuRanking").addEventListener("click", () => { pcState.subaba = "ranking"; renderAppColaborativo(); });
-  document.getElementById("pcBtnConvidarLobby").addEventListener("click", () => {
+  document.getElementById("pcBtnConviteBanner").addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("grupo");
     pcState.subaba = "grupo"; renderAppColaborativo();
+  });
+  document.getElementById("pcMenuAjudaLobby").addEventListener("click", () => {
+    // Central de ajuda é conteúdo fixo (regras do jogo), sem depender de
+    // conta — diferente de Mediana/Grupos, não faz sentido pedir cadastro
+    // só pra ler isso.
+    if (pcState.perfil) { pcState.subaba = "ajuda"; renderAppColaborativo(); }
+    else { pcState.tela = "ajuda-convidado"; renderColaborativo(); }
   });
   const btnCompartilhar = document.getElementById("pcBtnCompartilharLobby");
   if (btnCompartilhar) btnCompartilhar.addEventListener("click", mostrarLinkCompartilhavel);
@@ -2255,6 +2298,175 @@ function gerarImagemCedula({ nomeExibido, eleitos, codigo, cargoLabel }) {
   return canvas;
 }
 
+// Desenha um "mini-card" de candidato (moldura + nome + cotação) em
+// (x,y,largura) e devolve a altura ocupada — usado tanto direto (linhas
+// visíveis) quanto dentro de um canvas OFFSCREEN que depois recebe blur +
+// fade (linhas "escondidas", ver _desenharColunaCedulaResumo).
+function _desenharMiniCardCandidato(ctx, c, x, y, largura) {
+  const altura = 96;
+  ctx.fillStyle = "#0e2018";
+  ctx.strokeStyle = "#1d3a2c";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(x, y, largura, altura, 12);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#3dffb0";
+  ctx.font = "800 26px monospace";
+  ctx.fillText(`${c.posicao}º`, x + 16, y + 38);
+  const larguraPos = ctx.measureText(`${c.posicao}º`).width;
+  ctx.fillStyle = "#eefff6";
+  ctx.font = "600 26px sans-serif";
+  const nomeMax = largura - 32 - larguraPos - 12;
+  let nome = c.nome;
+  while (ctx.measureText(nome).width > nomeMax && nome.length > 3) nome = nome.slice(0, -1);
+  if (nome !== c.nome) nome = nome.replace(/\s*\S*$/, "") + "…";
+  ctx.fillText(nome, x + 16 + larguraPos + 12, y + 38);
+
+  ctx.fillStyle = "#7fa895";
+  ctx.font = "400 22px sans-serif";
+  ctx.fillText(`cotação ${Number(c.votos || 0).toLocaleString("pt-BR")}`, x + 16, y + 74);
+
+  return altura;
+}
+
+// Desenha uma coluna de cargo (rótulo + N mini-cards visíveis + M
+// "escondidos" com blur/fade) — os escondidos são desenhados num canvas
+// OFFSCREEN primeiro (blur real via ctx.filter) e depois recortados com um
+// degradê de opacidade (globalCompositeOperation "destination-in") antes
+// de colar no canvas principal, pra sumir suavemente embaixo em vez de
+// cortar seco. Devolve a altura total ocupada.
+function _desenharColunaCedulaResumo(ctxPrincipal, { rotulo, candidatos, x, y, largura, visiveis }) {
+  ctxPrincipal.textAlign = "center";
+  ctxPrincipal.fillStyle = "#3dffb0";
+  ctxPrincipal.font = "700 24px sans-serif";
+  ctxPrincipal.fillText(rotulo.toUpperCase(), x + largura / 2, y + 20);
+  ctxPrincipal.strokeStyle = "#1d3a2c";
+  ctxPrincipal.lineWidth = 2;
+  ctxPrincipal.beginPath();
+  ctxPrincipal.moveTo(x, y + 40);
+  ctxPrincipal.lineTo(x + largura, y + 40);
+  ctxPrincipal.stroke();
+
+  let cursorY = y + 62;
+  const gap = 14;
+  const visiveisLista = candidatos.slice(0, visiveis);
+  const escondidos = candidatos.slice(visiveis, visiveis + 2);
+
+  visiveisLista.forEach((c) => {
+    const altura = _desenharMiniCardCandidato(ctxPrincipal, c, x, cursorY, largura);
+    cursorY += altura + gap;
+  });
+
+  if (escondidos.length) {
+    const alturaOff = escondidos.length * 96 + (escondidos.length - 1) * gap;
+    const off = document.createElement("canvas");
+    off.width = largura;
+    off.height = alturaOff;
+    const ctxOff = off.getContext("2d");
+    ctxOff.filter = "blur(4px)";
+    let yOff = 0;
+    escondidos.forEach((c) => {
+      const altura = _desenharMiniCardCandidato(ctxOff, c, 0, yOff, largura);
+      yOff += altura + gap;
+    });
+    ctxOff.filter = "none";
+    const degrade = ctxOff.createLinearGradient(0, 0, 0, alturaOff);
+    degrade.addColorStop(0, "rgba(0,0,0,1)");
+    degrade.addColorStop(0.75, "rgba(0,0,0,.4)");
+    degrade.addColorStop(1, "rgba(0,0,0,0)");
+    ctxOff.globalCompositeOperation = "destination-in";
+    ctxOff.fillStyle = degrade;
+    ctxOff.fillRect(0, 0, largura, alturaOff);
+    ctxPrincipal.drawImage(off, x, cursorY);
+    cursorY += alturaOff;
+  }
+
+  return cursorY - y;
+}
+
+// Card-convite "Meu palpite - eleições 2026" — diferente de
+// gerarImagemCedula (cédula oficial de UM cargo por vez, pra quem já
+// depositou conferir posição no ranking), este é o card de DIVULGAÇÃO:
+// os 3 cargos juntos numa imagem só, cortados em 4 (Estadual/Federal) e 1
+// (Senador — cargo majoritário, corte natural é bem menor) com o resto da
+// lista escondido atrás de blur, terminando num convite pra ver a lista
+// completa. Pedido do usuário em 16/08/2026, protótipo aprovado antes de
+// programar (3 rodadas de ajuste no mockup).
+function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo }) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1080;
+  canvas.height = 1920;
+  const ctx = canvas.getContext("2d");
+
+  const fundo = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  fundo.addColorStop(0, "#0c2a1e");
+  fundo.addColorStop(0.55, "#081712");
+  fundo.addColorStop(1, "#050d0a");
+  ctx.fillStyle = fundo;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#3dffb0";
+  ctx.font = "700 30px sans-serif";
+  ctx.fillText("SIMULALEGIS", canvas.width / 2, 110);
+
+  ctx.fillStyle = "#3dffb0";
+  ctx.font = "700 24px sans-serif";
+  ctx.fillText("MEU PALPITE", canvas.width / 2, 190);
+  ctx.fillStyle = "#eefff6";
+  ctx.font = "700 52px sans-serif";
+  ctx.fillText("Eleições 2026", canvas.width / 2, 250);
+  ctx.fillStyle = "#7fa895";
+  ctx.font = "400 28px sans-serif";
+  const nomeEstado = (ESTADOS_BRASIL.find((e) => e.sigla === pcState.estado) || {}).nome || pcState.estado;
+  ctx.fillText(`${nomeExibido} · ${nomeEstado}`, canvas.width / 2, 296);
+
+  const preparar = (cargoId, corte) => (cargosEleitos[cargoId] || [])
+    .slice(0, corte + 2)
+    .map((c, i) => ({ nome: c.nome, votos: c.votos, posicao: i + 1 }));
+  const estaduais = preparar("estadual", 4);
+  const federais = preparar("federal", 4);
+  const senadores = preparar("senador", 1);
+
+  const margem = 60;
+  const gapColunas = 36;
+  const larguraColuna = (canvas.width - margem * 2 - gapColunas) / 2;
+  let y = 350;
+
+  const alturaEstadual = estaduais.length ? _desenharColunaCedulaResumo(ctx, { rotulo: "Dep. Estadual", candidatos: estaduais, x: margem, y, largura: larguraColuna, visiveis: 4 }) : 0;
+  const alturaFederal = federais.length ? _desenharColunaCedulaResumo(ctx, { rotulo: "Dep. Federal", candidatos: federais, x: margem + larguraColuna + gapColunas, y, largura: larguraColuna, visiveis: 4 }) : 0;
+  y += Math.max(alturaEstadual, alturaFederal) + 36;
+
+  if (senadores.length) {
+    y += _desenharColunaCedulaResumo(ctx, { rotulo: "Senador", candidatos: senadores, x: margem, y, largura: canvas.width - margem * 2, visiveis: 1 }) + 36;
+  }
+
+  ctx.fillStyle = "rgba(61,255,176,.1)";
+  ctx.strokeStyle = "rgba(61,255,176,.4)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.roundRect(margem, y, canvas.width - margem * 2, 130, 16);
+  ctx.fill();
+  ctx.stroke();
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#3dffb0";
+  ctx.font = "700 30px sans-serif";
+  ctx.fillText("Quer ver a lista completa e fazer a sua?", canvas.width / 2, y + 58);
+  ctx.fillStyle = "#9fc9b3";
+  ctx.font = "400 26px sans-serif";
+  ctx.fillText(`Código ${codigo}`, canvas.width / 2, y + 98);
+  y += 130 + 50;
+
+  ctx.fillStyle = "#547566";
+  ctx.font = "400 24px sans-serif";
+  ctx.fillText("Simulador Eleitoral · Legislativo 2026", canvas.width / 2, y);
+
+  return canvas;
+}
+
 // Painel de compartilhamento de uma cédula depositada — código + prévia da
 // imagem (gerarImagemCedula) + WhatsApp/Instagram/baixar. Dados vêm de
 // pcState.dadosCompartilhar, carregado de forma assíncrona pelo handler de
@@ -2297,6 +2509,9 @@ function renderModalCompartilhar() {
           <button class="ghost" id="pcBtnShareInstagram" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; padding:10px 8px;">${iconeSvg("compartilhar", 14)}Instagram</button>
         </div>
         <button class="ghost" id="pcBtnBaixarImagemCedula" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; padding:10px 8px;">${iconeSvg("baixar", 14)}Baixar imagem</button>
+        <div style="margin:14px 0; border-top:1px solid var(--pc-glass-border);"></div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-bottom:8px; line-height:1.5;">Card de divulgação com os 3 cargos juntos (Estadual, Federal e Senador) e o resto da lista escondido, pra chamar gente pra conhecer sua cédula completa.</div>
+        <button class="ghost" id="pcBtnBaixarCardResumo" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; padding:10px 8px; color:var(--pc-accent); border-color:rgba(61,255,176,.4);">${iconeSvg("send", 14)}Baixar "Meu palpite" (3 cargos)</button>
         <div id="pcCompartilharStatus" style="font-size:11px; color:var(--pc-ink-dim); text-align:center; margin-top:10px; min-height:14px;"></div>
         <div style="text-align:center; margin-top:4px;"><button class="ghost" id="pcBtnFecharCompartilhar" style="border:none; font-size:11.5px; color:var(--pc-ink-dim);">Fechar</button></div>
       </div>
@@ -2611,13 +2826,24 @@ function attachListenersModalCompartilhar() {
     document.getElementById("pcBtnBaixarImagemCedula").addEventListener("click", () => {
       if (d.imagemUrl) _baixarImagemCedula(d.imagemUrl);
     });
+    document.getElementById("pcBtnBaixarCardResumo").addEventListener("click", () => {
+      const status = document.getElementById("pcCompartilharStatus");
+      if (!d.cargosEleitos || !CARGOS.some((c) => (d.cargosEleitos[c.id] || []).length)) {
+        if (status) status.textContent = "Essa lista ainda não tem eleitos marcados em nenhum cargo.";
+        return;
+      }
+      const nomeExibido = d.lista.anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || d.lista.nome);
+      const url = gerarImagemCedulaResumo({ nomeExibido, cargosEleitos: d.cargosEleitos, codigo: d.lista.codigo }).toDataURL("image/png");
+      _baixarImagemCedula(url, "meu-palpite-eleicoes-2026.png");
+      if (status) status.textContent = "Card baixado.";
+    });
   }
 }
 
-function _baixarImagemCedula(dataUrl) {
+function _baixarImagemCedula(dataUrl, nomeArquivo) {
   const a = document.createElement("a");
   a.href = dataUrl;
-  a.download = "minha-lista-2026.png";
+  a.download = nomeArquivo || "minha-lista-2026.png";
   document.body.appendChild(a);
   a.click();
   a.remove();

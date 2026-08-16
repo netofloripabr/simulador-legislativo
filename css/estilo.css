@@ -375,6 +375,57 @@
     padding:12px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;
     font-family: var(--sans); color:#04140d; font-size:13.5px; font-weight:700; margin-top:6px;
   }
+  /* Redesenho do Painel (Lobby), 16/08/2026 — referências trazidas pelo
+     usuário (Nubank/BYD): banner de destaque com brilho suave + grade de
+     atalhos maior/mais tátil + "mais funções" discreto embaixo. Quebra de
+     propósito a regra "flat 2D sem blur/glow/gradiente" de 04/08/2026
+     (comentário acima, em .pc-lobby-card) — protótipo novo aprovado depois
+     de 3 rodadas de ajuste (mockup ida-e-volta no chat), pedido explícito
+     de MAIS destaque nos atalhos principais. .pc-lobby-card (hero "Sua
+     lista") continua flat de propósito, não é alvo dessa mudança. */
+  #modoColaborativoWrap .pc-lobby-banner{
+    position:relative; overflow:hidden; border-radius:16px; margin-bottom:22px; padding:16px 18px;
+    background:linear-gradient(120deg, #12351f 0%, var(--pc-lobby-tom-2) 65%);
+    border:1px solid rgba(61,255,176,.35);
+  }
+  #modoColaborativoWrap .pc-lobby-banner::before{
+    content:""; position:absolute; right:-18px; top:-18px; width:90px; height:90px;
+    border-radius:50%; background:rgba(61,255,176,.1); pointer-events:none;
+  }
+  #modoColaborativoWrap .pc-lobby-banner .pc-lobby-banner-eyebrow{
+    font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--pc-accent); margin-bottom:4px;
+  }
+  #modoColaborativoWrap .pc-lobby-banner .pc-lobby-banner-titulo{ font-size:14.5px; font-weight:700; margin-bottom:4px; max-width:230px; }
+  #modoColaborativoWrap .pc-lobby-banner .pc-lobby-banner-corpo{ font-size:11.5px; color:#9fc9b3; margin-bottom:12px; max-width:240px; line-height:1.5; }
+  #modoColaborativoWrap .pc-lobby-banner-btn{
+    all:unset; box-sizing:border-box; cursor:pointer; background:var(--pc-accent); color:#04140d;
+    font-family:var(--sans); font-size:12px; font-weight:700; padding:8px 16px; border-radius:99px;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  #modoColaborativoWrap .pc-lobby-atalhos{ display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:24px; }
+  #modoColaborativoWrap .pc-lobby-atalho{
+    all:unset; box-sizing:border-box; cursor:pointer; background:var(--pc-lobby-tom-2);
+    border:1px solid rgba(61,255,176,.28); border-radius:15px; padding:16px 14px;
+    display:flex; flex-direction:column; gap:11px; box-shadow:0 0 12px rgba(61,255,176,.05);
+    font-family:var(--sans); color:var(--pc-ink);
+  }
+  #modoColaborativoWrap .pc-lobby-atalho:disabled{ opacity:.45; cursor:default; box-shadow:none; }
+  #modoColaborativoWrap .pc-lobby-atalho-icone{
+    width:40px; height:40px; border-radius:11px; background:rgba(61,255,176,.14);
+    display:flex; align-items:center; justify-content:center; color:var(--pc-accent);
+  }
+  #modoColaborativoWrap .pc-lobby-atalho-titulo{ font-size:13.5px; font-weight:700; }
+  #modoColaborativoWrap .pc-lobby-atalho-sub{ font-size:10.5px; color:var(--pc-ink-dim); margin-top:1px; }
+  #modoColaborativoWrap .pc-lobby-mais-tit{
+    font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#6b8f7d; margin:0 0 8px 4px;
+  }
+  #modoColaborativoWrap .pc-lobby-mais{ background:rgba(15,35,27,.5); border:1px solid #16281f; border-radius:14px; padding:2px 12px; }
+  #modoColaborativoWrap .pc-lobby-mais-item{
+    all:unset; box-sizing:border-box; cursor:pointer; width:100%; display:flex; align-items:center; gap:10px;
+    padding:10px 0; border-bottom:1px solid #16281f; font-family:var(--sans);
+  }
+  #modoColaborativoWrap .pc-lobby-mais-item:last-child{ border-bottom:none; }
+  #modoColaborativoWrap .pc-lobby-mais-item span{ flex:1; text-align:left; font-size:12px; color:#a9c2b5; }
   #modoColaborativoWrap h2{ color: var(--pc-ink); font-size: 15px; text-transform:none; letter-spacing:0; margin: 0 0 14px; }
   #modoColaborativoWrap .pc-sub{ color: var(--pc-ink-dim); font-size: 13px; margin-top: -8px; margin-bottom: 16px; }
   /* Estado vazio padronizado — mockup validado com o usuário em 14/08/2026
