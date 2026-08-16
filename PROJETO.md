@@ -97,9 +97,62 @@ escuro/terminal original, que é outra identidade, não esta.
 
 Protótipos validados com o usuário (capa + navegação inferior, tema claro vs.
 escuro vs. verde neon) antes desta decisão — ver conversa. Próximos elementos
-ainda em validação, um de cada vez: barra inferior (substitui ou convive com o
-"Painel principal" atual?), grupos como feature de primeira classe, redesign do
-ranking, telas de menu, estados vazios, tom da escrita.
+ainda em validação, um de cada vez: grupos como feature de primeira classe,
+redesign do ranking, estados vazios, tom da escrita.
+
+### 8.1 Padrão de card/tela — Menu, Painel e cartões de divulgação
+
+**Decisão confirmada em 16/08/2026** (Menu/Perfil, Painel principal e card-
+convite "Meu palpite" já redesenhados nesse padrão — ver commits `55f87f0`,
+`eac6ed0`): referência direta trazida pelo usuário — Nubank ("Nu Viagens",
+faixa de ícones grandes + banner promocional) e BYD ("Dolphin Mini", grade
+2x2 de ícones com ação clara + "Mais funções" recolhido). Prints em
+`Exemplos/referencia-nubank-nu-viagens.png` e
+`Exemplos/referencia-byd-dolphin-mini.png`. Vale como padrão pra **qualquer
+tela nova ou redesenho** deste ponto em diante, não só as três já feitas:
+
+- **Card de perfil/identidade** no topo de telas de conta: avatar circular
+  com inicial (sem foto ainda), nome, e-mail/subtítulo, ação secundária
+  (editar) discreta ao lado.
+- **Banner de destaque** (no máximo 1 por tela) pra UMA ação prioritária:
+  fundo em gradiente sutil (`linear-gradient(120deg, #12351f 0%, [tom de
+  fundo da tela] 65%)`) + círculo de brilho decorativo (`::before`, verde
+  translúcido) + rótulo pequeno maiúsculo + título + corpo curto + botão
+  pill sólido verde. Não usar mais de um por tela — é destaque, satura se
+  repetir.
+- **Grade de atalhos** (2 colunas): card com borda verde translúcida
+  (`rgba(61,255,176,.28)`), ícone dentro de círculo (`rgba(61,255,176,.14)`
+  de fundo), título em negrito + subtítulo com dado real sempre que for
+  barato de buscar (nº de itens, status) — nunca um número inventado.
+  Brilho leve (`box-shadow: 0 0 12px rgba(61,255,176,.05)`), não forte
+  (ficou "chapado" demais na 1ª rodada de ajuste, corrigido pra esse meio-
+  termo na 2ª).
+- **"Mais funções"** (itens secundários, menos usados): lista discreta,
+  SEM moldura de card grossa — fundo quase invisível
+  (`rgba(15,35,27,.5)`), texto pequeno cor `#a9c2b5`/`#6b8f7d`, ícones
+  finos. Deve parecer nitidamente menos importante que a grade de atalhos
+  acima, não competir com ela.
+- **Listas/menus verticais** (Conta, Sobre etc.): linha com ícone-em-
+  quadrado + título + subtítulo + seta `›`, dividida por borda fina —
+  mesmo padrão em toda tela de configuração.
+- **Mini-cards de item dentro de uma lista** (ex.: candidato num card-
+  convite): moldura própria (`background:#0e2018; border:1px solid
+  #1d3a2c; border-radius:8-12px`), nunca só uma linha de texto solta —
+  cada item é um cartãozinho independente.
+- **Conteúdo "teaser" escondido** (prévia que corta e convida a ver mais):
+  desenhar o conteúdo de verdade (nunca uma caixa vazia) e aplicar
+  desfoque real + degradê de opacidade de cima pra baixo — em HTML/CSS via
+  `filter:blur()` + `mask-image:linear-gradient(...)`; em `<canvas>` via
+  canvas offscreen com `ctx.filter='blur()'` recortado por
+  `globalCompositeOperation:'destination-in'` (ver
+  `_desenharColunaCedulaResumo`, interface/prospeccao.js). Caixa vazia
+  desfocada não passa a ideia — feedback direto do usuário na 1ª rodada.
+
+Classes CSS de referência (`css/estilo.css`): `.pc-lobby-banner`,
+`.pc-lobby-atalhos`/`.pc-lobby-atalho`, `.pc-lobby-mais`. Ao criar uma tela
+nova que precise desses padrões, reaproveitar essas classes em vez de
+recriar inline — só criar variante nova se o padrão genuinamente não
+servir (documentar por quê, se acontecer).
 
 ## 9. Experiência do usuário
 
