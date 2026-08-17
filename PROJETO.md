@@ -154,7 +154,119 @@ nova que precise desses padrões, reaproveitar essas classes em vez de
 recriar inline — só criar variante nova se o padrão genuinamente não
 servir (documentar por quê, se acontecer).
 
-## 9. Experiência do usuário
+### 8.2 Identidade visual 2.0 — padrão "Fader" (monocromático + verde estratégico)
+
+**Decisão confirmada em 17/08/2026**, após ~15 rodadas de protótipo
+interativo com o usuário (aba Senador como vitrine). **Este é o padrão
+oficial do app daqui em diante** — a aba Senador nasce nele; as demais
+telas migram em etapa própria (a seção 8.1 continua valendo como referência
+de COMPOSIÇÃO de tela — banners, grades, listas — mas a PALETA e os
+componentes de controle abaixo substituem os antigos ao migrar).
+
+**Paleta (monocromático escuro + 1 cor estratégica):**
+- Fundo: degradê radial `#1B1E22 → #101214 (48%) → #0C0E10` (ellipse no
+  topo). Nunca preto puro, nunca cinza tingido de verde.
+- Cards: `rgba(29,32,35,.85)`, raio 12px; card de eleito ganha borda
+  `rgba(242,244,245,.18)` (clara sutil, NÃO verde).
+- Bordas/filetes: `#23262A` / `#26292D` / `#2B2F33`.
+- Textos: principal `#F2F4F5`, secundário `#8A9096`, apagado `#5C6268`.
+- **Verde vivo `#34E84A` — SÓ em itens estratégicos**: selo ELEITO,
+  preenchimento da barra de progresso coletivo (soma de votos), halo de
+  feedback enquanto uma alça está sendo segurada, e detalhes de foco
+  (borda do box de edição, "i" ativo). NUNCA em fundos, textos correntes ou
+  controles em repouso — a escassez é o que faz o verde significar.
+- Alertas (únicas outras cores): âmbar `#FFB020` (avisos/sobra), coral
+  `#FF5A48` (fora hoje/erro). Só quando carregam significado.
+- Modo claro (frente futura): mesma estrutura invertida — fundo `#F4F5F6`,
+  cards brancos, texto `#1B1E21`, verde escurece pra `#2BB93C`-faixa pra
+  manter contraste sobre branco.
+
+**Tipografia:** UMA família só (a `var(--sans)` do app) pra tudo — a
+variação é apenas de tamanho e peso, nunca de família. Números sempre com
+`font-variant-numeric: tabular-nums` (não "dançam" de largura ao mudar).
+Hierarquia do card: nome 14.5px/650 · %-herói 22px/750 (sufixo % pequeno
+dim) · sublinha 10.5px/#8A9096 · votos na barra 9px/700.
+
+**Componentes (a "família fader"):**
+- **Barra de votação (controle individual)**: trilho 13px com fundo no tom
+  mais escuro do degradê da tela (`#0C0E10`, borda `#23262A`) — efeito de
+  "sulco cavado"; régua de marcações internas a cada 10%
+  (`rgba(138,144,150,.28)`, visível só na parte vazia); preenchimento em
+  degradê de cinzas escuros (`rgba(42,46,50,.75) → rgba(60,65,70,.97)`) —
+  nunca claro/branco; **votos nominais escritos dentro do preenchimento**
+  (deslizam pra fora, na parte vazia, quando a fatia é estreita demais).
+- **Alça (fader)**: pílula vertical 11×27px em **metal escuro** — degradê
+  `#5B6168 → #3A3F45 → #22262A → #3C4147`, borda `rgba(242,244,245,.18)`,
+  brilho interno no topo, vinco central claro; iluminação de repouso fraca
+  e escura (`0 0 0 3px rgba(10,12,14,.55)`); halo verde só enquanto ativa.
+- **Barra principal (progresso coletivo)**: trilho de 5px (metade), régua
+  EXTERNA acima (3px de altura, ticks finos 2,5% + maiores 10%, com máscara
+  em degradê horizontal — quase invisíveis nas bordas, presentes no centro,
+  efeito de perspectiva); preenchimento **verde**: `#34E84A 0% → #14602A
+  52% → #1D8038 100%`; marco central (traço claro) no ponto de 1 voto por
+  eleitor; **mini alça mestra** 8×15px no mesmo metal escuro; escala de
+  extremos embaixo (0 · marco · teto).
+- **Cabeçalho fixo (sticky)**: abas de cargo compactas (padding 3.5px,
+  fonte 11px, ativa = pílula clara `#F2F4F5` com texto escuro) + linha
+  "VOTOS (i) …… 65% · 5,11M de 7,9M" + régua + barra principal + escala,
+  tudo num bloco `rgba(16,18,20,.88)` com blur e borda inferior
+  arredondada. O (i) abre o **funil de votos válidos** (ver abaixo).
+- **Funil de votos válidos** (o "i" do cabeçalho): painel com barras
+  decrescentes mostrando a metodologia real — eleitores aptos projetados →
+  comparecimento (taxa histórica 2022) → votos válidos → ×k votos por
+  eleitor — com números calculados dos dados reais (TSE 2022 + crescimento
+  do eleitorado) e fonte declarada. A perda em cada etapa é VISTA, não só
+  explicada.
+- **Selo ELEITO**: pílula `#34E84A` com texto `#07230C` 8px/800 — o único
+  elemento sempre-verde da lista; a % individual usa base própria (fração
+  do eleitorado, teto 100%).
+
+**Interações (validadas em protótipo):**
+- Arrasto fluido: durante o gesto, só o próprio card atualiza (número,
+  barra, %); NENHUMA reordenação no meio do arrasto; ranking se reacomoda
+  ~450ms depois de soltar. (Reordenar durante o gesto destruía o elemento
+  sob o dedo e travava o arrasto — bug real da 1ª rodada.)
+- Votação nominal por toque: tocar no número de votos abre um box de
+  edição inline (borda verde) ali mesmo; Enter/tocar fora aplica.
+- Sem setas de incremento (testadas e descartadas pelo usuário em
+  17/08/2026).
+
+**Fórmula Matriz de Distribuição (FMD)** — a regra matemática única, feita
+pra escalar da aba Senador (candidatos) pros quadros de Deputados
+(partidos, e dentro deles candidatos):
+
+Parâmetros: `E` = votos válidos projetados do cargo (TSE 2022 escalado
+pelo crescimento do eleitorado, taxas históricas de comparecimento/brancos/
+nulos mantidas); `k` = votos por eleitor no cargo (Senador 2026: k=2;
+proporcionais: k=1); `T = k·E` = teto coletivo ("tapete curto"); `c_i` =
+teto individual da unidade i (candidato: `E` — um eleitor não vota duas
+vezes no mesmo nome; partido em proporcional: `E`); `v_i` = votos da
+unidade i.
+
+Invariantes (valem pra QUALQUER via de edição — arrasto, box, alça):
+1. `0 ≤ v_i ≤ c_i`
+2. `Σ v_i ≤ T`
+3. Edição individual: `v_i ← clamp(pedido, 0, min(c_i, T − Σ_{j≠i} v_j))`
+
+Alça mestra (escala proporcional com saturação — decisão (b) do usuário):
+- Ao INICIAR o gesto, fotografa a base `b_i = v_i` e `S = Σ b_i` (exige
+  S > 0; se tudo zero, a alça não age).
+- Alvo `A = posição × T`, limitado a `A_max = min(T, Σ_{b_i>0} c_i)`.
+- Resolve o fator `f ≥ 0` tal que `Σ min(c_i, b_i·f) = A` (função
+  monótona em f — busca binária; solver exato, sem acúmulo de erro).
+- Aplica `v_i = min(c_i, b_i·f)`. Consequências garantidas: quem está em
+  0 permanece em 0; quem satura estaciona no teto individual; os
+  não-saturados mantêm a proporção EXATA da base entre si; descer e subir
+  dentro do mesmo gesto restaura a distribuição original (a base só é
+  descartada ao soltar).
+
+Extensão pros Deputados (etapa 2, aprovada em conceito): a FMD é
+**aninhável** — no nível do cargo, as unidades são partidos/federações
+(k=1, T=E); a fatia `v_partido` conquistada vira o teto coletivo interno
+do card do partido, onde a mesma FMD roda de novo com os candidatos como
+unidades (alça mestra do partido = escala interna proporcional). A
+marcação de eleitos continua 100% derivada (majoritário: top-k por votos;
+proporcional: QE/QP/médias como hoje).
 
 - Acesso ao site → cadastro padrão → tela inicial com janelas de introdução/
   tutorial de cada item.
