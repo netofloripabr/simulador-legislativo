@@ -161,6 +161,10 @@
     text-align:left; white-space:normal;
   }
   .info-tip:hover .tip-box{ display:block; }
+  /* Toque mantido (celular) — mesmo efeito do :hover, só que acionado por
+     JS (interface/app.js) depois de ~420ms de dedo pressionado, porque
+     não existe :hover de verdade em touch. */
+  .info-tip.pc-legenda-toque .tip-box{ display:block; }
   .info-tip .tip-box b{ color:var(--accent); }
   .info-tip .tip-box::after{
     content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%);
@@ -577,6 +581,28 @@
     padding:5px 9px; font-size:11px; font-weight:600; color:var(--pc-ink); z-index:20;
   }
   #modoColaborativoWrap .pc-mini-btn:hover .pc-mini-tip{ display:block; }
+
+  /* Painel de comandos padronizado da Seleção (barra de ações no fim da
+     tela) — cada comando é uma pílula com um botão de AÇÃO (sempre
+     executa num toque rápido, nunca tem nada de hover embutido nele) e,
+     quando existe explicação, um "i" companheiro do lado — dois alvos de
+     toque separados dentro da mesma pílula visual. Pedido do usuário em
+     17/08/2026 (ver comandoPill, interface/prospeccao.js, e a correção
+     de toque mantido em interface/app.js). */
+  #modoColaborativoWrap .pc-cmd-pill{
+    display:inline-flex; align-items:stretch; background:#0c1c16; border:1px solid #2a4438; border-radius:999px;
+  }
+  #modoColaborativoWrap .pc-cmd-pill .pc-cmd-acao{
+    background:none; border:none; color:var(--pc-ink-dim); padding:9px 11px; display:flex; align-items:center;
+    cursor:pointer; font-family:inherit;
+  }
+  #modoColaborativoWrap .pc-cmd-pill .pc-cmd-acao:disabled{ opacity:.4; cursor:default; }
+  #modoColaborativoWrap .pc-cmd-pill .pc-cmd-acao:hover:not(:disabled){ color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-cmd-pill.ativo{ border-color:var(--pc-accent); background:rgba(61,255,176,.1); }
+  #modoColaborativoWrap .pc-cmd-pill.ativo .pc-cmd-acao{ color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-cmd-pill.destaque{ border-color:var(--pc-accent); background:rgba(61,255,176,.08); }
+  #modoColaborativoWrap .pc-cmd-pill.destaque .pc-cmd-acao{ color:#c8ffe8; }
+  #modoColaborativoWrap .pc-cmd-pill .info-tip{ margin:0 9px 0 0; flex-shrink:0; align-self:center; }
 
   /* Alça de expandir/recolher o card do partido — estilo "puxador" de
      bottom sheet, no lugar da setinha no canto (P-03). Centralizada em

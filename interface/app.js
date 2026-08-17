@@ -15,6 +15,41 @@ function warnTip(html){
   return `<span class="info-tip warn">!<span class="tip-box">${html}</span></span>`;
 }
 
+// Legenda por toque mantido — o CSS (.info-tip:hover .tip-box) já mostra a
+// legenda com mouse; em celular não existe hover de verdade, então esse
+// listener único (delegado no document, funciona pra QUALQUER .info-tip
+// da página, presente ou futuro, sem precisar religar nada a cada render)
+// mostra a legenda depois de ~420ms de dedo pressionado sobre o "i"/"!", e
+// esconde ao soltar. Um toque RÁPIDO nunca ativa isso — sai limpo antes do
+// tempo, sem mexer em nada. Pedido do usuário em 17/08/2026: até essa
+// correção, o "i" ficava DENTRO do próprio botão de ação (Zerar, Salvar,
+// Auto, Avançar — ver interface/prospeccao.js) e qualquer toque nesses
+// botões corria o risco de ser lido como "abrir a dica" em vez de
+// "clicar", porque o navegador simula :hover no primeiro toque de um
+// elemento com essa regra CSS. A correção completa tem duas partes: essa
+// aqui (a legenda passa a exigir toque MANTIDO, não qualquer toque) e,
+// nesses 4 botões específicos, o "i" saiu de dentro do <button> pra um
+// elemento-irmão ao lado (ver comandoPill em prospeccao.js) — só a
+// combinação das duas garante que um toque rápido no ícone sempre clique.
+(function(){
+  const DEMORA_MS = 420;
+  let timer = null;
+  let alvoAtual = null;
+  function limpar(){
+    if (timer) { clearTimeout(timer); timer = null; }
+    if (alvoAtual) { alvoAtual.classList.remove("pc-legenda-toque"); alvoAtual = null; }
+  }
+  document.addEventListener("touchstart", (e) => {
+    const tip = e.target.closest(".info-tip");
+    limpar();
+    if (!tip) return;
+    timer = setTimeout(() => { tip.classList.add("pc-legenda-toque"); alvoAtual = tip; timer = null; }, DEMORA_MS);
+  }, { passive: true });
+  document.addEventListener("touchend", limpar);
+  document.addEventListener("touchmove", limpar);
+  document.addEventListener("touchcancel", limpar);
+})();
+
 // selo "eleito 2022" (fato fixo, vem de dados/base-2022.js) + aviso de voto invalidado, se houver
 function selosCandidato2022(c){
   let html = '';

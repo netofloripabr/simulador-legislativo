@@ -138,6 +138,29 @@ function iconeSvg(nome, tamanho) {
   return `<svg viewBox="0 0 16 16" width="${t}" height="${t}">${PC_ICONES[nome] || ""}</svg>`;
 }
 
+// Um "comando" do painel de ações (Seleção, barra no fim da tela) — ícone
+// de ação + "i" companheiro OPCIONAL, como dois elementos-irmãos dentro da
+// mesma pílula visual, nunca um dentro do outro. Antes o "i" (infoTip/
+// warnTip) ficava aninhado DENTRO do próprio <button> da ação — em
+// celular, qualquer toque ali corria o risco de ser lido como "abrir a
+// dica" em vez de "clicar" (o navegador simula :hover no primeiro toque
+// de um elemento com essa regra CSS), deixando o botão "travado" pro
+// usuário. Separar em dois alvos de toque resolve isso na raiz: o botão
+// de ação nunca tem um descendente com regra de :hover, então o toque
+// nele sempre funciona como um clique normal — a legenda (no "i" ao lado)
+// só aparece com hover de mouse ou toque mantido (ver interface/app.js).
+// Pedido do usuário em 17/08/2026, painel único e padronizado pra todos
+// os comandos da tela.
+function comandoPill(opcoes) {
+  const { id, icone, tamanho, titulo, legenda, legendaWarn, disabled, classeExtra, atributosExtra } = opcoes;
+  const tip = legendaWarn ? warnTip(legendaWarn) : (legenda ? infoTip(legenda) : "");
+  return `
+    <span class="pc-cmd-pill${classeExtra ? " " + classeExtra : ""}">
+      <button type="button" id="${id}" class="pc-cmd-acao" title="${escaparAtributoHtml(titulo)}" ${disabled ? "disabled" : ""} ${atributosExtra || ""}>${iconeSvg(icone, tamanho || 15)}</button>
+      ${tip}
+    </span>`;
+}
+
 // Escapa aspas pra usar valor de texto livre (ex.: link de Instagram
 // cadastrado por um admin) dentro de um atributo HTML sem quebrar o resto
 // da tag — o resto do app não escapa texto livre em innerHTML (convenção
@@ -4580,17 +4603,44 @@ async function renderCargoEstadual() {
       </div>`}
     </div>
     <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
-      <button id="pcBtnBuscaPartidoToggle" class="pc-mini-btn" title="Buscar partido por nome" style="${pcState.buscaPartidoAberta ? "background:rgba(61,255,176,.18); border-color:var(--pc-accent); color:var(--pc-accent);" : ""}">
-        <svg viewBox="0 0 16 16" width="14" height="14"><circle cx="6.6" cy="6.6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7L13.5 13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
-      </button>
-      <button id="pcBtnVoltarSelecao" class="pc-mini-btn" title="Desfaz a última alteração feita nesta tela" ${pcState.historicoPalpite.length ? "" : "disabled"}>${iconeSvg("desfazer", 15)}</button>
-      <button class="ghost" id="pcBtnZerarTudo" title="Zerar votação de todos" style="display:flex; align-items:center; gap:5px;">${iconeSvg("borracha", 14)}${infoTip("Zere o jogo!<br><br>Aqui você limpa a votação de todo mundo.<br><br>Indicado para aquele jogador mais avançado que deseja indicar a votação de muitos candidatos.")}</button>
-      <button id="pcBtnTop2022" class="pc-mini-btn" title="Top 100 mais votados em 2022">${iconeSvg("ano2022", 15)}</button>
-      <button id="pcAbrirInstrucao" class="pc-mini-btn" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
+      ${comandoPill({
+        id: "pcBtnBuscaPartidoToggle", icone: "buscar", tamanho: 14, titulo: "Buscar partido",
+        legenda: "Abre um campo pra filtrar a lista de partidos pelo nome.",
+        classeExtra: pcState.buscaPartidoAberta ? "ativo" : "",
+      })}
+      ${comandoPill({
+        id: "pcBtnVoltarSelecao", icone: "desfazer", tamanho: 15, titulo: "Desfazer",
+        legenda: "Desfaz a última alteração feita nesta tela — um voto editado, um candidato marcado. Só volta um passo por vez.",
+        disabled: !pcState.historicoPalpite.length,
+      })}
+      ${comandoPill({
+        id: "pcBtnZerarTudo", icone: "borracha", tamanho: 14, titulo: "Zerar votação",
+        legenda: "Zere o jogo!<br><br>Aqui você limpa a votação de todo mundo.<br><br>Indicado para aquele jogador mais avançado que deseja indicar a votação de muitos candidatos.",
+      })}
+      ${comandoPill({
+        id: "pcBtnTop2022", icone: "ano2022", tamanho: 15, titulo: "Top 100 de 2022",
+        legenda: "Mostra os 100 candidatos mais votados na eleição real de 2022, de todos os partidos — só de referência, não muda seu palpite.",
+      })}
+      ${comandoPill({
+        id: "pcAbrirInstrucao", icone: "alerta", tamanho: 14, titulo: "Como montar a lista",
+        legenda: "Reabre o guia rápido: quantidade por partido, votação dos eleitos, e quando o Avançar libera.",
+      })}
       <div style="flex:1;"></div>
-      <button id="pcBtnSalvarSelecao" class="pc-mini-btn" title="Salvar sua lista até aqui">${iconeSvg("salvar", 17)}${infoTip("Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\".")}</button>
-      <button id="pcBtnPreencherAutoTudo" class="primary" style="width:34px; height:34px; padding:0; border-radius:50%; display:flex; align-items:center; justify-content:center;" title="Preenchimento automático">${iconeSvg("completar", 18)}${infoTip("PREENCHIMENTO AUTOMÁTICO<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.")}</button>
-      <button class="primary" id="pcBtnDepositar" ${totalIndicado === totalVagasCargo ? "" : "disabled"} style="width:34px; height:34px; padding:0; border-radius:50%; display:flex; align-items:center; justify-content:center;" title="Avançar pra Revisão">${iconeSvg("setaDireita", 19)}${infoTip(`Esse é o botão de avançar pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos — por enquanto está desabilitado.`)}</button>
+      ${comandoPill({
+        id: "pcBtnSalvarSelecao", icone: "salvar", tamanho: 17, titulo: "Salvar",
+        legenda: "Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\".",
+      })}
+      ${comandoPill({
+        id: "pcBtnPreencherAutoTudo", icone: "completar", tamanho: 18, titulo: "Mágico — preenchimento automático",
+        legenda: "PREENCHIMENTO AUTOMÁTICO<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.",
+        classeExtra: "destaque",
+      })}
+      ${comandoPill({
+        id: "pcBtnDepositar", icone: "setaDireita", tamanho: 19, titulo: "Prosseguir pra Revisão",
+        legenda: `Esse é o botão de avançar pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos${totalIndicado === totalVagasCargo ? "" : " — por enquanto está desabilitado"}.`,
+        disabled: totalIndicado !== totalVagasCargo,
+        classeExtra: "destaque",
+      })}
     </div>
     <div class="pc-status" id="pcSelecaoStatus" style="text-align:right; margin:-14px 0 14px;"></div>
     ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
