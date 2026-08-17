@@ -128,6 +128,7 @@ const PC_ICONES = {
   copiar: '<rect x="6" y="6" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect><path d="M4 9.5V3.7a1.2 1.2 0 011.2-1.2H9.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   baixar: '<path d="M8 2.5v7.3M5 7l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.8 12.2v1a1 1 0 001 1h8.4a1 1 0 001-1v-1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   buscar: '<circle cx="6.8" cy="6.8" r="4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
+  salvar: '<path d="M3 2.8h8.2l2 2v8.4H3V2.8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M5 2.8v3.6h4.6V2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path><rect x="4.8" y="9" width="6.4" height="4.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect>',
 };
 function iconeSvg(nome, tamanho) {
   const t = tamanho || 16;
@@ -4546,9 +4547,12 @@ async function renderCargoEstadual() {
       <button id="pcBtnTop2022" class="pc-mini-btn" title="Top 100 mais votados em 2022">${iconeSvg("ano2022", 15)}</button>
       <button id="pcAbrirInstrucao" class="pc-mini-btn" title="Dica, como montar a lista?">${iconeSvg("alerta", 14)}</button>
       <div style="flex:1;"></div>
-      <button id="pcBtnPreencherAutoTudo" class="primary" style="display:flex; align-items:center; gap:8px;">${iconeSvg("completar", 18)} Auto${infoTip("PREENCHIMENTO AUTOMÁTICO<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.")}</button>
-      <button class="primary" id="pcBtnDepositar" ${totalIndicado === totalVagasCargo ? "" : "disabled"} style="display:flex; align-items:center; gap:8px;">Avançar${infoTip(`Esse é o botão de avançar pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos — por enquanto está desabilitado.`)}</button>
+      <button id="pcBtnSalvarSelecao" class="pc-mini-btn" title="Salvar sua lista até aqui">${iconeSvg("salvar", 17)}${infoTip("Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\".")}</button>
+      <button id="pcBtnPreencherAutoTudo" class="primary" style="width:34px; height:34px; padding:0; border-radius:50%; display:flex; align-items:center; justify-content:center;" title="Preenchimento automático">${iconeSvg("completar", 18)}${infoTip("PREENCHIMENTO AUTOMÁTICO<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.")}</button>
+      <button class="primary" id="pcBtnDepositar" ${totalIndicado === totalVagasCargo ? "" : "disabled"} style="width:34px; height:34px; padding:0; border-radius:50%; display:flex; align-items:center; justify-content:center;" title="Avançar pra Revisão">${iconeSvg("setaDireita", 19)}${infoTip(`Esse é o botão de avançar pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos — por enquanto está desabilitado.`)}</button>
     </div>
+    <div class="pc-status" id="pcSelecaoStatus" style="text-align:right; margin:-14px 0 14px;"></div>
+    ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
     ${pcState.buscaPartidoAberta ? `
     <div style="position:relative; margin:-12px 0 20px;">
       <svg viewBox="0 0 16 16" width="14" height="14" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--pc-ink-dim); pointer-events:none;"><circle cx="6.6" cy="6.6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7L13.5 13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
@@ -4933,6 +4937,43 @@ function attachListenersSelecao() {
     if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
     else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
   });
+  // "Salvar" da Seleção — ao contrário de "Avançar" (acima), não exige a
+  // lista completa: grava o que já foi marcado e mantém a pessoa editando
+  // na mesma tela (pedido do usuário em 16/08/2026 — vinha perdendo
+  // simulações por não conseguir salvar antes de terminar). Reaproveita o
+  // mesmo modal de nomear e a mesma execução de gravação da Revisão
+  // (executarSalvarLista), só que com manterTela:true pra não navegar embora.
+  document.getElementById("pcBtnSalvarSelecao").addEventListener("click", async () => {
+    garantirPalpitesPorCargo();
+    if (!pcState.listaSalvaNome) {
+      pcState.modalNomeListaAberto = true;
+      renderCargoEstadual();
+      return;
+    }
+    // Só re-renderiza (e só aí mostra "Lista salva") quando deu certo — em
+    // caso de erro, a mensagem já foi escrita na caixa de status ATUAL por
+    // executarSalvarLista; re-renderizar de qualquer jeito apagaria ela
+    // antes da pessoa conseguir ler.
+    const ok = await executarSalvarLista({ manterTela: true });
+    if (ok) {
+      // renderCargoEstadual é assíncrona (await garantirPalpiteEdicaoAtivo
+      // lá dentro) — sem esperar ela terminar, esta mensagem era escrita
+      // ANTES do conteudo.innerHTML ser trocado e sumia junto com o DOM
+      // antigo assim que o render de fato acontecia.
+      await renderCargoEstadual();
+      mostrarStatusSalvamento("Lista salva. Pode continuar editando.");
+    }
+  });
+  if (pcState.modalNomeListaAberto) {
+    attachListenersModalNomeLista(renderCargoEstadual, async () => {
+      garantirPalpitesPorCargo();
+      const ok = await executarSalvarLista({ manterTela: true });
+      if (ok) {
+        await renderCargoEstadual();
+        mostrarStatusSalvamento("Lista salva. Pode continuar editando.");
+      }
+    });
+  }
 }
 
 // ---------- Revisão + cerimônia de depósito da cédula ----------
@@ -5362,12 +5403,32 @@ function listaUnificadaRevisao(listaParam, cargo) {
   return resultado;
 }
 
+// Mensagem de erro/status de salvamento — mostrada em qualquer tela que
+// chame executarSalvarLista (Revisão tem #pcDepositoStatus, Seleção tem
+// #pcSelecaoStatus, ver renderCargoEstadual). Silenciosa se nenhuma das
+// duas existir no momento (não deveria acontecer, mas evita TypeError).
+function mostrarStatusSalvamento(msg) {
+  const el = document.getElementById("pcDepositoStatus") || document.getElementById("pcSelecaoStatus");
+  if (el) el.textContent = msg;
+}
+
 // Efetiva o Salvar depois que a lista já tem nome (primeira vez, via modal
-// de nomear — ver pcBtnConfirmarNomeLista) ou já tinha (salvamento
-// seguinte da mesma lista, silencioso). gera o id exclusivo na primeira
+// de nomear — ver attachListenersModalNomeLista) ou já tinha (salvamento
+// seguinte da mesma lista, silencioso). Gera o id exclusivo na primeira
 // vez só, e reaproveita depois — cada clique de Salvar é uma ATUALIZAÇÃO
 // da mesma lista, não uma lista nova.
-async function executarSalvarLista() {
+//
+// manterTela:true é o caso da Seleção (botão Salvar, ver
+// attachListenersSelecao) — grava a lista, mesmo incompleta, e devolve o
+// controle pra quem chamou continuar na mesma tela em vez de navegar pra
+// "lista salva"/painel, que é o comportamento certo só quando o salvamento
+// vem do fim da trilha (Revisão → pcBtnConfirmarDeposito). Nesse caso a
+// função só GRAVA e devolve true/false — não mostra "Lista salva" nem
+// re-renderiza nada, porque quem chamou ainda vai re-renderizar a tela
+// (pra fechar o modal de nome) e só DEPOIS disso a mensagem tem uma caixa
+// de status nova pra aparecer; mostrar aqui seria apagado pelo re-render
+// logo em seguida.
+async function executarSalvarLista({ manterTela = false } = {}) {
   // Guarda ANTES de qualquer escrita — as duas ramificações abaixo
   // preenchem pcState.listaSalvaId assim que salvam, então precisa
   // capturar "ainda não tinha id" logo no início pra saber depois se
@@ -5382,11 +5443,11 @@ async function executarSalvarLista() {
   if (pcState.perfil) {
     if (!pcState.listaSalvaId) {
       const { data, error } = await salvarSalvamento(pcState.perfil.id, pcState.estado, pcState.listaSalvaNome, pcState.palpitesPorCargo);
-      if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
+      if (error) { mostrarStatusSalvamento("Erro ao salvar: " + error.message); return false; }
       pcState.listaSalvaId = data.id;
     } else {
       const { error } = await atualizarSalvamento(pcState.listaSalvaId, pcState.palpitesPorCargo);
-      if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
+      if (error) { mostrarStatusSalvamento("Erro ao salvar: " + error.message); return false; }
     }
   } else {
     pcState.listaSalvaId = pcState.listaSalvaId || gerarIdLista();
@@ -5396,7 +5457,8 @@ async function executarSalvarLista() {
   // tabela separada, 1 linha por pessoa, não mexe com "salvamentos".
   if (pcState.perfil) {
     const { error } = await salvarPalpiteCompleto(pcState.perfil.id, pcState.palpiteEdicao);
-    if (error) { document.getElementById("pcDepositoStatus").textContent = "Erro ao salvar: " + error.message; return; }
+    if (error) { mostrarStatusSalvamento("Erro ao salvar: " + error.message); return false; }
+    if (manterTela) return true;
     // A tela "Sua lista foi salva" (renderDepositoConfirmado) é a
     // recepção de PRIMEIRA vez — convite pra convidar amigos, criar
     // grupo etc. Salvamentos seguintes da MESMA lista (edição) não são
@@ -5405,6 +5467,9 @@ async function executarSalvarLista() {
     // usuário em 16/08/2026.
     if (primeiraVez) { pcState.subaba = "deposito-confirmado"; } else { pcState.subaba = "painel"; }
     renderAppColaborativo();
+    return true;
+  } else if (manterTela) {
+    return true;
   } else if (primeiraVez) {
     pcState.tela = "deposito-confirmado";
     renderColaborativo();
@@ -5412,6 +5477,55 @@ async function executarSalvarLista() {
     pcState.tela = "painel-convidado";
     renderColaborativo();
   }
+  return true;
+}
+
+// Modal "nomeie a sua lista" — pedido só no primeiro Salvar de uma lista
+// (sem nome ainda), de qualquer tela que tenha um botão Salvar (Seleção e
+// Revisão, ver attachListenersModalNomeLista). Extraído em 16/08/2026 pra
+// não duplicar o markup/lógica quando o Salvar ganhou um segundo ponto de
+// entrada na Seleção.
+function renderModalNomeLista() {
+  return `
+    <div id="pcModalNomeListaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <h2 style="margin-bottom:4px; font-size:15px;">Nomeie a sua lista</h2>
+        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">A nomeação é importante para gerar palpites diferentes conforme determinados grupos, ou para o cadastro de novas listas por conta da mudança de cenário durante o período eleitoral.</div>
+        <input class="cell" id="pcInputNomeLista" placeholder="otimista - ${new Date().toLocaleDateString("pt-BR")}" style="width:100%; margin-bottom:6px;">
+        <div class="pc-erro" id="pcErroNomeLista" style="min-height:16px;"></div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="ghost" id="pcBtnCancelarNomeLista" style="flex:1;">Cancelar</button>
+          <button class="primary" id="pcBtnConfirmarNomeLista" style="flex:1;">Salvar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// aoCancelar/aoConfirmar são callbacks de quem chamou (cada tela decide o
+// que fazer depois): Revisão passa executarSalvarLista puro (navega pra
+// "lista salva"/painel ao terminar); Seleção passa uma versão com
+// manterTela:true seguida de um re-render da própria tela (ver
+// attachListenersSelecao).
+function attachListenersModalNomeLista(aoCancelar, aoConfirmar) {
+  const inputNome = document.getElementById("pcInputNomeLista");
+  inputNome.focus();
+  const confirmar = async () => {
+    const valor = inputNome.value.trim();
+    if (!valor) {
+      document.getElementById("pcErroNomeLista").textContent = "Digite um nome pra continuar.";
+      inputNome.focus();
+      return;
+    }
+    pcState.listaSalvaNome = valor;
+    pcState.modalNomeListaAberto = false;
+    await aoConfirmar();
+  };
+  document.getElementById("pcBtnCancelarNomeLista").addEventListener("click", () => {
+    pcState.modalNomeListaAberto = false;
+    aoCancelar();
+  });
+  document.getElementById("pcBtnConfirmarNomeLista").addEventListener("click", confirmar);
+  inputNome.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); confirmar(); } });
 }
 
 function renderRevisaoDeposito() {
@@ -5746,39 +5860,9 @@ function renderRevisaoDeposito() {
 
       ${secoesHtml}
     </div>
-    ${pcState.modalNomeListaAberto ? `
-    <div id="pcModalNomeListaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
-        <h2 style="margin-bottom:4px; font-size:15px;">Nomeie a sua lista</h2>
-        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">A nomeação é importante para gerar palpites diferentes conforme determinados grupos, ou para o cadastro de novas listas por conta da mudança de cenário durante o período eleitoral.</div>
-        <input class="cell" id="pcInputNomeLista" placeholder="otimista - ${new Date().toLocaleDateString("pt-BR")}" style="width:100%; margin-bottom:6px;">
-        <div class="pc-erro" id="pcErroNomeLista" style="min-height:16px;"></div>
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <button class="ghost" id="pcBtnCancelarNomeLista" style="flex:1;">Cancelar</button>
-          <button class="primary" id="pcBtnConfirmarNomeLista" style="flex:1;">Salvar</button>
-        </div>
-      </div>
-    </div>` : ""}`;
+    ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}`;
   if (pcState.modalNomeListaAberto) {
-    const inputNome = document.getElementById("pcInputNomeLista");
-    inputNome.focus();
-    const confirmarNome = async () => {
-      const valor = inputNome.value.trim();
-      if (!valor) {
-        document.getElementById("pcErroNomeLista").textContent = "Digite um nome pra continuar.";
-        inputNome.focus();
-        return;
-      }
-      pcState.listaSalvaNome = valor;
-      pcState.modalNomeListaAberto = false;
-      await executarSalvarLista();
-    };
-    document.getElementById("pcBtnCancelarNomeLista").addEventListener("click", () => {
-      pcState.modalNomeListaAberto = false;
-      renderRevisaoDeposito();
-    });
-    document.getElementById("pcBtnConfirmarNomeLista").addEventListener("click", confirmarNome);
-    inputNome.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); confirmarNome(); } });
+    attachListenersModalNomeLista(renderRevisaoDeposito, executarSalvarLista);
   }
   // Filtro lista única vs. agrupado por partido/federação, no cabeçalho de
   // cada cargo — preventDefault/stopPropagation pra não deixar o clique
