@@ -396,3 +396,42 @@ function desenharHemiciclo(listaPartidos, totalVagas, coresMono){
   return `<svg viewBox="0 0 400 225" style="width:100%; display:block; margin:0 auto;">${circles}</svg>`;
 }
 
+
+// ===== Fórmula Matriz de Distribuição (FMD) — PROJETO.md §8.2 =====
+// Regra única do "tapete curto": distribuir votos entre unidades (candidatos
+// no Senador; partidos nos proporcionais, na etapa 2) respeitando um teto
+// individual por unidade e um teto coletivo do cargo. Funções puras — quem
+// chama decide o que é unidade e de onde vêm os tetos.
+
+// Trava de edição individual (arrasto/box de um único item): o valor pedido
+// é limitado ao teto individual E ao espaço que sobra no teto coletivo
+// considerando os OUTROS itens como estão.
+function fmdTravaIndividual(pedido, tetoIndividual, tetoColetivo, somaOutros) {
+  return Math.max(0, Math.min(pedido, Math.min(tetoIndividual, tetoColetivo - somaOutros)));
+}
+
+// Escala proporcional com saturação (alça mestra): dado o vetor `base`
+// (fotografado no INÍCIO do gesto — nunca iterar sobre valores já
+// escalados, o arredondamento acumulado distorce as proporções) e um
+// `alvo` de soma total, encontra o fator f tal que
+//   Σ min(tetoIndividual, base_i · f) = alvo
+// A função é monótona em f, então busca binária resolve com precisão.
+// Consequências garantidas (decisão do usuário em 17/08/2026, opção (b)):
+// base_i = 0 permanece 0; quem satura estaciona no teto individual; os
+// não-saturados mantêm a proporção EXATA da base entre si.
+function fmdEscalarProporcional(base, alvo, tetoIndividual) {
+  const somaBase = base.reduce((s, v) => s + v, 0);
+  if (somaBase <= 0) return base.slice();
+  const somaComFator = (f) => base.reduce((s, v) => s + Math.min(tetoIndividual, v * f), 0);
+  // alvo máximo alcançável: todos os itens positivos no teto individual
+  const positivos = base.filter((v) => v > 0).length;
+  const alvoMax = positivos * tetoIndividual;
+  const alvoReal = Math.max(0, Math.min(alvo, alvoMax));
+  let lo = 0, hi = 1;
+  while (somaComFator(hi) < alvoReal && hi < 1e9) hi *= 2;
+  for (let k = 0; k < 50; k++) {
+    const mid = (lo + hi) / 2;
+    if (somaComFator(mid) < alvoReal) lo = mid; else hi = mid;
+  }
+  return base.map((v) => Math.round(Math.min(tetoIndividual, v * hi)));
+}

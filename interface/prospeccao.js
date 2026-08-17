@@ -87,6 +87,7 @@ let pcState = {
   linksCandidatosCache: {}, // "estado::cargo" -> { chave: instagram }, ver garantirLinksCandidatos
   modalInstagramInfo: null, // { chave, nome, valorAtual } do candidato com o modal de editar Instagram aberto (só admin), ou null
   legendaComandosAberta: false, // painel único de legenda do painel de comandos da Seleção (o "i" no fim da linha de ícones)
+  funilVotosAberto: false, // funil explicativo dos votos válidos (o "i" do cabeçalho da aba Senador, PROJETO.md §8.2)
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -3807,6 +3808,311 @@ function aplicarQuantidadeMarcados(p, quantidade) {
   p.candidatos.forEach((c) => { c.marcadoEleito = c.fonte !== "legenda" && chavesMarcadas.has(c.chave); });
 }
 
+// Versão do princípio acima pro Senador (majoritário, lista única — ver
+// PROJETO.md §8.2): a marcação é 100% derivada da votação, cruzando TODOS
+// os partidos — os N mais votados do cargo inteiro (N = vagas, 2 em 2026)
+// ficam marcados, desde que tenham voto > 0. Roda depois de QUALQUER
+// mudança de voto na aba Senador (arrasto, box nominal, alça mestra,
+// zerar, desfazer), sempre do zero, nunca incremental.
+function recalcularMarcadosSenador() {
+  const vagas = vagasFixasCargo(pcState.estado, "senador");
+  const todos = [];
+  pcState.palpiteEdicao.forEach((p) => {
+    p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todos.push(c));
+  });
+  const ordenados = [...todos].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+  const chavesEleitas = new Set(ordenados.slice(0, vagas).filter((c) => (Number(c.votos) || 0) > 0).map((c) => c.chave));
+  pcState.palpiteEdicao.forEach((p) => {
+    p.candidatos.forEach((c) => { c.marcadoEleito = chavesEleitas.has(c.chave); });
+  });
+}
+
+// ===== Aba Senador — padrão "Fader" (PROJETO.md §8.2) =====
+// Lista única de candidatos (sem cards de partido — eleição majoritária,
+// art. 46), com barra-fader por candidato, cabeçalho com barra de
+// eleitorado + alça mestra, e a FMD (calculo/eleitoral.js) como regra de
+// distribuição. Prototipado e validado com o usuário em 17/08/2026.
+
+// Itens achatados do cargo (TODOS os candidatos reais, sem filtro de
+// busca) — o índice deste array é o data-sen-idx dos cards e a ordem do
+// vetor `base` da alça mestra. Reconstruído a cada render.
+let _senItens = [];
+let _senDragIdx = null, _senTimer = null, _senEditAberto = false, _senMasterAtivo = false;
+
+function montarItensSenador() {
+  _senItens = [];
+  pcState.palpiteEdicao.forEach((p) => {
+    p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => {
+      _senItens.push({ c, partido: p.nome, partidoOriginal: c.partidoOriginal || p.nome });
+    });
+  });
+}
+
+// Cabeçalho da aba Senador (vai no slot fixo #pcPainelSlot): linha
+// "VOTOS (i) … pct · nominal", funil explicativo, régua em perspectiva,
+// trilho verde com marco central e a mini alça mestra, escala de extremos.
+function renderPainelSenador(E) {
+  const TETO = E * 2;
+  const soma = pcState.palpiteEdicao.reduce((s, p) => s + p.candidatos.reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
+  const pct = Math.round(soma / TETO * 100);
+  const w = Math.min(100, soma / TETO * 100);
+  // Funil com os números REAIS da metodologia do app: aptos/comparecimento
+  // só existem como dado oficial pra SC (REF_2022/ELEITORADO_2026, dados/
+  // base-2022.js) — nos outros estados o funil mostra só a etapa final.
+  const fator = fatorCrescimentoEleitorado();
+  const temAptos = pcState.estado === "SC";
+  const aptos = temAptos ? ELEITORADO_2026 : null;
+  const compar = temAptos ? Math.round(REF_2022.comparecimento * fator) : null;
+  const funilLinha = (rotulo, valor, larg, total) => `
+    <div class="pc-sen-fu-row">
+      <div class="pc-sen-fu-l"><span>${rotulo}</span><b${total ? ' style="color:var(--pc-accent);"' : ""}>${formatVotosCompacto(valor)}</b></div>
+      <div class="pc-sen-fu-b${total ? " tot" : ""}" style="width:${larg}%;"></div>
+    </div>`;
+  return `
+    <div class="pc-sen-hdr">
+      <div class="pc-sen-osub">
+        <span class="pc-sen-lbl">Votos <button type="button" id="pcSenInf" class="pc-sen-inf${pcState.funilVotosAberto ? " aberto" : ""}">i</button></span>
+        <span class="pc-sen-num"><b id="pcSenPct">${pct}%</b> · <span id="pcSenNom">${formatVotosCompacto(soma)} de ${formatVotosCompacto(TETO)}</span></span>
+      </div>
+      ${pcState.funilVotosAberto ? `
+      <div class="pc-sen-funil">
+        <div class="pc-sen-fu-t">De onde vem o teto de <b>${formatVotosCompacto(TETO)}</b>: projeção dos votos válidos de 2026 a partir do resultado real de 2022 (TSE), escalada pelo crescimento do eleitorado — mantendo as taxas históricas de comparecimento, brancos e nulos.</div>
+        ${temAptos ? funilLinha("Eleitores aptos 2026 (TSE)", aptos, 100) : ""}
+        ${temAptos ? funilLinha("Comparecem (taxa hist. 2022)", compar, Math.round(compar / aptos * 100)) : ""}
+        ${funilLinha("Votos válidos projetados", Math.round(E), temAptos ? Math.round(E / aptos * 100) : 100)}
+        ${funilLinha("× 2 votos por eleitor (Senado)", TETO, 100, true)}
+        <div class="pc-sen-fu-src">Fonte: resultados oficiais TSE 2022 + evolução do eleitorado.</div>
+      </div>` : ""}
+      <div class="pc-sen-regua"></div>
+      <div class="pc-sen-zone" id="pcSenZone">
+        <div class="pc-sen-trk">
+          <div class="pc-sen-trkf" id="pcSenFill" style="width:${w}%"></div>
+          <div class="pc-sen-trkm"></div>
+        </div>
+        <div class="pc-sen-mgrip" id="pcSenMg" style="left:${w}%"></div>
+      </div>
+      <div class="pc-sen-escala"><span>0</span><span>${formatVotosCompacto(Math.round(E))} — 1 voto por eleitor</span><span>${formatVotosCompacto(TETO)}</span></div>
+    </div>`;
+}
+
+// Lista única de candidatos ao Senado, ordenada pela votação DECRESCENTE
+// indicada pelo usuário. Busca (painel de comandos) filtra por nome de
+// candidato OU partido. Partidos sem candidatura viram uma nota única no
+// rodapé (não cards bloqueados — decisão do protótipo).
+function renderListaSenador(totalVagas, E) {
+  montarItensSenador();
+  const filtro = normalizarBusca(pcState.buscaPartido || "");
+  const ordenados = _senItens
+    .map((item, idx) => ({ ...item, idx }))
+    .sort((a, b) => (Number(b.c.votos) || 0) - (Number(a.c.votos) || 0));
+  const visiveis = filtro
+    ? ordenados.filter((it) => normalizarBusca(nomeExibicao(it.c)).includes(filtro) || normalizarBusca(nomePartidoExibicao(it.partido)).includes(filtro))
+    : ordenados;
+  const semAta = pcState.palpiteEdicao.filter((p) => p.semAta2026).map((p) => nomePartidoExibicao(p.nome));
+  const cards = visiveis.map((it) => {
+    const c = it.c;
+    const posRanking = ordenados.findIndex((o) => o.idx === it.idx) + 1;
+    const eleito = !!c.marcadoEleito;
+    const pct = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
+    const linkInsta = linkInstagramDe(c.chave);
+    const insta = (linkInsta || pcState.souAdmin)
+      ? ` <span style="display:inline-flex; align-items:center; gap:3px; vertical-align:middle;">${linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram" style="display:inline-flex; color:var(--pc-accent);" onclick="event.stopPropagation()">${iconeSvg("instagram", 13)}</a>` : ""}${pcState.souAdmin ? `<button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : ""}</span>`
+      : "";
+    return `
+    <div class="pc-sen-card${eleito ? " eleito" : ""}" data-sen-idx="${it.idx}">
+      <div class="pc-sen-l1">
+        ${eleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
+        <span class="pc-sen-nm">${nomeExibicao(c)}${insta}</span>
+        <span class="pc-sen-pct">${pct.toFixed(0)}<small>%</small></span>
+      </div>
+      <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
+      <div class="pc-sen-slider" data-sen-idx="${it.idx}">
+        <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${Math.min(100, pct)}%"></div></div>
+        <div class="pc-sen-votos"></div>
+        <div class="pc-sen-grip" style="left:${Math.min(100, pct)}%"></div>
+      </div>
+    </div>`;
+  }).join("");
+  const rodape = semAta.length
+    ? `<div class="pc-sen-rod">Sem candidatura ao Senado: ${semAta.join(" · ")}</div>`
+    : "";
+  const dica = `<div class="pc-sen-dica">arraste a barra pra votar · toque no número pra digitar · alça de cima escala tudo</div>`;
+  return cards ? cards + rodape + dica : "";
+}
+
+// Posiciona o rótulo de votos DENTRO do preenchimento (texto claro, junto
+// à ponta) ou fora dele (na parte vazia) quando a fatia é estreita demais
+// — depende da largura real da barra, por isso roda pós-render e a cada
+// atualização de arrasto.
+function posicionarVotosSenador(card, c) {
+  const lbl = card.querySelector(".pc-sen-votos");
+  const bar = card.querySelector(".pc-sen-bar");
+  if (!lbl || !bar) return;
+  const barW = bar.getBoundingClientRect().width || 300;
+  const fill = card.querySelector(".pc-sen-fill");
+  const fillPx = (parseFloat(fill.style.width) || 0) / 100 * barW;
+  const txt = (Number(c.votos) || 0).toLocaleString("pt-BR") + " votos";
+  lbl.textContent = txt;
+  const txtPx = txt.length * 5.6 + 12;
+  if (fillPx > txtPx + 20) {
+    lbl.className = "pc-sen-votos dentro";
+    lbl.style.left = "auto";
+    lbl.style.right = (barW - fillPx + 15) + "px";
+  } else {
+    lbl.className = "pc-sen-votos fora";
+    lbl.style.right = "auto";
+    lbl.style.left = (fillPx + 15) + "px";
+  }
+}
+
+function atualizarCardSenador(idx, E) {
+  const card = document.querySelector('.pc-sen-card[data-sen-idx="' + idx + '"]');
+  if (!card) return;
+  const c = _senItens[idx].c;
+  const pct = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
+  card.querySelector(".pc-sen-pct").innerHTML = pct.toFixed(0) + "<small>%</small>";
+  card.querySelector(".pc-sen-fill").style.width = Math.min(100, pct) + "%";
+  card.querySelector(".pc-sen-grip").style.left = Math.min(100, pct) + "%";
+  posicionarVotosSenador(card, c);
+}
+
+function atualizarPainelSenador(E) {
+  const TETO = E * 2;
+  const soma = pcState.palpiteEdicao.reduce((s, p) => s + p.candidatos.reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
+  const elPct = document.getElementById("pcSenPct");
+  const elNom = document.getElementById("pcSenNom");
+  const elFill = document.getElementById("pcSenFill");
+  const elMg = document.getElementById("pcSenMg");
+  if (!elPct) return;
+  elPct.textContent = Math.round(soma / TETO * 100) + "%";
+  elNom.textContent = formatVotosCompacto(soma) + " de " + formatVotosCompacto(TETO);
+  const w = Math.min(100, soma / TETO * 100);
+  elFill.style.width = w + "%";
+  elMg.style.left = w + "%";
+}
+
+// Fecha um gesto de edição do Senador: rederiva os eleitos, agenda o
+// autosave e reacomoda o ranking ~450ms depois (a pausa é a decisão de
+// UX validada — reordenar no meio do gesto travava o arrasto).
+function concluirGestoSenador() {
+  recalcularMarcadosSenador();
+  agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+  clearTimeout(_senTimer);
+  _senTimer = setTimeout(() => { renderCargoEstadual(); }, 450);
+}
+
+function attachListenersSenador(E) {
+  const TETO = E * 2;
+  // rótulos de votos dependem da largura real da barra — posiciona agora
+  document.querySelectorAll(".pc-sen-card").forEach((card) => {
+    const idx = Number(card.dataset.senIdx);
+    if (_senItens[idx]) posicionarVotosSenador(card, _senItens[idx].c);
+  });
+
+  const inf = document.getElementById("pcSenInf");
+  if (inf) inf.addEventListener("click", () => {
+    pcState.funilVotosAberto = !pcState.funilVotosAberto;
+    renderCargoEstadual();
+  });
+
+  const somaOutrosDe = (idx) => _senItens.reduce((s, it, i) => i === idx ? s : s + (Number(it.c.votos) || 0), 0);
+
+  document.querySelectorAll(".pc-sen-slider").forEach((el) => {
+    const idx = Number(el.dataset.senIdx);
+    const lbl = el.querySelector(".pc-sen-votos");
+    // box de votação nominal — toque no número abre a edição inline
+    lbl.addEventListener("pointerdown", (e) => { e.stopPropagation(); });
+    lbl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (_senEditAberto) return;
+      _senEditAberto = true;
+      const div = document.createElement("div");
+      div.className = "pc-sen-edit";
+      div.innerHTML = '<input inputmode="numeric" value="' + (Number(_senItens[idx].c.votos) || 0) + '">';
+      el.appendChild(div);
+      const inp = div.querySelector("input");
+      setTimeout(() => { inp.focus(); inp.select(); }, 30);
+      const aplicar = () => {
+        _senEditAberto = false;
+        const v = Number(String(inp.value).replace(/\D/g, "")) || 0;
+        snapshotPalpite();
+        _senItens[idx].c.votos = fmdTravaIndividual(v, E, TETO, somaOutrosDe(idx));
+        _senItens[idx].c.votosEditado = true;
+        recalcularMarcadosSenador();
+        agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+        renderCargoEstadual();
+      };
+      inp.addEventListener("blur", aplicar);
+      inp.addEventListener("keydown", (ev) => { if (ev.key === "Enter") inp.blur(); });
+    });
+    // arrasto fluido — só o próprio card atualiza durante o gesto
+    const mover = (e) => {
+      const r = el.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      _senItens[idx].c.votos = fmdTravaIndividual(Math.round(frac * E), E, TETO, somaOutrosDe(idx));
+      _senItens[idx].c.votosEditado = true;
+      atualizarCardSenador(idx, E);
+      atualizarPainelSenador(E);
+    };
+    el.addEventListener("pointerdown", (e) => {
+      if (_senEditAberto) return;
+      snapshotPalpite();
+      _senDragIdx = idx;
+      el.classList.add("ativo");
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+      clearTimeout(_senTimer);
+      mover(e);
+    });
+    el.addEventListener("pointermove", (e) => { if (_senDragIdx === idx) mover(e); });
+    const soltar = () => {
+      if (_senDragIdx !== idx) return;
+      _senDragIdx = null;
+      el.classList.remove("ativo");
+      concluirGestoSenador();
+    };
+    el.addEventListener("pointerup", soltar);
+    el.addEventListener("pointercancel", soltar);
+  });
+
+  // alça mestra — escala proporcional com saturação (FMD, decisão (b)):
+  // fotografa a base no INÍCIO do gesto e resolve o fator exato a cada
+  // movimento a partir dela (nunca dos valores já escalados).
+  const zone = document.getElementById("pcSenZone");
+  if (zone) {
+    let base = null;
+    const moverMestre = (e) => {
+      if (!base) return;
+      const r = zone.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      const novos = fmdEscalarProporcional(base, frac * TETO, E);
+      _senItens.forEach((it, i) => { it.c.votos = novos[i]; });
+      _senItens.forEach((it, i) => atualizarCardSenador(i, E));
+      atualizarPainelSenador(E);
+    };
+    zone.addEventListener("pointerdown", (e) => {
+      const soma = _senItens.reduce((s, it) => s + (Number(it.c.votos) || 0), 0);
+      if (soma <= 0) return;
+      snapshotPalpite();
+      base = _senItens.map((it) => Number(it.c.votos) || 0);
+      _senMasterAtivo = true;
+      zone.classList.add("ativo");
+      try { zone.setPointerCapture(e.pointerId); } catch (_) {}
+      clearTimeout(_senTimer);
+      moverMestre(e);
+    });
+    zone.addEventListener("pointermove", (e) => { if (_senMasterAtivo) moverMestre(e); });
+    const soltarMestre = () => {
+      if (!_senMasterAtivo) return;
+      _senMasterAtivo = false;
+      base = null;
+      zone.classList.remove("ativo");
+      concluirGestoSenador();
+    };
+    zone.addEventListener("pointerup", soltarMestre);
+    zone.addEventListener("pointercancel", soltarMestre);
+  }
+}
+
 // Setas ao lado do contador "marcados/vagas2022": ajustam a quantidade em 1,
 // sem precisar digitar. Quem preenche essa quantidade é sempre recalculado
 // (ver aplicarQuantidadeMarcados acima) — a seta só muda o número.
@@ -4053,6 +4359,10 @@ async function renderCargoEstadual() {
   await garantirPalpiteEdicaoAtivo();
   await garantirLinksCandidatos();
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+  // Senador (lista única, PROJETO.md §8.2): a marcação de eleito é SEMPRE
+  // derivada da votação (top-N global) — alinhar aqui cobre também
+  // rascunhos antigos salvos na época do modelo por partido/stepper.
+  if (pcState.cargoAtivo === "senador") recalcularMarcadosSenador();
 
   const cargoInfo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
   // Total de vagas do cargo ativo (40 pra Dep. Estadual, 16 pra Dep.
@@ -4077,7 +4387,13 @@ async function renderCargoEstadual() {
   // aqui fazia a estimativa de válidos desabar pra quase zero.
   const totalValidos2022Estado = (candidatosEstadoCargo(pcState.estado, pcState.cargoAtivo) || [])
     .reduce((s, p) => s + p.candidatos.reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
-  const votosValidos2026Proj = totalValidosProjetado2026();
+  // Pro Senado a versão confinada não serve: os candidatos de 2026 são
+  // novos (sem voto de 2022 pra somar), o que zeraria o teto. Eleição
+  // majoritária usa a projeção de válidos do ESTADO inteiro (TSE 2022 ×
+  // crescimento do eleitorado) — mesma metodologia do funil explicativo.
+  const votosValidos2026Proj = pcState.cargoAtivo === "senador" && pcState.estado === "SC"
+    ? REF_2022.validos * fatorCrescimentoEleitorado()
+    : totalValidosProjetado2026();
   // Quociente ATUAL "de verdade" (só com a votação já digitada) e o
   // PROJETADO pra 2026 (referência fixa) — hoje calculados de novo dentro
   // de cada partido expandido (ver refQuociente mais abaixo). Hoisted pra
@@ -4205,7 +4521,9 @@ async function renderCargoEstadual() {
     };
   }
 
-  const blocos = partidosParaMostrar.map((p) => {
+  const blocos = pcState.cargoAtivo === "senador"
+    ? renderListaSenador(totalVagasCargo, votosValidos2026Proj)
+    : partidosParaMostrar.map((p) => {
     // Partido sem nenhuma ata de convenção 2026 processada — card vazio e
     // BLOQUEADO ("não registrou ata"): opaco, sem stepper, sem botões, sem
     // como expandir. Existe pra pessoa saber POR QUE o partido não é
@@ -4562,7 +4880,7 @@ async function renderCargoEstadual() {
   // grudado no topo ao rolar, sem espaçamento entre eles (padrão pedido
   // pelo usuário em 16/08/2026, no lugar do esquema antigo de dois
   // stickies separados + camada de blur que gerava "sombra fantasma").
-  const painelHtml = `
+  const painelHtml = pcState.cargoAtivo === "senador" ? renderPainelSenador(votosValidos2026Proj) : `
     <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px;">
       <div class="pc-stats-row">
         <div class="pc-stats-item">
@@ -4784,15 +5102,18 @@ async function renderCargoEstadual() {
       <svg viewBox="0 0 16 16" width="14" height="14" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--pc-ink-dim); pointer-events:none;"><circle cx="6.6" cy="6.6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7L13.5 13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
       <input type="text" id="pcBuscaPartidoInput" class="cell" placeholder="Buscar partido por nome" value="${pcState.buscaPartido || ""}" style="width:100%; padding-left:34px;">
     </div>` : ""}
-    <div class="glass-card">
+    ${pcState.cargoAtivo === "senador"
+      ? (blocos || estadoVazio({ icone: "buscar", titulo: "Nenhum candidato encontrado", texto: "Confira o nome digitado." }))
+      : `<div class="glass-card">
       ${blocos || estadoVazio({ icone: "buscar", titulo: "Nenhum partido encontrado", texto: "Confira o nome digitado." })}
-    </div>
+    </div>`}
   `;
 
   const slotPainel = document.getElementById("pcPainelSlot");
   if (slotPainel) slotPainel.innerHTML = painelHtml;
   ajustarBarrasTermometro();
   attachListenersSelecao();
+  if (pcState.cargoAtivo === "senador") attachListenersSenador(votosValidos2026Proj);
   if (reRenderizando) window.scrollTo(0, scrollAnterior);
 }
 
