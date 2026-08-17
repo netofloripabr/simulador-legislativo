@@ -3917,7 +3917,13 @@ function renderListaSenador(totalVagas, E) {
     const c = it.c;
     const posRanking = ordenados.findIndex((o) => o.idx === it.idx) + 1;
     const eleito = !!c.marcadoEleito;
-    const pct = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
+    // Duas réguas de propósito: a BARRA mede o teto individual (E, "1 voto
+    // por eleitor" — é o curso físico do fader), mas o NÚMERO usa a mesma
+    // régua do cabeçalho (T = 2E, total de votos), pra soma de todos os
+    // candidatos fechar em 100% — decisão do usuário em 17/08/2026 depois
+    // de estranhar a soma passar de 100.
+    const pctBarra = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
+    const pct = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
     const linkInsta = linkInstagramDe(c.chave);
     const insta = (linkInsta || pcState.souAdmin)
       ? ` <span style="display:inline-flex; align-items:center; gap:3px; vertical-align:middle;">${linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram" style="display:inline-flex; color:var(--pc-accent);" onclick="event.stopPropagation()">${iconeSvg("instagram", 13)}</a>` : ""}${pcState.souAdmin ? `<button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : ""}</span>`
@@ -3931,9 +3937,9 @@ function renderListaSenador(totalVagas, E) {
       </div>
       <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
       <div class="pc-sen-slider" data-sen-idx="${it.idx}">
-        <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${Math.min(100, pct)}%"></div></div>
+        <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${Math.min(100, pctBarra)}%"></div></div>
         <div class="pc-sen-votos"></div>
-        <div class="pc-sen-grip" style="left:${Math.min(100, pct)}%"></div>
+        <div class="pc-sen-grip" style="left:${Math.min(100, pctBarra)}%"></div>
       </div>
     </div>`;
   }).join("");
@@ -3973,10 +3979,13 @@ function atualizarCardSenador(idx, E) {
   const card = document.querySelector('.pc-sen-card[data-sen-idx="' + idx + '"]');
   if (!card) return;
   const c = _senItens[idx].c;
-  const pct = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
+  // Mesma dupla de réguas do render (ver renderListaSenador): barra sobre
+  // E (curso do fader), número sobre 2E (régua do cabeçalho).
+  const pctBarra = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
+  const pct = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
   card.querySelector(".pc-sen-pct").innerHTML = pct.toFixed(0) + "<small>%</small>";
-  card.querySelector(".pc-sen-fill").style.width = Math.min(100, pct) + "%";
-  card.querySelector(".pc-sen-grip").style.left = Math.min(100, pct) + "%";
+  card.querySelector(".pc-sen-fill").style.width = Math.min(100, pctBarra) + "%";
+  card.querySelector(".pc-sen-grip").style.left = Math.min(100, pctBarra) + "%";
   posicionarVotosSenador(card, c);
 }
 

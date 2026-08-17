@@ -218,8 +218,15 @@ dim) · sublinha 10.5px/#8A9096 · votos na barra 9px/700.
   do eleitorado) e fonte declarada. A perda em cada etapa é VISTA, não só
   explicada.
 - **Selo ELEITO**: pílula `#34E84A` com texto `#07230C` 8px/800 — o único
-  elemento sempre-verde da lista; a % individual usa base própria (fração
-  do eleitorado, teto 100%).
+  elemento sempre-verde da lista.
+- **Régua dos percentuais (decisão de 17/08/2026, revisando a versão
+  anterior desta espec)**: o NÚMERO de cada candidato usa a MESMA régua
+  do cabeçalho — fração do total de votos T = k·E — de modo que a soma
+  de todos os candidatos fecha em 100% (candidato no teto individual
+  mostra 1/k, ex.: 50% no Senado com k=2). Já a BARRA do fader continua
+  medindo o teto individual E (curso físico completo do controle). O
+  usuário estranhou a soma passar de 100% na régua antiga (fração do
+  eleitorado, que chegava a k·100%) e escolheu a régua única.
 
 **Interações (validadas em protótipo):**
 - Arrasto fluido: durante o gesto, só o próprio card atualiza (número,
