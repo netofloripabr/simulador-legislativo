@@ -533,6 +533,43 @@
   }
   #modoColaborativoWrap #pcStickyHeader .pc-cargo-switch{ margin-bottom:0; }
   #modoColaborativoWrap #pcStickyHeader .glass-card{ margin-bottom:0; }
+  /* Fonte da aba encolhe antes de quebrar linha — sem isso, "Dep. Federal"
+     (ou mesmo só "Federal" numa tela bem estreita) virava 2 linhas e
+     desalinhava a pílula toda. white-space:nowrap garante que nunca quebra;
+     o clamp garante que sempre cabe (pedido do usuário em 17/08/2026). */
+  #modoColaborativoWrap #pcStickyHeader .pc-cargo-switch button{ font-size:clamp(11px, 3.4vw, 12.5px); white-space:nowrap; }
+
+  /* Cartão "Painel Eleitoral" (Seus Eleitos/Quociente/Soma de Votos/dica) —
+     antes dependia de overflow-x:auto (scroll escondido, com uma sombra na
+     borda direita insinuando "tem mais") pra caber; agora cada bloco
+     encolhe de verdade (clamp no tamanho da fonte) até tudo caber numa
+     linha só, sem precisar rolar. Mesmo raciocínio do painel de comandos
+     (ver .pc-cmd-painel): min-width:0 é o que permite o flex encolher de
+     verdade, sem isso o texto força a largura mínima do conteúdo. */
+  #modoColaborativoWrap .pc-stats-row{ display:flex; align-items:center; width:100%; }
+  #modoColaborativoWrap .pc-stats-item{ flex:1 1 0; min-width:0; }
+  #modoColaborativoWrap .pc-stats-item .pc-stats-lbl{
+    font-size:clamp(8.5px, 2.4vw, 10px); color:var(--pc-ink-dim); margin-bottom:2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:4px;
+  }
+  #modoColaborativoWrap .pc-stats-item .pc-stats-val{
+    font-family:var(--mono); font-size:clamp(13px, 4.2vw, 19px); font-weight:700; line-height:1; color:var(--pc-ink); white-space:nowrap;
+  }
+  #modoColaborativoWrap .pc-stats-item .pc-stats-val .pc-stats-meta{ font-size:.6em; color:var(--pc-ink-dim); font-weight:400; }
+  #modoColaborativoWrap .pc-stats-item .pc-stats-val.baixo{ color:#ff9500; }
+  #modoColaborativoWrap .pc-stats-div{ width:1px; height:26px; background:rgba(120,130,180,.18); flex-shrink:0; margin:0 8px; }
+  /* Botão de dica ("Como montar a lista") — tamanho fixo, não encolhe
+     junto com os números (é um ícone, não um texto que precisa de
+     espaço proporcional). Realocado pra cá (era um comando na barra de
+     baixo) porque é uma dica de COMO montar a lista inteira — faz mais
+     sentido perto do resumo do que junto dos comandos de edição. Pedido
+     do usuário em 17/08/2026. */
+  #modoColaborativoWrap .pc-stats-dica{
+    flex:0 0 auto; width:26px; height:26px; border-radius:50%;
+    background:#0c1c16; border:1px solid #2a4438; color:var(--pc-ink-dim);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; margin-left:2px;
+  }
+  #modoColaborativoWrap .pc-stats-dica:hover{ color:var(--pc-accent); border-color:var(--pc-accent); }
   #modoColaborativoWrap .pc-tab-dot{ display:inline-block; width:5px; height:5px; border-radius:50%; margin-left:5px; border:1px solid currentColor; opacity:.5; vertical-align:middle; }
   #modoColaborativoWrap .pc-tab-dot.done{ background:currentColor; opacity:1; }
 
@@ -594,9 +631,17 @@
      ficar em max-width, e encolhe proporcionalmente até min-width se não
      couber — garantia matemática do próprio motor de layout, não uma
      conta que pode furar. box-sizing:border-box é essencial aqui (senão
-     a borda de 1px de cada botão soma um overflow pequeno mas real). */
+     a borda de 1px de cada botão soma um overflow pequeno mas real).
+     justify-content:space-between (em vez de um gap fixo) é o que faz a
+     fileira se espalhar por toda a largura do cartão em telas largas —
+     com um gap fixo, sobrava um vão vazio de um lado só (achado pelo
+     usuário em 17/08/2026); com space-between, o espaço sobrando vira
+     gap IGUAL entre todo par de itens adjacentes, sempre. Só tem efeito
+     depois que os botões já bateram o max-width (antes disso, o próprio
+     flex-grow consome o espaço enchendo os botões, não sobra nada pro
+     space-between distribuir). */
   #modoColaborativoWrap .pc-cmd-painel{
-    display:flex; align-items:center; width:100%; gap:clamp(3px, 1.2vw, 8px); margin-bottom:14px; box-sizing:border-box;
+    display:flex; align-items:center; width:100%; justify-content:space-between; margin-bottom:14px; box-sizing:border-box;
   }
   #modoColaborativoWrap .pc-cmd-painel *{ box-sizing:border-box; }
   #modoColaborativoWrap .pc-cmd-painel .pc-cmd-acao{
@@ -701,21 +746,32 @@
   }
   #modoColaborativoWrap .pc-switch input:checked + .pc-switch-slider:after{ opacity:1; }
 
-  /* Sobra/fora — mesma linguagem visual do termômetro (.pc-term-seg),
-     aplicada ao interruptor "eleito" de cada candidato: laranja sólido
-     quando a vaga só existe por disputa de médias (art. 109), tracejado
-     rosa/vazado quando marcado mas não fecharia vaga hoje. Pedido do
-     usuário em 07/08/2026 — cor trocada de hachurado pra sólida em
-     09/08/2026 (o padrão listrado prejudicava a leitura do texto "SOBRA"). */
-  #modoColaborativoWrap .pc-switch.pc-switch-sobra input:checked + .pc-switch-slider{
-    background: var(--pc-warning);
+  /* Selo "ELEITO"/"SOBRA"/"FORA" — substitui o interruptor de cada
+     candidato na Seleção (o interruptor virou .pc-switch-sobra/-fora até
+     16/08/2026; removido porque o usuário gostou tanto do selo pensado
+     originalmente só pra tela estreita que pediu pra virar o padrão em
+     QUALQUER largura — 17/08/2026). Mesma linguagem de cor de sempre:
+     verde = eleito por quociente direto (art. 107), âmbar = por sobra/
+     média (art. 109), rosa = marcado mas fora hoje com a votação atual.
+     Sem selo nenhum = não marcado. .pc-switch/.pc-switch-slider (acima)
+     continuam em uso pra outros toggles de verdade do app (ex.:
+     notificação por e-mail) — só o par sobra/fora daqui saiu. */
+  #modoColaborativoWrap .pc-cand-chip{
+    display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.04em;
+    color:var(--pc-accent); border:1px solid var(--pc-accent); border-radius:999px;
+    padding:2px 7px; margin-right:6px; vertical-align:2px; white-space:nowrap;
   }
-  #modoColaborativoWrap .pc-switch.pc-switch-sobra input:checked + .pc-switch-slider:after{ content:"SOBRA"; color:#2b1c05; }
-  #modoColaborativoWrap .pc-switch.pc-switch-fora input:checked + .pc-switch-slider{
-    background:transparent; border:1.5px dashed var(--pc-danger);
-  }
-  #modoColaborativoWrap .pc-switch.pc-switch-fora input:checked + .pc-switch-slider:before{ background:var(--pc-danger); }
-  #modoColaborativoWrap .pc-switch.pc-switch-fora input:checked + .pc-switch-slider:after{ content:"FORA"; color:var(--pc-danger); }
+  #modoColaborativoWrap .pc-cand-chip.sobra{ color:var(--pc-warning); border-color:var(--pc-warning); }
+  #modoColaborativoWrap .pc-cand-chip.fora{ color:var(--pc-danger); border-color:var(--pc-danger); }
+  /* Linha do candidato — flex-wrap real: quando nome+selo e a caixa de
+     voto não cabem lado a lado no cartão, a caixa desce sozinha pra
+     própria linha (com a largura toda, alinhada à direita), em vez de
+     espremer o nome. Reage à largura do CARTÃO, não da tela — funciona
+     igual em qualquer contexto (Seleção, grupo comparado mais estreito
+     etc.) sem precisar de um breakpoint fixo pra manter. Prototipado e
+     validado com o usuário em 17/08/2026. */
+  #modoColaborativoWrap .pc-cand-linha{ flex-wrap:wrap; }
+  #modoColaborativoWrap .pc-cand-voto{ flex:0 1 120px; min-width:84px; margin-left:auto; }
 
   /* Card de aviso/notificação com destaque laranja (ex.: limite de lista/
      grupo grátis atingido) — mesmo padrão de card do resto do app, só com

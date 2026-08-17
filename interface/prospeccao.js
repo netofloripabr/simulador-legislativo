@@ -3812,9 +3812,16 @@ async function renderSelecaoCandidatos() {
     const totalVagasC = vagasFixasCargo(pcState.estado, c.id);
     const totalIndicadoC = lista ? lista.reduce((s, p) => s + p.candidatos.filter((cc) => cc.marcadoEleito).length, 0) : 0;
     const concluido = !!lista && totalVagasC > 0 && totalIndicadoC === totalVagasC;
+    // Rótulo da aba sem o prefixo "Dep." — o que precisa ficar claro numa
+    // tela estreita é a palavra-chave do cargo (Estadual/Federal/Senador),
+    // não a abreviação. "Dep. Estadual" completo continua em uso em todo
+    // resto do app (CARGOS.label não muda) — é só esta aba específica.
+    // Pedido do usuário em 17/08/2026, junto com a caixa de estatísticas
+    // não depender mais de scroll escondido pra caber.
+    const rotuloAba = c.label.replace(/^Dep\.\s*/, "");
     return `
     <button data-pc-cargo="${c.id}" class="${pcState.cargoAtivo === c.id ? "active" : ""}${c.disponivel ? "" : " indisponivel"}">
-      ${c.label}<span class="pc-tab-dot${concluido ? " done" : ""}" title="${concluido ? "Todas as vagas marcadas" : ""}"></span>
+      ${rotuloAba}<span class="pc-tab-dot${concluido ? " done" : ""}" title="${concluido ? "Todas as vagas marcadas" : ""}"></span>
     </button>`;
   }).join("");
   el.innerHTML = `
@@ -4262,32 +4269,24 @@ async function renderCargoEstadual() {
           <input type="text" data-pc-busca-candidato="${p.nome}" class="cell" value="${termoBuscaCand}" style="padding-left:32px; font-size:12.5px;">
         </div>`;
       const linhas = candidatosParaMostrar.length ? candidatosParaMostrar.map(({ c, i: posIdx }) => `
-        <div style="display:flex; align-items:center; gap:10px; padding:11px 3px; border-bottom:1px solid rgba(120,130,180,0.14);">
+        <div class="pc-cand-linha" style="display:flex; align-items:center; gap:10px; padding:11px 3px; border-bottom:1px solid rgba(120,130,180,0.14);">
           <span style="width:24px; font-size:13px; font-weight:700; color:var(--pc-ink-dim); text-align:right; flex-shrink:0;">${posIdx + 1}º</span>
-          ${c.fonte === "legenda"
-            ? `<span title="Voto de legenda não elege ninguém — soma no total do partido, mas não é uma pessoa marcável como eleita." style="width:46px; height:19px; flex-shrink:0;"></span>`
-            : (() => {
-                // Interruptor reflete a mesma disputa QP/sobra/fora do
-                // termômetro (barraTermometro) — não é só ligado/desligado.
-                // Pedido do usuário em 07/08/2026.
-                //
-                // NÃO é mais clicável (pedido do usuário, 11/08/2026): antes
-                // dava pra marcar qualquer candidato à mão, e editar o voto
-                // de outro pra ultrapassá-lo não corrigia nada — o
-                // interruptor ficava "preso" num estado que não batia mais
-                // com a votação (achado ao vivo nessa mesma conversa). Agora
-                // é 100% calculado por aplicarQuantidadeMarcados: sempre os N
-                // primeiros por votação ATUAL (não 2022), N = a quantidade
-                // escolhida no contador do partido (steppers ao lado do
-                // nome). A pessoa só influencia quem é eleito editando voto
-                // ou mudando essa quantidade — nunca clicando aqui direto.
-                const classif = c.marcadoEleito ? classificacaoPorChave.get(c.chave) : null;
-                const claseExtra = classif?.tipo === "sobra" ? " pc-switch-sobra" : classif?.tipo === "fora" ? " pc-switch-fora" : "";
-                const tituloExtra = classif?.tipo === "sobra" ? ` — levando a ${classif.numeroSobra}ª sobra do partido nesta rodada, por disputa de médias (art. 109)` : classif?.tipo === "fora" ? " — marcado, mas não fecharia vaga com a votação de hoje" : "";
-                const tituloBase = c.marcadoEleito ? "Eleito — está entre os mais votados do partido" + tituloExtra : "Não eleito — fora dos mais votados do partido nesta quantidade";
-                return `<label class="pc-switch${claseExtra}" style="cursor:default;" title="${tituloBase}"><input type="checkbox" data-pc-marca="${p.nome}::${c.chave}" ${c.marcadoEleito ? "checked" : ""} disabled><span class="pc-switch-slider"></span></label>`;
-              })()}
-          <span style="flex:1; font-size:15px; font-weight:600; line-height:1.4;">${nomeExibicao(c)}${(() => {
+          <span style="flex:1 1 160px; min-width:160px; font-size:15px; font-weight:600; line-height:1.4;">${(() => {
+            // Selo ELEITO/SOBRA/FORA no lugar do antigo interruptor — mesma
+            // disputa QP/sobra/fora do termômetro (barraTermometro), só que
+            // como selo de texto em vez de toggle colorido. Não é
+            // clicável (mesma razão de sempre, ver histórico abaixo):
+            // 100% calculado por aplicarQuantidadeMarcados, a pessoa só
+            // influencia editando voto ou a quantidade do partido.
+            if (c.fonte === "legenda") return "";
+            const classif = c.marcadoEleito ? classificacaoPorChave.get(c.chave) : null;
+            if (!c.marcadoEleito) return "";
+            const claseExtra = classif?.tipo === "sobra" ? " sobra" : classif?.tipo === "fora" ? " fora" : "";
+            const texto = classif?.tipo === "sobra" ? "SOBRA" : classif?.tipo === "fora" ? "FORA" : "ELEITO";
+            const tituloExtra = classif?.tipo === "sobra" ? ` — levando a ${classif.numeroSobra}ª sobra do partido nesta rodada, por disputa de médias (art. 109)` : classif?.tipo === "fora" ? " — marcado, mas não fecharia vaga com a votação de hoje" : "";
+            const titulo = "Eleito — está entre os mais votados do partido" + tituloExtra;
+            return `<span class="pc-cand-chip${claseExtra}" title="${titulo}">${texto}</span>`;
+          })()}${nomeExibicao(c)}${(() => {
             // Ícone do Instagram (visível pra todo mundo, só quando tem link
             // cadastrado) + lápis de editar (só admin, sempre visível pra
             // poder cadastrar o primeiro link também). Pedido do usuário em
@@ -4296,8 +4295,8 @@ async function renderCargoEstadual() {
             const linkInsta = linkInstagramDe(c.chave);
             if (!linkInsta && !pcState.souAdmin) return "";
             return ` <span style="display:inline-flex; align-items:center; gap:3px; vertical-align:middle;">${linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram" style="display:inline-flex; color:var(--pc-accent);" onclick="event.stopPropagation()">${iconeSvg("instagram", 14)}</a>` : ""}${pcState.souAdmin ? `<button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : ""}</span>`;
-          })()}${c.partidoOriginal && c.partidoOriginal !== p.nome ? ` <span style="font-size:11px; font-weight:700; color:var(--pc-accent);">(${c.partidoOriginal})</span>` : ""}${c.fonte === "legenda" ? ' <span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${c.fonte === "2022-sem-ata-2026" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">sem ata 2026</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada — este é o candidato real de 2022, usado só como referência temporária até a lista de 2026 chegar. Pode não ser candidato em 2026, pode ter trocado de cargo ou de partido.")}` : ""}${c.fonte === "ficticio" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">candidato fictício</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada. Este NÃO é um candidato real — é um nome de preenchimento (placeholder) só pra manter a chapa completa até a ata sair. Será substituído pelo candidato real assim que a ata for processada.")}` : ""}<br><span style="font-size:12.5px; font-weight:400; color:var(--pc-ink-dim); opacity:0.9;">eleição 2022: ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</span>${c.invalidado2022 ? warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`) : ""}</span>
-          <input class="cell${c.votosEditado ? " pc-voto-manual" : ""}" title="${c.votosEditado ? "Ajustado manualmente" : "Valor automático/padrão"}" data-pc-voto="${p.nome}::${c.chave}" value="${(Number(c.votos) || 0).toLocaleString("pt-BR")}" style="width:120px; font-size:14.5px; font-weight:600; text-align:right; flex-shrink:0;">
+          })()}${c.partidoOriginal && c.partidoOriginal !== p.nome ? ` <span style="font-size:11px; font-weight:700; color:var(--pc-accent);">(${c.partidoOriginal})</span>` : ""}${c.fonte === "legenda" ? ' <span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${c.fonte === "2022-sem-ata-2026" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">sem ata 2026</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada — este é o candidato real de 2022, usado só como referência temporária até a lista de 2026 chegar. Pode não ser candidato em 2026, pode ter trocado de cargo ou de partido.")}` : ""}${c.fonte === "ficticio" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">candidato fictício</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada. Este NÃO é um candidato real — é um nome de preenchimento (placeholder) só pra manter a chapa completa até a ata sair. Será substituído pelo candidato real assim que a ata for processada.")}` : ""}<br><span style="font-size:12.5px; font-weight:400; color:var(--pc-ink-dim); opacity:0.9;">2022: ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</span>${c.invalidado2022 ? warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`) : ""}</span>
+          <input class="cell pc-cand-voto${c.votosEditado ? " pc-voto-manual" : ""}" title="${c.votosEditado ? "Ajustado manualmente" : "Valor automático/padrão"}" data-pc-voto="${p.nome}::${c.chave}" value="${(Number(c.votos) || 0).toLocaleString("pt-BR")}" style="font-size:14.5px; font-weight:600; text-align:right;">
         </div>`).join("") : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato encontrado", texto: "Confira o nome digitado." });
       // Mesma distinção QP ("quociente direto", art. 107) vs média/sobra
       // (art. 109) que a Revisão já mostra nos selos "eleito · QP"/"eleito ·
@@ -4328,12 +4327,17 @@ async function renderCargoEstadual() {
           : diffPct < 0 ? `Ainda <b style="color:var(--pc-warning);">${Math.abs(diffPct)}% abaixo</b> da votação esperada pra 2026 — quanto mais perto da meta, mais realista fica a simulação.`
           : diffPct > 0 ? `Já <b style="color:var(--pc-accent-2);">${diffPct}% acima</b> da votação esperada pra 2026.`
           : `Bateu a votação esperada pra 2026.`;
-        return `<div style="display:flex; align-items:center; gap:14px; background:#0c1c16; border-radius:10px; padding:10px 12px; margin-bottom:8px;">
+        // flex-wrap: quando número + texto não cabem lado a lado (cartão
+        // estreito), o texto desce pra linha de baixo com a largura toda,
+        // em vez de espremer numa coluna estreitíssima (uma palavra por
+        // linha) — mesma lógica do painel de comandos, prototipado com o
+        // usuário em 17/08/2026, aprovado sem alterações.
+        return `<div style="display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; background:#0c1c16; border-radius:10px; padding:10px 12px; margin-bottom:8px;">
           <div style="flex-shrink:0;">
             <div style="font-size:10.5px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Quociente do cargo ${infoTip("O número grande é o quociente ATUAL (art. 106) — calculado só com a votação já digitada, sobe conforme mais partidos são preenchidos. A meta pequena é o quociente PROJETADO pra 2026 (referência fixa: 2022 escalado pelo crescimento do eleitorado, confinada aos partidos que este simulador modela). Pra a simulação se aproximar de uma eleição real, o atual precisa chegar perto da meta.")}</div>
             <div style="font-size:26px; font-weight:700; line-height:1.1;${qeAtualLive < qeProjetado ? " color:#ff9500; text-shadow:0 0 12px rgba(255,149,0,.6);" : " color:var(--pc-accent);"}">${formatVotosCompacto(Math.round(qeAtualLive))}<span style="font-size:12px; color:var(--pc-ink-dim); font-weight:400;"> /${formatVotosCompacto(Math.round(qeProjetado))}</span></div>
           </div>
-          <div style="font-size:11px; color:var(--pc-ink-dim); line-height:1.5;">
+          <div style="flex:1 1 200px; min-width:200px; font-size:11px; color:var(--pc-ink-dim); line-height:1.5;">
             ${legenda}<br>
             Pra ${marcados} vaga${marcados === 1 ? "" : "s"}: ${breakdown} — total mínimo de <b style="color:var(--pc-ink);">${infoVagas.necessario.toLocaleString("pt-BR")}</b> votos.
           </div>
@@ -4454,23 +4458,24 @@ async function renderCargoEstadual() {
   // stickies separados + camada de blur que gerava "sombra fantasma").
   const painelHtml = `
     <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px;">
-      <div style="position:absolute; top:1px; right:1px; bottom:1px; width:28px; border-radius:0 13px 13px 0; background:linear-gradient(to right, transparent, var(--pc-glass) 70%); pointer-events:none;"></div>
-      <div style="display:flex; align-items:center; gap:16px; overflow-x:auto;">
-        <div style="flex-shrink:0; white-space:nowrap;">
-          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px;">Seus Eleitos</div>
-          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1;${totalIndicado !== 0 && totalIndicado !== totalVagasCargo ? " color:#ff9500;" : " color:var(--pc-ink);"}">${totalIndicado}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /${totalVagasCargo}</span></div>
+      <div class="pc-stats-row">
+        <div class="pc-stats-item">
+          <div class="pc-stats-lbl">Seus Eleitos</div>
+          <div class="pc-stats-val${totalIndicado !== 0 && totalIndicado !== totalVagasCargo ? " baixo" : ""}">${totalIndicado}<span class="pc-stats-meta"> /${totalVagasCargo}</span></div>
         </div>
         ${qeAtualLive !== null ? `
-        <div style="width:1px; height:28px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
-        <div style="flex-shrink:0; white-space:nowrap;">
-          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Quociente ${infoTip("O número grande é o quociente ATUAL (art. 106) — calculado só com a votação já digitada, sobe conforme mais partidos são preenchidos. A meta pequena é o quociente PROJETADO pra 2026 (referência fixa: 2022 escalado pelo crescimento do eleitorado, confinada aos partidos que este simulador modela). Pra a simulação se aproximar de uma eleição real, o atual precisa chegar perto da meta.")}</div>
-          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1;${qeAtualLive < qeProjetadoTopo ? " color:#ff9500;" : " color:var(--pc-ink);"}">${formatVotosCompacto(Math.round(qeAtualLive))}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /${formatVotosCompacto(Math.round(qeProjetadoTopo))}</span></div>
+        <div class="pc-stats-div"></div>
+        <div class="pc-stats-item">
+          <div class="pc-stats-lbl">Quociente ${infoTip("O número grande é o quociente ATUAL (art. 106) — calculado só com a votação já digitada, sobe conforme mais partidos são preenchidos. A meta pequena é o quociente PROJETADO pra 2026 (referência fixa: 2022 escalado pelo crescimento do eleitorado, confinada aos partidos que este simulador modela). Pra a simulação se aproximar de uma eleição real, o atual precisa chegar perto da meta.")}</div>
+          <div class="pc-stats-val${qeAtualLive < qeProjetadoTopo ? " baixo" : ""}">${formatVotosCompacto(Math.round(qeAtualLive))}<span class="pc-stats-meta"> /${formatVotosCompacto(Math.round(qeProjetadoTopo))}</span></div>
         </div>` : ""}
-        <div style="width:1px; height:28px; background:rgba(120,130,180,0.18); flex-shrink:0;"></div>
-        <div style="flex-shrink:0; white-space:nowrap;">
-          <div style="font-size:10px; color:var(--pc-ink-dim); margin-bottom:2px; display:flex; align-items:center; gap:4px;">Soma de Votos ${infoTip("Referência de votos válidos estimados: projeta o total de 2022 pelo crescimento do eleitorado até 2026, mantendo as taxas históricas de branco, nulo e comparecimento.")}</div>
-          <div style="font-family:var(--mono); font-size:19px; font-weight:700; line-height:1; color:var(--pc-ink);">${formatVotosCompacto(somaTotal)}<span style="font-size:11px; color:var(--pc-ink-dim); font-weight:400;"> /~${formatVotosCompacto(Math.round(votosValidos2026Proj))}</span></div>
+        <div class="pc-stats-div"></div>
+        <div class="pc-stats-item">
+          <div class="pc-stats-lbl">Soma de Votos ${infoTip("Referência de votos válidos estimados: projeta o total de 2022 pelo crescimento do eleitorado até 2026, mantendo as taxas históricas de branco, nulo e comparecimento.")}</div>
+          <div class="pc-stats-val">${formatVotosCompacto(somaTotal)}<span class="pc-stats-meta"> /~${formatVotosCompacto(Math.round(votosValidos2026Proj))}</span></div>
         </div>
+        <div class="pc-stats-div"></div>
+        <button type="button" id="pcAbrirInstrucao" class="pc-stats-dica" title="Como montar a lista">${iconeSvg("alerta", 14)}</button>
       </div>
     </div>`;
 
@@ -4644,10 +4649,6 @@ async function renderCargoEstadual() {
       {
         id: "pcBtnTop2022", icone: "ano2022", tamanho: 15, titulo: "Top 100 de 2022",
         legenda: "Mostra os 100 candidatos mais votados na eleição real de 2022, de todos os partidos — só de referência, não muda seu palpite.",
-      },
-      {
-        id: "pcAbrirInstrucao", icone: "alerta", tamanho: 14, titulo: "Como montar a lista",
-        legenda: "Reabre o guia rápido: quantidade por partido, votação dos eleitos, e quando o Avançar libera.",
       },
       {
         id: "pcBtnSalvarSelecao", icone: "salvar", tamanho: 17, titulo: "Salvar",
