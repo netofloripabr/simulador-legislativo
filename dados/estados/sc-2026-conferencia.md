@@ -315,3 +315,46 @@ formato de dados/correcoes-nomes.md)_
 
 | Nome | Cargo | Partido | Status | Fonte |
 |---|---|---|---|---|
+| Marcos Luiz Vieira | Deputado Estadual | PSDB/CIDADANIA | confirmado (1x só) | 1036-psdb-cidadania-retificadora.pdf |
+| José Júlio Guahnon | Deputado Estadual | PSOL/REDE | confirmado 17/08/2026 | 954: executiva da Federação moveu a candidatura de Federal p/ Estadual |
+| Simone Moredo | Deputado Estadual | PSOL/REDE | confirmado 17/08/2026 | 954: idem |
+| José Napoleão Bonaparte Maia Rodrigues | Deputado Estadual | UNIÃO/PP (UNIÃO) | confirmado 17/08/2026 | 978: "FILIADO AO PARTIDO UNIÃO BRASIL" |
+| Adriana Savi Fernandes | Deputado Estadual | UNIÃO/PP (PP) | confirmado 17/08/2026 | 1910: "FILIADA AO PROGRESSISTAS" |
+| Edinelson Miranda | Deputado Estadual | PRD/SOLIDARIEDADE (PRD) | confirmado 17/08/2026 | 1810: nominata estadual, urna 25888 |
+| Simone Katswinckel Da Silva | Deputado Federal | UNIÃO/PP (PP) | confirmado 17/08/2026 | 1910: "TAMBÉM FILIADA AO PROGRESSISTAS" |
+| Jovino Marques Gonçalves | Deputado Federal | PT/PC do B/PV (PCdoB) | confirmado 17/08/2026 | 557: substituiu Camilo Cândido, "partido PCdoB" |
+| Adriana Mazzucco Zanelato | Deputado Federal | PRD/SOLIDARIEDADE (SOLIDARIEDADE) | confirmado 17/08/2026 | 1810: nominata federal, urna 7707 |
+| Dinara Caroline De Oliveira | Deputado Federal | PRD/SOLIDARIEDADE (PRD) | confirmado 17/08/2026 | 1810: nominata federal, urna 2575 |
+| Lindameri De Oliveira Rodrigues | Deputado Federal | PRD/SOLIDARIEDADE (PRD) | confirmado 17/08/2026 | 1810: nominata federal, urna 2557 |
+| Gelson Luiz Merísio | Governador | PSB | confirmado 17/08/2026 | 1148: "partido PSB" |
+| Jorginho Dos Santos Mello | Governador | PL | confirmado 17/08/2026 | 680: "filiado ao Partido Liberal (PL)" |
+| João Rodrigues | Governador | PSD | confirmado 17/08/2026 | 694: "filiado ao PSD" |
+| Afrânio Tadeu Boppré | Senador | PSOL/REDE (PSOL) | confirmado 17/08/2026 | 1748: candidatura do PSOL na coligação |
+| Décio Nery De Lima | Senador | PT/PC do B/PV (PT) | confirmado 17/08/2026 | 1235: "partido PT" |
+| Esperidião Amin Helou Filho | Senador | UNIÃO/PP (PP) | confirmado 17/08/2026 | 769: "FILIADO AO PROGRESSISTAS (PP)" |
+| Carlos Nantes Bolsonaro | Senador | PL | confirmado 17/08/2026 | 680: "filiado ao Partido Liberal (PL)" |
+| Caroline Rodrigues De Toni | Senador | PL | confirmado 17/08/2026 | 680: "filiada ao Partido Liberal (PL)" |
+
+## Limpeza de 17/08/2026 — lote duplicado da federação PT/PC do B/PV
+
+A retificadora 1235 foi processada duas vezes por versões diferentes do
+script (antes/depois da correção do cabeçalho de federação): a primeira
+rodada gravou os candidatos com o partido-membro da linha ("partido PT"/
+"PCdoB"/"PV") como grupo, a segunda com a federação (correto pro cálculo
+de quociente). As 35 entradas do lote partido-membro (23 Estadual + 11
+Federal + 1 suplente) eram TODAS duplicatas 1:1 (mesmo nome, mesma ata)
+das entradas federação — removidas, com o partido-membro preservado no
+campo `partidoOriginal` da entrada federação (que é o que a ata de fato
+informa, linha a linha).
+
+## Pendências restantes (fora do escopo do app — suplentes de senador)
+
+O app não modela suplentes, então nada disso aparece na tela. Fica pra
+revisão humana quando/se suplente entrar no escopo:
+- Geraldo Wetzel Neto triplicado (1312-pl, 1337-novo, 1533-agir — apoios
+  registrados por 3 partidos da mesma aliança).
+- Volnei Weber duplicado dentro da própria 1683 (uma linha com MDB, outra sem).
+- Aparecida Da Silva (172 convenção × 1748 retificadora — retificadora deve prevalecer).
+- Adriano Bornschein Silva duplicado (487-novo × 680-pl, apoios da aliança).
+- Angela Albino com partido "PDT" numa linha da 1148 (na prosa da mesma ata
+  ela é vice-governadora pelo PSB federação? conferir com humano).

@@ -48,6 +48,11 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
   const base = origem.map((p) => ({
     nome: p.nome,
     vagas2022: p.vagas2022,
+    // Partido sem nenhuma ata de 2026 processada — card vazio e bloqueado
+    // na Seleção ("não registrou ata"), ver registro-2026.js. Propagado
+    // aqui pra chegar até pcState.palpiteEdicao.
+    semAta2026: !!p.semAta2026,
+    temAtaOutroCargo: !!p.temAtaOutroCargo,
     candidatos: p.candidatos.map((c) => ({
       id: c.id,
       nome: c.nome,
@@ -77,6 +82,8 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
     return {
       nome: p.nome,
       vagas2022: p.vagas2022,
+      semAta2026: !!p.semAta2026,
+      temAtaOutroCargo: !!p.temAtaOutroCargo,
       metaVagas,
       candidatos: p.candidatos.map((c) => {
         const chave = chaveCandidato(c.nome, p.nome, c.id);

@@ -349,6 +349,32 @@ function _chaveRascunhoConvidado(uf, cargo) {
   return `pc-rascunho:${uf}:${cargo}`;
 }
 
+// Qual "lista salva" (nomeada, com id) o rascunho ATUAL deste estado
+// pertence — pcState.listaSalvaId/listaSalvaNome viviam só na memória,
+// nunca gravados em lugar nenhum. Resultado: a pessoa editava uma lista já
+// salva (via "Editar" em Minhas Listas), a página recarregava (aba
+// suspensa no celular, fechar e abrir de novo...) e o app continuava
+// mostrando o rascunho certinho, mas tinha esquecido COMPLETAMENTE que
+// aquele conteúdo era a lista "X" — Salvar virava "criar uma lista nova
+// do zero" (duplicava, em vez de atualizar) e nem mostrava o nome de
+// referência. Achado pelo usuário em 17/08/2026 ("aqui não existe nenhuma
+// referência sobre qual lista eu salvei"). Guardado por window.storage
+// (mesmo mecanismo do rascunho) tanto pra convidado quanto logado — é só
+// um atalho local, não precisa sincronizar entre aparelhos.
+function _chaveListaAtivaLocal(uf) {
+  return `pc-lista-ativa:${uf}`;
+}
+async function persistirListaAtivaLocal() {
+  if (!pcState.estado) return;
+  try {
+    if (pcState.listaSalvaId) {
+      await window.storage.set(_chaveListaAtivaLocal(pcState.estado), JSON.stringify({ id: pcState.listaSalvaId, nome: pcState.listaSalvaNome }));
+    } else {
+      await window.storage.delete(_chaveListaAtivaLocal(pcState.estado));
+    }
+  } catch (e) { /* localStorage indisponível, ignora — só perde o atalho, não o conteúdo */ }
+}
+
 // Carrega o rascunho salvo dos 3 cargos pro estado atual e guarda em
 // pcState.rascunhosCache — 1x por estado escolhido (ver os 2 únicos lugares
 // que atribuem pcState.estado: initColaborativo e o picker de estado). O
@@ -375,6 +401,19 @@ async function garantirRascunhosCarregados() {
   }
   pcState.rascunhosCache = cache;
   pcState.rascunhosCacheEstado = pcState.estado;
+  // Restaura de qual lista salva (se alguma) este rascunho é — só quando a
+  // sessão atual ainda não sabe (não sobrescreve um listaSalvaId que já
+  // veio de "Editar" nesta mesma navegação). Ver persistirListaAtivaLocal.
+  if (!pcState.listaSalvaId) {
+    try {
+      const r = await window.storage.get(_chaveListaAtivaLocal(pcState.estado));
+      const ativa = r && r.value ? JSON.parse(r.value) : null;
+      if (ativa && ativa.id) {
+        pcState.listaSalvaId = ativa.id;
+        pcState.listaSalvaNome = ativa.nome || null;
+      }
+    } catch (e) { /* sem atalho local, segue como lista nova */ }
+  }
 }
 
 // Salva (com debounce — não dispara 1 request por tecla) o rascunho de um
@@ -2734,6 +2773,7 @@ async function renderMinhasListas() {
     pcState.listaSalvaNome = null;
     pcState.palpitesPorCargo = null;
     pcState.palpiteEdicao = null;
+    persistirListaAtivaLocal();
     if (pcState.perfil) { pcState.subaba = "selecao"; renderAppColaborativo(); }
     else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
   });
@@ -2749,12 +2789,24 @@ async function renderMinhasListas() {
       if (!lista) return;
       pcState.listaSalvaId = lista.id;
       pcState.listaSalvaNome = lista.nome;
+      persistirListaAtivaLocal();
       if (pcState.perfil) {
         const completo = await carregarSalvamentoCompleto(id);
         if (!completo) return;
         pcState.palpitesPorCargo = completo.cargos;
       } else {
         pcState.palpitesPorCargo = lista.palpitesPorCargo;
+      }
+      // Mesma poda de grupos fantasma aplicada aos rascunhos (ver
+      // podarGruposForaDoPool) — uma lista salva ANTES de uma correção de
+      // dados pode carregar um grupo que não existe mais no pool oficial.
+      if (pcState.palpitesPorCargo) {
+        CARGOS.forEach((c) => {
+          if (pcState.palpitesPorCargo[c.id]) {
+            const poolOficial = montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
+            pcState.palpitesPorCargo[c.id] = podarGruposForaDoPool(pcState.palpitesPorCargo[c.id], poolOficial);
+          }
+        });
       }
       pcState.palpiteEdicao = pcState.palpitesPorCargo ? pcState.palpitesPorCargo[pcState.cargoAtivo] : null;
       if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
@@ -3897,6 +3949,42 @@ function rascunhoEhOrfao(rascunho, poolOficial) {
   return !idsRascunho.some((id) => idsOficiais.has(id));
 }
 
+// Complemento da regra de rascunho órfão (acima): ela só descarta o
+// rascunho quando o elenco INTEIRO mudou — mas uma correção de dados pode
+// remover só UM grupo do pool oficial (ex.: o "SEM PARTIDO" com o Marcos
+// Vieira duplicado, removido em 16/08/2026) e o rascunho salvo antes da
+// correção continua de pé (a maioria dos ids ainda bate), trazendo o
+// grupo fantasma de volta pra tela pra sempre. Achado pelo usuário em
+// 17/08/2026 ("Marcos Vieira duplicado. Parece que devemos descartar
+// essa ata, sendo que sequer existe partido" — a ata já tinha sido
+// corrigida; o que sobrava era o rascunho antigo dele).
+// Regra geral: remove do rascunho/lista os GRUPOS cujo nome não existe
+// mais no pool oficial. Poda por grupo (não por candidato) de propósito —
+// candidato individual pode ser adição manual legítima da pessoa dentro
+// de um partido real; um grupo inteiro que o dado oficial não conhece é
+// sempre resquício de dado antigo. Vale pra qualquer estado/cargo.
+// Caso extra: quando o pool diz que o partido está SEM ATA de 2026 (card
+// vazio e bloqueado, ver registro-2026.js), o grupo do rascunho — que
+// pode carregar a chapa placeholder de 2022 de antes de 08/08 — é
+// SUBSTITUÍDO pela versão vazia do pool, não mantido (senão o card
+// bloqueado mostraria candidatos que o dado oficial não confirma).
+function podarGruposForaDoPool(lista, poolOficial) {
+  if (!lista || !lista.length || !poolOficial || !poolOficial.length) return lista;
+  const poolPorNome = {};
+  poolOficial.forEach((p) => { poolPorNome[p.nome] = p; });
+  const podada = lista
+    .filter((p) => poolPorNome[p.nome])
+    .map((p) => poolPorNome[p.nome].semAta2026 ? poolPorNome[p.nome] : p);
+  if (!podada.length) return lista;
+  // Sentido inverso da mesma sincronização: grupo que EXISTE no pool mas
+  // não no rascunho (ata processada depois do rascunho ser salvo, ou o
+  // card "sem ata" criado em 17/08/2026) entra no fim — sem isso, quem já
+  // tinha um rascunho nunca via partido novo nenhum até zerar tudo.
+  const nomesNaLista = new Set(podada.map((p) => p.nome));
+  poolOficial.forEach((p) => { if (!nomesNaLista.has(p.nome)) podada.push(p); });
+  return podada;
+}
+
 async function garantirPalpiteEdicaoAtivo() {
   const chaveCargoEstado = `${pcState.estado}::${pcState.cargoAtivo}`;
   if (!pcState.palpiteEdicao || pcState.cargoPalpiteEdicao !== chaveCargoEstado) {
@@ -3911,7 +3999,9 @@ async function garantirPalpiteEdicaoAtivo() {
     // inexistente.
     const rascunho = pcState.rascunhosCache && pcState.rascunhosCache[pcState.cargoAtivo];
     const poolOficial = montarEstadoPalpite("assembleia", null, null, pcState.cargoAtivo, pcState.estado);
-    pcState.palpiteEdicao = (rascunho && !rascunhoEhOrfao(rascunho, poolOficial)) ? rascunho : poolOficial;
+    pcState.palpiteEdicao = (rascunho && !rascunhoEhOrfao(rascunho, poolOficial))
+      ? podarGruposForaDoPool(rascunho, poolOficial)
+      : poolOficial;
     pcState.cargoPalpiteEdicao = chaveCargoEstado;
   }
 }
@@ -4116,6 +4206,22 @@ async function renderCargoEstadual() {
   }
 
   const blocos = partidosParaMostrar.map((p) => {
+    // Partido sem nenhuma ata de convenção 2026 processada — card vazio e
+    // BLOQUEADO ("não registrou ata"): opaco, sem stepper, sem botões, sem
+    // como expandir. Existe pra pessoa saber POR QUE o partido não é
+    // editável, em vez de ele simplesmente sumir da tela (decisão do
+    // usuário em 17/08/2026 — meio-termo entre o placeholder antigo com a
+    // chapa de 2022, enganoso, e o sumiço total, inexplicado).
+    if (p.semAta2026) {
+      return `
+      <div style="border:1px solid rgba(120,130,180,0.2); border-radius:10px; margin-bottom:8px; opacity:.45; pointer-events:none; padding:13px 14px;">
+        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+          <span style="width:9px; height:9px; border-radius:50%; background:${corPartidoIdeologico(p.nome)}; flex-shrink:0;"></span>
+          <span style="font-weight:700; font-size:15.5px;">${nomePartidoExibicao(p.nome)}</span>
+          <span style="margin-left:auto; font-size:10.5px; font-weight:600; color:var(--pc-ink-dim); border:1px solid #2a4438; border-radius:999px; padding:3px 9px; white-space:nowrap;">${p.temAtaOutroCargo ? "sem chapa neste cargo" : "não registrou ata"}</span>
+        </div>
+      </div>`;
+    }
     const marcados = p.candidatos.filter((c) => c.marcadoEleito).length;
     const st = statusPartidoSelecao(p);
     const isExpanded = !!pcState.expandido[p.nome];
@@ -4631,6 +4737,10 @@ async function renderCargoEstadual() {
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
       </div>`}
     </div>
+    ${pcState.listaSalvaNome ? `
+    <div style="display:flex; align-items:center; gap:6px; margin:0 0 10px 2px; font-size:11.5px; color:var(--pc-ink-dim);">
+      ${iconeSvg("salvar", 12)} Editando a lista <b style="color:var(--pc-ink); font-weight:600;">"${escaparAtributoHtml(pcState.listaSalvaNome)}"</b>
+    </div>` : ""}
     ${renderPainelComandos([
       {
         id: "pcBtnBuscaPartidoToggle", icone: "buscar", tamanho: 14, titulo: "Buscar partido",
@@ -5292,7 +5402,9 @@ function garantirPalpitesPorCargo() {
       // usa rascunho preso num elenco que a fonte oficial já substituiu.
       const rascunho = pcState.rascunhosCache && pcState.rascunhosCache[c.id];
       const poolOficial = montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
-      pcState.palpitesPorCargo[c.id] = (rascunho && !rascunhoEhOrfao(rascunho, poolOficial)) ? rascunho : poolOficial;
+      pcState.palpitesPorCargo[c.id] = (rascunho && !rascunhoEhOrfao(rascunho, poolOficial))
+        ? podarGruposForaDoPool(rascunho, poolOficial)
+        : poolOficial;
     }
   });
   CARGOS.forEach((c) => agendarAutoSaveRascunho(c.id, pcState.palpitesPorCargo[c.id]));
@@ -5593,6 +5705,12 @@ async function executarSalvarLista({ manterTela = false } = {}) {
     pcState.listaSalvaId = pcState.listaSalvaId || gerarIdLista();
     await persistirListaSalvaLocal();
   }
+  // Grava (ou atualiza) o atalho local "de qual lista salva é este
+  // rascunho" — é o que permite um Salvar futuro, depois de recarregar a
+  // página, reconhecer que já existe uma lista pra ATUALIZAR em vez de
+  // criar outra (ver persistirListaAtivaLocal e o achado do usuário em
+  // 17/08/2026, logo acima da função).
+  await persistirListaAtivaLocal();
   // Continua gravando em "palpites" também (Quadro de Médias público) —
   // tabela separada, 1 linha por pessoa, não mexe com "salvamentos".
   if (pcState.perfil) {

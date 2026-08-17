@@ -149,19 +149,43 @@ function candidatos2026EstadoCargo(uf, cargoLabel) {
     });
   });
 
-  // Até 08/08/2026, partido/federação sem NENHUMA ata de 2026 processada
-  // pra esse cargo entrava aqui como placeholder com a própria chapa de
-  // 2022 (fonte "2022-sem-ata-2026"), pra não sumir da tela enquanto a ata
-  // não saía. Decisão do usuário em 08/08/2026: com o volume de atas e
-  // candidatos já carregado pra SC, esse preenchimento de espera deixou de
-  // fazer sentido — casos como "Delegado Egidio Ferrari" (PTB, eleito em
-  // 2022) continuavam aparecendo como candidato mesmo sem nenhuma
-  // confirmação de que ele concorre em 2026, e sem fonte pra saber se
-  // ainda é candidato de verdade. Partido sem ata de 2026 processada pra
-  // esse cargo agora simplesmente não aparece na lista de candidatos até a
-  // ata real chegar (o total de vagas do cargo continua correto de
-  // qualquer forma — vem de vagasFixasCargo, em registro-2022.js, que soma
-  // sempre a partir do resultado completo de 2022, nunca dessa lista).
+  // Partido/federação sem NENHUMA ata de 2026 processada pra esse cargo:
+  // - Até 08/08/2026, entrava como placeholder com a própria chapa de 2022
+  //   (fonte "2022-sem-ata-2026") — removido por decisão do usuário: casos
+  //   como "Delegado Egidio Ferrari" (PTB, eleito em 2022) apareciam como
+  //   candidatos sem nenhuma confirmação de que concorrem em 2026.
+  // - De 08/08 a 17/08/2026, simplesmente não aparecia na tela — mas aí a
+  //   pessoa não tinha COMO saber por que o partido sumiu.
+  // - Decisão do usuário em 17/08/2026 (o meio-termo): o partido aparece
+  //   como um card VAZIO e BLOQUEADO ("não registrou ata"), opaco,
+  //   impossibilitado de editar — visível o suficiente pra explicar a
+  //   ausência, sem inventar candidato nenhum. Só entram aqui partidos que
+  //   disputaram esse cargo em 2022 (têm registro no resultado real); a
+  //   marcação semAta2026 é o que a Seleção usa pra travar o card
+  //   (interface/prospeccao.js). O total de vagas do cargo não passa por
+  //   essa lista (vem de vagasFixasCargo, registro-2022.js), então o card
+  //   vazio não muda nenhuma conta.
+  // Distingue dois motivos de ausência (rótulos diferentes na tela):
+  // partido sem NENHUMA candidatura 2026 em cargo nenhum = "não registrou
+  // ata"; partido com ata processada em outro cargo mas sem chapa neste =
+  // "sem chapa neste cargo" (ex.: DC/PCO/PSB só lançaram pra Federal/
+  // majoritário — dizer que "não registraram ata" seria falso).
+  const partidosComAlgumaCandidatura2026 = new Set();
+  Object.values(dados2026).forEach((candidatosDoCargo) => {
+    candidatosDoCargo.forEach((c) => { if (c.partido) partidosComAlgumaCandidatura2026.add(c.partido); });
+  });
+  doEstado2022.forEach((p) => {
+    const nome26 = nomeFederacao2026(uf, p.nome);
+    if (!grupos[nome26]) {
+      grupos[nome26] = {
+        nome: nome26,
+        vagas2022: vagas2022PorPartido26[nome26] || 0,
+        candidatos: [],
+        semAta2026: true,
+        temAtaOutroCargo: partidosComAlgumaCandidatura2026.has(nome26),
+      };
+    }
+  });
 
   return Object.values(grupos);
 }
