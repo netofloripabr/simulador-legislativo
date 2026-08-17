@@ -84,6 +84,8 @@ let pcState = {
   dadosCompartilhar: null, // { carregando, lista, eleitos, imagemUrl } do modal de compartilhar acima — cache pra não recarregar a cada render
   avisoLimiteListaAberto: false, // aviso "compre crédito" ao tentar criar 2ª lista sem pagar
   avisoLimiteGrupoAberto: false, // aviso "compre crédito" ao tentar criar 2º grupo sem pagar
+  linksCandidatosCache: {}, // "estado::cargo" -> { chave: instagram }, ver garantirLinksCandidatos
+  modalInstagramInfo: null, // { chave, nome, valorAtual } do candidato com o modal de editar Instagram aberto (só admin), ou null
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -129,10 +131,20 @@ const PC_ICONES = {
   baixar: '<path d="M8 2.5v7.3M5 7l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.8 12.2v1a1 1 0 001 1h8.4a1 1 0 001-1v-1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   buscar: '<circle cx="6.8" cy="6.8" r="4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   salvar: '<path d="M3 2.8h8.2l2 2v8.4H3V2.8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M5 2.8v3.6h4.6V2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path><rect x="4.8" y="9" width="6.4" height="4.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect>',
+  instagram: '<rect x="2" y="2" width="12" height="12" rx="3.6" fill="none" stroke="currentColor" stroke-width="1.3"></rect><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="11.5" cy="4.5" r=".9" fill="currentColor"></circle>',
 };
 function iconeSvg(nome, tamanho) {
   const t = tamanho || 16;
   return `<svg viewBox="0 0 16 16" width="${t}" height="${t}">${PC_ICONES[nome] || ""}</svg>`;
+}
+
+// Escapa aspas pra usar valor de texto livre (ex.: link de Instagram
+// cadastrado por um admin) dentro de um atributo HTML sem quebrar o resto
+// da tag — o resto do app não escapa texto livre em innerHTML (convenção
+// já existente, ex.: nome de lista), mas um href é fácil de quebrar/
+// sequestrar com uma aspa mal colocada, então esse ganha o cuidado extra.
+function escaparAtributoHtml(s) {
+  return String(s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 }
 
 // Logo oficial de 4 cores do Google, pros botões "Entrar/Cadastrar com
@@ -3850,6 +3862,25 @@ async function garantirPalpiteEdicaoAtivo() {
   }
 }
 
+// Links de Instagram por candidato (nuvem/candidato-links.js) — busca todos
+// de uma vez pro estado+cargo ativo (mesma escala da lista de candidatos
+// já carregada), cacheado em pcState.linksCandidatosCache pra não refazer
+// a consulta a cada re-render (marcar eleito, editar voto etc. re-
+// renderizam a tela inteira o tempo todo, ver renderCargoEstadual).
+async function garantirLinksCandidatos() {
+  const chaveCache = `${pcState.estado}::${pcState.cargoAtivo}`;
+  if (pcState.linksCandidatosCache[chaveCache]) return;
+  pcState.linksCandidatosCache[chaveCache] = await obterLinksCandidatos(pcState.estado, pcState.cargoAtivo);
+}
+
+// Instagram de UM candidato, já carregado pra pcState.estado/cargoAtivo
+// atuais (ver garantirLinksCandidatos, chamado antes de qualquer render que
+// precise disso) — null quando não tem link cadastrado.
+function linkInstagramDe(chave) {
+  const mapa = pcState.linksCandidatosCache[`${pcState.estado}::${pcState.cargoAtivo}`];
+  return (mapa && mapa[chave]) || null;
+}
+
 async function renderCargoEstadual() {
   const conteudo = document.getElementById("pcCargoConteudo");
   // Mesmo problema (e mesma correção) do botão ✦ na Revisão, achado pelo
@@ -3876,6 +3907,7 @@ async function renderCargoEstadual() {
   // (busca de partido) em 16/08/2026.
   if (!reRenderizando) conteudo.innerHTML = telaCarregando();
   await garantirPalpiteEdicaoAtivo();
+  await garantirLinksCandidatos();
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
 
   const cargoInfo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
@@ -4208,7 +4240,16 @@ async function renderCargoEstadual() {
                 const tituloBase = c.marcadoEleito ? "Eleito — está entre os mais votados do partido" + tituloExtra : "Não eleito — fora dos mais votados do partido nesta quantidade";
                 return `<label class="pc-switch${claseExtra}" style="cursor:default;" title="${tituloBase}"><input type="checkbox" data-pc-marca="${p.nome}::${c.chave}" ${c.marcadoEleito ? "checked" : ""} disabled><span class="pc-switch-slider"></span></label>`;
               })()}
-          <span style="flex:1; font-size:15px; font-weight:600; line-height:1.4;">${nomeExibicao(c)}${c.partidoOriginal && c.partidoOriginal !== p.nome ? ` <span style="font-size:11px; font-weight:700; color:var(--pc-accent);">(${c.partidoOriginal})</span>` : ""}${c.fonte === "legenda" ? ' <span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${c.fonte === "2022-sem-ata-2026" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">sem ata 2026</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada — este é o candidato real de 2022, usado só como referência temporária até a lista de 2026 chegar. Pode não ser candidato em 2026, pode ter trocado de cargo ou de partido.")}` : ""}${c.fonte === "ficticio" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">candidato fictício</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada. Este NÃO é um candidato real — é um nome de preenchimento (placeholder) só pra manter a chapa completa até a ata sair. Será substituído pelo candidato real assim que a ata for processada.")}` : ""}<br><span style="font-size:12.5px; font-weight:400; color:var(--pc-ink-dim); opacity:0.9;">eleição 2022: ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</span>${c.invalidado2022 ? warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`) : ""}</span>
+          <span style="flex:1; font-size:15px; font-weight:600; line-height:1.4;">${nomeExibicao(c)}${(() => {
+            // Ícone do Instagram (visível pra todo mundo, só quando tem link
+            // cadastrado) + lápis de editar (só admin, sempre visível pra
+            // poder cadastrar o primeiro link também). Pedido do usuário em
+            // 16/08/2026 — link é responsabilidade do admin, não da pessoa
+            // comum, por isso não existe campo de texto solto aqui.
+            const linkInsta = linkInstagramDe(c.chave);
+            if (!linkInsta && !pcState.souAdmin) return "";
+            return ` <span style="display:inline-flex; align-items:center; gap:3px; vertical-align:middle;">${linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram" style="display:inline-flex; color:var(--pc-accent);" onclick="event.stopPropagation()">${iconeSvg("instagram", 14)}</a>` : ""}${pcState.souAdmin ? `<button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : ""}</span>`;
+          })()}${c.partidoOriginal && c.partidoOriginal !== p.nome ? ` <span style="font-size:11px; font-weight:700; color:var(--pc-accent);">(${c.partidoOriginal})</span>` : ""}${c.fonte === "legenda" ? ' <span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${c.fonte === "2022-sem-ata-2026" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">sem ata 2026</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada — este é o candidato real de 2022, usado só como referência temporária até a lista de 2026 chegar. Pode não ser candidato em 2026, pode ter trocado de cargo ou de partido.")}` : ""}${c.fonte === "ficticio" ? ` <span style="font-size:10.5px; font-weight:600; color:var(--pc-warning);">candidato fictício</span>${warnTip("Esse partido ainda não teve a ata de convenção de 2026 processada. Este NÃO é um candidato real — é um nome de preenchimento (placeholder) só pra manter a chapa completa até a ata sair. Será substituído pelo candidato real assim que a ata for processada.")}` : ""}<br><span style="font-size:12.5px; font-weight:400; color:var(--pc-ink-dim); opacity:0.9;">eleição 2022: ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</span>${c.invalidado2022 ? warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`) : ""}</span>
           <input class="cell${c.votosEditado ? " pc-voto-manual" : ""}" title="${c.votosEditado ? "Ajustado manualmente" : "Valor automático/padrão"}" data-pc-voto="${p.nome}::${c.chave}" value="${(Number(c.votos) || 0).toLocaleString("pt-BR")}" style="width:120px; font-size:14.5px; font-weight:600; text-align:right; flex-shrink:0;">
         </div>`).join("") : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato encontrado", texto: "Confira o nome digitado." });
       // Mesma distinção QP ("quociente direto", art. 107) vs média/sobra
@@ -4553,6 +4594,7 @@ async function renderCargoEstadual() {
     </div>
     <div class="pc-status" id="pcSelecaoStatus" style="text-align:right; margin:-14px 0 14px;"></div>
     ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
+    ${pcState.modalInstagramInfo ? renderModalInstagram() : ""}
     ${pcState.buscaPartidoAberta ? `
     <div style="position:relative; margin:-12px 0 20px;">
       <svg viewBox="0 0 16 16" width="14" height="14" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--pc-ink-dim); pointer-events:none;"><circle cx="6.6" cy="6.6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7L13.5 13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
@@ -4973,6 +5015,23 @@ function attachListenersSelecao() {
         mostrarStatusSalvamento("Lista salva. Pode continuar editando.");
       }
     });
+  }
+  // Lápis de editar Instagram — só existe no DOM quando pcState.souAdmin
+  // (ver o card do candidato), mas o querySelectorAll cobre o caso normal
+  // (nenhum encontrado, forEach não roda) sem precisar de outro if.
+  document.querySelectorAll("[data-pc-editar-instagram]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const chave = btn.dataset.pcEditarInstagram;
+      pcState.modalInstagramInfo = {
+        chave,
+        nome: btn.dataset.pcEditarInstagramNome,
+        valorAtual: linkInstagramDe(chave),
+      };
+      renderCargoEstadual();
+    });
+  });
+  if (pcState.modalInstagramInfo) {
+    attachListenersModalInstagram(renderCargoEstadual);
   }
 }
 
@@ -5526,6 +5585,62 @@ function attachListenersModalNomeLista(aoCancelar, aoConfirmar) {
   });
   document.getElementById("pcBtnConfirmarNomeLista").addEventListener("click", confirmar);
   inputNome.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); confirmar(); } });
+}
+
+// Modal de editar o link de Instagram de UM candidato — só abre pra quem já
+// tem pcState.souAdmin true (o botão de lápis nem aparece pra quem não é
+// admin, ver o card do candidato em renderCargoEstadual); a escrita de
+// verdade é sempre reconferida no banco (admin_definir_instagram_candidato,
+// nuvem/migracao-24-instagram-candidato.sql), então nada aqui é a defesa
+// real contra alguém driblar o front. pcState.modalInstagramInfo = { chave,
+// nome, valorAtual } de quem está sendo editado, ou null.
+function renderModalInstagram() {
+  const info = pcState.modalInstagramInfo;
+  return `
+    <div id="pcModalInstagramOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <h2 style="margin-bottom:4px; font-size:15px;">Instagram — ${info.nome}</h2>
+        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">Link visível pra todo mundo, ao lado do nome do candidato na Seleção. Cole o endereço completo do perfil.</div>
+        <input class="cell" id="pcInputInstagram" placeholder="https://instagram.com/..." value="${escaparAtributoHtml(info.valorAtual || "")}" style="width:100%; margin-bottom:6px;">
+        <div class="pc-erro" id="pcErroInstagram" style="min-height:16px;"></div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="ghost" id="pcBtnCancelarInstagram" style="flex:1;">Cancelar</button>
+          ${info.valorAtual ? `<button class="ghost" id="pcBtnRemoverInstagram" style="flex:1; color:var(--pc-danger); border-color:var(--pc-danger);">Remover</button>` : ""}
+          <button class="primary" id="pcBtnConfirmarInstagram" style="flex:1;">Salvar</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function attachListenersModalInstagram(aoFechar) {
+  const info = pcState.modalInstagramInfo;
+  const input = document.getElementById("pcInputInstagram");
+  input.focus();
+  input.select();
+  const salvar = async (valor) => {
+    const { error } = await definirLinkCandidato(pcState.estado, pcState.cargoAtivo, info.chave, valor);
+    if (error) {
+      document.getElementById("pcErroInstagram").textContent = "Erro ao salvar: " + error.message;
+      return;
+    }
+    // Atualiza o cache local na hora — sem isso o ícone só refletiria o
+    // link novo depois de trocar de cargo/estado e voltar (garantirLinksCandidatos
+    // só busca de novo quando o cache daquele estado+cargo ainda não existe).
+    const chaveCache = `${pcState.estado}::${pcState.cargoAtivo}`;
+    if (!pcState.linksCandidatosCache[chaveCache]) pcState.linksCandidatosCache[chaveCache] = {};
+    if (valor) pcState.linksCandidatosCache[chaveCache][info.chave] = valor;
+    else delete pcState.linksCandidatosCache[chaveCache][info.chave];
+    pcState.modalInstagramInfo = null;
+    aoFechar();
+  };
+  document.getElementById("pcBtnConfirmarInstagram").addEventListener("click", () => salvar(input.value.trim()));
+  const btnRemover = document.getElementById("pcBtnRemoverInstagram");
+  if (btnRemover) btnRemover.addEventListener("click", () => salvar(""));
+  document.getElementById("pcBtnCancelarInstagram").addEventListener("click", () => {
+    pcState.modalInstagramInfo = null;
+    aoFechar();
+  });
+  input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); salvar(input.value.trim()); } });
 }
 
 function renderRevisaoDeposito() {
