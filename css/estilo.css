@@ -978,3 +978,35 @@
   backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
   border-bottom: 1px solid #1E2226;
 }
+
+/* Reskin completo da identidade 2.0 dentro do tema Fader: as variáveis
+   de token trocam a paleta de tudo que é var-driven (glass-cards, textos,
+   botões primary, avisos), e as regras abaixo cobrem os verdes fixos das
+   peças antigas (pílula de abas, painel de comandos, legenda). O verde
+   vivo #34E84A entra como acento só em estado ativo/destaque — a
+   escassez é a identidade (PROJETO.md §8.2). */
+#modoColaborativoWrap.pc-tema-fader{
+  --pc-ink:#F2F4F5; --pc-ink-dim:#8A9096;
+  --pc-glass:rgba(29,32,35,.85); --pc-glass-border:#23262A;
+  --pc-accent:#34E84A; --pc-accent-2:#34E84A;
+  --pc-danger:#FF5A48; --pc-warning:#FFB020;
+  --pc-lobby-tom-2:#16181B; --pc-lobby-tom-3:#1B1E22;
+  --pc-lobby-verde-media:#1D8038; --pc-lobby-verde-forte:#14602A;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-cargo-switch{ background:#101214; }
+#modoColaborativoWrap.pc-tema-fader .pc-cargo-switch button.active{ background:#F2F4F5; color:#101214; }
+#modoColaborativoWrap.pc-tema-fader .pc-cmd-painel .pc-cmd-acao{ background:#16181B; border-color:#2B2F33; }
+#modoColaborativoWrap.pc-tema-fader .pc-cmd-painel .pc-cmd-acao.ativo{ background:rgba(52,232,74,.09); }
+#modoColaborativoWrap.pc-tema-fader .pc-cmd-painel .pc-cmd-acao.destaque{ background:rgba(52,232,74,.07); color:#D9F5DE; }
+#modoColaborativoWrap.pc-tema-fader .pc-cmd-painel .pc-cmd-info{ background:#16181B; border-color:#2B2F33; font-family:var(--sans); }
+#modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-painel{ background:#16181B; border-color:#26292D; }
+#modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-item{ border-bottom-color:#23262A; }
+#modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-item .pc-cmd-legenda-icone{ background:#101214; border-color:#2B2F33; }
+/* Overlays antigos (tutorial, top 2022, salvar lista, Instagram) ainda
+   carregam o vidro-verde em style inline — até a migração definitiva
+   (etapa própria), o seletor de atributo abaixo neutraliza a cor por
+   fora, sem mexer no JS. Remover quando os overlays forem re-escritos. */
+#modoColaborativoWrap.pc-tema-fader [style*="rgba(15,35,27"]{
+  background:rgba(24,27,30,.94) !important; border-color:#2B2F33 !important;
+}
+#modoColaborativoWrap.pc-tema-fader [style*="rgba(4,10,8"]{ background:rgba(8,9,11,.6) !important; }
