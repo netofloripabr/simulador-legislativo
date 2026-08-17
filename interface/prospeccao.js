@@ -3450,6 +3450,11 @@ function pedirConfirmacaoAutoPreenchimento(partido) {
 }
 function executarAutoPreenchimento(partido) {
   snapshotPalpite();
+  if (pcState.cargoAtivo === "senador") {
+    autoPreenchimentoSenador();
+    renderCargoEstadual();
+    return;
+  }
   if (partido) {
     balancearPartidoSelecao(partido);
     aplicarQuantidadeMarcados(partido, partido.candidatos.filter((c) => c.marcadoEleito).length);
@@ -3850,6 +3855,59 @@ function montarItensSenador() {
       _senItens.push({ c, partido: p.nome, partidoOriginal: c.partidoOriginal || p.nome });
     });
   });
+}
+
+// Auto-preenchimento próprio do Senado (17/08/2026) — a lógica das abas
+// proporcionais não serve aqui: ela parte do voto de 2022 de CADA
+// candidato (curva decrescente, metas por partido), e os candidatos ao
+// Senado de 2026 são estreantes na disputa, sem histórico individual.
+// Regra do Senado:
+// 1. Voto digitado à mão (votosEditado) é intocável — vira reserva fixa.
+// 2. O peso de cada candidato restante é a força do PARTIDO dele em 2022
+//    (PARTIDOS_BRASIL, votação de Dep. Estadual em SC — a régua de força
+//    partidária disponível), dividida entre os candidatos que o partido
+//    lançou ao Senado; partido sem voto em 2022 entra com um piso pequeno.
+// 3. Uma variação determinística de ±6% por candidato (hash da chave)
+//    evita empates artificiais entre colegas de partido.
+// 4. O orçamento restante (T − editados) é distribuído pela FMD, que já
+//    aplica o teto individual com saturação — a lista fecha em 100%.
+function autoPreenchimentoSenador() {
+  const E = pcState.estado === "SC" && typeof REF_2022 !== "undefined"
+    ? REF_2022.validos * fatorCrescimentoEleitorado()
+    : totalValidosProjetado2026("senador");
+  const T = E * 2;
+  montarItensSenador();
+  const fixo = (it) => it.c.votosEditado && Number(it.c.votos) > 0;
+  const somaFixos = _senItens.reduce((s, it) => s + (fixo(it) ? Number(it.c.votos) : 0), 0);
+  const alvo = Math.max(0, T - somaFixos);
+  // A força de um grupo soma as siglas que o compõem: "UNIÃO / PP" pesa
+  // UNIÃO + PP (numa majoritária o candidato herda a máquina da federação
+  // inteira). O nome do grupo não casa direto com PARTIDOS_BRASIL — é
+  // preciso quebrar em siglas (bug pego em teste: o PL, sigla pura, era o
+  // único que casava e dominava com 75% da lista).
+  const forcaDoGrupo = (nomeGrupo) => {
+    const soma = String(nomeGrupo).split("/")
+      .reduce((s, sigla) => {
+        const ref = partido2022Ref(sigla.trim());
+        return s + (ref && Number(ref.votos2022) > 0 ? Number(ref.votos2022) : 0);
+      }, 0);
+    return soma > 0 ? soma : 30000;
+  };
+  const candidatosDoGrupo = {};
+  _senItens.forEach((it) => { candidatosDoGrupo[it.partido] = (candidatosDoGrupo[it.partido] || 0) + 1; });
+  const base = _senItens.map((it, i) => {
+    if (fixo(it)) return 0;
+    const peso = forcaDoGrupo(it.partido) / (candidatosDoGrupo[it.partido] || 1);
+    const h = [...String(it.c.chave || i)].reduce((s, ch) => (s * 31 + ch.charCodeAt(0)) % 997, 7);
+    return peso * (0.94 + (h / 997) * 0.12);
+  });
+  const dist = fmdEscalarProporcional(base, alvo, E);
+  _senItens.forEach((it, i) => {
+    if (fixo(it)) return;
+    it.c.votos = dist[i];
+    it.c.votosEditado = false;
+  });
+  recalcularMarcadosSenador();
 }
 
 // Cabeçalho da aba Senador (vai no slot fixo #pcPainelSlot): linha
@@ -4990,7 +5048,9 @@ async function renderCargoEstadual() {
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11.5px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("completar", 14)} PREENCHIMENTO AUTOMÁTICO</div>
         <h2 style="margin-bottom:6px;">Preencher automaticamente?</h2>
         <div style="font-size:13.5px; line-height:1.7; color:var(--pc-ink-dim);">
-          Vou distribuir a votação dos candidatos marcados como eleito ${alvo}, proporcionalmente ao peso de cada um em 2022, até bater a votação necessária pra fechar essas vagas — e completar o resto da lista com uma estimativa. Números que você já ajustou à mão (borda verde) não são alterados.
+          ${pcState.cargoAtivo === "senador"
+            ? "Vou distribuir uma votação simulada entre todos os candidatos, proporcional à força que o partido de cada um mostrou na eleição de 2022 — a lista fecha em 100% dos votos e os 2 mais votados ficam com o selo ELEITO. Números que você já digitou à mão não são alterados."
+            : `Vou distribuir a votação dos candidatos marcados como eleito ${alvo}, proporcionalmente ao peso de cada um em 2022, até bater a votação necessária pra fechar essas vagas — e completar o resto da lista com uma estimativa. Números que você já ajustou à mão (borda verde) não são alterados.`}
         </div>
         <div style="display:flex; gap:8px; margin-top:20px;">
           <button class="ghost" id="pcBtnCancelarAuto" style="flex:1;">Cancelar</button>
@@ -5103,7 +5163,9 @@ async function renderCargoEstadual() {
       },
       {
         id: "pcBtnPreencherAutoTudo", icone: "completar", tamanho: 18, titulo: "Mágico — preenchimento automático",
-        legenda: "Preenche a votação simulada dos demais candidatos automaticamente. Marque antes quem você acha que será eleito — o resto ele completa.",
+        legenda: pcState.cargoAtivo === "senador"
+          ? "Distribui uma votação simulada entre todos os candidatos, pela força do partido de cada um em 2022. O que você já digitou à mão fica como está."
+          : "Preenche a votação simulada dos demais candidatos automaticamente. Marque antes quem você acha que será eleito — o resto ele completa.",
         classeExtra: "destaque",
       },
       {
