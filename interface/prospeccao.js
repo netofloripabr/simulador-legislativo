@@ -86,6 +86,7 @@ let pcState = {
   avisoLimiteGrupoAberto: false, // aviso "compre crédito" ao tentar criar 2º grupo sem pagar
   linksCandidatosCache: {}, // "estado::cargo" -> { chave: instagram }, ver garantirLinksCandidatos
   modalInstagramInfo: null, // { chave, nome, valorAtual } do candidato com o modal de editar Instagram aberto (só admin), ou null
+  legendaComandosAberta: false, // painel único de legenda do painel de comandos da Seleção (o "i" no fim da linha de ícones)
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -138,27 +139,50 @@ function iconeSvg(nome, tamanho) {
   return `<svg viewBox="0 0 16 16" width="${t}" height="${t}">${PC_ICONES[nome] || ""}</svg>`;
 }
 
-// Um "comando" do painel de ações (Seleção, barra no fim da tela) — ícone
-// de ação + "i" companheiro OPCIONAL, como dois elementos-irmãos dentro da
-// mesma pílula visual, nunca um dentro do outro. Antes o "i" (infoTip/
-// warnTip) ficava aninhado DENTRO do próprio <button> da ação — em
-// celular, qualquer toque ali corria o risco de ser lido como "abrir a
-// dica" em vez de "clicar" (o navegador simula :hover no primeiro toque
-// de um elemento com essa regra CSS), deixando o botão "travado" pro
-// usuário. Separar em dois alvos de toque resolve isso na raiz: o botão
-// de ação nunca tem um descendente com regra de :hover, então o toque
-// nele sempre funciona como um clique normal — a legenda (no "i" ao lado)
-// só aparece com hover de mouse ou toque mantido (ver interface/app.js).
-// Pedido do usuário em 17/08/2026, painel único e padronizado pra todos
-// os comandos da tela.
-function comandoPill(opcoes) {
-  const { id, icone, tamanho, titulo, legenda, legendaWarn, disabled, classeExtra, atributosExtra } = opcoes;
-  const tip = legendaWarn ? warnTip(legendaWarn) : (legenda ? infoTip(legenda) : "");
+// Painel de comandos padronizado (Seleção, barra no fim da tela) — TODOS
+// os botões numa linha só, só ícone, sem "i" embutido em cada um (antes o
+// "i" ficava dentro do próprio <button> da ação — infoTip/warnTip
+// aninhado — e em celular qualquer toque ali corria o risco de ser lido
+// como "abrir a dica" em vez de "clicar", porque o navegador simula
+// :hover no primeiro toque de um elemento com essa regra CSS, deixando o
+// botão "travado" pro usuário). Um único "i" discreto no fim da linha
+// abre/fecha uma legenda compartilhada com a explicação de TODOS os
+// comandos de uma vez — não precisa mais separar toque-rápido de
+// toque-mantido em cada botão, porque agora nenhum botão de ação tem
+// nada de hover embutido nele. Prototipado com o usuário em 17/08/2026
+// antes de implementar (várias rodadas de ajuste, inclusive a
+// responsividade — ver o CSS de .pc-cmd-painel pro motivo de ser só CSS,
+// sem JS medindo largura).
+//
+// comandoIcone: só o botão (chamado pra cada item, dentro de .pc-cmd-painel).
+function comandoIcone(opcoes) {
+  const { id, icone, tamanho, titulo, disabled, classeExtra, atributosExtra } = opcoes;
+  return `<button type="button" id="${id}" class="pc-cmd-acao${classeExtra ? " " + classeExtra : ""}" title="${escaparAtributoHtml(titulo)}" ${disabled ? "disabled" : ""} ${atributosExtra || ""}>${iconeSvg(icone, tamanho || 15)}</button>`;
+}
+
+// renderPainelComandos: monta a linha inteira de ícones + o "i" + o painel
+// de legenda (fechado por padrão) a partir da MESMA lista de comandos —
+// uma fonte só de verdade, sem repetir título/ícone/explicação em dois
+// lugares. `comandos` é um array de { id, icone, tamanho, titulo, legenda,
+// disabled, classeExtra, atributosExtra }; `aberta` é
+// pcState.legendaComandosAberta (ou equivalente) pra lembrar o estado
+// entre re-renders.
+function renderPainelComandos(comandos, aberta) {
+  const botoes = comandos.map((c) => comandoIcone(c)).join("");
+  const itensLegenda = comandos.map((c) => `
+    <div class="pc-cmd-legenda-item">
+      <div class="pc-cmd-legenda-icone">${iconeSvg(c.icone, 15)}</div>
+      <div>
+        <div class="pc-cmd-legenda-titulo">${c.titulo}</div>
+        <div class="pc-cmd-legenda-sub">${c.legenda || ""}</div>
+      </div>
+    </div>`).join("");
   return `
-    <span class="pc-cmd-pill${classeExtra ? " " + classeExtra : ""}">
-      <button type="button" id="${id}" class="pc-cmd-acao" title="${escaparAtributoHtml(titulo)}" ${disabled ? "disabled" : ""} ${atributosExtra || ""}>${iconeSvg(icone, tamanho || 15)}</button>
-      ${tip}
-    </span>`;
+    <div class="pc-cmd-painel">
+      ${botoes}
+      <button type="button" id="pcCmdLegendaToggle" class="pc-cmd-info${aberta ? " aberto" : ""}" title="O que faz cada botão">i</button>
+    </div>
+    <div class="pc-cmd-legenda-painel${aberta ? " aberto" : ""}" id="pcCmdLegendaPainel">${itensLegenda}</div>`;
 }
 
 // Escapa aspas pra usar valor de texto livre (ex.: link de Instagram
@@ -4602,46 +4626,45 @@ async function renderCargoEstadual() {
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
       </div>`}
     </div>
-    <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
-      ${comandoPill({
+    ${renderPainelComandos([
+      {
         id: "pcBtnBuscaPartidoToggle", icone: "buscar", tamanho: 14, titulo: "Buscar partido",
         legenda: "Abre um campo pra filtrar a lista de partidos pelo nome.",
         classeExtra: pcState.buscaPartidoAberta ? "ativo" : "",
-      })}
-      ${comandoPill({
+      },
+      {
         id: "pcBtnVoltarSelecao", icone: "desfazer", tamanho: 15, titulo: "Desfazer",
         legenda: "Desfaz a última alteração feita nesta tela — um voto editado, um candidato marcado. Só volta um passo por vez.",
         disabled: !pcState.historicoPalpite.length,
-      })}
-      ${comandoPill({
+      },
+      {
         id: "pcBtnZerarTudo", icone: "borracha", tamanho: 14, titulo: "Zerar votação",
-        legenda: "Zere o jogo!<br><br>Aqui você limpa a votação de todo mundo.<br><br>Indicado para aquele jogador mais avançado que deseja indicar a votação de muitos candidatos.",
-      })}
-      ${comandoPill({
+        legenda: "Limpa a votação de todos os candidatos de uma vez. Indicado pra quem já sabe o que quer marcar do zero.",
+      },
+      {
         id: "pcBtnTop2022", icone: "ano2022", tamanho: 15, titulo: "Top 100 de 2022",
         legenda: "Mostra os 100 candidatos mais votados na eleição real de 2022, de todos os partidos — só de referência, não muda seu palpite.",
-      })}
-      ${comandoPill({
+      },
+      {
         id: "pcAbrirInstrucao", icone: "alerta", tamanho: 14, titulo: "Como montar a lista",
         legenda: "Reabre o guia rápido: quantidade por partido, votação dos eleitos, e quando o Avançar libera.",
-      })}
-      <div style="flex:1;"></div>
-      ${comandoPill({
+      },
+      {
         id: "pcBtnSalvarSelecao", icone: "salvar", tamanho: 17, titulo: "Salvar",
         legenda: "Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\".",
-      })}
-      ${comandoPill({
+      },
+      {
         id: "pcBtnPreencherAutoTudo", icone: "completar", tamanho: 18, titulo: "Mágico — preenchimento automático",
-        legenda: "PREENCHIMENTO AUTOMÁTICO<br><br>Precisa de agilidade?<br><br>Este botão aciona a função de preenchimento de votação automática de todos os candidatos.<br><br>Selecione apenas os candidatos que você acha que serão eleitos por ordem e ele faz todo o resto.",
+        legenda: "Preenche a votação simulada dos demais candidatos automaticamente. Marque antes quem você acha que será eleito — o resto ele completa.",
         classeExtra: "destaque",
-      })}
-      ${comandoPill({
+      },
+      {
         id: "pcBtnDepositar", icone: "setaDireita", tamanho: 19, titulo: "Prosseguir pra Revisão",
-        legenda: `Esse é o botão de avançar pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos${totalIndicado === totalVagasCargo ? "" : " — por enquanto está desabilitado"}.`,
+        legenda: `Avança pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos${totalIndicado === totalVagasCargo ? "" : " — por enquanto está desabilitado"}.`,
         disabled: totalIndicado !== totalVagasCargo,
         classeExtra: "destaque",
-      })}
-    </div>
+      },
+    ], pcState.legendaComandosAberta)}
     <div class="pc-status" id="pcSelecaoStatus" style="text-align:right; margin:-14px 0 14px;"></div>
     ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
     ${pcState.modalInstagramInfo ? renderModalInstagram() : ""}
@@ -4797,6 +4820,13 @@ function attachListenersSelecao() {
       }
     });
   });
+  const btnCmdLegendaToggle = document.getElementById("pcCmdLegendaToggle");
+  if (btnCmdLegendaToggle) {
+    btnCmdLegendaToggle.addEventListener("click", () => {
+      pcState.legendaComandosAberta = !pcState.legendaComandosAberta;
+      renderCargoEstadual();
+    });
+  }
   const btnBuscaPartidoToggle = document.getElementById("pcBtnBuscaPartidoToggle");
   if (btnBuscaPartidoToggle) {
     btnBuscaPartidoToggle.addEventListener("click", () => {

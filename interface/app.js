@@ -21,16 +21,16 @@ function warnTip(html){
 // da página, presente ou futuro, sem precisar religar nada a cada render)
 // mostra a legenda depois de ~420ms de dedo pressionado sobre o "i"/"!", e
 // esconde ao soltar. Um toque RÁPIDO nunca ativa isso — sai limpo antes do
-// tempo, sem mexer em nada. Pedido do usuário em 17/08/2026: até essa
-// correção, o "i" ficava DENTRO do próprio botão de ação (Zerar, Salvar,
-// Auto, Avançar — ver interface/prospeccao.js) e qualquer toque nesses
-// botões corria o risco de ser lido como "abrir a dica" em vez de
-// "clicar", porque o navegador simula :hover no primeiro toque de um
-// elemento com essa regra CSS. A correção completa tem duas partes: essa
-// aqui (a legenda passa a exigir toque MANTIDO, não qualquer toque) e,
-// nesses 4 botões específicos, o "i" saiu de dentro do <button> pra um
-// elemento-irmão ao lado (ver comandoPill em prospeccao.js) — só a
-// combinação das duas garante que um toque rápido no ícone sempre clique.
+// tempo, sem mexer em nada. Pedido do usuário em 17/08/2026: o "i" ficava
+// DENTRO do próprio botão de ação em vários lugares e qualquer toque
+// corria o risco de ser lido como "abrir a dica" em vez de "clicar",
+// porque o navegador simula :hover no primeiro toque de um elemento com
+// essa regra CSS. Continua valendo pra todo .info-tip "solto" do app
+// (Quociente, Soma de Votos, nominata 2022 etc.) — a barra de ações da
+// Seleção especificamente foi além disso e não usa mais .info-tip
+// nenhum: virou um painel de ícones sem "i" embutido + um "i" único e
+// compartilhado no fim da linha (ver renderPainelComandos em
+// prospeccao.js), então nem depende deste toque-mantido pra funcionar.
 (function(){
   const DEMORA_MS = 420;
   let timer = null;

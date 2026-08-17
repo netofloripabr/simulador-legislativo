@@ -583,26 +583,51 @@
   #modoColaborativoWrap .pc-mini-btn:hover .pc-mini-tip{ display:block; }
 
   /* Painel de comandos padronizado da Seleção (barra de ações no fim da
-     tela) — cada comando é uma pílula com um botão de AÇÃO (sempre
-     executa num toque rápido, nunca tem nada de hover embutido nele) e,
-     quando existe explicação, um "i" companheiro do lado — dois alvos de
-     toque separados dentro da mesma pílula visual. Pedido do usuário em
-     17/08/2026 (ver comandoPill, interface/prospeccao.js, e a correção
-     de toque mantido em interface/app.js). */
-  #modoColaborativoWrap .pc-cmd-pill{
-    display:inline-flex; align-items:stretch; background:#0c1c16; border:1px solid #2a4438; border-radius:999px;
+     tela) — TODOS os botões numa linha só, só ícone, sem "i" individual
+     embutido em cada um. Um único "i" discreto no fim da linha (mesmo
+     padrão pequeno do .info-tip usado no resto do app) abre/fecha uma
+     legenda única explicando todos os comandos de uma vez (ver
+     .pc-cmd-legenda-painel abaixo). Prototipado com o usuário em
+     17/08/2026 antes de implementar (várias rodadas — ver PROJETO.md se
+     precisar do histórico). O encolhimento pra caber em qualquer largura
+     é só CSS (flex-shrink real, sem JS medindo nada): cada botão tenta
+     ficar em max-width, e encolhe proporcionalmente até min-width se não
+     couber — garantia matemática do próprio motor de layout, não uma
+     conta que pode furar. box-sizing:border-box é essencial aqui (senão
+     a borda de 1px de cada botão soma um overflow pequeno mas real). */
+  #modoColaborativoWrap .pc-cmd-painel{
+    display:flex; align-items:center; width:100%; gap:clamp(3px, 1.2vw, 8px); margin-bottom:14px; box-sizing:border-box;
   }
-  #modoColaborativoWrap .pc-cmd-pill .pc-cmd-acao{
-    background:none; border:none; color:var(--pc-ink-dim); padding:9px 11px; display:flex; align-items:center;
-    cursor:pointer; font-family:inherit;
+  #modoColaborativoWrap .pc-cmd-painel *{ box-sizing:border-box; }
+  #modoColaborativoWrap .pc-cmd-painel .pc-cmd-acao{
+    flex:1 1 0; min-width:0; max-width:40px; min-height:26px; aspect-ratio:1;
+    border-radius:50%; background:#0c1c16; border:1px solid #2a4438; color:var(--pc-ink-dim);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; font-family:inherit;
   }
-  #modoColaborativoWrap .pc-cmd-pill .pc-cmd-acao:disabled{ opacity:.4; cursor:default; }
-  #modoColaborativoWrap .pc-cmd-pill .pc-cmd-acao:hover:not(:disabled){ color:var(--pc-accent); }
-  #modoColaborativoWrap .pc-cmd-pill.ativo{ border-color:var(--pc-accent); background:rgba(61,255,176,.1); }
-  #modoColaborativoWrap .pc-cmd-pill.ativo .pc-cmd-acao{ color:var(--pc-accent); }
-  #modoColaborativoWrap .pc-cmd-pill.destaque{ border-color:var(--pc-accent); background:rgba(61,255,176,.08); }
-  #modoColaborativoWrap .pc-cmd-pill.destaque .pc-cmd-acao{ color:#c8ffe8; }
-  #modoColaborativoWrap .pc-cmd-pill .info-tip{ margin:0 9px 0 0; flex-shrink:0; align-self:center; }
+  #modoColaborativoWrap .pc-cmd-painel .pc-cmd-acao svg{ width:42%; height:42%; flex-shrink:0; }
+  #modoColaborativoWrap .pc-cmd-painel .pc-cmd-acao:disabled{ opacity:.4; cursor:default; }
+  #modoColaborativoWrap .pc-cmd-painel .pc-cmd-acao:hover:not(:disabled){ color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-cmd-painel .pc-cmd-acao.ativo{ border-color:var(--pc-accent); background:rgba(61,255,176,.1); color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-cmd-painel .pc-cmd-acao.destaque{ border-color:var(--pc-accent); background:rgba(61,255,176,.08); color:#c8ffe8; }
+  #modoColaborativoWrap .pc-cmd-painel .pc-cmd-info{
+    flex:0 0 auto; width:15px; height:15px; border-radius:50%;
+    background:#0c1c16; border:1px solid #2a4438; color:var(--pc-ink-dim);
+    font-size:10px; font-family:var(--mono); font-style:italic; font-weight:400;
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+  }
+  #modoColaborativoWrap .pc-cmd-painel .pc-cmd-info.aberto{ border-color:var(--pc-accent); color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-cmd-legenda-painel{
+    display:none; margin:-6px 0 20px; background:#0f231b; border:1px solid #163a2c; border-radius:14px; overflow:hidden;
+  }
+  #modoColaborativoWrap .pc-cmd-legenda-painel.aberto{ display:block; }
+  #modoColaborativoWrap .pc-cmd-legenda-item{ display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid #163a2c; }
+  #modoColaborativoWrap .pc-cmd-legenda-item:last-child{ border-bottom:none; }
+  #modoColaborativoWrap .pc-cmd-legenda-item .pc-cmd-legenda-icone{
+    width:28px; height:28px; border-radius:50%; background:#0c1c16; border:1px solid #2a4438;
+    display:flex; align-items:center; justify-content:center; color:var(--pc-ink-dim); flex-shrink:0;
+  }
+  #modoColaborativoWrap .pc-cmd-legenda-item .pc-cmd-legenda-titulo{ font-size:13px; font-weight:600; color:var(--pc-ink); }
+  #modoColaborativoWrap .pc-cmd-legenda-item .pc-cmd-legenda-sub{ font-size:11.5px; color:var(--pc-ink-dim); margin-top:1px; line-height:1.4; }
 
   /* Alça de expandir/recolher o card do partido — estilo "puxador" de
      bottom sheet, no lugar da setinha no canto (P-03). Centralizada em
