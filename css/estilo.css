@@ -963,3 +963,18 @@
 #modoColaborativoWrap .pc-sen-dica{
   font-size:9.5px; color:#5C6268; text-align:center; padding:8px 4px 2px;
 }
+
+/* Tema Fader aplicado ao fundo — por enquanto só quando a aba Senador
+   está ativa na tela de palpite (classe alternada em renderColaborativo/
+   renderCargoEstadual). Troca o verde 1.0 pelo degradê cinza neutro do
+   §8.2, mantendo o grão sutil; o cabeçalho fixo acompanha pra não sobrar
+   uma faixa verde-vidro em cima do fundo cinza. */
+#modoColaborativoWrap.pc-tema-fader{
+  background: radial-gradient(ellipse 120% 60% at 50% -5%, #1B1E22 0%, #101214 48%, #0C0E10 100%) no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E") repeat;
+}
+#modoColaborativoWrap.pc-tema-fader #pcStickyHeader{
+  background: rgba(16,18,20,.88);
+  backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+  border-bottom: 1px solid #1E2226;
+}

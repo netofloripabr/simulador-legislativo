@@ -602,6 +602,10 @@ function irParaDestinoMenuFixo(destino) {
 
 function renderColaborativo() {
   const el = document.getElementById("modoColaborativoWrap");
+  // Tema Fader (identidade 2.0) por enquanto só na tela de palpite com o
+  // Senador ativo — as outras telas migram numa etapa própria. A classe
+  // troca o fundo verde 1.0 pelo degradê cinza neutro do §8.2.
+  el.classList.toggle("pc-tema-fader", pcState.tela === "selecao-convidado" && pcState.cargoAtivo === "senador");
   if (pcState.tela === "erro-conexao") {
     el.innerHTML = `<div class="glass-card">
       <h2>Prospecção Coletiva</h2>
@@ -4343,7 +4347,9 @@ async function renderCargoEstadual() {
   // pcCargoConteudo, desde 16/08/2026 — o marcador de "já tinha conteúdo
   // real" passa a ser o botão de recolher o Plenário, que só existe no
   // render completo desta tela.)
-  const reRenderizando = !!conteudo.querySelector("#pcBtnColapsarPlenario");
+  // No Senador não existe Plenário — os marcadores são o card fader ou o
+  // estado vazio da busca (qualquer um indica que o render completo já rodou).
+  const reRenderizando = !!conteudo.querySelector("#pcBtnColapsarPlenario, .pc-sen-card, .pc-estado-vazio");
   const scrollAnterior = window.scrollY;
   // Só mostra a tela de carregando na PRIMEIRA entrada (troca de cargo,
   // que de fato pode esperar um fetch de rascunho) — numa re-renderização
@@ -4363,6 +4369,9 @@ async function renderCargoEstadual() {
   // derivada da votação (top-N global) — alinhar aqui cobre também
   // rascunhos antigos salvos na época do modelo por partido/stepper.
   if (pcState.cargoAtivo === "senador") recalcularMarcadosSenador();
+  // A troca de aba de cargo re-renderiza só esta tela (sem passar pelo
+  // roteador), então o tema Fader precisa ser alternado aqui também.
+  document.getElementById("modoColaborativoWrap").classList.toggle("pc-tema-fader", pcState.cargoAtivo === "senador");
 
   const cargoInfo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
   // Total de vagas do cargo ativo (40 pra Dep. Estadual, 16 pra Dep.
@@ -5042,6 +5051,7 @@ async function renderCargoEstadual() {
         </div>
       </div>`;
     })() : ""}
+    ${pcState.cargoAtivo === "senador" ? "" : `
     <div class="glass-card" style="padding:14px;">
       <div style="display:flex; align-items:center; justify-content:space-between;">
         <div class="pc-sub" style="margin:0;">Plenário — ${totalVagasCargo} vagas</div>
@@ -5054,7 +5064,7 @@ async function renderCargoEstadual() {
         ${hemiciclo}
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
       </div>`}
-    </div>
+    </div>`}
     ${pcState.listaSalvaNome ? `
     <div style="display:flex; align-items:center; gap:6px; margin:0 0 10px 2px; font-size:11.5px; color:var(--pc-ink-dim);">
       ${iconeSvg("salvar", 12)} Editando a lista <b style="color:var(--pc-ink); font-weight:600;">"${escaparAtributoHtml(pcState.listaSalvaNome)}"</b>
