@@ -241,44 +241,28 @@ function estadoVazio({ icone, titulo, texto, botaoLabel, botaoId }) {
     </div>`;
 }
 
-function trocarModo(modo) {
-  const wrapSim = document.getElementById("modoSimuladorWrap");
-  const wrapColab = document.getElementById("modoColaborativoWrap");
-  const btnSim = document.getElementById("btnModoSimulador");
-  const btnColab = document.getElementById("btnModoColaborativo");
-  const header = document.getElementById("siteHeader");
-  const modeTabs = document.querySelector(".mode-tabs");
-  if (modo === "colaborativo") {
-    wrapSim.style.display = "none";
-    wrapColab.style.display = "block";
-    btnColab.classList.add("active");
-    btnSim.classList.remove("active");
-    // P-01 é a porta de entrada do site inteiro agora — nada do cabeçalho/
-    // abas do Simulador antigo aparece por cima dela (ver conversa). O
-    // Simulador continua existindo, só sem esse quadro em volta; a volta
-    // pra ele fica num link discreto dentro da própria capa (renderLanding).
-    header.style.display = "none";
-    modeTabs.style.display = "none";
-    if (!pcState.iniciado) {
-      pcState.iniciado = true;
-      initColaborativo();
-    }
-  } else {
-    // display explícito, não "": a regra anti-flash do <head>
-    // (#modoSimuladorWrap{display:none}) continua valendo quando o estilo
-    // inline é só limpo — deixava o modo antigo em tela preta (bug achado
-    // em 18/08/2026 ao demonstrar o link da capa).
-    wrapSim.style.display = "block";
-    wrapColab.style.display = "none";
-    btnSim.classList.add("active");
-    btnColab.classList.remove("active");
-    header.style.display = "block";
-    modeTabs.style.display = "flex";
-  }
+// ===== Auxiliares herdadas do Simulador individual (removido 18/08/2026,
+// decisão do usuário: todas as funções dele já foram absorvidas pela
+// Prospecção Coletiva — código completo no histórico do git, interface/
+// app.js até o commit 57a5138). Só estas 4 eram usadas aqui. =====
+function infoTip(html, alinhamento) {
+  const classeExtra = alinhamento === "right" ? " tip-box-right" : "";
+  return `<span class="info-tip">i<span class="tip-box${classeExtra}">${html}</span></span>`;
 }
-
-document.getElementById("btnModoSimulador").addEventListener("click", () => trocarModo("simulador"));
-document.getElementById("btnModoColaborativo").addEventListener("click", () => trocarModo("colaborativo"));
+function warnTip(html) {
+  return `<span class="info-tip warn">!<span class="tip-box">${html}</span></span>`;
+}
+function chevron(open) {
+  return `<svg width="11" height="11" viewBox="0 0 16 16" style="vertical-align:middle; transform:rotate(${open ? 90 : 0}deg); transition:transform .15s;">
+    <path d="M5 3 L11 8 L5 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+function selosCandidato2022(c) {
+  let html = "";
+  if (c.eleito2022) html += `<span class="badge-eleito2022">eleito 2022</span>`;
+  if (c.invalidado2022) html += warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`);
+  return html;
+}
 
 // Link de Compartilhar (ver mostrarLinkCompartilhavel) — index.html?ver=<id>.
 // Query string, não hash: sobrevive a preview de link (WhatsApp etc.), que
@@ -288,21 +272,15 @@ document.getElementById("btnModoColaborativo").addEventListener("click", () => t
 const _paramsIniciais = new URLSearchParams(window.location.search);
 const _perfilCompartilhado = _paramsIniciais.get("ver");
 
-// O sistema inteiro começa pela P-01 (capa da Prospecção Coletiva) — não mais
-// pelo Simulador individual. O Simulador antigo continua existindo e
-// acessível pela aba, mas deixou de ser a tela padrão (ver conversa: ele vai
-// virar outra função dentro do sistema, ainda não tratada).
+document.getElementById("modoColaborativoWrap").style.display = "block";
 if (_perfilCompartilhado) {
-  document.getElementById("modoSimuladorWrap").style.display = "none";
-  document.getElementById("modoColaborativoWrap").style.display = "block";
-  document.getElementById("siteHeader").style.display = "none";
-  document.querySelector(".mode-tabs").style.display = "none";
   pcState.iniciado = true;
   pcState.tela = "compartilhado";
   pcState.verPerfilId = _perfilCompartilhado;
   renderColaborativo();
 } else {
-  trocarModo("colaborativo");
+  pcState.iniciado = true;
+  initColaborativo();
 }
 
 async function initColaborativo() {
@@ -685,7 +663,6 @@ function renderLanding() {
       <div class="pc-capa-divisor"></div>
       <div class="pc-capa-desafio">${iconeSvg("grupos", 15)}Desafie aquele seu amigo, vizinho ou familiar neste game criativo e dinâmico.</div>
       <div class="pc-capa-aviso">Este game não é aposta online ou mercado preditivo.</div>
-      <button class="ghost pc-capa-modo-antigo" id="pcBtnModoSimulador">modo simulador (antigo)</button>
     </div>`;
   document.getElementById("pcBtnComecar").addEventListener("click", () => {
     pcState.tela = "estado";
@@ -695,7 +672,6 @@ function renderLanding() {
     pcState.tela = "login";
     renderColaborativo();
   });
-  document.getElementById("pcBtnModoSimulador").addEventListener("click", () => trocarModo("simulador"));
 }
 
 // Segunda tela do convite: escolher o estado antes de qualquer coisa. Só

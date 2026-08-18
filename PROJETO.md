@@ -310,6 +310,11 @@ o código foi feito para não depender de nenhuma delas de forma irreversível.
    estilo analista) sem alteração. A nova identidade (clara, glassmorphism)
    é aplicada só na parte de Prospecção Coletiva — menor risco de mexer no
    que já funciona.
+   → **Resolvido em 18/08/2026 por outro caminho**: o Simulador individual
+   foi REMOVIDO (decisão do usuário — todas as funções dele já tinham sido
+   absorvidas pela Prospecção Coletiva; a entrada estava inclusive quebrada
+   em tela preta e ninguém notou). Identidade agora é uma só, a 2.0
+   "Fader". Código no histórico do git até o commit `57a5138`.
 5. **Escopo do painel do administrador nesta fase.**
    → *Assunção*: por enquanto, "acesso administrativo" = os dados direto no
    painel do Supabase (já disponível). Painel dedicado dentro do site fica
@@ -456,9 +461,9 @@ prioridade sugerida (mais visível pro usuário primeiro):
    mas troca de identidade aqui é mais sensível (formulários, OAuth).
 6. **Central de Ajuda, Termos, Privacidade** — baixa prioridade visual,
    conteúdo estático.
-7. **Simulador individual** (fora da Prospecção Coletiva) — mantém a
-   identidade própria (terminal/verde-neon original), decisão já tomada
-   de não migrar (é outro produto dentro do mesmo repositório).
+7. ~~**Simulador individual**~~ — REMOVIDO em 18/08/2026 (decisão do
+   usuário: funções todas absorvidas pela Prospecção Coletiva; ver ponto
+   em aberto #4). Não há mais segunda identidade no repositório.
 
 ---
 

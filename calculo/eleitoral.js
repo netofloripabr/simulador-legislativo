@@ -164,9 +164,11 @@ function applyCandidateVoteChange(partyIdx, candIdx, newValue){
   }
 }
 
-document.getElementById("autoBalanceToggle").addEventListener("change", e => {
-  state.autoBalance = e.target.checked;
-});
+// (Listener do #autoBalanceToggle removido em 18/08/2026 junto com o
+// Simulador individual: o elemento saiu do index.html e o getElementById
+// nulo derrubava a avaliação do resto DESTE arquivo — inclusive
+// CORES_PARTIDO_FIXAS/desenharHemiciclo, usados pela Prospecção. DOM
+// nunca deveria ter morado em calculo/ — regra do CLAUDE.md.)
 
 const COR_VAGO = '#2a3a35';
 const SIGLA_CURTA = { "Podemos":"PODE", "União Brasil":"UB", "Republicanos":"REP", "Cidadania":"CID", "Solidariedade":"SD" };

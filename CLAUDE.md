@@ -18,12 +18,15 @@ em vez de descrever a implementação.
 - `calculo/eleitoral.js` — só regras eleitorais: quociente eleitoral (QE),
   quociente partidário (QP), método das médias (sobras), D'Hondt,
   auto-balanceamento de votos. Funções puras sempre que possível.
-- `interface/app.js` — tudo que toca no DOM: renderização de tabelas,
-  hemiciclo SVG, modal de novo candidato, listeners de evento.
+- `interface/prospeccao.js` — tudo que toca no DOM: telas, listeners,
+  modais. (O `interface/app.js` original — o Simulador individual — foi
+  removido em 18/08/2026 por decisão do usuário: todas as funções dele já
+  tinham sido absorvidas pela Prospecção Coletiva. Código completo no
+  histórico do git até o commit `57a5138`.)
 - `css/estilo.css` — variáveis de cor/tema e layout.
-- `index.html` — só estrutura HTML + os 3 `<script src>` nesta ordem
-  (dados → calculo → interface — a ordem importa, `calculo` e `interface`
-  dependem de coisas definidas antes).
+- `index.html` — só estrutura HTML + os `<script src>` nesta ordem
+  (dados → calculo → nuvem → interface — a ordem importa, cada camada
+  depende de coisas definidas antes).
 
 Ao adicionar uma função nova, pare e pergunte: isso é fato (dados), regra
 (cálculo) ou tela (interface)? Coloque no arquivo certo, não no mais fácil.
