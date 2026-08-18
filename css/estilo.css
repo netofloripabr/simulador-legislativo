@@ -1239,20 +1239,19 @@
   display:flex; justify-content:center; gap:10px;
 }
 #modoColaborativoWrap .pc-case-nicho{
-  width:100%; max-width:29px; min-width:15px; aspect-ratio:1;
-  border-radius:8px; box-sizing:border-box;
+  width:100%; max-width:26px; min-width:14px; aspect-ratio:1;
+  border-radius:50%; box-sizing:border-box;
   background:#101214; border:1px dashed #2B2F33;
 }
 #modoColaborativoWrap .pc-case-cap{
-  width:100%; max-width:29px; min-width:15px; aspect-ratio:1;
-  border-radius:8px; box-sizing:border-box;
-  background:linear-gradient(180deg, rgba(42,46,50,.75), rgba(60,65,70,.97));
-  border:1px solid rgba(242,244,245,.14);
+  width:100%; max-width:26px; min-width:14px; aspect-ratio:1;
+  border-radius:50%; box-sizing:border-box;
+  background:rgba(232,236,239,.35); border:1px solid rgba(242,244,245,.4);
   display:flex; align-items:center; justify-content:center;
-  font-size:7px; font-weight:750; color:#D3D8DC; letter-spacing:.02em;
+  font-size:6.5px; font-weight:750; color:#F2F4F5; letter-spacing:.02em;
   overflow:hidden;
 }
 #modoColaborativoWrap .pc-case-grade.poucos .pc-case-nicho,
 #modoColaborativoWrap .pc-case-grade.poucos .pc-case-cap{
-  width:37px; max-width:37px; height:37px; border-radius:10px; font-size:9px;
+  width:34px; max-width:34px; height:34px; font-size:8.5px;
 }

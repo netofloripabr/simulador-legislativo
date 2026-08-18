@@ -5313,7 +5313,7 @@ async function renderCargoEstadual() {
     <div style="display:flex; flex-wrap:wrap; gap:4px; opacity:0.55;">
       ${[...composicaoPlenario].sort((a, b) => b.seats - a.seats).map((o) => `
         <div style="display:inline-flex; align-items:center; justify-content:center; gap:3px; padding:4px 6px; border:1px solid rgba(120,130,180,0.2); border-radius:6px; white-space:nowrap;">
-          <span style="width:5px; height:5px; border-radius:50%; background:${corPartidoIdeologico(o.nome)}; flex-shrink:0;"></span>
+          ${usarCasePlenario ? "" : `<span style="width:5px; height:5px; border-radius:50%; background:${corPartidoIdeologico(o.nome)}; flex-shrink:0;"></span>`}
           <span style="font-size:9px; font-weight:600;">${usarCasePlenario ? siglaCurta(o.nome) : nomePartidoExibicao(o.nome)}: ${o.seats} (${(o.seats / totalVagasCargo * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</span>
         </div>`).join("")}
     </div>`;
