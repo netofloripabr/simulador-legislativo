@@ -4519,7 +4519,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
         <div class="pc-dep-stepper" data-dep-stepper="${gi}">
           <button type="button" data-dep-vaga-menos="${gi}">−</button>
-          <span>${vagasInd}</span>
+          <span data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}</span>
           <button type="button" data-dep-vaga-mais="${gi}">+</button>
         </div>
         <svg viewBox="0 0 16 16" width="13" height="13" style="color:#5C6268; flex:none; transform:${aberto ? "rotate(180deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -4764,11 +4764,11 @@ function attachListenersDeputadosFader(E, totalVagas) {
   // Box de vagas (− N +): comanda o volume — mudar a quantidade reescala a
   // votação do grupo pra nova meta (lógica anterior de quantidade, agora
   // movendo os faders pela FMD).
-  const mudarVagas = (gi, delta) => {
+  const aplicarVagas = (gi, novoBruto) => {
     const p2 = pcState.palpiteEdicao[gi];
     const counts = vagasApuradasPorGrupo();
     const atual = vagasIndicadasDe(p2, counts[gi] || 0);
-    const novo = Math.max(0, Math.min(totalVagas, atual + delta));
+    const novo = Math.max(0, Math.min(totalVagas, novoBruto));
     if (novo === atual) return;
     snapshotPalpite();
     p2.vagasIndicadas = novo;
@@ -4780,8 +4780,28 @@ function attachListenersDeputadosFader(E, totalVagas) {
     agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
     renderCargoEstadual();
   };
-  document.querySelectorAll("[data-dep-vaga-mais]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); mudarVagas(+b.dataset.depVagaMais, 1); }));
-  document.querySelectorAll("[data-dep-vaga-menos]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); mudarVagas(+b.dataset.depVagaMenos, -1); }));
+  const vagasAtuais = (gi) => vagasIndicadasDe(pcState.palpiteEdicao[gi], vagasApuradasPorGrupo()[gi] || 0);
+  document.querySelectorAll("[data-dep-vaga-mais]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); aplicarVagas(+b.dataset.depVagaMais, vagasAtuais(+b.dataset.depVagaMais) + 1); }));
+  document.querySelectorAll("[data-dep-vaga-menos]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); aplicarVagas(+b.dataset.depVagaMenos, vagasAtuais(+b.dataset.depVagaMenos) - 1); }));
+  // Toque no NÚMERO do box abre edição direta (pedido de 18/08 — os +/−
+  // reordenam o card a cada clique, digitar evita perseguir o partido).
+  document.querySelectorAll("[data-dep-vaga-edit]").forEach((sp) => sp.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (sp.querySelector("input")) return;
+    const gi = +sp.dataset.depVagaEdit;
+    const atual = vagasAtuais(gi);
+    sp.innerHTML = '<input inputmode="numeric" value="' + atual + '" style="width:30px; text-align:center; font:inherit; color:inherit; background:transparent; border:none; outline:none; padding:0;">';
+    const inp = sp.querySelector("input");
+    setTimeout(() => { inp.focus(); inp.select(); }, 30);
+    const aplicar = () => {
+      const v = Number(String(inp.value).replace(/\D/g, ""));
+      if (Number.isFinite(v) && String(inp.value).trim() !== "") aplicarVagas(gi, v);
+      else renderCargoEstadual();
+    };
+    inp.addEventListener("blur", aplicar);
+    inp.addEventListener("keydown", (ev) => { if (ev.key === "Enter") inp.blur(); });
+    inp.addEventListener("pointerdown", (ev) => ev.stopPropagation());
+  }));
 
   document.querySelectorAll("[data-dep-info]").forEach((b) => b.addEventListener("click", (e) => {
     e.stopPropagation();
