@@ -6960,7 +6960,7 @@ function renderRevisaoDeposito() {
         <div class="pc-acc-body">
           ${listaExibida.length < listaCompleta.length ? `<div style="font-size:10.5px; color:var(--pc-ink-dim); margin-bottom:10px;">Mostrando os eleitos + ${listaExibida.length - totalEleitos} mais votados entre quem não elegeu (${listaCompleta.length - listaExibida.length} candidato${listaCompleta.length - listaExibida.length === 1 ? "" : "s"} com menos voto ficaram de fora dessa lista).</div>` : ""}
           <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">${filtroAgrupado}</div>
-          ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-bottom:12px; background:rgba(198,230,42,.08); border:1px solid rgba(198,230,42,.3); color:var(--pc-warning); font-family:var(--sans); font-size:12.5px; font-weight:700; border-radius:10px; padding:10px; cursor:pointer;">Ver disputa de sobra completa (${disputaSobra.rodadas.length} rodada${disputaSobra.rodadas.length === 1 ? "" : "s"})</button>` : ""}
+          ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" class="ghost" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-bottom:12px; font-size:12.5px; border-radius:10px; padding:10px;">Ver disputa de sobra completa (${disputaSobra.rodadas.length} rodada${disputaSobra.rodadas.length === 1 ? "" : "s"})</button>` : ""}
           ${linhas}
         </div>
       </details>`;
@@ -7019,13 +7019,13 @@ function renderRevisaoDeposito() {
     const linhasRodadas = disputaSobra.rodadas.map((r) => `
       <div style="margin-top:16px; padding-top:16px; border-top:1px solid #23262A;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="font-size:10px; color:#2b2600; background:#C6E62A; padding:2px 8px; border-radius:999px; font-weight:800;">Rodada ${r.numero}</span>
+          <span style="font-size:10px; color:#F2F4F5; background:rgba(232,236,239,.35); border:1px solid rgba(242,244,245,.4); padding:2px 8px; border-radius:999px; font-weight:800;">Rodada ${r.numero}</span>
           <span style="font-size:11px; color:var(--pc-ink-dim);">votos ÷ (vagas atuais + 1)</span>
         </div>
         ${r.medias.filter((m) => m.votos > 0).map((m) => `
-          <div style="display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; font-size:12px;${m.venceu ? " background:rgba(198,230,42,.08); border:1px solid rgba(198,230,42,.3);" : ""}">
-            <span style="color:${m.venceu ? "var(--pc-ink)" : "var(--pc-ink-dim)"}; min-width:0; overflow:hidden; text-overflow:ellipsis;">${m.nome}${m.venceu && r.vencedorCandidato ? `<span style="display:block; font-size:10.5px; color:#C6E62A; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">vaga vai pra ${r.vencedorCandidato} (${r.vencedorPosicao}º mais votado)</span>` : ""}</span>
-            <span style="font-weight:700; font-variant-numeric:tabular-nums; color:${m.venceu ? "#C6E62A" : "var(--pc-ink-dim)"};">${Math.round(m.media).toLocaleString("pt-BR")}</span>
+          <div style="display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; font-size:12px;${m.venceu ? " background:rgba(242,244,245,.05); border:1px solid rgba(242,244,245,.18);" : ""}">
+            <span style="color:${m.venceu ? "var(--pc-ink)" : "var(--pc-ink-dim)"}; min-width:0; overflow:hidden; text-overflow:ellipsis;">${m.nome}${m.venceu && r.vencedorCandidato ? `<span style="display:block; font-size:10.5px; color:#8A9096; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">vaga vai pra <b style="color:#F2F4F5;">${r.vencedorCandidato}</b> (${r.vencedorPosicao}º mais votado)</span>` : ""}</span>
+            <span style="font-weight:700; font-variant-numeric:tabular-nums; color:${m.venceu ? "#F2F4F5" : "var(--pc-ink-dim)"};">${Math.round(m.media).toLocaleString("pt-BR")}</span>
           </div>`).join("")}
       </div>`).join("");
 

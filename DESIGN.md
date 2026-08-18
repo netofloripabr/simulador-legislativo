@@ -41,7 +41,7 @@ que não está nessa lista ainda é candidato à migração (ver `PROJETO.md`
 | Texto apagado | `#5C6268` | desabilitado, itens travados |
 | **Verde vivo (estratégico)** | `#34E84A` | ver regra de uso abaixo — nunca de graça |
 | Texto sobre verde vivo | `#07230C` | selo ELEITO e afins |
-| Verde-lima (aviso) | `#C6E62A` | sobra, candidato provisório/RRC, alerta não-crítico (atualizado 18/08/2026, era âmbar `#FFB020`) |
+| Verde-lima (aviso) | `#C6E62A` | sobra, candidato provisório/RRC, alerta não-crítico (atualizado 18/08/2026, era âmbar `#FFB020`). **Só semântica de aviso/status** — nunca como destaque estrutural (pílula de seção, linha vencedora, botão): pra destacar um FATO, use o realce neutro do card de eleito (borda `rgba(242,244,245,.18)` + texto branco); correção do usuário em 18/08/2026, painel Disputa de Sobra |
 | Vermelho-alaranjado (erro) | `#E8432A` | erro de validação, "fora hoje", excluir conta (atualizado 18/08/2026, era coral `#FF5A48`, referência trazida pelo usuário) |
 
 **Regra do verde vivo** — só aparece em: selo ELEITO, preenchimento da barra
