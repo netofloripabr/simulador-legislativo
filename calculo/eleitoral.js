@@ -357,12 +357,13 @@ function desenharHemiciclo(listaPartidos, totalVagas, coresMono){
 
     // Geometria (raios das fileiras, posições) é fixa — com bem menos vagas
     // (ex.: 16 pra Dep. Federal, 1 pro Senador), sobra espaço, então o raio
-    // cresce até preencher esse espaço (sem encostar na vizinha), no máximo
-    // 5x o tamanho base. Com 40 vagas o próprio limite geométrico (distância
-    // real entre os assentos) já trava o crescimento sozinho, sem precisar de
-    // um caso especial pra esse número.
+    // cresce até preencher esse espaço (sem encostar na vizinha), no MÁXIMO
+    // o tamanho que a composição de 40 vagas (Plenário estadual de SC)
+    // produz — referência máxima definida pelo usuário em 18/08/2026: o
+    // Federal (16 vagas) usa círculos do mesmo tamanho do Estadual, com
+    // espaço sobrando ao redor, em vez de inflar até 5x.
     const raioCirculo = (() => {
-      let raioMaxAbsoluto = RAIO_BASE * 5;
+      let raioMaxAbsoluto = RAIO_BASE;
       // vizinha na MESMA fileira (distância angular, na própria raios[li])
       linhas.forEach((n, li) => {
         if (n <= 1) return;
@@ -376,7 +377,7 @@ function desenharHemiciclo(listaPartidos, totalVagas, coresMono){
       for (let li = 0; li < raios.length - 1; li++) {
         raioMaxAbsoluto = Math.min(raioMaxAbsoluto, ((raios[li+1] - raios[li]) / 2) * 0.92);
       }
-      return Math.min(raioMaxAbsoluto, RAIO_BASE * 5);
+      return Math.min(raioMaxAbsoluto, RAIO_BASE);
     })();
 
     let seatIdx = 0;
