@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 SC (atas de convenção)
 
-Gerado em 2026-08-15 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
+Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -44,7 +44,12 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 189-up-convencao.pdf | UP | não | 10 |
 | 1910-44-união-11-pp-executiva.pdf | ? | não | 2 |
 | 195-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 52 |
+| 1971-uniao-pp-retificadora.pdf | ? | sim | 3 |
+| 1985-pode-executiva.pdf | PODE | não | 3 |
 | 199-psb-retificadora.pdf | PSB | sim | 4 |
+| 2066-prd-solidariedade-executiva-1.pdf | ? | não | 10 |
+| 2099-pco-retificadora.pdf | PCO | sim | 7 |
+| 2201-prd-solidariedade-executiva-2.pdf | ? | não | 2 |
 | 225-agir-convencao.pdf | AGIR | não | 10 |
 | 326-missão-convencao.pdf | MISSÃO | não | 50 |
 | 347-pstu-convencao.pdf | PSTU | não | 10 |
@@ -66,9 +71,9 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 954-psol-rede-executiva.pdf | ? | não | 2 |
 | 978-44-união-11-pp-executiva.pdf | ? | não | 1 |
 
-Total de candidaturas: **725** — confiança alta: **688**, a revisar (partido não identificado): **37**
+Total de candidaturas: **742** — confiança alta: **692**, a revisar (partido não identificado): **50**
 
-Candidatos fictícios preservados (partido/cargo ainda sem ata real): **42** — ver `fonte:"ficticio"` no .js gerado.
+Candidatos fictícios preservados (partido/cargo ainda sem ata real): **8** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
@@ -215,6 +220,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **42** —
 - Candidatura de Simone Aparecida Xavier (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Taize Zagonel (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Valdemir Antônio Dos Santos (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Brunno Andrade Dias (PCO, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Caroline Sant Anna (PCO, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Domingos Luiz Prestes (PCO, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gilberto Silveira Dos Santos (PCO, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Paula Adão (PCO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Arthur Cesconetto Souza (PCO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Marcelo Marcel Franco Jose Da Silva (MISSÃO, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Marcelo Rodrigues (MISSÃO, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Diego Santos Vieira (MISSÃO, Senador) tem versão retificadora — mantendo só a mais nova.
@@ -255,6 +266,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **42** —
 - Candidatura de Carlos Daurição Antunes (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Everton José De França Melo (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Tiago Valdecir Horstmann (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Simone Katswinckel Da Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriana Savi Fernandes (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Jackson Raymundo Martins (AGIR, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Henrique Todeschini Da Silva (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Robson Zagre (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
@@ -264,7 +277,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **42** —
 - Número 144 repetido em MISSÃO/Senador para: Diego Santos Vieira, Edupercio Pratts, Túlio De Amorim Pfuetzenreiter — conferir manualmente.
 - Número 14001 repetido em MISSÃO/Deputado Estadual para: Cleiton Siqueira, Davi Daniel Da Conceição — conferir manualmente.
 - Número 55852 repetido em PSD/Deputado Estadual para: Vivian Cristine Quiquio, Neuri Luiz Mantelli — conferir manualmente.
-- 37 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 50 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -288,8 +301,21 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **42** —
 | Dinara Caroline De Oliveira | Deputado Federal | 1810-25-prd-77-solidariedade-executiva.pdf |
 | Lindameri De Oliveira Rodrigues | Deputado Federal | 1810-25-prd-77-solidariedade-executiva.pdf |
 | Edinelson Miranda | Deputado Estadual | 1810-25-prd-77-solidariedade-executiva.pdf |
-| Simone Katswinckel Da Silva | Deputado Federal | 1910-44-união-11-pp-executiva.pdf |
-| Adriana Savi Fernandes | Deputado Estadual | 1910-44-união-11-pp-executiva.pdf |
+| Simone Katswinckel Da Silva | Deputado Federal | 1971-uniao-pp-retificadora.pdf |
+| Adriana Savi Fernandes | Deputado Estadual | 1971-uniao-pp-retificadora.pdf |
+| Priscila Dal Bosco | Deputado Estadual | 1971-uniao-pp-retificadora.pdf |
+| Rosangela Carminatti | Deputado Federal | 2066-prd-solidariedade-executiva-1.pdf |
+| Silvana Da Silva Silvano | Deputado Federal | 2066-prd-solidariedade-executiva-1.pdf |
+| Adelina Martins | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
+| Adriano Machado | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
+| Cassiana Bueno Da Silva | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
+| Joao Batista Sommer | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
+| Joelma Cardoso | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
+| Jorge Godinho Da Silva Junior | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
+| Luiz Renato Lucio | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
+| Maria Luiza Ferreira De Oliveira | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
+| Marcos Rogerio Colares | Deputado Federal | 2201-prd-solidariedade-executiva-2.pdf |
+| Rafael Gomes Dos Santos | Deputado Estadual | 2201-prd-solidariedade-executiva-2.pdf |
 | Adriano Bornschein Silva | Vice-Governador | 487-novo-convencao.pdf |
 | Jovino Marques Gonçalves | Deputado Federal | 557-pt-pc-do-b-pv-executiva.pdf |
 | Jorginho Dos Santos Mello | Governador | 680-pl-convencao.pdf |
@@ -315,46 +341,3 @@ formato de dados/correcoes-nomes.md)_
 
 | Nome | Cargo | Partido | Status | Fonte |
 |---|---|---|---|---|
-| Marcos Luiz Vieira | Deputado Estadual | PSDB/CIDADANIA | confirmado (1x só) | 1036-psdb-cidadania-retificadora.pdf |
-| José Júlio Guahnon | Deputado Estadual | PSOL/REDE | confirmado 17/08/2026 | 954: executiva da Federação moveu a candidatura de Federal p/ Estadual |
-| Simone Moredo | Deputado Estadual | PSOL/REDE | confirmado 17/08/2026 | 954: idem |
-| José Napoleão Bonaparte Maia Rodrigues | Deputado Estadual | UNIÃO/PP (UNIÃO) | confirmado 17/08/2026 | 978: "FILIADO AO PARTIDO UNIÃO BRASIL" |
-| Adriana Savi Fernandes | Deputado Estadual | UNIÃO/PP (PP) | confirmado 17/08/2026 | 1910: "FILIADA AO PROGRESSISTAS" |
-| Edinelson Miranda | Deputado Estadual | PRD/SOLIDARIEDADE (PRD) | confirmado 17/08/2026 | 1810: nominata estadual, urna 25888 |
-| Simone Katswinckel Da Silva | Deputado Federal | UNIÃO/PP (PP) | confirmado 17/08/2026 | 1910: "TAMBÉM FILIADA AO PROGRESSISTAS" |
-| Jovino Marques Gonçalves | Deputado Federal | PT/PC do B/PV (PCdoB) | confirmado 17/08/2026 | 557: substituiu Camilo Cândido, "partido PCdoB" |
-| Adriana Mazzucco Zanelato | Deputado Federal | PRD/SOLIDARIEDADE (SOLIDARIEDADE) | confirmado 17/08/2026 | 1810: nominata federal, urna 7707 |
-| Dinara Caroline De Oliveira | Deputado Federal | PRD/SOLIDARIEDADE (PRD) | confirmado 17/08/2026 | 1810: nominata federal, urna 2575 |
-| Lindameri De Oliveira Rodrigues | Deputado Federal | PRD/SOLIDARIEDADE (PRD) | confirmado 17/08/2026 | 1810: nominata federal, urna 2557 |
-| Gelson Luiz Merísio | Governador | PSB | confirmado 17/08/2026 | 1148: "partido PSB" |
-| Jorginho Dos Santos Mello | Governador | PL | confirmado 17/08/2026 | 680: "filiado ao Partido Liberal (PL)" |
-| João Rodrigues | Governador | PSD | confirmado 17/08/2026 | 694: "filiado ao PSD" |
-| Afrânio Tadeu Boppré | Senador | PSOL/REDE (PSOL) | confirmado 17/08/2026 | 1748: candidatura do PSOL na coligação |
-| Décio Nery De Lima | Senador | PT/PC do B/PV (PT) | confirmado 17/08/2026 | 1235: "partido PT" |
-| Esperidião Amin Helou Filho | Senador | UNIÃO/PP (PP) | confirmado 17/08/2026 | 769: "FILIADO AO PROGRESSISTAS (PP)" |
-| Carlos Nantes Bolsonaro | Senador | PL | confirmado 17/08/2026 | 680: "filiado ao Partido Liberal (PL)" |
-| Caroline Rodrigues De Toni | Senador | PL | confirmado 17/08/2026 | 680: "filiada ao Partido Liberal (PL)" |
-
-## Limpeza de 17/08/2026 — lote duplicado da federação PT/PC do B/PV
-
-A retificadora 1235 foi processada duas vezes por versões diferentes do
-script (antes/depois da correção do cabeçalho de federação): a primeira
-rodada gravou os candidatos com o partido-membro da linha ("partido PT"/
-"PCdoB"/"PV") como grupo, a segunda com a federação (correto pro cálculo
-de quociente). As 35 entradas do lote partido-membro (23 Estadual + 11
-Federal + 1 suplente) eram TODAS duplicatas 1:1 (mesmo nome, mesma ata)
-das entradas federação — removidas, com o partido-membro preservado no
-campo `partidoOriginal` da entrada federação (que é o que a ata de fato
-informa, linha a linha).
-
-## Pendências restantes (fora do escopo do app — suplentes de senador)
-
-O app não modela suplentes, então nada disso aparece na tela. Fica pra
-revisão humana quando/se suplente entrar no escopo:
-- Geraldo Wetzel Neto triplicado (1312-pl, 1337-novo, 1533-agir — apoios
-  registrados por 3 partidos da mesma aliança).
-- Volnei Weber duplicado dentro da própria 1683 (uma linha com MDB, outra sem).
-- Aparecida Da Silva (172 convenção × 1748 retificadora — retificadora deve prevalecer).
-- Adriano Bornschein Silva duplicado (487-novo × 680-pl, apoios da aliança).
-- Angela Albino com partido "PDT" numa linha da 1148 (na prosa da mesma ata
-  ela é vice-governadora pelo PSB federação? conferir com humano).
