@@ -304,7 +304,7 @@
   }
   #modoColaborativoWrap .info-tip .tip-box b{ color: var(--pc-accent); }
   #modoColaborativoWrap .info-tip .tip-box::after{ border-top-color: var(--pc-accent); }
-  #modoColaborativoWrap .info-tip.warn{ border-color: var(--pc-danger); color: var(--pc-danger); background: rgba(224,96,122,0.12); }
+  #modoColaborativoWrap .info-tip.warn{ border-color: var(--pc-danger); color: var(--pc-danger); background: rgba(232,67,42,0.12); }
   #modoColaborativoWrap .info-tip.warn .tip-box{ border-color: var(--pc-danger); }
   #modoColaborativoWrap .info-tip.warn .tip-box::after{ border-top-color: var(--pc-danger); }
 
@@ -330,7 +330,7 @@
   #modoColaborativoWrap .pc-term-seg.qp{ background: var(--pc-lobby-verde-media); }
   #modoColaborativoWrap .pc-term-seg.sobra{
     border:1.5px solid var(--pc-warning);
-    background: repeating-linear-gradient(45deg, rgba(201,138,43,.28) 0 3px, transparent 3px 6px);
+    background: repeating-linear-gradient(45deg, rgba(198,230,42,.28) 0 3px, transparent 3px 6px);
   }
   #modoColaborativoWrap .pc-term-seg.fora{ border:1.5px dashed var(--pc-danger); background:transparent; }
   #modoColaborativoWrap .pc-term-seg .tip-box{
@@ -779,8 +779,8 @@
      erro (isso já existe, var(--pc-danger), vermelho). Pedido do usuário,
      referência visual trazida em 16/08/2026. */
   #modoColaborativoWrap .pc-aviso-card{
-    background:var(--pc-lobby-tom-3); border:1px solid rgba(201,138,43,.5); border-radius:12px;
-    padding:14px; margin-bottom:16px; box-shadow:0 0 16px rgba(201,138,43,.18), inset 0 0 20px rgba(201,138,43,.05);
+    background:var(--pc-lobby-tom-3); border:1px solid rgba(198,230,42,.5); border-radius:12px;
+    padding:14px; margin-bottom:16px; box-shadow:0 0 16px rgba(198,230,42,.18), inset 0 0 20px rgba(198,230,42,.05);
   }
   #modoColaborativoWrap .pc-aviso-card .pc-aviso-titulo{ font-size:12.5px; font-weight:700; color:var(--pc-warning); margin-bottom:4px; }
   #modoColaborativoWrap .pc-aviso-card .pc-aviso-corpo{ font-size:11.5px; color:var(--pc-ink-dim); line-height:1.5; }
@@ -989,7 +989,7 @@
   --pc-ink:#F2F4F5; --pc-ink-dim:#8A9096;
   --pc-glass:rgba(29,32,35,.85); --pc-glass-border:#23262A;
   --pc-accent:#34E84A; --pc-accent-2:#34E84A;
-  --pc-danger:#FF5A48; --pc-warning:#FFB020;
+  --pc-danger:#E8432A; --pc-warning:#C6E62A;
   --pc-lobby-tom-2:#16181B; --pc-lobby-tom-3:#1B1E22;
   --pc-lobby-verde-media:#1D8038; --pc-lobby-verde-forte:#14602A;
 }
@@ -1096,7 +1096,7 @@
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-bar{ height:10px; border-radius:5px; }
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-ticks{ top:2px; bottom:2px; }
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-grip{ width:9px; height:20px; border-radius:4px; }
-#modoColaborativoWrap .pc-sen-chip.sobra{ background:#FFB020; color:#3A2600; }
+#modoColaborativoWrap .pc-sen-chip.sobra{ background:#C6E62A; color:#3A2600; }
 #modoColaborativoWrap .pc-sen-chip.fora{ background:transparent; border:1px solid #2B2F33; color:#8A9096; }
 
 
@@ -1193,7 +1193,7 @@
   cursor:pointer; padding:0; font-family:var(--sans);
 }
 #modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao svg{ width:46%; height:46%; }
-#modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao.avisovg{ color:#FFB020; }
+#modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao.avisovg{ color:#C6E62A; }
 
 /* Tema Fader — neutralização das estruturas de apoio que ainda vinham no
    verde 1.0 (achado do usuário em 17/08: "os backgrounds têm muito verde"):
@@ -1288,7 +1288,7 @@
 }
 #modoColaborativoWrap.pc-tema-fader .pc-stepper-btn:hover{ background:rgba(52,232,74,.16); border-color:#34E84A; }
 #modoColaborativoWrap.pc-tema-fader .pc-picker-item.pc-picker-disabled{ color:#4A4F54; }
-#modoColaborativoWrap.pc-tema-fader .pc-erro{ color:#FF5A48; }
+#modoColaborativoWrap.pc-tema-fader .pc-erro{ color:#E8432A; }
 
 /* ===== Capa (renderLanding) — padrão Fader, 18/08/2026 =====
    Card central no material do console; ícone no estilo exato dos botões
@@ -1346,5 +1346,5 @@
    via RRC (sem ata ainda) — mesma cor de atenção do resto da identidade,
    nunca escondido do usuário. */
 #modoColaborativoWrap .pc-dep-provisorio{
-  font-size:10px; color:#FFB020; margin:2px 0 1px; font-weight:600;
+  font-size:10px; color:#C6E62A; margin:2px 0 1px; font-weight:600;
 }

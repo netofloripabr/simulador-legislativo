@@ -1679,7 +1679,7 @@ function renderMenuConta() {
         </div>
         <label class="pc-switch" style="flex-shrink:0;"><input type="checkbox" id="pcToggleNotifEmail" ${p.notif_email ? "checked" : ""}><span class="pc-switch-slider"></span></label>
       </div>
-      ${linhaMenu("pcBtnMenuReportar", "alerta", "rgba(201,138,43,.12)", "Reportar um problema", "Achou um bug? Nos conta aqui")}
+      ${linhaMenu("pcBtnMenuReportar", "alerta", "rgba(198,230,42,.12)", "Reportar um problema", "Achou um bug? Nos conta aqui")}
       ${linhaMenu("pcBtnMenuConvidar", "convidar", "rgba(61,255,176,.1)", "Convidar amigos", "Seu grupo e código de convite")}
       ${pcState.souAdmin ? linhaMenu("pcBtnMenuAdmin", "chart", "rgba(61,255,176,.1)", "Painel do administrador", null) : ""}
       ${pcState.souUsuarioFinal ? linhaMenu("pcBtnMenuUsuarioFinal", "chart", "rgba(61,255,176,.1)", "Painel de dados estratégicos", null) : ""}
@@ -1768,7 +1768,7 @@ function renderMenuConta() {
 function renderModalExcluirConta() {
   return `
     <div id="pcModalExcluirContaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(224,96,122,.4); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(232,67,42,.4); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <h2 style="margin-bottom:4px; font-size:15px; color:var(--pc-danger);">Excluir conta</h2>
         <div class="pc-sub" style="margin-bottom:14px; line-height:1.6;">Isso remove seu acesso e registra um pedido de exclusão dos seus dados (listas, grupos, palpites). Não dá pra desfazer depois de processado. Confirma?</div>
         <div class="pc-erro" id="pcExcluirContaErro"></div>
@@ -2719,7 +2719,7 @@ async function renderMinhasListas() {
     </div>`;
   const linhaDepositada = (l) => `
     <div class="pc-mini-card" style="flex-wrap:wrap; opacity:.85;">
-      <div class="pc-mini-card-icone" style="background:rgba(201,138,43,.12); color:var(--pc-warning);">${iconeSvg("chave", 16)}</div>
+      <div class="pc-mini-card-icone" style="background:rgba(198,230,42,.12); color:var(--pc-warning);">${iconeSvg("chave", 16)}</div>
       <div style="min-width:0; flex:1;">
         <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</div>
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}${l.codigo ? ` · <span style="font-family:var(--mono);">${l.codigo}</span>` : ""}</div>
@@ -6819,7 +6819,7 @@ function renderRevisaoDeposito() {
           <div style="display:flex; align-items:center; justify-content:space-between; gap:4px 10px; margin-top:10px; flex-wrap:wrap;">
             <div style="display:flex; flex-direction:column; align-items:flex-start; gap:6px; flex-shrink:0;">
               <span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; text-transform:uppercase; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-accent); background:rgba(61,255,176,.12); cursor:help;">${c.tag === "majoritário" ? "eleito" : `eleito · ${c.tag}`}</span>
-              ${c.tag === "média" && c.detalhe.rodadaSobra !== undefined ? `<span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-warning); background:rgba(201,138,43,.14); border:1px solid rgba(201,138,43,.35); cursor:help;">sobra · rodada ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}</span>` : ""}
+              ${c.tag === "média" && c.detalhe.rodadaSobra !== undefined ? `<span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-warning); background:rgba(198,230,42,.14); border:1px solid rgba(198,230,42,.35); cursor:help;">sobra · rodada ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}</span>` : ""}
             </div>
             <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:15px; font-weight:800; text-align:right; flex-shrink:0; padding:9px 6px;">
           </div>
@@ -6871,7 +6871,7 @@ function renderRevisaoDeposito() {
           <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
         </div>
         ${c.consistenteComMatematicaReal ? `
-        <div style="margin-top:12px; padding:10px 12px; background:rgba(201,138,43,.1); border:1px solid rgba(201,138,43,.3); border-radius:10px; display:flex; gap:8px; align-items:flex-start;">
+        <div style="margin-top:12px; padding:10px 12px; background:rgba(198,230,42,.1); border:1px solid rgba(198,230,42,.3); border-radius:10px; display:flex; gap:8px; align-items:flex-start;">
           <span style="color:var(--pc-warning); font-size:13px; flex-shrink:0;">${iconeSvg("alerta", 13)}</span>
           <span style="font-size:11.5px; color:var(--pc-warning); line-height:1.5;">${cargoDef.id === "senador"
             ? `A votação de hoje indica que ${c.nome} estaria entre os mais votados (eleição majoritária, voto direto) — mas não está no seu palpite. Fica valendo sua escolha; isso é só um aviso.`
@@ -6944,7 +6944,7 @@ function renderRevisaoDeposito() {
         <summary style="align-items:flex-start;"><span style="flex:1; min-width:0; line-height:1.35;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim);">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} aviso${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0; margin-top:3px;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">
           <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">${filtroAgrupado}</div>
-          ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-bottom:12px; background:rgba(201,138,43,.08); border:1px solid rgba(201,138,43,.3); color:var(--pc-warning); font-family:var(--sans); font-size:12.5px; font-weight:700; border-radius:10px; padding:10px; cursor:pointer;">Ver disputa de sobra completa (${disputaSobra.rodadas.length} rodada${disputaSobra.rodadas.length === 1 ? "" : "s"})</button>` : ""}
+          ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-bottom:12px; background:rgba(198,230,42,.08); border:1px solid rgba(198,230,42,.3); color:var(--pc-warning); font-family:var(--sans); font-size:12.5px; font-weight:700; border-radius:10px; padding:10px; cursor:pointer;">Ver disputa de sobra completa (${disputaSobra.rodadas.length} rodada${disputaSobra.rodadas.length === 1 ? "" : "s"})</button>` : ""}
           ${linhas}
         </div>
       </details>`;
@@ -6968,7 +6968,7 @@ function renderRevisaoDeposito() {
           <span style="font-size:11px; color:var(--pc-ink-dim);">votos ÷ (vagas atuais + 1)</span>
         </div>
         ${r.medias.map((m) => `
-          <div style="display:grid; grid-template-columns:16px 1fr auto; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; font-size:12px;${m.venceu ? " background:rgba(201,138,43,.1); border:1px solid rgba(201,138,43,.3);" : ""}">
+          <div style="display:grid; grid-template-columns:16px 1fr auto; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; font-size:12px;${m.venceu ? " background:rgba(198,230,42,.1); border:1px solid rgba(198,230,42,.3);" : ""}">
             <span style="text-align:center;">${m.venceu ? "🏆" : ""}</span>
             <span style="color:${m.venceu ? "var(--pc-ink)" : "var(--pc-ink-dim)"}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${m.nome}${m.venceu ? ` — ${r.vencedorNome}` : ""}</span>
             <span style="font-weight:700; color:${m.venceu ? "var(--pc-warning)" : "var(--pc-ink-dim)"};">${Math.round(m.media).toLocaleString("pt-BR")}</span>
@@ -6976,7 +6976,7 @@ function renderRevisaoDeposito() {
       </div>`).join("");
     return `
       <div id="pcDisputaSobraOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-        <div style="max-width:460px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(15,35,27,.9); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(201,138,43,.3); border-radius:18px; padding:22px 20px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div style="max-width:460px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(15,35,27,.9); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(198,230,42,.3); border-radius:18px; padding:22px 20px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
           <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
             <div>
               <h2 style="margin:0; font-size:16px;">Disputa de sobra — ${cargoDef.label}</h2>
