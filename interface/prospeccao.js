@@ -4241,7 +4241,7 @@ function attachListenersSenador(E) {
 // não de marcação manual. Decisões em memória alesc-deputados-prototipo-
 // primeiro; espec visual em PROJETO.md §8.2.
 
-let _depDragKey = null, _depTimer = null, _depEditAberto = false, _depMasterAtivo = false;
+let _depDragKey = null, _depTimer = null, _depEditAberto = false, _depMasterAtivo = false, _depEditProximo = null;
 
 // Vagas apuradas por grupo com a votação ATUAL (mesma conta da Revisão:
 // dhondtComCorte distribui QP e sobras numa passada). marcadoEleito de
@@ -4509,6 +4509,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
           <span class="pc-dep-cnm">${nomeExibicao(c)}${insta}</span>
           <span class="pc-dep-cpct">${cpct.toFixed(1).replace(".", ",")}<small>%</small></span>
         </div>
+        ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</div>` : ""}
         ${faderDepHtml("c|" + gi + "|" + c.chave, cv, capCand, true)}
       </div>`;
     }).join("") : "";
@@ -4736,7 +4737,28 @@ function attachListenersDeputadosFader(E, totalVagas) {
       renderCargoEstadual();
     };
     inp.addEventListener("blur", aplicar);
-    inp.addEventListener("keydown", (ev) => { if (ev.key === "Enter") inp.blur(); });
+    inp.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") inp.blur();
+      // Tab: aplica e pula pro box do candidato logo abaixo (pedido do
+      // usuário, 18/08/2026) — a chave do próximo é capturada ANTES do
+      // re-render e o box novo abre depois que o DOM volta.
+      if (ev.key === "Tab") {
+        ev.preventDefault();
+        const linha = sl.closest(".pc-dep-crow");
+        const proxima = linha ? linha.nextElementSibling : null;
+        if (proxima && proxima.classList.contains("pc-dep-crow")) _depEditProximo = proxima.dataset.depCand;
+        inp.blur();
+      }
+    });
+  }
+
+  // Reabre o box de edição no candidato seguinte após o Tab (o apply
+  // re-renderiza tudo; a chave sobrevive no módulo).
+  if (_depEditProximo) {
+    const chaveProx = _depEditProximo;
+    _depEditProximo = null;
+    const alvo = document.querySelector(`.pc-dep-crow[data-dep-cand="${CSS.escape(chaveProx)}"] [data-dep-fader]`);
+    if (alvo) abrirEdicaoDep(alvo, alvo.dataset.depFader);
   }
 
   // Box de vagas (− N +): comanda o volume — mudar a quantidade reescala a
@@ -5196,7 +5218,10 @@ async function renderCargoEstadual() {
   // cargo (Estadual/Federal/Senador têm plenários diferentes, cada um
   // lembra se está recolhido ou não), guardado no mesmo mapa genérico que
   // já existe pra outros "expandido/recolhido" da tela (pcState.expandido).
-  const plenarioColapsado = !!pcState.expandido["plenarioColapsado_" + pcState.cargoAtivo];
+  // Plenário INICIA FECHADO por padrão (pedido do usuário, 18/08/2026) —
+  // o valor guardado só existe depois do primeiro toque na setinha.
+  const _plenChave = "plenarioColapsado_" + pcState.cargoAtivo;
+  const plenarioColapsado = pcState.expandido[_plenChave] === undefined ? true : !!pcState.expandido[_plenChave];
   // Fora de Santa Catarina, o hemiciclo vira grade waffle (1 quadrado = 1
   // cadeira) — formato que se adapta melhor a qualquer número de vagas sem
   // depender do arco pensado pra 40 cadeiras da Assembleia de SC. Ver desenharHemiciclo
@@ -5941,7 +5966,8 @@ function attachListenersSelecao() {
   if (btnColapsarPlenario) {
     btnColapsarPlenario.addEventListener("click", () => {
       const chave = "plenarioColapsado_" + pcState.cargoAtivo;
-      pcState.expandido[chave] = !pcState.expandido[chave];
+      const atualCol = pcState.expandido[chave] === undefined ? true : !!pcState.expandido[chave];
+      pcState.expandido[chave] = !atualCol;
       renderCargoEstadual();
     });
   }

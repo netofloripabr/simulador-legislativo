@@ -1214,3 +1214,9 @@
   background:#16181B; border-color:#2B2F33; color:#8A9096;
 }
 #modoColaborativoWrap.pc-tema-fader .pc-status{ color:#8A9096; }
+
+/* Referência histórica na linha do candidato (pedido de 18/08/2026): a
+   votação real de 2022 de quem disputou, no tom apagado da identidade. */
+#modoColaborativoWrap .pc-dep-c2022{
+  font-size:10px; color:#6E757C; margin:0 0 1px; font-variant-numeric:tabular-nums;
+}
