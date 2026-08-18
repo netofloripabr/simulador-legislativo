@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RJ (atas de convenção)
 
-Gerado em 2026-08-03 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RJ/`,
+Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RJ/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -10,13 +10,65 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 
 | Arquivo | Partido detectado | Retificadora | Candidaturas extraídas |
 |---|---|---|---|
+| 1023-pt-pc-do-b-pv-retificadora.pdf | ? | sim | 102 |
+| 1028-pl-executiva.pdf | PL | não | 4 |
+| 1039-pl-retificadora.pdf | PL | sim | 4 |
+| 1046-avante-retificadora.pdf | AVANTE | sim | 117 |
+| 1069-pode-executiva.pdf | PODE | não | 16 |
+| 1071-democrata-executiva.pdf | DEMOCRATA | não | 4 |
+| 1073-mobiliza-executiva.pdf | MOBILIZA | não | 0 |
+| 1076-republicanos-executiva.pdf | REPUBLICANOS | não | 3 |
+| 1143-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 118 |
+| 1203-agir-executiva.pdf | AGIR | não | 0 |
+| 1214-avante-retificadora.pdf | AVANTE | sim | 117 |
+| 1219-pl-retificadora.pdf | PL | sim | 3 |
+| 1229-pl-retificadora.pdf | PL | sim | 4 |
 | 124-dc-convencao.pdf | DC | não | 118 |
+| 1248-psd-executiva.pdf | PSD | não | 6 |
+| 1287-pt-pc-do-b-pv-retificadora.pdf | ? | sim | 102 |
+| 1319-dc-executiva.pdf | DC | não | 0 |
 | 133-psd-convencao.pdf | PSD | não | 114 |
+| 1350-psd-executiva.pdf | PSD | não | 5 |
+| 1369-pt-pc-do-b-pv-executiva.pdf | ? | não | 0 |
+| 1390-pco-convencao.pdf | PCO | não | 14 |
 | 145-psb-convencao.pdf | PSB | não | 118 |
 | 149-avante-convencao.pdf | AVANTE | não | 116 |
+| 1492-psb-retificadora.pdf | PSB | sim | 118 |
+| 1497-democrata-executiva.pdf | DEMOCRATA | não | 22 |
+| 1509-pdt-executiva.pdf | PDT | não | 0 |
+| 1534-democrata-retificadora.pdf | DEMOCRATA | sim | 90 |
+| 1541-pl-executiva.pdf | PL | não | 4 |
+| 1573-up-retificadora.pdf | UP | sim | 16 |
+| 1578-dc-retificadora.pdf | DC | sim | 1 |
+| 1600-dc-executiva.pdf | DC | não | 1 |
+| 1611-pl-retificadora.pdf | PL | sim | 105 |
 | 163-pode-convencao.pdf | PODE | não | 83 |
+| 1703-psdb-cidadania-executiva.pdf | ? | não | 1 |
+| 1732-democrata-retificadora.pdf | DEMOCRATA | sim | 91 |
+| 1735-pode-executiva.pdf | PODE | não | 2 |
+| 1743-missao-retificadora.pdf | MISSÃO | sim | 35 |
 | 181-pstu-retificadora.pdf | PSTU | sim | 9 |
+| 1819-republicanos-executiva.pdf | REPUBLICANOS | não | 2 |
+| 1836-democrata-executiva.pdf | DEMOCRATA | não | 2 |
 | 184-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 118 |
+| 1865-democrata-executiva.pdf | DEMOCRATA | não | 0 |
+| 1867-pl-retificadora.pdf | PL | sim | 105 |
+| 1883-mobiliza-executiva.pdf | MOBILIZA | não | 1 |
+| 1919-avante-retificadora.pdf | AVANTE | sim | 117 |
+| 1920-psol-rede-executiva.pdf | ? | não | 1 |
+| 1924-pl-executiva.pdf | PL | não | 6 |
+| 1935-mobiliza-retificadora.pdf | MOBILIZA | sim | 110 |
+| 1942-prtb-executiva.pdf | PRTB | não | 3 |
+| 1951-pdt-executiva.pdf | PDT | não | 28 |
+| 1957-mobiliza-executiva.pdf | MOBILIZA | não | 2 |
+| 1973-novo-executiva.pdf | NOVO | não | 8 |
+| 1980-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 2028-psd-executiva.pdf | PSD | não | 1 |
+| 2038-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
+| 2048-mobiliza-executiva.pdf | MOBILIZA | não | 1 |
+| 2145-novo-executiva.pdf | NOVO | não | 1 |
+| 2152-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
+| 2202-democrata-executiva.pdf | DEMOCRATA | não | 4 |
 | 229-pdt-convencao.pdf | PDT | não | 103 |
 | 254-pstu-convencao.pdf | PSTU | não | 9 |
 | 257-republicanos-convencao.pdf | REPUBLICANOS | não | 123 |
@@ -26,21 +78,23 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 328-missao-convencao.pdf | MISSÃO | não | 36 |
 | 364-agir-convencao.pdf | AGIR | não | 71 |
 | 373-agir-retificadora.pdf | AGIR | sim | 71 |
-| 401-psdb-cidadania-retificadora.pdf | ? | sim | 118 |
+| 401-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 118 |
 | 429-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 117 |
 | 437-mobiliza-convencao.pdf | MOBILIZA | não | 110 |
 | 441-agir-retificadora.pdf | AGIR | sim | 71 |
-| 462-psdb-cidadania-retificadora.pdf | ? | sim | 118 |
+| 462-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 118 |
 | 484-mobiliza-retificadora.pdf | MOBILIZA | sim | 110 |
 | 506-agir-retificadora.pdf | AGIR | sim | 71 |
-| 524-psdb-cidadania-retificadora.pdf | ? | sim | 118 |
+| 524-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 118 |
 | 541-psol-rede-executiva.pdf | ? | não | 1 |
 | 55-mdb-convencao.pdf | MDB | não | 93 |
 | 551-psol-rede-convencao.pdf | PSOL/REDE | não | 65 |
-| 578-psdb-cidadania-retificadora.pdf | ? | sim | 118 |
+| 578-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 118 |
 | 592-republicanos-retificadora.pdf | REPUBLICANOS | sim | 123 |
-| 615-25-prd-77-solidariedade-retificadora.pdf | ? | sim | 118 |
-| 688-psdb-cidadania-retificadora.pdf | ? | sim | 118 |
+| 615-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 118 |
+| 634-dc-retificadora.pdf | DC | sim | 118 |
+| 664-44-uniao-11-pp-convencao.pdf | UNIÃO/PP | não | 109 |
+| 688-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 118 |
 | 693-democrata-convencao.pdf | DEMOCRATA | não | 90 |
 | 697-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 3 |
 | 743-up-convencao.pdf | UP | não | 16 |
@@ -50,13 +104,126 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 817-mobiliza-retificadora.pdf | MOBILIZA | sim | 110 |
 | 831-prtb-convencao.pdf | PRTB | não | 3 |
 | 851-avante-retificadora.pdf | AVANTE | sim | 117 |
+| 907-mobiliza-executiva.pdf | MOBILIZA | não | 2 |
+| 912-pt-pc-do-b-pv-executiva.pdf | ? | não | 102 |
+| 919-avante-retificadora.pdf | AVANTE | sim | 117 |
+| 921-psb-retificadora.pdf | PSB | sim | 118 |
+| 924-agir-retificadora.pdf | AGIR | sim | 71 |
+| 926-psd-executiva.pdf | PSD | não | 25 |
+| 962-pl-executiva.pdf | PL | não | 3 |
 
-Total de candidaturas: **2709** — confiança alta: **1989**, a revisar (partido não identificado): **720**
+Total de candidaturas: **2081** — confiança alta: **1958**, a revisar (partido não identificado): **123**
 
-Candidatos fictícios preservados (partido/cargo ainda sem ata real): **889** — ver `fonte:"ficticio"` no .js gerado.
+Candidatos fictícios preservados (partido/cargo ainda sem ata real): **113** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
+- Candidatura de Adelson Pereira Guedes (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriana De Fatima Boelho (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Amélia Leal De Almeida (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anielle Francisco Da Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Carlos De Andrade (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Pereira Da Silva Lobao Filho (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Benedito Felix Guerra (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Benny Briolly Rosa Da Silva Santos (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Augusto Alves Santana (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Celso Pansera (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Crislaine Coelho Nascimento (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Danielle Nunes Rosa De Oliveira (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Diego Zeidan Cardoso Siqueira (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Dimas De Paiva Gadelha Junior (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eduardo Carvalho Bandeira De Mello (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elias Marco Khalil Jabbour (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Emerson Teixeira Da Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabiano Taques Horta (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jandira Feghali (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Ricardo Tavares Corrêa (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Kevin Lopes Monteiro (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonardo Carneiro Monteiro Picciani (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonardo Martins Da Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lourenço Do Vale Cavalcante (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luciana Neri Da Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luiz Lindbergh Farias Filho (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maiara Felicio Da Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Alves Pacheco (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Ribeiro Freixo (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcia Helena Lobato Kaltner (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Lucia Costa Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nísia Verônica Trindade Lima (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Orlando Mendes De Souza (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Vitor Xavier Santos (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Reimont Luiz Otoni Santa Barbara (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rejane De Almeida (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Robercil Da Rocha Parreira (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodney Cezar De Albuquerque (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosimeri Da Silva Marongiu (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rubens José França Bomtempo (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandro Alex De Oliveira Cezar (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Tainá Reis De Paula (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Valdomark Batista Tavares (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wagner Paulo Correa Avellar (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adilson Nogueira Pires (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alex Sandra De Jesus Alves (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Allyson Da Silva Elias (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Paula Dias Hirt (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andre Del Pino Guerra Tavares (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andre Luiz Ceciliano (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andreia Almeida Zito Dos Santos (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Araujo Ferreira (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Brunnão Realleza Barreto Soares Oliveira (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bruno Costa Silva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Caroline Machado Ontiveros Cespedes (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Danieli Christovão Balbi (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Devaldo Marques De Almeida (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Durval Pereira Gomes Peçanha (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edna Ferreira Calheiros Saraiva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eduardo José Acosta Barbosa (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elika Takimoto (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Erivaldo Pereira Alves (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabio Martins Dos Santos (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Felipe Alves De Souza (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Galtier Da Silva Figueira Filho (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Hilder Rodrigues Dos Santos (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Hudson Marques Da Silva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Igo Alencar De Menezes (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Indianarae Pereira Siqueira (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Isaac Souza Da Silva Ricalde (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Antonio Da Silva Braga (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jose Alexandre Almeida Da Silva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Panayotis Damatis (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Katia Maria Diniz Macillo (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonardo França Souza (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonel Querino Da Silva Neto (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lilian Prates Belem Behring (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lucia Marina Dos Santos (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maicon Silva Da Cruz (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcio Roberto Carvalho Matheus Filho (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marco Aurélio De Souza Barreto (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Das Graças Gomes Franco (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Luiza De Souza Côrtes (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mary Borges De Oliveira (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Neusa Kunha Taqua Mendonca Martine (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Cesar Gonçalves Ladeira (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Roberto Mustrangi De Oliveira (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Raimundo Nonato Araujo De Figueiredo (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Raone Cassin Maia Ferreira (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Renato Da Costa Machado (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Silva Santos (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Roliney Alves Soares (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosangela De Oliveira Zeidan (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rose Cipriano Lapa (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sebastião Wagner Berriel (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thaysa Rodrigues De Azevedo Ventura (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thiago Mothe Aguiar (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Veronica Dos Santos Lima (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vinicios De Moraes Betiol (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Waldeck Carneiro Da Silva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wallace Pereira Da Silva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de William De Almeida Macedo (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Roberto Jordy Coelho De Mattos (PL, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lucimar Cristina Da Silva Ferreira (PL, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Augusto Nalin (PL, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lais Jordy Santanna Soares De Mattos (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alaide De Melo Silva (AVANTE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alexander Nascimento De Oliveira (AVANTE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alexandre Da Silva Gomes (AVANTE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -159,8 +326,613 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **889** �
 - Candidatura de Milton Vilarino Junior (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Nisomar Provenzano Da Costa (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Patricia Da Silva Nunes (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Patrick Matos Guimarães (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Roberto Ferreira De Souza (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Pedro Ferreira Da Silva Neto (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Quézia Costa Da Conceição De Souza (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rachel De Oliveira Nasser (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rogerio Gomes Martins (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rogerio Pinheiro Dos Santos (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosemary Pedreira Nunes (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Samuel Gonzaga De Souza (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandra De Jesus Salomão (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandro Ribeiro Leal (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Silvio Luiz Fernandes De Castro (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Veronice Alves Martins (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Viviany Da Silva Pereira (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wallace De Souza Bernardes (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Marcos Dias Pereira (PODE, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Everaldo Dias Pereira (PODE, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson Luiz Bravo (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andréa Silva Araújo (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aureo Lidio Ribeiro (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Beny Machado Balabram (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Roberto De Carvalho (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Deisilane Campos Torres (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edgar Jesus Costa (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edson Dos Santos (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edson Pereira Da Silva (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elisangela Alcina Faustino Rodrigues (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elizangela Santos Pereira (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eloi Pereira Ramalho (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eloi Souza De Oliveira (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Emanuele De Faria Carvalho Dos Santos (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Erica De Oliveira Bispo (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gisele Thomaz Lancates (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Glauber Medeiros Poubel (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gleibe De Andrade Oliveira (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Heitor De Souza Queiroz Filho (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Janayna Rodrigues Da Rocha (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jones Barbosa De Moura (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Henrique Pereira Da Costa Vieira (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Kelly Ferreira Do Nascimento (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lauro Cesar Botto Maia (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leandro Pereira Netto (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lenilton Rodrigues Gomes Junior (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luis Carlos Jorge Marta (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo De Almeida De Assis (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Do Nascimento (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos De Lima Titara (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcus Vinicius De Vasconcelos Ferreira (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Michael Alexandre Gervasio (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Michele Santos Do Nascimento Pires (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Márcio De Andrade Vasconcellos (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mário Do Nascimento Gomes Filho (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nurimar Dos Santos Mendonça (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paola Da Silva Daniel (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Patricia Antunes Cardoso (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo De Oliveira Ursine Silva (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Robson José Dos Santos (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ronaldo Do Carmo Anquieta (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rui Tomé De Souza Aguiar (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thiago Do Nascimento Antunes (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vanessa De Souza Nascimento (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Viviane Carvalho Petisco Pinheiro (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Willian Augusto Brand Pinheiro (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wilson Martins Coutinho (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alex Sandro Da Conceição (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexander Cassiano Da Costa (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Aguiar (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Batista Pinto (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Magno Do Couto (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Silva Dos Santos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aline Lopes Da Silva (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Maria De Azevedo Sagário Pedrosa De Melo (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Paula Freitas Soares Pimentel (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de André Benigno Rios (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio De Araújo Medeiros Silva (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Arthur Carvalho Monteiro (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bianca Silva Passos De Aquino (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bruno Max Do Nascimento Loureiro (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Camila Palermo Tobler (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cláudia De Farias Braga De Abreu (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Dalielson Pereira Berto (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Denis Maiquel Da Costa Ramos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Diogo Augusto Da Silva Santos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elaine Maria Martins De Araújo Chagas (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eliesio Peres Da Silva (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabio Tobias De Araujo (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Flávia Gomes Tomáz Dos Santos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francimara Azeredo Da Silva Barbosa Lemos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco Domínico Coronel Júnior (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gisele Santos Do Nascimento Teixeira (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Helbia Sant'Ana Barreto Gonçalves Brandão Neves (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Izabel Cristina Pimentel De Oliveira (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jacivania Cristina Dias (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jairo Souza Bispo Dos Santos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Janaína Guimarães Alves Dos Santos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jonathan Ferreira Da Silva (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Brum Cripim De Carvalho (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Sebastião Rabello (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Evangelista Lucas (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Felipe Drumond Espindola De Freitas (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Lucas Maciel De Lima (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Junior Martins Silva Junior (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Kátia Cristina Experidião Do Nascimento (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leandro Reis Lima (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leandro Rufino Marques (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leliane Maria Pinheiro (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonardo Henrique Vieira De Moraes (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Liliam Sá De Paula (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lívia Silva Oliveira (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcella Nobrega De Mello (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marco Antônio Neves Cabral (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Da Silva Souza (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Parreira Do Carmo (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Da Glória Vidal Felismino (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Inês De Araújo Dos Santos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Munir Francisco (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Norival Garcia Da Silva Júnior (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Renata Vieira Soares De Araújo (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Renato Abreu (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Renato Costa Valverde (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Robson Botelho De Menezes (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo Drable Costa (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo Gonçalves Fonseca (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rogério Firmino Dutra (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Roosevelt Barreto Barcelos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sarah Poncio Silva De Souza (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sidney Morgado Nascimento Filho (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Simone Da Silva Mello Brasiliense (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Solange Naval De Mendonça (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thiago Silva Pinto Do Nascimento (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vagner Mateus Dos Santos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Verônica Marinho De Andrade (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Verônica Silva Conceição Martins (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Welderson Sidney Da Silva Teixeira (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wellington Paulino De Souza (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Douglas Ruas Dos Santos (PL, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fernanda Anchieta Louback (PL, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria José Bernardo Marques (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aline Do Nascimento Viana (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Carolina Santos Da Silva (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson Luiz Pereira (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de André Silva De Almeida (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andréa Maria De Faria Antunes (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Arthur Rioboo Da Costa (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Eufrazio Da Cruz (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cirlene Mozer (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cláudia Da Silva Araujo (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cristiane Brasil Francisco (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Danilo Barreto De Souza (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Emir Campos Larangeira (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eriton Bragança Soares Lopes (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Felipe De Aguiar Guedes (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Flavio Rocha Galvão (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Floricena Da Conceição Lima Thomaz (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francis Araujo Da Silva (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gerusa De Sales Barboza (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gustavo Antunes Modesto Schmidt (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Humberto Martins Duarte (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Iran Ferreira Marins (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Isac Farias Nascimento (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jonas De Souza Neto (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Magalhães Muniz Filho (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Julio Cesar Amaro De Paula (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Júlio Cesar Lourenço Da Silva (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marco Aurélio Martins Vaz (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Aurélio Do Nascimento Silva (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Da Silva Alberto Medeiros (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Omar Cardoso Damazio (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Henrique Dos Santos (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Sergio De Junior (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Petterson Santos De Lima (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rafael Carvalho Braz (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rogerio Verissimo Rodrigues (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ruimar Ramalho Mendes (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Simone Clara Do Nascimento De Carvalho (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Simone Conceição Dos Santos (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Solange Rosa De Souza (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sônia Maria Fernandes Soares (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vinicius Dos Santos Prudêncio (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vânia De Aguiar Muniz (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wagner Pires Coelho (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Washington Luiz Messias Da Silva (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de William Correia Da Silva Júnior (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Yul Gomes Da Silva (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ághata Do Nascimento Oakes (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Acyr Pires Aguiar (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ademir Marques Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ademir Martins Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ademir Rodrigues Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alcimar Borges Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Coutinho Corrêa Filho (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alinaldo Sousa Olivera (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Maria De Oliveira Luiz (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Paula Reis Da Conceição Vasconcelos (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson Da Matta Graniço (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson Da Silva Dias (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson Fernandes Dos Santos (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Machado Evangelho (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Augusto Emilio Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bernardete Oliveira De Lima (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bianca Neto De Oliveira (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bil Kele Pereira (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Alberto Siqueira Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Dos Santos Adriano Oliveira (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Renato Chaves Dos Santos (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Roberto Dos Santos (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carolina Agostinho Peris (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Claudia Da Silva Ferreira (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Claudineia Conceicao Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Conrado Fernandes Antunes (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cristiano De Jesus Nogueira (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Denis Cleiton De Carvalho (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Erika Gama Albuquerque (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fernando Alex Martins (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco Borges Do Rosario (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco De Paula Pereira Trindade (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco Mauro Farias Peres (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gilmar Honorio De Lima (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Humberto Alves Barreto Junior (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ivana De Moura Rezende (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jackson De Souza Almeida (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Janaina Mussalem Dias Barbosa (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jane De Andrade De Souza (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Joaquim Teixeira Portella Filho (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Coutinho (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Josué Do Nascimento Oliveira (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Vicente De Amorim Gonçalves (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Karina De Souza Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Karla Werônica Coelho De Carvalho Lysandro Barreto (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lucio Pereira Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lucio Rosa (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luiz Eduardo Francisco Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Manoel Jaime Sabino (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marco Antonio Machado Barros (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Alcides Souza Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcus Aurélio Mesquita Gomes (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Da Gloria Calixto Ribeiro (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Do Perpétuo Socorro Da Silva Magalhaes (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Eugênia Bondim De Leão (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nilton Cesar Patricio Viana (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paloma Corrêa (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Sérgio Louback (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo Castro Fragoso (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo Rocha Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosilene Olímpio Dos Santos (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sergio Luiz Pinto (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Simone Rodrigues Feitosa (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sonia Maria Lopes De Oliveira (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Taquaraci Nunes Rodrigues (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Valciney De Almeida Diniz (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Valéria Nascimento De Souza (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vania Cristina Pereira Martins (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vítor Barbosa Corrêa (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wanderson Dos Santos Moura (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wellington Gonçalves Torres (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eduardo Da Costa Paes (PSD, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jeannie Mayr Reis De Oliveira (PSD, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Pedro Paulo Carvalho Teixeira (PSD, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Miro Teixeira (PSD, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sávio Luis Ferreira Neves Filho (PSD, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabio Marcos Da Silva Fernandes (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Giancarlo Alves De Sousa (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gilmar Lelis Do Carmo (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luciane Costa Dos Santos Ferreira (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcio Porto De Rezende (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Michelle Clavery Holanda (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vando Raimundo Da Luz (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vivian Alencar Dos Santos Ferreira (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Henrique Nogueira (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Claudio Sobral De Caiado Castro Junior (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de David Manuel De Jesus Silva (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Denise Custodio Da Silva Ramos De Figueiredo (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Flavio Guimaraes Bittencourt Do Valle (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Queiroz Dos Santos (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Patrick Alexandre De Oliveira (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Richard De Oliveira Casares (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ruan Pereira De Carvalho Valle (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wagner Montes (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ademir Dias Da Silva (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriano Carvalho Da Rocha (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriely Alves Osório Da Silva (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andre Dos Santos De Santana (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antônio Marcos Souza (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ary Gabriel Girota De Souza (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Barbara Cristina Teixeira De Oliveira (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Alberto Ivanir Dos Santos (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Caroline Midori Da Costa Silva (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Darla De Gois (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Darlan Praxedes Da Costa Cabistani (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Dercilei França Leonardo (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eduardo Correa Lima Furtado (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elaine Da Conceição Ferreira (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Evandro Maurício Dos Santos (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Graciane Da Silva Mauricio (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Igor Crespo Marcos (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ivana Maria Rodrigues Moreira (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jadson Marques Fonseca (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Janaina Sant'Anna Barros Da Silva (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Fernandes Da Silva Junior (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Francisco Paiva Avelino (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Henrique Da Costa Santos (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Leonel Batista Estery (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Karina Nascimento Ferreira Da Silva (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Antonio Patricio Da Silva (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcus Vinícius De São Thiago (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maysa Lourenço Ramos Karkous (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Meire Christine Lopes Gamaria Rodrigues (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Miguel Ribeiro Machado (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nestor Luiz Cardozo Lopes (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paula Neves Magalhães De Barros (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Roberto Lemos Angelito (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rafael Moura Pessoa Freire Chiconeli (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rafael Primo De Barros (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Romério Pedro Duarte (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rômulo Milagres Ribeiro (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Samuel Fayad Filho (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandra Maria Dos Santos Teixeira (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Selma Maria Rodrigues Da Silva (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sergio Fernando Damas Fernandes (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sidney Jesus De Souza (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Tatiana Marins Roque (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Tiago Soares Fernandes (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vagner Martins Lucindo (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vanessa Monteiro Marques (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Verônica Aparecida Soares Inácio (PSB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriano Rodrigues Pereira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ailton Da Silva Freitas (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alan Mansur Pereira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alessandra Moreira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Molina Santos (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexsandro Vieira Martins (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aparecida Justina Da Silva Domingos (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Alberto Da Silva (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Minc Baumfeld (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Christiane Da Costa Rodrigues Carvalho (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Claudia Carvalho Respeita Da Motta (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Deise Franklin De Freitas (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Denise Maria Da Conceição Vieira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edison José Da Silva (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ednaldo Gomes De Faria (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eli Dias Pereira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eli Souza Da Silva (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Erica Aparecida Dos Santos Coelho (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ezaquiel Siqueira Da Conceição (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabíola Oliveira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Flávio Dos Santos (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco De Assis Freitas (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gardênia Suliene Da Costa Grigorio (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de George André Da Silva Salvador (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gilmar Conceição Dos Santos (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gláucio Venicio De Oliveira Fontes (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Haroldo Victoriano Bunn (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Inês Tânia Lima Da Silva (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jairo Fernandes (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Janaina Monteiro Do Nascimento (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jaqueline Ameida Carvalho De Lima (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jari Simão De Oliveira Junior (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jean Elissom Da Silva Moraes (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Luís Machado Miranda (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Levi Alves Rodrigues Dos Santos (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luciana Rodrigues Alves Bento (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luiz Carlos Pereira Pinto (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luiz Da Silva Gomes (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maicon Costa Nascimento (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Ramos Fritz (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marco Antônio Pereira De Figueiredo (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marco Aurélio Barcellos Xavier (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Antonio Silva Lima (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Evandro Teixeira Pinto (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Junior Souza Dos Santos (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Paulo Costa Da Silva (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mariana Donato De Moraes (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mariléa Lúcio Ormond (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Michelle Almeida De Sousa (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Márcia Regina De Oliveira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nilton Cesar Pereira Moreira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nilton Faustino Filho (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nilton Wilson Salomão (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Noel Carlos Figueira Martello (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Horn (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Humberto Rafael Lima Solere Pizziali (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Renato Da Costa Pellizzari (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Da Cruz Carlos (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Robson De Souza Xavier (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosa Maria Marques De Oliveira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandra Maria Borges De Freitas (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sérgio Luiz Lopes Dos Santos (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Tania Mercês Bacellar De Oliveira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Valdeir Da Conceição Zimbrão (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Valéria De Souza Diniz (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vantoil Medeiros Martins (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vilson Roberto Fontes De Oliveira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wagner Marinho Tavares (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Walace Ribeiro Nascimento (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wesley Teixeira Da Silva (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Everaldo Costa (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Clemente Sebastião De Almeida Campos (DEMOCRATA, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alberto Barbosa Dos Santos (DEMOCRATA, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Page (DEMOCRATA, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Lucia Borges Lana (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andreia Campos Camelo (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de André Luiz Oliveira De Albuquerque (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aristeu Adrien De Albuquerque (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carla Conceição De Castro Petris Vasconcelos (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carla Errichelli Celento Campos (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Daniel Da Conceição Oliveira (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edna Mara Da Silva Machado (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edson Arantes Peixoto Cornelio (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eduardo Barbosa Rodrigues (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elcio Souza Ferreira (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fernanda Dos Santos Fernandes (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gilberto De Oliveira Sepulveda (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gilson Araujo Dias Pereira Gonçalves (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Izabel Dos Santos Cardoso (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jacy Vieira Filho (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jessica Da Silva Hiath (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jonas De Lima (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jose Rozendo Pacheco Da Silva Palmeira (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Judas Tadeu Da Silva (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Klein Cunha Duarte (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leandro De Souza Silva (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luis Claudio Ribeiro De Araujo (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marco Aurelio Rodrigues (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Da Conceição Monteiro (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mauricio Barbosa Reis (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mário Malaquias Campos (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nelson Merrwelvelson Ferreira Souza (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo José Dos Santos De Oliveira (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Roberto Saturnino (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Robson Da Silva Fortuna (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodolfo Augusto De Barros (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Romulo Fernandes Barreto (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Roselene Martins Carneiro Leite (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosemere Ramos Figueiredo (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rubem Rodriguez Gonzalez (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thiago De Oliveira Santos Lopes (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thiago Nunes Dos Santos Souza (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Zenilda De Fatima Da Silva (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson Velozo Mendes (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Angela Cardoso Simoes (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Angelina Resende Gonzaga Machado (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Celso Ferreira Costa (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bruno Lopes De Almeida (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Alexandre Dos Santos Ferrao (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Henrique Barbosa Ribeiro (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Humberto Ferreira Porto (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Claudio Alves De Oliveira (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Claudio Gomes De Moraes (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Daiana Gonçalves Da Silva (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Daril Nogueira Barbosa (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Disraeli Ulrich De Oliveira (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eliane Da Silva Marcelino (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elione Herculano De Castro (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Evandro Lourenco De Lima (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fernanda Caroline Da Silva (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Flor America Huangal Bazan (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Franciana Machado Domingos (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco Antonio De Araujo (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gerson Rodrigues Da Silva (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gilberto Francisco Da Silva (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Glauciane Martins Camilo (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Guilherme Jose Pereira Do Nascimento (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ivan De Oliveira Baptista (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Josimar Da Silva Mesquita (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Karen Cristina Silva Bernardo Inacio (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leila Serpa Dos Santos (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Gomes De Souza (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Silva Dos Santos (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marli Martins (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Moises Vieira Damasio (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Noemi Dias De Oliveira (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Patricia Da Silva Tavares (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Berto Da Silva (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Marcelo Ribeiro Da Silva (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Roberto Marques Filho (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Maticera Araujo Chamorro (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo David Simplicio (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ronaldo Cerqueira Lemos (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Saul Gualberto Moura (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sebastiao Jose De Andrade (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Silas De Mendoça Chaves (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Talita Gomes Dos Santos (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Temistocles Petronilho Ramos (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thiago Bruno Inacio Da Silva (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Walmyr Francisco De Mendonça Filho (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Walter Benjamin Das Neves (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Juliete Pantoja Alves (UP, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Meiby Jeanine Martins Lima (UP, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Michelly Xavier De Souza (UP, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vinicius Benevides Dos Santos Conceição (UP, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gabriela Gonçalves Cardoso (UP, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Roberto Vasconcellos (UP, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elza Maria Cavalcante De Medeiros (UP, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de George Thompson Dos Santos Sabara Augusto (UP, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Esteban Roberto Ferreira Crescente (UP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Pétala Cormann De Jesus E Silva (UP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bianca Rubim Vieira (UP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Durcilene Adrieli Silva Santos (UP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eunice Dos Santos Sulzer Brasil (UP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Henderson Ramon Pereira Laurentino (UP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Monique Gonçalo Zuma (UP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ruan Guilherme Nunes Vidal (UP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edilma Monte Da Silva (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Francisco Portinho (PL, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriana Xavier Da Matta (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alana De Oliveira Passos De Souza (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Altineu Cortes Freitas Coutinho (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Da Luz Furtado (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Breno Vieira Faria (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Roberto Jordy Coelho De Mattos (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Christine Nogueira Dos Reis Tonietto (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Danielle Dytz Da Cunha (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Davi De Oliveira Rodrigues (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Diogo Gonçalves Balieiro Diniz (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Douglas De Souza Gomes (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ednardo Davila Mello Raposo (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eduardo Pazuello (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fernando Principe Martins (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Filippe Medeiros Poubel (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Flávio Campos Ferreira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gilcinei Augusto Pinto Machado (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gutemberg De Paula Fonseca (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Hazenclever Lopes Cançado (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Igor Porto Gavazzi (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jean Carlos Dias Barbosa Lopes (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Lucio Ferreira Miranda (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Carlos Soares Gurgel (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Julia De Castro Placido (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Keila Gomes Prado (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luiz Eduardo Souza Dos Santos Rego (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Manoela Ramos De Souza Gomes Alves (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcello Capparelli Moniz De Aragão Dáquer (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marinara Pereira Da Costa (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Matheus Quintal De Sousa Ribeiro (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mauro Márcio De Paula Rosa (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maurílio Ribeiro Schiavo (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Patrícia De Paiva Aguiar (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Prisciane Mendes De Araújo Silveira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rafael Silva Ferreira De Lima (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rebeca Teixeira Ramagem Rodrigues (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Renato De Araujo Correa (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Magalhães Garcia Gutierrez (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Roberto Luiz Rodrigues De Oliveira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo Cézar Furtado De Almeida (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandra Braz Dos Santos (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Soraya Alencar Dos Santos (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sóstenes Silva Cavalcante (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vanessa Da Silva Oliveira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wladimir Barros Assed Matheus De Oliveira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alan Lopes Santana (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandra Moreira Carvalho Gomes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Gomes Knoploch Dos Santos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Isquierdo Moreira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aline De Fátima Muniz Da Silva (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Amanda Brandão Paes Armelau (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson Luis De Moraes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bruno Alves Boaretto (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bruno Bastos Lessa (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bruno Porto De Almeida (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Augusto Nogueira Pinto (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Renan Leal De Mattos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Clemilda Gomes Batista (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Daniel Marques Frederico (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Deodalto Jose Ferreira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elias Cabral Da Ponte Montes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elisa Fatima De Novaes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elitusalem Gomes De Freitas (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Felipe Ferreira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fernanda Anchieta Louback (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco Alves Machado Neto (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Frederico Augusto Cruz Pacheco (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gabriela Maria Gonçalves Azevedo (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Giselle Louise Monteiro De Oliveira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Graziele Macedo De Oliveira Moraes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Guilherme Jandre Delaroli (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Helen Vita De Carvalho (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jair De Siqueira Bittencourt Junior (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jeremias De Jesus Santos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Luiz Da Silva Junior (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Miguel Felippe Poyares Bethlem (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Kauan De Abreu Medeiros Poubel (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lais Jordy Santanna Soares De Mattos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lisandra Carlos De Souza (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo De Menezes Nogueira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Felipe Alexandre (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Ferreira Ribeiro (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcio Alexandro De Souza (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Márcio Gualberto Dos Santos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nelson Ruas Dos Santos Filho (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nilson Alves Filho (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Octavio Sampaio Da Costa De Paula (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Osmar Donizete Cândido (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paula Caroline Quintanilha De Azevedo Mendes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Maurício Rabello Bastos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Pedro Ricardo De Carvalho Oliveira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ralph Gracie (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Regina Célia De Souza Bento Sequeira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Renata Manfrenate Pinheiro Da Costa (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo De Souza Costa (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo Da Costa Medeiros (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo Farias Rodrigues (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo Jardim Ascoly (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rogerio Martins Pires De Amorim (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rousencre Dos Santos Pedrosa (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sergio Renato Ferreira Miranda (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Valdecir Dias Da Silva (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Viviane De Amorim Pereira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Adeildo Alves Vilela (PODE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alex De Sousa Oliveira (PODE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alexandre Campos Lustosa (PODE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -242,6 +1014,41 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **889** �
 - Candidatura de Tânia Silva Caetano (PODE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Valdinei Renato Marins (PODE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wagner De Almeida Santos (PODE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Jacques Soares Busnello (MISSÃO, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rafael Barros Silva Da Luz (MISSÃO, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Helio Kinast Cruz Secco (MISSÃO, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Moisés Sarmento De Queiroz (MISSÃO, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ramon Oliveira Batista (MISSÃO, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Eduardo De Moraes Cyrilo (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Dhébora Da Silva Domingos De Paiva (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Esmeralda Borges Da Silva Paz (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Euber Lucas Ribeiro (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabricia Guterman Lerner (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Igor Neves Oliveira (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Renato Alonso Do Carmo (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jussara Alves Barbosa (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leandro Issa De Vasconcellos (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonardo Zappelli De Oliveira Balbi (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luana De Britto Vidal (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcio Da Silveira Labre (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Paulo Soares Pinho De Oliveira (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Do Socorro Costa Quirino (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Michel De Souza Kouri (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Miriam Rodrigues Carvalho (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Moacyr Pereira Saldanha Junior (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Neimar Brandão Hevia Do Valle (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandra De Lima Alves (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thayenne Perrier Mendonça Neves (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thiago Fernandes Oliveira Villaça (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Victor Emilião Antoun (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Victor Hugo Machado Menezes (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Yago Medeiros Vargas Peçanha (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de André Felipe Brandão Santos (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Davi Jose Souza De Andrade (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jaqueline Vieira De Oliveira (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Pedro Badaró Pontes (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rui Mota Saldanha (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Silvia Maria De Souza Quezado (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Cyro Garcia (PSTU, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Perciliana Rodrigues (PSTU, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Paulça Andreiaalmeida Falcao (PSTU, Senador) tem versão retificadora — mantendo só a mais nova.
@@ -251,6 +1058,145 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **889** �
 - Candidatura de Elias José Alfredo (PSTU, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Jad Tristinny De Moraes Avila (PSTU, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Lorran Luiz De Oliveira Neves (PSTU, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eugenio Max Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Samuel Lima Malafaia (PL, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo De Souza Leite (PL, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aline Santos De Mattos (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Allan Vianna Feijo (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Amaro Siqueira Reis Junior (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson De Lima Cruz (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonia Pereira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Brener Jose Antunes (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Celio Viana (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Daniel Da Silva Barbosa (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Durval Freitas Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edson De Oliveira Pimenta (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Emerson Cruz De Oliveira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabio Da Paz Pereira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabio Dias De Freitas (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fatima Denise Campelo De Lima (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fernanda Cristina Ferreira De Mesquita (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gleice Kelly De Paula Pinto (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gleice Schott De Souza (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jamil Jorge Da Costa Lima (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jardanes Francisco De Barros Oliveira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Luiz Lino Dos Santos De Oliveira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Murilo Rodrigues De Moraes (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jose Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Marcelo Vidal Ferreira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luis Carlos Da Silva Vieira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luiz Antonio Mathias (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Dias Borges (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Amelia De Souza Pinto Rocha (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Da Penha Merencio Lira Inocencio (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Neidely Farias Faustino Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Ferreira Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Roberto Tavares Lobato (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Sergio Nunes Lomenha (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Ceda Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rubenigna Nascimento De Souza (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sergio Alexandre Ribeiro Ferreira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Shirlei De Oliveira Engel (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vilmar Batista Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de William Lopes Dos Santos (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Willyam Guimarães (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adilson Caetano Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alan Rodrigo Gonçalves Guimarães (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alex Da Costa Batista (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexander Mattoso Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Amanda Carolina Diniz Almeida (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Carolina Dos Santos Faria Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ananias Bernardo Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andre Luiz Balbina Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andre Luiz Ferreira De Souza (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andreza Tavares Brasil (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Alves Barreto Junior (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Carlos Caldas Da Cunha (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ashiley Magalhães Xavier Perussio (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Benedito Rogerio Chagas Do Nascimento (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Jose Ferreira Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Leandro Da Costa Goulart (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Claudia Dalle Ore Azevedo (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Conceição De Maria Correa Pereira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cristiane Goulart De Souza (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Dalmo Jorge De Oliveira Ferreira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Diogo Inacio Nascimento Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elna Alice De Almeida De Araujo (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Evelyn Mileyde Da Silva Bomfim (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabiano Rozembrach Farias (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabio Chaves Vasconcellos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Felipe Sommer Dos Santos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Genilson Malta Guimarães (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Guilherme Menezes Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gutembergue Lucio De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Isis Viana Schramm Lisboa (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jacqueline Poeys Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jair Antonio Ramos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jairo Meira De Paula (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Janaina Trintin Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jociara Benedicto (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jocilene Da Silveira Vicente Ribeiro Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Joel Machado Dos Santos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Luiz Almeida De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jose Onix Gomes Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Luiz Villar (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jovino De Paula Vieira Neto (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Joyce Andressa Moreira Gonçalves (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Baptista Pereira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Carlos Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leandro Da Silva Gomes (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leandro Dos Santos De Paula (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leandro Souza Dos Santos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonardo Da Vinci Xavier Gimenez (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonardo Jose Do Patrocinio Aragão Dos Santos Lau (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luis Claudio Chaves Pereira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Fernandes Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcio Aurelio Rodrigues Cardoso (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Rodrigues Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Do Carmo Gomes Da Conceicao De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marilza Siqueira Tavares (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Nilton Lopes Da Silva Filho (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Olegario De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Orlando Caixão Silvino (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Fernando Gonçalves Ferreira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Roberto Da Silva Sobral (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rafael Simplicio (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rafaela Cerruti Drummond (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Raphael Barbosa Gonçalves (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Regina Lucia Da Silva Fonte (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Renato Fernandes De Paulo (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosangela Da Costa Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosangela Pires Leal (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandro Barbosa Gomes (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sergio De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sheila Conceição De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luciano Oliveira Mattos De Souza (PRTB, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Murilo Romero De Oliveira (PRTB, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Da Silva Fernandes (PRTB, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriana Amaral Santos (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Claudio Luiz Pinto (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Danilo Peres Dos Santos (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorgenete Pereira Hulpan (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luciano Ramos Pinto (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Antonio De Oliveira E Silva (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Michele De Carvalho Ferreira Da Silva (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Monica Barcellos De Oliveira (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rejane Jorge Da Silva (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Gomes Aranha (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Wildson Guilherme Da Costa Santos (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Ramos Coelho (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alina Francisca De Jesus Vieira (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gilson Beserra Da Silva (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Heloise Cristine Cordeiro Da Silva Santos (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jocimar Vaz Freire (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Josias Da Silva Moreira (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Josilda Santos De Oliveira (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcell Pereira Nunes Castro De Souza (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marilene Dos Santos (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mariza Fernandes Da Silva (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Patricia Cristina Da Silva Azedo (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rafael Brasiel Rinaldi (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Tatiana Cardozo De Lima Dos Santos (PDT, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Anthony William Garotinho Matheus De Oliveira (REPUBLICANOS, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Marcelo Bezerra Crivella (REPUBLICANOS, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wagner Dos Santos Carneiro (REPUBLICANOS, Senador) tem versão retificadora — mantendo só a mais nova.
@@ -374,111 +1320,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **889** �
 - Candidatura de Walcysneu Carlos Macedo De Oliveira (REPUBLICANOS, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wallace Da Silva Correa (REPUBLICANOS, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de William Olinda Sodre (REPUBLICANOS, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Douglas Ruas Dos Santos (PL, Governador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Carlos Francisco Portinho (PL, Senador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Adriana Xavier Da Matta (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Alana De Oliveira Passos De Souza (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Altineu Cortes Freitas Coutinho (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Antonio Da Luz Furtado (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Breno Vieira Faria (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Carlos Roberto Jordy Coelho De Mattos (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Christine Nogueira Dos Reis Tonietto (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Danielle Dytz Da Cunha (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Davi De Oliveira Rodrigues (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Diogo Gonçalves Balieiro Diniz (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Douglas De Souza Gomes (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ednardo Davila Mello Raposo (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Eduardo Pazuello (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Fernando Principe Martins (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Filippe Medeiros Poubel (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Flávio Campos Ferreira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Gilcinei Augusto Pinto Machado (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Gutemberg De Paula Fonseca (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Hazenclever Lopes Cançado (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Igor Porto Gavazzi (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jean Carlos Dias Barbosa Lopes (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jorge Lucio Ferreira Miranda (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de João Carlos Soares Gurgel (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Julia De Castro Placido (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Keila Gomes Prado (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Luiz Eduardo Souza Dos Santos Rego (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Manoela Ramos De Souza Gomes Alves (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcello Capparelli Moniz De Aragão Dáquer (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marinara Pereira Da Costa (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Matheus Quintal De Sousa Ribeiro (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Mauro Márcio De Paula Rosa (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maurílio Ribeiro Schiavo (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Patrícia De Paiva Aguiar (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Prisciane Mendes De Araújo Silveira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rafael Silva Ferreira De Lima (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rebeca Teixeira Ramagem Rodrigues (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Renato De Araujo Correa (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ricardo Magalhães Garcia Gutierrez (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Roberto Luiz Rodrigues De Oliveira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rodrigo Cézar Furtado De Almeida (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Sandra Braz Dos Santos (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Soraya Alencar Dos Santos (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Sóstenes Silva Cavalcante (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Vanessa Da Silva Oliveira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Wladimir Barros Assed Matheus De Oliveira (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Alan Lopes Santana (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Alexandra Moreira Carvalho Gomes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Alexandre Gomes Knoploch Dos Santos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Alexandre Isquierdo Moreira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Aline De Fátima Muniz Da Silva (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Amanda Brandão Paes Armelau (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Anderson Luis De Moraes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Bruno Alves Boaretto (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Bruno Bastos Lessa (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Bruno Porto De Almeida (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Carlos Augusto Nogueira Pinto (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Carlos Renan Leal De Mattos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Clemilda Gomes Batista (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Daniel Marques Frederico (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Deodalto Jose Ferreira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Elias Cabral Da Ponte Montes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Elisa Fatima De Novaes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Elitusalem Gomes De Freitas (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Felipe Ferreira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Fernanda Anchieta Louback (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Francisco Alves Machado Neto (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Frederico Augusto Cruz Pacheco (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Gabriela Maria Gonçalves Azevedo (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Giselle Louise Monteiro De Oliveira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Graziele Macedo De Oliveira Moraes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Guilherme Jandre Delaroli (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Helen Vita De Carvalho (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jair De Siqueira Bittencourt Junior (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jeremias De Jesus Santos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jorge Luiz Da Silva Junior (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jorge Miguel Felippe Poyares Bethlem (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Kauan De Abreu Medeiros Poubel (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Lais Jordy Santanna Soares De Mattos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Lisandra Carlos De Souza (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcelo De Menezes Nogueira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcelo Felipe Alexandre (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcelo Ferreira Ribeiro (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcio Alexandro De Souza (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Márcio Gualberto Dos Santos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Nelson Ruas Dos Santos Filho (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Nilson Alves Filho (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Octavio Sampaio Da Costa De Paula (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Osmar Donizete Cândido (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Paula Caroline Quintanilha De Azevedo Mendes (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Paulo Maurício Rabello Bastos (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Pedro Ricardo De Carvalho Oliveira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ralph Gracie (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Regina Célia De Souza Bento Sequeira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Renata Manfrenate Pinheiro Da Costa (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ricardo De Souza Costa (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rodrigo Da Costa Medeiros (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rodrigo Farias Rodrigues (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rodrigo Jardim Ascoly (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rogerio Martins Pires De Amorim (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rousencre Dos Santos Pedrosa (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Sergio Renato Ferreira Miranda (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Valdecir Dias Da Silva (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Viviane De Amorim Pereira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alex Ofredi Melim (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alexsandro Pedrosa De Oliveira (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Aline Lossano Barreto Barbosa (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
@@ -550,1155 +1391,305 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **889** �
 - Candidatura de Viviane Diana França Cariello (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wanderley Batista Dos Santos (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wellington Da Silva Baptista (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Aline Santos De Mattos (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Allan Vianna Feijo (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Amaro Siqueira Reis Junior (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Anderson De Lima Cruz (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Antonia Pereira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Brener Jose Antunes (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Celio Viana (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Daniel Da Silva Barbosa (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Durval Freitas Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Edson De Oliveira Pimenta (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Emerson Cruz De Oliveira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Fabio Da Paz Pereira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Savio Luiz Ferreira Neves Filho (PSDB/CIDADANIA, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriana Kutwak (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adriano Arlei Serfiotis (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Mauro Prado (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aluízio Dos Santos Júnior (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson Da Silva Campos (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderson Reis De Almeida (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antônia Fontenelle De Brito (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antônio Cesar De Jesus Dórea (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Caio Santos Vianna (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cristiano José Rodrigues De Souza (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Danilo Cassane Soares (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edmundo Alves De Souza Neto (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eliane De Castro Moraes (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francimara Aparecida Damasceno (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Izabela Santos Dutra (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jackson Barbosa Calderini (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jessica Michelle Araújo De Abreu (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jonatas Ribeiro Castelo Branco (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Flávio Ferreira Saldanha (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Diniz De Almeida Porto (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Ferreira Neto (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João Victor Carvalhaes Fraga (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Juliana Da Câmara Torres Benício (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lilian Ligia De Medeiros De Freitas (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luciano Vieira Mendes (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Andre Cid Heraclito Do Porto Queiroz (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcia Cristina Da Silva Valentim (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Bezerra Ribeiro Soares (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Teixeira Braz (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Cristina Mel De Almeida Costa (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Das Graças Tuze De Matos (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria De Fátima Pereira De Oliveira (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mauro Bernardo Dos Santos (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maurício Braga Mesquita (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Moises Freitas De Oliveira Gomes (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Munique Helena Busson (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Murillo Gouvêa Rodrigues (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Mário Reis Esteves (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Martins David (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rogério Teixeira Junior (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosane Felix Do Nascimento Malta (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Severino Ananias Dias Filho (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sérgio Pina (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Talita Galhardo Martins Borges Sousa (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Tayane Gandra Orrico (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Tiago Da Silva Souza (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adelson Da Silva Calvete (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adilson Medeiros Paixão Júnior (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Albino Oliveira Batista (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alessandra Gomes De Oliveira (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alessandro Pereira Pinho (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Borges Inocêncio Correia (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexsandre Claudio Costa De Mendonca (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aline Pires Mattos (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andre Da Silva Martins (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Soares França Filho (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Augusto Pinheiro De Carvalho Neto (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bruna De Mello Ferreira Lemos (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Alberto Lavrado Cupello (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carlos Vieira Mendes (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Charles Rodrigues De Carvalho Scimmarella (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Christianne Duarte Garoiu (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cinthia Lúcia Farah Castilho Martins (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de César Almeida Assumpção (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Daniel Glória Da Silva (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Daniela Campos Leal Arrenque (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Daniele Da Silva Pereira (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Diego José Alba Taboada (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Diogo Vinicius Ventura De Oliveira (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edilmar De Oliveira Silva (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Eliezer Santos Rocha (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Etienne Mendonça Ciminelli (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabio Camara Da Silva (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fabio Soares De Oliveira (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Felipe Nunes Fonseca De Brito (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Filipe Bezerra Ribeiro Soares (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco José Falcão Júnior (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco José Ferreira De Mello (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fátima Cristina Dias Sanches (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Glauber Joaquim De Matos Correa (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Glauber Pessoa Bastos (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gustavo Luiz De Oliveira Souza (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Helem Cristina Lopes Dos Santos Moreira (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ivan Do Valle Lima (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Edilson Tavares Dos Santos (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jorge Henrique Pires Paes (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jussie Severo De Carvalho (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Júlio Cesar Santos De Menezes (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Laura Cristina Ribeiro Proença (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonardo Braga Vieira Mendes (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luiz Antonio Martins (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Manoel Francisco De Freitas Sales (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelino Antonio D'Almeida (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo De Souza Lessa (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcelo Luiz Baronto Sampaio (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcia Valéria De Carvalho Paiva (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Agueda Moura De Souza (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Da Penha Rodrigues (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Helena Da Silva Cabo (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Regina Cinelli Damasceno (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marilena Pinto Rodrigues (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Márcio Garcia Liñares (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Renato Gideao Silva Nascimento (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Correa De Barros (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rodrigo Dinamite Marins De Oliviera (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandra Lucia Aleixo Da Silva (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandro Abdala Naja (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sandro Alves De Oliveira (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sergio Benfica Júnior (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sonia Feliz Da Cruz De Jesus Melo (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Thiago Moura Salim (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Urbano De Freitas Neto (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vandete Maria Soares Vieira (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vandro Lopes Gonçalves (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vanessa Gabriela Gouvea (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vera Lucia Rodrigues Medeiros (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vera Ramos Da Silva (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Andre Da Silveira Braz Da Cruz Martins (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Fabio Dias Freitas (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Fatima Denise Campelo De Lima (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Fernanda Cristina Ferreira De Mesquita (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Gleice Kelly De Paula Pinto (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Gleice Schott De Souza (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jamil Jorge Da Costa Lima (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jardanes Francisco De Barros Oliveira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jorge Luiz Lino Dos Santos De Oliveira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jorge Murilo Rodrigues De Moraes (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jose Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de João Marcelo Vidal Ferreira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Luis Carlos Da Silva Vieira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Luiz Antonio Mathias (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcos Dias Borges (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maria Amelia De Souza Pinto Rocha (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maria Da Penha Merencio Lira Inocencio (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Neidely Farias Faustino Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Paulo Ferreira Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Paulo Roberto Tavares Lobato (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Paulo Sergio Nunes Lomenha (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ricardo Ceda Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rubenigna Nascimento De Souza (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Sergio Alexandre Ribeiro Ferreira (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Shirlei De Oliveira Engel (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Vilmar Batista Da Silva (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de William Lopes Dos Santos (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Willyam Guimarães (MOBILIZA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Adilson Caetano Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Alan Rodrigo Gonçalves Guimarães (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Alex Da Costa Batista (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Alexander Mattoso Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Amanda Carolina Dinis Almeida (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ana Carolina Dos Santos Faria Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ananias Bernardo Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Andre Luiz Balbina Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Andre Luiz Ferreira De Souza (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Andreza Tavares Brasil (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Antonio Alves Barreto Junior (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Antonio Carlos Caldas Da Cunha (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ashiley Magalhães Xavier Perussio (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Benedito Rogerio Chagas Do Nascimento (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Carlos Jose Ferreira Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Carlos Leandro Da Costa Goulart (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Claudia Dalle Ore Azevedo (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Conceição De Maria Correa Pereira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Cristiane Goulart De Souza (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Dalmo Jorge De Oliveira Ferreira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Diogo Inacio Nascimento Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Elna Alice De Almeida De Araujo (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Eugenio Max Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Evelyn Mileyde Da Silva Bomfim (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Fabiano Rozembrach Farias (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Fabio Chaves Vasconcellos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Felipe Sommer Dos Santos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Genilson Malta Guimarães (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Guilherme Menezes Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Gutembergue Lucio De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Isis Viana Schramm Lisboa (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jacqueline Poeys Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jair Antonio Ramos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jairo Meira De Paula (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Janaina Trintin Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jociara Benedicto (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jocilene Da Silveira Vicente Ribeiro Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Joel Machado Dos Santos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jorge Luiz Almeida De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jose Onix Gomes Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de José Luiz Villar (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jovino De Paula Vieira Neto (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Joyce Andressa Moreira Gonçalves (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de João Baptista Pereira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de João Carlos Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Leandro Da Silva Gomes (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Leandro Dos Santos De Paula (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Leandro Souza Dos Santos (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Leonardo Da Vinci Xavier Gimenez (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Leonardo Jose Do Patrocinio Aragão Dos Santos Lau (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Luis Claudio Chaves Pereira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcelo Fernandes Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcio Aurelio Rodrigues Cardoso (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcos Rodrigues Da Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maria Do Carmo Gomes Da Conceicao De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marilza Siqueira Tavares (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Nilton Lopes Da Silva Filho (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Olegario De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Orlando Caixão Silvino (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Paulo Fernando Gonçalves Ferreira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Paulo Roberto Da Silva Sobral (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rafael Simplicio (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rafaela Cerruti Drummond (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Raphael Barbosa Gonçalves (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Regina Lucia Da Silva Fonte (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Renato Fernandes De Paulo (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rosangela Da Costa Silva (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Rosangela Pires Leal (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Sandro Barbosa Gomes (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Sergio De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Sheila Conceição De Oliveira (MOBILIZA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Número 70023 repetido em AVANTE/Deputado Estadual para: Paulo Roberto Ferreira De Souza, Paulo Roberto Ferreira De Souza — conferir manualmente.
-- Número 70022 repetido em AVANTE/Deputado Estadual para: Pedro Ferreira Da Silva Neto, Pedro Ferreira Da Silva Neto — conferir manualmente.
-- Número 70007 repetido em AVANTE/Deputado Estadual para: Quézia Costa Da Conceição De Souza, Quézia Costa Da Conceição De Souza — conferir manualmente.
-- Número 70101 repetido em AVANTE/Deputado Estadual para: Rachel De Oliveira Nasser, Rachel De Oliveira Nasser — conferir manualmente.
-- Número 70700 repetido em AVANTE/Deputado Estadual para: Rogerio Gomes Martins, Rogerio Gomes Martins — conferir manualmente.
-- Número 70444 repetido em AVANTE/Deputado Estadual para: Rogerio Pinheiro Dos Santos, Rogerio Pinheiro Dos Santos — conferir manualmente.
-- Número 70358 repetido em AVANTE/Deputado Estadual para: Rosemary Pedreira Nunes, Rosemary Pedreira Nunes — conferir manualmente.
-- Número 70030 repetido em AVANTE/Deputado Estadual para: Samuel Gonzaga De Souza, Samuel Gonzaga De Souza — conferir manualmente.
-- Número 70221 repetido em AVANTE/Deputado Estadual para: Sandra De Jesus Salomão, Sandra De Jesus Salomão — conferir manualmente.
-- Número 70078 repetido em AVANTE/Deputado Estadual para: Sandro Ribeiro Leal, Sandro Ribeiro Leal — conferir manualmente.
-- Número 70431 repetido em AVANTE/Deputado Estadual para: Silvio Luiz Fernandes De Castro, Silvio Luiz Fernandes De Castro — conferir manualmente.
-- Número 70009 repetido em AVANTE/Deputado Estadual para: Veronice Alves Martins, Veronice Alves Martins — conferir manualmente.
-- Número 70770 repetido em AVANTE/Deputado Estadual para: Viviany Da Silva Pereira, Viviany Da Silva Pereira — conferir manualmente.
-- Número 70606 repetido em AVANTE/Deputado Estadual para: Wallace De Souza Bernardes, Wallace De Souza Bernardes — conferir manualmente.
-- Número 222 repetido em PL/Senador para: Carlos Francisco Portinho, Carlos Francisco Portinho — conferir manualmente.
+- Candidatura de Bárbara Teixeira Da Silva De Oliveira (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luciana Ferreira Lopes (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcus Vinicius Marchesano Ferreira (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francimara Aparecida Damasceno Ramalho Trigueiro Mendes (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Izabela Santos De Oliveira Dutra (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Adilson De Medeiros Paixão Júnior (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alexandre Inocêncio Borges Correia (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Charles Rodrigues De Carvalho Sciammarella (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Daniela Campos Leal Arregue (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rosilene Etiene Mendonça (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Número 2288 repetido em PL/Deputado Federal para: Lais Jordy Santanna Soares De Mattos, Carlos Roberto Jordy Coelho De Mattos — conferir manualmente.
+- Número 350 repetido em DEMOCRATA/Senador para: Luiz André De Moura Monteiro, Cleber Ribeiro Afonso — conferir manualmente.
+- Número 22202 repetido em PL/Deputado Estadual para: Maria José Bernardo Marques, Fernanda Anchieta Louback — conferir manualmente.
+- Número 27327 repetido em DC/Deputado Estadual para: Karina De Souza Silva, Edilma Monte Da Silva — conferir manualmente.
+- Número 55180 repetido em PSD/Deputado Estadual para: Cristiane Da Conceicao Castelo Kaizer, Cristiane Da Conceicao Castelo Kaiser — conferir manualmente.
+- Número 55025 repetido em PSD/Deputado Estadual para: Fabiana Maria Rodrigues Brito, Fabiana Maria Rodrigues Gomes — conferir manualmente.
+- Número 55577 repetido em PSD/Deputado Estadual para: Gloria Elizabeth Colombino De Maldonado, Gloria Elizabeth Colombino De Maldonado Martinez Frutos — conferir manualmente.
+- Número 40303 repetido em PSB/Deputado Estadual para: José Everaldo Da Costa, José Everaldo Costa — conferir manualmente.
+- Número 3515 repetido em DEMOCRATA/Deputado Federal para: Andréa Dos Santos Mello, Luis Claudio Ribeiro Araujo — conferir manualmente.
+- Número 3572 repetido em DEMOCRATA/Deputado Federal para: Luciano Freitas Manhães, Jacy Vieira Filho — conferir manualmente.
+- Número 3525 repetido em DEMOCRATA/Deputado Federal para: Neuzeli Dos Santos Ramos, Paulo Roberto Sartunino — conferir manualmente.
+- Número 3598 repetido em DEMOCRATA/Deputado Federal para: Roberta Cristina Nascimento, Edna Mara Da Silva Machado — conferir manualmente.
+- Número 35092 repetido em DEMOCRATA/Deputado Estadual para: Andrea Valerie Horne, Marli Martins — conferir manualmente.
+- Número 35015 repetido em DEMOCRATA/Deputado Estadual para: Franciani Machado Pedro, Marlucia Da Silva Nunes Cruz — conferir manualmente.
+- Número 3504 repetido em DEMOCRATA/Deputado Federal para: Ana Lucia Borges Lana, Ana Lucia Lana — conferir manualmente.
+- Número 3592 repetido em DEMOCRATA/Deputado Federal para: Gilson Araujo Dias Pereira Gonçalves, Gilson Araujo Dias Pereira — conferir manualmente.
+- Número 3509 repetido em DEMOCRATA/Deputado Federal para: Roselene Martins Carneiro Leite, Rosilene Martins Carneiro Leite — conferir manualmente.
+- Número 35656 repetido em DEMOCRATA/Deputado Estadual para: Francisco Antonio De Araujo, Francisco Antonio Araujo — conferir manualmente.
 - Número 14 repetido em MISSÃO/Governador para: João Jacques Soares Busnello, Rafael Barros Silva Da Luz — conferir manualmente.
 - Número 144 repetido em MISSÃO/Senador para: Helio Kinast Cruz Secco, Moisés Sarmento De Queiroz, Ramon Oliveira Batista — conferir manualmente.
-- Número 36433 repetido em AGIR/Deputado Estadual para: Alex Ofredi Melim, Alex Ofredi Melim, Alex Ofredi Melim — conferir manualmente.
-- Número 36644 repetido em AGIR/Deputado Estadual para: Alexsandro Pedrosa De Oliveira, Alexsandro Pedrosa De Oliveira, Alexsandro Pedrosa De Oliveira — conferir manualmente.
-- Número 36012 repetido em AGIR/Deputado Estadual para: Aline Lossano Barreto Barbosa, Aline Lossano Barreto Barbosa, Aline Lossano Barreto Barbosa — conferir manualmente.
-- Número 36033 repetido em AGIR/Deputado Estadual para: Ary Cezar Milesi Junior, Ary Cezar Milesi Junior, Ary Cezar Milesi Junior — conferir manualmente.
-- Número 36021 repetido em AGIR/Deputado Estadual para: Bárbara Teixeira Da Silva Oliveira, Bárbara Teixeira Da Silva De Oliveira, Bárbara Teixeira Da Silva De Oliveira — conferir manualmente.
-- Número 36288 repetido em AGIR/Deputado Estadual para: Carlos Alberto Valentim Costa, Carlos Alberto Valentim Costa, Carlos Alberto Valentim Costa — conferir manualmente.
-- Número 36151 repetido em AGIR/Deputado Estadual para: Carlos Henrique De Souza, Carlos Henrique De Souza, Carlos Henrique De Souza — conferir manualmente.
-- Número 36987 repetido em AGIR/Deputado Estadual para: Catiucia Moraes Barcelos, Catiucia Moraes Barcelos, Catiucia Moraes Barcelos — conferir manualmente.
-- Número 36633 repetido em AGIR/Deputado Estadual para: Christiane Batista Neri, Christiane Batista Neri, Christiane Batista Neri — conferir manualmente.
-- Número 36014 repetido em AGIR/Deputado Estadual para: Claudio Roberto Martins Bezerra, Claudio Roberto Martins Bezerra, Claudio Roberto Martins Bezerra — conferir manualmente.
-- Número 36222 repetido em AGIR/Deputado Estadual para: Daniel Silva De Lima, Daniel Silva De Lima, Daniel Silva De Lima — conferir manualmente.
-- Número 36361 repetido em AGIR/Deputado Estadual para: Davi Jeronimo Da Silva, Davi Jeronimo Da Silva, Davi Jeronimo Da Silva — conferir manualmente.
-- Número 36011 repetido em AGIR/Deputado Estadual para: David Lourenço De Barros, David Lourenço De Barros, David Lourenço De Barros — conferir manualmente.
-- Número 36005 repetido em AGIR/Deputado Estadual para: Débora Ribeiro Caetano, Débora Ribeiro Caetano, Débora Ribeiro Caetano — conferir manualmente.
-- Número 36300 repetido em AGIR/Deputado Estadual para: Eder Costa Fernandes, Eder Costa Fernandes, Eder Costa Fernandes — conferir manualmente.
-- Número 36100 repetido em AGIR/Deputado Estadual para: Edson Salteiro Cavalcanti De Sá, Edson Salteiro Cavalcanti De Sá, Edson Salteiro Cavalcanti De Sá — conferir manualmente.
-- Número 36900 repetido em AGIR/Deputado Estadual para: Eduardo Candido Gomes, Eduardo Candido Gomes, Eduardo Candido Gomes — conferir manualmente.
-- Número 36200 repetido em AGIR/Deputado Estadual para: Eliel Dos Santos Cezario, Eliel Dos Santos Cezario, Eliel Dos Santos Cezario — conferir manualmente.
-- Número 36989 repetido em AGIR/Deputado Estadual para: Elisangela De Abreu Azevedo, Elisangela De Abreu Azevedo, Elisangela De Abreu Azevedo — conferir manualmente.
-- Número 36123 repetido em AGIR/Deputado Estadual para: Fabiani Medeiros Silva, Fabiani Medeiros Silva, Fabiani Medeiros Silva — conferir manualmente.
-- Número 36026 repetido em AGIR/Deputado Estadual para: Fabio De Jesus Couto, Fabio De Jesus Couto, Fabio De Jesus Couto — conferir manualmente.
-- Número 36223 repetido em AGIR/Deputado Estadual para: Fabio Marotte Corrêa, Fabio Marotte Corrêa, Fabio Marotte Corrêa — conferir manualmente.
-- Número 36363 repetido em AGIR/Deputado Estadual para: Francisco Nacelio Da Silva, Francisco Nacelio Da Silva, Francisco Nacelio Da Silva — conferir manualmente.
-- Número 36007 repetido em AGIR/Deputado Estadual para: Francisco Rogerio Leandro Ramos, Francisco Rogerio Leandro Ramos, Francisco Rogerio Leandro Ramos — conferir manualmente.
-- Número 36777 repetido em AGIR/Deputado Estadual para: Gabriel Mielgo Dos Santos Gonçalves, Gabriel Mielgo Dos Santos Gonçalves, Gabriel Mielgo Dos Santos Gonçalves — conferir manualmente.
-- Número 36006 repetido em AGIR/Deputado Estadual para: Gilmar Henrique Alves De Oliveira, Gilmar Henrique Alves De Oliveira, Gilmar Henrique Alves De Oliveira — conferir manualmente.
-- Número 36085 repetido em AGIR/Deputado Estadual para: Glaucia Barbosa Candido Alves Slana, Glaucia Barbosa Candido Alves Slana, Glaucia Barbosa Candido Alves Slana — conferir manualmente.
-- Número 36963 repetido em AGIR/Deputado Estadual para: Glaura Corrêa De Almeida Larangeira, Glaura Corrêa De Almeida Larangeira, Glaura Corrêa De Almeida Larangeira — conferir manualmente.
-- Número 36611 repetido em AGIR/Deputado Estadual para: Gustavo Moreira Vilela, Gustavo Moreira Vilela, Gustavo Moreira Vilela — conferir manualmente.
-- Número 36678 repetido em AGIR/Deputado Estadual para: Humberto Luiz Costa Siqueira, Humberto Luiz Costa Siqueira, Humberto Luiz Costa Siqueira — conferir manualmente.
-- Número 36111 repetido em AGIR/Deputado Estadual para: Igor Vasconcelos Da Silva, Igor Vasconcelos Da Silva, Igor Vasconcelos Da Silva — conferir manualmente.
-- Número 36999 repetido em AGIR/Deputado Estadual para: Ildo Bruno Costa Alves, Ildo Bruno Costa Alves, Ildo Bruno Costa Alves — conferir manualmente.
-- Número 36367 repetido em AGIR/Deputado Estadual para: Jaqueline Pereira Costa, Jaqueline Pereira Costa, Jaqueline Pereira Costa — conferir manualmente.
-- Número 36615 repetido em AGIR/Deputado Estadual para: Jorge Luiz De Freitas Dias, Jorge Luiz De Freitas Dias, Jorge Luiz De Freitas Dias — conferir manualmente.
-- Número 36600 repetido em AGIR/Deputado Estadual para: José Carlos Dias Santos, José Carlos Dias Santos, José Carlos Dias Santos — conferir manualmente.
-- Número 36707 repetido em AGIR/Deputado Estadual para: Juciane Gomes, Juciane Gomes, Juciane Gomes — conferir manualmente.
-- Número 36036 repetido em AGIR/Deputado Estadual para: Júlio Cesar Alves Da Rocha, Júlio Cesar Alves Da Rocha, Júlio Cesar Alves Da Rocha — conferir manualmente.
-- Número 36456 repetido em AGIR/Deputado Estadual para: Keila Maria Prudencio Dos Santos, Keila Maria Prudencio Dos Santos, Keila Maria Prudencio Dos Santos — conferir manualmente.
-- Número 36003 repetido em AGIR/Deputado Estadual para: Larissa Da Silva Machado Dos Santos, Larissa Da Silva Machado Dos Santos, Larissa Da Silva Machado Dos Santos — conferir manualmente.
-- Número 36522 repetido em AGIR/Deputado Estadual para: Lenine Rodrigues Lemos, Lenine Rodrigues Lemos, Lenine Rodrigues Lemos — conferir manualmente.
-- Número 36555 repetido em AGIR/Deputado Estadual para: Lenise Durão Uchoa, Lenise Durão Uchoa, Lenise Durão Uchoa — conferir manualmente.
-- Número 36000 repetido em AGIR/Deputado Estadual para: Luciana Ferreira Lopes Polati, Luciana Ferreira Lopes, Luciana Ferreira Lopes — conferir manualmente.
-- Número 36027 repetido em AGIR/Deputado Estadual para: Luiz Gustavo Eleres Gomes, Luiz Gustavo Eleres Gomes, Luiz Gustavo Eleres Gomes — conferir manualmente.
-- Número 36476 repetido em AGIR/Deputado Estadual para: Luiz Gustavo Gomes Martins, Luiz Gustavo Gomes Martins, Luiz Gustavo Gomes Martins — conferir manualmente.
-- Número 36002 repetido em AGIR/Deputado Estadual para: Luzia Cassia Lopes De Figueiredo, Luzia Cassia Lopes De Figueiredo, Luzia Cassia Lopes De Figueiredo — conferir manualmente.
-- Número 36233 repetido em AGIR/Deputado Estadual para: Manoel Valdivino Ferreira Filho, Manoel Valdivino Ferreira Filho, Manoel Valdivino Ferreira Filho — conferir manualmente.
-- Número 36366 repetido em AGIR/Deputado Estadual para: Marcel Dos Santos Passagem, Marcel Dos Santos Passagem, Marcel Dos Santos Passagem — conferir manualmente.
-- Número 36444 repetido em AGIR/Deputado Estadual para: Marcelo Verdam Lessa, Marcelo Verdam Lessa, Marcelo Verdam Lessa — conferir manualmente.
-- Número 36022 repetido em AGIR/Deputado Estadual para: Marcus Vinicius Marchesano, Marcus Vinicius Marchesano Ferreira, Marcus Vinicius Marchesano Ferreira — conferir manualmente.
-- Número 36321 repetido em AGIR/Deputado Estadual para: Marcus Vinicius Oliveira De Souza, Marcus Vinicius Oliveira De Souza, Marcus Vinicius Oliveira De Souza — conferir manualmente.
-- Número 36127 repetido em AGIR/Deputado Estadual para: Marli Alves Da Silva, Marli Alves Da Silva, Marli Alves Da Silva — conferir manualmente.
-- Número 36622 repetido em AGIR/Deputado Estadual para: Marlon Silva Da Rocha, Marlon Silva Da Rocha, Marlon Silva Da Rocha — conferir manualmente.
-- Número 36439 repetido em AGIR/Deputado Estadual para: Mesac Eflain Da Silva Espindola, Mesac Eflain Da Silva Espindola, Mesac Eflain Da Silva Espindola — conferir manualmente.
-- Número 36888 repetido em AGIR/Deputado Estadual para: Márcio Freitas, Márcio Freitas, Márcio Freitas — conferir manualmente.
-- Número 36122 repetido em AGIR/Deputado Estadual para: Patrícia Francisco De Almeida, Patrícia Francisco De Almeida, Patrícia Francisco De Almeida — conferir manualmente.
-- Número 36193 repetido em AGIR/Deputado Estadual para: Paulo Sergio Gomes Filho, Paulo Sergio Gomes Filho, Paulo Sergio Gomes Filho — conferir manualmente.
-- Número 36700 repetido em AGIR/Deputado Estadual para: Reginaldo Silva Araujo Cury, Reginaldo Silva Araujo Cury, Reginaldo Silva Araujo Cury — conferir manualmente.
-- Número 36333 repetido em AGIR/Deputado Estadual para: Renato José Pereira, Renato José Pereira, Renato José Pereira — conferir manualmente.
-- Número 36061 repetido em AGIR/Deputado Estadual para: Ricardo De Carvalho Silva, Ricardo De Carvalho Silva, Ricardo De Carvalho Silva — conferir manualmente.
-- Número 36789 repetido em AGIR/Deputado Estadual para: Roberto Souza Da Silva, Roberto Souza Da Silva, Roberto Souza Da Silva — conferir manualmente.
-- Número 36190 repetido em AGIR/Deputado Estadual para: Rogeria Das Flores Quaresma, Rogeria Das Flores Quaresma, Rogeria Das Flores Quaresma — conferir manualmente.
-- Número 36008 repetido em AGIR/Deputado Estadual para: Ruchester Marreiros Barbosa, Ruchester Marreiros Barbosa, Ruchester Marreiros Barbosa — conferir manualmente.
-- Número 36077 repetido em AGIR/Deputado Estadual para: Sergio Henrique Dias Farias, Sergio Henrique Dias Farias, Sergio Henrique Dias Farias — conferir manualmente.
-- Número 36001 repetido em AGIR/Deputado Estadual para: Tales Vitor Custódio Costa, Tales Vitor Custódio Costa, Tales Vitor Custódio Costa — conferir manualmente.
-- Número 36108 repetido em AGIR/Deputado Estadual para: Thaís Tostes Bereta De Oliveira, Thaís Tostes Bereta De Oliveira, Thaís Tostes Bereta De Oliveira — conferir manualmente.
-- Número 36110 repetido em AGIR/Deputado Estadual para: Valeria Matos Joventino Souza Silva, Valeria Matos Joventino Souza Silva, Valeria Matos Joventino Souza Silva — conferir manualmente.
-- Número 36565 repetido em AGIR/Deputado Estadual para: Victor Lucas Aguiar, Victor Lucas Aguiar, Victor Lucas Aguiar — conferir manualmente.
-- Número 36500 repetido em AGIR/Deputado Estadual para: Victor Setaro De Alcantara Paixão, Victor Setaro De Alcantara Paixão, Victor Setaro De Alcantara Paixão — conferir manualmente.
-- Número 36677 repetido em AGIR/Deputado Estadual para: Viviane Diana França Cariello, Viviane Diana França Cariello, Viviane Diana França Cariello — conferir manualmente.
-- Número 36016 repetido em AGIR/Deputado Estadual para: Wanderley Batista Dos Santos, Wanderley Batista Dos Santos, Wanderley Batista Dos Santos — conferir manualmente.
-- Número 36800 repetido em AGIR/Deputado Estadual para: Wellington Da Silva Baptista, Wellington Da Silva Baptista, Wellington Da Silva Baptista — conferir manualmente.
-- Número 4588 repetido em None/Deputado Federal para: Adriana Kutwak, Adriana Kutwak, Adriana Kutwak, Adriana Kutwak, Adriana Kutwak — conferir manualmente.
-- Número 4570 repetido em None/Deputado Federal para: Adriano Arlei Serfiotis, Adriano Arlei Serfiotis, Adriano Arlei Serfiotis, Adriano Arlei Serfiotis, Adriano Arlei Serfiotis — conferir manualmente.
-- Número 4566 repetido em None/Deputado Federal para: Alexandre Mauro Prado, Alexandre Mauro Prado, Alexandre Mauro Prado, Alexandre Mauro Prado, Alexandre Mauro Prado — conferir manualmente.
-- Número 4504 repetido em None/Deputado Federal para: Aluízio Dos Santos Júnior, Aluízio Dos Santos Júnior, Aluízio Dos Santos Júnior, Aluízio Dos Santos Júnior, Aluízio Dos Santos Júnior — conferir manualmente.
-- Número 4599 repetido em None/Deputado Federal para: Anderson Da Silva Campos, Anderson Da Silva Campos, Anderson Da Silva Campos, Anderson Da Silva Campos, Anderson Da Silva Campos — conferir manualmente.
-- Número 4505 repetido em None/Deputado Federal para: Anderson Reis De Almeida, Anderson Reis De Almeida, Anderson Reis De Almeida, Anderson Reis De Almeida, Anderson Reis De Almeida — conferir manualmente.
-- Número 4540 repetido em None/Deputado Federal para: Antônia Fontenelle De Brito, Antônia Fontenelle De Brito, Antônia Fontenelle De Brito, Antônia Fontenelle De Brito, Antônia Fontenelle De Brito — conferir manualmente.
-- Número 4535 repetido em None/Deputado Federal para: Antônio Cesar De Jesus Dórea, Antônio Cesar De Jesus Dórea, Antônio Cesar De Jesus Dórea, Antônio Cesar De Jesus Dórea, Antônio Cesar De Jesus Dórea — conferir manualmente.
-- Número 4512 repetido em None/Deputado Federal para: Caio Santos Vianna, Caio Santos Vianna, Caio Santos Vianna, Caio Santos Vianna, Caio Santos Vianna — conferir manualmente.
-- Número 4551 repetido em None/Deputado Federal para: Cristiano José Rodrigues De Souza, Cristiano José Rodrigues De Souza, Cristiano José Rodrigues De Souza, Cristiano José Rodrigues De Souza, Cristiano José Rodrigues De Souza — conferir manualmente.
-- Número 4578 repetido em None/Deputado Federal para: Danilo Cassane Soares, Danilo Cassane Soares, Danilo Cassane Soares, Danilo Cassane Soares, Danilo Cassane Soares — conferir manualmente.
-- Número 4510 repetido em None/Deputado Federal para: Edmundo Alves De Souza Neto, Edmundo Alves De Souza Neto, Edmundo Alves De Souza Neto, Edmundo Alves De Souza Neto, Edmundo Alves De Souza Neto — conferir manualmente.
-- Número 4515 repetido em None/Deputado Federal para: Eliane De Castro Moraes, Eliane De Castro Moraes, Eliane De Castro Moraes, Eliane De Castro Moraes, Eliane De Castro Moraes — conferir manualmente.
-- Número 4557 repetido em None/Deputado Federal para: Francimara Aparecida Damasceno, Francimara Aparecida Damasceno, Francimara Aparecida Damasceno Ramalho Trigueiro Mendes, Francimara Aparecida Damasceno Ramalho Trigueiro Mendes, Francimara Aparecida Damasceno Ramalho Trigueiro Mendes — conferir manualmente.
-- Número 2344 repetido em None/Deputado Federal para: Izabela Santos Dutra, Izabela Santos Dutra, Izabela Santos De Oliveira Dutra, Izabela Santos De Oliveira Dutra, Izabela Santos De Oliveira Dutra — conferir manualmente.
-- Número 2323 repetido em None/Deputado Federal para: Jackson Barbosa Calderini, Jackson Barbosa Calderini, Jackson Barbosa Calderini, Jackson Barbosa Calderini, Jackson Barbosa Calderini — conferir manualmente.
-- Número 4533 repetido em None/Deputado Federal para: Jessica Michelle Araújo De Abreu, Jessica Michelle Araújo De Abreu, Jessica Michelle Araújo De Abreu, Jessica Michelle Araújo De Abreu, Jessica Michelle Araújo De Abreu — conferir manualmente.
-- Número 4520 repetido em None/Deputado Federal para: Jonatas Ribeiro Castelo Branco, Jonatas Ribeiro Castelo Branco, Jonatas Ribeiro Castelo Branco, Jonatas Ribeiro Castelo Branco, Jonatas Ribeiro Castelo Branco — conferir manualmente.
-- Número 4502 repetido em None/Deputado Federal para: José Flávio Ferreira Saldanha, José Flávio Ferreira Saldanha, José Flávio Ferreira Saldanha, José Flávio Ferreira Saldanha, José Flávio Ferreira Saldanha — conferir manualmente.
-- Número 4580 repetido em None/Deputado Federal para: João Diniz De Almeida Porto, João Diniz De Almeida Porto, João Diniz De Almeida Porto, João Diniz De Almeida Porto, João Diniz De Almeida Porto — conferir manualmente.
-- Número 4522 repetido em None/Deputado Federal para: João Ferreira Neto, João Ferreira Neto, João Ferreira Neto, João Ferreira Neto, João Ferreira Neto — conferir manualmente.
-- Número 4575 repetido em None/Deputado Federal para: João Victor Carvalhaes Fraga, João Victor Carvalhaes Fraga, João Victor Carvalhaes Fraga, João Victor Carvalhaes Fraga, João Victor Carvalhaes Fraga — conferir manualmente.
-- Número 4550 repetido em None/Deputado Federal para: Juliana Da Câmara Torres Benício, Juliana Da Câmara Torres Benício, Juliana Da Câmara Torres Benício, Juliana Da Câmara Torres Benício, Juliana Da Câmara Torres Benício — conferir manualmente.
-- Número 4569 repetido em None/Deputado Federal para: Lilian Ligia De Medeiros De Freitas, Lilian Ligia De Medeiros De Freitas, Lilian Ligia De Medeiros De Freitas, Lilian Ligia De Medeiros De Freitas, Lilian Ligia De Medeiros De Freitas — conferir manualmente.
-- Número 4545 repetido em None/Deputado Federal para: Luciano Vieira Mendes, Luciano Vieira Mendes, Luciano Vieira Mendes, Luciano Vieira Mendes, Luciano Vieira Mendes — conferir manualmente.
-- Número 4500 repetido em None/Deputado Federal para: Marcelo Andre Cid Heraclito Do Porto Queiroz, Marcelo Andre Cid Heraclito Do Porto Queiroz, Marcelo Andre Cid Heraclito Do Porto Queiroz, Marcelo Andre Cid Heraclito Do Porto Queiroz, Marcelo Andre Cid Heraclito Do Porto Queiroz — conferir manualmente.
-- Número 4577 repetido em None/Deputado Federal para: Marcia Cristina Da Silva Valentim, Marcia Cristina Da Silva Valentim, Marcia Cristina Da Silva Valentim, Marcia Cristina Da Silva Valentim, Marcia Cristina Da Silva Valentim — conferir manualmente.
-- Número 4567 repetido em None/Deputado Federal para: Marcos Bezerra Ribeiro Soares, Marcos Bezerra Ribeiro Soares, Marcos Bezerra Ribeiro Soares, Marcos Bezerra Ribeiro Soares, Marcos Bezerra Ribeiro Soares — conferir manualmente.
-- Número 4555 repetido em None/Deputado Federal para: Marcos Teixeira Braz, Marcos Teixeira Braz, Marcos Teixeira Braz, Marcos Teixeira Braz, Marcos Teixeira Braz — conferir manualmente.
-- Número 4553 repetido em None/Deputado Federal para: Maria Cristina Mel De Almeida Costa, Maria Cristina Mel De Almeida Costa, Maria Cristina Mel De Almeida Costa, Maria Cristina Mel De Almeida Costa, Maria Cristina Mel De Almeida Costa — conferir manualmente.
-- Número 4521 repetido em None/Deputado Federal para: Maria Das Graças Tuze De Matos, Maria Das Graças Tuze De Matos, Maria Das Graças Tuze De Matos, Maria Das Graças Tuze De Matos, Maria Das Graças Tuze De Matos — conferir manualmente.
-- Número 4589 repetido em None/Deputado Federal para: Maria De Fátima Pereira De Oliveira, Maria De Fátima Pereira De Oliveira, Maria De Fátima Pereira De Oliveira, Maria De Fátima Pereira De Oliveira, Maria De Fátima Pereira De Oliveira — conferir manualmente.
-- Número 4590 repetido em None/Deputado Federal para: Mauro Bernardo Dos Santos, Mauro Bernardo Dos Santos, Mauro Bernardo Dos Santos, Mauro Bernardo Dos Santos, Mauro Bernardo Dos Santos — conferir manualmente.
-- Número 4546 repetido em None/Deputado Federal para: Maurício Braga Mesquita, Maurício Braga Mesquita, Maurício Braga Mesquita, Maurício Braga Mesquita, Maurício Braga Mesquita — conferir manualmente.
-- Número 4532 repetido em None/Deputado Federal para: Moises Freitas De Oliveira Gomes, Moises Freitas De Oliveira Gomes, Moises Freitas De Oliveira Gomes, Moises Freitas De Oliveira Gomes, Moises Freitas De Oliveira Gomes — conferir manualmente.
-- Número 4556 repetido em None/Deputado Federal para: Munique Helena Busson, Munique Helena Busson, Munique Helena Busson, Munique Helena Busson, Munique Helena Busson — conferir manualmente.
-- Número 4552 repetido em None/Deputado Federal para: Murillo Gouvêa Rodrigues, Murillo Gouvêa Rodrigues, Murillo Gouvêa Rodrigues, Murillo Gouvêa Rodrigues, Murillo Gouvêa Rodrigues — conferir manualmente.
-- Número 4543 repetido em None/Deputado Federal para: Mário Reis Esteves, Mário Reis Esteves, Mário Reis Esteves, Mário Reis Esteves, Mário Reis Esteves — conferir manualmente.
-- Número 4544 repetido em None/Deputado Federal para: Ricardo Martins David, Ricardo Martins David, Ricardo Martins David, Ricardo Martins David, Ricardo Martins David — conferir manualmente.
-- Número 4554 repetido em None/Deputado Federal para: Rogério Teixeira Junior, Rogério Teixeira Junior, Rogério Teixeira Junior, Rogério Teixeira Junior, Rogério Teixeira Junior — conferir manualmente.
-- Número 4565 repetido em None/Deputado Federal para: Rosane Felix Do Nascimento Malta, Rosane Felix Do Nascimento Malta, Rosane Felix Do Nascimento Malta, Rosane Felix Do Nascimento Malta — conferir manualmente.
-- Número 4525 repetido em None/Deputado Federal para: Severino Ananias Dias Filho, Severino Ananias Dias Filho, Severino Ananias Dias Filho, Severino Ananias Dias Filho, Severino Ananias Dias Filho — conferir manualmente.
-- Número 4523 repetido em None/Deputado Federal para: Sérgio Pina, Sérgio Pina, Sérgio Pina, Sérgio Pina, Sérgio Pina — conferir manualmente.
-- Número 4501 repetido em None/Deputado Federal para: Talita Galhardo Martins Borges Sousa, Talita Galhardo Martins Borges Sousa, Talita Galhardo Martins Borges Sousa, Talita Galhardo Martins Borges Sousa, Talita Galhardo Martins Borges Sousa — conferir manualmente.
-- Número 4511 repetido em None/Deputado Federal para: Tayane Gandra Orrico, Tayane Gandra Orrico, Tayane Gandra Orrico, Tayane Gandra Orrico, Tayane Gandra Orrico — conferir manualmente.
-- Número 4585 repetido em None/Deputado Federal para: Tiago Da Silva Souza, Tiago Da Silva Souza, Tiago Da Silva Souza, Tiago Da Silva Souza, Tiago Da Silva Souza — conferir manualmente.
-- Número 23018 repetido em None/Deputado Estadual para: Adelson Da Silva Calvete, Adelson Da Silva Calvete, Adelson Da Silva Calvete, Adelson Da Silva Calvete, Adelson Da Silva Calvete — conferir manualmente.
-- Número 45000 repetido em None/Deputado Estadual para: Adilson Medeiros Paixão Júnior, Adilson Medeiros Paixão Júnior, Adilson De Medeiros Paixão Júnior, Adilson De Medeiros Paixão Júnior, Adilson De Medeiros Paixão Júnior — conferir manualmente.
-- Número 45605 repetido em None/Deputado Estadual para: Albino Oliveira Batista, Albino Oliveira Batista, Albino Oliveira Batista, Albino Oliveira Batista, Albino Oliveira Batista — conferir manualmente.
-- Número 45077 repetido em None/Deputado Estadual para: Alessandra Gomes De Oliveira, Alessandra Gomes De Oliveira, Alessandra Gomes De Oliveira, Alessandra Gomes De Oliveira, Alessandra Gomes De Oliveira — conferir manualmente.
-- Número 45222 repetido em None/Deputado Estadual para: Alessandro Pereira Pinho, Alessandro Pereira Pinho, Alessandro Pereira Pinho, Alessandro Pereira Pinho, Alessandro Pereira Pinho — conferir manualmente.
-- Número 45453 repetido em None/Deputado Estadual para: Alexandre Borges Inocêncio Correia, Alexandre Borges Inocêncio Correia, Alexandre Inocêncio Borges Correia, Alexandre Inocêncio Borges Correia, Alexandre Inocêncio Borges Correia — conferir manualmente.
-- Número 45193 repetido em None/Deputado Estadual para: Alexsandre Claudio Costa De Mendonca, Alexsandre Claudio Costa De Mendonca, Alexsandre Claudio Costa De Mendonca, Alexsandre Claudio Costa De Mendonca, Alexsandre Claudio Costa De Mendonca — conferir manualmente.
-- Número 45059 repetido em None/Deputado Estadual para: Aline Pires Mattos, Aline Pires Mattos, Aline Pires Mattos, Aline Pires Mattos, Aline Pires Mattos — conferir manualmente.
-- Número 23222 repetido em None/Deputado Estadual para: Andre Da Silva Martins, Andre Da Silveira Braz Da Cruz Martins, Andre Da Silva Martins, Andre Da Silva Martins, Andre Da Silva Martins — conferir manualmente.
-- Número 45010 repetido em None/Deputado Estadual para: Antonio Soares França Filho, Antonio Soares França Filho, Antonio Soares França Filho, Antonio Soares França Filho, Antonio Soares França Filho — conferir manualmente.
-- Número 45233 repetido em None/Deputado Estadual para: Augusto Pinheiro De Carvalho Neto, Augusto Pinheiro De Carvalho Neto, Augusto Pinheiro De Carvalho Neto, Augusto Pinheiro De Carvalho Neto, Augusto Pinheiro De Carvalho Neto — conferir manualmente.
-- Número 45965 repetido em None/Deputado Estadual para: Bruna De Mello Ferreira Lemos, Bruna De Mello Ferreira Lemos, Bruna De Mello Ferreira Lemos, Bruna De Mello Ferreira Lemos, Bruna De Mello Ferreira Lemos — conferir manualmente.
-- Número 45888 repetido em None/Deputado Estadual para: Carlos Alberto Lavrado Cupello, Carlos Alberto Lavrado Cupello, Carlos Alberto Lavrado Cupello, Carlos Alberto Lavrado Cupello, Carlos Alberto Lavrado Cupello — conferir manualmente.
-- Número 45016 repetido em None/Deputado Estadual para: Carlos Vieira Mendes, Carlos Vieira Mendes, Carlos Vieira Mendes, Carlos Vieira Mendes, Carlos Vieira Mendes — conferir manualmente.
-- Número 45450 repetido em None/Deputado Estadual para: Charles Rodrigues De Carvalho Scimmarella, Charles Rodrigues De Carvalho Scimmarella, Charles Rodrigues De Carvalho Sciammarella, Charles Rodrigues De Carvalho Sciammarella, Charles Rodrigues De Carvalho Sciammarella — conferir manualmente.
-- Número 45004 repetido em None/Deputado Estadual para: Christianne Duarte Garoiu, Christianne Duarte Garoiu, Christianne Duarte Garoiu, Christianne Duarte Garoiu, Christianne Duarte Garoiu — conferir manualmente.
-- Número 45202 repetido em None/Deputado Estadual para: Cinthia Lúcia Farah Castilho Martins, Cinthia Lúcia Farah Castilho Martins, Cinthia Lúcia Farah Castilho Martins, Cinthia Lúcia Farah Castilho Martins, Cinthia Lúcia Farah Castilho Martins — conferir manualmente.
-- Número 45111 repetido em None/Deputado Estadual para: César Almeida Assumpção, César Almeida Assumpção, César Almeida Assumpção, César Almeida Assumpção, César Almeida Assumpção — conferir manualmente.
-- Número 23765 repetido em None/Deputado Estadual para: Daniel Glória Da Silva, Daniel Glória Da Silva, Daniel Glória Da Silva, Daniel Glória Da Silva, Daniel Glória Da Silva — conferir manualmente.
-- Número 45333 repetido em None/Deputado Estadual para: Daniela Campos Leal Arrenque, Daniela Campos Leal Arrenque, Daniela Campos Leal Arregue, Daniela Campos Leal Arregue, Daniela Campos Leal Arregue — conferir manualmente.
-- Número 45110 repetido em None/Deputado Estadual para: Daniele Da Silva Pereira, Daniele Da Silva Pereira, Daniele Da Silva Pereira, Daniele Da Silva Pereira, Daniele Da Silva Pereira — conferir manualmente.
-- Número 45455 repetido em None/Deputado Estadual para: Diego José Alba Taboada, Diego José Alba Taboada, Diego José Alba Taboada, Diego José Alba Taboada, Diego José Alba Taboada — conferir manualmente.
-- Número 45554 repetido em None/Deputado Estadual para: Diogo Vinicius Ventura De Oliveira, Diogo Vinicius Ventura De Oliveira, Diogo Vinicius Ventura De Oliveira, Diogo Vinicius Ventura De Oliveira, Diogo Vinicius Ventura De Oliveira — conferir manualmente.
-- Número 45001 repetido em None/Deputado Estadual para: Edilmar De Oliveira Silva, Edilmar De Oliveira Silva, Edilmar De Oliveira Silva, Edilmar De Oliveira Silva, Edilmar De Oliveira Silva — conferir manualmente.
-- Número 45145 repetido em None/Deputado Estadual para: Eliezer Santos Rocha, Eliezer Santos Rocha, Eliezer Santos Rocha, Eliezer Santos Rocha, Eliezer Santos Rocha — conferir manualmente.
-- Número 45800 repetido em None/Deputado Estadual para: Etienne Mendonça Ciminelli, Etienne Mendonça Ciminelli, Rosilene Etiene Mendonça, Rosilene Etiene Mendonça, Rosilene Etiene Mendonça — conferir manualmente.
-- Número 45522 repetido em None/Deputado Estadual para: Fabio Camara Da Silva, Fabio Camara Da Silva, Fabio Camara Da Silva, Fabio Camara Da Silva, Fabio Camara Da Silva — conferir manualmente.
-- Número 45399 repetido em None/Deputado Estadual para: Fabio Soares De Oliveira, Fabio Soares De Oliveira, Fabio Soares De Oliveira, Fabio Soares De Oliveira, Fabio Soares De Oliveira — conferir manualmente.
-- Número 45444 repetido em None/Deputado Estadual para: Felipe Nunes Fonseca De Brito, Felipe Nunes Fonseca De Brito, Felipe Nunes Fonseca De Brito, Felipe Nunes Fonseca De Brito, Felipe Nunes Fonseca De Brito — conferir manualmente.
-- Número 45678 repetido em None/Deputado Estadual para: Filipe Bezerra Ribeiro Soares, Filipe Bezerra Ribeiro Soares, Filipe Bezerra Ribeiro Soares, Filipe Bezerra Ribeiro Soares, Filipe Bezerra Ribeiro Soares — conferir manualmente.
-- Número 45321 repetido em None/Deputado Estadual para: Francisco José Falcão Júnior, Francisco José Falcão Júnior, Francisco José Falcão Júnior, Francisco José Falcão Júnior, Francisco José Falcão Júnior — conferir manualmente.
-- Número 45132 repetido em None/Deputado Estadual para: Francisco José Ferreira De Mello, Francisco José Ferreira De Mello, Francisco José Ferreira De Mello, Francisco José Ferreira De Mello, Francisco José Ferreira De Mello — conferir manualmente.
-- Número 45633 repetido em None/Deputado Estadual para: Fátima Cristina Dias Sanches, Fátima Cristina Dias Sanches, Fátima Cristina Dias Sanches, Fátima Cristina Dias Sanches, Fátima Cristina Dias Sanches — conferir manualmente.
-- Número 45079 repetido em None/Deputado Estadual para: Glauber Joaquim De Matos Correa, Glauber Joaquim De Matos Correa, Glauber Joaquim De Matos Correa, Glauber Joaquim De Matos Correa, Glauber Joaquim De Matos Correa — conferir manualmente.
-- Número 45100 repetido em None/Deputado Estadual para: Glauber Pessoa Bastos, Glauber Pessoa Bastos, Glauber Pessoa Bastos, Glauber Pessoa Bastos, Glauber Pessoa Bastos — conferir manualmente.
-- Número 23454 repetido em None/Deputado Estadual para: Gustavo Luiz De Oliveira Souza, Gustavo Luiz De Oliveira Souza, Gustavo Luiz De Oliveira Souza, Gustavo Luiz De Oliveira Souza, Gustavo Luiz De Oliveira Souza — conferir manualmente.
-- Número 45789 repetido em None/Deputado Estadual para: Helem Cristina Lopes Dos Santos Moreira, Helem Cristina Lopes Dos Santos Moreira, Helem Cristina Lopes Dos Santos Moreira, Helem Cristina Lopes Dos Santos Moreira, Helem Cristina Lopes Dos Santos Moreira — conferir manualmente.
-- Número 45009 repetido em None/Deputado Estadual para: Ivan Do Valle Lima, Ivan Do Valle Lima, Ivan Do Valle Lima, Ivan Do Valle Lima, Ivan Do Valle Lima — conferir manualmente.
-- Número 45006 repetido em None/Deputado Estadual para: Jorge Edilson Tavares Dos Santos, Jorge Edilson Tavares Dos Santos, Jorge Edilson Tavares Dos Santos, Jorge Edilson Tavares Dos Santos, Jorge Edilson Tavares Dos Santos — conferir manualmente.
-- Número 45999 repetido em None/Deputado Estadual para: Jorge Henrique Pires Paes, Jorge Henrique Pires Paes, Jorge Henrique Pires Paes, Jorge Henrique Pires Paes, Jorge Henrique Pires Paes — conferir manualmente.
-- Número 45101 repetido em None/Deputado Estadual para: Jussie Severo De Carvalho, Jussie Severo De Carvalho, Jussie Severo De Carvalho, Jussie Severo De Carvalho, Jussie Severo De Carvalho — conferir manualmente.
-- Número 45023 repetido em None/Deputado Estadual para: Júlio Cesar Santos De Menezes, Júlio Cesar Santos De Menezes, Júlio Cesar Santos De Menezes, Júlio Cesar Santos De Menezes, Júlio Cesar Santos De Menezes — conferir manualmente.
-- Número 45876 repetido em None/Deputado Estadual para: Laura Cristina Ribeiro Proença, Laura Cristina Ribeiro Proença, Laura Cristina Ribeiro Proença, Laura Cristina Ribeiro Proença, Laura Cristina Ribeiro Proença — conferir manualmente.
-- Número 45456 repetido em None/Deputado Estadual para: Leonardo Braga Vieira Mendes, Leonardo Braga Vieira Mendes, Leonardo Braga Vieira Mendes, Leonardo Braga Vieira Mendes, Leonardo Braga Vieira Mendes — conferir manualmente.
-- Número 45200 repetido em None/Deputado Estadual para: Luiz Antonio Martins, Luiz Antonio Martins, Luiz Antonio Martins, Luiz Antonio Martins, Luiz Antonio Martins — conferir manualmente.
-- Número 45013 repetido em None/Deputado Estadual para: Manoel Francisco De Freitas Sales, Manoel Francisco De Freitas Sales, Manoel Francisco De Freitas Sales, Manoel Francisco De Freitas Sales, Manoel Francisco De Freitas Sales — conferir manualmente.
-- Número 45369 repetido em None/Deputado Estadual para: Marcelino Antonio D'Almeida, Marcelino Antonio D'Almeida, Marcelino Antonio D'Almeida, Marcelino Antonio D'Almeida, Marcelino Antonio D'Almeida — conferir manualmente.
-- Número 45777 repetido em None/Deputado Estadual para: Marcelo De Souza Lessa, Marcelo De Souza Lessa, Marcelo De Souza Lessa, Marcelo De Souza Lessa, Marcelo De Souza Lessa — conferir manualmente.
-- Número 45021 repetido em None/Deputado Estadual para: Marcelo Luiz Baronto Sampaio, Marcelo Luiz Baronto Sampaio, Marcelo Luiz Baronto Sampaio, Marcelo Luiz Baronto Sampaio, Marcelo Luiz Baronto Sampaio — conferir manualmente.
-- Número 45666 repetido em None/Deputado Estadual para: Marcia Valéria De Carvalho Paiva, Marcia Valéria De Carvalho Paiva, Marcia Valéria De Carvalho Paiva, Marcia Valéria De Carvalho Paiva, Marcia Valéria De Carvalho Paiva — conferir manualmente.
-- Número 23980 repetido em None/Deputado Estadual para: Maria Agueda Moura De Souza, Maria Agueda Moura De Souza, Maria Agueda Moura De Souza, Maria Agueda Moura De Souza, Maria Agueda Moura De Souza — conferir manualmente.
-- Número 45245 repetido em None/Deputado Estadual para: Maria Da Penha Rodrigues, Maria Da Penha Rodrigues, Maria Da Penha Rodrigues, Maria Da Penha Rodrigues, Maria Da Penha Rodrigues — conferir manualmente.
-- Número 45125 repetido em None/Deputado Estadual para: Maria Helena Da Silva Cabo, Maria Helena Da Silva Cabo, Maria Helena Da Silva Cabo, Maria Helena Da Silva Cabo, Maria Helena Da Silva Cabo — conferir manualmente.
-- Número 23333 repetido em None/Deputado Estadual para: Maria Regina Cinelli Damasceno, Maria Regina Cinelli Damasceno, Maria Regina Cinelli Damasceno, Maria Regina Cinelli Damasceno, Maria Regina Cinelli Damasceno — conferir manualmente.
-- Número 45345 repetido em None/Deputado Estadual para: Marilena Pinto Rodrigues, Marilena Pinto Rodrigues, Marilena Pinto Rodrigues, Marilena Pinto Rodrigues, Marilena Pinto Rodrigues — conferir manualmente.
-- Número 45555 repetido em None/Deputado Estadual para: Márcio Garcia Liñares, Márcio Garcia Liñares, Márcio Garcia Liñares, Márcio Garcia Liñares, Márcio Garcia Liñares — conferir manualmente.
-- Número 45055 repetido em None/Deputado Estadual para: Renato Gideao Silva Nascimento, Renato Gideao Silva Nascimento, Renato Gideao Silva Nascimento, Renato Gideao Silva Nascimento, Renato Gideao Silva Nascimento — conferir manualmente.
-- Número 45123 repetido em None/Deputado Estadual para: Ricardo Correa De Barros, Ricardo Correa De Barros, Ricardo Correa De Barros, Ricardo Correa De Barros, Ricardo Correa De Barros — conferir manualmente.
-- Número 45210 repetido em None/Deputado Estadual para: Rodrigo Dinamite Marins De Oliviera, Rodrigo Dinamite Marins De Oliviera, Rodrigo Dinamite Marins De Oliviera, Rodrigo Dinamite Marins De Oliviera, Rodrigo Dinamite Marins De Oliviera — conferir manualmente.
-- Número 45334 repetido em None/Deputado Estadual para: Sandra Lucia Aleixo Da Silva, Sandra Lucia Aleixo Da Silva, Sandra Lucia Aleixo Da Silva, Sandra Lucia Aleixo Da Silva, Sandra Lucia Aleixo Da Silva — conferir manualmente.
-- Número 45277 repetido em None/Deputado Estadual para: Sandro Abdala Naja, Sandro Abdala Naja, Sandro Abdala Naja, Sandro Abdala Naja, Sandro Abdala Naja — conferir manualmente.
-- Número 45121 repetido em None/Deputado Estadual para: Sandro Alves De Oliveira, Sandro Alves De Oliveira, Sandro Alves De Oliveira, Sandro Alves De Oliveira, Sandro Alves De Oliveira — conferir manualmente.
-- Número 45244 repetido em None/Deputado Estadual para: Sergio Benfica Júnior, Sergio Benfica Júnior, Sergio Benfica Júnior, Sergio Benfica Júnior, Sergio Benfica Júnior — conferir manualmente.
-- Número 45963 repetido em None/Deputado Estadual para: Sonia Feliz Da Cruz De Jesus Melo, Sonia Feliz Da Cruz De Jesus Melo, Sonia Feliz Da Cruz De Jesus Melo, Sonia Feliz Da Cruz De Jesus Melo, Sonia Feliz Da Cruz De Jesus Melo — conferir manualmente.
-- Número 45045 repetido em None/Deputado Estadual para: Thiago Moura Salim, Thiago Moura Salim, Thiago Moura Salim, Thiago Moura Salim, Thiago Moura Salim — conferir manualmente.
-- Número 45390 repetido em None/Deputado Estadual para: Urbano De Freitas Neto, Urbano De Freitas Neto, Urbano De Freitas Neto, Urbano De Freitas Neto, Urbano De Freitas Neto — conferir manualmente.
-- Número 45019 repetido em None/Deputado Estadual para: Vandete Maria Soares Vieira, Vandete Maria Soares Vieira, Vandete Maria Soares Vieira, Vandete Maria Soares Vieira, Vandete Maria Soares Vieira — conferir manualmente.
-- Número 45500 repetido em None/Deputado Estadual para: Vandro Lopes Gonçalves, Vandro Lopes Gonçalves, Vandro Lopes Gonçalves, Vandro Lopes Gonçalves, Vandro Lopes Gonçalves — conferir manualmente.
-- Número 45007 repetido em None/Deputado Estadual para: Vanessa Gabriela Gouvea, Vanessa Gabriela Gouvea, Vanessa Gabriela Gouvea, Vanessa Gabriela Gouvea, Vanessa Gabriela Gouvea — conferir manualmente.
-- Número 45618 repetido em None/Deputado Estadual para: Vera Lucia Rodrigues Medeiros, Vera Lucia Rodrigues Medeiros, Vera Lucia Rodrigues Medeiros, Vera Lucia Rodrigues Medeiros, Vera Lucia Rodrigues Medeiros — conferir manualmente.
-- Número 23444 repetido em None/Deputado Estadual para: Vera Ramos Da Silva, Vera Ramos Da Silva, Vera Ramos Da Silva, Vera Ramos Da Silva, Vera Ramos Da Silva — conferir manualmente.
-- Número 3386 repetido em MOBILIZA/Deputado Federal para: Aline Santos De Mattos, Aline Santos De Mattos — conferir manualmente.
-- Número 3301 repetido em MOBILIZA/Deputado Federal para: Allan Vianna Feijo, Allan Vianna Feijo — conferir manualmente.
-- Número 3379 repetido em MOBILIZA/Deputado Federal para: Amaro Siqueira Reis Junior, Amaro Siqueira Reis Junior — conferir manualmente.
-- Número 3353 repetido em MOBILIZA/Deputado Federal para: Anderson De Lima Cruz, Anderson De Lima Cruz — conferir manualmente.
-- Número 3377 repetido em MOBILIZA/Deputado Federal para: Antonia Pereira, Antonia Pereira — conferir manualmente.
-- Número 3323 repetido em MOBILIZA/Deputado Federal para: Brener Jose Antunes, Brener Jose Antunes — conferir manualmente.
-- Número 3310 repetido em MOBILIZA/Deputado Federal para: Celio Viana, Celio Viana — conferir manualmente.
-- Número 3397 repetido em MOBILIZA/Deputado Federal para: Daniel Da Silva Barbosa, Daniel Da Silva Barbosa — conferir manualmente.
-- Número 3305 repetido em MOBILIZA/Deputado Federal para: Durval Freitas Da Silva, Durval Freitas Da Silva — conferir manualmente.
-- Número 3399 repetido em MOBILIZA/Deputado Federal para: Edson De Oliveira Pimenta, Edson De Oliveira Pimenta — conferir manualmente.
-- Número 3355 repetido em MOBILIZA/Deputado Federal para: Emerson Cruz De Oliveira, Emerson Cruz De Oliveira — conferir manualmente.
-- Número 3373 repetido em MOBILIZA/Deputado Federal para: Fabio Da Paz Pereira, Fabio Da Paz Pereira — conferir manualmente.
-- Número 3303 repetido em MOBILIZA/Deputado Federal para: Fabio Dias Freitas, Fabio Dias De Freitas — conferir manualmente.
-- Número 3369 repetido em MOBILIZA/Deputado Federal para: Fatima Denise Campelo De Lima, Fatima Denise Campelo De Lima — conferir manualmente.
-- Número 3339 repetido em MOBILIZA/Deputado Federal para: Fernanda Cristina Ferreira De Mesquita, Fernanda Cristina Ferreira De Mesquita — conferir manualmente.
-- Número 3356 repetido em MOBILIZA/Deputado Federal para: Gleice Kelly De Paula Pinto, Gleice Kelly De Paula Pinto — conferir manualmente.
-- Número 3321 repetido em MOBILIZA/Deputado Federal para: Gleice Schott De Souza, Gleice Schott De Souza — conferir manualmente.
-- Número 3326 repetido em MOBILIZA/Deputado Federal para: Jamil Jorge Da Costa Lima, Jamil Jorge Da Costa Lima — conferir manualmente.
-- Número 3343 repetido em MOBILIZA/Deputado Federal para: Jardanes Francisco De Barros Oliveira, Jardanes Francisco De Barros Oliveira — conferir manualmente.
-- Número 3391 repetido em MOBILIZA/Deputado Federal para: Jorge Luiz Lino Dos Santos De Oliveira, Jorge Luiz Lino Dos Santos De Oliveira — conferir manualmente.
-- Número 3363 repetido em MOBILIZA/Deputado Federal para: Jorge Murilo Rodrigues De Moraes, Jorge Murilo Rodrigues De Moraes — conferir manualmente.
-- Número 3312 repetido em MOBILIZA/Deputado Federal para: Jose Da Silva, Jose Da Silva — conferir manualmente.
-- Número 3300 repetido em MOBILIZA/Deputado Federal para: João Marcelo Vidal Ferreira, João Marcelo Vidal Ferreira — conferir manualmente.
-- Número 3360 repetido em MOBILIZA/Deputado Federal para: Luis Carlos Da Silva Vieira, Luis Carlos Da Silva Vieira — conferir manualmente.
-- Número 3390 repetido em MOBILIZA/Deputado Federal para: Luiz Antonio Mathias, Luiz Antonio Mathias — conferir manualmente.
-- Número 3316 repetido em MOBILIZA/Deputado Federal para: Marcos Dias Borges, Marcos Dias Borges — conferir manualmente.
-- Número 3330 repetido em MOBILIZA/Deputado Federal para: Maria Amelia De Souza Pinto Rocha, Maria Amelia De Souza Pinto Rocha — conferir manualmente.
-- Número 3393 repetido em MOBILIZA/Deputado Federal para: Maria Da Penha Merencio Lira Inocencio, Maria Da Penha Merencio Lira Inocencio — conferir manualmente.
-- Número 3337 repetido em MOBILIZA/Deputado Federal para: Neidely Farias Faustino Da Silva, Neidely Farias Faustino Da Silva — conferir manualmente.
-- Número 3317 repetido em MOBILIZA/Deputado Federal para: Paulo Ferreira Da Silva, Paulo Ferreira Da Silva — conferir manualmente.
-- Número 3388 repetido em MOBILIZA/Deputado Federal para: Paulo Roberto Tavares Lobato, Paulo Roberto Tavares Lobato — conferir manualmente.
-- Número 3334 repetido em MOBILIZA/Deputado Federal para: Paulo Sergio Nunes Lomenha, Paulo Sergio Nunes Lomenha — conferir manualmente.
-- Número 3322 repetido em MOBILIZA/Deputado Federal para: Ricardo Ceda Da Silva, Ricardo Ceda Da Silva — conferir manualmente.
-- Número 3307 repetido em MOBILIZA/Deputado Federal para: Rubenigna Nascimento De Souza, Rubenigna Nascimento De Souza — conferir manualmente.
-- Número 3350 repetido em MOBILIZA/Deputado Federal para: Sergio Alexandre Ribeiro Ferreira, Sergio Alexandre Ribeiro Ferreira — conferir manualmente.
-- Número 3333 repetido em MOBILIZA/Deputado Federal para: Shirlei De Oliveira Engel, Shirlei De Oliveira Engel — conferir manualmente.
-- Número 3313 repetido em MOBILIZA/Deputado Federal para: Vilmar Batista Da Silva, Vilmar Batista Da Silva — conferir manualmente.
-- Número 3345 repetido em MOBILIZA/Deputado Federal para: William Lopes Dos Santos, William Lopes Dos Santos — conferir manualmente.
-- Número 3306 repetido em MOBILIZA/Deputado Federal para: Willyam Guimarães, Willyam Guimarães — conferir manualmente.
-- Número 33345 repetido em MOBILIZA/Deputado Estadual para: Adilson Caetano Da Silva, Adilson Caetano Da Silva — conferir manualmente.
-- Número 33789 repetido em MOBILIZA/Deputado Estadual para: Alan Rodrigo Gonçalves Guimarães, Alan Rodrigo Gonçalves Guimarães — conferir manualmente.
-- Número 33324 repetido em MOBILIZA/Deputado Estadual para: Alex Da Costa Batista, Alex Da Costa Batista — conferir manualmente.
-- Número 33333 repetido em MOBILIZA/Deputado Estadual para: Alexander Mattoso Da Silva, Alexander Mattoso Da Silva — conferir manualmente.
-- Número 33018 repetido em MOBILIZA/Deputado Estadual para: Amanda Carolina Dinis Almeida, Amanda Carolina Diniz Almeida — conferir manualmente.
-- Número 33000 repetido em MOBILIZA/Deputado Estadual para: Ana Carolina Dos Santos Faria Da Silva, Ana Carolina Dos Santos Faria Da Silva — conferir manualmente.
-- Número 33633 repetido em MOBILIZA/Deputado Estadual para: Ananias Bernardo Da Silva, Ananias Bernardo Da Silva — conferir manualmente.
-- Número 33036 repetido em MOBILIZA/Deputado Estadual para: Andre Luiz Balbina Da Silva, Andre Luiz Balbina Da Silva — conferir manualmente.
-- Número 33027 repetido em MOBILIZA/Deputado Estadual para: Andre Luiz Ferreira De Souza, Andre Luiz Ferreira De Souza — conferir manualmente.
-- Número 33040 repetido em MOBILIZA/Deputado Estadual para: Andreza Tavares Brasil, Andreza Tavares Brasil — conferir manualmente.
-- Número 33192 repetido em MOBILIZA/Deputado Estadual para: Antonio Alves Barreto Junior, Antonio Alves Barreto Junior — conferir manualmente.
-- Número 33003 repetido em MOBILIZA/Deputado Estadual para: Antonio Carlos Caldas Da Cunha, Antonio Carlos Caldas Da Cunha — conferir manualmente.
-- Número 33425 repetido em MOBILIZA/Deputado Estadual para: Ashiley Magalhães Xavier Perussio, Ashiley Magalhães Xavier Perussio — conferir manualmente.
-- Número 33100 repetido em MOBILIZA/Deputado Estadual para: Benedito Rogerio Chagas Do Nascimento, Benedito Rogerio Chagas Do Nascimento — conferir manualmente.
-- Número 33023 repetido em MOBILIZA/Deputado Estadual para: Carlos Jose Ferreira Da Silva, Carlos Jose Ferreira Da Silva — conferir manualmente.
-- Número 33580 repetido em MOBILIZA/Deputado Estadual para: Carlos Leandro Da Costa Goulart, Carlos Leandro Da Costa Goulart — conferir manualmente.
-- Número 33921 repetido em MOBILIZA/Deputado Estadual para: Claudia Dalle Ore Azevedo, Claudia Dalle Ore Azevedo — conferir manualmente.
-- Número 33366 repetido em MOBILIZA/Deputado Estadual para: Conceição De Maria Correa Pereira, Conceição De Maria Correa Pereira — conferir manualmente.
-- Número 33700 repetido em MOBILIZA/Deputado Estadual para: Cristiane Goulart De Souza, Cristiane Goulart De Souza — conferir manualmente.
-- Número 33063 repetido em MOBILIZA/Deputado Estadual para: Dalmo Jorge De Oliveira Ferreira, Dalmo Jorge De Oliveira Ferreira — conferir manualmente.
-- Número 33107 repetido em MOBILIZA/Deputado Estadual para: Diogo Inacio Nascimento Da Silva, Diogo Inacio Nascimento Da Silva — conferir manualmente.
-- Número 33322 repetido em MOBILIZA/Deputado Estadual para: Elna Alice De Almeida De Araujo, Elna Alice De Almeida De Araujo — conferir manualmente.
-- Número 33016 repetido em MOBILIZA/Deputado Estadual para: Eugenio Max Da Silva, Eugenio Max Da Silva — conferir manualmente.
-- Número 33021 repetido em MOBILIZA/Deputado Estadual para: Evelyn Mileyde Da Silva Bomfim, Evelyn Mileyde Da Silva Bomfim — conferir manualmente.
-- Número 33111 repetido em MOBILIZA/Deputado Estadual para: Fabiano Rozembrach Farias, Fabiano Rozembrach Farias — conferir manualmente.
-- Número 33778 repetido em MOBILIZA/Deputado Estadual para: Fabio Chaves Vasconcellos, Fabio Chaves Vasconcellos — conferir manualmente.
-- Número 33666 repetido em MOBILIZA/Deputado Estadual para: Felipe Sommer Dos Santos, Felipe Sommer Dos Santos — conferir manualmente.
-- Número 33053 repetido em MOBILIZA/Deputado Estadual para: Genilson Malta Guimarães, Genilson Malta Guimarães — conferir manualmente.
-- Número 33444 repetido em MOBILIZA/Deputado Estadual para: Guilherme Menezes Da Silva, Guilherme Menezes Da Silva — conferir manualmente.
-- Número 33456 repetido em MOBILIZA/Deputado Estadual para: Gutembergue Lucio De Oliveira, Gutembergue Lucio De Oliveira — conferir manualmente.
-- Número 33004 repetido em MOBILIZA/Deputado Estadual para: Isis Viana Schramm Lisboa, Isis Viana Schramm Lisboa — conferir manualmente.
-- Número 33976 repetido em MOBILIZA/Deputado Estadual para: Jacqueline Poeys Da Silva, Jacqueline Poeys Da Silva — conferir manualmente.
-- Número 33033 repetido em MOBILIZA/Deputado Estadual para: Jair Antonio Ramos, Jair Antonio Ramos — conferir manualmente.
-- Número 33323 repetido em MOBILIZA/Deputado Estadual para: Jairo Meira De Paula, Jairo Meira De Paula — conferir manualmente.
-- Número 33755 repetido em MOBILIZA/Deputado Estadual para: Janaina Trintin Da Silva, Janaina Trintin Da Silva — conferir manualmente.
-- Número 33468 repetido em MOBILIZA/Deputado Estadual para: Jociara Benedicto, Jociara Benedicto — conferir manualmente.
-- Número 33369 repetido em MOBILIZA/Deputado Estadual para: Jocilene Da Silveira Vicente Ribeiro Da Silva, Jocilene Da Silveira Vicente Ribeiro Da Silva — conferir manualmente.
-- Número 33050 repetido em MOBILIZA/Deputado Estadual para: Joel Machado Dos Santos, Joel Machado Dos Santos — conferir manualmente.
-- Número 33376 repetido em MOBILIZA/Deputado Estadual para: Jorge Luiz Almeida De Oliveira, Jorge Luiz Almeida De Oliveira — conferir manualmente.
-- Número 33555 repetido em MOBILIZA/Deputado Estadual para: Jose Onix Gomes Da Silva, Jose Onix Gomes Da Silva — conferir manualmente.
-- Número 33389 repetido em MOBILIZA/Deputado Estadual para: José Luiz Villar, José Luiz Villar — conferir manualmente.
-- Número 33623 repetido em MOBILIZA/Deputado Estadual para: Jovino De Paula Vieira Neto, Jovino De Paula Vieira Neto — conferir manualmente.
-- Número 33060 repetido em MOBILIZA/Deputado Estadual para: Joyce Andressa Moreira Gonçalves, Joyce Andressa Moreira Gonçalves — conferir manualmente.
-- Número 33500 repetido em MOBILIZA/Deputado Estadual para: João Baptista Pereira, João Baptista Pereira — conferir manualmente.
-- Número 33657 repetido em MOBILIZA/Deputado Estadual para: João Carlos Da Silva, João Carlos Da Silva — conferir manualmente.
-- Número 33393 repetido em MOBILIZA/Deputado Estadual para: Leandro Da Silva Gomes, Leandro Da Silva Gomes — conferir manualmente.
-- Número 33137 repetido em MOBILIZA/Deputado Estadual para: Leandro Dos Santos De Paula, Leandro Dos Santos De Paula — conferir manualmente.
-- Número 33200 repetido em MOBILIZA/Deputado Estadual para: Leandro Souza Dos Santos, Leandro Souza Dos Santos — conferir manualmente.
-- Número 33007 repetido em MOBILIZA/Deputado Estadual para: Leonardo Da Vinci Xavier Gimenez, Leonardo Da Vinci Xavier Gimenez — conferir manualmente.
-- Número 33888 repetido em MOBILIZA/Deputado Estadual para: Leonardo Jose Do Patrocinio Aragão Dos Santos Lau, Leonardo Jose Do Patrocinio Aragão Dos Santos Lau — conferir manualmente.
-- Número 33350 repetido em MOBILIZA/Deputado Estadual para: Luis Claudio Chaves Pereira, Luis Claudio Chaves Pereira — conferir manualmente.
-- Número 33878 repetido em MOBILIZA/Deputado Estadual para: Marcelo Fernandes Da Silva, Marcelo Fernandes Da Silva — conferir manualmente.
-- Número 33321 repetido em MOBILIZA/Deputado Estadual para: Marcio Aurelio Rodrigues Cardoso, Marcio Aurelio Rodrigues Cardoso — conferir manualmente.
-- Número 33222 repetido em MOBILIZA/Deputado Estadual para: Marcos Rodrigues Da Silva, Marcos Rodrigues Da Silva — conferir manualmente.
-- Número 33228 repetido em MOBILIZA/Deputado Estadual para: Maria Do Carmo Gomes Da Conceicao De Oliveira, Maria Do Carmo Gomes Da Conceicao De Oliveira — conferir manualmente.
-- Número 33020 repetido em MOBILIZA/Deputado Estadual para: Marilza Siqueira Tavares, Marilza Siqueira Tavares — conferir manualmente.
-- Número 33862 repetido em MOBILIZA/Deputado Estadual para: Nilton Lopes Da Silva Filho, Nilton Lopes Da Silva Filho — conferir manualmente.
-- Número 33039 repetido em MOBILIZA/Deputado Estadual para: Olegario De Oliveira, Olegario De Oliveira — conferir manualmente.
-- Número 33101 repetido em MOBILIZA/Deputado Estadual para: Orlando Caixão Silvino, Orlando Caixão Silvino — conferir manualmente.
-- Número 33638 repetido em MOBILIZA/Deputado Estadual para: Paulo Fernando Gonçalves Ferreira, Paulo Fernando Gonçalves Ferreira — conferir manualmente.
-- Número 33190 repetido em MOBILIZA/Deputado Estadual para: Paulo Roberto Da Silva Sobral, Paulo Roberto Da Silva Sobral — conferir manualmente.
-- Número 33177 repetido em MOBILIZA/Deputado Estadual para: Rafael Simplicio, Rafael Simplicio — conferir manualmente.
-- Número 33777 repetido em MOBILIZA/Deputado Estadual para: Rafaela Cerruti Drummond, Rafaela Cerruti Drummond — conferir manualmente.
-- Número 33233 repetido em MOBILIZA/Deputado Estadual para: Raphael Barbosa Gonçalves, Raphael Barbosa Gonçalves — conferir manualmente.
-- Número 33227 repetido em MOBILIZA/Deputado Estadual para: Regina Lucia Da Silva Fonte, Regina Lucia Da Silva Fonte — conferir manualmente.
-- Número 33123 repetido em MOBILIZA/Deputado Estadual para: Renato Fernandes De Paulo, Renato Fernandes De Paulo — conferir manualmente.
-- Número 33430 repetido em MOBILIZA/Deputado Estadual para: Rosangela Da Costa Silva, Rosangela Da Costa Silva — conferir manualmente.
-- Número 33360 repetido em MOBILIZA/Deputado Estadual para: Rosangela Pires Leal, Rosangela Pires Leal — conferir manualmente.
-- Número 33155 repetido em MOBILIZA/Deputado Estadual para: Sandro Barbosa Gomes, Sandro Barbosa Gomes — conferir manualmente.
-- Número 33195 repetido em MOBILIZA/Deputado Estadual para: Sergio De Oliveira, Sergio De Oliveira — conferir manualmente.
-- Número 33008 repetido em MOBILIZA/Deputado Estadual para: Sheila Conceição De Oliveira, Sheila Conceição De Oliveira — conferir manualmente.
-- 720 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- Número 3301 repetido em MOBILIZA/Deputado Federal para: Allan Vianna Feijo, Alex Nicodemos De Oliveira — conferir manualmente.
+- Número 3303 repetido em MOBILIZA/Deputado Federal para: Fabio Dias De Freitas, Fabio Dias Freitas, Flávio Rodrigues Bernardes — conferir manualmente.
+- Número 33333 repetido em MOBILIZA/Deputado Estadual para: Alexander Mattoso Da Silva, Diego Rodrigues Marques — conferir manualmente.
+- Número 33018 repetido em MOBILIZA/Deputado Estadual para: Amanda Carolina Diniz Almeida, Amanda Carolina Dinis Almeida — conferir manualmente.
+- Número 1213 repetido em PDT/Deputado Federal para: Jair José Dias, Jair Jose Dias — conferir manualmente.
+- Número 1270 repetido em PDT/Deputado Federal para: Marco Aurelio Alves, Marcos Aurelio Alves — conferir manualmente.
+- Número 1235 repetido em PDT/Deputado Federal para: Moises Da Silva Boechat, Moyses Da Silva Boechat — conferir manualmente.
+- Número 12311 repetido em PDT/Deputado Estadual para: Carla Fabiana Santos Do Carmo, Carla Fabiano Santos Do Carmo — conferir manualmente.
+- Número 100 repetido em REPUBLICANOS/Senador para: Tania Cristina Magalhães Bastos E Silva, Marcelo Bezerra Crivella — conferir manualmente.
+- Número 3093 repetido em NOVO/Deputado Federal para: Juarez Rodrigues Da Silva, Adilson Bandeira De Andrade — conferir manualmente.
+- Número 36021 repetido em AGIR/Deputado Estadual para: Bárbara Teixeira Da Silva Oliveira, Bárbara Teixeira Da Silva De Oliveira — conferir manualmente.
+- Número 36000 repetido em AGIR/Deputado Estadual para: Luciana Ferreira Lopes Polati, Luciana Ferreira Lopes — conferir manualmente.
+- Número 36022 repetido em AGIR/Deputado Estadual para: Marcus Vinicius Marchesano, Marcus Vinicius Marchesano Ferreira — conferir manualmente.
+- Número 4557 repetido em PSDB/CIDADANIA/Deputado Federal para: Francimara Aparecida Damasceno, Francimara Aparecida Damasceno Ramalho Trigueiro Mendes — conferir manualmente.
+- Número 2344 repetido em PSDB/CIDADANIA/Deputado Federal para: Izabela Santos Dutra, Izabela Santos De Oliveira Dutra — conferir manualmente.
+- Número 45000 repetido em PSDB/CIDADANIA/Deputado Estadual para: Adilson Medeiros Paixão Júnior, Adilson De Medeiros Paixão Júnior — conferir manualmente.
+- Número 45453 repetido em PSDB/CIDADANIA/Deputado Estadual para: Alexandre Borges Inocêncio Correia, Alexandre Inocêncio Borges Correia — conferir manualmente.
+- Número 23222 repetido em PSDB/CIDADANIA/Deputado Estadual para: Andre Da Silva Martins, Andre Da Silveira Braz Da Cruz Martins — conferir manualmente.
+- Número 45450 repetido em PSDB/CIDADANIA/Deputado Estadual para: Charles Rodrigues De Carvalho Scimmarella, Charles Rodrigues De Carvalho Sciammarella — conferir manualmente.
+- Número 45333 repetido em PSDB/CIDADANIA/Deputado Estadual para: Daniela Campos Leal Arrenque, Daniela Campos Leal Arregue — conferir manualmente.
+- Número 45800 repetido em PSDB/CIDADANIA/Deputado Estadual para: Etienne Mendonça Ciminelli, Rosilene Etiene Mendonça — conferir manualmente.
+- 123 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
-| Eduardo Da Costa Paes | Governador | 133-psd-convencao.pdf |
-| Pedro Paulo Carvalho Teixeira | Senador | 133-psd-convencao.pdf |
-| Douglas Ruas Dos Santos | Governador | 280-pl-retificadora.pdf |
-| Savio Luiz Ferreira Neves Filho | Senador (2º suplente) | 401-psdb-cidadania-retificadora.pdf |
-| Adriana Kutwak | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Adriano Arlei Serfiotis | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Alexandre Mauro Prado | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Aluízio Dos Santos Júnior | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Anderson Da Silva Campos | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Anderson Reis De Almeida | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Antônia Fontenelle De Brito | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Antônio Cesar De Jesus Dórea | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Caio Santos Vianna | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Cristiano José Rodrigues De Souza | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Danilo Cassane Soares | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Edmundo Alves De Souza Neto | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Eliane De Castro Moraes | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Francimara Aparecida Damasceno | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Izabela Santos Dutra | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Jackson Barbosa Calderini | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Jessica Michelle Araújo De Abreu | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Jonatas Ribeiro Castelo Branco | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| José Flávio Ferreira Saldanha | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| João Diniz De Almeida Porto | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| João Ferreira Neto | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| João Victor Carvalhaes Fraga | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Juliana Da Câmara Torres Benício | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Lilian Ligia De Medeiros De Freitas | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Luciano Vieira Mendes | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Marcelo Andre Cid Heraclito Do Porto Queiroz | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Marcia Cristina Da Silva Valentim | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Marcos Bezerra Ribeiro Soares | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Marcos Teixeira Braz | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Maria Cristina Mel De Almeida Costa | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Maria Das Graças Tuze De Matos | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Maria De Fátima Pereira De Oliveira | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Mauro Bernardo Dos Santos | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Maurício Braga Mesquita | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Moises Freitas De Oliveira Gomes | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Munique Helena Busson | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Murillo Gouvêa Rodrigues | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Mário Reis Esteves | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Ricardo Martins David | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Rogério Teixeira Junior | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Rosane Felix Do Nascimento Malta | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Severino Ananias Dias Filho | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Sérgio Pina | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Talita Galhardo Martins Borges Sousa | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Tayane Gandra Orrico | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Tiago Da Silva Souza | Deputado Federal | 401-psdb-cidadania-retificadora.pdf |
-| Adelson Da Silva Calvete | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Adilson Medeiros Paixão Júnior | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Albino Oliveira Batista | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Alessandra Gomes De Oliveira | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Alessandro Pereira Pinho | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Alexandre Borges Inocêncio Correia | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Alexsandre Claudio Costa De Mendonca | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Aline Pires Mattos | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Andre Da Silva Martins | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Antonio Soares França Filho | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Augusto Pinheiro De Carvalho Neto | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Bruna De Mello Ferreira Lemos | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Carlos Alberto Lavrado Cupello | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Carlos Vieira Mendes | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Charles Rodrigues De Carvalho Scimmarella | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Christianne Duarte Garoiu | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Cinthia Lúcia Farah Castilho Martins | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| César Almeida Assumpção | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Daniel Glória Da Silva | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Daniela Campos Leal Arrenque | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Daniele Da Silva Pereira | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Diego José Alba Taboada | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Diogo Vinicius Ventura De Oliveira | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Edilmar De Oliveira Silva | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Eliezer Santos Rocha | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Etienne Mendonça Ciminelli | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Fabio Camara Da Silva | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Fabio Soares De Oliveira | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Felipe Nunes Fonseca De Brito | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Filipe Bezerra Ribeiro Soares | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Francisco José Falcão Júnior | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Francisco José Ferreira De Mello | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Fátima Cristina Dias Sanches | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Glauber Joaquim De Matos Correa | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Glauber Pessoa Bastos | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Gustavo Luiz De Oliveira Souza | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Helem Cristina Lopes Dos Santos Moreira | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Ivan Do Valle Lima | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Jorge Edilson Tavares Dos Santos | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Jorge Henrique Pires Paes | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Jussie Severo De Carvalho | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Júlio Cesar Santos De Menezes | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Laura Cristina Ribeiro Proença | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Leonardo Braga Vieira Mendes | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Luiz Antonio Martins | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Manoel Francisco De Freitas Sales | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Marcelino Antonio D'Almeida | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Marcelo De Souza Lessa | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Marcelo Luiz Baronto Sampaio | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Marcia Valéria De Carvalho Paiva | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Maria Agueda Moura De Souza | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Maria Da Penha Rodrigues | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Maria Helena Da Silva Cabo | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Maria Regina Cinelli Damasceno | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Marilena Pinto Rodrigues | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Márcio Garcia Liñares | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Renato Gideao Silva Nascimento | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Ricardo Correa De Barros | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Rodrigo Dinamite Marins De Oliviera | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Sandra Lucia Aleixo Da Silva | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Sandro Abdala Naja | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Sandro Alves De Oliveira | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Sergio Benfica Júnior | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Sonia Feliz Da Cruz De Jesus Melo | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Thiago Moura Salim | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Urbano De Freitas Neto | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Vandete Maria Soares Vieira | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Vandro Lopes Gonçalves | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Vanessa Gabriela Gouvea | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Vera Lucia Rodrigues Medeiros | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Vera Ramos Da Silva | Deputado Estadual | 401-psdb-cidadania-retificadora.pdf |
-| Savio Luiz Ferreira Neves Filho | Senador (2º suplente) | 429-psdb-cidadania-convencao.pdf |
-| Savio Luiz Ferreira Neves Filho | Senador (2º suplente) | 462-psdb-cidadania-retificadora.pdf |
-| Adriana Kutwak | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Adriano Arlei Serfiotis | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Alexandre Mauro Prado | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Aluízio Dos Santos Júnior | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Anderson Da Silva Campos | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Anderson Reis De Almeida | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Antônia Fontenelle De Brito | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Antônio Cesar De Jesus Dórea | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Caio Santos Vianna | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Cristiano José Rodrigues De Souza | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Danilo Cassane Soares | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Edmundo Alves De Souza Neto | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Eliane De Castro Moraes | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Francimara Aparecida Damasceno | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Izabela Santos Dutra | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Jackson Barbosa Calderini | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Jessica Michelle Araújo De Abreu | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Jonatas Ribeiro Castelo Branco | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| José Flávio Ferreira Saldanha | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| João Diniz De Almeida Porto | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| João Ferreira Neto | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| João Victor Carvalhaes Fraga | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Juliana Da Câmara Torres Benício | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Lilian Ligia De Medeiros De Freitas | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Luciano Vieira Mendes | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Marcelo Andre Cid Heraclito Do Porto Queiroz | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Marcia Cristina Da Silva Valentim | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Marcos Bezerra Ribeiro Soares | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Marcos Teixeira Braz | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Maria Cristina Mel De Almeida Costa | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Maria Das Graças Tuze De Matos | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Maria De Fátima Pereira De Oliveira | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Mauro Bernardo Dos Santos | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Maurício Braga Mesquita | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Moises Freitas De Oliveira Gomes | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Munique Helena Busson | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Murillo Gouvêa Rodrigues | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Mário Reis Esteves | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Ricardo Martins David | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Rogério Teixeira Junior | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Rosane Felix Do Nascimento Malta | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Severino Ananias Dias Filho | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Sérgio Pina | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Talita Galhardo Martins Borges Sousa | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Tayane Gandra Orrico | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Tiago Da Silva Souza | Deputado Federal | 462-psdb-cidadania-retificadora.pdf |
-| Adelson Da Silva Calvete | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Adilson Medeiros Paixão Júnior | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Albino Oliveira Batista | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Alessandra Gomes De Oliveira | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Alessandro Pereira Pinho | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Alexandre Borges Inocêncio Correia | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Alexsandre Claudio Costa De Mendonca | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Aline Pires Mattos | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Andre Da Silveira Braz Da Cruz Martins | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Antonio Soares França Filho | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Augusto Pinheiro De Carvalho Neto | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Bruna De Mello Ferreira Lemos | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Carlos Alberto Lavrado Cupello | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Carlos Vieira Mendes | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Charles Rodrigues De Carvalho Scimmarella | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Christianne Duarte Garoiu | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Cinthia Lúcia Farah Castilho Martins | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| César Almeida Assumpção | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Daniel Glória Da Silva | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Daniela Campos Leal Arrenque | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Daniele Da Silva Pereira | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Diego José Alba Taboada | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Diogo Vinicius Ventura De Oliveira | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Edilmar De Oliveira Silva | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Eliezer Santos Rocha | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Etienne Mendonça Ciminelli | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Fabio Camara Da Silva | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Fabio Soares De Oliveira | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Felipe Nunes Fonseca De Brito | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Filipe Bezerra Ribeiro Soares | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Francisco José Falcão Júnior | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Francisco José Ferreira De Mello | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Fátima Cristina Dias Sanches | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Glauber Joaquim De Matos Correa | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Glauber Pessoa Bastos | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Gustavo Luiz De Oliveira Souza | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Helem Cristina Lopes Dos Santos Moreira | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Ivan Do Valle Lima | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Jorge Edilson Tavares Dos Santos | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Jorge Henrique Pires Paes | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Jussie Severo De Carvalho | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Júlio Cesar Santos De Menezes | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Laura Cristina Ribeiro Proença | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Leonardo Braga Vieira Mendes | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Luiz Antonio Martins | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Manoel Francisco De Freitas Sales | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Marcelino Antonio D'Almeida | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Marcelo De Souza Lessa | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Marcelo Luiz Baronto Sampaio | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Marcia Valéria De Carvalho Paiva | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Maria Agueda Moura De Souza | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Maria Da Penha Rodrigues | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Maria Helena Da Silva Cabo | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Maria Regina Cinelli Damasceno | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Marilena Pinto Rodrigues | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Márcio Garcia Liñares | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Renato Gideao Silva Nascimento | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Ricardo Correa De Barros | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Rodrigo Dinamite Marins De Oliviera | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Sandra Lucia Aleixo Da Silva | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Sandro Abdala Naja | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Sandro Alves De Oliveira | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Sergio Benfica Júnior | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Sonia Feliz Da Cruz De Jesus Melo | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Thiago Moura Salim | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Urbano De Freitas Neto | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Vandete Maria Soares Vieira | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Vandro Lopes Gonçalves | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Vanessa Gabriela Gouvea | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Vera Lucia Rodrigues Medeiros | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Vera Ramos Da Silva | Deputado Estadual | 462-psdb-cidadania-retificadora.pdf |
-| Savio Luiz Ferreira Neves Filho | Senador (2º suplente) | 524-psdb-cidadania-retificadora.pdf |
-| Adriana Kutwak | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Adriano Arlei Serfiotis | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Alexandre Mauro Prado | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Aluízio Dos Santos Júnior | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Anderson Da Silva Campos | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Anderson Reis De Almeida | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Antônia Fontenelle De Brito | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Antônio Cesar De Jesus Dórea | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Caio Santos Vianna | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Cristiano José Rodrigues De Souza | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Danilo Cassane Soares | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Edmundo Alves De Souza Neto | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Eliane De Castro Moraes | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Francimara Aparecida Damasceno Ramalho Trigueiro Mendes | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Izabela Santos De Oliveira Dutra | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Jackson Barbosa Calderini | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Jessica Michelle Araújo De Abreu | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Jonatas Ribeiro Castelo Branco | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| José Flávio Ferreira Saldanha | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| João Diniz De Almeida Porto | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| João Ferreira Neto | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| João Victor Carvalhaes Fraga | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Juliana Da Câmara Torres Benício | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Lilian Ligia De Medeiros De Freitas | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Luciano Vieira Mendes | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Marcelo Andre Cid Heraclito Do Porto Queiroz | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Marcia Cristina Da Silva Valentim | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Marcos Bezerra Ribeiro Soares | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Marcos Teixeira Braz | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Maria Cristina Mel De Almeida Costa | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Maria Das Graças Tuze De Matos | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Maria De Fátima Pereira De Oliveira | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Mauro Bernardo Dos Santos | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Maurício Braga Mesquita | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Moises Freitas De Oliveira Gomes | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Munique Helena Busson | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Murillo Gouvêa Rodrigues | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Mário Reis Esteves | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Ricardo Martins David | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Rogério Teixeira Junior | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Rosane Felix Do Nascimento Malta | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Severino Ananias Dias Filho | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Sérgio Pina | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Talita Galhardo Martins Borges Sousa | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Tayane Gandra Orrico | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Tiago Da Silva Souza | Deputado Federal | 524-psdb-cidadania-retificadora.pdf |
-| Adelson Da Silva Calvete | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Adilson De Medeiros Paixão Júnior | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Albino Oliveira Batista | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Alessandra Gomes De Oliveira | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Alessandro Pereira Pinho | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Alexandre Inocêncio Borges Correia | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Alexsandre Claudio Costa De Mendonca | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Aline Pires Mattos | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Andre Da Silva Martins | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Antonio Soares França Filho | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Augusto Pinheiro De Carvalho Neto | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Bruna De Mello Ferreira Lemos | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Carlos Alberto Lavrado Cupello | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Carlos Vieira Mendes | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Charles Rodrigues De Carvalho Sciammarella | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Christianne Duarte Garoiu | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Cinthia Lúcia Farah Castilho Martins | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| César Almeida Assumpção | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Daniel Glória Da Silva | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Daniela Campos Leal Arregue | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Daniele Da Silva Pereira | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Diego José Alba Taboada | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Diogo Vinicius Ventura De Oliveira | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Edilmar De Oliveira Silva | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Eliezer Santos Rocha | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Fabio Camara Da Silva | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Fabio Soares De Oliveira | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Felipe Nunes Fonseca De Brito | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Filipe Bezerra Ribeiro Soares | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Francisco José Falcão Júnior | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Francisco José Ferreira De Mello | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Fátima Cristina Dias Sanches | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Glauber Joaquim De Matos Correa | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Glauber Pessoa Bastos | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Gustavo Luiz De Oliveira Souza | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Helem Cristina Lopes Dos Santos Moreira | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Ivan Do Valle Lima | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Jorge Edilson Tavares Dos Santos | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Jorge Henrique Pires Paes | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Jussie Severo De Carvalho | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Júlio Cesar Santos De Menezes | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Laura Cristina Ribeiro Proença | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Leonardo Braga Vieira Mendes | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Luiz Antonio Martins | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Manoel Francisco De Freitas Sales | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Marcelino Antonio D'Almeida | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Marcelo De Souza Lessa | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Marcelo Luiz Baronto Sampaio | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Marcia Valéria De Carvalho Paiva | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Maria Agueda Moura De Souza | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Maria Da Penha Rodrigues | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Maria Helena Da Silva Cabo | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Maria Regina Cinelli Damasceno | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Marilena Pinto Rodrigues | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Márcio Garcia Liñares | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Renato Gideao Silva Nascimento | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Ricardo Correa De Barros | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Rodrigo Dinamite Marins De Oliviera | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Rosilene Etiene Mendonça | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Sandra Lucia Aleixo Da Silva | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Sandro Abdala Naja | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Sandro Alves De Oliveira | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Sergio Benfica Júnior | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Sonia Feliz Da Cruz De Jesus Melo | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Thiago Moura Salim | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Urbano De Freitas Neto | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Vandete Maria Soares Vieira | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Vandro Lopes Gonçalves | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Vanessa Gabriela Gouvea | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Vera Lucia Rodrigues Medeiros | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Vera Ramos Da Silva | Deputado Estadual | 524-psdb-cidadania-retificadora.pdf |
-| Jaime Albino Veloso | Deputado Estadual | 541-psol-rede-executiva.pdf |
-| Savio Luiz Ferreira Neves Filho | Senador (2º suplente) | 578-psdb-cidadania-retificadora.pdf |
-| Adriana Kutwak | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Adriano Arlei Serfiotis | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Alexandre Mauro Prado | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Aluízio Dos Santos Júnior | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Anderson Da Silva Campos | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Anderson Reis De Almeida | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Antônia Fontenelle De Brito | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Antônio Cesar De Jesus Dórea | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Caio Santos Vianna | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Cristiano José Rodrigues De Souza | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Danilo Cassane Soares | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Edmundo Alves De Souza Neto | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Eliane De Castro Moraes | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Francimara Aparecida Damasceno Ramalho Trigueiro Mendes | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Izabela Santos De Oliveira Dutra | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Jackson Barbosa Calderini | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Jessica Michelle Araújo De Abreu | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Jonatas Ribeiro Castelo Branco | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| José Flávio Ferreira Saldanha | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| João Diniz De Almeida Porto | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| João Ferreira Neto | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| João Victor Carvalhaes Fraga | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Juliana Da Câmara Torres Benício | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Lilian Ligia De Medeiros De Freitas | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Luciano Vieira Mendes | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Marcelo Andre Cid Heraclito Do Porto Queiroz | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Marcia Cristina Da Silva Valentim | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Marcos Bezerra Ribeiro Soares | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Marcos Teixeira Braz | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Maria Cristina Mel De Almeida Costa | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Maria Das Graças Tuze De Matos | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Maria De Fátima Pereira De Oliveira | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Mauro Bernardo Dos Santos | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Maurício Braga Mesquita | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Moises Freitas De Oliveira Gomes | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Munique Helena Busson | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Murillo Gouvêa Rodrigues | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Mário Reis Esteves | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Ricardo Martins David | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Rogério Teixeira Junior | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Rosane Felix Do Nascimento Malta | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Severino Ananias Dias Filho | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Sérgio Pina | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Talita Galhardo Martins Borges Sousa | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Tayane Gandra Orrico | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Tiago Da Silva Souza | Deputado Federal | 578-psdb-cidadania-retificadora.pdf |
-| Adelson Da Silva Calvete | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Adilson De Medeiros Paixão Júnior | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Albino Oliveira Batista | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Alessandra Gomes De Oliveira | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Alessandro Pereira Pinho | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Alexandre Inocêncio Borges Correia | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Alexsandre Claudio Costa De Mendonca | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Aline Pires Mattos | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Andre Da Silva Martins | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Antonio Soares França Filho | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Augusto Pinheiro De Carvalho Neto | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Bruna De Mello Ferreira Lemos | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Carlos Alberto Lavrado Cupello | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Carlos Vieira Mendes | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Charles Rodrigues De Carvalho Sciammarella | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Christianne Duarte Garoiu | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Cinthia Lúcia Farah Castilho Martins | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| César Almeida Assumpção | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Daniel Glória Da Silva | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Daniela Campos Leal Arregue | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Daniele Da Silva Pereira | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Diego José Alba Taboada | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Diogo Vinicius Ventura De Oliveira | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Edilmar De Oliveira Silva | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Eliezer Santos Rocha | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Fabio Camara Da Silva | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Fabio Soares De Oliveira | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Felipe Nunes Fonseca De Brito | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Filipe Bezerra Ribeiro Soares | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Francisco José Falcão Júnior | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Francisco José Ferreira De Mello | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Fátima Cristina Dias Sanches | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Glauber Joaquim De Matos Correa | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Glauber Pessoa Bastos | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Gustavo Luiz De Oliveira Souza | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Helem Cristina Lopes Dos Santos Moreira | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Ivan Do Valle Lima | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Jorge Edilson Tavares Dos Santos | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Jorge Henrique Pires Paes | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Jussie Severo De Carvalho | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Júlio Cesar Santos De Menezes | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Laura Cristina Ribeiro Proença | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Leonardo Braga Vieira Mendes | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Luiz Antonio Martins | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Manoel Francisco De Freitas Sales | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Marcelino Antonio D'Almeida | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Marcelo De Souza Lessa | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Marcelo Luiz Baronto Sampaio | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Marcia Valéria De Carvalho Paiva | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Maria Agueda Moura De Souza | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Maria Da Penha Rodrigues | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Maria Helena Da Silva Cabo | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Maria Regina Cinelli Damasceno | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Marilena Pinto Rodrigues | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Márcio Garcia Liñares | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Renato Gideao Silva Nascimento | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Ricardo Correa De Barros | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Rodrigo Dinamite Marins De Oliviera | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Rosilene Etiene Mendonça | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Sandra Lucia Aleixo Da Silva | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Sandro Abdala Naja | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Sandro Alves De Oliveira | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Sergio Benfica Júnior | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Sonia Feliz Da Cruz De Jesus Melo | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Thiago Moura Salim | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Urbano De Freitas Neto | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Vandete Maria Soares Vieira | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Vandro Lopes Gonçalves | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Vanessa Gabriela Gouvea | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Vera Lucia Rodrigues Medeiros | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Vera Ramos Da Silva | Deputado Estadual | 578-psdb-cidadania-retificadora.pdf |
-| Anderson Luiz Bravo | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Andréa Silva Araújo | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Aureo Lidio Ribeiro | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Beny Machado Balabram | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Carlos Roberto De Carvalho | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Deisilane Campos Torres | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Edgar Jesus Costa | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Edson Dos Santos | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Edson Pereira Da Silva | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Elisangela Alcina Faustino Rodrigues | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Elizangela Santos Pereira | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Eloi Pereira Ramalho | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Eloi Souza De Oliveira | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Emanuele De Faria Carvalho Dos Santos | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Erica De Oliveira Bispo | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Gisele Thomaz Lancates | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Glauber Medeiros Poubel | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Gleibe De Andrade Oliveira | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Heitor De Souza Queiroz Filho | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Janayna Rodrigues Da Rocha | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Jones Barbosa De Moura | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| José Henrique Pereira Da Costa Vieira | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Kelly Ferreira Do Nascimento | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Lauro Cesar Botto Maia | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Leandro Pereira Netto | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Lenilton Rodrigues Gomes Junior | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Luis Carlos Jorge Marta | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Marcelo De Almeida De Assis | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Marcelo Do Nascimento | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Marcos De Lima Titara | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Marcus Vinicius De Vasconcelos Ferreira | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Michael Alexandre Gervasio | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Michele Santos Do Nascimento Pires | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Márcio De Andrade Vasconcellos | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Mário Do Nascimento Gomes Filho | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Nurimar Dos Santos Mendonça | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Paola Da Silva Daniel | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Patricia Antunes Cardoso | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Ricardo De Oliveira Ursine Silva | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Robson José Dos Santos | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Ronaldo Do Carmo Anquieta | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Rui Tomé De Souza Aguiar | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Thiago Do Nascimento Antunes | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Vanessa De Souza Nascimento | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Viviane Carvalho Petisco Pinheiro | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Willian Augusto Brand Pinheiro | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Wilson Martins Coutinho | Deputado Federal | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Alex Sandro Da Conceição | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Alexander Cassiano Da Costa | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Alexandre Aguiar | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Alexandre Batista Pinto | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Alexandre Magno Do Couto | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Alexandre Silva Dos Santos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Aline Lopes Da Silva | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Ana Maria De Azevedo Sagário Pedrosa De Melo | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Ana Paula Freitas Soares Pimentel | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| André Benigno Rios | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Antonio De Araújo Medeiros Silva | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Arthur Carvalho Monteiro | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Bianca Silva Passos De Aquino | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Bruno Max Do Nascimento Loureiro | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Camila Palermo Tobler | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Cláudia De Farias Braga De Abreu | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Dalielson Pereira Berto | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Denis Maiquel Da Costa Ramos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Diogo Augusto Da Silva Santos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Elaine Maria Martins De Araújo Chagas | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Eliesio Peres Da Silva | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Fabio Tobias De Araujo | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Flávia Gomes Tomáz Dos Santos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Francimara Azeredo Da Silva Barbosa Lemos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Francisco Domínico Coronel Júnior | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Gisele Santos Do Nascimento Teixeira | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Helbia Sant'Ana Barreto Gonçalves Brandão Neves | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Izabel Cristina Pimentel De Oliveira | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Jacivania Cristina Dias | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Jairo Souza Bispo Dos Santos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Janaína Guimarães Alves Dos Santos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Jonathan Ferreira Da Silva | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Jorge Brum Cripim De Carvalho | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| José Sebastião Rabello | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| João Evangelista Lucas | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| João Felipe Drumond Espindola De Freitas | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| João Lucas Maciel De Lima | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Junior Martins Silva Junior | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Kátia Cristina Experidião Do Nascimento | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Leandro Reis Lima | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Leandro Rufino Marques | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Leliane Maria Pinheiro | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Leonardo Henrique Vieira De Moraes | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Liliam Sá De Paula | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Lívia Silva Oliveira | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Marcella Nobrega De Mello | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Marco Antônio Neves Cabral | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Marcos Da Silva Souza | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Marcos Parreira Do Carmo | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Maria Da Glória Vidal Felismino | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Maria Inês De Araújo Dos Santos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Munir Francisco | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Norival Garcia Da Silva Júnior | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Renata Vieira Soares De Araújo | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Renato Abreu | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Renato Costa Valverde | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Robson Botelho De Menezes | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Rodrigo Drable Costa | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Rodrigo Gonçalves Fonseca | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Rogério Firmino Dutra | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Roosevelt Barreto Barcelos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Sarah Poncio Silva De Souza | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Sidney Morgado Nascimento Filho | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Simone Da Silva Mello Brasiliense | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Solange Naval De Mendonça | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Thiago Silva Pinto Do Nascimento | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Vagner Mateus Dos Santos | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Verônica Marinho De Andrade | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Verônica Silva Conceição Martins | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Welderson Sidney Da Silva Teixeira | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
-| Wellington Paulino De Souza | Deputado Estadual | 615-25-prd-77-solidariedade-retificadora.pdf |
+| Adelson Pereira Guedes | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Adriana De Fatima Boelho | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Amélia Leal De Almeida | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Anielle Francisco Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Antonio Carlos De Andrade | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Antonio Pereira Da Silva Lobao Filho | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Benedito Felix Guerra | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Benny Briolly Rosa Da Silva Santos | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Carlos Augusto Alves Santana | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Celso Pansera | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Crislaine Coelho Nascimento | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Danielle Nunes Rosa De Oliveira | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Diego Zeidan Cardoso Siqueira | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Dimas De Paiva Gadelha Junior | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Eduardo Carvalho Bandeira De Mello | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Elias Marco Khalil Jabbour | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Emerson Teixeira Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Fabiano Taques Horta | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Jandira Feghali | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| José Ricardo Tavares Corrêa | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Kevin Lopes Monteiro | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Leonardo Carneiro Monteiro Picciani | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Leonardo Martins Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Lourenço Do Vale Cavalcante | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Luciana Neri Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Luiz Lindbergh Farias Filho | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Maiara Felicio Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Marcelo Alves Pacheco | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Marcelo Ribeiro Freixo | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Marcia Helena Lobato Kaltner | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Maria Lucia Costa Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Nísia Verônica Trindade Lima | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Orlando Mendes De Souza | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Paulo Vitor Xavier Santos | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Reimont Luiz Otoni Santa Barbara | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Rejane De Almeida | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Robercil Da Rocha Parreira | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Rodney Cezar De Albuquerque | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Rosimeri Da Silva Marongiu | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Rubens José França Bomtempo | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Sandro Alex De Oliveira Cezar | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Tainá Reis De Paula | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Valdomark Batista Tavares | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Wagner Paulo Correa Avellar | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Adilson Nogueira Pires | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Alex Sandra De Jesus Alves | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Allyson Da Silva Elias | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Ana Paula Dias Hirt | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Andre Del Pino Guerra Tavares | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Andre Luiz Ceciliano | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Andreia Almeida Zito Dos Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Antonio Araujo Ferreira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Brunnão Realleza Barreto Soares Oliveira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Bruno Costa Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Caroline Machado Ontiveros Cespedes | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Danieli Christovão Balbi | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Devaldo Marques De Almeida | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Durval Pereira Gomes Peçanha | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Edna Ferreira Calheiros Saraiva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Eduardo José Acosta Barbosa | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Elika Takimoto | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Erivaldo Pereira Alves | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Fabio Martins Dos Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Felipe Alves De Souza | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Galtier Da Silva Figueira Filho | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Hilder Rodrigues Dos Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Hudson Marques Da Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Igo Alencar De Menezes | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Indianarae Pereira Siqueira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Isaac Souza Da Silva Ricalde | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Jorge Antonio Da Silva Braga | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Jose Alexandre Almeida Da Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| João Panayotis Damatis | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Katia Maria Diniz Macillo | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Leonardo França Souza | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Leonel Querino Da Silva Neto | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Lilian Prates Belem Behring | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Lucia Marina Dos Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Maicon Silva Da Cruz | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Marcio Roberto Carvalho Matheus Filho | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Marco Aurélio De Souza Barreto | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Maria Das Graças Gomes Franco | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Maria Luiza De Souza Côrtes | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Mary Borges De Oliveira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Neusa Kunha Taqua Mendonca Martine | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Paulo Cesar Gonçalves Ladeira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Paulo Roberto Mustrangi De Oliveira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Raimundo Nonato Araujo De Figueiredo | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Raone Cassin Maia Ferreira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Renato Da Costa Machado | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Ricardo Silva Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Roliney Alves Soares | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Rosangela De Oliveira Zeidan | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Rose Cipriano Lapa | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Sebastião Wagner Berriel | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Thaysa Rodrigues De Azevedo Ventura | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Thiago Mothe Aguiar | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Veronica Dos Santos Lima | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Vinicios De Moraes Betiol | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Waldeck Carneiro Da Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Wallace Pereira Da Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| William De Almeida Macedo | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
+| Elaine Cristina Gonçalves Nogarol De Andrade | Vice-Governador | 1071-democrata-executiva.pdf |
+| Elaine Cristina Gonçalves Nogarol De Andrade | Vice-Governador | 1076-republicanos-executiva.pdf |
+| Douglas Ruas Dos Santos | Governador | 1867-pl-retificadora.pdf |
+| Fernanda Anchieta Louback | Vice-Governador | 1219-pl-retificadora.pdf |
+| Eduardo Da Costa Paes | Governador | 1350-psd-executiva.pdf |
+| Jeannie Mayr Reis De Oliveira | Vice-Governador | 1350-psd-executiva.pdf |
+| Pedro Paulo Carvalho Teixeira | Senador | 1350-psd-executiva.pdf |
+| Miro Teixeira | Senador (1º suplente) | 1350-psd-executiva.pdf |
+| Sávio Luis Ferreira Neves Filho | Senador (2º suplente) | 1350-psd-executiva.pdf |
+| Alexander Mattoso Da Silva | Deputado Estadual | 1703-psdb-cidadania-executiva.pdf |
+| Ingrid Oliveira | Deputado Estadual | 1920-psol-rede-executiva.pdf |
+| Márcia Peixoto De Oliveira | Deputado Federal | 1980-pt-pc-do-b-pv-executiva.pdf |
+| Luiz Andre De Moura Monteiro | Vice-Governador | 2152-republicanos-executiva.pdf |
+| Luiz André De Moura Monteiro | Vice-Governador | 2202-democrata-executiva.pdf |
 | Savio Luiz Ferreira Neves Filho | Senador (2º suplente) | 688-psdb-cidadania-retificadora.pdf |
-| Adriana Kutwak | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Adriano Arlei Serfiotis | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Alexandre Mauro Prado | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Aluízio Dos Santos Júnior | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Anderson Da Silva Campos | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Anderson Reis De Almeida | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Antônia Fontenelle De Brito | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Antônio Cesar De Jesus Dórea | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Caio Santos Vianna | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Cristiano José Rodrigues De Souza | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Danilo Cassane Soares | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Edmundo Alves De Souza Neto | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Eliane De Castro Moraes | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Francimara Aparecida Damasceno Ramalho Trigueiro Mendes | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Izabela Santos De Oliveira Dutra | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Jackson Barbosa Calderini | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Jessica Michelle Araújo De Abreu | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Jonatas Ribeiro Castelo Branco | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| José Flávio Ferreira Saldanha | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| João Diniz De Almeida Porto | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| João Ferreira Neto | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| João Victor Carvalhaes Fraga | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Juliana Da Câmara Torres Benício | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Lilian Ligia De Medeiros De Freitas | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Luciano Vieira Mendes | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Marcelo Andre Cid Heraclito Do Porto Queiroz | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Marcia Cristina Da Silva Valentim | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Marcos Bezerra Ribeiro Soares | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Marcos Teixeira Braz | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Maria Cristina Mel De Almeida Costa | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Maria Das Graças Tuze De Matos | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Maria De Fátima Pereira De Oliveira | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Mauro Bernardo Dos Santos | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Maurício Braga Mesquita | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Moises Freitas De Oliveira Gomes | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Munique Helena Busson | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Murillo Gouvêa Rodrigues | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Mário Reis Esteves | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Ricardo Martins David | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Rogério Teixeira Junior | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Rosane Felix Do Nascimento Malta | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Severino Ananias Dias Filho | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Sérgio Pina | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Talita Galhardo Martins Borges Sousa | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Tayane Gandra Orrico | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Tiago Da Silva Souza | Deputado Federal | 688-psdb-cidadania-retificadora.pdf |
-| Adelson Da Silva Calvete | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Adilson De Medeiros Paixão Júnior | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Albino Oliveira Batista | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Alessandra Gomes De Oliveira | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Alessandro Pereira Pinho | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Alexandre Inocêncio Borges Correia | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Alexsandre Claudio Costa De Mendonca | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Aline Pires Mattos | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Andre Da Silva Martins | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Antonio Soares França Filho | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Augusto Pinheiro De Carvalho Neto | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Bruna De Mello Ferreira Lemos | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Carlos Alberto Lavrado Cupello | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Carlos Vieira Mendes | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Charles Rodrigues De Carvalho Sciammarella | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Christianne Duarte Garoiu | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Cinthia Lúcia Farah Castilho Martins | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| César Almeida Assumpção | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Daniel Glória Da Silva | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Daniela Campos Leal Arregue | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Daniele Da Silva Pereira | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Diego José Alba Taboada | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Diogo Vinicius Ventura De Oliveira | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Edilmar De Oliveira Silva | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Eliezer Santos Rocha | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Fabio Camara Da Silva | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Fabio Soares De Oliveira | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Felipe Nunes Fonseca De Brito | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Filipe Bezerra Ribeiro Soares | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Francisco José Falcão Júnior | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Francisco José Ferreira De Mello | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Fátima Cristina Dias Sanches | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Glauber Joaquim De Matos Correa | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Glauber Pessoa Bastos | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Gustavo Luiz De Oliveira Souza | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Helem Cristina Lopes Dos Santos Moreira | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Ivan Do Valle Lima | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Jorge Edilson Tavares Dos Santos | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Jorge Henrique Pires Paes | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Jussie Severo De Carvalho | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Júlio Cesar Santos De Menezes | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Laura Cristina Ribeiro Proença | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Leonardo Braga Vieira Mendes | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Luiz Antonio Martins | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Manoel Francisco De Freitas Sales | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Marcelino Antonio D'Almeida | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Marcelo De Souza Lessa | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Marcelo Luiz Baronto Sampaio | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Marcia Valéria De Carvalho Paiva | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Maria Agueda Moura De Souza | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Maria Da Penha Rodrigues | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Maria Helena Da Silva Cabo | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Maria Regina Cinelli Damasceno | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Marilena Pinto Rodrigues | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Márcio Garcia Liñares | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Renato Gideao Silva Nascimento | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Ricardo Correa De Barros | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Rodrigo Dinamite Marins De Oliviera | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Rosilene Etiene Mendonça | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Sandra Lucia Aleixo Da Silva | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Sandro Abdala Naja | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Sandro Alves De Oliveira | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Sergio Benfica Júnior | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Sonia Feliz Da Cruz De Jesus Melo | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Thiago Moura Salim | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Urbano De Freitas Neto | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Vandete Maria Soares Vieira | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Vandro Lopes Gonçalves | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Vanessa Gabriela Gouvea | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Vera Lucia Rodrigues Medeiros | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
-| Vera Ramos Da Silva | Deputado Estadual | 688-psdb-cidadania-retificadora.pdf |
+| Jaime Albino Veloso | Deputado Estadual | 541-psol-rede-executiva.pdf |
 | Benedita Souza Da Silva Sampaio | Senador | 697-pt-pc-do-b-pv-convencao.pdf |
 | Manoel Severino Dos Santos | Senador (1º suplente) | 697-pt-pc-do-b-pv-convencao.pdf |
 | Kleber Lucas Costa | Senador (2º suplente) | 697-pt-pc-do-b-pv-convencao.pdf |
-| Marcos Dias Pereira | Senador | 793-pode-retificadora.pdf |
-| Everaldo Dias Pereira | Senador (1º suplente) | 793-pode-retificadora.pdf |
 | Fernanda Vieira De Souza | Deputado Federal | 800-psol-rede-executiva.pdf |
 | Leonardo Leal De Lima Soares | Deputado Estadual | 800-psol-rede-executiva.pdf |
 
