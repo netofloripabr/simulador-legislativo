@@ -1290,6 +1290,34 @@
 #modoColaborativoWrap.pc-tema-fader .pc-picker-item.pc-picker-disabled{ color:#4A4F54; }
 #modoColaborativoWrap.pc-tema-fader .pc-erro{ color:#E8432A; }
 
+/* ===== Lobby (Painel principal / Menu / Minhas Listas / Grupos / Ranking
+   compartilham .pc-lobby-*) — padrão Fader, 18/08/2026. Mockup aprovado
+   pelo usuário antes de implementar (artifact "Lobby — proposta Fader").
+   Troca só material/cor: banner de gradiente verde-floresta com glow vira
+   material console flat; cards de atalho com borda verde translúcida
+   viram card neutro padrão; ícone do atalho ganha mini-console próprio;
+   lista "mais funções" perde o fundo esverdeado e vira linha com filete
+   no topo, igual ao padrão de lista do resto do app. Layout/texto/ícone
+   não mudam — só o que está aqui. */
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-banner{
+  background:#2C3239; border:1px solid #4D545C;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-banner::before{ display:none; }
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-banner .pc-lobby-banner-corpo{ color:#8A9096; }
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-atalho{
+  background:rgba(29,32,35,.85); border:1px solid #23262A; box-shadow:none;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-atalho-icone{
+  background:#2C3239; border:1px solid #4D545C; color:#F2F4F5;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-mais-tit{ color:#8A9096; }
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-mais{ background:none; border:none; padding:0; }
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-mais-item{
+  border-bottom:none; border-top:1px solid #23262A; padding:10px 4px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-mais-item:first-child{ border-top:none; }
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-mais-item span{ color:#8A9096; }
+
 /* ===== Capa (renderLanding) — padrão Fader, 18/08/2026 =====
    Card central no material do console; ícone no estilo exato dos botões
    do console (reaproveitado, não inventado); verde vivo só no CTA
