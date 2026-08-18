@@ -4910,6 +4910,25 @@ function autoPreenchimentoDeputadosFader(E, soPartido) {
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
 }
 
+// Plenário "case de cápsulas" (protótipo aprovado em 18/08/2026): grade
+// fixa de nichos (um por vaga) que vai sendo preenchida com cápsulas —
+// quadrado de cantos arredondados com o fundo dos BOTÕES do console
+// (translúcido claro), borda na cor ideológica do partido e a sigla
+// inscrita. Usado em todo plenário exceto a Assembleia de SC (40 vagas),
+// que mantém o hemiciclo em arco exclusivo.
+function renderCasePlenario(composicao, totalVagas) {
+  const assentos = [];
+  [...composicao].sort((a, b) => b.seats - a.seats).forEach((o) => {
+    for (let i = 0; i < o.seats; i++) assentos.push(o.nome);
+  });
+  while (assentos.length < totalVagas) assentos.push(null);
+  const celulas = assentos.slice(0, totalVagas).map((partido) => partido
+    ? `<span class="pc-case-cap" style="border-color:${corPartidoIdeologico(partido)};" title="${escaparAtributoHtml(partido)}">${siglaCurta(partido)}</span>`
+    : '<span class="pc-case-nicho" title="vaga em aberto"></span>').join("");
+  const poucos = totalVagas <= 5;
+  return `<div class="pc-case-grade${poucos ? " poucos" : ""}">${celulas}</div>`;
+}
+
 // Setas ao lado do contador "marcados/vagas2022": ajustam a quantidade em 1,
 // sem precisar digitar. Quem preenche essa quantidade é sempre recalculado
 // (ver aplicarQuantidadeMarcados acima) — a seta só muda o número.
@@ -5246,10 +5265,14 @@ async function renderCargoEstadual() {
   // cadeira) — formato que se adapta melhor a qualquer número de vagas sem
   // depender do arco pensado pra 40 cadeiras da Assembleia de SC. Ver desenharHemiciclo
   // em calculo/eleitoral.js (coresMono.forcarGrade).
-  const hemiciclo = desenharHemiciclo(composicao, totalVagasCargo, {
-    preenchido: "var(--pc-glass-border)", texto: "var(--pc-ink)", porPartido: true,
-    forcarGrade: pcState.estado !== "SC",
-  });
+  // Case de cápsulas pra todo plenário EXCETO a Assembleia de SC (que
+  // mantém o hemiciclo em arco) — decisão do usuário em 18/08/2026.
+  const usarCasePlenario = !(pcState.estado === "SC" && pcState.cargoAtivo === "estadual");
+  const hemiciclo = usarCasePlenario
+    ? renderCasePlenario(composicao, totalVagasCargo)
+    : desenharHemiciclo(composicao, totalVagasCargo, {
+      preenchido: "var(--pc-glass-border)", texto: "var(--pc-ink)", porPartido: true,
+    });
   // Resumo visual embaixo do plenário: mesma composição do hemiciclo, em
   // lista — bolinha com a cor ideológica do partido (corPartidoIdeologico,
   // calculo/eleitoral.js) + sigla + quantidade de cadeiras + fração da
@@ -5259,7 +5282,7 @@ async function renderCargoEstadual() {
       ${[...composicao].sort((a, b) => b.seats - a.seats).map((o) => `
         <div style="display:inline-flex; align-items:center; justify-content:center; gap:3px; padding:4px 6px; border:1px solid rgba(120,130,180,0.2); border-radius:6px; white-space:nowrap;">
           <span style="width:5px; height:5px; border-radius:50%; background:${corPartidoIdeologico(o.nome)}; flex-shrink:0;"></span>
-          <span style="font-size:9px; font-weight:600;">${nomePartidoExibicao(o.nome)}: ${o.seats} (${(o.seats / totalVagasCargo * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</span>
+          <span style="font-size:9px; font-weight:600;">${usarCasePlenario ? siglaCurta(o.nome) : nomePartidoExibicao(o.nome)}: ${o.seats} (${(o.seats / totalVagasCargo * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</span>
         </div>`).join("")}
     </div>`;
 
