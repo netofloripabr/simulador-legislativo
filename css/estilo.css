@@ -994,7 +994,9 @@
   --pc-lobby-verde-media:#1D8038; --pc-lobby-verde-forte:#14602A;
 }
 #modoColaborativoWrap.pc-tema-fader .pc-cargo-switch{ background:#101214; }
-#modoColaborativoWrap.pc-tema-fader .pc-cargo-switch button.active{ background:#F2F4F5; color:#101214; }
+#modoColaborativoWrap.pc-tema-fader .pc-cargo-switch button.active{
+  background:#2C3239; border:1px solid #4D545C; color:#F2F4F5;
+}
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-painel .pc-cmd-acao{ background:#16181B; border-color:#2B2F33; }
 /* .ativo/.destaque do reskin antigo removidos em 18/08/2026 — pintavam o
    mágico e o avançar de verde translúcido por cima do padrão do console
