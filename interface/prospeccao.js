@@ -6735,6 +6735,26 @@ function renderRevisaoDeposito() {
     const temInconsistencia = marcadosInconsistentes.length > 0;
     if (temInconsistencia) temInconsistenciaGeral = true;
 
+    // Lista de EXIBIÇÃO (pedido do usuário em 18/08/2026): nem todo
+    // candidato precisa aparecer aqui, só listaCompleta continua completa
+    // (usada pros cálculos acima — total de eleitos, avisos de
+    // inconsistência, disputa de sobra — não pode ser cortada). Senador
+    // (majoritário, poucas vagas): eleitos + os 2 próximos mais votados,
+    // 4 no total. Estadual/Federal (proporcional, muitos candidatos):
+    // eleitos + os 50% mais votados de quem não elegeu — sempre inclui
+    // quem gerou aviso de inconsistência, mesmo fora desse corte, pra não
+    // esconder um aviso real atrás do corte de exibição.
+    let listaExibida;
+    if (cargoDef.id === "senador") {
+      listaExibida = listaCompleta.slice(0, 4);
+    } else {
+      const naoEleitosOrdenados = listaCompleta.filter((c) => !c.eleito);
+      const corteMetade = Math.ceil(naoEleitosOrdenados.length / 2);
+      const chavesVisiveis = new Set(naoEleitosOrdenados.slice(0, corteMetade).map((c) => c.chave));
+      marcadosInconsistentes.forEach((c) => chavesVisiveis.add(c.chave));
+      listaExibida = listaCompleta.filter((c) => c.eleito || chavesVisiveis.has(c.chave));
+    }
+
     // "Mínimo pra eleger" — referência única de folga/progresso, mostrada
     // em toda barra desta seção (eleito ou não): o corte de
     // dhondtComCorte (proporcional) ou o voto do último colocado real
@@ -6764,10 +6784,6 @@ function renderRevisaoDeposito() {
     // 06/08/2026). opacidade mais baixa pros eleitos (sempre 100% cheios
     // — não precisam chamar atenção, já estão garantidos) e cheia pros
     // demais (é o que ainda pode mudar).
-    const barraProgresso = (pct, opacidade = 1) => `
-      <div style="position:relative; flex:1; height:4px; border-radius:999px; background:#0C0E10; overflow:hidden;">
-        <div style="position:absolute; left:0; top:0; height:100%; width:${Math.max(0, Math.min(100, pct))}%; border-radius:999px; background:#5F666D; opacity:${opacidade};"></div>
-      </div>`;
 
     // Card fechado (fundo + borda + cantos arredondados) em vez de linha
     // com traço embaixo — separação mais visível entre candidatos, pedido
@@ -6776,7 +6792,10 @@ function renderRevisaoDeposito() {
     // "Lobby" (css/estilo.css) — antes usava um verde quase idêntico ao
     // fundo do acordeão (#0e1f17 vs #0c1c16), então os cards praticamente
     // sumiam um dentro do outro. Pedido do usuário em 06/08/2026.
-    const cardCandidato = (conteudo) => `<div style="background:var(--pc-lobby-tom-3); border:1px solid #23262A; border-radius:12px; padding:12px 14px; margin-bottom:8px;">${conteudo}</div>`;
+    // Tom deliberadamente mais claro que o fundo do acordeão (--pc-glass,
+    // ~#1D2023) — com --pc-lobby-tom-3 (#1B1E22) os cards praticamente
+    // desapareciam dentro dele (feedback do usuário, 18/08/2026).
+    const cardCandidato = (conteudo) => `<div style="background:#23272C; border:1px solid #2F343A; border-radius:12px; padding:12px 14px; margin-bottom:8px;">${conteudo}</div>`;
 
     // Uma linha só, pra eleito ou não — o selo numerado (1, 2, 3... na
     // ORDEM DE ELEIÇÃO, não na posição de voto da lista) só aparece em
@@ -6813,9 +6832,6 @@ function renderRevisaoDeposito() {
           <div style="display:flex; align-items:center; justify-content:flex-end; margin-top:10px;">
             <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:15px; font-weight:800; text-align:right; flex-shrink:0; padding:9px 6px;">
           </div>
-          <div style="margin-top:12px;">
-            ${barraProgresso(100, 0.4)}
-          </div>
           ${mostrarMargem ? `<div style="font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">para eleger: ${minimoParaEleger.toLocaleString("pt-BR")}</div>` : ""}
         `);
       }
@@ -6836,7 +6852,6 @@ function renderRevisaoDeposito() {
       // cima (aí só "Direto pra ele" funciona, ver acrescimo acima).
       const distribuivel = c.gap.partido !== null && c.gap.partido > 0 && !c.gap.temRivalAcima;
       const mostrarMagico = c.marcadoPeloUsuario && acrescimo > 0;
-      const botaoMagico = mostrarMagico ? `<button data-pc-abrir-magico="${c.chave}" class="pc-mini-btn" style="flex-shrink:0; width:26px; height:26px; border-radius:50%; ${menuAberto ? "color:#34E84A; border-color:#34E84A; background:rgba(52,232,74,.12);" : ""}">${iconeSvg("completar", 13)}</button>` : "";
       const menuMagico = menuAberto ? `
         <div style="margin-top:10px; background:#16181B; border:1px solid #2B2F33; border-radius:10px; padding:6px;">
           <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--pc-ink-dim); padding:6px 8px 4px;">Como completar os ${acrescimo.toLocaleString("pt-BR")} votos?</div>
@@ -6867,12 +6882,8 @@ function renderRevisaoDeposito() {
             ? `A votação de hoje indica que ${c.nome} estaria entre os mais votados (eleição majoritária, voto direto) — mas não está no seu palpite. Fica valendo sua escolha; isso é só um aviso.`
             : `A matemática real (quociente + sobra) indica que ${c.nome} garantiria vaga com a votação de hoje — mas não está no seu palpite. Fica valendo sua escolha; isso é só um aviso.`}</span>
         </div>` : `
-        <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
-          ${botaoMagico}
-          ${barraProgresso(pct)}
-        </div>
         ${menuMagico}
-        ${legendaFaltam ? `<div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">
+        ${legendaFaltam ? `<div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--pc-ink-dim); margin-top:8px;">
           <span>${legendaFaltam}</span>
           <span style="display:flex; align-items:center; gap:6px;">
             <span>${pct}%</span>
@@ -6889,10 +6900,10 @@ function renderRevisaoDeposito() {
     const agrupado = !!pcState.modoAgrupadoRevisao[cargoDef.id];
     let linhas;
     if (!agrupado) {
-      linhas = listaCompleta.map(linhaCandidato).join("");
+      linhas = listaExibida.map(linhaCandidato).join("");
     } else {
       const porPartido = new Map();
-      listaCompleta.forEach((c) => {
+      listaExibida.forEach((c) => {
         if (!porPartido.has(c.partido)) porPartido.set(c.partido, []);
         porPartido.get(c.partido).push(c);
       });
@@ -6935,6 +6946,7 @@ function renderRevisaoDeposito() {
       <details class="pc-acc" data-pc-cargo-acc="${cargoDef.id}"${pcState.expandido["revisao-" + cargoDef.id] ? " open" : ""}>
         <summary style="align-items:flex-start;"><span style="flex:1; min-width:0; line-height:1.35;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim);">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} aviso${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0; margin-top:3px;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">
+          ${listaExibida.length < listaCompleta.length ? `<div style="font-size:10.5px; color:var(--pc-ink-dim); margin-bottom:10px;">Mostrando os eleitos + ${listaExibida.length - totalEleitos} mais votados entre quem não elegeu (${listaCompleta.length - listaExibida.length} candidato${listaCompleta.length - listaExibida.length === 1 ? "" : "s"} com menos voto ficaram de fora dessa lista).</div>` : ""}
           <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">${filtroAgrupado}</div>
           ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-bottom:12px; background:rgba(198,230,42,.08); border:1px solid rgba(198,230,42,.3); color:var(--pc-warning); font-family:var(--sans); font-size:12.5px; font-weight:700; border-radius:10px; padding:10px; cursor:pointer;">Ver disputa de sobra completa (${disputaSobra.rodadas.length} rodada${disputaSobra.rodadas.length === 1 ? "" : "s"})</button>` : ""}
           ${linhas}
@@ -6993,13 +7005,14 @@ function renderRevisaoDeposito() {
       <div class="pc-sub">Revise os três cargos antes de salvar — dá pra ajustar cada um aqui mesmo, sem voltar pra outra tela.</div>
       ${pcState.listaSalvaId ? `<div class="pc-sub" style="color:var(--pc-warning); margin-top:6px;">${iconeSvg("alerta", 12)} Você está editando "${pcState.listaSalvaNome || "uma lista salva"}". As mudanças só ficam valendo se clicar em Salvar de novo antes de sair — senão se perdem.</div>` : ""}
 
-      <div style="display:flex; align-items:center; justify-content:space-between;">
-        <button id="pcBtnVoltarRevisao" class="pc-mini-btn" title="Ajustar">${iconeSvg("setaEsquerda", 15)}</button>
-        <button class="primary" id="pcBtnConfirmarDeposito">Salvar</button>
+      <div class="pc-console" style="margin-top:12px; padding:7px 10px;">
+        <div class="pc-cmd-painel" style="margin-bottom:0;">
+          <button id="pcBtnVoltarRevisao" class="pc-cmd-acao" title="Voltar e ajustar">${iconeSvg("setaEsquerda", 15)}</button>
+          <button id="pcBtnImprimir" class="pc-cmd-acao" ${pcState.listaSalvaId ? "" : "disabled"} title="${pcState.listaSalvaId ? "Impressão / PDF" : "Salve a lista primeiro pra poder imprimir"}">${iconeSvg("impressora", 15)}</button>
+          <button id="pcBtnConfirmarDeposito" class="pc-cmd-acao destaque" title="Salvar">${iconeSvg("salvar", 16)}</button>
+        </div>
       </div>
       <div class="pc-status" id="pcDepositoStatus" style="text-align:right; margin-top:6px;"></div>
-
-      <button class="ghost" id="pcBtnImprimir" ${pcState.listaSalvaId ? "" : "disabled"} title="${pcState.listaSalvaId ? "Impressão / PDF" : "Salve a lista primeiro pra poder imprimir"}" style="width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:8px;">${iconeSvg("impressora", 16)}${iconeSvg("send", 15)}</button>
       <div id="pcImprimirPergunta" style="display:none; margin-top:10px;">
         <div class="pc-sub" style="text-align:center; margin:6px 0;">Deseja gerar a lista de quais cargos?</div>
         <div class="pc-cargo-switch">
