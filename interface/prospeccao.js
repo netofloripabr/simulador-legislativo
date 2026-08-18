@@ -88,6 +88,7 @@ let pcState = {
   modalInstagramInfo: null, // { chave, nome, valorAtual } do candidato com o modal de editar Instagram aberto (só admin), ou null
   legendaComandosAberta: false, // painel único de legenda do painel de comandos da Seleção (o "i" no fim da linha de ícones)
   funilVotosAberto: false, // funil explicativo dos votos válidos (o "i" do cabeçalho da aba Senador, PROJETO.md §8.2)
+  sobraInfoAberta: false, // explicação da regra de sobra (o "i" do quadro-resumo no painel Disputa de Sobra, Revisão)
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -6376,6 +6377,14 @@ function calcularDisputaSobra(lista, totalVagasCargo) {
   const rodadas = [];
   let totalSobrasCargo = 0;
 
+  // Candidatos reais de cada partido em ordem de voto — a vaga de sobra que
+  // o partido ganha vai pro próximo dessa fila (pedido do usuário em
+  // 18/08/2026: o painel agora NOMEIA quem levou cada vaga, não só o
+  // partido). Ordenação feita uma vez fora do loop de rodadas.
+  const candidatosOrdenadosPorPartido = lista.map((p) => [...p.candidatos]
+    .filter((c) => c.fonte !== "legenda")
+    .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0)));
+
   historico.forEach((pIdxVencedor) => {
     const novaCadeira = contadorPorPartido[pIdxVencedor] + 1;
     if (novaCadeira > qpPorPartido[pIdxVencedor]) {
@@ -6387,9 +6396,12 @@ function calcularDisputaSobra(lista, totalVagasCargo) {
         nome: p.nome, votos: votosPorPartido[pIdx], cadeiraAtual: contadorPorPartido[pIdx],
         media: votosPorPartido[pIdx] / (contadorPorPartido[pIdx] + 1), venceu: pIdx === pIdxVencedor,
       })).sort((a, b) => b.media - a.media);
+      const candidatoVencedor = candidatosOrdenadosPorPartido[pIdxVencedor][novaCadeira - 1];
       rodadas.push({
         numero: totalSobrasCargo, vencedorNome: lista[pIdxVencedor].nome,
         vencedorMedia: medias.find((m) => m.venceu).media, medias,
+        vencedorCandidato: candidatoVencedor ? nomeExibicao(candidatoVencedor) : null,
+        vencedorPosicao: novaCadeira,
       });
     }
     contadorPorPartido[pIdxVencedor]++;
@@ -6965,33 +6977,77 @@ function renderRevisaoDeposito() {
     const cargoDef = CARGOS.find((c) => c.id === cargoAbertoId);
     const disputaSobra = disputaSobraPorCargo[cargoAbertoId];
     if (!cargoDef || !disputaSobra) return "";
+
+    // Quadro-resumo "quem levou cada vaga" + partidos zerados fora das
+    // rodadas + candidato vencedor nomeado + "i" com a regra ilustrada
+    // pela 1ª sobra real — pedidos do usuário em 18/08/2026, mockup
+    // aprovado (artifact "Disputa de Sobra — proposta"). Material Fader
+    // (o vidro-verde 1.0 saiu daqui na mesma rodada).
+    const linhasResumo = disputaSobra.rodadas.map((r) => {
+      const v = r.medias.find((m) => m.venceu);
+      return `
+      <div style="display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:8px; padding:6px 0; border-top:1px solid rgba(242,244,245,.08); font-size:12px;">
+        <span style="font-size:9px; font-weight:800; background:rgba(232,236,239,.35); border:1px solid rgba(242,244,245,.4); color:#F2F4F5; border-radius:999px; padding:2px 7px; font-variant-numeric:tabular-nums; white-space:nowrap;">${r.numero}ª</span>
+        <span style="min-width:0;">
+          <span style="font-weight:700; color:#F2F4F5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block;">${r.vencedorCandidato || "—"}</span>
+          <span style="font-size:10.5px; color:#AEB5BB;">${r.vencedorNome}</span>
+        </span>
+        <span style="font-size:11px; font-weight:700; color:#AEB5BB; font-variant-numeric:tabular-nums; white-space:nowrap; text-align:right;">${Math.round(r.vencedorMedia).toLocaleString("pt-BR")}<span style="display:block; font-weight:400; font-size:9px; color:#5C6268;">média ${v.votos.toLocaleString("pt-BR")} ÷ ${v.cadeiraAtual + 1}</span></span>
+      </div>`;
+    }).join("");
+
+    const r1 = disputaSobra.rodadas[0];
+    const v1 = r1 ? r1.medias.find((m) => m.venceu) : null;
+    const infoAberta = !!pcState.sobraInfoAberta;
+    const blocoInfo = infoAberta && r1 && v1 ? `
+      <div style="margin-top:10px; padding:10px 12px; background:#101214; border:1px solid #23262A; border-radius:10px; font-size:11.5px; color:#8A9096; line-height:1.6;">
+        Depois que as vagas por quociente partidário se esgotam, cada vaga que
+        sobra vai pro partido com a <b style="color:#F2F4F5;">maior média</b>:
+        votos do partido ÷ (vagas que ele já tem + 1) — art. 109 do Código
+        Eleitoral, rodada a rodada.<br><br>
+        <b style="color:#F2F4F5;">Exemplo real, a 1ª sobra deste cálculo:</b>
+        ${r1.vencedorNome} tinha ${v1.cadeiraAtual} vaga${v1.cadeiraAtual === 1 ? "" : "s"}
+        e ${v1.votos.toLocaleString("pt-BR")} votos → média
+        ${v1.votos.toLocaleString("pt-BR")} ÷ ${v1.cadeiraAtual + 1} =
+        <b style="color:#C6E62A;">${Math.round(r1.vencedorMedia).toLocaleString("pt-BR")}</b>,
+        a maior da rodada. A vaga fica com o partido e vai pro próximo mais
+        votado da lista dele${r1.vencedorCandidato ? `: <b style="color:#F2F4F5;">${r1.vencedorCandidato}</b>` : ""}.
+        Ao ganhar, a média do partido cai na rodada seguinte (÷ ${v1.cadeiraAtual + 2}) —
+        é o que deixa a disputa equilibrada entre todos.
+      </div>` : "";
+
     const linhasRodadas = disputaSobra.rodadas.map((r) => `
-      <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--pc-glass-border);">
+      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #23262A;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="font-size:10px; color:#2b1600; background:var(--pc-warning); padding:2px 8px; border-radius:999px; font-weight:800;">Rodada ${r.numero}</span>
+          <span style="font-size:10px; color:#2b2600; background:#C6E62A; padding:2px 8px; border-radius:999px; font-weight:800;">Rodada ${r.numero}</span>
           <span style="font-size:11px; color:var(--pc-ink-dim);">votos ÷ (vagas atuais + 1)</span>
         </div>
-        ${r.medias.map((m) => `
-          <div style="display:grid; grid-template-columns:16px 1fr auto; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; font-size:12px;${m.venceu ? " background:rgba(198,230,42,.1); border:1px solid rgba(198,230,42,.3);" : ""}">
-            <span style="text-align:center;">${m.venceu ? "🏆" : ""}</span>
-            <span style="color:${m.venceu ? "var(--pc-ink)" : "var(--pc-ink-dim)"}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${m.nome}${m.venceu ? ` — ${r.vencedorNome}` : ""}</span>
-            <span style="font-weight:700; color:${m.venceu ? "var(--pc-warning)" : "var(--pc-ink-dim)"};">${Math.round(m.media).toLocaleString("pt-BR")}</span>
+        ${r.medias.filter((m) => m.votos > 0).map((m) => `
+          <div style="display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; font-size:12px;${m.venceu ? " background:rgba(198,230,42,.08); border:1px solid rgba(198,230,42,.3);" : ""}">
+            <span style="color:${m.venceu ? "var(--pc-ink)" : "var(--pc-ink-dim)"}; min-width:0; overflow:hidden; text-overflow:ellipsis;">${m.nome}${m.venceu && r.vencedorCandidato ? `<span style="display:block; font-size:10.5px; color:#C6E62A; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">vaga vai pra ${r.vencedorCandidato} (${r.vencedorPosicao}º mais votado)</span>` : ""}</span>
+            <span style="font-weight:700; font-variant-numeric:tabular-nums; color:${m.venceu ? "#C6E62A" : "var(--pc-ink-dim)"};">${Math.round(m.media).toLocaleString("pt-BR")}</span>
           </div>`).join("")}
       </div>`).join("");
+
     return `
-      <div id="pcDisputaSobraOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-        <div style="max-width:460px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(15,35,27,.9); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(198,230,42,.3); border-radius:18px; padding:22px 20px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+      <div id="pcDisputaSobraOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,10,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+        <div style="max-width:460px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(29,32,35,.97); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
           <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
             <div>
               <h2 style="margin:0; font-size:16px;">Disputa de sobra — ${cargoDef.label}</h2>
-              <div class="pc-sub" style="margin-top:4px;">${disputaSobra.rodadas.length} vaga${disputaSobra.rodadas.length === 1 ? "" : "s"} decidida${disputaSobra.rodadas.length === 1 ? "" : "s"} por média, uma rodada de cada vez, entre todos os partidos</div>
+              <div class="pc-sub" style="margin-top:4px;">${disputaSobra.rodadas.length} vaga${disputaSobra.rodadas.length === 1 ? "" : "s"} decidida${disputaSobra.rodadas.length === 1 ? "" : "s"} por média, uma rodada de cada vez, entre os partidos com voto</div>
             </div>
             <button id="pcFecharDisputaSobra" class="pc-mini-btn" title="Fechar" style="font-size:16px; line-height:1;">×</button>
           </div>
-          <div style="display:flex; gap:16px; margin:16px 0 4px; padding:10px 12px; background:#081712; border-radius:10px;">
-            <div><div style="font-size:9.5px; color:var(--pc-ink-faint); margin-bottom:2px;">Quociente eleitoral</div><div style="font-size:15px; font-weight:700;">${Math.round(disputaSobra.qe).toLocaleString("pt-BR")}</div></div>
-            <div><div style="font-size:9.5px; color:var(--pc-ink-faint); margin-bottom:2px;">Vagas por QP</div><div style="font-size:15px; font-weight:700;">${disputaSobra.totalQP}</div></div>
-            <div><div style="font-size:9.5px; color:var(--pc-ink-faint); margin-bottom:2px;">Vagas por sobra</div><div style="font-size:15px; font-weight:700;">${disputaSobra.totalSobrasCargo}</div></div>
+          <div style="display:flex; gap:16px; margin:16px 0 0; padding:10px 12px; background:#0C0E10; border:1px solid #23262A; border-radius:10px;">
+            <div><div style="font-size:9.5px; color:var(--pc-ink-faint); margin-bottom:2px;">Quociente eleitoral</div><div style="font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">${Math.round(disputaSobra.qe).toLocaleString("pt-BR")}</div></div>
+            <div><div style="font-size:9.5px; color:var(--pc-ink-faint); margin-bottom:2px;">Vagas por QP</div><div style="font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">${disputaSobra.totalQP}</div></div>
+            <div><div style="font-size:9.5px; color:var(--pc-ink-faint); margin-bottom:2px;">Vagas por sobra</div><div style="font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">${disputaSobra.totalSobrasCargo}</div></div>
+          </div>
+          <div style="margin-top:14px; background:#2C3239; border:1px solid #4D545C; border-radius:12px; padding:12px 14px;">
+            <div style="display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#AEB5BB; margin-bottom:8px;">Quem levou cada vaga de sobra <button type="button" id="pcSobraInfoToggle" class="pc-sen-inf${infoAberta ? " aberto" : ""}" title="Como funciona o cálculo da sobra">i</button></div>
+            ${blocoInfo}
+            ${linhasResumo}
           </div>
           ${linhasRodadas}
         </div>
@@ -7073,6 +7129,14 @@ function renderRevisaoDeposito() {
   if (btnFecharDisputaSobra) {
     btnFecharDisputaSobra.addEventListener("click", () => {
       pcState.disputaSobraAberta = null;
+      pcState.sobraInfoAberta = false;
+      renderRevisaoDeposito();
+    });
+  }
+  const btnSobraInfo = document.getElementById("pcSobraInfoToggle");
+  if (btnSobraInfo) {
+    btnSobraInfo.addEventListener("click", () => {
+      pcState.sobraInfoAberta = !pcState.sobraInfoAberta;
       renderRevisaoDeposito();
     });
   }
