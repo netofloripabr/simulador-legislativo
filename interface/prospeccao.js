@@ -3846,6 +3846,9 @@ function aplicarQuantidadeMarcados(p, quantidade) {
 // mudança de voto na aba Senador (arrasto, box nominal, alça mestra,
 // zerar, desfazer), sempre do zero, nunca incremental.
 function recalcularMarcadosSenador() {
+  pcState.palpiteEdicao.forEach((p) => p.candidatos.forEach((c) => {
+    if (typeof c.votos === "number" && !Number.isInteger(c.votos)) c.votos = Math.round(c.votos);
+  }));
   const vagas = vagasFixasCargo(pcState.estado, "senador");
   const todos = [];
   pcState.palpiteEdicao.forEach((p) => {
@@ -4228,6 +4231,11 @@ let _depDragKey = null, _depTimer = null, _depEditAberto = false, _depMasterAtiv
 // dhondtComCorte distribui QP e sobras numa passada). marcadoEleito de
 // cada candidato = estar entre os N mais votados do próprio grupo.
 function recalcularMarcadosDeputados() {
+  // Saneamento: rascunhos salvos antes do arredondamento da trava podem
+  // carregar voto fracionário — normaliza uma vez por passada (idempotente).
+  pcState.palpiteEdicao.forEach((p) => p.candidatos.forEach((c) => {
+    if (typeof c.votos === "number" && !Number.isInteger(c.votos)) c.votos = Math.round(c.votos);
+  }));
   const totalVagas = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
   const { counts } = dhondtComCorte(pcState.palpiteEdicao, totalVagas);
   pcState.palpiteEdicao.forEach((p, i) => {
@@ -4707,24 +4715,10 @@ function attachListenersDeputadosFader(E, totalVagas) {
     if (novo === atual) return;
     snapshotPalpite();
     p2.vagasIndicadas = novo;
-    // O box COMANDA o volume mesmo com o cargo já em 100%: se o orçamento
-    // livre (E − soma) não cobrir o aumento, o restante é REALOCADO dos
-    // outros partidos proporcionalmente (senão a trava coletiva segurava
-    // a alça parada — bug achado pelo usuário em 17/08).
-    const alvoGrupo = Math.min(novo * qeProj, E);
-    const somaAtualGrupo = somaVotosGrupo(p2);
-    const outrosAtual = somaVotosCargo() - somaAtualGrupo;
-    const livre = Math.max(0, E - somaVotosCargo());
-    const deficit = Math.max(0, (alvoGrupo - somaAtualGrupo) - livre);
-    if (deficit > 0 && outrosAtual > 0) {
-      const fator = Math.max(0, (outrosAtual - deficit) / outrosAtual);
-      pcState.palpiteEdicao.forEach((pOutro) => {
-        if (pOutro === p2 || pOutro.semAta2026) return;
-        const somaOutro = somaVotosGrupo(pOutro);
-        if (somaOutro > 0) escalarGrupoDeputados(pOutro, Math.round(somaOutro * fator), capCand);
-      });
-    }
-    escalarGrupoDeputados(p2, alvoGrupo, capCand);
+    // O box muda SÓ O ESPAÇO (a meta/curso da barra) — a votação já dada
+    // aos candidatos fica exatamente como está; preencher o espaço novo é
+    // gesto do usuário (arrasto, digitação ou mágico). Decisão final do
+    // usuário em 17/08/2026, corrigindo a versão que reescalava os votos.
     recalcularMarcadosDeputados();
     agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
     renderCargoEstadual();
