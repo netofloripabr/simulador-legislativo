@@ -304,15 +304,30 @@ function attachRowListeners(){
         state.parties[idx].nome = e.target.value;
         return;
       }
+      // render() reconstrói a tabela inteira — sem devolver o foco ao input
+      // NOVO, cada letra digitada tirava o foco do campo (só dava pra
+      // digitar um número por vez). Mesmo conserto aplicado nas buscas da
+      // Prospecção em 17/08/2026; aqui o render é síncrono, então basta
+      // reencontrar o campo logo depois e pôr o cursor no fim.
+      const devolverFoco = () => {
+        const novo = document.querySelector(`input[data-field="${field}"][data-idx="${idx}"]`);
+        if (novo) {
+          novo.focus({ preventScroll: true });
+          const fim = novo.value.length;
+          try { novo.setSelectionRange(fim, fim); } catch (_) {}
+        }
+      };
       if(field === "vagas2022"){
         state.parties[idx].vagas2022 = Number(e.target.value.replace(/\D/g,"")) || 0;
         render();
+        devolverFoco();
         return;
       }
       if(field === "votos"){
         const val = Number(e.target.value.replace(/\D/g,"")) || 0;
         setPartyVotes(idx, val);
         render();
+        devolverFoco();
       }
     });
   });
