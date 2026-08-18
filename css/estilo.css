@@ -1005,15 +1005,6 @@
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-painel{ background:#16181B; border-color:#26292D; }
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-item{ border-bottom-color:#23262A; }
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-item .pc-cmd-legenda-icone{ background:#101214; border-color:#2B2F33; }
-/* Overlays antigos (tutorial, top 2022, salvar lista, Instagram) ainda
-   carregam o vidro-verde em style inline — até a migração definitiva
-   (etapa própria), o seletor de atributo abaixo neutraliza a cor por
-   fora, sem mexer no JS. Remover quando os overlays forem re-escritos. */
-#modoColaborativoWrap.pc-tema-fader [style*="rgba(15,35,27"]{
-  background:rgba(24,27,30,.94) !important; border-color:#2B2F33 !important;
-}
-#modoColaborativoWrap.pc-tema-fader [style*="rgba(4,10,8"]{ background:rgba(8,9,11,.6) !important; }
-
 /* ===== Abas de Deputado — modelo fader (console A3 + cards aninhados) =====
    Protótipo aprovado em 17/08/2026 (memória alesc-deputados-prototipo-
    primeiro): console elevado #2C3239 como "painel principal", botões de

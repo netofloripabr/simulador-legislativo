@@ -558,7 +558,7 @@ function renderMenuFixo(destinoAtivo) {
       <span style="font-size:10px; font-weight:600;">${it.label}</span>
     </button>`;
   }).join("");
-  return `<div style="position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:#0c1c16; border-top:1px solid #1c2f26;">
+  return `<div style="position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:rgba(16,18,20,.96); border-top:1px solid #23262A;">
     <div style="display:flex; width:100%; max-width:640px; padding:8px 4px calc(8px + env(safe-area-inset-bottom, 0px));">${botoes}</div>
   </div>`;
 }
@@ -716,7 +716,7 @@ function renderTelaEstado() {
         <div class="pc-picker-pad"></div>
       </div>
 
-      <div style="border:1px solid var(--pc-accent); background:rgba(61,255,176,.06); border-radius:12px; padding:14px 16px; text-align:center; margin-top:14px;">
+      <div style="border:1px solid var(--pc-accent); background:rgba(52,232,74,.06); border-radius:12px; padding:14px 16px; text-align:center; margin-top:14px;">
         <span id="pcEstadoConfirmNome" style="font-weight:700; color:var(--pc-accent);"></span>
         <div id="pcEstadoConfirmMsg" style="font-size:11.5px; color:var(--pc-ink-dim); margin-top:4px;"></div>
       </div>
@@ -1660,7 +1660,7 @@ function renderMenuConta() {
     <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Menu</div>
 
     <div class="glass-card" style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
-      <div style="width:52px; height:52px; border-radius:50%; background:rgba(61,255,176,.12); border:1px solid rgba(61,255,176,.3); display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:700; color:var(--pc-accent); flex-shrink:0;">${(p.nome || "?").trim().charAt(0).toUpperCase()}</div>
+      <div style="width:52px; height:52px; border-radius:50%; background:#2C3239; border:1px solid #4D545C; display:flex; align-items:center; justify-content:center; font-size:19px; font-weight:700; color:var(--pc-accent); flex-shrink:0;">${(p.nome || "?").trim().charAt(0).toUpperCase()}</div>
       <div style="min-width:0; flex:1;">
         <div style="font-size:16px; font-weight:700;">${p.nome || "Sem nome"}</div>
         <div style="font-size:12px; color:var(--pc-ink-dim); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${(pcState.sessao && pcState.sessao.user.email) || ""}</div>
@@ -1670,10 +1670,10 @@ function renderMenuConta() {
 
     <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Conta</div>
     <div class="glass-card" style="padding:0; overflow:hidden; margin-bottom:18px;">
-      ${linhaMenu("pcBtnMenuDados", "perfil", "rgba(61,255,176,.1)", "Meus dados", "Telefone, CEP, município, gênero")}
-      ${linhaMenu("pcBtnMenuSenha", "chave", "rgba(61,255,176,.1)", "Trocar senha", "Atualize sua senha de acesso")}
+      ${linhaMenu("pcBtnMenuDados", "perfil", "#2C3239", "Meus dados", "Telefone, CEP, município, gênero")}
+      ${linhaMenu("pcBtnMenuSenha", "chave", "#2C3239", "Trocar senha", "Atualize sua senha de acesso")}
       <div style="display:flex; align-items:center; gap:13px; padding:14px 16px; border-bottom:1px solid var(--pc-glass-border);">
-        <div style="width:36px; height:36px; border-radius:10px; background:rgba(61,255,176,.1); display:flex; align-items:center; justify-content:center; flex-shrink:0;">${iconeSvg("alerta", 17)}</div>
+        <div style="width:36px; height:36px; border-radius:10px; background:#2C3239; border:1px solid #4D545C; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${iconeSvg("alerta", 17)}</div>
         <div style="flex:1; min-width:0;">
           <div style="font-size:14px; font-weight:600;">Notificações por e-mail</div>
           <div style="font-size:11.5px; color:var(--pc-ink-dim); margin-top:1px;">Avisos de grupo e da eleição (em breve)</div>
@@ -1681,16 +1681,16 @@ function renderMenuConta() {
         <label class="pc-switch" style="flex-shrink:0;"><input type="checkbox" id="pcToggleNotifEmail" ${p.notif_email ? "checked" : ""}><span class="pc-switch-slider"></span></label>
       </div>
       ${linhaMenu("pcBtnMenuReportar", "alerta", "rgba(198,230,42,.12)", "Reportar um problema", "Achou um bug? Nos conta aqui")}
-      ${linhaMenu("pcBtnMenuConvidar", "convidar", "rgba(61,255,176,.1)", "Convidar amigos", "Seu grupo e código de convite")}
-      ${pcState.souAdmin ? linhaMenu("pcBtnMenuAdmin", "chart", "rgba(61,255,176,.1)", "Painel do administrador", null) : ""}
-      ${pcState.souUsuarioFinal ? linhaMenu("pcBtnMenuUsuarioFinal", "chart", "rgba(61,255,176,.1)", "Painel de dados estratégicos", null) : ""}
+      ${linhaMenu("pcBtnMenuConvidar", "convidar", "#2C3239", "Convidar amigos", "Seu grupo e código de convite")}
+      ${pcState.souAdmin ? linhaMenu("pcBtnMenuAdmin", "chart", "#2C3239", "Painel do administrador", null) : ""}
+      ${pcState.souUsuarioFinal ? linhaMenu("pcBtnMenuUsuarioFinal", "chart", "#2C3239", "Painel de dados estratégicos", null) : ""}
     </div>
 
     <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Sobre</div>
     <div class="glass-card" style="padding:0; overflow:hidden; margin-bottom:18px;">
-      ${linhaMenu("pcBtnMenuAjuda", "ajuda", "rgba(61,255,176,.1)", "Central de ajuda", "Como funciona o quociente, sobra e Senador")}
-      ${linhaMenu("pcBtnMenuTermos", "ballot", "rgba(61,255,176,.1)", "Termos de uso", null)}
-      ${linhaMenu("pcBtnMenuPrivacidade", "chave", "rgba(61,255,176,.1)", "Política de privacidade", null)}
+      ${linhaMenu("pcBtnMenuAjuda", "ajuda", "#2C3239", "Central de ajuda", "Como funciona o quociente, sobra e Senador")}
+      ${linhaMenu("pcBtnMenuTermos", "ballot", "#2C3239", "Termos de uso", null)}
+      ${linhaMenu("pcBtnMenuPrivacidade", "chave", "#2C3239", "Política de privacidade", null)}
     </div>
 
     <button id="pcBtnMenuExcluirConta" class="ghost" style="width:100%; margin-bottom:10px; color:var(--pc-danger); border-color:var(--pc-danger); opacity:.75;">Excluir conta</button>
@@ -1768,8 +1768,8 @@ function renderMenuConta() {
 
 function renderModalExcluirConta() {
   return `
-    <div id="pcModalExcluirContaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(232,67,42,.4); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div id="pcModalExcluirContaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(232,67,42,.4); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <h2 style="margin-bottom:4px; font-size:15px; color:var(--pc-danger);">Excluir conta</h2>
         <div class="pc-sub" style="margin-bottom:14px; line-height:1.6;">Isso remove seu acesso e registra um pedido de exclusão dos seus dados (listas, grupos, palpites). Não dá pra desfazer depois de processado. Confirma?</div>
         <div class="pc-erro" id="pcExcluirContaErro"></div>
@@ -1824,8 +1824,8 @@ function renderCentralAjuda() {
 
 function renderModalReportarProblema() {
   return `
-    <div id="pcModalReportarProblemaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div id="pcModalReportarProblemaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <h2 style="margin-bottom:4px; font-size:15px;">Reportar um problema</h2>
         <div class="pc-sub" style="margin-bottom:14px;">Conta o que aconteceu — bug, tela travada, número que parece errado, qualquer coisa.</div>
         <textarea class="cell" id="pcProblemaMensagem" rows="5" style="width:100%; resize:vertical; font-family:var(--sans);" placeholder="Descreva o problema..."></textarea>
@@ -2599,8 +2599,8 @@ function renderModalCompartilhar() {
   const lista = d.lista;
   if (d.carregando) {
     return `
-    <div id="pcModalCompartilharOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:340px; width:100%; background:rgba(15,35,27,.92); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:30px 20px; text-align:center;">
+    <div id="pcModalCompartilharOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:340px; width:100%; background:rgba(29,32,35,.97); border:1px solid #2B2F33; border-radius:18px; padding:30px 20px; text-align:center;">
         <div style="color:var(--pc-ink-dim); font-size:13px; margin-bottom:16px;">Carregando…</div>
         <button class="ghost" id="pcBtnFecharCompartilhar" style="border:none; font-size:11.5px; color:var(--pc-ink-dim);">Cancelar</button>
       </div>
@@ -2609,13 +2609,13 @@ function renderModalCompartilhar() {
   const anonimo = lista.anonimo;
   const nomeExibido = anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || lista.nome);
   return `
-    <div id="pcModalCompartilharOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:340px; width:100%; max-height:90vh; overflow-y:auto; background:rgba(15,35,27,.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div id="pcModalCompartilharOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:340px; width:100%; max-height:90vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("chave", 14)} CÉDULA DEPOSITADA</div>
         <h2 style="margin-bottom:4px; font-size:15px;">Compartilhar "${lista.nome}"</h2>
         <div style="font-size:12px; color:var(--pc-ink-dim); margin-bottom:16px; line-height:1.5;">Esse código é único dessa cédula — qualquer pessoa pode usá-lo pra conferir sua posição no ranking.</div>
-        ${anonimo ? `<div style="font-size:11px; color:var(--pc-ink-dim); background:#0c1c16; border-radius:8px; padding:9px 11px; margin-bottom:16px; line-height:1.5; display:flex; gap:8px; align-items:flex-start;">${iconeSvg("chave", 13)}<span>Essa lista foi depositada de forma anônima — seu nome não aparece na imagem nem em nenhum link gerado aqui.</span></div>` : ""}
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; background:#0c1c16; border:1px solid #2a4438; border-radius:10px; padding:10px 12px; margin-bottom:16px;">
+        ${anonimo ? `<div style="font-size:11px; color:var(--pc-ink-dim); background:#101214; border:1px solid #23262A; border-radius:8px; padding:9px 11px; margin-bottom:16px; line-height:1.5; display:flex; gap:8px; align-items:flex-start;">${iconeSvg("chave", 13)}<span>Essa lista foi depositada de forma anônima — seu nome não aparece na imagem nem em nenhum link gerado aqui.</span></div>` : ""}
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; background:#101214; border:1px solid #23262A; border-radius:10px; padding:10px 12px; margin-bottom:16px;">
           <span style="font-family:var(--mono); font-size:15px; font-weight:700; letter-spacing:.06em; color:var(--pc-ink);">${lista.codigo}</span>
           <button class="ghost" id="pcBtnCopiarCodigoCedula" style="padding:5px 10px; font-size:11px; display:flex; align-items:center; gap:4px;">${iconeSvg("copiar", 12)}COPIAR</button>
         </div>
@@ -2633,7 +2633,7 @@ function renderModalCompartilhar() {
         <button class="ghost" id="pcBtnBaixarImagemCedula" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; padding:10px 8px;">${iconeSvg("baixar", 14)}Baixar imagem</button>
         <div style="margin:14px 0; border-top:1px solid var(--pc-glass-border);"></div>
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-bottom:8px; line-height:1.5;">Card de divulgação com os 3 cargos juntos (Estadual, Federal e Senador) e o resto da lista escondido, pra chamar gente pra conhecer sua cédula completa.</div>
-        <button class="ghost" id="pcBtnBaixarCardResumo" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; padding:10px 8px; color:var(--pc-accent); border-color:rgba(61,255,176,.4);">${iconeSvg("send", 14)}Baixar "Meu palpite" (3 cargos)</button>
+        <button class="ghost" id="pcBtnBaixarCardResumo" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12px; padding:10px 8px; color:var(--pc-accent); border-color:rgba(52,232,74,.4);">${iconeSvg("send", 14)}Baixar "Meu palpite" (3 cargos)</button>
         <div id="pcCompartilharStatus" style="font-size:11px; color:var(--pc-ink-dim); text-align:center; margin-top:10px; min-height:14px;"></div>
         <div style="text-align:center; margin-top:4px;"><button class="ghost" id="pcBtnFecharCompartilhar" style="border:none; font-size:11.5px; color:var(--pc-ink-dim);">Fechar</button></div>
       </div>
@@ -2748,8 +2748,8 @@ async function renderMinhasListas() {
     ${depositadas.length ? `<div class="pc-lobby-menu-tit" style="margin-top:${abertas.length ? "18px" : "0"};">Depositadas</div>${depositadas.map(linhaDepositada).join("")}` : ""}
     ${!listas.length ? estadoVazio({ icone: "lista", titulo: "Nenhuma lista ainda", texto: "Monte sua primeira previsão e ela aparece aqui.", botaoLabel: "Criar minha lista", botaoId: "pcBtnEstadoVazioNovaLista" }) : ""}
     ${listaModal ? `
-    <div id="pcModalDepositarOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div id="pcModalDepositarOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 14)} IMPORTANTE</div>
         <h2 style="margin-bottom:6px; font-size:15px;">Depositar "${listaModal.nome}"?</h2>
         <div style="font-size:12.5px; line-height:1.6; color:var(--pc-ink-dim);">Depois de depositada, essa lista trava — não dá mais pra editar nem excluir. É a sua cédula pra valer.</div>
@@ -5464,8 +5464,8 @@ async function renderCargoEstadual() {
 
   conteudo.innerHTML = `
     ${instrucaoAberta ? `
-    <div id="pcInstrucaoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(15,35,27,.72); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:20px 20px 18px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div id="pcInstrucaoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:20px 20px 18px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:6px;">${iconeSvg("alerta", 13)} IMPORTANTE</div>
         <h2 style="margin-bottom:4px; font-size:15px;">COMO MONTAR A LISTA</h2>
         <div style="font-size:11px; line-height:1.4; color:var(--pc-ink-dim); font-style:italic; margin-bottom:10px;">Trilha ágil. Monte como quiser, mas este é o caminho mais rápido.</div>
@@ -5488,18 +5488,18 @@ async function renderCargoEstadual() {
               <input class="cell" disabled value="67065" style="width:95px; font-size:12px; font-weight:600; text-align:right; padding:5px 8px;">
             </div>
           </div>
-          <div style="margin:8px 0; padding:8px 10px; background:#0c1c16; border-radius:8px; font-size:11.5px; line-height:1.4;">
+          <div style="margin:8px 0; padding:8px 10px; background:#101214; border:1px solid #23262A; border-radius:8px; font-size:11.5px; line-height:1.4;">
             <b style="color:var(--pc-accent-2);">DICA BÔNUS</b><br>
             Se você optar pela trilha ágil, não esqueça de selecionar o preenchimento automático no botão "auto" — ele garante que os demais candidatos tenham uma votação simulada, o que aumenta sua pontuação no ranqueamento.
             <div style="margin-top:6px; text-align:center;">
-              <span style="display:inline-flex; align-items:center; gap:5px; padding:5px 12px; font-size:11.5px; font-weight:700; border-radius:999px; background:rgba(61,255,176,.08); border:1px solid var(--pc-accent); color:#c8ffe8;">${iconeSvg("completar", 12)} Auto</span>
+              <span style="display:inline-flex; align-items:center; gap:5px; padding:5px 12px; font-size:11.5px; font-weight:700; border-radius:999px; background:rgba(52,232,74,.08); border:1px solid var(--pc-accent); color:#F2F4F5;">${iconeSvg("completar", 12)} Auto</span>
             </div>
           </div>
           <div>
             <b style="color:var(--pc-ink);">3. AVANÇAR</b><br>
             Quando indicar a quantidade de votos eleitos proporcional ao número de vagas, a opção avançar será selecionável. Ao ativá-la, você acessa a sua lista de palpite dos parlamentares eleitos e dos suplentes, pronta pra revisar. Depois disso, você pode salvar a sua lista — dá pra editar depois quando quiser — e, se preferir, imprimir. Quando estiver pronto de verdade, é no lobby que você deposita a cédula pra valer: aí sim ela trava e não pode mais ser alterada.
             <div style="margin:6px 0 0; text-align:center;">
-              <span style="display:inline-flex; align-items:center; padding:5px 16px; font-size:11.5px; font-weight:700; border-radius:999px; background:rgba(61,255,176,.08); border:1px solid var(--pc-accent); color:#c8ffe8;">Avançar</span>
+              <span style="display:inline-flex; align-items:center; padding:5px 16px; font-size:11.5px; font-weight:700; border-radius:999px; background:rgba(52,232,74,.08); border:1px solid var(--pc-accent); color:#F2F4F5;">Avançar</span>
             </div>
           </div>
           <div style="font-size:10.5px; opacity:0.75; margin-top:8px;">Depois disso, você pode continuar sua trilha com outras funções, como a criação de grupos, ranqueamento e outras funcionalidades.</div>
@@ -5508,8 +5508,8 @@ async function renderCargoEstadual() {
       </div>
     </div>` : ""}
     ${pcState.avisoLimiteVagasAberto ? `
-    <div id="pcAvisoLimiteOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:420px; width:100%; background:rgba(15,35,27,.72); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div id="pcAvisoLimiteOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:420px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11.5px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 14)} IMPORTANTE</div>
         <h2 style="margin-bottom:6px;">LIMITE DE VAGAS ATINGIDO</h2>
         <div style="font-size:13.5px; line-height:1.7; color:var(--pc-ink-dim);">
@@ -5526,8 +5526,8 @@ async function renderCargoEstadual() {
       const acao = pcState.confirmAutoPreenchimentoAcao;
       const alvo = acao ? `do partido <b style="color:var(--pc-ink);">${acao.partido.nome}</b>` : "de todos os partidos deste cargo";
       return `
-    <div id="pcConfirmAutoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:420px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div id="pcConfirmAutoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:420px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11.5px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("completar", 14)} PREENCHIMENTO AUTOMÁTICO</div>
         <h2 style="margin-bottom:6px;">Preencher automaticamente?</h2>
         <div style="font-size:13.5px; line-height:1.7; color:var(--pc-ink-dim);">
@@ -5570,8 +5570,8 @@ async function renderCargoEstadual() {
           </div>`
         : `<div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(120,130,180,0.25); font-size:12.5px; color:var(--pc-ink-dim);">Total: <b style="color:var(--pc-ink);">${totalGeral.toLocaleString("pt-BR")}</b></div>`;
       return `
-      <div id="pcCandidatos2022Overlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-        <div style="max-width:460px; width:100%; max-height:80vh; overflow-y:auto; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+      <div id="pcCandidatos2022Overlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+        <div style="max-width:460px; width:100%; max-height:80vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
           <h2 style="margin-bottom:4px;">${nomePartidoExibicao(nomePartido)} — nominata 2022</h2>
           <div class="pc-sub" style="margin-bottom:2px;">${candidatos.length} candidato${candidatos.length === 1 ? "" : "s"}, do mais votado pro menos votado.</div>
           ${qe2022 ? `<div class="pc-sub" style="margin-bottom:14px;">Quociente eleitoral 2022: <b style="color:var(--pc-ink);">~${Math.round(qe2022).toLocaleString("pt-BR")}</b> votos/vaga</div>` : ""}
@@ -5594,8 +5594,8 @@ async function renderCargoEstadual() {
           <span style="font-size:13px; font-weight:600; color:var(--pc-ink-dim); flex-shrink:0;">${Number(c.votos || 0).toLocaleString("pt-BR")}</span>
         </div>`).join("");
       return `
-      <div id="pcTop2022Overlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-        <div style="max-width:460px; width:100%; max-height:80vh; overflow-y:auto; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+      <div id="pcTop2022Overlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+        <div style="max-width:460px; width:100%; max-height:80vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
           <h2 style="margin-bottom:4px;">${cargoInfo.label} — top ${top100.length} de 2022</h2>
           <div class="pc-sub" style="margin-bottom:14px;">Os candidatos mais votados na eleição real de 2022, de todos os partidos, do mais votado pro menos votado — só de referência, não muda seu palpite.</div>
           ${linhasTop100 || estadoVazio({ icone: "buscar", titulo: "Nenhum candidato encontrado", texto: "Confira o nome digitado." })}
@@ -6611,8 +6611,8 @@ async function executarSalvarLista({ manterTela = false } = {}) {
 // entrada na Seleção.
 function renderModalNomeLista() {
   return `
-    <div id="pcModalNomeListaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div id="pcModalNomeListaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <h2 style="margin-bottom:4px; font-size:15px;">Nomeie a sua lista</h2>
         <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">A nomeação é importante para gerar palpites diferentes conforme determinados grupos, ou para o cadastro de novas listas por conta da mudança de cenário durante o período eleitoral.</div>
         <input class="cell" id="pcInputNomeLista" placeholder="otimista - ${new Date().toLocaleDateString("pt-BR")}" style="width:100%; margin-bottom:6px;">
@@ -6662,8 +6662,8 @@ function attachListenersModalNomeLista(aoCancelar, aoConfirmar) {
 function renderModalInstagram() {
   const info = pcState.modalInstagramInfo;
   return `
-    <div id="pcModalInstagramOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(4,10,8,.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:380px; width:100%; background:rgba(15,35,27,.85); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid rgba(61,255,176,.35); border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+    <div id="pcModalInstagramOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <h2 style="margin-bottom:4px; font-size:15px;">Instagram — ${info.nome}</h2>
         <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">Link visível pra todo mundo, ao lado do nome do candidato na Seleção. Cole o endereço completo do perfil.</div>
         <input class="cell" id="pcInputInstagram" placeholder="https://instagram.com/..." value="${escaparAtributoHtml(info.valorAtual || "")}" style="width:100%; margin-bottom:6px;">
@@ -7637,7 +7637,7 @@ async function renderQuadroMedias() {
     <div class="pc-sub" style="margin:0 0 14px 2px;">Pesquisa em tempo real — mediana aparada de ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} público${totalPalpites === 1 ? "" : "s"}. Quem estaria eleito, pela mesma regra do resultado oficial.</div>
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
     <div class="pc-lobby-card" style="padding:14px;">
-      ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(61,255,176,.14)", vago: "#182f24", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
+      ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(52,232,74,.14)", vago: "#1B1E22", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
     </div>
     <div class="pc-lobby-card">
       ${projecao.length ? projecao.map(linha).join("") : estadoVazio({ icone: "chart", titulo: "Ninguém preencheu esse cargo", texto: "Assim que alguém depositar uma cédula pública desse cargo, a mediana aparece aqui." })}
