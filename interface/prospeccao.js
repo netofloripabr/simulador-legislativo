@@ -168,6 +168,21 @@ function comandoIcone(opcoes) {
 // disabled, classeExtra, atributosExtra }; `aberta` é
 // pcState.legendaComandosAberta (ou equivalente) pra lembrar o estado
 // entre re-renders.
+// Só o painel expandível de legendas (sem a fileira de botões) — usado no
+// modelo fader dos deputados, onde os botões moram no console do cabeçalho
+// fixo mas a legenda abre no conteúdo (pra não esticar o sticky).
+function renderLegendaComandos(comandos) {
+  const itens = comandos.map((c) => `
+    <div class="pc-cmd-legenda-item">
+      <div class="pc-cmd-legenda-icone">${iconeSvg(c.icone, 15)}</div>
+      <div>
+        <div class="pc-cmd-legenda-titulo">${c.titulo}</div>
+        <div class="pc-cmd-legenda-sub">${c.legenda || ""}</div>
+      </div>
+    </div>`).join("");
+  return `<div class="pc-cmd-legenda-painel aberto" id="pcCmdLegendaPainel">${itens}</div>`;
+}
+
 function renderPainelComandos(comandos, aberta) {
   const botoes = comandos.map((c) => comandoIcone(c)).join("");
   const itensLegenda = comandos.map((c) => `
@@ -605,7 +620,7 @@ function renderColaborativo() {
   // Tema Fader (identidade 2.0) por enquanto só na tela de palpite com o
   // Senador ativo — as outras telas migram numa etapa própria. A classe
   // troca o fundo verde 1.0 pelo degradê cinza neutro do §8.2.
-  el.classList.toggle("pc-tema-fader", pcState.tela === "selecao-convidado" && pcState.cargoAtivo === "senador");
+  el.classList.toggle("pc-tema-fader", pcState.tela === "selecao-convidado");
   if (pcState.tela === "erro-conexao") {
     el.innerHTML = `<div class="glass-card">
       <h2>Prospecção Coletiva</h2>
@@ -3455,6 +3470,13 @@ function executarAutoPreenchimento(partido) {
     renderCargoEstadual();
     return;
   }
+  if (!partido) {
+    // Abas de deputado no modelo fader: distribuição realista + normalização
+    // pra fechar a barra em 100% (gate do Avançar).
+    autoPreenchimentoDeputadosFader(totalValidosProjetado2026());
+    renderCargoEstadual();
+    return;
+  }
   if (partido) {
     balancearPartidoSelecao(partido);
     aplicarQuantidadeMarcados(partido, partido.candidatos.filter((c) => c.marcadoEleito).length);
@@ -3913,7 +3935,7 @@ function autoPreenchimentoSenador() {
 // Cabeçalho da aba Senador (vai no slot fixo #pcPainelSlot): linha
 // "VOTOS (i) … pct · nominal", funil explicativo, régua em perspectiva,
 // trilho verde com marco central e a mini alça mestra, escala de extremos.
-function renderPainelSenador(E) {
+function renderPainelSenador(E, comandos) {
   const TETO = E * 2;
   const soma = pcState.palpiteEdicao.reduce((s, p) => s + p.candidatos.reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
   const pct = Math.round(soma / TETO * 100);
@@ -3930,8 +3952,9 @@ function renderPainelSenador(E) {
       <div class="pc-sen-fu-l"><span>${rotulo}</span><b${total ? ' style="color:var(--pc-accent);"' : ""}>${formatVotosCompacto(valor)}</b></div>
       <div class="pc-sen-fu-b${total ? " tot" : ""}" style="width:${larg}%;"></div>
     </div>`;
+  const botoes = (comandos || []).map((c) => comandoIcone(c)).join("");
   return `
-    <div class="pc-sen-hdr">
+    <div class="pc-sen-hdr pc-console">
       <div class="pc-sen-osub">
         <span class="pc-sen-lbl">Votos <button type="button" id="pcSenInf" class="pc-sen-inf${pcState.funilVotosAberto ? " aberto" : ""}">i</button></span>
         <span class="pc-sen-num"><b id="pcSenPct">${pct}%</b> · <span id="pcSenNom">${formatVotosCompacto(soma)} de ${formatVotosCompacto(TETO)}</span></span>
@@ -3954,6 +3977,12 @@ function renderPainelSenador(E) {
         <div class="pc-sen-mgrip" id="pcSenMg" style="left:${w}%"></div>
       </div>
       <div class="pc-sen-escala"><span>0</span><span>${formatVotosCompacto(Math.round(E))} — 1 voto por eleitor</span><span>${formatVotosCompacto(TETO)}</span></div>
+      <div class="pc-console-cmds">
+        <div class="pc-cmd-painel">
+          ${botoes}
+          <button type="button" id="pcCmdLegendaToggle" class="pc-cmd-info${pcState.legendaComandosAberta ? " aberto" : ""}" title="O que faz cada botão">i</button>
+        </div>
+      </div>
     </div>`;
 }
 
@@ -4182,6 +4211,603 @@ function attachListenersSenador(E) {
     zone.addEventListener("pointerup", soltarMestre);
     zone.addEventListener("pointercancel", soltarMestre);
   }
+}
+
+// ===== Abas de Deputado (Estadual/Federal) — modelo fader (17/08/2026) =====
+// Substitui a seleção antiga (marcar eleitos por interruptor) pelo modelo
+// aprovado em protótipo: console A3 no cabeçalho fixo (VOTOS + alça mestra
+// + painel de comandos claro) e cards de partido como faders com os
+// candidatos aninhados dentro (FMD em dois níveis). O selo ELEITO deriva
+// da apuração real ao vivo (QE art. 106 + QP art. 107 + sobras D'Hondt),
+// não de marcação manual. Decisões em memória alesc-deputados-prototipo-
+// primeiro; espec visual em PROJETO.md §8.2.
+
+let _depDragKey = null, _depTimer = null, _depEditAberto = false, _depMasterAtivo = false;
+
+// Vagas apuradas por grupo com a votação ATUAL (mesma conta da Revisão:
+// dhondtComCorte distribui QP e sobras numa passada). marcadoEleito de
+// cada candidato = estar entre os N mais votados do próprio grupo.
+function recalcularMarcadosDeputados() {
+  const totalVagas = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
+  const { counts } = dhondtComCorte(pcState.palpiteEdicao, totalVagas);
+  pcState.palpiteEdicao.forEach((p, i) => {
+    const reais = p.candidatos.filter((c) => c.fonte !== "legenda");
+    const ordenados = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+    const chaves = new Set(ordenados.slice(0, counts[i]).filter((c) => (Number(c.votos) || 0) > 0).map((c) => c.chave));
+    p.candidatos.forEach((c) => { c.marcadoEleito = chaves.has(c.chave); });
+  });
+}
+
+function vagasApuradasPorGrupo() {
+  const totalVagas = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
+  return dhondtComCorte(pcState.palpiteEdicao, totalVagas).counts;
+}
+
+// Curso do fader de candidato: dobro da maior votação individual real de
+// 2022 do cargo, escalada pelo crescimento do eleitorado — espaço pra
+// surpresa sem deixar a barra inútil (o curso E do partido esmagaria
+// qualquer voto individual pra perto de zero).
+function capCandidatoDeputado() {
+  const todos = candidatosEstadoCargo(pcState.estado, pcState.cargoAtivo) || [];
+  let maior = 0;
+  todos.forEach((p) => p.candidatos.forEach((c) => {
+    if (c.fonte === "legenda") return;
+    const v = Number(c.votos) || 0;
+    if (v > maior) maior = v;
+  }));
+  return Math.max(50000, Math.round(maior * fatorCrescimentoEleitorado() * 2));
+}
+
+function somaVotosGrupo(p) {
+  return p.candidatos.reduce((s, c) => s + (Number(c.votos) || 0), 0);
+}
+function somaVotosCargo() {
+  return pcState.palpiteEdicao.reduce((s, p) => s + somaVotosGrupo(p), 0);
+}
+
+// Fader reutilizando as classes pc-sen-* (mesma família visual §8.2);
+// "mini" reduz barra e alça pros candidatos aninhados.
+function faderDepHtml(chaveDrag, v, cap, mini) {
+  const pct = Math.min(100, cap > 0 ? v / cap * 100 : 0);
+  return `
+    <div class="pc-sen-slider${mini ? " pc-sen-slider-mini" : ""}" data-dep-fader="${escaparAtributoHtml(chaveDrag)}">
+      <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${pct}%"></div></div>
+      <div class="pc-sen-votos"></div>
+      <div class="pc-sen-grip" style="left:${pct}%"></div>
+    </div>`;
+}
+
+// Console A3 do cabeçalho fixo (protótipo aprovado): card elevado com a
+// linha VOTOS, régua em perspectiva, barra verde com alça mestra, escala
+// com QE, e o painel de comandos DENTRO (botões claros A3.2 via CSS).
+// A legenda dos comandos abre fora do console (no conteúdo) pra não
+// esticar o cabeçalho fixo.
+function renderPainelDeputadosFader(E, totalVagas, comandos) {
+  const soma = somaVotosCargo();
+  const pct = E > 0 ? Math.round(soma / E * 100) : 0;
+  const w = E > 0 ? Math.min(100, soma / E * 100) : 0;
+  const fator = fatorCrescimentoEleitorado();
+  const temAptos = pcState.estado === "SC" && typeof ELEITORADO_2026 !== "undefined";
+  const funilLinha = (rotulo, valor, larg, tot) => `
+    <div class="pc-sen-fu-row">
+      <div class="pc-sen-fu-l"><span>${rotulo}</span><b${tot ? ' style="color:#34E84A;"' : ""}>${formatVotosCompacto(valor)}</b></div>
+      <div class="pc-sen-fu-b${tot ? " tot" : ""}" style="width:${larg}%;"></div>
+    </div>`;
+  const botoes = comandos.map((c) => comandoIcone(c)).join("");
+  return `
+    <div class="pc-console">
+      <div class="pc-sen-osub">
+        <span class="pc-sen-lbl">Votos <button type="button" id="pcDepInf" class="pc-sen-inf${pcState.funilVotosAberto ? " aberto" : ""}">i</button></span>
+        <span class="pc-sen-num"><b id="pcDepPct">${pct}%</b> · <span id="pcDepNom">${formatVotosCompacto(soma)} de ${formatVotosCompacto(Math.round(E))}</span></span>
+      </div>
+      ${pcState.funilVotosAberto ? `
+      <div class="pc-sen-funil">
+        <div class="pc-sen-fu-t">De onde vem o teto de <b>${formatVotosCompacto(Math.round(E))}</b>: projeção dos votos válidos de 2026 pro cargo, a partir do resultado real de 2022 (TSE) dos partidos modelados, escalada pelo crescimento do eleitorado.</div>
+        ${temAptos ? funilLinha("Eleitores aptos 2026 (TSE)", ELEITORADO_2026, 100) : ""}
+        ${temAptos ? funilLinha("Comparecem (taxa hist. 2022)", Math.round(REF_2022.comparecimento * fator), Math.round(REF_2022.comparecimento * fator / ELEITORADO_2026 * 100)) : ""}
+        ${funilLinha("Votos válidos projetados", Math.round(E), temAptos ? Math.round(E / ELEITORADO_2026 * 100) : 100, true)}
+        <div class="pc-sen-fu-src">Fonte: resultados oficiais TSE 2022 + evolução do eleitorado.</div>
+      </div>` : ""}
+      <div class="pc-sen-regua" style="background:repeating-linear-gradient(90deg, rgba(174,181,187,.55) 0 1px, transparent 1px ${(100 / totalVagas).toFixed(3)}%); background-size:100% 100%;"></div>
+      <div class="pc-sen-zone" id="pcDepZone">
+        <div class="pc-sen-trk">
+          <div class="pc-sen-trkf" id="pcDepFill" style="width:${w}%"></div>
+        </div>
+        <div class="pc-sen-mgrip" id="pcDepMg" style="left:${w}%"></div>
+      </div>
+      <div class="pc-sen-escala"><span>0</span><span>${totalVagas} vagas · QE ${formatVotosCompacto(quocienteEleitoral(Math.round(E), totalVagas) || 0)}</span><span>${formatVotosCompacto(Math.round(E))}</span></div>
+      <div class="pc-console-cmds">
+        <div class="pc-cmd-painel">
+          ${botoes}
+          <button type="button" id="pcCmdLegendaToggle" class="pc-cmd-info${pcState.legendaComandosAberta ? " aberto" : ""}" title="O que faz cada botão">i</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// Lista de cards de partido (nível 1) com candidatos aninhados (nível 2).
+// Grupos ordenados pela votação indicada (reordena 450ms após o gesto);
+// dentro do card aberto, a LISTA COMPLETA de candidatos, também por
+// votação. Grupo sem ata 2026 vira o card opaco travado de sempre.
+// Vagas indicadas pelo usuário no box do card (campo novo p.vagasIndicadas,
+// persiste junto com o rascunho). Default = apuração atual do grupo.
+function vagasIndicadasDe(p, padrao) {
+  const v = Number(p.vagasIndicadas);
+  return Math.max(0, Number.isFinite(v) ? v : (padrao || 0));
+}
+
+// Mensagem da linha de notificação do card — o sistema fala a informação
+// mais útil do momento (decisão de 17/08: a linha de info virou canal de
+// notificações, com o "i" à direita).
+function notificacaoDep(soma, meta, vagasInd, qeProj) {
+  if (soma <= 0 && vagasInd <= 0) return "Use o box pra indicar vagas ou arraste a barra pra começar";
+  if (soma <= 0) return "Arraste a barra ou use o mágico pra dar a primeira votação";
+  if (meta > 0 && soma > meta * 1.005) return `<b>+${formatVotosCompacto(soma - meta)} além da meta</b> — selecione a ${vagasInd + 1}ª vaga ou realoque os votos`;
+  if (meta > 0 && soma >= meta * 0.995) return `Meta das <b>${vagasInd} vaga${vagasInd === 1 ? "" : "s"} fechada</b> — votação completa`;
+  const proxima = Math.max(1, Math.min(vagasInd, Math.floor(soma / qeProj) + 1));
+  return `Faltam <b>${formatVotosCompacto(Math.max(0, proxima * qeProj - soma))}</b> votos pra fechar a ${proxima}ª vaga`;
+}
+
+// Barra fina do partido no formato do console: régua com um traço por vaga
+// (verde passou / laranja em disputa / branco sem votos + pontinho laranja
+// quando há votos pra vaga não somada no box), preenchimento verde com
+// excedente em tom mais claro, alça-lâmina A1.3 com plaqueta de votos e
+// placa fixa da meta embaixo. `course` = extensão total do trilho.
+function barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course) {
+  const pos = (v) => Math.min(100, course > 0 ? v / course * 100 : 0);
+  const fillW = pos(Math.min(soma, meta));
+  const metaPos = pos(meta);
+  const extraW = soma > meta ? pos(soma) - metaPos : 0;
+  const nTicks = Math.min(60, Math.max(vagasInd, Math.ceil(soma / qeProj || 0)));
+  let ticks = "";
+  for (let i = 1; i <= nTicks; i++) {
+    const st = soma >= i * qeProj ? "on" : soma > (i - 1) * qeProj ? "disp" : "off";
+    ticks += `<span class="pc-dep-tick ${st}" style="left:${pos(i * qeProj)}%"></span>`;
+    if (i > vagasInd && soma > (i - 1) * qeProj) ticks += `<span class="pc-dep-tick-dot" style="left:${pos(i * qeProj)}%"></span>`;
+  }
+  const finaPasso = Math.max(1.5, 100 / Math.max(20, nTicks * 4));
+  const metaLabelPos = Math.min(90, Math.max(10, metaPos));
+  return `
+    <div class="pc-dep-regua"><div class="pc-dep-regua-fina" style="background:repeating-linear-gradient(90deg, rgba(138,144,150,.18) 0 1px, transparent 1px ${finaPasso.toFixed(3)}%);"></div>${ticks}</div>
+    <div class="pc-dep-zone" data-dep-fader="p|${gi}" data-course="${Math.round(course)}" data-meta="${Math.round(meta)}" data-qe="${Math.round(qeProj)}" data-vagas="${vagasInd}">
+      <div class="pc-dep-trk">
+        <div class="pc-dep-fill" style="width:${fillW}%"></div>
+        ${extraW > 0 ? `<div class="pc-dep-extra" style="left:${metaPos}%; width:${extraW}%"></div>` : ""}
+      </div>
+      ${meta > 0 ? `<span class="pc-dep-meta" style="left:${metaLabelPos}%">meta ${formatVotosCompacto(meta)}</span>` : ""}
+      <div class="pc-dep-grip" style="left:${pos(soma)}%">
+        <div class="pc-dep-grip-haste"></div>
+        <div class="pc-dep-grip-plq">${formatVotosCompacto(soma)}</div>
+      </div>
+    </div>`;
+}
+
+// Atualização ao vivo da barra do partido durante um gesto (sem re-render):
+// refaz preenchimento, excedente, plaqueta e os traços da régua do card.
+function atualizarBarraPartidoDom(zone, soma) {
+  const course = Number(zone.dataset.course) || 1;
+  const meta = Number(zone.dataset.meta) || 0;
+  const qeProj = Number(zone.dataset.qe) || 1;
+  const vagasInd = Number(zone.dataset.vagas) || 0;
+  const pos = (v) => Math.min(100, v / course * 100);
+  zone.querySelector(".pc-dep-fill").style.width = pos(Math.min(soma, meta)) + "%";
+  let extra = zone.querySelector(".pc-dep-extra");
+  if (soma > meta) {
+    if (!extra) {
+      extra = document.createElement("div");
+      extra.className = "pc-dep-extra";
+      zone.querySelector(".pc-dep-trk").appendChild(extra);
+    }
+    extra.style.left = pos(meta) + "%";
+    extra.style.width = (pos(soma) - pos(meta)) + "%";
+  } else if (extra) extra.remove();
+  const grip = zone.querySelector(".pc-dep-grip");
+  grip.style.left = pos(soma) + "%";
+  grip.querySelector(".pc-dep-grip-plq").textContent = formatVotosCompacto(soma);
+  const regua = zone.parentElement.querySelector(".pc-dep-regua");
+  if (regua) regua.querySelectorAll(".pc-dep-tick").forEach((t, idx) => {
+    const i = idx + 1;
+    t.className = "pc-dep-tick " + (soma >= i * qeProj ? "on" : soma > (i - 1) * qeProj ? "disp" : "off");
+  });
+}
+
+// Lista de cards de partido — design final de 17/08/2026 (5 linhas):
+// nome + box de vagas · régua/barra com meta · notificação + "i" ·
+// subpainel de botões · candidatos aninhados (lista completa).
+function renderListaDeputadosFader(grupos, E, totalVagas) {
+  const capCand = capCandidatoDeputado();
+  const counts = vagasApuradasPorGrupo();
+  const qeProj = quocienteEleitoral(Math.round(E), totalVagas) || 1;
+  const qeAtual = quocienteEleitoral(somaVotosCargo(), totalVagas);
+  const idxDe = new Map(pcState.palpiteEdicao.map((p, i) => [p, i]));
+  const ordenados = [...grupos].sort((a, b) => somaVotosGrupo(b) - somaVotosGrupo(a));
+  return ordenados.map((p) => {
+    const gi = idxDe.get(p);
+    if (p.semAta2026) {
+      return `
+      <div class="pc-dep-card sematq">
+        <div class="pc-dep-l1">
+          <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
+          <span class="pc-dep-sub">${p.temAtaOutroCargo ? "sem chapa neste cargo" : "não registrou ata"}</span>
+        </div>
+      </div>`;
+    }
+    const reais = p.candidatos.filter((c) => c.fonte !== "legenda");
+    const soma = somaVotosGrupo(p);
+    const vg = counts[gi] || 0;
+    const vagasInd = vagasIndicadasDe(p, vg);
+    const meta = vagasInd * qeProj;
+    const course = Math.max(meta, soma, qeProj);
+    const qpDireto = qeAtual ? Math.min(vg, Math.floor(soma / qeAtual)) : 0;
+    const sobras = vg - qpDireto;
+    const chaveAberto = "faderAberto_" + pcState.cargoAtivo + "_" + p.nome;
+    const aberto = !!pcState.expandido[chaveAberto];
+    const infoAberto = !!pcState.expandido["depInfo_" + pcState.cargoAtivo + "_" + p.nome];
+    const avisoMais = vg > vagasInd;
+    const candsOrd = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+    const cands = aberto ? candsOrd.map((c, k) => {
+      const cv = Number(c.votos) || 0;
+      const cpct = E > 0 ? cv / E * 100 : 0;
+      const selo = c.marcadoEleito
+        ? (k < qpDireto ? '<span class="pc-sen-chip">ELEITO</span>' : '<span class="pc-sen-chip sobra" title="Vaga conquistada na disputa de sobras (método das médias, art. 109)">SOBRA</span>')
+        : (cv > 0 ? '<span class="pc-sen-chip fora" title="Tem votos, mas não fecha vaga com a votação de hoje">FORA</span>' : "");
+      const linkInsta = linkInstagramDe(c.chave);
+      const insta = (linkInsta || pcState.souAdmin)
+        ? ` <span style="display:inline-flex; align-items:center; gap:3px; vertical-align:middle;">${linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram" style="display:inline-flex; color:var(--pc-accent);" onclick="event.stopPropagation()">${iconeSvg("instagram", 12)}</a>` : ""}${pcState.souAdmin ? `<button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : ""}</span>`
+        : "";
+      return `
+      <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
+        <div class="pc-dep-cl1">
+          ${selo}
+          <span class="pc-dep-cnm">${nomeExibicao(c)}${insta}</span>
+          <span class="pc-dep-cpct">${cpct.toFixed(1).replace(".", ",")}<small>%</small></span>
+        </div>
+        ${faderDepHtml("c|" + gi + "|" + c.chave, cv, capCand, true)}
+      </div>`;
+    }).join("") : "";
+    return `
+    <div class="pc-dep-card" data-dep-idx="${gi}">
+      <div class="pc-dep-l1" data-dep-toggle="${gi}">
+        <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
+        <div class="pc-dep-stepper" data-dep-stepper="${gi}">
+          <button type="button" data-dep-vaga-menos="${gi}">−</button>
+          <span>${vagasInd}</span>
+          <button type="button" data-dep-vaga-mais="${gi}">+</button>
+        </div>
+        <svg viewBox="0 0 16 16" width="13" height="13" style="color:#5C6268; flex:none; transform:${aberto ? "rotate(180deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </div>
+      ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course)}
+      <div class="pc-dep-notif">
+        <span class="pc-dep-notif-txt">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
+        <button type="button" class="pc-dep-inf${infoAberto ? " aberto" : ""}" data-dep-info="${gi}" title="Detalhes do partido">i</button>
+      </div>
+      ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.</div>` : ""}
+      ${aberto ? `<div class="pc-dep-subpainel">
+        <button type="button" class="pc-cmd-acao${avisoMais ? " avisovg" : ""}" ${avisoMais ? `title="A matemática eleitoral dá a este partido ${vg} vaga${vg === 1 ? "" : "s"} — você indicou ${vagasInd}. Só um aviso, a decisão é sua."` : 'disabled style="opacity:.15;"'}>${iconeSvg("alerta", 12)}</button>
+        <button type="button" class="pc-cmd-acao" data-pc-ver2022="${p.nome}" title="Nominata completa de 2022">${iconeSvg("ano2022", 12)}</button>
+        <button type="button" class="pc-cmd-acao" data-pc-reset="${p.nome}" title="Restaurar votação de 2022">${iconeSvg("reset", 12)}</button>
+        <button type="button" class="pc-cmd-acao" data-pc-zerar="${p.nome}" title="Zerar votação do partido">${iconeSvg("borracha", 12)}</button>
+        <button type="button" class="pc-cmd-acao" data-dep-magico="${gi}" title="Preencher só este partido automaticamente">${iconeSvg("completar", 13)}</button>
+      </div>` : ""}
+      ${aberto ? `<div class="pc-dep-cands">${cands || '<div class="pc-sen-rod">Nenhum candidato carregado neste grupo.</div>'}</div>` : ""}
+    </div>`;
+  }).join("");
+}
+
+// Escala os candidatos de um grupo pra um novo total usando a FMD; se o
+// grupo está zerado, semeia pesos pelo voto de 2022 de cada candidato
+// (fallback 1 — a regra "zero fica zero" da alça mestra vale pro gesto
+// coletivo, mas um partido zerado precisa poder nascer pelo próprio fader).
+function escalarGrupoDeputados(p, alvo, capCand) {
+  const reais = p.candidatos.filter((c) => c.fonte !== "legenda");
+  let base = reais.map((c) => Number(c.votos) || 0);
+  if (base.every((v) => v === 0)) base = reais.map((c) => Number(c.votos2022) || 1);
+  const novos = fmdEscalarProporcional(base, alvo, capCand);
+  reais.forEach((c, i) => { c.votos = novos[i]; });
+}
+
+function concluirGestoDeputados() {
+  recalcularMarcadosDeputados();
+  agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+  clearTimeout(_depTimer);
+  _depTimer = setTimeout(() => { renderCargoEstadual(); }, 450);
+}
+
+function atualizarHeaderDeputados(E) {
+  const soma = somaVotosCargo();
+  const elPct = document.getElementById("pcDepPct");
+  if (!elPct) return;
+  elPct.textContent = (E > 0 ? Math.round(soma / E * 100) : 0) + "%";
+  document.getElementById("pcDepNom").textContent = formatVotosCompacto(soma) + " de " + formatVotosCompacto(Math.round(E));
+  const w = E > 0 ? Math.min(100, soma / E * 100) : 0;
+  document.getElementById("pcDepFill").style.width = w + "%";
+  document.getElementById("pcDepMg").style.left = w + "%";
+}
+
+function atualizarFaderDep(sl, v, cap) {
+  const pct = Math.min(100, cap > 0 ? v / cap * 100 : 0);
+  sl.querySelector(".pc-sen-fill").style.width = pct + "%";
+  sl.querySelector(".pc-sen-grip").style.left = pct + "%";
+  posicionarVotosDep(sl, v, cap);
+}
+
+function posicionarVotosDep(sl, v, cap) {
+  const lbl = sl.querySelector(".pc-sen-votos");
+  const bar = sl.querySelector(".pc-sen-bar");
+  if (!lbl || !bar) return;
+  const barW = bar.getBoundingClientRect().width || 300;
+  const fillPx = Math.min(100, cap > 0 ? v / cap * 100 : 0) / 100 * barW;
+  const txt = (Number(v) || 0).toLocaleString("pt-BR") + " votos";
+  lbl.textContent = txt;
+  const txtPx = txt.length * 5.6 + 12;
+  if (fillPx > txtPx + 20) {
+    lbl.className = "pc-sen-votos dentro";
+    lbl.style.left = "auto";
+    lbl.style.right = (barW - fillPx + 15) + "px";
+  } else {
+    lbl.className = "pc-sen-votos fora";
+    lbl.style.right = "auto";
+    lbl.style.left = (fillPx + 15) + "px";
+  }
+}
+
+function attachListenersDeputadosFader(E, totalVagas) {
+  const capCand = capCandidatoDeputado();
+  const qeProj = quocienteEleitoral(Math.round(E), totalVagas) || 1;
+  const candidatoDe = (gi, chave) => pcState.palpiteEdicao[gi].candidatos.find((c) => c.chave === chave);
+
+  document.querySelectorAll("[data-dep-fader]").forEach((sl) => {
+    const key = sl.dataset.depFader;
+    const partes = key.split("|");
+    const ehPartido = partes[0] === "p";
+    const gi = +partes[1];
+
+    if (!ehPartido) {
+      posicionarVotosDep(sl, Number(candidatoDe(gi, partes[2])?.votos) || 0, capCand);
+      const lbl = sl.querySelector(".pc-sen-votos");
+      lbl.style.pointerEvents = "auto";
+      lbl.addEventListener("pointerdown", (e) => { e.stopPropagation(); });
+      lbl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        abrirEdicaoDep(sl, key);
+      });
+    } else {
+      const plq = sl.querySelector(".pc-dep-grip-plq");
+      plq.style.pointerEvents = "auto";
+      plq.addEventListener("pointerdown", (e) => { e.stopPropagation(); });
+      plq.addEventListener("click", (e) => {
+        e.stopPropagation();
+        abrirEdicaoDep(sl, key);
+      });
+    }
+
+    let base = null;
+    const mover = (e) => {
+      const r = sl.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      if (ehPartido) {
+        const p2 = pcState.palpiteEdicao[gi];
+        const alvo = fmdTravaIndividual(Math.round(frac * base.course), E, E, base.outrosTotal);
+        const reais = p2.candidatos.filter((c) => c.fonte !== "legenda");
+        const novos = fmdEscalarProporcional(base.membros, alvo, capCand);
+        reais.forEach((c, i) => { c.votos = novos[i]; });
+        atualizarBarraPartidoDom(sl, somaVotosGrupo(p2));
+        const card = sl.closest(".pc-dep-card");
+        if (card) card.querySelectorAll('[data-dep-fader^="c|"]').forEach((s2) => {
+          const k2 = s2.dataset.depFader.split("|");
+          atualizarFaderDep(s2, Number(candidatoDe(+k2[1], k2[2])?.votos) || 0, capCand);
+        });
+      } else {
+        const c = candidatoDe(gi, partes[2]);
+        if (!c) return;
+        c.votos = fmdTravaIndividual(Math.round(frac * capCand), capCand, E, base.outrosTotal);
+        c.votosEditado = true;
+        atualizarFaderDep(sl, Number(c.votos) || 0, capCand);
+        const zoneP = document.querySelector('[data-dep-fader="p|' + gi + '"]');
+        if (zoneP) atualizarBarraPartidoDom(zoneP, somaVotosGrupo(pcState.palpiteEdicao[gi]));
+      }
+      atualizarHeaderDeputados(E);
+    };
+    sl.addEventListener("pointerdown", (e) => {
+      if (_depEditAberto) return;
+      snapshotPalpite();
+      if (ehPartido) {
+        const p2 = pcState.palpiteEdicao[gi];
+        let membros = p2.candidatos.filter((c) => c.fonte !== "legenda").map((c) => Number(c.votos) || 0);
+        if (membros.every((vv) => vv === 0)) membros = p2.candidatos.filter((c) => c.fonte !== "legenda").map((c) => Number(c.votos2022) || 1);
+        // Curso do GESTO: fixo do início ao fim do arrasto (curso elástico
+        // no meio do gesto faria a alça fugir do dedo) — meta + 1 QE de
+        // folga pra dar espaço de passar da meta sem soltar.
+        const soma0 = somaVotosGrupo(p2);
+        const meta0 = Number(sl.dataset.meta) || 0;
+        const course = Math.max(meta0, soma0, qeProj) + qeProj;
+        sl.dataset.course = String(Math.round(course));
+        base = { membros, outrosTotal: somaVotosCargo() - soma0, course };
+      } else {
+        const c = candidatoDe(gi, partes[2]);
+        base = { outrosTotal: somaVotosCargo() - (Number(c?.votos) || 0) };
+      }
+      _depDragKey = key;
+      sl.classList.add("ativo");
+      try { sl.setPointerCapture(e.pointerId); } catch (_) {}
+      clearTimeout(_depTimer);
+      mover(e);
+    });
+    sl.addEventListener("pointermove", (e) => { if (_depDragKey === key) mover(e); });
+    const soltar = () => {
+      if (_depDragKey !== key) return;
+      _depDragKey = null;
+      base = null;
+      sl.classList.remove("ativo");
+      concluirGestoDeputados();
+    };
+    sl.addEventListener("pointerup", soltar);
+    sl.addEventListener("pointercancel", soltar);
+  });
+
+  // Box de edição nominal (toque na plaqueta do partido ou no rótulo do
+  // candidato) — compartilhado pelos dois níveis.
+  function abrirEdicaoDep(sl, key) {
+    if (_depEditAberto) return;
+    _depEditAberto = true;
+    const partes = key.split("|");
+    const atual = partes[0] === "p"
+      ? somaVotosGrupo(pcState.palpiteEdicao[+partes[1]])
+      : (Number(candidatoDe(+partes[1], partes[2])?.votos) || 0);
+    const div = document.createElement("div");
+    div.className = "pc-sen-edit";
+    div.innerHTML = '<input inputmode="numeric" value="' + atual + '">';
+    sl.appendChild(div);
+    const inp = div.querySelector("input");
+    setTimeout(() => { inp.focus(); inp.select(); }, 30);
+    const aplicar = () => {
+      _depEditAberto = false;
+      const pedido = Number(String(inp.value).replace(/\D/g, "")) || 0;
+      snapshotPalpite();
+      if (partes[0] === "p") {
+        const p2 = pcState.palpiteEdicao[+partes[1]];
+        const outros = somaVotosCargo() - somaVotosGrupo(p2);
+        escalarGrupoDeputados(p2, fmdTravaIndividual(pedido, E, E, outros), capCand);
+      } else {
+        const c = candidatoDe(+partes[1], partes[2]);
+        if (c) {
+          const outros = somaVotosCargo() - (Number(c.votos) || 0);
+          c.votos = fmdTravaIndividual(pedido, capCand, E, outros);
+          c.votosEditado = true;
+        }
+      }
+      recalcularMarcadosDeputados();
+      agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+      renderCargoEstadual();
+    };
+    inp.addEventListener("blur", aplicar);
+    inp.addEventListener("keydown", (ev) => { if (ev.key === "Enter") inp.blur(); });
+  }
+
+  // Box de vagas (− N +): comanda o volume — mudar a quantidade reescala a
+  // votação do grupo pra nova meta (lógica anterior de quantidade, agora
+  // movendo os faders pela FMD).
+  const mudarVagas = (gi, delta) => {
+    const p2 = pcState.palpiteEdicao[gi];
+    const counts = vagasApuradasPorGrupo();
+    const atual = vagasIndicadasDe(p2, counts[gi] || 0);
+    const novo = Math.max(0, Math.min(totalVagas, atual + delta));
+    if (novo === atual) return;
+    snapshotPalpite();
+    p2.vagasIndicadas = novo;
+    escalarGrupoDeputados(p2, Math.min(novo * qeProj, fmdTravaIndividual(novo * qeProj, E, E, somaVotosCargo() - somaVotosGrupo(p2))), capCand);
+    recalcularMarcadosDeputados();
+    agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+    renderCargoEstadual();
+  };
+  document.querySelectorAll("[data-dep-vaga-mais]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); mudarVagas(+b.dataset.depVagaMais, 1); }));
+  document.querySelectorAll("[data-dep-vaga-menos]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); mudarVagas(+b.dataset.depVagaMenos, -1); }));
+
+  document.querySelectorAll("[data-dep-info]").forEach((b) => b.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const p2 = pcState.palpiteEdicao[+b.dataset.depInfo];
+    const chave = "depInfo_" + pcState.cargoAtivo + "_" + p2.nome;
+    pcState.expandido[chave] = !pcState.expandido[chave];
+    renderCargoEstadual();
+  }));
+
+  document.querySelectorAll("[data-dep-toggle]").forEach((h) => h.addEventListener("click", (e) => {
+    if (e.target.closest("[data-dep-stepper]") || e.target.closest("[data-dep-magico]") || e.target.closest("a") || e.target.closest("[data-pc-editar-instagram]")) return;
+    const p2 = pcState.palpiteEdicao[+h.dataset.depToggle];
+    const chave = "faderAberto_" + pcState.cargoAtivo + "_" + p2.nome;
+    pcState.expandido[chave] = !pcState.expandido[chave];
+    renderCargoEstadual();
+  }));
+
+  document.querySelectorAll("[data-dep-magico]").forEach((b) => b.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const p2 = pcState.palpiteEdicao[+b.dataset.depMagico];
+    snapshotPalpite();
+    autoPreenchimentoDeputadosFader(E, p2);
+    renderCargoEstadual();
+  }));
+
+  const inf = document.getElementById("pcDepInf");
+  if (inf) inf.addEventListener("click", () => {
+    pcState.funilVotosAberto = !pcState.funilVotosAberto;
+    renderCargoEstadual();
+  });
+
+  const zone = document.getElementById("pcDepZone");
+  if (zone) {
+    let baseM = null;
+    const moverMestre = (e) => {
+      if (!baseM) return;
+      const r = zone.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      const novosTotais = fmdEscalarProporcional(baseM.totais, frac * E, E);
+      pcState.palpiteEdicao.forEach((p, i) => {
+        const reais = p.candidatos.filter((c) => c.fonte !== "legenda");
+        const novos = fmdEscalarProporcional(baseM.membros[i], novosTotais[i], capCand);
+        reais.forEach((c, j) => { c.votos = novos[j]; });
+      });
+      document.querySelectorAll("[data-dep-fader]").forEach((sl) => {
+        const k = sl.dataset.depFader.split("|");
+        if (k[0] === "p") atualizarBarraPartidoDom(sl, somaVotosGrupo(pcState.palpiteEdicao[+k[1]]));
+        else atualizarFaderDep(sl, Number(candidatoDe(+k[1], k[2])?.votos) || 0, capCand);
+      });
+      atualizarHeaderDeputados(E);
+    };
+    zone.addEventListener("pointerdown", (e) => {
+      if (somaVotosCargo() <= 0) return;
+      snapshotPalpite();
+      baseM = {
+        totais: pcState.palpiteEdicao.map((p) => somaVotosGrupo(p)),
+        membros: pcState.palpiteEdicao.map((p) => p.candidatos.filter((c) => c.fonte !== "legenda").map((c) => Number(c.votos) || 0)),
+      };
+      _depMasterAtivo = true;
+      zone.classList.add("ativo");
+      try { zone.setPointerCapture(e.pointerId); } catch (_) {}
+      clearTimeout(_depTimer);
+      moverMestre(e);
+    });
+    zone.addEventListener("pointermove", (e) => { if (_depMasterAtivo) moverMestre(e); });
+    const soltarMestre = () => {
+      if (!_depMasterAtivo) return;
+      _depMasterAtivo = false;
+      baseM = null;
+      zone.classList.remove("ativo");
+      concluirGestoDeputados();
+    };
+    zone.addEventListener("pointerup", soltarMestre);
+    zone.addEventListener("pointercancel", soltarMestre);
+  }
+}
+
+// Mágico do modelo fader: passo 1 usa a distribuição realista já existente
+// (balancearPartidoSelecao — voto de 2022 escalado + curva decrescente);
+// passo 2 normaliza os NÃO editados à mão pra soma fechar exatamente em E
+// (100% — o gate do Avançar exige lista completa). Com `soPartido`, roda
+// só naquele grupo e o alvo do grupo é a fatia proporcional à força de
+// 2022 dele, sem mexer nos demais.
+function autoPreenchimentoDeputadosFader(E, soPartido) {
+  const capCand = capCandidatoDeputado();
+  const grupos = soPartido ? [soPartido] : pcState.palpiteEdicao.filter((p) => !p.semAta2026);
+  grupos.forEach((p) => { balancearPartidoSelecao(p); });
+  if (soPartido) {
+    recalcularMarcadosDeputados();
+    agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+    return;
+  }
+  const todos = [];
+  pcState.palpiteEdicao.forEach((p) => p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todos.push(c)));
+  const fixos = todos.filter((c) => c.votosEditado && Number(c.votos) > 0);
+  const somaFixos = fixos.reduce((s, c) => s + Number(c.votos), 0);
+  const alvo = Math.max(0, E - somaFixos);
+  const base = todos.map((c) => (c.votosEditado && Number(c.votos) > 0) ? 0 : (Number(c.votos) || 0));
+  const dist = fmdEscalarProporcional(base, alvo, capCand);
+  todos.forEach((c, i) => {
+    if (c.votosEditado && Number(c.votos) > 0) return;
+    c.votos = dist[i];
+    c.votosEditado = false;
+  });
+  recalcularMarcadosDeputados();
+  agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
 }
 
 // Setas ao lado do contador "marcados/vagas2022": ajustam a quantidade em 1,
@@ -4436,9 +5062,11 @@ async function renderCargoEstadual() {
   // derivada da votação (top-N global) — alinhar aqui cobre também
   // rascunhos antigos salvos na época do modelo por partido/stepper.
   if (pcState.cargoAtivo === "senador") recalcularMarcadosSenador();
+  else recalcularMarcadosDeputados();
   // A troca de aba de cargo re-renderiza só esta tela (sem passar pelo
   // roteador), então o tema Fader precisa ser alternado aqui também.
-  document.getElementById("modoColaborativoWrap").classList.toggle("pc-tema-fader", pcState.cargoAtivo === "senador");
+  // Desde 17/08/2026 as TRÊS abas estão no modelo fader — tema sempre on.
+  document.getElementById("modoColaborativoWrap").classList.add("pc-tema-fader");
 
   const cargoInfo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
   // Total de vagas do cargo ativo (40 pra Dep. Estadual, 16 pra Dep.
@@ -4599,7 +5227,11 @@ async function renderCargoEstadual() {
 
   const blocos = pcState.cargoAtivo === "senador"
     ? renderListaSenador(totalVagasCargo, votosValidos2026Proj)
-    : partidosParaMostrar.map((p) => {
+    : renderListaDeputadosFader(partidosParaMostrar, votosValidos2026Proj, totalVagasCargo);
+  // Seleção antiga (marcar eleitos por interruptor) — substituída pelo
+  // modelo fader em 17/08/2026; o map abaixo fica fora do fluxo (função
+  // imediatamente descartada) até a limpeza definitiva.
+  const _blocosAntigos = () => partidosParaMostrar.map((p) => {
     // Partido sem nenhuma ata de convenção 2026 processada — card vazio e
     // BLOQUEADO ("não registrou ata"): opaco, sem stepper, sem botões, sem
     // como expandir. Existe pra pessoa saber POR QUE o partido não é
@@ -4956,7 +5588,51 @@ async function renderCargoEstadual() {
   // grudado no topo ao rolar, sem espaçamento entre eles (padrão pedido
   // pelo usuário em 16/08/2026, no lugar do esquema antigo de dois
   // stickies separados + camada de blur que gerava "sombra fantasma").
-  const painelHtml = pcState.cargoAtivo === "senador" ? renderPainelSenador(votosValidos2026Proj) : `
+  // Comandos definidos ANTES do painel: no modelo fader dos deputados o
+  // painel de comandos mora DENTRO do console A3 (cabeçalho fixo); no
+  // Senador ele segue no conteúdo (renderPainelComandos, mais abaixo).
+  const gateDeputados = somaVotosCargo() >= 0.995 * votosValidos2026Proj;
+  const comandosSelecao = [
+    {
+      id: "pcBtnBuscaPartidoToggle", icone: "buscar", tamanho: 14, titulo: "Buscar partido",
+      legenda: "Abre um campo pra filtrar a lista de partidos pelo nome.",
+      classeExtra: pcState.buscaPartidoAberta ? "ativo" : "",
+    },
+    {
+      id: "pcBtnVoltarSelecao", icone: "desfazer", tamanho: 15, titulo: "Desfazer",
+      legenda: "Desfaz a última alteração feita nesta tela — um voto editado, um arrasto de barra. Só volta um passo por vez.",
+      disabled: !pcState.historicoPalpite.length,
+    },
+    {
+      id: "pcBtnZerarTudo", icone: "borracha", tamanho: 14, titulo: "Zerar votação",
+      legenda: "Limpa a votação de todos os candidatos de uma vez. Indicado pra quem já sabe o que quer marcar do zero.",
+    },
+    {
+      id: "pcBtnTop2022", icone: "ano2022", tamanho: 15, titulo: "Top 100 de 2022",
+      legenda: "Mostra os 100 candidatos mais votados na eleição real de 2022, de todos os partidos — só de referência, não muda seu palpite.",
+    },
+    {
+      id: "pcBtnSalvarSelecao", icone: "salvar", tamanho: 17, titulo: "Salvar",
+      legenda: "Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\".",
+    },
+    {
+      id: "pcBtnPreencherAutoTudo", icone: "completar", tamanho: 18, titulo: "Mágico — preenchimento automático",
+      legenda: pcState.cargoAtivo === "senador"
+        ? "Distribui uma votação simulada entre todos os candidatos, pela força do partido de cada um em 2022. O que você já digitou à mão fica como está."
+        : "Distribui uma votação simulada realista entre todos os partidos e candidatos (com base em 2022) e fecha a barra em 100%. O que você já digitou à mão fica como está.",
+      classeExtra: "destaque",
+    },
+    {
+      id: "pcBtnDepositar", icone: "setaDireita", tamanho: 19, titulo: "Prosseguir pra Revisão",
+      legenda: pcState.cargoAtivo === "senador"
+        ? `Avança pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos${totalIndicado === totalVagasCargo ? "" : " — por enquanto está desabilitado"}.`
+        : `Avança pro próximo passo. Só fica ativo quando a barra de votos fecha em 100%${gateDeputados ? "" : " — o mágico completa o resto num toque"}.`,
+      disabled: pcState.cargoAtivo === "senador" ? totalIndicado !== totalVagasCargo : !gateDeputados,
+      classeExtra: "destaque",
+    },
+  ];
+  const painelHtml = pcState.cargoAtivo === "senador" ? renderPainelSenador(votosValidos2026Proj, comandosSelecao) : renderPainelDeputadosFader(votosValidos2026Proj, totalVagasCargo, comandosSelecao);
+  const _painelEleitoralAntigo = () => `
     <div id="pcPainelEleitoralCard" class="glass-card" style="padding:16px 18px;">
       <div class="pc-stats-row">
         <div class="pc-stats-item">
@@ -5050,7 +5726,7 @@ async function renderCargoEstadual() {
         <div style="font-size:13.5px; line-height:1.7; color:var(--pc-ink-dim);">
           ${pcState.cargoAtivo === "senador"
             ? "Vou distribuir uma votação simulada entre todos os candidatos, proporcional à força que o partido de cada um mostrou na eleição de 2022 — a lista fecha em 100% dos votos e os 2 mais votados ficam com o selo ELEITO. Números que você já digitou à mão não são alterados."
-            : `Vou distribuir a votação dos candidatos marcados como eleito ${alvo}, proporcionalmente ao peso de cada um em 2022, até bater a votação necessária pra fechar essas vagas — e completar o resto da lista com uma estimativa. Números que você já ajustou à mão (borda verde) não são alterados.`}
+            : "Vou distribuir uma votação simulada realista entre todos os partidos e candidatos (com base no desempenho de 2022) e fechar a barra de votos em 100% — as vagas, sobras e selos ELEITO se recalculam sozinhos. Números que você já digitou à mão não são alterados."}
         </div>
         <div style="display:flex; gap:8px; margin-top:20px;">
           <button class="ghost" id="pcBtnCancelarAuto" style="flex:1;">Cancelar</button>
@@ -5138,43 +5814,7 @@ async function renderCargoEstadual() {
     <div style="display:flex; align-items:center; gap:6px; margin:0 0 10px 2px; font-size:11.5px; color:var(--pc-ink-dim);">
       ${iconeSvg("salvar", 12)} Editando a lista <b style="color:var(--pc-ink); font-weight:600;">"${escaparAtributoHtml(pcState.listaSalvaNome)}"</b>
     </div>` : ""}
-    ${renderPainelComandos([
-      {
-        id: "pcBtnBuscaPartidoToggle", icone: "buscar", tamanho: 14, titulo: "Buscar partido",
-        legenda: "Abre um campo pra filtrar a lista de partidos pelo nome.",
-        classeExtra: pcState.buscaPartidoAberta ? "ativo" : "",
-      },
-      {
-        id: "pcBtnVoltarSelecao", icone: "desfazer", tamanho: 15, titulo: "Desfazer",
-        legenda: "Desfaz a última alteração feita nesta tela — um voto editado, um candidato marcado. Só volta um passo por vez.",
-        disabled: !pcState.historicoPalpite.length,
-      },
-      {
-        id: "pcBtnZerarTudo", icone: "borracha", tamanho: 14, titulo: "Zerar votação",
-        legenda: "Limpa a votação de todos os candidatos de uma vez. Indicado pra quem já sabe o que quer marcar do zero.",
-      },
-      {
-        id: "pcBtnTop2022", icone: "ano2022", tamanho: 15, titulo: "Top 100 de 2022",
-        legenda: "Mostra os 100 candidatos mais votados na eleição real de 2022, de todos os partidos — só de referência, não muda seu palpite.",
-      },
-      {
-        id: "pcBtnSalvarSelecao", icone: "salvar", tamanho: 17, titulo: "Salvar",
-        legenda: "Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\".",
-      },
-      {
-        id: "pcBtnPreencherAutoTudo", icone: "completar", tamanho: 18, titulo: "Mágico — preenchimento automático",
-        legenda: pcState.cargoAtivo === "senador"
-          ? "Distribui uma votação simulada entre todos os candidatos, pela força do partido de cada um em 2022. O que você já digitou à mão fica como está."
-          : "Preenche a votação simulada dos demais candidatos automaticamente. Marque antes quem você acha que será eleito — o resto ele completa.",
-        classeExtra: "destaque",
-      },
-      {
-        id: "pcBtnDepositar", icone: "setaDireita", tamanho: 19, titulo: "Prosseguir pra Revisão",
-        legenda: `Avança pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos${totalIndicado === totalVagasCargo ? "" : " — por enquanto está desabilitado"}.`,
-        disabled: totalIndicado !== totalVagasCargo,
-        classeExtra: "destaque",
-      },
-    ], pcState.legendaComandosAberta)}
+    ${pcState.legendaComandosAberta ? renderLegendaComandos(comandosSelecao) : ""}
     <div class="pc-status" id="pcSelecaoStatus" style="text-align:right; margin:-14px 0 14px;"></div>
     ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
     ${pcState.modalInstagramInfo ? renderModalInstagram() : ""}
@@ -5183,11 +5823,7 @@ async function renderCargoEstadual() {
       <svg viewBox="0 0 16 16" width="14" height="14" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--pc-ink-dim); pointer-events:none;"><circle cx="6.6" cy="6.6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7L13.5 13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
       <input type="text" id="pcBuscaPartidoInput" class="cell" placeholder="Buscar partido por nome" value="${pcState.buscaPartido || ""}" style="width:100%; padding-left:34px;">
     </div>` : ""}
-    ${pcState.cargoAtivo === "senador"
-      ? (blocos || estadoVazio({ icone: "buscar", titulo: "Nenhum candidato encontrado", texto: "Confira o nome digitado." }))
-      : `<div class="glass-card">
-      ${blocos || estadoVazio({ icone: "buscar", titulo: "Nenhum partido encontrado", texto: "Confira o nome digitado." })}
-    </div>`}
+    ${blocos || estadoVazio({ icone: "buscar", titulo: pcState.cargoAtivo === "senador" ? "Nenhum candidato encontrado" : "Nenhum partido encontrado", texto: "Confira o nome digitado." })}
   `;
 
   const slotPainel = document.getElementById("pcPainelSlot");
@@ -5195,6 +5831,7 @@ async function renderCargoEstadual() {
   ajustarBarrasTermometro();
   attachListenersSelecao();
   if (pcState.cargoAtivo === "senador") attachListenersSenador(votosValidos2026Proj);
+  else attachListenersDeputadosFader(votosValidos2026Proj, totalVagasCargo);
   if (reRenderizando) window.scrollTo(0, scrollAnterior);
 }
 

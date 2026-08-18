@@ -1010,3 +1010,184 @@
   background:rgba(24,27,30,.94) !important; border-color:#2B2F33 !important;
 }
 #modoColaborativoWrap.pc-tema-fader [style*="rgba(4,10,8"]{ background:rgba(8,9,11,.6) !important; }
+
+/* ===== Abas de Deputado — modelo fader (console A3 + cards aninhados) =====
+   Protótipo aprovado em 17/08/2026 (memória alesc-deputados-prototipo-
+   primeiro): console elevado #2C3239 como "painel principal", botões de
+   comando claros invertidos (A3.2), cards de partido reutilizando a
+   família pc-sen-* com candidatos aninhados em faders mini. */
+#modoColaborativoWrap .pc-console{
+  background:#2C3239; border:1px solid #4D545C; border-radius:14px;
+  padding:11px 13px 10px; margin-top:2px;
+}
+#modoColaborativoWrap .pc-console .pc-sen-lbl{ color:#AEB5BB; }
+#modoColaborativoWrap .pc-console .pc-sen-inf{ border-color:#565D65; color:#AEB5BB; }
+#modoColaborativoWrap .pc-console .pc-sen-inf.aberto{ border-color:#34E84A; color:#34E84A; }
+#modoColaborativoWrap .pc-console .pc-sen-num{ color:#AEB5BB; }
+#modoColaborativoWrap .pc-console .pc-sen-regua{
+  background:
+    repeating-linear-gradient(90deg, rgba(174,181,187,.6) 0 1px, transparent 1px 10%),
+    repeating-linear-gradient(90deg, rgba(174,181,187,.38) 0 1px, transparent 1px 2.5%);
+  background-size:100% 100%, 100% 60%;
+  background-position:bottom, bottom;
+  background-repeat:no-repeat;
+}
+#modoColaborativoWrap .pc-console .pc-sen-trk{ background:#0B0D0F; border-color:#15171A; }
+#modoColaborativoWrap .pc-console .pc-sen-escala{ color:#7E858C; }
+#modoColaborativoWrap .pc-console .pc-sen-funil{ background:#22272C; border-color:#3A4046; }
+#modoColaborativoWrap .pc-console-cmds{
+  border-top:1px solid #4D545C; margin:9px -13px 0; padding:9px 13px 0;
+}
+#modoColaborativoWrap .pc-console .pc-cmd-painel{ margin-bottom:0; }
+#modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-acao{
+  background:rgba(232,236,239,.35); border-color:rgba(242,244,245,.4); color:#F2F4F5;
+  max-width:26px; min-height:22px;
+}
+#modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-acao:hover:not(:disabled){ background:rgba(232,236,239,.5); color:#fff; }
+#modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-acao.ativo{
+  border-color:#34E84A; color:#34E84A; background:rgba(52,232,74,.12);
+}
+#modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-acao:disabled{ opacity:.3; }
+#modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-info{
+  background:transparent; border-color:#565D65; color:#AEB5BB; font-family:var(--sans);
+}
+#modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-info.aberto{ border-color:#34E84A; color:#34E84A; }
+
+#modoColaborativoWrap .pc-dep-card{
+  background:rgba(29,32,35,.85); border:1px solid #23262A; border-radius:12px;
+  padding:10px 12px 12px; margin-bottom:8px;
+}
+#modoColaborativoWrap .pc-dep-card.sematq{ opacity:.5; }
+#modoColaborativoWrap .pc-dep-card.sematq .pc-dep-sub{ display:inline; margin-left:8px; }
+#modoColaborativoWrap .pc-dep-l1{ display:flex; align-items:center; gap:7px; cursor:pointer; }
+#modoColaborativoWrap .pc-dep-nm{
+  flex:1; min-width:0; font-size:14.5px; font-weight:650; color:#F2F4F5;
+  overflow-wrap:anywhere;
+}
+#modoColaborativoWrap .pc-dep-magico{ flex:none; color:#34E84A; border-color:rgba(52,232,74,.4); }
+#modoColaborativoWrap .pc-dep-chip{
+  flex:none; background:#16181B; border:1px solid #2B2F33; color:#8A9096;
+  border-radius:4px; font-size:9px; font-weight:800; letter-spacing:.06em; padding:2px 5px;
+  white-space:nowrap;
+}
+#modoColaborativoWrap .pc-dep-chip.el{ background:#34E84A; border-color:#34E84A; color:#07230C; }
+#modoColaborativoWrap .pc-dep-pct{
+  flex:none; font-size:20px; font-weight:750; color:#F2F4F5;
+  font-variant-numeric:tabular-nums; line-height:1;
+}
+#modoColaborativoWrap .pc-dep-pct small{ font-size:10px; font-weight:650; color:#8A9096; }
+#modoColaborativoWrap .pc-dep-sub{ font-size:10px; color:#8A9096; margin-top:1px; }
+#modoColaborativoWrap .pc-dep-cands{ margin-top:8px; }
+#modoColaborativoWrap .pc-dep-crow{ padding:7px 0 2px; border-top:1px solid #1E2226; }
+#modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:6px; }
+#modoColaborativoWrap .pc-dep-cnm{
+  flex:1; min-width:0; font-size:12.5px; font-weight:650; color:#F2F4F5;
+  overflow-wrap:anywhere;
+}
+#modoColaborativoWrap .pc-dep-cpct{
+  flex:none; font-size:15px; font-weight:750; color:#F2F4F5;
+  font-variant-numeric:tabular-nums; line-height:1;
+}
+#modoColaborativoWrap .pc-dep-cpct small{ font-size:9px; font-weight:650; color:#8A9096; }
+#modoColaborativoWrap .pc-sen-slider-mini{ height:25px; margin-top:3px; }
+#modoColaborativoWrap .pc-sen-slider-mini .pc-sen-bar{ height:10px; border-radius:5px; }
+#modoColaborativoWrap .pc-sen-slider-mini .pc-sen-ticks{ top:2px; bottom:2px; }
+#modoColaborativoWrap .pc-sen-slider-mini .pc-sen-grip{ width:9px; height:20px; border-radius:4px; }
+#modoColaborativoWrap .pc-sen-chip.sobra{ background:#FFB020; color:#3A2600; }
+#modoColaborativoWrap .pc-sen-chip.fora{ background:transparent; border:1px solid #2B2F33; color:#8A9096; }
+
+
+/* ===== Card de partido — design final 17/08 (5 linhas, alça-lâmina A1.3) ===== */
+#modoColaborativoWrap .pc-dep-stepper{
+  display:flex; align-items:center; flex:none;
+  background:#2C3239; border:1px solid #4D545C; border-radius:7px; overflow:hidden;
+}
+#modoColaborativoWrap .pc-dep-stepper button{
+  width:24px; height:26px; border:none; background:transparent; color:#AEB5BB;
+  font-size:13px; cursor:pointer; padding:0; font-family:var(--sans);
+}
+#modoColaborativoWrap .pc-dep-stepper span{
+  min-width:26px; text-align:center; font-size:14px; font-weight:750;
+  color:#F2F4F5; font-variant-numeric:tabular-nums;
+}
+#modoColaborativoWrap .pc-dep-regua{ position:relative; height:8px; margin-top:9px; }
+#modoColaborativoWrap .pc-dep-regua-fina{
+  position:absolute; left:0; right:0; bottom:0; height:2.5px;
+}
+#modoColaborativoWrap .pc-dep-tick{
+  position:absolute; bottom:0; width:1px; height:4px; pointer-events:none;
+  transform:translateX(-50%) scaleX(.6);
+}
+#modoColaborativoWrap .pc-dep-tick.on{ background:rgba(52,232,74,.55); }
+#modoColaborativoWrap .pc-dep-tick.disp{ background:rgba(255,154,46,.6); }
+#modoColaborativoWrap .pc-dep-tick.off{ background:rgba(242,244,245,.32); }
+#modoColaborativoWrap .pc-dep-tick-dot{
+  position:absolute; top:-2px; width:3px; height:3px; border-radius:50%;
+  background:rgba(255,154,46,.85); transform:translateX(-50%); pointer-events:none;
+}
+#modoColaborativoWrap .pc-dep-zone{
+  position:relative; height:40px; cursor:pointer; touch-action:none;
+}
+#modoColaborativoWrap .pc-dep-trk{
+  position:absolute; left:0; right:0; top:6px; height:5px; border-radius:3px;
+  background:#0C0E10; border:1px solid #1A1D20; overflow:hidden;
+}
+#modoColaborativoWrap .pc-dep-fill{
+  position:absolute; left:0; top:0; height:100%; border-radius:3px;
+  background:linear-gradient(180deg,#7C848C 0%,#565D64 45%,#42484E 70%,#5A6168 100%);
+}
+#modoColaborativoWrap .pc-dep-extra{
+  position:absolute; top:0; height:100%;
+  background:linear-gradient(180deg,#A7AEB5 0%,#7E858C 55%,#8E959C 100%);
+}
+#modoColaborativoWrap .pc-dep-meta{
+  position:absolute; bottom:0; transform:translateX(-50%);
+  font-size:8.5px; color:#5C6268; font-variant-numeric:tabular-nums; white-space:nowrap;
+  pointer-events:none;
+}
+#modoColaborativoWrap .pc-dep-grip{
+  position:absolute; top:1px; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; pointer-events:none;
+}
+#modoColaborativoWrap .pc-dep-grip-haste{
+  width:6px; height:15px; border-radius:3px 3px 1px 1px;
+  background:linear-gradient(180deg,#5B6168,#3A3F45 60%,#2A2E33);
+  border:1px solid rgba(242,244,245,.22); border-bottom:none;
+  box-shadow:0 0 0 3px rgba(10,12,14,.5);
+}
+#modoColaborativoWrap .pc-dep-grip-plq{
+  margin-top:-1px;
+  background:linear-gradient(180deg,#2E3237,#1F2327 70%,#33383D);
+  border:1px solid rgba(242,244,245,.2); border-radius:999px; padding:1.5px 8px;
+  font-size:8.5px; font-weight:700; color:#D9DDE0; font-variant-numeric:tabular-nums;
+  white-space:nowrap; box-shadow:0 0 0 3px rgba(10,12,14,.5);
+}
+#modoColaborativoWrap .pc-dep-zone.ativo .pc-dep-grip-haste{ box-shadow:0 0 0 4px rgba(52,232,74,.2); }
+#modoColaborativoWrap .pc-dep-notif{
+  display:flex; align-items:center; gap:8px; margin-top:4px;
+}
+#modoColaborativoWrap .pc-dep-notif-txt{ flex:1; min-width:0; font-size:10px; color:#8A9096; line-height:1.4; }
+#modoColaborativoWrap .pc-dep-notif-txt b{ color:#AEB5BB; }
+#modoColaborativoWrap .pc-dep-inf{
+  flex:none; width:15px; height:15px; border-radius:50%; background:transparent;
+  border:1px solid #2B2F33; color:#8A9096; font-size:9px; font-style:italic;
+  font-family:var(--sans); display:inline-flex; align-items:center; justify-content:center;
+  cursor:pointer; padding:0;
+}
+#modoColaborativoWrap .pc-dep-inf.aberto{ border-color:#34E84A; color:#34E84A; }
+#modoColaborativoWrap .pc-dep-infopainel{
+  background:#16181B; border:1px solid #26292D; border-radius:10px;
+  padding:9px 11px; margin-top:7px; font-size:10px; color:#AEB5BB; line-height:1.6;
+}
+#modoColaborativoWrap .pc-dep-subpainel{
+  border-top:1px solid #23262A; margin:9px -12px 0; padding:9px 12px 0;
+  display:flex; align-items:center; justify-content:space-between; gap:5px;
+}
+#modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao{
+  flex:1 1 0; min-width:0; max-width:26px; min-height:22px; aspect-ratio:1;
+  border-radius:50%; background:rgba(232,236,239,.35); border:1px solid rgba(242,244,245,.4);
+  color:#F2F4F5; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; padding:0; font-family:var(--sans);
+}
+#modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao svg{ width:46%; height:46%; }
+#modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao.avisovg{ color:#FFB020; }
