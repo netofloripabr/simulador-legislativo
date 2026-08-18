@@ -5268,8 +5268,28 @@ async function renderCargoEstadual() {
   // Case de cápsulas pra todo plenário EXCETO a Assembleia de SC (que
   // mantém o hemiciclo em arco) — decisão do usuário em 18/08/2026.
   const usarCasePlenario = !(pcState.estado === "SC" && pcState.cargoAtivo === "estadual");
+  // A case responde às VAGAS INDICADAS nos boxes (não à apuração
+  // automática): cada grupo aloca as suas N cápsulas com os N candidatos
+  // mais votados dele, contadas pelo partido de origem — achado do
+  // usuário em 18/08 (box em 4 e case mostrando 6).
+  let composicaoPlenario = composicao;
+  if (usarCasePlenario && pcState.cargoAtivo !== "senador") {
+    const countsCase = vagasApuradasPorGrupo();
+    const porOriginal = {};
+    let alocadas = 0;
+    pcState.palpiteEdicao.forEach((pg, ig) => {
+      if (pg.semAta2026) return;
+      const reaisCase = pg.candidatos.filter((c) => c.fonte !== "legenda").sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+      const n = Math.min(vagasIndicadasDe(pg, countsCase[ig] || 0), reaisCase.length);
+      for (let k = 0; k < n && alocadas < totalVagasCargo; k++, alocadas++) {
+        const orig = reaisCase[k].partidoOriginal || pg.nome;
+        porOriginal[orig] = (porOriginal[orig] || 0) + 1;
+      }
+    });
+    composicaoPlenario = Object.entries(porOriginal).map(([nome, seats]) => ({ nome, seats }));
+  }
   const hemiciclo = usarCasePlenario
-    ? renderCasePlenario(composicao, totalVagasCargo)
+    ? renderCasePlenario(composicaoPlenario, totalVagasCargo)
     : desenharHemiciclo(composicao, totalVagasCargo, {
       preenchido: "var(--pc-glass-border)", texto: "var(--pc-ink)", porPartido: true,
     });
@@ -5279,7 +5299,7 @@ async function renderCargoEstadual() {
   // representação no total de vagas do cargo, do maior pro menor.
   const legendaPlenario = `
     <div style="display:flex; flex-wrap:wrap; gap:4px; opacity:0.55;">
-      ${[...composicao].sort((a, b) => b.seats - a.seats).map((o) => `
+      ${[...composicaoPlenario].sort((a, b) => b.seats - a.seats).map((o) => `
         <div style="display:inline-flex; align-items:center; justify-content:center; gap:3px; padding:4px 6px; border:1px solid rgba(120,130,180,0.2); border-radius:6px; white-space:nowrap;">
           <span style="width:5px; height:5px; border-radius:50%; background:${corPartidoIdeologico(o.nome)}; flex-shrink:0;"></span>
           <span style="font-size:9px; font-weight:600;">${usarCasePlenario ? siglaCurta(o.nome) : nomePartidoExibicao(o.nome)}: ${o.seats} (${(o.seats / totalVagasCargo * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</span>
