@@ -1255,3 +1255,13 @@
 #modoColaborativoWrap .pc-case-grade.poucos .pc-case-cap{
   width:34px; max-width:34px; height:34px; font-size:8.5px;
 }
+
+
+/* Ícone mono do Instagram antes do nome do candidato (18/08/2026) + mais
+   respiro entre a etiqueta ELEITO/SOBRA/FORA e o nome. */
+#modoColaborativoWrap .pc-insta-mini{
+  display:inline-flex; flex:none; color:#8A9096; align-items:center;
+}
+#modoColaborativoWrap .pc-insta-mini:hover{ color:#D3D8DC; }
+#modoColaborativoWrap .pc-dep-cl1{ gap:9px; }
+#modoColaborativoWrap .pc-sen-l1{ gap:10px; }

@@ -4031,14 +4031,14 @@ function renderListaSenador(totalVagas, E) {
     const pctBarra = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
     const pct = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
     const linkInsta = linkInstagramDe(c.chave);
-    const insta = (linkInsta || pcState.souAdmin)
-      ? ` <span style="display:inline-flex; align-items:center; gap:3px; vertical-align:middle;">${linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram" style="display:inline-flex; color:var(--pc-accent);" onclick="event.stopPropagation()">${iconeSvg("instagram", 13)}</a>` : ""}${pcState.souAdmin ? `<button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : ""}</span>`
-      : "";
+    const instaAntes = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 13)}</a>` : "";
+    const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
     return `
     <div class="pc-sen-card${eleito ? " eleito" : ""}" data-sen-idx="${it.idx}">
       <div class="pc-sen-l1">
         ${eleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
-        <span class="pc-sen-nm">${nomeExibicao(c)}${insta}</span>
+        ${instaAntes}
+        <span class="pc-sen-nm">${nomeExibicao(c)}${lapisAdmin}</span>
         <span class="pc-sen-pct">${pct.toFixed(0)}<small>%</small></span>
       </div>
       <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
@@ -4499,14 +4499,16 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         ? (k < qpDireto ? '<span class="pc-sen-chip">ELEITO</span>' : '<span class="pc-sen-chip sobra" title="Vaga conquistada na disputa de sobras (método das médias, art. 109)">SOBRA</span>')
         : (cv > 0 ? '<span class="pc-sen-chip fora" title="Tem votos, mas não fecha vaga com a votação de hoje">FORA</span>' : "");
       const linkInsta = linkInstagramDe(c.chave);
-      const insta = (linkInsta || pcState.souAdmin)
-        ? ` <span style="display:inline-flex; align-items:center; gap:3px; vertical-align:middle;">${linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram" style="display:inline-flex; color:var(--pc-accent);" onclick="event.stopPropagation()">${iconeSvg("instagram", 12)}</a>` : ""}${pcState.souAdmin ? `<button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : ""}</span>`
-        : "";
+      // Ícone do Instagram MONOCROMÁTICO antes do nome (pedido de 18/08) —
+      // só aparece pra quem tem link alimentado na planilha/admin.
+      const instaAntes = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 12)}</a>` : "";
+      const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
       return `
       <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
         <div class="pc-dep-cl1">
           ${selo}
-          <span class="pc-dep-cnm">${nomeExibicao(c)}${insta}</span>
+          ${instaAntes}
+          <span class="pc-dep-cnm">${nomeExibicao(c)}${lapisAdmin}</span>
           <span class="pc-dep-cpct">${cpct.toFixed(1).replace(".", ",")}<small>%</small></span>
         </div>
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</div>` : ""}
