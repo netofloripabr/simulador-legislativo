@@ -115,6 +115,9 @@ const PC_ICONES = {
   alerta: '<path d="M8 2.3l6.2 10.7a1 1 0 01-.87 1.5H2.67a1 1 0 01-.87-1.5L8 2.3z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M8 6.6v3.1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><circle cx="8" cy="11.7" r=".9" fill="currentColor"></circle>',
   completar: '<path d="M8.6 2L9.7 5.3 13 6.4 9.7 7.5 8.6 10.8 7.5 7.5 4.2 6.4 7.5 5.3z" fill="currentColor"></path><path d="M12.8 9.6l.55 1.65L15 12l-1.65.55L12.8 14l-.55-1.45L10.6 12l1.65-.75z" fill="currentColor"></path>',
   ano2022: '<text x="8" y="7.3" text-anchor="middle" font-size="6" font-weight="800" fill="currentColor" font-family="var(--sans)">20</text><text x="8" y="13.6" text-anchor="middle" font-size="6" font-weight="800" fill="currentColor" font-family="var(--sans)">22</text>',
+  lista22: '<path d="M2.6 3.4h7.2M2.6 6.4h7.2M2.6 9.4h4.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><text x="11.6" y="14" text-anchor="middle" font-size="6.4" font-weight="800" fill="currentColor" font-family="var(--sans)">22</text>',
+  relogio22: '<circle cx="6.4" cy="6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M6.4 3.6v2.5l1.8 1.1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path><text x="11.8" y="14.2" text-anchor="middle" font-size="6.4" font-weight="800" fill="currentColor" font-family="var(--sans)">22</text>',
+  refazer: '<path d="M7.67 5.33c1.77 0 3.37 0.66 4.6 1.73l2.4-2.39v6h-6l2.41-2.41c-0.93-0.77-2.11-1.25-3.41-1.25-2.36 0-4.37 1.54-5.07 3.67l-1.58-0.52C1.95 7.35 4.57 5.33 7.67 5.33z" fill="currentColor"></path>',
   mais: '<path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>',
   chave: '<circle cx="5.2" cy="5.2" r="2.4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M7 7l6.3 6.3M11 9.3l1.6 1.6M13 7.3l1.3 1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   editar: '<path d="M11.1 2.6a1.5 1.5 0 012.1 2.1L5.6 12.3l-2.9.7.7-2.9z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
@@ -3495,11 +3498,24 @@ function executarAutoPreenchimento(partido) {
 function snapshotPalpite() {
   pcState.historicoPalpite.push(JSON.parse(JSON.stringify(pcState.palpiteEdicao)));
   if (pcState.historicoPalpite.length > 30) pcState.historicoPalpite.shift();
+  // Ação nova invalida o "refazer" — mesmo contrato de qualquer editor.
+  pcState.historicoRefazer = [];
 }
 
 function desfazerPalpite() {
   if (!pcState.historicoPalpite.length) return;
+  if (!pcState.historicoRefazer) pcState.historicoRefazer = [];
+  pcState.historicoRefazer.push(JSON.parse(JSON.stringify(pcState.palpiteEdicao)));
   pcState.palpiteEdicao = pcState.historicoPalpite.pop();
+  renderCargoEstadual();
+}
+
+// Contrário do Desfazer (pedido do usuário em 17/08/2026): volta pra
+// frente o passo desfeito, enquanto nenhuma ação nova tiver acontecido.
+function refazerPalpite() {
+  if (!pcState.historicoRefazer || !pcState.historicoRefazer.length) return;
+  pcState.historicoPalpite.push(JSON.parse(JSON.stringify(pcState.palpiteEdicao)));
+  pcState.palpiteEdicao = pcState.historicoRefazer.pop();
   renderCargoEstadual();
 }
 
@@ -4501,8 +4517,8 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.</div>` : ""}
       ${aberto ? `<div class="pc-dep-subpainel">
         <button type="button" class="pc-cmd-acao${avisoMais ? " avisovg" : ""}" ${avisoMais ? `title="A matemática eleitoral dá a este partido ${vg} vaga${vg === 1 ? "" : "s"} — você indicou ${vagasInd}. Só um aviso, a decisão é sua."` : 'disabled style="opacity:.15;"'}>${iconeSvg("alerta", 12)}</button>
-        <button type="button" class="pc-cmd-acao" data-pc-ver2022="${p.nome}" title="Nominata completa de 2022">${iconeSvg("ano2022", 12)}</button>
-        <button type="button" class="pc-cmd-acao" data-pc-reset="${p.nome}" title="Restaurar votação de 2022">${iconeSvg("reset", 12)}</button>
+        <button type="button" class="pc-cmd-acao" data-pc-ver2022="${p.nome}" title="Nominata completa de 2022">${iconeSvg("lista22", 13)}</button>
+        <button type="button" class="pc-cmd-acao" data-pc-reset="${p.nome}" title="Restaurar votação de 2022">${iconeSvg("relogio22", 13)}</button>
         <button type="button" class="pc-cmd-acao" data-pc-zerar="${p.nome}" title="Zerar votação do partido">${iconeSvg("borracha", 12)}</button>
         <button type="button" class="pc-cmd-acao" data-dep-magico="${gi}" title="Preencher só este partido automaticamente">${iconeSvg("completar", 13)}</button>
       </div>` : ""}
@@ -5627,6 +5643,11 @@ async function renderCargoEstadual() {
       disabled: !pcState.historicoPalpite.length,
     },
     {
+      id: "pcBtnRefazerSelecao", icone: "refazer", tamanho: 15, titulo: "Refazer",
+      legenda: "Refaz o passo que o Desfazer voltou — disponível até você fazer uma alteração nova.",
+      disabled: !(pcState.historicoRefazer && pcState.historicoRefazer.length),
+    },
+    {
       id: "pcBtnZerarTudo", icone: "borracha", tamanho: 14, titulo: "Zerar votação",
       legenda: "Limpa a votação de todos os candidatos de uma vez. Indicado pra quem já sabe o que quer marcar do zero.",
     },
@@ -6114,6 +6135,8 @@ function attachListenersSelecao() {
     });
   });
   document.getElementById("pcBtnVoltarSelecao").addEventListener("click", desfazerPalpite);
+  const btnRefazer = document.getElementById("pcBtnRefazerSelecao");
+  if (btnRefazer) btnRefazer.addEventListener("click", refazerPalpite);
   document.getElementById("pcBtnPreencherAutoTudo").addEventListener("click", () => {
     pedirConfirmacaoAutoPreenchimento(null);
   });
