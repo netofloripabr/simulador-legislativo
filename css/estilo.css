@@ -1021,7 +1021,7 @@
    família pc-sen-* com candidatos aninhados em faders mini. */
 #modoColaborativoWrap .pc-console{
   background:#2C3239; border:1px solid #4D545C; border-radius:14px;
-  padding:11px 13px 10px; margin-top:2px;
+  padding:11px 13px 10px; margin-top:16px;
 }
 #modoColaborativoWrap .pc-console .pc-sen-lbl{ color:#AEB5BB; }
 #modoColaborativoWrap .pc-console .pc-sen-inf{ border-color:#565D65; color:#AEB5BB; }
