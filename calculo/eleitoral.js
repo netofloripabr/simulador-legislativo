@@ -407,7 +407,9 @@ function desenharHemiciclo(listaPartidos, totalVagas, coresMono){
 // é limitado ao teto individual E ao espaço que sobra no teto coletivo
 // considerando os OUTROS itens como estão.
 function fmdTravaIndividual(pedido, tetoIndividual, tetoColetivo, somaOutros) {
-  return Math.max(0, Math.min(pedido, Math.min(tetoIndividual, tetoColetivo - somaOutros)));
+  // Voto é inteiro por natureza — sem o round, o teto coletivo (que vem da
+  // projeção E, decimal) vazava fração pro valor final.
+  return Math.round(Math.max(0, Math.min(pedido, Math.min(tetoIndividual, tetoColetivo - somaOutros))));
 }
 
 // Escala proporcional com saturação (alça mestra): dado o vetor `base`

@@ -4243,11 +4243,13 @@ function vagasApuradasPorGrupo() {
   return dhondtComCorte(pcState.palpiteEdicao, totalVagas).counts;
 }
 
-// Curso do fader de candidato: dobro da maior votação individual real de
-// 2022 do cargo, escalada pelo crescimento do eleitorado — espaço pra
-// surpresa sem deixar a barra inútil (o curso E do partido esmagaria
-// qualquer voto individual pra perto de zero).
+// Curso da BARRA do candidato (regra do usuário, 17/08/2026): régua fixa
+// baseada no mais votado de 2022 do cargo — SC estadual = 250 mil redondos
+// (200% da Ana Campagnolo, 196.571); SC federal = mais votado + 50%;
+// demais estados = mais votado + 100%. É limite do DESENHO, não do voto:
+// quem passar disso mostra o número verdadeiro com a barra cravada no fim.
 function capCandidatoDeputado() {
+  if (pcState.estado === "SC" && pcState.cargoAtivo === "estadual") return 250000;
   const todos = candidatosEstadoCargo(pcState.estado, pcState.cargoAtivo) || [];
   let maior = 0;
   todos.forEach((p) => p.candidatos.forEach((c) => {
@@ -4255,7 +4257,8 @@ function capCandidatoDeputado() {
     const v = Number(c.votos) || 0;
     if (v > maior) maior = v;
   }));
-  return Math.max(50000, Math.round(maior * fatorCrescimentoEleitorado() * 2));
+  const mult = pcState.estado === "SC" && pcState.cargoAtivo === "federal" ? 1.5 : 2;
+  return Math.max(50000, Math.round(maior * mult));
 }
 
 function somaVotosGrupo(p) {
@@ -4678,7 +4681,10 @@ function attachListenersDeputadosFader(E, totalVagas) {
         const c = candidatoDe(+partes[1], partes[2]);
         if (c) {
           const outros = somaVotosCargo() - (Number(c.votos) || 0);
-          c.votos = fmdTravaIndividual(pedido, capCand, E, outros);
+          // Teto individual da DIGITAÇÃO é E (o real): a barra tem régua
+          // fixa (capCand), mas quem digitar acima dela fica com o número
+          // verdadeiro e a barra cravada no fim (regra de 17/08).
+          c.votos = fmdTravaIndividual(pedido, E, E, outros);
           c.votosEditado = true;
         }
       }
@@ -4701,7 +4707,24 @@ function attachListenersDeputadosFader(E, totalVagas) {
     if (novo === atual) return;
     snapshotPalpite();
     p2.vagasIndicadas = novo;
-    escalarGrupoDeputados(p2, Math.min(novo * qeProj, fmdTravaIndividual(novo * qeProj, E, E, somaVotosCargo() - somaVotosGrupo(p2))), capCand);
+    // O box COMANDA o volume mesmo com o cargo já em 100%: se o orçamento
+    // livre (E − soma) não cobrir o aumento, o restante é REALOCADO dos
+    // outros partidos proporcionalmente (senão a trava coletiva segurava
+    // a alça parada — bug achado pelo usuário em 17/08).
+    const alvoGrupo = Math.min(novo * qeProj, E);
+    const somaAtualGrupo = somaVotosGrupo(p2);
+    const outrosAtual = somaVotosCargo() - somaAtualGrupo;
+    const livre = Math.max(0, E - somaVotosCargo());
+    const deficit = Math.max(0, (alvoGrupo - somaAtualGrupo) - livre);
+    if (deficit > 0 && outrosAtual > 0) {
+      const fator = Math.max(0, (outrosAtual - deficit) / outrosAtual);
+      pcState.palpiteEdicao.forEach((pOutro) => {
+        if (pOutro === p2 || pOutro.semAta2026) return;
+        const somaOutro = somaVotosGrupo(pOutro);
+        if (somaOutro > 0) escalarGrupoDeputados(pOutro, Math.round(somaOutro * fator), capCand);
+      });
+    }
+    escalarGrupoDeputados(p2, alvoGrupo, capCand);
     recalcularMarcadosDeputados();
     agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
     renderCargoEstadual();
