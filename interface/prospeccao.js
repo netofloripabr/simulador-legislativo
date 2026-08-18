@@ -264,12 +264,16 @@ function trocarModo(modo) {
       initColaborativo();
     }
   } else {
-    wrapSim.style.display = "";
+    // display explícito, não "": a regra anti-flash do <head>
+    // (#modoSimuladorWrap{display:none}) continua valendo quando o estilo
+    // inline é só limpo — deixava o modo antigo em tela preta (bug achado
+    // em 18/08/2026 ao demonstrar o link da capa).
+    wrapSim.style.display = "block";
     wrapColab.style.display = "none";
     btnSim.classList.add("active");
     btnColab.classList.remove("active");
-    header.style.display = "";
-    modeTabs.style.display = "";
+    header.style.display = "block";
+    modeTabs.style.display = "flex";
   }
 }
 
