@@ -703,6 +703,7 @@ var CANDIDATOS_2026_SC_PROVISORIO = {
     { id:"pl-ricardo-zanatta-guidi", nome:"Ricardo Zanatta Guidi", nomeUrna:"Ricardo Guidi", numero:2200, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"680-pl-convencao.pdf" },
     { id:"pl-rubens-angioletti", nome:"Rubens Angioletti", nomeUrna:"Angioletti Rubens", numero:2299, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"680-pl-convencao.pdf" },
     { id:"pl-valdir-colatto", nome:"Valdir Colatto", nomeUrna:"Valdir Colatto", numero:2216, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"680-pl-convencao.pdf" },
+    { id:"missao-felipe-barcellos-monte-raso", nome:"Felipe Barcellos Monte Raso", nomeUrna:"Felipe Barcellos Monte Raso", numero:1414, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"media", fonte:"rrc", fonteArquivo:"RRC-oficial-TSE (candidatura 1414) — sem ata de convenção publicada ainda; entrou pela política de 18/08/2026 de cadastrar todo candidato oficialmente registrado, mesmo antes da ata/homologação" },
   ],
   "Governador": [
     { id:"psb-gelson-luiz-merisio", nome:"Gelson Luiz Merísio", nomeUrna:"Gelson Merísio", numero:40, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"1148-psb-retificadora.pdf" },
