@@ -4923,10 +4923,22 @@ function renderCasePlenario(composicao, totalVagas) {
   });
   while (assentos.length < totalVagas) assentos.push(null);
   const celulas = assentos.slice(0, totalVagas).map((partido) => partido
-    ? `<span class="pc-case-cap" style="border-color:${corPartidoIdeologico(partido)};" title="${escaparAtributoHtml(partido)}">${siglaCurta(partido)}</span>`
+    ? `<span class="pc-case-cap" title="${escaparAtributoHtml(partido)}">${siglaCurta(partido)}</span>`
     : '<span class="pc-case-nicho" title="vaga em aberto"></span>').join("");
   const poucos = totalVagas <= 5;
-  return `<div class="pc-case-grade${poucos ? " poucos" : ""}">${celulas}</div>`;
+  // Linhas com a MESMA quantidade de cápsulas sempre que possível: procura
+  // um número de colunas (8→14, depois 7→5) que divida as vagas por igual;
+  // sem divisor razoável, cai no arranjo mais compacto com a última linha
+  // centralizada pela própria grade. 16 vagas = 2 linhas de 8 (pedido do
+  // usuário em 18/08/2026).
+  let colunas = 8;
+  if (!poucos) {
+    colunas = 0;
+    for (let c = 8; c <= 14 && !colunas; c++) if (totalVagas % c === 0) colunas = c;
+    for (let c = 7; c >= 5 && !colunas; c--) if (totalVagas % c === 0) colunas = c;
+    if (!colunas) colunas = Math.min(12, Math.ceil(totalVagas / Math.ceil(totalVagas / 12)));
+  }
+  return `<div class="pc-case-grade${poucos ? " poucos" : ""}"${poucos ? "" : ` style="grid-template-columns:repeat(${colunas}, 1fr);"`}>${celulas}</div>`;
 }
 
 // Setas ao lado do contador "marcados/vagas2022": ajustam a quantidade em 1,

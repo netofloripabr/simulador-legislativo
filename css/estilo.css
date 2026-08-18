@@ -1233,23 +1233,26 @@
 /* Plenário case de cápsulas (18/08/2026): nichos fixos + cápsulas com o
    fundo translúcido dos botões do console e borda ideológica. */
 #modoColaborativoWrap .pc-case-grade{
-  display:grid; grid-template-columns:repeat(auto-fill, minmax(36px, 1fr));
-  gap:7px; justify-items:center; align-items:center;
+  display:grid; gap:7px; justify-items:center; align-items:center;
 }
 #modoColaborativoWrap .pc-case-grade.poucos{
   display:flex; justify-content:center; gap:10px;
 }
 #modoColaborativoWrap .pc-case-nicho{
-  width:34px; height:34px; border-radius:9px; box-sizing:border-box;
+  width:100%; max-width:29px; min-width:15px; aspect-ratio:1;
+  border-radius:8px; box-sizing:border-box;
   background:#101214; border:1px dashed #2B2F33;
 }
 #modoColaborativoWrap .pc-case-cap{
-  width:34px; height:34px; border-radius:9px; box-sizing:border-box;
-  background:#71767B; border:1.5px solid;
+  width:100%; max-width:29px; min-width:15px; aspect-ratio:1;
+  border-radius:8px; box-sizing:border-box;
+  background:linear-gradient(180deg, rgba(42,46,50,.75), rgba(60,65,70,.97));
+  border:1px solid rgba(242,244,245,.14);
   display:flex; align-items:center; justify-content:center;
-  font-size:8px; font-weight:750; color:#F2F4F5; letter-spacing:.02em;
+  font-size:7px; font-weight:750; color:#D3D8DC; letter-spacing:.02em;
+  overflow:hidden;
 }
 #modoColaborativoWrap .pc-case-grade.poucos .pc-case-nicho,
 #modoColaborativoWrap .pc-case-grade.poucos .pc-case-cap{
-  width:44px; height:44px; border-radius:11px; font-size:9.5px;
+  width:37px; max-width:37px; height:37px; border-radius:10px; font-size:9px;
 }
