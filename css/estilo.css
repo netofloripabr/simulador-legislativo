@@ -466,7 +466,7 @@
   #modoColaborativoWrap .pc-estado-vazio-texto{ color:var(--pc-ink-dim); font-size:12.5px; line-height:1.5; }
   #modoColaborativoWrap label{ color: var(--pc-ink-dim); font-size: 13px; }
   #modoColaborativoWrap input.cell, #modoColaborativoWrap select.cell, #modoColaborativoWrap textarea.cell{
-    background: #0c1c16; border: 1px solid #2a4438; color: var(--pc-ink);
+    background: var(--pc-glass); border: 1px solid var(--pc-glass-border); color: var(--pc-ink);
     border-radius: 8px; padding: 9px 11px; font-family: var(--sans); width: 100%;
   }
   #modoColaborativoWrap input.cell:focus, #modoColaborativoWrap select.cell:focus, #modoColaborativoWrap textarea.cell:focus{ outline:none; border-color: var(--pc-accent); }
@@ -579,7 +579,7 @@
   #modoColaborativoWrap .pc-metric .val{ font-size:22px; font-weight:700; }
 
   /* Acordeão (P-04 revisão por cargo) */
-  #modoColaborativoWrap details.pc-acc{ background:#0c1c16; border:1px solid #163a2c; border-radius:12px; margin-bottom:10px; overflow:hidden; }
+  #modoColaborativoWrap details.pc-acc{ background:var(--pc-glass); border:1px solid var(--pc-glass-border); border-radius:12px; margin-bottom:10px; overflow:hidden; }
   #modoColaborativoWrap details.pc-acc summary{ display:flex; align-items:center; gap:8px; padding:13px 16px; cursor:pointer; list-style:none; font-weight:700; font-size:14px; }
   #modoColaborativoWrap details.pc-acc summary::-webkit-details-marker{ display:none; }
   #modoColaborativoWrap details.pc-acc summary .pc-chev{ margin-left:auto; transition:transform .15s; color:var(--pc-ink-dim); }

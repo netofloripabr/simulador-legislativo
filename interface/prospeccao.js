@@ -6765,8 +6765,8 @@ function renderRevisaoDeposito() {
     // — não precisam chamar atenção, já estão garantidos) e cheia pros
     // demais (é o que ainda pode mudar).
     const barraProgresso = (pct, opacidade = 1) => `
-      <div style="position:relative; flex:1; height:4px; border-radius:999px; background:#182f24; overflow:hidden;">
-        <div style="position:absolute; left:0; top:0; height:100%; width:${Math.max(0, Math.min(100, pct))}%; border-radius:999px; background:var(--pc-accent); opacity:${opacidade};"></div>
+      <div style="position:relative; flex:1; height:4px; border-radius:999px; background:#0C0E10; overflow:hidden;">
+        <div style="position:absolute; left:0; top:0; height:100%; width:${Math.max(0, Math.min(100, pct))}%; border-radius:999px; background:#5F666D; opacity:${opacidade};"></div>
       </div>`;
 
     // Card fechado (fundo + borda + cantos arredondados) em vez de linha
@@ -6776,7 +6776,7 @@ function renderRevisaoDeposito() {
     // "Lobby" (css/estilo.css) — antes usava um verde quase idêntico ao
     // fundo do acordeão (#0e1f17 vs #0c1c16), então os cards praticamente
     // sumiam um dentro do outro. Pedido do usuário em 06/08/2026.
-    const cardCandidato = (conteudo) => `<div style="background:var(--pc-lobby-tom-3); border:1px solid #1d3a2c; border-radius:12px; padding:12px 14px; margin-bottom:8px;">${conteudo}</div>`;
+    const cardCandidato = (conteudo) => `<div style="background:var(--pc-lobby-tom-3); border:1px solid #23262A; border-radius:12px; padding:12px 14px; margin-bottom:8px;">${conteudo}</div>`;
 
     // Uma linha só, pra eleito ou não — o selo numerado (1, 2, 3... na
     // ORDEM DE ELEIÇÃO, não na posição de voto da lista) só aparece em
@@ -6804,23 +6804,13 @@ function renderRevisaoDeposito() {
         // nem existe no majoritário.
         const mostrarMargem = cargoDef.id === "senador";
         return cardCandidato(`
-          <div style="display:flex; align-items:center; gap:12px;">
-            <div style="flex-shrink:0; width:30px; height:30px; border-radius:9px; background:rgba(61,255,176,.1); border:1px solid rgba(61,255,176,.3); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; color:var(--pc-accent);">${c.posicaoEleicao}</div>
-            <div style="min-width:0; flex:1;">
-              <div style="font-size:16px; font-weight:700; color:var(--pc-ink); display:flex; align-items:center; gap:5px;">
-                ${c.nome}
-              </div>
-              <div style="display:flex; align-items:center; gap:5px; margin-top:2px;">
-                <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-accent); flex-shrink:0;"></span>
-                <span style="font-size:11px; font-weight:600; color:var(--pc-accent);">${c.partido}</span>
-              </div>
-            </div>
+          <div class="pc-sen-l1" style="flex-wrap:wrap; row-gap:4px;">
+            <span class="pc-sen-chip" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">ELEITO</span>
+            <span class="pc-sen-nm">${c.nome}</span>
+            ${c.tag === "média" && c.detalhe.rodadaSobra !== undefined ? `<span class="pc-sen-chip sobra" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">SOBRA · ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}</span>` : ""}
           </div>
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:4px 10px; margin-top:10px; flex-wrap:wrap;">
-            <div style="display:flex; flex-direction:column; align-items:flex-start; gap:6px; flex-shrink:0;">
-              <span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; text-transform:uppercase; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-accent); background:rgba(61,255,176,.12); cursor:help;">${c.tag === "majoritário" ? "eleito" : `eleito · ${c.tag}`}</span>
-              ${c.tag === "média" && c.detalhe.rodadaSobra !== undefined ? `<span title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="display:block; font-size:9px; font-weight:700; letter-spacing:.01em; border-radius:6px; padding:3px 6px; white-space:nowrap; box-sizing:border-box; color:var(--pc-warning); background:rgba(198,230,42,.14); border:1px solid rgba(198,230,42,.35); cursor:help;">sobra · rodada ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}</span>` : ""}
-            </div>
+          <div class="pc-sen-sub">${c.posicaoEleicao}º · ${c.partido}</div>
+          <div style="display:flex; align-items:center; justify-content:flex-end; margin-top:10px;">
             <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:15px; font-weight:800; text-align:right; flex-shrink:0; padding:9px 6px;">
           </div>
           <div style="margin-top:12px;">
@@ -6846,20 +6836,20 @@ function renderRevisaoDeposito() {
       // cima (aí só "Direto pra ele" funciona, ver acrescimo acima).
       const distribuivel = c.gap.partido !== null && c.gap.partido > 0 && !c.gap.temRivalAcima;
       const mostrarMagico = c.marcadoPeloUsuario && acrescimo > 0;
-      const botaoMagico = mostrarMagico ? `<button data-pc-abrir-magico="${c.chave}" class="pc-mini-btn" style="flex-shrink:0; width:26px; height:26px; border-radius:50%; color:var(--pc-accent); border-color:rgba(61,255,176,.4); background:${menuAberto ? "rgba(61,255,176,.18)" : "rgba(61,255,176,.08)"};">${iconeSvg("completar", 13)}</button>` : "";
+      const botaoMagico = mostrarMagico ? `<button data-pc-abrir-magico="${c.chave}" class="pc-mini-btn" style="flex-shrink:0; width:26px; height:26px; border-radius:50%; ${menuAberto ? "color:#34E84A; border-color:#34E84A; background:rgba(52,232,74,.12);" : ""}">${iconeSvg("completar", 13)}</button>` : "";
       const menuMagico = menuAberto ? `
-        <div style="margin-top:10px; background:#0e1f17; border:1px solid rgba(61,255,176,.3); border-radius:10px; padding:6px;">
+        <div style="margin-top:10px; background:#16181B; border:1px solid #2B2F33; border-radius:10px; padding:6px;">
           <div style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--pc-ink-dim); padding:6px 8px 4px;">Como completar os ${acrescimo.toLocaleString("pt-BR")} votos?</div>
           <button data-pc-fechar-vaga="${c.partido}" data-pc-chave="${c.chave}" data-pc-acrescimo="${acrescimo}" data-pc-cargo="${cargoDef.id}" style="width:100%; text-align:left; background:none; border:none; padding:9px 8px; border-radius:7px; cursor:pointer; display:flex; flex-direction:column; gap:2px;">
             <span style="font-size:12.5px; font-weight:700; color:var(--pc-ink);">Direto pra ${c.nome}</span>
             <span style="font-size:10.5px; color:var(--pc-ink-dim); line-height:1.4;">Soma os ${acrescimo.toLocaleString("pt-BR")} votos só na conta dele — mais simples, mas ele fica com um número redondo "de fora".</span>
           </button>
-          ${distribuivel ? `<div style="height:1px; background:#1d3a2c; margin:2px 4px;"></div>
+          ${distribuivel ? `<div style="height:1px; background:#23262A; margin:2px 4px;"></div>
           <button data-pc-distribuir-menores="${c.partido}" data-pc-chave-menores="${c.chave}" data-pc-gap-menores="${c.gap.partido}" data-pc-cargo-menores="${cargoDef.id}" style="width:100%; text-align:left; background:none; border:none; padding:9px 8px; border-radius:7px; cursor:pointer; display:flex; flex-direction:column; gap:2px;">
             <span style="font-size:12.5px; font-weight:700; color:var(--pc-ink);">Distribuir com quem tem menos</span>
             <span style="font-size:10.5px; color:var(--pc-ink-dim); line-height:1.4;">Reparte os ${c.gap.partido.toLocaleString("pt-BR")} votos entre os colegas de partido que já têm menos voto que ele — sem passar do voto dele.</span>
           </button>` : ""}
-          <div style="margin-top:4px; padding:6px 8px 2px; font-size:9.5px; color:var(--pc-warning); line-height:1.4; border-top:1px solid #1d3a2c;">Qualquer uma das opções ainda pode mudar o resultado de outro partido — a disputa de sobra é entre todos ao mesmo tempo.</div>
+          <div style="margin-top:4px; padding:6px 8px 2px; font-size:9.5px; color:var(--pc-warning); line-height:1.4; border-top:1px solid #23262A;">Qualquer uma das opções ainda pode mudar o resultado de outro partido — a disputa de sobra é entre todos ao mesmo tempo.</div>
         </div>` : "";
 
       return cardCandidato(`
@@ -6886,7 +6876,7 @@ function renderRevisaoDeposito() {
           <span>${legendaFaltam}</span>
           <span style="display:flex; align-items:center; gap:6px;">
             <span>${pct}%</span>
-            ${mostrarMagico ? `<button data-pc-abrir-magico="${c.chave}" class="pc-mini-btn" title="Como completar os votos" style="width:20px; height:20px; padding:0; border-radius:50%; flex-shrink:0; color:var(--pc-accent); border-color:rgba(61,255,176,.4); background:${menuAberto ? "rgba(61,255,176,.18)" : "transparent"};"><svg viewBox="0 0 16 16" width="12" height="12" style="transform:rotate(${menuAberto ? "180deg" : "0deg"}); transition:transform .15s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>` : ""}
+            ${mostrarMagico ? `<button data-pc-abrir-magico="${c.chave}" class="pc-mini-btn" title="Como completar os votos" style="width:20px; height:20px; padding:0; border-radius:50%; flex-shrink:0; ${menuAberto ? "color:#34E84A; border-color:#34E84A; background:rgba(52,232,74,.12);" : ""}"><svg viewBox="0 0 16 16" width="12" height="12" style="transform:rotate(${menuAberto ? "180deg" : "0deg"}); transition:transform .15s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>` : ""}
           </span>
         </div>` : ""}`}
       `);
@@ -6934,9 +6924,11 @@ function renderRevisaoDeposito() {
     }
 
     const filtroAgrupado = `
-      <div style="display:flex; background:#0c1c16; border:1px solid #2a4438; border-radius:8px; padding:2px; gap:2px; flex-shrink:0;">
-        <button data-pc-modo-revisao="lista" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Lista única, ordenada por votos" style="width:24px; height:22px; border:none; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; background:${agrupado ? "transparent" : "var(--pc-accent)"}; color:${agrupado ? "var(--pc-ink-dim)" : "#04140d"};">${iconeSvg("lista", 12)}</button>
-        <button data-pc-modo-revisao="grupo" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Agrupado por partido/federação" style="width:24px; height:22px; border:none; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; background:${agrupado ? "var(--pc-accent)" : "transparent"}; color:${agrupado ? "#04140d" : "var(--pc-ink-dim)"};">${iconeSvg("grupos", 12)}</button>
+      <div class="pc-console" style="display:inline-block; padding:2px; flex-shrink:0; border-radius:8px;">
+        <div class="pc-cmd-painel" style="width:auto; justify-content:flex-start; gap:2px; margin-bottom:0;">
+          <button data-pc-modo-revisao="lista" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Lista única, ordenada por votos" class="pc-cmd-acao${agrupado ? "" : " ativo"}" style="flex:none; width:24px; min-height:22px; aspect-ratio:auto;">${iconeSvg("lista", 12)}</button>
+          <button data-pc-modo-revisao="grupo" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Agrupado por partido/federação" class="pc-cmd-acao${agrupado ? " ativo" : ""}" style="flex:none; width:24px; min-height:22px; aspect-ratio:auto;">${iconeSvg("grupos", 12)}</button>
+        </div>
       </div>`;
 
     return `
