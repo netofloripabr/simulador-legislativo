@@ -1222,3 +1222,10 @@
 #modoColaborativoWrap .pc-dep-c2022{
   font-size:10px; color:#6E757C; margin:0 0 1px; font-variant-numeric:tabular-nums;
 }
+
+/* Bolinha do interruptor: verde vivo quando o cargo está COMPLETO
+   (pedido de 18/08/2026) — pendente segue o contorno neutro. */
+#modoColaborativoWrap.pc-tema-fader .pc-tab-dot.done{
+  background:#34E84A; border-color:#34E84A; opacity:1;
+  box-shadow:0 0 4px rgba(52,232,74,.55);
+}
