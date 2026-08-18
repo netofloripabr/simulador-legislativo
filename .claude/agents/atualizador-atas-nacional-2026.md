@@ -67,15 +67,26 @@ Para cada uma das 26 UFs (todas exceto SC):
    não inventar extração alternativa.
 6. Confirme que `dados/estados/{uf}-2026-provisorio.js` começa com
    `var CANDIDATOS_2026_{UF}_PROVISORIO` (não `const`).
+7. Rode `python3 ferramentas/conferir_rrc.py --uf {UF}` (mesmo script da
+   rotina de SC, genérico por UF) e trate o relatório
+   (`dados/estados/{uf}-2026-rrc-conferencia.md`) com a **mesma lógica do
+   passo 8 de `.claude/agents/atualizador-atas-2026.md`** — não repetir
+   aqui, só reaplicar por UF: divergência de partido é sempre reportada,
+   nunca corrigida sozinho; "sugestão de número" com nome batendo 100% pode
+   ser preenchida; "candidato no RRC sem entrada correspondente" precisa do
+   mesmo cruzamento por NOME (não só por número) pra separar "genuinamente
+   novo" (adicionar com `fonte:"rrc"`, política de 18/08/2026, não esperar
+   ata) de "renumeração pendente" (mesmo nome+partido já existe com número
+   diferente — reportar como pendência, não sobrescrever sozinho).
 
 Depois de rodar as 26 UFs:
 
-7. Abra `index.html` e incremente **todas** as ocorrências de `cb=NN` pra
+8. Abra `index.html` e incremente **todas** as ocorrências de `cb=NN` pra
    `NN+1`, uma vez só pro lote inteiro (não uma vez por UF).
-8. Se o repositório for git, um commit único cobrindo todas as UFs que
-   tiveram mudança de verdade (`git add ATAS/ dados/estados/*-2026-provisorio.js dados/estados/*-2026-conferencia.md index.html && git commit -m "..."`),
+9. Se o repositório for git, um commit único cobrindo todas as UFs que
+   tiveram mudança de verdade (`git add ATAS/ dados/estados/*-2026-provisorio.js dados/estados/*-2026-conferencia.md dados/estados/*-2026-rrc-conferencia.md index.html && git commit -m "..."`),
    citando quais UFs/partidos entraram. Nunca `git push`.
-9. Registre a execução em `execucoes_rotina` (mesmo passo 9 da rotina de
+10. Registre a execução em `execucoes_rotina` (mesmo passo 9 da rotina de
    SC, `.claude/agents/atualizador-atas-2026.md` — reaproveita a mesma
    tabela/painel do admin, só troca `"rotina"` pra
    `"atualizador-atas-nacional-2026"` e o `"detalhe"` pra resumir as 26
@@ -123,6 +134,12 @@ fictícios ainda restam preservados (soma do "Candidatos fictícios
 preservados" de cada `{uf}-2026-conferencia.md`), e se algo bloqueou a
 execução. UF sem ata nova nenhuma essa semana é resultado válido, não
 erro — só não gera commit pra ela.
+
+Do passo 7 (`conferir_rrc.py` por UF): agregar por UF quantos candidatos
+**genuinamente novos** entraram com `fonte:"rrc"` e quantas
+**renumerações pendentes** ficaram como pendência (ver passo 8 de
+`.claude/agents/atualizador-atas-2026.md` pra distinção) — mesma regra de
+não omitir "zero" quando for o caso.
 
 Pendências que sobrarem depois do cruzamento por número (seção anterior)
 **precisam ser listadas pelo NOME + UF + cargo**, não só por contador — um

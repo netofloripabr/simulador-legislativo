@@ -95,14 +95,46 @@ que ele efetivamente registrou). Mesmo padrão: API REST sem autenticação.
    `python3 ferramentas/conferir_rrc.py --uf SC`
    — gera `dados/estados/sc-2026-rrc-conferencia.md`. Esse script NUNCA
    escreve em `sc-2026-provisorio.js` sozinho, só reporta. Leia o relatório
-   e inclua no resumo final: quantas divergências de partido (se houver
-   qualquer uma, é sério — RRC é mais autoritativo, então provavelmente é a
-   ata/extração que está errada, não o RRC) e quantos candidatos aparecem
-   no RRC sem entrada correspondente no nosso arquivo. Se a lista de
-   "sugestão de número" tiver itens óbvios (nome bate 100%, é só preencher
-   `numero:null` com o valor do RRC), pode aplicar e commitar junto — isso
-   não é "inventar dado", é completar com a fonte MAIS confiável que existe
-   pro campo que faltava.
+   e trate cada seção dele assim:
+   - **Divergência de partido**: se houver qualquer uma, é sério — RRC é
+     mais autoritativo, então provavelmente é a ata/extração que está
+     errada, não o RRC. Reportar sempre, não corrigir sozinho.
+   - **"Sugestão de número"** (nosso arquivo tem `numero:null`, casado por
+     nome com o RRC): se o nome bate 100%, pode preencher `numero:null`
+     com o valor do RRC e commitar junto — isso não é "inventar dado", é
+     completar com a fonte mais confiável que existe pro campo que faltava.
+   - **"Candidato no RRC sem entrada correspondente" — cruzar por NOME antes
+     de tratar como novo** (política de 18/08/2026, caso real: Antídio
+     Lunelli/MDB/Senador). Esse cruzamento do script é só por NÚMERO dentro
+     do cargo — então "sem entrada correspondente" tem dois significados
+     bem diferentes, e você precisa separar os dois:
+     1. **Nome não aparece em lugar nenhum do nosso arquivo** (mesmo
+        cargo) → candidato genuinamente novo, registrado oficialmente mas
+        sem ata de convenção publicada ainda. Adicione direto em
+        `sc-2026-provisorio.js` com `fonte:"rrc"` e `confianca:"media"` —
+        **não espere a ata sair, não é pendência pra revisão humana, é
+        política já decidida pelo usuário**: "cadastrar tudo que estiver
+        registrado nas atas [oficialmente], atualizando o status
+        diariamente... se houver problema, vamos tomando providência"
+        (decisão de 18/08/2026). Nunca invente um nome de arquivo de ata —
+        em `fonteArquivo`, descreva honestamente a origem, ex.:
+        `"RRC-oficial-TSE (candidatura <número>) — sem ata de convenção
+        publicada ainda"`. A interface já mostra um selo pra esse caso
+        (`fonte === "rrc"`, ver `interface/prospeccao.js`) — não precisa
+        mexer em UI, só nos dados.
+     2. **Mesmo nome + mesmo partido JÁ existe no arquivo, só com número
+        diferente** → não é candidato novo, é um número desatualizado
+        (provavelmente uma retificadora que ainda não processamos mudou o
+        número dele). **Não sobrescrever o número sozinho** — o número da
+        cédula é dado sensível o bastante pra não trocar com base só nesse
+        cruzamento (pode ser retificadora recente OU uma particularidade
+        do RRC que ainda não entendemos totalmente). Reporte como
+        "possível renumeração pendente" (nome, número nosso, número RRC,
+        partido) na seção de pendências — vai se resolver sozinho quando
+        a retificadora correspondente for baixada e processada, ou por
+        decisão humana explícita.
+   Sempre cruze por nome ANTES de adicionar algo como "novo" — um
+   `grep -i "<nome>"` no arquivo já mostra na hora se cai no caso 1 ou 2.
 
 ## Total de vagas por cargo é fato fixo, não soma
 
@@ -205,5 +237,9 @@ hoje") em vez de omitir a seção.
 
 Incluir também o resultado de `conferir_rrc.py` (passo 8): quantas
 confirmações, quantas divergências de partido (destacar se houver
-qualquer uma — não é esperado) e quantos candidatos novos apareceram no
-RRC sem estar no nosso arquivo ainda.
+qualquer uma — não é esperado), quantos candidatos **genuinamente novos**
+foram adicionados com `fonte:"rrc"` (listar nome + cargo + partido, igual
+uma ata real) e quantas **renumerações pendentes** ficaram como pendência
+(nome + número nosso + número RRC + partido) — não confundir as duas
+categorias no resumo, são ações diferentes (uma já foi feita, a outra
+está esperando revisão ou uma retificadora nova).
