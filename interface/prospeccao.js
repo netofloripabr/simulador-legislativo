@@ -5951,13 +5951,15 @@ function attachListenersSelecao() {
     });
   });
   document.querySelectorAll("input[data-pc-busca-candidato]").forEach((inp) => {
-    inp.addEventListener("input", (e) => {
+    inp.addEventListener("input", async (e) => {
       const nomePartido = e.target.dataset.pcBuscaCandidato;
       const valor = e.target.value;
       const cursor = e.target.selectionStart;
       if (!pcState.buscaCandidato) pcState.buscaCandidato = {};
       pcState.buscaCandidato[nomePartido] = valor;
-      renderCargoEstadual();
+      // Mesmo await da busca de partido: o render é assíncrono e o foco só
+      // pode ser devolvido DEPOIS do DOM novo existir.
+      await renderCargoEstadual();
       // A busca reconstrói o innerHTML inteiro (renderSelecaoCandidatos), então
       // o input original perde o foco — reencontra o novo pelo mesmo atributo
       // e devolve o cursor à posição de antes, senão cada letra digitada faria
@@ -5996,10 +5998,14 @@ function attachListenersSelecao() {
   }
   const inputBuscaPartido = document.getElementById("pcBuscaPartidoInput");
   if (inputBuscaPartido) {
-    inputBuscaPartido.addEventListener("input", (e) => {
+    inputBuscaPartido.addEventListener("input", async (e) => {
       const cursor = e.target.selectionStart;
       pcState.buscaPartido = e.target.value;
-      renderCargoEstadual();
+      // renderCargoEstadual é ASSÍNCRONO — sem o await, a devolução de foco
+      // abaixo rodava antes do re-render e focava o input antigo, que era
+      // destruído em seguida: só dava pra digitar uma letra por vez (bug
+      // achado pelo usuário em 17/08/2026, no modelo fader).
+      await renderCargoEstadual();
       // O innerHTML inteiro é reconstruído (renderSelecaoCandidatos), então
       // o input original perde o foco — reencontra o novo e devolve o
       // cursor à posição de antes, senão cada letra digitada tira o foco.
