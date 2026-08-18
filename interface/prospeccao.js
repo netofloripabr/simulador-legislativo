@@ -620,10 +620,11 @@ function irParaDestinoMenuFixo(destino) {
 
 function renderColaborativo() {
   const el = document.getElementById("modoColaborativoWrap");
-  // Tema Fader (identidade 2.0) por enquanto só na tela de palpite com o
-  // Senador ativo — as outras telas migram numa etapa própria. A classe
-  // troca o fundo verde 1.0 pelo degradê cinza neutro do §8.2.
-  el.classList.toggle("pc-tema-fader", pcState.tela === "selecao-convidado");
+  // Tema Fader (identidade 2.0) agora GLOBAL em toda a Prospecção
+  // Coletiva (18/08/2026 — começou só na tela de palpite, expandido pra
+  // todo o app a pedido do usuário, começando pela capa). O Simulador
+  // individual (fora de #modoColaborativoWrap) não é afetado.
+  el.classList.add("pc-tema-fader");
   if (pcState.tela === "erro-conexao") {
     el.innerHTML = `<div class="glass-card">
       <h2>Prospecção Coletiva</h2>
@@ -662,26 +663,24 @@ function renderColaborativo() {
 
 function renderLanding() {
   const el = document.getElementById("modoColaborativoWrap");
+  // Capa no padrão "Fader" (18/08/2026): o card central usa o mesmo
+  // material do console das telas de palpite (#2C3239/#4D545C), o
+  // círculo do ícone reaproveita o estilo exato dos botões do console
+  // (translúcido claro), e o verde vivo aparece só no botão principal —
+  // único acento de cor da tela inteira, mesma escassez do resto do app.
   el.innerHTML = `
-    <div class="glass-card" style="max-width:540px; margin:0 auto; min-height:70vh; display:flex; flex-direction:column; justify-content:center; text-align:center; padding:2.5rem 1.5rem;">
-      <div style="font-size:28px; font-weight:800; line-height:1.15; letter-spacing:-.01em; color:var(--pc-ink); margin-bottom:20px;">Simulador Eleitoral — Legislativo 2026</div>
-      <div style="width:64px; height:64px; margin:0 auto 18px; border-radius:50%; background:linear-gradient(135deg,#3dffb0,#0dbf7c); display:flex; align-items:center; justify-content:center;">
-        <svg viewBox="0 0 16 16" style="width:28px; height:28px; color:#04140d;">
-          <path d="M2 6.3L8 2.5l6 3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>
-          <path d="M3.4 7.3v5M6.3 7.3v5M9.7 7.3v5M12.6 7.3v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
-          <path d="M2 13h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>
-        </svg>
-      </div>
-      <h2 style="font-size:22px; margin-bottom:10px;">Pronto pra testar seu faro político?</h2>
-      <div class="pc-sub" style="margin:0 auto; max-width:420px;">Monte, publique e compare a sua lista com seus amigos.</div>
-      <button class="primary" id="pcBtnComecar" style="margin:90px auto 0; padding:16px 30px; font-size:16px; width:352px; max-width:100%; align-self:center; box-shadow:0 0 9px rgba(61,255,176,.5);">Começar</button>
-      <div style="margin-top:14px;"><button class="ghost" id="pcBtnJaTenhoConta" style="font-size:12px; padding:6px 14px;">já tenho conta — entrar</button></div>
+    <div class="pc-capa-console">
+      <div class="pc-capa-icone">${iconeSvg("ballot", 30)}</div>
+      <div class="pc-capa-titulo">Simulador Eleitoral<br>Legislativo 2026</div>
+      <h2 class="pc-capa-h2">Pronto pra testar seu faro político?</h2>
+      <div class="pc-capa-sub">Monte, publique e compare a sua lista com seus amigos.</div>
+      <button class="primary pc-capa-cta" id="pcBtnComecar">Começar</button>
+      <button class="ghost pc-capa-entrar" id="pcBtnJaTenhoConta">já tenho conta — entrar</button>
 
-      <div style="margin-top:90px; padding:0 6px;">
-        <div style="font-size:13.5px; font-weight:700; line-height:1.4; color:var(--pc-accent);">Desafie aquele seu amigo, vizinho ou familiar neste game criativo e dinâmico.</div>
-      </div>
-      <div style="margin-top:30px; font-size:10.5px; color:var(--pc-ink-dim); opacity:.7;">Este game não é aposta online ou mercado preditivo.</div>
-      <div style="margin-top:10px;"><button class="ghost" id="pcBtnModoSimulador" style="font-size:9px; padding:2px 8px; opacity:.4; border:none; background:none;">modo simulador (antigo)</button></div>
+      <div class="pc-capa-divisor"></div>
+      <div class="pc-capa-desafio">${iconeSvg("grupos", 15)}Desafie aquele seu amigo, vizinho ou familiar neste game criativo e dinâmico.</div>
+      <div class="pc-capa-aviso">Este game não é aposta online ou mercado preditivo.</div>
+      <button class="ghost pc-capa-modo-antigo" id="pcBtnModoSimulador">modo simulador (antigo)</button>
     </div>`;
   document.getElementById("pcBtnComecar").addEventListener("click", () => {
     pcState.tela = "estado";
@@ -3300,13 +3299,13 @@ function nomeExibicao(c) {
 // cada uma inventar o próprio "Carregando" sem graça. mensagem (opcional)
 // troca o texto padrão quando faz sentido ser mais específico.
 function telaCarregando(mensagem) {
-  return `<div class="glass-card" style="max-width:420px; margin:0 auto; min-height:50vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-    <div class="pc-loading-icon" style="width:64px; height:64px; margin:0 auto 16px; border-radius:50%; background:linear-gradient(135deg,#3dffb0,#0dbf7c); display:flex; align-items:center; justify-content:center; box-shadow:0 0 9px rgba(61,255,176,.5);">
-      <svg viewBox="0 0 16 16" style="width:28px; height:28px; color:#04140d;">
-        <path d="M2 6.3L8 2.5l6 3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>
-        <path d="M3.4 7.3v5M6.3 7.3v5M9.7 7.3v5M12.6 7.3v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>
-        <path d="M2 13h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>
-      </svg>
+  // Ícone no mesmo círculo dos botões do console (18/08/2026) — antes
+  // era um gradiente verde-neon fixo, agora usa a variável de tema (fica
+  // verde vivo #34E84A onde o tema Fader está ativo, sem herdar cor
+  // nenhuma fora dele).
+  return `<div class="glass-card pc-carregando-card" style="max-width:420px; margin:0 auto; min-height:50vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+    <div class="pc-loading-icon pc-carregando-icone">
+      ${iconeSvg("ballot", 26)}
     </div>
     <div class="pc-status">${mensagem || "Carregando…"}</div>
   </div>`;

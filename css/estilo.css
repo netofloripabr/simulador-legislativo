@@ -1265,3 +1265,79 @@
 #modoColaborativoWrap .pc-insta-mini:hover{ color:#D3D8DC; }
 #modoColaborativoWrap .pc-dep-cl1{ gap:9px; }
 #modoColaborativoWrap .pc-sen-l1{ gap:10px; }
+
+/* ===== Tema Fader — cobertura global (18/08/2026 madrugada) =====
+   Expansão do tema pra fora da tela de palpite: botões primary/ghost
+   (usados em toda tela — capa, login, confirmações), estados hover que
+   ainda hardcodeavam o verde-neon 1.0, e o item desabilitado do seletor
+   de estado. Continua tudo dentro do escopo pc-tema-fader — nada daqui
+   vaza pro Simulador individual. */
+#modoColaborativoWrap.pc-tema-fader button.primary{
+  background:#34E84A; border:1px solid #34E84A; color:#07230C;
+  font-family:var(--sans); font-weight:700;
+}
+#modoColaborativoWrap.pc-tema-fader button.primary:hover{ background:#3FF056; border-color:#3FF056; }
+#modoColaborativoWrap.pc-tema-fader button.primary:disabled{ background:#2B2F33; border-color:#2B2F33; color:#5C6268; }
+#modoColaborativoWrap.pc-tema-fader button.ghost{
+  background:none; border:1px solid #2B2F33; color:#8A9096; font-family:var(--sans); font-weight:600;
+}
+#modoColaborativoWrap.pc-tema-fader button.ghost:hover{ color:#F2F4F5; border-color:#3A3F45; }
+#modoColaborativoWrap.pc-tema-fader .pc-mini-btn:hover{ background:rgba(52,232,74,.1); border-color:#34E84A; color:#34E84A; }
+#modoColaborativoWrap.pc-tema-fader .pc-stepper-btn{
+  background:rgba(52,232,74,.08); border-color:#2B2F33; color:#34E84A;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-stepper-btn:hover{ background:rgba(52,232,74,.16); border-color:#34E84A; }
+#modoColaborativoWrap.pc-tema-fader .pc-picker-item.pc-picker-disabled{ color:#4A4F54; }
+#modoColaborativoWrap.pc-tema-fader .pc-erro{ color:#FF5A48; }
+
+/* ===== Capa (renderLanding) — padrão Fader, 18/08/2026 =====
+   Card central no material do console; ícone no estilo exato dos botões
+   do console (reaproveitado, não inventado); verde vivo só no CTA
+   principal — a escassez de cor é a identidade (PROJETO.md §8.2). */
+#modoColaborativoWrap .pc-capa-console{
+  max-width:420px; margin:0 auto; min-height:min(70vh, 560px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:2.5rem 1.75rem;
+  background:#2C3239; border:1px solid #4D545C; border-radius:20px;
+}
+#modoColaborativoWrap .pc-capa-icone{
+  width:64px; height:64px; margin:0 0 22px; border-radius:50%;
+  background:rgba(232,236,239,.1); border:1px solid #4D545C;
+  display:flex; align-items:center; justify-content:center; color:#F2F4F5;
+}
+#modoColaborativoWrap .pc-capa-titulo{
+  font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:#AEB5BB; line-height:1.6; margin-bottom:26px;
+}
+#modoColaborativoWrap .pc-capa-h2{
+  font-size:21px; font-weight:650; color:#F2F4F5; letter-spacing:-.01em;
+  line-height:1.3; margin:0 0 10px;
+}
+#modoColaborativoWrap .pc-capa-sub{ font-size:13.5px; color:#8A9096; line-height:1.5; max-width:300px; }
+#modoColaborativoWrap .pc-capa-cta{
+  margin:44px 0 0; padding:15px 30px; font-size:15.5px; width:100%; max-width:340px;
+}
+#modoColaborativoWrap .pc-capa-entrar{ margin-top:12px; font-size:12px; padding:6px 14px; }
+#modoColaborativoWrap .pc-capa-divisor{ width:40px; height:1px; background:#4D545C; margin:40px 0 24px; }
+#modoColaborativoWrap .pc-capa-desafio{
+  display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600;
+  color:#F2F4F5; line-height:1.45; text-align:left; max-width:300px;
+}
+#modoColaborativoWrap .pc-capa-desafio svg{ flex:none; color:#8A9096; }
+#modoColaborativoWrap .pc-capa-aviso{ margin-top:22px; font-size:10.5px; color:#5C6268; }
+#modoColaborativoWrap .pc-capa-modo-antigo{
+  margin-top:10px; font-size:9px; padding:2px 8px; opacity:.5; border:none; background:none;
+}
+
+/* Ícone de "Carregando…" (telaCarregando, compartilhado por todo o app):
+   círculo neutro por padrão, verde vivo com halo só dentro do tema Fader
+   — antes era um gradiente verde fixo em toda tela, mesmo fora do tema. */
+#modoColaborativoWrap .pc-carregando-icone{
+  width:64px; height:64px; margin:0 auto 16px; border-radius:50%;
+  background:rgba(120,130,180,.14); display:flex; align-items:center; justify-content:center;
+  color:var(--pc-accent);
+}
+#modoColaborativoWrap.pc-tema-fader .pc-carregando-icone{
+  background:rgba(52,232,74,.1); border:1px solid rgba(52,232,74,.3); color:#34E84A;
+  box-shadow:0 0 14px rgba(52,232,74,.15);
+}
