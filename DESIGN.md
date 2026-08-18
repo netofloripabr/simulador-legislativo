@@ -240,6 +240,21 @@ textos possíveis hoje:
 
 Ausência de `fonte` = candidato real, já confirmado por ata (sem badge).
 
+### 3.4b Painel informativo / notificação (padrão aprovado 18/08/2026)
+Referência: o "i" do quadro "Quem levou cada vaga de sobra" (Disputa de
+Sobra, Revisão) — o usuário aprovou este conceito como padrão pra
+**informações e notificações** em geral:
+- Abertura por botão "i" no padrão console (`.pc-sen-inf`, com estado
+  `.aberto` em verde vivo), nunca tooltip de hover — funciona no toque.
+- Caixa embutida (não overlay): fundo `#101214`, borda `#23262A`, raio
+  10px, padding ~10-12px.
+- Texto corrido em `#8A9096` (11.5px, line-height 1.6); **termos-chave em
+  branco** (`#F2F4F5`, bold); o número/valor decisivo em **verde-lima**
+  (`#C6E62A`) — um só por caixa, é o "punchline".
+- Sempre que possível, ilustrar a regra com os **números reais do estado
+  atual da tela** (ex.: a 1ª sobra do cálculo em curso), não exemplo
+  fixo inventado — dinâmico > genérico.
+
 ### 3.5 Selo ELEITO
 Pílula verde vivo (`#34E84A`) com texto `#07230C`, 8px/800. Único elemento
 da lista que é **sempre** verde, mesmo fora de interação — porque é fato

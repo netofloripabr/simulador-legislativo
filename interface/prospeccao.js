@@ -985,7 +985,7 @@ function renderTelaLegal(tipo) {
   const secoes = tipo === "termos" ? PC_TEXTO_TERMOS : PC_TEXTO_PRIVACIDADE;
   el.innerHTML = `
     <div class="glass-card" style="max-width:520px; margin:0 auto;">
-      <button class="ghost" id="pcBtnVoltarLegal" style="margin-bottom:14px;">← Voltar</button>
+      <button class="pc-mini-btn" id="pcBtnVoltarLegal" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
       <div style="font-size:20px; font-weight:700; margin:0 0 4px;">${titulo}</div>
       <div class="pc-sub" style="margin-bottom:18px;">Última atualização: 08/08/2026</div>
       ${secoes.map((s) => `
@@ -1004,12 +1004,12 @@ function renderTelaLogin() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <button class="ghost" id="pcBtnVoltarLogin" style="margin-bottom:14px;">← Voltar</button>
+      <button class="pc-mini-btn" id="pcBtnVoltarLogin" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
       <h2>Entrar no Simulador Eleitoral — Legislativo 2026</h2>
       <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual, Deputado Federal e Senador.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcLoginEmail" type="email"></div>
       <div class="field-row"><label>Senha</label><input class="cell" id="pcLoginSenha" type="password"></div>
-      <div style="text-align:right; margin-top:-8px;"><a href="#" id="pcLinkEsqueciSenha" style="color:var(--pc-accent); font-size:12px; text-decoration:underline;">Esqueci minha senha</a></div>
+      <div style="text-align:right; margin-top:-8px;"><a href="#" id="pcLinkEsqueciSenha" class="pc-link" style="font-size:12px;">Esqueci minha senha</a></div>
       <div class="pc-erro" id="pcLoginErro">${pcState.erro || ""}</div>
       <div style="display:flex; gap:10px; margin-top:6px;">
         <button class="primary" id="pcBtnEntrar">Entrar</button>
@@ -1061,7 +1061,7 @@ function renderTelaRecuperarSenha() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <button class="ghost" id="pcBtnVoltarRecuperar" style="margin-bottom:14px;">← Voltar</button>
+      <button class="pc-mini-btn" id="pcBtnVoltarRecuperar" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
       <h2>Esqueci minha senha</h2>
       <div class="pc-sub">Digite o e-mail da sua conta — mandamos um link pra você definir uma senha nova.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcRecuperarEmail" type="email"></div>
@@ -1172,9 +1172,9 @@ function renderTelaCompletarPerfil() {
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
         <input type="checkbox" id="pcCompLgpd" style="margin-top:2px;">
         <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone, CPF, CEP/município e gênero) para criar minha conta, conforme a
-          <a href="#" id="pcLinkPrivacidadeComp" style="color:var(--pc-accent); text-decoration:underline;">Política de Privacidade</a>
+          <a href="#" id="pcLinkPrivacidadeComp" class="pc-link">Política de Privacidade</a>
           e os
-          <a href="#" id="pcLinkTermosComp" style="color:var(--pc-accent); text-decoration:underline;">Termos de Uso</a>.
+          <a href="#" id="pcLinkTermosComp" class="pc-link">Termos de Uso</a>.
           Posso pedir a exclusão dos meus dados a qualquer momento.</span>
       </label>
 
@@ -1387,7 +1387,7 @@ function renderTelaCadastro() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
     <div class="glass-card" style="max-width:460px; margin:0 auto;">
-      <button class="ghost" id="pcBtnVoltarCadastro" style="margin-bottom:14px;">← Voltar</button>
+      <button class="pc-mini-btn" id="pcBtnVoltarCadastro" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
       <h2>Criar conta</h2>
       <button class="ghost" id="pcBtnCadastrarGoogle" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_SVG}Acessar com o Google</button>
       <div style="display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--pc-ink-dim); font-size:12px;">
@@ -1422,9 +1422,9 @@ function renderTelaCadastro() {
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
         <input type="checkbox" id="pcCadLgpd" style="margin-top:2px;">
         <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone, CPF, CEP/município e gênero) para criar minha conta, conforme a
-          <a href="#" id="pcLinkPrivacidade" style="color:var(--pc-accent); text-decoration:underline;">Política de Privacidade</a>
+          <a href="#" id="pcLinkPrivacidade" class="pc-link">Política de Privacidade</a>
           e os
-          <a href="#" id="pcLinkTermos" style="color:var(--pc-accent); text-decoration:underline;">Termos de Uso</a>.
+          <a href="#" id="pcLinkTermos" class="pc-link">Termos de Uso</a>.
           Posso pedir a exclusão dos meus dados a qualquer momento.</span>
       </label>
 
@@ -1565,7 +1565,7 @@ async function renderMeuPerfil() {
   const email = sessao ? sessao.user.email : "";
 
   el.innerHTML = `
-    <button class="ghost" id="pcBtnVoltarMeuPerfil" style="margin-bottom:14px;">← Voltar</button>
+    <button class="pc-mini-btn" id="pcBtnVoltarMeuPerfil" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
     <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Meus dados</div>
     <div class="glass-card" style="max-width:460px; margin:0 auto;">
       <div class="pc-sub" style="margin-bottom:16px;">${email}</div>
@@ -1793,7 +1793,7 @@ function renderCentralAjuda() {
       <div style="font-size:13px; line-height:1.7; color:var(--pc-ink-dim);">${corpo}</div>
     </div>`;
   el.innerHTML = `
-    <button class="ghost" id="pcBtnVoltarAjuda" style="margin-bottom:14px;">← Voltar</button>
+    <button class="pc-mini-btn" id="pcBtnVoltarAjuda" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
     <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Central de ajuda</div>
 
     ${secao("Dep. Estadual e Dep. Federal — proporcional", `
@@ -1951,7 +1951,7 @@ async function renderAdminPainel() {
     // preso — nem botão de voltar nem menu fixo aparecem nessa subaba
     // (atualizarMenuFixo(null), renderAppColaborativo). Achado em revisão
     // de código, 15/08/2026, antes do primeiro teste com admin de verdade.
-    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra administradores.</div><button class="ghost" id="pcBtnVoltarAdminRestrito" style="width:100%; margin-top:10px;">← Voltar</button></div>`;
+    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra administradores.</div><button class="ghost" id="pcBtnVoltarAdminRestrito" style="width:100%; margin-top:10px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("setaEsquerda", 14)}Voltar</button></div>`;
     document.getElementById("pcBtnVoltarAdminRestrito").addEventListener("click", () => {
       pcState.subaba = "menu";
       renderAppColaborativo();
@@ -1976,7 +1976,7 @@ async function renderAdminPainel() {
   else conteudoSecao = await montarAdminRotinas();
 
   el.innerHTML = `
-    <button class="ghost" id="pcBtnVoltarAdmin" style="margin-bottom:14px;">← Voltar</button>
+    <button class="pc-mini-btn" id="pcBtnVoltarAdmin" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
     <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Painel do administrador</div>
     <div class="pc-sub" style="margin:0 0 14px 2px;">Visão operacional do sistema — não substitui o Supabase, cobre só o essencial do dia a dia.</div>
     <div class="pc-cargo-switch" style="margin-bottom:16px; flex-wrap:wrap; height:auto;">${botoesSecao}</div>
@@ -2058,7 +2058,7 @@ async function renderPainelUsuarioFinal() {
   }
 
   el.innerHTML = `
-    <button class="ghost" id="pcBtnVoltarUsuarioFinal" style="margin-bottom:14px;">← Voltar</button>
+    <button class="pc-mini-btn" id="pcBtnVoltarUsuarioFinal" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
     <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Dados estratégicos</div>
     <div class="pc-sub" style="margin:0 0 16px 2px;">Resultados agregados das cédulas oficiais já depositadas — sem nome nem perfil individual de quem previu.</div>
     <div class="glass-card">

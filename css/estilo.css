@@ -1289,6 +1289,12 @@
 #modoColaborativoWrap.pc-tema-fader .pc-stepper-btn:hover{ background:rgba(52,232,74,.16); border-color:#34E84A; }
 #modoColaborativoWrap.pc-tema-fader .pc-picker-item.pc-picker-disabled{ color:#4A4F54; }
 #modoColaborativoWrap.pc-tema-fader .pc-erro{ color:#E8432A; }
+/* Link de texto (Esqueci minha senha, Termos, Privacidade...) — cinza com
+   sublinhado, não verde: link passivo não é CTA, e a escassez do verde é
+   a identidade (DESIGN.md §1.1). Hover clareia pra confirmar que é
+   clicável. */
+#modoColaborativoWrap .pc-link{ color:#8A9096; text-decoration:underline; }
+#modoColaborativoWrap .pc-link:hover{ color:#F2F4F5; }
 
 /* ===== Lobby (Painel principal / Menu / Minhas Listas / Grupos / Ranking
    compartilham .pc-lobby-*) — padrão Fader, 18/08/2026. Mockup aprovado
