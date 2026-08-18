@@ -407,24 +407,58 @@ Retomar quando o usuário tiver mais desses casos "sub júdice" pra conferir
 (mesma fonte usada antes: painel de resultados eleitorais 2022).
 
 ### Fase 3 — Identidade visual e onboarding
-- [ ] Definir paleta clara + estilo glassmorphism (conforme decisão do ponto em aberto #4)
-- [ ] Logo simples
-- [ ] Telas de introdução/tutorial no primeiro acesso
-- [ ] Expansão dos ícones de informação por todo o fluxo novo
+- [x] Identidade 2.0 "Fader" definida e documentada (§8.2) — monocromático
+      escuro + verde estratégico, substitui a decisão antiga de paleta clara
+- [x] Aplicada nas 3 abas de palpite (Senador 17/08, Deputados Estadual/
+      Federal 18/08) — console, cards, faders, plenário
+- [ ] Migrar as telas restantes (lobby, menu, minhas listas, grupos,
+      ranking, revisão, ajuda, login/cadastro) pra identidade 2.0 —
+      protótipos em andamento, ver seção "Estética v2 — páginas restantes"
+- [x] Telas de introdução/tutorial no primeiro acesso ("Como montar a
+      lista")
+- [x] Expansão dos ícones de informação por todo o fluxo novo
 
 ### Fase 4 — Hospedagem e lançamento
-- [ ] Publicar em link fixo (site de verdade, não mais arquivo local)
+- [x] Publicar em link fixo — GitHub Pages
+      (netofloripabr.github.io/simulador-legislativo), desde 07/08/2026
 - [ ] Lançamento fechado/por convite (fase exclusiva)
 - [ ] Expansão por categoria de acesso
+- [ ] Ver escopo detalhado em [[alesc_escopo_lancamento_1semana]] (memória)
+      — punch-list engenharia-only da meta de 1 semana
 
 ### Fase 5 — Prontidão para a eleição real de 2026
-- [ ] Carregar todos os candidatos reais de 2026 (após fim das convenções/registro de candidaturas)
+- [x] Modelo de distribuição de votos (FMD) construído e documentado —
+      pronto pra receber a lista oficial quando sair
+- [ ] Carregar todos os candidatos reais de 2026 (após fim das
+      convenções/registro de candidaturas) — hoje em `sc-2026-provisorio.js`,
+      fonte = atas de convenção, não o registro oficial (RRC) ainda
 - [ ] Abrir oficialmente para preenchimento das listas
 
 ### Fase 6 — Pós-eleição
-- [ ] Inserir resultado oficial de 2026 (mesmo padrão de fonte/verificação usado para 2022)
-- [ ] Calcular ranking final (acerto de eleitos + votação geral do partido + critérios de desempate)
+- [ ] Inserir resultado oficial de 2026 (mesmo padrão de fonte/verificação
+      usado para 2022)
+- [ ] Sistema de pontuação/ranqueamento — ver rascunho de design em
+      `RANQUEAMENTO.md`
 - [ ] Divulgar resultados e vencedores
+
+### Páginas que faltam no roteiro (auditoria de 18/08/2026)
+Identidade 2.0 aplicada só na tela de palpite hoje. Faltam, em ordem de
+prioridade sugerida (mais visível pro usuário primeiro):
+1. **Lobby / Painel principal** (`renderPainelPrincipal`) — primeira tela
+   depois do palpite salvo, muito tráfego.
+2. **Menu / Minhas Listas / Grupos** — já retrofitadas pro padrão 1.0
+   "Lobby" (ver Backlog), precisam da segunda passada pro 2.0.
+3. **Ranking** — hoje placeholder (`renderRankingPlaceholder`), depende
+   também do sistema de pontuação (Fase 6) pra fazer sentido de verdade.
+4. **Revisão** (`renderRevisaoDeposito`) — tela de maior densidade de
+   informação, migração exige mais cuidado de layout.
+5. **Login / Cadastro / Onboarding** — primeira impressão de quem chega,
+   mas troca de identidade aqui é mais sensível (formulários, OAuth).
+6. **Central de Ajuda, Termos, Privacidade** — baixa prioridade visual,
+   conteúdo estático.
+7. **Simulador individual** (fora da Prospecção Coletiva) — mantém a
+   identidade própria (terminal/verde-neon original), decisão já tomada
+   de não migrar (é outro produto dentro do mesmo repositório).
 
 ---
 

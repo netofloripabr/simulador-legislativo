@@ -9,7 +9,7 @@
 > pra baixo). Pra pedir algo novo, é só falar — eu classifico na página
 > certa e coloco na ordem que fizer mais sentido.
 
-_Última atualização: 13/08/2026_
+_Última atualização: 18/08/2026_
 
 ---
 
@@ -244,6 +244,56 @@ em validação. Mockup validado com o usuário antes de programar._
 ---
 
 ## P03 — Seleção de candidatos
+
+> **17–18/08/2026 — mudança de modelo, não incremento**: a seleção por
+> "interruptor eleito + contador de vagas por partido" (itens abaixo, até
+> a marca "── modelo antigo ──") foi INTEIRAMENTE substituída pelo modelo
+> **Fader**: votação distribuída por barras deslizantes (uma por
+> candidato e uma por partido, aninhadas), console com indicadores de
+> vagas/QE, plenário como case de cápsulas, régua de votos por candidato
+> com limite de desenho por estado/cargo. Ver `ENGENHARIA.md` pra
+> documentação técnica completa (FMD, apuração ao vivo, réguas, box de
+> vagas). Aplicado nas 3 abas: Senador (17/08), Estadual e Federal
+> (18/08). Itens do modelo antigo ficam registrados só como histórico —
+> a UI deles não existe mais na tela (código morto removido em 18/08).
+
+**✅ Concluído (modelo Fader, 17–18/08/2026)**
+- Console "Fader": card único (VOTOS + barra com alça mestra + escala +
+  indicadores de vagas/QE + painel de comandos), no material do padrão
+  2.0 — substitui o Painel Eleitoral antigo
+- Card de partido em 5 linhas: nome + box de vagas (editável por toque,
+  muda só a meta/curso da barra, nunca reescala votos já dados) · barra
+  com meta + régua de vagas (traço por vaga: verde fechada / laranja em
+  disputa / branco sem votos) + fio verde de 1px pro excedente · linha
+  de notificação contextual + "i" com QP decomposto · subpainel de 5
+  botões (só card aberto) · candidatos aninhados (lista completa,
+  reordenando por votos)
+- Alça-lâmina A1.3 (plaqueta de votos integrada ao corpo da alça,
+  estacionando ou não sobre a meta)
+- Apuração D'Hondt ao vivo (sem interruptor manual): ELEITO/SOBRA/FORA
+  100% derivados da votação, recalculados a cada gesto
+- Ícone mono do Instagram antes do nome do candidato (só quem tem link)
+- Régua de votos por candidato como limite de DESENHO, não de voto: SC
+  Estadual 250 mil fixo, SC Federal +50% do mais votado 2022, outros
+  estados +100% — digitação acima mostra o número real com a barra
+  cravada no fim
+- Plenário vira "case de cápsulas" (grade de nichos, visual dos botões
+  do console) pra todo cargo exceto Assembleia SC, que mantém o
+  hemiciclo em arco; plenário inicia FECHADO por padrão
+- Mágico próprio por cargo (Deputados: curva 2022 + normalização pro
+  gate 100%; Senador: força do grupo/federação 2022, sem histórico
+  individual disponível)
+- Botão Refazer (espelho do Desfazer) no console
+- Tab no box de votos pula pro candidato de baixo
+- Votação de 2022 exibida na linha do candidato aberto
+- Gate do Avançar: 100% dos votos válidos projetados distribuídos
+  (Deputados) / todos os eleitos indicados (Senador)
+- Bug corrigido: box de vagas com texto não-numérico zerava
+  silenciosamente (18/08/2026)
+- Interruptor de cargos: pílula ativa na cor do console (não mais
+  branco); bolinha verde viva quando o cargo está com a cédula completa
+
+**── modelo antigo (substituído, histórico) ──**
 
 **✅ Concluído**
 - Corrigir sobreposição em "Soma de Votos" / conflito de camadas de fundo
