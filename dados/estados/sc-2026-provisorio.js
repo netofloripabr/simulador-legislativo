@@ -732,6 +732,7 @@ var CANDIDATOS_2026_SC_PROVISORIO = {
     { id:"pstu-marcos-dorval-shimitz", nome:"Marcos Dorval Shimitz", nomeUrna:"Marcos Dorval", numero:161, partido:"PSTU", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"347-pstu-convencao.pdf" },
     { id:"pl-caroline-rodrigues-de-toni", nome:"Caroline Rodrigues De Toni", nomeUrna:"Carol De Toni", numero:221, partido:null, genero:"FEMININO", coligado:true, confianca:"media", fonteArquivo:"680-pl-convencao.pdf" },
     { id:"missao-tulio-de-amorim-pfuetzenreiter", nome:"Túlio De Amorim Pfuetzenreiter", nomeUrna:"Túlio De Amorim", numero:144, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1696-missão-retificadora.pdf" },
+    { id:"mdb-antidio-aleixo-lunelli", nome:"Antídio Aleixo Lunelli", nomeUrna:"Antídio Lunelli", numero:155, partido:"MDB", genero:"MASCULINO", coligado:true, confianca:"media", fonte:"rrc", fonteArquivo:"RRC-oficial-TSE (candidatura 155, coligação \"Santa Catarina Acima de Tudo\") — sem ata de convenção publicada ainda; entrou pela política de 18/08/2026 de cadastrar todo candidato oficialmente registrado, mesmo antes da ata/homologação" },
   ],
   "Senador (1º suplente)": [
     { id:"pl-geraldo-wetzel-neto", nome:"Geraldo Wetzel Neto", nomeUrna:"Geraldo Wetzel Neto", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"1312-pl-executiva.pdf" },

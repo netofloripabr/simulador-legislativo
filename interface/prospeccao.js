@@ -4041,6 +4041,7 @@ function renderListaSenador(totalVagas, E) {
         <span class="pc-sen-pct">${pct.toFixed(0)}<small>%</small></span>
       </div>
       <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
+      ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
       <div class="pc-sen-slider" data-sen-idx="${it.idx}">
         <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${Math.min(100, pctBarra)}%"></div></div>
         <div class="pc-sen-votos"></div>
@@ -4510,6 +4511,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
           <span class="pc-dep-cnm">${nomeExibicao(c)}${lapisAdmin}</span>
           <span class="pc-dep-cpct">${cpct.toFixed(1).replace(".", ",")}<small>%</small></span>
         </div>
+        ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</div>` : ""}
         ${faderDepHtml("c|" + gi + "|" + c.chave, cv, capCand, true)}
       </div>`;
@@ -5112,7 +5114,15 @@ function podarGruposForaDoPool(lista, poolOficial) {
   poolOficial.forEach((p) => { poolPorNome[p.nome] = p; });
   const podada = lista
     .filter((p) => poolPorNome[p.nome])
-    .map((p) => poolPorNome[p.nome].semAta2026 ? poolPorNome[p.nome] : p);
+    // Sincroniza nos DOIS sentidos: usa a versão fresca do pool quando ele
+    // quer travar AGORA (semAta2026 verdadeiro) — igual sempre foi — mas
+    // também quando o rascunho JÁ estava travado (nada de edição real
+    // pra perder ali) e o pool destravou nesse meio tempo (ata nova ou
+    // registro oficial chegou depois do rascunho ser salvo). Sem o
+    // segundo caso, um candidato novo (ex.: registro RRC antes da ata)
+    // nunca aparecia pra quem já tinha rascunho daquele cargo — bug
+    // achado em 18/08/2026 com o caso do Lunelli (MDB/Senador).
+    .map((p) => (poolPorNome[p.nome].semAta2026 || p.semAta2026) ? poolPorNome[p.nome] : p);
   if (!podada.length) return lista;
   // Sentido inverso da mesma sincronização: grupo que EXISTE no pool mas
   // não no rascunho (ata processada depois do rascunho ser salvo, ou o
