@@ -1134,11 +1134,11 @@
 }
 #modoColaborativoWrap .pc-dep-fill{
   position:absolute; left:0; top:0; height:100%; border-radius:3px;
-  background:linear-gradient(180deg,#7C848C 0%,#565D64 45%,#42484E 70%,#5A6168 100%);
+  background:linear-gradient(90deg,#34E84A 0%,#14602A 55%,#1D8038 100%);
 }
 #modoColaborativoWrap .pc-dep-extra{
   position:absolute; top:0; height:100%;
-  background:linear-gradient(180deg,#A7AEB5 0%,#7E858C 55%,#8E959C 100%);
+  background:rgba(102,242,122,.75);
 }
 #modoColaborativoWrap .pc-dep-meta{
   position:absolute; bottom:0; transform:translateX(-50%);
