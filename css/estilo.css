@@ -1126,7 +1126,7 @@
   background:rgba(255,154,46,.85); transform:translateX(-50%); pointer-events:none;
 }
 #modoColaborativoWrap .pc-dep-zone{
-  position:relative; height:40px; cursor:pointer; touch-action:none;
+  position:relative; height:47px; cursor:pointer; touch-action:none;
 }
 #modoColaborativoWrap .pc-dep-trk{
   position:absolute; left:0; right:0; top:6px; height:5px; border-radius:3px;
@@ -1141,8 +1141,8 @@
   background:rgba(194,200,206,.55);
 }
 #modoColaborativoWrap .pc-dep-meta{
-  position:absolute; bottom:0; transform:translateX(-50%);
-  font-size:8.5px; color:#5C6268; font-variant-numeric:tabular-nums; white-space:nowrap;
+  position:absolute; bottom:1px; transform:translateX(-50%);
+  font-size:10px; color:#8A9096; font-variant-numeric:tabular-nums; white-space:nowrap;
   pointer-events:none;
 }
 #modoColaborativoWrap .pc-dep-grip{
@@ -1156,7 +1156,7 @@
   box-shadow:0 0 0 3px rgba(10,12,14,.5);
 }
 #modoColaborativoWrap .pc-dep-grip-plq{
-  margin-top:-1px;
+  margin-top:5px;
   background:linear-gradient(180deg,#2E3237,#1F2327 70%,#33383D);
   border:1px solid rgba(242,244,245,.2); border-radius:999px; padding:1.5px 8px;
   font-size:8.5px; font-weight:700; color:#D9DDE0; font-variant-numeric:tabular-nums;
