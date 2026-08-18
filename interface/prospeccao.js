@@ -4371,7 +4371,7 @@ function barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course) {
     <div class="pc-dep-regua"><div class="pc-dep-regua-fina" style="background:repeating-linear-gradient(90deg, rgba(138,144,150,.18) 0 1px, transparent 1px ${finaPasso.toFixed(3)}%);"></div>${ticks}</div>
     <div class="pc-dep-zone" data-dep-fader="p|${gi}" data-course="${Math.round(course)}" data-meta="${Math.round(meta)}" data-qe="${Math.round(qeProj)}" data-vagas="${vagasInd}">
       <div class="pc-dep-trk">
-        <div class="pc-dep-fill" style="width:${fillW}%"></div>
+        <div class="pc-dep-fill" style="width:${fillW}%; background-size:${fillW > 0 ? (10000 / fillW).toFixed(1) : "100"}% 100%;"></div>
         ${extraW > 0 ? `<div class="pc-dep-extra" style="left:${metaPos}%; width:${extraW}%"></div>` : ""}
       </div>
       ${meta > 0 ? `<span class="pc-dep-meta" style="left:${metaLabelPos}%">meta ${formatVotosCompacto(meta)}</span>` : ""}
@@ -4390,7 +4390,13 @@ function atualizarBarraPartidoDom(zone, soma) {
   const qeProj = Number(zone.dataset.qe) || 1;
   const vagasInd = Number(zone.dataset.vagas) || 0;
   const pos = (v) => Math.min(100, v / course * 100);
-  zone.querySelector(".pc-dep-fill").style.width = pos(Math.min(soma, meta)) + "%";
+  const fillEl = zone.querySelector(".pc-dep-fill");
+  const fw = pos(Math.min(soma, meta));
+  fillEl.style.width = fw + "%";
+  // Degradê ancorado no CURSO inteiro (claro → escuro → claro nas mesmas
+  // posições do trilho, como no console) — o background estica na razão
+  // inversa da largura do preenchimento.
+  fillEl.style.backgroundSize = (fw > 0 ? (10000 / fw).toFixed(1) : "100") + "% 100%";
   let extra = zone.querySelector(".pc-dep-extra");
   if (soma > meta) {
     if (!extra) {

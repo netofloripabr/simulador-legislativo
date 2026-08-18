@@ -1134,7 +1134,7 @@
 }
 #modoColaborativoWrap .pc-dep-fill{
   position:absolute; left:0; top:0; height:100%; border-radius:3px;
-  background:linear-gradient(90deg,#34E84A 0%,#14602A 55%,#1D8038 100%);
+  background:linear-gradient(90deg,#34E84A 0%,#14602A 55%,#1D8038 100%) left center no-repeat;
 }
 #modoColaborativoWrap .pc-dep-extra{
   position:absolute; top:0; height:100%;
