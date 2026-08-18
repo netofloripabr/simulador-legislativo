@@ -4382,7 +4382,11 @@ function notificacaoDep(soma, meta, vagasInd, qeProj) {
 // placa fixa da meta embaixo. `course` = extensão total do trilho.
 function barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course) {
   const pos = (v) => Math.min(100, course > 0 ? v / course * 100 : 0);
-  const fillW = pos(Math.min(soma, meta));
+  // A barra preenche NORMALMENTE até a soma; o excedente (meta → soma) é
+  // marcado por um fio verde vivo sobreposto no centro, com 1/3 da altura
+  // do trilho (decisão do usuário, 18/08/2026 — substitui o trecho claro
+  // e os pontinhos laranja).
+  const fillW = pos(soma);
   const metaPos = pos(meta);
   const extraW = soma > meta ? pos(soma) - metaPos : 0;
   const nTicks = Math.min(60, Math.max(vagasInd, Math.ceil(soma / qeProj || 0)));
@@ -4418,7 +4422,7 @@ function atualizarBarraPartidoDom(zone, soma) {
   const vagasInd = Number(zone.dataset.vagas) || 0;
   const pos = (v) => Math.min(100, v / course * 100);
   const fillEl = zone.querySelector(".pc-dep-fill");
-  const fw = pos(Math.min(soma, meta));
+  const fw = pos(soma);
   fillEl.style.width = fw + "%";
   // Degradê ancorado no CURSO inteiro (claro → escuro → claro nas mesmas
   // posições do trilho, como no console) — o background estica na razão
