@@ -4796,8 +4796,11 @@ function attachListenersDeputadosFader(E, totalVagas) {
     const inp = sp.querySelector("input");
     setTimeout(() => { inp.focus(); inp.select(); }, 30);
     const aplicar = () => {
-      const v = Number(String(inp.value).replace(/\D/g, ""));
-      if (Number.isFinite(v) && String(inp.value).trim() !== "") aplicarVagas(gi, v);
+      // Só aceita se sobrar pelo menos um dígito de verdade — texto puro
+      // ("abc") não pode virar "0" silencioso (bug achado em revisão,
+      // 18/08/2026: zerava as vagas do partido sem o usuário perceber).
+      const digitos = String(inp.value).replace(/\D/g, "");
+      if (digitos !== "") aplicarVagas(gi, Number(digitos));
       else renderCargoEstadual();
     };
     inp.addEventListener("blur", aplicar);
