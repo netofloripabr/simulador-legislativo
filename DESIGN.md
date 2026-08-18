@@ -53,17 +53,45 @@ atenção agora?" antes de pôr de volta.
 
 ### 1.2 Tipografia
 
-Uma família só: `var(--sans)` → `'Inter', -apple-system,
-BlinkMacSystemFont, 'Segoe UI', sans-serif`. Nunca trocar de família pra dar
-ênfase — só tamanho e peso variam. Números sempre com
-`font-variant-numeric: tabular-nums` (impede o valor "dançar" de largura
-quando muda, ex.: contador de votos ao vivo).
+**Uma família só, no app inteiro — literalmente, não só na Prospecção
+Coletiva.** `var(--sans)` → `'Inter', -apple-system, BlinkMacSystemFont,
+'Segoe UI', sans-serif`. Achado ao conferir o código pra este documento:
+existe uma segunda variável, `var(--mono)`, usada em ~26 lugares do
+Simulador individual "estilo terminal" — mas ela foi **redefinida pra
+apontar pro mesmo stack de `--sans`** (ver `css/estilo.css` linhas 14–20,
+mudança feita antes deste documento existir, pra não precisar trocar cada
+uma das ~26 ocorrências uma por uma). Ou seja: **não existe mais fonte
+monoespaçada real em nenhuma tela hoje** — o nome "mono" ficou só como
+etiqueta histórica. Se um dia quiserem uma monoespaçada de verdade só no
+Simulador individual, o ponto único de troca é essa variável, não sair
+caçando as ~26 ocorrências.
+
+Nunca trocar de família pra dar ênfase — só tamanho e peso variam. Números
+sempre com `font-variant-numeric: tabular-nums` (impede o valor "dançar" de
+largura quando muda, ex.: contador de votos ao vivo).
 
 Escala de referência (card de candidato, o caso mais denso hoje):
 - Nome: 14.5px / peso 650
 - Número-herói (%): 22px / peso 750 (sufixo "%" menor, em tom apagado)
 - Sublinha: 10.5px / `#8A9096`
 - Rótulo dentro de barra: 9px / peso 700
+
+**Pesos em uso hoje** (contagem real em `css/estilo.css` +
+`interface/prospeccao.js`, do mais raro ao mais comum):
+
+| Peso | Frequência | Uso típico |
+|---|---|---|
+| 400 | rara | corpo de texto solto |
+| 600 | comum | subtítulo/rótulo com alguma ênfase |
+| 650 | pontual | nome do candidato no card fader (ênfase específica, ver acima) |
+| **700** | **a mais comum de longe** | padrão pra quase todo texto em destaque — botão, número, título de linha |
+| 750 | pontual | número-herói (%), maior ênfase individual de um card |
+| 800 | pontual | texto sobre pílula de cor sólida (selo ELEITO, "Rodada N") |
+| 900 | **1 único lugar** (`.pc-stepper-count`, contador do stepper do fluxo 1.0) | exceção legada — não faz parte da escala oficial, não replicar em tela nova |
+
+Regra prática: em dúvida entre pesos, comece em **700**. É o peso-padrão do
+projeto — os outros são desvios pontuais e intencionais, não alternativas
+neutras.
 
 ### 1.3 Espaçamento e forma
 
@@ -74,6 +102,52 @@ Escala de referência (card de candidato, o caso mais denso hoje):
   largura fixa/percentual — regra aprendida na dor (3 rodadas de protótipo
   perdidas com o painel de comandos por esquecer isso, ver
   `alesc_painel_comandos_responsivo.md`).
+
+### 1.4 Degradês
+
+Nenhum degradê do app é decorativo à toa — cada família tem um papel
+específico. Hoje existem exatamente 6:
+
+1. **Fundo da tela (vinheta + grão)** — o principal, o que dá o "clima" de
+   toda a Prospecção Coletiva: `radial-gradient(ellipse 120% 60% at 50%
+   -5%, #1B1E22 0%, #101214 48%, #0C0E10 100%)`, com uma segunda camada por
+   cima — um ruído SVG (`feTurbulence`, opacidade 0.035, ladrilhado) só pra
+   tirar a sensação de fundo "100% liso e digital demais". Quase
+   imperceptível de propósito.
+   - **Achado ao revisar pra este documento**: existe uma versão antiga
+     (verde, da identidade 1.0) ainda presente no CSS (`css/estilo.css`
+     linha 265) — mas a regra do tema Fader (linha 973) tem mais
+     especificidade e sempre ganha, porque a classe `pc-tema-fader` hoje é
+     global. Na prática, a versão verde está morta (nunca aparece), só não
+     foi apagada do arquivo. Isso é seguro (zero efeito visual), mas é bom
+     eu saber que ela existe pra não confundir com bug se alguém for ler o
+     CSS direto.
+2. **Metal das alças** (faders e grips de vagas) — degradês verticais
+   escuros simulando metal escovado. 3 variações próximas (alça principal
+   11×27px, mini-alça mestra 9×20px, grip do box de vagas em Deputados) —
+   sempre cinza, nunca cor.
+3. **Preenchimento do fader individual** — degradê horizontal cinza
+   (`rgba(42,46,50,.75) → rgba(60,65,70,.97)`), o "sulco preenchido" de
+   voto. Nunca colorido — o verde não mora aqui.
+4. **Barra coletiva de progresso** — o **único** degradê que carrega a cor
+   estratégica: `#34E84A 0% → #14602A 55% → #1D8038 100%`. Mede avanço
+   real (quanto do total de votos válidos já foi distribuído) — por isso o
+   verde aqui é literal, não decoração.
+5. **Barra "meta" compacta** (nível partido, telas de Deputados) — cinza
+   mais claro (`#C2C8CE → #4A5056 → #5F666D`), deliberadamente mais claro
+   que o preenchimento do fader individual — a intenção é ler como
+   indicador resumido/secundário, nunca como controle principal.
+6. **Réguas e marcações (ticks)** — tecnicamente não são degradês de cor:
+   são padrões repetidos (`repeating-linear-gradient`) simulando marcação
+   física de régua, mais uma máscara em degradê (opaco → transparente →
+   opaco) nas pontas, pra dar efeito de perspectiva — a régua "esmaece" nas
+   bordas em vez de cortar seco.
+
+Regra prática pra tela nova: se o degradê que você precisa não se encaixa
+em nenhuma das 6 famílias acima, pare e pergunte por quê — é bem provável
+que o problema já tenha solução em um desses padrões, e criar um sétimo
+sem necessidade é o tipo de inconsistência que este documento existe pra
+evitar.
 
 ---
 
@@ -95,6 +169,27 @@ Se a tela nova precisa de um conceito que não tem ícone ainda: desenhar um
 novo no mesmo traço (viewBox 16×16, `stroke-width` entre 1.2–1.4,
 `fill="none"` quando possível) e adicionar em `PC_ICONES` — não importar de
 fora, não usar emoji como ponte "provisória" (vira definitivo).
+
+**Regra explícita contra o "estilo IA"**: nunca importar de uma biblioteca
+de ícones reconhecível — Feather, Lucide, Heroicons, Material Symbols,
+Font Awesome, Phosphor, Tabler etc. É exatamente esse glifo genérico e
+"limpo demais" que faz uma tela parecer gerada por IA, mesmo quando o
+resto do design é original. A biblioteca do projeto existe justamente pra
+evitar isso: 32 ícones desenhados à mão, com a mesma personalidade de
+traço entre si (levemente arredondados, `currentColor`, nunca preenchidos
+de sólido a não ser em detalhes pequenos como um ponto). Ícone novo nasce
+copiando essa personalidade — nunca colado de outro lugar, nem "só dessa
+vez, depois eu troco".
+
+**Escala de tamanho em uso hoje** (contagem real de todas as chamadas de
+`iconeSvg()` no código):
+
+| Faixa | Contexto |
+|---|---|
+| 11–13px | ícone inline dentro de texto pequeno (rótulo, badge, dica) |
+| 14–17px | padrão geral — a maioria dos ícones do app está aqui |
+| 18–19px | destaque de linha (item de menu, alerta que precisa chamar atenção) |
+| 26–32px | hero — capa, estado vazio, ícone de tela inteira (usado raramente, de propósito) |
 
 ---
 
