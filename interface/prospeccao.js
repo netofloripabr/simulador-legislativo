@@ -4453,7 +4453,10 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
   const qeProj = quocienteEleitoral(Math.round(E), totalVagas) || 1;
   const qeAtual = quocienteEleitoral(somaVotosCargo(), totalVagas);
   const idxDe = new Map(pcState.palpiteEdicao.map((p, i) => [p, i]));
-  const ordenados = [...grupos].sort((a, b) => somaVotosGrupo(b) - somaVotosGrupo(a));
+  // Ordem dos cards: mais ELEITOS INDICADOS no box primeiro; votos como
+  // desempate (pedido do usuário em 17/08 — antes era só por votos).
+  const vagasDe = (p) => p.semAta2026 ? -1 : vagasIndicadasDe(p, counts[idxDe.get(p)] || 0);
+  const ordenados = [...grupos].sort((a, b) => vagasDe(b) - vagasDe(a) || somaVotosGrupo(b) - somaVotosGrupo(a));
   return ordenados.map((p) => {
     const gi = idxDe.get(p);
     if (p.semAta2026) {
@@ -4543,7 +4546,10 @@ function concluirGestoDeputados() {
   recalcularMarcadosDeputados();
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
   clearTimeout(_depTimer);
-  _depTimer = setTimeout(() => { renderCargoEstadual(); }, 450);
+  // 150ms (era 450): depois de SOLTAR não existe mais dedo pra alça fugir —
+  // a pausa longa só atrasava a reacomodação do ranking (reclamação do
+  // usuário em 17/08). O Senador mantém 450ms validados.
+  _depTimer = setTimeout(() => { renderCargoEstadual(); }, 150);
 }
 
 function atualizarHeaderDeputados(E) {
