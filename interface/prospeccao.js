@@ -4311,6 +4311,13 @@ function faderDepHtml(chaveDrag, v, cap, mini) {
 // esticar o cabeçalho fixo.
 function renderPainelDeputadosFader(E, totalVagas, comandos) {
   const soma = somaVotosCargo();
+  // Indicadores da escala (pedido de 18/08, no lugar do "40 vagas · QE"
+  // fixo): vagas já indicadas nos boxes / total, e QE ATUAL (votação
+  // digitada, art. 106) / meta (QE projetado 2026).
+  const countsConsole = vagasApuradasPorGrupo();
+  const vagasIndTotal = pcState.palpiteEdicao.reduce((s2, p2, i2) => s2 + (p2.semAta2026 ? 0 : vagasIndicadasDe(p2, countsConsole[i2] || 0)), 0);
+  const qeAtualConsole = quocienteEleitoral(soma, totalVagas) || 0;
+  const qeMetaConsole = quocienteEleitoral(Math.round(E), totalVagas) || 0;
   const pct = E > 0 ? Math.round(soma / E * 100) : 0;
   const w = E > 0 ? Math.min(100, soma / E * 100) : 0;
   const fator = fatorCrescimentoEleitorado();
@@ -4342,7 +4349,7 @@ function renderPainelDeputadosFader(E, totalVagas, comandos) {
         </div>
         <div class="pc-sen-mgrip" id="pcDepMg" style="left:${w}%"></div>
       </div>
-      <div class="pc-sen-escala"><span>0</span><span>${totalVagas} vagas · QE ${formatVotosCompacto(quocienteEleitoral(Math.round(E), totalVagas) || 0)}</span><span>${formatVotosCompacto(Math.round(E))}</span></div>
+      <div class="pc-sen-escala"><span>0</span><span>vagas <b style="color:#F2F4F5; font-size:11px; font-weight:750;" id="pcDepVagasInd">${vagasIndTotal}</b>/${totalVagas}<span style="margin:0 12px;">·</span>QE <b style="color:#F2F4F5; font-size:11px; font-weight:750;" id="pcDepQeAtual">${formatVotosCompacto(qeAtualConsole)}</b>/${formatVotosCompacto(qeMetaConsole)}</span><span>${formatVotosCompacto(Math.round(E))}</span></div>
       <div class="pc-console-cmds">
         <div class="pc-cmd-painel">
           ${botoes}
@@ -4565,6 +4572,8 @@ function atualizarHeaderDeputados(E) {
   const w = E > 0 ? Math.min(100, soma / E * 100) : 0;
   document.getElementById("pcDepFill").style.width = w + "%";
   document.getElementById("pcDepMg").style.left = w + "%";
+  const elQe = document.getElementById("pcDepQeAtual");
+  if (elQe) elQe.textContent = formatVotosCompacto(quocienteEleitoral(soma, vagasFixasCargo(pcState.estado, pcState.cargoAtivo)) || 0);
 }
 
 function atualizarFaderDep(sl, v, cap) {
