@@ -996,8 +996,9 @@
 #modoColaborativoWrap.pc-tema-fader .pc-cargo-switch{ background:#101214; }
 #modoColaborativoWrap.pc-tema-fader .pc-cargo-switch button.active{ background:#F2F4F5; color:#101214; }
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-painel .pc-cmd-acao{ background:#16181B; border-color:#2B2F33; }
-#modoColaborativoWrap.pc-tema-fader .pc-cmd-painel .pc-cmd-acao.ativo{ background:rgba(52,232,74,.09); }
-#modoColaborativoWrap.pc-tema-fader .pc-cmd-painel .pc-cmd-acao.destaque{ background:rgba(52,232,74,.07); color:#D9F5DE; }
+/* .ativo/.destaque do reskin antigo removidos em 18/08/2026 — pintavam o
+   mágico e o avançar de verde translúcido por cima do padrão do console
+   (todos os botões iguais; só o anel .ativo do console sinaliza estado). */
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-painel .pc-cmd-info{ background:#16181B; border-color:#2B2F33; font-family:var(--sans); }
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-painel{ background:#16181B; border-color:#26292D; }
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-item{ border-bottom-color:#23262A; }
