@@ -1191,3 +1191,25 @@
 }
 #modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao svg{ width:46%; height:46%; }
 #modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao.avisovg{ color:#FFB020; }
+
+/* Tema Fader — neutralização das estruturas de apoio que ainda vinham no
+   verde 1.0 (achado do usuário em 17/08: "os backgrounds têm muito verde"):
+   inputs .cell, ícone do estado vazio, mini-botões e chips de apoio. O
+   verde vivo continua reservado a foco/acento. */
+#modoColaborativoWrap.pc-tema-fader input.cell,
+#modoColaborativoWrap.pc-tema-fader select.cell,
+#modoColaborativoWrap.pc-tema-fader textarea.cell{
+  background:#16181B; border-color:#2B2F33; color:#F2F4F5;
+}
+#modoColaborativoWrap.pc-tema-fader input.cell::placeholder,
+#modoColaborativoWrap.pc-tema-fader textarea.cell::placeholder{ color:#5C6268; }
+#modoColaborativoWrap.pc-tema-fader input.cell:focus,
+#modoColaborativoWrap.pc-tema-fader select.cell:focus,
+#modoColaborativoWrap.pc-tema-fader textarea.cell:focus{ border-color:#34E84A; }
+#modoColaborativoWrap.pc-tema-fader .pc-estado-vazio-icone{
+  background:#16181B; border:1px solid #2B2F33; color:#8A9096;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-mini-btn{
+  background:#16181B; border-color:#2B2F33; color:#8A9096;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-status{ color:#8A9096; }
