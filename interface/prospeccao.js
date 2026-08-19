@@ -2400,171 +2400,229 @@ function gerarImagemCedula({ nomeExibido, eleitos, codigo, cargoLabel }) {
   return canvas;
 }
 
-// Desenha um "mini-card" de candidato (moldura + nome + cotação) em
-// (x,y,largura) e devolve a altura ocupada — usado tanto direto (linhas
-// visíveis) quanto dentro de um canvas OFFSCREEN que depois recebe blur +
-// fade (linhas "escondidas", ver _desenharColunaCedulaResumo).
-function _desenharMiniCardCandidato(ctx, c, x, y, largura) {
-  const altura = 96;
-  ctx.fillStyle = "#0e2018";
-  ctx.strokeStyle = "#1d3a2c";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.roundRect(x, y, largura, altura, 12);
-  ctx.fill();
-  ctx.stroke();
+// Cartão-desafio "Meu palpite" (PNG de DIVULGAÇÃO, 3 cargos juntos) —
+// identidade Fader 2.0, conceito convite/desafio. Protótipo aprovado pelo
+// usuário em 18-19/08/2026 (artifact "Cartão-desafio — versão final",
+// várias rodadas: direção C "console ao vivo", sem a palavra "aposta",
+// 3 consoles na mesma proporção, etiqueta de cargo compacta): frase
+// "Quem acerta mais?", console por cargo com 3 nomes (2 nítidos + 1 com
+// blur de teaser; no Senador o 3º é o primeiro DE FORA, sem selo ELEITO,
+// já que só 2 vagas estão em disputa em 2026), votação dentro das barras,
+// CTA único verde "Agora é a sua vez" + código de convite.
+// cargosCompletos (opcional) = mapa cargoId → lista completa do palpite;
+// alimenta o % (fração do total de votos do cargo), o 1º de fora do
+// Senador e o "+ N nomes na lista completa".
 
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#3dffb0";
-  ctx.font = "800 26px monospace";
-  ctx.fillText(`${c.posicao}º`, x + 16, y + 38);
-  const larguraPos = ctx.measureText(`${c.posicao}º`).width;
-  ctx.fillStyle = "#eefff6";
-  ctx.font = "600 26px sans-serif";
-  const nomeMax = largura - 32 - larguraPos - 12;
-  let nome = c.nome;
-  while (ctx.measureText(nome).width > nomeMax && nome.length > 3) nome = nome.slice(0, -1);
-  if (nome !== c.nome) nome = nome.replace(/\s*\S*$/, "") + "…";
-  ctx.fillText(nome, x + 16 + larguraPos + 12, y + 38);
-
-  ctx.fillStyle = "#7fa895";
-  ctx.font = "400 22px sans-serif";
-  ctx.fillText(`cotação ${Number(c.votos || 0).toLocaleString("pt-BR")}`, x + 16, y + 74);
-
-  return altura;
-}
-
-// Desenha uma coluna de cargo (rótulo + N mini-cards visíveis + M
-// "escondidos" com blur/fade) — os escondidos são desenhados num canvas
-// OFFSCREEN primeiro (blur real via ctx.filter) e depois recortados com um
-// degradê de opacidade (globalCompositeOperation "destination-in") antes
-// de colar no canvas principal, pra sumir suavemente embaixo em vez de
-// cortar seco. Devolve a altura total ocupada.
-function _desenharColunaCedulaResumo(ctxPrincipal, { rotulo, candidatos, x, y, largura, visiveis }) {
-  ctxPrincipal.textAlign = "center";
-  ctxPrincipal.fillStyle = "#3dffb0";
-  ctxPrincipal.font = "700 24px sans-serif";
-  ctxPrincipal.fillText(rotulo.toUpperCase(), x + largura / 2, y + 20);
-  ctxPrincipal.strokeStyle = "#1d3a2c";
-  ctxPrincipal.lineWidth = 2;
-  ctxPrincipal.beginPath();
-  ctxPrincipal.moveTo(x, y + 40);
-  ctxPrincipal.lineTo(x + largura, y + 40);
-  ctxPrincipal.stroke();
-
-  let cursorY = y + 62;
-  const gap = 14;
-  const visiveisLista = candidatos.slice(0, visiveis);
-  const escondidos = candidatos.slice(visiveis, visiveis + 2);
-
-  visiveisLista.forEach((c) => {
-    const altura = _desenharMiniCardCandidato(ctxPrincipal, c, x, cursorY, largura);
-    cursorY += altura + gap;
-  });
-
-  if (escondidos.length) {
-    const alturaOff = escondidos.length * 96 + (escondidos.length - 1) * gap;
-    const off = document.createElement("canvas");
-    off.width = largura;
-    off.height = alturaOff;
-    const ctxOff = off.getContext("2d");
-    ctxOff.filter = "blur(4px)";
-    let yOff = 0;
-    escondidos.forEach((c) => {
-      const altura = _desenharMiniCardCandidato(ctxOff, c, 0, yOff, largura);
-      yOff += altura + gap;
-    });
-    ctxOff.filter = "none";
-    const degrade = ctxOff.createLinearGradient(0, 0, 0, alturaOff);
-    degrade.addColorStop(0, "rgba(0,0,0,1)");
-    degrade.addColorStop(0.75, "rgba(0,0,0,.4)");
-    degrade.addColorStop(1, "rgba(0,0,0,0)");
-    ctxOff.globalCompositeOperation = "destination-in";
-    ctxOff.fillStyle = degrade;
-    ctxOff.fillRect(0, 0, largura, alturaOff);
-    ctxPrincipal.drawImage(off, x, cursorY);
-    cursorY += alturaOff;
+// Uma linha de candidato (chip ELEITO + nome + % à direita, barra-fader
+// com votos dentro e alça de metal). Desenha em (rx,ry,rw) no ctx dado
+// (pode ser um canvas offscreen, pro blur do teaser) e devolve a altura.
+function _cartaoDesafioLinha(ctx, r, rx, ry, rw) {
+  let xCursor = rx;
+  if (r.chip) {
+    ctx.font = "800 17px sans-serif";
+    const wt = ctx.measureText("ELEITO").width;
+    const chipW = wt + 20;
+    ctx.fillStyle = "#34E84A";
+    ctx.beginPath(); ctx.roundRect(rx, ry + 2, chipW, 27, 7); ctx.fill();
+    ctx.fillStyle = "#07230C"; ctx.textAlign = "left";
+    ctx.fillText("ELEITO", rx + 10, ry + 22);
+    xCursor = rx + chipW + 14;
   }
+  let pctW = 0;
+  if (r.pct) {
+    ctx.font = "700 20px sans-serif";
+    const wPc = ctx.measureText("%").width;
+    ctx.font = "800 32px sans-serif";
+    const wNum = ctx.measureText(r.pct).width;
+    ctx.textAlign = "right"; ctx.fillStyle = "#F2F4F5";
+    ctx.fillText(r.pct, rx + rw - wPc - 3, ry + 26);
+    ctx.textAlign = "left"; ctx.fillStyle = "#AEB5BB"; ctx.font = "700 20px sans-serif";
+    ctx.fillText("%", rx + rw - wPc, ry + 26);
+    pctW = wNum + wPc + 16;
+  }
+  ctx.textAlign = "left"; ctx.fillStyle = "#F2F4F5"; ctx.font = "700 28px sans-serif";
+  const maxW = rx + rw - pctW - xCursor;
+  let nome = r.nome;
+  while (nome.length > 3 && ctx.measureText(nome === r.nome ? nome : nome + "…").width > maxW) nome = nome.slice(0, -1);
+  if (nome !== r.nome) nome += "…";
+  ctx.fillText(nome, xCursor, ry + 26);
 
-  return cursorY - y;
+  const by = ry + 42, bh = 30;
+  ctx.fillStyle = "#0C0E10";
+  ctx.beginPath(); ctx.roundRect(rx, by, rw, bh, 15); ctx.fill();
+  ctx.strokeStyle = "#23262A"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.save();
+  ctx.beginPath(); ctx.roundRect(rx, by, rw, bh, 15); ctx.clip();
+  ctx.fillStyle = "rgba(138,144,150,.2)";
+  for (let i = 1; i <= 9; i++) ctx.fillRect(rx + (rw * i) / 10, by, 1.5, bh);
+  const fw = Math.max(rw * 0.14, rw * (r.frac || 0));
+  const grad = ctx.createLinearGradient(rx, 0, rx + fw, 0);
+  grad.addColorStop(0, "rgba(42,46,50,.85)"); grad.addColorStop(1, "rgba(60,65,70,.97)");
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.roundRect(rx, by, fw, bh, [15, 0, 0, 15]); ctx.fill();
+  const tVotos = (Number(r.votos) || 0).toLocaleString("pt-BR") + " votos";
+  ctx.font = "700 17px sans-serif";
+  const wV = ctx.measureText(tVotos).width;
+  if (fw > wV + 30) {
+    ctx.textAlign = "right"; ctx.fillStyle = "#F2F4F5";
+    ctx.fillText(tVotos, rx + fw - 14, by + 21);
+  }
+  ctx.restore();
+  if (fw <= wV + 30) {
+    ctx.textAlign = "left"; ctx.fillStyle = "#8A9096"; ctx.font = "700 17px sans-serif";
+    ctx.fillText(tVotos, rx + fw + 26, by + 21);
+  }
+  const cx = rx + fw;
+  ctx.fillStyle = "rgba(10,12,14,.5)";
+  ctx.beginPath(); ctx.roundRect(cx - 14, by - 11, 28, 52, 12); ctx.fill();
+  const metal = ctx.createLinearGradient(0, by - 8, 0, by - 8 + 46);
+  metal.addColorStop(0, "#5B6168"); metal.addColorStop(0.6, "#3A3F45"); metal.addColorStop(1, "#2A2E33");
+  ctx.fillStyle = metal;
+  ctx.beginPath(); ctx.roundRect(cx - 11, by - 8, 22, 46, 9); ctx.fill();
+  ctx.strokeStyle = "rgba(242,244,245,.25)"; ctx.lineWidth = 1.5; ctx.stroke();
+  return 72;
 }
 
-// Card-convite "Meu palpite - eleições 2026" — diferente de
-// gerarImagemCedula (cédula oficial de UM cargo por vez, pra quem já
-// depositou conferir posição no ranking), este é o card de DIVULGAÇÃO:
-// os 3 cargos juntos numa imagem só, cortados em 4 (Estadual/Federal) e 1
-// (Senador — cargo majoritário, corte natural é bem menor) com o resto da
-// lista escondido atrás de blur, terminando num convite pra ver a lista
-// completa. Pedido do usuário em 16/08/2026, protótipo aprovado antes de
-// programar (3 rodadas de ajuste no mockup).
-function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo }) {
+// Um console de cargo (material #2C3239/#4D545C, pílula do rótulo, N
+// linhas — as com r.blur passam por um canvas offscreen com ctx.filter
+// blur, mesmo truque do teaser antigo). Devolve o Y de baixo do console.
+function _cartaoDesafioConsole(ctx, { rotulo, rows }, x, y, w) {
+  const padIn = 28, pillH = 34, rowAlt = 72, gapRow = 26;
+  const h = padIn + pillH + 16 + rows.length * rowAlt + (rows.length - 1) * gapRow + 26;
+  ctx.fillStyle = "#2C3239";
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, 32); ctx.fill();
+  ctx.strokeStyle = "#4D545C"; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.font = "800 20px sans-serif";
+  const rot = rotulo.toUpperCase();
+  const pw = ctx.measureText(rot).width + 40;
+  ctx.fillStyle = "rgba(232,236,239,.35)";
+  ctx.beginPath(); ctx.roundRect(x + padIn, y + padIn, pw, pillH, 10); ctx.fill();
+  ctx.strokeStyle = "rgba(242,244,245,.4)"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = "#F2F4F5"; ctx.textAlign = "left";
+  ctx.fillText(rot, x + padIn + 20, y + padIn + 24);
+  let ry = y + padIn + pillH + 16;
+  const rx = x + padIn, rw = w - padIn * 2;
+  rows.forEach((r) => {
+    if (r.blur) {
+      const off = document.createElement("canvas");
+      off.width = rw + 44; off.height = rowAlt + 24;
+      const octx = off.getContext("2d");
+      octx.filter = "blur(7px)";
+      _cartaoDesafioLinha(octx, r, 22, 11, rw);
+      ctx.globalAlpha = 0.55;
+      ctx.drawImage(off, rx - 22, ry - 11);
+      ctx.globalAlpha = 1;
+    } else {
+      _cartaoDesafioLinha(ctx, r, rx, ry, rw);
+    }
+    ry += rowAlt + gapRow;
+  });
+  return y + h;
+}
+
+function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo, cargosCompletos }) {
+  const W = 1080, H = 1920, PAD = 60;
   const canvas = document.createElement("canvas");
-  canvas.width = 1080;
-  canvas.height = 1920;
+  canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext("2d");
 
-  const fundo = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  fundo.addColorStop(0, "#0c2a1e");
-  fundo.addColorStop(0.55, "#081712");
-  fundo.addColorStop(1, "#050d0a");
-  ctx.fillStyle = fundo;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const fundo = ctx.createRadialGradient(W / 2, -160, 0, W / 2, -160, 1500);
+  fundo.addColorStop(0, "#1B1E22"); fundo.addColorStop(0.52, "#101214"); fundo.addColorStop(1, "#0C0E10");
+  ctx.fillStyle = fundo; ctx.fillRect(0, 0, W, H);
+
+  // Wordmark SIMULA·LEGIS (DESIGN.md §3.4c) — duas cores, centrado na mão
+  ctx.font = "800 38px sans-serif";
+  const wSim = ctx.measureText("SIMULA").width, wLeg = ctx.measureText("LEGIS").width;
+  const xm = W / 2 - (wSim + wLeg) / 2;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#F2F4F5"; ctx.fillText("SIMULA", xm, 112);
+  ctx.fillStyle = "#34E84A"; ctx.fillText("LEGIS", xm + wSim, 112);
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#3dffb0";
-  ctx.font = "700 30px sans-serif";
-  ctx.fillText("SIMULALEGIS", canvas.width / 2, 110);
-
-  ctx.fillStyle = "#3dffb0";
-  ctx.font = "700 24px sans-serif";
-  ctx.fillText("MEU PALPITE", canvas.width / 2, 190);
-  ctx.fillStyle = "#eefff6";
-  ctx.font = "700 52px sans-serif";
-  ctx.fillText("Eleições 2026", canvas.width / 2, 250);
-  ctx.fillStyle = "#7fa895";
-  ctx.font = "400 28px sans-serif";
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 48px sans-serif";
+  ctx.fillText("Eu já cravei os meus eleitos.", W / 2, 208);
+  ctx.fillStyle = "#34E84A";
+  ctx.fillText("Quem acerta mais?", W / 2, 268);
+  ctx.fillStyle = "#8A9096"; ctx.font = "400 29px sans-serif";
   const nomeEstado = (ESTADOS_BRASIL.find((e) => e.sigla === pcState.estado) || {}).nome || pcState.estado;
-  ctx.fillText(`${nomeExibido} · ${nomeEstado}`, canvas.width / 2, 296);
+  ctx.fillText(`${nomeExibido} · ${nomeEstado} · Eleições 2026`, W / 2, 320);
 
-  const preparar = (cargoId, corte) => (cargosEleitos[cargoId] || [])
-    .slice(0, corte + 2)
-    .map((c, i) => ({ nome: c.nome, votos: c.votos, posicao: i + 1 }));
-  const estaduais = preparar("estadual", 4);
-  const federais = preparar("federal", 4);
-  const senadores = preparar("senador", 1);
+  // Denominador do % = a MESMA régua única do app (DESIGN.md/PROJETO §8.2):
+  // fração de T = k·E (votos válidos projetados do cargo, × votos por
+  // eleitor no Senado) — nunca a soma do palpite, que faria o líder de um
+  // cargo pouco preenchido mostrar 100%.
+  const tetoCargo = (cid) => {
+    if (cid === "senador") {
+      const E = pcState.estado === "SC"
+        ? REF_2022.validos * fatorCrescimentoEleitorado()
+        : totalValidosProjetado2026("senador");
+      return E * (typeof VAGAS_SENADOR_2026 !== "undefined" ? VAGAS_SENADOR_2026 : 2);
+    }
+    return totalValidosProjetado2026(cid);
+  };
+  const fmtPct = (votos, total) => {
+    if (!total) return "";
+    const v = (votos / total) * 100;
+    if (v >= 10) return String(Math.round(v));
+    const s = v.toFixed(1).replace(".", ",");
+    return s.endsWith(",0") ? s.slice(0, -2) : s;
+  };
 
-  const margem = 60;
-  const gapColunas = 36;
-  const larguraColuna = (canvas.width - margem * 2 - gapColunas) / 2;
-  let y = 350;
+  const secoes = [];
+  let eleitosExibidos = 0;
+  CARGOS.forEach((cargoDef) => {
+    const els = cargosEleitos[cargoDef.id] || [];
+    if (!els.length) return;
+    const total = tetoCargo(cargoDef.id);
+    const rows = [];
+    if (cargoDef.id === "senador") {
+      els.slice(0, 2).forEach((c) => rows.push({ nome: c.nome, votos: c.votos, chip: true, blur: false }));
+      eleitosExibidos += Math.min(2, els.length);
+      const fora = cargosCompletos && cargosCompletos.senador && cargosCompletos.senador.length
+        ? proximosSuplentes(1, cargosCompletos.senador)[0] : null;
+      if (fora) rows.push({ nome: fora.nome, votos: fora.votos, chip: false, blur: true });
+    } else {
+      els.slice(0, 3).forEach((c, i) => rows.push({ nome: c.nome, votos: c.votos, chip: true, blur: i === 2 }));
+      eleitosExibidos += Math.min(3, els.length);
+    }
+    const maxV = rows.reduce((m, r) => Math.max(m, Number(r.votos) || 0), 0) || 1;
+    rows.forEach((r) => {
+      r.pct = fmtPct(Number(r.votos) || 0, total);
+      r.frac = ((Number(r.votos) || 0) / maxV) * 0.72;
+    });
+    secoes.push({ rotulo: cargoDef.label, rows });
+  });
 
-  const alturaEstadual = estaduais.length ? _desenharColunaCedulaResumo(ctx, { rotulo: "Dep. Estadual", candidatos: estaduais, x: margem, y, largura: larguraColuna, visiveis: 4 }) : 0;
-  const alturaFederal = federais.length ? _desenharColunaCedulaResumo(ctx, { rotulo: "Dep. Federal", candidatos: federais, x: margem + larguraColuna + gapColunas, y, largura: larguraColuna, visiveis: 4 }) : 0;
-  y += Math.max(alturaEstadual, alturaFederal) + 36;
+  let y = 356;
+  secoes.forEach((sec) => {
+    y = _cartaoDesafioConsole(ctx, sec, PAD, y, W - PAD * 2) + 24;
+  });
 
-  if (senadores.length) {
-    y += _desenharColunaCedulaResumo(ctx, { rotulo: "Senador", candidatos: senadores, x: margem, y, largura: canvas.width - margem * 2, visiveis: 1 }) + 36;
+  const totalEleitos = CARGOS.reduce((s, c) => s + ((cargosEleitos[c.id] || []).length), 0);
+  const restantes = Math.max(0, totalEleitos - eleitosExibidos);
+  if (restantes > 0) {
+    ctx.textAlign = "center"; ctx.fillStyle = "#AEB5BB"; ctx.font = "400 22px sans-serif";
+    ctx.fillText(`+ ${restantes} nomes na lista completa`, W / 2, y + 16);
   }
 
-  ctx.fillStyle = "rgba(61,255,176,.1)";
-  ctx.strokeStyle = "rgba(61,255,176,.4)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.roundRect(margem, y, canvas.width - margem * 2, 130, 16);
-  ctx.fill();
-  ctx.stroke();
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#3dffb0";
-  ctx.font = "700 30px sans-serif";
-  ctx.fillText("Quer ver a lista completa e fazer a sua?", canvas.width / 2, y + 58);
-  ctx.fillStyle = "#9fc9b3";
-  ctx.font = "400 26px sans-serif";
-  ctx.fillText(`Código ${codigo}`, canvas.width / 2, y + 98);
-  y += 130 + 50;
+  const ctaH = 86, ctaY = H - 218;
+  ctx.fillStyle = "#34E84A";
+  ctx.beginPath(); ctx.roundRect(PAD, ctaY, W - PAD * 2, ctaH, ctaH / 2); ctx.fill();
+  ctx.fillStyle = "#07230C"; ctx.font = "800 34px sans-serif"; ctx.textAlign = "center";
+  ctx.fillText("Agora é a sua vez", W / 2, ctaY + 55);
 
-  ctx.fillStyle = "#547566";
-  ctx.font = "400 24px sans-serif";
-  ctx.fillText("Simulador Eleitoral · Legislativo 2026", canvas.width / 2, y);
+  const t1 = "entre com o código ";
+  ctx.font = "400 25px sans-serif";
+  const w1 = ctx.measureText(t1).width;
+  ctx.font = "800 25px sans-serif";
+  const w2 = ctx.measureText(codigo).width;
+  const xc = W / 2 - (w1 + w2) / 2;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#8A9096"; ctx.font = "400 25px sans-serif"; ctx.fillText(t1, xc, ctaY + ctaH + 46);
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 25px sans-serif"; ctx.fillText(codigo, xc + w1, ctaY + ctaH + 46);
+
+  ctx.textAlign = "center"; ctx.fillStyle = "#5C6268"; ctx.font = "400 21px sans-serif";
+  ctx.fillText("Simulador Eleitoral · Legislativo 2026", W / 2, H - 54);
 
   return canvas;
 }
@@ -2884,7 +2942,7 @@ async function abrirModalCompartilharLista(id, listas) {
   const eleitos = cargosEleitos[cargoAtivo];
   const cargoLabel = CARGOS.find((c) => c.id === cargoAtivo)?.label || "";
   const imagemUrl = eleitos.length && lista.codigo ? gerarImagemCedula({ nomeExibido, eleitos, codigo: lista.codigo, cargoLabel }).toDataURL("image/png") : null;
-  pcState.dadosCompartilhar = { carregando: false, lista, cargosEleitos, cargoAtivo, imagemUrl };
+  pcState.dadosCompartilhar = { carregando: false, lista, cargosEleitos, cargoAtivo, imagemUrl, cargosCompletos: completo && completo.cargos ? completo.cargos : null };
   renderMinhasListas();
 }
 
@@ -2953,7 +3011,7 @@ function attachListenersModalCompartilhar() {
         return;
       }
       const nomeExibido = d.lista.anonimo ? "Eleitor(a) anônimo(a)" : ((pcState.perfil && pcState.perfil.nome) || d.lista.nome);
-      const url = gerarImagemCedulaResumo({ nomeExibido, cargosEleitos: d.cargosEleitos, codigo: d.lista.codigo }).toDataURL("image/png");
+      const url = gerarImagemCedulaResumo({ nomeExibido, cargosEleitos: d.cargosEleitos, codigo: d.lista.codigo, cargosCompletos: d.cargosCompletos }).toDataURL("image/png");
       _baixarImagemCedula(url, "meu-palpite-eleicoes-2026.png");
       if (status) status.textContent = "Card baixado.";
     });
