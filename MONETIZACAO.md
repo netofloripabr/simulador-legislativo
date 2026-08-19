@@ -41,7 +41,7 @@ nunca sai como prêmio.
 - **Venda em 3 pacotes progressivos com desconto** [DECIDIDO]:
   quanto maior o pacote, mais crédito por real.
 
-### 2.1 Ponte créditos ↔ reais [PROPOSTA de coerência — validar]
+### 2.1 Ponte créditos ↔ reais [DECIDIDO em 19/08/2026]
 O usuário definiu dois preços concretos em R$ (vaga de grupo: R$ 4,99;
 +5 vagas: R$ 14,99). Pra tudo falar UMA língua (créditos), proponho que
 esses preços sejam exatamente os dois primeiros pacotes:
@@ -53,7 +53,8 @@ esses preços sejam exatamente os dois primeiros pacotes:
 | Temporada | R$ 29,99 | 120 | 0,25 | vagas + edições + cédula extra |
 
 Assim "R$ 4,99 por vaga" continua verdadeiro (1 vaga = 10 créditos), e
-quem compra maior leva desconto real. **← validar a ponte e o 3º pacote**
+quem compra maior leva desconto real. Ponte validada pelo usuário;
+3º pacote segue [PROPOSTA].
 
 ### 2.2 Recibo [DECIDIDO]
 Toda cobrança gera **recibo/nota no menu do perfil**: lista de compras
@@ -109,7 +110,10 @@ Ideias novas do usuário, estruturadas:
   custos — convidado nunca paga nada — e pode **expandir a capacidade**
   além do básico. [PROPOSTA: VIP = grupo básico + pacotes de vaga; o
   rótulo "VIP" aparece pros convidados ("você foi convidado, entrada
-  livre"). Capacidade máxima inicial: 30, expansível — validar teto.]
+  livre").] **Teto do VIP: 30 [DECIDIDO em 19/08/2026]** — fronteira da
+  arquitetura atual (a comparação do grupo baixa a cédula completa de
+  cada membro; em 30 ainda é ~2,5 MB por abertura, saudável). Acima de
+  30 é produto INSTITUCIONAL (§9.2), que exige agregação no servidor.
 
 ---
 
@@ -208,8 +212,22 @@ gateway. Acesso nomeado, revogável, com recibo.
 ### 9.2 Conta Premium institucional [DECIDIDO conceito; ABERTO preço]
 Pacote vendido a entidade/instituição: **N acessos** + funções
 especiais — destaque pra **grupos grandes** (o grupão da instituição,
-acima do teto comum). [ABERTO: tabela de N acessos × preço; teto de
-grupo institucional; se inclui painel de dados ou é só jogo ampliado.]
+acima do teto comum de 30). [ABERTO: tabela de N acessos × preço; se
+inclui painel de dados ou é só jogo ampliado.]
+
+**Alvo nº 1 [DECIDIDO em 19/08/2026]: convênio com a UVESC** (União dos
+Vereadores de SC) — a entidade engaja os associados, cada vereador é um
+multiplicador local com base própria, e o cartão-desafio de cada um
+vira divulgação nos 295 municípios. Dois caminhos combinados:
+- **Caminho A (funciona hoje)**: grupos regionais de até 30 pelas
+  associações regionais de câmaras — zero engenharia, rivalidade
+  regional como motor ("o Oeste está acertando mais que o Litoral").
+- **Caminho B (evolução)**: grupão institucional único — exige a
+  **agregação no servidor** (função SQL que calcula a comparação e
+  devolve só o resumo, + tela adaptada + paginação do ranking interno).
+  É a peça de engenharia da etapa 8; pode ser antecipada se o convênio
+  avançar. Contrapartida natural do convênio: painel de dados pra
+  entidade.
 
 ---
 
