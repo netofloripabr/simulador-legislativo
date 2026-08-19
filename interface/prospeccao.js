@@ -138,6 +138,7 @@ const PC_ICONES = {
   buscar: '<circle cx="6.8" cy="6.8" r="4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   salvar: '<path d="M3 2.8h8.2l2 2v8.4H3V2.8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M5 2.8v3.6h4.6V2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path><rect x="4.8" y="9" width="6.4" height="4.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect>',
   instagram: '<rect x="2" y="2" width="12" height="12" rx="3.6" fill="none" stroke="currentColor" stroke-width="1.3"></rect><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="11.5" cy="4.5" r=".9" fill="currentColor"></circle>',
+  credito: '<circle cx="8" cy="8" r="5.7" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path>',
 };
 function iconeSvg(nome, tamanho) {
   const t = tamanho || 16;
@@ -1652,6 +1653,7 @@ function renderMenuConta() {
     <div class="glass-card" style="padding:0; overflow:hidden; margin-bottom:18px;">
       ${linhaMenu("pcBtnMenuDados", "perfil", "#2C3239", "Meus dados", "Telefone, CEP, município, gênero")}
       ${linhaMenu("pcBtnMenuSenha", "chave", "#2C3239", "Trocar senha", "Atualize sua senha de acesso")}
+      ${linhaMenu("pcBtnMenuCreditos", "credito", "#2C3239", "Créditos", "Saldo e extrato da sua conta")}
       <div style="display:flex; align-items:center; gap:13px; padding:14px 16px; border-bottom:1px solid var(--pc-glass-border);">
         <div style="width:36px; height:36px; border-radius:10px; background:#2C3239; border:1px solid #4D545C; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${iconeSvg("alerta", 17)}</div>
         <div style="flex:1; min-width:0;">
@@ -1682,7 +1684,8 @@ function renderMenuConta() {
     </div>
 
     ${pcState.modalReportarProblema ? renderModalReportarProblema() : ""}
-    ${pcState.modalExcluirConta ? renderModalExcluirConta() : ""}`;
+    ${pcState.modalExcluirConta ? renderModalExcluirConta() : ""}
+    ${pcState.modalCreditos ? renderModalCreditos() : ""}`;
 
   document.getElementById("pcBtnEditarPerfilMenu").addEventListener("click", () => { pcState.subaba = "meu-perfil"; renderAppColaborativo(); });
   document.getElementById("pcBtnMenuDados").addEventListener("click", () => { pcState.subaba = "meu-perfil"; renderAppColaborativo(); });
@@ -1693,7 +1696,21 @@ function renderMenuConta() {
     await atualizarPerfil(p.id, { notif_email: valor });
   });
   document.getElementById("pcBtnMenuReportar").addEventListener("click", () => { pcState.modalReportarProblema = true; renderMenuConta(); });
+  document.getElementById("pcBtnMenuCreditos").addEventListener("click", async () => {
+    pcState.modalCreditos = { carregando: true };
+    renderMenuConta();
+    const [saldo, extrato] = await Promise.all([
+      obterSaldoCreditos(p.id),
+      obterExtratoCreditos(p.id, 50),
+    ]);
+    // extrato null = migração 21 ainda não rodou no banco — o modal avisa
+    // em vez de quebrar (mesmo espírito dos outros acessos ao Supabase).
+    pcState.modalCreditos = { carregando: false, saldo, extrato };
+    renderMenuConta();
+  });
   document.getElementById("pcBtnMenuConvidar").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
+  const fecharCreditos = document.getElementById("pcFecharModalCreditos");
+  if (fecharCreditos) fecharCreditos.addEventListener("click", () => { pcState.modalCreditos = null; renderMenuConta(); });
   if (pcState.souAdmin) {
     document.getElementById("pcBtnMenuAdmin").addEventListener("click", () => { pcState.subaba = "admin"; renderAppColaborativo(); });
   }
@@ -1802,6 +1819,50 @@ function renderCentralAjuda() {
   });
 }
 
+// Modal "Créditos" do Menu — saldo + extrato da própria conta (economia
+// fase 1, MONETIZACAO.md v3 §11.2 etapa 1). Material do padrão
+// informativo (DESIGN.md §3.4b). Dados carregados no listener da linha
+// do Menu; extrato null = migração 21 ainda não rodada no banco.
+function renderModalCreditos() {
+  const m = pcState.modalCreditos;
+  if (!m) return "";
+  const corpo = m.carregando
+    ? `<div class="pc-sub" style="text-align:center; padding:20px 0;">Carregando…</div>`
+    : `
+      <div style="display:flex; align-items:baseline; justify-content:space-between; background:#101214; border:1px solid #23262A; border-radius:10px; padding:12px 14px; margin-bottom:12px;">
+        <span style="font-size:12px; color:var(--pc-ink-dim);">Saldo atual</span>
+        <span style="font-size:22px; font-weight:750; font-variant-numeric:tabular-nums;">${Number(m.saldo || 0).toLocaleString("pt-BR")} <span style="font-size:11px; font-weight:600; color:var(--pc-ink-dim);">crédito${m.saldo === 1 ? "" : "s"}</span></span>
+      </div>
+      ${m.extrato === null
+        ? `<div class="pc-sub">O extrato ainda não está disponível (atualização do banco pendente).</div>`
+        : m.extrato.length === 0
+          ? `<div class="pc-sub" style="text-align:center; padding:8px 0;">Nenhuma movimentação ainda — convide amigos pra ganhar os primeiros créditos.</div>`
+          : m.extrato.map((t) => `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 2px; border-top:1px solid #23262A; font-size:12px;">
+              <span style="min-width:0;">
+                <span style="display:block; font-weight:600;">${ROTULO_TRANSACAO[t.tipo] || t.tipo}</span>
+                <span style="font-size:10px; color:var(--pc-ink-dim);">${new Date(t.criado_em).toLocaleString("pt-BR")}${t.referencia ? " · " + t.referencia : ""}</span>
+              </span>
+              <span style="flex-shrink:0; text-align:right; font-variant-numeric:tabular-nums;">
+                <span style="font-weight:750; color:${t.valor >= 0 ? "var(--pc-accent)" : "var(--pc-ink)"};">${t.valor >= 0 ? "+" : ""}${t.valor}</span>
+                <span style="display:block; font-size:9.5px; color:var(--pc-ink-faint);">saldo ${t.saldo_apos}</span>
+              </span>
+            </div>`).join("")}`;
+  return `
+    <div id="pcModalCreditosOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(29,32,35,.97); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:12px;">
+          <div>
+            <h2 style="margin:0; font-size:16px;">Créditos</h2>
+            <div class="pc-sub" style="margin-top:3px;">Extrato completo da sua conta — toda entrada e saída fica registrada aqui.</div>
+          </div>
+          <button id="pcFecharModalCreditos" class="pc-mini-btn" title="Fechar" style="font-size:16px; line-height:1;">×</button>
+        </div>
+        ${corpo}
+      </div>
+    </div>`;
+}
+
 function renderModalReportarProblema() {
   return `
     <div id="pcModalReportarProblemaOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
@@ -1893,9 +1954,18 @@ async function montarAdminPesquisa() {
     ${resultadoHtml}`;
 }
 
+// Aba "Créditos e Financeiro" (economia fase 1, MONETIZACAO.md v3 §8):
+// conceder/ajustar créditos por e-mail (ferramenta dos jogadores base),
+// saldos e extrato geral. Exige a migração 21 no banco — sem ela, as
+// listas avisam em vez de quebrar.
 async function montarAdminFinanceiro() {
-  const stats = await adminEstatisticasCreditos();
+  const [stats, saldos, extrato] = await Promise.all([
+    adminEstatisticasCreditos(),
+    adminSaldos(100),
+    adminExtratoGeral(50),
+  ]);
   if (!stats) return `<div class="pc-sub">Não consegui carregar os dados financeiros.</div>`;
+  const s = pcState.adminCreditoStatus;
   return `
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
       <div class="glass-card" style="padding:14px 16px; text-align:center;">
@@ -1907,7 +1977,46 @@ async function montarAdminFinanceiro() {
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">Créditos em circulação</div>
       </div>
     </div>
-    <div class="pc-sub" style="margin-top:14px; line-height:1.6;">Sem cobrança de verdade ainda — a única forma de conceder crédito hoje é rodar <code>select public.conceder_credito('&lt;uuid&gt;', N);</code> direto no SQL Editor do Supabase (ver nuvem/migracao-9-creditos.sql).</div>`;
+
+    <div class="glass-card" style="margin-top:14px; padding:16px;">
+      <div style="font-size:13px; font-weight:700; margin-bottom:4px;">Conceder / ajustar créditos</div>
+      <div class="pc-sub" style="margin-bottom:12px;">Quantidade negativa remove (o saldo nunca fica abaixo de zero). Tudo vira linha no extrato — nada é silencioso.</div>
+      <div class="field-row"><label>E-mail da conta</label><input class="cell" id="pcAdminCreditoEmail" type="email" placeholder="pessoa@exemplo.com"></div>
+      <div style="display:flex; gap:10px;">
+        <div class="field-row" style="flex:1;"><label>Quantidade (+/-)</label><input class="cell" id="pcAdminCreditoQtd" type="number" step="1" placeholder="10"></div>
+        <div class="field-row" style="flex:2;"><label>Motivo (vai pro extrato)</label><input class="cell" id="pcAdminCreditoMotivo" placeholder="jogador base — lançamento"></div>
+      </div>
+      <button class="primary" id="pcBtnAdminConcederCredito" style="width:100%;">Aplicar</button>
+      <div class="pc-status" id="pcAdminCreditoStatus" style="margin-top:8px; min-height:14px;">${s || ""}</div>
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Saldos (contas com crédito)</div>
+    ${saldos === null
+      ? `<div class="pc-sub">Indisponível — rode a migração 21 (nuvem/migracao-21-ledger-creditos.sql) no SQL Editor.</div>`
+      : saldos.length === 0
+        ? `<div class="pc-sub">Nenhuma conta com saldo ainda.</div>`
+        : `<div class="pc-lobby-card">${saldos.map((l) => `
+          <div class="pc-lobby-linha">
+            <span style="min-width:0; font-size:12.5px;"><b>${l.nome}</b> <span style="color:var(--pc-ink-dim); font-size:11px;">${l.email}</span></span>
+            <span style="flex-shrink:0; font-weight:750; font-variant-numeric:tabular-nums;">${l.saldo}</span>
+          </div>`).join("")}</div>`}
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Extrato geral (últimas 50)</div>
+    ${extrato === null
+      ? `<div class="pc-sub">Indisponível — rode a migração 21 no SQL Editor.</div>`
+      : extrato.length === 0
+        ? `<div class="pc-sub">Nenhuma movimentação registrada ainda.</div>`
+        : `<div class="pc-lobby-card">${extrato.map((t) => `
+          <div class="pc-lobby-linha" style="align-items:flex-start;">
+            <span style="min-width:0; font-size:12px;">
+              <b>${t.nome}</b> · ${ROTULO_TRANSACAO[t.tipo] || t.tipo}${t.referencia ? ` <span style="color:var(--pc-ink-dim);">(${t.referencia})</span>` : ""}
+              <span style="display:block; font-size:10px; color:var(--pc-ink-dim);">${new Date(t.criado_em).toLocaleString("pt-BR")} · ${t.email}</span>
+            </span>
+            <span style="flex-shrink:0; text-align:right; font-variant-numeric:tabular-nums;">
+              <b style="color:${t.valor >= 0 ? "var(--pc-accent)" : "var(--pc-ink)"};">${t.valor >= 0 ? "+" : ""}${t.valor}</b>
+              <span style="display:block; font-size:9.5px; color:var(--pc-ink-faint);">saldo ${t.saldo_apos}</span>
+            </span>
+          </div>`).join("")}</div>`}`;
 }
 
 async function montarAdminRotinas() {
@@ -1973,6 +2082,22 @@ async function renderAdminPainel() {
     });
   });
 
+  if (pcState.adminSecao === "financeiro") {
+    document.getElementById("pcBtnAdminConcederCredito").addEventListener("click", async (e) => {
+      const email = document.getElementById("pcAdminCreditoEmail").value.trim();
+      const qtd = parseInt(document.getElementById("pcAdminCreditoQtd").value, 10);
+      const motivo = document.getElementById("pcAdminCreditoMotivo").value.trim();
+      const status = document.getElementById("pcAdminCreditoStatus");
+      if (!email || !qtd) { status.textContent = "Preencha e-mail e quantidade (diferente de zero)."; return; }
+      e.target.disabled = true;
+      const r = await adminConcederCreditosPorEmail(email, qtd, motivo);
+      e.target.disabled = false;
+      pcState.adminCreditoStatus = r.ok
+        ? `Feito: ${r.aplicado >= 0 ? "+" : ""}${r.aplicado} pra ${r.nome} — novo saldo ${r.novoSaldo}.`
+        : `Não deu: ${r.mensagem}`;
+      renderAdminPainel();
+    });
+  }
   if (pcState.adminSecao === "problemas") {
     document.querySelectorAll("[data-pc-resolver-problema]").forEach((btn) => {
       btn.addEventListener("click", async () => {

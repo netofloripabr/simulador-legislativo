@@ -31,3 +31,56 @@ async function consumirCreditoConta(perfilId) {
   if (error) return { consumiu: false, error };
   return { consumiu: !!data, error: null };
 }
+
+// ===== Economia fase 1 (migração 21, MONETIZACAO.md v3) =====
+
+// Extrato da PRÓPRIA conta (RLS só devolve as linhas do próprio usuário).
+async function obterExtratoCreditos(perfilId, limite) {
+  const { data, error } = await supabaseClient
+    .from("transacoes_creditos")
+    .select("criado_em, tipo, valor, saldo_apos, referencia")
+    .eq("perfil_id", perfilId)
+    .order("criado_em", { ascending: false })
+    .limit(limite || 50);
+  if (error) { console.error("Erro ao carregar extrato:", error); return null; }
+  return data || [];
+}
+
+// Rótulos em português dos tipos do ledger — compartilhado entre o extrato
+// do usuário (modal Créditos no Menu) e a aba do admin.
+const ROTULO_TRANSACAO = {
+  gasto: "Uso (lista/grupo extra)",
+  ganho_admin: "Crédito concedido",
+  ajuste_admin: "Ajuste",
+  ganho_convite: "Convite convertido",
+  ganho_marco: "Marco de presença",
+  compra: "Compra de pacote",
+  gasto_vaga: "Vaga de grupo",
+  gasto_edicao: "Edição de cédula",
+  gasto_cedula: "Nova cédula",
+  gasto_mediana: "Aceleração da mediana",
+  gasto_patrocinio: "Patrocínio a convidado",
+  estorno: "Estorno",
+};
+
+// --- Admin (todas exigem sou_admin() no banco; erro vira mensagem) ---
+async function adminConcederCreditosPorEmail(email, quantidade, motivo) {
+  const { data, error } = await supabaseClient.rpc("admin_conceder_creditos_por_email", {
+    p_email: email, p_quantidade: quantidade, p_motivo: motivo || null,
+  });
+  if (error) return { ok: false, mensagem: error.message };
+  const linha = Array.isArray(data) ? data[0] : data;
+  return { ok: true, nome: linha.nome, novoSaldo: linha.novo_saldo, aplicado: linha.aplicado };
+}
+
+async function adminExtratoGeral(limite) {
+  const { data, error } = await supabaseClient.rpc("admin_extrato_geral", { p_limite: limite || 50 });
+  if (error) { console.error("Erro no extrato geral:", error); return null; }
+  return data || [];
+}
+
+async function adminSaldos(limite) {
+  const { data, error } = await supabaseClient.rpc("admin_saldos", { p_limite: limite || 100 });
+  if (error) { console.error("Erro nos saldos:", error); return null; }
+  return data || [];
+}

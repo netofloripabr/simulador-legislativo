@@ -1,5 +1,8 @@
 # Economia SIMULALEGIS — documento de estrutura (v3, 19/08/2026)
 
+**AUTORIZADO pelo usuário em 19/08/2026** ("Certo. Autorizado.") — em
+implementação pela ordem do §11.2 (etapas 1-2 concluídas em 19/08:
+migração 21 + extrato no Menu + aba admin Créditos e Financeiro).
 v3 incorpora a validação do usuário sobre a v2 (respostas de
 19/08/2026). Marcação: **[DECIDIDO]** = definição do usuário ·
 **[PROPOSTA]** = sugestão minha pra validar · **[SIMULAR]** = só depois
