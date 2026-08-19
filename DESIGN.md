@@ -255,6 +255,16 @@ Sobra, Revisão) — o usuário aprovou este conceito como padrão pra
   atual da tela** (ex.: a 1ª sobra do cálculo em curso), não exemplo
   fixo inventado — dinâmico > genérico.
 
+### 3.4c Logotipo / marca (aprovado 18/08/2026)
+Wordmark **SIMULA·LEGIS** numa palavra só: "SIMULA" em texto principal
+(`#F2F4F5`) + "LEGIS" em verde vivo (`#34E84A`), peso 750,
+`letter-spacing:.05em`, mesma família do app (nunca fonte decorativa).
+Nasceu no cartão-desafio e o usuário aprovou como marca. Regras:
+- Só sobre fundo escuro da identidade (o verde vivo precisa do contraste).
+- O "LEGIS" verde conta como uso estratégico do verde — em peças onde a
+  marca aparece, ela divide a cota de verde com o CTA (evitar mais verdes
+  além desses dois + selo ELEITO).
+
 ### 3.5 Selo ELEITO
 Pílula verde vivo (`#34E84A`) com texto `#07230C`, 8px/800. Único elemento
 da lista que é **sempre** verde, mesmo fora de interação — porque é fato
