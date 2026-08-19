@@ -7656,6 +7656,16 @@ async function renderQuadroMedias() {
 
   if (!pcState.cargoAtivoMedias) pcState.cargoAtivoMedias = "estadual";
   const cargo = pcState.cargoAtivoMedias;
+  // Conta-gotas (economia v3 §4, migração 23): logado registra o dia de
+  // acesso (+2 linhas/dia, idempotente) e recebe o total revelado. null =
+  // migração ainda não rodou OU convidado — nos dois casos, degrada pro
+  // mínimo do dia (2 linhas) sem quebrar. Pós-eleição: tudo aberto.
+  const posEleicao = new Date() > DATA_ELEICAO_2026;
+  let linhasReveladas = 2;
+  if (pcState.perfil && !posEleicao) {
+    const r = await registrarAcessoMediana();
+    if (r !== null) linhasReveladas = r;
+  }
   const registros = await buscarTodosRascunhosPublicos();
   const { parties, totalPalpites } = calcularMedianaPalpites(registros, cargo, pcState.estado);
   const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
@@ -7682,8 +7692,8 @@ async function renderQuadroMedias() {
   const botoesCargo = CARGOS.map((c) => `
     <button data-pc-cargo-medias="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
 
-  const linha = (c, i) => `
-    <div class="pc-lobby-linha">
+  const linha = (c, i, borrada) => `
+    <div class="pc-lobby-linha"${borrada ? ` style="filter:blur(4px); opacity:.5; pointer-events:none; user-select:none;" aria-hidden="true"` : ""}>
       <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
         <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:${c.eleito ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${i + 1}º</span>
         <span style="min-width:0;">
@@ -7702,9 +7712,16 @@ async function renderQuadroMedias() {
       ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(52,232,74,.14)", vago: "#1B1E22", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
     </div>
     <div class="pc-lobby-card">
-      ${projecao.length ? projecao.map(linha).join("") : estadoVazio({ icone: "chart", titulo: "Ninguém preencheu esse cargo", texto: "Assim que alguém depositar uma cédula pública desse cargo, a mediana aparece aqui." })}
+      ${projecao.length ? projecao.map((c, i) => linha(c, i, !posEleicao && i >= linhasReveladas)).join("") : estadoVazio({ icone: "chart", titulo: "Ninguém preencheu esse cargo", texto: "Assim que alguém depositar uma cédula pública desse cargo, a mediana aparece aqui." })}
     </div>
+    ${!posEleicao && projecao.length > linhasReveladas ? `
+    <div style="margin-top:12px; padding:12px 14px; background:#101214; border:1px solid #23262A; border-radius:10px; font-size:11.5px; color:#8A9096; line-height:1.6;">
+      A mediana se revela <b style="color:#F2F4F5;">2 linhas por dia de acesso</b> — você já abriu <b style="color:#F2F4F5;">${linhasReveladas}</b>. Volte amanhã pra mais 2, ou acelere agora:
+      <button class="ghost" id="pcBtnAcelerarMediana" style="width:100%; margin-top:10px; font-size:12px; padding:9px;">+10 linhas por 2 créditos</button>
+      <div class="pc-status" id="pcMedianaStatus" style="margin-top:6px; min-height:12px;">${pcState.medianaStatus || ""}</div>
+    </div>` : ""}
   `;
+  pcState.medianaStatus = "";
 
   document.querySelectorAll("[data-pc-cargo-medias]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -7712,4 +7729,20 @@ async function renderQuadroMedias() {
       renderQuadroMedias();
     });
   });
+  const btnAcelerar = document.getElementById("pcBtnAcelerarMediana");
+  if (btnAcelerar) {
+    btnAcelerar.addEventListener("click", async (e) => {
+      if (!pcState.perfil) return;
+      e.target.disabled = true;
+      const r = await acelerarMediana();
+      if (r.semSaldo) {
+        pcState.medianaStatus = "Saldo insuficiente (precisa de 2 créditos) — convide um amigo: cada convite convertido rende 10.";
+      } else if (r.erro) {
+        pcState.medianaStatus = "Não deu: " + r.erro;
+      } else {
+        pcState.medianaStatus = "";
+      }
+      renderQuadroMedias();
+    });
+  }
 }

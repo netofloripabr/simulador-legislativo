@@ -33,6 +33,9 @@ a conta de teste 2.
 - [ ] Criar 1º grupo (grátis, 5 vagas) → tentar criar 2º → aviso "10
       créditos".
 - [ ] Menu → Créditos: saldo 0, extrato vazio com dica de convite.
+- [ ] Mediana: só 2 linhas nítidas + resto desfocado + caixa "2 linhas
+      por dia" com botão de acelerar; acelerar sem saldo → mensagem
+      apontando convite.
 
 ## 3. Cadastrado com créditos (depois de conceder pelo admin)
 - [ ] Menu → Créditos: saldo atualizado, linha "Crédito concedido" com
@@ -40,6 +43,8 @@ a conta de teste 2.
 - [ ] Criar 3ª lista (deve debitar 1 e aparecer no extrato).
 - [ ] Criar 2º grupo (debita 10; extrato mostra "abrir grupo").
 - [ ] Depositar 2ª cédula (debita 70; extrato "Nova cédula").
+- [ ] Mediana → acelerar (+10 linhas, debita 2; extrato "Aceleração da
+      mediana"); voltar no dia seguinte soma +2 sozinho.
 - [ ] Conferir que o saldo bate: concedido − 1 − 10 − 70.
 
 ## 4. Grupos e limite de 5 (usa as duas contas de teste)
@@ -66,3 +71,5 @@ a conta de teste 2.
   (etapa 8 do plano de implementação).
 - Convite convertido rendendo créditos: etapa futura (hoje o ganho é
   só via admin) — quando entrar, adicionar seção própria aqui.
+- Vagas de grupo pagas / convite especial / VIP: etapa 5, ainda sem
+  fluxo pra testar.

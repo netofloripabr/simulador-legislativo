@@ -95,3 +95,20 @@ async function gastarCreditosConta(perfilId, quantidade, tipo, referencia) {
   if (error) return { gastou: false, error };
   return { gastou: !!data, error: null };
 }
+
+// Mediana em conta-gotas (migração 23): registra o dia de acesso (+2
+// linhas/dia, idempotente) e devolve o total revelado da conta.
+async function registrarAcessoMediana() {
+  const { data, error } = await supabaseClient.rpc("registrar_acesso_mediana");
+  if (error) { console.error("Erro no acesso à mediana:", error); return null; }
+  return data;
+}
+
+// Acelera a revelação: 2 créditos = +10 linhas. Devolve { linhas } ou
+// { semSaldo: true } — null em data significa saldo insuficiente.
+async function acelerarMediana() {
+  const { data, error } = await supabaseClient.rpc("acelerar_mediana");
+  if (error) return { erro: error.message };
+  if (data === null) return { semSaldo: true };
+  return { linhas: data };
+}
