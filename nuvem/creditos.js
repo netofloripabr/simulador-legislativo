@@ -84,3 +84,14 @@ async function adminSaldos(limite) {
   if (error) { console.error("Erro nos saldos:", error); return null; }
   return data || [];
 }
+
+// Gasta N créditos da própria conta (migração 22) — abrir 2º grupo (10),
+// nova cédula depositada (70) etc. Devolve gastou=false se saldo
+// insuficiente (nada é debitado nem registrado nesse caso).
+async function gastarCreditosConta(perfilId, quantidade, tipo, referencia) {
+  const { data, error } = await supabaseClient.rpc("gastar_creditos_proprio", {
+    p_perfil_id: perfilId, p_quantidade: quantidade, p_tipo: tipo, p_referencia: referencia || null,
+  });
+  if (error) return { gastou: false, error };
+  return { gastou: !!data, error: null };
+}

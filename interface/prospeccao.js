@@ -83,7 +83,8 @@ let pcState = {
   modalCompartilharListaId: null, // id da lista com o modal de compartilhamento (código + imagem) aberto
   dadosCompartilhar: null, // { carregando, lista, eleitos, imagemUrl } do modal de compartilhar acima — cache pra não recarregar a cada render
   avisoLimiteListaAberto: false, // aviso "compre crédito" ao tentar criar 2ª lista sem pagar
-  avisoLimiteGrupoAberto: false, // aviso "compre crédito" ao tentar criar 2º grupo sem pagar
+  avisoLimiteGrupoAberto: false, // aviso ao tentar criar 2º grupo sem saldo (10 créditos)
+  avisoLimiteCedulaAberto: false, // aviso ao tentar depositar 2ª cédula sem saldo (70 créditos)
   linksCandidatosCache: {}, // "estado::cargo" -> { chave: instagram }, ver garantirLinksCandidatos
   modalInstagramInfo: null, // { chave, nome, valorAtual } do candidato com o modal de editar Instagram aberto (só admin), ou null
   legendaComandosAberta: false, // painel único de legenda do painel de comandos da Seleção (o "i" no fim da linha de ícones)
@@ -2763,7 +2764,9 @@ async function renderMinhasListas() {
 
   const abertas = listas.filter((l) => !l.depositadoEm).sort((a, b) => new Date(b.atualizadoEm) - new Date(a.atualizadoEm));
   const depositadas = listas.filter((l) => l.depositadoEm).sort((a, b) => new Date(b.depositadoEm) - new Date(a.depositadoEm));
-  const jaTemLista = listas.length >= 1;
+  // Economia v3 §3: 2 rascunhos (listas em aberto) grátis — depositadas
+  // não contam aqui, têm limite próprio (1 grátis, ver o gate do depósito).
+  const jaTemLista = listas.filter((l) => !l.depositadoEm).length >= 2;
 
   // Padrão visual 8.1 (PROJETO.md, 16/08/2026): cada lista é um mini-card
   // com moldura própria em vez de linha solta dentro de um card único —
@@ -2801,10 +2804,15 @@ async function renderMinhasListas() {
       <button class="pc-lobby-icon-btn" id="pcBtnNovaLista" title="Nova lista">${iconeSvg("mais", 16)}</button>
     </div>
     <div class="pc-sub" style="margin:4px 0 16px 2px;">Listas em aberto podem ser editadas à vontade. Depositadas ficam travadas.</div>
+    ${pcState.avisoLimiteCedulaAberto ? `
+    <div class="pc-aviso-card">
+      <div class="pc-aviso-titulo">Sua cédula oficial já está na urna</div>
+      <div class="pc-aviso-corpo">Cada conta deposita <b>1 cédula grátis</b> — é ela que vale no ranking. Depositar uma segunda (cenário paralelo) custa <b>70 créditos</b>.<br><br>Créditos vêm de convites: cada amigo que entra e deposita a primeira cédula rende <b>10</b> (Menu → Convidar amigos).</div>
+    </div>` : ""}
     ${pcState.avisoLimiteListaAberto ? `
     <div class="pc-aviso-card">
-      <div class="pc-aviso-titulo">Ops...</div>
-      <div class="pc-aviso-corpo">Nós conseguimos espaço gratuito para o usuário cadastrar até uma lista, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
+      <div class="pc-aviso-titulo">Você chegou no limite grátis</div>
+      <div class="pc-aviso-corpo">Sua conta tem espaço grátis pra <b>2 listas em aberto</b> — e as duas já estão em uso. Criar mais uma custa <b>1 crédito</b>.<br><br>O jeito grátis de ganhar créditos: <b>convide um amigo</b> — quando ele criar conta e depositar a primeira cédula, você ganha <b>10 créditos</b> (Menu → Convidar amigos).</div>
     </div>` : ""}
     ${abertas.length ? `<div class="pc-lobby-menu-tit">Em aberto</div>${abertas.map(linhaAberta).join("")}` : ""}
     ${depositadas.length ? `<div class="pc-lobby-menu-tit" style="margin-top:${abertas.length ? "18px" : "0"};">Depositadas</div>${depositadas.map(linhaDepositada).join("")}` : ""}
@@ -2929,6 +2937,21 @@ async function renderMinhasListas() {
     document.getElementById("pcBtnConfirmarDepositar").addEventListener("click", async () => {
       const anonimo = document.getElementById("pcCheckAnonimo").checked;
       if (pcState.perfil) {
+        // Economia v3 §3/§6: a 1ª cédula depositada é grátis; a partir da
+        // 2ª é "nova cédula" (cenário paralelo) — 70 créditos. Cobra ANTES
+        // de depositar; sem saldo, avisa e não deposita nada.
+        const jaDepositou = listas.some((l) => l.depositadoEm && l.id !== listaModal.id);
+        if (jaDepositou) {
+          const { gastou, error: erroGasto } = await gastarCreditosConta(pcState.perfil.id, 70, "gasto_cedula", "nova cédula depositada");
+          if (erroGasto) { pcState.erro = "Erro ao conferir crédito: " + erroGasto.message; }
+          if (!gastou) {
+            pcState.modalDepositarListaId = null;
+            pcState.avisoLimiteCedulaAberto = true;
+            renderMinhasListas();
+            return;
+          }
+          pcState.avisoLimiteCedulaAberto = false;
+        }
         const { error } = await depositarSalvamento(listaModal.id, anonimo);
         if (error) { pcState.erro = "Erro ao depositar: " + error.message; }
       } else {
@@ -3065,8 +3088,8 @@ async function renderGrupoHub() {
     <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Grupos</div>
     ${pcState.avisoLimiteGrupoAberto ? `
     <div class="pc-aviso-card">
-      <div class="pc-aviso-titulo">Ops...</div>
-      <div class="pc-aviso-corpo">Nós conseguimos espaço gratuito para o usuário criar até um grupo, mas precisamos de espaço remunerado no servidor $$.<br><br>Compre crédito e utilize para criação de novas listas e grupos.</div>
+      <div class="pc-aviso-titulo">Você chegou no limite grátis</div>
+      <div class="pc-aviso-corpo">Sua conta tem espaço grátis pra <b>1 grupo criado</b>. Abrir outro custa <b>10 créditos</b> — exatamente o que <b>1 convite convertido</b> rende: convide um amigo, ele deposita a primeira cédula, e o próximo grupo sai de graça (Menu → Convidar amigos).</div>
     </div>` : ""}
     ${pcState.meusGrupos.length ? `<div class="pc-lobby-menu-tit">Seus grupos</div>${linhasGrupo}` : `<div class="pc-lobby-card">${estadoVazio({ icone: "grupos", titulo: "Nenhum grupo ainda", texto: "Crie um grupo ou entre com um código de convite, logo abaixo." })}</div>`}
     <div class="pc-lobby-menu-tit" style="margin-top:18px;">Novo grupo</div>
@@ -3090,18 +3113,16 @@ async function renderGrupoHub() {
     // Minhas Listas tem pro convidado.
     const jaCriouGrupo = pcState.meusGrupos.some((g) => g.criado_por === pcState.perfil.id);
     if (jaCriouGrupo) {
-      const { consumiu, error } = await consumirCreditoConta(pcState.perfil.id);
+      // Economia v3 §2.5: abrir grupo além do 1º custa 10 créditos (o
+      // valor de 1 convite convertido — a promoção que virou regra).
+      const { gastou, error } = await gastarCreditosConta(pcState.perfil.id, 10, "gasto", "abrir grupo");
       if (error) { pcState.erro = "Erro ao conferir crédito: " + error.message; }
-      if (!consumiu) {
+      if (!gastou) {
         pcState.avisoLimiteGrupoAberto = true;
         renderGrupoHub();
         return;
       }
-      // Mesmo ajuste feito em "Minhas listas" (pcBtnNovaLista): sem isso, o
-      // aviso de uma tentativa antiga sem saldo ficava preso na tela pra
-      // sempre, mesmo depois de conseguir crédito e criar grupos novos.
       pcState.avisoLimiteGrupoAberto = false;
-      pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
     }
     pcState.telaGrupo = "criar";
     renderGrupoCriar();
