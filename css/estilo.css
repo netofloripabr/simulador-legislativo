@@ -1,3 +1,19 @@
+  /* Inter hospedada no próprio repositório (fontes/InterVariable.woff2,
+     licença SIL OFL em fontes/LICENSE-Inter.txt) — decisão de 19/08/2026:
+     a pilha já declarava 'Inter' primeiro, mas sem @font-face cada
+     visitante via a fonte do sistema (SF Pro/Roboto/Segoe), inclusive no
+     wordmark SIMULALEGIS do cartão de divulgação. Fonte VARIÁVEL de
+     propósito: cobre os pesos intermediários 650/750 da escala do projeto
+     (DESIGN.md §1.2), que os arquivos estáticos arredondariam pra 600/700.
+     Sem arquivo itálico — o único itálico do app (uma linha do tutorial) sai
+     oblíquo sintetizado pelo navegador, não vale +340 KB. */
+  @font-face{
+    font-family:'Inter';
+    src:url('../fontes/InterVariable.woff2') format('woff2');
+    font-weight:100 900;
+    font-style:normal;
+    font-display:swap;
+  }
   :root{
     --bg:#0f1614;
     --panel:#16201d;

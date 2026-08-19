@@ -55,7 +55,15 @@ atenção agora?" antes de pôr de volta.
 
 **Uma família só, no app inteiro — literalmente, não só na Prospecção
 Coletiva.** `var(--sans)` → `'Inter', -apple-system, BlinkMacSystemFont,
-'Segoe UI', sans-serif`. Achado ao conferir o código pra este documento:
+'Segoe UI', sans-serif`. **Desde 19/08/2026 a Inter é REAL em qualquer
+aparelho**: hospedada no próprio repositório
+(`fontes/InterVariable.woff2`, variável 100–900, licença OFL junto) via
+`@font-face` no topo do `css/estilo.css` — antes ela era só a primeira
+opção da pilha sem nunca ser carregada, e cada visitante via a fonte do
+sistema (SF Pro/Roboto/Segoe), inclusive no wordmark do cartão de
+divulgação. O canvas do cartão-desafio também pede `Inter, sans-serif`
+explicitamente. Fonte variável de propósito: cobre os pesos 650/750 da
+escala abaixo, que arquivos estáticos arredondariam. Achado ao conferir o código pra este documento:
 existe uma segunda variável, `var(--mono)`, usada em ~26 lugares do
 Simulador individual "estilo terminal" — mas ela foi **redefinida pra
 apontar pro mesmo stack de `--sans`** (ver `css/estilo.css` linhas 14–20,

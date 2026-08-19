@@ -2325,7 +2325,7 @@ async function _carregarMinhasListasNormalizado() {
 function _cartaoDesafioLinha(ctx, r, rx, ry, rw) {
   let xCursor = rx;
   if (r.chip) {
-    ctx.font = "800 17px sans-serif";
+    ctx.font = "800 17px Inter, sans-serif";
     const wt = ctx.measureText("ELEITO").width;
     const chipW = wt + 20;
     ctx.fillStyle = "#34E84A";
@@ -2336,17 +2336,17 @@ function _cartaoDesafioLinha(ctx, r, rx, ry, rw) {
   }
   let pctW = 0;
   if (r.pct) {
-    ctx.font = "700 20px sans-serif";
+    ctx.font = "700 20px Inter, sans-serif";
     const wPc = ctx.measureText("%").width;
-    ctx.font = "800 32px sans-serif";
+    ctx.font = "800 32px Inter, sans-serif";
     const wNum = ctx.measureText(r.pct).width;
     ctx.textAlign = "right"; ctx.fillStyle = "#F2F4F5";
     ctx.fillText(r.pct, rx + rw - wPc - 3, ry + 26);
-    ctx.textAlign = "left"; ctx.fillStyle = "#AEB5BB"; ctx.font = "700 20px sans-serif";
+    ctx.textAlign = "left"; ctx.fillStyle = "#AEB5BB"; ctx.font = "700 20px Inter, sans-serif";
     ctx.fillText("%", rx + rw - wPc, ry + 26);
     pctW = wNum + wPc + 16;
   }
-  ctx.textAlign = "left"; ctx.fillStyle = "#F2F4F5"; ctx.font = "700 28px sans-serif";
+  ctx.textAlign = "left"; ctx.fillStyle = "#F2F4F5"; ctx.font = "700 28px Inter, sans-serif";
   const maxW = rx + rw - pctW - xCursor;
   let nome = r.nome;
   while (nome.length > 3 && ctx.measureText(nome === r.nome ? nome : nome + "…").width > maxW) nome = nome.slice(0, -1);
@@ -2367,7 +2367,7 @@ function _cartaoDesafioLinha(ctx, r, rx, ry, rw) {
   ctx.fillStyle = grad;
   ctx.beginPath(); ctx.roundRect(rx, by, fw, bh, [15, 0, 0, 15]); ctx.fill();
   const tVotos = (Number(r.votos) || 0).toLocaleString("pt-BR") + " votos";
-  ctx.font = "700 17px sans-serif";
+  ctx.font = "700 17px Inter, sans-serif";
   const wV = ctx.measureText(tVotos).width;
   if (fw > wV + 30) {
     ctx.textAlign = "right"; ctx.fillStyle = "#F2F4F5";
@@ -2375,7 +2375,7 @@ function _cartaoDesafioLinha(ctx, r, rx, ry, rw) {
   }
   ctx.restore();
   if (fw <= wV + 30) {
-    ctx.textAlign = "left"; ctx.fillStyle = "#8A9096"; ctx.font = "700 17px sans-serif";
+    ctx.textAlign = "left"; ctx.fillStyle = "#8A9096"; ctx.font = "700 17px Inter, sans-serif";
     ctx.fillText(tVotos, rx + fw + 26, by + 21);
   }
   const cx = rx + fw;
@@ -2398,7 +2398,7 @@ function _cartaoDesafioConsole(ctx, { rotulo, rows }, x, y, w) {
   ctx.fillStyle = "#2C3239";
   ctx.beginPath(); ctx.roundRect(x, y, w, h, 32); ctx.fill();
   ctx.strokeStyle = "#4D545C"; ctx.lineWidth = 2.5; ctx.stroke();
-  ctx.font = "800 20px sans-serif";
+  ctx.font = "800 20px Inter, sans-serif";
   const rot = rotulo.toUpperCase();
   const pw = ctx.measureText(rot).width + 40;
   ctx.fillStyle = "rgba(232,236,239,.35)";
@@ -2437,7 +2437,7 @@ function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo, cargosCom
   ctx.fillStyle = fundo; ctx.fillRect(0, 0, W, H);
 
   // Wordmark SIMULA·LEGIS (DESIGN.md §3.4c) — duas cores, centrado na mão
-  ctx.font = "800 38px sans-serif";
+  ctx.font = "800 38px Inter, sans-serif";
   const wSim = ctx.measureText("SIMULA").width, wLeg = ctx.measureText("LEGIS").width;
   const xm = W / 2 - (wSim + wLeg) / 2;
   ctx.textAlign = "left";
@@ -2445,11 +2445,11 @@ function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo, cargosCom
   ctx.fillStyle = "#34E84A"; ctx.fillText("LEGIS", xm + wSim, 112);
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 48px sans-serif";
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 48px Inter, sans-serif";
   ctx.fillText("Eu já cravei os meus eleitos.", W / 2, 208);
   ctx.fillStyle = "#34E84A";
   ctx.fillText("Quem acerta mais?", W / 2, 268);
-  ctx.fillStyle = "#8A9096"; ctx.font = "400 29px sans-serif";
+  ctx.fillStyle = "#8A9096"; ctx.font = "400 29px Inter, sans-serif";
   const nomeEstado = (ESTADOS_BRASIL.find((e) => e.sigla === pcState.estado) || {}).nome || pcState.estado;
   ctx.fillText(`${nomeExibido} · ${nomeEstado} · Eleições 2026`, W / 2, 320);
 
@@ -2507,27 +2507,27 @@ function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo, cargosCom
   const totalEleitos = CARGOS.reduce((s, c) => s + ((cargosEleitos[c.id] || []).length), 0);
   const restantes = Math.max(0, totalEleitos - eleitosExibidos);
   if (restantes > 0) {
-    ctx.textAlign = "center"; ctx.fillStyle = "#AEB5BB"; ctx.font = "400 22px sans-serif";
+    ctx.textAlign = "center"; ctx.fillStyle = "#AEB5BB"; ctx.font = "400 22px Inter, sans-serif";
     ctx.fillText(`+ ${restantes} nomes na lista completa`, W / 2, y + 16);
   }
 
   const ctaH = 86, ctaY = H - 218;
   ctx.fillStyle = "#34E84A";
   ctx.beginPath(); ctx.roundRect(PAD, ctaY, W - PAD * 2, ctaH, ctaH / 2); ctx.fill();
-  ctx.fillStyle = "#07230C"; ctx.font = "800 34px sans-serif"; ctx.textAlign = "center";
+  ctx.fillStyle = "#07230C"; ctx.font = "800 34px Inter, sans-serif"; ctx.textAlign = "center";
   ctx.fillText("Agora é a sua vez", W / 2, ctaY + 55);
 
   const t1 = "entre com o código ";
-  ctx.font = "400 25px sans-serif";
+  ctx.font = "400 25px Inter, sans-serif";
   const w1 = ctx.measureText(t1).width;
-  ctx.font = "800 25px sans-serif";
+  ctx.font = "800 25px Inter, sans-serif";
   const w2 = ctx.measureText(codigo).width;
   const xc = W / 2 - (w1 + w2) / 2;
   ctx.textAlign = "left";
-  ctx.fillStyle = "#8A9096"; ctx.font = "400 25px sans-serif"; ctx.fillText(t1, xc, ctaY + ctaH + 46);
-  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 25px sans-serif"; ctx.fillText(codigo, xc + w1, ctaY + ctaH + 46);
+  ctx.fillStyle = "#8A9096"; ctx.font = "400 25px Inter, sans-serif"; ctx.fillText(t1, xc, ctaY + ctaH + 46);
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 25px Inter, sans-serif"; ctx.fillText(codigo, xc + w1, ctaY + ctaH + 46);
 
-  ctx.textAlign = "center"; ctx.fillStyle = "#5C6268"; ctx.font = "400 21px sans-serif";
+  ctx.textAlign = "center"; ctx.fillStyle = "#5C6268"; ctx.font = "400 21px Inter, sans-serif";
   ctx.fillText("Simulador Eleitoral · Legislativo 2026", W / 2, H - 54);
 
   return canvas;
