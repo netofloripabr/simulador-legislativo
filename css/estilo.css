@@ -1400,7 +1400,16 @@
 #modoColaborativoWrap.pc-tema-fader .pc-farol-pontos i{
   width:4.5px; height:4.5px; border-radius:50%; background:#3A3F45; flex:none;
 }
-#modoColaborativoWrap.pc-tema-fader .pc-farol-pontos i.on{ background:var(--pc-accent); }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-pontos i.on{
+  background:var(--pc-accent);
+  animation:pcFarolRespira 3.4s ease-in-out infinite;
+}
+/* Respiração lenta das luzes acesas (pedido do usuário, 20/08/2026) — só
+   intensidade, sem crescer nem emitir halo. */
+@keyframes pcFarolRespira{ 0%, 100%{ opacity:1; } 50%{ opacity:.4; } }
+@media (prefers-reduced-motion: reduce){
+  #modoColaborativoWrap.pc-tema-fader .pc-farol-pontos i.on{ animation:none; }
+}
 #modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas{ position:relative; padding:0 30px; }
 #modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas .pc-cargo-switch{ width:fit-content; margin:0 auto; }
 #modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas .pc-cargo-switch button{ flex:none; padding:9px 12px; }

@@ -680,6 +680,15 @@ function farolPassoAtual() {
   });
   if (pendentes.length) {
     const naTelaPalpite = pcState.tela === "selecao-convidado" || (pcState.tela === "app" && pcState.subaba === "selecao");
+    // Cargo ativo completo mas outros pendentes, na tela de palpite: o
+    // próximo gesto da pessoa é AVANÇAR (passo 3 da trilha do cargo), não
+    // a trilha do outro cargo — achado pelo usuário em 20/08/2026 ("mesmo
+    // tendo completado os passos, o sistema não pulou para a etapa 3").
+    if (naTelaPalpite && !pendentes.some((c) => c.id === pcState.cargoAtivo)) {
+      const ativo = CARGOS.find((c) => c.id === pcState.cargoAtivo);
+      const rotuloAtivo = ativo.label.replace(/^Dep\.\s*/, "");
+      return { num: 3, fase: "A", cargoId: ativo.id, rotuloCargo: rotuloAtivo, rotulo: "Avance — " + rotuloAtivo + " completo", progresso: "" };
+    }
     const foco = (naTelaPalpite && pendentes.some((c) => c.id === pcState.cargoAtivo))
       ? CARGOS.find((c) => c.id === pcState.cargoAtivo)
       : pendentes[0];
@@ -739,14 +748,15 @@ function farolTrilhaHtml(passo) {
     return `
       ${_farolLinhaTrilha(st.vagasOk ? ck : "1", ehSen ? "Indicar os " + st.totalVagas + " eleitos" : "Preencher as vagas por partido", {
         feito: st.vagasOk, atual: passo.num === 1, progresso: st.ind + " de " + st.totalVagas,
-        texto: passo.num === 1 ? (ehSen ? "Toque no candidato ou arraste a barra dele até o selo ELEITO acender." : `Toque no box de vagas de cada partido — <span class="pc-farol-minibox">− 8 +</span> — e indique quantas cadeiras ele ganha.`) : "",
+        texto: passo.num === 1 ? (ehSen ? "Toque no candidato ou arraste a barra dele até o selo ELEITO acender." : `Comece decidindo o tamanho das bancadas: toque no box <span class="pc-farol-minibox">− 8 +</span> de cada partido e marque quantas cadeiras ele ganha, até fechar as ${st.totalVagas}.`) : "",
       })}
       ${_farolLinhaTrilha(st.votosOk ? ck : "2", "Distribuir a votação pelos candidatos", {
         feito: st.votosOk, atual: passo.num === 2, progresso: Math.round(st.pct * 100) + "%",
-        texto: passo.num === 2 ? `Arraste as alças ou digite os votos. Atalho: o mágico <span class="pc-farol-minicmd">${iconeSvg("completar", 11)}</span> completa o que faltar sem mexer no que você já fez.` : "",
+        texto: passo.num === 2 ? `Atribua o seu palpite para os candidatos que você conhece: arraste a alça ou digite os votos do candidato. Depois, você palpita nos candidatos que não conhece, ou utiliza o mágico <span class="pc-farol-minicmd">${iconeSvg("completar", 11)}</span> que completa a votação com os votos proporcionais para completar o número de vagas que você selecionou — sem mexer no que você preencheu.` : "",
       })}
-      ${_farolLinhaTrilha("3", "Avançar — próximo cargo e Revisão", {
-        texto: `O botão <span class="pc-farol-minicmd">${iconeSvg("setaDireita", 11)}</span> no fim do painel de comandos. Depois: salvar, depositar e convidar.`,
+      ${_farolLinhaTrilha("3", "Avançar", {
+        atual: passo.num === 3,
+        texto: `Fechou a votação? O botão <span class="pc-farol-minicmd">${iconeSvg("setaDireita", 11)}</span> avança. Repita nos três cargos e siga pra Revisão.`,
       })}`;
   }
   const num = passo ? passo.num : 99;
@@ -5874,44 +5884,17 @@ async function renderCargoEstadual() {
     <div id="pcInstrucaoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
       <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:20px 20px 18px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:6px;">${iconeSvg("alerta", 13)} IMPORTANTE</div>
-        <h2 style="margin-bottom:4px; font-size:15px;">COMO MONTAR A LISTA</h2>
-        <div style="font-size:11px; line-height:1.4; color:var(--pc-ink-dim); font-style:italic; margin-bottom:10px;">Trilha ágil. Monte como quiser, mas este é o caminho mais rápido.</div>
-        <div style="font-size:12.5px; line-height:1.4; color:var(--pc-ink-dim);">
-          <div style="margin-bottom:6px;">
-            <b style="color:var(--pc-ink);">1.</b> Selecione a quantidade de vagas por partido.
-            <div style="margin:5px 0 0; text-align:center; transform:scale(0.85); transform-origin:center;">
-              <div class="pc-stepper-chip" style="display:inline-flex;">
-                <div class="pc-stepper">
-                  <button class="pc-stepper-btn" disabled style="opacity:1;"><svg viewBox="0 0 16 16" width="10" height="10"><path d="M8 4l4 6H4z" fill="currentColor"></path></svg></button>
-                  <button class="pc-stepper-btn" disabled style="opacity:1;"><svg viewBox="0 0 16 16" width="10" height="10"><path d="M8 12L4 6h8z" fill="currentColor"></path></svg></button>
-                </div>
-                <span class="pc-stepper-count" style="pointer-events:none;">6</span>
-              </div>
-            </div>
-          </div>
-          <div style="margin-bottom:6px;">
-            <b style="color:var(--pc-ink);">2.</b> Com a quantidade selecionada, é hora de indicar a votação dos candidatos eleitos.
-            <div style="margin:5px 0 0; text-align:center;">
-              <input class="cell" disabled value="67065" style="width:95px; font-size:12px; font-weight:600; text-align:right; padding:5px 8px;">
-            </div>
-          </div>
-          <div style="margin:8px 0; padding:8px 10px; background:#101214; border:1px solid #23262A; border-radius:8px; font-size:11.5px; line-height:1.4;">
-            <b style="color:var(--pc-accent-2);">DICA BÔNUS</b><br>
-            Se você optar pela trilha ágil, não esqueça de selecionar o preenchimento automático no botão "auto" — ele garante que os demais candidatos tenham uma votação simulada, o que aumenta sua pontuação no ranqueamento.
-            <div style="margin-top:6px; text-align:center;">
-              <span style="display:inline-flex; align-items:center; gap:5px; padding:5px 12px; font-size:11.5px; font-weight:700; border-radius:999px; background:rgba(52,232,74,.08); border:1px solid var(--pc-accent); color:#F2F4F5;">${iconeSvg("completar", 12)} Auto</span>
-            </div>
-          </div>
-          <div>
-            <b style="color:var(--pc-ink);">3. AVANÇAR</b><br>
-            Quando indicar a quantidade de votos eleitos proporcional ao número de vagas, a opção avançar será selecionável. Ao ativá-la, você acessa a sua lista de palpite dos parlamentares eleitos e dos suplentes, pronta pra revisar. Depois disso, você pode salvar a sua lista — dá pra editar depois quando quiser — e, se preferir, imprimir. Quando estiver pronto de verdade, é no lobby que você deposita a cédula pra valer: aí sim ela trava e não pode mais ser alterada.
-            <div style="margin:6px 0 0; text-align:center;">
-              <span style="display:inline-flex; align-items:center; padding:5px 16px; font-size:11.5px; font-weight:700; border-radius:999px; background:rgba(52,232,74,.08); border:1px solid var(--pc-accent); color:#F2F4F5;">Avançar</span>
-            </div>
-          </div>
-          <div style="font-size:10.5px; opacity:0.75; margin-top:8px;">Depois disso, você pode continuar sua trilha com outras funções, como a criação de grupos, ranqueamento e outras funcionalidades.</div>
+        <h2 style="margin-bottom:10px; font-size:15px;">COMO MONTAR A LISTA</h2>
+        <div style="font-size:12.5px; line-height:1.65; color:var(--pc-ink-dim);">
+          O caminho mais indicado, em apenas duas etapas:<br><br>
+          <b style="color:var(--pc-ink);">1.</b> Decida o tamanho das bancadas: quantas cadeiras cada partido ganha.<br>
+          <b style="color:var(--pc-ink);">2.</b> Atribua o seu palpite aos <b style="color:var(--pc-ink);">candidatos que você conhece</b> — os que não conhece, palpite também ou deixe o mágico ${iconeSvg("completar", 12)} completar a votação, proporcional às vagas que você selecionou.
         </div>
-        <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:20px;">Entendi</button>
+        <div style="display:flex; align-items:center; gap:9px; margin-top:12px; background:#0C0E10; border:1px solid #2B2F33; border-radius:10px; padding:8px 11px; box-shadow:inset 0 1.5px 4px rgba(0,0,0,.5); font-size:11px; line-height:1.5; color:var(--pc-ink-dim);">
+          <span class="pc-farol-pontos" style="padding:0; margin:0;"><i class="on"></i><i></i><i></i></span>
+          Os três pontinhos no topo te acompanham o caminho todo — toque neles pra ver o seu próximo passo.
+        </div>
+        <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:18px;">Entendi</button>
       </div>
     </div>` : ""}
     ${pcState.avisoLimiteVagasAberto ? `
