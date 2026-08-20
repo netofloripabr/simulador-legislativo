@@ -112,3 +112,12 @@ async function acelerarMediana() {
   if (data === null) return { semSaldo: true };
   return { linhas: data };
 }
+
+// Presença/marcos (migração 26): registra o dia de acesso logado — o
+// banco cuida do streak e concede os marcos únicos (7/30 dias, semana da
+// eleição). Fire-and-forget no boot.
+async function registrarPresenca() {
+  const { data, error } = await supabaseClient.rpc("registrar_presenca");
+  if (error) { console.warn("Presença não registrada:", error.message); return null; }
+  return data;
+}

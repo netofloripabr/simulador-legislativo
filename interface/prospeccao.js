@@ -273,6 +273,11 @@ function selosCandidato2022(c) {
 // initColaborativo()/checar sessão, igual o resto do fluxo faz.
 const _paramsIniciais = new URLSearchParams(window.location.search);
 const _perfilCompartilhado = _paramsIniciais.get("ver");
+// Convite pessoal (?conv=SL-XXXXXX, migração 26): guarda até o cadastro —
+// quem chega pelo link de um amigo fica atribuído a ele quando criar a
+// conta (nuvem/autenticacao.js, _resolverConvidadoPor).
+const _convitePendente = _paramsIniciais.get("conv");
+if (_convitePendente) localStorage.setItem("sl_convite_pendente", _convitePendente.trim().toUpperCase());
 
 document.getElementById("modoColaborativoWrap").style.display = "block";
 if (_perfilCompartilhado) {
@@ -303,6 +308,10 @@ async function initColaborativo() {
       return;
     }
     pcState.souAdmin = await souAdmin();
+  // Presença/marcos (migração 26): registra o dia (streak) e concede
+  // marcos únicos direto no banco. Fire-and-forget — se a migração não
+  // rodou ainda, só loga e segue.
+  if (pcState.perfil) registrarPresenca();
     pcState.souUsuarioFinal = await souUsuarioFinal();
     const salvo = await carregarMeuPalpite(pcState.perfil.id);
     if (salvo && salvo.candidatos && salvo.candidatos.length) {
@@ -3122,6 +3131,17 @@ async function renderGrupoHub() {
 
   conteudo.innerHTML = `
     <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Grupos</div>
+    ${pcState.perfil && pcState.perfil.codigo_convite ? `
+    <div class="pc-lobby-banner" style="margin-bottom:16px;">
+      <div class="pc-lobby-banner-eyebrow">Convide e ganhe</div>
+      <div class="pc-lobby-banner-titulo">Seu link pessoal de convite</div>
+      <div class="pc-lobby-banner-corpo">Cada amigo que entrar pelo seu link e depositar a primeira cédula rende <b>10 créditos</b> pra você (até 5 por dia).</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="pc-lobby-banner-btn" id="pcBtnCopiarConvite">${iconeSvg("copiar", 13)} Copiar link</button>
+        <button class="pc-lobby-banner-btn" id="pcBtnZapConvite" style="background:none; border:1px solid #4D545C; color:var(--pc-ink);">${iconeSvg("send", 13)} WhatsApp</button>
+      </div>
+      <div class="pc-status" id="pcConviteStatus" style="margin-top:6px; min-height:12px;"></div>
+    </div>` : ""}
     ${pcState.avisoLimiteGrupoAberto ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Você chegou no limite grátis</div>
@@ -3164,6 +3184,21 @@ async function renderGrupoHub() {
     renderGrupoCriar();
   });
   document.getElementById("pcBtnEntrarGrupo").addEventListener("click", () => { pcState.telaGrupo = "entrar"; renderGrupoEntrar(); });
+  const btnCopiarConvite = document.getElementById("pcBtnCopiarConvite");
+  if (btnCopiarConvite) {
+    const linkConvite = window.location.origin + window.location.pathname + "?conv=" + pcState.perfil.codigo_convite;
+    const textoConvite = `Eu já cravei os meus eleitos de 2026 no SIMULALEGIS. Quem acerta mais? Entra pelo meu link: ${linkConvite}`;
+    btnCopiarConvite.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(linkConvite);
+        const s = document.getElementById("pcConviteStatus");
+        if (s) s.textContent = "Link copiado.";
+      } catch (err) { /* clipboard indisponível */ }
+    });
+    document.getElementById("pcBtnZapConvite").addEventListener("click", () => {
+      window.open(`https://wa.me/?text=${encodeURIComponent(textoConvite)}`, "_blank");
+    });
+  }
   document.querySelectorAll("[data-pc-abrir-grupo]").forEach((btn) => {
     btn.addEventListener("click", () => {
       pcState.grupoAtivo = pcState.meusGrupos.find((g) => g.id === btn.getAttribute("data-pc-abrir-grupo"));

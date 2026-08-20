@@ -51,6 +51,16 @@ a conta de teste 2.
       desabilitado apontando nova cédula (70).
 - [ ] Conferir que o saldo bate: concedido − 1 − 10 − 70.
 
+## 3b. Convite convertido (usa as duas contas de teste)
+- [ ] Conta 1: Grupos → card "Seu link pessoal de convite" → copiar.
+- [ ] Aba anônima: abrir o link (?conv=...) → cadastrar a conta 2 →
+      depositar a 1ª cédula completa.
+- [ ] Conta 1: extrato deve mostrar "+10 · Convite convertido: <nome>";
+      Menu → Créditos com o saldo atualizado.
+- [ ] Depositar de novo/editar pela conta 2 NÃO premia de novo (1x só).
+- [ ] Presença: entrar 7 dias seguidos rende +5 uma única vez (marco) —
+      teste de longo prazo, marcar no calendário.
+
 ## 4. Grupos e limite de 5 (usa as duas contas de teste)
 - [ ] Conta 1 cria grupo → código → conta 2 entra pelo código.
 - [ ] Encher o grupo até 5 pessoas (ou simular: no SQL Editor, inserts
@@ -77,8 +87,6 @@ a conta de teste 2.
 ## Pendências conhecidas deste roteiro
 - Gestor Eleitoral e conta institucional: ainda sem fluxo pra testar
   (etapa 8 do plano de implementação).
-- Convite convertido rendendo créditos: etapa futura (hoje o ganho é
-  só via admin) — quando entrar, adicionar seção própria aqui.
 - Convite especial nominal e patrocínio de funcionalidade (§5 do
   MONETIZACAO.md): fatia seguinte da etapa 5 — a compra de vagas e o
   selo VIP já estão testáveis acima.

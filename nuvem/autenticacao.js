@@ -48,6 +48,18 @@ function senhaForte(senha) {
 // conta inteira) — todo cadastro novo nasce com escopo "assembleia" fixo e
 // mostrar_nome true (default inofensivo, não é mais lido em lugar nenhum
 // que importe pra privacidade — isso agora vive em salvamentos.anonimo).
+
+// Convite pessoal (migração 26): o link ?conv=CODIGO fica guardado no
+// localStorage até o cadastro; aqui resolve o código pro uuid do
+// convidante (ou null). Limpa depois que o perfil nasce com a atribuição.
+async function _resolverConvidadoPor() {
+  const codigo = localStorage.getItem("sl_convite_pendente");
+  if (!codigo) return null;
+  const { data, error } = await supabaseClient.rpc("perfil_por_codigo_convite", { p_codigo: codigo });
+  if (error || !data) return null;
+  return data;
+}
+
 async function cadastrar({ nome, email, senha, telefone, modoPreenchimento, cpf, lgpdAceito, cep, municipioResidencia, ufResidencia, genero }) {
   if (!cpfValido(cpf)) return { error: { message: "CPF inválido. Confira os números digitados." } };
   if (!senhaForte(senha)) return { error: { message: "A senha precisa ter pelo menos 8 caracteres, com letra, número e caractere especial." } };
@@ -60,8 +72,10 @@ async function cadastrar({ nome, email, senha, telefone, modoPreenchimento, cpf,
     return { error: { message: "Cadastro criado, mas o e-mail de confirmação está ativo no Supabase. Desligue 'Confirm email' em Authentication → Providers → Email e tente de novo." } };
   }
   const cpfHash = await hashCPF(cpf);
+  const convidadoPor = await _resolverConvidadoPor();
   const { error: erroPerfil } = await supabaseClient.from("perfis").insert({
     id: data.user.id,
+    convidado_por: convidadoPor && convidadoPor !== data.user.id ? convidadoPor : null,
     nome,
     telefone: telefone || null,
     escopo: "assembleia",
@@ -242,8 +256,10 @@ async function completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito, cep, mun
   const sessao = await sessaoAtual();
   if (!sessao) return { error: { message: "Sessão expirada. Entre novamente." } };
   const cpfHash = await hashCPF(cpf);
+  const convidadoPor = await _resolverConvidadoPor();
   const { data, error: erroPerfil } = await supabaseClient.from("perfis").insert({
     id: sessao.user.id,
+    convidado_por: convidadoPor && convidadoPor !== sessao.user.id ? convidadoPor : null,
     nome,
     telefone: telefone || null,
     escopo: "assembleia",
