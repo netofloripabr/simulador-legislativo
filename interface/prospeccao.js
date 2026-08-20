@@ -3132,6 +3132,8 @@ async function renderGrupoHub() {
     btn.addEventListener("click", () => {
       pcState.grupoAtivo = pcState.meusGrupos.find((g) => g.id === btn.getAttribute("data-pc-abrir-grupo"));
       pcState.grupoComparacao = null;
+    pcState.grupoMembrosTotal = undefined;
+    pcState.grupoVagasStatus = "";
       pcState.grupoMinhasCedulas = null;
       pcState.grupoCedulaEscolhida = null;
       renderGrupoMembro();
@@ -3158,6 +3160,8 @@ function renderGrupoCriar() {
     pcState.meusGrupos = [...(pcState.meusGrupos || []), data];
     pcState.grupoAtivo = data;
     pcState.grupoComparacao = null;
+    pcState.grupoMembrosTotal = undefined;
+    pcState.grupoVagasStatus = "";
     pcState.grupoMinhasCedulas = null;
     pcState.grupoCedulaEscolhida = null;
     renderGrupoMembro();
@@ -3183,6 +3187,8 @@ function renderGrupoEntrar() {
     if (!pcState.meusGrupos.some((g) => g.id === data.id)) pcState.meusGrupos = [...pcState.meusGrupos, data];
     pcState.grupoAtivo = data;
     pcState.grupoComparacao = null;
+    pcState.grupoMembrosTotal = undefined;
+    pcState.grupoVagasStatus = "";
     pcState.grupoMinhasCedulas = null;
     pcState.grupoCedulaEscolhida = null;
     renderGrupoMembro();
@@ -3267,6 +3273,15 @@ async function renderGrupoMembro() {
   }
   const minhasCedulas = pcState.grupoMinhasCedulas || [];
   const registros = pcState.grupoComparacao;
+  // Vagas (economia v3 §3.1/§5): capacidade vem do grupo (migração 22,
+  // default 5 se o banco ainda não tiver a coluna); contagem de membros
+  // pode falhar por policy — aí mostra só a capacidade.
+  const capacidade = pcState.grupoAtivo.capacidade || 5;
+  if (pcState.grupoMembrosTotal === undefined) {
+    pcState.grupoMembrosTotal = await contarMembrosGrupo(pcState.grupoAtivo.id);
+  }
+  const souDono = pcState.perfil && pcState.grupoAtivo.criado_por === pcState.perfil.id;
+  const ehVip = capacidade > 5;
   const botoesCargo = CARGOS.map((c) => `
     <button data-pc-cargo-grupo="${c.id}" class="${pcState.cargoAtivoGrupo === c.id ? "active" : ""}">${c.label}</button>`).join("");
 
@@ -3278,6 +3293,22 @@ async function renderGrupoMembro() {
         <span style="font-size:12px; color:var(--pc-ink-dim);">${registros.length} pessoa${registros.length === 1 ? "" : "s"} com cédula depositada</span>
         <span style="font-size:12px; color:var(--pc-ink-dim); display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}<b style="font-family:var(--mono); color:var(--pc-ink); font-weight:600;">${pcState.grupoAtivo.codigo_convite}</b></span>
       </div>
+      <div class="pc-lobby-linha">
+        <span style="font-size:12px; color:var(--pc-ink-dim); display:flex; align-items:center; gap:7px;">
+          Vagas: <b style="color:var(--pc-ink); font-variant-numeric:tabular-nums;">${pcState.grupoMembrosTotal !== null && pcState.grupoMembrosTotal !== undefined ? `${pcState.grupoMembrosTotal}/${capacidade}` : capacidade}</b>
+          ${ehVip ? `<span style="font-size:8.5px; font-weight:800; letter-spacing:.06em; background:rgba(232,236,239,.35); border:1px solid rgba(242,244,245,.4); color:var(--pc-ink); border-radius:5px; padding:2px 7px;">VIP · entrada livre pra convidados</span>` : ""}
+        </span>
+      </div>
+      ${souDono && capacidade < 30 ? `
+      <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <span style="font-size:11px; color:var(--pc-ink-dim);">Amplie o grupo — quem entra pelo seu código nunca paga nada:</span>
+        <div style="display:flex; gap:8px;">
+          <button class="ghost" id="pcBtnVaga1" style="flex:1; font-size:12px; padding:9px;">+1 vaga · 10 créditos</button>
+          <button class="ghost" id="pcBtnVaga5" style="flex:1; font-size:12px; padding:9px;" ${capacidade + 5 > 30 ? "disabled" : ""}>+5 vagas · 50 créditos</button>
+        </div>
+        <div class="pc-status" id="pcVagasStatus" style="min-height:12px;">${pcState.grupoVagasStatus || ""}</div>
+      </div>` : ""}
+      ${souDono && capacidade >= 30 ? `<div class="pc-lobby-linha"><span style="font-size:11px; color:var(--pc-ink-dim);">Teto de 30 pessoas atingido — grupos maiores são pra contas institucionais (fale com a gente).</span></div>` : ""}
     </div>
     ${minhasCedulas.length > 1 ? `
     <div class="pc-lobby-card" style="margin-top:10px;">
@@ -3307,9 +3338,29 @@ async function renderGrupoMembro() {
       </div>`}
     </div>`;
 
+  const btnVaga1 = document.getElementById("pcBtnVaga1");
+  const btnVaga5 = document.getElementById("pcBtnVaga5");
+  const comprarVagas = async (n, btn) => {
+    btn.disabled = true;
+    const r = await ampliarCapacidadeGrupo(pcState.grupoAtivo.id, n);
+    if (r.semSaldo) {
+      pcState.grupoVagasStatus = `Saldo insuficiente (precisa de ${n * 10} créditos) — convide amigos: cada convite convertido rende 10.`;
+    } else if (r.erro) {
+      pcState.grupoVagasStatus = "Não deu: " + r.erro;
+    } else {
+      pcState.grupoAtivo = { ...pcState.grupoAtivo, capacidade: r.capacidade };
+      pcState.meusGrupos = pcState.meusGrupos.map((g) => g.id === pcState.grupoAtivo.id ? pcState.grupoAtivo : g);
+      pcState.grupoVagasStatus = `Feito — o grupo agora tem ${r.capacidade} vagas.`;
+    }
+    renderGrupoMembro();
+  };
+  if (btnVaga1) btnVaga1.addEventListener("click", (e) => comprarVagas(1, e.target));
+  if (btnVaga5) btnVaga5.addEventListener("click", (e) => comprarVagas(5, e.target));
   document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", () => {
     pcState.grupoAtivo = null;
     pcState.grupoComparacao = null;
+    pcState.grupoMembrosTotal = undefined;
+    pcState.grupoVagasStatus = "";
     pcState.grupoMinhasCedulas = null;
     pcState.grupoCedulaEscolhida = null;
     renderGrupoHub();
@@ -3328,7 +3379,9 @@ async function renderGrupoMembro() {
       const { error } = await escolherCedulaGrupo(pcState.grupoAtivo.id, pcState.perfil.id, salvamentoId);
       if (error) { pcState.erro = "Erro ao trocar a cédula do grupo: " + error.message; }
       pcState.grupoCedulaEscolhida = salvamentoId;
-      pcState.grupoComparacao = null; // força recarregar — a view grupo_comparacao muda com a escolha
+      pcState.grupoComparacao = null;
+    pcState.grupoMembrosTotal = undefined;
+    pcState.grupoVagasStatus = ""; // força recarregar — a view grupo_comparacao muda com a escolha
       renderGrupoMembro();
     });
   }

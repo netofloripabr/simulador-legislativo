@@ -100,3 +100,27 @@ async function escolherCedulaGrupo(grupoId, perfilId, salvamentoId) {
     .eq("perfil_id", perfilId);
   return { error };
 }
+
+// Vagas pagas (migração 24): o dono amplia a capacidade do grupo — 1 vaga
+// = 10 créditos, teto de 30 imposto no banco. Devolve { capacidade } ou
+// { semSaldo } ou { erro }.
+async function ampliarCapacidadeGrupo(grupoId, vagas) {
+  const { data, error } = await supabaseClient.rpc("ampliar_capacidade_grupo", {
+    p_grupo_id: grupoId, p_vagas: vagas,
+  });
+  if (error) return { erro: error.message };
+  if (data === null) return { semSaldo: true };
+  return { capacidade: data };
+}
+
+// Total de membros do grupo (pra mostrar "X/N vagas") — count sem baixar
+// as linhas. Se a policy não deixar, devolve null e a tela mostra só a
+// capacidade.
+async function contarMembrosGrupo(grupoId) {
+  const { count, error } = await supabaseClient
+    .from("grupo_membros")
+    .select("*", { count: "exact", head: true })
+    .eq("grupo_id", grupoId);
+  if (error) return null;
+  return count;
+}

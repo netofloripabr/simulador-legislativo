@@ -53,6 +53,10 @@ a conta de teste 2.
       em grupo_membros até 5) → a 6ª tentativa deve ser barrada com
       "Grupo cheio — o dono pode ampliar as vagas."
 - [ ] Comparação do grupo funciona com 2 cédulas depositadas.
+- [ ] Dono do grupo vê "Vagas: X/5" e os botões "+1 vaga · 10" /
+      "+5 vagas · 50"; comprar amplia na hora, aparece o selo VIP e a
+      linha "gasto_vaga" no extrato; membro comum NÃO vê os botões.
+- [ ] Tentar passar de 30 vagas → erro do teto ("conta institucional").
 
 ## 5. Admin (sua conta principal)
 - [ ] Menu → Painel do administrador → todas as abas abrem.
@@ -71,5 +75,6 @@ a conta de teste 2.
   (etapa 8 do plano de implementação).
 - Convite convertido rendendo créditos: etapa futura (hoje o ganho é
   só via admin) — quando entrar, adicionar seção própria aqui.
-- Vagas de grupo pagas / convite especial / VIP: etapa 5, ainda sem
-  fluxo pra testar.
+- Convite especial nominal e patrocínio de funcionalidade (§5 do
+  MONETIZACAO.md): fatia seguinte da etapa 5 — a compra de vagas e o
+  selo VIP já estão testáveis acima.
