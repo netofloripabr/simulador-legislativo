@@ -2427,6 +2427,7 @@ async function _carregarMinhasListasNormalizado() {
     return salvamentos.filter((s) => s.estado === pcState.estado).map((s) => ({
       id: s.id, nome: s.nome, criadoEm: s.criado_em, atualizadoEm: s.criado_em,
       depositadoEm: s.depositado_em, anonimo: !!s.anonimo, codigo: s.codigo || null,
+      edicoes: s.edicoes || 0, editadaEm: s.editada_em || null,
     }));
   }
   return await carregarListasSalvasLocais(pcState.estado);
@@ -2748,7 +2749,7 @@ async function renderMinhasListas() {
         ${lista && lista.codigo ? `<button class="ghost" id="pcBtnCompartilharDetalheLista" style="display:flex; align-items:center; gap:6px; padding:8px 12px; font-size:12px;">${iconeSvg("compartilhar", 13)}<span class="pc-btn-label">Compartilhar</span></button>` : ""}
       </div>
       <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">${lista ? lista.nome : ""}</div>
-      <div class="pc-sub" style="margin:0 0 14px 2px; display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}Depositada em ${lista ? new Date(lista.depositadoEm).toLocaleDateString("pt-BR") : ""} · travada, não pode mais mudar.</div>
+      <div class="pc-sub" style="margin:0 0 14px 2px; display:flex; align-items:center; gap:6px;">${iconeSvg("chave", 13)}Depositada em ${lista ? new Date(lista.depositadoEm).toLocaleDateString("pt-BR") : ""}${lista && lista.editadaEm ? ` · <span style="color:var(--pc-warning);">editada em ${new Date(lista.editadaEm).toLocaleDateString("pt-BR")} (${lista.edicoes}ª)</span>` : ""} · travada.</div>
       ${secoes}
       ${pcState.modalCompartilharListaId ? renderModalCompartilhar() : ""}`;
     document.getElementById("pcBtnVoltarMinhasListas").addEventListener("click", () => {
@@ -2788,9 +2789,12 @@ async function renderMinhasListas() {
       <div class="pc-mini-card-icone" style="background:rgba(198,230,42,.12); color:var(--pc-warning);">${iconeSvg("chave", 16)}</div>
       <div style="min-width:0; flex:1;">
         <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</div>
-        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}${l.codigo ? ` · <span style="font-family:var(--mono);">${l.codigo}</span>` : ""}</div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}${l.codigo ? ` · <span style="font-family:var(--mono);">${l.codigo}</span>` : ""}${l.editadaEm ? ` · <span style="color:var(--pc-warning);">editada em ${new Date(l.editadaEm).toLocaleDateString("pt-BR")}</span>` : ""}</div>
       </div>
       <div style="display:flex; gap:6px; flex-shrink:0;">
+        ${pcState.perfil ? (l.edicoes < 3
+          ? `<button class="ghost" data-pc-editar-depositada="${l.id}" title="${l.edicoes + 1}ª edição de 3 — a cédula fica com a marca de editada" style="padding:8px 10px; font-size:12px;">Editar · ${[20, 35, 50][l.edicoes]}c</button>`
+          : `<button class="ghost" disabled title="Limite de 3 edições — pra mudar de novo, deposite uma nova cédula (70 créditos)" style="padding:8px 10px; font-size:12px; opacity:.4;">3/3</button>`) : ""}
         ${l.codigo ? `<button class="ghost" data-pc-compartilhar-lista="${l.id}" style="padding:8px 10px; font-size:12px; display:flex; align-items:center; gap:5px;">${iconeSvg("compartilhar", 13)}<span class="pc-btn-label">Compartilhar</span></button>` : ""}
         <button class="ghost" data-pc-ver-lista="${l.id}" style="padding:8px 14px; font-size:12px;">Ver</button>
       </div>
@@ -2804,6 +2808,11 @@ async function renderMinhasListas() {
       <button class="pc-lobby-icon-btn" id="pcBtnNovaLista" title="Nova lista">${iconeSvg("mais", 16)}</button>
     </div>
     <div class="pc-sub" style="margin:4px 0 16px 2px;">Listas em aberto podem ser editadas à vontade. Depositadas ficam travadas.</div>
+    ${pcState.avisoEdicaoStatus ? `
+    <div class="pc-aviso-card">
+      <div class="pc-aviso-titulo">Edição de cédula</div>
+      <div class="pc-aviso-corpo">${pcState.avisoEdicaoStatus}</div>
+    </div>` : ""}
     ${pcState.avisoLimiteCedulaAberto ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Sua cédula oficial já está na urna</div>
@@ -2875,11 +2884,10 @@ async function renderMinhasListas() {
       document.getElementById("pcBtnNovaLista").click();
     });
   }
-  document.querySelectorAll("[data-pc-editar-lista]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-pc-editar-lista");
-      const lista = listas.find((l) => l.id === id);
-      if (!lista) return;
+  // Carrega uma lista (aberta OU depositada já paga) no editor — corpo
+  // compartilhado entre "Editar" das abertas e a edição paga das
+  // depositadas (economia v3 §6).
+  const abrirListaParaEdicao = async (lista) => {
       pcState.listaSalvaId = lista.id;
       pcState.listaSalvaNome = lista.nome;
       persistirListaAtivaLocal();
@@ -2904,6 +2912,34 @@ async function renderMinhasListas() {
       pcState.palpiteEdicao = pcState.palpitesPorCargo ? pcState.palpitesPorCargo[pcState.cargoAtivo] : null;
       if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
       else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
+  };
+  document.querySelectorAll("[data-pc-editar-lista]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const lista = listas.find((l) => l.id === btn.getAttribute("data-pc-editar-lista"));
+      if (lista) await abrirListaParaEdicao(lista);
+    });
+  });
+  // Edição PAGA de cédula depositada: cobra no servidor (20/35/50
+  // progressivo, migração 25) e só então abre no editor. Limite de 3 e
+  // "sem saldo" viram mensagem no card da lista.
+  document.querySelectorAll("[data-pc-editar-depositada]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const lista = listas.find((l) => l.id === btn.getAttribute("data-pc-editar-depositada"));
+      if (!lista || !pcState.perfil) return;
+      btn.disabled = true;
+      const r = await editarCedulaDepositada(lista.id);
+      if (r.semSaldo) {
+        pcState.avisoEdicaoStatus = "Saldo insuficiente pra essa edição — convide amigos: cada convite convertido rende 10 créditos.";
+        renderMinhasListas();
+        return;
+      }
+      if (r.erro) {
+        pcState.avisoEdicaoStatus = r.erro;
+        renderMinhasListas();
+        return;
+      }
+      pcState.avisoEdicaoStatus = "";
+      await abrirListaParaEdicao(lista);
     });
   });
   document.querySelectorAll("[data-pc-depositar-lista]").forEach((btn) => {

@@ -270,3 +270,15 @@ async function buscarCedulaPublica(termo) {
   }
   return data || [];
 }
+
+// Edição progressiva de cédula depositada (migração 25): cobra 20/35/50
+// pela 1ª/2ª/3ª edição e marca editada_em. Devolve { edicao } (número da
+// edição feita), { semSaldo } ou { erro } (limite de 3, não-dono etc.).
+async function editarCedulaDepositada(salvamentoId) {
+  const { data, error } = await supabaseClient.rpc("editar_cedula_depositada", {
+    p_salvamento_id: salvamentoId,
+  });
+  if (error) return { erro: error.message };
+  if (data === null) return { semSaldo: true };
+  return { edicao: data };
+}

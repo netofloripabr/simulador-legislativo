@@ -45,6 +45,10 @@ a conta de teste 2.
 - [ ] Depositar 2ª cédula (debita 70; extrato "Nova cédula").
 - [ ] Mediana → acelerar (+10 linhas, debita 2; extrato "Aceleração da
       mediana"); voltar no dia seguinte soma +2 sozinho.
+- [ ] Editar cédula depositada: botão "Editar · 20c" → debita 20, abre
+      no editor, salvar mantém depositada e ganha a marca "editada em";
+      2ª edição custa 35, 3ª custa 50, depois botão vira "3/3"
+      desabilitado apontando nova cédula (70).
 - [ ] Conferir que o saldo bate: concedido − 1 − 10 − 70.
 
 ## 4. Grupos e limite de 5 (usa as duas contas de teste)
