@@ -101,6 +101,11 @@ Regra prática: em dúvida entre pesos, comece em **700**. É o peso-padrão do
 projeto — os outros são desvios pontuais e intencionais, não alternativas
 neutras.
 
+**Escala revisada e mantida de propósito (20/08/2026)**: foi prototipada
+uma versão com dados ampliados (piso 15px, alvos 38-44px — artifact
+"Acessibilidade visual") e o usuário decidiu MANTER a escala atual após
+comparar lado a lado. Não repropor aumento de escala sem pedido novo.
+
 ### 1.3 Espaçamento e forma
 
 - Raio padrão de card: 12px. Raio de material console: 14px.
