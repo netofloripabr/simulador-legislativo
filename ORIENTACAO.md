@@ -69,17 +69,29 @@ economia (convite → créditos → conveniências, MONETIZACAO.md §7).
 
 ## 3. A aba especial de notificação (espec da feature)
 
-- **UM farol só, GLOBAL** (correção do usuário em 20/08/2026): não é um
-  por painel/tela — é um único elemento que acompanha o usuário pelo
-  projeto inteiro, mudando de passo conforme ele avança (palpite →
-  revisão → depósito → convite). Barra colapsada no material console,
-  pulso verde-vivo + "Passo N · frase" + progresso vivo; tocar expande
-  o painel da trilha.
-- **Posição em decisão** (artifact "Farol — posição A vs B", 20/08):
-  **A** = topo do sistema, acima das abas — destaque principal,
-  posição idêntica em TODAS as telas ("a voz do app"); **B** = colada
-  sob o console de votos — mais contexto na tela de palpite, mas sem
-  âncora nas telas sem console. Recomendação técnica: A.
+- **UM farol só, GLOBAL** (20/08/2026): único elemento que acompanha o
+  usuário pelo projeto inteiro (palpite → revisão → depósito → convite).
+- **Design fechado em 20/08/2026** (várias rodadas de protótipo, artifact
+  "Farol de Orientação"): material VAZADO (fundo #0C0E10 + borda #2B2F33
+  + sombra interna — família do box de vagas/sulco dos faders), fonte
+  12px/600, pulso verde-vivo + "PASSO N" verde. Sem seta/chevron.
+- **Três níveis, ciclados pelo toque** (decisão do usuário):
+  1. **Bolha** — círculo vazado 26px ancorado à ESQUERDA; o seletor de
+     cargos fica CENTRALIZADO com alinhamento próprio (a bolha é
+     absoluta, não empurra as abas). Zero linha extra.
+  2. **Painel simples** — a barra do farol: "PASSO N · frase — progresso",
+     uma linha, com o "−".
+  3. **Painel completo** — a trilha inteira (atual em destaque, futuros
+     apagados, miniatura do controle real).
+  Toque no farol cicla 1→2→3→1; o "−" volta direto pra bolha de
+  qualquer nível.
+- **NUNCA abre sozinho** (decisão explícita do usuário) — nem na troca
+  de passo; a novidade se anuncia só pelo pulso, presente nos 3 níveis.
+  O nível escolhido persiste entre telas e sessões.
+- Nas telas sem seletor de cargos, a bolha ancora no mesmo canto
+  esquerdo do cabeçalho.
+- **Escopo travado**: nada mais no sistema muda — a dica "Faltam Xk
+  votos pra fechar a vaga" do card de partido permanece como está.
 - **Conteúdo**: SÓ o passo atual em destaque + os concluídos com check
   verde-vivo + os futuros apagados. Cada passo com a frase curta da
   tabela e a **miniatura do botão real** (reaproveitar o markup/ícone do
