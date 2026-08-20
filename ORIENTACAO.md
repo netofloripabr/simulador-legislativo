@@ -69,10 +69,17 @@ economia (convite → créditos → conveniências, MONETIZACAO.md §7).
 
 ## 3. A aba especial de notificação (espec da feature)
 
-- **Onde** (protótipo de 19-20/08, artifact "Painel de Orientação"):
-  o **farol** — barra colapsada no material console, vivendo logo abaixo
-  do console de votos, com pulso verde-vivo + "Passo N · frase" +
-  progresso vivo ("12 de 40"). Tocar expande o **painel** da trilha.
+- **UM farol só, GLOBAL** (correção do usuário em 20/08/2026): não é um
+  por painel/tela — é um único elemento que acompanha o usuário pelo
+  projeto inteiro, mudando de passo conforme ele avança (palpite →
+  revisão → depósito → convite). Barra colapsada no material console,
+  pulso verde-vivo + "Passo N · frase" + progresso vivo; tocar expande
+  o painel da trilha.
+- **Posição em decisão** (artifact "Farol — posição A vs B", 20/08):
+  **A** = topo do sistema, acima das abas — destaque principal,
+  posição idêntica em TODAS as telas ("a voz do app"); **B** = colada
+  sob o console de votos — mais contexto na tela de palpite, mas sem
+  âncora nas telas sem console. Recomendação técnica: A.
 - **Conteúdo**: SÓ o passo atual em destaque + os concluídos com check
   verde-vivo + os futuros apagados. Cada passo com a frase curta da
   tabela e a **miniatura do botão real** (reaproveitar o markup/ícone do
@@ -105,7 +112,8 @@ só dar visibilidade a eles:
       apagados, miniaturas dos controles reais. Verde vivo em dois
       papéis legítimos: "ação agora" (pulso/passo atual) e "fato
       consumado" (checks). Aguardando aprovação do usuário.
-- [x] Posição: farol abaixo do console de votos (decidido no protótipo).
+- [ ] Posição: A (topo do sistema) vs B (sob o console) — protótipo
+      comparativo publicado em 20/08, aguardando escolha do usuário.
 - [ ] Copy final de cada passo (as frases da tabela são rascunho).
 - [ ] Tutorial estático da 1ª visita: mantém, encurta ou some quando a
       aba existir? (decisão de produto).
