@@ -4958,7 +4958,15 @@ function attachListenersDeputadosFader(E, totalVagas) {
     const p2 = pcState.palpiteEdicao[gi];
     const counts = vagasApuradasPorGrupo();
     const atual = vagasIndicadasDe(p2, counts[gi] || 0);
-    const novo = Math.max(0, Math.min(totalVagas, novoBruto));
+    // TAPETE CURTO das vagas (bug corrigido em 19/08/2026): o clamp
+    // antigo limitava só o partido individual ao total do cargo — a SOMA
+    // entre partidos podia passar de 40/16 (ex.: 20+20+20). Mesma regra
+    // da FMD dos votos (invariante 3, PROJETO.md §8.2): o pedido é
+    // limitado ao que ainda cabe no cargo descontando as vagas já
+    // indicadas nos OUTROS partidos.
+    const somaOutras = pcState.palpiteEdicao.reduce(
+      (s, pp, i) => (i === gi ? s : s + vagasIndicadasDe(pp, counts[i] || 0)), 0);
+    const novo = Math.max(0, Math.min(novoBruto, Math.max(0, totalVagas - somaOutras)));
     if (novo === atual) return;
     snapshotPalpite();
     p2.vagasIndicadas = novo;
