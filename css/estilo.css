@@ -1389,3 +1389,92 @@
 #modoColaborativoWrap .pc-dep-provisorio{
   font-size:10px; color:#C6E62A; margin:2px 0 1px; font-weight:600;
 }
+
+/* ===== Farol de Orientação (ORIENTACAO.md §3, design fechado 20/08/2026) ===== */
+/* Sinalizador "3 pontos": sem moldura, sem animação — acesos = nível aberto;
+   sem pendência, os três apagados. Material vazado (família do sulco). */
+#modoColaborativoWrap.pc-tema-fader .pc-farol-pontos{
+  display:inline-flex; align-items:center; gap:3.5px; flex:none;
+  background:none; border:none; cursor:pointer; padding:12px 8px; margin:-8px 0;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-pontos i{
+  width:4.5px; height:4.5px; border-radius:50%; background:#3A3F45; flex:none;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-pontos i.on{ background:var(--pc-accent); }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas{ position:relative; padding:0 30px; }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas .pc-cargo-switch{ width:fit-content; margin:0 auto; }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas .pc-cargo-switch button{ flex:none; padding:9px 12px; }
+@media (max-width:370px){
+  #modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas{ padding:0 24px; }
+  #modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas .pc-cargo-switch button{ padding:8px 8px; }
+}
+#modoColaborativoWrap.pc-tema-fader #pcFarolPontosSlot .pc-farol-pontos{
+  position:absolute; left:0; top:50%; transform:translateY(-50%); margin:0;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-linha1{ display:flex; margin-bottom:6px; }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-barra,
+#modoColaborativoWrap.pc-tema-fader .pc-farol-painel{
+  background:#0C0E10; border:1px solid #2B2F33; border-radius:11px;
+  box-shadow:inset 0 1.5px 4px rgba(0,0,0,.5), inset 0 -1px 0 rgba(242,244,245,.04);
+  margin-bottom:12px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-barra{
+  display:flex; align-items:center; gap:9px; padding:7px 12px; cursor:pointer;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-passo{
+  flex:none; font-size:9px; font-weight:800; letter-spacing:.06em;
+  color:var(--pc-accent); text-transform:uppercase;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-txt{
+  flex:1; min-width:0; font-size:11.5px; font-weight:600; color:#D3D8DC;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-min{
+  flex:none; width:22px; height:22px; border-radius:6px; border:1px solid #2B2F33;
+  background:none; color:var(--pc-ink-dim); font-size:13px; line-height:1;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; font-family:inherit;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-painel{ padding:10px 12px; }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-cab{
+  display:flex; align-items:center; gap:9px; padding-bottom:9px; cursor:pointer;
+  border-bottom:1px solid rgba(242,244,245,.08);
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-cab-tit{
+  flex:1; min-width:0; font-size:9px; font-weight:800; letter-spacing:.08em;
+  color:#A6ADB4; text-transform:uppercase; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item{ display:flex; gap:10px; padding:9px 0 0; }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item + .pc-farol-item{
+  margin-top:9px; border-top:1px solid rgba(242,244,245,.06);
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item-chip{
+  flex:none; width:22px; height:22px; border-radius:50%; display:flex; align-items:center;
+  justify-content:center; font-size:10.5px; font-weight:800; margin-top:1px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item.atual .pc-farol-item-chip{
+  background:var(--pc-accent); color:#07230C; box-shadow:0 0 0 3px rgba(52,232,74,.18);
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item.feito .pc-farol-item-chip{
+  background:rgba(52,232,74,.14); color:var(--pc-accent); border:1px solid rgba(52,232,74,.45);
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item.futuro .pc-farol-item-chip{
+  background:#1B1E22; color:var(--pc-ink-dim); border:1px solid #33383D;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item-corpo{ flex:1; min-width:0; align-self:center; }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item-tit{ font-size:12px; font-weight:700; color:var(--pc-ink); }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item.futuro .pc-farol-item-tit,
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item.feito .pc-farol-item-tit{ color:var(--pc-ink-dim); }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item-prog{ color:var(--pc-accent); font-weight:800; font-size:11px; }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-item-txt{
+  font-size:10.5px; color:#A6ADB4; line-height:1.55; margin-top:2px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-minibox{
+  display:inline-flex; align-items:center; gap:4px; background:#0C0E10;
+  border:1px solid var(--pc-accent); border-radius:6px; padding:1px 6px;
+  font-size:10px; font-weight:800; color:var(--pc-ink); white-space:nowrap;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-farol-minicmd{
+  display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px;
+  border-radius:50%; background:rgba(232,236,239,.3); border:1px solid rgba(242,244,245,.35);
+  color:var(--pc-ink); vertical-align:middle;
+}

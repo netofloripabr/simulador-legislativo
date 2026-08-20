@@ -90,3 +90,21 @@ a conta de teste 2.
 - Convite especial nominal e patrocínio de funcionalidade (§5 do
   MONETIZACAO.md): fatia seguinte da etapa 5 — a compra de vagas e o
   selo VIP já estão testáveis acima.
+
+## Farol de Orientação (20/08/2026)
+
+Em qualquer conta (ou como convidado):
+1. Na tela de palpite: 3 pontinhos à esquerda das abas de cargo, 1 aceso
+   (verde) enquanto houver passo pendente. Tocar neles abre a barra
+   (2 acesos, "PASSO N · frase — progresso"); tocar na barra abre o
+   painel completo (3 acesos, trilha com feito ✓ / atual / futuros);
+   tocar no cabeçalho (ou no "−" de qualquer nível) volta pra bolha.
+2. O farol NUNCA abre sozinho e o nível escolhido persiste após
+   recarregar a página.
+3. Preencher vagas/votação muda o passo e o progresso ao vivo (ao
+   soltar o gesto). Com os 3 cargos completos, a trilha vira a reta
+   final: revisar e salvar → depositar → convidar.
+4. Com tudo feito (lista salva, cédula depositada, participando de
+   grupo), os 3 pontos ficam TODOS apagados em qualquer nível.
+5. O farol aparece também em: Revisão, Painel, Minhas listas e Grupos
+   (pontinhos no canto superior esquerdo quando minimizado).

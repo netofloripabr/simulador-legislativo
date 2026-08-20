@@ -520,6 +520,7 @@ async function depositarListaLocal(uf, id, anonimo) {
   const idx = listas.findIndex((l) => l.id === id);
   if (idx < 0) return false;
   listas[idx] = { ...listas[idx], depositadoEm: new Date().toISOString(), anonimo: !!anonimo };
+  pcState.farolTemDeposito = true; // Farol de Orientação — passo "Depositar" concluído
   await salvarListasSalvasLocais(uf, listas);
   return true;
 }
@@ -610,6 +611,201 @@ function irParaDestinoMenuFixo(destino) {
     return;
   }
   if (pcState.perfil) { pcState.subaba = destino; renderAppColaborativo(); }
+}
+
+
+// ===== Farol de Orientação (ORIENTACAO.md §3) =====
+// UM elemento global que acompanha o usuário pelo projeto inteiro
+// (palpite → revisão → depósito → convite). Design fechado em 20/08/2026:
+// sinalizador "3 pontos" sem moldura e sem animação — a quantidade de
+// pontos acesos é o nível aberto (1 bolha / 2 barra / 3 painel completo);
+// sem pendência, os três ficam apagados. Ciclo pelo toque 1→2→3→1, o
+// "−" volta direto pra bolha, NUNCA abre sozinho, o nível persiste.
+
+function farolNivelAtual() {
+  const n = parseInt(localStorage.getItem("pcFarolNivel"), 10);
+  return n >= 1 && n <= 3 ? n : 1;
+}
+
+function definirFarolNivel(n) {
+  localStorage.setItem("pcFarolNivel", String(Math.min(3, Math.max(1, n))));
+  atualizarFarol();
+}
+
+// Lista mais fresca disponível de um cargo, sem forçar carregamento: a
+// edição ativa > cache de troca de aba > rascunho carregado no boot.
+function _farolListaDoCargo(cid) {
+  if (cid === pcState.cargoAtivo && pcState.palpiteEdicao) return pcState.palpiteEdicao;
+  if (pcState.palpitesPorCargo && pcState.palpitesPorCargo[cid]) return pcState.palpitesPorCargo[cid];
+  if (pcState.rascunhosCache && pcState.rascunhosCache[cid]) return pcState.rascunhosCache[cid];
+  return null;
+}
+
+// Predicados do cargo (ORIENTACAO.md §4) calculados de qualquer lista, não
+// só da ativa. Vagas: pro proporcional soma vagasIndicadas (o invariante do
+// tapete curto); pro Senador conta marcadoEleito. Votos: o mesmo gate de
+// 99,5% que habilita o Avançar.
+function _farolStatusCargo(cid) {
+  const totalVagas = vagasFixasCargo(pcState.estado, cid);
+  const lista = _farolListaDoCargo(cid);
+  if (!lista) return { vagasOk: false, votosOk: false, ind: 0, totalVagas, pct: 0 };
+  let ind;
+  if (cid === "senador") {
+    ind = lista.reduce((s, p) => s + p.candidatos.filter((c) => c.marcadoEleito).length, 0);
+  } else {
+    const { counts } = dhondtComCorte(lista, totalVagas);
+    ind = lista.reduce((s, p, i) => s + vagasIndicadasDe(p, counts[i] || 0), 0);
+  }
+  const soma = lista.reduce((s, p) => s + p.candidatos.reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
+  const proj = totalValidosProjetado2026(cid);
+  return {
+    vagasOk: totalVagas > 0 && ind >= totalVagas,
+    votosOk: proj > 0 && soma >= 0.995 * proj,
+    ind: Math.min(ind, totalVagas), totalVagas,
+    pct: proj > 0 ? Math.min(1, soma / proj) : 0,
+  };
+}
+
+// O passo pendente mais eficiente a partir do estado atual — ou null quando
+// está tudo em dia (aí os 3 pontos ficam apagados). Fase A: montagem dos 3
+// cargos (passos 1-2 da trilha por cargo). Fase B: revisar+salvar (4),
+// depositar (5... exibido como 5? ver nota), convidar. Numeração exibida
+// segue ORIENTACAO.md §2.3 com o 4 e o 5 fundidos em "revise e salve"
+// (revisitar a Revisão não é detectável por estado — farol, não trilho).
+function farolPassoAtual() {
+  if (!pcState.estado) return null;
+  const pendentes = CARGOS.filter((c) => {
+    const st = _farolStatusCargo(c.id);
+    return !(st.vagasOk && st.votosOk);
+  });
+  if (pendentes.length) {
+    const naTelaPalpite = pcState.tela === "selecao-convidado" || (pcState.tela === "app" && pcState.subaba === "selecao");
+    const foco = (naTelaPalpite && pendentes.some((c) => c.id === pcState.cargoAtivo))
+      ? CARGOS.find((c) => c.id === pcState.cargoAtivo)
+      : pendentes[0];
+    const st = _farolStatusCargo(foco.id);
+    const rotuloCargo = foco.label.replace(/^Dep\.\s*/, "");
+    if (!st.vagasOk) {
+      if (foco.id === "senador") return { num: 1, fase: "A", cargoId: foco.id, rotuloCargo, rotulo: "Indique os " + st.totalVagas + " eleitos", progresso: st.ind + " de " + st.totalVagas };
+      return { num: 1, fase: "A", cargoId: foco.id, rotuloCargo, rotulo: "Preencha as vagas por partido — " + rotuloCargo, progresso: st.ind + " de " + st.totalVagas };
+    }
+    return { num: 2, fase: "A", cargoId: foco.id, rotuloCargo, rotulo: "Distribua a votação — " + rotuloCargo, progresso: Math.round(st.pct * 100) + "% preenchida" };
+  }
+  if (!pcState.listaSalvaId) return { num: 4, fase: "B", rotulo: "Revise e salve sua lista", progresso: "" };
+  if (!pcState.farolTemDeposito) return { num: 5, fase: "B", rotulo: "Deposite a cédula — vale no ranking", progresso: "" };
+  if (!(pcState.meusGrupos && pcState.meusGrupos.length)) return { num: 6, fase: "B", rotulo: "Convide amigos e compare palpites", progresso: "" };
+  return null;
+}
+
+// Dados que o passo 5/6 precisa e não estão em memória no boot — melhor
+// esforço, sem travar render nenhum; quando chega, o farol se atualiza.
+async function garantirDadosFarol() {
+  if (pcState._farolDadosPedidos || !pcState.estado) return;
+  pcState._farolDadosPedidos = true;
+  try {
+    if (pcState.farolTemDeposito === undefined) await _carregarMinhasListasNormalizado();
+    if (pcState.perfil && !pcState.meusGrupos) await garantirMeusGruposCarregados();
+  } catch (e) { /* melhor esforço — sem dado, o farol segue com o que tem */ }
+  atualizarFarol();
+}
+
+// qtd pontos acesos; comId=true só no uso clicável da bolha (nível 1).
+function farolPontosHtml(qtd, comId) {
+  const pontos = [1, 2, 3].map((i) => `<i class="${i <= qtd ? "on" : ""}"></i>`).join("");
+  if (comId) return `<button type="button" id="pcFarolPontos" class="pc-farol-pontos" title="Painel de orientação">${pontos}</button>`;
+  return `<span class="pc-farol-pontos">${pontos}</span>`;
+}
+
+function _farolLinhaTrilha(chip, titulo, opcoes) {
+  const o = opcoes || {};
+  const cls = o.atual ? "atual" : (o.feito ? "feito" : "futuro");
+  return `<div class="pc-farol-item ${cls}">
+    <span class="pc-farol-item-chip">${chip}</span>
+    <div class="pc-farol-item-corpo">
+      <div class="pc-farol-item-tit">${titulo}${o.progresso ? ` <span class="pc-farol-item-prog">— ${o.progresso}</span>` : ""}</div>
+      ${o.texto ? `<div class="pc-farol-item-txt">${o.texto}</div>` : ""}
+    </div>
+  </div>`;
+}
+
+// A trilha do nível 3. Fase A mostra a trilha do cargo em foco (miniaturas
+// dos controles REAIS — box de vagas, mágico, avançar); fase B, a reta
+// final. Tudo em dia = tudo com check.
+function farolTrilhaHtml(passo) {
+  const ck = `<svg viewBox="0 0 16 16" width="11" height="11"><path d="M3.5 8.4l3 3 6-6.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
+  if (passo && passo.fase === "A") {
+    const st = _farolStatusCargo(passo.cargoId);
+    const ehSen = passo.cargoId === "senador";
+    return `
+      ${_farolLinhaTrilha(st.vagasOk ? ck : "1", ehSen ? "Indicar os " + st.totalVagas + " eleitos" : "Preencher as vagas por partido", {
+        feito: st.vagasOk, atual: passo.num === 1, progresso: st.ind + " de " + st.totalVagas,
+        texto: passo.num === 1 ? (ehSen ? "Toque no candidato ou arraste a barra dele até o selo ELEITO acender." : `Toque no box de vagas de cada partido — <span class="pc-farol-minibox">− 8 +</span> — e indique quantas cadeiras ele ganha.`) : "",
+      })}
+      ${_farolLinhaTrilha(st.votosOk ? ck : "2", "Distribuir a votação pelos candidatos", {
+        feito: st.votosOk, atual: passo.num === 2, progresso: Math.round(st.pct * 100) + "%",
+        texto: passo.num === 2 ? `Arraste as alças ou digite os votos. Atalho: o mágico <span class="pc-farol-minicmd">${iconeSvg("completar", 11)}</span> completa o que faltar sem mexer no que você já fez.` : "",
+      })}
+      ${_farolLinhaTrilha("3", "Avançar — próximo cargo e Revisão", {
+        texto: `O botão <span class="pc-farol-minicmd">${iconeSvg("setaDireita", 11)}</span> no fim do painel de comandos. Depois: salvar, depositar e convidar.`,
+      })}`;
+  }
+  const num = passo ? passo.num : 99;
+  return `
+    ${_farolLinhaTrilha(ck, "Montar os 3 cargos", { feito: true })}
+    ${_farolLinhaTrilha(num > 4 ? ck : "4", "Revisar e salvar a lista", { feito: num > 4, atual: num === 4, texto: num === 4 ? `Confira os três cargos e salve — o botão <span class="pc-farol-minicmd">${iconeSvg("salvar", 11)}</span> na Revisão. A lista fica em Minhas listas, editável.` : "" })}
+    ${_farolLinhaTrilha(num > 5 ? ck : "5", "Depositar a cédula", { feito: num > 5, atual: num === 5, texto: num === 5 ? "Em Minhas listas, toque em Depositar — trava a lista e ela passa a valer no ranking. A primeira é grátis." : "" })}
+    ${_farolLinhaTrilha(num > 6 ? ck : "6", "Convidar e comparar", { feito: num > 6, atual: num === 6, texto: num === 6 ? `Compartilhe o cartão-desafio ou crie um grupo <span class="pc-farol-minicmd">${iconeSvg("convidar", 11)}</span> — cada amigo que entrar e depositar rende créditos.` : "" })}`;
+}
+
+// O bloco dos níveis 2 e 3 (e, nas telas sem seletor de cargos, também a
+// linha da bolha do nível 1 — soPontosNaLinha).
+function farolConteudoBloco(soPontosNaLinha) {
+  const nivel = farolNivelAtual();
+  const passo = farolPassoAtual();
+  if (nivel === 1) {
+    return soPontosNaLinha ? `<div class="pc-farol-linha1">${farolPontosHtml(passo ? 1 : 0, true)}</div>` : "";
+  }
+  if (nivel === 2) {
+    return `<div class="pc-farol-barra" id="pcFarolBarra" role="button" tabindex="0">
+      ${farolPontosHtml(passo ? 2 : 0, false)}
+      ${passo
+        ? `<span class="pc-farol-passo">Passo ${passo.num}</span><span class="pc-farol-txt">${passo.rotulo}${passo.progresso ? " — " + passo.progresso : ""}</span>`
+        : `<span class="pc-farol-txt" style="color:var(--pc-ink-dim);">Tudo em dia — nada pendente</span>`}
+      <button type="button" class="pc-farol-min" id="pcFarolMin" title="Recolher">−</button>
+    </div>`;
+  }
+  const titulo = passo
+    ? (passo.fase === "A" ? "Sua trilha — " + passo.rotuloCargo : "Sua trilha — reta final")
+    : "Sua trilha — tudo em dia";
+  return `<div class="pc-farol-painel">
+    <div class="pc-farol-cab" id="pcFarolCabecalho" role="button" tabindex="0">
+      ${farolPontosHtml(passo ? 3 : 0, false)}
+      <span class="pc-farol-cab-tit">${titulo}</span>
+      <button type="button" class="pc-farol-min" id="pcFarolMin" title="Recolher">−</button>
+    </div>
+    ${farolTrilhaHtml(passo)}
+  </div>`;
+}
+
+// Recalcula e redesenha o farol nos slots presentes na tela atual — barato
+// (predicados sobre listas já em memória), chamado no fim de todo render
+// que mostra o farol e a cada troca de nível.
+function atualizarFarol() {
+  const bloco = document.getElementById("pcFarolBloco");
+  const slotPontos = document.getElementById("pcFarolPontosSlot");
+  if (!bloco && !slotPontos) return;
+  const nivel = farolNivelAtual();
+  if (bloco) bloco.innerHTML = farolConteudoBloco(!slotPontos);
+  if (slotPontos) slotPontos.innerHTML = nivel === 1 ? farolPontosHtml(farolPassoAtual() ? 1 : 0, true) : "";
+  const pontos = document.getElementById("pcFarolPontos");
+  if (pontos) pontos.addEventListener("click", () => definirFarolNivel(2));
+  const barra = document.getElementById("pcFarolBarra");
+  if (barra) barra.addEventListener("click", (ev) => { if (ev.target.closest("#pcFarolMin")) return; definirFarolNivel(3); });
+  const cab = document.getElementById("pcFarolCabecalho");
+  if (cab) cab.addEventListener("click", (ev) => { if (ev.target.closest("#pcFarolMin")) return; definirFarolNivel(1); });
+  const min = document.getElementById("pcFarolMin");
+  if (min) min.addEventListener("click", () => definirFarolNivel(1));
+  garantirDadosFarol();
 }
 
 function renderColaborativo() {
@@ -2287,6 +2483,7 @@ async function renderPainelPrincipal() {
   const totalGrupos = pcState.meusGrupos ? pcState.meusGrupos.length : 0;
 
   el.innerHTML = `
+    <div id="pcFarolBloco"></div>
     ${completa && !gateConvidado ? `
     <div style="display:flex; justify-content:flex-end; margin-bottom:14px;">
       <button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>
@@ -2357,6 +2554,7 @@ async function renderPainelPrincipal() {
     pcState.tela = "cadastro";
     renderColaborativo();
   };
+  atualizarFarol();
   document.getElementById("pcMenuListas").addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "minhas-listas"; renderAppColaborativo(); }
     else { pcState.tela = "minhas-listas-convidado"; renderColaborativo(); }
@@ -2431,15 +2629,22 @@ function mostrarLinkCompartilhavel() {
 // que "salvamentos" não guarda um segundo timestamp de edição — perde um
 // pouco de nuance ("editada hoje" vs "criada em X"), aceitável por ora.
 async function _carregarMinhasListasNormalizado() {
+  let listas;
   if (pcState.perfil) {
     const salvamentos = await carregarSalvamentosDe(pcState.perfil.id);
-    return salvamentos.filter((s) => s.estado === pcState.estado).map((s) => ({
+    listas = salvamentos.filter((s) => s.estado === pcState.estado).map((s) => ({
       id: s.id, nome: s.nome, criadoEm: s.criado_em, atualizadoEm: s.criado_em,
       depositadoEm: s.depositado_em, anonimo: !!s.anonimo, codigo: s.codigo || null,
       edicoes: s.edicoes || 0, editadaEm: s.editada_em || null,
     }));
+  } else {
+    listas = await carregarListasSalvasLocais(pcState.estado);
   }
-  return await carregarListasSalvasLocais(pcState.estado);
+  // Alimenta o passo "Depositar" do Farol de Orientação de carona — toda
+  // tela que lista salvamentos já passa por aqui, então a flag se corrige
+  // sozinha depois de qualquer depósito.
+  pcState.farolTemDeposito = listas.some((l) => l.depositadoEm);
+  return listas;
 }
 
 // Cartão-desafio "Meu palpite" (PNG de DIVULGAÇÃO, 3 cargos juntos) —
@@ -2812,6 +3017,7 @@ async function renderMinhasListas() {
   const listaModal = pcState.modalDepositarListaId ? listas.find((l) => l.id === pcState.modalDepositarListaId) : null;
 
   el.innerHTML = `
+    <div id="pcFarolBloco"></div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
       <div style="font-size:20px; font-weight:700; margin-left:2px;">Minhas listas</div>
       <button class="pc-lobby-icon-btn" id="pcBtnNovaLista" title="Nova lista">${iconeSvg("mais", 16)}</button>
@@ -2854,6 +3060,7 @@ async function renderMinhasListas() {
     ${pcState.modalCompartilharListaId ? renderModalCompartilhar() : ""}
   `;
 
+  atualizarFarol();
   document.getElementById("pcBtnNovaLista").addEventListener("click", async () => {
     if (jaTemLista) {
       // Convidado não tem como ter crédito de verdade (sem conta não tem
@@ -3130,6 +3337,7 @@ async function renderGrupoHub() {
     </button>`).join("");
 
   conteudo.innerHTML = `
+    <div id="pcFarolBloco"></div>
     <div style="font-size:20px; font-weight:700; margin:2px 0 16px 2px;">Grupos</div>
     ${pcState.perfil && pcState.perfil.codigo_convite ? `
     <div class="pc-lobby-banner" style="margin-bottom:16px;">
@@ -3183,6 +3391,7 @@ async function renderGrupoHub() {
     pcState.telaGrupo = "criar";
     renderGrupoCriar();
   });
+  atualizarFarol();
   document.getElementById("pcBtnEntrarGrupo").addEventListener("click", () => { pcState.telaGrupo = "entrar"; renderGrupoEntrar(); });
   const btnCopiarConvite = document.getElementById("pcBtnCopiarConvite");
   if (btnCopiarConvite) {
@@ -5212,8 +5421,12 @@ async function renderSelecaoCandidatos() {
     </button>`;
   }).join("");
   el.innerHTML = `
+    <div id="pcFarolBloco"></div>
     <div id="pcStickyHeader">
-      <div class="pc-cargo-switch">${botoes}</div>
+      <div class="pc-farol-linha-abas">
+        <span id="pcFarolPontosSlot"></span>
+        <div class="pc-cargo-switch">${botoes}</div>
+      </div>
       <div id="pcPainelSlot"></div>
     </div>
     <div id="pcCargoConteudo"></div>
@@ -5833,6 +6046,7 @@ async function renderCargoEstadual() {
   attachListenersSelecao();
   if (pcState.cargoAtivo === "senador") attachListenersSenador(votosValidos2026Proj);
   else attachListenersDeputadosFader(votosValidos2026Proj, totalVagasCargo);
+  atualizarFarol();
   if (reRenderizando) window.scrollTo(0, scrollAnterior);
 }
 
@@ -7249,6 +7463,7 @@ function renderRevisaoDeposito() {
   })();
 
   conteudo.innerHTML = `
+    <div id="pcFarolBloco"></div>
     ${painelDisputaSobraHtml}
     <div class="glass-card" style="max-width:560px; margin:0 auto;">
       <h2>Revisão</h2>
@@ -7414,6 +7629,7 @@ function renderRevisaoDeposito() {
       }
     });
   });
+  atualizarFarol();
   document.getElementById("pcBtnVoltarRevisao").addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "selecao"; renderAppColaborativo(); }
     else { pcState.tela = "selecao-convidado"; renderColaborativo(); }

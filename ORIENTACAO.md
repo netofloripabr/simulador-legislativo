@@ -74,11 +74,17 @@ economia (convite → créditos → conveniências, MONETIZACAO.md §7).
 - **Design fechado em 20/08/2026** (várias rodadas de protótipo, artifact
   "Farol de Orientação"): material VAZADO (fundo #0C0E10 + borda #2B2F33
   + sombra interna — família do box de vagas/sulco dos faders), fonte
-  12px/600, pulso verde-vivo + "PASSO N" verde. Sem seta/chevron.
+  12px/600, "PASSO N" verde. Sem seta/chevron. SEM pulso/animação.
+- **O sinalizador (decisão final 20/08/2026, versão "A · Pontos")**:
+  três pontos redondos de 4,5px na horizontal, SEM moldura e SEM pulso.
+  Apagados = #3A3F45; acesos = verde vivo. A quantidade acesa indica o
+  nível aberto (1/2/3) — o acender progressivo é o próprio chamado de
+  atenção. **Sem notificação pendente (trilha em dia), os TRÊS ficam
+  apagados**, em qualquer nível. Área de toque invisível ≥32px.
 - **Três níveis, ciclados pelo toque** (decisão do usuário):
-  1. **Bolha** — círculo vazado 26px ancorado à ESQUERDA; o seletor de
-     cargos fica CENTRALIZADO com alinhamento próprio (a bolha é
-     absoluta, não empurra as abas). Zero linha extra.
+  1. **Bolha** — só os 3 pontos, ancorados à ESQUERDA; o seletor de
+     cargos fica CENTRALIZADO com alinhamento próprio (os pontos são
+     absolutos, não empurram as abas). Zero linha extra.
   2. **Painel simples** — a barra do farol: "PASSO N · frase — progresso",
      uma linha, com o "−".
   3. **Painel completo** — a trilha inteira (atual em destaque, futuros
@@ -86,9 +92,9 @@ economia (convite → créditos → conveniências, MONETIZACAO.md §7).
   Toque no farol cicla 1→2→3→1; o "−" volta direto pra bolha de
   qualquer nível.
 - **NUNCA abre sozinho** (decisão explícita do usuário) — nem na troca
-  de passo; a novidade se anuncia só pelo pulso, presente nos 3 níveis.
+  de passo; a novidade se anuncia só pelos pontos acesos.
   O nível escolhido persiste entre telas e sessões.
-- Nas telas sem seletor de cargos, a bolha ancora no mesmo canto
+- Nas telas sem seletor de cargos, os pontos ancoram no mesmo canto
   esquerdo do cabeçalho.
 - **Escopo travado**: nada mais no sistema muda — a dica "Faltam Xk
   votos pra fechar a vaga" do card de partido permanece como está.
@@ -118,14 +124,22 @@ só dar visibilidade a eles:
 - Convite convertido: linha `ganho_convite` no extrato (migração 26).
 
 ## 5. Pendências pra virar feature
-- [x] Protótipo do indicador + painel (artifact "Painel de Orientação",
-      20/08/2026): farol pulsante + painel-console com feito ✓ (verde,
-      família do ELEITO), atual em destaque verde-vivo, futuros
-      apagados, miniaturas dos controles reais. Verde vivo em dois
-      papéis legítimos: "ação agora" (pulso/passo atual) e "fato
-      consumado" (checks). Aguardando aprovação do usuário.
-- [ ] Posição: A (topo do sistema) vs B (sob o console) — protótipo
-      comparativo publicado em 20/08, aguardando escolha do usuário.
-- [ ] Copy final de cada passo (as frases da tabela são rascunho).
-- [ ] Tutorial estático da 1ª visita: mantém, encurta ou some quando a
-      aba existir? (decisão de produto).
+- [x] Protótipo do indicador + painel — APROVADO 20/08/2026: sinalizador
+      "A · Pontos" (3 pontos puros, sem moldura/pulso, apagados quando
+      não há pendência); painel com feito ✓, atual em destaque
+      verde-vivo, futuros apagados, miniaturas dos controles reais.
+- [x] Posição: **A (topo do sistema)** — escolhida em 20/08/2026.
+- [x] IMPLEMENTADO em 20/08/2026 (interface/prospeccao.js, módulo
+      "Farol de Orientação"; css/estilo.css .pc-farol-*). Presente em:
+      palpite (pontos na linha das abas, barra/painel acima do sticky),
+      Revisão, Painel principal, Minhas listas e Grupos. Decisões de
+      implementação: passos 4 e 5 da tabela fundidos em "Revisar e
+      salvar" (revisitar a Revisão não é detectável por estado); passo
+      "Convidar" dado como concluído quando a pessoa tem ≥1 grupo
+      (proxy barato — checar ganho_convite no extrato custaria uma
+      query por render); fase A foca o cargo ativo na tela de palpite
+      e o primeiro cargo pendente nas demais.
+- [ ] Copy final de cada passo (frases atuais seguem a tabela, revisar
+      com uso real).
+- [ ] Tutorial estático da 1ª visita: mantém, encurta ou some agora que
+      o farol existe? (decisão de produto).
