@@ -5968,12 +5968,8 @@ async function renderCargoEstadual() {
           <div class="pc-tut-chame">Clique e entenda:</div>
           <button type="button" class="pc-tut-pontos" id="pcTutPontos" title="Clique"><i class="on"></i><i></i><i></i></button>
           <div class="pc-tut-palco" id="pcTutPalco">
-            <div class="pc-tut-leg on" data-tut-leg="1"><b>1 ponto</b> · Alerta — existe instrução</div>
-            <div class="pc-tut-leg" data-tut-leg="2"><b>2 pontos</b> · Painel 1 — dica objetiva</div>
-            <div class="pc-tut-leg" data-tut-leg="3"><b>3 pontos</b> · Painel 2 — dica completa</div>
-            <div class="pc-tut-leg-rodape">Você escolhe a qualquer momento.</div>
+            <div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> só os 3 pontinhos, discretos no topo da tela.</div>
           </div>
-          <div class="pc-tut-hint" id="pcTutHint"></div>
         </div>
         <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:14px;" disabled>Iniciar</button>
       </div>
@@ -6388,28 +6384,25 @@ function attachListenersSelecao() {
       renderCargoEstadual();
     });
   }
-  // Tutorial de página única (21/08/2026): aviso → ícone → legenda dos 3
-  // estados. Cada clique no ícone acende o nível seguinte e a linha da
-  // legenda correspondente; após o 3º clique, libera o "Iniciar".
-  // Manipula o DOM do overlay direto (sem re-render por clique).
+  // Tutorial de página única (21/08/2026): aviso → ícone → JANELA REAL.
+  // Cada clique no ícone abre a função igual à dinâmica do sistema
+  // (bolha → painel simples → painel completo); após o 3º clique,
+  // libera o "Iniciar". Manipula o DOM do overlay direto.
   const tutPontos = document.getElementById("pcTutPontos");
-  if (tutPontos) {
+  if (tutPontos && !tutPontos.dataset.ligado) {
+    tutPontos.dataset.ligado = "1";
     let tutNivel = 1, tutToques = 0;
+    const janelas = {
+      1: '<div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> só os 3 pontinhos, discretos no topo da tela.</div>',
+      2: '<div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i class="on"></i><i></i></span><span class="pc-tut-passo">Passo 1</span> Preencha as vagas por partido — 12 de 40 <span class="pc-tut-min">−</span></div>',
+      3: '<div class="pc-tut-lin" style="border-bottom:1px solid rgba(242,244,245,.08); padding-bottom:6px;"><span class="pc-tut-minipontos"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pc-tut-passo">Sua trilha</span><span class="pc-tut-min">−</span></div><div class="pc-tut-item on">① Preencher as vagas por partido — <b style="color:var(--pc-accent);">12 de 40</b></div><div class="pc-tut-item">② Distribuir a votação pelos candidatos</div><div class="pc-tut-item">③ Avançar pra Revisão</div>',
+    };
     tutPontos.addEventListener("click", () => {
       tutNivel = tutNivel === 3 ? 1 : tutNivel + 1;
       tutToques++;
       tutPontos.querySelectorAll("i").forEach((el, idx) => { el.className = idx < tutNivel ? "on" : ""; });
-      document.querySelectorAll("[data-tut-leg]").forEach((el) => {
-        el.classList.toggle("on", el.getAttribute("data-tut-leg") === String(tutNivel));
-      });
-      const hint = document.getElementById("pcTutHint");
-      if (tutToques >= 3) {
-        document.getElementById("pcFecharInstrucao").disabled = false;
-        hint.textContent = "Isso! O farol é seu — pode iniciar.";
-        hint.style.color = "var(--pc-accent)";
-      } else {
-        hint.textContent = "continue — " + tutNivel + " de 3";
-      }
+      document.getElementById("pcTutPalco").innerHTML = janelas[tutNivel];
+      if (tutToques >= 3) document.getElementById("pcFecharInstrucao").disabled = false;
     });
   }
   const overlayInstrucao = document.getElementById("pcInstrucaoOverlay");
