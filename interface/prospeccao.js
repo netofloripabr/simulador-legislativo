@@ -871,7 +871,10 @@ function renderLanding() {
   el.innerHTML = `
     <div class="pc-capa-console">
       <div class="pc-capa-icone">${iconeSvg("ballot", 30)}</div>
-      <div class="pc-capa-titulo">Simulador Eleitoral<br>Legislativo 2026</div>
+      <div class="pc-capa-marca">
+        <span class="pc-capa-wordmark"><i>Simula</i>LEGIS</span>
+        <span class="pc-capa-marca-sub">Simulador Eleitoral Legislativo 2026</span>
+      </div>
       <h2 class="pc-capa-h2">Pronto pra testar seu faro político?</h2>
       <div class="pc-capa-sub">Monte, publique e compare a sua lista com seus amigos.</div>
       <button class="primary pc-capa-cta" id="pcBtnComecar">Começar</button>
@@ -2825,13 +2828,14 @@ function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo, cargosCom
   fundo.addColorStop(0, "#1B1E22"); fundo.addColorStop(0.52, "#101214"); fundo.addColorStop(1, "#0C0E10");
   ctx.fillStyle = fundo; ctx.fillRect(0, 0, W, H);
 
-  // Wordmark SIMULA·LEGIS (DESIGN.md §3.4c) — duas cores, centrado na mão
-  ctx.font = "800 38px Inter, sans-serif";
-  const wSim = ctx.measureText("SIMULA").width, wLeg = ctx.measureText("LEGIS").width;
+  // Wordmark SimulaLEGIS (decisão 20/08/2026): "Simula" verde vivo +
+  // "LEGIS" branco — mesma marca do cabeçalho do fluxo de acesso.
+  ctx.font = "800 40px Inter, sans-serif";
+  const wSim = ctx.measureText("Simula").width, wLeg = ctx.measureText("LEGIS").width;
   const xm = W / 2 - (wSim + wLeg) / 2;
   ctx.textAlign = "left";
-  ctx.fillStyle = "#F2F4F5"; ctx.fillText("SIMULA", xm, 112);
-  ctx.fillStyle = "#34E84A"; ctx.fillText("LEGIS", xm + wSim, 112);
+  ctx.fillStyle = "#34E84A"; ctx.fillText("Simula", xm, 112);
+  ctx.fillStyle = "#F2F4F5"; ctx.fillText("LEGIS", xm + wSim, 112);
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#F2F4F5"; ctx.font = "800 48px Inter, sans-serif";
