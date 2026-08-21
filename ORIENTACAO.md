@@ -139,7 +139,15 @@ só dar visibilidade a eles:
       (proxy barato — checar ganho_convite no extrato custaria uma
       query por render); fase A foca o cargo ativo na tela de palpite
       e o primeiro cargo pendente nas demais.
-- [ ] Copy final de cada passo (frases atuais seguem a tabela, revisar
-      com uso real).
-- [ ] Tutorial estático da 1ª visita: mantém, encurta ou some agora que
-      o farol existe? (decisão de produto).
+- [x] Copy final APROVADA em 20/08 (manual primeiro: "atribua o seu
+      palpite aos candidatos que você conhece"; mágico como apoio
+      proporcional às vagas).
+- [x] Tutorial da 1ª visita RESOLVIDO em 21/08: virou mini-tutorial
+      PAGINADO e interativo — página 1 só o aviso ("esta é a única
+      informação que você precisa... agilidade e acertividade"), página
+      2 a dinâmica dos 3 pontinhos (cada toque abre uma janela e a
+      explicação evolui; "Começar" só habilita após o ciclo completo).
+      O "como montar a lista" saiu do tutorial — mora nos passos do
+      próprio farol.
+- [x] Nível padrão da 1ª visita = 3 (painel ABERTO) — decisão de 20/08;
+      o tutorial ensina a recolher no "−". Depois vale o nível salvo.

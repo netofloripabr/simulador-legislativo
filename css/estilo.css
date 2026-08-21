@@ -1629,3 +1629,52 @@
 #modoColaborativoWrap.pc-tema-fader .pc-acesso .pc-picker-item.pc-picker-alvo{
   color:var(--pc-accent); font-weight:700;
 }
+
+/* ===== Tutorial paginado da 1ª visita (v4, 21/08/2026) ===== */
+#modoColaborativoWrap.pc-tema-fader .pc-tut-aviso{
+  font-size:16.5px; line-height:1.6; color:#AEB5BB; text-align:center; padding:18px 6px 22px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-aviso b{ color:var(--pc-ink); }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-aviso b.verde{ color:var(--pc-accent); }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-hero{
+  display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-pontos{
+  display:inline-flex; align-items:center; gap:6px; padding:14px 18px; border-radius:14px;
+  background:rgba(52,232,74,.08); border:1px solid var(--pc-accent); cursor:pointer;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-pontos i{
+  width:8px; height:8px; border-radius:50%; background:#3A3F45;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-pontos i.on{
+  background:var(--pc-accent); animation:pcFarolRespira 3.4s ease-in-out infinite;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-titulo{ font-size:14px; font-weight:700; color:var(--pc-ink); }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-hint{ font-size:11.5px; color:var(--pc-ink-dim); }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-palco{
+  width:100%; background:#0C0E10; border:1px solid #2B2F33; border-radius:12px; padding:10px 12px;
+  min-height:56px; box-shadow:inset 0 1.5px 4px rgba(0,0,0,.5); text-align:left;
+  font-size:11px; color:#AEB5BB;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-lin{ display:flex; align-items:center; gap:8px; }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-passo{
+  color:var(--pc-accent); font-weight:800; font-size:9px; letter-spacing:.06em;
+  text-transform:uppercase; flex:none;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-min{
+  margin-left:auto; border:1px solid #2B2F33; border-radius:6px; width:20px; height:20px;
+  display:flex; align-items:center; justify-content:center; color:#5C6268; flex:none;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-item{ padding:6px 0 0; color:#5C6268; }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-item.on{ color:var(--pc-ink); }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-explica{
+  font-size:12px; line-height:1.55; color:#AEB5BB; min-height:38px; max-width:300px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-dots{
+  display:flex; justify-content:center; gap:6px; margin-top:14px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-dots i{
+  width:5px; height:5px; border-radius:50%; background:#3A3F45;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-dots i.on{ background:#AEB5BB; }
+#modoColaborativoWrap.pc-tema-fader #pcFecharInstrucao:disabled{ opacity:.35; }

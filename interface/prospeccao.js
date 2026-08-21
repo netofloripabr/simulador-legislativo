@@ -646,7 +646,10 @@ function irParaDestinoMenuFixo(destino) {
 
 function farolNivelAtual() {
   const n = parseInt(localStorage.getItem("pcFarolNivel"), 10);
-  return n >= 1 && n <= 3 ? n : 1;
+  // Sem escolha salva (1ª visita), o painel completo vem ABERTO (nível 3)
+  // — decisão do usuário em 20/08/2026; o tutorial ensina a fechar no "−".
+  // Depois da primeira escolha, vale sempre o nível salvo.
+  return n >= 1 && n <= 3 ? n : 3;
 }
 
 function definirFarolNivel(n) {
@@ -5959,19 +5962,23 @@ async function renderCargoEstadual() {
   conteudo.innerHTML = `
     ${instrucaoAberta ? `
     <div id="pcInstrucaoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:20px 20px 18px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
-        <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:6px;">${iconeSvg("alerta", 13)} IMPORTANTE</div>
-        <h2 style="margin-bottom:10px; font-size:15px;">COMO MONTAR A LISTA</h2>
-        <div style="font-size:12.5px; line-height:1.65; color:var(--pc-ink-dim);">
-          O caminho mais indicado, em apenas duas etapas:<br><br>
-          <b style="color:var(--pc-ink);">1.</b> Decida o tamanho das bancadas: quantas cadeiras cada partido ganha.<br>
-          <b style="color:var(--pc-ink);">2.</b> Atribua o seu palpite aos <b style="color:var(--pc-ink);">candidatos que você conhece</b> — os que não conhece, palpite também ou deixe o mágico ${iconeSvg("completar", 12)} completar a votação, proporcional às vagas que você selecionou.
+      <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px 16px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div id="pcTutPag1">
+          <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 13)} ATENÇÃO</div>
+          <div class="pc-tut-aviso">Esta é a <b class="verde">única informação</b> que você precisa pra conseguir preencher a lista com <b>agilidade e acertividade</b>:</div>
+          <button class="primary" id="pcTutAvancar" style="width:100%;">Passar a página ›</button>
         </div>
-        <div style="display:flex; align-items:center; gap:9px; margin-top:12px; background:#0C0E10; border:1px solid #2B2F33; border-radius:10px; padding:8px 11px; box-shadow:inset 0 1.5px 4px rgba(0,0,0,.5); font-size:11px; line-height:1.5; color:var(--pc-ink-dim);">
-          <span class="pc-farol-pontos" style="padding:0; margin:0;"><i class="on"></i><i></i><i></i></span>
-          Os três pontinhos no topo te acompanham o caminho todo — toque neles pra ver o seu próximo passo.
+        <div id="pcTutPag2" style="display:none;">
+          <div class="pc-tut-hero">
+            <button type="button" class="pc-tut-pontos" id="pcTutPontos" title="Toque"><i class="on"></i><i></i><i></i></button>
+            <div class="pc-tut-titulo">Selecione o botão e entenda a função.</div>
+            <div class="pc-tut-hint" id="pcTutHint">👆 toque nos pontinhos verdes acima</div>
+            <div class="pc-tut-palco" id="pcTutPalco"><div class="pc-tut-lin"><span class="pc-tut-passo">Nível 1 · bolha</span> só os 3 pontinhos, discretos no topo da tela.</div></div>
+            <div class="pc-tut-explica" id="pcTutExplica">Ele estará sempre no topo da tela, te acompanhando.</div>
+          </div>
+          <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:14px;" disabled>Começar</button>
         </div>
-        <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:18px;">Entendi</button>
+        <div class="pc-tut-dots"><i class="on" id="pcTutD1"></i><i id="pcTutD2"></i></div>
       </div>
     </div>` : ""}
     ${pcState.avisoLimiteVagasAberto ? `
@@ -6382,6 +6389,48 @@ function attachListenersSelecao() {
     fecharInstrucao.addEventListener("click", () => {
       pcState.instrucaoSelecaoAberta = false;
       renderCargoEstadual();
+    });
+  }
+  // Tutorial paginado (v4, 21/08/2026): página 1 = aviso; página 2 = a
+  // dinâmica dos 3 pontinhos — cada toque abre uma janela do farol e a
+  // explicação evolui; o "Começar" só habilita depois do ciclo completo.
+  // Manipula o DOM do overlay direto (sem re-render por toque).
+  const tutAvancar = document.getElementById("pcTutAvancar");
+  if (tutAvancar) {
+    tutAvancar.addEventListener("click", () => {
+      document.getElementById("pcTutPag1").style.display = "none";
+      document.getElementById("pcTutPag2").style.display = "";
+      document.getElementById("pcTutD1").className = "";
+      document.getElementById("pcTutD2").className = "on";
+    });
+  }
+  const tutPontos = document.getElementById("pcTutPontos");
+  if (tutPontos) {
+    let tutNivel = 1, tutToques = 0;
+    const palcos = {
+      1: '<div class="pc-tut-lin"><span class="pc-tut-passo">Nível 1 · bolha</span> só os 3 pontinhos, discretos no topo da tela.</div>',
+      2: '<div class="pc-tut-lin"><span class="pc-tut-passo">Passo 1</span> Preencha as vagas por partido — 12 de 40 <span class="pc-tut-min">−</span></div>',
+      3: '<div class="pc-tut-lin" style="border-bottom:1px solid rgba(242,244,245,.08); padding-bottom:6px;"><span class="pc-tut-passo">Sua trilha</span><span class="pc-tut-min">−</span></div><div class="pc-tut-item on">① Preencher as vagas por partido — <b style="color:var(--pc-accent);">12 de 40</b></div><div class="pc-tut-item">② Distribuir a votação pelos candidatos</div><div class="pc-tut-item">③ Avançar pra Revisão</div>',
+    };
+    const explicacoes = {
+      1: "Ele estará sempre no topo da tela, te acompanhando.",
+      2: '<b style="color:var(--pc-accent);">O sistema te orienta em cada etapa.</b> A barra mostra o seu próximo passo e o progresso dele, em tempo real.',
+      3: '<b style="color:var(--pc-accent);">Ficou com dúvida? Basta abrir a janela.</b> A trilha completa mostra o que já foi feito e o que vem depois — feche no "−" quando quiser.',
+    };
+    tutPontos.addEventListener("click", () => {
+      tutNivel = tutNivel === 3 ? 1 : tutNivel + 1;
+      tutToques++;
+      tutPontos.querySelectorAll("i").forEach((el, idx) => { el.className = idx < tutNivel ? "on" : ""; });
+      document.getElementById("pcTutPalco").innerHTML = palcos[tutNivel];
+      document.getElementById("pcTutExplica").innerHTML = explicacoes[tutNivel];
+      const hint = document.getElementById("pcTutHint");
+      if (tutToques >= 3) {
+        document.getElementById("pcFecharInstrucao").disabled = false;
+        hint.textContent = "Isso! O farol é seu — pode começar.";
+        hint.style.color = "var(--pc-accent)";
+      } else {
+        hint.textContent = "continue tocando — janela " + tutNivel + " de 3";
+      }
     });
   }
   const overlayInstrucao = document.getElementById("pcInstrucaoOverlay");
