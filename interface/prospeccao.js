@@ -3166,16 +3166,27 @@ async function renderMinhasListas() {
   // compartilhado entre "Editar" das abertas e a edição paga das
   // depositadas (economia v3 §6).
   const abrirListaParaEdicao = async (lista) => {
+      // BUG corrigido em 21/08/2026: era carregarSalvamentoCompleto(id) com
+      // `id` inexistente no escopo — pra logado, o Editar falhava mudo.
+      let cargosDaLista;
+      if (pcState.perfil) {
+        const completo = await carregarSalvamentoCompleto(lista.id);
+        if (!completo) return;
+        cargosDaLista = completo.cargos;
+      } else {
+        cargosDaLista = lista.palpitesPorCargo;
+      }
+      // Política de 21/08/2026: lista da era antiga (elenco de 2022
+      // embutido) não abre pra edição — ver listaEhDaEraAntiga.
+      if (listaEhDaEraAntiga(cargosDaLista, pcState.estado)) {
+        pcState.avisoEdicaoStatus = `"${lista.nome}" foi salva numa versão antiga do elenco de candidatos e não pode mais ser editada nem depositada — os candidatos dela já não correspondem aos registrados pra 2026. Crie uma lista nova a partir do palpite atual.`;
+        renderMinhasListas();
+        return;
+      }
       pcState.listaSalvaId = lista.id;
       pcState.listaSalvaNome = lista.nome;
       persistirListaAtivaLocal();
-      if (pcState.perfil) {
-        const completo = await carregarSalvamentoCompleto(id);
-        if (!completo) return;
-        pcState.palpitesPorCargo = completo.cargos;
-      } else {
-        pcState.palpitesPorCargo = lista.palpitesPorCargo;
-      }
+      pcState.palpitesPorCargo = cargosDaLista;
       // Mesma poda de grupos fantasma aplicada aos rascunhos (ver
       // podarGruposForaDoPool) — uma lista salva ANTES de uma correção de
       // dados pode carregar um grupo que não existe mais no pool oficial.
@@ -3250,6 +3261,23 @@ async function renderMinhasListas() {
     });
     document.getElementById("pcBtnConfirmarDepositar").addEventListener("click", async () => {
       const anonimo = document.getElementById("pcCheckAnonimo").checked;
+      // Política de 21/08/2026: lista da era antiga (elenco de 2022
+      // embutido) NÃO pode virar cédula — o depósito é imutável, e uma
+      // cédula não pode nascer com a base errada. Valida o conteúdo real
+      // antes de cobrar/depositar qualquer coisa.
+      let cargosPraValidar = null;
+      if (pcState.perfil) {
+        const completoVal = await carregarSalvamentoCompleto(listaModal.id);
+        cargosPraValidar = completoVal ? completoVal.cargos : null;
+      } else {
+        cargosPraValidar = listaModal.palpitesPorCargo;
+      }
+      if (listaEhDaEraAntiga(cargosPraValidar, pcState.estado)) {
+        pcState.modalDepositarListaId = null;
+        pcState.avisoEdicaoStatus = `"${listaModal.nome}" foi salva numa versão antiga do elenco de candidatos e não pode ser depositada — os candidatos dela já não correspondem aos registrados pra 2026. Monte uma lista nova a partir do palpite atual.`;
+        renderMinhasListas();
+        return;
+      }
       if (pcState.perfil) {
         // Economia v3 §3/§6: a 1ª cédula depositada é grátis; a partir da
         // 2ª é "nova cédula" (cenário paralelo) — 70 créditos. Cobra ANTES
@@ -5650,6 +5678,23 @@ function renderCargoIndisponivel(cargo) {
 // não é gambiarra pontual pro Senador/SC — vale pra qualquer estado/cargo
 // em que isso se repita. Achado com o usuário (Senador/SC preso nos
 // candidatos de 2022) em 16/08/2026.
+// Lista salva da ERA ANTIGA (política de 21/08/2026): se QUALQUER cargo
+// da lista carrega um elenco que a fonte oficial já substituiu (mesma
+// régua de rascunhoEhOrfao), a lista é INVÁLIDA pra edição e pra depósito
+// — "não podemos imaginar que a lista seria guardada com a base errada"
+// (decisão do usuário). Cédulas JÁ depositadas permanecem imutáveis como
+// retrato histórico; a validade é tratada na apuração de pontos
+// (RANQUEAMENTO.md: candidatura retirada/invalidada/sub judice não pontua).
+function listaEhDaEraAntiga(palpitesPorCargo, uf) {
+  if (!palpitesPorCargo) return false;
+  return CARGOS.some((c) => {
+    const lista = palpitesPorCargo[c.id];
+    if (!lista || !lista.length) return false;
+    const poolOficial = montarEstadoPalpite("assembleia", null, null, c.id, uf);
+    return rascunhoEhOrfao(lista, poolOficial);
+  });
+}
+
 function rascunhoEhOrfao(rascunho, poolOficial) {
   if (!rascunho || !rascunho.length) return false;
   if (!poolOficial || !poolOficial.length) return false;

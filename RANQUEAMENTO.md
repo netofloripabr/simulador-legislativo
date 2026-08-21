@@ -108,3 +108,25 @@ tarefas como reconhecimento à parte.
 5. Existe prêmio/reconhecimento real pro topo do ranking (Fase 6,
    "divulgar resultados e vencedores") ou é só bragging right dentro do
    app?
+
+## Validade de candidatura na pontuação — POLÍTICA DEFINIDA (21/08/2026)
+
+Decisões do usuário (não são mais rascunho):
+
+1. **A cédula depositada é IMUTÁVEL.** Nenhuma correção de elenco, retirada
+   ou invalidação altera o conteúdo depositado — ele é o retrato histórico
+   do palpite. Quem muda é a INTERPRETAÇÃO na apuração:
+2. **Candidatura retirada ou invalidada não gera ponto.** Na apuração
+   final, a linha da cédula que aponta pra um candidato cuja candidatura
+   foi retirada/indeferida/cassada simplesmente não pontua (nem positivo
+   nem negativo).
+3. **Candidato *sub judice* também não pontua.** Só candidatura
+   definitivamente válida na apuração gera ponto. (Fonte do status: RRC do
+   TSE, campo `descricaoSituacao` — hoje tudo "Aguardando julgamento"; a
+   régua se aplica com os status finais, na apuração.)
+4. **Lista salva com a base errada não é lista.** Lista da "era antiga"
+   (elenco de 2022 embutido, anterior às atas) é INVÁLIDA para edição e
+   para depósito — bloqueada na interface com aviso (implementado em
+   21/08/2026: `listaEhDaEraAntiga` em interface/prospeccao.js, aplicada no
+   Editar e no Depositar). Cédulas antigas JÁ depositadas permanecem
+   imutáveis e são tratadas pela régua dos itens 2-3 na apuração.
