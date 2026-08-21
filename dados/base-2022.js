@@ -9,6 +9,17 @@ const REF_2022 = {
 };
 const ELEITORADO_2026 = 5729914; // TSE, dado consolidado, divulgado 20/07/2026
 
+// Referência de eleitorado POR ESTADO (auditoria dos 27 estados, 21/08/2026):
+// mesma metodologia de SC pra todos — eleitorado/comparecimento/brancos/nulos
+// de 2022 + eleitorado apto de 2026 (TSE). Estado sem entrada aqui cai no
+// fallback (fator de SC como aproximação nacional + projeção pelos votos dos
+// partidos modelados) até a tabela ser preenchida — tarefa aberta pra buscar
+// os dados oficiais dos demais estados no TSE.
+const REF_ELEITORADO_POR_UF = {
+  SC: { eleitorado2022: 5483962, comparecimento2022: 4471619, brancos2022: 289065, nulos2022: 153702, eleitorado2026: 5729914 },
+};
+function refEleitoradoDe(uf) { return REF_ELEITORADO_POR_UF[uf] || null; }
+
 // Base real: TODOS os candidatos a deputado estadual em 2022 (eleitos e não
 // eleitos), os 27 partidos que concorreram em SC. Fonte: TSE — "votação de
 // candidato por município e zona", 2022, 1º turno (arquivo

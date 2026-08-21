@@ -1030,7 +1030,9 @@ function renderTelaEstado() {
     });
   });
 
-  const scItem = picker.querySelector('[data-uf="SC"]');
+  // Nasce centralizada em SP (decisão 21/08/2026 — maior eleitorado e
+  // tendência de mais acessos); fallback SC se SP sumir da lista.
+  const scItem = picker.querySelector('[data-uf="SP"]') || picker.querySelector('[data-uf="SC"]');
   picker.scrollTop = scItem.offsetTop + scItem.offsetHeight / 2 - picker.clientHeight / 2;
   atualizarPicker();
 
@@ -2913,9 +2915,7 @@ function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo, cargosCom
   // cargo pouco preenchido mostrar 100%.
   const tetoCargo = (cid) => {
     if (cid === "senador") {
-      const E = pcState.estado === "SC"
-        ? REF_2022.validos * fatorCrescimentoEleitorado()
-        : totalValidosProjetado2026("senador");
+      const E = validosOficiaisProjetados() || totalValidosProjetado2026("senador");
       return E * (typeof VAGAS_SENADOR_2026 !== "undefined" ? VAGAS_SENADOR_2026 : 2);
     }
     return totalValidosProjetado2026(cid);
@@ -3901,7 +3901,23 @@ function formatVotosCompacto(n) {
 
 
 function fatorCrescimentoEleitorado() {
+  // Por estado quando a tabela oficial tem a UF (REF_ELEITORADO_POR_UF,
+  // dados/base-2022.js); sem entrada, a razão de SC serve de aproximação
+  // nacional até os dados dos 27 serem preenchidos (auditoria 21/08).
+  const r = typeof refEleitoradoDe === "function" ? refEleitoradoDe(pcState.estado) : null;
+  if (r) return r.eleitorado2026 / r.eleitorado2022;
   return ELEITORADO_2026 / REF_2022.eleitorado;
+}
+
+// Votos válidos do ESTADO inteiro projetados pra 2026 pela metodologia
+// oficial (comparecimento 2022 − brancos − nulos, × crescimento do
+// eleitorado) — null quando a UF ainda não tem entrada na tabela; quem
+// chama cai em totalValidosProjetado2026 (projeção pelos partidos
+// modelados). Antes era um `estado === "SC"` cravado em 3 lugares.
+function validosOficiaisProjetados() {
+  const r = typeof refEleitoradoDe === "function" ? refEleitoradoDe(pcState.estado) : null;
+  if (!r) return null;
+  return (r.comparecimento2022 - r.brancos2022 - r.nulos2022) * (r.eleitorado2026 / r.eleitorado2022);
 }
 
 // Total de votos válidos PROJETADO pra 2026, mas CONFINADO aos partidos que
@@ -4491,9 +4507,7 @@ function montarItensSenador() {
 // 4. O orçamento restante (T − editados) é distribuído pela FMD, que já
 //    aplica o teto individual com saturação — a lista fecha em 100%.
 function autoPreenchimentoSenador() {
-  const E = pcState.estado === "SC" && typeof REF_2022 !== "undefined"
-    ? REF_2022.validos * fatorCrescimentoEleitorado()
-    : totalValidosProjetado2026("senador");
+  const E = validosOficiaisProjetados() || totalValidosProjetado2026("senador");
   const T = E * 2;
   montarItensSenador();
   const fixo = (it) => it.c.votosEditado && Number(it.c.votos) > 0;
@@ -4541,9 +4555,10 @@ function renderPainelSenador(E, comandos) {
   // só existem como dado oficial pra SC (REF_2022/ELEITORADO_2026, dados/
   // base-2022.js) — nos outros estados o funil mostra só a etapa final.
   const fator = fatorCrescimentoEleitorado();
-  const temAptos = pcState.estado === "SC";
-  const aptos = temAptos ? ELEITORADO_2026 : null;
-  const compar = temAptos ? Math.round(REF_2022.comparecimento * fator) : null;
+  const refUf = typeof refEleitoradoDe === "function" ? refEleitoradoDe(pcState.estado) : null;
+  const temAptos = !!refUf;
+  const aptos = temAptos ? refUf.eleitorado2026 : null;
+  const compar = temAptos ? Math.round(refUf.comparecimento2022 * fator) : null;
   const funilLinha = (rotulo, valor, larg, total) => `
     <div class="pc-sen-fu-row">
       <div class="pc-sen-fu-l"><span>${rotulo}</span><b${total ? ' style="color:var(--pc-accent);"' : ""}>${formatVotosCompacto(valor)}</b></div>
@@ -4847,11 +4862,16 @@ function vagasApuradasPorGrupo() {
 
 // Curso da BARRA do candidato (regra do usuário, 17/08/2026): régua fixa
 // baseada no mais votado de 2022 do cargo — SC estadual = 250 mil redondos
-// (200% da Ana Campagnolo, 196.571); SC federal = mais votado + 50%;
-// demais estados = mais votado + 100%. É limite do DESENHO, não do voto:
-// quem passar disso mostra o número verdadeiro com a barra cravada no fim.
+// Régua do fader por candidato — ver o comentário dentro da função (regra
+// única de 21/08/2026: 125% do maior voto de 2022 do estado+cargo).
 function capCandidatoDeputado() {
-  if (pcState.estado === "SC" && pcState.cargoAtivo === "estadual") return 250000;
+  // Régua ÚNICA derivada do recorte de 2022 do próprio estado+cargo
+  // (decisão do usuário, 21/08/2026): 125% do maior voto individual de
+  // 2022, arredondado PRA CIMA em múltiplos de 50k. Em SC/Estadual dá
+  // exatamente os 250k usados desde o início (196.571 da Ana Campagnolo
+  // × 1,25 = 245,7k → 250k) — e limita palpite desproporcional em
+  // qualquer estado, na escala local. É limite do DESENHO, não do voto:
+  // quem digitar acima mostra o número real com a barra cravada no fim.
   const todos = candidatosEstadoCargo(pcState.estado, pcState.cargoAtivo) || [];
   let maior = 0;
   todos.forEach((p) => p.candidatos.forEach((c) => {
@@ -4859,8 +4879,7 @@ function capCandidatoDeputado() {
     const v = Number(c.votos) || 0;
     if (v > maior) maior = v;
   }));
-  const mult = pcState.estado === "SC" && pcState.cargoAtivo === "federal" ? 1.5 : 2;
-  return Math.max(50000, Math.round(maior * mult));
+  return Math.max(50000, Math.ceil((maior * 1.25) / 50000) * 50000);
 }
 
 function somaVotosGrupo(p) {
@@ -4899,7 +4918,10 @@ function renderPainelDeputadosFader(E, totalVagas, comandos) {
   const pct = E > 0 ? Math.round(soma / E * 100) : 0;
   const w = E > 0 ? Math.min(100, soma / E * 100) : 0;
   const fator = fatorCrescimentoEleitorado();
-  const temAptos = pcState.estado === "SC" && typeof ELEITORADO_2026 !== "undefined";
+  const refUf = typeof refEleitoradoDe === "function" ? refEleitoradoDe(pcState.estado) : null;
+  const temAptos = !!refUf;
+  const aptosDep = temAptos ? refUf.eleitorado2026 : null;
+  const comparDep = temAptos ? Math.round(refUf.comparecimento2022 * fator) : null;
   const funilLinha = (rotulo, valor, larg, tot) => `
     <div class="pc-sen-fu-row">
       <div class="pc-sen-fu-l"><span>${rotulo}</span><b${tot ? ' style="color:#34E84A;"' : ""}>${formatVotosCompacto(valor)}</b></div>
@@ -4915,9 +4937,9 @@ function renderPainelDeputadosFader(E, totalVagas, comandos) {
       ${pcState.funilVotosAberto ? `
       <div class="pc-sen-funil">
         <div class="pc-sen-fu-t">De onde vem o teto de <b>${formatVotosCompacto(Math.round(E))}</b>: projeção dos votos válidos de 2026 pro cargo, a partir do resultado real de 2022 (TSE) dos partidos modelados, escalada pelo crescimento do eleitorado.</div>
-        ${temAptos ? funilLinha("Eleitores aptos 2026 (TSE)", ELEITORADO_2026, 100) : ""}
-        ${temAptos ? funilLinha("Comparecem (taxa hist. 2022)", Math.round(REF_2022.comparecimento * fator), Math.round(REF_2022.comparecimento * fator / ELEITORADO_2026 * 100)) : ""}
-        ${funilLinha("Votos válidos projetados", Math.round(E), temAptos ? Math.round(E / ELEITORADO_2026 * 100) : 100, true)}
+        ${temAptos ? funilLinha("Eleitores aptos 2026 (TSE)", aptosDep, 100) : ""}
+        ${temAptos ? funilLinha("Comparecem (taxa hist. 2022)", comparDep, Math.round(comparDep / aptosDep * 100)) : ""}
+        ${funilLinha("Votos válidos projetados", Math.round(E), temAptos ? Math.round(E / aptosDep * 100) : 100, true)}
         <div class="pc-sen-fu-src">Fonte: resultados oficiais TSE 2022 + evolução do eleitorado.</div>
       </div>` : ""}
       <div class="pc-sen-regua" style="background:repeating-linear-gradient(90deg, rgba(174,181,187,.55) 0 1px, transparent 1px ${(100 / totalVagas).toFixed(3)}%); background-size:100% 100%;"></div>
@@ -6050,8 +6072,8 @@ async function renderCargoEstadual() {
   // novos (sem voto de 2022 pra somar), o que zeraria o teto. Eleição
   // majoritária usa a projeção de válidos do ESTADO inteiro (TSE 2022 ×
   // crescimento do eleitorado) — mesma metodologia do funil explicativo.
-  const votosValidos2026Proj = pcState.cargoAtivo === "senador" && pcState.estado === "SC"
-    ? REF_2022.validos * fatorCrescimentoEleitorado()
+  const votosValidos2026Proj = pcState.cargoAtivo === "senador"
+    ? (validosOficiaisProjetados() || totalValidosProjetado2026())
     : totalValidosProjetado2026();
   // Quociente ATUAL "de verdade" (só com a votação já digitada) e o
   // PROJETADO pra 2026 (referência fixa) — hoje calculados de novo dentro
