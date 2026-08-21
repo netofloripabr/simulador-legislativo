@@ -5076,7 +5076,23 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     // no celular), não mais um botão com title que só desktop via.
     const cargoCompleto = somaVotosCargo() >= 0.995 * E;
     const avisoMais = cargoCompleto && vg > vagasInd;
-    const candsOrd = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+    // Mesma lógica de timing dos cards de partido, um nível abaixo
+    // (pedido 21/08 à noite): a ordem dos candidatos DENTRO do card fica
+    // congelada enquanto a pessoa mexe — só reordena junto com o
+    // reagrupamento suave (reordenarComTransicao zera as duas ordens).
+    if (!pcState.ordemCandidatosFixa) pcState.ordemCandidatosFixa = {};
+    const chaveOrdC = pcState.cargoAtivo + "::" + p.nome;
+    let candsOrd = null;
+    const fixaC = pcState.ordemCandidatosFixa[chaveOrdC];
+    if (fixaC && fixaC.length === reais.length) {
+      const porChave = new Map(reais.map((c) => [c.chave, c]));
+      const remontada = fixaC.map((k) => porChave.get(k)).filter(Boolean);
+      if (remontada.length === reais.length) candsOrd = remontada;
+    }
+    if (!candsOrd) {
+      candsOrd = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+      pcState.ordemCandidatosFixa[chaveOrdC] = candsOrd.map((c) => c.chave);
+    }
     const cands = aberto ? candsOrd.map((c, k) => {
       const cv = Number(c.votos) || 0;
       const cpct = E > 0 ? cv / E * 100 : 0;
@@ -5367,6 +5383,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
       }
       recalcularMarcadosDeputados();
       agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+      agendarReordenacaoSuave(null, 1200);
       renderCargoEstadual();
     };
     inp.addEventListener("blur", aplicar);
@@ -6428,7 +6445,16 @@ async function reordenarComTransicao() {
     antes[el.dataset.depNome] = el.getBoundingClientRect().top;
   });
   if (!Object.keys(antes).length) return; // tela de palpite não está visível
+  // Linhas de candidato: posição RELATIVA ao próprio card — o card também
+  // pode estar viajando, e o delta em coordenadas de tela somaria os dois
+  // movimentos (a linha andaria em dobro).
+  const antesLinhas = {};
+  document.querySelectorAll(".pc-dep-crow[data-dep-cand]").forEach((el) => {
+    const card = el.closest(".pc-dep-card[data-dep-nome]");
+    if (card) antesLinhas[el.dataset.depCand] = el.getBoundingClientRect().top - card.getBoundingClientRect().top;
+  });
   pcState.ordemPartidosFixa = null; // libera a ordem de verdade
+  pcState.ordemCandidatosFixa = null; // e a dos candidatos dentro dos cards
   await renderCargoEstadual();
   const editado = window._pcReordCardEditado;
   window._pcReordCardEditado = null;
@@ -6440,6 +6466,17 @@ async function reordenarComTransicao() {
     const delta = de - el.getBoundingClientRect().top;
     if (!delta) return;
     if (el.dataset.depNome === editado) el.classList.add("pc-dep-movendo");
+    el.style.transition = "none";
+    el.style.transform = `translateY(${delta}px)`;
+    emMovimento.push(el);
+  });
+  document.querySelectorAll(".pc-dep-crow[data-dep-cand]").forEach((el) => {
+    const de = antesLinhas[el.dataset.depCand];
+    if (de === undefined) return;
+    const card = el.closest(".pc-dep-card[data-dep-nome]");
+    if (!card) return;
+    const delta = de - (el.getBoundingClientRect().top - card.getBoundingClientRect().top);
+    if (!delta) return;
     el.style.transition = "none";
     el.style.transform = `translateY(${delta}px)`;
     emMovimento.push(el);
