@@ -965,6 +965,11 @@
   background:rgba(29,32,35,.85); border:1px solid #23262A; border-radius:12px;
   padding:10px 12px 12px; margin-bottom:8px;
 }
+/* Card em viagem na reordenação suave (21/08/2026) — borda verde acesa
+   enquanto desliza pra nova posição, pro olho conseguir seguir. */
+#modoColaborativoWrap .pc-dep-card.pc-dep-movendo{
+  border-color:rgba(52,232,74,.45); box-shadow:0 0 0 1px rgba(52,232,74,.15);
+}
 #modoColaborativoWrap .pc-dep-card.sematq{ opacity:.5; }
 #modoColaborativoWrap .pc-dep-card.sematq .pc-dep-sub{ display:inline; margin-left:8px; }
 #modoColaborativoWrap .pc-dep-l1{ display:flex; align-items:center; gap:7px; cursor:pointer; }

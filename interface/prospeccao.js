@@ -4025,12 +4025,14 @@ function executarAutoPreenchimento(partido) {
     // Abas de deputado no modelo fader: distribuição realista + normalização
     // pra fechar a barra em 100% (gate do Avançar).
     autoPreenchimentoDeputadosFader(totalValidosProjetado2026());
+    agendarReordenacaoSuave(null, 600);
     renderCargoEstadual();
     return;
   }
   if (partido) {
     balancearPartidoSelecao(partido);
     aplicarQuantidadeMarcados(partido, partido.candidatos.filter((c) => c.marcadoEleito).length);
+    agendarReordenacaoSuave(partido.nome, 600);
   } else {
     balancearTudoSelecao();
     // Preencheu votos de todos os partidos do cargo — a votação de alguém
@@ -4039,6 +4041,7 @@ function executarAutoPreenchimento(partido) {
     pcState.palpiteEdicao.forEach((p) => {
       aplicarQuantidadeMarcados(p, p.candidatos.filter((c) => c.marcadoEleito).length);
     });
+    agendarReordenacaoSuave(null, 600);
   }
   renderCargoEstadual();
 }
@@ -5020,10 +5023,12 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
   const qeProj = quocienteEleitoral(Math.round(E), totalVagas) || 1;
   const qeAtual = quocienteEleitoral(somaVotosCargo(), totalVagas);
   const idxDe = new Map(pcState.palpiteEdicao.map((p, i) => [p, i]));
-  // Ordem dos cards: mais ELEITOS INDICADOS no box primeiro; votos como
-  // desempate (pedido do usuário em 17/08 — antes era só por votos).
-  const vagasDe = (p) => p.semAta2026 ? -1 : vagasIndicadasDe(p, counts[idxDe.get(p)] || 0);
-  const ordenados = [...grupos].sort((a, b) => vagasDe(b) - vagasDe(a) || somaVotosGrupo(b) - somaVotosGrupo(a));
+  // A ordem já vem decidida (e possivelmente CONGELADA) de quem chama —
+  // ordemPartidosFixa em renderCargoEstadual, com o critério "mais
+  // eleitos indicados no box primeiro; votos como desempate" (17/08).
+  // Não re-sortear aqui: era o sort duplicado que furava o congelamento
+  // e fazia o card pular na hora (21/08/2026).
+  const ordenados = grupos;
   return ordenados.map((p) => {
     const gi = idxDe.get(p);
     if (p.semAta2026) {
@@ -5079,7 +5084,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       </div>`;
     }).join("") : "";
     return `
-    <div class="pc-dep-card" data-dep-idx="${gi}">
+    <div class="pc-dep-card" data-dep-idx="${gi}" data-dep-nome="${escaparAtributoHtml(p.nome)}">
       <div class="pc-dep-l1" data-dep-toggle="${gi}">
         <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
         <div class="pc-dep-boxcol">
@@ -5137,6 +5142,10 @@ function escalarGrupoDeputados(p, alvo, capCand) {
 function concluirGestoDeputados() {
   recalcularMarcadosDeputados();
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+  // Votos são desempate da ordem dos cards — o gesto do fader também
+  // agenda o reagrupamento suave (senão a ordem congelada ficava velha
+  // no celular, onde mouseleave não existe).
+  agendarReordenacaoSuave(null, 1200);
   clearTimeout(_depTimer);
   // 150ms (era 450): depois de SOLTAR não existe mais dedo pra alça fugir —
   // a pausa longa só atrasava a reacomodação do ranking (reclamação do
@@ -5373,6 +5382,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
     // usuário em 17/08/2026, corrigindo a versão que reescalava os votos.
     recalcularMarcadosDeputados();
     agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+    agendarReordenacaoSuave(p2.nome);
     renderCargoEstadual();
   };
   const vagasAtuais = (gi) => vagasIndicadasDe(pcState.palpiteEdicao[gi], vagasApuradasPorGrupo()[gi] || 0);
@@ -5422,6 +5432,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
     const p2 = pcState.palpiteEdicao[+b.dataset.depMagico];
     snapshotPalpite();
     autoPreenchimentoDeputadosFader(E, p2);
+    agendarReordenacaoSuave(p2.nome, 600);
     renderCargoEstadual();
   }));
 
@@ -6045,19 +6056,22 @@ async function renderCargoEstadual() {
   // candidato reordena a lista na hora e o card pula de lugar embaixo do
   // cursor, atrapalhando cliques seguidos. Só reordena de fato quando o
   // mouse sai do card do partido (ver mouseleave em attachListenersSelecao).
-  // Critério de desempate quando o número de marcados empata (inclusive na
-  // posição inicial, antes de qualquer palpite pra 2026): quantidade de
-  // Deputados eleitos de fato em 2022 (p.vagas2022 — já vem certo pra
-  // federação também, soma dos membros, ver registro-2026.js), não votos.
+  // Critério REAL de ordem (o mesmo que os cards usam desde 17/08: mais
+  // eleitos indicados no box primeiro, votos como desempate, sem-ata no
+  // fim). Antes o congelamento ordenava por outro critério (marcados +
+  // bancada 2022) e o renderizador dos cards re-sorteava por conta
+  // própria a cada render — era ESSA briga que fazia o card pular de
+  // posição na hora, ignorando o congelamento (achado em 21/08/2026).
   if (!pcState.ordemPartidosFixa || pcState.ordemPartidosFixa.length !== pcState.palpiteEdicao.length) {
-    pcState.ordemPartidosFixa = [...pcState.palpiteEdicao]
-      .sort((a, b) => {
-        const ma = a.candidatos.filter((c) => c.marcadoEleito).length;
-        const mb = b.candidatos.filter((c) => c.marcadoEleito).length;
-        if (mb !== ma) return mb - ma;
-        return (Number(b.vagas2022) || 0) - (Number(a.vagas2022) || 0);
-      })
-      .map((p) => p.nome);
+    const countsOrd = vagasApuradasPorGrupo();
+    const vagasDeOrd = (i) => {
+      const pp = pcState.palpiteEdicao[i];
+      return pp.semAta2026 ? -1 : vagasIndicadasDe(pp, countsOrd[i] || 0);
+    };
+    pcState.ordemPartidosFixa = [...pcState.palpiteEdicao.keys()]
+      .sort((ia, ib) => (vagasDeOrd(ib) - vagasDeOrd(ia))
+        || (somaVotosGrupo(pcState.palpiteEdicao[ib]) - somaVotosGrupo(pcState.palpiteEdicao[ia])))
+      .map((i) => pcState.palpiteEdicao[i].nome);
   }
   const partidosOrdenados = pcState.ordemPartidosFixa
     .map((nome) => pcState.palpiteEdicao.find((p) => p.nome === nome))
@@ -6306,6 +6320,61 @@ async function renderCargoEstadual() {
 
 
 
+// Reordenação SUAVE dos cards de partido (protótipo aprovado 21/08/2026):
+// alterar o box de vagas não reordena na hora — depois de um respiro de
+// 1,2s sem novas alterações, a lista se reagrupa com uma transição FLIP
+// (cada card desliza da posição antiga pra nova, ~0,5s) e o card editado
+// viaja com a borda verde acesa, pra pessoa acompanhar pra onde ele foi.
+// Cada toque no − / + reinicia o respiro — sequência de cliques não faz o
+// card fugir do dedo.
+function agendarReordenacaoSuave(nomePartido, delayMs) {
+  if (nomePartido) window._pcReordCardEditado = nomePartido;
+  clearTimeout(window._pcReordTimer);
+  window._pcReordTimer = setTimeout(reordenarComTransicao, delayMs || 1200);
+}
+
+async function reordenarComTransicao() {
+  if (!pcState.palpiteEdicao || pcState.cargoAtivo === "senador") return;
+  if (!pcState.ordemPartidosFixa) return; // nada congelado — nada a reagrupar
+  // Dedo no fader AGORA (alça capturada): reagrupar no meio do arrasto
+  // arrancaria o elemento de baixo do dedo — adia e tenta de novo.
+  if (document.querySelector(".pc-dep-zone.ativo")) { agendarReordenacaoSuave(null, 600); return; }
+  const antes = {};
+  document.querySelectorAll(".pc-dep-card[data-dep-nome]").forEach((el) => {
+    antes[el.dataset.depNome] = el.getBoundingClientRect().top;
+  });
+  if (!Object.keys(antes).length) return; // tela de palpite não está visível
+  pcState.ordemPartidosFixa = null; // libera a ordem de verdade
+  await renderCargoEstadual();
+  const editado = window._pcReordCardEditado;
+  window._pcReordCardEditado = null;
+  const cards = [...document.querySelectorAll(".pc-dep-card[data-dep-nome]")];
+  const emMovimento = [];
+  cards.forEach((el) => {
+    const de = antes[el.dataset.depNome];
+    if (de === undefined) return;
+    const delta = de - el.getBoundingClientRect().top;
+    if (!delta) return;
+    if (el.dataset.depNome === editado) el.classList.add("pc-dep-movendo");
+    el.style.transition = "none";
+    el.style.transform = `translateY(${delta}px)`;
+    emMovimento.push(el);
+  });
+  if (!emMovimento.length) return;
+  // dois rAF: o primeiro garante o layout com o transform aplicado, o
+  // segundo dispara a transição de volta pro lugar
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    emMovimento.forEach((el) => {
+      el.style.transition = "transform .5s cubic-bezier(.22,.9,.26,1)";
+      el.style.transform = "";
+    });
+    setTimeout(() => emMovimento.forEach((el) => {
+      el.style.transition = "";
+      el.classList.remove("pc-dep-movendo");
+    }), 660);
+  }));
+}
+
 function attachListenersSelecao() {
   const btnColapsarPlenario = document.getElementById("pcBtnColapsarPlenario");
   if (btnColapsarPlenario) {
@@ -6486,6 +6555,7 @@ function attachListenersSelecao() {
       const p = pcState.palpiteEdicao.find((pp) => pp.nome === btn.dataset.pcReset);
       snapshotPalpite();
       resetarPartidoSelecao(p);
+      agendarReordenacaoSuave(p.nome, 600);
       renderCargoEstadual();
     });
   });
@@ -6494,6 +6564,7 @@ function attachListenersSelecao() {
       const p = pcState.palpiteEdicao.find((pp) => pp.nome === btn.dataset.pcZerar);
       snapshotPalpite();
       zerarPartidoSelecao(p);
+      agendarReordenacaoSuave(p.nome, 600);
       renderCargoEstadual();
     });
   });
@@ -6537,8 +6608,9 @@ function attachListenersSelecao() {
   document.querySelectorAll("[data-pc-partido-card]").forEach((card) => {
     card.addEventListener("mouseleave", () => {
       if (!pcState.ordemPartidosFixa) return;
-      pcState.ordemPartidosFixa = null; // libera a reordenação de verdade só agora, com o mouse já fora
-      renderCargoEstadual();
+      // Também suave (21/08/2026): saiu do card, o reagrupamento vem com o
+      // mesmo deslize FLIP — só com um respiro menor, porque o gesto acabou.
+      agendarReordenacaoSuave(null, 350);
     });
   });
   document.getElementById("pcBtnVoltarSelecao").addEventListener("click", desfazerPalpite);
@@ -6550,11 +6622,13 @@ function attachListenersSelecao() {
   document.getElementById("pcBtnZerarTudo").addEventListener("click", () => {
     snapshotPalpite();
     zerarTudoSelecao();
+    agendarReordenacaoSuave(null, 600);
     renderCargoEstadual();
   });
   document.getElementById("pcBtnRestaurar2022").addEventListener("click", () => {
     snapshotPalpite();
     restaurarTudo2022();
+    agendarReordenacaoSuave(null, 600);
     renderCargoEstadual();
   });
   const fecharInstrucao = document.getElementById("pcFecharInstrucao");
