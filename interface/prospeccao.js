@@ -6050,9 +6050,26 @@ async function renderCargoEstadual() {
   // partidos na tela); mesmo padrão da busca de candidato dentro de cada
   // partido, só que em cima da lista de partidos.
   const filtroPartido = normalizarBusca(pcState.buscaPartido || "");
-  const partidosParaMostrar = filtroPartido
-    ? partidosOrdenados.filter((p) => normalizarBusca(nomePartidoExibicao(p.nome)).includes(filtroPartido))
-    : partidosOrdenados;
+  // Pedido do usuário (21/08/2026): a busca também encontra por NOME DE
+  // CANDIDATO — "napoleão b" devolve o card do partido dele. Quando o
+  // termo casa pelo candidato (e o resultado é curto — não é um "a" que
+  // casa com todo mundo), o card já vem ABERTO, com a pessoa à vista.
+  let partidosParaMostrar = partidosOrdenados;
+  if (filtroPartido) {
+    const comMotivo = partidosOrdenados
+      .map((p) => {
+        const porNome = normalizarBusca(nomePartidoExibicao(p.nome)).includes(filtroPartido);
+        const porCandidato = !porNome && p.candidatos.some((c) => c.fonte !== "legenda" && normalizarBusca(nomeExibicao(c)).includes(filtroPartido));
+        return { p, porNome, porCandidato };
+      })
+      .filter((m) => m.porNome || m.porCandidato);
+    partidosParaMostrar = comMotivo.map((m) => m.p);
+    if (filtroPartido.length >= 3 && comMotivo.length <= 4) {
+      comMotivo.forEach((m) => {
+        if (m.porCandidato) pcState.expandido["faderAberto_" + pcState.cargoAtivo + "_" + m.p.nome] = true;
+      });
+    }
+  }
 
   const blocos = pcState.cargoAtivo === "senador"
     ? renderListaSenador(totalVagasCargo, votosValidos2026Proj)
@@ -6071,7 +6088,7 @@ async function renderCargoEstadual() {
   const comandosSelecao = [
     {
       id: "pcBtnBuscaPartidoToggle", icone: "buscar", tamanho: 14, titulo: "Buscar partido", mini: true,
-      legenda: "Abre um campo pra filtrar a lista de partidos pelo nome.",
+      legenda: "Abre um campo de busca: filtra os partidos pelo nome — ou pelo nome de um candidato, aí o card do partido dele já abre.",
       classeExtra: pcState.buscaPartidoAberta ? "ativo" : "",
     },
     {
@@ -6344,6 +6361,14 @@ function attachListenersSelecao() {
     });
   });
   document.querySelectorAll("input[data-pc-busca-candidato]").forEach((inp) => {
+    // Esc limpa e fecha a busca deste partido (pedido do usuário, 21/08/2026).
+    inp.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      const nomePartido = e.target.dataset.pcBuscaCandidato;
+      if (pcState.buscaCandidato) pcState.buscaCandidato[nomePartido] = "";
+      if (pcState.buscaCandidatoAberta) pcState.buscaCandidatoAberta[nomePartido] = false;
+      renderCargoEstadual();
+    });
     inp.addEventListener("input", async (e) => {
       const nomePartido = e.target.dataset.pcBuscaCandidato;
       const valor = e.target.value;
@@ -6391,6 +6416,13 @@ function attachListenersSelecao() {
   }
   const inputBuscaPartido = document.getElementById("pcBuscaPartidoInput");
   if (inputBuscaPartido) {
+    // Esc limpa e fecha a busca (pedido do usuário, 21/08/2026).
+    inputBuscaPartido.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      pcState.buscaPartido = "";
+      pcState.buscaPartidoAberta = false;
+      renderCargoEstadual();
+    });
     inputBuscaPartido.addEventListener("input", async (e) => {
       const cursor = e.target.selectionStart;
       pcState.buscaPartido = e.target.value;
