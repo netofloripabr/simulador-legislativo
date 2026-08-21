@@ -4279,7 +4279,13 @@ function balancearTudoSelecao() {
 // zerarPartidoSelecao (a mesma borracha de dentro de cada partido) em todos
 // os partidos de uma vez — zera e desmarca todo mundo, não só os marcados.
 function zerarTudoSelecao() {
-  pcState.palpiteEdicao.forEach((p) => zerarPartidoSelecao(p));
+  pcState.palpiteEdicao.forEach((p) => {
+    zerarPartidoSelecao(p);
+    // "Zerar TUDO" (pedido do usuário, 21/08/2026): além da votação, limpa
+    // também a quantidade de eleitos indicada no box do partido — o
+    // palpite volta ao zero absoluto, sem bancada nenhuma marcada.
+    delete p.vagasIndicadas;
+  });
 }
 
 // Restaura a votação de 2022 em todos os candidatos do partido — volta ao
@@ -6014,8 +6020,8 @@ async function renderCargoEstadual() {
       disabled: !(pcState.historicoRefazer && pcState.historicoRefazer.length),
     },
     {
-      id: "pcBtnZerarTudo", icone: "borracha", tamanho: 14, titulo: "Zerar votação",
-      legenda: "Limpa a votação de todos os candidatos de uma vez. Indicado pra quem já sabe o que quer marcar do zero.",
+      id: "pcBtnZerarTudo", icone: "borracha", tamanho: 14, titulo: "Zerar tudo",
+      legenda: "Limpa de uma vez a votação de todos os candidatos E as vagas indicadas nos boxes dos partidos. Indicado pra quem quer montar do zero absoluto.",
     },
     {
       id: "pcBtnTop2022", icone: "ano2022", tamanho: 15, titulo: "Top 100 de 2022",
