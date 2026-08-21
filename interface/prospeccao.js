@@ -5057,7 +5057,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
           <span class="pc-dep-cpct">${cpct.toFixed(1).replace(".", ",")}<small>%</small></span>
         </div>
         ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
-        ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? ` · eleito${c.partidoOrigem2022 ? " " + c.partidoOrigem2022 : ""}` : ""}</div>` : ""}
+        ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
         ${faderDepHtml("c|" + gi + "|" + c.chave, cv, capCand, true)}
       </div>`;
     }).join("") : "";
