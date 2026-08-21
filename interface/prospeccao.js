@@ -121,6 +121,7 @@ const PC_ICONES = {
   relogio22: '<circle cx="6.4" cy="6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M6.4 3.6v2.5l1.8 1.1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path><text x="11.8" y="14.2" text-anchor="middle" font-size="6.4" font-weight="800" fill="currentColor" font-family="var(--sans)">22</text>',
   refazer: '<path d="M7.67 5.33c1.77 0 3.37 0.66 4.6 1.73l2.4-2.39v6h-6l2.41-2.41c-0.93-0.77-2.11-1.25-3.41-1.25-2.36 0-4.37 1.54-5.07 3.67l-1.58-0.52C1.95 7.35 4.57 5.33 7.67 5.33z" fill="currentColor"></path>',
   mais: '<path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>',
+  relogio: '<circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M8 4.8v3.4l2.3 1.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path>',
   chave: '<circle cx="5.2" cy="5.2" r="2.4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M7 7l6.3 6.3M11 9.3l1.6 1.6M13 7.3l1.3 1.3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   editar: '<path d="M11.1 2.6a1.5 1.5 0 012.1 2.1L5.6 12.3l-2.9.7.7-2.9z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   ajuda: '<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M6.2 6.3a1.9 1.9 0 013.6.8c0 1.3-1.8 1.3-1.8 2.6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><circle cx="8" cy="11.6" r=".8" fill="currentColor"></circle>',
@@ -172,9 +173,25 @@ function renderBotoesComandos(comandos) {
     const c = comandos[i];
     const prox = comandos[i + 1];
     if (c.id === "pcBtnVoltarSelecao" && prox && prox.id === "pcBtnRefazerSelecao") {
+      // Desfazer|Refazer: círculo dividido por fio (protótipo aprovado).
       out.push(`<div class="pc-cmd-acao pc-cmd-dupla">
         <button type="button" id="${c.id}" title="${escaparAtributoHtml(c.titulo)}" ${c.disabled ? "disabled" : ""}>${iconeSvg(c.icone, 13)}</button>
         <button type="button" id="${prox.id}" title="${escaparAtributoHtml(prox.titulo)}" ${prox.disabled ? "disabled" : ""}>${iconeSvg(prox.icone, 13)}</button>
+      </div>`);
+      i++;
+      continue;
+    }
+    if (c.id === "pcBtnTop2022" && prox && prox.id === "pcBtnRestaurar2022") {
+      // Botão 2022 (protótipo "console completo" aprovado em 21/08/2026):
+      // o ano por extenso no cabeçalho e as duas divisórias embaixo —
+      // lista (nominata/top) | relógio (retomar) — ícones limpos, sem
+      // o mini-22 (o cabeçalho já diz o ano).
+      out.push(`<div class="pc-cmd-b22">
+        <div class="pc-cmd-b22-ano">2022</div>
+        <div class="pc-cmd-b22-metades">
+          <button type="button" id="${c.id}" title="${escaparAtributoHtml(c.titulo)}">${iconeSvg("lista", 14)}</button>
+          <button type="button" id="${prox.id}" title="${escaparAtributoHtml(prox.titulo)}">${iconeSvg("relogio", 14)}</button>
+        </div>
       </div>`);
       i++;
       continue;
@@ -185,8 +202,11 @@ function renderBotoesComandos(comandos) {
 }
 
 function comandoIcone(opcoes) {
-  const { id, icone, tamanho, titulo, disabled, classeExtra, atributosExtra } = opcoes;
-  return `<button type="button" id="${id}" class="pc-cmd-acao${classeExtra ? " " + classeExtra : ""}" title="${escaparAtributoHtml(titulo)}" ${disabled ? "disabled" : ""} ${atributosExtra || ""}>${iconeSvg(icone, tamanho || 15)}</button>`;
+  const { id, icone, tamanho, titulo, disabled, classeExtra, atributosExtra, mini } = opcoes;
+  // mini: botão auxiliar vazado da família do "i" (metade do tamanho) —
+  // a lupa usa isso pra liberar espaço na linha (aprovado 21/08/2026).
+  const classe = mini ? "pc-cmd-mini" : "pc-cmd-acao";
+  return `<button type="button" id="${id}" class="${classe}${classeExtra ? " " + classeExtra : ""}" title="${escaparAtributoHtml(titulo)}" ${disabled ? "disabled" : ""} ${atributosExtra || ""}>${iconeSvg(icone, mini ? 12 : (tamanho || 15))}</button>`;
 }
 
 // renderPainelComandos: monta a linha inteira de ícones + o "i" + o painel
@@ -4278,6 +4298,19 @@ function balancearTudoSelecao() {
 // Versão do botão "Zerar" no topo da tela (fora de cada partido): roda
 // zerarPartidoSelecao (a mesma borracha de dentro de cada partido) em todos
 // os partidos de uma vez — zera e desmarca todo mundo, não só os marcados.
+// Retomar 2022 (21/08/2026): o par do Zerar tudo — em vez do zero
+// absoluto, volta pro retrato de 2022 (o default do primeiro acesso):
+// votação real de 2022 em quem concorreu, novos zerados, boxes limpos.
+function restaurarTudo2022() {
+  pcState.palpiteEdicao.forEach((p) => {
+    p.candidatos.forEach((c) => { c.votos = Number(c.votos2022) || 0; c.votosEditado = false; });
+    delete p.vagasIndicadas;
+  });
+  if (pcState.cargoAtivo === "senador") recalcularMarcadosSenador();
+  else recalcularMarcadosDeputados();
+  agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+}
+
 function zerarTudoSelecao() {
   pcState.palpiteEdicao.forEach((p) => {
     zerarPartidoSelecao(p);
@@ -5018,8 +5051,13 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       ${avisoMais ? `<div class="pc-dep-aviso2">${iconeSvg("alerta", 12)}<span>A apuração dá <b>${vg}</b> vaga${vg === 1 ? "" : "s"} a este partido — você indicou <b>${vagasInd}</b>. A decisão é sua.</span></div>` : ""}
       ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.</div>` : ""}
       ${aberto ? `<div class="pc-dep-subpainel">
-        <button type="button" class="pc-cmd-acao" data-pc-ver2022="${p.nome}" title="Nominata completa de 2022">${iconeSvg("lista22", 13)}</button>
-        <button type="button" class="pc-cmd-acao" data-pc-reset="${p.nome}" title="Restaurar votação de 2022">${iconeSvg("relogio22", 13)}</button>
+        <div class="pc-cmd-b22">
+          <div class="pc-cmd-b22-ano">2022</div>
+          <div class="pc-cmd-b22-metades">
+            <button type="button" data-pc-ver2022="${p.nome}" title="Nominata completa de 2022">${iconeSvg("lista", 12)}</button>
+            <button type="button" data-pc-reset="${p.nome}" title="Restaurar votação de 2022 deste partido">${iconeSvg("relogio", 12)}</button>
+          </div>
+        </div>
         <button type="button" class="pc-cmd-acao" data-pc-zerar="${p.nome}" title="Zerar votação do partido">${iconeSvg("borracha", 12)}</button>
         <button type="button" class="pc-cmd-acao" data-dep-magico="${gi}" title="Preencher só este partido automaticamente">${iconeSvg("completar", 13)}</button>
       </div>` : ""}
@@ -6012,7 +6050,7 @@ async function renderCargoEstadual() {
   const gateDeputados = somaVotosCargo() >= 0.995 * votosValidos2026Proj;
   const comandosSelecao = [
     {
-      id: "pcBtnBuscaPartidoToggle", icone: "buscar", tamanho: 14, titulo: "Buscar partido",
+      id: "pcBtnBuscaPartidoToggle", icone: "buscar", tamanho: 14, titulo: "Buscar partido", mini: true,
       legenda: "Abre um campo pra filtrar a lista de partidos pelo nome.",
       classeExtra: pcState.buscaPartidoAberta ? "ativo" : "",
     },
@@ -6031,12 +6069,12 @@ async function renderCargoEstadual() {
       legenda: "Limpa de uma vez a votação de todos os candidatos E as vagas indicadas nos boxes dos partidos. Indicado pra quem quer montar do zero absoluto.",
     },
     {
-      id: "pcBtnTop2022", icone: "ano2022", tamanho: 15, titulo: "Top 100 de 2022",
+      id: "pcBtnTop2022", icone: "lista22", tamanho: 15, titulo: "Top 100 de 2022",
       legenda: "Mostra os 100 candidatos mais votados na eleição real de 2022, de todos os partidos — só de referência, não muda seu palpite.",
     },
     {
-      id: "pcBtnSalvarSelecao", icone: "salvar", tamanho: 17, titulo: "Salvar",
-      legenda: "Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\".",
+      id: "pcBtnRestaurar2022", icone: "relogio22", tamanho: 15, titulo: "Retomar votação de 2022",
+      legenda: "Volta o cargo INTEIRO pro retrato de 2022: a votação real de todos os candidatos daquele ano, candidatos novos zerados e os boxes de vagas limpos. O Desfazer recupera o que estava antes.",
     },
     {
       id: "pcBtnPreencherAutoTudo", icone: "completar", tamanho: 18, titulo: "Mágico — preenchimento automático",
@@ -6044,6 +6082,10 @@ async function renderCargoEstadual() {
         ? "Distribui uma votação simulada entre todos os candidatos, pela força do partido de cada um em 2022. O que você já digitou à mão fica como está."
         : "Distribui uma votação simulada realista entre todos os partidos e candidatos (com base em 2022) e fecha a barra em 100%. O que você já digitou à mão fica como está.",
       classeExtra: "destaque",
+    },
+    {
+      id: "pcBtnSalvarSelecao", icone: "salvar", tamanho: 17, titulo: "Salvar",
+      legenda: "Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\".",
     },
     {
       id: "pcBtnDepositar", icone: "setaDireita", tamanho: 19, titulo: "Prosseguir pra Revisão",
@@ -6473,6 +6515,11 @@ function attachListenersSelecao() {
   document.getElementById("pcBtnZerarTudo").addEventListener("click", () => {
     snapshotPalpite();
     zerarTudoSelecao();
+    renderCargoEstadual();
+  });
+  document.getElementById("pcBtnRestaurar2022").addEventListener("click", () => {
+    snapshotPalpite();
+    restaurarTudo2022();
     renderCargoEstadual();
   });
   const fecharInstrucao = document.getElementById("pcFecharInstrucao");

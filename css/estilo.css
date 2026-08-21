@@ -1058,9 +1058,40 @@
 }
 /* Círculo dividido Desfazer|Refazer — 2 alvos de toque num volume só
    (protótipo refino v3, 20/08/2026). */
-#modoColaborativoWrap .pc-cmd-painel .pc-cmd-dupla{
-  display:flex; align-items:stretch; overflow:hidden; cursor:default;
+#modoColaborativoWrap .pc-cmd-painel .pc-cmd-dupla,
+#modoColaborativoWrap .pc-dep-subpainel .pc-cmd-dupla{
+  display:flex; align-items:stretch; overflow:hidden; cursor:default; padding:0;
 }
+/* Botão 2022 (protótipo "console completo", 21/08/2026): o ano no
+   cabeçalho, lista | relógio nas divisórias embaixo. */
+#modoColaborativoWrap .pc-cmd-b22{
+  flex:none; width:66px; height:46px; border-radius:14px;
+  background:#101214; border:1px solid #1F2327;
+  display:flex; flex-direction:column; overflow:hidden; padding:0;
+}
+#modoColaborativoWrap .pc-cmd-b22-ano{
+  flex:none; height:17px; display:flex; align-items:center; justify-content:center;
+  font-size:8.5px; font-weight:800; letter-spacing:.08em; color:#AEB5BB;
+  border-bottom:1px solid rgba(242,244,245,.1);
+}
+#modoColaborativoWrap .pc-cmd-b22-metades{ flex:1; display:flex; align-items:stretch; }
+#modoColaborativoWrap .pc-cmd-b22-metades button{
+  flex:1; min-width:0; background:none; border:none; color:#AEB5BB;
+  display:flex; align-items:center; justify-content:center; padding:0;
+  cursor:pointer; font-family:inherit;
+}
+#modoColaborativoWrap .pc-cmd-b22-metades button + button{ border-left:1px solid rgba(242,244,245,.1); }
+#modoColaborativoWrap .pc-cmd-b22-metades button:hover{ background:#16181B; color:#F2F4F5; }
+#modoColaborativoWrap .pc-dep-subpainel .pc-cmd-b22{ width:58px; height:40px; border-radius:13px; }
+#modoColaborativoWrap .pc-dep-subpainel .pc-cmd-b22-ano{ height:14px; font-size:8px; }
+/* Botão auxiliar mini (família do "i") — a lupa do console. */
+#modoColaborativoWrap .pc-cmd-painel .pc-cmd-mini{
+  flex:none; width:23px; height:23px; border-radius:50%; background:none;
+  border:1px solid #565D65; color:#AEB5BB; display:flex; align-items:center;
+  justify-content:center; padding:0; cursor:pointer; align-self:center; font-family:inherit;
+}
+#modoColaborativoWrap .pc-cmd-painel .pc-cmd-mini:hover{ border-color:#AEB5BB; color:#F2F4F5; }
+#modoColaborativoWrap .pc-cmd-painel .pc-cmd-mini.ativo{ border-color:var(--pc-accent); color:var(--pc-accent); }
 #modoColaborativoWrap .pc-cmd-dupla button{
   flex:1 1 0; min-width:0; background:none; border:none; color:inherit;
   display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer;
