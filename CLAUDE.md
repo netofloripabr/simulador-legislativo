@@ -103,14 +103,21 @@ O candidato que aparece numa aba de palpite é SEMPRE do elenco 2026
 (atas/RRC) onde esse dado existe (hoje: SC). O resultado de 2022 entra só
 como BASE DE VOTOS dos candidatos que concorreram nos dois anos (o default
 do 1º acesso equivale a apertar o relógio-2022) — jamais como elenco.
-Três guardas implementadas:
+Quatro guardas implementadas:
 1. `rascunhoEhOrfao` (interface/prospeccao.js) compara por CHAVE e exige
    maioria de sobrevivência — rascunhos da era pré-atas são descartados
    (o bug de 21/08: comparava por `id` inexistente, undefined casava com
    undefined e nenhum rascunho era descartado).
-2. `montarEstadoPalpite` (nuvem/palpites.js) grita `console.error` se SC
+2. `podarGruposForaDoPool` também poda POR CANDIDATO (2ª regressão,
+   21/08 à noite): rascunho antigo em que a MAIORIA dos candidatos de
+   2022 também concorre em 2026 sobrevivia à régua da guarda 1, e os que
+   NÃO concorrem (Julio Garcia, Zé Caramori...) voltavam pra tela dentro
+   dos grupos sobreviventes. Agora candidato que não existe em nenhum
+   grupo do pool oficial sai do rascunho — exceto adição manual
+   (fonte:"manual") e voto de legenda; e candidato novo do pool entra.
+3. `montarEstadoPalpite` (nuvem/palpites.js) grita `console.error` se SC
    cair no fallback de 2022 (sinal de sc-2026-provisorio.js quebrado).
-3. O fallback pro elenco de 2022 continua válido SÓ pros estados sem dado
+4. O fallback pro elenco de 2022 continua válido SÓ pros estados sem dado
    2026 gerado.
-Cuidado conhecido: "Editar" uma lista salva da era antiga ainda recarrega
-o elenco embutido nela (decisão pendente de migração).
+Cuidado conhecido: "Editar" uma lista salva da era antiga é BLOQUEADO
+(listaEhDaEraAntiga, 21/08) — não recarrega mais o elenco embutido.

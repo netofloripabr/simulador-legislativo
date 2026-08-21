@@ -5875,6 +5875,11 @@ function podarGruposForaDoPool(lista, poolOficial) {
   if (!lista || !lista.length || !poolOficial || !poolOficial.length) return lista;
   const poolPorNome = {};
   poolOficial.forEach((p) => { poolPorNome[p.nome] = p; });
+  // Chaves oficiais de TODOS os candidatos do pool (qualquer grupo) — a
+  // poda POR CANDIDATO abaixo compara contra o conjunto inteiro, não só o
+  // grupo homônimo, pra não derrubar quem trocou de partido legitimamente.
+  const chavesOficiais = new Set();
+  poolOficial.forEach((p) => p.candidatos.forEach((c) => { if (c.chave != null) chavesOficiais.add(c.chave); }));
   const podada = lista
     .filter((p) => poolPorNome[p.nome])
     // Sincroniza nos DOIS sentidos: usa a versão fresca do pool quando ele
@@ -5885,7 +5890,33 @@ function podarGruposForaDoPool(lista, poolOficial) {
     // segundo caso, um candidato novo (ex.: registro RRC antes da ata)
     // nunca aparecia pra quem já tinha rascunho daquele cargo — bug
     // achado em 18/08/2026 com o caso do Lunelli (MDB/Senador).
-    .map((p) => (poolPorNome[p.nome].semAta2026 || p.semAta2026) ? poolPorNome[p.nome] : p);
+    .map((p) => (poolPorNome[p.nome].semAta2026 || p.semAta2026) ? poolPorNome[p.nome] : p)
+    // Poda POR CANDIDATO (REGRA MESTRA, 2ª rodada — 21/08/2026 à noite): a
+    // régua de rascunhoEhOrfao só descarta o rascunho quando a MAIORIA
+    // sumiu. Um rascunho da era pré-atas em que muitos candidatos de 2022
+    // também concorrem em 2026 SOBREVIVE pela maioria — e os que não
+    // concorrem (Julio Garcia, Zé Caramori...) voltavam pra tela como se
+    // fossem elenco de 2026, dentro dos grupos sobreviventes (regressão
+    // achada pelo usuário com print). Regra: candidato do rascunho que
+    // não existe em NENHUM grupo do pool oficial sai — exceto adição
+    // manual do próprio usuário (fonte:"manual") e voto de legenda.
+    .map((p) => {
+      const fantasmas = p.candidatos.some((c) => c.fonte !== "manual" && c.fonte !== "legenda" && c.chave != null && !chavesOficiais.has(c.chave));
+      if (!fantasmas) return p;
+      return { ...p, candidatos: p.candidatos.filter((c) => c.fonte === "manual" || c.fonte === "legenda" || c.chave == null || chavesOficiais.has(c.chave)) };
+    })
+    // Complemento: candidato que EXISTE no grupo do pool mas falta no
+    // rascunho (ata/RRC processado depois do rascunho ser salvo) entra
+    // com a base zerada de votos do pool — sem isso, quem tinha rascunho
+    // nunca via candidato novo daquele partido.
+    .map((p) => {
+      const oficial = poolPorNome[p.nome];
+      if (!oficial || oficial === p) return p;
+      const chavesNoRascunho = new Set(p.candidatos.map((c) => c.chave));
+      const faltantes = oficial.candidatos.filter((c) => c.chave != null && !chavesNoRascunho.has(c.chave));
+      if (!faltantes.length) return p;
+      return { ...p, candidatos: [...p.candidatos, ...faltantes.map((c) => ({ ...c }))] };
+    });
   if (!podada.length) return lista;
   // Sentido inverso da mesma sincronização: grupo que EXISTE no pool mas
   // não no rascunho (ata processada depois do rascunho ser salvo, ou o
