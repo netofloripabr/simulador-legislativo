@@ -162,6 +162,28 @@ function iconeSvg(nome, tamanho) {
 // sem JS medindo largura).
 //
 // comandoIcone: só o botão (chamado pra cada item, dentro de .pc-cmd-painel).
+// Linha de botões a partir da lista de comandos, fundindo Desfazer+Refazer
+// num círculo DIVIDIDO (2 alvos de toque na área de 1 botão — protótipo
+// "refino v3" aprovado em 20/08/2026). A legenda continua listando os dois
+// separados; só o desenho da linha muda.
+function renderBotoesComandos(comandos) {
+  const out = [];
+  for (let i = 0; i < comandos.length; i++) {
+    const c = comandos[i];
+    const prox = comandos[i + 1];
+    if (c.id === "pcBtnVoltarSelecao" && prox && prox.id === "pcBtnRefazerSelecao") {
+      out.push(`<div class="pc-cmd-acao pc-cmd-dupla">
+        <button type="button" id="${c.id}" title="${escaparAtributoHtml(c.titulo)}" ${c.disabled ? "disabled" : ""}>${iconeSvg(c.icone, 13)}</button>
+        <button type="button" id="${prox.id}" title="${escaparAtributoHtml(prox.titulo)}" ${prox.disabled ? "disabled" : ""}>${iconeSvg(prox.icone, 13)}</button>
+      </div>`);
+      i++;
+      continue;
+    }
+    out.push(comandoIcone(c));
+  }
+  return out.join("");
+}
+
 function comandoIcone(opcoes) {
   const { id, icone, tamanho, titulo, disabled, classeExtra, atributosExtra } = opcoes;
   return `<button type="button" id="${id}" class="pc-cmd-acao${classeExtra ? " " + classeExtra : ""}" title="${escaparAtributoHtml(titulo)}" ${disabled ? "disabled" : ""} ${atributosExtra || ""}>${iconeSvg(icone, tamanho || 15)}</button>`;
@@ -190,7 +212,7 @@ function renderLegendaComandos(comandos) {
 }
 
 function renderPainelComandos(comandos, aberta) {
-  const botoes = comandos.map((c) => comandoIcone(c)).join("");
+  const botoes = renderBotoesComandos(comandos);
   const itensLegenda = comandos.map((c) => `
     <div class="pc-cmd-legenda-item">
       <div class="pc-cmd-legenda-icone">${iconeSvg(c.icone, 15)}</div>
@@ -4775,7 +4797,7 @@ function renderPainelDeputadosFader(E, totalVagas, comandos) {
       <div class="pc-sen-fu-l"><span>${rotulo}</span><b${tot ? ' style="color:#34E84A;"' : ""}>${formatVotosCompacto(valor)}</b></div>
       <div class="pc-sen-fu-b${tot ? " tot" : ""}" style="width:${larg}%;"></div>
     </div>`;
-  const botoes = comandos.map((c) => comandoIcone(c)).join("");
+  const botoes = renderBotoesComandos(comandos);
   return `
     <div class="pc-console">
       <div class="pc-sen-osub">
@@ -4797,7 +4819,7 @@ function renderPainelDeputadosFader(E, totalVagas, comandos) {
         </div>
         <div class="pc-sen-mgrip" id="pcDepMg" style="left:${w}%"></div>
       </div>
-      <div class="pc-sen-escala"><span>0</span><span>vagas <b style="color:#F2F4F5; font-size:11px; font-weight:750;" id="pcDepVagasInd">${vagasIndTotal}</b>/${totalVagas}<span style="margin:0 12px;">·</span>QE <b style="color:#F2F4F5; font-size:11px; font-weight:750;" id="pcDepQeAtual">${formatVotosCompacto(qeAtualConsole)}</b>/${formatVotosCompacto(qeMetaConsole)}</span><span>${formatVotosCompacto(Math.round(E))}</span></div>
+      <div class="pc-sen-escala"><span>0</span><span class="pc-meta-linha">vagas <b class="pc-meta-num${vagasIndTotal < totalVagas ? " pend" : ""}" id="pcDepVagasInd">${vagasIndTotal}</b>/${totalVagas}<span style="margin:0 12px;">·</span>QE <b class="pc-meta-num${qeAtualConsole < qeMetaConsole ? " pend" : ""}" id="pcDepQeAtual">${formatVotosCompacto(qeAtualConsole)}</b>/${formatVotosCompacto(qeMetaConsole)}</span><span>${formatVotosCompacto(Math.round(E))}</span></div>
       <div class="pc-console-cmds">
         <div class="pc-cmd-painel">
           ${botoes}
@@ -4947,16 +4969,16 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         ? (k < qpDireto ? '<span class="pc-sen-chip">ELEITO</span>' : '<span class="pc-sen-chip sobra" title="Vaga conquistada na disputa de sobras (método das médias, art. 109)">SOBRA</span>')
         : (cv > 0 ? '<span class="pc-sen-chip fora" title="Tem votos, mas não fecha vaga com a votação de hoje">FORA</span>' : "");
       const linkInsta = linkInstagramDe(c.chave);
-      // Ícone do Instagram MONOCROMÁTICO antes do nome (pedido de 18/08) —
+      // Ícone do Instagram MONOCROMÁTICO à DIREITA do nome (refino 20/08) —
       // só aparece pra quem tem link alimentado na planilha/admin.
-      const instaAntes = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 12)}</a>` : "";
+      const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 16)}</a>` : "";
       const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
       return `
       <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
         <div class="pc-dep-cl1">
           ${selo}
-          ${instaAntes}
           <span class="pc-dep-cnm">${nomeExibicao(c)}${lapisAdmin}</span>
+          ${instaDepois}
           <span class="pc-dep-cpct">${cpct.toFixed(1).replace(".", ",")}<small>%</small></span>
         </div>
         ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
@@ -4973,7 +4995,6 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
           <span data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}</span>
           <button type="button" data-dep-vaga-mais="${gi}">+</button>
         </div>
-        <svg viewBox="0 0 16 16" width="13" height="13" style="color:#5C6268; flex:none; transform:${aberto ? "rotate(180deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
       </div>
       ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course)}
       <div class="pc-dep-notif">
@@ -4989,6 +5010,14 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <button type="button" class="pc-cmd-acao" data-dep-magico="${gi}" title="Preencher só este partido automaticamente">${iconeSvg("completar", 13)}</button>
       </div>` : ""}
       ${aberto ? `<div class="pc-dep-cands">${cands || '<div class="pc-sen-rod">Nenhum candidato carregado neste grupo.</div>'}</div>` : ""}
+      ${!aberto && candsOrd.length ? `<div class="pc-dep-preview">
+        <div class="pc-dep-cl1">
+          ${candsOrd[0].marcadoEleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
+          <span class="pc-dep-cnm">${nomeExibicao(candsOrd[0])}</span>
+          <span class="pc-dep-cpct">${(E > 0 ? (Number(candsOrd[0].votos) || 0) / E * 100 : 0).toFixed(1).replace(".", ",")}<small>%</small></span>
+        </div>
+      </div>` : ""}
+      <div class="pc-dep-puxador${aberto ? " aberto" : ""}" data-dep-toggle="${gi}" title="${aberto ? "Recolher candidatos" : "Abrir candidatos"}"><span></span></div>
     </div>`;
   }).join("");
 }
@@ -5025,7 +5054,14 @@ function atualizarHeaderDeputados(E) {
   document.getElementById("pcDepFill").style.width = w + "%";
   document.getElementById("pcDepMg").style.left = w + "%";
   const elQe = document.getElementById("pcDepQeAtual");
-  if (elQe) elQe.textContent = formatVotosCompacto(quocienteEleitoral(soma, vagasFixasCargo(pcState.estado, pcState.cargoAtivo)) || 0);
+  if (elQe) {
+    const totalVagasAtual = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
+    const qeAtual = quocienteEleitoral(soma, totalVagasAtual) || 0;
+    elQe.textContent = formatVotosCompacto(qeAtual);
+    // Laranja enquanto a meta não fecha (protótipo refino v3) — atualiza
+    // junto com o arrasto, não só no re-render completo.
+    elQe.classList.toggle("pend", qeAtual < (quocienteEleitoral(Math.round(E), totalVagasAtual) || 0));
+  }
 }
 
 function atualizarFaderDep(sl, v, cap) {
