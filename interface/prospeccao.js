@@ -5961,28 +5961,20 @@ async function renderCargoEstadual() {
   conteudo.innerHTML = `
     ${instrucaoAberta ? `
     <div id="pcInstrucaoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px 16px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
-        <div id="pcTutPag1">
-          <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 13)} ATENÇÃO</div>
-          <div class="pc-tut-aviso">Esta é a <b class="verde">única informação</b> que você precisa pra conseguir preencher a lista com <b>agilidade e acertividade</b>:</div>
-          <button class="primary" id="pcTutAvancar" style="width:100%;">Passar a página ›</button>
-        </div>
-        <div id="pcTutPag2" style="display:none;">
-          <div class="pc-tut-hero">
-            <button type="button" class="pc-tut-pontos" id="pcTutPontos" title="Toque"><i class="on"></i><i></i><i></i></button>
-            <div class="pc-tut-titulo">Selecione o botão e entenda a função.</div>
-            <div class="pc-tut-hint" id="pcTutHint">👆 toque nos pontinhos verdes acima</div>
-            <div class="pc-tut-palco" id="pcTutPalco">
-              <div class="pc-tut-leg on" data-tut-leg="1"><b>1 ponto</b> · Alerta — existe instrução</div>
-              <div class="pc-tut-leg" data-tut-leg="2"><b>2 pontos</b> · Painel 1 — dica objetiva</div>
-              <div class="pc-tut-leg" data-tut-leg="3"><b>3 pontos</b> · Painel 2 — dica completa</div>
-              <div class="pc-tut-leg-rodape">Você escolhe a qualquer momento.</div>
-            </div>
-            <div class="pc-tut-explica" id="pcTutExplica">Ele estará sempre no topo da tela, te acompanhando.</div>
+      <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px 18px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 13)} ATENÇÃO</div>
+        <div class="pc-tut-aviso">Siga esta etapa para preencher a lista com <b class="verde">agilidade e acertividade</b>.<div class="pc-tut-aviso-sub">O painel de notificação lhe orienta a cada passo.<br>Para utilizar, basta selecionar o ícone:</div></div>
+        <div class="pc-tut-hero">
+          <button type="button" class="pc-tut-pontos" id="pcTutPontos" title="Toque"><i class="on"></i><i></i><i></i></button>
+          <div class="pc-tut-palco" id="pcTutPalco">
+            <div class="pc-tut-leg on" data-tut-leg="1"><b>1 ponto</b> · Alerta — existe instrução</div>
+            <div class="pc-tut-leg" data-tut-leg="2"><b>2 pontos</b> · Painel 1 — dica objetiva</div>
+            <div class="pc-tut-leg" data-tut-leg="3"><b>3 pontos</b> · Painel 2 — dica completa</div>
+            <div class="pc-tut-leg-rodape">Você escolhe a qualquer momento.</div>
           </div>
-          <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:14px;" disabled>Começar</button>
+          <div class="pc-tut-hint" id="pcTutHint">👆 clique e entenda</div>
         </div>
-        <div class="pc-tut-dots"><i class="on" id="pcTutD1"></i><i id="pcTutD2"></i></div>
+        <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:14px;" disabled>Iniciar</button>
       </div>
     </div>` : ""}
     ${pcState.avisoLimiteVagasAberto ? `
@@ -6395,27 +6387,13 @@ function attachListenersSelecao() {
       renderCargoEstadual();
     });
   }
-  // Tutorial paginado (v4, 21/08/2026): página 1 = aviso; página 2 = a
-  // dinâmica dos 3 pontinhos — cada toque abre uma janela do farol e a
-  // explicação evolui; o "Começar" só habilita depois do ciclo completo.
-  // Manipula o DOM do overlay direto (sem re-render por toque).
-  const tutAvancar = document.getElementById("pcTutAvancar");
-  if (tutAvancar) {
-    tutAvancar.addEventListener("click", () => {
-      document.getElementById("pcTutPag1").style.display = "none";
-      document.getElementById("pcTutPag2").style.display = "";
-      document.getElementById("pcTutD1").className = "";
-      document.getElementById("pcTutD2").className = "on";
-    });
-  }
+  // Tutorial de página única (21/08/2026): aviso → ícone → legenda dos 3
+  // estados. Cada clique no ícone acende o nível seguinte e a linha da
+  // legenda correspondente; após o 3º clique, libera o "Iniciar".
+  // Manipula o DOM do overlay direto (sem re-render por clique).
   const tutPontos = document.getElementById("pcTutPontos");
   if (tutPontos) {
     let tutNivel = 1, tutToques = 0;
-    const explicacoes = {
-      1: "Ele estará sempre no topo da tela, te acompanhando.",
-      2: '<b style="color:var(--pc-accent);">O sistema te orienta em cada etapa.</b> A barra mostra o seu próximo passo e o progresso dele, em tempo real.',
-      3: '<b style="color:var(--pc-accent);">Ficou com dúvida? Basta abrir a janela.</b> A trilha completa mostra o que já foi feito e o que vem depois — feche no "−" quando quiser.',
-    };
     tutPontos.addEventListener("click", () => {
       tutNivel = tutNivel === 3 ? 1 : tutNivel + 1;
       tutToques++;
@@ -6423,14 +6401,13 @@ function attachListenersSelecao() {
       document.querySelectorAll("[data-tut-leg]").forEach((el) => {
         el.classList.toggle("on", el.getAttribute("data-tut-leg") === String(tutNivel));
       });
-      document.getElementById("pcTutExplica").innerHTML = explicacoes[tutNivel];
       const hint = document.getElementById("pcTutHint");
       if (tutToques >= 3) {
         document.getElementById("pcFecharInstrucao").disabled = false;
-        hint.textContent = "Isso! O farol é seu — pode começar.";
+        hint.textContent = "Isso! O farol é seu — pode iniciar.";
         hint.style.color = "var(--pc-accent)";
       } else {
-        hint.textContent = "continue tocando — janela " + tutNivel + " de 3";
+        hint.textContent = "continue — " + tutNivel + " de 3";
       }
     });
   }

@@ -1632,10 +1632,14 @@
 
 /* ===== Tutorial paginado da 1ª visita (v4, 21/08/2026) ===== */
 #modoColaborativoWrap.pc-tema-fader .pc-tut-aviso{
-  font-size:16.5px; line-height:1.6; color:#AEB5BB; text-align:center; padding:18px 6px 22px;
+  font-size:16px; line-height:1.6; color:#AEB5BB; text-align:center; padding:10px 6px 16px;
 }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-aviso b{ color:var(--pc-ink); }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-aviso b.verde{ color:var(--pc-accent); }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-aviso-sub{
+  font-size:13px; color:var(--pc-ink-dim); margin-top:12px; line-height:1.55;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-pontos:focus{ outline:none; }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-hero{
   display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
 }
