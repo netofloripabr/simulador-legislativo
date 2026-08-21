@@ -6,7 +6,7 @@ Gerado em 2026-08-21 por `ferramentas/conferir_rrc.py`. Cruza `sc-2026-provisori
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **671** confirmados, **0** divergência(s) de partido, **1** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **672** confirmados, **0** divergência(s) de partido, **0** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -15,7 +15,7 @@ Resumo: **671** confirmados, **0** divergência(s) de partido, **1** candidato(s
 | Governador | 8 | 10 | 9 |
 | Vice-Governador | 8 | 12 | 2 |
 | Senador | 13 | 16 | 15 |
-| Deputado Federal | 230 | 244 | 231 |
+| Deputado Federal | 230 | 245 | 232 |
 | Deputado Estadual | 408 | 435 | 410 |
 | Senador (1º suplente) | 13 | 19 | 2 |
 | Senador (2º suplente) | 13 | 15 | 2 |
@@ -23,14 +23,6 @@ Resumo: **671** confirmados, **0** divergência(s) de partido, **1** candidato(s
 ## Divergências de partido
 
 Nenhuma — todo número que bate entre os dois arquivos também bate o partido.
-
-## Candidatos no RRC sem entrada correspondente no nosso arquivo
-
-Registrado oficialmente mas não achado por número em nenhuma ata processada — pode ser candidato que a ata não cobriu, ou número novo por retificadora que ainda não baixamos. Revisar manualmente antes de adicionar (ver `ferramentas/tratar_atas.py`).
-
-| Cargo | Número | Nome (RRC) | Coligação/Partido |
-|---|---|---|---|
-| Deputado Federal | 5533 | EDIANE APARECIDA FOLLE | PSD |
 
 ## Sugestão de número (nosso arquivo tem `numero:null`, casado por nome com o RRC)
 
@@ -69,10 +61,11 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Senador (2º suplente) | Wagner Luiz Betto | 161 | 347-pstu-convencao.pdf |
 
 
-## Decisões aplicadas (21/08/2026, com aval do usuário)
+## Decisões aplicadas (21/08/2026, com aval do usuário — versão corrigida)
 
-- **8 números atualizados pelo RRC** (mesmo cargo): Alan Alves Moreira (PSB, 4000→4033), Cleber Luciano Santana (PRD/SOL, 7725→7777), Diego Machado (PSD, 55255→55100), Inajara Rodrigues (MDB, 15905→15180), Joao Batista Da Silva (PRD/SOL, 25098→25123), Kariny Muller Brum (PSDB/CID, 45588→45888), Lucas Melo (PODE, 20666→20316), Neuri Mantelli (PSD, 55852→55007).
-- **Sadi Miguel Ribeiro (AVANTE)**: Dep. Estadual 70111 → **Dep. Federal 7020**, seguindo o registro oficial.
-- **Ediane Aparecida Folle (PSD)**: **desistiu da candidatura** (informação do usuário) — removida do elenco. É a única linha restante em "no RRC sem entrada correspondente": o RRC ainda a lista, o nosso arquivo não, de propósito. Pela política do RANQUEAMENTO.md, candidatura retirada não pontua na apuração.
+- **8 números atualizados pelo RRC** (mesmo cargo): Alan Alves Moreira (PSB, 4033), Cleber Luciano Santana (PRD/SOL, 7777), Diego Machado (PSD, 55100), Inajara Rodrigues (MDB, 15180), Joao Batista Da Silva (PRD/SOL, 25123), Kariny Muller Brum (PSDB/CID, 45888), Lucas Melo (PODE, 20316), Neuri Mantelli (PSD, 55007).
+- **Sadi Miguel Ribeiro (AVANTE)**: Dep. Estadual 70111 → **Dep. Federal 7020** (registro oficial).
+- **Ediane Aparecida Folle (PSD)**: Dep. Estadual 55333 → **Dep. Federal 5533** (registro oficial). Uma remoção por desistência aplicada mais cedo em 21/08 foi um engano de identificação, corrigido no mesmo dia.
+- **Neuri Luiz Mantelli (PSD, Dep. Estadual 55007): DESISTIU** (informação do usuário, 21/08). Política definida: desistência/sub judice **não sai do elenco** — o candidato ganha etiqueta de status e a célula congela (sem receber votos); não pontua na apuração (RANQUEAMENTO.md). Implementação da etiqueta em prototipagem.
 
-*(Nota: este arquivo é regenerado por `conferir_rrc.py` — se esta seção sumir numa regeração futura, a história completa está no commit desta data.)*
+*(Este arquivo é regenerado por `conferir_rrc.py` — a história completa está nos commits de 21/08/2026.)*
