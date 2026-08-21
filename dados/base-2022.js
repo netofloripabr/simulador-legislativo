@@ -671,8 +671,3 @@ const NOMES_FICTICIOS = ["Ana","Carlos","Fernanda","João","Juliana","Marcos","P
 const SOBRENOMES_FICTICIOS = ["Silva","Souza","Oliveira","Pereira","Costa","Ferreira","Rodrigues","Almeida","Nascimento","Carvalho","Gomes","Martins","Araújo","Barbosa","Ribeiro","Cardoso","Teixeira","Correia","Dias","Moreira"];
 const MUNICIPIOS_SC = [...new Set(BASE_2022.flatMap(p => p.candidatos.map(c=>c.municipio).filter(Boolean)))];
 
-function gerarCandidatoAleatorio(){
-  const nome = `${NOMES_FICTICIOS[Math.floor(Math.random()*NOMES_FICTICIOS.length)]} ${SOBRENOMES_FICTICIOS[Math.floor(Math.random()*SOBRENOMES_FICTICIOS.length)]}`;
-  const municipio = MUNICIPIOS_SC[Math.floor(Math.random()*MUNICIPIOS_SC.length)];
-  return { nome, municipio };
-}

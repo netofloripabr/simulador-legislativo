@@ -177,10 +177,6 @@
     text-align:left; white-space:normal;
   }
   .info-tip:hover .tip-box{ display:block; }
-  /* Toque mantido (celular) — mesmo efeito do :hover, só que acionado por
-     JS (interface/app.js) depois de ~420ms de dedo pressionado, porque
-     não existe :hover de verdade em touch. */
-  .info-tip.pc-legenda-toque .tip-box{ display:block; }
   .info-tip .tip-box b{ color:var(--accent); }
   .info-tip .tip-box::after{
     content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%);
@@ -323,49 +319,6 @@
   #modoColaborativoWrap .info-tip.warn{ border-color: var(--pc-danger); color: var(--pc-danger); background: rgba(232,67,42,0.12); }
   #modoColaborativoWrap .info-tip.warn .tip-box{ border-color: var(--pc-danger); }
   #modoColaborativoWrap .info-tip.warn .tip-box::after{ border-top-color: var(--pc-danger); }
-
-  /* Termômetro de quociente/sobra (card de partido, Seleção) — barra em
-     segmentos-pílula, uma posição por vaga marcada, nunca mostra nome de
-     candidato. Verde sólido = quociente partidário; hachurado âmbar = sobra
-     garantida hoje; tracejado rosa/vazado = fora hoje. Confirmado com o
-     usuário em 06/08/2026 após várias rodadas de protótipo visual. */
-  /* Tamanho do segmento (--pc-term-w) calculado em JS depois do card estar
-     no DOM (ajustarBarrasTermometro, interface/prospeccao.js) — nem flex
-     nem grid puro conseguem, sozinhos, "encolher primeiro, quebrar linha
-     só depois, e todas as linhas do mesmo tamanho" ao mesmo tempo (flex
-     deixava a última linha, com poucos itens sobrando, esticar mais que
-     a primeira; grid preferia empilhar linhas no tamanho máximo em vez de
-     encolher). flex-wrap aqui só cuida de quebrar linha quando os
-     segmentos (já do tamanho calculado) não cabem mais. border-radius:999px
-     serve pro segmento largo (vira pílula) e pro círculo mínimo (vira
-     bolinha) com a mesma regra. */
-  #modoColaborativoWrap .pc-term-bar{ display:flex; flex-wrap:wrap; gap:5px; margin:14px 0 8px; }
-  #modoColaborativoWrap .pc-term-seg{
-    position:relative; flex:0 0 auto; width:var(--pc-term-w, 30px); height:11px; border-radius:999px; cursor:help;
-  }
-  #modoColaborativoWrap .pc-term-seg.qp{ background: var(--pc-lobby-verde-media); }
-  #modoColaborativoWrap .pc-term-seg.sobra{
-    border:1.5px solid var(--pc-warning);
-    background: repeating-linear-gradient(45deg, rgba(198,230,42,.28) 0 3px, transparent 3px 6px);
-  }
-  #modoColaborativoWrap .pc-term-seg.fora{ border:1.5px dashed var(--pc-danger); background:transparent; }
-  #modoColaborativoWrap .pc-term-seg .tip-box{
-    display:none; position:absolute; bottom:135%; left:50%; transform:translateX(-50%);
-    width:220px; background:rgba(12,28,22,.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-    border:1px solid var(--pc-warning); border-radius:7px; padding:9px 11px;
-    font-family:var(--sans); font-size:11px; font-style:normal; font-weight:400; color:var(--pc-ink);
-    line-height:1.5; z-index:50; box-shadow:0 6px 18px rgba(0,0,0,.4); text-align:left; white-space:normal;
-    cursor:auto;
-  }
-  #modoColaborativoWrap .pc-term-seg:hover .tip-box{ display:block; }
-  #modoColaborativoWrap .pc-term-seg .tip-box b{ color: var(--pc-accent); }
-  #modoColaborativoWrap .pc-term-seg .tip-box::after{
-    content:""; position:absolute; top:100%; left:50%; transform:translateX(-50%);
-    border:6px solid transparent; border-top-color:var(--pc-warning);
-  }
-  #modoColaborativoWrap .pc-term-legenda{ display:flex; gap:16px; font-size:11px; color:var(--pc-ink-dim); flex-wrap:wrap; }
-  #modoColaborativoWrap .pc-term-legenda span{ display:inline-flex; align-items:center; gap:6px; }
-  #modoColaborativoWrap .pc-term-dot{ width:7px; height:7px; border-radius:50%; display:inline-block; flex-shrink:0; }
   #modoColaborativoWrap .glass-card{
     background: var(--pc-glass); border: 1px solid var(--pc-glass-border);
     border-radius: 14px; padding: 22px 24px; margin-bottom: 18px;
@@ -388,25 +341,9 @@
     font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
     color: var(--pc-ink-dim); margin-bottom:8px;
   }
-  #modoColaborativoWrap .pc-lobby-menu-faixa{
-    display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; padding:2px 16px 6px 0; margin:0 -16px 18px 0;
-  }
-  #modoColaborativoWrap .pc-lobby-menu-faixa::-webkit-scrollbar{ display:none; }
-  #modoColaborativoWrap .pc-lobby-menu-item{
-    flex-shrink:0; width:104px; background: var(--pc-lobby-tom-3); border:none; border-radius:18px;
-    padding:14px; display:flex; flex-direction:column; align-items:flex-start; gap:22px; cursor:pointer;
-    font-family: var(--sans); color: var(--pc-ink);
-  }
-  #modoColaborativoWrap .pc-lobby-menu-item span{ font-size:11px; font-weight:600; text-align:left; }
-  #modoColaborativoWrap .pc-lobby-menu-item:disabled{ opacity:.5; cursor:default; }
   #modoColaborativoWrap .pc-lobby-icon-btn{
     background: var(--pc-lobby-tom-3); border:none; border-radius:12px; width:38px; height:38px;
     display:flex; align-items:center; justify-content:center; cursor:pointer; color: var(--pc-accent); flex-shrink:0;
-  }
-  #modoColaborativoWrap .pc-lobby-cta{
-    width:100%; background: var(--pc-accent); border:none; border-radius:18px 18px 0 0;
-    padding:12px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;
-    font-family: var(--sans); color:#04140d; font-size:13.5px; font-weight:700; margin-top:6px;
   }
   /* Redesenho do Painel (Lobby), 16/08/2026 — referências trazidas pelo
      usuário (Nubank/BYD): banner de destaque com brilho suave + grade de
@@ -486,9 +423,6 @@
     border-radius: 8px; padding: 9px 11px; font-family: var(--sans); width: 100%;
   }
   #modoColaborativoWrap input.cell:focus, #modoColaborativoWrap select.cell:focus, #modoColaborativoWrap textarea.cell:focus{ outline:none; border-color: var(--pc-accent); }
-  /* Box de votação com ajuste manual (votosEditado=true) — diferencia de
-     valor automático/padrão sem precisar de texto, só a borda. */
-  #modoColaborativoWrap input.cell.pc-voto-manual{ border-color: rgba(61,255,176,.55); }
   #modoColaborativoWrap input[type="checkbox"]{ accent-color: var(--pc-accent); }
   #modoColaborativoWrap .field-row{ display:flex; flex-direction:column; align-items:stretch; gap:5px; margin-bottom:14px; }
   #modoColaborativoWrap .field-row label{ width:auto; }
@@ -517,10 +451,6 @@
   }
   #modoColaborativoWrap td{ padding:7px 6px; border-bottom:1px solid #16241e; vertical-align:middle; }
   #modoColaborativoWrap th.num, #modoColaborativoWrap td.num{ text-align:right; font-family:var(--mono); }
-  #modoColaborativoWrap .pc-anonimo{
-    font-size:10px; color: var(--pc-ink-dim); font-family: var(--mono); font-style: italic;
-  }
-  #modoColaborativoWrap .pc-tabs{ display:flex; gap:8px; margin-bottom:18px; }
   #modoColaborativoWrap .pc-tab{
     font-family: var(--sans); font-size: 13px; font-weight:600; padding: 9px 14px; border-radius: 999px;
     cursor:pointer; border: 1px solid #2a4438; background: none; color: var(--pc-ink-dim);
@@ -554,38 +484,6 @@
      desalinhava a pílula toda. white-space:nowrap garante que nunca quebra;
      o clamp garante que sempre cabe (pedido do usuário em 17/08/2026). */
   #modoColaborativoWrap #pcStickyHeader .pc-cargo-switch button{ font-size:clamp(11px, 3.4vw, 12.5px); white-space:nowrap; }
-
-  /* Cartão "Painel Eleitoral" (Seus Eleitos/Quociente/Soma de Votos/dica) —
-     antes dependia de overflow-x:auto (scroll escondido, com uma sombra na
-     borda direita insinuando "tem mais") pra caber; agora cada bloco
-     encolhe de verdade (clamp no tamanho da fonte) até tudo caber numa
-     linha só, sem precisar rolar. Mesmo raciocínio do painel de comandos
-     (ver .pc-cmd-painel): min-width:0 é o que permite o flex encolher de
-     verdade, sem isso o texto força a largura mínima do conteúdo. */
-  #modoColaborativoWrap .pc-stats-row{ display:flex; align-items:center; width:100%; }
-  #modoColaborativoWrap .pc-stats-item{ flex:1 1 0; min-width:0; }
-  #modoColaborativoWrap .pc-stats-item .pc-stats-lbl{
-    font-size:clamp(8.5px, 2.4vw, 10px); color:var(--pc-ink-dim); margin-bottom:2px;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:4px;
-  }
-  #modoColaborativoWrap .pc-stats-item .pc-stats-val{
-    font-family:var(--mono); font-size:clamp(13px, 4.2vw, 19px); font-weight:700; line-height:1; color:var(--pc-ink); white-space:nowrap;
-  }
-  #modoColaborativoWrap .pc-stats-item .pc-stats-val .pc-stats-meta{ font-size:.6em; color:var(--pc-ink-dim); font-weight:400; }
-  #modoColaborativoWrap .pc-stats-item .pc-stats-val.baixo{ color:#ff9500; }
-  #modoColaborativoWrap .pc-stats-div{ width:1px; height:26px; background:rgba(120,130,180,.18); flex-shrink:0; margin:0 8px; }
-  /* Botão de dica ("Como montar a lista") — tamanho fixo, não encolhe
-     junto com os números (é um ícone, não um texto que precisa de
-     espaço proporcional). Realocado pra cá (era um comando na barra de
-     baixo) porque é uma dica de COMO montar a lista inteira — faz mais
-     sentido perto do resumo do que junto dos comandos de edição. Pedido
-     do usuário em 17/08/2026. */
-  #modoColaborativoWrap .pc-stats-dica{
-    flex:0 0 auto; width:26px; height:26px; border-radius:50%;
-    background:#0c1c16; border:1px solid #2a4438; color:var(--pc-ink-dim);
-    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; margin-left:2px;
-  }
-  #modoColaborativoWrap .pc-stats-dica:hover{ color:var(--pc-accent); border-color:var(--pc-accent); }
   #modoColaborativoWrap .pc-tab-dot{ display:inline-block; width:5px; height:5px; border-radius:50%; margin-left:5px; border:1px solid currentColor; opacity:.5; vertical-align:middle; }
   #modoColaborativoWrap .pc-tab-dot.done{ background:currentColor; opacity:1; }
 
@@ -628,12 +526,6 @@
   #modoColaborativoWrap .pc-mini-btn:hover{ background:rgba(61,255,176,.18); border-color:var(--pc-accent); color:var(--pc-accent); }
   #modoColaborativoWrap .pc-mini-btn:disabled{ opacity:.4; cursor:default; }
   #modoColaborativoWrap .pc-mini-btn:disabled:hover{ background:#0c1c16; border-color:#2a4438; color:var(--pc-ink-dim); }
-  #modoColaborativoWrap .pc-mini-btn .pc-mini-tip{
-    display:none; position:absolute; bottom:130%; left:50%; transform:translateX(-50%);
-    white-space:nowrap; background:#0c1c16; border:1px solid var(--pc-accent); border-radius:6px;
-    padding:5px 9px; font-size:11px; font-weight:600; color:var(--pc-ink); z-index:20;
-  }
-  #modoColaborativoWrap .pc-mini-btn:hover .pc-mini-tip{ display:block; }
 
   /* Painel de comandos padronizado da Seleção (barra de ações no fim da
      tela) — TODOS os botões numa linha só, só ícone, sem "i" individual
@@ -690,52 +582,6 @@
   #modoColaborativoWrap .pc-cmd-legenda-item .pc-cmd-legenda-titulo{ font-size:13px; font-weight:600; color:var(--pc-ink); }
   #modoColaborativoWrap .pc-cmd-legenda-item .pc-cmd-legenda-sub{ font-size:11.5px; color:var(--pc-ink-dim); margin-top:1px; line-height:1.4; }
 
-  /* Alça de expandir/recolher o card do partido — estilo "puxador" de
-     bottom sheet, no lugar da setinha no canto (P-03). Centralizada em
-     relação à largura do card (justify-content:center no botão, que já
-     ocupa 100% da largura) — mais larga (4x) e mais visível que a versão
-     original, que ficava discreta demais. */
-  #modoColaborativoWrap .pc-expand-handle{
-    display:flex; align-items:center; justify-content:center;
-    width:100%; padding:9px 0 11px; background:none; border:none; cursor:pointer;
-  }
-  #modoColaborativoWrap .pc-expand-handle span{
-    width:68px; height:4px; border-radius:999px; background:var(--pc-ink); opacity:.4;
-  }
-  #modoColaborativoWrap .pc-expand-handle:hover span{ background:var(--pc-accent); opacity:1; }
-
-  /* Setas de +1/-1 eleito ao lado do contador "marcados/vagas2022" (P-03) */
-  #modoColaborativoWrap .pc-stepper{ display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
-  #modoColaborativoWrap .pc-stepper-btn{
-    display:flex; align-items:center; justify-content:center;
-    width:24px; height:18px; padding:0; border-radius:4px;
-    background:rgba(61,255,176,.08); border:1px solid #2a4438; color:var(--pc-accent); cursor:pointer;
-  }
-  #modoColaborativoWrap .pc-stepper-btn:hover{ background:rgba(61,255,176,.18); border-color:var(--pc-accent); }
-  #modoColaborativoWrap .pc-stepper-btn:disabled{ opacity:.3; cursor:default; background:none; border-color:#2a4438; }
-
-  /* Caixa do stepper + contador de eleitos — mesma borda/fundo do campo de
-     votação (input.cell), pra usar o mesmo vocabulário visual do resto da
-     tela. Volta a ser grande/em destaque (borda verde), maior que os
-     ícones de ação ao lado — os ícones é que encolheram (.pc-mini-btn-sm,
-     26px) pra abrir espaço, em vez da caixa encolher. Contador com
-     min-width de 2 dígitos (nunca desloca ao passar de "6" pra "11") —
-     achado do usuário, 12/08/2026: a fileira de 4 ícones + contador
-     vazava pra fora do card na largura real de celular; a 1ª tentativa
-     (encolher só a caixa pra 34px) resolvia o alinhamento mas não a causa
-     raiz, e o usuário pediu a caixa de volta grande. */
-  #modoColaborativoWrap .pc-stepper-chip{
-    display:flex; align-items:center; gap:8px; flex-shrink:0;
-    background:#0c1c16; border:1.5px solid var(--pc-accent); border-radius:10px;
-    padding:5px 12px 5px 6px;
-  }
-  #modoColaborativoWrap .pc-stepper-count{
-    font-family:var(--mono); font-size:22px; font-weight:900; color:var(--pc-accent);
-    background:none; border:none; outline:none; width:2.3ch; text-align:center; padding:0;
-  }
-  #modoColaborativoWrap .pc-stepper-count:focus{ color:var(--pc-ink); }
-  #modoColaborativoWrap .pc-stepper-total{ font-size:11px; font-weight:400; color:var(--pc-ink-dim); }
-
   /* Interruptor "candidato eleito" — estilo neumórfico (trilho preenchido +
      bolinha branca com sombra suave própria, sem brilho/glow ao redor do
      interruptor inteiro): fundo cinza neutro quando desligado, verde sólido
@@ -762,33 +608,6 @@
   }
   #modoColaborativoWrap .pc-switch input:checked + .pc-switch-slider:after{ opacity:1; }
 
-  /* Selo "ELEITO"/"SOBRA"/"FORA" — substitui o interruptor de cada
-     candidato na Seleção (o interruptor virou .pc-switch-sobra/-fora até
-     16/08/2026; removido porque o usuário gostou tanto do selo pensado
-     originalmente só pra tela estreita que pediu pra virar o padrão em
-     QUALQUER largura — 17/08/2026). Mesma linguagem de cor de sempre:
-     verde = eleito por quociente direto (art. 107), âmbar = por sobra/
-     média (art. 109), rosa = marcado mas fora hoje com a votação atual.
-     Sem selo nenhum = não marcado. .pc-switch/.pc-switch-slider (acima)
-     continuam em uso pra outros toggles de verdade do app (ex.:
-     notificação por e-mail) — só o par sobra/fora daqui saiu. */
-  #modoColaborativoWrap .pc-cand-chip{
-    display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.04em;
-    color:var(--pc-accent); border:1px solid var(--pc-accent); border-radius:999px;
-    padding:2px 7px; margin-right:6px; vertical-align:2px; white-space:nowrap;
-  }
-  #modoColaborativoWrap .pc-cand-chip.sobra{ color:var(--pc-warning); border-color:var(--pc-warning); }
-  #modoColaborativoWrap .pc-cand-chip.fora{ color:var(--pc-danger); border-color:var(--pc-danger); }
-  /* Linha do candidato — flex-wrap real: quando nome+selo e a caixa de
-     voto não cabem lado a lado no cartão, a caixa desce sozinha pra
-     própria linha (com a largura toda, alinhada à direita), em vez de
-     espremer o nome. Reage à largura do CARTÃO, não da tela — funciona
-     igual em qualquer contexto (Seleção, grupo comparado mais estreito
-     etc.) sem precisar de um breakpoint fixo pra manter. Prototipado e
-     validado com o usuário em 17/08/2026. */
-  #modoColaborativoWrap .pc-cand-linha{ flex-wrap:wrap; }
-  #modoColaborativoWrap .pc-cand-voto{ flex:0 1 120px; min-width:84px; margin-left:auto; }
-
   /* Card de aviso/notificação com destaque laranja (ex.: limite de lista/
      grupo grátis atingido) — mesmo padrão de card do resto do app, só com
      borda e brilho suave laranja pra chamar atenção sem ser um alerta de
@@ -800,12 +619,7 @@
   }
   #modoColaborativoWrap .pc-aviso-card .pc-aviso-titulo{ font-size:12.5px; font-weight:700; color:var(--pc-warning); margin-bottom:4px; }
   #modoColaborativoWrap .pc-aviso-card .pc-aviso-corpo{ font-size:11.5px; color:var(--pc-ink-dim); line-height:1.5; }
-
-  /* Quadrados informativos (P-05) */
-  #modoColaborativoWrap .pc-tile-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:18px 0; }
   #modoColaborativoWrap .pc-tile{ position:relative; aspect-ratio:1; overflow:hidden; background:#0c1c16; border:1px solid #163a2c; border-radius:14px; display:flex; align-items:center; justify-content:center; padding:8px; }
-  #modoColaborativoWrap .pc-tile-icon{ width:44px; height:44px; color:var(--pc-accent); }
-  #modoColaborativoWrap .pc-tile-label{ position:absolute; left:4px; right:4px; bottom:8px; font-size:11px; font-weight:600; text-align:center; display:flex; align-items:center; justify-content:center; gap:3px; background:rgba(8,23,18,.72); border-radius:8px; padding:3px 0; }
 
   /* Impressão/PDF da Revisão (botão "Gerar") — monta um documento limpo à
      parte (#pcImpressaoConteudo, ver montarSecaoImpressaoCargo em
@@ -1125,18 +939,6 @@
   flex:1; min-width:0; font-size:14.5px; font-weight:650; color:#F2F4F5;
   overflow-wrap:anywhere;
 }
-#modoColaborativoWrap .pc-dep-magico{ flex:none; color:#34E84A; border-color:rgba(52,232,74,.4); }
-#modoColaborativoWrap .pc-dep-chip{
-  flex:none; background:#16181B; border:1px solid #2B2F33; color:#8A9096;
-  border-radius:4px; font-size:9px; font-weight:800; letter-spacing:.06em; padding:2px 5px;
-  white-space:nowrap;
-}
-#modoColaborativoWrap .pc-dep-chip.el{ background:#34E84A; border-color:#34E84A; color:#07230C; }
-#modoColaborativoWrap .pc-dep-pct{
-  flex:none; font-size:20px; font-weight:750; color:#F2F4F5;
-  font-variant-numeric:tabular-nums; line-height:1;
-}
-#modoColaborativoWrap .pc-dep-pct small{ font-size:10px; font-weight:650; color:#8A9096; }
 #modoColaborativoWrap .pc-dep-sub{ font-size:10px; color:#8A9096; margin-top:1px; }
 #modoColaborativoWrap .pc-dep-cands{ margin-top:8px; }
 #modoColaborativoWrap .pc-dep-crow{ padding:14px 0 10px; border-top:1px solid #1E2226; }
@@ -1370,10 +1172,6 @@
 }
 #modoColaborativoWrap.pc-tema-fader button.ghost:hover{ color:#F2F4F5; border-color:#3A3F45; }
 #modoColaborativoWrap.pc-tema-fader .pc-mini-btn:hover{ background:rgba(52,232,74,.1); border-color:#34E84A; color:#34E84A; }
-#modoColaborativoWrap.pc-tema-fader .pc-stepper-btn{
-  background:rgba(52,232,74,.08); border-color:#2B2F33; color:#34E84A;
-}
-#modoColaborativoWrap.pc-tema-fader .pc-stepper-btn:hover{ background:rgba(52,232,74,.16); border-color:#34E84A; }
 #modoColaborativoWrap.pc-tema-fader .pc-picker-item.pc-picker-disabled{ color:#4A4F54; }
 #modoColaborativoWrap.pc-tema-fader .pc-erro{ color:#E8432A; }
 /* Link de texto (Esqueci minha senha, Termos, Privacidade...) — cinza com
@@ -1453,9 +1251,6 @@
 }
 #modoColaborativoWrap .pc-capa-desafio svg{ flex:none; color:#8A9096; }
 #modoColaborativoWrap .pc-capa-aviso{ margin-top:22px; font-size:10.5px; color:#5C6268; }
-#modoColaborativoWrap .pc-capa-modo-antigo{
-  margin-top:10px; font-size:9px; padding:2px 8px; opacity:.5; border:none; background:none;
-}
 
 /* Ícone de "Carregando…" (telaCarregando, compartilhado por todo o app):
    círculo neutro por padrão, verde vivo com halo só dentro do tema Fader
@@ -1691,8 +1486,6 @@
 #modoColaborativoWrap.pc-tema-fader .pc-tut-pontos i.on{
   background:var(--pc-accent); animation:pcFarolRespira 3.4s ease-in-out infinite;
 }
-#modoColaborativoWrap.pc-tema-fader .pc-tut-titulo{ font-size:14px; font-weight:700; color:var(--pc-ink); }
-#modoColaborativoWrap.pc-tema-fader .pc-tut-hint{ font-size:11.5px; color:var(--pc-ink-dim); min-height:14px; }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-chame{ font-size:13.5px; font-weight:700; color:var(--pc-ink); }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-minipontos{
   display:inline-flex; align-items:center; gap:3px; margin-right:4px; flex:none;
@@ -1707,14 +1500,6 @@
   font-size:11px; color:#AEB5BB;
 }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-lin{ display:flex; align-items:center; gap:8px; }
-#modoColaborativoWrap.pc-tema-fader .pc-tut-leg{ padding:4px 0; color:#5C6268; font-size:11.5px; }
-#modoColaborativoWrap.pc-tema-fader .pc-tut-leg b{ color:#5C6268; font-weight:750; }
-#modoColaborativoWrap.pc-tema-fader .pc-tut-leg.on{ color:var(--pc-ink); }
-#modoColaborativoWrap.pc-tema-fader .pc-tut-leg.on b{ color:var(--pc-accent); }
-#modoColaborativoWrap.pc-tema-fader .pc-tut-leg-rodape{
-  margin-top:7px; padding-top:7px; border-top:1px solid rgba(242,244,245,.08);
-  font-size:10.5px; color:#5C6268; text-align:center;
-}
 #modoColaborativoWrap.pc-tema-fader .pc-tut-passo{
   color:var(--pc-accent); font-weight:800; font-size:9px; letter-spacing:.06em;
   text-transform:uppercase; flex:none;
@@ -1725,14 +1510,4 @@
 }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-item{ padding:6px 0 0; color:#5C6268; }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-item.on{ color:var(--pc-ink); }
-#modoColaborativoWrap.pc-tema-fader .pc-tut-explica{
-  font-size:12px; line-height:1.55; color:#AEB5BB; min-height:38px; max-width:300px;
-}
-#modoColaborativoWrap.pc-tema-fader .pc-tut-dots{
-  display:flex; justify-content:center; gap:6px; margin-top:14px;
-}
-#modoColaborativoWrap.pc-tema-fader .pc-tut-dots i{
-  width:5px; height:5px; border-radius:50%; background:#3A3F45;
-}
-#modoColaborativoWrap.pc-tema-fader .pc-tut-dots i.on{ background:#AEB5BB; }
 #modoColaborativoWrap.pc-tema-fader #pcFecharInstrucao:disabled{ opacity:.35; }

@@ -50,17 +50,8 @@ async function meusGrupos(perfilId) {
   return data.map((r) => r.grupos).filter(Boolean);
 }
 
-async function contarMembrosGrupo(grupoId) {
-  const { count, error } = await supabaseClient
-    .from("grupo_membros")
-    .select("*", { count: "exact", head: true })
-    .eq("grupo_id", grupoId);
-  if (error) {
-    console.error("Erro ao contar membros:", error);
-    return 0;
-  }
-  return count || 0;
-}
+// (declaração duplicada de contarMembrosGrupo removida em 21/08/2026 —
+// esta primeira versão era sobrescrita silenciosamente pela de baixo.)
 
 async function buscarComparacaoGrupo(grupoId) {
   const { data, error } = await supabaseClient

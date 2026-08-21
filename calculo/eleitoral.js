@@ -1,48 +1,18 @@
-// Estado do simulador + regras eleitorais (quociente, D'Hondt, medias, auto-balanceamento)
+// Regras eleitorais compartilhadas (quociente, D'Hondt, médias, escala
+// proporcional) + desenho do hemiciclo. O estado do Simulador individual
+// que morava aqui foi removido em 21/08/2026 (o Simulador saiu do app em
+// 18/08; sobrava state/cloneBase/setPartyVotes e a corDoPartido quebrada,
+// que derrubava a comparação de grupo com ReferenceError de
+// PALETA_PARTIDOS — o hemiciclo colorido agora usa corPartidoIdeologico,
+// a função pura da paleta P-03).
 
-let state = { totalVotos: null, totalVagas: 40, eleitorado2026: ELEITORADO_2026, autoBalance:true, vincularEleitorado:true, parties: [], expanded: {}, expandedMunicipios:{} };
-let candSeq = 1;
-const STORAGE_KEY = "simulador-legislativo-2026-scenario-v3";
 
-function cloneBase(){
-  return BASE_2022.map(p => ({
-    nome:p.nome, vagas2022:p.vagas2022,
-    votosManual: 0,
-    candidatos: p.candidatos.map(c => ({
-      id: candSeq++, nome:c.nome, municipio:c.municipio||"", votos2022:c.votos,
-      fonte:c.fonte, recandidato:true, votos:c.votos,
-      eleito2022: !!c.eleito2022, invalidado2022: !!c.invalidado2022, motivoInvalidacao: c.motivoInvalidacao
-    }))
-  }));
-}
 
 // votos efetivos do partido: soma dos candidatos se houver, senão o manual
 function partyVotos(p){
   return p.candidatos.length ? p.candidatos.reduce((s,c)=>s+(Number(c.votos)||0), 0) : (Number(p.votosManual)||0);
 }
 
-// redistribui um total fixo entre um array de valores, preservando a soma
-function distributeProportional(values, idx, rawNewValue, total){
-  const n = values.length;
-  const newValue = Math.max(0, Math.min(rawNewValue, total));
-  const result = values.slice();
-  result[idx] = newValue;
-  const remaining = total - newValue;
-  const othersSum = values.reduce((s,v,i)=> i===idx ? s : s+v, 0);
-  for(let i=0;i<n;i++){
-    if(i===idx) continue;
-    result[i] = othersSum > 0 ? values[i] * (remaining/othersSum) : remaining/(n-1);
-  }
-  const rounded = result.map(v=>Math.round(v));
-  const diff = total - rounded.reduce((a,b)=>a+b,0);
-  if(diff !== 0){
-    // aplica a diferença de arredondamento no maior item que não seja o editado
-    let bestI = -1, bestV = -1;
-    rounded.forEach((v,i)=>{ if(i!==idx && v>bestV){ bestV=v; bestI=i; } });
-    if(bestI>=0) rounded[bestI] += diff; else rounded[idx]+=diff;
-  }
-  return rounded;
-}
 
 // Quociente Eleitoral — Código Eleitoral, art. 106:
 // "desprezada a fração se igual ou inferior a meio, equivalente a um, se superior"
@@ -101,68 +71,8 @@ function dhondtComCorte(parties, seats){
   return { counts, corte, historico };
 }
 
-function setPartyVotes(idx, newValue){
-  const parties = state.parties;
-  if(state.autoBalance && state.totalVotos){
-    const current = parties.map(p => partyVotos(p));
-    const dist = distributeProportional(current, idx, newValue, state.totalVotos);
-    parties.forEach((p,i) => {
-      if(i===idx){
-        if(p.candidatos.length){ scaleCandidates(p, dist[i]); } else { p.votosManual = dist[i]; }
-      } else {
-        if(p.candidatos.length){ scaleCandidates(p, dist[i]); } else { p.votosManual = dist[i]; }
-      }
-    });
-  } else {
-    const p = parties[idx];
-    if(p.candidatos.length){ scaleCandidates(p, newValue); } else { p.votosManual = Math.max(0,newValue); }
-  }
-}
 
-function scaleCandidates(party, newTotal){
-  const current = party.candidatos.map(c => Number(c.votos)||0);
-  const oldTotal = current.reduce((a,b)=>a+b,0);
-  if(oldTotal <= 0){
-    // distribui igualmente
-    const share = Math.round(newTotal / party.candidatos.length);
-    party.candidatos.forEach((c,i) => c.votos = share);
-    const diff = newTotal - party.candidatos.reduce((s,c)=>s+c.votos,0);
-    if(party.candidatos.length) party.candidatos[0].votos += diff;
-    return;
-  }
-  const scale = newTotal / oldTotal;
-  let running = 0;
-  party.candidatos.forEach((c,i) => {
-    if(i < party.candidatos.length - 1){
-      c.votos = Math.round(current[i]*scale);
-      running += c.votos;
-    } else {
-      c.votos = newTotal - running;
-    }
-  });
-}
 
-function applyCandidateVoteChange(partyIdx, candIdx, newValue){
-  const parties = state.parties;
-  const party = parties[partyIdx];
-  party.candidatos[candIdx].votos = Math.max(0, newValue);
-  const newPartyTotal = partyVotos(party);
-
-  if(state.autoBalance && state.totalVotos){
-    const otherIdxs = parties.map((_,i)=>i).filter(i=>i!==partyIdx);
-    const otherCurrentVotes = otherIdxs.map(i=>partyVotos(parties[i]));
-    const otherCurrentSum = otherCurrentVotes.reduce((a,b)=>a+b,0);
-    const desiredOthersSum = Math.max(0, state.totalVotos - newPartyTotal);
-    otherIdxs.forEach((pi,k) => {
-      const p = parties[pi];
-      const share = otherCurrentSum > 0
-        ? otherCurrentVotes[k] * (desiredOthersSum/otherCurrentSum)
-        : desiredOthersSum/otherIdxs.length;
-      const novoValor = Math.round(share);
-      if(p.candidatos.length) scaleCandidates(p, novoValor); else p.votosManual = novoValor;
-    });
-  }
-}
 
 // (Listener do #autoBalanceToggle removido em 18/08/2026 junto com o
 // Simulador individual: o elemento saiu do index.html e o getElementById
@@ -173,18 +83,9 @@ function applyCandidateVoteChange(partyIdx, candIdx, newValue){
 const COR_VAGO = '#2a3a35';
 const SIGLA_CURTA = { "Podemos":"PODE", "União Brasil":"UB", "Republicanos":"REP", "Cidadania":"CID", "Solidariedade":"SD" };
 
-function corDoPartido(nome){
-  if(!state.partyColors) state.partyColors = {};
-  if(!state.partyColors[nome]){
-    const usadas = Object.values(state.partyColors);
-    state.partyColors[nome] = PALETA_PARTIDOS.find(c => !usadas.includes(c)) || PALETA_PARTIDOS[usadas.length % PALETA_PARTIDOS.length];
-  }
-  return state.partyColors[nome];
-}
 
 // Paleta ideológica do plenário da Prospecção Coletiva (P-03) — independente
-// de corDoPartido()/state acima, que é do Simulador individual e não deve
-// mudar. Partidos de base à esquerda saem da família vermelha, os demais da
+// (paleta própria da Prospecção, independente do Simulador antigo). Partidos de base à esquerda saem da família vermelha, os demais da
 // família azul; um punhado de partidos tem cor fixa pedida explicitamente.
 // Função pura (sem cache/estado): a cor de cada partido vem de um hash do
 // próprio nome, sempre a mesma em qualquer render.
@@ -232,7 +133,7 @@ function splitProporcional(total, pesos){
 // coresMono (opcional): { preenchido, vago, borda, texto, porPartido } — quando
 // informado, troca a cor do texto/borda pra funcionar tanto no tema escuro do
 // Simulador quanto no tema claro/glass da Prospecção Coletiva. Sem esse
-// parâmetro, mantém o comportamento colorido de sempre (corDoPartido).
+// parâmetro, usa a paleta ideológica (corPartidoIdeologico).
 // coresMono.porPartido (opcional, dentro de coresMono): em vez de uma borda
 // única pra todo mundo, cada assento preenchido usa a cor ideológica do seu
 // próprio partido (corPartidoIdeologico) — assentos vagos ficam com contorno
@@ -255,7 +156,7 @@ function desenharHemiciclo(listaPartidos, totalVagas, coresMono){
       corBorda = partido ? corPartidoIdeologico(partido) : '#ffffff';
       tracejado = !partido;
     } else {
-      cor = coresMono ? (partido ? coresMono.preenchido : coresMono.vago) : (partido ? corDoPartido(partido) : COR_VAGO);
+      cor = coresMono ? (partido ? coresMono.preenchido : coresMono.vago) : (partido ? corPartidoIdeologico(partido) : COR_VAGO);
       corBorda = coresMono ? coresMono.borda : 'var(--bg)';
       tracejado = false;
     }
@@ -285,7 +186,7 @@ function desenharHemiciclo(listaPartidos, totalVagas, coresMono){
       // menos opacidade.
       opacidadePreenchimento = 0.8;
     } else {
-      cor = coresMono ? (partido ? coresMono.preenchido : coresMono.vago) : (partido ? corDoPartido(partido) : COR_VAGO);
+      cor = coresMono ? (partido ? coresMono.preenchido : coresMono.vago) : (partido ? corPartidoIdeologico(partido) : COR_VAGO);
       corBorda = coresMono ? coresMono.borda : 'var(--bg)';
       tracejado = false;
       opacidadePreenchimento = 1;

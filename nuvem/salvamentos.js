@@ -138,24 +138,6 @@ async function carregarSalvamentoCompleto(salvamentoId) {
   return { ...salvamento, cargos };
 }
 
-// Marca um salvamento como oficial SEM depositar (o trigger
-// salvamentos_oficial_unica cuida de desmarcar o anterior da mesma
-// pessoa+estado automaticamente). Diferente de depositarSalvamento: isto só
-// troca "o que conta agora" no Quadro de Médias — o salvamento continua
-// editável depois (depositado_em não é tocado). Bloqueado pela RLS se o
-// salvamento já estiver depositado (não deveria acontecer via UI, já que um
-// depositado não aparece como opção de "tornar oficial" de novo, mas a
-// trava real é no banco).
-async function marcarSalvamentoOficial(salvamentoId) {
-  // .select() depois do update pra pegar o mesmo caso de "RLS bloqueou sem
-  // gerar erro" já corrigido em excluirSalvamento — sem isso, tentar marcar
-  // como oficial um salvamento de outra pessoa (ou já depositado por engano)
-  // pareceria "sucesso" sem ter mudado nada.
-  const { data, error } = await supabaseClient.from("salvamentos").update({ oficial: true }).eq("id", salvamentoId).select();
-  if (error) return { error };
-  if (!data || !data.length) return { error: { message: "Não foi possível marcar essa lista como oficial." } };
-  return { error: null };
-}
 
 // "Depositar cédula": torna um salvamento definitivo. Marca depositado_em
 // (timestamp de agora) e oficial:true na mesma chamada — depositar sempre
@@ -205,50 +187,8 @@ async function depositarSalvamento(salvamentoId, anonimo) {
   return { data: null, error: { message: "Não consegui gerar um código único pra essa cédula. Tente depositar de novo." } };
 }
 
-async function renomearSalvamento(salvamentoId, novoNome) {
-  // Mesmo ajuste de marcarSalvamentoOficial/excluirSalvamento: sem
-  // .select(), um rename bloqueado pela RLS (lista de outra pessoa, ou já
-  // depositada) voltava "sem erro" mesmo sem ter mudado nada no banco.
-  const { data, error } = await supabaseClient.from("salvamentos").update({ nome: novoNome }).eq("id", salvamentoId).select();
-  if (error) return { error };
-  if (!data || !data.length) return { error: { message: "Não foi possível renomear essa lista." } };
-  return { error: null };
-}
 
-// Apaga o salvamento e as 3 listas de cargo junto (on delete cascade, ver
-// migração) — se este era o oficial, o estado fica sem nenhum salvamento
-// oficial daquele estado (ninguém é promovido automaticamente; é decisão da
-// pessoa marcar outro como oficial depois, via marcarSalvamentoOficial).
-//
-// Decidido em 08/08/2026: salvamento depositado NÃO pode ser excluído
-// (RLS "salvamentos_delete_proprio" já bloqueia isso no banco). O Supabase
-// não devolve erro quando a RLS simplesmente não acha nenhuma linha pra
-// apagar — só apaga 0 linhas silenciosamente — por isso o .select() abaixo:
-// sem ele, tentar excluir um depositado pareceria "sucesso" pra tela sem
-// ter apagado nada de verdade.
-async function excluirSalvamento(salvamentoId) {
-  const { data, error } = await supabaseClient.from("salvamentos").delete().eq("id", salvamentoId).select();
-  if (error) return { error };
-  if (!data || !data.length) return { error: { message: "Essa lista já foi depositada — não dá mais pra excluir." } };
-  return { error: null };
-}
 
-// Busca os salvamentos OFICIAIS de todo mundo, pro Quadro de Médias — 1
-// linha por pessoa+estado, já com os 3 cargos juntos (lista_estadual/
-// lista_federal/lista_senador), via listas_salvas_publicas (migração 5).
-// Mesmo uso de buscarTodosPalpitesPublicos/buscarTodosRascunhosPublicos
-// (nuvem/palpites.js), mas cobrindo o modelo de "salvamentos nomeados" em
-// vez do palpite único ou do rascunho de trabalho em progresso.
-async function buscarSalvamentosPublicosOficiais(estado) {
-  let query = supabaseClient.from("listas_salvas_publicas").select("*");
-  if (estado) query = query.eq("estado", estado);
-  const { data, error } = await query;
-  if (error) {
-    console.error("Erro ao carregar salvamentos públicos:", error);
-    return [];
-  }
-  return data || [];
-}
 
 // Consulta pública por nome ou código da cédula (tela de Ranking, pedido
 // do usuário — BACKLOG.md), usa salvamentos_depositados_publicos

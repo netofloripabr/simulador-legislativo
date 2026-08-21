@@ -2,7 +2,7 @@
 // detalhado), quadro de médias e placeholder de ranking. Depende de tudo em
 // nuvem/*.js (carregado antes) e reaproveita helpers de dados/calculo/interface
 // já existentes (BASE_2022, dhondt, desenharHemiciclo, chevron, infoTip,
-// selosCandidato2022, corDoPartido). Não toca em `state`/app.js — estado
+// paleta ideológica do hemiciclo). Não toca em estado de DOM — regra:
 // próprio (`pcState`) para não arriscar quebrar o Simulador individual.
 
 // Número de cache-busting (?cb=NN) lido direto do próprio <script src> —
@@ -35,7 +35,7 @@ let pcState = {
   ufPesquisaResultados: null, // cache do resultado de usuarioFinalPesquisaAgregada()
   ufPesquisaCargo: "estadual", // qual cargo o Painel do usuário final está mostrando
   // carregando | erro-conexao | landing | estado | selecao-convidado |
-  // revisao-convidado | deposito-confirmado | lobby | detalhado-convidado |
+  // revisao-convidado | deposito-confirmado |
   // login | cadastro | app
   tela: "carregando",
   subaba: "selecao", // selecao | painel | palpite | medias | ranking (só usado dentro de "app", logado)
@@ -209,16 +209,6 @@ function comandoIcone(opcoes) {
   return `<button type="button" id="${id}" class="${classe}${classeExtra ? " " + classeExtra : ""}" title="${escaparAtributoHtml(titulo)}" ${disabled ? "disabled" : ""} ${atributosExtra || ""}>${iconeSvg(icone, mini ? 12 : (tamanho || 15))}</button>`;
 }
 
-// renderPainelComandos: monta a linha inteira de ícones + o "i" + o painel
-// de legenda (fechado por padrão) a partir da MESMA lista de comandos —
-// uma fonte só de verdade, sem repetir título/ícone/explicação em dois
-// lugares. `comandos` é um array de { id, icone, tamanho, titulo, legenda,
-// disabled, classeExtra, atributosExtra }; `aberta` é
-// pcState.legendaComandosAberta (ou equivalente) pra lembrar o estado
-// entre re-renders.
-// Só o painel expandível de legendas (sem a fileira de botões) — usado no
-// modelo fader dos deputados, onde os botões moram no console do cabeçalho
-// fixo mas a legenda abre no conteúdo (pra não esticar o sticky).
 function renderLegendaComandos(comandos) {
   const itens = comandos.map((c) => `
     <div class="pc-cmd-legenda-item">
@@ -231,23 +221,6 @@ function renderLegendaComandos(comandos) {
   return `<div class="pc-cmd-legenda-painel aberto" id="pcCmdLegendaPainel">${itens}</div>`;
 }
 
-function renderPainelComandos(comandos, aberta) {
-  const botoes = renderBotoesComandos(comandos);
-  const itensLegenda = comandos.map((c) => `
-    <div class="pc-cmd-legenda-item">
-      <div class="pc-cmd-legenda-icone">${iconeSvg(c.icone, 15)}</div>
-      <div>
-        <div class="pc-cmd-legenda-titulo">${c.titulo}</div>
-        <div class="pc-cmd-legenda-sub">${c.legenda || ""}</div>
-      </div>
-    </div>`).join("");
-  return `
-    <div class="pc-cmd-painel">
-      ${botoes}
-      <button type="button" id="pcCmdLegendaToggle" class="pc-cmd-info${aberta ? " aberto" : ""}" title="O que faz cada botão">i</button>
-    </div>
-    <div class="pc-cmd-legenda-painel${aberta ? " aberto" : ""}" id="pcCmdLegendaPainel">${itensLegenda}</div>`;
-}
 
 // Escapa aspas pra usar valor de texto livre (ex.: link de Instagram
 // cadastrado por um admin) dentro de um atributo HTML sem quebrar o resto
@@ -300,12 +273,6 @@ function chevron(open) {
   return `<svg width="11" height="11" viewBox="0 0 16 16" style="vertical-align:middle; transform:rotate(${open ? 90 : 0}deg); transition:transform .15s;">
     <path d="M5 3 L11 8 L5 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
-}
-function selosCandidato2022(c) {
-  let html = "";
-  if (c.eleito2022) html += `<span class="badge-eleito2022">eleito 2022</span>`;
-  if (c.invalidado2022) html += warnTip(`<b>Voto invalidado em 2022</b><br><br>${c.motivoInvalidacao || "Candidatura sub júdice — votação não contou no resultado final."}`);
-  return html;
 }
 
 // Link de Compartilhar (ver mostrarLinkCompartilhavel) — index.html?ver=<id>.
@@ -890,7 +857,6 @@ function renderColaborativo() {
   if (pcState.tela === "minhas-listas-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMinhasListas(); atualizarMenuFixo("minhas-listas"); return; }
   if (pcState.tela === "ranking-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderRankingPlaceholder(); atualizarMenuFixo("ranking"); return; }
   if (pcState.tela === "ajuda-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderCentralAjuda(); atualizarMenuFixo(null); return; }
-  if (pcState.tela === "detalhado-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMeuPalpite(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "login") return renderTelaLogin();
   if (pcState.tela === "recuperar-senha") return renderTelaRecuperarSenha();
   if (pcState.tela === "nova-senha") return renderTelaNovaSenha();
@@ -1825,7 +1791,6 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "deposito-confirmado") { renderDepositoConfirmado(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "painel") { renderPainelPrincipal(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "minhas-listas") { renderMinhasListas(); atualizarMenuFixo("minhas-listas"); }
-  else if (pcState.subaba === "palpite") { renderMeuPalpite(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "medias") { renderQuadroMedias(); atualizarMenuFixo("medias"); }
   else if (pcState.subaba === "grupo") { renderGrupoHub(); atualizarMenuFixo("grupo"); }
   else if (pcState.subaba === "menu") { renderMenuConta(); atualizarMenuFixo(null); }
@@ -3826,24 +3791,6 @@ function formatVotosCompacto(n) {
   return n >= 1000 ? Math.round(n / 1000) + "k" : String(n);
 }
 
-// Mini-tabela padrão usada pelos dois contadores de federação (referência
-// de 2022 e soma de votos indicados) — sempre centralizada (na página e
-// dentro de cada célula) pra ficarem visualmente iguais uma à outra.
-// linhas: [{ valores:[...], total:bool }] — total:true deixa a linha em
-// negrito/destaque e com uma borda por cima, separando do resto.
-function pcMiniTabela(colunas, linhas) {
-  // Mesma fonte/cor neutra do resto das informações de referência (ex.:
-  // "eleição 2022: 506.374 votos · 6 Deputados eleitos") — sem negrito nem
-  // cor de destaque, só o conteúdo de cada célula centralizado. A tabela em
-  // si fica alinhada à direita do card (margin-left:auto), não no centro.
-  const estiloCelula = "font-size:11.5px; color:var(--pc-ink-dim); text-align:center; vertical-align:middle; padding:2px 12px;";
-  const cabecalho = colunas.map((c) => `<th style="${estiloCelula} font-weight:400;">${c}</th>`).join("");
-  const corpo = linhas.map((linha) => {
-    const tds = linha.valores.map((v) => `<td style="${estiloCelula} font-weight:400;">${v}</td>`).join("");
-    return `<tr${linha.total ? ' style="border-top:1px solid #2a4438;"' : ""}>${tds}</tr>`;
-  }).join("");
-  return `<table style="width:auto; margin-left:auto; border-collapse:collapse;"><thead><tr>${cabecalho}</tr></thead><tbody>${corpo}</tbody></table>`;
-}
 
 function fatorCrescimentoEleitorado() {
   return ELEITORADO_2026 / REF_2022.eleitorado;
@@ -4084,15 +4031,6 @@ function metaVotosMarcados(marcados, base) {
   return info ? info.necessario : 0;
 }
 
-function statusPartidoSelecao(p) {
-  const marcados = p.candidatos.filter((c) => c.marcadoEleito);
-  if (marcados.length === 0) return { cor: "var(--pc-ink-dim)", texto: "" };
-  const esperado = metaVotosMarcados(marcados);
-  const soma = marcados.reduce((s, c) => s + (Number(c.votos) || 0), 0);
-  return soma >= esperado * 0.9
-    ? { cor: "var(--pc-accent-2)", texto: "ok" }
-    : { cor: "var(--pc-warning)", texto: "faltam votos" };
-}
 
 // Teto de "naturalidade" do autopreenchimento — pedido do usuário em
 // 08/08/2026: nenhum candidato que recebe voto de forma automática (tanto
@@ -5853,7 +5791,6 @@ async function renderCargoEstadual() {
   // dados/estados/registro-2022.js).
   const totalVagasCargo = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
   const totalIndicado = pcState.palpiteEdicao.reduce((s, p) => s + p.candidatos.filter((c) => c.marcadoEleito).length, 0);
-  const somaTotal = pcState.palpiteEdicao.reduce((s, p) => s + p.candidatos.filter((c) => c.marcadoEleito).reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
   // "Válidos estimados" precisa ser do ESTADO/cargo ativo, não fixo em SC —
   // antes usava direto REF_2022 (só de SC), então em estados maiores (ex.:
   // SP) a soma de votos marcados passava longe do "total" mostrado. Soma o
@@ -5884,12 +5821,6 @@ async function renderCargoEstadual() {
   // usuário em 12/08/2026 — "o quociente é um ponto central, deveria estar
   // no card geral do cabeçalho"). Não existe pra Senador (majoritário, sem
   // quociente/QP/sobra — mesma ressalva de refQuociente).
-  const qeAtualLive = pcState.cargoAtivo !== "senador"
-    ? quocienteEleitoral(pcState.palpiteEdicao.reduce((s, pp) => s + partyVotos(pp), 0), totalVagasCargo)
-    : null;
-  const qeProjetadoTopo = pcState.cargoAtivo !== "senador"
-    ? quocienteEleitoral(votosValidos2026Proj, totalVagasCargo)
-    : null;
   // Quociente eleitoral REAL de 2022 (não a projeção de 2026) — usado só
   // pra explicar, no rodapé "2022" de cada partido, quantas das vagas
   // vieram de quociente partidário puro (art. 107) e quantas vieram de
@@ -5996,46 +5927,9 @@ async function renderCargoEstadual() {
     ? partidosOrdenados.filter((p) => normalizarBusca(nomePartidoExibicao(p.nome)).includes(filtroPartido))
     : partidosOrdenados;
 
-  // Base do termômetro (barraTermometro, abaixo): D'Hondt rodado direto
-  // sobre o voto BRUTO já digitado (pcState.palpiteEdicao, sem escala) —
-  // a mesma fonte que listaUnificadaRevisao usa na Revisão. Antes o
-  // termômetro comparava com necessarioParaVagas (que escala TODOS os
-  // partidos pra uma projeção fixa de 2026), o que divergia da Revisão de
-  // verdade sempre que os outros partidos ainda não tinham sido
-  // preenchidos — auditoria com revisor-regra-eleitoral em 06/08/2026
-  // encontrou casos de até 40 vagas de diferença nesse cenário (normal:
-  // é assim que a tela pede pra preencher, partido por partido). Rodado
-  // uma vez só aqui fora do .map, não a cada card.
-  const { counts: cadeirasReaisPorPartido, corte: corteRealCargo } = dhondtComCorte(pcState.palpiteEdicao, totalVagasCargo);
-  const totalValidosRealCargo = pcState.palpiteEdicao.reduce((s, pp) => s + partyVotos(pp), 0);
-  const qeRealCargo = quocienteEleitoral(totalValidosRealCargo, totalVagasCargo);
-
-  // Senador é majoritário (art. 46) — não existe quociente/QP/sobra, quem
-  // tem mais voto entre TODOS os candidatos de TODOS os partidos vence,
-  // sem olhar partido. O termômetro precisa da mesma comparação cruzada
-  // que classificarEleitosMajoritario já usa, não da conta proporcional
-  // acima — bug encontrado testando ao vivo em 06/08/2026 (a barra estava
-  // rotulando vaga de Senador como "sobra", conceito que só existe em
-  // eleição proporcional).
-  let rankingSenador = null;
-  if (pcState.cargoAtivo === "senador") {
-    const todosReais = [];
-    pcState.palpiteEdicao.forEach((pp) => {
-      pp.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todosReais.push(c));
-    });
-    const ordenados = [...todosReais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
-    rankingSenador = {
-      chavesEleitos: new Set(ordenados.slice(0, totalVagasCargo).map((c) => c.chave)),
-      votosDoUltimoEleito: totalVagasCargo > 0 && ordenados[totalVagasCargo - 1] ? (Number(ordenados[totalVagasCargo - 1].votos) || 0) : 0,
-    };
-  }
-
   const blocos = pcState.cargoAtivo === "senador"
     ? renderListaSenador(totalVagasCargo, votosValidos2026Proj)
     : renderListaDeputadosFader(partidosParaMostrar, votosValidos2026Proj, totalVagasCargo);
-  // Seleção antiga (marcar eleitos por interruptor) — substituída pelo
-  // modelo fader em 17/08/2026; o map abaixo fica fora do fluxo (função
-  // imediatamente descartada) até a limpeza definitiva.
 
   const instrucaoAberta = pcState.instrucaoSelecaoAberta !== false;
   // Card do Painel Eleitoral — renderizado no slot do cabeçalho fixo
@@ -6046,7 +5940,6 @@ async function renderCargoEstadual() {
   // stickies separados + camada de blur que gerava "sombra fantasma").
   // Comandos definidos ANTES do painel: no modelo fader dos deputados o
   // painel de comandos mora DENTRO do console A3 (cabeçalho fixo); no
-  // Senador ele segue no conteúdo (renderPainelComandos, mais abaixo).
   const gateDeputados = somaVotosCargo() >= 0.995 * votosValidos2026Proj;
   const comandosSelecao = [
     {
@@ -6242,7 +6135,6 @@ async function renderCargoEstadual() {
 
   const slotPainel = document.getElementById("pcPainelSlot");
   if (slotPainel) slotPainel.innerHTML = painelHtml;
-  ajustarBarrasTermometro();
   attachListenersSelecao();
   if (pcState.cargoAtivo === "senador") attachListenersSenador(votosValidos2026Proj);
   else attachListenersDeputadosFader(votosValidos2026Proj, totalVagasCargo);
@@ -6250,43 +6142,7 @@ async function renderCargoEstadual() {
   if (reRenderizando) window.scrollTo(0, scrollAnterior);
 }
 
-// Tamanho dos segmentos do termômetro (barraTermometro, acima) — decidido
-// aqui, depois do card já estar no DOM, porque depende da largura real
-// (varia por aparelho). Duas prioridades, na ordem que o usuário pediu em
-// 06/08/2026: (1) se os marcados cabem numa linha só, os segmentos esticam
-// pra preencher a largura toda, sem limite de tamanho — mesmo efeito do
-// desenho original; (2) só quando não cabem nem no tamanho mínimo (11px,
-// vira círculo) é que quebra em várias linhas — e todas as linhas usam o
-// MESMO tamanho fixo (calculado dividindo os marcados em linhas
-// equilibradas), pra nunca ter uma linha maior que a outra (bug encontrado
-// testando com um partido de ~33 marcados, tipo São Paulo: com flex puro,
-// a última linha — com poucos itens sobrando — esticava mais que a
-// primeira; com grid puro, ele preferia empilhar linhas no tamanho máximo
-// em vez de encolher, o oposto do que foi pedido).
-function ajustarBarrasTermometro() {
-  document.querySelectorAll("#modoColaborativoWrap .pc-term-bar").forEach((bar) => {
-    const n = bar.children.length;
-    if (!n) return;
-    const GAP = 5, MIN = 11, MAX = 32;
-    const largura = bar.clientWidth;
-    if (!largura) return;
-    const larguraNumaLinhaSo = (largura - (n - 1) * GAP) / n;
-    let largItem;
-    if (larguraNumaLinhaSo >= MIN) {
-      largItem = larguraNumaLinhaSo;
-    } else {
-      const cabemPorLinha = Math.max(1, Math.floor((largura + GAP) / (MIN + GAP)));
-      const linhas = Math.ceil(n / cabemPorLinha);
-      const porLinha = Math.ceil(n / linhas);
-      largItem = Math.min(MAX, (largura - (porLinha - 1) * GAP) / porLinha);
-    }
-    bar.style.setProperty("--pc-term-w", Math.max(MIN, largItem) + "px");
-  });
-}
 
-// (ajustarBackdropSticky foi removida em 16/08/2026 — o cabeçalho fixo da
-// Seleção virou um bloco único #pcStickyHeader com fundo próprio, sem
-// precisar de camada de blur calculada em JS pra tapar vão entre stickies.)
 
 function attachListenersSelecao() {
   const btnColapsarPlenario = document.getElementById("pcBtnColapsarPlenario");
@@ -6559,13 +6415,6 @@ function attachListenersSelecao() {
       }
     });
   }
-  const abrirInstrucao = document.getElementById("pcAbrirInstrucao");
-  if (abrirInstrucao) {
-    abrirInstrucao.addEventListener("click", () => {
-      pcState.instrucaoSelecaoAberta = true;
-      renderCargoEstadual();
-    });
-  }
   const fecharAvisoLimite = document.getElementById("pcFecharAvisoLimite");
   if (fecharAvisoLimite) {
     fecharAvisoLimite.addEventListener("click", () => {
@@ -6786,7 +6635,6 @@ function classificarEleitosPorPartido(listaParam, cargo) {
       const consistente = verdadeirosEleitos.has(c.chave);
       let gap = null;
       if (!consistente) {
-        const ultimoRealEleito = cadeirasReais > 0 ? reaisOrdenados[cadeirasReais - 1] : null;
         // O que importa não é "quantos foram marcados" — é se a vaga que
         // seria disputada (a última vaga real, hoje) já é de OUTRO
         // candidato marcado. Se for, ultrapassar essa pessoa por 1-2 votos
@@ -8010,208 +7858,11 @@ function renderRankingPlaceholder() {
   });
 }
 
-async function renderMeuPalpite() {
-  const conteudo = document.getElementById("pcConteudo");
-  conteudo.innerHTML = telaCarregando("Carregando seu palpite…");
 
-  if (!pcState.palpiteEdicao) {
-    await garantirRascunhosCarregados();
-    const rascunho = pcState.rascunhosCache && pcState.rascunhosCache.estadual;
-    if (rascunho) {
-      pcState.palpiteEdicao = rascunho;
-    } else if (pcState.perfil) {
-      const salvo = await carregarMeuPalpite(pcState.perfil.id);
-      pcState.palpiteEdicao = salvo ? salvo.candidatos : montarEstadoPalpite(pcState.perfil.escopo, pcState.perfil.partido_escopo, pcState.vagasPorPartido, "estadual", pcState.estado);
-    } else {
-      // convidado (veio da tela de conclusão sem cadastro): sempre a Assembleia toda
-      pcState.palpiteEdicao = montarEstadoPalpite("assembleia", null, pcState.vagasPorPartido, "estadual", pcState.estado);
-    }
-  }
-  agendarAutoSaveRascunho("estadual", pcState.palpiteEdicao);
 
-  // partidos em modo "detalhado" derivam os marcados da própria votação
-  // (top N por votos, N = vagas2022); partidos em modo simplificado usam
-  // exatamente o que a pessoa marcou manualmente.
-  pcState.palpiteEdicao.forEach((p) => { if (pcState.modoPartido[p.nome] === "detalhado") recalcularMarcados(p); });
 
-  const totalMarcado = pcState.palpiteEdicao.reduce((s, p) => s + p.candidatos.filter((c) => c.marcadoEleito).length, 0);
-  const listaSeats = pcState.palpiteEdicao.map((p) => ({ nome: p.nome, seats: p.candidatos.filter((c) => c.marcadoEleito).length }));
 
-  const blocos = pcState.palpiteEdicao.map((partido, pIdx) => renderBlocoPartidoPalpite(partido, pIdx)).join("");
 
-  conteudo.innerHTML = `
-    <div class="glass-card" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
-      <div>
-        <div class="pc-sub" style="margin:0;">Marque quem você acha que vai se eleger — sem precisar digitar votos.</div>
-        <div style="font-size:11.5px; color:var(--pc-ink-dim); opacity:0.75; margin-top:4px;">Lista provisória: todos os candidatos são de 2022, usados como ponto de partida até sair a lista oficial homologada de 2026.</div>
-      </div>
-      <div style="display:flex; align-items:center; gap:14px;">
-        <span style="font-size:20px; font-weight:700; color:${totalMarcado === 40 ? "var(--pc-accent-2)" : "var(--pc-ink)"};">${totalMarcado}/40 marcados</span>
-        <button class="ghost" id="pcBtnAutoCompletar">Completar automaticamente</button>
-      </div>
-    </div>
-    <div class="glass-card">
-      ${blocos}
-      <div style="display:flex; gap:10px; align-items:center; margin-top:10px;">
-        <button class="primary" id="pcBtnSalvarPalpite">${pcState.perfil ? "Salvar meu palpite" : "Continuar"}</button>
-        <span class="pc-status" id="pcSalvarStatus"></span>
-      </div>
-    </div>
-    <div class="glass-card">
-      <h2>Prévia da sua projeção</h2>
-      ${desenharHemiciclo(listaSeats, 40)}
-    </div>
-  `;
-
-  attachListenersPalpite();
-
-  document.getElementById("pcBtnAutoCompletar").addEventListener("click", () => {
-    completarAutomaticamente();
-    renderMeuPalpite();
-  });
-
-  document.getElementById("pcBtnSalvarPalpite").addEventListener("click", async () => {
-    if (!pcState.perfil) {
-      pcState.tela = "painel-convidado";
-      renderColaborativo();
-      return;
-    }
-    const { error } = await salvarPalpite(pcState.perfil.id, pcState.palpiteEdicao);
-    document.getElementById("pcSalvarStatus").textContent = error
-      ? "Erro ao salvar: " + error.message
-      : "Palpite salvo — " + new Date().toLocaleString("pt-BR");
-  });
-}
-
-// No modo detalhado, "marcado como eleito" não é um clique manual — é
-// derivado da própria votação: os N mais votados do partido (N = meta de
-// vagas definida nos boxes, ou vagas2022 se a pessoa nunca passou pelos
-// boxes) ficam marcados. Mantém o contador de 40 coerente entre os dois
-// modos, sem precisar de duas fontes de verdade.
-function recalcularMarcados(partido) {
-  const meta = partido.metaVagas ?? partido.vagas2022;
-  const ordenados = partido.candidatos
-    .filter((c) => c.fonte !== "legenda") // voto de legenda não é pessoa, não pode "ser eleito"
-    .map((c, i) => ({ c, i }))
-    .sort((a, b) => (Number(b.c.votos) || 0) - (Number(a.c.votos) || 0));
-  partido.candidatos.forEach((c) => { c.marcadoEleito = false; });
-  ordenados.slice(0, meta).forEach(({ c }) => { c.marcadoEleito = true; });
-}
-
-// Preenche o restante da lista até 40, respeitando a meta de vagas de cada
-// partido (dos boxes, ou vagas2022 como reserva): marca os mais votados de
-// 2022 nos partidos ainda incompletos.
-function completarAutomaticamente() {
-  pcState.palpiteEdicao.forEach((p) => {
-    const meta = p.metaVagas ?? p.vagas2022;
-    const marcados = p.candidatos.filter((c) => c.marcadoEleito).length;
-    if (marcados >= meta) return;
-    const faltam = meta - marcados;
-    p.candidatos
-      .filter((c) => !c.marcadoEleito && c.fonte !== "legenda")
-      .sort((a, b) => (Number(b.votos2022) || 0) - (Number(a.votos2022) || 0))
-      .slice(0, faltam)
-      .forEach((c) => { c.marcadoEleito = true; });
-  });
-}
-
-function rotuloIncumbente(c) {
-  if (!c.eleito2022) return "";
-  return ` <span style="font-size:11.5px; opacity:0.55;">Deputado — ${Number(c.votos2022 || 0).toLocaleString("pt-BR")} votos em 2022</span>`;
-}
-
-function renderBlocoPartidoPalpite(partido, pIdx) {
-  const isAssembleia = !pcState.perfil || pcState.perfil.escopo === "assembleia";
-  const isExpanded = !isAssembleia || !!pcState.expandido[partido.nome];
-  const modoDetalhado = pcState.modoPartido[partido.nome] === "detalhado";
-  const marcadosPartido = partido.candidatos.filter((c) => c.marcadoEleito).length;
-
-  const linhaAcao = `<button class="ghost" data-pc-modo="${partido.nome}" style="font-size:12px; padding:6px 10px;">
-      ${modoDetalhado ? "← voltar pra marcar direto" : "Preencher com votos completos"}
-    </button>
-    ${!modoDetalhado ? infoTip("Preencher com votos, em vez de só marcar quem se elege, deixa o resultado mais preciso: a projeção passa a usar a fórmula eleitoral oficial (quociente + sobras) em vez da ordem que você escolheu.") : ""}`;
-
-  const linhas = partido.candidatos.map((c, cIdx) => {
-    if (modoDetalhado) {
-      return `<tr>
-        <td>${nomeExibicao(c)}${c.fonte === "legenda" ? ' <span style="font-size:9px; color:var(--pc-ink-dim);">(legenda)</span>' : ""}${rotuloIncumbente(c)}${c.invalidado2022 ? warnTip(c.motivoInvalidacao || "Voto invalidado em 2022.") : ""}</td>
-        <td class="num" style="color:var(--pc-ink-dim);">${Number(c.votos2022 || 0).toLocaleString("pt-BR")}</td>
-        <td class="num"><input class="cell" data-pc-partido="${pIdx}" data-pc-cand="${cIdx}" value="${c.votos}"></td>
-      </tr>`;
-    }
-    if (c.fonte === "legenda") {
-      return `<label style="display:flex; align-items:center; gap:10px; padding:7px 2px; font-size:13.5px; border-bottom:1px solid rgba(120,130,180,0.1);">
-        <span style="width:16px; height:16px; flex-shrink:0;"></span>
-        <span>${nomeExibicao(c)} <span style="font-size:9px; color:var(--pc-ink-dim);">(legenda)</span></span>
-      </label>`;
-    }
-    return `<label style="display:flex; align-items:center; gap:10px; padding:7px 2px; font-size:13.5px; cursor:pointer; border-bottom:1px solid rgba(120,130,180,0.1);">
-        <input type="checkbox" data-pc-marca="${pIdx}:${cIdx}" ${c.marcadoEleito ? "checked" : ""} style="width:16px; height:16px; flex-shrink:0;">
-        <span>${nomeExibicao(c)}${rotuloIncumbente(c)}${c.invalidado2022 ? warnTip(c.motivoInvalidacao || "Voto invalidado em 2022.") : ""}</span>
-      </label>`;
-  }).join("");
-
-  const meta = partido.metaVagas ?? partido.vagas2022;
-  const legendaMeta = `meta (boxes): ${meta} · 2022: ${partido.vagas2022} vagas · agora: ${marcadosPartido} marcado${marcadosPartido === 1 ? "" : "s"}`;
-  return `
-    <div style="margin-bottom:14px;">
-      ${isAssembleia
-        ? `<button class="ghost" data-pc-toggle="${partido.nome}" style="width:100%; text-align:left; margin-bottom:8px; display:flex; justify-content:space-between;">
-             <span>${chevron(isExpanded)} <b>${partido.nome}</b></span>
-             <span style="font-size:12px; color:var(--pc-ink-dim);">${legendaMeta}</span>
-           </button>`
-        : `<h2>${partido.nome} <span style="font-size:12px; font-weight:400; color:var(--pc-ink-dim);">— ${legendaMeta}</span></h2>`}
-      ${isExpanded ? `
-      <div style="margin-bottom:8px;">${linhaAcao}</div>
-      ${modoDetalhado ? `
-      <table>
-        <thead><tr><th>Candidato</th><th class="num">Votos 2022 (ref.)</th><th class="num">Seu palpite 2026</th></tr></thead>
-        <tbody>${linhas}</tbody>
-      </table>` : linhas}` : ""}
-    </div>`;
-}
-
-function attachListenersPalpite() {
-  document.querySelectorAll("[data-pc-toggle]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const nome = btn.dataset.pcToggle;
-      pcState.expandido[nome] = !pcState.expandido[nome];
-      renderMeuPalpite();
-    });
-  });
-  document.querySelectorAll("[data-pc-modo]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const nome = btn.dataset.pcModo;
-      const partido = pcState.palpiteEdicao.find((p) => p.nome === nome);
-      if (pcState.modoPartido[nome] === "detalhado") {
-        delete pcState.modoPartido[nome];
-      } else {
-        pcState.modoPartido[nome] = "detalhado";
-        recalcularMarcados(partido);
-      }
-      renderMeuPalpite();
-    });
-  });
-  document.querySelectorAll("input[data-pc-marca]").forEach((inp) => {
-    inp.addEventListener("change", (e) => {
-      const [pIdx, cIdx] = e.target.dataset.pcMarca.split(":").map(Number);
-      pcState.palpiteEdicao[pIdx].candidatos[cIdx].marcadoEleito = e.target.checked;
-      renderMeuPalpite();
-    });
-  });
-  document.querySelectorAll("input[data-pc-partido]").forEach((inp) => {
-    inp.addEventListener("input", (e) => {
-      const pIdx = Number(e.target.dataset.pcPartido);
-      const cIdx = Number(e.target.dataset.pcCand);
-      const val = Number(e.target.value.replace(/\D/g, "")) || 0;
-      pcState.palpiteEdicao[pIdx].candidatos[cIdx].votos = val;
-    });
-  });
-  document.querySelectorAll('input[data-pc-partido]').forEach((inp) => {
-    inp.addEventListener("blur", () => renderMeuPalpite());
-    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") e.target.blur(); });
-  });
-}
 
 // ---------- Quadro de médias ----------
 

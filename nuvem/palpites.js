@@ -111,14 +111,6 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
   });
 }
 
-async function salvarPalpite(perfilId, partidosPalpite) {
-  const { error } = await supabaseClient.from("palpites").upsert({
-    perfil_id: perfilId,
-    candidatos: partidosPalpite,
-    atualizado_em: new Date().toISOString(),
-  });
-  return { error };
-}
 
 async function carregarMeuPalpite(perfilId) {
   const { data, error } = await supabaseClient
@@ -133,19 +125,6 @@ async function carregarMeuPalpite(perfilId) {
   return data;
 }
 
-// vagas por partido é salvo junto do mesmo registro de palpite (coluna
-// separada, ver nuvem/schema.sql). Faz um upsert preservando os candidatos
-// já salvos, se houver.
-async function salvarVagasPorPartido(perfilId, vagasPorPartido) {
-  const atual = await carregarMeuPalpite(perfilId);
-  const { error } = await supabaseClient.from("palpites").upsert({
-    perfil_id: perfilId,
-    candidatos: atual ? atual.candidatos : [],
-    vagas_por_partido: vagasPorPartido,
-    atualizado_em: new Date().toISOString(),
-  });
-  return { error };
-}
 
 // Salva candidatos + vagas_por_partido (derivado dos próprios candidatos
 // marcados) num upsert só — usado pela tela única de seleção de candidatos
@@ -208,21 +187,7 @@ async function carregarRascunhosPorCargo(perfilId) {
   return data;
 }
 
-// Ponto de partida dos boxes: a distribuição real de 2022 (soma sempre 40).
-function vagasPorPartidoPadrao() {
-  const vagas = {};
-  PARTIDOS_BRASIL.forEach((p) => { vagas[p.sigla] = p.vagas2022; });
-  return vagas;
-}
 
-async function buscarTodosPalpitesPublicos() {
-  const { data, error } = await supabaseClient.from("palpites_publicos").select("*");
-  if (error) {
-    console.error("Erro ao carregar palpites públicos:", error);
-    return [];
-  }
-  return data || [];
-}
 
 // Igual a buscarTodosPalpitesPublicos, mas via "rascunhos_publicos"
 // (Migração 7) — cobre os 3 cargos (rascunho_estadual/federal/senador) de
@@ -365,56 +330,3 @@ async function buscarRascunhoPublicoDe(perfilId) {
   return data;
 }
 
-// Agrega uma lista de palpites (formato {candidatos: [...]}) num único
-// cenário "médio" — mesma forma de state.parties, pronto pra alimentar
-// dhondt()/quocienteEleitoral()/desenharHemiciclo() já existentes.
-// cargo/uf (opcionais, default "estadual"/"SC" — comportamento de sempre,
-// usado pelo Quadro de Médias) decidem contra qual base 2022 comparar;
-// Grupos (nuvem/grupos.js) chama isso 1x por cargo, remapeando antes
-// rascunho_<cargo> pra "candidatos" em cada registro. Partidos/candidatos
-// sem nenhum palpite caem de volta no valor real de 2022 (marcado como
-// "sem palpites ainda").
-function calcularMediaPalpites(palpitesPublicos, cargo, uf) {
-  cargo = cargo || "estadual";
-  uf = uf || "SC";
-  const somas = {}; // chave -> { soma, contagem }
-  palpitesPublicos.forEach((registro) => {
-    (registro.candidatos || []).forEach((partido) => {
-      (partido.candidatos || []).forEach((c) => {
-        const chave = c.chave || chaveCandidato(c.nome, partido.nome);
-        if (!somas[chave]) somas[chave] = { soma: 0, contagem: 0 };
-        somas[chave].soma += Number(c.votos) || 0;
-        somas[chave].contagem += 1;
-      });
-    });
-  });
-
-  // candidatosEstadoCargo("SC","estadual") é o próprio BASE_2022 (ver
-  // dados/estados/registro-2022.js) — usar a função em vez da constante
-  // direta é o que permite reaproveitar isto pra Federal/Senador/outros
-  // estados sem duplicar a função inteira.
-  const baseCargo = candidatosEstadoCargo(uf, cargo);
-  const partiesMedia = baseCargo.map((p) => {
-    const candidatos = p.candidatos.map((c) => {
-      const chave = chaveCandidato(c.nome, p.nome, c.id);
-      const agregado = somas[chave];
-      const votos = agregado ? Math.round(agregado.soma / agregado.contagem) : c.votos;
-      return {
-        chave,
-        nome: c.nome,
-        nomeUrna: c.nomeUrna || "",
-        municipio: c.municipio,
-        votos2022: c.votos,
-        fonte: c.fonte,
-        eleito2022: !!c.eleito2022,
-        invalidado2022: !!c.invalidado2022,
-        votos,
-        semPalpites: !agregado,
-      };
-    });
-    return { nome: p.nome, vagas2022: p.vagas2022, candidatos };
-  });
-
-  const participantes = new Set(palpitesPublicos.map((r) => r.perfil_id));
-  return { parties: partiesMedia, totalPalpites: participantes.size };
-}
