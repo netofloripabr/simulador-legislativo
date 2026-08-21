@@ -4977,8 +4977,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
         <div class="pc-dep-cl1">
           ${selo}
-          <span class="pc-dep-cnm">${nomeExibicao(c)}${lapisAdmin}</span>
-          ${instaDepois}
+          <span class="pc-dep-cnm">${nomeExibicao(c)}${instaDepois}${lapisAdmin}</span>
           <span class="pc-dep-cpct">${cpct.toFixed(1).replace(".", ",")}<small>%</small></span>
         </div>
         ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}

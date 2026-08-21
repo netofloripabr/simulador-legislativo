@@ -1053,8 +1053,8 @@
 }
 #modoColaborativoWrap .pc-console .pc-cmd-painel{ margin-bottom:0; gap:clamp(4px, 1.5vw, 12px); }
 #modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-acao{
-  background:rgba(232,236,239,.35); border-color:rgba(242,244,245,.4); color:#F2F4F5;
-  min-width:30px; max-width:60px; min-height:30px;
+  background:#101214; border-color:#1F2327; color:#AEB5BB;
+  min-width:26px; max-width:51px; min-height:26px;
 }
 /* Círculo dividido Desfazer|Refazer — 2 alvos de toque num volume só
    (protótipo refino v3, 20/08/2026). */
@@ -1065,7 +1065,7 @@
   flex:1 1 0; min-width:0; background:none; border:none; color:inherit;
   display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer;
 }
-#modoColaborativoWrap .pc-cmd-dupla button + button{ border-left:1px solid rgba(242,244,245,.35); }
+#modoColaborativoWrap .pc-cmd-dupla button + button{ border-left:1px solid rgba(242,244,245,.14); }
 #modoColaborativoWrap .pc-cmd-dupla button:disabled{ opacity:.35; cursor:default; }
 #modoColaborativoWrap .pc-cmd-dupla button svg{ width:62%; height:62%; max-width:14px; flex-shrink:0; }
 /* Números de meta do console — maiores, e LARANJA enquanto pendente
@@ -1073,7 +1073,7 @@
 #modoColaborativoWrap .pc-console .pc-meta-linha{ font-size:11px; }
 #modoColaborativoWrap .pc-meta-num{ color:#F2F4F5; font-size:13.5px; font-weight:750; }
 #modoColaborativoWrap .pc-meta-num.pend{ color:#FF9A2E; }
-#modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-acao:hover:not(:disabled){ background:rgba(232,236,239,.5); color:#fff; }
+#modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-acao:hover:not(:disabled){ background:#16181B; color:#F2F4F5; }
 #modoColaborativoWrap .pc-console .pc-cmd-painel .pc-cmd-acao.ativo{
   border-color:#34E84A; color:#34E84A; background:rgba(52,232,74,.12);
 }
@@ -1111,11 +1111,14 @@
 #modoColaborativoWrap .pc-dep-crow{ padding:14px 0 10px; border-top:1px solid #1E2226; }
 #modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:6px; }
 #modoColaborativoWrap .pc-dep-cnm{
-  flex:1; min-width:0; font-size:24.5px; font-weight:750; color:#F2F4F5;
-  line-height:1.15; overflow-wrap:anywhere;
+  /* Fonte RESPONSIVA (pedido 20/08): ~3% da largura da tela — a mesma
+     proporção da referência aprovada (24,5px numa tela de ~810px) — com
+     piso de 15,5px (legibilidade) e teto de 24,5px. */
+  flex:1; min-width:0; font-size:clamp(15.5px, 3vw, 24.5px); font-weight:750;
+  color:#F2F4F5; line-height:1.15; overflow-wrap:anywhere;
 }
 #modoColaborativoWrap .pc-dep-cpct{
-  flex:none; font-size:20px; font-weight:800; color:#F2F4F5;
+  flex:none; font-size:clamp(14px, 2.5vw, 20px); font-weight:800; color:#F2F4F5;
   font-variant-numeric:tabular-nums; line-height:1;
 }
 #modoColaborativoWrap .pc-dep-cpct small{ font-size:9px; font-weight:650; color:#8A9096; }
@@ -1291,7 +1294,7 @@
    quando fechado (protótipo refino v3, 20/08/2026). */
 #modoColaborativoWrap .pc-dep-preview{
   position:relative; max-height:46px; overflow:hidden; margin-top:10px;
-  filter:blur(2.6px); opacity:.4; pointer-events:none;
+  filter:blur(2.6px); opacity:.22; pointer-events:none;
   -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.8) 0, rgba(0,0,0,.35) 55%, transparent 88%);
   mask-image:linear-gradient(180deg, rgba(0,0,0,.8) 0, rgba(0,0,0,.35) 55%, transparent 88%);
 }
@@ -1306,6 +1309,7 @@
 #modoColaborativoWrap .pc-dep-puxador:hover span{ background:#4D545C; }
 #modoColaborativoWrap .pc-insta-mini{
   display:inline-flex; flex:none; color:#8A9096; align-items:center;
+  margin-left:9px; vertical-align:middle; position:relative; top:-2px;
 }
 #modoColaborativoWrap .pc-insta-mini:hover{ color:#D3D8DC; }
 #modoColaborativoWrap .pc-dep-cl1{ gap:9px; }
