@@ -6,17 +6,17 @@ Gerado em 2026-08-21 por `ferramentas/conferir_rrc.py`. Cruza `sc-2026-provisori
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **660** confirmados, **0** divergência(s) de partido, **13** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **671** confirmados, **0** divergência(s) de partido, **1** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
 | Cargo | No RRC | No nosso arquivo | Confirmados (número+partido batem) |
 |---|---|---|---|
 | Governador | 8 | 10 | 9 |
-| Vice-Governador | 8 | 11 | 1 |
-| Senador | 13 | 15 | 14 |
-| Deputado Federal | 230 | 242 | 227 |
-| Deputado Estadual | 408 | 437 | 405 |
+| Vice-Governador | 8 | 12 | 2 |
+| Senador | 13 | 16 | 15 |
+| Deputado Federal | 230 | 244 | 231 |
+| Deputado Estadual | 408 | 435 | 410 |
 | Senador (1º suplente) | 13 | 19 | 2 |
 | Senador (2º suplente) | 13 | 15 | 2 |
 
@@ -30,19 +30,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 
 | Cargo | Número | Nome (RRC) | Coligação/Partido |
 |---|---|---|---|
-| Vice-Governador | 55 | CARLOS ALBERTO CHIODINI | SANTA CATARINA ACIMA DE TUDO |
-| Senador | 155 | ANTIDIO ALEIXO LUNELLI | SANTA CATARINA ACIMA DE TUDO |
-| Deputado Federal | 4033 | ALAN ALVES MOREIRA | PSB |
-| Deputado Federal | 7777 | CLEBER LUCIANO SANTANA | SOLIDARIEDADE |
 | Deputado Federal | 5533 | EDIANE APARECIDA FOLLE | PSD |
-| Deputado Federal | 1414 | FELIPE BARCELLOS MONTE RASO | MISSÃO |
-| Deputado Federal | 7020 | SADI MIGUEL RIBEIRO | AVANTE |
-| Deputado Estadual | 55100 | DIEGO MACHADO | PSD |
-| Deputado Estadual | 15180 | INAJARA RODRIGUES DOS SANTOS | MDB |
-| Deputado Estadual | 25123 | JOAO BATISTA DA SILVA | PRD |
-| Deputado Estadual | 45888 | KARINY NAIARA MULLER BRUM | PSDB |
-| Deputado Estadual | 20316 | LUCAS ALVES DE MELLO ROSA | PODE |
-| Deputado Estadual | 55007 | NEURI LUIZ MANTELLI | PSD |
 
 ## Sugestão de número (nosso arquivo tem `numero:null`, casado por nome com o RRC)
 
@@ -80,3 +68,11 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Senador (2º suplente) | Jacson Da Silva Dos Santos | 808 | 189-up-convencao.pdf |
 | Senador (2º suplente) | Wagner Luiz Betto | 161 | 347-pstu-convencao.pdf |
 
+
+## Decisões aplicadas (21/08/2026, com aval do usuário)
+
+- **8 números atualizados pelo RRC** (mesmo cargo): Alan Alves Moreira (PSB, 4000→4033), Cleber Luciano Santana (PRD/SOL, 7725→7777), Diego Machado (PSD, 55255→55100), Inajara Rodrigues (MDB, 15905→15180), Joao Batista Da Silva (PRD/SOL, 25098→25123), Kariny Muller Brum (PSDB/CID, 45588→45888), Lucas Melo (PODE, 20666→20316), Neuri Mantelli (PSD, 55852→55007).
+- **Sadi Miguel Ribeiro (AVANTE)**: Dep. Estadual 70111 → **Dep. Federal 7020**, seguindo o registro oficial.
+- **Ediane Aparecida Folle (PSD)**: **desistiu da candidatura** (informação do usuário) — removida do elenco. É a única linha restante em "no RRC sem entrada correspondente": o RRC ainda a lista, o nosso arquivo não, de propósito. Pela política do RANQUEAMENTO.md, candidatura retirada não pontua na apuração.
+
+*(Nota: este arquivo é regenerado por `conferir_rrc.py` — se esta seção sumir numa regeração futura, a história completa está no commit desta data.)*

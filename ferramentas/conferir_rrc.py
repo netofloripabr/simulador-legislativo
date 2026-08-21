@@ -142,7 +142,14 @@ ENTRY_RE = re.compile(
     r'\{ id:"(?P<id>[^"]*)", nome:"(?P<nome>[^"]*)", nomeUrna:"(?P<nomeUrna>[^"]*)", '
     r'numero:(?P<numero>\d+|null), partido:(?P<partido>null|"[^"]*"), '
     r'genero:"(?P<genero>[^"]*)", coligado:(?P<coligado>true|false), '
-    r'confianca:"(?P<confianca>[^"]*)", fonteArquivo:"(?P<fonteArquivo>[^"]*)" \}'
+    # fonte:"rrc" é opcional — entradas cadastradas direto do RRC (política
+    # de 18/08/2026) carregam esse campo extra; sem o grupo opcional, o
+    # regex não as enxergava e elas apareciam pra sempre como "no RRC sem
+    # entrada correspondente" (falso positivo achado em 21/08/2026).
+    # fonteArquivo aceita aspas ESCAPADAS no valor (\") — as entradas de
+    # RRC citam a coligação entre aspas dentro do texto (ex.: Chiodini e
+    # Lunelli) e o [^"]* antigo parava na primeira, invisibilizando-as.
+    r'confianca:"(?P<confianca>[^"]*)", (?:fonte:"(?P<fonte>[^"]*)", )?fonteArquivo:"(?P<fonteArquivo>(?:[^"\\]|\\.)*)" \}'
 )
 CARGO_BLOCK_RE = re.compile(r'"([^"]+)":\s*\[(.*?)\n  \]', re.DOTALL)
 
