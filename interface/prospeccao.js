@@ -6440,18 +6440,30 @@ async function reordenarComTransicao() {
   // Dedo no fader AGORA (alça capturada): reagrupar no meio do arrasto
   // arrancaria o elemento de baixo do dedo — adia e tenta de novo.
   if (document.querySelector(".pc-dep-zone.ativo")) { agendarReordenacaoSuave(null, 600); return; }
+  // Escala (pensando em SP, com centenas de candidatos — decisão do
+  // usuário 21/08): só entra na animação quem está NA JANELA VISÍVEL
+  // (com margem) — quem está fora da tela não precisa deslizar, ninguém
+  // vê; o custo do FLIP fica limitado ao viewport, não ao tamanho do
+  // estado. O reposicionamento em si continua valendo pra todos.
+  const MARGEM_VIS = 300;
+  const visivel = (r) => r.bottom > -MARGEM_VIS && r.top < window.innerHeight + MARGEM_VIS;
   const antes = {};
+  let algumCard = false;
   document.querySelectorAll(".pc-dep-card[data-dep-nome]").forEach((el) => {
-    antes[el.dataset.depNome] = el.getBoundingClientRect().top;
+    algumCard = true;
+    const r = el.getBoundingClientRect();
+    if (visivel(r)) antes[el.dataset.depNome] = r.top;
   });
-  if (!Object.keys(antes).length) return; // tela de palpite não está visível
+  if (!algumCard) return; // tela de palpite não está visível
   // Linhas de candidato: posição RELATIVA ao próprio card — o card também
   // pode estar viajando, e o delta em coordenadas de tela somaria os dois
   // movimentos (a linha andaria em dobro).
   const antesLinhas = {};
   document.querySelectorAll(".pc-dep-crow[data-dep-cand]").forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (!visivel(r)) return;
     const card = el.closest(".pc-dep-card[data-dep-nome]");
-    if (card) antesLinhas[el.dataset.depCand] = el.getBoundingClientRect().top - card.getBoundingClientRect().top;
+    if (card) antesLinhas[el.dataset.depCand] = r.top - card.getBoundingClientRect().top;
   });
   pcState.ordemPartidosFixa = null; // libera a ordem de verdade
   pcState.ordemCandidatosFixa = null; // e a dos candidatos dentro dos cards
@@ -6463,7 +6475,9 @@ async function reordenarComTransicao() {
   cards.forEach((el) => {
     const de = antes[el.dataset.depNome];
     if (de === undefined) return;
-    const delta = de - el.getBoundingClientRect().top;
+    const r = el.getBoundingClientRect();
+    if (!visivel(r)) return; // saiu da janela — reposiciona sem animar
+    const delta = de - r.top;
     if (!delta) return;
     if (el.dataset.depNome === editado) el.classList.add("pc-dep-movendo");
     el.style.transition = "none";
@@ -6473,14 +6487,23 @@ async function reordenarComTransicao() {
   document.querySelectorAll(".pc-dep-crow[data-dep-cand]").forEach((el) => {
     const de = antesLinhas[el.dataset.depCand];
     if (de === undefined) return;
+    const r = el.getBoundingClientRect();
+    if (!visivel(r)) return;
     const card = el.closest(".pc-dep-card[data-dep-nome]");
     if (!card) return;
-    const delta = de - (el.getBoundingClientRect().top - card.getBoundingClientRect().top);
+    const delta = de - (r.top - card.getBoundingClientRect().top);
     if (!delta) return;
     el.style.transition = "none";
     el.style.transform = `translateY(${delta}px)`;
     emMovimento.push(el);
   });
+  // Teto de segurança: passe com movimento demais (estado gigante + tudo
+  // mudando) sai INSTANTÂNEO em vez de animado — o resultado final é o
+  // mesmo, só sem o deslize, e o aparelho fraco não engasga.
+  if (emMovimento.length > 60) {
+    emMovimento.forEach((el) => { el.style.transition = ""; el.style.transform = ""; el.classList.remove("pc-dep-movendo"); });
+    return;
+  }
   if (!emMovimento.length) return;
   // dois rAF: o primeiro garante o layout com o transform aplicado, o
   // segundo dispara a transição de volta pro lugar
