@@ -1294,7 +1294,7 @@
    quando fechado (protótipo refino v3, 20/08/2026). */
 #modoColaborativoWrap .pc-dep-preview{
   position:relative; max-height:46px; overflow:hidden; margin-top:10px;
-  filter:blur(2.6px); opacity:.22; pointer-events:none;
+  filter:blur(2.2px); opacity:.32; pointer-events:none;
   -webkit-mask-image:linear-gradient(180deg, rgba(0,0,0,.8) 0, rgba(0,0,0,.35) 55%, transparent 88%);
   mask-image:linear-gradient(180deg, rgba(0,0,0,.8) 0, rgba(0,0,0,.35) 55%, transparent 88%);
 }
