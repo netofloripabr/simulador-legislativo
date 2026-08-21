@@ -5393,18 +5393,103 @@ function autoPreenchimentoDeputadosFader(E, soPartido) {
     agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
     return;
   }
-  const todos = [];
-  pcState.palpiteEdicao.forEach((p) => p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todos.push(c)));
-  const fixos = todos.filter((c) => c.votosEditado && Number(c.votos) > 0);
-  const somaFixos = fixos.reduce((s, c) => s + Number(c.votos), 0);
-  const alvo = Math.max(0, E - somaFixos);
-  const base = todos.map((c) => (c.votosEditado && Number(c.votos) > 0) ? 0 : (Number(c.votos) || 0));
-  const dist = fmdEscalarProporcional(base, alvo, capCand);
-  todos.forEach((c, i) => {
-    if (c.votosEditado && Number(c.votos) > 0) return;
-    c.votos = dist[i];
-    c.votosEditado = false;
-  });
+  // Escala um conjunto de candidatos até `alvoConj` votos, preservando os
+  // fixos (editados à mão) e repartindo o resto proporcional à base viva
+  // (a curva 2022+decaimento que balancearPartidoSelecao acabou de semear).
+  // Base toda zerada (partido novo, sem histórico) reparte por igual.
+  const escalarConjunto = (cands, alvoConj) => {
+    const eFixo = (c) => c.votosEditado && Number(c.votos) > 0;
+    const somaFixos = cands.reduce((s, c) => s + (eFixo(c) ? Number(c.votos) : 0), 0);
+    const alvoLivre = Math.max(0, alvoConj - somaFixos);
+    let base = cands.map((c) => eFixo(c) ? 0 : (Number(c.votos) || 0));
+    if (!base.some((v) => v > 0)) base = cands.map((c) => eFixo(c) ? 0 : 1);
+    // O teto por candidato é limite do DESENHO da barra, não do voto — se
+    // ele impedir o conjunto de absorver a cota (n × teto < alvo), sobe o
+    // necessário pra cota caber; sem isso a vaga indicada escapava pra
+    // outro partido no arremate (achado em 21/08/2026, Federal).
+    const livresN = cands.filter((c) => !eFixo(c)).length;
+    const capEfetivo = Math.max(capCand, livresN ? Math.ceil(alvoLivre / livresN) : capCand);
+    const dist = fmdEscalarProporcional(base, alvoLivre, capEfetivo);
+    cands.forEach((c, i) => {
+      if (eFixo(c)) return;
+      c.votos = dist[i];
+      c.votosEditado = false;
+    });
+  };
+  const candidatosDe = (p) => p.candidatos.filter((c) => c.fonte !== "legenda");
+  const somaDe = (p) => candidatosDe(p).reduce((s, c) => s + (Number(c.votos) || 0), 0);
+  // O mágico HONRA as bancadas indicadas nos boxes (promessa do tutorial:
+  // "proporcional às vagas que você selecionou" — bug achado pelo usuário
+  // em 21/08/2026: preencher ignorando os boxes fazia a apuração divergir
+  // do indicado e o console somar 62/40). Partido com box explícito vai
+  // pra vagas × QE projetado (art. 106: votos exatos em múltiplos do
+  // quociente dão a cada um exatamente as vagas indicadas); o restante do
+  // eleitorado se reparte entre os partidos sem box, proporcional à força
+  // histórica — de onde saem as vagas não indicadas, pela própria apuração.
+  const totalVagasAuto = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
+  const qeProj = quocienteEleitoral(Math.round(E), totalVagasAuto) || 1;
+  const comAta = pcState.palpiteEdicao.filter((p) => !p.semAta2026);
+  const explicitos = comAta.filter((p) => Number.isFinite(Number(p.vagasIndicadas)) && Number(p.vagasIndicadas) > 0);
+  const somaVagasExpl = explicitos.reduce((s, p) => s + Number(p.vagasIndicadas), 0);
+  if (explicitos.length && somaVagasExpl > 0) {
+    // Normaliza se (por dado legado) os boxes somarem mais que o total —
+    // o tapete curto impede isso nos edits novos, mas rascunho antigo pode
+    // carregar excesso.
+    const fatorNorm = Math.min(1, totalVagasAuto / somaVagasExpl);
+    explicitos.forEach((p) => {
+      escalarConjunto(candidatosDe(p), Math.round(Number(p.vagasIndicadas) * fatorNorm * qeProj));
+    });
+    const somaExplReal = explicitos.reduce((s, p) => s + somaDe(p), 0);
+    const livres = comAta.filter((p) => !explicitos.includes(p));
+    const vagasRestantes = Math.max(0, totalVagasAuto - Math.round(somaVagasExpl * fatorNorm));
+    if (livres.length && vagasRestantes > 0) {
+      // As vagas NÃO indicadas são alocadas entre os partidos livres pelo
+      // método das médias (D'Hondt) sobre a força semeada (curva 2022) — e
+      // cada livre é escalado pra sua cota exata (vagas × QE). Sem isso, a
+      // votação fragmentada dos livres deixava sobras escorrerem pros
+      // partidos COM box, que apuravam mais do que o usuário indicou
+      // (12 indicadas → 14 apuradas, achado em 21/08/2026).
+      const forca = livres.map((p) => somaDe(p) || 0);
+      const alocadas = new Array(livres.length).fill(0);
+      for (let s = 0; s < vagasRestantes; s++) {
+        let melhor = -1, melhorMedia = -1;
+        forca.forEach((f, i) => {
+          const m = f / (alocadas[i] + 1);
+          if (m > melhorMedia) { melhorMedia = m; melhor = i; }
+        });
+        if (melhor < 0) break;
+        alocadas[melhor]++;
+      }
+      livres.forEach((p, i) => escalarConjunto(candidatosDe(p), alocadas[i] * qeProj));
+    } else if (livres.length) {
+      // Boxes já somam o total: livres ficam sem cota (zerados de propósito
+      // — o usuário indicou todas as vagas em outros partidos).
+      livres.forEach((p) => escalarConjunto(candidatosDe(p), 0));
+    } else if (somaExplReal > 0 && Math.abs(E - somaExplReal) > 1) {
+      // Todos os partidos têm box: estica o conjunto inteiro até E
+      // mantendo as proporções das bancadas.
+      const todosCands = [];
+      explicitos.forEach((p) => candidatosDe(p).forEach((c) => todosCands.push(c)));
+      escalarConjunto(todosCands, E);
+    }
+  } else {
+    // Sem nenhuma bancada indicada: distribuição realista global (curva
+    // 2022), comportamento original.
+    const todos = [];
+    pcState.palpiteEdicao.forEach((p) => candidatosDe(p).forEach((c) => todos.push(c)));
+    escalarConjunto(todos, E);
+  }
+  // Arremate: o teto por candidato pode impedir um partido de absorver a
+  // cota inteira e o total parar abaixo de E (94% no Federal, bug achado
+  // em 21/08/2026 — "não preencheu toda a votação"). Escalar TODO o
+  // conjunto proporcionalmente até E preserva as razões entre partidos —
+  // e portanto a apuração — enquanto fecha a barra em 100%.
+  const somaFinal = pcState.palpiteEdicao.reduce((s, p) => s + somaDe(p), 0);
+  if (E - somaFinal > E * 0.001) {
+    const todosFinal = [];
+    pcState.palpiteEdicao.filter((p) => !p.semAta2026).forEach((p) => candidatosDe(p).forEach((c) => todosFinal.push(c)));
+    escalarConjunto(todosFinal, E);
+  }
   recalcularMarcadosDeputados();
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
 }
@@ -5968,7 +6053,7 @@ async function renderCargoEstadual() {
           <div class="pc-tut-chame">Clique e entenda:</div>
           <button type="button" class="pc-tut-pontos" id="pcTutPontos" title="Clique"><i class="on"></i><i></i><i></i></button>
           <div class="pc-tut-palco" id="pcTutPalco">
-            <div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> só os 3 pontinhos, discretos no topo da tela.</div>
+            <div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> <b style="color:var(--pc-accent);">1 ponto</b> — sinaliza que existe orientação</div>
           </div>
         </div>
         <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:14px;" disabled>Iniciar</button>
@@ -6393,7 +6478,7 @@ function attachListenersSelecao() {
     tutPontos.dataset.ligado = "1";
     let tutNivel = 1, tutToques = 0;
     const janelas = {
-      1: '<div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> só os 3 pontinhos, discretos no topo da tela.</div>',
+      1: '<div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> <b style="color:var(--pc-accent);">1 ponto</b> — sinaliza que existe orientação</div>',
       2: '<div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i class="on"></i><i></i></span><span class="pc-tut-passo">Passo 1</span> Preencha as vagas por partido — 12 de 40 <span class="pc-tut-min">−</span></div>',
       3: '<div class="pc-tut-lin" style="border-bottom:1px solid rgba(242,244,245,.08); padding-bottom:6px;"><span class="pc-tut-minipontos"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pc-tut-passo">Sua trilha</span><span class="pc-tut-min">−</span></div><div class="pc-tut-item on">① Preencher as vagas por partido — <b style="color:var(--pc-accent);">12 de 40</b></div><div class="pc-tut-item">② Distribuir a votação pelos candidatos</div><div class="pc-tut-item">③ Avançar pra Revisão</div>',
     };

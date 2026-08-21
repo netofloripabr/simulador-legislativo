@@ -108,3 +108,17 @@ Em qualquer conta (ou como convidado):
    grupo), os 3 pontos ficam TODOS apagados em qualquer nível.
 5. O farol aparece também em: Revisão, Painel, Minhas listas e Grupos
    (pontinhos no canto superior esquerdo quando minimizado).
+
+## Mágico dos deputados honra as bancadas (21/08/2026)
+
+Na aba Estadual (e Federal), com a votação zerada:
+1. Indique bancadas em alguns partidos (ex.: 12+10+8+6+4 = 40) e toque no
+   mágico do console: a barra fecha em 100%, o console mostra vagas 40/40
+   e CADA partido apura exatamente o que você indicou.
+2. Indique só parte (ex.: 12+8): os partidos com box apuram o indicado e
+   as vagas restantes se distribuem entre os demais (método das médias
+   sobre a força de 2022) — console segue 40/40.
+3. Tocar o mágico de novo não muda nada (estável) e edições manuais de
+   votos são preservadas.
+4. O mágico do CARD (✦ dentro do partido) preenche só aquele partido —
+   é o comportamento esperado, não um bug.
