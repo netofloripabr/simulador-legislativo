@@ -3244,6 +3244,21 @@ async function renderMinhasListas() {
         });
       }
       pcState.palpiteEdicao = pcState.palpitesPorCargo ? pcState.palpitesPorCargo[pcState.cargoAtivo] : null;
+      // Continuar de onde parou (pedido do usuário, 21/08/2026): lista com
+      // cargo pela metade abre direto no PALPITE, já no primeiro cargo
+      // pendente — a Revisão só é destino de lista completa. Mesma régua
+      // de completude do farol (vagas fechadas + votação >= 99,5%).
+      const cargoPendente = CARGOS.find((c) => {
+        const st = _farolStatusCargo(c.id);
+        return !(st.vagasOk && st.votosOk);
+      });
+      if (cargoPendente) {
+        pcState.cargoAtivo = cargoPendente.id;
+        pcState.palpiteEdicao = pcState.palpitesPorCargo ? pcState.palpitesPorCargo[cargoPendente.id] : null;
+        if (pcState.perfil) { pcState.subaba = "selecao"; renderAppColaborativo(); }
+        else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
+        return;
+      }
       if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
       else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
   };
