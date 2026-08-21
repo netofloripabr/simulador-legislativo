@@ -89,6 +89,8 @@ let pcState = {
   modalInstagramInfo: null, // { chave, nome, valorAtual } do candidato com o modal de editar Instagram aberto (só admin), ou null
   legendaComandosAberta: false, // painel único de legenda do painel de comandos da Seleção (o "i" no fim da linha de ícones)
   legendaListasAberta: false, // legenda compartilhada dos botões de ícone de Minhas listas (o "i" ao lado de "Em aberto")
+  modalSalvarDestinoAberto: false, // seletor de destino do Salvar (lista ativa · outro slot · nova) — pedido 21/08
+  _destinosSalvar: null, // listas em aberto carregadas na hora de abrir o seletor
   funilVotosAberto: false, // funil explicativo dos votos válidos (o "i" do cabeçalho da aba Senador, PROJETO.md §8.2)
   sobraInfoAberta: false, // explicação da regra de sobra (o "i" do quadro-resumo no painel Disputa de Sobra, Revisão)
 };
@@ -6283,6 +6285,7 @@ async function renderCargoEstadual() {
     ${pcState.legendaComandosAberta ? renderLegendaComandos(comandosSelecao) : ""}
     <div class="pc-status" id="pcSelecaoStatus" style="text-align:right; margin:-14px 0 14px;"></div>
     ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
+    ${pcState.modalSalvarDestinoAberto ? renderModalSalvarDestino() : ""}
     ${pcState.modalInstagramInfo ? renderModalInstagram() : ""}
     ${pcState.buscaPartidoAberta ? `
     <div style="position:relative; margin:-12px 0 20px;">
@@ -6694,6 +6697,17 @@ function attachListenersSelecao() {
   // (executarSalvarLista), só que com manterTela:true pra não navegar embora.
   document.getElementById("pcBtnSalvarSelecao").addEventListener("click", async () => {
     garantirPalpitesPorCargo();
+    // Seletor de destino (21/08/2026): com mais de um destino possível, o
+    // disquete pergunta aonde salvar. Sem lista nenhuma salva ainda, vai
+    // direto pro nome (uma torneira só — sem modal intermediário à toa).
+    const todas = await _carregarMinhasListasNormalizado();
+    const abertas = todas.filter((l) => !l.depositadoEm);
+    if (abertas.length > 0) {
+      pcState._destinosSalvar = abertas;
+      pcState.modalSalvarDestinoAberto = true;
+      renderCargoEstadual();
+      return;
+    }
     if (!pcState.listaSalvaNome) {
       pcState.modalNomeListaAberto = true;
       renderCargoEstadual();
@@ -6722,6 +6736,61 @@ function attachListenersSelecao() {
         mostrarStatusSalvamento("Lista salva. Pode continuar editando.");
       }
     });
+  }
+  if (pcState.modalSalvarDestinoAberto) {
+    const fecharDestino = () => { pcState.modalSalvarDestinoAberto = false; renderCargoEstadual(); };
+    const salvarNoAlvo = async (id, nome) => {
+      pcState.modalSalvarDestinoAberto = false;
+      pcState.listaSalvaId = id;
+      pcState.listaSalvaNome = nome;
+      await persistirListaAtivaLocal();
+      garantirPalpitesPorCargo();
+      const ok = await executarSalvarLista({ manterTela: true });
+      if (ok) {
+        await renderCargoEstadual();
+        mostrarStatusSalvamento(`Salvo em "${nome}". Pode continuar editando.`);
+      }
+    };
+    const btnAtiva = document.getElementById("pcBtnDestinoAtiva");
+    if (btnAtiva) btnAtiva.addEventListener("click", () => salvarNoAlvo(pcState.listaSalvaId, pcState.listaSalvaNome));
+    document.querySelectorAll("[data-pc-destino-slot]").forEach((btn) => {
+      btn.addEventListener("click", () => salvarNoAlvo(btn.getAttribute("data-pc-destino-slot"), btn.getAttribute("data-pc-destino-nome")));
+    });
+    const btnNova = document.getElementById("pcBtnDestinoNova");
+    if (btnNova) btnNova.addEventListener("click", async () => {
+      const destinos = (pcState._destinosSalvar || []).filter((l) => !l.depositadoEm);
+      if (destinos.length >= 2) {
+        // Mesmos gates do "+" de Minhas listas: convidado não tem crédito
+        // (vai pro cadastro); logado consome 1 crédito via RPC — sem
+        // saldo, mostra o aviso lá em Minhas listas.
+        if (!pcState.perfil) {
+          pcState.modalSalvarDestinoAberto = false;
+          pcState.pendenteRegistro = true;
+          pcState.tela = "cadastro";
+          renderColaborativo();
+          return;
+        }
+        const { consumiu, error } = await consumirCreditoConta(pcState.perfil.id);
+        if (error) { pcState.erro = "Erro ao conferir crédito: " + error.message; }
+        if (!consumiu) {
+          pcState.modalSalvarDestinoAberto = false;
+          pcState.avisoLimiteListaAberto = true;
+          pcState.tela = pcState.perfil ? pcState.tela : "minhas-listas-convidado";
+          if (pcState.perfil) { pcState.subaba = "minhas-listas"; renderAppColaborativo(); } else { pcState.tela = "minhas-listas-convidado"; renderColaborativo(); }
+          return;
+        }
+        pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
+      }
+      pcState.modalSalvarDestinoAberto = false;
+      pcState.listaSalvaId = null;
+      pcState.listaSalvaNome = null;
+      pcState.modalNomeListaAberto = true;
+      renderCargoEstadual();
+    });
+    const btnCancelarDestino = document.getElementById("pcBtnCancelarDestino");
+    if (btnCancelarDestino) btnCancelarDestino.addEventListener("click", fecharDestino);
+    const overlayDestino = document.getElementById("pcModalSalvarDestinoOverlay");
+    if (overlayDestino) overlayDestino.addEventListener("click", (e) => { if (e.target.id === "pcModalSalvarDestinoOverlay") fecharDestino(); });
   }
   // Lápis de editar Instagram — só existe no DOM quando pcState.souAdmin
   // (ver o card do candidato), mas o querySelectorAll cobre o caso normal
@@ -7285,6 +7354,39 @@ function renderModalNomeLista() {
     </div>`;
 }
 
+// Seletor de destino do Salvar (pedido do usuário, 21/08/2026): o disquete
+// abre a escolha — atualizar a lista ativa (padrão), sobrescrever outro
+// slot em aberto, ou salvar como nova. As regras de acesso valem por tipo
+// de usuário: depositada nunca é slot (cédula imutável); nova lista além
+// das 2 grátis consome 1 crédito (logado) ou pede cadastro (convidado) —
+// os mesmos gates do "+" de Minhas listas.
+function renderModalSalvarDestino() {
+  const destinos = (pcState._destinosSalvar || []).filter((l) => !l.depositadoEm);
+  const outras = destinos.filter((l) => l.id !== pcState.listaSalvaId);
+  const noLimite = destinos.length >= 2;
+  const legendaNova = !noLimite
+    ? "Cria mais um slot em aberto — grátis até 2 listas."
+    : (pcState.perfil
+      ? `Suas 2 listas grátis já estão em uso — custa <b>1 crédito</b> (saldo: ${pcState.perfil.creditos || 0}).`
+      : "Suas 2 listas grátis já estão em uso — criar outra pede uma conta.");
+  const linhaDestino = (rotulo, sub, attrs, destaque) => `
+    <button ${attrs} style="width:100%; text-align:left; background:${destaque ? "rgba(52,232,74,.08)" : "#16181B"}; border:1px solid ${destaque ? "rgba(52,232,74,.35)" : "#2B2F33"}; border-radius:10px; padding:11px 12px; margin-bottom:7px; cursor:pointer; display:flex; flex-direction:column; gap:2px;">
+      <span style="font-size:13px; font-weight:700; color:${destaque ? "var(--pc-accent)" : "var(--pc-ink)"}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${rotulo}</span>
+      <span style="font-size:10.5px; color:var(--pc-ink-dim); line-height:1.4;">${sub}</span>
+    </button>`;
+  return `
+    <div id="pcModalSalvarDestinoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
+      <div style="max-width:380px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <h2 style="margin-bottom:4px; font-size:15px;">Salvar aonde?</h2>
+        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">O palpite como está agora vai pro slot que você escolher.</div>
+        ${pcState.listaSalvaId && pcState.listaSalvaNome ? linhaDestino(`Atualizar "${pcState.listaSalvaNome}"`, "A lista que você está editando — salva em cima dela.", `id="pcBtnDestinoAtiva"`, true) : ""}
+        ${outras.map((l) => linhaDestino(`Sobrescrever "${l.nome}"`, `Salva em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")} — o conteúdo dela é substituído pelo palpite atual.`, `data-pc-destino-slot="${l.id}" data-pc-destino-nome="${escaparAtributoHtml(l.nome)}"`)).join("")}
+        ${linhaDestino("Salvar como nova lista", legendaNova, `id="pcBtnDestinoNova"`)}
+        <button class="ghost" id="pcBtnCancelarDestino" style="width:100%; margin-top:4px;">Cancelar</button>
+      </div>
+    </div>`;
+}
+
 // aoCancelar/aoConfirmar são callbacks de quem chamou (cada tela decide o
 // que fazer depois): Revisão passa executarSalvarLista puro (navega pra
 // "lista salva"/painel ao terminar); Seleção passa uma versão com
@@ -7752,7 +7854,8 @@ function renderRevisaoDeposito() {
 
       ${secoesHtml}
     </div>
-    ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}`;
+    ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
+    ${pcState.modalSalvarDestinoAberto ? renderModalSalvarDestino() : ""}`;
   if (pcState.modalNomeListaAberto) {
     attachListenersModalNomeLista(renderRevisaoDeposito, executarSalvarLista);
   }
@@ -8164,6 +8267,7 @@ document.addEventListener("keydown", (e) => {
   if (pcState.disputaSobraAberta) return fechar(() => { pcState.disputaSobraAberta = null; });
   if (pcState.top2022Aberto) return fechar(() => { pcState.top2022Aberto = false; });
   if (pcState.menuMagicoAberto) return fechar(() => { pcState.menuMagicoAberto = null; });
+  if (pcState.modalSalvarDestinoAberto) return fechar(() => { pcState.modalSalvarDestinoAberto = false; });
   if (pcState.modalNomeListaAberto) return fechar(() => { pcState.modalNomeListaAberto = false; });
   if (pcState.modalInstagramInfo) return fechar(() => { pcState.modalInstagramInfo = null; });
   if (pcState.modalDepositarListaId) return fechar(() => { pcState.modalDepositarListaId = null; });
