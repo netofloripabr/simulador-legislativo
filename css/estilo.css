@@ -939,11 +939,18 @@
   /* Mesma lógica responsiva do nome do candidato (.pc-dep-cnm): escala
      com a tela, teto = os 21,75px aprovados (+50%) e piso = o tamanho
      antigo de 14,5px pra não estourar em celular estreito. */
-  flex:1; min-width:0; font-size:clamp(14.5px, 2.7vw, 21.75px); font-weight:650;
+  flex:1; min-width:0; font-size:clamp(17.4px, 2.7vw, 21.75px); font-weight:650;
   color:#F2F4F5; overflow-wrap:anywhere; line-height:1.15;
 }
 #modoColaborativoWrap .pc-dep-sub{ font-size:10px; color:#8A9096; margin-top:1px; }
 #modoColaborativoWrap .pc-dep-cands{ margin-top:8px; }
+#modoColaborativoWrap .pc-dep-boxcol{
+  flex:none; display:flex; flex-direction:column; align-items:flex-end; gap:3px;
+}
+#modoColaborativoWrap .pc-dep-meta2{
+  font-size:10px; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums;
+  padding-right:2px;
+}
 #modoColaborativoWrap .pc-dep-crow{ padding:14px 0 10px; border-top:1px solid #1E2226; }
 #modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:6px; }
 #modoColaborativoWrap .pc-dep-cnm{
