@@ -6697,35 +6697,13 @@ function attachListenersSelecao() {
   // (executarSalvarLista), só que com manterTela:true pra não navegar embora.
   document.getElementById("pcBtnSalvarSelecao").addEventListener("click", async () => {
     garantirPalpitesPorCargo();
-    // Seletor de destino (21/08/2026): com mais de um destino possível, o
-    // disquete pergunta aonde salvar. Sem lista nenhuma salva ainda, vai
-    // direto pro nome (uma torneira só — sem modal intermediário à toa).
+    // Seletor de destino (21/08/2026): o disquete SEMPRE abre a escolha de
+    // slot — sem lista salva ainda, o seletor mostra só o slot de nova
+    // lista, e é por ele que se chega ao nome (decisão do usuário 21/08).
     const todas = await _carregarMinhasListasNormalizado();
-    const abertas = todas.filter((l) => !l.depositadoEm);
-    if (abertas.length > 0) {
-      pcState._destinosSalvar = abertas;
-      pcState.modalSalvarDestinoAberto = true;
-      renderCargoEstadual();
-      return;
-    }
-    if (!pcState.listaSalvaNome) {
-      pcState.modalNomeListaAberto = true;
-      renderCargoEstadual();
-      return;
-    }
-    // Só re-renderiza (e só aí mostra "Lista salva") quando deu certo — em
-    // caso de erro, a mensagem já foi escrita na caixa de status ATUAL por
-    // executarSalvarLista; re-renderizar de qualquer jeito apagaria ela
-    // antes da pessoa conseguir ler.
-    const ok = await executarSalvarLista({ manterTela: true });
-    if (ok) {
-      // renderCargoEstadual é assíncrona (await garantirPalpiteEdicaoAtivo
-      // lá dentro) — sem esperar ela terminar, esta mensagem era escrita
-      // ANTES do conteudo.innerHTML ser trocado e sumia junto com o DOM
-      // antigo assim que o render de fato acontecia.
-      await renderCargoEstadual();
-      mostrarStatusSalvamento("Lista salva. Pode continuar editando.");
-    }
+    pcState._destinosSalvar = todas.filter((l) => !l.depositadoEm);
+    pcState.modalSalvarDestinoAberto = true;
+    renderCargoEstadual();
   });
   if (pcState.modalNomeListaAberto) {
     attachListenersModalNomeLista(renderCargoEstadual, async () => {
