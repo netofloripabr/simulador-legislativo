@@ -3905,6 +3905,17 @@ function avisoLimiteVagasOcultoSalvo() {
 function salvarAvisoLimiteVagasOculto(oculto) {
   try { localStorage.setItem(CHAVE_AVISO_LIMITE_OCULTO, oculto ? "1" : "0"); } catch (e) { /* localStorage indisponível, ignora */ }
 }
+
+// Tutorial da 1ª visita (a dinâmica dos 3 toques): mostra UMA vez por
+// navegador — sem esta flag ele reabria a cada recarregada da página
+// (bug achado em 21/08/2026 durante verificação no preview).
+const CHAVE_TUTORIAL_VISTO = "simulador-legislativo-tutorial-visto";
+function tutorialVistoSalvo() {
+  try { return localStorage.getItem(CHAVE_TUTORIAL_VISTO) === "1"; } catch (e) { return false; }
+}
+function salvarTutorialVisto() {
+  try { localStorage.setItem(CHAVE_TUTORIAL_VISTO, "1"); } catch (e) { /* localStorage indisponível, ignora */ }
+}
 function abrirAvisoLimiteVagasSeNecessario() {
   if (avisoLimiteVagasOcultoSalvo()) return;
   pcState.avisoLimiteVagasAberto = true;
@@ -5001,13 +5012,10 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     <div class="pc-dep-card" data-dep-idx="${gi}">
       <div class="pc-dep-l1" data-dep-toggle="${gi}">
         <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
-        <div class="pc-dep-boxcol">
-          <div class="pc-dep-stepper" data-dep-stepper="${gi}">
-            <button type="button" data-dep-vaga-menos="${gi}">−</button>
-            <span data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}</span>
-            <button type="button" data-dep-vaga-mais="${gi}">+</button>
-          </div>
-          ${meta > 0 ? `<span class="pc-dep-meta2">meta ${formatVotosCompacto(meta)}</span>` : ""}
+        <div class="pc-dep-stepper" data-dep-stepper="${gi}">
+          <button type="button" data-dep-vaga-menos="${gi}">−</button>
+          <span data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}</span>
+          <button type="button" data-dep-vaga-mais="${gi}">+</button>
         </div>
       </div>
       ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course)}
@@ -5993,7 +6001,7 @@ async function renderCargoEstadual() {
     ? renderListaSenador(totalVagasCargo, votosValidos2026Proj)
     : renderListaDeputadosFader(partidosParaMostrar, votosValidos2026Proj, totalVagasCargo);
 
-  const instrucaoAberta = pcState.instrucaoSelecaoAberta !== false;
+  const instrucaoAberta = pcState.instrucaoSelecaoAberta !== false && !tutorialVistoSalvo();
   // Card do Painel Eleitoral — renderizado no slot do cabeçalho fixo
   // (#pcPainelSlot, criado por renderSelecaoCandidatos), NÃO dentro de
   // pcCargoConteudo: abas de cargo + este card formam um bloco único
@@ -6444,6 +6452,7 @@ function attachListenersSelecao() {
   if (fecharInstrucao) {
     fecharInstrucao.addEventListener("click", () => {
       pcState.instrucaoSelecaoAberta = false;
+      salvarTutorialVisto();
       renderCargoEstadual();
     });
   }
@@ -6473,6 +6482,7 @@ function attachListenersSelecao() {
     overlayInstrucao.addEventListener("click", (e) => {
       if (e.target.id === "pcInstrucaoOverlay") {
         pcState.instrucaoSelecaoAberta = false;
+        salvarTutorialVisto();
         renderCargoEstadual();
       }
     });
