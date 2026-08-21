@@ -4443,7 +4443,7 @@ function renderPainelSenador(E, comandos) {
       <div class="pc-sen-fu-l"><span>${rotulo}</span><b${total ? ' style="color:var(--pc-accent);"' : ""}>${formatVotosCompacto(valor)}</b></div>
       <div class="pc-sen-fu-b${total ? " tot" : ""}" style="width:${larg}%;"></div>
     </div>`;
-  const botoes = (comandos || []).map((c) => comandoIcone(c)).join("");
+  const botoes = renderBotoesComandos(comandos || []);
   return `
     <div class="pc-sen-hdr pc-console">
       <div class="pc-sen-osub">
@@ -4503,14 +4503,13 @@ function renderListaSenador(totalVagas, E) {
     const pctBarra = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
     const pct = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
     const linkInsta = linkInstagramDe(c.chave);
-    const instaAntes = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 13)}</a>` : "";
+    const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 14)}</a>` : "";
     const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
     return `
     <div class="pc-sen-card${eleito ? " eleito" : ""}" data-sen-idx="${it.idx}">
       <div class="pc-sen-l1">
         ${eleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
-        ${instaAntes}
-        <span class="pc-sen-nm">${nomeExibicao(c)}${lapisAdmin}</span>
+        <span class="pc-sen-nm">${nomeExibicao(c)}${instaDepois}${lapisAdmin}</span>
         <span class="pc-sen-pct">${pct.toFixed(0)}<small>%</small></span>
       </div>
       <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
