@@ -348,3 +348,20 @@ documentar por quê):
 - Sistema de pontuação/ranking → `RANQUEAMENTO.md` (rascunho).
 - Monetização → `MONETIZACAO.md` (rascunho).
 - Roteiro de fases e páginas pendentes → `PROJETO.md`.
+
+## Refino 20/08/2026 — regras de escala (protótipo "refino v3" aprovado)
+- **Botões de comando fluidos**: console 26–51px, card de partido 28–52px,
+  respiro `clamp(4px, 1.5vw, 12px)`; sempre uma linha, nunca grudados.
+  Fundo escuro discreto em AMBOS (#101214 / borda #1F2327).
+- **Desfazer|Refazer**: um círculo dividido ao meio (2 alvos de toque,
+  1 volume) — `renderBotoesComandos` funde o par automaticamente.
+- **Régua do console**: fade linear de opacidade (100% centro → 50% pontas).
+- **Metas do console** (vagas X/N · QE Y/Z): número pendente em LARANJA
+  #FF9A2E (o "em disputa" das réguas); batido = branco. Classe
+  `.pc-meta-num(.pend)`.
+- **Nome do candidato RESPONSIVO**: `clamp(15,5px, 3vw, 24,5px)` — mantém
+  a proporção da referência (24,5px em ~810px) em qualquer dispositivo;
+  % em `clamp(14px, 2.5vw, 20px)`. Instagram inline logo após o nome.
+- **Puxador de gaveta**: alça 92×5px na base do card; fechado, 1º
+  candidato em preview difuso (blur 2,6px, opacity .22, máscara em
+  degradê descendente).
