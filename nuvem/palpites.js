@@ -44,6 +44,17 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
   const origem2026 = (typeof candidatos2026EstadoCargo === "function")
     ? candidatos2026EstadoCargo(uf, CARGO_LABEL[cargo])
     : null;
+  // REGRA MESTRA (21/08/2026): onde EXISTE elenco 2026, o de 2022 JAMAIS
+  // pode aparecer no lugar dele. O fallback abaixo é legítimo só pros
+  // estados que ainda não têm dado 2026 gerado — pra SC, cair aqui
+  // significa que sc-2026-provisorio.js falhou em carregar (ex.: erro de
+  // sintaxe no gerador, 'const' em vez de 'var') e o app estaria vestindo
+  // candidatos de 2022 como se fossem de 2026. Grita alto no console pra
+  // nunca mais passar despercebido.
+  const UFS_COM_DADO_2026 = ["SC"];
+  if (!origem2026 && UFS_COM_DADO_2026.includes(uf)) {
+    console.error(`REGRA MESTRA VIOLADA: ${uf}/${cargo} deveria ter elenco 2026 e caiu no fallback de 2022 — sc-2026-provisorio.js não carregou ou está quebrado.`);
+  }
   const origem = origem2026 || candidatosEstadoCargo(uf, cargo);
   const base = origem.map((p) => ({
     nome: p.nome,

@@ -96,3 +96,21 @@ conversa antiga:
 Este projeto começou como um único arquivo HTML no claude.ai e foi dividido
 nestas pastas para crescer com segurança. Veja `README.md` para o
 histórico completo de decisões e limitações conhecidas.
+
+## REGRA MESTRA — elenco 2022 nunca se veste de 2026 (21/08/2026)
+
+O candidato que aparece numa aba de palpite é SEMPRE do elenco 2026
+(atas/RRC) onde esse dado existe (hoje: SC). O resultado de 2022 entra só
+como BASE DE VOTOS dos candidatos que concorreram nos dois anos (o default
+do 1º acesso equivale a apertar o relógio-2022) — jamais como elenco.
+Três guardas implementadas:
+1. `rascunhoEhOrfao` (interface/prospeccao.js) compara por CHAVE e exige
+   maioria de sobrevivência — rascunhos da era pré-atas são descartados
+   (o bug de 21/08: comparava por `id` inexistente, undefined casava com
+   undefined e nenhum rascunho era descartado).
+2. `montarEstadoPalpite` (nuvem/palpites.js) grita `console.error` se SC
+   cair no fallback de 2022 (sinal de sc-2026-provisorio.js quebrado).
+3. O fallback pro elenco de 2022 continua válido SÓ pros estados sem dado
+   2026 gerado.
+Cuidado conhecido: "Editar" uma lista salva da era antiga ainda recarrega
+o elenco embutido nela (decisão pendente de migração).

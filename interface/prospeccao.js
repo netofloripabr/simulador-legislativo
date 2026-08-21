@@ -5652,12 +5652,28 @@ function renderCargoIndisponivel(cargo) {
 function rascunhoEhOrfao(rascunho, poolOficial) {
   if (!rascunho || !rascunho.length) return false;
   if (!poolOficial || !poolOficial.length) return false;
-  const idsOficiais = new Set();
-  poolOficial.forEach((p) => p.candidatos.forEach((c) => idsOficiais.add(c.id)));
-  const idsRascunho = [];
-  rascunho.forEach((p) => p.candidatos.forEach((c) => idsRascunho.push(c.id)));
-  if (!idsRascunho.length) return false;
-  return !idsRascunho.some((id) => idsOficiais.has(id));
+  // ERRO CRÍTICO corrigido em 21/08/2026: a comparação usava c.id, campo
+  // que os candidatos de montarEstadoPalpite NÃO têm — undefined casava
+  // com undefined e NENHUM rascunho era descartado, então rascunhos da
+  // era pré-atas (elenco de 2022 escalado pelo fator) sobreviviam e o
+  // usuário abria a página com candidatos de 2022 no lugar do elenco
+  // real de 2026. Agora compara por CHAVE (o identificador real) e exige
+  // que a MAIORIA dos candidatos do rascunho ainda exista no elenco
+  // oficial — rascunho meio-órfão também é inutilizável.
+  const chaveDe = (c) => c.chave || c.id || null;
+  const oficiais = new Set();
+  poolOficial.forEach((p) => p.candidatos.forEach((c) => {
+    const k = chaveDe(c);
+    if (k != null && c.fonte !== "legenda") oficiais.add(k);
+  }));
+  const doRascunho = [];
+  rascunho.forEach((p) => p.candidatos.forEach((c) => {
+    const k = chaveDe(c);
+    if (k != null && c.fonte !== "legenda") doRascunho.push(k);
+  }));
+  if (!doRascunho.length) return true; // sem identificador nenhum = era antiga
+  const sobreviventes = doRascunho.filter((k) => oficiais.has(k)).length;
+  return sobreviventes / doRascunho.length < 0.5;
 }
 
 // Complemento da regra de rascunho órfão (acima): ela só descarta o
