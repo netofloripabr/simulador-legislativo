@@ -936,9 +936,11 @@
 #modoColaborativoWrap .pc-dep-card.sematq .pc-dep-sub{ display:inline; margin-left:8px; }
 #modoColaborativoWrap .pc-dep-l1{ display:flex; align-items:center; gap:7px; cursor:pointer; }
 #modoColaborativoWrap .pc-dep-nm{
-  /* +50% pedido 21/08 (era 14,5px) */
-  flex:1; min-width:0; font-size:21.75px; font-weight:650; color:#F2F4F5;
-  overflow-wrap:anywhere; line-height:1.15;
+  /* Mesma lógica responsiva do nome do candidato (.pc-dep-cnm): escala
+     com a tela, teto = os 21,75px aprovados (+50%) e piso = o tamanho
+     antigo de 14,5px pra não estourar em celular estreito. */
+  flex:1; min-width:0; font-size:clamp(14.5px, 2.7vw, 21.75px); font-weight:650;
+  color:#F2F4F5; overflow-wrap:anywhere; line-height:1.15;
 }
 #modoColaborativoWrap .pc-dep-sub{ font-size:10px; color:#8A9096; margin-top:1px; }
 #modoColaborativoWrap .pc-dep-cands{ margin-top:8px; }
@@ -993,7 +995,7 @@
   background:rgba(255,154,46,.85); transform:translateX(-50%); pointer-events:none;
 }
 #modoColaborativoWrap .pc-dep-zone{
-  position:relative; height:42px; cursor:pointer; touch-action:none;
+  position:relative; height:40px; cursor:pointer; touch-action:none;
 }
 #modoColaborativoWrap .pc-dep-trk{
   position:absolute; left:0; right:0; top:6px; height:5px; border-radius:3px;
@@ -1026,7 +1028,7 @@
 }
 #modoColaborativoWrap .pc-dep-zone.ativo .pc-dep-grip-haste{ box-shadow:0 0 0 4px rgba(52,232,74,.2); }
 #modoColaborativoWrap .pc-dep-notif{
-  display:flex; align-items:center; gap:8px; margin-top:2px;
+  display:flex; align-items:center; gap:8px; margin-top:0;
 }
 #modoColaborativoWrap .pc-dep-notif-txt{ flex:1; min-width:0; font-size:10px; color:#8A9096; line-height:1.4; }
 #modoColaborativoWrap .pc-dep-notif-txt b{ color:#AEB5BB; }

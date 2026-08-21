@@ -966,10 +966,17 @@ function renderTelaEstado() {
     const estado = ESTADOS_BRASIL.find((e) => e.sigla === ufCentralizado);
     // Sem repetir o nome (ele já está verde na própria roda) — só a legenda
     // com as vagas em disputa do estado centralizado.
-    document.getElementById("pcEstadoConfirmMsg").textContent = estado.disponivel
+    const confirmMsg = document.getElementById("pcEstadoConfirmMsg");
+    const btnConfirmar = document.getElementById("pcBtnConfirmarEstado");
+    // A roleta agenda este código via requestAnimationFrame — se a pessoa
+    // confirmar o estado no meio de um scroll, o quadro chega DEPOIS da
+    // tela trocar e os elementos já não existem (TypeError visto no
+    // console em 21/08/2026). Sem eles, não há mais o que atualizar.
+    if (!confirmMsg || !btnConfirmar) return;
+    confirmMsg.textContent = estado.disponivel
       ? `${vagasFixasCargo(estado.sigla, "estadual")} vagas de Dep. Estadual · ${vagasFixasCargo(estado.sigla, "federal")} de Federal · ${vagasFixasCargo(estado.sigla, "senador")} de Senador`
       : "Ainda sem candidatos carregados — em breve.";
-    document.getElementById("pcBtnConfirmarEstado").disabled = !estado.disponivel;
+    btnConfirmar.disabled = !estado.disponivel;
   }
   picker.addEventListener("scroll", () => requestAnimationFrame(atualizarPicker));
 
