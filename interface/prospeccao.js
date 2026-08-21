@@ -4853,7 +4853,6 @@ function barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course) {
     if (i > vagasInd && soma > (i - 1) * qeProj) ticks += `<span class="pc-dep-tick-dot" style="left:${pos(i * qeProj)}%"></span>`;
   }
   const finaPasso = Math.max(1.5, 100 / Math.max(20, nTicks * 4));
-  const metaLabelPos = Math.min(90, Math.max(10, metaPos));
   return `
     <div class="pc-dep-regua"><div class="pc-dep-regua-fina" style="background:repeating-linear-gradient(90deg, rgba(138,144,150,.18) 0 1px, transparent 1px ${finaPasso.toFixed(3)}%);"></div>${ticks}</div>
     <div class="pc-dep-zone" data-dep-fader="p|${gi}" data-course="${Math.round(course)}" data-meta="${Math.round(meta)}" data-qe="${Math.round(qeProj)}" data-vagas="${vagasInd}">
@@ -4861,7 +4860,6 @@ function barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course) {
         <div class="pc-dep-fill" style="width:${fillW}%; background-size:${fillW > 0 ? (10000 / fillW).toFixed(1) : "100"}% 100%;"></div>
         ${extraW > 0 ? `<div class="pc-dep-extra" style="left:${metaPos}%; width:${extraW}%"></div>` : ""}
       </div>
-      ${meta > 0 ? `<span class="pc-dep-meta" style="left:${metaLabelPos}%">meta ${formatVotosCompacto(meta)}</span>` : ""}
       <div class="pc-dep-grip" style="left:${pos(soma)}%">
         <div class="pc-dep-grip-haste"></div>
         <div class="pc-dep-grip-plq">${formatVotosCompacto(soma)}</div>
@@ -4975,10 +4973,13 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     <div class="pc-dep-card" data-dep-idx="${gi}">
       <div class="pc-dep-l1" data-dep-toggle="${gi}">
         <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
-        <div class="pc-dep-stepper" data-dep-stepper="${gi}">
-          <button type="button" data-dep-vaga-menos="${gi}">−</button>
-          <span data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}</span>
-          <button type="button" data-dep-vaga-mais="${gi}">+</button>
+        <div class="pc-dep-boxcol">
+          <div class="pc-dep-stepper" data-dep-stepper="${gi}">
+            <button type="button" data-dep-vaga-menos="${gi}">−</button>
+            <span data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}</span>
+            <button type="button" data-dep-vaga-mais="${gi}">+</button>
+          </div>
+          ${meta > 0 ? `<span class="pc-dep-meta2">meta ${formatVotosCompacto(meta)}</span>` : ""}
         </div>
       </div>
       ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course)}
