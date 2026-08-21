@@ -1487,3 +1487,82 @@
   border-radius:50%; background:rgba(232,236,239,.3); border:1px solid rgba(242,244,245,.35);
   color:var(--pc-ink); vertical-align:middle;
 }
+
+/* ===== Casca padrão do fluxo de acesso (aprovada 20/08/2026) ===== */
+/* Card no material do console da capa; campos translúcidos (SEM fundo
+   preto vazado — decisão do usuário); verde vivo só no botão principal. */
+#modoColaborativoWrap.pc-tema-fader .pc-acesso{
+  max-width:420px; margin:0 auto; background:#2C3239; border:1px solid #4D545C;
+  border-radius:20px; padding:22px 20px 24px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-topo{
+  display:flex; align-items:center; margin-bottom:18px; min-height:30px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-voltar{
+  flex:none; width:30px; height:30px; padding:0; border-radius:50%;
+  background:rgba(232,236,239,.1); border:1px solid #4D545C; color:var(--pc-ink);
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-rotulo{
+  flex:1; text-align:center; font-size:10px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; color:#AEB5BB;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-rotulo.com-voltar{ margin-right:30px; }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-h2{
+  text-align:center; font-size:17px; font-weight:750; color:var(--pc-ink); margin:0 0 4px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-sub{
+  text-align:center; font-size:12px; color:var(--pc-ink-dim); line-height:1.5;
+  margin:0 auto 18px; max-width:290px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso .field-row{ display:block; margin-bottom:10px; }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso .field-row label{
+  display:block; width:auto; font-size:11px; font-weight:600; color:#AEB5BB; margin:0 2px 4px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso input.cell,
+#modoColaborativoWrap.pc-tema-fader .pc-acesso select.cell{
+  background:rgba(242,244,245,.07); border:1px solid rgba(242,244,245,.16);
+  border-radius:10px; font-size:13.5px; padding:11px 12px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso input.cell:focus,
+#modoColaborativoWrap.pc-tema-fader .pc-acesso select.cell:focus{ border-color:var(--pc-accent); }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso .primary{
+  display:block; width:100%; margin-top:12px; padding:12px; border-radius:999px; font-weight:700;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-ghost{
+  display:flex; width:100%; align-items:center; justify-content:center; gap:10px;
+  border-radius:999px; padding:10px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-divisor{
+  display:flex; align-items:center; gap:10px; margin:14px 0 6px; color:#5C6268; font-size:11px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-divisor::before,
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-divisor::after{
+  content:""; flex:1; height:1px; background:#4D545C; opacity:.6;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-links{
+  text-align:center; font-size:11.5px; color:var(--pc-ink-dim); margin-top:12px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-link{
+  background:none; border:none; padding:0; font-family:inherit; font-size:11.5px;
+  color:var(--pc-ink-dim); cursor:pointer;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-link.destaque{
+  color:var(--pc-ink); font-weight:600; text-decoration:underline; text-underline-offset:2px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-confirm{ text-align:center; margin-top:12px; font-size:11.5px; color:var(--pc-ink-dim); }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-confirm > span{
+  display:block; font-weight:700; font-size:13.5px; color:var(--pc-accent); margin-bottom:2px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-genero{ display:flex; gap:7px; }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-genero button{
+  flex:1; text-align:center; padding:9px 4px; border-radius:999px; background:none;
+  border:1px solid rgba(242,244,245,.16); font-family:inherit; font-size:12px;
+  color:#AEB5BB; cursor:pointer;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-genero button.on{
+  border-color:var(--pc-accent); color:var(--pc-ink);
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso .pc-picker-center-band{
+  border-color:rgba(242,244,245,.16); left:6px; right:6px;
+}

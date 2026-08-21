@@ -901,10 +901,10 @@ function renderTelaEstado() {
   `).join("");
 
   el.innerHTML = `
-    <div class="glass-card" style="max-width:460px; margin:0 auto; min-height:70vh; display:flex; flex-direction:column; justify-content:center;">
-      <div style="font-size:11px; color:var(--pc-ink-dim); text-transform:uppercase; letter-spacing:.06em; text-align:center;">2 de 8</div>
-      <h2 style="text-align:center; margin-bottom:4px;">Onde você vai palpitar?</h2>
-      <div class="pc-sub" style="text-align:center; margin-bottom:6px;">Selecione o estado.</div>
+    <div class="pc-acesso" style="min-height:min(70vh, 560px); display:flex; flex-direction:column; justify-content:center;">
+      ${cascaAcessoTopo("pcBtnVoltarEstado")}
+      <div class="pc-acesso-h2">Onde você vai palpitar?</div>
+      <div class="pc-acesso-sub">Role e centralize o seu estado.</div>
 
       <div class="pc-picker" id="pcPicker">
         <div class="pc-picker-center-band"></div>
@@ -913,12 +913,16 @@ function renderTelaEstado() {
         <div class="pc-picker-pad"></div>
       </div>
 
-      <div style="border:1px solid var(--pc-accent); background:rgba(52,232,74,.06); border-radius:12px; padding:14px 16px; text-align:center; margin-top:14px;">
-        <span id="pcEstadoConfirmNome" style="font-weight:700; color:var(--pc-accent);"></span>
-        <div id="pcEstadoConfirmMsg" style="font-size:11.5px; color:var(--pc-ink-dim); margin-top:4px;"></div>
+      <div class="pc-acesso-confirm">
+        <span id="pcEstadoConfirmNome"></span>
+        <div id="pcEstadoConfirmMsg"></div>
       </div>
-      <button class="primary" id="pcBtnConfirmarEstado" style="margin-top:14px; align-self:center;" disabled>Confirmar</button>
+      <button class="primary" id="pcBtnConfirmarEstado" disabled>Continuar</button>
     </div>`;
+  document.getElementById("pcBtnVoltarEstado").addEventListener("click", () => {
+    pcState.tela = "landing";
+    renderColaborativo();
+  });
 
   const picker = document.getElementById("pcPicker");
   const itensEls = picker.querySelectorAll(".pc-picker-item");
@@ -1197,25 +1201,56 @@ function renderTelaLegal(tipo) {
   });
 }
 
+
+// ===== Casca padrão do fluxo de acesso (aprovada 20/08/2026) =====
+// Card no material do console da capa + cabeçalho constante (voltar à
+// esquerda quando cabível + rótulo de marca centralizado). Todas as telas
+// entre a capa e o app usam esta casca — ver task de padronização.
+function cascaAcessoTopo(voltarId) {
+  return `<div class="pc-acesso-topo">
+    ${voltarId ? `<button class="pc-acesso-voltar" id="${voltarId}" title="Voltar">${iconeSvg("setaEsquerda", 14)}</button>` : ""}
+    <span class="pc-acesso-rotulo${voltarId ? " com-voltar" : ""}">Simulador Eleitoral · 2026</span>
+  </div>`;
+}
+
+// Pílulas de gênero (substituem o <select>, mesmo id num input hidden pra
+// não mexer nos handlers de submit).
+function pilulasGenero(idCampo) {
+  return `<input type="hidden" id="${idCampo}" value="">
+  <div class="pc-acesso-genero" data-pc-genero-alvo="${idCampo}">
+    ${["Feminino", "Masculino", "Outro"].map((g) => `<button type="button" data-pc-genero="${g}">${g}</button>`).join("")}
+  </div>`;
+}
+function attachPilulasGenero() {
+  document.querySelectorAll("[data-pc-genero-alvo]").forEach((grupo) => {
+    const alvo = document.getElementById(grupo.getAttribute("data-pc-genero-alvo"));
+    grupo.querySelectorAll("[data-pc-genero]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        grupo.querySelectorAll("[data-pc-genero]").forEach((b) => b.classList.remove("on"));
+        btn.classList.add("on");
+        alvo.value = btn.getAttribute("data-pc-genero");
+      });
+    });
+  });
+}
+
 function renderTelaLogin() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
-    <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <button class="pc-mini-btn" id="pcBtnVoltarLogin" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
-      <h2>Entrar no Simulador Eleitoral — Legislativo 2026</h2>
-      <div class="pc-sub">Previsões compartilhadas de votação para Deputado Estadual, Deputado Federal e Senador.</div>
+    <div class="pc-acesso">
+      ${cascaAcessoTopo("pcBtnVoltarLogin")}
+      <div class="pc-acesso-h2">Que bom te ver de novo</div>
+      <div class="pc-acesso-sub">Entre pra continuar seus palpites de onde parou.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcLoginEmail" type="email"></div>
       <div class="field-row"><label>Senha</label><input class="cell" id="pcLoginSenha" type="password"></div>
-      <div style="text-align:right; margin-top:-8px;"><a href="#" id="pcLinkEsqueciSenha" class="pc-link" style="font-size:12px;">Esqueci minha senha</a></div>
       <div class="pc-erro" id="pcLoginErro">${pcState.erro || ""}</div>
-      <div style="display:flex; gap:10px; margin-top:6px;">
-        <button class="primary" id="pcBtnEntrar">Entrar</button>
-        <button class="ghost" id="pcBtnIrCadastro">Criar conta</button>
+      <button class="primary" id="pcBtnEntrar">Entrar</button>
+      <div class="pc-acesso-divisor">ou</div>
+      <button class="ghost pc-acesso-ghost" id="pcBtnEntrarGoogle">${GOOGLE_G_SVG}Entrar com Google</button>
+      <div class="pc-acesso-links">
+        <button type="button" class="pc-acesso-link" id="pcLinkEsqueciSenha">Esqueci minha senha</button> ·
+        <button type="button" class="pc-acesso-link destaque" id="pcBtnIrCadastro">Criar conta</button>
       </div>
-      <div style="display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--pc-ink-dim); font-size:12px;">
-        <div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>ou<div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>
-      </div>
-      <button class="ghost" id="pcBtnEntrarGoogle" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_SVG}Entrar com Google</button>
     </div>`;
 
   document.getElementById("pcBtnVoltarLogin").addEventListener("click", voltarDeLoginOuCadastro);
@@ -1257,14 +1292,14 @@ function renderTelaLogin() {
 function renderTelaRecuperarSenha() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
-    <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <button class="pc-mini-btn" id="pcBtnVoltarRecuperar" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
-      <h2>Esqueci minha senha</h2>
-      <div class="pc-sub">Digite o e-mail da sua conta — mandamos um link pra você definir uma senha nova.</div>
+    <div class="pc-acesso">
+      ${cascaAcessoTopo("pcBtnVoltarRecuperar")}
+      <div class="pc-acesso-h2">Esqueci minha senha</div>
+      <div class="pc-acesso-sub">Digite o e-mail da sua conta — mandamos um link pra você definir uma senha nova.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcRecuperarEmail" type="email"></div>
       <div class="pc-erro" id="pcRecuperarErro"></div>
       <div class="pc-status" id="pcRecuperarStatus"></div>
-      <button class="primary" id="pcBtnEnviarRecuperacao" style="margin-top:6px;">Enviar link</button>
+      <button class="primary" id="pcBtnEnviarRecuperacao">Enviar link</button>
     </div>`;
   document.getElementById("pcBtnVoltarRecuperar").addEventListener("click", () => {
     pcState.tela = "login";
@@ -1286,12 +1321,13 @@ function renderTelaRecuperarSenha() {
 function renderTelaNovaSenha() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
-    <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <h2>Defina uma nova senha</h2>
-      <div class="pc-sub">Você clicou no link de recuperação — escolha sua nova senha abaixo.</div>
+    <div class="pc-acesso">
+      ${cascaAcessoTopo(null)}
+      <div class="pc-acesso-h2">Defina uma nova senha</div>
+      <div class="pc-acesso-sub">Você clicou no link de recuperação — escolha sua nova senha abaixo.</div>
       <div class="field-row"><label>Nova senha</label><input class="cell" id="pcNovaSenhaInput" type="password"></div>
       <div class="pc-erro" id="pcNovaSenhaErro">${pcState.erro || ""}</div>
-      <button class="primary" id="pcBtnConfirmarNovaSenha" style="margin-top:6px;">Salvar nova senha</button>
+      <button class="primary" id="pcBtnConfirmarNovaSenha">Salvar nova senha</button>
     </div>`;
   document.getElementById("pcBtnConfirmarNovaSenha").addEventListener("click", async (e) => {
     const novaSenha = document.getElementById("pcNovaSenhaInput").value;
@@ -1341,9 +1377,10 @@ function renderTelaCompletarPerfil() {
     && pcState.sessao.user.app_metadata.provider === "google";
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
-    <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <h2>Só mais um passo</h2>
-      <div class="pc-sub">${veioDoGoogle ? "Sua conta Google já está conectada — falta só isto pra liberar o Simulador." : "Falta só isto pra liberar o Simulador."}</div>
+    <div class="pc-acesso">
+      ${cascaAcessoTopo(null)}
+      <div class="pc-acesso-h2">Só mais um passo</div>
+      <div class="pc-acesso-sub">${veioDoGoogle ? "Sua conta Google já está conectada — falta só isto pra liberar o Simulador." : "Falta só isto pra liberar o Simulador."}</div>
       <div class="field-row"><label>Nome</label><input class="cell" id="pcCompNome" value="${nomeGoogle}"></div>
       <div class="field-row">
         <label>CPF</label>
@@ -1358,12 +1395,7 @@ function renderTelaCompletarPerfil() {
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CEP só pra saber seu município — ajuda a gente a entender melhor quem está usando o Simulador.</div>
       <div class="field-row">
         <label>Gênero</label>
-        <select class="cell" id="pcCompGenero">
-          <option value="">Selecione</option>
-          <option value="Masculino">Masculino</option>
-          <option value="Feminino">Feminino</option>
-          <option value="Outro">Outro</option>
-        </select>
+        ${pilulasGenero("pcCompGenero")}
       </div>
 
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
@@ -1376,12 +1408,11 @@ function renderTelaCompletarPerfil() {
       </label>
 
       <div class="pc-erro" id="pcCompErro">${pcState.erro || ""}</div>
-      <div style="display:flex; gap:10px; margin-top:6px;">
-        <button class="primary" id="pcBtnConcluirPerfil">Concluir cadastro</button>
-        <button class="ghost" id="pcBtnCancelarPerfil">Cancelar</button>
-      </div>
+      <button class="primary" id="pcBtnConcluirPerfil">Concluir cadastro</button>
+      <div class="pc-acesso-links"><button type="button" class="pc-acesso-link" id="pcBtnCancelarPerfil">Cancelar</button></div>
     </div>`;
 
+  attachPilulasGenero();
   document.getElementById("pcLinkPrivacidadeComp").addEventListener("click", (e) => {
     e.preventDefault();
     pcState.telaLegalOrigem = "completar-perfil";
@@ -1460,8 +1491,9 @@ function renderTelaOnboarding() {
   const ultimo = passo === PC_ONBOARDING_PASSOS.length - 1;
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
-    <div class="glass-card" style="max-width:380px; margin:0 auto;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+    <div class="pc-acesso" style="max-width:380px;">
+      ${cascaAcessoTopo(null)}
+      <div style="display:flex; justify-content:space-between; align-items:center; margin:-6px 0 14px;">
         <span style="font-size:11px; color:var(--pc-ink-dim);">${passo + 1} de ${PC_ONBOARDING_PASSOS.length}</span>
         <button class="ghost" id="pcBtnOnboardingPular" style="padding:5px 12px; font-size:11.5px;">Pular</button>
       </div>
@@ -1505,9 +1537,10 @@ function renderTelaOnboarding() {
 function renderTelaMiniPesquisa() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
-    <div class="glass-card" style="max-width:460px; margin:0 auto;">
-      <h2>Antes de começar, seu palpite rápido</h2>
-      <div class="pc-sub" style="margin-bottom:16px;">Só uma vez: quem você acha que vence cada disputa em 2026. Pra Presidente e Governador (não cobertos em detalhe aqui), é só o nome mesmo — pra Senador, Dep. Federal e Dep. Estadual você vai montar a cédula completa daqui a pouco.</div>
+    <div class="pc-acesso" style="max-width:460px;">
+      ${cascaAcessoTopo(null)}
+      <div class="pc-acesso-h2">Antes de começar, seu palpite rápido</div>
+      <div class="pc-acesso-sub" style="max-width:none;">Só uma vez: quem você acha que vence cada disputa em 2026. Pra Presidente e Governador (não cobertos em detalhe aqui), é só o nome mesmo — pra Senador, Dep. Federal e Dep. Estadual você vai montar a cédula completa daqui a pouco.</div>
 
       <div class="field-row"><label>Presidente</label><input class="cell" id="pcMpPresidente" placeholder="Nome do candidato"></div>
       <div class="field-row"><label>Vai ter 2º turno?</label>
@@ -1583,13 +1616,10 @@ function renderTelaMiniPesquisa() {
 function renderTelaCadastro() {
   const el = document.getElementById("modoColaborativoWrap");
   el.innerHTML = `
-    <div class="glass-card" style="max-width:460px; margin:0 auto;">
-      <button class="pc-mini-btn" id="pcBtnVoltarCadastro" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
-      <h2>Criar conta</h2>
-      <button class="ghost" id="pcBtnCadastrarGoogle" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">${GOOGLE_G_SVG}Acessar com o Google</button>
-      <div style="display:flex; align-items:center; gap:10px; margin:16px 0; color:var(--pc-ink-dim); font-size:12px;">
-        <div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>ou<div style="flex:1; height:1px; background:var(--pc-ink-dim); opacity:.3;"></div>
-      </div>
+    <div class="pc-acesso" style="max-width:460px;">
+      ${cascaAcessoTopo("pcBtnVoltarCadastro")}
+      <div class="pc-acesso-h2">Crie sua conta</div>
+      <div class="pc-acesso-sub">Grátis. Deposite sua cédula, entre em grupos e dispute o ranking.</div>
       <div class="field-row"><label>Nome</label><input class="cell" id="pcCadNome"></div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Você pode divulgar seu palpite de forma anônima — essa escolha é feita depois, na hora de depositar cada cédula, não aqui.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcCadEmail" type="email"></div>
@@ -1608,12 +1638,7 @@ function renderTelaCadastro() {
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CEP só pra saber seu município — ajuda a gente a entender melhor quem está usando o Simulador.</div>
       <div class="field-row">
         <label>Gênero</label>
-        <select class="cell" id="pcCadGenero">
-          <option value="">Selecione</option>
-          <option value="Masculino">Masculino</option>
-          <option value="Feminino">Feminino</option>
-          <option value="Outro">Outro</option>
-        </select>
+        ${pilulasGenero("pcCadGenero")}
       </div>
 
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
@@ -1626,13 +1651,14 @@ function renderTelaCadastro() {
       </label>
 
       <div class="pc-erro" id="pcCadErro">${pcState.erro || ""}</div>
-      <div style="display:flex; gap:10px; margin-top:6px;">
-        <button class="primary" id="pcBtnCadastrar">Criar conta</button>
-        <button class="ghost" id="pcBtnIrLogin">Já tenho conta</button>
-      </div>
+      <button class="primary" id="pcBtnCadastrar">Criar conta</button>
+      <div class="pc-acesso-divisor">ou</div>
+      <button class="ghost pc-acesso-ghost" id="pcBtnCadastrarGoogle">${GOOGLE_G_SVG}Continuar com Google</button>
+      <div class="pc-acesso-links">Já tenho conta — <button type="button" class="pc-acesso-link destaque" id="pcBtnIrLogin">entrar</button></div>
     </div>`;
 
   document.getElementById("pcBtnVoltarCadastro").addEventListener("click", voltarDeLoginOuCadastro);
+  attachPilulasGenero();
   document.getElementById("pcBtnIrLogin").addEventListener("click", () => {
     pcState.erro = "";
     pcState.tela = "login";
