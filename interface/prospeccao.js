@@ -5973,7 +5973,12 @@ async function renderCargoEstadual() {
             <button type="button" class="pc-tut-pontos" id="pcTutPontos" title="Toque"><i class="on"></i><i></i><i></i></button>
             <div class="pc-tut-titulo">Selecione o botão e entenda a função.</div>
             <div class="pc-tut-hint" id="pcTutHint">👆 toque nos pontinhos verdes acima</div>
-            <div class="pc-tut-palco" id="pcTutPalco"><div class="pc-tut-lin"><span class="pc-tut-passo">Nível 1 · bolha</span> só os 3 pontinhos, discretos no topo da tela.</div></div>
+            <div class="pc-tut-palco" id="pcTutPalco">
+              <div class="pc-tut-leg on" data-tut-leg="1"><b>1 ponto</b> · Alerta — existe instrução</div>
+              <div class="pc-tut-leg" data-tut-leg="2"><b>2 pontos</b> · Painel 1 — dica objetiva</div>
+              <div class="pc-tut-leg" data-tut-leg="3"><b>3 pontos</b> · Painel 2 — dica completa</div>
+              <div class="pc-tut-leg-rodape">Você escolhe a qualquer momento.</div>
+            </div>
             <div class="pc-tut-explica" id="pcTutExplica">Ele estará sempre no topo da tela, te acompanhando.</div>
           </div>
           <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:14px;" disabled>Começar</button>
@@ -6407,11 +6412,6 @@ function attachListenersSelecao() {
   const tutPontos = document.getElementById("pcTutPontos");
   if (tutPontos) {
     let tutNivel = 1, tutToques = 0;
-    const palcos = {
-      1: '<div class="pc-tut-lin"><span class="pc-tut-passo">Nível 1 · bolha</span> só os 3 pontinhos, discretos no topo da tela.</div>',
-      2: '<div class="pc-tut-lin"><span class="pc-tut-passo">Passo 1</span> Preencha as vagas por partido — 12 de 40 <span class="pc-tut-min">−</span></div>',
-      3: '<div class="pc-tut-lin" style="border-bottom:1px solid rgba(242,244,245,.08); padding-bottom:6px;"><span class="pc-tut-passo">Sua trilha</span><span class="pc-tut-min">−</span></div><div class="pc-tut-item on">① Preencher as vagas por partido — <b style="color:var(--pc-accent);">12 de 40</b></div><div class="pc-tut-item">② Distribuir a votação pelos candidatos</div><div class="pc-tut-item">③ Avançar pra Revisão</div>',
-    };
     const explicacoes = {
       1: "Ele estará sempre no topo da tela, te acompanhando.",
       2: '<b style="color:var(--pc-accent);">O sistema te orienta em cada etapa.</b> A barra mostra o seu próximo passo e o progresso dele, em tempo real.',
@@ -6421,7 +6421,9 @@ function attachListenersSelecao() {
       tutNivel = tutNivel === 3 ? 1 : tutNivel + 1;
       tutToques++;
       tutPontos.querySelectorAll("i").forEach((el, idx) => { el.className = idx < tutNivel ? "on" : ""; });
-      document.getElementById("pcTutPalco").innerHTML = palcos[tutNivel];
+      document.querySelectorAll("[data-tut-leg]").forEach((el) => {
+        el.classList.toggle("on", el.getAttribute("data-tut-leg") === String(tutNivel));
+      });
       document.getElementById("pcTutExplica").innerHTML = explicacoes[tutNivel];
       const hint = document.getElementById("pcTutHint");
       if (tutToques >= 3) {

@@ -1657,6 +1657,14 @@
   font-size:11px; color:#AEB5BB;
 }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-lin{ display:flex; align-items:center; gap:8px; }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-leg{ padding:4px 0; color:#5C6268; font-size:11.5px; }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-leg b{ color:#5C6268; font-weight:750; }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-leg.on{ color:var(--pc-ink); }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-leg.on b{ color:var(--pc-accent); }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-leg-rodape{
+  margin-top:7px; padding-top:7px; border-top:1px solid rgba(242,244,245,.08);
+  font-size:10.5px; color:#5C6268; text-align:center;
+}
 #modoColaborativoWrap.pc-tema-fader .pc-tut-passo{
   color:var(--pc-accent); font-weight:800; font-size:9px; letter-spacing:.06em;
   text-transform:uppercase; flex:none;
