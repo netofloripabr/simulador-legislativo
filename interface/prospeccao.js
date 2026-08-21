@@ -5963,16 +5963,17 @@ async function renderCargoEstadual() {
     <div id="pcInstrucaoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
       <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px 18px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 13)} ATENÇÃO</div>
-        <div class="pc-tut-aviso">Siga esta etapa para preencher a lista com <b class="verde">agilidade e acertividade</b>.<div class="pc-tut-aviso-sub">O painel de notificação lhe orienta a cada passo.<br>Para utilizar, basta selecionar o ícone:</div></div>
+        <div class="pc-tut-aviso">Esta função vai te orientar para preencher a lista com <b class="verde">agilidade e acertividade</b>.<div class="pc-tut-aviso-sub">O painel de notificação lhe orienta a cada passo.<br>Para utilizar, basta selecionar o ícone:</div></div>
         <div class="pc-tut-hero">
-          <button type="button" class="pc-tut-pontos" id="pcTutPontos" title="Toque"><i class="on"></i><i></i><i></i></button>
+          <div class="pc-tut-chame">Clique e entenda:</div>
+          <button type="button" class="pc-tut-pontos" id="pcTutPontos" title="Clique"><i class="on"></i><i></i><i></i></button>
           <div class="pc-tut-palco" id="pcTutPalco">
             <div class="pc-tut-leg on" data-tut-leg="1"><b>1 ponto</b> · Alerta — existe instrução</div>
             <div class="pc-tut-leg" data-tut-leg="2"><b>2 pontos</b> · Painel 1 — dica objetiva</div>
             <div class="pc-tut-leg" data-tut-leg="3"><b>3 pontos</b> · Painel 2 — dica completa</div>
             <div class="pc-tut-leg-rodape">Você escolhe a qualquer momento.</div>
           </div>
-          <div class="pc-tut-hint" id="pcTutHint">👆 clique e entenda</div>
+          <div class="pc-tut-hint" id="pcTutHint"></div>
         </div>
         <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:14px;" disabled>Iniciar</button>
       </div>
