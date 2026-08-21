@@ -6364,6 +6364,7 @@ function attachListenersSelecao() {
     // Esc limpa e fecha a busca deste partido (pedido do usuário, 21/08/2026).
     inp.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
+      e.preventDefault();
       const nomePartido = e.target.dataset.pcBuscaCandidato;
       if (pcState.buscaCandidato) pcState.buscaCandidato[nomePartido] = "";
       if (pcState.buscaCandidatoAberta) pcState.buscaCandidatoAberta[nomePartido] = false;
@@ -6419,6 +6420,7 @@ function attachListenersSelecao() {
     // Esc limpa e fecha a busca (pedido do usuário, 21/08/2026).
     inputBuscaPartido.addEventListener("keydown", (e) => {
       if (e.key !== "Escape") return;
+      e.preventDefault();
       pcState.buscaPartido = "";
       pcState.buscaPartidoAberta = false;
       renderCargoEstadual();
@@ -7481,13 +7483,11 @@ function renderRevisaoDeposito() {
         return cardCandidato(`
           <div class="pc-sen-l1" style="flex-wrap:wrap; row-gap:4px;">
             <span class="pc-sen-chip" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">ELEITO</span>
-            <span class="pc-sen-nm">${c.nome}</span>
+            <span class="pc-sen-nm pc-rev-nm">${c.nome}</span>
             ${c.tag === "média" && c.detalhe.rodadaSobra !== undefined ? `<span class="pc-sen-chip sobra" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">SOBRA · ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}</span>` : ""}
+            <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:14px; font-weight:800; text-align:right; flex-shrink:0; padding:8px 6px;">
           </div>
           <div class="pc-sen-sub">${c.posicaoEleicao}º · ${c.partido}</div>
-          <div style="display:flex; align-items:center; justify-content:flex-end; margin-top:10px;">
-            <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:15px; font-weight:800; text-align:right; flex-shrink:0; padding:9px 6px;">
-          </div>
           ${mostrarMargem ? `<div style="font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">para eleger: ${minimoParaEleger.toLocaleString("pt-BR")}</div>` : ""}
         `);
       }
@@ -7524,13 +7524,11 @@ function renderRevisaoDeposito() {
         </div>` : "";
 
       return cardCandidato(`
-        <div style="min-width:0;">
-          <div style="font-size:16px; font-weight:700; color:var(--pc-ink);">${c.nome}</div>
-          <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">${c.partido}</div>
+        <div class="pc-sen-l1" style="flex-wrap:wrap; row-gap:4px;">
+          <span class="pc-sen-nm pc-rev-nm">${c.nome}</span>
+          <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:14px; font-weight:800; text-align:right; flex-shrink:0; padding:8px 6px;">
         </div>
-        <div style="display:flex; justify-content:flex-end; margin-top:10px;">
-          <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:112px; font-size:16px; font-weight:800; text-align:right; flex-shrink:0;">
-        </div>
+        <div class="pc-sen-sub">${c.partido}</div>
         ${c.consistenteComMatematicaReal ? `
         <div style="margin-top:12px; padding:10px 12px; background:rgba(198,230,42,.1); border:1px solid rgba(198,230,42,.3); border-radius:10px; display:flex; gap:8px; align-items:flex-start;">
           <span style="color:var(--pc-warning); font-size:13px; flex-shrink:0;">${iconeSvg("alerta", 13)}</span>
@@ -7593,8 +7591,8 @@ function renderRevisaoDeposito() {
     const filtroAgrupado = `
       <div class="pc-console" style="display:inline-block; padding:2px; flex-shrink:0; border-radius:8px;">
         <div class="pc-cmd-painel" style="width:auto; justify-content:flex-start; gap:2px; margin-bottom:0;">
-          <button data-pc-modo-revisao="lista" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Lista única, ordenada por votos" class="pc-cmd-acao${agrupado ? "" : " ativo"}" style="flex:none; width:24px; min-height:22px; aspect-ratio:auto;">${iconeSvg("lista", 12)}</button>
-          <button data-pc-modo-revisao="grupo" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Agrupado por partido/federação" class="pc-cmd-acao${agrupado ? " ativo" : ""}" style="flex:none; width:24px; min-height:22px; aspect-ratio:auto;">${iconeSvg("grupos", 12)}</button>
+          <button data-pc-modo-revisao="lista" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Lista única, ordenada por votos" class="pc-cmd-acao${agrupado ? "" : " ativo"}" style="flex:none; width:28px; height:28px; min-height:28px; aspect-ratio:1;">${iconeSvg("lista", 13)}</button>
+          <button data-pc-modo-revisao="grupo" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Agrupado por partido/federação" class="pc-cmd-acao${agrupado ? " ativo" : ""}" style="flex:none; width:28px; height:28px; min-height:28px; aspect-ratio:1;">${iconeSvg("grupos", 13)}</button>
         </div>
       </div>`;
 
@@ -7603,8 +7601,10 @@ function renderRevisaoDeposito() {
         <summary style="align-items:flex-start;"><span style="flex:1; min-width:0; line-height:1.35;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim);">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} aviso${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0; margin-top:3px;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">
           ${listaExibida.length < listaCompleta.length ? `<div style="font-size:10.5px; color:var(--pc-ink-dim); margin-bottom:10px;">Mostrando os eleitos + ${listaExibida.length - totalEleitos} mais votados entre quem não elegeu (${listaCompleta.length - listaExibida.length} candidato${listaCompleta.length - listaExibida.length === 1 ? "" : "s"} com menos voto ficaram de fora dessa lista).</div>` : ""}
-          <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">${filtroAgrupado}</div>
-          ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" class="ghost" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-bottom:12px; font-size:12.5px; border-radius:10px; padding:10px;">Ver disputa de sobra completa (${disputaSobra.rodadas.length} rodada${disputaSobra.rodadas.length === 1 ? "" : "s"})</button>` : ""}
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+            ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" class="ghost" style="display:flex; align-items:center; justify-content:center; gap:8px; flex:1; font-size:12.5px; border-radius:10px; padding:9px 10px;">Disputa das sobras</button>` : `<span style="flex:1;"></span>`}
+            ${filtroAgrupado}
+          </div>
           ${linhas}
         </div>
       </details>`;
@@ -7627,17 +7627,33 @@ function renderRevisaoDeposito() {
     // pela 1ª sobra real — pedidos do usuário em 18/08/2026, mockup
     // aprovado (artifact "Disputa de Sobra — proposta"). Material Fader
     // (o vidro-verde 1.0 saiu daqui na mesma rodada).
+    // Cada linha do quadro é uma JANELA da própria rodada (pedido do
+    // usuário, 21/08/2026): toque abre o detalhe daquela rodada — as
+    // médias de todos os partidos, com o vencedor destacado — em vez da
+    // listagem única e comprida de todas as rodadas embaixo.
     const linhasResumo = disputaSobra.rodadas.map((r) => {
       const v = r.medias.find((m) => m.venceu);
+      const detalheRodada = r.medias.filter((m) => m.votos > 0).map((m) => `
+        <div style="display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; font-size:12px;${m.venceu ? " background:rgba(242,244,245,.05); border:1px solid rgba(242,244,245,.18);" : ""}">
+          <span style="color:${m.venceu ? "var(--pc-ink)" : "var(--pc-ink-dim)"}; min-width:0; overflow:hidden; text-overflow:ellipsis;">${m.nome}${m.venceu && r.vencedorCandidato ? `<span style="display:block; font-size:10.5px; color:#8A9096; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">vaga vai pra <b style="color:#F2F4F5;">${r.vencedorCandidato}</b> (${r.vencedorPosicao}º mais votado)</span>` : ""}</span>
+          <span style="font-weight:700; font-variant-numeric:tabular-nums; color:${m.venceu ? "#F2F4F5" : "var(--pc-ink-dim)"};">${Math.round(m.media).toLocaleString("pt-BR")}</span>
+        </div>`).join("");
       return `
-      <div style="display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:8px; padding:6px 0; border-top:1px solid rgba(242,244,245,.08); font-size:12px;">
-        <span style="font-size:9px; font-weight:800; background:rgba(232,236,239,.35); border:1px solid rgba(242,244,245,.4); color:#F2F4F5; border-radius:999px; padding:2px 7px; font-variant-numeric:tabular-nums; white-space:nowrap;">${r.numero}ª</span>
-        <span style="min-width:0;">
-          <span style="font-weight:700; color:#F2F4F5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block;">${r.vencedorCandidato || "—"}</span>
-          <span style="font-size:10.5px; color:#AEB5BB;">${r.vencedorNome}</span>
-        </span>
-        <span style="font-size:11px; font-weight:700; color:#AEB5BB; font-variant-numeric:tabular-nums; white-space:nowrap; text-align:right;">${Math.round(r.vencedorMedia).toLocaleString("pt-BR")}<span style="display:block; font-weight:400; font-size:9px; color:#5C6268;">média ${v.votos.toLocaleString("pt-BR")} ÷ ${v.cadeiraAtual + 1}</span></span>
-      </div>`;
+      <details style="border-top:1px solid rgba(242,244,245,.08);">
+        <summary style="display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:8px; padding:6px 0; font-size:12px; cursor:pointer; list-style:none;">
+          <span style="font-size:9px; font-weight:800; background:rgba(232,236,239,.35); border:1px solid rgba(242,244,245,.4); color:#F2F4F5; border-radius:999px; padding:2px 7px; font-variant-numeric:tabular-nums; white-space:nowrap;">${r.numero}ª</span>
+          <span style="min-width:0;">
+            <span style="font-weight:700; color:#F2F4F5; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block;">${r.vencedorCandidato || "—"}</span>
+            <span style="font-size:10.5px; color:#AEB5BB;">${r.vencedorNome}</span>
+          </span>
+          <span style="font-size:11px; font-weight:700; color:#AEB5BB; font-variant-numeric:tabular-nums; white-space:nowrap; text-align:right;">${Math.round(r.vencedorMedia).toLocaleString("pt-BR")}<span style="display:block; font-weight:400; font-size:9px; color:#5C6268;">média ${v.votos.toLocaleString("pt-BR")} ÷ ${v.cadeiraAtual + 1}</span></span>
+          <svg viewBox="0 0 16 16" width="12" height="12" style="color:#5C6268;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </summary>
+        <div style="padding:2px 0 10px;">
+          <div style="font-size:10px; color:#5C6268; margin:2px 0 6px;">Rodada ${r.numero} — votos ÷ (vagas atuais + 1)</div>
+          ${detalheRodada}
+        </div>
+      </details>`;
     }).join("");
 
     const r1 = disputaSobra.rodadas[0];
@@ -7660,18 +7676,6 @@ function renderRevisaoDeposito() {
         é o que deixa a disputa equilibrada entre todos.
       </div>` : "";
 
-    const linhasRodadas = disputaSobra.rodadas.map((r) => `
-      <div style="margin-top:16px; padding-top:16px; border-top:1px solid #23262A;">
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-          <span style="font-size:10px; color:#F2F4F5; background:rgba(232,236,239,.35); border:1px solid rgba(242,244,245,.4); padding:2px 8px; border-radius:999px; font-weight:800;">Rodada ${r.numero}</span>
-          <span style="font-size:11px; color:var(--pc-ink-dim);">votos ÷ (vagas atuais + 1)</span>
-        </div>
-        ${r.medias.filter((m) => m.votos > 0).map((m) => `
-          <div style="display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px; padding:6px 8px; border-radius:8px; font-size:12px;${m.venceu ? " background:rgba(242,244,245,.05); border:1px solid rgba(242,244,245,.18);" : ""}">
-            <span style="color:${m.venceu ? "var(--pc-ink)" : "var(--pc-ink-dim)"}; min-width:0; overflow:hidden; text-overflow:ellipsis;">${m.nome}${m.venceu && r.vencedorCandidato ? `<span style="display:block; font-size:10.5px; color:#8A9096; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">vaga vai pra <b style="color:#F2F4F5;">${r.vencedorCandidato}</b> (${r.vencedorPosicao}º mais votado)</span>` : ""}</span>
-            <span style="font-weight:700; font-variant-numeric:tabular-nums; color:${m.venceu ? "#F2F4F5" : "var(--pc-ink-dim)"};">${Math.round(m.media).toLocaleString("pt-BR")}</span>
-          </div>`).join("")}
-      </div>`).join("");
 
     return `
       <div id="pcDisputaSobraOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,10,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
@@ -7693,7 +7697,6 @@ function renderRevisaoDeposito() {
             ${blocoInfo}
             ${linhasResumo}
           </div>
-          ${linhasRodadas}
         </div>
       </div>`;
   })();
@@ -8133,3 +8136,23 @@ async function renderQuadroMedias() {
     });
   }
 }
+
+// Esc fecha a janela sobreposta ativa (pedido do usuário, 21/08/2026 —
+// ex.: Disputa das sobras). Uma por vez, na ordem de quem está "por cima";
+// depois de limpar o estado, renderColaborativo() redesenha a tela atual.
+// As buscas (partido/candidato) tratam o próprio Esc com preventDefault —
+// o guard de defaultPrevented evita fechar duas coisas com um Esc só.
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape" || e.defaultPrevented) return;
+  if (typeof pcState === "undefined" || !pcState || !pcState.tela) return;
+  const fechar = (mut) => { mut(); renderColaborativo(); };
+  if (pcState.disputaSobraAberta) return fechar(() => { pcState.disputaSobraAberta = null; });
+  if (pcState.top2022Aberto) return fechar(() => { pcState.top2022Aberto = false; });
+  if (pcState.menuMagicoAberto) return fechar(() => { pcState.menuMagicoAberto = null; });
+  if (pcState.modalNomeListaAberto) return fechar(() => { pcState.modalNomeListaAberto = false; });
+  if (pcState.modalInstagramInfo) return fechar(() => { pcState.modalInstagramInfo = null; });
+  if (pcState.modalDepositarListaId) return fechar(() => { pcState.modalDepositarListaId = null; });
+  if (pcState.modalCompartilharListaId) return fechar(() => { pcState.modalCompartilharListaId = null; });
+  if (pcState.avisoLimiteVagasAberto) return fechar(() => { pcState.avisoLimiteVagasAberto = false; });
+  if (pcState.avisoLimiteCedulaAberto) return fechar(() => { pcState.avisoLimiteCedulaAberto = false; });
+});

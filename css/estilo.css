@@ -862,6 +862,12 @@
   display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
 }
 #modoColaborativoWrap .pc-ml-inf.aberto{ color:var(--pc-accent); border-color:rgba(52,232,74,.4); }
+
+/* Nome de candidato na Revisão — mesma régua responsiva dos cards do
+   palpite (21/08/2026): escala com a tela, teto igual ao aprovado. */
+#modoColaborativoWrap .pc-rev-nm{
+  font-size:clamp(15.5px, 3vw, 24.5px); font-weight:750; line-height:1.15;
+}
 /* ===== Abas de Deputado — modelo fader (console A3 + cards aninhados) =====
    Protótipo aprovado em 17/08/2026 (memória alesc-deputados-prototipo-
    primeiro): console elevado #2C3239 como "painel principal", botões de
