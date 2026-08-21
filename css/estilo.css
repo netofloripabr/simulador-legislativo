@@ -835,6 +835,33 @@
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-painel{ background:#16181B; border-color:#26292D; }
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-item{ border-bottom-color:#23262A; }
 #modoColaborativoWrap.pc-tema-fader .pc-cmd-legenda-item .pc-cmd-legenda-icone{ background:#101214; border-color:#2B2F33; }
+
+/* Minhas listas — botões de ícone (21/08/2026): a família do console
+   aplicada às linhas de lista. A urna (ballot) é o Depositar; o lápis em
+   verde é a ação mais comum das listas em aberto; o selo pequeno carrega
+   o custo em créditos da edição de cédula depositada. */
+#modoColaborativoWrap .pc-ml-acoes{ display:flex; align-items:center; gap:7px; flex-shrink:0; }
+#modoColaborativoWrap .pc-ml-acoes .pc-cmd-acao{
+  position:relative; width:36px; height:36px; border-radius:50%; padding:0;
+  background:#16181B; border:1px solid #2B2F33; color:#AEB5BB;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  transition:color .15s, border-color .15s;
+}
+#modoColaborativoWrap .pc-ml-acoes .pc-cmd-acao:active{ color:var(--pc-accent); border-color:rgba(52,232,74,.4); }
+#modoColaborativoWrap .pc-ml-acoes .pc-cmd-acao[disabled]{ opacity:.4; cursor:default; }
+#modoColaborativoWrap .pc-ml-acoes .pc-cmd-acao.pc-ml-editar{ color:var(--pc-accent); border-color:rgba(52,232,74,.35); }
+#modoColaborativoWrap .pc-ml-badge{
+  position:absolute; bottom:-4px; right:-5px; padding:1px 4px; line-height:1.2;
+  background:#101214; border:1px solid #2B2F33; border-radius:999px;
+  font-size:8px; font-weight:800; color:var(--pc-warning); font-variant-numeric:tabular-nums;
+}
+#modoColaborativoWrap .pc-ml-inf{
+  width:20px; height:20px; border-radius:50%; padding:0;
+  background:#16181B; border:1px solid #2B2F33; color:var(--pc-ink-dim);
+  font-size:10px; font-style:italic; font-family:Georgia,serif;
+  display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+}
+#modoColaborativoWrap .pc-ml-inf.aberto{ color:var(--pc-accent); border-color:rgba(52,232,74,.4); }
 /* ===== Abas de Deputado — modelo fader (console A3 + cards aninhados) =====
    Protótipo aprovado em 17/08/2026 (memória alesc-deputados-prototipo-
    primeiro): console elevado #2C3239 como "painel principal", botões de

@@ -88,6 +88,7 @@ let pcState = {
   linksCandidatosCache: {}, // "estado::cargo" -> { chave: instagram }, ver garantirLinksCandidatos
   modalInstagramInfo: null, // { chave, nome, valorAtual } do candidato com o modal de editar Instagram aberto (só admin), ou null
   legendaComandosAberta: false, // painel único de legenda do painel de comandos da Seleção (o "i" no fim da linha de ícones)
+  legendaListasAberta: false, // legenda compartilhada dos botões de ícone de Minhas listas (o "i" ao lado de "Em aberto")
   funilVotosAberto: false, // funil explicativo dos votos válidos (o "i" do cabeçalho da aba Senador, PROJETO.md §8.2)
   sobraInfoAberta: false, // explicação da regra de sobra (o "i" do quadro-resumo no painel Disputa de Sobra, Revisão)
 };
@@ -754,7 +755,7 @@ function _farolLinhaTrilha(chip, titulo, opcoes) {
 // final. Tudo em dia = tudo com check.
 function farolTrilhaHtml(passo) {
   const ck = `<svg viewBox="0 0 16 16" width="11" height="11"><path d="M3.5 8.4l3 3 6-6.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
-  if (passo && passo.fase === "A") {
+  if (passo && passo.fase === "A" && (pcState._farolContexto || "palpite") === "palpite") {
     const st = _farolStatusCargo(passo.cargoId);
     const ehSen = passo.cargoId === "senador";
     return `
@@ -771,11 +772,37 @@ function farolTrilhaHtml(passo) {
         texto: `Fechou a votação? O botão <span class="pc-farol-minicmd">${iconeSvg("setaDireita", 11)}</span> avança. Repita nos três cargos e siga pra Revisão.`,
       })}`;
   }
-  const num = passo ? passo.num : 99;
+  // Fora da tela de palpite a trilha muda de conversa conforme a tela
+  // (farol dinâmico, aprovado em 21/08/2026): mesma moldura e nível, mas o
+  // conteúdo fala do que dá pra fazer AQUI — inclusive quando a montagem
+  // (fase A) ainda está pendente, em vez de explicar controles que não
+  // estão nesta tela.
+  const ctx = pcState._farolContexto || "palpite";
+  const faseA = !!(passo && passo.fase === "A");
+  const num = passo ? (faseA ? 3 : passo.num) : 99;
+  if (ctx === "listas") {
+    return `
+      ${_farolLinhaTrilha(num > 4 ? ck : "1", "Ter uma lista completa e salva", { feito: num > 4, atual: num <= 4, texto: num <= 4 ? (faseA ? `Seu palpite ainda não fechou os 3 cargos — o lápis <span class="pc-farol-minicmd">${iconeSvg("editar", 11)}</span> abre a lista pra continuar de onde parou.` : `Confira os três cargos na Revisão e salve — o botão <span class="pc-farol-minicmd">${iconeSvg("salvar", 11)}</span>.`) : "" })}
+      ${_farolLinhaTrilha(num > 5 ? ck : "2", "Depositar a cédula", { feito: num > 5, atual: num === 5, texto: num === 5 ? `A urna <span class="pc-farol-minicmd">${iconeSvg("ballot", 11)}</span> deposita: trava a lista e ela passa a valer no ranking. A primeira é grátis.` : "" })}
+      ${_farolLinhaTrilha(num > 6 ? ck : "3", "Convidar e comparar", { feito: num > 6, atual: num === 6, texto: num === 6 ? "Compartilhe o cartão-desafio — cada amigo que entrar e depositar rende créditos." : "" })}`;
+  }
+  if (ctx === "revisao") {
+    return `
+      ${_farolLinhaTrilha(num > 4 ? ck : "1", "Conferir os 3 cargos", { feito: num > 4, atual: num <= 4, texto: num <= 4 ? "Os blocos abaixo mostram os eleitos que a sua votação fecha em cada cargo — confira antes de salvar." : "" })}
+      ${_farolLinhaTrilha(num > 4 ? ck : "2", "Salvar a lista", { feito: num > 4, atual: num === 4, texto: num === 4 ? `O botão <span class="pc-farol-minicmd">${iconeSvg("salvar", 11)}</span> guarda a lista em Minhas listas — editável até depositar.` : "" })}
+      ${_farolLinhaTrilha(num > 5 ? ck : "3", "Depositar a cédula", { feito: num > 5, atual: num === 5, texto: num === 5 ? `Em Minhas listas, a urna <span class="pc-farol-minicmd">${iconeSvg("ballot", 11)}</span> deposita — trava e vale no ranking.` : "" })}`;
+  }
+  // ctx "painel" (e qualquer outra tela com o bloco): a reta completa; se a
+  // montagem está pendente, o passo 1 vira o atual e aponta pro palpite.
+  let progMontar = "";
+  if (faseA) {
+    const sts = CARGOS.map((c) => _farolStatusCargo(c.id));
+    progMontar = sts.reduce((t, x) => t + x.ind, 0) + " de " + sts.reduce((t, x) => t + x.totalVagas, 0) + " vagas";
+  }
   return `
-    ${_farolLinhaTrilha(ck, "Montar os 3 cargos", { feito: true })}
+    ${_farolLinhaTrilha(faseA ? "1" : ck, "Montar os 3 cargos", { feito: !faseA, atual: faseA, progresso: progMontar, texto: faseA ? "Toque em <b>Continuar palpite</b> — lá dentro o farol te guia cargo a cargo." : "" })}
     ${_farolLinhaTrilha(num > 4 ? ck : "4", "Revisar e salvar a lista", { feito: num > 4, atual: num === 4, texto: num === 4 ? `Confira os três cargos e salve — o botão <span class="pc-farol-minicmd">${iconeSvg("salvar", 11)}</span> na Revisão. A lista fica em Minhas listas, editável.` : "" })}
-    ${_farolLinhaTrilha(num > 5 ? ck : "5", "Depositar a cédula", { feito: num > 5, atual: num === 5, texto: num === 5 ? "Em Minhas listas, toque em Depositar — trava a lista e ela passa a valer no ranking. A primeira é grátis." : "" })}
+    ${_farolLinhaTrilha(num > 5 ? ck : "5", "Depositar a cédula", { feito: num > 5, atual: num === 5, texto: num === 5 ? `Em Minhas listas, a urna <span class="pc-farol-minicmd">${iconeSvg("ballot", 11)}</span> deposita — trava a lista e ela passa a valer no ranking. A primeira é grátis.` : "" })}
     ${_farolLinhaTrilha(num > 6 ? ck : "6", "Convidar e comparar", { feito: num > 6, atual: num === 6, texto: num === 6 ? `Compartilhe o cartão-desafio ou crie um grupo <span class="pc-farol-minicmd">${iconeSvg("convidar", 11)}</span> — cada amigo que entrar e depositar rende créditos.` : "" })}`;
 }
 
@@ -791,14 +818,18 @@ function farolConteudoBloco(soPontosNaLinha) {
     return `<div class="pc-farol-barra" id="pcFarolBarra" role="button" tabindex="0">
       ${farolPontosHtml(passo ? 2 : 0, false)}
       ${passo
-        ? `<span class="pc-farol-passo">Passo ${passo.num}</span><span class="pc-farol-txt">${passo.rotulo}${passo.progresso ? " — " + passo.progresso : ""}</span>`
+        ? `<span class="pc-farol-passo">Passo ${passo.num}</span><span class="pc-farol-txt">${(pcState._farolContexto || "palpite") !== "palpite" && passo.fase === "A" ? "Continue o palpite — " + passo.rotuloCargo : passo.rotulo}${passo.progresso ? " — " + passo.progresso : ""}</span>`
         : `<span class="pc-farol-txt" style="color:var(--pc-ink-dim);">Tudo em dia — nada pendente</span>`}
       <button type="button" class="pc-farol-min" id="pcFarolMin" title="Recolher">−</button>
     </div>`;
   }
-  const titulo = passo
-    ? (passo.fase === "A" ? "Sua trilha — " + passo.rotuloCargo : "Sua trilha — reta final")
-    : "Sua trilha — tudo em dia";
+  const ctxTitulo = pcState._farolContexto || "palpite";
+  const titulo = !passo
+    ? "Sua trilha — tudo em dia"
+    : ctxTitulo === "listas" ? "Sua trilha — minhas listas"
+    : ctxTitulo === "revisao" ? "Sua trilha — revisão"
+    : ctxTitulo === "painel" ? "Sua trilha"
+    : (passo.fase === "A" ? "Sua trilha — " + passo.rotuloCargo : "Sua trilha — reta final");
   return `<div class="pc-farol-painel">
     <div class="pc-farol-cab" id="pcFarolCabecalho" role="button" tabindex="0">
       ${farolPontosHtml(passo ? 3 : 0, false)}
@@ -2488,6 +2519,7 @@ function diasAteEleicao() {
 // blur/glow/gradiente), sobretons de verde, sem barra inferior de atalhos
 // (ela já mostraria os mesmos destinos do menu daqui, duplicado).
 async function renderPainelPrincipal() {
+  pcState._farolContexto = "painel";
   const el = document.getElementById("pcConteudo");
   el.innerHTML = telaCarregando("Carregando seu painel…");
 
@@ -3007,6 +3039,7 @@ function montarSecoesCargosDetalhe(palpitesPorCargo) {
 }
 
 async function renderMinhasListas() {
+  pcState._farolContexto = "listas";
   const el = document.getElementById("pcConteudo");
   el.innerHTML = telaCarregando("Carregando suas listas…");
   const listas = await _carregarMinhasListasNormalizado();
@@ -3062,9 +3095,9 @@ async function renderMinhasListas() {
         <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</div>
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Salva em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")}</div>
       </div>
-      <div style="display:flex; gap:6px; flex-shrink:0;">
-        <button class="ghost" data-pc-depositar-lista="${l.id}" style="padding:8px 12px; font-size:12px;">Depositar</button>
-        <button class="primary" data-pc-editar-lista="${l.id}" style="padding:8px 14px; font-size:12px;">Editar</button>
+      <div class="pc-ml-acoes">
+        <button type="button" class="pc-cmd-acao" data-pc-depositar-lista="${l.id}" title="Depositar — vira sua cédula: trava e entra no ranking">${iconeSvg("ballot", 16)}</button>
+        <button type="button" class="pc-cmd-acao pc-ml-editar" data-pc-editar-lista="${l.id}" title="Editar a lista">${iconeSvg("editar", 14)}</button>
       </div>
     </div>`;
   const linhaDepositada = (l) => `
@@ -3074,12 +3107,12 @@ async function renderMinhasListas() {
         <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</div>
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}${l.codigo ? ` · <span style="font-family:var(--mono);">${l.codigo}</span>` : ""}${l.editadaEm ? ` · <span style="color:var(--pc-warning);">editada em ${new Date(l.editadaEm).toLocaleDateString("pt-BR")}</span>` : ""}</div>
       </div>
-      <div style="display:flex; gap:6px; flex-shrink:0;">
+      <div class="pc-ml-acoes">
         ${pcState.perfil ? (l.edicoes < 3
-          ? `<button class="ghost" data-pc-editar-depositada="${l.id}" title="${l.edicoes + 1}ª edição de 3 — a cédula fica com a marca de editada" style="padding:8px 10px; font-size:12px;">Editar · ${[20, 35, 50][l.edicoes]}c</button>`
-          : `<button class="ghost" disabled title="Limite de 3 edições — pra mudar de novo, deposite uma nova cédula (70 créditos)" style="padding:8px 10px; font-size:12px; opacity:.4;">3/3</button>`) : ""}
-        ${l.codigo ? `<button class="ghost" data-pc-compartilhar-lista="${l.id}" style="padding:8px 10px; font-size:12px; display:flex; align-items:center; gap:5px;">${iconeSvg("compartilhar", 13)}<span class="pc-btn-label">Compartilhar</span></button>` : ""}
-        <button class="ghost" data-pc-ver-lista="${l.id}" style="padding:8px 14px; font-size:12px;">Ver</button>
+          ? `<button type="button" class="pc-cmd-acao" data-pc-editar-depositada="${l.id}" title="${l.edicoes + 1}ª edição de 3 (${[20, 35, 50][l.edicoes]} créditos) — a cédula fica com a marca de editada">${iconeSvg("editar", 14)}<span class="pc-ml-badge">${[20, 35, 50][l.edicoes]}c</span></button>`
+          : `<button type="button" class="pc-cmd-acao" disabled title="Limite de 3 edições — pra mudar de novo, deposite uma nova cédula (70 créditos)">${iconeSvg("editar", 14)}<span class="pc-ml-badge">3/3</span></button>`) : ""}
+        ${l.codigo ? `<button type="button" class="pc-cmd-acao" data-pc-compartilhar-lista="${l.id}" title="Compartilhar o cartão-desafio">${iconeSvg("compartilhar", 14)}</button>` : ""}
+        <button type="button" class="pc-cmd-acao" data-pc-ver-lista="${l.id}" title="Ver a lista (só leitura)">${iconeSvg("buscar", 14)}</button>
       </div>
     </div>`;
 
@@ -3107,7 +3140,12 @@ async function renderMinhasListas() {
       <div class="pc-aviso-titulo">Você chegou no limite grátis</div>
       <div class="pc-aviso-corpo">Sua conta tem espaço grátis pra <b>2 listas em aberto</b> — e as duas já estão em uso. Criar mais uma custa <b>1 crédito</b>.<br><br>O jeito grátis de ganhar créditos: <b>convide um amigo</b> — quando ele criar conta e depositar a primeira cédula, você ganha <b>10 créditos</b> (Menu → Convidar amigos).</div>
     </div>` : ""}
-    ${abertas.length ? `<div class="pc-lobby-menu-tit">Em aberto</div>${abertas.map(linhaAberta).join("")}` : ""}
+    ${abertas.length ? `<div class="pc-lobby-menu-tit" style="display:flex; align-items:center; gap:8px;">Em aberto <button type="button" id="pcMlLegendaToggle" class="pc-ml-inf${pcState.legendaListasAberta ? " aberto" : ""}" title="O que faz cada botão">i</button></div>${pcState.legendaListasAberta ? renderLegendaComandos([
+      { icone: "ballot", titulo: "Urna — depositar", legenda: "Deposita a lista: vira sua cédula pra valer — trava e entra no ranking. A primeira é grátis." },
+      { icone: "editar", titulo: "Lápis — editar", legenda: "Abre a lista pra continuar de onde parou. Em cédula depositada, mostra o custo em créditos da edição." },
+      { icone: "buscar", titulo: "Lupa — ver", legenda: "Só olhar a lista, sem mexer (listas depositadas)." },
+      { icone: "compartilhar", titulo: "Compartilhar", legenda: "Manda o cartão-desafio pros amigos." },
+    ]) : ""}${abertas.map(linhaAberta).join("")}` : ""}
     ${depositadas.length ? `<div class="pc-lobby-menu-tit" style="margin-top:${abertas.length ? "18px" : "0"};">Depositadas</div>${depositadas.map(linhaDepositada).join("")}` : ""}
     ${!listas.length ? estadoVazio({ icone: "lista", titulo: "Nenhuma lista ainda", texto: "Monte sua primeira previsão e ela aparece aqui.", botaoLabel: "Criar minha lista", botaoId: "pcBtnEstadoVazioNovaLista" }) : ""}
     ${listaModal ? `
@@ -3238,6 +3276,13 @@ async function renderMinhasListas() {
       await abrirListaParaEdicao(lista);
     });
   });
+  const mlLegendaToggle = document.getElementById("pcMlLegendaToggle");
+  if (mlLegendaToggle) {
+    mlLegendaToggle.addEventListener("click", () => {
+      pcState.legendaListasAberta = !pcState.legendaListasAberta;
+      renderMinhasListas();
+    });
+  }
   document.querySelectorAll("[data-pc-depositar-lista]").forEach((btn) => {
     btn.addEventListener("click", () => {
       // Depositar de verdade exige conta (é o que dá identidade — mesmo
@@ -3415,6 +3460,7 @@ async function garantirMeusGruposCarregados() {
 }
 
 async function renderGrupoHub() {
+  pcState._farolContexto = "painel";
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = telaCarregando("Carregando seus grupos…");
   await garantirMeusGruposCarregados();
@@ -5601,6 +5647,7 @@ function adicionarCandidatoNoPartido(p) {
 // carregados — os outros dois mostram um aviso, sem inventar dado fictício
 // no código real (ver CARGOS acima e PROJETO.md, Fase 2.8).
 async function renderSelecaoCandidatos() {
+  pcState._farolContexto = "palpite";
   const el = document.getElementById("pcConteudo");
   // Garante pcState.palpiteEdicao do cargo ativo ANTES de montar os
   // pontinhos das abas — sem isso o pontinho do cargo recém-clicado usava
@@ -7273,6 +7320,7 @@ function attachListenersModalInstagram(aoFechar) {
 }
 
 function renderRevisaoDeposito() {
+  pcState._farolContexto = "revisao";
   const conteudo = document.getElementById("pcConteudo");
   // Toda ação dentro da Revisão (abrir o menu ✦, editar voto, trocar
   // lista/grupo...) reconstrói o HTML inteiro de novo (mesmo padrão do
