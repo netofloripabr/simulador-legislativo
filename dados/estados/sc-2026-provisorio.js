@@ -775,6 +775,7 @@ var CANDIDATOS_2026_SC_PROVISORIO = {
     { id:"pt-pc-do-b-pv-fernanda-klitzke", nome:"Fernanda Klitzke", nomeUrna:"Fernanda Klitzke", numero:133, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:true, confianca:"alta", fonteArquivo:"1235-pt-pc-do-b-pv-retificadora.pdf", partidoOriginal:"PT" },
   ],
   "Vice-Governador": [
+    { id:"mdb-carlos-alberto-chiodini", nome:"Carlos Alberto Chiodini", nomeUrna:"Carlos Chiodini", numero:55, partido:"MDB", genero:"MASCULINO", coligado:true, confianca:"media", fonte:"rrc", fonteArquivo:"RRC-oficial-TSE (candidatura 55, coligação \"Santa Catarina Acima de Tudo\") — sem ata de convenção publicada ainda; entrou pela política de 18/08/2026 de cadastrar todo candidato oficialmente registrado, mesmo antes da ata/homologação" },
     { id:"sem-partido-carlos-alberto-souza-bordin", nome:"Carlos Alberto Souza Bordin", nomeUrna:"Carlos Bordin", numero:null, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1810-25-prd-77-solidariedade-executiva.pdf" },
     { id:"novo-adriano-bornschein-silva", nome:"Adriano Bornschein Silva", nomeUrna:"Adriano Silva", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"487-novo-convencao.pdf" },
     { id:"psb-angela-albino", nome:"Angela Albino", nomeUrna:"Angela Albino", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"media", fonteArquivo:"1148-psb-retificadora.pdf" },

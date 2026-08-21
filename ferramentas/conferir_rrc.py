@@ -110,7 +110,18 @@ def normaliza_partido(sigla):
     return FEDERACOES_2026.get(sigla.upper(), sigla)
 
 
+CACHE_DIR = None  # setado por --cache; ver main()
+
+
 def buscar_rrc(uf, cargo_codigo):
+    # --cache DIR: lê {cargo_codigo}.json salvo previamente (lista já no
+    # formato de saída desta função). Necessário desde 21/08/2026: o Akamai
+    # do TSE passou a devolver 403 pra clientes fora de navegador — os
+    # arquivos de cache são gerados navegando a API num navegador real
+    # (fetch same-origin na aba do divulgacandcontas) e salvando o JSON.
+    if CACHE_DIR:
+        arq = Path(CACHE_DIR) / f"{cargo_codigo}.json"
+        return json.loads(arq.read_text(encoding="utf-8"))
     url = (f"https://divulgacandcontas.tse.jus.br/divulga/rest/v1/candidatura/"
            f"listar/{ANO}/{uf.upper()}/{SQ_ELEICAO}/{cargo_codigo}/candidatos")
     with urllib.request.urlopen(url, timeout=30) as resp:
@@ -322,6 +333,7 @@ def escrever_relatorio(resultado, uf, saida_dir):
 def main():
     parser = argparse.ArgumentParser(description="Cruza o provisório de candidatos 2026 contra o RRC oficial do TSE.")
     parser.add_argument("--uf", default="SC")
+    parser.add_argument("--cache", help="diretório com {cargo}.json pré-baixados (contorna o 403 do TSE)")
     parser.add_argument("--provisorio", default=None, help="Caminho do *-2026-provisorio.js (default: dados/estados/{uf}-2026-provisorio.js)")
     parser.add_argument("--saida", default="dados/estados")
     args = parser.parse_args()
@@ -334,6 +346,9 @@ def main():
     print(f"      {total_nosso} candidatura(s) no nosso arquivo.")
 
     print(f"[2/3] Buscando RRC oficial do TSE para {args.uf} (7 cargos) ...")
+    global CACHE_DIR
+    if args.cache:
+        CACHE_DIR = args.cache
     resultado = cruzar(nosso_por_cargo, args.uf)
     total_rrc = sum(r["total_rrc"] for r in resultado.values())
     total_confirmados = sum(r["confirmados"] for r in resultado.values())
