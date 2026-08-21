@@ -1503,11 +1503,18 @@
   background:rgba(232,236,239,.1); border:1px solid #4D545C; color:var(--pc-ink);
   display:flex; align-items:center; justify-content:center; cursor:pointer;
 }
-#modoColaborativoWrap.pc-tema-fader .pc-acesso-rotulo{
-  flex:1; text-align:center; font-size:10px; font-weight:700; letter-spacing:.1em;
-  text-transform:uppercase; color:#AEB5BB;
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-marca{
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:2px;
 }
-#modoColaborativoWrap.pc-tema-fader .pc-acesso-rotulo.com-voltar{ margin-right:30px; }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-marca.com-voltar{ margin-right:30px; }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-wordmark{
+  font-size:16px; font-weight:800; letter-spacing:-0.01em; color:var(--pc-ink); line-height:1;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-wordmark i{ font-style:normal; color:var(--pc-accent); }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso-marca-sub{
+  font-size:8.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--pc-ink-dim); text-align:center;
+}
 #modoColaborativoWrap.pc-tema-fader .pc-acesso-h2{
   text-align:center; font-size:17px; font-weight:750; color:var(--pc-ink); margin:0 0 4px;
 }
@@ -1565,4 +1572,11 @@
 }
 #modoColaborativoWrap.pc-tema-fader .pc-acesso .pc-picker-center-band{
   border-color:rgba(242,244,245,.16); left:6px; right:6px;
+}
+/* Roleta de estados: 5 linhas visíveis (5 × 38px) pro efeito de roda ter
+   corpo; o item no alvo do centro fica verde vivo. */
+#modoColaborativoWrap.pc-tema-fader .pc-acesso .pc-picker{ height:190px; }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso .pc-picker-pad{ height:76px; }
+#modoColaborativoWrap.pc-tema-fader .pc-acesso .pc-picker-item.pc-picker-alvo{
+  color:var(--pc-accent); font-weight:700;
 }

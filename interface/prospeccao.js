@@ -896,7 +896,11 @@ function renderLanding() {
 // os demais aparecem na lista, desabilitados, preparando a expansão futura.
 function renderTelaEstado() {
   const el = document.getElementById("modoColaborativoWrap");
-  const itens = ESTADOS_BRASIL.map((e) => `
+  // Ordem alfabética SÓ na exibição da roleta (a ordem de ESTADOS_BRASIL é
+  // de dados) — com SC no meio da roda, a abertura já mostra vizinhos dos
+  // dois lados e a roleta fica visualmente centrada.
+  const listaEstados = [...ESTADOS_BRASIL].sort((a, b) => a.nome.localeCompare(b.nome, "pt"));
+  const itens = listaEstados.map((e) => `
     <div class="pc-picker-item${e.disponivel ? "" : " pc-picker-disabled"}" data-uf="${e.sigla}">${e.nome}</div>
   `).join("");
 
@@ -914,7 +918,6 @@ function renderTelaEstado() {
       </div>
 
       <div class="pc-acesso-confirm">
-        <span id="pcEstadoConfirmNome"></span>
         <div id="pcEstadoConfirmMsg"></div>
       </div>
       <button class="primary" id="pcBtnConfirmarEstado" disabled>Continuar</button>
@@ -934,17 +937,23 @@ function renderTelaEstado() {
     itensEls.forEach((it) => {
       const itCenter = it.offsetTop + it.offsetHeight / 2;
       const dist = Math.abs(centerY - itCenter);
-      const norm = Math.min(dist / 44, 1);
-      it.style.opacity = String(1 - norm * 0.8);
-      it.style.transform = `scale(${1 - norm * 0.3})`;
+      const norm = Math.min(dist / 82, 1);
+      it.style.opacity = String(1 - norm * 0.75);
+      it.style.transform = `scale(${1 - norm * 0.25})`;
+      // Desfoque progressivo nas linhas longe do centro (pedido do usuário,
+      // 20/08/2026) — junto com opacidade+escala dá o efeito de roda 3D.
+      it.style.filter = `blur(${(norm * 2.2).toFixed(2)}px)`;
+      it.classList.remove("pc-picker-alvo");
       if (dist < menorDist) { menorDist = dist; maisProximo = it; }
     });
     if (!maisProximo) return;
+    maisProximo.classList.add("pc-picker-alvo");
     ufCentralizado = maisProximo.dataset.uf;
     const estado = ESTADOS_BRASIL.find((e) => e.sigla === ufCentralizado);
-    document.getElementById("pcEstadoConfirmNome").textContent = estado.nome;
+    // Sem repetir o nome (ele já está verde na própria roda) — só a legenda
+    // com as vagas em disputa do estado centralizado.
     document.getElementById("pcEstadoConfirmMsg").textContent = estado.disponivel
-      ? "Lista de candidatos pronta."
+      ? `${vagasFixasCargo(estado.sigla, "estadual")} vagas de Dep. Estadual · ${vagasFixasCargo(estado.sigla, "federal")} de Federal · ${vagasFixasCargo(estado.sigla, "senador")} de Senador`
       : "Ainda sem candidatos carregados — em breve.";
     document.getElementById("pcBtnConfirmarEstado").disabled = !estado.disponivel;
   }
@@ -1209,7 +1218,10 @@ function renderTelaLegal(tipo) {
 function cascaAcessoTopo(voltarId) {
   return `<div class="pc-acesso-topo">
     ${voltarId ? `<button class="pc-acesso-voltar" id="${voltarId}" title="Voltar">${iconeSvg("setaEsquerda", 14)}</button>` : ""}
-    <span class="pc-acesso-rotulo${voltarId ? " com-voltar" : ""}">Simulador Eleitoral · 2026</span>
+    <span class="pc-acesso-marca${voltarId ? " com-voltar" : ""}">
+      <span class="pc-acesso-wordmark"><i>Simula</i>LEGIS</span>
+      <span class="pc-acesso-marca-sub">Simulador Eleitoral Legislativo 2026</span>
+    </span>
   </div>`;
 }
 
