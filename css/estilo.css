@@ -1217,6 +1217,14 @@
   display:flex; align-items:center; justify-content:space-between; gap:5px;
 }
 #modoColaborativoWrap .pc-dep-subpainel{ gap:clamp(4px, 1.5vw, 12px); }
+/* Aviso "apuração ≠ indicado" — 2ª linha da notificação do card (21/08/2026):
+   verde-lima (semântica de aviso), visível no toque zero, celular incluído. */
+#modoColaborativoWrap .pc-dep-aviso2{
+  display:flex; align-items:flex-start; gap:6px; margin-top:6px;
+  font-size:11px; line-height:1.5; color:var(--pc-warning);
+}
+#modoColaborativoWrap .pc-dep-aviso2 svg{ flex:none; margin-top:1px; }
+#modoColaborativoWrap .pc-dep-aviso2 b{ font-weight:800; }
 #modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao{
   flex:1 1 0; min-width:28px; max-width:52px; min-height:28px; aspect-ratio:1;
   border-radius:50%; background:#101214; border:1px solid #1F2327;
@@ -1224,7 +1232,6 @@
   cursor:pointer; padding:0; font-family:var(--sans);
 }
 #modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao svg{ width:46%; height:46%; }
-#modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao.avisovg{ color:#C6E62A; }
 
 /* Tema Fader — neutralização das estruturas de apoio que ainda vinham no
    verde 1.0 (achado do usuário em 17/08: "os backgrounds têm muito verde"):

@@ -4968,7 +4968,14 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     const chaveAberto = "faderAberto_" + pcState.cargoAtivo + "_" + p.nome;
     const aberto = !!pcState.expandido[chaveAberto];
     const infoAberto = !!pcState.expandido["depInfo_" + pcState.cargoAtivo + "_" + p.nome];
-    const avisoMais = vg > vagasInd;
+    // Aviso "apuração ≠ indicado" SÓ com a votação do cargo completa (o
+    // mesmo gate do Avançar) — apuração sobre distribuição parcial é um
+    // instantâneo torto e conflitava com a notificação da barra ("faltam
+    // Xk pra 3ª vaga" vs "a matemática dá 15"), achado do usuário em
+    // 21/08/2026. E vira SEGUNDA LINHA da notificação do card (acessível
+    // no celular), não mais um botão com title que só desktop via.
+    const cargoCompleto = somaVotosCargo() >= 0.995 * E;
+    const avisoMais = cargoCompleto && vg > vagasInd;
     const candsOrd = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
     const cands = aberto ? candsOrd.map((c, k) => {
       const cv = Number(c.votos) || 0;
@@ -5008,9 +5015,9 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <span class="pc-dep-notif-txt">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
         <button type="button" class="pc-dep-inf${infoAberto ? " aberto" : ""}" data-dep-info="${gi}" title="Detalhes do partido">i</button>
       </div>
+      ${avisoMais ? `<div class="pc-dep-aviso2">${iconeSvg("alerta", 12)}<span>A apuração dá <b>${vg}</b> vaga${vg === 1 ? "" : "s"} a este partido — você indicou <b>${vagasInd}</b>. A decisão é sua.</span></div>` : ""}
       ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.</div>` : ""}
       ${aberto ? `<div class="pc-dep-subpainel">
-        <button type="button" class="pc-cmd-acao${avisoMais ? " avisovg" : ""}" ${avisoMais ? `title="A matemática eleitoral dá a este partido ${vg} vaga${vg === 1 ? "" : "s"} — você indicou ${vagasInd}. Só um aviso, a decisão é sua."` : 'disabled style="opacity:.15;"'}>${iconeSvg("alerta", 12)}</button>
         <button type="button" class="pc-cmd-acao" data-pc-ver2022="${p.nome}" title="Nominata completa de 2022">${iconeSvg("lista22", 13)}</button>
         <button type="button" class="pc-cmd-acao" data-pc-reset="${p.nome}" title="Restaurar votação de 2022">${iconeSvg("relogio22", 13)}</button>
         <button type="button" class="pc-cmd-acao" data-pc-zerar="${p.nome}" title="Zerar votação do partido">${iconeSvg("borracha", 12)}</button>
