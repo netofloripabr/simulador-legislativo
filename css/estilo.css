@@ -965,6 +965,32 @@
   background:rgba(29,32,35,.85); border:1px solid #23262A; border-radius:12px;
   padding:10px 12px 12px; margin-bottom:8px;
 }
+/* Candidatura congelada — desistência/sub judice (política 21/08/2026):
+   etiqueta BRANCA no desenho do ELEITO, linha em tom transparente, barra
+   travada no zero sem alça ativa; só o motivo fica em opacidade cheia. */
+#modoColaborativoWrap .pc-sen-chip.statusbranco{ background:#F2F4F5; color:#0A0C0E; }
+#modoColaborativoWrap .pc-dep-crow-cong .pc-dep-cnm,
+#modoColaborativoWrap .pc-dep-crow-cong .pc-dep-cpct,
+#modoColaborativoWrap .pc-dep-crow-cong .pc-dep-c2022,
+#modoColaborativoWrap .pc-dep-crow-cong .pc-dep-zone-cong{ opacity:.38; }
+#modoColaborativoWrap .pc-dep-zone-cong{ cursor:not-allowed; }
+#modoColaborativoWrap .pc-dep-zone-cong .pc-dep-grip-haste{
+  background:linear-gradient(180deg,#3A3F45,#2A2E33);
+  border-color:rgba(242,244,245,.12); box-shadow:none;
+}
+#modoColaborativoWrap .pc-dep-cong-motivo{
+  font-size:10.5px; color:var(--pc-ink-dim); margin-top:2px; line-height:1.45;
+}
+/* O toast é filho de <body>, fora do #modoColaborativoWrap — sem escopo. */
+.pc-toast-cong{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(90px);
+  background:rgba(29,32,35,.97); border:1px solid #2B2F33; border-radius:999px;
+  padding:9px 16px; font-size:12px; color:#AEB5BB; white-space:nowrap; z-index:120;
+  transition:transform .25s ease; box-shadow:0 10px 30px rgba(0,0,0,.5);
+  max-width:92vw; overflow:hidden; text-overflow:ellipsis;
+}
+.pc-toast-cong.on{ transform:translateX(-50%) translateY(0); }
+
 /* Card em viagem na reordenação suave (21/08/2026) — borda verde acesa
    enquanto desliza pra nova posição, pro olho conseguir seguir. */
 #modoColaborativoWrap .pc-dep-card.pc-dep-movendo{

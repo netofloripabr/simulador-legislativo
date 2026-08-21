@@ -76,6 +76,7 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
       motivoInvalidacao: c.motivoInvalidacao,
       partidoOrigem2022: c.partidoOrigem2022 || null,
       partidoOriginal: c.partidoOriginal || p.nome,
+      status: c.status || null,
     })),
   }));
   const todos = base;
@@ -87,7 +88,7 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
     // suficiente pra entrar no topo do ranking. Fica de fora da seleção
     // automática (mas continua contando no total de votos do partido).
     const candidatosOrdenados = [...p.candidatos]
-      .filter((c) => c.fonte !== "legenda")
+      .filter((c) => c.fonte !== "legenda" && !c.status)
       .sort((a, b) => (Number(b.votos2022) || 0) - (Number(a.votos2022) || 0));
     const marcarChaves = new Set(candidatosOrdenados.slice(0, metaVagas).map((c) => chaveCandidato(c.nome, p.nome, c.id)));
     return {
@@ -109,7 +110,10 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
           invalidado2022: !!c.invalidado2022,
           partidoOrigem2022: c.partidoOrigem2022 || null,
           partidoOriginal: c.partidoOriginal,
-          votos: c.votos2022, // ponto de partida do palpite: o valor real de 2022
+          status: c.status || null,
+          // ponto de partida do palpite: o valor real de 2022 — exceto
+          // candidatura congelada (desistência/sub judice), que nasce em 0
+          votos: c.status ? 0 : c.votos2022,
           // ponto de partida do modo simplificado: os mais votados de 2022 até
           // a meta de vagas (dos boxes, se houver) entram marcados. Só vale
           // enquanto o partido está no modo "simplificado" — no modo

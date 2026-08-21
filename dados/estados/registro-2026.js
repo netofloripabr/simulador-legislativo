@@ -134,12 +134,16 @@ function candidatos2026EstadoCargo(uf, cargoLabel) {
       nome: c.nome,
       nomeUrna: c.nomeUrna || "",
       municipio: "",
-      votos: ref2022 ? ref2022.votos : 0,
+      votos: c.status ? 0 : (ref2022 ? ref2022.votos : 0),
       fonte: c.fonte || "atas-2026",
       eleito2022: ref2022 ? !!ref2022.eleito2022 : false,
       invalidado2022: ref2022 ? !!ref2022.invalidado2022 : false,
       motivoInvalidacao: ref2022 ? ref2022.motivoInvalidacao : undefined,
       partidoOrigem2022: trocouPartido ? ref2022._partido2022Original : null,
+      // Desistência/sub judice (política 21/08/2026): o candidato FICA no
+      // elenco com etiqueta e célula congelada — e a base de votos nasce
+      // ZERADA, mesmo que ele tenha histórico de 2022 (não recebe votos).
+      status: c.status || null,
       // Partido de fato do candidato (PT, PC do B, PV...) — pode ser
       // diferente do nome do grupo acima quando o grupo é uma federação
       // (PT/PC do B/PV), que só existe pra efeito de contagem/ranking de

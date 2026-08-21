@@ -145,6 +145,16 @@ const PC_ICONES = {
   instagram: '<rect x="2" y="2" width="12" height="12" rx="3.6" fill="none" stroke="currentColor" stroke-width="1.3"></rect><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="11.5" cy="4.5" r=".9" fill="currentColor"></circle>',
   credito: '<circle cx="8" cy="8" r="5.7" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path>',
 };
+// Candidatura congelada (desistência / sub judice) — política 21/08/2026:
+// fica no elenco com etiqueta branca antes do nome e a célula travada
+// (sem receber votos, sem pontuar). Protótipo aprovado no mesmo dia.
+function infoStatusCandidato(status) {
+  if (status === "sub-judice" || status === "subjudice") {
+    return { etiqueta: "SUB JUDICE", motivo: "Registro aguardando decisão da Justiça Eleitoral — congelado até a definição." };
+  }
+  return { etiqueta: "DESISTIU", motivo: "Candidatura retirada — não recebe votos e não pontua na apuração." };
+}
+
 function iconeSvg(nome, tamanho) {
   const t = tamanho || 16;
   return `<svg viewBox="0 0 16 16" width="${t}" height="${t}">${PC_ICONES[nome] || ""}</svg>`;
@@ -4198,7 +4208,9 @@ function balancearPartidoSelecao(p, base) {
 
   const fator = fatorCrescimentoEleitorado();
   const DECAIMENTO = 0.82; // cada candidato sem histórico próprio recebe 82% do anterior na lista
-  const ordenados = [...p.candidatos].sort((a, b) => (Number(b.votos2022) || 0) - (Number(a.votos2022) || 0));
+  // Congelados (desistência/sub judice) ficam FORA da curva do mágico —
+  // não recebem votos em nenhuma automação (política 21/08/2026).
+  const ordenados = [...p.candidatos].filter((c) => !c.status).sort((a, b) => (Number(b.votos2022) || 0) - (Number(a.votos2022) || 0));
   // ultimoValorReal guarda o valor SEM arredondar — arredondar a cada passo
   // travava a curva num piso artificial (round(1 × 0,82) = round(0,82) = 1
   // pra sempre), fazendo uma fila inteira de candidatos "cair" e empacar em
@@ -4263,7 +4275,7 @@ function distribuirComQuemTemMenos(nomePartido, chaveCandidato, gapPartido, list
   const alvo = p.candidatos.find((c) => String(c.chave) === chaveCandidato);
   if (!alvo) return;
   const votosAlvo = Number(alvo.votos) || 0;
-  const recipientes = p.candidatos.filter((c) => !c.marcadoEleito && c.fonte !== "legenda" && (Number(c.votos) || 0) < votosAlvo);
+  const recipientes = p.candidatos.filter((c) => !c.marcadoEleito && c.fonte !== "legenda" && !c.status && (Number(c.votos) || 0) < votosAlvo);
   if (!recipientes.length) return;
   // Distribui proporcional ao voto ATUAL de cada um (quem já tem mais,
   // recebe mais — proporcionalidade decrescente) entre quem ainda tem
@@ -4353,7 +4365,10 @@ function balancearTudoSelecao() {
 // votação real de 2022 em quem concorreu, novos zerados, boxes limpos.
 function restaurarTudo2022() {
   pcState.palpiteEdicao.forEach((p) => {
-    p.candidatos.forEach((c) => { c.votos = Number(c.votos2022) || 0; c.votosEditado = false; });
+    // Candidatura congelada (desistência/sub judice) NUNCA recebe voto —
+    // nem na volta pro retrato de 2022 (o histórico dela fica só na
+    // legenda "2022: Xk votos" do card).
+    p.candidatos.forEach((c) => { c.votos = c.status ? 0 : (Number(c.votos2022) || 0); c.votosEditado = false; });
     delete p.vagasIndicadas;
   });
   if (pcState.cargoAtivo === "senador") recalcularMarcadosSenador();
@@ -4375,7 +4390,7 @@ function zerarTudoSelecao() {
 // mesmo ponto de partida de montarEstadoPalpite(), inclusive "destravando"
 // o votosEditado (deixa de contar como edição manual).
 function resetarPartidoSelecao(p) {
-  p.candidatos.forEach((c) => { c.votos = c.votos2022 || 0; c.votosEditado = false; });
+  p.candidatos.forEach((c) => { c.votos = c.status ? 0 : (c.votos2022 || 0); c.votosEditado = false; });
   // Mesma regra de qualquer outra mudança de votação (ver comentário de
   // aplicarQuantidadeMarcados, abaixo): quem fica "eleito" nunca é uma
   // escolha direta, é sempre os N mais votados AGORA — restaurar 2022 muda
@@ -4409,11 +4424,13 @@ function zerarPartidoSelecao(p) {
 // redefine do zero quem está marcado — nunca soma/subtrai em cima do
 // estado anterior. Nunca marca voto de legenda (não é uma pessoa).
 function aplicarQuantidadeMarcados(p, quantidade) {
-  const elegiveis = p.candidatos.filter((c) => c.fonte !== "legenda");
+  // Nem congelado (desistência/sub judice) — mesmo com tudo zerado, os
+  // "N mais votados" não podem incluir quem não disputa (21/08/2026).
+  const elegiveis = p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status);
   const ordenados = [...elegiveis].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
   const alvo = Math.max(0, Math.min(Math.round(Number(quantidade) || 0), ordenados.length));
   const chavesMarcadas = new Set(ordenados.slice(0, alvo).map((c) => c.chave));
-  p.candidatos.forEach((c) => { c.marcadoEleito = c.fonte !== "legenda" && chavesMarcadas.has(c.chave); });
+  p.candidatos.forEach((c) => { c.marcadoEleito = c.fonte !== "legenda" && !c.status && chavesMarcadas.has(c.chave); });
 }
 
 // Versão do princípio acima pro Senador (majoritário, lista única — ver
@@ -4816,7 +4833,7 @@ function recalcularMarcadosDeputados() {
   const totalVagas = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
   const { counts } = dhondtComCorte(pcState.palpiteEdicao, totalVagas);
   pcState.palpiteEdicao.forEach((p, i) => {
-    const reais = p.candidatos.filter((c) => c.fonte !== "legenda");
+    const reais = p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status);
     const ordenados = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
     const chaves = new Set(ordenados.slice(0, counts[i]).filter((c) => (Number(c.votos) || 0) > 0).map((c) => c.chave));
     p.candidatos.forEach((c) => { c.marcadoEleito = chaves.has(c.chave); });
@@ -5071,6 +5088,26 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       // só aparece pra quem tem link alimentado na planilha/admin.
       const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 16)}</a>` : "";
       const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
+      if (c.status) {
+        // Célula CONGELADA: etiqueta branca, linha transparente, barra
+        // travada no zero sem alça de arrasto (nenhum data-dep-fader —
+        // nenhum listener gruda nela) e o motivo legível embaixo.
+        const st = infoStatusCandidato(c.status);
+        return `
+      <div class="pc-dep-crow pc-dep-crow-cong" data-dep-cong="${escaparAtributoHtml(st.motivo)}">
+        <div class="pc-dep-cl1">
+          <span class="pc-sen-chip statusbranco">${st.etiqueta}</span>
+          <span class="pc-dep-cnm">${nomeExibicao(c)}${instaDepois}${lapisAdmin}</span>
+          <span class="pc-dep-cpct">—</span>
+        </div>
+        ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
+        <div class="pc-dep-zone pc-dep-zone-cong">
+          <div class="pc-dep-trk"></div>
+          <div class="pc-dep-grip" style="left:0%;"><div class="pc-dep-grip-haste"></div></div>
+        </div>
+        <div class="pc-dep-cong-motivo">${st.motivo}</div>
+      </div>`;
+      }
       return `
       <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
         <div class="pc-dep-cl1">
@@ -5132,7 +5169,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
 // (fallback 1 — a regra "zero fica zero" da alça mestra vale pro gesto
 // coletivo, mas um partido zerado precisa poder nascer pelo próprio fader).
 function escalarGrupoDeputados(p, alvo, capCand) {
-  const reais = p.candidatos.filter((c) => c.fonte !== "legenda");
+  const reais = p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status);
   let base = reais.map((c) => Number(c.votos) || 0);
   if (base.every((v) => v === 0)) base = reais.map((c) => Number(c.votos2022) || 1);
   const novos = fmdEscalarProporcional(base, alvo, capCand);
@@ -5237,7 +5274,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
       if (ehPartido) {
         const p2 = pcState.palpiteEdicao[gi];
         const alvo = fmdTravaIndividual(Math.round(frac * base.course), E, E, base.outrosTotal);
-        const reais = p2.candidatos.filter((c) => c.fonte !== "legenda");
+        const reais = p2.candidatos.filter((c) => c.fonte !== "legenda" && !c.status);
         const novos = fmdEscalarProporcional(base.membros, alvo, capCand);
         reais.forEach((c, i) => { c.votos = novos[i]; });
         atualizarBarraPartidoDom(sl, somaVotosGrupo(p2));
@@ -5262,8 +5299,8 @@ function attachListenersDeputadosFader(E, totalVagas) {
       snapshotPalpite();
       if (ehPartido) {
         const p2 = pcState.palpiteEdicao[gi];
-        let membros = p2.candidatos.filter((c) => c.fonte !== "legenda").map((c) => Number(c.votos) || 0);
-        if (membros.every((vv) => vv === 0)) membros = p2.candidatos.filter((c) => c.fonte !== "legenda").map((c) => Number(c.votos2022) || 1);
+        let membros = p2.candidatos.filter((c) => c.fonte !== "legenda" && !c.status).map((c) => Number(c.votos) || 0);
+        if (membros.every((vv) => vv === 0)) membros = p2.candidatos.filter((c) => c.fonte !== "legenda" && !c.status).map((c) => Number(c.votos2022) || 1);
         // Curso do GESTO: fixo do início ao fim do arrasto (curso elástico
         // no meio do gesto faria a alça fugir do dedo) — meta + 1 QE de
         // folga pra dar espaço de passar da meta sem soltar.
@@ -5451,7 +5488,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
       const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
       const novosTotais = fmdEscalarProporcional(baseM.totais, frac * E, E);
       pcState.palpiteEdicao.forEach((p, i) => {
-        const reais = p.candidatos.filter((c) => c.fonte !== "legenda");
+        const reais = p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status);
         const novos = fmdEscalarProporcional(baseM.membros[i], novosTotais[i], capCand);
         reais.forEach((c, j) => { c.votos = novos[j]; });
       });
@@ -5467,7 +5504,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
       snapshotPalpite();
       baseM = {
         totais: pcState.palpiteEdicao.map((p) => somaVotosGrupo(p)),
-        membros: pcState.palpiteEdicao.map((p) => p.candidatos.filter((c) => c.fonte !== "legenda").map((c) => Number(c.votos) || 0)),
+        membros: pcState.palpiteEdicao.map((p) => p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status).map((c) => Number(c.votos) || 0)),
       };
       _depMasterAtivo = true;
       zone.classList.add("ativo");
@@ -6327,6 +6364,22 @@ async function renderCargoEstadual() {
 // viaja com a borda verde acesa, pra pessoa acompanhar pra onde ele foi.
 // Cada toque no − / + reinicia o respiro — sequência de cliques não faz o
 // card fugir do dedo.
+// Lembrete flutuante da célula congelada — tocar/arrastar numa linha de
+// desistência/sub judice explica em vez de ignorar o gesto em silêncio.
+function mostrarToastCongelada(texto) {
+  let el = document.getElementById("pcToastCongelada");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "pcToastCongelada";
+    el.className = "pc-toast-cong";
+    document.body.appendChild(el);
+  }
+  el.textContent = texto;
+  el.classList.add("on");
+  clearTimeout(window._pcToastCongTimer);
+  window._pcToastCongTimer = setTimeout(() => el.classList.remove("on"), 1800);
+}
+
 function agendarReordenacaoSuave(nomePartido, delayMs) {
   if (nomePartido) window._pcReordCardEditado = nomePartido;
   clearTimeout(window._pcReordTimer);
@@ -6604,6 +6657,9 @@ function attachListenersSelecao() {
     btn.addEventListener("click", () => {
       adicionarCandidatoNoPartido(pcState.palpiteEdicao.find((pp) => pp.nome === btn.dataset.pcAddCand));
     });
+  });
+  document.querySelectorAll("[data-dep-cong]").forEach((row) => {
+    row.addEventListener("pointerdown", () => mostrarToastCongelada(row.dataset.depCong));
   });
   document.querySelectorAll("[data-pc-partido-card]").forEach((card) => {
     card.addEventListener("mouseleave", () => {
