@@ -350,6 +350,12 @@ async function initColaborativo() {
       return;
     }
     pcState.souAdmin = await souAdmin();
+    // Saldo REAL da carteira (creditos_conta) — pcState.perfil vem da
+    // tabela "perfis", que não tem essa coluna: sem esta carga, todo
+    // "saldo: X" da interface (slot trancado, gates) mostrava 0 pra
+    // sempre, mesmo com créditos (achado de 22/08/2026 na conferência do
+    // caixa). A cobrança em si sempre foi validada no servidor.
+    try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) { /* melhor esforço */ }
   // Presença/marcos (migração 26): registra o dia (streak) e concede
   // marcos únicos direto no banco. Fire-and-forget — se a migração não
   // rodou ainda, só loga e segue.
@@ -1986,6 +1992,18 @@ async function executarSairDaConta() {
 // nas telas de destino (renderMeuPerfil, renderCentralAjuda, o modal de
 // reportar problema, etc.), sem duplicar nada.
 function renderMenuConta() {
+  // Revalida o saldo em segundo plano ao abrir o Menu — se mudou (convite
+  // que rendeu, gasto em outro aparelho), o cartão atualiza sozinho.
+  if (pcState.perfil && !pcState._saldoRevalidando) {
+    pcState._saldoRevalidando = true;
+    obterSaldoCreditos(pcState.perfil.id).then((s2) => {
+      pcState._saldoRevalidando = false;
+      if (pcState.perfil && pcState.perfil.creditos !== s2) {
+        pcState.perfil.creditos = s2;
+        if (pcState.subaba === "menu") renderMenuConta();
+      }
+    }).catch(() => { pcState._saldoRevalidando = false; });
+  }
   const el = document.getElementById("pcConteudo");
   const p = pcState.perfil;
   const linhaMenu = (id, icone, cor, titulo, subtitulo) => `
@@ -2007,6 +2025,7 @@ function renderMenuConta() {
         <div style="font-size:16px; font-weight:700;">${p.nome || "Sem nome"}</div>
         <div style="font-size:12px; color:var(--pc-ink-dim); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${(pcState.sessao && pcState.sessao.user.email) || ""}</div>
       </div>
+      <span title="Sua carteira — toque em Créditos pro extrato" style="flex-shrink:0; display:flex; align-items:center; gap:5px; background:#101214; border:1px solid #23262A; border-radius:999px; padding:5px 10px; font-size:11px; font-weight:750; color:var(--pc-accent); font-variant-numeric:tabular-nums;">${iconeSvg("credito", 12)}${Number(p.creditos ?? 0).toLocaleString("pt-BR")}</span>
       <button id="pcBtnEditarPerfilMenu" class="pc-mini-btn" title="Editar meus dados" style="flex-shrink:0;">${iconeSvg("editar", 15)}</button>
     </div>
 
@@ -2014,7 +2033,7 @@ function renderMenuConta() {
     <div class="glass-card" style="padding:0; overflow:hidden; margin-bottom:18px;">
       ${linhaMenu("pcBtnMenuDados", "perfil", "#2C3239", "Meus dados", "Telefone, CEP, município, gênero")}
       ${linhaMenu("pcBtnMenuSenha", "chave", "#2C3239", "Trocar senha", "Atualize sua senha de acesso")}
-      ${linhaMenu("pcBtnMenuCreditos", "credito", "#2C3239", "Créditos", "Saldo e extrato da sua conta")}
+      ${linhaMenu("pcBtnMenuCreditos", "credito", "#2C3239", "Créditos", `Saldo: ${Number(p.creditos ?? 0).toLocaleString("pt-BR")} crédito${(p.creditos ?? 0) === 1 ? "" : "s"} — toque pro extrato`)}
       <div style="display:flex; align-items:center; gap:13px; padding:14px 16px; border-bottom:1px solid var(--pc-glass-border);">
         <div style="width:36px; height:36px; border-radius:10px; background:#2C3239; border:1px solid #4D545C; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${iconeSvg("alerta", 17)}</div>
         <div style="flex:1; min-width:0;">
@@ -7053,6 +7072,9 @@ function attachListenersSelecao() {
     // o campo de nome no lugar, trancado com o preço além dos 2 grátis.
     const todas = await _carregarMinhasListasNormalizado();
     pcState._destinosSalvar = todas.filter((l) => !l.depositadoEm);
+    if (pcState.perfil) {
+      try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) { /* mostra o último conhecido */ }
+    }
     // A lista em edição entra selecionada — Salvar direto = sobrescrever
     // o slot que estou editando (com a confirmação SIM/NÃO).
     pcState._destinoSelecionado = pcState.listaSalvaId && pcState._destinosSalvar.some((l) => l.id === pcState.listaSalvaId)
