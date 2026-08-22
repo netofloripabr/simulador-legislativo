@@ -597,7 +597,7 @@ function renderMenuFixo(destinoAtivo) {
   ];
   const botoes = itens.map((it) => {
     const ativo = it.id === destinoAtivo;
-    const cor = it.disabled ? "#3f5a4e" : (ativo ? "var(--pc-accent)" : "var(--pc-ink-dim)");
+    const cor = it.disabled ? "#5C6268" : (ativo ? "var(--pc-accent)" : "var(--pc-ink-dim)");
     const titulo = it.disabled ? "Disponível depois do resultado oficial de 2026" : (it.gate ? "Precisa se cadastrar" : "");
     return `<button data-pc-menu-fixo="${it.id}" ${it.disabled ? "disabled" : ""} title="${titulo}" style="flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 2px; color:${cor}; font-family:var(--sans); cursor:${it.disabled ? "default" : "pointer"}; position:relative;">
       ${ativo && !it.disabled ? `<span style="position:absolute; top:2px; left:50%; transform:translateX(9px); width:5px; height:5px; border-radius:50%; background:var(--pc-accent);"></span>` : ""}
@@ -1104,7 +1104,7 @@ async function renderCompartilhado() {
   // de reserva pra linhas antigas, de antes da coluna existir.
   pcState.estado = (dados && dados.estado) || "SC";
   const linha = (c, i, rotulo) => `
-    <div style="display:flex; align-items:baseline; gap:8px; padding:6px 0; border-bottom:1px solid #16241e; font-size:12.5px;">
+    <div style="display:flex; align-items:baseline; gap:8px; padding:6px 0; border-bottom:1px solid #23262A; font-size:12.5px;">
       <span style="width:22px; color:var(--pc-ink-dim); flex-shrink:0;">${i + 1}º</span>
       <span style="flex:1; min-width:0;">${c.nome}<br><span style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${rotulo ? ` · ${rotulo}` : ""}</span></span>
       <span style="flex-shrink:0; color:var(--pc-ink-dim);">${c.votos.toLocaleString("pt-BR")}</span>
@@ -1883,11 +1883,16 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "medias") { renderQuadroMedias(); atualizarMenuFixo("medias"); }
   else if (pcState.subaba === "grupo") { renderGrupoHub(); atualizarMenuFixo("grupo"); }
   else if (pcState.subaba === "menu") { renderMenuConta(); atualizarMenuFixo("menu"); }
+  else if (pcState.subaba === "ranking") { renderRankingPlaceholder(); atualizarMenuFixo("ranking"); }
   else if (pcState.subaba === "meu-perfil") { renderMeuPerfil(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "ajuda") { renderCentralAjuda(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "admin") { renderAdminPainel(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "usuario-final") { renderPainelUsuarioFinal(); atualizarMenuFixo(null); }
-  else { renderRankingPlaceholder(); atualizarMenuFixo("ranking"); }
+  // Subaba desconhecida (typo, sessão antiga restaurada): cai no PAINEL,
+  // não mais no Ranking por acidente — o ranking ganhou ramo explícito
+  // acima (auditoria de telas, 22/08/2026; antes 3 setters dependiam do
+  // else final e qualquer valor inválido sumia calado no Ranking).
+  else { pcState.subaba = "painel"; renderPainelPrincipal(); atualizarMenuFixo("painel"); }
 }
 
 // Tela "Meus dados" — só os campos editáveis da conta + trocar senha.
@@ -2128,7 +2133,7 @@ function renderModalExcluirConta() {
         <div class="pc-erro" id="pcExcluirContaErro"></div>
         <div style="display:flex; gap:8px; margin-top:12px;">
           <button class="ghost" id="pcBtnFecharExcluirConta" style="flex:1;">Cancelar</button>
-          <button id="pcBtnConfirmarExcluirConta" style="flex:1; background:var(--pc-danger); border:1px solid var(--pc-danger); color:#2a0a10; font-family:var(--sans); font-weight:700; border-radius:8px; cursor:pointer;">Excluir</button>
+          <button id="pcBtnConfirmarExcluirConta" style="flex:1; background:var(--pc-danger); border:1px solid var(--pc-danger); color:#fff; font-family:var(--sans); font-weight:700; border-radius:8px; cursor:pointer;">Excluir</button>
         </div>
       </div>
     </div>`;
@@ -2494,7 +2499,7 @@ async function renderPainelUsuarioFinal() {
   if (!pcState.souUsuarioFinal) {
     // Mesmo ajuste de renderAdminPainel — sem botão de voltar, essa tela
     // vira um beco sem saída (menu fixo fica escondido nessa subaba).
-    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra parceiros com acesso liberado.</div><button class="ghost" id="pcBtnVoltarUsuarioFinalRestrito" style="width:100%; margin-top:10px;">← Voltar</button></div>`;
+    el.innerHTML = `<div class="glass-card"><h2>Acesso restrito</h2><div class="pc-sub">Essa área é só pra parceiros com acesso liberado.</div><button class="ghost" id="pcBtnVoltarUsuarioFinalRestrito" style="width:100%; margin-top:10px;" style="display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Voltar</button></div>`;
     document.getElementById("pcBtnVoltarUsuarioFinalRestrito").addEventListener("click", () => {
       pcState.subaba = "menu";
       renderAppColaborativo();
@@ -2644,7 +2649,7 @@ async function renderPainelPrincipal() {
       <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:8px;">
         <div style="display:flex; justify-content:space-between; align-items:baseline;">
           <span style="font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:6px; color:var(--pc-ink);">${completa ? `<span style="color:var(--pc-accent); display:flex;">${iconeSvg("checkCirculo", 14)}</span>Lista completa` : "Sua lista"}</span>
-          <span style="font-size:11.5px; font-weight:600; color:${completa ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${totalMarcado}<span style="color:#4c6459;">/${totalVagas}</span></span>
+          <span style="font-size:11.5px; font-weight:600; color:${completa ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${totalMarcado}<span style="color:var(--pc-ink-dim);">/${totalVagas}</span></span>
         </div>
         <div class="pc-lobby-barra">
           <div style="width:${(fracaoPreenchida * pesoEstadual * 100).toFixed(1)}%; background:var(--pc-accent);"></div>
@@ -3079,7 +3084,7 @@ function montarSecoesCargosDetalhe(palpitesPorCargo) {
     if (!listaCargo || !listaCargo.length) return "";
     const unificada = listaUnificadaRevisao(listaCargo, cargoDef.id);
     const linhas = unificada.map((c) => `
-      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 3px; border-bottom:1px solid rgba(120,130,180,0.14); font-size:12.5px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 3px; border-bottom:1px solid rgba(242,244,245,.08); font-size:12.5px;">
         <span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.posicaoEleicao ? `<b style="color:var(--pc-accent);">${c.posicaoEleicao}º</b> ` : ""}${c.nome} <span style="color:var(--pc-ink-dim);">· ${c.partido}</span></span>
         <span style="font-family:var(--mono); color:var(--pc-ink-dim); flex-shrink:0;">${c.votos.toLocaleString("pt-BR")}</span>
       </div>`).join("");
@@ -3110,7 +3115,7 @@ async function renderMinhasListas() {
     const secoes = montarSecoesCargosDetalhe(palpitesPorCargo);
     el.innerHTML = `
       <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px;">
-        <button class="ghost" id="pcBtnVoltarMinhasListas">← Minhas listas</button>
+        <button class="ghost" id="pcBtnVoltarMinhasListas" style="display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Minhas listas</button>
         ${lista && lista.codigo ? `<button class="ghost" id="pcBtnCompartilharDetalheLista" style="display:flex; align-items:center; gap:6px; padding:8px 12px; font-size:12px;">${iconeSvg("compartilhar", 13)}<span class="pc-btn-label">Compartilhar</span></button>` : ""}
       </div>
       <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">${lista ? lista.nome : ""}</div>
@@ -3204,7 +3209,7 @@ async function renderMinhasListas() {
         <h2 style="margin-bottom:6px; font-size:15px;">Depositar "${listaModal.nome}"?</h2>
         <div style="font-size:12.5px; line-height:1.6; color:var(--pc-ink-dim);">Depois de depositada, essa lista trava — não dá mais pra editar nem excluir. É a sua cédula pra valer.</div>
         <label style="display:flex; align-items:center; gap:10px; margin:16px 0; font-size:13px; color:var(--pc-ink); cursor:pointer;">
-          <label class="switch"><input type="checkbox" id="pcCheckAnonimo"><span class="slider"></span></label>
+          <span class="pc-switch" style="flex-shrink:0;"><input type="checkbox" id="pcCheckAnonimo"><span class="pc-switch-slider"></span></span>
           Depositar de forma anônima
         </label>
         <div style="display:flex; gap:8px;">
@@ -3640,7 +3645,7 @@ function renderGrupoCriar() {
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
+      <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;" style="display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Grupos</button>
       <div style="font-size:20px; font-weight:700; margin:0 0 14px;">Criar grupo</div>
       <div class="field-row"><label>Nome do grupo</label><input class="cell" id="pcNomeGrupo" placeholder="ex: Amigos do bairro"></div>
       <div class="pc-erro" id="pcErroGrupo"></div>
@@ -3667,7 +3672,7 @@ function renderGrupoEntrar() {
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
+      <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;" style="display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Grupos</button>
       <div style="font-size:20px; font-weight:700; margin:0 0 14px;">Entrar com código</div>
       <div class="field-row"><label>Código de convite</label><input class="cell" id="pcCodigoGrupo" maxlength="6" style="text-transform:uppercase; font-family:var(--mono); letter-spacing:0.1em;" placeholder="ABC123"></div>
       <div class="pc-erro" id="pcErroGrupo"></div>
@@ -3784,7 +3789,7 @@ async function renderGrupoMembro() {
     <button data-pc-cargo-grupo="${c.id}" class="${pcState.cargoAtivoGrupo === c.id ? "active" : ""}">${c.label}</button>`).join("");
 
   conteudo.innerHTML = `
-    <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;">← Grupos</button>
+    <button class="ghost" id="pcBtnVoltarGrupoHub" style="margin-bottom:14px;" style="display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Grupos</button>
     <div style="font-size:20px; font-weight:700; margin:2px 0 10px 2px;">${pcState.grupoAtivo.nome}</div>
     <div class="pc-lobby-card">
       <div class="pc-lobby-linha">
@@ -6238,7 +6243,7 @@ async function renderCargoEstadual() {
   const legendaPlenario = `
     <div style="display:flex; flex-wrap:wrap; gap:4px; opacity:0.55;">
       ${[...composicaoPlenario].sort((a, b) => b.seats - a.seats).map((o) => `
-        <div style="display:inline-flex; align-items:center; justify-content:center; gap:3px; padding:4px 6px; border:1px solid rgba(120,130,180,0.2); border-radius:6px; white-space:nowrap;">
+        <div style="display:inline-flex; align-items:center; justify-content:center; gap:3px; padding:4px 6px; border:1px solid rgba(242,244,245,.12); border-radius:6px; white-space:nowrap;">
           ${usarCasePlenario ? "" : `<span style="width:5px; height:5px; border-radius:50%; background:${corPartidoIdeologico(o.nome)}; flex-shrink:0;"></span>`}
           <span style="font-size:9px; font-weight:600;">${usarCasePlenario ? siglaCurta(o.nome) : nomePartidoExibicao(o.nome)}: ${o.seats} (${(o.seats / totalVagasCargo * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</span>
         </div>`).join("")}
@@ -6435,7 +6440,7 @@ async function renderCargoEstadual() {
         return entrada ? entrada.candidatos.map((c) => ({ ...c, _partido: m })) : [];
       }).sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
       const linhasCand = candidatos.map((c, i) => `
-        <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(120,130,180,0.14);">
+        <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(242,244,245,.08);">
           <span style="width:26px; font-size:12px; font-weight:700; color:var(--pc-ink-dim); text-align:right; flex-shrink:0;">${i + 1}º</span>
           <span style="flex:1; font-size:13.5px; font-weight:600;">${nomeExibicao(c)}${membros.length > 1 ? ` <span style="font-size:10.5px; color:var(--pc-accent); font-weight:700;">(${c._partido})</span>` : ""}${c.eleito2022 ? ' <span style="font-size:10.5px; color:var(--pc-accent-2);">· eleito</span>' : ""}</span>
           <span style="font-size:13px; font-weight:600; color:var(--pc-ink-dim);">${Number(c.votos || 0).toLocaleString("pt-BR")}</span>
@@ -6444,11 +6449,11 @@ async function renderCargoEstadual() {
       // exibida acima — mesma fonte de dado das linhas, só somada.
       const totalGeral = candidatos.reduce((s, c) => s + (Number(c.votos) || 0), 0);
       const totalHtml = membros.length > 1
-        ? `<div style="display:flex; flex-direction:column; gap:2px; margin-top:10px; padding-top:10px; border-top:1px solid rgba(120,130,180,0.25); font-size:12.5px; color:var(--pc-ink-dim);">
+        ? `<div style="display:flex; flex-direction:column; gap:2px; margin-top:10px; padding-top:10px; border-top:1px solid rgba(242,244,245,.12); font-size:12.5px; color:var(--pc-ink-dim);">
             ${membros.map((m) => `<div>${m}: <b style="color:var(--pc-ink);">${candidatos.filter((c) => c._partido === m).reduce((s, c) => s + (Number(c.votos) || 0), 0).toLocaleString("pt-BR")}</b></div>`).join("")}
             <div style="margin-top:2px;">Total: <b style="color:var(--pc-ink);">${totalGeral.toLocaleString("pt-BR")}</b></div>
           </div>`
-        : `<div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(120,130,180,0.25); font-size:12.5px; color:var(--pc-ink-dim);">Total: <b style="color:var(--pc-ink);">${totalGeral.toLocaleString("pt-BR")}</b></div>`;
+        : `<div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(242,244,245,.12); font-size:12.5px; color:var(--pc-ink-dim);">Total: <b style="color:var(--pc-ink);">${totalGeral.toLocaleString("pt-BR")}</b></div>`;
       return `
       <div id="pcCandidatos2022Overlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
         <div style="max-width:460px; width:100%; max-height:80vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:26px 24px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
@@ -6468,7 +6473,7 @@ async function renderCargoEstadual() {
         .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0))
         .slice(0, 100);
       const linhasTop100 = top100.map((c, i) => `
-        <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(120,130,180,0.14);">
+        <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid rgba(242,244,245,.08);">
           <span style="width:26px; font-size:12px; font-weight:700; color:var(--pc-ink-dim); text-align:right; flex-shrink:0;">${i + 1}º</span>
           <span style="flex:1; min-width:0; font-size:13.5px; font-weight:600;">${nomeExibicao(c)}<br><span style="font-size:10.5px; font-weight:400; color:var(--pc-ink-dim);">${nomePartidoExibicao(c._partido)}</span></span>
           <span style="font-size:13px; font-weight:600; color:var(--pc-ink-dim); flex-shrink:0;">${Number(c.votos || 0).toLocaleString("pt-BR")}</span>
@@ -8588,7 +8593,7 @@ function renderRankingPlaceholder() {
     const r = pcState.buscaCedulaDetalhe;
     const secoes = montarSecoesCargosDetalhe({ estadual: r.lista_estadual, federal: r.lista_federal, senador: r.lista_senador });
     conteudo.innerHTML = `
-      <button class="ghost" id="pcBtnVoltarBuscaCedula" style="margin-bottom:14px;">← Voltar pra busca</button>
+      <button class="ghost" id="pcBtnVoltarBuscaCedula" style="margin-bottom:14px;" style="display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Voltar pra busca</button>
       <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">${r.nome_exibicao}</div>
       <div class="pc-sub" style="margin:0 0 14px 2px;">${r.estado}${r.codigo ? ` · código ${r.codigo}` : ""}</div>
       ${secoes || `<div class="glass-card"><div class="pc-sub" style="margin:0;">Essa cédula não tem candidatos registrados.</div></div>`}`;
@@ -8717,7 +8722,7 @@ async function renderQuadroMedias() {
       <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
         <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:${c.eleito ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${i + 1}º</span>
         <span style="min-width:0;">
-          <div style="font-size:13px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.nomeUrna || c.nome}${c.eleito ? ` <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#04140d; background:var(--pc-accent); border-radius:999px; padding:1px 6px;">eleito</span>` : ""}</div>
+          <div style="font-size:13px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.nomeUrna || c.nome}${c.eleito ? ` <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#07230C; background:var(--pc-accent); border-radius:999px; padding:1px 6px;">eleito</span>` : ""}</div>
           <div style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${c.semPalpites ? " · sem palpite ainda" : ` · ${c.amostras} palpite${c.amostras === 1 ? "" : "s"}`}</div>
         </span>
       </span>

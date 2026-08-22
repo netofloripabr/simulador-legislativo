@@ -965,6 +965,29 @@
   background:rgba(29,32,35,.85); border:1px solid #23262A; border-radius:12px;
   padding:10px 12px 12px; margin-bottom:8px;
 }
+/* Remanescentes 1.0 SEM override no tema Fader (auditoria de telas,
+   22/08/2026): mini-cards (Minhas listas/Grupos/Ranking/Admin), trilho da
+   barra do hero do Painel e os tooltips .info-tip/.tip-box ainda
+   pintavam o vidro-verde antigo. */
+#modoColaborativoWrap.pc-tema-fader .pc-mini-card{
+  background:rgba(29,32,35,.85); border-color:#23262A;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-mini-card-icone{
+  background:rgba(52,232,74,.08); color:var(--pc-accent);
+}
+#modoColaborativoWrap.pc-tema-fader .pc-lobby-barra{
+  background:#101214; border:1px solid #1A1D20;
+}
+#modoColaborativoWrap.pc-tema-fader .info-tip{
+  background:#16181B; border-color:#2B2F33;
+}
+#modoColaborativoWrap.pc-tema-fader .tip-box{
+  background:#101214; border-color:#2B2F33;
+}
+/* texto sobre o verde de acento: o token é #07230C (não #04140d) */
+#modoColaborativoWrap .pc-lobby-banner-btn{ color:#07230C; }
+#modoColaborativoWrap .pc-switch-slider:after{ color:#07230C; }
+
 /* Slots de salvamento — versão B "linha com anel" (protótipo aprovado
    22/08/2026): cada lista em aberto é um slot com anel de progresso
    circular e o número dentro; vazio = anel pontilhado com o nome no
