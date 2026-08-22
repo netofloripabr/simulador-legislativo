@@ -7420,26 +7420,175 @@ function garantirPalpitesPorCargo() {
   CARGOS.forEach((c) => agendarAutoSaveRascunho(c.id, pcState.palpitesPorCargo[c.id]));
 }
 
-// Monta uma seção limpa (sem caixa de voto editável, sem botões de ajuste —
-// só texto) pra impressão/PDF de um cargo, a partir do que está em
-// pcState.palpitesPorCargo (mesma fonte que a Revisão edita).
-function montarSecaoImpressaoCargo(cargo) {
+// ===== Documento impresso padrão v8 (aprovado pelo usuário em 22/08/2026,
+// após 8 rodadas de protótipo) ============================================
+// Estrutura REUTILIZÁVEL pra todos os documentos do app: o palpite (agora),
+// o de resultado na apuração (mesmas colunas, preenchendo Resultado/Dif./%/
+// pontos) e o do desafio 1×1 (futuro — assinatura dupla + código validável).
+// Regras visuais travadas: verde do papel é #1FA83A (o #34E84A de tela é
+// claro demais sobre branco) e aparece SÓ na marca e em destaque eleitoral;
+// toda distinção sobrevive à impressão monocromática por FORMA — E
+// preenchido (eleito de fato) vs vazado (marcação do palpite), caixa de
+// votos sólida vs quadro de pontos tracejado, negrito vs regular, ▲▼ pela
+// direção. Estilos em css/estilo.css (bloco .di-*, dentro de @media print).
+const DOC_APP_URL = "netofloripabr.github.io/simulador-legislativo";
+// QR de https://netofloripabr.github.io/simulador-legislativo/ (33×33,
+// correção M) — gerado offline uma única vez; um path SVG por linha de
+// módulos, sem dependência de biblioteca nem de rede na hora de imprimir.
+const DOC_QR_PATH = "M0 0h7v1h-7zM8 0h1v1h-1zM10 0h1v1h-1zM12 0h2v1h-2zM16 0h4v1h-4zM21 0h1v1h-1zM23 0h1v1h-1zM26 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h2v1h-2zM12 1h2v1h-2zM18 1h1v1h-1zM20 1h4v1h-4zM26 1h1v1h-1zM32 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM10 2h3v1h-3zM15 2h1v1h-1zM18 2h1v1h-1zM23 2h2v1h-2zM26 2h1v1h-1zM28 2h3v1h-3zM32 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM14 3h1v1h-1zM16 3h3v1h-3zM22 3h1v1h-1zM24 3h1v1h-1zM26 3h1v1h-1zM28 3h3v1h-3zM32 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM9 4h1v1h-1zM12 4h3v1h-3zM19 4h1v1h-1zM21 4h1v1h-1zM24 4h1v1h-1zM26 4h1v1h-1zM28 4h3v1h-3zM32 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM9 5h2v1h-2zM12 5h2v1h-2zM17 5h3v1h-3zM24 5h1v1h-1zM26 5h1v1h-1zM32 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h7v1h-7zM8 7h1v1h-1zM10 7h2v1h-2zM17 7h1v1h-1zM19 7h1v1h-1zM23 7h2v1h-2zM0 8h1v1h-1zM2 8h2v1h-2zM5 8h3v1h-3zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h6v1h-6zM26 8h1v1h-1zM29 8h1v1h-1zM31 8h2v1h-2zM0 9h1v1h-1zM3 9h1v1h-1zM7 9h1v1h-1zM9 9h2v1h-2zM17 9h4v1h-4zM23 9h1v1h-1zM26 9h2v1h-2zM29 9h2v1h-2zM32 9h1v1h-1zM2 10h2v1h-2zM5 10h4v1h-4zM14 10h1v1h-1zM18 10h1v1h-1zM20 10h1v1h-1zM23 10h7v1h-7zM31 10h2v1h-2zM0 11h2v1h-2zM3 11h3v1h-3zM9 11h8v1h-8zM18 11h1v1h-1zM23 11h3v1h-3zM27 11h1v1h-1zM29 11h1v1h-1zM32 11h1v1h-1zM1 12h3v1h-3zM6 12h1v1h-1zM8 12h2v1h-2zM15 12h1v1h-1zM18 12h1v1h-1zM20 12h1v1h-1zM22 12h4v1h-4zM27 12h3v1h-3zM0 13h1v1h-1zM3 13h3v1h-3zM11 13h2v1h-2zM16 13h2v1h-2zM19 13h1v1h-1zM21 13h2v1h-2zM24 13h1v1h-1zM27 13h1v1h-1zM29 13h3v1h-3zM3 14h1v1h-1zM5 14h2v1h-2zM8 14h1v1h-1zM10 14h1v1h-1zM12 14h1v1h-1zM15 14h7v1h-7zM26 14h4v1h-4zM0 15h3v1h-3zM5 15h1v1h-1zM9 15h2v1h-2zM12 15h1v1h-1zM14 15h1v1h-1zM16 15h1v1h-1zM21 15h2v1h-2zM25 15h3v1h-3zM29 15h2v1h-2zM0 16h2v1h-2zM3 16h6v1h-6zM13 16h3v1h-3zM18 16h5v1h-5zM25 16h2v1h-2zM28 16h3v1h-3zM2 17h3v1h-3zM7 17h1v1h-1zM13 17h1v1h-1zM15 17h1v1h-1zM17 17h1v1h-1zM20 17h1v1h-1zM23 17h4v1h-4zM28 17h2v1h-2zM32 17h1v1h-1zM3 18h4v1h-4zM8 18h1v1h-1zM11 18h1v1h-1zM14 18h4v1h-4zM20 18h1v1h-1zM24 18h5v1h-5zM30 18h2v1h-2zM3 19h2v1h-2zM7 19h2v1h-2zM12 19h1v1h-1zM16 19h1v1h-1zM20 19h1v1h-1zM22 19h4v1h-4zM28 19h1v1h-1zM31 19h1v1h-1zM4 20h3v1h-3zM8 20h3v1h-3zM18 20h2v1h-2zM21 20h1v1h-1zM29 20h2v1h-2zM32 20h1v1h-1zM0 21h2v1h-2zM3 21h3v1h-3zM7 21h1v1h-1zM9 21h1v1h-1zM14 21h2v1h-2zM17 21h5v1h-5zM23 21h1v1h-1zM25 21h2v1h-2zM29 21h1v1h-1zM32 21h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM12 22h3v1h-3zM16 22h2v1h-2zM20 22h2v1h-2zM23 22h3v1h-3zM31 22h2v1h-2zM1 23h1v1h-1zM5 23h1v1h-1zM7 23h1v1h-1zM13 23h2v1h-2zM16 23h1v1h-1zM18 23h3v1h-3zM22 23h1v1h-1zM24 23h4v1h-4zM29 23h1v1h-1zM31 23h2v1h-2zM0 24h1v1h-1zM2 24h1v1h-1zM4 24h4v1h-4zM10 24h1v1h-1zM15 24h3v1h-3zM22 24h8v1h-8zM31 24h1v1h-1zM8 25h2v1h-2zM13 25h7v1h-7zM21 25h1v1h-1zM24 25h1v1h-1zM28 25h2v1h-2zM0 26h7v1h-7zM8 26h3v1h-3zM13 26h1v1h-1zM16 26h1v1h-1zM19 26h1v1h-1zM23 26h2v1h-2zM26 26h1v1h-1zM28 26h1v1h-1zM31 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM8 27h2v1h-2zM14 27h2v1h-2zM21 27h1v1h-1zM23 27h2v1h-2zM28 27h5v1h-5zM0 28h1v1h-1zM2 28h3v1h-3zM6 28h1v1h-1zM10 28h3v1h-3zM15 28h1v1h-1zM17 28h1v1h-1zM21 28h8v1h-8zM30 28h2v1h-2zM0 29h1v1h-1zM2 29h3v1h-3zM6 29h1v1h-1zM8 29h1v1h-1zM10 29h2v1h-2zM13 29h1v1h-1zM18 29h1v1h-1zM20 29h4v1h-4zM27 29h1v1h-1zM29 29h1v1h-1zM32 29h1v1h-1zM0 30h1v1h-1zM2 30h3v1h-3zM6 30h1v1h-1zM8 30h1v1h-1zM10 30h1v1h-1zM20 30h2v1h-2zM23 30h2v1h-2zM26 30h2v1h-2zM29 30h2v1h-2zM0 31h1v1h-1zM6 31h1v1h-1zM9 31h4v1h-4zM15 31h3v1h-3zM20 31h1v1h-1zM22 31h3v1h-3zM26 31h3v1h-3zM32 31h1v1h-1zM0 32h7v1h-7zM8 32h2v1h-2zM11 32h1v1h-1zM14 32h8v1h-8zM25 32h2v1h-2zM28 32h1v1h-1zM30 32h1v1h-1z";
+
+// Ícones do documento (SVG inline — no papel não dá pra reusar iconeSvg do
+// app: os traços foram redesenhados pra imprimir nítido em 10-15px).
+// variante: "meu" (vazado cinza — marcação do palpite), "fato" (preenchido
+// verde — eleito de FATO na apuração), "hdr" (vazado, tom de cabeçalho).
+function docIcLetra(letra, tam, variante) {
+  if (variante === "fato") {
+    return `<svg class="di-ic di-fato" viewBox="0 0 16 16" style="width:${tam}px;height:${tam}px;"><circle cx="8" cy="8" r="7.2" fill="currentColor"></circle><text x="8" y="11.2" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">${letra}</text></svg>`;
+  }
+  return `<svg class="di-ic di-${variante}" viewBox="0 0 16 16" style="width:${tam}px;height:${tam}px;"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.5"></circle><text x="8" y="11.2" text-anchor="middle" font-size="9" font-weight="800" fill="currentColor">${letra}</text></svg>`;
+}
+function docIcAlvo(tam) {
+  return `<svg class="di-ic di-hdr" viewBox="0 0 16 16" style="width:${tam}px;height:${tam}px;"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.4"></circle><circle cx="8" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.2"></circle><circle cx="8" cy="8" r="1.1" fill="currentColor"></circle></svg>`;
+}
+function docIcPosicao(tam) {
+  return `<svg class="di-ic di-hdr" viewBox="0 0 16 16" style="width:${tam}px;height:${tam}px;"><rect x="2.4" y="2.4" width="11.2" height="11.2" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.5"></rect><path d="M5 8.3l2.1 2.1 4-4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>`;
+}
+
+// Legenda de ícones — IDÊNTICA em todo documento (palpite, resultado,
+// desafio): exigência do usuário depois que o protótipo divergiu entre os
+// dois primeiros. Uma linha só; sem explicar ▲▼ (entende-se naturalmente).
+function docLegenda() {
+  return `
+    <div class="di-legenda">
+      <span>${docIcLetra("E", 11, "meu")} eleito no seu palpite</span>
+      <span>${docIcLetra("S", 11, "meu")} suplente</span>
+      <span>${docIcLetra("E", 11, "fato")} eleito de fato</span>
+      <span style="margin-left:auto;">pontos: ${docIcLetra("E", 10, "hdr")} eleito · ${docIcAlvo(10)} proximidade % · ${docIcPosicao(10)} posição</span>
+    </div>`;
+}
+
+// Bloco "Registro do documento" (opcional — toggle Registrar na tela de
+// impressão): nome do autor, lista, data/hora e linha de assinatura. O
+// convidado sem cadastro ganha uma linha em branco pra escrever o nome.
+function docRegistro(dataTxt, horaTxt) {
+  const nomeAutor = (pcState.perfil && pcState.perfil.nome) || "";
+  const nomeLista = pcState.listaSalvaNome || "";
+  return `
+    <div class="di-reg">
+      <div class="di-reg-tit">Registro do documento</div>
+      <div class="di-reg-corpo">
+        <div class="di-reg-dados">
+          ${nomeAutor ? `<div class="di-reg-nome">${nomeAutor}</div>` : `<div class="di-reg-nome di-reg-linha-nome">&nbsp;</div>`}
+          <div class="di-reg-meta">${nomeLista ? `Lista "${nomeLista}" · ` : ""}gerado em ${dataTxt} às ${horaTxt}</div>
+        </div>
+        <div class="di-reg-ass"><div class="di-reg-ass-linha"></div><div class="di-reg-ass-leg">assinatura</div></div>
+      </div>
+    </div>`;
+}
+
+function docRodape() {
+  return `
+    <div class="di-rodape">
+      <div class="di-convite">
+        <div class="di-frase">Você faria uma lista melhor?</div>
+        <div class="di-texto">Monte a sua previsão pra 2026 e dispute com quem entende de política — grátis, direto do celular.</div>
+        <div class="di-url">${DOC_APP_URL}</div>
+      </div>
+      <div class="di-qrbox">
+        <svg viewBox="0 0 33 33" width="54" height="54" shape-rendering="crispEdges"><path d="${DOC_QR_PATH}" fill="#111"></path></svg>
+        <div class="di-qrleg">aponte a câmera</div>
+      </div>
+    </div>`;
+}
+
+// Opções do <select> "Por partido" da tela de impressão — união dos
+// partidos/federações presentes nos 3 cargos do palpite atual.
+function opcoesPartidosImpressao() {
+  const nomes = new Set();
+  CARGOS.forEach((c) => {
+    const lista = pcState.palpitesPorCargo && pcState.palpitesPorCargo[c.id];
+    (lista || []).forEach((p) => { if (p.nome) nomes.add(p.nome); });
+  });
+  return [...nomes].sort((a, b) => a.localeCompare(b, "pt"))
+    .map((n) => `<option value="${n}">${n}</option>`).join("");
+}
+
+// Uma seção de cargo do documento: cabeçalho de colunas + linhas no padrão
+// v8 (posição · ícone E/S · nome/legenda · caixa de votos · quadro de
+// pontos). No documento de PALPITE as colunas Resultado/Dif./%/pontos saem
+// como "—" (aguardam a apuração oficial — o convite pra voltar ao app).
+// op: { recorte, partido, ordenacao } — ver tela de impressão na Revisão.
+function montarSecaoImpressaoCargo(cargo, op) {
+  op = op || {};
   const cargoInfo = CARGOS.find((c) => c.id === cargo);
   const lista = pcState.palpitesPorCargo[cargo];
   const eleitos = classificarEleitosPorPartido(lista, cargo);
   const suplentes = proximosSuplentes(30, lista);
-  const linha = (c, i, rotulo) => `
-    <div style="display:flex; justify-content:space-between; gap:10px; padding:4px 0; border-bottom:1px solid #ddd; font-size:12px;">
-      <span style="width:28px; flex-shrink:0;">${i + 1}º</span>
-      <span style="flex:1; min-width:0;">${c.nome} <span style="color:#666;">— ${c.partido}</span>${rotulo ? ` <span style="font-size:10px; color:#888;">(${rotulo})</span>` : ""}</span>
-      <span style="flex-shrink:0;">${c.votos.toLocaleString("pt-BR")}</span>
+  const generoPorChave = new Map();
+  (lista || []).forEach((p) => (p.candidatos || []).forEach((c) => generoPorChave.set(c.chave, c.genero || "")));
+
+  let linhas = eleitos.map((c) => ({ ...c, tipo: "E" }))
+    .concat(suplentes.map((c) => ({ ...c, tipo: "S" })));
+  if (op.recorte === "eleitos") linhas = linhas.filter((l) => l.tipo === "E");
+  else if (op.recorte === "candidatas") linhas = linhas.filter((l) => String(generoPorChave.get(l.chave) || "").toUpperCase().startsWith("FEM"));
+  else if (op.recorte === "partido" && op.partido) linhas = linhas.filter((l) => l.partido === op.partido);
+  if (op.ordenacao === "crescente") linhas = [...linhas].sort((a, b) => a.votos - b.votos);
+  else if (op.ordenacao === "decrescente") linhas = [...linhas].sort((a, b) => b.votos - a.votos);
+  if (op.recorte === "top10") linhas = linhas.slice(0, 10);
+
+  const nE = linhas.filter((l) => l.tipo === "E").length;
+  const nS = linhas.length - nE;
+  const rotuloRecorte = ({ eleitos: "só os eleitos", candidatas: "só as candidatas", partido: op.partido || "", top10: "top 10" })[op.recorte] || "";
+  const sub = `${nE} eleito${nE === 1 ? "" : "s"}${nS ? ` + ${nS} suplente${nS === 1 ? "" : "s"}` : ""}${rotuloRecorte ? ` · recorte: ${rotuloRecorte}` : ""} · votação de referência 2022 · as colunas de resultado e pontos serão preenchidas na apuração oficial — acompanhe.`;
+
+  const linhaHtml = (l, i, ultima) => `
+    <div class="di-linha${ultima ? " di-fim" : ""}">
+      <span class="di-pos">${i + 1}º</span>${docIcLetra(l.tipo, 15, "meu")}
+      <span class="di-cand"><span class="di-n">${l.nome}</span><span class="di-p">${l.partido}</span></span>
+      <span class="di-votos"><span class="di-vv di-forte">${l.votos.toLocaleString("pt-BR")}</span><span class="di-vv di-aguarda">—</span><span class="di-vd di-aguarda">—</span><span class="di-vp di-aguarda">—</span></span>
+      <span class="di-painel"><span class="di-pt di-vazio">—</span><span class="di-pt di-vazio">—</span><span class="di-pt di-vazio">—</span><span class="di-pt di-tot di-aguarda">—</span></span>
     </div>`;
+
   return `
-    <h2 style="margin:22px 0 3px; font-size:15px;">${cargoInfo.label}</h2>
-    <div style="font-size:11px; color:#666; margin-bottom:8px;">${eleitos.length} eleitos + ${suplentes.length} suplentes</div>
-    ${eleitos.map((c, i) => linha(c, i)).join("") || '<div style="font-size:12px; color:#888;">Nenhum candidato marcado ainda pra este cargo.</div>'}
-    ${suplentes.map((c, i) => linha(c, eleitos.length + i, "suplente")).join("")}
+    <div class="di-tit">${cargoInfo.label} — meu palpite</div>
+    <div class="di-sub">${sub}</div>
+    <div class="di-cols">
+      <span class="di-pos"></span><span style="width:15px; flex-shrink:0;"></span>
+      <span class="di-cand">Candidato</span>
+      <span class="di-votos di-vh"><span class="di-vv">Palpite</span><span class="di-vv">Resultado</span><span class="di-vd">Dif.</span><span class="di-vp">%</span></span>
+      <span class="di-painel di-ph"><span class="di-pt">${docIcLetra("E", 10, "hdr")}</span><span class="di-pt">${docIcAlvo(10)}</span><span class="di-pt">${docIcPosicao(10)}</span><span class="di-pt di-tot">Pts</span></span>
+    </div>
+    ${linhas.length ? linhas.map((l, i) => linhaHtml(l, i, i === linhas.length - 1)).join("") : '<div class="di-sub" style="padding:8px 0;">Nenhum candidato neste recorte pra este cargo.</div>'}
   `;
+}
+
+// O documento inteiro: marca d'água + cabeçalho com marca + seções dos
+// cargos escolhidos + legenda + registro (opcional) + rodapé com QR.
+function montarDocumentoImpresso(cargosParaGerar, op) {
+  op = op || {};
+  const nomeEstado = (typeof ESTADOS_BRASIL !== "undefined" && (ESTADOS_BRASIL.find((e) => e.sigla === pcState.estado) || {}).nome) || pcState.estado || "";
+  const agora = new Date();
+  const dataTxt = agora.toLocaleDateString("pt-BR");
+  const horaTxt = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const nomeAutor = (pcState.perfil && pcState.perfil.nome) || "";
+  const ordemLabel = ({ crescente: "votos em ordem crescente", decrescente: "votos em ordem decrescente" })[op.ordenacao] || "ordem do palpite";
+  return `
+    <div class="di-agua"><span><b>Simula</b>LEGIS</span></div>
+    <div class="di-conteudo">
+      <div class="di-cab">
+        <div class="di-marca">
+          <div class="di-wm"><b>Simula</b><span>LEGIS</span></div>
+          <div class="di-wmsub">Simulador Eleitoral Legislativo 2026</div>
+        </div>
+        <div class="di-meta"><b>${nomeEstado}</b>${nomeAutor ? ` · Lista de ${nomeAutor}` : ""}<br>gerada em ${dataTxt} · ${ordemLabel}</div>
+      </div>
+      <div class="di-regra"></div>
+      ${cargosParaGerar.map((c) => montarSecaoImpressaoCargo(c, op)).join("")}
+      ${docLegenda()}
+      ${op.registrar ? docRegistro(dataTxt, horaTxt) : ""}
+      ${docRodape()}
+      <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dataTxt} ${horaTxt}</span></div>
+    </div>`;
 }
 
 // Texto do tooltip "i" no selo "eleito · QP/média/majoritário" da Revisão
@@ -8335,14 +8484,39 @@ function renderRevisaoDeposito() {
       </div>
       <div class="pc-status" id="pcDepositoStatus" style="text-align:right; margin-top:6px;"></div>
       <div id="pcImprimirPergunta" style="display:none; margin-top:10px;">
-        <div class="pc-sub" style="text-align:center; margin:6px 0;">Deseja gerar a lista de quais cargos?</div>
-        <div class="pc-cargo-switch">
+        <div class="di-opt-tit">Cargos</div>
+        <div class="pc-cargo-switch" style="margin-bottom:10px;">
           <button data-pc-imprimir-cargo="estadual">Estadual</button>
           <button data-pc-imprimir-cargo="federal">Federal</button>
           <button data-pc-imprimir-cargo="senador">Senador</button>
           <button data-pc-imprimir-cargo="tudo" class="active">Tudo</button>
         </div>
-        <button class="primary" id="pcBtnGerarImpressao" style="width:100%; margin-top:8px;">Gerar</button>
+        <div class="di-opt-tit">Recorte</div>
+        <div class="pc-cargo-switch di-opt-wrap" style="margin-bottom:10px;">
+          <button data-pc-imprimir-recorte="completa" class="active">Lista completa</button>
+          <button data-pc-imprimir-recorte="eleitos">Só os eleitos</button>
+          <button data-pc-imprimir-recorte="candidatas">Candidatas</button>
+          <button data-pc-imprimir-recorte="partido">Por partido</button>
+          <button data-pc-imprimir-recorte="top10">Top 10</button>
+        </div>
+        <select id="pcImprimirPartido" class="di-opt-select" style="display:none;">${opcoesPartidosImpressao()}</select>
+        <div class="di-opt-tit">Ordenação</div>
+        <div class="pc-cargo-switch di-opt-wrap" style="margin-bottom:10px;">
+          <button data-pc-imprimir-ordem="palpite" class="active">Ordem do palpite</button>
+          <button data-pc-imprimir-ordem="crescente">Votos crescente</button>
+          <button data-pc-imprimir-ordem="decrescente">Votos decrescente</button>
+        </div>
+        <div class="di-opt-registrar">
+          <div style="min-width:0;">
+            <div style="font-size:12px; font-weight:700; color:var(--pc-ink);">Registrar documento</div>
+            <div style="font-size:10px; color:var(--pc-ink-dim); line-height:1.4;">Inclui o bloco de registro antes do rodapé: seu nome, a lista, data/hora e linha de assinatura.</div>
+          </div>
+          <label class="pc-switch pc-switch-neutro" style="flex-shrink:0;"><input type="checkbox" id="pcImprimirRegistrar" checked><span class="pc-switch-slider"></span></label>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="ghost" id="pcBtnCancelarImpressao" style="flex:1;">Cancelar</button>
+          <button class="primary" id="pcBtnGerarImpressao" style="flex:1;">Gerar documento</button>
+        </div>
       </div>
 
       <div style="margin:18px 0 16px; border-top:1px solid var(--pc-glass-border);"></div>
@@ -8544,27 +8718,42 @@ function renderRevisaoDeposito() {
   });
   document.getElementById("pcBtnImprimir").addEventListener("click", (e) => {
     document.getElementById("pcImprimirPergunta").style.display = "block";
-    e.target.style.display = "none";
+    e.currentTarget.style.display = "none";
   });
-  document.querySelectorAll("[data-pc-imprimir-cargo]:not(:disabled)").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-pc-imprimir-cargo]").forEach((b) => b.classList.toggle("active", b === btn));
+  document.getElementById("pcBtnCancelarImpressao").addEventListener("click", () => {
+    document.getElementById("pcImprimirPergunta").style.display = "none";
+    document.getElementById("pcBtnImprimir").style.display = "";
+  });
+  // Os 3 grupos de chips (cargos / recorte / ordenação) usam a mesma
+  // mecânica de "active" único; o recorte "Por partido" mostra o select.
+  ["cargo", "recorte", "ordem"].forEach((grupo) => {
+    document.querySelectorAll(`[data-pc-imprimir-${grupo}]:not(:disabled)`).forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(`[data-pc-imprimir-${grupo}]`).forEach((b) => b.classList.toggle("active", b === btn));
+        if (grupo === "recorte") {
+          document.getElementById("pcImprimirPartido").style.display =
+            btn.getAttribute("data-pc-imprimir-recorte") === "partido" ? "block" : "none";
+        }
+      });
     });
   });
   document.getElementById("pcBtnGerarImpressao").addEventListener("click", () => {
     const cargoEscolhido = document.querySelector("[data-pc-imprimir-cargo].active").getAttribute("data-pc-imprimir-cargo");
     const cargosParaGerar = cargoEscolhido === "tudo" ? CARGOS.map((c) => c.id) : [cargoEscolhido];
+    const recorte = document.querySelector("[data-pc-imprimir-recorte].active").getAttribute("data-pc-imprimir-recorte");
+    const op = {
+      recorte,
+      partido: recorte === "partido" ? document.getElementById("pcImprimirPartido").value : null,
+      ordenacao: document.querySelector("[data-pc-imprimir-ordem].active").getAttribute("data-pc-imprimir-ordem"),
+      registrar: document.getElementById("pcImprimirRegistrar").checked,
+    };
     let container = document.getElementById("pcImpressaoConteudo");
     if (!container) {
       container = document.createElement("div");
       container.id = "pcImpressaoConteudo";
       document.body.appendChild(container);
     }
-    container.innerHTML = `
-      <h1 style="font-size:18px; margin-bottom:2px;">Prospecção Coletiva — Simulador Eleitoral — Legislativo 2026${pcState.perfil ? ` — ${pcState.perfil.nome}` : ""}</h1>
-      <div style="font-size:11px; color:#666; margin-bottom:6px;">${pcState.estado || "SC"} · gerado em ${new Date().toLocaleDateString("pt-BR")}</div>
-      ${cargosParaGerar.map(montarSecaoImpressaoCargo).join("")}
-    `;
+    container.innerHTML = montarDocumentoImpresso(cargosParaGerar, op);
     window.print();
   });
 

@@ -77,6 +77,7 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
       partidoOrigem2022: c.partidoOrigem2022 || null,
       partidoOriginal: c.partidoOriginal || p.nome,
       status: c.status || null,
+      genero: c.genero || null,
     })),
   }));
   const todos = base;
@@ -111,6 +112,7 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
           partidoOrigem2022: c.partidoOrigem2022 || null,
           partidoOriginal: c.partidoOriginal,
           status: c.status || null,
+          genero: c.genero || null,
           // ponto de partida do palpite: o valor real de 2022 — exceto
           // candidatura congelada (desistência/sub judice), que nasce em 0
           votos: c.status ? 0 : c.votos2022,

@@ -144,6 +144,7 @@ function candidatos2026EstadoCargo(uf, cargoLabel) {
       // elenco com etiqueta e célula congelada — e a base de votos nasce
       // ZERADA, mesmo que ele tenha histórico de 2022 (não recebe votos).
       status: c.status || null,
+      genero: c.genero || null,
       // Partido de fato do candidato (PT, PC do B, PV...) — pode ser
       // diferente do nome do grupo acima quando o grupo é uma federação
       // (PT/PC do B/PV), que só existe pra efeito de contagem/ranking de

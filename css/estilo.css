@@ -607,6 +607,9 @@
     transform:translateX(27px);
   }
   #modoColaborativoWrap .pc-switch input:checked + .pc-switch-slider:after{ opacity:1; }
+  /* variante sem o rótulo "ELEITO" no vão (toggles genéricos — ex.:
+     Registrar documento na tela de impressão) */
+  #modoColaborativoWrap .pc-switch.pc-switch-neutro .pc-switch-slider:after{ content:""; }
 
   /* Card de aviso/notificação com destaque laranja (ex.: limite de lista/
      grupo grátis atingido) — mesmo padrão de card do resto do app, só com
@@ -621,19 +624,111 @@
   #modoColaborativoWrap .pc-aviso-card .pc-aviso-corpo{ font-size:11.5px; color:var(--pc-ink-dim); line-height:1.5; }
   #modoColaborativoWrap .pc-tile{ position:relative; aspect-ratio:1; overflow:hidden; background:#0c1c16; border:1px solid #163a2c; border-radius:14px; display:flex; align-items:center; justify-content:center; padding:8px; }
 
-  /* Impressão/PDF da Revisão (botão "Gerar") — monta um documento limpo à
-     parte (#pcImpressaoConteudo, ver montarSecaoImpressaoCargo em
-     interface/prospeccao.js) em vez de imprimir a tela interativa escura
-     com caixas de input e botões. Só esse container aparece no papel. */
+  /* ===== Documento impresso padrão v8 (botão "Gerar" da Revisão) =====
+     Documento limpo montado à parte (#pcImpressaoConteudo — ver
+     montarDocumentoImpresso em interface/prospeccao.js); só ele aparece no
+     papel. Padrão aprovado em 22/08/2026 após 8 rodadas de protótipo e
+     REUTILIZÁVEL: o documento de resultado da apuração e o do desafio 1×1
+     usam estas mesmas classes .di-*. Verde do papel = #1FA83A (o #34E84A de
+     tela é claro demais sobre branco), SÓ na marca e em destaque eleitoral;
+     no P&B tudo se distingue por FORMA (E preenchido vs vazado, caixa
+     sólida vs tracejada, negrito vs regular, ▲▼ pela direção). */
   #pcImpressaoConteudo{ display:none; }
   @media print{
     body > *:not(#pcImpressaoConteudo){ display:none !important; }
     #pcImpressaoConteudo{
-      display:block !important; background:#fff; color:#111;
-      font-family:var(--sans); padding:0;
+      display:block !important; position:relative; overflow:hidden;
+      background:#fff; color:#111; font-family:var(--sans); padding:0;
+      -webkit-print-color-adjust:exact; print-color-adjust:exact;
     }
-    #pcImpressaoConteudo h1, #pcImpressaoConteudo h2{ color:#111; }
+    /* marca d'água 3% (o toque de verde fica em 4,5% pra sobreviver) */
+    #pcImpressaoConteudo .di-agua{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:0; }
+    #pcImpressaoConteudo .di-agua span{ font-size:74px; font-weight:800; white-space:nowrap; transform:rotate(-28deg); color:rgba(17,17,17,.03); }
+    #pcImpressaoConteudo .di-agua span b{ color:rgba(31,168,58,.045); }
+    #pcImpressaoConteudo .di-conteudo{ position:relative; z-index:1; }
+    /* cabeçalho: marca + meta, régua dupla cinza */
+    #pcImpressaoConteudo .di-cab{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
+    #pcImpressaoConteudo .di-wm{ font-size:18px; font-weight:800; letter-spacing:-.01em; line-height:1; color:#111; }
+    #pcImpressaoConteudo .di-wm b{ color:#1FA83A; }
+    #pcImpressaoConteudo .di-wmsub{ font-size:7px; font-weight:800; letter-spacing:.2em; color:#8A9096; text-transform:uppercase; margin-top:3px; }
+    #pcImpressaoConteudo .di-meta{ text-align:right; font-size:9px; color:#5C6268; line-height:1.5; }
+    #pcImpressaoConteudo .di-meta b{ color:#111; }
+    #pcImpressaoConteudo .di-regra{ margin:10px 0 14px; height:2px; background:#C9CCCE; position:relative; }
+    #pcImpressaoConteudo .di-regra:after{ content:""; position:absolute; left:0; right:0; top:4px; height:1px; background:#E7E9EA; }
+    #pcImpressaoConteudo .di-tit{ font-size:14px; font-weight:800; color:#111; margin-top:6px; }
+    #pcImpressaoConteudo .di-sub{ font-size:9.5px; color:#5C6268; margin:1px 0 10px; }
+    /* linha de candidato: fio de .5px entre os campos */
+    #pcImpressaoConteudo .di-linha{ display:flex; align-items:center; gap:8px; padding:3.5px 0; border-bottom:.5px solid #F0F2F3; page-break-inside:avoid; }
+    #pcImpressaoConteudo .di-linha.di-fim{ border-bottom:none; }
+    #pcImpressaoConteudo .di-pos{ width:22px; flex-shrink:0; color:#8A9096; font-variant-numeric:tabular-nums; font-size:9.5px; text-align:right; }
+    #pcImpressaoConteudo .di-ic{ flex-shrink:0; }
+    #pcImpressaoConteudo .di-ic.di-fato{ color:#1FA83A; }
+    #pcImpressaoConteudo .di-ic.di-meu{ color:#9AA0A4; }
+    #pcImpressaoConteudo .di-ic.di-hdr{ color:#8A9096; }
+    /* nome com reticências (política aprovada pro nome longo) */
+    #pcImpressaoConteudo .di-cand{ flex:1; min-width:0; line-height:1.25; }
+    #pcImpressaoConteudo .di-cand .di-n{ display:block; font-size:11.5px; font-weight:500; color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    #pcImpressaoConteudo .di-cand .di-p{ display:block; font-size:7.5px; color:#9AA0A4; letter-spacing:.04em; text-transform:uppercase; margin-top:1px; }
+    /* caixa de votos (sólida) — Palpite · Resultado · Dif. · % */
+    #pcImpressaoConteudo .di-votos{ flex-shrink:0; display:flex; align-items:center; background:#FAFBFB; border:1px solid #EEF0F1; border-radius:6px; padding:4.5px 8px; }
+    #pcImpressaoConteudo .di-vv{ width:58px; text-align:right; font-size:10px; color:#5C6268; font-variant-numeric:tabular-nums; }
+    #pcImpressaoConteudo .di-vv.di-forte{ font-weight:750; color:#111; }
+    #pcImpressaoConteudo .di-vd{ width:46px; text-align:right; font-size:7.5px; color:#8A9096; font-variant-numeric:tabular-nums; display:inline-flex; align-items:center; justify-content:flex-end; gap:2px; }
+    #pcImpressaoConteudo .di-vd.di-vdup{ color:#1FA83A; }
+    #pcImpressaoConteudo .di-vp{ width:28px; text-align:right; font-size:7.5px; color:#5C6268; font-variant-numeric:tabular-nums; }
+    #pcImpressaoConteudo .di-seta{ width:5px; height:5px; flex-shrink:0; }
+    #pcImpressaoConteudo .di-seta.di-up{ color:#1FA83A; }
+    #pcImpressaoConteudo .di-seta.di-dn{ color:#9AA0A4; }
+    #pcImpressaoConteudo .di-aguarda{ color:#C9CCCE !important; font-weight:400 !important; }
+    /* quadro de pontos (tracejado, estreito — o nome tem prioridade) */
+    #pcImpressaoConteudo .di-painel{ flex-shrink:0; display:flex; align-items:center; background:#F7F8F8; border:1px dashed #DFE2E3; border-radius:6px; padding:4.5px 6px; margin-left:2px; }
+    #pcImpressaoConteudo .di-pt{ width:23px; text-align:right; font-size:7.5px; color:#8A9096; font-variant-numeric:tabular-nums; }
+    #pcImpressaoConteudo .di-pt.di-vazio{ color:#CDD1D3; }
+    #pcImpressaoConteudo .di-pt.di-tot{ width:27px; font-size:8.5px; font-weight:750; color:#3A3F45; }
+    #pcImpressaoConteudo .di-pt.di-tot.di-aguarda{ color:#CDD1D3; font-weight:400; }
+    /* cabeçalho de colunas (as "caixas" ficam invisíveis, só alinham) */
+    #pcImpressaoConteudo .di-cols{ display:flex; align-items:center; gap:8px; padding:0 0 4px; margin-bottom:2px; border-bottom:2px solid #E2E4E6; font-size:7px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#9AA0A4; }
+    #pcImpressaoConteudo .di-cols .di-cand{ font-size:7px; }
+    #pcImpressaoConteudo .di-cols .di-votos.di-vh{ background:none; border-color:transparent; padding-top:0; padding-bottom:0; }
+    #pcImpressaoConteudo .di-cols .di-votos.di-vh .di-vv, #pcImpressaoConteudo .di-cols .di-votos.di-vh .di-vd, #pcImpressaoConteudo .di-cols .di-votos.di-vh .di-vp{ font-size:7px; font-weight:800; color:#9AA0A4; }
+    #pcImpressaoConteudo .di-cols .di-painel.di-ph{ background:none; border-color:transparent; padding-top:0; padding-bottom:0; }
+    #pcImpressaoConteudo .di-cols .di-painel.di-ph .di-pt{ display:flex; justify-content:flex-end; }
+    #pcImpressaoConteudo .di-cols .di-painel.di-ph .di-pt.di-tot{ display:block; font-size:7px; font-weight:800; color:#9AA0A4; }
+    /* legenda de ícones — idêntica em todo documento */
+    #pcImpressaoConteudo .di-legenda{ display:flex; gap:14px; margin-top:8px; padding:6px 9px; background:#F8F9F9; border:1px solid #EEF0F1; border-radius:5px; font-size:7.5px; color:#5C6268; align-items:center; flex-wrap:wrap; page-break-inside:avoid; }
+    #pcImpressaoConteudo .di-legenda span{ display:flex; align-items:center; gap:3px; }
+    /* pontuação total (documento de resultado, futuro) */
+    #pcImpressaoConteudo .di-total{ margin-top:10px; background:#F5F7F6; border:1px solid #E7E9EA; border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center; }
+    /* bloco de registro (toggle Registrar) */
+    #pcImpressaoConteudo .di-reg{ margin-top:14px; border:1px solid #DDE0E2; border-radius:6px; padding:10px 14px; page-break-inside:avoid; }
+    #pcImpressaoConteudo .di-reg-tit{ font-size:7px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#8A9096; margin-bottom:7px; }
+    #pcImpressaoConteudo .di-reg-corpo{ display:flex; gap:22px; align-items:flex-end; }
+    #pcImpressaoConteudo .di-reg-dados{ flex:1; min-width:0; }
+    #pcImpressaoConteudo .di-reg-nome{ font-size:10.5px; color:#111; }
+    #pcImpressaoConteudo .di-reg-nome.di-reg-linha-nome{ border-bottom:1px solid #B7BBBE; max-width:220px; height:14px; }
+    #pcImpressaoConteudo .di-reg-meta{ font-size:8px; color:#8A9096; margin-top:1px; }
+    #pcImpressaoConteudo .di-reg-ass{ flex-shrink:0; width:180px; text-align:center; }
+    #pcImpressaoConteudo .di-reg-ass-linha{ border-bottom:1px solid #B7BBBE; height:18px; }
+    #pcImpressaoConteudo .di-reg-ass-leg{ font-size:7px; color:#9AA0A4; margin-top:3px; letter-spacing:.06em; text-transform:uppercase; }
+    /* rodapé: convite + QR */
+    #pcImpressaoConteudo .di-rodape{ margin-top:14px; border-top:1px solid #E7E9EA; padding-top:9px; display:flex; align-items:center; gap:14px; page-break-inside:avoid; }
+    #pcImpressaoConteudo .di-convite{ flex:1; min-width:0; }
+    #pcImpressaoConteudo .di-frase{ font-size:11.5px; font-weight:800; color:#111; }
+    #pcImpressaoConteudo .di-texto{ font-size:9px; color:#5C6268; line-height:1.45; margin-top:2px; }
+    #pcImpressaoConteudo .di-url{ font-size:8.5px; color:#8A9096; margin-top:2px; font-family:var(--mono); }
+    #pcImpressaoConteudo .di-qrbox{ flex-shrink:0; text-align:center; }
+    #pcImpressaoConteudo .di-qrbox svg{ display:block; border:1px solid #EEF0F1; padding:4px; background:#fff; }
+    #pcImpressaoConteudo .di-qrleg{ font-size:6.5px; color:#9AA0A4; margin-top:2px; letter-spacing:.04em; text-transform:uppercase; }
+    #pcImpressaoConteudo .di-pagfoot{ margin-top:10px; display:flex; justify-content:space-between; font-size:7.5px; color:#B7BBBE; letter-spacing:.04em; }
+    #pcImpressaoConteudo .di-pagfoot b{ color:#9AA0A4; }
   }
+
+  /* Tela de impressão (opções na Revisão — Recorte/Ordenação/Registrar) */
+  #modoColaborativoWrap .di-opt-tit{ font-size:9px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--pc-ink-dim); margin:10px 0 6px; }
+  #modoColaborativoWrap .pc-cargo-switch.di-opt-wrap{ flex-wrap:wrap; border-radius:14px; }
+  #modoColaborativoWrap .pc-cargo-switch.di-opt-wrap button{ flex:1 1 auto; padding:7px 8px; font-size:11.5px; white-space:nowrap; }
+  #modoColaborativoWrap .di-opt-select{ width:100%; margin:0 0 10px; background:#0c1c16; border:1px solid var(--pc-glass-border); border-radius:10px; color:var(--pc-ink); font:inherit; font-size:12px; padding:9px 10px; }
+  #modoColaborativoWrap .di-opt-registrar{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:#0c1c16; border:1px solid var(--pc-glass-border); border-radius:10px; padding:10px 12px; margin-top:4px; }
 
 /* ===== Aba Senador — identidade 2.0 "Fader" (PROJETO.md §8.2) =====
    Primeira tela na identidade nova: cinzas neutros + verde vivo #34E84A
