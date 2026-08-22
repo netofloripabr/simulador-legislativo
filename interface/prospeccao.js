@@ -343,7 +343,13 @@ async function initColaborativo() {
     // primeira vez (sem nada salvo) começa na seleção; quem já preencheu
     // antes cai direto no painel principal.
     pcState.subaba = pcState.palpiteEdicao ? "painel" : "selecao";
-    pcState.estado = "SC";
+    // Estado do logado (auditoria #41, 21/08/2026): lembra a última
+    // escolha feita na roleta NESTE aparelho; sem escolha registrada,
+    // SC segue como padrão de nascimento do produto.
+    try {
+      const rEstado = await window.storage.get("pc-estado-escolhido");
+      pcState.estado = (rEstado && rEstado.value) || "SC";
+    } catch (e) { pcState.estado = "SC"; }
     await garantirRascunhosCarregados();
     // Onboarding + mini-pesquisa obrigatória (migração 20) — PAUSADAS a
     // pedido do usuário em 15/08/2026, depois de testar ao vivo: quer
@@ -460,7 +466,7 @@ function agendarAutoSaveRascunho(cargo, lista) {
   clearTimeout(_timersAutoSaveRascunho[cargo]);
   _timersAutoSaveRascunho[cargo] = setTimeout(() => {
     if (pcState.perfil) {
-      salvarRascunhoCargo(pcState.perfil.id, cargo, lista);
+      salvarRascunhoCargo(pcState.perfil.id, cargo, lista, pcState.estado);
     } else {
       try { window.storage.set(_chaveRascunhoConvidado(pcState.estado, cargo), JSON.stringify(lista)); } catch (e) { /* localStorage indisponível, ignora */ }
     }
@@ -1038,6 +1044,7 @@ function renderTelaEstado() {
 
   document.getElementById("pcBtnConfirmarEstado").addEventListener("click", async () => {
     pcState.estado = ufCentralizado;
+    try { window.storage.set("pc-estado-escolhido", ufCentralizado); } catch (e) { /* sem storage, segue */ }
     await garantirRascunhosCarregados();
     if (!pcState.palpiteEdicao) pcState.palpiteEdicao = montarEstadoPalpite("assembleia", null, null, "estadual", pcState.estado);
     pcState.tela = "selecao-convidado";
@@ -1063,9 +1070,9 @@ async function renderCompartilhado() {
     document.getElementById("pcBtnCompartilhadoVoltar").addEventListener("click", () => { window.location.href = window.location.pathname; });
     return;
   }
-  // Só SC tem dado carregado hoje (ver CLAUDE.md/PROJETO.md) — classificarEleitosPorPartido
-  // precisa de pcState.estado pra achar vagasFixasCargo/candidatosEstadoCargo.
-  pcState.estado = "SC";
+  // Estado da lista compartilhada (coluna "estado" da migração 27) — SC
+  // de reserva pra linhas antigas, de antes da coluna existir.
+  pcState.estado = (dados && dados.estado) || "SC";
   const linha = (c, i, rotulo) => `
     <div style="display:flex; align-items:baseline; gap:8px; padding:6px 0; border-bottom:1px solid #16241e; font-size:12.5px;">
       <span style="width:22px; color:var(--pc-ink-dim); flex-shrink:0;">${i + 1}º</span>
@@ -3706,7 +3713,10 @@ function montarComparacaoGrupo(registros, cargo) {
 async function renderGrupoMembro() {
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = telaCarregando("Carregando comparação do grupo…");
-  pcState.estado = "SC"; // único estado com dado hoje — ver CLAUDE.md
+  // Não sobrescreve o estado já escolhido na sessão — SC só como padrão de
+  // nascimento (grupo ainda não carrega o próprio estado; entra no guarda-
+  // chuva da tarefa #36 quando os 27 abrirem de fato).
+  pcState.estado = pcState.estado || "SC";
   if (!pcState.grupoComparacao) {
     pcState.grupoComparacao = await buscarComparacaoGrupo(pcState.grupoAtivo.id);
   }

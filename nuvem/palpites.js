@@ -166,7 +166,7 @@ async function salvarPalpiteCompleto(perfilId, palpiteEdicao) {
 // parei", privado, sobrescrito a cada edição.
 const COLUNA_RASCUNHO_POR_CARGO = { estadual: "rascunho_estadual", federal: "rascunho_federal", senador: "rascunho_senador" };
 
-async function salvarRascunhoCargo(perfilId, cargo, lista) {
+async function salvarRascunhoCargo(perfilId, cargo, lista, estado) {
   const coluna = COLUNA_RASCUNHO_POR_CARGO[cargo];
   if (!coluna) return { error: new Error(`cargo desconhecido: ${cargo}`) };
   // Lê a linha inteira antes de escrever (mesmo cuidado de
@@ -177,7 +177,7 @@ async function salvarRascunhoCargo(perfilId, cargo, lista) {
     .select("candidatos, rascunho_estadual, rascunho_federal, rascunho_senador")
     .eq("perfil_id", perfilId)
     .maybeSingle();
-  const { error } = await supabaseClient.from("palpites").upsert({
+  const linha = {
     perfil_id: perfilId,
     candidatos: atual ? atual.candidatos : [],
     rascunho_estadual: atual ? atual.rascunho_estadual : null,
@@ -185,7 +185,17 @@ async function salvarRascunhoCargo(perfilId, cargo, lista) {
     rascunho_senador: atual ? atual.rascunho_senador : null,
     [coluna]: lista,
     atualizado_em: new Date().toISOString(),
-  });
+  };
+  // Estado dos rascunhos (migração 27, auditoria dos 27 estados) — só
+  // manda a coluna se veio; em banco sem a migração o upsert sem ela
+  // continua funcionando igual.
+  if (estado) linha.estado = estado;
+  let { error } = await supabaseClient.from("palpites").upsert(linha);
+  if (error && estado && /estado/.test(String(error.message))) {
+    // Banco ainda sem a coluna (migração 27 não rodada) — regrava sem ela.
+    delete linha.estado;
+    ({ error } = await supabaseClient.from("palpites").upsert(linha));
+  }
   return { error };
 }
 
