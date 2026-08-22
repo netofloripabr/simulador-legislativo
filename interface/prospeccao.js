@@ -41,8 +41,6 @@ let pcState = {
   subaba: "selecao", // selecao | painel | palpite | medias | ranking (só usado dentro de "app", logado)
   estado: null, // sigla do estado escolhido (ver dados/estados-brasil.js) — só "SC" tem dados por enquanto
   cargoAtivo: "estadual", // estadual | federal | senador
-  vagasPorPartido: null,
-  ultimoEditadoPartido: null,
   palpiteEdicao: null,
   cargoPalpiteEdicao: null, // qual cargo o palpiteEdicao atual pertence — recarrega quando muda de aba
   palpitesPorCargo: null, // { estadual, federal, senador } — usado só na Revisão, pra editar os 3 cargos ali sem perder o que já foi mexido em cada um (ver garantirPalpitesPorCargo)
@@ -71,7 +69,6 @@ let pcState = {
   buscaPartidoAberta: false, // campo de busca de PARTIDO (lista inteira, na barra de botões) visível ou não
   buscaPartido: "", // termo digitado na busca de partido
   expandido: {},
-  modoPartido: {}, // nome do partido -> "detalhado" (default é o modo simplificado)
   erro: "",
   status: "",
   modalNomeListaAberto: false, // modal "dê um nome pra essa lista" no primeiro Salvar da Revisão
@@ -91,6 +88,11 @@ let pcState = {
   legendaListasAberta: false, // legenda compartilhada dos botões de ícone de Minhas listas (o "i" ao lado de "Em aberto")
   modalSalvarDestinoAberto: false, // seletor de destino do Salvar (lista ativa · outro slot · nova) — pedido 21/08
   _destinosSalvar: null, // listas em aberto carregadas na hora de abrir o seletor
+  _destinoSelecionado: null, // slot escolhido no seletor (id da lista ou "novo")
+  _destinoNomeDigitado: null, // nome digitado no slot vazio (sobrevive ao re-render)
+  _destinoDesbloqueado: false, // slot além dos 2 grátis destravado nesta abertura (cobra ao salvar)
+  _destinoConfirmando: false, // "Sobrescrever?" SIM/NÃO na tela de slots
+  historicoRefazer: [], // par do historicoPalpite pro Refazer (desfeitos ficam aqui)
   funilVotosAberto: false, // funil explicativo dos votos válidos (o "i" do cabeçalho da aba Senador, PROJETO.md §8.2)
   sobraInfoAberta: false, // explicação da regra de sobra (o "i" do quadro-resumo no painel Disputa de Sobra, Revisão)
 };
@@ -1530,7 +1532,7 @@ function renderTelaCompletarPerfil() {
   });
   document.getElementById("pcBtnCancelarPerfil").addEventListener("click", async () => {
     await sair();
-    pcState = { iniciado: true, sessao: null, perfil: null, tela: "landing", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
+    pcState = { iniciado: true, sessao: null, perfil: null, tela: "landing", subaba: "selecao", estado: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, erro: "", status: "" };
     renderColaborativo();
   });
   document.getElementById("pcBtnConcluirPerfil").addEventListener("click", async (e) => {
@@ -1680,7 +1682,7 @@ function renderTelaMiniPesquisa() {
 
   document.getElementById("pcBtnMpSair").addEventListener("click", async () => {
     await sair();
-    pcState = { iniciado: true, sessao: null, perfil: null, tela: "landing", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
+    pcState = { iniciado: true, sessao: null, perfil: null, tela: "landing", subaba: "selecao", estado: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, erro: "", status: "" };
     renderColaborativo();
   });
   document.getElementById("pcBtnMpContinuar").addEventListener("click", async (e) => {
@@ -1958,7 +1960,7 @@ async function renderMeuPerfil() {
 // conta" de renderMenuConta, extraído aqui só pra não duplicar.
 async function executarSairDaConta() {
   await sair();
-  pcState = { iniciado: true, sessao: null, perfil: null, tela: "login", subaba: "selecao", estado: null, vagasPorPartido: null, ultimoEditadoPartido: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, modoPartido: {}, erro: "", status: "" };
+  pcState = { iniciado: true, sessao: null, perfil: null, tela: "login", subaba: "selecao", estado: null, palpiteEdicao: null, historicoPalpite: [], expandido: {}, erro: "", status: "" };
   renderColaborativo();
 }
 
@@ -3897,7 +3899,7 @@ function telaCarregando(mensagem) {
   // era um gradiente verde-neon fixo, agora usa a variável de tema (fica
   // verde vivo #34E84A onde o tema Fader está ativo, sem herdar cor
   // nenhuma fora dele).
-  return `<div class="glass-card pc-carregando-card" style="max-width:420px; margin:0 auto; min-height:50vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
+  return `<div class="glass-card" style="max-width:420px; margin:0 auto; min-height:50vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
     <div class="pc-loading-icon pc-carregando-icone">
       ${iconeSvg("ballot", 26)}
     </div>
@@ -6435,7 +6437,6 @@ async function renderCargoEstadual() {
     </div>` : ""}
     ${pcState.legendaComandosAberta ? renderLegendaComandos(comandosSelecao) : ""}
     <div class="pc-status" id="pcSelecaoStatus" style="text-align:right; margin:-14px 0 14px;"></div>
-    ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
     ${pcState.modalSalvarDestinoAberto ? renderModalSalvarDestino() : ""}
     ${pcState.modalInstagramInfo ? renderModalInstagram() : ""}
     ${pcState.buscaPartidoAberta ? `
@@ -6976,9 +6977,9 @@ function attachListenersSelecao() {
   // (executarSalvarLista), só que com manterTela:true pra não navegar embora.
   document.getElementById("pcBtnSalvarSelecao").addEventListener("click", async () => {
     garantirPalpitesPorCargo();
-    // Seletor de destino (21/08/2026): o disquete SEMPRE abre a escolha de
-    // slot — sem lista salva ainda, o seletor mostra só o slot de nova
-    // lista, e é por ele que se chega ao nome (decisão do usuário 21/08).
+    // O disquete SEMPRE abre a tela de SLOTS (decisão 21-22/08; versão
+    // final "linha com anel"): lista em edição pré-selecionada, vazio com
+    // o campo de nome no lugar, trancado com o preço além dos 2 grátis.
     const todas = await _carregarMinhasListasNormalizado();
     pcState._destinosSalvar = todas.filter((l) => !l.depositadoEm);
     // A lista em edição entra selecionada — Salvar direto = sobrescrever
@@ -6991,16 +6992,6 @@ function attachListenersSelecao() {
     pcState.modalSalvarDestinoAberto = true;
     renderCargoEstadual();
   });
-  if (pcState.modalNomeListaAberto) {
-    attachListenersModalNomeLista(renderCargoEstadual, async () => {
-      garantirPalpitesPorCargo();
-      const ok = await executarSalvarLista({ manterTela: true });
-      if (ok) {
-        await renderCargoEstadual();
-        mostrarStatusSalvamento("Lista salva. Pode continuar editando.");
-      }
-    });
-  }
   if (pcState.modalSalvarDestinoAberto) {
     const limparTransitorios = () => {
       pcState._destinoSelecionado = null;
@@ -8269,7 +8260,7 @@ function renderRevisaoDeposito() {
       ${secoesHtml}
     </div>
     ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
-    ${pcState.modalSalvarDestinoAberto ? renderModalSalvarDestino() : ""}`;
+`;
   if (pcState.modalNomeListaAberto) {
     attachListenersModalNomeLista(renderRevisaoDeposito, executarSalvarLista);
   }
