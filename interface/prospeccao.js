@@ -144,6 +144,7 @@ const PC_ICONES = {
   salvar: '<path d="M3 2.8h8.2l2 2v8.4H3V2.8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M5 2.8v3.6h4.6V2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path><rect x="4.8" y="9" width="6.4" height="4.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect>',
   instagram: '<rect x="2" y="2" width="12" height="12" rx="3.6" fill="none" stroke="currentColor" stroke-width="1.3"></rect><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="11.5" cy="4.5" r=".9" fill="currentColor"></circle>',
   credito: '<circle cx="8" cy="8" r="5.7" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path>',
+  cadeadoSlot: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"></rect><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7" fill="none" stroke="currentColor" stroke-width="1.3"></path>',
 };
 // Candidatura congelada (desistência / sub judice) — política 21/08/2026:
 // fica no elenco com etiqueta branca antes do nome e a célula travada
@@ -6974,11 +6975,13 @@ function attachListenersSelecao() {
     // lista, e é por ele que se chega ao nome (decisão do usuário 21/08).
     const todas = await _carregarMinhasListasNormalizado();
     pcState._destinosSalvar = todas.filter((l) => !l.depositadoEm);
-    // A lista em edição entra selecionada e com o nome no campo — Enter
-    // direto = o clássico "salvar em cima do que estou editando".
+    // A lista em edição entra selecionada — Salvar direto = sobrescrever
+    // o slot que estou editando (com a confirmação SIM/NÃO).
     pcState._destinoSelecionado = pcState.listaSalvaId && pcState._destinosSalvar.some((l) => l.id === pcState.listaSalvaId)
       ? pcState.listaSalvaId : null;
     pcState._destinoNomeDigitado = null;
+    pcState._destinoDesbloqueado = false;
+    pcState._destinoConfirmando = false;
     pcState.modalSalvarDestinoAberto = true;
     renderCargoEstadual();
   });
@@ -6993,41 +6996,62 @@ function attachListenersSelecao() {
     });
   }
   if (pcState.modalSalvarDestinoAberto) {
-    const fecharDestino = () => {
-      pcState.modalSalvarDestinoAberto = false;
+    const limparTransitorios = () => {
       pcState._destinoSelecionado = null;
       pcState._destinoNomeDigitado = null;
+      pcState._destinoDesbloqueado = false;
+      pcState._destinoConfirmando = false;
+    };
+    const fecharDestino = () => {
+      pcState.modalSalvarDestinoAberto = false;
+      limparTransitorios();
       renderCargoEstadual();
     };
     const inpDestino = document.getElementById("pcInputDestinoNome");
-    // Digitar limpa a seleção de lista — o nome novo passa a mandar (a
-    // desmarcação é feita direto no DOM, sem re-render, pra não roubar o
-    // foco do campo a cada tecla).
-    if (inpDestino) inpDestino.addEventListener("input", () => {
-      pcState._destinoNomeDigitado = inpDestino.value;
-      if (pcState._destinoSelecionado) {
-        pcState._destinoSelecionado = null;
-        document.querySelectorAll("[data-pc-destino-slot]").forEach((b) => {
-          b.style.background = "#16181B"; b.style.borderColor = "#2B2F33";
-          const bolinha = b.querySelector("span");
-          if (bolinha) { bolinha.style.borderColor = "#3A3F45"; bolinha.innerHTML = ""; }
-          const nomeEl = b.querySelector("span + span > span");
-          if (nomeEl) nomeEl.style.color = "var(--pc-ink)";
-        });
-      }
-    });
-    // Tocar numa lista seleciona ela e espelha o nome no campo.
+    if (inpDestino) {
+      inpDestino.addEventListener("input", () => { pcState._destinoNomeDigitado = inpDestino.value; });
+      inpDestino.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); confirmarDestino(); } });
+      inpDestino.addEventListener("pointerdown", (e) => e.stopPropagation());
+      if (pcState._destinoSelecionado === "novo") setTimeout(() => inpDestino.focus({ preventScroll: true }), 40);
+    }
     document.querySelectorAll("[data-pc-destino-slot]").forEach((btn) => {
       btn.addEventListener("click", () => {
         pcState._destinoSelecionado = btn.getAttribute("data-pc-destino-slot");
-        pcState._destinoNomeDigitado = btn.getAttribute("data-pc-destino-nome");
+        pcState._destinoConfirmando = false;
+        renderCargoEstadual();
+      });
+    });
+    document.querySelectorAll("[data-pc-destino-vazio]").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        if (e.target.id === "pcInputDestinoNome") return;
+        if (pcState._destinoSelecionado === "novo") return;
+        pcState._destinoSelecionado = "novo";
+        pcState._destinoConfirmando = false;
+        renderCargoEstadual();
+      });
+    });
+    document.querySelectorAll("[data-pc-destino-trancado]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        // Convidado não tem crédito — desbloquear slot pede conta.
+        if (!pcState.perfil) {
+          pcState.modalSalvarDestinoAberto = false;
+          limparTransitorios();
+          pcState.pendenteRegistro = true;
+          pcState.tela = "cadastro";
+          renderColaborativo();
+          return;
+        }
+        // Logado: o slot abre já aqui; o crédito só é cobrado NO SALVAR
+        // (cancelar não custa nada).
+        pcState._destinoDesbloqueado = true;
+        pcState._destinoSelecionado = "novo";
+        pcState._destinoConfirmando = false;
         renderCargoEstadual();
       });
     });
     const salvarNoAlvo = async (id, nome) => {
       pcState.modalSalvarDestinoAberto = false;
-      pcState._destinoSelecionado = null;
-      pcState._destinoNomeDigitado = null;
+      limparTransitorios();
       pcState.listaSalvaId = id;
       pcState.listaSalvaNome = nome;
       await persistirListaAtivaLocal();
@@ -7040,61 +7064,65 @@ function attachListenersSelecao() {
     };
     const confirmarDestino = async () => {
       const destinos = (pcState._destinosSalvar || []).filter((l) => !l.depositadoEm);
-      const nome = (inpDestino ? inpDestino.value : "").trim();
-      // 1) lista selecionada — salva por cima dela (o nome do campo vale,
-      //    então dá até pra renomear no mesmo gesto)
-      if (pcState._destinoSelecionado) {
-        const alvo = destinos.find((l) => l.id === pcState._destinoSelecionado);
-        if (alvo) { await salvarNoAlvo(alvo.id, nome || alvo.nome); return; }
-      }
-      if (!nome) {
-        const erro = document.getElementById("pcErroDestino");
-        if (erro) erro.textContent = "Digite um nome — ou toque numa lista pra sobrepor.";
-        if (inpDestino) inpDestino.focus();
+      const sel = pcState._destinoSelecionado;
+      if (!sel) return;
+      if (sel === "novo") {
+        const inp = document.getElementById("pcInputDestinoNome");
+        const nome = (inp ? inp.value : (pcState._destinoNomeDigitado || "")).trim();
+        if (!nome) {
+          const erro = document.getElementById("pcErroDestino");
+          if (erro) erro.textContent = "Dê um nome pra lista.";
+          if (inp) inp.focus();
+          return;
+        }
+        // Slot além dos 2 grátis: cobra o crédito agora (mesma RPC do "+").
+        if (destinos.length >= 2) {
+          const { consumiu, error } = await consumirCreditoConta(pcState.perfil.id);
+          if (error) { pcState.erro = "Erro ao conferir crédito: " + error.message; }
+          if (!consumiu) {
+            const erro = document.getElementById("pcErroDestino");
+            if (erro) erro.textContent = "Sem crédito pro slot novo — sobreponha uma lista, ou convide um amigo pra ganhar créditos.";
+            return;
+          }
+          pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
+        }
+        pcState.modalSalvarDestinoAberto = false;
+        limparTransitorios();
+        pcState.listaSalvaId = null;
+        pcState.listaSalvaNome = nome;
+        await persistirListaAtivaLocal();
+        garantirPalpitesPorCargo();
+        const ok = await executarSalvarLista({ manterTela: true });
+        if (ok) {
+          await renderCargoEstadual();
+          mostrarStatusSalvamento(`Lista "${nome}" salva. Pode continuar editando.`);
+        }
         return;
       }
-      // 2) nome IGUAL ao de uma lista existente = salvar em cima dela
-      //    (semântica clássica do "salvar como" — a linha homônima está
-      //    visível logo abaixo do campo, sem surpresa)
-      const homonima = destinos.find((l) => (l.nome || "").trim().toLowerCase() === nome.toLowerCase());
-      if (homonima) { await salvarNoAlvo(homonima.id, homonima.nome); return; }
-      // 3) nome novo — gates por tipo de usuário (2 grátis; depois crédito
-      //    pro logado, cadastro pro convidado — mesmos do "+" de Minhas listas)
-      if (destinos.length >= 2) {
-        if (!pcState.perfil) {
-          pcState.modalSalvarDestinoAberto = false;
-          pcState._destinoSelecionado = null;
-          pcState._destinoNomeDigitado = null;
-          pcState.pendenteRegistro = true;
-          pcState.tela = "cadastro";
-          renderColaborativo();
-          return;
-        }
-        const { consumiu, error } = await consumirCreditoConta(pcState.perfil.id);
-        if (error) { pcState.erro = "Erro ao conferir crédito: " + error.message; }
-        if (!consumiu) {
-          const erro = document.getElementById("pcErroDestino");
-          if (erro) erro.textContent = "Sem crédito pra um nome novo — sobreponha uma lista existente, ou convide um amigo pra ganhar créditos.";
-          return;
-        }
-        pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
+      const alvo = destinos.find((l) => l.id === sel);
+      if (!alvo) return;
+      // Sobrescrever slot ocupado: a confirmação clássica SIM/NÃO aparece
+      // antes de gravar (protótipo aprovado — sem surpresa de perda).
+      if (!pcState._destinoConfirmando) {
+        pcState._destinoConfirmando = true;
+        renderCargoEstadual();
+        return;
       }
-      pcState.modalSalvarDestinoAberto = false;
-      pcState._destinoSelecionado = null;
-      pcState._destinoNomeDigitado = null;
-      pcState.listaSalvaId = null;
-      pcState.listaSalvaNome = nome;
-      await persistirListaAtivaLocal();
-      garantirPalpitesPorCargo();
-      const ok = await executarSalvarLista({ manterTela: true });
-      if (ok) {
-        await renderCargoEstadual();
-        mostrarStatusSalvamento(`Lista "${nome}" salva. Pode continuar editando.`);
-      }
+      await salvarNoAlvo(alvo.id, alvo.nome);
     };
     const btnConfirmarDestino = document.getElementById("pcBtnConfirmarDestino");
     if (btnConfirmarDestino) btnConfirmarDestino.addEventListener("click", confirmarDestino);
-    if (inpDestino) inpDestino.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); confirmarDestino(); } });
+    const confirmSim = document.getElementById("pcSlotConfirmSim");
+    if (confirmSim) confirmSim.addEventListener("click", async () => {
+      const destinos = (pcState._destinosSalvar || []).filter((l) => !l.depositadoEm);
+      const alvo = destinos.find((l) => l.id === pcState._destinoSelecionado);
+      if (alvo) await salvarNoAlvo(alvo.id, alvo.nome);
+    });
+    const confirmNao = document.getElementById("pcSlotConfirmNao");
+    if (confirmNao) confirmNao.addEventListener("click", () => {
+      pcState._destinoConfirmando = false;
+      renderCargoEstadual();
+    });
     const btnCancelarDestino = document.getElementById("pcBtnCancelarDestino");
     if (btnCancelarDestino) btnCancelarDestino.addEventListener("click", fecharDestino);
     const overlayDestino = document.getElementById("pcModalSalvarDestinoOverlay");
@@ -7669,41 +7697,99 @@ function renderModalNomeLista() {
 // das 2 grátis consome 1 crédito (logado) ou pede cadastro (convidado) —
 // os mesmos gates do "+" de Minhas listas.
 function renderModalSalvarDestino() {
+  // Slots estilo videogame, versão B "linha com anel" (protótipo aprovado
+  // 22/08/2026): cada lista em aberto é um slot com anel de progresso
+  // circular (vagas preenchidas / total do estado) e o número dentro;
+  // slot vazio = anel pontilhado com o campo de nome no lugar; o slot
+  // além dos 2 grátis nasce TRANCADO (cadeado + preço) — a economia
+  // visível como slots finitos. Sobrescrever pede o "Sobrescrever?"
+  // clássico. Convidado tem o progresso (conteúdo local); logado mostra
+  // anel neutro (o resumo do banco não traz os cargos).
   const destinos = (pcState._destinosSalvar || []).filter((l) => !l.depositadoEm);
-  const noLimite = destinos.length >= 2;
-  const selecionada = pcState._destinoSelecionado || null;
-  const nomeInicial = pcState._destinoNomeDigitado !== null && pcState._destinoNomeDigitado !== undefined
-    ? pcState._destinoNomeDigitado
-    : (pcState.listaSalvaNome || "");
-  const legendaNova = !noLimite
-    ? ""
-    : (pcState.perfil
-      ? `Suas 2 listas grátis já estão em uso — nome novo custa <b>1 crédito</b> (saldo: ${pcState.perfil.creditos || 0}). Sobrepor uma lista é grátis.`
-      : "Suas 2 listas grátis já estão em uso — nome novo pede uma conta. Sobrepor uma lista é grátis.");
-  const linhaLista = (l) => {
-    const ativa = l.id === pcState.listaSalvaId;
-    const sel = l.id === selecionada;
-    return `
-    <button data-pc-destino-slot="${l.id}" data-pc-destino-nome="${escaparAtributoHtml(l.nome)}" style="width:100%; text-align:left; background:${sel ? "rgba(52,232,74,.08)" : "#16181B"}; border:1px solid ${sel ? "rgba(52,232,74,.45)" : "#2B2F33"}; border-radius:10px; padding:10px 12px; margin-bottom:6px; cursor:pointer; display:flex; align-items:center; gap:10px;">
-      <span style="flex:none; width:16px; height:16px; border-radius:50%; border:1.5px solid ${sel ? "var(--pc-accent)" : "#3A3F45"}; display:flex; align-items:center; justify-content:center;">${sel ? '<span style="width:8px; height:8px; border-radius:50%; background:var(--pc-accent);"></span>' : ""}</span>
-      <span style="min-width:0; flex:1;">
-        <span style="display:block; font-size:13px; font-weight:700; color:${sel ? "var(--pc-accent)" : "var(--pc-ink)"}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}${ativa ? ' <span style="font-size:9px; font-weight:800; color:var(--pc-ink-dim);">· EM EDIÇÃO</span>' : ""}</span>
-        <span style="font-size:10.5px; color:var(--pc-ink-dim);">Salva em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")}</span>
-      </span>
-    </button>`;
+  const sel = pcState._destinoSelecionado || null;
+  const totalVagasEstado = CARGOS.reduce((t, c) => t + (vagasFixasCargo(pcState.estado, c.id) || 0), 0);
+  const progressoDe = (l) => {
+    if (!l.palpitesPorCargo || !totalVagasEstado) return null;
+    let ind = 0;
+    CARGOS.forEach((c) => {
+      const lista = l.palpitesPorCargo[c.id];
+      if (!lista) return;
+      if (c.id === "senador") ind += lista.reduce((t, p) => t + (p.candidatos || []).filter((x) => x.marcadoEleito).length, 0);
+      else ind += lista.reduce((t, p) => t + (Number(p.vagasIndicadas) || 0), 0);
+    });
+    return { ind: Math.min(ind, totalVagasEstado), total: totalVagasEstado };
   };
+  const anel = (num, frac, modo) => {
+    const C = 106.8; // pathLength do círculo r=17
+    const arco = frac === null ? 0 : Math.max(0, Math.min(1, frac)) * C;
+    const base = modo === "vazio"
+      ? '<circle cx="20" cy="20" r="17" fill="none" stroke="#1E2226" stroke-width="3" stroke-dasharray="3 5"></circle>'
+      : '<circle cx="20" cy="20" r="17" fill="none" stroke="#1E2226" stroke-width="3"></circle>';
+    const fillArc = arco > 0 ? `<circle cx="20" cy="20" r="17" fill="none" stroke="#34E84A" stroke-width="3" stroke-linecap="round" stroke-dasharray="${arco.toFixed(1)} ${C}" pathLength="${C}"></circle>` : "";
+    const centro = modo === "trancado"
+      ? `<span class="pc-slotb-num">${iconeSvg("cadeadoSlot", 13)}</span>`
+      : `<span class="pc-slotb-num">${String(num).padStart(2, "0")}</span>`;
+    return `<div class="pc-slotb-anel"><svg viewBox="0 0 40 40" width="40" height="40" style="transform:rotate(-90deg);">${base}${fillArc}</svg>${centro}</div>`;
+  };
+  const linhas = [];
+  destinos.forEach((l, i) => {
+    const prog = progressoDe(l);
+    const ativa = l.id === pcState.listaSalvaId;
+    const meta = `${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")}${prog ? ` · ${prog.ind}/${prog.total} vagas` : ""}${ativa ? " · em edição" : ""}`;
+    linhas.push(`
+    <div class="pc-slotb${l.id === sel ? " sel" : ""}" data-pc-destino-slot="${l.id}" data-pc-destino-nome="${escaparAtributoHtml(l.nome)}" data-pc-destino-num="${i + 1}">
+      ${anel(i + 1, prog ? prog.ind / prog.total : null)}
+      <div class="pc-slotb-corpo">
+        <div class="pc-slotb-nome">${l.nome}</div>
+        <div class="pc-slotb-meta">${meta}</div>
+      </div>
+    </div>`);
+  });
+  const numVazio = destinos.length + 1;
+  const podeVazioGratis = destinos.length < 2;
+  if (podeVazioGratis || pcState._destinoDesbloqueado) {
+    linhas.push(`
+    <div class="pc-slotb vazio${sel === "novo" ? " sel" : ""}" data-pc-destino-vazio data-pc-destino-num="${numVazio}">
+      ${anel(numVazio, null, "vazio")}
+      <div class="pc-slotb-corpo">
+        ${sel === "novo"
+          ? `<input class="pc-slotb-input" id="pcInputDestinoNome" placeholder="nome da lista…" maxlength="40" value="${escaparAtributoHtml(pcState._destinoNomeDigitado || "")}">`
+          : `<div class="pc-slotb-nome vazia">vazio — toque pra salvar aqui</div>`}
+        <div class="pc-slotb-meta">${pcState._destinoDesbloqueado && !podeVazioGratis ? "slot desbloqueado — 1 crédito ao salvar" : "&nbsp;"}</div>
+      </div>
+    </div>`);
+  } else {
+    linhas.push(`
+    <div class="pc-slotb trancado" data-pc-destino-trancado data-pc-destino-num="${numVazio}">
+      ${anel(numVazio, null, "trancado")}
+      <div class="pc-slotb-corpo">
+        <div class="pc-slotb-nome" style="color:var(--pc-ink-dim);">Bloqueado</div>
+        <div class="pc-slotb-meta">${pcState.perfil ? `1 crédito (saldo: ${pcState.perfil.creditos || 0}) — ou convide um amigo` : "criar outra lista pede uma conta"}</div>
+      </div>
+    </div>`);
+  }
+  const alvoSel = destinos.find((l) => l.id === sel);
+  const rotuloSalvar = sel === "novo"
+    ? `Salvar no slot ${numVazio}`
+    : (alvoSel ? `Sobrescrever slot ${destinos.indexOf(alvoSel) + 1}` : "Salvar");
+  const confirmacao = pcState._destinoConfirmando && alvoSel ? `
+    <div class="pc-slotb-confirm">
+      <div class="pc-slotb-confirm-q">Sobrescrever <b>"${alvoSel.nome}"</b>?</div>
+      <div class="pc-slotb-confirm-ops">
+        <button type="button" class="sim" id="pcSlotConfirmSim">SIM</button>
+        <button type="button" class="nao" id="pcSlotConfirmNao">NÃO</button>
+      </div>
+    </div>` : "";
   return `
     <div id="pcModalSalvarDestinoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:380px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
-        <h2 style="margin-bottom:4px; font-size:15px;">Salvar lista</h2>
-        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:12px;">Dê um nome — ou toque numa lista anterior pra salvar por cima dela.</div>
-        <input class="cell" id="pcInputDestinoNome" placeholder="nome da lista — ex.: otimista ${new Date().toLocaleDateString("pt-BR")}" value="${escaparAtributoHtml(nomeInicial)}" style="width:100%; margin-bottom:10px; text-align:left;">
-        ${destinos.length ? `<div style="font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--pc-ink-dim); margin:2px 0 7px;">Ou sobrepor uma lista</div>${destinos.map(linhaLista).join("")}` : ""}
-        ${legendaNova ? `<div style="font-size:10.5px; color:var(--pc-ink-dim); line-height:1.5; margin-top:4px;">${legendaNova}</div>` : ""}
-        <div class="pc-erro" id="pcErroDestino" style="min-height:16px; margin-top:4px;"></div>
-        <div style="display:flex; gap:8px; margin-top:6px;">
+      <div style="max-width:380px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:20px 18px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
+        <div class="pc-slotb-tit">Salvar — escolha o slot</div>
+        ${linhas.join("")}
+        <div class="pc-erro" id="pcErroDestino" style="min-height:16px; margin-top:2px;"></div>
+        ${confirmacao}
+        <div style="display:flex; gap:8px; margin-top:8px;">
           <button class="ghost" id="pcBtnCancelarDestino" style="flex:1;">Cancelar</button>
-          <button class="primary" id="pcBtnConfirmarDestino" style="flex:1;">Salvar</button>
+          <button class="primary" id="pcBtnConfirmarDestino" style="flex:1;" ${sel ? "" : "disabled"}>${rotuloSalvar}</button>
         </div>
       </div>
     </div>`;
@@ -8589,7 +8675,7 @@ document.addEventListener("keydown", (e) => {
   if (pcState.disputaSobraAberta) return fechar(() => { pcState.disputaSobraAberta = null; });
   if (pcState.top2022Aberto) return fechar(() => { pcState.top2022Aberto = false; });
   if (pcState.menuMagicoAberto) return fechar(() => { pcState.menuMagicoAberto = null; });
-  if (pcState.modalSalvarDestinoAberto) return fechar(() => { pcState.modalSalvarDestinoAberto = false; pcState._destinoSelecionado = null; pcState._destinoNomeDigitado = null; });
+  if (pcState.modalSalvarDestinoAberto) return fechar(() => { pcState.modalSalvarDestinoAberto = false; pcState._destinoSelecionado = null; pcState._destinoNomeDigitado = null; pcState._destinoDesbloqueado = false; pcState._destinoConfirmando = false; });
   if (pcState.modalNomeListaAberto) return fechar(() => { pcState.modalNomeListaAberto = false; });
   if (pcState.modalInstagramInfo) return fechar(() => { pcState.modalInstagramInfo = null; });
   if (pcState.modalDepositarListaId) return fechar(() => { pcState.modalDepositarListaId = null; });
