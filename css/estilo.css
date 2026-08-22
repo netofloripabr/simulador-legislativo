@@ -965,6 +965,20 @@
   background:rgba(29,32,35,.85); border:1px solid #23262A; border-radius:12px;
   padding:10px 12px 12px; margin-bottom:8px;
 }
+/* Retrato de 2022 ativo (aprovado 22/08/2026, opção 7 do protótipo): o
+   ícone do relógio no botão 2022 do console fica verde e RESPIRA devagar
+   (5s — mais lento que os 3,4s do farol, de propósito) enquanto a
+   votação do cargo for idêntica à base de 2022. Editou qualquer voto,
+   apaga; o relógio restaura e volta. */
+#modoColaborativoWrap .pc-cmd-b22.retrato-ativo .pc-cmd-b22-metades button:last-child{
+  color:var(--pc-accent);
+  animation:pcResp2022 5s ease-in-out infinite;
+}
+@keyframes pcResp2022{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
+@media (prefers-reduced-motion: reduce){
+  #modoColaborativoWrap .pc-cmd-b22.retrato-ativo .pc-cmd-b22-metades button:last-child{ animation:none; }
+}
+
 /* Candidatura congelada — desistência/sub judice (política 21/08/2026):
    etiqueta BRANCA no desenho do ELEITO, linha em tom transparente, barra
    travada no zero sem alça ativa; só o motivo fica em opacidade cheia. */

@@ -180,6 +180,22 @@ function iconeSvg(nome, tamanho) {
 // num círculo DIVIDIDO (2 alvos de toque na área de 1 botão — protótipo
 // "refino v3" aprovado em 20/08/2026). A legenda continua listando os dois
 // separados; só o desenho da linha muda.
+// "Retrato de 2022" ativo: a votação na tela é IDÊNTICA à base de 2022
+// (o padrão de abertura — equivale a ter apertado o relógio). Vale pro
+// cargo ativo; candidatura congelada conta como retrato com 0 voto (o
+// restaurar-2022 também a deixa em 0). Aprovado em 22/08/2026: o botão
+// do relógio no console respira devagar enquanto isso for verdade — o
+// usuário liga a abertura pré-preenchida à lógica do 2022 sem texto.
+function retratoDe2022Ativo() {
+  if (!pcState.palpiteEdicao) return false;
+  return pcState.palpiteEdicao.every((p) => (p.candidatos || []).every((c) => {
+    if (c.fonte === "legenda") return true;
+    const v = Number(c.votos) || 0;
+    if (c.status) return v === 0;
+    return v === (Number(c.votos2022) || 0);
+  }));
+}
+
 function renderBotoesComandos(comandos) {
   const out = [];
   for (let i = 0; i < comandos.length; i++) {
@@ -199,7 +215,8 @@ function renderBotoesComandos(comandos) {
       // o ano por extenso no cabeçalho e as duas divisórias embaixo —
       // lista (nominata/top) | relógio (retomar) — ícones limpos, sem
       // o mini-22 (o cabeçalho já diz o ano).
-      out.push(`<div class="pc-cmd-b22">
+      const retrato2022 = retratoDe2022Ativo();
+      out.push(`<div class="pc-cmd-b22${retrato2022 ? " retrato-ativo" : ""}"${retrato2022 ? ' title="Votação idêntica à de 2022 — o retrato de abertura está intacto"' : ""}>
         <div class="pc-cmd-b22-ano">2022</div>
         <div class="pc-cmd-b22-metades">
           <button type="button" id="${c.id}" title="${escaparAtributoHtml(c.titulo)}">${iconeSvg("lista", 14)}</button>
