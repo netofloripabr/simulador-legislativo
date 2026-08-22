@@ -7827,12 +7827,14 @@ function renderModalSalvarDestino() {
     </div>`);
   }
   const alvoSel = destinos.find((l) => l.id === sel);
+  // "Sobrescrever" é técnico demais (pedido do usuário, 22/08) — o botão
+  // fala "Salvar no slot N" sempre; a confirmação diz "salvar por cima".
   const rotuloSalvar = sel === "novo"
     ? `Salvar no slot ${numVazio}`
-    : (alvoSel ? `Sobrescrever slot ${destinos.indexOf(alvoSel) + 1}` : "Salvar");
+    : (alvoSel ? `Salvar no slot ${destinos.indexOf(alvoSel) + 1}` : "Salvar");
   const confirmacao = pcState._destinoConfirmando && alvoSel ? `
     <div class="pc-slotb-confirm">
-      <div class="pc-slotb-confirm-q">Sobrescrever <b>"${alvoSel.nome}"</b>?</div>
+      <div class="pc-slotb-confirm-q">Salvar por cima de <b>"${alvoSel.nome}"</b>?</div>
       <div class="pc-slotb-confirm-ops">
         <button type="button" class="sim" id="pcSlotConfirmSim">SIM</button>
         <button type="button" class="nao" id="pcSlotConfirmNao">NÃO</button>
