@@ -114,7 +114,10 @@ Quatro guardas implementadas:
    NÃO concorrem (Julio Garcia, Zé Caramori...) voltavam pra tela dentro
    dos grupos sobreviventes. Agora candidato que não existe em nenhum
    grupo do pool oficial sai do rascunho — exceto adição manual
-   (fonte:"manual") e voto de legenda; e candidato novo do pool entra.
+   (fonte:"manual") e voto de legenda; candidato novo do pool entra
+   ZERADO; e o campo `status` (desistência/sub judice) do pool VENCE no
+   sobrevivente — rascunho salvo antes da desistência não ressuscita o
+   candidato congelado com votos (3ª regressão da família, 22/08).
 3. `montarEstadoPalpite` (nuvem/palpites.js) grita `console.error` se SC
    cair no fallback de 2022 (sinal de sc-2026-provisorio.js quebrado).
 4. O fallback pro elenco de 2022 continua válido SÓ pros estados sem dado
