@@ -1127,7 +1127,7 @@ async function renderCompartilhado() {
     <div class="glass-card" style="max-width:640px; margin:0 auto 12px;">
       <div style="font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--pc-accent); font-weight:700; margin-bottom:4px;">Palpite compartilhado</div>
       <div style="font-size:20px; font-weight:700; margin:0 0 4px;">${dados.nome_exibicao}</div>
-      <div class="pc-sub" style="margin:0;">Prospecção Coletiva — Simulador Eleitoral — Legislativo 2026 — Santa Catarina</div>
+      <div class="pc-sub" style="margin:0;">Simulador Eleitoral — Legislativo 2026 — ${(typeof ESTADOS_BRASIL !== "undefined" && (ESTADOS_BRASIL.find((e) => e.sigla === pcState.estado) || {}).nome) || pcState.estado}</div>
     </div>
     <div style="max-width:640px; margin:0 auto;">
       ${CARGOS.map(secaoCargo).join("")}
