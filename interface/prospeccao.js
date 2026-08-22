@@ -589,6 +589,11 @@ function renderMenuFixo(destinoAtivo) {
     { id: "medias", icone: "chart", label: "Mediana", gate: gateConvidado },
     { id: "grupo", icone: "grupos", label: "Grupos", gate: gateConvidado },
     { id: "ranking", icone: "ranking", label: "Ranking" },
+    // Achado do usuário em 22/08/2026: perfil e carteira (Créditos — saldo
+    // e extrato) moravam SÓ atrás do ícone discreto do cabeçalho — e o
+    // convidado não tinha porta nenhuma. Entram na barra fixa; convidado
+    // vê o gate de cadastro, igual Mediana/Grupos.
+    { id: "menu", icone: "perfil", label: "Menu", gate: gateConvidado },
   ];
   const botoes = itens.map((it) => {
     const ativo = it.id === destinoAtivo;
@@ -651,7 +656,7 @@ function irParaDestinoMenuFixo(destino) {
   }
   // Médias e Grupos pedem cadastro pro convidado (mesma regra do Painel) —
   // pendenteAcao já sabe levar direto pra lá depois de criar a conta.
-  if (gateConvidado && (destino === "medias" || destino === "grupo")) {
+  if (gateConvidado && (destino === "medias" || destino === "grupo" || destino === "menu")) {
     pcState.pendenteRegistro = true;
     pcState.pendenteAcao = destino;
     pcState.tela = "cadastro";
@@ -914,7 +919,7 @@ function renderColaborativo() {
   if (pcState.tela === "erro-conexao") {
     el.innerHTML = `<div class="glass-card">
       <h2>Prospecção Coletiva</h2>
-      <div class="pc-erro">Não consegui conectar ao backend compartilhado agora (o Simulador individual continua funcionando normalmente). Verifique sua conexão e recarregue a página.</div>
+      <div class="pc-erro">Não consegui conectar ao servidor agora. Verifique sua conexão e recarregue a página — seu rascunho local continua guardado neste aparelho.</div>
     </div>`;
     return;
   }
@@ -1877,7 +1882,7 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "minhas-listas") { renderMinhasListas(); atualizarMenuFixo("minhas-listas"); }
   else if (pcState.subaba === "medias") { renderQuadroMedias(); atualizarMenuFixo("medias"); }
   else if (pcState.subaba === "grupo") { renderGrupoHub(); atualizarMenuFixo("grupo"); }
-  else if (pcState.subaba === "menu") { renderMenuConta(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "menu") { renderMenuConta(); atualizarMenuFixo("menu"); }
   else if (pcState.subaba === "meu-perfil") { renderMeuPerfil(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "ajuda") { renderCentralAjuda(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "admin") { renderAdminPainel(); atualizarMenuFixo(null); }
