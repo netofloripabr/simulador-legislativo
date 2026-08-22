@@ -15,8 +15,40 @@ const ELEITORADO_2026 = 5729914; // TSE, dado consolidado, divulgado 20/07/2026
 // fallback (fator de SC como aproximação nacional + projeção pelos votos dos
 // partidos modelados) até a tabela ser preenchida — tarefa aberta pra buscar
 // os dados oficiais dos demais estados no TSE.
+// 26 UFs preenchidas em 21/08/2026 direto do serviço OFICIAL de resultados
+// (resultados.tse.jus.br, eleição 546 de 2022, cargo Dep. Estadual —
+// Distrital no DF), campos e/c/vb/tvn dos dados-simplificados por UF.
+// eleitorado2026 (aptos) só existe onde o TSE já divulgou o consolidado —
+// hoje, SC; nas demais, a projeção usa o crescimento de SC como proxy até o
+// dado oficial sair (o funil NÃO mostra a linha "aptos TSE" nesses casos).
 const REF_ELEITORADO_POR_UF = {
   SC: { eleitorado2022: 5483962, comparecimento2022: 4471619, brancos2022: 289065, nulos2022: 153702, eleitorado2026: 5729914 },
+  AC: { eleitorado2022: 587222, comparecimento2022: 455438, brancos2022: 9533, nulos2022: 8249 },
+  AL: { eleitorado2022: 2322905, comparecimento2022: 1802791, brancos2022: 71258, nulos2022: 61264 },
+  AM: { eleitorado2022: 2643568, comparecimento2022: 2110875, brancos2022: 63514, nulos2022: 75272 },
+  AP: { eleitorado2022: 549335, comparecimento2022: 442101, brancos2022: 6614, nulos2022: 5750 },
+  BA: { eleitorado2022: 11273819, comparecimento2022: 8866458, brancos2022: 480573, nulos2022: 446107 },
+  CE: { eleitorado2022: 6812993, comparecimento2022: 5623450, brancos2022: 316083, nulos2022: 215395 },
+  DF: { eleitorado2022: 2193783, comparecimento2022: 1807484, brancos2022: 88490, nulos2022: 51887 },
+  ES: { eleitorado2022: 2917714, comparecimento2022: 2311629, brancos2022: 140025, nulos2022: 73983 },
+  GO: { eleitorado2022: 4864247, comparecimento2022: 3807191, brancos2022: 222916, nulos2022: 184593 },
+  MA: { eleitorado2022: 5036730, comparecimento2022: 3918212, brancos2022: 136366, nulos2022: 81115 },
+  MG: { eleitorado2022: 16271013, comparecimento2022: 12643691, brancos2022: 930918, nulos2022: 628800 },
+  MS: { eleitorado2022: 1993121, comparecimento2022: 1552654, brancos2022: 85541, nulos2022: 43439 },
+  MT: { eleitorado2022: 2465926, comparecimento2022: 1889012, brancos2022: 90177, nulos2022: 57341 },
+  PA: { eleitorado2022: 6074636, comparecimento2022: 4785272, brancos2022: 140167, nulos2022: 92899 },
+  PB: { eleitorado2022: 3086030, comparecimento2022: 2551876, brancos2022: 166986, nulos2022: 137795 },
+  PE: { eleitorado2022: 7008795, comparecimento2022: 5732289, brancos2022: 404543, nulos2022: 313987 },
+  PI: { eleitorado2022: 2568604, comparecimento2022: 2114006, brancos2022: 66558, nulos2022: 76474 },
+  PR: { eleitorado2022: 8466408, comparecimento2022: 6815689, brancos2022: 487811, nulos2022: 244380 },
+  RJ: { eleitorado2022: 12809126, comparecimento2022: 9893658, brancos2022: 644435, nulos2022: 618075 },
+  RN: { eleitorado2022: 2550291, comparecimento2022: 2086722, brancos2022: 101210, nulos2022: 103315 },
+  RO: { eleitorado2022: 1228788, comparecimento2022: 925763, brancos2022: 33866, nulos2022: 20257 },
+  RR: { eleitorado2022: 365395, comparecimento2022: 304319, brancos2022: 4171, nulos2022: 4699 },
+  RS: { eleitorado2022: 8582100, comparecimento2022: 6883341, brancos2022: 517974, nulos2022: 190241 },
+  SE: { eleitorado2022: 1669042, comparecimento2022: 1362604, brancos2022: 72433, nulos2022: 73055 },
+  SP: { eleitorado2022: 34639761, comparecimento2022: 27147847, brancos2022: 2244465, nulos2022: 1607184 },
+  TO: { eleitorado2022: 1092189, comparecimento2022: 889580, brancos2022: 20263, nulos2022: 30820 },
 };
 function refEleitoradoDe(uf) { return REF_ELEITORADO_POR_UF[uf] || null; }
 

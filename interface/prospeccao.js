@@ -3915,7 +3915,7 @@ function fatorCrescimentoEleitorado() {
   // dados/base-2022.js); sem entrada, a razão de SC serve de aproximação
   // nacional até os dados dos 27 serem preenchidos (auditoria 21/08).
   const r = typeof refEleitoradoDe === "function" ? refEleitoradoDe(pcState.estado) : null;
-  if (r) return r.eleitorado2026 / r.eleitorado2022;
+  if (r && r.eleitorado2026) return r.eleitorado2026 / r.eleitorado2022;
   return ELEITORADO_2026 / REF_2022.eleitorado;
 }
 
@@ -3927,7 +3927,9 @@ function fatorCrescimentoEleitorado() {
 function validosOficiaisProjetados() {
   const r = typeof refEleitoradoDe === "function" ? refEleitoradoDe(pcState.estado) : null;
   if (!r) return null;
-  return (r.comparecimento2022 - r.brancos2022 - r.nulos2022) * (r.eleitorado2026 / r.eleitorado2022);
+  // Sem aptos-2026 oficial da UF, cresce pelo proxy nacional (razão de SC).
+  const fator = r.eleitorado2026 ? (r.eleitorado2026 / r.eleitorado2022) : (ELEITORADO_2026 / REF_2022.eleitorado);
+  return (r.comparecimento2022 - r.brancos2022 - r.nulos2022) * fator;
 }
 
 // Total de votos válidos PROJETADO pra 2026, mas CONFINADO aos partidos que
@@ -4566,7 +4568,7 @@ function renderPainelSenador(E, comandos) {
   // base-2022.js) — nos outros estados o funil mostra só a etapa final.
   const fator = fatorCrescimentoEleitorado();
   const refUf = typeof refEleitoradoDe === "function" ? refEleitoradoDe(pcState.estado) : null;
-  const temAptos = !!refUf;
+  const temAptos = !!(refUf && refUf.eleitorado2026);
   const aptos = temAptos ? refUf.eleitorado2026 : null;
   const compar = temAptos ? Math.round(refUf.comparecimento2022 * fator) : null;
   const funilLinha = (rotulo, valor, larg, total) => `
@@ -4929,7 +4931,7 @@ function renderPainelDeputadosFader(E, totalVagas, comandos) {
   const w = E > 0 ? Math.min(100, soma / E * 100) : 0;
   const fator = fatorCrescimentoEleitorado();
   const refUf = typeof refEleitoradoDe === "function" ? refEleitoradoDe(pcState.estado) : null;
-  const temAptos = !!refUf;
+  const temAptos = !!(refUf && refUf.eleitorado2026);
   const aptosDep = temAptos ? refUf.eleitorado2026 : null;
   const comparDep = temAptos ? Math.round(refUf.comparecimento2022 * fator) : null;
   const funilLinha = (rotulo, valor, larg, tot) => `
