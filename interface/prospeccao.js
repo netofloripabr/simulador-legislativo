@@ -6572,6 +6572,12 @@ async function reordenarComTransicao() {
 }
 
 function attachListenersSelecao() {
+  // A pessoa pode trocar de tela ENQUANTO o render assíncrono da Seleção
+  // ainda está em voo — o innerHTML novo chega, mas é substituído pela
+  // outra tela antes deste attach rodar, e o primeiro getElementById
+  // estourava em null (rejeição vista na varredura de 22/08). Se o
+  // console da Seleção não está mais no DOM, não há o que ligar.
+  if (!document.getElementById("pcBtnSalvarSelecao")) return;
   const btnColapsarPlenario = document.getElementById("pcBtnColapsarPlenario");
   if (btnColapsarPlenario) {
     btnColapsarPlenario.addEventListener("click", () => {

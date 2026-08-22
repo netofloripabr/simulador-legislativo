@@ -1,6 +1,6 @@
 # Conferência contra o RRC oficial — candidatos 2026 SC
 
-Gerado em 2026-08-21 por `ferramentas/conferir_rrc.py`. Cruza `sc-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-08-22 por `ferramentas/conferir_rrc.py`. Cruza `sc-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
@@ -61,11 +61,11 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Senador (2º suplente) | Wagner Luiz Betto | 161 | 347-pstu-convencao.pdf |
 
 
-## Decisões aplicadas (21/08/2026, com aval do usuário — versão corrigida)
+## Decisões aplicadas (21-22/08/2026, com aval do usuário)
 
-- **8 números atualizados pelo RRC** (mesmo cargo): Alan Alves Moreira (PSB, 4033), Cleber Luciano Santana (PRD/SOL, 7777), Diego Machado (PSD, 55100), Inajara Rodrigues (MDB, 15180), Joao Batista Da Silva (PRD/SOL, 25123), Kariny Muller Brum (PSDB/CID, 45888), Lucas Melo (PODE, 20316), Neuri Mantelli (PSD, 55007).
-- **Sadi Miguel Ribeiro (AVANTE)**: Dep. Estadual 70111 → **Dep. Federal 7020** (registro oficial).
-- **Ediane Aparecida Folle (PSD)**: Dep. Estadual 55333 → **Dep. Federal 5533** (registro oficial). Uma remoção por desistência aplicada mais cedo em 21/08 foi um engano de identificação, corrigido no mesmo dia.
-- **Neuri Luiz Mantelli (PSD, Dep. Estadual 55007): DESISTIU** (informação do usuário, 21/08). Política definida: desistência/sub judice **não sai do elenco** — o candidato ganha etiqueta de status e a célula congela (sem receber votos); não pontua na apuração (RANQUEAMENTO.md). Implementação da etiqueta em prototipagem.
+- **8 números atualizados pelo RRC** (mesmo cargo): Alan Alves Moreira (PSB 4033), Cleber Santana (PRD/SOL 7777), Diego Machado (PSD 55100), Inajara Rodrigues (MDB 15180), Joao do Posto (PRD/SOL 25123), Karine Muller (PSDB/CID 45888), Lucas Melo (PODE 20316), Neuri Mantelli (PSD 55007).
+- **Sadi Miguel Ribeiro (AVANTE)**: Estadual 70111 → **Federal 7020** (registro oficial).
+- **Ediane Aparecida Folle (PSD)**: Estadual 55333 → **Federal 5533** (registro oficial; uma remoção por engano em 21/08 foi corrigida no mesmo dia).
+- **Neuri Luiz Mantelli (PSD, Estadual 55007): DESISTIU** — fica no elenco com `status:"desistencia"` (etiqueta branca + célula congelada, sem votos, sem pontos).
 
-*(Este arquivo é regenerado por `conferir_rrc.py` — a história completa está nos commits de 21/08/2026.)*
+*(Arquivo regenerado por `conferir_rrc.py` — esta seção precisa ser re-anexada após cada regeração; a história completa está nos commits.)*

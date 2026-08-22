@@ -149,7 +149,10 @@ ENTRY_RE = re.compile(
     # fonteArquivo aceita aspas ESCAPADAS no valor (\") — as entradas de
     # RRC citam a coligação entre aspas dentro do texto (ex.: Chiodini e
     # Lunelli) e o [^"]* antigo parava na primeira, invisibilizando-as.
-    r'confianca:"(?P<confianca>[^"]*)", (?:fonte:"(?P<fonte>[^"]*)", )?fonteArquivo:"(?P<fonteArquivo>(?:[^"\\]|\\.)*)" \}'
+    # status:"desistencia"/"sub-judice" também é opcional (política 21/08 —
+    # candidato congelado FICA no elenco; sem o grupo, ele sumia do parse e
+    # voltava como falso "sem entrada", achado na revisão de 22/08).
+    r'confianca:"(?P<confianca>[^"]*)", (?:status:"(?P<status>[^"]*)", )?(?:fonte:"(?P<fonte>[^"]*)", )?fonteArquivo:"(?P<fonteArquivo>(?:[^"\\]|\\.)*)" \}'
 )
 CARGO_BLOCK_RE = re.compile(r'"([^"]+)":\s*\[(.*?)\n  \]', re.DOTALL)
 
