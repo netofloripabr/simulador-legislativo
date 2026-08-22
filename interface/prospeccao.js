@@ -708,7 +708,12 @@ function _farolStatusCargo(cid) {
     ind = lista.reduce((s, p, i) => s + vagasIndicadasDe(p, counts[i] || 0), 0);
   }
   const soma = lista.reduce((s, p) => s + p.candidatos.reduce((s2, c) => s2 + (Number(c.votos) || 0), 0), 0);
-  const proj = totalValidosProjetado2026(cid);
+  // Mesma régua da TELA (achado 9 da revisão 22/08): no Senador a tela usa
+  // a projeção oficial do estado (validosOficiaisProjetados) — o farol
+  // usava só a genérica e podia marcar pendente com a barra em 100%.
+  const proj = cid === "senador"
+    ? (validosOficiaisProjetados() || totalValidosProjetado2026(cid))
+    : totalValidosProjetado2026(cid);
   return {
     vagasOk: totalVagas > 0 && ind >= totalVagas,
     votosOk: proj > 0 && soma >= 0.995 * proj,
@@ -3294,6 +3299,14 @@ async function renderMinhasListas() {
       if (cargoPendente) {
         pcState.cargoAtivo = cargoPendente.id;
         pcState.palpiteEdicao = pcState.palpitesPorCargo ? pcState.palpitesPorCargo[cargoPendente.id] : null;
+        // SELA a chave estado::cargo da edição (CRÍTICO da revisão 22/08):
+        // sem isso, garantirPalpiteEdicaoAtivo via a chave divergente e
+        // SUBSTITUÍA o conteúdo da lista aberta pelo rascunho de autosave
+        // (possivelmente de OUTRA lista) — e o próximo Salvar gravava esse
+        // conteúdo alheio por cima da lista nomeada.
+        pcState.cargoPalpiteEdicao = `${pcState.estado}::${cargoPendente.id}`;
+        pcState.ordemPartidosFixa = null;
+        pcState.ordemCandidatosFixa = null;
         if (pcState.perfil) { pcState.subaba = "selecao"; renderAppColaborativo(); }
         else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
         return;
@@ -4494,7 +4507,7 @@ function recalcularMarcadosSenador() {
   const vagas = vagasFixasCargo(pcState.estado, "senador");
   const todos = [];
   pcState.palpiteEdicao.forEach((p) => {
-    p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => todos.push(c));
+    p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status).forEach((c) => todos.push(c));
   });
   const ordenados = [...todos].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
   const chavesEleitas = new Set(ordenados.slice(0, vagas).filter((c) => (Number(c.votos) || 0) > 0).map((c) => c.chave));
@@ -4516,9 +4529,14 @@ let _senItens = [];
 let _senDragIdx = null, _senTimer = null, _senEditAberto = false, _senMasterAtivo = false;
 
 function montarItensSenador() {
+  // Candidatura congelada (status) fica FORA dos itens — fader, alça
+  // mestra e mágico do Senador operam sobre _senItens, então excluir aqui
+  // fecha o invariante "congelado não recebe voto" também neste cargo
+  // (latente — nenhum senador com status hoje; o tratamento visual
+  // completo entra quando houver caso real).
   _senItens = [];
   pcState.palpiteEdicao.forEach((p) => {
-    p.candidatos.filter((c) => c.fonte !== "legenda").forEach((c) => {
+    p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status).forEach((c) => {
       _senItens.push({ c, partido: p.nome, partidoOriginal: c.partidoOriginal || p.nome });
     });
   });
@@ -5950,7 +5968,10 @@ function podarGruposForaDoPool(lista, poolOficial) {
   // poda POR CANDIDATO abaixo compara contra o conjunto inteiro, não só o
   // grupo homônimo, pra não derrubar quem trocou de partido legitimamente.
   const chavesOficiais = new Set();
-  poolOficial.forEach((p) => p.candidatos.forEach((c) => { if (c.chave != null) chavesOficiais.add(c.chave); }));
+  const _oficialPorChave = new Map();
+  poolOficial.forEach((p) => p.candidatos.forEach((c) => {
+    if (c.chave != null) { chavesOficiais.add(c.chave); _oficialPorChave.set(c.chave, c); }
+  }));
   const podada = lista
     .filter((p) => poolPorNome[p.nome])
     // Sincroniza nos DOIS sentidos: usa a versão fresca do pool quando ele
@@ -5978,15 +5999,35 @@ function podarGruposForaDoPool(lista, poolOficial) {
     })
     // Complemento: candidato que EXISTE no grupo do pool mas falta no
     // rascunho (ata/RRC processado depois do rascunho ser salvo) entra
-    // com a base zerada de votos do pool — sem isso, quem tinha rascunho
-    // nunca via candidato novo daquele partido.
+    // ZERADO de verdade (votos:0 — o {...c} cru trazia o voto de 2022 do
+    // pool e podia estourar a soma acima de 100%, achado da revisão de
+    // 22/08).
     .map((p) => {
       const oficial = poolPorNome[p.nome];
       if (!oficial || oficial === p) return p;
       const chavesNoRascunho = new Set(p.candidatos.map((c) => c.chave));
       const faltantes = oficial.candidatos.filter((c) => c.chave != null && !chavesNoRascunho.has(c.chave));
       if (!faltantes.length) return p;
-      return { ...p, candidatos: [...p.candidatos, ...faltantes.map((c) => ({ ...c }))] };
+      return { ...p, candidatos: [...p.candidatos, ...faltantes.map((c) => ({ ...c, votos: 0, votosEditado: false, marcadoEleito: false }))] };
+    })
+    // STATUS do pool VENCE no candidato sobrevivente (CRÍTICO da revisão
+    // de 22/08, mesma família da recontaminação por rascunho): o campo
+    // status (desistência/sub judice) só nasce no pool fresco — rascunho
+    // salvo ANTES da desistência mantinha o objeto antigo sem o campo, e
+    // o candidato congelado seguia recebendo votos e podendo ser ELEITO.
+    // Sincroniza status a partir do pool e, congelado, zera na hora.
+    .map((p) => {
+      let mudou = false;
+      const cands = p.candidatos.map((c) => {
+        const oficialC = c.chave != null ? _oficialPorChave.get(c.chave) : null;
+        const statusOficial = oficialC ? (oficialC.status || null) : (c.status || null);
+        if ((c.status || null) === statusOficial) return c;
+        mudou = true;
+        return statusOficial
+          ? { ...c, status: statusOficial, votos: 0, votosEditado: false, marcadoEleito: false }
+          : { ...c, status: null };
+      });
+      return mudou ? { ...p, candidatos: cands } : p;
     });
   if (!podada.length) return lista;
   // Sentido inverso da mesma sincronização: grupo que EXISTE no pool mas
@@ -6001,6 +6042,14 @@ function podarGruposForaDoPool(lista, poolOficial) {
 async function garantirPalpiteEdicaoAtivo() {
   const chaveCargoEstado = `${pcState.estado}::${pcState.cargoAtivo}`;
   if (!pcState.palpiteEdicao || pcState.cargoPalpiteEdicao !== chaveCargoEstado) {
+    // Cargo/estado mudou: a ordem congelada era do CONJUNTO anterior — com
+    // a mesma contagem de grupos ela "casava" e a aba nova abria na ordem
+    // errada (ou até derrubava cards entre estados). E o timer de
+    // reagrupamento agendado na aba anterior não pode disparar em cima do
+    // DOM novo (achados 3 e 6 da revisão de 22/08).
+    pcState.ordemPartidosFixa = null;
+    pcState.ordemCandidatosFixa = null;
+    clearTimeout(window._pcReordTimer);
     await garantirRascunhosCarregados();
     // Prioridade: rascunho salvo (autosave, ver garantirRascunhosCarregados)
     // > cada partido começando com a própria vagas2022 real daquele
@@ -6225,6 +6274,13 @@ async function renderCargoEstadual() {
   // termo casa pelo candidato (e o resultado é curto — não é um "a" que
   // casa com todo mundo), o card já vem ABERTO, com a pessoa à vista.
   let partidosParaMostrar = partidosOrdenados;
+  // Busca limpa: fecha os cards que a PRÓPRIA busca abriu (achado 8 da
+  // revisão 22/08 — acumulavam abertos pra sempre); o que o usuário abriu
+  // à mão fica como está.
+  if (!filtroPartido && pcState._abertosPelaBusca) {
+    Object.keys(pcState._abertosPelaBusca).forEach((k) => { delete pcState.expandido[k]; });
+    pcState._abertosPelaBusca = null;
+  }
   if (filtroPartido) {
     const comMotivo = partidosOrdenados
       .map((p) => {
@@ -6236,7 +6292,12 @@ async function renderCargoEstadual() {
     partidosParaMostrar = comMotivo.map((m) => m.p);
     if (filtroPartido.length >= 3 && comMotivo.length <= 4) {
       comMotivo.forEach((m) => {
-        if (m.porCandidato) pcState.expandido["faderAberto_" + pcState.cargoAtivo + "_" + m.p.nome] = true;
+        if (!m.porCandidato) return;
+        const k = "faderAberto_" + pcState.cargoAtivo + "_" + m.p.nome;
+        if (!pcState.expandido[k]) {
+          pcState.expandido[k] = true;
+          (pcState._abertosPelaBusca = pcState._abertosPelaBusca || {})[k] = true;
+        }
       });
     }
   }
@@ -8262,7 +8323,32 @@ function renderRevisaoDeposito() {
     ${pcState.modalNomeListaAberto ? renderModalNomeLista() : ""}
 `;
   if (pcState.modalNomeListaAberto) {
-    attachListenersModalNomeLista(renderRevisaoDeposito, executarSalvarLista);
+    attachListenersModalNomeLista(renderRevisaoDeposito, async () => {
+      // Mesmo gate dos slots da Seleção (achado 5 da revisão 22/08): a
+      // Revisão criava lista nova sem checar o limite de 2 grátis nem
+      // cobrar o crédito — os dois botões de salvar agora cobram igual.
+      const listas = await _carregarMinhasListasNormalizado();
+      const abertas = listas.filter((l) => !l.depositadoEm);
+      if (abertas.length >= 2) {
+        if (!pcState.perfil) {
+          pcState.pendenteRegistro = true;
+          pcState.tela = "cadastro";
+          renderColaborativo();
+          return;
+        }
+        const { consumiu, error } = await consumirCreditoConta(pcState.perfil.id);
+        if (error) { pcState.erro = "Erro ao conferir crédito: " + error.message; }
+        if (!consumiu) {
+          pcState.listaSalvaNome = null;
+          await renderRevisaoDeposito();
+          const st = document.getElementById("pcDepositoStatus");
+          if (st) st.textContent = "Suas 2 listas grátis já estão em uso — sobreponha uma na Seleção, ou convide um amigo pra ganhar créditos.";
+          return;
+        }
+        pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
+      }
+      await executarSalvarLista();
+    });
   }
   // Filtro lista única vs. agrupado por partido/federação, no cabeçalho de
   // cada cargo — preventDefault/stopPropagation pra não deixar o clique
@@ -8397,10 +8483,24 @@ function renderRevisaoDeposito() {
     else { pcState.tela = "selecao-convidado"; renderColaborativo(); }
   });
   document.getElementById("pcBtnConfirmarDeposito").addEventListener("click", async () => {
+    // Cédula é IMUTÁVEL (achado 5 da revisão 22/08): se a lista ativa foi
+    // DEPOSITADA nesse meio tempo (o depósito não zera listaSalvaId), o
+    // Salvar da Revisão não pode gravar em cima dela — vira lista nova.
+    if (pcState.listaSalvaId) {
+      const listas = await _carregarMinhasListasNormalizado();
+      const ativa = listas.find((l) => l.id === pcState.listaSalvaId);
+      if (ativa && ativa.depositadoEm) {
+        pcState.listaSalvaId = null;
+        pcState.listaSalvaNome = null;
+        await persistirListaAtivaLocal();
+      }
+    }
     // Primeiro Salvar dessa lista (ainda sem nome) pede o nome antes de
     // gravar qualquer coisa — ver executarSalvarLista pra o que acontece
     // depois de confirmado. Salvamentos seguintes da MESMA lista (já tem
-    // nome) não perguntam de novo, só atualizam.
+    // nome) não perguntam de novo, só atualizam. O gate de economia (2
+    // grátis; crédito/conta além) roda na CONFIRMAÇÃO do nome — cancelar
+    // o modal não cobra nada (mesma régua dos slots da Seleção).
     if (!pcState.listaSalvaNome) {
       pcState.modalNomeListaAberto = true;
       renderRevisaoDeposito();
