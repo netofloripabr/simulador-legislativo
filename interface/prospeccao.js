@@ -6974,6 +6974,11 @@ function attachListenersSelecao() {
     // lista, e é por ele que se chega ao nome (decisão do usuário 21/08).
     const todas = await _carregarMinhasListasNormalizado();
     pcState._destinosSalvar = todas.filter((l) => !l.depositadoEm);
+    // A lista em edição entra selecionada e com o nome no campo — Enter
+    // direto = o clássico "salvar em cima do que estou editando".
+    pcState._destinoSelecionado = pcState.listaSalvaId && pcState._destinosSalvar.some((l) => l.id === pcState.listaSalvaId)
+      ? pcState.listaSalvaId : null;
+    pcState._destinoNomeDigitado = null;
     pcState.modalSalvarDestinoAberto = true;
     renderCargoEstadual();
   });
@@ -6988,9 +6993,41 @@ function attachListenersSelecao() {
     });
   }
   if (pcState.modalSalvarDestinoAberto) {
-    const fecharDestino = () => { pcState.modalSalvarDestinoAberto = false; renderCargoEstadual(); };
+    const fecharDestino = () => {
+      pcState.modalSalvarDestinoAberto = false;
+      pcState._destinoSelecionado = null;
+      pcState._destinoNomeDigitado = null;
+      renderCargoEstadual();
+    };
+    const inpDestino = document.getElementById("pcInputDestinoNome");
+    // Digitar limpa a seleção de lista — o nome novo passa a mandar (a
+    // desmarcação é feita direto no DOM, sem re-render, pra não roubar o
+    // foco do campo a cada tecla).
+    if (inpDestino) inpDestino.addEventListener("input", () => {
+      pcState._destinoNomeDigitado = inpDestino.value;
+      if (pcState._destinoSelecionado) {
+        pcState._destinoSelecionado = null;
+        document.querySelectorAll("[data-pc-destino-slot]").forEach((b) => {
+          b.style.background = "#16181B"; b.style.borderColor = "#2B2F33";
+          const bolinha = b.querySelector("span");
+          if (bolinha) { bolinha.style.borderColor = "#3A3F45"; bolinha.innerHTML = ""; }
+          const nomeEl = b.querySelector("span + span > span");
+          if (nomeEl) nomeEl.style.color = "var(--pc-ink)";
+        });
+      }
+    });
+    // Tocar numa lista seleciona ela e espelha o nome no campo.
+    document.querySelectorAll("[data-pc-destino-slot]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        pcState._destinoSelecionado = btn.getAttribute("data-pc-destino-slot");
+        pcState._destinoNomeDigitado = btn.getAttribute("data-pc-destino-nome");
+        renderCargoEstadual();
+      });
+    });
     const salvarNoAlvo = async (id, nome) => {
       pcState.modalSalvarDestinoAberto = false;
+      pcState._destinoSelecionado = null;
+      pcState._destinoNomeDigitado = null;
       pcState.listaSalvaId = id;
       pcState.listaSalvaNome = nome;
       await persistirListaAtivaLocal();
@@ -7001,20 +7038,33 @@ function attachListenersSelecao() {
         mostrarStatusSalvamento(`Salvo em "${nome}". Pode continuar editando.`);
       }
     };
-    const btnAtiva = document.getElementById("pcBtnDestinoAtiva");
-    if (btnAtiva) btnAtiva.addEventListener("click", () => salvarNoAlvo(pcState.listaSalvaId, pcState.listaSalvaNome));
-    document.querySelectorAll("[data-pc-destino-slot]").forEach((btn) => {
-      btn.addEventListener("click", () => salvarNoAlvo(btn.getAttribute("data-pc-destino-slot"), btn.getAttribute("data-pc-destino-nome")));
-    });
-    const btnNova = document.getElementById("pcBtnDestinoNova");
-    if (btnNova) btnNova.addEventListener("click", async () => {
+    const confirmarDestino = async () => {
       const destinos = (pcState._destinosSalvar || []).filter((l) => !l.depositadoEm);
+      const nome = (inpDestino ? inpDestino.value : "").trim();
+      // 1) lista selecionada — salva por cima dela (o nome do campo vale,
+      //    então dá até pra renomear no mesmo gesto)
+      if (pcState._destinoSelecionado) {
+        const alvo = destinos.find((l) => l.id === pcState._destinoSelecionado);
+        if (alvo) { await salvarNoAlvo(alvo.id, nome || alvo.nome); return; }
+      }
+      if (!nome) {
+        const erro = document.getElementById("pcErroDestino");
+        if (erro) erro.textContent = "Digite um nome — ou toque numa lista pra sobrepor.";
+        if (inpDestino) inpDestino.focus();
+        return;
+      }
+      // 2) nome IGUAL ao de uma lista existente = salvar em cima dela
+      //    (semântica clássica do "salvar como" — a linha homônima está
+      //    visível logo abaixo do campo, sem surpresa)
+      const homonima = destinos.find((l) => (l.nome || "").trim().toLowerCase() === nome.toLowerCase());
+      if (homonima) { await salvarNoAlvo(homonima.id, homonima.nome); return; }
+      // 3) nome novo — gates por tipo de usuário (2 grátis; depois crédito
+      //    pro logado, cadastro pro convidado — mesmos do "+" de Minhas listas)
       if (destinos.length >= 2) {
-        // Mesmos gates do "+" de Minhas listas: convidado não tem crédito
-        // (vai pro cadastro); logado consome 1 crédito via RPC — sem
-        // saldo, mostra o aviso lá em Minhas listas.
         if (!pcState.perfil) {
           pcState.modalSalvarDestinoAberto = false;
+          pcState._destinoSelecionado = null;
+          pcState._destinoNomeDigitado = null;
           pcState.pendenteRegistro = true;
           pcState.tela = "cadastro";
           renderColaborativo();
@@ -7023,20 +7073,28 @@ function attachListenersSelecao() {
         const { consumiu, error } = await consumirCreditoConta(pcState.perfil.id);
         if (error) { pcState.erro = "Erro ao conferir crédito: " + error.message; }
         if (!consumiu) {
-          pcState.modalSalvarDestinoAberto = false;
-          pcState.avisoLimiteListaAberto = true;
-          pcState.tela = pcState.perfil ? pcState.tela : "minhas-listas-convidado";
-          if (pcState.perfil) { pcState.subaba = "minhas-listas"; renderAppColaborativo(); } else { pcState.tela = "minhas-listas-convidado"; renderColaborativo(); }
+          const erro = document.getElementById("pcErroDestino");
+          if (erro) erro.textContent = "Sem crédito pra um nome novo — sobreponha uma lista existente, ou convide um amigo pra ganhar créditos.";
           return;
         }
         pcState.perfil.creditos = Math.max(0, (pcState.perfil.creditos || 0) - 1);
       }
       pcState.modalSalvarDestinoAberto = false;
+      pcState._destinoSelecionado = null;
+      pcState._destinoNomeDigitado = null;
       pcState.listaSalvaId = null;
-      pcState.listaSalvaNome = null;
-      pcState.modalNomeListaAberto = true;
-      renderCargoEstadual();
-    });
+      pcState.listaSalvaNome = nome;
+      await persistirListaAtivaLocal();
+      garantirPalpitesPorCargo();
+      const ok = await executarSalvarLista({ manterTela: true });
+      if (ok) {
+        await renderCargoEstadual();
+        mostrarStatusSalvamento(`Lista "${nome}" salva. Pode continuar editando.`);
+      }
+    };
+    const btnConfirmarDestino = document.getElementById("pcBtnConfirmarDestino");
+    if (btnConfirmarDestino) btnConfirmarDestino.addEventListener("click", confirmarDestino);
+    if (inpDestino) inpDestino.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); confirmarDestino(); } });
     const btnCancelarDestino = document.getElementById("pcBtnCancelarDestino");
     if (btnCancelarDestino) btnCancelarDestino.addEventListener("click", fecharDestino);
     const overlayDestino = document.getElementById("pcModalSalvarDestinoOverlay");
@@ -7612,27 +7670,41 @@ function renderModalNomeLista() {
 // os mesmos gates do "+" de Minhas listas.
 function renderModalSalvarDestino() {
   const destinos = (pcState._destinosSalvar || []).filter((l) => !l.depositadoEm);
-  const outras = destinos.filter((l) => l.id !== pcState.listaSalvaId);
   const noLimite = destinos.length >= 2;
+  const selecionada = pcState._destinoSelecionado || null;
+  const nomeInicial = pcState._destinoNomeDigitado !== null && pcState._destinoNomeDigitado !== undefined
+    ? pcState._destinoNomeDigitado
+    : (pcState.listaSalvaNome || "");
   const legendaNova = !noLimite
-    ? "Cria mais um slot em aberto — grátis até 2 listas."
+    ? ""
     : (pcState.perfil
-      ? `Suas 2 listas grátis já estão em uso — custa <b>1 crédito</b> (saldo: ${pcState.perfil.creditos || 0}).`
-      : "Suas 2 listas grátis já estão em uso — criar outra pede uma conta.");
-  const linhaDestino = (rotulo, sub, attrs, destaque) => `
-    <button ${attrs} style="width:100%; text-align:left; background:${destaque ? "rgba(52,232,74,.08)" : "#16181B"}; border:1px solid ${destaque ? "rgba(52,232,74,.35)" : "#2B2F33"}; border-radius:10px; padding:11px 12px; margin-bottom:7px; cursor:pointer; display:flex; flex-direction:column; gap:2px;">
-      <span style="font-size:13px; font-weight:700; color:${destaque ? "var(--pc-accent)" : "var(--pc-ink)"}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${rotulo}</span>
-      <span style="font-size:10.5px; color:var(--pc-ink-dim); line-height:1.4;">${sub}</span>
+      ? `Suas 2 listas grátis já estão em uso — nome novo custa <b>1 crédito</b> (saldo: ${pcState.perfil.creditos || 0}). Sobrepor uma lista é grátis.`
+      : "Suas 2 listas grátis já estão em uso — nome novo pede uma conta. Sobrepor uma lista é grátis.");
+  const linhaLista = (l) => {
+    const ativa = l.id === pcState.listaSalvaId;
+    const sel = l.id === selecionada;
+    return `
+    <button data-pc-destino-slot="${l.id}" data-pc-destino-nome="${escaparAtributoHtml(l.nome)}" style="width:100%; text-align:left; background:${sel ? "rgba(52,232,74,.08)" : "#16181B"}; border:1px solid ${sel ? "rgba(52,232,74,.45)" : "#2B2F33"}; border-radius:10px; padding:10px 12px; margin-bottom:6px; cursor:pointer; display:flex; align-items:center; gap:10px;">
+      <span style="flex:none; width:16px; height:16px; border-radius:50%; border:1.5px solid ${sel ? "var(--pc-accent)" : "#3A3F45"}; display:flex; align-items:center; justify-content:center;">${sel ? '<span style="width:8px; height:8px; border-radius:50%; background:var(--pc-accent);"></span>' : ""}</span>
+      <span style="min-width:0; flex:1;">
+        <span style="display:block; font-size:13px; font-weight:700; color:${sel ? "var(--pc-accent)" : "var(--pc-ink)"}; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}${ativa ? ' <span style="font-size:9px; font-weight:800; color:var(--pc-ink-dim);">· EM EDIÇÃO</span>' : ""}</span>
+        <span style="font-size:10.5px; color:var(--pc-ink-dim);">Salva em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")}</span>
+      </span>
     </button>`;
+  };
   return `
     <div id="pcModalSalvarDestinoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
       <div style="max-width:380px; width:100%; max-height:86vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
-        <h2 style="margin-bottom:4px; font-size:15px;">Salvar aonde?</h2>
-        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:14px;">O palpite como está agora vai pro slot que você escolher.</div>
-        ${pcState.listaSalvaId && pcState.listaSalvaNome ? linhaDestino(`Atualizar "${pcState.listaSalvaNome}"`, "A lista que você está editando — salva em cima dela.", `id="pcBtnDestinoAtiva"`, true) : ""}
-        ${outras.map((l) => linhaDestino(`Sobrescrever "${l.nome}"`, `Salva em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")} — o conteúdo dela é substituído pelo palpite atual.`, `data-pc-destino-slot="${l.id}" data-pc-destino-nome="${escaparAtributoHtml(l.nome)}"`)).join("")}
-        ${linhaDestino("Salvar como nova lista", legendaNova, `id="pcBtnDestinoNova"`)}
-        <button class="ghost" id="pcBtnCancelarDestino" style="width:100%; margin-top:4px;">Cancelar</button>
+        <h2 style="margin-bottom:4px; font-size:15px;">Salvar lista</h2>
+        <div style="font-size:11.5px; line-height:1.4; color:var(--pc-ink-dim); margin-bottom:12px;">Dê um nome — ou toque numa lista anterior pra salvar por cima dela.</div>
+        <input class="cell" id="pcInputDestinoNome" placeholder="nome da lista — ex.: otimista ${new Date().toLocaleDateString("pt-BR")}" value="${escaparAtributoHtml(nomeInicial)}" style="width:100%; margin-bottom:10px; text-align:left;">
+        ${destinos.length ? `<div style="font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--pc-ink-dim); margin:2px 0 7px;">Ou sobrepor uma lista</div>${destinos.map(linhaLista).join("")}` : ""}
+        ${legendaNova ? `<div style="font-size:10.5px; color:var(--pc-ink-dim); line-height:1.5; margin-top:4px;">${legendaNova}</div>` : ""}
+        <div class="pc-erro" id="pcErroDestino" style="min-height:16px; margin-top:4px;"></div>
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <button class="ghost" id="pcBtnCancelarDestino" style="flex:1;">Cancelar</button>
+          <button class="primary" id="pcBtnConfirmarDestino" style="flex:1;">Salvar</button>
+        </div>
       </div>
     </div>`;
 }
@@ -8517,7 +8589,7 @@ document.addEventListener("keydown", (e) => {
   if (pcState.disputaSobraAberta) return fechar(() => { pcState.disputaSobraAberta = null; });
   if (pcState.top2022Aberto) return fechar(() => { pcState.top2022Aberto = false; });
   if (pcState.menuMagicoAberto) return fechar(() => { pcState.menuMagicoAberto = null; });
-  if (pcState.modalSalvarDestinoAberto) return fechar(() => { pcState.modalSalvarDestinoAberto = false; });
+  if (pcState.modalSalvarDestinoAberto) return fechar(() => { pcState.modalSalvarDestinoAberto = false; pcState._destinoSelecionado = null; pcState._destinoNomeDigitado = null; });
   if (pcState.modalNomeListaAberto) return fechar(() => { pcState.modalNomeListaAberto = false; });
   if (pcState.modalInstagramInfo) return fechar(() => { pcState.modalInstagramInfo = null; });
   if (pcState.modalDepositarListaId) return fechar(() => { pcState.modalDepositarListaId = null; });
