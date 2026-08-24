@@ -77,6 +77,9 @@ let pcState = {
   modoAgrupadoRevisao: {}, // cargo -> true/false — filtro "lista única" (default) vs "agrupado por partido/federação" na Revisão
   listaEmVisualizacao: null, // lista depositada aberta em modo "Ver" (renderMinhasListas) — null = mostrando a lista de listas
   modalDepositarListaId: null, // id da lista com o modal de confirmação de depósito aberto
+  avisoVagaNaoMarcadaResumo: null, // [{cargo, nomes:[...]}] — vagas que a votação real já garantiria mas a pessoa não marcou; null enquanto não checou
+  avisoVagaNaoMarcadaConfirmado: false, // true depois do 2º clique em "Depositar mesmo assim" — reseta a cada abertura do modal
+  _anonimoPreAviso: false, // escolha do switch "anônimo" preservada durante o re-render do aviso acima
   modalCompartilharListaId: null, // id da lista com o modal de compartilhamento (código + imagem) aberto
   dadosCompartilhar: null, // { carregando, lista, eleitos, imagemUrl } do modal de compartilhar acima — cache pra não recarregar a cada render
   avisoLimiteListaAberto: false, // aviso "compre crédito" ao tentar criar 2ª lista sem pagar
@@ -3357,13 +3360,21 @@ async function renderMinhasListas() {
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 14)} IMPORTANTE</div>
         <h2 style="margin-bottom:6px; font-size:15px;">Depositar "${listaModal.nome}"?</h2>
         <div style="font-size:12.5px; line-height:1.6; color:var(--pc-ink-dim);">Depois de depositada, essa lista trava — não dá mais pra editar nem excluir. É a sua cédula pra valer.</div>
+        ${pcState.avisoVagaNaoMarcadaResumo ? `
+        <div class="pc-aviso-card" style="margin:14px 0 0;">
+          <div class="pc-aviso-titulo">Tem vaga que a votação de hoje já garante, mas você não marcou</div>
+          <div class="pc-aviso-corpo">${pcState.avisoVagaNaoMarcadaResumo.map((r) => {
+            const nomes = r.nomes.length > 8 ? r.nomes.slice(0, 8).join(", ") + ` e mais ${r.nomes.length - 8}` : r.nomes.join(", ");
+            return `<b>${r.cargo}:</b> ${nomes}`;
+          }).join("<br>")}<br><br>A etiqueta ELEITO da sua lista é sempre a sua escolha — nunca muda sozinha. Depositar assim mantém do jeito que está.</div>
+        </div>` : ""}
         <label style="display:flex; align-items:center; gap:10px; margin:16px 0; font-size:13px; color:var(--pc-ink); cursor:pointer;">
-          <span class="pc-switch" style="flex-shrink:0;"><input type="checkbox" id="pcCheckAnonimo"><span class="pc-switch-slider"></span></span>
+          <span class="pc-switch" style="flex-shrink:0;"><input type="checkbox" id="pcCheckAnonimo"${pcState._anonimoPreAviso ? " checked" : ""}><span class="pc-switch-slider"></span></span>
           Depositar de forma anônima
         </label>
         <div style="display:flex; gap:8px;">
           <button class="ghost" id="pcBtnCancelarDepositar" style="flex:1;">Cancelar</button>
-          <button class="primary" id="pcBtnConfirmarDepositar" style="flex:1;">Depositar</button>
+          <button class="primary" id="pcBtnConfirmarDepositar" style="flex:1;">${pcState.avisoVagaNaoMarcadaResumo ? "Depositar mesmo assim" : "Depositar"}</button>
         </div>
       </div>
     </div>` : ""}
@@ -3520,6 +3531,9 @@ async function renderMinhasListas() {
         return;
       }
       pcState.modalDepositarListaId = btn.getAttribute("data-pc-depositar-lista");
+      pcState.avisoVagaNaoMarcadaResumo = null;
+      pcState._anonimoPreAviso = false;
+      pcState.avisoVagaNaoMarcadaConfirmado = false;
       renderMinhasListas();
     });
   });
@@ -3535,10 +3549,16 @@ async function renderMinhasListas() {
   if (listaModal) {
     document.getElementById("pcBtnCancelarDepositar").addEventListener("click", () => {
       pcState.modalDepositarListaId = null;
+      pcState.avisoVagaNaoMarcadaResumo = null;
+      pcState._anonimoPreAviso = false;
+      pcState.avisoVagaNaoMarcadaConfirmado = false;
       renderMinhasListas();
     });
     document.getElementById("pcBtnConfirmarDepositar").addEventListener("click", async () => {
       const anonimo = document.getElementById("pcCheckAnonimo").checked;
+      // 2º clique (botão já virou "Depositar mesmo assim", o aviso abaixo
+      // já está na tela) — a pessoa decidiu, não pergunta de novo.
+      if (pcState.avisoVagaNaoMarcadaResumo) pcState.avisoVagaNaoMarcadaConfirmado = true;
       // Política de 21/08/2026: lista da era antiga (elenco de 2022
       // embutido) NÃO pode virar cédula — o depósito é imutável, e uma
       // cédula não pode nascer com a base errada. Valida o conteúdo real
@@ -3555,6 +3575,31 @@ async function renderMinhasListas() {
         pcState.avisoEdicaoStatus = `"${listaModal.nome}" foi salva numa versão antiga do elenco de candidatos e não pode ser depositada — os candidatos dela já não correspondem aos registrados pra 2026. Monte uma lista nova a partir do palpite atual.`;
         renderMinhasListas();
         return;
+      }
+      // Vaga que a votação de hoje já garantiria, mas a pessoa não marcou
+      // como eleito (conceito fechado 12/08/2026, retomado hoje) — não
+      // bloqueia o depósito, só avisa ANTES dele virar irreversível.
+      // Reaproveita listaUnificadaRevisao (mesma régua soberana-do-usuário
+      // da Revisão) em vez de recalcular do zero. Só checa na 1ª tentativa
+      // dessa abertura do modal — depois de "Depositar mesmo assim" o
+      // 2º clique já deposita direto, sem recalcular de novo.
+      if (cargosPraValidar && !pcState.avisoVagaNaoMarcadaConfirmado) {
+        const resumo = [];
+        CARGOS.forEach((cargoDef) => {
+          const listaCargo = cargosPraValidar[cargoDef.id];
+          if (!listaCargo || !listaCargo.length) return;
+          const naoMarcados = listaUnificadaRevisao(listaCargo, cargoDef.id)
+            .filter((c) => !c.eleito && c.consistenteComMatematicaReal);
+          if (naoMarcados.length) resumo.push({ cargo: cargoDef.label, nomes: naoMarcados.map((c) => c.nome) });
+        });
+        if (resumo.length) {
+          pcState.avisoVagaNaoMarcadaResumo = resumo;
+          // Preserva a escolha "anônima" no re-render do aviso — senão o
+          // checkbox voltava desmarcado no meio do fluxo.
+          pcState._anonimoPreAviso = anonimo;
+          renderMinhasListas();
+          return;
+        }
       }
       if (pcState.perfil) {
         // Economia v3 §3/§6: a 1ª cédula depositada é grátis; a partir da
@@ -3578,6 +3623,9 @@ async function renderMinhasListas() {
         await depositarListaLocal(pcState.estado, listaModal.id, anonimo);
       }
       pcState.modalDepositarListaId = null;
+      pcState.avisoVagaNaoMarcadaResumo = null;
+      pcState._anonimoPreAviso = false;
+      pcState.avisoVagaNaoMarcadaConfirmado = false;
       renderMinhasListas();
     });
   }
