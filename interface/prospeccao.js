@@ -1917,15 +1917,21 @@ function renderTelaCadastro() {
 
 function renderAppColaborativo() {
   const el = document.getElementById("modoColaborativoWrap");
+  // O Painel tem barra própria (logo + saldo + convidar + sino + perfil,
+  // ver renderPainelPrincipal) — repetir "Olá, nome" + botão de perfil
+  // aqui virava duplicação visual (achado do usuário, 24/08/2026). Nas
+  // demais subabas, sem barra própria, o card genérico segue existindo.
+  const semCardGenerico = pcState.subaba === "painel";
   el.innerHTML = `
+    ${semCardGenerico ? "" : `
     <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
       <div><h2 style="margin:0;">Olá, ${pcState.perfil ? pcState.perfil.nome : "visitante"}</h2>
       <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: chapa completa"}</div></div>
       ${pcState.perfil ? `<button class="pc-mini-btn" id="pcBtnAbrirPerfil" title="Menu">${iconeSvg("perfil", 18)}</button>` : ""}
-    </div>
+    </div>`}
     <div id="pcConteudo"></div>
   `;
-  if (pcState.perfil) {
+  if (pcState.perfil && !semCardGenerico) {
     document.getElementById("pcBtnAbrirPerfil").addEventListener("click", () => {
       pcState.subaba = "menu";
       renderAppColaborativo();
@@ -2720,7 +2726,7 @@ async function renderPainelPrincipal() {
     <div id="pcFarolBloco"></div>
 
     <div class="pc-topbar">
-      <div class="pc-topbar-marca"><b>Simula</b>LEGIS</div>
+      <div class="pc-topbar-marca"><span class="pc-topbar-nome"><b>Simula</b>LEGIS</span><span class="pc-topbar-prevendo">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: chapa completa"}</span></div>
       ${pcState.perfil ? `<button class="pc-topbar-cred" id="pcBtnSaldoTopo" title="Seus créditos">${iconeSvg("credito", 14)}<span>${Number((pcState.perfil && pcState.perfil.creditos) || 0)}</span></button>` : ""}
       <button class="pc-topbar-btn" id="pcBtnConvidarTopo" title="Convidar amigos">${iconeSvg("convidar", 17)}</button>
       ${pcState.perfil ? `<button class="pc-topbar-btn" id="pcBtnSinoTopo" title="Notificações" style="position:relative;">${iconeSvg("sino", 17)}${pcState.notificacoesNaoLidas ? `<span class="pc-topbar-pip"></span>` : ""}</button>` : ""}
@@ -2760,7 +2766,7 @@ async function renderPainelPrincipal() {
 
     <div class="pc-lobby-banner">
       <div class="pc-lobby-banner-eyebrow">Convide amigos</div>
-      <div class="pc-lobby-banner-titulo">Desafie quem mais entende de política</div>
+      <div class="pc-lobby-banner-titulo">Desafie quem entende de política</div>
       <div class="pc-lobby-banner-corpo">Compare sua lista lado a lado com a de amigos, num grupo só seu.</div>
       <button class="pc-lobby-banner-btn" id="pcBtnConviteBanner">Criar grupo ${iconeSvg("setaDireita", 13)}</button>
     </div>
@@ -5489,6 +5495,14 @@ let _depDragKey = null, _depTimer = null, _depEditAberto = false, _depMasterAtiv
 // Vagas apuradas por grupo com a votação ATUAL (mesma conta da Revisão:
 // dhondtComCorte distribui QP e sobras numa passada). marcadoEleito de
 // cada candidato = estar entre os N mais votados do próprio grupo.
+// A etiqueta ELEITO segue o PALPITE (o número indicado no box "− N +" de
+// cada partido, ou a apuração real como valor de partida enquanto a
+// pessoa não mexe nele) — nunca a apuração real sozinha. Decisão do
+// usuário em 24/08/2026, depois do caso "caixa em 12, mas 15 marcados":
+// as duas coisas tinham virado fontes de verdade diferentes (apuração
+// real vs. caixa), e isso é que confundia. Agora só existe uma fonte pra
+// etiqueta; a apuração real vira ORIENTAÇÃO (texto abaixo da barra de
+// votos), nunca mais uma segunda contagem competindo com a etiqueta.
 function recalcularMarcadosDeputados() {
   // Saneamento: rascunhos salvos antes do arredondamento da trava podem
   // carregar voto fracionário — normaliza uma vez por passada (idempotente).
@@ -5498,9 +5512,10 @@ function recalcularMarcadosDeputados() {
   const totalVagas = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
   const { counts } = dhondtComCorte(pcState.palpiteEdicao, totalVagas);
   pcState.palpiteEdicao.forEach((p, i) => {
+    const alvo = vagasIndicadasDe(p, counts[i]);
     const reais = p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status);
     const ordenados = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
-    const chaves = new Set(ordenados.slice(0, counts[i]).filter((c) => (Number(c.votos) || 0) > 0).map((c) => c.chave));
+    const chaves = new Set(ordenados.slice(0, alvo).filter((c) => (Number(c.votos) || 0) > 0).map((c) => c.chave));
     p.candidatos.forEach((c) => { c.marcadoEleito = chaves.has(c.chave); });
   });
 }
@@ -5632,6 +5647,29 @@ function notificacaoDep(soma, meta, vagasInd, qeProj) {
   return `Faltam <b>${formatVotosCompacto(Math.max(0, proxima * qeProj - soma))}</b> votos pra fechar a ${proxima}ª vaga`;
 }
 
+// Segunda linha, abaixo da notificação de votos — ORIENTAÇÃO sobre a
+// apuração real (D'Hondt cruzando todos os partidos), nunca uma segunda
+// contagem de eleitos: a etiqueta de cada candidato já segue o palpite
+// (recalcularMarcadosDeputados), isso aqui só avisa quando a nominata
+// (a votação de hoje, cargo inteiro) diria outra coisa — pra decisão
+// continuar sendo do usuário. Mesmo tom apagado da referência "2022:
+// X votos" no candidato (pedido do usuário, 24/08/2026), não mais um
+// alerta colorido.
+function orientacaoNominata(vg, vagasInd, corte, soma, proximoNome) {
+  if (vg === vagasInd) return "";
+  if (vg > vagasInd) {
+    const diff = vg - vagasInd;
+    return diff === 1
+      ? `Pela votação da nominata hoje, ${proximoNome} também estaria eleito`
+      : `Pela votação da nominata hoje, mais ${diff} candidatos também estariam eleitos — a começar por ${proximoNome}`;
+  }
+  if (corte <= 0) return "";
+  const necessario = Math.floor(corte * vagasInd) + 1;
+  const faltam = Math.max(0, necessario - soma);
+  if (faltam <= 0) return "";
+  return `Faltam <b>${formatVotosCompacto(faltam)}</b> votos na nominata pra fechar a ${vagasInd}ª vaga de verdade`;
+}
+
 // Barra fina do partido no formato do console: régua com um traço por vaga
 // (verde passou / laranja em disputa / branco sem votos + pontinho laranja
 // quando há votos pra vaga não somada no box), preenchimento verde com
@@ -5708,7 +5746,7 @@ function atualizarBarraPartidoDom(zone, soma) {
 // subpainel de botões · candidatos aninhados (lista completa).
 function renderListaDeputadosFader(grupos, E, totalVagas) {
   const capCand = capCandidatoDeputado();
-  const counts = vagasApuradasPorGrupo();
+  const { counts, corte } = dhondtComCorte(pcState.palpiteEdicao, totalVagas);
   const qeProj = quocienteEleitoral(Math.round(E), totalVagas) || 1;
   const qeAtual = quocienteEleitoral(somaVotosCargo(), totalVagas);
   const idxDe = new Map(pcState.palpiteEdicao.map((p, i) => [p, i]));
@@ -5740,14 +5778,6 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     const chaveAberto = "faderAberto_" + pcState.cargoAtivo + "_" + p.nome;
     const aberto = !!pcState.expandido[chaveAberto];
     const infoAberto = !!pcState.expandido["depInfo_" + pcState.cargoAtivo + "_" + p.nome];
-    // Aviso "apuração ≠ indicado" SÓ com a votação do cargo completa (o
-    // mesmo gate do Avançar) — apuração sobre distribuição parcial é um
-    // instantâneo torto e conflitava com a notificação da barra ("faltam
-    // Xk pra 3ª vaga" vs "a matemática dá 15"), achado do usuário em
-    // 21/08/2026. E vira SEGUNDA LINHA da notificação do card (acessível
-    // no celular), não mais um botão com title que só desktop via.
-    const cargoCompleto = somaVotosCargo() >= 0.995 * E;
-    const avisoMais = cargoCompleto && vg > vagasInd;
     // Mesma lógica de timing dos cards de partido, um nível abaixo
     // (pedido 21/08 à noite): a ordem dos candidatos DENTRO do card fica
     // congelada enquanto a pessoa mexe — só reordena junto com o
@@ -5765,12 +5795,17 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       candsOrd = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
       pcState.ordemCandidatosFixa[chaveOrdC] = candsOrd.map((c) => c.chave);
     }
+    const proximoNaNominata = candsOrd[vagasInd] ? nomeExibicao(candsOrd[vagasInd]) : "o próximo";
+    const orientacaoTxt = orientacaoNominata(vg, vagasInd, corte, soma, proximoNaNominata);
     const cands = aberto ? candsOrd.map((c, k) => {
       const cv = Number(c.votos) || 0;
       const cpct = E > 0 ? cv / E * 100 : 0;
       const selo = c.marcadoEleito
         ? (k < qpDireto ? '<span class="pc-sen-chip">ELEITO</span>' : '<span class="pc-sen-chip sobra" title="Vaga conquistada na disputa de sobras (método das médias, art. 109)">SOBRA</span>')
         : (cv > 0 ? '<span class="pc-sen-chip fora" title="Tem votos, mas não fecha vaga com a votação de hoje">FORA</span>' : "");
+      // Posição do candidato na lista do partido (pedido do usuário,
+      // 24/08/2026) — discreto, só a colocação por votação de hoje.
+      const posicao = `<span class="pc-dep-pos">${k + 1}º</span>`;
       const linkInsta = linkInstagramDe(c.chave);
       // Ícone do Instagram MONOCROMÁTICO à DIREITA do nome (refino 20/08) —
       // só aparece pra quem tem link alimentado na planilha/admin.
@@ -5784,6 +5819,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         return `
       <div class="pc-dep-crow pc-dep-crow-cong" data-dep-cong="${escaparAtributoHtml(st.motivo)}">
         <div class="pc-dep-cl1">
+          ${posicao}
           <span class="pc-sen-chip statusbranco">${st.etiqueta}</span>
           <span class="pc-dep-cnm">${nomeExibicao(c)}${instaDepois}${lapisAdmin}</span>
           <span class="pc-dep-cpct">—</span>
@@ -5799,7 +5835,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       return `
       <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
         <div class="pc-dep-cl1">
-          ${selo}
+          ${posicao}${selo}
           <span class="pc-dep-cnm">${nomeExibicao(c)}${instaDepois}${lapisAdmin}</span>
           <span class="pc-dep-cpct">${cpct.toFixed(1).replace(".", ",")}<small>%</small></span>
         </div>
@@ -5826,7 +5862,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <span class="pc-dep-notif-txt">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
         <button type="button" class="pc-dep-inf${infoAberto ? " aberto" : ""}" data-dep-info="${gi}" title="Detalhes do partido">i</button>
       </div>
-      ${avisoMais ? `<div class="pc-dep-aviso2">${iconeSvg("alerta", 12)}<span>A apuração dá <b>${vg}</b> vaga${vg === 1 ? "" : "s"} a este partido — você indicou <b>${vagasInd}</b>. A decisão é sua.</span></div>` : ""}
+      ${orientacaoTxt ? `<div class="pc-dep-orientacao">${orientacaoTxt}</div>` : ""}
       ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.</div>` : ""}
       ${aberto ? `<div class="pc-dep-subpainel">
         <div class="pc-cmd-b22">

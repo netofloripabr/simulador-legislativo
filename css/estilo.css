@@ -383,10 +383,19 @@
     display:flex; align-items:center; gap:9px; padding:2px 2px 14px; margin-bottom:2px;
   }
   #modoColaborativoWrap .pc-topbar-marca{
-    flex:1; min-width:0; font-size:13px; font-weight:800; letter-spacing:-.01em; color:var(--pc-ink);
+    flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; justify-content:center;
+  }
+  #modoColaborativoWrap .pc-topbar-nome{
+    font-size:13px; font-weight:800; letter-spacing:-.01em; color:var(--pc-ink);
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
-  #modoColaborativoWrap .pc-topbar-marca b{ color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-topbar-nome b{ color:var(--pc-accent); }
+  /* "Prevendo: X" — desceu pra cá de baixo da logo (achado do usuário,
+     24/08/2026): o card "Olá, nome" genérico duplicava o botão de perfil
+     que a barra do Painel já tem. */
+  #modoColaborativoWrap .pc-topbar-prevendo{
+    font-size:9.5px; color:var(--pc-ink-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
   #modoColaborativoWrap .pc-topbar-btn{
     width:34px; height:34px; flex-shrink:0; border-radius:50%; background:#101214;
     border:1px solid var(--pc-glass-border); color:var(--pc-ink-dim);
@@ -1460,6 +1469,12 @@
 }
 #modoColaborativoWrap .pc-dep-crow{ padding:14px 0 10px; border-top:1px solid #1E2226; }
 #modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:6px; }
+/* Posição na lista do partido (pedido do usuário, 24/08/2026) — discreto,
+   por isso o mesmo tom apagado da referência "2022:" e não um chip. */
+#modoColaborativoWrap .pc-dep-pos{
+  flex:none; font-size:10.5px; color:#6E757C; font-variant-numeric:tabular-nums;
+  min-width:17px;
+}
 #modoColaborativoWrap .pc-dep-cnm{
   /* Fonte RESPONSIVA (pedido 20/08): ~3% da largura da tela — a mesma
      proporção da referência aprovada (24,5px numa tela de ~810px) — com
@@ -1562,14 +1577,16 @@
   display:flex; align-items:center; justify-content:space-between; gap:5px;
 }
 #modoColaborativoWrap .pc-dep-subpainel{ gap:clamp(4px, 1.5vw, 12px); }
-/* Aviso "apuração ≠ indicado" — 2ª linha da notificação do card (21/08/2026):
-   verde-lima (semântica de aviso), visível no toque zero, celular incluído. */
-#modoColaborativoWrap .pc-dep-aviso2{
-  display:flex; align-items:flex-start; gap:6px; margin-top:6px;
-  font-size:11px; line-height:1.5; color:var(--pc-warning);
+/* Orientação sobre a apuração real (D'Hondt) — linha abaixo da notificação
+   de votos (24/08/2026, reformulado depois do card "bagunçado" com o
+   card-alerta colorido + tag por candidato). A etiqueta ELEITO já segue
+   o palpite (recalcularMarcadosDeputados); isso aqui é só contexto, no
+   mesmo tom apagado da referência "2022: X votos" no candidato — nunca
+   mais um alerta colorido competindo pela atenção. */
+#modoColaborativoWrap .pc-dep-orientacao{
+  font-size:10px; line-height:1.5; color:#6E757C; margin-top:5px;
 }
-#modoColaborativoWrap .pc-dep-aviso2 svg{ flex:none; margin-top:1px; }
-#modoColaborativoWrap .pc-dep-aviso2 b{ font-weight:800; }
+#modoColaborativoWrap .pc-dep-orientacao b{ font-weight:700; color:#8A9096; }
 #modoColaborativoWrap .pc-dep-subpainel .pc-cmd-acao{
   flex:1 1 0; min-width:28px; max-width:52px; min-height:28px; aspect-ratio:1;
   border-radius:50%; background:#101214; border:1px solid #1F2327;
