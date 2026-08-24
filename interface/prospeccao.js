@@ -5512,6 +5512,17 @@ function recalcularMarcadosDeputados() {
   const totalVagas = vagasFixasCargo(pcState.estado, pcState.cargoAtivo);
   const { counts } = dhondtComCorte(pcState.palpiteEdicao, totalVagas);
   pcState.palpiteEdicao.forEach((p, i) => {
+    // O indicado É o box — nunca só um "valor padrão" recalculado a
+    // cada passada. Sem isso, enquanto a pessoa não mexe no box, o
+    // "indicado" ficava seguindo a apuração real por baixo dos panos: a
+    // meta/curso da barra (vagasIndicadasDe, no render) mudava sozinha
+    // toda vez que um voto cruzava um degrau de vaga, e a barra "saltava"
+    // mesmo sem ninguém tocar no box — o próprio bug que a folga de 1 QE
+    // tentou (e não conseguiu) resolver. Fixa aqui, na primeira passada,
+    // o valor que a pessoa está vendo no box; só muda de novo quando ELA
+    // mexe nele (ou some com "delete p.vagasIndicadas", ex.: Zerar tudo).
+    // Achado do usuário, 24/08/2026.
+    if (!Number.isFinite(Number(p.vagasIndicadas))) p.vagasIndicadas = counts[i];
     const alvo = vagasIndicadasDe(p, counts[i]);
     const reais = p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status);
     const ordenados = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
