@@ -2119,7 +2119,7 @@ function renderMenuConta() {
           <div style="font-size:14px; font-weight:600;">Notificações por e-mail</div>
           <div style="font-size:11.5px; color:var(--pc-ink-dim); margin-top:1px;">Avisos de grupo e da eleição (em breve)</div>
         </div>
-        <label class="pc-switch" style="flex-shrink:0;"><input type="checkbox" id="pcToggleNotifEmail" ${p.notif_email ? "checked" : ""}><span class="pc-switch-slider"></span></label>
+        <label class="pc-switch pc-switch-neutro" style="flex-shrink:0;"><input type="checkbox" id="pcToggleNotifEmail" ${p.notif_email ? "checked" : ""}><span class="pc-switch-slider"></span></label>
       </div>
       ${linhaMenu("pcBtnMenuReportar", "alerta", "rgba(198,230,42,.12)", "Reportar um problema", "Achou um bug? Nos conta aqui")}
       ${linhaMenu("pcBtnMenuConvidar", "convidar", "#2C3239", "Convidar amigos", "Seu grupo e código de convite")}
@@ -3314,9 +3314,6 @@ async function renderMinhasListas() {
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}${l.codigo ? ` · <span style="font-family:var(--mono);">${l.codigo}</span>` : ""}${l.editadaEm ? ` · <span style="color:var(--pc-warning);">editada em ${new Date(l.editadaEm).toLocaleDateString("pt-BR")}</span>` : ""}</div>
       </div>
       <div class="pc-ml-acoes">
-        ${pcState.perfil ? (l.edicoes < 3
-          ? `<button type="button" class="pc-cmd-acao" data-pc-editar-depositada="${l.id}" title="${l.edicoes + 1}ª edição de 3 (${[20, 35, 50][l.edicoes]} créditos) — a cédula fica com a marca de editada">${iconeSvg("editar", 14)}<span class="pc-ml-badge">${[20, 35, 50][l.edicoes]}c</span></button>`
-          : `<button type="button" class="pc-cmd-acao" disabled title="Limite de 3 edições — pra mudar de novo, deposite uma nova cédula (70 créditos)">${iconeSvg("editar", 14)}<span class="pc-ml-badge">3/3</span></button>`) : ""}
         ${l.codigo ? `<button type="button" class="pc-cmd-acao" data-pc-compartilhar-lista="${l.id}" title="Compartilhar o cartão-desafio">${iconeSvg("compartilhar", 14)}</button>` : ""}
         <button type="button" class="pc-cmd-acao" data-pc-ver-lista="${l.id}" title="Ver a lista (só leitura)">${iconeSvg("buscar", 14)}</button>
       </div>
@@ -3359,7 +3356,7 @@ async function renderMinhasListas() {
       <div style="max-width:380px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 14)} IMPORTANTE</div>
         <h2 style="margin-bottom:6px; font-size:15px;">Depositar "${listaModal.nome}"?</h2>
-        <div style="font-size:12.5px; line-height:1.6; color:var(--pc-ink-dim);">Depois de depositada, essa lista trava — não dá mais pra editar nem excluir. É a sua cédula pra valer.</div>
+        <div style="font-size:12.5px; line-height:1.6; color:var(--pc-ink-dim);">Depois de depositada, <b style="color:var(--pc-ink);">não será mais possível alterar nem excluir essa cédula</b> — é definitivo. Pra mudar de voto depois, o jeito é depositar uma cédula nova (cenário paralelo).</div>
         ${pcState.avisoVagaNaoMarcadaResumo ? `
         <div class="pc-aviso-card" style="margin:14px 0 0;">
           <div class="pc-aviso-titulo">Tem vaga que a votação de hoje já garante, mas você não marcou</div>
@@ -3369,7 +3366,7 @@ async function renderMinhasListas() {
           }).join("<br>")}<br><br>A etiqueta ELEITO da sua lista é sempre a sua escolha — nunca muda sozinha. Depositar assim mantém do jeito que está.</div>
         </div>` : ""}
         <label style="display:flex; align-items:center; gap:10px; margin:16px 0; font-size:13px; color:var(--pc-ink); cursor:pointer;">
-          <span class="pc-switch" style="flex-shrink:0;"><input type="checkbox" id="pcCheckAnonimo"${pcState._anonimoPreAviso ? " checked" : ""}><span class="pc-switch-slider"></span></span>
+          <span class="pc-switch pc-switch-neutro" style="flex-shrink:0;"><input type="checkbox" id="pcCheckAnonimo"${pcState._anonimoPreAviso ? " checked" : ""}><span class="pc-switch-slider"></span></span>
           Depositar de forma anônima
         </label>
         <div style="display:flex; gap:8px;">
@@ -3490,29 +3487,13 @@ async function renderMinhasListas() {
       if (lista) await abrirListaParaEdicao(lista);
     });
   });
-  // Edição PAGA de cédula depositada: cobra no servidor (20/35/50
-  // progressivo, migração 25) e só então abre no editor. Limite de 3 e
-  // "sem saldo" viram mensagem no card da lista.
-  document.querySelectorAll("[data-pc-editar-depositada]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const lista = listas.find((l) => l.id === btn.getAttribute("data-pc-editar-depositada"));
-      if (!lista || !pcState.perfil) return;
-      btn.disabled = true;
-      const r = await editarCedulaDepositada(lista.id);
-      if (r.semSaldo) {
-        pcState.avisoEdicaoStatus = "Saldo insuficiente pra essa edição — convide amigos: cada convite convertido rende 10 créditos.";
-        renderMinhasListas();
-        return;
-      }
-      if (r.erro) {
-        pcState.avisoEdicaoStatus = r.erro;
-        renderMinhasListas();
-        return;
-      }
-      pcState.avisoEdicaoStatus = "";
-      await abrirListaParaEdicao(lista);
-    });
-  });
+  // Edição paga de cédula depositada REMOVIDA (decisão do usuário,
+  // 24/08/2026): imutabilidade é elemento de valor da cédula — o único
+  // jeito de mudar de voto depois de depositar volta a ser uma cédula
+  // NOVA (70 créditos, cenário paralelo), nunca reabrir a mesma. Histórico
+  // de código: editarCedulaDepositada (nuvem/palpites.js) e a RPC da
+  // migração 25 continuam existindo no banco, só não são mais chamadas
+  // daqui — nada foi apagado no servidor, só o gatilho no app.
   const mlLegendaToggle = document.getElementById("pcMlLegendaToggle");
   if (mlLegendaToggle) {
     mlLegendaToggle.addEventListener("click", () => {

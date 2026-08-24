@@ -127,7 +127,18 @@ Ideias novas do usuário, estruturadas:
 
 ---
 
-## 6. Cédulas: edição progressiva e nova cédula [DECIDIDO na estrutura]
+## 6. Cédulas: edição progressiva e nova cédula [REVERTIDO em 24/08/2026]
+
+> A edição paga de cédula depositada foi implementada e depois **removida**
+> — imutabilidade é elemento de valor da cédula, e o usuário decidiu não
+> abrir exceção nenhuma. O único jeito de mudar de voto depois de
+> depositar continua sendo depositar uma cédula NOVA (linha "Nova
+> cédula" da tabela abaixo, 70 créditos, cenário paralelo) — nunca
+> reabrir a mesma. Código removido do app (botão + handler em
+> `renderMinhasListas`); a RPC da migração 25 e `editarCedulaDepositada`
+> (nuvem/palpites.js) continuam existindo no banco, só não são mais
+> chamadas por lugar nenhum. O resto desta seção fica só como histórico
+> da decisão original.
 
 Correção da v2 (que tinha "2ª cédula 40 / edição 60" — o usuário
 apontou que o efeito é parecido e não fazia sentido a diferença):
