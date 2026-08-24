@@ -95,6 +95,29 @@ let pcState = {
   historicoRefazer: [], // par do historicoPalpite pro Refazer (desfeitos ficam aqui)
   funilVotosAberto: false, // funil explicativo dos votos válidos (o "i" do cabeçalho da aba Senador, PROJETO.md §8.2)
   sobraInfoAberta: false, // explicação da regra de sobra (o "i" do quadro-resumo no painel Disputa de Sobra, Revisão)
+
+  // ===== Desafios 1×1 (migração 28, protótipos v6/v7 — 24/08/2026) =====
+  desafiosCache: null, // lista crua de listarMeusDesafios(), recarregada a cada entrada na tela
+  desafiosGratisRestantes: null, // desafiosGratisRestantes() — null = ainda não carregado
+  telaDesafio: "hub", // "hub" | "criar" | "aceitar"
+  desafioAceitarId: null, // id do desafio sendo aceito (telaDesafio === "aceitar")
+  desafioAceitarCedulaId: null,
+  desafioCriarNome: "",
+  desafioCriarCedulaId: null,
+  desafioCriarAmigoId: null,
+  desafioCriarAmigos: null, // cache de listarAmigosParaDesafio()
+  desafioStatus: "", // linha de status (erro/sucesso) das telas de desafio
+
+  // ===== Notificações (migração 28) =====
+  notificacoesNaoLidas: 0, // carregado no boot, revalidado ao voltar pro painel
+  notificacoesCache: null,
+  telaNotificacoes: false, // sobrepõe o subaba atual quando aberta (ver renderNotificacoes)
+
+  // ===== Termômetro — revelações pagas (migração 28) =====
+  termometroRevelacoesCache: {}, // "estado::cargo" -> Set de chaves reveladas
+  termometroPainelPrecos: false, // caixa "Revelar agora" expandida
+  termometroCoringaResultado: null, // { candidato, raridade } do último sorteio, pra animação de abertura
+  termometroCoringaAbrindo: false,
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -159,6 +182,8 @@ const PC_ICONES = {
   desafio: '<path d="M2.6 13.4L12 4M9.3 4h2.7v2.7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M13.4 13.4L4 4M6.7 4H4v2.7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   // Termômetro eleitoral (ex-Mediana).
   termometro: '<path d="M6.4 2.6a1.6 1.6 0 013.2 0v6.2a3.1 3.1 0 11-3.2 0z" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"></path><circle cx="8" cy="11.6" r="1.5" fill="currentColor"></circle><path d="M8 10.2V5.6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"></path>',
+  // Sino de notificações — barra superior do Painel.
+  sino: '<path d="M4.3 6.7a3.7 3.7 0 017.4 0c0 2.1.55 3.1 1.05 3.7.3.35.05.95-.4.95H3.65c-.45 0-.7-.6-.4-.95.5-.6 1.05-1.6 1.05-3.7z" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"></path><path d="M6.6 13a1.5 1.5 0 002.8 0" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"></path>',
   cadeadoSlot: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"></rect><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7" fill="none" stroke="currentColor" stroke-width="1.3"></path>',
 };
 // Candidatura congelada (desistência / sub judice) — política 21/08/2026:
@@ -369,6 +394,9 @@ async function initColaborativo() {
     // sempre, mesmo com créditos (achado de 22/08/2026 na conferência do
     // caixa). A cobrança em si sempre foi validada no servidor.
     try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) { /* melhor esforço */ }
+    // Pontinho do sino (migração 28) — melhor esforço, igual ao saldo:
+    // sem isso a barra superior simplesmente não mostra o indicador.
+    try { pcState.notificacoesNaoLidas = await contarNotificacoesNaoLidas(); } catch (e) { /* sem indicador */ }
   // Presença/marcos (migração 26): registra o dia (streak) e concede
   // marcos únicos direto no banco. Fire-and-forget — se a migração não
   // rodou ainda, só loga e segue.
@@ -1869,6 +1897,8 @@ function renderTelaCadastro() {
     if (acaoPendente === "compartilhar") { pcState.subaba = "painel"; renderAppColaborativo(); }
     else if (acaoPendente === "grupo") { pcState.subaba = "grupo"; renderAppColaborativo(); }
     else if (acaoPendente === "medias") { pcState.subaba = "medias"; renderAppColaborativo(); }
+    else if (acaoPendente === "desafios") { pcState.subaba = "desafios"; renderAppColaborativo(); }
+    else if (acaoPendente === "loja") { pcState.subaba = "loja"; renderAppColaborativo(); }
   });
 }
 
@@ -1907,6 +1937,10 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "ajuda") { renderCentralAjuda(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "admin") { renderAdminPainel(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "usuario-final") { renderPainelUsuarioFinal(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "desafios") { renderDesafiosHub(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "carteira") { renderCarteira(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "loja") { renderLoja(); atualizarMenuFixo(null); }
+  else if (pcState.subaba === "notificacoes") { renderNotificacoes(); atualizarMenuFixo(null); }
   // Subaba desconhecida (typo, sessão antiga restaurada): cai no PAINEL,
   // não mais no Ranking por acidente — o ranking ganhou ramo explícito
   // acima (auditoria de telas, 22/08/2026; antes 3 setters dependiam do
@@ -2669,6 +2703,7 @@ async function renderPainelPrincipal() {
   // Nubank/BYD), mockup aprovado antes de programar.
   const totalListas = (await _carregarMinhasListasNormalizado()).length;
   const totalGrupos = pcState.meusGrupos ? pcState.meusGrupos.length : 0;
+  const totalDesafiosAtivos = gateConvidado ? 0 : await contarMeusDesafiosAtivos();
 
   el.innerHTML = `
     <div id="pcFarolBloco"></div>
@@ -2677,6 +2712,7 @@ async function renderPainelPrincipal() {
       <div class="pc-topbar-marca"><b>Simula</b>LEGIS</div>
       ${pcState.perfil ? `<button class="pc-topbar-cred" id="pcBtnSaldoTopo" title="Seus créditos">${iconeSvg("credito", 14)}<span>${Number((pcState.perfil && pcState.perfil.creditos) || 0)}</span></button>` : ""}
       <button class="pc-topbar-btn" id="pcBtnConvidarTopo" title="Convidar amigos">${iconeSvg("convidar", 17)}</button>
+      ${pcState.perfil ? `<button class="pc-topbar-btn" id="pcBtnSinoTopo" title="Notificações" style="position:relative;">${iconeSvg("sino", 17)}${pcState.notificacoesNaoLidas ? `<span class="pc-topbar-pip"></span>` : ""}</button>` : ""}
       <button class="pc-topbar-btn" id="pcBtnPerfilTopo" title="${gateConvidado ? "Precisa se cadastrar" : "Menu e perfil"}">${iconeSvg("perfil", 17)}</button>
     </div>
 
@@ -2738,15 +2774,14 @@ async function renderPainelPrincipal() {
         <span class="pc-lobby-tile-ic">${iconeSvg("ranking", 24)}</span>
         <span class="pc-lobby-tile-rot">Ranking<br>(usuários)</span>
       </button>
-      <button class="pc-lobby-tile pc-lobby-tile-breve" disabled title="Em breve">
+      <button class="pc-lobby-tile" id="pcMenuDesafios" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
         <span class="pc-lobby-tile-ic">${iconeSvg("desafio", 24)}</span>
         <span class="pc-lobby-tile-rot">Desafios</span>
-        <span class="pc-lobby-tile-breve-selo">em breve</span>
+        ${totalDesafiosAtivos ? `<span class="pc-lobby-tile-badge">${totalDesafiosAtivos}</span>` : ""}
       </button>
-      <button class="pc-lobby-tile pc-lobby-tile-breve" disabled title="Em breve">
+      <button class="pc-lobby-tile" id="pcMenuLoja" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
         <span class="pc-lobby-tile-ic">${iconeSvg("loja", 24)}</span>
         <span class="pc-lobby-tile-rot">Loja</span>
-        <span class="pc-lobby-tile-breve-selo">em breve</span>
       </button>
     </div>
 
@@ -2787,7 +2822,19 @@ async function renderPainelPrincipal() {
     pcState.subaba = "menu"; renderAppColaborativo();
   });
   const btnSaldoTopo = document.getElementById("pcBtnSaldoTopo");
-  if (btnSaldoTopo) btnSaldoTopo.addEventListener("click", () => { pcState.subaba = "menu"; renderAppColaborativo(); });
+  if (btnSaldoTopo) btnSaldoTopo.addEventListener("click", () => { pcState.subaba = "carteira"; renderAppColaborativo(); });
+  const btnSinoTopo = document.getElementById("pcBtnSinoTopo");
+  if (btnSinoTopo) btnSinoTopo.addEventListener("click", () => { pcState.subaba = "notificacoes"; renderAppColaborativo(); });
+  const btnDesafios = document.getElementById("pcMenuDesafios");
+  if (btnDesafios) btnDesafios.addEventListener("click", () => {
+    if (gateConvidado) return irParaCadastro("desafios");
+    pcState.subaba = "desafios"; renderAppColaborativo();
+  });
+  const btnLoja = document.getElementById("pcMenuLoja");
+  if (btnLoja) btnLoja.addEventListener("click", () => {
+    if (gateConvidado) return irParaCadastro("loja");
+    pcState.subaba = "loja"; renderAppColaborativo();
+  });
   document.getElementById("pcMenuRanking").addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "ranking"; renderAppColaborativo(); }
     else { pcState.tela = "ranking-convidado"; renderColaborativo(); }
@@ -3712,6 +3759,422 @@ async function renderGrupoHub() {
       renderGrupoMembro();
     });
   });
+}
+
+// ===== Desafios 1×1 (migração 28) — protótipos v6/v7, 23-24/08/2026 =====
+// Duelo entre cédulas DEPOSITADAS: quem faz mais pontos na apuração leva.
+// A pontuação de verdade (RANQUEAMENTO.md) ainda não existe — desafios
+// selados ficam em "apuração" esperando essa peça; tudo antes disso
+// (criar/aceitar/recusar/cancelar/expirar/prêmio) já funciona de ponta a
+// ponta pelas RPCs do banco.
+function _iniciaisNome(nome) {
+  const partes = (nome || "?").trim().split(/\s+/);
+  return ((partes[0] || "")[0] || "?").toUpperCase() + ((partes[1] || "")[0] || "").toUpperCase();
+}
+
+function _chipStatusDesafio(status) {
+  const mapa = {
+    aguardando: `<span class="pc-chip-lima">aguardando</span>`,
+    selado: `<span class="pc-chip-neutro">apuração</span>`,
+    apuracao: `<span class="pc-chip-neutro">apuração</span>`,
+    encerrado: `<span class="pc-chip-verde">encerrado</span>`,
+    recusado: `<span class="pc-chip-neutro">recusado</span>`,
+    cancelado: `<span class="pc-chip-neutro">cancelado</span>`,
+    expirado: `<span class="pc-chip-neutro">expirado</span>`,
+  };
+  return mapa[status] || "";
+}
+
+async function renderDesafiosHub() {
+  pcState._farolContexto = "painel";
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = telaCarregando("Carregando seus desafios…");
+  pcState.telaDesafio = "hub";
+  const [desafios, gratis] = await Promise.all([listarMeusDesafios(), desafiosGratisRestantes(pcState.perfil.id)]);
+  pcState.desafiosCache = desafios;
+  pcState.desafiosGratisRestantes = gratis;
+
+  const meuId = pcState.perfil.id;
+  const recebidos = desafios.filter((d) => d.status === "aguardando" && d.desafiado_id === meuId);
+  const andamento = desafios.filter((d) =>
+    (d.status === "aguardando" && d.criador_id === meuId) || d.status === "selado" || d.status === "apuracao");
+  const encerrados = desafios.filter((d) => ["encerrado", "recusado", "cancelado", "expirado"].includes(d.status));
+
+  const linhaDuelo = (d) => {
+    const souCriador = d.criador_id === meuId;
+    const euNome = souCriador ? "Você" : (d.criador ? d.criador.nome : "Você");
+    const outroNome = souCriador ? (d.desafiado ? d.desafiado.nome : "?") : (d.criador ? d.criador.nome : "?");
+    const outroIniciais = _iniciaisNome(outroNome);
+    const pendenteRecebido = d.status === "aguardando" && d.desafiado_id === meuId;
+    const pendenteEnviado = d.status === "aguardando" && d.criador_id === meuId;
+    const encerradoComPontos = d.status === "encerrado" && d.pontos_criador != null && d.pontos_desafiado != null;
+    const meusPontos = souCriador ? d.pontos_criador : d.pontos_desafiado;
+    const pontosOutro = souCriador ? d.pontos_desafiado : d.pontos_criador;
+    const venci = d.vencedor_id && d.vencedor_id === meuId;
+    return `
+    <div class="pc-duelo-card">
+      <div class="pc-duelo-cab">
+        <span class="pc-duelo-nome">"${d.nome}"${pendenteEnviado ? ` <span style="color:var(--pc-ink-dim); font-weight:600;">· você desafiou</span>` : ""}</span>
+        ${encerradoComPontos ? `<span class="${venci ? "pc-chip-verde" : "pc-chip-neutro"}">${venci ? "vitória" : "derrota"}</span>` : _chipStatusDesafio(d.status)}
+      </div>
+      <div class="pc-duelo-duo">
+        <span class="pc-duelo-lado">
+          <span class="pc-duelo-avatar ${souCriador ? "eu" : ""}">${_iniciaisNome(euNome)}</span>
+          <span class="pc-duelo-tx"><span class="pc-duelo-p">${souCriador ? "Você" : euNome}</span><span class="pc-duelo-c">${encerradoComPontos ? Number(meusPontos).toLocaleString("pt-BR") + " pts" : ""}</span></span>
+        </span>
+        <span class="pc-duelo-vs">VS</span>
+        <span class="pc-duelo-lado dir">
+          <span class="pc-duelo-avatar">${outroIniciais}</span>
+          <span class="pc-duelo-tx"><span class="pc-duelo-p">${outroNome}</span><span class="pc-duelo-c">${encerradoComPontos ? Number(pontosOutro).toLocaleString("pt-BR") + " pts" : (pendenteRecebido ? d.estado : "")}</span></span>
+        </span>
+      </div>
+      ${pendenteRecebido ? `
+      <div class="pc-duelo-acoes">
+        <button class="primary" data-pc-aceitar="${d.id}" style="flex:1;">Aceitar</button>
+        <button class="ghost" data-pc-recusar="${d.id}" style="flex:1;">Recusar</button>
+      </div>` : ""}
+      ${pendenteEnviado ? `
+      <div class="pc-duelo-rodape">
+        <span>enviado ${new Date(d.criado_em).toLocaleDateString("pt-BR")} · expira ${new Date(d.expira_em).toLocaleDateString("pt-BR")}</span>
+      </div>
+      <div class="pc-duelo-acoes"><button class="ghost" data-pc-cancelar="${d.id}" style="font-size:11.5px; padding:8px 12px;">Cancelar${d.custo_sl ? ` e recuperar ${d.custo_sl} SL` : ""}</button></div>` : ""}
+      ${(d.status === "selado" || d.status === "apuracao") ? `<div class="pc-duelo-rodape"><span>selado em ${new Date(d.respondido_em || d.criado_em).toLocaleDateString("pt-BR")}</span><span>${d.estado}</span></div>` : ""}
+    </div>`;
+  };
+
+  conteudo.innerHTML = `
+    <div id="pcFarolBloco"></div>
+    <button class="ghost" id="pcBtnVoltarDesafios" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Painel</button>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Desafios</div>
+    <div class="pc-sub" style="margin:0 0 14px 2px;">Quem faz mais pontos na apuração leva. A régua é a mesma do documento e do ranking.</div>
+    <button class="primary" id="pcBtnCriarDesafio" style="width:100%; margin-bottom:6px;">Criar desafio</button>
+    <div style="font-size:11px; color:var(--pc-ink-dim); text-align:center; margin-bottom:18px;">${gratis > 0 ? `${gratis} desafio${gratis === 1 ? "" : "s"} grátis restante${gratis === 1 ? "" : "s"}` : "10 SL por desafio"}</div>
+
+    ${recebidos.length ? `<div class="pc-lobby-menu-tit" style="margin-top:0;">Te desafiaram · ${recebidos.length}</div>${recebidos.map(linhaDuelo).join("")}` : ""}
+    ${andamento.length ? `<div class="pc-lobby-menu-tit">Em andamento · ${andamento.length}</div>${andamento.map(linhaDuelo).join("")}` : ""}
+    ${encerrados.length ? `<div class="pc-lobby-menu-tit">Encerrados</div>${encerrados.slice(0, 10).map(linhaDuelo).join("")}` : ""}
+    ${!desafios.length ? `<div class="pc-lobby-card">${estadoVazio({ icone: "desafio", titulo: "Nenhum desafio ainda", texto: "Crie o primeiro — o custo do desafio já está descrito acima." })}</div>` : ""}
+    <div class="pc-status" id="pcDesafiosStatus" style="margin-top:10px; min-height:12px;"></div>
+  `;
+  atualizarFarol();
+  document.getElementById("pcBtnVoltarDesafios").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
+  document.getElementById("pcBtnCriarDesafio").addEventListener("click", () => {
+    pcState.desafioCriarNome = ""; pcState.desafioCriarCedulaId = null; pcState.desafioCriarAmigoId = null;
+    pcState.desafioStatus = "";
+    renderCriarDesafio();
+  });
+  document.querySelectorAll("[data-pc-aceitar]").forEach((btn) => btn.addEventListener("click", () => {
+    pcState.desafioAceitarId = btn.getAttribute("data-pc-aceitar");
+    pcState.desafioAceitarCedulaId = null;
+    pcState.desafioStatus = "";
+    renderAceitarDesafio();
+  }));
+  document.querySelectorAll("[data-pc-recusar]").forEach((btn) => btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    const r = await recusarDesafio(btn.getAttribute("data-pc-recusar"));
+    if (!r.ok) { document.getElementById("pcDesafiosStatus").textContent = "Não deu: " + r.mensagem; btn.disabled = false; return; }
+    renderDesafiosHub();
+  }));
+  document.querySelectorAll("[data-pc-cancelar]").forEach((btn) => btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    const r = await cancelarDesafio(btn.getAttribute("data-pc-cancelar"));
+    if (!r.ok) { document.getElementById("pcDesafiosStatus").textContent = "Não deu: " + r.mensagem; btn.disabled = false; return; }
+    if (pcState.perfil) { try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {} }
+    renderDesafiosHub();
+  }));
+}
+
+async function renderCriarDesafio() {
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = telaCarregando("Carregando suas cédulas…");
+  const [cedulas, gratis] = await Promise.all([
+    listarMinhasListasDepositadas(pcState.estado),
+    desafiosGratisRestantes(pcState.perfil.id),
+  ]);
+  if (!pcState.desafioCriarCedulaId && cedulas.length) pcState.desafioCriarCedulaId = cedulas[0].id;
+  if (!pcState.desafioCriarAmigos) {
+    if (pcState.perfil) await garantirMeusGruposCarregados();
+    pcState.desafioCriarAmigos = await listarAmigosParaDesafio(pcState.meusGrupos);
+  }
+  const amigos = pcState.desafioCriarAmigos;
+  const custo = gratis > 0 ? 0 : 10;
+
+  conteudo.innerHTML = `
+    <div class="glass-card" style="max-width:420px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarCriarDesafio" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Desafios</button>
+      <h2 style="margin-bottom:2px;">Criar desafio</h2>
+      <div class="pc-sub" style="margin-bottom:14px;">Depois de selado, as duas cédulas ficam congeladas até a apuração.</div>
+
+      <label class="pc-campo-label">Nome do duelo</label>
+      <input class="cell" id="pcInputNomeDesafio" placeholder='"Duelo de Titãs"' maxlength="40" value="${pcState.desafioCriarNome || ""}" style="width:100%; margin-bottom:14px;">
+
+      <div class="pc-lobby-menu-tit" style="margin-top:0;">Sua cédula (${pcState.estado})</div>
+      ${cedulas.length ? cedulas.map((c) => `
+        <button type="button" class="pc-cedula-op ${c.id === pcState.desafioCriarCedulaId ? "sel" : ""}" data-pc-cedula="${c.id}">
+          <span class="pc-cedula-anel"></span>
+          <span style="flex:1; min-width:0; text-align:left;">
+            <span style="display:block; font-size:12.5px; font-weight:700;">${c.nome}</span>
+            <span style="display:block; font-size:10px; color:var(--pc-ink-dim);">${c.codigo || ""} · depositada em ${new Date(c.depositado_em).toLocaleDateString("pt-BR")}</span>
+          </span>
+        </button>`).join("") : `<div class="pc-sub">Você ainda não tem cédula depositada em ${pcState.estado} — deposite uma na Revisão antes de desafiar.</div>`}
+
+      <div class="pc-lobby-menu-tit">Quem você desafia</div>
+      ${amigos.length ? `<div class="pc-lobby-card" style="padding:4px 14px;">${amigos.map((a) => `
+        <label class="pc-amigo-op">
+          <input type="radio" name="pcDesafioAmigo" value="${a.id}" ${a.id === pcState.desafioCriarAmigoId ? "checked" : ""}>
+          <span class="pc-cedula-anel" style="width:16px; height:16px;"></span>
+          <span class="pc-duelo-avatar" style="width:28px; height:28px; font-size:10px;">${_iniciaisNome(a.nome)}</span>
+          <span style="flex:1; font-size:12.5px; font-weight:600;">${a.nome}</span>
+          <span style="font-size:10px; color:var(--pc-ink-dim);">${a.grupo}</span>
+        </label>`).join("")}</div>` : `<div class="pc-sub">Você ainda não tem amigos num grupo — crie ou entre num grupo primeiro (Grupos, no Painel).</div>`}
+
+      <div class="pc-precinho">
+        <span class="pc-precinho-txt">${custo === 0 ? `<b>Grátis</b> — ${gratis} desafio${gratis === 1 ? "" : "s"} restante${gratis === 1 ? "" : "s"} hoje.` : `Seus grátis acabaram — este desafio custa <b>10 SL</b>.`}</span>
+        <span class="pc-precinho-val" style="${custo === 0 ? "color:var(--pc-accent);" : ""}">${custo === 0 ? "grátis" : "10 SL"}</span>
+      </div>
+
+      <button class="primary" id="pcBtnEnviarDesafio" style="width:100%;" ${cedulas.length && amigos.length ? "" : "disabled"}>Enviar desafio</button>
+      <div class="pc-status" id="pcCriarDesafioStatus" style="margin-top:8px; min-height:12px;"></div>
+    </div>`;
+
+  document.getElementById("pcBtnVoltarCriarDesafio").addEventListener("click", () => renderDesafiosHub());
+  document.querySelectorAll("[data-pc-cedula]").forEach((btn) => btn.addEventListener("click", () => {
+    pcState.desafioCriarCedulaId = btn.getAttribute("data-pc-cedula");
+    renderCriarDesafio();
+  }));
+  document.querySelectorAll('input[name="pcDesafioAmigo"]').forEach((r) => r.addEventListener("change", () => {
+    pcState.desafioCriarAmigoId = r.value;
+  }));
+  const btnEnviar = document.getElementById("pcBtnEnviarDesafio");
+  if (btnEnviar) btnEnviar.addEventListener("click", async () => {
+    const nomeInput = document.getElementById("pcInputNomeDesafio");
+    const nome = (nomeInput.value || "").trim();
+    const amigoSelecionado = document.querySelector('input[name="pcDesafioAmigo"]:checked');
+    const status = document.getElementById("pcCriarDesafioStatus");
+    if (!nome) { status.textContent = "Dê um nome pro duelo."; return; }
+    if (!amigoSelecionado) { status.textContent = "Escolha quem você desafia."; return; }
+    if (!pcState.desafioCriarCedulaId) { status.textContent = "Escolha sua cédula."; return; }
+    btnEnviar.disabled = true;
+    status.textContent = "Enviando…";
+    const r = await criarDesafio(amigoSelecionado.value, nome, pcState.desafioCriarCedulaId);
+    if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; btnEnviar.disabled = false; return; }
+    try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
+    pcState.desafioCriarAmigos = null;
+    renderDesafiosHub();
+  });
+}
+
+async function renderAceitarDesafio() {
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = telaCarregando("Carregando…");
+  const desafio = (pcState.desafiosCache || []).find((d) => d.id === pcState.desafioAceitarId)
+    || (await listarMeusDesafios()).find((d) => d.id === pcState.desafioAceitarId);
+  if (!desafio) { renderDesafiosHub(); return; }
+  const cedulas = await listarMinhasListasDepositadas(desafio.estado);
+  if (!pcState.desafioAceitarCedulaId && cedulas.length) pcState.desafioAceitarCedulaId = cedulas[0].id;
+  const nomeDesafiante = desafio.criador ? desafio.criador.nome : "Alguém";
+
+  conteudo.innerHTML = `
+    <div class="glass-card" style="max-width:420px; margin:0 auto;">
+      <div class="pc-selo-desafio">
+        <span class="pc-selo-desafio-ic">${iconeSvg("desafio", 17)}</span>
+        <span class="pc-selo-desafio-tx">Desafio<b>1 × 1</b></span>
+      </div>
+      <h2 style="margin:10px 0 2px;">Aceitar desafio</h2>
+      <div class="pc-sub" style="margin-bottom:14px;">${nomeDesafiante} te desafiou em "${desafio.nome}". Escolha com qual cédula você entra — depois de aceitar, ela fica congelada até a apuração.</div>
+
+      <div class="pc-duelo-card" style="margin-bottom:16px;">
+        <div class="pc-duelo-duo">
+          <span class="pc-duelo-lado"><span class="pc-duelo-avatar">${_iniciaisNome(nomeDesafiante)}</span><span class="pc-duelo-tx"><span class="pc-duelo-p">${nomeDesafiante}</span><span class="pc-duelo-c">${desafio.estado}</span></span></span>
+          <span class="pc-duelo-vs">VS</span>
+          <span class="pc-duelo-lado dir"><span class="pc-duelo-avatar eu" style="border-style:dashed; color:var(--pc-ink-dim);">?</span><span class="pc-duelo-tx"><span class="pc-duelo-p">Você</span><span class="pc-duelo-c">escolher cédula</span></span></span>
+        </div>
+      </div>
+
+      <div class="pc-lobby-menu-tit" style="margin-top:0;">Suas cédulas depositadas</div>
+      ${cedulas.length ? cedulas.map((c) => `
+        <button type="button" class="pc-cedula-op ${c.id === pcState.desafioAceitarCedulaId ? "sel" : ""}" data-pc-cedula-aceitar="${c.id}">
+          <span class="pc-cedula-anel"></span>
+          <span style="flex:1; min-width:0; text-align:left;">
+            <span style="display:block; font-size:12.5px; font-weight:700;">${c.nome}</span>
+            <span style="display:block; font-size:10px; color:var(--pc-ink-dim);">${c.codigo || ""} · depositada em ${new Date(c.depositado_em).toLocaleDateString("pt-BR")}</span>
+          </span>
+        </button>`).join("") : `<div class="pc-sub">Você ainda não tem cédula depositada em ${desafio.estado} — deposite uma antes de aceitar.</div>`}
+
+      <button class="primary" id="pcBtnConfirmarAceite" style="width:100%; margin-top:12px;" ${cedulas.length ? "" : "disabled"}>Aceitar</button>
+      <button class="ghost" id="pcBtnRecusarNaAceitar" style="width:100%; margin-top:6px; border:none; color:var(--pc-ink-dim);">Recusar desafio</button>
+      <div class="pc-status" id="pcAceitarStatus" style="margin-top:8px; min-height:12px;"></div>
+    </div>`;
+
+  document.querySelectorAll("[data-pc-cedula-aceitar]").forEach((btn) => btn.addEventListener("click", () => {
+    pcState.desafioAceitarCedulaId = btn.getAttribute("data-pc-cedula-aceitar");
+    renderAceitarDesafio();
+  }));
+  document.getElementById("pcBtnConfirmarAceite").addEventListener("click", async (e) => {
+    const status = document.getElementById("pcAceitarStatus");
+    if (!pcState.desafioAceitarCedulaId) { status.textContent = "Escolha uma cédula."; return; }
+    e.target.disabled = true;
+    status.textContent = "Confirmando…";
+    const r = await aceitarDesafio(pcState.desafioAceitarId, pcState.desafioAceitarCedulaId);
+    if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; e.target.disabled = false; return; }
+    try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (err) {}
+    renderDesafiosHub();
+  });
+  document.getElementById("pcBtnRecusarNaAceitar").addEventListener("click", async () => {
+    const r = await recusarDesafio(pcState.desafioAceitarId);
+    if (!r.ok) { document.getElementById("pcAceitarStatus").textContent = "Não deu: " + r.mensagem; return; }
+    renderDesafiosHub();
+  });
+}
+
+// ===== Notificações (migração 28) =====
+function _tempoRelativo(dataIso) {
+  const diffMs = Date.now() - new Date(dataIso).getTime();
+  const min = Math.floor(diffMs / 60000);
+  if (min < 60) return `${Math.max(1, min)}min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h}h`;
+  const d = Math.floor(h / 24);
+  return `${d}d`;
+}
+
+function _iconeNotificacao(tipo) {
+  if (tipo && tipo.indexOf("desafio") === 0) return "desafio";
+  if (tipo === "convite_convertido") return "convidar";
+  if (tipo === "termometro_abriu") return "termometro";
+  return "ajuda";
+}
+
+async function renderNotificacoes() {
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = telaCarregando("Carregando notificações…");
+  const lista = await listarMinhasNotificacoes(40);
+  await marcarNotificacoesLidas();
+  pcState.notificacoesNaoLidas = 0;
+
+  const novas = lista.filter((n) => !n.lida_em);
+  const antes = lista.filter((n) => n.lida_em);
+  const linha = (n) => `
+    <div class="pc-notif-item">
+      <div class="pc-notif-ic">${iconeSvg(_iconeNotificacao(n.tipo), 16)}</div>
+      <div class="pc-notif-corpo">
+        <div class="pc-notif-titulo">${n.titulo}</div>
+        ${n.corpo ? `<div class="pc-notif-desc">${n.corpo}</div>` : ""}
+        ${n.tipo === "desafio_recebido" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver desafio</button>` : ""}
+      </div>
+      <div class="pc-notif-hora">${_tempoRelativo(n.criado_em)}</div>
+    </div>`;
+
+  conteudo.innerHTML = `
+    <div class="glass-card" style="max-width:460px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarNotif" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Painel</button>
+      <h2 style="margin-bottom:2px;">Notificações</h2>
+      <div class="pc-sub" style="margin-bottom:14px;">Tudo que aconteceu com você no app.</div>
+      ${novas.length ? `<div class="pc-lobby-menu-tit" style="margin-top:0;">Novas · ${novas.length}</div><div class="pc-lobby-card" style="padding:2px 14px;">${novas.map(linha).join("")}</div>` : ""}
+      ${antes.length ? `<div class="pc-lobby-menu-tit">Antes</div><div class="pc-lobby-card" style="padding:2px 14px;">${antes.map(linha).join("")}</div>` : ""}
+      ${!lista.length ? estadoVazio({ icone: "ajuda", titulo: "Nada por aqui ainda", texto: "Desafios, convites e créditos aparecem aqui conforme forem acontecendo." }) : ""}
+    </div>`;
+  document.getElementById("pcBtnVoltarNotif").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
+  document.querySelectorAll("[data-pc-ver-desafio]").forEach((btn) => btn.addEventListener("click", () => {
+    pcState.subaba = "desafios"; renderAppColaborativo();
+  }));
+}
+
+// ===== Carteira (migração 28) =====
+async function renderCarteira() {
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = telaCarregando("Carregando sua carteira…");
+  try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
+  const extrato = (await obterExtratoCreditos(pcState.perfil.id, 30)) || [];
+  const saldo = Number(pcState.perfil.creditos) || 0;
+
+  const linhaExtrato = (t) => {
+    const positivo = t.valor > 0;
+    return `
+    <div class="pc-ex-linha">
+      <span class="pc-ex-ic ${positivo ? "mais" : "menos"}">${positivo
+        ? `<svg width="13" height="13" viewBox="0 0 16 16"><path d="M8 3.5v9M3.5 8h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>`
+        : `<svg width="13" height="13" viewBox="0 0 16 16"><path d="M3.5 8h9" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>`}</span>
+      <span class="pc-ex-corpo">
+        <span class="pc-ex-tit">${ROTULO_TRANSACAO[t.tipo] || t.tipo}</span>
+        <span class="pc-ex-desc">${new Date(t.criado_em).toLocaleDateString("pt-BR")}${t.referencia ? " · " + t.referencia : ""}</span>
+      </span>
+      <span class="pc-ex-val ${positivo ? "mais" : "menos"}">${positivo ? "+" : ""}${t.valor}</span>
+      <span class="pc-ex-saldo">${t.saldo_apos}</span>
+    </div>`;
+  };
+
+  conteudo.innerHTML = `
+    <div class="glass-card" style="max-width:460px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarCarteira" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Painel</button>
+      <div class="pc-cart-hero">
+        <div class="pc-cart-lbl">Seu saldo</div>
+        <div class="pc-cart-num">${iconeSvg("credito", 28)}${saldo}</div>
+        <div class="pc-cart-eq">dá pra ${saldo >= 10 ? "1 desafio ou 1 grupo novo" : "acumular mais um pouco"}</div>
+        <div class="pc-cart-btns">
+          <button class="primary" id="pcBtnIrLoja" style="flex:1;">Comprar SL</button>
+          <button class="ghost" id="pcBtnIrGanhar" style="flex:1;">Ganhar convidando</button>
+        </div>
+      </div>
+
+      <div class="pc-lobby-menu-tit">Histórico</div>
+      ${extrato.length ? `<div class="pc-lobby-card" style="padding:4px 14px;">${extrato.map(linhaExtrato).join("")}</div>`
+        : `<div class="pc-lobby-card">${estadoVazio({ icone: "credito", titulo: "Nenhuma movimentação ainda", texto: "Assim que você ganhar ou gastar SL, aparece aqui." })}</div>`}
+    </div>`;
+  document.getElementById("pcBtnVoltarCarteira").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
+  document.getElementById("pcBtnIrLoja").addEventListener("click", () => { pcState.subaba = "loja"; renderAppColaborativo(); });
+  document.getElementById("pcBtnIrGanhar").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
+}
+
+// ===== Loja (migração 28) =====
+// Comprar SL ainda não tem gateway de pagamento (mesma situação de
+// creditos.js: "sem cobrança de verdade ainda" — MONETIZACAO.md §2.1).
+// Os pacotes aparecem por transparência de preço; o botão de fato
+// funcional continua sendo "convide amigos" (ganha 1 SL por convite,
+// teto 25) e os desafios/termômetro, que já gastam SL de verdade.
+function renderLoja() {
+  const conteudo = document.getElementById("pcConteudo");
+  const saldo = Number((pcState.perfil && pcState.perfil.creditos) || 0);
+  const pacote = (qtd, desc, preco, selo) => `
+    <div class="pc-pacote ${selo ? "destaque" : ""}">
+      <span class="pc-pacote-q">${iconeSvg("credito", 16)}${qtd}</span>
+      <span class="pc-pacote-d"><b>${desc}</b>${selo ? `<span class="pc-pacote-selo">${selo}</span>` : ""}</span>
+      <span class="pc-pacote-p">${preco}</span>
+    </div>`;
+
+  conteudo.innerHTML = `
+    <div class="glass-card" style="max-width:460px; margin:0 auto;">
+      <button class="ghost" id="pcBtnVoltarLoja" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Painel</button>
+      <h2 style="margin-bottom:2px;">Loja</h2>
+      <div class="pc-sub" style="margin-bottom:4px;">Seu saldo: <b style="color:var(--pc-ink);">${saldo} SL</b></div>
+      <div class="pc-sub" style="margin-bottom:14px;">Compra por pacote ainda não está aberta — enquanto isso, todo SL vem de convite, desafio aceito ou concessão da equipe.</div>
+
+      <div class="pc-lobby-menu-tit" style="margin-top:0;">Pacotes (em breve)</div>
+      ${pacote(10, "1 desafio ou 1 vaga de grupo", "R$ 4,99")}
+      ${pacote(50, "abre 10 candidatos no Termômetro", "R$ 21,99", "+10% desconto")}
+      ${pacote(200, "a lista completa do Termômetro", "R$ 74,99", "+25% desconto")}
+
+      <div class="pc-lobby-menu-tit">Como ganhar agora</div>
+      <button class="pc-mini-card" id="pcBtnLojaConvidar">
+        <div class="pc-mini-card-icone">${iconeSvg("convidar", 17)}</div>
+        <div style="flex:1; min-width:0; text-align:left;">
+          <div style="font-size:13.5px; font-weight:600;">Convidar amigos</div>
+          <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:1px;">+1 SL por amigo que depositar a cédula, até 25</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--pc-ink-dim)" stroke-width="1.8" style="flex-shrink:0;"><path d="M9 6l6 6-6 6"></path></svg>
+      </button>
+      <button class="pc-mini-card" id="pcBtnLojaDesafiar" style="margin-top:8px;">
+        <div class="pc-mini-card-icone">${iconeSvg("desafio", 17)}</div>
+        <div style="flex:1; min-width:0; text-align:left;">
+          <div style="font-size:13.5px; font-weight:600;">Desafiar alguém</div>
+          <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:1px;">+5 SL no 1º aceite com cada pessoa, até 5</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--pc-ink-dim)" stroke-width="1.8" style="flex-shrink:0;"><path d="M9 6l6 6-6 6"></path></svg>
+      </button>
+    </div>`;
+  document.getElementById("pcBtnVoltarLoja").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
+  document.getElementById("pcBtnLojaConvidar").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
+  document.getElementById("pcBtnLojaDesafiar").addEventListener("click", () => { pcState.subaba = "desafios"; renderAppColaborativo(); });
 }
 
 function renderGrupoCriar() {
@@ -8942,14 +9405,15 @@ function renderRankingPlaceholder() {
 // projetarEleitosMediana). Concebido com o usuário em 04/08/2026.
 async function renderQuadroMedias() {
   const conteudo = document.getElementById("pcConteudo");
-  conteudo.innerHTML = telaCarregando("Calculando a mediana de todos os palpites…");
+  conteudo.innerHTML = telaCarregando("Calculando o Termômetro Eleitoral…");
 
   if (!pcState.cargoAtivoMedias) pcState.cargoAtivoMedias = "estadual";
   const cargo = pcState.cargoAtivoMedias;
-  // Conta-gotas (economia v3 §4, migração 23): logado registra o dia de
-  // acesso (+2 linhas/dia, idempotente) e recebe o total revelado. null =
-  // migração ainda não rodou OU convidado — nos dois casos, degrada pro
-  // mínimo do dia (2 linhas) sem quebrar. Pós-eleição: tudo aberto.
+  // Conta-gotas (economia v3 §4, migração 23) — mesmo backend de sempre
+  // (+2 linhas/dia, acelerável com SL), só que agora abre de TRÁS pra
+  // FRENTE (decisão de 24/08/2026: "vamos abrindo conforme os dias vão
+  // passando", o prêmio — quem se elege — é o último a cair). O total
+  // continua crescendo do mesmo jeito; só a ponta que ele revela mudou.
   const posEleicao = new Date() > DATA_ELEICAO_2026;
   let linhasReveladas = 2;
   if (pcState.perfil && !posEleicao) {
@@ -8959,14 +9423,21 @@ async function renderQuadroMedias() {
   const registros = await buscarTodosRascunhosPublicos();
   const { parties, totalPalpites } = calcularMedianaPalpites(registros, cargo, pcState.estado);
   const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
-  // Limite de exibição: vagas do cargo + 50% de margem pra suplentes —
-  // regra combinada com o usuário em 04/08/2026, pensada pra funcionar em
-  // QUALQUER disputa do país (não um número fixo tipo "70", que só valia
-  // pro Estadual de 40 vagas). Senador é exceção: cargo majoritário, poucas
-  // vagas (1 ou 2 por ciclo) — a mesma fórmula daria um número pequeno
-  // demais pra dar contexto (3), então usa um teto fixo de 5 candidatos.
   const limiteExibicao = cargo === "senador" ? 5 : Math.round(totalVagasCargo * 1.5);
   const projecao = projetarEleitosMediana(parties, cargo, pcState.estado, limiteExibicao);
+
+  // Votação mediana — cadeado SEPARADO, por candidato (pedido do usuário,
+  // 23/08/2026: "a aba do candidato apresente a votação mediana... que
+  // também fica borrado... e que será cobrado para tirar o borrão").
+  // Revelar um candidato aqui (Coringa/avulso/pacote/lista) mostra nome E
+  // votos daquele candidato, MESMO que o conta-gotas posicional ainda não
+  // tenha chegado nele — é o "furar a fila" que dá graça ao Coringa.
+  const chaveCache = `${pcState.estado}::${cargo}`;
+  if (!pcState.termometroRevelacoesCache[chaveCache]) {
+    const revs = pcState.perfil ? await minhasRevelacoesTermometro(pcState.estado, cargo) : [];
+    pcState.termometroRevelacoesCache[chaveCache] = new Set(revs.map((r) => r.chave_candidato));
+  }
+  const votosRevelados = pcState.termometroRevelacoesCache[chaveCache];
 
   const seatsProj = cargo === "senador"
     ? Object.values(projecao.filter((c) => c.eleito).reduce((acc, c) => {
@@ -8982,8 +9453,50 @@ async function renderQuadroMedias() {
   const botoesCargo = CARGOS.map((c) => `
     <button data-pc-cargo-medias="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
 
-  const linha = (c, i, borrada) => `
-    <div class="pc-lobby-linha"${borrada ? ` style="filter:blur(4px); opacity:.5; pointer-events:none; user-select:none;" aria-hidden="true"` : ""}>
+  // ===== linha do tempo compacta (protótipo v6/v7, agulha ancorada no
+  // dia de hoje — robusta a qualquer largura de tela porque a marca fica
+  // posicionada relativa ao PRÓPRIO card de hoje, não a porcentagens do
+  // container inteiro, que foi a fonte de 3 rodadas de ajuste fino no
+  // protótipo). ==========
+  const hojeDt = new Date();
+  const diasVizinhos = [-2, -1, 0, 1, 2].map((delta) => {
+    const d = new Date(hojeDt); d.setDate(hojeDt.getDate() + delta); return d;
+  });
+  const faltam = diasAteEleicao();
+  const cardDia = (d, cls) => `<div class="pc-cal-d ${cls}"><b>${d.getDate()}</b><span>${d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "").toUpperCase()}</span></div>`;
+  const linhaTempoHtml = `
+    <div class="pc-lt-wrap">
+      <div class="pc-lt-rail"></div>
+      <div class="pc-cal">
+        ${cardDia(diasVizinhos[0], "f2")}
+        ${cardDia(diasVizinhos[1], "f1")}
+        <div class="pc-cal-d hoje">
+          <span class="pc-lt-marca"><span class="pc-lt-falta">${faltam} <span>dias</span></span><span class="pc-lt-ag"><svg width="9" height="6" viewBox="0 0 11 7"><path d="M5.5 7L0 0h11z" fill="currentColor"></path></svg></span></span>
+          <b>${hojeDt.getDate()}</b><span>HOJE</span>
+        </div>
+        ${cardDia(diasVizinhos[3], "f1")}
+        ${cardDia(diasVizinhos[4], "f2")}
+        <div class="pc-cal-sep">···</div>
+        <div class="pc-cal-d alvo"><b>${DATA_ELEICAO_2026.getDate()}</b><span>ELEIÇÃO</span></div>
+      </div>
+    </div>`;
+
+  const votosOuCadeado = (c) => votosRevelados.has(c.chave)
+    ? `<span class="pc-tm-votos">${Number(c.votos || 0).toLocaleString("pt-BR")} <small>votos</small></span>`
+    : `<span class="pc-tm-votos-lock">${iconeSvg("cadeadoSlot", 9)}votos</span>`;
+
+  const linha = (c, i) => {
+    const nomeRevelado = (i >= projecao.length - linhasReveladas) || votosRevelados.has(c.chave);
+    if (!nomeRevelado) {
+      return `<div class="pc-lobby-linha" style="filter:blur(4px); opacity:.5; pointer-events:none; user-select:none;" aria-hidden="true">
+        <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
+          <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:var(--pc-ink-dim);">${i + 1}º</span>
+          <span style="min-width:0;"><div style="font-size:13px; font-weight:600;">Nome ainda fechado</div><div style="font-size:10.5px; color:var(--pc-ink-dim);">Partido · ${c.amostras} palpites</div></span>
+        </span>
+        <span style="font-size:12.5px; font-weight:600; color:var(--pc-ink-dim);">••••</span>
+      </div>`;
+    }
+    return `<div class="pc-lobby-linha">
       <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
         <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:${c.eleito ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${i + 1}º</span>
         <span style="min-width:0;">
@@ -8991,27 +9504,87 @@ async function renderQuadroMedias() {
           <div style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${c.semPalpites ? " · sem palpite ainda" : ` · ${c.amostras} palpite${c.amostras === 1 ? "" : "s"}`}</div>
         </span>
       </span>
-      <span style="font-size:12.5px; font-weight:600; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; flex-shrink:0;">${Number(c.votos || 0).toLocaleString("pt-BR")}</span>
+      ${votosOuCadeado(c)}
     </div>`;
+  };
+
+  // ===== painel "Revelar agora" — Coringa + avulso/pacote/cargo, preço
+  // por escopo × prazo (decisão de 24/08/2026). ==========
+  const candidatosVotoOculto = projecao.filter((c) => !votosRevelados.has(c.chave));
+  const candidatosNomeAberto = projecao.filter((c, i) => (i >= projecao.length - linhasReveladas) && !votosRevelados.has(c.chave));
+  const painelPrecos = pcState.perfil && candidatosVotoOculto.length ? `
+    <div class="pc-tm-premium">
+      <div class="pc-tm-premium-tit">${iconeSvg("credito", 15)} Revelar agora!</div>
+      <div class="pc-tm-premium-sub">Não espere os dias passarem. Abre o nome e a <b>votação mediana</b> do candidato.</div>
+
+      <div class="pc-tm-linha-op pc-tm-coringa" id="pcBtnCoringa">
+        <span class="pc-tm-op-ic">${iconeSvg("desafio", 15)}</span>
+        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Coringa</span><span class="pc-tm-op-d">O sistema sorteia 1 candidato</span></span>
+        <span class="pc-tm-op-p" style="color:#E8B04A;">2 SL</span>
+      </div>
+
+      ${candidatosNomeAberto.length ? `
+      <div class="pc-tm-linha-op" id="pcBtnRevelarAvulso" data-custo7="3" data-custo-def="5">
+        <span class="pc-tm-op-ic">${iconeSvg("buscar", 14)}</span>
+        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Candidato</span><span class="pc-tm-op-d">Selecione o resultado do seu candidato</span></span>
+        <span class="pc-tm-op-p">5 SL</span>
+      </div>
+      <select class="cell" id="pcSelectCandidatoAvulso" style="width:100%; margin:-4px 0 8px;">
+        ${candidatosNomeAberto.map((c) => `<option value="${c.chave}">${c.nomeUrna || c.nome} — ${c.partido}</option>`).join("")}
+      </select>` : ""}
+
+      <div class="pc-tm-linha-op" id="pcBtnRevelarPacote" data-custo7="20" data-custo-def="35">
+        <span class="pc-tm-op-ic">${iconeSvg("lista", 14)}</span>
+        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Pacote de 10</span><span class="pc-tm-op-d">Os próximos 10 ainda fechados</span></span>
+        <span class="pc-tm-op-p">35 SL</span>
+      </div>
+      <div class="pc-tm-linha-op" id="pcBtnRevelarCargo" data-custo7="30" data-custo-def="50">
+        <span class="pc-tm-op-ic">${iconeSvg("checkCirculo", 14)}</span>
+        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Cargo inteiro</span></span>
+        <span class="pc-tm-op-p">50 SL</span>
+      </div>
+
+      <div class="pc-tm-dur">
+        <span data-pc-dur="7">7 dias</span>
+        <span class="on" data-pc-dur="0">definitivo</span>
+      </div>
+      <div class="pc-status" id="pcTermometroStatus" style="margin-top:6px; min-height:12px;">${pcState.termometroStatus || ""}</div>
+    </div>` : "";
+  pcState.termometroStatus = "";
+
+  const coringaOverlay = pcState.termometroCoringaResultado ? `
+    <div class="pc-tm-coringa-overlay" id="pcTmCoringaOverlay">
+      <div class="pc-tm-carta ${pcState.termometroCoringaResultado.raridade}">
+        <span class="pc-tm-carta-rar">${pcState.termometroCoringaResultado.raridade}</span>
+        <div class="pc-tm-carta-pos">${pcState.termometroCoringaResultado.posicao}º</div>
+        <div class="pc-tm-carta-nome">${pcState.termometroCoringaResultado.candidato.nomeUrna || pcState.termometroCoringaResultado.candidato.nome}</div>
+        <div class="pc-tm-carta-part">${pcState.termometroCoringaResultado.candidato.partido}</div>
+        <div class="pc-tm-carta-votos">${Number(pcState.termometroCoringaResultado.candidato.votos || 0).toLocaleString("pt-BR")}</div>
+      </div>
+      <button class="primary" id="pcBtnFecharCoringa" style="margin-top:16px;">Fechar</button>
+    </div>` : "";
 
   conteudo.innerHTML = `
     <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Termômetro Eleitoral</div>
-    <div class="pc-sub" style="margin:0 0 14px 2px;">Pesquisa em tempo real — mediana aparada de ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} público${totalPalpites === 1 ? "" : "s"}. Quem estaria eleito, pela mesma regra do resultado oficial.</div>
+    <div class="pc-sub" style="margin:0 0 14px 2px;">Mediana aparada de ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} público${totalPalpites === 1 ? "" : "s"}, pela mesma regra do resultado oficial.</div>
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
+    <div class="pc-lobby-card" style="padding:10px 12px 11px;">${posEleicao ? "" : linhaTempoHtml}</div>
     <div class="pc-lobby-card" style="padding:14px;">
       ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(52,232,74,.14)", vago: "#1B1E22", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
     </div>
     <div class="pc-lobby-card">
-      ${projecao.length ? projecao.map((c, i) => linha(c, i, !posEleicao && i >= linhasReveladas)).join("") : estadoVazio({ icone: "chart", titulo: "Ninguém preencheu esse cargo", texto: "Assim que alguém depositar uma cédula pública desse cargo, a mediana aparece aqui." })}
+      ${projecao.length ? projecao.map((c, i) => linha(c, i)).join("") : estadoVazio({ icone: "chart", titulo: "Ninguém preencheu esse cargo", texto: "Assim que alguém depositar uma cédula pública desse cargo, o Termômetro aparece aqui." })}
     </div>
     ${!posEleicao && projecao.length > linhasReveladas ? `
     <div style="margin-top:12px; padding:12px 14px; background:#101214; border:1px solid #23262A; border-radius:10px; font-size:11.5px; color:#8A9096; line-height:1.6;">
-      A mediana se revela <b style="color:#F2F4F5;">2 linhas por dia de acesso</b> — você já abriu <b style="color:#F2F4F5;">${linhasReveladas}</b>. Volte amanhã pra mais 2, ou acelere agora:
-      <button class="ghost" id="pcBtnAcelerarMediana" style="width:100%; margin-top:10px; font-size:12px; padding:9px;">+10 linhas por 2 créditos</button>
+      Todo dia abre mais um pedaço — de trás pra frente. Você já abriu <b style="color:#F2F4F5;">${linhasReveladas}</b> de ${projecao.length}.
+      <button class="ghost" id="pcBtnAcelerarMediana" style="width:100%; margin-top:10px; font-size:12px; padding:9px;">+10 linhas por 2 SL</button>
       <div class="pc-status" id="pcMedianaStatus" style="margin-top:6px; min-height:12px;">${pcState.medianaStatus || ""}</div>
     </div>` : ""}
+    ${painelPrecos}
+    ${pcState.perfil ? `<div style="margin-top:12px; text-align:center; font-size:11.5px; color:var(--pc-ink-dim);"><span style="color:var(--pc-accent); font-weight:700; cursor:pointer;" id="pcBtnDesafiarDoTermometro">Lance o seu desafio.</span></div>` : ""}
   `;
-  pcState.medianaStatus = "";
+  if (coringaOverlay) document.body.insertAdjacentHTML("beforeend", coringaOverlay);
 
   document.querySelectorAll("[data-pc-cargo-medias]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -9026,15 +9599,89 @@ async function renderQuadroMedias() {
       e.target.disabled = true;
       const r = await acelerarMediana();
       if (r.semSaldo) {
-        pcState.medianaStatus = "Saldo insuficiente (precisa de 2 créditos) — convide um amigo: cada convite convertido rende 10.";
+        pcState.medianaStatus = "Saldo insuficiente (precisa de 2 SL) — convide um amigo ou desafie alguém pra ganhar mais.";
       } else if (r.erro) {
         pcState.medianaStatus = "Não deu: " + r.erro;
       } else {
         pcState.medianaStatus = "";
+        try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (err) {}
       }
       renderQuadroMedias();
     });
   }
+  const btnDesafiar = document.getElementById("pcBtnDesafiarDoTermometro");
+  if (btnDesafiar) btnDesafiar.addEventListener("click", () => { pcState.subaba = "desafios"; renderAppColaborativo(); });
+
+  // ---- painel de preços: escolha de prazo (chip 7 dias / definitivo) ----
+  document.querySelectorAll("[data-pc-dur]").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("[data-pc-dur]").forEach((c) => c.classList.toggle("on", c === chip));
+      const dias = chip.getAttribute("data-pc-dur");
+      document.querySelectorAll("[data-custo7]").forEach((op) => {
+        const custo = dias === "7" ? op.getAttribute("data-custo7") : op.getAttribute("data-custo-def");
+        const preco = op.querySelector(".pc-tm-op-p");
+        if (preco) preco.textContent = custo + " SL";
+      });
+    });
+  });
+
+  const dursAtivo = () => (document.querySelector('[data-pc-dur].on') || {}).getAttribute
+    ? document.querySelector('[data-pc-dur].on').getAttribute("data-pc-dur") : "0";
+
+  const btnCoringa = document.getElementById("pcBtnCoringa");
+  if (btnCoringa) btnCoringa.addEventListener("click", async () => {
+    const sorteio = sortearCoringaTermometro(projecao, votosRevelados);
+    const status = document.getElementById("pcTermometroStatus");
+    if (!sorteio) { status.textContent = "Já revelou tudo neste cargo!"; return; }
+    const r = await revelarCandidatosTermometro(pcState.perfil.id, pcState.estado, cargo, [sorteio.candidato.chave], 2, "coringa", null, sorteio.raridade);
+    if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; return; }
+    delete pcState.termometroRevelacoesCache[chaveCache];
+    try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
+    pcState.termometroCoringaResultado = {
+      candidato: sorteio.candidato, raridade: sorteio.raridade,
+      posicao: projecao.findIndex((c) => c.chave === sorteio.candidato.chave) + 1,
+    };
+    renderQuadroMedias();
+  });
+  const overlayFechar = document.getElementById("pcBtnFecharCoringa");
+  if (overlayFechar) overlayFechar.addEventListener("click", () => { pcState.termometroCoringaResultado = null; renderQuadroMedias(); });
+
+  const btnAvulso = document.getElementById("pcBtnRevelarAvulso");
+  if (btnAvulso) btnAvulso.addEventListener("click", async () => {
+    const sel = document.getElementById("pcSelectCandidatoAvulso");
+    const dias = dursAtivo();
+    const custo = Number(btnAvulso.getAttribute(dias === "7" ? "data-custo7" : "data-custo-def"));
+    const status = document.getElementById("pcTermometroStatus");
+    const r = await revelarCandidatosTermometro(pcState.perfil.id, pcState.estado, cargo, [sel.value], custo, "candidato avulso", dias === "7" ? 7 : null, null);
+    if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; return; }
+    delete pcState.termometroRevelacoesCache[chaveCache];
+    try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
+    renderQuadroMedias();
+  });
+  const btnPacote = document.getElementById("pcBtnRevelarPacote");
+  if (btnPacote) btnPacote.addEventListener("click", async () => {
+    const dias = dursAtivo();
+    const custo = Number(btnPacote.getAttribute(dias === "7" ? "data-custo7" : "data-custo-def"));
+    const status = document.getElementById("pcTermometroStatus");
+    const chaves = candidatosVotoOculto.slice(0, 10).map((c) => c.chave);
+    const r = await revelarCandidatosTermometro(pcState.perfil.id, pcState.estado, cargo, chaves, custo, "pacote de 10", dias === "7" ? 7 : null, null);
+    if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; return; }
+    delete pcState.termometroRevelacoesCache[chaveCache];
+    try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
+    renderQuadroMedias();
+  });
+  const btnCargo = document.getElementById("pcBtnRevelarCargo");
+  if (btnCargo) btnCargo.addEventListener("click", async () => {
+    const dias = dursAtivo();
+    const custo = Number(btnCargo.getAttribute(dias === "7" ? "data-custo7" : "data-custo-def"));
+    const status = document.getElementById("pcTermometroStatus");
+    const chaves = candidatosVotoOculto.map((c) => c.chave);
+    const r = await revelarCandidatosTermometro(pcState.perfil.id, pcState.estado, cargo, chaves, custo, "cargo inteiro", dias === "7" ? 7 : null, null);
+    if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; return; }
+    delete pcState.termometroRevelacoesCache[chaveCache];
+    try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
+    renderQuadroMedias();
+  });
 }
 
 // Esc fecha a janela sobreposta ativa (pedido do usuário, 21/08/2026 —

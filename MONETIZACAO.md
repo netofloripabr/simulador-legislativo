@@ -1,5 +1,15 @@
 # Economia SIMULALEGIS — documento de estrutura (v3, 19/08/2026)
 
+> **Atualização de 24/08/2026 — parte disto já foi implementada** (migração
+> `nuvem/migracao-28-desafios-notificacoes.sql`, pendente de rodar no SQL
+> Editor). A moeda ganhou nome (**SL**). Os números abaixo que DIVERGEM do
+> que está no ar: convite convertido passou de 10 créditos/5 por dia para
+> **1 SL/teto de 25 na vida da conta**; Desafios 1×1 (não documentado aqui,
+> era protótipo isolado) ganharam sua própria economia — 10 desafios
+> grátis expirando 1/dia, 10 SL depois, +5 SL no 1º aceite com cada
+> pessoa (teto 5/conta), estorno em cancelado/recusado/expirado (7 dias).
+> Ver memória `alesc_economia_creditos_sl` pro resumo executivo.
+
 **AUTORIZADO pelo usuário em 19/08/2026** ("Certo. Autorizado.") — em
 implementação pela ordem do §11.2 (etapas 1-2 concluídas em 19/08:
 migração 21 + extrato no Menu + aba admin Créditos e Financeiro).
