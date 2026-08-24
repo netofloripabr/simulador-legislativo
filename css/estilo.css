@@ -372,6 +372,80 @@
     font-family:var(--sans); font-size:12px; font-weight:700; padding:8px 16px; border-radius:99px;
     display:inline-flex; align-items:center; gap:6px;
   }
+  /* ===== Painel (lobby) — reestruturação de 24/08/2026 =====
+     Barra superior própria (saldo SL + convidar + perfil), urna como porta
+     principal e atalhos em tiles de ícone + rótulo curto. O texto corrido
+     dos subtítulos saiu: o usuário disse que "muita coisa escrita ainda
+     remete a uma apresentação". A barra FIXA de baixo continua ausente
+     aqui (atualizarMenuFixo(null) no despacho do painel) — no lobby os
+     destinos já estão todos na tela. */
+  #modoColaborativoWrap .pc-topbar{
+    display:flex; align-items:center; gap:9px; padding:2px 2px 14px; margin-bottom:2px;
+  }
+  #modoColaborativoWrap .pc-topbar-marca{
+    flex:1; min-width:0; font-size:13px; font-weight:800; letter-spacing:-.01em; color:var(--pc-ink);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #modoColaborativoWrap .pc-topbar-marca b{ color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-topbar-btn{
+    width:34px; height:34px; flex-shrink:0; border-radius:50%; background:#101214;
+    border:1px solid var(--pc-glass-border); color:var(--pc-ink-dim);
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-family:var(--sans);
+  }
+  #modoColaborativoWrap .pc-topbar-btn:hover{ color:var(--pc-ink); }
+  #modoColaborativoWrap .pc-topbar-cred{
+    display:flex; align-items:center; gap:5px; height:34px; padding:0 11px; flex-shrink:0;
+    border-radius:999px; background:#101214; border:1px solid var(--pc-glass-border);
+    font-family:var(--sans); font-size:12px; font-weight:800; color:var(--pc-ink);
+    font-variant-numeric:tabular-nums; cursor:pointer;
+  }
+  #modoColaborativoWrap .pc-topbar-cred svg{ color:var(--pc-accent); }
+
+  /* Urna — peça-chave do projeto: porta pras listas e pro depósito */
+  #modoColaborativoWrap .pc-urna{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    width:100%; margin:22px 0 18px; background:none; border:none; cursor:pointer;
+    font-family:var(--sans); color:var(--pc-ink); padding:0;
+  }
+  #modoColaborativoWrap .pc-urna-btn{
+    width:104px; height:104px; border-radius:26px;
+    display:flex; align-items:center; justify-content:center; color:var(--pc-accent);
+    background:radial-gradient(circle at 50% 30%, #1E3A24, #122117 70%);
+    border:1.5px solid rgba(52,232,74,.45);
+    box-shadow:0 0 30px rgba(52,232,74,.12), inset 0 0 24px rgba(52,232,74,.06);
+    transition:transform .14s ease, box-shadow .18s ease;
+  }
+  #modoColaborativoWrap .pc-urna:active .pc-urna-btn{ transform:scale(.96); }
+  #modoColaborativoWrap .pc-urna-rot{ font-size:13px; font-weight:800; }
+  #modoColaborativoWrap .pc-urna-sub{ font-size:10.5px; color:var(--pc-ink-dim); margin-top:-4px; }
+
+  /* Tiles de atalho — ícone + rótulo curto, centralizados */
+  #modoColaborativoWrap .pc-lobby-tiles{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:24px;
+  }
+  #modoColaborativoWrap .pc-lobby-tile{
+    position:relative; display:flex; flex-direction:column; align-items:center; gap:8px;
+    background:var(--pc-glass); border:1px solid var(--pc-glass-border); border-radius:16px;
+    padding:14px 6px 11px; cursor:pointer; font-family:var(--sans); text-align:center;
+  }
+  #modoColaborativoWrap .pc-lobby-tile-ic{ color:#AEB5BB; display:flex; }
+  #modoColaborativoWrap .pc-lobby-tile-rot{
+    font-size:11px; font-weight:700; color:#C7CCD0; text-align:center; line-height:1.25;
+  }
+  #modoColaborativoWrap .pc-lobby-tile-badge{
+    position:absolute; top:8px; right:9px; min-width:17px; height:17px; padding:0 5px;
+    border-radius:999px; background:#2C3239; color:#AEB5BB; font-size:10px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; font-variant-numeric:tabular-nums;
+  }
+  #modoColaborativoWrap .pc-lobby-tile-gate{ opacity:.45; }
+  #modoColaborativoWrap .pc-lobby-tile-breve{ opacity:.42; cursor:default; }
+  /* "em breve" mora ABAIXO do rótulo: no canto, o selo cobria o ícone num
+     tile de 96px (achado na verificação de 24/08/2026). */
+  #modoColaborativoWrap .pc-lobby-tile-breve-selo{
+    display:block; margin-top:-4px; font-size:7.5px; font-weight:800;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim);
+  }
+
   #modoColaborativoWrap .pc-lobby-atalhos{ display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-bottom:24px; }
   #modoColaborativoWrap .pc-lobby-atalho{
     all:unset; box-sizing:border-box; cursor:pointer; background:var(--pc-lobby-tom-2);

@@ -145,7 +145,20 @@ const PC_ICONES = {
   buscar: '<circle cx="6.8" cy="6.8" r="4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   salvar: '<path d="M3 2.8h8.2l2 2v8.4H3V2.8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M5 2.8v3.6h4.6V2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path><rect x="4.8" y="9" width="6.4" height="4.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect>',
   instagram: '<rect x="2" y="2" width="12" height="12" rx="3.6" fill="none" stroke="currentColor" stroke-width="1.3"></rect><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="11.5" cy="4.5" r=".9" fill="currentColor"></circle>',
-  credito: '<circle cx="8" cy="8" r="5.7" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="8" cy="8" r="2.7" fill="none" stroke="currentColor" stroke-width="1.2"></circle><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path>',
+  // Moeda SL (desenho fechado com o usuário em 24/08/2026): a haste sai por
+  // cima do S, volta por baixo e dobra pra direita virando o pé do L — de
+  // longe lê "dinheiro", de perto lê o monograma SL. Substituiu o alvo
+  // genérico que não dizia nada.
+  credito: '<circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.15"></circle><path d="M10.3 5.9c0-.95-1-1.6-2.2-1.6s-2.2.65-2.2 1.55c0 2 4.4 1.05 4.4 3.15 0 .95-1 1.65-2.25 1.65s-2.25-.65-2.25-1.6" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"></path><path d="M7.8 2.8v1.7" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"></path><path d="M7.8 10.4v2.75h2.95" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"></path>',
+  // Urna — a peça-chave do projeto (memória alesc_visual_identity): é por
+  // ela que se chega às listas e se deposita a cédula.
+  urna: '<path d="M2.8 6.2h10.4l-.7 6.7a1 1 0 01-1 .9H4.5a1 1 0 01-1-.9z" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"></path><rect x="2.1" y="4.1" width="11.8" height="2.1" rx=".8" fill="none" stroke="currentColor" stroke-width="1.15"></rect><path d="M6.2 5.15h3.6" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"></path><path d="M8 1.1v2.2M8 1.1L6.7 2.4M8 1.1l1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"></path>',
+  // Loja — onde se compra SL e desbloqueio do Termômetro.
+  loja: '<path d="M2.9 5.7h10.2l-.75 6.8a.95.95 0 01-.95.8H4.6a.95.95 0 01-.95-.8z" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"></path><path d="M2.1 5.7l1.3-2.8h9.2l1.3 2.8" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"></path><path d="M6.1 8.1a1.9 1.9 0 003.8 0" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"></path>',
+  // Desafio 1×1 — espadas cruzadas.
+  desafio: '<path d="M2.6 13.4L12 4M9.3 4h2.7v2.7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M13.4 13.4L4 4M6.7 4H4v2.7" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
+  // Termômetro eleitoral (ex-Mediana).
+  termometro: '<path d="M6.4 2.6a1.6 1.6 0 013.2 0v6.2a3.1 3.1 0 11-3.2 0z" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"></path><circle cx="8" cy="11.6" r="1.5" fill="currentColor"></circle><path d="M8 10.2V5.6" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"></path>',
   cadeadoSlot: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"></rect><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7" fill="none" stroke="currentColor" stroke-width="1.3"></path>',
 };
 // Candidatura congelada (desistência / sub judice) — política 21/08/2026:
@@ -592,7 +605,7 @@ function renderMenuFixo(destinoAtivo) {
   const itens = [
     { id: "painel", icone: "home", label: "Início" },
     { id: "minhas-listas", icone: "ballot", label: "Minhas listas" },
-    { id: "medias", icone: "chart", label: "Mediana", gate: gateConvidado },
+    { id: "medias", icone: "termometro", label: "Termômetro", gate: gateConvidado },
     { id: "grupo", icone: "grupos", label: "Grupos", gate: gateConvidado },
     { id: "ranking", icone: "ranking", label: "Ranking" },
     // Achado do usuário em 22/08/2026: perfil e carteira (Créditos — saldo
@@ -2659,10 +2672,13 @@ async function renderPainelPrincipal() {
 
   el.innerHTML = `
     <div id="pcFarolBloco"></div>
-    ${completa && !gateConvidado ? `
-    <div style="display:flex; justify-content:flex-end; margin-bottom:14px;">
-      <button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>
-    </div>` : ""}
+
+    <div class="pc-topbar">
+      <div class="pc-topbar-marca"><b>Simula</b>LEGIS</div>
+      ${pcState.perfil ? `<button class="pc-topbar-cred" id="pcBtnSaldoTopo" title="Seus créditos">${iconeSvg("credito", 14)}<span>${Number((pcState.perfil && pcState.perfil.creditos) || 0)}</span></button>` : ""}
+      <button class="pc-topbar-btn" id="pcBtnConvidarTopo" title="Convidar amigos">${iconeSvg("convidar", 17)}</button>
+      <button class="pc-topbar-btn" id="pcBtnPerfilTopo" title="${gateConvidado ? "Precisa se cadastrar" : "Menu e perfil"}">${iconeSvg("perfil", 17)}</button>
+    </div>
 
     <div class="pc-lobby-card">
       <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:8px;">
@@ -2684,6 +2700,17 @@ async function renderPainelPrincipal() {
       </div>` : ""}
     </div>
 
+    <button class="pc-urna" id="pcBtnUrna">
+      <span class="pc-urna-btn">${iconeSvg("urna", 52)}</span>
+      <span class="pc-urna-rot">Minhas listas</span>
+      <span class="pc-urna-sub">montar, revisar e depositar a cédula</span>
+    </button>
+
+    ${completa && !gateConvidado ? `
+    <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
+      <button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>
+    </div>` : ""}
+
     <div class="pc-lobby-banner">
       <div class="pc-lobby-banner-eyebrow">Convide amigos</div>
       <div class="pc-lobby-banner-titulo">Desafie quem mais entende de política</div>
@@ -2692,22 +2719,34 @@ async function renderPainelPrincipal() {
     </div>
 
     <div class="pc-lobby-menu-tit">Atalhos</div>
-    <div class="pc-lobby-atalhos">
-      <button class="pc-lobby-atalho" id="pcMenuListas">
-        <div class="pc-lobby-atalho-icone">${iconeSvg("ballot", 19)}</div>
-        <div><div class="pc-lobby-atalho-titulo">Minhas listas</div><div class="pc-lobby-atalho-sub">${totalListas ? `${totalListas} lista${totalListas === 1 ? "" : "s"}` : "Nenhuma ainda"}</div></div>
+    <div class="pc-lobby-tiles">
+      <button class="pc-lobby-tile" id="pcMenuListas">
+        <span class="pc-lobby-tile-ic">${iconeSvg("lista", 24)}</span>
+        <span class="pc-lobby-tile-rot">Listas</span>
+        ${totalListas ? `<span class="pc-lobby-tile-badge">${totalListas}</span>` : ""}
       </button>
-      <button class="pc-lobby-atalho" id="pcMenuMedias" style="${estiloApagado}" title="${tituloApagado}">
-        <div class="pc-lobby-atalho-icone">${iconeSvg("chart", 19)}</div>
-        <div><div class="pc-lobby-atalho-titulo">Mediana</div><div class="pc-lobby-atalho-sub">${gateConvidado ? "Precisa se cadastrar" : "Pesquisa pública"}</div></div>
+      <button class="pc-lobby-tile" id="pcMenuMedias" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
+        <span class="pc-lobby-tile-ic">${iconeSvg("termometro", 24)}</span>
+        <span class="pc-lobby-tile-rot">Termômetro<br>eleitoral</span>
       </button>
-      <button class="pc-lobby-atalho" id="pcMenuGrupos" style="${estiloApagado}" title="${tituloApagado}">
-        <div class="pc-lobby-atalho-icone">${iconeSvg("grupos", 19)}</div>
-        <div><div class="pc-lobby-atalho-titulo">Grupos</div><div class="pc-lobby-atalho-sub">${gateConvidado ? "Precisa se cadastrar" : (totalGrupos ? `${totalGrupos} grupo${totalGrupos === 1 ? "" : "s"}` : "Nenhum ainda")}</div></div>
+      <button class="pc-lobby-tile" id="pcMenuGrupos" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
+        <span class="pc-lobby-tile-ic">${iconeSvg("grupos", 24)}</span>
+        <span class="pc-lobby-tile-rot">Grupos</span>
+        ${totalGrupos ? `<span class="pc-lobby-tile-badge">${totalGrupos}</span>` : ""}
       </button>
-      <button class="pc-lobby-atalho" id="pcMenuRanking">
-        <div class="pc-lobby-atalho-icone">${iconeSvg("ranking", 19)}</div>
-        <div><div class="pc-lobby-atalho-titulo">Ranking</div><div class="pc-lobby-atalho-sub">Em breve</div></div>
+      <button class="pc-lobby-tile" id="pcMenuRanking">
+        <span class="pc-lobby-tile-ic">${iconeSvg("ranking", 24)}</span>
+        <span class="pc-lobby-tile-rot">Ranking<br>(usuários)</span>
+      </button>
+      <button class="pc-lobby-tile pc-lobby-tile-breve" disabled title="Em breve">
+        <span class="pc-lobby-tile-ic">${iconeSvg("desafio", 24)}</span>
+        <span class="pc-lobby-tile-rot">Desafios</span>
+        <span class="pc-lobby-tile-breve-selo">em breve</span>
+      </button>
+      <button class="pc-lobby-tile pc-lobby-tile-breve" disabled title="Em breve">
+        <span class="pc-lobby-tile-ic">${iconeSvg("loja", 24)}</span>
+        <span class="pc-lobby-tile-rot">Loja</span>
+        <span class="pc-lobby-tile-breve-selo">em breve</span>
       </button>
     </div>
 
@@ -2730,10 +2769,25 @@ async function renderPainelPrincipal() {
     renderColaborativo();
   };
   atualizarFarol();
-  document.getElementById("pcMenuListas").addEventListener("click", () => {
+  const irParaListas = () => {
     if (pcState.perfil) { pcState.subaba = "minhas-listas"; renderAppColaborativo(); }
     else { pcState.tela = "minhas-listas-convidado"; renderColaborativo(); }
+  };
+  // A urna é a porta principal do Painel (desenho de 24/08/2026): leva pro
+  // mesmo destino do atalho "Listas", que é de onde se monta, revisa e
+  // deposita a cédula.
+  document.getElementById("pcBtnUrna").addEventListener("click", irParaListas);
+  document.getElementById("pcMenuListas").addEventListener("click", irParaListas);
+  document.getElementById("pcBtnConvidarTopo").addEventListener("click", () => {
+    if (gateConvidado) return irParaCadastro("grupo");
+    pcState.subaba = "grupo"; renderAppColaborativo();
   });
+  document.getElementById("pcBtnPerfilTopo").addEventListener("click", () => {
+    if (gateConvidado) return irParaCadastro(null);
+    pcState.subaba = "menu"; renderAppColaborativo();
+  });
+  const btnSaldoTopo = document.getElementById("pcBtnSaldoTopo");
+  if (btnSaldoTopo) btnSaldoTopo.addEventListener("click", () => { pcState.subaba = "menu"; renderAppColaborativo(); });
   document.getElementById("pcMenuRanking").addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "ranking"; renderAppColaborativo(); }
     else { pcState.tela = "ranking-convidado"; renderColaborativo(); }
@@ -2742,11 +2796,11 @@ async function renderPainelPrincipal() {
     if (gateConvidado) return irParaCadastro("medias");
     pcState.subaba = "medias"; renderAppColaborativo();
   });
+  document.querySelectorAll('[data-pc-gate="1"]').forEach((b) => b.classList.add("pc-lobby-tile-gate"));
   document.getElementById("pcMenuGrupos").addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("grupo");
     pcState.subaba = "grupo"; renderAppColaborativo();
   });
-  document.getElementById("pcMenuRanking").addEventListener("click", () => { pcState.subaba = "ranking"; renderAppColaborativo(); });
   document.getElementById("pcBtnConviteBanner").addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("grupo");
     pcState.subaba = "grupo"; renderAppColaborativo();
@@ -8941,7 +8995,7 @@ async function renderQuadroMedias() {
     </div>`;
 
   conteudo.innerHTML = `
-    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Mediana</div>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Termômetro Eleitoral</div>
     <div class="pc-sub" style="margin:0 0 14px 2px;">Pesquisa em tempo real — mediana aparada de ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} público${totalPalpites === 1 ? "" : "s"}. Quem estaria eleito, pela mesma regra do resultado oficial.</div>
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
     <div class="pc-lobby-card" style="padding:14px;">
