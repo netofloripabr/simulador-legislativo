@@ -1947,7 +1947,19 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "painel") { renderPainelPrincipal(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "minhas-listas") { renderMinhasListas(); atualizarMenuFixo("minhas-listas"); }
   else if (pcState.subaba === "medias") { renderQuadroMedias(); atualizarMenuFixo("medias"); }
-  else if (pcState.subaba === "grupo") { renderGrupoHub(); atualizarMenuFixo("grupo"); }
+  else if (pcState.subaba === "grupo") {
+    // Sub-navegação dentro de "grupo" (telaGrupo: criar/entrar/membro) —
+    // antes esse roteador ignorava telaGrupo e sempre voltava pro hub
+    // (bug: reabrir o app com "criar grupo" ou uma comparação de grupo
+    // aberta perdia o lugar e caía no hub sem aviso). grupoAtivo some em
+    // qualquer re-render fora dessa sessão (nunca persiste), então
+    // "membro" sem grupoAtivo também cai no hub — não tem o que reabrir.
+    if (pcState.telaGrupo === "criar") renderGrupoCriar();
+    else if (pcState.telaGrupo === "entrar") renderGrupoEntrar();
+    else if (pcState.telaGrupo === "membro" && pcState.grupoAtivo) renderGrupoMembro();
+    else renderGrupoHub();
+    atualizarMenuFixo("grupo");
+  }
   else if (pcState.subaba === "menu") { renderMenuConta(); atualizarMenuFixo("menu"); }
   else if (pcState.subaba === "ranking") { renderRankingPlaceholder(); atualizarMenuFixo("ranking"); }
   else if (pcState.subaba === "meu-perfil") { renderMeuPerfil(); atualizarMenuFixo(null); }
@@ -3773,6 +3785,7 @@ async function renderGrupoHub() {
     pcState.grupoVagasStatus = "";
       pcState.grupoMinhasCedulas = null;
       pcState.grupoCedulaEscolhida = null;
+      pcState.telaGrupo = "membro";
       renderGrupoMembro();
     });
   });
@@ -4287,6 +4300,7 @@ function renderGrupoEntrar() {
     pcState.grupoVagasStatus = "";
     pcState.grupoMinhasCedulas = null;
     pcState.grupoCedulaEscolhida = null;
+    pcState.telaGrupo = "membro";
     renderGrupoMembro();
   });
 }
@@ -4456,6 +4470,7 @@ async function renderGrupoMembro() {
   if (btnVaga1) btnVaga1.addEventListener("click", (e) => comprarVagas(1, e.target));
   if (btnVaga5) btnVaga5.addEventListener("click", (e) => comprarVagas(5, e.target));
   document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", () => {
+    pcState.telaGrupo = null;
     pcState.grupoAtivo = null;
     pcState.grupoComparacao = null;
     pcState.grupoMembrosTotal = undefined;
