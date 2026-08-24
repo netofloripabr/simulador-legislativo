@@ -118,6 +118,10 @@ let pcState = {
   termometroPainelPrecos: false, // caixa "Revelar agora" expandida
   termometroCoringaResultado: null, // { candidato, raridade } do último sorteio, pra animação de abertura
   termometroCoringaAbrindo: false,
+  termometroStatus: "", // linha de status do painel de preços do Termômetro
+
+  // ===== Loja / pagamento real (migração 29, Mercado Pago) =====
+  lojaStatus: "", // linha de status da Loja (erro ao iniciar compra, ou aviso de volta do Mercado Pago)
 };
 
 // Cargos simuláveis por estado. Os 3 têm candidatos reais de 2022 carregados
@@ -397,6 +401,10 @@ async function initColaborativo() {
     // Pontinho do sino (migração 28) — melhor esforço, igual ao saldo:
     // sem isso a barra superior simplesmente não mostra o indicador.
     try { pcState.notificacoesNaoLidas = await contarNotificacoesNaoLidas(); } catch (e) { /* sem indicador */ }
+    // Volta do Mercado Pago (?compra=ok|falhou|pendente na URL, ver
+    // back_urls em nuvem/edge-functions/criar-pagamento) — só faz
+    // sentido pra quem está logado, que é sempre quem inicia uma compra.
+    tratarVoltaDoPagamento();
   // Presença/marcos (migração 26): registra o dia (streak) e concede
   // marcos únicos direto no banco. Fire-and-forget — se a migração não
   // rodou ainda, só loga e segue.
@@ -410,6 +418,9 @@ async function initColaborativo() {
     // primeira vez (sem nada salvo) começa na seleção; quem já preencheu
     // antes cai direto no painel principal.
     pcState.subaba = pcState.palpiteEdicao ? "painel" : "selecao";
+    // Volta do Mercado Pago: pousa direto na Loja pra mostrar o status
+    // da compra, em vez de deixar a pessoa procurar.
+    if (new URLSearchParams(window.location.search).get("compra")) pcState.subaba = "loja";
     // Estado do logado (auditoria #41, 21/08/2026): lembra a última
     // escolha feita na roleta NESTE aparelho; sem escolha registrada,
     // SC segue como padrão de nascimento do produto.
@@ -4135,11 +4146,11 @@ async function renderCarteira() {
 function renderLoja() {
   const conteudo = document.getElementById("pcConteudo");
   const saldo = Number((pcState.perfil && pcState.perfil.creditos) || 0);
-  const pacote = (qtd, desc, preco, selo) => `
+  const pacote = (id, dados, desc, selo) => `
     <div class="pc-pacote ${selo ? "destaque" : ""}">
-      <span class="pc-pacote-q">${iconeSvg("credito", 16)}${qtd}</span>
+      <span class="pc-pacote-q">${iconeSvg("credito", 16)}${dados.sl}</span>
       <span class="pc-pacote-d"><b>${desc}</b>${selo ? `<span class="pc-pacote-selo">${selo}</span>` : ""}</span>
-      <span class="pc-pacote-p">${preco}</span>
+      <button type="button" class="primary" data-pc-comprar="${id}" style="flex-shrink:0; padding:8px 12px; font-size:12px;">${dados.preco}</button>
     </div>`;
 
   conteudo.innerHTML = `
@@ -4147,14 +4158,15 @@ function renderLoja() {
       <button class="ghost" id="pcBtnVoltarLoja" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Painel</button>
       <h2 style="margin-bottom:2px;">Loja</h2>
       <div class="pc-sub" style="margin-bottom:4px;">Seu saldo: <b style="color:var(--pc-ink);">${saldo} SL</b></div>
-      <div class="pc-sub" style="margin-bottom:14px;">Compra por pacote ainda não está aberta — enquanto isso, todo SL vem de convite, desafio aceito ou concessão da equipe.</div>
+      <div class="pc-sub" style="margin-bottom:14px;">Pagamento via Mercado Pago (PIX ou cartão) — você é redirecionado, paga lá e volta com o saldo já creditado.</div>
 
-      <div class="pc-lobby-menu-tit" style="margin-top:0;">Pacotes (em breve)</div>
-      ${pacote(10, "1 desafio ou 1 vaga de grupo", "R$ 4,99")}
-      ${pacote(50, "abre 10 candidatos no Termômetro", "R$ 21,99", "+10% desconto")}
-      ${pacote(200, "a lista completa do Termômetro", "R$ 74,99", "+25% desconto")}
+      <div class="pc-lobby-menu-tit" style="margin-top:0;">Comprar SL</div>
+      ${pacote("p10", PACOTES_SL.p10, "1 desafio ou 1 vaga de grupo")}
+      ${pacote("p50", PACOTES_SL.p50, "abre 10 candidatos no Termômetro", "+10% desconto")}
+      ${pacote("p200", PACOTES_SL.p200, "a lista completa do Termômetro", "+25% desconto")}
+      <div class="pc-status" id="pcLojaStatus" style="margin:4px 0 14px; min-height:12px;">${pcState.lojaStatus || ""}</div>
 
-      <div class="pc-lobby-menu-tit">Como ganhar agora</div>
+      <div class="pc-lobby-menu-tit">Como ganhar de graça</div>
       <button class="pc-mini-card" id="pcBtnLojaConvidar">
         <div class="pc-mini-card-icone">${iconeSvg("convidar", 17)}</div>
         <div style="flex:1; min-width:0; text-align:left;">
@@ -4172,10 +4184,52 @@ function renderLoja() {
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--pc-ink-dim)" stroke-width="1.8" style="flex-shrink:0;"><path d="M9 6l6 6-6 6"></path></svg>
       </button>
     </div>`;
+  pcState.lojaStatus = "";
   document.getElementById("pcBtnVoltarLoja").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
   document.getElementById("pcBtnLojaConvidar").addEventListener("click", () => { pcState.subaba = "grupo"; renderAppColaborativo(); });
   document.getElementById("pcBtnLojaDesafiar").addEventListener("click", () => { pcState.subaba = "desafios"; renderAppColaborativo(); });
+  document.querySelectorAll("[data-pc-comprar]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      document.querySelectorAll("[data-pc-comprar]").forEach((b) => (b.disabled = true));
+      const status = document.getElementById("pcLojaStatus");
+      status.textContent = "Abrindo o pagamento…";
+      const r = await iniciarCompraSL(btn.getAttribute("data-pc-comprar"));
+      if (!r.ok) {
+        status.textContent = "Não deu: " + r.mensagem;
+        document.querySelectorAll("[data-pc-comprar]").forEach((b) => (b.disabled = false));
+      }
+      // r.ok já redirecionou a página — nada mais a fazer aqui.
+    });
+  });
 }
+
+// Volta do Mercado Pago (?compra=ok|falhou|pendente, ver back_urls na
+// Edge Function criar-pagamento) — mostra o aviso e, se "ok", tenta
+// revalidar o saldo algumas vezes (o webhook costuma ser quase
+// instantâneo, mas pode chegar 1-2s depois do redirect).
+async function tratarVoltaDoPagamento() {
+  const params = new URLSearchParams(window.location.search);
+  const compra = params.get("compra");
+  if (!compra) return;
+  window.history.replaceState({}, "", window.location.pathname);
+  pcState.lojaStatus = compra === "ok"
+    ? "Pagamento aprovado — atualizando seu saldo…"
+    : compra === "pendente"
+      ? "Pagamento em análise (comum em boleto/PIX fora do horário) — o saldo entra assim que compensar."
+      : "Pagamento não foi concluído — nada foi cobrado.";
+  if (compra === "ok" && pcState.perfil) {
+    for (let tentativa = 0; tentativa < 5; tentativa++) {
+      await new Promise((r) => setTimeout(r, 1500));
+      try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) { break; }
+    }
+    pcState.lojaStatus = "Pagamento aprovado — saldo atualizado!";
+  }
+  // Essa função roda em paralelo ao primeiro render (chamada sem await
+  // em initColaborativo) — se a pessoa ainda estiver na Loja quando o
+  // resultado final chegar, atualiza a tela sozinha.
+  if (pcState.subaba === "loja") renderAppColaborativo();
+}
+
 
 function renderGrupoCriar() {
   const conteudo = document.getElementById("pcConteudo");
