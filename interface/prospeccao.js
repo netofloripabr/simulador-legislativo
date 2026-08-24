@@ -5635,6 +5635,18 @@ function vagasIndicadasDe(p, padrao) {
   return Math.max(0, Number.isFinite(v) ? v : (padrao || 0));
 }
 
+// Curso (extensão total) da barra de votos do partido — 1 QE de folga
+// depois do maior entre meta/soma/QE, pra sempre sobrar um pouco de
+// trilho vazio no fim (mesma razão do arrasto: dar espaço de passar da
+// meta). Usado tanto no render estático quanto no arrasto ao vivo — os
+// dois PRECISAM da mesma conta, senão a barra muda de tamanho sozinha
+// ao soltar o dedo (mesma soma de votos rendia % diferente antes/depois
+// do gesto — parecia um "salto" pra frente, achado do usuário em
+// 24/08/2026, o curso ao vivo já tinha a folga e o estático não).
+function cursoBarraPartido(meta, soma, qeProj) {
+  return Math.max(meta, soma, qeProj) + qeProj;
+}
+
 // Mensagem da linha de notificação do card — o sistema fala a informação
 // mais útil do momento (decisão de 17/08: a linha de info virou canal de
 // notificações, com o "i" à direita).
@@ -5772,7 +5784,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     const vg = counts[gi] || 0;
     const vagasInd = vagasIndicadasDe(p, vg);
     const meta = vagasInd * qeProj;
-    const course = Math.max(meta, soma, qeProj);
+    const course = cursoBarraPartido(meta, soma, qeProj);
     const qpDireto = qeAtual ? Math.min(vg, Math.floor(soma / qeAtual)) : 0;
     const sobras = vg - qpDireto;
     const chaveAberto = "faderAberto_" + pcState.cargoAtivo + "_" + p.nome;
@@ -6026,11 +6038,12 @@ function attachListenersDeputadosFader(E, totalVagas) {
         let membros = p2.candidatos.filter((c) => c.fonte !== "legenda" && !c.status).map((c) => Number(c.votos) || 0);
         if (membros.every((vv) => vv === 0)) membros = p2.candidatos.filter((c) => c.fonte !== "legenda" && !c.status).map((c) => Number(c.votos2022) || 1);
         // Curso do GESTO: fixo do início ao fim do arrasto (curso elástico
-        // no meio do gesto faria a alça fugir do dedo) — meta + 1 QE de
-        // folga pra dar espaço de passar da meta sem soltar.
+        // no meio do gesto faria a alça fugir do dedo) — mesma conta do
+        // render estático (cursoBarraPartido), senão a barra "salta" ao
+        // soltar (ver comentário da função).
         const soma0 = somaVotosGrupo(p2);
         const meta0 = Number(sl.dataset.meta) || 0;
-        const course = Math.max(meta0, soma0, qeProj) + qeProj;
+        const course = cursoBarraPartido(meta0, soma0, qeProj);
         sl.dataset.course = String(Math.round(course));
         base = { membros, outrosTotal: somaVotosCargo() - soma0, course };
       } else {
