@@ -70,6 +70,7 @@ let pcState = {
   buscaPartido: "", // termo digitado na busca de partido
   expandido: {},
   erro: "",
+  cadRascunho: null, // { nome, email, telefone, cpf, cep, genero, lgpd } — preserva o formulário de cadastro quando dá erro, pra não fazer a pessoa digitar tudo de novo (achado do usuário, 24/08/2026)
   status: "",
   modalNomeListaAberto: false, // modal "dê um nome pra essa lista" no primeiro Salvar da Revisão
   listaSalvaId: null, // id exclusivo gerado no primeiro Salvar — reaproveitado nos salvamentos seguintes da mesma lista (edição, não duplicata)
@@ -1209,6 +1210,7 @@ async function renderCompartilhado() {
 // usuário em 08/08/2026 depois de clicar num item travado do Lobby.
 function voltarDeLoginOuCadastro() {
   pcState.erro = "";
+  pcState.cadRascunho = null;
   if (pcState.estado) { pcState.tela = "painel-convidado"; } else { pcState.tela = "landing"; }
   renderColaborativo();
 }
@@ -1391,10 +1393,10 @@ function cascaAcessoTopo(voltarId) {
 
 // Pílulas de gênero (substituem o <select>, mesmo id num input hidden pra
 // não mexer nos handlers de submit).
-function pilulasGenero(idCampo) {
-  return `<input type="hidden" id="${idCampo}" value="">
+function pilulasGenero(idCampo, valorInicial) {
+  return `<input type="hidden" id="${idCampo}" value="${valorInicial || ""}">
   <div class="pc-acesso-genero" data-pc-genero-alvo="${idCampo}">
-    ${["Feminino", "Masculino", "Outro"].map((g) => `<button type="button" data-pc-genero="${g}">${g}</button>`).join("")}
+    ${["Feminino", "Masculino", "Outro"].map((g) => `<button type="button" data-pc-genero="${g}"${g === valorInicial ? ' class="on"' : ""}>${g}</button>`).join("")}
   </div>`;
 }
 function attachPilulasGenero() {
@@ -1791,34 +1793,40 @@ function renderTelaMiniPesquisa() {
 
 function renderTelaCadastro() {
   const el = document.getElementById("modoColaborativoWrap");
+  // Preserva o que a pessoa já digitou quando a tela volta por erro
+  // (achado do usuário, 24/08/2026: antes o formulário inteiro limpava,
+  // mesmo pra um erro isolado tipo "CEP não encontrado" — obrigava
+  // redigitar tudo). Senha de propósito NÃO entra aqui — a pessoa digita
+  // de novo, mesmo padrão de qualquer formulário de senha.
+  const r = pcState.cadRascunho || {};
   el.innerHTML = `
     <div class="pc-acesso" style="max-width:460px;">
       ${cascaAcessoTopo("pcBtnVoltarCadastro")}
       <div class="pc-acesso-h2">Crie sua conta</div>
       <div class="pc-acesso-sub">Grátis. Deposite sua cédula, entre em grupos e dispute o ranking.</div>
-      <div class="field-row"><label>Nome</label><input class="cell" id="pcCadNome"></div>
+      <div class="field-row"><label>Nome</label><input class="cell" id="pcCadNome" value="${escaparAtributoHtml(r.nome || "")}"></div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Você pode divulgar seu palpite de forma anônima — essa escolha é feita depois, na hora de depositar cada cédula, não aqui.</div>
-      <div class="field-row"><label>E-mail</label><input class="cell" id="pcCadEmail" type="email"></div>
-      <div class="field-row"><label>Telefone</label><input class="cell" id="pcCadTelefone" inputmode="tel" placeholder="(00) 00000-0000"></div>
+      <div class="field-row"><label>E-mail</label><input class="cell" id="pcCadEmail" type="email" value="${escaparAtributoHtml(r.email || "")}"></div>
+      <div class="field-row"><label>Telefone</label><input class="cell" id="pcCadTelefone" inputmode="tel" placeholder="(00) 00000-0000" value="${escaparAtributoHtml(r.telefone || "")}"></div>
       <div class="field-row"><label>Senha</label><input class="cell" id="pcCadSenha" type="password"></div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Pelo menos 8 caracteres, com letra, número e caractere especial.</div>
       <div class="field-row">
         <label>CPF</label>
-        <input class="cell" id="pcCadCpf" inputmode="numeric" placeholder="Só números" maxlength="14">
+        <input class="cell" id="pcCadCpf" inputmode="numeric" placeholder="Só números" maxlength="14" value="${escaparAtributoHtml(r.cpf || "")}">
       </div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CPF só pra impedir que a mesma pessoa crie mais de uma conta (protege o ranking) — guardamos um código derivado dele, nunca o CPF em texto puro.</div>
       <div class="field-row">
         <label>CEP</label>
-        <input class="cell" id="pcCadCep" inputmode="numeric" placeholder="00000-000" maxlength="9">
+        <input class="cell" id="pcCadCep" inputmode="numeric" placeholder="00000-000" maxlength="9" value="${escaparAtributoHtml(r.cep || "")}">
       </div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CEP só pra saber seu município — ajuda a gente a entender melhor quem está usando o Simulador.</div>
       <div class="field-row">
         <label>Gênero</label>
-        ${pilulasGenero("pcCadGenero")}
+        ${pilulasGenero("pcCadGenero", r.genero)}
       </div>
 
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
-        <input type="checkbox" id="pcCadLgpd" style="margin-top:2px;">
+        <input type="checkbox" id="pcCadLgpd" style="margin-top:2px;"${r.lgpd ? " checked" : ""}>
         <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone, CPF, CEP/município e gênero) para criar minha conta, conforme a
           <a href="#" id="pcLinkPrivacidade" class="pc-link">Política de Privacidade</a>
           e os
@@ -1837,6 +1845,7 @@ function renderTelaCadastro() {
   attachPilulasGenero();
   document.getElementById("pcBtnIrLogin").addEventListener("click", () => {
     pcState.erro = "";
+    pcState.cadRascunho = null;
     pcState.tela = "login";
     renderColaborativo();
   });
@@ -1866,6 +1875,10 @@ function renderTelaCadastro() {
     const cep = document.getElementById("pcCadCep").value.trim();
     const genero = document.getElementById("pcCadGenero").value;
     const lgpdAceito = document.getElementById("pcCadLgpd").checked;
+    // Guarda ANTES de validar — qualquer branch de erro abaixo re-renderiza
+    // a tela, e é esse rascunho que a repovoa (senha fica de fora, de
+    // propósito).
+    pcState.cadRascunho = { nome, email, telefone, cpf, cep, genero, lgpd: lgpdAceito };
 
     if (!nome || !email || !senha || !cpf || !cep || !genero) {
       pcState.erro = "Preencha nome, e-mail, senha, CPF, CEP e gênero.";
@@ -1896,6 +1909,7 @@ function renderTelaCadastro() {
       return;
     }
     pcState.erro = "";
+    pcState.cadRascunho = null;
     // veio do fluxo de convidado (seleção de candidatos preenchida sem
     // login) — salva o que já foi montado direto no perfil recém-criado, em
     // vez de começar do zero.
