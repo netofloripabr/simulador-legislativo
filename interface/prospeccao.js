@@ -2453,12 +2453,25 @@ async function montarAdminFinanceiro() {
 
     <div class="glass-card" style="margin-top:14px; padding:16px;">
       <div style="font-size:13px; font-weight:700; margin-bottom:4px;">Conceder / ajustar créditos</div>
-      <div class="pc-sub" style="margin-bottom:12px;">Quantidade negativa remove (o saldo nunca fica abaixo de zero). Tudo vira linha no extrato — nada é silencioso.</div>
+      <div class="pc-sub" style="margin-bottom:12px;">Pra compra real feita pela Loja (Mercado Pago), o crédito já é automático — não use isto pra ela. Isto aqui é só pra fora desse fluxo: pagamento combinado por fora, cortesia, correção de erro. Registra o que recebeu (se recebeu) antes de soltar o crédito — tudo vira linha no extrato, nada é silencioso.</div>
       <div class="field-row"><label>E-mail da conta</label><input class="cell" id="pcAdminCreditoEmail" type="email" placeholder="pessoa@exemplo.com"></div>
-      <div style="display:flex; gap:10px;">
-        <div class="field-row" style="flex:1;"><label>Quantidade (+/-)</label><input class="cell" id="pcAdminCreditoQtd" type="number" step="1" placeholder="10"></div>
-        <div class="field-row" style="flex:2;"><label>Motivo (vai pro extrato)</label><input class="cell" id="pcAdminCreditoMotivo" placeholder="jogador base — lançamento"></div>
+      <div class="field-row"><label>Canal</label>
+        <select class="cell" id="pcAdminCreditoCanal">
+          <option value="">Selecione</option>
+          <option value="PIX direto">PIX direto</option>
+          <option value="Transferência">Transferência</option>
+          <option value="Dinheiro">Dinheiro</option>
+          <option value="Cortesia">Cortesia (nada recebido)</option>
+          <option value="Correção de erro">Correção de erro</option>
+          <option value="Outro">Outro</option>
+        </select>
       </div>
+      <div style="display:flex; gap:10px;">
+        <div class="field-row" style="flex:1;"><label>Valor recebido (R$)</label><input class="cell" id="pcAdminCreditoValor" type="number" step="0.01" min="0" placeholder="21,99"></div>
+        <div class="field-row" style="flex:1;"><label>SL (+/-)</label><input class="cell" id="pcAdminCreditoQtd" type="number" step="1" placeholder="10"></div>
+      </div>
+      <div class="pc-status" id="pcAdminCreditoPacote" style="margin:-6px 0 10px; min-height:14px;"></div>
+      <div class="field-row"><label>Observação (vai pro extrato)</label><input class="cell" id="pcAdminCreditoMotivo" placeholder="opcional"></div>
       <button class="primary" id="pcBtnAdminConcederCredito" style="width:100%;">Aplicar</button>
       <div class="pc-status" id="pcAdminCreditoStatus" style="margin-top:8px; min-height:14px;">${s || ""}</div>
     </div>
@@ -2556,12 +2569,41 @@ async function renderAdminPainel() {
   });
 
   if (pcState.adminSecao === "financeiro") {
+    // Mesmos 3 pacotes vendidos na Loja (nuvem/pagamentos.js,
+    // criar-pagamento/index.ts) — só pra SUGERIR o SL certo quando o
+    // valor recebido bate com um deles; não é cobrança real, então
+    // mudar preço na Loja não quebra nada aqui, só desatualiza a
+    // sugestão (mudar os dois juntos quando o preço mudar).
+    const PACOTES_ADMIN_SL = [{ reais: 4.99, sl: 10 }, { reais: 21.99, sl: 50 }, { reais: 74.99, sl: 200 }];
+    const campoValor = document.getElementById("pcAdminCreditoValor");
+    const campoQtd = document.getElementById("pcAdminCreditoQtd");
+    const campoPacote = document.getElementById("pcAdminCreditoPacote");
+    campoValor.addEventListener("input", () => {
+      const v = Number(campoValor.value);
+      const pacote = PACOTES_ADMIN_SL.find((p) => Math.abs(p.reais - v) < 0.005);
+      if (pacote) {
+        campoQtd.value = pacote.sl;
+        campoPacote.textContent = `Bate com o pacote de ${pacote.sl} SL — sugestão preenchida ao lado, pode ajustar.`;
+        campoPacote.style.color = "var(--pc-accent)";
+      } else if (v > 0) {
+        campoPacote.textContent = "Não bate com nenhum pacote da Loja — confere a quantidade de SL na mão.";
+        campoPacote.style.color = "var(--pc-warning)";
+      } else {
+        campoPacote.textContent = "";
+      }
+    });
     document.getElementById("pcBtnAdminConcederCredito").addEventListener("click", async (e) => {
       const email = document.getElementById("pcAdminCreditoEmail").value.trim();
-      const qtd = parseInt(document.getElementById("pcAdminCreditoQtd").value, 10);
-      const motivo = document.getElementById("pcAdminCreditoMotivo").value.trim();
+      const canal = document.getElementById("pcAdminCreditoCanal").value;
+      const valor = Number(campoValor.value) || 0;
+      const qtd = parseInt(campoQtd.value, 10);
+      const obs = document.getElementById("pcAdminCreditoMotivo").value.trim();
       const status = document.getElementById("pcAdminCreditoStatus");
-      if (!email || !qtd) { status.textContent = "Preencha e-mail e quantidade (diferente de zero)."; return; }
+      if (!email || !qtd) { status.textContent = "Preencha e-mail e quantidade de SL (diferente de zero)."; return; }
+      if (!canal) { status.textContent = "Escolhe o canal — inclusive \"Cortesia\" se não recebeu nada de verdade."; return; }
+      const motivo = `${canal}${valor > 0 ? ` — R$${valor.toFixed(2).replace(".", ",")}` : ""}${obs ? " — " + obs : ""}`;
+      const resumo = `Conceder ${qtd >= 0 ? "+" : ""}${qtd} SL pra ${email}\nMotivo: ${motivo}\n\nConfirma?`;
+      if (!window.confirm(resumo)) return;
       e.target.disabled = true;
       const r = await adminConcederCreditosPorEmail(email, qtd, motivo);
       e.target.disabled = false;
