@@ -566,10 +566,9 @@
   #modoColaborativoWrap button:disabled{ opacity:.35; cursor:default; }
   #modoColaborativoWrap .pc-erro{ color: var(--pc-danger); font-size: 12.5px; margin-top: 8px; min-height: 16px; }
   #modoColaborativoWrap .pc-status{ color: var(--pc-accent-2); font-size: 12.5px; margin-top: 8px; min-height: 16px; }
-  /* Ícone com brilho da capa (renderLanding), reaproveitado em toda tela de
-     "Carregando…" — ver telaCarregando() em interface/prospeccao.js e o
-     placeholder estático em index.html (esse antes do JS carregar). */
-  .pc-loading-icon{ animation: pc-pulse 1.6s ease-in-out infinite; }
+  /* pc-pulse: halo da tela de "Carregando…" (.pc-carregando-halo, ver
+     comentário grande mais abaixo) — ver telaCarregando() em
+     interface/prospeccao.js e o placeholder estático em index.html. */
   @keyframes pc-pulse{ 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:.72; transform:scale(.94); } }
   #modoColaborativoWrap table{ width:100%; border-collapse:collapse; font-size:13px; }
   #modoColaborativoWrap th{
@@ -1693,18 +1692,43 @@
 #modoColaborativoWrap .pc-capa-desafio svg{ flex:none; color:#8A9096; }
 #modoColaborativoWrap .pc-capa-aviso{ margin-top:22px; font-size:10.5px; color:#5C6268; }
 
-/* Ícone de "Carregando…" (telaCarregando, compartilhado por todo o app):
-   círculo neutro por padrão, verde vivo com halo só dentro do tema Fader
-   — antes era um gradiente verde fixo em toda tela, mesmo fora do tema. */
-#modoColaborativoWrap .pc-carregando-icone{
-  width:64px; height:64px; margin:0 auto 16px; border-radius:50%;
-  background:rgba(120,130,180,.14); display:flex; align-items:center; justify-content:center;
-  color:var(--pc-accent);
+/* "Carregando…" (telaCarregando, compartilhado por todo o app + o
+   placeholder estático em index.html): a logo oficial pulsando — sem
+   legenda de propósito, a respiração já entrega "carregando" (pedido do
+   usuário, 25/08/2026). Cores hardcoded (não var(--pc-accent)) de
+   propósito: precisa ficar certo desde o 1º pixel, antes de qualquer
+   classe de tema ser aplicada por JS. Protótipo aprovado em artifact,
+   várias rodadas de ajuste de curva/amplitude/timing com o usuário. */
+#modoColaborativoWrap .pc-carregando-wrap{
+  position:relative; min-height:50vh; display:flex; align-items:center; justify-content:center;
 }
-#modoColaborativoWrap.pc-tema-fader .pc-carregando-icone{
-  background:rgba(52,232,74,.1); border:1px solid rgba(52,232,74,.3); color:#34E84A;
-  box-shadow:0 0 14px rgba(52,232,74,.15);
+#modoColaborativoWrap .pc-carregando-halo{
+  position:absolute; width:110px; height:110px; border-radius:50%;
+  background:radial-gradient(circle, rgba(52,232,74,.18) 0%, rgba(52,232,74,0) 70%);
+  animation:pc-pulse 4.5s ease-in-out infinite;
 }
+#modoColaborativoWrap .pc-logo-mark{
+  width:65px; height:65px; border-radius:16px; position:relative; overflow:hidden;
+  display:flex; align-items:center; justify-content:center;
+  animation:pc-logo-tamanho 3s cubic-bezier(.37,0,.63,1) infinite;
+}
+/* Pico no máximo 15% maior que o tamanho real, sem platô parado (pico em
+   62%, nunca estático) — pedidos do usuário, 25/08/2026. */
+@keyframes pc-logo-tamanho{ 0%,100%{ transform:scale(1); } 62%{ transform:scale(1.15); } }
+#modoColaborativoWrap .pc-logo-fill{ position:absolute; inset:0; }
+#modoColaborativoWrap .pc-logo-fill.cheio{ background:#34E84A; animation:pc-logo-cheio 3s cubic-bezier(.37,0,.63,1) infinite; }
+#modoColaborativoWrap .pc-logo-fill.degrade{
+  /* Origem do degradê FORA do ícone (~15px além do canto superior
+     direito) com raio bem maior que a própria logo — varre a peça
+     inteira como luz vindo de fora, não um ponto centralizado. */
+  background:radial-gradient(circle 95px at 123% -23%, #C6E62A 0%, #34E84A 65%, #1D8038 100%);
+  opacity:0; animation:pc-logo-degrade 3s cubic-bezier(.37,0,.63,1) infinite;
+}
+/* Efeito sutil (50% de amplitude, pedido do usuário): no pico as duas
+   camadas ficam meio a meio, uma mistura, nunca uma troca 100%. */
+@keyframes pc-logo-cheio{ 0%,100%{ opacity:1; } 62%{ opacity:.5; } }
+@keyframes pc-logo-degrade{ 0%,100%{ opacity:0; } 62%{ opacity:.5; } }
+#modoColaborativoWrap .pc-logo-icone{ position:relative; z-index:1; color:#07230C; }
 
 /* Selo de proveniência (18/08/2026): candidato fictício ou registrado só
    via RRC (sem ata ainda) — mesma cor de atenção do resto da identidade,

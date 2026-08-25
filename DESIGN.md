@@ -278,6 +278,39 @@ Nasceu no cartão-desafio e o usuário aprovou como marca. Regras:
   marca aparece, ela divide a cota de verde com o CTA (evitar mais verdes
   além desses dois + selo ELEITO).
 
+### 3.4d Logo/ícone da marca (aprovada 25/08/2026)
+Além do wordmark acima, a marca tem um **ícone-selo** (app-icon-style):
+quadrado arredondado `65×65px`, raio `16px`, fundo verde vivo (`#34E84A`),
+o ícone `ballot` (`iconeSvg`) em `31px` por cima, cor `#07230C` (texto sobre
+verde vivo, mesmo token do selo ELEITO). Usado hoje só na tela de
+"Carregando…" (`telaCarregando()` + o placeholder estático de
+`index.html`, que precisam ficar sempre em espelho um do outro) — mesmo
+lugar que antes tinha um ícone genérico dentro de um círculo verde
+translúcido.
+
+**Respiração** (protótipo iterado em várias rodadas com o usuário,
+25/08/2026 — valores finais, não repropor sem pedido novo):
+- **Tamanho**: pulsa até 15% maior (`scale(1.15)`) no pico e volta — nunca
+  mais que isso.
+- **Halo**: círculo de `110px` atrás da logo, `radial-gradient` de
+  `rgba(52,232,74,.18)` até transparente, acompanha o pulso de tamanho e
+  opacidade da logo (`@keyframes pc-pulse`, já usado noutros lugares do
+  app) — verde vivo puro, sem mistura de cor.
+- **Cor da própria logo**: a logo tem 2 camadas de preenchimento
+  sobrepostas — uma sólida (`#34E84A`) e uma em degradê
+  (`radial-gradient(circle 95px at 123% -23%, #C6E62A 0%, #34E84A 65%,
+  #1D8038 100%)`, origem ~15px FORA do ícone, canto superior direito) —
+  cross-fade entre as duas, cada uma indo só até 50% de opacidade no pico
+  (nunca uma troca 100%, é uma mistura sutil). O ícone (`#07230C`) fica
+  por cima das duas camadas, sempre nítido, nunca perde opacidade.
+- **Timing**: `3s`, curva `cubic-bezier(.37,0,.63,1)` (sine suave — começa
+  e termina devagar, sem corte seco), pico em `62%` do ciclo (não 50%, pra
+  passar mais tempo perto do estado-base) e **sem platô parado** — a
+  sensação de movimento precisa estar sempre presente, nunca um trecho
+  estático.
+- **Sem legenda**: a própria respiração já comunica "carregando" — não
+  repor texto abaixo da logo nessa tela específica.
+
 ### 3.5 Selo ELEITO
 Pílula verde vivo (`#34E84A`) com texto `#07230C`, 8px/800. Único elemento
 da lista que é **sempre** verde, mesmo fora de interação — porque é fato

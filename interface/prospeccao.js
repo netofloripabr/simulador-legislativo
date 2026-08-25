@@ -4810,21 +4810,20 @@ function nomeExibicao(c) {
   return c.nomeUrna || c.nome;
 }
 
-// Tela de "Carregando…" padrão — mesmo ícone com brilho de renderLanding
-// (a capa), reaproveitado em toda tela que precisa buscar algo antes de
-// mostrar conteúdo (troca de cargo, grupos, quadro de médias etc.), pra não
-// cada uma inventar o próprio "Carregando" sem graça. mensagem (opcional)
-// troca o texto padrão quando faz sentido ser mais específico.
+// Tela de "Carregando…" padrão — a logo oficial pulsando, reaproveitada em
+// toda tela que precisa buscar algo antes de mostrar conteúdo (troca de
+// cargo, grupos, quadro de médias etc.). Sem legenda de propósito (pedido
+// do usuário, 25/08/2026): a respiração já entrega "carregando" sozinha —
+// mensagem (ainda aceita por compatibilidade com quem chama) não aparece
+// mais na tela. Ver DESIGN.md §3.4c pra composição completa da logo.
 function telaCarregando(mensagem) {
-  // Ícone no mesmo círculo dos botões do console (18/08/2026) — antes
-  // era um gradiente verde-neon fixo, agora usa a variável de tema (fica
-  // verde vivo #34E84A onde o tema Fader está ativo, sem herdar cor
-  // nenhuma fora dele).
-  return `<div class="glass-card" style="max-width:420px; margin:0 auto; min-height:50vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-    <div class="pc-loading-icon pc-carregando-icone">
-      ${iconeSvg("ballot", 26)}
+  return `<div class="pc-carregando-wrap">
+    <div class="pc-carregando-halo"></div>
+    <div class="pc-logo-mark">
+      <div class="pc-logo-fill cheio"></div>
+      <div class="pc-logo-fill degrade"></div>
+      <span class="pc-logo-icone">${iconeSvg("ballot", 31)}</span>
     </div>
-    <div class="pc-status">${mensagem || "Carregando…"}</div>
   </div>`;
 }
 
