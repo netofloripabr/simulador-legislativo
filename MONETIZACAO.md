@@ -206,6 +206,13 @@ Tudo desta economia espelhado numa aba própria do painel admin:
   contas institucionais.
 - Gestão dos upgrades: ativar/revogar Gestor Eleitoral e contas
   Premium institucionais.
+- **Admin tem acesso total, sem custo** [DECIDIDO em 24/08/2026] — toda
+  função paga do app (Termômetro, mediana em conta-gotas, nova cédula,
+  2º grupo, desafio extra) é liberada de graça pra qualquer conta
+  admin, sem debitar saldo nem gerar linha no ledger (não é "concedido",
+  é o próprio administrador usando o app). Implementado num único ponto
+  no banco — `gastar_creditos()` (migração 30) — porque é o chokepoint
+  por onde passa toda cobrança em SL do sistema.
 
 ---
 

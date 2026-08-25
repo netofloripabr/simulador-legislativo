@@ -2453,7 +2453,18 @@ async function montarAdminFinanceiro() {
   ]);
   if (!stats) return `<div class="pc-sub">Não consegui carregar os dados financeiros.</div>`;
   const s = pcState.adminCreditoStatus;
+  const reais = (centavos) => (Number(centavos || 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const faturamentoIndisponivel = stats.valor_faturado_centavos === undefined;
   return `
+    <div class="glass-card" style="margin-bottom:10px; padding:16px; text-align:center; border-color:rgba(52,232,74,.35);">
+      <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim);">Valor faturado</div>
+      ${faturamentoIndisponivel
+        ? `<div class="pc-sub" style="margin-top:6px;">Indisponível — rode a migração 31 (nuvem/migracao-31-financeiro-valor-faturado.sql) no SQL Editor.</div>`
+        : `<div style="font-size:28px; font-weight:800; color:var(--pc-accent); margin-top:4px;">${reais(stats.valor_faturado_centavos)}</div>
+           <div style="font-size:11.5px; color:var(--pc-ink-dim); margin-top:2px;">${reais(stats.valor_faturado_30_dias_centavos)} nos últimos 30 dias · ${Number(stats.pedidos_aprovados || 0).toLocaleString("pt-BR")} pedido${stats.pedidos_aprovados === 1 ? "" : "s"} aprovado${stats.pedidos_aprovados === 1 ? "" : "s"}</div>
+           <div style="font-size:10.5px; color:var(--pc-ink-faint); margin-top:6px;">Só compra real pela Loja (Mercado Pago) — créditos concedidos manualmente abaixo não entram aqui.</div>`}
+    </div>
+
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
       <div class="glass-card" style="padding:14px 16px; text-align:center;">
         <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${Number(stats.contas_com_credito || 0).toLocaleString("pt-BR")}</div>
