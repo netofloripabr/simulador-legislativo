@@ -461,7 +461,18 @@ async function initColaborativo() {
   // Sem sessão: não pede login de cara — começa pela tela de abertura. Login
   // só é pedido mais adiante, quando a pessoa decide "prosseguir" (ver
   // renderPainelPrincipal, chamado como "painel-convidado" nesse fluxo).
-  pcState.tela = "landing";
+  // EXCEÇÃO: quem chegou por um link de convite (?conv=) pula a capa e
+  // vai direto pro cadastro — pedido do usuário, 24/08/2026 ("quando
+  // clico ele abre o link do app, a minha ideia é que ele gere o acesso
+  // direto para o site"). Antes o código ficava só guardado em silêncio
+  // pro cadastro (_resolverConvidadoPor) e a pessoa caía na mesma capa
+  // de sempre, sem nenhum sinal de que veio de um convite.
+  if (_convitePendente) {
+    pcState.pendenteRegistro = true;
+    pcState.tela = "cadastro";
+  } else {
+    pcState.tela = "landing";
+  }
   renderColaborativo();
 }
 
@@ -1825,10 +1836,16 @@ function renderTelaCadastro() {
   // redigitar tudo). Senha de propósito NÃO entra aqui — a pessoa digita
   // de novo, mesmo padrão de qualquer formulário de senha.
   const r = pcState.cadRascunho || {};
+  // Convite pessoal (?conv=, ver o boot em initColaborativo): a pessoa já
+  // pulou a capa direto pra cá — esse aviso é o único sinal visual de que
+  // ela veio de um link de amigo, já que o código em si fica silencioso
+  // no localStorage até o cadastro terminar (_resolverConvidadoPor).
+  const veioDeConvite = !!localStorage.getItem("sl_convite_pendente");
   el.innerHTML = `
     <div class="pc-acesso" style="max-width:460px;">
       ${cascaAcessoTopo("pcBtnVoltarCadastro")}
       <div class="pc-acesso-h2">Crie sua conta</div>
+      ${veioDeConvite ? `<div class="pc-aviso-card" style="margin-bottom:14px;"><div class="pc-aviso-corpo">Você entrou por um convite de amigo — crie sua conta grátis e cravem os palpites de 2026.</div></div>` : ""}
       <div class="pc-acesso-sub">Grátis. Deposite sua cédula, entre em grupos e dispute o ranking.</div>
       <div class="field-row"><label>Nome</label><input class="cell" id="pcCadNome" value="${escaparAtributoHtml(r.nome || "")}"></div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Você pode divulgar seu palpite de forma anônima — essa escolha é feita depois, na hora de depositar cada cédula, não aqui.</div>
