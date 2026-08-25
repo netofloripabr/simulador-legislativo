@@ -677,17 +677,15 @@ async function depositarListaLocal(uf, id, anonimo) {
 // além do pedido). destinoAtivo null = mostra a barra sem destacar nada.
 function renderMenuFixo(destinoAtivo) {
   const gateConvidado = !pcState.perfil;
+  // Urna (Minhas listas) no centro, Termômetro no lugar que ela ocupava —
+  // pedido do usuário, 25/08/2026. "Menu"/perfil não volta (já tem porta
+  // própria no ícone do cabeçalho, pcBtnAbrirPerfil, em toda tela).
   const itens = [
     { id: "painel", icone: "home", label: "Início" },
-    { id: "minhas-listas", icone: "ballot", label: "Minhas listas" },
     { id: "medias", icone: "termometro", label: "Termômetro", gate: gateConvidado },
+    { id: "minhas-listas", icone: "ballot", label: "Minhas listas" },
     { id: "grupo", icone: "grupos", label: "Grupos", gate: gateConvidado },
     { id: "ranking", icone: "ranking", label: "Ranking" },
-    // O item "Menu"/perfil que morou aqui (desde 22/08/2026) saiu de
-    // novo — pedido do usuário, 24/08/2026: perfil já tem porta própria
-    // no ícone do cabeçalho (pcBtnAbrirPerfil) em toda tela, redundante
-    // aqui. Convidado continua sem acesso a Menu (nada muda pra ele —
-    // já não tinha conta pra abrir).
   ];
   // Pill sólido no item ativo (mesmo tratamento de .pc-cargo-switch
   // button.active e das abas do painel admin) em vez de só ponto+texto
@@ -704,8 +702,18 @@ function renderMenuFixo(destinoAtivo) {
       </span>
     </button>`;
   }).join("");
-  return `<div style="position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:#101214; border-top:1px solid #23262A;">
-    <div style="display:flex; width:100%; max-width:640px; padding:8px 4px calc(8px + env(safe-area-inset-bottom, 0px));">${botoes}</div>
+  // Fechado por padrão — só a alça aparece até a pessoa tocar (pedido do
+  // usuário, 25/08/2026: "o menu fixo fica fechado na parte inferior").
+  // É o que permite trazer a barra de volta pras telas de foco (Seleção,
+  // Revisão) sem ela roubar espaço permanente da tela.
+  const aberto = !!pcState.menuFixoAberto;
+  return `<div style="position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:#101214; border-top:1px solid #23262A; border-radius:14px 14px 0 0;">
+    <div style="display:flex; flex-direction:column; align-items:center; width:100%; max-width:640px;">
+      <button id="pcMenuFixoAlca" aria-label="${aberto ? "Fechar menu de navegação" : "Abrir menu de navegação"}" title="${aberto ? "Fechar menu" : "Abrir menu"}" style="width:100%; display:flex; justify-content:center; padding:9px 0 7px; background:none; border:none; cursor:pointer;">
+        <span class="pc-menufixo-grip"></span>
+      </button>
+      <div class="pc-menufixo-icones${aberto ? " aberto" : ""}" style="display:flex; width:100%; padding:0 4px calc(0px + env(safe-area-inset-bottom, 0px));">${botoes}</div>
+    </div>
   </div>`;
 }
 
@@ -721,19 +729,29 @@ function atualizarMenuFixo(destino) {
     if (pcConteudo) pcConteudo.style.paddingBottom = "";
     return;
   }
+  pcState._menuFixoDestinoAtual = destino;
   const wrap = document.getElementById("modoColaborativoWrap");
   if (!wrap) return;
   const div = document.createElement("div");
   div.id = "pcMenuFixoWrap";
   div.innerHTML = renderMenuFixo(destino);
   wrap.appendChild(div);
-  if (pcConteudo) pcConteudo.style.paddingBottom = "76px";
+  // Respiro embaixo do conteúdo acompanha o estado da barra — só a alça
+  // (fechado) ocupa bem menos espaço que a alça + ícones (aberto).
+  if (pcConteudo) pcConteudo.style.paddingBottom = (pcState.menuFixoAberto ? "76px" : "28px");
+  document.getElementById("pcMenuFixoAlca").addEventListener("click", () => {
+    pcState.menuFixoAberto = !pcState.menuFixoAberto;
+    atualizarMenuFixo(pcState._menuFixoDestinoAtual);
+  });
   document.querySelectorAll("[data-pc-menu-fixo]:not(:disabled)").forEach((btn) => {
     btn.addEventListener("click", () => irParaDestinoMenuFixo(btn.getAttribute("data-pc-menu-fixo")));
   });
 }
 
 function irParaDestinoMenuFixo(destino) {
+  // Fecha de volta pra alça ao navegar — abrir e já sair não deve deixar
+  // a barra aberta "grudada" na tela seguinte.
+  pcState.menuFixoAberto = false;
   const gateConvidado = !pcState.perfil;
   if (destino === "painel") {
     if (pcState.perfil) { pcState.subaba = "painel"; renderAppColaborativo(); }
@@ -1028,9 +1046,9 @@ function renderColaborativo() {
   }
   if (pcState.tela === "landing") return renderLanding();
   if (pcState.tela === "estado") return renderTelaEstado();
-  if (pcState.tela === "selecao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderSelecaoCandidatos(); atualizarMenuFixo(null); return; }
-  if (pcState.tela === "revisao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderRevisaoDeposito(); atualizarMenuFixo(null); return; }
-  if (pcState.tela === "deposito-confirmado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderDepositoConfirmado(); atualizarMenuFixo(null); return; }
+  if (pcState.tela === "selecao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderSelecaoCandidatos(); atualizarMenuFixo("selecao"); return; }
+  if (pcState.tela === "revisao-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderRevisaoDeposito(); atualizarMenuFixo("revisao"); return; }
+  if (pcState.tela === "deposito-confirmado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderDepositoConfirmado(); atualizarMenuFixo("deposito-confirmado"); return; }
   if (pcState.tela === "painel-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderPainelPrincipal(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "minhas-listas-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMinhasListas(); atualizarMenuFixo("minhas-listas"); return; }
   if (pcState.tela === "ranking-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderRankingPlaceholder(); atualizarMenuFixo("ranking"); return; }
@@ -1998,12 +2016,15 @@ function renderAppColaborativo() {
     });
   }
 
-  // Destino ativo do menu fixo por subaba — null pras telas que não mostram
-  // a barra (Seleção, Revisão, o próprio Painel, e a tela antiga "palpite",
-  // órfã desde que "Preencher votação completa" virou "Minhas listas").
-  if (pcState.subaba === "selecao") { renderSelecaoCandidatos(); atualizarMenuFixo(null); }
-  else if (pcState.subaba === "revisao") { renderRevisaoDeposito(); atualizarMenuFixo(null); }
-  else if (pcState.subaba === "deposito-confirmado") { renderDepositoConfirmado(); atualizarMenuFixo(null); }
+  // Seleção/Revisão/confirmação de depósito voltaram a mostrar a barra
+  // (pedido do usuário, 25/08/2026: "já podemos incluir o menu fixo na
+  // maioria das telas, agora que temos a função da alça") — fechada por
+  // padrão, não rouba espaço do foco da tarefa. Só o Painel continua null:
+  // ele já tem barra própria (logo + saldo + convidar + sino + perfil,
+  // ver o header de renderPainelPrincipal), duplicar aqui seria redundante.
+  if (pcState.subaba === "selecao") { renderSelecaoCandidatos(); atualizarMenuFixo("selecao"); }
+  else if (pcState.subaba === "revisao") { renderRevisaoDeposito(); atualizarMenuFixo("revisao"); }
+  else if (pcState.subaba === "deposito-confirmado") { renderDepositoConfirmado(); atualizarMenuFixo("deposito-confirmado"); }
   else if (pcState.subaba === "painel") { renderPainelPrincipal(); atualizarMenuFixo(null); }
   else if (pcState.subaba === "minhas-listas") { renderMinhasListas(); atualizarMenuFixo("minhas-listas"); }
   else if (pcState.subaba === "medias") { renderQuadroMedias(); atualizarMenuFixo("medias"); }
