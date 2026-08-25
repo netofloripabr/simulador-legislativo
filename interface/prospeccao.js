@@ -710,7 +710,7 @@ function renderMenuFixo(destinoAtivo) {
   return `<div style="position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:#101214; border-top:1px solid #23262A; border-radius:14px 14px 0 0;">
     <div style="display:flex; flex-direction:column; align-items:center; width:100%; max-width:640px;">
       <button id="pcMenuFixoAlca" aria-label="${aberto ? "Fechar menu de navegação" : "Abrir menu de navegação"}" title="${aberto ? "Fechar menu" : "Abrir menu"}" style="width:100%; display:flex; justify-content:center; padding:9px 0 7px; background:none; border:none; cursor:pointer;">
-        <span class="pc-menufixo-grip"></span>
+        <span class="pc-menufixo-grip${aberto ? " aberto" : ""}"></span>
       </button>
       <div class="pc-menufixo-icones${aberto ? " aberto" : ""}" style="display:flex; width:100%; padding:0 4px calc(0px + env(safe-area-inset-bottom, 0px));">${botoes}</div>
     </div>
@@ -2728,7 +2728,7 @@ async function renderAdminPainel() {
     <button class="pc-mini-btn" id="pcBtnVoltarAdmin" title="Voltar" style="margin-bottom:14px;">${iconeSvg("setaEsquerda", 15)}</button>
     <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Painel do administrador</div>
     <div class="pc-sub" style="margin:0 0 14px 2px;">Visão operacional do sistema — não substitui o Supabase, cobre só o essencial do dia a dia.</div>
-    <div class="pc-cargo-switch" style="margin-bottom:16px; flex-wrap:wrap; height:auto;">${botoesSecao}</div>
+    <div class="pc-cargo-switch pc-admin-abas" style="margin-bottom:16px;">${botoesSecao}</div>
     <div id="pcAdminConteudo">${conteudoSecao}</div>`;
 
   document.getElementById("pcBtnVoltarAdmin").addEventListener("click", () => {

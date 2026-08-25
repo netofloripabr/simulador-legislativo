@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Simulador Eleitoral — Legislativo 2026</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg?cb=504">
-<link rel="stylesheet" href="css/estilo.css?cb=504">
+<link rel="icon" type="image/svg+xml" href="favicon.svg?cb=505">
+<link rel="stylesheet" href="css/estilo.css?cb=505">
 </head>
 <script>
 // Fora do claude.ai, window.storage não existe — este substituto usa o
@@ -32,7 +32,7 @@ if(typeof window.storage === 'undefined'){
        depois (quando o JS assume) lia como "carregou duas vezes" (achado
        do usuário, 24/08/2026). Se mudar telaCarregando(), espelhar aqui. -->
   <div id="modoColaborativoWrap"><div class="glass-card" style="max-width:420px; margin:60px auto; min-height:50vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-    <div class="pc-loading-icon" style="width:64px; height:64px; margin:0 auto 16px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(52,232,74,.1); border:1px solid rgba(52,232,74,.3); color:#34E84A; box-shadow:0 0 14px rgba(52,232,74,.15);">
+    <div class="pc-loading-icon pc-carregando-icone" style="width:64px; height:64px; margin:0 auto 16px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(52,232,74,.1); border:1px solid rgba(52,232,74,.3); color:#34E84A; box-shadow:0 0 14px rgba(52,232,74,.15);">
       <svg viewBox="0 0 16 16" width="26" height="26">
         <path d="M2.5 6.5h11v7a1.2 1.2 0 01-1.2 1.2H3.7A1.2 1.2 0 012.5 13.5v-7z" fill="none" stroke="currentColor" stroke-width="1.3"></path>
         <path d="M4.5 6.5h7" stroke="currentColor" stroke-width="1.3"></path>
@@ -44,90 +44,90 @@ if(typeof window.storage === 'undefined'){
 
 </div>
 
-<script src="dados/base-2022.js?cb=504"></script>
-<script src="dados/estados/sc-2022-federal.js?cb=504"></script>
-<script src="dados/estados/sc-2022-senador.js?cb=504"></script>
+<script src="dados/base-2022.js?cb=505"></script>
+<script src="dados/estados/sc-2022-federal.js?cb=505"></script>
+<script src="dados/estados/sc-2022-senador.js?cb=505"></script>
 
 <!-- Dados de 2022 dos outros 26 estados (Dep. Estadual + Dep. Federal +
      Senador juntos, um arquivo por UF) — ver ferramentas/tratar_resultados_2022.py
      e dados/estados/registro-2022.js (liga tudo pelo nome da UF). -->
-<script src="dados/estados/ac-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/al-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/am-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/ap-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/ba-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/ce-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/df-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/es-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/go-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/ma-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/mg-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/ms-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/mt-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/pa-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/pb-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/pr-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/pe-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/pi-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/rj-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/rn-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/rs-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/ro-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/rr-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/sp-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/se-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/to-2022-resultado-provisorio.js?cb=504"></script>
-<script src="dados/estados/registro-2022.js?cb=504"></script>
+<script src="dados/estados/ac-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/al-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/am-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/ap-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/ba-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/ce-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/df-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/es-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/go-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/ma-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/mg-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/ms-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/mt-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/pa-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/pb-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/pr-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/pe-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/pi-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/rj-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/rn-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/rs-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/ro-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/rr-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/sp-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/se-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/to-2022-resultado-provisorio.js?cb=505"></script>
+<script src="dados/estados/registro-2022.js?cb=505"></script>
 
-<script src="dados/estados/sc-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/ac-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/al-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/am-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/ap-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/ba-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/ce-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/df-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/es-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/go-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/ma-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/mg-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/ms-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/mt-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/pa-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/pb-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/pr-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/pe-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/pi-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/rj-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/rn-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/rs-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/ro-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/rr-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/sp-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/se-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/to-2026-provisorio.js?cb=504"></script>
-<script src="dados/estados/registro-2026.js?cb=504"></script>
+<script src="dados/estados/sc-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/ac-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/al-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/am-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/ap-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/ba-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/ce-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/df-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/es-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/go-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/ma-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/mg-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/ms-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/mt-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/pa-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/pb-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/pr-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/pe-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/pi-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/rj-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/rn-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/rs-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/ro-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/rr-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/sp-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/se-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/to-2026-provisorio.js?cb=505"></script>
+<script src="dados/estados/registro-2026.js?cb=505"></script>
 
-<script src="dados/estados-brasil.js?cb=504"></script>
-<script src="dados/partidos-brasil.js?cb=504"></script>
-<script src="dados/candidatos-extra-2022.js?cb=504"></script>
-<script src="calculo/eleitoral.js?cb=504"></script>
+<script src="dados/estados-brasil.js?cb=505"></script>
+<script src="dados/partidos-brasil.js?cb=505"></script>
+<script src="dados/candidatos-extra-2022.js?cb=505"></script>
+<script src="calculo/eleitoral.js?cb=505"></script>
 
 <!-- Prospecção Coletiva: backend compartilhado (Supabase) — se o CDN
      abaixo não carregar, nuvem/cliente.js degrada com aviso próprio. -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="nuvem/config.js?cb=504"></script>
-<script src="nuvem/cliente.js?cb=504"></script>
-<script src="nuvem/autenticacao.js?cb=504"></script>
-<script src="nuvem/palpites.js?cb=504"></script>
-<script src="nuvem/grupos.js?cb=504"></script>
-<script src="nuvem/salvamentos.js?cb=504"></script>
-<script src="nuvem/creditos.js?cb=504"></script>
-<script src="nuvem/desafios.js?cb=504"></script>
-<script src="nuvem/notificacoes.js?cb=504"></script>
-<script src="nuvem/termometro.js?cb=504"></script>
-<script src="nuvem/pagamentos.js?cb=504"></script>
-<script src="nuvem/candidato-links.js?cb=504"></script>
-<script src="interface/prospeccao.js?cb=504"></script>
+<script src="nuvem/config.js?cb=505"></script>
+<script src="nuvem/cliente.js?cb=505"></script>
+<script src="nuvem/autenticacao.js?cb=505"></script>
+<script src="nuvem/palpites.js?cb=505"></script>
+<script src="nuvem/grupos.js?cb=505"></script>
+<script src="nuvem/salvamentos.js?cb=505"></script>
+<script src="nuvem/creditos.js?cb=505"></script>
+<script src="nuvem/desafios.js?cb=505"></script>
+<script src="nuvem/notificacoes.js?cb=505"></script>
+<script src="nuvem/termometro.js?cb=505"></script>
+<script src="nuvem/pagamentos.js?cb=505"></script>
+<script src="nuvem/candidato-links.js?cb=505"></script>
+<script src="interface/prospeccao.js?cb=505"></script>
 </body>
 </html>
