@@ -93,6 +93,13 @@ async function cadastrar({ nome, email, senha, telefone, modoPreenchimento, cpf,
     const duplicado = erroPerfil.code === "23505" || /duplicate|unique/i.test(erroPerfil.message || "");
     return { error: { message: duplicado ? "Este CPF já está cadastrado em outra conta." : erroPerfil.message } };
   }
+  // Limpa o convite pendente AQUI (não antes) — achado em auditoria de QA,
+  // 25/08/2026: a chave nunca era removida, então ficava presa no
+  // localStorage pra sempre e atribuía QUALQUER cadastro futuro no mesmo
+  // aparelho ao mesmo convidante antigo, mesmo meses depois e sem link
+  // nenhum. O comentário de _resolverConvidadoPor já dizia "limpa depois
+  // que o perfil nasce com a atribuição" — só faltava o código de verdade.
+  localStorage.removeItem("sl_convite_pendente");
   return { data };
 }
 
@@ -295,5 +302,7 @@ async function completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito, cep, mun
     const duplicado = erroPerfil.code === "23505" || /duplicate|unique/i.test(erroPerfil.message || "");
     return { error: { message: duplicado ? "Este CPF já está cadastrado em outra conta." : erroPerfil.message } };
   }
+  // Mesma limpeza de cadastrar() acima — ver comentário lá.
+  localStorage.removeItem("sl_convite_pendente");
   return { data };
 }

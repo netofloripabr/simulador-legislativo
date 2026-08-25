@@ -4555,6 +4555,11 @@ function renderGrupoCriar() {
     pcState.grupoVagasStatus = "";
     pcState.grupoMinhasCedulas = null;
     pcState.grupoCedulaEscolhida = null;
+    // Faltava esta linha (achado em auditoria de QA, 25/08/2026) — sem
+    // ela, criar um grupo e depois navegar pra outra aba e voltar pra
+    // Grupos caía no formulário vazio de novo, mesmo com grupoAtivo já
+    // preenchido certo. Mesmo padrão de renderGrupoEntrar logo abaixo.
+    pcState.telaGrupo = "membro";
     renderGrupoMembro();
   });
 }
