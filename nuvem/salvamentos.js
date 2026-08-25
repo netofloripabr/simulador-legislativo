@@ -167,6 +167,22 @@ function gerarCodigoCedula() {
   return `SL${sorteia(2)}-${sorteia(4)}`;
 }
 
+// Apaga um salvamento EM ABERTO (nunca depositado). A RLS
+// (salvamentos_delete_proprio, migração 5) já trava isso no banco pra
+// quem tentar apagar um já depositado — não é preciso checar aqui, só
+// tratar "não apagou nada" como falha silenciosa: count:"exact" devolve
+// quantas linhas o delete realmente afetou, então dá pra distinguir "não
+// era meu"/"já tinha sido depositado" de um erro de rede de verdade.
+async function excluirSalvamento(salvamentoId) {
+  const { error, count } = await supabaseClient
+    .from("salvamentos")
+    .delete({ count: "exact" })
+    .eq("id", salvamentoId);
+  if (error) return { ok: false, error };
+  if (!count) return { ok: false, error: { message: "Essa lista não pôde ser excluída (já foi depositada ou não existe mais)." } };
+  return { ok: true, error: null };
+}
+
 async function depositarSalvamento(salvamentoId, anonimo) {
   // Gera o código só agora (nunca antes do depósito) e tenta de novo em
   // caso de colisão rara com um código já existente (mesmo padrão de

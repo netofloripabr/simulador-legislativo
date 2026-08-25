@@ -145,6 +145,7 @@ const CARGOS = [
 // deixa a cor sempre controlada pelo CSS do elemento pai.
 const PC_ICONES = {
   ballot: '<path d="M2.5 6.5h11v7a1.2 1.2 0 01-1.2 1.2H3.7A1.2 1.2 0 012.5 13.5v-7z" fill="none" stroke="currentColor" stroke-width="1.3"></path><path d="M4.5 6.5h7" stroke="currentColor" stroke-width="1.3"></path><rect x="6.6" y="2" width="3.4" height="4.8" rx=".5" fill="none" stroke="currentColor" stroke-width="1.2" transform="rotate(12 8.3 4.4)"></rect>',
+  lixeira: '<path d="M3 4.6h10M6.2 4.6V3.2a.9.9 0 01.9-.9h1.8a.9.9 0 01.9.9v1.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M4.1 4.6l.6 8.3a1 1 0 001 .9h4.6a1 1 0 001-.9l.6-8.3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"></path><path d="M6.6 7v4M9.4 7v4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path>',
   send: '<path d="M13.3 2.6L2 7.2l4.3 1.6M13.3 2.6L8.8 13l-2.5-4.2M13.3 2.6L6.3 9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   grupos: '<circle cx="6" cy="5.3" r="2" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M2.3 13c0-2.2 1.6-3.9 3.7-3.9s3.7 1.7 3.7 3.9" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><circle cx="11.2" cy="6.2" r="1.6" fill="none" stroke="currentColor" stroke-width="1.1"></circle><path d="M10 9.5c1.9.1 3.5 1.7 3.6 3.5" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path>',
   chart: '<path d="M2.5 13.5h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><rect x="3.4" y="9.2" width="2.1" height="3.8" fill="none" stroke="currentColor" stroke-width="1.2"></rect><rect x="6.9" y="6.2" width="2.1" height="6.8" fill="none" stroke="currentColor" stroke-width="1.2"></rect><rect x="10.4" y="3.4" width="2.1" height="9.6" fill="none" stroke="currentColor" stroke-width="1.2"></rect>',
@@ -634,6 +635,15 @@ async function persistirListaSalvaLocal() {
   await salvarListasSalvasLocais(pcState.estado, listas);
 }
 
+// Apaga uma lista local EM ABERTO (convidado). Espelha a trava do banco
+// (excluirSalvamento, nuvem/salvamentos.js): nunca chamada pra lista já
+// depositada — o botão nem aparece nesse caso (ver linhaDepositada).
+async function excluirListaLocal(uf, id) {
+  const listas = await carregarListasSalvasLocais(uf);
+  const restantes = listas.filter((l) => l.id !== id);
+  await salvarListasSalvasLocais(uf, restantes);
+}
+
 // Deposita (trava) uma lista já salva — ação separada e irreversível, só
 // muda depositadoEm/anonimo, nunca os candidatos/votos da lista em si.
 async function depositarListaLocal(uf, id, anonimo) {
@@ -662,11 +672,11 @@ function renderMenuFixo(destinoAtivo) {
     { id: "medias", icone: "termometro", label: "Termômetro", gate: gateConvidado },
     { id: "grupo", icone: "grupos", label: "Grupos", gate: gateConvidado },
     { id: "ranking", icone: "ranking", label: "Ranking" },
-    // Achado do usuário em 22/08/2026: perfil e carteira (Créditos — saldo
-    // e extrato) moravam SÓ atrás do ícone discreto do cabeçalho — e o
-    // convidado não tinha porta nenhuma. Entram na barra fixa; convidado
-    // vê o gate de cadastro, igual Mediana/Grupos.
-    { id: "menu", icone: "perfil", label: "Menu", gate: gateConvidado },
+    // O item "Menu"/perfil que morou aqui (desde 22/08/2026) saiu de
+    // novo — pedido do usuário, 24/08/2026: perfil já tem porta própria
+    // no ícone do cabeçalho (pcBtnAbrirPerfil) em toda tela, redundante
+    // aqui. Convidado continua sem acesso a Menu (nada muda pra ele —
+    // já não tinha conta pra abrir).
   ];
   // Pill sólido no item ativo (mesmo tratamento de .pc-cargo-switch
   // button.active e das abas do painel admin) em vez de só ponto+texto
@@ -908,7 +918,7 @@ function farolTrilhaHtml(passo) {
   const num = passo ? (faseA ? 3 : passo.num) : 99;
   if (ctx === "listas") {
     return `
-      ${_farolLinhaTrilha(num > 4 ? ck : "1", "Ter uma lista completa e salva", { feito: num > 4, atual: num <= 4, texto: num <= 4 ? (faseA ? `Seu palpite ainda não fechou os 3 cargos — o lápis <span class="pc-farol-minicmd">${iconeSvg("editar", 11)}</span> abre a lista pra continuar de onde parou.` : `Confira os três cargos na Revisão e salve — o botão <span class="pc-farol-minicmd">${iconeSvg("salvar", 11)}</span>.`) : "" })}
+      ${_farolLinhaTrilha(num > 4 ? ck : "1", "Ter uma lista completa e salva", { feito: num > 4, atual: num <= 4, texto: num <= 4 ? (faseA ? `Seu palpite ainda não fechou os 3 cargos — toque na lista pra continuar de onde parou.` : `Confira os três cargos na Revisão e salve — o botão <span class="pc-farol-minicmd">${iconeSvg("salvar", 11)}</span>.`) : "" })}
       ${_farolLinhaTrilha(num > 5 ? ck : "2", "Depositar a cédula", { feito: num > 5, atual: num === 5, texto: num === 5 ? `A urna <span class="pc-farol-minicmd">${iconeSvg("ballot", 11)}</span> deposita: trava a lista e ela passa a valer no ranking. A primeira é grátis.` : "" })}
       ${_farolLinhaTrilha(num > 6 ? ck : "3", "Convidar e comparar", { feito: num > 6, atual: num === 6, texto: num === 6 ? "Compartilhe o cartão-desafio — cada amigo que entrar e depositar rende créditos." : "" })}`;
   }
@@ -3474,7 +3484,7 @@ async function renderMinhasListas() {
   // com moldura própria em vez de linha solta dentro de um card único —
   // mesmos data-attributes de antes, listeners intactos.
   const linhaAberta = (l) => `
-    <div class="pc-mini-card" style="flex-wrap:wrap;">
+    <div class="pc-mini-card" data-pc-abrir-lista="${l.id}" style="flex-wrap:wrap; cursor:pointer;" title="Toque para continuar editando">
       <div class="pc-mini-card-icone">${iconeSvg("ballot", 17)}</div>
       <div style="min-width:0; flex:1;">
         <div style="font-size:13.5px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${l.nome}</div>
@@ -3482,7 +3492,7 @@ async function renderMinhasListas() {
       </div>
       <div class="pc-ml-acoes">
         <button type="button" class="pc-cmd-acao" data-pc-depositar-lista="${l.id}" title="Depositar — vira sua cédula: trava e entra no ranking">${iconeSvg("ballot", 16)}</button>
-        <button type="button" class="pc-cmd-acao pc-ml-editar" data-pc-editar-lista="${l.id}" title="Editar a lista">${iconeSvg("editar", 14)}</button>
+        <button type="button" class="pc-cmd-acao pc-ml-excluir" data-pc-excluir-lista="${l.id}" data-pc-excluir-lista-nome="${escaparAtributoHtml(l.nome)}" title="Excluir a lista">${iconeSvg("lixeira", 14)}</button>
       </div>
     </div>`;
   const linhaDepositada = (l) => `
@@ -3506,7 +3516,7 @@ async function renderMinhasListas() {
       <div style="font-size:20px; font-weight:700; margin-left:2px;">Minhas listas</div>
       <button class="pc-lobby-icon-btn" id="pcBtnNovaLista" title="Nova lista">${iconeSvg("mais", 16)}</button>
     </div>
-    <div class="pc-sub" style="margin:4px 0 16px 2px;">Listas em aberto podem ser editadas à vontade. Depositadas ficam travadas.</div>
+    <div class="pc-sub" style="margin:4px 0 16px 2px;">Toque numa lista em aberto pra continuar editando. Depositadas ficam travadas.</div>
     ${pcState.avisoEdicaoStatus ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Edição de cédula</div>
@@ -3524,7 +3534,7 @@ async function renderMinhasListas() {
     </div>` : ""}
     ${abertas.length ? `<div class="pc-lobby-menu-tit" style="display:flex; align-items:center; gap:8px;">Em aberto <button type="button" id="pcMlLegendaToggle" class="pc-ml-inf${pcState.legendaListasAberta ? " aberto" : ""}" title="O que faz cada botão">i</button></div>${pcState.legendaListasAberta ? renderLegendaComandos([
       { icone: "ballot", titulo: "Urna — depositar", legenda: "Deposita a lista: vira sua cédula pra valer — trava e entra no ranking. A primeira é grátis." },
-      { icone: "editar", titulo: "Lápis — editar", legenda: "Abre a lista pra continuar de onde parou. Em cédula depositada, mostra o custo em créditos da edição." },
+      { icone: "lixeira", titulo: "Lixeira — excluir", legenda: "Apaga a lista em aberto pra sempre. Só existe pra listas ainda não depositadas — cédula depositada nunca pode ser excluída." },
       { icone: "buscar", titulo: "Lupa — ver", legenda: "Só olhar a lista, sem mexer (listas depositadas)." },
       { icone: "compartilhar", titulo: "Compartilhar", legenda: "Manda o cartão-desafio pros amigos." },
     ]) : ""}${abertas.map(linhaAberta).join("")}` : ""}
@@ -3660,10 +3670,36 @@ async function renderMinhasListas() {
       if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
       else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
   };
-  document.querySelectorAll("[data-pc-editar-lista]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const lista = listas.find((l) => l.id === btn.getAttribute("data-pc-editar-lista"));
+  // Toque na lista inteira abre pra edição — antes era só pelo lápis
+  // dedicado, que saiu (pedido do usuário, 24/08/2026: "não preciso
+  // clicar no botão de editar"). O guard em .pc-ml-acoes evita que um
+  // toque na urna/lixeira (dentro do mesmo card) dispare os dois.
+  document.querySelectorAll("[data-pc-abrir-lista]").forEach((card) => {
+    card.addEventListener("click", async (e) => {
+      if (e.target.closest(".pc-ml-acoes")) return;
+      const lista = listas.find((l) => l.id === card.getAttribute("data-pc-abrir-lista"));
       if (lista) await abrirListaParaEdicao(lista);
+    });
+  });
+  document.querySelectorAll("[data-pc-excluir-lista]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.getAttribute("data-pc-excluir-lista");
+      const nome = btn.getAttribute("data-pc-excluir-lista-nome") || "essa lista";
+      if (!window.confirm(`Excluir "${nome}"? Essa ação não pode ser desfeita.`)) return;
+      if (pcState.perfil) {
+        const { ok, error } = await excluirSalvamento(id);
+        if (!ok) { pcState.erro = error && error.message ? error.message : "Não consegui excluir a lista."; renderMinhasListas(); return; }
+      } else {
+        await excluirListaLocal(pcState.estado, id);
+      }
+      // Se a lista excluída fosse a ativa no editor, solta a referência —
+      // senão "Salvar" de novo revive uma lista que não existe mais.
+      if (pcState.listaSalvaId === id) {
+        pcState.listaSalvaId = null;
+        pcState.listaSalvaNome = null;
+        persistirListaAtivaLocal();
+      }
+      renderMinhasListas();
     });
   });
   // Edição paga de cédula depositada REMOVIDA (decisão do usuário,
