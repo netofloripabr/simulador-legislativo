@@ -433,6 +433,15 @@ async function initColaborativo() {
       pcState.estado = (rEstado && rEstado.value) || "SC";
     } catch (e) { pcState.estado = "SC"; }
     await garantirRascunhosCarregados();
+    // Também pré-carrega os grupos aqui (não só dentro de
+    // renderPainelPrincipal) — sem isso, o primeiro render do Painel
+    // logo após login/boot sempre esbarrava num "await" ainda não
+    // resolvido, e a tela de carregamento própria do Painel piscava de
+    // novo por cima da que o boot já tinha acabado de mostrar (achado do
+    // usuário, 24/08/2026: "parece carregar duas vezes"). Com os dois
+    // caches já quentes antes do primeiro render, renderPainelPrincipal
+    // (abaixo) pula a própria tela de carregamento nesse caso.
+    if (pcState.perfil) await garantirMeusGruposCarregados();
     // Onboarding + mini-pesquisa obrigatória (migração 20) — PAUSADAS a
     // pedido do usuário em 15/08/2026, depois de testar ao vivo: quer
     // pensar num onboarding melhor, e trocar a mini-pesquisa por uma
@@ -2707,7 +2716,13 @@ function diasAteEleicao() {
 async function renderPainelPrincipal() {
   pcState._farolContexto = "painel";
   const el = document.getElementById("pcConteudo");
-  el.innerHTML = telaCarregando("Carregando seu painel…");
+  // Só mostra a tela de carregando própria do Painel se os dados AINDA
+  // não estão quentes — logo após login/boot, initColaborativo() já
+  // pré-carregou os dois caches, então esse "carregando" nem chega a
+  // aparecer (era ele que piscava por cima do carregando do boot, lendo
+  // como "carrega duas vezes" — achado do usuário, 24/08/2026).
+  const jaQuente = pcState.rascunhosCacheEstado === pcState.estado && (!pcState.perfil || pcState.meusGrupos);
+  if (!jaQuente) el.innerHTML = telaCarregando("Carregando seu painel…");
 
   await garantirRascunhosCarregados();
   // Convidado (sem cadastro) não tem perfil_id pra carregar grupos —
