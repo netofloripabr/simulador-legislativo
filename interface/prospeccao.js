@@ -5958,9 +5958,14 @@ function orientacaoNominata(vg, vagasInd, corte, soma, proximoNome) {
   if (vg === vagasInd) return "";
   if (vg > vagasInd) {
     const diff = vg - vagasInd;
+    // Total por extenso (achado do usuário, 25/08/2026: "mais 7" obrigava
+    // somar de cabeça com o box pra entender que dava 19 — o box não se
+    // move sozinho quando a votação muda, então essa diferença pode ficar
+    // grande sem ser bug nenhum, só o D'Hondt real puxando mais pra um
+    // partido com o resto do campo fragmentado).
     return diff === 1
-      ? `Pela votação da nominata hoje, ${proximoNome} também estaria eleito`
-      : `Pela votação da nominata hoje, mais ${diff} candidatos também estariam eleitos — a começar por ${proximoNome}`;
+      ? `Pela votação da nominata hoje, ${proximoNome} também estaria eleito — ${vg} no total`
+      : `Pela votação da nominata hoje, mais ${diff} candidatos também estariam eleitos (${vg} no total) — a começar por ${proximoNome}`;
   }
   if (corte <= 0) return "";
   const necessario = Math.floor(corte * vagasInd) + 1;
