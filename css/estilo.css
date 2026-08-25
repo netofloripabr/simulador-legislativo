@@ -411,7 +411,13 @@
   #modoColaborativoWrap .pc-pacote-p{ font-size:12.5px; font-weight:800; flex-shrink:0; color:var(--pc-ink-dim); }
 
   /* ===== Termômetro — linha do tempo compacta ===== */
-  #modoColaborativoWrap .pc-lt-wrap{ position:relative; }
+  /* .pc-lt-marca (a marcação "N dias") flutua ACIMA do card "hoje" via
+     position:absolute — isso não reserva espaço no fluxo normal, então
+     sem esse margin-top a marcação vaza pra FORA do próprio card
+     .pc-lobby-card (10px de padding-top não bastam pros ~22px que a
+     marcação ocupa), sobrepondo o que vier antes na tela — achado do
+     usuário, 24/08/2026 (medido ao vivo: ~11px de estouro). */
+  #modoColaborativoWrap .pc-lt-wrap{ position:relative; margin-top:18px; }
   #modoColaborativoWrap .pc-lt-rail{
     position:absolute; top:20px; left:0; right:0; height:2px; border-radius:999px;
     background:linear-gradient(90deg, var(--pc-accent) 0 42%, #14171A 42% 100%);
