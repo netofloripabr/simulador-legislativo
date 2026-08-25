@@ -272,6 +272,11 @@
   }
   #modoColaborativoWrap .pc-urna:active .pc-urna-btn{ transform:scale(.96); }
   #modoColaborativoWrap .pc-urna-rot{ font-size:13px; font-weight:800; }
+  #modoColaborativoWrap .pc-urna-badge{
+    display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px;
+    padding:0 5px; margin-left:6px; border-radius:999px; background:#2C3239; color:var(--pc-ink-dim);
+    font-size:10px; font-weight:800; font-variant-numeric:tabular-nums; vertical-align:middle;
+  }
   #modoColaborativoWrap .pc-urna-sub{ font-size:10.5px; color:var(--pc-ink-dim); margin-top:-4px; }
 
   /* Tiles de atalho — ícone + rótulo curto, centralizados */

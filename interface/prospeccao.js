@@ -3004,7 +3004,7 @@ async function renderPainelPrincipal() {
 
     <button class="pc-urna" id="pcBtnUrna">
       <span class="pc-urna-btn">${iconeSvg("urna", 52)}</span>
-      <span class="pc-urna-rot">Minhas listas</span>
+      <span class="pc-urna-rot">Minhas listas${totalListas ? `<span class="pc-urna-badge">${totalListas}</span>` : ""}</span>
       <span class="pc-urna-sub">montar, revisar e depositar a cédula</span>
     </button>
 
@@ -3015,11 +3015,6 @@ async function renderPainelPrincipal() {
 
     <div class="pc-lobby-menu-tit">Atalhos</div>
     <div class="pc-lobby-tiles">
-      <button class="pc-lobby-tile" id="pcMenuListas">
-        <span class="pc-lobby-tile-ic">${iconeSvg("lista", 24)}</span>
-        <span class="pc-lobby-tile-rot">Listas</span>
-        ${totalListas ? `<span class="pc-lobby-tile-badge">${totalListas}</span>` : ""}
-      </button>
       <button class="pc-lobby-tile" id="pcMenuMedias" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
         <span class="pc-lobby-tile-ic">${iconeSvg("termometro", 24)}</span>
         <span class="pc-lobby-tile-rot">Termômetro<br>eleitoral</span>
@@ -3071,7 +3066,6 @@ async function renderPainelPrincipal() {
   // mesmo destino do atalho "Listas", que é de onde se monta, revisa e
   // deposita a cédula.
   document.getElementById("pcBtnUrna").addEventListener("click", irParaListas);
-  document.getElementById("pcMenuListas").addEventListener("click", irParaListas);
   document.getElementById("pcBtnConvidarTopo").addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("grupo");
     pcState.subaba = "grupo"; renderAppColaborativo();
