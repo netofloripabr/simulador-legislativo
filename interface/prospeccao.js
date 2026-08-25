@@ -2957,6 +2957,13 @@ async function renderPainelPrincipal() {
       </div>` : ""}
     </div>
 
+    <div class="pc-lobby-banner">
+      <div class="pc-lobby-banner-eyebrow">Convide amigos</div>
+      <div class="pc-lobby-banner-titulo">Desafie quem entende de política</div>
+      <div class="pc-lobby-banner-corpo">Compare sua lista lado a lado com a de amigos, num grupo só seu.</div>
+      <button class="pc-lobby-banner-btn" id="pcBtnConviteBanner">Criar grupo ${iconeSvg("setaDireita", 13)}</button>
+    </div>
+
     <button class="pc-urna" id="pcBtnUrna">
       <span class="pc-urna-btn">${iconeSvg("urna", 52)}</span>
       <span class="pc-urna-rot">Minhas listas</span>
@@ -2967,13 +2974,6 @@ async function renderPainelPrincipal() {
     <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
       <button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>
     </div>` : ""}
-
-    <div class="pc-lobby-banner">
-      <div class="pc-lobby-banner-eyebrow">Convide amigos</div>
-      <div class="pc-lobby-banner-titulo">Desafie quem entende de política</div>
-      <div class="pc-lobby-banner-corpo">Compare sua lista lado a lado com a de amigos, num grupo só seu.</div>
-      <button class="pc-lobby-banner-btn" id="pcBtnConviteBanner">Criar grupo ${iconeSvg("setaDireita", 13)}</button>
-    </div>
 
     <div class="pc-lobby-menu-tit">Atalhos</div>
     <div class="pc-lobby-tiles">
