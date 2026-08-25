@@ -31,6 +31,8 @@ let pcState = {
   adminPesquisaFiltro: null, // { genero, uf } — último filtro usado na seção "Pesquisa" do admin
   adminPesquisaResultados: null, // cache do resultado de adminPesquisaAgregada()
   adminPesquisaCargo: "estadual", // qual cargo a seção "Pesquisa" do admin está mostrando
+  adminUsuariosFiltro: null, // { genero, uf, desde, ate, statusCedula, tipoConta } — seção "Usuários"
+  adminUsuariosResultados: null, // cache do resultado de adminListarUsuarios()
   ufPesquisaFiltro: null, // { genero, uf } — último filtro usado no Painel do usuário final
   ufPesquisaResultados: null, // cache do resultado de usuarioFinalPesquisaAgregada()
   ufPesquisaCargo: "estadual", // qual cargo o Painel do usuário final está mostrando
@@ -2372,6 +2374,8 @@ function renderModalReportarProblema() {
 // migração 18). Cada seção busca seus próprios dados sob demanda; nada é
 // pré-carregado pra quem não é admin.
 
+const ROTULO_TIPO_CONTA = { admin: "Admin", usuario_final: "Usuário final", padrao: "Padrão" };
+
 async function montarAdminUsuarios() {
   const stats = await adminEstatisticasUsuarios();
   if (!stats) return `<div class="pc-sub">Não consegui carregar as estatísticas.</div>`;
@@ -2382,6 +2386,34 @@ async function montarAdminUsuarios() {
       <div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${Number(valor || 0).toLocaleString("pt-BR")}</div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">${label}</div>
     </div>`;
+
+  const f = pcState.adminUsuariosFiltro || {};
+  // Lista individual abaixo do painel analítico, com filtro por categoria
+  // (gênero/UF/período/status de cédula/tipo de conta) — mesma linguagem
+  // visual do "relatório" já usada no documento impresso e no extrato do
+  // Financeiro: nome em destaque + linha de metadados discreta + métrica
+  // alinhada à direita (pedido do usuário, 24/08/2026).
+  let listaHtml = "";
+  if (pcState.adminUsuariosResultados) {
+    const linhas = pcState.adminUsuariosResultados;
+    listaHtml = !linhas.length
+      ? estadoVazio({ icone: "buscar", titulo: "Nenhum usuário encontrado", texto: "Ninguém bateu com esses filtros — tenta afrouxar o recorte." })
+      : `
+      <div class="pc-sub" style="margin:14px 0 8px;">${linhas.length} conta${linhas.length === 1 ? "" : "s"} encontrada${linhas.length === 1 ? "" : "s"}${linhas.length === 200 ? " (mostrando as 200 mais recentes)" : ""}</div>
+      <div class="pc-lobby-card">${linhas.map((u) => `
+        <div class="pc-lobby-linha" style="align-items:flex-start;">
+          <span style="min-width:0;">
+            <div style="font-size:12.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${u.nome}${u.tipo_conta !== "padrao" ? ` <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#07230C; background:var(--pc-accent); border-radius:999px; padding:1px 6px;">${ROTULO_TIPO_CONTA[u.tipo_conta]}</span>` : ""}</div>
+            <div style="font-size:10.5px; color:var(--pc-ink-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${u.email}</div>
+            <div style="font-size:10px; color:var(--pc-ink-faint); margin-top:2px;">${u.genero || "gênero —"} · ${u.uf_residencia || "UF —"} · cadastro ${new Date(u.criado_em).toLocaleDateString("pt-BR")}</div>
+          </span>
+          <span style="flex-shrink:0; text-align:right;">
+            <b style="font-size:11px; color:${u.cedulas_depositadas > 0 ? "var(--pc-accent)" : "var(--pc-ink-faint)"};">${u.cedulas_depositadas} cédula${u.cedulas_depositadas === 1 ? "" : "s"}</b>
+            ${u.cargos_depositados ? `<div style="font-size:9.5px; color:var(--pc-ink-faint); max-width:110px;">${u.cargos_depositados}</div>` : ""}
+          </span>
+        </div>`).join("")}</div>`;
+  }
+
   return `
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
       ${cartao("Total de cadastros", stats.total_cadastros)}
@@ -2390,7 +2422,39 @@ async function montarAdminUsuarios() {
       ${cartao("Grupos criados", stats.total_grupos)}
       ${cartao("Cédulas depositadas", stats.total_cedulas_depositadas)}
       ${cartao("Depositadas (7 dias)", stats.cedulas_depositadas_7_dias)}
-    </div>`;
+    </div>
+
+    <div class="glass-card" style="margin-top:14px; padding:16px;">
+      <div style="font-size:13px; font-weight:700; margin-bottom:10px;">Lista de usuários</div>
+      <div class="field-row"><label>Gênero</label>
+        <select class="cell" id="pcAdminUsuGenero">
+          <option value="">Todos</option>
+          <option value="Masculino" ${f.genero === "Masculino" ? "selected" : ""}>Masculino</option>
+          <option value="Feminino" ${f.genero === "Feminino" ? "selected" : ""}>Feminino</option>
+          <option value="Outro" ${f.genero === "Outro" ? "selected" : ""}>Outro</option>
+        </select>
+      </div>
+      <div class="field-row"><label>UF de residência</label><input class="cell" id="pcAdminUsuUf" value="${f.uf || ""}" placeholder="ex: SC" maxlength="2" style="text-transform:uppercase;"></div>
+      <div class="field-row"><label>Cadastro de</label><input class="cell" id="pcAdminUsuDesde" type="date" value="${f.desde || ""}"></div>
+      <div class="field-row"><label>Cadastro até</label><input class="cell" id="pcAdminUsuAte" type="date" value="${f.ate || ""}"></div>
+      <div class="field-row"><label>Cédula</label>
+        <select class="cell" id="pcAdminUsuStatusCedula">
+          <option value="">Todos</option>
+          <option value="depositou" ${f.statusCedula === "depositou" ? "selected" : ""}>Depositou</option>
+          <option value="nao_depositou" ${f.statusCedula === "nao_depositou" ? "selected" : ""}>Não depositou</option>
+        </select>
+      </div>
+      <div class="field-row"><label>Tipo de conta</label>
+        <select class="cell" id="pcAdminUsuTipoConta">
+          <option value="">Todos</option>
+          <option value="padrao" ${f.tipoConta === "padrao" ? "selected" : ""}>Padrão</option>
+          <option value="usuario_final" ${f.tipoConta === "usuario_final" ? "selected" : ""}>Usuário final</option>
+          <option value="admin" ${f.tipoConta === "admin" ? "selected" : ""}>Admin</option>
+        </select>
+      </div>
+      <button class="primary" id="pcBtnAdminListarUsuarios" style="width:100%;">Buscar</button>
+    </div>
+    ${listaHtml}`;
 }
 
 async function montarAdminProblemas() {
@@ -2652,6 +2716,21 @@ async function renderAdminPainel() {
         await adminMarcarProblemaResolvido(btn.getAttribute("data-pc-resolver-problema"));
         renderAdminPainel();
       });
+    });
+  }
+  if (pcState.adminSecao === "usuarios") {
+    document.getElementById("pcBtnAdminListarUsuarios").addEventListener("click", async () => {
+      const filtro = {
+        genero: document.getElementById("pcAdminUsuGenero").value,
+        uf: document.getElementById("pcAdminUsuUf").value.trim().toUpperCase(),
+        desde: document.getElementById("pcAdminUsuDesde").value,
+        ate: document.getElementById("pcAdminUsuAte").value,
+        statusCedula: document.getElementById("pcAdminUsuStatusCedula").value,
+        tipoConta: document.getElementById("pcAdminUsuTipoConta").value,
+      };
+      pcState.adminUsuariosFiltro = filtro;
+      pcState.adminUsuariosResultados = await adminListarUsuarios(filtro);
+      renderAdminPainel();
     });
   }
   if (pcState.adminSecao === "pesquisa") {

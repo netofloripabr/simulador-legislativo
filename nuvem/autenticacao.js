@@ -216,6 +216,24 @@ async function adminEstatisticasCreditos() {
   return Array.isArray(data) ? data[0] : data;
 }
 
+// filtros: { genero, uf, desde, ate, statusCedula, tipoConta } — todos
+// opcionais. Uma linha por conta (migração 32); admin_estatisticas_usuarios
+// continua sendo os agregados do topo da tela.
+async function adminListarUsuarios(filtros) {
+  filtros = filtros || {};
+  const { data, error } = await supabaseClient.rpc("admin_listar_usuarios", {
+    p_genero: filtros.genero || null,
+    p_uf: filtros.uf || null,
+    p_desde: filtros.desde || null,
+    p_ate: filtros.ate || null,
+    p_status_cedula: filtros.statusCedula || null,
+    p_tipo_conta: filtros.tipoConta || null,
+    p_limite: 200,
+  });
+  if (error) { console.error("Erro ao listar usuários:", error); return null; }
+  return data || [];
+}
+
 async function adminListarExecucoesRotina() {
   const { data, error } = await supabaseClient.from("execucoes_rotina").select("*").order("executado_em", { ascending: false }).limit(30);
   if (error) { console.error("Erro ao carregar execuções de rotina:", error); return []; }
