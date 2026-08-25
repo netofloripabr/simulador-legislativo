@@ -697,8 +697,8 @@ function renderMenuFixo(destinoAtivo) {
     const cor = it.disabled ? "#5C6268" : (ativo ? "#04140d" : "var(--pc-ink-dim)");
     const titulo = it.disabled ? "Disponível depois do resultado oficial de 2026" : (it.gate ? `${it.label} — precisa se cadastrar` : it.label);
     return `<button data-pc-menu-fixo="${it.id}" ${it.disabled ? "disabled" : ""} title="${titulo}" aria-label="${it.label}" style="flex:1; background:none; border:none; display:flex; justify-content:center; cursor:${it.disabled ? "default" : "pointer"};">
-      <span style="display:flex; align-items:center; justify-content:center; padding:10px; border-radius:14px; background:${ativo && !it.disabled ? "var(--pc-accent)" : "transparent"}; color:${cor};">
-        ${iconeSvg(it.icone, 22)}
+      <span style="display:flex; align-items:center; justify-content:center; padding:11.5px; border-radius:14px; background:${ativo && !it.disabled ? "var(--pc-accent)" : "transparent"}; color:${cor};">
+        ${iconeSvg(it.icone, 25)}
       </span>
     </button>`;
   }).join("");
