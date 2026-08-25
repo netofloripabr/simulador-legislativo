@@ -2525,16 +2525,53 @@ async function montarAdminFinanceiro() {
           </div>`).join("")}</div>`}`;
 }
 
+// Não existe rotina automática rodando sozinha no sistema — tudo aqui é
+// disparado manualmente (ex.: o agente atualizador-atas-2026, sob pedido,
+// nunca sozinho — ver CLAUDE.md). "Programado" é a cadência ESPERADA de
+// quem dispara, não um agendamento de verdade. Catálogo fixo porque não
+// tem de onde descobrir isso no banco (decisão do usuário, 24/08/2026).
+const ROTINAS_CONHECIDAS = [
+  {
+    chave: "atualizador-atas-sc-2026",
+    nome: "Atualizador de atas (TSE, SC)",
+    descricao: "Verifica ata nova ou retificadora de convenção partidária no TSE e atualiza dados/estados/sc-2026-provisorio.js pra revisão.",
+    programado: "Diária, sob pedido — nunca dispara sozinha.",
+  },
+];
+
 async function montarAdminRotinas() {
   const execucoes = await adminListarExecucoesRotina();
-  if (!execucoes.length) {
-    return estadoVazio({ icone: "calendario", titulo: "Nenhuma execução registrada", texto: "As rotinas automáticas ainda não avisam aqui quando rodam." });
-  }
-  return `<div class="pc-lobby-card">${execucoes.map((e) => `
-    <div class="pc-lobby-linha">
-      <span style="font-size:12.5px; font-weight:600;">${e.rotina}</span>
-      <span style="font-size:11px; color:${e.sucesso ? "var(--pc-accent)" : "var(--pc-danger)"}; flex-shrink:0;">${e.sucesso ? "✓ ok" : "✗ falhou"} · ${new Date(e.executado_em).toLocaleString("pt-BR")}</span>
-    </div>`).join("")}</div>`;
+  const ultimaPorRotina = {};
+  execucoes.forEach((e) => { if (!ultimaPorRotina[e.rotina]) ultimaPorRotina[e.rotina] = e; }); // já vem ordenado desc
+
+  const catalogoHtml = `<div class="pc-lobby-card">${ROTINAS_CONHECIDAS.map((r) => {
+    const ultima = ultimaPorRotina[r.chave];
+    return `
+    <div class="pc-lobby-linha" style="align-items:flex-start;">
+      <span style="min-width:0;">
+        <div style="font-size:12.5px; font-weight:700;">${r.nome}</div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px; line-height:1.5;">${r.descricao}</div>
+        <div style="font-size:10.5px; color:var(--pc-ink-faint); margin-top:4px;">Programado: ${r.programado}</div>
+      </span>
+      <span style="flex-shrink:0; text-align:right; font-size:11px; ${ultima ? (ultima.sucesso ? "color:var(--pc-accent);" : "color:var(--pc-danger);") : "color:var(--pc-ink-faint);"}">
+        ${ultima ? `${ultima.sucesso ? "✓ ok" : "✗ falhou"}<br><span style="font-size:9.5px;">${new Date(ultima.executado_em).toLocaleString("pt-BR")}</span>` : "sem execução registrada"}
+      </span>
+    </div>`;
+  }).join("")}</div>`;
+
+  const historicoHtml = !execucoes.length
+    ? estadoVazio({ icone: "calendario", titulo: "Nenhuma execução registrada", texto: "Quando uma rotina rodar, o histórico aparece aqui." })
+    : `<div class="pc-lobby-card">${execucoes.map((e) => `
+      <div class="pc-lobby-linha">
+        <span style="font-size:12.5px; font-weight:600;">${e.rotina}</span>
+        <span style="font-size:11px; color:${e.sucesso ? "var(--pc-accent)" : "var(--pc-danger)"}; flex-shrink:0;">${e.sucesso ? "✓ ok" : "✗ falhou"} · ${new Date(e.executado_em).toLocaleString("pt-BR")}</span>
+      </div>`).join("")}</div>`;
+
+  return `
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Rotinas conhecidas</div>
+    ${catalogoHtml}
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Histórico de execuções</div>
+    ${historicoHtml}`;
 }
 
 async function renderAdminPainel() {
