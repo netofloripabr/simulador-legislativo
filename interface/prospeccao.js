@@ -668,17 +668,22 @@ function renderMenuFixo(destinoAtivo) {
     // vê o gate de cadastro, igual Mediana/Grupos.
     { id: "menu", icone: "perfil", label: "Menu", gate: gateConvidado },
   ];
+  // Pill sólido no item ativo (mesmo tratamento de .pc-cargo-switch
+  // button.active e das abas do painel admin) em vez de só ponto+texto
+  // verde — pedido do usuário, 24/08/2026: "melhorar o padrão visual do
+  // painel fixo ao padrão atual". Sem legenda embaixo do ícone (confirmado
+  // no protótipo); title/aria-label seguram a acessibilidade.
   const botoes = itens.map((it) => {
     const ativo = it.id === destinoAtivo;
-    const cor = it.disabled ? "#5C6268" : (ativo ? "var(--pc-accent)" : "var(--pc-ink-dim)");
-    const titulo = it.disabled ? "Disponível depois do resultado oficial de 2026" : (it.gate ? "Precisa se cadastrar" : "");
-    return `<button data-pc-menu-fixo="${it.id}" ${it.disabled ? "disabled" : ""} title="${titulo}" style="flex:1; background:none; border:none; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 2px; color:${cor}; font-family:var(--sans); cursor:${it.disabled ? "default" : "pointer"}; position:relative;">
-      ${ativo && !it.disabled ? `<span style="position:absolute; top:2px; left:50%; transform:translateX(9px); width:5px; height:5px; border-radius:50%; background:var(--pc-accent);"></span>` : ""}
-      ${iconeSvg(it.icone, 20)}
-      <span style="font-size:10px; font-weight:600;">${it.label}</span>
+    const cor = it.disabled ? "#5C6268" : (ativo ? "#04140d" : "var(--pc-ink-dim)");
+    const titulo = it.disabled ? "Disponível depois do resultado oficial de 2026" : (it.gate ? `${it.label} — precisa se cadastrar` : it.label);
+    return `<button data-pc-menu-fixo="${it.id}" ${it.disabled ? "disabled" : ""} title="${titulo}" aria-label="${it.label}" style="flex:1; background:none; border:none; display:flex; justify-content:center; cursor:${it.disabled ? "default" : "pointer"};">
+      <span style="display:flex; align-items:center; justify-content:center; padding:10px; border-radius:14px; background:${ativo && !it.disabled ? "var(--pc-accent)" : "transparent"}; color:${cor};">
+        ${iconeSvg(it.icone, 22)}
+      </span>
     </button>`;
   }).join("");
-  return `<div style="position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:rgba(16,18,20,.96); border-top:1px solid #23262A;">
+  return `<div style="position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:#101214; border-top:1px solid #23262A;">
     <div style="display:flex; width:100%; max-width:640px; padding:8px 4px calc(8px + env(safe-area-inset-bottom, 0px));">${botoes}</div>
   </div>`;
 }
