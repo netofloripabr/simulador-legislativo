@@ -3583,22 +3583,19 @@ async function renderMinhasListas() {
       <div style="max-width:380px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 14)} IMPORTANTE</div>
         <h2 style="margin-bottom:6px; font-size:15px;">Depositar "${listaModal.nome}"?</h2>
-        <div style="font-size:12.5px; line-height:1.6; color:var(--pc-ink-dim);">Depois de depositada, <b style="color:var(--pc-ink);">não será mais possível alterar nem excluir essa cédula</b> — é definitivo. Pra mudar de voto depois, o jeito é depositar uma cédula nova (cenário paralelo).</div>
+        <div style="font-size:12.5px; line-height:1.6; color:var(--pc-ink-dim);">Depois de depositada, <b style="color:var(--pc-ink);">não será mais possível alterar nem excluir essa cédula</b> — é definitivo.</div>
         ${pcState.avisoVagaNaoMarcadaResumo ? `
         <div class="pc-aviso-card" style="margin:14px 0 0;">
-          <div class="pc-aviso-titulo">Tem vaga que a votação de hoje já garante, mas você não marcou</div>
-          <div class="pc-aviso-corpo">${pcState.avisoVagaNaoMarcadaResumo.map((r) => {
-            const nomes = r.nomes.length > 8 ? r.nomes.slice(0, 8).join(", ") + ` e mais ${r.nomes.length - 8}` : r.nomes.join(", ");
-            return `<b>${r.cargo}:</b> ${nomes}`;
-          }).join("<br>")}<br><br>A etiqueta ELEITO da sua lista é sempre a sua escolha — nunca muda sozinha. Depositar assim mantém do jeito que está.</div>
+          <div class="pc-aviso-titulo">Lembrete</div>
+          <div class="pc-aviso-corpo">Você não preencheu a lista completa.</div>
         </div>` : ""}
         <label style="display:flex; align-items:center; gap:10px; margin:16px 0; font-size:13px; color:var(--pc-ink); cursor:pointer;">
           <span class="pc-switch pc-switch-neutro" style="flex-shrink:0;"><input type="checkbox" id="pcCheckAnonimo"${pcState._anonimoPreAviso ? " checked" : ""}><span class="pc-switch-slider"></span></span>
-          Depositar de forma anônima
+          Anônimo
         </label>
         <div style="display:flex; gap:8px;">
           <button class="ghost" id="pcBtnCancelarDepositar" style="flex:1;">Cancelar</button>
-          <button class="primary" id="pcBtnConfirmarDepositar" style="flex:1;">${pcState.avisoVagaNaoMarcadaResumo ? "Depositar mesmo assim" : "Depositar"}</button>
+          <button class="primary" id="pcBtnConfirmarDepositar" style="flex:1;">Depositar</button>
         </div>
       </div>
     </div>` : ""}
