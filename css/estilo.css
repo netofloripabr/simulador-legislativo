@@ -1429,7 +1429,21 @@
 #modoColaborativoWrap .pc-dep-notif{
   display:flex; align-items:center; gap:8px; margin-top:0;
 }
+/* Acende quando um arrasto (candidato ou partido) esbarra no teto de
+   votos válidos do CARGO inteiro (não do próprio partido) — trava real
+   (não dá pra ter mais votos que o total do cargo), mas invisível até
+   agora: a alça simplesmente não se movia e parecia bug (achado do
+   usuário, 24/08/2026, depois de preencher a lista toda e voltar pra
+   editar). Pisca 2x e some — não fica ligada, senão vira ruído. */
+#modoColaborativoWrap .pc-dep-notif-luz{
+  flex:none; width:6px; height:6px; border-radius:50%; background:transparent;
+}
+#modoColaborativoWrap .pc-dep-notif-luz.piscar{
+  background:var(--pc-laranja); animation:pcDepPiscaLaranja .5s ease-in-out 2;
+}
+@keyframes pcDepPiscaLaranja{ 0%,100%{ opacity:.25; } 50%{ opacity:1; } }
 #modoColaborativoWrap .pc-dep-notif-txt{ flex:1; min-width:0; font-size:10px; color:#8A9096; line-height:1.4; }
+#modoColaborativoWrap .pc-dep-notif-txt.aviso-cargo{ color:var(--pc-laranja); }
 #modoColaborativoWrap .pc-dep-notif-txt b{ color:#AEB5BB; }
 #modoColaborativoWrap .pc-dep-inf{
   flex:none; width:15px; height:15px; border-radius:50%; background:transparent;

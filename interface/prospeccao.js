@@ -6158,7 +6158,8 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       </div>
       ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course)}
       <div class="pc-dep-notif">
-        <span class="pc-dep-notif-txt">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
+        <span class="pc-dep-notif-luz"></span>
+        <span class="pc-dep-notif-txt" data-normal="${escaparAtributoHtml(notificacaoDep(soma, meta, vagasInd, qeProj))}">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
         <button type="button" class="pc-dep-inf${infoAberto ? " aberto" : ""}" data-dep-info="${gi}" title="Detalhes do partido">i</button>
       </div>
       ${orientacaoTxt ? `<div class="pc-dep-orientacao">${orientacaoTxt}</div>` : ""}
@@ -6233,6 +6234,32 @@ function atualizarHeaderDeputados(E) {
   }
 }
 
+// Acende a luz laranja + troca a notificação do card quando um arrasto
+// (candidato OU partido) esbarra no teto de votos válidos do CARGO
+// INTEIRO — trava real (não dá pra ter mais votos que o total do cargo),
+// mas até 24/08/2026 era invisível: a alça só parava de responder, sem
+// nenhuma explicação (achado do usuário, depois de editar uma lista já
+// preenchida). `card` pode ser null se o gesto começar/terminar entre um
+// re-render; nesse caso não faz nada, sem quebrar o arrasto.
+function avisarSemEspacoCargo(card, semEspaco) {
+  if (!card) return;
+  const txt = card.querySelector(".pc-dep-notif-txt");
+  const luz = card.querySelector(".pc-dep-notif-luz");
+  if (!txt || !luz) return;
+  if (semEspaco) {
+    if (!txt.classList.contains("aviso-cargo")) {
+      txt.textContent = "Sem espaço — o total de votos do cargo já bateu o teto. Diminua outro candidato pra liberar espaço aqui.";
+      txt.classList.add("aviso-cargo");
+    }
+    luz.classList.remove("piscar");
+    void luz.offsetWidth; // reinicia a animação a cada nova tentativa de arrastar além do teto
+    luz.classList.add("piscar");
+  } else if (txt.classList.contains("aviso-cargo")) {
+    txt.textContent = txt.getAttribute("data-normal") || "";
+    txt.classList.remove("aviso-cargo");
+  }
+}
+
 function atualizarFaderDep(sl, v, cap) {
   const pct = Math.min(100, cap > 0 ? v / cap * 100 : 0);
   sl.querySelector(".pc-sen-fill").style.width = pct + "%";
@@ -6294,26 +6321,37 @@ function attachListenersDeputadosFader(E, totalVagas) {
     const mover = (e) => {
       const r = sl.getBoundingClientRect();
       const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      const card = sl.closest(".pc-dep-card");
       if (ehPartido) {
         const p2 = pcState.palpiteEdicao[gi];
-        const alvo = fmdTravaIndividual(Math.round(frac * base.course), E, E, base.outrosTotal);
+        const pedido = Math.round(frac * base.course);
+        const alvo = fmdTravaIndividual(pedido, E, E, base.outrosTotal);
         const reais = p2.candidatos.filter((c) => c.fonte !== "legenda" && !c.status);
         const novos = fmdEscalarProporcional(base.membros, alvo, capCand);
         reais.forEach((c, i) => { c.votos = novos[i]; });
         atualizarBarraPartidoDom(sl, somaVotosGrupo(p2));
-        const card = sl.closest(".pc-dep-card");
         if (card) card.querySelectorAll('[data-dep-fader^="c|"]').forEach((s2) => {
           const k2 = s2.dataset.depFader.split("|");
           atualizarFaderDep(s2, Number(candidatoDe(+k2[1], k2[2])?.votos) || 0, capCand);
         });
+        // tetoIndividual e tetoColetivo são os DOIS iguais a E aqui — todo
+        // clamping possível nesse ramo só pode vir do teto do cargo.
+        avisarSemEspacoCargo(card, pedido > alvo);
       } else {
         const c = candidatoDe(gi, partes[2]);
         if (!c) return;
-        c.votos = fmdTravaIndividual(Math.round(frac * capCand), capCand, E, base.outrosTotal);
+        const pedido = Math.round(frac * capCand);
+        const limiteCargo = E - base.outrosTotal;
+        c.votos = fmdTravaIndividual(pedido, capCand, E, base.outrosTotal);
         c.votosEditado = true;
         atualizarFaderDep(sl, Number(c.votos) || 0, capCand);
         const zoneP = document.querySelector('[data-dep-fader="p|' + gi + '"]');
         if (zoneP) atualizarBarraPartidoDom(zoneP, somaVotosGrupo(pcState.palpiteEdicao[gi]));
+        // Só acende quando quem trava é o teto do CARGO (limiteCargo menor
+        // que o teto individual do próprio candidato) — travar no teto
+        // individual é normal (candidato só, sem nada a ver com o cargo)
+        // e não precisa de aviso.
+        avisarSemEspacoCargo(card, limiteCargo < capCand && pedido > limiteCargo);
       }
       atualizarHeaderDeputados(E);
     };
