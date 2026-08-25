@@ -432,7 +432,12 @@
   #modoColaborativoWrap .pc-cal-d.alvo b, #modoColaborativoWrap .pc-cal-d.alvo span{ color:var(--pc-laranja); }
   #modoColaborativoWrap .pc-cal-sep{ flex:0 0 12px; text-align:center; font-size:10px; letter-spacing:.14em; color:#3A4046; }
   #modoColaborativoWrap .pc-lt-marca{
-    position:absolute; left:50%; bottom:100%; transform:translateX(-50%); padding-bottom:8px;
+    /* padding-bottom não cria respiro nenhum aqui — bottom:100% já fixa a
+       borda DE FORA da caixa (padding+conteúdo) rente ao card; o respiro
+       tem que ser margin, que empurra a caixa inteira pra cima (achado do
+       usuário, 24/08/2026 — a agulha estava literalmente colada no card
+       "hoje", 0px de fato apesar do padding-bottom:8px no código). */
+    position:absolute; left:50%; bottom:100%; transform:translateX(-50%); margin-bottom:6px;
     display:flex; flex-direction:column; align-items:center; gap:2px; pointer-events:none; white-space:nowrap;
   }
   #modoColaborativoWrap .pc-lt-falta{ font-size:10.5px; font-weight:800; color:var(--pc-ink); font-variant-numeric:tabular-nums; }

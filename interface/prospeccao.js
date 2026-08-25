@@ -1979,14 +1979,19 @@ function renderAppColaborativo() {
   }
   else if (pcState.subaba === "menu") { renderMenuConta(); atualizarMenuFixo("menu"); }
   else if (pcState.subaba === "ranking") { renderRankingPlaceholder(); atualizarMenuFixo("ranking"); }
-  else if (pcState.subaba === "meu-perfil") { renderMeuPerfil(); atualizarMenuFixo(null); }
-  else if (pcState.subaba === "ajuda") { renderCentralAjuda(); atualizarMenuFixo(null); }
-  else if (pcState.subaba === "admin") { renderAdminPainel(); atualizarMenuFixo(null); }
-  else if (pcState.subaba === "usuario-final") { renderPainelUsuarioFinal(); atualizarMenuFixo(null); }
-  else if (pcState.subaba === "desafios") { renderDesafiosHub(); atualizarMenuFixo(null); }
-  else if (pcState.subaba === "carteira") { renderCarteira(); atualizarMenuFixo(null); }
-  else if (pcState.subaba === "loja") { renderLoja(); atualizarMenuFixo(null); }
-  else if (pcState.subaba === "notificacoes") { renderNotificacoes(); atualizarMenuFixo(null); }
+  // Essas 8 eram telas "sem saída" — só o botão de voltar no topo, sem
+  // jeito de pular direto pro lobby ou outra aba (achado do usuário,
+  // 24/08/2026). Nenhuma delas é um dos 6 destinos da barra, então
+  // passar o próprio nome da subaba mostra a barra sem nada aceso —
+  // mesmo efeito de "nenhum destino ativo", só que com a barra visível.
+  else if (pcState.subaba === "meu-perfil") { renderMeuPerfil(); atualizarMenuFixo("meu-perfil"); }
+  else if (pcState.subaba === "ajuda") { renderCentralAjuda(); atualizarMenuFixo("ajuda"); }
+  else if (pcState.subaba === "admin") { renderAdminPainel(); atualizarMenuFixo("admin"); }
+  else if (pcState.subaba === "usuario-final") { renderPainelUsuarioFinal(); atualizarMenuFixo("usuario-final"); }
+  else if (pcState.subaba === "desafios") { renderDesafiosHub(); atualizarMenuFixo("desafios"); }
+  else if (pcState.subaba === "carteira") { renderCarteira(); atualizarMenuFixo("carteira"); }
+  else if (pcState.subaba === "loja") { renderLoja(); atualizarMenuFixo("loja"); }
+  else if (pcState.subaba === "notificacoes") { renderNotificacoes(); atualizarMenuFixo("notificacoes"); }
   // Subaba desconhecida (typo, sessão antiga restaurada): cai no PAINEL,
   // não mais no Ranking por acidente — o ranking ganhou ramo explícito
   // acima (auditoria de telas, 22/08/2026; antes 3 setters dependiam do
