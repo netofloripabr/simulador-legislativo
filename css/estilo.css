@@ -1226,8 +1226,12 @@
 
 #modoColaborativoWrap .pc-dep-card{
   background:rgba(29,32,35,.85); border:1px solid #23262A; border-radius:12px;
-  padding:10px 12px 12px; margin-bottom:8px;
+  padding:10px 12px 12px; margin-bottom:8px; transition:border-color .3s ease;
 }
+/* Meta do partido fechada (soma de votos indicados bate a meta das vagas
+   marcadas) — borda verde suave pra identificar de relance quem já está
+   pronto, pedido do usuário 25/08/2026. */
+#modoColaborativoWrap .pc-dep-card.pc-dep-card-completo{ border-color:rgba(52,232,74,.4); }
 /* Remanescentes 1.0 SEM override no tema Fader (auditoria de telas,
    22/08/2026): mini-cards (Minhas listas/Grupos/Ranking/Admin), trilho da
    barra do hero do Painel e os tooltips .info-tip/.tip-box ainda
