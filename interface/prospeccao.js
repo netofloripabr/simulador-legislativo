@@ -6236,10 +6236,6 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     const meta = vagasInd * qeProj;
     const v2022 = votos2022DoGrupo(p.nome);
     const course = cursoBarraPartido(meta, soma, qeProj);
-    // Mesmo corte de "Meta fechada" usado na notificação (notificacaoDep) —
-    // reaproveitado aqui só pra acender a borda do card, pedido do usuário
-    // 25/08/2026: identificar visualmente o partido que já bateu a meta.
-    const metaFechada = meta > 0 && vagasInd > 0 && soma >= meta * 0.995;
     const qpDireto = qeAtual ? Math.min(vg, Math.floor(soma / qeAtual)) : 0;
     const sobras = vg - qpDireto;
     const chaveAberto = "faderAberto_" + pcState.cargoAtivo + "_" + p.nome;
@@ -6312,7 +6308,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       </div>`;
     }).join("") : "";
     return `
-    <div class="pc-dep-card${metaFechada ? " pc-dep-card-completo" : ""}" data-dep-idx="${gi}" data-dep-nome="${escaparAtributoHtml(p.nome)}">
+    <div class="pc-dep-card" data-dep-idx="${gi}" data-dep-nome="${escaparAtributoHtml(p.nome)}">
       <div class="pc-dep-l1" data-dep-toggle="${gi}">
         <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
         <div class="pc-dep-boxcol">
