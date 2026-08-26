@@ -4617,9 +4617,11 @@ function renderLoja() {
   const saldo = Number((pcState.perfil && pcState.perfil.creditos) || 0);
   const pacote = (id, dados, desc, selo) => `
     <div class="pc-pacote ${selo ? "destaque" : ""}">
-      <span class="pc-pacote-q">${iconeSvg("credito", 16)}${dados.sl}</span>
-      <span class="pc-pacote-d"><b>${desc}</b>${selo ? `<span class="pc-pacote-selo">${selo}</span>` : ""}</span>
-      <button type="button" class="primary" data-pc-comprar="${id}" style="flex-shrink:0; padding:8px 12px; font-size:12px;">${dados.preco}</button>
+      <div class="pc-pacote-linha1">
+        <span class="pc-pacote-q">${iconeSvg("credito", 16)}${dados.sl}</span>
+        <span class="pc-pacote-d"><b>${desc}</b>${selo ? `<span class="pc-pacote-selo">${selo}</span>` : ""}</span>
+      </div>
+      <button type="button" class="primary" data-pc-comprar="${id}" style="align-self:flex-end; padding:8px 12px; font-size:12px;">${dados.preco}</button>
     </div>`;
 
   conteudo.innerHTML = `
@@ -4811,10 +4813,12 @@ function montarComparacaoGrupo(registros, cargo) {
   return `
     <div class="pc-sub" style="margin-bottom:8px;">Baseado em ${totalPalpites} pessoa${totalPalpites === 1 ? "" : "s"} do grupo que já depositou a cédula desse cargo.</div>
     ${desenharHemiciclo(listaSeats, totalVagasCargo)}
-    <table style="margin-top:10px;">
+    <div style="overflow-x:auto; margin-top:10px;">
+    <table style="min-width:420px;">
       <thead><tr><th>Partido</th><th class="num">Vagas 22</th><th class="num">Votos (mediana)</th><th class="num">Vagas (mediana)</th></tr></thead>
       <tbody>${linhasPartido}</tbody>
     </table>
+    </div>
     ${qe ? `<div class="pc-sub" style="margin-top:8px;">Quociente eleitoral (mediana do grupo): ${qe.toLocaleString("pt-BR")} votos/vaga.</div>` : ""}`;
 }
 
@@ -9520,7 +9524,7 @@ function renderRevisaoDeposito() {
 
     return `
       <details class="pc-acc" data-pc-cargo-acc="${cargoDef.id}"${pcState.expandido["revisao-" + cargoDef.id] ? " open" : ""}>
-        <summary style="align-items:flex-start;"><span style="flex:1; min-width:0; line-height:1.35;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim);">— ${totalEleitos} eleitos${temInconsistencia ? ` · ${marcadosInconsistentes.length} aviso${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0; margin-top:3px;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
+        <summary style="align-items:flex-start;"><span style="flex:1; min-width:0; line-height:1.35;">${cargoDef.label} <span style="font-weight:400; color:var(--pc-ink-dim);">— ${totalEleitos} eleito${totalEleitos === 1 ? "" : "s"}${temInconsistencia ? ` · ${marcadosInconsistentes.length} aviso${marcadosInconsistentes.length === 1 ? "" : "s"}` : ""}</span></span><svg class="pc-chev" viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0; margin-top:3px;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></summary>
         <div class="pc-acc-body">
           ${listaExibida.length < listaCompleta.length ? `<div style="font-size:10.5px; color:var(--pc-ink-dim); margin-bottom:10px;">Mostrando os eleitos + ${listaExibida.length - totalEleitos} mais votados entre quem não elegeu (${listaCompleta.length - listaExibida.length} candidato${listaCompleta.length - listaExibida.length === 1 ? "" : "s"} com menos voto ficaram de fora dessa lista).</div>` : ""}
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">

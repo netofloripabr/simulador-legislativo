@@ -331,7 +331,7 @@
   #modoColaborativoWrap .pc-duelo-avatar.eu{ border-color:rgba(52,232,74,.5); color:var(--pc-accent); }
   #modoColaborativoWrap .pc-duelo-tx{ min-width:0; display:flex; flex-direction:column; gap:1px; }
   #modoColaborativoWrap .pc-duelo-p{ display:block; font-size:12px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  #modoColaborativoWrap .pc-duelo-c{ display:block; font-size:9px; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; letter-spacing:.04em; }
+  #modoColaborativoWrap .pc-duelo-c{ display:block; font-size:9px; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; letter-spacing:.04em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #modoColaborativoWrap .pc-duelo-vs{ flex-shrink:0; font-size:9px; font-weight:800; letter-spacing:.1em; color:var(--pc-ink-dim); }
   #modoColaborativoWrap .pc-duelo-rodape{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:11px; padding-top:9px; border-top:1px solid var(--pc-glass-border); font-size:10px; color:var(--pc-ink-dim); }
   #modoColaborativoWrap .pc-duelo-acoes{ display:flex; gap:8px; margin-top:11px; }
@@ -436,8 +436,9 @@
   #modoColaborativoWrap .pc-ex-saldo{ font-size:9.5px; color:var(--pc-ink-dim); flex-shrink:0; width:34px; text-align:right; font-variant-numeric:tabular-nums; }
 
   /* ===== Loja ===== */
-  #modoColaborativoWrap .pc-pacote{ display:flex; align-items:center; gap:12px; background:#101214; border:1px solid var(--pc-glass-border); border-radius:12px; padding:12px 14px; margin-bottom:8px; }
+  #modoColaborativoWrap .pc-pacote{ display:flex; flex-direction:column; gap:10px; background:#101214; border:1px solid var(--pc-glass-border); border-radius:12px; padding:12px 14px; margin-bottom:8px; }
   #modoColaborativoWrap .pc-pacote.destaque{ border-color:rgba(52,232,74,.4); }
+  #modoColaborativoWrap .pc-pacote-linha1{ display:flex; align-items:center; gap:12px; }
   #modoColaborativoWrap .pc-pacote-q{ display:flex; align-items:center; gap:5px; font-size:15px; font-weight:800; color:var(--pc-accent); font-variant-numeric:tabular-nums; width:58px; flex-shrink:0; }
   #modoColaborativoWrap .pc-pacote-d{ flex:1; min-width:0; font-size:10.5px; color:var(--pc-ink-dim); line-height:1.4; }
   #modoColaborativoWrap .pc-pacote-d b{ display:block; font-size:12.5px; color:var(--pc-ink); font-weight:700; }
@@ -1841,7 +1842,8 @@
 }
 #modoColaborativoWrap.pc-tema-fader .pc-farol-txt{
   flex:1; min-width:0; font-size:11.5px; font-weight:600; color:#D3D8DC;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden; line-height:1.3;
 }
 #modoColaborativoWrap.pc-tema-fader .pc-farol-min{
   flex:none; width:22px; height:22px; border-radius:6px; border:1px solid #2B2F33;
