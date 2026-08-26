@@ -375,6 +375,35 @@
 
   #modoColaborativoWrap .pc-campo-label{ display:block; font-size:11px; font-weight:700; color:var(--pc-ink-dim); margin-bottom:5px; }
 
+  /* ===== Desafio: escolha de recorte de candidatos (migração 33) ===== */
+  #modoColaborativoWrap .pc-chip-partido{
+    display:inline-flex; align-items:center; background:none; border:1px solid var(--pc-glass-border);
+    color:var(--pc-ink-dim); font-size:10px; font-weight:600; padding:4px 10px; border-radius:999px;
+    margin:0 5px 5px 0; cursor:pointer; font-family:var(--sans);
+  }
+  #modoColaborativoWrap .pc-chip-partido.sel{ border-color:rgba(52,232,74,.5); color:var(--pc-accent); background:rgba(52,232,74,.08); }
+  #modoColaborativoWrap .pc-grade-cand{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:6px; margin-bottom:12px; }
+  @media (min-width:520px){ #modoColaborativoWrap .pc-grade-cand{ grid-template-columns:repeat(3, minmax(0,1fr)); } }
+  #modoColaborativoWrap .pc-cand-row{
+    display:flex; align-items:center; gap:6px; background:var(--pc-glass); border:1px solid var(--pc-glass-border);
+    border-radius:10px; padding:8px 9px; min-width:0; cursor:pointer;
+  }
+  #modoColaborativoWrap .pc-cand-row input{ width:14px; height:14px; flex-shrink:0; accent-color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-cand-row .txt{ min-width:0; }
+  #modoColaborativoWrap .pc-cand-row .nome{ font-size:11px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; color:var(--pc-ink); }
+  #modoColaborativoWrap .pc-cand-row .partido{ font-size:9px; color:var(--pc-ink-dim); display:block; }
+  #modoColaborativoWrap .pc-voto-linha{
+    display:flex; align-items:center; gap:8px; padding:7px 0; border-bottom:1px solid var(--pc-glass-border);
+  }
+  #modoColaborativoWrap .pc-voto-linha:last-child{ border-bottom:none; }
+  #modoColaborativoWrap .pc-voto-linha .txt{ flex:1; min-width:0; }
+  #modoColaborativoWrap .pc-voto-linha .nome{ font-size:12px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; }
+  #modoColaborativoWrap .pc-voto-linha .partido{ font-size:9.5px; color:var(--pc-ink-dim); display:block; }
+  #modoColaborativoWrap .pc-voto-linha input{
+    width:84px; flex-shrink:0; text-align:right; background:#16181B; border:1px solid var(--pc-glass-border);
+    border-radius:8px; color:var(--pc-ink); font:inherit; font-size:13px; padding:7px 9px;
+  }
+
   /* ===== Notificações ===== */
   #modoColaborativoWrap .pc-notif-item{ display:flex; gap:11px; padding:12px 0; border-bottom:1px solid var(--pc-glass-border); }
   #modoColaborativoWrap .pc-notif-item:last-child{ border-bottom:none; }

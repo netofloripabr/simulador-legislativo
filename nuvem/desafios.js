@@ -1,16 +1,16 @@
-// Desafios 1×1 — duelo entre cédulas depositadas (migração 28). Regras de
-// negócio (custo, prêmio, expiração, transições de status) vivem TODAS no
+// Desafios 1×1 — duelo sobre um recorte de candidatos (cargo inteiro ou
+// escolhidos a dedo), migração 33. Regras de negócio (custo, prêmio,
+// expiração, transições de status, validação do recorte) vivem TODAS no
 // banco (RPCs security definer) — este arquivo só chama e traduz erro.
 
-async function listarMinhasListasDepositadas(estado) {
-  const { data, error } = await supabaseClient
-    .from("salvamentos")
-    .select("id, nome, codigo, estado, depositado_em")
-    .not("depositado_em", "is", null)
-    .eq("estado", estado)
-    .order("depositado_em", { ascending: false });
-  if (error) { console.error("Erro ao listar cédulas depositadas:", error); return []; }
-  return data || [];
+// A comparação do desafio É uma cédula com código próprio (mesmo padrão
+// de gerarCodigoCedula, nuvem/salvamentos.js), gerada no cliente e só
+// validada quanto ao formato no banco — prefixo "DS" pra distinguir de
+// "SL" nas telas de suporte/depuração.
+function gerarCodigoDesafio() {
+  const alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const sorteia = (n) => Array.from({ length: n }, () => alfabeto[Math.floor(Math.random() * alfabeto.length)]).join("");
+  return `DS${sorteia(2)}-${sorteia(4)}`;
 }
 
 async function contarMeusDesafiosAtivos() {
@@ -38,17 +38,22 @@ async function listarMeusDesafios() {
   return data || [];
 }
 
-async function criarDesafio(desafiadoId, nome, cedulaId) {
+// escopo: [{chave, nome, partido}, ...] — o recorte travado do duelo.
+// meusVotos: [{chave, votos}, ...], mesmas chaves do escopo.
+async function criarDesafio(desafiadoId, nome, estado, cargo, escopo, meusVotos) {
   const { data, error } = await supabaseClient.rpc("criar_desafio", {
-    p_desafiado_id: desafiadoId, p_nome: nome, p_cedula_id: cedulaId,
+    p_desafiado_id: desafiadoId, p_nome: nome, p_estado: estado, p_cargo: cargo,
+    p_escopo: escopo, p_meus_votos: meusVotos, p_codigo: gerarCodigoDesafio(),
   });
   if (error) return { ok: false, mensagem: error.message };
   return { ok: true, desafio: data };
 }
 
-async function aceitarDesafio(desafioId, cedulaId) {
+// meusVotos: [{chave, votos}, ...] — precisa bater exatamente com o
+// escopo_candidatos do desafio (o banco valida, não confia no cliente).
+async function aceitarDesafio(desafioId, meusVotos) {
   const { data, error } = await supabaseClient.rpc("aceitar_desafio", {
-    p_desafio_id: desafioId, p_cedula_id: cedulaId,
+    p_desafio_id: desafioId, p_meus_votos: meusVotos,
   });
   if (error) return { ok: false, mensagem: error.message };
   return { ok: true, desafio: data };

@@ -102,14 +102,20 @@ let pcState = {
   funilVotosAberto: false, // funil explicativo dos votos válidos (o "i" do cabeçalho da aba Senador, PROJETO.md §8.2)
   sobraInfoAberta: false, // explicação da regra de sobra (o "i" do quadro-resumo no painel Disputa de Sobra, Revisão)
 
-  // ===== Desafios 1×1 (migração 28, protótipos v6/v7 — 24/08/2026) =====
+  // ===== Desafios 1×1 (migração 33 — recorte de candidatos, 25/08/2026;
+  // era cédula inteira na migração 28) =====
   desafiosCache: null, // lista crua de listarMeusDesafios(), recarregada a cada entrada na tela
   desafiosGratisRestantes: null, // desafiosGratisRestantes() — null = ainda não carregado
   telaDesafio: "hub", // "hub" | "criar" | "aceitar"
   desafioAceitarId: null, // id do desafio sendo aceito (telaDesafio === "aceitar")
-  desafioAceitarCedulaId: null,
+  desafioAceitarVotos: null, // {chave: votos} — só pros candidatos do escopo_candidatos do desafio
   desafioCriarNome: "",
-  desafioCriarCedulaId: null,
+  desafioCriarCargo: null, // "estadual" | "federal" | "senador"
+  desafioCriarModo: null, // "cargo" (todo mundo do cargo) | "candidatos" (recorte escolhido)
+  desafioCriarPartidoFiltro: null, // chip selecionado no modo "candidatos"
+  desafioCriarBusca: "",
+  desafioCriarSelecionados: null, // Set de chaves — só usado no modo "candidatos"
+  desafioCriarVotos: null, // {chave: votos}
   desafioCriarAmigoId: null,
   desafioCriarAmigos: null, // cache de listarAmigosParaDesafio()
   desafioStatus: "", // linha de status (erro/sucesso) das telas de desafio
@@ -4162,13 +4168,16 @@ async function renderDesafiosHub() {
   atualizarFarol();
   document.getElementById("pcBtnVoltarDesafios").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
   document.getElementById("pcBtnCriarDesafio").addEventListener("click", () => {
-    pcState.desafioCriarNome = ""; pcState.desafioCriarCedulaId = null; pcState.desafioCriarAmigoId = null;
+    pcState.desafioCriarNome = ""; pcState.desafioCriarAmigoId = null;
+    pcState.desafioCriarCargo = null; pcState.desafioCriarModo = null;
+    pcState.desafioCriarPartidoFiltro = null; pcState.desafioCriarBusca = "";
+    pcState.desafioCriarSelecionados = new Set(); pcState.desafioCriarVotos = {};
     pcState.desafioStatus = "";
     renderCriarDesafio();
   });
   document.querySelectorAll("[data-pc-aceitar]").forEach((btn) => btn.addEventListener("click", () => {
     pcState.desafioAceitarId = btn.getAttribute("data-pc-aceitar");
-    pcState.desafioAceitarCedulaId = null;
+    pcState.desafioAceitarVotos = {};
     pcState.desafioStatus = "";
     renderAceitarDesafio();
   }));
@@ -4187,14 +4196,33 @@ async function renderDesafiosHub() {
   }));
 }
 
+// Achata pcState.palpitesPorCargo[cargo] (partidos → candidatos) numa
+// lista simples {chave, nome, partido} — é o pool oficial do cargo (2026,
+// REGRA MESTRA), a mesma fonte que a tela de palpite já usa.
+function _poolCandidatosDesafio(cargo) {
+  const grupos = (pcState.palpitesPorCargo && pcState.palpitesPorCargo[cargo]) || [];
+  const lista = [];
+  grupos.forEach((p) => {
+    (p.candidatos || []).forEach((c) => {
+      lista.push({ chave: c.chave, nome: nomeExibicao(c), partido: p.nome });
+    });
+  });
+  return lista;
+}
+
+// Migração 33: o desafio não referencia mais uma cédula pronta — o
+// criador escolhe um cargo, um recorte de candidatos (cargo inteiro ou
+// escolhidos a dedo) e indica os próprios votos ali mesmo, na hora de
+// criar. Tudo numa tela só, recarregada a cada interação (mesmo padrão
+// dos chips de partido no resto do app).
 async function renderCriarDesafio() {
   const conteudo = document.getElementById("pcConteudo");
-  conteudo.innerHTML = telaCarregando("Carregando suas cédulas…");
-  const [cedulas, gratis] = await Promise.all([
-    listarMinhasListasDepositadas(pcState.estado),
-    desafiosGratisRestantes(pcState.perfil.id),
-  ]);
-  if (!pcState.desafioCriarCedulaId && cedulas.length) pcState.desafioCriarCedulaId = cedulas[0].id;
+  conteudo.innerHTML = telaCarregando("Carregando…");
+  const gratis = await desafiosGratisRestantes(pcState.perfil.id);
+  if (!pcState.desafioCriarCargo) pcState.desafioCriarCargo = (CARGOS.find((c) => c.disponivel) || CARGOS[0]).id;
+  if (!pcState.desafioCriarModo) pcState.desafioCriarModo = "cargo";
+  if (!pcState.desafioCriarSelecionados) pcState.desafioCriarSelecionados = new Set();
+  if (!pcState.desafioCriarVotos) pcState.desafioCriarVotos = {};
   if (!pcState.desafioCriarAmigos) {
     if (pcState.perfil) await garantirMeusGruposCarregados();
     pcState.desafioCriarAmigos = await listarAmigosParaDesafio(pcState.meusGrupos);
@@ -4202,52 +4230,113 @@ async function renderCriarDesafio() {
   const amigos = pcState.desafioCriarAmigos;
   const custo = gratis > 0 ? 0 : 10;
 
+  const pool = _poolCandidatosDesafio(pcState.desafioCriarCargo);
+  const partidos = [...new Set(pool.map((c) => c.partido))].sort();
+  const modoCargo = pcState.desafioCriarModo === "cargo";
+  const busca = (pcState.desafioCriarBusca || "").trim().toLowerCase();
+  const poolFiltrado = modoCargo ? [] : pool.filter((c) =>
+    (!pcState.desafioCriarPartidoFiltro || c.partido === pcState.desafioCriarPartidoFiltro) &&
+    (!busca || c.nome.toLowerCase().includes(busca)));
+  const selecionados = modoCargo ? pool : pool.filter((c) => pcState.desafioCriarSelecionados.has(c.chave));
+  const cargoLabel = (CARGOS.find((c) => c.id === pcState.desafioCriarCargo) || {}).label || "";
+
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
       <button class="ghost" id="pcBtnVoltarCriarDesafio" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Desafios</button>
       <h2 style="margin-bottom:2px;">Criar desafio</h2>
-      <div class="pc-sub" style="margin-bottom:14px;">Depois de selado, as duas cédulas ficam congeladas até a apuração.</div>
+      <div class="pc-sub" style="margin-bottom:14px;">Depois de selado, os votos que você indicar aqui ficam travados até a apuração.</div>
 
       <label class="pc-campo-label">Nome do duelo</label>
       <input class="cell" id="pcInputNomeDesafio" placeholder='"Duelo de Titãs"' maxlength="40" value="${pcState.desafioCriarNome || ""}" style="width:100%; margin-bottom:14px;">
 
-      <div class="pc-lobby-menu-tit" style="margin-top:0;">Sua cédula (${pcState.estado})</div>
-      ${cedulas.length ? cedulas.map((c) => `
-        <button type="button" class="pc-cedula-op ${c.id === pcState.desafioCriarCedulaId ? "sel" : ""}" data-pc-cedula="${c.id}">
-          <span class="pc-cedula-anel"></span>
-          <span style="flex:1; min-width:0; text-align:left;">
-            <span style="display:block; font-size:12.5px; font-weight:700;">${c.nome}</span>
-            <span style="display:block; font-size:10px; color:var(--pc-ink-dim);">${c.codigo || ""} · depositada em ${new Date(c.depositado_em).toLocaleDateString("pt-BR")}</span>
-          </span>
-        </button>`).join("") : `<div class="pc-sub">Você ainda não tem cédula depositada em ${pcState.estado} — deposite uma na Revisão antes de desafiar.</div>`}
+      <label class="pc-campo-label">Cargo</label>
+      <div class="pc-cargo-switch" style="margin-bottom:12px;">
+        ${CARGOS.filter((c) => c.disponivel).map((c) => `<button type="button" class="${c.id === pcState.desafioCriarCargo ? "active" : ""}" data-pc-cargo-desafio="${c.id}">${c.label}</button>`).join("")}
+      </div>
 
-      <div class="pc-lobby-menu-tit">Quem você desafia</div>
-      ${amigos.length ? `<div class="pc-lobby-card" style="padding:4px 14px;">${amigos.map((a) => `
+      <label class="pc-campo-label">Recorte</label>
+      <div class="pc-cargo-switch" style="margin-bottom:12px;">
+        <button type="button" class="${modoCargo ? "active" : ""}" id="pcModoCargo">Cargo inteiro</button>
+        <button type="button" class="${!modoCargo ? "active" : ""}" id="pcModoCandidatos">Candidatos</button>
+      </div>
+
+      ${!modoCargo ? `
+        <input class="cell" id="pcBuscaCandDesafio" placeholder="Buscar candidato..." value="${pcState.desafioCriarBusca || ""}" style="width:100%; margin-bottom:10px;">
+        <div style="margin-bottom:10px;">
+          ${partidos.map((p) => `<span class="pc-chip-partido ${p === pcState.desafioCriarPartidoFiltro ? "sel" : ""}" data-pc-chip-partido="${p}">${p}</span>`).join("")}
+        </div>
+        <div class="pc-grade-cand">
+          ${poolFiltrado.map((c) => `
+            <label class="pc-cand-row">
+              <input type="checkbox" data-pc-cand-check="${c.chave}" ${pcState.desafioCriarSelecionados.has(c.chave) ? "checked" : ""}>
+              <span class="txt"><span class="nome">${c.nome}</span><span class="partido">${c.partido}</span></span>
+            </label>`).join("") || `<div class="pc-sub">Nenhum candidato encontrado.</div>`}
+        </div>
+        <div class="pc-sub" style="margin:-4px 0 14px;">${selecionados.length} candidato${selecionados.length === 1 ? "" : "s"} selecionado${selecionados.length === 1 ? "" : "s"}</div>
+      ` : `<div class="pc-sub" style="margin:-4px 0 14px;">Todos os ${pool.length} candidatos de ${cargoLabel} entram no duelo.</div>`}
+
+      ${selecionados.length ? `
+        <label class="pc-campo-label">Seus votos indicados</label>
+        <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px;">
+          ${selecionados.map((c) => `
+            <div class="pc-voto-linha">
+              <span class="txt"><span class="nome">${c.nome}</span><span class="partido">${c.partido}</span></span>
+              <input type="number" min="0" inputmode="numeric" data-pc-voto="${c.chave}" value="${pcState.desafioCriarVotos[c.chave] ?? ""}" placeholder="0">
+            </div>`).join("")}
+        </div>` : ""}
+
+      <label class="pc-campo-label">Quem você desafia</label>
+      ${amigos.length ? `<div class="pc-lobby-card" style="padding:4px 14px; margin-bottom:14px;">${amigos.map((a) => `
         <label class="pc-amigo-op">
           <input type="radio" name="pcDesafioAmigo" value="${a.id}" ${a.id === pcState.desafioCriarAmigoId ? "checked" : ""}>
           <span class="pc-cedula-anel" style="width:16px; height:16px;"></span>
           <span class="pc-duelo-avatar" style="width:28px; height:28px; font-size:10px;">${_iniciaisNome(a.nome)}</span>
           <span style="flex:1; font-size:12.5px; font-weight:600;">${a.nome}</span>
           <span style="font-size:10px; color:var(--pc-ink-dim);">${a.grupo}</span>
-        </label>`).join("")}</div>` : `<div class="pc-sub">Você ainda não tem amigos num grupo — crie ou entre num grupo primeiro (Grupos, no Painel).</div>`}
+        </label>`).join("")}</div>` : `<div class="pc-sub" style="margin-bottom:14px;">Você ainda não tem amigos num grupo — crie ou entre num grupo primeiro (Grupos, no Painel).</div>`}
 
       <div class="pc-precinho">
         <span class="pc-precinho-txt">${custo === 0 ? `<b>Grátis</b> — ${gratis} desafio${gratis === 1 ? "" : "s"} restante${gratis === 1 ? "" : "s"} hoje.` : `Seus grátis acabaram — este desafio custa <b>10 SL</b>.`}</span>
         <span class="pc-precinho-val" style="${custo === 0 ? "color:var(--pc-accent);" : ""}">${custo === 0 ? "grátis" : "10 SL"}</span>
       </div>
 
-      <button class="primary" id="pcBtnEnviarDesafio" style="width:100%;" ${cedulas.length && amigos.length ? "" : "disabled"}>Enviar desafio</button>
+      <button class="primary" id="pcBtnEnviarDesafio" style="width:100%;" ${selecionados.length && amigos.length ? "" : "disabled"}>Enviar desafio</button>
       <div class="pc-status" id="pcCriarDesafioStatus" style="margin-top:8px; min-height:12px;"></div>
     </div>`;
 
   document.getElementById("pcBtnVoltarCriarDesafio").addEventListener("click", () => renderDesafiosHub());
-  document.querySelectorAll("[data-pc-cedula]").forEach((btn) => btn.addEventListener("click", () => {
-    pcState.desafioCriarCedulaId = btn.getAttribute("data-pc-cedula");
+  document.querySelectorAll("[data-pc-cargo-desafio]").forEach((btn) => btn.addEventListener("click", () => {
+    pcState.desafioCriarCargo = btn.getAttribute("data-pc-cargo-desafio");
+    pcState.desafioCriarSelecionados = new Set();
+    pcState.desafioCriarVotos = {};
+    renderCriarDesafio();
+  }));
+  document.getElementById("pcModoCargo").addEventListener("click", () => {
+    pcState.desafioCriarModo = "cargo"; pcState.desafioCriarVotos = {}; renderCriarDesafio();
+  });
+  document.getElementById("pcModoCandidatos").addEventListener("click", () => {
+    pcState.desafioCriarModo = "candidatos"; pcState.desafioCriarVotos = {}; renderCriarDesafio();
+  });
+  const inputBusca = document.getElementById("pcBuscaCandDesafio");
+  if (inputBusca) inputBusca.addEventListener("input", (e) => { pcState.desafioCriarBusca = e.target.value; renderCriarDesafio(); });
+  document.querySelectorAll("[data-pc-chip-partido]").forEach((chip) => chip.addEventListener("click", () => {
+    const p = chip.getAttribute("data-pc-chip-partido");
+    pcState.desafioCriarPartidoFiltro = pcState.desafioCriarPartidoFiltro === p ? null : p;
+    renderCriarDesafio();
+  }));
+  document.querySelectorAll("[data-pc-cand-check]").forEach((chk) => chk.addEventListener("change", (e) => {
+    const chave = chk.getAttribute("data-pc-cand-check");
+    if (e.target.checked) pcState.desafioCriarSelecionados.add(chave);
+    else { pcState.desafioCriarSelecionados.delete(chave); delete pcState.desafioCriarVotos[chave]; }
     renderCriarDesafio();
   }));
   document.querySelectorAll('input[name="pcDesafioAmigo"]').forEach((r) => r.addEventListener("change", () => {
     pcState.desafioCriarAmigoId = r.value;
   }));
+  document.querySelectorAll("[data-pc-voto]").forEach((inp) => inp.addEventListener("input", () => {
+    pcState.desafioCriarVotos[inp.getAttribute("data-pc-voto")] = inp.value;
+  }));
+
   const btnEnviar = document.getElementById("pcBtnEnviarDesafio");
   if (btnEnviar) btnEnviar.addEventListener("click", async () => {
     const nomeInput = document.getElementById("pcInputNomeDesafio");
@@ -4256,10 +4345,12 @@ async function renderCriarDesafio() {
     const status = document.getElementById("pcCriarDesafioStatus");
     if (!nome) { status.textContent = "Dê um nome pro duelo."; return; }
     if (!amigoSelecionado) { status.textContent = "Escolha quem você desafia."; return; }
-    if (!pcState.desafioCriarCedulaId) { status.textContent = "Escolha sua cédula."; return; }
+    if (!selecionados.length) { status.textContent = "Escolha ao menos 1 candidato."; return; }
+    const escopo = selecionados.map((c) => ({ chave: c.chave, nome: c.nome, partido: c.partido }));
+    const meusVotos = selecionados.map((c) => ({ chave: c.chave, votos: Number(pcState.desafioCriarVotos[c.chave]) || 0 }));
     btnEnviar.disabled = true;
     status.textContent = "Enviando…";
-    const r = await criarDesafio(amigoSelecionado.value, nome, pcState.desafioCriarCedulaId);
+    const r = await criarDesafio(amigoSelecionado.value, nome, pcState.estado, pcState.desafioCriarCargo, escopo, meusVotos);
     if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; btnEnviar.disabled = false; return; }
     try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
     pcState.desafioCriarAmigos = null;
@@ -4267,15 +4358,18 @@ async function renderCriarDesafio() {
   });
 }
 
+// O desafiado indica votos só pros candidatos travados no escopo do
+// desafio (o criador já escolheu isso) — nada de escolher cédula aqui.
 async function renderAceitarDesafio() {
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = telaCarregando("Carregando…");
   const desafio = (pcState.desafiosCache || []).find((d) => d.id === pcState.desafioAceitarId)
     || (await listarMeusDesafios()).find((d) => d.id === pcState.desafioAceitarId);
   if (!desafio) { renderDesafiosHub(); return; }
-  const cedulas = await listarMinhasListasDepositadas(desafio.estado);
-  if (!pcState.desafioAceitarCedulaId && cedulas.length) pcState.desafioAceitarCedulaId = cedulas[0].id;
+  if (!pcState.desafioAceitarVotos) pcState.desafioAceitarVotos = {};
   const nomeDesafiante = desafio.criador ? desafio.criador.nome : "Alguém";
+  const escopo = desafio.escopo_candidatos || [];
+  const cargoLabel = (CARGOS.find((c) => c.id === desafio.cargo) || {}).label || "";
 
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
@@ -4284,43 +4378,42 @@ async function renderAceitarDesafio() {
         <span class="pc-selo-desafio-tx">Desafio<b>1 × 1</b></span>
       </div>
       <h2 style="margin:10px 0 2px;">Aceitar desafio</h2>
-      <div class="pc-sub" style="margin-bottom:14px;">${nomeDesafiante} te desafiou em "${desafio.nome}". Escolha com qual cédula você entra — depois de aceitar, ela fica congelada até a apuração.</div>
+      <div class="pc-sub" style="margin-bottom:14px;">${nomeDesafiante} te desafiou em "${desafio.nome}" — indique seus votos pros mesmos ${escopo.length} candidato${escopo.length === 1 ? "" : "s"} de ${cargoLabel}. Depois de aceitar, ficam travados até a apuração.</div>
 
       <div class="pc-duelo-card" style="margin-bottom:16px;">
         <div class="pc-duelo-duo">
           <span class="pc-duelo-lado"><span class="pc-duelo-avatar">${_iniciaisNome(nomeDesafiante)}</span><span class="pc-duelo-tx"><span class="pc-duelo-p">${nomeDesafiante}</span><span class="pc-duelo-c">${desafio.estado}</span></span></span>
           <span class="pc-duelo-vs">VS</span>
-          <span class="pc-duelo-lado dir"><span class="pc-duelo-avatar eu" style="border-style:dashed; color:var(--pc-ink-dim);">?</span><span class="pc-duelo-tx"><span class="pc-duelo-p">Você</span><span class="pc-duelo-c">escolher cédula</span></span></span>
+          <span class="pc-duelo-lado dir"><span class="pc-duelo-avatar eu">${_iniciaisNome(pcState.perfil.nome || "Você")}</span><span class="pc-duelo-tx"><span class="pc-duelo-p">Você</span><span class="pc-duelo-c">${escopo.length} candidato${escopo.length === 1 ? "" : "s"}</span></span></span>
         </div>
       </div>
 
-      <div class="pc-lobby-menu-tit" style="margin-top:0;">Suas cédulas depositadas</div>
-      ${cedulas.length ? cedulas.map((c) => `
-        <button type="button" class="pc-cedula-op ${c.id === pcState.desafioAceitarCedulaId ? "sel" : ""}" data-pc-cedula-aceitar="${c.id}">
-          <span class="pc-cedula-anel"></span>
-          <span style="flex:1; min-width:0; text-align:left;">
-            <span style="display:block; font-size:12.5px; font-weight:700;">${c.nome}</span>
-            <span style="display:block; font-size:10px; color:var(--pc-ink-dim);">${c.codigo || ""} · depositada em ${new Date(c.depositado_em).toLocaleDateString("pt-BR")}</span>
-          </span>
-        </button>`).join("") : `<div class="pc-sub">Você ainda não tem cédula depositada em ${desafio.estado} — deposite uma antes de aceitar.</div>`}
+      <label class="pc-campo-label">Seus votos indicados</label>
+      <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px;">
+        ${escopo.map((c) => `
+          <div class="pc-voto-linha">
+            <span class="txt"><span class="nome">${c.nome}</span><span class="partido">${c.partido}</span></span>
+            <input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${c.chave}" value="${pcState.desafioAceitarVotos[c.chave] ?? ""}" placeholder="0">
+          </div>`).join("")}
+      </div>
 
-      <button class="primary" id="pcBtnConfirmarAceite" style="width:100%; margin-top:12px;" ${cedulas.length ? "" : "disabled"}>Aceitar</button>
+      <button class="primary" id="pcBtnConfirmarAceite" style="width:100%;">Aceitar</button>
       <button class="ghost" id="pcBtnRecusarNaAceitar" style="width:100%; margin-top:6px; border:none; color:var(--pc-ink-dim);">Recusar desafio</button>
       <div class="pc-status" id="pcAceitarStatus" style="margin-top:8px; min-height:12px;"></div>
     </div>`;
 
-  document.querySelectorAll("[data-pc-cedula-aceitar]").forEach((btn) => btn.addEventListener("click", () => {
-    pcState.desafioAceitarCedulaId = btn.getAttribute("data-pc-cedula-aceitar");
-    renderAceitarDesafio();
+  document.querySelectorAll("[data-pc-voto-aceitar]").forEach((inp) => inp.addEventListener("input", () => {
+    pcState.desafioAceitarVotos[inp.getAttribute("data-pc-voto-aceitar")] = inp.value;
   }));
   document.getElementById("pcBtnConfirmarAceite").addEventListener("click", async (e) => {
     const status = document.getElementById("pcAceitarStatus");
-    if (!pcState.desafioAceitarCedulaId) { status.textContent = "Escolha uma cédula."; return; }
     e.target.disabled = true;
     status.textContent = "Confirmando…";
-    const r = await aceitarDesafio(pcState.desafioAceitarId, pcState.desafioAceitarCedulaId);
+    const meusVotos = escopo.map((c) => ({ chave: c.chave, votos: Number(pcState.desafioAceitarVotos[c.chave]) || 0 }));
+    const r = await aceitarDesafio(pcState.desafioAceitarId, meusVotos);
     if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; e.target.disabled = false; return; }
     try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (err) {}
+    pcState.desafioAceitarVotos = {};
     renderDesafiosHub();
   });
   document.getElementById("pcBtnRecusarNaAceitar").addEventListener("click", async () => {
