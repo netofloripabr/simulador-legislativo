@@ -5040,6 +5040,18 @@ function partido2022Ref(nomePartido) {
     || null;
 }
 
+// Soma a votação real de 2022 de um GRUPO (pode ser federação, "PT / PC
+// do B / PV" — soma cada sigla separada). Usada tanto no auto-preenchimento
+// do Senador (forçaDoGrupo, mesma ideia) quanto na referência visível no
+// card do partido — pedido do usuário 25/08/2026: "ajudava a orientar a
+// quantidade de votos do partido na barra de 2026", tinha sumido do card.
+function votos2022DoGrupo(nomeGrupo) {
+  return String(nomeGrupo).split("/").reduce((s, sigla) => {
+    const ref = partido2022Ref(sigla.trim());
+    return s + (ref && Number(ref.votos2022) > 0 ? Number(ref.votos2022) : 0);
+  }, 0);
+}
+
 // Total de vagas do cargo ativo — 40 pra Dep. Estadual, 16 pra Dep. Federal,
 // 1 pro Senador (SC/2022). Vem de vagasFixasCargo (dados/estados/registro-2022.js),
 // nunca de pcState.palpiteEdicao: esse número é fixo por lei, não pode
@@ -6222,6 +6234,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     const vg = counts[gi] || 0;
     const vagasInd = vagasIndicadasDe(p, vg);
     const meta = vagasInd * qeProj;
+    const v2022 = votos2022DoGrupo(p.nome);
     const course = cursoBarraPartido(meta, soma, qeProj);
     // Mesmo corte de "Meta fechada" usado na notificação (notificacaoDep) —
     // reaproveitado aqui só pra acender a borda do card, pedido do usuário
@@ -6309,6 +6322,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
             <button type="button" data-dep-vaga-mais="${gi}">+</button>
           </div>
           ${meta > 0 ? `<span class="pc-dep-meta2">meta ${formatVotosCompacto(meta)}</span>` : ""}
+          ${v2022 > 0 ? `<span class="pc-dep-meta2 pc-dep-meta2-2022">2022: ${formatVotosCompacto(v2022)}</span>` : ""}
         </div>
       </div>
       ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course)}
