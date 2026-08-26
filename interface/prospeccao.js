@@ -116,7 +116,9 @@ let pcState = {
   desafioCriarBusca: "",
   desafioCriarSelecionados: null, // Set de chaves — só usado no modo "candidatos"
   desafioCriarVotos: null, // {chave: votos}
-  desafioCriarAmigoId: null,
+  desafioCriarAlvo: null, // {id, nome} — por código (migração 34) ou escolhido na lista de amigos
+  desafioCriarCodigoInput: "",
+  desafioCriarCodigoStatus: "",
   desafioCriarAmigos: null, // cache de listarAmigosParaDesafio()
   desafioStatus: "", // linha de status (erro/sucesso) das telas de desafio
 
@@ -4168,7 +4170,8 @@ async function renderDesafiosHub() {
   atualizarFarol();
   document.getElementById("pcBtnVoltarDesafios").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
   document.getElementById("pcBtnCriarDesafio").addEventListener("click", () => {
-    pcState.desafioCriarNome = ""; pcState.desafioCriarAmigoId = null;
+    pcState.desafioCriarNome = ""; pcState.desafioCriarAlvo = null;
+    pcState.desafioCriarCodigoInput = ""; pcState.desafioCriarCodigoStatus = "";
     pcState.desafioCriarCargo = null; pcState.desafioCriarModo = null;
     pcState.desafioCriarPartidoFiltro = null; pcState.desafioCriarBusca = "";
     pcState.desafioCriarSelecionados = new Set(); pcState.desafioCriarVotos = {};
@@ -4286,21 +4289,36 @@ async function renderCriarDesafio() {
         </div>` : ""}
 
       <label class="pc-campo-label">Quem você desafia</label>
-      ${amigos.length ? `<div class="pc-lobby-card" style="padding:4px 14px; margin-bottom:14px;">${amigos.map((a) => `
-        <label class="pc-amigo-op">
-          <input type="radio" name="pcDesafioAmigo" value="${a.id}" ${a.id === pcState.desafioCriarAmigoId ? "checked" : ""}>
-          <span class="pc-cedula-anel" style="width:16px; height:16px;"></span>
-          <span class="pc-duelo-avatar" style="width:28px; height:28px; font-size:10px;">${_iniciaisNome(a.nome)}</span>
-          <span style="flex:1; font-size:12.5px; font-weight:600;">${a.nome}</span>
-          <span style="font-size:10px; color:var(--pc-ink-dim);">${a.grupo}</span>
-        </label>`).join("")}</div>` : `<div class="pc-sub" style="margin-bottom:14px;">Você ainda não tem amigos num grupo — crie ou entre num grupo primeiro (Grupos, no Painel).</div>`}
+      ${pcState.desafioCriarAlvo ? `
+        <div class="pc-amigo-op" style="border-bottom:none; padding-left:0;">
+          <span class="pc-cedula-anel" style="width:16px; height:16px; border-color:var(--pc-accent); background:radial-gradient(circle at center, var(--pc-accent) 0 40%, transparent 45%);"></span>
+          <span class="pc-duelo-avatar eu" style="width:28px; height:28px; font-size:10px;">${_iniciaisNome(pcState.desafioCriarAlvo.nome)}</span>
+          <span style="flex:1; font-size:12.5px; font-weight:600;">${pcState.desafioCriarAlvo.nome}</span>
+          <button type="button" class="ghost" id="pcBtnTrocarAlvo" style="font-size:10.5px; padding:5px 10px;">Trocar</button>
+        </div>
+      ` : `
+        <div style="display:flex; gap:8px; margin-bottom:6px;">
+          <input class="cell" id="pcInputCodigoDesafio" placeholder="Código do usuário (SL-XXXXXX)" maxlength="9" value="${pcState.desafioCriarCodigoInput || ""}" style="flex:1;">
+          <button type="button" class="ghost" id="pcBtnBuscarCodigo" style="flex-shrink:0;">Buscar</button>
+        </div>
+        ${pcState.desafioCriarCodigoStatus ? `<div class="pc-sub" style="margin:-2px 0 10px;">${pcState.desafioCriarCodigoStatus}</div>` : ""}
+        ${amigos.length ? `
+          <div class="pc-sub" style="margin:10px 0 4px;">ou escolha alguém do seu grupo</div>
+          <div class="pc-lobby-card" style="padding:4px 14px; margin-bottom:14px;">${amigos.map((a) => `
+            <button type="button" class="pc-amigo-op" data-pc-alvo-amigo="${a.id}" data-pc-alvo-nome="${a.nome}" style="width:100%; background:none; border:none; border-bottom:1px solid var(--pc-glass-border); cursor:pointer; font-family:inherit;">
+              <span class="pc-cedula-anel" style="width:16px; height:16px;"></span>
+              <span class="pc-duelo-avatar" style="width:28px; height:28px; font-size:10px;">${_iniciaisNome(a.nome)}</span>
+              <span style="flex:1; font-size:12.5px; font-weight:600; text-align:left;">${a.nome}</span>
+              <span style="font-size:10px; color:var(--pc-ink-dim);">${a.grupo}</span>
+            </button>`).join("")}</div>` : ""}
+      `}
 
       <div class="pc-precinho">
         <span class="pc-precinho-txt">${custo === 0 ? `<b>Grátis</b> — ${gratis} desafio${gratis === 1 ? "" : "s"} restante${gratis === 1 ? "" : "s"} hoje.` : `Seus grátis acabaram — este desafio custa <b>10 SL</b>.`}</span>
         <span class="pc-precinho-val" style="${custo === 0 ? "color:var(--pc-accent);" : ""}">${custo === 0 ? "grátis" : "10 SL"}</span>
       </div>
 
-      <button class="primary" id="pcBtnEnviarDesafio" style="width:100%;" ${selecionados.length && amigos.length ? "" : "disabled"}>Enviar desafio</button>
+      <button class="primary" id="pcBtnEnviarDesafio" style="width:100%;" ${selecionados.length && pcState.desafioCriarAlvo ? "" : "disabled"}>Enviar desafio</button>
       <div class="pc-status" id="pcCriarDesafioStatus" style="margin-top:8px; min-height:12px;"></div>
     </div>`;
 
@@ -4330,9 +4348,29 @@ async function renderCriarDesafio() {
     else { pcState.desafioCriarSelecionados.delete(chave); delete pcState.desafioCriarVotos[chave]; }
     renderCriarDesafio();
   }));
-  document.querySelectorAll('input[name="pcDesafioAmigo"]').forEach((r) => r.addEventListener("change", () => {
-    pcState.desafioCriarAmigoId = r.value;
+  document.querySelectorAll("[data-pc-alvo-amigo]").forEach((btn) => btn.addEventListener("click", () => {
+    pcState.desafioCriarAlvo = { id: btn.getAttribute("data-pc-alvo-amigo"), nome: btn.getAttribute("data-pc-alvo-nome") };
+    renderCriarDesafio();
   }));
+  const btnTrocarAlvo = document.getElementById("pcBtnTrocarAlvo");
+  if (btnTrocarAlvo) btnTrocarAlvo.addEventListener("click", () => {
+    pcState.desafioCriarAlvo = null; pcState.desafioCriarCodigoStatus = "";
+    renderCriarDesafio();
+  });
+  const inputCodigo = document.getElementById("pcInputCodigoDesafio");
+  if (inputCodigo) inputCodigo.addEventListener("input", (e) => { pcState.desafioCriarCodigoInput = e.target.value; });
+  const btnBuscarCodigo = document.getElementById("pcBtnBuscarCodigo");
+  if (btnBuscarCodigo) btnBuscarCodigo.addEventListener("click", async () => {
+    const codigo = (document.getElementById("pcInputCodigoDesafio").value || "").trim();
+    if (!codigo) { pcState.desafioCriarCodigoStatus = "Digite um código."; renderCriarDesafio(); return; }
+    btnBuscarCodigo.disabled = true;
+    const r = await buscarUsuarioPorCodigo(codigo);
+    if (!r.ok) { pcState.desafioCriarCodigoStatus = r.mensagem; renderCriarDesafio(); return; }
+    if (r.usuario.id === pcState.perfil.id) { pcState.desafioCriarCodigoStatus = "Esse é o seu próprio código."; renderCriarDesafio(); return; }
+    pcState.desafioCriarAlvo = r.usuario;
+    pcState.desafioCriarCodigoStatus = "";
+    renderCriarDesafio();
+  });
   document.querySelectorAll("[data-pc-voto]").forEach((inp) => inp.addEventListener("input", () => {
     pcState.desafioCriarVotos[inp.getAttribute("data-pc-voto")] = inp.value;
   }));
@@ -4341,16 +4379,15 @@ async function renderCriarDesafio() {
   if (btnEnviar) btnEnviar.addEventListener("click", async () => {
     const nomeInput = document.getElementById("pcInputNomeDesafio");
     const nome = (nomeInput.value || "").trim();
-    const amigoSelecionado = document.querySelector('input[name="pcDesafioAmigo"]:checked');
     const status = document.getElementById("pcCriarDesafioStatus");
     if (!nome) { status.textContent = "Dê um nome pro duelo."; return; }
-    if (!amigoSelecionado) { status.textContent = "Escolha quem você desafia."; return; }
+    if (!pcState.desafioCriarAlvo) { status.textContent = "Escolha quem você desafia."; return; }
     if (!selecionados.length) { status.textContent = "Escolha ao menos 1 candidato."; return; }
     const escopo = selecionados.map((c) => ({ chave: c.chave, nome: c.nome, partido: c.partido }));
     const meusVotos = selecionados.map((c) => ({ chave: c.chave, votos: Number(pcState.desafioCriarVotos[c.chave]) || 0 }));
     btnEnviar.disabled = true;
     status.textContent = "Enviando…";
-    const r = await criarDesafio(amigoSelecionado.value, nome, pcState.estado, pcState.desafioCriarCargo, escopo, meusVotos);
+    const r = await criarDesafio(pcState.desafioCriarAlvo.id, nome, pcState.estado, pcState.desafioCriarCargo, escopo, meusVotos);
     if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; btnEnviar.disabled = false; return; }
     try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
     pcState.desafioCriarAmigos = null;

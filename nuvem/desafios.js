@@ -71,6 +71,16 @@ async function cancelarDesafio(desafioId) {
   return { ok: true };
 }
 
+// Resolve o código pessoal de alguém (o mesmo "Menu → Convidar amigos",
+// migração 26) pra {id, nome} — permite desafiar sem precisar estar no
+// mesmo grupo, migração 34.
+async function buscarUsuarioPorCodigo(codigo) {
+  const { data, error } = await supabaseClient.rpc("perfil_publico_por_codigo", { p_codigo: codigo });
+  if (error) return { ok: false, mensagem: error.message };
+  if (!data || !data.length) return { ok: false, mensagem: "Código não encontrado." };
+  return { ok: true, usuario: data[0] };
+}
+
 // Amigos pra listar na tela de criação: gente do(s) mesmo(s) grupo(s) do
 // usuário — reaproveita buscarMeusGrupos/buscarComparacaoGrupo já
 // existentes em nuvem/grupos.js, sem tabela nova de "amizade".
