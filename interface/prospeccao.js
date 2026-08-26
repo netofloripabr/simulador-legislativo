@@ -6258,8 +6258,6 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       candsOrd = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
       pcState.ordemCandidatosFixa[chaveOrdC] = candsOrd.map((c) => c.chave);
     }
-    const proximoNaNominata = candsOrd[vagasInd] ? nomeExibicao(candsOrd[vagasInd]) : "o próximo";
-    const orientacaoTxt = orientacaoNominata(vg, vagasInd, corte, soma, proximoNaNominata);
     const cands = aberto ? candsOrd.map((c, k) => {
       const cv = Number(c.votos) || 0;
       const cpct = E > 0 ? cv / E * 100 : 0;
@@ -6329,7 +6327,6 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <span class="pc-dep-notif-txt" data-normal="${escaparAtributoHtml(notificacaoDep(soma, meta, vagasInd, qeProj))}">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
         <button type="button" class="pc-dep-inf${infoAberto ? " aberto" : ""}" data-dep-info="${gi}" title="Detalhes do partido">i</button>
       </div>
-      ${orientacaoTxt ? `<div class="pc-dep-orientacao">${orientacaoTxt}</div>` : ""}
       ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.</div>` : ""}
       ${aberto ? `<div class="pc-dep-subpainel">
         <div class="pc-cmd-b22">
