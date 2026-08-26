@@ -1231,7 +1231,7 @@
 /* Meta do partido fechada (soma de votos indicados bate a meta das vagas
    marcadas) — borda verde suave pra identificar de relance quem já está
    pronto, pedido do usuário 25/08/2026. */
-#modoColaborativoWrap .pc-dep-card.pc-dep-card-completo{ border-color:rgba(52,232,74,.4); }
+#modoColaborativoWrap .pc-dep-card.pc-dep-card-completo{ border-color:rgba(52,232,74,.22); }
 /* Remanescentes 1.0 SEM override no tema Fader (auditoria de telas,
    22/08/2026): mini-cards (Minhas listas/Grupos/Ranking/Admin), trilho da
    barra do hero do Painel e os tooltips .info-tip/.tip-box ainda
@@ -1368,9 +1368,23 @@
   font-size:10px; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums;
   padding-right:2px;
 }
+/* Meta agora mora DENTRO da mesma caixa do stepper (pedido do usuário,
+   25/08/2026: "quando eu altero a projeção de vagas a meta seja
+   atualizada [visualmente junto]") — uma caixa só, número de vagas em
+   cima e a meta resultante embaixo, separadas por um traço fino. A
+   referência de 2022 continua FORA, abaixo, como contexto separado. */
+#modoColaborativoWrap .pc-dep-metabox{
+  display:flex; flex-direction:column; align-items:stretch;
+  background:#2C3239; border:1px solid #4D545C; border-radius:7px; overflow:hidden;
+}
+#modoColaborativoWrap .pc-dep-metabox .pc-dep-stepper{ border:none; background:none; }
+#modoColaborativoWrap .pc-dep-meta-inbox{
+  font-size:9.5px; font-weight:700; color:#AEB5BB; font-variant-numeric:tabular-nums;
+  text-align:center; padding:3px 6px 4px; border-top:1px solid #4D545C;
+}
 /* Referência de votação real de 2022 do partido — mais apagada que a
    meta (é contexto, não uma exigência), pedido do usuário 25/08/2026. */
-#modoColaborativoWrap .pc-dep-meta2-2022{ color:#5C6268; font-size:9.5px; }
+#modoColaborativoWrap .pc-dep-meta2-2022{ color:#5C6268; font-size:9.5px; padding-right:2px; }
 #modoColaborativoWrap .pc-dep-crow{ padding:14px 0 10px; border-top:1px solid #1E2226; }
 #modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:6px; }
 /* Posição na lista do partido (pedido do usuário, 24/08/2026) — discreto,

@@ -6316,12 +6316,14 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       <div class="pc-dep-l1" data-dep-toggle="${gi}">
         <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
         <div class="pc-dep-boxcol">
-          <div class="pc-dep-stepper" data-dep-stepper="${gi}">
-            <button type="button" data-dep-vaga-menos="${gi}">−</button>
-            <span data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}</span>
-            <button type="button" data-dep-vaga-mais="${gi}">+</button>
+          <div class="pc-dep-metabox">
+            <div class="pc-dep-stepper" data-dep-stepper="${gi}">
+              <button type="button" data-dep-vaga-menos="${gi}">−</button>
+              <span data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}</span>
+              <button type="button" data-dep-vaga-mais="${gi}">+</button>
+            </div>
+            ${meta > 0 ? `<span class="pc-dep-meta-inbox">meta ${formatVotosCompacto(meta)}</span>` : ""}
           </div>
-          ${meta > 0 ? `<span class="pc-dep-meta2">meta ${formatVotosCompacto(meta)}</span>` : ""}
           ${v2022 > 0 ? `<span class="pc-dep-meta2 pc-dep-meta2-2022">2022: ${formatVotosCompacto(v2022)}</span>` : ""}
         </div>
       </div>
