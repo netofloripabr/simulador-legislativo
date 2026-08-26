@@ -9111,10 +9111,10 @@ function renderModalSalvarDestino() {
   const rotuloSalvar = "Salvar";
   const confirmacao = pcState._destinoConfirmando && alvoSel ? `
     <div class="pc-slotb-confirm">
-      <div class="pc-slotb-confirm-q">Salvar por cima de <b>"${alvoSel.nome}"</b>?</div>
+      <div class="pc-slotb-confirm-q">Sobrepor <b>"${alvoSel.nome}"</b>?</div>
       <div class="pc-slotb-confirm-ops">
-        <button type="button" class="sim" id="pcSlotConfirmSim">SIM</button>
-        <button type="button" class="nao" id="pcSlotConfirmNao">NÃO</button>
+        <button type="button" class="ghost" id="pcSlotConfirmNao">Cancelar</button>
+        <button type="button" class="primary" id="pcSlotConfirmSim">Sobrepor</button>
       </div>
     </div>` : "";
   return `
