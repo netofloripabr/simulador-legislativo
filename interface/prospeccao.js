@@ -3023,6 +3023,11 @@ async function renderPainelPrincipal() {
 
     <div class="pc-lobby-menu-tit">Atalhos</div>
     <div class="pc-lobby-tiles">
+      <button class="pc-lobby-tile" id="pcMenuListas">
+        <span class="pc-lobby-tile-ic">${iconeSvg("lista", 24)}</span>
+        <span class="pc-lobby-tile-rot">Listas</span>
+        ${totalListas ? `<span class="pc-lobby-tile-badge">${totalListas}</span>` : ""}
+      </button>
       <button class="pc-lobby-tile" id="pcMenuMedias" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
         <span class="pc-lobby-tile-ic">${iconeSvg("termometro", 24)}</span>
         <span class="pc-lobby-tile-rot">Termômetro<br>eleitoral</span>
@@ -3074,6 +3079,7 @@ async function renderPainelPrincipal() {
   // mesmo destino do atalho "Listas", que é de onde se monta, revisa e
   // deposita a cédula.
   document.getElementById("pcBtnUrna").addEventListener("click", irParaListas);
+  document.getElementById("pcMenuListas").addEventListener("click", irParaListas);
   document.getElementById("pcBtnConvidarTopo").addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("grupo");
     pcState.subaba = "grupo"; renderAppColaborativo();
@@ -3531,6 +3537,7 @@ async function renderMinhasListas() {
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Salva em ${new Date(l.atualizadoEm).toLocaleDateString("pt-BR")}</div>
       </div>
       <div class="pc-ml-acoes">
+        <button type="button" class="pc-cmd-acao" data-pc-revisar-lista="${l.id}" title="Ver Revisão desta lista, mesmo incompleta">${iconeSvg("lista", 14)}</button>
         <button type="button" class="pc-cmd-acao" data-pc-depositar-lista="${l.id}" title="Depositar — vira sua cédula: trava e entra no ranking">${iconeSvg("ballot", 16)}</button>
         <button type="button" class="pc-cmd-acao pc-ml-excluir" data-pc-excluir-lista="${l.id}" data-pc-excluir-lista-nome="${escaparAtributoHtml(l.nome)}" title="Excluir a lista">${iconeSvg("lixeira", 14)}</button>
       </div>
@@ -3707,6 +3714,46 @@ async function renderMinhasListas() {
       if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
       else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
   };
+  // Atalho "Revisão" dentro do card (pedido do usuário, 26/08/2026): igual
+  // a abrirListaParaEdicao, mas SEM o redirecionamento pro cargo pendente —
+  // vai direto pra Revisão mesmo com a lista incompleta, pra dar uma
+  // conferida sem precisar terminar tudo primeiro.
+  const abrirListaParaRevisao = async (lista) => {
+      let cargosDaLista;
+      if (pcState.perfil) {
+        const completo = await carregarSalvamentoCompleto(lista.id);
+        if (!completo) return;
+        cargosDaLista = completo.cargos;
+      } else {
+        cargosDaLista = lista.palpitesPorCargo;
+      }
+      if (listaEhDaEraAntiga(cargosDaLista, pcState.estado)) {
+        pcState.avisoEdicaoStatus = `"${lista.nome}" foi salva numa versão antiga do elenco de candidatos e não pode mais ser editada nem depositada — os candidatos dela já não correspondem aos registrados pra 2026. Crie uma lista nova a partir do palpite atual.`;
+        renderMinhasListas();
+        return;
+      }
+      pcState.listaSalvaId = lista.id;
+      pcState.listaSalvaNome = lista.nome;
+      persistirListaAtivaLocal();
+      pcState.palpitesPorCargo = cargosDaLista;
+      if (pcState.palpitesPorCargo) {
+        CARGOS.forEach((c) => {
+          if (pcState.palpitesPorCargo[c.id]) {
+            const poolOficial = montarEstadoPalpite("assembleia", null, null, c.id, pcState.estado);
+            pcState.palpitesPorCargo[c.id] = podarGruposForaDoPool(pcState.palpitesPorCargo[c.id], poolOficial);
+          }
+        });
+      }
+      pcState.palpiteEdicao = pcState.palpitesPorCargo ? pcState.palpitesPorCargo[pcState.cargoAtivo] : null;
+      if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
+      else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
+  };
+  document.querySelectorAll("[data-pc-revisar-lista]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const lista = listas.find((l) => l.id === btn.getAttribute("data-pc-revisar-lista"));
+      if (lista) await abrirListaParaRevisao(lista);
+    });
+  });
   // Toque na lista inteira abre pra edição — antes era só pelo lápis
   // dedicado, que saiu (pedido do usuário, 24/08/2026: "não preciso
   // clicar no botão de editar"). O guard em .pc-ml-acoes evita que um

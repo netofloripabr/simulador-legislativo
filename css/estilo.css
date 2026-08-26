@@ -1401,10 +1401,13 @@
   font-variant-numeric:tabular-nums; line-height:1;
 }
 #modoColaborativoWrap .pc-dep-cpct small{ font-size:9px; font-weight:650; color:#8A9096; }
-#modoColaborativoWrap .pc-sen-slider-mini{ height:25px; margin-top:3px; }
-#modoColaborativoWrap .pc-sen-slider-mini .pc-sen-bar{ height:10px; border-radius:5px; }
+/* Fontes/barra do fader do candidato +20% (pedido do usuário 26/08/2026:
+   "quando abre no celular fica pequeno demais"). */
+#modoColaborativoWrap .pc-sen-slider-mini{ height:30px; margin-top:3px; }
+#modoColaborativoWrap .pc-sen-slider-mini .pc-sen-bar{ height:12px; border-radius:6px; }
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-ticks{ top:2px; bottom:2px; }
-#modoColaborativoWrap .pc-sen-slider-mini .pc-sen-grip{ width:9px; height:20px; border-radius:4px; }
+#modoColaborativoWrap .pc-sen-slider-mini .pc-sen-grip{ width:11px; height:24px; border-radius:5px; }
+#modoColaborativoWrap .pc-sen-slider-mini .pc-sen-votos{ font-size:11px; }
 #modoColaborativoWrap .pc-sen-chip.sobra{ background:#C6E62A; color:#3A2600; }
 #modoColaborativoWrap .pc-sen-chip.fora{ background:transparent; border:1px solid #2B2F33; color:#8A9096; }
 
@@ -1577,7 +1580,7 @@
 /* Referência histórica na linha do candidato (pedido de 18/08/2026): a
    votação real de 2022 de quem disputou, no tom apagado da identidade. */
 #modoColaborativoWrap .pc-dep-c2022{
-  font-size:10px; color:#6E757C; margin:0 0 1px; font-variant-numeric:tabular-nums;
+  font-size:12px; color:#6E757C; margin:0 0 1px; font-variant-numeric:tabular-nums;
 }
 
 /* Bolinha do interruptor: verde vivo quando o cargo está COMPLETO
@@ -1638,6 +1641,15 @@
   margin-left:9px; vertical-align:middle; position:relative; top:-2px;
 }
 #modoColaborativoWrap .pc-insta-mini:hover{ color:#D3D8DC; }
+/* O lápis de editar Instagram (.pc-mini-btn) é display:flex por padrão
+   (BLOCO) — dentro do nome do candidato isso quebrava linha e ele caía
+   solto embaixo em vez de ficar ao lado do ícone do Instagram (achado do
+   usuário, 26/08/2026). inline-flex resolve sem mexer no .pc-mini-btn
+   usado em outros lugares (topo da tela, ações do card). */
+#modoColaborativoWrap .pc-dep-cnm .pc-mini-btn,
+#modoColaborativoWrap .pc-sen-nm .pc-mini-btn{
+  display:inline-flex; vertical-align:middle; margin-left:4px; position:relative; top:-2px;
+}
 #modoColaborativoWrap .pc-dep-cl1{ gap:9px; }
 #modoColaborativoWrap .pc-sen-l1{ gap:10px; }
 
