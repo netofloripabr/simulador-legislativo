@@ -1,28 +1,50 @@
 # Conferência contra o RRC oficial — candidatos 2026 SC
 
-Gerado em 2026-08-22 por `ferramentas/conferir_rrc.py`. Cruza `sc-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-08-26 por `ferramentas/conferir_rrc.py`. Cruza `sc-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **672** confirmados, **0** divergência(s) de partido, **0** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **660** confirmados, **0** divergência(s) de partido, **15** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
 | Cargo | No RRC | No nosso arquivo | Confirmados (número+partido batem) |
 |---|---|---|---|
 | Governador | 8 | 10 | 9 |
-| Vice-Governador | 8 | 12 | 2 |
-| Senador | 13 | 16 | 15 |
-| Deputado Federal | 230 | 245 | 232 |
-| Deputado Estadual | 408 | 435 | 410 |
+| Vice-Governador | 8 | 11 | 1 |
+| Senador | 13 | 15 | 14 |
+| Deputado Federal | 231 | 242 | 227 |
+| Deputado Estadual | 409 | 435 | 405 |
 | Senador (1º suplente) | 13 | 19 | 2 |
 | Senador (2º suplente) | 13 | 15 | 2 |
 
 ## Divergências de partido
 
 Nenhuma — todo número que bate entre os dois arquivos também bate o partido.
+
+## Candidatos no RRC sem entrada correspondente no nosso arquivo
+
+Registrado oficialmente mas não achado por número em nenhuma ata processada — pode ser candidato que a ata não cobriu, ou número novo por retificadora que ainda não baixamos. Revisar manualmente antes de adicionar (ver `ferramentas/tratar_atas.py`).
+
+| Cargo | Número | Nome (RRC) | Coligação/Partido |
+|---|---|---|---|
+| Vice-Governador | 55 | CARLOS ALBERTO CHIODINI | SANTA CATARINA ACIMA DE TUDO |
+| Senador | 155 | ANTIDIO ALEIXO LUNELLI | SANTA CATARINA ACIMA DE TUDO |
+| Deputado Federal | 4033 | ALAN ALVES MOREIRA | PSB |
+| Deputado Federal | 7777 | CLEBER LUCIANO SANTANA | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
+| Deputado Federal | 5533 | EDIANE APARECIDA FOLLE | PSD |
+| Deputado Federal | 1414 | FELIPE BARCELLOS MONTE RASO | MISSÃO |
+| Deputado Federal | 7767 | GLENDA CATIUSSALA CABRERA DA SILVA BONI | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
+| Deputado Federal | 7020 | SADI MIGUEL RIBEIRO | AVANTE |
+| Deputado Estadual | 55100 | DIEGO MACHADO | PSD |
+| Deputado Estadual | 15180 | INAJARA RODRIGUES DOS SANTOS | MDB |
+| Deputado Estadual | 77773 | JANAINA SABINO MEDEIROS | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
+| Deputado Estadual | 25123 | JOAO BATISTA DA SILVA | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
+| Deputado Estadual | 45888 | KARINY NAIARA MULLER BRUM | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
+| Deputado Estadual | 20316 | LUCAS ALVES DE MELLO ROSA | PODE |
+| Deputado Estadual | 55007 | NEURI LUIZ MANTELLI | PSD |
 
 ## Sugestão de número (nosso arquivo tem `numero:null`, casado por nome com o RRC)
 
@@ -60,12 +82,3 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Senador (2º suplente) | Jacson Da Silva Dos Santos | 808 | 189-up-convencao.pdf |
 | Senador (2º suplente) | Wagner Luiz Betto | 161 | 347-pstu-convencao.pdf |
 
-
-## Decisões aplicadas (21-22/08/2026, com aval do usuário)
-
-- **8 números atualizados pelo RRC** (mesmo cargo): Alan Alves Moreira (PSB 4033), Cleber Santana (PRD/SOL 7777), Diego Machado (PSD 55100), Inajara Rodrigues (MDB 15180), Joao do Posto (PRD/SOL 25123), Karine Muller (PSDB/CID 45888), Lucas Melo (PODE 20316), Neuri Mantelli (PSD 55007).
-- **Sadi Miguel Ribeiro (AVANTE)**: Estadual 70111 → **Federal 7020** (registro oficial).
-- **Ediane Aparecida Folle (PSD)**: Estadual 55333 → **Federal 5533** (registro oficial; uma remoção por engano em 21/08 foi corrigida no mesmo dia).
-- **Neuri Luiz Mantelli (PSD, Estadual 55007): DESISTIU** — fica no elenco com `status:"desistencia"` (etiqueta branca + célula congelada, sem votos, sem pontos).
-
-*(Arquivo regenerado por `conferir_rrc.py` — esta seção precisa ser re-anexada após cada regeração; a história completa está nos commits.)*

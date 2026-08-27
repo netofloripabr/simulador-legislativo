@@ -2657,6 +2657,12 @@ async function montarAdminFinanceiro() {
 // tem de onde descobrir isso no banco (decisão do usuário, 24/08/2026).
 const ROTINAS_CONHECIDAS = [
   {
+    chave: "pesquisa-rrc-diaria",
+    nome: "Pesquisa diária do RRC (TSE, 27 UFs)",
+    descricao: "Baixa o Registro de Candidatura oficial do TSE pros 27 estados, cruza contra os provisórios e escreve os relatórios {uf}-2026-rrc-conferencia.md. Nunca altera os provisórios sozinha.",
+    programado: "Diária, sob pedido — roda quando alguém abre o TSE num navegador e dispara ferramentas/rrc_diario.py (o TSE bloqueia acesso automatizado desde 21/08).",
+  },
+  {
     chave: "atualizador-atas-sc-2026",
     nome: "Atualizador de atas (TSE, SC)",
     descricao: "Verifica ata nova ou retificadora de convenção partidária no TSE e atualiza dados/estados/sc-2026-provisorio.js pra revisão.",
@@ -2687,9 +2693,12 @@ async function montarAdminRotinas() {
   const historicoHtml = !execucoes.length
     ? estadoVazio({ icone: "calendario", titulo: "Nenhuma execução registrada", texto: "Quando uma rotina rodar, o histórico aparece aqui." })
     : `<div class="pc-lobby-card">${execucoes.map((e) => `
-      <div class="pc-lobby-linha">
-        <span style="font-size:12.5px; font-weight:600;">${e.rotina}</span>
-        <span style="font-size:11px; color:${e.sucesso ? "var(--pc-accent)" : "var(--pc-danger)"}; flex-shrink:0;">${e.sucesso ? "✓ ok" : "✗ falhou"} · ${new Date(e.executado_em).toLocaleString("pt-BR")}</span>
+      <div class="pc-lobby-linha" style="align-items:flex-start;">
+        <span style="min-width:0;">
+          <div style="font-size:12.5px; font-weight:600;">${e.rotina}</div>
+          ${e.detalhe ? `<div style="font-size:10.5px; color:var(--pc-ink-dim); margin-top:3px; line-height:1.5; word-break:break-word;">${e.detalhe}</div>` : ""}
+        </span>
+        <span style="font-size:11px; color:${e.sucesso ? "var(--pc-accent)" : "var(--pc-danger)"}; flex-shrink:0; text-align:right;">${e.sucesso ? "✓ ok" : "✗ falhou"}<br><span style="font-size:9.5px; color:var(--pc-ink-faint);">${new Date(e.executado_em).toLocaleString("pt-BR")}</span></span>
       </div>`).join("")}</div>`;
 
   return `
