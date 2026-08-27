@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RJ (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RJ/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RJ/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -112,9 +112,9 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 926-psd-executiva.pdf | PSD | não | 25 |
 | 962-pl-executiva.pdf | PL | não | 3 |
 
-Total de candidaturas: **2081** — confiança alta: **1958**, a revisar (partido não identificado): **123**
+Total de candidaturas: **2081** — confiança alta: **1958**, a revisar (partido não identificado): **15**
 
-Candidatos fictícios preservados (partido/cargo ainda sem ata real): **113** — ver `fonte:"ficticio"` no .js gerado.
+Candidatos fictícios preservados (partido/cargo ainda sem ata real): **71** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
@@ -1563,114 +1563,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **113** �
 - Número 45450 repetido em PSDB/CIDADANIA/Deputado Estadual para: Charles Rodrigues De Carvalho Scimmarella, Charles Rodrigues De Carvalho Sciammarella — conferir manualmente.
 - Número 45333 repetido em PSDB/CIDADANIA/Deputado Estadual para: Daniela Campos Leal Arrenque, Daniela Campos Leal Arregue — conferir manualmente.
 - Número 45800 repetido em PSDB/CIDADANIA/Deputado Estadual para: Etienne Mendonça Ciminelli, Rosilene Etiene Mendonça — conferir manualmente.
-- 123 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 15 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
-| Adelson Pereira Guedes | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Adriana De Fatima Boelho | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Amélia Leal De Almeida | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Anielle Francisco Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Antonio Carlos De Andrade | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Antonio Pereira Da Silva Lobao Filho | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Benedito Felix Guerra | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Benny Briolly Rosa Da Silva Santos | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Carlos Augusto Alves Santana | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Celso Pansera | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Crislaine Coelho Nascimento | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Danielle Nunes Rosa De Oliveira | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Diego Zeidan Cardoso Siqueira | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Dimas De Paiva Gadelha Junior | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Eduardo Carvalho Bandeira De Mello | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Elias Marco Khalil Jabbour | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Emerson Teixeira Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Fabiano Taques Horta | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Jandira Feghali | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| José Ricardo Tavares Corrêa | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Kevin Lopes Monteiro | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Leonardo Carneiro Monteiro Picciani | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Leonardo Martins Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Lourenço Do Vale Cavalcante | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Luciana Neri Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Luiz Lindbergh Farias Filho | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Maiara Felicio Da Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Marcelo Alves Pacheco | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Marcelo Ribeiro Freixo | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Marcia Helena Lobato Kaltner | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Maria Lucia Costa Silva | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Nísia Verônica Trindade Lima | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Orlando Mendes De Souza | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Paulo Vitor Xavier Santos | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Reimont Luiz Otoni Santa Barbara | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Rejane De Almeida | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Robercil Da Rocha Parreira | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Rodney Cezar De Albuquerque | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Rosimeri Da Silva Marongiu | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Rubens José França Bomtempo | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Sandro Alex De Oliveira Cezar | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Tainá Reis De Paula | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Valdomark Batista Tavares | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Wagner Paulo Correa Avellar | Deputado Federal | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Adilson Nogueira Pires | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Alex Sandra De Jesus Alves | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Allyson Da Silva Elias | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Ana Paula Dias Hirt | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Andre Del Pino Guerra Tavares | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Andre Luiz Ceciliano | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Andreia Almeida Zito Dos Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Antonio Araujo Ferreira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Brunnão Realleza Barreto Soares Oliveira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Bruno Costa Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Caroline Machado Ontiveros Cespedes | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Danieli Christovão Balbi | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Devaldo Marques De Almeida | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Durval Pereira Gomes Peçanha | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Edna Ferreira Calheiros Saraiva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Eduardo José Acosta Barbosa | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Elika Takimoto | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Erivaldo Pereira Alves | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Fabio Martins Dos Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Felipe Alves De Souza | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Galtier Da Silva Figueira Filho | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Hilder Rodrigues Dos Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Hudson Marques Da Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Igo Alencar De Menezes | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Indianarae Pereira Siqueira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Isaac Souza Da Silva Ricalde | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Jorge Antonio Da Silva Braga | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Jose Alexandre Almeida Da Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| João Panayotis Damatis | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Katia Maria Diniz Macillo | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Leonardo França Souza | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Leonel Querino Da Silva Neto | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Lilian Prates Belem Behring | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Lucia Marina Dos Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Maicon Silva Da Cruz | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Marcio Roberto Carvalho Matheus Filho | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Marco Aurélio De Souza Barreto | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Maria Das Graças Gomes Franco | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Maria Luiza De Souza Côrtes | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Mary Borges De Oliveira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Neusa Kunha Taqua Mendonca Martine | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Paulo Cesar Gonçalves Ladeira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Paulo Roberto Mustrangi De Oliveira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Raimundo Nonato Araujo De Figueiredo | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Raone Cassin Maia Ferreira | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Renato Da Costa Machado | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Ricardo Silva Santos | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Roliney Alves Soares | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Rosangela De Oliveira Zeidan | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Rose Cipriano Lapa | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Sebastião Wagner Berriel | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Thaysa Rodrigues De Azevedo Ventura | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Thiago Mothe Aguiar | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Veronica Dos Santos Lima | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Vinicios De Moraes Betiol | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Waldeck Carneiro Da Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| Wallace Pereira Da Silva | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
-| William De Almeida Macedo | Deputado Estadual | 1287-pt-pc-do-b-pv-retificadora.pdf |
 | Elaine Cristina Gonçalves Nogarol De Andrade | Vice-Governador | 1071-democrata-executiva.pdf |
 | Elaine Cristina Gonçalves Nogarol De Andrade | Vice-Governador | 1076-republicanos-executiva.pdf |
 | Douglas Ruas Dos Santos | Governador | 1867-pl-retificadora.pdf |
@@ -1680,18 +1578,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **113** �
 | Pedro Paulo Carvalho Teixeira | Senador | 1350-psd-executiva.pdf |
 | Miro Teixeira | Senador (1º suplente) | 1350-psd-executiva.pdf |
 | Sávio Luis Ferreira Neves Filho | Senador (2º suplente) | 1350-psd-executiva.pdf |
-| Alexander Mattoso Da Silva | Deputado Estadual | 1703-psdb-cidadania-executiva.pdf |
-| Ingrid Oliveira | Deputado Estadual | 1920-psol-rede-executiva.pdf |
-| Márcia Peixoto De Oliveira | Deputado Federal | 1980-pt-pc-do-b-pv-executiva.pdf |
 | Luiz Andre De Moura Monteiro | Vice-Governador | 2152-republicanos-executiva.pdf |
 | Luiz André De Moura Monteiro | Vice-Governador | 2202-democrata-executiva.pdf |
 | Savio Luiz Ferreira Neves Filho | Senador (2º suplente) | 688-psdb-cidadania-retificadora.pdf |
-| Jaime Albino Veloso | Deputado Estadual | 541-psol-rede-executiva.pdf |
 | Benedita Souza Da Silva Sampaio | Senador | 697-pt-pc-do-b-pv-convencao.pdf |
 | Manoel Severino Dos Santos | Senador (1º suplente) | 697-pt-pc-do-b-pv-convencao.pdf |
 | Kleber Lucas Costa | Senador (2º suplente) | 697-pt-pc-do-b-pv-convencao.pdf |
-| Fernanda Vieira De Souza | Deputado Federal | 800-psol-rede-executiva.pdf |
-| Leonardo Leal De Lima Soares | Deputado Estadual | 800-psol-rede-executiva.pdf |
 
 ## Status de confirmação
 

@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PR (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PR/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PR/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -85,7 +85,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 878-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 85 |
 | 893-mobiliza-convencao.pdf | MOBILIZA | não | 21 |
 
-Total de candidaturas: **1171** — confiança alta: **1125**, a revisar (partido não identificado): **46**
+Total de candidaturas: **1171** — confiança alta: **1125**, a revisar (partido não identificado): **35**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -643,7 +643,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** —
 - Número 1232 repetido em PDT/Deputado Federal para: Ari Antônio Alves Sobrinho, Josias Milani — conferir manualmente.
 - Número 12789 repetido em PDT/Deputado Estadual para: Roney Da Silva Santos, Roniy Da Silva Santos — conferir manualmente.
 - Número 12001 repetido em PDT/Deputado Estadual para: Lucineia Aparecida Fragoso, Gislaine Gonçalves — conferir manualmente.
-- 46 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 35 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -665,28 +665,18 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** —
 | Marcos Renato Baumgart | Senador (2º suplente) | 1529-psd-retificadora.pdf |
 | Mauricio Thadeu De Mello E Silva | Governador | 1355-pdt-convencao.pdf |
 | Michele Caputo Neto | Vice-Governador | 1355-pdt-convencao.pdf |
-| Darwin Takahiro Shiwaku | Deputado Federal | 1281-44-uniao-11-pp-executiva.pdf |
-| Dian Carlos De Barros Alves Ramos | Deputado Estadual | 1281-44-uniao-11-pp-executiva.pdf |
-| Michel Lee Giovanella | Deputado Estadual | 1281-44-uniao-11-pp-executiva.pdf |
 | Gleisi Helena Hoffmann | Senador | 1370-pt-pc-do-b-pv-executiva.pdf |
 | Assis Gurgacz Neto | Senador (1º suplente) | 1370-pt-pc-do-b-pv-executiva.pdf |
 | Aldair Tarcísio Rizzi | Senador (2º suplente) | 1292-pt-pc-do-b-pv-executiva.pdf |
-| Marcelly Maria Leder | Deputado Estadual | 1292-pt-pc-do-b-pv-executiva.pdf |
 | Florisvaldo Fier | Senador | 1370-pt-pc-do-b-pv-executiva.pdf |
 | Cristiane Aparecida Wainer | Senador (1º suplente) | 1370-pt-pc-do-b-pv-executiva.pdf |
 | Aldair Tarcisio Rizzi | Senador (2º suplente) | 1370-pt-pc-do-b-pv-executiva.pdf |
 | Celina Do Carmo Da Silva Wotcoski | Senador (2º suplente) | 1370-pt-pc-do-b-pv-executiva.pdf |
-| Bernna Wanessa Da Silva | Deputado Federal | 1560-psol-rede-retificadora.pdf |
-| Anderval Aparecido Costa Da Silva | Deputado Estadual | 1560-psol-rede-retificadora.pdf |
-| Crystopher Gabriel Matias E Silva | Deputado Estadual | 1560-psol-rede-retificadora.pdf |
-| Dino César De Mattos | Deputado Estadual | 1560-psol-rede-retificadora.pdf |
-| Sebastiana Antonia Da Silva | Deputado Estadual | 1560-psol-rede-retificadora.pdf |
 | Alexandre Maranhão Khoury | Senador | 1544-republicanos-retificadora.pdf |
 | Carlos Eduardo Hammerschimidt | Senador (1º suplente) | 1557-republicanos-retificadora.pdf |
 | Nelson Fernando Padovani | Senador (2º suplente) | 1557-republicanos-retificadora.pdf |
 | Alexandre Maranhao Khury | Senador | 1510-republicanos-retificadora.pdf |
 | Alexandre Maranhão Khury | Senador | 1557-republicanos-retificadora.pdf |
-| Cleilton Eduardo Vicente | Deputado Estadual | 1560-psol-rede-retificadora.pdf |
 | Maurício Thadeu De Mello E Silva | Governador | 859-pdt-retificadora.pdf |
 | Assis Gurgacz Neto | Senador (1º suplente) | 859-pdt-retificadora.pdf |
 | Florisvaldo Fier | Senador | 370-pt-pc-do-b-pv-convencao.pdf |
@@ -694,7 +684,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** —
 | Assis Gurgacz Neto | Senador (1º suplente) | 370-pt-pc-do-b-pv-convencao.pdf |
 | Cristiane Aparecida Wainer | Senador (1º suplente) | 370-pt-pc-do-b-pv-convencao.pdf |
 | Celina Do Carmo Da Silva Wotcoski | Senador (2º suplente) | 370-pt-pc-do-b-pv-convencao.pdf |
-| Jefferson Do Nascimento Da Silva | Deputado Estadual | 492-44-uniao-11-pp-executiva.pdf |
 
 ## Status de confirmação
 

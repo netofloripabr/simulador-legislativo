@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PE (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PE/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PE/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -76,7 +76,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 863-psol-rede-retificadora.pdf | PSOL/REDE | sim | 60 |
 | 913-mobiliza-convencao.pdf | MOBILIZA | não | 34 |
 
-Total de candidaturas: **1002** — confiança alta: **952**, a revisar (partido não identificado): **50**
+Total de candidaturas: **1002** — confiança alta: **952**, a revisar (partido não identificado): **22**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **63** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -644,7 +644,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **63** —
 - Número 1811 repetido em PSOL/REDE/Deputado Federal para: Sãnnchyllys Oliveira Da Silva, Sanchilles Oliveira Da Silva — conferir manualmente.
 - Número 130 repetido em PT/PC do B/PV/Senador para: Humberto Sérgio Costa Lima, Humbeto Sérgio Costa Lima — conferir manualmente.
 - Número 14 repetido em MISSÃO/Governador para: Lucas Xavier Bezerra Dos Santos, Renan Lúcio Sant'Anna Hallais — conferir manualmente.
-- 50 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 22 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -663,40 +663,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **63** —
 | Francisca Edjane Rodrigues De Figueiredo | Senador (2º suplente) | 1634-pdt-executiva.pdf |
 | João Henrique De Andrade Lima Campos | Governador | 1747-psb-retificadora.pdf |
 | Carlos Antonio Da Costa Cavalcanti Neto | Vice-Governador | 1747-psb-retificadora.pdf |
-| José Carlos Calheiros De Melo | Deputado Estadual | 1881-psol-rede-executiva.pdf |
-| Maria Magdalena Pimentel Cezario Paulino | Deputado Estadual | 1881-psol-rede-executiva.pdf |
 | Maria Dulcicleide Macedo Coelho Amorim | Senador (1º suplente) | 1994-psd-retificadora.pdf |
 | Marcelo Gomes Monteiro Luz | Senador (2º suplente) | 1994-psd-retificadora.pdf |
 | Humberto Sérgio Costa Lima | Senador | 194-pt-pc-do-b-pv-retificadora.pdf |
 | Luciano Caldas Bivar | Senador (1º suplente) | 194-pt-pc-do-b-pv-retificadora.pdf |
 | Abel Antonio Dos Santos Neto | Senador (1º suplente) | 1987-psb-executiva.pdf |
 | Francisca Edjane Rodrigues De Figueiredo | Senador (2º suplente) | 1987-psb-executiva.pdf |
-| Alexsandro Dias De Oliveira | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Antônio Mauro Da Costa | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Christianny Kelly Magalhães De Freitas | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Clayton Da Silva Marques | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Durvanice Gonçalo De Oliveira | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Edvaldo Silva Guerra | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Francisco Claudio De Lucena | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Francisco Eurico Da Silva | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Gabriella De Brito Silva | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Josenildo Coelho Teodoro | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Josenildo José Da Silva | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| José Carlos Ferreira Dos Santos | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| José Leonel Do Nascimento Neto | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| João Moraes Da Silva Filho | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Larissa Maria Caló Mesquita | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Marcos Antônio Peixoto De Siqueira Filho | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Marinalva Gonçalves De Souza | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Marivaldo Nascimento Souza | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Nancildo Luiz Da Silva | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Nelson Diniz Moura | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Patricia Lúcia De Souza Romão | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Rhayssa Alves Felipe Dos Santos | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Ricardo Pereira Pontes | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Ronaldo José Da Silva | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Rute Maria Da Conceição Silva | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
-| Sandro Gledson Campos Pereira | Deputado Federal | 2007-psdb-cidadania-executiva.pdf |
 | Marcelo Gomes Monteiro Luz | Senador (2º suplente) | 2030-avante-executiva.pdf |
 | Manoel Severino Moraes De Almeida | Senador (2º suplente) | 502-pt-pc-do-b-pv-executiva.pdf |
 | Humbeto Sérgio Costa Lima | Senador | 73-pt-pc-do-b-pv-convencao.pdf |

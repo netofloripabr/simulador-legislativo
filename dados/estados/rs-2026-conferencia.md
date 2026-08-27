@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RS (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RS/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RS/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -83,7 +83,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 977-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 19 |
 | 979-democrata-retificadora.pdf | DEMOCRATA | sim | 27 |
 
-Total de candidaturas: **1093** — confiança alta: **1063**, a revisar (partido não identificado): **30**
+Total de candidaturas: **1093** — confiança alta: **1063**, a revisar (partido não identificado): **28**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **57** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -810,7 +810,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **57** —
 - Número 55005 repetido em PSD/Deputado Estadual para: Gian Antônio Pedroso, Gian Antonio Pedroso — conferir manualmente.
 - Número 4070 repetido em PSB/Deputado Federal para: Gabriella Tomaschewski De Freitas, Aline Constantino Bento — conferir manualmente.
 - Número 2001 repetido em PODE/Deputado Federal para: Maico Primaz Volz, Katia Felipina Galimberti Brito — conferir manualmente.
-- 30 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 28 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -829,8 +829,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **57** —
 | Germano Antonio Rigotto | Senador | 1613-mdb-retificadora.pdf |
 | José Paulo Dornelles Cairoli | Senador (1º suplente) | 1613-mdb-retificadora.pdf |
 | Antonio Carlos Hohlfeldt | Senador (2º suplente) | 1613-mdb-retificadora.pdf |
-| Sandra Esteves De Melo | Deputado Federal | 1846-25-prd-77-solidariedade-executiva.pdf |
-| Tatiana Denise Moreira Pereira | Deputado Federal | 1846-25-prd-77-solidariedade-executiva.pdf |
 | Luciano Lorenzini Zucco | Governador | 700-pl-retificadora.pdf |
 | Ubiratan Antunes Sanderson | Senador | 700-pl-retificadora.pdf |
 | Ernani Mário Coelho Mello | Senador (2º suplente) | 700-pl-retificadora.pdf |

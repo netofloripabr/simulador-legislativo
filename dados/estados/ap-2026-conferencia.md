@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 AP (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AP/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AP/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -44,7 +44,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 854-republicanos-convencao.pdf | REPUBLICANOS | não | 24 |
 | 867-psb-convencao.pdf | PSB | não | 3 |
 
-Total de candidaturas: **337** — confiança alta: **321**, a revisar (partido não identificado): **16**
+Total de candidaturas: **337** — confiança alta: **321**, a revisar (partido não identificado): **13**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -189,15 +189,13 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 - Número 2772 repetido em DC/Deputado Federal para: Francisco Jeova Sá Da Silva, Francisco Jeova Sa Da Silva — conferir manualmente.
 - Número 2700 repetido em DC/Deputado Federal para: Hélio Flávio De Souza Lima, Wilguer Carvalho Da Silva, Helio Flavio De Souza Lima — conferir manualmente.
 - Número 2788 repetido em DC/Deputado Federal para: Rosinaldo Negrão Moreira, Rosinaldo Negrao Moreira — conferir manualmente.
-- 16 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 13 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
-| Clécio Luis Vilhena Vieira | Governador | 1751-44-uniao-11-pp-retificadora.pdf |
 | Antonio Pinheiro Teles Junior | Vice-Governador | 1751-44-uniao-11-pp-retificadora.pdf |
-| Alliny Sousa Da Rocha Serrao | Senador | 1751-44-uniao-11-pp-retificadora.pdf |
 | Jaime Domingues Nunes | Senador (1º suplente) | 1751-44-uniao-11-pp-retificadora.pdf |
 | Carlos Gabriel Andrade Nonato | Senador (1º suplente) | 1245-pdt-executiva.pdf |
 | Carlos Gabriel Andrade Nonato | Senador (1º suplente) | 1514-pt-pc-do-b-pv-executiva.pdf |
@@ -205,7 +203,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 | Miguel Roberto Nogueira Andrade | Senador (2º suplente) | 1751-44-uniao-11-pp-retificadora.pdf |
 | Antonio Pinheiro Teles Junior | Vice-Governador | 277-pdt-convencao.pdf |
 | Jaime Domingues Nunes | Senador (1º suplente) | 303-agir-convencao.pdf |
-| Natanael Da Silva Miranda | Deputado Federal | 508-pt-pc-do-b-pv-executiva.pdf |
 | Rayssa Cadena Furlan | Senador | 68-pode-convencao.pdf |
 | Antonia Ferreira Sullyvan | Senador (2º suplente) | 68-pode-convencao.pdf |
 | Jose Furlan Neto | Senador (1º suplente) | 68-pode-convencao.pdf |

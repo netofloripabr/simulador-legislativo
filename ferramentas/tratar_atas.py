@@ -207,11 +207,14 @@ def mapa_partido_por_nome_da_prosa(texto):
     return mapa
 
 
-def extrair_lista_estruturada(texto, arquivo, partido_doc):
+def extrair_lista_estruturada(texto, arquivo, partido_doc,
+                              mapa_numero_arquivo=None, partidos_arquivo=None):
     """Lê o anexo 'Lista de candidatos' de uma ata: fonte de confiança alta,
     formulário oficial por candidato, mesmo layout em todas as atas."""
     linhas = [l for l in texto.split("\n") if not RE_HASH_RODAPE.match(l)]
     mapa_partido_prosa = mapa_partido_por_nome_da_prosa(texto)
+    mapa_numero_arquivo = mapa_numero_arquivo or {}
+    partidos_arquivo = partidos_arquivo or []
 
     achados = []
     cargo_atual = None
@@ -245,9 +248,37 @@ def extrair_lista_estruturada(texto, arquivo, partido_doc):
                     nome_urna, numero_txt, genero = m_urna.groups()
                     numero = None if numero_txt.strip() == "-" else int(numero_txt.replace(".", ""))
                     nome_norm = re.sub(r"\s+", " ", nome_completo).strip().upper()
+                    # Cadeia de fontes do partido, da mais forte pra mais
+                    # fraca. As duas primeiras são o dado escrito na ata; as
+                    # duas últimas (03/09/2026) recuperam quem antes caía como
+                    # "SEM PARTIDO" — eram 1.250 candidatos (5,3% do país),
+                    # por cabeçalho de ata não reconhecido ou chapa coligada
+                    # cujo anexo não informa o partido individual. Nada aqui
+                    # INVENTA partido: o que nenhuma fonte resolver continua
+                    # None e sai no -conferencia.md pra revisão humana.
                     partido = None if coligado_atual else partido_doc
+                    origem_partido = "cabecalho" if partido else None
                     if partido is None:
                         partido = mapa_partido_prosa.get(nome_norm)
+                        if partido:
+                            origem_partido = "prosa"
+                    if partido is None and numero is not None:
+                        # prefixo do número escopado aos partidos DESTA ata —
+                        # globalmente "44" é ambíguo (UNIÃO/PP, PRTB, PMB),
+                        # mas dentro de uma ata "44-união-11-pp" só pode ser um.
+                        partido = mapa_numero_arquivo.get(str(numero)[:2])
+                        if partido:
+                            origem_partido = "numero"
+                    # Só pra NÃO coligado: numa chapa coligada o mesmo nome
+                    # (tipicamente suplente de Senador, que vem sem número)
+                    # é citado na ata de VÁRIOS partidos da coligação, e cada
+                    # uma carimbaria um partido diferente na mesma pessoa —
+                    # "Geraldo Wetzel Neto" saiu como PL, NOVO e AGIR ao mesmo
+                    # tempo no teste de SC. Sem número não há como saber qual
+                    # é: fica None e vai pro conferencia.md, que é honesto.
+                    if partido is None and not coligado_atual and len(partidos_arquivo) == 1:
+                        partido = partidos_arquivo[0]
+                        origem_partido = "arquivo"
                     achados.append({
                         "cargo": cargo_atual,
                         "ordem": int(ordem),
@@ -259,7 +290,13 @@ def extrair_lista_estruturada(texto, arquivo, partido_doc):
                         "coligado": coligado_atual,
                         "arquivoFonte": arquivo,
                         "partidoDocumento": partido_doc,
-                        "confianca": "alta" if partido else "media",  # sem partido = precisa revisar
+                        # alta  = partido escrito na ata (cabeçalho ou prosa)
+                        # media = recuperado por inferência (número/arquivo) —
+                        #         rastreável em origemPartido, revisável
+                        # baixa = nenhuma fonte resolveu; vai pro conferencia.md
+                        "confianca": ("alta" if origem_partido in ("cabecalho", "prosa")
+                                      else "media" if partido else "baixa"),
+                        "origemPartido": origem_partido,
                         "linhaFonte": f"{linha.strip()} / {linhas[j].strip()}",
                     })
                     i = j + 1
@@ -269,24 +306,104 @@ def extrair_lista_estruturada(texto, arquivo, partido_doc):
     return achados
 
 
+# Sufixos de nome de arquivo que NÃO são partido (tipo do documento e
+# contador de versão) — tirados antes de tentar ler a sigla do nome.
+RE_SUFIXO_ARQUIVO = re.compile(
+    r"-(executiva|retificadora|convencao|conven[çc]ão|ata|anexo|parte)(-\d+)?$"
+)
+
+
+def _slug(s):
+    """Normaliza pra comparação: sem acento, minúsculo, só letras/números."""
+    if not s:
+        return ""
+    sem_acento = unicodedata.normalize("NFD", s).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", "", sem_acento.lower())
+
+
+def partidos_do_nome_do_arquivo(arquivo, vocabulario):
+    """Lê o NOME do arquivo da ata atrás do(s) partido(s) que ela registra.
+
+    O nome já carrega essa informação em todas as atas baixadas — é a própria
+    origem do documento:
+        954-psol-rede-executiva.pdf        -> federação PSOL/REDE
+        978-44-união-11-pp-executiva.pdf   -> {44: UNIÃO, 11: PP}
+        1565-pdt-executiva.pdf             -> PDT
+
+    Devolve (mapa_prefixo_numero -> partido, lista_de_partidos_da_ata). O
+    `vocabulario` é {slug: nome_oficial}, montado com os partidos que o
+    cabeçalho de OUTRAS atas do mesmo estado já entregou — assim a sigla lida
+    do nome do arquivo vira o mesmo nome canônico usado no resto do projeto
+    (com acento e barra de federação), em vez de um chute reconstruído.
+    """
+    base = Path(arquivo).stem
+    base = re.sub(r"^\d+-", "", base)              # tira o id do documento
+    while True:                                     # tira sufixo(s) de tipo
+        novo = RE_SUFIXO_ARQUIVO.sub("", base)
+        if novo == base:
+            break
+        base = novo
+
+    mapa_numero, partidos = {}, []
+    # pares "NN-sigla" (ata de federação costuma listar os dois)
+    for numero, sigla in re.findall(r"(\d{2})-([a-zà-ÿ]+)", base):
+        nome = vocabulario.get(_slug(sigla))
+        if nome:
+            mapa_numero[numero] = nome
+            if nome not in partidos:
+                partidos.append(nome)
+    # o restante (sem número) — tenta o slug inteiro e depois pedaço a pedaço
+    resto = re.sub(r"\d{2}-[a-zà-ÿ]+", "", base).strip("-")
+    if resto:
+        nome = vocabulario.get(_slug(resto))
+        if nome and nome not in partidos:
+            partidos.append(nome)
+    return mapa_numero, partidos
+
+
 def tratar(atas_dir):
-    """Rotina 1: lê e extrai candidaturas de todos os PDFs do diretório."""
+    """Rotina 1: lê e extrai candidaturas de todos os PDFs do diretório.
+
+    Duas passadas: a primeira só lê o texto e o cabeçalho de cada ata pra
+    montar o VOCABULÁRIO de partidos daquele estado; a segunda extrai as
+    candidaturas já podendo usar esse vocabulário pra recuperar o partido de
+    quem o cabeçalho/prosa não resolveu (ver extrair_lista_estruturada).
+    """
     atas_dir = Path(atas_dir)
     pdfs = sorted(atas_dir.glob("*.pdf"))
     todas_candidaturas = []
     resumo_arquivos = []
 
+    # 1ª passada — texto + cabeçalho
+    lidos = []
+    vocabulario = {}
     for pdf in pdfs:
         texto = pdf_para_texto(pdf)
         partido_doc = extrair_titulo_partido(texto)
+        lidos.append((pdf, texto, partido_doc))
+        if partido_doc:
+            vocabulario.setdefault(_slug(partido_doc), partido_doc)
+            # membros de federação entram soltos também ("PSDB/CIDADANIA"
+            # dá acesso por "psdb" e por "cidadania"), que é como o nome do
+            # arquivo costuma escrever.
+            for parte in partido_doc.split("/"):
+                vocabulario.setdefault(_slug(parte), partido_doc)
+
+    # 2ª passada — candidaturas
+    for pdf, texto, partido_doc in lidos:
+        mapa_numero, partidos_arquivo = partidos_do_nome_do_arquivo(pdf.name, vocabulario)
         is_retificadora = "retificadora" in pdf.name.lower() or "RETIFICADORA" in texto[:300].upper()
-        candidaturas = extrair_lista_estruturada(texto, pdf.name, partido_doc)
+        candidaturas = extrair_lista_estruturada(
+            texto, pdf.name, partido_doc,
+            mapa_numero_arquivo=mapa_numero, partidos_arquivo=partidos_arquivo,
+        )
         for c in candidaturas:
             c["retificadora"] = is_retificadora
         todas_candidaturas.extend(candidaturas)
         resumo_arquivos.append({
             "arquivo": pdf.name,
             "partidoDetectado": partido_doc,
+            "partidosDoNomeDoArquivo": partidos_arquivo,
             "retificadora": is_retificadora,
             "candidaturasExtraidas": len(candidaturas),
         })
@@ -471,11 +588,37 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
 
     existente_por_cargo = ler_provisorio_existente(caminho_js)
 
+    # RRC PREVALECE SOBRE A ATA (03/09/2026). O registro oficial do TSE é a
+    # fonte mais forte que existe — mais forte que a ata de convenção, que é
+    # só o que o partido ANUNCIOU. Quando os dois divergem, a ata é que está
+    # desatualizada. Caso real (SC, 21/08/2026, corrigido com aval do
+    # usuário): "Sadi Ribeiro" e "Edi Folle" saíram na ata como Deputado
+    # Estadual, mas o RRC registrou os dois como Deputado FEDERAL. Sem esta
+    # regra o reprocessamento recriava a versão da ata e, somada à
+    # preservação por origem, a mesma pessoa passava a existir nos DOIS
+    # cargos ao mesmo tempo. Aqui a versão de ata é suprimida em qualquer
+    # cargo quando existe RRC pra mesma pessoa.
+    def _chave_pessoa(nome):
+        return _slug(nome)
+
+    pessoas_com_rrc = {}
+    for cargo_antigo, candidatos_antigos in existente_por_cargo.items():
+        for cand in candidatos_antigos:
+            fonte = (cand.get("fonte") or "").lower()
+            fonte_arquivo = (cand.get("fonteArquivo") or "").upper()
+            if fonte == "rrc" or fonte_arquivo.startswith("RRC"):
+                pessoas_com_rrc[_chave_pessoa(cand.get("nome"))] = cargo_antigo
+
     por_cargo = {}
     partidos_reais_por_cargo = {}
     ids_vistos = {}
+    suprimidos_por_rrc = []
     for c in sorted(resultado_verificar["candidaturasFinais"], key=lambda c: (c["cargo"], c["ordem"])):
         cargo = c["cargo"]
+        cargo_no_rrc = pessoas_com_rrc.get(_chave_pessoa(c["nome"]))
+        if cargo_no_rrc is not None:
+            suprimidos_por_rrc.append((c["nome"], cargo, cargo_no_rrc))
+            continue
         por_cargo.setdefault(cargo, [])
         base_partido = c["partido"] or c["partidoDocumento"] or "sem-partido"
         partidos_reais_por_cargo.setdefault(cargo, set()).add(base_partido)
@@ -512,7 +655,21 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
             # 16/08/2026) — preservar isso pra sempre faria esse residual
             # sobreviver a toda rodada futura, mesmo depois do bug corrigido
             # e a ata sendo processada com o partido certo.
-            if cand.get("partido") and cand.get("partido") not in partidos_ja_reais:
+            if not cand.get("partido"):
+                continue
+            # Preservação por ORIGEM (03/09/2026). A regra antiga era só
+            # "partido ainda sem ata processada", o que tratava igual duas
+            # coisas muito diferentes: o fictício de preenchimento (que DEVE
+            # sumir quando a ata real chega) e o candidato de RRC/inserção
+            # manual (registro OFICIAL do TSE, mais forte que a própria ata,
+            # que não pode sumir nunca). Com a regra antiga, quanto melhor o
+            # gerador ficava em reconhecer partido, mais candidato oficial
+            # ele apagava — perdemos "Felipe Barcellos Monte Raso" (MISSÃO,
+            # RRC 1414/SC) exatamente assim ao corrigir a leitura de partido.
+            fonte = (cand.get("fonte") or "").lower()
+            fonte_arquivo = (cand.get("fonteArquivo") or "").upper()
+            oficial = fonte == "manual" or fonte_arquivo.startswith("RRC")
+            if oficial or cand["partido"] not in partidos_ja_reais:
                 por_cargo[cargo].append(cand)
                 candidatos_preservados += 1
 
@@ -581,6 +738,17 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
         linhas_md.append("")
         linhas_md.append(f"Candidatos fictícios preservados (partido/cargo ainda sem ata real): "
                           f"**{candidatos_preservados}** — ver `fonte:\"ficticio\"` no .js gerado.")
+    if suprimidos_por_rrc:
+        linhas_md.append("")
+        linhas_md.append(f"### Versão da ata suprimida pelo RRC oficial ({len(suprimidos_por_rrc)})")
+        linhas_md.append("")
+        linhas_md.append("O registro oficial do TSE prevalece sobre a ata de convenção. "
+                         "A ata listava estes candidatos, mas o RRC já os registrou "
+                         "(às vezes em OUTRO cargo) — só a versão do RRC ficou no .js:")
+        linhas_md.append("")
+        for nome, cargo_ata, cargo_rrc in sorted(suprimidos_por_rrc):
+            mudou = " ⚠️ **mudou de cargo**" if cargo_ata != cargo_rrc else ""
+            linhas_md.append(f"- **{nome}** — ata: {cargo_ata} · RRC: {cargo_rrc}{mudou}")
     linhas_md.append("")
 
     if resultado_verificar["alertas"]:

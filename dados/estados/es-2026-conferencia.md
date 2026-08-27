@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 ES (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/ES/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/ES/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -74,7 +74,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 963-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 44 |
 | 972-pl-executiva.pdf | PL | não | 2 |
 
-Total de candidaturas: **633** — confiança alta: **603**, a revisar (partido não identificado): **30**
+Total de candidaturas: **633** — confiança alta: **603**, a revisar (partido não identificado): **26**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -338,7 +338,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 - Número 15155 repetido em MDB/Deputado Estadual para: Marluce Alves De Assis, Marluce Assis De Almeida — conferir manualmente.
 - Número 15400 repetido em MDB/Deputado Estadual para: Mayara Aparecida Moraes Eller Minino, Mayara Aparecida Moraes Eller Minimo — conferir manualmente.
 - Número 14 repetido em MISSÃO/Governador para: Breno Augusto Fagundes Barcelos, Victor Ricardo De Oliveira — conferir manualmente.
-- 30 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 26 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -352,18 +352,14 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 | Priscila De Souza Ramos | Senador (2º suplente) | 1543-25-prd-77-solidariedade-executiva.pdf |
 | Bruno Lourenço De Souza | Senador (1º suplente) | 1524-dc-executiva.pdf |
 | Priscila De Souza Ramos | Senador (2º suplente) | 1524-dc-executiva.pdf |
-| Antonio Elias Miranda Gomes | Senador (1º suplente) | 1601-psol-rede-executiva.pdf |
-| Wilson Jesus Lucas Junior | Senador (2º suplente) | 1601-psol-rede-executiva.pdf |
 | Ricardo De Rezende Ferraço | Governador | 1912-mdb-retificadora.pdf |
 | Camillo Augusto Marchezi De Oliveira Neves | Vice-Governador | 1912-mdb-retificadora.pdf |
 | Rosilda De Freitas | Senador | 1912-mdb-retificadora.pdf |
 | Wendel Santana Lima | Senador (1º suplente) | 1645-mdb-retificadora.pdf |
 | Elma Lagasse Santos Ribeiro | Senador (2º suplente) | 1645-mdb-retificadora.pdf |
-| Hildete Gomes De Souza | Deputado Estadual | 1658-pt-pc-do-b-pv-executiva.pdf |
 | Camillo Auqusto Marchezi De Oliveira Neves | Vice-Governador | 1687-mdb-executiva.pdf |
 | Erico Patricio Orletti | Senador (1º suplente) | 1912-mdb-retificadora.pdf |
 | Nubia Rocha Dos Passos | Senador (2º suplente) | 1912-mdb-retificadora.pdf |
-| Eduardo Marques Afonso | Deputado Estadual | 2200-psdb-cidadania-retificadora.pdf |
 | Eliane Leal Vieira | Vice-Governador | 1992-pl-executiva.pdf |
 | Dant Nicchio Sathler | Senador (1º suplente) | 2059-pl-executiva.pdf |
 | Eliane Leal Vieira | Vice-Governador | 2072-republicanos-executiva.pdf |

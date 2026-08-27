@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 DF (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/DF/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/DF/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -96,7 +96,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 92-psol-rede-convencao.pdf | PSOL/REDE | não | 36 |
 | 976-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 35 |
 
-Total de candidaturas: **679** — confiança alta: **643**, a revisar (partido não identificado): **36**
+Total de candidaturas: **679** — confiança alta: **643**, a revisar (partido não identificado): **23**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **36** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -394,7 +394,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **36** —
 - Número 27111 repetido em DC/Deputado Estadual para: Melissa Stephanea Ferreira Cavalcante, Agatha Cristina Nunes Lopes — conferir manualmente.
 - Número 222 repetido em PL/Senador para: Michelle De Paula Firmo Reinaldo Bolsonaro, Michelle De Paulla Firmo Reinaldo Bolsonaro — conferir manualmente.
 - Número 3535 repetido em DEMOCRATA/Deputado Federal para: Noely De Fátima Luiz De Morais, Laira Dos Santos Inácio — conferir manualmente.
-- 36 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 23 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -402,10 +402,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **36** —
 |---|---|---|
 | Leila Gomes De Barros Rêgo | Senador | 1721-pdt-executiva.pdf |
 | Cristian Ferreira Viana | Senador (2º suplente) | 1960-pl-executiva.pdf |
-| Bethania Kelly De Almeida Barbosa | Deputado Estadual | 1635-25-prd-77-solidariedade-executiva.pdf |
-| Elizalda Barbosa Dias | Deputado Estadual | 1635-25-prd-77-solidariedade-executiva.pdf |
 | Teresinha Monteiro Oliveira | Senador (2º suplente) | 1804-psol-rede-executiva.pdf |
-| Celina Leao Hizim Ferreira | Governador | 1997-44-uniao-11-pp-executiva.pdf |
 | Gustavo Do Vale Rocha | Vice-Governador | 1997-44-uniao-11-pp-executiva.pdf |
 | Leandro Antônio Grass Peixoto | Governador | 1890-pt-pc-do-b-pv-retificadora.pdf |
 | Erika Jucá Kokay | Senador | 1890-pt-pc-do-b-pv-retificadora.pdf |
@@ -422,19 +419,9 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **36** —
 | Giulia Eleonora Tadini | Senador (1º suplente) | 1988-pt-pc-do-b-pv-executiva.pdf |
 | Samuel Domingues | Senador (2º suplente) | 1988-pt-pc-do-b-pv-executiva.pdf |
 | Crsitian Ferreira Viana | Senador (2º suplente) | 2049-pode-executiva.pdf |
-| Everardo Alves Ribeiro | Vice-Governador | 2083-psdb-cidadania-executiva.pdf |
-| Paulo Augusto Pimenta Felicio Dos Santos | Senador | 2083-psdb-cidadania-executiva.pdf |
-| Luciana Brito Loureiro | Senador (1º suplente) | 2083-psdb-cidadania-executiva.pdf |
-| Antonio Eustaquio Corrêa Da Costa | Senador (2º suplente) | 2083-psdb-cidadania-executiva.pdf |
-| Diego Lucas Dos Reis Costa | Deputado Federal | 2195-25-prd-77-solidariedade-executiva.pdf |
-| André Da Costa Gouveia | Deputado Estadual | 2195-25-prd-77-solidariedade-executiva.pdf |
-| Ipaminona Rodrigues Da Silva | Deputado Estadual | 2195-25-prd-77-solidariedade-executiva.pdf |
 | Teresinha Monteiro Oliveira | Vice-Governador | 443-psol-rede-retificadora.pdf |
 | Giulia Eleonora Tadini | Senador (1º suplente) | 443-psol-rede-retificadora.pdf |
-| Raphael Sodré Cittadino | Senador (1º suplente) | 585-psol-rede-executiva.pdf |
-| Roberto Julio Ferreira | Deputado Estadual | 603-psol-rede-executiva.pdf |
 | Gustavo Do Vale Rocha | Vice-Governador | 614-republicanos-convencao.pdf |
-| Celina Leão Hizim Ferreira | Governador | 772-44-uniao-11-pp-convencao.pdf |
 | Michelle De Paulla Firmo Reinaldo Bolsonaro | Senador | 826-pl-convencao.pdf |
 
 ## Status de confirmação

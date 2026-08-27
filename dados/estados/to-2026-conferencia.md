@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 TO (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/TO/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/TO/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -60,7 +60,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 890-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 33 |
 | 896-psb-convencao.pdf | PSB | não | 9 |
 
-Total de candidaturas: **382** — confiança alta: **362**, a revisar (partido não identificado): **20**
+Total de candidaturas: **382** — confiança alta: **362**, a revisar (partido não identificado): **13**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **60** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -311,7 +311,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **60** —
 - Número 355 repetido em DEMOCRATA/Senador para: Osvani Pereira Da Luz, Osvany Pereira Da Luz — conferir manualmente.
 - Número 35111 repetido em DEMOCRATA/Deputado Estadual para: Eliane Muniz Gonçalves, Maria Goreth Da Silva Assuncao — conferir manualmente.
 - Número 22100 repetido em PL/Deputado Estadual para: Rafael Marçal Carvalho, Delaite Rocha Da Silva — conferir manualmente.
-- 20 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 13 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -324,18 +324,11 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **60** —
 | Vicente Alves De Oliveira Júnior | Governador | 2138-psdb-cidadania-retificadora.pdf |
 | Amélio Cayres De Almeida | Vice-Governador | 2138-psdb-cidadania-retificadora.pdf |
 | Atos Gomes De Araujo | Vice-Governador | 1614-republicanos-retificadora.pdf |
-| Daiane Lima | Deputado Federal | 1501-44-uniao-11-pp-executiva.pdf |
-| Márcio Antônio Barbosa De Mendonça | Deputado Federal | 1501-44-uniao-11-pp-executiva.pdf |
-| Roberlan Barbosa Da Silva | Deputado Federal | 1501-44-uniao-11-pp-executiva.pdf |
-| Leandro Caitano Dos Santos | Deputado Estadual | 1501-44-uniao-11-pp-executiva.pdf |
-| Lizonete Nunes Dos Reis | Deputado Estadual | 1501-44-uniao-11-pp-executiva.pdf |
-| Sandra Sousa Costa | Deputado Estadual | 2037-pt-pc-do-b-pv-executiva.pdf |
 | Laurez Rocha Moreira | Governador | 2246-psd-retificadora.pdf |
 | Julio Manoel Da Silva Neto | Vice-Governador | 2246-psd-retificadora.pdf |
 | Paulo Sardinha Mourão | Senador | 2163-pt-pc-do-b-pv-retificadora.pdf |
 | Antonio Savio Barbalho Do Nascimento | Senador (1º suplente) | 2163-pt-pc-do-b-pv-retificadora.pdf |
 | Marizangela Da Silva Carneiro Neto | Senador (2º suplente) | 2163-pt-pc-do-b-pv-retificadora.pdf |
-| Maria Auxiliadora Seabra Rezende | Governador | 536-44-uniao-11-pp-convencao.pdf |
 | Atos Gomes De Araújo | Vice-Governador | 536-44-uniao-11-pp-convencao.pdf |
 
 ## Status de confirmação

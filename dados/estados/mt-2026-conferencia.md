@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 MT (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MT/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MT/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -70,7 +70,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 982-mobiliza-convencao.pdf | MOBILIZA | não | 2 |
 | 985-psd-executiva.pdf | PSD | não | 1 |
 
-Total de candidaturas: **474** — confiança alta: **440**, a revisar (partido não identificado): **34**
+Total de candidaturas: **474** — confiança alta: **440**, a revisar (partido não identificado): **30**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **45** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -374,7 +374,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **45** —
 - Número 2707 repetido em DC/Deputado Federal para: Natanael Pereira Rocha, Natanael Pereira — conferir manualmente.
 - Número 22163 repetido em PL/Deputado Estadual para: Jane Delalibera, Ederson Dal Molin — conferir manualmente.
 - Número 1222 repetido em PDT/Deputado Federal para: Jadiel Sousa Santos, Marcelo Terra De Almeida — conferir manualmente.
-- 34 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 30 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -387,15 +387,11 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **45** —
 | Ana Cristina Silva Feldner Martins | Senador (1º suplente) | 1111-mdb-retificadora.pdf |
 | Ibrahim Zaher | Senador (2º suplente) | 2005-mdb-executiva.pdf |
 | Fábio Paulino Garcia | Vice-Governador | 1096-44-uniao-11-pp-convencao.pdf |
-| Margareth Gettert Busetti | Senador | 1096-44-uniao-11-pp-convencao.pdf |
-| Mauro Mendes Ferreira | Senador | 1096-44-uniao-11-pp-convencao.pdf |
 | José Aparecido Dos Santos | Senador (1º suplente) | 1096-44-uniao-11-pp-convencao.pdf |
 | Alencar Farina | Vice-Governador | 1246-pl-executiva.pdf |
 | Ederson Dal Molin | Senador (2º suplente) | 1246-pl-executiva.pdf |
 | Marcelo Benedito Maluf | Vice-Governador | 1383-novo-convencao.pdf |
 | Gisela Simona Viana De Souza | Vice-Governador | 1771-44-uniao-11-pp-executiva.pdf |
-| Fábio Paulino Garcia | Deputado Federal | 1771-44-uniao-11-pp-executiva.pdf |
-| Sandy De Paula Alves Mainardes | Deputado Federal | 1771-44-uniao-11-pp-executiva.pdf |
 | Reinaldo Gomes De Morais | Vice-Governador | 1949-novo-executiva.pdf |
 | Janaína Greyce Riva Fagundes | Senador | 2005-mdb-executiva.pdf |
 | Aluizo Lima Pereira | Senador (1º suplente) | 2005-mdb-executiva.pdf |

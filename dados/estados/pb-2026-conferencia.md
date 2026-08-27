@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PB (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PB/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PB/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -72,7 +72,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 965-pl-retificadora.pdf | PL | sim | 53 |
 | 968-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 13 |
 
-Total de candidaturas: **466** — confiança alta: **444**, a revisar (partido não identificado): **22**
+Total de candidaturas: **466** — confiança alta: **444**, a revisar (partido não identificado): **19**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **75** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -433,7 +433,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **75** —
 - Número 12123 repetido em PDT/Deputado Estadual para: Junio Leandro Azevedo De Macedo, Wagner Nasmineto De Aquino — conferir manualmente.
 - Número 5510 repetido em PSD/Deputado Federal para: Ivonete De Almeida De Andrade Ludgério, Jullyana Soares Ribeiro — conferir manualmente.
 - Número 400 repetido em PSB/Senador para: João Azêvedo Lins Filho, Joao Azevedo Lins Filho — conferir manualmente.
-- 22 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 19 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -448,17 +448,14 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **75** —
 | Nabor Wanderley Da Nóbrega Filho | Senador | 1491-republicanos-retificadora.pdf |
 | Daniella Velloso Borges Ribeiro | Senador (1º suplente) | 1491-republicanos-retificadora.pdf |
 | Renato Costa Feliciano | Senador (2º suplente) | 1491-republicanos-retificadora.pdf |
-| Lucas Ribeiro Novais De Araújo | Governador | 1462-44-uniao-11-pp-retificadora.pdf |
 | Daniellamvelloso Borges Ribeiro | Senador (1º suplente) | 1462-44-uniao-11-pp-retificadora.pdf |
 | Renato Costa Feliciano | Senador (2º suplente) | 1462-44-uniao-11-pp-retificadora.pdf |
 | Diogo Oliveira Cunha Lima | Vice-Governador | 2058-psd-retificadora.pdf |
 | Francisco De Assis Alves Freire | Senador (2º suplente) | 1662-mdb-retificadora.pdf |
-| Lucas Ribeiro Novais De Araujo | Governador | 1754-44-uniao-11-pp-executiva.pdf |
 | Ana Ligia Costa Feliciano | Vice-Governador | 1754-44-uniao-11-pp-executiva.pdf |
 | João Azêvedo Lins Filho | Senador | 1800-psb-retificadora.pdf |
 | Francisco Mendes Campos | Senador (1º suplente) | 1800-psb-retificadora.pdf |
 | Roberto Franca Gadelho | Senador (2º suplente) | 1800-psb-retificadora.pdf |
-| Aglair Pereira Da Silva | Deputado Federal | 1954-psol-rede-executiva.pdf |
 | João Cavalcanti Filho | Senador (2º suplente) | 1979-mdb-executiva.pdf |
 | Joao Azevedo Lins Filho | Senador | 627-psb-convencao.pdf |
 

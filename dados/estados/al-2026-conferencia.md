@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 AL (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AL/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AL/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -48,7 +48,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 935-pl-convencao.pdf | PL | não | 25 |
 | 994-democrata-convencao.pdf | DEMOCRATA | não | 9 |
 
-Total de candidaturas: **295** — confiança alta: **267**, a revisar (partido não identificado): **28**
+Total de candidaturas: **295** — confiança alta: **267**, a revisar (partido não identificado): **25**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **65** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -104,7 +104,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **65** —
 - Candidatura de Ivon Berto Tiburcio De Lima (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Marcelo Gouveia De Oliveira (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Número 2555 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Joana Darc Gomes De Oliveira, Joana Darc — conferir manualmente.
-- 28 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 25 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -121,8 +121,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **65** —
 | Sabino Fidelis De Moura | Senador (2º suplente) | 1100-mdb-convencao.pdf |
 | Luiz Romero Cavalcante Farias | Senador (1º suplente) | 2075-44-uniao-11-pp-executiva.pdf |
 | Celia Maria Barbosa Rocha | Senador (2º suplente) | 1323-44-uniao-11-pp-executiva.pdf |
-| Maria Nazaré Alves Oliveira | Deputado Estadual | 1323-44-uniao-11-pp-executiva.pdf |
-| Arthur Cesar Pereira De Lira | Senador | 2075-44-uniao-11-pp-executiva.pdf |
 | Gustavo Dantas Feijó | Senador (2º suplente) | 2075-44-uniao-11-pp-executiva.pdf |
 | João Henrique Holanda Caldas | Governador | 2077-psdb-cidadania-executiva.pdf |
 | Célia Maria Barbosa Rocha | Vice-Governador | 2077-psdb-cidadania-executiva.pdf |
@@ -134,7 +132,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **65** —
 | Gustavo Dias Henrique | Senador (1º suplente) | 2198-mdb-executiva.pdf |
 | Camila Renatha Paiva Barbosa Torres | Senador (2º suplente) | 2198-mdb-executiva.pdf |
 | Christiane Bulhões Barros Melo Silva | Senador (2º suplente) | 2198-mdb-executiva.pdf |
-| Arthur Cesar Pereira De Lira | Senador | 823-44-uniao-11-pp-convencao.pdf |
 | Alfredo Gaspar De Mendonça Neto | Senador | 935-pl-convencao.pdf |
 | Carina Diane Fort Amaral | Senador (1º suplente) | 935-pl-convencao.pdf |
 | José Antônio De Oliveira | Senador (2º suplente) | 935-pl-convencao.pdf |

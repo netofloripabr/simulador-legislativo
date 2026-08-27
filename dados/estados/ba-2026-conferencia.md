@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 BA (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/BA/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/BA/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -69,9 +69,9 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 906-mobiliza-retificadora.pdf | MOBILIZA | sim | 56 |
 | 925-psd-retificadora.pdf | PSD | sim | 1 |
 
-Total de candidaturas: **1237** — confiança alta: **1202**, a revisar (partido não identificado): **35**
+Total de candidaturas: **1237** — confiança alta: **1202**, a revisar (partido não identificado): **12**
 
-Candidatos fictícios preservados (partido/cargo ainda sem ata real): **59** — ver `fonte:"ficticio"` no .js gerado.
+Candidatos fictícios preservados (partido/cargo ainda sem ata real): **54** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
@@ -889,17 +889,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **59** —
 - Número 2744 repetido em DC/Deputado Federal para: Samantha Stefany Do Carmo Boudoux, Durval Queiroz Alves Neto — conferir manualmente.
 - Número 27123 repetido em DC/Deputado Estadual para: Marcos Antonio Dos Santos Souza, Marcos Antonio Dos Santos — conferir manualmente.
 - Número 50410 repetido em None/Deputado Estadual para: Emerson Carvalho Bulcãoaixao, Emerson Carvalho Bulcão Paixão — conferir manualmente.
-- 35 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 12 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
-| Arnaldo De Sousa Neves | Deputado Federal | 1512-25-prd-77-solidariedade-executiva.pdf |
-| João Vitor Cardoso Oliveira Santos | Deputado Federal | 1512-25-prd-77-solidariedade-executiva.pdf |
-| Maremilton De Jesus | Deputado Federal | 1512-25-prd-77-solidariedade-executiva.pdf |
-| Rita De Cassia Santos Cardoso | Deputado Federal | 1512-25-prd-77-solidariedade-executiva.pdf |
-| Antônio Carlos Peixoto De Magalhães Neto | Governador | 1583-44-uniao-11-pp-retificadora.pdf |
 | Zenildo Brandão Santana | Vice-Governador | 1583-44-uniao-11-pp-retificadora.pdf |
 | Jerônimo Rodrigues Souza | Governador | 1679-pt-pc-do-b-pv-retificadora.pdf |
 | Geraldo Alves Ferreira Junior | Vice-Governador | 1679-pt-pc-do-b-pv-retificadora.pdf |
@@ -909,27 +904,9 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **59** —
 | Ronaldo Carletto | Senador (1º suplente) | 1679-pt-pc-do-b-pv-retificadora.pdf |
 | Jailma Dantas Gama Alves | Senador (2º suplente) | 1679-pt-pc-do-b-pv-retificadora.pdf |
 | Maria Aladilce De Souza | Senador (2º suplente) | 1679-pt-pc-do-b-pv-retificadora.pdf |
-| Albry Alves Da Anunciação | Deputado Federal | 1772-25-prd-77-solidariedade-executiva.pdf |
-| João Marcos Leite Dultra | Deputado Federal | 1772-25-prd-77-solidariedade-executiva.pdf |
-| Lucinea Souza Cerqueira | Deputado Estadual | 1781-psdb-cidadania-executiva.pdf |
-| Marlene Martiniano Dos Santos | Deputado Estadual | 1781-psdb-cidadania-executiva.pdf |
-| Edilson Dos Santos Rocha | Deputado Estadual | 2013-pt-pc-do-b-pv-executiva.pdf |
-| José Geraldo De Sena | Deputado Estadual | 2013-pt-pc-do-b-pv-executiva.pdf |
-| Luciana Cerqueira Alves | Deputado Estadual | 2013-pt-pc-do-b-pv-executiva.pdf |
-| Rogério Feitosa Matos | Deputado Estadual | 2013-pt-pc-do-b-pv-executiva.pdf |
-| Antonio Jorge De Oliveira Birne | Deputado Federal | 2104-44-uniao-11-pp-executiva.pdf |
-| Paulo Cesar Pereira Dos Santos | Deputado Federal | 2104-44-uniao-11-pp-executiva.pdf |
-| Arthur Barbosa Dos Santos | Deputado Estadual | 2104-44-uniao-11-pp-executiva.pdf |
-| Analene Fonseca De Sousa | Deputado Estadual | 2185-25-prd-77-solidariedade-executiva.pdf |
-| Clebson Santos Silva | Deputado Estadual | 2185-25-prd-77-solidariedade-executiva.pdf |
-| Jackson Da Luz Simões | Deputado Federal | 2197-psol-rede-executiva.pdf |
-| Wanderson Pimenta Souza | Deputado Federal | 2197-psol-rede-executiva.pdf |
 | João Inácio Ribeiro Roma Neto | Senador | 285-pl-convencao.pdf |
 | Edvaldo Pereira De Brito | Senador (1º suplente) | 925-psd-retificadora.pdf |
 | Ronaldo Carletto | Senador (1º suplente) | 804-avante-executiva.pdf |
-| Emerson Carvalho Bulcãoaixao | Deputado Estadual | 885-psol-rede-executiva.pdf |
-| Maria Da Conceição Barreto Da Silva | Deputado Estadual | 904-psol-rede-retificadora.pdf |
-| Emerson Carvalho Bulcão Paixão | Deputado Estadual | 904-psol-rede-retificadora.pdf |
 
 ## Status de confirmação
 

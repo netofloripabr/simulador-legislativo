@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 MS (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MS/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MS/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -47,7 +47,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 791-dc-convencao.pdf | DC | não | 38 |
 | 971-pdt-convencao.pdf | PDT | não | 24 |
 
-Total de candidaturas: **460** — confiança alta: **428**, a revisar (partido não identificado): **32**
+Total de candidaturas: **460** — confiança alta: **428**, a revisar (partido não identificado): **21**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -131,7 +131,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 - Número 27789 repetido em DC/Deputado Estadual para: Flavia Argemiro De Almeida E Silva, Maria Isabela Oliveira Saldanha — conferir manualmente.
 - Número 27555 repetido em DC/Deputado Estadual para: Maria Ferreira Dos Santos, Cleide Ferreira De Oliveira — conferir manualmente.
 - Número 70300 repetido em AVANTE/Deputado Estadual para: Elizene Luciana Santos Gomes Martins, Isis Autiria Nogueira Francisco Da Cruz — conferir manualmente.
-- 32 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 21 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -141,16 +141,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 | Bruno Nascimento Migueis | Senador (1º suplente) | 103-psb-convencao.pdf |
 | Sandra Cardoso Martins Cassone | Senador (2º suplente) | 103-psb-convencao.pdf |
 | Geana Fernanda De Mesquita Da Rosa | Senador (2º suplente) | 1048-psb-executiva.pdf |
-| Fernando Da Silva Souza | Deputado Estadual | 1159-44-uniao-11-pp-executiva.pdf |
-| Juliana Aparecida Fleury Aranda | Deputado Estadual | 1159-44-uniao-11-pp-executiva.pdf |
-| Mariliana Santos Da Silva | Vice-Governador | 1798-25-prd-77-solidariedade-executiva.pdf |
-| Valter Juvenal De Oliveira | Senador | 1798-25-prd-77-solidariedade-executiva.pdf |
-| Adamário De Lana Gerling Júnior | Senador (2º suplente) | 1798-25-prd-77-solidariedade-executiva.pdf |
-| Paulo Cesar Alves | Deputado Federal | 1798-25-prd-77-solidariedade-executiva.pdf |
-| Sergio Eduardo Silveira Fahed | Deputado Federal | 1798-25-prd-77-solidariedade-executiva.pdf |
-| Almir Machado Guimarães | Deputado Estadual | 1798-25-prd-77-solidariedade-executiva.pdf |
-| Fernanda Coltre Breve | Deputado Estadual | 1798-25-prd-77-solidariedade-executiva.pdf |
-| Jose Andrade De Morais | Deputado Estadual | 1798-25-prd-77-solidariedade-executiva.pdf |
 | Fábio Ricardo Trad | Governador | 503-pt-pc-do-b-pv-retificadora.pdf |
 | Gilda Maria Gomes Dos Santos | Vice-Governador | 503-pt-pc-do-b-pv-retificadora.pdf |
 | Vander Luiz Dos Santos Loubet | Senador | 503-pt-pc-do-b-pv-retificadora.pdf |
@@ -163,7 +153,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 | Felipe Mattos De Lima Ribeiro | Senador (2º suplente) | 542-pl-convencao.pdf |
 | Luciano Medeiros Barbosa Rodrigues | Senador (2º suplente) | 542-pl-convencao.pdf |
 | Nelson Trad Filho | Senador (1º suplente) | 712-psd-convencao.pdf |
-| Eduardo Correa Riedel | Governador | 717-44-uniao-11-pp-convencao.pdf |
 | José Carlos Barbosa | Vice-Governador | 717-44-uniao-11-pp-convencao.pdf |
 | Cláudio George Mendonça | Senador (1º suplente) | 717-44-uniao-11-pp-convencao.pdf |
 | Felipe Mattos De Lima Ribeiro | Senador (2º suplente) | 717-44-uniao-11-pp-convencao.pdf |

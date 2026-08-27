@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-18.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
 // Ver dados/estados/ap-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -254,7 +254,7 @@ var CANDIDATOS_2026_AP_PROVISORIO = {
     { id:"novo-edileuza-rodrigues-pereira", nome:"Edileuza Rodrigues Pereira", nomeUrna:"Edileuza Rodrigues", numero:3099, partido:"NOVO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"129-novo-convencao.pdf" },
     { id:"missao-bruno-borges-lima", nome:"Bruno Borges Lima", nomeUrna:"Bruno Sarraf", numero:1415, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"534-missao-retificadora.pdf" },
     { id:"psol-rede-andrew-aurelio-pinto-de-almeida-costa", nome:"Andrew Aurelio Pinto De Almeida Costa", nomeUrna:"Andrew Costa", numero:5050, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"244-psol-rede-convencao.pdf" },
-    { id:"sem-partido-natanael-da-silva-miranda", nome:"Natanael Da Silva Miranda", nomeUrna:"Capitão N Miranda", numero:4390, partido:null, genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"508-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-natanael-da-silva-miranda", nome:"Natanael Da Silva Miranda", nomeUrna:"Capitão N Miranda", numero:4390, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"508-pt-pc-do-b-pv-executiva.pdf" },
     { id:"pl-elias-real-da-silva", nome:"Elias Real Da Silva", nomeUrna:"Elias Real", numero:2223, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1007-pl-retificadora.pdf" },
     { id:"novo-george-carlos-barbosa-santana", nome:"George Carlos Barbosa Santana", nomeUrna:"George", numero:3012, partido:"NOVO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"129-novo-convencao.pdf" },
     { id:"missao-israel-dos-santos-gomes", nome:"Israel Dos Santos Gomes", nomeUrna:"Israel Santos", numero:1400, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"534-missao-retificadora.pdf" },
@@ -375,19 +375,19 @@ var CANDIDATOS_2026_AP_PROVISORIO = {
     { id:"republicanos-ap-ficticio-75", nome:"Rafael Correia Brito", nomeUrna:"Rafael Brito", numero:4375, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
   ],
   "Governador": [
-    { id:"uniao-pp-clecio-luis-vilhena-vieira", nome:"Clécio Luis Vilhena Vieira", nomeUrna:"Clécio", numero:44, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
+    { id:"uniao-pp-clecio-luis-vilhena-vieira", nome:"Clécio Luis Vilhena Vieira", nomeUrna:"Clécio", numero:44, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
     { id:"dc-marcos-jose-reategui-de-souza", nome:"Marcos José Reategui De Souza", nomeUrna:"Marcos Reategui", numero:27, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1791-dc-retificadora.pdf" },
     { id:"pco-jairo-palheta-da-silva-marques", nome:"Jairo Palheta Da Silva Marques", nomeUrna:"Jairo Palheta", numero:29, partido:"PCO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1341-pco-convencao.pdf" },
     { id:"pstu-carlos-cley-ramos-paiva", nome:"Carlos Cley Ramos Paiva", nomeUrna:"Carlos Cley", numero:16, partido:"PSTU", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"686-pstu-convencao.pdf" },
     { id:"dc-marcos-jose-reategui-de-souza-2", nome:"Marcos Jose Reategui De Souza", nomeUrna:"Marcos Reategui", numero:27, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"760-dc-convencao.pdf" },
-    { id:"psd-antonio-paulo-de-oliveira-furlan", nome:"Antonio Paulo De Oliveira Furlan", nomeUrna:"Dr. Furlan", numero:55, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"83-psd-convencao.pdf" },
+    { id:"psd-antonio-paulo-de-oliveira-furlan", nome:"Antonio Paulo De Oliveira Furlan", nomeUrna:"Dr. Furlan", numero:55, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"83-psd-convencao.pdf" },
   ],
   "Senador": [
     { id:"mdb-acacio-da-silva-favacho-neto", nome:"Acácio Da Silva Favacho Neto", nomeUrna:"Acácio Favacho", numero:151, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2094-mdb-retificadora.pdf" },
     { id:"pt-pc-do-b-pv-randolph-frederich-rodrigues-alves", nome:"Randolph Frederich Rodrigues Alves", nomeUrna:"Randolfe Rodrigues", numero:130, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"259-pt-pc-do-b-pv-convencao.pdf" },
-    { id:"pode-rayssa-cadena-furlan", nome:"Rayssa Cadena Furlan", nomeUrna:"Rayssa Furlan", numero:200, partido:null, genero:"FEMININO", coligado:true, confianca:"media", fonteArquivo:"68-pode-convencao.pdf" },
+    { id:"pode-rayssa-cadena-furlan", nome:"Rayssa Cadena Furlan", nomeUrna:"Rayssa Furlan", numero:200, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"68-pode-convencao.pdf" },
     { id:"psb-joao-alberto-rodrigues-capiberibe", nome:"Joao Alberto Rodrigues Capiberibe", nomeUrna:"Capi", numero:401, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"867-psb-convencao.pdf" },
-    { id:"uniao-pp-alliny-sousa-da-rocha-serrao", nome:"Alliny Sousa Da Rocha Serrao", nomeUrna:"Aline Serrão", numero:444, partido:null, genero:"FEMININO", coligado:true, confianca:"media", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
+    { id:"uniao-pp-alliny-sousa-da-rocha-serrao", nome:"Alliny Sousa Da Rocha Serrao", nomeUrna:"Aline Serrão", numero:444, partido:"UNIÃO/PP", genero:"FEMININO", coligado:true, confianca:"media", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
     { id:"dc-joenilda-lobato-silva-lenzi", nome:"Joenilda Lobato Silva Lenzi", nomeUrna:"Juíza Jô", numero:277, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1791-dc-retificadora.pdf" },
     { id:"pco-helio-palheta-silva", nome:"Helio Palheta Silva", nomeUrna:"Helio Palheta", numero:290, partido:"PCO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1341-pco-convencao.pdf" },
     { id:"psd-luiz-cantuaria-barreto", nome:"Luiz Cantuaria Barreto", nomeUrna:"Lucas Barreto", numero:555, partido:"PSD", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"83-psd-convencao.pdf" },
@@ -406,13 +406,13 @@ var CANDIDATOS_2026_AP_PROVISORIO = {
     { id:"ptb-ap-ficticio-24", nome:"Larissa Correia Bezerra", nomeUrna:"Larissa Bezerra", numero:9624, partido:"PTB", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
   ],
   "Senador (1º suplente)": [
-    { id:"pdt-carlos-gabriel-andrade-nonato", nome:"Carlos Gabriel Andrade Nonato", nomeUrna:"Gabriel Andrade", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"1245-pdt-executiva.pdf" },
-    { id:"sem-partido-carlos-gabriel-andrade-nonato", nome:"Carlos Gabriel Andrade Nonato", nomeUrna:"Gabriel Andrade", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"1514-pt-pc-do-b-pv-executiva.pdf" },
-    { id:"agir-jaime-domingues-nunes", nome:"Jaime Domingues Nunes", nomeUrna:"Jaime Nunes", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"303-agir-convencao.pdf" },
+    { id:"pdt-carlos-gabriel-andrade-nonato", nome:"Carlos Gabriel Andrade Nonato", nomeUrna:"Gabriel Andrade", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1245-pdt-executiva.pdf" },
+    { id:"sem-partido-carlos-gabriel-andrade-nonato", nome:"Carlos Gabriel Andrade Nonato", nomeUrna:"Gabriel Andrade", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1514-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"agir-jaime-domingues-nunes", nome:"Jaime Domingues Nunes", nomeUrna:"Jaime Nunes", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"303-agir-convencao.pdf" },
     { id:"mdb-elisangela-do-socorro-moraes-bastos", nome:"Elisangela Do Socorro Moraes Bastos", nomeUrna:"Elisangela Timbiras", numero:null, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2094-mdb-retificadora.pdf" },
     { id:"psb-jose-ramalho-de-oliveira", nome:"Jose Ramalho De Oliveira", nomeUrna:"Ramalho", numero:null, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"867-psb-convencao.pdf" },
-    { id:"pode-jose-furlan-neto", nome:"Jose Furlan Neto", nomeUrna:"Neto Furlan", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"68-pode-convencao.pdf" },
-    { id:"uniao-pp-jaime-domingues-nunes", nome:"Jaime Domingues Nunes", nomeUrna:"Jaime Nunes", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
+    { id:"pode-jose-furlan-neto", nome:"Jose Furlan Neto", nomeUrna:"Neto Furlan", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"68-pode-convencao.pdf" },
+    { id:"uniao-pp-jaime-domingues-nunes", nome:"Jaime Domingues Nunes", nomeUrna:"Jaime Nunes", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
     { id:"pco-jarilom-rodrigues-sabajo", nome:"Jarilom Rodrigues Sabajo", nomeUrna:"Jarilom Sabajo", numero:null, partido:"PCO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1341-pco-convencao.pdf" },
     { id:"dc-gilberto-mauro-amanajas-pena", nome:"Gilberto Mauro Amanajás Pena", nomeUrna:"Gilberto Pena", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1280-dc-retificadora.pdf" },
     { id:"dc-helio-flavio-de-souza-lima-3", nome:"Hélio Flávio De Souza Lima", nomeUrna:"Hélio Flávio", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1791-dc-retificadora.pdf" },
@@ -420,24 +420,24 @@ var CANDIDATOS_2026_AP_PROVISORIO = {
     { id:"dc-tobias-laurindo", nome:"Tobias Laurindo", nomeUrna:"Tobias", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1791-dc-retificadora.pdf" },
   ],
   "Senador (2º suplente)": [
-    { id:"sem-partido-jessyca-sousa-da-silva", nome:"Jéssyca Sousa Da Silva", nomeUrna:"Jessyca Mais Saude", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"media", fonteArquivo:"1514-pt-pc-do-b-pv-executiva.pdf" },
-    { id:"pode-antonia-ferreira-sullyvan", nome:"Antonia Ferreira Sullyvan", nomeUrna:"Marlucia Sullyvan", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"media", fonteArquivo:"68-pode-convencao.pdf" },
+    { id:"sem-partido-jessyca-sousa-da-silva", nome:"Jéssyca Sousa Da Silva", nomeUrna:"Jessyca Mais Saude", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1514-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pode-antonia-ferreira-sullyvan", nome:"Antonia Ferreira Sullyvan", nomeUrna:"Marlucia Sullyvan", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"68-pode-convencao.pdf" },
     { id:"mdb-abdias-eduardo-pontes", nome:"Abdias Eduardo Pontes", nomeUrna:"Abdias", numero:null, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2094-mdb-retificadora.pdf" },
     { id:"psb-halda-maria-dos-santos-brandao", nome:"Halda Maria Dos Santos Brandão", nomeUrna:"Halda Brandão", numero:null, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"867-psb-convencao.pdf" },
     { id:"psd-diogo-brito-grunho", nome:"Diogo Brito Grunho", nomeUrna:"Diogo Grunho", numero:null, partido:"PSD", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"83-psd-convencao.pdf" },
     { id:"pco-jaziel-magalhaes-de-souza", nome:"Jaziel Magalhaes De Souza", nomeUrna:"Jaziel De Souza", numero:null, partido:"PCO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1341-pco-convencao.pdf" },
-    { id:"uniao-pp-miguel-roberto-nogueira-andrade", nome:"Miguel Roberto Nogueira Andrade", nomeUrna:"Pastor Miguel", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
+    { id:"uniao-pp-miguel-roberto-nogueira-andrade", nome:"Miguel Roberto Nogueira Andrade", nomeUrna:"Pastor Miguel", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
     { id:"dc-gilberto-mauro-amanajas-pena-2", nome:"Gilberto Mauro Amanajás Pena", nomeUrna:"Gilberto Pena", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1791-dc-retificadora.pdf" },
     { id:"dc-vilmar-laurindo", nome:"Vilmar Laurindo", nomeUrna:"Vilmar", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1791-dc-retificadora.pdf" },
     { id:"dc-wilguer-carvalho-da-silva-2", nome:"Wilguer Carvalho Da Silva", nomeUrna:"Wilguer Carvalho", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1280-dc-retificadora.pdf" },
   ],
   "Vice-Governador": [
-    { id:"pdt-antonio-pinheiro-teles-junior", nome:"Antonio Pinheiro Teles Junior", nomeUrna:"Teles Junior", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"277-pdt-convencao.pdf" },
-    { id:"uniao-pp-antonio-pinheiro-teles-junior", nome:"Antonio Pinheiro Teles Junior", nomeUrna:"Teles Jr.", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
+    { id:"pdt-antonio-pinheiro-teles-junior", nome:"Antonio Pinheiro Teles Junior", nomeUrna:"Teles Junior", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"277-pdt-convencao.pdf" },
+    { id:"uniao-pp-antonio-pinheiro-teles-junior", nome:"Antonio Pinheiro Teles Junior", nomeUrna:"Teles Jr.", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1751-44-uniao-11-pp-retificadora.pdf" },
     { id:"dc-cristina-de-sousa-araujo", nome:"Cristina De Sousa Araújo", nomeUrna:"Cristina Araújo", numero:null, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1791-dc-retificadora.pdf" },
     { id:"pco-iracelia-barbosa-rodrigues", nome:"Iracelia Barbosa Rodrigues", nomeUrna:"Iracelia Barbosa", numero:null, partido:"PCO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1341-pco-convencao.pdf" },
     { id:"pstu-ana-paula-pinheiro-de-araujo", nome:"Ana Paula Pinheiro De Araujo", nomeUrna:"Ana Paula Pinheiro", numero:null, partido:"PSTU", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"686-pstu-convencao.pdf" },
     { id:"dc-cristina-de-sousa-araujo-2", nome:"Cristina De Sousa Araujo", nomeUrna:"Cristina Araujo", numero:null, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"760-dc-convencao.pdf" },
-    { id:"psd-luciana-araujo-goes-gurgel", nome:"Luciana Araujo Goes Gurgel", nomeUrna:"Luciana Gurgel", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"media", fonteArquivo:"83-psd-convencao.pdf" },
+    { id:"psd-luciana-araujo-goes-gurgel", nome:"Luciana Araujo Goes Gurgel", nomeUrna:"Luciana Gurgel", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"83-psd-convencao.pdf" },
   ],
 };

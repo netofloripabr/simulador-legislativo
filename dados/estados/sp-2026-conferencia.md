@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 SP (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SP/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SP/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -85,7 +85,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 944-missao-retificadora.pdf | MISSÃO | sim | 128 |
 | 996-pdt-retificadora.pdf | PDT | sim | 104 |
 
-Total de candidaturas: **2691** — confiança alta: **2645**, a revisar (partido não identificado): **46**
+Total de candidaturas: **2691** — confiança alta: **2645**, a revisar (partido não identificado): **26**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **62** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -642,13 +642,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **62** —
 - Número 80123 repetido em UP/Deputado Estadual para: Lucas Santos Do Nascimento, Gustavo Ubata Alvarez Cordeiro De Matos — conferir manualmente.
 - Número 1293 repetido em PDT/Deputado Federal para: Osmar Fabricio Hess, Hebert Maximo Nunes — conferir manualmente.
 - Número 12002 repetido em PDT/Deputado Estadual para: Maria De Loudes Cavalcante Srour, Lucineide Cruz Alves — conferir manualmente.
-- 46 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 26 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
-| Guilherme Muraro Derrite | Senador | 1001-44-uniao-11-pp-executiva.pdf |
 | Julio Serson | Senador (2º suplente) | 1001-44-uniao-11-pp-executiva.pdf |
 | Andre Luis Do Prado | Senador | 1145-pl-retificadora.pdf |
 | Fernando Fiori De Godoy | Senador (1º suplente) | 1145-pl-retificadora.pdf |
@@ -656,14 +655,10 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **62** —
 | Felicio Ramuth | Vice-Governador | 1075-mdb-retificadora.pdf |
 | Antonio Fernandes Dos Santos Neto | Senador (2º suplente) | 1066-pdt-executiva.pdf |
 | Marcelo Fortes Barbieri | Senador (2º suplente) | 1066-pdt-executiva.pdf |
-| Alan Gomes Ferreira | Senador (2º suplente) | 1080-psdb-cidadania-executiva.pdf |
-| Jose Leandro Dos Reis Macedo | Deputado Estadual | 1080-psdb-cidadania-executiva.pdf |
 | Tarcísio Gomes De Freitas | Governador | 1085-republicanos-executiva.pdf |
 | Jose Vicente Santini | Senador (1º suplente) | 1085-republicanos-executiva.pdf |
 | Antônio Fernandes Dos Santos Neto | Senador (2º suplente) | 1110-psol-rede-executiva.pdf |
 | Marcelo Fortes Barbieri | Senador (2º suplente) | 1134-pt-pc-do-b-pv-executiva.pdf |
-| Danylo Amilcar Quirino Salvador | Deputado Estadual | 1110-psol-rede-executiva.pdf |
-| Guilherme Muraro Derrite | Senador | 113-44-uniao-11-pp-convencao.pdf |
 | Fernando Haddad | Governador | 1134-pt-pc-do-b-pv-executiva.pdf |
 | Marcio Luiz França Gomes | Vice-Governador | 1134-pt-pc-do-b-pv-executiva.pdf |
 | Djalma Nery Ferreira Neto | Senador (1º suplente) | 1134-pt-pc-do-b-pv-executiva.pdf |
@@ -674,24 +669,9 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **62** —
 | Laio Correia Morais | Senador (1º suplente) | 1345-psb-executiva.pdf |
 | Antônio Fernandes Dos Santos Neto | Senador (2º suplente) | 1345-psb-executiva.pdf |
 | Marcelo Fortes Barbieri | Senador (2º suplente) | 1345-psb-executiva.pdf |
-| André Luiz Costa De Oliveira | Deputado Federal | 1816-25-prd-77-solidariedade-executiva.pdf |
-| José Wanderley Kopczynski Barbosa Pedroso | Deputado Federal | 1816-25-prd-77-solidariedade-executiva.pdf |
-| Armando Ferreira Durães | Deputado Estadual | 1816-25-prd-77-solidariedade-executiva.pdf |
-| Carlos Alberto Fabrini | Deputado Estadual | 1816-25-prd-77-solidariedade-executiva.pdf |
-| Fabio Lopes Dos Santos | Senador (1º suplente) | 1961-psdb-cidadania-executiva.pdf |
-| Cleber Valadao Antunes | Deputado Estadual | 1961-psdb-cidadania-executiva.pdf |
-| Jaqueline Bueno Ignacio | Deputado Estadual | 1961-psdb-cidadania-executiva.pdf |
-| Ricardo Amantini Filho | Deputado Federal | 2214-44-uniao-11-pp-executiva.pdf |
-| Roberto Sebastiao Peternelli Junior | Deputado Federal | 2214-44-uniao-11-pp-executiva.pdf |
-| Tassio Renam Souza Botelho | Deputado Federal | 2214-44-uniao-11-pp-executiva.pdf |
 | Ana Claudia De Almeida Estima | Senador (1º suplente) | 260-pode-convencao.pdf |
 | Maria Osmarina Marina Da Silva Vaz De Lima | Senador | 299-psol-rede-convencao.pdf |
 | Djalma Nery Ferreira Neto | Senador (1º suplente) | 299-psol-rede-convencao.pdf |
-| Carlos Eduardo Ricatto | Deputado Federal | 427-44-uniao-11-pp-executiva.pdf |
-| Donizeti Florêncio De Lima | Deputado Federal | 427-44-uniao-11-pp-executiva.pdf |
-| Janaina Conceição Paschoal | Deputado Federal | 427-44-uniao-11-pp-executiva.pdf |
-| Milton Vieira | Deputado Estadual | 427-44-uniao-11-pp-executiva.pdf |
-| Rogério Alexandre Da Graça | Deputado Estadual | 427-44-uniao-11-pp-executiva.pdf |
 | Márcio Luiz França Gomes | Vice-Governador | 472-psb-convencao.pdf |
 | Simone Nassar Tebet Rocha | Senador | 472-psb-convencao.pdf |
 

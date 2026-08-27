@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 SE (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SE/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SE/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -52,7 +52,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 956-avante-executiva.pdf | AVANTE | não | 1 |
 | 967-pl-retificadora.pdf | PL | sim | 38 |
 
-Total de candidaturas: **416** — confiança alta: **386**, a revisar (partido não identificado): **30**
+Total de candidaturas: **416** — confiança alta: **386**, a revisar (partido não identificado): **28**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **47** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -273,7 +273,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **47** —
 - Número 70231 repetido em AVANTE/Deputado Estadual para: Manuela Gomes De Oliveira, Andriely Souza Brito — conferir manualmente.
 - Número 10079 repetido em REPUBLICANOS/Deputado Estadual para: Maria Cícera Dos Santos Monteiro Renovatto, Maria Cícera Dos Santos Monteiro Renovato — conferir manualmente.
 - Número 70888 repetido em AVANTE/Deputado Estadual para: Alexsandro Santos Dias, Alexsandro Lino Da Conceicao Silva — conferir manualmente.
-- 30 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 28 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -289,7 +289,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **47** —
 | Rogerio Carvalho Santos | Senador | 1268-pt-pc-do-b-pv-convencao.pdf |
 | Bruno Costa Nunes | Senador (1º suplente) | 1268-pt-pc-do-b-pv-convencao.pdf |
 | Fabiano Luis De Almeida Oliveira | Senador (2º suplente) | 1268-pt-pc-do-b-pv-convencao.pdf |
-| André Luis Dantas Ferreira | Senador | 2193-44-uniao-11-pp-retificadora.pdf |
 | Ricardo Vasconcelos Silva | Senador (1º suplente) | 2193-44-uniao-11-pp-retificadora.pdf |
 | Regina Selma França Cruz | Senador (2º suplente) | 2193-44-uniao-11-pp-retificadora.pdf |
 | Valmir Dos Santos Costa | Governador | 744-republicanos-retificadora.pdf |
@@ -301,7 +300,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **47** —
 | Maria Da Glória Gomes Sena | Senador (1º suplente) | 1616-pode-retificadora.pdf |
 | Marina Araújo Ferraz De Castro | Senador (2º suplente) | 1616-pode-retificadora.pdf |
 | Iris Lessy Santos Gomes | Senador (2º suplente) | 1766-republicanos-executiva.pdf |
-| Evandro Tadeu Fontes Silva | Deputado Federal | 2127-psdb-cidadania-executiva.pdf |
 | José Ricardo Marques Dos Santos | Governador | 967-pl-retificadora.pdf |
 | Salete Fernandes Da Silva | Vice-Governador | 967-pl-retificadora.pdf |
 | Henrique Alves Da Rocha | Senador | 967-pl-retificadora.pdf |

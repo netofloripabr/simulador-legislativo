@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RO (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RO/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RO/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -69,7 +69,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 975-psol-rede-convencao.pdf | PSOL/REDE | não | 21 |
 | 984-avante-retificadora.pdf | AVANTE | sim | 30 |
 
-Total de candidaturas: **473** — confiança alta: **426**, a revisar (partido não identificado): **47**
+Total de candidaturas: **473** — confiança alta: **426**, a revisar (partido não identificado): **33**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **55** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -389,7 +389,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **55** —
 - Número 1522 repetido em MDB/Deputado Federal para: Caio Eduardo Caseiro De Lima, Caio Eduardo Caseiro De Lima Machado — conferir manualmente.
 - Número 15152 repetido em MDB/Deputado Estadual para: Mara Luciana De Oliveira, Mara Luciana De Oliveira Santos — conferir manualmente.
 - Número 15789 repetido em MDB/Deputado Estadual para: Natanel Gomes Prestes, Natanel Costa Prestes — conferir manualmente.
-- 47 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 33 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -401,20 +401,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **55** —
 | Anderson Pereira Brito | Senador (1º suplente) | 1738-psd-retificadora.pdf |
 | Jonatas Luiz Da Silva Sales | Senador (2º suplente) | 1738-psd-retificadora.pdf |
 | Mariana Fonseca Ribeiro Carvalho De Moraes | Senador | 1132-republicanos-retificadora.pdf |
-| Hildon De Lima Chaves | Governador | 1505-44-uniao-11-pp-retificadora.pdf |
 | Elcirone Moreira Deiró | Vice-Governador | 1505-44-uniao-11-pp-retificadora.pdf |
-| Sílvia Cristina Amancio Chagas | Senador | 1505-44-uniao-11-pp-retificadora.pdf |
 | Marcelo Lucas Da Silva | Senador (1º suplente) | 1505-44-uniao-11-pp-retificadora.pdf |
 | Rodrigo Augusto Macedo Marinho | Senador (2º suplente) | 1505-44-uniao-11-pp-retificadora.pdf |
 | Acir Marcos Gurgacz | Senador | 1395-pdt-executiva.pdf |
 | Paulo Cesar Pires Andrade | Senador (1º suplente) | 1395-pdt-executiva.pdf |
 | Mario Jorge Sousa De Oliveira | Senador (2º suplente) | 1395-pdt-executiva.pdf |
-| Aires Mota De Almeida | Senador | 1878-pt-pc-do-b-pv-executiva.pdf |
-| Luciana De Oliveira E Silva | Senador | 1878-pt-pc-do-b-pv-executiva.pdf |
-| Ernesto Ferreira Dos Santos | Senador (1º suplente) | 1400-pt-pc-do-b-pv-executiva.pdf |
-| Raimundo Soares Da Costa | Senador (1º suplente) | 1878-pt-pc-do-b-pv-executiva.pdf |
-| Lazaro Elias Pereira | Senador (2º suplente) | 1400-pt-pc-do-b-pv-executiva.pdf |
-| Paulo Nunes Ribeiro | Senador (2º suplente) | 1878-pt-pc-do-b-pv-executiva.pdf |
 | Marcos Rogério Da Silva Brito | Governador | 1405-pl-executiva.pdf |
 | Rodrigo Camargo Ribeiro Pinho | Vice-Governador | 1405-pl-executiva.pdf |
 | Bruno Scheid | Senador | 1405-pl-executiva.pdf |
@@ -427,13 +419,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **55** —
 | Marcelo Rodrigues Correia | Senador (2º suplente) | 1629-44-uniao-11-pp-executiva.pdf |
 | Rodrigo Camargo Ribeiro Pinho | Vice-Governador | 467-pode-retificadora.pdf |
 | Sandra Maria Barreto De Moraes | Senador (1º suplente) | 467-pode-retificadora.pdf |
-| Antonio Masioli | Senador (1º suplente) | 1878-pt-pc-do-b-pv-executiva.pdf |
-| Lázaro Elias Pereira | Senador (2º suplente) | 1878-pt-pc-do-b-pv-executiva.pdf |
-| Leoncio Ribeiro Correa | Deputado Estadual | 1878-pt-pc-do-b-pv-executiva.pdf |
-| Silveria Martines | Deputado Estadual | 1878-pt-pc-do-b-pv-executiva.pdf |
 | Ricardo Lira Maia | Senador (2º suplente) | 1938-44-uniao-11-pp-executiva.pdf |
-| Fábio França Dos Santos | Deputado Estadual | 1938-44-uniao-11-pp-executiva.pdf |
-| Jaqueline Rocha Sales | Deputado Federal | 1962-psol-rede-executiva.pdf |
 | Rosangela Cipriano Dos Santos | Senador | 2045-psb-executiva.pdf |
 | Clarinda Nienke Ponciano | Senador (1º suplente) | 2045-psb-executiva.pdf |
 | Aires Mota De Almeida | Senador (2º suplente) | 2045-psb-executiva.pdf |

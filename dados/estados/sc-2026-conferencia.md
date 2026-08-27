@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 SC (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -71,9 +71,16 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 954-psol-rede-executiva.pdf | ? | não | 2 |
 | 978-44-união-11-pp-executiva.pdf | ? | não | 1 |
 
-Total de candidaturas: **742** — confiança alta: **692**, a revisar (partido não identificado): **50**
+Total de candidaturas: **742** — confiança alta: **692**, a revisar (partido não identificado): **23**
 
-Candidatos fictícios preservados (partido/cargo ainda sem ata real): **8** — ver `fonte:"ficticio"` no .js gerado.
+Candidatos fictícios preservados (partido/cargo ainda sem ata real): **13** — ver `fonte:"ficticio"` no .js gerado.
+
+### Versão da ata suprimida pelo RRC oficial (2)
+
+O registro oficial do TSE prevalece sobre a ata de convenção. A ata listava estes candidatos, mas o RRC já os registrou (às vezes em OUTRO cargo) — só a versão do RRC ficou no .js:
+
+- **Ediane Aparecida Folle** — ata: Deputado Estadual · RRC: Deputado Federal ⚠️ **mudou de cargo**
+- **Sadi Miguel Ribeiro** — ata: Deputado Estadual · RRC: Deputado Federal ⚠️ **mudou de cargo**
 
 ## Alertas automáticos
 
@@ -277,7 +284,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **8** — 
 - Número 144 repetido em MISSÃO/Senador para: Diego Santos Vieira, Edupercio Pratts, Túlio De Amorim Pfuetzenreiter — conferir manualmente.
 - Número 14001 repetido em MISSÃO/Deputado Estadual para: Cleiton Siqueira, Davi Daniel Da Conceição — conferir manualmente.
 - Número 55852 repetido em PSD/Deputado Estadual para: Vivian Cristine Quiquio, Neuri Luiz Mantelli — conferir manualmente.
-- 50 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 23 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -294,30 +301,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **8** — 
 | Geraldo Wetzel Neto | Senador (1º suplente) | 1533-agir-executiva.pdf |
 | Volnei Weber | Senador (1º suplente) | 1683-44-união-11-pp-executiva.pdf |
 | Eni José Voltolini | Senador (2º suplente) | 1683-44-união-11-pp-executiva.pdf |
-| Carlos Alberto Souza Bordin | Vice-Governador | 1810-25-prd-77-solidariedade-executiva.pdf |
-| Camila Guimaraes Moreira Zimmer | Senador (1º suplente) | 1810-25-prd-77-solidariedade-executiva.pdf |
-| Jeann Souza Lisboa | Senador (2º suplente) | 1810-25-prd-77-solidariedade-executiva.pdf |
-| Adriana Mazzucco Zanelato | Deputado Federal | 1810-25-prd-77-solidariedade-executiva.pdf |
-| Dinara Caroline De Oliveira | Deputado Federal | 1810-25-prd-77-solidariedade-executiva.pdf |
-| Lindameri De Oliveira Rodrigues | Deputado Federal | 1810-25-prd-77-solidariedade-executiva.pdf |
-| Edinelson Miranda | Deputado Estadual | 1810-25-prd-77-solidariedade-executiva.pdf |
-| Simone Katswinckel Da Silva | Deputado Federal | 1971-uniao-pp-retificadora.pdf |
-| Adriana Savi Fernandes | Deputado Estadual | 1971-uniao-pp-retificadora.pdf |
-| Priscila Dal Bosco | Deputado Estadual | 1971-uniao-pp-retificadora.pdf |
-| Rosangela Carminatti | Deputado Federal | 2066-prd-solidariedade-executiva-1.pdf |
-| Silvana Da Silva Silvano | Deputado Federal | 2066-prd-solidariedade-executiva-1.pdf |
-| Adelina Martins | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
-| Adriano Machado | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
-| Cassiana Bueno Da Silva | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
-| Joao Batista Sommer | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
-| Joelma Cardoso | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
-| Jorge Godinho Da Silva Junior | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
-| Luiz Renato Lucio | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
-| Maria Luiza Ferreira De Oliveira | Deputado Estadual | 2066-prd-solidariedade-executiva-1.pdf |
-| Marcos Rogerio Colares | Deputado Federal | 2201-prd-solidariedade-executiva-2.pdf |
-| Rafael Gomes Dos Santos | Deputado Estadual | 2201-prd-solidariedade-executiva-2.pdf |
 | Adriano Bornschein Silva | Vice-Governador | 487-novo-convencao.pdf |
-| Jovino Marques Gonçalves | Deputado Federal | 557-pt-pc-do-b-pv-executiva.pdf |
 | Jorginho Dos Santos Mello | Governador | 680-pl-convencao.pdf |
 | Adriano Bornschein Silva | Vice-Governador | 680-pl-convencao.pdf |
 | Carlos Nantes Bolsonaro | Senador | 680-pl-convencao.pdf |
@@ -327,12 +311,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **8** — 
 | Andrey Otavio Tomazi | Senador (2º suplente) | 680-pl-convencao.pdf |
 | Balduino Rodrigues Ferreira | Senador (2º suplente) | 680-pl-convencao.pdf |
 | João Rodrigues | Governador | 694-psd-convencao.pdf |
-| Esperidião Amin Helou Filho | Senador | 769-44-união-11-pp-convencao.pdf |
 | Clenilton Carlos Pereira | Senador (1º suplente) | 769-44-união-11-pp-convencao.pdf |
 | Genesio Moises Spillere | Senador (2º suplente) | 769-44-união-11-pp-convencao.pdf |
-| José Júlio Guahnon | Deputado Estadual | 954-psol-rede-executiva.pdf |
-| Simone Moredo | Deputado Estadual | 954-psol-rede-executiva.pdf |
-| José Napoleão Bonaparte Maia Rodrigues | Deputado Estadual | 978-44-união-11-pp-executiva.pdf |
 
 ## Status de confirmação
 

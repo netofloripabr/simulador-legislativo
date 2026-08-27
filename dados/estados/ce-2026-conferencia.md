@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 CE (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/CE/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/CE/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -69,9 +69,9 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 953-psd-retificadora.pdf | PSD | sim | 41 |
 | 989-novo-executiva.pdf | NOVO | não | 5 |
 
-Total de candidaturas: **788** — confiança alta: **643**, a revisar (partido não identificado): **145**
+Total de candidaturas: **788** — confiança alta: **643**, a revisar (partido não identificado): **20**
 
-Candidatos fictícios preservados (partido/cargo ainda sem ata real): **77** — ver `fonte:"ficticio"` no .js gerado.
+Candidatos fictícios preservados (partido/cargo ainda sem ata real): **48** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
@@ -345,7 +345,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **77** —
 - Número 30 repetido em NOVO/Governador para: Vera Lucia Da Silva, Pedro Felipe Pinheiro Brito — conferir manualmente.
 - Número 14 repetido em MISSÃO/Governador para: Felipe Silva Moreira, Huggo Leonardo De Lima Anastacio — conferir manualmente.
 - Número 44077 repetido em None/Deputado Estadual para: Izaura Soares Tavares, Izaura Tavares Soares — conferir manualmente.
-- 145 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 20 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -353,7 +353,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **77** —
 |---|---|---|
 | Rodrigo Antonio Paes De Andrade Lopes De Oliveira | Senador (2º suplente) | 1057-mdb-executiva.pdf |
 | Roberto Claudio Rodrigues Bezerra | Vice-Governador | 110-44-uniao-11-pp-convencao.pdf |
-| Wagner Sousa Gomes | Senador | 110-44-uniao-11-pp-convencao.pdf |
 | Ciro Ferreira Gomes | Governador | 112-psdb-cidadania-convencao.pdf |
 | Cid Ferreira Gomes | Senador | 1129-psb-executiva.pdf |
 | Antonio Luiz Rodrigues Mano Junior | Senador (1º suplente) | 1129-psb-executiva.pdf |
@@ -364,134 +363,10 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **77** —
 | Luizianne De Oliveira Lins | Senador | 1318-psol-rede-executiva.pdf |
 | Ciro Ferreira Gomes | Governador | 1329-psdb-cidadania-executiva.pdf |
 | Roberto Claudio Rodrigues Bezzerra | Vice-Governador | 1329-psdb-cidadania-executiva.pdf |
-| Altair Carlos Franco | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Brígida Lima Teixeira | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Carlos Eduardo Da Silva | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Davi Pereira Alves Leite | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Diana Maria Maciel Mano De Carvalho | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Edmir Pereira Martins Filho | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Elvilo Araújo De Oliveira | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Elvira Sandra Cavalcante Lima | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Endrigo Campos Resende | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Erinalda Gomes Saraiva Souza | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Francisco Antonio Pereira Gomes | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Francisco Arthur Lucas Saldanha | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Francisco Ubirajara Barbosa Da Silva | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Heverline De Moraes Silva | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| José Adail Carneiro Silva | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| José Lucas Alves Ferreira | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| José Sarto Nogueira Moreira | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Marco Antônio Barroso Prado | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Marcos Luã Almeida De Freitas | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Maria Vilani Almeida Costa | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Márcio Batista Barbosa | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Raimundo Gerson Dos Santos Lima | Deputado Federal | 1329-psdb-cidadania-executiva.pdf |
-| Andrea Maia Landim | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Andrea Rossati Farias Chaves | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Antônio Ayres Nogueira Júnior | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Antônio Henrique Da Silva | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Antônio Jairo Do Nascimento Freitas | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Carlos Aurélio Oliveira Gonçalves | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Cícero Joélio Pereira Lucas | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| David Santa Cruz Benevides | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Emanuella De Oliveira Alves Olinda | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Euvaldete Ferro Da Rocha Oliveira | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Felipe Aguiar Fonseca Da Mota | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Felipe Mikael Vasques Monteiro | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Francisco Claudio Pinto Pinho | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Francisco Eliomar Moreira Barbosa | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Francisco José Queiroz Maia Filho | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Francisco Jussier Baltazar Costa | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Heitor Correia Ferrer | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Henrique Mauro De Azevedo Porto Filho | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Jorge Luiz Cavalcante De Brito Pinheiro | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| José Liberalino De Menezes Neto | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| João Batista Gomes Mota | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| João Ribeiro Barroso Filho | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Lanna Rafaela Jucá Barrozo | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Leandro Sousa Da Silva | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Maria Christina Machado Publio | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Maria Emilia Pessoa De Lima Carneiro | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Maria Gorete Silva Nascimento | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Myrla Maria Pires De Assunção | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Ortuam Fideles De Albuquerque | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Pedro Queiroz Da Silva | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Reginauro Sousa Nascimento | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Tadeu Magela De Oliveira | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
-| Tatiane Da Silva Lima Pinto | Deputado Estadual | 1329-psdb-cidadania-executiva.pdf |
 | Alcides Fernandes Da Silva | Senador | 1379-pl-retificadora.pdf |
 | João Ribeiro Barroso | Senador (1º suplente) | 1379-pl-retificadora.pdf |
 | Jose Denisio Pinheiro | Senador (2º suplente) | 1379-pl-retificadora.pdf |
 | Roberto Claudio Rodrigues Bezerra | Vice-Governador | 813-44-uniao-11-pp-executiva.pdf |
-| Wagner Sousa Gomes | Senador | 846-44-uniao-11-pp-executiva.pdf |
-| Aloísio Antônio Gomes De Matos Brasil | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Antônio Jose Aguiar Albuquerque | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Bárbara Dantas Ferreira Albuquerque | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Carlos Matos Lima | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Carlos Mauro Benevides Filho | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Cinthia Belino Oliveira Da Costa | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Dayanna Monteiro Colaço | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Dayany Bittencourt Santil | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Francisco Danilo Bastos Forte | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Glaucianne Barbosa Aguiar | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Jose Gerardo Correa De Arruda | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| José De Araujo Dantas Filho | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Lucio Albuquerque Bruno Figueiredo | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Maria Cléa Ancilon Pereira Da Luz Neta | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Maria Fabia Brilhante Oliveira | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Moses Haendel Melo Spindola Rodrigues | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Noelio Da Rocha Oliveira | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Orleando Lima Silva | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Renata Coan Cuduh | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Robert Burns Moreira De Oliveira | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Rômulo Correia Férrer Filho | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Sâmila Braga Cavalcante | Deputado Federal | 663-44-uniao-11-pp-retificadora.pdf |
-| Abdias Filho Ximenes Gomes | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Abede Negro Da Silva Moreira | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Antonio Paulo Ferreira Lima | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Antonio Sérgio Freitas Rodrigues | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Ariza Pereira Da Silva Alencar | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Bruno Souza Benevides | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Carlos Augusto Santos Moreira E Silva | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Daniel Fontinele De Oliveira | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Danilo Oliveira Lima | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Davi Eriques Simão Da Silva | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Débora Lucia Lima Leite Mendes | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Flávio Antonio Holanda E Silva Martins | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Francisca Maria Dos Santos Cabral | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Francisco Antonio Dias Moura | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Francisco Das Chagas Martins Rocha | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Francisco Linhares Ponte Junior | Deputado Estadual | 468-44-uniao-11-pp-executiva.pdf |
-| Francisco Tiago Lima Dos Santos | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Francisco Werbet De Carvalho Silva | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Gliobel Correia Neto | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Hugo Gustavo Da Silva | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Ibernon Da Paz Monteiro | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Izaura Soares Tavares | Deputado Estadual | 468-44-uniao-11-pp-executiva.pdf |
-| Jamal Forte Carvalho | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| James Martins Pereira Barros | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Janayna Cassia De Alencar Lima | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| José Damoziel Alves Da Silva | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| José Irineu Silva Paz | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| José Jacome Carneiro Albuquerque | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Juliana Rodrigues De Oliveira | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Mabel De Carvalho Silva Portela | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Maria Aparecida Bezerra | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Maria Gislene Cabral Pereira | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Marlene Vieira Da Silva | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Moses Haendel Melo Rodrigues Filho | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Rejane Carneiro Holanda Bezerra | Deputado Estadual | 468-44-uniao-11-pp-executiva.pdf |
-| Rodolfo Basilio Madeira | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Rodrigo Cesar Baltazar Pinheiro Pinto | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Rosa Amélia Vale Noronha | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Rosa Maria De Andrade Camerino | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Thiago Campelo Nogueira | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Thiago Dantas Ferreira Lima | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Valdir Arruda Lopes | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Valdivino Lopes Trindade | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Carlos Ferreira Peixoto | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Izaura Tavares Soares | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
-| Sara Araújo De Morais | Deputado Estadual | 663-44-uniao-11-pp-retificadora.pdf |
 | Elmano De Fretas Da Costa | Governador | 705-pt-pc-do-b-pv-convencao.pdf |
 | Gabriella Pequeno Costa Gomes De Aguiar | Vice-Governador | 705-pt-pc-do-b-pv-convencao.pdf |
 | Prisco Rodrigues Bezerra | Senador (1º suplente) | 846-44-uniao-11-pp-executiva.pdf |

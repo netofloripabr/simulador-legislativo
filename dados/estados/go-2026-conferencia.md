@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 GO (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/GO/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/GO/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -90,7 +90,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 970-psd-convencao.pdf | PSD | não | 33 |
 | 993-44-uniao-11-pp-convencao.pdf | UNIÃO/PP | não | 60 |
 
-Total de candidaturas: **932** — confiança alta: **891**, a revisar (partido não identificado): **41**
+Total de candidaturas: **932** — confiança alta: **891**, a revisar (partido não identificado): **33**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -523,7 +523,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Número 27444 repetido em DC/Deputado Estadual para: Rosangela Alves Dos Santos Mendes, Natividade Alves De Oliveira — conferir manualmente.
 - Número 2730 repetido em DC/Deputado Federal para: Djalma Francisco De Sousa, Joao Carlos Dadalte Junior — conferir manualmente.
 - Número 20123 repetido em PODE/Deputado Estadual para: Elisa Maria Caetano Rosa, Elisa Maria Caetano — conferir manualmente.
-- 41 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 33 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -553,17 +553,9 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 | Luiz Otavio Do Nascimento | Senador (2º suplente) | 1758-psdb-cidadania-retificadora.pdf |
 | Carlos Gomes Cavalcante Mundim | Vice-Governador | 1750-pdt-retificadora.pdf |
 | Fernando Isaac Borges De Faria | Senador (1º suplente) | 1254-pdt-retificadora.pdf |
-| Goiano Sidney Da Costa | Deputado Estadual | 1321-pt-pc-do-b-pv-executiva.pdf |
-| Lucia Aparecida Tome | Deputado Estadual | 1321-pt-pc-do-b-pv-executiva.pdf |
-| Luiz Do Nascimento Carvalho | Deputado Estadual | 1321-pt-pc-do-b-pv-executiva.pdf |
 | Patrick De Noronha | Senador (2º suplente) | 1678-psol-rede-executiva.pdf |
-| Michella Rodrigues Pires Bandeira | Deputado Estadual | 1641-44-uniao-11-pp-executiva.pdf |
 | Cíntia Aparecida Dias | Senador | 1678-psol-rede-executiva.pdf |
 | Fernando Isaac Borges De Faria | Senador (2º suplente) | 1750-pdt-retificadora.pdf |
-| Vilma Héllem Da Costa Pereira | Deputado Estadual | 1752-pt-pc-do-b-pv-executiva.pdf |
-| Adelson Pereira De Moraes | Deputado Estadual | 1982-25-prd-77-solidariedade-executiva.pdf |
-| Gildevar Da Silva Souza | Deputado Estadual | 1982-25-prd-77-solidariedade-executiva.pdf |
-| Wiviane De Cassia Borges Spindola De Castro Gomes | Deputado Federal | 2074-25-prd-77-solidariedade-executiva.pdf |
 | Luis Cesar Bueno E Freitas | Governador | 855-pt-pc-do-b-pv-retificadora.pdf |
 | Cíntia Aparecida Dias | Senador | 808-psol-rede-convencao.pdf |
 | Patrick De Noronha | Senador (1º suplente) | 808-psol-rede-convencao.pdf |

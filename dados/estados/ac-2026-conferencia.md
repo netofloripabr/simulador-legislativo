@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 AC (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AC/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AC/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -70,7 +70,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 941-pl-convencao.pdf | PL | não | 31 |
 | 961-novo-executiva.pdf | NOVO | não | 0 |
 
-Total de candidaturas: **416** — confiança alta: **377**, a revisar (partido não identificado): **39**
+Total de candidaturas: **416** — confiança alta: **377**, a revisar (partido não identificado): **30**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **39** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -355,15 +355,13 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **39** —
 - Número 20099 repetido em PODE/Deputado Estadual para: Paulo Victor Farias Da Silva, Paulo Victor Faria Da Silva — conferir manualmente.
 - Número 10107 repetido em REPUBLICANOS/Deputado Estadual para: Cirlene Reino Da Silva, Elissonia Nascimento De Souza Santos — conferir manualmente.
 - Número 7033 repetido em AVANTE/Deputado Federal para: Nauan Da Costa Aragão Ferreira, Nauan Da Costa Aragão Freire, Nauan Da Costa Aragão Freires — conferir manualmente.
-- 39 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 30 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
-| Mailza Assis Cameli | Governador | 2212-44-uniao-11-pp-retificadora.pdf |
 | Jéssica Rojas Sales | Vice-Governador | 2212-44-uniao-11-pp-retificadora.pdf |
-| Gladson De Lima Cameli | Senador | 2212-44-uniao-11-pp-retificadora.pdf |
 | Beatriz Barroso Pardo De Cameli | Senador (1º suplente) | 2212-44-uniao-11-pp-retificadora.pdf |
 | Debora Nunes Da Silva | Senador (2º suplente) | 2212-44-uniao-11-pp-retificadora.pdf |
 | Sebastião Bocalom Rodrigues | Governador | 2210-psdb-cidadania-retificadora.pdf |
@@ -371,21 +369,14 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **39** —
 | Jorge Ney Viana Macedo Neves | Senador | 1718-pt-pc-do-b-pv-retificadora.pdf |
 | Arnobio Marques De Almeida Junior | Senador (1º suplente) | 1718-pt-pc-do-b-pv-retificadora.pdf |
 | Carla Ívane De Britto | Senador (2º suplente) | 1718-pt-pc-do-b-pv-retificadora.pdf |
-| Eduardo Ovidio Borges De Velloso Vianna | Senador | 2227-25-prd-77-solidariedade-retificadora.pdf |
 | Rejane Holanda De Velloso Vianna | Senador (1º suplente) | 2227-25-prd-77-solidariedade-retificadora.pdf |
 | Erivando Torquato Do Nascimento | Senador (2º suplente) | 2227-25-prd-77-solidariedade-retificadora.pdf |
-| Ana Paula Correia De Oliveira | Deputado Federal | 1845-25-prd-77-solidariedade-executiva.pdf |
-| Eliane Ferreira Lima | Deputado Estadual | 1845-25-prd-77-solidariedade-executiva.pdf |
-| Rafaella Rodrigues Vilaverde | Deputado Estadual | 1845-25-prd-77-solidariedade-executiva.pdf |
 | Jorge Ney Viana Macedo Neves | Senador | 1863-pt-pc-do-b-pv-executiva.pdf |
 | Francisco Ubiracy Machado De Vasconcelos | Senador (1º suplente) | 1863-pt-pc-do-b-pv-executiva.pdf |
 | Carla Ivane De Britto | Senador (2º suplente) | 1863-pt-pc-do-b-pv-executiva.pdf |
 | Maria Perpetuo Socorro Rodrigues De Souza | Vice-Governador | 1946-pode-retificadora.pdf |
 | Marcos Antonio Cavalcante Vitorino | Senador (1º suplente) | 2165-25-prd-77-solidariedade-executiva.pdf |
 | Fábio De Castro Barbosa | Senador (2º suplente) | 2165-25-prd-77-solidariedade-executiva.pdf |
-| Rejane Holanda De Velloso Vianna | Deputado Federal | 2165-25-prd-77-solidariedade-executiva.pdf |
-| Rauãn Vitor Lima Da Silva | Deputado Estadual | 2165-25-prd-77-solidariedade-executiva.pdf |
-| Renilda Rocha | Deputado Estadual | 2165-25-prd-77-solidariedade-executiva.pdf |
 | Sérgio De Oliveira Cunha | Senador | 868-psd-retificadora.pdf |
 | Marfisa De Lima Galvão | Senador (1º suplente) | 868-psd-retificadora.pdf |
 | Solino De Matos Filho | Senador (2º suplente) | 868-psd-retificadora.pdf |

@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 AM (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AM/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AM/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -64,7 +64,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 883-mdb-executiva.pdf | MDB | não | 3 |
 | 909-psd-executiva.pdf | PSD | não | 2 |
 
-Total de candidaturas: **513** — confiança alta: **462**, a revisar (partido não identificado): **51**
+Total de candidaturas: **513** — confiança alta: **462**, a revisar (partido não identificado): **15**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **74** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -350,7 +350,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **74** —
 - Número 3333 repetido em MOBILIZA/Deputado Federal para: Alice Mafra Cavalcante Reis Penafort, Tomás Igo Munoz Sanches — conferir manualmente.
 - Número 30000 repetido em NOVO/Deputado Estadual para: Monica Alves De Souza Mota, Nedy Santana Vale — conferir manualmente.
 - Número 30121 repetido em NOVO/Deputado Estadual para: Wando Fonteles Gomes, Andressa Franca Brasil — conferir manualmente.
-- 51 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 15 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -362,11 +362,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **74** —
 | Alessandro Bronze Toniza | Senador (1º suplente) | 1615-pl-retificadora.pdf |
 | Mário Bastos Dos Santos | Senador (2º suplente) | 1615-pl-retificadora.pdf |
 | Serafim Fernandes Corrêa | Vice-Governador | 1114-psb-executiva.pdf |
-| Roberto Maia Cidade Filho | Governador | 1515-44-uniao-11-pp-retificadora.pdf |
-| Wilson Miranda Lima | Senador | 1515-44-uniao-11-pp-retificadora.pdf |
 | Luís Mário Braga Bonates | Senador (1º suplente) | 1515-44-uniao-11-pp-retificadora.pdf |
 | Jose Tupinamba Ribeiro Ponte | Senador (2º suplente) | 1515-44-uniao-11-pp-retificadora.pdf |
-| Nicia Andrea Mota Medeiros | Deputado Estadual | 1928-44-uniao-11-pp-executiva.pdf |
 | David Antônio Abisai Pereira De Almeida | Governador | 292-avante-convencao.pdf |
 | Shádia Hussami Hauache Fraxe | Vice-Governador | 292-avante-convencao.pdf |
 | Carlos Eduardo De Souza Braga | Senador | 883-mdb-executiva.pdf |
@@ -374,39 +371,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **74** —
 | Miguel Capobiango Neto | Senador (2º suplente) | 883-mdb-executiva.pdf |
 | Omar José Abdel Aziz | Governador | 909-psd-executiva.pdf |
 | Alessandra Campelo Da Silva | Vice-Governador | 909-psd-executiva.pdf |
-| Isael Franklin Gonçalves | Governador | 767-psol-rede-executiva.pdf |
-| Leonardo Balbi Da Silva | Vice-Governador | 767-psol-rede-executiva.pdf |
-| Ismael Franklin Gonçalves | Senador | 767-psol-rede-executiva.pdf |
-| Maria Evany Do Nascimento | Senador | 767-psol-rede-executiva.pdf |
-| Laynara Cristina Leite Prestes | Senador (1º suplente) | 767-psol-rede-executiva.pdf |
-| Renan Nogueira Rotondano | Senador (1º suplente) | 767-psol-rede-executiva.pdf |
-| André Monteiro Da Silva | Senador (2º suplente) | 767-psol-rede-executiva.pdf |
-| Jander Dos Santos Muniz | Senador (2º suplente) | 767-psol-rede-executiva.pdf |
-| Antônio Marcos De Oliveira Apurinã | Deputado Federal | 767-psol-rede-executiva.pdf |
-| Evalcilene Costa Dos Santos | Deputado Federal | 767-psol-rede-executiva.pdf |
-| Luiz Andrade De Sousa | Deputado Federal | 767-psol-rede-executiva.pdf |
-| Maria Odimar Da Silva Guimarães | Deputado Federal | 767-psol-rede-executiva.pdf |
-| Natalia Demes Bezerra Tavares Pereira | Deputado Federal | 767-psol-rede-executiva.pdf |
-| Patrícia Barroso Veras | Deputado Federal | 767-psol-rede-executiva.pdf |
-| Valdenir Costa Soares | Deputado Federal | 767-psol-rede-executiva.pdf |
-| Welton Yudi Oda | Deputado Federal | 767-psol-rede-executiva.pdf |
-| Álex Sousa De Sá | Deputado Federal | 767-psol-rede-executiva.pdf |
-| Ailton Fernandes Rodrigues | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Danielle Delgado Gonçalves | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Francisco Jean Paz Morais | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Francisco Moraiare Romano | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Gilmara Corrêa Guimarães | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Humberto Valêncio Gomes | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Janaína Soares Dos Anjos | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| José Da Silva Oliveira | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Luiz Bezerra Corrêa | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Maria Raimunda Gomes | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Marinete De Sousa Moura | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Mauro Pereira Coelho | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Naldo Braga Mura | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Nelson Rocha Júnior | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Wladimir Medeiros Campos | Deputado Estadual | 767-psol-rede-executiva.pdf |
-| Yura Niwa Wani Ni Nawavo Marubo Comapa Franco | Deputado Estadual | 767-psol-rede-executiva.pdf |
 
 ## Status de confirmação
 

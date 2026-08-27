@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 MA (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MA/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MA/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -73,7 +73,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 950-psd-retificadora.pdf | PSD | sim | 36 |
 | 995-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 19 |
 
-Total de candidaturas: **627** — confiança alta: **591**, a revisar (partido não identificado): **36**
+Total de candidaturas: **627** — confiança alta: **591**, a revisar (partido não identificado): **26**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **78** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -494,7 +494,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **78** —
 - Número 2033 repetido em PODE/Deputado Federal para: Tharcianne Abreu Garcez Cavalcante, Tharcianne Abreu Gracez Cavalcante — conferir manualmente.
 - Número 1221 repetido em PDT/Deputado Federal para: Maria De Ribamar Farias, Sophia Hana Araujo Gomes — conferir manualmente.
 - Número 14 repetido em MISSÃO/Governador para: André Luis Caetano Dos Santos, Carlos Eduardo Sousa Aguiar — conferir manualmente.
-- 36 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 26 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -515,22 +515,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **78** —
 | Hilton Gonçalo De Sousa | Senador | 1525-mobiliza-retificadora.pdf |
 | Ester Alves Soares | Senador (1º suplente) | 1525-mobiliza-retificadora.pdf |
 | Carla Fernanda Do Rego Gonçalo | Senador (2º suplente) | 1525-mobiliza-retificadora.pdf |
-| André Luiz Carvalho Ribeiro | Senador | 1178-44-uniao-11-pp-convencao.pdf |
 | Fernando Antônio Brito Fialho | Senador (1º suplente) | 1178-44-uniao-11-pp-convencao.pdf |
 | Deniskley Abreu Barbosa | Senador (2º suplente) | 1178-44-uniao-11-pp-convencao.pdf |
 | Eduardo Salim Braide | Governador | 1590-psd-retificadora.pdf |
 | Elaine Cortez Carneiro | Vice-Governador | 1590-psd-retificadora.pdf |
 | Maurício Baggio Rizzi | Senador (1º suplente) | 1669-novo-executiva.pdf |
 | Francisco Santos Soares | Senador (2º suplente) | 1669-novo-executiva.pdf |
-| Eder Santos De Alencar | Deputado Federal | 1689-44-uniao-11-pp-executiva.pdf |
-| Janaiara Nascimento Costa | Deputado Estadual | 1848-25-prd-77-solidariedade-executiva.pdf |
-| José Eleonildo Soares | Deputado Estadual | 1848-25-prd-77-solidariedade-executiva.pdf |
-| Elson Santos Lima | Deputado Estadual | 1995-44-uniao-11-pp-executiva.pdf |
-| João Bastos Pinheiro | Deputado Estadual | 1995-44-uniao-11-pp-executiva.pdf |
-| Lindenberg Cunha Braga | Deputado Federal | 2023-psol-rede-executiva.pdf |
-| Marcos Antonio Felix Freitas | Deputado Estadual | 2023-psol-rede-executiva.pdf |
-| Fabricia Costa Silva | Deputado Estadual | 2102-44-uniao-11-pp-executiva.pdf |
-| Rossialdo Mendonça Mendes | Deputado Estadual | 2102-44-uniao-11-pp-executiva.pdf |
 | Weverton Rocha Marques De Sousa | Senador | 320-pdt-convencao.pdf |
 | Alderico Jefferson Abreu Da Silva Campos | Senador (1º suplente) | 320-pdt-convencao.pdf |
 | Renan Waynne Rego Reis | Senador (2º suplente) | 543-pdt-executiva.pdf |

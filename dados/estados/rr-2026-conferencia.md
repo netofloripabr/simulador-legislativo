@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RR (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RR/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RR/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -71,7 +71,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 939-pode-retificadora.pdf | PODE | sim | 34 |
 | 951-republicanos-convencao.pdf | REPUBLICANOS | não | 32 |
 
-Total de candidaturas: **486** — confiança alta: **416**, a revisar (partido não identificado): **70**
+Total de candidaturas: **486** — confiança alta: **416**, a revisar (partido não identificado): **35**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **81** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -360,7 +360,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **81** —
 - Número 7789 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Laudiceia De Holanda Da Silva, Jeferson Batista Moura — conferir manualmente.
 - Número 7722 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: José Marcelino Oliveira Pontes, Jose Marcelino Oliveira Pontes — conferir manualmente.
 - Número 7077 repetido em AVANTE/Deputado Federal para: Aluyzio Marques Brasil Neto, Aluyzio Brasil Neto — conferir manualmente.
-- 70 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 35 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -379,10 +379,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **81** —
 | Anne Caroliny Dantas Pereira | Senador (2º suplente) | 1162-psd-convencao.pdf |
 | Arthur Henrique Brandão Machado | Governador | 1160-pl-executiva.pdf |
 | Haroldo Alves Campos | Vice-Governador | 1160-pl-executiva.pdf |
-| Isamar Pessoa Ramalho | Senador | 1489-44-uniao-11-pp-retificadora.pdf |
 | Isamar Pessoa Ramalho Júnior | Senador (1º suplente) | 1489-44-uniao-11-pp-retificadora.pdf |
 | Jose Horácio Do Nascimento | Senador (2º suplente) | 1489-44-uniao-11-pp-retificadora.pdf |
-| Faradilson Reis De Mesquita | Governador | 1605-25-prd-77-solidariedade-retificadora.pdf |
 | Maria Teresa Saenz Surita Guimarães | Senador | 1397-mdb-executiva.pdf |
 | Luciana Surita Da Motta Macedo | Senador (2º suplente) | 1344-mdb-convencao.pdf |
 | Flávio Pércio Zacher | Senador (1º suplente) | 1397-mdb-executiva.pdf |
@@ -396,41 +394,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **81** —
 | Hilton Xavier De Araujo | Senador | 1806-avante-executiva.pdf |
 | Fernanda Macêdo Marques | Senador (1º suplente) | 1806-avante-executiva.pdf |
 | Cairon Rodrigo Corrêa Marques | Senador (2º suplente) | 1806-avante-executiva.pdf |
-| Isamar Pessoa Ramalho | Senador | 2000-44-uniao-11-pp-executiva.pdf |
 | Isamar Pessoa Ramalho Junior | Senador (1º suplente) | 2000-44-uniao-11-pp-executiva.pdf |
 | Ronaldo De Souza Damasceno | Senador (2º suplente) | 2000-44-uniao-11-pp-executiva.pdf |
-| Cintia Maria Do Carmo Feitosa | Deputado Federal | 2000-44-uniao-11-pp-executiva.pdf |
-| Edilson Damião Lima | Deputado Federal | 2000-44-uniao-11-pp-executiva.pdf |
-| Gabriel Mota E Silva | Deputado Federal | 2000-44-uniao-11-pp-executiva.pdf |
-| Gracinara Da Silva Teixeira | Deputado Federal | 2000-44-uniao-11-pp-executiva.pdf |
-| José Haroldo Figueiredo Campos | Deputado Federal | 2000-44-uniao-11-pp-executiva.pdf |
-| Leslie Valery Bantim Da Silva Simon | Deputado Federal | 2000-44-uniao-11-pp-executiva.pdf |
-| Raimundo Diniz Araújo | Deputado Federal | 2000-44-uniao-11-pp-executiva.pdf |
-| Stélio Dener De Souza Cruz | Deputado Federal | 2000-44-uniao-11-pp-executiva.pdf |
-| Angela Aguida Portella Alves | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Antônio Eduardo Filho | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Antônio Sérgio Nunes Cunha | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Catarina De Lima Guerra Da Silva | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Clemilda Pereira Dos Santos | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Emanoel Felipe Alencar Thomé | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Fernando Dalla Nora Filho | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Francisca Aurelina De Medeiros Lima | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Francisco Mozart Holanda Pinheiro | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Gabriel Figueira Pessoa Picanço | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Gerson Chagas | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Idazio Chagas De Lima | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Joilma Teodora De Araujo Silva | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Jorge Everton Barreto Guimaraes | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Jose Ricardo Barbosa De Brito | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Lucas De Souza Gonçalves | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Marcelo Mota De Macedo | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Maria Da Guia Sousa Mendes | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Maria De Nazaré Sodré Ramalho | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Maria Gorete Licá De Oliveira | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Martiniano Da Rocha Franco Neto | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Melquisedek Da Silva Menezes | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Noelia Alves Da Silva | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
-| Oleno Inacio De Matos | Deputado Estadual | 2000-44-uniao-11-pp-executiva.pdf |
 | Leônidas Silva Morais | Senador (1º suplente) | 2056-psdb-cidadania-retificadora.pdf |
 | Edinaldo De Souza Barreira | Senador (2º suplente) | 2056-psdb-cidadania-retificadora.pdf |
 | Haroldo Alves Campos | Vice-Governador | 638-novo-convencao.pdf |

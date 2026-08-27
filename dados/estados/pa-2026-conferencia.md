@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PA (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PA/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PA/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -94,7 +94,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 983-pl-convencao.pdf | PL | não | 60 |
 | 997-psol-rede-convencao.pdf | PSOL/REDE | não | 45 |
 
-Total de candidaturas: **780** — confiança alta: **736**, a revisar (partido não identificado): **44**
+Total de candidaturas: **780** — confiança alta: **736**, a revisar (partido não identificado): **13**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -512,7 +512,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 - Número 2526 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Jefferson Márlio Damasceno Paranatinga, Jefferson Márlio Damasceno — conferir manualmente.
 - Número 77130 repetido em PRD/SOLIDARIEDADE/Deputado Estadual para: Sidelvan Gomes Luz, Sidelvan Gomes De Luz — conferir manualmente.
 - Número 12222 repetido em PDT/Deputado Estadual para: Márcio Ivan Lopes Ponte De Souza, Oribes Primo De Freitas — conferir manualmente.
-- 44 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 13 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -520,17 +520,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 |---|---|---|
 | Daniel Barbosa Santos | Governador | 1443-pode-executiva.pdf |
 | Samuel Camara | Senador (2º suplente) | 1130-republicanos-executiva.pdf |
-| Francisco Das Chagas Silva Melo Filho | Senador | 1142-44-uniao-11-pp-retificadora.pdf |
 | Joel Carvalho Lobato | Senador (1º suplente) | 1165-44-uniao-11-pp-executiva.pdf |
 | Patricia Luila Queiroz Capra | Senador (2º suplente) | 1165-44-uniao-11-pp-executiva.pdf |
-| Diogo Do Socorro De Andrade Pereira | Deputado Federal | 1165-44-uniao-11-pp-executiva.pdf |
-| Manoel Cludio Furtado Veloso | Deputado Federal | 1165-44-uniao-11-pp-executiva.pdf |
-| Marco Antonio Gomes | Deputado Federal | 1165-44-uniao-11-pp-executiva.pdf |
-| Jorge Levy Da Silva Araujo | Deputado Estadual | 1165-44-uniao-11-pp-executiva.pdf |
-| Antônio Carlos Pereira Morais | Deputado Federal | 1297-pt-pc-do-b-pv-executiva.pdf |
-| Alessandra Sousa Matos | Deputado Estadual | 1297-pt-pc-do-b-pv-executiva.pdf |
-| Andréa Pinto De Carvalho | Deputado Estadual | 1297-pt-pc-do-b-pv-executiva.pdf |
-| Dionízio Travassos Dos Santos | Deputado Estadual | 1734-pt-pc-do-b-pv-executiva.pdf |
 | Ellayne Cristina Gurgel De Almeida | Vice-Governador | 1300-pl-executiva.pdf |
 | Hana Ghassan Tuma | Governador | 1746-mdb-retificadora.pdf |
 | Dirceu Ten Caten Pies | Vice-Governador | 1746-mdb-retificadora.pdf |
@@ -538,29 +529,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 | Jader Fontenelle Barbalho | Senador (1º suplente) | 1746-mdb-retificadora.pdf |
 | Samuel Camara | Senador (2º suplente) | 1746-mdb-retificadora.pdf |
 | Ellayne Cristina Gurgel De Almeida | Vice-Governador | 1443-pode-executiva.pdf |
-| Maria Luisa Ferreira Farias | Senador (1º suplente) | 1834-psol-rede-retificadora.pdf |
-| Edna Filomena Costa Gouvêa | Senador (2º suplente) | 1834-psol-rede-retificadora.pdf |
-| Joana Santos Mota | Senador (2º suplente) | 1834-psol-rede-retificadora.pdf |
-| Everaldo Machado Portela | Deputado Federal | 1834-psol-rede-retificadora.pdf |
-| Alfredo Cardoso Costa | Deputado Federal | 1655-pt-pc-do-b-pv-executiva.pdf |
-| Elane Cristine De Oliveira Viana | Deputado Estadual | 1734-pt-pc-do-b-pv-executiva.pdf |
 | Ibanes Taveira Da Silva | Senador (2º suplente) | 1769-44-uniao-11-pp-executiva.pdf |
-| Luiz Omar Cardoso Pinheiro | Deputado Federal | 2128-44-uniao-11-pp-executiva.pdf |
-| Adão Azevedo Da Costa | Deputado Estadual | 1795-44-uniao-11-pp-executiva.pdf |
-| Ana Paula Mota De Lima | Deputado Estadual | 1795-44-uniao-11-pp-executiva.pdf |
-| Deborah Maia Crespo | Deputado Estadual | 1795-44-uniao-11-pp-executiva.pdf |
-| Ana Paula Barreto Alves | Deputado Federal | 2215-25-prd-77-solidariedade-retificadora.pdf |
-| Antonio Marcos Da Silva | Deputado Federal | 2215-25-prd-77-solidariedade-retificadora.pdf |
-| Clebson Pereira Carvalho | Deputado Federal | 2215-25-prd-77-solidariedade-retificadora.pdf |
-| Ricardo Augusto Marinho De Alencar | Deputado Federal | 2215-25-prd-77-solidariedade-retificadora.pdf |
-| Ágatha Cristina Santos Conceição Moreira | Deputado Federal | 2215-25-prd-77-solidariedade-retificadora.pdf |
-| Aerton Lima Da Cruz | Deputado Federal | 2128-44-uniao-11-pp-executiva.pdf |
-| Elki Silva Da Silva | Deputado Estadual | 2128-44-uniao-11-pp-executiva.pdf |
-| Jose Willian Goncalves De Oliveira | Deputado Estadual | 2128-44-uniao-11-pp-executiva.pdf |
-| Livia Maria Araujo Noronha De Oliveira | Senador | 2215-25-prd-77-solidariedade-retificadora.pdf |
-| Ian Blois Pinheiro | Senador (1º suplente) | 2215-25-prd-77-solidariedade-retificadora.pdf |
-| Joaquim Duarte Cordeiro | Senador (2º suplente) | 2215-25-prd-77-solidariedade-retificadora.pdf |
-| Jorge | Deputado Estadual | 45-pt-pc-do-b-pv-executiva.pdf |
 | Dirceu Ten Caten Pies | Vice-Governador | 681-pt-pc-do-b-pv-convencao.pdf |
 
 ## Status de confirmação

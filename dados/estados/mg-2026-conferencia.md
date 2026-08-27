@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 MG (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MG/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MG/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -114,9 +114,9 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 974-psb-retificadora.pdf | PSB | sim | 90 |
 | 986-dc-convencao.pdf | DC | não | 12 |
 
-Total de candidaturas: **1913** — confiança alta: **1865**, a revisar (partido não identificado): **48**
+Total de candidaturas: **1913** — confiança alta: **1865**, a revisar (partido não identificado): **28**
 
-Candidatos fictícios preservados (partido/cargo ainda sem ata real): **83** — ver `fonte:"ficticio"` no .js gerado.
+Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
@@ -1154,7 +1154,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **83** —
 - Número 1206 repetido em PDT/Deputado Federal para: Denisa Gonçalves Dos Santos, Denisagonçalves Dos Santos — conferir manualmente.
 - Número 1204 repetido em PDT/Deputado Federal para: Ester Kelly Silva Da Penha, Ester Kellu Silva Da Penha — conferir manualmente.
 - Número 1271 repetido em PDT/Deputado Federal para: Thaiane Carolina Gonçalves De Souza, Thaine Carolina Gonçalves De Souza — conferir manualmente.
-- 48 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 28 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -1163,27 +1163,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **83** —
 | Carlos Eduardo Venturelli Mosconi | Vice-Governador | 1047-psdb-cidadania-retificadora.pdf |
 | Carlos Eduardo Venturelli Mosconi | Vice-Governador | 1624-psdb-cidadania-retificadora.pdf |
 | Danilo De Castro | Vice-Governador | 1155-psd-executiva.pdf |
-| Marcelo Guilherme De Aro Ferreira | Senador | 1612-44-uniao-11-pp-retificadora.pdf |
 | Jarbas Soares Junior | Vice-Governador | 1208-psb-retificadora.pdf |
 | Laercio Cintra Nogueira | Senador (2º suplente) | 1208-psb-retificadora.pdf |
-| Amantino Souza De Andrade | Deputado Federal | 1220-pt-pc-do-b-pv-executiva.pdf |
-| Valcir Da Silva | Deputado Federal | 1220-pt-pc-do-b-pv-executiva.pdf |
-| Andrei Lisboa Colares | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Antonio Joaquim Soares Neto | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Ben Hur Abrahao Soares Anibal | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Charles Correa Drumond | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Ivanilda Rodrigues Alvarenga | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Josiane Thadeu Martins | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| José Maria Gonçalves Santos | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Rubens De Paiva | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Valdir Conceição Santos | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Viviane De Lima Leme | Deputado Federal | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Jeferson De Oliveira | Deputado Estadual | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Luiz Carlos Dos Reis | Deputado Estadual | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Nivaldo Pires Dos Santos | Deputado Estadual | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Raimundo Nonato Da Silva | Deputado Estadual | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Simone Caldas Monteiro Silva | Deputado Estadual | 1643-25-prd-77-solidariedade-retificadora.pdf |
-| Vera Sonia Saraiva | Deputado Estadual | 1643-25-prd-77-solidariedade-retificadora.pdf |
 | Alexandre Kalil | Governador | 1250-pdt-executiva.pdf |
 | Carlos Eduardo Venturelli Mosconi | Vice-Governador | 1250-pdt-executiva.pdf |
 | Carlos Magno De Moura Soares | Senador | 1968-avante-retificadora.pdf |
@@ -1197,7 +1178,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **83** —
 | Raquell Guimarães Duarte Pinto | Senador (1º suplente) | 1802-psol-rede-executiva.pdf |
 | Cleiton Gontijo De Azevedo | Governador | 1858-republicanos-executiva.pdf |
 | Luis Eduardo Falcao Ferreira | Vice-Governador | 1858-republicanos-executiva.pdf |
-| Timoteo Haisnten Vazze Felizardo | Deputado Estadual | 1967-44-uniao-11-pp-executiva.pdf |
 | Edilson José Do Nascimento | Senador (1º suplente) | 1968-avante-retificadora.pdf |
 | Sebastiao Cezar Lemos | Senador (2º suplente) | 1968-avante-retificadora.pdf |
 | Gustavo Galassi Gargalhone | Senador | 2069-psdb-cidadania-executiva.pdf |

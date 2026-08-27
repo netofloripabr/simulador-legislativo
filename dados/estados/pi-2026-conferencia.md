@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PI (atas de convenção)
 
-Gerado em 2026-08-18 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PI/`,
+Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PI/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -74,7 +74,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 980-avante-convencao.pdf | AVANTE | não | 6 |
 | 999-pode-retificadora.pdf | PODE | sim | 6 |
 
-Total de candidaturas: **486** — confiança alta: **416**, a revisar (partido não identificado): **70**
+Total de candidaturas: **486** — confiança alta: **416**, a revisar (partido não identificado): **24**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -344,58 +344,15 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 - Número 45444 repetido em PSDB/CIDADANIA/Deputado Estadual para: Nemaura De Sousa Santos, Neumara De Sousa Santos, Francisco Das Chagas Sousa Silva — conferir manualmente.
 - Número 15000 repetido em MDB/Deputado Estadual para: Dogival Vidal Dos Santos Reis Neto, Dogival Vidal Dos Reis Neto — conferir manualmente.
 - Número 15333 repetido em MDB/Deputado Estadual para: Éneas Maia Dos Santos, Eneas Maia Dos Santos — conferir manualmente.
-- 70 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 24 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
-| Joel Rodrigues Da Silva | Governador | 1043-44-uniao-11-pp-executiva.pdf |
 | Jeová Barbosa De Carvalho Alencaralencar | Vice-Governador | 1043-44-uniao-11-pp-executiva.pdf |
-| Ciro Nogueira Lima Filho | Senador | 1043-44-uniao-11-pp-executiva.pdf |
 | Raimundo Neto E Silva Nogueira Lima | Senador (1º suplente) | 1043-44-uniao-11-pp-executiva.pdf |
 | Ricardo Saraiva De Oliveira Sobrinho | Senador (2º suplente) | 1043-44-uniao-11-pp-executiva.pdf |
-| Aldenice Costa Moraes | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Antonio Gonçalves De Carvalho Lima | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Francisco Emanoel De Paiva Sousa | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Geraldo Jarques Pereira Filho | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Gil Marques De Medeiros | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Gyselle Soares Estevão | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| João José Ferreira Silva | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Julio Ferraz Arcoverde | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Samantha Cavalca Sobreira Dutra | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Vânia Carvalho Dos Santos | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Átila De Melo Lira | Deputado Federal | 1043-44-uniao-11-pp-executiva.pdf |
-| Alcilene Costa Moraes | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Ana Cristina Fernandes Da Silva | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Ana Cristina Ferreira Lima | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Andreia Araújo Couto De Sousa | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| André Rodrigues Nogueira | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Antônio Francisco Gomes De Castro | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Debora Carvalho Silva | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Erivelton Da Sá Barros | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Francisco Das Chagas Costa Oliveira | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Gabriel Felipe Da Silva Costa | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Gustavo Sousa De Neiva | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Hallyson Martins Da Mata E Silva | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Jarina De Paiva Buosi | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Jonas Barroso Luz Neto | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| José Fernando Oliveira De Brito | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| José Jesus Trabulo De Sousa Neto | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Joventina Moura Duarte Pimentel | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Juraci Ribeiro Alberto | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Larissa Freire De Farias Lima | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Lytson Brendow De Barros Soares | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Natrício Vale Almeida | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Paulo Roberto Alves Soares | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Pedro Alcântara Carvalho Do Nascimento | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Petrus Evelyn Martins | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Raimundo Nonato Lima Percy Junior | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Raimundo Nonato Oliveira Sousa | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Rildo Barroso Cardoso | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Roberto Cesar De Area Leão Nascimento | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Tex Willer Marques Dos Santos | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
-| Valdelice Da Silva Vieira | Deputado Estadual | 1043-44-uniao-11-pp-executiva.pdf |
 | Elizeu Morais De Aguiar | Governador | 1215-novo-executiva.pdf |
 | Ismar Aguiar Marques | Vice-Governador | 1215-novo-executiva.pdf |
 | Antônio De Barros Araújo Filho | Senador | 1215-novo-executiva.pdf |
@@ -409,15 +366,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 | Francisco Washington Bandeira Santos Filho | Vice-Governador | 1801-pt-pc-do-b-pv-retificadora.pdf |
 | Maria Do Rosario De Fatima Bisserra Rodrigues | Senador (1º suplente) | 1801-pt-pc-do-b-pv-retificadora.pdf |
 | Pedro Alves De Carvalho Rocha Filho | Senador (2º suplente) | 1801-pt-pc-do-b-pv-retificadora.pdf |
-| Suzane Maria Cardoso | Deputado Estadual | 1892-44-uniao-11-pp-executiva.pdf |
 | Marcelo Costa E Castro | Senador | 400-mdb-retificadora.pdf |
 | Felipe De Souza Rezende Sampaio | Senador (1º suplente) | 400-mdb-retificadora.pdf |
 | Dário De Paulo Castro | Senador (2º suplente) | 400-mdb-retificadora.pdf |
 | Perdo Alves De Carvalho Rocha Filho | Senador (2º suplente) | 403-pt-pc-do-b-pv-retificadora.pdf |
 | Julio Cesar De Carvalho Lima | Senador | 404-psd-retificadora.pdf |
-| Joel Rodrigues Da Silva | Governador | 738-44-uniao-11-pp-convencao.pdf |
 | Jeová Barbosa De Carvalho Alencar | Vice-Governador | 738-44-uniao-11-pp-convencao.pdf |
-| Ciro Nogueira Lima Filho | Senador | 738-44-uniao-11-pp-convencao.pdf |
 | Raimundo Neto E Silva Nogueira Lima | Senador (1º suplente) | 738-44-uniao-11-pp-convencao.pdf |
 | Ricardo Saraiva De Oliveira Sobrinho Braz | Senador (2º suplente) | 738-44-uniao-11-pp-convencao.pdf |
 
