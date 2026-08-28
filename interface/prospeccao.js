@@ -4924,7 +4924,11 @@ async function renderGrupoMembro() {
           ${iconeSvg("chave", 14)}<b style="font-family:var(--mono); font-size:15px; letter-spacing:.05em;">${pcState.grupoAtivo.codigo_convite}</b>
         </div>
       </div>`}
-    </div>`;
+    </div>
+    ${pcState.perfil ? `
+    <div style="text-align:center; margin-top:14px;">
+      <button class="ghost" id="pcBtnSairGrupo" style="font-size:11.5px; color:var(--pc-danger);">Sair deste grupo</button>
+    </div>` : ""}`;
 
   const btnVaga1 = document.getElementById("pcBtnVaga1");
   const btnVaga5 = document.getElementById("pcBtnVaga5");
@@ -4944,7 +4948,7 @@ async function renderGrupoMembro() {
   };
   if (btnVaga1) btnVaga1.addEventListener("click", (e) => comprarVagas(1, e.target));
   if (btnVaga5) btnVaga5.addEventListener("click", (e) => comprarVagas(5, e.target));
-  document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", () => {
+  const voltarPraHub = () => {
     pcState.telaGrupo = null;
     pcState.grupoAtivo = null;
     pcState.grupoComparacao = null;
@@ -4952,8 +4956,20 @@ async function renderGrupoMembro() {
     pcState.grupoVagasStatus = "";
     pcState.grupoMinhasCedulas = null;
     pcState.grupoCedulaEscolhida = null;
+    pcState.meusGrupos = null; // força recarregar — a lista de grupos mudou
     renderGrupoHub();
-  });
+  };
+  document.getElementById("pcBtnVoltarGrupoHub").addEventListener("click", voltarPraHub);
+  const btnSairGrupo = document.getElementById("pcBtnSairGrupo");
+  if (btnSairGrupo) {
+    btnSairGrupo.addEventListener("click", async () => {
+      if (!confirm(`Sair do grupo "${pcState.grupoAtivo.nome}"? Você pode voltar depois com o código de convite.`)) return;
+      btnSairGrupo.disabled = true;
+      const { error } = await sairDoGrupo(pcState.grupoAtivo.id, pcState.perfil.id);
+      if (error) { pcState.erro = "Erro ao sair do grupo: " + error.message; btnSairGrupo.disabled = false; return; }
+      voltarPraHub();
+    });
+  }
   document.querySelectorAll("[data-pc-cargo-grupo]").forEach((btn) => {
     btn.addEventListener("click", () => {
       pcState.cargoAtivoGrupo = btn.getAttribute("data-pc-cargo-grupo");

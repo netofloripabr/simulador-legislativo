@@ -38,6 +38,12 @@ async function entrarNoGrupo(perfilId, codigoDigitado) {
   return { data: grupo, error: null };
 }
 
+async function sairDoGrupo(grupoId, perfilId) {
+  const { error } = await supabaseClient
+    .from("grupo_membros").delete().eq("grupo_id", grupoId).eq("perfil_id", perfilId);
+  return { error };
+}
+
 async function meusGrupos(perfilId) {
   const { data, error } = await supabaseClient
     .from("grupo_membros")
