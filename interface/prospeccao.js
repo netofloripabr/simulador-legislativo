@@ -4185,8 +4185,9 @@ async function renderDesafiosHub() {
     const meusPontos = souCriador ? d.pontos_criador : d.pontos_desafiado;
     const pontosOutro = souCriador ? d.pontos_desafiado : d.pontos_criador;
     const venci = d.vencedor_id && d.vencedor_id === meuId;
+    const destacado = pcState.desafioDestacadoId && d.id === pcState.desafioDestacadoId;
     return `
-    <div class="pc-duelo-card">
+    <div class="pc-duelo-card"${destacado ? ' id="pcDesafioDestacado" style="outline:2px solid var(--pc-accent); outline-offset:2px;"' : ""}>
       <div class="pc-duelo-cab">
         <span class="pc-duelo-nome">"${d.nome}"${pendenteEnviado ? ` <span style="color:var(--pc-ink-dim); font-weight:600;">· você desafiou</span>` : ""}</span>
         ${encerradoComPontos ? `<span class="${venci ? "pc-chip-verde" : "pc-chip-neutro"}">${venci ? "vitória" : "derrota"}</span>` : _chipStatusDesafio(d.status)}
@@ -4231,6 +4232,11 @@ async function renderDesafiosHub() {
     <div class="pc-status" id="pcDesafiosStatus" style="margin-top:10px; min-height:12px;"></div>
   `;
   atualizarFarol();
+  if (pcState.desafioDestacadoId) {
+    const alvo = document.getElementById("pcDesafioDestacado");
+    if (alvo) alvo.scrollIntoView({ behavior: "smooth", block: "center" });
+    pcState.desafioDestacadoId = null; // só destaca na primeira renderização vinda da notificação
+  }
   document.getElementById("pcBtnVoltarDesafios").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
   document.getElementById("pcBtnCriarDesafio").addEventListener("click", () => {
     pcState.desafioCriarNome = ""; pcState.desafioCriarAlvo = null;
@@ -4572,6 +4578,7 @@ async function renderNotificacoes() {
     </div>`;
   document.getElementById("pcBtnVoltarNotif").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
   document.querySelectorAll("[data-pc-ver-desafio]").forEach((btn) => btn.addEventListener("click", () => {
+    pcState.desafioDestacadoId = btn.getAttribute("data-pc-ver-desafio");
     pcState.subaba = "desafios"; renderAppColaborativo();
   }));
 }
