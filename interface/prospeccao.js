@@ -2926,6 +2926,13 @@ async function renderPainelPrincipal() {
   // pcState.meusGrupos fica null, o resto da função já trata isso como
   // "sem grupo" (ver atividadeAmigo abaixo).
   if (pcState.perfil) await garantirMeusGruposCarregados();
+  // Revalida o contador do sino sempre que volta pro painel — antes só
+  // carregava uma vez no boot (initColaborativo), então quem recebia um
+  // desafio/notificação nova enquanto navegava nunca via o indicador
+  // acender sem recarregar a página inteira (achado 28/08/2026).
+  if (pcState.perfil) {
+    try { pcState.notificacoesNaoLidas = await contarNotificacoesNaoLidas(); } catch (e) { /* sem indicador */ }
+  }
 
   // Status "geral" soma os 3 cargos (Estadual+Federal+Senador) — diferente
   // do resto do app, que sempre trabalha 1 cargo ativo por vez.
