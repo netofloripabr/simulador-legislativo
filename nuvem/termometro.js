@@ -41,15 +41,22 @@ async function minhasRevelacoesTermometro(estado, cargo) {
   return data || [];
 }
 
-// Debita e persiste — devolve {ok:true} ou {ok:false, mensagem}. dias:
-// null = definitivo. raridade: só preenchido pelo Coringa.
+// Debita e persiste numa transação só (revelar_candidatos_termometro_pago,
+// migração 35) — se a revelação falhar por qualquer motivo, o débito é
+// desfeito junto, nunca fica crédito gasto sem revelação (achado na
+// varredura de comportamento, 28/08/2026: antes eram duas chamadas
+// separadas e uma falha no meio deixava o crédito perdido sem estorno).
+// Devolve {ok:true} ou {ok:false, mensagem}. dias: null = definitivo.
+// raridade: só preenchido pelo Coringa.
 async function revelarCandidatosTermometro(perfilId, estado, cargo, chaves, custoSL, referencia, dias, raridade) {
-  const { gastou, error } = await gastarCreditosConta(perfilId, custoSL, "gasto_termometro", referencia);
-  if (error) return { ok: false, mensagem: "Erro ao conferir crédito: " + error.message };
-  if (!gastou) return { ok: false, mensagem: "Saldo insuficiente." };
-  const { error: erroRevelar } = await supabaseClient.rpc("revelar_candidatos_termometro", {
-    p_estado: estado, p_cargo: cargo, p_chaves: chaves, p_dias: dias || null, p_raridade: raridade || null,
+  const { error } = await supabaseClient.rpc("revelar_candidatos_termometro_pago", {
+    p_estado: estado, p_cargo: cargo, p_chaves: chaves, p_custo: custoSL,
+    p_tipo: "gasto_termometro", p_referencia: referencia || null,
+    p_dias: dias || null, p_raridade: raridade || null,
   });
-  if (erroRevelar) return { ok: false, mensagem: "Crédito debitado, mas a revelação falhou — fale com o suporte: " + erroRevelar.message };
+  if (error) {
+    if (/saldo insuficiente/i.test(error.message || "")) return { ok: false, mensagem: "Saldo insuficiente." };
+    return { ok: false, mensagem: "Erro ao revelar: " + error.message };
+  }
   return { ok: true };
 }
