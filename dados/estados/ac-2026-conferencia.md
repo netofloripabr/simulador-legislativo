@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 AC (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AC/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AC/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -28,8 +28,8 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1818-pdt-retificadora.pdf | PDT | sim | 24 |
 | 1824-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 27 |
 | 1825-democrata-retificadora.pdf | DEMOCRATA | sim | 3 |
-| 1845-25-prd-77-solidariedade-executiva.pdf | ? | não | 3 |
-| 1863-pt-pc-do-b-pv-executiva.pdf | ? | não | 3 |
+| 1845-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 3 |
+| 1863-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 3 |
 | 1868-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
 | 188-missao-convencao.pdf | MISSÃO | não | 4 |
 | 1946-pode-retificadora.pdf | PODE | sim | 28 |
@@ -38,7 +38,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 2156-pdt-retificadora.pdf | PDT | sim | 24 |
 | 2157-mdb-executiva.pdf | MDB | não | 0 |
 | 2158-democrata-retificadora.pdf | DEMOCRATA | sim | 3 |
-| 2165-25-prd-77-solidariedade-executiva.pdf | ? | não | 5 |
+| 2165-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 5 |
 | 2182-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 27 |
 | 2207-psol-rede-retificadora.pdf | PSOL/REDE | sim | 12 |
 | 2210-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 34 |
@@ -70,7 +70,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 941-pl-convencao.pdf | PL | não | 31 |
 | 961-novo-executiva.pdf | NOVO | não | 0 |
 
-Total de candidaturas: **416** — confiança alta: **377**, a revisar (partido não identificado): **30**
+Total de candidaturas: **414** — confiança alta: **382**, a revisar (partido não identificado): **29**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **39** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -348,14 +348,16 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **39** —
 - Número 4544 repetido em PSDB/CIDADANIA/Deputado Federal para: Halida Valeria Da Silva, Halida Valeria Prado Da Costa — conferir manualmente.
 - Número 23000 repetido em PSDB/CIDADANIA/Deputado Estadual para: Antôniom Marazona De Souza Nascimento, Antônio Marazona De Souza Nascimento — conferir manualmente.
 - Número 23555 repetido em PSDB/CIDADANIA/Deputado Estadual para: Maria Cenilda Da Silva Pessoa, Cristiane De Souza Da Rocha — conferir manualmente.
+- Número 7700 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Ana Paula Correia De Oliveira, Marcos Antonio Cavalcante Vitorino — conferir manualmente.
 - Número 20777 repetido em PODE/Deputado Estadual para: Eros Asfuri Barbosa, Eros Asfury Barbosa — conferir manualmente.
 - Número 20789 repetido em PODE/Deputado Estadual para: Fernando José Nascimento De Oliveira, Francimar Fernandes De Albuquerque — conferir manualmente.
 - Número 20213 repetido em PODE/Deputado Estadual para: Linden Kátia Lima Veloso, Linden Katia Lima Veloso — conferir manualmente.
 - Número 20300 repetido em PODE/Deputado Estadual para: Paulo Cezar Augusto, Paulo Cézar Augusto — conferir manualmente.
 - Número 20099 repetido em PODE/Deputado Estadual para: Paulo Victor Farias Da Silva, Paulo Victor Faria Da Silva — conferir manualmente.
+- Número 77255 repetido em PRD/SOLIDARIEDADE/Deputado Estadual para: Renilda Rocha, Renílda Rocha — conferir manualmente.
 - Número 10107 repetido em REPUBLICANOS/Deputado Estadual para: Cirlene Reino Da Silva, Elissonia Nascimento De Souza Santos — conferir manualmente.
 - Número 7033 repetido em AVANTE/Deputado Federal para: Nauan Da Costa Aragão Ferreira, Nauan Da Costa Aragão Freire, Nauan Da Costa Aragão Freires — conferir manualmente.
-- 30 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 29 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -366,12 +368,11 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **39** —
 | Debora Nunes Da Silva | Senador (2º suplente) | 2212-44-uniao-11-pp-retificadora.pdf |
 | Sebastião Bocalom Rodrigues | Governador | 2210-psdb-cidadania-retificadora.pdf |
 | Adonis Francisco De Almeida Souza | Vice-Governador | 2210-psdb-cidadania-retificadora.pdf |
-| Jorge Ney Viana Macedo Neves | Senador | 1718-pt-pc-do-b-pv-retificadora.pdf |
+| Jorge Ney Viana Macedo Neves | Senador | 1863-pt-pc-do-b-pv-executiva.pdf |
 | Arnobio Marques De Almeida Junior | Senador (1º suplente) | 1718-pt-pc-do-b-pv-retificadora.pdf |
 | Carla Ívane De Britto | Senador (2º suplente) | 1718-pt-pc-do-b-pv-retificadora.pdf |
 | Rejane Holanda De Velloso Vianna | Senador (1º suplente) | 2227-25-prd-77-solidariedade-retificadora.pdf |
 | Erivando Torquato Do Nascimento | Senador (2º suplente) | 2227-25-prd-77-solidariedade-retificadora.pdf |
-| Jorge Ney Viana Macedo Neves | Senador | 1863-pt-pc-do-b-pv-executiva.pdf |
 | Francisco Ubiracy Machado De Vasconcelos | Senador (1º suplente) | 1863-pt-pc-do-b-pv-executiva.pdf |
 | Carla Ivane De Britto | Senador (2º suplente) | 1863-pt-pc-do-b-pv-executiva.pdf |
 | Maria Perpetuo Socorro Rodrigues De Souza | Vice-Governador | 1946-pode-retificadora.pdf |

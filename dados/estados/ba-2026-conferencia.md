@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 BA (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/BA/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/BA/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -13,7 +13,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 102-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 102 |
 | 1030-psb-retificadora.pdf | PSB | sim | 57 |
 | 104-pdt-convencao.pdf | PDT | não | 86 |
-| 1149-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1149-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1161-mdb-retificadora.pdf | MDB | sim | 89 |
 | 1189-avante-executiva.pdf | AVANTE | não | 1 |
 | 125-avante-convencao.pdf | AVANTE | não | 85 |
@@ -21,7 +21,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 130-psb-convencao.pdf | PSB | não | 59 |
 | 1338-pco-convencao.pdf | PCO | não | 7 |
 | 147-psd-convencao.pdf | PSD | não | 41 |
-| 1512-25-prd-77-solidariedade-executiva.pdf | ? | não | 4 |
+| 1512-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 4 |
 | 1530-pl-executiva.pdf | PL | não | 1 |
 | 1574-dc-executiva.pdf | DC | não | 4 |
 | 1583-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 97 |
@@ -29,14 +29,14 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1659-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 36 |
 | 1679-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 86 |
 | 1694-pdt-executiva.pdf | PDT | não | 5 |
-| 1772-25-prd-77-solidariedade-executiva.pdf | ? | não | 2 |
-| 1781-psdb-cidadania-executiva.pdf | ? | não | 2 |
+| 1772-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 2 |
+| 1781-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 2 |
 | 187-republicanos-convencao.pdf | REPUBLICANOS | não | 100 |
 | 1953-republicanos-executiva.pdf | REPUBLICANOS | não | 5 |
-| 2013-pt-pc-do-b-pv-executiva.pdf | ? | não | 4 |
-| 2104-44-uniao-11-pp-executiva.pdf | ? | não | 3 |
-| 2185-25-prd-77-solidariedade-executiva.pdf | ? | não | 2 |
-| 2197-psol-rede-executiva.pdf | ? | não | 2 |
+| 2013-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 4 |
+| 2104-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 3 |
+| 2185-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 2 |
+| 2197-psol-rede-executiva.pdf | PSOL/REDE | não | 2 |
 | 238-44-uniao-11-pp-convencao.pdf | UNIÃO/PP | não | 97 |
 | 285-pl-convencao.pdf | PL | não | 100 |
 | 290-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 32 |
@@ -64,12 +64,12 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 781-republicanos-retificadora.pdf | REPUBLICANOS | sim | 3 |
 | 804-avante-executiva.pdf | AVANTE | não | 1 |
 | 866-mobiliza-executiva.pdf | MOBILIZA | não | 0 |
-| 885-psol-rede-executiva.pdf | ? | não | 2 |
+| 885-psol-rede-executiva.pdf | PSOL/REDE | não | 2 |
 | 904-psol-rede-retificadora.pdf | ? | sim | 2 |
 | 906-mobiliza-retificadora.pdf | MOBILIZA | sim | 56 |
 | 925-psd-retificadora.pdf | PSD | sim | 1 |
 
-Total de candidaturas: **1237** — confiança alta: **1202**, a revisar (partido não identificado): **12**
+Total de candidaturas: **1235** — confiança alta: **1220**, a revisar (partido não identificado): **12**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **54** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -879,8 +879,9 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **54** —
 - Candidatura de Washington Torres Dos Santos (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wellington Santos De Jesus (DC, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Edvaldo Pereira De Brito (PSD, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maria Da Conceição Barreto Da Silva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Número 7700 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Cristiana Rosendo Dos Santos, Cristiana Rosendo — conferir manualmente.
+- Número 2525 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Mirna Meirice Amaral Argolo, João Marcos Leite Dultra — conferir manualmente.
+- Número 7773 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Rita De Cássia Santos Cardoso, Rita De Cassia Santos Cardoso — conferir manualmente.
 - Número 2727 repetido em DC/Deputado Federal para: Marli Barbara Lima Dos Santos, Marli Bárbara Lima Dos Santos — conferir manualmente.
 - Número 4421 repetido em UNIÃO/PP/Deputado Federal para: Aidil Maura Bahiana Da Silva, Aidil Moura Bahiana Da Silva — conferir manualmente.
 - Número 1057 repetido em REPUBLICANOS/Deputado Federal para: Manoel De Santana Conceição, Bruno Santos Vitorino — conferir manualmente.
@@ -888,7 +889,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **54** —
 - Número 27 repetido em DC/Governador para: Ariel Da Silva Capistrano, José Estêvão Dos Santos Barbosa — conferir manualmente.
 - Número 2744 repetido em DC/Deputado Federal para: Samantha Stefany Do Carmo Boudoux, Durval Queiroz Alves Neto — conferir manualmente.
 - Número 27123 repetido em DC/Deputado Estadual para: Marcos Antonio Dos Santos Souza, Marcos Antonio Dos Santos — conferir manualmente.
-- Número 50410 repetido em None/Deputado Estadual para: Emerson Carvalho Bulcãoaixao, Emerson Carvalho Bulcão Paixão — conferir manualmente.
 - 12 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)

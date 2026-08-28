@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/ms-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -22,16 +22,16 @@
 // um overwrite total do arquivo (decisão do usuário, 03/08/2026).
 var CANDIDATOS_2026_MS_PROVISORIO = {
   "Deputado Estadual": [
-    { id:"uniao-pp-fernando-da-silva-souza", nome:"Fernando Da Silva Souza", nomeUrna:"Fernando Souza", numero:11777, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1159-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-fernando-da-silva-souza", nome:"Fernando Da Silva Souza", nomeUrna:"Fernando Souza", numero:11777, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1159-44-uniao-11-pp-executiva.pdf" },
     { id:"pdt-helena-salomao", nome:"Helena Salomão", nomeUrna:"12678", numero:12678, partido:"PDT", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1352-pdt-executiva.pdf" },
     { id:"pdt-natalia-silva-ferreira", nome:"Natalia Silva Ferreira", nomeUrna:"Natalia Ferreira", numero:12014, partido:"PDT", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1948-pdt-executiva.pdf" },
     { id:"avante-elizene-luciana-santos-gomes-martins", nome:"Elizene Luciana Santos Gomes Martins", nomeUrna:"Lu Martins", numero:70300, partido:"AVANTE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2132-avante-executiva.pdf" },
-    { id:"uniao-pp-juliana-aparecida-fleury-aranda", nome:"Juliana Aparecida Fleury Aranda", nomeUrna:"Juliana Aranda Da Ru Uniformes", numero:44444, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1159-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-juliana-aparecida-fleury-aranda", nome:"Juliana Aparecida Fleury Aranda", nomeUrna:"Juliana Aranda Da Ru Uniformes", numero:44444, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1159-44-uniao-11-pp-executiva.pdf" },
     { id:"dc-flavia-argemiro-de-almeida-e-silva", nome:"Flavia Argemiro De Almeida E Silva", nomeUrna:"Flavia Argemiro", numero:27789, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2089-dc-executiva.pdf" },
-    { id:"prd-solidariedade-almir-machado-guimaraes", nome:"Almir Machado Guimarães", nomeUrna:"Almir Machado", numero:25525, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-almir-machado-guimaraes", nome:"Almir Machado Guimarães", nomeUrna:"Almir Machado", numero:25525, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
     { id:"dc-maria-ferreira-dos-santos", nome:"Maria Ferreira Dos Santos", nomeUrna:"Maria Do Natal", numero:27555, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2089-dc-executiva.pdf" },
-    { id:"prd-solidariedade-fernanda-coltre-breve", nome:"Fernanda Coltre Breve", nomeUrna:"Fernanda Breve", numero:77007, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
-    { id:"prd-solidariedade-jose-andrade-de-morais", nome:"Jose Andrade De Morais", nomeUrna:"Andrade", numero:77000, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-fernanda-coltre-breve", nome:"Fernanda Coltre Breve", nomeUrna:"Fernanda Breve", numero:77007, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-jose-andrade-de-morais", nome:"Jose Andrade De Morais", nomeUrna:"Andrade", numero:77000, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
     { id:"pco-carlos-antonio-duarte", nome:"Carlos Antonio Duarte", nomeUrna:"Carlos Duarte", numero:29000, partido:"PCO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1417-pco-convencao.pdf" },
     { id:"pco-gessica-machado", nome:"Géssica Machado", nomeUrna:"Géssica Machado", numero:29129, partido:"PCO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1417-pco-convencao.pdf" },
     { id:"mdb-ademar-vieira-junior", nome:"Ademar Vieira Junior", nomeUrna:"Junior Coringa", numero:15111, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1763-mdb-retificadora.pdf" },
@@ -118,7 +118,6 @@ var CANDIDATOS_2026_MS_PROVISORIO = {
     { id:"pt-pc-do-b-pv-bartolina-ramalho-catanante", nome:"Bartolina Ramalho Catanante", nomeUrna:"Professora Bartô", numero:13222, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"503-pt-pc-do-b-pv-retificadora.pdf" },
     { id:"psdb-cidadania-janete-morais-obal-cordoba", nome:"Janete Morais Obal Córdoba", nomeUrna:"Janete Córdoba", numero:45555, partido:"PSDB/CIDADANIA", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"46-psdb-cidadania-convencao.pdf" },
     { id:"pl-andre-luis-sanches-salineiro", nome:"Andre Luis Sanches Salineiro", nomeUrna:"Andre Salineiro", numero:22067, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"542-pl-convencao.pdf" },
-    { id:"uniao-pp-fernando-da-silva-souza-2", nome:"Fernando Da Silva Souza", nomeUrna:"Fernando Souza", numero:11011, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"717-44-uniao-11-pp-convencao.pdf" },
     { id:"avante-johnathan-de-arruda-jara", nome:"Johnathan De Arruda Jara", nomeUrna:"Johnathan Jara", numero:70318, partido:"AVANTE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"725-avante-convencao.pdf" },
     { id:"republicanos-ismael-da-silva-gomes", nome:"Ismael Da Silva Gomes", nomeUrna:"Cria Do Aero Rancho", numero:10800, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"745-republicanos-convencao.pdf" },
     { id:"dc-claudio-domingos-da-silva", nome:"Cláudio Domingos Da Silva", nomeUrna:"Pastor Cláudio Domingos", numero:27999, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"791-dc-convencao.pdf" },
@@ -189,7 +188,6 @@ var CANDIDATOS_2026_MS_PROVISORIO = {
     { id:"pt-pc-do-b-pv-jorge-ricardo-lauricio", nome:"Jorge Ricardo Lauricio", nomeUrna:"Dr. Jorge Lauricio", numero:13444, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"503-pt-pc-do-b-pv-retificadora.pdf" },
     { id:"psdb-cidadania-maria-imaculada-nogueira", nome:"Maria Imaculada Nogueira", nomeUrna:"Lia Nogueria O Bichão Do Ms", numero:45101, partido:"PSDB/CIDADANIA", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"46-psdb-cidadania-convencao.pdf" },
     { id:"pl-ernany-andrade-machado", nome:"Ernany Andrade Machado", nomeUrna:"Defensor Ernany", numero:22700, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"542-pl-convencao.pdf" },
-    { id:"uniao-pp-juliana-aparecida-fleury-aranda-2", nome:"Juliana Aparecida Fleury Aranda", nomeUrna:"Juliana Aranda", numero:44444, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"717-44-uniao-11-pp-convencao.pdf" },
     { id:"avante-pamela-karina-eifler-ferreira", nome:"Pamela Karina Eifler Ferreira", nomeUrna:"Pam Make", numero:70077, partido:"AVANTE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"725-avante-convencao.pdf" },
     { id:"republicanos-nilva-da-silva-ramos-oliveira", nome:"Nilva Da Silva Ramos Oliveira", nomeUrna:"Nilva Ramos", numero:10122, partido:"REPUBLICANOS", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"745-republicanos-convencao.pdf" },
     { id:"dc-gian-marcos-rafael", nome:"Gian Marcos Rafael", nomeUrna:"Gian Marcos", numero:27027, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"791-dc-convencao.pdf" },
@@ -344,7 +342,7 @@ var CANDIDATOS_2026_MS_PROVISORIO = {
     { id:"pdt-bruna-riquelme-marques", nome:"Bruna Riquelme Marques", nomeUrna:"Bruna Quelme", numero:1221, partido:"PDT", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"971-pdt-convencao.pdf" },
     { id:"mdb-manoel-do-carmo-vitorio", nome:"Manoel Do Carmo Vitório", nomeUrna:"Manoel Vitório", numero:1507, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1763-mdb-retificadora.pdf" },
     { id:"missao-maria-vitoria-freitas-da-cunha", nome:"Maria Vitoria Freitas Da Cunha", nomeUrna:"Mavi Cunha", numero:1400, partido:"MISSÃO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1716-missao-retificadora.pdf" },
-    { id:"prd-solidariedade-paulo-cesar-alves-2", nome:"Paulo Cesar Alves", nomeUrna:"Cesar Alves", numero:2550, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-paulo-cesar-alves-2", nome:"Paulo Cesar Alves", nomeUrna:"Cesar Alves", numero:2550, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
     { id:"dc-maria-isabela-oliveira-saldanha-2", nome:"Maria Isabela Oliveira Saldanha", nomeUrna:"Isabela Saldanha", numero:2700, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2089-dc-executiva.pdf" },
     { id:"psdb-cidadania-juari-lopes-pinto", nome:"Juari Lopes Pinto", nomeUrna:"Professor Juari", numero:4599, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"46-psdb-cidadania-convencao.pdf" },
     { id:"avante-francisco-de-sa", nome:"Francisco De Sá", nomeUrna:"Chico Sá", numero:7044, partido:"AVANTE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"725-avante-convencao.pdf" },
@@ -354,7 +352,7 @@ var CANDIDATOS_2026_MS_PROVISORIO = {
     { id:"prd-solidariedade-adriano-rodrigues-da-silva", nome:"Adriano Rodrigues Da Silva", nomeUrna:"Adriano Lima", numero:2555, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1326-25-prd-77-solidariedade-convencao.pdf" },
     { id:"mdb-paulo-roberto-da-silva-massetti", nome:"Paulo Roberto Da Silva Massetti", nomeUrna:"Paulo Massetti", numero:1500, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1763-mdb-retificadora.pdf" },
     { id:"missao-mateus-soares-dos-santos-de-quadros", nome:"Mateus Soares Dos Santos De Quadros", nomeUrna:"Mateus Quadros", numero:1414, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1716-missao-retificadora.pdf" },
-    { id:"prd-solidariedade-sergio-eduardo-silveira-fahed-2", nome:"Sergio Eduardo Silveira Fahed", nomeUrna:"Sergio Fahed", numero:7711, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-sergio-eduardo-silveira-fahed-2", nome:"Sergio Eduardo Silveira Fahed", nomeUrna:"Sergio Fahed", numero:7711, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
     { id:"psdb-cidadania-natalino-jose-gonzaga", nome:"Natalino José Gonzaga", nomeUrna:"Natal Gonzaga", numero:4525, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"46-psdb-cidadania-convencao.pdf" },
     { id:"avante-gerson-almada-gonzaga", nome:"Gerson Almada Gonzaga", nomeUrna:"Sub. Adv. Almada Gonzaga", numero:7007, partido:"AVANTE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"725-avante-convencao.pdf" },
     { id:"republicanos-jaime-elias-verruck", nome:"Jaime Elias Verruck", nomeUrna:"Jaime Verruck", numero:1011, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"745-republicanos-convencao.pdf" },
@@ -484,7 +482,7 @@ var CANDIDATOS_2026_MS_PROVISORIO = {
   "Senador": [
     { id:"psb-soraya-vieira-thronicke", nome:"Soraya Vieira Thronicke", nomeUrna:"Soraya", numero:400, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"103-psb-convencao.pdf" },
     { id:"pl-reinaldo-azambuja-silva", nome:"Reinaldo Azambuja Silva", nomeUrna:"Reinaldo Azambuja", numero:222, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"542-pl-convencao.pdf" },
-    { id:"prd-solidariedade-valter-juvenal-de-oliveira", nome:"Valter Juvenal De Oliveira", nomeUrna:"Valter Juvenal", numero:258, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-valter-juvenal-de-oliveira", nome:"Valter Juvenal De Oliveira", nomeUrna:"Valter Juvenal", numero:258, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
     { id:"pl-renan-barbosa-contar", nome:"Renan Barbosa Contar", nomeUrna:"Capitão Contar", numero:221, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"542-pl-convencao.pdf" },
     { id:"dc-luiz-antonio-lemes-de-oliveira", nome:"Luiz Antonio Lemes De Oliveira", nomeUrna:"Luiz Lemes", numero:277, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"791-dc-convencao.pdf" },
     { id:"novo-roberto-tarashigue-oshiro-junior", nome:"Roberto Tarashigue Oshiro Junior", nomeUrna:"Roberto Oshiro", numero:300, partido:"NOVO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1113-novo-convencao.pdf" },
@@ -521,7 +519,7 @@ var CANDIDATOS_2026_MS_PROVISORIO = {
     { id:"psb-geana-fernanda-de-mesquita-da-rosa", nome:"Geana Fernanda De Mesquita Da Rosa", nomeUrna:"Geana Mesquita", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1048-psb-executiva.pdf" },
     { id:"novo-italivio-coelho-neto", nome:"Italivio Coelho Neto", nomeUrna:"Italivio Neto", numero:null, partido:"NOVO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1906-novo-executiva.pdf" },
     { id:"psb-sandra-cardoso-martins-cassone", nome:"Sandra Cardoso Martins Cassone", nomeUrna:"Sandra Cassone", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"103-psb-convencao.pdf" },
-    { id:"prd-solidariedade-adamario-de-lana-gerling-junior-2", nome:"Adamário De Lana Gerling Júnior", nomeUrna:"Eng. Adamário De Lana", numero:null, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-adamario-de-lana-gerling-junior-2", nome:"Adamário De Lana Gerling Júnior", nomeUrna:"Eng. Adamário De Lana", numero:null, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
     { id:"prd-solidariedade-laurindo-barbosa-carneiro", nome:"Laurindo Barbosa Carneiro", nomeUrna:"Laurindo Barbosa Carneiro", numero:null, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1326-25-prd-77-solidariedade-convencao.pdf" },
     { id:"uniao-pp-felipe-mattos-de-lima-ribeiro", nome:"Felipe Mattos De Lima Ribeiro", nomeUrna:"Felipe Mattos", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"717-44-uniao-11-pp-convencao.pdf" },
     { id:"dc-aldeci-teixeira-dos-santos", nome:"Aldeci Teixeira Dos Santos", nomeUrna:"Aldeci Teixeira", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"791-dc-convencao.pdf" },
@@ -535,7 +533,7 @@ var CANDIDATOS_2026_MS_PROVISORIO = {
   ],
   "Vice-Governador": [
     { id:"dc-thiago-martins-do-santos", nome:"Thiago Martins Do Santos", nomeUrna:"Thiago Martins", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1068-dc-executiva.pdf" },
-    { id:"prd-solidariedade-mariliana-santos-da-silva", nome:"Mariliana Santos Da Silva", nomeUrna:"Mariliana Santos", numero:null, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-mariliana-santos-da-silva", nome:"Mariliana Santos Da Silva", nomeUrna:"Mariliana Santos", numero:null, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1798-25-prd-77-solidariedade-executiva.pdf" },
     { id:"dc-roberto-oscar-patzlaff-2", nome:"Roberto Oscar Patzlaff", nomeUrna:"Roberto Patzlaff", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2089-dc-executiva.pdf" },
     { id:"republicanos-jose-carlos-barbosa", nome:"José Carlos Barbosa", nomeUrna:"Barbosinha", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"745-republicanos-convencao.pdf" },
     { id:"novo-antonio-joao-coimbra-jacintho", nome:"Antonio João Coimbra Jacintho", nomeUrna:"Antônio João Jacinto", numero:null, partido:"NOVO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1113-novo-convencao.pdf" },

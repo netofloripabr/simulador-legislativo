@@ -171,6 +171,19 @@ def extrair_titulo_partido(texto):
     m = re.search(r"Ata (?:de|da)(?: Convenção)? Estadual do Partido\s+\d+\s*-\s*([A-Za-zÀ-ÿ]+)", texto)
     if m:
         return normalizar_nome_partido(m.group(1))
+    # "Ata Executiva Estadual da Federação NOME(SIGLA1/SIGLA2)" — achado em
+    # 28/08/2026 (PE, ata de preenchimento de vagas remanescentes): tipo de
+    # ata não visto antes no corpus. Regex checada ANTES da mais genérica
+    # logo abaixo, porque "Executiva" não casa com "(de|da) Convenção" nem
+    # com "Retificadora Convenção" — sem esse padrão específico, o cabeçalho
+    # caía na regra seguinte, que (por causa do "[^(]*" sem limite) atravessa
+    # parágrafos inteiros da ata até achar o primeiro "(" qualquer do texto
+    # — nesse caso a data por extenso "Aos 13 (treze) dias...", produzindo
+    # partido:"treze". Delimitado a poucos caracteres (sem quebra de linha
+    # nem travessia de frase) pra nunca mais escapar do cabeçalho de verdade.
+    m = re.search(r"Ata\s+Executiva\s+Estadual\s+da\s+Federação\s+[^(]{0,80}\(([^)]+)\)", texto)
+    if m:
+        return normalizar_nome_partido(m.group(1))
     # "Ata (de|da) Convenção..." cobre convenção normal; "Ata Retificadora
     # Convenção..." (sem "de"/"da" antes de Retificadora) é o cabeçalho de
     # atas retificadoras de federação (achado em 814-psdb-cidadania-
@@ -181,7 +194,10 @@ def extrair_titulo_partido(texto):
     # tupla partidoDocumento+cargo+ordem+nome) nunca reconhece que é o
     # mesmo candidato da convenção original — ele fica duplicado no
     # provisório em vez de substituído pela versão retificada.
-    m = re.search(r"Ata (?:Retificadora )?(?:de |da )?Convenção Estadual da Federação[^(]*\(([^)]+)\)", texto)
+    # "[^(]{0,80}" (não "[^(]*" sem limite, ver comentário acima) — trava a
+    # busca do parênteses aos ~80 caracteres seguintes ao cabeçalho, mesmo
+    # quando o nome da federação quebra linha no meio (caso normal).
+    m = re.search(r"Ata (?:Retificadora )?(?:de |da )?Convenção Estadual da Federação[^(]{0,80}\(([^)]+)\)", texto)
     if m:
         return normalizar_nome_partido(m.group(1))
     m = re.search(r"Ata Retificadora Convenção Estadual do Partido\s+\d+\s*-\s*([A-Za-zÀ-ÿ]+)", texto)
@@ -641,9 +657,25 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
             "fonteArquivo": c["arquivoFonte"],
         })
 
+    # Achado em 28/08/2026 (PE, "partido:treze"): a preservação abaixo só
+    # olhava se o PARTIDO do candidato antigo já tinha ata real processada
+    # nesta rodada — nunca se a PESSOA em si já reapareceu com dado melhor.
+    # Um partido-artefato de bug (ex.: "treze", capturado por engano do
+    # cabeçalho da ata) nunca bate com nenhum partido real da rodada, então
+    # "cand['partido'] not in partidos_ja_reais" dava sempre verdadeiro — o
+    # registro quebrado sobrevivia pra sempre, duplicando a pessoa (uma
+    # cópia boa com o partido certo, uma cópia velha grudada no bug). Agora
+    # pula a preservação quando a MESMA pessoa já está na extração nova do
+    # mesmo cargo, não importa o que o partido antigo dizia.
+    pessoas_novas_por_cargo = {
+        cargo: {_chave_pessoa(c["nome"]) for c in lista}
+        for cargo, lista in por_cargo.items()
+    }
+
     candidatos_preservados = 0
     for cargo, candidatos_antigos in existente_por_cargo.items():
         partidos_ja_reais = partidos_reais_por_cargo.get(cargo, set())
+        pessoas_novas = pessoas_novas_por_cargo.get(cargo, set())
         por_cargo.setdefault(cargo, [])
         for cand in candidatos_antigos:
             # partido:null nunca é candidato fictício de verdade (ver
@@ -669,7 +701,8 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
             fonte = (cand.get("fonte") or "").lower()
             fonte_arquivo = (cand.get("fonteArquivo") or "").upper()
             oficial = fonte == "manual" or fonte_arquivo.startswith("RRC")
-            if oficial or cand["partido"] not in partidos_ja_reais:
+            ja_reapareceu = _chave_pessoa(cand.get("nome")) in pessoas_novas
+            if oficial or (cand["partido"] not in partidos_ja_reais and not ja_reapareceu):
                 por_cargo[cargo].append(cand)
                 candidatos_preservados += 1
 

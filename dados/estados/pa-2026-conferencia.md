@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PA (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PA/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PA/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -16,14 +16,14 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1128-pode-convencao.pdf | PODE | não | 64 |
 | 1130-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
 | 1142-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 41 |
-| 1165-44-uniao-11-pp-executiva.pdf | ? | não | 6 |
+| 1165-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 6 |
 | 1174-psb-executiva.pdf | PSB | não | 1 |
 | 1199-mdb-retificadora.pdf | MDB | sim | 41 |
 | 1200-agir-retificadora.pdf | AGIR | sim | 0 |
 | 1225-pl-retificadora.pdf | PL | sim | 60 |
 | 1227-dc-executiva.pdf | DC | não | 13 |
 | 1270-democrata-convencao.pdf | DEMOCRATA | não | 10 |
-| 1297-pt-pc-do-b-pv-executiva.pdf | ? | não | 4 |
+| 1297-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 4 |
 | 1300-pl-executiva.pdf | PL | não | 1 |
 | 1340-novo-executiva.pdf | NOVO | não | 0 |
 | 1349-mobiliza-convencao.pdf | MOBILIZA | não | 9 |
@@ -35,28 +35,28 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1402-psd-executiva.pdf | PSD | não | 0 |
 | 1425-pl-executiva.pdf | PL | não | 1 |
 | 1443-pode-executiva.pdf | PODE | não | 2 |
-| 1445-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1445-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1464-pl-retificadora.pdf | PL | sim | 2 |
 | 1472-pl-retificadora.pdf | PL | sim | 60 |
 | 1511-dc-executiva.pdf | DC | não | 1 |
 | 1559-avante-executiva.pdf | AVANTE | não | 2 |
-| 1580-psol-rede-executiva.pdf | ? | não | 4 |
+| 1580-psol-rede-executiva.pdf | PSOL/REDE | não | 4 |
 | 1650-pl-retificadora.pdf | PL | sim | 60 |
-| 1655-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 1655-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 1666-democrata-executiva.pdf | DEMOCRATA | não | 3 |
 | 1710-democrata-executiva.pdf | DEMOCRATA | não | 3 |
 | 1722-pl-retificadora.pdf | PL | sim | 61 |
-| 1734-pt-pc-do-b-pv-executiva.pdf | ? | não | 2 |
+| 1734-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 2 |
 | 1746-mdb-retificadora.pdf | MDB | sim | 5 |
 | 1760-psol-rede-retificadora.pdf | PSOL/REDE | sim | 45 |
-| 1769-44-uniao-11-pp-executiva.pdf | ? | não | 1 |
+| 1769-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 | 1774-novo-executiva.pdf | NOVO | não | 10 |
 | 1783-pl-executiva.pdf | PL | não | 1 |
-| 1795-44-uniao-11-pp-executiva.pdf | ? | não | 4 |
+| 1795-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 4 |
 | 1815-democrata-executiva.pdf | DEMOCRATA | não | 5 |
 | 1822-mobiliza-retificadora.pdf | MOBILIZA | sim | 9 |
 | 1834-psol-rede-retificadora.pdf | ? | sim | 4 |
-| 1899-25-prd-77-solidariedade-executiva.pdf | ? | não | 5 |
+| 1899-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 5 |
 | 1929-pstu-executiva.pdf | PSTU | não | 2 |
 | 1940-dc-retificadora.pdf | DC | sim | 18 |
 | 1958-dc-executiva.pdf | DC | não | 3 |
@@ -66,7 +66,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 2040-avante-executiva.pdf | AVANTE | não | 1 |
 | 2068-pdt-executiva.pdf | PDT | não | 2 |
 | 2087-prtb-executiva.pdf | PRTB | não | 0 |
-| 2128-44-uniao-11-pp-executiva.pdf | ? | não | 4 |
+| 2128-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 4 |
 | 213-pdt-convencao.pdf | PDT | não | 58 |
 | 2142-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 24 |
 | 2144-missao-retificadora.pdf | MISSÃO | sim | 11 |
@@ -75,7 +75,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 275-republicanos-convencao.pdf | REPUBLICANOS | não | 56 |
 | 315-novo-convencao.pdf | NOVO | não | 28 |
 | 329-missao-convencao.pdf | MISSÃO | não | 12 |
-| 45-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 45-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 514-avante-convencao.pdf | AVANTE | não | 40 |
 | 563-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 24 |
 | 564-avante-retificadora.pdf | AVANTE | sim | 40 |
@@ -94,7 +94,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 983-pl-convencao.pdf | PL | não | 60 |
 | 997-psol-rede-convencao.pdf | PSOL/REDE | não | 45 |
 
-Total de candidaturas: **780** — confiança alta: **736**, a revisar (partido não identificado): **13**
+Total de candidaturas: **780** — confiança alta: **754**, a revisar (partido não identificado): **13**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -302,7 +302,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 - Candidatura de Wanderley Dias Vieira (PL, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de José Lucivaldo Moita (DEMOCRATA, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Edlaine Guimaraes Santos Rodrigues (DEMOCRATA, Senador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Dionízio Travassos Dos Santos (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Dionízio Travassos Dos Santos (PT/PC do B/PV, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Breno Ramos Guimarães Martins (MOBILIZA, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Telmo Lima Marinho (MOBILIZA, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Roseli Do Socorro Amaral Malcher (MOBILIZA, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
@@ -338,17 +338,16 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 - Candidatura de Thais Marcussi Trepiche (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Valgeane Moreira De Sousa (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Lorena Paz Cardoso Lima (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maria Luisa Ferreira Farias (None, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Edna Filomena Costa Gouvêa (None, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Joana Santos Mota (None, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Everaldo Machado Portela (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Maria Luisa Ferreira Farias (PSOL/REDE, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Everaldo Machado Portela (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alfredo Cardoso Costa (PT/PC do B/PV, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ruth Helena Ferreira Reis (DEMOCRATA, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Nelson Antonio Barbosa Margalho (DEMOCRATA, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Elane Cristine De Oliveira Viana (PT/PC do B/PV, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Araceli Maria Pereira Lemos (PSOL/REDE, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Maria De Fatima Santana Da Silva (PSOL/REDE, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Gizelle Soares De Freitas (PSOL/REDE, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Marcelino Conti De Souza (PSOL/REDE, Senador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maria Luisa Ferreira Farias (PSOL/REDE, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Naide Cordeiro Pacheco (PSOL/REDE, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de André Oliveira Silva (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Camila Pamplona Santos (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -356,7 +355,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 - Candidatura de Dulcilene Favacho Silva (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Emanuelle Oliveira Miranda (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Emerson Silveira Da Silva (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Everaldo Machado Portela (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Julio Cezar Soares Dos Santos (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Karime Argentina Duarte Ramires (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Karolina Conceição Cardoso Dos Santos (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -389,12 +387,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 - Candidatura de Sérnio Vasconcelos Conceição Júnior (PSOL/REDE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Uziel Da Silva Monteiro (PSOL/REDE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Vanuza Da Conceição Cardoso (PSOL/REDE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Luiz Omar Cardoso Pinheiro (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ana Paula Barreto Alves (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Antonio Marcos Da Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Clebson Pereira Carvalho (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ricardo Augusto Marinho De Alencar (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ágatha Cristina Santos Conceição Moreira (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luiz Omar Cardoso Pinheiro (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Paula Barreto Alves (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Marcos Da Silva (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Clebson Pereira Carvalho (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ricardo Augusto Marinho De Alencar (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ágatha Cristina Santos Conceição Moreira (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Livia Maria Araújo Noronha De Oliveira (PRD/SOLIDARIEDADE, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Francisco Júnior Da Silva Costa (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Jackeline Macedo Cavaleiro De Macedo Maia (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -503,15 +501,18 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** —
 - Candidatura de Sérgio Ronaldo Guimaraes De Almeida (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wescley Tomaz Silva Aguiar (AVANTE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Número 4433 repetido em UNIÃO/PP/Deputado Federal para: Bruna Marilu Britto Nunes, Bruna Marilu Nunes Batista — conferir manualmente.
+- Número 44100 repetido em UNIÃO/PP/Deputado Estadual para: Bruno Rolim Da Silva, Elki Silva Da Silva — conferir manualmente.
 - Número 2277 repetido em PL/Deputado Federal para: Lorena Paz Cardoso, Lorena Paz Cardoso Lima — conferir manualmente.
 - Número 2299 repetido em PL/Deputado Federal para: Natan Jose Diniz Tulio, Stephanie Sant Pires Ferreira — conferir manualmente.
 - Número 22321 repetido em PL/Deputado Estadual para: Ellayne Cristina Gurgel De Almeida, Letícia Pereira Estrela — conferir manualmente.
 - Número 355 repetido em DEMOCRATA/Senador para: Edlaine Guimaraes Santos Rodrigues, Edlaine Guimarães Santos Rodrigues — conferir manualmente.
+- Número 4343 repetido em PT/PC do B/PV/Deputado Federal para: Antônio Carlos Pereira Morais, Fernando Antonio Rodrigues Coimbra — conferir manualmente.
 - Número 30022 repetido em NOVO/Deputado Estadual para: Richard Spinola Malheiros, Lidio Wellington Cruz De Assis — conferir manualmente.
 - Número 16 repetido em PSTU/Governador para: Wellingta Josyane Siqueira Macedo, Jose Cleber Barros Barroso — conferir manualmente.
 - Número 2526 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Jefferson Márlio Damasceno Paranatinga, Jefferson Márlio Damasceno — conferir manualmente.
 - Número 77130 repetido em PRD/SOLIDARIEDADE/Deputado Estadual para: Sidelvan Gomes Luz, Sidelvan Gomes De Luz — conferir manualmente.
 - Número 12222 repetido em PDT/Deputado Estadual para: Márcio Ivan Lopes Ponte De Souza, Oribes Primo De Freitas — conferir manualmente.
+- Número 65123 repetido em PT/PC do B/PV/Deputado Estadual para: Jorge, Jorge Luiz Guimarães Panzera — conferir manualmente.
 - 13 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)

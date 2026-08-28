@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RN (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RN/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RN/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -32,11 +32,11 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 406-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 23 |
 | 408-psd-convencao.pdf | PSD | não | 1 |
 | 411-psb-retificadora.pdf | PSB | sim | 10 |
-| 431-psdb-cidadania-executiva.pdf | ? | não | 3 |
+| 431-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 3 |
 | 455-novo-convencao.pdf | NOVO | não | 9 |
 | 480-psb-retificadora.pdf | PSB | sim | 10 |
 | 517-missao-retificadora.pdf | MISSÃO | sim | 11 |
-| 525-pt-pc-do-b-pv-executiva.pdf | ? | não | 2 |
+| 525-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 2 |
 | 530-avante-convencao.pdf | AVANTE | não | 9 |
 | 533-pdt-retificadora.pdf | PDT | sim | 12 |
 | 544-up-convencao.pdf | UP | não | 9 |
@@ -47,7 +47,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 81-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 34 |
 | 857-agir-convencao.pdf | AGIR | não | 8 |
 
-Total de candidaturas: **335** — confiança alta: **304**, a revisar (partido não identificado): **28**
+Total de candidaturas: **334** — confiança alta: **305**, a revisar (partido não identificado): **27**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **72** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -131,6 +131,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **72** —
 - Candidatura de Viviane Gomes De Macedo (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Francisco Fabio Fernandes Silveira (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rayanne Da Silva Figueiredo (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Samanda Alves De Freitas (PT/PC do B/PV, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rafael Huete Da Motta (PDT, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Jean Paul Terra Prates (PDT, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Angela Patricia Castro Paiva (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -152,7 +153,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **72** —
 - Candidatura de Raphael Ferreira Araújo (NOVO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Richardson Ferreira Barbosa (NOVO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Suyane Thainara Varela De Medeiros (NOVO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- 28 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 27 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -164,7 +165,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **72** —
 | Larissa Daniela Da Escossia Rosado | Vice-Governador | 1702-psb-retificadora.pdf |
 | Carlos Eduardo Xavier | Governador | 281-pt-pc-do-b-pv-convencao.pdf |
 | Larissa Daniela Da Escossia Rosado | Vice-Governador | 281-pt-pc-do-b-pv-convencao.pdf |
-| Samanda Alves De Freitas | Senador | 281-pt-pc-do-b-pv-convencao.pdf |
+| Samanda Alves De Freitas | Senador | 525-pt-pc-do-b-pv-executiva.pdf |
 | Glisiany Pluvia De Oliveira | Senador (1º suplente) | 281-pt-pc-do-b-pv-convencao.pdf |
 | Oswaldo Gomes Correa Negrao | Senador (2º suplente) | 281-pt-pc-do-b-pv-convencao.pdf |
 | Hermano Da Costa Moraes | Vice-Governador | 294-mdb-convencao.pdf |
@@ -182,7 +183,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **72** —
 | Zenaide Maia Calado Pereira Dos Santos | Senador | 408-psd-convencao.pdf |
 | Valério Djalma Cavalcanti Marinho | Senador (1º suplente) | 431-psdb-cidadania-executiva.pdf |
 | Milena Galvão Ferreira De Souza | Senador (2º suplente) | 431-psdb-cidadania-executiva.pdf |
-| Samanda Alves De Freitas | Senador | 525-pt-pc-do-b-pv-executiva.pdf |
 | João Batista Nascimento Da Silva | Senador (2º suplente) | 525-pt-pc-do-b-pv-executiva.pdf |
 | João Batista Nascimento Da Silva | Senador (2º suplente) | 533-pdt-retificadora.pdf |
 | Joaquim Luiz De Araujo Neto | Senador (1º suplente) | 70-republicanos-convencao.pdf |

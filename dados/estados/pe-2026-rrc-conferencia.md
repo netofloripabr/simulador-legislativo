@@ -6,7 +6,7 @@ Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `pe-2026-provisori
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **929** confirmados, **2** divergência(s) de partido, **29** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **912** confirmados, **0** divergência(s) de partido, **29** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -15,17 +15,14 @@ Resumo: **929** confirmados, **2** divergência(s) de partido, **29** candidato(
 | Governador | 8 | 9 | 9 |
 | Vice-Governador | 8 | 7 | 0 |
 | Senador | 12 | 12 | 12 |
-| Deputado Federal | 388 | 429 | 409 |
-| Deputado Estadual | 517 | 520 | 499 |
+| Deputado Federal | 388 | 409 | 391 |
+| Deputado Estadual | 517 | 520 | 500 |
 | Senador (1º suplente) | 12 | 12 | 0 |
 | Senador (2º suplente) | 12 | 13 | 0 |
 
-## Divergências de partido (revisar — RRC é mais autoritativo)
+## Divergências de partido
 
-| Cargo | Nome (nosso) | Número | Nosso partido | Partido no RRC | Nome no RRC |
-|---|---|---|---|---|---|
-| Deputado Federal | Casimiro Ulisses De Oliveira E Silva | 7711 | treze | SOLIDARIEDADE | CASIMIRO ULISSES DE OLIVEIRA E SILVA |
-| Deputado Estadual | Hildeberto Alves Da Silva Júnior | 77577 | treze | SOLIDARIEDADE | HILDEBERTO ALVES DA SILVA JUNIOR |
+Nenhuma — todo número que bate entre os dois arquivos também bate o partido.
 
 ## Candidatos no RRC sem entrada correspondente no nosso arquivo
 

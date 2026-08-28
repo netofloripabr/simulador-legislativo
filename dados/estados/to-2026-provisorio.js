@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/to-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -23,7 +23,7 @@
 var CANDIDATOS_2026_TO_PROVISORIO = {
   "Deputado Estadual": [
     { id:"pode-elza-maria-de-sa-brito", nome:"Elza Maria De Sá Brito", nomeUrna:"Elzinha Do Povo", numero:20202, partido:"PODE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1653-pode-executiva.pdf" },
-    { id:"pt-pc-do-b-pv-sandra-sousa-costa", nome:"Sandra Sousa Costa", nomeUrna:"Sandra Costa", numero:65180, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"2037-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-sandra-sousa-costa", nome:"Sandra Sousa Costa", nomeUrna:"Sandra Costa", numero:65180, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2037-pt-pc-do-b-pv-executiva.pdf" },
     { id:"republicanos-dinamarcia-lustosa-de-souza-miranda", nome:"Dinamarcia Lustosa De Souza Miranda", nomeUrna:"Subtenente Dinamarcia", numero:10333, partido:"REPUBLICANOS", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2070-republicanos-executiva.pdf" },
     { id:"republicanos-marinalva-viana-rodrigues", nome:"Marinalva Viana Rodrigues", nomeUrna:"Subtenente Marinalva", numero:10990, partido:"REPUBLICANOS", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2103-republicanos-executiva.pdf" },
     { id:"pl-rafael-marcal-carvalho", nome:"Rafael Marçal Carvalho", nomeUrna:"Rafael Marçal", numero:22100, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2051-pl-retificadora.pdf" },
@@ -31,12 +31,12 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"novo-edna-gomes-dos-santos", nome:"Edna Gomes Dos Santos", nomeUrna:"Edna Gomes", numero:30321, partido:"NOVO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1807-novo-executiva.pdf" },
     { id:"psd-adriano-lima-morais", nome:"Adriano Lima Morais", nomeUrna:"Adriano Morais", numero:55022, partido:"PSD", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2246-psd-retificadora.pdf" },
     { id:"prd-solidariedade-bruno-sousa-azevedo", nome:"Bruno Sousa Azevedo", nomeUrna:"Delegado Bruno Azevedo", numero:25000, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1930-25-prd-77-solidariedade-retificadora.pdf" },
-    { id:"uniao-pp-leandro-caitano-dos-santos", nome:"Leandro Caitano Dos Santos", nomeUrna:"Subtenente Caitano", numero:44040, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-leandro-caitano-dos-santos", nome:"Leandro Caitano Dos Santos", nomeUrna:"Subtenente Caitano", numero:44040, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
     { id:"psd-betania-nunes-maciel-fonseca", nome:"Betania Nunes Maciel Fonseca", nomeUrna:"Betania Maciel", numero:55200, partido:"PSD", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2148-psd-retificadora.pdf" },
     { id:"psd-cesar-hanna-halum", nome:"Cesar Hanna Halum", nomeUrna:"Cesar Halum", numero:55555, partido:"PSD", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2246-psd-retificadora.pdf" },
     { id:"mdb-danilo-alencar-de-andrade", nome:"Danilo Alencar De Andrade", nomeUrna:"Dr Danilo Alencar", numero:15123, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1620-mdb-retificadora.pdf" },
     { id:"prd-solidariedade-barbara-pires-andrade", nome:"Bárbara Pires Andrade", nomeUrna:"Dra. Bárbara", numero:25789, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1930-25-prd-77-solidariedade-retificadora.pdf" },
-    { id:"uniao-pp-lizonete-nunes-dos-reis", nome:"Lizonete Nunes Dos Reis", nomeUrna:"Lizonete Nunes", numero:11456, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-lizonete-nunes-dos-reis", nome:"Lizonete Nunes Dos Reis", nomeUrna:"Lizonete Nunes", numero:11456, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
     { id:"psd-dyego-pereira-lima", nome:"Dyego Pereira Lima", nomeUrna:"Dyego Pereira", numero:55000, partido:"PSD", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2246-psd-retificadora.pdf" },
     { id:"mdb-diego-saraiva-pires", nome:"Diego Saraiva Pires", nomeUrna:"Diego Da Apaa", numero:15500, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1620-mdb-retificadora.pdf" },
     { id:"prd-solidariedade-cibele-bezerra-costa", nome:"Cibele Bezerra Costa", nomeUrna:"Cibele Bezerra", numero:77192, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1930-25-prd-77-solidariedade-retificadora.pdf" },
@@ -198,7 +198,6 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"psd-silvania-cristina-alves-marinho-requia", nome:"Silvania Cristina Alves Marinho Requia", nomeUrna:"Silvania Marinho", numero:55888, partido:"PSD", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2148-psd-retificadora.pdf" },
     { id:"pt-pc-do-b-pv-jose-roberto-ribeiro-forzani", nome:"José Roberto Ribeiro Forzani", nomeUrna:"Zé Roberto", numero:13456, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2163-pt-pc-do-b-pv-retificadora.pdf" },
     { id:"pl-paulo-de-tarcio-gomes-da-silva", nome:"Paulo De Tárcio Gomes Da Silva", nomeUrna:"Paulo Gomes", numero:22555, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"438-pl-convencao.pdf" },
-    { id:"uniao-pp-leandro-caitano-dos-santos-2", nome:"Leandro Caitano Dos Santos", nomeUrna:"Professor Adriano", numero:44040, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"536-44-uniao-11-pp-convencao.pdf" },
     { id:"pode-jose-filho-araujo", nome:"José Filho Araújo", nomeUrna:"José Do Podemos", numero:20022, partido:"PODE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"588-pode-convencao.pdf" },
     { id:"psdb-cidadania-jose-luiz-pereira-junior", nome:"Jose Luiz Pereira Junior", nomeUrna:"Professor Junior Geo", numero:45123, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2138-psdb-cidadania-retificadora.pdf" },
     { id:"republicanos-pedro-sousa-catingueiro-junior", nome:"Pedro Sousa Catingueiro Junior", nomeUrna:"Pedro Junior", numero:10777, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1614-republicanos-retificadora.pdf" },
@@ -269,19 +268,19 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
   ],
   "Deputado Federal": [
     { id:"prd-solidariedade-charleide-matos-da-cruz", nome:"Charleide Matos Da Cruz", nomeUrna:"Charleide Matos", numero:2513, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1930-25-prd-77-solidariedade-retificadora.pdf" },
-    { id:"uniao-pp-daiane-lima", nome:"Daiane Lima", nomeUrna:"Sargento Daiane", numero:1193, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-daiane-lima", nome:"Daiane Lima", nomeUrna:"Sargento Daiane", numero:1193, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
     { id:"pl-marnandys-carlos-dorta", nome:"Marnandys Carlos Dorta", nomeUrna:"Marnamdys Dorta", numero:2212, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2051-pl-retificadora.pdf" },
     { id:"missao-brunna-fernandes-da-silva", nome:"Brunna Fernandes Da Silva", nomeUrna:"Brunna Silva", numero:1415, partido:"MISSÃO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2100-missao-retificadora.pdf" },
     { id:"pdt-abraao-cavalcante-lima", nome:"Abraão Cavalcante Lima", nomeUrna:"Prof Dr Abraão Lima", numero:1212, partido:"PDT", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2164-pdt-retificadora.pdf" },
     { id:"psb-antonio-bezerra-de-sousa", nome:"Antonio Bezerra De Sousa", nomeUrna:"Antonio Bezerra", numero:4045, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"896-psb-convencao.pdf" },
-    { id:"uniao-pp-marcio-antonio-barbosa-de-mendonca", nome:"Márcio Antônio Barbosa De Mendonça", nomeUrna:"Coronel Barbosa", numero:4422, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-marcio-antonio-barbosa-de-mendonca", nome:"Márcio Antônio Barbosa De Mendonça", nomeUrna:"Coronel Barbosa", numero:4422, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
     { id:"prd-solidariedade-elmir-jose-alves", nome:"Elmir José Alves", nomeUrna:"Elmir Alves", numero:2500, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1930-25-prd-77-solidariedade-retificadora.pdf" },
     { id:"missao-claudiomara-pires-gama", nome:"Claudiomara Pires Gama", nomeUrna:"Claudiomara Gama", numero:1401, partido:"MISSÃO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2100-missao-retificadora.pdf" },
     { id:"pdt-antonio-reis-marques", nome:"Antonio Reis Marques", nomeUrna:"Antonio Reis", numero:1256, partido:"PDT", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2164-pdt-retificadora.pdf" },
     { id:"psb-eliana-castro-de-oliveira", nome:"Eliana Castro De Oliveira", nomeUrna:"Eliana Castro", numero:4022, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"896-psb-convencao.pdf" },
     { id:"psdb-cidadania-cinthia-alves-caetano-ribeiro-mantoan", nome:"Cinthia Alves Caetano Ribeiro Mantoan", nomeUrna:"Cinthia Ribeiro", numero:4545, partido:"PSDB/CIDADANIA", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2138-psdb-cidadania-retificadora.pdf" },
     { id:"republicanos-alfredo-falcao-costa-junior", nome:"Alfredo Falcão Costa Júnior", nomeUrna:"Alfredo Júnior", numero:1011, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1614-republicanos-retificadora.pdf" },
-    { id:"uniao-pp-roberlan-barbosa-da-silva", nome:"Roberlan Barbosa Da Silva", nomeUrna:"Roberlan Cokim Fiscal Do Povo", numero:1100, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-roberlan-barbosa-da-silva", nome:"Roberlan Barbosa Da Silva", nomeUrna:"Roberlan Cokim Fiscal Do Povo", numero:1100, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1501-44-uniao-11-pp-executiva.pdf" },
     { id:"missao-daniel-felipe-da-silva-bastos", nome:"Daniel Felipe Da Silva Bastos", nomeUrna:"Daniel Bastos", numero:1433, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2100-missao-retificadora.pdf" },
     { id:"pdt-djacy-almeida-da-silva", nome:"Djacy Almeida Da Silva", nomeUrna:"Djacy Almeida", numero:1255, partido:"PDT", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2164-pdt-retificadora.pdf" },
     { id:"psb-freed-rodrigues-lustosa", nome:"Freed Rodrigues Lustosa", nomeUrna:"Freed Lustosa", numero:4007, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"896-psb-convencao.pdf" },
@@ -358,10 +357,8 @@ var CANDIDATOS_2026_TO_PROVISORIO = {
     { id:"uniao-pp-maria-ruth-de-sousa-almeida-santana", nome:"Maria Ruth De Sousa Almeida Santana", nomeUrna:"Ruth Almeida", numero:4412, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"536-44-uniao-11-pp-convencao.pdf" },
     { id:"pode-paulo-roberto-gomes-ferreira", nome:"Paulo Roberto Gomes Ferreira", nomeUrna:"Paulo Baré", numero:2025, partido:"PODE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"588-pode-convencao.pdf" },
     { id:"psol-rede-cleiton-vieira-da-silva", nome:"Cleiton Vieira Da Silva", nomeUrna:"Cleiton Vieira", numero:5055, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1789-psol-rede-retificadora.pdf" },
-    { id:"uniao-pp-marcio-antonio-barbosa-de-mendonca-2", nome:"Márcio Antônio Barbosa De Mendonça", nomeUrna:"Coronel Marcio Barbosa", numero:4422, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"536-44-uniao-11-pp-convencao.pdf" },
     { id:"pode-sandoval-lobo-cardoso", nome:"Sandoval Lôbo Cardoso", nomeUrna:"Sandoval Cardoso", numero:2022, partido:"PODE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"588-pode-convencao.pdf" },
     { id:"psol-rede-claudia-moreira-berger-milbratz", nome:"Cláudia Moreira Berger Milbratz", nomeUrna:"Dra. Cláudia Milbratz", numero:1833, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1789-psol-rede-retificadora.pdf" },
-    { id:"uniao-pp-roberlan-barbosa-da-silva-2", nome:"Roberlan Barbosa Da Silva", nomeUrna:"Roberlan Cokim Fiscal Do Povo", numero:4400, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"536-44-uniao-11-pp-convencao.pdf" },
     { id:"pode-tiago-dimas-braga-pereira", nome:"Tiago Dimas Braga Pereira", nomeUrna:"Tiago Dimas", numero:2088, partido:"PODE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"588-pode-convencao.pdf" },
     { id:"psol-rede-cicera-marcia-do-nascimento-bandeira", nome:"Cícera Marcia Do Nascimento Bandeira", nomeUrna:"Márcia Bandeira", numero:5033, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1789-psol-rede-retificadora.pdf" },
     { id:"pode-valeria-domingues-soares", nome:"Valéria Domingues Soares", nomeUrna:"Professora Valéria Domingues", numero:2030, partido:"PODE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"588-pode-convencao.pdf" },

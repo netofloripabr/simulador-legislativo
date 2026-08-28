@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 GO (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/GO/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/GO/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -13,7 +13,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1010-pode-executiva.pdf | PODE | não | 1 |
 | 1014-pl-retificadora.pdf | PL | sim | 67 |
 | 1027-psb-convencao.pdf | PSB | não | 54 |
-| 1065-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 1065-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 1074-pode-executiva.pdf | PODE | não | 2 |
 | 1103-mdb-convencao.pdf | MDB | não | 60 |
 | 1230-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 68 |
@@ -24,7 +24,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1266-republicanos-convencao.pdf | REPUBLICANOS | não | 46 |
 | 1308-mobiliza-executiva.pdf | MOBILIZA | não | 0 |
 | 1310-pco-convencao.pdf | PCO | não | 2 |
-| 1321-pt-pc-do-b-pv-executiva.pdf | ? | não | 3 |
+| 1321-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 3 |
 | 1343-democrata-convencao.pdf | DEMOCRATA | não | 31 |
 | 1363-avante-convencao.pdf | AVANTE | não | 0 |
 | 1387-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 63 |
@@ -34,42 +34,42 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1588-novo-executiva.pdf | NOVO | não | 1 |
 | 1592-pl-retificadora.pdf | PL | sim | 67 |
 | 1604-dc-executiva.pdf | DC | não | 1 |
-| 1623-psol-rede-executiva.pdf | ? | não | 1 |
+| 1623-psol-rede-executiva.pdf | PSOL/REDE | não | 1 |
 | 1627-pl-retificadora.pdf | PL | sim | 67 |
-| 1641-44-uniao-11-pp-executiva.pdf | ? | não | 1 |
+| 1641-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 | 1661-pode-executiva.pdf | PODE | não | 2 |
 | 1670-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 68 |
 | 1671-democrata-retificadora.pdf | DEMOCRATA | sim | 31 |
 | 1673-pode-executiva.pdf | PODE | não | 0 |
-| 1678-psol-rede-executiva.pdf | ? | não | 2 |
+| 1678-psol-rede-executiva.pdf | PSOL/REDE | não | 2 |
 | 1680-missao-retificadora.pdf | MISSÃO | sim | 13 |
 | 1725-novo-executiva.pdf | NOVO | não | 0 |
 | 1727-mdb-executiva.pdf | MDB | não | 6 |
 | 1739-agir-executiva.pdf | AGIR | não | 4 |
-| 1741-psdb-cidadania-executiva.pdf | ? | não | 0 |
+| 1741-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 0 |
 | 1750-pdt-retificadora.pdf | PDT | sim | 20 |
-| 1752-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 1752-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 1758-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 68 |
 | 1796-dc-executiva.pdf | DC | não | 0 |
 | 1844-pl-executiva.pdf | PL | não | 1 |
 | 1873-democrata-executiva.pdf | DEMOCRATA | não | 1 |
 | 1880-avante-executiva.pdf | AVANTE | não | 0 |
 | 1904-psb-executiva.pdf | PSB | não | 3 |
-| 1925-psdb-cidadania-executiva.pdf | ? | não | 0 |
+| 1925-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 0 |
 | 1931-pode-executiva.pdf | PODE | não | 1 |
 | 1941-prtb-executiva.pdf | PRTB | não | 0 |
 | 1976-dc-executiva.pdf | DC | não | 5 |
-| 1982-25-prd-77-solidariedade-executiva.pdf | ? | não | 2 |
+| 1982-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 2 |
 | 1996-agir-retificadora.pdf | AGIR | sim | 37 |
 | 1998-pode-executiva.pdf | PODE | não | 0 |
 | 2019-mdb-executiva.pdf | MDB | não | 3 |
 | 2042-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | sim | 0 |
-| 2074-25-prd-77-solidariedade-executiva.pdf | ? | não | 1 |
+| 2074-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 1 |
 | 2135-pco-retificadora.pdf | PCO | sim | 2 |
 | 2162-psd-executiva.pdf | PSD | não | 0 |
 | 2191-up-retificadora.pdf | UP | sim | 9 |
 | 2205-psb-executiva.pdf | PSB | não | 0 |
-| 2230-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 2230-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 235-missao-convencao.pdf | MISSÃO | não | 13 |
 | 471-dc-convencao.pdf | DC | não | 54 |
 | 515-missao-retificadora.pdf | MISSÃO | sim | 13 |
@@ -90,7 +90,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 970-psd-convencao.pdf | PSD | não | 33 |
 | 993-44-uniao-11-pp-convencao.pdf | UNIÃO/PP | não | 60 |
 
-Total de candidaturas: **932** — confiança alta: **891**, a revisar (partido não identificado): **33**
+Total de candidaturas: **931** — confiança alta: **899**, a revisar (partido não identificado): **32**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -343,7 +343,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Candidatura de Wilde Lopes Roriz (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Eglai Aparecida Hirose (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rosa Maria Rodrigues De Godoi (NOVO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Patrick De Noronha (None, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Patrick De Noronha (PSOL/REDE, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cíntia Aparecida Dias (PSOL/REDE, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Aline Bernardo Gomes (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Anastacia Almeida Campos (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Anderson Alves Dos Santos (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -515,6 +516,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Número 15117 repetido em MDB/Deputado Estadual para: Louiza Ramiro Da Costa, Zenaide Moreira De Freitas — conferir manualmente.
 - Número 15005 repetido em MDB/Deputado Estadual para: Sania Larissa Aparecida Rodrigues Diniz, Délice Brasil Coelho — conferir manualmente.
 - Número 4550 repetido em PSDB/CIDADANIA/Deputado Federal para: Eglair Aparecida Hirose, Eglai Aparecida Hirose — conferir manualmente.
+- Número 2590 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Jenifer Lorrane Ribeiro Mendes, Wiviane De Cassia Borges Spindola De Castro Gomes — conferir manualmente.
 - Número 1248 repetido em PDT/Deputado Federal para: Valdecy Andre Da Silva, Waldecy Andre Da Silva — conferir manualmente.
 - Número 2799 repetido em DC/Deputado Federal para: Joelma Oliveira Silva, Angela Maria Da Silva Castro — conferir manualmente.
 - Número 2772 repetido em DC/Deputado Federal para: Alisson Silva Borges, Adriana Alves Ferreira, Janete Freitas Gomes — conferir manualmente.
@@ -523,7 +525,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Número 27444 repetido em DC/Deputado Estadual para: Rosangela Alves Dos Santos Mendes, Natividade Alves De Oliveira — conferir manualmente.
 - Número 2730 repetido em DC/Deputado Federal para: Djalma Francisco De Sousa, Joao Carlos Dadalte Junior — conferir manualmente.
 - Número 20123 repetido em PODE/Deputado Estadual para: Elisa Maria Caetano Rosa, Elisa Maria Caetano — conferir manualmente.
-- 33 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 32 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -557,7 +559,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 | Cíntia Aparecida Dias | Senador | 1678-psol-rede-executiva.pdf |
 | Fernando Isaac Borges De Faria | Senador (2º suplente) | 1750-pdt-retificadora.pdf |
 | Luis Cesar Bueno E Freitas | Governador | 855-pt-pc-do-b-pv-retificadora.pdf |
-| Cíntia Aparecida Dias | Senador | 808-psol-rede-convencao.pdf |
 | Patrick De Noronha | Senador (1º suplente) | 808-psol-rede-convencao.pdf |
 | Emerson Alves De Lima | Senador (1º suplente) | 843-pl-convencao.pdf |
 | Leonardo Cairo Rizzo | Senador (2º suplente) | 843-pl-convencao.pdf |

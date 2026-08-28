@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RR (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RR/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RR/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -13,7 +13,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1041-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 38 |
 | 1052-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 37 |
 | 1099-psol-rede-retificadora.pdf | PSOL/REDE | sim | 16 |
-| 1112-psdb-cidadania-executiva.pdf | ? | não | 3 |
+| 1112-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 3 |
 | 1118-psb-executiva.pdf | PSB | não | 3 |
 | 1156-psd-retificadora.pdf | PSD | sim | 3 |
 | 1158-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 37 |
@@ -44,11 +44,11 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1693-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 38 |
 | 1770-novo-executiva.pdf | NOVO | não | 0 |
 | 1806-avante-executiva.pdf | AVANTE | não | 6 |
-| 1814-pt-pc-do-b-pv-executiva.pdf | ? | não | 0 |
+| 1814-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 0 |
 | 1859-pdt-executiva.pdf | PDT | não | 0 |
 | 1882-pdt-retificadora.pdf | PDT | sim | 30 |
 | 1989-agir-retificadora.pdf | AGIR | sim | 25 |
-| 2000-44-uniao-11-pp-executiva.pdf | ? | não | 35 |
+| 2000-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 35 |
 | 2046-psb-retificadora.pdf | PSB | sim | 3 |
 | 2056-psdb-cidadania-retificadora.pdf | ? | sim | 3 |
 | 2107-psd-retificadora.pdf | PSD | sim | 3 |
@@ -71,13 +71,15 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 939-pode-retificadora.pdf | PODE | sim | 34 |
 | 951-republicanos-convencao.pdf | REPUBLICANOS | não | 32 |
 
-Total de candidaturas: **486** — confiança alta: **416**, a revisar (partido não identificado): **35**
+Total de candidaturas: **463** — confiança alta: **426**, a revisar (partido não identificado): **35**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **81** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
 - Candidatura de Márcio Henrique Junqueira Pereira (PSDB/CIDADANIA, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Edinaldo De Souza Barreira (PSDB/CIDADANIA, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Carla Teresa Cabral De Medeiros (PSDB/CIDADANIA, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Antônio Henrique De Souza Cruz Pereira (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Cecília Smith Lorenzon Basso (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Edio Vieira Lopes (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -165,7 +167,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **81** —
 - Candidatura de Merilane Saldanha (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Robert Dagon Da Silva (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ronilson Lopes Dos Santos (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Márcio Henrique Junqueira Pereira (None, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Francisco De Assis Rodrigues (PSB, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Pedro Arthur Ferreira Rodrigues (PSB, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Carla Jordanna Aparecida Rodrigues (PSB, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
@@ -356,7 +357,18 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **81** —
 - Candidatura de Carla Jordanna Aparecida Rodrigues Meneses (PSB, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Número 45123 repetido em PSDB/CIDADANIA/Deputado Estadual para: Jalser Renier Padilha, Tatyanne Aguillera Padilha — conferir manualmente.
 - Número 43123 repetido em PT/PC do B/PV/Deputado Estadual para: Claudio Da Silva Diniz, Claudio Silva Diniz — conferir manualmente.
-- Número 4477 repetido em UNIÃO/PP/Deputado Federal para: Stelio Denner De Souza Cruz, Stelio Dener De Souza Cruz — conferir manualmente.
+- Número 4455 repetido em UNIÃO/PP/Deputado Federal para: Jose Haroldo Figueiredo Campos, José Haroldo Figueiredo Campos — conferir manualmente.
+- Número 4422 repetido em UNIÃO/PP/Deputado Federal para: Raimundo Diniz Araujo, Raimundo Diniz Araújo — conferir manualmente.
+- Número 4477 repetido em UNIÃO/PP/Deputado Federal para: Stelio Denner De Souza Cruz, Stelio Dener De Souza Cruz, Stélio Dener De Souza Cruz — conferir manualmente.
+- Número 11120 repetido em UNIÃO/PP/Deputado Estadual para: Angela Águida Portella Alves, Angela Aguida Portella Alves — conferir manualmente.
+- Número 44120 repetido em UNIÃO/PP/Deputado Estadual para: Antonio Eduardo Filho, Antônio Eduardo Filho — conferir manualmente.
+- Número 11444 repetido em UNIÃO/PP/Deputado Estadual para: Antonio Sergio Nunes Cunha, Antônio Sérgio Nunes Cunha — conferir manualmente.
+- Número 44077 repetido em UNIÃO/PP/Deputado Estadual para: Emanuel Felipe Alencar Thome, Emanoel Felipe Alencar Thomé — conferir manualmente.
+- Número 44123 repetido em UNIÃO/PP/Deputado Estadual para: Joilma Teodora De Araújo Silva, Joilma Teodora De Araujo Silva — conferir manualmente.
+- Número 44444 repetido em UNIÃO/PP/Deputado Estadual para: Jorge Everton Barreto Guimarães, Jorge Everton Barreto Guimaraes — conferir manualmente.
+- Número 44144 repetido em UNIÃO/PP/Deputado Estadual para: Maria De Nazare Ramalho, Maria De Nazaré Sodré Ramalho — conferir manualmente.
+- Número 44044 repetido em UNIÃO/PP/Deputado Estadual para: Maria Gorete Lica De Oliveira, Maria Gorete Licá De Oliveira — conferir manualmente.
+- Número 44192 repetido em UNIÃO/PP/Deputado Estadual para: Melquisedeck Da Silva Menezes, Melquisedek Da Silva Menezes — conferir manualmente.
 - Número 7789 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Laudiceia De Holanda Da Silva, Jeferson Batista Moura — conferir manualmente.
 - Número 7722 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: José Marcelino Oliveira Pontes, Jose Marcelino Oliveira Pontes — conferir manualmente.
 - Número 7077 repetido em AVANTE/Deputado Federal para: Aluyzio Marques Brasil Neto, Aluyzio Brasil Neto — conferir manualmente.
@@ -366,11 +378,10 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **81** —
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
-| Rosimayre Patrícia Aires Da Silva | Governador | 1099-psol-rede-retificadora.pdf |
-| Lúcia Alberto | Vice-Governador | 1099-psol-rede-retificadora.pdf |
-| Márcio Henrique Junqueira Pereira | Senador | 2056-psdb-cidadania-retificadora.pdf |
 | Edinaldo De Souza Barreira | Senador (1º suplente) | 1112-psdb-cidadania-executiva.pdf |
 | Carla Teresa Cabral De Medeiros | Senador (2º suplente) | 1112-psdb-cidadania-executiva.pdf |
+| Rosimayre Patrícia Aires Da Silva | Governador | 1099-psol-rede-retificadora.pdf |
+| Lúcia Alberto | Vice-Governador | 1099-psol-rede-retificadora.pdf |
 | Francisco De Assis Rodrigues | Senador | 2046-psb-retificadora.pdf |
 | Pedro Arthur Ferreira Rodrigues | Senador (1º suplente) | 2046-psb-retificadora.pdf |
 | Carla Jordanna Aparecida Rodrigues | Senador (2º suplente) | 2046-psb-retificadora.pdf |
@@ -396,6 +407,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **81** —
 | Cairon Rodrigo Corrêa Marques | Senador (2º suplente) | 1806-avante-executiva.pdf |
 | Isamar Pessoa Ramalho Junior | Senador (1º suplente) | 2000-44-uniao-11-pp-executiva.pdf |
 | Ronaldo De Souza Damasceno | Senador (2º suplente) | 2000-44-uniao-11-pp-executiva.pdf |
+| Márcio Henrique Junqueira Pereira | Senador | 2056-psdb-cidadania-retificadora.pdf |
 | Leônidas Silva Morais | Senador (1º suplente) | 2056-psdb-cidadania-retificadora.pdf |
 | Edinaldo De Souza Barreira | Senador (2º suplente) | 2056-psdb-cidadania-retificadora.pdf |
 | Haroldo Alves Campos | Vice-Governador | 638-novo-convencao.pdf |

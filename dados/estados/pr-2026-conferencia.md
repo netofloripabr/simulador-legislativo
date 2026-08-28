@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PR (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PR/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PR/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -21,14 +21,14 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1232-democrata-executiva.pdf | DEMOCRATA | não | 22 |
 | 1239-pode-executiva.pdf | PODE | não | 6 |
 | 1258-pdt-executiva.pdf | PDT | não | 4 |
-| 1281-44-uniao-11-pp-executiva.pdf | ? | não | 3 |
-| 1292-pt-pc-do-b-pv-executiva.pdf | ? | não | 4 |
+| 1281-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 3 |
+| 1292-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 4 |
 | 1315-mdb-executiva.pdf | MDB | não | 0 |
 | 1316-psd-executiva.pdf | PSD | não | 7 |
 | 1355-pdt-convencao.pdf | PDT | não | 2 |
 | 1364-psd-executiva.pdf | PSD | não | 2 |
-| 1370-pt-pc-do-b-pv-executiva.pdf | ? | não | 6 |
-| 1398-psol-rede-executiva.pdf | ? | não | 5 |
+| 1370-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 6 |
+| 1398-psol-rede-executiva.pdf | PSOL/REDE | não | 5 |
 | 1413-pco-convencao.pdf | PCO | não | 9 |
 | 1428-republicanos-executiva.pdf | REPUBLICANOS | não | 3 |
 | 1434-missao-retificadora.pdf | MISSÃO | sim | 69 |
@@ -40,7 +40,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1544-republicanos-retificadora.pdf | REPUBLICANOS | sim | 3 |
 | 1552-mdb-retificadora.pdf | MDB | sim | 0 |
 | 1557-republicanos-retificadora.pdf | REPUBLICANOS | sim | 3 |
-| 1560-psol-rede-retificadora.pdf | ? | sim | 6 |
+| 1560-psol-rede-retificadora.pdf | PSOL/REDE | sim | 6 |
 | 1584-novo-executiva.pdf | NOVO | não | 0 |
 | 1594-psd-executiva.pdf | PSD | não | 1 |
 | 1606-pl-retificadora.pdf | PL | sim | 91 |
@@ -68,7 +68,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 334-psol-rede-convencao.pdf | PSOL/REDE | não | 58 |
 | 336-psd-convencao.pdf | PSD | não | 86 |
 | 370-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 81 |
-| 492-44-uniao-11-pp-executiva.pdf | ? | não | 1 |
+| 492-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 | 520-up-convencao.pdf | UP | não | 9 |
 | 526-pdt-retificadora.pdf | PDT | sim | 85 |
 | 531-pode-convencao.pdf | PODE | não | 0 |
@@ -85,7 +85,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 878-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 85 |
 | 893-mobiliza-convencao.pdf | MOBILIZA | não | 21 |
 
-Total de candidaturas: **1171** — confiança alta: **1125**, a revisar (partido não identificado): **35**
+Total de candidaturas: **1166** — confiança alta: **1136**, a revisar (partido não identificado): **30**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -345,8 +345,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** —
 - Candidatura de Silvana Festa Dias (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Mauricio Thadeu De Mello E Silva (PDT, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Michele Caputo Neto (PDT, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Gleisi Helena Hoffmann (None, Senador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Assis Gurgacz Neto (None, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gleisi Helena Hoffmann (PT/PC do B/PV, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Assis Gurgacz Neto (PT/PC do B/PV, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Luiz Roberto Romano (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Maitê Dias (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wolmir Cardoso De Aguiar (PSD, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -354,11 +354,14 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** —
 - Candidatura de Joseia Gonçalves (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Leônidas Edson Kusma (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Nelson Raimundo Filho (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Bernna Wanessa Da Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Anderval Aparecido Costa Da Silva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Crystopher Gabriel Matias E Silva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Dino César De Mattos (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Sebastiana Antonia Da Silva (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Florisvaldo Fier (PT/PC do B/PV, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Cristiane Aparecida Wainer (PT/PC do B/PV, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Celina Do Carmo Da Silva Wotcoski (PT/PC do B/PV, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bernna Wanessa Da Silva (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Anderval Aparecido Costa Da Silva (PSOL/REDE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Crystopher Gabriel Matias E Silva (PSOL/REDE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Dino César De Mattos (PSOL/REDE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Sebastiana Antonia Da Silva (PSOL/REDE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alexandre Maranhão Khoury (REPUBLICANOS, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Carlos Eduardo Hammerschimidt (REPUBLICANOS, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Nelson Fernando Padovani (REPUBLICANOS, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
@@ -632,7 +635,10 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** —
 - Número 3570 repetido em DEMOCRATA/Deputado Federal para: Thays Bárbara De Paula Aguiar, Thaís Bárbara De Paula Aguiar — conferir manualmente.
 - Número 20001 repetido em PODE/Deputado Estadual para: Cinthia Goncalves Da Silva, Hipolita Simião Dias — conferir manualmente.
 - Número 12 repetido em PDT/Governador para: Mauricio Thadeu De Mello E Silva, Maurício Thadeu De Mello E Silva — conferir manualmente.
+- Número 1100 repetido em UNIÃO/PP/Deputado Federal para: Darwin Takahiro Shiwaku, Alexandre De Freitas — conferir manualmente.
+- Número 11888 repetido em UNIÃO/PP/Deputado Estadual para: Michel Lee Giovanella, Anice Nagib Gazzaoui — conferir manualmente.
 - Número 5515 repetido em PSD/Deputado Federal para: Luiz Roberto Romano, Brayan Vinicius Roque — conferir manualmente.
+- Número 50100 repetido em PSOL/REDE/Deputado Estadual para: Sebastiana Antonia Da Silva, Bernna Wanessa Da Silva — conferir manualmente.
 - Número 100 repetido em REPUBLICANOS/Senador para: Alexandre Maranhão Khoury, Alexandre Maranhao Khury, Alexandre Maranhão Khury — conferir manualmente.
 - Número 14 repetido em MISSÃO/Governador para: João Adolfo Padilha Yamane Wendpap, Luiz Felipe Martins França — conferir manualmente.
 - Número 144 repetido em MISSÃO/Senador para: Karen Correia Guerreiro, Renato Scarante, Sonni Jair Ricardo Colombo Rezini — conferir manualmente.
@@ -643,7 +649,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** —
 - Número 1232 repetido em PDT/Deputado Federal para: Ari Antônio Alves Sobrinho, Josias Milani — conferir manualmente.
 - Número 12789 repetido em PDT/Deputado Estadual para: Roney Da Silva Santos, Roniy Da Silva Santos — conferir manualmente.
 - Número 12001 repetido em PDT/Deputado Estadual para: Lucineia Aparecida Fragoso, Gislaine Gonçalves — conferir manualmente.
-- 35 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 30 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -679,11 +685,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **86** —
 | Alexandre Maranhão Khury | Senador | 1557-republicanos-retificadora.pdf |
 | Maurício Thadeu De Mello E Silva | Governador | 859-pdt-retificadora.pdf |
 | Assis Gurgacz Neto | Senador (1º suplente) | 859-pdt-retificadora.pdf |
-| Florisvaldo Fier | Senador | 370-pt-pc-do-b-pv-convencao.pdf |
-| Gleisi Helena Hoffmann | Senador | 370-pt-pc-do-b-pv-convencao.pdf |
-| Assis Gurgacz Neto | Senador (1º suplente) | 370-pt-pc-do-b-pv-convencao.pdf |
-| Cristiane Aparecida Wainer | Senador (1º suplente) | 370-pt-pc-do-b-pv-convencao.pdf |
-| Celina Do Carmo Da Silva Wotcoski | Senador (2º suplente) | 370-pt-pc-do-b-pv-convencao.pdf |
 
 ## Status de confirmação
 

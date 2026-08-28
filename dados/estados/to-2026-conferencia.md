@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 TO (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/TO/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/TO/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -19,7 +19,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1389-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 22 |
 | 1442-pode-executiva.pdf | PODE | não | 0 |
 | 1494-dc-executiva.pdf | DC | não | 1 |
-| 1501-44-uniao-11-pp-executiva.pdf | ? | não | 5 |
+| 1501-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 5 |
 | 155-psol-rede-convencao.pdf | PSOL/REDE | não | 19 |
 | 1556-republicanos-retificadora.pdf | REPUBLICANOS | sim | 29 |
 | 1570-republicanos-retificadora.pdf | REPUBLICANOS | sim | 31 |
@@ -36,7 +36,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1871-democrata-retificadora.pdf | DEMOCRATA | sim | 14 |
 | 1930-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 23 |
 | 1966-dc-retificadora.pdf | DC | sim | 13 |
-| 2037-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 2037-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 2051-pl-retificadora.pdf | PL | sim | 2 |
 | 2070-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
 | 2073-dc-retificadora.pdf | DC | sim | 15 |
@@ -60,7 +60,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 890-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 33 |
 | 896-psb-convencao.pdf | PSB | não | 9 |
 
-Total de candidaturas: **382** — confiança alta: **362**, a revisar (partido não identificado): **13**
+Total de candidaturas: **379** — confiança alta: **365**, a revisar (partido não identificado): **13**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **60** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -176,6 +176,9 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **60** —
 - Candidatura de Wilson Lucimar Alves Carvalho (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ângela Maria Silva (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ivaildo Pereira Da Cruz (DC, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Márcio Antônio Barbosa De Mendonça (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Roberlan Barbosa Da Silva (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leandro Caitano Dos Santos (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Witer Fonseca Neves (PSOL/REDE, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Maria Lúcia Soares Viana (PSOL/REDE, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Fábio Paulino Ribeiro (PSOL/REDE, Senador) tem versão retificadora — mantendo só a mais nova.
@@ -308,6 +311,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **60** —
 - Candidatura de Paulo Sergio Reis Cardoso (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Sileia Da Silva Monteiro (PDT, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rosanio Fernandes De Melo (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Número 11456 repetido em UNIÃO/PP/Deputado Estadual para: Lizonete Nunes Dos Reis, Maria Aparecida Silva Ribeiro — conferir manualmente.
 - Número 355 repetido em DEMOCRATA/Senador para: Osvani Pereira Da Luz, Osvany Pereira Da Luz — conferir manualmente.
 - Número 35111 repetido em DEMOCRATA/Deputado Estadual para: Eliane Muniz Gonçalves, Maria Goreth Da Silva Assuncao — conferir manualmente.
 - Número 22100 repetido em PL/Deputado Estadual para: Rafael Marçal Carvalho, Delaite Rocha Da Silva — conferir manualmente.

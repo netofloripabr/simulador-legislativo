@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PE (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PE/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PE/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -30,22 +30,22 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1833-pl-retificadora.pdf | PL | sim | 72 |
 | 1849-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 71 |
 | 1862-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 71 |
-| 1881-psol-rede-executiva.pdf | ? | não | 2 |
+| 1881-psol-rede-executiva.pdf | PSOL/REDE | não | 2 |
 | 1894-psd-executiva.pdf | PSD | não | 2 |
-| 1926-25-prd-77-solidariedade-executiva.pdf | treze | não | 2 |
+| 1926-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 2 |
 | 194-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 48 |
 | 1981-dc-executiva.pdf | DC | não | 9 |
 | 1987-psb-executiva.pdf | PSB | não | 2 |
 | 1994-psd-retificadora.pdf | PSD | sim | 3 |
-| 2007-psdb-cidadania-executiva.pdf | ? | não | 26 |
-| 2024-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 2007-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 26 |
+| 2024-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 2025-pdt-executiva.pdf | PDT | não | 4 |
 | 203-pode-convencao.pdf | PODE | não | 70 |
 | 2030-avante-executiva.pdf | AVANTE | não | 1 |
 | 2053-avante-executiva.pdf | AVANTE | não | 1 |
 | 2071-missao-retificadora.pdf | MISSÃO | sim | 37 |
 | 2124-republicanos-executiva.pdf | REPUBLICANOS | não | 0 |
-| 2126-pt-pc-do-b-pv-executiva.pdf | ? | não | 0 |
+| 2126-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 0 |
 | 2147-mdb-executiva.pdf | MDB | não | 0 |
 | 224-up-convencao.pdf | UP | não | 12 |
 | 226-novo-convencao.pdf | NOVO | não | 79 |
@@ -59,7 +59,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 453-avante-convencao.pdf | AVANTE | não | 76 |
 | 481-missao-retificadora.pdf | MISSÃO | sim | 38 |
 | 489-psb-convencao.pdf | PSB | não | 68 |
-| 502-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 502-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 538-pdt-convencao.pdf | PDT | não | 19 |
 | 576-pode-executiva.pdf | PODE | sim | 0 |
 | 591-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 31 |
@@ -76,7 +76,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 863-psol-rede-retificadora.pdf | PSOL/REDE | sim | 60 |
 | 913-mobiliza-convencao.pdf | MOBILIZA | não | 34 |
 
-Total de candidaturas: **1002** — confiança alta: **952**, a revisar (partido não identificado): **22**
+Total de candidaturas: **982** — confiança alta: **960**, a revisar (partido não identificado): **22**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **63** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -103,12 +103,14 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **63** —
 - Candidatura de José Carlos Ferreira Dos Santos (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de José Leonel Do Nascimento Neto (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Larissa Maria Caló Mesquita (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcos Antônio Peixoto De Siqueira Filho (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Marinalva Gonçalves De Souza (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Nancildo Luiz Da Silva (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Nelson Diniz Moura (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Patricia Lúcia De Souza Romão (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rhayssa Alves Felipe Dos Santos (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ricardo Pereira Pontes (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ronaldo José Da Silva (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rute Maria Da Conceição Silva (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Sandro Gledson Campos Pereira (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Antônio Da Silva Machado (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
@@ -580,6 +582,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **63** —
 - Candidatura de Maria Zélia De Santana (PT/PC do B/PV, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Mario René De França (PT/PC do B/PV, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Vinicius Nascimento Dos Santos (PT/PC do B/PV, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Josenildo José Da Silva (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Lucas Xavier Bezerra Dos Santos (MISSÃO, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Renan Lúcio Sant'Anna Hallais (MISSÃO, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alexandre Correia Pessoa (MISSÃO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -636,6 +639,9 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **63** —
 - Candidatura de Sanchilles Oliveira Da Silva (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Número 2755 repetido em DC/Deputado Federal para: Maurilio José Feitosa Cabral, Maurilio José Feitosa Sobral — conferir manualmente.
 - Número 4570 repetido em PSDB/CIDADANIA/Deputado Federal para: André Henrique Pimentel Lucena, Andre Henrique Pimentel Lucena — conferir manualmente.
+- Número 4577 repetido em PSDB/CIDADANIA/Deputado Federal para: Antonio Mauro Da Costa, Antônio Mauro Da Costa — conferir manualmente.
+- Número 4566 repetido em PSDB/CIDADANIA/Deputado Federal para: Delvani Silva Sobral, Patricia Lúcia De Souza Romão — conferir manualmente.
+- Número 4511 repetido em PSDB/CIDADANIA/Deputado Federal para: Felipe Andrade De Oliveira, Edvaldo Silva Guerra — conferir manualmente.
 - Número 4514 repetido em PSDB/CIDADANIA/Deputado Federal para: Josenildo José Da Silva Nome Na Urna, Josenildo José Da Silva — conferir manualmente.
 - Número 4510 repetido em PSDB/CIDADANIA/Deputado Federal para: Marcos Antônio Peixoto De Siqueira Filho, Marcos Antonio Peixoto De Siqueira Filho — conferir manualmente.
 - Número 4530 repetido em PSDB/CIDADANIA/Deputado Federal para: Ronaldo José Da Silva, Ronaldo Jose Da Silva — conferir manualmente.

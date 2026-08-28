@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/se-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -278,7 +278,7 @@ var CANDIDATOS_2026_SE_PROVISORIO = {
     { id:"missao-davi-carvalho-valenca", nome:"Davi Carvalho Valença", nomeUrna:"Davi Valença", numero:1414, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1730-missao-retificadora.pdf" },
     { id:"dc-marcos-antonio-araujo-2", nome:"Marcos Antonio Araujo", nomeUrna:"Marcos Romeu", numero:2788, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1854-dc-executiva.pdf" },
     { id:"avante-adriano-souza-santana", nome:"Adriano Souza Santana", nomeUrna:"Cabo Didi", numero:7090, partido:"AVANTE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"714-avante-retificadora.pdf" },
-    { id:"psdb-cidadania-evandro-tadeu-fontes-silva", nome:"Evandro Tadeu Fontes Silva", nomeUrna:"Tadeu Taxista", numero:2377, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"2127-psdb-cidadania-executiva.pdf" },
+    { id:"psdb-cidadania-evandro-tadeu-fontes-silva", nome:"Evandro Tadeu Fontes Silva", nomeUrna:"Tadeu Taxista", numero:2377, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2127-psdb-cidadania-executiva.pdf" },
     { id:"novo-allan-lino-marques", nome:"Allan Lino Marques", nomeUrna:"Allan Marques", numero:3033, partido:"NOVO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"237-novo-convencao.pdf" },
     { id:"agir-izabela-morais-andrade", nome:"Izabela Morais Andrade", nomeUrna:"Izabela Morais", numero:3688, partido:"AGIR", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"457-agir-convencao.pdf" },
     { id:"psb-angela-maria-santana-araujo-de-miranda", nome:"Angela Maria Santana Araujo De Miranda", nomeUrna:"Angela De Miranda", numero:4011, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"677-psb-convencao.pdf" },

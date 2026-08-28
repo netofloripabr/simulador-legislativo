@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/ap-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -254,7 +254,7 @@ var CANDIDATOS_2026_AP_PROVISORIO = {
     { id:"novo-edileuza-rodrigues-pereira", nome:"Edileuza Rodrigues Pereira", nomeUrna:"Edileuza Rodrigues", numero:3099, partido:"NOVO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"129-novo-convencao.pdf" },
     { id:"missao-bruno-borges-lima", nome:"Bruno Borges Lima", nomeUrna:"Bruno Sarraf", numero:1415, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"534-missao-retificadora.pdf" },
     { id:"psol-rede-andrew-aurelio-pinto-de-almeida-costa", nome:"Andrew Aurelio Pinto De Almeida Costa", nomeUrna:"Andrew Costa", numero:5050, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"244-psol-rede-convencao.pdf" },
-    { id:"pt-pc-do-b-pv-natanael-da-silva-miranda", nome:"Natanael Da Silva Miranda", nomeUrna:"Capitão N Miranda", numero:4390, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"508-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-natanael-da-silva-miranda", nome:"Natanael Da Silva Miranda", nomeUrna:"Capitão N Miranda", numero:4390, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"508-pt-pc-do-b-pv-executiva.pdf" },
     { id:"pl-elias-real-da-silva", nome:"Elias Real Da Silva", nomeUrna:"Elias Real", numero:2223, partido:"PL", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1007-pl-retificadora.pdf" },
     { id:"novo-george-carlos-barbosa-santana", nome:"George Carlos Barbosa Santana", nomeUrna:"George", numero:3012, partido:"NOVO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"129-novo-convencao.pdf" },
     { id:"missao-israel-dos-santos-gomes", nome:"Israel Dos Santos Gomes", nomeUrna:"Israel Santos", numero:1400, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"534-missao-retificadora.pdf" },
@@ -407,7 +407,7 @@ var CANDIDATOS_2026_AP_PROVISORIO = {
   ],
   "Senador (1º suplente)": [
     { id:"pdt-carlos-gabriel-andrade-nonato", nome:"Carlos Gabriel Andrade Nonato", nomeUrna:"Gabriel Andrade", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1245-pdt-executiva.pdf" },
-    { id:"sem-partido-carlos-gabriel-andrade-nonato", nome:"Carlos Gabriel Andrade Nonato", nomeUrna:"Gabriel Andrade", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1514-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-carlos-gabriel-andrade-nonato", nome:"Carlos Gabriel Andrade Nonato", nomeUrna:"Gabriel Andrade", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1514-pt-pc-do-b-pv-executiva.pdf" },
     { id:"agir-jaime-domingues-nunes", nome:"Jaime Domingues Nunes", nomeUrna:"Jaime Nunes", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"303-agir-convencao.pdf" },
     { id:"mdb-elisangela-do-socorro-moraes-bastos", nome:"Elisangela Do Socorro Moraes Bastos", nomeUrna:"Elisangela Timbiras", numero:null, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2094-mdb-retificadora.pdf" },
     { id:"psb-jose-ramalho-de-oliveira", nome:"Jose Ramalho De Oliveira", nomeUrna:"Ramalho", numero:null, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"867-psb-convencao.pdf" },
@@ -420,7 +420,7 @@ var CANDIDATOS_2026_AP_PROVISORIO = {
     { id:"dc-tobias-laurindo", nome:"Tobias Laurindo", nomeUrna:"Tobias", numero:null, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1791-dc-retificadora.pdf" },
   ],
   "Senador (2º suplente)": [
-    { id:"sem-partido-jessyca-sousa-da-silva", nome:"Jéssyca Sousa Da Silva", nomeUrna:"Jessyca Mais Saude", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1514-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-jessyca-sousa-da-silva", nome:"Jéssyca Sousa Da Silva", nomeUrna:"Jessyca Mais Saude", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1514-pt-pc-do-b-pv-executiva.pdf" },
     { id:"pode-antonia-ferreira-sullyvan", nome:"Antonia Ferreira Sullyvan", nomeUrna:"Marlucia Sullyvan", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"68-pode-convencao.pdf" },
     { id:"mdb-abdias-eduardo-pontes", nome:"Abdias Eduardo Pontes", nomeUrna:"Abdias", numero:null, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2094-mdb-retificadora.pdf" },
     { id:"psb-halda-maria-dos-santos-brandao", nome:"Halda Maria Dos Santos Brandão", nomeUrna:"Halda Brandão", numero:null, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"867-psb-convencao.pdf" },

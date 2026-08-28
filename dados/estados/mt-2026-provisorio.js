@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/mt-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -325,7 +325,7 @@ var CANDIDATOS_2026_MT_PROVISORIO = {
     { id:"dc-freedman-pereira-de-abreu", nome:"Freedman Pereira De Abreu", nomeUrna:"Fred Pereira", numero:2722, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1386-dc-executiva.pdf" },
     { id:"pode-ferdinando-frederico-murta", nome:"Ferdinando Frederico Murta", nomeUrna:"Delegado Fred Murta", numero:2000, partido:"PODE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1444-pode-retificadora.pdf" },
     { id:"psol-rede-eron-nunes-cabral", nome:"Eron Nunes Cabral", nomeUrna:"Eron Cabral", numero:1800, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1554-psol-rede-retificadora.pdf" },
-    { id:"uniao-pp-fabio-paulino-garcia", nome:"Fábio Paulino Garcia", nomeUrna:"Fábio Garcia", numero:4400, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1771-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-fabio-paulino-garcia", nome:"Fábio Paulino Garcia", nomeUrna:"Fábio Garcia", numero:4400, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1771-44-uniao-11-pp-executiva.pdf" },
     { id:"dc-jecimar-ferreira", nome:"Jecimar Ferreira", nomeUrna:"Jecimar Ferreira", numero:2777, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1945-dc-executiva.pdf" },
     { id:"pdt-cristiano-carlos-da-silva", nome:"Cristiano Carlos Da Silva", nomeUrna:"Cristiano Silva", numero:1220, partido:"PDT", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"287-pdt-convencao.pdf" },
     { id:"prd-solidariedade-alessandra-garbelotto-agrella", nome:"Alessandra Garbelotto Agrella", nomeUrna:"Alessandra Agrella", numero:2522, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"766-25-prd-77-solidariedade-convencao.pdf" },
@@ -337,7 +337,7 @@ var CANDIDATOS_2026_MT_PROVISORIO = {
     { id:"pode-fernando-gorgen", nome:"Fernando Gorgen", nomeUrna:"Fernando Gorgen", numero:2026, partido:"PODE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1444-pode-retificadora.pdf" },
     { id:"psol-rede-franciele-lopes-dos-santos", nome:"Franciele Lopes Dos Santos", nomeUrna:"Fran Mega Hair", numero:1818, partido:"PSOL/REDE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1554-psol-rede-retificadora.pdf" },
     { id:"missao-bernardo-sabino-de-souza-matos", nome:"Bernardo Sabino De Souza Matos", nomeUrna:"Bernardo Sabe", numero:1414, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1681-missao-retificadora.pdf" },
-    { id:"uniao-pp-sandy-de-paula-alves-mainardes", nome:"Sandy De Paula Alves Mainardes", nomeUrna:"Sandy De Paula", numero:4410, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1771-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-sandy-de-paula-alves-mainardes", nome:"Sandy De Paula Alves Mainardes", nomeUrna:"Sandy De Paula", numero:4410, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1771-44-uniao-11-pp-executiva.pdf" },
     { id:"dc-lusimar-pinaje-feitosa", nome:"Lusimar Pinaje Feitosa", nomeUrna:"Lusimar Da Canaa", numero:2720, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1945-dc-executiva.pdf" },
     { id:"missao-amaro-jonas-dantas-da-silva", nome:"Amaro Jonas Dantas Da Silva", nomeUrna:"Jonas Dantas", numero:1410, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"550-missao-retificadora.pdf" },
     { id:"pdt-darlene-yaminalo-taukane", nome:"Darlene Yaminalo Taukane", nomeUrna:"Darlene Taukane", numero:1260, partido:"PDT", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"287-pdt-convencao.pdf" },
@@ -545,7 +545,7 @@ var CANDIDATOS_2026_MT_PROVISORIO = {
     { id:"uniao-pp-fabio-paulino-garcia-2", nome:"Fábio Paulino Garcia", nomeUrna:"Fábio Garcia", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1096-44-uniao-11-pp-convencao.pdf" },
     { id:"pl-alencar-farina", nome:"Alencar Farina", nomeUrna:"Alencar Farina", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1246-pl-executiva.pdf" },
     { id:"novo-marcelo-benedito-maluf", nome:"Marcelo Benedito Maluf", nomeUrna:"Marcelo Maluf", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1383-novo-convencao.pdf" },
-    { id:"sem-partido-gisela-simona-viana-de-souza", nome:"Gisela Simona Viana De Souza", nomeUrna:"Gisela Simona", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1771-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-gisela-simona-viana-de-souza-2", nome:"Gisela Simona Viana De Souza", nomeUrna:"Gisela Simona", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1771-44-uniao-11-pp-executiva.pdf" },
     { id:"novo-reinaldo-gomes-de-morais", nome:"Reinaldo Gomes De Morais", nomeUrna:"Reinaldo Gomes De Morais", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1949-novo-executiva.pdf" },
     { id:"agir-alex-pedde-pucineli-2", nome:"Alex Pedde Pucineli", nomeUrna:"Alex Pucineli", numero:null, partido:"AGIR", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2204-agir-executiva.pdf" },
     { id:"pdt-diogo-peixoto-botelho", nome:"Diogo Peixoto Botelho", nomeUrna:"Diogo Botelho", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"898-pdt-executiva.pdf" },

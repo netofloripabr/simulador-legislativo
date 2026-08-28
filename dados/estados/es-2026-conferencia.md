@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 ES (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/ES/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/ES/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -16,26 +16,26 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 121-pode-convencao.pdf | PODE | não | 42 |
 | 1263-psd-convencao.pdf | PSD | não | 15 |
 | 1304-44-uniao-11-pp-convencao.pdf | UNIÃO/PP | não | 39 |
-| 1432-25-prd-77-solidariedade-executiva.pdf | ? | não | 2 |
+| 1432-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 2 |
 | 1439-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 23 |
 | 1524-dc-executiva.pdf | DC | não | 3 |
-| 1543-25-prd-77-solidariedade-executiva.pdf | ? | não | 2 |
+| 1543-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 2 |
 | 1546-psb-executiva.pdf | PSB | não | 1 |
 | 1581-psb-executiva.pdf | PSB | não | 0 |
-| 1601-psol-rede-executiva.pdf | ? | não | 2 |
+| 1601-psol-rede-executiva.pdf | PSOL/REDE | não | 2 |
 | 1619-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 44 |
 | 1645-mdb-retificadora.pdf | MDB | sim | 34 |
 | 1648-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 44 |
-| 1658-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 1658-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 168-novo-convencao.pdf | NOVO | não | 39 |
 | 1687-mdb-executiva.pdf | MDB | não | 5 |
 | 1720-mdb-executiva.pdf | MDB | não | 2 |
 | 1745-pl-retificadora.pdf | PL | sim | 43 |
-| 1776-pt-pc-do-b-pv-executiva.pdf | ? | não | 0 |
+| 1776-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 0 |
 | 1787-pl-executiva.pdf | PL | não | 2 |
 | 1857-psb-executiva.pdf | PSB | não | 0 |
 | 1872-psb-executiva.pdf | PSB | não | 0 |
-| 1898-psdb-cidadania-executiva.pdf | ? | não | 1 |
+| 1898-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 1 |
 | 1912-mdb-retificadora.pdf | MDB | sim | 34 |
 | 1959-prtb-executiva.pdf | PRTB | não | 3 |
 | 1992-pl-executiva.pdf | PL | não | 2 |
@@ -74,7 +74,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 963-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 44 |
 | 972-pl-executiva.pdf | PL | não | 2 |
 
-Total de candidaturas: **633** — confiança alta: **603**, a revisar (partido não identificado): **26**
+Total de candidaturas: **634** — confiança alta: **607**, a revisar (partido não identificado): **26**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -138,8 +138,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 - Candidatura de Jadir Rigotti Junior (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Neuza Maria Oliveira (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rogerio Bernardo (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Bruno Lourenco De Souza (None, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Priscila De Souza Ramos (None, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Bruno Lourenco De Souza (PRD/SOLIDARIEDADE, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Priscila De Souza Ramos (PRD/SOLIDARIEDADE, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Aldo De Almeida Vieira Machado Junior (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ana Paula Simões Machado Fernandes (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Anadelso Pereira (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
@@ -242,7 +242,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 - Candidatura de Vinicius Veiga Vidal (MDB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Erico Patricio Orletti (MDB, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Nubia Rocha Dos Passos (MDB, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Eduardo Marques Afonso (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rodney Rocha Miranda (PRTB, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Pedro José Pagotto (PSD, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rogério Da Silva Resende (PSD, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.

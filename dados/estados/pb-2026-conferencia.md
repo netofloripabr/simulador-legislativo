@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PB (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PB/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PB/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -33,7 +33,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1662-mdb-retificadora.pdf | MDB | sim | 39 |
 | 1713-mobiliza-executiva.pdf | MOBILIZA | não | 0 |
 | 174-psd-convencao.pdf | PSD | não | 14 |
-| 1754-44-uniao-11-pp-executiva.pdf | ? | não | 2 |
+| 1754-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
 | 177-missao-convencao.pdf | MISSÃO | não | 6 |
 | 1779-psb-executiva.pdf | PSB | não | 3 |
 | 1785-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 13 |
@@ -42,7 +42,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1827-democrata-executiva.pdf | DEMOCRATA | não | 0 |
 | 1837-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 0 |
 | 1888-dc-retificadora.pdf | DC | sim | 15 |
-| 1954-psol-rede-executiva.pdf | ? | não | 1 |
+| 1954-psol-rede-executiva.pdf | PSOL/REDE | não | 1 |
 | 1979-mdb-executiva.pdf | MDB | não | 1 |
 | 1999-pdt-retificadora.pdf | PDT | sim | 29 |
 | 2015-democrata-retificadora.pdf | DEMOCRATA | sim | 0 |
@@ -72,7 +72,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 965-pl-retificadora.pdf | PL | sim | 53 |
 | 968-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 13 |
 
-Total de candidaturas: **466** — confiança alta: **444**, a revisar (partido não identificado): **19**
+Total de candidaturas: **466** — confiança alta: **445**, a revisar (partido não identificado): **19**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **75** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -429,6 +429,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **75** —
 - Número 6555 repetido em PT/PC do B/PV/Deputado Federal para: Rosiane Barbosa Da Cruz, Rosiane Cruz De Morais — conferir manualmente.
 - Número 1066 repetido em REPUBLICANOS/Deputado Federal para: Maisa Freire Cartaxo Pires De Sa, Maísa Freire Cartaxo Pires De Sa — conferir manualmente.
 - Número 10777 repetido em REPUBLICANOS/Deputado Estadual para: Jarques Lucio Da Silva Segundo, Jarques Lucio Da Silva Ii — conferir manualmente.
+- Número 11 repetido em UNIÃO/PP/Governador para: Lucas Ribeiro Novais De Araújo, Lucas Ribeiro Novais De Araujo — conferir manualmente.
 - Número 2507 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Patrícia Berger De Oliveira Santos, Patrícia Berguer De Oliveira Santos — conferir manualmente.
 - Número 12123 repetido em PDT/Deputado Estadual para: Junio Leandro Azevedo De Macedo, Wagner Nasmineto De Aquino — conferir manualmente.
 - Número 5510 repetido em PSD/Deputado Federal para: Ivonete De Almeida De Andrade Ludgério, Jullyana Soares Ribeiro — conferir manualmente.

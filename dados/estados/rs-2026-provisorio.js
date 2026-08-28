@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/rs-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -609,7 +609,7 @@ var CANDIDATOS_2026_RS_PROVISORIO = {
     { id:"dc-aldemir-fogaca-antunes", nome:"Aldemir Fogaça Antunes", nomeUrna:"Fogaça", numero:2789, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1204-dc-retificadora.pdf" },
     { id:"avante-claudio-costa-da-silva", nome:"Claudio Costa Da Silva", nomeUrna:"Costa", numero:7056, partido:"AVANTE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1207-avante-executiva.pdf" },
     { id:"prd-solidariedade-aiesa-carolina-pedroso", nome:"Aiesa Carolina Pedroso", nomeUrna:"Aiesa Carolina", numero:7711, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1564-25-prd-77-solidariedade-retificadora.pdf" },
-    { id:"prd-solidariedade-sandra-esteves-de-melo", nome:"Sandra Esteves De Melo", nomeUrna:"Sandra Esteves De Melo", numero:2515, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1846-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-sandra-esteves-de-melo", nome:"Sandra Esteves De Melo", nomeUrna:"Sandra Esteves De Melo", numero:2515, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1846-25-prd-77-solidariedade-executiva.pdf" },
     { id:"psd-paulo-euclides-garcia-de-azeredo", nome:"Paulo Euclides Garcia De Azeredo", nomeUrna:"Paulo Azeredo", numero:5544, partido:"PSD", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1861-psd-executiva.pdf" },
     { id:"dc-adriana-ramos", nome:"Adriana Ramos", nomeUrna:"Adriana Ramos", numero:2701, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1908-dc-executiva.pdf" },
     { id:"psb-aline-constantino-bento", nome:"Aline Constantino Bento", nomeUrna:"Aline Constantino Bento", numero:4070, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"460-psb-retificadora.pdf" },
@@ -626,7 +626,7 @@ var CANDIDATOS_2026_RS_PROVISORIO = {
     { id:"dc-ana-patricia-rodrigues-de-macedo", nome:"Ana Patricia Rodrigues De Macedo", nomeUrna:"Ana Patricia Sud", numero:2790, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1204-dc-retificadora.pdf" },
     { id:"avante-jair-fonseca-kepps", nome:"Jair Fonseca Kepps", nomeUrna:"Jair Kepps", numero:7002, partido:"AVANTE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1207-avante-executiva.pdf" },
     { id:"prd-solidariedade-alexsandro-orquiz-alves", nome:"Alexsandro Orquiz Alves", nomeUrna:"Alexsandro Orquiz Alves", numero:2577, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1564-25-prd-77-solidariedade-retificadora.pdf" },
-    { id:"prd-solidariedade-tatiana-denise-moreira-pereira", nome:"Tatiana Denise Moreira Pereira", nomeUrna:"Thaty Deise", numero:7775, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1846-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-tatiana-denise-moreira-pereira", nome:"Tatiana Denise Moreira Pereira", nomeUrna:"Thaty Deise", numero:7775, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1846-25-prd-77-solidariedade-executiva.pdf" },
     { id:"psb-anelize-figueiredo-carriconde", nome:"Anelize Figueiredo Carriconde", nomeUrna:"Anelize Carriconde", numero:4026, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"460-psb-retificadora.pdf" },
     { id:"novo-ada-cristina-munaretto", nome:"Ada Cristina Munaretto", nomeUrna:"Ada Munaretto", numero:3000, partido:"NOVO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"267-novo-convencao.pdf" },
     { id:"missao-cristiano-dornelles-ferreira", nome:"Cristiano Dornelles Ferreira", nomeUrna:"Cris Ferreira", numero:1407, partido:"MISSÃO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"518-missao-retificadora.pdf" },
@@ -898,7 +898,6 @@ var CANDIDATOS_2026_RS_PROVISORIO = {
     { id:"psol-rede-leandro-dutra-soares", nome:"Leandro Dutra Soares", nomeUrna:"Leandro Dutra", numero:5066, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"500-psol-rede-retificadora.pdf" },
     { id:"dc-marcela-goncalves", nome:"Marcela Gonçalves", nomeUrna:"Marcela Gonçalves", numero:2755, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1204-dc-retificadora.pdf" },
     { id:"psdb-cidadania-cristiane-lourenco-goncalves", nome:"Cristiane Lourenco Gonçalves", nomeUrna:"Cris Goncalves", numero:4555, partido:"PSDB/CIDADANIA", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1939-psdb-cidadania-retificadora.pdf" },
-    { id:"prd-solidariedade-sandra-esteves-de-melo-2", nome:"Sandra Esteves De Melo", nomeUrna:"Sandra Esteves De Melo", numero:2515, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1564-25-prd-77-solidariedade-retificadora.pdf" },
     { id:"mdb-catia-elizandra-siqueira", nome:"Cátia Elizandra Siqueira", nomeUrna:"Cátia Siqueira", numero:1560, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1613-mdb-retificadora.pdf" },
     { id:"psb-paulo-afonso-bregolin-de-azevedo", nome:"Paulo Afonso Bregolin De Azevedo", nomeUrna:"Paulo Bregolin", numero:4041, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"460-psb-retificadora.pdf" },
     { id:"pl-keli-cristina-dias-dos-santos", nome:"Keli Cristina Dias Dos Santos", nomeUrna:"Keli Dias", numero:2202, partido:"PL", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"700-pl-retificadora.pdf" },
@@ -1155,7 +1154,7 @@ var CANDIDATOS_2026_RS_PROVISORIO = {
     { id:"pstu-denior-jose-machado", nome:"Denior José Machado", nomeUrna:"Denior Machado", numero:null, partido:"PSTU", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"759-pstu-convencao.pdf" },
   ],
   "Senador (2º suplente)": [
-    { id:"sem-partido-ireneu-orth", nome:"Ireneu Orth", nomeUrna:"Irineu Ort", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1182-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-ireneu-orth", nome:"Ireneu Orth", nomeUrna:"Irineu Ort", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1182-44-uniao-11-pp-executiva.pdf" },
     { id:"novo-ricardo-munarski-jobim", nome:"Ricardo Munarski Jobim", nomeUrna:"Ricardo Jobim", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1184-novo-executiva.pdf" },
     { id:"pl-ricardo-munarski-jobim", nome:"Ricardo Munarski Jobim", nomeUrna:"Ricardo Jobim", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1115-pl-executiva.pdf" },
     { id:"pl-ernani-mario-coelho-mello", nome:"Ernani Mário Coelho Mello", nomeUrna:"Ernani Mello", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"700-pl-retificadora.pdf" },

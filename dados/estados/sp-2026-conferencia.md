@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 SP (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SP/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SP/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -10,7 +10,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 
 | Arquivo | Partido detectado | Retificadora | Candidaturas extraídas |
 |---|---|---|---|
-| 1001-44-uniao-11-pp-executiva.pdf | ? | não | 2 |
+| 1001-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
 | 1031-pl-executiva.pdf | PL | não | 11 |
 | 1034-psd-executiva.pdf | PSD | não | 0 |
 | 1035-avante-executiva.pdf | AVANTE | não | 0 |
@@ -18,14 +18,14 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1062-mdb-executiva.pdf | MDB | não | 2 |
 | 1066-pdt-executiva.pdf | PDT | não | 2 |
 | 1075-mdb-retificadora.pdf | MDB | sim | 2 |
-| 1080-psdb-cidadania-executiva.pdf | ? | não | 2 |
+| 1080-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 2 |
 | 1084-democrata-retificadora.pdf | DEMOCRATA | sim | 9 |
 | 1085-republicanos-executiva.pdf | REPUBLICANOS | não | 2 |
-| 1110-psol-rede-executiva.pdf | ? | não | 3 |
+| 1110-psol-rede-executiva.pdf | PSOL/REDE | não | 3 |
 | 113-44-uniao-11-pp-convencao.pdf | UNIÃO/PP | não | 151 |
-| 1134-pt-pc-do-b-pv-executiva.pdf | ? | não | 5 |
+| 1134-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 5 |
 | 1145-pl-retificadora.pdf | PL | sim | 11 |
-| 1179-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1179-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1183-pode-executiva.pdf | PODE | não | 3 |
 | 1275-agir-convencao.pdf | AGIR | não | 105 |
 | 1303-pco-convencao.pdf | PCO | não | 27 |
@@ -42,7 +42,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1719-pode-executiva.pdf | PODE | não | 0 |
 | 1764-avante-executiva.pdf | AVANTE | não | 131 |
 | 1805-missao-retificadora.pdf | MISSÃO | sim | 112 |
-| 1816-25-prd-77-solidariedade-executiva.pdf | ? | não | 4 |
+| 1816-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 4 |
 | 1820-psd-retificadora.pdf | PSD | sim | 0 |
 | 1840-25-prd-77-solidariedade-retificadora.pdf | ? | sim | 0 |
 | 1850-democrata-retificadora.pdf | DEMOCRATA | sim | 9 |
@@ -52,13 +52,13 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1905-avante-retificadora.pdf | AVANTE | sim | 0 |
 | 1936-agir-executiva.pdf | AGIR | não | 7 |
 | 1955-up-executiva.pdf | UP | não | 2 |
-| 1961-psdb-cidadania-executiva.pdf | ? | não | 3 |
+| 1961-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 3 |
 | 2002-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
 | 211-democrata-convencao.pdf | DEMOCRATA | não | 9 |
 | 2112-missao-executiva.pdf | MISSÃO | não | 3 |
 | 217-up-convencao.pdf | UP | não | 15 |
 | 2213-democrata-executiva.pdf | DEMOCRATA | não | 41 |
-| 2214-44-uniao-11-pp-executiva.pdf | ? | não | 3 |
+| 2214-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 3 |
 | 230-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 123 |
 | 260-pode-convencao.pdf | PODE | não | 152 |
 | 288-pdt-convencao.pdf | PDT | não | 108 |
@@ -67,7 +67,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 348-dc-convencao.pdf | DC | não | 3 |
 | 41-psd-convencao.pdf | PSD | não | 163 |
 | 414-avante-convencao.pdf | AVANTE | não | 132 |
-| 427-44-uniao-11-pp-executiva.pdf | ? | não | 5 |
+| 427-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 5 |
 | 472-psb-convencao.pdf | PSB | não | 160 |
 | 509-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 167 |
 | 539-mdb-executiva.pdf | MDB | não | 0 |
@@ -85,12 +85,13 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 944-missao-retificadora.pdf | MISSÃO | sim | 128 |
 | 996-pdt-retificadora.pdf | PDT | sim | 104 |
 
-Total de candidaturas: **2691** — confiança alta: **2645**, a revisar (partido não identificado): **26**
+Total de candidaturas: **2689** — confiança alta: **2663**, a revisar (partido não identificado): **25**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **62** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
+- Candidatura de Guilherme Muraro Derrite (UNIÃO/PP, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Andre Luis Do Prado (PL, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Fernando Fiori De Godoy (PL, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ruth Freire Da Costa Silva (PL, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
@@ -113,7 +114,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **62** —
 - Candidatura de Irene Cardozo (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de José Silva Lima (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Milton Luiz Gebin Cardoso (DEMOCRATA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcelo Fortes Barbieri (None, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fernando Haddad (PT/PC do B/PV, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Marcio Luiz França Gomes (PT/PC do B/PV, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Geraldo Aristides Rufino (PODE, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Jason Moises De Albuquerque (PODE, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Edjane Lima De Sousa (AGIR, Governador) tem versão retificadora — mantendo só a mais nova.
@@ -615,6 +617,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **62** —
 - Candidatura de Elton Pereira Dos Anjos (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Fausto Da Costa Junior (DC, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Gessica Mendes Souza Ferreira (MDB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Número 45222 repetido em PSDB/CIDADANIA/Deputado Estadual para: Jose Leandro Dos Reis Macedo, Matheus Valentim De Carvalho — conferir manualmente.
 - Número 3619 repetido em AGIR/Deputado Federal para: Cristina Alves Pereira, Moacir Ribeiro — conferir manualmente.
 - Número 3618 repetido em AGIR/Deputado Federal para: Elisangela Soares De Medeiros, Renata Cristina Tedesque Bolsonaro — conferir manualmente.
 - Número 3621 repetido em AGIR/Deputado Federal para: Jose Antonio Vaz, Donizete De Castilho — conferir manualmente.
@@ -642,7 +645,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **62** —
 - Número 80123 repetido em UP/Deputado Estadual para: Lucas Santos Do Nascimento, Gustavo Ubata Alvarez Cordeiro De Matos — conferir manualmente.
 - Número 1293 repetido em PDT/Deputado Federal para: Osmar Fabricio Hess, Hebert Maximo Nunes — conferir manualmente.
 - Número 12002 repetido em PDT/Deputado Estadual para: Maria De Loudes Cavalcante Srour, Lucineide Cruz Alves — conferir manualmente.
-- 26 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 25 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -658,13 +661,12 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **62** —
 | Tarcísio Gomes De Freitas | Governador | 1085-republicanos-executiva.pdf |
 | Jose Vicente Santini | Senador (1º suplente) | 1085-republicanos-executiva.pdf |
 | Antônio Fernandes Dos Santos Neto | Senador (2º suplente) | 1110-psol-rede-executiva.pdf |
-| Marcelo Fortes Barbieri | Senador (2º suplente) | 1134-pt-pc-do-b-pv-executiva.pdf |
+| Marcelo Fortes Barbieri | Senador (2º suplente) | 1110-psol-rede-executiva.pdf |
 | Fernando Haddad | Governador | 1134-pt-pc-do-b-pv-executiva.pdf |
 | Marcio Luiz França Gomes | Vice-Governador | 1134-pt-pc-do-b-pv-executiva.pdf |
 | Djalma Nery Ferreira Neto | Senador (1º suplente) | 1134-pt-pc-do-b-pv-executiva.pdf |
 | Laio Correia Morais | Senador (1º suplente) | 1134-pt-pc-do-b-pv-executiva.pdf |
-| Fernando Haddad | Governador | 131-pt-pc-do-b-pv-convencao.pdf |
-| Marcio Luiz França Gomes | Vice-Governador | 131-pt-pc-do-b-pv-convencao.pdf |
+| Marcelo Fortes Barbieri | Senador (2º suplente) | 1134-pt-pc-do-b-pv-executiva.pdf |
 | Djalma Nery Ferreira Neto | Senador (1º suplente) | 1345-psb-executiva.pdf |
 | Laio Correia Morais | Senador (1º suplente) | 1345-psb-executiva.pdf |
 | Antônio Fernandes Dos Santos Neto | Senador (2º suplente) | 1345-psb-executiva.pdf |

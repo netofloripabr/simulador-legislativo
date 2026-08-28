@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 AP (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AP/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AP/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -19,21 +19,21 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 129-novo-convencao.pdf | NOVO | não | 23 |
 | 132-pl-convencao.pdf | PL | não | 32 |
 | 1341-pco-convencao.pdf | PCO | não | 9 |
-| 1514-pt-pc-do-b-pv-executiva.pdf | ? | não | 2 |
+| 1514-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 2 |
 | 1563-mdb-retificadora.pdf | MDB | sim | 23 |
 | 175-missao-convencao.pdf | MISSÃO | não | 6 |
 | 1751-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 32 |
 | 1791-dc-retificadora.pdf | DC | sim | 17 |
 | 2094-mdb-retificadora.pdf | MDB | sim | 24 |
-| 2183-pt-pc-do-b-pv-executiva.pdf | ? | não | 0 |
+| 2183-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 0 |
 | 244-psol-rede-convencao.pdf | PSOL/REDE | não | 23 |
 | 259-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 26 |
 | 277-pdt-convencao.pdf | PDT | não | 24 |
 | 303-agir-convencao.pdf | AGIR | não | 1 |
 | 345-44-uniao-11-pp-convencao.pdf | UNIÃO/PP | não | 30 |
-| 508-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 508-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 534-missao-retificadora.pdf | MISSÃO | sim | 6 |
-| 633-pt-pc-do-b-pv-executiva.pdf | ? | não | 0 |
+| 633-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 0 |
 | 667-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 31 |
 | 68-pode-convencao.pdf | PODE | não | 37 |
 | 686-pstu-convencao.pdf | PSTU | não | 2 |
@@ -44,7 +44,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 854-republicanos-convencao.pdf | REPUBLICANOS | não | 24 |
 | 867-psb-convencao.pdf | PSB | não | 3 |
 
-Total de candidaturas: **337** — confiança alta: **321**, a revisar (partido não identificado): **13**
+Total de candidaturas: **337** — confiança alta: **322**, a revisar (partido não identificado): **13**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **68** — ver `fonte:"ficticio"` no .js gerado.
 

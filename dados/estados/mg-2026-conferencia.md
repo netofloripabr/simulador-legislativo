@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 MG (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MG/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MG/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -13,16 +13,16 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1013-republicanos-executiva.pdf | REPUBLICANOS | não | 0 |
 | 1033-mobiliza-retificadora.pdf | MOBILIZA | sim | 98 |
 | 1047-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 86 |
-| 1060-psdb-cidadania-executiva.pdf | ? | não | 1 |
+| 1060-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 1 |
 | 1061-prtb-convencao.pdf | PRTB | não | 0 |
 | 108-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 102 |
 | 1155-psd-executiva.pdf | PSD | não | 1 |
-| 1168-44-uniao-11-pp-executiva.pdf | ? | não | 1 |
+| 1168-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 | 1172-psb-executiva.pdf | PSB | não | 3 |
 | 1187-mdb-executiva.pdf | MDB | não | 1 |
-| 1205-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1205-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1208-psb-retificadora.pdf | PSB | sim | 3 |
-| 1220-pt-pc-do-b-pv-executiva.pdf | ? | não | 2 |
+| 1220-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 2 |
 | 1221-25-prd-77-solidariedade-retificadora.pdf | ? | sim | 16 |
 | 1237-psol-rede-retificadora.pdf | PSOL/REDE | sim | 100 |
 | 1249-25-prd-77-solidariedade-retificadora.pdf | ? | sim | 16 |
@@ -33,17 +33,17 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1314-agir-executiva.pdf | AGIR | não | 0 |
 | 1333-pl-executiva.pdf | PL | não | 5 |
 | 1358-avante-executiva.pdf | AVANTE | não | 3 |
-| 1360-psol-rede-executiva.pdf | ? | não | 0 |
+| 1360-psol-rede-executiva.pdf | PSOL/REDE | não | 0 |
 | 1408-mobiliza-executiva.pdf | MOBILIZA | não | 0 |
 | 1410-mobiliza-retificadora.pdf | MOBILIZA | sim | 0 |
 | 1486-psd-executiva.pdf | PSD | não | 0 |
 | 1487-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 128 |
 | 1495-avante-retificadora.pdf | AVANTE | sim | 111 |
-| 1498-psol-rede-executiva.pdf | ? | não | 0 |
-| 1499-psol-rede-executiva.pdf | ? | não | 0 |
+| 1498-psol-rede-executiva.pdf | PSOL/REDE | não | 0 |
+| 1499-psol-rede-executiva.pdf | PSOL/REDE | não | 0 |
 | 1503-25-prd-77-solidariedade-retificadora.pdf | ? | sim | 16 |
 | 1518-agir-retificadora.pdf | AGIR | sim | 55 |
-| 1526-44-uniao-11-pp-executiva.pdf | ? | não | 0 |
+| 1526-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 0 |
 | 1537-agir-retificadora.pdf | AGIR | sim | 55 |
 | 1555-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 128 |
 | 1558-avante-retificadora.pdf | AVANTE | sim | 111 |
@@ -56,7 +56,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 170-democrata-retificadora.pdf | DEMOCRATA | sim | 46 |
 | 1708-psb-retificadora.pdf | PSB | sim | 93 |
 | 1715-pode-executiva.pdf | PODE | não | 1 |
-| 1717-pt-pc-do-b-pv-executiva.pdf | ? | não | 5 |
+| 1717-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 5 |
 | 1723-pode-executiva.pdf | PODE | não | 2 |
 | 1728-mdb-retificadora.pdf | MDB | sim | 100 |
 | 1733-up-executiva.pdf | UP | não | 1 |
@@ -64,7 +64,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1744-missao-retificadora.pdf | MISSÃO | sim | 35 |
 | 1778-pl-executiva.pdf | PL | não | 3 |
 | 1790-psd-executiva.pdf | PSD | não | 0 |
-| 1802-psol-rede-executiva.pdf | ? | não | 1 |
+| 1802-psol-rede-executiva.pdf | PSOL/REDE | não | 1 |
 | 1831-agir-retificadora.pdf | AGIR | sim | 54 |
 | 1839-agir-retificadora.pdf | AGIR | sim | 53 |
 | 1852-pl-executiva.pdf | PL | não | 1 |
@@ -74,12 +74,12 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1902-novo-executiva.pdf | NOVO | não | 4 |
 | 1927-pode-executiva.pdf | PODE | não | 5 |
 | 1956-avante-executiva.pdf | AVANTE | não | 1 |
-| 1967-44-uniao-11-pp-executiva.pdf | ? | não | 1 |
+| 1967-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 | 1968-avante-retificadora.pdf | AVANTE | sim | 3 |
 | 200-democrata-retificadora.pdf | DEMOCRATA | sim | 47 |
 | 2011-psd-executiva.pdf | PSD | não | 2 |
 | 2054-prtb-executiva.pdf | PRTB | não | 0 |
-| 2069-psdb-cidadania-executiva.pdf | ? | não | 3 |
+| 2069-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 3 |
 | 208-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 102 |
 | 2129-pdt-executiva.pdf | PDT | não | 3 |
 | 227-novo-convencao.pdf | NOVO | não | 132 |
@@ -114,12 +114,13 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 974-psb-retificadora.pdf | PSB | sim | 90 |
 | 986-dc-convencao.pdf | DC | não | 12 |
 
-Total de candidaturas: **1913** — confiança alta: **1865**, a revisar (partido não identificado): **28**
+Total de candidaturas: **1913** — confiança alta: **1869**, a revisar (partido não identificado): **27**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
+- Candidatura de Carlos Eduardo Venturelli Mosconi (PSDB/CIDADANIA, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Adriana Lima (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Aleksandre Rocha Viana (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ana Paula De Oliveira Costa Martins (PSDB/CIDADANIA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -203,7 +204,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Candidatura de Silvana Da Silva Lacerda (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Soraya Alves De Souza (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Zeni Francisca Da Silva (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Carlos Eduardo Venturelli Mosconi (None, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Adeny Botelho De Oliveira (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Adriana Maria Morais De Freitas (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ailton João Dos Santos (PRD/SOLIDARIEDADE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
@@ -306,7 +306,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Candidatura de Welington Moreira De Oliveira (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de William Parreira Duarte (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de William Raimundo Dos Santos (PRD/SOLIDARIEDADE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marcelo Guilherme De Aro Ferreira (None, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Jarbas Soares Junior (PSB, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Luciana Duca Costa (PSB, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Laercio Cintra Nogueira (PSB, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
@@ -860,6 +859,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Candidatura de Teovaldo José Aparecido (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Vilmondes Fagundes De Oliveira (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wagner Rodrigues Cardoso (PSB, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Patrus Ananias De Sousa (PT/PC do B/PV, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ellen De Souza Silvério (PODE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Helder Paulo Carneiro (PODE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Gabriel Sousa Marques De Azevedo (MDB, Governador) tem versão retificadora — mantendo só a mais nova.
@@ -1132,6 +1132,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Número 4566 repetido em PSDB/CIDADANIA/Deputado Federal para: Sebastião Pinheiro Costa, Sebastião Pinheiro Da Costa — conferir manualmente.
 - Número 5055 repetido em PSOL/REDE/Deputado Federal para: Antônio Carlos Batinga De Matos Rocha, Antônio Carlos Ibatinga De Matos Rocha — conferir manualmente.
 - Número 22 repetido em PL/Governador para: Flavio Roscoe Nogueira, Flávio Roscoe Nogueira — conferir manualmente.
+- Número 44222 repetido em UNIÃO/PP/Deputado Estadual para: Claudenir Jose De Melo, Timoteo Haisnten Vazze Felizardo — conferir manualmente.
 - Número 7071 repetido em AVANTE/Deputado Federal para: Andreia Ilidia Da Silva, Júlio Cesar De Castro Camilo — conferir manualmente.
 - Número 7065 repetido em AVANTE/Deputado Federal para: João De Souza Lima, Carlos Magno De Moura Soares — conferir manualmente.
 - Número 7007 repetido em AVANTE/Deputado Federal para: Kaio Lúcio Bahia, Juarez Moreira — conferir manualmente.
@@ -1141,6 +1142,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Número 35122 repetido em DEMOCRATA/Deputado Estadual para: Danielle Luncida Lopes Dias, Vanderlei Teotonio Dos Santos — conferir manualmente.
 - Número 4050 repetido em PSB/Deputado Federal para: Carlos Welth Pimenta De Figueiredo, Carlos Welth Pimenta De Figueredo — conferir manualmente.
 - Número 40347 repetido em PSB/Deputado Estadual para: Antonio Elizeu De Oliveira, Antonio Elizei De Oliveira — conferir manualmente.
+- Número 131 repetido em PT/PC do B/PV/Senador para: Marília Aparecida Campos, Marilia Aparecida Campos — conferir manualmente.
 - Número 1577 repetido em MDB/Deputado Federal para: Adriana Pereira Rodrigues Almeida, Alex De Souza Freitas — conferir manualmente.
 - Número 1570 repetido em MDB/Deputado Federal para: Tarley Caetano De Almeida, Reginaldo Santos Da Costa — conferir manualmente.
 - Número 14 repetido em MISSÃO/Governador para: Benoni Benjamin Cardoso Mendes, Deivid Fernandes De Souza — conferir manualmente.
@@ -1154,14 +1156,13 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 - Número 1206 repetido em PDT/Deputado Federal para: Denisa Gonçalves Dos Santos, Denisagonçalves Dos Santos — conferir manualmente.
 - Número 1204 repetido em PDT/Deputado Federal para: Ester Kelly Silva Da Penha, Ester Kellu Silva Da Penha — conferir manualmente.
 - Número 1271 repetido em PDT/Deputado Federal para: Thaiane Carolina Gonçalves De Souza, Thaine Carolina Gonçalves De Souza — conferir manualmente.
-- 28 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 27 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
 | Nome | Cargo | Arquivo (documento da coligação) |
 |---|---|---|
-| Carlos Eduardo Venturelli Mosconi | Vice-Governador | 1047-psdb-cidadania-retificadora.pdf |
-| Carlos Eduardo Venturelli Mosconi | Vice-Governador | 1624-psdb-cidadania-retificadora.pdf |
+| Carlos Eduardo Venturelli Mosconi | Vice-Governador | 1060-psdb-cidadania-executiva.pdf |
 | Danilo De Castro | Vice-Governador | 1155-psd-executiva.pdf |
 | Jarbas Soares Junior | Vice-Governador | 1208-psb-retificadora.pdf |
 | Laercio Cintra Nogueira | Senador (2º suplente) | 1208-psb-retificadora.pdf |
@@ -1170,6 +1171,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 | Carlos Magno De Moura Soares | Senador | 1968-avante-retificadora.pdf |
 | Sebastiao Cezar Lemos | Senador (1º suplente) | 1358-avante-executiva.pdf |
 | Elcio Ivan Ramos De Almeida | Senador (2º suplente) | 1358-avante-executiva.pdf |
+| Carlos Eduardo Venturelli Mosconi | Vice-Governador | 1624-psdb-cidadania-retificadora.pdf |
 | Patrus Ananias De Sousa | Governador | 1717-pt-pc-do-b-pv-executiva.pdf |
 | Jarbas Soares Júnior | Vice-Governador | 1717-pt-pc-do-b-pv-executiva.pdf |
 | Marília Aparecida Campos | Senador | 1717-pt-pc-do-b-pv-executiva.pdf |
@@ -1186,7 +1188,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **80** —
 | Marcelo Heringer | Senador | 2129-pdt-executiva.pdf |
 | Giovane De Lelis Cupertino | Senador (1º suplente) | 2129-pdt-executiva.pdf |
 | Robson Luiz Moreira Dutra | Senador (2º suplente) | 2129-pdt-executiva.pdf |
-| Patrus Ananias De Sousa | Governador | 584-pt-pc-do-b-pv-convencao.pdf |
 | Marilia Aparecida Campos | Senador | 584-pt-pc-do-b-pv-convencao.pdf |
 
 ## Status de confirmação

@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/es-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -24,11 +24,12 @@ var CANDIDATOS_2026_ES_PROVISORIO = {
   "Deputado Estadual": [
     { id:"psdb-cidadania-aldo-de-almeida-vieira-machado-junior", nome:"Aldo De Almeida Vieira Machado Junior", nomeUrna:"Prof. Aldo Junior", numero:45105, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1439-psdb-cidadania-retificadora.pdf" },
     { id:"psb-luciano-emanoel-rocha-loureiro", nome:"Luciano Emanoel Rocha Loureiro", nomeUrna:"Luciano Loureiro", numero:40940, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1546-psb-executiva.pdf" },
-    { id:"pt-pc-do-b-pv-hildete-gomes-de-souza", nome:"Hildete Gomes De Souza", nomeUrna:"Dete Gomes", numero:13033, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1658-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-hildete-gomes-de-souza", nome:"Hildete Gomes De Souza", nomeUrna:"Dete Gomes", numero:13033, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1658-pt-pc-do-b-pv-executiva.pdf" },
     { id:"mdb-alan-soares-siqueira", nome:"Alan Soares Siqueira", nomeUrna:"Alan Siqueira", numero:15800, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1720-mdb-executiva.pdf" },
-    { id:"psdb-cidadania-eduardo-marques-afonso", nome:"Eduardo Marques Afonso", nomeUrna:"Eduardo Afonso", numero:45007, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"2200-psdb-cidadania-retificadora.pdf" },
+    { id:"psdb-cidadania-eduardo-marques-afonso", nome:"Eduardo Marques Afonso", nomeUrna:"Eduardo Afonso", numero:45007, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1898-psdb-cidadania-executiva.pdf" },
     { id:"pode-cristiane-dos-santos-cardoso", nome:"Cristiane Dos Santos Cardoso", nomeUrna:"Cris Cardoso", numero:20220, partido:"PODE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2097-pode-retificadora.pdf" },
     { id:"novo-ana-paula-freitas-dos-santos", nome:"Ana Paula Freitas Dos Santos", nomeUrna:"Ana Paula Freitas", numero:30007, partido:"NOVO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2111-novo-executiva.pdf" },
+    { id:"psdb-cidadania-eduardo-marques-afonso-2", nome:"Eduardo Marques Afonso", nomeUrna:"Eduardo Afonso", numero:45007, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"2200-psdb-cidadania-retificadora.pdf" },
     { id:"republicanos-maria-joana-nogueira", nome:"Maria Joana Nogueira", nomeUrna:"Joana Nogueira", numero:10200, partido:"REPUBLICANOS", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2222-republicanos-executiva.pdf" },
     { id:"democrata-maria-das-gracas-marinato-fortes-da-silva", nome:"Maria Das Gracas Marinato Fortes Da Silva", nomeUrna:"Graça Fortes", numero:35177, partido:"DEMOCRATA", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2226-democrata-executiva.pdf" },
     { id:"pdt-cleusa-paixao-da-silva", nome:"Cleusa Paixão Da Silva", nomeUrna:"Cleusa Paixão", numero:12333, partido:"PDT", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"809-pdt-retificadora.pdf" },
@@ -680,8 +681,8 @@ var CANDIDATOS_2026_ES_PROVISORIO = {
     { id:"pstu-es-ficticio-24", nome:"Sandra dos Santos Monteiro", nomeUrna:"Sandra Monteiro", numero:7424, partido:"PSTU", genero:"MASCULINO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
   ],
   "Senador (1º suplente)": [
-    { id:"sem-partido-bruno-lourenco-de-souza", nome:"Bruno Lourenco De Souza", nomeUrna:"Bruno Lourenco", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1543-25-prd-77-solidariedade-executiva.pdf" },
-    { id:"psol-rede-antonio-elias-miranda-gomes", nome:"Antonio Elias Miranda Gomes", nomeUrna:"Toni Cabano", numero:null, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1601-psol-rede-executiva.pdf" },
+    { id:"prd-solidariedade-bruno-lourenco-de-souza", nome:"Bruno Lourenco De Souza", nomeUrna:"Bruno Lourenco", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1543-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"psol-rede-antonio-elias-miranda-gomes", nome:"Antonio Elias Miranda Gomes", nomeUrna:"Toni Cabano", numero:null, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1601-psol-rede-executiva.pdf" },
     { id:"pl-dant-nicchio-sathler", nome:"Dant Nicchio Sathler", nomeUrna:"Dant Nicchio", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"2059-pl-executiva.pdf" },
     { id:"pl-diego-cassoto-goulart", nome:"Diego Cassoto Goulart", nomeUrna:"Cabo Cassoto", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"972-pl-executiva.pdf" },
     { id:"dc-bruno-lourenco-de-souza", nome:"Bruno Lourenço De Souza", nomeUrna:"Bruno Lourenço", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1524-dc-executiva.pdf" },
@@ -696,8 +697,8 @@ var CANDIDATOS_2026_ES_PROVISORIO = {
     { id:"mdb-wendel-sant-ana-lima", nome:"Wendel Sant'Ana Lima", nomeUrna:"Wendel Lima", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"830-mdb-convencao.pdf" },
   ],
   "Senador (2º suplente)": [
-    { id:"sem-partido-priscila-de-souza-ramos", nome:"Priscila De Souza Ramos", nomeUrna:"Priscila Ramos", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1543-25-prd-77-solidariedade-executiva.pdf" },
-    { id:"psol-rede-wilson-jesus-lucas-junior", nome:"Wilson Jesus Lucas Junior", nomeUrna:"Wilson Jr.", numero:null, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1601-psol-rede-executiva.pdf" },
+    { id:"prd-solidariedade-priscila-de-souza-ramos", nome:"Priscila De Souza Ramos", nomeUrna:"Priscila Ramos", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1543-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"psol-rede-wilson-jesus-lucas-junior", nome:"Wilson Jesus Lucas Junior", nomeUrna:"Wilson Jr.", numero:null, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1601-psol-rede-executiva.pdf" },
     { id:"pl-nerleo-caus-de-souza", nome:"Nerleo Caus De Souza", nomeUrna:"Nerleo Caus", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"972-pl-executiva.pdf" },
     { id:"dc-priscila-de-souza-ramos", nome:"Priscila De Souza Ramos", nomeUrna:"Priscila Ramos", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1524-dc-executiva.pdf" },
     { id:"novo-vinicius-fregonazzi-tavares", nome:"Vinícius Fregonazzi Tavares", nomeUrna:"Dr. Vinícius Fregonazzi", numero:null, partido:"NOVO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"168-novo-convencao.pdf" },

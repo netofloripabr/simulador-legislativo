@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RS (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RS/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RS/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -17,7 +17,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1115-pl-executiva.pdf | PL | não | 3 |
 | 1141-democrata-retificadora.pdf | DEMOCRATA | sim | 27 |
 | 1152-pode-executiva.pdf | PODE | não | 0 |
-| 1182-44-uniao-11-pp-executiva.pdf | ? | não | 1 |
+| 1182-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 | 1184-novo-executiva.pdf | NOVO | não | 1 |
 | 1193-republicanos-executiva.pdf | REPUBLICANOS | não | 0 |
 | 1204-dc-retificadora.pdf | DC | sim | 27 |
@@ -26,16 +26,16 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1367-pco-convencao.pdf | PCO | não | 6 |
 | 1564-25-prd-77-solidariedade-retificadora.pdf | PRD/SOLIDARIEDADE | sim | 19 |
 | 1613-mdb-retificadora.pdf | MDB | sim | 87 |
-| 1618-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1618-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1626-mdb-executiva.pdf | MDB | não | 0 |
 | 1639-psd-executiva.pdf | PSD | não | 0 |
 | 1811-dc-executiva.pdf | DC | não | 0 |
-| 1846-25-prd-77-solidariedade-executiva.pdf | ? | não | 2 |
+| 1846-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 2 |
 | 1861-psd-executiva.pdf | PSD | não | 2 |
 | 1907-dc-retificadora.pdf | DC | sim | 0 |
 | 1908-dc-executiva.pdf | DC | não | 1 |
 | 1916-pode-executiva.pdf | PODE | não | 0 |
-| 1937-44-uniao-11-pp-executiva.pdf | ? | não | 0 |
+| 1937-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 0 |
 | 1939-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 78 |
 | 1944-democrata-retificadora.pdf | DEMOCRATA | sim | 27 |
 | 1983-novo-executiva.pdf | NOVO | não | 0 |
@@ -83,7 +83,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 977-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 19 |
 | 979-democrata-retificadora.pdf | DEMOCRATA | sim | 27 |
 
-Total de candidaturas: **1093** — confiança alta: **1063**, a revisar (partido não identificado): **28**
+Total de candidaturas: **1092** — confiança alta: **1064**, a revisar (partido não identificado): **28**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **57** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -805,6 +805,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **57** —
 - Número 35222 repetido em DEMOCRATA/Deputado Estadual para: Katiúscia Dessimao Mallmann, Rejane Faleiro — conferir manualmente.
 - Número 2744 repetido em DC/Deputado Federal para: Jocelino Ávila Da Silva, Joclinoávila Da Silva — conferir manualmente.
 - Número 45555 repetido em PSDB/CIDADANIA/Deputado Estadual para: Tiago Arzeno Ferrão, Thiago Arzeno Ferrão — conferir manualmente.
+- Número 7775 repetido em PRD/SOLIDARIEDADE/Deputado Federal para: Tatiana Deise Moreira Pereira, Tatiana Denise Moreira Pereira — conferir manualmente.
 - Número 1503 repetido em MDB/Deputado Federal para: Bruno Garcia Barcelos, Patricia Camassola Tome — conferir manualmente.
 - Número 5544 repetido em PSD/Deputado Federal para: Paulo Euclides Garcia De Azeredo, Paulo Euclides De Azeredo — conferir manualmente.
 - Número 55005 repetido em PSD/Deputado Estadual para: Gian Antônio Pedroso, Gian Antonio Pedroso — conferir manualmente.

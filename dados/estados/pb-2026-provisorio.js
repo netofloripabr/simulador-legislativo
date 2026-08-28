@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/pb-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -278,7 +278,7 @@ var CANDIDATOS_2026_PB_PROVISORIO = {
     { id:"pdt-democrito-medeiros-de-oliveira", nome:"Demócrito Medeiros De Oliveira", nomeUrna:"Moca Medeiros", numero:1215, partido:"PDT", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2021-pdt-retificadora.pdf" },
     { id:"psol-rede-alexandre-fernandes-da-silva", nome:"Alexandre Fernandes Da Silva", nomeUrna:"Alexandre Fernandes", numero:1800, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1642-psol-rede-retificadora.pdf" },
     { id:"missao-aline-oliveira-da-silva", nome:"Aline Oliveira Da Silva", nomeUrna:"Aline Grey", numero:1477, partido:"MISSÃO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"177-missao-convencao.pdf" },
-    { id:"psol-rede-aglair-pereira-da-silva", nome:"Aglair Pereira Da Silva", nomeUrna:"Sargento Aglair", numero:1822, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1954-psol-rede-executiva.pdf" },
+    { id:"psol-rede-aglair-pereira-da-silva", nome:"Aglair Pereira Da Silva", nomeUrna:"Sargento Aglair", numero:1822, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1954-psol-rede-executiva.pdf" },
     { id:"avante-amara-cristina-dos-santos", nome:"Amara Cristina Dos Santos", nomeUrna:"Cristina De João Bodin", numero:7000, partido:"AVANTE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2203-avante-retificadora.pdf" },
     { id:"democrata-adegilson-robson-dos-santos", nome:"Adegilson Robson Dos Santos", nomeUrna:"Pastor Robson", numero:3510, partido:"DEMOCRATA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"350-democrata-convencao.pdf" },
     { id:"mobiliza-ivanildo-nascimento-de-lima", nome:"Ivanildo Nascimento De Lima", nomeUrna:"O Profeta Ivanildo", numero:3310, partido:"MOBILIZA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"764-mobiliza-convencao.pdf" },
@@ -571,7 +571,7 @@ var CANDIDATOS_2026_PB_PROVISORIO = {
     { id:"psd-diogo-oliveira-cunha-lima", nome:"Diogo Oliveira Cunha Lima", nomeUrna:"Diogo Cunha Lima", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"2058-psd-retificadora.pdf" },
     { id:"mdb-diogo-oliveira-cunha-lima", nome:"Diogo Oliveira Cunha Lima", nomeUrna:"Diogo Cunha Lima", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1662-mdb-retificadora.pdf" },
     { id:"pco-marcos-jose-da-silva-lima", nome:"Marcos José Da Silva Lima", nomeUrna:"Marcos Lima", numero:null, partido:"PCO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1385-pco-convencao.pdf" },
-    { id:"sem-partido-ana-ligia-costa-feliciano", nome:"Ana Ligia Costa Feliciano", nomeUrna:"Ligia Feliciano", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1754-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-ana-ligia-costa-feliciano", nome:"Ana Ligia Costa Feliciano", nomeUrna:"Ligia Feliciano", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1754-44-uniao-11-pp-executiva.pdf" },
     { id:"dc-lenilda-pereira-da-silva", nome:"Lenilda Pereira Da Silva", nomeUrna:"Lenilda", numero:null, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1888-dc-retificadora.pdf" },
     { id:"pl-nayana-pontes-pereira-gomes", nome:"Nayana Pontes Pereira Gomes", nomeUrna:"Nayana Pontes", numero:null, partido:"PL", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"965-pl-retificadora.pdf" },
     { id:"up-maria-do-carmo-lourenco", nome:"Maria Do Carmo Lourenço", nomeUrna:"Carminha Lourenço", numero:null, partido:"UP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"571-up-convencao.pdf" },

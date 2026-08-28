@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/go-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -23,31 +23,31 @@
 var CANDIDATOS_2026_GO_PROVISORIO = {
   "Deputado Estadual": [
     { id:"pode-gisele-collete-candida-frances", nome:"Gisele Collete Candida Frances", nomeUrna:"Gisele Collete", numero:20888, partido:"PODE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1074-pode-executiva.pdf" },
-    { id:"pt-pc-do-b-pv-goiano-sidney-da-costa", nome:"Goiano Sidney Da Costa", nomeUrna:"Goiano Sidney", numero:43333, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1321-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-goiano-sidney-da-costa", nome:"Goiano Sidney Da Costa", nomeUrna:"Goiano Sidney", numero:43333, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1321-pt-pc-do-b-pv-executiva.pdf" },
     { id:"democrata-ana-lucia-leite-lima-ribas", nome:"Ana Lucia Leite Lima Ribas", nomeUrna:"Ana Lucia Do Salão", numero:35020, partido:"DEMOCRATA", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1671-democrata-retificadora.pdf" },
-    { id:"uniao-pp-michella-rodrigues-pires-bandeira", nome:"Michella Rodrigues Pires Bandeira", nomeUrna:"Tenente Coronel Michella", numero:44777, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1641-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-michella-rodrigues-pires-bandeira", nome:"Michella Rodrigues Pires Bandeira", nomeUrna:"Tenente Coronel Michella", numero:44777, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1641-44-uniao-11-pp-executiva.pdf" },
     { id:"mdb-alessandra-riad-iskandar-plaza", nome:"Alessandra Riad Iskandar Plaza", nomeUrna:"Alessandra Iskandar", numero:15001, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1727-mdb-executiva.pdf" },
     { id:"agir-cassiano-veira-de-sousa-neto", nome:"Cassiano Veira De Sousa Neto", nomeUrna:"Cassiano Vieira", numero:36145, partido:"AGIR", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1739-agir-executiva.pdf" },
-    { id:"pt-pc-do-b-pv-vilma-hellem-da-costa-pereira", nome:"Vilma Héllem Da Costa Pereira", nomeUrna:"Héllem Costa Quilombola", numero:13888, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1752-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-vilma-hellem-da-costa-pereira", nome:"Vilma Héllem Da Costa Pereira", nomeUrna:"Héllem Costa Quilombola", numero:13888, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1752-pt-pc-do-b-pv-executiva.pdf" },
     { id:"pl-christina-rakel-clay-goncalves", nome:"Christina Rakel Clay Gonçalves", nomeUrna:"Christina Clay", numero:22500, partido:"PL", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1844-pl-executiva.pdf" },
     { id:"democrata-hemerson-pereira-da-silva", nome:"Hemerson Pereira Da Silva", nomeUrna:"Coronel Hemerson", numero:35190, partido:"DEMOCRATA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1873-democrata-executiva.pdf" },
     { id:"psb-aurilene-ferreira", nome:"Aurilene Ferreira", nomeUrna:"Lena", numero:40434, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1904-psb-executiva.pdf" },
-    { id:"prd-solidariedade-adelson-pereira-de-moraes", nome:"Adelson Pereira De Moraes", nomeUrna:"Adelson Da Montlajes", numero:77456, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1982-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-adelson-pereira-de-moraes", nome:"Adelson Pereira De Moraes", nomeUrna:"Adelson Da Montlajes", numero:77456, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1982-25-prd-77-solidariedade-executiva.pdf" },
     { id:"agir-alessandra-oliveira-da-conceicao-ribeiro", nome:"Alessandra Oliveira Da Conceição Ribeiro", nomeUrna:"Alessandra Oliveira", numero:36011, partido:"AGIR", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1996-agir-retificadora.pdf" },
     { id:"mdb-rosy-de-souza-melo", nome:"Rosy De Souza Melo", nomeUrna:"Tenente Rosy", numero:15190, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2019-mdb-executiva.pdf" },
     { id:"mobiliza-ana-paula-alves-de-oliveira-rezende", nome:"Ana Paula Alves De Oliveira Rezende", nomeUrna:"Ana Paula Rezendes", numero:33300, partido:"MOBILIZA", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"707-mobiliza-convencao.pdf" },
     { id:"pode-thumilla-batista-de-carvalho", nome:"Thumilla Batista De Carvalho", nomeUrna:"Thumilla Carvalho", numero:20159, partido:"PODE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1074-pode-executiva.pdf" },
-    { id:"pt-pc-do-b-pv-lucia-aparecida-tome", nome:"Lucia Aparecida Tome", nomeUrna:"Lucia Tomé", numero:43210, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1321-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-lucia-aparecida-tome", nome:"Lucia Aparecida Tome", nomeUrna:"Lucia Tomé", numero:43210, partido:"PT/PC do B/PV", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1321-pt-pc-do-b-pv-executiva.pdf" },
     { id:"democrata-andreia-lucia-de-oliveira", nome:"Andreia Lucia De Oliveira", nomeUrna:"Andreia", numero:35888, partido:"DEMOCRATA", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1671-democrata-retificadora.pdf" },
     { id:"mdb-anne-kelly-alves-magalhaes-silva", nome:"Anne Kelly Alves Magalhães Silva", nomeUrna:"Anne Kelly", numero:15007, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1727-mdb-executiva.pdf" },
     { id:"agir-edson-marcelo-silva", nome:"Edson Marcelo Silva", nomeUrna:"Edson Automóveis Filho", numero:36360, partido:"AGIR", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1739-agir-executiva.pdf" },
     { id:"psb-marciene-roberto-da-costa", nome:"Marciene Roberto Da Costa", nomeUrna:"Marciene Andrade", numero:40136, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1904-psb-executiva.pdf" },
     { id:"dc-angela-maria-da-silva-castro", nome:"Angela Maria Da Silva Castro", nomeUrna:"Angela Maria", numero:27045, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1976-dc-executiva.pdf" },
-    { id:"prd-solidariedade-gildevar-da-silva-souza", nome:"Gildevar Da Silva Souza", nomeUrna:"Nome De Urna: Galego Da Ferr", numero:77222, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1982-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-gildevar-da-silva-souza", nome:"Gildevar Da Silva Souza", nomeUrna:"Nome De Urna: Galego Da Ferr", numero:77222, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1982-25-prd-77-solidariedade-executiva.pdf" },
     { id:"agir-alves-batista-lima", nome:"Alves Batista Lima", nomeUrna:"Alves Batista Alvim", numero:36001, partido:"AGIR", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1996-agir-retificadora.pdf" },
     { id:"mdb-tereza-ribeiro-xavier", nome:"Tereza Ribeiro Xavier", nomeUrna:"Professora Tetê", numero:15230, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2019-mdb-executiva.pdf" },
     { id:"mobiliza-artur-henrique-ribeiro-alves", nome:"Artur Henrique Ribeiro Alves", nomeUrna:"Sargento Artur", numero:33180, partido:"MOBILIZA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"707-mobiliza-convencao.pdf" },
-    { id:"pt-pc-do-b-pv-luiz-do-nascimento-carvalho", nome:"Luiz Do Nascimento Carvalho", nomeUrna:"Professor Luiz Carvalho", numero:13213, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1321-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-luiz-do-nascimento-carvalho", nome:"Luiz Do Nascimento Carvalho", nomeUrna:"Professor Luiz Carvalho", numero:13213, partido:"PT/PC do B/PV", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1321-pt-pc-do-b-pv-executiva.pdf" },
     { id:"democrata-antonio-carlos-cavalcante-souza", nome:"Antonio Carlos Cavalcante Souza", nomeUrna:"Antonio Carlos", numero:35777, partido:"DEMOCRATA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1671-democrata-retificadora.pdf" },
     { id:"mdb-delice-brasil-coelho", nome:"Délice Brasil Coelho", nomeUrna:"Délice Brasil", numero:15005, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1727-mdb-executiva.pdf" },
     { id:"agir-miriam-rogerio-de-souza", nome:"Miriam Rogério De Souza", nomeUrna:"Miriam Rógerio", numero:36690, partido:"AGIR", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1739-agir-executiva.pdf" },
@@ -686,7 +686,7 @@ var CANDIDATOS_2026_GO_PROVISORIO = {
     { id:"missao-aline-bernardo-gomes", nome:"Aline Bernardo Gomes", nomeUrna:"Aline Lima", numero:1428, partido:"MISSÃO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1680-missao-retificadora.pdf" },
     { id:"pode-gizelle-teles-simoes", nome:"Gizelle Teles Simoes", nomeUrna:"Pra. Gizelle Teles", numero:2030, partido:"PODE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1931-pode-executiva.pdf" },
     { id:"dc-elines-da-silva-marques-2", nome:"Elines Da Silva Marques", nomeUrna:"Lis Marques", numero:2790, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1976-dc-executiva.pdf" },
-    { id:"prd-solidariedade-wiviane-de-cassia-borges-spindola-de-castro-gomes", nome:"Wiviane De Cassia Borges Spindola De Castro Gomes", nomeUrna:"Sargento Wiviane", numero:2590, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"2074-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"prd-solidariedade-wiviane-de-cassia-borges-spindola-de-castro-gomes", nome:"Wiviane De Cassia Borges Spindola De Castro Gomes", nomeUrna:"Sargento Wiviane", numero:2590, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2074-25-prd-77-solidariedade-executiva.pdf" },
     { id:"dc-adriana-alves-ferreira", nome:"Adriana Alves Ferreira", nomeUrna:"Adriana Marrone", numero:2772, partido:"DC", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"471-dc-convencao.pdf" },
     { id:"novo-daniel-da-silva-santos", nome:"Daniel Da Silva Santos", nomeUrna:"Daniel Shamah", numero:3045, partido:"NOVO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"572-novo-convencao.pdf" },
     { id:"pode-angelita-duarte", nome:"Angelita Duarte", nomeUrna:"Angelita Duarte", numero:2045, partido:"PODE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"884-pode-retificadora.pdf" },
@@ -987,8 +987,7 @@ var CANDIDATOS_2026_GO_PROVISORIO = {
     { id:"psb-maria-isaura-lemos", nome:"Maria Isaura Lemos", nomeUrna:"Isaura Lemos", numero:400, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1027-psb-convencao.pdf" },
     { id:"prd-solidariedade-gustavo-mendanha-melo", nome:"Gustavo Mendanha Melo", nomeUrna:"Gustavo Mendanha", numero:251, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1247-25-prd-77-solidariedade-convencao.pdf" },
     { id:"uniao-pp-maria-das-gracas-landim-de-carvalho-caiado", nome:"Maria Das Graças Landim De Carvalho Caiado", nomeUrna:"Gracinha Caiado", numero:444, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1387-44-uniao-11-pp-retificadora.pdf" },
-    { id:"sem-partido-cintia-aparecida-dias", nome:"Cíntia Aparecida Dias", nomeUrna:"Cíntia Dias", numero:500, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1678-psol-rede-executiva.pdf" },
-    { id:"psol-rede-cintia-aparecida-dias", nome:"Cíntia Aparecida Dias", nomeUrna:"Cíntia Dias", numero:500, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"808-psol-rede-convencao.pdf" },
+    { id:"psol-rede-cintia-aparecida-dias", nome:"Cíntia Aparecida Dias", nomeUrna:"Cíntia Dias", numero:500, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1678-psol-rede-executiva.pdf" },
     { id:"psd-vanderlan-vieira-cardoso", nome:"Vanderlan Vieira Cardoso", nomeUrna:"Vanderlan Cardoso", numero:555, partido:"PSD", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"970-psd-convencao.pdf" },
     { id:"pl-gustavo-gayer-machado-de-araujo", nome:"Gustavo Gayer Machado De Araujo", nomeUrna:"Gustavo Gayer", numero:222, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1627-pl-retificadora.pdf" },
     { id:"mdb-zacarias-calil-hamu", nome:"Zacarias Calil Hamu", nomeUrna:"Zacarias Calil", numero:151, partido:"MDB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1103-mdb-convencao.pdf" },
@@ -1023,7 +1022,7 @@ var CANDIDATOS_2026_GO_PROVISORIO = {
     { id:"psdb-cidadania-milton-jose-das-mercez", nome:"Milton José Das Mercêz", nomeUrna:"Milton Mercêz", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1758-psdb-cidadania-retificadora.pdf" },
   ],
   "Senador (2º suplente)": [
-    { id:"sem-partido-patrick-de-noronha", nome:"Patrick De Noronha", nomeUrna:"Patrick De Noronha", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1678-psol-rede-executiva.pdf" },
+    { id:"psol-rede-patrick-de-noronha-2", nome:"Patrick De Noronha", nomeUrna:"Patrick De Noronha", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1678-psol-rede-executiva.pdf" },
     { id:"pdt-fernando-isaac-borges-de-faria-2", nome:"Fernando Isaac Borges De Faria", nomeUrna:"Fernando Isaac", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1750-pdt-retificadora.pdf" },
     { id:"psb-lucilene-dos-santos-rosa", nome:"Lucilene Dos Santos Rosa", nomeUrna:"Lucilene Dos Santos", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1027-psb-convencao.pdf" },
     { id:"prd-solidariedade-allan-pereira-cardoso", nome:"Allan Pereira Cardoso", nomeUrna:"Coronel Cardoso", numero:null, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1247-25-prd-77-solidariedade-convencao.pdf" },
@@ -1038,7 +1037,7 @@ var CANDIDATOS_2026_GO_PROVISORIO = {
   ],
   "Vice-Governador": [
     { id:"pode-luiz-carlos-do-carmo", nome:"Luiz Carlos Do Carmo", nomeUrna:"Luiz Do Carmo", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1010-pode-executiva.pdf" },
-    { id:"sem-partido-carlos-gomes-cavalcante-mundim", nome:"Carlos Gomes Cavalcante Mundim", nomeUrna:"Carlos Mundim", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1065-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-carlos-gomes-cavalcante-mundim", nome:"Carlos Gomes Cavalcante Mundim", nomeUrna:"Carlos Mundim", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1065-pt-pc-do-b-pv-executiva.pdf" },
     { id:"pdt-carlos-gomes-cavalcante-mundim", nome:"Carlos Gomes Cavalcante Mundim", nomeUrna:"Carlos Mundim", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1750-pdt-retificadora.pdf" },
     { id:"pl-ana-paula-de-araujo-rezende-machado-craveiro", nome:"Ana Paula De Araujo Rezende Machado Craveiro", nomeUrna:"Ana Paula Rezende", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"1627-pl-retificadora.pdf" },
     { id:"mdb-luiz-carlos-do-carmo", nome:"Luiz Carlos Do Carmo", nomeUrna:"Luiz Do Carmo", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"1103-mdb-convencao.pdf" },

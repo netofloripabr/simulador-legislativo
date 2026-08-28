@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 MS (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MS/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MS/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -14,17 +14,17 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1048-psb-executiva.pdf | PSB | não | 1 |
 | 1068-dc-executiva.pdf | DC | não | 1 |
 | 1113-novo-convencao.pdf | NOVO | não | 35 |
-| 1159-44-uniao-11-pp-executiva.pdf | ? | não | 2 |
+| 1159-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
 | 1326-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 38 |
 | 1352-pdt-executiva.pdf | PDT | não | 1 |
 | 1417-pco-convencao.pdf | PCO | não | 13 |
-| 1420-pt-pc-do-b-pv-executiva.pdf | ? | não | 0 |
+| 1420-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 0 |
 | 148-agir-convencao.pdf | AGIR | não | 11 |
 | 1596-mdb-retificadora.pdf | MDB | sim | 28 |
 | 1716-missao-retificadora.pdf | MISSÃO | sim | 6 |
 | 1740-avante-executiva.pdf | AVANTE | não | 0 |
 | 1763-mdb-retificadora.pdf | MDB | sim | 28 |
-| 1798-25-prd-77-solidariedade-executiva.pdf | ? | não | 8 |
+| 1798-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 8 |
 | 1906-novo-executiva.pdf | NOVO | não | 1 |
 | 1948-pdt-executiva.pdf | PDT | não | 1 |
 | 2089-dc-executiva.pdf | DC | não | 6 |
@@ -41,18 +41,20 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 712-psd-convencao.pdf | PSD | não | 1 |
 | 717-44-uniao-11-pp-convencao.pdf | UNIÃO/PP | não | 37 |
 | 725-avante-convencao.pdf | AVANTE | não | 34 |
-| 730-44-uniao-11-pp-executiva.pdf | ? | não | 0 |
+| 730-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 0 |
 | 745-republicanos-convencao.pdf | REPUBLICANOS | não | 34 |
-| 749-44-uniao-11-pp-executiva.pdf | ? | não | 0 |
+| 749-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 0 |
 | 791-dc-convencao.pdf | DC | não | 38 |
 | 971-pdt-convencao.pdf | PDT | não | 24 |
 
-Total de candidaturas: **460** — confiança alta: **428**, a revisar (partido não identificado): **21**
+Total de candidaturas: **458** — confiança alta: **436**, a revisar (partido não identificado): **21**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** — ver `fonte:"ficticio"` no .js gerado.
 
 ## Alertas automáticos
 
+- Candidatura de Fernando Da Silva Souza (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Juliana Aparecida Fleury Aranda (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Ariane Cristina Pereira Tavares Da Silva (MDB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Dharleng Campos De Oliveira (MDB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Gabriel Anastacio Rossi (MDB, Deputado Federal) tem versão retificadora — mantendo só a mais nova.

@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RO (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RO/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RO/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -18,14 +18,14 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1325-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 31 |
 | 1368-mdb-executiva.pdf | MDB | não | 0 |
 | 1395-pdt-executiva.pdf | PDT | não | 3 |
-| 1400-pt-pc-do-b-pv-executiva.pdf | ? | não | 6 |
+| 1400-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 6 |
 | 1405-pl-executiva.pdf | PL | não | 8 |
 | 1406-psb-executiva.pdf | PSB | não | 2 |
 | 1481-psd-retificadora.pdf | PSD | sim | 39 |
 | 1505-44-uniao-11-pp-retificadora.pdf | UNIÃO/PP | sim | 31 |
 | 1520-psd-retificadora.pdf | PSD | sim | 39 |
 | 1561-psd-retificadora.pdf | PSD | sim | 39 |
-| 1629-44-uniao-11-pp-executiva.pdf | ? | não | 2 |
+| 1629-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
 | 1644-novo-executiva.pdf | NOVO | não | 1 |
 | 165-avante-convencao.pdf | AVANTE | não | 30 |
 | 169-pode-convencao.pdf | PODE | não | 34 |
@@ -34,9 +34,9 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1738-psd-retificadora.pdf | PSD | sim | 39 |
 | 1793-psb-retificadora.pdf | PSB | sim | 24 |
 | 1808-psb-executiva.pdf | PSB | não | 6 |
-| 1878-pt-pc-do-b-pv-executiva.pdf | ? | não | 8 |
-| 1938-44-uniao-11-pp-executiva.pdf | ? | não | 2 |
-| 1962-psol-rede-executiva.pdf | ? | não | 1 |
+| 1878-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 8 |
+| 1938-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
+| 1962-psol-rede-executiva.pdf | PSOL/REDE | não | 1 |
 | 1990-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
 | 202-psb-convencao.pdf | PSB | não | 22 |
 | 2045-psb-executiva.pdf | PSB | não | 3 |
@@ -69,7 +69,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 975-psol-rede-convencao.pdf | PSOL/REDE | não | 21 |
 | 984-avante-retificadora.pdf | AVANTE | sim | 30 |
 
-Total de candidaturas: **473** — confiança alta: **426**, a revisar (partido não identificado): **33**
+Total de candidaturas: **470** — confiança alta: **435**, a revisar (partido não identificado): **33**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **55** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -204,10 +204,10 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **55** —
 - Candidatura de Potyara Moraes Rocha (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wanderson Da Silva (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Acir Marcos Gurgacz (PDT, Senador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Aires Mota De Almeida (None, Senador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Luciana De Oliveira E Silva (None, Senador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Raimundo Soares Da Costa (None, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Paulo Nunes Ribeiro (None, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aires Mota De Almeida (PT/PC do B/PV, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luciana De Oliveira E Silva (PT/PC do B/PV, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Raimundo Soares Da Costa (PT/PC do B/PV, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Nunes Ribeiro (PT/PC do B/PV, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Marcos Rogério Da Silva Brito (PL, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rodrigo Camargo Ribeiro Pinho (PL, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Bruno Scheid (PL, Senador) tem versão retificadora — mantendo só a mais nova.
@@ -385,6 +385,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **55** —
 - Número 40 repetido em PSB/Governador para: Samuel Costa Menezes, Samuel Costa De Menezes — conferir manualmente.
 - Número 144 repetido em MISSÃO/Senador para: Cleidson Moura Da Silva, Miguel Constance Martins, Thulio Santiago Castro — conferir manualmente.
 - Número 400 repetido em PSB/Senador para: Ivaneide Bandeira Cardozo, Ivaneide Bandeira Cardoso — conferir manualmente.
+- Número 43456 repetido em PT/PC do B/PV/Deputado Estadual para: Silveria Martines, Lázaro Elias Pereira — conferir manualmente.
+- Número 5005 repetido em PSOL/REDE/Deputado Federal para: Jaqueline Rocha Sales, Anandréia Trovó — conferir manualmente.
 - Número 22220 repetido em PL/Deputado Estadual para: Taíssa Da Silva Souza, Taíssa Da Silva Sousa — conferir manualmente.
 - Número 1522 repetido em MDB/Deputado Federal para: Caio Eduardo Caseiro De Lima, Caio Eduardo Caseiro De Lima Machado — conferir manualmente.
 - Número 15152 repetido em MDB/Deputado Estadual para: Mara Luciana De Oliveira, Mara Luciana De Oliveira Santos — conferir manualmente.

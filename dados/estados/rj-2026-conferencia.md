@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 RJ (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RJ/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/RJ/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -29,7 +29,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1319-dc-executiva.pdf | DC | não | 0 |
 | 133-psd-convencao.pdf | PSD | não | 114 |
 | 1350-psd-executiva.pdf | PSD | não | 5 |
-| 1369-pt-pc-do-b-pv-executiva.pdf | ? | não | 0 |
+| 1369-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 0 |
 | 1390-pco-convencao.pdf | PCO | não | 14 |
 | 145-psb-convencao.pdf | PSB | não | 118 |
 | 149-avante-convencao.pdf | AVANTE | não | 116 |
@@ -43,7 +43,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1600-dc-executiva.pdf | DC | não | 1 |
 | 1611-pl-retificadora.pdf | PL | sim | 105 |
 | 163-pode-convencao.pdf | PODE | não | 83 |
-| 1703-psdb-cidadania-executiva.pdf | ? | não | 1 |
+| 1703-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 1 |
 | 1732-democrata-retificadora.pdf | DEMOCRATA | sim | 91 |
 | 1735-pode-executiva.pdf | PODE | não | 2 |
 | 1743-missao-retificadora.pdf | MISSÃO | sim | 35 |
@@ -55,14 +55,14 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1867-pl-retificadora.pdf | PL | sim | 105 |
 | 1883-mobiliza-executiva.pdf | MOBILIZA | não | 1 |
 | 1919-avante-retificadora.pdf | AVANTE | sim | 117 |
-| 1920-psol-rede-executiva.pdf | ? | não | 1 |
+| 1920-psol-rede-executiva.pdf | PSOL/REDE | não | 1 |
 | 1924-pl-executiva.pdf | PL | não | 6 |
 | 1935-mobiliza-retificadora.pdf | MOBILIZA | sim | 110 |
 | 1942-prtb-executiva.pdf | PRTB | não | 3 |
 | 1951-pdt-executiva.pdf | PDT | não | 28 |
 | 1957-mobiliza-executiva.pdf | MOBILIZA | não | 2 |
 | 1973-novo-executiva.pdf | NOVO | não | 8 |
-| 1980-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 1980-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 2028-psd-executiva.pdf | PSD | não | 1 |
 | 2038-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
 | 2048-mobiliza-executiva.pdf | MOBILIZA | não | 1 |
@@ -86,7 +86,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 484-mobiliza-retificadora.pdf | MOBILIZA | sim | 110 |
 | 506-agir-retificadora.pdf | AGIR | sim | 71 |
 | 524-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 118 |
-| 541-psol-rede-executiva.pdf | ? | não | 1 |
+| 541-psol-rede-executiva.pdf | PSOL/REDE | não | 1 |
 | 55-mdb-convencao.pdf | MDB | não | 93 |
 | 551-psol-rede-convencao.pdf | PSOL/REDE | não | 65 |
 | 578-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 118 |
@@ -100,19 +100,19 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 743-up-convencao.pdf | UP | não | 16 |
 | 782-pl-executiva.pdf | PL | não | 5 |
 | 793-pode-retificadora.pdf | PODE | sim | 83 |
-| 800-psol-rede-executiva.pdf | ? | não | 2 |
+| 800-psol-rede-executiva.pdf | PSOL/REDE | não | 2 |
 | 817-mobiliza-retificadora.pdf | MOBILIZA | sim | 110 |
 | 831-prtb-convencao.pdf | PRTB | não | 3 |
 | 851-avante-retificadora.pdf | AVANTE | sim | 117 |
 | 907-mobiliza-executiva.pdf | MOBILIZA | não | 2 |
-| 912-pt-pc-do-b-pv-executiva.pdf | ? | não | 102 |
+| 912-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 102 |
 | 919-avante-retificadora.pdf | AVANTE | sim | 117 |
 | 921-psb-retificadora.pdf | PSB | sim | 118 |
 | 924-agir-retificadora.pdf | AGIR | sim | 71 |
 | 926-psd-executiva.pdf | PSD | não | 25 |
 | 962-pl-executiva.pdf | PL | não | 3 |
 
-Total de candidaturas: **2081** — confiança alta: **1958**, a revisar (partido não identificado): **15**
+Total de candidaturas: **2180** — confiança alta: **2063**, a revisar (partido não identificado): **15**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **71** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -1522,6 +1522,9 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **71** —
 - Candidatura de Charles Rodrigues De Carvalho Sciammarella (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Daniela Campos Leal Arregue (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rosilene Etiene Mendonça (PSDB/CIDADANIA, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jaime Albino Veloso (PSOL/REDE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Fernanda Vieira De Souza (PSOL/REDE, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Leonardo Leal De Lima Soares (PSOL/REDE, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Número 2288 repetido em PL/Deputado Federal para: Lais Jordy Santanna Soares De Mattos, Carlos Roberto Jordy Coelho De Mattos — conferir manualmente.
 - Número 350 repetido em DEMOCRATA/Senador para: Luiz André De Moura Monteiro, Cleber Ribeiro Afonso — conferir manualmente.
 - Número 22202 repetido em PL/Deputado Estadual para: Maria José Bernardo Marques, Fernanda Anchieta Louback — conferir manualmente.
@@ -1542,6 +1545,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **71** —
 - Número 35656 repetido em DEMOCRATA/Deputado Estadual para: Francisco Antonio De Araujo, Francisco Antonio Araujo — conferir manualmente.
 - Número 14 repetido em MISSÃO/Governador para: João Jacques Soares Busnello, Rafael Barros Silva Da Luz — conferir manualmente.
 - Número 144 repetido em MISSÃO/Senador para: Helio Kinast Cruz Secco, Moisés Sarmento De Queiroz, Ramon Oliveira Batista — conferir manualmente.
+- Número 18888 repetido em PSOL/REDE/Deputado Estadual para: Ingrid Oliveira, Ingrid De Oliveira — conferir manualmente.
 - Número 3301 repetido em MOBILIZA/Deputado Federal para: Allan Vianna Feijo, Alex Nicodemos De Oliveira — conferir manualmente.
 - Número 3303 repetido em MOBILIZA/Deputado Federal para: Fabio Dias De Freitas, Fabio Dias Freitas, Flávio Rodrigues Bernardes — conferir manualmente.
 - Número 33333 repetido em MOBILIZA/Deputado Estadual para: Alexander Mattoso Da Silva, Diego Rodrigues Marques — conferir manualmente.

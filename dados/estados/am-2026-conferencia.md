@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 AM (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AM/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AM/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -24,12 +24,12 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1628-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 23 |
 | 1773-psol-rede-retificadora.pdf | PSOL/REDE | sim | 33 |
 | 1911-psol-rede-retificadora.pdf | PSOL/REDE | sim | 33 |
-| 1928-44-uniao-11-pp-executiva.pdf | ? | não | 1 |
+| 1928-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 | 1950-novo-executiva.pdf | NOVO | não | 2 |
 | 2009-agir-executiva.pdf | AGIR | não | 1 |
 | 2026-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
 | 2035-mobiliza-executiva.pdf | MOBILIZA | não | 1 |
-| 2064-pt-pc-do-b-pv-executiva.pdf | ? | não | 0 |
+| 2064-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 0 |
 | 2114-pl-executiva.pdf | PL | não | 1 |
 | 2188-mobiliza-executiva.pdf | MOBILIZA | não | 1 |
 | 2189-mobiliza-retificadora.pdf | MOBILIZA | sim | 1 |
@@ -58,13 +58,13 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 637-novo-convencao.pdf | NOVO | não | 32 |
 | 737-psol-rede-retificadora.pdf | ? | sim | 33 |
 | 747-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 23 |
-| 767-psol-rede-executiva.pdf | ? | não | 33 |
+| 767-psol-rede-executiva.pdf | PSOL/REDE | não | 33 |
 | 790-psol-rede-convencao.pdf | PSOL/REDE | não | 33 |
 | 850-up-convencao.pdf | UP | não | 2 |
 | 883-mdb-executiva.pdf | MDB | não | 3 |
 | 909-psd-executiva.pdf | PSD | não | 2 |
 
-Total de candidaturas: **513** — confiança alta: **462**, a revisar (partido não identificado): **15**
+Total de candidaturas: **513** — confiança alta: **463**, a revisar (partido não identificado): **15**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **74** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -314,40 +314,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **74** —
 - Candidatura de Renato De Souza Marques (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Sandoval Fernando Cardoso De Freitas (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Sidinei Tavares De Souza (PSD, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Isael Franklin Gonçalves (None, Governador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Leonardo Balbi Da Silva (None, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ismael Franklin Gonçalves (None, Senador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maria Evany Do Nascimento (None, Senador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Laynara Cristina Leite Prestes (None, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Renan Nogueira Rotondano (None, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de André Monteiro Da Silva (None, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Jander Dos Santos Muniz (None, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Antônio Marcos De Oliveira Apurinã (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Evalcilene Costa Dos Santos (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Luiz Andrade De Sousa (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maria Odimar Da Silva Guimarães (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Natalia Demes Bezerra Tavares Pereira (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Patrícia Barroso Veras (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Valdenir Costa Soares (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Welton Yudi Oda (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Álex Sousa De Sá (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Ailton Fernandes Rodrigues (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Danielle Delgado Gonçalves (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Francisco Jean Paz Morais (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Francisco Moraiare Romano (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Gilmara Corrêa Guimarães (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Humberto Valêncio Gomes (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Janaína Soares Dos Anjos (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de José Da Silva Oliveira (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Luiz Bezerra Corrêa (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Maria Raimunda Gomes (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Marinete De Sousa Moura (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Mauro Pereira Coelho (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Naldo Braga Mura (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Nelson Rocha Júnior (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Wladimir Medeiros Campos (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Yura Niwa Wani Ni Nawavo Marubo Comapa Franco (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Número 3333 repetido em MOBILIZA/Deputado Federal para: Alice Mafra Cavalcante Reis Penafort, Tomás Igo Munoz Sanches — conferir manualmente.
+- Número 44133 repetido em UNIÃO/PP/Deputado Estadual para: Silvyane Parente De Araujo Castro, Nicia Andrea Mota Medeiros — conferir manualmente.
 - Número 30000 repetido em NOVO/Deputado Estadual para: Monica Alves De Souza Mota, Nedy Santana Vale — conferir manualmente.
 - Número 30121 repetido em NOVO/Deputado Estadual para: Wando Fonteles Gomes, Andressa Franca Brasil — conferir manualmente.
 - 15 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).

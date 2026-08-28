@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 SC (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/SC/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -18,7 +18,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1241-pode-executiva.pdf | PODE | não | 0 |
 | 1289-republicanos-executiva.pdf | REPUBLICANOS | não | 0 |
 | 1312-pl-executiva.pdf | PL | não | 1 |
-| 1322-psdb-cidadania-executiva.pdf | ? | não | 0 |
+| 1322-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 0 |
 | 1337-novo-executiva.pdf | NOVO | não | 1 |
 | 1356-dc-retificadora.pdf | DC | sim | 17 |
 | 1403-pco-convencao.pdf | PCO | não | 7 |
@@ -31,31 +31,31 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1656-psd-executiva.pdf | PSD | não | 0 |
 | 166-psb-convencao.pdf | PSB | não | 4 |
 | 1672-mdb-executiva.pdf | MDB | não | 0 |
-| 1683-44-união-11-pp-executiva.pdf | ? | não | 2 |
+| 1683-44-união-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
 | 1696-missão-retificadora.pdf | MISSÃO | sim | 41 |
 | 1700-psd-executiva.pdf | PSD | não | 0 |
 | 172-psol-rede-convencao.pdf | PSOL/REDE | não | 48 |
 | 1748-psol-rede-retificadora.pdf | PSOL/REDE | sim | 48 |
 | 1794-psd-executiva.pdf | PSD | não | 4 |
-| 1810-25-prd-77-solidariedade-executiva.pdf | ? | não | 7 |
+| 1810-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 7 |
 | 183-pdt-convencao.pdf | PDT | não | 45 |
-| 1860-psdb-cidadania-executiva.pdf | ? | não | 0 |
+| 1860-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 0 |
 | 1866-pl-executiva.pdf | PL | não | 2 |
 | 189-up-convencao.pdf | UP | não | 10 |
-| 1910-44-união-11-pp-executiva.pdf | ? | não | 2 |
+| 1910-44-união-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
 | 195-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 52 |
 | 1971-uniao-pp-retificadora.pdf | ? | sim | 3 |
 | 1985-pode-executiva.pdf | PODE | não | 3 |
 | 199-psb-retificadora.pdf | PSB | sim | 4 |
-| 2066-prd-solidariedade-executiva-1.pdf | ? | não | 10 |
+| 2066-prd-solidariedade-executiva-1.pdf | PRD/SOLIDARIEDADE | não | 10 |
 | 2099-pco-retificadora.pdf | PCO | sim | 7 |
-| 2201-prd-solidariedade-executiva-2.pdf | ? | não | 2 |
+| 2201-prd-solidariedade-executiva-2.pdf | PRD/SOLIDARIEDADE | não | 2 |
 | 225-agir-convencao.pdf | AGIR | não | 10 |
 | 326-missão-convencao.pdf | MISSÃO | não | 50 |
 | 347-pstu-convencao.pdf | PSTU | não | 10 |
 | 43-pode-convencao.pdf | PODE | não | 54 |
 | 487-novo-convencao.pdf | NOVO | não | 55 |
-| 557-pt-pc-do-b-pv-executiva.pdf | ? | não | 1 |
+| 557-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 1 |
 | 609-25-prd-77-solidariedade-convencao.pdf | PRD/SOLIDARIEDADE | não | 30 |
 | 624-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 19 |
 | 680-pl-convencao.pdf | PL | não | 61 |
@@ -68,12 +68,12 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 803-agir-executiva.pdf | AGIR | não | 9 |
 | 814-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 22 |
 | 918-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
-| 954-psol-rede-executiva.pdf | ? | não | 2 |
-| 978-44-união-11-pp-executiva.pdf | ? | não | 1 |
+| 954-psol-rede-executiva.pdf | PSOL/REDE | não | 2 |
+| 978-44-união-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 
-Total de candidaturas: **742** — confiança alta: **692**, a revisar (partido não identificado): **23**
+Total de candidaturas: **744** — confiança alta: **717**, a revisar (partido não identificado): **23**
 
-Candidatos fictícios preservados (partido/cargo ainda sem ata real): **13** — ver `fonte:"ficticio"` no .js gerado.
+Candidatos fictícios preservados (partido/cargo ainda sem ata real): **9** — ver `fonte:"ficticio"` no .js gerado.
 
 ### Versão da ata suprimida pelo RRC oficial (2)
 
@@ -273,17 +273,17 @@ O registro oficial do TSE prevalece sobre a ata de convenção. A ata listava es
 - Candidatura de Carlos Daurição Antunes (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Everton José De França Melo (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Tiago Valdecir Horstmann (MISSÃO, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Simone Katswinckel Da Silva (None, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Adriana Savi Fernandes (None, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Jackson Raymundo Martins (AGIR, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Henrique Todeschini Da Silva (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Robson Zagre (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Silvana Walger (AGIR, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Número 6500 repetido em PT/PC do B/PV/Deputado Federal para: Camilo Candido Da Silva, Jovino Marques Gonçalves — conferir manualmente.
 - Número 2700 repetido em DC/Deputado Federal para: Manoel Cabral Filho, João Natanael Dornelles Da Fontoura — conferir manualmente.
 - Número 14 repetido em MISSÃO/Governador para: Marcelo Marcel Franco Jose Da Silva, Marcelo Rodrigues — conferir manualmente.
 - Número 144 repetido em MISSÃO/Senador para: Diego Santos Vieira, Edupercio Pratts, Túlio De Amorim Pfuetzenreiter — conferir manualmente.
 - Número 14001 repetido em MISSÃO/Deputado Estadual para: Cleiton Siqueira, Davi Daniel Da Conceição — conferir manualmente.
 - Número 55852 repetido em PSD/Deputado Estadual para: Vivian Cristine Quiquio, Neuri Luiz Mantelli — conferir manualmente.
+- Número 25000 repetido em PRD/SOLIDARIEDADE/Deputado Estadual para: Rafael Gomes Dos Santos, Emmanuel Antonio Silvério Santos — conferir manualmente.
 - 23 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)

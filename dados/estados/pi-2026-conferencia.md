@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 PI (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PI/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/PI/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -13,9 +13,9 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1003-pl-executiva.pdf | PL | não | 0 |
 | 1017-democrata-retificadora.pdf | DEMOCRATA | sim | 18 |
 | 1019-dc-executiva.pdf | DC | não | 1 |
-| 1043-44-uniao-11-pp-executiva.pdf | ? | não | 46 |
+| 1043-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 46 |
 | 1045-mobiliza-retificadora.pdf | MOBILIZA | sim | 17 |
-| 1089-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1089-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1136-pco-retificadora.pdf | PCO | sim | 7 |
 | 1146-pco-convencao.pdf | PCO | não | 7 |
 | 1215-novo-executiva.pdf | NOVO | não | 5 |
@@ -28,7 +28,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1755-pco-retificadora.pdf | PCO | sim | 7 |
 | 1801-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 43 |
 | 1891-avante-executiva.pdf | AVANTE | não | 5 |
-| 1892-44-uniao-11-pp-executiva.pdf | ? | não | 1 |
+| 1892-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 | 1893-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 32 |
 | 1897-mdb-executiva.pdf | MDB | não | 1 |
 | 1909-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 32 |
@@ -74,7 +74,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 980-avante-convencao.pdf | AVANTE | não | 6 |
 | 999-pode-retificadora.pdf | PODE | sim | 6 |
 
-Total de candidaturas: **486** — confiança alta: **416**, a revisar (partido não identificado): **24**
+Total de candidaturas: **447** — confiança alta: **422**, a revisar (partido não identificado): **23**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -96,6 +96,45 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 - Candidatura de Raimundo Vicente Pessoa Nogueira (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Rinaldo José Silva Cícero (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Wesley Carvalho De Lima França (DEMOCRATA, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Joel Rodrigues Da Silva (UNIÃO/PP, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ciro Nogueira Lima Filho (UNIÃO/PP, Senador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Raimundo Neto E Silva Nogueira Lima (UNIÃO/PP, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Aldenice Costa Moraes (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Antonio Gonçalves De Carvalho Lima (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Geraldo Jarques Pereira Filho (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gil Marques De Medeiros (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gyselle Soares Estevão (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de João José Ferreira Silva (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Julio Ferraz Arcoverde (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Samantha Cavalca Sobreira Dutra (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Vânia Carvalho Dos Santos (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Átila De Melo Lira (UNIÃO/PP, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Alcilene Costa Moraes (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Cristina Fernandes Da Silva (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Ana Cristina Ferreira Lima (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de André Rodrigues Nogueira (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Debora Carvalho Silva (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Francisco Das Chagas Costa Oliveira (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gabriel Felipe Da Silva Costa (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gustavo Sousa De Neiva (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Hallyson Martins Da Mata E Silva (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jarina De Paiva Buosi (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Jonas Barroso Luz Neto (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Fernando Oliveira De Brito (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de José Jesus Trabulo De Sousa Neto (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Joventina Moura Duarte Pimentel (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Juraci Ribeiro Alberto (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Larissa Freire De Farias Lima (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Lytson Brendow De Barros Soares (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Natrício Vale Almeida (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Paulo Roberto Alves Soares (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Pedro Alcântara Carvalho Do Nascimento (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Petrus Evelyn Martins (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Raimundo Nonato Oliveira Sousa (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Rildo Barroso Cardoso (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Roberto Cesar De Area Leão Nascimento (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Tex Willer Marques Dos Santos (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Valdelice Da Silva Vieira (UNIÃO/PP, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Antonio Almeida De Sousa (MOBILIZA, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Paulo Roberto Bezerra De Oliveira (MOBILIZA, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Carlos Alberto Cardoso Azevedo (MOBILIZA, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
@@ -335,6 +374,11 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 - Candidatura de Lavínia Castelo Branco De Noronha Campos (NOVO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Luciane Pereira Da Silva (NOVO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Odir Santana Cruz Da Silva (NOVO, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
+- Número 4411 repetido em UNIÃO/PP/Deputado Federal para: Francisco Emanoel De Paiva Sousa, Francisco Emanuel De Paiva Sousa — conferir manualmente.
+- Número 11221 repetido em UNIÃO/PP/Deputado Estadual para: Andreia Araújo Couto De Sousa, Andreia Araujo Couto De Sousa — conferir manualmente.
+- Número 11233 repetido em UNIÃO/PP/Deputado Estadual para: Antônio Francisco Gomes De Castro, Antonio Francisco Gomes De Castro — conferir manualmente.
+- Número 11222 repetido em UNIÃO/PP/Deputado Estadual para: Erivelton Da Sá Barros, Erivelto De Sá Barros — conferir manualmente.
+- Número 11444 repetido em UNIÃO/PP/Deputado Estadual para: Raimundo Nonato Lima Percy Junior, Raimundo Nonato Lima Percy — conferir manualmente.
 - Número 700 repetido em AVANTE/Senador para: Antonio José De Freitas Lira, Alexandre Mariano Lustosa — conferir manualmente.
 - Número 7070 repetido em AVANTE/Deputado Federal para: Hedilene Do Nascimento Silva Fernandes, Reinaldo Ximenes Da Silva — conferir manualmente.
 - Número 7000 repetido em AVANTE/Deputado Federal para: Marcos Aurélio Da Fonseca, Valério José De Carvalho — conferir manualmente.
@@ -344,7 +388,7 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 - Número 45444 repetido em PSDB/CIDADANIA/Deputado Estadual para: Nemaura De Sousa Santos, Neumara De Sousa Santos, Francisco Das Chagas Sousa Silva — conferir manualmente.
 - Número 15000 repetido em MDB/Deputado Estadual para: Dogival Vidal Dos Santos Reis Neto, Dogival Vidal Dos Reis Neto — conferir manualmente.
 - Número 15333 repetido em MDB/Deputado Estadual para: Éneas Maia Dos Santos, Eneas Maia Dos Santos — conferir manualmente.
-- 24 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 23 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -372,7 +416,6 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **51** —
 | Perdo Alves De Carvalho Rocha Filho | Senador (2º suplente) | 403-pt-pc-do-b-pv-retificadora.pdf |
 | Julio Cesar De Carvalho Lima | Senador | 404-psd-retificadora.pdf |
 | Jeová Barbosa De Carvalho Alencar | Vice-Governador | 738-44-uniao-11-pp-convencao.pdf |
-| Raimundo Neto E Silva Nogueira Lima | Senador (1º suplente) | 738-44-uniao-11-pp-convencao.pdf |
 | Ricardo Saraiva De Oliveira Sobrinho Braz | Senador (2º suplente) | 738-44-uniao-11-pp-convencao.pdf |
 
 ## Status de confirmação

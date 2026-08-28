@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/rn-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -226,7 +226,7 @@ var CANDIDATOS_2026_RN_PROVISORIO = {
     { id:"prd-solidariedade-frederico-braga-tavares", nome:"Frederico Braga Tavares", nomeUrna:"Fred Braga", numero:7777, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1705-25-prd-77-solidariedade-retificadora.pdf" },
     { id:"psb-antonio-fonseca-da-silva", nome:"Antonio Fonseca Da Silva", nomeUrna:"Arapuá De Macau", numero:4055, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1702-psb-retificadora.pdf" },
     { id:"missao-ana-clara-gurgel-aquino", nome:"Ana Clara Gurgel Aquino", nomeUrna:"Ana Clara Gurgel", numero:1444, partido:"MISSÃO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"517-missao-retificadora.pdf" },
-    { id:"psdb-cidadania-flavio-luiz-araujo-de-oliveira", nome:"Flávio Luiz Araújo De Oliveira", nomeUrna:"Flávuo Luiz", numero:4512, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"431-psdb-cidadania-executiva.pdf" },
+    { id:"psdb-cidadania-flavio-luiz-araujo-de-oliveira", nome:"Flávio Luiz Araújo De Oliveira", nomeUrna:"Flávuo Luiz", numero:4512, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"431-psdb-cidadania-executiva.pdf" },
     { id:"novo-dalila-gurgel-neta", nome:"Dalila Gurgel Neta", nomeUrna:"Dra. Dalila Veterinária", numero:3033, partido:"NOVO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"626-novo-retificadora.pdf" },
     { id:"avante-apolliane-rosselline-ferreira-de-souza", nome:"Apolliane Rosselline Ferreira De Souza", nomeUrna:"Apolliane Souza", numero:7010, partido:"AVANTE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"530-avante-convencao.pdf" },
     { id:"psdb-cidadania-jose-domingos-gondim", nome:"José Domingos Gondim", nomeUrna:"Zé Peixeiro", numero:4545, partido:"PSDB/CIDADANIA", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"81-psdb-cidadania-convencao.pdf" },
@@ -368,14 +368,13 @@ var CANDIDATOS_2026_RN_PROVISORIO = {
     { id:"agir-karlo-rodrigo-lucio-vieira", nome:"Karlo Rodrigo Lúcio Vieira", nomeUrna:"Rodrigo Bolsonaro", numero:36, partido:"AGIR", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"857-agir-convencao.pdf" },
   ],
   "Senador": [
+    { id:"pt-pc-do-b-pv-samanda-alves-de-freitas", nome:"Samanda Alves De Freitas", nomeUrna:"Samanda De Lula", numero:131, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"525-pt-pc-do-b-pv-executiva.pdf" },
     { id:"pdt-rafael-huete-da-motta", nome:"Rafael Huete Da Motta", nomeUrna:"Rafael Motta", numero:123, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"533-pdt-retificadora.pdf" },
     { id:"pode-eann-styvenson-valentim-mendes", nome:"Eann Styvenson Valentim Mendes", nomeUrna:"Styvenson Valentim", numero:200, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"337-pode-convencao.pdf" },
     { id:"psd-zenaide-maia-calado-pereira-dos-santos", nome:"Zenaide Maia Calado Pereira Dos Santos", nomeUrna:"Zenaide Maia", numero:555, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"408-psd-convencao.pdf" },
-    { id:"sem-partido-samanda-alves-de-freitas", nome:"Samanda Alves De Freitas", nomeUrna:"Samanda De Lula", numero:131, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"525-pt-pc-do-b-pv-executiva.pdf" },
     { id:"uniao-pp-tercio-barreto-ramos-tinoco", nome:"Tércio Barreto Ramos Tinôco", nomeUrna:"Tércio Tinôco", numero:444, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:true, confianca:"media", fonteArquivo:"128-44-uniao-11-pp-convencao.pdf" },
     { id:"dc-gladyer-linhares-godeiro", nome:"Gladyer Linhares Godeiro", nomeUrna:"Linhares Jiboia", numero:277, partido:"DC", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1157-dc-convencao.pdf" },
     { id:"psol-rede-sandro-de-oliveira-pimentel", nome:"Sandro De Oliveira Pimentel", nomeUrna:"Sandro Pimentel", numero:500, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1832-psol-rede-retificadora.pdf" },
-    { id:"pt-pc-do-b-pv-samanda-alves-de-freitas", nome:"Samanda Alves De Freitas", nomeUrna:"Samanda", numero:131, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"281-pt-pc-do-b-pv-convencao.pdf" },
     { id:"pl-helio-imbrosio-oliveira", nome:"Hélio Imbrosio Oliveira", nomeUrna:"Coronel Hélio", numero:222, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"376-pl-convencao.pdf" },
     { id:"up-guilherme-oliveira-mosca", nome:"Guilherme Oliveira Mosca", nomeUrna:"Professor Guilherme", numero:800, partido:"UP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"544-up-convencao.pdf" },
     { id:"pstu-luciana-lima-da-silva", nome:"Luciana Lima Da Silva", nomeUrna:"Luciana Mandu", numero:161, partido:"PSTU", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"560-pstu-convencao.pdf" },
@@ -394,7 +393,7 @@ var CANDIDATOS_2026_RN_PROVISORIO = {
     { id:"psb-rn-ficticio-21", nome:"Diego dos Santos Siqueira", nomeUrna:"Diego Siqueira", numero:3221, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"ficticia", fonte:"ficticio" },
   ],
   "Senador (1º suplente)": [
-    { id:"sem-partido-valerio-djalma-cavalcanti-marinho", nome:"Valério Djalma Cavalcanti Marinho", nomeUrna:"Valério Marinho", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"431-psdb-cidadania-executiva.pdf" },
+    { id:"psdb-cidadania-valerio-djalma-cavalcanti-marinho", nome:"Valério Djalma Cavalcanti Marinho", nomeUrna:"Valério Marinho", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"431-psdb-cidadania-executiva.pdf" },
     { id:"republicanos-joaquim-luiz-de-araujo-neto", nome:"Joaquim Luiz De Araujo Neto", nomeUrna:"Netinho Lins", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"70-republicanos-convencao.pdf" },
     { id:"pdt-jean-paul-terra-prates", nome:"Jean Paul Terra Prates", nomeUrna:"Jean Paul Prates", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"533-pdt-retificadora.pdf" },
     { id:"pode-anne-kelly-valentim-mendes", nome:"Anne Kelly Valentim Mendes", nomeUrna:"Kelly Valentim", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"337-pode-convencao.pdf" },
@@ -411,8 +410,8 @@ var CANDIDATOS_2026_RN_PROVISORIO = {
     { id:"agir-jose-ananias-neto", nome:"José Ananias Neto", nomeUrna:"José Neto", numero:null, partido:"AGIR", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"857-agir-convencao.pdf" },
   ],
   "Senador (2º suplente)": [
-    { id:"sem-partido-milena-galvao-ferreira-de-souza", nome:"Milena Galvão Ferreira De Souza", nomeUrna:"Milena Galvão", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"431-psdb-cidadania-executiva.pdf" },
-    { id:"sem-partido-joao-batista-nascimento-da-silva", nome:"João Batista Nascimento Da Silva", nomeUrna:"João Batista", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"525-pt-pc-do-b-pv-executiva.pdf" },
+    { id:"psdb-cidadania-milena-galvao-ferreira-de-souza", nome:"Milena Galvão Ferreira De Souza", nomeUrna:"Milena Galvão", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"431-psdb-cidadania-executiva.pdf" },
+    { id:"pt-pc-do-b-pv-joao-batista-nascimento-da-silva", nome:"João Batista Nascimento Da Silva", nomeUrna:"João Batista", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"525-pt-pc-do-b-pv-executiva.pdf" },
     { id:"pdt-emanoel-marcio-nunes", nome:"Emanoel Márcio Nunes", nomeUrna:"Emanoel", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"308-pdt-convencao.pdf" },
     { id:"pode-milena-galvao-ferreira-de-souza", nome:"Milena Galvão Ferreira De Souza", nomeUrna:"Milena Galvão", numero:null, partido:null, genero:"FEMININO", coligado:true, confianca:"baixa", fonteArquivo:"337-pode-convencao.pdf" },
     { id:"pdt-joao-batista-nascimento-da-silva", nome:"João Batista Nascimento Da Silva", nomeUrna:"João Batista", numero:null, partido:null, genero:"MASCULINO", coligado:true, confianca:"baixa", fonteArquivo:"533-pdt-retificadora.pdf" },

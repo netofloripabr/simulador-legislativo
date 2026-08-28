@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 MT (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MT/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MT/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -17,7 +17,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1096-44-uniao-11-pp-convencao.pdf | UNIÃO/PP | não | 22 |
 | 1111-mdb-retificadora.pdf | MDB | sim | 28 |
 | 1122-avante-executiva.pdf | AVANTE | não | 2 |
-| 1147-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1147-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1188-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 32 |
 | 1202-agir-executiva.pdf | AGIR | não | 6 |
 | 1243-pl-retificadora.pdf | PL | sim | 3 |
@@ -31,10 +31,10 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1663-pl-executiva.pdf | PL | não | 4 |
 | 1681-missao-retificadora.pdf | MISSÃO | sim | 8 |
 | 1698-psdb-cidadania-retificadora.pdf | PSDB/CIDADANIA | sim | 32 |
-| 1771-44-uniao-11-pp-executiva.pdf | ? | não | 3 |
+| 1771-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 3 |
 | 1777-republicanos-retificadora.pdf | REPUBLICANOS | sim | 35 |
 | 1784-pode-executiva.pdf | PODE | não | 0 |
-| 1853-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1853-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1869-pl-executiva.pdf | PL | não | 0 |
 | 1877-mdb-executiva.pdf | MDB | não | 0 |
 | 1945-dc-executiva.pdf | DC | não | 6 |
@@ -70,7 +70,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 982-mobiliza-convencao.pdf | MOBILIZA | não | 2 |
 | 985-psd-executiva.pdf | PSD | não | 1 |
 
-Total de candidaturas: **474** — confiança alta: **440**, a revisar (partido não identificado): **30**
+Total de candidaturas: **474** — confiança alta: **442**, a revisar (partido não identificado): **30**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **45** — ver `fonte:"ficticio"` no .js gerado.
 

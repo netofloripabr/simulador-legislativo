@@ -9,7 +9,7 @@
 // lista oficial (endpoint de candidaturas da API do TSE, hoje ainda vazio
 // para 2026 — ver ferramentas/tratar_atas.py).
 //
-// Gerado por ferramentas/tratar_atas.py em 2026-08-26.
+// Gerado por ferramentas/tratar_atas.py em 2026-08-28.
 // Ver dados/estados/ma-2026-conferencia.md para o que precisa de revisão
 // humana antes desses dados virarem "fato" no projeto (mesmo processo de
 // dados/correcoes-nomes.md). CPF e título de eleitor propositalmente não
@@ -23,15 +23,15 @@
 var CANDIDATOS_2026_MA_PROVISORIO = {
   "Deputado Estadual": [
     { id:"psb-gabriely-araujo-dos-santos", nome:"Gabriely Araújo Dos Santos", nomeUrna:"Gaby Araújo", numero:40100, partido:"PSB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1285-psb-executiva.pdf" },
-    { id:"prd-solidariedade-janaiara-nascimento-costa", nome:"Janaiara Nascimento Costa", nomeUrna:"Jay Do Povo", numero:77778, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"1848-25-prd-77-solidariedade-executiva.pdf" },
-    { id:"uniao-pp-elson-santos-lima", nome:"Elson Santos Lima", nomeUrna:"O Homem Do Ventilador", numero:44789, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1995-44-uniao-11-pp-executiva.pdf" },
-    { id:"uniao-pp-fabricia-costa-silva", nome:"Fabricia Costa Silva", nomeUrna:"Sd Fabricia", numero:11111, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"media", fonteArquivo:"2102-44-uniao-11-pp-executiva.pdf" },
+    { id:"prd-solidariedade-janaiara-nascimento-costa", nome:"Janaiara Nascimento Costa", nomeUrna:"Jay Do Povo", numero:77778, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1848-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"uniao-pp-elson-santos-lima", nome:"Elson Santos Lima", nomeUrna:"O Homem Do Ventilador", numero:44789, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1995-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-fabricia-costa-silva", nome:"Fabricia Costa Silva", nomeUrna:"Sd Fabricia", numero:11111, partido:"UNIÃO/PP", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"2102-44-uniao-11-pp-executiva.pdf" },
     { id:"novo-manoel-nunes-almeida", nome:"Manoel Nunes Almeida", nomeUrna:"Manoel Garimpeiro", numero:30300, partido:"NOVO", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2149-novo-executiva.pdf" },
     { id:"psb-ruan-gama-sousa", nome:"Ruan Gama Sousa", nomeUrna:"Ruan Sousa", numero:40221, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1285-psb-executiva.pdf" },
-    { id:"prd-solidariedade-jose-eleonildo-soares", nome:"José Eleonildo Soares", nomeUrna:"Pinto Itamaraty", numero:25000, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1848-25-prd-77-solidariedade-executiva.pdf" },
-    { id:"uniao-pp-joao-bastos-pinheiro", nome:"João Bastos Pinheiro", nomeUrna:"João Bastos", numero:44440, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1995-44-uniao-11-pp-executiva.pdf" },
-    { id:"psol-rede-marcos-antonio-felix-freitas", nome:"Marcos Antonio Felix Freitas", nomeUrna:"Marcos Freitas", numero:50022, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"2023-psol-rede-executiva.pdf" },
-    { id:"uniao-pp-rossialdo-mendonca-mendes", nome:"Rossialdo Mendonça Mendes", nomeUrna:"Pastor Aldo", numero:11222, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"2102-44-uniao-11-pp-executiva.pdf" },
+    { id:"prd-solidariedade-jose-eleonildo-soares", nome:"José Eleonildo Soares", nomeUrna:"Pinto Itamaraty", numero:25000, partido:"PRD/SOLIDARIEDADE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1848-25-prd-77-solidariedade-executiva.pdf" },
+    { id:"uniao-pp-joao-bastos-pinheiro", nome:"João Bastos Pinheiro", nomeUrna:"João Bastos", numero:44440, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1995-44-uniao-11-pp-executiva.pdf" },
+    { id:"psol-rede-marcos-antonio-felix-freitas", nome:"Marcos Antonio Felix Freitas", nomeUrna:"Marcos Freitas", numero:50022, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2023-psol-rede-executiva.pdf" },
+    { id:"uniao-pp-rossialdo-mendonca-mendes", nome:"Rossialdo Mendonça Mendes", nomeUrna:"Pastor Aldo", numero:11222, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2102-44-uniao-11-pp-executiva.pdf" },
     { id:"mdb-michele-ribeiro-dos-santos", nome:"Michele Ribeiro Dos Santos", nomeUrna:"Michelle Santos", numero:15611, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1101-mdb-executiva.pdf" },
     { id:"novo-debora-cristina-da-silva-tavares", nome:"Débora Cristina Da Silva Tavares", nomeUrna:"Major Débora", numero:30193, partido:"NOVO", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1669-novo-executiva.pdf" },
     { id:"mdb-rosa-carvalho-mesquita", nome:"Rosa Carvalho Mesquita", nomeUrna:"Rosa Do Boi", numero:15667, partido:"MDB", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1101-mdb-executiva.pdf" },
@@ -371,10 +371,10 @@ var CANDIDATOS_2026_MA_PROVISORIO = {
     { id:"republicanos-aluisio-guimaraes-mendes-filho", nome:"Aluisio Guimaraes Mendes Filho", nomeUrna:"Aluisio Mendes", numero:1010, partido:"REPUBLICANOS", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1636-republicanos-retificadora.pdf" },
     { id:"avante-adael-dos-santos-campos", nome:"Adael Dos Santos Campos", nomeUrna:"Adael Da Pesca", numero:7005, partido:"AVANTE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1106-avante-executiva.pdf" },
     { id:"pode-fernando-jose-santos-feitosa", nome:"Fernando José Santos Feitosa", nomeUrna:"Fernando Feitosa", numero:2089, partido:"PODE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1591-pode-retificadora.pdf" },
-    { id:"uniao-pp-eder-santos-de-alencar", nome:"Eder Santos De Alencar", nomeUrna:"Coletivo União", numero:4467, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"1689-44-uniao-11-pp-executiva.pdf" },
+    { id:"uniao-pp-eder-santos-de-alencar", nome:"Eder Santos De Alencar", nomeUrna:"Coletivo União", numero:4467, partido:"UNIÃO/PP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1689-44-uniao-11-pp-executiva.pdf" },
     { id:"pdt-maria-de-ribamar-farias", nome:"Maria De Ribamar Farias", nomeUrna:"Maria Da Fita", numero:1221, partido:"PDT", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1712-pdt-executiva.pdf" },
     { id:"avante-adael-dos-santos-camara", nome:"Adael Dos Santos Camara", nomeUrna:"Adael Da Pesca", numero:7005, partido:"AVANTE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"1788-avante-retificadora.pdf" },
-    { id:"psol-rede-lindenberg-cunha-braga", nome:"Lindenberg Cunha Braga", nomeUrna:"Lindenberg Braga", numero:5056, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"media", fonteArquivo:"2023-psol-rede-executiva.pdf" },
+    { id:"psol-rede-lindenberg-cunha-braga", nome:"Lindenberg Cunha Braga", nomeUrna:"Lindenberg Braga", numero:5056, partido:"PSOL/REDE", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"2023-psol-rede-executiva.pdf" },
     { id:"up-afonso-da-silva-sodre", nome:"Afonso Da Silva Sodré", nomeUrna:"Afonso Sodré", numero:8000, partido:"UP", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"548-up-convencao.pdf" },
     { id:"psb-adelman-goncalves-passinho", nome:"Adelman Gonçalves Passinho", nomeUrna:"Júnior Passinho", numero:4088, partido:"PSB", genero:"MASCULINO", coligado:false, confianca:"alta", fonteArquivo:"933-psb-convencao.pdf" },
     { id:"prd-solidariedade-ana-patricia-santos-de-sa-araujo", nome:"Ana Patricia Santos De Sá Araujo", nomeUrna:"Ana Patricia", numero:2599, partido:"PRD/SOLIDARIEDADE", genero:"FEMININO", coligado:false, confianca:"alta", fonteArquivo:"1474-25-prd-77-solidariedade-retificadora.pdf" },

@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 MA (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MA/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/MA/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -34,17 +34,17 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1636-republicanos-retificadora.pdf | REPUBLICANOS | sim | 41 |
 | 1660-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 54 |
 | 1669-novo-executiva.pdf | NOVO | não | 5 |
-| 1689-44-uniao-11-pp-executiva.pdf | ? | não | 1 |
+| 1689-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 1 |
 | 1712-pdt-executiva.pdf | PDT | não | 2 |
 | 1756-mdb-executiva.pdf | MDB | não | 0 |
 | 1788-avante-retificadora.pdf | AVANTE | sim | 48 |
-| 1848-25-prd-77-solidariedade-executiva.pdf | ? | não | 2 |
+| 1848-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 2 |
 | 1895-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 54 |
 | 1896-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 54 |
 | 1972-prtb-executiva.pdf | PRTB | não | 2 |
-| 1995-44-uniao-11-pp-executiva.pdf | ? | não | 2 |
-| 2023-psol-rede-executiva.pdf | ? | não | 2 |
-| 2102-44-uniao-11-pp-executiva.pdf | ? | não | 2 |
+| 1995-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
+| 2023-psol-rede-executiva.pdf | PSOL/REDE | não | 2 |
+| 2102-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
 | 2108-dc-retificadora.pdf | DC | sim | 6 |
 | 2149-novo-executiva.pdf | NOVO | não | 1 |
 | 220-missao-convencao.pdf | MISSÃO | não | 8 |
@@ -73,7 +73,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 950-psd-retificadora.pdf | PSD | sim | 36 |
 | 995-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 19 |
 
-Total de candidaturas: **627** — confiança alta: **591**, a revisar (partido não identificado): **26**
+Total de candidaturas: **627** — confiança alta: **600**, a revisar (partido não identificado): **26**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **78** — ver `fonte:"ficticio"` no .js gerado.
 

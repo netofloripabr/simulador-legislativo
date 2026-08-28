@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 AL (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AL/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/AL/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -18,15 +18,15 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1262-agir-convencao.pdf | AGIR | não | 0 |
 | 1288-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 32 |
 | 1320-pl-executiva.pdf | PL | não | 0 |
-| 1323-44-uniao-11-pp-executiva.pdf | ? | não | 3 |
+| 1323-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 3 |
 | 1342-dc-convencao.pdf | DC | não | 15 |
 | 1351-pode-convencao.pdf | PODE | não | 0 |
-| 1359-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1359-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1388-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 32 |
 | 1401-pl-executiva.pdf | PL | não | 0 |
 | 1411-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 37 |
-| 2075-44-uniao-11-pp-executiva.pdf | ? | não | 3 |
-| 2077-psdb-cidadania-executiva.pdf | ? | não | 5 |
+| 2075-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 3 |
+| 2077-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 5 |
 | 2078-pl-executiva.pdf | PL | não | 0 |
 | 2090-democrata-retificadora.pdf | DEMOCRATA | sim | 10 |
 | 2096-dc-executiva.pdf | DC | não | 0 |
@@ -48,7 +48,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 935-pl-convencao.pdf | PL | não | 25 |
 | 994-democrata-convencao.pdf | DEMOCRATA | não | 9 |
 
-Total de candidaturas: **295** — confiança alta: **267**, a revisar (partido não identificado): **25**
+Total de candidaturas: **294** — confiança alta: **268**, a revisar (partido não identificado): **25**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **65** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -88,7 +88,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **65** —
 - Candidatura de Tarcizo Sampaio Freire (PT/PC do B/PV, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Tereza Nelma Porto Viana Soares (PT/PC do B/PV, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Tiago Correa Barbosa Souza (PT/PC do B/PV, Deputado Estadual) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Luiz Romero Cavalcante Farias (None, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Luiz Romero Cavalcante Farias (UNIÃO/PP, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Arthur Cesar Pereira De Lira (UNIÃO/PP, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Márcio Ferreira Jambo Sobrinho (DEMOCRATA, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Jaudinete Pontes Da Silva (DEMOCRATA, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de José Mariedson Da Silva (DEMOCRATA, Senador) tem versão retificadora — mantendo só a mais nova.

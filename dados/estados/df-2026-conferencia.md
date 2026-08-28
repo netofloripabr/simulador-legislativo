@@ -1,6 +1,6 @@
 # Conferência — candidatos 2026 DF (atas de convenção)
 
-Gerado em 2026-08-26 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/DF/`,
+Gerado em 2026-08-28 por `ferramentas/tratar_atas.py`. Fonte: PDFs em `ATAS/DF/`,
 baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 'Lista de candidatos' de cada ata).
 
@@ -34,27 +34,27 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 1548-avante-executiva.pdf | AVANTE | não | 0 |
 | 1586-dc-executiva.pdf | DC | sim | 2 |
 | 162-novo-convencao.pdf | NOVO | não | 36 |
-| 1635-25-prd-77-solidariedade-executiva.pdf | ? | não | 2 |
+| 1635-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 2 |
 | 1651-pdt-retificadora.pdf | PDT | sim | 35 |
 | 1711-novo-executiva.pdf | NOVO | não | 1 |
 | 1721-pdt-executiva.pdf | PDT | não | 1 |
 | 1759-psb-executiva.pdf | PSB | não | 1 |
 | 1762-agir-retificadora.pdf | AGIR | sim | 5 |
 | 1782-agir-retificadora.pdf | AGIR | sim | 3 |
-| 1804-psol-rede-executiva.pdf | ? | não | 1 |
+| 1804-psol-rede-executiva.pdf | PSOL/REDE | não | 1 |
 | 1828-avante-executiva.pdf | AVANTE | não | 0 |
 | 1841-mobiliza-retificadora.pdf | MOBILIZA | sim | 34 |
 | 1864-pl-executiva.pdf | PL | não | 1 |
 | 1879-mobiliza-executiva.pdf | MOBILIZA | não | 0 |
-| 1886-44-uniao-11-pp-executiva.pdf | ? | não | 2 |
+| 1886-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
 | 1890-pt-pc-do-b-pv-retificadora.pdf | PT/PC do B/PV | sim | 36 |
-| 1900-25-prd-77-solidariedade-executiva.pdf | ? | não | 0 |
+| 1900-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 0 |
 | 1921-dc-executiva.pdf | DC | não | 0 |
 | 1934-44-uniao-11-pp-retificadora.pdf | ? | sim | 2 |
 | 1943-pode-executiva.pdf | PODE | não | 1 |
 | 1960-pl-executiva.pdf | PL | não | 6 |
-| 1988-pt-pc-do-b-pv-executiva.pdf | ? | não | 5 |
-| 1997-44-uniao-11-pp-executiva.pdf | ? | não | 2 |
+| 1988-pt-pc-do-b-pv-executiva.pdf | PT/PC do B/PV | não | 5 |
+| 1997-44-uniao-11-pp-executiva.pdf | UNIÃO/PP | não | 2 |
 | 2016-mobiliza-executiva.pdf | MOBILIZA | não | 0 |
 | 2017-pdt-executiva.pdf | PDT | não | 0 |
 | 2031-republicanos-executiva.pdf | REPUBLICANOS | não | 0 |
@@ -65,11 +65,11 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 2060-democrata-retificadora.pdf | DEMOCRATA | sim | 1 |
 | 2079-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
 | 2082-dc-executiva.pdf | DC | não | 0 |
-| 2083-psdb-cidadania-executiva.pdf | ? | não | 4 |
+| 2083-psdb-cidadania-executiva.pdf | PSDB/CIDADANIA | não | 4 |
 | 2098-psd-executiva.pdf | PSD | não | 3 |
 | 216-agir-retificadora.pdf | AGIR | sim | 5 |
-| 2195-25-prd-77-solidariedade-executiva.pdf | ? | não | 3 |
-| 2225-psol-rede-executiva.pdf | ? | não | 0 |
+| 2195-25-prd-77-solidariedade-executiva.pdf | PRD/SOLIDARIEDADE | não | 3 |
+| 2225-psol-rede-executiva.pdf | PSOL/REDE | não | 0 |
 | 2262-republicanos-executiva.pdf | REPUBLICANOS | não | 1 |
 | 271-up-convencao.pdf | UP | não | 9 |
 | 310-missao-convencao.pdf | MISSÃO | não | 20 |
@@ -77,8 +77,8 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 443-psol-rede-retificadora.pdf | PSOL/REDE | sim | 34 |
 | 451-democrata-convencao.pdf | DEMOCRATA | não | 39 |
 | 569-mobiliza-convencao.pdf | MOBILIZA | não | 34 |
-| 585-psol-rede-executiva.pdf | ? | não | 1 |
-| 603-psol-rede-executiva.pdf | ? | não | 1 |
+| 585-psol-rede-executiva.pdf | PSOL/REDE | não | 1 |
+| 603-psol-rede-executiva.pdf | PSOL/REDE | não | 1 |
 | 614-republicanos-convencao.pdf | REPUBLICANOS | não | 33 |
 | 635-pt-pc-do-b-pv-convencao.pdf | PT/PC do B/PV | não | 36 |
 | 715-dc-convencao.pdf | DC | não | 34 |
@@ -96,7 +96,7 @@ baixados de https://divulgacandcontas.tse.jus.br/divulga/#/ata (anexo
 | 92-psol-rede-convencao.pdf | PSOL/REDE | não | 36 |
 | 976-psdb-cidadania-convencao.pdf | PSDB/CIDADANIA | não | 35 |
 
-Total de candidaturas: **679** — confiança alta: **643**, a revisar (partido não identificado): **23**
+Total de candidaturas: **678** — confiança alta: **654**, a revisar (partido não identificado): **21**
 
 Candidatos fictícios preservados (partido/cargo ainda sem ata real): **36** — ver `fonte:"ficticio"` no .js gerado.
 
@@ -282,8 +282,8 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **36** —
 - Candidatura de Thiago Luiz Da Silva Mel (AGIR, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Alexandre Nunes Dos Santos (AGIR, Senador (2º suplente)) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Mariana Fiuza Taveira Adorno Naime (PL, Deputado Federal) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Celina Leao Hizim Ferreira (None, Governador) tem versão retificadora — mantendo só a mais nova.
-- Candidatura de Gustavo Do Vale Rocha (None, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Celina Leao Hizim Ferreira (UNIÃO/PP, Governador) tem versão retificadora — mantendo só a mais nova.
+- Candidatura de Gustavo Do Vale Rocha (UNIÃO/PP, Vice-Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Leandro Antônio Grass Peixoto (PT/PC do B/PV, Governador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Erika Jucá Kokay (PT/PC do B/PV, Senador) tem versão retificadora — mantendo só a mais nova.
 - Candidatura de Giulia Eleonora Tadini (PT/PC do B/PV, Senador (1º suplente)) tem versão retificadora — mantendo só a mais nova.
@@ -392,9 +392,10 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **36** —
 - Número 33190 repetido em MOBILIZA/Deputado Estadual para: Ulisses Gabriel Oliveira Da Costa Dias, Ulisses Da Costa Dias — conferir manualmente.
 - Número 2733 repetido em DC/Deputado Federal para: Agatha Cristina Nunes Lopes, Renato Botelho Machado — conferir manualmente.
 - Número 27111 repetido em DC/Deputado Estadual para: Melissa Stephanea Ferreira Cavalcante, Agatha Cristina Nunes Lopes — conferir manualmente.
+- Número 11 repetido em UNIÃO/PP/Governador para: Celina Leao Hizim Ferreira, Celina Leão Hizim Ferreira — conferir manualmente.
 - Número 222 repetido em PL/Senador para: Michelle De Paula Firmo Reinaldo Bolsonaro, Michelle De Paulla Firmo Reinaldo Bolsonaro — conferir manualmente.
 - Número 3535 repetido em DEMOCRATA/Deputado Federal para: Noely De Fátima Luiz De Morais, Laira Dos Santos Inácio — conferir manualmente.
-- 23 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
+- 21 candidatura(s) coligada(s) sem partido identificado (ver seção de pendências).
 
 ## Candidaturas coligadas sem partido identificado (revisar contra o PDF)
 
@@ -404,19 +405,17 @@ Candidatos fictícios preservados (partido/cargo ainda sem ata real): **36** —
 | Cristian Ferreira Viana | Senador (2º suplente) | 1960-pl-executiva.pdf |
 | Teresinha Monteiro Oliveira | Senador (2º suplente) | 1804-psol-rede-executiva.pdf |
 | Gustavo Do Vale Rocha | Vice-Governador | 1997-44-uniao-11-pp-executiva.pdf |
-| Leandro Antônio Grass Peixoto | Governador | 1890-pt-pc-do-b-pv-retificadora.pdf |
-| Erika Jucá Kokay | Senador | 1890-pt-pc-do-b-pv-retificadora.pdf |
-| Giulia Eleonora Tadini | Senador (1º suplente) | 1890-pt-pc-do-b-pv-retificadora.pdf |
+| Leandro Antônio Grass Peixoto | Governador | 1988-pt-pc-do-b-pv-executiva.pdf |
+| Erika Jucá Kokay | Senador | 1988-pt-pc-do-b-pv-executiva.pdf |
+| Giulia Eleonora Tadini | Senador (1º suplente) | 1988-pt-pc-do-b-pv-executiva.pdf |
+| Gustavo Do Vale Rocha | Vice-Governador | 1934-44-uniao-11-pp-retificadora.pdf |
 | Cristian Ferreira Viana | Senador (2º suplente) | 1943-pode-executiva.pdf |
 | Beatriz Kicis Torrents De Sordi | Senador | 1960-pl-executiva.pdf |
 | Michelle De Paula Firmo Reinaldo Bolsonaro | Senador | 1960-pl-executiva.pdf |
 | Diego Torres Dourado | Senador (1º suplente) | 1960-pl-executiva.pdf |
 | Samuel Kicis De Sordi | Senador (1º suplente) | 1960-pl-executiva.pdf |
 | Renato Lima Paiva Figueiredo | Senador (2º suplente) | 1960-pl-executiva.pdf |
-| Leandro Antônio Grass Peixoto | Governador | 1988-pt-pc-do-b-pv-executiva.pdf |
 | Maria Das Dores Gomes Da Silva Santos | Vice-Governador | 1988-pt-pc-do-b-pv-executiva.pdf |
-| Erika Jucá Kokay | Senador | 1988-pt-pc-do-b-pv-executiva.pdf |
-| Giulia Eleonora Tadini | Senador (1º suplente) | 1988-pt-pc-do-b-pv-executiva.pdf |
 | Samuel Domingues | Senador (2º suplente) | 1988-pt-pc-do-b-pv-executiva.pdf |
 | Crsitian Ferreira Viana | Senador (2º suplente) | 2049-pode-executiva.pdf |
 | Teresinha Monteiro Oliveira | Vice-Governador | 443-psol-rede-retificadora.pdf |
