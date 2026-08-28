@@ -34,8 +34,30 @@
        que já usa var(--mono). */
     --mono: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* Padrão de transição pra abrir/fechar/expandir (aprovado 28/08/2026 no
+       protótipo da barra fixa flutuante) — usar nesses casos sempre que o
+       elemento não já tiver uma transição definida manualmente por um motivo
+       específico (esses casos manuais ficam como estão). */
+    --pc-easing-suave: cubic-bezier(.25,.1,.25,1);
+    --pc-duracao-expandir: .58s;
+    --pc-duracao-opacidade: .4s;
   }
   *{box-sizing:border-box;}
+  /* Efeito de toque padrão do app inteiro (aprovado 28/08/2026, mesmo
+     padrão do botão nativo do iOS: encolhe + escurece no toque). Aplicado
+     via JS por delegação em TODO <button> existente e futuro — ver
+     inicToquePadrao() em interface/prospeccao.js — exceto quem já tem
+     comportamento manual próprio (arrastar/fader) marcado com
+     data-pc-sem-toque, ou que opte por não usar (esses ficam como estão). */
+  button:not([data-pc-sem-toque]){
+    transition: transform .12s var(--pc-easing-suave), opacity .12s ease-out;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button.pc-toque-pressionado{
+    transform: scale(.94);
+    opacity: .6;
+    transition: transform .06s ease-out, opacity .06s ease-out;
+  }
   body{
     margin:0; padding:0; background:var(--bg); color:var(--ink);
     font-family:var(--sans); font-size:14px; line-height:1.5;
@@ -1487,21 +1509,38 @@
   white-space:nowrap; box-shadow:0 0 0 3px rgba(10,12,14,.5);
 }
 #modoColaborativoWrap .pc-dep-zone.ativo .pc-dep-grip-haste{ box-shadow:0 0 0 4px rgba(52,232,74,.2); }
-/* ===== Menu fixo — alça pra abrir/fechar (pedido do usuário, 25/08/2026:
-   "eu quero que o menu fixo fique fechado na parte inferior") ===== */
+/* ===== Menu fixo — pílula flutuante estilo WhatsApp (redesign aprovado no
+   protótipo de 28/08/2026): destacada das bordas da tela, abre sozinha ao
+   entrar numa tela principal, fecha em 3s. A alça é um elemento à PARTE,
+   sempre do mesmo tamanho/posição — nunca muda entre os dois estados (ela
+   só troca de cor: cinza aberta, verde fechada). Só a caixa dos ícones
+   (com a borda) aparece/desaparece por cima dela — ver DESIGN.md. Mesmo
+   centro horizontal (50% da tela) que a coluna de conteúdo (max-width:640px
+   das telas comuns), então continua alinhada mesmo em tela larga (web). */
+#modoColaborativoWrap .pc-menufixo-wrap{
+  position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+  z-index:40; display:flex; flex-direction:column; align-items:center;
+}
 #modoColaborativoWrap .pc-menufixo-grip{
-  width:36px; height:4px; border-radius:999px; background:var(--pc-accent); opacity:1;
-  transition:opacity .2s;
+  width:34px; height:4px; border-radius:999px; background:#5F6368; border:none; padding:0;
+  cursor:pointer; flex-shrink:0; margin-bottom:10px;
+  transition:background-color .5s ease;
 }
-#modoColaborativoWrap .pc-menufixo-grip.aberto{ opacity:.25; }
+#modoColaborativoWrap .pc-menufixo-grip.fechada{ background:var(--pc-accent); }
 #modoColaborativoWrap .pc-menufixo-icones{
-  max-height:0; opacity:0; overflow:hidden;
-  /* Mesma curva/duração da recomposição das abas dos partidos
-     (reordenarComTransicao, "transform .5s cubic-bezier(.22,.9,.26,1)")
-     — pedido do usuário, 25/08/2026, pro efeito de abrir bater igual. */
-  transition:max-height .5s cubic-bezier(.22,.9,.26,1), opacity .5s cubic-bezier(.22,.9,.26,1), padding-bottom .5s cubic-bezier(.22,.9,.26,1);
+  overflow:hidden; box-sizing:border-box; width:264px; border-radius:24px;
+  background:rgba(16,18,20,.94); backdrop-filter:blur(10px);
+  border:1px solid #2B2F33; box-shadow:0 10px 30px rgba(0,0,0,.45);
+  max-height:0; opacity:0; transform:scale(.12,.08); transform-origin:top center;
+  /* Padrão de transição pra abrir/fechar/expandir do app inteiro
+     (--pc-easing-suave/--pc-duracao-expandir, aprovado 28/08/2026) —
+     preservar essa curva aqui é o próprio caso de origem do padrão. */
+  transition:
+    max-height var(--pc-duracao-expandir) var(--pc-easing-suave),
+    opacity var(--pc-duracao-opacidade) ease,
+    transform var(--pc-duracao-expandir) var(--pc-easing-suave);
 }
-#modoColaborativoWrap .pc-menufixo-icones.aberto{ max-height:80px; opacity:1; padding-bottom:10px; }
+#modoColaborativoWrap .pc-menufixo-icones.aberto{ max-height:46px; opacity:1; transform:scale(1); pointer-events:auto; }
 
 #modoColaborativoWrap .pc-dep-notif{
   display:flex; align-items:center; gap:8px; margin-top:0;

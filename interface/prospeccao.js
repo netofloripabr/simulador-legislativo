@@ -710,50 +710,64 @@ function renderMenuFixo(destinoAtivo) {
       </span>
     </button>`;
   }).join("");
-  // Fechado por padrão — só a alça aparece até a pessoa tocar (pedido do
-  // usuário, 25/08/2026: "o menu fixo fica fechado na parte inferior").
-  // É o que permite trazer a barra de volta pras telas de foco (Seleção,
-  // Revisão) sem ela roubar espaço permanente da tela.
   const aberto = !!pcState.menuFixoAberto;
-  return `<div style="position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; justify-content:center; background:#101214; border-top:1px solid #23262A; border-radius:14px 14px 0 0;">
-    <div style="display:flex; flex-direction:column; align-items:center; width:100%; max-width:640px;">
-      <button id="pcMenuFixoAlca" aria-label="${aberto ? "Fechar menu de navegação" : "Abrir menu de navegação"}" title="${aberto ? "Fechar menu" : "Abrir menu"}" style="width:100%; display:flex; justify-content:center; padding:9px 0 7px; background:none; border:none; cursor:pointer;">
-        <span class="pc-menufixo-grip${aberto ? " aberto" : ""}"></span>
-      </button>
-      <div class="pc-menufixo-icones${aberto ? " aberto" : ""}" style="display:flex; width:100%; padding:0 4px calc(0px + env(safe-area-inset-bottom, 0px));">${botoes}</div>
-    </div>
+  return `<div class="pc-menufixo-wrap">
+    <button id="pcMenuFixoAlca" aria-label="${aberto ? "Fechar menu de navegação" : "Abrir menu de navegação"}" title="${aberto ? "Fechar menu" : "Abrir menu"}" class="pc-menufixo-grip${aberto ? "" : " fechada"}"></button>
+    <div class="pc-menufixo-icones${aberto ? " aberto" : ""}" style="display:flex; padding:0 4px;">${botoes}</div>
   </div>`;
 }
 
 // Chamado no fim de todo render de tela (renderColaborativo direto pras
 // telas "-convidado", renderAppColaborativo pras subabas) — mostra ou
-// esconde a barra e ajusta o respiro embaixo do conteúdo pra ela não
-// cobrir a última linha. destino null esconde a barra nessa tela.
+// esconde a barra. destino null esconde a barra nessa tela. Pílula
+// flutuante (redesign 28/08/2026): abre sozinha na primeira tela principal
+// de cada sessão e fecha em 3s — só a alça (sempre no mesmo lugar/tamanho)
+// fica visível depois disso; navegar entre telas na mesma sessão NÃO reabre
+// de novo (senão ficaria piscando a cada troca de aba).
 function atualizarMenuFixo(destino) {
   const existente = document.getElementById("pcMenuFixoWrap");
   if (existente) existente.remove();
+  clearTimeout(pcState._menuFixoAutoCloseTimer);
   const pcConteudo = document.getElementById("pcConteudo");
   if (!destino) {
     if (pcConteudo) pcConteudo.style.paddingBottom = "";
     return;
   }
+  // Respiro fixo (cabe a pílula aberta + a folga de 16px até a borda),
+  // independente do estado — ela flutua por CIMA do conteúdo, então o
+  // espaço reservado tem que já contar com o caso mais alto (aberta).
+  if (pcConteudo) pcConteudo.style.paddingBottom = "92px";
   pcState._menuFixoDestinoAtual = destino;
   const wrap = document.getElementById("modoColaborativoWrap");
   if (!wrap) return;
+  // Só a primeira tela principal da sessão abre sozinha (e arma o
+  // fechamento automático); trocar de tela depois, ou reabrir manualmente
+  // mais tarde, não reagenda o fechamento — senão o menu "piscaria"
+  // sozinho de novo a cada navegação.
+  let abrirEArmarFechamento = false;
+  if (!pcState._menuFixoAbriuNaSessao) {
+    pcState.menuFixoAberto = true;
+    pcState._menuFixoAbriuNaSessao = true;
+    abrirEArmarFechamento = true;
+  }
   const div = document.createElement("div");
   div.id = "pcMenuFixoWrap";
   div.innerHTML = renderMenuFixo(destino);
   wrap.appendChild(div);
-  // Respiro embaixo do conteúdo acompanha o estado da barra — só a alça
-  // (fechado) ocupa bem menos espaço que a alça + ícones (aberto).
-  if (pcConteudo) pcConteudo.style.paddingBottom = (pcState.menuFixoAberto ? "76px" : "28px");
   document.getElementById("pcMenuFixoAlca").addEventListener("click", () => {
     pcState.menuFixoAberto = !pcState.menuFixoAberto;
+    clearTimeout(pcState._menuFixoAutoCloseTimer);
     atualizarMenuFixo(pcState._menuFixoDestinoAtual);
   });
   document.querySelectorAll("[data-pc-menu-fixo]:not(:disabled)").forEach((btn) => {
     btn.addEventListener("click", () => irParaDestinoMenuFixo(btn.getAttribute("data-pc-menu-fixo")));
   });
+  if (abrirEArmarFechamento) {
+    pcState._menuFixoAutoCloseTimer = setTimeout(() => {
+      pcState.menuFixoAberto = false;
+      atualizarMenuFixo(pcState._menuFixoDestinoAtual);
+    }, 3000);
+  }
 }
 
 function irParaDestinoMenuFixo(destino) {
@@ -10386,3 +10400,35 @@ document.addEventListener("keydown", (e) => {
   if (pcState.avisoLimiteVagasAberto) return fechar(() => { pcState.avisoLimiteVagasAberto = false; });
   if (pcState.avisoLimiteCedulaAberto) return fechar(() => { pcState.avisoLimiteCedulaAberto = false; });
 });
+
+// Efeito de toque padrão do app inteiro (padrão iOS: encolhe + escurece no
+// toque), aprovado 28/08/2026 a partir do protótipo da barra fixa —
+// delegado no document (cobre botão renderizado depois também, sem
+// precisar reanexar listener em cada tela nova). Duração mínima garantida
+// por código (não só :active) porque um clique bem rápido de MOUSE às
+// vezes nem chega a pintar o :active — sem isso o efeito falha
+// silenciosamente em cliques rápidos (achado do usuário, 28/08/2026).
+// Opt-out: botão com data-pc-sem-toque (ex.: puck de arrastar do fader).
+(function inicToquePadrao() {
+  const DURACAO_MINIMA_TOQUE_MS = 110;
+  let desde = 0;
+  let alvo = null;
+  function soltar() {
+    if (!alvo) return;
+    const el = alvo;
+    alvo = null;
+    const falta = Math.max(0, DURACAO_MINIMA_TOQUE_MS - (Date.now() - desde));
+    setTimeout(() => el.classList.remove("pc-toque-pressionado"), falta);
+  }
+  document.addEventListener("pointerdown", (e) => {
+    const btn = e.target.closest("button:not([data-pc-sem-toque]):not(:disabled)");
+    if (!btn) return;
+    if (alvo && alvo !== btn) soltar();
+    alvo = btn;
+    desde = Date.now();
+    btn.classList.add("pc-toque-pressionado");
+  });
+  document.addEventListener("pointerup", soltar);
+  document.addEventListener("pointercancel", soltar);
+  document.addEventListener("pointerleave", (e) => { if (e.target === alvo) soltar(); }, true);
+})();
