@@ -91,6 +91,7 @@ let pcState = {
   linksCandidatosCache: {}, // "estado::cargo" -> { chave: instagram }, ver garantirLinksCandidatos
   modalInstagramInfo: null, // { chave, nome, valorAtual } do candidato com o modal de editar Instagram aberto (só admin), ou null
   legendaComandosAberta: false, // painel único de legenda do painel de comandos da Seleção (o "i" no fim da linha de ícones)
+  legendaBadgeAberta: false, // "i" que explica os badges E-QP/E-M/E na lista de candidatos (protótipo aprovado 28/08/2026)
   legendaListasAberta: false, // legenda compartilhada dos botões de ícone de Minhas listas (o "i" ao lado de "Em aberto")
   modalSalvarDestinoAberto: false, // seletor de destino do Salvar (lista ativa · outro slot · nova) — pedido 21/08
   _destinosSalvar: null, // listas em aberto carregadas na hora de abrir o seletor
@@ -5792,6 +5793,30 @@ function renderPainelSenador(E, comandos) {
     </div>`;
 }
 
+// "i" que explica o que cada badge de eleito significa (E-QP/E-M em
+// Deputados, só E no Senador majoritário) — mesmo padrão/classes do "i"
+// do painel de comandos (pc-cmd-info/pc-cmd-legenda-painel), protótipo
+// aprovado 28/08/2026.
+function renderBotaoLegendaBadge() {
+  return `<button type="button" id="pcBtnLegendaBadge" class="pc-legenda-badge-btn${pcState.legendaBadgeAberta ? " aberto" : ""}" title="O que significa cada badge">i</button>`;
+}
+function renderLegendaBadge(ehSenador) {
+  if (!pcState.legendaBadgeAberta) return "";
+  const itens = ehSenador
+    ? [{ icone: "E", titulo: "Eleito", sub: "Candidato mais votado (majoritário) — Senado não tem quociente partidário nem sobra." }]
+    : [
+      { icone: "E-QP", titulo: "Eleito por quociente", sub: "Vaga fechada direto pelo quociente partidário (art. 107) — o partido tem votos suficientes pra bancar essa cadeira sozinho." },
+      { icone: "E-M", titulo: "Eleito pela média", sub: "Vaga conquistada na disputa de sobras (método das médias, art. 109) — mesma coisa que \"SOBRA\" indicava antes." },
+      { icone: "—", titulo: "Sem badge", sub: "Tem votos, mas não fecha vaga com a votação de hoje." },
+    ];
+  const linhas = itens.map((it) => `
+    <div class="pc-legenda-badge-item">
+      <div class="pc-legenda-badge-icone${it.icone === "—" ? " vazio" : ""}">${it.icone}</div>
+      <div><div class="pc-legenda-badge-titulo">${it.titulo}</div><div class="pc-legenda-badge-sub">${it.sub}</div></div>
+    </div>`).join("");
+  return `<div class="pc-legenda-badge-painel" id="pcLegendaBadgePainel">${linhas}</div>`;
+}
+
 // Lista única de candidatos ao Senado, ordenada pela votação DECRESCENTE
 // indicada pelo usuário. Busca (painel de comandos) filtra por nome de
 // candidato OU partido. Partidos sem candidatura viram uma nota única no
@@ -5819,14 +5844,16 @@ function renderListaSenador(totalVagas, E) {
     const linkInsta = linkInstagramDe(c.chave);
     const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 14)}</a>` : "";
     const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
+    // Majoritário (Senador) não tem quociente partidário nem sobra — só
+    // "E" (eleito = mais votado), sem sufixo QP/M (esses só existem em
+    // Deputados). Protótipo aprovado 28/08/2026.
+    const badge = eleito ? '<span class="pc-sen-chip" title="Eleito (mais votado)">E</span>' : "";
     return `
     <div class="pc-sen-card${eleito ? " eleito" : ""}${c.votosEditado ? " manual" : ""}" data-sen-idx="${it.idx}">
       <div class="pc-sen-l1">
-        <div class="pc-sen-nmcol">
-          <span class="pc-sen-nm"><span class="pc-sen-nm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
-          ${eleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
-        </div>
-        <span class="pc-sen-pct"><span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
+        ${badge}
+        <span class="pc-sen-nm"><span class="pc-sen-nm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
+        <span class="pc-sen-pct" data-pc-sen-editar="${it.idx}"><span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
       </div>
       <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
       ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
@@ -5840,7 +5867,7 @@ function renderListaSenador(totalVagas, E) {
   const rodape = semAta.length
     ? `<div class="pc-sen-rod">Sem candidatura ao Senado: ${semAta.join(" · ")}</div>`
     : "";
-  const dica = `<div class="pc-sen-dica">arraste a barra pra votar · toque no número pra digitar · alça de cima escala tudo</div>`;
+  const dica = `<div class="pc-sen-dica" style="display:flex; align-items:center; justify-content:space-between; gap:8px;"><span>arraste a barra pra votar · toque no número pra digitar · alça de cima escala tudo</span>${renderBotaoLegendaBadge()}</div>${renderLegendaBadge(true)}`;
   return cards ? cards + rodape + dica : "";
 }
 
@@ -5848,28 +5875,21 @@ function renderListaSenador(totalVagas, E) {
 // à ponta) ou fora dele (na parte vazia) quando a fatia é estreita demais
 // — depende da largura real da barra, por isso roda pós-render e a cada
 // atualização de arrasto.
+// A barra perdeu o rótulo com número (protótipo aprovado 28/08/2026 —
+// "podemos retirar a porcentagem da barra de votos") — a votação já
+// aparece na caixinha ao lado do nome. O elemento .pc-sen-votos continua
+// existindo (sem texto) só como alvo de toque próximo à alça, pra digitar
+// direto sem precisar mirar num número específico.
 function posicionarVotosSenador(card, c, E) {
   const lbl = card.querySelector(".pc-sen-votos");
   const bar = card.querySelector(".pc-sen-bar");
   if (!lbl || !bar) return;
+  lbl.textContent = "";
   const barW = bar.getBoundingClientRect().width || 300;
   const fill = card.querySelector(".pc-sen-fill");
   const fillPx = (parseFloat(fill.style.width) || 0) / 100 * barW;
-  // Rótulo mostra a % (a mesma régua 2E do cabeçalho) — o número de votos
-  // subiu pro lugar de onde a % ficava (protótipo aprovado 28/08/2026).
-  const pct = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
-  const txt = pct.toFixed(1).replace(".", ",") + "%";
-  lbl.textContent = txt;
-  const txtPx = txt.length * 5.6 + 12;
-  if (fillPx > txtPx + 20) {
-    lbl.className = "pc-sen-votos dentro";
-    lbl.style.left = "auto";
-    lbl.style.right = (barW - fillPx + 15) + "px";
-  } else {
-    lbl.className = "pc-sen-votos fora";
-    lbl.style.right = "auto";
-    lbl.style.left = (fillPx + 15) + "px";
-  }
+  lbl.style.right = "auto";
+  lbl.style.left = Math.max(0, fillPx - 20) + "px";
 }
 
 function atualizarCardSenador(idx, E) {
@@ -5954,6 +5974,10 @@ function attachListenersSenador(E) {
       inp.addEventListener("blur", aplicar);
       inp.addEventListener("keydown", (ev) => { if (ev.key === "Enter") inp.blur(); });
     });
+    // Caixinha de votos no topo (onde a % ficava) também abre a digitação
+    // — é o número visível agora que a barra perdeu o rótulo com texto.
+    const caixaTopo = el.closest(".pc-sen-card")?.querySelector(`[data-pc-sen-editar="${idx}"]`);
+    if (caixaTopo) caixaTopo.addEventListener("click", (e) => { e.stopPropagation(); lbl.click(); });
     // arrasto fluido — só o próprio card atualiza durante o gesto
     const mover = (e) => {
       const r = el.getBoundingClientRect();
@@ -6367,9 +6391,14 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     }
     const cands = aberto ? candsOrd.map((c, k) => {
       const cv = Number(c.votos) || 0;
+      // Badge compacto na linha do nome (protótipo aprovado 28/08/2026):
+      // E-QP = eleito direto pelo quociente partidário (art. 107); E-M =
+      // eleito pela sobra/método das médias (art. 109, era "SOBRA"). Sem
+      // badge quando tem votos mas não fecha vaga (era "FORA") — informação
+      // ainda visível pela barra/votação, não precisa de selo à parte.
       const selo = c.marcadoEleito
-        ? (k < qpDireto ? '<span class="pc-sen-chip">ELEITO</span>' : '<span class="pc-sen-chip sobra" title="Vaga conquistada na disputa de sobras (método das médias, art. 109)">SOBRA</span>')
-        : (cv > 0 ? '<span class="pc-sen-chip fora" title="Tem votos, mas não fecha vaga com a votação de hoje">FORA</span>' : "");
+        ? (k < qpDireto ? '<span class="pc-sen-chip" title="Eleito direto pelo quociente partidário (art. 107)">E-QP</span>' : '<span class="pc-sen-chip" title="Eleito pela sobra (método das médias, art. 109)">E-M</span>')
+        : "";
       // Posição do candidato na lista do partido (pedido do usuário,
       // 24/08/2026) — discreto, só a colocação por votação de hoje.
       const posicao = `<span class="pc-dep-pos">${k + 1}º</span>`;
@@ -6387,10 +6416,8 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       <div class="pc-dep-crow pc-dep-crow-cong" data-dep-cong="${escaparAtributoHtml(st.motivo)}">
         <div class="pc-dep-cl1">
           ${posicao}
-          <div class="pc-dep-nmcol">
-            <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
-            <span class="pc-sen-chip statusbranco">${st.etiqueta}</span>
-          </div>
+          <span class="pc-sen-chip statusbranco">${st.etiqueta}</span>
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
           <span class="pc-dep-cpct">—</span>
         </div>
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
@@ -6405,11 +6432,9 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       <div class="pc-dep-crow${c.votosEditado ? " manual" : ""}" data-dep-cand="${escaparAtributoHtml(c.chave)}">
         <div class="pc-dep-cl1">
           ${posicao}
-          <div class="pc-dep-nmcol">
-            <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
-            ${selo}
-          </div>
-          <span class="pc-dep-cpct"><span class="valNum">${cv.toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
+          ${selo}
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
+          <span class="pc-dep-cpct" data-pc-dep-editar="${escaparAtributoHtml(c.chave)}"><span class="valNum">${cv.toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
         </div>
         ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
@@ -6453,10 +6478,8 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       ${aberto ? `<div class="pc-dep-cands">${cands || '<div class="pc-sen-rod">Nenhum candidato carregado neste grupo.</div>'}</div>` : ""}
       ${!aberto && candsOrd.length ? `<div class="pc-dep-preview">
         <div class="pc-dep-cl1">
-          <div class="pc-dep-nmcol">
-            <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(candsOrd[0])}</span></span>
-            ${candsOrd[0].marcadoEleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
-          </div>
+          ${candsOrd[0].marcadoEleito ? '<span class="pc-sen-chip">E</span>' : ""}
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(candsOrd[0])}</span></span>
           <span class="pc-dep-cpct"><span class="valNum">${(Number(candsOrd[0].votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
         </div>
       </div>` : ""}
@@ -6550,27 +6573,19 @@ function atualizarFaderDep(sl, v, cap, E) {
   if (valNum) valNum.textContent = (Number(v) || 0).toLocaleString("pt-BR");
 }
 
+// A barra perdeu o rótulo com número (protótipo aprovado 28/08/2026 —
+// "podemos retirar a porcentagem da barra de votos") — a votação já
+// aparece na caixinha ao lado do nome. O elemento .pc-sen-votos continua
+// existindo (sem texto) só como alvo de toque próximo à alça.
 function posicionarVotosDep(sl, v, cap, E) {
   const lbl = sl.querySelector(".pc-sen-votos");
   const bar = sl.querySelector(".pc-sen-bar");
   if (!lbl || !bar) return;
+  lbl.textContent = "";
   const barW = bar.getBoundingClientRect().width || 300;
   const fillPx = Math.min(100, cap > 0 ? v / cap * 100 : 0) / 100 * barW;
-  // Rótulo mostra a % (mesma régua E do card) — o número de votos subiu
-  // pro lugar de onde a % ficava (protótipo aprovado 28/08/2026).
-  const pct = E > 0 ? (Number(v) || 0) / E * 100 : 0;
-  const txt = pct.toFixed(1).replace(".", ",") + "%";
-  lbl.textContent = txt;
-  const txtPx = txt.length * 5.6 + 12;
-  if (fillPx > txtPx + 20) {
-    lbl.className = "pc-sen-votos dentro";
-    lbl.style.left = "auto";
-    lbl.style.right = (barW - fillPx + 15) + "px";
-  } else {
-    lbl.className = "pc-sen-votos fora";
-    lbl.style.right = "auto";
-    lbl.style.left = (fillPx + 15) + "px";
-  }
+  lbl.style.right = "auto";
+  lbl.style.left = Math.max(0, fillPx - 20) + "px";
 }
 
 function attachListenersDeputadosFader(E, totalVagas) {
@@ -6593,6 +6608,10 @@ function attachListenersDeputadosFader(E, totalVagas) {
         e.stopPropagation();
         abrirEdicaoDep(sl, key);
       });
+      // Caixinha de votos no topo (onde a % ficava) também abre a
+      // digitação — é o número visível agora que a barra perdeu o texto.
+      const caixaTopo = sl.closest(".pc-dep-crow")?.querySelector(`[data-pc-dep-editar="${partes[2]}"]`);
+      if (caixaTopo) caixaTopo.addEventListener("click", (e) => { e.stopPropagation(); abrirEdicaoDep(sl, key); });
     } else {
       const plq = sl.querySelector(".pc-dep-grip-plq");
       plq.style.pointerEvents = "auto";
@@ -7740,18 +7759,22 @@ async function renderCargoEstadual() {
     })() : ""}
     ${pcState.cargoAtivo === "senador" ? "" : `
     <div class="glass-card" style="padding:14px;">
-      <div style="display:flex; align-items:center; justify-content:space-between;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
         <div class="pc-sub" style="margin:0;">Plenário — ${totalVagasCargo} vagas</div>
-        <button id="pcBtnColapsarPlenario" class="pc-mini-btn" title="${plenarioColapsado ? "Expandir" : "Recolher"}">
-          <svg viewBox="0 0 16 16" width="13" height="13" style="transform:${plenarioColapsado ? "rotate(-90deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        </button>
+        <div style="display:flex; align-items:center; gap:6px;">
+          ${renderBotaoLegendaBadge()}
+          <button id="pcBtnColapsarPlenario" class="pc-mini-btn" title="${plenarioColapsado ? "Expandir" : "Recolher"}">
+            <svg viewBox="0 0 16 16" width="13" height="13" style="transform:${plenarioColapsado ? "rotate(-90deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+        </div>
       </div>
       ${plenarioColapsado ? "" : `
       <div style="margin-top:14px;">
         ${hemiciclo}
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
       </div>`}
-    </div>`}
+    </div>
+    ${renderLegendaBadge(false)}`}
     ${pcState.listaSalvaNome ? `
     <div style="display:flex; align-items:center; gap:6px; margin:0 0 10px 2px; font-size:11.5px; color:var(--pc-ink-dim);">
       ${iconeSvg("salvar", 12)} Editando a lista <b style="color:var(--pc-ink); font-weight:600;">"${escaparAtributoHtml(pcState.listaSalvaNome)}"</b>
@@ -7906,6 +7929,13 @@ function attachListenersSelecao() {
       const chave = "plenarioColapsado_" + pcState.cargoAtivo;
       const atualCol = pcState.expandido[chave] === undefined ? true : !!pcState.expandido[chave];
       pcState.expandido[chave] = !atualCol;
+      renderCargoEstadual();
+    });
+  }
+  const btnLegendaBadge = document.getElementById("pcBtnLegendaBadge");
+  if (btnLegendaBadge) {
+    btnLegendaBadge.addEventListener("click", () => {
+      pcState.legendaBadgeAberta = !pcState.legendaBadgeAberta;
       renderCargoEstadual();
     });
   }

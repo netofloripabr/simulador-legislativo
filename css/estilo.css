@@ -1014,13 +1014,37 @@
 #modoColaborativoWrap .pc-sen-card.eleito{ border-color:rgba(242,244,245,.18); border-left-color:#3A3F45; }
 #modoColaborativoWrap .pc-sen-card.manual{ border-left-color:rgba(52,232,74,.38); }
 #modoColaborativoWrap .pc-sen-card.eleito.manual{ border-left-color:rgba(52,232,74,.38); }
-#modoColaborativoWrap .pc-sen-l1{ display:flex; align-items:flex-start; gap:7px; }
-/* Selo (ELEITO/SOBRA/FORA) desce pra debaixo do nome, alinhado à
-   esquerda — não disputa mais largura na mesma linha do nome. */
+#modoColaborativoWrap .pc-sen-l1{ display:flex; align-items:center; gap:6px; }
+/* Badge compacto — bolinha/pill verde-vivo (E-QP/E-M/E), volta pra
+   MESMA linha do nome, antes dele (pedido do usuário, 28/08/2026 —
+   a versão "chip grande embaixo do nome" não ficou legível). */
 #modoColaborativoWrap .pc-sen-chip{
-  display:block; width:fit-content; background:#34E84A; color:#07230C; border-radius:4px;
-  font-size:9px; font-weight:800; letter-spacing:.08em; padding:2px 5px; margin-top:4px;
+  flex:none; display:inline-flex; align-items:center; justify-content:center;
+  background:#34E84A; color:#07230C; border-radius:999px;
+  font-size:9.5px; font-weight:800; letter-spacing:.02em;
+  padding:3px 7px; line-height:1; min-width:18px; height:18px; box-sizing:border-box;
 }
+/* "i" que explica os badges (E-QP/E-M/E) — mesmo padrão visual do "i" do
+   painel de comandos, mas sem depender de estar dentro de .pc-cmd-painel
+   (esse botão vive no cabeçalho do Plenário / na dica da lista). */
+#modoColaborativoWrap .pc-legenda-badge-btn{
+  flex:none; width:20px; height:20px; border-radius:50%; background:#16181B; border:1px solid #2B2F33;
+  color:#8A9096; font-size:10px; font-style:italic; font-family:Georgia,serif; font-weight:700;
+  display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+}
+#modoColaborativoWrap .pc-legenda-badge-btn.aberto{ border-color:#34E84A; color:#34E84A; }
+#modoColaborativoWrap .pc-legenda-badge-painel{
+  margin-top:10px; background:#16181B; border:1px solid #26292D; border-radius:12px; overflow:hidden;
+}
+#modoColaborativoWrap .pc-legenda-badge-item{ display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid #23262A; }
+#modoColaborativoWrap .pc-legenda-badge-item:last-child{ border-bottom:none; }
+#modoColaborativoWrap .pc-legenda-badge-icone{
+  flex:none; width:26px; height:26px; border-radius:50%; background:#34E84A; color:#07230C;
+  font-size:9px; font-weight:800; display:flex; align-items:center; justify-content:center;
+}
+#modoColaborativoWrap .pc-legenda-badge-icone.vazio{ background:transparent; border:1px solid #3A3F45; color:#8A9096; }
+#modoColaborativoWrap .pc-legenda-badge-titulo{ font-size:13px; font-weight:600; color:#F2F4F5; }
+#modoColaborativoWrap .pc-legenda-badge-sub{ font-size:11.5px; color:#8A9096; margin-top:1px; line-height:1.4; }
 #modoColaborativoWrap .pc-sen-nmcol{ flex:1; min-width:0; }
 /* Nome corta com reticências numa linha só (antes quebrava em várias —
    pedido do usuário, 28/08/2026, testando nome grande no protótipo). */
@@ -1032,9 +1056,11 @@
 #modoColaborativoWrap .pc-sen-nm .pc-sen-nm-txt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 /* Número de votos na mesma linha do nome (no lugar de onde a % ficava),
    com "votos" numa linha curta abaixo — caixa suave por trás do número
-   diferencia do nome sem depender de cor. */
+   diferencia do nome sem depender de cor. Clicável — toque abre a
+   digitação direta (a barra embaixo perdeu o rótulo com número). */
 #modoColaborativoWrap .pc-sen-pct{
   flex:none; align-self:center; display:flex; flex-direction:column; align-items:flex-end; gap:3px;
+  cursor:pointer;
 }
 #modoColaborativoWrap .pc-sen-pct .valNum{
   font-size:16px; font-weight:800; color:#F2F4F5; font-variant-numeric:tabular-nums; line-height:1;
@@ -1059,14 +1085,13 @@
   position:absolute; left:0; top:0; height:100%; border-radius:6px;
   background:linear-gradient(90deg, rgba(42,46,50,.75), rgba(60,65,70,.97));
 }
+/* Sem texto (pedido do usuário, 28/08/2026 — "retirar a porcentagem da
+   barra de votos"): a votação já aparece na caixinha ao lado do nome.
+   Continua sendo um alvo de toque perto da alça pra digitar direto. */
 #modoColaborativoWrap .pc-sen-votos{
   position:absolute; top:50%; transform:translateY(-50%);
-  font-size:9px; font-weight:700; font-variant-numeric:tabular-nums;
-  white-space:nowrap; pointer-events:auto; cursor:text; line-height:1;
-  padding:4px 2px;
+  width:40px; height:27px; pointer-events:auto; cursor:text;
 }
-#modoColaborativoWrap .pc-sen-votos.dentro{ color:#D3D8DC; }
-#modoColaborativoWrap .pc-sen-votos.fora{ color:#6E757C; }
 #modoColaborativoWrap .pc-sen-grip{
   position:absolute; top:50%; transform:translate(-50%,-50%);
   width:11px; height:27px; border-radius:5px;
@@ -1431,17 +1456,14 @@
   border-left:2.5px solid #3A3F45;
 }
 #modoColaborativoWrap .pc-dep-crow.manual{ border-left-color:rgba(52,232,74,.38); }
-#modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:flex-start; gap:6px; }
+#modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:6px; }
 /* Posição na lista do partido (pedido do usuário, 24/08/2026) — discreto,
    por isso o mesmo tom apagado da referência "2022:" e não um chip. */
 #modoColaborativoWrap .pc-dep-pos{
   flex:none; font-size:10.5px; color:#6E757C; font-variant-numeric:tabular-nums;
-  min-width:17px; padding-top:3px;
+  min-width:17px;
 }
 #modoColaborativoWrap .pc-dep-nmcol{ flex:1; min-width:0; }
-/* Selo (ELEITO/SOBRA/FORA/etc, classe .pc-sen-chip reaproveitada) desce
-   pra debaixo do nome, alinhado à esquerda — ver regra em .pc-sen-chip. */
-#modoColaborativoWrap .pc-dep-nmcol .pc-sen-chip{ margin-top:5px; }
 #modoColaborativoWrap .pc-dep-cnm{
   /* Fonte RESPONSIVA (pedido 20/08), reduzida (pedido 28/08/2026: "o
      espaço do nome pode ficar um pouco menor") — mesma proporção de
@@ -1457,6 +1479,7 @@
    "votos" numa linha curta abaixo, caixa suave por trás do número. */
 #modoColaborativoWrap .pc-dep-cpct{
   flex:none; align-self:center; display:flex; flex-direction:column; align-items:flex-end; gap:3px;
+  cursor:pointer;
 }
 #modoColaborativoWrap .pc-dep-cpct .valNum{
   font-size:clamp(13px, 2.2vw, 17px); font-weight:800; color:#F2F4F5;
@@ -1472,8 +1495,6 @@
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-ticks{ top:2px; bottom:2px; }
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-grip{ width:11px; height:24px; border-radius:5px; }
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-votos{ font-size:11px; }
-#modoColaborativoWrap .pc-sen-chip.sobra{ background:#C6E62A; color:#3A2600; }
-#modoColaborativoWrap .pc-sen-chip.fora{ background:transparent; border:1px solid #2B2F33; color:#8A9096; }
 
 
 /* ===== Card de partido — design final 17/08 (5 linhas, alça-lâmina A1.3) ===== */
