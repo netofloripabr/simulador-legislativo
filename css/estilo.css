@@ -1049,6 +1049,9 @@
 /* Nome corta com reticências numa linha só (antes quebrava em várias —
    pedido do usuário, 28/08/2026, testando nome grande no protótipo). */
 #modoColaborativoWrap .pc-sen-nm{
+  /* flex:1 1 0 empurra a caixa de votos pro final fixo da linha (mesmo
+     bug do card de Deputados — achado do usuário, 28/08/2026). */
+  flex:1 1 0; min-width:0;
   font-size:13px; font-weight:650; color:#F2F4F5; line-height:1.25;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   display:flex; align-items:center; gap:5px;
@@ -1463,13 +1466,16 @@
   flex:none; font-size:10.5px; color:#6E757C; font-variant-numeric:tabular-nums;
   min-width:17px;
 }
-#modoColaborativoWrap .pc-dep-nmcol{ flex:1; min-width:0; }
 #modoColaborativoWrap .pc-dep-cnm{
-  /* Fonte RESPONSIVA (pedido 20/08), reduzida (pedido 28/08/2026: "o
+  /* flex:1 1 0 é o que EMPURRA a caixa de votos pro final fixo da linha
+     (senão ela fica coladinha no nome, com o alinhamento à direita
+     quebrado — achado do usuário, 28/08/2026, testando o app de verdade).
+     Fonte RESPONSIVA (pedido 20/08), reduzida (pedido 28/08/2026: "o
      espaço do nome pode ficar um pouco menor") — mesma proporção de
      antes, só com teto/piso menores. Corta com reticências numa linha
      só (antes quebrava em várias — pedido 28/08/2026 testando nome
      grande no protótipo). */
+  flex:1 1 0; min-width:0;
   font-size:clamp(14px, 2.4vw, 19.5px); font-weight:750;
   color:#F2F4F5; line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   display:flex; align-items:center; gap:5px;

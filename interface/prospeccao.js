@@ -745,11 +745,10 @@ function atualizarMenuFixo(destino) {
   // fechamento automático); trocar de tela depois, ou reabrir manualmente
   // mais tarde, não reagenda o fechamento — senão o menu "piscaria"
   // sozinho de novo a cada navegação.
-  let abrirEArmarFechamento = false;
   if (!pcState._menuFixoAbriuNaSessao) {
     pcState.menuFixoAberto = true;
     pcState._menuFixoAbriuNaSessao = true;
-    abrirEArmarFechamento = true;
+    pcState._menuFixoAutoClosePendente = true;
   }
   const div = document.createElement("div");
   div.id = "pcMenuFixoWrap";
@@ -758,13 +757,21 @@ function atualizarMenuFixo(destino) {
   document.getElementById("pcMenuFixoAlca").addEventListener("click", () => {
     pcState.menuFixoAberto = !pcState.menuFixoAberto;
     clearTimeout(pcState._menuFixoAutoCloseTimer);
+    pcState._menuFixoAutoClosePendente = false; // abriu/fechou na mão — o automático não interfere mais
     atualizarMenuFixo(pcState._menuFixoDestinoAtual);
   });
   document.querySelectorAll("[data-pc-menu-fixo]:not(:disabled)").forEach((btn) => {
     btn.addEventListener("click", () => irParaDestinoMenuFixo(btn.getAttribute("data-pc-menu-fixo")));
   });
-  if (abrirEArmarFechamento) {
+  // Flag "pendente" em vez de armar só na abertura: qualquer re-render da
+  // tela dentro dos 3s (o modal de tutorial abrindo, um refresh assíncrono)
+  // passa por esta função de novo e cancelava o timer no clearTimeout do
+  // topo — a barra ficava aberta pra sempre (achado do usuário, 28/08/2026,
+  // testando no site publicado). Enquanto o fechamento automático estiver
+  // pendente e a barra aberta, re-arma a cada render até disparar.
+  if (pcState._menuFixoAutoClosePendente && pcState.menuFixoAberto) {
     pcState._menuFixoAutoCloseTimer = setTimeout(() => {
+      pcState._menuFixoAutoClosePendente = false;
       pcState.menuFixoAberto = false;
       atualizarMenuFixo(pcState._menuFixoDestinoAtual);
     }, 3000);
