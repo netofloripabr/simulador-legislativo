@@ -6609,7 +6609,11 @@ function attachListenersDeputadosFader(E, totalVagas) {
     if (!ehPartido) {
       posicionarVotosDep(sl, Number(candidatoDe(gi, partes[2])?.votos) || 0, capCand, E);
       const lbl = sl.querySelector(".pc-sen-votos");
-      lbl.style.pointerEvents = "auto";
+      // Sem pointer-events (CSS: none) — esse alvo invisível ficava bem em
+      // cima de onde o mouse passa pra arrastar e roubava o pointerdown do
+      // arrasto (achado do usuário, 28/08/2026). O click ainda funciona via
+      // lbl.click() disparado por JS na caixinha do topo, que ignora
+      // pointer-events da CSS.
       lbl.addEventListener("pointerdown", (e) => { e.stopPropagation(); });
       lbl.addEventListener("click", (e) => {
         e.stopPropagation();

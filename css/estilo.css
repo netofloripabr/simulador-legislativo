@@ -1091,9 +1091,15 @@
 /* Sem texto (pedido do usuário, 28/08/2026 — "retirar a porcentagem da
    barra de votos"): a votação já aparece na caixinha ao lado do nome.
    Continua sendo um alvo de toque perto da alça pra digitar direto. */
+/* pointer-events:none — o alvo invisível de 40x27px sentava bem em cima
+   de onde o mouse naturalmente passa pra ARRASTAR a barra (perto da
+   alça) e roubava o pointerdown do arrasto (achado do usuário,
+   28/08/2026: "a barra não está selecionável com o mouse"). A digitação
+   direta já mudou pra caixinha de votos no topo, que continua
+   funcionando via lbl.click() disparado por JS (ignora pointer-events). */
 #modoColaborativoWrap .pc-sen-votos{
   position:absolute; top:50%; transform:translateY(-50%);
-  width:40px; height:27px; pointer-events:auto; cursor:text;
+  width:40px; height:27px; pointer-events:none;
 }
 #modoColaborativoWrap .pc-sen-grip{
   position:absolute; top:50%; transform:translate(-50%,-50%);
