@@ -3253,7 +3253,15 @@ async function renderPainelPrincipal() {
   // rascunhos públicos do estado só pra um número no Painel, caro demais
   // pra essa tela. Redesenho pedido pelo usuário em 16/08/2026 (referência
   // Nubank/BYD), mockup aprovado antes de programar.
-  const totalListas = (await _carregarMinhasListasNormalizado()).length;
+  const minhasListasPainel = await _carregarMinhasListasNormalizado();
+  const totalListas = minhasListasPainel.length;
+  // Lista mais recente DEPOSITADA (com código) — é o que o botão de
+  // compartilhar do Painel abre agora (correção 28/08/2026: o botão
+  // antigo injetava um campo de link ?ver= no RODAPÉ da tela, fora da
+  // vista no celular — parecia simplesmente não funcionar).
+  const listaDepositadaPainel = minhasListasPainel
+    .filter((l) => l.depositadoEm && l.codigo)
+    .sort((a, b) => new Date(b.depositadoEm) - new Date(a.depositadoEm))[0] || null;
   const totalGrupos = pcState.meusGrupos ? pcState.meusGrupos.length : 0;
   const totalDesafiosAtivos = gateConvidado ? 0 : await contarMeusDesafiosAtivos();
 
@@ -3301,9 +3309,9 @@ async function renderPainelPrincipal() {
       <span class="pc-urna-sub">montar, revisar e depositar a cédula</span>
     </button>
 
-    ${completa && !gateConvidado ? `
+    ${listaDepositadaPainel && !gateConvidado ? `
     <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
-      <button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha lista">${iconeSvg("compartilhar", 16)}</button>
+      <button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha cédula (cartão-desafio)">${iconeSvg("compartilhar", 16)}</button>
     </div>` : ""}
 
     <div class="pc-lobby-menu-tit">Atalhos</div>
@@ -3341,8 +3349,6 @@ async function renderPainelPrincipal() {
     <div class="pc-lobby-mais">
       <button class="pc-lobby-mais-item" id="pcMenuAjudaLobby">${iconeSvg("ajuda", 15)}<span>Central de ajuda</span>${iconeSvg("setaDireita", 13)}</button>
     </div>
-
-    <div id="pcLinkCompartilhavelWrap"></div>
   `;
 
   // Convidado sem cadastro: qualquer destino que precise de conta
@@ -3411,36 +3417,24 @@ async function renderPainelPrincipal() {
     if (pcState.perfil) { pcState.subaba = "ajuda"; renderAppColaborativo(); }
     else { pcState.tela = "ajuda-convidado"; renderColaborativo(); }
   });
+  // Correção 28/08/2026 (achado do usuário no teste mobile: "o botão não
+  // funciona"): o antigo mostrarLinkCompartilhavel injetava um campo de
+  // link ?ver= no RODAPÉ do Painel — fora da vista no celular, parecia
+  // morto. Agora abre o MESMO modal de compartilhar de Minhas Listas
+  // (cartão-desafio + código), com a cédula depositada mais recente —
+  // uma peça só de divulgação, um comportamento só no app inteiro.
   const btnCompartilhar = document.getElementById("pcBtnCompartilharLobby");
-  if (btnCompartilhar) btnCompartilhar.addEventListener("click", mostrarLinkCompartilhavel);
-}
-
-// Revela o link somente-leitura logo abaixo dos cards do Painel — reaproveita
-// o mesmo perfil_id que já é público via rascunhos_publicos (Migração 7),
-// não precisa gerar nem guardar nada novo, só montar a URL.
-function mostrarLinkCompartilhavel() {
-  const link = `${window.location.origin}${window.location.pathname}?ver=${pcState.perfil.id}`;
-  const wrap = document.getElementById("pcLinkCompartilhavelWrap");
-  if (!wrap) return;
-  wrap.innerHTML = `
-    <div class="field-row" style="margin-top:14px;">
-      <label>Link pra compartilhar (qualquer pessoa consegue abrir, sem precisar de conta)</label>
-      <div style="display:flex; gap:8px;">
-        <input class="cell" id="pcCampoLinkCompartilhar" readonly value="${link}" style="flex:1;">
-        <button class="ghost" id="pcBtnCopiarLink">Copiar</button>
-      </div>
-    </div>
-    <div class="pc-status" id="pcStatusCopiarLink"></div>`;
-  document.getElementById("pcBtnCopiarLink").addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(link);
-      document.getElementById("pcStatusCopiarLink").textContent = "Link copiado!";
-    } catch (e) {
-      document.getElementById("pcCampoLinkCompartilhar").select();
-      document.getElementById("pcStatusCopiarLink").textContent = "Não consegui copiar sozinho — selecionei o texto, use Cmd/Ctrl+C.";
-    }
+  if (btnCompartilhar && listaDepositadaPainel) btnCompartilhar.addEventListener("click", async () => {
+    if (pcState.perfil) pcState.subaba = "minhas-listas";
+    else pcState.tela = "minhas-listas-convidado";
+    await abrirModalCompartilharLista(listaDepositadaPainel.id, minhasListasPainel);
   });
 }
+
+// (mostrarLinkCompartilhavel foi aposentada em 28/08/2026 — o link
+// ?ver=<perfil_id> de rascunho ao vivo era um TERCEIRO conceito de
+// compartilhamento, redundante com o cartão-desafio da cédula depositada.
+// A tela de LEITURA ?ver= continua funcionando pra links antigos.)
 
 // ---------- Minhas listas (salvas + depositadas) ----------
 // Alcançada pelo atalho "Minhas listas" do Painel (pcMenuListas). Mostra as
@@ -4325,7 +4319,7 @@ async function renderGrupoHub() {
     <div class="pc-lobby-banner" style="margin-bottom:16px;">
       <div class="pc-lobby-banner-eyebrow">Convide e ganhe</div>
       <div class="pc-lobby-banner-titulo">Seu link pessoal de convite</div>
-      <div class="pc-lobby-banner-corpo">Cada amigo que entrar pelo seu link e depositar a primeira cédula rende <b>10 créditos</b> pra você (até 5 por dia).</div>
+      <div class="pc-lobby-banner-corpo">Cada amigo que entrar pelo seu link e <b>depositar a primeira cédula</b> rende <b>1 SL</b> pra você — automático, até 25 SL por conta. Você recebe uma notificação a cada convite convertido.</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <button class="pc-lobby-banner-btn" id="pcBtnCopiarConvite">${iconeSvg("copiar", 13)} Copiar link</button>
         <button class="pc-lobby-banner-btn" id="pcBtnZapConvite" style="background:none; border:1px solid #4D545C; color:var(--pc-ink);">${iconeSvg("send", 13)} WhatsApp</button>
@@ -4335,7 +4329,7 @@ async function renderGrupoHub() {
     ${pcState.avisoLimiteGrupoAberto ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Você chegou no limite grátis</div>
-      <div class="pc-aviso-corpo">Sua conta tem espaço grátis pra <b>1 grupo criado</b>. Abrir outro custa <b>10 créditos</b> — exatamente o que <b>1 convite convertido</b> rende: convide um amigo, ele deposita a primeira cédula, e o próximo grupo sai de graça (Menu → Convidar amigos).</div>
+      <div class="pc-aviso-corpo">Sua conta tem espaço grátis pra <b>1 grupo criado</b>. Abrir outro custa <b>10 SL</b> — dá pra juntar convidando amigos: cada convite que vira cédula depositada rende <b>1 SL</b> (Menu → Convidar amigos), além dos SL dos marcos de presença e da Loja.</div>
     </div>` : ""}
     ${pcState.meusGrupos.length ? `<div class="pc-lobby-menu-tit">Seus grupos</div>${linhasGrupo}` : `<div class="pc-lobby-card">${estadoVazio({ icone: "grupos", titulo: "Nenhum grupo ainda", texto: "Crie um grupo ou entre com um código de convite, logo abaixo." })}</div>`}
     <div class="pc-lobby-menu-tit" style="margin-top:18px;">Novo grupo</div>
@@ -10431,7 +10425,7 @@ function renderRevisaoDeposito() {
 function renderDepositoConfirmado() {
   const conteudo = document.getElementById("pcConteudo");
   const tiles = [
-    { icone: "send", label: "Convide os amigos", info: "Gere um link único e envie por WhatsApp ou redes sociais. Quem entra pelo seu link já chega sabendo quem convidou." },
+    { icone: "send", label: "Convide os amigos", info: "Gere um link único e envie por WhatsApp ou redes sociais. Cada amigo que entrar pelo seu link e depositar a primeira cédula rende 1 SL pra você, automaticamente (até 25 SL por conta)." },
     { icone: "grupos", label: "Crie grupos particulares", info: "Monte um grupo, convide por código ou link, e acompanhe um ranking só entre vocês — todo mundo vê o palpite de todo mundo ali dentro." },
     { icone: "chart", label: "Avance na pontuação", info: "Você pontua por candidato eleito certo, pela proximidade da votação de cada um, pelas cadeiras por partido, pela enquete eleitoral e por um bônus de quem entrega a lista mais cedo." },
     { icone: "ranking", label: "Ranqueamento", info: "Você entra em 4 rankings ao mesmo tempo: geral (nacional), do seu estado, por categorias, e dos grupos particulares que você criar ou entrar." },
