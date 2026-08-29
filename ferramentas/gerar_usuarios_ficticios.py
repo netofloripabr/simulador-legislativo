@@ -28,6 +28,13 @@ Exemplo mínimo (só estadual):
 }
 
 Uso:
+  # FASE 1 da aba Bots do painel admin (migração 36) — o jeito normal:
+  # lê referência ativa + lote + variação do que o admin gravou no painel
+  # (pede e-mail/senha da conta admin) e carimba a conclusão de volta lá.
+  python3 ferramentas/gerar_usuarios_ficticios.py --do-painel --estado SC
+  python3 ferramentas/gerar_usuarios_ficticios.py --do-painel --estado SC --dry-run
+
+  # Modo manual (JSON local), como era antes:
   python3 ferramentas/gerar_usuarios_ficticios.py --referencia ref.json --quantidade 5 --indice-inicial 151
   python3 ferramentas/gerar_usuarios_ficticios.py --referencia ref.json --quantidade 5 --indice-inicial 151 --dry-run
 """
@@ -108,6 +115,44 @@ def http(method, path, body=None, token=None, upsert=False):
         return e.code, parsed
 
 
+# ===== Modo "--do-painel" (fase 1 da aba Bots do admin, migração 36) =====
+# Em vez de JSON local, lê a referência ATIVA e a regulação (lote,
+# variação, pedido de geração) direto do Supabase — o que o admin gravou
+# na aba Bots do painel. Precisa logar com a CONTA ADMIN (as tabelas são
+# RLS admin-only). Ao concluir sem falhas, carimba gerado_em/gerado_detalhe
+# e limpa geracao_solicitada_em, fechando o ciclo painel → script → painel.
+
+def login_admin(email, senha):
+    status, data = http("POST", "/auth/v1/token?grant_type=password", {"email": email, "password": senha})
+    if status not in (200, 201) or not data or not data.get("access_token"):
+        print("ERRO login admin: %s %s" % (status, data), file=sys.stderr)
+        sys.exit(1)
+    return data["access_token"]
+
+
+def carregar_do_painel(estado, token):
+    status, cfgs = http("GET", "/rest/v1/bots_config?estado=eq.%s&select=*" % estado, token=token)
+    if status != 200:
+        print("ERRO lendo bots_config (%s): %s" % (status, cfgs), file=sys.stderr)
+        sys.exit(1)
+    cfg = cfgs[0] if cfgs else {"estado": estado, "lote": 155, "variacao_pct": 20}
+    status, refs = http("GET", "/rest/v1/bots_referencia?estado=eq.%s&ativa=eq.true&select=referencia" % estado, token=token)
+    if status != 200 or not refs:
+        print("ERRO: nenhuma referência ATIVA pra %s no painel (aba Bots) — aponte a cédula lá primeiro. (%s %s)" % (estado, status, refs), file=sys.stderr)
+        sys.exit(1)
+    return cfg, refs[0]["referencia"]
+
+
+def concluir_no_painel(estado, token, detalhe):
+    status, data = http("PATCH", "/rest/v1/bots_config?estado=eq.%s" % estado, {
+        "gerado_em": datetime.now(timezone.utc).isoformat(),
+        "gerado_detalhe": detalhe,
+        "geracao_solicitada_em": None,
+    }, token=token)
+    if status not in (200, 204):
+        print("AVISO: gerei as contas mas não consegui carimbar bots_config: %s %s" % (status, data), file=sys.stderr)
+
+
 def variar_referencia(partidos, pct=0.20):
     resultado = []
     for p in partidos:
@@ -123,7 +168,7 @@ def variar_referencia(partidos, pct=0.20):
     return resultado
 
 
-def criar_ficticio(indice, referencia_por_cargo, estado, dominio_email, dry_run):
+def criar_ficticio(indice, referencia_por_cargo, estado, dominio_email, dry_run, pct_variacao=0.20):
     genero = random.choice(["Masculino", "Feminino"])
     primeiro_nome = random.choice(NOMES_MASCULINOS if genero == "Masculino" else NOMES_FEMININOS)
     nome = "%s %s" % (primeiro_nome, random.choice(SOBRENOMES))
@@ -134,7 +179,7 @@ def criar_ficticio(indice, referencia_por_cargo, estado, dominio_email, dry_run)
     # arquivo nenhum — só rodar de novo com o mesmo índice já resolve.
     senha = hashlib.sha256(("%s-%d-seed" % (email, indice)).encode()).hexdigest()[:20] + "!Aa1"
     cpf = gerar_cpf()
-    rascunhos = {cargo: variar_referencia(partidos) for cargo, partidos in referencia_por_cargo.items()}
+    rascunhos = {cargo: variar_referencia(partidos, pct=pct_variacao) for cargo, partidos in referencia_por_cargo.items()}
 
     if dry_run:
         resumo_votos = {c: sum(cand["votos"] for p in ps for cand in p["candidatos"]) for c, ps in rascunhos.items()}
@@ -191,22 +236,42 @@ def criar_ficticio(indice, referencia_por_cargo, estado, dominio_email, dry_run)
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--referencia", required=True, help="Caminho do JSON de referência (ver docstring)")
-    ap.add_argument("--quantidade", type=int, required=True)
-    ap.add_argument("--indice-inicial", type=int, required=True, help="Primeiro índice (1-155) deste lote")
+    ap.add_argument("--referencia", help="Caminho do JSON de referência (modo manual; dispensado com --do-painel)")
+    ap.add_argument("--do-painel", action="store_true",
+                     help="Lê referência ativa + regulação da aba Bots do painel admin (migração 36) em vez de JSON local — pede login da conta admin")
+    ap.add_argument("--admin-email", help="E-mail da conta admin (só com --do-painel)")
+    ap.add_argument("--quantidade", type=int, help="Padrão no --do-painel: o lote configurado no painel")
+    ap.add_argument("--indice-inicial", type=int, default=1, help="Primeiro índice deste lote (padrão 1)")
     ap.add_argument("--estado", default="SC")
     ap.add_argument("--dominio-email", default="ficticios.simulalegis.com.br",
                      help="Domínio sintético dos e-mails gerados — não precisa ser caixa real, só único e válido sintaticamente")
     ap.add_argument("--dry-run", action="store_true", help="Só mostra o que faria, não cria nada no Supabase")
     args = ap.parse_args()
 
-    with open(args.referencia, encoding="utf-8") as f:
-        referencia_por_cargo = json.load(f)
+    pct_variacao = 0.20
+    token_admin = None
+    if args.do_painel:
+        import getpass
+        email = args.admin_email or input("E-mail da conta admin: ").strip()
+        senha = getpass.getpass("Senha da conta admin: ")
+        token_admin = login_admin(email, senha)
+        cfg, referencia_por_cargo = carregar_do_painel(args.estado, token_admin)
+        pct_variacao = (cfg.get("variacao_pct") or 20) / 100.0
+        if args.quantidade is None:
+            args.quantidade = cfg.get("lote") or 155
+        print("Painel %s: lote=%d variação=±%d%% referência ativa carregada.%s" % (
+            args.estado, args.quantidade, round(pct_variacao * 100),
+            " (pedido de geração aberto no painel)" if cfg.get("geracao_solicitada_em") else ""))
+    else:
+        if not args.referencia or args.quantidade is None:
+            ap.error("--referencia e --quantidade são obrigatórios sem --do-painel")
+        with open(args.referencia, encoding="utf-8") as f:
+            referencia_por_cargo = json.load(f)
 
     sucesso, falha = 0, 0
     for i in range(args.quantidade):
         indice = args.indice_inicial + i
-        ok = criar_ficticio(indice, referencia_por_cargo, args.estado, args.dominio_email, args.dry_run)
+        ok = criar_ficticio(indice, referencia_por_cargo, args.estado, args.dominio_email, args.dry_run, pct_variacao=pct_variacao)
         if ok:
             sucesso += 1
         else:
@@ -215,6 +280,10 @@ def main():
             time.sleep(0.3)  # evita bater rate-limit do endpoint de signup
 
     print("\nResumo: %d ok, %d falha, de %d pedidos." % (sucesso, falha, args.quantidade))
+    if args.do_painel and not args.dry_run and falha == 0:
+        concluir_no_painel(args.estado, token_admin, "%d contas, índices %d-%d, 0 erros" % (
+            sucesso, args.indice_inicial, args.indice_inicial + args.quantidade - 1))
+        print("Carimbado no painel: geração concluída.")
     sys.exit(1 if falha else 0)
 
 

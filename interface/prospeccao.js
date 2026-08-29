@@ -28,6 +28,8 @@ let pcState = {
   modalReportarProblema: false, // ver renderMenuConta() / renderModalReportarProblema()
   modalExcluirConta: false, // ver renderMenuConta() / renderModalExcluirConta()
   adminSecao: "usuarios", // qual aba do Painel Admin está ativa
+  adminBotsEstado: "SC", // UF selecionada na aba Bots do admin (lançamento é SC-only, decisão 28/08/2026)
+  adminBotsStatus: null, // feedback da última ação da aba Bots ({tipo:"ok"|"erro", texto})
   adminPesquisaFiltro: null, // { genero, uf } — último filtro usado na seção "Pesquisa" do admin
   adminPesquisaResultados: null, // cache do resultado de adminPesquisaAgregada()
   adminPesquisaCargo: "estadual", // qual cargo a seção "Pesquisa" do admin está mostrando
@@ -2730,6 +2732,96 @@ async function montarAdminRotinas() {
     ${historicoHtml}`;
 }
 
+// ---------- Aba Bots (migração 36, estruturação aprovada 28/08/2026) ----------
+// Lista de referência por estado + regulação dos 155 usuários fictícios.
+// FASE 1: o painel grava referência/config; a geração de contas continua
+// no script local (gerar_usuarios_ficticios.py), que lê daqui — o botão
+// "Gerar" só marca o pedido. Lançamento é SC-only (decisão 28/08/2026).
+async function montarAdminBots() {
+  const uf = pcState.adminBotsEstado || "SC";
+  const [cfg, refs, depositosReais] = await Promise.all([
+    botsCarregarConfig(uf),
+    botsCarregarReferencias(uf),
+    (async () => {
+      const { data, error } = await supabaseClient.rpc("contagem_depositos_reais");
+      return error ? null : Number(data);
+    })(),
+  ]);
+  if (!cfg) return `<div class="pc-sub">Não consegui carregar a configuração dos bots — a migração 36 já foi rodada no Supabase?</div>`;
+
+  const refAtiva = refs.find((r) => r.ativa) || null;
+  const seletorUf = `<select id="pcAdminBotsUf" class="cell" style="width:auto; padding:8px 12px;">${[...ESTADOS_BRASIL].sort((a, b) => a.sigla.localeCompare(b.sigla)).map((e) => `<option value="${e.sigla}" ${e.sigla === uf ? "selected" : ""}>${e.sigla} — ${e.nome}</option>`).join("")}</select>`;
+  const status = pcState.adminBotsStatus
+    ? `<div style="margin:10px 0; font-size:12px; color:${pcState.adminBotsStatus.tipo === "ok" ? "var(--pc-accent)" : "var(--pc-danger)"};">${pcState.adminBotsStatus.texto}</div>`
+    : "";
+
+  // Pré-visualização da referência ativa: contagem por cargo + top 3.
+  let previewRef = "";
+  if (refAtiva) {
+    const cargosRef = ["estadual", "federal", "senador"].filter((cg) => refAtiva.referencia && refAtiva.referencia[cg] && refAtiva.referencia[cg].length);
+    previewRef = cargosRef.map((cg) => {
+      const grupos = refAtiva.referencia[cg];
+      const todos = [];
+      grupos.forEach((g) => (g.candidatos || []).forEach((c) => todos.push(c)));
+      todos.sort((a, b) => (b.votos || 0) - (a.votos || 0));
+      const top = todos.slice(0, 3).map((c) => `${c.nome} (${(c.votos || 0).toLocaleString("pt-BR")})`).join(" · ");
+      return `<div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;"><b style="color:var(--pc-ink);">${cg === "estadual" ? "Dep. Estadual" : cg === "federal" ? "Dep. Federal" : "Senador"}</b> — ${grupos.length} partidos, ${todos.length} candidatos. Top: ${top}</div>`;
+    }).join("");
+  }
+  const historicoRef = refs.filter((r) => !r.ativa).slice(0, 4).map((r) =>
+    `<div style="font-size:10.5px; color:var(--pc-ink-faint); margin-top:3px;">· substituída — criada em ${new Date(r.criado_em).toLocaleString("pt-BR")}</div>`).join("");
+
+  const botsAtivos = Math.max(0, (cfg.lote || 155) - (depositosReais || 0));
+
+  return `
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+      <span style="font-size:12px; color:var(--pc-ink-dim);">Estado:</span>${seletorUf}
+    </div>
+    ${status}
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">① Referência</div>
+    <div class="glass-card" style="padding:14px;">
+      ${refAtiva ? `
+        <div style="font-size:12.5px; color:var(--pc-ink);">Referência ativa desde <b>${new Date(refAtiva.criado_em).toLocaleString("pt-BR")}</b>${refAtiva.salvamento_id ? " · veio de uma cédula depositada" : ""}.</div>
+        ${previewRef}` : `
+        <div style="font-size:12.5px; color:var(--pc-ink-dim);">Sem referência ativa em ${uf} ainda. A referência dos bots é sempre uma <b>cédula depositada de verdade</b> — deposite a sua neste estado e aponte ela aqui.</div>`}
+      <button class="ghost" id="pcBtnBotsUsarCedula" style="width:100%; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("ballot", 14)}Usar minha cédula depositada como referência</button>
+      ${historicoRef ? `<div style="margin-top:10px; border-top:1px solid var(--pc-glass-border); padding-top:8px;"><div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--pc-ink-faint);">Histórico</div>${historicoRef}</div>` : ""}
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">② Regulação</div>
+    <div class="glass-card" style="padding:14px;">
+      <label style="display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px; color:var(--pc-ink); cursor:pointer;">
+        <span>Bots ligados em ${uf}</span>
+        <input type="checkbox" id="pcAdminBotsLigado" ${cfg.ligado ? "checked" : ""} style="width:18px; height:18px; accent-color:var(--pc-accent);">
+      </label>
+      <div style="display:flex; gap:10px; margin-top:12px;">
+        <label style="flex:1; font-size:11px; color:var(--pc-ink-dim);">Tamanho do lote
+          <input type="number" id="pcAdminBotsLote" class="cell" value="${cfg.lote}" min="1" max="500" style="width:100%; margin-top:4px;">
+        </label>
+        <label style="flex:1; font-size:11px; color:var(--pc-ink-dim);">Variação por candidato (±%)
+          <input type="number" id="pcAdminBotsVariacao" class="cell" value="${cfg.variacao_pct}" min="0" max="100" style="width:100%; margin-top:4px;">
+        </label>
+      </div>
+      <button class="primary" id="pcBtnBotsSalvarConfig" style="width:100%; margin-top:12px;">Salvar regulação</button>
+      <div style="border-top:1px solid var(--pc-glass-border); margin-top:14px; padding-top:12px;">
+        <button class="ghost" id="pcBtnBotsGerar" style="width:100%;" ${refAtiva ? "" : "disabled"}>Gerar / atualizar bots de ${uf}</button>
+        <div style="font-size:10.5px; color:var(--pc-ink-faint); line-height:1.5; margin-top:8px;">
+          ${cfg.geracao_solicitada_em ? `Pedido de geração aberto desde ${new Date(cfg.geracao_solicitada_em).toLocaleString("pt-BR")} — rode <b>ferramentas/gerar_usuarios_ficticios.py</b> no computador pra concluir.` : "O botão marca o pedido; a criação das contas roda pelo script no computador (precisa da chave administrativa, que não fica no site)."}
+          ${cfg.gerado_em ? `<br>Última geração concluída: ${new Date(cfg.gerado_em).toLocaleString("pt-BR")}${cfg.gerado_detalhe ? ` — ${cfg.gerado_detalhe}` : ""}` : ""}
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">③ Efeito boot</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+      <div class="pc-metric" style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${depositosReais === null ? "—" : depositosReais.toLocaleString("pt-BR")}</div><div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">cédulas reais depositadas</div></div>
+      <div class="pc-metric" style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--pc-ink);">${botsAtivos.toLocaleString("pt-BR")}</div><div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">bots ainda na média</div></div>
+      <div class="pc-metric" style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--pc-ink-dim);">${(cfg.lote || 155).toLocaleString("pt-BR")}</div><div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">lote total</div></div>
+    </div>
+    <div style="font-size:10.5px; color:var(--pc-ink-faint); line-height:1.5; margin-top:8px;">Cada cédula real depositada desativa 1 bot da média pública (do índice mais alto pro mais baixo) — com o tempo, os usuários de verdade assumem a média sozinhos.</div>`;
+}
+
 async function renderAdminPainel() {
   const el = document.getElementById("pcConteudo");
   el.innerHTML = telaCarregando("Carregando painel do administrador…");
@@ -2753,6 +2845,7 @@ async function renderAdminPainel() {
     { id: "pesquisa", label: "Pesquisa" },
     { id: "financeiro", label: "Financeiro" },
     { id: "rotinas", label: "Rotinas" },
+    { id: "bots", label: "Bots" },
   ];
   const botoesSecao = secoes.map((s) => `<button data-pc-admin-secao="${s.id}" class="${pcState.adminSecao === s.id ? "active" : ""}">${s.label}</button>`).join("");
 
@@ -2761,6 +2854,7 @@ async function renderAdminPainel() {
   else if (pcState.adminSecao === "problemas") conteudoSecao = await montarAdminProblemas();
   else if (pcState.adminSecao === "pesquisa") conteudoSecao = await montarAdminPesquisa();
   else if (pcState.adminSecao === "financeiro") conteudoSecao = await montarAdminFinanceiro();
+  else if (pcState.adminSecao === "bots") conteudoSecao = await montarAdminBots();
   else conteudoSecao = await montarAdminRotinas();
 
   el.innerHTML = `
@@ -2822,6 +2916,44 @@ async function renderAdminPainel() {
       };
       pcState.adminUsuariosFiltro = filtro;
       pcState.adminUsuariosResultados = await adminListarUsuarios(filtro);
+      renderAdminPainel();
+    });
+  }
+  if (pcState.adminSecao === "bots") {
+    const selUf = document.getElementById("pcAdminBotsUf");
+    if (selUf) selUf.addEventListener("change", () => {
+      pcState.adminBotsEstado = selUf.value;
+      pcState.adminBotsStatus = null;
+      renderAdminPainel();
+    });
+    const btnCedula = document.getElementById("pcBtnBotsUsarCedula");
+    if (btnCedula) btnCedula.addEventListener("click", async () => {
+      const uf = pcState.adminBotsEstado || "SC";
+      if (!window.confirm(`Usar a sua cédula depositada de ${uf} como referência dos bots?\n\nA referência anterior (se houver) vira histórico. Os bots já gerados NÃO mudam sozinhos — só no próximo "Gerar".`)) return;
+      btnCedula.disabled = true;
+      const r = await botsUsarMinhaCedulaComoReferencia(uf);
+      pcState.adminBotsStatus = r.ok
+        ? { tipo: "ok", texto: `Referência de ${uf} atualizada a partir da cédula "${r.nomeCedula}" (depositada em ${new Date(r.depositadaEm).toLocaleDateString("pt-BR")}).` }
+        : { tipo: "erro", texto: r.mensagem };
+      renderAdminPainel();
+    });
+    const btnSalvarCfg = document.getElementById("pcBtnBotsSalvarConfig");
+    if (btnSalvarCfg) btnSalvarCfg.addEventListener("click", async () => {
+      const uf = pcState.adminBotsEstado || "SC";
+      const lote = parseInt(document.getElementById("pcAdminBotsLote").value, 10);
+      const variacao = parseInt(document.getElementById("pcAdminBotsVariacao").value, 10);
+      if (!lote || lote < 1 || lote > 500) { pcState.adminBotsStatus = { tipo: "erro", texto: "Lote precisa estar entre 1 e 500." }; renderAdminPainel(); return; }
+      if (isNaN(variacao) || variacao < 0 || variacao > 100) { pcState.adminBotsStatus = { tipo: "erro", texto: "Variação precisa estar entre 0 e 100%." }; renderAdminPainel(); return; }
+      const ok = await botsSalvarConfig({ estado: uf, ligado: document.getElementById("pcAdminBotsLigado").checked, lote, variacao_pct: variacao });
+      pcState.adminBotsStatus = ok ? { tipo: "ok", texto: `Regulação de ${uf} salva.` } : { tipo: "erro", texto: "Não consegui salvar — a migração 36 já foi rodada?" };
+      renderAdminPainel();
+    });
+    const btnGerar = document.getElementById("pcBtnBotsGerar");
+    if (btnGerar) btnGerar.addEventListener("click", async () => {
+      const uf = pcState.adminBotsEstado || "SC";
+      if (!window.confirm(`Marcar pedido de geração dos bots de ${uf}?\n\nAs contas em si são criadas rodando ferramentas/gerar_usuarios_ficticios.py no computador — o pedido fica registrado aqui até o script concluir.`)) return;
+      const ok = await botsSolicitarGeracao(uf);
+      pcState.adminBotsStatus = ok ? { tipo: "ok", texto: `Pedido de geração de ${uf} registrado — agora rode o script no computador.` } : { tipo: "erro", texto: "Não consegui registrar o pedido." };
       renderAdminPainel();
     });
   }
