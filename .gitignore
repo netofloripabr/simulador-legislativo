@@ -5,3 +5,8 @@
 # Bytecode do Python
 __pycache__/
 *.pyc
+
+# Material de marketing/divulgação (sessão Cowork paralela) — NUNCA
+# versionar: o repositório é público (GitHub Pages), estratégia interna
+# não pode ficar exposta. Decisão de 28/08/2026.
+marketing/
