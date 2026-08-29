@@ -962,9 +962,9 @@ function farolTrilhaHtml(passo) {
         feito: st.votosOk, atual: passo.num === 2, progresso: Math.round(st.pct * 100) + "%",
         texto: passo.num === 2 ? `Atribua o seu palpite para os candidatos que você conhece: arraste a alça ou digite os votos do candidato. Depois, você palpita nos candidatos que não conhece, ou utiliza o mágico <span class="pc-farol-minicmd">${iconeSvg("completar", 11)}</span> que completa a votação com os votos proporcionais para completar o número de vagas que você selecionou — sem mexer no que você preencheu.` : "",
       })}
-      ${_farolLinhaTrilha("3", "Avançar", {
+      ${_farolLinhaTrilha("3", "Salvar e revisar", {
         atual: passo.num === 3,
-        texto: `Fechou a votação? O botão <span class="pc-farol-minicmd">${iconeSvg("setaDireita", 11)}</span> avança. Repita nos três cargos e siga pra Revisão.`,
+        texto: `Fechou a votação? Salve com o botão <span class="pc-farol-minicmd">${iconeSvg("salvar", 11)}</span>. Repita nos três cargos e siga pra Revisão por "Minhas listas".`,
       })}`;
   }
   // Fora da tela de palpite a trilha muda de conversa conforme a tela
@@ -7229,6 +7229,7 @@ async function renderSelecaoCandidatos() {
         <div class="pc-cargo-switch">${botoes}</div>
       </div>
       <div id="pcPainelSlot"></div>
+      <div id="pcBuscaSlot"></div>
     </div>
     <div id="pcCargoConteudo"></div>
   `;
@@ -7742,16 +7743,12 @@ async function renderCargoEstadual() {
       classeExtra: "destaque",
     },
     {
-      id: "pcBtnSalvarSelecao", icone: "salvar", tamanho: 17, titulo: "Salvar",
-      legenda: "Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\".",
-    },
-    {
-      id: "pcBtnDepositar", icone: "setaDireita", tamanho: 19, titulo: "Prosseguir pra Revisão",
-      legenda: pcState.cargoAtivo === "senador"
-        ? `Avança pro próximo passo. Só fica ativo depois que você indicar todos os ${totalVagasCargo} eleitos${totalIndicado === totalVagasCargo ? "" : " — por enquanto está desabilitado"}.`
-        : `Avança pro próximo passo. Só fica ativo quando a barra de votos fecha em 100%${gateDeputados ? "" : " — o mágico completa o resto num toque"}.`,
-      disabled: pcState.cargoAtivo === "senador" ? totalIndicado !== totalVagasCargo : !gateDeputados,
-      classeExtra: "destaque",
+      // O botão ">" (Prosseguir pra Revisão) foi removido daqui em
+      // 28/08/2026 (teste mobile do usuário): o Salvar cumpre o papel — o
+      // caminho pra Revisão é por Minhas Listas (atalho "Revisão" de
+      // 26/08), sem precisar de um segundo botão de avanço no console.
+      id: "pcBtnSalvarSelecao", icone: "salvar", tamanho: 17, titulo: "Salvar", classeExtra: "destaque",
+      legenda: "Salva sua lista do jeito que está agora — mesmo incompleta. Depois é só voltar aqui e continuar marcando de onde parou. Fica disponível em \"Minhas listas\", onde você também revisa e deposita.",
     },
   ];
   const painelHtml = pcState.cargoAtivo === "senador" ? renderPainelSenador(votosValidos2026Proj, comandosSelecao) : renderPainelDeputadosFader(votosValidos2026Proj, totalVagasCargo, comandosSelecao);
@@ -7894,16 +7891,21 @@ async function renderCargoEstadual() {
     <div class="pc-status" id="pcSelecaoStatus" style="text-align:right; margin:-14px 0 14px;"></div>
     ${pcState.modalSalvarDestinoAberto ? renderModalSalvarDestino() : ""}
     ${pcState.modalInstagramInfo ? renderModalInstagram() : ""}
-    ${pcState.buscaPartidoAberta ? `
-    <div style="position:relative; margin:-12px 0 20px;">
-      <svg viewBox="0 0 16 16" width="14" height="14" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--pc-ink-dim); pointer-events:none;"><circle cx="6.6" cy="6.6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7L13.5 13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
-      <input type="text" id="pcBuscaPartidoInput" class="cell" placeholder="Buscar partido por nome" value="${pcState.buscaPartido || ""}" style="width:100%; padding-left:34px;">
-    </div>` : ""}
     ${blocos || estadoVazio({ icone: "buscar", titulo: pcState.cargoAtivo === "senador" ? "Nenhum candidato encontrado" : "Nenhum partido encontrado", texto: "Confira o nome digitado." })}
   `;
 
   const slotPainel = document.getElementById("pcPainelSlot");
   if (slotPainel) slotPainel.innerHTML = painelHtml;
+  // Busca mora no cabeçalho FIXO, logo abaixo do console (teste mobile do
+  // usuário, 28/08/2026): antes ela abria só no topo do conteúdo — quem
+  // estava no fim de uma lista longa tocava a lupa e não via nada
+  // acontecer. No slot fixo, aparece na hora em qualquer ponto da rolagem.
+  const slotBusca = document.getElementById("pcBuscaSlot");
+  if (slotBusca) slotBusca.innerHTML = pcState.buscaPartidoAberta ? `
+    <div style="position:relative; margin-top:8px;">
+      <svg viewBox="0 0 16 16" width="14" height="14" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--pc-ink-dim); pointer-events:none;"><circle cx="6.6" cy="6.6" r="4.3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7L13.5 13.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
+      <input type="text" id="pcBuscaPartidoInput" class="cell" placeholder="${pcState.cargoAtivo === "senador" ? "Buscar candidato ou partido" : "Buscar partido ou candidato"}" value="${pcState.buscaPartido || ""}" style="width:100%; padding-left:34px;">
+    </div>` : "";
   attachListenersSelecao();
   if (pcState.cargoAtivo === "senador") attachListenersSenador(votosValidos2026Proj);
   else attachListenersDeputadosFader(votosValidos2026Proj, totalVagasCargo);
@@ -8158,9 +8160,11 @@ function attachListenersSelecao() {
   }
   const btnBuscaPartidoToggle = document.getElementById("pcBtnBuscaPartidoToggle");
   if (btnBuscaPartidoToggle) {
-    btnBuscaPartidoToggle.addEventListener("click", () => {
+    btnBuscaPartidoToggle.addEventListener("click", async () => {
       pcState.buscaPartidoAberta = !pcState.buscaPartidoAberta;
-      renderCargoEstadual();
+      // await: o render é assíncrono — sem ele, o focus rodava antes do
+      // input novo existir (mesma lição do bug de 17/08 no input da busca).
+      await renderCargoEstadual();
       if (pcState.buscaPartidoAberta) {
         const inp = document.getElementById("pcBuscaPartidoInput");
         if (inp) inp.focus({ preventScroll: true });
@@ -8427,10 +8431,8 @@ function attachListenersSelecao() {
       }
     });
   }
-  document.getElementById("pcBtnDepositar").addEventListener("click", () => {
-    if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
-    else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
-  });
+  // (Botão ">" Prosseguir pra Revisão removido do console em 28/08/2026 —
+  // o caminho pra Revisão é pelo atalho "Revisão" de Minhas Listas.)
   // "Salvar" da Seleção — ao contrário de "Avançar" (acima), não exige a
   // lista completa: grava o que já foi marcado e mantém a pessoa editando
   // na mesma tela (pedido do usuário em 16/08/2026 — vinha perdendo
@@ -9530,6 +9532,17 @@ function renderRevisaoDeposito() {
     const marcadosInconsistentes = listaCompleta.filter((c) => !c.eleito && c.consistenteComMatematicaReal);
     const temInconsistencia = marcadosInconsistentes.length > 0;
     if (temInconsistencia) temInconsistenciaGeral = true;
+    // Quem PERDERIA a vaga se a pessoa aceitar o ajuste da matemática real
+    // (teste mobile 28/08/2026): o marcado como eleito que a matemática NÃO
+    // elege — havendo mais de um, o de menor média conquistada (proporcional)
+    // ou menor voto (majoritário), que é exatamente quem a regra derrubaria
+    // primeiro. Vira o alvo do botão "Aceitar o ajuste" no aviso.
+    const marcadosQueAMatematicaNaoElege = listaCompleta.filter((c) => c.eleito && !c.consistenteComMatematicaReal);
+    const perdedorAjuste = marcadosQueAMatematicaNaoElege.length
+      ? [...marcadosQueAMatematicaNaoElege].sort((a, b) => cargoDef.id === "senador"
+          ? ((Number(a.votos) || 0) - (Number(b.votos) || 0))
+          : (((a.detalhe && a.detalhe.mediaConquistada) || 0) - ((b.detalhe && b.detalhe.mediaConquistada) || 0)))[0]
+      : null;
 
     // Lista de EXIBIÇÃO (pedido do usuário em 18/08/2026): nem todo
     // candidato precisa aparecer aqui, só listaCompleta continua completa
@@ -9618,11 +9631,18 @@ function renderRevisaoDeposito() {
         // 13/08/2026 — não fazia sentido junto do conceito de sobra, que
         // nem existe no majoritário.
         const mostrarMargem = cargoDef.id === "senador";
+        // Badge compacto na linha do nome — mesmo padrão do card da tela
+        // de palpite (E-QP/E-M/E, teste mobile 28/08/2026); o antigo chip
+        // "SOBRA · n/m" vira parte do title do badge E-M.
+        const badgeRev = cargoDef.id === "senador"
+          ? `<span class="pc-sen-chip" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">E</span>`
+          : (c.tag === "QP"
+            ? `<span class="pc-sen-chip" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">E-QP</span>`
+            : `<span class="pc-sen-chip" title="${explicacaoTagTexto(c.tag, c.detalhe)}${c.detalhe && c.detalhe.rodadaSobra !== undefined ? ` (sobra ${c.detalhe.rodadaSobra} de ${c.detalhe.totalSobrasCargo})` : ""}" style="cursor:help;">E-M</span>`);
         return cardCandidato(`
-          <div class="pc-sen-l1" style="flex-wrap:wrap; row-gap:4px;">
-            <span class="pc-sen-chip" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">ELEITO</span>
+          <div class="pc-sen-l1">
+            ${badgeRev}
             <span class="pc-sen-nm pc-rev-nm">${c.nome}</span>
-            ${c.tag === "média" && c.detalhe.rodadaSobra !== undefined ? `<span class="pc-sen-chip sobra" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">SOBRA · ${c.detalhe.rodadaSobra}/${c.detalhe.totalSobrasCargo}</span>` : ""}
             <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:14px; font-weight:800; text-align:right; flex-shrink:0; padding:8px 6px;">
           </div>
           <div class="pc-sen-sub">${c.posicaoEleicao}º · ${c.partido}</div>
@@ -9662,17 +9682,20 @@ function renderRevisaoDeposito() {
         </div>` : "";
 
       return cardCandidato(`
-        <div class="pc-sen-l1" style="flex-wrap:wrap; row-gap:4px;">
+        <div class="pc-sen-l1">
           <span class="pc-sen-nm pc-rev-nm">${c.nome}</span>
           <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:14px; font-weight:800; text-align:right; flex-shrink:0; padding:8px 6px;">
         </div>
         <div class="pc-sen-sub">${c.partido}</div>
         ${c.consistenteComMatematicaReal ? `
-        <div style="margin-top:12px; padding:10px 12px; background:rgba(198,230,42,.1); border:1px solid rgba(198,230,42,.3); border-radius:10px; display:flex; gap:8px; align-items:flex-start;">
-          <span style="color:var(--pc-warning); font-size:13px; flex-shrink:0;">${iconeSvg("alerta", 13)}</span>
-          <span style="font-size:11.5px; color:var(--pc-warning); line-height:1.5;">${cargoDef.id === "senador"
-            ? `A votação de hoje indica que ${c.nome} estaria entre os mais votados (eleição majoritária, voto direto) — mas não está no seu palpite. Fica valendo sua escolha; isso é só um aviso.`
-            : `A matemática real (quociente + sobra) indica que ${c.nome} garantiria vaga com a votação de hoje — mas não está no seu palpite. Fica valendo sua escolha; isso é só um aviso.`}</span>
+        <div style="margin-top:12px; padding:10px 12px; background:rgba(198,230,42,.1); border:1px solid rgba(198,230,42,.3); border-radius:10px;">
+          <div style="display:flex; gap:8px; align-items:flex-start;">
+            <span style="color:var(--pc-warning); font-size:13px; flex-shrink:0;">${iconeSvg("alerta", 13)}</span>
+            <span style="font-size:11.5px; color:var(--pc-warning); line-height:1.5;">${cargoDef.id === "senador"
+              ? `A votação de hoje indica que ${c.nome} estaria entre os mais votados (eleição majoritária, voto direto) — mas não está no seu palpite.`
+              : `A matemática real (quociente + sobra) indica que ${c.nome} garantiria vaga com a votação de hoje — mas não está no seu palpite.`}${perdedorAjuste ? ` Pela regra, quem perderia a vaga é <b>${perdedorAjuste.nome}</b> (${perdedorAjuste.partido}).` : ""} Fica valendo sua escolha; isso é só um aviso.</span>
+          </div>
+          ${perdedorAjuste ? `<button data-pc-aceitar-ajuste="${escaparAtributoHtml(cargoDef.id + "::" + c.chave + "::" + perdedorAjuste.chave)}" style="margin-top:10px; width:100%; display:flex; align-items:center; justify-content:center; gap:7px; font-size:12px; font-weight:700; border-radius:9px; padding:9px 10px; background:rgba(198,230,42,.14); border:1px solid rgba(198,230,42,.45); color:var(--pc-warning); cursor:pointer; font-family:var(--sans);">Aceitar o ajuste — eleger ${c.nome} no lugar de ${perdedorAjuste.nome}</button>` : ""}
         </div>` : `
         ${menuMagico}
         ${legendaFaltam ? `<div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--pc-ink-dim); margin-top:8px;">
@@ -9740,7 +9763,7 @@ function renderRevisaoDeposito() {
         <div class="pc-acc-body">
           ${listaExibida.length < listaCompleta.length ? `<div style="font-size:10.5px; color:var(--pc-ink-dim); margin-bottom:10px;">Mostrando os eleitos + ${listaExibida.length - totalEleitos} mais votados entre quem não elegeu (${listaCompleta.length - listaExibida.length} candidato${listaCompleta.length - listaExibida.length === 1 ? "" : "s"} com menos voto ficaram de fora dessa lista).</div>` : ""}
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-            ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" class="ghost" style="display:flex; align-items:center; justify-content:center; gap:8px; flex:1; font-size:12.5px; border-radius:10px; padding:9px 10px;">Disputa das sobras</button>` : `<span style="flex:1;"></span>`}
+            ${disputaSobra && disputaSobra.rodadas.length > 0 ? `<button data-pc-abrir-disputa-sobra="${cargoDef.id}" style="display:flex; align-items:center; justify-content:center; gap:8px; flex:1; font-size:12.5px; font-weight:700; border-radius:10px; padding:10px; background:rgba(52,232,74,.08); border:1px solid rgba(52,232,74,.45); color:var(--pc-accent); cursor:pointer; font-family:var(--sans);"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M3 13V8M8 13V3M13 13v-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>Ver a disputa das sobras<svg viewBox="0 0 16 16" width="11" height="11"><path d="M5.5 3.5l5 4.5-5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>` : `<span style="flex:1;"></span>`}
             ${filtroAgrupado}
           </div>
           ${linhas}
@@ -9988,6 +10011,32 @@ function renderRevisaoDeposito() {
       e.stopPropagation();
       const chave = btn.getAttribute("data-pc-abrir-magico");
       pcState.menuMagicoAberto = pcState.menuMagicoAberto === chave ? null : chave;
+      renderRevisaoDeposito();
+    });
+  });
+  // "Aceitar o ajuste" do aviso de matemática real (teste mobile
+  // 28/08/2026): troca a marcação — o candidato que a regra elegeria
+  // ganha o selo, quem a regra derrubaria perde. Só mexe em marcadoEleito
+  // (nunca nos votos); o re-render recalcula tudo a partir da marcação.
+  document.querySelectorAll("[data-pc-aceitar-ajuste]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const partes = btn.getAttribute("data-pc-aceitar-ajuste").split("::");
+      const cargoId = partes[0], chaveGanha = partes[1], chavePerde = partes[2];
+      const lista = pcState.palpitesPorCargo[cargoId];
+      if (!lista) return;
+      const achar = (chave) => {
+        for (const g of lista) {
+          const c = g.candidatos.find((cc) => cc.chave === chave);
+          if (c) return c;
+        }
+        return null;
+      };
+      const ganha = achar(chaveGanha), perde = achar(chavePerde);
+      if (!ganha || !perde) return;
+      perde.marcadoEleito = false;
+      ganha.marcadoEleito = true;
+      if (pcState.cargoAtivo === cargoId) pcState.palpiteEdicao = lista;
+      agendarAutoSaveRascunho(cargoId, lista);
       renderRevisaoDeposito();
     });
   });

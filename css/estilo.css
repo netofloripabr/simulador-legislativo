@@ -1208,10 +1208,14 @@
 }
 #modoColaborativoWrap .pc-ml-inf.aberto{ color:var(--pc-accent); border-color:rgba(52,232,74,.4); }
 
-/* Nome de candidato na Revisão — mesma régua responsiva dos cards do
-   palpite (21/08/2026): escala com a tela, teto igual ao aprovado. */
+/* Nome de candidato na Revisão — padrão do card da tela de palpite
+   (teste mobile 28/08/2026): mesma régua responsiva REDUZIDA do
+   .pc-dep-cnm, uma linha só com reticências, nunca quebra — era o que
+   cortava "Carla Enferm..." sem sobrar espaço no celular. */
 #modoColaborativoWrap .pc-rev-nm{
-  font-size:clamp(15.5px, 3vw, 24.5px); font-weight:750; line-height:1.15;
+  font-size:clamp(14px, 2.4vw, 19.5px); font-weight:750; line-height:1.25;
+  flex:1 1 0; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block;
 }
 /* ===== Abas de Deputado — modelo fader (console A3 + cards aninhados) =====
    Protótipo aprovado em 17/08/2026 (memória alesc-deputados-prototipo-
@@ -1535,16 +1539,19 @@
 
 
 /* ===== Card de partido — design final 17/08 (5 linhas, alça-lâmina A1.3) ===== */
+/* Stepper maior (teste mobile do usuário, 28/08/2026: "+/− mais
+   destacados para o clique em versão mobile") — alvos de toque de
+   ~34x34px (mínimo confortável de dedo) e sinais maiores/mais claros. */
 #modoColaborativoWrap .pc-dep-stepper{
   display:flex; align-items:center; flex:none;
-  background:#2C3239; border:1px solid #4D545C; border-radius:7px; overflow:hidden;
+  background:#2C3239; border:1px solid #4D545C; border-radius:9px; overflow:hidden;
 }
 #modoColaborativoWrap .pc-dep-stepper button{
-  width:24px; height:26px; border:none; background:transparent; color:#AEB5BB;
-  font-size:13px; cursor:pointer; padding:0; font-family:var(--sans);
+  width:34px; height:34px; border:none; background:transparent; color:#E4E7EA;
+  font-size:18px; font-weight:700; cursor:pointer; padding:0; font-family:var(--sans);
 }
 #modoColaborativoWrap .pc-dep-stepper span{
-  min-width:26px; text-align:center; font-size:14px; font-weight:750;
+  min-width:30px; text-align:center; font-size:16px; font-weight:750;
   color:#F2F4F5; font-variant-numeric:tabular-nums;
 }
 #modoColaborativoWrap .pc-dep-regua{ position:relative; height:8px; margin-top:9px; }
@@ -1616,12 +1623,15 @@
    (com a borda) aparece/desaparece por cima dela — ver DESIGN.md. Mesmo
    centro horizontal (50% da tela) que a coluna de conteúdo (max-width:640px
    das telas comuns), então continua alinhada mesmo em tela larga (web). */
+/* bottom:8px (era 16) + alça 51px (era 34, +50%) — teste mobile do
+   usuário, 28/08/2026: a alça ficava alta demais em relação à barra do
+   navegador do celular; safe-area preserva quem tem home indicator. */
 #modoColaborativoWrap .pc-menufixo-wrap{
-  position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+  position:fixed; left:50%; bottom:calc(8px + env(safe-area-inset-bottom, 0px)); transform:translateX(-50%);
   z-index:40; display:flex; flex-direction:column; align-items:center;
 }
 #modoColaborativoWrap .pc-menufixo-grip{
-  width:34px; height:4px; border-radius:999px; background:#5F6368; border:none; padding:0;
+  width:51px; height:4px; border-radius:999px; background:#5F6368; border:none; padding:0;
   cursor:pointer; flex-shrink:0; margin-bottom:10px;
   transition:background-color .5s ease;
 }
