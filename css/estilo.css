@@ -1687,8 +1687,16 @@
 
 /* Referência histórica na linha do candidato (pedido de 18/08/2026): a
    votação real de 2022 de quem disputou, no tom apagado da identidade. */
+/* Caixinha VAZADA (só contorno, sem preenchimento) alinhada com o início
+   do BADGE (E-QP/E-M), não com a borda do card — pedido do usuário,
+   28/08/2026, depois de ver o protótipo com o alinhamento errado (batendo
+   com o nome, depois batendo cedo demais). margin-left = largura mínima
+   da posição (17px) + gap da linha (6px). */
 #modoColaborativoWrap .pc-dep-c2022{
-  font-size:12px; color:#6E757C; margin:0 0 1px; font-variant-numeric:tabular-nums;
+  display:inline-block; width:fit-content;
+  font-size:11px; color:#8A9096; font-variant-numeric:tabular-nums;
+  border:1px solid #2B2F33; border-radius:6px; padding:3px 8px;
+  margin:6px 0 0 26px;
 }
 
 /* Bolinha do interruptor: verde vivo quando o cargo está COMPLETO
