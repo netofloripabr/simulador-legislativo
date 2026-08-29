@@ -306,3 +306,12 @@ async function completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito, cep, mun
   localStorage.removeItem("sl_convite_pendente");
   return { data };
 }
+
+// Aba "Analítico" do painel admin (migração 37, 28/08/2026): todas as
+// agregações do nível Sistema num round-trip só. incluirBots=false é o
+// padrão — mostra o "sistema de verdade", sem as contas fictícias.
+async function adminAnalitico(incluirBots) {
+  const { data, error } = await supabaseClient.rpc("admin_analitico", { p_incluir_bots: !!incluirBots });
+  if (error) { console.error("Erro no analítico:", error); return null; }
+  return data;
+}

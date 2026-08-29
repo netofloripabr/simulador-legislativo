@@ -30,6 +30,7 @@ let pcState = {
   adminSecao: "usuarios", // qual aba do Painel Admin está ativa
   adminBotsEstado: "SC", // UF selecionada na aba Bots do admin (lançamento é SC-only, decisão 28/08/2026)
   adminBotsStatus: null, // feedback da última ação da aba Bots ({tipo:"ok"|"erro", texto})
+  adminAnaliticoIncluiBots: false, // aba Analítico: false = só contas reais (o "sistema de verdade", padrão da estruturação 28/08/2026)
   adminPesquisaFiltro: null, // { genero, uf } — último filtro usado na seção "Pesquisa" do admin
   adminPesquisaResultados: null, // cache do resultado de adminPesquisaAgregada()
   adminPesquisaCargo: "estadual", // qual cargo a seção "Pesquisa" do admin está mostrando
@@ -2822,6 +2823,111 @@ async function montarAdminBots() {
     <div style="font-size:10.5px; color:var(--pc-ink-faint); line-height:1.5; margin-top:8px;">Cada cédula real depositada desativa 1 bot da média pública (do índice mais alto pro mais baixo) — com o tempo, os usuários de verdade assumem a média sozinhos.</div>`;
 }
 
+// ---------- Aba Analítico, nível Sistema (migração 37, 28/08/2026) ----------
+// Leitura de tendência do sistema com gráficos em SVG puro (sem biblioteca
+// — o site é estático), no padrão Fader: grafite de base, verde só no
+// destaque. Complementa Usuários/Financeiro (listas operacionais); o
+// nível Usuário (busca individual + ponte com o "ver como") fica pra
+// terceira etapa da estruturação.
+async function montarAdminAnalitico() {
+  const d = await adminAnalitico(pcState.adminAnaliticoIncluiBots);
+  if (!d) return `<div class="pc-sub">Não consegui carregar o analítico — a migração 37 já foi rodada no Supabase?</div>`;
+
+  const cartao = (valor, label, cor) => `
+    <div class="pc-metric" style="text-align:center;">
+      <div style="font-size:22px; font-weight:800; color:${cor || "var(--pc-ink)"};">${valor}</div>
+      <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">${label}</div>
+    </div>`;
+
+  // Linha de novos usuários por dia (30 dias) — preenche os dias sem
+  // cadastro com zero pra linha não "pular" buracos do calendário.
+  const porDiaBruto = {};
+  (d.usuarios_por_dia || []).forEach((p) => { porDiaBruto[p.dia] = Number(p.n) || 0; });
+  const serie = [];
+  for (let i = 29; i >= 0; i--) {
+    const dia = new Date(Date.now() - i * 86400000);
+    const chave = dia.toISOString().slice(0, 10);
+    serie.push({ chave, n: porDiaBruto[chave] || 0 });
+  }
+  const maxSerie = Math.max(1, ...serie.map((p) => p.n));
+  const W = 300, H = 72, PAD = 4;
+  const pontos = serie.map((p, i) => {
+    const x = PAD + (i / (serie.length - 1)) * (W - PAD * 2);
+    const y = H - PAD - (p.n / maxSerie) * (H - PAD * 2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const linhaSvg = `
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;" preserveAspectRatio="none">
+      <line x1="${PAD}" y1="${H - PAD}" x2="${W - PAD}" y2="${H - PAD}" stroke="#26292D" stroke-width="1"></line>
+      <polyline points="${pontos.join(" ")}" fill="none" stroke="#34E84A" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></polyline>
+      <circle cx="${pontos[pontos.length - 1].split(",")[0]}" cy="${pontos[pontos.length - 1].split(",")[1]}" r="2.6" fill="#34E84A"></circle>
+    </svg>`;
+
+  // Barras: cédulas por cargo.
+  const cargosRot = { estadual: "Dep. Estadual", federal: "Dep. Federal", senador: "Senador" };
+  const porCargo = ["estadual", "federal", "senador"].map((cg) => {
+    const item = (d.cedulas_por_cargo || []).find((c) => c.cargo === cg);
+    return { rot: cargosRot[cg], n: item ? Number(item.n) : 0 };
+  });
+  const maxCargo = Math.max(1, ...porCargo.map((c) => c.n));
+  const barrasCargo = porCargo.map((c) => `
+    <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+      <span style="flex:none; width:86px; font-size:10.5px; color:var(--pc-ink-dim); text-align:right;">${c.rot}</span>
+      <div style="flex:1; height:12px; background:#0C0E10; border:1px solid #23262A; border-radius:6px; overflow:hidden;">
+        <div style="width:${Math.round((c.n / maxCargo) * 100)}%; height:100%; background:linear-gradient(90deg, rgba(42,46,50,.75), rgba(60,65,70,.97));"></div>
+      </div>
+      <span style="flex:none; min-width:30px; font-size:11px; font-weight:700; color:var(--pc-ink); font-variant-numeric:tabular-nums;">${c.n.toLocaleString("pt-BR")}</span>
+    </div>`).join("");
+
+  // Funil cadastrou → preencheu → depositou (proporções sobre o 1º degrau).
+  const funil = [
+    { rot: "Cadastraram", n: Number(d.funil_cadastraram) || 0 },
+    { rot: "Preencheram palpite", n: Number(d.funil_preencheram) || 0 },
+    { rot: "Depositaram cédula", n: Number(d.funil_depositaram) || 0 },
+  ];
+  const baseFunil = Math.max(1, funil[0].n);
+  const funilHtml = funil.map((f, i) => `
+    <div style="display:flex; align-items:center; gap:8px; margin-top:6px;">
+      <span style="flex:none; width:120px; font-size:10.5px; color:var(--pc-ink-dim); text-align:right;">${f.rot}</span>
+      <div style="flex:1; height:14px; background:#0C0E10; border:1px solid #23262A; border-radius:7px; overflow:hidden;">
+        <div style="width:${Math.round((f.n / baseFunil) * 100)}%; height:100%; background:${i === funil.length - 1 ? "rgba(52,232,74,.55)" : "linear-gradient(90deg, rgba(42,46,50,.75), rgba(60,65,70,.97))"};"></div>
+      </div>
+      <span style="flex:none; min-width:52px; font-size:11px; font-weight:700; color:var(--pc-ink); font-variant-numeric:tabular-nums;">${f.n.toLocaleString("pt-BR")} <span style="color:var(--pc-ink-faint); font-weight:600;">(${Math.round((f.n / baseFunil) * 100)}%)</span></span>
+    </div>`).join("");
+
+  const estadosTxt = (d.cedulas_por_estado || []).slice(0, 8).map((e) => `${e.estado} ${Number(e.n).toLocaleString("pt-BR")}`).join(" · ");
+
+  return `
+    <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin-bottom:14px; cursor:pointer;">
+      <input type="checkbox" id="pcAdminAnaliticoBots" ${pcState.adminAnaliticoIncluiBots ? "checked" : ""} style="width:16px; height:16px; accent-color:var(--pc-accent);">
+      Incluir bots nos números <span style="color:var(--pc-ink-faint);">(desligado = só contas reais)</span>
+    </label>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      ${cartao(Number(d.usuarios_total).toLocaleString("pt-BR"), `usuários (+${Number(d.usuarios_7d).toLocaleString("pt-BR")} na semana)`, "var(--pc-accent)")}
+      ${cartao(Number(d.cedulas_total).toLocaleString("pt-BR"), "cédulas depositadas")}
+      ${cartao(`${Number(d.desafios_criados).toLocaleString("pt-BR")} / ${Number(d.desafios_selados).toLocaleString("pt-BR")}`, "desafios criados / selados")}
+      ${cartao(`${Number(d.sl_creditados).toLocaleString("pt-BR")} / ${Number(d.sl_gastos).toLocaleString("pt-BR")}`, "SL creditados / gastos")}
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Novos usuários por dia — 30 dias</div>
+    <div class="glass-card" style="padding:14px;">${linhaSvg}</div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Cédulas por cargo</div>
+    <div class="glass-card" style="padding:14px;">${barrasCargo}
+      ${estadosTxt ? `<div style="font-size:10.5px; color:var(--pc-ink-faint); margin-top:10px; border-top:1px solid var(--pc-glass-border); padding-top:8px;">Por estado: ${estadosTxt}</div>` : ""}
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Funil</div>
+    <div class="glass-card" style="padding:14px;">${funilHtml}</div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Engajamento</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      ${cartao(Number(d.revelacoes_termometro).toLocaleString("pt-BR"), "revelações no Termômetro")}
+      ${cartao(Number(d.desafios_criados).toLocaleString("pt-BR"), "desafios 1×1 criados")}
+    </div>`;
+}
+
 async function renderAdminPainel() {
   const el = document.getElementById("pcConteudo");
   el.innerHTML = telaCarregando("Carregando painel do administrador…");
@@ -2846,6 +2952,7 @@ async function renderAdminPainel() {
     { id: "financeiro", label: "Financeiro" },
     { id: "rotinas", label: "Rotinas" },
     { id: "bots", label: "Bots" },
+    { id: "analitico", label: "Analítico" },
   ];
   const botoesSecao = secoes.map((s) => `<button data-pc-admin-secao="${s.id}" class="${pcState.adminSecao === s.id ? "active" : ""}">${s.label}</button>`).join("");
 
@@ -2855,6 +2962,7 @@ async function renderAdminPainel() {
   else if (pcState.adminSecao === "pesquisa") conteudoSecao = await montarAdminPesquisa();
   else if (pcState.adminSecao === "financeiro") conteudoSecao = await montarAdminFinanceiro();
   else if (pcState.adminSecao === "bots") conteudoSecao = await montarAdminBots();
+  else if (pcState.adminSecao === "analitico") conteudoSecao = await montarAdminAnalitico();
   else conteudoSecao = await montarAdminRotinas();
 
   el.innerHTML = `
@@ -2954,6 +3062,13 @@ async function renderAdminPainel() {
       if (!window.confirm(`Marcar pedido de geração dos bots de ${uf}?\n\nAs contas em si são criadas rodando ferramentas/gerar_usuarios_ficticios.py no computador — o pedido fica registrado aqui até o script concluir.`)) return;
       const ok = await botsSolicitarGeracao(uf);
       pcState.adminBotsStatus = ok ? { tipo: "ok", texto: `Pedido de geração de ${uf} registrado — agora rode o script no computador.` } : { tipo: "erro", texto: "Não consegui registrar o pedido." };
+      renderAdminPainel();
+    });
+  }
+  if (pcState.adminSecao === "analitico") {
+    const chkBots = document.getElementById("pcAdminAnaliticoBots");
+    if (chkBots) chkBots.addEventListener("change", () => {
+      pcState.adminAnaliticoIncluiBots = chkBots.checked;
       renderAdminPainel();
     });
   }
