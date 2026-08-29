@@ -5864,10 +5864,14 @@ function renderListaSenador(totalVagas, E) {
       </div>
       <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
       ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
-      <div class="pc-sen-slider" data-sen-idx="${it.idx}">
-        <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${Math.min(100, pctBarra)}%"></div></div>
-        <div class="pc-sen-votos"></div>
-        <div class="pc-sen-grip" style="left:${Math.min(100, pctBarra)}%"></div>
+      <div class="pc-fader-linha">
+        ${setaFinoHtml("data-pc-seta-sen", String(it.idx), "menos")}
+        <div class="pc-sen-slider" data-sen-idx="${it.idx}">
+          <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${Math.min(100, pctBarra)}%"></div></div>
+          <div class="pc-sen-votos"></div>
+          <div class="pc-sen-grip" style="left:${Math.min(100, pctBarra)}%"></div>
+        </div>
+        ${setaFinoHtml("data-pc-seta-sen", String(it.idx), "mais")}
       </div>
     </div>`;
   }).join("");
@@ -5952,6 +5956,43 @@ function attachListenersSenador(E) {
   });
 
   const somaOutrosDe = (idx) => _senItens.reduce((s, it, i) => i === idx ? s : s + (Number(it.c.votos) || 0), 0);
+
+  // Setas de ajuste fino nas pontas da barra (protótipo aprovado
+  // 28/08/2026) — mesmo comportamento das setas de Deputados.
+  document.querySelectorAll("[data-pc-seta-sen]").forEach((btn) => {
+    const partes = btn.dataset.pcSetaSen.split("|"); // idx|dir
+    const idxSeta = +partes[0];
+    const delta = partes[1] === "mais" ? 1 : -1;
+    const passo = Math.max(1, Math.round(E * 0.01));
+    let timerRep = null, intRep = null, mexeu = false;
+    const aplicarPasso = () => {
+      const c = _senItens[idxSeta] && _senItens[idxSeta].c;
+      if (!c) return;
+      c.votos = fmdTravaIndividual((Number(c.votos) || 0) + delta * passo, E, TETO, somaOutrosDe(idxSeta));
+      c.votosEditado = true;
+      atualizarCardSenador(idxSeta, E);
+      atualizarPainelSenador(E);
+      mexeu = true;
+    };
+    btn.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      if (_senEditAberto) return;
+      // Re-render pendente do gesto anterior (450ms) destruiria este botão
+      // no meio do "segurar" — cancela; o release reagenda via
+      // concluirGestoSenador().
+      clearTimeout(_senTimer);
+      snapshotPalpite();
+      aplicarPasso();
+      timerRep = setTimeout(() => { intRep = setInterval(aplicarPasso, 90); }, 420);
+    });
+    const soltarSeta = () => {
+      clearTimeout(timerRep); clearInterval(intRep);
+      if (mexeu) { mexeu = false; concluirGestoSenador(); }
+    };
+    btn.addEventListener("pointerup", soltarSeta);
+    btn.addEventListener("pointerleave", soltarSeta);
+    btn.addEventListener("pointercancel", soltarSeta);
+  });
 
   document.querySelectorAll(".pc-sen-slider").forEach((el) => {
     const idx = Number(el.dataset.senIdx);
@@ -6139,13 +6180,26 @@ function somaVotosCargo() {
 
 // Fader reutilizando as classes pc-sen-* (mesma família visual §8.2);
 // "mini" reduz barra e alça pros candidatos aninhados.
+// Glifos das setas de ajuste fino (protótipo aprovado 28/08/2026).
+function setaFinoHtml(dataAttr, valor, dir) {
+  const glifo = dir === "menos"
+    ? '<path d="M10.5 3.5L5.5 8l5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>'
+    : '<path d="M5.5 3.5l5 4.5-5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>';
+  const titulo = dir === "menos" ? "Diminuir votos" : "Aumentar votos";
+  return `<button type="button" class="pc-seta-fino" ${dataAttr}="${escaparAtributoHtml(valor)}|${dir}" title="${titulo}" aria-label="${titulo}"><svg viewBox="0 0 16 16" width="9" height="9">${glifo}</svg></button>`;
+}
+
 function faderDepHtml(chaveDrag, v, cap, mini) {
   const pct = Math.min(100, cap > 0 ? v / cap * 100 : 0);
   return `
-    <div class="pc-sen-slider${mini ? " pc-sen-slider-mini" : ""}" data-dep-fader="${escaparAtributoHtml(chaveDrag)}">
-      <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${pct}%"></div></div>
-      <div class="pc-sen-votos"></div>
-      <div class="pc-sen-grip" style="left:${pct}%"></div>
+    <div class="pc-fader-linha">
+      ${setaFinoHtml("data-pc-seta-dep", chaveDrag, "menos")}
+      <div class="pc-sen-slider${mini ? " pc-sen-slider-mini" : ""}" data-dep-fader="${escaparAtributoHtml(chaveDrag)}">
+        <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${pct}%"></div></div>
+        <div class="pc-sen-votos"></div>
+        <div class="pc-sen-grip" style="left:${pct}%"></div>
+      </div>
+      ${setaFinoHtml("data-pc-seta-dep", chaveDrag, "mais")}
     </div>`;
 }
 
@@ -6707,6 +6761,52 @@ function attachListenersDeputadosFader(E, totalVagas) {
     };
     sl.addEventListener("pointerup", soltar);
     sl.addEventListener("pointercancel", soltar);
+  });
+
+  // Setas de ajuste fino nas pontas da barra do candidato (protótipo
+  // aprovado 28/08/2026): clique dá um passo de 1% da régua; segurar
+  // repete (stepper estilo iOS). Fecha o gesto igual ao arrasto.
+  document.querySelectorAll("[data-pc-seta-dep]").forEach((btn) => {
+    const partes = btn.dataset.pcSetaDep.split("|"); // c|gi|chave|dir
+    if (partes[0] !== "c") return;
+    const giS = +partes[1];
+    const chaveC = partes[2];
+    const delta = partes[3] === "mais" ? 1 : -1;
+    const passo = Math.max(1, Math.round(capCand * 0.01));
+    let timerRep = null, intRep = null, mexeu = false;
+    const aplicarPasso = () => {
+      const c = candidatoDe(giS, chaveC);
+      if (!c) return;
+      const outros = somaVotosCargo() - (Number(c.votos) || 0);
+      c.votos = fmdTravaIndividual((Number(c.votos) || 0) + delta * passo, capCand, E, outros);
+      c.votosEditado = true;
+      const sl2 = document.querySelector('[data-dep-fader="c|' + giS + '|' + chaveC + '"]');
+      if (sl2) atualizarFaderDep(sl2, Number(c.votos) || 0, capCand, E);
+      const zoneP = document.querySelector('[data-dep-fader="p|' + giS + '"]');
+      if (zoneP) atualizarBarraPartidoDom(zoneP, somaVotosGrupo(pcState.palpiteEdicao[giS]));
+      atualizarHeaderDeputados(E);
+      mexeu = true;
+    };
+    btn.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      if (_depEditAberto) return;
+      // Re-renders pendentes de um gesto ANTERIOR (re-render de 150ms +
+      // reagrupamento de 1200ms) destruiriam este botão no meio do
+      // "segurar" e matariam a repetição — cancela os dois; o release
+      // reagenda tudo via concluirGestoDeputados().
+      clearTimeout(_depTimer);
+      clearTimeout(window._pcReordTimer);
+      snapshotPalpite();
+      aplicarPasso();
+      timerRep = setTimeout(() => { intRep = setInterval(aplicarPasso, 90); }, 420);
+    });
+    const soltarSeta = () => {
+      clearTimeout(timerRep); clearInterval(intRep);
+      if (mexeu) { mexeu = false; concluirGestoDeputados(); }
+    };
+    btn.addEventListener("pointerup", soltarSeta);
+    btn.addEventListener("pointerleave", soltarSeta);
+    btn.addEventListener("pointercancel", soltarSeta);
   });
 
   // Box de edição nominal (toque na plaqueta do partido ou no rótulo do

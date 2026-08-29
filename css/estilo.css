@@ -1061,8 +1061,11 @@
    com "votos" numa linha curta abaixo — caixa suave por trás do número
    diferencia do nome sem depender de cor. Clicável — toque abre a
    digitação direta (a barra embaixo perdeu o rótulo com número). */
+/* O rótulo "votos" fica FORA do fluxo (absoluto, pendurado embaixo) —
+   assim o NÚMERO centraliza na mesma linha horizontal do nome do
+   candidato, sem o rótulo empurrar ele pra cima (pedido 28/08/2026). */
 #modoColaborativoWrap .pc-sen-pct{
-  flex:none; align-self:center; display:flex; flex-direction:column; align-items:flex-end; gap:3px;
+  flex:none; position:relative; align-self:center; display:flex; align-items:center;
   cursor:pointer;
 }
 #modoColaborativoWrap .pc-sen-pct .valNum{
@@ -1070,7 +1073,10 @@
   background:rgba(242,244,245,.07); border:1px solid rgba(242,244,245,.1);
   border-radius:7px; padding:3px 8px;
 }
-#modoColaborativoWrap .pc-sen-pct .valRot{ font-size:9px; font-weight:650; color:#8A9096; line-height:1; }
+#modoColaborativoWrap .pc-sen-pct .valRot{
+  position:absolute; top:100%; right:2px; margin-top:3px;
+  font-size:9px; font-weight:650; color:#8A9096; line-height:1;
+}
 #modoColaborativoWrap .pc-sen-sub{ font-size:10.5px; color:#8A9096; margin-top:1px; }
 #modoColaborativoWrap .pc-sen-slider{
   position:relative; height:31px; margin-top:7px; cursor:pointer; touch-action:none;
@@ -1489,8 +1495,10 @@
 #modoColaborativoWrap .pc-dep-cnm .pc-dep-cnm-txt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 /* Número de votos na mesma linha do nome (no lugar de onde a % ficava),
    "votos" numa linha curta abaixo, caixa suave por trás do número. */
+/* Mesmo tratamento do Senador: "votos" absoluto embaixo, número
+   centralizado na linha do nome (pedido 28/08/2026). */
 #modoColaborativoWrap .pc-dep-cpct{
-  flex:none; align-self:center; display:flex; flex-direction:column; align-items:flex-end; gap:3px;
+  flex:none; position:relative; align-self:center; display:flex; align-items:center;
   cursor:pointer;
 }
 #modoColaborativoWrap .pc-dep-cpct .valNum{
@@ -1499,7 +1507,10 @@
   background:rgba(242,244,245,.07); border:1px solid rgba(242,244,245,.1);
   border-radius:7px; padding:3px 8px;
 }
-#modoColaborativoWrap .pc-dep-cpct .valRot{ font-size:9px; font-weight:650; color:#8A9096; line-height:1; }
+#modoColaborativoWrap .pc-dep-cpct .valRot{
+  position:absolute; top:100%; right:2px; margin-top:3px;
+  font-size:9px; font-weight:650; color:#8A9096; line-height:1;
+}
 /* Fontes/barra do fader do candidato +20% (pedido do usuário 26/08/2026:
    "quando abre no celular fica pequeno demais"). */
 #modoColaborativoWrap .pc-sen-slider-mini{ height:30px; margin-top:3px; }
@@ -1507,6 +1518,20 @@
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-ticks{ top:2px; bottom:2px; }
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-grip{ width:11px; height:24px; border-radius:5px; }
 #modoColaborativoWrap .pc-sen-slider-mini .pc-sen-votos{ font-size:11px; }
+/* ===== Setas de ajuste fino nas pontas da barra (protótipo aprovado
+   28/08/2026): botãozinho circular o mais delicado possível — borda de
+   1px quase invisível, glifo no tom apagado da régua. Clique dá um passo
+   pequeno na votação; segurar repete (stepper estilo iOS). ===== */
+#modoColaborativoWrap .pc-fader-linha{ display:flex; align-items:center; gap:7px; margin-top:7px; }
+#modoColaborativoWrap .pc-fader-linha .pc-sen-slider{ margin-top:0; flex:1 1 0; min-width:0; }
+#modoColaborativoWrap .pc-seta-fino{
+  flex:none; width:20px; height:20px; border-radius:50%;
+  background:transparent; border:1px solid #26292D;
+  color:#6E757C; padding:0; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center;
+}
+#modoColaborativoWrap .pc-seta-fino:hover{ border-color:#3A3F45; color:#AEB5BB; }
+#modoColaborativoWrap .pc-seta-fino svg{ display:block; }
 
 
 /* ===== Card de partido — design final 17/08 (5 linhas, alça-lâmina A1.3) ===== */
