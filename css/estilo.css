@@ -1004,25 +1004,44 @@
   display:flex; justify-content:space-between; gap:8px;
   font-size:9.5px; color:#5C6268; font-variant-numeric:tabular-nums; margin-top:1px;
 }
+/* Borda esquerda SEMPRE presente (cinza) — só a COR muda pra verde
+   discreto quando o candidato foi preenchido à mão (votosEditado=true),
+   não pelo mágico/auto-preenchimento (protótipo aprovado 28/08/2026). */
 #modoColaborativoWrap .pc-sen-card{
-  background:rgba(29,32,35,.85); border:1px solid #23262A; border-radius:12px;
-  padding:10px 12px 12px; margin-bottom:8px;
+  background:rgba(29,32,35,.85); border:1px solid #23262A; border-left:2.5px solid #3A3F45;
+  border-radius:12px; padding:10px 12px 12px; margin-bottom:8px;
 }
-#modoColaborativoWrap .pc-sen-card.eleito{ border-color:rgba(242,244,245,.18); }
-#modoColaborativoWrap .pc-sen-l1{ display:flex; align-items:center; gap:7px; }
+#modoColaborativoWrap .pc-sen-card.eleito{ border-color:rgba(242,244,245,.18); border-left-color:#3A3F45; }
+#modoColaborativoWrap .pc-sen-card.manual{ border-left-color:rgba(52,232,74,.38); }
+#modoColaborativoWrap .pc-sen-card.eleito.manual{ border-left-color:rgba(52,232,74,.38); }
+#modoColaborativoWrap .pc-sen-l1{ display:flex; align-items:flex-start; gap:7px; }
+/* Selo (ELEITO/SOBRA/FORA) desce pra debaixo do nome, alinhado à
+   esquerda — não disputa mais largura na mesma linha do nome. */
 #modoColaborativoWrap .pc-sen-chip{
-  flex:none; background:#34E84A; color:#07230C; border-radius:4px;
-  font-size:9px; font-weight:800; letter-spacing:.08em; padding:2px 5px;
+  display:block; width:fit-content; background:#34E84A; color:#07230C; border-radius:4px;
+  font-size:9px; font-weight:800; letter-spacing:.08em; padding:2px 5px; margin-top:4px;
 }
+#modoColaborativoWrap .pc-sen-nmcol{ flex:1; min-width:0; }
+/* Nome corta com reticências numa linha só (antes quebrava em várias —
+   pedido do usuário, 28/08/2026, testando nome grande no protótipo). */
 #modoColaborativoWrap .pc-sen-nm{
-  flex:1; min-width:0; font-size:14.5px; font-weight:650; color:#F2F4F5;
-  overflow-wrap:anywhere;
+  font-size:13px; font-weight:650; color:#F2F4F5; line-height:1.25;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  display:flex; align-items:center; gap:5px;
 }
+#modoColaborativoWrap .pc-sen-nm .pc-sen-nm-txt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* Número de votos na mesma linha do nome (no lugar de onde a % ficava),
+   com "votos" numa linha curta abaixo — caixa suave por trás do número
+   diferencia do nome sem depender de cor. */
 #modoColaborativoWrap .pc-sen-pct{
-  flex:none; font-size:22px; font-weight:750; color:#F2F4F5;
-  font-variant-numeric:tabular-nums; line-height:1;
+  flex:none; align-self:center; display:flex; flex-direction:column; align-items:flex-end; gap:3px;
 }
-#modoColaborativoWrap .pc-sen-pct small{ font-size:11px; font-weight:650; color:#8A9096; }
+#modoColaborativoWrap .pc-sen-pct .valNum{
+  font-size:16px; font-weight:800; color:#F2F4F5; font-variant-numeric:tabular-nums; line-height:1;
+  background:rgba(242,244,245,.07); border:1px solid rgba(242,244,245,.1);
+  border-radius:7px; padding:3px 8px;
+}
+#modoColaborativoWrap .pc-sen-pct .valRot{ font-size:9px; font-weight:650; color:#8A9096; line-height:1; }
 #modoColaborativoWrap .pc-sen-sub{ font-size:10.5px; color:#8A9096; margin-top:1px; }
 #modoColaborativoWrap .pc-sen-slider{
   position:relative; height:31px; margin-top:7px; cursor:pointer; touch-action:none;
@@ -1404,26 +1423,48 @@
 /* Referência de votação real de 2022 do partido — mais apagada que a
    meta (é contexto, não uma exigência), pedido do usuário 25/08/2026. */
 #modoColaborativoWrap .pc-dep-meta2-2022{ color:#5C6268; font-size:9.5px; padding-right:2px; }
-#modoColaborativoWrap .pc-dep-crow{ padding:14px 0 10px; border-top:1px solid #1E2226; }
-#modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:6px; }
+/* Borda esquerda SEMPRE presente (cinza) — só a COR muda pra verde
+   discreto quando o candidato foi preenchido à mão (votosEditado=true),
+   não pelo mágico/auto-preenchimento (protótipo aprovado 28/08/2026). */
+#modoColaborativoWrap .pc-dep-crow{
+  padding:14px 0 10px 10px; margin-left:-10px; border-top:1px solid #1E2226;
+  border-left:2.5px solid #3A3F45;
+}
+#modoColaborativoWrap .pc-dep-crow.manual{ border-left-color:rgba(52,232,74,.38); }
+#modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:flex-start; gap:6px; }
 /* Posição na lista do partido (pedido do usuário, 24/08/2026) — discreto,
    por isso o mesmo tom apagado da referência "2022:" e não um chip. */
 #modoColaborativoWrap .pc-dep-pos{
   flex:none; font-size:10.5px; color:#6E757C; font-variant-numeric:tabular-nums;
-  min-width:17px;
+  min-width:17px; padding-top:3px;
 }
+#modoColaborativoWrap .pc-dep-nmcol{ flex:1; min-width:0; }
+/* Selo (ELEITO/SOBRA/FORA/etc, classe .pc-sen-chip reaproveitada) desce
+   pra debaixo do nome, alinhado à esquerda — ver regra em .pc-sen-chip. */
+#modoColaborativoWrap .pc-dep-nmcol .pc-sen-chip{ margin-top:5px; }
 #modoColaborativoWrap .pc-dep-cnm{
-  /* Fonte RESPONSIVA (pedido 20/08): ~3% da largura da tela — a mesma
-     proporção da referência aprovada (24,5px numa tela de ~810px) — com
-     piso de 15,5px (legibilidade) e teto de 24,5px. */
-  flex:1; min-width:0; font-size:clamp(15.5px, 3vw, 24.5px); font-weight:750;
-  color:#F2F4F5; line-height:1.15; overflow-wrap:anywhere;
+  /* Fonte RESPONSIVA (pedido 20/08), reduzida (pedido 28/08/2026: "o
+     espaço do nome pode ficar um pouco menor") — mesma proporção de
+     antes, só com teto/piso menores. Corta com reticências numa linha
+     só (antes quebrava em várias — pedido 28/08/2026 testando nome
+     grande no protótipo). */
+  font-size:clamp(14px, 2.4vw, 19.5px); font-weight:750;
+  color:#F2F4F5; line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  display:flex; align-items:center; gap:5px;
 }
+#modoColaborativoWrap .pc-dep-cnm .pc-dep-cnm-txt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+/* Número de votos na mesma linha do nome (no lugar de onde a % ficava),
+   "votos" numa linha curta abaixo, caixa suave por trás do número. */
 #modoColaborativoWrap .pc-dep-cpct{
-  flex:none; font-size:clamp(14px, 2.5vw, 20px); font-weight:800; color:#F2F4F5;
-  font-variant-numeric:tabular-nums; line-height:1;
+  flex:none; align-self:center; display:flex; flex-direction:column; align-items:flex-end; gap:3px;
 }
-#modoColaborativoWrap .pc-dep-cpct small{ font-size:9px; font-weight:650; color:#8A9096; }
+#modoColaborativoWrap .pc-dep-cpct .valNum{
+  font-size:clamp(13px, 2.2vw, 17px); font-weight:800; color:#F2F4F5;
+  font-variant-numeric:tabular-nums; line-height:1;
+  background:rgba(242,244,245,.07); border:1px solid rgba(242,244,245,.1);
+  border-radius:7px; padding:3px 8px;
+}
+#modoColaborativoWrap .pc-dep-cpct .valRot{ font-size:9px; font-weight:650; color:#8A9096; line-height:1; }
 /* Fontes/barra do fader do candidato +20% (pedido do usuário 26/08/2026:
    "quando abre no celular fica pequeno demais"). */
 #modoColaborativoWrap .pc-sen-slider-mini{ height:30px; margin-top:3px; }

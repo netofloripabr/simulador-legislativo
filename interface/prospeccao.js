@@ -5816,16 +5816,17 @@ function renderListaSenador(totalVagas, E) {
     // candidatos fechar em 100% — decisão do usuário em 17/08/2026 depois
     // de estranhar a soma passar de 100.
     const pctBarra = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
-    const pct = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
     const linkInsta = linkInstagramDe(c.chave);
     const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 14)}</a>` : "";
     const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
     return `
-    <div class="pc-sen-card${eleito ? " eleito" : ""}" data-sen-idx="${it.idx}">
+    <div class="pc-sen-card${eleito ? " eleito" : ""}${c.votosEditado ? " manual" : ""}" data-sen-idx="${it.idx}">
       <div class="pc-sen-l1">
-        ${eleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
-        <span class="pc-sen-nm">${nomeExibicao(c)}${instaDepois}${lapisAdmin}</span>
-        <span class="pc-sen-pct">${pct.toFixed(0)}<small>%</small></span>
+        <div class="pc-sen-nmcol">
+          <span class="pc-sen-nm"><span class="pc-sen-nm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
+          ${eleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
+        </div>
+        <span class="pc-sen-pct"><span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
       </div>
       <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
       ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
@@ -5847,14 +5848,17 @@ function renderListaSenador(totalVagas, E) {
 // à ponta) ou fora dele (na parte vazia) quando a fatia é estreita demais
 // — depende da largura real da barra, por isso roda pós-render e a cada
 // atualização de arrasto.
-function posicionarVotosSenador(card, c) {
+function posicionarVotosSenador(card, c, E) {
   const lbl = card.querySelector(".pc-sen-votos");
   const bar = card.querySelector(".pc-sen-bar");
   if (!lbl || !bar) return;
   const barW = bar.getBoundingClientRect().width || 300;
   const fill = card.querySelector(".pc-sen-fill");
   const fillPx = (parseFloat(fill.style.width) || 0) / 100 * barW;
-  const txt = (Number(c.votos) || 0).toLocaleString("pt-BR") + " votos";
+  // Rótulo mostra a % (a mesma régua 2E do cabeçalho) — o número de votos
+  // subiu pro lugar de onde a % ficava (protótipo aprovado 28/08/2026).
+  const pct = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
+  const txt = pct.toFixed(1).replace(".", ",") + "%";
   lbl.textContent = txt;
   const txtPx = txt.length * 5.6 + 12;
   if (fillPx > txtPx + 20) {
@@ -5875,11 +5879,10 @@ function atualizarCardSenador(idx, E) {
   // Mesma dupla de réguas do render (ver renderListaSenador): barra sobre
   // E (curso do fader), número sobre 2E (régua do cabeçalho).
   const pctBarra = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
-  const pct = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
-  card.querySelector(".pc-sen-pct").innerHTML = pct.toFixed(0) + "<small>%</small>";
+  card.querySelector(".pc-sen-pct").innerHTML = `<span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span>`;
   card.querySelector(".pc-sen-fill").style.width = Math.min(100, pctBarra) + "%";
   card.querySelector(".pc-sen-grip").style.left = Math.min(100, pctBarra) + "%";
-  posicionarVotosSenador(card, c);
+  posicionarVotosSenador(card, c, E);
 }
 
 function atualizarPainelSenador(E) {
@@ -5912,7 +5915,7 @@ function attachListenersSenador(E) {
   // rótulos de votos dependem da largura real da barra — posiciona agora
   document.querySelectorAll(".pc-sen-card").forEach((card) => {
     const idx = Number(card.dataset.senIdx);
-    if (_senItens[idx]) posicionarVotosSenador(card, _senItens[idx].c);
+    if (_senItens[idx]) posicionarVotosSenador(card, _senItens[idx].c, E);
   });
 
   const inf = document.getElementById("pcSenInf");
@@ -6364,7 +6367,6 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     }
     const cands = aberto ? candsOrd.map((c, k) => {
       const cv = Number(c.votos) || 0;
-      const cpct = E > 0 ? cv / E * 100 : 0;
       const selo = c.marcadoEleito
         ? (k < qpDireto ? '<span class="pc-sen-chip">ELEITO</span>' : '<span class="pc-sen-chip sobra" title="Vaga conquistada na disputa de sobras (método das médias, art. 109)">SOBRA</span>')
         : (cv > 0 ? '<span class="pc-sen-chip fora" title="Tem votos, mas não fecha vaga com a votação de hoje">FORA</span>' : "");
@@ -6385,8 +6387,10 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       <div class="pc-dep-crow pc-dep-crow-cong" data-dep-cong="${escaparAtributoHtml(st.motivo)}">
         <div class="pc-dep-cl1">
           ${posicao}
-          <span class="pc-sen-chip statusbranco">${st.etiqueta}</span>
-          <span class="pc-dep-cnm">${nomeExibicao(c)}${instaDepois}${lapisAdmin}</span>
+          <div class="pc-dep-nmcol">
+            <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
+            <span class="pc-sen-chip statusbranco">${st.etiqueta}</span>
+          </div>
           <span class="pc-dep-cpct">—</span>
         </div>
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
@@ -6398,11 +6402,14 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       </div>`;
       }
       return `
-      <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
+      <div class="pc-dep-crow${c.votosEditado ? " manual" : ""}" data-dep-cand="${escaparAtributoHtml(c.chave)}">
         <div class="pc-dep-cl1">
-          ${posicao}${selo}
-          <span class="pc-dep-cnm">${nomeExibicao(c)}${instaDepois}${lapisAdmin}</span>
-          <span class="pc-dep-cpct">${cpct.toFixed(1).replace(".", ",")}<small>%</small></span>
+          ${posicao}
+          <div class="pc-dep-nmcol">
+            <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
+            ${selo}
+          </div>
+          <span class="pc-dep-cpct"><span class="valNum">${cv.toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
         </div>
         ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
@@ -6446,9 +6453,11 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       ${aberto ? `<div class="pc-dep-cands">${cands || '<div class="pc-sen-rod">Nenhum candidato carregado neste grupo.</div>'}</div>` : ""}
       ${!aberto && candsOrd.length ? `<div class="pc-dep-preview">
         <div class="pc-dep-cl1">
-          ${candsOrd[0].marcadoEleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
-          <span class="pc-dep-cnm">${nomeExibicao(candsOrd[0])}</span>
-          <span class="pc-dep-cpct">${(E > 0 ? (Number(candsOrd[0].votos) || 0) / E * 100 : 0).toFixed(1).replace(".", ",")}<small>%</small></span>
+          <div class="pc-dep-nmcol">
+            <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(candsOrd[0])}</span></span>
+            ${candsOrd[0].marcadoEleito ? '<span class="pc-sen-chip">ELEITO</span>' : ""}
+          </div>
+          <span class="pc-dep-cpct"><span class="valNum">${(Number(candsOrd[0].votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
         </div>
       </div>` : ""}
       <div class="pc-dep-puxador${aberto ? " aberto" : ""}" data-dep-toggle="${gi}" title="${aberto ? "Recolher candidatos" : "Abrir candidatos"}"><span></span></div>
@@ -6528,20 +6537,29 @@ function avisarSemEspacoCargo(card, semEspaco) {
   }
 }
 
-function atualizarFaderDep(sl, v, cap) {
+function atualizarFaderDep(sl, v, cap, E) {
   const pct = Math.min(100, cap > 0 ? v / cap * 100 : 0);
   sl.querySelector(".pc-sen-fill").style.width = pct + "%";
   sl.querySelector(".pc-sen-grip").style.left = pct + "%";
-  posicionarVotosDep(sl, v, cap);
+  posicionarVotosDep(sl, v, cap, E);
+  // Caixa de votos sobe pro lugar de onde a % ficava (protótipo aprovado
+  // 28/08/2026) — atualiza ao vivo durante o arrasto, igual sempre foi
+  // o rótulo de votos que ela substituiu.
+  const crow = sl.closest(".pc-dep-crow");
+  const valNum = crow && crow.querySelector(".pc-dep-cpct .valNum");
+  if (valNum) valNum.textContent = (Number(v) || 0).toLocaleString("pt-BR");
 }
 
-function posicionarVotosDep(sl, v, cap) {
+function posicionarVotosDep(sl, v, cap, E) {
   const lbl = sl.querySelector(".pc-sen-votos");
   const bar = sl.querySelector(".pc-sen-bar");
   if (!lbl || !bar) return;
   const barW = bar.getBoundingClientRect().width || 300;
   const fillPx = Math.min(100, cap > 0 ? v / cap * 100 : 0) / 100 * barW;
-  const txt = (Number(v) || 0).toLocaleString("pt-BR") + " votos";
+  // Rótulo mostra a % (mesma régua E do card) — o número de votos subiu
+  // pro lugar de onde a % ficava (protótipo aprovado 28/08/2026).
+  const pct = E > 0 ? (Number(v) || 0) / E * 100 : 0;
+  const txt = pct.toFixed(1).replace(".", ",") + "%";
   lbl.textContent = txt;
   const txtPx = txt.length * 5.6 + 12;
   if (fillPx > txtPx + 20) {
@@ -6567,7 +6585,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
     const gi = +partes[1];
 
     if (!ehPartido) {
-      posicionarVotosDep(sl, Number(candidatoDe(gi, partes[2])?.votos) || 0, capCand);
+      posicionarVotosDep(sl, Number(candidatoDe(gi, partes[2])?.votos) || 0, capCand, E);
       const lbl = sl.querySelector(".pc-sen-votos");
       lbl.style.pointerEvents = "auto";
       lbl.addEventListener("pointerdown", (e) => { e.stopPropagation(); });
@@ -6600,7 +6618,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
         atualizarBarraPartidoDom(sl, somaVotosGrupo(p2));
         if (card) card.querySelectorAll('[data-dep-fader^="c|"]').forEach((s2) => {
           const k2 = s2.dataset.depFader.split("|");
-          atualizarFaderDep(s2, Number(candidatoDe(+k2[1], k2[2])?.votos) || 0, capCand);
+          atualizarFaderDep(s2, Number(candidatoDe(+k2[1], k2[2])?.votos) || 0, capCand, E);
         });
         // tetoIndividual e tetoColetivo são os DOIS iguais a E aqui — todo
         // clamping possível nesse ramo só pode vir do teto do cargo.
@@ -6612,7 +6630,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
         const limiteCargo = E - base.outrosTotal;
         c.votos = fmdTravaIndividual(pedido, capCand, E, base.outrosTotal);
         c.votosEditado = true;
-        atualizarFaderDep(sl, Number(c.votos) || 0, capCand);
+        atualizarFaderDep(sl, Number(c.votos) || 0, capCand, E);
         const zoneP = document.querySelector('[data-dep-fader="p|' + gi + '"]');
         if (zoneP) atualizarBarraPartidoDom(zoneP, somaVotosGrupo(pcState.palpiteEdicao[gi]));
         // Só acende quando quem trava é o teto do CARGO (limiteCargo menor
@@ -6826,7 +6844,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
       document.querySelectorAll("[data-dep-fader]").forEach((sl) => {
         const k = sl.dataset.depFader.split("|");
         if (k[0] === "p") atualizarBarraPartidoDom(sl, somaVotosGrupo(pcState.palpiteEdicao[+k[1]]));
-        else atualizarFaderDep(sl, Number(candidatoDe(+k[1], k[2])?.votos) || 0, capCand);
+        else atualizarFaderDep(sl, Number(candidatoDe(+k[1], k[2])?.votos) || 0, capCand, E);
       });
       atualizarHeaderDeputados(E);
     };
