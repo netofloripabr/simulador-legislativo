@@ -42,6 +42,15 @@ async function listarMeusDesafios() {
   return data || [];
 }
 
+// Resolve um link de convite de duelo (?duelo=DSXX-XXXX) — só devolve
+// duelo AGUARDANDO que está aberto (sem desafiado) ou endereçado ao
+// próprio chamador. Null quando o código não vale mais.
+async function desafioPorCodigo(codigo) {
+  const { data, error } = await supabaseClient.rpc("desafio_por_codigo", { p_codigo: codigo });
+  if (error) { console.error("Erro ao resolver convite de duelo:", error); return null; }
+  return data;
+}
+
 // O desafio completo, com votos/plenário — única porta pra essas colunas
 // (migração 38). O banco mascara votos_criador/eleitos_criador quando o
 // duelo é oculto e ainda aguarda resposta do próprio chamador.

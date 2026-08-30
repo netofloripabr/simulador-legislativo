@@ -2391,3 +2391,19 @@
     transform:none;
   }
 }
+
+/* Duelo aberto (migração 40): opção "desafiar quem ainda não está no
+   jogo" na tela de criar duelo — o caminho PRINCIPAL de aquisição. */
+#modoColaborativoWrap .pc-duelo-aberto-op{
+  display:flex; align-items:center; gap:11px; width:100%; margin-bottom:4px;
+  background:linear-gradient(180deg, rgba(52,232,74,.08), rgba(52,232,74,.02));
+  border:1px solid rgba(52,232,74,.4); border-radius:13px; padding:12px 13px;
+  cursor:pointer; font-family:var(--sans); color:var(--pc-ink); text-align:left;
+}
+#modoColaborativoWrap .pc-duelo-aberto-ic{
+  width:34px; height:34px; border-radius:10px; background:rgba(52,232,74,.12);
+  display:flex; align-items:center; justify-content:center; color:var(--pc-accent); flex-shrink:0;
+}
+#modoColaborativoWrap .pc-duelo-aberto-tx{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+#modoColaborativoWrap .pc-duelo-aberto-tx b{ font-size:12.5px; font-weight:800; }
+#modoColaborativoWrap .pc-duelo-aberto-tx i{ font-style:normal; font-size:10px; color:var(--pc-ink-dim); line-height:1.4; }

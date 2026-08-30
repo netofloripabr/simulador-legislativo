@@ -401,6 +401,10 @@ const _perfilCompartilhado = _paramsIniciais.get("ver");
 // conta (nuvem/autenticacao.js, _resolverConvidadoPor).
 const _convitePendente = _paramsIniciais.get("conv");
 if (_convitePendente) localStorage.setItem("sl_convite_pendente", _convitePendente.trim().toUpperCase());
+// Convite de DUELO (?duelo=DSXX-XXXX, migração 40): guarda até a pessoa
+// estar logada — aí o boot abre direto a tela de aceitar aquele duelo.
+const _dueloPendente = _paramsIniciais.get("duelo");
+if (_dueloPendente) localStorage.setItem("sl_duelo_pendente", _dueloPendente.trim().toUpperCase());
 
 document.getElementById("modoColaborativoWrap").style.display = "block";
 if (_perfilCompartilhado) {
@@ -460,6 +464,23 @@ async function initColaborativo() {
     // Volta do Mercado Pago: pousa direto na Loja pra mostrar o status
     // da compra, em vez de deixar a pessoa procurar.
     if (new URLSearchParams(window.location.search).get("compra")) pcState.subaba = "loja";
+    // Convite de duelo pendente (?duelo=, migração 40): resolve o código
+    // e pousa direto na tela de aceitar — é o caminho de quem entrou no
+    // jogo POR um duelo aberto de WhatsApp.
+    try {
+      const codigoDuelo = localStorage.getItem("sl_duelo_pendente");
+      if (codigoDuelo) {
+        const d = await desafioPorCodigo(codigoDuelo);
+        localStorage.removeItem("sl_duelo_pendente");
+        if (d && !d.sou_o_criador) {
+          pcState.desafioAceitarId = d.id;
+          pcState.desafioAceitarVotos = {};
+          pcState.desafioAceitarCadeiras = null;
+          pcState._abrirAceitarDueloNoBoot = true;
+          pcState.subaba = "desafios";
+        }
+      }
+    } catch (e) { /* código inválido/expirado — segue o boot normal */ }
     // Estado do logado (auditoria #41, 21/08/2026): lembra a última
     // escolha feita na roleta NESTE aparelho; sem escolha registrada,
     // SC segue como padrão de nascimento do produto.
@@ -2127,7 +2148,13 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "ajuda") { renderCentralAjuda(); atualizarMenuFixo("ajuda"); }
   else if (pcState.subaba === "admin") { renderAdminPainel(); atualizarMenuFixo("admin"); }
   else if (pcState.subaba === "usuario-final") { renderPainelUsuarioFinal(); atualizarMenuFixo("usuario-final"); }
-  else if (pcState.subaba === "desafios") { renderDesafiosHub(); atualizarMenuFixo("desafios"); }
+  else if (pcState.subaba === "desafios") {
+    if (pcState._abrirAceitarDueloNoBoot) {
+      pcState._abrirAceitarDueloNoBoot = false;
+      renderAceitarDesafio();
+      atualizarMenuFixo("desafios");
+    } else { renderDesafiosHub(); atualizarMenuFixo("desafios"); }
+  }
   else if (pcState.subaba === "carteira") { renderCarteira(); atualizarMenuFixo("carteira"); }
   else if (pcState.subaba === "loja") { renderLoja(); atualizarMenuFixo("loja"); }
   else if (pcState.subaba === "notificacoes") { renderNotificacoes(); atualizarMenuFixo("notificacoes"); }
@@ -4565,7 +4592,8 @@ async function renderDesafiosHub() {
   const linhaDuelo = (d) => {
     const souCriador = d.criador_id === meuId;
     const euNome = souCriador ? "Você" : (d.criador ? d.criador.nome : "Você");
-    const outroNome = souCriador ? (d.desafiado ? d.desafiado.nome : "?") : (d.criador ? d.criador.nome : "?");
+    const dueloAberto = souCriador && !d.desafiado_id && d.status === "aguardando";
+    const outroNome = souCriador ? (d.desafiado ? d.desafiado.nome : (dueloAberto ? "Convite aberto" : "?")) : (d.criador ? d.criador.nome : "?");
     const outroIniciais = _iniciaisNome(outroNome);
     const pendenteRecebido = d.status === "aguardando" && d.desafiado_id === meuId;
     const pendenteEnviado = d.status === "aguardando" && d.criador_id === meuId;
@@ -4598,8 +4626,13 @@ async function renderDesafiosHub() {
       </div>` : ""}
       ${pendenteEnviado ? `
       <div class="pc-duelo-rodape">
-        <span>enviado ${new Date(d.criado_em).toLocaleDateString("pt-BR")} · expira ${new Date(d.expira_em).toLocaleDateString("pt-BR")}</span>
+        <span>${dueloAberto ? "convite aberto" : "enviado"} ${new Date(d.criado_em).toLocaleDateString("pt-BR")} · expira ${new Date(d.expira_em).toLocaleDateString("pt-BR")}</span>
       </div>
+      ${dueloAberto ? `
+      <div class="pc-duelo-acoes">
+        <button class="primary" data-pc-duelo-whats="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" style="flex:1; font-size:12px;">Enviar no WhatsApp</button>
+        <button class="ghost" data-pc-duelo-copiar="${d.codigo}" style="flex:1; font-size:12px;">Copiar link</button>
+      </div>` : ""}
       <div class="pc-duelo-acoes"><button class="ghost" data-pc-cancelar="${d.id}" style="font-size:11.5px; padding:8px 12px;">Cancelar${d.custo_sl ? ` e recuperar ${d.custo_sl} SL` : ""}</button></div>` : ""}
       ${(d.status === "selado" || d.status === "apuracao") ? `<div class="pc-duelo-rodape"><span>selado em ${new Date(d.respondido_em || d.criado_em).toLocaleDateString("pt-BR")}</span><span>${d.estado}</span></div>` : ""}
       ${["selado", "apuracao", "encerrado"].includes(d.status) ? `<div class="pc-duelo-acoes"><button class="ghost" data-pc-comparar="${d.id}" style="flex:1; font-size:11.5px;">Ver comparação</button></div>` : ""}
@@ -4658,6 +4691,27 @@ async function renderDesafiosHub() {
   document.querySelectorAll("[data-pc-comparar]").forEach((btn) => btn.addEventListener("click", () => {
     pcState.desafioComparacaoId = btn.getAttribute("data-pc-comparar");
     renderComparacaoDesafio();
+  }));
+  // Convite do duelo aberto (migração 40): o link carrega o código do
+  // duelo E o código de convite pessoal — a pessoa que entrar por ele
+  // conta como convite convertido (1 SL) além de cair direto no duelo.
+  const _linkDuelo = (codigoDuelo) => {
+    const base = window.location.origin + window.location.pathname + "?duelo=" + codigoDuelo;
+    return pcState.perfil && pcState.perfil.codigo_convite ? base + "&conv=" + pcState.perfil.codigo_convite : base;
+  };
+  document.querySelectorAll("[data-pc-duelo-whats]").forEach((btn) => btn.addEventListener("click", () => {
+    const nomeDuelo = btn.getAttribute("data-pc-duelo-nome");
+    const texto = `Eu já cravei os meus eleitos de 2026 no SIMULALEGIS e te desafio pra um duelo 1×1: "${nomeDuelo}". Monta o teu palpite e vamos ver quem vence: ${_linkDuelo(btn.getAttribute("data-pc-duelo-whats"))}`;
+    window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank", "noopener");
+  }));
+  document.querySelectorAll("[data-pc-duelo-copiar]").forEach((btn) => btn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(_linkDuelo(btn.getAttribute("data-pc-duelo-copiar")));
+      btn.textContent = "Link copiado!";
+      setTimeout(() => { btn.textContent = "Copiar link"; }, 1800);
+    } catch (e) {
+      document.getElementById("pcDesafiosStatus").textContent = "Não consegui copiar — segure o link e copie: " + _linkDuelo(btn.getAttribute("data-pc-duelo-copiar"));
+    }
   }));
 }
 
@@ -4875,11 +4929,16 @@ async function renderCriarDesafio() {
       ${pcState.desafioCriarAlvo ? `
         <div class="pc-amigo-op" style="border-bottom:none; padding-left:0;">
           <span class="pc-cedula-anel" style="width:16px; height:16px; border-color:var(--pc-accent); background:radial-gradient(circle at center, var(--pc-accent) 0 40%, transparent 45%);"></span>
-          <span class="pc-duelo-avatar eu" style="width:28px; height:28px; font-size:10px;">${_iniciaisNome(pcState.desafioCriarAlvo.nome)}</span>
-          <span style="flex:1; font-size:12.5px; font-weight:600;">${pcState.desafioCriarAlvo.nome}</span>
+          <span class="pc-duelo-avatar eu" style="width:28px; height:28px; font-size:10px;">${pcState.desafioCriarAlvo.aberto ? iconeSvg("convidar", 13) : _iniciaisNome(pcState.desafioCriarAlvo.nome)}</span>
+          <span style="flex:1; font-size:12.5px; font-weight:600;">${pcState.desafioCriarAlvo.nome}${pcState.desafioCriarAlvo.aberto ? `<br><span style="font-size:10px; font-weight:400; color:var(--pc-ink-dim);">o link do convite aparece depois de enviar</span>` : ""}</span>
           <button type="button" class="ghost" id="pcBtnTrocarAlvo" style="font-size:10.5px; padding:5px 10px;">Trocar</button>
         </div>
       ` : `
+        <button type="button" class="pc-duelo-aberto-op" id="pcBtnDueloAberto">
+          <span class="pc-duelo-aberto-ic">${iconeSvg("convidar", 16)}</span>
+          <span class="pc-duelo-aberto-tx"><b>Desafiar quem ainda não está no jogo</b><i>Gera um convite de WhatsApp — a pessoa entra e cai direto no seu duelo.</i></span>
+        </button>
+        <div class="pc-sub" style="margin:10px 0 4px;">ou alguém que já joga, pelo código</div>
         <div style="display:flex; gap:8px; margin-bottom:6px;">
           <input class="cell" id="pcInputCodigoDesafio" placeholder="Código do usuário (SL-XXXXXX)" maxlength="9" value="${escaparAtributoHtml(pcState.desafioCriarCodigoInput || "")}" style="flex:1;">
           <button type="button" class="ghost" id="pcBtnBuscarCodigo" style="flex-shrink:0;">Buscar</button>
@@ -4991,6 +5050,11 @@ async function renderCriarDesafio() {
     pcState.desafioCriarAlvo = null; pcState.desafioCriarCodigoStatus = "";
     renderCriarDesafio();
   });
+  const btnDueloAberto = document.getElementById("pcBtnDueloAberto");
+  if (btnDueloAberto) btnDueloAberto.addEventListener("click", () => {
+    pcState.desafioCriarAlvo = { id: null, nome: "Convite aberto — quem clicar primeiro", aberto: true };
+    renderCriarDesafio();
+  });
   const inputCodigo = document.getElementById("pcInputCodigoDesafio");
   if (inputCodigo) inputCodigo.addEventListener("input", (e) => { pcState.desafioCriarCodigoInput = e.target.value; });
   const btnBuscarCodigo = document.getElementById("pcBtnBuscarCodigo");
@@ -5025,9 +5089,12 @@ async function renderCriarDesafio() {
     }
     btnEnviar.disabled = true;
     status.textContent = "Enviando…";
-    const r = await criarDesafio(pcState.desafioCriarAlvo.id, nome, pcState.estado, cargo, escopo, meusVotos, tipo, tipo === "eleitos" ? true : pcState.desafioCriarVisiveis, eleitos);
+    const r = await criarDesafio(pcState.desafioCriarAlvo.aberto ? null : pcState.desafioCriarAlvo.id, nome, pcState.estado, cargo, escopo, meusVotos, tipo, tipo === "eleitos" ? true : pcState.desafioCriarVisiveis, eleitos);
     if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; btnEnviar.disabled = false; return; }
     try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
+    // Duelo aberto: destaca o card recém-criado no hub, já com os botões
+    // de WhatsApp/copiar link em evidência.
+    if (pcState.desafioCriarAlvo.aberto && r.desafio) pcState.desafioDestacadoId = r.desafio.id;
     pcState.desafioCriarAmigos = null;
     pcState.desafioCriarCadeiras = null;
     renderDesafiosHub();
