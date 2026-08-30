@@ -610,13 +610,15 @@ function _terrenoEmpacotar(composicao, larguraTotal, alturaMax, n, aspectoAlvo) 
 
 // Ponto de entrada: mesma assinatura de uso que o hemiciclo/case antigos —
 // composicao = [{nome, seats}], totalVagas = tamanho real do plenário.
-// Devolve um <svg> único (viewBox proporcional à grade, width:100%) —
-// escala sozinho em qualquer largura de tela (320–768px testado).
+// Devolve um <svg> único com o quadrado da cadeira em TAMANHO FIXO
+// (TAM_UNIDADE em px reais, igual pra 40 ou 94 vagas — padrão pedido pelo
+// usuário 30/08/2026, mesma referência da antiga case de cápsulas). Só
+// encolhe (max-width:100%) se a grade não couber na tela — não estica.
 function renderPlenarioTerreno(composicao, totalVagas) {
   const comp = composicao.filter((o) => o.seats > 0).map((o) => ({ nome: o.nome, valor: o.seats }));
   const n = totalVagas;
   if (!n || !comp.length) return "";
-  const GAP = 3, TAXA_ARREDONDAMENTO = 0.12, ASPECTO_ALVO = 1.5, TOLERANCIA = 3.2, TAM_UNIDADE = 30;
+  const GAP = 3, TAXA_ARREDONDAMENTO = 0.12, ASPECTO_ALVO = 1.5, TOLERANCIA = 3.2, TAM_UNIDADE = 26;
 
   const gGeral = _terrenoMelhorRetangulo(n, Math.ceil(Math.sqrt(n) * TOLERANCIA) + 2, TOLERANCIA, ASPECTO_ALVO);
   const { grupoDe, larguraTotal, alturaTotal } = _terrenoEmpacotar(comp, gGeral.colunas, gGeral.linhas, n, ASPECTO_ALVO);
@@ -655,13 +657,12 @@ function renderPlenarioTerreno(composicao, totalVagas) {
     }
   });
 
-  // Teto de tamanho (pedido do usuário, 30/08/2026): o quadrado da cadeira
-  // não deve mais esticar até preencher a largura toda do card — trava no
-  // MÁXIMO em metade do que rendia antes (fator 0.5 sobre a unidade do
-  // viewBox). width:100% continua encolhendo em telas estreitas; max-width
-  // só impede crescer além do teto em telas largas.
-  const maxWidthPx = (larguraGrade * 0.5).toFixed(1);
-  return `<svg viewBox="0 0 ${larguraGrade.toFixed(1)} ${alturaGrade.toFixed(1)}" style="width:100%; max-width:${maxWidthPx}px; height:auto; display:block; margin:0 auto;">${svg}</svg>`;
+  // Tamanho FIXO (pedido do usuário, 30/08/2026): 1 unidade do viewBox =
+  // 1px real, sempre — o quadrado da cadeira não estica nem encolhe com o
+  // card, é o mesmo padrão pra 40 ou 94 vagas. max-width:100% é só uma
+  // rede de segurança pra telas menores que a grade inteira (evita
+  // estouro horizontal), não uma escala normal.
+  return `<svg width="${larguraGrade.toFixed(1)}" height="${alturaGrade.toFixed(1)}" viewBox="0 0 ${larguraGrade.toFixed(1)} ${alturaGrade.toFixed(1)}" style="max-width:100%; height:auto; display:block; margin:0 auto;">${svg}</svg>`;
 }
 
 
