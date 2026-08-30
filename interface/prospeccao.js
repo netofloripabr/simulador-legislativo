@@ -8704,13 +8704,15 @@ async function reordenarComTransicao() {
   // segundo dispara a transição de volta pro lugar
   requestAnimationFrame(() => requestAnimationFrame(() => {
     emMovimento.forEach((el) => {
-      el.style.transition = "transform .5s cubic-bezier(.22,.9,.26,1)";
+      // .625s = 20% mais lento que os .5s originais (pedido do usuário,
+      // 30/08/2026: o deslize estava rápido demais pra acompanhar).
+      el.style.transition = "transform .625s cubic-bezier(.22,.9,.26,1)";
       el.style.transform = "";
     });
     setTimeout(() => emMovimento.forEach((el) => {
       el.style.transition = "";
       el.classList.remove("pc-dep-movendo");
-    }), 660);
+    }), 800);
   }));
 }
 
