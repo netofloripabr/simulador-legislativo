@@ -2857,8 +2857,20 @@ async function montarAdminBots() {
 // destaque. Complementa Usuários/Financeiro (listas operacionais); o
 // nível Usuário (busca individual + ponte com o "ver como") fica pra
 // terceira etapa da estruturação.
+const HISTORICO_ACAO_ROTULOS = {
+  cadastro: { rot: "Cadastro", cor: "var(--pc-accent)" },
+  palpite_salvo: { rot: "Palpite salvo", cor: "#AEB5BB" },
+  cedula_depositada: { rot: "Cédula depositada", cor: "var(--pc-accent)" },
+  credito_adquirido: { rot: "Crédito adquirido", cor: "#7fa895" },
+  credito_utilizado: { rot: "Crédito utilizado", cor: "#FF9A2E" },
+  duelo_cadastrado: { rot: "Duelo cadastrado", cor: "#8ecbe8" },
+};
+
 async function montarAdminAnalitico() {
-  const d = await adminAnalitico(pcState.adminAnaliticoIncluiBots);
+  const [d, historico] = await Promise.all([
+    adminAnalitico(pcState.adminAnaliticoIncluiBots),
+    adminHistoricoAcoes(pcState.adminAnaliticoIncluiBots, 300),
+  ]);
   if (!d) return `<div class="pc-sub">Não consegui carregar o analítico — a migração 37 já foi rodada no Supabase?</div>`;
 
   const cartao = (valor, label, cor) => `
@@ -2953,6 +2965,25 @@ async function montarAdminAnalitico() {
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
       ${cartao(Number(d.revelacoes_termometro).toLocaleString("pt-BR"), "revelações no Termômetro")}
       ${cartao(Number(d.desafios_criados).toLocaleString("pt-BR"), "desafios 1×1 criados")}
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Histórico de ações — últimas ${(historico || []).length}</div>
+    <div class="glass-card" style="padding:6px 14px;">
+      ${historico === null ? `<div class="pc-sub" style="padding:8px 0;">Não consegui carregar o histórico — a migração 39 já foi rodada no Supabase?</div>`
+      : !historico.length ? `<div class="pc-sub" style="padding:8px 0;">Nenhuma ação registrada ainda.</div>`
+      : historico.map((h) => {
+        const rot = HISTORICO_ACAO_ROTULOS[h.acao] || { rot: h.acao, cor: "var(--pc-ink-dim)" };
+        const dt = new Date(h.data);
+        return `
+        <div style="display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:.5px solid #1a1d20; font-size:11px;">
+          <span style="flex:none; width:78px; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums;">${dt.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} ${dt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+          <span style="flex:none; width:112px; font-size:9px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; color:${rot.cor};">${rot.rot}</span>
+          <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+            <b>${h.nome || "—"}</b>
+            <span style="color:var(--pc-ink-dim);">${h.municipio ? " · " + h.municipio : ""}${h.email ? " · " + h.email : ""}${h.detalhe ? " · " + h.detalhe : ""}</span>
+          </span>
+        </div>`;
+      }).join("")}
     </div>`;
 }
 

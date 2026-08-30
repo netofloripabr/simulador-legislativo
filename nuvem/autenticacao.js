@@ -310,6 +310,17 @@ async function completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito, cep, mun
 // Aba "Analítico" do painel admin (migração 37, 28/08/2026): todas as
 // agregações do nível Sistema num round-trip só. incluirBots=false é o
 // padrão — mostra o "sistema de verdade", sem as contas fictícias.
+// Histórico cronológico de ações (migração 39) — relatório do fim da
+// aba Analítico: cadastro, palpite salvo, cédula depositada, créditos e
+// duelos, com nome/município/e-mail.
+async function adminHistoricoAcoes(incluirBots, limite) {
+  const { data, error } = await supabaseClient.rpc("admin_historico_acoes", {
+    p_limite: limite || 300, p_incluir_bots: !!incluirBots,
+  });
+  if (error) { console.error("Erro no histórico de ações:", error); return null; }
+  return data || [];
+}
+
 async function adminAnalitico(incluirBots) {
   const { data, error } = await supabaseClient.rpc("admin_analitico", { p_incluir_bots: !!incluirBots });
   if (error) { console.error("Erro no analítico:", error); return null; }
