@@ -619,7 +619,7 @@ function renderPlenarioTerreno(composicao, totalVagas) {
   const comp = composicao.filter((o) => o.seats > 0).map((o) => ({ nome: o.nome, valor: o.seats }));
   const n = totalVagas;
   if (!n || !comp.length) return "";
-  const MIN_PX = 26, MAX_PX = MIN_PX * 1.25; // 32.5px em 8 vagas, 26px em 94+
+  const MIN_PX = 26, MAX_PX = 40; // 40px em 8 vagas, 26px em 94+
   const N_MIN = 8, N_MAX = 94;
   const t = Math.min(1, Math.max(0, (n - N_MIN) / (N_MAX - N_MIN)));
   const TAM_UNIDADE = MAX_PX - t * (MAX_PX - MIN_PX);
