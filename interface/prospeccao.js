@@ -10389,7 +10389,7 @@ function renderRevisaoDeposito() {
 function renderDepositoConfirmado() {
   const conteudo = document.getElementById("pcConteudo");
   const tiles = [
-    { icone: "send", label: "Convide os amigos", info: "Gere um link único e envie por WhatsApp ou redes sociais. Cada amigo que entrar pelo seu link e depositar a primeira cédula rende 1 SL pra você, automaticamente (até 25 SL por conta)." },
+    { icone: "send", label: "Convide os amigos", info: "Gere um link único e envie por WhatsApp ou redes sociais. Cada amigo que entrar pelo seu link e depositar a primeira cédula rende 1 SL pra você, automaticamente." },
     { icone: "grupos", label: "Crie grupos particulares", info: "Monte um grupo, convide por código ou link, e acompanhe um ranking só entre vocês — todo mundo vê o palpite de todo mundo ali dentro." },
     { icone: "chart", label: "Avance na pontuação", info: "Você pontua por candidato eleito certo, pela proximidade da votação de cada um, pelas cadeiras por partido, pela enquete eleitoral e por um bônus de quem entrega a lista mais cedo." },
     { icone: "ranking", label: "Ranqueamento", info: "Você entra em 4 rankings ao mesmo tempo: geral (nacional), do seu estado, por categorias, e dos grupos particulares que você criar ou entrar." },
