@@ -513,10 +513,8 @@
      marcação ocupa), sobrepondo o que vier antes na tela — achado do
      usuário, 24/08/2026 (medido ao vivo: ~11px de estouro). */
   #modoColaborativoWrap .pc-lt-wrap{ position:relative; margin-top:18px; }
-  #modoColaborativoWrap .pc-lt-rail{
-    position:absolute; top:20px; left:0; right:0; height:2px; border-radius:999px;
-    background:linear-gradient(90deg, var(--pc-accent) 0 42%, #14171A 42% 100%);
-  }
+  /* (o trilho .pc-lt-rail — a linha que cortava o calendário — saiu a
+     pedido do usuário em 30/08/2026; os cards de dia se bastam) */
   #modoColaborativoWrap .pc-cal{ display:flex; align-items:center; gap:5px; position:relative; z-index:1; }
   #modoColaborativoWrap .pc-cal-d{
     position:relative; flex:1; min-width:0; height:34px; border-radius:8px;

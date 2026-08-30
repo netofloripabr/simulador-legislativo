@@ -11110,7 +11110,6 @@ async function renderQuadroMedias() {
   const cardDia = (d, cls) => `<div class="pc-cal-d ${cls}"><b>${d.getDate()}</b><span>${d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "").toUpperCase()}</span></div>`;
   const linhaTempoHtml = `
     <div class="pc-lt-wrap">
-      <div class="pc-lt-rail"></div>
       <div class="pc-cal">
         ${cardDia(diasVizinhos[0], "f2")}
         ${cardDia(diasVizinhos[1], "f1")}
