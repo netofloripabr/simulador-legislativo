@@ -2304,3 +2304,14 @@
 #modoColaborativoWrap .pc-sen-chip.semvoto{
   background:none; border:1px dashed rgba(255,154,46,.65); color:#FF9A2E;
 }
+
+/* Mini etiquetas agregadas na região da barra do partido (30/08/2026):
+   quantas vagas por quociente e quantas por média, ex. "8×QP · 2×M" —
+   mesma conta do selo E-QP/E-M candidato a candidato, só que somada. */
+#modoColaborativoWrap .pc-dep-mix{ display:flex; justify-content:flex-end; gap:4px; margin:-2px 0 2px; }
+#modoColaborativoWrap .pc-dep-mix-chip{
+  font-size:8.5px; font-weight:800; letter-spacing:.03em; font-variant-numeric:tabular-nums;
+  color:var(--pc-ink-dim); background:#15181B; border:1px solid #23262A;
+  border-radius:5px; padding:2px 6px;
+}
+#modoColaborativoWrap .pc-dep-mix-chip.media{ color:var(--pc-accent); border-color:rgba(52,232,74,.35); background:rgba(52,232,74,.07); }

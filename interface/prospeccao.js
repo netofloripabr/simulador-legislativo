@@ -7220,6 +7220,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         </div>
       </div>
       ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course)}
+      ${vg > 0 ? `<div class="pc-dep-mix"><span class="pc-dep-mix-chip">${qpDireto}×QP</span>${sobras > 0 ? `<span class="pc-dep-mix-chip media">${sobras}×M</span>` : ""}</div>` : ""}
       <div class="pc-dep-notif">
         <span class="pc-dep-notif-luz"></span>
         <span class="pc-dep-notif-txt" data-normal="${escaparAtributoHtml(notificacaoDep(soma, meta, vagasInd, qeProj))}">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
