@@ -278,6 +278,44 @@
   }
   #modoColaborativoWrap .pc-topbar-cred svg{ color:var(--pc-accent); }
 
+  /* Letreiro dinâmico (protótipo aprovado 30/08/2026): faixa fina logo
+     abaixo da barra superior, só na tela principal (Painel) — alterna
+     mensagens de Orientação e Dica em loop contínuo, pausa no toque/hover
+     pra dar tempo de ler. Ver montarLetreiroPainel em prospeccao.js. */
+  #modoColaborativoWrap .pc-letreiro{
+    display:flex; align-items:center; gap:9px; height:32px; padding:0 12px;
+    margin:0 0 12px; border-radius:11px; border:1px solid rgba(52,232,74,.22);
+    background:linear-gradient(180deg, rgba(52,232,74,.09), rgba(52,232,74,.03));
+    overflow:hidden; cursor:default;
+  }
+  #modoColaborativoWrap .pc-letreiro-marcador{
+    flex-shrink:0; width:5px; height:5px; border-radius:50%; background:var(--pc-accent);
+    box-shadow:0 0 6px 1px rgba(52,232,74,.7); animation:pc-letreiro-pulso 1.8s ease-in-out infinite;
+  }
+  @keyframes pc-letreiro-pulso{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+  #modoColaborativoWrap .pc-letreiro-faixa{ flex:1; overflow:hidden; position:relative; height:100%; min-width:0; }
+  #modoColaborativoWrap .pc-letreiro-trilho{
+    position:absolute; white-space:nowrap; top:0; height:100%; display:flex; align-items:center;
+    animation:pc-letreiro-rolar linear infinite; animation-duration:var(--pc-letreiro-duracao, 22s);
+  }
+  #modoColaborativoWrap .pc-letreiro-trilho span{
+    display:inline-flex; align-items:center; gap:7px; padding-right:56px;
+    font-size:11px; font-weight:600; color:var(--pc-ink);
+  }
+  #modoColaborativoWrap .pc-letreiro-tag{
+    font-size:8.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--pc-accent);
+    background:rgba(52,232,74,.14); border-radius:4px; padding:2px 5px; flex-shrink:0;
+  }
+  @keyframes pc-letreiro-rolar{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  #modoColaborativoWrap .pc-letreiro:hover .pc-letreiro-trilho,
+  #modoColaborativoWrap .pc-letreiro.pausado .pc-letreiro-trilho{ animation-play-state:paused; }
+  #modoColaborativoWrap .pc-letreiro-faixa::before,
+  #modoColaborativoWrap .pc-letreiro-faixa::after{
+    content:""; position:absolute; top:0; bottom:0; width:14px; z-index:2; pointer-events:none;
+  }
+  #modoColaborativoWrap .pc-letreiro-faixa::before{ left:0; background:linear-gradient(90deg, var(--pc-bg-a), transparent); }
+  #modoColaborativoWrap .pc-letreiro-faixa::after{ right:0; background:linear-gradient(270deg, var(--pc-bg-a), transparent); }
+
   /* Urna — peça-chave do projeto: porta pras listas e pro depósito */
   #modoColaborativoWrap .pc-urna{
     display:flex; flex-direction:column; align-items:center; gap:8px;

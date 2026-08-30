@@ -3179,6 +3179,29 @@ function diasAteEleicao() {
 // visualização da conversa): profundidade só por camada de tom (nunca
 // blur/glow/gradiente), sobretons de verde, sem barra inferior de atalhos
 // (ela já mostraria os mesmos destinos do menu daqui, duplicado).
+// Letreiro dinâmico (protótipo aprovado 30/08/2026): faixa que rola sozinha
+// alternando Orientação (como usar algo na tela) e Dica (algo que vale a
+// pena saber) — só na tela principal (Painel). A lista de mensagens
+// aparece 2x seguidas no trilho pra loop ficar sem costura visível (anda
+// -50% da largura total, que é exatamente 1 volta da lista).
+const LETREIRO_MENSAGENS = [
+  { tag: "Dica", texto: "Convide amigos: quando alguém entra pelo seu link e deposita a 1ª cédula, você ganha 1 SL" },
+  { tag: "Orientação", texto: "Arraste a barra do candidato pra distribuir os votos — ou toque duas vezes pra digitar o número direto" },
+  { tag: "Orientação", texto: "O botão \"Salvar\" já registra o palpite — não precisa de mais nenhum passo depois" },
+  { tag: "Dica", texto: "Depois do quociente partidário, o resto das vagas vai pra aba \"Disputa das sobras\"" },
+];
+function montarLetreiroPainel() {
+  const itens = LETREIRO_MENSAGENS.map((m) => `<span><span class="pc-letreiro-tag">${m.tag}</span>${m.texto}</span>`).join("");
+  const duracao = Math.max(16, LETREIRO_MENSAGENS.length * 6.5);
+  return `
+    <div class="pc-letreiro" id="pcLetreiroPainel" title="Toque pra pausar">
+      <span class="pc-letreiro-marcador"></span>
+      <div class="pc-letreiro-faixa">
+        <div class="pc-letreiro-trilho" style="--pc-letreiro-duracao:${duracao}s;">${itens}${itens}</div>
+      </div>
+    </div>`;
+}
+
 async function renderPainelPrincipal() {
   pcState._farolContexto = "painel";
   const el = document.getElementById("pcConteudo");
@@ -3275,6 +3298,8 @@ async function renderPainelPrincipal() {
       ${pcState.perfil ? `<button class="pc-topbar-btn" id="pcBtnSinoTopo" title="Notificações" style="position:relative;">${iconeSvg("sino", 17)}${pcState.notificacoesNaoLidas ? `<span class="pc-topbar-pip"></span>` : ""}</button>` : ""}
       <button class="pc-topbar-btn" id="pcBtnPerfilTopo" title="${gateConvidado ? "Precisa se cadastrar" : "Menu e perfil"}">${iconeSvg("perfil", 17)}</button>
     </div>
+
+    ${montarLetreiroPainel()}
 
     <div class="pc-lobby-card">
       <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:8px;">
@@ -3383,6 +3408,10 @@ async function renderPainelPrincipal() {
   if (btnSaldoTopo) btnSaldoTopo.addEventListener("click", () => { pcState.subaba = "carteira"; renderAppColaborativo(); });
   const btnSinoTopo = document.getElementById("pcBtnSinoTopo");
   if (btnSinoTopo) btnSinoTopo.addEventListener("click", () => { pcState.subaba = "notificacoes"; renderAppColaborativo(); });
+  // Letreiro: no celular não existe hover pra pausar sozinho — um toque
+  // alterna pausado/rolando (achado do próprio padrão de marquee mobile).
+  const letreiro = document.getElementById("pcLetreiroPainel");
+  if (letreiro) letreiro.addEventListener("click", () => letreiro.classList.toggle("pausado"));
   const btnDesafios = document.getElementById("pcMenuDesafios");
   if (btnDesafios) btnDesafios.addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("desafios");
