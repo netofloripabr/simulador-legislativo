@@ -7016,7 +7016,7 @@ function orientacaoNominata(vg, vagasInd, corte, soma, proximoNome) {
 // quando há votos pra vaga não somada no box), preenchimento verde com
 // excedente em tom mais claro, alça-lâmina A1.3 com plaqueta de votos e
 // placa fixa da meta embaixo. `course` = extensão total do trilho.
-function barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course) {
+function barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course, chips) {
   const pos = (v) => Math.min(100, course > 0 ? v / course * 100 : 0);
   // A barra preenche NORMALMENTE até a soma; o excedente (meta → soma) é
   // marcado por um fio verde vivo sobreposto no centro, com 1/3 da altura
@@ -7034,7 +7034,7 @@ function barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course) {
   }
   const finaPasso = Math.max(1.5, 100 / Math.max(20, nTicks * 4));
   return `
-    <div class="pc-dep-regua"><div class="pc-dep-regua-fina" style="background:repeating-linear-gradient(90deg, rgba(138,144,150,.18) 0 1px, transparent 1px ${finaPasso.toFixed(3)}%);"></div>${ticks}</div>
+    <div class="pc-dep-regua${chips ? " com-chips" : ""}">${chips || ""}<div class="pc-dep-regua-fina" style="background:repeating-linear-gradient(90deg, rgba(138,144,150,.18) 0 1px, transparent 1px ${finaPasso.toFixed(3)}%);"></div>${ticks}</div>
     <div class="pc-dep-zone" data-dep-fader="p|${gi}" data-course="${Math.round(course)}" data-meta="${Math.round(meta)}" data-qe="${Math.round(qeProj)}" data-vagas="${vagasInd}">
       <div class="pc-dep-trk">
         <div class="pc-dep-fill" style="width:${fillW}%; background-size:${fillW > 0 ? (10000 / fillW).toFixed(1) : "100"}% 100%;"></div>
@@ -7149,10 +7149,12 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       // eleito pela sobra/método das médias (art. 109, era "SOBRA"). Sem
       // badge quando tem votos mas não fecha vaga (era "FORA") — informação
       // ainda visível pela barra/votação, não precisa de selo à parte.
-      // Marcado no box mas ainda sem votação atribuída (pedido do usuário,
-      // 30/08/2026): selo e linha ganham estado visual próprio — deixa
-      // claro que a vaga foi INDICADA, mas a apuração ainda não a enxerga.
-      const marcadoSemVoto = c.marcadoEleito && cv === 0;
+      // Marcado no box mas a APURAÇÃO DE AGORA não dá essa cadeira ao
+      // partido (refino 30/08/2026, 2ª rodada: a régua por marcas de QE
+      // pintava de laranja até vaga de MÉDIA legítima — sobra, por
+      // definição, fica abaixo de um quociente cheio). Régua certa: vg,
+      // o que o D'Hondt cruzando todos os partidos entrega já.
+      const marcadoSemVoto = c.marcadoEleito && k >= vg;
       const rodadaSobraCand = (disputa.rodadaSobraPorPartido[gi] || [])[k];
       const selo = c.marcadoEleito
         ? (marcadoSemVoto
@@ -7219,8 +7221,17 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
           ${v2022 > 0 ? `<span class="pc-dep-meta2 pc-dep-meta2-2022">2022: ${formatVotosCompacto(v2022)}</span>` : ""}
         </div>
       </div>
-      ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course)}
-      ${vg > 0 ? `<div class="pc-dep-mix"><span class="pc-dep-mix-chip">${qpDireto}×QP</span>${sobras > 0 ? `<span class="pc-dep-mix-chip media">${sobras}×M</span>` : ""}</div>` : ""}
+      ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course, (() => {
+        // Chips ancorados na régua (refino do usuário 30/08/2026): o
+        // "N×QP" senta na marca onde o quociente fecha e o "N×M" na marca
+        // da última vaga por média — em vez de uma linha solta embaixo.
+        if (vg <= 0) return "";
+        const posChip = (n) => Math.min(100, course > 0 ? (n * qeProj) / course * 100 : 0);
+        let chips = "";
+        if (qpDireto > 0) chips += `<span class="pc-dep-mix-chip barra" style="left:${posChip(qpDireto).toFixed(2)}%">${qpDireto}×QP</span>`;
+        if (sobras > 0) chips += `<span class="pc-dep-mix-chip barra media" style="left:${posChip(qpDireto + sobras).toFixed(2)}%">${sobras}×M</span>`;
+        return chips;
+      })())}
       <div class="pc-dep-notif">
         <span class="pc-dep-notif-luz"></span>
         <span class="pc-dep-notif-txt" data-normal="${escaparAtributoHtml(notificacaoDep(soma, meta, vagasInd, qeProj))}">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
