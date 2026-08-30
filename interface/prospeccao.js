@@ -155,6 +155,20 @@ const CARGOS = [
 // Ícones de contorno em SVG (não emoji — emoji carrega cor própria e ignora
 // CSS, o que já causou inconsistência visual nos protótipos). currentColor
 // deixa a cor sempre controlada pelo CSS do elemento pai.
+// Feedback de clique rápido (variante D aprovada 30/08/2026): o :active
+// só dura enquanto o dedo aperta — num toque relâmpago o efeito nem chega
+// a aparecer. O pointerdown pendura .pulsando por 220ms no botão (ou nos
+// clicáveis que se comportam como botão), garantindo que TODO clique
+// mostre a resposta visual completa. Listener único no documento — vale
+// pra qualquer tela renderizada depois, sem religar nada.
+document.addEventListener("pointerdown", (e) => {
+  const alvo = e.target.closest("#modoColaborativoWrap button, #modoColaborativoWrap .pc-lobby-tile, #modoColaborativoWrap .pc-lobby-mais-item, #modoColaborativoWrap .pc-amigo-op, #modoColaborativoWrap .pc-notif-acao");
+  if (!alvo || alvo.disabled) return;
+  alvo.classList.add("pulsando");
+  clearTimeout(alvo._pulsoTimer);
+  alvo._pulsoTimer = setTimeout(() => alvo.classList.remove("pulsando"), 220);
+});
+
 const PC_ICONES = {
   // cadeado (voto oculto no Duelo) e confere (check simples da comparação)
   // — mesmo traço 1.3-1.4 do resto do mapa, migração 38.
