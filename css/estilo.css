@@ -2203,3 +2203,96 @@
 #modoColaborativoWrap.pc-tema-fader .pc-tut-item{ padding:6px 0 0; color:#5C6268; }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-item.on{ color:var(--pc-ink); }
 #modoColaborativoWrap.pc-tema-fader #pcFecharInstrucao:disabled{ opacity:.35; }
+
+/* ===== Duelo 1×1 — migração 38 (protótipo aprovado 30/08/2026) ===== */
+/* CTA no Painel: Duelo é a ferramenta principal do lançamento. */
+#modoColaborativoWrap .pc-lobby-duelo{
+  display:flex; align-items:center; gap:11px; width:100%; margin-bottom:16px;
+  background:linear-gradient(180deg, rgba(52,232,74,.09), rgba(52,232,74,.03));
+  border:1px solid rgba(52,232,74,.35); border-radius:14px; padding:13px 14px;
+  cursor:pointer; font-family:var(--sans); color:var(--pc-ink);
+}
+#modoColaborativoWrap .pc-lobby-duelo-ic{
+  width:36px; height:36px; border-radius:11px; background:rgba(52,232,74,.12);
+  display:flex; align-items:center; justify-content:center; color:var(--pc-accent); flex-shrink:0;
+}
+#modoColaborativoWrap .pc-lobby-duelo-tx{ flex:1; min-width:0; display:flex; flex-direction:column; gap:1px; text-align:left; }
+#modoColaborativoWrap .pc-lobby-duelo-tx b{ font-size:13px; font-weight:800; }
+#modoColaborativoWrap .pc-lobby-duelo-tx i{ font-style:normal; font-size:10.5px; color:var(--pc-ink-dim); }
+#modoColaborativoWrap .pc-lobby-duelo > svg{ color:var(--pc-ink-dim); flex-shrink:0; }
+
+/* Grade de cadeiras do recorte Eleitos — número FIXO de cadeiras do cargo,
+   toque numa vazia abre a gaveta. */
+#modoColaborativoWrap .pc-duelo-progresso{
+  height:4px; border-radius:2px; background:#1E2226; margin-bottom:10px; overflow:hidden;
+}
+#modoColaborativoWrap .pc-duelo-progresso i{ display:block; height:100%; background:var(--pc-accent); border-radius:2px; }
+#modoColaborativoWrap .pc-duelo-grade{
+  display:grid; grid-template-columns:repeat(8, 1fr); gap:5px; margin-bottom:12px;
+}
+#modoColaborativoWrap .pc-duelo-grade.poucos{ display:flex; justify-content:center; gap:10px; }
+#modoColaborativoWrap .pc-duelo-cadeira{
+  aspect-ratio:1; border-radius:7px; background:#1a1d21; border:none; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  font-family:var(--sans); color:var(--pc-ink); padding:0; min-width:0;
+}
+#modoColaborativoWrap .pc-duelo-cadeira .ini{ font-size:9.5px; font-weight:800; pointer-events:none; }
+#modoColaborativoWrap .pc-duelo-cadeira .mais{ font-size:15px; font-weight:700; color:var(--pc-accent); pointer-events:none; }
+#modoColaborativoWrap .pc-duelo-cadeira.ativa{ outline:2px solid var(--pc-accent); outline-offset:1px; background:#1E2226; }
+#modoColaborativoWrap .pc-duelo-cadeira.grande{
+  flex:1; max-width:150px; border-radius:16px; gap:4px;
+}
+#modoColaborativoWrap .pc-duelo-cadeira.grande .ini{ font-size:19px; }
+#modoColaborativoWrap .pc-duelo-cadeira.grande .quem{
+  font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; opacity:.85;
+  max-width:92%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; pointer-events:none;
+}
+#modoColaborativoWrap .pc-duelo-cadeira.grande .pt{ font-size:8px; opacity:.6; pointer-events:none; }
+/* Texto escuro em cima de cor clara de partido — regra simples via classe
+   não dá (cor vem inline); o app usa cores majoritariamente escuras, e as
+   claras (PSD, amarelo) continuam legíveis com o peso 800. */
+
+#modoColaborativoWrap .pc-duelo-gaveta{
+  background:#15181B; border:1px solid rgba(52,232,74,.3); border-radius:16px 16px 12px 12px;
+  padding:8px 12px 6px; margin-bottom:12px; box-shadow:0 -8px 24px rgba(0,0,0,.35);
+}
+#modoColaborativoWrap .pc-duelo-gaveta-alca{ width:34px; height:3.5px; border-radius:2px; background:#2C3239; margin:0 auto 8px; }
+#modoColaborativoWrap .pc-duelo-gaveta-cab{
+  display:flex; align-items:baseline; justify-content:space-between; margin-bottom:8px;
+  font-size:11.5px; font-weight:800;
+}
+#modoColaborativoWrap .pc-duelo-gaveta-cab .dim{ font-size:9.5px; font-weight:400; color:var(--pc-ink-dim); max-width:60%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* Coluna "Rival" na tela de aceitar (votos abertos × ocultos) */
+#modoColaborativoWrap .pc-voto-rival{
+  flex-shrink:0; min-width:52px; text-align:center; font-size:11px; font-weight:700;
+  color:#c9e8cf; background:rgba(52,232,74,.08); border:1px solid rgba(52,232,74,.22);
+  border-radius:7px; padding:5px 7px; font-variant-numeric:tabular-nums;
+  display:flex; align-items:center; justify-content:center;
+}
+#modoColaborativoWrap .pc-voto-rival.oculto{ color:var(--pc-ink-dim); background:#15181B; border-color:#23262A; }
+
+/* Painel de comparação — organização do documento impresso, cores do
+   sistema. Colunas: pos · candidato · você · rival · resultado · pts. */
+#modoColaborativoWrap .pc-cmp-cols{
+  display:flex; align-items:center; gap:5px; padding:0 0 6px; margin-bottom:2px;
+  border-bottom:2px solid var(--pc-glass-border);
+  font-size:6.8px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--pc-ink-dim);
+}
+#modoColaborativoWrap .pc-cmp-linha{
+  display:flex; align-items:center; gap:5px; padding:6px 0; border-bottom:.5px solid #1a1d20;
+}
+#modoColaborativoWrap .pc-cmp-pos{ width:18px; flex-shrink:0; color:#5c6266; font-variant-numeric:tabular-nums; font-size:9.5px; text-align:right; }
+#modoColaborativoWrap .pc-cmp-cand{ flex:1; min-width:0; line-height:1.2; }
+#modoColaborativoWrap .pc-cmp-cand .n{ display:block; font-size:11px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#modoColaborativoWrap .pc-cmp-cand .p{ display:block; font-size:7px; color:var(--pc-ink-dim); letter-spacing:.03em; text-transform:uppercase; }
+#modoColaborativoWrap .pc-cmp-val{
+  width:56px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  background:#15181B; border:1px solid #23262A; border-radius:6px; padding:4px 3px;
+  font-size:10px; font-weight:750; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums;
+}
+#modoColaborativoWrap .pc-cmp-val.num{ color:var(--pc-ink); }
+#modoColaborativoWrap .pc-cmp-val.marcado{ color:var(--pc-accent); background:rgba(52,232,74,.1); border-color:rgba(52,232,74,.4); }
+#modoColaborativoWrap .pc-cmp-cols .pc-cmp-val{ background:none; border:none; font-size:6.8px; font-weight:800; color:var(--pc-ink-dim); }
+#modoColaborativoWrap .pc-cmp-res{ width:46px; flex-shrink:0; text-align:center; font-size:10px; font-weight:750; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-cmp-pts{ width:24px; flex-shrink:0; text-align:center; font-size:9.5px; font-weight:800; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }

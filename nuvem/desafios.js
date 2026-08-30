@@ -30,20 +30,36 @@ async function desafiosGratisRestantes(perfilId) {
 // é a própria visita à tela.
 async function listarMeusDesafios() {
   await supabaseClient.rpc("expirar_meus_desafios_vencidos");
+  // Colunas explícitas, SEM as de voto/plenário — a migração 38 revogou o
+  // SELECT direto delas (voto oculto é oculto de verdade); quem precisa
+  // dos votos usa desafioDetalhe abaixo. select("*") aqui quebraria com
+  // "permission denied" pra qualquer usuário.
   const { data, error } = await supabaseClient
     .from("desafios")
-    .select("*, criador:criador_id(nome), desafiado:desafiado_id(nome)")
+    .select("id, criador_id, desafiado_id, nome, estado, cargo, codigo, status, custo_sl, tipo_disputa, votos_visiveis, escopo_candidatos, pontos_criador, pontos_desafiado, vencedor_id, criado_em, respondido_em, expira_em, criador:criador_id(nome), desafiado:desafiado_id(nome)")
     .order("criado_em", { ascending: false });
   if (error) { console.error("Erro ao listar desafios:", error); return []; }
   return data || [];
 }
 
-// escopo: [{chave, nome, partido}, ...] — o recorte travado do duelo.
-// meusVotos: [{chave, votos}, ...], mesmas chaves do escopo.
-async function criarDesafio(desafiadoId, nome, estado, cargo, escopo, meusVotos) {
+// O desafio completo, com votos/plenário — única porta pra essas colunas
+// (migração 38). O banco mascara votos_criador/eleitos_criador quando o
+// duelo é oculto e ainda aguarda resposta do próprio chamador.
+async function desafioDetalhe(desafioId) {
+  const { data, error } = await supabaseClient.rpc("desafio_detalhe", { p_desafio_id: desafioId });
+  if (error) { console.error("Erro ao carregar desafio:", error); return null; }
+  return data;
+}
+
+// escopo: [{chave, nome, partido}, ...] — o recorte travado do duelo
+// (tipos cargo/partido/candidato). meusVotos: [{chave, votos}, ...],
+// mesmas chaves do escopo. Pro tipo "eleitos", escopo/votos vão vazios e
+// eleitos = [{chave, nome, partido}, ...] é a composição do plenário.
+async function criarDesafio(desafiadoId, nome, estado, cargo, escopo, meusVotos, tipo, visiveis, eleitos) {
   const { data, error } = await supabaseClient.rpc("criar_desafio", {
     p_desafiado_id: desafiadoId, p_nome: nome, p_estado: estado, p_cargo: cargo,
     p_escopo: escopo, p_meus_votos: meusVotos, p_codigo: gerarCodigoDesafio(),
+    p_tipo: tipo, p_visiveis: visiveis, p_eleitos: eleitos || null,
   });
   if (error) return { ok: false, mensagem: error.message };
   return { ok: true, desafio: data };
@@ -51,9 +67,11 @@ async function criarDesafio(desafiadoId, nome, estado, cargo, escopo, meusVotos)
 
 // meusVotos: [{chave, votos}, ...] — precisa bater exatamente com o
 // escopo_candidatos do desafio (o banco valida, não confia no cliente).
-async function aceitarDesafio(desafioId, meusVotos) {
+// meusEleitos: só no tipo "eleitos" — mesma quantidade de cadeiras do
+// plenário do criador.
+async function aceitarDesafio(desafioId, meusVotos, meusEleitos) {
   const { data, error } = await supabaseClient.rpc("aceitar_desafio", {
-    p_desafio_id: desafioId, p_meus_votos: meusVotos,
+    p_desafio_id: desafioId, p_meus_votos: meusVotos || [], p_meus_eleitos: meusEleitos || null,
   });
   if (error) return { ok: false, mensagem: error.message };
   return { ok: true, desafio: data };
