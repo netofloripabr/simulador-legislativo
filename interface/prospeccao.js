@@ -7222,16 +7222,18 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         </div>
       </div>
       ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course, (() => {
-        // Chips ancorados na régua (refino do usuário 30/08/2026): o
-        // "N×QP" senta na marca onde o quociente fecha e o "N×M" na marca
-        // da última vaga por média — em vez de uma linha solta embaixo.
+        // Agulhas na régua (refino do usuário 30/08/2026, 2ª rodada): as
+        // etiquetas voltaram pra linha própria embaixo (alinhamento), e a
+        // POSIÇÃO das marcas vira uma mini agulha na régua — cinza na
+        // marca onde o quociente fecha, verde na da última vaga por média.
         if (vg <= 0) return "";
-        const posChip = (n) => Math.min(100, course > 0 ? (n * qeProj) / course * 100 : 0);
-        let chips = "";
-        if (qpDireto > 0) chips += `<span class="pc-dep-mix-chip barra" style="left:${posChip(qpDireto).toFixed(2)}%">${qpDireto}×QP</span>`;
-        if (sobras > 0) chips += `<span class="pc-dep-mix-chip barra media" style="left:${posChip(qpDireto + sobras).toFixed(2)}%">${sobras}×M</span>`;
-        return chips;
+        const posN = (n) => Math.min(100, course > 0 ? (n * qeProj) / course * 100 : 0);
+        let agulhas = "";
+        if (qpDireto > 0) agulhas += `<span class="pc-dep-agulha" style="left:${posN(qpDireto).toFixed(2)}%"></span>`;
+        if (sobras > 0) agulhas += `<span class="pc-dep-agulha media" style="left:${posN(qpDireto + sobras).toFixed(2)}%"></span>`;
+        return agulhas;
       })())}
+      ${vg > 0 ? `<div class="pc-dep-mix"><span class="pc-dep-mix-chip">${qpDireto}×QP</span>${sobras > 0 ? `<span class="pc-dep-mix-chip media">${sobras}×M</span>` : ""}</div>` : ""}
       <div class="pc-dep-notif">
         <span class="pc-dep-notif-luz"></span>
         <span class="pc-dep-notif-txt" data-normal="${escaparAtributoHtml(notificacaoDep(soma, meta, vagasInd, qeProj))}">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>

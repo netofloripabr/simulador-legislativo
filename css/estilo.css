@@ -1494,13 +1494,13 @@
    cima e a meta resultante embaixo, separadas por um traço fino. A
    referência de 2022 continua FORA, abaixo, como contexto separado. */
 #modoColaborativoWrap .pc-dep-metabox{
-  display:flex; flex-direction:column; align-items:stretch;
-  background:#2C3239; border:1px solid #4D545C; border-radius:7px; overflow:hidden;
+  display:flex; flex-direction:column; align-items:flex-end; gap:3px;
+  background:none; border:none; border-radius:0; overflow:visible;
 }
 #modoColaborativoWrap .pc-dep-metabox .pc-dep-stepper{ border:none; background:none; }
 #modoColaborativoWrap .pc-dep-meta-inbox{
   font-size:9.5px; font-weight:700; color:#AEB5BB; font-variant-numeric:tabular-nums;
-  text-align:center; padding:3px 6px 4px; border-top:1px solid #4D545C;
+  text-align:right; padding:0 4px 0 0;
 }
 /* Referência de votação real de 2022 do partido — mais apagada que a
    meta (é contexto, não uma exigência), pedido do usuário 25/08/2026. */
@@ -1596,8 +1596,9 @@
 }
 #modoColaborativoWrap .pc-dep-stepper button:active{ border-color:var(--pc-accent); color:var(--pc-accent); }
 #modoColaborativoWrap .pc-dep-stepper span{
-  min-width:30px; text-align:center; font-size:16px; font-weight:750;
+  min-width:38px; text-align:center; font-size:16px; font-weight:800;
   color:#F2F4F5; font-variant-numeric:tabular-nums;
+  background:#15181B; border:1px solid #3A3F45; border-radius:10px; padding:6px 8px;
 }
 #modoColaborativoWrap .pc-dep-regua{ position:relative; height:8px; margin-top:9px; }
 #modoColaborativoWrap .pc-dep-regua-fina{
@@ -2312,17 +2313,19 @@
   background:none; border:1px dashed rgba(255,154,46,.65); color:#FF9A2E;
 }
 
-/* Mini etiquetas N×QP / N×M ancoradas na RÉGUA da barra do partido
-   (refino 30/08/2026): cada chip senta na marca de vaga correspondente —
-   QP na marca onde o quociente fecha, M na marca da última vaga por
-   média. A régua ganha respiro extra quando os chips existem. */
-#modoColaborativoWrap .pc-dep-regua.com-chips{ margin-top:22px; }
-#modoColaborativoWrap .pc-dep-mix-chip.barra{
-  position:absolute; bottom:7px; transform:translateX(-50%); z-index:2; white-space:nowrap;
-  font-size:8px; font-weight:800; letter-spacing:.03em; font-variant-numeric:tabular-nums;
+/* Etiquetas N×QP / N×M (linha própria, alinhada à direita, abaixo da
+   barra) + mini AGULHAS na régua marcando a posição exata de cada uma —
+   refino do usuário 30/08/2026 (2ª rodada: chip em cima da régua brigava
+   com o alinhamento). */
+#modoColaborativoWrap .pc-dep-mix{ display:flex; justify-content:flex-end; gap:4px; margin:2px 0 0; }
+#modoColaborativoWrap .pc-dep-mix-chip{
+  font-size:8.5px; font-weight:800; letter-spacing:.03em; font-variant-numeric:tabular-nums;
   color:var(--pc-ink-dim); background:#15181B; border:1px solid #2C3239;
-  border-radius:5px; padding:1.5px 5px; pointer-events:none;
+  border-radius:5px; padding:2px 6px;
 }
-#modoColaborativoWrap .pc-dep-mix-chip.barra.media{
-  color:var(--pc-accent); border-color:rgba(52,232,74,.35); background:rgba(52,232,74,.1);
+#modoColaborativoWrap .pc-dep-mix-chip.media{ color:var(--pc-accent); border-color:rgba(52,232,74,.35); background:rgba(52,232,74,.1); }
+#modoColaborativoWrap .pc-dep-agulha{
+  position:absolute; bottom:0; width:2px; height:9px; z-index:2;
+  transform:translateX(-50%); border-radius:1px; background:#AEB5BB; pointer-events:none;
 }
+#modoColaborativoWrap .pc-dep-agulha.media{ background:var(--pc-accent); box-shadow:0 0 4px rgba(52,232,74,.5); }
