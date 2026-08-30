@@ -2296,3 +2296,11 @@
 #modoColaborativoWrap .pc-cmp-cols .pc-cmp-val{ background:none; border:none; font-size:6.8px; font-weight:800; color:var(--pc-ink-dim); }
 #modoColaborativoWrap .pc-cmp-res{ width:46px; flex-shrink:0; text-align:center; font-size:10px; font-weight:750; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
 #modoColaborativoWrap .pc-cmp-pts{ width:24px; flex-shrink:0; text-align:center; font-size:9.5px; font-weight:800; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
+
+/* Selo E-M com a rodada da sobra + estado "marcado sem votos" (30/08/2026):
+   linha com friso laranja tracejado e selo vazado laranja até a pessoa
+   atribuir votação ao candidato que marcou eleito no box. */
+#modoColaborativoWrap .pc-dep-crow.marcado-semvoto{ border-left:2.5px dashed rgba(255,154,46,.6); }
+#modoColaborativoWrap .pc-sen-chip.semvoto{
+  background:none; border:1px dashed rgba(255,154,46,.65); color:#FF9A2E;
+}

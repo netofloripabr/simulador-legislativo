@@ -7087,7 +7087,12 @@ function atualizarBarraPartidoDom(zone, soma) {
 // subpainel de botões · candidatos aninhados (lista completa).
 function renderListaDeputadosFader(grupos, E, totalVagas) {
   const capCand = capCandidatoDeputado();
-  const { counts, corte } = dhondtComCorte(pcState.palpiteEdicao, totalVagas);
+  // calcularDisputaSobra devolve os mesmos counts do dhondtComCorte E o
+  // mapa de rodadas de sobra por cadeira — é o que deixa o selo E-M dizer
+  // "· 1ª"/"· 7ª" (pedido do usuário, 30/08/2026: mesmo detalhe que a
+  // Revisão já mostrava no tooltip, agora no card do palpite).
+  const disputa = calcularDisputaSobra(pcState.palpiteEdicao, totalVagas);
+  const counts = disputa.cadeirasPorPartido, corte = disputa.corte;
   const qeProj = quocienteEleitoral(Math.round(E), totalVagas) || 1;
   const qeAtual = quocienteEleitoral(somaVotosCargo(), totalVagas);
   const idxDe = new Map(pcState.palpiteEdicao.map((p, i) => [p, i]));
@@ -7144,8 +7149,17 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       // eleito pela sobra/método das médias (art. 109, era "SOBRA"). Sem
       // badge quando tem votos mas não fecha vaga (era "FORA") — informação
       // ainda visível pela barra/votação, não precisa de selo à parte.
+      // Marcado no box mas ainda sem votação atribuída (pedido do usuário,
+      // 30/08/2026): selo e linha ganham estado visual próprio — deixa
+      // claro que a vaga foi INDICADA, mas a apuração ainda não a enxerga.
+      const marcadoSemVoto = c.marcadoEleito && cv === 0;
+      const rodadaSobraCand = (disputa.rodadaSobraPorPartido[gi] || [])[k];
       const selo = c.marcadoEleito
-        ? (k < qpDireto ? '<span class="pc-sen-chip" title="Eleito direto pelo quociente partidário (art. 107)">E-QP</span>' : '<span class="pc-sen-chip" title="Eleito pela sobra (método das médias, art. 109)">E-M</span>')
+        ? (marcadoSemVoto
+          ? '<span class="pc-sen-chip semvoto" title="Marcado eleito no box, mas ainda sem votação atribuída — arraste a barra ou digite os votos pra apuração contar.">E</span>'
+          : (k < qpDireto
+            ? '<span class="pc-sen-chip" title="Eleito direto pelo quociente partidário (art. 107)">E-QP</span>'
+            : `<span class="pc-sen-chip" title="Eleito pela sobra (método das médias, art. 109)${rodadaSobraCand !== undefined ? ` — foi a ${rodadaSobraCand}ª sobra distribuída de ${disputa.totalSobrasCargo} no cargo` : ""}">E-M${rodadaSobraCand !== undefined ? ` · ${rodadaSobraCand}ª` : ""}</span>`))
         : "";
       // Posição do candidato na lista do partido (pedido do usuário,
       // 24/08/2026) — discreto, só a colocação por votação de hoje.
@@ -7177,7 +7191,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       </div>`;
       }
       return `
-      <div class="pc-dep-crow${c.votosEditado ? " manual" : ""}" data-dep-cand="${escaparAtributoHtml(c.chave)}">
+      <div class="pc-dep-crow${c.votosEditado ? " manual" : ""}${marcadoSemVoto ? " marcado-semvoto" : ""}" data-dep-cand="${escaparAtributoHtml(c.chave)}">
         <div class="pc-dep-cl1">
           ${posicao}
           ${selo}
