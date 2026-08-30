@@ -610,15 +610,20 @@ function _terrenoEmpacotar(composicao, larguraTotal, alturaMax, n, aspectoAlvo) 
 
 // Ponto de entrada: mesma assinatura de uso que o hemiciclo/case antigos —
 // composicao = [{nome, seats}], totalVagas = tamanho real do plenário.
-// Devolve um <svg> único com o quadrado da cadeira em TAMANHO FIXO
-// (TAM_UNIDADE em px reais, igual pra 40 ou 94 vagas — padrão pedido pelo
-// usuário 30/08/2026, mesma referência da antiga case de cápsulas). Só
-// encolhe (max-width:100%) se a grade não couber na tela — não estica.
+// Devolve um <svg> único com o quadrado da cadeira em ESCALA PROGRESSIVA
+// (pedido do usuário, 30/08/2026): 32.5px (25% maior que o tamanho mínimo)
+// pra plenários pequenos (8 vagas ou menos), reduzindo linearmente até o
+// tamanho mínimo de 26px em 94 vagas ou mais — plenário com poucas
+// cadeiras aproveita o espaço que sobra; com muitas, encolhe pra caber.
 function renderPlenarioTerreno(composicao, totalVagas) {
   const comp = composicao.filter((o) => o.seats > 0).map((o) => ({ nome: o.nome, valor: o.seats }));
   const n = totalVagas;
   if (!n || !comp.length) return "";
-  const GAP = 3, TAXA_ARREDONDAMENTO = 0.12, ASPECTO_ALVO = 1.5, TOLERANCIA = 3.2, TAM_UNIDADE = 26;
+  const MIN_PX = 26, MAX_PX = MIN_PX * 1.25; // 32.5px em 8 vagas, 26px em 94+
+  const N_MIN = 8, N_MAX = 94;
+  const t = Math.min(1, Math.max(0, (n - N_MIN) / (N_MAX - N_MIN)));
+  const TAM_UNIDADE = MAX_PX - t * (MAX_PX - MIN_PX);
+  const GAP = 3, TAXA_ARREDONDAMENTO = 0.12, ASPECTO_ALVO = 1.5, TOLERANCIA = 3.2;
 
   const gGeral = _terrenoMelhorRetangulo(n, Math.ceil(Math.sqrt(n) * TOLERANCIA) + 2, TOLERANCIA, ASPECTO_ALVO);
   const { grupoDe, larguraTotal, alturaTotal } = _terrenoEmpacotar(comp, gGeral.colunas, gGeral.linhas, n, ASPECTO_ALVO);
