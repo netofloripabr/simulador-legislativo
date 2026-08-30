@@ -327,33 +327,23 @@ function corTerreno(indice) {
   return ciclo === 0 ? base : ajustarLuminosidadeTerreno(base, Math.min(0.55, ciclo * 0.28));
 }
 
-function _terrenoMelhorRetangulo(n, larguraMax, tolerancia, aspectoAlvo) {
-  const exatos = [];
-  for (let linhas = 1; linhas <= n; linhas++) {
-    if (n % linhas !== 0) continue;
-    const colunas = n / linhas;
-    if (colunas > larguraMax) continue;
-    const aspecto = colunas / linhas;
-    if (aspecto <= tolerancia && aspecto >= 1 / tolerancia) exatos.push({ linhas, colunas, aspecto });
-  }
-  if (exatos.length) {
-    exatos.sort((a, b) => Math.abs(Math.log(a.aspecto / aspectoAlvo)) - Math.abs(Math.log(b.aspecto / aspectoAlvo)));
-    return exatos[0];
-  }
-  let melhor = null;
+// Escolhe colunas×linhas MINIMIZANDO colunas — como a largura do card é
+// fixa (100%), menos colunas = quadrado unitário de cadeira maior, que é o
+// que importa aqui (pedido do usuário, 30/08/2026: o quadrado tava pequeno
+// demais porque a busca antiga mirava um retângulo "bonito" de 1.5:1 em
+// vez do maior quadrado possível). Só trava numa altura razoável
+// (alturaMaxRel = altura não passa de ~2.2x a largura) pra não esticar o
+// card infinitamente pra baixo; dentro disso, menos colunas sempre vence,
+// desempatando por menor sobra (vazio).
+function _terrenoMelhorRetangulo(n, larguraMax, alturaMaxRel) {
   for (let colunas = 1; colunas <= larguraMax; colunas++) {
     const linhas = Math.ceil(n / colunas);
     const aspecto = colunas / linhas;
-    if (aspecto > tolerancia || aspecto < 1 / tolerancia) continue;
-    const vazio = linhas * colunas - n;
-    const score = vazio * 10 + Math.abs(Math.log(aspecto / aspectoAlvo));
-    if (!melhor || score < melhor.score) melhor = { linhas, colunas, score };
+    if (aspecto < 1 / alturaMaxRel) continue; // altura passaria do limite — tenta mais colunas
+    return { linhas, colunas, vazio: linhas * colunas - n };
   }
-  if (!melhor) {
-    const colunas = larguraMax, linhas = Math.ceil(n / colunas);
-    melhor = { linhas, colunas };
-  }
-  return melhor;
+  const colunas = larguraMax, linhas = Math.ceil(n / colunas);
+  return { linhas, colunas, vazio: linhas * colunas - n };
 }
 
 function _terrenoTerritorio(linha, coluna, linhas, colunas, tam, gap) {
@@ -616,9 +606,9 @@ function renderPlenarioTerreno(composicao, totalVagas) {
   const comp = composicao.filter((o) => o.seats > 0).map((o) => ({ nome: o.nome, valor: o.seats }));
   const n = totalVagas;
   if (!n || !comp.length) return "";
-  const GAP = 3, TAXA_ARREDONDAMENTO = 0.12, ASPECTO_ALVO = 1.5, TOLERANCIA = 3.2, TAM_UNIDADE = 30;
+  const GAP = 3, TAXA_ARREDONDAMENTO = 0.12, ASPECTO_ALVO = 1.5, ALTURA_MAX_REL = 2.2, TAM_UNIDADE = 30;
 
-  const gGeral = _terrenoMelhorRetangulo(n, Math.ceil(Math.sqrt(n) * TOLERANCIA) + 2, TOLERANCIA, ASPECTO_ALVO);
+  const gGeral = _terrenoMelhorRetangulo(n, n, ALTURA_MAX_REL);
   const { grupoDe, larguraTotal, alturaTotal } = _terrenoEmpacotar(comp, gGeral.colunas, gGeral.linhas, n, ASPECTO_ALVO);
 
   const larguraGrade = larguraTotal * (TAM_UNIDADE + GAP) - GAP;
