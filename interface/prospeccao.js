@@ -4319,7 +4319,7 @@ async function renderGrupoHub() {
     <div class="pc-lobby-banner" style="margin-bottom:16px;">
       <div class="pc-lobby-banner-eyebrow">Convide e ganhe</div>
       <div class="pc-lobby-banner-titulo">Seu link pessoal de convite</div>
-      <div class="pc-lobby-banner-corpo">Cada amigo que entrar pelo seu link e <b>depositar a primeira cédula</b> rende <b>1 SL</b> pra você — automático, até 25 SL por conta. Você recebe uma notificação a cada convite convertido.</div>
+      <div class="pc-lobby-banner-corpo">Cada amigo que entrar pelo seu link e <b>depositar a primeira cédula</b> rende <b>1 SL</b> pra você, automaticamente. Você recebe uma notificação a cada convite convertido.</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <button class="pc-lobby-banner-btn" id="pcBtnCopiarConvite">${iconeSvg("copiar", 13)} Copiar link</button>
         <button class="pc-lobby-banner-btn" id="pcBtnZapConvite" style="background:none; border:1px solid #4D545C; color:var(--pc-ink);">${iconeSvg("send", 13)} WhatsApp</button>
@@ -7361,36 +7361,6 @@ function autoPreenchimentoDeputadosFader(E, soPartido) {
   agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
 }
 
-// Plenário "case de cápsulas" (protótipo aprovado em 18/08/2026): grade
-// fixa de nichos (um por vaga) que vai sendo preenchida com cápsulas —
-// quadrado de cantos arredondados com o fundo dos BOTÕES do console
-// (translúcido claro), borda na cor ideológica do partido e a sigla
-// inscrita. Usado em todo plenário exceto a Assembleia de SC (40 vagas),
-// que mantém o hemiciclo em arco exclusivo.
-function renderCasePlenario(composicao, totalVagas) {
-  const assentos = [];
-  [...composicao].sort((a, b) => b.seats - a.seats).forEach((o) => {
-    for (let i = 0; i < o.seats; i++) assentos.push(o.nome);
-  });
-  while (assentos.length < totalVagas) assentos.push(null);
-  const celulas = assentos.slice(0, totalVagas).map((partido) => partido
-    ? `<span class="pc-case-cap" title="${escaparAtributoHtml(partido)}">${siglaCurta(partido)}</span>`
-    : '<span class="pc-case-nicho" title="vaga em aberto"></span>').join("");
-  const poucos = totalVagas <= 5;
-  // Linhas com a MESMA quantidade de cápsulas sempre que possível: procura
-  // um número de colunas (8→14, depois 7→5) que divida as vagas por igual;
-  // sem divisor razoável, cai no arranjo mais compacto com a última linha
-  // centralizada pela própria grade. 16 vagas = 2 linhas de 8 (pedido do
-  // usuário em 18/08/2026).
-  let colunas = 8;
-  if (!poucos) {
-    colunas = 0;
-    for (let c = 8; c <= 14 && !colunas; c++) if (totalVagas % c === 0) colunas = c;
-    for (let c = 7; c >= 5 && !colunas; c--) if (totalVagas % c === 0) colunas = c;
-    if (!colunas) colunas = Math.min(12, Math.ceil(totalVagas / Math.ceil(totalVagas / 12)));
-  }
-  return `<div class="pc-case-grade${poucos ? " poucos" : ""}"${poucos ? "" : ` style="grid-template-columns:repeat(${colunas}, 1fr);"`}>${celulas}</div>`;
-}
 
 // Setas ao lado do contador "marcados/vagas2022": ajustam a quantidade em 1,
 // sem precisar digitar. Quem preenche essa quantidade é sempre recalculado
@@ -7826,19 +7796,16 @@ async function renderCargoEstadual() {
   // o valor guardado só existe depois do primeiro toque na setinha.
   const _plenChave = "plenarioColapsado_" + pcState.cargoAtivo;
   const plenarioColapsado = pcState.expandido[_plenChave] === undefined ? true : !!pcState.expandido[_plenChave];
-  // Fora de Santa Catarina, o hemiciclo vira grade waffle (1 quadrado = 1
-  // cadeira) — formato que se adapta melhor a qualquer número de vagas sem
-  // depender do arco pensado pra 40 cadeiras da Assembleia de SC. Ver desenharHemiciclo
-  // em calculo/eleitoral.js (coresMono.forcarGrade).
-  // Case de cápsulas pra todo plenário EXCETO a Assembleia de SC (que
-  // mantém o hemiciclo em arco) — decisão do usuário em 18/08/2026.
-  const usarCasePlenario = !(pcState.estado === "SC" && pcState.cargoAtivo === "estadual");
-  // A case responde às VAGAS INDICADAS nos boxes (não à apuração
-  // automática): cada grupo aloca as suas N cápsulas com os N candidatos
-  // mais votados dele, contadas pelo partido de origem — achado do
-  // usuário em 18/08 (box em 4 e case mostrando 6).
+  // Plenário "terreno dinâmico" (protótipo v14, paleta 1, aprovado
+  // 30/08/2026) — substitui tanto o hemiciclo em arco (era exclusivo de SC
+  // Estadual) quanto a grade de cápsulas (demais estados/cargos): agora um
+  // único desenho pra todo mundo (ver renderPlenarioTerreno em
+  // calculo/eleitoral.js). Responde às VAGAS INDICADAS nos boxes (não à
+  // apuração automática): cada grupo aloca as suas N cadeiras com os N
+  // candidatos mais votados dele, contadas pelo partido de origem —
+  // achado do usuário em 18/08 (box em 4 e case mostrando 6).
   let composicaoPlenario = composicao;
-  if (usarCasePlenario && pcState.cargoAtivo !== "senador") {
+  if (pcState.cargoAtivo !== "senador") {
     const countsCase = vagasApuradasPorGrupo();
     const porOriginal = {};
     let alocadas = 0;
@@ -7853,21 +7820,18 @@ async function renderCargoEstadual() {
     });
     composicaoPlenario = Object.entries(porOriginal).map(([nome, seats]) => ({ nome, seats }));
   }
-  const hemiciclo = usarCasePlenario
-    ? renderCasePlenario(composicaoPlenario, totalVagasCargo)
-    : desenharHemiciclo(composicao, totalVagasCargo, {
-      preenchido: "var(--pc-glass-border)", texto: "var(--pc-ink)", porPartido: true,
-    });
-  // Resumo visual embaixo do plenário: mesma composição do hemiciclo, em
-  // lista — bolinha com a cor ideológica do partido (corPartidoIdeologico,
-  // calculo/eleitoral.js) + sigla + quantidade de cadeiras + fração da
+  const hemiciclo = renderPlenarioTerreno(composicaoPlenario, totalVagasCargo);
+  // Resumo visual embaixo do plenário: mesma composição do desenho, em
+  // lista — bolinha na MESMA cor do bloco no plenário (corTerreno, mesma
+  // ordem de rank por cadeiras) + sigla + quantidade + fração da
   // representação no total de vagas do cargo, do maior pro menor.
+  const _plenarioOrdenado = [...composicaoPlenario].sort((a, b) => b.seats - a.seats);
   const legendaPlenario = `
     <div style="display:flex; flex-wrap:wrap; gap:4px; opacity:0.55;">
-      ${[...composicaoPlenario].sort((a, b) => b.seats - a.seats).map((o) => `
+      ${_plenarioOrdenado.map((o, _idx) => `
         <div style="display:inline-flex; align-items:center; justify-content:center; gap:3px; padding:4px 6px; border:1px solid rgba(242,244,245,.12); border-radius:6px; white-space:nowrap;">
-          ${usarCasePlenario ? "" : `<span style="width:5px; height:5px; border-radius:50%; background:${corPartidoIdeologico(o.nome)}; flex-shrink:0;"></span>`}
-          <span style="font-size:9px; font-weight:600;">${usarCasePlenario ? siglaCurta(o.nome) : nomePartidoExibicao(o.nome)}: ${o.seats} (${(o.seats / totalVagasCargo * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</span>
+          <span style="width:5px; height:5px; border-radius:50%; background:${corTerreno(_idx)}; flex-shrink:0;"></span>
+          <span style="font-size:9px; font-weight:600;">${siglaCurta(o.nome)}: ${o.seats} (${(o.seats / totalVagasCargo * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</span>
         </div>`).join("")}
     </div>`;
 

@@ -300,6 +300,364 @@ function desenharHemiciclo(listaPartidos, totalVagas, coresMono){
   return `<svg viewBox="0 0 400 225" style="width:100%; display:block; margin:0 auto;">${circles}</svg>`;
 }
 
+// ===== Plenário "terreno dinâmico" (protótipo v14, aprovado 30/08/2026,
+// paleta 1 — aço frio/petróleo) — substitui o hemiciclo em arco (SC
+// Estadual) e a grade de cápsulas (demais estados/cargos) por um único
+// desenho: cada partido nasce no ponto mais baixo do relevo e cresce
+// abraçando esse contorno (peça única fundida, não célula a célula),
+// deformando como uma peça de Tetris quando o encaixe retangular perfeito
+// não cabe. As cadeiras "sem grupo" são reservadas PRIMEIRO, coladas na
+// extremidade inferior direita, pra nenhum partido fechar o buraco no meio
+// do caminho e isolar uma cadeira solta. Geometria inteira em SVG só
+// (nenhuma leitura de DOM) pra caber no padrão de render por string do
+// resto do app — o protótipo original manipulava <div> via
+// getElementById(); aqui vira um viewBox único, responsivo por natureza.
+const PALETA_TERRENO = ['#233D4D', '#34E84A', '#5F7470', '#FF462E', '#889696']; // carvão, grama radioativa, petróleo escuro, terracota ardente, aço frio
+
+function ajustarLuminosidadeTerreno(hex, fatorClaro) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  const mix = (c) => Math.round(c + (255 - c) * fatorClaro);
+  return `#${[mix(r), mix(g), mix(b)].map((c) => c.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function corTerreno(indice) {
+  const base = PALETA_TERRENO[indice % PALETA_TERRENO.length];
+  const ciclo = Math.floor(indice / PALETA_TERRENO.length);
+  return ciclo === 0 ? base : ajustarLuminosidadeTerreno(base, Math.min(0.55, ciclo * 0.28));
+}
+
+function _terrenoMelhorRetangulo(n, larguraMax, tolerancia, aspectoAlvo) {
+  const exatos = [];
+  for (let linhas = 1; linhas <= n; linhas++) {
+    if (n % linhas !== 0) continue;
+    const colunas = n / linhas;
+    if (colunas > larguraMax) continue;
+    const aspecto = colunas / linhas;
+    if (aspecto <= tolerancia && aspecto >= 1 / tolerancia) exatos.push({ linhas, colunas, aspecto });
+  }
+  if (exatos.length) {
+    exatos.sort((a, b) => Math.abs(Math.log(a.aspecto / aspectoAlvo)) - Math.abs(Math.log(b.aspecto / aspectoAlvo)));
+    return exatos[0];
+  }
+  let melhor = null;
+  for (let colunas = 1; colunas <= larguraMax; colunas++) {
+    const linhas = Math.ceil(n / colunas);
+    const aspecto = colunas / linhas;
+    if (aspecto > tolerancia || aspecto < 1 / tolerancia) continue;
+    const vazio = linhas * colunas - n;
+    const score = vazio * 10 + Math.abs(Math.log(aspecto / aspectoAlvo));
+    if (!melhor || score < melhor.score) melhor = { linhas, colunas, score };
+  }
+  if (!melhor) {
+    const colunas = larguraMax, linhas = Math.ceil(n / colunas);
+    melhor = { linhas, colunas };
+  }
+  return melhor;
+}
+
+function _terrenoTerritorio(linha, coluna, linhas, colunas, tam, gap) {
+  const x0 = coluna * (tam + gap), y0 = linha * (tam + gap);
+  return {
+    esq: coluna === 0 ? x0 : x0 - gap / 2,
+    dir: coluna === colunas - 1 ? x0 + tam : x0 + tam + gap / 2,
+    topo: linha === 0 ? y0 : y0 - gap / 2,
+    baixo: linha === linhas - 1 ? y0 + tam : y0 + tam + gap / 2,
+  };
+}
+
+function _terrenoSegmentosDoGrupo(grupoDe, linhas, colunas, tam, gap, alvo) {
+  const segs = [];
+  for (let l = 0; l < linhas; l++) {
+    for (let c = 0; c < colunas; c++) {
+      if (grupoDe(l, c) !== alvo) continue;
+      const t = _terrenoTerritorio(l, c, linhas, colunas, tam, gap);
+      if (grupoDe(l - 1, c) !== alvo) segs.push([[t.esq, t.topo], [t.dir, t.topo]]);
+      if (grupoDe(l + 1, c) !== alvo) segs.push([[t.esq, t.baixo], [t.dir, t.baixo]]);
+      if (grupoDe(l, c - 1) !== alvo) segs.push([[t.esq, t.topo], [t.esq, t.baixo]]);
+      if (grupoDe(l, c + 1) !== alvo) segs.push([[t.dir, t.topo], [t.dir, t.baixo]]);
+    }
+  }
+  return segs;
+}
+
+function _terrenoCosturarLaco(segs) {
+  const chave = (p) => `${p[0].toFixed(2)},${p[1].toFixed(2)}`;
+  const adj = new Map();
+  segs.forEach(([a, b]) => {
+    const ka = chave(a), kb = chave(b);
+    if (!adj.has(ka)) adj.set(ka, []);
+    if (!adj.has(kb)) adj.set(kb, []);
+    adj.get(ka).push(b);
+    adj.get(kb).push(a);
+  });
+  let atual = segs[0][0];
+  let chaveAtual = chave(atual);
+  const chaveInicial = chaveAtual;
+  let veioDe = null;
+  const laco = [atual];
+  for (let i = 0; i < segs.length + 5; i++) {
+    const vizinhos = adj.get(chaveAtual) || [];
+    const proximo = vizinhos.find((p) => chave(p) !== veioDe) || vizinhos[0];
+    if (!proximo) break;
+    veioDe = chaveAtual;
+    atual = proximo;
+    chaveAtual = chave(atual);
+    if (chaveAtual === chaveInicial) break;
+    laco.push(atual);
+  }
+  return laco;
+}
+
+function _terrenoAreaAbsoluta(pontos) {
+  let a = 0;
+  for (let i = 0; i < pontos.length; i++) {
+    const [x1, y1] = pontos[i], [x2, y2] = pontos[(i + 1) % pontos.length];
+    a += x1 * y2 - x2 * y1;
+  }
+  return Math.abs(a) / 2;
+}
+
+function _terrenoEncolherLaco(pontos, offset) {
+  const n = pontos.length;
+  const unit = ([dx, dy]) => { const len = Math.hypot(dx, dy) || 1; return [dx / len, dy / len]; };
+  function tentativa(sinal) {
+    return pontos.map((p, i) => {
+      const prev = pontos[(i - 1 + n) % n], next = pontos[(i + 1) % n];
+      const dIn = unit([p[0] - prev[0], p[1] - prev[1]]);
+      const dOut = unit([next[0] - p[0], next[1] - p[1]]);
+      const nIn = sinal > 0 ? [dIn[1], -dIn[0]] : [-dIn[1], dIn[0]];
+      const nOut = sinal > 0 ? [dOut[1], -dOut[0]] : [-dOut[1], dOut[0]];
+      return [p[0] + (nIn[0] + nOut[0]) * offset, p[1] + (nIn[1] + nOut[1]) * offset];
+    });
+  }
+  const cand1 = tentativa(1), cand2 = tentativa(-1);
+  return _terrenoAreaAbsoluta(cand1) < _terrenoAreaAbsoluta(cand2) ? cand1 : cand2;
+}
+
+function _terrenoSimplificarLaco(pontos) {
+  const n = pontos.length;
+  return pontos.filter((p, i) => {
+    const prev = pontos[(i - 1 + n) % n], next = pontos[(i + 1) % n];
+    const v1 = [p[0] - prev[0], p[1] - prev[1]];
+    const v2 = [next[0] - p[0], next[1] - p[1]];
+    const cross = v1[0] * v2[1] - v1[1] * v2[0];
+    return Math.abs(cross) > 0.01;
+  });
+}
+
+function _terrenoPoligonoArredondado(pontos, raio) {
+  const n = pontos.length;
+  let area = 0;
+  for (let i = 0; i < n; i++) {
+    const [x1, y1] = pontos[i], [x2, y2] = pontos[(i + 1) % n];
+    area += x1 * y2 - x2 * y1;
+  }
+  const sinalGeral = Math.sign(area) || 1;
+  let d = "";
+  for (let i = 0; i < n; i++) {
+    const prev = pontos[(i - 1 + n) % n], curr = pontos[i], next = pontos[(i + 1) % n];
+    const v1 = [curr[0] - prev[0], curr[1] - prev[1]];
+    const v2 = [next[0] - curr[0], next[1] - curr[1]];
+    const len1 = Math.hypot(...v1), len2 = Math.hypot(...v2);
+    const r = Math.min(raio, len1 / 2, len2 / 2);
+    const p1 = [curr[0] - (v1[0] / len1) * r, curr[1] - (v1[1] / len1) * r];
+    const p2 = [curr[0] + (v2[0] / len2) * r, curr[1] + (v2[1] / len2) * r];
+    const cross = v1[0] * v2[1] - v1[1] * v2[0];
+    const convexo = Math.sign(cross) === sinalGeral;
+    const sweep = convexo ? 1 : 0;
+    d += (i === 0 ? `M ${p1[0]} ${p1[1]} ` : `L ${p1[0]} ${p1[1]} `);
+    d += `A ${r} ${r} 0 0 ${sweep} ${p2[0]} ${p2[1]} `;
+  }
+  return d + "Z";
+}
+
+function _terrenoBlocoFundido(grupoDe, linhas, colunas, tam, gap, taxaArredondamento, alvo) {
+  const segs = _terrenoSegmentosDoGrupo(grupoDe, linhas, colunas, tam, gap, alvo);
+  if (!segs.length) return null;
+  const bruto = _terrenoSimplificarLaco(_terrenoCosturarLaco(segs));
+  const encolhido = _terrenoSimplificarLaco(_terrenoEncolherLaco(bruto, gap / 2));
+  return _terrenoPoligonoArredondado(encolhido, tam * taxaArredondamento);
+}
+
+function _terrenoCantoDoGrupo(grupoDe, linhas, colunas, tam, gap, alvo) {
+  let colMin = Infinity, linMin = Infinity, existe = false;
+  for (let l = 0; l < linhas; l++) {
+    for (let c = 0; c < colunas; c++) {
+      if (grupoDe(l, c) !== alvo) continue;
+      existe = true;
+      if (l < linMin || (l === linMin && c < colMin)) { linMin = l; colMin = c; }
+    }
+  }
+  if (!existe) return null;
+  let larguraColunas = 0;
+  for (let c = colMin; c < colunas && grupoDe(linMin, c) === alvo; c++) larguraColunas++;
+  return { x: colMin * (tam + gap), y: linMin * (tam + gap), larguraPx: larguraColunas * (tam + gap) - gap, alturaPx: tam };
+}
+
+// Empacota o terreno: reserva "sem grupo" + sobra vazia primeiro, colado no
+// canto inferior direito; depois cada partido tenta um retângulo perfeito
+// e, se não couber em lugar nenhum, deforma (tipo Tetris) pro vão que sobrou.
+function _terrenoEmpacotar(composicao, larguraTotal, alturaMax, n, aspectoAlvo) {
+  const somaPartidos = composicao.reduce((s, p) => s + p.valor, 0);
+  const semGrupo = n - somaPartidos;
+  const vazio = larguraTotal * alturaMax - somaPartidos - semGrupo;
+  const reservaPorColuna = new Array(larguraTotal).fill(0);
+  const ordemReserva = [];
+  {
+    let restante = semGrupo + vazio, col = larguraTotal - 1, contados = 0;
+    while (restante > 0) {
+      const rotulo = contados < vazio ? "vazio" : "sem-grupo";
+      ordemReserva.push({ coluna: col, rotulo });
+      reservaPorColuna[col]++;
+      contados++;
+      restante--;
+      col--;
+      if (col < 0) col = larguraTotal - 1;
+    }
+  }
+  const tetoPorColuna = reservaPorColuna.map((r) => alturaMax - r);
+  const skyline = new Array(larguraTotal).fill(0);
+  const grade = [];
+  const garantirLinha = (l) => { while (grade.length <= l) grade.push(new Array(larguraTotal).fill(null)); };
+
+  function tentarRetangulo(nome, valor) {
+    const formatos = [];
+    for (let rows = 1; rows <= valor; rows++) {
+      if (valor % rows !== 0) continue;
+      const cols = valor / rows;
+      if (cols > larguraTotal || rows > alturaMax) continue;
+      formatos.push({ rows, cols, score: Math.abs(Math.log((cols / rows) / aspectoAlvo)) });
+    }
+    formatos.sort((a, b) => a.score - b.score);
+    for (const f of formatos) {
+      let melhorX = -1, melhorY = Infinity;
+      for (let x = 0; x <= larguraTotal - f.cols; x++) {
+        let plano = true, y = skyline[x];
+        for (let i = x; i < x + f.cols; i++) {
+          if (skyline[i] !== y || y + f.rows > tetoPorColuna[i]) { plano = false; break; }
+        }
+        if (plano && y < melhorY) { melhorY = y; melhorX = x; }
+      }
+      if (melhorX >= 0) {
+        for (let i = melhorX; i < melhorX + f.cols; i++) {
+          for (let k = 0; k < f.rows; k++) { garantirLinha(melhorY + k); grade[melhorY + k][i] = nome; }
+          skyline[i] = melhorY + f.rows;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function colocarDeformado(nome, valor) {
+    let x0 = 0, minH = skyline[0];
+    for (let x = 1; x < larguraTotal; x++) if (skyline[x] < minH) { minH = skyline[x]; x0 = x; }
+    let esq = x0, dir = x0;
+    const larguraAlvo = Math.min(larguraTotal, Math.max(1, Math.ceil(Math.sqrt(valor * 1.4))));
+    const capacidade = () => { let cap = 0; for (let i = esq; i <= dir; i++) cap += Math.max(0, tetoPorColuna[i] - skyline[i]); return cap; };
+    while ((dir - esq + 1) < larguraAlvo || capacidade() < valor) {
+      const podeEsq = esq > 0, podeDir = dir < larguraTotal - 1;
+      if (!podeEsq && !podeDir) break;
+      const alturaEsq = podeEsq ? skyline[esq - 1] : Infinity;
+      const alturaDir = podeDir ? skyline[dir + 1] : Infinity;
+      if (alturaEsq <= alturaDir) esq--; else dir++;
+    }
+    let absorveu = true;
+    while (absorveu) {
+      absorveu = false;
+      if (esq > 0 && skyline[esq - 1] < skyline[esq]) { esq--; absorveu = true; }
+      if (dir < larguraTotal - 1 && skyline[dir + 1] < skyline[dir]) { dir++; absorveu = true; }
+    }
+    let restante = valor, guarda = 0;
+    while (restante > 0 && guarda++ < larguraTotal * alturaMax + 5) {
+      let x = -1, minY = Infinity;
+      for (let i = esq; i <= dir; i++) if (skyline[i] < tetoPorColuna[i] && skyline[i] < minY) { minY = skyline[i]; x = i; }
+      if (x === -1) {
+        const podeEsq = esq > 0, podeDir = dir < larguraTotal - 1;
+        if (podeEsq && (!podeDir || skyline[esq - 1] <= skyline[dir + 1])) esq--;
+        else if (podeDir) dir++;
+        else break;
+        continue;
+      }
+      const y = skyline[x];
+      garantirLinha(y);
+      grade[y][x] = nome;
+      skyline[x]++;
+      restante--;
+    }
+  }
+
+  function colocarBloco(nome, valor) { if (!tentarRetangulo(nome, valor)) colocarDeformado(nome, valor); }
+  [...composicao].sort((a, b) => b.valor - a.valor).forEach((p) => colocarBloco(p.nome, p.valor));
+
+  const contadorPorColuna = new Array(larguraTotal).fill(0);
+  ordemReserva.forEach(({ coluna, rotulo }) => {
+    const l = alturaMax - 1 - contadorPorColuna[coluna];
+    contadorPorColuna[coluna]++;
+    garantirLinha(l);
+    grade[l][coluna] = rotulo === "vazio" ? "vazio-real" : "sem-grupo";
+  });
+
+  const alturaTotal = Math.min(grade.length || 1, alturaMax);
+  function grupoDe(l, c) {
+    if (l < 0 || c < 0 || c >= larguraTotal || l >= alturaTotal) return "fora";
+    const v = grade[l][c];
+    return (!v || v === "vazio-real") ? "fora" : v;
+  }
+  return { grupoDe, larguraTotal, alturaTotal };
+}
+
+// Ponto de entrada: mesma assinatura de uso que o hemiciclo/case antigos —
+// composicao = [{nome, seats}], totalVagas = tamanho real do plenário.
+// Devolve um <svg> único (viewBox proporcional à grade, width:100%) —
+// escala sozinho em qualquer largura de tela (320–768px testado).
+function renderPlenarioTerreno(composicao, totalVagas) {
+  const comp = composicao.filter((o) => o.seats > 0).map((o) => ({ nome: o.nome, valor: o.seats }));
+  const n = totalVagas;
+  if (!n || !comp.length) return "";
+  const GAP = 3, TAXA_ARREDONDAMENTO = 0.12, ASPECTO_ALVO = 1.5, TOLERANCIA = 3.2, TAM_UNIDADE = 30;
+
+  const gGeral = _terrenoMelhorRetangulo(n, Math.ceil(Math.sqrt(n) * TOLERANCIA) + 2, TOLERANCIA, ASPECTO_ALVO);
+  const { grupoDe, larguraTotal, alturaTotal } = _terrenoEmpacotar(comp, gGeral.colunas, gGeral.linhas, n, ASPECTO_ALVO);
+
+  const larguraGrade = larguraTotal * (TAM_UNIDADE + GAP) - GAP;
+  const alturaGrade = alturaTotal * (TAM_UNIDADE + GAP) - GAP;
+
+  let svg = "";
+  for (let l = 0; l < alturaTotal; l++) {
+    for (let c = 0; c < larguraTotal; c++) {
+      if (grupoDe(l, c) !== "sem-grupo") continue;
+      const x = c * (TAM_UNIDADE + GAP), y = l * (TAM_UNIDADE + GAP);
+      svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${TAM_UNIDADE}" height="${TAM_UNIDADE}" rx="${(TAM_UNIDADE * TAXA_ARREDONDAMENTO).toFixed(1)}" fill="#2C3239"><title>Sem grupo</title></rect>`;
+    }
+  }
+
+  const ordenados = [...comp].sort((a, b) => b.valor - a.valor);
+  ordenados.forEach((p, idx) => {
+    const cor = corTerreno(idx);
+    const d = _terrenoBlocoFundido(grupoDe, alturaTotal, larguraTotal, TAM_UNIDADE, GAP, TAXA_ARREDONDAMENTO, p.nome);
+    if (!d) return;
+    svg += `<path d="${d}" fill="${cor}"><title>${p.nome} — ${p.valor} (${(p.valor / n * 100).toFixed(1).replace(".", ",")}%)</title></path>`;
+
+    const canto = _terrenoCantoDoGrupo(grupoDe, alturaTotal, larguraTotal, TAM_UNIDADE, GAP, p.nome);
+    if (canto) {
+      const rotulo = `${siglaCurta(p.nome)} (${p.valor})`;
+      const pad = 5;
+      const fonte = Math.max(8, Math.min(11, (canto.larguraPx - pad * 2) / (rotulo.length * 0.56)));
+      const coube = (canto.larguraPx - pad * 2) >= rotulo.length * fonte * 0.56 && canto.alturaPx > fonte + pad * 2;
+      if (coube) {
+        const nCor = parseInt(cor.slice(1), 16);
+        const lum = 0.299 * ((nCor >> 16) & 255) + 0.587 * ((nCor >> 8) & 255) + 0.114 * (nCor & 255);
+        const corTexto = lum > 150 ? "#0A1410" : "#F2F4F5";
+        svg += `<text x="${(canto.x + pad).toFixed(1)}" y="${(canto.y + pad).toFixed(1)}" dominant-baseline="hanging" font-size="${fonte.toFixed(1)}" font-weight="600" font-family="var(--sans)" fill="${corTexto}">${rotulo}</text>`;
+      }
+    }
+  });
+
+  return `<svg viewBox="0 0 ${larguraGrade.toFixed(1)} ${alturaGrade.toFixed(1)}" style="width:100%; height:auto; display:block; margin:0 auto;">${svg}</svg>`;
+}
+
 
 // ===== Fórmula Matriz de Distribuição (FMD) — PROJETO.md §8.2 =====
 // Regra única do "tapete curto": distribuir votos entre unidades (candidatos
