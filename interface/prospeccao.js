@@ -10150,7 +10150,11 @@ function renderModalSalvarDestino() {
   // ruído. A confirmação de slot ocupado ("Salvar por cima de...?")
   // continua sendo a rede de segurança.
   const rotuloSalvar = "Salvar";
-  const confirmacao = pcState._destinoConfirmando && alvoSel ? `
+  // Padrão de save de game (pedido do usuário, 30/08/2026): a confirmação
+  // SUBSTITUI a fileira Cancelar/Salvar — uma pergunta, um par de botões.
+  // As duas caixas empilhadas de antes liam como duplicação.
+  const confirmando = pcState._destinoConfirmando && alvoSel;
+  const confirmacao = confirmando ? `
     <div class="pc-slotb-confirm">
       <div class="pc-slotb-confirm-q">Sobrepor <b>"${alvoSel.nome}"</b>?</div>
       <div class="pc-slotb-confirm-ops">
@@ -10165,10 +10169,11 @@ function renderModalSalvarDestino() {
         ${linhas.join("")}
         <div class="pc-erro" id="pcErroDestino" style="min-height:16px; margin-top:2px;"></div>
         ${confirmacao}
+        ${confirmando ? "" : `
         <div style="display:flex; gap:8px; margin-top:8px;">
           <button class="ghost" id="pcBtnCancelarDestino" style="flex:1;">Cancelar</button>
           <button class="primary" id="pcBtnConfirmarDestino" style="flex:1;" ${sel ? "" : "disabled"}>${rotuloSalvar}</button>
-        </div>
+        </div>`}
       </div>
     </div>`;
 }
