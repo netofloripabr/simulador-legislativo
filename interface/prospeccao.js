@@ -4701,7 +4701,7 @@ async function renderDesafiosHub() {
   };
   document.querySelectorAll("[data-pc-duelo-whats]").forEach((btn) => btn.addEventListener("click", () => {
     const nomeDuelo = btn.getAttribute("data-pc-duelo-nome");
-    const texto = `Eu já cravei os meus eleitos de 2026 no SIMULALEGIS e te desafio pra um duelo 1×1: "${nomeDuelo}". Monta o teu palpite e vamos ver quem vence: ${_linkDuelo(btn.getAttribute("data-pc-duelo-whats"))}`;
+    const texto = `Bora pro x1? Este é o meu palpite eleitoral legislativo 2026. Tem coragem de encarar?: "${nomeDuelo}". ${_linkDuelo(btn.getAttribute("data-pc-duelo-whats"))}`;
     window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank", "noopener");
   }));
   document.querySelectorAll("[data-pc-duelo-copiar]").forEach((btn) => btn.addEventListener("click", async () => {
@@ -4914,16 +4914,6 @@ async function renderCriarDesafio() {
             </div>`).join("")}
         </div>` : ""}
 
-      ${tipo !== "eleitos" ? `
-        <label class="pc-campo-label">Visibilidade dos votos</label>
-        <div class="pc-cargo-switch" style="margin-bottom:6px;">
-          <button type="button" class="${pcState.desafioCriarVisiveis ? "active" : ""}" id="pcVisAbertos">Abertos</button>
-          <button type="button" class="${!pcState.desafioCriarVisiveis ? "active" : ""}" id="pcVisOcultos">Ocultos</button>
-        </div>
-        <div class="pc-sub" style="margin:0 2px 14px;">${pcState.desafioCriarVisiveis
-          ? "Quem você desafiar vê os seus números na hora de responder."
-          : "O rival preenche às cegas — os dois palpites só aparecem lado a lado depois que ambos selarem."}</div>
-      ` : ""}
 
       <label class="pc-campo-label">Quem você desafia</label>
       ${pcState.desafioCriarAlvo ? `
@@ -5034,11 +5024,6 @@ async function renderCriarDesafio() {
     pcState.desafioCriarVotos[inp.getAttribute("data-pc-voto")] = inp.value;
   }));
 
-  // --- Visibilidade ---
-  const visAb = document.getElementById("pcVisAbertos");
-  if (visAb) visAb.addEventListener("click", () => { pcState.desafioCriarVisiveis = true; renderCriarDesafio(); });
-  const visOc = document.getElementById("pcVisOcultos");
-  if (visOc) visOc.addEventListener("click", () => { pcState.desafioCriarVisiveis = false; renderCriarDesafio(); });
 
   // --- Alvo ---
   document.querySelectorAll("[data-pc-alvo-amigo]").forEach((btn) => btn.addEventListener("click", () => {
@@ -5089,7 +5074,7 @@ async function renderCriarDesafio() {
     }
     btnEnviar.disabled = true;
     status.textContent = "Enviando…";
-    const r = await criarDesafio(pcState.desafioCriarAlvo.aberto ? null : pcState.desafioCriarAlvo.id, nome, pcState.estado, cargo, escopo, meusVotos, tipo, tipo === "eleitos" ? true : pcState.desafioCriarVisiveis, eleitos);
+    const r = await criarDesafio(pcState.desafioCriarAlvo.aberto ? null : pcState.desafioCriarAlvo.id, nome, pcState.estado, cargo, escopo, meusVotos, tipo, true, eleitos);
     if (!r.ok) { status.textContent = "Não deu: " + r.mensagem; btnEnviar.disabled = false; return; }
     try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (e) {}
     // Duelo aberto: destaca o card recém-criado no hub, já com os botões
@@ -5224,13 +5209,40 @@ async function renderAceitarDesafio() {
     try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (err) {}
     pcState.desafioAceitarVotos = {};
     pcState.desafioAceitarCadeiras = null;
-    renderDesafiosHub();
+    renderDueloSelado(r.desafio || desafio, nomeDesafiante);
   });
   document.getElementById("pcBtnRecusarNaAceitar").addEventListener("click", async () => {
     const r = await recusarDesafio(pcState.desafioAceitarId);
     if (!r.ok) { document.getElementById("pcAceitarStatus").textContent = "Não deu: " + r.mensagem; return; }
     renderDesafiosHub();
   });
+}
+
+// Tela pós-aceite (pedido do usuário 30/08/2026): parabeniza quem selou
+// o duelo, explica que o resultado sai junto com a apuração oficial das
+// eleições, aponta pro sistema de pontos (Central de ajuda) e convida a
+// montar a própria lista e desafiar outras pessoas — é a porta de entrada
+// de quem chegou pelo convite de WhatsApp.
+function renderDueloSelado(desafio, nomeDesafiante) {
+  const conteudo = document.getElementById("pcConteudo");
+  conteudo.innerHTML = `
+    <div class="glass-card" style="max-width:420px; margin:0 auto; text-align:center;">
+      <div class="pc-selo-desafio" style="margin:0 auto 12px;">
+        <span class="pc-selo-desafio-ic">${iconeSvg("desafio", 17)}</span>
+        <span class="pc-selo-desafio-tx">Duelo<b>1 × 1</b></span>
+      </div>
+      <h2 style="margin-bottom:6px;">Duelo selado!</h2>
+      <div class="pc-sub" style="margin-bottom:16px;">Seu palpite em "${desafio && desafio.nome ? desafio.nome : "duelo"}" contra ${nomeDesafiante} está travado. <b style="color:var(--pc-ink);">O resultado sai junto com a apuração oficial das eleições de 2026</b> — quem chegar mais perto do resultado real vence.</div>
+
+      <button class="ghost" id="pcBtnComoPontua" style="width:100%; margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("ajuda", 14)} Como funciona a pontuação</button>
+
+      <div class="pc-sub" style="margin-bottom:8px; font-weight:700; color:var(--pc-ink);">Agora é a sua vez:</div>
+      <button class="primary" id="pcBtnMontarMinhaLista" style="width:100%; margin-bottom:8px;">Montar a minha própria lista</button>
+      <button class="ghost" id="pcBtnDesafiarOutros" style="width:100%;">Desafiar outras pessoas</button>
+    </div>`;
+  document.getElementById("pcBtnComoPontua").addEventListener("click", () => { pcState.subaba = "ajuda"; renderAppColaborativo(); });
+  document.getElementById("pcBtnMontarMinhaLista").addEventListener("click", () => { pcState.subaba = "selecao"; renderAppColaborativo(); });
+  document.getElementById("pcBtnDesafiarOutros").addEventListener("click", () => { pcState.subaba = "desafios"; renderAppColaborativo(); });
 }
 
 // ===== Painel de comparação do duelo (protótipo aprovado 30/08/2026) =====
