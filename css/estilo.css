@@ -2317,7 +2317,9 @@
    barra) + mini AGULHAS na régua marcando a posição exata de cada uma —
    refino do usuário 30/08/2026 (2ª rodada: chip em cima da régua brigava
    com o alinhamento). */
-#modoColaborativoWrap .pc-dep-mix{ display:flex; justify-content:flex-end; gap:4px; margin:2px 0 0; }
+#modoColaborativoWrap .pc-dep-nmcol{ flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; align-items:flex-start; }
+#modoColaborativoWrap .pc-dep-nmcol .pc-dep-nm{ flex:none; width:100%; }
+#modoColaborativoWrap .pc-dep-mix{ display:flex; gap:4px; }
 #modoColaborativoWrap .pc-dep-mix-chip{
   font-size:8.5px; font-weight:800; letter-spacing:.03em; font-variant-numeric:tabular-nums;
   color:var(--pc-ink-dim); background:#15181B; border:1px solid #2C3239;

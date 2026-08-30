@@ -7208,7 +7208,10 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
     return `
     <div class="pc-dep-card" data-dep-idx="${gi}" data-dep-nome="${escaparAtributoHtml(p.nome)}">
       <div class="pc-dep-l1" data-dep-toggle="${gi}">
-        <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
+        <span class="pc-dep-nmcol">
+          <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
+          ${vg > 0 ? `<span class="pc-dep-mix"><span class="pc-dep-mix-chip">${qpDireto}×QP</span>${sobras > 0 ? `<span class="pc-dep-mix-chip media">${sobras}×M</span>` : ""}</span>` : ""}
+        </span>
         <div class="pc-dep-boxcol">
           <div class="pc-dep-metabox">
             <div class="pc-dep-stepper" data-dep-stepper="${gi}">
@@ -7233,7 +7236,6 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         if (sobras > 0) agulhas += `<span class="pc-dep-agulha media" style="left:${posN(qpDireto + sobras).toFixed(2)}%"></span>`;
         return agulhas;
       })())}
-      ${vg > 0 ? `<div class="pc-dep-mix"><span class="pc-dep-mix-chip">${qpDireto}×QP</span>${sobras > 0 ? `<span class="pc-dep-mix-chip media">${sobras}×M</span>` : ""}</div>` : ""}
       <div class="pc-dep-notif">
         <span class="pc-dep-notif-luz"></span>
         <span class="pc-dep-notif-txt" data-normal="${escaparAtributoHtml(notificacaoDep(soma, meta, vagasInd, qeProj))}">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
