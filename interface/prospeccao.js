@@ -7274,7 +7274,12 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         // POSIÇÃO das marcas vira uma mini agulha na régua — cinza na
         // marca onde o quociente fecha, verde na da última vaga por média.
         if (vg <= 0) return "";
-        const posN = (n) => Math.min(100, course > 0 ? (n * qeProj) / course * 100 : 0);
+        // Régua das agulhas = a MESMA dos rótulos (QE da apuração de
+        // agora, qeAtual) — corrige o cenário do usuário 30/08/2026 em
+        // que "12×QP / 2×M" apareciam plantadas na régua da PROJEÇÃO,
+        // à frente do preenchimento, lendo como "não chegou na sobra"
+        // quando a apuração já dava as vagas.
+        const posN = (n) => Math.min(100, course > 0 ? (n * (qeAtual || qeProj)) / course * 100 : 0);
         const posQp = posN(qpDireto), posM = posN(qpDireto + sobras);
         // Variante C aprovada (30/08/2026): o rótulo mora NA agulha. Se as
         // duas marcas encostam (< 15 pontos de largura), o rótulo do QP
