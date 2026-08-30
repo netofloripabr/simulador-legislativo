@@ -625,12 +625,27 @@ function _terrenoEmpacotar(composicao, larguraTotal, alturaMax, n, aspectoAlvo) 
 function renderPlenarioTerreno(composicao, totalVagas) {
   const comp = composicao.filter((o) => o.seats > 0).map((o) => ({ nome: o.nome, valor: o.seats }));
   const n = totalVagas;
-  if (!n || !comp.length) return "";
+  if (!n) return "";
   const MIN_PX = 26, MAX_PX = 50; // 50px em 8 vagas, 26px em 94+
   const N_MIN = 8, N_MAX = 94;
   const t = Math.min(1, Math.max(0, (n - N_MIN) / (N_MAX - N_MIN)));
   const TAM_UNIDADE = MAX_PX - t * (MAX_PX - MIN_PX);
   const GAP = 3, TAXA_ARREDONDAMENTO = 0.12, ASPECTO_ALVO = 1.5, TOLERANCIA = 3.2;
+
+  // Nenhuma vaga marcada ainda: o plenário aparece MESMO ASSIM, com todas
+  // as cadeiras em aberto (grade apagada) — sumir com o desenho lia como
+  // defeito (achado do usuário, 30/08/2026).
+  if (!comp.length) {
+    const gVazio = _terrenoMelhorRetangulo(n, Math.ceil(Math.sqrt(n) * TOLERANCIA) + 2, TOLERANCIA, ASPECTO_ALVO);
+    const larguraV = gVazio.colunas * (TAM_UNIDADE + GAP) - GAP;
+    const alturaV = gVazio.linhas * (TAM_UNIDADE + GAP) - GAP;
+    let celulas = "";
+    for (let i = 0; i < n; i++) {
+      const c = i % gVazio.colunas, l = Math.floor(i / gVazio.colunas);
+      celulas += `<rect x="${(c * (TAM_UNIDADE + GAP)).toFixed(1)}" y="${(l * (TAM_UNIDADE + GAP)).toFixed(1)}" width="${TAM_UNIDADE.toFixed(1)}" height="${TAM_UNIDADE.toFixed(1)}" rx="${(TAM_UNIDADE * TAXA_ARREDONDAMENTO).toFixed(1)}" fill="#1E2226"><title>vaga em aberto</title></rect>`;
+    }
+    return `<svg width="${larguraV.toFixed(1)}" height="${alturaV.toFixed(1)}" viewBox="0 0 ${larguraV.toFixed(1)} ${alturaV.toFixed(1)}" style="max-width:100%; height:auto; display:block; margin:0 auto;">${celulas}</svg>`;
+  }
 
   const gGeral = _terrenoMelhorRetangulo(n, Math.ceil(Math.sqrt(n) * TOLERANCIA) + 2, TOLERANCIA, ASPECTO_ALVO);
   const { grupoDe, larguraTotal, alturaTotal } = _terrenoEmpacotar(comp, gGeral.colunas, gGeral.linhas, n, ASPECTO_ALVO);
