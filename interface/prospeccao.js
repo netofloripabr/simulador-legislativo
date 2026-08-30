@@ -9269,6 +9269,16 @@ function attachListenersSelecao() {
       if (ok) {
         await renderCargoEstadual();
         mostrarStatusSalvamento(`Salvo em "${nome}". Pode continuar editando.`);
+      } else {
+        // Falha (rede/banco): sem isto o modal ficava congelado na tela
+        // sem nenhuma mensagem — o clique parecia morto (achado do
+        // usuário, 30/08/2026). Reabre com o erro visível pra pessoa
+        // tentar de novo.
+        pcState.modalSalvarDestinoAberto = true;
+        pcState._destinoSelecionado = id;
+        await renderCargoEstadual();
+        const erroEl = document.getElementById("pcErroDestino");
+        if (erroEl) erroEl.textContent = pcState._statusSalvamentoMsg || "Não consegui salvar — confira a conexão e tente de novo.";
       }
     };
     const confirmarDestino = async () => {
@@ -9305,6 +9315,13 @@ function attachListenersSelecao() {
         if (ok) {
           await renderCargoEstadual();
           mostrarStatusSalvamento(`Lista "${nome}" salva. Pode continuar editando.`);
+        } else {
+          pcState.modalSalvarDestinoAberto = true;
+          pcState._destinoSelecionado = "novo";
+          pcState._destinoNomeDigitado = nome;
+          await renderCargoEstadual();
+          const erroEl = document.getElementById("pcErroDestino");
+          if (erroEl) erroEl.textContent = pcState._statusSalvamentoMsg || "Não consegui salvar — confira a conexão e tente de novo.";
         }
         return;
       }
@@ -9949,6 +9966,7 @@ function listaUnificadaRevisao(listaParam, cargo) {
 // #pcSelecaoStatus, ver renderCargoEstadual). Silenciosa se nenhuma das
 // duas existir no momento (não deveria acontecer, mas evita TypeError).
 function mostrarStatusSalvamento(msg) {
+  pcState._statusSalvamentoMsg = msg; // o modal de slots lê isso na falha
   const el = document.getElementById("pcDepositoStatus") || document.getElementById("pcSelecaoStatus");
   if (el) el.textContent = msg;
 }
