@@ -8703,16 +8703,24 @@ async function reordenarComTransicao() {
   // dois rAF: o primeiro garante o layout com o transform aplicado, o
   // segundo dispara a transição de volta pro lugar
   requestAnimationFrame(() => requestAnimationFrame(() => {
+    // Velocidade percebida CONSTANTE nos caminhos longos (pedido do
+    // usuário, 30/08/2026): com duração fixa, um card que viaja meia tela
+    // cruzava voando. Até ~2 alturas de card (280px) vale a duração base
+    // de .625s; acima disso a duração cresce com a distância (velocidade
+    // fixa de 280/.625 ≈ 448px/s), com teto de 1.6s pra não virar lesma.
+    const DIST_BASE = 280, DUR_BASE = 0.625, DUR_MAX = 1.6;
+    let durMax = DUR_BASE;
     emMovimento.forEach((el) => {
-      // .625s = 20% mais lento que os .5s originais (pedido do usuário,
-      // 30/08/2026: o deslize estava rápido demais pra acompanhar).
-      el.style.transition = "transform .625s cubic-bezier(.22,.9,.26,1)";
+      const dist = Math.abs(parseFloat((el.style.transform.match(/-?[\d.]+/) || [0])[0]));
+      const dur = dist <= DIST_BASE ? DUR_BASE : Math.min(DUR_MAX, dist / (DIST_BASE / DUR_BASE));
+      if (dur > durMax) durMax = dur;
+      el.style.transition = `transform ${dur.toFixed(3)}s cubic-bezier(.22,.9,.26,1)`;
       el.style.transform = "";
     });
     setTimeout(() => emMovimento.forEach((el) => {
       el.style.transition = "";
       el.classList.remove("pc-dep-movendo");
-    }), 800);
+    }), Math.round(durMax * 1000) + 180);
   }));
 }
 
