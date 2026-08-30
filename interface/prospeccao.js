@@ -7211,17 +7211,17 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <span class="pc-dep-nmcol">
           <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
           ${vg > 0 ? `<span class="pc-dep-mix"><span class="pc-dep-mix-chip">${qpDireto}×QP</span>${sobras > 0 ? `<span class="pc-dep-mix-chip media">${sobras}×M</span>` : ""}</span>` : ""}
+          ${v2022 > 0 ? `<span class="pc-dep-meta2 pc-dep-meta2-2022">2022: ${formatVotosCompacto(v2022)}</span>` : ""}
         </span>
         <div class="pc-dep-boxcol">
           <div class="pc-dep-metabox">
             <div class="pc-dep-stepper" data-dep-stepper="${gi}">
               <button type="button" data-dep-vaga-menos="${gi}">−</button>
-              <span data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}</span>
+              <span class="pc-dep-stepper-num" data-dep-vaga-edit="${gi}" title="Toque pra digitar">${vagasInd}<i>vagas</i></span>
               <button type="button" data-dep-vaga-mais="${gi}">+</button>
             </div>
             ${meta > 0 ? `<span class="pc-dep-meta-inbox">meta ${formatVotosCompacto(meta)}</span>` : ""}
           </div>
-          ${v2022 > 0 ? `<span class="pc-dep-meta2 pc-dep-meta2-2022">2022: ${formatVotosCompacto(v2022)}</span>` : ""}
         </div>
       </div>
       ${barraPartidoDepHtml(gi, soma, meta, vagasInd, qeProj, course, (() => {
