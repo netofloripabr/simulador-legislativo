@@ -7210,7 +7210,6 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       <div class="pc-dep-l1" data-dep-toggle="${gi}">
         <span class="pc-dep-nmcol">
           <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
-          ${vg > 0 ? `<span class="pc-dep-mix"><span class="pc-dep-mix-chip">${qpDireto}×QP</span>${sobras > 0 ? `<span class="pc-dep-mix-chip media">${sobras}×M</span>` : ""}</span>` : ""}
           ${v2022 > 0 ? `<span class="pc-dep-meta2 pc-dep-meta2-2022">2022: ${formatVotosCompacto(v2022)}</span>` : ""}
         </span>
         <div class="pc-dep-boxcol">
@@ -7231,9 +7230,14 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         // marca onde o quociente fecha, verde na da última vaga por média.
         if (vg <= 0) return "";
         const posN = (n) => Math.min(100, course > 0 ? (n * qeProj) / course * 100 : 0);
+        const posQp = posN(qpDireto), posM = posN(qpDireto + sobras);
+        // Variante C aprovada (30/08/2026): o rótulo mora NA agulha. Se as
+        // duas marcas encostam (< 15 pontos de largura), o rótulo do QP
+        // sobe uma linha pra não atropelar o da média.
+        const perto = qpDireto > 0 && sobras > 0 && Math.abs(posM - posQp) < 15;
         let agulhas = "";
-        if (qpDireto > 0) agulhas += `<span class="pc-dep-agulha" style="left:${posN(qpDireto).toFixed(2)}%"></span>`;
-        if (sobras > 0) agulhas += `<span class="pc-dep-agulha media" style="left:${posN(qpDireto + sobras).toFixed(2)}%"></span>`;
+        if (qpDireto > 0) agulhas += `<span class="pc-dep-agulha" style="left:${posQp.toFixed(2)}%"></span><span class="pc-dep-agulha-rot${perto ? " alto" : ""}" style="left:${posQp.toFixed(2)}%">${qpDireto}×QP</span>`;
+        if (sobras > 0) agulhas += `<span class="pc-dep-agulha media" style="left:${posM.toFixed(2)}%"></span><span class="pc-dep-agulha-rot media" style="left:${posM.toFixed(2)}%">${sobras}×M</span>`;
         return agulhas;
       })())}
       <div class="pc-dep-notif">

@@ -2324,18 +2324,23 @@
    refino do usuário 30/08/2026 (2ª rodada: chip em cima da régua brigava
    com o alinhamento). */
 #modoColaborativoWrap .pc-dep-nmcol{ flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; align-items:flex-start; }
+#modoColaborativoWrap .pc-dep-nmcol .pc-dep-nm{ flex:none; width:100%; }
 #modoColaborativoWrap .pc-dep-nmcol .pc-dep-meta2-2022{ margin-top:auto; padding:0 0 0 1px; }
 #modoColaborativoWrap .pc-dep-l1{ align-items:stretch; }
-#modoColaborativoWrap .pc-dep-nmcol .pc-dep-nm{ flex:none; width:100%; }
-#modoColaborativoWrap .pc-dep-mix{ display:flex; gap:4px; }
-#modoColaborativoWrap .pc-dep-mix-chip{
-  font-size:8.5px; font-weight:800; letter-spacing:.03em; font-variant-numeric:tabular-nums;
-  color:var(--pc-ink-dim); background:#15181B; border:1px solid #2C3239;
-  border-radius:5px; padding:2px 6px;
-}
-#modoColaborativoWrap .pc-dep-mix-chip.media{ color:var(--pc-accent); border-color:rgba(52,232,74,.35); background:rgba(52,232,74,.1); }
+/* Agulhas com micro-rótulo na régua (variante C aprovada 30/08/2026):
+   número e posição viram uma coisa só — "13×QP" na marca do quociente,
+   "2×M" (verde) na marca da última vaga por média. Quando as duas marcas
+   encostam, o rótulo do QP sobe uma linha (.alto). */
+#modoColaborativoWrap .pc-dep-regua.com-chips{ margin-top:24px; }
 #modoColaborativoWrap .pc-dep-agulha{
   position:absolute; bottom:0; width:2px; height:9px; z-index:2;
   transform:translateX(-50%); border-radius:1px; background:#AEB5BB; pointer-events:none;
 }
 #modoColaborativoWrap .pc-dep-agulha.media{ background:var(--pc-accent); box-shadow:0 0 4px rgba(52,232,74,.5); }
+#modoColaborativoWrap .pc-dep-agulha-rot{
+  position:absolute; bottom:11px; transform:translateX(-50%); z-index:2; white-space:nowrap;
+  font-size:7.5px; font-weight:800; letter-spacing:.03em; color:var(--pc-ink-dim);
+  font-variant-numeric:tabular-nums; pointer-events:none;
+}
+#modoColaborativoWrap .pc-dep-agulha-rot.media{ color:var(--pc-accent); }
+#modoColaborativoWrap .pc-dep-agulha-rot.alto{ bottom:21px; }
