@@ -158,6 +158,8 @@ const CARGOS = [
 const PC_ICONES = {
   // cadeado (voto oculto no Duelo) e confere (check simples da comparação)
   // — mesmo traço 1.3-1.4 do resto do mapa, migração 38.
+  // pino de mapa (Trocar estado, 30/08/2026)
+  mapa: '<path d="M8 14.5s-4.6-4.2-4.6-7.6A4.6 4.6 0 018 2.3a4.6 4.6 0 014.6 4.6c0 3.4-4.6 7.6-4.6 7.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><circle cx="8" cy="6.8" r="1.7" fill="none" stroke="currentColor" stroke-width="1.3"></circle>',
   cadeado: '<rect x="3.2" y="7" width="9.6" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"></rect><path d="M5.2 7V5a2.8 2.8 0 015.6 0v2" fill="none" stroke="currentColor" stroke-width="1.4"></path>',
   confere: '<path d="M3 8.4l3.2 3.2L13 4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>',
   ballot: '<path d="M2.5 6.5h11v7a1.2 1.2 0 01-1.2 1.2H3.7A1.2 1.2 0 012.5 13.5v-7z" fill="none" stroke="currentColor" stroke-width="1.3"></path><path d="M4.5 6.5h7" stroke="currentColor" stroke-width="1.3"></path><rect x="6.6" y="2" width="3.4" height="4.8" rx=".5" fill="none" stroke="currentColor" stroke-width="1.2" transform="rotate(12 8.3 4.4)"></rect>',
@@ -1170,6 +1172,14 @@ function renderTelaEstado() {
       <button class="primary" id="pcBtnConfirmarEstado" disabled>Continuar</button>
     </div>`;
   document.getElementById("pcBtnVoltarEstado").addEventListener("click", () => {
+    // Modo "trocar estado" do usuário logado (30/08/2026): voltar cai no
+    // Painel, não na capa de acesso.
+    if (pcState.trocaEstadoLogado) {
+      pcState.trocaEstadoLogado = false;
+      pcState.subaba = "painel";
+      renderAppColaborativo();
+      return;
+    }
     pcState.tela = "landing";
     renderColaborativo();
   });
@@ -1229,6 +1239,20 @@ function renderTelaEstado() {
   document.getElementById("pcBtnConfirmarEstado").addEventListener("click", async () => {
     pcState.estado = ufCentralizado;
     try { window.storage.set("pc-estado-escolhido", ufCentralizado); } catch (e) { /* sem storage, segue */ }
+    // Logado trocando de estado: limpa TODO cache por-estado (rascunhos,
+    // palpites em edição, ordem congelada) — cada UF tem os próprios
+    // rascunhos no banco (migração 27), nada se perde na troca.
+    if (pcState.trocaEstadoLogado) {
+      pcState.trocaEstadoLogado = false;
+      pcState.palpitesPorCargo = {};
+      pcState.palpiteEdicao = null;
+      pcState.ordemPartidosFixa = null;
+      pcState.desafioCriarCadeiras = null;
+      await garantirRascunhosCarregados();
+      pcState.subaba = "painel";
+      renderAppColaborativo();
+      return;
+    }
     await garantirRascunhosCarregados();
     if (!pcState.palpiteEdicao) pcState.palpiteEdicao = montarEstadoPalpite("assembleia", null, null, "estadual", pcState.estado);
     pcState.tela = "selecao-convidado";
@@ -3389,6 +3413,7 @@ async function renderPainelPrincipal() {
 
     <div class="pc-lobby-mais-tit">Mais funções</div>
     <div class="pc-lobby-mais">
+      <button class="pc-lobby-mais-item" id="pcMenuTrocarEstado">${iconeSvg("mapa", 15)}<span>Trocar estado · <b style="color:var(--pc-accent);">${pcState.estado}</b></span>${iconeSvg("setaDireita", 13)}</button>
       <button class="pc-lobby-mais-item" id="pcMenuAjudaLobby">${iconeSvg("ajuda", 15)}<span>Central de ajuda</span>${iconeSvg("setaDireita", 13)}</button>
     </div>
   `;
@@ -3460,6 +3485,10 @@ async function renderPainelPrincipal() {
   document.getElementById("pcBtnConviteBanner").addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("grupo");
     pcState.subaba = "grupo"; renderAppColaborativo();
+  });
+  document.getElementById("pcMenuTrocarEstado").addEventListener("click", () => {
+    pcState.trocaEstadoLogado = true;
+    renderTelaEstado();
   });
   document.getElementById("pcMenuAjudaLobby").addEventListener("click", () => {
     // Central de ajuda é conteúdo fixo (regras do jogo), sem depender de
