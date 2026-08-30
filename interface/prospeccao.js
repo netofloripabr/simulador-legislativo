@@ -1002,7 +1002,7 @@ function farolTrilhaHtml(passo) {
     return `
       ${_farolLinhaTrilha(num > 4 ? ck : "1", "Ter uma lista completa e salva", { feito: num > 4, atual: num <= 4, texto: num <= 4 ? (faseA ? `Seu palpite ainda não fechou os 3 cargos — toque na lista pra continuar de onde parou.` : `Confira os três cargos na Revisão e salve — o botão <span class="pc-farol-minicmd">${iconeSvg("salvar", 11)}</span>.`) : "" })}
       ${_farolLinhaTrilha(num > 5 ? ck : "2", "Depositar a cédula", { feito: num > 5, atual: num === 5, texto: num === 5 ? `A urna <span class="pc-farol-minicmd">${iconeSvg("ballot", 11)}</span> deposita: trava a lista e ela passa a valer no ranking. A primeira é grátis.` : "" })}
-      ${_farolLinhaTrilha(num > 6 ? ck : "3", "Convidar e comparar", { feito: num > 6, atual: num === 6, texto: num === 6 ? "Compartilhe o cartão-desafio — cada amigo que entrar e depositar rende créditos." : "" })}`;
+      ${_farolLinhaTrilha(num > 6 ? ck : "3", "Convidar e comparar", { feito: num > 6, atual: num === 6, texto: num === 6 ? "Compartilhe o convite de duelo — cada amigo que entrar e depositar rende créditos." : "" })}`;
   }
   if (ctx === "revisao") {
     return `
@@ -1021,7 +1021,7 @@ function farolTrilhaHtml(passo) {
     ${_farolLinhaTrilha(faseA ? "1" : ck, "Montar os 3 cargos", { feito: !faseA, atual: faseA, progresso: progMontar, texto: faseA ? "Toque em <b>Continuar palpite</b> — lá dentro o farol te guia cargo a cargo." : "" })}
     ${_farolLinhaTrilha(num > 4 ? ck : "4", "Revisar e salvar a lista", { feito: num > 4, atual: num === 4, texto: num === 4 ? `Confira os três cargos e salve — o botão <span class="pc-farol-minicmd">${iconeSvg("salvar", 11)}</span> na Revisão. A lista fica em Minhas listas, editável.` : "" })}
     ${_farolLinhaTrilha(num > 5 ? ck : "5", "Depositar a cédula", { feito: num > 5, atual: num === 5, texto: num === 5 ? `Em Minhas listas, a urna <span class="pc-farol-minicmd">${iconeSvg("ballot", 11)}</span> deposita — trava a lista e ela passa a valer no ranking. A primeira é grátis.` : "" })}
-    ${_farolLinhaTrilha(num > 6 ? ck : "6", "Convidar e comparar", { feito: num > 6, atual: num === 6, texto: num === 6 ? `Compartilhe o cartão-desafio ou crie um grupo <span class="pc-farol-minicmd">${iconeSvg("convidar", 11)}</span> — cada amigo que entrar e depositar rende créditos.` : "" })}`;
+    ${_farolLinhaTrilha(num > 6 ? ck : "6", "Convidar e comparar", { feito: num > 6, atual: num === 6, texto: num === 6 ? `Compartilhe o convite de duelo ou crie um grupo <span class="pc-farol-minicmd">${iconeSvg("convidar", 11)}</span> — cada amigo que entrar e depositar rende créditos.` : "" })}`;
 }
 
 // O bloco dos níveis 2 e 3 (e, nas telas sem seletor de cargos, também a
@@ -3416,7 +3416,7 @@ async function renderPainelPrincipal() {
 
     ${listaDepositadaPainel && !gateConvidado ? `
     <div style="display:flex; justify-content:flex-end; margin-bottom:12px;">
-      <button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha cédula (cartão-desafio)">${iconeSvg("compartilhar", 16)}</button>
+      <button class="pc-lobby-icon-btn" id="pcBtnCompartilharLobby" title="Compartilhar minha cédula (convite de duelo)">${iconeSvg("compartilhar", 16)}</button>
     </div>` : ""}
 
     <button class="pc-lobby-duelo" id="pcBtnDueloLobby" style="${estiloApagado}" title="${tituloApagado}">
@@ -3447,7 +3447,7 @@ async function renderPainelPrincipal() {
       </button>
       <button class="pc-lobby-tile" id="pcMenuDesafios" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
         <span class="pc-lobby-tile-ic">${iconeSvg("desafio", 24)}</span>
-        <span class="pc-lobby-tile-rot">Desafios</span>
+        <span class="pc-lobby-tile-rot">Duelos</span>
         ${totalDesafiosAtivos ? `<span class="pc-lobby-tile-badge">${totalDesafiosAtivos}</span>` : ""}
       </button>
       <button class="pc-lobby-tile" id="pcMenuLoja" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
@@ -3737,7 +3737,7 @@ function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo, cargosCom
   ctx.fillStyle = "#F2F4F5"; ctx.font = "800 48px Inter, sans-serif";
   ctx.fillText("Eu já cravei os meus eleitos.", W / 2, 208);
   ctx.fillStyle = "#34E84A";
-  ctx.fillText("Quem acerta mais?", W / 2, 268);
+  ctx.fillText("Te desafio pra um duelo 1×1.", W / 2, 268);
   ctx.fillStyle = "#8A9096"; ctx.font = "400 29px Inter, sans-serif";
   const nomeEstado = (ESTADOS_BRASIL.find((e) => e.sigla === pcState.estado) || {}).nome || pcState.estado;
   ctx.fillText(`${nomeExibido} · ${nomeEstado} · Eleições 2026`, W / 2, 320);
@@ -3954,7 +3954,7 @@ async function renderMinhasListas() {
         <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px;">Depositada em ${new Date(l.depositadoEm).toLocaleDateString("pt-BR")}${l.anonimo ? " · anônima" : ""}${l.codigo ? ` · <span style="font-family:var(--mono);">${l.codigo}</span>` : ""}${l.editadaEm ? ` · <span style="color:var(--pc-warning);">editada em ${new Date(l.editadaEm).toLocaleDateString("pt-BR")}</span>` : ""}</div>
       </div>
       <div class="pc-ml-acoes">
-        ${l.codigo ? `<button type="button" class="pc-cmd-acao" data-pc-compartilhar-lista="${l.id}" title="Compartilhar o cartão-desafio">${iconeSvg("compartilhar", 14)}</button>` : ""}
+        ${l.codigo ? `<button type="button" class="pc-cmd-acao" data-pc-compartilhar-lista="${l.id}" title="Compartilhar o convite de duelo">${iconeSvg("compartilhar", 14)}</button>` : ""}
         <button type="button" class="pc-cmd-acao" data-pc-ver-lista="${l.id}" title="Ver a lista (só leitura)">${iconeSvg("buscar", 14)}</button>
       </div>
     </div>`;
@@ -3987,7 +3987,7 @@ async function renderMinhasListas() {
       { icone: "ballot", titulo: "Urna — depositar", legenda: "Deposita a lista: vira sua cédula pra valer — trava e entra no ranking. A primeira é grátis." },
       { icone: "lixeira", titulo: "Lixeira — excluir", legenda: "Apaga a lista em aberto pra sempre. Só existe pra listas ainda não depositadas — cédula depositada nunca pode ser excluída." },
       { icone: "buscar", titulo: "Lupa — ver", legenda: "Só olhar a lista, sem mexer (listas depositadas)." },
-      { icone: "compartilhar", titulo: "Compartilhar", legenda: "Manda o cartão-desafio pros amigos." },
+      { icone: "compartilhar", titulo: "Compartilhar", legenda: "Manda o convite de duelo pros amigos." },
     ]) : ""}${abertas.map(linhaAberta).join("")}` : ""}
     ${depositadas.length ? `<div class="pc-lobby-menu-tit" style="margin-top:${abertas.length ? "18px" : "0"};">Depositadas</div>${depositadas.map(linhaDepositada).join("")}` : ""}
     ${!listas.length ? estadoVazio({ icone: "lista", titulo: "Nenhuma lista ainda", texto: "Monte sua primeira previsão e ela aparece aqui.", botaoLabel: "Criar minha lista", botaoId: "pcBtnEstadoVazioNovaLista" }) : ""}
@@ -4497,7 +4497,7 @@ async function renderGrupoHub() {
   const btnCopiarConvite = document.getElementById("pcBtnCopiarConvite");
   if (btnCopiarConvite) {
     const linkConvite = window.location.origin + window.location.pathname + "?conv=" + pcState.perfil.codigo_convite;
-    const textoConvite = `Eu já cravei os meus eleitos de 2026 no SIMULALEGIS. Quem acerta mais? Entra pelo meu link: ${linkConvite}`;
+    const textoConvite = `Eu já cravei os meus eleitos de 2026 no SIMULALEGIS. Te desafio pra um duelo 1×1 — entra pelo meu link: ${linkConvite}`;
     btnCopiarConvite.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(linkConvite);
@@ -4609,15 +4609,15 @@ async function renderDesafiosHub() {
   conteudo.innerHTML = `
     <div id="pcFarolBloco"></div>
     <button class="ghost" id="pcBtnVoltarDesafios" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Painel</button>
-    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Desafios</div>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Duelos</div>
     <div class="pc-sub" style="margin:0 0 14px 2px;">Quem faz mais pontos na apuração leva. A régua é a mesma do documento e do ranking.</div>
-    <button class="primary" id="pcBtnCriarDesafio" style="width:100%; margin-bottom:6px;">Criar desafio</button>
-    <div style="font-size:11px; color:var(--pc-ink-dim); text-align:center; margin-bottom:18px;">${gratis > 0 ? `${gratis} desafio${gratis === 1 ? "" : "s"} grátis restante${gratis === 1 ? "" : "s"}` : "10 SL por desafio"}</div>
+    <button class="primary" id="pcBtnCriarDesafio" style="width:100%; margin-bottom:6px;">Criar duelo</button>
+    <div style="font-size:11px; color:var(--pc-ink-dim); text-align:center; margin-bottom:18px;">${gratis > 0 ? `${gratis} duelo${gratis === 1 ? "" : "s"} grátis restante${gratis === 1 ? "" : "s"}` : "10 SL por duelo"}</div>
 
     ${recebidos.length ? `<div class="pc-lobby-menu-tit" style="margin-top:0;">Te desafiaram · ${recebidos.length}</div>${recebidos.map(linhaDuelo).join("")}` : ""}
     ${andamento.length ? `<div class="pc-lobby-menu-tit">Em andamento · ${andamento.length}</div>${andamento.map(linhaDuelo).join("")}` : ""}
     ${encerrados.length ? `<div class="pc-lobby-menu-tit">Encerrados</div>${encerrados.slice(0, 10).map(linhaDuelo).join("")}` : ""}
-    ${!desafios.length ? `<div class="pc-lobby-card">${estadoVazio({ icone: "desafio", titulo: "Nenhum desafio ainda", texto: "Crie o primeiro — o custo do desafio já está descrito acima." })}</div>` : ""}
+    ${!desafios.length ? `<div class="pc-lobby-card">${estadoVazio({ icone: "desafio", titulo: "Nenhum duelo ainda", texto: "Crie o primeiro — o custo do duelo já está descrito acima." })}</div>` : ""}
     <div class="pc-status" id="pcDesafiosStatus" style="margin-top:10px; min-height:12px;"></div>
   `;
   atualizarFarol();
@@ -4803,8 +4803,8 @@ async function renderCriarDesafio() {
 
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <button class="ghost" id="pcBtnVoltarCriarDesafio" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Desafios</button>
-      <h2 style="margin-bottom:2px;">Criar desafio</h2>
+      <button class="ghost" id="pcBtnVoltarCriarDesafio" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Duelos</button>
+      <h2 style="margin-bottom:2px;">Criar duelo</h2>
       <div class="pc-sub" style="margin-bottom:14px;">Depois de selado, o que você indicar aqui fica travado até a apuração.</div>
 
       <label class="pc-campo-label">Nome do duelo</label>
@@ -4901,7 +4901,7 @@ async function renderCriarDesafio() {
         <span class="pc-precinho-val" style="${custo === 0 ? "color:var(--pc-accent);" : ""}">${custo === 0 ? "grátis" : "10 SL"}</span>
       </div>
 
-      <button class="primary" id="pcBtnEnviarDesafio" style="width:100%;" ${prontoEnviar ? "" : "disabled"}>Enviar desafio</button>
+      <button class="primary" id="pcBtnEnviarDesafio" style="width:100%;" ${prontoEnviar ? "" : "disabled"}>Enviar duelo</button>
       <div class="pc-status" id="pcCriarDesafioStatus" style="margin-top:8px; min-height:12px;"></div>
     </div>`;
 
@@ -5064,9 +5064,9 @@ async function renderAceitarDesafio() {
     <div class="glass-card" style="max-width:420px; margin:0 auto;">
       <div class="pc-selo-desafio">
         <span class="pc-selo-desafio-ic">${iconeSvg("desafio", 17)}</span>
-        <span class="pc-selo-desafio-tx">Desafio<b>1 × 1</b></span>
+        <span class="pc-selo-desafio-tx">Duelo<b>1 × 1</b></span>
       </div>
-      <h2 style="margin:10px 0 2px;">Aceitar desafio</h2>
+      <h2 style="margin:10px 0 2px;">Aceitar duelo</h2>
       <div class="pc-sub" style="margin-bottom:14px;">${nomeDesafiante} te desafiou em "${desafio.nome}" — ${ehEleitos
         ? `monte o SEU plenário de ${cargoLabel} (${vagasDuelo} cadeira${vagasDuelo === 1 ? "" : "s"}). Depois de aceitar, fica travado até a apuração.`
         : `indique seus votos pros mesmos ${escopo.length} candidato${escopo.length === 1 ? "" : "s"} de ${cargoLabel}. Depois de aceitar, ficam travados até a apuração.`}</div>
@@ -5103,7 +5103,7 @@ async function renderAceitarDesafio() {
       `}
 
       <button class="primary" id="pcBtnConfirmarAceite" style="width:100%;" ${ehEleitos && preenchidas !== vagasDuelo ? "disabled" : ""}>Aceitar</button>
-      <button class="ghost" id="pcBtnRecusarNaAceitar" style="width:100%; margin-top:6px; border:none; color:var(--pc-ink-dim);">Recusar desafio</button>
+      <button class="ghost" id="pcBtnRecusarNaAceitar" style="width:100%; margin-top:6px; border:none; color:var(--pc-ink-dim);">Recusar duelo</button>
       <div class="pc-status" id="pcAceitarStatus" style="margin-top:8px; min-height:12px;"></div>
     </div>`;
 
@@ -5234,7 +5234,7 @@ async function renderComparacaoDesafio() {
 
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:520px; margin:0 auto;">
-      <button class="ghost" id="pcBtnVoltarComparacao" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Desafios</button>
+      <button class="ghost" id="pcBtnVoltarComparacao" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Duelos</button>
 
       <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--pc-glass-border); padding-bottom:12px; margin-bottom:14px;">
         <div>
@@ -5328,7 +5328,7 @@ async function renderNotificacoes() {
       <div class="pc-sub" style="margin-bottom:14px;">Tudo que aconteceu com você no app.</div>
       ${novas.length ? `<div class="pc-lobby-menu-tit" style="margin-top:0;">Novas · ${novas.length}</div><div class="pc-lobby-card" style="padding:2px 14px;">${novas.map(linha).join("")}</div>` : ""}
       ${antes.length ? `<div class="pc-lobby-menu-tit">Antes</div><div class="pc-lobby-card" style="padding:2px 14px;">${antes.map(linha).join("")}</div>` : ""}
-      ${!lista.length ? estadoVazio({ icone: "ajuda", titulo: "Nada por aqui ainda", texto: "Desafios, convites e créditos aparecem aqui conforme forem acontecendo." }) : ""}
+      ${!lista.length ? estadoVazio({ icone: "ajuda", titulo: "Nada por aqui ainda", texto: "Duelos, convites e créditos aparecem aqui conforme forem acontecendo." }) : ""}
     </div>`;
   document.getElementById("pcBtnVoltarNotif").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
   document.querySelectorAll("[data-pc-ver-desafio]").forEach((btn) => btn.addEventListener("click", () => {
@@ -5426,7 +5426,7 @@ function renderLoja() {
       <button class="pc-mini-card" id="pcBtnLojaDesafiar" style="margin-top:8px;">
         <div class="pc-mini-card-icone">${iconeSvg("desafio", 17)}</div>
         <div style="flex:1; min-width:0; text-align:left;">
-          <div style="font-size:13.5px; font-weight:600;">Desafiar alguém</div>
+          <div style="font-size:13.5px; font-weight:600;">Duelar com alguém</div>
           <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:1px;">+5 SL no 1º aceite com cada pessoa, até 5</div>
         </div>
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--pc-ink-dim)" stroke-width="1.8" style="flex-shrink:0;"><path d="M9 6l6 6-6 6"></path></svg>
