@@ -537,7 +537,12 @@ function _terrenoEmpacotar(composicao, larguraTotal, alturaMax, n, aspectoAlvo) 
         for (let i = x; i < x + f.cols; i++) {
           if (skyline[i] !== y || y + f.rows > tetoPorColuna[i]) { plano = false; break; }
         }
-        if (plano && y < melhorY) { melhorY = y; melhorX = x; }
+        // Empate de altura prefere a coluna mais à DIREITA (pedido do
+        // usuário, 30/08/2026: partidos pequenos espalhados pelo meio da
+        // grade pareciam "lacunas desordenadas" — empurrando o empate pra
+        // direita, eles se juntam do mesmo lado da reserva "sem grupo",
+        // em vez de brotar em qualquer buraco vago no meio do desenho.
+        if (plano && y <= melhorY) { melhorY = y; melhorX = x; }
       }
       if (melhorX >= 0) {
         for (let i = melhorX; i < melhorX + f.cols; i++) {
@@ -552,7 +557,9 @@ function _terrenoEmpacotar(composicao, larguraTotal, alturaMax, n, aspectoAlvo) 
 
   function colocarDeformado(nome, valor) {
     let x0 = 0, minH = skyline[0];
-    for (let x = 1; x < larguraTotal; x++) if (skyline[x] < minH) { minH = skyline[x]; x0 = x; }
+    // Mesma preferência por empate à direita do tentarRetangulo acima —
+    // mantém as peças deformadas do mesmo lado da reserva "sem grupo".
+    for (let x = 1; x < larguraTotal; x++) if (skyline[x] <= minH) { minH = skyline[x]; x0 = x; }
     let esq = x0, dir = x0;
     const larguraAlvo = Math.min(larguraTotal, Math.max(1, Math.ceil(Math.sqrt(valor * 1.4))));
     const capacidade = () => { let cap = 0; for (let i = esq; i <= dir; i++) cap += Math.max(0, tetoPorColuna[i] - skyline[i]); return cap; };
