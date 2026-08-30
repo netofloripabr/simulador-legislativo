@@ -969,7 +969,7 @@ function farolTrilhaHtml(passo) {
       })}
       ${_farolLinhaTrilha(st.votosOk ? ck : "2", "Distribuir a votação pelos candidatos", {
         feito: st.votosOk, atual: passo.num === 2, progresso: Math.round(st.pct * 100) + "%",
-        texto: passo.num === 2 ? `Atribua o seu palpite para os candidatos que você conhece: arraste a alça ou digite os votos do candidato. Depois, você palpita nos candidatos que não conhece, ou utiliza o mágico <span class="pc-farol-minicmd">${iconeSvg("completar", 11)}</span> que completa a votação com os votos proporcionais para completar o número de vagas que você selecionou — sem mexer no que você preencheu.` : "",
+        texto: passo.num === 2 ? `Atribua o seu palpite para os candidatos que você conhece: arraste a alça ou digite os votos do candidato. Depois, você palpita nos candidatos que não conhece, ou utiliza o mágico <span class="pc-farol-minicmd">${iconeSvg("completar", 11)}</span> que completa a votação com os votos proporcionais para completar o número de vagas que você selecionou — sem mexer no que você preencheu.<br><br>Repare nas agulhas que nascem na régua do partido: a cinza mostra onde o quociente fecha (N×QP) e a verde onde entra vaga pela média (N×M) — é a apuração reagindo à sua votação em tempo real.` : "",
       })}
       ${_farolLinhaTrilha("3", "Salvar e revisar", {
         atual: passo.num === 3,
@@ -7245,7 +7245,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <span class="pc-dep-notif-txt" data-normal="${escaparAtributoHtml(notificacaoDep(soma, meta, vagasInd, qeProj))}">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
         <button type="button" class="pc-dep-inf${infoAberto ? " aberto" : ""}" data-dep-info="${gi}" title="Detalhes do partido">i</button>
       </div>
-      ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.</div>` : ""}
+      ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.<br>Agulhas na régua = a apuração de agora: a <b style="color:#AEB5BB;">cinza</b> marca onde o quociente fecha (N×QP) e a <b style="color:rgba(52,232,74,.9);">verde</b> onde entra vaga pela média (N×M) — elas respondem à votação de todos os partidos, não ao box.</div>` : ""}
       ${aberto ? `<div class="pc-dep-subpainel">
         <div class="pc-cmd-b22">
           <div class="pc-cmd-b22-ano">2022</div>
