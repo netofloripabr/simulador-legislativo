@@ -1476,7 +1476,7 @@
   /* Mesma lógica responsiva do nome do candidato (.pc-dep-cnm): escala
      com a tela, teto = os 21,75px aprovados (+50%) e piso = o tamanho
      antigo de 14,5px pra não estourar em celular estreito. */
-  flex:1; min-width:0; font-size:clamp(17.4px, 2.7vw, 21.75px); font-weight:650;
+  flex:1; min-width:0; font-size:clamp(20.9px, 3.24vw, 26.1px); font-weight:650;
   color:#F2F4F5; overflow-wrap:anywhere; line-height:1.15;
 }
 #modoColaborativoWrap .pc-dep-sub{ font-size:10px; color:#8A9096; margin-top:1px; }
@@ -1497,7 +1497,8 @@
   display:flex; flex-direction:column; align-items:flex-end; gap:3px;
   background:none; border:none; border-radius:0; overflow:visible;
 }
-#modoColaborativoWrap .pc-dep-metabox .pc-dep-stepper{ border:none; background:none; }
+/* (a anulação antiga border:none/background:none saiu em 30/08/2026 —
+   ela escondia a cápsula fundida aprovada no protótipo) */
 #modoColaborativoWrap .pc-dep-meta-inbox{
   font-size:9.5px; font-weight:700; color:#AEB5BB; font-variant-numeric:tabular-nums;
   text-align:right; padding:0 4px 0 0;
