@@ -655,7 +655,13 @@ function renderPlenarioTerreno(composicao, totalVagas) {
     }
   });
 
-  return `<svg viewBox="0 0 ${larguraGrade.toFixed(1)} ${alturaGrade.toFixed(1)}" style="width:100%; height:auto; display:block; margin:0 auto;">${svg}</svg>`;
+  // Teto de tamanho (pedido do usuário, 30/08/2026): o quadrado da cadeira
+  // não deve mais esticar até preencher a largura toda do card — trava no
+  // MÁXIMO em metade do que rendia antes (fator 0.5 sobre a unidade do
+  // viewBox). width:100% continua encolhendo em telas estreitas; max-width
+  // só impede crescer além do teto em telas largas.
+  const maxWidthPx = (larguraGrade * 0.5).toFixed(1);
+  return `<svg viewBox="0 0 ${larguraGrade.toFixed(1)} ${alturaGrade.toFixed(1)}" style="width:100%; max-width:${maxWidthPx}px; height:auto; display:block; margin:0 auto;">${svg}</svg>`;
 }
 
 
