@@ -3184,6 +3184,10 @@ function diasAteEleicao() {
 // pena saber) — só na tela principal (Painel). A lista de mensagens
 // aparece 2x seguidas no trilho pra loop ficar sem costura visível (anda
 // -50% da largura total, que é exatamente 1 volta da lista).
+// EM STANDBY (pedido do usuário, 30/08/2026): construído e testado, mas
+// desligado por enquanto — trocar LETREIRO_ATIVO pra true quando for a
+// hora de ligar de novo. Não apagar as mensagens/CSS junto.
+const LETREIRO_ATIVO = false;
 const LETREIRO_MENSAGENS = [
   { tag: "Dica", texto: "Convide amigos: quando alguém entra pelo seu link e deposita a 1ª cédula, você ganha 1 SL" },
   { tag: "Orientação", texto: "Arraste a barra do candidato pra distribuir os votos — ou toque duas vezes pra digitar o número direto" },
@@ -3191,8 +3195,11 @@ const LETREIRO_MENSAGENS = [
   { tag: "Dica", texto: "Depois do quociente partidário, o resto das vagas vai pra aba \"Disputa das sobras\"" },
 ];
 function montarLetreiroPainel() {
+  if (!LETREIRO_ATIVO) return "";
   const itens = LETREIRO_MENSAGENS.map((m) => `<span><span class="pc-letreiro-tag">${m.tag}</span>${m.texto}</span>`).join("");
-  const duracao = Math.max(16, LETREIRO_MENSAGENS.length * 6.5);
+  // Velocidade reduzida (pedido do usuário, 30/08/2026): de 6.5s por
+  // mensagem pra 11s — dá mais tempo de ler cada frase antes de rolar.
+  const duracao = Math.max(28, LETREIRO_MENSAGENS.length * 11);
   return `
     <div class="pc-letreiro" id="pcLetreiroPainel" title="Toque pra pausar">
       <span class="pc-letreiro-marcador"></span>
