@@ -1033,6 +1033,20 @@ function farolTrilhaHtml(passo) {
       ${_farolLinhaTrilha(num > 5 ? ck : "2", "Depositar a cédula", { feito: num > 5, atual: num === 5, texto: num === 5 ? `A urna <span class="pc-farol-minicmd">${iconeSvg("ballot", 11)}</span> deposita: trava a lista e ela passa a valer no ranking. A primeira é grátis.` : "" })}
       ${_farolLinhaTrilha(num > 6 ? ck : "3", "Convidar e comparar", { feito: num > 6, atual: num === 6, texto: num === 6 ? "Compartilhe o convite de duelo — cada amigo que entrar e depositar rende créditos." : "" })}`;
   }
+  if (ctx === "duelos") {
+    const temLista = !(passo && passo.fase === "A");
+    return `
+      ${_farolLinhaTrilha(temLista ? ck : "1", "Ter um palpite pra apostar", { feito: temLista, atual: !temLista, texto: !temLista ? "O duelo puxa os votos da sua lista — continue o palpite primeiro (o farol te guia lá dentro)." : "" })}
+      ${_farolLinhaTrilha("2", "Criar o duelo e enviar o convite", { atual: temLista, texto: temLista ? `Toque em <b>Criar duelo</b>, escolha a disputa e envie o cartão pro seu amigo no WhatsApp — duelar é sempre grátis.` : "" })}
+      ${_farolLinhaTrilha("3", "Acompanhar o duelo selado", { texto: "Quando o rival depositar, o sino avisa — a comparação fica aqui e em Minhas listas → Cédulas de duelo até a apuração." })}`;
+  }
+  if (ctx === "grupos") {
+    const temDeposito = !!pcState.farolTemDeposito;
+    return `
+      ${_farolLinhaTrilha(temDeposito ? ck : "1", "Ter uma cédula depositada", { feito: temDeposito, atual: !temDeposito, texto: !temDeposito ? `O grupo compara cédulas DEPOSITADAS — termine o palpite e deposite a sua primeiro (a urna <span class="pc-farol-minicmd">${iconeSvg("ballot", 11)}</span> em Minhas listas).` : "" })}
+      ${_farolLinhaTrilha("2", "Criar ou entrar num grupo", { atual: temDeposito, texto: temDeposito ? "Crie o seu grupo (família, trabalho, bar...) ou entre com o código que te mandaram." : "" })}
+      ${_farolLinhaTrilha("3", "Convidar e comparar", { texto: "Convide os amigos pro grupo — o ranking interno compara as cédulas de todo mundo na apuração." })}`;
+  }
   if (ctx === "revisao") {
     return `
       ${_farolLinhaTrilha(num > 4 ? ck : "1", "Conferir os 3 cargos", { feito: num > 4, atual: num <= 4, texto: num <= 4 ? "Os blocos abaixo mostram os eleitos que a sua votação fecha em cada cargo — confira antes de salvar." : "" })}
@@ -1064,9 +1078,14 @@ function farolConteudoBloco(soPontosNaLinha) {
   if (nivel === 2) {
     return `<div class="pc-farol-barra" id="pcFarolBarra" role="button" tabindex="0">
       ${farolPontosHtml(passo ? 2 : 0, false)}
-      ${passo
-        ? `<span class="pc-farol-passo">Passo ${passo.num}</span><span class="pc-farol-txt">${(pcState._farolContexto || "palpite") !== "palpite" && passo.fase === "A" ? "Continue o palpite — " + passo.rotuloCargo : passo.rotulo}${passo.progresso ? " — " + passo.progresso : ""}</span>`
-        : `<span class="pc-farol-txt" style="color:var(--pc-ink-dim);">Tudo em dia — nada pendente</span>`}
+      ${(() => {
+        const ctxB = pcState._farolContexto || "palpite";
+        if (ctxB === "duelos") return `<span class="pc-farol-txt">${passo && passo.fase === "A" ? "O duelo usa a sua lista — continue o palpite primeiro" : "Crie um duelo e envie o convite pro seu amigo — é grátis"}</span>`;
+        if (ctxB === "grupos") return `<span class="pc-farol-txt">${pcState.farolTemDeposito ? "Crie ou entre num grupo e convide os amigos" : "Deposite a sua cédula primeiro — o grupo compara cédulas depositadas"}</span>`;
+        return passo
+          ? `<span class="pc-farol-passo">Passo ${passo.num}</span><span class="pc-farol-txt">${ctxB !== "palpite" && passo.fase === "A" ? "Continue o palpite — " + passo.rotuloCargo : passo.rotulo}${passo.progresso ? " — " + passo.progresso : ""}</span>`
+          : `<span class="pc-farol-txt" style="color:var(--pc-ink-dim);">Tudo em dia — nada pendente</span>`;
+      })()}
       <button type="button" class="pc-farol-min" id="pcFarolMin" title="Recolher">−</button>
     </div>`;
   }
@@ -1074,6 +1093,8 @@ function farolConteudoBloco(soPontosNaLinha) {
   const titulo = !passo
     ? "Sua trilha — tudo em dia"
     : ctxTitulo === "listas" ? "Sua trilha — minhas listas"
+    : ctxTitulo === "duelos" ? "Sua trilha — duelos"
+    : ctxTitulo === "grupos" ? "Sua trilha — grupos"
     : ctxTitulo === "revisao" ? "Sua trilha — revisão"
     : ctxTitulo === "painel" ? "Sua trilha"
     : (passo.fase === "A" ? "Sua trilha — " + passo.rotuloCargo : "Sua trilha — reta final");
@@ -4635,7 +4656,7 @@ async function garantirMeusGruposCarregados() {
 }
 
 async function renderGrupoHub() {
-  pcState._farolContexto = "painel";
+  pcState._farolContexto = "grupos";
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = telaCarregando("Carregando seus grupos…");
   await garantirMeusGruposCarregados();
@@ -4765,7 +4786,7 @@ function _chipStatusDesafio(status) {
 }
 
 async function renderDesafiosHub() {
-  pcState._farolContexto = "painel";
+  pcState._farolContexto = "duelos";
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = telaCarregando("Carregando seus desafios…");
   pcState.telaDesafio = "hub";
@@ -9223,13 +9244,13 @@ async function renderCargoEstadual() {
         <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 13)} ATENÇÃO</div>
         <div class="pc-tut-aviso">Esta função vai te orientar para preencher a lista com <b class="verde">agilidade e acertividade</b>.<div class="pc-tut-aviso-sub">O painel de notificação lhe orienta a cada passo.<br>Para utilizar, basta selecionar o ícone:</div></div>
         <div class="pc-tut-hero">
-          <div class="pc-tut-chame">Clique e entenda:</div>
-          <button type="button" class="pc-tut-pontos" id="pcTutPontos" title="Clique"><i class="on"></i><i></i><i></i></button>
+          <div class="pc-tut-chame">Entenda os pontos:</div>
+          <span class="pc-tut-pontos" id="pcTutPontos"><i class="on"></i><i></i><i></i></span>
           <div class="pc-tut-palco" id="pcTutPalco">
             <div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> <b style="color:var(--pc-accent);">1 ponto</b> — sinaliza que existe orientação</div>
           </div>
         </div>
-        <button class="primary" id="pcFecharInstrucao" style="width:100%; margin-top:14px;" disabled>Iniciar</button>
+        <button class="primary" id="pcTutAvancar" style="width:100%; margin-top:14px;">Próximo</button>
       </div>
     </div>` : ""}
     ${pcState.avisoLimiteVagasAberto ? `
@@ -9820,33 +9841,30 @@ function attachListenersSelecao() {
     agendarReordenacaoSuave(null, 600);
     renderCargoEstadual();
   });
-  const fecharInstrucao = document.getElementById("pcFecharInstrucao");
-  if (fecharInstrucao) {
-    fecharInstrucao.addEventListener("click", () => {
-      pcState.instrucaoSelecaoAberta = false;
-      salvarTutorialVisto();
-      renderCargoEstadual();
-    });
-  }
-  // Tutorial de página única (21/08/2026): aviso → ícone → JANELA REAL.
-  // Cada clique no ícone abre a função igual à dinâmica do sistema
-  // (bolha → painel simples → painel completo); após o 3º clique,
-  // libera o "Iniciar". Manipula o DOM do overlay direto.
-  const tutPontos = document.getElementById("pcTutPontos");
-  if (tutPontos && !tutPontos.dataset.ligado) {
-    tutPontos.dataset.ligado = "1";
-    let tutNivel = 1, tutToques = 0;
+  // Tutorial de página única (refeito 31/08/2026, pedido do usuário): as
+  // 3 janelas avançam pelo BOTÃO centralizado — "Próximo" nas duas
+  // primeiras e "Concluir" na última (o ícone de pontos vira só vitrine).
+  const tutAvancar = document.getElementById("pcTutAvancar");
+  if (tutAvancar && !tutAvancar.dataset.ligado) {
+    tutAvancar.dataset.ligado = "1";
+    let tutNivel = 1;
     const janelas = {
       1: '<div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> <b style="color:var(--pc-accent);">1 ponto</b> — sinaliza que existe orientação</div>',
       2: '<div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i class="on"></i><i></i></span><span class="pc-tut-passo">Passo 1</span> Preencha as vagas por partido — 12 de 40 <span class="pc-tut-min">−</span></div>',
       3: '<div class="pc-tut-lin" style="border-bottom:1px solid rgba(242,244,245,.08); padding-bottom:6px;"><span class="pc-tut-minipontos"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pc-tut-passo">Sua trilha</span><span class="pc-tut-min">−</span></div><div class="pc-tut-item on">① Preencher as vagas por partido — <b style="color:var(--pc-accent);">12 de 40</b></div><div class="pc-tut-item">② Distribuir a votação pelos candidatos</div><div class="pc-tut-item">③ Avançar pra Revisão</div>',
     };
-    tutPontos.addEventListener("click", () => {
-      tutNivel = tutNivel === 3 ? 1 : tutNivel + 1;
-      tutToques++;
-      tutPontos.querySelectorAll("i").forEach((el, idx) => { el.className = idx < tutNivel ? "on" : ""; });
+    tutAvancar.addEventListener("click", () => {
+      if (tutNivel >= 3) {
+        pcState.instrucaoSelecaoAberta = false;
+        salvarTutorialVisto();
+        renderCargoEstadual();
+        return;
+      }
+      tutNivel++;
+      const tutPontos = document.getElementById("pcTutPontos");
+      if (tutPontos) tutPontos.querySelectorAll("i").forEach((el, idx) => { el.className = idx < tutNivel ? "on" : ""; });
       document.getElementById("pcTutPalco").innerHTML = janelas[tutNivel];
-      if (tutToques >= 3) document.getElementById("pcFecharInstrucao").disabled = false;
+      tutAvancar.textContent = tutNivel === 3 ? "Concluir" : "Próximo";
     });
   }
   const overlayInstrucao = document.getElementById("pcInstrucaoOverlay");
