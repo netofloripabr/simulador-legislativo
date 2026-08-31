@@ -478,6 +478,12 @@ async function initColaborativo() {
           pcState.desafioAceitarCadeiras = null;
           pcState._abrirAceitarDueloNoBoot = true;
           pcState.subaba = "desafios";
+        } else if (d && d.sou_o_criador) {
+          // Criador clicou no PRÓPRIO link (teste comum): em vez de
+          // sumir em silêncio, leva pro card do duelo no hub — de lá
+          // ele reenvia o convite (achado do usuário, 30/08/2026).
+          pcState.desafioDestacadoId = d.id;
+          pcState.subaba = "desafios";
         }
       }
     } catch (e) { /* código inválido/expirado — segue o boot normal */ }
