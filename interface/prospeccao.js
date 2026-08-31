@@ -4730,7 +4730,10 @@ function _poolCandidatosDesafio(cargo) {
     if (p.semAta2026) return;
     (p.candidatos || []).forEach((c) => {
       if (c.fonte === "legenda") return;
-      lista.push({ chave: c.chave, nome: nomeExibicao(c), partido: p.nome });
+      // "votos" acompanha (decisão do usuário 30/08/2026): o duelo puxa
+      // os palpites da lista em edição como ponto de partida — ninguém
+      // digita 30 números do zero de novo.
+      lista.push({ chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos: Number(c.votos) || 0, marcadoEleito: !!c.marcadoEleito });
     });
   });
   return lista;
@@ -4833,6 +4836,14 @@ async function renderCriarDesafio() {
   // pode vazar o plenário de outro tamanho).
   if (!pcState.desafioCriarCadeiras || pcState.desafioCriarCadeiras.length !== vagas || pcState._desafioCadeirasCargo !== cargo) {
     pcState.desafioCriarCadeiras = new Array(vagas).fill(null);
+    // Cadeiras já nascem com os ELEITOS MARCADOS na sua lista em edição
+    // (mesma decisão do pré-preenchimento de votos, 30/08/2026) — quem
+    // quiser mexer, toca na cadeira e troca/esvazia.
+    const jaEleitos = pool.filter((c) => c.marcadoEleito)
+      .sort((a, b) => (b.votos || 0) - (a.votos || 0)).slice(0, vagas);
+    jaEleitos.forEach((c, i) => {
+      pcState.desafioCriarCadeiras[i] = { chave: c.chave, nome: c.nome, partido: c.partido };
+    });
     pcState._desafioCadeirasCargo = cargo;
     pcState.desafioCriarCadeiraAtiva = null;
   }
@@ -4906,11 +4917,12 @@ async function renderCriarDesafio() {
       ${tipo !== "eleitos" && selecionados.length ? `
         <div class="pc-sub" style="margin:-2px 2px 12px;">${selecionados.length} candidato${selecionados.length === 1 ? "" : "s"} no duelo.</div>
         <label class="pc-campo-label">Seus votos indicados</label>
+        <div class="pc-sub" style="margin:-2px 2px 6px;">Puxados da sua lista em edição — ajuste aqui o que quiser antes de enviar.</div>
         <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:300px; overflow-y:auto;">
           ${selecionados.map((c) => `
             <div class="pc-voto-linha">
               <span class="txt"><span class="nome">${c.nome}</span><span class="partido">${c.partido}</span></span>
-              <input type="number" min="0" inputmode="numeric" data-pc-voto="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioCriarVotos[c.chave] ?? ""}" placeholder="0">
+              <input type="number" min="0" inputmode="numeric" data-pc-voto="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioCriarVotos[c.chave] ?? (c.votos || "")}" placeholder="0">
             </div>`).join("")}
         </div>` : ""}
 
@@ -5070,7 +5082,7 @@ async function renderCriarDesafio() {
     } else {
       if (!selecionados.length) { status.textContent = "Escolha ao menos 1 candidato."; return; }
       escopo = selecionados.map((c) => ({ chave: c.chave, nome: c.nome, partido: c.partido }));
-      meusVotos = selecionados.map((c) => ({ chave: c.chave, votos: Number(pcState.desafioCriarVotos[c.chave]) || 0 }));
+      meusVotos = selecionados.map((c) => ({ chave: c.chave, votos: Number(pcState.desafioCriarVotos[c.chave] ?? c.votos) || 0 }));
     }
     btnEnviar.disabled = true;
     status.textContent = "Enviando…";
