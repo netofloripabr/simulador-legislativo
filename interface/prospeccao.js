@@ -2862,7 +2862,17 @@ async function montarAdminBots() {
         <div style="font-size:12.5px; color:var(--pc-ink);">Referência ativa desde <b>${new Date(refAtiva.criado_em).toLocaleString("pt-BR")}</b>${refAtiva.salvamento_id ? " · veio de uma cédula depositada" : ""}.</div>
         ${previewRef}` : `
         <div style="font-size:12.5px; color:var(--pc-ink-dim);">Sem referência ativa em ${uf} ainda. A referência dos bots é sempre uma <b>cédula depositada de verdade</b> — deposite a sua neste estado e aponte ela aqui.</div>`}
-      <button class="ghost" id="pcBtnBotsUsarCedula" style="width:100%; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("ballot", 14)}Usar minha cédula depositada como referência</button>
+      <button class="ghost" id="pcBtnBotsUsarCedula" style="width:100%; margin-top:12px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("ballot", 14)}Escolher cédula ou lista salva como referência</button>
+      ${pcState.adminBotsFontes ? (pcState.adminBotsFontes.length ? `
+      <div style="margin-top:10px; border-top:1px solid var(--pc-glass-border); padding-top:8px;">
+        <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--pc-ink-faint); margin-bottom:6px;">Minhas fontes em ${uf}</div>
+        ${pcState.adminBotsFontes.map((f) => `
+        <button class="ghost" data-pc-bots-fonte="${f.id}" style="width:100%; margin-bottom:6px; display:flex; align-items:center; gap:8px; text-align:left;">
+          ${iconeSvg(f.depositado_em ? "ballot" : "salvar", 13)}
+          <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escaparAtributoHtml(f.nome || "(sem nome)")}</span>
+          <span style="flex-shrink:0; font-size:10px; color:var(--pc-ink-dim);">${f.depositado_em ? "cédula · " + new Date(f.depositado_em).toLocaleDateString("pt-BR") : "lista salva"}</span>
+        </button>`).join("")}
+      </div>` : `<div style="font-size:11px; color:var(--pc-ink-dim); margin-top:8px;">Nenhuma cédula ou lista salva sua em ${uf} ainda.</div>`) : ""}
       ${historicoRef ? `<div style="margin-top:10px; border-top:1px solid var(--pc-glass-border); padding-top:8px;"><div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--pc-ink-faint);">Histórico</div>${historicoRef}</div>` : ""}
     </div>
 
@@ -3144,14 +3154,24 @@ async function renderAdminPainel() {
     const btnCedula = document.getElementById("pcBtnBotsUsarCedula");
     if (btnCedula) btnCedula.addEventListener("click", async () => {
       const uf = pcState.adminBotsEstado || "SC";
-      if (!window.confirm(`Usar a sua cédula depositada de ${uf} como referência dos bots?\n\nA referência anterior (se houver) vira histórico. Os bots já gerados NÃO mudam sozinhos — só no próximo "Gerar".`)) return;
+      if (pcState.adminBotsFontes) { pcState.adminBotsFontes = null; renderAdminPainel(); return; }
       btnCedula.disabled = true;
-      const r = await botsUsarMinhaCedulaComoReferencia(uf);
-      pcState.adminBotsStatus = r.ok
-        ? { tipo: "ok", texto: `Referência de ${uf} atualizada a partir da cédula "${r.nomeCedula}" (depositada em ${new Date(r.depositadaEm).toLocaleDateString("pt-BR")}).` }
-        : { tipo: "erro", texto: r.mensagem };
+      pcState.adminBotsFontes = await botsListarFontesReferencia(uf);
       renderAdminPainel();
     });
+    document.querySelectorAll("[data-pc-bots-fonte]").forEach((b) => b.addEventListener("click", async () => {
+      const uf = pcState.adminBotsEstado || "SC";
+      const fonte = (pcState.adminBotsFontes || []).find((f) => String(f.id) === b.dataset.pcBotsFonte);
+      const rotulo = fonte && fonte.depositado_em ? "a cédula depositada" : "a lista salva";
+      if (!window.confirm(`Usar ${rotulo} "${fonte ? fonte.nome : ""}" como referência dos bots de ${uf}?\n\nA referência anterior (se houver) vira histórico. Os bots já gerados NÃO mudam sozinhos — só no próximo "Gerar".`)) return;
+      b.disabled = true;
+      const r = await botsUsarSalvamentoComoReferencia(uf, b.dataset.pcBotsFonte);
+      pcState.adminBotsFontes = null;
+      pcState.adminBotsStatus = r.ok
+        ? { tipo: "ok", texto: `Referência de ${uf} atualizada a partir de ${r.depositadaEm ? `cédula depositada em ${new Date(r.depositadaEm).toLocaleDateString("pt-BR")}` : "lista salva"} — "${r.nome}".` }
+        : { tipo: "erro", texto: r.mensagem };
+      renderAdminPainel();
+    }));
     const btnSalvarCfg = document.getElementById("pcBtnBotsSalvarConfig");
     if (btnSalvarCfg) btnSalvarCfg.addEventListener("click", async () => {
       const uf = pcState.adminBotsEstado || "SC";

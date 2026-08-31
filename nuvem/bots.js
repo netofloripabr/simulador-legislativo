@@ -45,6 +45,62 @@ async function botsCarregarReferencias(estado) {
   return data || [];
 }
 
+// Fontes possíveis pra referência (pedido do usuário, 31/08/2026): tanto a
+// cédula DEPOSITADA quanto uma LISTA SALVA comum servem — o admin escolhe.
+// Lista as do próprio admin naquele estado, depositadas primeiro.
+async function botsListarFontesReferencia(estado) {
+  const sessao = await supabaseClient.auth.getUser();
+  const uid = sessao && sessao.data && sessao.data.user ? sessao.data.user.id : null;
+  if (!uid) return [];
+  const { data, error } = await supabaseClient
+    .from("salvamentos")
+    .select("id, nome, estado, depositado_em, criado_em")
+    .eq("perfil_id", uid).eq("estado", estado)
+    .order("criado_em", { ascending: false })
+    .limit(20);
+  if (error) { console.error("Erro ao listar fontes de referência:", error); return []; }
+  return (data || []).sort((a, b) => (b.depositado_em ? 1 : 0) - (a.depositado_em ? 1 : 0));
+}
+
+// Grava um salvamento específico (cédula depositada OU lista salva) como a
+// nova referência ativa do estado, desativando a anterior.
+async function botsUsarSalvamentoComoReferencia(estado, salvamentoId) {
+  const sessao = await supabaseClient.auth.getUser();
+  const uid = sessao && sessao.data && sessao.data.user ? sessao.data.user.id : null;
+  if (!uid) return { ok: false, mensagem: "Sessão expirada — entre de novo." };
+  const { data: salvamentos, error: erroSalv } = await supabaseClient
+    .from("salvamentos")
+    .select("id, nome, estado, depositado_em")
+    .eq("perfil_id", uid).eq("id", salvamentoId).limit(1);
+  if (erroSalv || !salvamentos || !salvamentos.length) return { ok: false, mensagem: "Não encontrei esse salvamento." };
+  const salv = salvamentos[0];
+
+  const { data: listas, error: erroListas } = await supabaseClient
+    .from("listas_salvas").select("cargo, candidatos").eq("salvamento_id", salv.id);
+  if (erroListas || !listas || !listas.length) {
+    return { ok: false, mensagem: "Não consegui ler os cargos desse salvamento." };
+  }
+  const referencia = {};
+  listas.forEach((l) => {
+    referencia[l.cargo] = (l.candidatos || []).map((p) => ({
+      nome: p.nome,
+      candidatos: (p.candidatos || [])
+        .filter((c) => c.fonte !== "legenda")
+        .map((c) => ({ nome: c.nome, chave: c.chave, votos: Number(c.votos) || 0 })),
+    }));
+  });
+
+  const { error: erroDesativa } = await supabaseClient
+    .from("bots_referencia").update({ ativa: false }).eq("estado", estado).eq("ativa", true);
+  if (erroDesativa) { console.error("Erro ao desativar referência anterior:", erroDesativa); return { ok: false, mensagem: "Erro ao trocar a referência: " + erroDesativa.message }; }
+
+  const { error: erroInsere } = await supabaseClient.from("bots_referencia").insert({
+    estado, salvamento_id: salv.id, referencia, ativa: true,
+  });
+  if (erroInsere) { console.error("Erro ao gravar referência:", erroInsere); return { ok: false, mensagem: "Erro ao gravar a referência: " + erroInsere.message }; }
+  return { ok: true, nome: salv.nome, depositadaEm: salv.depositado_em };
+}
+
 // "Usar minha cédula depositada como referência": pega a cédula DEPOSITADA
 // do próprio admin naquele estado (a mais recente, se houver mais de uma),
 // monta o snapshot {estadual, federal, senador} no formato que o script
