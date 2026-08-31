@@ -30,6 +30,9 @@ async function desafiosGratisRestantes(perfilId) {
 // é a própria visita à tela.
 async function listarMeusDesafios() {
   await supabaseClient.rpc("expirar_meus_desafios_vencidos");
+  // Lembrete de duelo parado (migração 41): 3 dias sem aceite → sino do
+  // criador; roda "preguiçoso" aqui pelo mesmo motivo da expiração.
+  try { await supabaseClient.rpc("lembrar_meus_desafios_parados"); } catch (_) { /* migração 41 ainda não rodada */ }
   // Colunas explícitas, SEM as de voto/plenário — a migração 38 revogou o
   // SELECT direto delas (voto oculto é oculto de verdade); quem precisa
   // dos votos usa desafioDetalhe abaixo. select("*") aqui quebraria com

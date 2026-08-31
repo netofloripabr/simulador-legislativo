@@ -3768,6 +3768,73 @@ function _cartaoDesafioConsole(ctx, { rotulo, rows }, x, y, w) {
   return y + h;
 }
 
+// Cartão-imagem do CONVITE DE DUELO (arte aprovada em protótipo,
+// 31/08/2026): 1080×1350 (4:5, aparece grande na conversa do WhatsApp).
+// Composição: wordmark, selo Duelo 1×1, avatares [criador] VS [?] com a
+// vaga do rival em círculo tracejado, nome do duelo, recorte e provocação.
+function gerarImagemConviteDuelo({ nomeCriador, nomeDuelo, infoRecorte }) {
+  const W = 1080, H = 1350;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  const fundo = ctx.createRadialGradient(W / 2, -160, 0, W / 2, -160, H * 0.95);
+  fundo.addColorStop(0, "#1B1E22"); fundo.addColorStop(0.52, "#101214"); fundo.addColorStop(1, "#0C0E10");
+  ctx.fillStyle = fundo; ctx.fillRect(0, 0, W, H);
+
+  const cy = H / 2;
+  ctx.font = "800 44px Inter, sans-serif";
+  const wSim = ctx.measureText("Simula").width, wLeg = ctx.measureText("LEGIS").width;
+  const xm = W / 2 - (wSim + wLeg) / 2;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#34E84A"; ctx.fillText("Simula", xm, 120);
+  ctx.fillStyle = "#F2F4F5"; ctx.fillText("LEGIS", xm + wSim, 120);
+  ctx.textAlign = "center"; ctx.fillStyle = "#5C6268";
+  ctx.font = "800 20px Inter, sans-serif";
+  ctx.fillText("S I M U L A D O R   E L E I T O R A L   L E G I S L A T I V O   2 0 2 6", W / 2, 158);
+
+  const seloY = cy - 400;
+  ctx.strokeStyle = "rgba(52,232,74,.5)"; ctx.lineWidth = 3;
+  ctx.fillStyle = "rgba(52,232,74,.08)";
+  ctx.beginPath(); ctx.roundRect(W / 2 - 170, seloY, 340, 86, 43); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#34E84A"; ctx.font = "800 26px Inter, sans-serif";
+  ctx.fillText("D U E L O", W / 2, seloY + 38);
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 34px Inter, sans-serif";
+  ctx.fillText("1 × 1", W / 2, seloY + 72);
+
+  const avY = cy - 130, avR = 110, gapAv = 250;
+  ctx.fillStyle = "#101214"; ctx.strokeStyle = "#34E84A"; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.arc(W / 2 - gapAv, avY, avR, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#34E84A"; ctx.font = "800 88px Inter, sans-serif";
+  ctx.fillText((nomeCriador || "?")[0].toUpperCase(), W / 2 - gapAv, avY + 32);
+  ctx.fillStyle = "#101214"; ctx.strokeStyle = "#4D545C"; ctx.setLineDash([14, 10]);
+  ctx.beginPath(); ctx.arc(W / 2 + gapAv, avY, avR, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = "#8A9096"; ctx.font = "800 96px Inter, sans-serif";
+  ctx.fillText("?", W / 2 + gapAv, avY + 36);
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 64px Inter, sans-serif";
+  ctx.fillText("VS", W / 2, avY + 24);
+  ctx.font = "800 40px Inter, sans-serif";
+  ctx.fillText(nomeCriador, W / 2 - gapAv, avY + avR + 66);
+  ctx.fillStyle = "#8A9096";
+  ctx.fillText("Você?", W / 2 + gapAv, avY + avR + 66);
+
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 58px Inter, sans-serif";
+  ctx.fillText('"' + nomeDuelo + '"', W / 2, cy + 180);
+  ctx.fillStyle = "#8A9096"; ctx.font = "400 30px Inter, sans-serif";
+  ctx.fillText(infoRecorte, W / 2, cy + 232);
+
+  ctx.fillStyle = "#34E84A"; ctx.font = "800 46px Inter, sans-serif";
+  ctx.fillText("Tem coragem de encarar?", W / 2, cy + 330);
+  ctx.fillStyle = "#8A9096"; ctx.font = "400 28px Inter, sans-serif";
+  ctx.fillText("Meu palpite já está travado. Toque no link,", W / 2, cy + 384);
+  ctx.fillText("indique o seu e o duelo fica selado até a apuração.", W / 2, cy + 422);
+
+  ctx.fillStyle = "#5C6268"; ctx.font = "700 24px Inter, sans-serif";
+  ctx.fillText("quem chegar mais perto do resultado real vence", W / 2, H - 70);
+  return canvas;
+}
+
 function gerarImagemCedulaResumo({ nomeExibido, cargosEleitos, codigo, cargosCompletos }) {
   const W = 1080, H = 1920, PAD = 60;
   const canvas = document.createElement("canvas");
@@ -4685,7 +4752,8 @@ async function renderDesafiosHub() {
       </div>
       ${dueloAberto ? `
       <div class="pc-duelo-acoes">
-        <button class="primary" data-pc-duelo-whats="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" style="flex:1; font-size:12px;">Enviar no WhatsApp</button>
+        <button class="primary" data-pc-duelo-cartao="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" data-pc-duelo-cargo="${d.cargo}" data-pc-duelo-ncand="${(d.escopo_candidatos || []).length}" data-pc-duelo-uf="${d.estado}" style="flex:1; font-size:12px;">Enviar o convite</button>
+        <button class="ghost" data-pc-duelo-whats="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" style="flex:1; font-size:12px;">Só texto</button>
         <button class="ghost" data-pc-duelo-copiar="${d.codigo}" style="flex:1; font-size:12px;">Copiar link</button>
       </div>` : ""}
       <div class="pc-duelo-acoes"><button class="ghost" data-pc-cancelar="${d.id}" style="font-size:11.5px; padding:8px 12px;">Cancelar${d.custo_sl ? ` e recuperar ${d.custo_sl} SL` : ""}</button></div>` : ""}
@@ -4756,6 +4824,31 @@ async function renderDesafiosHub() {
     const base = window.location.origin + window.location.pathname + "?duelo=" + codigoDuelo;
     return pcState.perfil && pcState.perfil.codigo_convite ? base + "&conv=" + pcState.perfil.codigo_convite : base;
   };
+  document.querySelectorAll("[data-pc-duelo-cartao]").forEach((btn) => btn.addEventListener("click", async () => {
+    const nomeDuelo = btn.getAttribute("data-pc-duelo-nome") || "duelo";
+    const cargoInfo = CARGOS.find((c) => c.id === btn.getAttribute("data-pc-duelo-cargo")) || {};
+    const nCand = Number(btn.getAttribute("data-pc-duelo-ncand")) || 0;
+    const ufSigla = btn.getAttribute("data-pc-duelo-uf") || pcState.estado;
+    const nomeEstado = ((ESTADOS_BRASIL.find((e) => e.sigla === ufSigla) || {}).nome) || ufSigla;
+    const infoRecorte = [cargoInfo.label, nCand ? nCand + " candidatos" : null, nomeEstado].filter(Boolean).join(" \u00b7 ");
+    const texto = `Bora pro x1? Este \u00e9 o meu palpite eleitoral legislativo 2026. Tem coragem de encarar?: "${nomeDuelo}". ${_linkDuelo(btn.getAttribute("data-pc-duelo-cartao"))}`;
+    const canvas = gerarImagemConviteDuelo({ nomeCriador: (pcState.perfil && pcState.perfil.nome) || "Eu", nomeDuelo, infoRecorte });
+    const dataUrl = canvas.toDataURL("image/png");
+    if (navigator.share && navigator.canShare) {
+      try {
+        const blob = await (await fetch(dataUrl)).blob();
+        const arquivo = new File([blob], "convite-duelo.png", { type: "image/png" });
+        if (navigator.canShare({ files: [arquivo] })) {
+          await navigator.share({ files: [arquivo], text: texto });
+          return;
+        }
+      } catch (_) { /* cancelou o nativo ou falhou — cai no fallback */ }
+    }
+    // Computador (sem compartilhamento nativo): baixa a imagem e deixa o
+    // texto+link no clipboard pra colar junto.
+    _baixarImagemCedula(dataUrl, "convite-duelo.png");
+    try { await navigator.clipboard.writeText(texto); } catch (_) {}
+  }));
   document.querySelectorAll("[data-pc-duelo-whats]").forEach((btn) => btn.addEventListener("click", () => {
     const nomeDuelo = btn.getAttribute("data-pc-duelo-nome");
     const texto = `Bora pro x1? Este é o meu palpite eleitoral legislativo 2026. Tem coragem de encarar?: "${nomeDuelo}". ${_linkDuelo(btn.getAttribute("data-pc-duelo-whats"))}`;
@@ -5638,6 +5731,7 @@ async function renderNotificacoes() {
         ${n.corpo ? `<div class="pc-notif-desc">${n.corpo}</div>` : ""}
         ${n.tipo === "desafio_recebido" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver duelo</button>` : ""}
         ${n.tipo === "desafio_aceito" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver o duelo selado</button>` : ""}
+        ${n.tipo === "desafio_lembrete" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Reenviar o convite</button>` : ""}
       </div>
       <div class="pc-notif-hora">${_tempoRelativo(n.criado_em)}</div>
     </div>`;
