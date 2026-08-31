@@ -10439,7 +10439,21 @@ function montarSecaoImpressaoCargo(cargo, op) {
     .concat(suplentes.map((c) => ({ ...c, tipo: "S" })));
   if (op.recorte === "eleitos") linhas = linhas.filter((l) => l.tipo === "E");
   else if (op.recorte === "candidatas") linhas = linhas.filter((l) => String(generoPorChave.get(l.chave) || "").toUpperCase().startsWith("FEM"));
-  else if (op.recorte === "partido" && op.partido) linhas = linhas.filter((l) => l.partido === op.partido);
+  else if (op.recorte === "partido" && op.partido) {
+    // Recorte por partido = a CHAPA COMPLETA daquele partido (bug achado
+    // pelo usuário em 31/08/2026: filtrar eleitos + 30 suplentes GERAIS
+    // deixava de fora quem não estava entre os 30 melhores do cargo
+    // inteiro). Eleitos mantêm a etiqueta E; o resto sai como suplente
+    // do partido, por votação decrescente.
+    const grupoP = (lista || []).find((pp) => pp.nome === op.partido);
+    const chavesE = new Set(eleitos.filter((e) => e.partido === op.partido).map((e) => e.chave));
+    const eleitoPorChave = new Map(eleitos.filter((e) => e.partido === op.partido).map((e) => [e.chave, e]));
+    linhas = (grupoP ? grupoP.candidatos.filter((c) => c.fonte !== "legenda" && !c.status) : [])
+      .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0))
+      .map((c) => chavesE.has(c.chave)
+        ? { ...eleitoPorChave.get(c.chave), tipo: "E" }
+        : { chave: c.chave, nome: nomeExibicao(c), partido: grupoP.nome, votos: Number(c.votos) || 0, tipo: "S" });
+  }
   if (op.ordenacao === "crescente") linhas = [...linhas].sort((a, b) => a.votos - b.votos);
   else if (op.ordenacao === "decrescente") linhas = [...linhas].sort((a, b) => b.votos - a.votos);
   if (op.recorte === "top10") linhas = linhas.slice(0, 10);
