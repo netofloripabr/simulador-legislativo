@@ -10371,7 +10371,7 @@ function docLegenda() {
       <span>${docIcLetra("E", 11, "meu")} eleito no seu palpite</span>
       <span>${docIcLetra("S", 11, "meu")} suplente</span>
       <span>${docIcLetra("E", 11, "fato")} eleito de fato</span>
-      <span style="margin-left:auto;">pontos: ${docIcLetra("E", 10, "hdr")} eleito · ${docIcAlvo(10)} proximidade % · ${docIcPosicao(10)} posição</span>
+      <span style="margin-left:auto;">pontos: ${docIcLetra("E", 10, "hdr")} acerto de eleição · ${docIcAlvo(10)} proximidade de votos (%) · ${docIcPosicao(10)} acerto de posição · <b>Pts</b>&nbsp;= soma dos três</span>
     </div>`;
 }
 
@@ -10447,11 +10447,58 @@ function montarSecaoImpressaoCargo(cargo, op) {
   const nE = linhas.filter((l) => l.tipo === "E").length;
   const nS = linhas.length - nE;
   const rotuloRecorte = ({ eleitos: "só os eleitos", candidatas: "só as candidatas", partido: op.partido || "", top10: "top 10" })[op.recorte] || "";
-  const sub = `${nE} eleito${nE === 1 ? "" : "s"}${nS ? ` + ${nS} suplente${nS === 1 ? "" : "s"}` : ""}${rotuloRecorte ? ` · recorte: ${rotuloRecorte}` : ""} · votação de referência 2022 · as colunas de resultado e pontos serão preenchidas na apuração oficial — acompanhe.`;
 
+  // ===== v9 (protótipo aprovado 31/08/2026): etiquetas E-QP/E-M·nª no
+  // padrão da tela, chips de partido por eleitos (decrescente) e a relação
+  // das rodadas de sobra ao final — SÓ em lista com eleitos de múltiplos
+  // partidos (proporcionais completos; senador e recortes ficam como eram).
+  const eleitosDoc = linhas.filter((l) => l.tipo === "E");
+  const aplicaV9 = cargo !== "senador" && eleitosDoc.length > 0 && new Set(eleitosDoc.map((l) => l.partido)).size > 1;
+  let chipsPartidos = "", sobrasHtml = "";
+  const rodadaPorChave = new Map();
+  if (aplicaV9) {
+    const porP = new Map();
+    eleitosDoc.forEach((l) => porP.set(l.partido, (porP.get(l.partido) || 0) + 1));
+    chipsPartidos = `<div class="di-pchips">${[...porP.entries()].sort((a, b) => b[1] - a[1])
+      .map(([p, n]) => `<span class="di-pchip">${p} <b>${n}</b></span>`).join("")}</div>`;
+
+    const totalVagasCargoDoc = vagasFixasCargo(pcState.estado, cargo);
+    const disputa = calcularDisputaSobra(lista, totalVagasCargoDoc);
+    // rodada de cada cadeira de sobra, na mesma ordenação da classificação
+    // (marcados por votos desc, por partido)
+    lista.forEach((p, pIdx) => {
+      const marcados = [...p.candidatos.filter((c) => c.marcadoEleito && c.fonte !== "legenda")]
+        .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+      marcados.forEach((c, i) => {
+        const r = (disputa.rodadaSobraPorPartido[pIdx] || [])[i];
+        if (r !== undefined) rodadaPorChave.set(c.chave, r);
+      });
+    });
+    if (disputa.rodadas && disputa.rodadas.length) {
+      const vagasQP = totalVagasCargoDoc - disputa.totalSobrasCargo;
+      sobrasHtml = `
+      <div class="di-sobras">
+        <div class="di-sobras-tit">Distribuição das sobras — método das médias (art. 109)</div>
+        <div class="di-sobras-intro">${vagasQP} vaga${vagasQP === 1 ? " saiu" : "s saíram"} direto pelo quociente partidário (QE ${Number(disputa.qe || 0).toLocaleString("pt-BR")}). A${disputa.totalSobrasCargo === 1 ? "" : "s"} <b>${disputa.totalSobrasCargo} restante${disputa.totalSobrasCargo === 1 ? "" : "s"}</b> ${disputa.totalSobrasCargo === 1 ? "foi distribuída" : "foram distribuídas"} rodada a rodada — em cada uma, ganha o partido com a maior média (votos ÷ vagas já obtidas + 1):</div>
+        ${disputa.rodadas.map((r) => `
+        <div class="di-srod"><span class="rn">${r.numero}ª</span><span class="rp">${r.vencedorNome}</span><span class="rc">${r.vencedorCandidato ? "elegeu " + r.vencedorCandidato : ""}</span><span class="rm">média ${Math.round(r.vencedorMedia || 0).toLocaleString("pt-BR")}</span></div>`).join("")}
+      </div>`;
+    }
+  }
+  const sub = aplicaV9
+    ? `${nE} eleito${nE === 1 ? "" : "s"}${rotuloRecorte ? ` · recorte: ${rotuloRecorte}` : ""} · votação de referência 2022 · as colunas de resultado e pontos serão preenchidas na apuração oficial — acompanhe.`
+    : `${nE} eleito${nE === 1 ? "" : "s"}${nS ? ` + ${nS} suplente${nS === 1 ? "" : "s"}` : ""}${rotuloRecorte ? ` · recorte: ${rotuloRecorte}` : ""} · votação de referência 2022 · as colunas de resultado e pontos serão preenchidas na apuração oficial — acompanhe.`;
+
+  const chipDe = (l) => {
+    if (!aplicaV9) return docIcLetra(l.tipo, 15, "meu");
+    if (l.tipo === "S") return '<span class="di-chip di-chip-s">S</span>';
+    const rod = rodadaPorChave.get(l.chave);
+    const rotulo = l.tag === "média" ? `E-M${rod !== undefined ? ` · ${rod}ª` : ""}` : "E-QP";
+    return `<span class="di-chip">${rotulo}</span>`;
+  };
   const linhaHtml = (l, i, ultima) => `
     <div class="di-linha${ultima ? " di-fim" : ""}">
-      <span class="di-pos">${i + 1}º</span>${docIcLetra(l.tipo, 15, "meu")}
+      <span class="di-pos">${i + 1}º</span>${chipDe(l)}
       <span class="di-cand"><span class="di-n">${l.nome}</span><span class="di-p">${l.partido}</span></span>
       <span class="di-votos"><span class="di-vv di-forte">${l.votos.toLocaleString("pt-BR")}</span><span class="di-vv di-aguarda">—</span><span class="di-vd di-aguarda">—</span><span class="di-vp di-aguarda">—</span></span>
       <span class="di-painel"><span class="di-pt di-vazio">—</span><span class="di-pt di-vazio">—</span><span class="di-pt di-vazio">—</span><span class="di-pt di-tot di-aguarda">—</span></span>
@@ -10460,13 +10507,15 @@ function montarSecaoImpressaoCargo(cargo, op) {
   return `
     <div class="di-tit">${cargoInfo.label} — meu palpite</div>
     <div class="di-sub">${sub}</div>
+    ${chipsPartidos}
     <div class="di-cols">
-      <span class="di-pos"></span><span style="width:15px; flex-shrink:0;"></span>
+      <span class="di-pos"></span><span style="width:${aplicaV9 ? 46 : 15}px; flex-shrink:0;"></span>
       <span class="di-cand">Candidato</span>
       <span class="di-votos di-vh"><span class="di-vv">Palpite</span><span class="di-vv">Resultado</span><span class="di-vd">Dif.</span><span class="di-vp">%</span></span>
       <span class="di-painel di-ph"><span class="di-pt">${docIcLetra("E", 10, "hdr")}</span><span class="di-pt">${docIcAlvo(10)}</span><span class="di-pt">${docIcPosicao(10)}</span><span class="di-pt di-tot">Pts</span></span>
     </div>
     ${linhas.length ? linhas.map((l, i) => linhaHtml(l, i, i === linhas.length - 1)).join("") : '<div class="di-sub" style="padding:8px 0;">Nenhum candidato neste recorte pra este cargo.</div>'}
+    ${sobrasHtml}
   `;
 }
 
