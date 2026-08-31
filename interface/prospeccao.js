@@ -5436,13 +5436,18 @@ function renderDueloSelado(desafio, nomeDesafiante) {
       <h2 style="margin-bottom:6px;">Duelo selado!</h2>
       <div class="pc-sub" style="margin-bottom:16px;">Seu palpite em "${desafio && desafio.nome ? desafio.nome : "duelo"}" contra ${nomeDesafiante} está travado. <b style="color:var(--pc-ink);">O resultado sai junto com a apuração oficial das eleições de 2026</b> — quem chegar mais perto do resultado real vence.</div>
 
-      <button class="ghost" id="pcBtnImprimirDuelo" style="width:100%; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("impressora", 14)} Imprimir o duelo</button>
-      <button class="ghost" id="pcBtnComoPontua" style="width:100%; margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("ajuda", 14)} Como funciona a pontuação</button>
+      <div style="display:flex; gap:12px; justify-content:center; margin-bottom:16px;">
+        <button class="pc-console-btn" id="pcBtnImprimirDuelo" title="Imprimir o duelo" aria-label="Imprimir o duelo">${iconeSvg("impressora", 18)}</button>
+        <button class="pc-console-btn" id="pcBtnComoPontua" title="Como funciona a pontuação" aria-label="Como funciona a pontuação">${iconeSvg("ajuda", 18)}</button>
+      </div>
 
       <div class="pc-sub" style="margin-bottom:8px; font-weight:700; color:var(--pc-ink);">Agora é a sua vez:</div>
       <button class="primary" id="pcBtnMontarMinhaLista" style="width:100%; margin-bottom:8px;">Montar a minha própria lista</button>
-      <button class="ghost" id="pcBtnDesafiarOutros" style="width:100%;">Desafiar outras pessoas</button>
+      <button class="ghost" id="pcBtnDesafiarOutros" style="width:100%; margin-bottom:8px;">Desafiar outras pessoas</button>
+      ${desafio && desafio.id ? `<button class="ghost" id="pcBtnVerDueloSelado" style="width:100%; border:none;">Ver o duelo na aba Duelos</button>` : ""}
     </div>`;
+  const btnVerDuelo = document.getElementById("pcBtnVerDueloSelado");
+  if (btnVerDuelo) btnVerDuelo.addEventListener("click", () => { pcState.desafioComparacaoId = desafio.id; renderComparacaoDesafio(); });
   const btnImpDuelo = document.getElementById("pcBtnImprimirDuelo");
   if (btnImpDuelo) btnImpDuelo.addEventListener("click", () => {
     const info = pcState._dueloImpressao;
@@ -10021,7 +10026,7 @@ function montarImpressaoDuelo(desafio, nomeDesafiante) {
         <span class="di-pos">${i + 1}º</span>${docIcLetra("E", 15, "meu")}
         <span class="di-cand"><span class="di-n">${c.nome}</span><span class="di-p">${c.partido}</span></span>
         <span class="di-votos"><span class="di-vv di-forte">${meus.has(c.chave) ? "eleito" : "—"}</span><span class="di-vv">${dele.has(c.chave) ? "eleito" : "—"}</span><span class="di-vd di-aguarda">—</span><span class="di-vp di-aguarda">—</span></span>
-        <span class="di-painel"><span class="di-pt di-vazio">—</span><span class="di-pt di-vazio">—</span><span class="di-pt di-tot di-aguarda">—</span></span>
+        <span class="di-painel"><span class="di-pt di-vazio">—</span><span class="di-pt di-tot di-aguarda">—</span></span>
       </div>`).join("");
   } else {
     const escopo = [...(desafio.escopo_candidatos || [])].sort((a, b) => (votosEu.get(b.chave) || 0) - (votosEu.get(a.chave) || 0));
@@ -10030,7 +10035,7 @@ function montarImpressaoDuelo(desafio, nomeDesafiante) {
         <span class="di-pos">${i + 1}º</span>${docIcLetra("E", 15, "meu")}
         <span class="di-cand"><span class="di-n">${c.nome}</span><span class="di-p">${c.partido}</span></span>
         <span class="di-votos"><span class="di-vv di-forte">${(votosEu.get(c.chave) || 0).toLocaleString("pt-BR")}</span><span class="di-vv">${(votosRival.get(c.chave) || 0).toLocaleString("pt-BR")}</span><span class="di-vd di-aguarda">—</span><span class="di-vp di-aguarda">—</span></span>
-        <span class="di-painel"><span class="di-pt di-vazio">—</span><span class="di-pt di-vazio">—</span><span class="di-pt di-tot di-aguarda">—</span></span>
+        <span class="di-painel"><span class="di-pt di-vazio">—</span><span class="di-pt di-tot di-aguarda">—</span></span>
       </div>`).join("");
   }
   return `
@@ -10049,11 +10054,14 @@ function montarImpressaoDuelo(desafio, nomeDesafiante) {
       <div class="di-cols">
         <span class="di-pos"></span><span style="width:15px; flex-shrink:0;"></span>
         <span class="di-cand">Candidato</span>
-        <span class="di-votos di-vh"><span class="di-vv">${meuNome.split(" ")[0]}</span><span class="di-vv">${nomeDesafiante.split(" ")[0]}</span><span class="di-vd">Dif.</span><span class="di-vp">%</span></span>
-        <span class="di-painel di-ph"><span class="di-pt">${docIcLetra("E", 10, "hdr")}</span><span class="di-pt">${docIcAlvo(10)}</span><span class="di-pt di-tot">Pts</span></span>
+        <span class="di-votos di-vh"><span class="di-vv">${meuNome.split(" ")[0]}</span><span class="di-vv">${nomeDesafiante.split(" ")[0]}</span><span class="di-vd">Resultado</span><span class="di-vp">%</span></span>
+        <span class="di-painel di-ph"><span class="di-pt">P·V</span><span class="di-pt di-tot">P·R</span></span>
       </div>
       ${linhas}
-      ${docLegenda()}
+      <div class="di-legenda">
+        <span><b>Resultado</b>&nbsp;= votação oficial da apuração de 2026</span>
+        <span><b>P·V / P·R</b>&nbsp;= pontos de ${meuNome.split(" ")[0]} e de ${nomeDesafiante.split(" ")[0]} (acerto de eleição + proximidade de votos)</span>
+      </div>
       ${docRodape()}
       <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dataTxt} ${horaTxt}</span></div>
     </div>`;
