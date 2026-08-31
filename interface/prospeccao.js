@@ -4768,7 +4768,7 @@ async function renderDesafiosHub() {
     <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Duelos</div>
     <div class="pc-sub" style="margin:0 0 14px 2px;">Quem faz mais pontos na apuração leva. A régua é a mesma do documento e do ranking.</div>
     <button class="primary" id="pcBtnCriarDesafio" style="width:100%; margin-bottom:6px;">Criar duelo</button>
-    <div style="font-size:11px; color:var(--pc-ink-dim); text-align:center; margin-bottom:18px;">${gratis > 0 ? `${gratis} duelo${gratis === 1 ? "" : "s"} grátis restante${gratis === 1 ? "" : "s"}` : "10 SL por duelo"}</div>
+    <div style="font-size:11px; color:var(--pc-ink-dim); text-align:center; margin-bottom:18px;">Duelar é sempre grátis — desafie quantos quiser.</div>
 
     ${recebidos.length ? `<div class="pc-lobby-menu-tit" style="margin-top:0;">Te desafiaram · ${recebidos.length}</div>${recebidos.map(linhaDuelo).join("")}` : ""}
     ${andamento.length ? `<div class="pc-lobby-menu-tit">Em andamento · ${andamento.length}</div>${andamento.map(linhaDuelo).join("")}` : ""}
@@ -5171,8 +5171,8 @@ async function renderCriarDesafio() {
       <input class="cell" id="pcInputNomeDesafio" placeholder='"Duelo de Titãs"' maxlength="40" value="${escaparAtributoHtml(pcState.desafioCriarNome || "")}" style="width:100%; margin-bottom:10px;">
 
       <div class="pc-precinho">
-        <span class="pc-precinho-txt">${custo === 0 ? `<b>Grátis</b> — ${gratis} duelo${gratis === 1 ? "" : "s"} restante${gratis === 1 ? "" : "s"} hoje.` : `Seus grátis acabaram — este duelo custa <b>10 SL</b>.`}</span>
-        <span class="pc-precinho-val" style="${custo === 0 ? "color:var(--pc-accent);" : ""}">${custo === 0 ? "grátis" : "10 SL"}</span>
+        <span class="pc-precinho-txt"><b>Grátis</b> — duelar não custa SL, desafie quantos quiser.</span>
+        <span class="pc-precinho-val" style="color:var(--pc-accent);">grátis</span>
       </div>
 
       <div style="display:flex; gap:8px;">
