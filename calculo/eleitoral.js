@@ -642,7 +642,7 @@ function renderPlenarioTerreno(composicao, totalVagas) {
     let celulas = "";
     for (let i = 0; i < n; i++) {
       const c = i % gVazio.colunas, l = Math.floor(i / gVazio.colunas);
-      celulas += `<rect x="${(c * (TAM_UNIDADE + GAP)).toFixed(1)}" y="${(l * (TAM_UNIDADE + GAP)).toFixed(1)}" width="${TAM_UNIDADE.toFixed(1)}" height="${TAM_UNIDADE.toFixed(1)}" rx="${(TAM_UNIDADE * TAXA_ARREDONDAMENTO).toFixed(1)}" fill="#1E2226"><title>vaga em aberto</title></rect>`;
+      celulas += `<rect x="${(c * (TAM_UNIDADE + GAP)).toFixed(1)}" y="${(l * (TAM_UNIDADE + GAP)).toFixed(1)}" width="${TAM_UNIDADE.toFixed(1)}" height="${TAM_UNIDADE.toFixed(1)}" rx="${(TAM_UNIDADE * TAXA_ARREDONDAMENTO).toFixed(1)}" fill="#1D2023" stroke="#4D545C" stroke-width="0.75" stroke-dasharray="2.5,2"><title>vaga em aberto</title></rect>`;
     }
     return `<svg width="${larguraV.toFixed(1)}" height="${alturaV.toFixed(1)}" viewBox="0 0 ${larguraV.toFixed(1)} ${alturaV.toFixed(1)}" style="max-width:100%; height:auto; display:block; margin:0 auto;">${celulas}</svg>`;
   }
@@ -658,7 +658,7 @@ function renderPlenarioTerreno(composicao, totalVagas) {
     for (let c = 0; c < larguraTotal; c++) {
       if (grupoDe(l, c) !== "sem-grupo") continue;
       const x = c * (TAM_UNIDADE + GAP), y = l * (TAM_UNIDADE + GAP);
-      svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${TAM_UNIDADE}" height="${TAM_UNIDADE}" rx="${(TAM_UNIDADE * TAXA_ARREDONDAMENTO).toFixed(1)}" fill="#2C3239"><title>Sem grupo</title></rect>`;
+      svg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${TAM_UNIDADE}" height="${TAM_UNIDADE}" rx="${(TAM_UNIDADE * TAXA_ARREDONDAMENTO).toFixed(1)}" fill="#1D2023" stroke="#4D545C" stroke-width="0.75" stroke-dasharray="2.5,2"><title>vaga em aberto</title></rect>`;
     }
   }
 

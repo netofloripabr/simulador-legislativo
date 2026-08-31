@@ -429,6 +429,30 @@
     display:inline-flex; align-items:center; gap:9px; padding:7px 12px 7px 8px; border-radius:999px;
     background:rgba(52,232,74,.08); border:1px solid rgba(52,232,74,.32);
   }
+  /* Faixa "vagas em aberto" (aprovado 31/08/2026) */
+  #modoColaborativoWrap .pc-fva-cab{ display:flex; align-items:center; gap:10px; }
+  #modoColaborativoWrap .pc-fva-num{ font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  #modoColaborativoWrap .pc-fva-num .dim{ color:var(--pc-ink-dim); }
+  #modoColaborativoWrap .pc-fva-num b{ color:#FFA23E; }
+  #modoColaborativoWrap .pc-fva-tx{ flex:1; min-width:0; font-size:11px; color:var(--pc-ink-dim); line-height:1.4; }
+  #modoColaborativoWrap .pc-fva-tx b{ color:var(--pc-ink); }
+  #modoColaborativoWrap .pc-fva-chev{ color:var(--pc-ink-dim); flex-shrink:0; transition:transform .18s; }
+  #modoColaborativoWrap .pc-fva.aberta .pc-fva-chev{ transform:rotate(90deg); }
+  #modoColaborativoWrap .pc-fva-corpo{ margin-top:10px; border-top:1px solid var(--pc-glass-border); padding-top:4px; }
+  #modoColaborativoWrap .pc-fva-lin{ display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--pc-glass-border); }
+  #modoColaborativoWrap .pc-fva-lin:last-of-type{ border-bottom:none; }
+  #modoColaborativoWrap .pc-fva-sigla{ width:56px; flex-shrink:0; font-size:11px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #modoColaborativoWrap .pc-fva-qual{ width:48px; flex-shrink:0; font-size:8px; font-weight:800; letter-spacing:.05em; color:var(--pc-ink-dim); text-transform:uppercase; text-align:center; background:#15181B; border:1px solid #23262A; border-radius:6px; padding:4px 2px; }
+  #modoColaborativoWrap .pc-fva-cand{ flex:1; min-width:0; line-height:1.2; }
+  #modoColaborativoWrap .pc-fva-cand .n{ display:block; font-size:11.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #modoColaborativoWrap .pc-fva-cand .v{ font-size:9px; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
+  #modoColaborativoWrap .pc-fva-ir{ flex-shrink:0; width:30px; height:30px; border-radius:50%; background:#15181B; border:1px solid #2C3239; color:#AEB5BB; display:flex; align-items:center; justify-content:center; padding:0; }
+  #modoColaborativoWrap .pc-fva-nota{ font-size:9px; color:var(--pc-ink-dim); margin-top:8px; line-height:1.45; }
+  #modoColaborativoWrap .pc-fva-nota b{ color:var(--pc-ink); }
+  /* próximo da fila no card do partido */
+  #modoColaborativoWrap .pc-sen-chip.fila{ background:none; border:1px dashed #FFA23E; color:#FFA23E; }
+  #modoColaborativoWrap .pc-dep-crow.na-fila{ border-left:2px dashed #FFA23E; padding-left:7px; margin-left:-9px; background:rgba(255,162,62,.04); }
+  #modoColaborativoWrap .pc-dep-fila-tag{ font-size:8px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#FFA23E; margin:2px 0 0 2px; }
   #modoColaborativoWrap .pc-console-btn{
     width:46px; height:46px; border-radius:50%; background:#15181B; border:1px solid #2C3239;
     color:#AEB5BB; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; flex-shrink:0;

@@ -7430,6 +7430,72 @@ function atualizarBarraPartidoDom(zone, soma) {
 // Lista de cards de partido — design final de 17/08/2026 (5 linhas):
 // nome + box de vagas · régua/barra com meta · notificação + "i" ·
 // subpainel de botões · candidatos aninhados (lista completa).
+// Vagas que a apuração de agora já entrega mas o usuário ainda não marcou
+// no box (conceito aprovado em protótipo, 31/08/2026): pra cada partido,
+// compara as cadeiras do D'Hondt (calcularDisputaSobra) com os marcados
+// e aponta o próximo da fila (mais votado sem marcação e sem status).
+function vagasEmAbertoDoCargo(totalVagasCargo) {
+  const lista = pcState.palpiteEdicao || [];
+  if (!lista.length) return { emAberto: 0, marcadas: 0, linhas: [] };
+  const disputa = calcularDisputaSobra(lista, totalVagasCargo);
+  const counts = disputa.cadeirasPorPartido;
+  const qeAtual = quocienteEleitoral(somaVotosCargo(), totalVagasCargo);
+  let emAberto = 0, marcadas = 0;
+  const linhas = [];
+  lista.forEach((p, gi) => {
+    if (p.semAta2026) return;
+    const reais = (p.candidatos || []).filter((c) => c.fonte !== "legenda");
+    const nMarc = reais.filter((c) => c.marcadoEleito).length;
+    marcadas += nMarc;
+    const vg = counts[gi] || 0;
+    if (vg <= nMarc) return;
+    const soma = somaVotosGrupo(p);
+    const qpDireto = qeAtual ? Math.min(vg, Math.floor(soma / qeAtual)) : 0;
+    const ordenados = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+    // as cadeiras em aberto do partido são as posições k < vg ocupadas por
+    // candidato ainda sem marcação — o mesmo critério do selo fantasma no card
+    ordenados.forEach((c, k) => {
+      if (k >= vg || c.marcadoEleito || c.status) return;
+      emAberto++;
+      const rodada = (disputa.rodadaSobraPorPartido[gi] || [])[k];
+      linhas.push({
+        partido: p.nome, cadeira: k + 1,
+        qual: k < qpDireto ? "QP" : (rodada !== undefined ? rodada + "\u00aa M" : "M"),
+        nome: nomeExibicao(c), votos: Number(c.votos) || 0,
+      });
+    });
+  });
+  linhas.sort((a, b) => b.votos - a.votos);
+  return { emAberto, marcadas, linhas };
+}
+
+function renderFaixaVagasAbertas(totalVagasCargo) {
+  const dados = vagasEmAbertoDoCargo(totalVagasCargo);
+  if (!dados.emAberto) return "";
+  const abertaChave = "faixaVagas_" + pcState.cargoAtivo;
+  const aberta = !!pcState.expandido[abertaChave];
+  const linhas = dados.linhas.map((l) => `
+    <div class="pc-fva-lin">
+      <span class="pc-fva-sigla">${nomePartidoExibicao(l.partido)}</span>
+      <span class="pc-fva-qual">${l.cadeira}\u00aa \u00b7 ${l.qual}</span>
+      <span class="pc-fva-cand"><span class="n">${l.nome}</span><span class="v">${l.votos.toLocaleString("pt-BR")} votos \u00b7 pr\u00f3ximo da fila</span></span>
+      <button type="button" class="pc-fva-ir" data-pc-fva-ir="${escaparAtributoHtml(l.partido)}" title="Abrir o card do partido">${iconeSvg("setaDireita", 11)}</button>
+    </div>`).join("");
+  return `
+    <div class="glass-card pc-fva${aberta ? " aberta" : ""}" id="pcFaixaVagas" style="padding:12px 14px; cursor:pointer;">
+      <div class="pc-fva-cab">
+        <span class="pc-fva-num">${dados.marcadas}<span class="dim">/${totalVagasCargo}</span> <b>\u00b7 ${dados.emAberto} em aberto</b></span>
+        <span class="pc-fva-tx">pela vota\u00e7\u00e3o atual, ${dados.emAberto === 1 ? "essa vaga j\u00e1 tem dono" : "essas vagas j\u00e1 t\u00eam dono"} \u2014 <b>falta voc\u00ea confirmar</b></span>
+        <svg class="pc-fva-chev" width="12" height="12" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </div>
+      ${aberta ? `
+      <div class="pc-fva-corpo">
+        ${linhas}
+        <div class="pc-fva-nota"><b>QP</b> = vaga pelo quociente partid\u00e1rio \u00b7 <b>N\u00aa M</b> = rodada da sobra (m\u00e9dia) \u00b7 o nome \u00e9 o candidato mais votado ainda sem marca\u00e7\u00e3o naquele partido \u2014 a setinha abre o card.</div>
+      </div>` : ""}
+    </div>`;
+}
+
 function renderListaDeputadosFader(grupos, E, totalVagas) {
   const capCand = capCandidatoDeputado();
   // calcularDisputaSobra devolve os mesmos counts do dhondtComCorte E o
@@ -7501,13 +7567,16 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       // o que o D'Hondt cruzando todos os partidos entrega já.
       const marcadoSemVoto = c.marcadoEleito && k >= vg;
       const rodadaSobraCand = (disputa.rodadaSobraPorPartido[gi] || [])[k];
+      // Fantasma "E?" (aprovado 31/08/2026): a apura\u00e7\u00e3o de agora d\u00e1 esta
+      // cadeira ao partido, mas ningu\u00e9m marcou \u2014 mostra quem est\u00e1 ganhando.
+      const naFila = !c.marcadoEleito && !c.status && k < vg;
       const selo = c.marcadoEleito
         ? (marcadoSemVoto
           ? '<span class="pc-sen-chip semvoto" title="Marcado eleito no box, mas ainda sem votação atribuída — arraste a barra ou digite os votos pra apuração contar.">E</span>'
           : (k < qpDireto
             ? '<span class="pc-sen-chip" title="Eleito direto pelo quociente partidário (art. 107)">E-QP</span>'
             : `<span class="pc-sen-chip" title="Eleito pela sobra (método das médias, art. 109)${rodadaSobraCand !== undefined ? ` — foi a ${rodadaSobraCand}ª sobra distribuída de ${disputa.totalSobrasCargo} no cargo` : ""}">E-M${rodadaSobraCand !== undefined ? ` · ${rodadaSobraCand}ª` : ""}</span>`))
-        : "";
+        : (naFila ? `<span class="pc-sen-chip fila" title="Pela vota\u00e7\u00e3o atual este candidato est\u00e1 ganhando a ${k + 1}\u00aa vaga do partido \u2014 marque no box pra confirmar o palpite.">E?</span>` : "");
       // Posição do candidato na lista do partido (pedido do usuário,
       // 24/08/2026) — discreto, só a colocação por votação de hoje.
       const posicao = `<span class="pc-dep-pos">${k + 1}º</span>`;
@@ -7538,13 +7607,14 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       </div>`;
       }
       return `
-      <div class="pc-dep-crow${c.votosEditado ? " manual" : ""}${marcadoSemVoto ? " marcado-semvoto" : ""}" data-dep-cand="${escaparAtributoHtml(c.chave)}">
+      <div class="pc-dep-crow${c.votosEditado ? " manual" : ""}${marcadoSemVoto ? " marcado-semvoto" : ""}${naFila ? " na-fila" : ""}" data-dep-cand="${escaparAtributoHtml(c.chave)}">
         <div class="pc-dep-cl1">
           ${posicao}
           ${selo}
           <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
           <span class="pc-dep-cpct" data-pc-dep-editar="${escaparAtributoHtml(c.chave)}"><span class="valNum">${cv.toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
         </div>
+        ${naFila ? `<div class="pc-dep-fila-tag">ganhando a ${k + 1}\u00aa vaga pela vota\u00e7\u00e3o \u2014 marque pra confirmar</div>` : ""}
         ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
         ${faderDepHtml("c|" + gi + "|" + c.chave, cv, capCand, true)}
@@ -8917,6 +8987,7 @@ async function renderCargoEstadual() {
         <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
       </div>`}
     </div>
+    ${renderFaixaVagasAbertas(totalVagasCargo)}
     ${renderLegendaBadge(false)}`}
     ${pcState.listaSalvaNome ? `
     <div style="display:flex; align-items:center; gap:6px; margin:0 0 10px 2px; font-size:11.5px; color:var(--pc-ink-dim);">
@@ -9087,6 +9158,26 @@ function attachListenersSelecao() {
       const chave = "plenarioColapsado_" + pcState.cargoAtivo;
       const atualCol = pcState.expandido[chave] === undefined ? true : !!pcState.expandido[chave];
       pcState.expandido[chave] = !atualCol;
+      renderCargoEstadual();
+    });
+  }
+  const faixaVagas = document.getElementById("pcFaixaVagas");
+  if (faixaVagas) {
+    faixaVagas.addEventListener("click", (ev) => {
+      const ir = ev.target.closest("[data-pc-fva-ir]");
+      if (ir) {
+        ev.stopPropagation();
+        const nomeP = ir.getAttribute("data-pc-fva-ir");
+        pcState.expandido["faderAberto_" + pcState.cargoAtivo + "_" + nomeP] = true;
+        renderCargoEstadual();
+        setTimeout(() => {
+          const card = document.querySelector(`[data-dep-nome="${(window.CSS && CSS.escape) ? CSS.escape(nomeP) : nomeP}"]`);
+          if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 80);
+        return;
+      }
+      const chave = "faixaVagas_" + pcState.cargoAtivo;
+      pcState.expandido[chave] = !pcState.expandido[chave];
       renderCargoEstadual();
     });
   }
