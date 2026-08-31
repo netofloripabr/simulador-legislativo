@@ -7479,6 +7479,7 @@ function renderFaixaVagasAbertas(totalVagasCargo) {
       <span class="pc-fva-sigla">${nomePartidoExibicao(l.partido)}</span>
       <span class="pc-fva-qual">${l.cadeira}\u00aa \u00b7 ${l.qual}</span>
       <span class="pc-fva-cand"><span class="n">${l.nome}</span><span class="v">${l.votos.toLocaleString("pt-BR")} votos \u00b7 pr\u00f3ximo da fila</span></span>
+      <button type="button" class="pc-fva-conf" data-pc-fva-conf="${escaparAtributoHtml(l.partido)}" title="Confirmar: marca ${l.nome} como eleito (sobe 1 vaga no box do partido)">${iconeSvg("confere", 12)} confirmar</button>
       <button type="button" class="pc-fva-ir" data-pc-fva-ir="${escaparAtributoHtml(l.partido)}" title="Abrir o card do partido">${iconeSvg("setaDireita", 11)}</button>
     </div>`).join("");
   return `
@@ -9164,6 +9165,29 @@ function attachListenersSelecao() {
   const faixaVagas = document.getElementById("pcFaixaVagas");
   if (faixaVagas) {
     faixaVagas.addEventListener("click", (ev) => {
+      const conf = ev.target.closest("[data-pc-fva-conf]");
+      if (conf) {
+        ev.stopPropagation();
+        const nomeP = conf.getAttribute("data-pc-fva-conf");
+        const gi = pcState.palpiteEdicao.findIndex((pp) => pp.nome === nomeP);
+        if (gi < 0) return;
+        const p = pcState.palpiteEdicao[gi];
+        // Mesma semântica do "+" do box de vagas (tapete curto incluso):
+        // sobe 1 vaga indicada e o recálculo marca o mais votado sem selo.
+        const counts = vagasApuradasPorGrupo();
+        const atual = vagasIndicadasDe(p, counts[gi] || 0);
+        const somaOutras = pcState.palpiteEdicao.reduce(
+          (soma, pp, i) => (i === gi ? soma : soma + vagasIndicadasDe(pp, counts[i] || 0)), 0);
+        const totalCargo = totalVagasCargoAtivo();
+        const novoVal = Math.min(atual + 1, Math.max(0, totalCargo - somaOutras));
+        if (novoVal === atual) return;
+        snapshotPalpite();
+        p.vagasIndicadas = novoVal;
+        recalcularMarcadosDeputados();
+        agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
+        renderCargoEstadual();
+        return;
+      }
       const ir = ev.target.closest("[data-pc-fva-ir]");
       if (ir) {
         ev.stopPropagation();
