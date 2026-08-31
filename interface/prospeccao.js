@@ -5636,7 +5636,8 @@ async function renderNotificacoes() {
       <div class="pc-notif-corpo">
         <div class="pc-notif-titulo">${n.titulo}</div>
         ${n.corpo ? `<div class="pc-notif-desc">${n.corpo}</div>` : ""}
-        ${n.tipo === "desafio_recebido" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver desafio</button>` : ""}
+        ${n.tipo === "desafio_recebido" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver duelo</button>` : ""}
+        ${n.tipo === "desafio_aceito" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver o duelo selado</button>` : ""}
       </div>
       <div class="pc-notif-hora">${_tempoRelativo(n.criado_em)}</div>
     </div>`;
