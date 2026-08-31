@@ -70,6 +70,24 @@ function refEleitoradoDe(uf) { return REF_ELEITORADO_POR_UF[uf] || null; }
 // reaplicados manualmente sobre esta base, já que o arquivo de motivo de
 // cassação do TSE não foi usado nesta rodada (ver
 // ferramentas/tratar_resultados_2022.py).
+// Votos DADOS SÓ NA SIGLA (voto de legenda) — Dep. Estadual SC 2022.
+// Fonte: API oficial de resultados do TSE (resultados.tse.jus.br, eleição
+// 546, cargo 7, arquivo sc-c0007-e000546-v.json, campos agr/parf tvtl),
+// extraído em 31/08/2026. Soma = 220.062 = total oficial de votos de
+// legenda do cargo. Não é uma pessoa: soma pro quociente partidário mas
+// nunca ocupa vaga. Injetado nos grupos por montarEstadoPalpite/
+// injetarVotosLegenda (nuvem/palpites.js), agregando pela federação de 2026.
+const LEGENDA_2022 = {
+  estadual: {
+    "PL": 49753, "PT": 39800, "PSB": 22678, "MDB": 20070, "PSD": 17744,
+    "PTB": 9524, "NOVO": 9495, "PP": 7638, "UNIÃO": 7592, "PDT": 6601,
+    "PSDB": 6042, "REPUBLICANOS": 5363, "PODE": 4725, "PSOL": 3070,
+    "CIDADANIA": 2579, "PATRIOTA": 1630, "PSC": 1329, "PC do B": 925,
+    "PSTU": 702, "SOLIDARIEDADE": 646, "REDE": 451, "PV": 441, "DC": 383,
+    "AVANTE": 351, "PRTB": 300, "PROS": 230
+  }
+};
+
 const BASE_2022 = [
   { nome:"PL", vagas2022:11, candidatos:[
     { nome:"Ana Caroline Campagnolo Galvao", municipio:"Itajaí", votos:196571, fonte:"oficial", id:"pl-sc-ana-caroline-campagnolo-galvao", eleito2022:true, nomeUrna:"Ana Campagnolo" },

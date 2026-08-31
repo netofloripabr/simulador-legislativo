@@ -6587,7 +6587,7 @@ function balancearTudoSelecao() {
     const teto = tetoAutoPreenchimento(pcState.estado, pcState.cargoAtivo);
     pcState.palpiteEdicao.forEach((p) => {
       p.candidatos.forEach((c) => {
-        if (c.fonte === "legenda") return;
+        if (c.fonte === "legenda") { c.votos = Math.round((Number(c.votos) || 0) * escalaFinal); return; }
         c.votos = Math.round((Number(c.votos) || 0) * escalaFinal);
         // Bug encontrado testando ao vivo em 08/08/2026: essa reescala geral
         // roda DEPOIS do teto já ter sido aplicado em balancearPartidoSelecao
@@ -7621,6 +7621,21 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         ${faderDepHtml("c|" + gi + "|" + c.chave, cv, capCand, true)}
       </div>`;
     }).join("") : "";
+    // Card sintético "Legenda" (pedido do usuário, 31/08/2026): o voto dado
+    // só na sigla, editável como um candidato — soma pro QP do partido, mas
+    // nunca é marcável nem ocupa vaga. Fica fixo no fim da lista do grupo.
+    const legendaCand = p.candidatos.find((c) => c.fonte === "legenda");
+    const cvLeg = legendaCand ? (Number(legendaCand.votos) || 0) : 0;
+    const legendaHtml = aberto && legendaCand ? `
+      <div class="pc-dep-crow pc-dep-crow-legenda" data-dep-cand="${escaparAtributoHtml(legendaCand.chave)}">
+        <div class="pc-dep-cl1">
+          <span class="pc-sen-chip chiplegenda" title="Voto dado apenas na sigla do partido — soma pro quociente partid\u00e1rio, mas n\u00e3o elege ningu\u00e9m sozinho.">LEG</span>
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">Legenda</span></span>
+          <span class="pc-dep-cpct" data-pc-dep-editar="${escaparAtributoHtml(legendaCand.chave)}"><span class="valNum">${cvLeg.toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
+        </div>
+        ${Number(legendaCand.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(legendaCand.votos2022).toLocaleString("pt-BR")} votos s\u00f3 na sigla (TSE)</div>` : ""}
+        ${faderDepHtml("c|" + gi + "|" + legendaCand.chave, cvLeg, capCand, true)}
+      </div>` : "";
     return `
     <div class="pc-dep-card" data-dep-idx="${gi}" data-dep-nome="${escaparAtributoHtml(p.nome)}">
       <div class="pc-dep-l1" data-dep-toggle="${gi}">
@@ -7678,7 +7693,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <button type="button" class="pc-cmd-acao" data-pc-zerar="${p.nome}" title="Zerar votação do partido">${iconeSvg("borracha", 12)}</button>
         <button type="button" class="pc-cmd-acao" data-dep-magico="${gi}" title="Preencher só este partido automaticamente">${iconeSvg("completar", 13)}</button>
       </div>` : ""}
-      ${aberto ? `<div class="pc-dep-cands">${cands || '<div class="pc-sen-rod">Nenhum candidato carregado neste grupo.</div>'}</div>` : ""}
+      ${aberto ? `<div class="pc-dep-cands">${(cands + legendaHtml) || '<div class="pc-sen-rod">Nenhum candidato carregado neste grupo.</div>'}</div>` : ""}
       ${!aberto && candsOrd.length ? `<div class="pc-dep-preview">
         <div class="pc-dep-cl1">
           ${candsOrd[0].marcadoEleito ? '<span class="pc-sen-chip">E</span>' : ""}
@@ -8109,7 +8124,9 @@ function attachListenersDeputadosFader(E, totalVagas) {
       const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
       const novosTotais = fmdEscalarProporcional(baseM.totais, frac * E, E);
       pcState.palpiteEdicao.forEach((p, i) => {
-        const reais = p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status);
+        // A legenda tamb\u00e9m escala com a al\u00e7a mestra (31/08/2026) — o
+        // "aumento dos votos v\u00e1lidos" cresce sigla junto com os nominais.
+        const reais = p.candidatos.filter((c) => !c.status);
         const novos = fmdEscalarProporcional(baseM.membros[i], novosTotais[i], capCand);
         reais.forEach((c, j) => { c.votos = novos[j]; });
       });
@@ -8125,7 +8142,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
       snapshotPalpite();
       baseM = {
         totais: pcState.palpiteEdicao.map((p) => somaVotosGrupo(p)),
-        membros: pcState.palpiteEdicao.map((p) => p.candidatos.filter((c) => c.fonte !== "legenda" && !c.status).map((c) => Number(c.votos) || 0)),
+        membros: pcState.palpiteEdicao.map((p) => p.candidatos.filter((c) => !c.status).map((c) => Number(c.votos) || 0)),
       };
       _depMasterAtivo = true;
       zone.classList.add("ativo");
@@ -8591,6 +8608,11 @@ function linkInstagramDe(chave) {
 }
 
 async function renderCargoEstadual() {
+  // Lista antiga (salva/rascunho antes de 31/08/2026) não tem a linha de
+  // legenda — entra aqui zerada, sem alterar a soma que o usuário fechou.
+  if (pcState.palpiteEdicao && typeof injetarVotosLegenda === "function") {
+    injetarVotosLegenda(pcState.palpiteEdicao, pcState.cargoAtivo, pcState.estado, 0);
+  }
   const conteudo = document.getElementById("pcCargoConteudo");
   // Mesmo problema (e mesma correção) do botão ✦ na Revisão, achado pelo
   // usuário em 12/08/2026: qualquer interação nesta tela reconstrói o HTML

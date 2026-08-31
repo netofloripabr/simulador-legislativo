@@ -34,6 +34,41 @@ function chaveCandidato(nome, partido, idFixo) {
 // todos no mesmo formato de dados/base-2022.js (array de {nome, vagas2022,
 // candidatos}); [] quando aquele estado não modela o cargo (ex.: Dep.
 // Estadual no DF, que elege Distrital em vez disso).
+// Garante a linha "Votos de legenda" nos grupos (pedido do usuário,
+// 31/08/2026): agrega LEGENDA_2022 pela federação de 2026 e cria o
+// candidato sintético fonte:"legenda" onde ele ainda não existe. votosIniciais
+// define o ponto de partida ("2022" pra lista nova = valor real de 2022;
+// 0 pra lista/rascunho já existente — não mexe numa soma que o usuário
+// já fechou). Idempotente: grupo que já tem legenda não ganha outra.
+function injetarVotosLegenda(lista, cargo, uf, votosIniciais) {
+  if (typeof LEGENDA_2022 === "undefined" || !LEGENDA_2022[cargo] || uf !== "SC" || !Array.isArray(lista)) return lista;
+  const porGrupo = {};
+  // Incorporações/fusões pós-2022 (não são federação, o partido deixou de
+  // existir): PTB + Patriota viraram PRD (2023); PSC foi incorporado pelo
+  // Podemos (2023); PROS foi incorporado pelo Solidariedade (2023). O voto
+  // de legenda histórico segue o partido sucessor.
+  const INCORPORACOES = { "PTB": "PRD", "PATRIOTA": "PRD", "PSC": "PODE", "PROS": "SOLIDARIEDADE" };
+  Object.keys(LEGENDA_2022[cargo]).forEach((partido22) => {
+    let destino = INCORPORACOES[partido22] || partido22;
+    try { if (typeof nomeFederacao2026 === "function") destino = nomeFederacao2026(uf, destino) || destino; } catch (_) {}
+    porGrupo[destino] = (porGrupo[destino] || 0) + (Number(LEGENDA_2022[cargo][partido22]) || 0);
+  });
+  lista.forEach((p) => {
+    const v = porGrupo[p.nome];
+    if (!v || p.semAta2026) return;
+    if ((p.candidatos || []).some((c) => c.fonte === "legenda")) return;
+    const id = "legenda-" + p.nome;
+    p.candidatos.push({
+      chave: chaveCandidato("Votos de legenda", p.nome, id),
+      id, nome: "Votos de legenda", nomeUrna: "", municipio: "",
+      votos2022: v, fonte: "legenda", eleito2022: false, invalidado2022: false,
+      partidoOrigem2022: null, partidoOriginal: p.nome, status: null, genero: null,
+      votos: votosIniciais === "2022" ? v : 0, votosEditado: false, marcadoEleito: false,
+    });
+  });
+  return lista;
+}
+
 function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) {
   cargo = cargo || "estadual";
   uf = uf || "SC";
@@ -82,7 +117,7 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
   }));
   const todos = base;
   const partidos = escopo === "partido" ? todos.filter((p) => p.nome === partidoEscopo) : todos;
-  return partidos.map((p) => {
+  const montado = partidos.map((p) => {
     const metaVagas = (vagasPorPartido && vagasPorPartido[p.nome] !== undefined) ? vagasPorPartido[p.nome] : p.vagas2022;
     // Voto de legenda não é uma pessoa — não pode "ocupar" uma das vagas de
     // Deputado eleito, mesmo quando o número de votos dele seria grande o
@@ -126,6 +161,7 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
       }),
     };
   });
+  return injetarVotosLegenda(montado, cargo, uf, "2022");
 }
 
 
