@@ -474,6 +474,7 @@ async function initColaborativo() {
         localStorage.removeItem("sl_duelo_pendente");
         if (d && !d.sou_o_criador) {
           pcState.desafioAceitarId = d.id;
+          pcState.desafioAceitarFase = "convite";
           pcState.desafioAceitarVotos = {};
           pcState.desafioAceitarCadeiras = null;
           pcState._abrirAceitarDueloNoBoot = true;
@@ -3921,6 +3922,15 @@ async function renderMinhasListas() {
   const el = document.getElementById("pcConteudo");
   el.innerHTML = telaCarregando("Carregando suas listas…");
   const listas = await _carregarMinhasListasNormalizado();
+  // Duelos selados também são cédulas depositadas (decisão do usuário,
+  // 30/08/2026): o palpite do duelo trava igual e vale na apuração —
+  // então ele aparece aqui, junto das depositadas, com o código DS.
+  let duelosSelados = [];
+  if (pcState.perfil) {
+    try {
+      duelosSelados = (await listarMeusDesafios()).filter((d) => ["selado", "apuracao", "encerrado"].includes(d.status));
+    } catch (e) { /* sem duelos, segue */ }
+  }
 
   if (pcState.listaEmVisualizacao) {
     // Local já vem com os candidatos junto; logado precisa buscar o
@@ -4023,7 +4033,22 @@ async function renderMinhasListas() {
       { icone: "compartilhar", titulo: "Compartilhar", legenda: "Manda o convite de duelo pros amigos." },
     ]) : ""}${abertas.map(linhaAberta).join("")}` : ""}
     ${depositadas.length ? `<div class="pc-lobby-menu-tit" style="margin-top:${abertas.length ? "18px" : "0"};">Depositadas</div>${depositadas.map(linhaDepositada).join("")}` : ""}
-    ${!listas.length ? estadoVazio({ icone: "lista", titulo: "Nenhuma lista ainda", texto: "Monte sua primeira previsão e ela aparece aqui.", botaoLabel: "Criar minha lista", botaoId: "pcBtnEstadoVazioNovaLista" }) : ""}
+    ${duelosSelados.length ? `<div class="pc-lobby-menu-tit" style="margin-top:18px;">Cédulas de duelo</div>${duelosSelados.map((d) => {
+      const souCriador = d.criador_id === pcState.perfil.id;
+      const rival = souCriador ? (d.desafiado ? d.desafiado.nome : "?") : (d.criador ? d.criador.nome : "?");
+      return `
+      <div class="pc-lobby-card" style="padding:12px 14px; margin-bottom:8px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="pc-lobby-atalho-icone" style="width:34px; height:34px; flex-shrink:0;">${iconeSvg("desafio", 16)}</span>
+          <span style="flex:1; min-width:0;">
+            <span style="display:block; font-size:12.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">"${d.nome}" · vs ${rival}</span>
+            <span style="display:block; font-size:10px; color:var(--pc-ink-dim);">${d.codigo || ""} · selado em ${new Date(d.respondido_em || d.criado_em).toLocaleDateString("pt-BR")} · ${d.status === "encerrado" ? "apurado" : "aguarda apuração"}</span>
+          </span>
+          <button type="button" class="pc-cmd-acao" data-pc-ml-duelo="${d.id}" title="Ver comparação">${iconeSvg("buscar", 14)}</button>
+        </div>
+      </div>`;
+    }).join("")}` : ""}
+    ${!listas.length && !duelosSelados.length ? estadoVazio({ icone: "lista", titulo: "Nenhuma lista ainda", texto: "Monte sua primeira previsão e ela aparece aqui.", botaoLabel: "Criar minha lista", botaoId: "pcBtnEstadoVazioNovaLista" }) : ""}
     ${listaModal ? `
     <div id="pcModalDepositarOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
       <div style="max-width:380px; width:100%; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
@@ -4260,6 +4285,10 @@ async function renderMinhasListas() {
       renderMinhasListas();
     });
   });
+  document.querySelectorAll("[data-pc-ml-duelo]").forEach((btn) => btn.addEventListener("click", () => {
+    pcState.desafioComparacaoId = btn.getAttribute("data-pc-ml-duelo");
+    renderComparacaoDesafio();
+  }));
   document.querySelectorAll("[data-pc-compartilhar-lista]").forEach((btn) => {
     btn.addEventListener("click", () => abrirModalCompartilharLista(btn.getAttribute("data-pc-compartilhar-lista"), listas));
   });
@@ -4678,6 +4707,7 @@ async function renderDesafiosHub() {
   });
   document.querySelectorAll("[data-pc-aceitar]").forEach((btn) => btn.addEventListener("click", () => {
     pcState.desafioAceitarId = btn.getAttribute("data-pc-aceitar");
+    pcState.desafioAceitarFase = "convite";
     pcState.desafioAceitarVotos = {};
     pcState.desafioStatus = "";
     renderAceitarDesafio();
@@ -5219,17 +5249,17 @@ async function renderCriarDesafio() {
 async function renderAceitarDesafio() {
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = telaCarregando("Carregando…");
-  // desafio_detalhe é a única porta pros votos (migração 38) — e já vem
-  // com votos_criador/eleitos_criador mascarados quando o duelo é oculto.
+  // desafio_detalhe é a única porta pros votos (migração 38).
   const desafio = await desafioDetalhe(pcState.desafioAceitarId);
   if (!desafio) { renderDesafiosHub(); return; }
   if (!pcState.desafioAceitarVotos) pcState.desafioAceitarVotos = {};
+  if (!pcState.desafioAceitarFase) pcState.desafioAceitarFase = "convite";
+  const fase = pcState.desafioAceitarFase;
   const nomeDesafiante = desafio.criador ? desafio.criador.nome : "Alguém";
   const escopo = desafio.escopo_candidatos || [];
   const cargoLabel = (CARGOS.find((c) => c.id === desafio.cargo) || {}).label || "";
   const ehEleitos = desafio.tipo_disputa === "eleitos";
   const votosRivalPorChave = new Map((desafio.votos_criador || []).map((v) => [v.chave, Number(v.votos) || 0]));
-  const rivalVisivel = !!desafio.votos_visiveis;
 
   const vagasDuelo = ehEleitos ? (desafio.eleitos_criador ? desafio.eleitos_criador.length : vagasFixasCargo(desafio.estado, desafio.cargo)) : 0;
   if (ehEleitos && (!pcState.desafioAceitarCadeiras || pcState.desafioAceitarCadeiras.length !== vagasDuelo)) {
@@ -5240,26 +5270,69 @@ async function renderAceitarDesafio() {
   const preenchidas = cadeiras.filter(Boolean).length;
   const poolAceitar = ehEleitos ? _poolCandidatosDesafio(desafio.cargo) : [];
 
-  conteudo.innerHTML = `
-    <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <div class="pc-selo-desafio">
-        <span class="pc-selo-desafio-ic">${iconeSvg("desafio", 17)}</span>
-        <span class="pc-selo-desafio-tx">Duelo<b>1 × 1</b></span>
-      </div>
-      <h2 style="margin:10px 0 2px;">Aceitar duelo</h2>
-      <div class="pc-sub" style="margin-bottom:14px;">${nomeDesafiante} te desafiou em "${desafio.nome}" — ${ehEleitos
-        ? `monte o SEU plenário de ${cargoLabel} (${vagasDuelo} cadeira${vagasDuelo === 1 ? "" : "s"}). Depois de aceitar, fica travado até a apuração.`
-        : `indique seus votos pros mesmos ${escopo.length} candidato${escopo.length === 1 ? "" : "s"} de ${cargoLabel}. Depois de aceitar, ficam travados até a apuração.`}</div>
-
+  const vsCard = `
       <div class="pc-duelo-card" style="margin-bottom:16px;">
         <div class="pc-duelo-duo">
           <span class="pc-duelo-lado"><span class="pc-duelo-avatar">${_iniciaisNome(nomeDesafiante)}</span><span class="pc-duelo-tx"><span class="pc-duelo-p">${nomeDesafiante}</span><span class="pc-duelo-c">${desafio.estado}</span></span></span>
           <span class="pc-duelo-vs">VS</span>
           <span class="pc-duelo-lado dir"><span class="pc-duelo-avatar eu">${_iniciaisNome(pcState.perfil.nome || "Você")}</span><span class="pc-duelo-tx"><span class="pc-duelo-p">Você</span><span class="pc-duelo-c">${ehEleitos ? `${vagasDuelo} cadeiras` : `${escopo.length} candidato${escopo.length === 1 ? "" : "s"}`}</span></span></span>
         </div>
-      </div>
+      </div>`;
 
-      ${!rivalVisivel ? `<div class="pc-sub" style="display:flex; align-items:center; gap:6px; margin:-6px 2px 12px;">${iconeSvg("cadeado", 12)} ${nomeDesafiante} escondeu o palpite — os dois só aparecem lado a lado depois que você selar.</div>` : ""}
+  if (fase === "convite") {
+    // ===== Fase 1: o CONVITE — logo centralizada, a provocação e a
+    // decisão Aceitar × Rejeitar. A lista só abre depois do aceite
+    // (fluxo aprovado pelo usuário, 30/08/2026). =====
+    conteudo.innerHTML = `
+      <div class="glass-card" style="max-width:420px; margin:0 auto; text-align:center;">
+        <div class="pc-logo-mark" style="margin:6px auto 10px;">
+          <div class="pc-logo-fill cheio"></div>
+          <span class="pc-logo-icone">
+            <svg viewBox="0 0 16 16" width="26" height="26">
+              <path d="M2.5 6.5h11v7a1.2 1.2 0 01-1.2 1.2H3.7A1.2 1.2 0 012.5 13.5v-7z" fill="none" stroke="currentColor" stroke-width="1.3"></path>
+              <path d="M4.5 6.5h7" stroke="currentColor" stroke-width="1.3"></path>
+              <rect x="6.6" y="2" width="3.4" height="4.8" rx=".5" fill="none" stroke="currentColor" stroke-width="1.2" transform="rotate(12 8.3 4.4)"></rect>
+            </svg>
+          </span>
+        </div>
+        <div style="font-size:11px; font-weight:800; letter-spacing:.08em; color:var(--pc-ink-dim); margin-bottom:14px;"><b style="color:var(--pc-accent);">Simula</b><span style="color:var(--pc-ink);">LEGIS</span></div>
+
+        <h2 style="margin-bottom:6px;">Duelo 1×1</h2>
+        <div class="pc-sub" style="margin-bottom:16px;">${nomeDesafiante} te desafiou para o 1×1 <b style="color:var(--pc-ink);">"${desafio.nome}"</b> — indique o seu palpite para os candidatos da lista.</div>
+
+        ${vsCard}
+
+        <div style="display:flex; gap:8px;">
+          <button class="ghost" id="pcBtnRejeitarConvite" style="flex:1;">Rejeitar</button>
+          <button class="primary" id="pcBtnAceitarConvite" style="flex:2;">Aceitar</button>
+        </div>
+        <div class="pc-status" id="pcAceitarStatus" style="margin-top:8px; min-height:12px;"></div>
+      </div>`;
+    document.getElementById("pcBtnAceitarConvite").addEventListener("click", () => {
+      pcState.desafioAceitarFase = "palpite";
+      renderAceitarDesafio();
+    });
+    document.getElementById("pcBtnRejeitarConvite").addEventListener("click", async (e) => {
+      e.target.disabled = true;
+      const r = await recusarDesafio(pcState.desafioAceitarId);
+      if (!r.ok) { document.getElementById("pcAceitarStatus").textContent = "Não deu: " + r.mensagem; e.target.disabled = false; return; }
+      renderDesafiosHub();
+    });
+    return;
+  }
+
+  // ===== Fase 2: o PALPITE — a lista do desafiante com a coluna Rival
+  // visível; fecha com "Depositar" (o aceite de verdade). =====
+  conteudo.innerHTML = `
+    <div class="glass-card" style="max-width:420px; margin:0 auto;">
+      <div class="pc-selo-desafio">
+        <span class="pc-selo-desafio-ic">${iconeSvg("desafio", 17)}</span>
+        <span class="pc-selo-desafio-tx">Duelo<b>1 × 1</b></span>
+      </div>
+      <h2 style="margin:10px 0 2px;">"${desafio.nome}"</h2>
+      <div class="pc-sub" style="margin-bottom:14px;">${ehEleitos
+        ? `Monte o SEU plenário de ${cargoLabel} (${vagasDuelo} cadeira${vagasDuelo === 1 ? "" : "s"}). Ao depositar, fica travado até a apuração.`
+        : `Indique seus votos pros ${escopo.length} candidato${escopo.length === 1 ? "" : "s"} de ${cargoLabel}. Ao depositar, ficam travados até a apuração.`}</div>
 
       ${ehEleitos ? `
         <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px;">
@@ -5271,23 +5344,27 @@ async function renderAceitarDesafio() {
         ${_duelaGavetaCadeira(cadeiras, pcState.desafioAceitarCadeiraAtiva, poolAceitar, pcState.desafioAceitarBuscaCadeira, "pc-acadeira")}
       ` : `
         <label class="pc-campo-label">Seus votos indicados</label>
-        <div style="display:flex; justify-content:flex-end; gap:14px; font-size:9.5px; color:var(--pc-ink-dim); margin:0 6px 4px;"><span>Rival</span><span style="width:38px; text-align:right;">Você</span></div>
-        <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:320px; overflow-y:auto;">
+        <div class="pc-duelo-colcab"><span class="cand">Candidato</span><span class="rival">Rival</span><span class="voce">Você</span></div>
+        <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:340px; overflow-y:auto;">
           ${escopo.map((c) => `
             <div class="pc-voto-linha">
               <span class="txt"><span class="nome">${c.nome}</span><span class="partido">${c.partido}</span></span>
-              <span class="pc-voto-rival${rivalVisivel ? "" : " oculto"}">${rivalVisivel ? (votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR") : iconeSvg("cadeado", 11)}</span>
+              <span class="pc-voto-rival">${(votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR")}</span>
               <input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioAceitarVotos[c.chave] ?? ""}" placeholder="0">
             </div>`).join("")}
         </div>
       `}
 
-      <button class="primary" id="pcBtnConfirmarAceite" style="width:100%;" ${ehEleitos && preenchidas !== vagasDuelo ? "disabled" : ""}>Aceitar</button>
-      <button class="ghost" id="pcBtnRecusarNaAceitar" style="width:100%; margin-top:6px; border:none; color:var(--pc-ink-dim);">Recusar duelo</button>
+      <button class="primary" id="pcBtnConfirmarAceite" style="width:100%;" ${ehEleitos && preenchidas !== vagasDuelo ? "disabled" : ""}>Depositar</button>
+      <button class="ghost" id="pcBtnVoltarConvite" style="width:100%; margin-top:6px; border:none; color:var(--pc-ink-dim);">Voltar</button>
       <div class="pc-status" id="pcAceitarStatus" style="margin-top:8px; min-height:12px;"></div>
     </div>`;
 
-  // --- Eleitos: cadeiras + gaveta (mesmos helpers do Criar) ---
+  document.getElementById("pcBtnVoltarConvite").addEventListener("click", () => {
+    pcState.desafioAceitarFase = "convite";
+    renderAceitarDesafio();
+  });
+
   document.querySelectorAll("[data-pc-acadeira]").forEach((btn) => btn.addEventListener("click", () => {
     const i = Number(btn.getAttribute("data-pc-acadeira"));
     pcState.desafioAceitarCadeiraAtiva = pcState.desafioAceitarCadeiraAtiva === i ? null : i;
@@ -5324,7 +5401,7 @@ async function renderAceitarDesafio() {
   document.getElementById("pcBtnConfirmarAceite").addEventListener("click", async (e) => {
     const status = document.getElementById("pcAceitarStatus");
     e.target.disabled = true;
-    status.textContent = "Confirmando…";
+    status.textContent = "Depositando…";
     let r;
     if (ehEleitos) {
       if (preenchidas !== vagasDuelo) { status.textContent = `Preencha as ${vagasDuelo} cadeiras.`; e.target.disabled = false; return; }
@@ -5337,12 +5414,8 @@ async function renderAceitarDesafio() {
     try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (err) {}
     pcState.desafioAceitarVotos = {};
     pcState.desafioAceitarCadeiras = null;
+    pcState.desafioAceitarFase = null;
     renderDueloSelado(r.desafio || desafio, nomeDesafiante);
-  });
-  document.getElementById("pcBtnRecusarNaAceitar").addEventListener("click", async () => {
-    const r = await recusarDesafio(pcState.desafioAceitarId);
-    if (!r.ok) { document.getElementById("pcAceitarStatus").textContent = "Não deu: " + r.mensagem; return; }
-    renderDesafiosHub();
   });
 }
 
@@ -5352,6 +5425,7 @@ async function renderAceitarDesafio() {
 // montar a própria lista e desafiar outras pessoas — é a porta de entrada
 // de quem chegou pelo convite de WhatsApp.
 function renderDueloSelado(desafio, nomeDesafiante) {
+  pcState._dueloImpressao = { desafio, nomeDesafiante };
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto; text-align:center;">
@@ -5362,12 +5436,26 @@ function renderDueloSelado(desafio, nomeDesafiante) {
       <h2 style="margin-bottom:6px;">Duelo selado!</h2>
       <div class="pc-sub" style="margin-bottom:16px;">Seu palpite em "${desafio && desafio.nome ? desafio.nome : "duelo"}" contra ${nomeDesafiante} está travado. <b style="color:var(--pc-ink);">O resultado sai junto com a apuração oficial das eleições de 2026</b> — quem chegar mais perto do resultado real vence.</div>
 
+      <button class="ghost" id="pcBtnImprimirDuelo" style="width:100%; margin-bottom:8px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("impressora", 14)} Imprimir o duelo</button>
       <button class="ghost" id="pcBtnComoPontua" style="width:100%; margin-bottom:14px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("ajuda", 14)} Como funciona a pontuação</button>
 
       <div class="pc-sub" style="margin-bottom:8px; font-weight:700; color:var(--pc-ink);">Agora é a sua vez:</div>
       <button class="primary" id="pcBtnMontarMinhaLista" style="width:100%; margin-bottom:8px;">Montar a minha própria lista</button>
       <button class="ghost" id="pcBtnDesafiarOutros" style="width:100%;">Desafiar outras pessoas</button>
     </div>`;
+  const btnImpDuelo = document.getElementById("pcBtnImprimirDuelo");
+  if (btnImpDuelo) btnImpDuelo.addEventListener("click", () => {
+    const info = pcState._dueloImpressao;
+    if (!info || !info.desafio) return;
+    let container = document.getElementById("pcImpressaoConteudo");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "pcImpressaoConteudo";
+      document.body.appendChild(container);
+    }
+    container.innerHTML = montarImpressaoDuelo(info.desafio, info.nomeDesafiante);
+    window.print();
+  });
   document.getElementById("pcBtnComoPontua").addEventListener("click", () => { pcState.subaba = "ajuda"; renderAppColaborativo(); });
   document.getElementById("pcBtnMontarMinhaLista").addEventListener("click", () => { pcState.subaba = "selecao"; renderAppColaborativo(); });
   document.getElementById("pcBtnDesafiarOutros").addEventListener("click", () => { pcState.subaba = "desafios"; renderAppColaborativo(); });
@@ -9907,6 +9995,70 @@ function montarSecaoImpressaoCargo(cargo, op) {
 
 // O documento inteiro: marca d'água + cabeçalho com marca + seções dos
 // cargos escolhidos + legenda + registro (opcional) + rodapé com QR.
+// Documento impresso do DUELO 1×1 (pedido do usuário, 30/08/2026): mesma
+// estrutura do documento de palpite (marca d'água, cabeçalho, colunas
+// di-*, legenda, rodapé com QR), com as DUAS colunas de palpite lado a
+// lado (Você × Rival) — resultado e pontos preenchem na apuração.
+function montarImpressaoDuelo(desafio, nomeDesafiante) {
+  const nomeEstado = (typeof ESTADOS_BRASIL !== "undefined" && (ESTADOS_BRASIL.find((e) => e.sigla === desafio.estado) || {}).nome) || desafio.estado || "";
+  const agora = new Date();
+  const dataTxt = agora.toLocaleDateString("pt-BR");
+  const horaTxt = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const cargoInfo = CARGOS.find((c) => c.id === desafio.cargo) || { label: desafio.cargo };
+  const meuNome = (pcState.perfil && pcState.perfil.nome) || "Você";
+  const ehEleitos = desafio.tipo_disputa === "eleitos";
+  const votosEu = new Map((desafio.votos_desafiado || []).map((v) => [v.chave, Number(v.votos) || 0]));
+  const votosRival = new Map((desafio.votos_criador || []).map((v) => [v.chave, Number(v.votos) || 0]));
+  let linhas = "";
+  if (ehEleitos) {
+    const meus = new Set((desafio.eleitos_desafiado || []).map((c) => c.chave));
+    const dele = new Set((desafio.eleitos_criador || []).map((c) => c.chave));
+    const todos = new Map();
+    (desafio.eleitos_desafiado || []).forEach((c) => todos.set(c.chave, c));
+    (desafio.eleitos_criador || []).forEach((c) => { if (!todos.has(c.chave)) todos.set(c.chave, c); });
+    linhas = [...todos.values()].map((c, i) => `
+      <div class="di-linha${i === todos.size - 1 ? " di-fim" : ""}">
+        <span class="di-pos">${i + 1}º</span>${docIcLetra("E", 15, "meu")}
+        <span class="di-cand"><span class="di-n">${c.nome}</span><span class="di-p">${c.partido}</span></span>
+        <span class="di-votos"><span class="di-vv di-forte">${meus.has(c.chave) ? "eleito" : "—"}</span><span class="di-vv">${dele.has(c.chave) ? "eleito" : "—"}</span><span class="di-vd di-aguarda">—</span><span class="di-vp di-aguarda">—</span></span>
+        <span class="di-painel"><span class="di-pt di-vazio">—</span><span class="di-pt di-vazio">—</span><span class="di-pt di-tot di-aguarda">—</span></span>
+      </div>`).join("");
+  } else {
+    const escopo = [...(desafio.escopo_candidatos || [])].sort((a, b) => (votosEu.get(b.chave) || 0) - (votosEu.get(a.chave) || 0));
+    linhas = escopo.map((c, i) => `
+      <div class="di-linha${i === escopo.length - 1 ? " di-fim" : ""}">
+        <span class="di-pos">${i + 1}º</span>${docIcLetra("E", 15, "meu")}
+        <span class="di-cand"><span class="di-n">${c.nome}</span><span class="di-p">${c.partido}</span></span>
+        <span class="di-votos"><span class="di-vv di-forte">${(votosEu.get(c.chave) || 0).toLocaleString("pt-BR")}</span><span class="di-vv">${(votosRival.get(c.chave) || 0).toLocaleString("pt-BR")}</span><span class="di-vd di-aguarda">—</span><span class="di-vp di-aguarda">—</span></span>
+        <span class="di-painel"><span class="di-pt di-vazio">—</span><span class="di-pt di-vazio">—</span><span class="di-pt di-tot di-aguarda">—</span></span>
+      </div>`).join("");
+  }
+  return `
+    <div class="di-agua"><span><b>Simula</b>LEGIS</span></div>
+    <div class="di-conteudo">
+      <div class="di-cab">
+        <div class="di-marca">
+          <div class="di-wm"><b>Simula</b><span>LEGIS</span></div>
+          <div class="di-wmsub">Simulador Eleitoral Legislativo 2026</div>
+        </div>
+        <div class="di-meta"><b>${nomeEstado}</b> · Duelo 1×1 "${desafio.nome}"${desafio.codigo ? ` · ${desafio.codigo}` : ""}<br>${meuNome} × ${nomeDesafiante} · selado em ${dataTxt}</div>
+      </div>
+      <div class="di-regra"></div>
+      <div class="di-tit">${cargoInfo.label} — duelo 1×1</div>
+      <div class="di-sub">${ehEleitos ? "composição do plenário indicada por cada lado" : "palpites dos dois lados"} · a coluna da esquerda é de ${meuNome}, a da direita de ${nomeDesafiante} · resultado e pontos serão preenchidos na apuração oficial — acompanhe.</div>
+      <div class="di-cols">
+        <span class="di-pos"></span><span style="width:15px; flex-shrink:0;"></span>
+        <span class="di-cand">Candidato</span>
+        <span class="di-votos di-vh"><span class="di-vv">${meuNome.split(" ")[0]}</span><span class="di-vv">${nomeDesafiante.split(" ")[0]}</span><span class="di-vd">Dif.</span><span class="di-vp">%</span></span>
+        <span class="di-painel di-ph"><span class="di-pt">${docIcLetra("E", 10, "hdr")}</span><span class="di-pt">${docIcAlvo(10)}</span><span class="di-pt di-tot">Pts</span></span>
+      </div>
+      ${linhas}
+      ${docLegenda()}
+      ${docRodape()}
+      <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dataTxt} ${horaTxt}</span></div>
+    </div>`;
+}
+
 function montarDocumentoImpresso(cargosParaGerar, op) {
   op = op || {};
   const nomeEstado = (typeof ESTADOS_BRASIL !== "undefined" && (ESTADOS_BRASIL.find((e) => e.sigla === pcState.estado) || {}).nome) || pcState.estado || "";

@@ -2277,7 +2277,7 @@
 
 /* Coluna "Rival" na tela de aceitar (votos abertos × ocultos) */
 #modoColaborativoWrap .pc-voto-rival{
-  flex-shrink:0; min-width:52px; text-align:center; font-size:11px; font-weight:700;
+  flex-shrink:0; width:56px; text-align:center; font-size:11px; font-weight:700;
   color:#c9e8cf; background:rgba(52,232,74,.08); border:1px solid rgba(52,232,74,.22);
   border-radius:7px; padding:5px 7px; font-variant-numeric:tabular-nums;
   display:flex; align-items:center; justify-content:center;
@@ -2453,3 +2453,15 @@
    da borda-destaque — hierarquia por contraste de borda, não por cor. */
 #modoColaborativoWrap .pc-duelo-aberto-op.neutro{ border-color:#26292D; }
 #modoColaborativoWrap .pc-duelo-aberto-ic.neutro{ background:#101214; border:1px solid #23262A; color:var(--pc-ink-dim); }
+
+/* Cabeçalho de colunas da fase Palpite do aceite de duelo (30/08/2026):
+   "Rival" e "Você" alinhados verticalmente com as próprias colunas —
+   larguras espelham .pc-voto-rival (56px) e o input (84px), gap 8px,
+   padding lateral igual ao do card (14px). */
+#modoColaborativoWrap .pc-duelo-colcab{
+  display:flex; align-items:center; gap:8px; padding:0 14px; margin-bottom:4px;
+  font-size:9.5px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:var(--pc-ink-dim);
+}
+#modoColaborativoWrap .pc-duelo-colcab .cand{ flex:1; min-width:0; }
+#modoColaborativoWrap .pc-duelo-colcab .rival{ width:56px; flex-shrink:0; text-align:center; }
+#modoColaborativoWrap .pc-duelo-colcab .voce{ width:84px; flex-shrink:0; text-align:right; }
