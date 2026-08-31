@@ -456,6 +456,30 @@
   #modoColaborativoWrap .pc-sen-chip.fila{ background:none; border:1px dashed #FFA23E; color:#FFA23E; }
   #modoColaborativoWrap .pc-dep-crow.na-fila{ border-left:2px dashed #FFA23E; padding-left:7px; margin-left:-9px; background:rgba(255,162,62,.04); }
   #modoColaborativoWrap .pc-dep-fila-tag{ font-size:8px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#FFA23E; margin:2px 0 0 2px; }
+  /* Duelo — refinos aprovados 31/08/2026 (protótipo v6) */
+  #modoColaborativoWrap .pc-aceitar-gcab{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 0 6px; border-bottom:1px solid #1E2226; }
+  #modoColaborativoWrap .pc-aceitar-gcab .sigla{ font-size:13px; font-weight:800; }
+  #modoColaborativoWrap .pc-aceitar-gcab .dica{ font-size:8.5px; font-weight:700; color:#5c6f65; }
+  #modoColaborativoWrap .pc-voto-rival.clicavel{ cursor:pointer; font-family:inherit; }
+  #modoColaborativoWrap .pc-voto-ajuste{ display:flex; align-items:center; gap:3px; width:118px; flex-shrink:0; justify-content:flex-end; }
+  #modoColaborativoWrap .pc-voto-ajuste input{ width:64px; text-align:right; font-size:12px; font-weight:700; background:#15181B; border:1px solid #23262A; border-radius:7px; padding:6px 8px; color:var(--pc-ink); font-family:inherit; font-variant-numeric:tabular-nums; }
+  #modoColaborativoWrap .pc-mini-passo{ width:26px; height:30px; flex-shrink:0; border-radius:8px; background:#15181B; border:1px solid #2C3239; color:#AEB5BB; font-size:14px; padding:0; }
+  #modoColaborativoWrap .pc-duelo-codigo{ background:#15181B; border:1px solid #2C3239; border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; margin:14px 0; }
+  #modoColaborativoWrap .pc-duelo-codigo .rot{ font-size:8px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); display:block; text-align:left; }
+  #modoColaborativoWrap .pc-duelo-codigo .val{ font-size:19px; font-weight:800; letter-spacing:.06em; font-variant-numeric:tabular-nums; display:block; text-align:left; }
+  #modoColaborativoWrap .pc-duelo-codigo .cop{ margin-left:auto; flex-shrink:0; background:none; border:1px solid var(--pc-glass-border); color:var(--pc-ink-dim); border-radius:8px; padding:8px 12px; font-size:10px; font-weight:800; }
+  #modoColaborativoWrap .pc-duelo-caixa2{ background:rgba(29,32,35,.85); border:1px solid var(--pc-glass-border); border-radius:14px; padding:16px 14px; margin-top:14px; text-align:center; }
+  #modoColaborativoWrap .pc-podio{ display:flex; align-items:flex-start; justify-content:center; gap:26px; margin:6px 0 8px; }
+  #modoColaborativoWrap .pc-podio-lado{ display:flex; flex-direction:column; align-items:center; gap:6px; width:96px; position:relative; }
+  #modoColaborativoWrap .pc-podio-faixa{ position:absolute; top:-12px; font-size:7.5px; font-weight:800; letter-spacing:.14em; color:#07230C; background:var(--pc-accent); border-radius:999px; padding:3px 10px; z-index:1; }
+  #modoColaborativoWrap .pc-podio-av{ width:64px; height:64px; border-radius:50%; background:#101214; border:2px solid #26292D; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; color:var(--pc-ink-dim); }
+  #modoColaborativoWrap .pc-podio-av.venceu{ border:3px solid var(--pc-accent); box-shadow:0 0 22px rgba(52,232,74,.35); color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-podio-nm{ font-size:12px; font-weight:800; max-width:96px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #modoColaborativoWrap .pc-podio-pts{ font-size:15px; font-weight:800; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
+  #modoColaborativoWrap .pc-podio-pts i{ font-style:normal; font-size:9px; }
+  #modoColaborativoWrap .pc-podio-pts.venceu{ color:var(--pc-accent); }
+  #modoColaborativoWrap .pc-podio-vs{ font-size:11px; font-weight:800; color:var(--pc-ink-dim); margin-top:24px; }
+  #modoColaborativoWrap .pc-vitoria-box{ background:rgba(29,32,35,.85); border:1px solid var(--pc-glass-border); border-radius:14px; padding:10px 16px; display:flex; align-items:center; gap:12px; margin-bottom:14px; color:var(--pc-ink-dim); }
   #modoColaborativoWrap .pc-console-btn{
     width:46px; height:46px; border-radius:50%; background:#15181B; border:1px solid #2C3239;
     color:#AEB5BB; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; flex-shrink:0;
@@ -2325,20 +2349,20 @@
 #modoColaborativoWrap .pc-cmp-linha{
   display:flex; align-items:center; gap:5px; padding:6px 0; border-bottom:.5px solid #1a1d20;
 }
-#modoColaborativoWrap .pc-cmp-pos{ width:18px; flex-shrink:0; color:#5c6266; font-variant-numeric:tabular-nums; font-size:9.5px; text-align:right; }
+#modoColaborativoWrap .pc-cmp-pos{ width:14px; flex-shrink:0; color:#5c6266; font-variant-numeric:tabular-nums; font-size:8px; text-align:right; }
 #modoColaborativoWrap .pc-cmp-cand{ flex:1; min-width:0; line-height:1.2; }
-#modoColaborativoWrap .pc-cmp-cand .n{ display:block; font-size:11px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#modoColaborativoWrap .pc-cmp-cand .n{ display:block; font-size:10.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #modoColaborativoWrap .pc-cmp-cand .p{ display:block; font-size:7px; color:var(--pc-ink-dim); letter-spacing:.03em; text-transform:uppercase; }
 #modoColaborativoWrap .pc-cmp-val{
-  width:56px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-  background:#15181B; border:1px solid #23262A; border-radius:6px; padding:4px 3px;
+  width:48px; flex-shrink:0; display:flex; align-items:center; justify-content:flex-end;
+  background:#15181B; border:1px solid #23262A; border-radius:6px; padding:4px 5px;
   font-size:10px; font-weight:750; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums;
 }
 #modoColaborativoWrap .pc-cmp-val.num{ color:var(--pc-ink); }
 #modoColaborativoWrap .pc-cmp-val.marcado{ color:var(--pc-accent); background:rgba(52,232,74,.1); border-color:rgba(52,232,74,.4); }
 #modoColaborativoWrap .pc-cmp-cols .pc-cmp-val{ background:none; border:none; font-size:6.8px; font-weight:800; color:var(--pc-ink-dim); }
-#modoColaborativoWrap .pc-cmp-res{ width:46px; flex-shrink:0; text-align:center; font-size:10px; font-weight:750; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
-#modoColaborativoWrap .pc-cmp-pts{ width:24px; flex-shrink:0; text-align:center; font-size:9.5px; font-weight:800; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-cmp-res{ width:36px; flex-shrink:0; text-align:center; font-size:10px; font-weight:750; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-cmp-pts{ width:18px; flex-shrink:0; text-align:center; font-size:9.5px; font-weight:800; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
 
 /* Selo E-M com a rodada da sobra + estado "marcado sem votos" (30/08/2026):
    linha com friso laranja tracejado e selo vazado laranja até a pessoa

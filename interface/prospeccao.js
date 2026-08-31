@@ -207,6 +207,7 @@ const PC_ICONES = {
   setaEsquerda: '<path d="M10 3.2L5 8l5 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>',
   setaDireita: '<path d="M6 3.2L11 8l-5 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>',
   copiar: '<rect x="6" y="6" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect><path d="M4 9.5V3.7a1.2 1.2 0 011.2-1.2H9.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
+  whatsapp: '<path d="M8 1.6A6.4 6.4 0 001.6 8c0 1.13.3 2.2.81 3.13L1.6 14.4l3.36-.78A6.4 6.4 0 108 1.6z" fill="none" stroke="currentColor" stroke-width="1.2"></path><path d="M5.7 5.4c.5 1.9 1.9 3.4 3.9 3.9l.9-.9 1.5.8c-.3 1-1.1 1.4-2 1.2-2.5-.5-4.9-2.9-5.4-5.4-.2-.9.2-1.7 1.2-2l.8 1.5-.9.9z" fill="currentColor"></path>',
   baixar: '<path d="M8 2.5v7.3M5 7l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.8 12.2v1a1 1 0 001 1h8.4a1 1 0 001-1v-1" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path>',
   buscar: '<circle cx="6.8" cy="6.8" r="4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   salvar: '<path d="M3 2.8h8.2l2 2v8.4H3V2.8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M5 2.8v3.6h4.6V2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path><rect x="4.8" y="9" width="6.4" height="4.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect>',
@@ -3772,6 +3773,73 @@ function _cartaoDesafioConsole(ctx, { rotulo, rows }, x, y, w) {
 // 31/08/2026): 1080×1350 (4:5, aparece grande na conversa do WhatsApp).
 // Composição: wordmark, selo Duelo 1×1, avatares [criador] VS [?] com a
 // vaga do rival em círculo tracejado, nome do duelo, recorte e provocação.
+// Card de VITÓRIA do duelo (arte aprovada em protótipo v6, 31/08/2026):
+// vencedor grande com anel verde e faixa VENCEU, perdedor apagado, placar.
+// Gerado em 4:5 (WhatsApp) e 9:16 (Stories) a partir da mesma composição.
+function gerarImagemCardVitoria({ nomeVencedor, nomePerdedor, ptsV, ptsP, nomeDuelo }, H) {
+  const W = 1080;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const fundo = ctx.createRadialGradient(W / 2, -160, 0, W / 2, -160, H * 0.95);
+  fundo.addColorStop(0, "#1B1E22"); fundo.addColorStop(0.52, "#101214"); fundo.addColorStop(1, "#0C0E10");
+  ctx.fillStyle = fundo; ctx.fillRect(0, 0, W, H);
+
+  ctx.font = "800 44px Inter, sans-serif";
+  const wSim = ctx.measureText("Simula").width, wLeg = ctx.measureText("LEGIS").width;
+  const xm = W / 2 - (wSim + wLeg) / 2;
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#34E84A"; ctx.fillText("Simula", xm, 120);
+  ctx.fillStyle = "#F2F4F5"; ctx.fillText("LEGIS", xm + wSim, 120);
+  ctx.textAlign = "center"; ctx.fillStyle = "#5C6268"; ctx.font = "800 20px Inter, sans-serif";
+  ctx.fillText("S I M U L A D O R   E L E I T O R A L   L E G I S L A T I V O   2 0 2 6", W / 2, 158);
+
+  const cy = H / 2, seloY = cy - 410;
+  ctx.strokeStyle = "rgba(52,232,74,.5)"; ctx.lineWidth = 3; ctx.fillStyle = "rgba(52,232,74,.08)";
+  ctx.beginPath(); ctx.roundRect(W / 2 - 215, seloY, 430, 86, 43); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#34E84A"; ctx.font = "800 26px Inter, sans-serif";
+  ctx.fillText("D U E L O   1 × 1", W / 2, seloY + 38);
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 30px Inter, sans-serif";
+  ctx.fillText("RESULTADO", W / 2, seloY + 72);
+
+  const avY = cy - 110, gapAv = 250;
+  ctx.save();
+  ctx.shadowColor = "rgba(52,232,74,.55)"; ctx.shadowBlur = 60;
+  ctx.fillStyle = "#101214"; ctx.strokeStyle = "#34E84A"; ctx.lineWidth = 9;
+  ctx.beginPath(); ctx.arc(W / 2 - gapAv, avY, 120, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.restore();
+  ctx.fillStyle = "#34E84A"; ctx.font = "800 92px Inter, sans-serif";
+  ctx.fillText((nomeVencedor || "?")[0].toUpperCase(), W / 2 - gapAv, avY + 34);
+  ctx.fillStyle = "#34E84A";
+  ctx.beginPath(); ctx.roundRect(W / 2 - gapAv - 92, avY - 168, 184, 46, 23); ctx.fill();
+  ctx.fillStyle = "#07230C"; ctx.font = "800 24px Inter, sans-serif";
+  ctx.fillText("V E N C E U", W / 2 - gapAv, avY - 137);
+  ctx.globalAlpha = .55;
+  ctx.fillStyle = "#101214"; ctx.strokeStyle = "#4D545C"; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.arc(W / 2 + gapAv, avY, 105, 0, 7); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#8A9096"; ctx.font = "800 80px Inter, sans-serif";
+  ctx.fillText((nomePerdedor || "?")[0].toUpperCase(), W / 2 + gapAv, avY + 28);
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 60px Inter, sans-serif";
+  ctx.fillText("VS", W / 2, avY + 20);
+  ctx.font = "800 40px Inter, sans-serif";
+  ctx.fillText(nomeVencedor, W / 2 - gapAv, avY + 188);
+  ctx.fillStyle = "#8A9096"; ctx.fillText(nomePerdedor, W / 2 + gapAv, avY + 188);
+  ctx.fillStyle = "#34E84A"; ctx.font = "800 64px Inter, sans-serif";
+  ctx.fillText(ptsV.toLocaleString("pt-BR") + " pts", W / 2 - gapAv, avY + 266);
+  ctx.fillStyle = "#8A9096"; ctx.fillText(ptsP.toLocaleString("pt-BR") + " pts", W / 2 + gapAv, avY + 266);
+
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 46px Inter, sans-serif";
+  ctx.fillText(nomeVencedor + " venceu o duelo", W / 2, cy + 330);
+  ctx.fillText('"' + nomeDuelo + '"', W / 2, cy + 388);
+  ctx.fillStyle = "#8A9096"; ctx.font = "400 30px Inter, sans-serif";
+  ctx.fillText("por " + ptsV.toLocaleString("pt-BR") + " pontos a " + ptsP.toLocaleString("pt-BR") + " \u00b7 apura\u00e7\u00e3o oficial de 2026", W / 2, cy + 444);
+
+  ctx.fillStyle = "#5C6268"; ctx.font = "700 24px Inter, sans-serif";
+  ctx.fillText("quer medir o seu faro pol\u00edtico? monte o seu palpite", W / 2, H - 70);
+  return canvas;
+}
+
 function gerarImagemConviteDuelo({ nomeCriador, nomeDuelo, infoRecorte }) {
   const W = 1080, H = 1350;
   const canvas = document.createElement("canvas");
@@ -5108,16 +5176,32 @@ async function renderCriarDesafio() {
         ${_duelaGavetaCadeira(cadeiras, pcState.desafioCriarCadeiraAtiva, pool, pcState.desafioCriarBuscaCadeira, "pc-cadeira")}
       ` : `
         <label class="pc-campo-label">Seus votos indicados</label>
-        <div class="pc-sub" style="margin:-2px 2px 6px;">Puxados da ${fonteNome} — ajuste o que quiser antes de enviar.</div>
-        <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:6px; max-height:320px; overflow-y:auto;">
-          ${selecionados.map((c) => {
-            const v = Number(pcState.desafioCriarVotos[c.chave] ?? c.votos) || 0;
-            return `
-            <div class="pc-voto-linha">
-              <span class="txt"><span class="nome">${c.nome}</span><span class="partido">${c.partido}</span><span class="pc-duelo-minibarra"><i style="width:${Math.min(100, v / maxVotoSel * 100).toFixed(1)}%;"></i></span></span>
-              <input type="number" min="0" inputmode="numeric" data-pc-voto="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioCriarVotos[c.chave] ?? (c.votos || "")}" placeholder="0">
-            </div>`;
-          }).join("")}
+        <button class="ghost" id="pcBtnCopiarPalpiteRival" style="width:100%; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:7px; border-color:rgba(52,232,74,.4); color:var(--pc-accent);">${iconeSvg("magico", 14)} Copiar o palpite de ${nomeDesafiante.split(" ")[0]} como ponto de partida</button>
+        <div class="pc-duelo-colcab"><span class="cand">Candidato</span><span class="rival">Rival</span><span class="voce" style="width:118px;">Você</span></div>
+        <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:420px; overflow-y:auto;">
+          ${(() => {
+            // Agrupado por partido; o ajuste vive nas caixinhas de cada linha
+            // (aprovado no protótipo v6, 31/08/2026): tocar no valor do RIVAL
+            // copia ele pro seu palpite; −/+ ao lado do seu campo andam 5% do
+            // voto do rival naquele candidato (mínimo 10) por toque.
+            const grupos = new Map();
+            escopo.forEach((c) => { if (!grupos.has(c.partido)) grupos.set(c.partido, []); grupos.get(c.partido).push(c); });
+            const rivalDe = (c) => votosRivalPorChave.get(c.chave) || 0;
+            const ordemG = [...grupos.entries()].sort((a, b) =>
+              b[1].reduce((t, c) => t + rivalDe(c), 0) - a[1].reduce((t, c) => t + rivalDe(c), 0));
+            return ordemG.map(([partido, cands]) => `
+              <div class="pc-aceitar-gcab"><span class="sigla">${partido}</span><span class="dica">toque no valor do rival pra copiar</span></div>
+              ${[...cands].sort((a, b) => rivalDe(b) - rivalDe(a)).map((c) => `
+              <div class="pc-voto-linha">
+                <span class="txt"><span class="nome">${c.nome}</span></span>
+                <button type="button" class="pc-voto-rival clicavel" data-pc-voto-copiar="${escaparAtributoHtml(c.chave)}" title="Copiar este valor pro seu palpite">${rivalDe(c).toLocaleString("pt-BR")}</button>
+                <span class="pc-voto-ajuste">
+                  <button type="button" class="pc-mini-passo" data-pc-voto-passo="${escaparAtributoHtml(c.chave)}|-1">&minus;</button>
+                  <input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioAceitarVotos[c.chave] ?? ""}" placeholder="0">
+                  <button type="button" class="pc-mini-passo" data-pc-voto-passo="${escaparAtributoHtml(c.chave)}|1">+</button>
+                </span>
+              </div>`).join("")}`).join("");
+          })()}
         </div>
       `}
 
@@ -5359,6 +5443,13 @@ async function renderCriarDesafio() {
   });
 }
 
+// O nome do duelo às vezes já vem digitado com aspas ("Duelo X") — os
+// templates põem as deles e a tela mostrava ""Duelo X"" (bug visto no
+// teste real de 31/08/2026). Normaliza uma vez, exibe com UMA aspa.
+function _nomeDueloLimpo(nome) {
+  return String(nome || "").replace(/^[\s"\u201c\u201d']+|[\s"\u201c\u201d']+$/g, "") || "duelo";
+}
+
 async function renderAceitarDesafio() {
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = telaCarregando("Carregando…");
@@ -5411,7 +5502,7 @@ async function renderAceitarDesafio() {
         <div style="font-size:11px; font-weight:800; letter-spacing:.08em; color:var(--pc-ink-dim); margin-bottom:14px;"><b style="color:var(--pc-accent);">Simula</b><span style="color:var(--pc-ink);">LEGIS</span></div>
 
         <h2 style="margin-bottom:6px;">Duelo 1×1</h2>
-        <div class="pc-sub" style="margin-bottom:16px;">${nomeDesafiante} te desafiou para o 1×1 <b style="color:var(--pc-ink);">"${desafio.nome}"</b> — indique o seu palpite para os candidatos da lista.</div>
+        <div class="pc-sub" style="margin-bottom:16px;">${nomeDesafiante} te desafiou para o 1×1 <b style="color:var(--pc-ink);">"${_nomeDueloLimpo(desafio.nome)}"</b> — indique o seu palpite para os candidatos da lista.</div>
 
         ${vsCard}
 
@@ -5437,15 +5528,15 @@ async function renderAceitarDesafio() {
   // ===== Fase 2: o PALPITE — a lista do desafiante com a coluna Rival
   // visível; fecha com "Depositar" (o aceite de verdade). =====
   conteudo.innerHTML = `
-    <div class="glass-card" style="max-width:420px; margin:0 auto;">
-      <div class="pc-selo-desafio">
+    <div class="glass-card" style="max-width:560px; margin:0 auto;">
+      <div style="text-align:center;"><div class="pc-selo-desafio" style="margin:0 auto;">
         <span class="pc-selo-desafio-ic">${iconeSvg("desafio", 17)}</span>
         <span class="pc-selo-desafio-tx">Duelo<b>1 × 1</b></span>
-      </div>
-      <h2 style="margin:10px 0 2px;">"${desafio.nome}"</h2>
-      <div class="pc-sub" style="margin-bottom:14px;">${ehEleitos
+      </div></div>
+      <h2 style="margin:10px 0 2px; text-align:center;">"${_nomeDueloLimpo(desafio.nome)}"</h2>
+      <div class="pc-sub" style="margin-bottom:14px; text-align:center;">${ehEleitos
         ? `Monte o SEU plenário de ${cargoLabel} (${vagasDuelo} cadeira${vagasDuelo === 1 ? "" : "s"}). Ao depositar, fica travado até a apuração.`
-        : `Indique seus votos pros ${escopo.length} candidato${escopo.length === 1 ? "" : "s"} de ${cargoLabel}. Ao depositar, ficam travados até a apuração.`}</div>
+        : `Indique seus votos na lista do desafio.`}</div>
 
       ${ehEleitos ? `
         <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px;">
@@ -5457,14 +5548,34 @@ async function renderAceitarDesafio() {
         ${_duelaGavetaCadeira(cadeiras, pcState.desafioAceitarCadeiraAtiva, poolAceitar, pcState.desafioAceitarBuscaCadeira, "pc-acadeira")}
       ` : `
         <label class="pc-campo-label">Seus votos indicados</label>
+        <button class="ghost" id="pcBtnCopiarPalpiteRival" style="width:100%; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("magico", 14)} Copiar o palpite de ${nomeDesafiante.split(" ")[0]} como ponto de partida</button>
         <div class="pc-duelo-colcab"><span class="cand">Candidato</span><span class="rival">Rival</span><span class="voce">Você</span></div>
-        <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:340px; overflow-y:auto;">
-          ${escopo.map((c) => `
-            <div class="pc-voto-linha">
-              <span class="txt"><span class="nome">${c.nome}</span><span class="partido">${c.partido}</span></span>
-              <span class="pc-voto-rival">${(votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR")}</span>
-              <input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioAceitarVotos[c.chave] ?? ""}" placeholder="0">
-            </div>`).join("")}
+        <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:380px; overflow-y:auto;">
+          ${(() => {
+            // Agrupado por partido (pedido do usuário, 31/08/2026): cabeçalho
+            // com −/+ que sobe/desce 5% os votos "Você" do partido inteiro —
+            // ninguém precisa digitar candidato a candidato.
+            const grupos = new Map();
+            escopo.forEach((c) => { if (!grupos.has(c.partido)) grupos.set(c.partido, []); grupos.get(c.partido).push(c); });
+            const ordemG = [...grupos.entries()].sort((a, b) =>
+              b[1].reduce((t, c) => t + (votosRivalPorChave.get(c.chave) || 0), 0) -
+              a[1].reduce((t, c) => t + (votosRivalPorChave.get(c.chave) || 0), 0));
+            return ordemG.map(([partido, cands]) => `
+              <div class="pc-aceitar-grupo-cab">
+                <span class="sigla">${partido}</span>
+                <span class="caps">
+                  <button type="button" data-pc-aceitar-menos="${escaparAtributoHtml(partido)}" title="Reduzir 5% os seus votos neste partido">&minus;</button>
+                  <span class="rot">5%</span>
+                  <button type="button" data-pc-aceitar-mais="${escaparAtributoHtml(partido)}" title="Aumentar 5% os seus votos neste partido">+</button>
+                </span>
+              </div>
+              ${[...cands].sort((a, b) => (votosRivalPorChave.get(b.chave) || 0) - (votosRivalPorChave.get(a.chave) || 0)).map((c) => `
+              <div class="pc-voto-linha">
+                <span class="txt"><span class="nome">${c.nome}</span><span class="partido">${c.partido}</span></span>
+                <span class="pc-voto-rival">${(votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR")}</span>
+                <input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioAceitarVotos[c.chave] ?? ""}" placeholder="0">
+              </div>`).join("")}`).join("");
+          })()}
         </div>
       `}
 
@@ -5477,6 +5588,33 @@ async function renderAceitarDesafio() {
     pcState.desafioAceitarFase = "convite";
     renderAceitarDesafio();
   });
+
+  const btnCopiarRival = document.getElementById("pcBtnCopiarPalpiteRival");
+  if (btnCopiarRival) btnCopiarRival.addEventListener("click", () => {
+    escopo.forEach((c) => { pcState.desafioAceitarVotos[c.chave] = votosRivalPorChave.get(c.chave) || 0; });
+    renderAceitarDesafio();
+  });
+  const _sincronizarVotosAceitar = () => {
+    document.querySelectorAll("[data-pc-voto-aceitar]").forEach((inp) => {
+      const v = inp.value === "" ? undefined : Math.max(0, Math.round(Number(inp.value) || 0));
+      if (v === undefined) delete pcState.desafioAceitarVotos[inp.getAttribute("data-pc-voto-aceitar")];
+      else pcState.desafioAceitarVotos[inp.getAttribute("data-pc-voto-aceitar")] = v;
+    });
+  };
+  document.querySelectorAll("[data-pc-voto-copiar]").forEach((b) => b.addEventListener("click", () => {
+    _sincronizarVotosAceitar();
+    const chave = b.getAttribute("data-pc-voto-copiar");
+    pcState.desafioAceitarVotos[chave] = votosRivalPorChave.get(chave) || 0;
+    renderAceitarDesafio();
+  }));
+  document.querySelectorAll("[data-pc-voto-passo]").forEach((b) => b.addEventListener("click", () => {
+    _sincronizarVotosAceitar();
+    const [chave, dirTxt] = b.getAttribute("data-pc-voto-passo").split("|");
+    const rival = votosRivalPorChave.get(chave) || 0;
+    const passoV = Math.max(10, Math.round(rival * 0.05));
+    pcState.desafioAceitarVotos[chave] = Math.max(0, (pcState.desafioAceitarVotos[chave] || 0) + Number(dirTxt) * passoV);
+    renderAceitarDesafio();
+  }));
 
   document.querySelectorAll("[data-pc-acadeira]").forEach((btn) => btn.addEventListener("click", () => {
     const i = Number(btn.getAttribute("data-pc-acadeira"));
@@ -5540,25 +5678,53 @@ async function renderAceitarDesafio() {
 function renderDueloSelado(desafio, nomeDesafiante) {
   pcState._dueloImpressao = { desafio, nomeDesafiante };
   const conteudo = document.getElementById("pcConteudo");
+  const nomeLimpo = _nomeDueloLimpo(desafio && desafio.nome);
+  const codigo = (desafio && desafio.codigo) || "";
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:420px; margin:0 auto; text-align:center;">
       <div class="pc-selo-desafio" style="margin:0 auto 12px;">
         <span class="pc-selo-desafio-ic">${iconeSvg("desafio", 17)}</span>
         <span class="pc-selo-desafio-tx">Duelo<b>1 × 1</b></span>
       </div>
-      <h2 style="margin-bottom:6px;">Duelo selado!</h2>
-      <div class="pc-sub" style="margin-bottom:16px;">Seu palpite em "${desafio && desafio.nome ? desafio.nome : "duelo"}" contra ${nomeDesafiante} está travado. <b style="color:var(--pc-ink);">O resultado sai junto com a apuração oficial das eleições de 2026</b> — quem chegar mais perto do resultado real vence.</div>
+      <h2 style="margin-bottom:6px;">Cédula do duelo depositada!</h2>
+      <div class="pc-sub" style="margin-bottom:14px;">Seu palpite em <b style="color:var(--pc-ink);">"${nomeLimpo}"</b> contra ${nomeDesafiante} está travado até a apuração oficial de 2026 — <b style="color:var(--pc-ink);">quem chegar mais perto do resultado real vence.</b></div>
 
-      <div style="display:flex; gap:12px; justify-content:center; margin-bottom:16px;">
-        <button class="pc-console-btn" id="pcBtnImprimirDuelo" title="Imprimir o duelo" aria-label="Imprimir o duelo">${iconeSvg("impressora", 18)}</button>
-        <button class="pc-console-btn" id="pcBtnComoPontua" title="Como funciona a pontuação" aria-label="Como funciona a pontuação">${iconeSvg("ajuda", 18)}</button>
+      ${codigo ? `
+      <div class="pc-duelo-codigo">
+        <span><span class="rot">Código do duelo</span><span class="val">${codigo}</span></span>
+        <button type="button" class="cop" id="pcBtnCopiarCodigoDuelo">COPIAR</button>
+      </div>` : ""}
+      <div class="pc-sub" style="margin-bottom:14px;">Acesse quando quiser: aba <b style="color:var(--pc-ink);">Duelos</b> ou Minhas Listas → <b style="color:var(--pc-ink);">Cédulas de duelo</b>.</div>
+
+      <div style="display:flex; gap:12px; justify-content:center; margin-bottom:4px;">
+        <button class="pc-console-btn" id="pcBtnCompartilharDuelo" title="Compartilhar o duelo" aria-label="Compartilhar o duelo">${iconeSvg("compartilhar", 17)}</button>
+        <button class="pc-console-btn" id="pcBtnImprimirDuelo" title="Imprimir o duelo" aria-label="Imprimir o duelo">${iconeSvg("impressora", 17)}</button>
+        <button class="pc-console-btn" id="pcBtnComoPontua" title="Como funciona a pontuação" aria-label="Como funciona a pontuação">${iconeSvg("ajuda", 17)}</button>
       </div>
+      <div style="display:flex; gap:20px; justify-content:center; font-size:8px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--pc-ink-dim); margin-bottom:2px;">
+        <span>compartilhar</span><span>imprimir</span><span>pontuação</span>
+      </div>
+      ${desafio && desafio.id ? `<button class="ghost" id="pcBtnVerDueloSelado" style="width:100%; border:none; margin-top:4px;">Ver o duelo na aba Duelos</button>` : ""}
 
-      <div class="pc-sub" style="margin-bottom:8px; font-weight:700; color:var(--pc-ink);">Agora é a sua vez:</div>
-      <button class="primary" id="pcBtnMontarMinhaLista" style="width:100%; margin-bottom:8px;">Montar a minha própria lista</button>
-      <button class="ghost" id="pcBtnDesafiarOutros" style="width:100%; margin-bottom:8px;">Desafiar outras pessoas</button>
-      ${desafio && desafio.id ? `<button class="ghost" id="pcBtnVerDueloSelado" style="width:100%; border:none;">Ver o duelo na aba Duelos</button>` : ""}
+      <div class="pc-duelo-caixa2">
+        <div style="font-size:13px; font-weight:800; margin-bottom:4px;">Agora é a sua vez</div>
+        <div class="pc-sub" style="margin-bottom:12px;">Você acabou de palpitar — você também pode montar o seu próprio desafio com a lista completa das eleições ou segmentada: por partido, candidatos e outras. Monte a sua lista personalizada e desafie os seus amigos.</div>
+        <div style="display:flex; gap:8px; align-items:stretch;">
+          <button class="ghost" id="pcBtnIrLobby" style="width:52px; flex:none; display:flex; align-items:center; justify-content:center;" title="Ir pro início">${iconeSvg("home", 16)}</button>
+          <button class="primary" id="pcBtnMontarMinhaLista" style="flex:1;">Montar a minha própria lista</button>
+        </div>
+      </div>
     </div>`;
+  const btnCopCod = document.getElementById("pcBtnCopiarCodigoDuelo");
+  if (btnCopCod) btnCopCod.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(codigo); btnCopCod.textContent = "COPIADO"; setTimeout(() => { btnCopCod.textContent = "COPIAR"; }, 1600); } catch (_) {}
+  });
+  const btnCompartilhar = document.getElementById("pcBtnCompartilharDuelo");
+  if (btnCompartilhar) btnCompartilhar.addEventListener("click", async () => {
+    const texto = `Selei um duelo 1×1 "${nomeLimpo}" contra ${nomeDesafiante} no SimulaLEGIS — o resultado sai na apuração oficial de 2026. Quer medir o seu faro político também? ${window.location.origin + window.location.pathname}`;
+    if (navigator.share) { try { await navigator.share({ text: texto }); return; } catch (_) {} }
+    try { await navigator.clipboard.writeText(texto); mostrarStatusSalvamento && mostrarStatusSalvamento; } catch (_) {}
+  });
   const btnVerDuelo = document.getElementById("pcBtnVerDueloSelado");
   if (btnVerDuelo) btnVerDuelo.addEventListener("click", () => { pcState.desafioComparacaoId = desafio.id; renderComparacaoDesafio(); });
   const btnImpDuelo = document.getElementById("pcBtnImprimirDuelo");
@@ -5576,7 +5742,8 @@ function renderDueloSelado(desafio, nomeDesafiante) {
   });
   document.getElementById("pcBtnComoPontua").addEventListener("click", () => { pcState.subaba = "ajuda"; renderAppColaborativo(); });
   document.getElementById("pcBtnMontarMinhaLista").addEventListener("click", () => { pcState.subaba = "selecao"; renderAppColaborativo(); });
-  document.getElementById("pcBtnDesafiarOutros").addEventListener("click", () => { pcState.subaba = "desafios"; renderAppColaborativo(); });
+  const btnLobby = document.getElementById("pcBtnIrLobby");
+  if (btnLobby) btnLobby.addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
 }
 
 // ===== Painel de comparação do duelo (protótipo aprovado 30/08/2026) =====
@@ -5660,20 +5827,42 @@ async function renderComparacaoDesafio() {
         </div>
       </div>
 
-      <div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:14px;">
-        <span style="display:flex; align-items:center; gap:8px;">
-          <span class="pc-duelo-avatar eu" style="width:30px; height:30px; font-size:10.5px;">${_iniciaisNome(pcState.perfil.nome || "Você")}</span>
-          <span><span style="font-size:12.5px; font-weight:800; display:block;">${nomeEu}</span><span style="font-size:9.5px; color:${encerrado && venci ? "var(--pc-accent)" : "var(--pc-ink-dim)"}; font-weight:${encerrado && venci ? "800" : "400"};">${encerrado ? Number(meusPontos).toLocaleString("pt-BR") + " pts" : "aguarda"}</span></span>
+      <div class="pc-podio">
+        <span class="pc-podio-lado${encerrado && venci ? " venceu" : ""}">
+          ${encerrado && venci ? '<span class="pc-podio-faixa">VENCEU</span>' : ""}
+          <span class="pc-podio-av${encerrado && venci ? " venceu" : ""}">${_iniciaisNome(pcState.perfil.nome || "Você")}</span>
+          <span class="pc-podio-nm">${nomeEu}</span>
+          <span class="pc-podio-pts${encerrado && venci ? " venceu" : ""}">${encerrado ? Number(meusPontos).toLocaleString("pt-BR") + ' <i>pts</i>' : "aguarda"}</span>
         </span>
-        <span style="font-size:10px; font-weight:800; color:var(--pc-ink-dim);">VS</span>
-        <span style="display:flex; align-items:center; gap:8px; flex-direction:row-reverse; text-align:right;">
-          <span class="pc-duelo-avatar" style="width:30px; height:30px; font-size:10.5px;">${_iniciaisNome(nomeOutro)}</span>
-          <span><span style="font-size:12.5px; font-weight:800; display:block;">${nomeOutro}</span><span style="font-size:9.5px; color:${encerrado && !venci && d.vencedor_id ? "var(--pc-accent)" : "var(--pc-ink-dim)"}; font-weight:${encerrado && !venci && d.vencedor_id ? "800" : "400"};">${encerrado ? Number(pontosOutro).toLocaleString("pt-BR") + " pts" : "aguarda"}</span></span>
+        <span class="pc-podio-vs">VS</span>
+        <span class="pc-podio-lado${encerrado && !venci && d.vencedor_id ? " venceu" : ""}">
+          ${encerrado && !venci && d.vencedor_id ? '<span class="pc-podio-faixa">VENCEU</span>' : ""}
+          <span class="pc-podio-av${encerrado && !venci && d.vencedor_id ? " venceu" : ""}">${_iniciaisNome(nomeOutro)}</span>
+          <span class="pc-podio-nm">${nomeOutro}</span>
+          <span class="pc-podio-pts${encerrado && !venci && d.vencedor_id ? " venceu" : ""}">${encerrado ? Number(pontosOutro).toLocaleString("pt-BR") + ' <i>pts</i>' : "aguarda"}</span>
         </span>
       </div>
-      ${encerrado && d.vencedor_id ? `<div style="text-align:center; font-size:10px; font-weight:700; color:var(--pc-accent); text-transform:uppercase; letter-spacing:.05em; margin:-4px 0 14px;">${venci ? "Você venceu este duelo" : nomeOutro + " venceu este duelo"}</div>` : ""}
+      ${encerrado && d.vencedor_id ? `
+      <div style="text-align:center; font-size:10.5px; color:var(--pc-ink-dim); margin:2px 0 10px;">${venci ? "Você venceu" : nomeOutro + " venceu"} o duelo <b style="color:var(--pc-ink);">"${_nomeDueloLimpo(d.nome)}"</b> por ${Number(venci ? meusPontos : pontosOutro).toLocaleString("pt-BR")} pontos a ${Number(venci ? pontosOutro : meusPontos).toLocaleString("pt-BR")}.</div>
+      <div class="pc-vitoria-box">
+        ${iconeSvg("compartilhar", 16)}
+        <span style="flex:1;"></span>
+        <button type="button" class="pc-console-btn" style="width:42px; height:42px;" id="pcBtnVitoriaWhats" title="Enviar no WhatsApp">${iconeSvg("whatsapp", 17)}</button>
+        <button type="button" class="pc-console-btn" style="width:42px; height:42px;" id="pcBtnVitoriaStories" title="Stories do Instagram">${iconeSvg("instagram", 17)}</button>
+        <button type="button" class="pc-console-btn" style="width:42px; height:42px;" id="pcBtnVitoriaBaixar" title="Baixar a imagem">${iconeSvg("baixar", 17)}</button>
+      </div>` : ""}
 
-      <div style="font-size:14px; font-weight:800; margin-top:2px;">${cargoLabel} — comparação do duelo</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:2px;">
+        <span style="font-size:14px; font-weight:800;">${cargoLabel} — comparação do duelo</span>
+        <button type="button" class="pc-mini-btn" id="pcBtnLegendaCmp" title="O que significa cada coluna">${iconeSvg("ajuda", 13)}</button>
+      </div>
+      ${pcState.legendaCmpAberta ? `
+      <div style="background:#15181B; border:1px solid #23262A; border-radius:10px; padding:10px 12px; font-size:9.5px; color:var(--pc-ink-dim); line-height:1.6; margin:6px 0 8px;">
+        <b style="color:var(--pc-ink);">Você / Rival</b> — ${ehEleitos ? "quem cada um sentou na composição" : "os votos que cada um indicou pro candidato"}.<br>
+        <b style="color:var(--pc-ink);">Result.</b> — a votação oficial da apuração de 2026.<br>
+        <b style="color:var(--pc-ink);">P·V</b> — seus pontos na linha (acerto de eleição + proximidade de votos).<br>
+        <b style="color:var(--pc-ink);">P·R</b> — os pontos do rival na mesma linha.
+      </div>` : ""}
       <div class="pc-sub" style="margin:1px 0 12px;">${ehEleitos
         ? `${Math.max(setEu.size, setOutro.size)} cadeiras por lado · a coluna de resultado preenche na apuração oficial · pontos = acerto da composição.`
         : `${(d.escopo_candidatos || []).length} candidatos no recorte · resultado e pontos preenchem na apuração oficial · pontos = acerto de eleição + proximidade do voto.`}</div>
@@ -5694,6 +5883,37 @@ async function renderComparacaoDesafio() {
       </div>
     </div>`;
   document.getElementById("pcBtnVoltarComparacao").addEventListener("click", () => renderDesafiosHub());
+  const btnLegCmp = document.getElementById("pcBtnLegendaCmp");
+  if (btnLegCmp) btnLegCmp.addEventListener("click", () => { pcState.legendaCmpAberta = !pcState.legendaCmpAberta; renderComparacaoDesafio(); });
+  // Box de vitória (só com duelo encerrado): gera o card e compartilha.
+  const nomeVencedor = venci ? (pcState.perfil.nome || "Você") : nomeOutro;
+  const nomePerdedor = venci ? nomeOutro : (pcState.perfil.nome || "Você");
+  const ptsV = Number(venci ? meusPontos : pontosOutro) || 0;
+  const ptsP = Number(venci ? pontosOutro : meusPontos) || 0;
+  const dadosCard = { nomeVencedor, nomePerdedor, ptsV, ptsP, nomeDuelo: _nomeDueloLimpo(d.nome) };
+  const textoVitoria = `${nomeVencedor} venceu o duelo "${dadosCard.nomeDuelo}" por ${ptsV} pontos a ${ptsP} no SimulaLEGIS. Quer medir o seu faro político? ${window.location.origin + window.location.pathname}`;
+  const compartilharCard = async (altura, nomeArq) => {
+    const canvas = gerarImagemCardVitoria(dadosCard, altura);
+    const dataUrl = canvas.toDataURL("image/png");
+    if (navigator.share && navigator.canShare) {
+      try {
+        const blob = await (await fetch(dataUrl)).blob();
+        const arquivo = new File([blob], nomeArq, { type: "image/png" });
+        if (navigator.canShare({ files: [arquivo] })) { await navigator.share({ files: [arquivo], text: textoVitoria }); return; }
+      } catch (_) { /* cancelou/falhou — cai no download */ }
+    }
+    _baixarImagemCedula(dataUrl, nomeArq);
+    try { await navigator.clipboard.writeText(textoVitoria); } catch (_) {}
+  };
+  const bW = document.getElementById("pcBtnVitoriaWhats");
+  if (bW) bW.addEventListener("click", () => compartilharCard(1350, "vitoria-duelo.png"));
+  const bS = document.getElementById("pcBtnVitoriaStories");
+  if (bS) bS.addEventListener("click", () => compartilharCard(1920, "vitoria-duelo-stories.png"));
+  const bB = document.getElementById("pcBtnVitoriaBaixar");
+  if (bB) bB.addEventListener("click", () => {
+    _baixarImagemCedula(gerarImagemCardVitoria(dadosCard, 1350).toDataURL("image/png"), "vitoria-duelo.png");
+    _baixarImagemCedula(gerarImagemCardVitoria(dadosCard, 1920).toDataURL("image/png"), "vitoria-duelo-stories.png");
+  });
 }
 
 // ===== Notificações (migração 28) =====
