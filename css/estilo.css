@@ -2407,3 +2407,40 @@
 #modoColaborativoWrap .pc-duelo-aberto-tx{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
 #modoColaborativoWrap .pc-duelo-aberto-tx b{ font-size:12.5px; font-weight:800; }
 #modoColaborativoWrap .pc-duelo-aberto-tx i{ font-style:normal; font-size:10px; color:var(--pc-ink-dim); line-height:1.4; }
+
+/* Assistente do Criar duelo (v2, 30/08/2026) — indicador 1-2-3 na família
+   dos pontos do Farol, resumo compacto do que já foi decidido e
+   mini-barra de força do palpite na linha do candidato. */
+#modoColaborativoWrap .pc-duelo-passos{ display:flex; align-items:center; gap:6px; margin-bottom:16px; }
+#modoColaborativoWrap .pc-duelo-passo{ display:flex; flex-direction:column; align-items:center; gap:4px; flex:none; }
+#modoColaborativoWrap .pc-duelo-passo .bol{
+  width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:800; background:#15181B; border:1.5px solid #2C3239; color:var(--pc-ink-dim);
+}
+#modoColaborativoWrap .pc-duelo-passo.feito .bol{ background:rgba(52,232,74,.15); border-color:var(--pc-accent); color:var(--pc-accent); }
+#modoColaborativoWrap .pc-duelo-passo.atual .bol{ background:var(--pc-accent); border-color:var(--pc-accent); color:#07230C; }
+#modoColaborativoWrap .pc-duelo-passo .rot{ font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--pc-ink-dim); }
+#modoColaborativoWrap .pc-duelo-passo.atual .rot{ color:var(--pc-ink); }
+#modoColaborativoWrap .pc-duelo-passo-fio{ flex:1; height:1.5px; background:#2C3239; margin-bottom:12px; }
+#modoColaborativoWrap .pc-duelo-passo-fio.on{ background:rgba(52,232,74,.5); }
+
+#modoColaborativoWrap .pc-duelo-resumo{
+  display:flex; align-items:center; gap:8px; background:#15181B; border:1px solid #23262A;
+  border-radius:11px; padding:10px 12px; margin-bottom:14px; font-size:11.5px; color:var(--pc-ink-dim);
+}
+#modoColaborativoWrap .pc-duelo-resumo .ic{ color:var(--pc-accent); flex-shrink:0; display:flex; }
+#modoColaborativoWrap .pc-duelo-resumo .tx{ flex:1; min-width:0; }
+#modoColaborativoWrap .pc-duelo-resumo .tx b{ color:var(--pc-ink); }
+#modoColaborativoWrap .pc-duelo-resumo .mudar{
+  flex:none; background:none; border:none; font-family:var(--sans); cursor:pointer;
+  font-size:10px; font-weight:800; color:var(--pc-accent); padding:2px 4px;
+}
+
+#modoColaborativoWrap .pc-duelo-minibarra{
+  display:block; height:3px; border-radius:2px; background:#23262A; margin-top:5px; overflow:hidden;
+}
+#modoColaborativoWrap .pc-duelo-minibarra i{ display:block; height:100%; background:var(--pc-accent); border-radius:2px; }
+
+/* Variante neutra dos cards de alvo (grupo/código — o aberto continua verde) */
+#modoColaborativoWrap .pc-duelo-aberto-op.neutro{ background:#15181B; border-color:#23262A; }
+#modoColaborativoWrap .pc-duelo-aberto-ic.neutro{ background:#101214; border:1px solid #23262A; color:var(--pc-ink-dim); }
