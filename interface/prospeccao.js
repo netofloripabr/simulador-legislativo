@@ -4719,12 +4719,16 @@ async function renderDesafiosHub() {
 // lista simples {chave, nome, partido} — é o pool oficial do cargo (2026,
 // REGRA MESTRA), a mesma fonte que a tela de palpite já usa.
 function _poolCandidatosDesafio(cargo) {
-  // Fonte primária: o rascunho do cargo já carregado. Fallback: o pool
-  // OFICIAL 2026 direto (montarEstadoPalpite) — sem ele, quem nunca abriu
-  // a aba daquele cargo via a tela de criar desafio vazia.
-  const grupos = (pcState.palpitesPorCargo && pcState.palpitesPorCargo[cargo] && pcState.palpitesPorCargo[cargo].length)
-    ? pcState.palpitesPorCargo[cargo]
-    : montarEstadoPalpite("assembleia", null, null, cargo, pcState.estado);
+  // Fonte dos palpites, em ordem: (1) a LISTA SALVA escolhida no seletor
+  // do Criar duelo (pcState._desafioFonteCargos, decisão do usuário
+  // 30/08/2026 — quem tem várias listas escolhe qual alimenta o duelo);
+  // (2) o rascunho em edição; (3) o pool oficial 2026 zerado.
+  const daFonte = pcState._desafioFonteCargos && pcState._desafioFonteCargos[cargo] && pcState._desafioFonteCargos[cargo].length
+    ? pcState._desafioFonteCargos[cargo] : null;
+  const grupos = daFonte
+    || ((pcState.palpitesPorCargo && pcState.palpitesPorCargo[cargo] && pcState.palpitesPorCargo[cargo].length)
+      ? pcState.palpitesPorCargo[cargo]
+      : montarEstadoPalpite("assembleia", null, null, cargo, pcState.estado));
   const lista = [];
   (grupos || []).forEach((p) => {
     if (p.semAta2026) return;
@@ -4825,6 +4829,10 @@ async function renderCriarDesafio() {
     if (pcState.perfil) await garantirMeusGruposCarregados();
     pcState.desafioCriarAmigos = await listarAmigosParaDesafio(pcState.meusGrupos);
   }
+  // Fonte dos palpites: as listas salvas do usuário (uma visita = uma
+  // busca; o cache morre junto com desafioCriarAmigos ao sair da tela).
+  if (!pcState._desafioMinhasListas) pcState._desafioMinhasListas = await _carregarMinhasListasNormalizado();
+  const minhasListasFonte = pcState._desafioMinhasListas || [];
   const amigos = pcState.desafioCriarAmigos;
   const custo = gratis > 0 ? 0 : 10;
 
@@ -4885,6 +4893,15 @@ async function renderCriarDesafio() {
         ${DESAFIO_TIPOS.map((t) => `<button type="button" class="${t.id === tipo ? "active" : ""}" data-pc-tipo-desafio="${t.id}">${t.rotulo}</button>`).join("")}
       </div>
       <div class="pc-sub" style="margin:0 2px 14px;">${tipoInfo.dica}</div>
+
+      ${minhasListasFonte.length ? `
+      <label class="pc-campo-label">Fonte dos palpites</label>
+      <select class="cell" id="pcSelFonteDuelo" style="width:100%; margin-bottom:4px;">
+        <option value="">Lista em edição (rascunho atual)</option>
+        ${minhasListasFonte.map((l) => `<option value="${l.id}" ${pcState.desafioCriarFonteId === l.id ? "selected" : ""}>${escaparAtributoHtml(l.nome)}${l.depositadoEm ? " · depositada" : ""}</option>`).join("")}
+      </select>
+      <div class="pc-sub" style="margin:0 2px 14px;">Os votos ${tipo === "eleitos" ? "e as cadeiras" : ""} do duelo são puxados daqui — dá pra ajustar antes de enviar.</div>
+      ` : ""}
 
       ${tipo === "eleitos" ? `
         <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px;">
@@ -5047,6 +5064,22 @@ async function renderCriarDesafio() {
     pcState.desafioCriarAlvo = null; pcState.desafioCriarCodigoStatus = "";
     renderCriarDesafio();
   });
+  const selFonte = document.getElementById("pcSelFonteDuelo");
+  if (selFonte) selFonte.addEventListener("change", async () => {
+    const id = selFonte.value || null;
+    pcState.desafioCriarFonteId = id;
+    pcState.desafioCriarVotos = {};
+    pcState.desafioCriarCadeiras = null;
+    if (!id) {
+      pcState._desafioFonteCargos = null;
+      renderCriarDesafio();
+      return;
+    }
+    selFonte.disabled = true;
+    const completo = await carregarSalvamentoCompleto(id);
+    pcState._desafioFonteCargos = completo ? completo.cargos : null;
+    renderCriarDesafio();
+  });
   const btnDueloAberto = document.getElementById("pcBtnDueloAberto");
   if (btnDueloAberto) btnDueloAberto.addEventListener("click", () => {
     pcState.desafioCriarAlvo = { id: null, nome: "Convite aberto — quem clicar primeiro", aberto: true };
@@ -5094,6 +5127,9 @@ async function renderCriarDesafio() {
     if (pcState.desafioCriarAlvo.aberto && r.desafio) pcState.desafioDestacadoId = r.desafio.id;
     pcState.desafioCriarAmigos = null;
     pcState.desafioCriarCadeiras = null;
+    pcState._desafioMinhasListas = null;
+    pcState._desafioFonteCargos = null;
+    pcState.desafioCriarFonteId = null;
     renderDesafiosHub();
   });
 }
