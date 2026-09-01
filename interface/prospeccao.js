@@ -5225,7 +5225,6 @@ async function _renderCriarDesafioCorpo(conteudo) {
         ${_duelaGavetaCadeira(cadeiras, pcState.desafioCriarCadeiraAtiva, pool, pcState.desafioCriarBuscaCadeira, "pc-cadeira")}
       ` : `
         <label class="pc-campo-label">Seus votos indicados</label>
-        <button class="ghost" id="pcBtnCopiarPalpiteRival" style="width:100%; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:7px; border-color:rgba(52,232,74,.4); color:var(--pc-accent);">${iconeSvg("magico", 14)} Copiar o palpite de ${nomeDesafiante.split(" ")[0]} como ponto de partida</button>
         <div class="pc-duelo-colcab"><span class="cand">Candidato</span><span class="rival">Rival</span><span class="voce" style="width:118px;">Você</span></div>
         <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:420px; overflow-y:auto;">
           ${(() => {
