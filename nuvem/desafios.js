@@ -7,6 +7,17 @@
 // de gerarCodigoCedula, nuvem/salvamentos.js), gerada no cliente e só
 // validada quanto ao formato no banco — prefixo "DS" pra distinguir de
 // "SL" nas telas de suporte/depuração.
+// Corre uma promise contra um prazo — usado nas chamadas "preguiçosas"
+// que rodam de passagem ao abrir a tela (expiração, lembrete): se o banco
+// travar nelas, a tela segue em frente em vez de ficar presa pra sempre
+// (bug real visto em 01/09/2026, ligado à função de estorno de créditos).
+function _comLimiteDeTempo(promise, ms, rotulo) {
+  return Promise.race([
+    promise,
+    new Promise((_, rejeita) => setTimeout(() => rejeita(new Error(`Tempo esgotado: ${rotulo}`)), ms)),
+  ]);
+}
+
 function gerarCodigoDesafio() {
   const alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   const sorteia = (n) => Array.from({ length: n }, () => alfabeto[Math.floor(Math.random() * alfabeto.length)]).join("");
@@ -29,10 +40,12 @@ async function desafiosGratisRestantes(perfilId) {
 // preguiçoso de registrarAcessoMediana: quem "cobra" a passagem do tempo
 // é a própria visita à tela.
 async function listarMeusDesafios() {
-  await supabaseClient.rpc("expirar_meus_desafios_vencidos");
+  try {
+    await _comLimiteDeTempo(supabaseClient.rpc("expirar_meus_desafios_vencidos"), 8000, "expirar desafios vencidos");
+  } catch (e) { console.error("Erro/tempo esgotado ao expirar desafios vencidos:", e); }
   // Lembrete de duelo parado (migração 41): 3 dias sem aceite → sino do
   // criador; roda "preguiçoso" aqui pelo mesmo motivo da expiração.
-  try { await supabaseClient.rpc("lembrar_meus_desafios_parados"); } catch (_) { /* migração 41 ainda não rodada */ }
+  try { await _comLimiteDeTempo(supabaseClient.rpc("lembrar_meus_desafios_parados"), 8000, "lembrete de duelo parado"); } catch (_) { /* migração 41 ainda não rodada, ou travou — segue sem bloquear a tela */ }
   // Colunas explícitas, SEM as de voto/plenário — a migração 38 revogou o
   // SELECT direto delas (voto oculto é oculto de verdade); quem precisa
   // dos votos usa desafioDetalhe abaixo. select("*") aqui quebraria com

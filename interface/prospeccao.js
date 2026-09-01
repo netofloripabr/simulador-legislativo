@@ -4786,9 +4786,23 @@ function _chipStatusDesafio(status) {
 }
 
 async function renderDesafiosHub() {
-  pcState._farolContexto = "duelos";
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = telaCarregando("Carregando seus desafios…");
+  try {
+    await _renderDesafiosHubCorpo(conteudo);
+  } catch (e) {
+    console.error("Erro ao montar o hub de desafios:", e);
+    conteudo.innerHTML = `<div class="glass-card" style="text-align:center;">
+      <h2 style="margin-bottom:6px;">Não consegui carregar</h2>
+      <div class="pc-sub" style="margin-bottom:16px;">Algo falhou ao buscar seus desafios. Tenta de novo?</div>
+      <button class="primary" id="pcBtnRetentarDesafiosHub" style="width:100%;">Tentar de novo</button>
+    </div>`;
+    document.getElementById("pcBtnRetentarDesafiosHub").addEventListener("click", renderDesafiosHub);
+  }
+}
+
+async function _renderDesafiosHubCorpo(conteudo) {
+  pcState._farolContexto = "duelos";
   pcState.telaDesafio = "hub";
   const [desafios, gratis] = await Promise.all([listarMeusDesafios(), desafiosGratisRestantes(pcState.perfil.id)]);
   pcState.desafiosCache = desafios;
