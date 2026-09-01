@@ -5225,28 +5225,26 @@ async function _renderCriarDesafioCorpo(conteudo) {
         ${_duelaGavetaCadeira(cadeiras, pcState.desafioCriarCadeiraAtiva, pool, pcState.desafioCriarBuscaCadeira, "pc-cadeira")}
       ` : `
         <label class="pc-campo-label">Seus votos indicados</label>
-        <div class="pc-duelo-colcab"><span class="cand">Candidato</span><span class="rival">Rival</span><span class="voce" style="width:118px;">Você</span></div>
+        <div class="pc-duelo-colcab"><span class="cand">Candidato</span><span class="rival">2022</span><span class="voce" style="width:118px;">Você</span></div>
         <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:420px; overflow-y:auto;">
           ${(() => {
-            // Agrupado por partido; o ajuste vive nas caixinhas de cada linha
-            // (aprovado no protótipo v6, 31/08/2026): tocar no valor do RIVAL
-            // copia ele pro seu palpite; −/+ ao lado do seu campo andam 5% do
-            // voto do rival naquele candidato (mínimo 10) por toque.
+            // Agrupado por partido, ordenado pela referência de 2022 (não há
+            // "rival" ainda nesta etapa — quem cria o duelo ainda não tem
+            // adversário). Os campos usam o mesmo [data-pc-voto] já
+            // conectado a pcState.desafioCriarVotos no resto deste passo.
             const grupos = new Map();
-            escopo.forEach((c) => { if (!grupos.has(c.partido)) grupos.set(c.partido, []); grupos.get(c.partido).push(c); });
-            const rivalDe = (c) => votosRivalPorChave.get(c.chave) || 0;
+            selecionados.forEach((c) => { if (!grupos.has(c.partido)) grupos.set(c.partido, []); grupos.get(c.partido).push(c); });
+            const ref2022 = (c) => Number(c.votos) || 0;
             const ordemG = [...grupos.entries()].sort((a, b) =>
-              b[1].reduce((t, c) => t + rivalDe(c), 0) - a[1].reduce((t, c) => t + rivalDe(c), 0));
+              b[1].reduce((t, c) => t + ref2022(c), 0) - a[1].reduce((t, c) => t + ref2022(c), 0));
             return ordemG.map(([partido, cands]) => `
-              <div class="pc-aceitar-gcab"><span class="sigla">${partido}</span><span class="dica">toque no valor do rival pra copiar</span></div>
-              ${[...cands].sort((a, b) => rivalDe(b) - rivalDe(a)).map((c) => `
+              <div class="pc-aceitar-gcab"><span class="sigla">${partido}</span></div>
+              ${[...cands].sort((a, b) => ref2022(b) - ref2022(a)).map((c) => `
               <div class="pc-voto-linha">
                 <span class="txt"><span class="nome">${c.nome}</span></span>
-                <button type="button" class="pc-voto-rival clicavel" data-pc-voto-copiar="${escaparAtributoHtml(c.chave)}" title="Copiar este valor pro seu palpite">${rivalDe(c).toLocaleString("pt-BR")}</button>
+                <span class="pc-voto-rival">${ref2022(c).toLocaleString("pt-BR")}</span>
                 <span class="pc-voto-ajuste">
-                  <button type="button" class="pc-mini-passo" data-pc-voto-passo="${escaparAtributoHtml(c.chave)}|-1">&minus;</button>
-                  <input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioAceitarVotos[c.chave] ?? ""}" placeholder="0">
-                  <button type="button" class="pc-mini-passo" data-pc-voto-passo="${escaparAtributoHtml(c.chave)}|1">+</button>
+                  <input type="number" min="0" inputmode="numeric" data-pc-voto="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioCriarVotos[c.chave] ?? ""}" placeholder="0">
                 </span>
               </div>`).join("")}`).join("");
           })()}
