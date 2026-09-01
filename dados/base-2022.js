@@ -85,6 +85,17 @@ const LEGENDA_2022 = {
     "CIDADANIA": 2579, "PATRIOTA": 1630, "PSC": 1329, "PC do B": 925,
     "PSTU": 702, "SOLIDARIEDADE": 646, "REDE": 451, "PV": 441, "DC": 383,
     "AVANTE": 351, "PRTB": 300, "PROS": 230
+  },
+  // Dep. Federal SC 2022 — mesma fonte/metodologia; federações resolvidas
+  // por soma nominal (a API só entrega o código longo do partido, não a
+  // sigla) contra BASE_2022_FEDERAL_SC: FE BRASIL = PT+PC do B+PV,
+  // PSDB/CIDADANIA e PSOL/REDE batem exato. Soma = 157.803 = total oficial.
+  federal: {
+    "PL": 38896, "MDB": 10107, "PT/PC do B/PV": 42036, "PDT": 8403, "NOVO": 8177,
+    "PSD": 6887, "PP": 6729, "UNIÃO": 6323, "PODE": 3783, "REPUBLICANOS": 3532,
+    "PTB": 3306, "PSB": 3195, "PSDB/CIDADANIA": 6833, "PATRIOTA": 1248,
+    "PSC": 867, "PSOL/REDE": 4324, "SOLIDARIEDADE": 771, "PSTU": 648, "DC": 599,
+    "PRTB": 365, "PROS": 298, "AVANTE": 298, "UP": 178
   }
 };
 
