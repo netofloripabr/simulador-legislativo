@@ -446,6 +446,7 @@
   #modoColaborativoWrap .pc-fva-cand{ flex:1; min-width:0; line-height:1.2; }
   #modoColaborativoWrap .pc-fva-cand .n{ display:block; font-size:11.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #modoColaborativoWrap .pc-fva-cand .v{ font-size:9px; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; }
+  #modoColaborativoWrap .pc-fva-cand .perde{ display:block; font-size:8.5px; color:#FFA23E; margin-top:1px; }
   #modoColaborativoWrap .pc-sen-chip.chiplegenda{ background:none; border:1px solid #4D545C; color:var(--pc-ink-dim); }
   #modoColaborativoWrap .pc-dep-crow-legenda{ border-top:1px dashed #2C3239; margin-top:4px; padding-top:10px; }
   #modoColaborativoWrap .pc-fva-conf{ flex-shrink:0; display:flex; align-items:center; gap:5px; background:none; border:1px solid rgba(52,232,74,.4); color:var(--pc-accent); border-radius:999px; padding:6px 11px; font-size:9px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }

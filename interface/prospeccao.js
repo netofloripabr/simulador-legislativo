@@ -7798,16 +7798,27 @@ function vagasEmAbertoDoCargo(totalVagasCargo) {
   const qeAtual = quocienteEleitoral(somaVotosCargo(), totalVagasCargo);
   let emAberto = 0, marcadas = 0;
   const linhas = [];
+  // Candidatos marcados SEM respaldo do voto atual (selo laranja "E" no
+  // card, k >= vg do próprio partido) — em qualquer cargo com todas as
+  // vagas já marcadas, cada vaga em aberto corresponde 1:1 a um desses
+  // (a soma de vg por partido = total de vagas do cargo, sempre — então se
+  // "marcadas" bateu no total, todo excesso em um partido é déficit em
+  // outro). É quem PERDE a cadeira se esta vaga for confirmada.
+  const semRespaldo = [];
   lista.forEach((p, gi) => {
     if (p.semAta2026) return;
     const reais = (p.candidatos || []).filter((c) => c.fonte !== "legenda");
     const nMarc = reais.filter((c) => c.marcadoEleito).length;
     marcadas += nMarc;
     const vg = counts[gi] || 0;
+    const ordenados = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
+    ordenados.forEach((c, k) => {
+      if (!c.marcadoEleito || k < vg) return;
+      semRespaldo.push({ partido: p.nome, nome: nomeExibicao(c), votos: Number(c.votos) || 0, chave: c.chave });
+    });
     if (vg <= nMarc) return;
     const soma = somaVotosGrupo(p);
     const qpDireto = qeAtual ? Math.min(vg, Math.floor(soma / qeAtual)) : 0;
-    const ordenados = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
     // as cadeiras em aberto do partido são as posições k < vg ocupadas por
     // candidato ainda sem marcação — o mesmo critério do selo fantasma no card
     ordenados.forEach((c, k) => {
@@ -7822,6 +7833,15 @@ function vagasEmAbertoDoCargo(totalVagasCargo) {
     });
   });
   linhas.sort((a, b) => b.votos - a.votos);
+  // Pareamento só é honesto quando não há capacidade livre sobrando (todas
+  // as vagas do cargo já marcadas) — só aí toda vaga aberta É, por
+  // definição, uma cadeira presa em outro partido. Sobrando capacidade
+  // (marcadas < totalVagasCargo), a vaga pode simplesmente estar livre de
+  // verdade, sem ninguém pra "perder" nada.
+  if (marcadas >= totalVagasCargo && semRespaldo.length) {
+    semRespaldo.sort((a, b) => a.votos - b.votos); // o mais fraco perde primeiro
+    linhas.forEach((l, i) => { if (semRespaldo[i]) l.perde = semRespaldo[i]; });
+  }
   return { emAberto, marcadas, linhas };
 }
 
@@ -7834,8 +7854,8 @@ function renderFaixaVagasAbertas(totalVagasCargo) {
     <div class="pc-fva-lin">
       <span class="pc-fva-sigla">${nomePartidoExibicao(l.partido)}</span>
       <span class="pc-fva-qual">${l.cadeira}\u00aa \u00b7 ${l.qual}</span>
-      <span class="pc-fva-cand"><span class="n">${l.nome}</span><span class="v">${l.votos.toLocaleString("pt-BR")} votos \u00b7 pr\u00f3ximo da fila</span></span>
-      <button type="button" class="pc-fva-conf" data-pc-fva-conf="${escaparAtributoHtml(l.partido)}" title="Confirmar: marca ${l.nome} como eleito (sobe 1 vaga no box do partido)">${iconeSvg("confere", 12)} confirmar</button>
+      <span class="pc-fva-cand"><span class="n">${l.nome}</span><span class="v">${l.votos.toLocaleString("pt-BR")} votos \u00b7 pr\u00f3ximo da fila</span>${l.perde ? `<span class="perde">no lugar de ${l.perde.nome} (${nomePartidoExibicao(l.perde.partido)}) \u2014 marcado sem respaldo do voto atual</span>` : ""}</span>
+      <button type="button" class="pc-fva-conf" data-pc-fva-conf="${escaparAtributoHtml(l.partido)}"${l.perde ? ` data-pc-fva-perde="${escaparAtributoHtml(l.perde.partido)}"` : ""} title="${l.perde ? `Confirma ${l.nome} e desmarca ${l.perde.nome} (${l.perde.partido}), que hoje segura a vaga sem respaldo do voto` : `Confirmar: marca ${l.nome} como eleito (sobe 1 vaga no box do partido)`}">${iconeSvg("confere", 12)} confirmar</button>
       <button type="button" class="pc-fva-ir" data-pc-fva-ir="${escaparAtributoHtml(l.partido)}" title="Abrir o card do partido">${iconeSvg("setaDireita", 11)}</button>
     </div>`).join("");
   return `
@@ -9547,19 +9567,35 @@ function attachListenersSelecao() {
       if (conf) {
         ev.stopPropagation();
         const nomeP = conf.getAttribute("data-pc-fva-conf");
+        const nomePerdeP = conf.getAttribute("data-pc-fva-perde");
         const gi = pcState.palpiteEdicao.findIndex((pp) => pp.nome === nomeP);
         if (gi < 0) return;
         const p = pcState.palpiteEdicao[gi];
+        const counts = vagasApuradasPorGrupo();
+        snapshotPalpite();
+        // Quando as 40/40 vagas já estão marcadas, não existe espaço livre
+        // no total — a única forma honesta de confirmar é desmarcando quem
+        // hoje segura a cadeira sem respaldo do voto atual (nomePerdeP,
+        // achado do usuário 31/08/2026: "o sistema indica a eleição do
+        // candidato, mas não indica quem perde"). Reduz o box do partido
+        // que perde ANTES de subir o box do que ganha, senão o tapete
+        // curto (aplicarVagas) barra o pedido como se não houvesse vaga.
+        if (nomePerdeP) {
+          const giPerde = pcState.palpiteEdicao.findIndex((pp) => pp.nome === nomePerdeP);
+          if (giPerde >= 0) {
+            const pPerde = pcState.palpiteEdicao[giPerde];
+            const atualPerde = vagasIndicadasDe(pPerde, counts[giPerde] || 0);
+            pPerde.vagasIndicadas = Math.max(0, atualPerde - 1);
+          }
+        }
         // Mesma semântica do "+" do box de vagas (tapete curto incluso):
         // sobe 1 vaga indicada e o recálculo marca o mais votado sem selo.
-        const counts = vagasApuradasPorGrupo();
         const atual = vagasIndicadasDe(p, counts[gi] || 0);
         const somaOutras = pcState.palpiteEdicao.reduce(
           (soma, pp, i) => (i === gi ? soma : soma + vagasIndicadasDe(pp, counts[i] || 0)), 0);
         const totalCargo = totalVagasCargoAtivo();
         const novoVal = Math.min(atual + 1, Math.max(0, totalCargo - somaOutras));
         if (novoVal === atual) return;
-        snapshotPalpite();
         p.vagasIndicadas = novoVal;
         recalcularMarcadosDeputados();
         agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
