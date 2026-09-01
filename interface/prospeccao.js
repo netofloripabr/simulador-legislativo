@@ -5057,6 +5057,20 @@ function _duelaPoolPorChave(pool) {
 async function renderCriarDesafio() {
   const conteudo = document.getElementById("pcConteudo");
   conteudo.innerHTML = telaCarregando("Carregando…");
+  try {
+    await _renderCriarDesafioCorpo(conteudo);
+  } catch (e) {
+    console.error("Erro ao montar a criação de desafio:", e);
+    conteudo.innerHTML = `<div class="glass-card" style="text-align:center;">
+      <h2 style="margin-bottom:6px;">Não consegui carregar</h2>
+      <div class="pc-sub" style="margin-bottom:16px;">Algo falhou ao preparar a criação do desafio. Tenta de novo?</div>
+      <button class="primary" id="pcBtnRetentarCriarDesafio" style="width:100%;">Tentar de novo</button>
+    </div>`;
+    document.getElementById("pcBtnRetentarCriarDesafio").addEventListener("click", renderCriarDesafio);
+  }
+}
+
+async function _renderCriarDesafioCorpo(conteudo) {
   const gratis = await desafiosGratisRestantes(pcState.perfil.id);
   if (!pcState.desafioCriarCargo) pcState.desafioCriarCargo = (CARGOS.find((c) => c.disponivel) || CARGOS[0]).id;
   if (!pcState.desafioCriarTipo) pcState.desafioCriarTipo = "eleitos";
