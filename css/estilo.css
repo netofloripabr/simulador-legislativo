@@ -1193,6 +1193,10 @@
   position:relative; height:31px; margin-top:7px; cursor:pointer; touch-action:none;
   display:flex; align-items:center;
 }
+/* Espaço extra só no card de Senador (não no fader de Deputados, que
+   reusa a mesma .pc-fader-linha): abre lugar pro rótulo de % acima da
+   agulha (pc-sen-grip-pct), pedido do usuário 01/09/2026. */
+#modoColaborativoWrap .pc-sen-card .pc-fader-linha{ margin-top:22px; }
 #modoColaborativoWrap .pc-sen-bar{
   position:relative; width:100%; height:13px; border-radius:7px;
   background:#0C0E10; border:1px solid #23262A; overflow:hidden;
@@ -1218,6 +1222,12 @@
   position:absolute; top:50%; transform:translateY(-50%);
   width:40px; height:27px; pointer-events:none;
 }
+#modoColaborativoWrap .pc-sen-grip-pct{
+  position:absolute; bottom:100%; margin-bottom:5px; transform:translateX(-50%);
+  font-size:9.5px; font-weight:800; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums;
+  white-space:nowrap; pointer-events:none;
+}
+#modoColaborativoWrap .pc-sen-slider.ativo .pc-sen-grip-pct{ color:var(--pc-accent); }
 #modoColaborativoWrap .pc-sen-grip{
   position:absolute; top:50%; transform:translate(-50%,-50%);
   width:11px; height:27px; border-radius:5px;

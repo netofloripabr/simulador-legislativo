@@ -7283,6 +7283,7 @@ function renderListaSenador(totalVagas, E) {
         <div class="pc-sen-slider" data-sen-idx="${it.idx}">
           <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${Math.min(100, pctBarra)}%"></div></div>
           <div class="pc-sen-votos"></div>
+          <div class="pc-sen-grip-pct" style="left:${Math.min(100, pctBarra)}%">${pctBarra.toFixed(1)}%</div>
           <div class="pc-sen-grip" style="left:${Math.min(100, pctBarra)}%"></div>
         </div>
         ${setaFinoHtml("data-pc-seta-sen", String(it.idx), "mais")}
@@ -7327,6 +7328,9 @@ function atualizarCardSenador(idx, E) {
   card.querySelector(".pc-sen-pct").innerHTML = `<span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span>`;
   card.querySelector(".pc-sen-fill").style.width = Math.min(100, pctBarra) + "%";
   card.querySelector(".pc-sen-grip").style.left = Math.min(100, pctBarra) + "%";
+  const gripPct = card.querySelector(".pc-sen-grip-pct");
+  gripPct.style.left = Math.min(100, pctBarra) + "%";
+  gripPct.textContent = pctBarra.toFixed(1) + "%";
   posicionarVotosSenador(card, c, E);
 }
 
