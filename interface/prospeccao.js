@@ -81,6 +81,7 @@ let pcState = {
   listaSalvaId: null, // id exclusivo gerado no primeiro Salvar — reaproveitado nos salvamentos seguintes da mesma lista (edição, não duplicata)
   listaSalvaNome: null, // nome escolhido pela pessoa nesse modal — só pergunta de novo se vier null (ex.: depois de "Sair")
   modoAgrupadoRevisao: {}, // cargo -> true/false — filtro "lista única" (default) vs "agrupado por partido/federação" na Revisão
+  filtroEleitoRevisao: {}, // cargo -> true/false — 3º filtro "só eleitos" na Revisão (01/09/2026)
   listaEmVisualizacao: null, // lista depositada aberta em modo "Ver" (renderMinhasListas) — null = mostrando a lista de listas
   modalDepositarListaId: null, // id da lista com o modal de confirmação de depósito aberto
   avisoVagaNaoMarcadaResumo: null, // [{cargo, nomes:[...]}] — vagas que a votação real já garantiria mas a pessoa não marcou; null enquanto não checou
@@ -11348,6 +11349,7 @@ function renderRevisaoDeposito() {
       marcadosInconsistentes.forEach((c) => chavesVisiveis.add(c.chave));
       listaExibida = listaCompleta.filter((c) => c.eleito || chavesVisiveis.has(c.chave));
     }
+    if (pcState.filtroEleitoRevisao[cargoDef.id]) listaExibida = listaExibida.filter((c) => c.eleito);
 
     // "Mínimo pra eleger" — referência única de folga/progresso, mostrada
     // em toda barra desta seção (eleito ou não): o corte de
@@ -11539,6 +11541,7 @@ function renderRevisaoDeposito() {
         <div class="pc-cmd-painel" style="width:auto; justify-content:flex-start; gap:2px; margin-bottom:0;">
           <button data-pc-modo-revisao="lista" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Lista única, ordenada por votos" class="pc-cmd-acao${agrupado ? "" : " ativo"}" style="flex:none; width:28px; height:28px; min-height:28px; aspect-ratio:1;">${iconeSvg("lista", 13)}</button>
           <button data-pc-modo-revisao="grupo" data-pc-modo-revisao-cargo="${cargoDef.id}" title="Agrupado por partido/federação" class="pc-cmd-acao${agrupado ? " ativo" : ""}" style="flex:none; width:28px; height:28px; min-height:28px; aspect-ratio:1;">${iconeSvg("grupos", 13)}</button>
+          <button data-pc-filtro-eleito-revisao="${cargoDef.id}" title="${pcState.filtroEleitoRevisao[cargoDef.id] ? "Mostrar todos de novo" : "Mostrar só os eleitos"}" class="pc-cmd-acao${pcState.filtroEleitoRevisao[cargoDef.id] ? " ativo" : ""}" style="flex:none; width:28px; height:28px; min-height:28px; aspect-ratio:1; color:#34E84A;">${docIcLetra("E", 13, "fato")}</button>
         </div>
       </div>`;
 
@@ -11755,6 +11758,16 @@ function renderRevisaoDeposito() {
       e.stopPropagation();
       const cargo = btn.getAttribute("data-pc-modo-revisao-cargo");
       pcState.modoAgrupadoRevisao[cargo] = btn.getAttribute("data-pc-modo-revisao") === "grupo";
+      renderRevisaoDeposito();
+    });
+  });
+  // 3º filtro — "E": só os eleitos, mesmo selo do documento impresso.
+  document.querySelectorAll("[data-pc-filtro-eleito-revisao]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const cargo = btn.getAttribute("data-pc-filtro-eleito-revisao");
+      pcState.filtroEleitoRevisao[cargo] = !pcState.filtroEleitoRevisao[cargo];
       renderRevisaoDeposito();
     });
   });
