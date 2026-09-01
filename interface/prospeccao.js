@@ -7848,6 +7848,11 @@ function vagasEmAbertoDoCargo(totalVagasCargo) {
 function renderFaixaVagasAbertas(totalVagasCargo) {
   const dados = vagasEmAbertoDoCargo(totalVagasCargo);
   if (!dados.emAberto) return "";
+  // Só aparece com a lista pelo menos 85% marcada (pedido do usuário,
+  // 31/08/2026): abaixo disso a lista ainda é muito primária — o usuário
+  // nem decidiu a maioria das vagas ainda, então "vagas em aberto" seria
+  // uma lista enorme e sem sentido, não um sinal de algo faltando.
+  if (!totalVagasCargo || dados.marcadas / totalVagasCargo < 0.85) return "";
   const abertaChave = "faixaVagas_" + pcState.cargoAtivo;
   const aberta = !!pcState.expandido[abertaChave];
   const linhas = dados.linhas.map((l) => `
