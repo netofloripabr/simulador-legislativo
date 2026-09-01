@@ -8977,12 +8977,29 @@ function podarGruposForaDoPool(lista, poolOficial) {
     // usuário marcou eleito ou tem mais voto — nunca perde a marcação/voto
     // real por causa de uma duplicata administrativa.
     .map((p) => {
+      // Agrupa por NOME **ou** NOME DE URNA (achado 01/09/2026: o oficial
+      // é "Esperidião Amin Helou Filho"/urna "Esperidião Amin" — uma
+      // entrada cadastrada só com o nome curto não batia comparando só
+      // por `nome` cheio). União por qualquer um dos dois batendo, via
+      // union-find simples — cobre entrada com nome completo batendo o
+      // nomeUrna do outro lado e vice-versa.
+      const pai = p.candidatos.map((_, i) => i);
+      const acha = (i) => (pai[i] === i ? i : (pai[i] = acha(pai[i])));
+      const junta = (i, j) => { const ri = acha(i), rj = acha(j); if (ri !== rj) pai[ri] = rj; };
+      const porVariante = new Map();
+      p.candidatos.forEach((c, i) => {
+        [normalizarBusca(c.nome || ""), normalizarBusca(c.nomeUrna || "")]
+          .filter(Boolean)
+          .forEach((variante) => {
+            if (porVariante.has(variante)) junta(i, porVariante.get(variante));
+            else porVariante.set(variante, i);
+          });
+      });
       const porNome = new Map();
-      p.candidatos.forEach((c) => {
-        const chaveNome = normalizarBusca(c.nome || c.nomeUrna || "");
-        if (!chaveNome) { porNome.set(Symbol(), [c]); return; }
-        if (!porNome.has(chaveNome)) porNome.set(chaveNome, []);
-        porNome.get(chaveNome).push(c);
+      p.candidatos.forEach((c, i) => {
+        const raiz = acha(i);
+        if (!porNome.has(raiz)) porNome.set(raiz, []);
+        porNome.get(raiz).push(c);
       });
       let teveDuplicata = false;
       // Número oficial de candidatura (via chave no pool) — quando os DOIS
