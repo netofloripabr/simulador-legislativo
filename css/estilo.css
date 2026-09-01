@@ -2285,7 +2285,27 @@
 }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-item{ padding:6px 0 0; color:#5C6268; }
 #modoColaborativoWrap.pc-tema-fader .pc-tut-item.on{ color:var(--pc-ink); }
-#modoColaborativoWrap.pc-tema-fader #pcFecharInstrucao:disabled{ opacity:.35; }
+#modoColaborativoWrap.pc-tema-fader #pcTutAvancar:disabled{ opacity:.35; }
+
+/* Tela 1 do tutorial (01/09/2026): ilustração estática + recorte real do
+   app com o ícone circulado — pedido do usuário pra mostrar ONDE o ícone
+   fica antes de pedir pra clicar nele. */
+#modoColaborativoWrap.pc-tema-fader .pc-tut-ilustra{
+  display:flex; flex-direction:column; align-items:center; gap:8px; margin:6px 0 4px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-ilustra-leg{ font-size:10px; color:#5C6268; }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-recorte{
+  margin-top:18px; border:1px solid #23262A; border-radius:16px; overflow:hidden;
+  background:#101214; padding:10px;
+}
+#modoColaborativoWrap.pc-tema-fader .pc-tut-recorte-img{ position:relative; border-radius:10px; overflow:hidden; }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-recorte-img img{ display:block; width:100%; height:auto; }
+#modoColaborativoWrap.pc-tema-fader .pc-tut-argola{
+  position:absolute; left:4.6%; top:15.1%; width:9%; height:31.25%;
+  border:2px solid #FFA23E; border-radius:999px; box-shadow:0 0 0 3px rgba(255,162,62,.22);
+  animation:pcTutArgolaPulsa 1.6s ease-in-out infinite;
+}
+@keyframes pcTutArgolaPulsa{ 0%,100%{ opacity:.55; transform:scale(1); } 50%{ opacity:1; transform:scale(1.08); } }
 
 /* ===== Duelo 1×1 — migração 38 (protótipo aprovado 30/08/2026) ===== */
 /* CTA no Painel: Duelo é a ferramenta principal do lançamento. */

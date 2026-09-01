@@ -9270,17 +9270,30 @@ async function renderCargoEstadual() {
   conteudo.innerHTML = `
     ${instrucaoAberta ? `
     <div id="pcInstrucaoOverlay" style="position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:20px;">
-      <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px 18px; box-shadow:0 20px 60px rgba(0,0,0,.5);">
-        <div style="display:flex; align-items:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">${iconeSvg("alerta", 13)} ATENÇÃO</div>
-        <div class="pc-tut-aviso">Esta função vai te orientar para preencher a lista com <b class="verde">agilidade e acertividade</b>.<div class="pc-tut-aviso-sub">O painel de notificação lhe orienta a cada passo.<br>Para utilizar, basta selecionar o ícone:</div></div>
-        <div class="pc-tut-hero">
-          <div class="pc-tut-chame">Entenda os pontos:</div>
+      <div style="max-width:400px; width:100%; max-height:88vh; overflow-y:auto; background:rgba(29,32,35,.97); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid #2B2F33; border-radius:18px; padding:22px 20px 18px; box-shadow:0 20px 60px rgba(0,0,0,.5); text-align:center;">
+        <div id="pcTutTela1"${pcState._tutTela2 ? ' style="display:none;"' : ""}>
+          <div style="display:flex; align-items:center; justify-content:center; gap:6px; color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:14px;">${iconeSvg("alerta", 13)} ATENÇÃO</div>
+          <div class="pc-tut-aviso">Esta função vai te orientar a preencher a lista com <b class="verde">agilidade</b>.<div class="pc-tut-aviso-sub">O painel de notificação lhe orienta a cada passo. Ao clicar no ícone indicado ele aumenta o nível de detalhamento, conforme a ilustração.</div></div>
+          <div class="pc-tut-ilustra">
+            <span class="pc-tut-pontos" style="cursor:default;"><i class="on"></i><i class="on"></i><i></i></span>
+            <span class="pc-tut-ilustra-leg">ilustração — o ícone real está na tela seguinte</span>
+          </div>
+          <button class="primary" id="pcTutProsseguir" style="width:100%; margin-top:16px;">Prosseguir</button>
+          <div class="pc-tut-recorte">
+            <div class="pc-tut-recorte-img">
+              <img src="interface/assets/tutorial-cabecalho.png" alt="Cabeçalho do app">
+              <span class="pc-tut-argola"></span>
+            </div>
+          </div>
+        </div>
+        <div id="pcTutTela2"${pcState._tutTela2 ? "" : ' style="display:none;"'}>
+          <div class="pc-tut-chame">Clique e entenda:</div>
           <span class="pc-tut-pontos" id="pcTutPontos"><i class="on"></i><i></i><i></i></span>
           <div class="pc-tut-palco" id="pcTutPalco">
             <div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> <b style="color:var(--pc-accent);">1 ponto</b> — sinaliza que existe orientação</div>
           </div>
+          <button class="primary" id="pcTutAvancar" style="width:100%; margin-top:14px;" disabled>Concluir</button>
         </div>
-        <button class="primary" id="pcTutAvancar" style="width:100%; margin-top:14px;">Próximo</button>
       </div>
     </div>` : ""}
     ${pcState.avisoLimiteVagasAberto ? `
@@ -9887,30 +9900,41 @@ function attachListenersSelecao() {
     agendarReordenacaoSuave(null, 600);
     renderCargoEstadual();
   });
-  // Tutorial de página única (refeito 31/08/2026, pedido do usuário): as
-  // 3 janelas avançam pelo BOTÃO centralizado — "Próximo" nas duas
-  // primeiras e "Concluir" na última (o ícone de pontos vira só vitrine).
+  // Tutorial em 2 telas (refeito 01/09/2026, pedido do usuário): tela 1 só
+  // o aviso + ilustração estática + recorte real do app com o ícone
+  // circulado, botão "Prosseguir" sempre ativo. Tela 2 é onde o ícone dos
+  // pontos VIRA clicável de verdade e roda a demo de 3 passos — o botão
+  // "Concluir" só libera depois do ciclo completo.
+  const tutProsseguir = document.getElementById("pcTutProsseguir");
+  if (tutProsseguir && !tutProsseguir.dataset.ligado) {
+    tutProsseguir.dataset.ligado = "1";
+    tutProsseguir.addEventListener("click", () => {
+      pcState._tutTela2 = true;
+      renderCargoEstadual();
+    });
+  }
+  const tutPontosClicavel = document.getElementById("pcTutPontos");
   const tutAvancar = document.getElementById("pcTutAvancar");
-  if (tutAvancar && !tutAvancar.dataset.ligado) {
-    tutAvancar.dataset.ligado = "1";
+  if (tutPontosClicavel && tutAvancar && !tutPontosClicavel.dataset.ligado) {
+    tutPontosClicavel.dataset.ligado = "1";
     let tutNivel = 1;
     const janelas = {
       1: '<div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i></i><i></i></span> <b style="color:var(--pc-accent);">1 ponto</b> — sinaliza que existe orientação</div>',
       2: '<div class="pc-tut-lin"><span class="pc-tut-minipontos"><i class="on"></i><i class="on"></i><i></i></span><span class="pc-tut-passo">Passo 1</span> Preencha as vagas por partido — 12 de 40 <span class="pc-tut-min">−</span></div>',
       3: '<div class="pc-tut-lin" style="border-bottom:1px solid rgba(242,244,245,.08); padding-bottom:6px;"><span class="pc-tut-minipontos"><i class="on"></i><i class="on"></i><i class="on"></i></span><span class="pc-tut-passo">Sua trilha</span><span class="pc-tut-min">−</span></div><div class="pc-tut-item on">① Preencher as vagas por partido — <b style="color:var(--pc-accent);">12 de 40</b></div><div class="pc-tut-item">② Distribuir a votação pelos candidatos</div><div class="pc-tut-item">③ Avançar pra Revisão</div>',
     };
-    tutAvancar.addEventListener("click", () => {
-      if (tutNivel >= 3) {
-        pcState.instrucaoSelecaoAberta = false;
-        salvarTutorialVisto();
-        renderCargoEstadual();
-        return;
-      }
+    tutPontosClicavel.addEventListener("click", () => {
+      if (tutNivel >= 3) return;
       tutNivel++;
-      const tutPontos = document.getElementById("pcTutPontos");
-      if (tutPontos) tutPontos.querySelectorAll("i").forEach((el, idx) => { el.className = idx < tutNivel ? "on" : ""; });
+      tutPontosClicavel.querySelectorAll("i").forEach((el, idx) => { el.className = idx < tutNivel ? "on" : ""; });
       document.getElementById("pcTutPalco").innerHTML = janelas[tutNivel];
-      tutAvancar.textContent = tutNivel === 3 ? "Concluir" : "Próximo";
+      if (tutNivel === 3) tutAvancar.disabled = false;
+    });
+    tutAvancar.addEventListener("click", () => {
+      pcState.instrucaoSelecaoAberta = false;
+      pcState._tutTela2 = false;
+      salvarTutorialVisto();
+      renderCargoEstadual();
     });
   }
   const overlayInstrucao = document.getElementById("pcInstrucaoOverlay");
@@ -9918,6 +9942,7 @@ function attachListenersSelecao() {
     overlayInstrucao.addEventListener("click", (e) => {
       if (e.target.id === "pcInstrucaoOverlay") {
         pcState.instrucaoSelecaoAberta = false;
+        pcState._tutTela2 = false;
         salvarTutorialVisto();
         renderCargoEstadual();
       }
