@@ -10492,8 +10492,8 @@ function docLegenda() {
 // Bloco "Registro do documento" (opcional — toggle Registrar na tela de
 // impressão): nome do autor, lista, data/hora e linha de assinatura. O
 // convidado sem cadastro ganha uma linha em branco pra escrever o nome.
-function docRegistro(dataTxt, horaTxt) {
-  const nomeAutor = (pcState.perfil && pcState.perfil.nome) || "";
+function docRegistro(dataTxt, horaTxt, anonimo) {
+  const nomeAutor = anonimo ? "" : (pcState.perfil && pcState.perfil.nome) || "";
   const nomeLista = pcState.listaSalvaNome || "";
   return `
     <div class="di-reg">
@@ -10723,7 +10723,7 @@ function montarDocumentoImpresso(cargosParaGerar, op) {
   const agora = new Date();
   const dataTxt = agora.toLocaleDateString("pt-BR");
   const horaTxt = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  const nomeAutor = (pcState.perfil && pcState.perfil.nome) || "";
+  const nomeAutor = op.anonimo ? "" : (pcState.perfil && pcState.perfil.nome) || "";
   const ordemLabel = ({ crescente: "votos em ordem crescente", decrescente: "votos em ordem decrescente" })[op.ordenacao] || "ordem do palpite";
   return `
     <div class="di-agua"><span><b>Simula</b>LEGIS</span></div>
@@ -10738,7 +10738,7 @@ function montarDocumentoImpresso(cargosParaGerar, op) {
       <div class="di-regra"></div>
       ${cargosParaGerar.map((c) => montarSecaoImpressaoCargo(c, op)).join("")}
       ${docLegenda()}
-      ${op.registrar ? docRegistro(dataTxt, horaTxt) : ""}
+      ${op.registrar ? docRegistro(dataTxt, horaTxt, op.anonimo) : ""}
       ${docRodape()}
       <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dataTxt} ${horaTxt}</span></div>
     </div>`;
@@ -11693,6 +11693,13 @@ function renderRevisaoDeposito() {
           </div>
           <label class="pc-switch pc-switch-neutro" style="flex-shrink:0;"><input type="checkbox" id="pcImprimirRegistrar" checked><span class="pc-switch-slider"></span></label>
         </div>
+        <div class="di-opt-registrar" style="margin-top:8px;">
+          <div style="min-width:0;">
+            <div style="font-size:12px; font-weight:700; color:var(--pc-ink);">Impressão anônima</div>
+            <div style="font-size:10px; color:var(--pc-ink-dim); line-height:1.4;">Tira seu nome do cabeçalho e do bloco de registro — vira uma linha em branco pra assinar na mão.</div>
+          </div>
+          <label class="pc-switch pc-switch-neutro" style="flex-shrink:0;"><input type="checkbox" id="pcImprimirAnonimo"><span class="pc-switch-slider"></span></label>
+        </div>
         <div style="display:flex; gap:8px; margin-top:10px;">
           <button class="ghost" id="pcBtnCancelarImpressao" style="flex:1;">Cancelar</button>
           <button class="primary" id="pcBtnGerarImpressao" style="flex:1;">Gerar documento</button>
@@ -11952,6 +11959,7 @@ function renderRevisaoDeposito() {
       partido: recorte === "partido" ? document.getElementById("pcImprimirPartido").value : null,
       ordenacao: document.querySelector("[data-pc-imprimir-ordem].active").getAttribute("data-pc-imprimir-ordem"),
       registrar: document.getElementById("pcImprimirRegistrar").checked,
+      anonimo: document.getElementById("pcImprimirAnonimo").checked,
     };
     let container = document.getElementById("pcImpressaoConteudo");
     if (!container) {
