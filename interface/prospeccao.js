@@ -8964,6 +8964,49 @@ function podarGruposForaDoPool(lista, poolOficial) {
           : { ...c, status: null };
       });
       return mudou ? { ...p, candidatos: cands } : p;
+    })
+    // Duplicata de CADASTRO — mesma pessoa, dois identificadores (achado
+    // real 01/09/2026: Esperidião Amin duas vezes numa lista salva; causa
+    // mais provável é adição manual anterior à ata oficial confirmar o
+    // registro, cujo identificador nunca bateu com o novo, então o passo
+    // "faltantes" acima somou os dois). Todas as podas anteriores comparam
+    // por CHAVE — nenhuma pega isso, já que os dois identificadores são
+    // legitimamente diferentes. Aqui compara por NOME normalizado dentro
+    // do mesmo grupo: sobrevive quem tem identificador oficial (bate em
+    // chavesOficiais); no empate ou quando nenhum bate, sobrevive quem o
+    // usuário marcou eleito ou tem mais voto — nunca perde a marcação/voto
+    // real por causa de uma duplicata administrativa.
+    .map((p) => {
+      const porNome = new Map();
+      p.candidatos.forEach((c) => {
+        const chaveNome = normalizarBusca(c.nome || c.nomeUrna || "");
+        if (!chaveNome) { porNome.set(Symbol(), [c]); return; }
+        if (!porNome.has(chaveNome)) porNome.set(chaveNome, []);
+        porNome.get(chaveNome).push(c);
+      });
+      let teveDuplicata = false;
+      const cands = [...porNome.values()].map((grupo) => {
+        if (grupo.length === 1) return grupo[0];
+        teveDuplicata = true;
+        // A IDENTIDADE (chave/id/fonte) vem de quem bate no pool oficial —
+        // é o registro que continua valendo daqui pra frente. Mas os
+        // DADOS REAIS do usuário (voto, marcação) vêm de qualquer entrada
+        // do grupo que os tenha — nunca zera o que a pessoa já fez só
+        // porque a entrada "vencedora" da identidade não tinha voto ainda.
+        const base = [...grupo].sort((a, b) => {
+          const oficialA = a.chave != null && chavesOficiais.has(a.chave) ? 1 : 0;
+          const oficialB = b.chave != null && chavesOficiais.has(b.chave) ? 1 : 0;
+          if (oficialA !== oficialB) return oficialB - oficialA;
+          return (Number(b.votos) || 0) - (Number(a.votos) || 0);
+        })[0];
+        const comDados = [...grupo].sort((a, b) => {
+          const eleitoA = a.marcadoEleito ? 1 : 0, eleitoB = b.marcadoEleito ? 1 : 0;
+          if (eleitoA !== eleitoB) return eleitoB - eleitoA;
+          return (Number(b.votos) || 0) - (Number(a.votos) || 0);
+        })[0];
+        return base === comDados ? base : { ...base, votos: comDados.votos, votosEditado: comDados.votosEditado, marcadoEleito: comDados.marcadoEleito };
+      });
+      return teveDuplicata ? { ...p, candidatos: cands } : p;
     });
   if (!podada.length) return lista;
   // Sentido inverso da mesma sincronização: grupo que EXISTE no pool mas
