@@ -628,6 +628,8 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
     por_cargo = {}
     partidos_reais_por_cargo = {}
     ids_vistos = {}
+    nomes_por_id_base = {}  # base_id -> nome já registrado sob ele
+    duplicatas_evitadas = []
     suprimidos_por_rrc = []
     for c in sorted(resultado_verificar["candidaturasFinais"], key=lambda c: (c["cargo"], c["ordem"])):
         cargo = c["cargo"]
@@ -640,7 +642,24 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
         partidos_reais_por_cargo.setdefault(cargo, set()).add(base_partido)
         base_id = slugify(f"{base_partido}-{c['nome']}")
         n = ids_vistos.get(base_id, 0)
+        if n > 0 and _slug(nomes_por_id_base.get(base_id, "")) == _slug(c["nome"]):
+            # MESMA pessoa, mesmo partido/federação e mesmo cargo já
+            # cadastrada nesta rodada — não é colisão de slug entre gente
+            # diferente, é a mesma candidatura vinda de DOIS documentos
+            # (ex.: cada legenda de uma federação deposita convenção
+            # própria listando os mesmos candidatos da chapa comum;
+            # verificar() dedupa por partidoDocumento, que é justamente o
+            # campo que difere entre esses dois documentos, então o par
+            # sobrevive até aqui). Corrigido em 01/09/2026 — antes isso
+            # virava um "-2" e duplicava o candidato pra sempre (achado
+            # real: Esperidião Amin/UNIÃO-PP e ~300 outros, concentrados
+            # em federações: PT/PC do B/PV, UNIÃO/PP, PSOL/REDE,
+            # PRD/SOLIDARIEDADE). Mantém a PRIMEIRA ocorrência (ordem de
+            # `ordem` dentro do cargo) e descarta a repetida.
+            duplicatas_evitadas.append((c["nome"], cargo, base_partido))
+            continue
         ids_vistos[base_id] = n + 1
+        nomes_por_id_base[base_id] = c["nome"]
         cand_id = base_id if n == 0 else f"{base_id}-{n+1}"
         # Dict "limpo" de propósito (não `{**c, ...}`) — c carrega campos
         # internos do processamento (cargo, ordem, partidoDocumento,
@@ -782,6 +801,18 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
         for nome, cargo_ata, cargo_rrc in sorted(suprimidos_por_rrc):
             mudou = " ⚠️ **mudou de cargo**" if cargo_ata != cargo_rrc else ""
             linhas_md.append(f"- **{nome}** — ata: {cargo_ata} · RRC: {cargo_rrc}{mudou}")
+    if duplicatas_evitadas:
+        linhas_md.append("")
+        linhas_md.append(f"### Duplicata de cadastro evitada ({len(duplicatas_evitadas)})")
+        linhas_md.append("")
+        linhas_md.append("Mesmo nome, mesmo partido/federação e mesmo cargo apareceram em "
+                         "DOIS documentos processados nesta rodada (comum em federação — cada "
+                         "legenda deposita a própria convenção listando a mesma chapa comum). "
+                         "Mantida só a primeira ocorrência — revisar se as duas atas realmente "
+                         "descrevem a mesma pessoa:")
+        linhas_md.append("")
+        for nome, cargo_dup, partido_dup in sorted(duplicatas_evitadas):
+            linhas_md.append(f"- **{nome}** — {cargo_dup} · {partido_dup}")
     linhas_md.append("")
 
     if resultado_verificar["alertas"]:
