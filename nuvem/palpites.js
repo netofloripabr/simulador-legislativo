@@ -54,8 +54,13 @@ function injetarVotosLegenda(lista, cargo, uf, votosIniciais) {
     porGrupo[destino] = (porGrupo[destino] || 0) + (Number(LEGENDA_2022[cargo][partido22]) || 0);
   });
   lista.forEach((p) => {
-    const v = porGrupo[p.nome];
-    if (!v || p.semAta2026) return;
+    // A caixa "Legenda" nasce em TODO partido com ata — inclusive quem não
+    // teve voto de legenda em 2022 (v=0) — pra dar ao usuário um ponto de
+    // partida pra ESTIMAR a legenda de 2026, não só copiar o passado
+    // (pedido do usuário, 31/08/2026: sem a caixa, não dava pra atribuir
+    // nada a um partido que zerou em 2022).
+    const v = porGrupo[p.nome] || 0;
+    if (p.semAta2026) return;
     if ((p.candidatos || []).some((c) => c.fonte === "legenda")) return;
     const id = "legenda-" + p.nome;
     p.candidatos.push({
