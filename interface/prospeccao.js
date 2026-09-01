@@ -8017,8 +8017,13 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         ${Number(legendaCand.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(legendaCand.votos2022).toLocaleString("pt-BR")} votos s\u00f3 na sigla (TSE)</div>` : ""}
         ${faderDepHtml("c|" + gi + "|" + legendaCand.chave, cvLeg, capCand, true)}
       </div>` : "";
+    // Marcador "preenchido" (prototipado e aprovado, 31/08/2026, variante
+    // B2 — filete sutil): box de vagas com meta definida E a votação do
+    // partido batendo essa meta (a mesma condição que já fecha a barra em
+    // 100%) — reúne as duas coisas que hoje só apareciam separadas.
+    const partidoCompleto = vagasInd > 0 && soma >= meta;
     return `
-    <div class="pc-dep-card" data-dep-idx="${gi}" data-dep-nome="${escaparAtributoHtml(p.nome)}">
+    <div class="pc-dep-card${partidoCompleto ? " completo" : ""}" data-dep-idx="${gi}" data-dep-nome="${escaparAtributoHtml(p.nome)}">
       <div class="pc-dep-l1" data-dep-toggle="${gi}">
         <span class="pc-dep-nmcol">
           <span class="pc-dep-nm">${nomePartidoExibicao(p.nome)}</span>
