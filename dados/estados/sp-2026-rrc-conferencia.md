@@ -1,24 +1,24 @@
 # Conferência contra o RRC oficial — candidatos 2026 SP
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `sp-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `sp-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **2555** confirmados, **0** divergência(s) de partido, **48** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **2554** confirmados, **0** divergência(s) de partido, **50** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
 | Cargo | No RRC | No nosso arquivo | Confirmados (número+partido batem) |
 |---|---|---|---|
-| Governador | 7 | 8 | 8 |
-| Vice-Governador | 9 | 11 | 0 |
-| Senador | 16 | 17 | 16 |
-| Deputado Federal | 1128 | 1164 | 1125 |
-| Deputado Estadual | 1426 | 1449 | 1406 |
+| Governador | 7 | 7 | 7 |
+| Vice-Governador | 9 | 10 | 0 |
+| Senador | 16 | 16 | 15 |
+| Deputado Federal | 1129 | 1164 | 1125 |
+| Deputado Estadual | 1428 | 1449 | 1407 |
 | Senador (1º suplente) | 18 | 21 | 0 |
-| Senador (2º suplente) | 16 | 21 | 0 |
+| Senador (2º suplente) | 16 | 22 | 0 |
 
 ## Divergências de partido
 
@@ -38,13 +38,14 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Federal | 4405 | JAQUELINE DOMINGOS SAVIO MARTINS DO NASCIMENTO | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 | Deputado Federal | 1014 | JOAO SIQUEIRA DE FARIAS | REPUBLICANOS |
 | Deputado Federal | 2792 | MARIA JOSE DA SILVA | DC |
+| Deputado Federal | 7033 | LUCIANA CARLA GOMES | AVANTE |
 | Deputado Federal | 2782 | LUIZ ALBERTO DE OLIVEIRA FRANÇA | DC |
 | Deputado Federal | 4443 | MARIA LUCIA MENESES MATTOS | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 | Deputado Federal | 2740 | MANOEL DA CRUZ CARLOS VIEIRA | DC |
 | Deputado Federal | 2709 | SERGIO PINTO BONFIM | DC |
 | Deputado Federal | 2275 | SOPHIA BARCLAY GOMES CLAUDINO | PL |
 | Deputado Estadual | 55505 | ANDRÉA VIEGAS BUENO | PSD |
-| Deputado Estadual | 45223 | BAHIA DO LAVA RÁPIDO | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
+| Deputado Estadual | 45223 | JOSE LEANDRO DOS REIS MACEDO | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Estadual | 27108 | MARCOS JOSE DO VALLE | DC |
 | Deputado Estadual | 15003 | ANA CAROLINA FRANÇA DE SOUZA | MDB |
 | Deputado Estadual | 70567 | FRANCISCO DA COSTA NETO | AVANTE |
@@ -76,6 +77,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Estadual | 27322 | ROSANA LARA | DC |
 | Deputado Estadual | 33722 | ROSANGELA LOURENÇO BRITO SOUZA | MOBILIZA |
 | Deputado Estadual | 27100 | MARCUS ALVES DE SOUZA | DC |
+| Deputado Estadual | 20153 | TATIANE FRANCO DO NASCIMENTO | PODE |
 | Senador (1º suplente) | 232 | FABIO DOS SANTOS LOPES | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Senador (2º suplente) | 222 | RUTE FREIRE DA COSTA SILVA | CORAGEM PARA SEGUIR AVANÇANDO |
 
@@ -89,7 +91,7 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Vice-Governador | Felicio Ramuth | 10 | 1075-mdb-retificadora.pdf |
 | Vice-Governador | Felipe De Oliveira Queiroz | 21 | 731-pcb-convencao.pdf |
 | Vice-Governador | Marcelo Pereira De Azevedo | 80 | 217-up-convencao.pdf |
-| Vice-Governador | Marcio Luiz França Gomes | 13 | 131-pt-pc-do-b-pv-convencao.pdf |
+| Vice-Governador | Marcio Luiz França Gomes | 13 | 1134-pt-pc-do-b-pv-executiva.pdf |
 | Vice-Governador | Nivaldo Orlandi | 29 | 1856-pco-retificadora.pdf |
 | Vice-Governador | Renata Cristina Tedesque Bolsonaro | 36 | 1668-agir-executiva.pdf |
 | Vice-Governador | Renata Longatti França | 16 | 598-pstu-convencao.pdf |

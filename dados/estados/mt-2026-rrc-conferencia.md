@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 MT
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `mt-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `mt-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **417** confirmados, **0** divergência(s) de partido, **12** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **417** confirmados, **0** divergência(s) de partido, **14** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -16,7 +16,7 @@ Resumo: **417** confirmados, **0** divergência(s) de partido, **12** candidato(
 | Vice-Governador | 7 | 11 | 0 |
 | Senador | 10 | 11 | 11 |
 | Deputado Federal | 137 | 151 | 139 |
-| Deputado Estadual | 265 | 272 | 261 |
+| Deputado Estadual | 267 | 272 | 261 |
 | Senador (1º suplente) | 10 | 11 | 0 |
 | Senador (2º suplente) | 10 | 12 | 0 |
 
@@ -35,7 +35,9 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Federal | 2577 | DARLAN TRINDADE CARVALHO | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
 | Deputado Federal | 1023 | EDUARDO VICTOR MAGALHÃES | REPUBLICANOS |
 | Deputado Federal | 4545 | DEJAMIR SOUZA SOARES | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
+| Deputado Estadual | 23000 | ALDEMIR OLIVEIRA SANTOS FILHO | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Estadual | 50011 | ANTÔNIO LEONIL DUARTE DA COSTA | FEDERAÇÃO PSOL REDE(PSOL/REDE) |
+| Deputado Estadual | 23333 | VANIA SIMONE NONATO | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Estadual | 45400 | HORACIO GOMES PEREIRA | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Estadual | 11123 | LUCIENE FIRMINIA DE SOUZA MOCELIN | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 | Deputado Estadual | 55022 | LUCIVALDO VIEIRA DE SOUSA | PSD |

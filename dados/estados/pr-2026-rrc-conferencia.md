@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 PR
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `pr-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `pr-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **1056** confirmados, **0** divergência(s) de partido, **26** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **1054** confirmados, **0** divergência(s) de partido, **27** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -14,11 +14,11 @@ Resumo: **1056** confirmados, **0** divergência(s) de partido, **26** candidato
 |---|---|---|---|
 | Governador | 8 | 10 | 10 |
 | Vice-Governador | 8 | 7 | 0 |
-| Senador | 9 | 15 | 15 |
-| Deputado Federal | 425 | 445 | 427 |
+| Senador | 9 | 13 | 13 |
+| Deputado Federal | 426 | 445 | 427 |
 | Deputado Estadual | 615 | 672 | 604 |
-| Senador (1º suplente) | 10 | 12 | 0 |
-| Senador (2º suplente) | 10 | 10 | 0 |
+| Senador (1º suplente) | 10 | 10 | 0 |
+| Senador (2º suplente) | 10 | 9 | 0 |
 
 ## Divergências de partido
 
@@ -38,6 +38,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Federal | 1277 | JOSIAS MILANI | PDT |
 | Deputado Federal | 1800 | MARCOS ANTONIO DE OLIVEIRA SOUZA | FEDERAÇÃO PSOL REDE(PSOL/REDE) |
 | Deputado Federal | 5556 | ELAINE DE FARIA MICHELE SILVA | PSD |
+| Deputado Federal | 4523 | TAUILLO TEZELLI | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Estadual | 23100 | ANTONIO CARLOS LOPES MENDES | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Estadual | 20042 | CINTHIA GONCALVES DA SILVA | PODE |
 | Deputado Estadual | 50888 | GISLENE DO ROCIO PIRES CARVALHO | FEDERAÇÃO PSOL REDE(PSOL/REDE) |
@@ -68,8 +69,8 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Vice-Governador | Rafael Valdomiro Greca De Macedo | 55 | 1529-psd-retificadora.pdf |
 | Vice-Governador | Willian Yukio Araki | 80 | 520-up-convencao.pdf |
 | Vice-Governador | José Carlos Telles | 29 | 1413-pco-convencao.pdf |
-| Senador (1º suplente) | Assis Gurgacz Neto | 131 | 370-pt-pc-do-b-pv-convencao.pdf |
-| Senador (1º suplente) | Cristiane Aparecida Wainer | 132 | 370-pt-pc-do-b-pv-convencao.pdf |
+| Senador (1º suplente) | Assis Gurgacz Neto | 131 | 1370-pt-pc-do-b-pv-executiva.pdf |
+| Senador (1º suplente) | Cristiane Aparecida Wainer | 132 | 1370-pt-pc-do-b-pv-executiva.pdf |
 | Senador (1º suplente) | Jackson André Dos Santos | 555 | 1529-psd-retificadora.pdf |
 | Senador (1º suplente) | João Paulo Hostin | 290 | 1413-pco-convencao.pdf |
 | Senador (1º suplente) | Patrícia Cota | 800 | 520-up-convencao.pdf |

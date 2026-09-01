@@ -1,6 +1,6 @@
 # Conferência contra o RRC oficial — candidatos 2026 RS
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `rs-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `rs-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
@@ -15,7 +15,7 @@ Resumo: **1015** confirmados, **0** divergência(s) de partido, **12** candidato
 | Governador | 7 | 7 | 7 |
 | Vice-Governador | 7 | 9 | 0 |
 | Senador | 13 | 13 | 13 |
-| Deputado Federal | 457 | 473 | 457 |
+| Deputado Federal | 457 | 472 | 457 |
 | Deputado Estadual | 541 | 556 | 538 |
 | Senador (1º suplente) | 13 | 15 | 0 |
 | Senador (2º suplente) | 13 | 18 | 0 |

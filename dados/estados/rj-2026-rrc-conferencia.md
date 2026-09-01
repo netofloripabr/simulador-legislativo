@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 RJ
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `rj-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `rj-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **2013** confirmados, **0** divergência(s) de partido, **22** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **2111** confirmados, **0** divergência(s) de partido, **30** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -15,8 +15,8 @@ Resumo: **2013** confirmados, **0** divergência(s) de partido, **22** candidato
 | Governador | 9 | 10 | 10 |
 | Vice-Governador | 10 | 11 | 0 |
 | Senador | 17 | 21 | 20 |
-| Deputado Federal | 788 | 802 | 798 |
-| Deputado Estadual | 1174 | 1203 | 1185 |
+| Deputado Federal | 789 | 845 | 841 |
+| Deputado Estadual | 1183 | 1259 | 1240 |
 | Senador (1º suplente) | 18 | 16 | 0 |
 | Senador (2º suplente) | 17 | 17 | 0 |
 
@@ -39,13 +39,21 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Federal | 7788 | EDGAR JESUS COSTA | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
 | Deputado Federal | 2019 | ANTONIO CARLOS DE CARVALHO | PODE |
 | Deputado Federal | 1225 | ANTONIO MARCOS RODRIGUES PIRES | PDT |
+| Deputado Federal | 3520 | WILSON CARLOS MARTINS | DEMOCRATA |
+| Deputado Estadual | 12179 | ANNA CRISTINA PINHEIRO NOGUEIRA | PDT |
+| Deputado Estadual | 12011 | ANTONIO REIS DE OLIVEIRA | PDT |
+| Deputado Estadual | 12016 | CARLA ALVES CASTILHO | PDT |
 | Deputado Estadual | 11131 | CARLOS ALBERTO DA COSTA CUNHA | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 | Deputado Estadual | 20055 | DANIEL DO NASCIMENTO | PODE |
+| Deputado Estadual | 12346 | EDSON RIBEIRO MAGALHAES SILVA | PDT |
 | Deputado Estadual | 35700 | ERICA DOS SANTOS FERREIRA PIO | DEMOCRATA |
 | Deputado Estadual | 15800 | FRANCISCO FLORIANO DE SOUSA SILVA | MDB |
 | Deputado Estadual | 35221 | GLAUCIANE MARTINS CAMILO | DEMOCRATA |
+| Deputado Estadual | 12230 | JOAO DIAS JUNIOR | PDT |
+| Deputado Estadual | 77501 | LUCIANO GOES GARCIA | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
 | Deputado Estadual | 77533 | DEISILANE CAMPOS TORRES | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
 | Deputado Estadual | 15766 | ODAIR JOSE DE SOUZA | MDB |
+| Deputado Estadual | 12211 | PEDRO CARLOS MENDES | PDT |
 | Deputado Estadual | 22015 | PRISCILLA PEREIRA BARROS | PL |
 | Deputado Estadual | 20230 | OTACILIO DE SOUSA FILHO | PODE |
 | Deputado Estadual | 15220 | THAIZA CRISTINA ESPERANCA DIAS | MDB |

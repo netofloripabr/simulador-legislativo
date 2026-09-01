@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 PB
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `pb-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `pb-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **415** confirmados, **0** divergência(s) de partido, **13** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **415** confirmados, **0** divergência(s) de partido, **14** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -15,10 +15,10 @@ Resumo: **415** confirmados, **0** divergência(s) de partido, **13** candidato(
 | Governador | 6 | 7 | 7 |
 | Vice-Governador | 6 | 7 | 0 |
 | Senador | 10 | 12 | 12 |
-| Deputado Federal | 188 | 199 | 189 |
+| Deputado Federal | 189 | 199 | 189 |
 | Deputado Estadual | 211 | 217 | 207 |
 | Senador (1º suplente) | 11 | 12 | 0 |
-| Senador (2º suplente) | 12 | 12 | 0 |
+| Senador (2º suplente) | 13 | 12 | 0 |
 
 ## Divergências de partido
 
@@ -30,6 +30,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 
 | Cargo | Número | Nome (RRC) | Coligação/Partido |
 |---|---|---|---|
+| Deputado Federal | 2007 | ALINE DOS SANTOS VALDEVINO | PODE |
 | Deputado Federal | 1217 | ALLANA RODRIGUES CIRILO | PDT |
 | Deputado Federal | 7020 | JOSÉ CRISTIANO DOS SANTOS | AVANTE |
 | Deputado Federal | 2900 | LATIFI ABOU HAIKAL | PCO |

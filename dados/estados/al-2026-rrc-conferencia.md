@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 AL
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `al-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `al-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **250** confirmados, **0** divergência(s) de partido, **8** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **250** confirmados, **0** divergência(s) de partido, **9** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -14,9 +14,9 @@ Resumo: **250** confirmados, **0** divergência(s) de partido, **8** candidato(s
 |---|---|---|---|
 | Governador | 4 | 4 | 4 |
 | Vice-Governador | 4 | 6 | 0 |
-| Senador | 7 | 9 | 8 |
-| Deputado Federal | 111 | 109 | 101 |
-| Deputado Estadual | 139 | 146 | 137 |
+| Senador | 7 | 8 | 7 |
+| Deputado Federal | 113 | 109 | 102 |
+| Deputado Estadual | 140 | 146 | 137 |
 | Senador (1º suplente) | 9 | 10 | 0 |
 | Senador (2º suplente) | 9 | 11 | 0 |
 
@@ -30,9 +30,10 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 
 | Cargo | Número | Nome (RRC) | Coligação/Partido |
 |---|---|---|---|
+| Deputado Federal | 4567 | ALLAN JEFFERSON CORREIA LIMA | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Federal | 4599 | ANA MARIA PEREIRA HORA | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Federal | 4577 | CLAUDIO MOREIRA DA SILVA | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
-| Deputado Federal | 7022 | CARLOS GUSTAVO FERNANDES HOLMES BURITI | AVANTE |
+| Deputado Federal | 7070 | CARLOS GUSTAVO FERNANDES HOLMES BURITI | AVANTE |
 | Deputado Federal | 4566 | IVANA FORTES PEIXOTO TOLEDO | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Federal | 1177 | RILVANIA THIAGO DA SILVA | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 | Deputado Estadual | 45022 | DEBORA EDINEZ FARIAS BISPO | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |

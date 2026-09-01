@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 RN
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `rn-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `rn-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **285** confirmados, **0** divergência(s) de partido, **6** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **283** confirmados, **0** divergência(s) de partido, **8** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -14,8 +14,8 @@ Resumo: **285** confirmados, **0** divergência(s) de partido, **6** candidato(s
 |---|---|---|---|
 | Governador | 9 | 9 | 9 |
 | Vice-Governador | 9 | 11 | 0 |
-| Senador | 14 | 15 | 15 |
-| Deputado Federal | 111 | 114 | 110 |
+| Senador | 14 | 14 | 14 |
+| Deputado Federal | 111 | 114 | 109 |
 | Deputado Estadual | 153 | 154 | 151 |
 | Senador (1º suplente) | 14 | 15 | 0 |
 | Senador (2º suplente) | 15 | 17 | 0 |
@@ -32,8 +32,10 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 |---|---|---|---|
 | Vice-Governador | 13 | LARISSA DANIELA ESCOSSIA ROSADO | TIME QUE CUIDA |
 | Vice-Governador | 50 | LENY MACIEL GRILO | FEDERAÇÃO PSOL REDE(PSOL/REDE) |
+| Deputado Federal | 4508 | ALEXSANDSON SILVA DO NASCIMENTO | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Federal | 7717 | DEBORAH SUELLEN CABRAL DE FREITAS | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
 | Deputado Estadual | 45321 | ANTONIO JUSCICLEITON SILVA | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
+| Deputado Estadual | 45454 | ENGRACIA ALVES DE OLIVEIRA NETA DA SILVA | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Senador (1º suplente) | 800 | ELEIDE CRISTIANA DOS SANTOS | UP |
 | Senador (2º suplente) | 800 | LUCICLEIDE FERREIRA DA SILVA LUCAS | UP |
 

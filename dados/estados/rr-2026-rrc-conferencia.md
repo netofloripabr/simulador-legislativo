@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 RR
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `rr-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `rr-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **401** confirmados, **0** divergência(s) de partido, **8** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **381** confirmados, **0** divergência(s) de partido, **9** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -14,11 +14,11 @@ Resumo: **401** confirmados, **0** divergência(s) de partido, **8** candidato(s
 |---|---|---|---|
 | Governador | 5 | 5 | 5 |
 | Vice-Governador | 5 | 7 | 0 |
-| Senador | 13 | 15 | 15 |
-| Deputado Federal | 106 | 128 | 115 |
-| Deputado Estadual | 243 | 288 | 266 |
-| Senador (1º suplente) | 14 | 21 | 0 |
-| Senador (2º suplente) | 15 | 22 | 0 |
+| Senador | 13 | 14 | 14 |
+| Deputado Federal | 108 | 123 | 111 |
+| Deputado Estadual | 243 | 273 | 251 |
+| Senador (1º suplente) | 14 | 20 | 0 |
+| Senador (2º suplente) | 15 | 21 | 0 |
 
 ## Divergências de partido
 
@@ -32,6 +32,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 |---|---|---|---|
 | Vice-Governador | 10 | SHÉRIDAN  ESTÉRFANY OLIVEIRA RAMOS | RORAIMA SEGUE EM FRENTE |
 | Deputado Federal | 5057 | LARISSA CRISTINA DE SOUZA VIEIRA | FEDERAÇÃO PSOL REDE(PSOL/REDE) |
+| Deputado Federal | 2728 | LENILDO MEDEIROS DO NASCIMENTO | DC |
 | Deputado Federal | 2010 | NILMARA SUELY DA SILVA MELO | PODE |
 | Deputado Federal | 1299 | EVANDRO ARAGAO BRUNO | PDT |
 | Deputado Estadual | 11123 | ADAM HARISSON SILVA DE FRANCA | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |

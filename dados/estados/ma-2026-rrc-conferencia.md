@@ -1,6 +1,6 @@
 # Conferência contra o RRC oficial — candidatos 2026 MA
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `ma-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `ma-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
@@ -15,7 +15,7 @@ Resumo: **577** confirmados, **0** divergência(s) de partido, **9** candidato(s
 | Governador | 8 | 9 | 9 |
 | Vice-Governador | 8 | 6 | 0 |
 | Senador | 11 | 11 | 11 |
-| Deputado Federal | 272 | 283 | 274 |
+| Deputado Federal | 273 | 283 | 274 |
 | Deputado Estadual | 283 | 295 | 283 |
 | Senador (1º suplente) | 11 | 12 | 0 |
 | Senador (2º suplente) | 11 | 11 | 0 |

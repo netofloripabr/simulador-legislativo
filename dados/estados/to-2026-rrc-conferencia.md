@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 TO
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `to-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `to-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **324** confirmados, **0** divergência(s) de partido, **14** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **322** confirmados, **0** divergência(s) de partido, **15** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -15,8 +15,8 @@ Resumo: **324** confirmados, **0** divergência(s) de partido, **14** candidato(
 | Governador | 7 | 7 | 7 |
 | Vice-Governador | 7 | 9 | 0 |
 | Senador | 13 | 14 | 13 |
-| Deputado Federal | 98 | 102 | 98 |
-| Deputado Estadual | 206 | 223 | 206 |
+| Deputado Federal | 98 | 100 | 97 |
+| Deputado Estadual | 207 | 222 | 205 |
 | Senador (1º suplente) | 13 | 14 | 0 |
 | Senador (2º suplente) | 14 | 13 | 0 |
 
@@ -37,6 +37,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Estadual | 25111 | SILVANEY RABELO DA ROCHA | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
 | Deputado Estadual | 30333 | THAISLA AMARO RESPLANDES | NOVO |
 | Deputado Estadual | 45222 | VANI ALBINO DE CASTRO | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
+| Deputado Estadual | 11190 | VIVIANE MAGALHÃES | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 | Senador (1º suplente) | 277 | ADEVAR JUNIOR BRAGA | DC |
 | Senador (1º suplente) | 500 | DAYANA HERMANO SILVA VIEIRA | FEDERAÇÃO PSOL REDE(PSOL/REDE) |
 | Senador (1º suplente) | 100 | SUELISMAR CAETANO FERREIRA | REPUBLICANOS |

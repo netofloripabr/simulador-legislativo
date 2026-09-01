@@ -1,24 +1,24 @@
 # Conferência contra o RRC oficial — candidatos 2026 DF
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `df-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `df-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **192** confirmados, **0** divergência(s) de partido, **10** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **191** confirmados, **0** divergência(s) de partido, **10** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
 | Cargo | No RRC | No nosso arquivo | Confirmados (número+partido batem) |
 |---|---|---|---|
 | Governador | 11 | 13 | 13 |
-| Vice-Governador | 11 | 12 | 0 |
-| Senador | 13 | 17 | 15 |
+| Vice-Governador | 11 | 13 | 0 |
+| Senador | 13 | 16 | 14 |
 | Deputado Federal | 167 | 170 | 164 |
 | Deputado Estadual | 0 | 434 | 0 |
-| Senador (1º suplente) | 13 | 17 | 0 |
-| Senador (2º suplente) | 13 | 16 | 0 |
+| Senador (1º suplente) | 13 | 16 | 0 |
+| Senador (2º suplente) | 14 | 16 | 0 |
 
 ## Divergências de partido
 
@@ -50,7 +50,7 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Vice-Governador | Rafael De Sá Sampaio | 30 | 1166-novo-executiva.pdf |
 | Vice-Governador | Maria Das Dores Gomes Da Silva Santos | 13 | 1988-pt-pc-do-b-pv-executiva.pdf |
 | Vice-Governador | Antonio Ricardo Martins Guillen | 16 | 783-pstu-convencao.pdf |
-| Vice-Governador | Gustavo Do Vale Rocha | 11 | 1997-44-uniao-11-pp-executiva.pdf |
+| Vice-Governador | Gustavo Do Vale Rocha | 11 | 1934-44-uniao-11-pp-retificadora.pdf |
 | Vice-Governador | Everardo Alves Ribeiro | 45 | 2083-psdb-cidadania-executiva.pdf |
 | Vice-Governador | Luiz Carlos Pietschmann | 55 | 1117-psd-executiva.pdf |
 | Vice-Governador | Sofia Martins Carvalho | 40 | 1759-psb-executiva.pdf |

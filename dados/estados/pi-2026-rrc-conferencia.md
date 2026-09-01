@@ -1,23 +1,23 @@
 # Conferência contra o RRC oficial — candidatos 2026 PI
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `pi-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `pi-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **391** confirmados, **13** divergência(s) de partido, **17** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **353** confirmados, **13** divergência(s) de partido, **17** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
 | Cargo | No RRC | No nosso arquivo | Confirmados (número+partido batem) |
 |---|---|---|---|
-| Governador | 11 | 13 | 12 |
+| Governador | 11 | 12 | 11 |
 | Vice-Governador | 11 | 13 | 0 |
-| Senador | 20 | 23 | 21 |
-| Deputado Federal | 164 | 190 | 170 |
-| Deputado Estadual | 151 | 195 | 188 |
-| Senador (1º suplente) | 20 | 25 | 0 |
+| Senador | 20 | 22 | 20 |
+| Deputado Federal | 164 | 180 | 160 |
+| Deputado Estadual | 151 | 169 | 162 |
+| Senador (1º suplente) | 20 | 24 | 0 |
 | Senador (2º suplente) | 20 | 26 | 0 |
 
 ## Divergências de partido (revisar — RRC é mais autoritativo)
@@ -89,7 +89,7 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Senador (1º suplente) | Marília Mendes De Carvalho Bomfim | 300 | 1215-novo-executiva.pdf |
 | Senador (1º suplente) | Glaydston Michel Saldanha Moura Lira | 700 | 1707-avante-retificadora.pdf |
 | Senador (1º suplente) | Raimunda Nonata Belizário | 800 | 672-up-convencao.pdf |
-| Senador (1º suplente) | Raimundo Neto E Silva Nogueira Lima | 111 | 738-44-uniao-11-pp-convencao.pdf |
+| Senador (1º suplente) | Raimundo Neto E Silva Nogueira Lima | 111 | 1043-44-uniao-11-pp-executiva.pdf |
 | Senador (1º suplente) | Stanley Pereira Meireles | 707 | 2034-avante-executiva.pdf |
 | Senador (1º suplente) | Sebastiana Maria Craveiro Da Rocha | 350 | 1017-democrata-retificadora.pdf |
 | Senador (2º suplente) | Alexsandro De Oliveira Pinto | 350 | 1017-democrata-retificadora.pdf |

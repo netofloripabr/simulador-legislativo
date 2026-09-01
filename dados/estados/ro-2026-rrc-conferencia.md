@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 RO
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `ro-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `ro-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **414** confirmados, **0** divergência(s) de partido, **11** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **412** confirmados, **0** divergência(s) de partido, **11** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -14,10 +14,10 @@ Resumo: **414** confirmados, **0** divergência(s) de partido, **11** candidato(
 |---|---|---|---|
 | Governador | 6 | 7 | 7 |
 | Vice-Governador | 6 | 8 | 0 |
-| Senador | 10 | 18 | 16 |
+| Senador | 10 | 16 | 14 |
 | Deputado Federal | 132 | 134 | 130 |
 | Deputado Estadual | 260 | 277 | 261 |
-| Senador (1º suplente) | 10 | 15 | 0 |
+| Senador (1º suplente) | 10 | 14 | 0 |
 | Senador (2º suplente) | 11 | 14 | 0 |
 
 ## Divergências de partido
@@ -60,7 +60,7 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Senador (1º suplente) | Marcelo Lucas Da Silva | 111 | 1505-44-uniao-11-pp-retificadora.pdf |
 | Senador (1º suplente) | Paulo Cesar Pires Andrade | 123 | 465-mdb-retificadora.pdf |
 | Senador (1º suplente) | Sandra Maria Barreto De Moraes | 221 | 1405-pl-executiva.pdf |
-| Senador (1º suplente) | Raimundo Soares Da Costa | 432 | 324-pt-pc-do-b-pv-convencao.pdf |
+| Senador (1º suplente) | Raimundo Soares Da Costa | 432 | 1878-pt-pc-do-b-pv-executiva.pdf |
 | Senador (1º suplente) | Antonio Masioli | 133 | 1878-pt-pc-do-b-pv-executiva.pdf |
 | Senador (2º suplente) | Maria Berenice Alves De Azevedo Da Silva | 400 | 1808-psb-executiva.pdf |
 | Senador (2º suplente) | Edinaldo Gonçalves Cardoso | 221 | 1405-pl-executiva.pdf |

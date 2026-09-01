@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 GO
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `go-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `go-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **858** confirmados, **0** divergência(s) de partido, **24** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **857** confirmados, **0** divergência(s) de partido, **25** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -14,9 +14,9 @@ Resumo: **858** confirmados, **0** divergência(s) de partido, **24** candidato(
 |---|---|---|---|
 | Governador | 6 | 6 | 6 |
 | Vice-Governador | 6 | 9 | 0 |
-| Senador | 11 | 12 | 11 |
-| Deputado Federal | 260 | 266 | 257 |
-| Deputado Estadual | 590 | 613 | 584 |
+| Senador | 11 | 11 | 10 |
+| Deputado Federal | 261 | 266 | 257 |
+| Deputado Estadual | 591 | 613 | 584 |
 | Senador (1º suplente) | 12 | 14 | 0 |
 | Senador (2º suplente) | 11 | 12 | 0 |
 
@@ -46,6 +46,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Estadual | 25145 | MICHELE DINIZ BELTRÃO | FEDERAÇÃO RENOVAÇÃO SOLIDÁRIA(PRD/SOLIDARIEDADE) |
 | Deputado Estadual | 20001 | THUMILLA BATISTA DE CARVALHO | PODE |
 | Deputado Estadual | 13180 | ALANMAIM ROBSON DE ORIAS OLIVEIRA | FEDERAÇÃO BRASIL DA ESPERANÇA - FE BRASIL(PT/PC do B/PV) |
+| Deputado Estadual | 10128 | PATRICIA PEREIRA SANTIAGO | REPUBLICANOS |
 | Deputado Estadual | 45625 | PEDRO HENRIQUE DE OLIVEIRA ARAÚJO | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Estadual | 23200 | ROSA MARIA SILVA DE OLIVEIRA | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Estadual | 13678 | MARIA ROSALINA DA SILVA PAULA | FEDERAÇÃO BRASIL DA ESPERANÇA - FE BRASIL(PT/PC do B/PV) |

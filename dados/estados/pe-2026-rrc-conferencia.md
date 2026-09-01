@@ -1,12 +1,12 @@
 # Conferência contra o RRC oficial — candidatos 2026 PE
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `pe-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `pe-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **912** confirmados, **0** divergência(s) de partido, **29** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **913** confirmados, **0** divergência(s) de partido, **30** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
@@ -15,7 +15,7 @@ Resumo: **912** confirmados, **0** divergência(s) de partido, **29** candidato(
 | Governador | 8 | 9 | 9 |
 | Vice-Governador | 8 | 7 | 0 |
 | Senador | 12 | 12 | 12 |
-| Deputado Federal | 388 | 409 | 391 |
+| Deputado Federal | 390 | 409 | 392 |
 | Deputado Estadual | 517 | 520 | 500 |
 | Senador (1º suplente) | 12 | 12 | 0 |
 | Senador (2º suplente) | 12 | 13 | 0 |
@@ -33,6 +33,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Vice-Governador | 35 | CARLOS ALBERTO DE BRITO JUNIOR | DEMOCRATA |
 | Vice-Governador | 14 | LUCAS XAVIER BEZERRA DOS SANTOS | MISSÃO |
 | Senador | 111 | EDUARDO HENRIQUE DA FONTE DE ALBUQUERQUE SILVA | PERNAMBUCO DE CORAÇÃO |
+| Deputado Federal | 2300 | AGENOR JULIO XAVIER | FEDERAÇÃO PSDB CIDADANIA(PSDB/CIDADANIA) |
 | Deputado Federal | 2210 | JOSÉ CARLOS DE BRITO | PL |
 | Deputado Federal | 4411 | DANIEL PONCELL SANTOS | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 | Deputado Federal | 1244 | JOSÉ WARTON DE BRITO CAVALCANTI | PDT |

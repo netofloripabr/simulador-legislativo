@@ -1,22 +1,22 @@
 # Conferência contra o RRC oficial — candidatos 2026 MG
 
-Gerado em 2026-08-28 por `ferramentas/conferir_rrc.py`. Cruza `mg-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
+Gerado em 2026-09-01 por `ferramentas/conferir_rrc.py`. Cruza `mg-2026-provisorio.js` (baseado em Atas de Convenção) contra o Registro de Candidatura (RRC) oficial do TSE, por número dentro do mesmo cargo.
 
 **RRC é mais autoritativo que ata — mas cobertura é parcial até o fim do prazo de registro (~agosto/2026).** Candidato nosso que ainda não aparece no RRC não é erro, é normal (ainda não se registrou formalmente).
 
 **Este relatório não escreve em `*-provisorio.js` sozinho** — mesmo princípio de `*-conferencia.md`: divergência aqui é para revisão humana.
 
-Resumo: **1733** confirmados, **0** divergência(s) de partido, **71** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
+Resumo: **1731** confirmados, **0** divergência(s) de partido, **76** candidato(s) no RRC sem entrada correspondente no nosso arquivo.
 
 ## Cobertura por cargo
 
 | Cargo | No RRC | No nosso arquivo | Confirmados (número+partido batem) |
 |---|---|---|---|
-| Governador | 11 | 14 | 14 |
+| Governador | 11 | 13 | 13 |
 | Vice-Governador | 11 | 15 | 0 |
-| Senador | 17 | 18 | 18 |
-| Deputado Federal | 753 | 791 | 738 |
-| Deputado Estadual | 994 | 1032 | 963 |
+| Senador | 17 | 19 | 19 |
+| Deputado Federal | 754 | 791 | 738 |
+| Deputado Estadual | 995 | 1032 | 961 |
 | Senador (1º suplente) | 18 | 20 | 0 |
 | Senador (2º suplente) | 18 | 22 | 0 |
 
@@ -41,6 +41,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Federal | 1005 | EMERSON ROCHA DE AZEVEDO | REPUBLICANOS |
 | Deputado Federal | 2700 | DENISE APARECIDA DO NASCIMENTO SILVA | DC |
 | Deputado Federal | 1008 | MARCOS EDUARDO DE ANDRADE | REPUBLICANOS |
+| Deputado Federal | 1130 | ERIKA GUERRIERI BARBOSA | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 | Deputado Federal | 1238 | FABIO LUCIO MACIEL | PDT |
 | Deputado Federal | 1080 | FABIO FERREIRA DURAES | REPUBLICANOS |
 | Deputado Federal | 5554 | FLAMARION EUSTAQUIO SILVA ROLANDO | PSD |
@@ -52,7 +53,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Federal | 7035 | NESTOR RAMOS CUSTODIO | AVANTE |
 | Deputado Federal | 1588 | ADRIANA PAULA PEREIRA | MDB |
 | Deputado Federal | 1060 | REGILAINE ALVES DE CARVALHO | REPUBLICANOS |
-| Deputado Federal | 2008 | RENATA DO COUTO ROSA | PODE |
+| Deputado Federal | 2008 | RENATA DO COUTO ROSA RIBEIRO | PODE |
 | Deputado Federal | 5585 | ROSEMEIRE APARECIDA DOS SANTOS | PSD |
 | Deputado Federal | 1224 | SAMARA COSTA BRAGA | PDT |
 | Deputado Federal | 4456 | JOSILAINE OLIVEIRA MELO PORTO | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
@@ -63,6 +64,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Estadual | 10345 | AMANDA CRISTINA BONTEMPO DE OLIVEIRA | REPUBLICANOS |
 | Deputado Estadual | 12027 | ANYSE TAHAN SAB JÚNIOR | PDT |
 | Deputado Estadual | 11775 | ELIZEU SILVA CORDEIRO | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
+| Deputado Estadual | 12412 | CAMILLO VINICIUS CARVALHO E SILVA | PDT |
 | Deputado Estadual | 15110 | ANA CAROLINA ALMEIDA DAMASCENO | MDB |
 | Deputado Estadual | 10910 | CÉLIO RUELA DA SILVA | REPUBLICANOS |
 | Deputado Estadual | 10011 | CLAUDIA DA CONSOLAÇÃO PINHEIRO SOUSA ALVES E SILVA | REPUBLICANOS |
@@ -84,6 +86,7 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Estadual | 11100 | LUIZA MARIA FERREIRA PINTO | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 | Deputado Estadual | 22231 | MARIA EDUARDA SILVA MÜLLER | PL |
 | Deputado Estadual | 12044 | MARCILIA SILVA NEVES | PDT |
+| Deputado Estadual | 12000 | MÁRCIO MOREIRA VICTOR | PDT |
 | Deputado Estadual | 10024 | MARCOS SARITA | REPUBLICANOS |
 | Deputado Estadual | 10900 | MARISTELA DA CONCEICAO OLIVEIRA | REPUBLICANOS |
 | Deputado Estadual | 10122 | OZEIAS CIPRIANO DA SILVA | REPUBLICANOS |
@@ -97,8 +100,10 @@ Registrado oficialmente mas não achado por número em nenhuma ata processada �
 | Deputado Estadual | 12121 | VERA LÚCIA DE OLIVEIRA | PDT |
 | Deputado Estadual | 55369 | VERA LUCIA RODRIGUES BIAGGINI | PSD |
 | Senador (1º suplente) | 161 | ANDRÉA CARLA FERREIRA DE ASSIS | PSTU |
+| Senador (1º suplente) | 456 | GUSTAVO GALASSI GARGALHONE | CUIDAR DE MINAS  |
 | Senador (1º suplente) | 800 | KAREN GRACIELLA GONÇALVES  WENDT DA SILVA | UP |
 | Senador (1º suplente) | 111 | MARLI APARECIDA DE ARO FERREIRA | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
+| Senador (2º suplente) | 456 | MARCELO HERINGER | CUIDAR DE MINAS  |
 | Senador (2º suplente) | 277 | NOEL GONÇALVES DE OLIVEIRA | DC |
 | Senador (2º suplente) | 111 | LEONARDO JOSÉ RODRIGUES MARTINS | FEDERAÇÃO UNIÃO PROGRESSISTA(UNIÃO/PP) |
 
@@ -130,8 +135,6 @@ Ata não deu número individual (comum em vice/suplente, cujo número no anexo �
 | Senador (1º suplente) | Raquell Guimarães Duarte Pinto | 500 | 1802-psol-rede-executiva.pdf |
 | Senador (1º suplente) | Rita De Cássia Alves Rezende Del Bianco | 277 | 1870-dc-retificadora.pdf |
 | Senador (1º suplente) | Sandro Alberto Cabral De Medeiros | 808 | 77-up-convencao.pdf |
-| Senador (1º suplente) | José De Freitas Cordeiro | 456 | 2069-psdb-cidadania-executiva.pdf |
-| Senador (2º suplente) | Antônio Divino De Souza | 456 | 2069-psdb-cidadania-executiva.pdf |
 | Senador (2º suplente) | Bruno Lopes Pinto | 300 | 1902-novo-executiva.pdf |
 | Senador (2º suplente) | Christino Ramos De Almeida Neto | 808 | 1733-up-executiva.pdf |
 | Senador (2º suplente) | Elson Violante | 800 | 77-up-convencao.pdf |
