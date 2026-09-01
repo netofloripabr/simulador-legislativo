@@ -10893,7 +10893,7 @@ function listaUnificadaRevisao(listaParam, cargo) {
       resultado.push({
         chave: c.chave, nome: nomeExibicao(c), partido: c._partidoExibicao, votos, eleito,
         tag: eleito ? "majoritário" : null,
-        detalhe: eleito ? { posicaoGeral: i + 1, totalVagasCargo } : null,
+        detalhe: (eleito || consistenteComMatematicaReal) ? { posicaoGeral: i + 1, totalVagasCargo } : null,
         gap: eleito ? null : { individual: consistenteComMatematicaReal ? 0 : Math.max(0, votosDoUltimo - votos + 1), partido: null, acrescimo: consistenteComMatematicaReal ? 0 : Math.max(0, votosDoUltimo - votos + 1) },
         marcadoPeloUsuario: eleito, consistenteComMatematicaReal,
       });
@@ -10935,10 +10935,15 @@ function listaUnificadaRevisao(listaParam, cargo) {
           // Real vencedor, mas a pessoa não marcou — vira só um aviso (ver
           // linhaCandidato), nunca reaparece como "eleito" sozinho: gap
           // zerado de propósito, já que pela matemática real essa vaga já
-          // está garantida, só falta a pessoa marcar se concordar.
+          // está garantida, só falta a pessoa marcar se concordar. `detalhe`
+          // calculado do mesmo jeito que pro candidato eleito (mesma
+          // posição real, i+1 dentro dos cadeirasReais) — alimenta a caixa
+          // "como chega nessa conta" do aviso (pedido do usuário 01/09/2026).
+          const cadeiraDoPartido = i + 1;
           resultado.push({
             chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos, eleito: false,
-            tag: null, detalhe: null,
+            tag: null,
+            detalhe: { votosPartido, qe, qp, cadeirasReais, cadeiraDoPartido, mediaConquistada: votosPartido / cadeiraDoPartido, rodadaSobra: rodadaSobraPorPartido[pIdx][cadeiraDoPartido - 1], totalSobrasCargo },
             gap: { individual: 0, partido: 0, acrescimo: 0, votosPartido, temRivalAcima: false },
             marcadoPeloUsuario: false, consistenteComMatematicaReal: true,
           });
@@ -11484,9 +11489,28 @@ function renderRevisaoDeposito() {
             <span style="color:var(--pc-warning); font-size:13px; flex-shrink:0;">${iconeSvg("alerta", 13)}</span>
             <span style="font-size:11.5px; color:var(--pc-warning); line-height:1.5;">${cargoDef.id === "senador"
               ? `A votação de hoje indica que ${c.nome} estaria entre os mais votados (eleição majoritária, voto direto) — mas não está no seu palpite.`
-              : `A matemática real (quociente + sobra) indica que ${c.nome} garantiria vaga com a votação de hoje — mas não está no seu palpite.`}${perdedorAjuste ? ` Pela regra, quem perderia a vaga é <b>${perdedorAjuste.nome}</b> (${perdedorAjuste.partido}).` : ""} Fica valendo sua escolha; isso é só um aviso.</span>
+              : `A matemática real (quociente + sobra) indica que ${c.nome} garantiria vaga com a votação de hoje — mas não está no seu palpite.`}${perdedorAjuste ? ` Pela regra, quem perderia a vaga é <b>${perdedorAjuste.nome}</b> (${perdedorAjuste.partido}).` : ""}</span>
           </div>
-          ${perdedorAjuste ? `<button data-pc-aceitar-ajuste="${escaparAtributoHtml(cargoDef.id + "::" + c.chave + "::" + perdedorAjuste.chave)}" style="margin-top:10px; width:100%; display:flex; align-items:center; justify-content:center; gap:7px; font-size:12px; font-weight:700; border-radius:9px; padding:9px 10px; background:rgba(198,230,42,.14); border:1px solid rgba(198,230,42,.45); color:var(--pc-warning); cursor:pointer; font-family:var(--sans);">Aceitar o ajuste — eleger ${c.nome} no lugar de ${perdedorAjuste.nome}</button>` : ""}
+          ${c.detalhe ? `
+          <div style="margin-top:10px; background:#101214; border:1px solid #23262A; border-radius:10px; padding:9px 11px;">
+            <div style="font-size:9px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#5c6f65; margin-bottom:6px;">Como chega nessa conta</div>
+            ${cargoDef.id === "senador" ? `
+            <div style="display:flex; justify-content:space-between; font-size:11px; padding:2px 0;"><span style="color:var(--pc-ink-dim);">Posição na votação geral</span><span style="font-weight:700; font-variant-numeric:tabular-nums;">${c.detalhe.posicaoGeral}ª de ${c.detalhe.totalVagasCargo} vaga${c.detalhe.totalVagasCargo === 1 ? "" : "s"}</span></div>
+            ` : `
+            <div style="display:flex; justify-content:space-between; font-size:11px; padding:2px 0;"><span style="color:var(--pc-ink-dim);">Votação do ${c.partido}</span><span style="font-weight:700; font-variant-numeric:tabular-nums;">${Math.round(c.detalhe.votosPartido).toLocaleString("pt-BR")}</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; padding:2px 0;"><span style="color:var(--pc-ink-dim);">Quociente eleitoral (QE)</span><span style="font-weight:700; font-variant-numeric:tabular-nums;">÷ ${Math.round(c.detalhe.qe).toLocaleString("pt-BR")}</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; padding:2px 0;"><span style="color:var(--pc-ink-dim);">${c.detalhe.cadeiraDoPartido <= c.detalhe.qp ? "Vaga pelo quociente partidário" : `Sobra — ${c.detalhe.rodadaSobra !== undefined ? c.detalhe.rodadaSobra + "ª" : ""} rodada das médias`}</span><span style="font-weight:700; font-variant-numeric:tabular-nums;">média ${Math.round(c.detalhe.mediaConquistada).toLocaleString("pt-BR")}</span></div>
+            <div style="display:flex; justify-content:space-between; font-size:11px; padding-top:6px; margin-top:4px; border-top:1px solid #23262A;"><span style="font-weight:700;">Vaga do ${c.partido}</span><span style="font-weight:700; color:var(--pc-warning); font-variant-numeric:tabular-nums;">${c.detalhe.cadeiraDoPartido}ª cadeira</span></div>
+            `}
+          </div>` : ""}
+          ${perdedorAjuste ? `
+          <div style="margin-top:10px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <span style="font-size:12px; font-weight:700; color:var(--pc-ink);">Ajustar?</span>
+            <span style="display:flex; gap:8px;">
+              <button type="button" data-pc-aceitar-ajuste="${escaparAtributoHtml(cargoDef.id + "::" + c.chave + "::" + perdedorAjuste.chave)}" title="Sim — eleger ${escaparAtributoHtml(c.nome)} no lugar de ${escaparAtributoHtml(perdedorAjuste.nome)}" style="width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:rgba(198,230,42,.16); border:1px solid rgba(198,230,42,.5); color:var(--pc-warning); cursor:pointer;"><svg viewBox="0 0 16 16" width="15" height="15"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+              <button type="button" data-pc-recusar-ajuste title="Não — manter sua escolha" style="width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.03); border:1px solid #33383d; color:var(--pc-ink-dim); cursor:pointer;"><svg viewBox="0 0 16 16" width="15" height="15"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg></button>
+            </span>
+          </div>` : ""}
         </div>` : `
         ${menuMagico}
         ${legendaFaltam ? `<div style="display:flex; justify-content:space-between; align-items:center; font-size:10px; color:var(--pc-ink-dim); margin-top:8px;">
@@ -11845,9 +11869,22 @@ function renderRevisaoDeposito() {
       perde.marcadoEleito = false;
       ganha.marcadoEleito = true;
       if (pcState.cargoAtivo === cargoId) pcState.palpiteEdicao = lista;
+      // Libera a ordem congelada dos cards de partido (bug achado pelo
+      // usuário 01/09/2026): sem isso, a tela "distribuir votação" ficava
+      // travada na posição de ANTES do ajuste pra sempre — esse é o único
+      // caminho que troca marcadoEleito sem passar por aplicarVagas/
+      // reordenarComTransicao, então precisa liberar a régua na mão.
+      pcState.ordemPartidosFixa = null;
+      pcState.ordemCandidatosFixa = null;
       agendarAutoSaveRascunho(cargoId, lista);
       renderRevisaoDeposito();
     });
+  });
+  // "✗" do mesmo aviso — não faz nada além de existir: recusar o ajuste
+  // é simplesmente não mexer na marcação, o aviso continua aparecendo
+  // até a pessoa marcar por conta própria ou os votos mudarem.
+  document.querySelectorAll("[data-pc-recusar-ajuste]").forEach((btn) => {
+    btn.addEventListener("click", (e) => { e.preventDefault(); });
   });
   document.querySelectorAll("[data-pc-fechar-vaga]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
