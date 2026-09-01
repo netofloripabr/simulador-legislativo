@@ -8985,8 +8985,20 @@ function podarGruposForaDoPool(lista, poolOficial) {
         porNome.get(chaveNome).push(c);
       });
       let teveDuplicata = false;
-      const cands = [...porNome.values()].map((grupo) => {
+      // Número oficial de candidatura (via chave no pool) — quando os DOIS
+      // lados de um "mesmo nome" têm número conhecido e DIFERENTE, não é
+      // duplicata de cadastro, são duas pessoas reais e distintas com nome
+      // igual: não junta nada nesse caso (pedido do usuário 01/09/2026,
+      // lembrando que o número já resolve isso desde a conferência com o
+      // RRC — só faltava esse dado chegar até aqui).
+      const numeroDe = (c) => {
+        const oficialC = c.chave != null ? _oficialPorChave.get(c.chave) : null;
+        return oficialC && oficialC.numero != null ? oficialC.numero : null;
+      };
+      const cands = [...porNome.values()].flatMap((grupo) => {
         if (grupo.length === 1) return grupo[0];
+        const numerosConhecidos = new Set(grupo.map(numeroDe).filter((n) => n != null));
+        if (numerosConhecidos.size > 1) return grupo; // números diferentes = pessoas diferentes, não mexe
         teveDuplicata = true;
         // A IDENTIDADE (chave/id/fonte) vem de quem bate no pool oficial —
         // é o registro que continua valendo daqui pra frente. Mas os

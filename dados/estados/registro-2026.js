@@ -133,6 +133,7 @@ function candidatos2026EstadoCargo(uf, cargoLabel) {
       id: c.id,
       nome: c.nome,
       nomeUrna: c.nomeUrna || "",
+      numero: c.numero != null ? c.numero : null,
       municipio: "",
       votos: c.status ? 0 : (ref2022 ? ref2022.votos : 0),
       fonte: c.fonte || "atas-2026",
