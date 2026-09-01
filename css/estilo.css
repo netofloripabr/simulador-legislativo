@@ -979,6 +979,7 @@
     /* legenda de ícones — idêntica em todo documento */
     #pcImpressaoConteudo .di-chip{ flex-shrink:0; font-size:7px; font-weight:800; background:#1FA83A; color:#fff; border-radius:999px; padding:3px 0; width:46px; text-align:center; letter-spacing:.02em; }
     #pcImpressaoConteudo .di-chip.di-chip-s{ background:none; border:1px solid #C9CCCE; color:#8A9096; }
+    #pcImpressaoConteudo .di-chip.di-chip-em{ background:#8AA300; }
     #pcImpressaoConteudo .di-pchips{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 10px; }
     #pcImpressaoConteudo .di-pchip{ display:inline-flex; align-items:baseline; gap:4px; border:1px solid #DDE0E2; border-radius:999px; padding:3.5px 10px; font-size:8.5px; font-weight:800; color:#111; }
     #pcImpressaoConteudo .di-pchip b{ color:#1FA83A; font-size:10px; font-variant-numeric:tabular-nums; }
@@ -1130,6 +1131,10 @@
   font-size:9.5px; font-weight:800; letter-spacing:.02em;
   padding:3px 7px; line-height:1; min-width:18px; height:18px; box-sizing:border-box;
 }
+/* E-M (eleito pela sobra) diferenciado de E-QP/E — verde-lima do sistema
+   (--pc-warning), pedido do usuário 01/09/2026, pra distinguir de cara
+   quem entrou pelo quociente de quem entrou na disputa de sobra. */
+#modoColaborativoWrap .pc-sen-chip.em{ background:var(--pc-warning); color:#1C2400; }
 /* "i" que explica os badges (E-QP/E-M/E) — mesmo padrão visual do "i" do
    painel de comandos, mas sem depender de estar dentro de .pc-cmd-painel
    (esse botão vive no cabeçalho do Plenário / na dica da lista). */

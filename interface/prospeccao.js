@@ -7982,7 +7982,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
           ? '<span class="pc-sen-chip semvoto" title="Marcado eleito no box, mas ainda sem votação atribuída — arraste a barra ou digite os votos pra apuração contar.">E</span>'
           : (k < qpDireto
             ? '<span class="pc-sen-chip" title="Eleito direto pelo quociente partidário (art. 107)">E-QP</span>'
-            : `<span class="pc-sen-chip" title="Eleito pela sobra (método das médias, art. 109)${rodadaSobraCand !== undefined ? ` — foi a ${rodadaSobraCand}ª sobra distribuída de ${disputa.totalSobrasCargo} no cargo` : ""}">E-M${rodadaSobraCand !== undefined ? ` · ${rodadaSobraCand}ª` : ""}</span>`))
+            : `<span class="pc-sen-chip em" title="Eleito pela sobra (método das médias, art. 109)${rodadaSobraCand !== undefined ? ` — foi a ${rodadaSobraCand}ª sobra distribuída de ${disputa.totalSobrasCargo} no cargo` : ""}">E-M${rodadaSobraCand !== undefined ? ` · ${rodadaSobraCand}ª` : ""}</span>`))
         : (naFila ? `<span class="pc-sen-chip fila" title="Pela vota\u00e7\u00e3o atual este candidato est\u00e1 ganhando a ${k + 1}\u00aa vaga do partido \u2014 marque no box pra confirmar o palpite.">E?</span>` : "");
       // Posição do candidato na lista do partido (pedido do usuário,
       // 24/08/2026) — discreto, só a colocação por votação de hoje.
@@ -10621,8 +10621,9 @@ function montarSecaoImpressaoCargo(cargo, op) {
     if (!aplicaV9) return docIcLetra(l.tipo, 15, "meu");
     if (l.tipo === "S") return '<span class="di-chip di-chip-s">S</span>';
     const rod = rodadaPorChave.get(l.chave);
-    const rotulo = l.tag === "média" ? `E-M${rod !== undefined ? ` · ${rod}ª` : ""}` : "E-QP";
-    return `<span class="di-chip">${rotulo}</span>`;
+    const eM = l.tag === "média";
+    const rotulo = eM ? `E-M${rod !== undefined ? ` · ${rod}ª` : ""}` : "E-QP";
+    return `<span class="di-chip${eM ? " di-chip-em" : ""}">${rotulo}</span>`;
   };
   const linhaHtml = (l, i, ultima) => `
     <div class="di-linha${ultima ? " di-fim" : ""}">
@@ -11422,7 +11423,7 @@ function renderRevisaoDeposito() {
           ? `<span class="pc-sen-chip" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">E</span>`
           : (c.tag === "QP"
             ? `<span class="pc-sen-chip" title="${explicacaoTagTexto(c.tag, c.detalhe)}" style="cursor:help;">E-QP</span>`
-            : `<span class="pc-sen-chip" title="${explicacaoTagTexto(c.tag, c.detalhe)}${c.detalhe && c.detalhe.rodadaSobra !== undefined ? ` (sobra ${c.detalhe.rodadaSobra} de ${c.detalhe.totalSobrasCargo})` : ""}" style="cursor:help;">E-M</span>`);
+            : `<span class="pc-sen-chip em" title="${explicacaoTagTexto(c.tag, c.detalhe)}${c.detalhe && c.detalhe.rodadaSobra !== undefined ? ` (sobra ${c.detalhe.rodadaSobra} de ${c.detalhe.totalSobrasCargo})` : ""}" style="cursor:help;">E-M</span>`);
         return cardCandidato(`
           <div class="pc-sen-l1">
             ${badgeRev}
