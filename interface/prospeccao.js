@@ -10729,7 +10729,7 @@ function montarDocumentoImpresso(cargosParaGerar, op) {
   const dataTxt = agora.toLocaleDateString("pt-BR");
   const horaTxt = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const nomeAutor = op.anonimo ? "" : (pcState.perfil && pcState.perfil.nome) || "";
-  const ordemLabel = ({ crescente: "votos em ordem crescente", decrescente: "votos em ordem decrescente" })[op.ordenacao] || "ordem do palpite";
+  const ordemLabel = ({ crescente: "votos em ordem crescente", decrescente: "votos em ordem decrescente" })[op.ordenacao] || "eleitos primeiro";
   return `
     <div class="di-agua"><span><b>Simula</b>LEGIS</span></div>
     <div class="di-conteudo">
@@ -11713,7 +11713,7 @@ function renderRevisaoDeposito() {
         <select id="pcImprimirPartido" class="di-opt-select" style="display:none;">${opcoesPartidosImpressao()}</select>
         <div class="di-opt-tit">Ordenação</div>
         <div class="pc-cargo-switch di-opt-wrap" style="margin-bottom:10px;">
-          <button data-pc-imprimir-ordem="palpite" class="active">Ordem do palpite</button>
+          <button data-pc-imprimir-ordem="palpite" class="active">Eleitos primeiro</button>
           <button data-pc-imprimir-ordem="crescente">Votos crescente</button>
           <button data-pc-imprimir-ordem="decrescente">Votos decrescente</button>
         </div>
