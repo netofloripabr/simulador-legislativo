@@ -7262,6 +7262,14 @@ function renderListaSenador(totalVagas, E) {
     // candidatos fechar em 100% — decisão do usuário em 17/08/2026 depois
     // de estranhar a soma passar de 100.
     const pctBarra = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
+    // O rótulo de % ACIMA da agulha usa 2E (T, o total de votos da
+    // disputa — 2 votos por eleitor), não E: E é só o teto de UM
+    // candidato (não dá pra um eleitor votar 2x na mesma pessoa), mas a
+    // % que aparece pro usuário precisa bater com o padrão do TSE (fração
+    // do total de votos válidos da disputa, não do teto individual) —
+    // achado do usuário 02/09/2026 comparando com o resultado real de
+    // 2018. Mesma régua T=2E que a barra do cabeçalho já usa.
+    const pctLabel = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
     const linkInsta = linkInstagramDe(c.chave);
     const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 14)}</a>` : "";
     const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
@@ -7283,7 +7291,7 @@ function renderListaSenador(totalVagas, E) {
         <div class="pc-sen-slider" data-sen-idx="${it.idx}">
           <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${Math.min(100, pctBarra)}%"></div></div>
           <div class="pc-sen-votos"></div>
-          <div class="pc-sen-grip-pct" style="left:${Math.min(100, pctBarra)}%">${pctBarra.toFixed(1)}%</div>
+          <div class="pc-sen-grip-pct" style="left:${Math.min(100, pctBarra)}%">${pctLabel.toFixed(1)}%</div>
           <div class="pc-sen-grip" style="left:${Math.min(100, pctBarra)}%"></div>
         </div>
         ${setaFinoHtml("data-pc-seta-sen", String(it.idx), "mais")}
@@ -7325,12 +7333,13 @@ function atualizarCardSenador(idx, E) {
   // Mesma dupla de réguas do render (ver renderListaSenador): barra sobre
   // E (curso do fader), número sobre 2E (régua do cabeçalho).
   const pctBarra = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
+  const pctLabel = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
   card.querySelector(".pc-sen-pct").innerHTML = `<span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span>`;
   card.querySelector(".pc-sen-fill").style.width = Math.min(100, pctBarra) + "%";
   card.querySelector(".pc-sen-grip").style.left = Math.min(100, pctBarra) + "%";
   const gripPct = card.querySelector(".pc-sen-grip-pct");
   gripPct.style.left = Math.min(100, pctBarra) + "%";
-  gripPct.textContent = pctBarra.toFixed(1) + "%";
+  gripPct.textContent = pctLabel.toFixed(1) + "%";
   posicionarVotosSenador(card, c, E);
 }
 
