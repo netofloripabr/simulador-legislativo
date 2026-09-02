@@ -669,7 +669,16 @@ def alimentar(resultado_verificar, saida_dir, uf="SC"):
             "nome": c["nome"],
             "nomeUrna": c["nomeUrna"],
             "numero": c["numero"],
-            "partido": c["partido"],
+            # BUG corrigido em 02/09/2026 (achado real: Boppré, Décio Lima,
+            # Carlos Bolsonaro, Carol De Toni aparecendo "SEM PARTIDO" no
+            # Senado de SC apesar da ata identificar o partido pelo nome do
+            # arquivo): o id já usava esse fallback (base_id, acima) mas o
+            # campo `partido` gravado no .js só olhava c["partido"] (o
+            # texto estruturado do anexo, que pode não ter resolvido) —
+            # nunca caía pra c["partidoDocumento"] como o id já fazia.
+            # Mesma régua do base_partido, sem o placeholder "sem-partido"
+            # (esse só serve pra agrupar/gerar id, não pra virar dado real).
+            "partido": c["partido"] or c["partidoDocumento"],
             "genero": c["genero"],
             "coligado": c["coligado"],
             "confianca": c["confianca"],
