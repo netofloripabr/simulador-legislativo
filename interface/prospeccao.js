@@ -9037,14 +9037,63 @@ function podarGruposForaDoPool(lista, poolOficial) {
       });
       return teveDuplicata ? { ...p, candidatos: cands } : p;
     });
-  if (!podada.length) return lista;
+  // Duplicata ENTRE GRUPOS — mesma CHAVE aparecendo em dois partidos ao
+  // mesmo tempo (achado real 01/09/2026, caso Esperidião Amin: uma cópia
+  // ficou presa em "SEM PARTIDO" — de quando o partido dele ainda não
+  // tinha sido resolvido pela ata — com os votos de verdade, e a ata
+  // resolvida depois criou a cópia oficial em "UNIÃO/PP", zerada, pelo
+  // mesmo motivo do passo "faltantes" acima. A poda por candidato não
+  // pega isso: ela só olha se a chave existe em ALGUM grupo do pool
+  // oficial, nunca se está no grupo CERTO — a chave existe (é oficial),
+  // só que na cópia errada também. Aqui: acha o grupo oficial de cada
+  // chave e, se ela aparecer em outro grupo além do certo, funde os
+  // dados reais (voto, marcação) pra dentro da cópia do grupo certo e
+  // descarta a(s) cópia(s) do(s) grupo(s) errado(s).
+  const grupoOficialPorChave = new Map();
+  poolOficial.forEach((p) => p.candidatos.forEach((c) => {
+    if (c.chave != null) grupoOficialPorChave.set(c.chave, p.nome);
+  }));
+  const porChaveTodosOsGrupos = new Map();
+  podada.forEach((p) => p.candidatos.forEach((c) => {
+    if (c.chave == null) return;
+    if (!porChaveTodosOsGrupos.has(c.chave)) porChaveTodosOsGrupos.set(c.chave, []);
+    porChaveTodosOsGrupos.get(c.chave).push(c);
+  }));
+  const dadosRealPorChave = new Map();
+  porChaveTodosOsGrupos.forEach((ocorrencias, chave) => {
+    if (ocorrencias.length < 2) return;
+    const grupoCerto = grupoOficialPorChave.get(chave);
+    if (!grupoCerto) return; // sem grupo oficial resolvido — não mexe
+    const comDados = [...ocorrencias].sort((a, b) => {
+      const eleitoA = a.marcadoEleito ? 1 : 0, eleitoB = b.marcadoEleito ? 1 : 0;
+      if (eleitoA !== eleitoB) return eleitoB - eleitoA;
+      return (Number(b.votos) || 0) - (Number(a.votos) || 0);
+    })[0];
+    dadosRealPorChave.set(chave, { grupoCerto, votos: comDados.votos, votosEditado: comDados.votosEditado, marcadoEleito: comDados.marcadoEleito });
+  });
+  const podadaEntreGrupos = dadosRealPorChave.size
+    ? podada.map((p) => ({
+        ...p,
+        candidatos: p.candidatos
+          .filter((c) => {
+            const dado = c.chave != null ? dadosRealPorChave.get(c.chave) : null;
+            return !dado || dado.grupoCerto === p.nome; // fora do grupo certo? sai
+          })
+          .map((c) => {
+            const dado = c.chave != null ? dadosRealPorChave.get(c.chave) : null;
+            if (!dado || dado.grupoCerto !== p.nome) return c;
+            return { ...c, votos: dado.votos, votosEditado: dado.votosEditado, marcadoEleito: dado.marcadoEleito };
+          }),
+      }))
+    : podada;
+  if (!podadaEntreGrupos.length) return lista;
   // Sentido inverso da mesma sincronização: grupo que EXISTE no pool mas
   // não no rascunho (ata processada depois do rascunho ser salvo, ou o
   // card "sem ata" criado em 17/08/2026) entra no fim — sem isso, quem já
   // tinha um rascunho nunca via partido novo nenhum até zerar tudo.
-  const nomesNaLista = new Set(podada.map((p) => p.nome));
-  poolOficial.forEach((p) => { if (!nomesNaLista.has(p.nome)) podada.push(p); });
-  return podada;
+  const nomesNaLista = new Set(podadaEntreGrupos.map((p) => p.nome));
+  poolOficial.forEach((p) => { if (!nomesNaLista.has(p.nome)) podadaEntreGrupos.push(p); });
+  return podadaEntreGrupos;
 }
 
 async function garantirPalpiteEdicaoAtivo() {
