@@ -2128,7 +2128,7 @@ function renderAppColaborativo() {
   const semCardGenerico = pcState.subaba === "painel";
   el.innerHTML = `
     ${semCardGenerico ? "" : `
-    <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+    <div class="glass-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0;">
       <div><h2 style="margin:0;">Olá, ${pcState.perfil ? pcState.perfil.nome : "visitante"}</h2>
       <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: chapa completa"}</div></div>
       ${pcState.perfil ? `<button class="pc-mini-btn" id="pcBtnAbrirPerfil" title="Menu">${iconeSvg("perfil", 18)}</button>` : ""}
