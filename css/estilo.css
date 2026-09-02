@@ -2112,6 +2112,14 @@
   box-shadow:inset 0 1.5px 4px rgba(0,0,0,.5), inset 0 -1px 0 rgba(242,244,245,.04);
   margin-bottom:12px;
 }
+/* Achado do usuário 01/09/2026: quando o Farol vem logo antes da barra
+   de abas fixa (#pcStickyHeader), a margem de 12px acima abria um vão
+   com o fundo da página aparecendo entre os dois cartões. Fecha só essa
+   adjacência específica — o farol em outros lugares mantém a margem. */
+#modoColaborativoWrap.pc-tema-fader #pcFarolBloco:has(+ #pcStickyHeader) .pc-farol-barra,
+#modoColaborativoWrap.pc-tema-fader #pcFarolBloco:has(+ #pcStickyHeader) .pc-farol-painel{
+  margin-bottom:0;
+}
 #modoColaborativoWrap.pc-tema-fader .pc-farol-barra{
   display:flex; align-items:center; gap:9px; padding:7px 12px; cursor:pointer;
 }
