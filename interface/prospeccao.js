@@ -9787,6 +9787,12 @@ function attachListenersSelecao() {
         if (novoVal === atual) return;
         p.vagasIndicadas = novoVal;
         recalcularMarcadosDeputados();
+        // Mesma família do bug achado 01/09/2026 (ordem congelada dos cards
+        // — ver "Aceitar o ajuste"): este botão também muda vagasIndicadas
+        // de dois partidos (o que ganha e, quando aplicável, o que perde)
+        // sem passar por aplicarVagas — precisa agendar a reordenação na
+        // mão, senão os cards ficam com a posição de antes pra sempre.
+        agendarReordenacaoSuave(null, 1200);
         agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
         renderCargoEstadual();
         return;
