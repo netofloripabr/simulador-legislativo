@@ -2096,7 +2096,14 @@
    sem precisar abrir nenhum modal pra chegar neles. */
 #modoColaborativoWrap.pc-tema-fader .pc-cab-acoes{
   position:absolute; right:0; top:50%; transform:translateY(-50%);
-  display:flex; gap:5px; margin:0;
+  display:flex; gap:6px; margin:0;
+}
+/* Proporcional à pílula das abas (41px) em vez do mini-btn padrão (26px)
+   — mesma altura visual do outro lado da linha, achado do usuário
+   01/09/2026: matematicamente já centralizava, mas o tamanho pequeno
+   demais lia como desalinhado. */
+#modoColaborativoWrap.pc-tema-fader .pc-cab-acoes .pc-mini-btn.pc-mini-btn-sm{
+  width:32px; height:32px;
 }
 #modoColaborativoWrap.pc-tema-fader .pc-farol-linha1{ display:flex; margin-bottom:6px; }
 #modoColaborativoWrap.pc-tema-fader .pc-farol-barra,
