@@ -8774,7 +8774,6 @@ async function renderSelecaoCandidatos() {
         <div class="pc-cargo-switch">${botoes}</div>
         <span class="pc-cab-acoes">
           <button type="button" id="pcBtnImprimirCabecalho" class="pc-mini-btn pc-mini-btn-sm" title="Imprimir">${iconeSvg("impressora", 12)}</button>
-          <button type="button" id="pcBtnCompartilharCabecalho" class="pc-mini-btn pc-mini-btn-sm" title="Compartilhar">${iconeSvg("compartilhar", 12)}</button>
         </span>
       </div>
       <div id="pcPainelSlot"></div>
@@ -9745,21 +9744,15 @@ function attachListenersSelecao() {
   // console da Seleção não está mais no DOM, não há o que ligar.
   if (!document.getElementById("pcBtnSalvarSelecao")) return;
   const btnImprimirCab = document.getElementById("pcBtnImprimirCabecalho");
+  // Leva pra Revisão com o painel de opções de impressão (cargos/recorte/
+  // ordenação/registrar/anônima) já aberto — pedido do usuário 01/09/2026:
+  // o ícone do cabeçalho imprimia direto num formato fixo, sem deixar
+  // escolher nada. pcState._abrirImpressaoAoEntrar é consumida uma vez
+  // pelo listener de pcBtnImprimir em renderRevisaoDeposito.
   if (btnImprimirCab) btnImprimirCab.addEventListener("click", () => {
-    let container = document.getElementById("pcImpressaoConteudo");
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "pcImpressaoConteudo";
-      document.body.appendChild(container);
-    }
-    container.innerHTML = montarDocumentoImpresso(CARGOS.map((c) => c.id), { recorte: "completa", ordenacao: "palpite", registrar: true });
-    window.print();
-  });
-  const btnCompartilharCab = document.getElementById("pcBtnCompartilharCabecalho");
-  if (btnCompartilharCab) btnCompartilharCab.addEventListener("click", async () => {
-    const texto = `Estou montando meu palpite pro Legislativo 2026 no SimulaLEGIS. Vem palpitar também: ${window.location.origin + window.location.pathname}`;
-    if (navigator.share) { try { await navigator.share({ text: texto }); return; } catch (_) { return; } }
-    try { await navigator.clipboard.writeText(texto); mostrarStatusSalvamento("Link copiado."); } catch (_) { /* sem clipboard, sem toast */ }
+    pcState._abrirImpressaoAoEntrar = true;
+    if (pcState.perfil) { pcState.subaba = "revisao"; renderAppColaborativo(); }
+    else { pcState.tela = "revisao-convidado"; renderColaborativo(); }
   });
   const btnColapsarPlenario = document.getElementById("pcBtnColapsarPlenario");
   if (btnColapsarPlenario) {
@@ -12146,10 +12139,18 @@ function renderRevisaoDeposito() {
     }
     await executarSalvarLista();
   });
-  document.getElementById("pcBtnImprimir").addEventListener("click", (e) => {
+  const btnImprimirRevisao = document.getElementById("pcBtnImprimir");
+  btnImprimirRevisao.addEventListener("click", (e) => {
     document.getElementById("pcImprimirPergunta").style.display = "block";
     e.currentTarget.style.display = "none";
   });
+  // Consome o pedido vindo do ícone de imprimir do cabeçalho (Seleção) —
+  // abre o painel de opções direto, sem precisar de mais um clique.
+  if (pcState._abrirImpressaoAoEntrar) {
+    pcState._abrirImpressaoAoEntrar = false;
+    if (!btnImprimirRevisao.disabled) btnImprimirRevisao.click();
+    else mostrarStatusSalvamento("Salve a lista primeiro pra poder imprimir.");
+  }
   document.getElementById("pcBtnCancelarImpressao").addEventListener("click", () => {
     document.getElementById("pcImprimirPergunta").style.display = "none";
     document.getElementById("pcBtnImprimir").style.display = "";

@@ -2081,7 +2081,7 @@
 @media (prefers-reduced-motion: reduce){
   #modoColaborativoWrap.pc-tema-fader .pc-farol-pontos i.on{ animation:none; }
 }
-#modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas{ position:relative; padding:0 30px; }
+#modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas{ position:relative; padding:14px 30px; }
 #modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas .pc-cargo-switch{ width:fit-content; margin:0 auto; }
 #modoColaborativoWrap.pc-tema-fader .pc-farol-linha-abas .pc-cargo-switch button{ flex:none; padding:9px 12px; }
 @media (max-width:370px){
