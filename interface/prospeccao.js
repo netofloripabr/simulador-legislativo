@@ -8772,6 +8772,10 @@ async function renderSelecaoCandidatos() {
       <div class="pc-farol-linha-abas">
         <span id="pcFarolPontosSlot"></span>
         <div class="pc-cargo-switch">${botoes}</div>
+        <span class="pc-cab-acoes">
+          <button type="button" id="pcBtnImprimirCabecalho" class="pc-mini-btn pc-mini-btn-sm" title="Imprimir">${iconeSvg("impressora", 12)}</button>
+          <button type="button" id="pcBtnCompartilharCabecalho" class="pc-mini-btn pc-mini-btn-sm" title="Compartilhar">${iconeSvg("compartilhar", 12)}</button>
+        </span>
       </div>
       <div id="pcPainelSlot"></div>
       <div id="pcBuscaSlot"></div>
@@ -9740,6 +9744,23 @@ function attachListenersSelecao() {
   // estourava em null (rejeição vista na varredura de 22/08). Se o
   // console da Seleção não está mais no DOM, não há o que ligar.
   if (!document.getElementById("pcBtnSalvarSelecao")) return;
+  const btnImprimirCab = document.getElementById("pcBtnImprimirCabecalho");
+  if (btnImprimirCab) btnImprimirCab.addEventListener("click", () => {
+    let container = document.getElementById("pcImpressaoConteudo");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "pcImpressaoConteudo";
+      document.body.appendChild(container);
+    }
+    container.innerHTML = montarDocumentoImpresso(CARGOS.map((c) => c.id), { recorte: "completa", ordenacao: "palpite", registrar: true });
+    window.print();
+  });
+  const btnCompartilharCab = document.getElementById("pcBtnCompartilharCabecalho");
+  if (btnCompartilharCab) btnCompartilharCab.addEventListener("click", async () => {
+    const texto = `Estou montando meu palpite pro Legislativo 2026 no SimulaLEGIS. Vem palpitar também: ${window.location.origin + window.location.pathname}`;
+    if (navigator.share) { try { await navigator.share({ text: texto }); return; } catch (_) { return; } }
+    try { await navigator.clipboard.writeText(texto); mostrarStatusSalvamento("Link copiado."); } catch (_) { /* sem clipboard, sem toast */ }
+  });
   const btnColapsarPlenario = document.getElementById("pcBtnColapsarPlenario");
   if (btnColapsarPlenario) {
     btnColapsarPlenario.addEventListener("click", () => {

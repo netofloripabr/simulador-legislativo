@@ -2091,6 +2091,13 @@
 #modoColaborativoWrap.pc-tema-fader #pcFarolPontosSlot .pc-farol-pontos{
   position:absolute; left:0; top:50%; transform:translateY(-50%); margin:0;
 }
+/* Ícones de imprimir/compartilhar — espelha os pontinhos "..." do outro
+   lado da mesma linha (pedido do usuário, 01/09/2026): sempre visíveis,
+   sem precisar abrir nenhum modal pra chegar neles. */
+#modoColaborativoWrap.pc-tema-fader .pc-cab-acoes{
+  position:absolute; right:0; top:50%; transform:translateY(-50%);
+  display:flex; gap:5px; margin:0;
+}
 #modoColaborativoWrap.pc-tema-fader .pc-farol-linha1{ display:flex; margin-bottom:6px; }
 #modoColaborativoWrap.pc-tema-fader .pc-farol-barra,
 #modoColaborativoWrap.pc-tema-fader .pc-farol-painel{
