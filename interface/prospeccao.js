@@ -9116,11 +9116,26 @@ async function garantirPalpiteEdicaoAtivo() {
     // rascunhoEhOrfao acima) — nesse caso ele é ignorado e o pool oficial
     // fresco vira o ponto de partida, do mesmo jeito que um rascunho
     // inexistente.
-    const rascunho = pcState.rascunhosCache && pcState.rascunhosCache[pcState.cargoAtivo];
+    // Bug real achado pelo usuário (01/09/2026, mesma família do achado
+    // de 22/08 citado acima, mas caso não coberto por ele): abrirListaParaEdicao
+    // só sela cargoPalpiteEdicao quando existe cargoPendente — uma lista
+    // JÁ COMPLETA (as 3 abas fechadas) nunca sela nada, então trocar de
+    // aba dispara este bloco de novo e SUBSTITUÍA o conteúdo da lista
+    // salva (pcState.palpitesPorCargo, já sincronizado/podado por
+    // abrirListaParaEdicao) pelo rascunho de autosave — que pode estar
+    // desatualizado (é o que trazia o "Esperidião Amin" duplicado de
+    // volta mesmo depois da limpeza rodar). Se já existe a lista salva
+    // pra este cargo, ela é a fonte de verdade — só cai pro autosave
+    // quando não há lista salva carregada pra este cargo.
+    const daListaSalva = pcState.palpitesPorCargo && pcState.palpitesPorCargo[pcState.cargoAtivo];
+    const rascunho = (daListaSalva && daListaSalva.length)
+      ? daListaSalva
+      : (pcState.rascunhosCache && pcState.rascunhosCache[pcState.cargoAtivo]);
     const poolOficial = montarEstadoPalpite("assembleia", null, null, pcState.cargoAtivo, pcState.estado);
     pcState.palpiteEdicao = (rascunho && !rascunhoEhOrfao(rascunho, poolOficial))
       ? podarGruposForaDoPool(rascunho, poolOficial)
       : poolOficial;
+    if (pcState.palpitesPorCargo) pcState.palpitesPorCargo[pcState.cargoAtivo] = pcState.palpiteEdicao;
     pcState.cargoPalpiteEdicao = chaveCargoEstado;
   }
 }
