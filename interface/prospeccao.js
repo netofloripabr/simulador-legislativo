@@ -5004,7 +5004,7 @@ function _poolCandidatosDesafio(cargo) {
 // cadeira a cadeira pela gaveta. Tudo numa tela só, recarregada a cada
 // interação (mesmo padrão do resto do app).
 const DESAFIO_TIPOS = [
-  { id: "eleitos", rotulo: "Eleitos", dica: "Monte o plenário cadeira a cadeira — vence quem acertar a composição." },
+  { id: "eleitos", rotulo: "Eleitos", dica: "Puxa o plenário de uma das suas listas salvas — vence quem acertar a composição." },
   { id: "cargo", rotulo: "Cargo", dica: "Todos os candidatos do cargo — votação completa." },
   { id: "partido", rotulo: "Partido", dica: "Um ou mais partidos inteiros — só a votação deles." },
   { id: "candidato", rotulo: "Candidato", dica: "Nomes escolhidos a dedo — até um único candidato." },
@@ -5160,7 +5160,7 @@ async function _renderCriarDesafioCorpo(conteudo) {
   const okPasso1 = tipo === "cargo" || tipo === "eleitos"
     || (tipo === "partido" && pcState.desafioCriarPartidosSel.size > 0)
     || (tipo === "candidato" && pcState.desafioCriarSelecionados.size > 0);
-  const okPasso2 = tipo === "eleitos" ? preenchidas === vagas : selecionados.length > 0;
+  const okPasso2 = tipo === "eleitos" ? (!!pcState.desafioCriarFonteId && preenchidas === vagas) : selecionados.length > 0;
   const resumoDisputa = `${cargoRotulo} · ${tipoInfo.rotulo}${tipo === "partido" ? ` · <b>${[...pcState.desafioCriarPartidosSel].join(", ")}</b> (${selecionados.length})` : tipo === "candidato" ? ` · <b>${selecionados.length} candidato${selecionados.length === 1 ? "" : "s"}</b>` : tipo === "eleitos" ? ` · <b>${vagas} cadeiras</b>` : ` · <b>${pool.length} candidatos</b>`}`;
 
   const maxVotoSel = Math.max(1, ...selecionados.map((c) => Number(pcState.desafioCriarVotos[c.chave] ?? c.votos) || 0));
@@ -5209,21 +5209,32 @@ async function _renderCriarDesafioCorpo(conteudo) {
     corpo = `
       ${resumoHtml(resumoDisputa, 1)}
 
-      ${minhasListasFonte.length ? `
+      ${tipo === "eleitos" ? "" : (minhasListasFonte.length ? `
       <label class="pc-campo-label">Puxar palpites de</label>
       <select class="cell" id="pcSelFonteDuelo" style="width:100%; margin-bottom:12px;">
         <option value="">Lista em edição (rascunho atual)</option>
         ${minhasListasFonte.map((l) => `<option value="${l.id}" ${pcState.desafioCriarFonteId === l.id ? "selected" : ""}>${escaparAtributoHtml(l.nome)}${l.depositadoEm ? " · depositada" : ""}</option>`).join("")}
-      </select>` : ""}
+      </select>` : "")}
 
       ${tipo === "eleitos" ? `
-        <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px;">
-          <label class="pc-campo-label" style="margin:0;">Seu plenário</label>
-          <span style="font-size:11px; font-weight:800; color:var(--pc-accent); font-variant-numeric:tabular-nums;">${preenchidas}<span style="color:var(--pc-ink-dim); font-weight:600;"> / ${vagas}</span></span>
-        </div>
-        <div class="pc-duelo-progresso"><i style="width:${vagas ? (preenchidas / vagas * 100).toFixed(1) : 0}%;"></i></div>
-        ${_duelaGradeCadeiras(cadeiras, pcState.desafioCriarCadeiraAtiva, "pc-cadeira")}
-        ${_duelaGavetaCadeira(cadeiras, pcState.desafioCriarCadeiraAtiva, pool, pcState.desafioCriarBuscaCadeira, "pc-cadeira")}
+        ${!minhasListasFonte.length ? `
+        <div class="pc-sub" style="text-align:center; padding:18px 10px; margin-bottom:4px;">Você ainda não tem uma lista salva pra usar num duelo de eleitos — duelo de eleitos é sempre sobre uma lista de verdade, não uma composição avulsa.</div>
+        <button type="button" class="primary" id="pcBtnCadastrarListaDuelo" style="width:100%;">Cadastrar lista</button>
+        ` : `
+        <label class="pc-campo-label">Puxar sua lista de eleitos de</label>
+        <select class="cell" id="pcSelFonteDuelo" style="width:100%; margin-bottom:12px;">
+          <option value="">Selecione uma lista salva…</option>
+          ${minhasListasFonte.map((l) => `<option value="${l.id}" ${pcState.desafioCriarFonteId === l.id ? "selected" : ""}>${escaparAtributoHtml(l.nome)}${l.depositadoEm ? " · depositada" : ""}</option>`).join("")}
+        </select>
+        ${pcState.desafioCriarFonteId ? `
+        <div class="pc-duelo-resumo-fonte${preenchidas === vagas ? " ok" : " faltando"}" style="background:#101214; border:1px solid ${preenchidas === vagas ? "rgba(52,232,74,.4)" : "rgba(198,230,42,.4)"}; border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;">
+            <span style="font-size:13px; font-weight:800;">${escaparAtributoHtml(minhasListasFonte.find((l) => l.id === pcState.desafioCriarFonteId)?.nome || "")}</span>
+            <span style="font-size:12px; font-weight:800; font-variant-numeric:tabular-nums; color:${preenchidas === vagas ? "var(--pc-accent)" : "var(--pc-warning)"};">${preenchidas} / ${vagas} cadeiras</span>
+          </div>
+          <div class="pc-sub" style="margin-top:4px;">${preenchidas === vagas ? "Plenário completo — pronta pra duelar." : `Faltam ${vagas - preenchidas} cadeiras nessa lista pra ${cargoRotulo} — complete antes, ou escolha outra.`}</div>
+        </div>` : `<div class="pc-sub" style="margin:2px 2px 14px;">Escolha uma lista salva pra puxar o plenário.</div>`}
+        `}
       ` : `
         <label class="pc-campo-label">Seus votos indicados</label>
         <div class="pc-duelo-colcab"><span class="cand">Candidato</span><span class="rival">2022</span><span class="voce" style="width:118px;">Você</span></div>
@@ -5364,6 +5375,11 @@ async function _renderCriarDesafioCorpo(conteudo) {
   }));
 
   // --- Passo 2 ---
+  const btnCadastrarListaDuelo = document.getElementById("pcBtnCadastrarListaDuelo");
+  if (btnCadastrarListaDuelo) btnCadastrarListaDuelo.addEventListener("click", () => {
+    pcState.subaba = "selecao";
+    renderAppColaborativo();
+  });
   const selFonte = document.getElementById("pcSelFonteDuelo");
   if (selFonte) selFonte.addEventListener("change", async () => {
     const id = selFonte.value || null;
