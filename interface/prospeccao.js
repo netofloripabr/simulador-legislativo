@@ -10765,7 +10765,13 @@ function montarSecaoImpressaoCargo(cargo, op) {
   const cargoInfo = CARGOS.find((c) => c.id === cargo);
   const lista = pcState.palpitesPorCargo[cargo];
   const eleitos = classificarEleitosPorPartido(lista, cargo);
-  const suplentes = proximosSuplentes(30, lista);
+  // Sem teto: "Lista completa" (e "Candidatas", que filtra em cima desta
+  // mesma base) precisam de TODOS os não-eleitos, não só os 30 mais
+  // votados — o corte em 30 aqui era o bug relatado pelo usuário
+  // (03/09/2026): cargos com mais de 30 suplentes (ex.: Dep. Estadual)
+  // imprimiam incompletos mesmo escolhendo "Lista completa". Continua
+  // existindo um limite de exibição só pra "Top 10", aplicado depois.
+  const suplentes = proximosSuplentes(Infinity, lista);
   const generoPorChave = new Map();
   (lista || []).forEach((p) => (p.candidatos || []).forEach((c) => generoPorChave.set(c.chave, c.genero || "")));
 
