@@ -93,6 +93,8 @@ let pcState = {
   avisoLimiteGrupoAberto: false, // aviso ao tentar criar 2º grupo sem saldo (10 créditos)
   avisoLimiteCedulaAberto: false, // aviso ao tentar depositar 2ª cédula sem saldo (70 créditos)
   linksCandidatosCache: {}, // "estado::cargo" -> { chave: instagram }, ver garantirLinksCandidatos
+  financeiroCandidatosCache: {}, // "estado::cargo" -> { chave: {tseId,bens,recebido} }, ver garantirLinksCandidatos
+  financeiroAbertoChave: null, // chave do candidato com o painel de bens/recursos aberto (só um por vez), ou null
   modalInstagramInfo: null, // { chave, nome, valorAtual } do candidato com o modal de editar Instagram aberto (só admin), ou null
   legendaComandosAberta: false, // painel único de legenda do painel de comandos da Seleção (o "i" no fim da linha de ícones)
   legendaBadgeAberta: false, // "i" que explica os badges E-QP/E-M/E na lista de candidatos (protótipo aprovado 28/08/2026)
@@ -213,6 +215,7 @@ const PC_ICONES = {
   buscar: '<circle cx="6.8" cy="6.8" r="4" fill="none" stroke="currentColor" stroke-width="1.3"></circle><path d="M9.7 9.7l3.5 3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path>',
   salvar: '<path d="M3 2.8h8.2l2 2v8.4H3V2.8z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M5 2.8v3.6h4.6V2.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path><rect x="4.8" y="9" width="6.4" height="4.2" fill="none" stroke="currentColor" stroke-width="1.2"></rect>',
   instagram: '<rect x="2" y="2" width="12" height="12" rx="3.6" fill="none" stroke="currentColor" stroke-width="1.3"></rect><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.3"></circle><circle cx="11.5" cy="4.5" r=".9" fill="currentColor"></circle>',
+  externo: '<path d="M6.3 9.7L13 3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path><path d="M9 3h4v4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M11.3 8.6v3.4a1 1 0 01-1 1H3.7a1 1 0 01-1-1V4.7a1 1 0 011-1h3.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path>',
   // Moeda SL (desenho fechado com o usuário em 24/08/2026): a haste sai por
   // cima do S, volta por baixo e dobra pra direita virando o pé do L — de
   // longe lê "dinheiro", de perto lê o monograma SL. Substituiu o alvo
@@ -7288,6 +7291,7 @@ function renderListaSenador(totalVagas, E) {
     const pctLabel = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
     const linkInsta = linkInstagramDe(c.chave);
     const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 14)}</a>` : "";
+    const { icone: iconeFinanceiro, painel: painelFinanceiro } = financeiroIconeHtml(c);
     const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
     // Majoritário (Senador) não tem quociente partidário nem sobra — só
     // "E" (eleito = mais votado), sem sufixo QP/M (esses só existem em
@@ -7297,10 +7301,11 @@ function renderListaSenador(totalVagas, E) {
     <div class="pc-sen-card${eleito ? " eleito" : ""}${c.votosEditado ? " manual" : ""}" data-sen-idx="${it.idx}">
       <div class="pc-sen-l1">
         ${badge}
-        <span class="pc-sen-nm"><span class="pc-sen-nm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
+        <span class="pc-sen-nm"><span class="pc-sen-nm-txt">${nomeExibicao(c)}</span>${instaDepois}${iconeFinanceiro}${lapisAdmin}</span>
         <span class="pc-sen-pct" data-pc-sen-editar="${it.idx}"><span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
       </div>
       <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
+      ${painelFinanceiro}
       ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
       <div class="pc-fader-linha">
         ${setaFinoHtml("data-pc-seta-sen", String(it.idx), "menos")}
@@ -8021,6 +8026,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       // Ícone do Instagram MONOCROMÁTICO à DIREITA do nome (refino 20/08) —
       // só aparece pra quem tem link alimentado na planilha/admin.
       const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 16)}</a>` : "";
+      const { icone: iconeFinanceiro, painel: painelFinanceiro } = financeiroIconeHtml(c);
       const lapisAdmin = pcState.souAdmin ? ` <button type="button" class="pc-mini-btn pc-mini-btn-sm" data-pc-editar-instagram="${c.chave}" data-pc-editar-instagram-nome="${escaparAtributoHtml(nomeExibicao(c))}" title="${linkInsta ? "Editar" : "Adicionar"} link do Instagram">${iconeSvg("editar", 11)}</button>` : "";
       if (c.status) {
         // Célula CONGELADA: etiqueta branca, linha transparente, barra
@@ -8032,7 +8038,7 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <div class="pc-dep-cl1">
           ${posicao}
           <span class="pc-sen-chip statusbranco">${st.etiqueta}</span>
-          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${financeiroIconeHtml(c).icone}${lapisAdmin}</span>
           <span class="pc-dep-cpct">—</span>
         </div>
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
@@ -8048,9 +8054,10 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <div class="pc-dep-cl1">
           ${posicao}
           ${selo}
-          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${lapisAdmin}</span>
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${iconeFinanceiro}${lapisAdmin}</span>
           <span class="pc-dep-cpct" data-pc-dep-editar="${escaparAtributoHtml(c.chave)}"><span class="valNum">${cv.toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
         </div>
+        ${painelFinanceiro}
         ${naFila ? `<div class="pc-dep-fila-tag">ganhando a ${k + 1}\u00aa vaga pela vota\u00e7\u00e3o \u2014 marque pra confirmar</div>` : ""}
         ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
@@ -9175,8 +9182,34 @@ async function garantirPalpiteEdicaoAtivo() {
 // renderizam a tela inteira o tempo todo, ver renderCargoEstadual).
 async function garantirLinksCandidatos() {
   const chaveCache = `${pcState.estado}::${pcState.cargoAtivo}`;
-  if (pcState.linksCandidatosCache[chaveCache]) return;
-  pcState.linksCandidatosCache[chaveCache] = await obterLinksCandidatos(pcState.estado, pcState.cargoAtivo);
+  if (!pcState.linksCandidatosCache[chaveCache]) {
+    pcState.linksCandidatosCache[chaveCache] = await obterLinksCandidatos(pcState.estado, pcState.cargoAtivo);
+  }
+  if (!pcState.financeiroCandidatosCache) pcState.financeiroCandidatosCache = {};
+  if (!pcState.financeiroCandidatosCache[chaveCache]) {
+    pcState.financeiroCandidatosCache[chaveCache] = await obterFinanceiroCandidatos(pcState.estado, pcState.cargoAtivo);
+  }
+}
+
+// Ícone de moeda (bens/recursos financeiros, dados do TSE) + painel que
+// abre embaixo do nome — mesmo padrão visual/posição do .pc-insta-mini,
+// ver DESIGN.md. Só aparece quando o candidato tem tse_id importado
+// (ferramentas/importar_financeiro.py); "Ver detalhes no TSE" sempre linka
+// mesmo se bens/recebido vierem em branco (dado não declarado ainda).
+function financeiroIconeHtml(c) {
+  const fin = financeiroDe(c.chave);
+  if (!fin) return { icone: "", painel: "" };
+  const aberto = pcState.financeiroAbertoChave === c.chave;
+  const icone = `<span class="pc-financeiro-mini${aberto ? " aberto" : ""}" data-pc-toggle-financeiro="${c.chave}" title="Bens e recursos declarados" onclick="event.stopPropagation()">${iconeSvg("credito", 14)}</span>`;
+  if (!aberto) return { icone, painel: "" };
+  const fmtMoeda = (v) => v == null ? "não declarado" : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const painel = `
+      <div class="pc-financeiro-painel" onclick="event.stopPropagation()">
+        <div class="pc-financeiro-linha"><span class="k">Total em bens</span><span class="v">${fmtMoeda(fin.bens)}</span></div>
+        <div class="pc-financeiro-linha"><span class="k">Recursos recebidos (campanha)</span><span class="v">${fmtMoeda(fin.recebido)}</span></div>
+        <a class="pc-financeiro-link" href="${escaparAtributoHtml(linkTseDoCandidato(fin.tseId))}" target="_blank" rel="noopener noreferrer">Ver detalhes no TSE ${iconeSvg("externo", 11)}</a>
+      </div>`;
+  return { icone, painel };
 }
 
 // Instagram de UM candidato, já carregado pra pcState.estado/cargoAtivo
@@ -9184,6 +9217,14 @@ async function garantirLinksCandidatos() {
 // precise disso) — null quando não tem link cadastrado.
 function linkInstagramDe(chave) {
   const mapa = pcState.linksCandidatosCache[`${pcState.estado}::${pcState.cargoAtivo}`];
+  return (mapa && mapa[chave]) || null;
+}
+
+// Dados financeiros (bens/recursos recebidos, TSE) de UM candidato, mesmo
+// cache-por-estado+cargo do Instagram — null quando não tem tse_id
+// importado (candidato ainda não homologado na base oficial do TSE).
+function financeiroDe(chave) {
+  const mapa = pcState.financeiroCandidatosCache && pcState.financeiroCandidatosCache[`${pcState.estado}::${pcState.cargoAtivo}`];
   return (mapa && mapa[chave]) || null;
 }
 
@@ -10443,6 +10484,15 @@ function attachListenersSelecao() {
   if (pcState.modalInstagramInfo) {
     attachListenersModalInstagram(renderCargoEstadual);
   }
+  // Ícone de moeda — abre/fecha o painel de bens e recursos do candidato
+  // (só um aberto por vez, clicar de novo no mesmo fecha).
+  document.querySelectorAll("[data-pc-toggle-financeiro]").forEach((el) => {
+    el.addEventListener("click", () => {
+      const chave = el.dataset.pcToggleFinanceiro;
+      pcState.financeiroAbertoChave = pcState.financeiroAbertoChave === chave ? null : chave;
+      renderCargoEstadual();
+    });
+  });
 }
 
 // ---------- Revisão + cerimônia de depósito da cédula ----------

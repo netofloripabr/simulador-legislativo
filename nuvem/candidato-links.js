@@ -18,6 +18,33 @@ async function obterLinksCandidatos(estado, cargo) {
   return mapa;
 }
 
+// Dados financeiros (bens/recursos recebidos, TSE) importados em lote pelo
+// endpoint público divulgacandcontas.tse.jus.br — ver dados/estados/*.js
+// para os candidatos e ferramentas de importação (não há RPC de escrita
+// aqui, é só leitura; o preenchimento é manual/administrativo via SQL).
+// Devolve { [chave]: { tseId, bens, recebido } }, só com quem TEM tse_id.
+async function obterFinanceiroCandidatos(estado, cargo) {
+  const { data, error } = await supabaseClient
+    .from("candidato_links")
+    .select("chave, tse_id, total_de_bens, total_recebido")
+    .eq("estado", estado)
+    .eq("cargo", cargo)
+    .not("tse_id", "is", null);
+  if (error) { console.error("Erro ao carregar dados financeiros:", error); return {}; }
+  const mapa = {};
+  (data || []).forEach((linha) => {
+    mapa[linha.chave] = { tseId: linha.tse_id, bens: linha.total_de_bens, recebido: linha.total_recebido };
+  });
+  return mapa;
+}
+
+// Monta a URL pública da página do candidato no TSE a partir do id interno
+// (tse_id). SC está sempre na região SUL e na eleição 20322002026 (2026) —
+// mesmo padrão usado para todos os cargos do estado.
+function linkTseDoCandidato(tseId) {
+  return `https://divulgacandcontas.tse.jus.br/divulga/#/candidato/SUL/SC/20322002026/${tseId}/2026/SC`;
+}
+
 // instagram vazio/null apaga o link (a função no banco trata string vazia
 // como null, ver nullif(trim(...), '') na migração).
 async function definirLinkCandidato(estado, cargo, chave, instagram) {

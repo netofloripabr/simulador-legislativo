@@ -1919,6 +1919,30 @@
 #modoColaborativoWrap .pc-dep-cl1{ gap:9px; }
 #modoColaborativoWrap .pc-sen-l1{ gap:10px; }
 
+/* Ícone de moeda (bens/recursos, dados do TSE) — mesmo padrão visual e de
+   posição do .pc-insta-mini acima, ao lado dele. Painel abre embaixo do
+   nome, dentro do card, ver financeiroIconeHtml em interface/prospeccao.js. */
+#modoColaborativoWrap .pc-financeiro-mini{
+  display:inline-flex; flex:none; color:#8A9096; align-items:center;
+  margin-left:2px; vertical-align:middle; position:relative; top:-2px; cursor:pointer;
+}
+#modoColaborativoWrap .pc-financeiro-mini:hover,
+#modoColaborativoWrap .pc-financeiro-mini.aberto{ color:var(--pc-accent, #34E84A); }
+#modoColaborativoWrap .pc-financeiro-painel{
+  margin-top:8px; background:#101214; border:1px solid #2C3239; border-radius:10px;
+  padding:11px 13px;
+}
+#modoColaborativoWrap .pc-financeiro-linha{
+  display:flex; justify-content:space-between; align-items:baseline; font-size:12px; padding:3px 0;
+}
+#modoColaborativoWrap .pc-financeiro-linha .k{ color:#8A9096; }
+#modoColaborativoWrap .pc-financeiro-linha .v{ font-weight:800; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-financeiro-link{
+  display:flex; align-items:center; gap:5px; margin-top:8px; padding-top:8px;
+  border-top:1px solid #23262A; font-size:11px; font-weight:700;
+  color:var(--pc-accent, #34E84A); text-decoration:none;
+}
+
 /* ===== Tema Fader — cobertura global (18/08/2026 madrugada) =====
    Expansão do tema pra fora da tela de palpite: botões primary/ghost
    (usados em toda tela — capa, login, confirmações), estados hover que
