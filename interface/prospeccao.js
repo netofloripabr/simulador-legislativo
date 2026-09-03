@@ -4859,11 +4859,9 @@ async function _renderDesafiosHubCorpo(conteudo) {
       </div>
       ${dueloAberto ? `
       <div class="pc-duelo-acoes">
-        <button class="primary" data-pc-duelo-cartao="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" data-pc-duelo-cargo="${d.cargo}" data-pc-duelo-ncand="${(d.escopo_candidatos || []).length}" data-pc-duelo-uf="${d.estado}" style="flex:1; font-size:12px;">Enviar o convite</button>
-        <button class="ghost" data-pc-duelo-whats="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" style="flex:1; font-size:12px;">Só texto</button>
-        <button class="ghost" data-pc-duelo-copiar="${d.codigo}" style="flex:1; font-size:12px;">Copiar link</button>
-      </div>` : ""}
-      <div class="pc-duelo-acoes"><button class="ghost" data-pc-cancelar="${d.id}" style="font-size:11.5px; padding:8px 12px;">Cancelar${d.custo_sl ? ` e recuperar ${d.custo_sl} SL` : ""}</button></div>` : ""}
+        <button class="primary" data-pc-duelo-cartao="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" data-pc-duelo-cargo="${d.cargo}" data-pc-duelo-ncand="${(d.escopo_candidatos || []).length}" data-pc-duelo-uf="${d.estado}" title="Enviar o convite" style="flex:1; display:flex; align-items:center; justify-content:center; padding:9px;">${iconeSvg("compartilhar", 15)}</button>
+        <button class="ghost" data-pc-cancelar="${d.id}" title="Cancelar${d.custo_sl ? ` e recuperar ${d.custo_sl} SL` : ""}" style="font-size:16px; line-height:1; padding:9px 12px;">×</button>
+      </div>` : ""}` : ""}
       ${(d.status === "selado" || d.status === "apuracao") ? `<div class="pc-duelo-rodape"><span>selado em ${new Date(d.respondido_em || d.criado_em).toLocaleDateString("pt-BR")}</span><span>${d.estado}</span></div>` : ""}
       ${["selado", "apuracao", "encerrado"].includes(d.status) ? `<div class="pc-duelo-acoes"><button class="ghost" data-pc-comparar="${d.id}" style="flex:1; font-size:11.5px;">Ver comparação</button></div>` : ""}
     </div>`;
@@ -4955,20 +4953,6 @@ async function _renderDesafiosHubCorpo(conteudo) {
     // texto+link no clipboard pra colar junto.
     _baixarImagemCedula(dataUrl, "convite-duelo.png");
     try { await navigator.clipboard.writeText(texto); } catch (_) {}
-  }));
-  document.querySelectorAll("[data-pc-duelo-whats]").forEach((btn) => btn.addEventListener("click", () => {
-    const nomeDuelo = btn.getAttribute("data-pc-duelo-nome");
-    const texto = `Bora pro x1? Este é o meu palpite eleitoral legislativo 2026. Tem coragem de encarar?: "${nomeDuelo}". ${_linkDuelo(btn.getAttribute("data-pc-duelo-whats"))}`;
-    window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank", "noopener");
-  }));
-  document.querySelectorAll("[data-pc-duelo-copiar]").forEach((btn) => btn.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(_linkDuelo(btn.getAttribute("data-pc-duelo-copiar")));
-      btn.textContent = "Link copiado!";
-      setTimeout(() => { btn.textContent = "Copiar link"; }, 1800);
-    } catch (e) {
-      document.getElementById("pcDesafiosStatus").textContent = "Não consegui copiar — segure o link e copie: " + _linkDuelo(btn.getAttribute("data-pc-duelo-copiar"));
-    }
   }));
 }
 
