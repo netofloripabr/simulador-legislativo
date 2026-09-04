@@ -70,6 +70,21 @@ Ao adicionar uma função nova, pare e pergunte: isso é fato (dados), regra
    suba o número `cb=` de TODAS as tags juntas (são um contador único
    compartilhado, não um por arquivo) antes de considerar a mudança pronta.
 
+## Migrações do Supabase (controle desde 04/09/2026)
+
+- Cada mudança de banco continua sendo um arquivo `nuvem/migracao-N-*.sql`
+  (numeração sequencial, comentário no topo explicando o porquê).
+- Aplicar pelo MCP do Supabase (`apply_migration`, que registra em
+  `supabase_migrations`) — não mais "colar no SQL Editor" sem registro.
+- Depois de criar o arquivo, rodar `python3 ferramentas/gerar_indice_migracoes.py`
+  (regera `nuvem/migracoes-index.js`) e subir o `?cb=` do `index.html`.
+- A aba **Rotinas** do painel admin mostra "Migrações: X/Y aplicadas" e o
+  que falta — o status vem do banco (função `admin_migracoes_status`
+  confere se cada objeto existe), não de marcação manual. Se uma migração
+  aparecer pendente ali, é porque um objeto dela não existe de verdade.
+- Migração que só faz UPDATE/INSERT/DROP não tem objeto verificável e
+  aparece como "sem verificação" (hoje só a 3).
+
 ## Visão de produto e roteiro
 
 Veja `PROJETO.md` para a visão completa (tipos de usuário, objetivos, modelo

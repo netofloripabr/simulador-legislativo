@@ -2748,8 +2748,53 @@ const ROTINAS_CONHECIDAS = [
   },
 ];
 
+// Bloco "Migrações" da aba Rotinas (migração 43, 04/09/2026): o status
+// vem do banco — admin_migracoes_status() confere se cada objeto que a
+// migração cria existe de verdade. Substitui o "a migração 36 já rodou?"
+// que o painel chutava. Nunca bloqueia nada: é diagnóstico.
+function montarBlocoMigracoes(status) {
+  const indice = typeof MIGRACOES_INDEX === "undefined" ? [] : MIGRACOES_INDEX;
+  if (!indice.length) return "";
+  if (!status) return `<div class="pc-sub" style="margin-bottom:14px;">Não consegui conferir as migrações — a migração 43 (admin_migracoes_status) já foi aplicada?</div>`;
+  // `s.num` aqui é a POSIÇÃO no índice (ver adminMigracoesStatus) — números
+  // de migração se repetem no histórico (21–24 têm dois arquivos cada).
+  const porPos = {};
+  status.forEach((s) => { porPos[s.num] = s; });
+  const linhas = indice.map((m, i) => {
+    const s = porPos[i];
+    const semVerificacao = !m.objetos.length;
+    const pendente = s && s.existem < s.total;
+    return { m, s, semVerificacao, pendente };
+  });
+  const verificaveis = linhas.filter((l) => !l.semVerificacao);
+  const aplicadas = verificaveis.filter((l) => l.s && !l.pendente).length;
+  const pendentes = linhas.filter((l) => l.pendente);
+  const resumoCor = pendentes.length ? "var(--pc-danger)" : "var(--pc-accent)";
+  const detalhePendentes = pendentes.map((l) => `
+    <div class="pc-lobby-linha" style="align-items:flex-start;">
+      <span style="min-width:0;">
+        <div style="font-size:12.5px; font-weight:700;">${l.m.num} · ${escaparAtributoHtml(l.m.arquivo)}</div>
+        <div style="font-size:10.5px; color:var(--pc-ink-dim); margin-top:3px; line-height:1.5; word-break:break-word;">falta: ${l.s.faltando.map(escaparAtributoHtml).join(", ")}</div>
+      </span>
+      <span style="font-size:11px; color:var(--pc-danger); flex-shrink:0;">${l.s.existem}/${l.s.total}</span>
+    </div>`).join("");
+  const semVerif = linhas.filter((l) => l.semVerificacao).map((l) => `${l.m.num}`).join(", ");
+  return `
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Migrações do banco</div>
+    <div class="pc-lobby-card" style="margin-bottom:18px;">
+      <div class="pc-lobby-linha" style="align-items:center;">
+        <span style="min-width:0;">
+          <div style="font-size:12.5px; font-weight:700;">${aplicadas} de ${verificaveis.length} aplicadas</div>
+          <div style="font-size:10.5px; color:var(--pc-ink-faint); margin-top:3px; line-height:1.5;">Conferido agora no banco, objeto por objeto (nuvem/migracoes-index.js).${semVerif ? ` Sem verificação possível: ${semVerif}.` : ""}</div>
+        </span>
+        <span style="font-size:13px; font-weight:800; color:${resumoCor}; flex-shrink:0;">${pendentes.length ? `${pendentes.length} pendente${pendentes.length === 1 ? "" : "s"}` : "✓ tudo aplicado"}</span>
+      </div>
+      ${detalhePendentes}
+    </div>`;
+}
+
 async function montarAdminRotinas() {
-  const execucoes = await adminListarExecucoesRotina();
+  const [execucoes, statusMigracoes] = await Promise.all([adminListarExecucoesRotina(), adminMigracoesStatus()]);
   const ultimaPorRotina = {};
   execucoes.forEach((e) => { if (!ultimaPorRotina[e.rotina]) ultimaPorRotina[e.rotina] = e; }); // já vem ordenado desc
 
@@ -2780,6 +2825,7 @@ async function montarAdminRotinas() {
       </div>`).join("")}</div>`;
 
   return `
+    ${montarBlocoMigracoes(statusMigracoes)}
     <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Rotinas conhecidas</div>
     ${catalogoHtml}
     <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Histórico de execuções</div>
@@ -10516,6 +10562,9 @@ function classificarEleitosPorPartido(listaParam, cargo) {
   const totalValidos = lista.reduce((s, p) => s + partyVotos(p), 0);
   const qe = quocienteEleitoral(totalValidos, totalVagasCargo);
   const { counts: cadeirasPorPartido, corte } = dhondtComCorte(lista, totalVagasCargo);
+  // Art. 108 (04/09/2026): mínimo nominal de 10% do QE — SÓ AVISO (flag
+  // abaixoMinimoNominal em cada linha); não muda consistência, gap nem vaga.
+  const minimoVotosNominal = qe ? 0.1 * qe : 0;
   const resultado = [];
   lista.forEach((p, pIdx) => {
     const marcados = p.candidatos.filter((c) => c.marcadoEleito && c.fonte !== "legenda");
@@ -10542,6 +10591,7 @@ function classificarEleitosPorPartido(listaParam, cargo) {
 
     const ordenados = [...marcados].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
     ordenados.forEach((c, i) => {
+      const abaixoMinimoNominal = minimoVotosNominal > 0 && (Number(c.votos) || 0) < minimoVotosNominal;
       const consistente = verdadeirosEleitos.has(c.chave);
       let gap = null;
       if (!consistente) {
@@ -10564,7 +10614,7 @@ function classificarEleitosPorPartido(listaParam, cargo) {
         const acrescimo = Math.max(gapPartido, gapIndividual || 0, gapRivalDeCima);
         gap = { individual: gapIndividual, partido: gapPartido, acrescimo };
       }
-      resultado.push({ chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos: Number(c.votos) || 0, tag: i < qp ? "QP" : "média", consistente, gap });
+      resultado.push({ chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos: Number(c.votos) || 0, tag: i < qp ? "QP" : "média", consistente, gap, abaixoMinimoNominal, minimoVotosNominal });
     });
   });
   return resultado.sort((a, b) => b.votos - a.votos);
@@ -11038,13 +11088,16 @@ function explicacaoTagTexto(tag, detalhe) {
 // partido já esgotou o próprio QP) — rodadas de QP não entram em `rodadas`,
 // só contam pro histórico interno de cadeiras.
 function calcularDisputaSobra(lista, totalVagasCargo) {
+  const votosPorPartido = lista.map((p) => partyVotos(p));
+  const totalValidos = votosPorPartido.reduce((s, v) => s + v, 0);
+  const qe = quocienteEleitoral(totalValidos, totalVagasCargo);
   const { cadeirasPorPartido, corte, historico } = (() => {
     const r = dhondtComCorte(lista, totalVagasCargo);
     return { cadeirasPorPartido: r.counts, corte: r.corte, historico: r.historico };
   })();
-  const votosPorPartido = lista.map((p) => partyVotos(p));
-  const totalValidos = votosPorPartido.reduce((s, v) => s + v, 0);
-  const qe = quocienteEleitoral(totalValidos, totalVagasCargo);
+  // Art. 108 (04/09/2026): mínimo nominal de 10% do QE — no app é SÓ
+  // orientação (aviso na Revisão), nunca trava: não entra na distribuição.
+  const minimoVotosNominal = qe ? 0.1 * qe : 0;
   const qpPorPartido = lista.map((p, pIdx) => {
     const cadeirasReais = cadeirasPorPartido[pIdx] || 0;
     return qe ? Math.min(cadeirasReais, Math.floor(votosPorPartido[pIdx] / qe)) : 0;
@@ -11086,7 +11139,7 @@ function calcularDisputaSobra(lista, totalVagasCargo) {
     contadorPorPartido[pIdxVencedor]++;
   });
 
-  return { qe, cadeirasPorPartido, corte, qpPorPartido, totalQP, rodadaSobraPorPartido, totalSobrasCargo, rodadas };
+  return { qe, cadeirasPorPartido, corte, qpPorPartido, totalQP, rodadaSobraPorPartido, totalSobrasCargo, rodadas, minimoVotosNominal };
 }
 
 function listaUnificadaRevisao(listaParam, cargo) {
@@ -11116,7 +11169,7 @@ function listaUnificadaRevisao(listaParam, cargo) {
       });
     });
   } else {
-    const { qe, cadeirasPorPartido, corte, qpPorPartido, rodadaSobraPorPartido, totalSobrasCargo } = calcularDisputaSobra(lista, totalVagasCargo);
+    const { qe, cadeirasPorPartido, corte, qpPorPartido, rodadaSobraPorPartido, totalSobrasCargo, minimoVotosNominal } = calcularDisputaSobra(lista, totalVagasCargo);
     lista.forEach((p, pIdx) => {
       const votosPartido = partyVotos(p);
       const cadeirasReais = cadeirasPorPartido[pIdx] || 0;
@@ -11137,6 +11190,11 @@ function listaUnificadaRevisao(listaParam, cargo) {
       reaisOrdenados.forEach((c, i) => {
         const eleito = !!c.marcadoEleito;
         const votos = Number(c.votos) || 0;
+        // Art. 108 (04/09/2026): abaixo de 10% do QE o candidato, pela regra,
+        // não seria eleito. Aqui é SÓ aviso (flag lida por linhaCandidato e
+        // pelo cabeçalho agrupado da Revisão) — a marcação da pessoa, o
+        // "eleito", a consistência e o gap continuam exatamente como antes.
+        const abaixoMinimoNominal = minimoVotosNominal > 0 && votos < minimoVotosNominal;
         // Esse candidato específico é quem a matemática real elegeria
         // nessa posição de voto — independente de estar marcado ou não.
         const consistenteComMatematicaReal = i < cadeirasReais;
@@ -11146,7 +11204,7 @@ function listaUnificadaRevisao(listaParam, cargo) {
             chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos, eleito: true,
             tag: cadeiraDoPartido <= qp ? "QP" : "média",
             detalhe: { votosPartido, qe, qp, cadeirasReais, cadeiraDoPartido, mediaConquistada: votosPartido / cadeiraDoPartido, rodadaSobra: rodadaSobraPorPartido[pIdx][cadeiraDoPartido - 1], totalSobrasCargo },
-            gap: null, marcadoPeloUsuario: true, consistenteComMatematicaReal,
+            gap: null, marcadoPeloUsuario: true, consistenteComMatematicaReal, abaixoMinimoNominal, minimoVotosNominal,
           });
         } else if (consistenteComMatematicaReal) {
           // Real vencedor, mas a pessoa não marcou — vira só um aviso (ver
@@ -11162,7 +11220,7 @@ function listaUnificadaRevisao(listaParam, cargo) {
             tag: null,
             detalhe: { votosPartido, qe, qp, cadeirasReais, cadeiraDoPartido, mediaConquistada: votosPartido / cadeiraDoPartido, rodadaSobra: rodadaSobraPorPartido[pIdx][cadeiraDoPartido - 1], totalSobrasCargo },
             gap: { individual: 0, partido: 0, acrescimo: 0, votosPartido, temRivalAcima: false },
-            marcadoPeloUsuario: false, consistenteComMatematicaReal: true,
+            marcadoPeloUsuario: false, consistenteComMatematicaReal: true, abaixoMinimoNominal, minimoVotosNominal,
           });
         } else {
           const necessarioPartido = Math.floor(corte * (cadeirasReais + 1)) + 1;
@@ -11182,7 +11240,7 @@ function listaUnificadaRevisao(listaParam, cargo) {
             chave: c.chave, nome: nomeExibicao(c), partido: p.nome, votos, eleito: false,
             tag: null, detalhe: null,
             gap: { individual: gapIndividual, partido: gapPartido, acrescimo, votosPartido, temRivalAcima: !!rivalDeCima },
-            marcadoPeloUsuario: false, consistenteComMatematicaReal: false,
+            marcadoPeloUsuario: false, consistenteComMatematicaReal: false, abaixoMinimoNominal, minimoVotosNominal,
           });
         }
       });
@@ -11631,6 +11689,15 @@ function renderRevisaoDeposito() {
     // que você nem escolheu no seu palpite.
     const linhaCandidato = (c) => {
       const votos = Number(c.votos) || 0;
+      // Art. 108 (04/09/2026): aviso discreto, mesmo padrão do "para eleger:"
+      // do Senador (10px, cor apagada) — só informa; a marcação da pessoa e o
+      // selo de eleito continuam como ela deixou (mesmo espírito do aviso de
+      // "vaga não marcada"). Só aparece onde a vaga está em jogo (marcado
+      // eleito pela pessoa, ou eleito pela matemática real) — em quem não
+      // elege de qualquer jeito seria ruído em centenas de linhas.
+      const avisoMinimoNominal = c.abaixoMinimoNominal && (c.eleito || c.consistenteComMatematicaReal)
+        ? `<div style="font-size:10px; color:var(--pc-ink-dim); margin-top:6px; line-height:1.4;">abaixo de 10% do QE (mínimo ${Math.ceil(c.minimoVotosNominal || 0).toLocaleString("pt-BR")} votos) — pela regra, não eleito (art. 108)</div>`
+        : "";
 
       if (c.eleito) {
         // "Mínimo pra eleger" só é uma comparação justa no Senador (voto
@@ -11660,6 +11727,7 @@ function renderRevisaoDeposito() {
           </div>
           <div class="pc-sen-sub">${c.posicaoEleicao}º · ${c.partido}</div>
           ${mostrarMargem ? `<div style="font-size:10px; color:var(--pc-ink-dim); margin-top:6px;">para eleger: ${minimoParaEleger.toLocaleString("pt-BR")}</div>` : ""}
+          ${avisoMinimoNominal}
         `);
       }
 
@@ -11700,6 +11768,7 @@ function renderRevisaoDeposito() {
           <input class="cell" data-pc-voto-revisao="${cargoDef.id}::${c.partido}::${c.chave}" value="${votos.toLocaleString("pt-BR")}" style="width:94px; font-size:14px; font-weight:800; text-align:right; flex-shrink:0; padding:8px 6px;">
         </div>
         <div class="pc-sen-sub">${c.partido}</div>
+        ${avisoMinimoNominal}
         ${c.consistenteComMatematicaReal ? `
         <div style="margin-top:12px; padding:10px 12px; background:rgba(198,230,42,.1); border:1px solid rgba(198,230,42,.3); border-radius:10px;">
           <div style="display:flex; gap:8px; align-items:flex-start;">
@@ -11770,11 +11839,18 @@ function renderRevisaoDeposito() {
           const naoEleito = candidatosPartido.find((c) => !c.eleito && c.gap && !c.consistenteComMatematicaReal)
             || candidatosPartido.find((c) => !c.eleito && c.gap);
           const faltamProximaVaga = naoEleito ? naoEleito.gap.partido : null;
+          // Art. 108 (04/09/2026): eleitos marcados abaixo de 10% do QE —
+          // só orientação, a marcação fica como a pessoa deixou.
+          const eleitosAbaixoMinimo = candidatosPartido.filter((c) => c.eleito && c.abaixoMinimoNominal).length;
+          const avisoInaptos = eleitosAbaixoMinimo > 0
+            ? `<div style="flex-basis:100%; font-size:10px; font-weight:400; text-transform:none; letter-spacing:0; color:var(--pc-ink-dim); line-height:1.4;">${eleitosAbaixoMinimo} candidato${eleitosAbaixoMinimo === 1 ? "" : "s"} abaixo do mínimo nominal (10% do QE, art. 108) — na apuração real, a vaga iria pra outro partido</div>`
+            : "";
           return `
           <div style="display:flex; align-items:center; gap:6px; padding:10px 3px 6px; color:var(--pc-accent); font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; flex-wrap:wrap;">
             <span style="width:7px; height:7px; border-radius:50%; background:var(--pc-accent); display:inline-block; flex-shrink:0;"></span>
             <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${partido}</span>
             <span style="color:var(--pc-ink-dim); font-weight:400; text-transform:none; flex-shrink:0;">— ${qtdEleitos} eleito${qtdEleitos === 1 ? "" : "s"} · ${votosPartidoTotal.toLocaleString("pt-BR")} votos${faltamProximaVaga ? ` (faltam ${faltamProximaVaga.toLocaleString("pt-BR")} para a próxima vaga)` : ""}</span>
+            ${avisoInaptos}
           </div>
           ${candidatosPartido.map(linhaCandidato).join("")}
         `;

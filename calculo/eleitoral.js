@@ -24,19 +24,17 @@ function quocienteEleitoral(totalVotos, totalVagas){
   return fracao <= 0.5 ? piso : piso + 1;
 }
 
-function dhondt(parties, seats){
-  const counts = parties.map(()=>0);
-  const votes = parties.map(p => partyVotos(p));
-  if(votes.every(v => v===0)) return counts;
-  for(let s=0; s<seats; s++){
-    let bestIdx=-1, bestAvg=-1;
-    for(let i=0;i<parties.length;i++){
-      const avg = votes[i] / (counts[i]+1);
-      if(avg > bestAvg){ bestAvg = avg; bestIdx = i; }
-    }
-    if(bestIdx>=0) counts[bestIdx]++;
-  }
-  return counts;
+// Atalho: só as cadeiras por partido. Wrapper de dhondtComCorte (mesmo
+// resultado de sempre — não é uma segunda implementação).
+function dhondt(parties, seats, opcoes){
+  return dhondtComCorte(parties, seats, opcoes).counts;
+}
+
+// Voto de legenda nunca é um candidato apto a ocupar cadeira — o app marca o
+// pseudo-candidato com fonte:"legenda" (nuvem/palpites.js → injetarVotosLegenda);
+// o teste usa legenda:true. As duas formas contam.
+function ehVotoDeLegenda(c){
+  return !!(c && (c.legenda || c.fonte === "legenda"));
 }
 
 // Mesma distribuição do dhondt() acima, só que também devolve a "linha de
@@ -54,21 +52,83 @@ function dhondt(parties, seats){
 // o QP de cada partido, em qual rodada GLOBAL de sobra (entre todos os
 // partidos do cargo, não só dentro de um) uma vaga por média foi
 // conquistada — ver rodadaSobra em listaUnificadaRevisao().
-function dhondtComCorte(parties, seats){
+//
+// Mínimo nominal do art. 108 (só é eleito o candidato com votação nominal
+// ≥ 10% do QE) — OPCIONAL e DESLIGADO por padrão (decisão do usuário,
+// 04/09/2026: no app a regra entra só como aviso na Revisão, nunca como
+// trava que muda vaga ou etiqueta de eleito). Com opcoes.minimoNominal > 0
+// vira condição de rodada: o partido só ganha a cadeira se tiver candidato
+// real (não legenda), ainda não contado, com votos ≥ minimoNominal × QE;
+// senão a cadeira vai pro próximo partido na fila das médias. Usado hoje só
+// por testes/eleitoral.test.js.
+//   opcoes.minimoNominal — fração do QE (padrão 0 = regra desligada).
+//   opcoes.qe            — QE a usar; se ausente, calcula
+//                          quocienteEleitoral(Σ partyVotos, seats) — a mesma
+//                          convenção das telas do app.
+// Partido SEM lista de candidatos (só votosManual — os partidos sintéticos
+// de partidosEscaladosProjecao2026) é sempre apto: a regra fala de
+// candidatos, e ali não existe nenhum.
+// Com o padrão (0), counts/corte/historico são EXATAMENTE os de sempre.
+// Devolve ainda (informativo):
+//   eleitosPorPartido — [pIdx] → candidatos (objetos) na ordem de conquista;
+//   inaptos           — [pIdx] → cadeiras a mais que o partido teria pelas
+//                       médias puras mas não pôde ocupar (só com regra ligada;
+//                       zeros com o padrão);
+//   qe, minimoVotosNominal — os números usados.
+function dhondtComCorte(parties, seats, opcoes){
+  const op = Object.assign({ minimoNominal: 0, qe: null }, opcoes || {});
   const counts = parties.map(()=>0);
   const votes = parties.map(p => partyVotos(p));
+  const eleitosPorPartido = parties.map(()=>[]);
+  const inaptos = parties.map(()=>0);
   let corte = 0;
   const historico = [];
-  if(votes.every(v => v===0)) return { counts, corte, historico };
+  const totalVotos = votes.reduce((s,v)=>s+v, 0);
+  const qe = op.qe != null ? op.qe : (quocienteEleitoral(totalVotos, seats) || 0);
+  const minimoVotosNominal = Math.max(0, (Number(op.minimoNominal) || 0) * qe);
+  if(votes.every(v => v===0)) return { counts, corte, historico, eleitosPorPartido, inaptos, qe, minimoVotosNominal };
+
+  const filas = parties.map(p => (p.candidatos || [])
+    .filter(c => !ehVotoDeLegenda(c))
+    .slice()
+    .sort((a,b) => (Number(b.votos)||0) - (Number(a.votos)||0)));
+  const semLista = parties.map(p => !(p.candidatos && p.candidatos.length));
+  const regraLigada = minimoVotosNominal > 0;
+  // Regra desligada (padrão): todo partido é sempre apto — o laço abaixo é
+  // o D'Hondt puro de sempre. Ligada: exige o próximo da fila ≥ mínimo.
+  const apto = (i) => {
+    if(!regraLigada || semLista[i]) return true;
+    const c = filas[i][counts[i]];
+    return !!c && (Number(c.votos)||0) >= minimoVotosNominal;
+  };
+
   for(let s=0; s<seats; s++){
     let bestIdx=-1, bestAvg=-1;
     for(let i=0;i<parties.length;i++){
       const avg = votes[i] / (counts[i]+1);
-      if(avg > bestAvg){ bestAvg = avg; bestIdx = i; }
+      if(avg > bestAvg && apto(i)){ bestAvg = avg; bestIdx = i; }
     }
-    if(bestIdx>=0){ counts[bestIdx]++; corte = bestAvg; historico.push(bestIdx); }
+    if(bestIdx<0) break; // só com a regra ligada: ninguém apto — cadeira fica sem preencher (caso teórico)
+    const cand = filas[bestIdx][counts[bestIdx]];
+    if(cand) eleitosPorPartido[bestIdx].push(cand);
+    counts[bestIdx]++; corte = bestAvg; historico.push(bestIdx);
   }
-  return { counts, corte, historico };
+
+  // Quantas cadeiras cada partido teria pelas médias PURAS — a diferença
+  // pra `counts` é o que o art. 108 tirou dele (sobra por falta de apto).
+  if(regraLigada){
+    const puros = parties.map(()=>0);
+    for(let s=0; s<seats; s++){
+      let bestIdx=-1, bestAvg=-1;
+      for(let i=0;i<parties.length;i++){
+        const avg = votes[i] / (puros[i]+1);
+        if(avg > bestAvg){ bestAvg = avg; bestIdx = i; }
+      }
+      if(bestIdx>=0) puros[bestIdx]++;
+    }
+    parties.forEach((_, i) => { inaptos[i] = Math.max(0, puros[i] - counts[i]); });
+  }
+  return { counts, corte, historico, eleitosPorPartido, inaptos, qe, minimoVotosNominal };
 }
 
 // Distribuição de vagas em duas etapas, PARAMETRIZADA pelos pisos — usada
@@ -96,7 +156,7 @@ function distribuirVagasComPiso(parties, seats, qe, regras){
   const r = Object.assign({ pisoPartido: 0, pisoCandidato: 0, minNominal: 0.1 }, regras || {});
   const votos = parties.map(p => partyVotos(p));
   const nominais = parties.map(p => p.candidatos
-    .filter(c => !c.legenda)
+    .filter(c => !ehVotoDeLegenda(c))
     .slice()
     .sort((a,b) => (Number(b.votos)||0) - (Number(a.votos)||0)));
   const counts = parties.map(()=>0);

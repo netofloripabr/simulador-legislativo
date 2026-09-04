@@ -243,6 +243,21 @@ async function adminListarExecucoesRotina() {
   return data || [];
 }
 
+// Controle de migrações (migração 43, 04/09/2026): manda a lista de objetos
+// de cada migração (nuvem/migracoes-index.js, gerado por
+// ferramentas/gerar_indice_migracoes.py) e recebe, por migração, quantos
+// objetos existem no banco e quais faltam. Só admin recebe linhas.
+async function adminMigracoesStatus() {
+  // Identifica cada migração pela POSIÇÃO no índice, não pelo número: o
+  // histórico tem números repetidos (21, 22, 23 e 24 têm dois arquivos
+  // cada) e agrupar por número misturaria os dois.
+  const objetos = (typeof MIGRACOES_INDEX === "undefined" ? [] : MIGRACOES_INDEX)
+    .flatMap((m, i) => m.objetos.map(([t, n]) => [i, t, n]));
+  const { data, error } = await supabaseClient.rpc("admin_migracoes_status", { p_objetos: objetos });
+  if (error) { console.error("Erro ao conferir migrações:", error); return null; }
+  return data || [];
+}
+
 // ========== Painel do usuário final ==========
 // "usuario_final" vive numa tabela própria (migração 19), mesmo motivo de
 // segurança de admin/creditos_conta — ver souAdmin() acima.

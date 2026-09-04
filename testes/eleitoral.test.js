@@ -112,11 +112,28 @@ ok(r2022.counts.reduce((a, b) => a + b, 0) === VAGAS_ALESC, `distribui exatament
 
 // ---- 4. O app (regime de 2026, sem piso) faz o que se espera dele ----
 console.log("\nRegime de 2026 (STF fev/2024: sem piso de sobras; app usa dhondtComCorte)");
-const app = dhondtComCorte(partidos, VAGAS_ALESC).counts;
+// O app chama dhondtComCorte SEM opções — o art. 108 (mínimo nominal) fica
+// desligado por padrão (decisão do usuário, 04/09/2026: no app é só aviso).
+const rApp = dhondtComCorte(partidos, VAGAS_ALESC);
+const app = rApp.counts;
 const semPiso = distribuirVagasComPiso(partidos, VAGAS_ALESC, qe, { pisoPartido: 0, pisoCandidato: 0, minNominal: 0 }).counts;
 ok(app.reduce((a, b) => a + b, 0) === VAGAS_ALESC, `distribui exatamente ${VAGAS_ALESC} vagas`);
 ok(app.join(",") === semPiso.join(","), "D'Hondt numa passada ≡ QP inteiro + sobras pelas médias (sem piso)",
   `dhondt: ${app.join(",")}\nqp+médias: ${semPiso.join(",")}`);
+ok(rApp.inaptos.every((n) => n === 0) && rApp.minimoVotosNominal === 0, "padrão: art. 108 desligado (inaptos zerados, mínimo nominal 0)", `inaptos ${rApp.inaptos.join(",")}, mínimo ${rApp.minimoVotosNominal}`);
+// Sem `qe` explícito, calcula sobre a soma dos partidos da base (não sobre
+// os válidos oficiais — a base tem ~0,6% a menos, ver seção 1).
+const qeDaBase = quocienteEleitoral(totalValidos, VAGAS_ALESC);
+ok(rApp.qe === qeDaBase, `dhondtComCorte informa o QE da soma dos partidos (${fmt(qeDaBase)}) quando não recebe um`, `obtido ${fmt(rApp.qe)}`);
+{
+  // Com a regra LIGADA explicitamente, ainda bate com a versão em duas
+  // etapas com o mesmo mínimo — e, em 2022, não muda nenhuma cadeira.
+  const com108 = dhondtComCorte(partidos, VAGAS_ALESC, { minimoNominal: 0.1, qe });
+  const duasEtapas = distribuirVagasComPiso(partidos, VAGAS_ALESC, qe, { pisoPartido: 0, pisoCandidato: 0, minNominal: 0.1 });
+  ok(com108.counts.join(",") === duasEtapas.counts.join(","), "com { minimoNominal: 0.1 }: D'Hondt numa passada ≡ QP + médias com art. 108", `dhondt: ${com108.counts.join(",")}\nqp+médias: ${duasEtapas.counts.join(",")}`);
+  ok(com108.eleitosPorPartido.flat().map((c) => c.nome).sort().join("|") === duasEtapas.eleitos.flat().sort().join("|"), "…e os mesmos nomes");
+  ok(com108.counts.join(",") === app.join(","), "em 2022 o art. 108 não muda nenhuma cadeira (nenhum partido perdeu vaga por falta de candidato com 10% do QE)", com108.inaptos.join(","));
+}
 // Documenta o efeito da mudança de regra sobre os MESMOS votos de 2022:
 // é o que teria acontecido em 2022 com a regra de 2026. Se isto mudar,
 // alguém mexeu na regra de produção — investigar antes de aceitar.
@@ -136,6 +153,28 @@ ok(difs.length === 0, "com a regra de 2026, 2022 daria PL 10, PT 5, PODE 2, PDT 
   ];
   const r = dhondtComCorte(mini, 2).counts;
   ok(r.join(",") === "1,0,1", "sobra sem piso: partido abaixo de 80% do QE concorre e leva a vaga pela média", `obtido ${r.join(",")}`);
+}
+
+// ---- 6. Art. 108 (opcional, { minimoNominal: 0.1 }): abaixo de 10% do QE não elege ----
+console.log("\nArt. 108 (mínimo nominal de 10% do QE — opção explícita; o app não liga)");
+{
+  // 2 vagas, 2.000 votos → QE 1.000, mínimo nominal 100. 1ª vaga: A (1.200).
+  // 2ª vaga pelas médias: A 600, B 100, C 700 → C tem a melhor média — mas
+  // seu único candidato tem 90 votos (< 100); o resto é legenda.
+  const mini = [
+    { nome: "A", candidatos: [{ nome: "a1", votos: 700 }, { nome: "a2", votos: 500 }] },
+    { nome: "B", candidatos: [{ nome: "b1", votos: 100 }] },
+    { nome: "C", candidatos: [{ nome: "c1", votos: 90 }, { nome: "(legenda)", votos: 610, fonte: "legenda" }] },
+  ];
+  const padrao = dhondtComCorte(mini, 2).counts;
+  ok(padrao.join(",") === "1,0,1", "padrão (sem opção): C leva a vaga pela média, como sempre — o app não muda", `obtido ${padrao.join(",")}`);
+  const r = dhondtComCorte(mini, 2, { minimoNominal: 0.1 });
+  ok(r.qe === 1000 && r.minimoVotosNominal === 100, "QE 1.000 e mínimo nominal 100", `qe ${r.qe}, mínimo ${r.minimoVotosNominal}`);
+  ok(r.counts.join(",") === "2,0,0", "C tem a melhor média mas não leva a vaga (c1 < 10% do QE, legenda não é candidato) — vai pro próximo pelas médias (A)", `obtido ${r.counts.join(",")}`);
+  ok(r.inaptos.join(",") === "0,0,1", "inaptos de C = 1 (uma cadeira que teria pelas médias e não pôde ocupar)", `obtido ${r.inaptos.join(",")}`);
+  ok(r.eleitosPorPartido[0].map((c) => c.nome).join(",") === "a1,a2", "eleitos de A na ordem de conquista: a1, a2", r.eleitosPorPartido[0].map((c) => c.nome).join(","));
+  const sint = dhondtComCorte([{ nome: "A", candidatos: [], votosManual: 1200 }, { nome: "C", candidatos: [], votosManual: 800 }], 2, { minimoNominal: 0.1 }).counts;
+  ok(sint.join(",") === "1,1", "partido sintético (só votosManual, sem lista) é sempre apto — usado pela projeção escalada", `obtido ${sint.join(",")}`);
 }
 
 console.log("");
