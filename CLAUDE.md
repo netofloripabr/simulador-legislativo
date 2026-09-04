@@ -50,6 +50,12 @@ Ao adicionar uma função nova, pare e pergunte: isso é fato (dados), regra
 
 ## Antes de considerar uma mudança pronta
 
+0. Se mexeu em `calculo/eleitoral.js` ou `dados/base-2022.js`, rodar
+   `node testes/eleitoral.test.js` — reproduz a ALESC 2022 (QE, vagas por
+   partido e os 40 nomes) no regime de 2022 e confere que a função usada
+   pelo app segue o regime de 2026. Sem dependências. Se falhar, NÃO
+   "ajustar" a regra pra bater: 2022 e 2026 têm regras diferentes de
+   sobra (ver o cabeçalho do teste).
 1. Validar sintaxe dos 3 arquivos JS (ex.: `node --check`).
 2. Abrir o `index.html` num navegador (ou pedir para a pessoa abrir) e
    conferir visualmente — não basta o código "parecer" certo.

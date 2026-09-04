@@ -71,6 +71,60 @@ function dhondtComCorte(parties, seats){
   return { counts, corte, historico };
 }
 
+// Distribuição de vagas em duas etapas, PARAMETRIZADA pelos pisos — usada
+// SÓ por testes/eleitoral.test.js pra provar a regra contra o resultado
+// oficial de 2022 (não é chamada pelo app; o app usa dhondt()/
+// dhondtComCorte() acima, que é o regime vigente pra 2026, sem piso de
+// sobras). Motivo (04/09/2026): a eleição de 2022 rodou COM o piso da
+// Lei 14.211/2021 (partido ≥ 80% do QE e candidato ≥ 20% do QE pra
+// concorrer à sobra) — o STF derrubou isso em fevereiro/2024 (ADI 7228)
+// e, em março/2025, mandou retroagir a 2022: a ALESC trocou 3 cadeiras
+// em 2025. Logo, reproduzir a DIPLOMAÇÃO ORIGINAL de 2022 exige o piso;
+// a composição pós-STF (e qualquer projeção de 2026) é sem piso — que é
+// o que dhondt()/dhondtComCorte() fazem. Manter as duas coisas separadas
+// evita "consertar" a regra de 2026 pra bater com o gabarito antigo (ver
+// CLAUDE.md, "não reintroduzir o piso").
+//
+// Etapas: (1) art. 107 — QP inteiro por partido, preenchido só por
+// candidatos com ≥ minNominal×QE (art. 108, 10%); (2) art. 109 — sobras
+// pelas maiores médias, entre partidos com ≥ pisoPartido×QE e candidato
+// ainda não eleito com ≥ pisoCandidato×QE. `parties` no mesmo formato do
+// resto do arquivo (candidatos com {nome, votos}); voto de legenda entra
+// como candidato com `legenda:true` (não elegível). Devolve, por partido,
+// as cadeiras e os nomes eleitos, na ordem de conquista.
+function distribuirVagasComPiso(parties, seats, qe, regras){
+  const r = Object.assign({ pisoPartido: 0, pisoCandidato: 0, minNominal: 0.1 }, regras || {});
+  const votos = parties.map(p => partyVotos(p));
+  const nominais = parties.map(p => p.candidatos
+    .filter(c => !c.legenda)
+    .slice()
+    .sort((a,b) => (Number(b.votos)||0) - (Number(a.votos)||0)));
+  const counts = parties.map(()=>0);
+  const eleitos = parties.map(()=>[]);
+  let distribuidas = 0;
+  // (1) quociente partidário
+  parties.forEach((p,i) => {
+    const qp = qe > 0 ? Math.floor(votos[i] / qe) : 0;
+    const aptos = nominais[i].filter(c => (Number(c.votos)||0) >= r.minNominal * qe).slice(0, qp);
+    counts[i] = aptos.length; distribuidas += aptos.length;
+    eleitos[i] = aptos.map(c => c.nome);
+  });
+  // (2) sobras pelas médias
+  while(distribuidas < seats){
+    let bestIdx=-1, bestAvg=-1, bestCand=null;
+    parties.forEach((p,i) => {
+      if(votos[i] < r.pisoPartido * qe) return;
+      const prox = nominais[i].find(c => !eleitos[i].includes(c.nome) && (Number(c.votos)||0) >= Math.max(r.pisoCandidato, r.minNominal) * qe);
+      if(!prox) return;
+      const avg = votos[i] / (counts[i] + 1);
+      if(avg > bestAvg){ bestAvg = avg; bestIdx = i; bestCand = prox; }
+    });
+    if(bestIdx < 0) break; // ninguém apto — vaga fica sem preencher (caso teórico)
+    counts[bestIdx]++; eleitos[bestIdx].push(bestCand.nome); distribuidas++;
+  }
+  return { counts, eleitos };
+}
+
 
 
 
