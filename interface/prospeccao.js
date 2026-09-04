@@ -75,7 +75,7 @@ let pcState = {
   buscaPartido: "", // termo digitado na busca de partido
   expandido: {},
   erro: "",
-  cadRascunho: null, // { nome, email, telefone, cpf, cep, genero, lgpd } — preserva o formulário de cadastro quando dá erro, pra não fazer a pessoa digitar tudo de novo (achado do usuário, 24/08/2026)
+  cadRascunho: null, // { nome, email, lgpd } — preserva o formulário de cadastro quando dá erro, pra não fazer a pessoa digitar tudo de novo (achado do usuário, 24/08/2026)
   status: "",
   modalNomeListaAberto: false, // modal "dê um nome pra essa lista" no primeiro Salvar da Revisão
   listaSalvaId: null, // id exclusivo gerado no primeiro Salvar — reaproveitado nos salvamentos seguintes da mesma lista (edição, não duplicata)
@@ -433,8 +433,8 @@ async function initColaborativo() {
     pcState.perfil = await meuPerfil();
     if (!pcState.perfil) {
       // Sessão existe mas ainda não tem linha em "perfis" — hoje só acontece
-      // com quem acabou de entrar pelo Google (o Google não manda CPF nem
-      // aceite de LGPD, então falta completar isso antes de liberar o app).
+      // com quem acabou de entrar pelo Google (o Google não manda aceite de
+      // LGPD, então falta confirmar nome + LGPD antes de liberar o app).
       pcState.tela = "completar-perfil";
       renderColaborativo();
       return;
@@ -1429,9 +1429,9 @@ const PC_TEXTO_TERMOS = [
     seu palpite.<br><br>
     Mantido por Simulador Eleitoral Legislativo, por meio de seus representantes legais.` },
   { t: "2. Cadastro e conta", c: `Pra usar as funções que exigem conta (salvar listas, participar de grupos,
-    aparecer no ranking), você precisa se cadastrar com nome, e-mail, senha e
-    CPF. O CPF é usado só pra evitar que a mesma pessoa crie várias contas e
-    distorça o ranking/estatísticas — ele nunca é armazenado em texto puro (ver
+    aparecer no ranking), você precisa se cadastrar com nome, e-mail e senha.
+    Na primeira cédula que você depositar, pedimos uma vez seu CEP (só pra
+    saber o município) e gênero, usados apenas em estatísticas agregadas (ver
     a Política de Privacidade). Você é responsável por manter sua senha em
     sigilo e por tudo que acontecer usando sua conta.` },
   { t: "3. Uso permitido", c: `Você pode usar o site pra montar suas próprias projeções, participar de
@@ -1466,11 +1466,10 @@ const PC_TEXTO_PRIVACIDADE = [
     responsável pelo tratamento dos dados coletados através deste site.
     Contato pra qualquer assunto de privacidade: <b>${PC_EMAIL_CONTATO_LEGAL}</b>` },
   { t: "2. Quais dados coletamos", c: `<ul style="margin:0; padding-left:18px;">
-    <li><b>Pra criar sua conta:</b> nome, e-mail, senha e CPF.</li>
-    <li><b>CPF:</b> usado só pra impedir cadastro duplicado da mesma pessoa. Nunca é
-      guardado em texto puro — passa por um processo de hash (transformação
-      irreversível) antes de ser salvo, então nem nós conseguimos "ver" o
-      número original a partir do que fica armazenado.</li>
+    <li><b>Pra criar sua conta:</b> nome, e-mail e senha.</li>
+    <li><b>Na primeira cédula depositada:</b> CEP (usado só pra identificar seu
+      município/UF) e gênero, pedidos uma única vez e usados apenas pra fins
+      estatísticos agregados — nunca pra identificar você individualmente.</li>
     <li><b>Senha:</b> também nunca é guardada em texto puro — fica a cargo do
       provedor de autenticação (Supabase Auth), que usa hash e criptografia
       padrão de mercado.</li>
@@ -1486,7 +1485,7 @@ const PC_TEXTO_PRIVACIDADE = [
     religiosa) e não pedimos nenhuma informação além do necessário pra fazer o
     site funcionar.` },
   { t: "3. Por que coletamos (base legal)", c: `<ul style="margin:0; padding-left:18px;">
-    <li><b>Execução de contrato:</b> nome, e-mail, senha e CPF são necessários pra
+    <li><b>Execução de contrato:</b> nome, e-mail e senha são necessários pra
       criar e manter sua conta — sem eles o serviço de cadastro não funciona.</li>
     <li><b>Consentimento:</b> você marca explicitamente, no cadastro, que concorda
       com o uso dos seus dados nos termos desta política.</li>
@@ -1504,7 +1503,7 @@ const PC_TEXTO_PRIVACIDADE = [
     Mediana — essa é uma escolha sua, feita no momento do depósito, e pode
     ser trocada pra anônima em depósitos futuros.` },
   { t: "5. Por quanto tempo guardamos", c: `Enquanto sua conta existir. Se você pedir a exclusão da conta, apagamos
-    seus dados pessoais (nome, e-mail, CPF em hash) — listas já depositadas de
+    seus dados pessoais (nome, e-mail, CEP/município e gênero) — listas já depositadas de
     forma pública podem ser mantidas de forma desvinculada da sua identidade
     (anonimizadas), já que fazem parte do histórico agregado de outras
     pessoas que usaram a Mediana.` },
@@ -1518,7 +1517,7 @@ const PC_TEXTO_PRIVACIDADE = [
     </ul>
     Pra exercer qualquer um desses direitos, escreva pra
     <b>${PC_EMAIL_CONTATO_LEGAL}</b>. Vamos responder o quanto antes.` },
-  { t: "7. Segurança", c: `Usamos práticas técnicas pra proteger seus dados: senhas e CPF nunca
+  { t: "7. Segurança", c: `Usamos práticas técnicas pra proteger seus dados: senhas nunca
     ficam em texto puro, o banco de dados usa controle de acesso por linha
     (cada pessoa só edita o que é dela) e toda comunicação com o site é
     criptografada (HTTPS). Nenhum sistema é 100% infalível, mas trabalhamos
@@ -1725,9 +1724,9 @@ async function buscarCep(cep) {
 }
 
 // Última etapa de quem entrou pelo Google: já existe sessão (nome/e-mail
-// vieram do Google), só falta CPF (anti-duplicidade) e o aceite da LGPD, que
-// o Google não fornece. Chamada por initColaborativo quando há sessão sem
-// perfil ainda.
+// vieram do Google), só falta confirmar o nome e o aceite da LGPD, que o
+// Google não fornece (cadastro progressivo, 04/09/2026). Chamada por
+// initColaborativo quando há sessão sem perfil ainda.
 function renderTelaCompletarPerfil() {
   const nomeGoogle = (pcState.sessao && pcState.sessao.user.user_metadata
     && (pcState.sessao.user.user_metadata.full_name || pcState.sessao.user.user_metadata.name)) || "";
@@ -1742,27 +1741,12 @@ function renderTelaCompletarPerfil() {
     <div class="pc-acesso">
       ${cascaAcessoTopo(null)}
       <div class="pc-acesso-h2">Só mais um passo</div>
-      <div class="pc-acesso-sub">${veioDoGoogle ? "Sua conta Google já está conectada — falta só isto pra liberar o Simulador." : "Falta só isto pra liberar o Simulador."}</div>
-      <div class="field-row"><label>Nome</label><input class="cell" id="pcCompNome" value="${nomeGoogle}"></div>
-      <div class="field-row">
-        <label>CPF</label>
-        <input class="cell" id="pcCompCpf" inputmode="numeric" placeholder="Só números" maxlength="14">
-      </div>
-      <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CPF só pra impedir que a mesma pessoa crie mais de uma conta (protege o ranking) — guardamos um código derivado dele, nunca o CPF em texto puro.</div>
-      <div class="field-row"><label>Telefone</label><input class="cell" id="pcCompTelefone" inputmode="tel" placeholder="(00) 00000-0000"></div>
-      <div class="field-row">
-        <label>CEP</label>
-        <input class="cell" id="pcCompCep" inputmode="numeric" placeholder="00000-000" maxlength="9">
-      </div>
-      <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CEP só pra saber seu município — ajuda a gente a entender melhor quem está usando o Simulador.</div>
-      <div class="field-row">
-        <label>Gênero</label>
-        ${pilulasGenero("pcCompGenero")}
-      </div>
+      <div class="pc-acesso-sub">${veioDoGoogle ? "Sua conta Google já está conectada — confirme seu nome pra liberar o Simulador." : "Confirme seu nome pra liberar o Simulador."}</div>
+      <div class="field-row"><label>Nome</label><input class="cell" id="pcCompNome" value="${escaparAtributoHtml(nomeGoogle)}"></div>
 
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
         <input type="checkbox" id="pcCompLgpd" style="margin-top:2px;">
-        <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone, CPF, CEP/município e gênero) para criar minha conta, conforme a
+        <span>Li e concordo com o uso dos meus dados (nome e e-mail) para criar minha conta, conforme a
           <a href="#" id="pcLinkPrivacidadeComp" class="pc-link">Política de Privacidade</a>
           e os
           <a href="#" id="pcLinkTermosComp" class="pc-link">Termos de Uso</a>.
@@ -1774,7 +1758,6 @@ function renderTelaCompletarPerfil() {
       <div class="pc-acesso-links"><button type="button" class="pc-acesso-link" id="pcBtnCancelarPerfil">Cancelar</button></div>
     </div>`;
 
-  attachPilulasGenero();
   document.getElementById("pcLinkPrivacidadeComp").addEventListener("click", (e) => {
     e.preventDefault();
     pcState.telaLegalOrigem = "completar-perfil";
@@ -1794,13 +1777,9 @@ function renderTelaCompletarPerfil() {
   });
   document.getElementById("pcBtnConcluirPerfil").addEventListener("click", async (e) => {
     const nome = document.getElementById("pcCompNome").value.trim();
-    const cpf = document.getElementById("pcCompCpf").value.trim();
-    const telefone = document.getElementById("pcCompTelefone").value.trim();
-    const cep = document.getElementById("pcCompCep").value.trim();
-    const genero = document.getElementById("pcCompGenero").value;
     const lgpdAceito = document.getElementById("pcCompLgpd").checked;
-    if (!nome || !cpf || !cep || !genero) {
-      pcState.erro = "Preencha nome, CPF, CEP e gênero.";
+    if (!nome) {
+      pcState.erro = "Preencha seu nome.";
       renderTelaCompletarPerfil();
       return;
     }
@@ -1810,17 +1789,7 @@ function renderTelaCompletarPerfil() {
       return;
     }
     e.target.disabled = true;
-    const cepResolvido = await buscarCep(cep);
-    if (cepResolvido.error) {
-      e.target.disabled = false;
-      pcState.erro = cepResolvido.error;
-      renderTelaCompletarPerfil();
-      return;
-    }
-    const { error } = await completarPerfilGoogle({
-      nome, cpf, telefone, lgpdAceito, genero,
-      cep: cep.replace(/\D/g, ""), municipioResidencia: cepResolvido.municipio, ufResidencia: cepResolvido.uf,
-    });
+    const { error } = await completarPerfilGoogle({ nome, lgpdAceito });
     if (error) {
       e.target.disabled = false;
       pcState.erro = "Não consegui concluir: " + error.message;
@@ -1994,30 +1963,17 @@ function renderTelaCadastro() {
       <div class="pc-acesso-h2">Crie sua conta</div>
       ${veioDeConvite ? `<div class="pc-aviso-card" style="margin-bottom:14px;"><div class="pc-aviso-corpo">Você entrou por um convite de amigo — crie sua conta grátis e cravem os palpites de 2026.</div></div>` : ""}
       <div class="pc-acesso-sub">Grátis. Deposite sua cédula, entre em grupos e dispute o ranking.</div>
+      <button class="ghost pc-acesso-ghost" id="pcBtnCadastrarGoogle">${GOOGLE_G_SVG}Continuar com Google</button>
+      <div class="pc-acesso-divisor">ou</div>
       <div class="field-row"><label>Nome</label><input class="cell" id="pcCadNome" value="${escaparAtributoHtml(r.nome || "")}"></div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Você pode divulgar seu palpite de forma anônima — essa escolha é feita depois, na hora de depositar cada cédula, não aqui.</div>
       <div class="field-row"><label>E-mail</label><input class="cell" id="pcCadEmail" type="email" value="${escaparAtributoHtml(r.email || "")}"></div>
-      <div class="field-row"><label>Telefone</label><input class="cell" id="pcCadTelefone" inputmode="tel" placeholder="(00) 00000-0000" value="${escaparAtributoHtml(r.telefone || "")}"></div>
       <div class="field-row"><label>Senha</label><input class="cell" id="pcCadSenha" type="password"></div>
       <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Pelo menos 8 caracteres, com letra, número e caractere especial.</div>
-      <div class="field-row">
-        <label>CPF</label>
-        <input class="cell" id="pcCadCpf" inputmode="numeric" placeholder="Só números" maxlength="14" value="${escaparAtributoHtml(r.cpf || "")}">
-      </div>
-      <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CPF só pra impedir que a mesma pessoa crie mais de uma conta (protege o ranking) — guardamos um código derivado dele, nunca o CPF em texto puro.</div>
-      <div class="field-row">
-        <label>CEP</label>
-        <input class="cell" id="pcCadCep" inputmode="numeric" placeholder="00000-000" maxlength="9" value="${escaparAtributoHtml(r.cep || "")}">
-      </div>
-      <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Usamos seu CEP só pra saber seu município — ajuda a gente a entender melhor quem está usando o Simulador.</div>
-      <div class="field-row">
-        <label>Gênero</label>
-        ${pilulasGenero("pcCadGenero", r.genero)}
-      </div>
 
       <label style="display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--pc-ink-dim); margin:14px 0;">
         <input type="checkbox" id="pcCadLgpd" style="margin-top:2px;"${r.lgpd ? " checked" : ""}>
-        <span>Li e concordo com o uso dos meus dados (nome, e-mail, telefone, CPF, CEP/município e gênero) para criar minha conta, conforme a
+        <span>Li e concordo com o uso dos meus dados (nome e e-mail) para criar minha conta, conforme a
           <a href="#" id="pcLinkPrivacidade" class="pc-link">Política de Privacidade</a>
           e os
           <a href="#" id="pcLinkTermos" class="pc-link">Termos de Uso</a>.
@@ -2026,13 +1982,10 @@ function renderTelaCadastro() {
 
       <div class="pc-erro" id="pcCadErro">${pcState.erro || ""}</div>
       <button class="primary" id="pcBtnCadastrar">Criar conta</button>
-      <div class="pc-acesso-divisor">ou</div>
-      <button class="ghost pc-acesso-ghost" id="pcBtnCadastrarGoogle">${GOOGLE_G_SVG}Continuar com Google</button>
       <div class="pc-acesso-links">Já tenho conta — <button type="button" class="pc-acesso-link destaque" id="pcBtnIrLogin">entrar</button></div>
     </div>`;
 
   document.getElementById("pcBtnVoltarCadastro").addEventListener("click", voltarDeLoginOuCadastro);
-  attachPilulasGenero();
   document.getElementById("pcBtnIrLogin").addEventListener("click", () => {
     pcState.erro = "";
     pcState.cadRascunho = null;
@@ -2059,19 +2012,15 @@ function renderTelaCadastro() {
   document.getElementById("pcBtnCadastrar").addEventListener("click", async (e) => {
     const nome = document.getElementById("pcCadNome").value.trim();
     const email = document.getElementById("pcCadEmail").value.trim();
-    const telefone = document.getElementById("pcCadTelefone").value.trim();
     const senha = document.getElementById("pcCadSenha").value;
-    const cpf = document.getElementById("pcCadCpf").value.trim();
-    const cep = document.getElementById("pcCadCep").value.trim();
-    const genero = document.getElementById("pcCadGenero").value;
     const lgpdAceito = document.getElementById("pcCadLgpd").checked;
     // Guarda ANTES de validar — qualquer branch de erro abaixo re-renderiza
     // a tela, e é esse rascunho que a repovoa (senha fica de fora, de
     // propósito).
-    pcState.cadRascunho = { nome, email, telefone, cpf, cep, genero, lgpd: lgpdAceito };
+    pcState.cadRascunho = { nome, email, lgpd: lgpdAceito };
 
-    if (!nome || !email || !senha || !cpf || !cep || !genero) {
-      pcState.erro = "Preencha nome, e-mail, senha, CPF, CEP e gênero.";
+    if (!nome || !email || !senha) {
+      pcState.erro = "Preencha nome, e-mail e senha.";
       renderTelaCadastro();
       return;
     }
@@ -2081,17 +2030,9 @@ function renderTelaCadastro() {
       return;
     }
     e.target.disabled = true;
-    const cepResolvido = await buscarCep(cep);
-    if (cepResolvido.error) {
-      e.target.disabled = false;
-      pcState.erro = cepResolvido.error;
-      renderTelaCadastro();
-      return;
-    }
-    const { error, data } = await cadastrar({
-      nome, email, senha, telefone, modoPreenchimento: "detalhado", cpf, lgpdAceito, genero,
-      cep: cep.replace(/\D/g, ""), municipioResidencia: cepResolvido.municipio, ufResidencia: cepResolvido.uf,
-    });
+    // Cadastro progressivo (04/09/2026): CEP e gênero saíram daqui — são
+    // pedidos uma vez só no modal de depósito da 1ª cédula.
+    const { error, data } = await cadastrar({ nome, email, senha, modoPreenchimento: "detalhado", lgpdAceito });
     if (error) {
       e.target.disabled = false;
       pcState.erro = "Não consegui criar sua conta: " + error.message;
@@ -4250,6 +4191,20 @@ async function renderMinhasListas() {
           <div class="pc-aviso-titulo">Lembrete</div>
           <div class="pc-aviso-corpo">Você não preencheu a lista completa.</div>
         </div>` : ""}
+        ${pcState.perfil && (!pcState.perfil.cep || !pcState.perfil.genero) ? `
+        <div id="pcDepPrimeiraCedula" style="margin:16px 0 4px; padding:12px 12px 2px; border:1px solid #2B2F33; border-radius:12px;">
+          <div style="color:var(--pc-accent); font-size:11px; font-weight:700; letter-spacing:.04em; margin-bottom:10px;">SÓ NA PRIMEIRA CÉDULA</div>
+          <div class="field-row">
+            <label>CEP</label>
+            <input class="cell" id="pcDepCep" inputmode="numeric" placeholder="00000-000" maxlength="9" value="${escaparAtributoHtml(pcState._depCepRascunho || "")}">
+          </div>
+          <div style="font-size:11px; color:var(--pc-ink-dim); margin:-10px 0 14px;">Só pra saber seu município — ajuda a entender quem está usando o Simulador.</div>
+          <div class="field-row">
+            <label>Gênero</label>
+            ${pilulasGenero("pcDepGenero", pcState._depGeneroRascunho)}
+          </div>
+          <div class="pc-erro" id="pcDepErro"></div>
+        </div>` : ""}
         <label style="display:flex; align-items:center; gap:10px; margin:16px 0; font-size:13px; color:var(--pc-ink); cursor:pointer;">
           <span class="pc-switch pc-switch-neutro" style="flex-shrink:0;"><input type="checkbox" id="pcCheckAnonimo"${pcState._anonimoPreAviso ? " checked" : ""}><span class="pc-switch-slider"></span></span>
           Anônimo
@@ -4490,8 +4445,38 @@ async function renderMinhasListas() {
       pcState.avisoVagaNaoMarcadaConfirmado = false;
       renderMinhasListas();
     });
-    document.getElementById("pcBtnConfirmarDepositar").addEventListener("click", async () => {
+    attachPilulasGenero();
+    document.getElementById("pcBtnConfirmarDepositar").addEventListener("click", async (e) => {
       const anonimo = document.getElementById("pcCheckAnonimo").checked;
+      // Cadastro progressivo (04/09/2026): CEP/município e gênero são pedidos
+      // aqui, uma vez só, no depósito da 1ª cédula (bloco "Só na primeira
+      // cédula" acima). Resolve e grava ANTES de qualquer validação da lista;
+      // quando o perfil já tem os dois, o bloco nem existe e isso é pulado.
+      const blocoPrimeira = document.getElementById("pcDepPrimeiraCedula");
+      if (blocoPrimeira && pcState.perfil) {
+        const erroEl = document.getElementById("pcDepErro");
+        const cep = document.getElementById("pcDepCep").value.trim();
+        const genero = document.getElementById("pcDepGenero").value;
+        // Preserva o que foi digitado se o modal for re-renderizado (aviso
+        // de vaga não marcada etc.).
+        pcState._depCepRascunho = cep;
+        pcState._depGeneroRascunho = genero;
+        if (!cep || !genero) { erroEl.textContent = "Preencha CEP e gênero pra depositar sua primeira cédula."; return; }
+        erroEl.textContent = "";
+        e.target.disabled = true;
+        const cepResolvido = await buscarCep(cep);
+        if (cepResolvido.error) { e.target.disabled = false; erroEl.textContent = cepResolvido.error; return; }
+        const campos = { cep: cep.replace(/\D/g, ""), municipioResidencia: cepResolvido.municipio, ufResidencia: cepResolvido.uf, genero };
+        const { error: erroDados } = await completarDadosPrimeiraCedula(pcState.perfil.id, campos);
+        if (erroDados) { e.target.disabled = false; erroEl.textContent = "Não consegui salvar: " + erroDados.message; return; }
+        pcState.perfil.cep = campos.cep;
+        pcState.perfil.municipio_residencia = campos.municipioResidencia;
+        pcState.perfil.uf_residencia = campos.ufResidencia;
+        pcState.perfil.genero = genero;
+        pcState._depCepRascunho = null;
+        pcState._depGeneroRascunho = null;
+        e.target.disabled = false;
+      }
       // 2º clique (botão já virou "Depositar mesmo assim", o aviso abaixo
       // já está na tela) — a pessoa decidiu, não pergunta de novo.
       if (pcState.avisoVagaNaoMarcadaResumo) pcState.avisoVagaNaoMarcadaConfirmado = true;
@@ -10750,7 +10735,8 @@ function docRodape() {
         <svg viewBox="0 0 33 33" width="54" height="54" shape-rendering="crispEdges"><path d="${DOC_QR_PATH}" fill="#111"></path></svg>
         <div class="di-qrleg">aponte a câmera</div>
       </div>
-    </div>`;
+    </div>
+    <div class="di-aviso">Jogo de palpites entre participantes — não é pesquisa eleitoral e não tem valor estatístico.</div>`;
 }
 
 // Opções do <select> "Por partido" da tela de impressão — união dos
@@ -12571,6 +12557,7 @@ async function renderQuadroMedias() {
       <div class="pc-status" id="pcMedianaStatus" style="margin-top:6px; min-height:12px;">${pcState.medianaStatus || ""}</div>
     </div>` : ""}
     ${painelPrecos}
+    <div class="pc-aviso-nao-pesquisa">Jogo de palpites entre participantes. Não é pesquisa eleitoral e não tem valor estatístico.</div>
     ${pcState.perfil ? `<div style="margin-top:12px; text-align:center; font-size:11.5px; color:var(--pc-ink-dim);"><span style="color:var(--pc-accent); font-weight:700; cursor:pointer;" id="pcBtnDesafiarDoTermometro">Lance o seu desafio.</span></div>` : ""}
   `;
   if (coringaOverlay) document.body.insertAdjacentHTML("beforeend", coringaOverlay);

@@ -1,5 +1,6 @@
 // Cadastro/login/logout da Prospecção Coletiva + leitura do perfil da pessoa logada.
 
+// cpfValido/hashCPF não são mais chamados desde 04/09/2026 (CPF saiu do produto — cadastro progressivo); ficam só por histórico, coluna cpf_hash segue no banco.
 // Validação de CPF (algoritmo padrão de dígito verificador) — barra CPF
 // obviamente inválido/inventado antes de gastar uma tentativa de cadastro.
 // Não impede fraude sofisticada sozinha; combinado com o hash único no
@@ -60,8 +61,10 @@ async function _resolverConvidadoPor() {
   return data;
 }
 
-async function cadastrar({ nome, email, senha, telefone, modoPreenchimento, cpf, lgpdAceito, cep, municipioResidencia, ufResidencia, genero }) {
-  if (!cpfValido(cpf)) return { error: { message: "CPF inválido. Confira os números digitados." } };
+// Cadastro progressivo (04/09/2026): só nome, e-mail, senha e LGPD. CEP/
+// município/gênero são pedidos na 1ª cédula (completarDadosPrimeiraCedula);
+// telefone continua opcional em "Meu perfil"; CPF saiu de vez.
+async function cadastrar({ nome, email, senha, modoPreenchimento, lgpdAceito }) {
   if (!senhaForte(senha)) return { error: { message: "A senha precisa ter pelo menos 8 caracteres, com letra, número e caractere especial." } };
   if (!lgpdAceito) return { error: { message: "Precisa marcar a concordância com o uso dos dados pra continuar." } };
 
@@ -71,27 +74,20 @@ async function cadastrar({ nome, email, senha, telefone, modoPreenchimento, cpf,
     // Confirmação de e-mail ainda ligada no painel do Supabase — ver PROJETO.md.
     return { error: { message: "Cadastro criado, mas o e-mail de confirmação está ativo no Supabase. Desligue 'Confirm email' em Authentication → Providers → Email e tente de novo." } };
   }
-  const cpfHash = await hashCPF(cpf);
   const convidadoPor = await _resolverConvidadoPor();
   const { error: erroPerfil } = await supabaseClient.from("perfis").insert({
     id: data.user.id,
     convidado_por: convidadoPor && convidadoPor !== data.user.id ? convidadoPor : null,
     nome,
-    telefone: telefone || null,
     escopo: "assembleia",
     partido_escopo: null,
     modo_preenchimento: modoPreenchimento,
     mostrar_nome: true,
-    cpf_hash: cpfHash,
     lgpd_aceite_em: new Date().toISOString(),
-    cep,
-    municipio_residencia: municipioResidencia,
-    uf_residencia: ufResidencia,
-    genero,
   });
   if (erroPerfil) {
     const duplicado = erroPerfil.code === "23505" || /duplicate|unique/i.test(erroPerfil.message || "");
-    return { error: { message: duplicado ? "Este CPF já está cadastrado em outra conta." : erroPerfil.message } };
+    return { error: { message: duplicado ? "Já existe uma conta com esses dados." : erroPerfil.message } };
   }
   // Limpa o convite pendente AQUI (não antes) — achado em auditoria de QA,
   // 25/08/2026: a chave nunca era removida, então ficava presa no
@@ -263,48 +259,49 @@ async function usuarioFinalPesquisaAgregada(estado, genero, ufResidencia) {
 }
 
 // Login social — manda pro Google e volta pro mesmo endereço do site. O
-// Google não entrega CPF nem um aceite de LGPD, então quem entra por aqui
+// Google não entrega um aceite de LGPD, então quem entra por aqui
 // pela primeira vez tem sessão mas ainda não tem linha em "perfis" — o app
-// detecta isso (initColaborativo, interface/prospeccao.js) e pede só esses
-// dois dados que faltam antes de liberar o resto (ver completarPerfilGoogle).
+// detecta isso (initColaborativo, interface/prospeccao.js) e pede só a
+// confirmação do nome + LGPD antes de liberar o resto (ver completarPerfilGoogle).
 async function entrarComGoogle() {
   const redirectTo = window.location.origin + window.location.pathname;
   return await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
 }
 
 // Completa o cadastro de quem entrou pelo Google: a sessão já existe, só
-// falta criar a linha em "perfis" com CPF (anti-duplicidade, mesma regra do
-// cadastro por e-mail) e o aceite da LGPD.
-async function completarPerfilGoogle({ nome, cpf, telefone, lgpdAceito, cep, municipioResidencia, ufResidencia, genero }) {
-  if (!cpfValido(cpf)) return { error: { message: "CPF inválido. Confira os números digitados." } };
+// falta criar a linha em "perfis" com o nome confirmado e o aceite da LGPD
+// (cadastro progressivo, 04/09/2026).
+async function completarPerfilGoogle({ nome, lgpdAceito }) {
   if (!lgpdAceito) return { error: { message: "Precisa marcar a concordância com o uso dos dados pra continuar." } };
   const sessao = await sessaoAtual();
   if (!sessao) return { error: { message: "Sessão expirada. Entre novamente." } };
-  const cpfHash = await hashCPF(cpf);
   const convidadoPor = await _resolverConvidadoPor();
   const { data, error: erroPerfil } = await supabaseClient.from("perfis").insert({
     id: sessao.user.id,
     convidado_por: convidadoPor && convidadoPor !== sessao.user.id ? convidadoPor : null,
     nome,
-    telefone: telefone || null,
     escopo: "assembleia",
     partido_escopo: null,
     modo_preenchimento: "detalhado",
     mostrar_nome: true,
-    cpf_hash: cpfHash,
     lgpd_aceite_em: new Date().toISOString(),
-    cep,
-    municipio_residencia: municipioResidencia,
-    uf_residencia: ufResidencia,
-    genero,
   }).select().maybeSingle();
   if (erroPerfil) {
     const duplicado = erroPerfil.code === "23505" || /duplicate|unique/i.test(erroPerfil.message || "");
-    return { error: { message: duplicado ? "Este CPF já está cadastrado em outra conta." : erroPerfil.message } };
+    return { error: { message: duplicado ? "Já existe uma conta com esses dados." : erroPerfil.message } };
   }
   // Mesma limpeza de cadastrar() acima — ver comentário lá.
   localStorage.removeItem("sl_convite_pendente");
   return { data };
+}
+
+// Cadastro progressivo (04/09/2026): CEP/município/UF e gênero são pedidos
+// uma vez só, no modal de depósito da 1ª cédula (bloco "Só na primeira
+// cédula" em renderMinhasListas) — fins estatísticos agregados.
+async function completarDadosPrimeiraCedula(perfilId, { cep, municipioResidencia, ufResidencia, genero }) {
+  return await atualizarPerfil(perfilId, {
+    cep, municipio_residencia: municipioResidencia, uf_residencia: ufResidencia, genero,
+  });
 }
 
 // Aba "Analítico" do painel admin (migração 37, 28/08/2026): todas as
