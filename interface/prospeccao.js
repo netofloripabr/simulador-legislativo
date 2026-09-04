@@ -6286,6 +6286,8 @@ function montarComparacaoGrupo(registros, cargo) {
   if (!remapeados.length) {
     return estadoVazio({ icone: "grupos", titulo: "Ninguém depositou ainda", texto: "Assim que alguém do grupo depositar a cédula desse cargo, a comparação aparece aqui." });
   }
+  // Sem votosDuelo aqui de propósito: comparação de GRUPO é escopo diferente
+  // (só quem depositou naquele grupo), não a Mediana pública geral.
   const { parties, totalPalpites } = calcularMedianaPalpites(remapeados, cargo, pcState.estado);
   const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
   // Senador é majoritário (mesmo motivo do branch em
@@ -12461,29 +12463,34 @@ async function renderQuadroMedias() {
 
   if (!pcState.cargoAtivoMedias) pcState.cargoAtivoMedias = "estadual";
   const cargo = pcState.cargoAtivoMedias;
-  // Conta-gotas (economia v3 §4, migração 23) — mesmo backend de sempre
-  // (+2 linhas/dia, acelerável com SL), só que agora abre de TRÁS pra
-  // FRENTE (decisão de 24/08/2026: "vamos abrindo conforme os dias vão
-  // passando", o prêmio — quem se elege — é o último a cair). O total
-  // continua crescendo do mesmo jeito; só a ponta que ele revela mudou.
-  const posEleicao = new Date() > DATA_ELEICAO_2026;
-  let linhasReveladas = 2;
-  if (pcState.perfil && !posEleicao) {
-    const r = await registrarAcessoMediana();
-    if (r !== null) linhasReveladas = r;
-  }
+  // Nomes, partidos e posições SEMPRE abertos, pra todo mundo (decisão do
+  // usuário, 04/09/2026 — o conta-gotas de +2 linhas/dia da migração 23
+  // saiu daqui; as RPCs continuam no banco, só não são mais chamadas).
+  // A única camada de bloqueio que resta é a votação por candidato, abaixo.
+  // "Referência inicial" (04/09/2026): enquanto o estado tiver menos de
+  // LIMIAR_MEDIANA_REAL cédulas reais depositadas, a Mediana pública ainda
+  // é sustentada majoritariamente por bots (que saem 1 a 1 a cada depósito
+  // real — regra de 25/08, intacta) — o rótulo deixa isso explícito em vez
+  // de apresentar como "a opinião do grupo". Acima do limiar, o rótulo some
+  // sozinho (não é um evento — é só o número passando do corte).
+  const LIMIAR_MEDIANA_REAL = 15;
+  const { data: depositosReaisUf } = await supabaseClient.rpc("contagem_depositos_reais_uf", { p_uf: pcState.estado });
+  const reaisNoEstado = Number(depositosReaisUf) || 0;
+  const referenciaInicial = reaisNoEstado < LIMIAR_MEDIANA_REAL;
   const registros = await buscarTodosRascunhosPublicos();
-  const { parties, totalPalpites } = calcularMedianaPalpites(registros, cargo, pcState.estado);
+  // Votos dados dentro de um Duelo também entram no Termômetro (decisão do
+  // usuário, 04/09/2026) — ver duelo_votos_publicos (migração 45).
+  const votosDuelo = await buscarVotosDuelosPublicos(pcState.estado, cargo);
+  const { parties, totalPalpites } = calcularMedianaPalpites(registros, cargo, pcState.estado, votosDuelo);
   const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
   const limiteExibicao = cargo === "senador" ? 5 : Math.round(totalVagasCargo * 1.5);
   const projecao = projetarEleitosMediana(parties, cargo, pcState.estado, limiteExibicao);
 
-  // Votação mediana — cadeado SEPARADO, por candidato (pedido do usuário,
+  // Votação mediana — cadeado por candidato (pedido do usuário,
   // 23/08/2026: "a aba do candidato apresente a votação mediana... que
   // também fica borrado... e que será cobrado para tirar o borrão").
-  // Revelar um candidato aqui (Coringa/avulso/pacote/lista) mostra nome E
-  // votos daquele candidato, MESMO que o conta-gotas posicional ainda não
-  // tenha chegado nele — é o "furar a fila" que dá graça ao Coringa.
+  // Revelar um candidato aqui (Coringa/avulso/pacote/cargo) abre só a
+  // votação dele — nome e posição já estão à vista.
   const chaveCache = `${pcState.estado}::${cargo}`;
   if (!pcState.termometroRevelacoesCache[chaveCache]) {
     const revs = pcState.perfil ? await minhasRevelacoesTermometro(pcState.estado, cargo) : [];
@@ -12505,48 +12512,11 @@ async function renderQuadroMedias() {
   const botoesCargo = CARGOS.map((c) => `
     <button data-pc-cargo-medias="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
 
-  // ===== linha do tempo compacta (protótipo v6/v7, agulha ancorada no
-  // dia de hoje — robusta a qualquer largura de tela porque a marca fica
-  // posicionada relativa ao PRÓPRIO card de hoje, não a porcentagens do
-  // container inteiro, que foi a fonte de 3 rodadas de ajuste fino no
-  // protótipo). ==========
-  const hojeDt = new Date();
-  const diasVizinhos = [-2, -1, 0, 1, 2].map((delta) => {
-    const d = new Date(hojeDt); d.setDate(hojeDt.getDate() + delta); return d;
-  });
-  const faltam = diasAteEleicao();
-  const cardDia = (d, cls) => `<div class="pc-cal-d ${cls}"><b>${d.getDate()}</b><span>${d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "").toUpperCase()}</span></div>`;
-  const linhaTempoHtml = `
-    <div class="pc-lt-wrap">
-      <div class="pc-cal">
-        ${cardDia(diasVizinhos[0], "f2")}
-        ${cardDia(diasVizinhos[1], "f1")}
-        <div class="pc-cal-d hoje">
-          <span class="pc-lt-marca"><span class="pc-lt-falta">${faltam} <span>dias</span></span><span class="pc-lt-ag"><svg width="9" height="6" viewBox="0 0 11 7"><path d="M5.5 7L0 0h11z" fill="currentColor"></path></svg></span></span>
-          <b>${hojeDt.getDate()}</b><span>HOJE</span>
-        </div>
-        ${cardDia(diasVizinhos[3], "f1")}
-        ${cardDia(diasVizinhos[4], "f2")}
-        <div class="pc-cal-sep">···</div>
-        <div class="pc-cal-d alvo"><b>${DATA_ELEICAO_2026.getDate()}</b><span>ELEIÇÃO</span></div>
-      </div>
-    </div>`;
-
   const votosOuCadeado = (c) => votosRevelados.has(c.chave)
     ? `<span class="pc-tm-votos">${Number(c.votos || 0).toLocaleString("pt-BR")} <small>votos</small></span>`
     : `<span class="pc-tm-votos-lock">${iconeSvg("cadeadoSlot", 9)}votos</span>`;
 
   const linha = (c, i) => {
-    const nomeRevelado = (i >= projecao.length - linhasReveladas) || votosRevelados.has(c.chave);
-    if (!nomeRevelado) {
-      return `<div class="pc-lobby-linha" style="filter:blur(4px); opacity:.5; pointer-events:none; user-select:none;" aria-hidden="true">
-        <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
-          <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:var(--pc-ink-dim);">${i + 1}º</span>
-          <span style="min-width:0;"><div style="font-size:13px; font-weight:600;">Nome ainda fechado</div><div style="font-size:10.5px; color:var(--pc-ink-dim);">Partido · ${c.amostras} palpites</div></span>
-        </span>
-        <span style="font-size:12.5px; font-weight:600; color:var(--pc-ink-dim);">••••</span>
-      </div>`;
-    }
     return `<div class="pc-lobby-linha">
       <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
         <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:${c.eleito ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${i + 1}º</span>
@@ -12562,31 +12532,29 @@ async function renderQuadroMedias() {
   // ===== painel "Revelar agora" — Coringa + avulso/pacote/cargo, preço
   // por escopo × prazo (decisão de 24/08/2026). ==========
   const candidatosVotoOculto = projecao.filter((c) => !votosRevelados.has(c.chave));
-  const candidatosNomeAberto = projecao.filter((c, i) => (i >= projecao.length - linhasReveladas) && !votosRevelados.has(c.chave));
   const painelPrecos = pcState.perfil && candidatosVotoOculto.length ? `
     <div class="pc-tm-premium">
       <div class="pc-tm-premium-tit">${iconeSvg("credito", 15)} Revelar agora!</div>
-      <div class="pc-tm-premium-sub">Não espere os dias passarem. Abre o nome e a <b>votação mediana</b> do candidato.</div>
+      <div class="pc-tm-premium-sub">Abre a <b>votação mediana</b> do candidato — o número que o grupo projeta.</div>
 
       <div class="pc-tm-linha-op pc-tm-coringa" id="pcBtnCoringa">
         <span class="pc-tm-op-ic">${iconeSvg("desafio", 15)}</span>
-        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Coringa</span><span class="pc-tm-op-d">O sistema sorteia 1 candidato</span></span>
+        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Coringa</span><span class="pc-tm-op-d">O sistema sorteia 1 candidato e abre a votação dele</span></span>
         <span class="pc-tm-op-p" style="color:#E8B04A;">2 SL</span>
       </div>
 
-      ${candidatosNomeAberto.length ? `
       <div class="pc-tm-linha-op" id="pcBtnRevelarAvulso" data-custo7="3" data-custo-def="5">
         <span class="pc-tm-op-ic">${iconeSvg("buscar", 14)}</span>
-        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Candidato</span><span class="pc-tm-op-d">Selecione o resultado do seu candidato</span></span>
+        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Candidato</span><span class="pc-tm-op-d">Escolha de quem abrir a votação</span></span>
         <span class="pc-tm-op-p">5 SL</span>
       </div>
       <select class="cell" id="pcSelectCandidatoAvulso" style="width:100%; margin:-4px 0 8px;">
-        ${candidatosNomeAberto.map((c) => `<option value="${c.chave}">${c.nomeUrna || c.nome} — ${c.partido}</option>`).join("")}
-      </select>` : ""}
+        ${candidatosVotoOculto.map((c) => `<option value="${c.chave}">${c.nomeUrna || c.nome} — ${c.partido}</option>`).join("")}
+      </select>
 
       <div class="pc-tm-linha-op" id="pcBtnRevelarPacote" data-custo7="20" data-custo-def="35">
         <span class="pc-tm-op-ic">${iconeSvg("lista", 14)}</span>
-        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Pacote de 10</span><span class="pc-tm-op-d">Os próximos 10 ainda fechados</span></span>
+        <span class="pc-tm-op-c"><span class="pc-tm-op-t">Pacote de 10</span><span class="pc-tm-op-d">10 candidatos com a votação ainda fechada</span></span>
         <span class="pc-tm-op-p">35 SL</span>
       </div>
       <div class="pc-tm-linha-op" id="pcBtnRevelarCargo" data-custo7="30" data-custo-def="50">
@@ -12618,20 +12586,20 @@ async function renderQuadroMedias() {
   conteudo.innerHTML = `
     <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Termômetro Eleitoral</div>
     <div class="pc-sub" style="margin:0 0 14px 2px;">Mediana aparada de ${totalPalpites} palpite${totalPalpites === 1 ? "" : "s"} público${totalPalpites === 1 ? "" : "s"}, pela mesma regra do resultado oficial.</div>
+    ${referenciaInicial ? `
+    <div style="display:flex; align-items:center; gap:8px; background:var(--pc-glass); border:1px solid var(--pc-glass-border); border-radius:10px; padding:9px 11px; margin-bottom:14px;">
+      <span style="font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--pc-ink-dim); border:1px solid var(--pc-glass-border); border-radius:999px; padding:2px 7px; flex-shrink:0;">referência inicial</span>
+      <span style="font-size:11px; color:var(--pc-ink-dim); line-height:1.4;"><b style="color:var(--pc-ink);">${reaisNoEstado} pessoa${reaisNoEstado === 1 ? "" : "s"} real${reaisNoEstado === 1 ? "" : "is"}</b> já depositou${reaisNoEstado === 1 ? "" : "ram"} em ${pcState.estado}. Enquanto não chegar em ${LIMIAR_MEDIANA_REAL}, a mediana é um ponto de partida — não a opinião do grupo.</span>
+    </div>
+    <div style="height:6px; background:var(--pc-glass); border:1px solid var(--pc-glass-border); border-radius:4px; overflow:hidden; margin:-8px 0 4px;"><div style="width:${Math.round(Math.min(1, reaisNoEstado / LIMIAR_MEDIANA_REAL) * 100)}%; height:100%; background:var(--pc-accent); opacity:.7;"></div></div>
+    <div style="font-size:10px; color:var(--pc-ink-faint); margin:0 0 14px 2px;">${reaisNoEstado} de ${LIMIAR_MEDIANA_REAL} cédulas reais pra virar "mediana do grupo"</div>` : ""}
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
-    <div class="pc-lobby-card" style="padding:10px 12px 11px;">${posEleicao ? "" : linhaTempoHtml}</div>
     <div class="pc-lobby-card" style="padding:14px;">
       ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(52,232,74,.14)", vago: "#1B1E22", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
     </div>
     <div class="pc-lobby-card">
       ${projecao.length ? projecao.map((c, i) => linha(c, i)).join("") : estadoVazio({ icone: "chart", titulo: "Ninguém preencheu esse cargo", texto: "Assim que alguém depositar uma cédula pública desse cargo, o Termômetro aparece aqui." })}
     </div>
-    ${!posEleicao && projecao.length > linhasReveladas ? `
-    <div style="margin-top:12px; padding:12px 14px; background:#101214; border:1px solid #23262A; border-radius:10px; font-size:11.5px; color:#8A9096; line-height:1.6;">
-      Todo dia abre mais um pedaço — de trás pra frente. Você já abriu <b style="color:#F2F4F5;">${linhasReveladas}</b> de ${projecao.length}.
-      <button class="ghost" id="pcBtnAcelerarMediana" style="width:100%; margin-top:10px; font-size:12px; padding:9px;">+10 linhas por 2 SL</button>
-      <div class="pc-status" id="pcMedianaStatus" style="margin-top:6px; min-height:12px;">${pcState.medianaStatus || ""}</div>
-    </div>` : ""}
     ${painelPrecos}
     <div class="pc-aviso-nao-pesquisa">Jogo de palpites entre participantes. Não é pesquisa eleitoral e não tem valor estatístico.</div>
     ${pcState.perfil ? `<div style="margin-top:12px; text-align:center; font-size:11.5px; color:var(--pc-ink-dim);"><span style="color:var(--pc-accent); font-weight:700; cursor:pointer;" id="pcBtnDesafiarDoTermometro">Lance o seu desafio.</span></div>` : ""}
@@ -12644,23 +12612,6 @@ async function renderQuadroMedias() {
       renderQuadroMedias();
     });
   });
-  const btnAcelerar = document.getElementById("pcBtnAcelerarMediana");
-  if (btnAcelerar) {
-    btnAcelerar.addEventListener("click", async (e) => {
-      if (!pcState.perfil) return;
-      e.target.disabled = true;
-      const r = await acelerarMediana();
-      if (r.semSaldo) {
-        pcState.medianaStatus = "Saldo insuficiente (precisa de 2 SL) — convide um amigo ou desafie alguém pra ganhar mais.";
-      } else if (r.erro) {
-        pcState.medianaStatus = "Não deu: " + r.erro;
-      } else {
-        pcState.medianaStatus = "";
-        try { pcState.perfil.creditos = await obterSaldoCreditos(pcState.perfil.id); } catch (err) {}
-      }
-      renderQuadroMedias();
-    });
-  }
   const btnDesafiar = document.getElementById("pcBtnDesafiarDoTermometro");
   if (btnDesafiar) btnDesafiar.addEventListener("click", () => { pcState.subaba = "desafios"; renderAppColaborativo(); });
 

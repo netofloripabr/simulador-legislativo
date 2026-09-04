@@ -272,6 +272,20 @@ async function buscarTodosRascunhosPublicos() {
   return data || [];
 }
 
+// Votos indicados DENTRO de um Duelo (tabela desafios, colunas jsonb
+// votos_criador/votos_desafiado) — antes não entravam no Termômetro
+// público. RPC security definer (migração 45) já devolve deduplicado por
+// pessoa+candidato (voto mais recente vence). Alimenta
+// calcularMedianaPalpites abaixo, como 3º parâmetro opcional.
+async function buscarVotosDuelosPublicos(estado, cargo) {
+  const { data, error } = await supabaseClient.rpc("duelo_votos_publicos", { p_estado: estado, p_cargo: cargo });
+  if (error) {
+    console.error("Erro ao carregar votos de duelos públicos:", error);
+    return [];
+  }
+  return data || [];
+}
+
 // Mediana aparada: ordena as amostras, descarta os 10% mais altos e mais
 // baixos ANTES de tirar a mediana — protege contra um BLOCO de respostas
 // extremas na mesma direção (ex.: 15% de gente testando número aleatório
@@ -296,18 +310,35 @@ function medianaAparada(valores) {
 // vez da média simples. "amostras" (quantas pessoas votaram nesse
 // candidato específico) e "semPalpites" vão junto, pra tela poder mostrar
 // o tamanho da amostra por trás do número.
-function calcularMedianaPalpites(registros, cargo, uf) {
+function calcularMedianaPalpites(registros, cargo, uf, votosDuelo) {
   cargo = cargo || "estadual";
   uf = uf || "SC";
   const amostras = {}; // chave -> [votos...]
+  const cobertos = new Set(); // "perfil_id::chave" já presente num rascunho salvo
+  const participantesRegistros = new Set();
   registros.forEach((r) => {
+    participantesRegistros.add(r.perfil_id);
     (r[`rascunho_${cargo}`] || []).forEach((partido) => {
       (partido.candidatos || []).forEach((c) => {
         const chave = c.chave || chaveCandidato(c.nome, partido.nome);
+        cobertos.add(`${r.perfil_id}::${chave}`);
         if (!amostras[chave]) amostras[chave] = [];
         amostras[chave].push(Number(c.votos) || 0);
       });
     });
+  });
+
+  // Voto de duelo só entra pra chave/pessoa SEM rascunho salvo daquele
+  // candidato — o rascunho salvo é o palpite "oficial" da pessoa e tem
+  // prioridade (decisão do usuário, 04/09/2026). Já vem deduplicado por
+  // pessoa+candidato do banco (duelo_votos_publicos), não precisa dedup aqui.
+  const participantesDuelo = new Set();
+  (votosDuelo || []).forEach((v) => {
+    const marca = `${v.perfil_id}::${v.chave}`;
+    if (cobertos.has(marca)) return;
+    if (!amostras[v.chave]) amostras[v.chave] = [];
+    amostras[v.chave].push(Number(v.votos) || 0);
+    participantesDuelo.add(v.perfil_id);
   });
 
   const baseCargo = candidatosEstadoCargo(uf, cargo);
@@ -329,7 +360,7 @@ function calcularMedianaPalpites(registros, cargo, uf) {
     return { nome: p.nome, vagas2022: p.vagas2022, candidatos };
   });
 
-  const participantes = new Set(registros.map((r) => r.perfil_id));
+  const participantes = new Set([...participantesRegistros, ...participantesDuelo]);
   return { parties: partiesMediana, totalPalpites: participantes.size };
 }
 

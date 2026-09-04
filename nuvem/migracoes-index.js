@@ -1081,5 +1081,16 @@ const MIGRACOES_INDEX = [
     "admin_migracoes_status"
    ]
   ]
+ },
+ {
+  "num": 45,
+  "arquivo": "migracao-45-duelo-votos-publicos.sql",
+  "descricao": "Migração 45: Votos dados DENTRO de um Duelo entram no Termômetro",
+  "objetos": [
+   [
+    "function",
+    "duelo_votos_publicos"
+   ]
+  ]
  }
 ];

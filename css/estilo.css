@@ -561,44 +561,6 @@
   #modoColaborativoWrap .pc-pacote-selo{ display:inline-block; font-size:8px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--pc-accent); margin-top:2px; }
   #modoColaborativoWrap .pc-pacote-p{ font-size:12.5px; font-weight:800; flex-shrink:0; color:var(--pc-ink-dim); }
 
-  /* ===== Termômetro — linha do tempo compacta ===== */
-  /* .pc-lt-marca (a marcação "N dias") flutua ACIMA do card "hoje" via
-     position:absolute — isso não reserva espaço no fluxo normal, então
-     sem esse margin-top a marcação vaza pra FORA do próprio card
-     .pc-lobby-card (10px de padding-top não bastam pros ~22px que a
-     marcação ocupa), sobrepondo o que vier antes na tela — achado do
-     usuário, 24/08/2026 (medido ao vivo: ~11px de estouro). */
-  #modoColaborativoWrap .pc-lt-wrap{ position:relative; margin-top:18px; }
-  /* (o trilho .pc-lt-rail — a linha que cortava o calendário — saiu a
-     pedido do usuário em 30/08/2026; os cards de dia se bastam) */
-  #modoColaborativoWrap .pc-cal{ display:flex; align-items:center; gap:5px; position:relative; z-index:1; }
-  #modoColaborativoWrap .pc-cal-d{
-    position:relative; flex:1; min-width:0; height:34px; border-radius:8px;
-    background:#101214; border:1px solid #1E2226;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-  }
-  #modoColaborativoWrap .pc-cal-d b{ font-size:13px; font-weight:800; line-height:1.05; color:#AEB5BB; font-variant-numeric:tabular-nums; }
-  #modoColaborativoWrap .pc-cal-d span{ font-size:6.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--pc-ink-dim); line-height:1.2; }
-  #modoColaborativoWrap .pc-cal-d.f2{ filter:blur(1.6px); opacity:.4; }
-  #modoColaborativoWrap .pc-cal-d.f1{ filter:blur(.7px); opacity:.62; }
-  #modoColaborativoWrap .pc-cal-d.hoje{ background:rgba(52,232,74,.1); border-color:rgba(52,232,74,.5); }
-  #modoColaborativoWrap .pc-cal-d.hoje b, #modoColaborativoWrap .pc-cal-d.hoje span{ color:var(--pc-accent); }
-  #modoColaborativoWrap .pc-cal-d.alvo{ background:rgba(255,138,61,.1); border-color:rgba(255,138,61,.5); }
-  #modoColaborativoWrap .pc-cal-d.alvo b, #modoColaborativoWrap .pc-cal-d.alvo span{ color:var(--pc-laranja); }
-  #modoColaborativoWrap .pc-cal-sep{ flex:0 0 12px; text-align:center; font-size:10px; letter-spacing:.14em; color:#3A4046; }
-  #modoColaborativoWrap .pc-lt-marca{
-    /* padding-bottom não cria respiro nenhum aqui — bottom:100% já fixa a
-       borda DE FORA da caixa (padding+conteúdo) rente ao card; o respiro
-       tem que ser margin, que empurra a caixa inteira pra cima (achado do
-       usuário, 24/08/2026 — a agulha estava literalmente colada no card
-       "hoje", 0px de fato apesar do padding-bottom:8px no código). */
-    position:absolute; left:50%; bottom:100%; transform:translateX(-50%); margin-bottom:6px;
-    display:flex; flex-direction:column; align-items:center; gap:2px; pointer-events:none; white-space:nowrap;
-  }
-  #modoColaborativoWrap .pc-lt-falta{ font-size:10.5px; font-weight:800; color:var(--pc-ink); font-variant-numeric:tabular-nums; }
-  #modoColaborativoWrap .pc-lt-falta span{ color:var(--pc-ink-dim); font-weight:600; }
-  #modoColaborativoWrap .pc-lt-ag{ color:var(--pc-accent); display:flex; line-height:0; }
-
   /* Votos borrados individualmente (cadeado separado do nome/posição) */
   #modoColaborativoWrap .pc-tm-votos{ font-size:12.5px; font-weight:600; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums; flex-shrink:0; }
   #modoColaborativoWrap .pc-tm-votos-lock{ display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:700; color:var(--pc-ink-dim); flex-shrink:0; }

@@ -98,6 +98,7 @@ async function gastarCreditosConta(perfilId, quantidade, tipo, referencia) {
 
 // Mediana em conta-gotas (migração 23): registra o dia de acesso (+2
 // linhas/dia, idempotente) e devolve o total revelado da conta.
+// registrarAcessoMediana/acelerarMediana não são chamadas desde 04/09/2026 — conta-gotas removido do Termômetro; as RPCs continuam no banco.
 async function registrarAcessoMediana() {
   const { data, error } = await supabaseClient.rpc("registrar_acesso_mediana");
   if (error) { console.error("Erro no acesso à mediana:", error); return null; }
