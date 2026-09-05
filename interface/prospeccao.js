@@ -31,6 +31,9 @@ let pcState = {
   adminBotsEstado: "SC", // UF selecionada na aba Bots do admin (lançamento é SC-only, decisão 28/08/2026)
   adminBotsStatus: null, // feedback da última ação da aba Bots ({tipo:"ok"|"erro", texto})
   adminAnaliticoIncluiBots: false, // aba Analítico: false = só contas reais (o "sistema de verdade", padrão da estruturação 28/08/2026)
+  adminHistOrigem: "todos", // filtro client-side do "Histórico de ações" (migração 46): "todos" | "organico" | "bots"
+  adminHistAcoes: null, // Set das chaves de HISTORICO_ACAO_ROTULOS ligadas no filtro; null = todas ligadas (padrão)
+  adminHistBusca: "", // texto livre do filtro (nome/e-mail/município, case-insensitive)
   adminPesquisaFiltro: null, // { genero, uf } — último filtro usado na seção "Pesquisa" do admin
   adminPesquisaResultados: null, // cache do resultado de adminPesquisaAgregada()
   adminPesquisaCargo: "estadual", // qual cargo a seção "Pesquisa" do admin está mostrando
@@ -2948,11 +2951,12 @@ const HISTORICO_ACAO_ROTULOS = {
 };
 
 async function montarAdminAnalitico() {
-  const [d, historico] = await Promise.all([
+  const [d, historicoTudo] = await Promise.all([
     adminAnalitico(pcState.adminAnaliticoIncluiBots),
-    adminHistoricoAcoes(pcState.adminAnaliticoIncluiBots, 300),
+    adminHistoricoAcoes(300),
   ]);
   if (!d) return `<div class="pc-sub">Não consegui carregar o analítico — a migração 37 já foi rodada no Supabase?</div>`;
+  pcState.adminHistCache = historicoTudo; // guardado pra os filtros do histórico não precisarem de novo round-trip a cada clique
 
   const cartao = (valor, label, cor) => `
     <div class="pc-metric" style="text-align:center;">
@@ -3048,24 +3052,130 @@ async function montarAdminAnalitico() {
       ${cartao(Number(d.desafios_criados).toLocaleString("pt-BR"), "desafios 1×1 criados")}
     </div>
 
-    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Histórico de ações — últimas ${(historico || []).length}</div>
-    <div class="glass-card" style="padding:6px 14px;">
-      ${historico === null ? `<div class="pc-sub" style="padding:8px 0;">Não consegui carregar o histórico — a migração 39 já foi rodada no Supabase?</div>`
-      : !historico.length ? `<div class="pc-sub" style="padding:8px 0;">Nenhuma ação registrada ainda.</div>`
-      : historico.map((h) => {
-        const rot = HISTORICO_ACAO_ROTULOS[h.acao] || { rot: h.acao, cor: "var(--pc-ink-dim)" };
-        const dt = new Date(h.data);
-        return `
-        <div style="display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:.5px solid #1a1d20; font-size:11px;">
-          <span style="flex:none; width:78px; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums;">${dt.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} ${dt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
-          <span style="flex:none; width:112px; font-size:9px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; color:${rot.cor};">${rot.rot}</span>
-          <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-            <b>${h.nome || "—"}</b>
-            <span style="color:var(--pc-ink-dim);">${h.municipio ? " · " + h.municipio : ""}${h.email ? " · " + h.email : ""}${h.detalhe ? " · " + h.detalhe : ""}</span>
-          </span>
-        </div>`;
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Histórico de ações</div>
+    <div id="pcHistoricoAcoesWrap">${montarHistoricoAcoesFiltrosHtml(historicoTudo)}</div>`;
+}
+
+// Filtros client-side do "Histórico de ações" (migração 46, 05/09/2026):
+// origem (todos/orgânico/bots), tipo de ação (multi-seleção) e busca livre
+// — tudo roda em cima do array já carregado, sem novo round-trip ao banco.
+function _historicoAcoesFiltrado(historicoTudo) {
+  if (!Array.isArray(historicoTudo)) return null;
+  const origem = pcState.adminHistOrigem;
+  const acoesLigadas = pcState.adminHistAcoes; // null = todas
+  const busca = (pcState.adminHistBusca || "").trim().toLowerCase();
+  return historicoTudo.filter((h) => {
+    if (origem === "organico" && h.bot) return false;
+    if (origem === "bots" && !h.bot) return false;
+    if (acoesLigadas && !acoesLigadas.has(h.acao)) return false;
+    if (busca) {
+      const alvo = `${h.nome || ""} ${h.email || ""} ${h.municipio || ""}`.toLowerCase();
+      if (!alvo.includes(busca)) return false;
+    }
+    return true;
+  });
+}
+
+function montarHistoricoAcoesFiltrosHtml(historicoTudo) {
+  if (historicoTudo === null) {
+    return `<div class="glass-card" style="padding:6px 14px;"><div class="pc-sub" style="padding:8px 0;">Não consegui carregar o histórico — a migração 39/46 já foi rodada no Supabase?</div></div>`;
+  }
+  const filtrado = _historicoAcoesFiltrado(historicoTudo) || [];
+  const acoesLigadas = pcState.adminHistAcoes; // null = todas ligadas
+
+  const chipOrigem = (valor, rot, corAtiva) => {
+    const ativo = pcState.adminHistOrigem === valor;
+    return `<button type="button" class="pc-chip-partido ${ativo ? "sel" : ""}" data-pc-hist-origem="${valor}"${ativo ? ` style="border-color:${corAtiva}; color:${corAtiva}; background:${corAtiva}1a;"` : ""}>${rot}</button>`;
+  };
+
+  const chipsOrigemHtml = `
+    <div style="margin-bottom:8px;">
+      ${chipOrigem("todos", "Todos", "var(--pc-accent)")}
+      ${chipOrigem("organico", "Orgânico", "var(--pc-accent)")}
+      ${chipOrigem("bots", "Bots", "#FF9A2E")}
+    </div>`;
+
+  const chipsAcaoHtml = `
+    <div style="margin-bottom:8px;">
+      ${Object.entries(HISTORICO_ACAO_ROTULOS).map(([chave, info]) => {
+        const ativo = !acoesLigadas || acoesLigadas.has(chave);
+        return `<button type="button" class="pc-chip-partido ${ativo ? "sel" : ""}" data-pc-hist-acao="${chave}"${ativo ? ` style="border-color:${info.cor}; color:${info.cor}; background:${info.cor}1a;"` : ""}>${info.rot}</button>`;
       }).join("")}
     </div>`;
+
+  const buscaHtml = `
+    <input type="text" class="cell" id="pcHistBusca" placeholder="Buscar por nome, e-mail ou município…" value="${escaparAtributoHtml(pcState.adminHistBusca || "")}" style="width:100%; margin-bottom:10px;">`;
+
+  const contadorHtml = `<div style="font-size:11px; color:var(--pc-ink-dim); margin-bottom:8px;">${filtrado.length} de ${historicoTudo.length} ações</div>`;
+
+  const listaHtml = !filtrado.length
+    ? `<div class="pc-sub" style="padding:8px 0;">${historicoTudo.length ? "Nenhuma ação bate com os filtros." : "Nenhuma ação registrada ainda."}</div>`
+    : filtrado.map((h) => {
+      const rot = HISTORICO_ACAO_ROTULOS[h.acao] || { rot: h.acao, cor: "var(--pc-ink-dim)" };
+      const dt = new Date(h.data);
+      return `
+      <div style="display:flex; align-items:baseline; gap:8px; padding:7px 0; border-bottom:.5px solid #1a1d20; font-size:11px;">
+        <span style="flex:none; width:78px; color:var(--pc-ink-dim); font-variant-numeric:tabular-nums;">${dt.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })} ${dt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+        <span style="flex:none; width:112px; font-size:9px; font-weight:800; letter-spacing:.03em; text-transform:uppercase; color:${rot.cor};">${rot.rot}</span>
+        <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+          <b>${h.nome || "—"}</b>${h.bot ? ' <span class="pc-sen-chip" style="background:#FF9A2E; color:#2A1600;" title="Conta fictícia (bot)">BOT</span>' : ""}
+          <span style="color:var(--pc-ink-dim);">${h.municipio ? " · " + h.municipio : ""}${h.email ? " · " + h.email : ""}${h.detalhe ? " · " + h.detalhe : ""}</span>
+        </span>
+      </div>`;
+    }).join("");
+
+  return `
+    ${chipsOrigemHtml}
+    ${chipsAcaoHtml}
+    ${buscaHtml}
+    ${contadorHtml}
+    <div class="glass-card" style="padding:6px 14px;">${listaHtml}
+    </div>`;
+}
+
+// Reaplica só os filtros do histórico (client-side, sem novo round-trip ao
+// banco — usa pcState.adminHistCache, preenchido em montarAdminAnalitico).
+// Re-renderiza só o pedaço #pcHistoricoAcoesWrap e reatacha os listeners
+// dos chips/busca, em vez de renderAdminPainel() inteiro.
+function renderHistoricoAcoesSecao() {
+  const wrap = document.getElementById("pcHistoricoAcoesWrap");
+  if (!wrap) return;
+  wrap.innerHTML = montarHistoricoAcoesFiltrosHtml(pcState.adminHistCache);
+  ligarListenersHistoricoAcoes();
+}
+
+let _pcHistBuscaDebounce = null;
+function ligarListenersHistoricoAcoes() {
+  document.querySelectorAll("[data-pc-hist-origem]").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      pcState.adminHistOrigem = chip.getAttribute("data-pc-hist-origem");
+      renderHistoricoAcoesSecao();
+    });
+  });
+  document.querySelectorAll("[data-pc-hist-acao]").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const chave = chip.getAttribute("data-pc-hist-acao");
+      const todasChaves = Object.keys(HISTORICO_ACAO_ROTULOS);
+      // null = todas ligadas; primeiro toggle materializa o Set com todas
+      // menos a clicada. Se todas acabarem religadas de novo, volta a null.
+      let ligadas = pcState.adminHistAcoes ? new Set(pcState.adminHistAcoes) : new Set(todasChaves);
+      if (ligadas.has(chave)) ligadas.delete(chave); else ligadas.add(chave);
+      pcState.adminHistAcoes = (ligadas.size === todasChaves.length) ? null : ligadas;
+      renderHistoricoAcoesSecao();
+    });
+  });
+  const inputBusca = document.getElementById("pcHistBusca");
+  if (inputBusca) inputBusca.addEventListener("input", () => {
+    const valor = inputBusca.value;
+    clearTimeout(_pcHistBuscaDebounce);
+    _pcHistBuscaDebounce = setTimeout(() => {
+      pcState.adminHistBusca = valor;
+      renderHistoricoAcoesSecao();
+      // devolve o foco pro campo, já que o innerHTML recriou o input
+      const novo = document.getElementById("pcHistBusca");
+      if (novo) { novo.focus(); novo.setSelectionRange(novo.value.length, novo.value.length); }
+    }, 180);
+  });
 }
 
 async function renderAdminPainel() {
@@ -3221,6 +3331,7 @@ async function renderAdminPainel() {
       pcState.adminAnaliticoIncluiBots = chkBots.checked;
       renderAdminPainel();
     });
+    ligarListenersHistoricoAcoes();
   }
   if (pcState.adminSecao === "pesquisa") {
     document.getElementById("pcBtnAdminPesquisar").addEventListener("click", async () => {
@@ -5264,6 +5375,7 @@ async function _renderCriarDesafioCorpo(conteudo) {
         </div>` : `<div class="pc-sub" style="margin:2px 2px 14px;">Escolha uma lista salva pra puxar o plenário.</div>`}
         `}
       ` : `
+        <div style="font-size:11px; color:var(--pc-ink-dim); line-height:1.5; margin:0 2px 10px;">Monte a sua lista com maior precisão no painel de palpite. Por lá você consegue acessar informações eleitorais e cadastrais de cada candidato.</div>
         <label class="pc-campo-label">Seus votos indicados</label>
         <div class="pc-duelo-colcab"><span class="cand">Candidato</span><span class="rival">2022</span><span class="voce" style="width:118px;">Você</span></div>
         <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:420px; overflow-y:auto;">

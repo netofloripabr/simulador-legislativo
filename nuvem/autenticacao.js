@@ -322,12 +322,15 @@ async function completarDadosPrimeiraCedula(perfilId, { cep, municipioResidencia
 // Aba "Analítico" do painel admin (migração 37, 28/08/2026): todas as
 // agregações do nível Sistema num round-trip só. incluirBots=false é o
 // padrão — mostra o "sistema de verdade", sem as contas fictícias.
-// Histórico cronológico de ações (migração 39) — relatório do fim da
-// aba Analítico: cadastro, palpite salvo, cédula depositada, créditos e
-// duelos, com nome/município/e-mail.
-async function adminHistoricoAcoes(incluirBots, limite) {
+// Histórico cronológico de ações (migração 39, ajustada na 46) — relatório
+// do fim da aba Analítico: cadastro, palpite salvo, cédula depositada,
+// créditos e duelos, com nome/município/e-mail. Desde a migração 46 a
+// função do banco sempre traz orgânicos + bots juntos (cada linha carrega
+// 'bot': true/false) — quem decide o que mostrar é o filtro client-side em
+// montarAdminAnalitico(), não mais um parâmetro daqui.
+async function adminHistoricoAcoes(limite) {
   const { data, error } = await supabaseClient.rpc("admin_historico_acoes", {
-    p_limite: limite || 300, p_incluir_bots: !!incluirBots,
+    p_limite: limite || 300,
   });
   if (error) { console.error("Erro no histórico de ações:", error); return null; }
   return data || [];

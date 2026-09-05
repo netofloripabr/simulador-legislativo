@@ -1092,5 +1092,27 @@ const MIGRACOES_INDEX = [
     "duelo_votos_publicos"
    ]
   ]
+ },
+ {
+  "num": 46,
+  "arquivo": "migracao-46-historico-acoes-bot-flag.sql",
+  "descricao": "Migração 46: filtros client-side no \"Histórico de ações\" da aba",
+  "objetos": [
+   [
+    "function",
+    "admin_historico_acoes"
+   ]
+  ]
+ },
+ {
+  "num": 47,
+  "arquivo": "migracao-47-notificar-mudanca-candidatos.sql",
+  "descricao": "Migração 47: notificação obrigatória de mudança no elenco de candidatos",
+  "objetos": [
+   [
+    "function",
+    "admin_notificar_mudanca_candidatos"
+   ]
+  ]
  }
 ];

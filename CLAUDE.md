@@ -70,6 +70,24 @@ Ao adicionar uma função nova, pare e pergunte: isso é fato (dados), regra
    suba o número `cb=` de TODAS as tags juntas (são um contador único
    compartilhado, não um por arquivo) antes de considerar a mudança pronta.
 
+## Mudança no elenco de candidatos (obrigatório desde 04/09/2026)
+
+Achado do usuário: candidatos foram incluídos em `dados/estados/*.js`
+(via atas/RRC do TSE) sem ele saber — só a mensagem do commit registrava,
+e ninguém lê commit no dia a dia. **Toda vez que uma sessão ou rotina
+altera candidato incluído, alterado (partido/número/status) ou excluído**
+em `dados/estados/*.js`, antes de considerar a mudança pronta, chamar:
+
+```js
+await adminNotificarMudancaCandidatos("SC", "2 candidatos incluídos no PDT", "Fulano de Tal (nº 12345), Beltrano da Silva (nº 12346)");
+```
+
+(`nuvem/notificacoes.js`, RPC `admin_notificar_mudanca_candidatos`,
+migração 47 — só admin pode chamar). Isso manda uma notificação de
+verdade pro sino do admin no app, não depende de ele checar o Rotinas ou
+o git log. Resumo curto na `p_resumo` (o que mudou, quantos), detalhe
+com nomes/números na `p_detalhe`. Vale pra qualquer UF, não só SC.
+
 ## Migrações do Supabase (controle desde 04/09/2026)
 
 - Cada mudança de banco continua sendo um arquivo `nuvem/migracao-N-*.sql`

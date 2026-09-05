@@ -18,3 +18,13 @@ async function marcarNotificacoesLidas() {
   const { error } = await supabaseClient.rpc("marcar_notificacoes_lidas");
   if (error) console.error("Erro ao marcar notificações como lidas:", error);
 }
+
+// Migração 47 (04/09/2026): a única escrita que NÃO é interna — chamada
+// por admin depois de editar dados/estados/*.js (candidato incluído,
+// alterado ou excluído), broadcasta uma notificação real pra todos os
+// admins. Ver CLAUDE.md, "Mudança no elenco de candidatos".
+async function adminNotificarMudancaCandidatos(uf, resumo, detalhe) {
+  const { error } = await supabaseClient.rpc("admin_notificar_mudanca_candidatos", { p_uf: uf, p_resumo: resumo, p_detalhe: detalhe || null });
+  if (error) console.error("Erro ao notificar mudança no elenco:", error);
+  return !error;
+}
