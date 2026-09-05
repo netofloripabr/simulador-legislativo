@@ -205,6 +205,24 @@
   #modoColaborativoWrap .pc-lobby-barra{
     height:7px; border-radius:999px; background:#182f24; overflow:hidden; display:flex;
   }
+  /* Faixa de incerteza (Q1-Q3) do Termômetro Eleitoral — decisão do
+     usuário, 04/09/2026: aparece em TODA linha, sempre visível, junto com
+     a mediana. Trilho fino + segmento absoluto Q1→Q3 + traço na mediana;
+     semPalpites pinta o trilho inteiro (incerteza total). */
+  #modoColaborativoWrap .pc-tm-faixa{ width:100%; margin-top:6px; box-sizing:border-box; }
+  #modoColaborativoWrap .pc-tm-faixa-trilho{
+    position:relative; height:5px; border-radius:999px; background:var(--pc-glass); overflow:hidden;
+  }
+  #modoColaborativoWrap .pc-tm-faixa-seg{
+    position:absolute; top:0; bottom:0; background:var(--pc-ink-dim); opacity:.45; border-radius:999px;
+  }
+  #modoColaborativoWrap .pc-tm-faixa-seg.cheia{ opacity:.3; }
+  #modoColaborativoWrap .pc-tm-faixa-med{
+    position:absolute; top:-1.5px; bottom:-1.5px; width:2px; background:var(--pc-accent); border-radius:1px;
+  }
+  #modoColaborativoWrap .pc-tm-faixa-nums{
+    display:flex; justify-content:space-between; font-size:10px; color:var(--pc-ink-dim); margin-top:2px;
+  }
   #modoColaborativoWrap .pc-lobby-menu-tit{
     font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
     color: var(--pc-ink-dim); margin-bottom:8px;

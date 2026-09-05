@@ -6288,6 +6288,11 @@ function montarComparacaoGrupo(registros, cargo) {
   }
   // Sem votosDuelo aqui de propósito: comparação de GRUPO é escopo diferente
   // (só quem depositou naquele grupo), não a Mediana pública geral.
+  // Faixa de incerteza (q1/q3, 04/09/2026) não foi replicada nesta tela de
+  // comparação de grupo — o pedido do usuário foi especificamente sobre o
+  // Termômetro Eleitoral (renderQuadroMedias); calcularMedianaPalpites já
+  // devolve q1/q3 aqui também (mesma função), então dá pra reaproveitar
+  // depois se pedirem essa tela também.
   const { parties, totalPalpites } = calcularMedianaPalpites(remapeados, cargo, pcState.estado);
   const totalVagasCargo = vagasFixasCargo(pcState.estado, cargo);
   // Senador é majoritário (mesmo motivo do branch em
@@ -12512,20 +12517,51 @@ async function renderQuadroMedias() {
   const botoesCargo = CARGOS.map((c) => `
     <button data-pc-cargo-medias="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
 
-  const votosOuCadeado = (c) => votosRevelados.has(c.chave)
+  // Admin vê toda votação aberta, sem cadeado (decisão do usuário,
+  // 04/09/2026 — nunca tinha existido um bypass real aqui; o que parecia
+  // "aberto" era só o conta-gotas de nome/posição, removido hoje).
+  const votosOuCadeado = (c) => (pcState.souAdmin || votosRevelados.has(c.chave))
     ? `<span class="pc-tm-votos">${Number(c.votos || 0).toLocaleString("pt-BR")} <small>votos</small></span>`
     : `<span class="pc-tm-votos-lock">${iconeSvg("cadeadoSlot", 9)}votos</span>`;
 
+  // Faixa de incerteza (Q1-Q3) — sempre visível, em toda linha (decisão do
+  // usuário, 04/09/2026). MAX é a mesma régua da barra do candidato em
+  // outros lugares do app (125% do maior voto de 2022 do estado+cargo —
+  // capCandidatoDeputado, achado de 21/08/2026), pra não inventar outra
+  // escala. semPalpites (ou sem q1/q3 calculado) pinta a faixa 100% cheia,
+  // sem números nas pontas — não tem quartil de verdade pra mostrar.
+  const faixaIncertezaHtml = (c) => {
+    const max = capCandidatoDeputado();
+    const semDados = c.semPalpites || c.q1 === undefined || c.q3 === undefined;
+    if (semDados) {
+      return `<div class="pc-tm-faixa">
+        <div class="pc-tm-faixa-trilho"><div class="pc-tm-faixa-seg cheia" style="left:0; width:100%;"></div></div>
+      </div>`;
+    }
+    const pct = (v) => Math.max(0, Math.min(100, (Number(v) || 0) / max * 100));
+    const pctQ1 = pct(c.q1), pctQ3 = pct(c.q3), pctMed = pct(c.votos);
+    return `<div class="pc-tm-faixa">
+      <div class="pc-tm-faixa-trilho">
+        <div class="pc-tm-faixa-seg" style="left:${pctQ1}%; width:${Math.max(0, pctQ3 - pctQ1)}%;"></div>
+        <div class="pc-tm-faixa-med" style="left:${pctMed}%;"></div>
+      </div>
+      <div class="pc-tm-faixa-nums"><span>${formatVotosCompacto(c.q1)}</span><span>${formatVotosCompacto(c.q3)}</span></div>
+    </div>`;
+  };
+
   const linha = (c, i) => {
-    return `<div class="pc-lobby-linha">
-      <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
-        <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:${c.eleito ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${i + 1}º</span>
-        <span style="min-width:0;">
-          <div style="font-size:13px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.nomeUrna || c.nome}${c.eleito ? ` <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#07230C; background:var(--pc-accent); border-radius:999px; padding:1px 6px;">eleito</span>` : ""}</div>
-          <div style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${c.semPalpites ? " · sem palpite ainda" : ` · ${c.amostras} palpite${c.amostras === 1 ? "" : "s"}`}</div>
+    return `<div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:0;">
+      <span style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
+          <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:${c.eleito ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${i + 1}º</span>
+          <span style="min-width:0;">
+            <div style="font-size:13px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.nomeUrna || c.nome}${c.eleito ? ` <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#07230C; background:var(--pc-accent); border-radius:999px; padding:1px 6px;">eleito</span>` : ""}</div>
+            <div style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${c.semPalpites ? " · sem palpite ainda" : ` · ${c.amostras} palpite${c.amostras === 1 ? "" : "s"}`}</div>
+          </span>
         </span>
+        ${votosOuCadeado(c)}
       </span>
-      ${votosOuCadeado(c)}
+      ${faixaIncertezaHtml(c)}
     </div>`;
   };
 

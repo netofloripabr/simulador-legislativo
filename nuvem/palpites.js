@@ -74,6 +74,29 @@ function injetarVotosLegenda(lista, cargo, uf, votosIniciais) {
   return lista;
 }
 
+// Elenco-base de um estado+cargo: o pool 2026 (real de ata + fictício, ver
+// dados/estados/registro-2026.js) onde já existe; só cai pro histórico puro
+// de 2022 (candidatosEstadoCargo) nos estados sem dado 2026 gerado.
+// REGRA MESTRA (21/08/2026): onde EXISTE elenco 2026, o de 2022 JAMAIS pode
+// aparecer no lugar dele. Pra SC, cair no fallback significa que
+// sc-2026-provisorio.js falhou em carregar (ex.: erro de sintaxe no gerador)
+// — grita alto no console pra nunca passar despercebido.
+// Função ÚNICA usada por montarEstadoPalpite (Seleção) E por
+// calcularMedianaPalpites (Termômetro) — extraída em 04/09/2026 depois que o
+// Termômetro foi flagrado listando o elenco de 2022 (chamava
+// candidatosEstadoCargo direto): com a regra num lugar só, não dá pra uma
+// tela ficar pra trás de novo.
+const UFS_COM_DADO_2026 = ["SC"];
+function origemElencoCargo(uf, cargo) {
+  const origem2026 = (typeof candidatos2026EstadoCargo === "function")
+    ? candidatos2026EstadoCargo(uf, CARGO_LABEL[cargo])
+    : null;
+  if (!origem2026 && UFS_COM_DADO_2026.includes(uf)) {
+    console.error(`REGRA MESTRA VIOLADA: ${uf}/${cargo} deveria ter elenco 2026 e caiu no fallback de 2022 — sc-2026-provisorio.js não carregou ou está quebrado.`);
+  }
+  return origem2026 || candidatosEstadoCargo(uf, cargo);
+}
+
 function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) {
   cargo = cargo || "estadual";
   uf = uf || "SC";
@@ -81,21 +104,7 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
   // preenchimento, ver dados/estados/registro-2026.js) quando já existe pra
   // esse estado+cargo; cai pro histórico puro de 2022 (candidatosEstadoCargo)
   // nos poucos casos sem dado 2026 gerado ainda.
-  const origem2026 = (typeof candidatos2026EstadoCargo === "function")
-    ? candidatos2026EstadoCargo(uf, CARGO_LABEL[cargo])
-    : null;
-  // REGRA MESTRA (21/08/2026): onde EXISTE elenco 2026, o de 2022 JAMAIS
-  // pode aparecer no lugar dele. O fallback abaixo é legítimo só pros
-  // estados que ainda não têm dado 2026 gerado — pra SC, cair aqui
-  // significa que sc-2026-provisorio.js falhou em carregar (ex.: erro de
-  // sintaxe no gerador, 'const' em vez de 'var') e o app estaria vestindo
-  // candidatos de 2022 como se fossem de 2026. Grita alto no console pra
-  // nunca mais passar despercebido.
-  const UFS_COM_DADO_2026 = ["SC"];
-  if (!origem2026 && UFS_COM_DADO_2026.includes(uf)) {
-    console.error(`REGRA MESTRA VIOLADA: ${uf}/${cargo} deveria ter elenco 2026 e caiu no fallback de 2022 — sc-2026-provisorio.js não carregou ou está quebrado.`);
-  }
-  const origem = origem2026 || candidatosEstadoCargo(uf, cargo);
+  const origem = origemElencoCargo(uf, cargo);
   const base = origem.map((p) => ({
     nome: p.nome,
     vagas2022: p.vagas2022,
@@ -293,15 +302,31 @@ async function buscarVotosDuelosPublicos(estado, cargo) {
 // mas não a um bloco assim. Só apara com amostra suficiente (N≥10) —
 // combinado e confirmado com o usuário em 04/08/2026: abaixo disso, aparar
 // 10% de cada ponta pode sobrar pouca coisa (ou nada) pra calcular em cima.
-function medianaAparada(valores) {
+// Extrai a mesma regra de corte 10%/10% (só com N>=10) usada por
+// medianaAparada, pra ser reaproveitada também no cálculo de quartis
+// (q1/q3) sem duplicar a regra em dois lugares.
+function aparar10por10(valores) {
   const ordenados = [...valores].sort((a, b) => a - b);
   const n = ordenados.length;
-  if (n === 0) return 0;
   const apara = n >= 10 ? Math.floor(n * 0.1) : 0;
-  const aparados = apara > 0 ? ordenados.slice(apara, n - apara) : ordenados;
+  return apara > 0 ? ordenados.slice(apara, n - apara) : ordenados;
+}
+
+function medianaAparada(valores) {
+  const aparados = aparar10por10(valores);
   const m = aparados.length;
+  if (m === 0) return 0;
   const meio = Math.floor(m / 2);
   return m % 2 === 0 ? Math.round((aparados[meio - 1] + aparados[meio]) / 2) : aparados[meio];
+}
+
+// Percentil por interpolação linear sobre um array JÁ ORDENADO.
+function percentil(ordenados, p) {
+  if (!ordenados.length) return 0;
+  const idx = (ordenados.length - 1) * p;
+  const lo = Math.floor(idx), hi = Math.ceil(idx);
+  if (lo === hi) return ordenados[lo];
+  return ordenados[lo] + (ordenados[hi] - ordenados[lo]) * (idx - lo);
 }
 
 // Mesma forma de retorno de calcularMediaPalpites (parties/totalPalpites,
@@ -341,7 +366,11 @@ function calcularMedianaPalpites(registros, cargo, uf, votosDuelo) {
     participantesDuelo.add(v.perfil_id);
   });
 
-  const baseCargo = candidatosEstadoCargo(uf, cargo);
+  // Mesmo elenco-base da Seleção (origemElencoCargo: 2026 onde existe) —
+  // antes vinha de candidatosEstadoCargo direto (2022 puro) e o Termômetro
+  // listava o elenco errado, com chaves que não casavam com os palpites
+  // salvos (tudo "sem palpite ainda"). Achado do usuário, 04/09/2026.
+  const baseCargo = origemElencoCargo(uf, cargo);
   const partiesMediana = baseCargo.map((p) => {
     const candidatos = p.candidatos.map((c) => {
       const chave = chaveCandidato(c.nome, p.nome, c.id);
@@ -351,10 +380,22 @@ function calcularMedianaPalpites(registros, cargo, uf, votosDuelo) {
       // (inclusive dos 155 usuários fictícios), nunca dado da eleição
       // passada. Quem ainda não recebeu nenhum palpite entra com 0.
       const votos = valores && valores.length ? medianaAparada(valores) : 0;
+      // q1/q3 (faixa de incerteza, decisão do usuário 04/09/2026): calculados
+      // sobre o MESMO array aparado 10%/10% que medianaAparada usaria — não
+      // chamamos medianaAparada de novo, só reaproveitamos aparar10por10.
+      // Convenção: candidato semPalpites NÃO recebe q1/q3 (fica undefined) —
+      // a tela (prospeccao.js) trata a ausência de q1/q3 como "faixa cheia
+      // (100%), incerteza total", em vez de uma faixa fina em zero.
+      let q1, q3;
+      if (valores && valores.length) {
+        const aparados = aparar10por10(valores);
+        q1 = Math.round(percentil(aparados, 0.25));
+        q3 = Math.round(percentil(aparados, 0.75));
+      }
       return {
         chave, nome: c.nome, nomeUrna: c.nomeUrna || "", municipio: c.municipio,
         votos2022: c.votos, fonte: c.fonte, eleito2022: !!c.eleito2022, invalidado2022: !!c.invalidado2022,
-        votos, amostras: valores ? valores.length : 0, semPalpites: !valores || !valores.length,
+        votos, q1, q3, amostras: valores ? valores.length : 0, semPalpites: !valores || !valores.length,
       };
     });
     return { nome: p.nome, vagas2022: p.vagas2022, candidatos };
