@@ -4790,6 +4790,25 @@ function attachListenersModalCompartilhar() {
   }
 }
 
+// Em celular, navigator.share abre o menu nativo do SO com WhatsApp entre
+// os alvos (o app se registra como destino de compartilhamento). Em
+// desktop (inclusive Mac com Safari/Chrome recentes, que também tem
+// navigator.share), o menu do sistema não lista o WhatsApp Desktop — cai
+// num monte de apps genéricos (Mail, Notas, AirDrop…) sem WhatsApp
+// nenhum, porque o app não se registra como extensão de compartilhamento
+// do macOS. Achado do usuário, 05/09/2026. Por isso os fluxos de
+// convite/compartilhar preferem ir direto pro WhatsApp Web (wa.me) em
+// telas sem toque, e só usam o menu nativo em celular/tablet.
+function _ehDispositivoMovel() {
+  // maxTouchPoints > 0 já separa Mac/PC (sempre 0, mesmo com trackpad) de
+  // celular/tablet — inclusive iPad, que desde o iPadOS 13 manda um
+  // userAgent de desktop por padrão (checar só a string de UA erraria o
+  // iPad). userAgent entra só como reforço pra navegador antigo que não
+  // reporta maxTouchPoints.
+  if (navigator.maxTouchPoints > 0) return true;
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 function _baixarImagemCedula(dataUrl, nomeArquivo) {
   const a = document.createElement("a");
   a.href = dataUrl;
@@ -5091,7 +5110,7 @@ async function _renderDesafiosHubCorpo(conteudo) {
     const texto = `Bora pro x1? Este \u00e9 o meu palpite eleitoral legislativo 2026. Tem coragem de encarar?: "${nomeDuelo}". ${_linkDuelo(btn.getAttribute("data-pc-duelo-cartao"))}`;
     const canvas = gerarImagemConviteDuelo({ nomeCriador: (pcState.perfil && pcState.perfil.nome) || "Eu", nomeDuelo, infoRecorte });
     const dataUrl = canvas.toDataURL("image/png");
-    if (navigator.share && navigator.canShare) {
+    if (_ehDispositivoMovel() && navigator.share && navigator.canShare) {
       try {
         const blob = await (await fetch(dataUrl)).blob();
         const arquivo = new File([blob], "convite-duelo.png", { type: "image/png" });
@@ -5101,9 +5120,11 @@ async function _renderDesafiosHubCorpo(conteudo) {
         }
       } catch (_) { /* cancelou o nativo ou falhou — cai no fallback */ }
     }
-    // Computador (sem compartilhamento nativo): baixa a imagem e deixa o
-    // texto+link no clipboard pra colar junto.
+    // Computador (WhatsApp Desktop não entra no menu nativo do SO, ver
+    // _ehDispositivoMovel): baixa a imagem e já abre o WhatsApp Web com o
+    // texto pronto — falta só anexar a imagem baixada na conversa.
     _baixarImagemCedula(dataUrl, "convite-duelo.png");
+    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
     try { await navigator.clipboard.writeText(texto); } catch (_) {}
   }));
 }
@@ -5925,8 +5946,11 @@ function renderDueloSelado(desafio, nomeDesafiante) {
   const btnCompartilhar = document.getElementById("pcBtnCompartilharDuelo");
   if (btnCompartilhar) btnCompartilhar.addEventListener("click", async () => {
     const texto = `Selei um duelo 1×1 "${nomeLimpo}" contra ${nomeDesafiante} no SimulaLEGIS — o resultado sai na apuração oficial de 2026. Quer medir o seu faro político também? ${window.location.origin + window.location.pathname}`;
-    if (navigator.share) { try { await navigator.share({ text: texto }); return; } catch (_) {} }
-    try { await navigator.clipboard.writeText(texto); mostrarStatusSalvamento && mostrarStatusSalvamento; } catch (_) {}
+    if (_ehDispositivoMovel() && navigator.share) { try { await navigator.share({ text: texto }); return; } catch (_) {} }
+    // Computador: WhatsApp Web direto com o texto pronto, em vez do menu
+    // do sistema (sem WhatsApp) ou de só jogar no clipboard sem avisar.
+    window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
+    try { await navigator.clipboard.writeText(texto); } catch (_) {}
   });
   const btnVerDuelo = document.getElementById("pcBtnVerDueloSelado");
   if (btnVerDuelo) btnVerDuelo.addEventListener("click", () => { pcState.desafioComparacaoId = desafio.id; renderComparacaoDesafio(); });
@@ -6095,21 +6119,24 @@ async function renderComparacaoDesafio() {
   const ptsP = Number(venci ? pontosOutro : meusPontos) || 0;
   const dadosCard = { nomeVencedor, nomePerdedor, ptsV, ptsP, nomeDuelo: _nomeDueloLimpo(d.nome) };
   const textoVitoria = `${nomeVencedor} venceu o duelo "${dadosCard.nomeDuelo}" por ${ptsV} pontos a ${ptsP} no SimulaLEGIS. Quer medir o seu faro político? ${window.location.origin + window.location.pathname}`;
-  const compartilharCard = async (altura, nomeArq) => {
+  const compartilharCard = async (altura, nomeArq, paraWhatsapp) => {
     const canvas = gerarImagemCardVitoria(dadosCard, altura);
     const dataUrl = canvas.toDataURL("image/png");
-    if (navigator.share && navigator.canShare) {
+    if (_ehDispositivoMovel() && navigator.share && navigator.canShare) {
       try {
         const blob = await (await fetch(dataUrl)).blob();
         const arquivo = new File([blob], nomeArq, { type: "image/png" });
         if (navigator.canShare({ files: [arquivo] })) { await navigator.share({ files: [arquivo], text: textoVitoria }); return; }
       } catch (_) { /* cancelou/falhou — cai no download */ }
     }
+    // Computador: baixa a imagem; se o alvo é WhatsApp, abre o WhatsApp
+    // Web com o texto pronto direto (sem WhatsApp no menu do sistema).
     _baixarImagemCedula(dataUrl, nomeArq);
+    if (paraWhatsapp) window.open(`https://wa.me/?text=${encodeURIComponent(textoVitoria)}`, "_blank");
     try { await navigator.clipboard.writeText(textoVitoria); } catch (_) {}
   };
   const bW = document.getElementById("pcBtnVitoriaWhats");
-  if (bW) bW.addEventListener("click", () => compartilharCard(1350, "vitoria-duelo.png"));
+  if (bW) bW.addEventListener("click", () => compartilharCard(1350, "vitoria-duelo.png", true));
   const bS = document.getElementById("pcBtnVitoriaStories");
   if (bS) bS.addEventListener("click", () => compartilharCard(1920, "vitoria-duelo-stories.png"));
   const bB = document.getElementById("pcBtnVitoriaBaixar");
