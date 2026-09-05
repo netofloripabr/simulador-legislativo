@@ -4910,7 +4910,7 @@ async function renderGrupoHub() {
   const btnCopiarConvite = document.getElementById("pcBtnCopiarConvite");
   if (btnCopiarConvite) {
     const linkConvite = window.location.origin + window.location.pathname + "?conv=" + pcState.perfil.codigo_convite;
-    const textoConvite = `Eu já cravei os meus eleitos de 2026 no SIMULALEGIS. Te desafio pra um duelo 1×1 — entra pelo meu link: ${linkConvite}`;
+    const textoConvite = `*PITACO*\n\nTe convido para o palpite eleitoral 2026.\n\n${linkConvite}\n\n⚠️ Este é apenas um mini recorte do sistema.\n\nAo acessá-lo você encontra uma ferramenta poderosa para ajudar a projetar o resultado eleitoral, com auxílio de informações estratégicas das últimas eleições e matemática eleitoral real.`;
     btnCopiarConvite.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(linkConvite);
@@ -5107,7 +5107,7 @@ async function _renderDesafiosHubCorpo(conteudo) {
     const ufSigla = btn.getAttribute("data-pc-duelo-uf") || pcState.estado;
     const nomeEstado = ((ESTADOS_BRASIL.find((e) => e.sigla === ufSigla) || {}).nome) || ufSigla;
     const infoRecorte = [cargoInfo.label, nCand ? nCand + " candidatos" : null, nomeEstado].filter(Boolean).join(" \u00b7 ");
-    const texto = `Bora pro x1? Este \u00e9 o meu palpite eleitoral legislativo 2026. Tem coragem de encarar?: "${nomeDuelo}". ${_linkDuelo(btn.getAttribute("data-pc-duelo-cartao"))}`;
+    const texto = `*PITACO*\n\nTe convido para o palpite eleitoral 2026 *"${nomeDuelo}"*.\n\n${_linkDuelo(btn.getAttribute("data-pc-duelo-cartao"))}\n\n\u26a0\ufe0f Este \u00e9 apenas um mini recorte do sistema.\n\nAo acess\u00e1-lo voc\u00ea encontra uma ferramenta poderosa para ajudar a projetar o resultado eleitoral, com aux\u00edlio de informa\u00e7\u00f5es estrat\u00e9gicas das \u00faltimas elei\u00e7\u00f5es e matem\u00e1tica eleitoral real.`;
     const canvas = gerarImagemConviteDuelo({ nomeCriador: (pcState.perfil && pcState.perfil.nome) || "Eu", nomeDuelo, infoRecorte });
     const dataUrl = canvas.toDataURL("image/png");
     if (_ehDispositivoMovel() && navigator.share && navigator.canShare) {
