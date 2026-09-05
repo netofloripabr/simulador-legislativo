@@ -1114,5 +1114,44 @@ const MIGRACOES_INDEX = [
     "admin_notificar_mudanca_candidatos"
    ]
   ]
+ },
+ {
+  "num": 48,
+  "arquivo": "migracao-48-duelo-molde-reutilizavel.sql",
+  "descricao": "============================================================",
+  "objetos": [
+   [
+    "index",
+    "desafios_modelo_de_idx"
+   ],
+   [
+    "index",
+    "desafios_modelo_desafiado_unico"
+   ],
+   [
+    "function",
+    "gerar_codigo_duelo"
+   ],
+   [
+    "function",
+    "aceitar_desafio"
+   ],
+   [
+    "function",
+    "expirar_meus_desafios_vencidos"
+   ],
+   [
+    "function",
+    "lembrar_meus_desafios_parados"
+   ],
+   [
+    "function",
+    "desafio_por_codigo"
+   ],
+   [
+    "column",
+    "desafios.modelo_de"
+   ]
+  ]
  }
 ];

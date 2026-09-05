@@ -52,10 +52,17 @@ async function listarMeusDesafios() {
   // "permission denied" pra qualquer usuário.
   const { data, error } = await supabaseClient
     .from("desafios")
-    .select("id, criador_id, desafiado_id, nome, estado, cargo, codigo, status, custo_sl, tipo_disputa, votos_visiveis, escopo_candidatos, pontos_criador, pontos_desafiado, vencedor_id, criado_em, respondido_em, expira_em, criador:criador_id(nome), desafiado:desafiado_id(nome)")
+    .select("id, criador_id, desafiado_id, nome, estado, cargo, codigo, status, custo_sl, tipo_disputa, votos_visiveis, escopo_candidatos, pontos_criador, pontos_desafiado, vencedor_id, criado_em, respondido_em, expira_em, modelo_de, criador:criador_id(nome), desafiado:desafiado_id(nome)")
     .order("criado_em", { ascending: false });
   if (error) { console.error("Erro ao listar desafios:", error); return []; }
-  return data || [];
+  // Migração 48: convite aberto é um MOLDE — cada aceite vira um duelo
+  // novo com modelo_de apontando pro molde. Conta os aceites aqui (os
+  // clones são visíveis pro criador, mesma policy de um duelo normal).
+  const lista = data || [];
+  const aceitesPorMolde = {};
+  lista.forEach((d) => { if (d.modelo_de) aceitesPorMolde[d.modelo_de] = (aceitesPorMolde[d.modelo_de] || 0) + 1; });
+  lista.forEach((d) => { if (!d.desafiado_id) d.aceites = aceitesPorMolde[d.id] || 0; });
+  return lista;
 }
 
 // Resolve um link de convite de duelo (?duelo=DSXX-XXXX) — só devolve

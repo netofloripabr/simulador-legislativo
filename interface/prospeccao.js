@@ -480,7 +480,18 @@ async function initColaborativo() {
       if (codigoDuelo) {
         const d = await desafioPorCodigo(codigoDuelo);
         localStorage.removeItem("sl_duelo_pendente");
-        if (d && !d.sou_o_criador) {
+        if (!d) {
+          // Molde cancelado/inexistente (migração 48): avisa no hub em
+          // vez de sumir em silêncio.
+          pcState.desafiosAvisoStatus = "Esse convite de duelo não está mais disponível — mas você pode criar o seu.";
+          pcState.subaba = "desafios";
+        } else if (d.ja_aceitei && !d.sou_o_criador) {
+          // Já aceitei esse molde: não abre a tela de aceitar de novo —
+          // destaca o duelo que já existe (regra 3 da migração 48).
+          pcState.desafioDestacadoId = d.meu_duelo_id;
+          pcState.desafiosAvisoStatus = "Você já aceitou esse convite — seu duelo está aqui.";
+          pcState.subaba = "desafios";
+        } else if (d && !d.sou_o_criador) {
           pcState.desafioAceitarId = d.id;
           pcState.desafioAceitarFase = "convite";
           pcState.desafioAceitarVotos = {};
@@ -5026,14 +5037,15 @@ async function _renderDesafiosHubCorpo(conteudo) {
       </div>` : ""}
       ${pendenteEnviado ? `
       <div class="pc-duelo-rodape">
-        <span>${dueloAberto ? "convite aberto" : "enviado"} ${new Date(d.criado_em).toLocaleDateString("pt-BR")} · expira ${new Date(d.expira_em).toLocaleDateString("pt-BR")}</span>
+        <span>${dueloAberto ? "convite aberto" : "enviado"} ${new Date(d.criado_em).toLocaleDateString("pt-BR")} · ${dueloAberto ? "vale até você cancelar" : "expira " + new Date(d.expira_em).toLocaleDateString("pt-BR")}</span>
       </div>
+      ${dueloAberto ? `<div class="pc-duelo-rodape"><span>${!d.aceites ? "ninguém aceitou ainda" : d.aceites === 1 ? "1 pessoa já aceitou" : d.aceites + " pessoas já aceitaram"}</span></div>` : ""}
       ${dueloAberto ? `
       <div class="pc-duelo-acoes">
         <button class="primary" data-pc-duelo-cartao="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" data-pc-duelo-cargo="${d.cargo}" data-pc-duelo-ncand="${(d.escopo_candidatos || []).length}" data-pc-duelo-uf="${d.estado}" title="Enviar o convite" style="flex:1; display:flex; align-items:center; justify-content:center; padding:9px;">${iconeSvg("compartilhar", 15)}</button>
         <button class="ghost" data-pc-cancelar="${d.id}" title="Cancelar${d.custo_sl ? ` e recuperar ${d.custo_sl} SL` : ""}" style="font-size:16px; line-height:1; padding:9px 12px;">×</button>
       </div>` : ""}` : ""}
-      ${(d.status === "selado" || d.status === "apuracao") ? `<div class="pc-duelo-rodape"><span>selado em ${new Date(d.respondido_em || d.criado_em).toLocaleDateString("pt-BR")}</span><span>${d.estado}</span></div>` : ""}
+      ${(d.status === "selado" || d.status === "apuracao") ? `<div class="pc-duelo-rodape"><span>selado em ${new Date(d.respondido_em || d.criado_em).toLocaleDateString("pt-BR")}${d.modelo_de ? " · via convite" : ""}</span><span>${d.estado}</span></div>` : ""}
       ${["selado", "apuracao", "encerrado"].includes(d.status) ? `<div class="pc-duelo-acoes"><button class="ghost" data-pc-comparar="${d.id}" style="flex:1; font-size:11.5px;">Ver comparação</button></div>` : ""}
     </div>`;
   };
@@ -5050,8 +5062,9 @@ async function _renderDesafiosHubCorpo(conteudo) {
     ${andamento.length ? `<div class="pc-lobby-menu-tit">Em andamento · ${andamento.length}</div>${andamento.map(linhaDuelo).join("")}` : ""}
     ${encerrados.length ? `<div class="pc-lobby-menu-tit">Encerrados</div>${encerrados.slice(0, 10).map(linhaDuelo).join("")}` : ""}
     ${!desafios.length ? `<div class="pc-lobby-card">${estadoVazio({ icone: "desafio", titulo: "Nenhum duelo ainda", texto: "Crie o primeiro — o custo do duelo já está descrito acima." })}</div>` : ""}
-    <div class="pc-status" id="pcDesafiosStatus" style="margin-top:10px; min-height:12px;"></div>
+    <div class="pc-status" id="pcDesafiosStatus" style="margin-top:10px; min-height:12px;">${pcState.desafiosAvisoStatus || ""}</div>
   `;
+  pcState.desafiosAvisoStatus = null; // aviso do boot (?duelo=) só na primeira renderização
   atualizarFarol();
   if (pcState.desafioDestacadoId) {
     const alvo = document.getElementById("pcDesafioDestacado");
