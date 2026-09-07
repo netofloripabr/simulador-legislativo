@@ -41,7 +41,7 @@ function nomeFederacao2026(uf, partido2022) {
 
 // Lista de partidos membros de cada federação (derivada de FEDERACOES_2026.
 // NACIONAL) — usada pra mostrar TODOS os membros na quebra de votos por
-// partido (interface/prospeccao.js), mesmo quando um deles ainda não tem
+// partido (interface/80-selecao.js), mesmo quando um deles ainda não tem
 // nenhum candidato cadastrado num cargo específico (ex.: PV só lançou
 // candidatos a Dep. Federal em SC — na aba de Dep. Estadual ele continua
 // aparecendo na lista, só que com 0 votos, em vez de sumir).
@@ -168,7 +168,7 @@ function candidatos2026EstadoCargo(uf, cargoLabel) {
   //   ausência, sem inventar candidato nenhum. Só entram aqui partidos que
   //   disputaram esse cargo em 2022 (têm registro no resultado real); a
   //   marcação semAta2026 é o que a Seleção usa pra travar o card
-  //   (interface/prospeccao.js). O total de vagas do cargo não passa por
+  //   (interface/80-selecao.js). O total de vagas do cargo não passa por
   //   essa lista (vem de vagasFixasCargo, registro-2022.js), então o card
   //   vazio não muda nenhuma conta.
   // Distingue dois motivos de ausência (rótulos diferentes na tela):

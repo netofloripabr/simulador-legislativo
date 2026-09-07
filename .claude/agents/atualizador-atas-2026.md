@@ -120,7 +120,7 @@ que ele efetivamente registrou). Mesmo padrão: API REST sem autenticação.
         em `fonteArquivo`, descreva honestamente a origem, ex.:
         `"RRC-oficial-TSE (candidatura <número>) — sem ata de convenção
         publicada ainda"`. A interface já mostra um selo pra esse caso
-        (`fonte === "rrc"`, ver `interface/prospeccao.js`) — não precisa
+        (`fonte === "rrc"`, ver `interface/80-selecao.js`) — não precisa
         mexer em UI, só nos dados.
      2. **Mesmo nome + mesmo partido JÁ existe no arquivo, só com número
         diferente** → não é candidato novo, é um número desatualizado
@@ -146,7 +146,7 @@ Corrigido com `vagasFixasCargo(uf, cargo)` em `dados/estados/registro-2022.js`,
 que sempre soma a partir do resultado real e completo de 2022
 (`candidatosEstadoCargo`), nunca da lista parcial de 2026. Se ao mexer nesse
 código você vir de novo um `.reduce((s,p)=>s+p.vagas2022,0)` calculando
-"total de vagas do cargo" em `interface/prospeccao.js`, é uma regressão —
+"total de vagas do cargo" em `interface/80-selecao.js`, é uma regressão —
 troque por `vagasFixasCargo(pcState.estado, cargo)`.
 
 ## O que NUNCA fazer
@@ -186,7 +186,7 @@ alguém abrir o PDF pra descobrir o partido.
 ## Passo 9 — registrar a execução em `execucoes_rotina` (painel do admin)
 
 A tabela `public.execucoes_rotina` (migração 18) existe pro Painel do
-administrador (`interface/prospeccao.js`, aba "Rotinas") mostrar se essa
+administrador (`interface/40-admin.js`, aba "Rotinas") mostrar se essa
 rotina rodou e quando — hoje ela fica sempre vazia porque nada nunca
 escreveu ali (item pendente documentado em BACKLOG.md desde a migração 18).
 Ninguém "authenticated" tem permissão de insert nessa tabela, de propósito

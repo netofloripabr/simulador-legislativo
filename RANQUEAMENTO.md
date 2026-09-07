@@ -127,6 +127,6 @@ Decisões do usuário (não são mais rascunho):
 4. **Lista salva com a base errada não é lista.** Lista da "era antiga"
    (elenco de 2022 embutido, anterior às atas) é INVÁLIDA para edição e
    para depósito — bloqueada na interface com aviso (implementado em
-   21/08/2026: `listaEhDaEraAntiga` em interface/prospeccao.js, aplicada no
+   21/08/2026: `listaEhDaEraAntiga` em interface/80-selecao.js, aplicada no
    Editar e no Depositar). Cédulas antigas JÁ depositadas permanecem
    imutáveis e são tratadas pela régua dos itens 2-3 na apuração.

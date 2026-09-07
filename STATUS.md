@@ -46,7 +46,7 @@ largo, "Mais funções" expansível, aba fixa embaixo).
 
 **Retorno**: mockup aprovado em 3 rodadas (a primeira, depois "mais
 destaque nos atalhos, mais suavidade no Mais funções", depois o meio-termo
-final). `renderPainelPrincipal()` (interface/prospeccao.js) ganhou: banner
+final). `renderPainelPrincipal()` (interface/30-painel.js) ganhou: banner
 "Convide amigos" com brilho suave (leva pra Grupos), grade 2x2 de atalhos
 com ícone em círculo + subtítulo com dado real (nº de listas, nº de
 grupos — Mediana fica com texto fixo pra não pesar a tela com uma busca
@@ -130,7 +130,7 @@ abas por cargo, lista numerada, WhatsApp/Instagram/baixar imagem).
 **Retorno**: mockup ajustado em 2 rodadas (corte reduzido pra 4 deputados
 + 1 senador, mini-card por candidato com cotação, Estadual/Federal
 paralelos e Senador embaixo, efeito de esconder de verdade). Implementado
-como `gerarImagemCedulaResumo()` (interface/prospeccao.js) — desenha os 3
+como `gerarImagemCedulaResumo()` (interface/50-listas.js) — desenha os 3
 cargos juntos num canvas 1080×1920 (mesmo formato Stories da cédula
 oficial que já existia), com os candidatos "escondidos" desenhados num
 canvas separado, borrados de verdade (`ctx.filter = blur`) e recortados

@@ -6,7 +6,7 @@ responder uma pergunta prática: *"estou construindo uma tela nova, o que eu
 uso?"* — sem precisar reler o log de protótipos inteiro.
 
 Regra de ouro do documento: todo valor aqui foi conferido direto em
-`css/estilo.css` / `interface/prospeccao.js` no momento em que foi escrito
+`css/estilo.css` / `interface/prospeccao.js` (hoje `interface/*.js`) no momento em que foi escrito
 (18/08/2026). Se o código mudar e este arquivo não acompanhar, **o código
 manda** — abra uma tarefa pra atualizar aqui, não confie cegamente nisto.
 
@@ -85,7 +85,7 @@ Escala de referência (card de candidato, o caso mais denso hoje):
 - Rótulo dentro de barra: 9px / peso 700
 
 **Pesos em uso hoje** (contagem real em `css/estilo.css` +
-`interface/prospeccao.js`, do mais raro ao mais comum):
+`interface/*.js` (ex-`prospeccao.js`), do mais raro ao mais comum):
 
 | Peso | Frequência | Uso típico |
 |---|---|---|
@@ -168,7 +168,7 @@ evitar.
 
 **Nunca** ícone de emoji, nem biblioteca genérica de IA (☰ 📊 👥 — já
 usado por engano num protótipo de Lobby e rejeitado pelo usuário). Sempre
-`iconeSvg(nome, tamanho)`, função em `interface/prospeccao.js`, biblioteca
+`iconeSvg(nome, tamanho)`, função em `interface/00-estado.js`, biblioteca
 de traço único (`currentColor`, então herda a cor do texto ao redor).
 
 Nomes disponíveis hoje (`PC_ICONES`, mesmo arquivo): `ballot`, `send`,

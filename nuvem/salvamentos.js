@@ -17,10 +17,10 @@
 //     salvamento nem as listas de cargo dentro dele (travado no banco via
 //     RLS, ver migração 5 — não é só uma trava de tela).
 //
-// Ligado a interface/prospeccao.js (renderMinhasListas, executarSalvarLista)
+// Ligado a interface/50-listas.js (renderMinhasListas, executarSalvarLista)
 // desde 08/08/2026 — só pra CONTA LOGADA (pcState.perfil). Convidado
 // continua usando o armazenamento local (carregarListasSalvasLocais etc.,
-// em interface/prospeccao.js) porque "salvamentos.perfil_id" exige uma
+// em interface/50-listas.js) porque "salvamentos.perfil_id" exige uma
 // conta de verdade — sem cadastro não tem onde gravar isso no banco.
 // Requer que nuvem/migracao-5-listas-salvas.sql já tenha rodado no
 // Supabase (ver topo daquele arquivo pro texto exato a colar).
@@ -30,7 +30,7 @@ const CARGOS_SALVAMENTO = ["estadual", "federal", "senador"];
 // Cria um salvamento novo com os 3 cargos de uma vez.
 //
 // palpitesPorCargo: { estadual: [...], federal: [...], senador: [...] } —
-// mesmo formato de pcState.palpitesPorCargo (interface/prospeccao.js,
+// mesmo formato de pcState.palpitesPorCargo (interface/00-estado.js,
 // garantirPalpitesPorCargo), cada lista no formato de state.parties.
 // Os 3 cargos são obrigatórios (mesmo que algum esteja vazio/zerado) —
 // "listas_salvas.cargo" tem CHECK fixo nos 3 valores, e a Revisão sempre

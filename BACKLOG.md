@@ -171,7 +171,7 @@ escopo respondidas antes de programar)._
    `perfis.mini_pesquisa_em`, e faz backfill (`mini_pesquisa_em =
    criado_em`) em toda conta existente na hora de rodar — só quem se
    cadastra DEPOIS da migração nasce com `mini_pesquisa_em` null e cai na
-   tela obrigatória (`initColaborativo`, interface/prospeccao.js).
+   tela obrigatória (`initColaborativo`, interface/10-boot.js).
 
 **⏸️ Pausada 15/08/2026 (testada ao vivo pela primeira vez, com feedback)**
 - Usuário testou o fluxo de verdade (primeiro login real) e pediu pra

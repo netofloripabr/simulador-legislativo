@@ -18,11 +18,45 @@ em vez de descrever a implementação.
 - `calculo/eleitoral.js` — só regras eleitorais: quociente eleitoral (QE),
   quociente partidário (QP), método das médias (sobras), D'Hondt,
   auto-balanceamento de votos. Funções puras sempre que possível.
-- `interface/prospeccao.js` — tudo que toca no DOM: telas, listeners,
-  modais. (O `interface/app.js` original — o Simulador individual — foi
-  removido em 18/08/2026 por decisão do usuário: todas as funções dele já
-  tinham sido absorvidas pela Prospecção Coletiva. Código completo no
-  histórico do git até o commit `57a5138`.)
+- `interface/*.js` — tudo que toca no DOM: telas, listeners, modais.
+  Era um arquivo só (`interface/prospeccao.js`, ~13 mil linhas) até
+  07/09/2026; foi dividido por tela, sem mudar nenhuma função, em scripts
+  globais carregados em ordem numérica pelo `index.html` (mesmo esquema de
+  `nuvem/*.js` — sem módulos ES, sem build):
+  - `00-estado.js` — `pcState`, constantes (`CARGOS`, `DESAFIO_TIPOS`,
+    `DOC_*`…), ícones (`PC_ICONES`/`iconeSvg`), `let` de módulo e helpers
+    puros de UI usados por várias telas (`telaCarregando`, `estadoVazio`,
+    `faderDepHtml`, `montarConsoleHtml`…).
+  - `10-boot.js` — `initColaborativo`, `renderColaborativo` (dispatcher),
+    abertura (landing, escolha de estado, leitura `?ver=`), menu fixo, Farol.
+  - `20-acesso.js` — login, cadastro, senha, completar perfil, onboarding,
+    mini-pesquisa, Termos/Privacidade.
+  - `30-painel.js` — casca logada, painel principal (Lobby), perfil, menu da
+    conta, ajuda, modais de créditos/reportar/excluir, notificações,
+    carteira, loja.
+  - `40-admin.js` — painel do administrador (todas as abas) e painel do
+    usuário final.
+  - `50-listas.js` — Minhas listas, depósito, compartilhar (cartões em
+    canvas), salvar (`executarSalvarLista` + modais), depósito confirmado.
+  - `60-grupos.js` — grupos privados (hub, criar, entrar, membro,
+    `montarComparacaoGrupo`).
+  - `70-duelos.js` — Desafios 1×1 (hub, criar, aceitar, comparação,
+    selado, vitória).
+  - `80-selecao.js` — tela de montar o palpite (Senador, Deputados com
+    faders, projeções, busca, auto/zerar, listeners).
+  - `90-revisao.js` — Revisão, documento impresso, disputa das sobras,
+    consulta pública de cédula, Termômetro/Quadro de médias.
+  - `99-inicio.js` — SÓ o que dispara a app em tempo de carga (parâmetros
+    da URL, `initColaborativo()`, listeners globais de teclado/toque).
+  Funções chamam umas às outras só em tempo de execução, então a ordem entre
+  os arquivos de funções não importa — mas estado/constantes ficam no `00`
+  e qualquer chamada solta fica no `99`. Depois de mexer, rodar
+  `node ferramentas/conferir_split_interface.js` (confere que nenhum nome
+  está declarado em dois arquivos e lista os statements de topo).
+  (O `interface/app.js` original — o Simulador individual — foi removido em
+  18/08/2026 por decisão do usuário: todas as funções dele já tinham sido
+  absorvidas pela Prospecção Coletiva. Código completo no histórico do git
+  até o commit `57a5138`.)
 - `css/estilo.css` — variáveis de cor/tema e layout.
 - `index.html` — só estrutura HTML + os `<script src>` nesta ordem
   (dados → calculo → nuvem → interface — a ordem importa, cada camada
@@ -56,7 +90,8 @@ Ao adicionar uma função nova, pare e pergunte: isso é fato (dados), regra
    pelo app segue o regime de 2026. Sem dependências. Se falhar, NÃO
    "ajustar" a regra pra bater: 2022 e 2026 têm regras diferentes de
    sobra (ver o cabeçalho do teste).
-1. Validar sintaxe dos 3 arquivos JS (ex.: `node --check`).
+1. Validar sintaxe de todos os JS de `interface/` e `nuvem/` (ex.:
+   `for f in interface/*.js nuvem/*.js; do node --check "$f"; done`).
 2. Abrir o `index.html` num navegador (ou pedir para a pessoa abrir) e
    conferir visualmente — não basta o código "parecer" certo.
 3. Nunca editar `dados/base-2022.js` (os votos reais de 2022) sem citar a
@@ -151,7 +186,7 @@ O candidato que aparece numa aba de palpite é SEMPRE do elenco 2026
 como BASE DE VOTOS dos candidatos que concorreram nos dois anos (o default
 do 1º acesso equivale a apertar o relógio-2022) — jamais como elenco.
 Quatro guardas implementadas:
-1. `rascunhoEhOrfao` (interface/prospeccao.js) compara por CHAVE e exige
+1. `rascunhoEhOrfao` (interface/80-selecao.js) compara por CHAVE e exige
    maioria de sobrevivência — rascunhos da era pré-atas são descartados
    (o bug de 21/08: comparava por `id` inexistente, undefined casava com
    undefined e nenhum rascunho era descartado).

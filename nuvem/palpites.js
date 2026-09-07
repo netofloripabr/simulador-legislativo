@@ -171,7 +171,7 @@ function montarEstadoPalpite(escopo, partidoEscopo, vagasPorPartido, cargo, uf) 
           // a meta de vagas (dos boxes, se houver) entram marcados. Só vale
           // enquanto o partido está no modo "simplificado" — no modo
           // "detalhado" isso é recalculado a partir da votação (ver
-          // recalcularMarcados em interface/prospeccao.js).
+          // recalcularMarcados em interface/80-selecao.js).
           marcadoEleito: marcarChaves.has(chave),
         };
       }),
@@ -197,7 +197,7 @@ async function carregarMeuPalpite(perfilId) {
 
 // Salva candidatos + vagas_por_partido (derivado dos próprios candidatos
 // marcados) num upsert só — usado pela tela única de seleção de candidatos
-// (interface/prospeccao.js: renderSelecaoCandidatos), que não trabalha mais
+// (interface/80-selecao.js: renderSelecaoCandidatos), que não trabalha mais
 // com vagas_por_partido como fonte separada, só como resumo pro banco.
 async function salvarPalpiteCompleto(perfilId, palpiteEdicao) {
   const vagasPorPartido = {};
@@ -384,7 +384,7 @@ function calcularMedianaPalpites(registros, cargo, uf, votosDuelo) {
       // sobre o MESMO array aparado 10%/10% que medianaAparada usaria — não
       // chamamos medianaAparada de novo, só reaproveitamos aparar10por10.
       // Convenção: candidato semPalpites NÃO recebe q1/q3 (fica undefined) —
-      // a tela (prospeccao.js) trata a ausência de q1/q3 como "faixa cheia
+      // a tela (interface/90-revisao.js) trata a ausência de q1/q3 como "faixa cheia
       // (100%), incerteza total", em vez de uma faixa fina em zero.
       let q1, q3;
       if (valores && valores.length) {
@@ -410,7 +410,7 @@ function calcularMedianaPalpites(registros, cargo, uf, votosDuelo) {
 // do app: proporcional (quociente + D'Hondt, dhondtComCorte) pra
 // Estadual/Federal, majoritário (mais votado individual, juntando todos os
 // partidos numa fila só) pro Senador — mesmo motivo do branch em
-// classificarEleitosPorPartido (interface/prospeccao.js, achado em
+// classificarEleitosPorPartido (interface/90-revisao.js, achado em
 // 04/08/2026). Devolve tudo ordenado por votos (eleitos misturados com os
 // mais próximos da vaga — "suplentes"), cada item com `eleito:true/false`.
 function projetarEleitosMediana(parties, cargo, uf, limiteExibicao) {
@@ -419,7 +419,7 @@ function projetarEleitosMediana(parties, cargo, uf, limiteExibicao) {
 
   if (cargo === "senador") {
     const todos = [];
-    // Mesmo filtro de classificarEleitosMajoritario (interface/prospeccao.js)
+    // Mesmo filtro de classificarEleitosMajoritario (interface/90-revisao.js)
     // — voto de legenda não é uma pessoa, não pode "ganhar vaga" aqui.
     // Nenhum dado de Senador carregado hoje tem fonte:"legenda", mas sem
     // esse filtro um dado futuro assim poderia concorrer por engano —
@@ -454,7 +454,7 @@ function projetarEleitosMediana(parties, cargo, uf, limiteExibicao) {
 }
 
 // Busca o rascunho público (3 cargos) de UMA pessoa — usado pelo link de
-// Compartilhar (ver renderCompartilhado em interface/prospeccao.js) e por
+// Compartilhar (ver renderCompartilhado em interface/10-boot.js) e por
 // buscarComparacaoGrupo (nuvem/grupos.js). Diferente de
 // buscarTodosPalpitesPublicos: essa vem de "rascunhos_publicos"
 // (nuvem/migracao-7-rascunhos-publicos.sql), que cobre os 3 cargos —

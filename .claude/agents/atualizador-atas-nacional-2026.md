@@ -33,7 +33,7 @@ extras como `partidoOriginal` (federação). Não precisa (e não deve) rodar
 `gerar_ficticios_2026.py` como parte desta rotina — os fictícios que já
 existem no arquivo são preservados automaticamente pelo merge.
 
-A interface (`interface/prospeccao.js`, função que monta a lista de
+A interface (`interface/80-selecao.js`, função que monta a lista de
 candidatos de um cargo) já marca visualmente todo candidato com
 `fonte === "ficticio"` com o selo "candidato fictício" + tooltip. Se um dia
 esse selo sumir do código sem querer, é regressão — não é preciso mexer

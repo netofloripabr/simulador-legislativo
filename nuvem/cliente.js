@@ -15,8 +15,8 @@ if (!supabaseClient) {
 // "Esqueci minha senha": quando a pessoa clica no link do e-mail de
 // recuperação, o Supabase processa o token sozinho (fica embutido na URL
 // de retorno) e dispara este evento — é o sinal pra abrir a tela de
-// definir nova senha (renderTelaNovaSenha, interface/prospeccao.js).
-// Registrado aqui (não em prospeccao.js) pra já estar ativo desde o
+// definir nova senha (renderTelaNovaSenha, interface/20-acesso.js).
+// Registrado aqui (não em interface/*.js) pra já estar ativo desde o
 // primeiro instante da página, antes de qualquer outra coisa carregar —
 // mas só EXECUTA de verdade depois (é assíncrono), quando pcState/
 // renderColaborativo já existem.

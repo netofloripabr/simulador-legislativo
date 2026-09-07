@@ -46,7 +46,7 @@ sobre isso antes de desenhar a migração definitiva.
 3. Atualize as funções JS correspondentes em `nuvem/palpites.js` (ou crie um
    arquivo novo se for uma responsabilidade distinta) pra usar a nova
    estrutura, mantendo a assinatura das funções que a interface já chama
-   sempre que possível (menos retrabalho em `interface/prospeccao.js`).
+   sempre que possível (menos retrabalho em `interface/*.js`).
 4. Sinalize explicitamente qualquer mudança que quebre dado já salvo em
    produção (ex.: mudar chave primária) — isso precisa de confirmação
    humana antes, nunca decida sozinho migrar/apagar dado real.

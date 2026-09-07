@@ -24,9 +24,9 @@ if(typeof window.storage === 'undefined'){
 <div class="wrap">
 
   <!-- Visível desde o primeiro instante — o "Carregando…" some assim que
-       interface/prospeccao.js (o último <script>) substitui o conteúdo,
+       interface/99-inicio.js (o último <script>) substitui o conteúdo,
        mas evita tela em branco enquanto os ~40 <script> de dados carregam.
-       MESMA logo/CSS de telaCarregando() (interface/prospeccao.js, classes
+       MESMA logo/CSS de telaCarregando() (interface/00-estado.js, classes
        compartilhadas em css/estilo.css) — cores hardcoded no CSS, não em
        var(--pc-accent), então bate certinho desde o 1º pixel, antes de
        qualquer classe de tema ser aplicada por JS. Se mudar
@@ -135,6 +135,19 @@ if(typeof window.storage === 'undefined'){
 <script src="nuvem/pagamentos.js?cb=650"></script>
 <script src="nuvem/candidato-links.js?cb=650"></script>
 <script src="nuvem/bots.js?cb=650"></script>
-<script src="interface/prospeccao.js?cb=650"></script>
+<!-- interface/ em ordem numérica (00 → 99): 00-estado tem o estado e os
+     helpers compartilhados; 99-inicio é o único que dispara a app em tempo
+     de carga. Ver CLAUDE.md, seção "Estrutura". -->
+<script src="interface/00-estado.js?cb=650"></script>
+<script src="interface/10-boot.js?cb=650"></script>
+<script src="interface/20-acesso.js?cb=650"></script>
+<script src="interface/30-painel.js?cb=650"></script>
+<script src="interface/40-admin.js?cb=650"></script>
+<script src="interface/50-listas.js?cb=650"></script>
+<script src="interface/60-grupos.js?cb=650"></script>
+<script src="interface/70-duelos.js?cb=650"></script>
+<script src="interface/80-selecao.js?cb=650"></script>
+<script src="interface/90-revisao.js?cb=650"></script>
+<script src="interface/99-inicio.js?cb=650"></script>
 </body>
 </html>

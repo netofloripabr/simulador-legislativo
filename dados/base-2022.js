@@ -59,7 +59,7 @@ function refEleitoradoDe(uf) { return REF_ELEITORADO_POR_UF[uf] || null; }
 // processado por ferramentas/tratar_resultados_2022.py em 2026-07-25.
 // Município = onde o candidato teve sua maior votação (base eleitoral / reduto).
 // nomeUrna vem do próprio TSE (NM_URNA_CANDIDATO) quando existe — ver
-// interface/prospeccao.js (nomeExibicao), que prioriza esse campo na tela.
+// interface/00-estado.js (nomeExibicao), que prioriza esse campo na tela.
 //
 // eleito2022: vem do campo oficial de situação de totalização do TSE
 // (DS_SIT_TOT_TURNO), não da fórmula de quociente+sobras recalculada — mais

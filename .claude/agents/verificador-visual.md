@@ -1,6 +1,6 @@
 ---
 name: verificador-visual
-description: Use depois de qualquer mudança visual em interface/prospeccao.js, interface/app.js ou css/estilo.css. Abre o index.html no navegador, reproduz o cenário necessário (via pcState/JS), tira print antes/depois e confere console sem erro. Aciona sempre que uma mudança de UI precisar de confirmação visual antes de ser considerada pronta — nunca considere uma mudança de tela pronta só porque o código "parece" certo.
+description: Use depois de qualquer mudança visual em interface/*.js ou css/estilo.css. Abre o index.html no navegador, reproduz o cenário necessário (via pcState/JS), tira print antes/depois e confere console sem erro. Aciona sempre que uma mudança de UI precisar de confirmação visual antes de ser considerada pronta — nunca considere uma mudança de tela pronta só porque o código "parece" certo.
 tools: Bash, Read, mcp__Claude_Browser__preview_start, mcp__Claude_Browser__navigate, mcp__Claude_Browser__computer, mcp__Claude_Browser__javascript_tool, mcp__Claude_Browser__read_console_messages, mcp__Claude_Browser__read_page, mcp__Claude_Browser__find, mcp__Claude_Browser__resize_window
 model: sonnet
 ---

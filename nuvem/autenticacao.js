@@ -112,7 +112,7 @@ async function sair() {
 // Supabase Auth. redirectTo aponta de volta pro próprio site (mesma URL
 // atual, sem querystring) — o Supabase anexa um token de recuperação na
 // URL; o cliente detecta isso sozinho (onAuthStateChange dispara
-// "PASSWORD_RECOVERY", ver interface/prospeccao.js) e libera a tela de
+// "PASSWORD_RECOVERY", ver interface/10-boot.js) e libera a tela de
 // definir nova senha.
 async function solicitarRecuperacaoSenha(email) {
   const redirectTo = window.location.origin + window.location.pathname;
@@ -276,7 +276,7 @@ async function usuarioFinalPesquisaAgregada(estado, genero, ufResidencia) {
 // Login social — manda pro Google e volta pro mesmo endereço do site. O
 // Google não entrega um aceite de LGPD, então quem entra por aqui
 // pela primeira vez tem sessão mas ainda não tem linha em "perfis" — o app
-// detecta isso (initColaborativo, interface/prospeccao.js) e pede só a
+// detecta isso (initColaborativo, interface/10-boot.js) e pede só a
 // confirmação do nome + LGPD antes de liberar o resto (ver completarPerfilGoogle).
 async function entrarComGoogle() {
   const redirectTo = window.location.origin + window.location.pathname;

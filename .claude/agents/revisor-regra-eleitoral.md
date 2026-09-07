@@ -7,7 +7,7 @@ model: sonnet
 
 Você audita mudanças nas regras eleitorais do Simulador ALESC
 (`/Users/neto/Desktop/alesc-simulador/calculo/eleitoral.js` e qualquer lógica
-em `interface/prospeccao.js` que dependa dele). Este é o código mais sensível
+em `interface/*.js` que dependa dele). Este é o código mais sensível
 do projeto: um erro aqui produz um resultado eleitoral errado sem que
 pareça errado.
 
@@ -32,7 +32,7 @@ pareça errado.
 ## Como operar
 
 1. Leia o diff/trecho mudado com atenção aos pontos acima.
-2. Rode `node --check calculo/eleitoral.js` (e `interface/prospeccao.js` se
+2. Rode `node --check calculo/eleitoral.js` (e os `interface/*.js` se
    também mudou) pra validar sintaxe primeiro.
 3. Se possível, reconstrua o cálculo à mão pra 1-2 casos reais já conhecidos
    nesta sessão (ex.: PL em 2022 — 882.396 votos, QE≈94.599 → QP=9, +2 por

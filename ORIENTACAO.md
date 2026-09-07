@@ -129,7 +129,7 @@ só dar visibilidade a eles:
       não há pendência); painel com feito ✓, atual em destaque
       verde-vivo, futuros apagados, miniaturas dos controles reais.
 - [x] Posição: **A (topo do sistema)** — escolhida em 20/08/2026.
-- [x] IMPLEMENTADO em 20/08/2026 (interface/prospeccao.js, módulo
+- [x] IMPLEMENTADO em 20/08/2026 (interface/10-boot.js, módulo
       "Farol de Orientação"; css/estilo.css .pc-farol-*). Presente em:
       palpite (pontos na linha das abas, barra/painel acima do sticky),
       Revisão, Painel principal, Minhas listas e Grupos. Decisões de

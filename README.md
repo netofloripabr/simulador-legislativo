@@ -47,7 +47,8 @@ SEL/
 ├── interface/
 │   ├── app.js             → tela do "modo simulador" original (mais
 │   │                         simples, sem conta/nuvem)
-│   └── prospeccao.js      → tela do modo principal de hoje: cadastro,
+│   └── 00-estado.js … 99-inicio.js → telas do modo principal, divididas
+│                            por tela em 07/09/2026 (ordem no index.html): cadastro,
 │                             login, seleção de candidatos, revisão,
 │                             Minhas Listas, Grupos, Médias — é o maior
 │                             arquivo do projeto, onde a maioria das

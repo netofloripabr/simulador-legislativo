@@ -145,7 +145,7 @@ tela nova ou redesenho** deste ponto em diante, não só as três já feitas:
   `filter:blur()` + `mask-image:linear-gradient(...)`; em `<canvas>` via
   canvas offscreen com `ctx.filter='blur()'` recortado por
   `globalCompositeOperation:'destination-in'` (ver
-  `_desenharColunaCedulaResumo`, interface/prospeccao.js). Caixa vazia
+  `_desenharColunaCedulaResumo`, interface/50-listas.js). Caixa vazia
   desfocada não passa a ideia — feedback direto do usuário na 1ª rodada.
 
 Classes CSS de referência (`css/estilo.css`): `.pc-lobby-banner`,
@@ -340,7 +340,7 @@ o código foi feito para não depender de nenhuma delas de forma irreversível.
 ### Fase 2 — Arquitetura técnica de cadastro e dados compartilhados
 - [x] Modelo de dados no Supabase (`nuvem/schema.sql`, já rodado no projeto)
 - [x] Cadastro/login (nome + e-mail + senha) — testado ponta a ponta, funcionando
-- [x] Modo de preenchimento **detalhado** (votos por candidato) — `interface/prospeccao.js`, reaproveitando `dhondt()`/`desenharHemiciclo()`
+- [x] Modo de preenchimento **detalhado** (votos por candidato) — `interface/80-selecao.js` (antes prospeccao.js), reaproveitando `dhondt()`/`desenharHemiciclo()`
 - [x] Modo de preenchimento **simplificado** (marcar quem se elege, sem votos) — é o modo padrão agora; testado: marcar/desmarcar, "completar automaticamente" (preenche até a cota de 2022 por partido), e alternar por partido para "preencher com votos completos" e voltar
 - [x] Quadro de médias (projeção agregada de todas as previsões) — testado com palpite real, agregação e recálculo de vagas corretos
 - [ ] Painel do usuário final (conforme escopo decidido no ponto em aberto #2)
