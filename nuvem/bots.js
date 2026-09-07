@@ -1,9 +1,12 @@
 // Aba "Bots" do painel do administrador (migração 36, 28/08/2026) —
 // lista de referência por estado + regulação dos usuários fictícios.
-// FASE 1: o painel só grava referência/config no Supabase; a geração das
-// contas continua no script local ferramentas/gerar_usuarios_ficticios.py,
-// que lê daqui. Tudo atrás de RLS admin-only — usuário comum nem enxerga
-// as tabelas.
+// FASE 2 (migração 49, 07/09/2026): "Aplicar agora" cria/atualiza as
+// contas na hora pela Edge Function "bots-aplicar" (chave service_role
+// fica no servidor); o script local ferramentas/gerar_usuarios_ficticios.py
+// continua funcionando como reserva. Progressão automática (bots
+// iniciais + incremento por dia até o lote) e regra regressiva por
+// estado ficam em bots_teto_ativo(uf), no banco. Tudo atrás de RLS
+// admin-only — usuário comum nem enxerga as tabelas.
 
 async function botsCarregarConfig(estado) {
   const { data, error } = await supabaseClient
@@ -11,16 +14,82 @@ async function botsCarregarConfig(estado) {
   if (error) { console.error("Erro ao carregar bots_config:", error); return null; }
   // Padrões da especificação (155 contas, ±20%) quando o estado ainda não
   // tem linha — a linha só nasce no primeiro Salvar.
-  return data || { estado, ligado: false, lote: 155, variacao_pct: 20, geracao_solicitada_em: null, gerado_em: null, gerado_detalhe: null, _semLinha: true };
+  return data || { estado, ligado: false, lote: 155, variacao_pct: 20, bots_iniciais: null, incremento_dia: null, progressao_inicio: null, geracao_solicitada_em: null, gerado_em: null, gerado_detalhe: null, aplicado_em: null, aplicado_detalhe: null, _semLinha: true };
 }
 
+// Salva a regulação. Progressão (bots_iniciais + incremento_dia) é
+// opcional: com os dois preenchidos e sem data de início ainda, a data
+// de início vira hoje (Brasília); com os dois vazios, a progressão sai e
+// o teto volta a ser "lote − depósitos reais do estado".
 async function botsSalvarConfig(cfg) {
-  const { error } = await supabaseClient.from("bots_config").upsert({
+  const temProgressao = cfg.bots_iniciais !== null && cfg.bots_iniciais !== undefined
+    && cfg.incremento_dia !== null && cfg.incremento_dia !== undefined;
+  const linha = {
     estado: cfg.estado, ligado: !!cfg.ligado, lote: cfg.lote, variacao_pct: cfg.variacao_pct,
+    bots_iniciais: temProgressao ? cfg.bots_iniciais : null,
+    incremento_dia: temProgressao ? cfg.incremento_dia : null,
+    progressao_inicio: temProgressao ? (cfg.progressao_inicio || botsHojeBrasilia()) : null,
     atualizado_em: new Date().toISOString(),
-  }, { onConflict: "estado" });
+  };
+  const { error } = await supabaseClient.from("bots_config").upsert(linha, { onConflict: "estado" });
   if (error) { console.error("Erro ao salvar bots_config:", error); return false; }
   return true;
+}
+
+// yyyy-mm-dd de hoje no fuso de Brasília — mesma régua de bots_teto_ativo.
+function botsHojeBrasilia() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+}
+
+// Progressão automática calculada no cliente, igual à função SQL
+// bots_teto_ativo (pra montar a barra "Dia N · X de lote ativos" mesmo
+// antes de o banco responder). Devolve { dia, cotaDia, teto }:
+//   dia     = dias desde progressao_inicio + 1 (dia 1 = início)
+//   cotaDia = min(lote, iniciais + incremento × (dia − 1))  — sem
+//             progressão configurada, = lote
+//   teto    = max(0, cotaDia − depósitos reais do estado)
+function botsProgressaoCalcular(cfg, depositosReaisUf) {
+  const lote = Number(cfg.lote) || 155;
+  const temProgressao = cfg.bots_iniciais !== null && cfg.bots_iniciais !== undefined
+    && cfg.incremento_dia !== null && cfg.incremento_dia !== undefined && cfg.progressao_inicio;
+  let dia = null, cotaDia = lote;
+  if (temProgressao) {
+    const hoje = new Date(botsHojeBrasilia() + "T00:00:00Z");
+    const ini = new Date(String(cfg.progressao_inicio).slice(0, 10) + "T00:00:00Z");
+    const dias = Math.max(0, Math.round((hoje - ini) / 86400000));
+    dia = dias + 1;
+    cotaDia = Math.min(lote, Number(cfg.bots_iniciais) + Number(cfg.incremento_dia) * dias);
+  }
+  return { dia, cotaDia, teto: Math.max(0, cotaDia - (Number(depositosReaisUf) || 0)), temProgressao: !!temProgressao };
+}
+
+// Teto de bots ativos na média pública do estado, direto do banco
+// (função bots_teto_ativo, migração 49). null se a RPC falhar.
+async function botsTetoAtivo(estado) {
+  const { data, error } = await supabaseClient.rpc("bots_teto_ativo", { p_uf: estado });
+  if (error) { console.error("Erro em bots_teto_ativo:", error); return null; }
+  return Number(data);
+}
+
+// "Aplicar agora": Edge Function bots-aplicar cria/atualiza os bots do
+// estado na hora (só admin passa no gate dela). Devolve o resumo
+// { ok, detalhe, criados, atualizados, ... } ou { ok:false, mensagem }.
+async function botsAplicarAgora(estado) {
+  if (!supabaseClient) return { ok: false, mensagem: "Sem conexão com o servidor." };
+  const { data, error } = await supabaseClient.functions.invoke("bots-aplicar", { body: { estado } });
+  if (error || !data) {
+    let mensagem = (data && data.erro) || (error && error.message) || "Não consegui aplicar os bots.";
+    // FunctionsHttpError traz o corpo da resposta (com o "erro" legível) em context.
+    try {
+      if (error && error.context && typeof error.context.json === "function") {
+        const corpo = await error.context.json();
+        if (corpo && corpo.erro) mensagem = corpo.erro;
+      }
+    } catch (_) { /* corpo não era JSON */ }
+    return { ok: false, mensagem };
+  }
+  if (data.erro) return { ok: false, mensagem: data.erro };
+  return { ok: !!data.ok, ...data, mensagem: data.ok ? null : `Aplicado com erros: ${data.detalhe}` };
 }
 
 async function botsSolicitarGeracao(estado) {

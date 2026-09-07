@@ -1153,5 +1153,44 @@ const MIGRACOES_INDEX = [
     "desafios.modelo_de"
    ]
   ]
+ },
+ {
+  "num": 49,
+  "arquivo": "migracao-49-bots-aplicar-progressao.sql",
+  "descricao": "Migração 49: bots \"Aplicar agora\" (Edge Function) + progressão automática",
+  "objetos": [
+   [
+    "function",
+    "bots_teto_ativo"
+   ],
+   [
+    "view",
+    "rascunhos_publicos"
+   ],
+   [
+    "function",
+    "bots_auth_id_por_email"
+   ],
+   [
+    "column",
+    "bots_config.bots_iniciais"
+   ],
+   [
+    "column",
+    "bots_config.incremento_dia"
+   ],
+   [
+    "column",
+    "bots_config.progressao_inicio"
+   ],
+   [
+    "column",
+    "bots_config.aplicado_em"
+   ],
+   [
+    "column",
+    "bots_config.aplicado_detalhe"
+   ]
+  ]
  }
 ];

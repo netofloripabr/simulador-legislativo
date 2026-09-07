@@ -2853,13 +2853,16 @@ async function montarAdminRotinas() {
 // "Gerar" só marca o pedido. Lançamento é SC-only (decisão 28/08/2026).
 async function montarAdminBots() {
   const uf = pcState.adminBotsEstado || "SC";
-  const [cfg, refs, depositosReais] = await Promise.all([
+  // Depósitos reais e teto POR ESTADO (migração 49) — a regra regressiva
+  // deixou de ser nacional.
+  const [cfg, refs, depositosReais, tetoBanco] = await Promise.all([
     botsCarregarConfig(uf),
     botsCarregarReferencias(uf),
     (async () => {
-      const { data, error } = await supabaseClient.rpc("contagem_depositos_reais");
+      const { data, error } = await supabaseClient.rpc("contagem_depositos_reais_uf", { p_uf: uf });
       return error ? null : Number(data);
     })(),
+    botsTetoAtivo(uf),
   ]);
   if (!cfg) return `<div class="pc-sub">Não consegui carregar a configuração dos bots — a migração 36 já foi rodada no Supabase?</div>`;
 
@@ -2885,7 +2888,14 @@ async function montarAdminBots() {
   const historicoRef = refs.filter((r) => !r.ativa).slice(0, 4).map((r) =>
     `<div style="font-size:10.5px; color:var(--pc-ink-faint); margin-top:3px;">· substituída — criada em ${new Date(r.criado_em).toLocaleString("pt-BR")}</div>`).join("");
 
-  const botsAtivos = Math.max(0, (cfg.lote || 155) - (depositosReais || 0));
+  // Progressão automática: barra "Dia N · X de lote ativos". O teto vem
+  // do banco (bots_teto_ativo); o cálculo local só cobre "dia N"/cota e
+  // serve de reserva se a RPC falhar.
+  const prog = botsProgressaoCalcular(cfg, depositosReais);
+  const botsAtivos = tetoBanco !== null && tetoBanco !== undefined && !isNaN(tetoBanco) ? tetoBanco : prog.teto;
+  const lote = cfg.lote || 155;
+  const pctBarra = Math.max(0, Math.min(100, Math.round((botsAtivos / lote) * 100)));
+  const fmtData = (d) => { const [a, m, dd] = String(d).slice(0, 10).split("-"); return `${dd}/${m}/${a}`; };
 
   return `
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
@@ -2927,23 +2937,48 @@ async function montarAdminBots() {
           <input type="number" id="pcAdminBotsVariacao" class="cell" value="${cfg.variacao_pct}" min="0" max="100" style="width:100%; margin-top:4px;">
         </label>
       </div>
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <label style="flex:1; font-size:11px; color:var(--pc-ink-dim);">Bots iniciais (dia 1)
+          <input type="number" id="pcAdminBotsIniciais" class="cell" value="${cfg.bots_iniciais === null || cfg.bots_iniciais === undefined ? "" : cfg.bots_iniciais}" placeholder="todos" min="0" max="500" style="width:100%; margin-top:4px;">
+        </label>
+        <label style="flex:1; font-size:11px; color:var(--pc-ink-dim);">Incremento por dia
+          <input type="number" id="pcAdminBotsIncremento" class="cell" value="${cfg.incremento_dia === null || cfg.incremento_dia === undefined ? "" : cfg.incremento_dia}" placeholder="—" min="0" max="500" style="width:100%; margin-top:4px;">
+        </label>
+      </div>
+      <div style="font-size:10.5px; color:var(--pc-ink-faint); line-height:1.5; margin-top:6px;">Deixe os dois vazios pra todos os bots do lote entrarem de uma vez. Preenchidos, entram <b>bots iniciais</b> no dia 1 e mais <b>incremento</b> a cada dia, até o lote.</div>
       <button class="primary" id="pcBtnBotsSalvarConfig" style="width:100%; margin-top:12px;">Salvar regulação</button>
-      <div style="border-top:1px solid var(--pc-glass-border); margin-top:14px; padding-top:12px;">
-        <button class="ghost" id="pcBtnBotsGerar" style="width:100%;" ${refAtiva ? "" : "disabled"}>Gerar / atualizar bots de ${uf}</button>
-        <div style="font-size:10.5px; color:var(--pc-ink-faint); line-height:1.5; margin-top:8px;">
-          ${cfg.geracao_solicitada_em ? `Pedido de geração aberto desde ${new Date(cfg.geracao_solicitada_em).toLocaleString("pt-BR")} — rode <b>ferramentas/gerar_usuarios_ficticios.py</b> no computador pra concluir.` : "O botão marca o pedido; a criação das contas roda pelo script no computador (precisa da chave administrativa, que não fica no site)."}
-          ${cfg.gerado_em ? `<br>Última geração concluída: ${new Date(cfg.gerado_em).toLocaleString("pt-BR")}${cfg.gerado_detalhe ? ` — ${cfg.gerado_detalhe}` : ""}` : ""}
-        </div>
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">③ Progressão automática</div>
+    <div class="glass-card" style="padding:14px;">
+      <div id="pcAdminBotsProgressaoRotulo" style="display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:12.5px; color:var(--pc-ink);">
+        <span>${prog.temProgressao ? `<b>Dia ${prog.dia}</b> · ${botsAtivos.toLocaleString("pt-BR")} de ${lote.toLocaleString("pt-BR")} ativos` : `${botsAtivos.toLocaleString("pt-BR")} de ${lote.toLocaleString("pt-BR")} ativos`}</span>
+        <span style="font-size:10.5px; color:var(--pc-ink-faint);">${prog.temProgressao ? `desde ${fmtData(cfg.progressao_inicio)} · +${cfg.incremento_dia}/dia` : "sem progressão — lote inteiro de uma vez"}</span>
+      </div>
+      <div style="height:8px; border-radius:99px; background:var(--pc-glass-border); margin-top:8px; overflow:hidden;">
+        <div id="pcAdminBotsProgressaoBarra" style="height:100%; width:${pctBarra}%; background:var(--pc-accent); border-radius:99px; transition:width .3s;"></div>
+      </div>
+      <div style="font-size:10.5px; color:var(--pc-ink-faint); line-height:1.5; margin-top:8px;">${prog.temProgressao ? `Cota do dia: ${prog.cotaDia.toLocaleString("pt-BR")} bots${depositosReais ? ` − ${depositosReais.toLocaleString("pt-BR")} cédulas reais em ${uf}` : ""} = ${botsAtivos.toLocaleString("pt-BR")} na média.` : `Configure "bots iniciais" e "incremento por dia" na regulação pra escalonar a entrada.`} A data de início é gravada no primeiro Salvar/Aplicar com a progressão preenchida.</div>
+    </div>
+
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">④ Aplicação</div>
+    <div class="glass-card" style="padding:14px;">
+      <button class="primary" id="pcBtnBotsAplicar" style="width:100%;" ${refAtiva ? "" : "disabled"}>Aplicar agora em ${uf}</button>
+      <div style="font-size:10.5px; color:var(--pc-ink-faint); line-height:1.5; margin-top:8px;">
+        ${refAtiva ? "Cria as contas que faltam e atualiza o palpite de todas em cima da referência ativa — direto no servidor, leva menos de 1 minuto." : "Aponte uma referência em ① pra liberar."}
+        ${cfg.aplicado_em ? `<br><b style="color:var(--pc-ink-dim);">Última aplicação:</b> ${new Date(cfg.aplicado_em).toLocaleString("pt-BR")}${cfg.aplicado_detalhe ? ` — ${cfg.aplicado_detalhe}` : ""}` : `<br>Ainda não aplicado em ${uf}.`}
+        ${cfg.geracao_solicitada_em ? `<br>Pedido antigo aberto desde ${new Date(cfg.geracao_solicitada_em).toLocaleString("pt-BR")} — "Aplicar agora" fecha ele.` : ""}
+        <br>O script local (ferramentas/gerar_usuarios_ficticios.py) continua funcionando como reserva.
       </div>
     </div>
 
-    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">③ Efeito boot</div>
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">⑤ Efeito boot</div>
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
-      <div class="pc-metric" style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${depositosReais === null ? "—" : depositosReais.toLocaleString("pt-BR")}</div><div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">cédulas reais depositadas</div></div>
+      <div class="pc-metric" style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--pc-accent);">${depositosReais === null ? "—" : depositosReais.toLocaleString("pt-BR")}</div><div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">cédulas reais depositadas em ${uf}</div></div>
       <div class="pc-metric" style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--pc-ink);">${botsAtivos.toLocaleString("pt-BR")}</div><div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">bots ainda na média</div></div>
-      <div class="pc-metric" style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--pc-ink-dim);">${(cfg.lote || 155).toLocaleString("pt-BR")}</div><div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">lote total</div></div>
+      <div class="pc-metric" style="text-align:center;"><div style="font-size:22px; font-weight:800; color:var(--pc-ink-dim);">${lote.toLocaleString("pt-BR")}</div><div style="font-size:11px; color:var(--pc-ink-dim); margin-top:4px;">lote total</div></div>
     </div>
-    <div style="font-size:10.5px; color:var(--pc-ink-faint); line-height:1.5; margin-top:8px;">Cada cédula real depositada desativa 1 bot da média pública (do índice mais alto pro mais baixo) — com o tempo, os usuários de verdade assumem a média sozinhos.</div>`;
+    <div style="font-size:10.5px; color:var(--pc-ink-faint); line-height:1.5; margin-top:8px;">Cada cédula real depositada em ${uf} desativa 1 bot da média pública do estado (do índice mais alto pro mais baixo) — com o tempo, os usuários de verdade assumem a média sozinhos.</div>`;
 }
 
 // ---------- Aba Analítico, nível Sistema (migração 37, 28/08/2026) ----------
@@ -3323,16 +3358,33 @@ async function renderAdminPainel() {
       const variacao = parseInt(document.getElementById("pcAdminBotsVariacao").value, 10);
       if (!lote || lote < 1 || lote > 500) { pcState.adminBotsStatus = { tipo: "erro", texto: "Lote precisa estar entre 1 e 500." }; renderAdminPainel(); return; }
       if (isNaN(variacao) || variacao < 0 || variacao > 100) { pcState.adminBotsStatus = { tipo: "erro", texto: "Variação precisa estar entre 0 e 100%." }; renderAdminPainel(); return; }
-      const ok = await botsSalvarConfig({ estado: uf, ligado: document.getElementById("pcAdminBotsLigado").checked, lote, variacao_pct: variacao });
-      pcState.adminBotsStatus = ok ? { tipo: "ok", texto: `Regulação de ${uf} salva.` } : { tipo: "erro", texto: "Não consegui salvar — a migração 36 já foi rodada?" };
+      // Progressão (migração 49): os dois juntos ou nenhum.
+      const txtIni = document.getElementById("pcAdminBotsIniciais").value.trim();
+      const txtInc = document.getElementById("pcAdminBotsIncremento").value.trim();
+      const iniciais = txtIni === "" ? null : parseInt(txtIni, 10);
+      const incremento = txtInc === "" ? null : parseInt(txtInc, 10);
+      if ((iniciais === null) !== (incremento === null)) { pcState.adminBotsStatus = { tipo: "erro", texto: "Preencha \"bots iniciais\" e \"incremento por dia\" juntos (ou deixe os dois vazios)." }; renderAdminPainel(); return; }
+      if (iniciais !== null && (isNaN(iniciais) || iniciais < 0 || iniciais > lote)) { pcState.adminBotsStatus = { tipo: "erro", texto: `Bots iniciais precisa estar entre 0 e o lote (${lote}).` }; renderAdminPainel(); return; }
+      if (incremento !== null && (isNaN(incremento) || incremento < 0 || incremento > 500)) { pcState.adminBotsStatus = { tipo: "erro", texto: "Incremento por dia precisa estar entre 0 e 500." }; renderAdminPainel(); return; }
+      const cfgAtual = await botsCarregarConfig(uf);
+      const ok = await botsSalvarConfig({
+        estado: uf, ligado: document.getElementById("pcAdminBotsLigado").checked, lote, variacao_pct: variacao,
+        bots_iniciais: iniciais, incremento_dia: incremento,
+        progressao_inicio: cfgAtual && cfgAtual.progressao_inicio ? cfgAtual.progressao_inicio : null,
+      });
+      pcState.adminBotsStatus = ok ? { tipo: "ok", texto: `Regulação de ${uf} salva.` } : { tipo: "erro", texto: "Não consegui salvar — as migrações 36 e 49 já foram rodadas?" };
       renderAdminPainel();
     });
-    const btnGerar = document.getElementById("pcBtnBotsGerar");
-    if (btnGerar) btnGerar.addEventListener("click", async () => {
+    const btnAplicar = document.getElementById("pcBtnBotsAplicar");
+    if (btnAplicar) btnAplicar.addEventListener("click", async () => {
       const uf = pcState.adminBotsEstado || "SC";
-      if (!window.confirm(`Marcar pedido de geração dos bots de ${uf}?\n\nAs contas em si são criadas rodando ferramentas/gerar_usuarios_ficticios.py no computador — o pedido fica registrado aqui até o script concluir.`)) return;
-      const ok = await botsSolicitarGeracao(uf);
-      pcState.adminBotsStatus = ok ? { tipo: "ok", texto: `Pedido de geração de ${uf} registrado — agora rode o script no computador.` } : { tipo: "erro", texto: "Não consegui registrar o pedido." };
+      if (!window.confirm(`Aplicar agora os bots de ${uf}?\n\nCria no servidor as contas que faltam (até o lote) e regrava o palpite de todas em cima da referência ativa, com a variação configurada. Rodar de novo não duplica bots.`)) return;
+      btnAplicar.disabled = true;
+      btnAplicar.textContent = "Aplicando…";
+      const r = await botsAplicarAgora(uf);
+      pcState.adminBotsStatus = r.ok
+        ? { tipo: "ok", texto: `Bots de ${uf} aplicados — ${r.detalhe}.` }
+        : { tipo: "erro", texto: r.mensagem || "Não consegui aplicar os bots." };
       renderAdminPainel();
     });
   }
@@ -4340,7 +4392,7 @@ async function renderMinhasListas() {
         <div style="display:flex; align-items:center; gap:10px;">
           <span class="pc-lobby-atalho-icone" style="width:34px; height:34px; flex-shrink:0;">${iconeSvg("desafio", 16)}</span>
           <span style="flex:1; min-width:0;">
-            <span style="display:block; font-size:12.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">"${d.nome}" · vs ${rival}</span>
+            <span style="display:block; font-size:12.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">"${_nomeDueloLimpo(d.nome)}" · vs ${rival}</span>
             <span style="display:block; font-size:10px; color:var(--pc-ink-dim);">${d.codigo || ""} · selado em ${new Date(d.respondido_em || d.criado_em).toLocaleDateString("pt-BR")} · ${d.status === "encerrado" ? "apurado" : "aguarda apuração"}</span>
           </span>
           <button type="button" class="pc-cmd-acao" data-pc-ml-duelo="${d.id}" title="Ver comparação">${iconeSvg("buscar", 14)}</button>
@@ -5016,7 +5068,7 @@ async function _renderDesafiosHubCorpo(conteudo) {
     return `
     <div class="pc-duelo-card"${destacado ? ' id="pcDesafioDestacado" style="outline:2px solid var(--pc-accent); outline-offset:2px;"' : ""}>
       <div class="pc-duelo-cab">
-        <span class="pc-duelo-nome">"${d.nome}"${pendenteEnviado ? ` <span style="color:var(--pc-ink-dim); font-weight:600;">· você desafiou</span>` : ""}</span>
+        <span class="pc-duelo-nome">"${_nomeDueloLimpo(d.nome)}"${pendenteEnviado ? ` <span style="color:var(--pc-ink-dim); font-weight:600;">· você desafiou</span>` : ""}</span>
         ${encerradoComPontos ? `<span class="${venci ? "pc-chip-verde" : "pc-chip-neutro"}">${venci ? "vitória" : "derrota"}</span>` : _chipStatusDesafio(d.status)}
       </div>
       <div class="pc-duelo-duo">
@@ -5484,7 +5536,7 @@ async function _renderCriarDesafioCorpo(conteudo) {
       `}
 
       <label class="pc-campo-label" style="margin-top:12px;">Nome do duelo</label>
-      <input class="cell" id="pcInputNomeDesafio" placeholder='"Duelo de Titãs"' maxlength="40" value="${escaparAtributoHtml(pcState.desafioCriarNome || "")}" style="width:100%; margin-bottom:10px;">
+      <input class="cell" id="pcInputNomeDesafio" placeholder="Duelo de Titãs" maxlength="40" value="${escaparAtributoHtml(pcState.desafioCriarNome || "")}" style="width:100%; margin-bottom:10px;">
 
       <div class="pc-precinho">
         <span class="pc-precinho-txt"><b>Grátis</b> — duelar não custa SL, desafie quantos quiser.</span>
@@ -5650,7 +5702,9 @@ async function _renderCriarDesafioCorpo(conteudo) {
 
   const btnEnviar = document.getElementById("pcBtnEnviarDesafio");
   if (btnEnviar) btnEnviar.addEventListener("click", async () => {
-    const nome = (pcState.desafioCriarNome || "").trim();
+    // Tira aspas digitadas no campo (o placeholder antigo, '"Duelo de
+    // Titãs"', induzia a pessoa a incluir as aspas no nome — 05/09/2026).
+    const nome = (pcState.desafioCriarNome || "").trim().replace(/^[\s"“”']+|[\s"“”']+$/g, "");
     const status = document.getElementById("pcCriarDesafioStatus");
     if (!nome) { status.textContent = "Dê um nome pro duelo."; return; }
     if (!pcState.desafioCriarAlvo) { status.textContent = "Escolha quem você desafia."; return; }
@@ -6062,7 +6116,7 @@ async function renderComparacaoDesafio() {
           <div style="font-size:8px; font-weight:800; letter-spacing:.1em; color:var(--pc-ink-dim);">SIMULADOR ELEITORAL LEGISLATIVO 2026</div>
         </div>
         <div style="text-align:right; font-size:11px;">
-          <b>${d.estado}</b> · Duelo "${d.nome}"<br>
+          <b>${d.estado}</b> · Duelo "${_nomeDueloLimpo(d.nome)}"<br>
           <span style="font-size:9.5px; color:var(--pc-ink-dim);">${d.respondido_em ? "selado em " + new Date(d.respondido_em).toLocaleDateString("pt-BR") : ""} · ${encerrado ? "apurado" : "aguarda apuração"} · ${d.codigo || ""}</span>
         </div>
       </div>
