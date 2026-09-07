@@ -496,6 +496,8 @@ async function initColaborativo() {
           pcState.desafioAceitarFase = "convite";
           pcState.desafioAceitarVotos = {};
           pcState.desafioAceitarCadeiras = null;
+          pcState.desafioAceitarPreenchido = false;
+          pcState.desafioAceitarHistorico = [];
           pcState._abrirAceitarDueloNoBoot = true;
           pcState.subaba = "desafios";
         } else if (d && d.sou_o_criador) {
@@ -5138,6 +5140,8 @@ async function _renderDesafiosHubCorpo(conteudo) {
     pcState.desafioAceitarId = btn.getAttribute("data-pc-aceitar");
     pcState.desafioAceitarFase = "convite";
     pcState.desafioAceitarVotos = {};
+    pcState.desafioAceitarPreenchido = false;
+    pcState.desafioAceitarHistorico = [];
     pcState.desafioStatus = "";
     renderAceitarDesafio();
   }));
@@ -5816,8 +5820,84 @@ async function renderAceitarDesafio() {
     return;
   }
 
-  // ===== Fase 2: o PALPITE — a lista do desafiante com a coluna Rival
-  // visível; fecha com "Depositar" (o aceite de verdade). =====
+  // ===== Fase 2: o PALPITE — a lista do desafiante com a coluna do
+  // desafiante visível; fecha com "Depositar" (o aceite de verdade). =====
+  // Reforma de 07/09/2026 (conceito aprovado pelo usuário): quem aceita
+  // COMEÇA com os votos do desafiante já preenchidos e muda só o que
+  // discorda; cada candidato tem a mesma anatomia da lista principal
+  // (.pc-dep-crow + faderDepHtml) e um mini console por partido no padrão
+  // EXATO do console da lista (montarConsoleHtml). Sem stepper de partido,
+  // sem −/+ por linha, sem botão grande de copiar (virou comando do console).
+  // Voto oculto (migração 38): o banco tira votos_criador do JSON — começa
+  // zerado e sem a coluna do desafiante.
+  const votosOcultos = !ehEleitos && desafio.votos_visiveis === false && !(desafio.votos_criador && desafio.votos_criador.length);
+  if (!pcState.desafioAceitarHistorico) pcState.desafioAceitarHistorico = [];
+  if (!ehEleitos && !votosOcultos && !pcState.desafioAceitarPreenchido) {
+    escopo.forEach((c) => { pcState.desafioAceitarVotos[c.chave] = votosRivalPorChave.get(c.chave) || 0; });
+    pcState.desafioAceitarPreenchido = true;
+  }
+  const votosAceitar = pcState.desafioAceitarVotos;
+  // Régua, teto E e QE vindos das MESMAS funções da lista (capCandidatoDeputado,
+  // totalValidosProjetado2026, quocienteEleitoral), avaliadas no recorte
+  // uf/cargo DO DUELO — não no cargo que a pessoa tinha aberto na lista.
+  const metricasD = ehEleitos ? null : _metricasRecorteDuelo(desafio.estado, desafio.cargo);
+  const grupos = new Map();
+  escopo.forEach((c) => { if (!grupos.has(c.partido)) grupos.set(c.partido, []); grupos.get(c.partido).push(c); });
+  const somaRival = (cands) => cands.reduce((t, c) => t + (votosRivalPorChave.get(c.chave) || 0), 0);
+  const ordemG = [...grupos.entries()].sort((a, b) => somaRival(b[1]) - somaRival(a[1]));
+  const comandosDuelo = ehEleitos ? [] : [
+    {
+      id: "pcDueloBtnVoltar", icone: "desfazer", tamanho: 15, titulo: "Desfazer",
+      legenda: "Desfaz a última alteração feita nesta tela — um voto digitado, um arrasto de barra. Só volta um passo por vez.",
+      disabled: !pcState.desafioAceitarHistorico.length,
+    },
+    {
+      id: "pcDueloBtnZerar", icone: "borracha", tamanho: 14, titulo: "Zerar tudo",
+      legenda: "Limpa de uma vez a sua votação de todos os candidatos deste duelo. Indicado pra quem quer montar do zero absoluto.",
+    },
+    ...(votosOcultos ? [] : [{
+      id: "pcDueloBtnCopiar", icone: "copiar", tamanho: 15, titulo: `Copiar o palpite de ${nomeDesafiante.split(" ")[0]}`,
+      legenda: "Recoloca os votos do desafiante em todos os candidatos — o ponto de partida desta tela.",
+    }]),
+  ];
+  // Um console por partido do recorte; se o duelo é o cargo inteiro, um
+  // console geral igual ao da lista (teto E projetado). Os comandos ficam
+  // só no primeiro console (valem pro duelo inteiro).
+  const consolesD = ehEleitos ? [] : (desafio.tipo_disputa === "cargo"
+    ? [_consoleDueloSpec({ idx: 0, rotulo: "Votos", chaves: escopo.map((c) => c.chave), ref2022: null, metricas: metricasD })]
+    : ordemG.map(([partido, cands], i) => _consoleDueloSpec({
+        idx: i, rotulo: `Votos ${partido}`, chaves: cands.map((c) => c.chave),
+        ref2022: _votosLegenda2022Duelo(desafio.estado, desafio.cargo, partido), metricas: metricasD,
+      })));
+  const consoleHtmlDe = (spec, i) => montarConsoleHtml({
+    ...spec.slots(votosAceitar),
+    comandos: i === 0 ? comandosDuelo : null,
+    idLegendaToggle: "pcDueloCmdLegendaToggle",
+    legendaAberta: !!pcState.dueloLegendaAberta,
+  }) + (i === 0 && pcState.dueloLegendaAberta ? renderLegendaComandos(comandosDuelo) : "");
+  const linhaCandidatoHtml = (c) => {
+    const v = Number(votosAceitar[c.chave]) || 0;
+    return `
+      <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
+        <div class="pc-dep-cl1">
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${c.nome}</span><span class="pc-dep-pos">${c.partido}</span></span>
+        </div>
+        <div class="pc-dep-cl1" style="justify-content:flex-end; margin-top:6px;">
+          ${votosOcultos ? "" : `<span class="pc-voto-rival">${(votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR")}</span>`}
+          <span class="pc-voto-ajuste"><input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${v}" placeholder="0"></span>
+        </div>
+        ${faderDepHtml("d|" + c.chave, v, metricasD.cap, true)}
+      </div>`;
+  };
+  // Cabeçalho das colunas uma vez só, logo abaixo do primeiro console
+  // (dentro do card, então sem o padding lateral próprio do .pc-duelo-colcab).
+  const colcabHtml = `<div class="pc-duelo-colcab" style="padding:0; margin:12px 0 2px;"><span class="cand"></span>${votosOcultos ? "" : `<span class="rival" style="width:auto;">Desafiante</span>`}<span class="voce" style="width:118px;">Você</span></div>`;
+  const consolesHtml = ehEleitos ? "" : (desafio.tipo_disputa === "cargo" ? consoleHtmlDe(consolesD[0], 0) + `<div style="height:12px;"></div>` : "");
+  const gruposHtml = ehEleitos ? "" : ordemG.map(([partido, cands], i) => `
+    ${desafio.tipo_disputa === "cargo" ? "" : consoleHtmlDe(consolesD[i], i) + (i === 0 ? "" : `<div style="height:12px;"></div>`)}
+    ${i === 0 ? colcabHtml : ""}
+    ${[...cands].sort((a, b) => (votosRivalPorChave.get(b.chave) || 0) - (votosRivalPorChave.get(a.chave) || 0)).map(linhaCandidatoHtml).join("")}`).join("");
+
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:560px; margin:0 auto;">
       <div style="text-align:center;"><div class="pc-selo-desafio" style="margin:0 auto;">
@@ -5838,35 +5918,9 @@ async function renderAceitarDesafio() {
         ${_duelaGradeCadeiras(cadeiras, pcState.desafioAceitarCadeiraAtiva, "pc-acadeira")}
         ${_duelaGavetaCadeira(cadeiras, pcState.desafioAceitarCadeiraAtiva, poolAceitar, pcState.desafioAceitarBuscaCadeira, "pc-acadeira")}
       ` : `
-        <label class="pc-campo-label">Seus votos indicados</label>
-        <button class="ghost" id="pcBtnCopiarPalpiteRival" style="width:100%; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:7px;">${iconeSvg("magico", 14)} Copiar o palpite de ${nomeDesafiante.split(" ")[0]} como ponto de partida</button>
-        <div class="pc-duelo-colcab"><span class="cand">Candidato</span><span class="rival">Rival</span><span class="voce">Você</span></div>
-        <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px; max-height:380px; overflow-y:auto;">
-          ${(() => {
-            // Agrupado por partido (pedido do usuário, 31/08/2026): cabeçalho
-            // com −/+ que sobe/desce 5% os votos "Você" do partido inteiro —
-            // ninguém precisa digitar candidato a candidato.
-            const grupos = new Map();
-            escopo.forEach((c) => { if (!grupos.has(c.partido)) grupos.set(c.partido, []); grupos.get(c.partido).push(c); });
-            const ordemG = [...grupos.entries()].sort((a, b) =>
-              b[1].reduce((t, c) => t + (votosRivalPorChave.get(c.chave) || 0), 0) -
-              a[1].reduce((t, c) => t + (votosRivalPorChave.get(c.chave) || 0), 0));
-            return ordemG.map(([partido, cands]) => `
-              <div class="pc-aceitar-grupo-cab">
-                <span class="sigla">${partido}</span>
-                <span class="caps">
-                  <button type="button" data-pc-aceitar-menos="${escaparAtributoHtml(partido)}" title="Reduzir 5% os seus votos neste partido">&minus;</button>
-                  <span class="rot">5%</span>
-                  <button type="button" data-pc-aceitar-mais="${escaparAtributoHtml(partido)}" title="Aumentar 5% os seus votos neste partido">+</button>
-                </span>
-              </div>
-              ${[...cands].sort((a, b) => (votosRivalPorChave.get(b.chave) || 0) - (votosRivalPorChave.get(a.chave) || 0)).map((c) => `
-              <div class="pc-voto-linha">
-                <span class="txt"><span class="nome">${c.nome}</span><span class="partido">${c.partido}</span></span>
-                <span class="pc-voto-rival">${(votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR")}</span>
-                <input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${pcState.desafioAceitarVotos[c.chave] ?? ""}" placeholder="0">
-              </div>`).join("")}`).join("");
-          })()}
+        ${consolesHtml}
+        <div class="pc-lobby-card" style="padding:2px 14px; margin-bottom:14px;">
+          ${gruposHtml}
         </div>
       `}
 
@@ -5880,32 +5934,58 @@ async function renderAceitarDesafio() {
     renderAceitarDesafio();
   });
 
-  const btnCopiarRival = document.getElementById("pcBtnCopiarPalpiteRival");
-  if (btnCopiarRival) btnCopiarRival.addEventListener("click", () => {
-    escopo.forEach((c) => { pcState.desafioAceitarVotos[c.chave] = votosRivalPorChave.get(c.chave) || 0; });
-    renderAceitarDesafio();
-  });
-  const _sincronizarVotosAceitar = () => {
+  if (!ehEleitos) {
+    const snapDuelo = () => {
+      pcState.desafioAceitarHistorico.push(JSON.parse(JSON.stringify(votosAceitar)));
+      if (pcState.desafioAceitarHistorico.length > 30) pcState.desafioAceitarHistorico.shift();
+      const bV = document.getElementById("pcDueloBtnVoltar");
+      if (bV) bV.disabled = false;
+    };
+    const atualizarConsoles = () => consolesD.forEach((spec) => spec.atualizar(votosAceitar));
+    const aoMudarChave = (chave, origem) => {
+      const v = Number(votosAceitar[chave]) || 0;
+      if (origem !== "input") {
+        const inp = document.querySelector(`[data-pc-voto-aceitar="${CSS.escape(chave)}"]`);
+        if (inp) inp.value = v;
+      }
+      if (origem !== "fader") {
+        const sl = document.querySelector(`[data-dep-fader="d|${CSS.escape(chave)}"]`);
+        if (sl) atualizarFaderDep(sl, v, metricasD.cap, metricasD.E);
+      }
+      atualizarConsoles();
+    };
+    attachFadersDuelo(votosAceitar, metricasD.cap, metricasD.E, snapDuelo, (chave) => aoMudarChave(chave, "fader"));
     document.querySelectorAll("[data-pc-voto-aceitar]").forEach((inp) => {
-      const v = inp.value === "" ? undefined : Math.max(0, Math.round(Number(inp.value) || 0));
-      if (v === undefined) delete pcState.desafioAceitarVotos[inp.getAttribute("data-pc-voto-aceitar")];
-      else pcState.desafioAceitarVotos[inp.getAttribute("data-pc-voto-aceitar")] = v;
+      inp.addEventListener("focus", snapDuelo);
+      inp.addEventListener("input", () => {
+        votosAceitar[inp.getAttribute("data-pc-voto-aceitar")] = Math.max(0, Math.round(Number(inp.value) || 0));
+        aoMudarChave(inp.getAttribute("data-pc-voto-aceitar"), "input");
+      });
     });
-  };
-  document.querySelectorAll("[data-pc-voto-copiar]").forEach((b) => b.addEventListener("click", () => {
-    _sincronizarVotosAceitar();
-    const chave = b.getAttribute("data-pc-voto-copiar");
-    pcState.desafioAceitarVotos[chave] = votosRivalPorChave.get(chave) || 0;
-    renderAceitarDesafio();
-  }));
-  document.querySelectorAll("[data-pc-voto-passo]").forEach((b) => b.addEventListener("click", () => {
-    _sincronizarVotosAceitar();
-    const [chave, dirTxt] = b.getAttribute("data-pc-voto-passo").split("|");
-    const rival = votosRivalPorChave.get(chave) || 0;
-    const passoV = Math.max(10, Math.round(rival * 0.05));
-    pcState.desafioAceitarVotos[chave] = Math.max(0, (pcState.desafioAceitarVotos[chave] || 0) + Number(dirTxt) * passoV);
-    renderAceitarDesafio();
-  }));
+    const bZ = document.getElementById("pcDueloBtnZerar");
+    if (bZ) bZ.addEventListener("click", () => {
+      snapDuelo();
+      escopo.forEach((c) => { votosAceitar[c.chave] = 0; });
+      renderAceitarDesafio();
+    });
+    const bC = document.getElementById("pcDueloBtnCopiar");
+    if (bC) bC.addEventListener("click", () => {
+      snapDuelo();
+      escopo.forEach((c) => { votosAceitar[c.chave] = votosRivalPorChave.get(c.chave) || 0; });
+      renderAceitarDesafio();
+    });
+    const bV = document.getElementById("pcDueloBtnVoltar");
+    if (bV) bV.addEventListener("click", () => {
+      if (!pcState.desafioAceitarHistorico.length) return;
+      pcState.desafioAceitarVotos = pcState.desafioAceitarHistorico.pop();
+      renderAceitarDesafio();
+    });
+    const bL = document.getElementById("pcDueloCmdLegendaToggle");
+    if (bL) bL.addEventListener("click", () => {
+      pcState.dueloLegendaAberta = !pcState.dueloLegendaAberta;
+      renderAceitarDesafio();
+    });
+  }
 
   document.querySelectorAll("[data-pc-acadeira]").forEach((btn) => btn.addEventListener("click", () => {
     const i = Number(btn.getAttribute("data-pc-acadeira"));
@@ -5937,9 +6017,6 @@ async function renderAceitarDesafio() {
     if (pcState.desafioAceitarBuscaCadeira) { buscaCadeiraA.focus(); buscaCadeiraA.setSelectionRange(buscaCadeiraA.value.length, buscaCadeiraA.value.length); }
   }
 
-  document.querySelectorAll("[data-pc-voto-aceitar]").forEach((inp) => inp.addEventListener("input", () => {
-    pcState.desafioAceitarVotos[inp.getAttribute("data-pc-voto-aceitar")] = inp.value;
-  }));
   document.getElementById("pcBtnConfirmarAceite").addEventListener("click", async (e) => {
     const status = document.getElementById("pcAceitarStatus");
     e.target.disabled = true;
@@ -5957,7 +6034,137 @@ async function renderAceitarDesafio() {
     pcState.desafioAceitarVotos = {};
     pcState.desafioAceitarCadeiras = null;
     pcState.desafioAceitarFase = null;
+    pcState.desafioAceitarPreenchido = false;
+    pcState.desafioAceitarHistorico = [];
     renderDueloSelado(r.desafio || desafio, nomeDesafiante);
+  });
+}
+
+// ===== Adaptadores da tela de aceitar Duelo (07/09/2026) — pontes
+// mínimas pra reusar as peças da lista principal (capCandidatoDeputado,
+// totalValidosProjetado2026, faderDepHtml/atualizarFaderDep, setaFinoHtml,
+// montarConsoleHtml) fora de pcState.palpiteEdicao. =====
+
+// Várias funções da lista leem pcState.estado/cargoAtivo por dentro; o
+// duelo tem uf/cargo próprios. Troca, avalia e restaura (síncrono).
+function _comRecorteDe(uf, cargo, fn) {
+  const e0 = pcState.estado, c0 = pcState.cargoAtivo;
+  pcState.estado = uf; pcState.cargoAtivo = cargo;
+  try { return fn(); } finally { pcState.estado = e0; pcState.cargoAtivo = c0; }
+}
+
+// E (votos válidos projetados 2026), QE meta e régua do candidato — as
+// MESMAS contas da lista (renderSelecaoCandidatos → renderPainelDeputadosFader).
+function _metricasRecorteDuelo(uf, cargo) {
+  return _comRecorteDe(uf, cargo, () => {
+    const E = totalValidosProjetado2026(cargo);
+    const totalVagas = vagasFixasCargo(uf, cargo);
+    return { E, totalVagas, qe: quocienteEleitoral(Math.round(E), totalVagas) || 0, cap: capCandidatoDeputado() };
+  });
+}
+
+// Votos da legenda em 2022: nominais dos candidatos do partido no
+// resultado oficial + voto de legenda (LEGENDA_2022, só SC). null = sem dado.
+function _votosLegenda2022Duelo(uf, cargo, partido) {
+  const grupo = (candidatosEstadoCargo(uf, cargo) || []).find((p) => p.nome === partido);
+  if (!grupo) return null;
+  let soma = (grupo.candidatos || []).reduce((t, c) => t + (c.fonte === "legenda" ? 0 : (Number(c.votos) || 0)), 0);
+  if (uf === "SC" && typeof LEGENDA_2022 !== "undefined" && LEGENDA_2022[cargo] && LEGENDA_2022[cargo][partido]) soma += Number(LEGENDA_2022[cargo][partido]) || 0;
+  return soma;
+}
+
+// Spec de um console do duelo: slots pro montarConsoleHtml + atualização
+// ao vivo (arrasto/digitação) pelos ids. Teto da barra: a legenda é uma
+// fatia do cargo, então o teto é o maior entre 2022×1,3 e a soma atual
+// (nunca estoura); no cargo inteiro (ref2022 null) o teto é o E da lista.
+function _consoleDueloSpec({ idx, rotulo, chaves, ref2022, metricas }) {
+  const qe = metricas.qe || 1;
+  const somaDe = (votos) => chaves.reduce((t, k) => t + (Number(votos[k]) || 0), 0);
+  const tetoDe = (soma) => ref2022 == null ? Math.max(metricas.E, soma) : Math.max(ref2022 * 1.3, soma, qe);
+  const numHtml = (soma) => ref2022 == null
+    ? `<b id="pcDueloPct-${idx}">${metricas.E > 0 ? Math.round(soma / metricas.E * 100) : 0}%</b> · <span id="pcDueloNom-${idx}">${formatVotosCompacto(soma)} de ${formatVotosCompacto(Math.round(metricas.E))}</span>`
+    : `<b id="pcDueloNom-${idx}">${formatVotosCompacto(soma)}</b> · <span id="pcDueloPct-${idx}">${ref2022 > 0 ? Math.round(soma / ref2022 * 100) + "% de 2022" : "sem base 2022"}</span>`;
+  const direitaHtml = (soma) => ref2022 == null
+    ? formatVotosCompacto(Math.round(metricas.E))
+    : (soma / qe).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " QE";
+  const w = (soma) => { const t = tetoDe(soma); return t > 0 ? Math.min(100, soma / t * 100) : 0; };
+  return {
+    slots(votos) {
+      const soma = somaDe(votos);
+      const teto = tetoDe(soma);
+      return {
+        idConsole: `pcDueloConsole-${idx}`,
+        rotuloHtml: rotulo,
+        numHtml: numHtml(soma),
+        reguaStyle: `background:repeating-linear-gradient(90deg, rgba(174,181,187,.55) 0 1px, transparent 1px ${(qe / teto * 100).toFixed(3)}%); background-size:100% 100%;`,
+        idZone: `pcDueloZone-${idx}`, idFill: `pcDueloFill-${idx}`, idGrip: `pcDueloMg-${idx}`, w: w(soma),
+        escalaHtml: `<span>0</span><span class="pc-meta-linha">${ref2022 == null ? "" : `2022: ${ref2022 > 0 ? formatVotosCompacto(ref2022) : "—"}<span style="margin:0 12px;">·</span>`}QE <b class="pc-meta-num">${formatVotosCompacto(metricas.qe)}</b></span><span id="pcDueloDir-${idx}">${direitaHtml(soma)}</span>`,
+      };
+    },
+    atualizar(votos) {
+      const soma = somaDe(votos);
+      const fill = document.getElementById(`pcDueloFill-${idx}`);
+      if (!fill) return;
+      const larg = w(soma) + "%";
+      fill.style.width = larg;
+      document.getElementById(`pcDueloMg-${idx}`).style.left = larg;
+      const osub = fill.closest(".pc-console").querySelector(".pc-sen-num");
+      osub.innerHTML = numHtml(soma);
+      document.getElementById(`pcDueloDir-${idx}`).textContent = direitaHtml(soma);
+    },
+  };
+}
+
+// Arrasto e setas finas dos faders "d|chave" — mesmo gesto da lista
+// (attachListenersDeputadosFader), só que escrevendo em votos[chave] em
+// vez de pcState.palpiteEdicao. Reusa atualizarFaderDep/posicionarVotosDep.
+function attachFadersDuelo(votos, cap, E, antesDeMudar, aoMudar) {
+  document.querySelectorAll('[data-dep-fader^="d|"]').forEach((sl) => {
+    const chave = sl.dataset.depFader.slice(2);
+    posicionarVotosDep(sl, Number(votos[chave]) || 0, cap, E);
+    let arrastando = false;
+    const mover = (e) => {
+      const r = sl.getBoundingClientRect();
+      const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+      votos[chave] = Math.round(frac * cap);
+      atualizarFaderDep(sl, votos[chave], cap, E);
+      aoMudar(chave);
+    };
+    sl.addEventListener("pointerdown", (e) => {
+      antesDeMudar();
+      arrastando = true;
+      sl.classList.add("ativo");
+      try { sl.setPointerCapture(e.pointerId); } catch (_) {}
+      mover(e);
+    });
+    sl.addEventListener("pointermove", (e) => { if (arrastando) mover(e); });
+    const soltar = () => { arrastando = false; sl.classList.remove("ativo"); };
+    sl.addEventListener("pointerup", soltar);
+    sl.addEventListener("pointercancel", soltar);
+  });
+  // Setas: 1% da régua por clique; segurar repete (igual à lista).
+  document.querySelectorAll('[data-pc-seta-dep^="d|"]').forEach((btn) => {
+    const partes = btn.dataset.pcSetaDep.split("|"); // d|chave|dir
+    const chave = partes[1];
+    const delta = partes[2] === "mais" ? 1 : -1;
+    const passo = Math.max(1, Math.round(cap * 0.01));
+    let timerRep = null, intRep = null;
+    const aplicarPasso = () => {
+      votos[chave] = Math.max(0, (Number(votos[chave]) || 0) + delta * passo);
+      const sl = document.querySelector(`[data-dep-fader="d|${CSS.escape(chave)}"]`);
+      if (sl) atualizarFaderDep(sl, votos[chave], cap, E);
+      aoMudar(chave);
+    };
+    btn.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      antesDeMudar();
+      aplicarPasso();
+      timerRep = setTimeout(() => { intRep = setInterval(aplicarPasso, 90); }, 420);
+    });
+    const soltarSeta = () => { clearTimeout(timerRep); clearInterval(intRep); };
+    btn.addEventListener("pointerup", soltarSeta);
+    btn.addEventListener("pointerleave", soltarSeta);
+    btn.addEventListener("pointercancel", soltarSeta);
   });
 }
 
@@ -7915,35 +8122,54 @@ function renderPainelDeputadosFader(E, totalVagas, comandos) {
       <div class="pc-sen-fu-l"><span>${rotulo}</span><b${tot ? ' style="color:#34E84A;"' : ""}>${formatVotosCompacto(valor)}</b></div>
       <div class="pc-sen-fu-b${tot ? " tot" : ""}" style="width:${larg}%;"></div>
     </div>`;
-  const botoes = renderBotoesComandos(comandos);
-  return `
-    <div class="pc-console">
-      <div class="pc-sen-osub">
-        <span class="pc-sen-lbl">Votos <button type="button" id="pcDepInf" class="pc-sen-inf${pcState.funilVotosAberto ? " aberto" : ""}">i</button></span>
-        <span class="pc-sen-num"><b id="pcDepPct">${pct}%</b> · <span id="pcDepNom">${formatVotosCompacto(soma)} de ${formatVotosCompacto(Math.round(E))}</span></span>
-      </div>
-      ${pcState.funilVotosAberto ? `
+  return montarConsoleHtml({
+    rotuloHtml: `Votos <button type="button" id="pcDepInf" class="pc-sen-inf${pcState.funilVotosAberto ? " aberto" : ""}">i</button>`,
+    numHtml: `<b id="pcDepPct">${pct}%</b> · <span id="pcDepNom">${formatVotosCompacto(soma)} de ${formatVotosCompacto(Math.round(E))}</span>`,
+    extraHtml: pcState.funilVotosAberto ? `
       <div class="pc-sen-funil">
         <div class="pc-sen-fu-t">De onde vem o teto de <b>${formatVotosCompacto(Math.round(E))}</b>: projeção dos votos válidos de 2026 pro cargo, a partir do resultado real de 2022 (TSE) dos partidos modelados, escalada pelo crescimento do eleitorado.</div>
         ${temAptos ? funilLinha("Eleitores aptos 2026 (TSE)", aptosDep, 100) : ""}
         ${temAptos ? funilLinha("Comparecem (taxa hist. 2022)", comparDep, Math.round(comparDep / aptosDep * 100)) : ""}
         ${funilLinha("Votos válidos projetados", Math.round(E), temAptos ? Math.round(E / aptosDep * 100) : 100, true)}
         <div class="pc-sen-fu-src">Fonte: resultados oficiais TSE 2022 + evolução do eleitorado.</div>
-      </div>` : ""}
-      <div class="pc-sen-regua" style="background:repeating-linear-gradient(90deg, rgba(174,181,187,.55) 0 1px, transparent 1px ${(100 / totalVagas).toFixed(3)}%); background-size:100% 100%;"></div>
-      <div class="pc-sen-zone" id="pcDepZone">
-        <div class="pc-sen-trk">
-          <div class="pc-sen-trkf" id="pcDepFill" style="width:${w}%"></div>
-        </div>
-        <div class="pc-sen-mgrip" id="pcDepMg" style="left:${w}%"></div>
+      </div>` : "",
+    reguaStyle: `background:repeating-linear-gradient(90deg, rgba(174,181,187,.55) 0 1px, transparent 1px ${(100 / totalVagas).toFixed(3)}%); background-size:100% 100%;`,
+    idZone: "pcDepZone", idFill: "pcDepFill", idGrip: "pcDepMg", w,
+    escalaHtml: `<span>0</span><span class="pc-meta-linha">vagas <b class="pc-meta-num${vagasIndTotal < totalVagas ? " pend" : ""}" id="pcDepVagasInd">${vagasIndTotal}</b>/${totalVagas}<span style="margin:0 12px;">·</span>QE <b class="pc-meta-num${qeAtualConsole < qeMetaConsole ? " pend" : ""}" id="pcDepQeAtual">${formatVotosCompacto(qeAtualConsole)}</b>/${formatVotosCompacto(qeMetaConsole)}</span><span>${formatVotosCompacto(Math.round(E))}</span>`,
+    comandos,
+    idLegendaToggle: "pcCmdLegendaToggle",
+    legendaAberta: pcState.legendaComandosAberta,
+  });
+}
+
+// Esqueleto do console (card elevado: linha VOTOS + "i", régua, barra com
+// alça mestra, escala e o painel de comandos dentro) — extraído em
+// 07/09/2026 pra a tela de aceitar Duelo usar o MESMO console da lista
+// (regra do projeto: reusar as classes exatas, não só as cores). Quem
+// chama entrega só o conteúdo dos slots; a estrutura/classes são únicas.
+function montarConsoleHtml(o) {
+  return `
+    <div class="pc-console"${o.idConsole ? ` id="${o.idConsole}"` : ""}>
+      <div class="pc-sen-osub">
+        <span class="pc-sen-lbl">${o.rotuloHtml}</span>
+        <span class="pc-sen-num">${o.numHtml}</span>
       </div>
-      <div class="pc-sen-escala"><span>0</span><span class="pc-meta-linha">vagas <b class="pc-meta-num${vagasIndTotal < totalVagas ? " pend" : ""}" id="pcDepVagasInd">${vagasIndTotal}</b>/${totalVagas}<span style="margin:0 12px;">·</span>QE <b class="pc-meta-num${qeAtualConsole < qeMetaConsole ? " pend" : ""}" id="pcDepQeAtual">${formatVotosCompacto(qeAtualConsole)}</b>/${formatVotosCompacto(qeMetaConsole)}</span><span>${formatVotosCompacto(Math.round(E))}</span></div>
+      ${o.extraHtml || ""}
+      <div class="pc-sen-regua" style="${o.reguaStyle || ""}"></div>
+      <div class="pc-sen-zone" id="${o.idZone}">
+        <div class="pc-sen-trk">
+          <div class="pc-sen-trkf" id="${o.idFill}" style="width:${o.w}%"></div>
+        </div>
+        <div class="pc-sen-mgrip" id="${o.idGrip}" style="left:${o.w}%"></div>
+      </div>
+      <div class="pc-sen-escala">${o.escalaHtml}</div>
+      ${o.comandos ? `
       <div class="pc-console-cmds">
         <div class="pc-cmd-painel">
-          ${botoes}
-          <button type="button" id="pcCmdLegendaToggle" class="pc-cmd-info${pcState.legendaComandosAberta ? " aberto" : ""}" title="O que faz cada botão">i</button>
+          ${renderBotoesComandos(o.comandos)}
+          <button type="button" id="${o.idLegendaToggle}" class="pc-cmd-info${o.legendaAberta ? " aberto" : ""}" title="O que faz cada botão">i</button>
         </div>
-      </div>
+      </div>` : ""}
     </div>`;
 }
 
