@@ -88,6 +88,14 @@ verdade pro sino do admin no app, não depende de ele checar o Rotinas ou
 o git log. Resumo curto na `p_resumo` (o que mudou, quantos), detalhe
 com nomes/números na `p_detalhe`. Vale pra qualquer UF, não só SC.
 
+## Telemetria de erros do cliente (desde 07/09/2026)
+
+Erros de JS no navegador (`window.onerror` / `unhandledrejection`, capturados
+por `nuvem/telemetria.js`) vão pra tabela `erros_cliente` via RPC
+`registrar_erro_cliente` (migração 50; anon também reporta, com limite
+por perfil/hora e dedup de 60 s). Ver painel admin → **Erros** (lista,
+contador de abertos, botão "resolvido" marca `resolvido_em`).
+
 ## Migrações do Supabase (controle desde 04/09/2026)
 
 - Cada mudança de banco continua sendo um arquivo `nuvem/migracao-N-*.sql`

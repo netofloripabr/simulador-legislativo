@@ -1192,5 +1192,40 @@ const MIGRACOES_INDEX = [
     "bots_config.aplicado_detalhe"
    ]
   ]
+ },
+ {
+  "num": 50,
+  "arquivo": "migracao-50-erros-cliente.sql",
+  "descricao": "Migração 50: telemetria mínima de erros de JavaScript no navegador",
+  "objetos": [
+   [
+    "table",
+    "erros_cliente"
+   ],
+   [
+    "index",
+    "erros_cliente_criado_em_idx"
+   ],
+   [
+    "index",
+    "erros_cliente_abertos_idx"
+   ],
+   [
+    "index",
+    "erros_cliente_perfil_idx"
+   ],
+   [
+    "function",
+    "registrar_erro_cliente"
+   ],
+   [
+    "function",
+    "admin_listar_erros_cliente"
+   ],
+   [
+    "function",
+    "admin_resolver_erro_cliente"
+   ]
+  ]
  }
 ];

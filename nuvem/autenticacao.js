@@ -336,6 +336,20 @@ async function adminHistoricoAcoes(limite) {
   return data || [];
 }
 
+// Erros de JS do cliente (migração 50, nuvem/telemetria.js) — painel
+// admin → Erros. Lista traz nome/e-mail quando o erro veio de alguém
+// logado; "resolver" marca resolvido_em (não apaga).
+async function adminListarErrosCliente(limite) {
+  const { data, error } = await supabaseClient.rpc("admin_listar_erros_cliente", { p_limite: limite || 200 });
+  if (error) { console.error("Erro ao listar erros do cliente:", error); return []; }
+  return data || [];
+}
+
+async function adminResolverErroCliente(id) {
+  const { error } = await supabaseClient.rpc("admin_resolver_erro_cliente", { p_id: id });
+  return { error };
+}
+
 async function adminAnalitico(incluirBots) {
   const { data, error } = await supabaseClient.rpc("admin_analitico", { p_incluir_bots: !!incluirBots });
   if (error) { console.error("Erro no analítico:", error); return null; }

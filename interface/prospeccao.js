@@ -2629,6 +2629,30 @@ async function montarAdminProblemas() {
     </div>`).join("");
 }
 
+// Seção "Erros" — erros de JS capturados por nuvem/telemetria.js (migração
+// 50). Abertos primeiro; "resolvido" marca resolvido_em e re-renderiza.
+async function montarAdminErros() {
+  const erros = await adminListarErrosCliente(200);
+  const abertos = erros.filter((e) => !e.resolvido_em).length;
+  const esc = (s) => escaparAtributoHtml(s).replace(/>/g, "&gt;");
+  const titulo = `<div style="font-size:14px; font-weight:700; margin:0 0 10px 2px;">Erros · ${abertos} aberto${abertos === 1 ? "" : "s"}</div>`;
+  if (!erros.length) return titulo + estadoVazio({ icone: "alerta", titulo: "Nenhum erro registrado", texto: "Quando o app quebrar no navegador de alguém, a linha aparece aqui." });
+  return `${titulo}
+    <div class="pc-lobby-card">${erros.map((e) => `
+      <div class="pc-lobby-linha" style="align-items:flex-start; ${e.resolvido_em ? "opacity:.55;" : ""}">
+        <span style="min-width:0;">
+          <div style="font-size:12.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${esc(e.mensagem)}">${esc(String(e.mensagem || "").split("\n")[0])}</div>
+          <div style="font-size:10.5px; color:var(--pc-ink-dim);">${new Date(e.criado_em).toLocaleString("pt-BR")} · ${esc(e.tela || "tela —")} · cb ${esc(e.versao_cb || "—")}</div>
+          <div style="font-size:10px; color:var(--pc-ink-faint); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${e.nome || e.email ? `${esc(e.nome || "")}${e.email ? " · " + esc(e.email) : ""}` : "visitante sem login"}</div>
+        </span>
+        <span style="flex-shrink:0; text-align:right;">
+          ${e.resolvido_em
+            ? `<span style="font-size:10.5px; color:var(--pc-accent);">✓ resolvido</span>`
+            : `<button data-pc-resolver-erro="${e.id}" class="ghost" style="font-size:11px; padding:5px 10px;">resolvido</button>`}
+        </span>
+      </div>`).join("")}</div>`;
+}
+
 async function montarAdminPesquisa() {
   const filtro = pcState.adminPesquisaFiltro || {};
   let resultadoHtml = "";
@@ -3246,6 +3270,7 @@ async function renderAdminPainel() {
   const secoes = [
     { id: "usuarios", label: "Usuários" },
     { id: "problemas", label: "Problemas" },
+    { id: "erros", label: "Erros" },
     { id: "pesquisa", label: "Pesquisa" },
     { id: "financeiro", label: "Financeiro" },
     { id: "rotinas", label: "Rotinas" },
@@ -3257,6 +3282,7 @@ async function renderAdminPainel() {
   let conteudoSecao = "";
   if (pcState.adminSecao === "usuarios") conteudoSecao = await montarAdminUsuarios();
   else if (pcState.adminSecao === "problemas") conteudoSecao = await montarAdminProblemas();
+  else if (pcState.adminSecao === "erros") conteudoSecao = await montarAdminErros();
   else if (pcState.adminSecao === "pesquisa") conteudoSecao = await montarAdminPesquisa();
   else if (pcState.adminSecao === "financeiro") conteudoSecao = await montarAdminFinanceiro();
   else if (pcState.adminSecao === "bots") conteudoSecao = await montarAdminBots();
@@ -3306,6 +3332,15 @@ async function renderAdminPainel() {
     document.querySelectorAll("[data-pc-resolver-problema]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         await adminMarcarProblemaResolvido(btn.getAttribute("data-pc-resolver-problema"));
+        renderAdminPainel();
+      });
+    });
+  }
+  if (pcState.adminSecao === "erros") {
+    document.querySelectorAll("[data-pc-resolver-erro]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        await adminResolverErroCliente(btn.getAttribute("data-pc-resolver-erro"));
         renderAdminPainel();
       });
     });
