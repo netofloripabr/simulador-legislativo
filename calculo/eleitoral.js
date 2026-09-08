@@ -785,15 +785,27 @@ function renderPlenarioTerreno(composicao, totalVagas) {
 
     const canto = _terrenoCantoDoGrupo(grupoDe, alturaTotal, larguraTotal, TAM_UNIDADE, GAP, p.nome);
     if (canto) {
-      const rotulo = `${siglaCurta(p.nome)} (${p.valor})`;
-      const pad = 5;
-      const fonte = Math.max(8, Math.min(11, (canto.larguraPx - pad * 2) / (rotulo.length * 0.56)));
-      const coube = (canto.larguraPx - pad * 2) >= rotulo.length * fonte * 0.56 && canto.alturaPx > fonte + pad * 2;
+      // Sigla numa linha, quantidade de vagas na linha debaixo (pedido do
+      // usuário, 08/09/2026) — "PL (14)" numa linha só não cabia nas
+      // caixinhas de 1 vaga (94 vagas = ~26px de lado); em duas linhas,
+      // com fonte um pouco menor, cabe até nelas.
+      const sigla = siglaCurta(p.nome);
+      const contagem = `(${p.valor})`;
+      const maiorTexto = Math.max(sigla.length, contagem.length);
+      const pad = 4;
+      const larguraDisp = canto.larguraPx - pad * 2;
+      const alturaDisp = canto.alturaPx - pad * 2;
+      const fonte = Math.max(6, Math.min(10, Math.min(larguraDisp / (maiorTexto * 0.6), alturaDisp / 2.3)));
+      const coube = fonte >= 6 && larguraDisp >= maiorTexto * fonte * 0.6 && alturaDisp >= fonte * 2.2;
       if (coube) {
         const nCor = parseInt(cor.slice(1), 16);
         const lum = 0.299 * ((nCor >> 16) & 255) + 0.587 * ((nCor >> 8) & 255) + 0.114 * (nCor & 255);
         const corTexto = lum > 150 ? "#0A1410" : "#F2F4F5";
-        svg += `<text x="${(canto.x + pad).toFixed(1)}" y="${(canto.y + pad).toFixed(1)}" dominant-baseline="hanging" font-size="${fonte.toFixed(1)}" font-weight="600" font-family="var(--sans)" fill="${corTexto}">${rotulo}</text>`;
+        const xTxt = (canto.x + pad).toFixed(1);
+        const ySigla = (canto.y + pad).toFixed(1);
+        const yContagem = (canto.y + pad + fonte * 1.15).toFixed(1);
+        svg += `<text x="${xTxt}" y="${ySigla}" dominant-baseline="hanging" font-size="${fonte.toFixed(1)}" font-weight="700" font-family="var(--sans)" fill="${corTexto}">${sigla}</text>`;
+        svg += `<text x="${xTxt}" y="${yContagem}" dominant-baseline="hanging" font-size="${fonte.toFixed(1)}" font-weight="500" font-family="var(--sans)" fill="${corTexto}" opacity="0.85">${contagem}</text>`;
       }
     }
   });
