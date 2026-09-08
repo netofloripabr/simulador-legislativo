@@ -1764,17 +1764,22 @@
 /* Plenário (Seleção) abrindo/fechando com o mesmo padrão de tempo acima —
    antes trocava na hora porque o botão disparava um re-render da tela
    inteira; agora só alterna esta classe (achado do usuário, 08/09/2026:
-   telas "abruptas" demais). max-height generoso porque o conteúdo (mapa +
-   legenda) tem altura variável — a transição sempre roda pela duração
-   certa, só não "estica" além do necessário porque o conteúdo real é
-   sempre menor que esse teto. */
+   telas "abruptas" demais). A altura de destino (max-height) é calculada
+   na hora, em JS, do tamanho real do conteúdo — ver o clique de
+   pcBtnColapsarPlenario em interface/80-selecao.js — em vez de um teto
+   fixo genérico bem maior que o conteúdo (2ª rodada, mesmo dia: um teto
+   grande demais fazia a animação "chegar" quase toda logo no início e
+   passar o resto do tempo sem nada visível acontecendo). Opacidade na
+   mesma curva do crescimento (--pc-easing-suave), não "ease" solto —
+   duas curvas diferentes ao mesmo tempo também contribuía pra sensação
+   de pouco suave. */
 #modoColaborativoWrap .pc-plen-corpo{
   max-height:0; opacity:0; overflow:hidden;
   transition:
     max-height var(--pc-duracao-expandir) var(--pc-easing-suave),
-    opacity var(--pc-duracao-opacidade) ease;
+    opacity var(--pc-duracao-expandir) var(--pc-easing-suave);
 }
-#modoColaborativoWrap .pc-plen-corpo.aberto{ max-height:2000px; opacity:1; }
+#modoColaborativoWrap .pc-plen-corpo.aberto{ opacity:1; }
 
 #modoColaborativoWrap .pc-dep-notif{
   display:flex; align-items:center; gap:8px; margin-top:0;

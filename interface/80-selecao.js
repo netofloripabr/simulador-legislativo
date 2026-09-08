@@ -3288,8 +3288,24 @@ function attachListenersSelecao() {
       // Só troca a classe do próprio corpo (sem re-render da tela inteira)
       // — é isso que deixa o CSS animar a abertura/fechamento em vez de
       // trocar na hora (achado do usuário, 08/09/2026: telas "abruptas").
+      // Altura calculada na hora (scrollHeight), não um teto fixo genérico
+      // — pedido do usuário, 08/09/2026: um teto bem maior que o conteúdo
+      // real fazia a animação "chegar" quase toda de uma vez no começo e
+      // passar o resto do tempo sem nada visível acontecendo.
       const corpo = document.getElementById("pcPlenarioCorpo");
-      if (corpo) corpo.classList.toggle("aberto", !novoCol);
+      if (corpo) {
+        if (novoCol) {
+          // fechando: primeiro fixa a altura atual (senão não há de onde
+          // a transição partir), só depois manda pra 0.
+          corpo.style.maxHeight = corpo.scrollHeight + "px";
+          void corpo.offsetHeight;
+          corpo.style.maxHeight = "0px";
+          corpo.classList.remove("aberto");
+        } else {
+          corpo.style.maxHeight = corpo.scrollHeight + "px";
+          corpo.classList.add("aberto");
+        }
+      }
       const seta = btnColapsarPlenario.querySelector("svg");
       if (seta) seta.style.transform = novoCol ? "rotate(-90deg)" : "none";
       btnColapsarPlenario.title = novoCol ? "Expandir" : "Recolher";
