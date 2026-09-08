@@ -1055,7 +1055,15 @@ function attachListenersModalCompartilhar() {
 function mostrarStatusSalvamento(msg) {
   pcState._statusSalvamentoMsg = msg; // o modal de slots lê isso na falha
   const el = document.getElementById("pcDepositoStatus") || document.getElementById("pcSelecaoStatus");
-  if (el) el.textContent = msg;
+  if (el) {
+    el.textContent = msg;
+    // Entrada suave (08/09/2026) — antes o texto só "pipocava" na tela.
+    // Precisa tirar e repor a classe (com um reflow no meio) pra reiniciar
+    // a animação quando duas mensagens seguidas usam a mesma classe.
+    el.classList.remove("pc-status-entrando");
+    void el.offsetWidth;
+    if (msg) el.classList.add("pc-status-entrando");
+  }
 }
 
 // Efetiva o Salvar depois que a lista já tem nome (primeira vez, via modal

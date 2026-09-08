@@ -739,6 +739,13 @@
   #modoColaborativoWrap button:disabled{ opacity:.35; cursor:default; }
   #modoColaborativoWrap .pc-erro{ color: var(--pc-danger); font-size: 12.5px; margin-top: 8px; min-height: 16px; }
   #modoColaborativoWrap .pc-status{ color: var(--pc-accent-2); font-size: 12.5px; margin-top: 8px; min-height: 16px; }
+  /* Entrada suave da mensagem de salvar/depositar (08/09/2026) — ver
+     mostrarStatusSalvamento(), interface/50-listas.js. */
+  @keyframes pc-status-entrada{ from{ opacity:0; transform:translateY(-3px); } to{ opacity:1; transform:none; } }
+  #modoColaborativoWrap .pc-status.pc-status-entrando{ animation:pc-status-entrada var(--pc-duracao-opacidade) ease; }
+  @media (prefers-reduced-motion: reduce){
+    #modoColaborativoWrap .pc-status.pc-status-entrando{ animation:none; }
+  }
   /* pc-pulse: halo da tela de "Carregando…" (.pc-carregando-halo, ver
      comentário grande mais abaixo) — ver telaCarregando() em
      interface/prospeccao.js e o placeholder estático em index.html. */
@@ -878,7 +885,16 @@
   #modoColaborativoWrap .pc-cmd-legenda-painel{
     display:none; margin:-6px 0 20px; background:#0f231b; border:1px solid #163a2c; border-radius:14px; overflow:hidden;
   }
-  #modoColaborativoWrap .pc-cmd-legenda-painel.aberto{ display:block; }
+  /* Entrada suave (08/09/2026) — este painel é montado inteiro só quando
+     abre (nas 3 telas que o usam: Minhas Listas, Duelos, Seleção), então
+     é sempre um elemento recém-criado — @keyframes roda sozinha ao
+     nascer, sem precisar de transition nem de mexer nos 3 lugares que
+     chamam renderLegendaComandos(). */
+  @keyframes pc-legenda-entrada{ from{ opacity:0; transform:translateY(-6px); } to{ opacity:1; transform:none; } }
+  #modoColaborativoWrap .pc-cmd-legenda-painel.aberto{ display:block; animation:pc-legenda-entrada var(--pc-duracao-opacidade) ease; }
+  @media (prefers-reduced-motion: reduce){
+    #modoColaborativoWrap .pc-cmd-legenda-painel.aberto{ animation:none; }
+  }
   #modoColaborativoWrap .pc-cmd-legenda-item{ display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid #163a2c; }
   #modoColaborativoWrap .pc-cmd-legenda-item:last-child{ border-bottom:none; }
   #modoColaborativoWrap .pc-cmd-legenda-item .pc-cmd-legenda-icone{
@@ -1857,6 +1873,14 @@
   cursor:pointer; padding:0;
 }
 #modoColaborativoWrap .pc-dep-inf.aberto{ border-color:#34E84A; color:#34E84A; }
+/* Abre/fecha suave (08/09/2026, mesmo padrão dos outros). */
+#modoColaborativoWrap .pc-dep-infopainel-corpo{
+  max-height:0; opacity:0; overflow:hidden;
+  transition:
+    max-height var(--pc-duracao-expandir) var(--pc-easing-suave),
+    opacity var(--pc-duracao-expandir) var(--pc-easing-suave);
+}
+#modoColaborativoWrap .pc-dep-infopainel-corpo.aberto{ opacity:1; }
 #modoColaborativoWrap .pc-dep-infopainel{
   background:#16181B; border:1px solid #26292D; border-radius:10px;
   padding:9px 11px; margin-top:7px; font-size:10px; color:#AEB5BB; line-height:1.6;

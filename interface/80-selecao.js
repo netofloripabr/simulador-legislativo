@@ -1591,7 +1591,9 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <span class="pc-dep-notif-txt" data-normal="${escaparAtributoHtml(notificacaoDep(soma, meta, vagasInd, qeProj))}">${notificacaoDep(soma, meta, vagasInd, qeProj)}</span>
         <button type="button" class="pc-dep-inf${infoAberto ? " aberto" : ""}" data-dep-info="${gi}" title="Detalhes do partido">i</button>
       </div>
-      ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.<br>Agulhas na régua = a apuração de agora: a <b style="color:#AEB5BB;">cinza</b> marca onde o quociente fecha (N×QP) e a <b style="color:rgba(52,232,74,.9);">verde</b> onde entra vaga pela média (N×M) — elas respondem à votação de todos os partidos, não ao box.</div>` : ""}
+      <div class="pc-dep-infopainel-corpo${infoAberto ? " aberto" : ""}" id="pcDepInfoCorpo-${gi}">
+        <div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.<br>Agulhas na régua = a apuração de agora: a <b style="color:#AEB5BB;">cinza</b> marca onde o quociente fecha (N×QP) e a <b style="color:rgba(52,232,74,.9);">verde</b> onde entra vaga pela média (N×M) — elas respondem à votação de todos os partidos, não ao box.</div>
+      </div>
       <div class="pc-dep-corpo${aberto ? " aberto" : ""}" id="pcDepCorpo-${gi}">
         <div class="pc-dep-subpainel">
           <div class="pc-cmd-b22">
@@ -1998,10 +2000,27 @@ function attachListenersDeputadosFader(E, totalVagas) {
 
   document.querySelectorAll("[data-dep-info]").forEach((b) => b.addEventListener("click", (e) => {
     e.stopPropagation();
-    const p2 = pcState.palpiteEdicao[+b.dataset.depInfo];
+    const gi2 = b.dataset.depInfo;
+    const p2 = pcState.palpiteEdicao[+gi2];
     const chave = "depInfo_" + pcState.cargoAtivo + "_" + p2.nome;
-    pcState.expandido[chave] = !pcState.expandido[chave];
-    renderCargoEstadual();
+    const abrindo = !pcState.expandido[chave];
+    pcState.expandido[chave] = abrindo;
+    // Mesmo padrão dos outros abrir/fechar (08/09/2026): só troca classe +
+    // altura, sem recarregar o card — o texto do painel é sempre o mesmo
+    // conteúdo estático, não precisa de re-render pra existir.
+    b.classList.toggle("aberto", abrindo);
+    const corpo = document.getElementById("pcDepInfoCorpo-" + gi2);
+    if (corpo) {
+      if (abrindo) {
+        corpo.style.maxHeight = corpo.scrollHeight + "px";
+        corpo.classList.add("aberto");
+      } else {
+        corpo.style.maxHeight = corpo.scrollHeight + "px";
+        void corpo.offsetHeight;
+        corpo.style.maxHeight = "0px";
+        corpo.classList.remove("aberto");
+      }
+    }
   }));
 
   document.querySelectorAll("[data-dep-toggle]").forEach((h) => h.addEventListener("click", (e) => {
