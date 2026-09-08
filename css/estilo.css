@@ -1838,6 +1838,16 @@
   background:#16181B; border:1px solid #26292D; border-radius:10px;
   padding:9px 11px; margin-top:7px; font-size:10px; color:#AEB5BB; line-height:1.6;
 }
+/* Abre/fecha suave (08/09/2026, mesmo padrão do Plenário/faixa de vagas):
+   altura calculada na hora pelo JS (scrollHeight real) — ver o clique em
+   [data-dep-toggle], interface/80-selecao.js. */
+#modoColaborativoWrap .pc-dep-corpo{
+  max-height:0; opacity:0; overflow:hidden;
+  transition:
+    max-height var(--pc-duracao-expandir) var(--pc-easing-suave),
+    opacity var(--pc-duracao-expandir) var(--pc-easing-suave);
+}
+#modoColaborativoWrap .pc-dep-corpo.aberto{ opacity:1; }
 #modoColaborativoWrap .pc-dep-subpainel{
   border-top:1px solid #23262A; margin:9px -12px 0; padding:9px 12px 0;
   display:flex; align-items:center; justify-content:space-between; gap:5px;

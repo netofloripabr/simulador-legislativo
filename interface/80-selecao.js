@@ -1453,7 +1453,11 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
       candsOrd = [...reais].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0));
       pcState.ordemCandidatosFixa[chaveOrdC] = candsOrd.map((c) => c.chave);
     }
-    const cands = aberto ? candsOrd.map((c, k) => {
+    // Sempre montada (não só quando "aberto") desde 08/09/2026: o corpo do
+    // card fica sempre no DOM (escondido por altura, não removido), pra
+    // abrir/fechar animado sem re-render — precisa do conteúdo pronto de
+    // antemão, senão abriria uma caixa vazia na primeira vez.
+    const cands = candsOrd.map((c, k) => {
       const cv = Number(c.votos) || 0;
       // Badge compacto na linha do nome (protótipo aprovado 28/08/2026):
       // E-QP = eleito direto pelo quociente partidário (art. 107); E-M =
@@ -1521,13 +1525,13 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
         ${faderDepHtml("c|" + gi + "|" + c.chave, cv, capCand, true)}
       </div>`;
-    }).join("") : "";
+    }).join("");
     // Card sintético "Legenda" (pedido do usuário, 31/08/2026): o voto dado
     // só na sigla, editável como um candidato — soma pro QP do partido, mas
     // nunca é marcável nem ocupa vaga. Fica fixo no fim da lista do grupo.
     const legendaCand = p.candidatos.find((c) => c.fonte === "legenda");
     const cvLeg = legendaCand ? (Number(legendaCand.votos) || 0) : 0;
-    const legendaHtml = aberto && legendaCand ? `
+    const legendaHtml = legendaCand ? `
       <div class="pc-dep-crow pc-dep-crow-legenda" data-dep-cand="${escaparAtributoHtml(legendaCand.chave)}">
         <div class="pc-dep-cl1">
           <span class="pc-sen-chip chiplegenda" title="Voto dado apenas na sigla do partido — soma pro quociente partid\u00e1rio, mas n\u00e3o elege ningu\u00e9m sozinho.">LEG</span>
@@ -1588,19 +1592,21 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <button type="button" class="pc-dep-inf${infoAberto ? " aberto" : ""}" data-dep-info="${gi}" title="Detalhes do partido">i</button>
       </div>
       ${infoAberto ? `<div class="pc-dep-infopainel">${reais.length} candidato${reais.length === 1 ? "" : "s"} · QP ${qeAtual ? (soma / qeAtual).toFixed(1).replace(".", ",") : "0,0"} = ${qpDireto} por quociente${sobras > 0 ? ` + ${sobras} sobra${sobras === 1 ? "" : "s"}` : ""} pela apuração de agora.<br>Régua: <b style="color:rgba(52,232,74,.9);">verde</b> vaga com votação fechada · <b style="color:#FF9A2E;">laranja</b> em disputa · branco sem votos. Pontinho laranja em cima: há votos, mas a vaga não foi somada no box.<br>Agulhas na régua = a apuração de agora: a <b style="color:#AEB5BB;">cinza</b> marca onde o quociente fecha (N×QP) e a <b style="color:rgba(52,232,74,.9);">verde</b> onde entra vaga pela média (N×M) — elas respondem à votação de todos os partidos, não ao box.</div>` : ""}
-      ${aberto ? `<div class="pc-dep-subpainel">
-        <div class="pc-cmd-b22">
-          <div class="pc-cmd-b22-ano">2022</div>
-          <div class="pc-cmd-b22-metades">
-            <button type="button" data-pc-ver2022="${p.nome}" title="Nominata completa de 2022">${iconeSvg("lista", 12)}</button>
-            <button type="button" data-pc-reset="${p.nome}" title="Restaurar votação de 2022 deste partido">${iconeSvg("relogio", 12)}</button>
+      <div class="pc-dep-corpo${aberto ? " aberto" : ""}" id="pcDepCorpo-${gi}">
+        <div class="pc-dep-subpainel">
+          <div class="pc-cmd-b22">
+            <div class="pc-cmd-b22-ano">2022</div>
+            <div class="pc-cmd-b22-metades">
+              <button type="button" data-pc-ver2022="${p.nome}" title="Nominata completa de 2022">${iconeSvg("lista", 12)}</button>
+              <button type="button" data-pc-reset="${p.nome}" title="Restaurar votação de 2022 deste partido">${iconeSvg("relogio", 12)}</button>
+            </div>
           </div>
+          <button type="button" class="pc-cmd-acao" data-pc-zerar="${p.nome}" title="Zerar votação do partido">${iconeSvg("borracha", 12)}</button>
+          <button type="button" class="pc-cmd-acao" data-dep-magico="${gi}" title="Preencher só este partido automaticamente">${iconeSvg("completar", 13)}</button>
         </div>
-        <button type="button" class="pc-cmd-acao" data-pc-zerar="${p.nome}" title="Zerar votação do partido">${iconeSvg("borracha", 12)}</button>
-        <button type="button" class="pc-cmd-acao" data-dep-magico="${gi}" title="Preencher só este partido automaticamente">${iconeSvg("completar", 13)}</button>
-      </div>` : ""}
-      ${aberto ? `<div class="pc-dep-cands">${(cands + legendaHtml) || '<div class="pc-sen-rod">Nenhum candidato carregado neste grupo.</div>'}</div>` : ""}
-      ${!aberto && candsOrd.length ? `<div class="pc-dep-preview">
+        <div class="pc-dep-cands">${(cands + legendaHtml) || '<div class="pc-sen-rod">Nenhum candidato carregado neste grupo.</div>'}</div>
+      </div>
+      ${candsOrd.length ? `<div class="pc-dep-preview" style="display:${aberto ? "none" : ""};">
         <div class="pc-dep-cl1">
           ${candsOrd[0].marcadoEleito ? '<span class="pc-sen-chip">E</span>' : ""}
           <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(candsOrd[0])}</span></span>
@@ -2000,10 +2006,36 @@ function attachListenersDeputadosFader(E, totalVagas) {
 
   document.querySelectorAll("[data-dep-toggle]").forEach((h) => h.addEventListener("click", (e) => {
     if (e.target.closest("[data-dep-stepper]") || e.target.closest("[data-dep-magico]") || e.target.closest("a") || e.target.closest("[data-pc-editar-instagram]")) return;
-    const p2 = pcState.palpiteEdicao[+h.dataset.depToggle];
+    const gi2 = h.dataset.depToggle;
+    const p2 = pcState.palpiteEdicao[+gi2];
     const chave = "faderAberto_" + pcState.cargoAtivo + "_" + p2.nome;
-    pcState.expandido[chave] = !pcState.expandido[chave];
-    renderCargoEstadual();
+    const abrindo = !pcState.expandido[chave];
+    pcState.expandido[chave] = abrindo;
+    // Mesmo padrão do Plenário/faixa de vagas (08/09/2026): abre/fecha
+    // animado em vez de recarregar o card inteiro. O conteúdo (lista de
+    // candidatos + faders) já nasce sempre presente no DOM — só escondido
+    // por altura zero quando fechado — então os próprios controles de
+    // arrastar voto continuam funcionando normalmente, aberto ou não.
+    const corpo = document.getElementById("pcDepCorpo-" + gi2);
+    if (corpo) {
+      if (abrindo) {
+        corpo.style.maxHeight = corpo.scrollHeight + "px";
+        corpo.classList.add("aberto");
+      } else {
+        corpo.style.maxHeight = corpo.scrollHeight + "px";
+        void corpo.offsetHeight;
+        corpo.style.maxHeight = "0px";
+        corpo.classList.remove("aberto");
+      }
+    }
+    document.querySelectorAll(`[data-dep-toggle="${gi2}"]`).forEach((el) => {
+      el.classList.toggle("aberto", abrindo);
+      if (el.classList.contains("pc-dep-puxador")) el.title = abrindo ? "Recolher candidatos" : "Abrir candidatos";
+    });
+    // A prévia (1º candidato) só faz sentido fechado — sem ela animar,
+    // só troca de visibilidade junto com o corpo abrindo/fechando.
+    const preview = h.closest(".pc-dep-card")?.querySelector(".pc-dep-preview");
+    if (preview) preview.style.display = abrindo ? "none" : "";
   }));
 
   document.querySelectorAll("[data-dep-magico]").forEach((b) => b.addEventListener("click", (e) => {
