@@ -16,16 +16,10 @@ function _demoAtivadoPelaUrl() {
 }
 window.SEL_DEMO = _demoAtivadoPelaUrl();
 
-function _inserirBadgeDemo() {
-  if (document.getElementById("selDemoBadge")) return;
-  const b = document.createElement("div");
-  b.id = "selDemoBadge";
-  b.textContent = "Modo demonstração — dados fictícios";
-  b.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:9999;"
-    + "background:#34E84A;color:#08210D;font:800 11px/1 'Inter',-apple-system,sans-serif;"
-    + "letter-spacing:.06em;text-transform:uppercase;text-align:center;padding:8px 0;";
-  document.body.appendChild(b);
-}
+// Sem aviso visível de propósito (pedido do usuário, 08/09/2026): o
+// acesso a este modo é por um ambiente separado (link só pra quem grava
+// marketing), não pelo app que qualquer visitante vê — não precisa
+// avisar quem já sabe que está ali de propósito.
 
 // Monta o palpite dos 3 cargos a partir do elenco real de SC (mesma
 // função que qualquer tela usa, REGRA MESTRA do CLAUDE.md: sempre
@@ -33,7 +27,6 @@ function _inserirBadgeDemo() {
 // direto) e já aplica o preenchimento automático, pra abrir com uma tela
 // pronta pra gravar — sem precisar mexer em nada antes.
 async function iniciarModoDemo() {
-  _inserirBadgeDemo();
   pcState.estado = "SC";
   pcState.palpitesPorCargo = {};
   CARGOS.forEach((c) => {

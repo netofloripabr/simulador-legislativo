@@ -324,9 +324,27 @@ async function montarAdminRotinas() {
         <span style="font-size:11px; color:${e.sucesso ? "var(--pc-accent)" : "var(--pc-danger)"}; flex-shrink:0; text-align:right;">${e.sucesso ? "✓ ok" : "✗ falhou"}<br><span style="font-size:9.5px; color:var(--pc-ink-faint);">${new Date(e.executado_em).toLocaleString("pt-BR")}</span></span>
       </div>`).join("")}</div>`;
 
+  // Modo demonstração (?demo=1, interface/01-demo.js): cenário real de SC
+  // com o elenco trocado por nomes fictícios — só pra gravar material de
+  // marketing (MAQUINA-DE-VENDAS.md §1: "o app pode ter nomes reais, o
+  // anúncio nunca"). Link abre numa aba nova, mesma origem, sem mexer na
+  // sessão desta.
+  const linkDemo = window.location.origin + window.location.pathname + "?demo=1";
+  const demoHtml = `<div class="pc-lobby-card">
+    <div class="pc-lobby-linha" style="align-items:flex-start;">
+      <span style="min-width:0;">
+        <div style="font-size:12.5px; font-weight:700;">Modo demonstração</div>
+        <div style="font-size:11px; color:var(--pc-ink-dim); margin-top:2px; line-height:1.5;">Cenário real de SC (partidos, votos, vagas), com o nome de cada candidato trocado por um fictício — pra gravar telas de marketing sem citar candidato real.</div>
+      </span>
+      <a href="${escaparAtributoHtml(linkDemo)}" target="_blank" rel="noopener noreferrer" class="pc-mini-btn" style="flex-shrink:0; text-decoration:none; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;">Abrir ${iconeSvg("setaDireita", 12)}</a>
+    </div>
+  </div>`;
+
   return `
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Marketing</div>
+    ${demoHtml}
     ${montarBlocoMigracoes(statusMigracoes)}
-    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:0 0 8px 2px;">Rotinas conhecidas</div>
+    <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Rotinas conhecidas</div>
     ${catalogoHtml}
     <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pc-ink-dim); margin:18px 0 8px 2px;">Histórico de execuções</div>
     ${historicoHtml}`;
