@@ -488,6 +488,7 @@ function normalizarBusca(s) {
 // convenção — passam a mostrar nome de urna assim que forem migrados pro
 // novo formato do pipeline de resultados 2022 Brasil).
 function nomeExibicao(c) {
+  if (window.SEL_DEMO) return nomeFicticioPara(c.chave || c.nome);
   return c.nomeUrna || c.nome;
 }
 

@@ -5,6 +5,7 @@
 
 
 async function initColaborativo() {
+  if (window.SEL_DEMO) { await iniciarModoDemo(); return; }
   if (!supabaseClient) {
     pcState.tela = "erro-conexao";
     renderColaborativo();
