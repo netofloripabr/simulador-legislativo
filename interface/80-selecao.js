@@ -3095,11 +3095,12 @@ async function renderCargoEstadual() {
           </button>
         </div>
       </div>
-      ${plenarioColapsado ? "" : `
-      <div style="margin-top:14px;">
-        ${hemiciclo}
-        <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
-      </div>`}
+      <div id="pcPlenarioCorpo" class="pc-plen-corpo${plenarioColapsado ? "" : " aberto"}">
+        <div style="margin-top:14px;">
+          ${hemiciclo}
+          <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legendaPlenario}</div>
+        </div>
+      </div>
     </div>
     ${renderFaixaVagasAbertas(totalVagasCargo)}
     ${renderLegendaBadge(false)}`}
@@ -3282,8 +3283,16 @@ function attachListenersSelecao() {
     btnColapsarPlenario.addEventListener("click", () => {
       const chave = "plenarioColapsado_" + pcState.cargoAtivo;
       const atualCol = pcState.expandido[chave] === undefined ? true : !!pcState.expandido[chave];
-      pcState.expandido[chave] = !atualCol;
-      renderCargoEstadual();
+      const novoCol = !atualCol;
+      pcState.expandido[chave] = novoCol;
+      // Só troca a classe do próprio corpo (sem re-render da tela inteira)
+      // — é isso que deixa o CSS animar a abertura/fechamento em vez de
+      // trocar na hora (achado do usuário, 08/09/2026: telas "abruptas").
+      const corpo = document.getElementById("pcPlenarioCorpo");
+      if (corpo) corpo.classList.toggle("aberto", !novoCol);
+      const seta = btnColapsarPlenario.querySelector("svg");
+      if (seta) seta.style.transform = novoCol ? "rotate(-90deg)" : "none";
+      btnColapsarPlenario.title = novoCol ? "Expandir" : "Recolher";
     });
   }
   const faixaVagas = document.getElementById("pcFaixaVagas");

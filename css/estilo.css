@@ -1761,6 +1761,21 @@
 }
 #modoColaborativoWrap .pc-menufixo-icones.aberto{ max-height:46px; opacity:1; transform:scale(1); pointer-events:auto; }
 
+/* Plenário (Seleção) abrindo/fechando com o mesmo padrão de tempo acima —
+   antes trocava na hora porque o botão disparava um re-render da tela
+   inteira; agora só alterna esta classe (achado do usuário, 08/09/2026:
+   telas "abruptas" demais). max-height generoso porque o conteúdo (mapa +
+   legenda) tem altura variável — a transição sempre roda pela duração
+   certa, só não "estica" além do necessário porque o conteúdo real é
+   sempre menor que esse teto. */
+#modoColaborativoWrap .pc-plen-corpo{
+  max-height:0; opacity:0; overflow:hidden;
+  transition:
+    max-height var(--pc-duracao-expandir) var(--pc-easing-suave),
+    opacity var(--pc-duracao-opacidade) ease;
+}
+#modoColaborativoWrap .pc-plen-corpo.aberto{ max-height:2000px; opacity:1; }
+
 #modoColaborativoWrap .pc-dep-notif{
   display:flex; align-items:center; gap:8px; margin-top:0;
 }
