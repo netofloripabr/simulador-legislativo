@@ -449,7 +449,17 @@
   #modoColaborativoWrap .pc-fva-tx b{ color:var(--pc-ink); }
   #modoColaborativoWrap .pc-fva-chev{ color:var(--pc-ink-dim); flex-shrink:0; transition:transform .18s; }
   #modoColaborativoWrap .pc-fva.aberta .pc-fva-chev{ transform:rotate(90deg); }
-  #modoColaborativoWrap .pc-fva-corpo{ margin-top:10px; border-top:1px solid var(--pc-glass-border); padding-top:4px; }
+  /* Abre/fecha suave (08/09/2026, mesmo padrão do Plenário logo abaixo):
+     altura calculada na hora pelo JS (scrollHeight real), não um teto
+     fixo — ver o clique em #pcFaixaVagas, interface/80-selecao.js. */
+  #modoColaborativoWrap .pc-fva-corpo{
+    max-height:0; opacity:0; overflow:hidden;
+    transition:
+      max-height var(--pc-duracao-expandir) var(--pc-easing-suave),
+      opacity var(--pc-duracao-expandir) var(--pc-easing-suave);
+  }
+  #modoColaborativoWrap .pc-fva-corpo.aberto{ opacity:1; }
+  #modoColaborativoWrap .pc-fva-corpo-int{ margin-top:10px; border-top:1px solid var(--pc-glass-border); padding-top:4px; }
   #modoColaborativoWrap .pc-fva-lin{ display:flex; flex-direction:column; gap:6px; padding:8px 0; border-bottom:1px solid var(--pc-glass-border); }
   #modoColaborativoWrap .pc-fva-lin:last-of-type{ border-bottom:none; }
   #modoColaborativoWrap .pc-fva-lin-top{ display:flex; align-items:center; gap:8px; }

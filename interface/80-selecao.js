@@ -1387,11 +1387,12 @@ function renderFaixaVagasAbertas(totalVagasCargo) {
         </div>
         <span class="pc-fva-tx">pela vota\u00e7\u00e3o atual, ${dados.emAberto === 1 ? "essa vaga j\u00e1 tem dono" : "essas vagas j\u00e1 t\u00eam dono"} \u2014 <b>falta voc\u00ea confirmar</b></span>
       </div>
-      ${aberta ? `
-      <div class="pc-fva-corpo">
-        ${linhas}
-        <div class="pc-fva-nota"><b>QP</b> = vaga pelo quociente partid\u00e1rio \u00b7 <b>N\u00aa M</b> = rodada da sobra (m\u00e9dia) \u00b7 o nome \u00e9 o candidato mais votado ainda sem marca\u00e7\u00e3o naquele partido \u2014 a setinha abre o card.</div>
-      </div>` : ""}
+      <div class="pc-fva-corpo${aberta ? " aberto" : ""}" id="pcFvaCorpo">
+        <div class="pc-fva-corpo-int">
+          ${linhas}
+          <div class="pc-fva-nota"><b>QP</b> = vaga pelo quociente partid\u00e1rio \u00b7 <b>N\u00aa M</b> = rodada da sobra (m\u00e9dia) \u00b7 o nome \u00e9 o candidato mais votado ainda sem marca\u00e7\u00e3o naquele partido \u2014 a setinha abre o card.</div>
+        </div>
+      </div>
     </div>`;
 }
 
@@ -3372,8 +3373,24 @@ function attachListenersSelecao() {
         return;
       }
       const chave = "faixaVagas_" + pcState.cargoAtivo;
-      pcState.expandido[chave] = !pcState.expandido[chave];
-      renderCargoEstadual();
+      const novaAberta = !pcState.expandido[chave];
+      pcState.expandido[chave] = novaAberta;
+      // Mesmo padrão do Plenário (08/09/2026): só alterna classe + altura
+      // real do conteúdo, sem re-render da tela inteira, pra CSS animar
+      // em vez de trocar na hora.
+      const corpo = document.getElementById("pcFvaCorpo");
+      if (corpo) {
+        if (novaAberta) {
+          corpo.style.maxHeight = corpo.scrollHeight + "px";
+          corpo.classList.add("aberto");
+        } else {
+          corpo.style.maxHeight = corpo.scrollHeight + "px";
+          void corpo.offsetHeight;
+          corpo.style.maxHeight = "0px";
+          corpo.classList.remove("aberto");
+        }
+      }
+      faixaVagas.classList.toggle("aberta", novaAberta);
     });
   }
   const btnLegendaBadge = document.getElementById("pcBtnLegendaBadge");
