@@ -448,11 +448,12 @@
     background:rgba(52,232,74,.08); border:1px solid rgba(52,232,74,.32);
   }
   /* Faixa "vagas em aberto" (aprovado 31/08/2026) */
-  #modoColaborativoWrap .pc-fva-cab{ display:flex; align-items:center; gap:10px; }
+  #modoColaborativoWrap .pc-fva-cab{ display:flex; flex-direction:column; gap:4px; }
+  #modoColaborativoWrap .pc-fva-cab-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
   #modoColaborativoWrap .pc-fva-num{ font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap; }
   #modoColaborativoWrap .pc-fva-num .dim{ color:var(--pc-ink-dim); }
   #modoColaborativoWrap .pc-fva-num b{ color:#FFA23E; }
-  #modoColaborativoWrap .pc-fva-tx{ flex:1; min-width:0; font-size:11px; color:var(--pc-ink-dim); line-height:1.4; }
+  #modoColaborativoWrap .pc-fva-tx{ font-size:11px; color:var(--pc-ink-dim); line-height:1.4; }
   #modoColaborativoWrap .pc-fva-tx b{ color:var(--pc-ink); }
   #modoColaborativoWrap .pc-fva-chev{ color:var(--pc-ink-dim); flex-shrink:0; transition:transform .18s; }
   #modoColaborativoWrap .pc-fva.aberta .pc-fva-chev{ transform:rotate(90deg); }

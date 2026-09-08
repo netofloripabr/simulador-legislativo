@@ -1381,9 +1381,11 @@ function renderFaixaVagasAbertas(totalVagasCargo) {
   return `
     <div class="glass-card pc-fva${aberta ? " aberta" : ""}" id="pcFaixaVagas" style="padding:12px 14px; cursor:pointer;">
       <div class="pc-fva-cab">
-        <span class="pc-fva-num">${dados.marcadas}<span class="dim">/${totalVagasCargo}</span> <b>\u00b7 ${dados.emAberto} em aberto</b></span>
+        <div class="pc-fva-cab-top">
+          <span class="pc-fva-num">${dados.marcadas}<span class="dim">/${totalVagasCargo}</span> <b>\u00b7 ${dados.emAberto} em aberto</b></span>
+          <svg class="pc-fva-chev" width="12" height="12" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>
         <span class="pc-fva-tx">pela vota\u00e7\u00e3o atual, ${dados.emAberto === 1 ? "essa vaga j\u00e1 tem dono" : "essas vagas j\u00e1 t\u00eam dono"} \u2014 <b>falta voc\u00ea confirmar</b></span>
-        <svg class="pc-fva-chev" width="12" height="12" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
       </div>
       ${aberta ? `
       <div class="pc-fva-corpo">
