@@ -52,34 +52,9 @@ document.addEventListener("keydown", (e) => {
   if (pcState.avisoLimiteCedulaAberto) return fechar(() => { pcState.avisoLimiteCedulaAberto = false; });
 });
 
-// Efeito de toque padrão do app inteiro (padrão iOS: encolhe + escurece no
-// toque), aprovado 28/08/2026 a partir do protótipo da barra fixa —
-// delegado no document (cobre botão renderizado depois também, sem
-// precisar reanexar listener em cada tela nova). Duração mínima garantida
-// por código (não só :active) porque um clique bem rápido de MOUSE às
-// vezes nem chega a pintar o :active — sem isso o efeito falha
-// silenciosamente em cliques rápidos (achado do usuário, 28/08/2026).
-// Opt-out: botão com data-pc-sem-toque (ex.: puck de arrastar do fader).
-(function inicToquePadrao() {
-  const DURACAO_MINIMA_TOQUE_MS = 110;
-  let desde = 0;
-  let alvo = null;
-  function soltar() {
-    if (!alvo) return;
-    const el = alvo;
-    alvo = null;
-    const falta = Math.max(0, DURACAO_MINIMA_TOQUE_MS - (Date.now() - desde));
-    setTimeout(() => el.classList.remove("pc-toque-pressionado"), falta);
-  }
-  document.addEventListener("pointerdown", (e) => {
-    const btn = e.target.closest("button:not([data-pc-sem-toque]):not(:disabled)");
-    if (!btn) return;
-    if (alvo && alvo !== btn) soltar();
-    alvo = btn;
-    desde = Date.now();
-    btn.classList.add("pc-toque-pressionado");
-  });
-  document.addEventListener("pointerup", soltar);
-  document.addEventListener("pointercancel", soltar);
-  document.addEventListener("pointerleave", (e) => { if (e.target === alvo) soltar(); }, true);
-})();
+// Efeito de toque padrão do app inteiro — ver a delegação única em
+// interface/00-estado.js (variante "Combo", aprovada 30/08/2026). Existiu
+// uma segunda implementação aqui (28/08/2026, classe .pc-toque-pressionado)
+// rodando em paralelo com aquela — removida em 08/09/2026 (auditoria: os
+// dois sistemas disparavam juntos no mesmo botão, com timings diferentes,
+// resultando num efeito duplicado/confuso). Não recriar aqui.

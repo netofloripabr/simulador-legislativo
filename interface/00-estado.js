@@ -172,8 +172,14 @@ const CARGOS = [
 // clicáveis que se comportam como botão), garantindo que TODO clique
 // mostre a resposta visual completa. Listener único no documento — vale
 // pra qualquer tela renderizada depois, sem religar nada.
+// Lista de clicáveis-que-não-são-botão estendida em 08/09/2026 (auditoria
+// de consistência do toque): .pc-mini-card (card de lista em Minhas
+// Listas — o mesmo componente em Grupos já é <button>, este não pode ser
+// por ter botões de ação aninhados dentro), #pcFaixaVagas (faixa de vagas
+// em aberto na Seleção, mesmo motivo) e .pc-cand-row (linha de candidato
+// no criar-duelo, um <label> de checkbox).
 document.addEventListener("pointerdown", (e) => {
-  const alvo = e.target.closest("#modoColaborativoWrap button, #modoColaborativoWrap .pc-lobby-tile, #modoColaborativoWrap .pc-lobby-mais-item, #modoColaborativoWrap .pc-amigo-op, #modoColaborativoWrap .pc-notif-acao");
+  const alvo = e.target.closest("#modoColaborativoWrap button, #modoColaborativoWrap .pc-lobby-tile, #modoColaborativoWrap .pc-lobby-mais-item, #modoColaborativoWrap .pc-amigo-op, #modoColaborativoWrap .pc-notif-acao, #modoColaborativoWrap .pc-mini-card, #modoColaborativoWrap .pc-fva, #modoColaborativoWrap .pc-cand-row");
   if (!alvo || alvo.disabled) return;
   alvo.classList.add("pulsando");
   clearTimeout(alvo._pulsoTimer);

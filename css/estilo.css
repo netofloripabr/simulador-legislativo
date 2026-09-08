@@ -43,20 +43,12 @@
     --pc-duracao-opacidade: .4s;
   }
   *{box-sizing:border-box;}
-  /* Efeito de toque padrão do app inteiro (aprovado 28/08/2026, mesmo
-     padrão do botão nativo do iOS: encolhe + escurece no toque). Aplicado
-     via JS por delegação em TODO <button> existente e futuro — ver
-     inicToquePadrao() em interface/prospeccao.js — exceto quem já tem
-     comportamento manual próprio (arrastar/fader) marcado com
-     data-pc-sem-toque, ou que opte por não usar (esses ficam como estão). */
-  button:not([data-pc-sem-toque]){
-    transition: transform .12s var(--pc-easing-suave), opacity .12s ease-out;
+  /* Remove o realce azul nativo de toque em mobile — o feedback de toque
+     de verdade (encolher + clarear + anel de luz) é a variante "Combo"
+     definida mais abaixo (~l.2480) + a delegação em interface/00-estado.js.
+     Unificado em 08/09/2026 — não recriar um segundo sistema aqui. */
+  button{
     -webkit-tap-highlight-color: transparent;
-  }
-  button.pc-toque-pressionado{
-    transform: scale(.94);
-    opacity: .6;
-    transition: transform .06s ease-out, opacity .06s ease-out;
   }
   body{
     margin:0; padding:0; background:var(--bg); color:var(--ink);
@@ -2498,11 +2490,19 @@
 #modoColaborativoWrap button.primary.pulsando:not(:disabled){
   box-shadow:0 0 0 2.5px rgba(255,255,255,.35), inset 0 0 14px rgba(0,0,0,.2);
 }
-/* Itens clicáveis que não são <button> mas se comportam como um. */
+/* Itens clicáveis que não são <button> mas se comportam como um. Lista
+   estendida em 08/09/2026 (auditoria de consistência do toque): .pc-mini-card
+   (Minhas Listas), .pc-fva (faixa de vagas em aberto, Seleção) e
+   .pc-cand-row (linha de candidato no criar-duelo) — nenhum dos três podia
+   virar <button> de verdade (os dois primeiros têm botão de ação aninhado
+   dentro; o terceiro é um <label> de checkbox). */
 #modoColaborativoWrap .pc-lobby-tile,
 #modoColaborativoWrap .pc-lobby-mais-item,
 #modoColaborativoWrap .pc-amigo-op,
-#modoColaborativoWrap .pc-notif-acao{
+#modoColaborativoWrap .pc-notif-acao,
+#modoColaborativoWrap .pc-mini-card,
+#modoColaborativoWrap .pc-fva,
+#modoColaborativoWrap .pc-cand-row{
   transition-property:transform, filter, box-shadow;
   transition-duration:.09s;
   transition-timing-function:ease-out;
@@ -2510,7 +2510,10 @@
 #modoColaborativoWrap .pc-lobby-tile:active, #modoColaborativoWrap .pc-lobby-tile.pulsando,
 #modoColaborativoWrap .pc-lobby-mais-item:active, #modoColaborativoWrap .pc-lobby-mais-item.pulsando,
 #modoColaborativoWrap .pc-amigo-op:active, #modoColaborativoWrap .pc-amigo-op.pulsando,
-#modoColaborativoWrap .pc-notif-acao:active, #modoColaborativoWrap .pc-notif-acao.pulsando{
+#modoColaborativoWrap .pc-notif-acao:active, #modoColaborativoWrap .pc-notif-acao.pulsando,
+#modoColaborativoWrap .pc-mini-card:active, #modoColaborativoWrap .pc-mini-card.pulsando,
+#modoColaborativoWrap .pc-fva:active, #modoColaborativoWrap .pc-fva.pulsando,
+#modoColaborativoWrap .pc-cand-row:active, #modoColaborativoWrap .pc-cand-row.pulsando{
   transform:scale(.97);
   filter:brightness(1.18);
   box-shadow:0 0 0 2px rgba(52,232,74,.25);
@@ -2521,7 +2524,10 @@
   #modoColaborativoWrap .pc-lobby-tile:active, #modoColaborativoWrap .pc-lobby-tile.pulsando,
   #modoColaborativoWrap .pc-lobby-mais-item:active, #modoColaborativoWrap .pc-lobby-mais-item.pulsando,
   #modoColaborativoWrap .pc-amigo-op:active, #modoColaborativoWrap .pc-amigo-op.pulsando,
-  #modoColaborativoWrap .pc-notif-acao:active, #modoColaborativoWrap .pc-notif-acao.pulsando{
+  #modoColaborativoWrap .pc-notif-acao:active, #modoColaborativoWrap .pc-notif-acao.pulsando,
+  #modoColaborativoWrap .pc-mini-card:active, #modoColaborativoWrap .pc-mini-card.pulsando,
+  #modoColaborativoWrap .pc-fva:active, #modoColaborativoWrap .pc-fva.pulsando,
+  #modoColaborativoWrap .pc-cand-row:active, #modoColaborativoWrap .pc-cand-row.pulsando{
     transform:none;
   }
 }

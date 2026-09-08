@@ -1777,7 +1777,7 @@ async function renderQuadroMedias() {
     </div>
     ${painelPrecos}
     <div class="pc-aviso-nao-pesquisa">Jogo de palpites entre participantes. Não é pesquisa eleitoral e não tem valor estatístico.</div>
-    ${pcState.perfil ? `<div style="margin-top:12px; text-align:center; font-size:11.5px; color:var(--pc-ink-dim);"><span style="color:var(--pc-accent); font-weight:700; cursor:pointer;" id="pcBtnDesafiarDoTermometro">Lance o seu desafio.</span></div>` : ""}
+    ${pcState.perfil ? `<div style="margin-top:12px; text-align:center; font-size:11.5px; color:var(--pc-ink-dim);"><button type="button" style="background:none; border:none; padding:0; margin:0; cursor:pointer; color:var(--pc-accent); font-weight:700; font-family:var(--sans); font-size:inherit;" id="pcBtnDesafiarDoTermometro">Lance o seu desafio.</button></div>` : ""}
   `;
   if (coringaOverlay) document.body.insertAdjacentHTML("beforeend", coringaOverlay);
 
