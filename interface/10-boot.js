@@ -789,6 +789,7 @@ function renderLanding() {
       <div class="pc-capa-sub">Monte, publique e compare a sua lista com seus amigos.</div>
       <button class="primary pc-capa-cta" id="pcBtnComecar">Começar</button>
       <button class="ghost pc-capa-entrar" id="pcBtnJaTenhoConta">já tenho conta — entrar</button>
+      <button class="ghost pc-acesso-ghost pc-capa-google" id="pcBtnCapaEntrarGoogle">${GOOGLE_G_SVG}Entrar com Google</button>
 
       <div class="pc-capa-divisor"></div>
       <div class="pc-capa-desafio">${iconeSvg("grupos", 15)}Desafie aquele seu amigo, vizinho ou familiar neste game criativo e dinâmico.</div>
@@ -801,6 +802,14 @@ function renderLanding() {
   document.getElementById("pcBtnJaTenhoConta").addEventListener("click", () => {
     pcState.tela = "login";
     renderColaborativo();
+  });
+  // Atalho de login com Google direto na capa (pedido do usuário,
+  // 09/09/2026) — mesmo botão/ícone da tela de Login/Cadastro
+  // (GOOGLE_G_SVG + entrarComGoogle), só que sem passar pela tela
+  // intermediária "já tenho conta".
+  document.getElementById("pcBtnCapaEntrarGoogle").addEventListener("click", async () => {
+    const { error } = await entrarComGoogle();
+    if (error) { pcState.erro = "Não consegui abrir o login do Google: " + error.message; pcState.tela = "login"; renderColaborativo(); }
   });
 }
 

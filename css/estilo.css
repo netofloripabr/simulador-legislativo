@@ -2180,6 +2180,7 @@
   margin:44px 0 0; padding:15px 30px; font-size:15.5px; width:100%; max-width:340px;
 }
 #modoColaborativoWrap .pc-capa-entrar{ margin-top:12px; font-size:12px; padding:6px 14px; }
+#modoColaborativoWrap .pc-capa-google{ margin-top:14px; max-width:340px; font-size:13px; }
 #modoColaborativoWrap .pc-capa-divisor{ width:40px; height:1px; background:#4D545C; margin:40px 0 24px; }
 #modoColaborativoWrap .pc-capa-desafio{
   display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600;
