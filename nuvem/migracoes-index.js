@@ -1238,5 +1238,16 @@ const MIGRACOES_INDEX = [
     "listar_meus_desafios"
    ]
   ]
+ },
+ {
+  "num": 52,
+  "arquivo": "migracao-52-recusar-molde-fix.sql",
+  "descricao": "============================================================",
+  "objetos": [
+   [
+    "function",
+    "recusar_desafio"
+   ]
+  ]
  }
 ];
