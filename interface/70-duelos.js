@@ -79,11 +79,21 @@ async function _renderDesafiosHubCorpo(conteudo) {
     const contexto = `${d.estado} · ${cargoRot}${d.modelo_de ? " · via convite" : ""}`;
     const fmtPts = (n) => Number(n).toLocaleString("pt-BR");
     const dataBr = (iso) => new Date(iso).toLocaleDateString("pt-BR");
+    // Estados de "encerrado sem placar" (achado do usuário, 09/09/2026: o
+    // card de duelo recusado mostrava "cédula selada" do lado de quem
+    // recusou, como se nada tivesse acontecido — o nome também sumia por
+    // causa do bug corrigido na migração 51/52, mas o texto do card em si
+    // já estava errado, independente disso).
     const subEu = encerradoComPontos
       ? `<div class="pc-podio-pts${venci ? " venceu" : ""}">${fmtPts(meusPontos)}<i> pts</i></div>`
-      : `<div class="pc-podio-sub">${pendenteRecebido ? "falta a sua cédula" : "cédula selada"}</div>`;
+      : (d.status === "recusado" && !souCriador)
+        ? `<div class="pc-podio-sub">você recusou</div>`
+        : `<div class="pc-podio-sub">${pendenteRecebido ? "falta a sua cédula" : "cédula selada"}</div>`;
     const subOutro = encerradoComPontos
       ? `<div class="pc-podio-pts${outroVenceu ? " venceu" : ""}">${fmtPts(pontosOutro)}<i> pts</i></div>`
+      : d.status === "recusado" ? `<div class="pc-podio-sub">${souCriador ? "recusou o convite" : "aguardava sua resposta"}</div>`
+      : d.status === "cancelado" ? `<div class="pc-podio-sub">convite cancelado</div>`
+      : d.status === "expirado" ? `<div class="pc-podio-sub">expirou sem resposta</div>`
       : `<div class="pc-podio-sub">${dueloAberto
           ? (!d.aceites ? "ninguém aceitou ainda" : d.aceites === 1 ? "1 pessoa já aceitou" : d.aceites + " pessoas já aceitaram")
           : (pendenteEnviado ? "ainda não respondeu" : "cédula selada")}</div>`;
@@ -93,6 +103,9 @@ async function _renderDesafiosHubCorpo(conteudo) {
     else if (pendenteRecebido) rodape = `<span>recebido em ${dataBr(d.criado_em)}</span><span>expira ${dataBr(d.expira_em)}</span>`;
     else if (d.status === "selado" || d.status === "apuracao") rodape = `<span>selado em ${dataBr(d.respondido_em || d.criado_em)}</span><span>aguardando a apuração</span>`;
     else if (d.status === "encerrado") rodape = `<span>selado em ${dataBr(d.respondido_em || d.criado_em)}</span><span>resultado apurado</span>`;
+    else if (d.status === "recusado") rodape = `<span>recusado em ${dataBr(d.respondido_em || d.criado_em)}</span><span>${d.estado}</span>`;
+    else if (d.status === "cancelado") rodape = `<span>cancelado em ${dataBr(d.respondido_em || d.criado_em)}</span><span>${d.estado}</span>`;
+    else if (d.status === "expirado") rodape = `<span>expirado em ${dataBr(d.respondido_em || d.criado_em)}</span><span>${d.estado}</span>`;
     else rodape = `<span>${dataBr(d.respondido_em || d.criado_em)}</span><span>${d.estado}</span>`;
     const setaSvg = '<svg viewBox="0 0 16 16" width="11" height="11"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
     return `
@@ -130,6 +143,28 @@ async function _renderDesafiosHubCorpo(conteudo) {
     </div>`;
   };
 
+  // Filtros (pedido do usuário, 09/09/2026): a tela virava uma lista
+  // longa e sem separação clara conforme os duelos se acumulavam. Reusa
+  // o mesmo padrão de abas do resto do app (.pc-cargo-switch) — filtra
+  // por cima dos 3 grupos que já existiam (recebidos/andamento/
+  // encerrados), não muda a regra de quem entra em cada grupo.
+  if (!pcState.desafiosFiltro) pcState.desafiosFiltro = "todos";
+  const filtro = pcState.desafiosFiltro;
+  const abas = [
+    { id: "todos", label: "Todos", n: desafios.length },
+    { id: "recebidos", label: "Te desafiaram", n: recebidos.length },
+    { id: "andamento", label: "Em andamento", n: andamento.length },
+    { id: "encerrados", label: "Encerrados", n: encerrados.length },
+  ];
+  const botoesFiltro = abas.map((a) => `
+    <button data-pc-duelo-filtro="${a.id}" class="${filtro === a.id ? "active" : ""}">${a.label}${a.n ? ` <span class="pc-tab-cont">${a.n}</span>` : ""}</button>`).join("");
+
+  const mostrarRecebidos = filtro === "todos" || filtro === "recebidos";
+  const mostrarAndamento = filtro === "todos" || filtro === "andamento";
+  const mostrarEncerrados = filtro === "todos" || filtro === "encerrados";
+  const nadaNesseFiltro = filtro !== "todos" &&
+    ((filtro === "recebidos" && !recebidos.length) || (filtro === "andamento" && !andamento.length) || (filtro === "encerrados" && !encerrados.length));
+
   conteudo.innerHTML = `
     <div id="pcFarolBloco"></div>
     <button class="ghost" id="pcBtnVoltarDesafios" style="margin-bottom:14px; display:flex; align-items:center; gap:6px;">${iconeSvg("setaEsquerda", 13)} Painel</button>
@@ -138,10 +173,13 @@ async function _renderDesafiosHubCorpo(conteudo) {
     <button class="primary" id="pcBtnCriarDesafio" style="width:100%; margin-bottom:6px;">Criar duelo</button>
     <div style="font-size:11px; color:var(--pc-ink-dim); text-align:center; margin-bottom:18px;">Duelar é sempre grátis — desafie quantos quiser.</div>
 
-    ${recebidos.length ? `<div class="pc-lobby-menu-tit" style="margin-top:0;">Te desafiaram · ${recebidos.length}</div>${recebidos.map(linhaDuelo).join("")}` : ""}
-    ${andamento.length ? `<div class="pc-lobby-menu-tit">Em andamento · ${andamento.length}</div>${andamento.map(linhaDuelo).join("")}` : ""}
-    ${encerrados.length ? `<div class="pc-lobby-menu-tit">Encerrados</div>${encerrados.slice(0, 10).map(linhaDuelo).join("")}` : ""}
+    ${desafios.length ? `<div class="pc-cargo-switch pc-admin-abas">${botoesFiltro}</div>` : ""}
+
+    ${mostrarRecebidos && recebidos.length ? `<div class="pc-lobby-menu-tit" style="margin-top:0;">Te desafiaram · ${recebidos.length}</div>${recebidos.map(linhaDuelo).join("")}` : ""}
+    ${mostrarAndamento && andamento.length ? `<div class="pc-lobby-menu-tit">Em andamento · ${andamento.length}</div>${andamento.map(linhaDuelo).join("")}` : ""}
+    ${mostrarEncerrados && encerrados.length ? `<div class="pc-lobby-menu-tit">Encerrados</div>${encerrados.slice(0, 10).map(linhaDuelo).join("")}` : ""}
     ${!desafios.length ? `<div class="pc-lobby-card">${estadoVazio({ icone: "desafio", titulo: "Nenhum duelo ainda", texto: "Crie o primeiro — o custo do duelo já está descrito acima." })}</div>` : ""}
+    ${nadaNesseFiltro ? `<div class="pc-lobby-card">${estadoVazio({ icone: "desafio", titulo: "Nada por aqui", texto: "Nenhum duelo nesse filtro por enquanto." })}</div>` : ""}
     <div class="pc-status" id="pcDesafiosStatus" style="margin-top:10px; min-height:12px;">${pcState.desafiosAvisoStatus || ""}</div>
   `;
   pcState.desafiosAvisoStatus = null; // aviso do boot (?duelo=) só na primeira renderização
@@ -152,6 +190,10 @@ async function _renderDesafiosHubCorpo(conteudo) {
     pcState.desafioDestacadoId = null; // só destaca na primeira renderização vinda da notificação
   }
   document.getElementById("pcBtnVoltarDesafios").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
+  document.querySelectorAll("[data-pc-duelo-filtro]").forEach((btn) => btn.addEventListener("click", () => {
+    pcState.desafiosFiltro = btn.getAttribute("data-pc-duelo-filtro");
+    renderDesafiosHub();
+  }));
   document.getElementById("pcBtnCriarDesafio").addEventListener("click", () => {
     pcState.desafioCriarPasso = 1; pcState.desafioCriarAlvoModo = null;
     pcState.desafioCriarNome = ""; pcState.desafioCriarAlvo = null;
