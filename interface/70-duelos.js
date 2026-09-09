@@ -937,23 +937,35 @@ async function renderAceitarDesafio() {
     idLegendaToggle: "pcDueloCmdLegendaToggle",
     legendaAberta: !!pcState.dueloLegendaAberta,
   }) + (i === 0 && pcState.dueloLegendaAberta ? renderLegendaComandos(comandosDuelo) : "");
+  // Mesmo padrão da lista de palpites (nomeExibicao, ícone do Instagram,
+  // ícone/painel de bens e recursos, referência de 2022) — pedido do
+  // usuário 09/09/2026, protótipo aprovado em _proto-duelo-refino.html.
+  // A votação de cada lado (desafiante/você) vira duas colunas centradas
+  // à direita, com um trilho vertical contínuo entre elas.
   const linhaCandidatoHtml = (c) => {
     const v = Number(votosAceitar[c.chave]) || 0;
+    const linkInsta = linkInstagramDe(c.chave);
+    const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 14)}</a>` : "";
+    const { icone: iconeFinanceiro, painel: painelFinanceiro } = financeiroIconeHtml(c);
     return `
-      <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
-        <div class="pc-dep-cl1">
-          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${c.nome}</span><span class="pc-dep-pos">${c.partido}</span></span>
+      <div class="pc-duelo-crow${votosOcultos ? " oculto" : ""}" data-dep-cand="${escaparAtributoHtml(c.chave)}">
+        <div class="pc-dep-cnm">
+          <span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>
+          <span class="cnm-icones">${instaDepois}${iconeFinanceiro}</span>
         </div>
-        <div class="pc-dep-cl1" style="justify-content:flex-end; margin-top:6px;">
-          ${votosOcultos ? "" : `<span class="pc-voto-rival">${(votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR")}</span>`}
-          <span class="pc-voto-ajuste"><input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${v}" placeholder="0"></span>
-        </div>
+        <div class="pc-dep-pos">${c.partido}</div>
+        ${votosOcultos ? "" : `<div class="col-rival"><span class="pc-voto-rival">${(votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR")}</span></div>`}
+        <div class="col-voce"><input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${v}" placeholder="0"></div>
+        ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}</div>` : ""}
+        ${painelFinanceiro}
         ${faderDepHtml("d|" + c.chave, v, metricasD.cap, true)}
       </div>`;
   };
   // Cabeçalho das colunas uma vez só, logo abaixo do primeiro console
-  // (dentro do card, então sem o padding lateral próprio do .pc-duelo-colcab).
-  const colcabHtml = `<div class="pc-duelo-colcab" style="padding:0; margin:12px 0 2px;"><span class="cand"></span>${votosOcultos ? "" : `<span class="rival" style="width:auto;">Desafiante</span>`}<span class="voce" style="width:118px;">Você</span></div>`;
+  // (dentro do card, então sem o padding lateral próprio do .pc-duelo-colcab
+  // — o pc-lobby-card ao redor já dá 14px). Colunas centralizadas, mesma
+  // largura fixa das linhas (92px), pra alinhar com "Desafiante"/"Você".
+  const colcabHtml = `<div class="pc-duelo-colcab v2${votosOcultos ? " oculto" : ""}"><span class="cand"></span>${votosOcultos ? "" : `<span class="rival">Desafiante</span>`}<span class="voce">Você</span></div>`;
   const consolesHtml = ehEleitos ? "" : (desafio.tipo_disputa === "cargo" ? consoleHtmlDe(consolesD[0], 0) + `<div style="height:12px;"></div>` : "");
   const gruposHtml = ehEleitos ? "" : ordemG.map(([partido, cands], i) => `
     ${desafio.tipo_disputa === "cargo" ? "" : consoleHtmlDe(consolesD[i], i) + (i === 0 ? "" : `<div style="height:12px;"></div>`)}
@@ -1017,6 +1029,15 @@ async function renderAceitarDesafio() {
       atualizarConsoles();
     };
     attachFadersDuelo(votosAceitar, metricasD.cap, metricasD.E, snapDuelo, (chave) => aoMudarChave(chave, "fader"));
+    // Ícone de bens/recursos — mesmo padrão de toggle da lista de palpites
+    // (financeiroIconeHtml/pc-toggle-financeiro), só um aberto por vez.
+    document.querySelectorAll("[data-pc-toggle-financeiro]").forEach((el) => {
+      el.addEventListener("click", () => {
+        const chave = el.dataset.pcToggleFinanceiro;
+        pcState.financeiroAbertoChave = pcState.financeiroAbertoChave === chave ? null : chave;
+        renderAceitarDesafio();
+      });
+    });
     document.querySelectorAll("[data-pc-voto-aceitar]").forEach((inp) => {
       inp.addEventListener("focus", snapDuelo);
       inp.addEventListener("input", () => {
@@ -1192,17 +1213,21 @@ function attachFadersDuelo(votos, cap, E, antesDeMudar, aoMudar) {
       atualizarFaderDep(sl, votos[chave], cap, E);
       aoMudar(chave);
     };
-    sl.addEventListener("pointerdown", (e) => {
+    // Só arrasta a partir do alvo ampliado da alça (.pc-sen-grip-alvo),
+    // não da barra inteira — mesmo ajuste do fader da lista (pedido do
+    // usuário, 09/09/2026: rolar a tela não pode puxar o voto sem querer).
+    const arrastavel = sl.querySelector(".pc-sen-grip-alvo") || sl;
+    arrastavel.addEventListener("pointerdown", (e) => {
       antesDeMudar();
       arrastando = true;
       sl.classList.add("ativo");
-      try { sl.setPointerCapture(e.pointerId); } catch (_) {}
+      try { arrastavel.setPointerCapture(e.pointerId); } catch (_) {}
       mover(e);
     });
-    sl.addEventListener("pointermove", (e) => { if (arrastando) mover(e); });
+    arrastavel.addEventListener("pointermove", (e) => { if (arrastando) mover(e); });
     const soltar = () => { arrastando = false; sl.classList.remove("ativo"); };
-    sl.addEventListener("pointerup", soltar);
-    sl.addEventListener("pointercancel", soltar);
+    arrastavel.addEventListener("pointerup", soltar);
+    arrastavel.addEventListener("pointercancel", soltar);
   });
   // Setas: 1% da régua por clique; segurar repete (igual à lista).
   document.querySelectorAll('[data-pc-seta-dep^="d|"]').forEach((btn) => {

@@ -562,11 +562,15 @@ async function renderMinhasListas() {
 
   el.innerHTML = `
     <div id="pcFarolBloco"></div>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
-      <div style="font-size:20px; font-weight:700; margin-left:2px;">Minhas listas</div>
-      <button class="pc-lobby-icon-btn" id="pcBtnNovaLista" title="Nova lista">${iconeSvg("mais", 16)}</button>
-    </div>
-    <div class="pc-sub" style="margin:4px 0 16px 2px;">Toque numa lista em aberto pra continuar editando. Depositadas ficam travadas.</div>
+    <div style="font-size:20px; font-weight:700; margin:0 0 2px 2px;">Minhas listas</div>
+    <div class="pc-sub" style="margin:4px 0 12px 2px;">Toque numa lista em aberto pra continuar editando. Depositadas ficam travadas.</div>
+    <button type="button" class="pc-slotb vazio" id="pcBtnNovaLista" style="width:100%; text-align:left; margin-bottom:16px;">
+      <span class="pc-slotb-anel"><svg viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="20" r="17" fill="none" stroke="#1E2226" stroke-width="3" stroke-dasharray="3 5"></circle></svg><span class="pc-slotb-num" style="color:var(--pc-accent);">${iconeSvg("mais", 16)}</span></span>
+      <span class="pc-slotb-corpo">
+        <span class="pc-slotb-nome vazia">Nova lista</span>
+        <span class="pc-slotb-meta">toque pra montar sua próxima previsão</span>
+      </span>
+    </button>
     ${pcState.avisoEdicaoStatus ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Edição de cédula</div>
@@ -644,7 +648,7 @@ async function renderMinhasListas() {
   `;
 
   atualizarFarol();
-  document.getElementById("pcBtnNovaLista").addEventListener("click", async () => {
+  document.getElementById("pcBtnNovaLista")?.addEventListener("click", async () => {
     if (jaTemLista) {
       // Convidado não tem como ter crédito de verdade (sem conta não tem
       // onde guardar isso no banco) — vai direto pro cadastro. Logado

@@ -1277,7 +1277,7 @@
 }
 #modoColaborativoWrap .pc-sen-sub{ font-size:10.5px; color:#8A9096; margin-top:1px; }
 #modoColaborativoWrap .pc-sen-slider{
-  position:relative; height:31px; margin-top:7px; cursor:pointer; touch-action:none;
+  position:relative; height:31px; margin-top:7px; cursor:default;
   display:flex; align-items:center;
 }
 /* Espaço extra só no card de Senador (não no fader de Deputados, que
@@ -1330,6 +1330,16 @@
 #modoColaborativoWrap .pc-sen-slider.ativo .pc-sen-grip{
   box-shadow:0 0 0 4px rgba(52,232,74,.2), inset 0 1px 0 rgba(242,244,245,.22);
 }
+/* Alvo de toque ampliado (padrão iOS ~44px) por cima do desenho pequeno
+   da alça (.pc-sen-grip, que continua pointer-events:none e só visual).
+   Só ARRASTA quem toca aqui — o resto da barra fica sem touch-action:none,
+   deixando a página rolar por cima sem risco de puxar o voto sem querer
+   (pedido do usuário, 09/09/2026). */
+#modoColaborativoWrap .pc-sen-grip-alvo{
+  position:absolute; top:50%; width:44px; height:44px; transform:translate(-50%,-50%);
+  pointer-events:auto; touch-action:none; cursor:grab; z-index:2;
+}
+#modoColaborativoWrap .pc-sen-slider.ativo .pc-sen-grip-alvo{ cursor:grabbing; }
 #modoColaborativoWrap .pc-sen-edit{
   position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
   background:rgba(12,14,16,.88); border-radius:7px; z-index:3;
@@ -2761,6 +2771,51 @@
 #modoColaborativoWrap .pc-duelo-colcab .cand{ flex:1; min-width:0; }
 #modoColaborativoWrap .pc-duelo-colcab .rival{ width:56px; flex-shrink:0; text-align:center; }
 #modoColaborativoWrap .pc-duelo-colcab .voce{ width:84px; flex-shrink:0; text-align:right; }
+
+/* Refino 09/09/2026 (protótipo aprovado em _proto-duelo-refino.html):
+   candidato com o mesmo padrão da lista de palpites (nome+ícones numa
+   linha só, largura toda do card — senão não sobra espaço nenhum ao lado
+   das duas colunas de voto de 92px cada), partido+votação numa segunda
+   linha com as colunas CENTRALIZADAS embaixo de "Desafiante"/"Você", e
+   "2022: X votos" alinhado ao nome (não ao badge, diferente de
+   .pc-dep-c2022 no resto do app). Mais espaçamento vertical (22px) pra
+   evitar o toque acidental na alça enquanto rola a tela. */
+#modoColaborativoWrap .pc-duelo-colcab.v2{
+  display:grid; grid-template-columns:1fr 92px 92px; align-items:end;
+  gap:6px; padding:0; margin:12px 0 8px;
+}
+#modoColaborativoWrap .pc-duelo-colcab.v2.oculto{ grid-template-columns:1fr 92px; }
+#modoColaborativoWrap .pc-duelo-colcab.v2 span{ text-align:center; font-size:10px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--pc-ink-dim); padding-bottom:8px; width:auto; }
+#modoColaborativoWrap .pc-duelo-colcab.v2 .cand{ text-align:left; flex:none; }
+#modoColaborativoWrap .pc-duelo-colcab.v2 .rival, #modoColaborativoWrap .pc-duelo-colcab.v2 .voce{
+  border-left:1px solid rgba(255,255,255,.07);
+}
+#modoColaborativoWrap .pc-duelo-crow{
+  display:grid; grid-template-columns:1fr 92px 92px; align-items:start;
+  gap:6px; padding:22px 0; border-top:1px solid #1E2226;
+}
+#modoColaborativoWrap .pc-duelo-crow.oculto{ grid-template-columns:1fr 92px; }
+#modoColaborativoWrap .pc-duelo-crow:last-child{ border-bottom:1px solid #1E2226; }
+#modoColaborativoWrap .pc-duelo-crow .pc-dep-cnm{
+  grid-column:1 / -1; display:flex; align-items:center; gap:6px; flex-wrap:nowrap; min-width:0;
+}
+#modoColaborativoWrap .pc-duelo-crow .cnm-icones{ display:flex; align-items:center; gap:6px; flex:0 0 auto; }
+#modoColaborativoWrap .pc-duelo-crow .pc-dep-pos{ grid-column:1; margin:4px 0 0; }
+#modoColaborativoWrap .pc-duelo-crow .pc-dep-c2022{ grid-column:1; margin:8px 0 0 0; text-align:left; }
+#modoColaborativoWrap .pc-duelo-crow .col-rival, #modoColaborativoWrap .pc-duelo-crow .col-voce{
+  display:flex; align-items:center; justify-content:center;
+  border-left:1px solid rgba(255,255,255,.07); align-self:stretch;
+}
+#modoColaborativoWrap .pc-duelo-crow .pc-voto-rival{
+  width:auto; background:none; border:none; border-radius:0; padding:6px 0;
+  font-size:13px; font-weight:600; color:var(--pc-ink-dim); text-align:center; word-break:break-word;
+}
+#modoColaborativoWrap .pc-duelo-crow .col-voce input{
+  width:100%; max-width:80px; text-align:center; background:#101214; border:1px solid var(--pc-glass-border);
+  border-radius:8px; color:var(--pc-ink); font:inherit; font-size:13px; font-weight:700; padding:6px 4px;
+}
+#modoColaborativoWrap .pc-duelo-crow .pc-financeiro-painel{ grid-column:1 / -1; }
+#modoColaborativoWrap .pc-duelo-crow .pc-fader-linha{ grid-column:1 / -1; margin-top:16px; }
 
 /* Aviso "não é pesquisa eleitoral" (04/09/2026) — uma linha discreta, só
    onde aparece número agregado: Termômetro/Mediana (tela) e rodapé do

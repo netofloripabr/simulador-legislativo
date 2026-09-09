@@ -588,6 +588,7 @@ function faderDepHtml(chaveDrag, v, cap, mini) {
         <div class="pc-sen-bar"><div class="pc-sen-ticks"></div><div class="pc-sen-fill" style="width:${pct}%"></div></div>
         <div class="pc-sen-votos"></div>
         <div class="pc-sen-grip" style="left:${pct}%"></div>
+        <div class="pc-sen-grip-alvo" style="left:${pct}%"></div>
       </div>
       ${setaFinoHtml("data-pc-seta-dep", chaveDrag, "mais")}
     </div>`;

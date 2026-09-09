@@ -803,6 +803,7 @@ function renderListaSenador(totalVagas, E) {
           <div class="pc-sen-votos"></div>
           <div class="pc-sen-grip-pct" style="left:${Math.min(100, pctBarra)}%">${pctLabel.toFixed(1)}%</div>
           <div class="pc-sen-grip" style="left:${Math.min(100, pctBarra)}%"></div>
+          <div class="pc-sen-grip-alvo" style="left:${Math.min(100, pctBarra)}%"></div>
         </div>
         ${setaFinoHtml("data-pc-seta-sen", String(it.idx), "mais")}
       </div>
@@ -847,6 +848,8 @@ function atualizarCardSenador(idx, E) {
   card.querySelector(".pc-sen-pct").innerHTML = `<span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span>`;
   card.querySelector(".pc-sen-fill").style.width = Math.min(100, pctBarra) + "%";
   card.querySelector(".pc-sen-grip").style.left = Math.min(100, pctBarra) + "%";
+  const gripAlvoSen = card.querySelector(".pc-sen-grip-alvo");
+  if (gripAlvoSen) gripAlvoSen.style.left = Math.min(100, pctBarra) + "%";
   const gripPct = card.querySelector(".pc-sen-grip-pct");
   gripPct.style.left = Math.min(100, pctBarra) + "%";
   gripPct.textContent = pctLabel.toFixed(1) + "%";
@@ -972,24 +975,27 @@ function attachListenersSenador(E) {
       atualizarCardSenador(idx, E);
       atualizarPainelSenador(E);
     };
-    el.addEventListener("pointerdown", (e) => {
+    // Só arrasta a partir do alvo ampliado da alça (.pc-sen-grip-alvo),
+    // não da barra inteira — mesmo motivo do fader de Deputados/Duelo.
+    const arrastavelSen = el.querySelector(".pc-sen-grip-alvo") || el;
+    arrastavelSen.addEventListener("pointerdown", (e) => {
       if (_senEditAberto) return;
       snapshotPalpite();
       _senDragIdx = idx;
       el.classList.add("ativo");
-      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+      try { arrastavelSen.setPointerCapture(e.pointerId); } catch (_) {}
       clearTimeout(_senTimer);
       mover(e);
     });
-    el.addEventListener("pointermove", (e) => { if (_senDragIdx === idx) mover(e); });
+    arrastavelSen.addEventListener("pointermove", (e) => { if (_senDragIdx === idx) mover(e); });
     const soltar = () => {
       if (_senDragIdx !== idx) return;
       _senDragIdx = null;
       el.classList.remove("ativo");
       concluirGestoSenador();
     };
-    el.addEventListener("pointerup", soltar);
-    el.addEventListener("pointercancel", soltar);
+    arrastavelSen.addEventListener("pointerup", soltar);
+    arrastavelSen.addEventListener("pointercancel", soltar);
   });
 
   // alça mestra — escala proporcional com saturação (FMD, decisão (b)):
@@ -1695,6 +1701,8 @@ function atualizarFaderDep(sl, v, cap, E) {
   const pct = Math.min(100, cap > 0 ? v / cap * 100 : 0);
   sl.querySelector(".pc-sen-fill").style.width = pct + "%";
   sl.querySelector(".pc-sen-grip").style.left = pct + "%";
+  const alvo = sl.querySelector(".pc-sen-grip-alvo");
+  if (alvo) alvo.style.left = pct + "%";
   posicionarVotosDep(sl, v, cap, E);
   // Caixa de votos sobe pro lugar de onde a % ficava (protótipo aprovado
   // 28/08/2026) — atualiza ao vivo durante o arrasto, igual sempre foi
@@ -1758,7 +1766,14 @@ function attachListenersDeputadosFader(E, totalVagas) {
     }
 
     let base = null;
+    // Guarda contra crash real em produção (09/09/2026, erros_cliente:
+    // "null is not an object (evaluating 'base.outrosTotal')"): um
+    // re-render no meio do gesto troca os elementos e recria este
+    // closure com `base` ainda null, mas a flag global _depDragKey (do
+    // gesto anterior) ainda casa com a mesma `key` — pointermove chamava
+    // mover() sem nunca ter passado pelo pointerdown que preenche `base`.
     const mover = (e) => {
+      if (!base) return;
       const r = sl.getBoundingClientRect();
       const frac = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
       const card = sl.closest(".pc-dep-card");
@@ -1795,7 +1810,14 @@ function attachListenersDeputadosFader(E, totalVagas) {
       }
       atualizarHeaderDeputados(E);
     };
-    sl.addEventListener("pointerdown", (e) => {
+    // Alça de arrasto: pro fader de candidato (não o do partido), o gesto
+    // só começa no alvo ampliado da alça (.pc-sen-grip-alvo, ~44px), não
+    // na barra inteira — senão rolar a tela passando o dedo pela barra
+    // arrastava o voto sem querer (pedido do usuário, 09/09/2026; a barra
+    // do partido continua como estava, é maior e tem uma dinâmica própria
+    // com a plaqueta .pc-dep-grip-plq).
+    const arrastavel = ehPartido ? sl : (sl.querySelector(".pc-sen-grip-alvo") || sl);
+    arrastavel.addEventListener("pointerdown", (e) => {
       if (_depEditAberto) return;
       snapshotPalpite();
       if (ehPartido) {
@@ -1817,11 +1839,11 @@ function attachListenersDeputadosFader(E, totalVagas) {
       }
       _depDragKey = key;
       sl.classList.add("ativo");
-      try { sl.setPointerCapture(e.pointerId); } catch (_) {}
+      try { arrastavel.setPointerCapture(e.pointerId); } catch (_) {}
       clearTimeout(_depTimer);
       mover(e);
     });
-    sl.addEventListener("pointermove", (e) => { if (_depDragKey === key) mover(e); });
+    arrastavel.addEventListener("pointermove", (e) => { if (_depDragKey === key) mover(e); });
     const soltar = () => {
       if (_depDragKey !== key) return;
       _depDragKey = null;
@@ -1829,8 +1851,8 @@ function attachListenersDeputadosFader(E, totalVagas) {
       sl.classList.remove("ativo");
       concluirGestoDeputados();
     };
-    sl.addEventListener("pointerup", soltar);
-    sl.addEventListener("pointercancel", soltar);
+    arrastavel.addEventListener("pointerup", soltar);
+    arrastavel.addEventListener("pointercancel", soltar);
   });
 
   // Setas de ajuste fino nas pontas da barra do candidato (protótipo
