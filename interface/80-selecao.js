@@ -1374,7 +1374,6 @@ function renderFaixaVagasAbertas(totalVagasCargo) {
         <span class="pc-fva-sigla">${nomePartidoExibicao(l.partido)}</span>
         <span class="pc-fva-qual">${l.cadeira}\u00aa \u00b7 ${l.qual}</span>
         <button type="button" class="pc-fva-conf" data-pc-fva-conf="${escaparAtributoHtml(l.partido)}"${l.perde ? ` data-pc-fva-perde="${escaparAtributoHtml(l.perde.partido)}"` : ""} title="${l.perde ? `Confirma ${l.nome} e desmarca ${l.perde.nome} (${l.perde.partido}), que hoje segura a vaga sem respaldo do voto` : `Confirmar: marca ${l.nome} como eleito (sobe 1 vaga no box do partido)`}">${iconeSvg("confere", 13)}</button>
-        <button type="button" class="pc-fva-ir" data-pc-fva-ir="${escaparAtributoHtml(l.partido)}" title="Abrir o card do partido">${iconeSvg("setaDireita", 11)}</button>
       </div>
       <span class="pc-fva-cand"><span class="n">${l.nome}</span><span class="v">${l.votos.toLocaleString("pt-BR")} votos \u00b7 pr\u00f3ximo da fila</span>${l.perde ? `<span class="perde">no lugar de ${l.perde.nome} (${nomePartidoExibicao(l.perde.partido)}) \u2014 marcado sem respaldo do voto atual</span>` : ""}</span>
     </div>`).join("");
@@ -1390,7 +1389,7 @@ function renderFaixaVagasAbertas(totalVagasCargo) {
       <div class="pc-fva-corpo${aberta ? " aberto" : ""}" id="pcFvaCorpo">
         <div class="pc-fva-corpo-int">
           ${linhas}
-          <div class="pc-fva-nota"><b>QP</b> = vaga pelo quociente partid\u00e1rio \u00b7 <b>N\u00aa M</b> = rodada da sobra (m\u00e9dia) \u00b7 o nome \u00e9 o candidato mais votado ainda sem marca\u00e7\u00e3o naquele partido \u2014 a setinha abre o card.</div>
+          <div class="pc-fva-nota"><b>QP</b> = vaga pelo quociente partid\u00e1rio \u00b7 <b>N\u00aa M</b> = rodada da sobra (m\u00e9dia) \u00b7 o nome \u00e9 o candidato mais votado ainda sem marca\u00e7\u00e3o naquele partido.</div>
         </div>
       </div>
     </div>`;
@@ -3374,18 +3373,6 @@ function attachListenersSelecao() {
         agendarReordenacaoSuave(null, 1200);
         agendarAutoSaveRascunho(pcState.cargoAtivo, pcState.palpiteEdicao);
         renderCargoEstadual();
-        return;
-      }
-      const ir = ev.target.closest("[data-pc-fva-ir]");
-      if (ir) {
-        ev.stopPropagation();
-        const nomeP = ir.getAttribute("data-pc-fva-ir");
-        pcState.expandido["faderAberto_" + pcState.cargoAtivo + "_" + nomeP] = true;
-        renderCargoEstadual();
-        setTimeout(() => {
-          const card = document.querySelector(`[data-dep-nome="${(window.CSS && CSS.escape) ? CSS.escape(nomeP) : nomeP}"]`);
-          if (card) card.scrollIntoView({ behavior: "smooth", block: "start" });
-        }, 80);
         return;
       }
       const chave = "faixaVagas_" + pcState.cargoAtivo;
