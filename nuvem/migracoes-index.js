@@ -1227,5 +1227,16 @@ const MIGRACOES_INDEX = [
     "admin_resolver_erro_cliente"
    ]
   ]
+ },
+ {
+  "num": 51,
+  "arquivo": "migracao-51-listar-meus-desafios.sql",
+  "descricao": "============================================================",
+  "objetos": [
+   [
+    "function",
+    "listar_meus_desafios"
+   ]
+  ]
  }
 ];

@@ -46,14 +46,14 @@ async function listarMeusDesafios() {
   // Lembrete de duelo parado (migração 41): 3 dias sem aceite → sino do
   // criador; roda "preguiçoso" aqui pelo mesmo motivo da expiração.
   try { await _comLimiteDeTempo(supabaseClient.rpc("lembrar_meus_desafios_parados"), 8000, "lembrete de duelo parado"); } catch (_) { /* migração 41 ainda não rodada, ou travou — segue sem bloquear a tela */ }
-  // Colunas explícitas, SEM as de voto/plenário — a migração 38 revogou o
-  // SELECT direto delas (voto oculto é oculto de verdade); quem precisa
-  // dos votos usa desafioDetalhe abaixo. select("*") aqui quebraria com
-  // "permission denied" pra qualquer usuário.
-  const { data, error } = await supabaseClient
-    .from("desafios")
-    .select("id, criador_id, desafiado_id, nome, estado, cargo, codigo, status, custo_sl, tipo_disputa, votos_visiveis, escopo_candidatos, pontos_criador, pontos_desafiado, vencedor_id, criado_em, respondido_em, expira_em, modelo_de, criador:criador_id(nome), desafiado:desafiado_id(nome)")
-    .order("criado_em", { ascending: false });
+  // Migração 51 (08/09/2026): a lista vem de uma função do servidor, não
+  // da tabela direto. Motivo: o embed criador:criador_id(nome)/
+  // desafiado:desafiado_id(nome) vinha VAZIO pro outro lado — "perfis" só
+  // deixa cada um ler a própria linha — e o adversário aparecia como "?"
+  // no hub (achado do usuário). A função devolve as mesmas colunas de
+  // antes (sem voto/plenário, regra da migração 38) + os dois nomes, no
+  // mesmo formato { criador: {nome}, desafiado: {nome} }.
+  const { data, error } = await supabaseClient.rpc("listar_meus_desafios");
   if (error) { console.error("Erro ao listar desafios:", error); return []; }
   // Migração 48: convite aberto é um MOLDE — cada aceite vira um duelo
   // novo com modelo_de apontando pro molde. Conta os aceites aqui (os
