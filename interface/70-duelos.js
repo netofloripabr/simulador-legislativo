@@ -68,40 +68,65 @@ async function _renderDesafiosHubCorpo(conteudo) {
     const pontosOutro = souCriador ? d.pontos_desafiado : d.pontos_criador;
     const venci = d.vencedor_id && d.vencedor_id === meuId;
     const destacado = pcState.desafioDestacadoId && d.id === pcState.desafioDestacadoId;
+    // Cartão v2 (protótipo aprovado pelo usuário, 08/09/2026): os dois
+    // lados com o mesmo peso — reaproveita o pódio da tela de vitória
+    // (.pc-podio-*), avatar grande de cada lado e "VS" no meio; nome do
+    // rival não é mais cortado. Contexto (UF · cargo · via convite) vira
+    // uma linha pequena acima do título, que perde as aspas. Cada lado diz
+    // o próprio estado (cédula selada / placar / quem aceitou).
+    const outroVenceu = !!d.vencedor_id && d.vencedor_id !== meuId;
+    const cargoRot = (CARGOS.find((c) => c.id === d.cargo) || {}).label || d.cargo || "";
+    const contexto = `${d.estado} · ${cargoRot}${d.modelo_de ? " · via convite" : ""}`;
+    const fmtPts = (n) => Number(n).toLocaleString("pt-BR");
+    const dataBr = (iso) => new Date(iso).toLocaleDateString("pt-BR");
+    const subEu = encerradoComPontos
+      ? `<div class="pc-podio-pts${venci ? " venceu" : ""}">${fmtPts(meusPontos)}<i> pts</i></div>`
+      : `<div class="pc-podio-sub">${pendenteRecebido ? "falta a sua cédula" : "cédula selada"}</div>`;
+    const subOutro = encerradoComPontos
+      ? `<div class="pc-podio-pts${outroVenceu ? " venceu" : ""}">${fmtPts(pontosOutro)}<i> pts</i></div>`
+      : `<div class="pc-podio-sub">${dueloAberto
+          ? (!d.aceites ? "ninguém aceitou ainda" : d.aceites === 1 ? "1 pessoa já aceitou" : d.aceites + " pessoas já aceitaram")
+          : (pendenteEnviado ? "ainda não respondeu" : "cédula selada")}</div>`;
+    let rodape = "";
+    if (dueloAberto) rodape = `<span>criado em ${dataBr(d.criado_em)} · vale até você cancelar</span>`;
+    else if (pendenteEnviado) rodape = `<span>enviado em ${dataBr(d.criado_em)}</span><span>expira ${dataBr(d.expira_em)}</span>`;
+    else if (pendenteRecebido) rodape = `<span>recebido em ${dataBr(d.criado_em)}</span><span>expira ${dataBr(d.expira_em)}</span>`;
+    else if (d.status === "selado" || d.status === "apuracao") rodape = `<span>selado em ${dataBr(d.respondido_em || d.criado_em)}</span><span>aguardando a apuração</span>`;
+    else if (d.status === "encerrado") rodape = `<span>selado em ${dataBr(d.respondido_em || d.criado_em)}</span><span>resultado apurado</span>`;
+    else rodape = `<span>${dataBr(d.respondido_em || d.criado_em)}</span><span>${d.estado}</span>`;
+    const setaSvg = '<svg viewBox="0 0 16 16" width="11" height="11"><path d="M6 3.5L10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
     return `
     <div class="pc-duelo-card"${destacado ? ' id="pcDesafioDestacado" style="outline:2px solid var(--pc-accent); outline-offset:2px;"' : ""}>
-      <div class="pc-duelo-cab">
-        <span class="pc-duelo-nome">"${_nomeDueloLimpo(d.nome)}"${pendenteEnviado ? ` <span style="color:var(--pc-ink-dim); font-weight:600;">· você desafiou</span>` : ""}</span>
+      <div class="pc-duelo-cab" style="margin-bottom:0;">
+        <span class="pc-duelo-eyebrow">${contexto}</span>
         ${encerradoComPontos ? `<span class="${venci ? "pc-chip-verde" : "pc-chip-neutro"}">${venci ? "vitória" : "derrota"}</span>` : _chipStatusDesafio(d.status)}
       </div>
-      <div class="pc-duelo-duo">
-        <span class="pc-duelo-lado">
-          <span class="pc-duelo-avatar ${souCriador ? "eu" : ""}">${_iniciaisNome(euNome)}</span>
-          <span class="pc-duelo-tx"><span class="pc-duelo-p">${souCriador ? "Você" : euNome}</span><span class="pc-duelo-c">${encerradoComPontos ? Number(meusPontos).toLocaleString("pt-BR") + " pts" : ""}</span></span>
-        </span>
-        <span class="pc-duelo-vs">VS</span>
-        <span class="pc-duelo-lado dir">
-          <span class="pc-duelo-avatar">${outroIniciais}</span>
-          <span class="pc-duelo-tx"><span class="pc-duelo-p">${outroNome}</span><span class="pc-duelo-c">${encerradoComPontos ? Number(pontosOutro).toLocaleString("pt-BR") + " pts" : (pendenteRecebido ? d.estado : "")}</span></span>
-        </span>
+      <div class="pc-duelo-titulo">${_nomeDueloLimpo(d.nome)}${pendenteEnviado && !dueloAberto ? ` <span style="color:var(--pc-ink-dim); font-weight:600;">· você desafiou</span>` : ""}</div>
+      <div class="pc-podio pc-duelo-podio">
+        <div class="pc-podio-lado">
+          <div class="pc-podio-av eu${venci ? " venceu" : ""}">${_iniciaisNome(euNome)}</div>
+          <div class="pc-podio-nm">Você</div>
+          ${subEu}
+        </div>
+        <div class="pc-podio-vs">VS</div>
+        <div class="pc-podio-lado">
+          <div class="pc-podio-av${outroVenceu ? " venceu" : ""}${dueloAberto ? " aberto" : ""}">${dueloAberto ? "?" : outroIniciais}</div>
+          <div class="pc-podio-nm${dueloAberto ? " dim" : ""}">${dueloAberto ? "quem aceitar" : outroNome}</div>
+          ${subOutro}
+        </div>
       </div>
+      <div class="pc-duelo-rodape">${rodape}</div>
       ${pendenteRecebido ? `
       <div class="pc-duelo-acoes">
         <button class="primary" data-pc-aceitar="${d.id}" style="flex:1;">Aceitar</button>
         <button class="ghost" data-pc-recusar="${d.id}" style="flex:1;">Recusar</button>
       </div>` : ""}
-      ${pendenteEnviado ? `
-      <div class="pc-duelo-rodape">
-        <span>${dueloAberto ? "convite aberto" : "enviado"} ${new Date(d.criado_em).toLocaleDateString("pt-BR")} · ${dueloAberto ? "vale até você cancelar" : "expira " + new Date(d.expira_em).toLocaleDateString("pt-BR")}</span>
-      </div>
-      ${dueloAberto ? `<div class="pc-duelo-rodape"><span>${!d.aceites ? "ninguém aceitou ainda" : d.aceites === 1 ? "1 pessoa já aceitou" : d.aceites + " pessoas já aceitaram"}</span></div>` : ""}
       ${dueloAberto ? `
       <div class="pc-duelo-acoes">
-        <button class="primary" data-pc-duelo-cartao="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" data-pc-duelo-cargo="${d.cargo}" data-pc-duelo-ncand="${(d.escopo_candidatos || []).length}" data-pc-duelo-uf="${d.estado}" title="Enviar o convite" style="flex:1; display:flex; align-items:center; justify-content:center; padding:9px;">${iconeSvg("compartilhar", 15)}</button>
+        <button class="primary" data-pc-duelo-cartao="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" data-pc-duelo-cargo="${d.cargo}" data-pc-duelo-ncand="${(d.escopo_candidatos || []).length}" data-pc-duelo-uf="${d.estado}" title="Enviar o convite" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:9px;">${iconeSvg("compartilhar", 15)} Enviar convite</button>
         <button class="ghost" data-pc-cancelar="${d.id}" title="Cancelar${d.custo_sl ? ` e recuperar ${d.custo_sl} SL` : ""}" style="font-size:16px; line-height:1; padding:9px 12px;">×</button>
-      </div>` : ""}` : ""}
-      ${(d.status === "selado" || d.status === "apuracao") ? `<div class="pc-duelo-rodape"><span>selado em ${new Date(d.respondido_em || d.criado_em).toLocaleDateString("pt-BR")}${d.modelo_de ? " · via convite" : ""}</span><span>${d.estado}</span></div>` : ""}
-      ${["selado", "apuracao", "encerrado"].includes(d.status) ? `<div class="pc-duelo-acoes"><button class="ghost" data-pc-comparar="${d.id}" style="flex:1; font-size:11.5px;">Ver comparação</button></div>` : ""}
+      </div>` : ""}
+      ${["selado", "apuracao", "encerrado"].includes(d.status) ? `<div class="pc-duelo-acoes"><button class="ghost" data-pc-comparar="${d.id}" style="flex:1; font-size:11.5px; display:flex; align-items:center; justify-content:center; gap:6px;">Ver comparação ${setaSvg}</button></div>` : ""}
     </div>`;
   };
 

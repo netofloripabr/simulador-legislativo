@@ -231,66 +231,76 @@ function gerarImagemCardVitoria({ nomeVencedor, nomePerdedor, ptsV, ptsP, nomeDu
   return canvas;
 }
 
+// Cartão QUADRADO (1080×1080) desde 08/09/2026: o formato 4:5 anterior
+// era cortado pelo WhatsApp na própria conversa (o preview mostra um
+// quadro ~1:1 e corta o topo, com a marca, e o rodapé — achado do usuário
+// com print). Tudo o que importa cabe dentro do quadrado; nada fica pra
+// fora do que a pessoa vê sem tocar na imagem. Nome do duelo sem aspas
+// (o hub também não usa mais; aspas digitadas no nome viravam ""…"").
 function gerarImagemConviteDuelo({ nomeCriador, nomeDuelo, infoRecorte }) {
-  const W = 1080, H = 1350;
+  const W = 1080, H = 1080;
   const canvas = document.createElement("canvas");
   canvas.width = W; canvas.height = H;
   const ctx = canvas.getContext("2d");
 
-  const fundo = ctx.createRadialGradient(W / 2, -160, 0, W / 2, -160, H * 0.95);
+  const fundo = ctx.createRadialGradient(W / 2, -160, 0, W / 2, -160, H * 1.05);
   fundo.addColorStop(0, "#1B1E22"); fundo.addColorStop(0.52, "#101214"); fundo.addColorStop(1, "#0C0E10");
   ctx.fillStyle = fundo; ctx.fillRect(0, 0, W, H);
 
-  const cy = H / 2;
-  ctx.font = "800 44px Inter, sans-serif";
+  ctx.font = "800 40px Inter, sans-serif";
   const wSim = ctx.measureText("Simula").width, wLeg = ctx.measureText("LEGIS").width;
   const xm = W / 2 - (wSim + wLeg) / 2;
   ctx.textAlign = "left";
-  ctx.fillStyle = "#34E84A"; ctx.fillText("Simula", xm, 120);
-  ctx.fillStyle = "#F2F4F5"; ctx.fillText("LEGIS", xm + wSim, 120);
+  ctx.fillStyle = "#34E84A"; ctx.fillText("Simula", xm, 96);
+  ctx.fillStyle = "#F2F4F5"; ctx.fillText("LEGIS", xm + wSim, 96);
   ctx.textAlign = "center"; ctx.fillStyle = "#5C6268";
-  ctx.font = "800 20px Inter, sans-serif";
-  ctx.fillText("S I M U L A D O R   E L E I T O R A L   L E G I S L A T I V O   2 0 2 6", W / 2, 158);
+  ctx.font = "800 18px Inter, sans-serif";
+  ctx.fillText("S I M U L A D O R   E L E I T O R A L   L E G I S L A T I V O   2 0 2 6", W / 2, 130);
 
-  const seloY = cy - 400;
+  const seloY = 182;
   ctx.strokeStyle = "rgba(52,232,74,.5)"; ctx.lineWidth = 3;
   ctx.fillStyle = "rgba(52,232,74,.08)";
-  ctx.beginPath(); ctx.roundRect(W / 2 - 170, seloY, 340, 86, 43); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = "#34E84A"; ctx.font = "800 26px Inter, sans-serif";
-  ctx.fillText("D U E L O", W / 2, seloY + 38);
-  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 34px Inter, sans-serif";
-  ctx.fillText("1 × 1", W / 2, seloY + 72);
+  ctx.beginPath(); ctx.roundRect(W / 2 - 160, seloY, 320, 80, 40); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = "#34E84A"; ctx.font = "800 24px Inter, sans-serif";
+  ctx.fillText("D U E L O", W / 2, seloY + 35);
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 32px Inter, sans-serif";
+  ctx.fillText("1 × 1", W / 2, seloY + 67);
 
-  const avY = cy - 130, avR = 110, gapAv = 250;
+  const avY = 460, avR = 100, gapAv = 240;
   ctx.fillStyle = "#101214"; ctx.strokeStyle = "#34E84A"; ctx.lineWidth = 6;
   ctx.beginPath(); ctx.arc(W / 2 - gapAv, avY, avR, 0, 7); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = "#34E84A"; ctx.font = "800 88px Inter, sans-serif";
-  ctx.fillText((nomeCriador || "?")[0].toUpperCase(), W / 2 - gapAv, avY + 32);
+  ctx.fillStyle = "#34E84A"; ctx.font = "800 80px Inter, sans-serif";
+  ctx.fillText((nomeCriador || "?")[0].toUpperCase(), W / 2 - gapAv, avY + 29);
   ctx.fillStyle = "#101214"; ctx.strokeStyle = "#4D545C"; ctx.setLineDash([14, 10]);
   ctx.beginPath(); ctx.arc(W / 2 + gapAv, avY, avR, 0, 7); ctx.fill(); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle = "#8A9096"; ctx.font = "800 96px Inter, sans-serif";
-  ctx.fillText("?", W / 2 + gapAv, avY + 36);
-  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 64px Inter, sans-serif";
-  ctx.fillText("VS", W / 2, avY + 24);
-  ctx.font = "800 40px Inter, sans-serif";
-  ctx.fillText(nomeCriador, W / 2 - gapAv, avY + avR + 66);
+  ctx.fillStyle = "#8A9096"; ctx.font = "800 88px Inter, sans-serif";
+  ctx.fillText("?", W / 2 + gapAv, avY + 33);
+  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 56px Inter, sans-serif";
+  ctx.fillText("VS", W / 2, avY + 21);
+  ctx.font = "800 36px Inter, sans-serif";
+  ctx.fillText(nomeCriador, W / 2 - gapAv, avY + avR + 58);
   ctx.fillStyle = "#8A9096";
-  ctx.fillText("Você?", W / 2 + gapAv, avY + avR + 66);
+  ctx.fillText("Você?", W / 2 + gapAv, avY + avR + 58);
 
-  ctx.fillStyle = "#F2F4F5"; ctx.font = "800 58px Inter, sans-serif";
-  ctx.fillText('"' + nomeDuelo + '"', W / 2, cy + 180);
-  ctx.fillStyle = "#8A9096"; ctx.font = "400 30px Inter, sans-serif";
-  ctx.fillText(infoRecorte, W / 2, cy + 232);
-
-  ctx.fillStyle = "#34E84A"; ctx.font = "800 46px Inter, sans-serif";
-  ctx.fillText("Tem coragem de encarar?", W / 2, cy + 330);
+  // Título: sem aspas, e encolhe até caber na largura (nome longo não
+  // pode estourar o quadrado).
+  const titulo = typeof _nomeDueloLimpo === "function" ? _nomeDueloLimpo(nomeDuelo) : String(nomeDuelo || "");
+  let fsTitulo = 52;
+  ctx.fillStyle = "#F2F4F5"; ctx.font = `800 ${fsTitulo}px Inter, sans-serif`;
+  while (ctx.measureText(titulo).width > W - 120 && fsTitulo > 30) { fsTitulo -= 2; ctx.font = `800 ${fsTitulo}px Inter, sans-serif`; }
+  ctx.fillText(titulo, W / 2, 730);
   ctx.fillStyle = "#8A9096"; ctx.font = "400 28px Inter, sans-serif";
-  ctx.fillText("Meu palpite já está travado. Toque no link,", W / 2, cy + 384);
-  ctx.fillText("indique o seu e o duelo fica selado até a apuração.", W / 2, cy + 422);
+  ctx.fillText(infoRecorte, W / 2, 776);
 
-  ctx.fillStyle = "#5C6268"; ctx.font = "700 24px Inter, sans-serif";
-  ctx.fillText("quem chegar mais perto do resultado real vence", W / 2, H - 70);
+  ctx.fillStyle = "#34E84A"; ctx.font = "800 44px Inter, sans-serif";
+  ctx.fillText("Tem coragem de encarar?", W / 2, 862);
+  ctx.fillStyle = "#8A9096"; ctx.font = "400 26px Inter, sans-serif";
+  ctx.fillText("Meu palpite já está travado. Toque no link,", W / 2, 910);
+  ctx.fillText("indique o seu e o duelo fica selado até a apuração.", W / 2, 946);
+
+  ctx.fillStyle = "#5C6268"; ctx.font = "700 22px Inter, sans-serif";
+  ctx.fillText("quem chegar mais perto do resultado real vence", W / 2, H - 44);
   return canvas;
 }
 
