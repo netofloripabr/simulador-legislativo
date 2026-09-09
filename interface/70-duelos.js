@@ -202,7 +202,12 @@ async function _renderDesafiosHubCorpo(conteudo) {
     const ufSigla = btn.getAttribute("data-pc-duelo-uf") || pcState.estado;
     const nomeEstado = ((ESTADOS_BRASIL.find((e) => e.sigla === ufSigla) || {}).nome) || ufSigla;
     const infoRecorte = [cargoInfo.label, nCand ? nCand + " candidatos" : null, nomeEstado].filter(Boolean).join(" \u00b7 ");
-    const texto = `*PITACO*\n\nTe convido para o palpite eleitoral 2026 "${_nomeDueloLimpo(nomeDuelo)}".\n\n${_linkDuelo(btn.getAttribute("data-pc-duelo-cartao"))}\n\n\n\u26a0\ufe0f Este \u00e9 apenas um mini recorte do sistema.\n\nAo acess\u00e1-lo e *criar a pr\u00f3pria lista*, voc\u00ea encontrar\u00e1 uma ferramenta poderosa para ajudar a projetar o resultado eleitoral 2026. Com a cria\u00e7\u00e3o da lista voc\u00ea tem o aux\u00edlio de informa\u00e7\u00f5es eleitorais de 2022 como par\u00e2metro e matem\u00e1tica eleitoral real.\n\nO sistema \u00e9 *GR\u00c1TIS* e ideal para quem planeja a campanha ou para passar o tempo.`;
+    // Texto do convite (reescrito 09/09/2026 \u2014 o anterior liderava com
+    // "PITACO" sem contexto, jogava o link antes de explicar qualquer
+    // coisa, e nunca dizia o mecanismo do duelo. Reescrita revisada e
+    // aprovada pelo usu\u00e1rio linha por linha; n\u00e3o reformular sem pedido
+    // dele \u2014 ver conversa de 09/09/2026).
+    const texto = `Bora dar um PITACO na elei\u00e7\u00e3o legislativa 2026?\n\nJ\u00e1 fechei o meu palpite - "${_nomeDueloLimpo(nomeDuelo)}". Agora te convido para montar o seu (5min., sem precisar de cadastro). Quando sair o resultado oficial \u2014 quem chegar mais perto, vence.\n\n${_linkDuelo(btn.getAttribute("data-pc-duelo-cartao"))}\n\nO Pitaco \u00e9 apenas um recorte do sistema. Criando sua conta (gr\u00e1tis) voc\u00ea libera o app com ferramentas poderosas para projetar o resultado eleitoral do legislativo 2026:\n\n* Monte sua lista completa \u2014 (Estadual, Federal e Senador)\n* Matem\u00e1tica real da elei\u00e7\u00e3o (quociente, sobras, tudo)\n* Term\u00f4metro Eleitoral \u2014 a mediana dos palpites, atualizada em tempo real\n* Duelo 1\u00d71 (Pitaco) \u2014 desafie qualquer amigo, n\u00e3o s\u00f3 quem te convidou\n* Grupos \u2014 compare sua lista com uma galera inteira, n\u00e3o s\u00f3 1\u00d71\n\n\n*\u00c9 GR\u00c1TIS*`;
     const canvas = gerarImagemConviteDuelo({ nomeCriador: (pcState.perfil && pcState.perfil.nome) || "Eu", nomeDuelo, infoRecorte });
     const dataUrl = canvas.toDataURL("image/png");
     if (_ehDispositivoMovel() && navigator.share && navigator.canShare) {

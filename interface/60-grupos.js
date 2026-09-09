@@ -95,7 +95,10 @@ async function renderGrupoHub() {
   const btnCopiarConvite = document.getElementById("pcBtnCopiarConvite");
   if (btnCopiarConvite) {
     const linkConvite = window.location.origin + window.location.pathname + "?conv=" + pcState.perfil.codigo_convite;
-    const textoConvite = `*PITACO*\n\nTe convido para o palpite eleitoral 2026.\n\n${linkConvite}\n\n\n⚠️ Este é apenas um mini recorte do sistema.\n\nAo acessá-lo e *criar a própria lista*, você encontrará uma ferramenta poderosa para ajudar a projetar o resultado eleitoral 2026. Com a criação da lista você tem o auxílio de informações eleitorais de 2022 como parâmetro e matemática eleitoral real.\n\nO sistema é *GRÁTIS* e ideal para quem planeja a campanha ou para passar o tempo.`;
+    // Mesmo texto revisado do convite de duelo (09/09/2026), adaptado —
+    // este é o link de indicação genérico (sem duelo nomeado), então sem
+    // a linha "já fechei meu palpite pra X". Ver interface/70-duelos.js.
+    const textoConvite = `Bora dar um PITACO na eleição legislativa 2026?\n\nSimulador grátis: você monta o seu palpite pra Estadual, Federal e Senador com a matemática real da eleição (quociente, sobras, tudo), usando a votação de 2022 como base.\n\n${linkConvite}\n\nFerramentas que você libera ao criar sua conta (grátis):\n\n* Monte sua lista completa — (Estadual, Federal e Senador)\n* Matemática real da eleição (quociente, sobras, tudo)\n* Termômetro Eleitoral — a mediana dos palpites, atualizada em tempo real\n* Duelo 1×1 (Pitaco) — desafie qualquer amigo\n* Grupos — compare sua lista com uma galera inteira\n\n\n*É GRÁTIS*`;
     btnCopiarConvite.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(linkConvite);
