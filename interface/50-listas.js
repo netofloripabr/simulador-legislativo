@@ -1096,6 +1096,20 @@ function mostrarStatusSalvamento(msg) {
 // (pra fechar o modal de nome) e só DEPOIS disso a mensagem tem uma caixa
 // de status nova pra aparecer; mostrar aqui seria apagado pelo re-render
 // logo em seguida.
+// "TypeError: Load failed" (Safari/iOS) e "Failed to fetch" (Chrome) são a
+// forma técnica do navegador dizer "a chamada de rede não completou" —
+// geralmente sinal fraco/instável, não um bug. Mostrar isso cru pra quem
+// não programa não ajuda (achado do usuário, 09/09/2026, print de erro
+// "TypeError: Load failed" ao salvar com 1 barra de sinal). O botão
+// Salvar continua ali pra tentar de novo — não precisa de retry automático.
+function textoErroSalvar(error) {
+  const msg = String(error?.message || error || "");
+  if (/load failed|failed to fetch|network ?error|networkerror/i.test(msg)) {
+    return "Sem conexão no momento — verifique o sinal e toque em Salvar de novo.";
+  }
+  return "Erro ao salvar: " + msg;
+}
+
 async function executarSalvarLista({ manterTela = false } = {}) {
   // Guarda ANTES de qualquer escrita — as duas ramificações abaixo
   // preenchem pcState.listaSalvaId assim que salvam, então precisa
@@ -1111,11 +1125,11 @@ async function executarSalvarLista({ manterTela = false } = {}) {
   if (pcState.perfil) {
     if (!pcState.listaSalvaId) {
       const { data, error } = await salvarSalvamento(pcState.perfil.id, pcState.estado, pcState.listaSalvaNome, pcState.palpitesPorCargo);
-      if (error) { mostrarStatusSalvamento("Erro ao salvar: " + error.message); return false; }
+      if (error) { mostrarStatusSalvamento(textoErroSalvar(error)); return false; }
       pcState.listaSalvaId = data.id;
     } else {
       const { error } = await atualizarSalvamento(pcState.listaSalvaId, pcState.palpitesPorCargo);
-      if (error) { mostrarStatusSalvamento("Erro ao salvar: " + error.message); return false; }
+      if (error) { mostrarStatusSalvamento(textoErroSalvar(error)); return false; }
     }
   } else {
     pcState.listaSalvaId = pcState.listaSalvaId || gerarIdLista();
@@ -1131,7 +1145,7 @@ async function executarSalvarLista({ manterTela = false } = {}) {
   // tabela separada, 1 linha por pessoa, não mexe com "salvamentos".
   if (pcState.perfil) {
     const { error } = await salvarPalpiteCompleto(pcState.perfil.id, pcState.palpiteEdicao);
-    if (error) { mostrarStatusSalvamento("Erro ao salvar: " + error.message); return false; }
+    if (error) { mostrarStatusSalvamento(textoErroSalvar(error)); return false; }
     if (manterTela) return true;
     // A tela "Sua lista foi salva" (renderDepositoConfirmado) é a
     // recepção de PRIMEIRA vez — convite pra convidar amigos, criar
