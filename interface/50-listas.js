@@ -1070,7 +1070,7 @@ function mostrarStatusSalvamento(msg) {
   pcState._statusSalvamentoMsg = msg; // o modal de slots lê isso na falha
   const el = document.getElementById("pcDepositoStatus") || document.getElementById("pcSelecaoStatus");
   if (el) {
-    el.textContent = msg;
+    el.innerHTML = msg; // textoErroSalvar já devolve o texto escapado (ou o bloco fixo do ícone de sem sinal)
     // Entrada suave (08/09/2026) — antes o texto só "pipocava" na tela.
     // Precisa tirar e repor a classe (com um reflow no meio) pra reiniciar
     // a animação quando duas mensagens seguidas usam a mesma classe.
@@ -1105,9 +1105,9 @@ function mostrarStatusSalvamento(msg) {
 function textoErroSalvar(error) {
   const msg = String(error?.message || error || "");
   if (/load failed|failed to fetch|network ?error|networkerror/i.test(msg)) {
-    return "Sem conexão no momento — verifique o sinal e toque em Salvar de novo.";
+    return `<span class="pc-erro-rede"><span class="pc-erro-rede-ic">${iconeSvg("semSinal", 22)}</span><span class="pc-erro-rede-tx">Sem sinal</span></span>`;
   }
-  return "Erro ao salvar: " + msg;
+  return escaparAtributoHtml("Erro ao salvar: " + msg);
 }
 
 async function executarSalvarLista({ manterTela = false } = {}) {

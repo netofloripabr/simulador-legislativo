@@ -3894,7 +3894,7 @@ function attachListenersSelecao() {
       const ok = await executarSalvarLista({ manterTela: true });
       if (ok) {
         await renderCargoEstadual();
-        mostrarStatusSalvamento(`Salvo em "${nome}". Pode continuar editando.`);
+        mostrarStatusSalvamento(`Salvo em "${escaparAtributoHtml(nome)}". Pode continuar editando.`);
       } else {
         // Falha (rede/banco): sem isto o modal ficava congelado na tela
         // sem nenhuma mensagem — o clique parecia morto (achado do
@@ -3904,7 +3904,7 @@ function attachListenersSelecao() {
         pcState._destinoSelecionado = id;
         await renderCargoEstadual();
         const erroEl = document.getElementById("pcErroDestino");
-        if (erroEl) erroEl.textContent = pcState._statusSalvamentoMsg || "Não consegui salvar — confira a conexão e tente de novo.";
+        if (erroEl) erroEl.innerHTML = pcState._statusSalvamentoMsg || "Não consegui salvar — confira a conexão e tente de novo.";
       }
     };
     const confirmarDestino = async () => {
@@ -3940,14 +3940,14 @@ function attachListenersSelecao() {
         const ok = await executarSalvarLista({ manterTela: true });
         if (ok) {
           await renderCargoEstadual();
-          mostrarStatusSalvamento(`Lista "${nome}" salva. Pode continuar editando.`);
+          mostrarStatusSalvamento(`Lista "${escaparAtributoHtml(nome)}" salva. Pode continuar editando.`);
         } else {
           pcState.modalSalvarDestinoAberto = true;
           pcState._destinoSelecionado = "novo";
           pcState._destinoNomeDigitado = nome;
           await renderCargoEstadual();
           const erroEl = document.getElementById("pcErroDestino");
-          if (erroEl) erroEl.textContent = pcState._statusSalvamentoMsg || "Não consegui salvar — confira a conexão e tente de novo.";
+          if (erroEl) erroEl.innerHTML = pcState._statusSalvamentoMsg || "Não consegui salvar — confira a conexão e tente de novo.";
         }
         return;
       }

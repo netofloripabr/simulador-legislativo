@@ -778,6 +778,14 @@
   #modoColaborativoWrap button:disabled{ opacity:.35; cursor:default; }
   #modoColaborativoWrap .pc-erro{ color: var(--pc-danger); font-size: 12.5px; margin-top: 8px; min-height: 16px; }
   #modoColaborativoWrap .pc-status{ color: var(--pc-accent-2); font-size: 12.5px; margin-top: 8px; min-height: 16px; }
+  /* Falha de rede ao salvar (09/09/2026) — ícone de sinal cortado ao
+     lado da mensagem, ambos centralizados na linha (não é bem um erro
+     do app, é a cor padrão de aviso — laranja, --pc-laranja, mesma da
+     notificação "aviso-cargo"), em vez do texto técnico cru do
+     navegador ("TypeError: Load failed" etc.). */
+  #modoColaborativoWrap .pc-erro-rede{ display:flex; flex-direction:row; align-items:center; justify-content:center; gap:8px; width:100%; padding:4px 0; color:var(--pc-laranja, #FF8A3D); }
+  #modoColaborativoWrap .pc-erro-rede-ic{ display:flex; flex-shrink:0; }
+  #modoColaborativoWrap .pc-erro-rede-tx{ font-weight:700; }
   /* Entrada suave da mensagem de salvar/depositar (08/09/2026) — ver
      mostrarStatusSalvamento(), interface/50-listas.js. */
   @keyframes pc-status-entrada{ from{ opacity:0; transform:translateY(-3px); } to{ opacity:1; transform:none; } }

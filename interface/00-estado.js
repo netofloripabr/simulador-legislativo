@@ -247,6 +247,9 @@ const PC_ICONES = {
   // Sino de notificações — barra superior do Painel.
   sino: '<path d="M4.3 6.7a3.7 3.7 0 017.4 0c0 2.1.55 3.1 1.05 3.7.3.35.05.95-.4.95H3.65c-.45 0-.7-.6-.4-.95.5-.6 1.05-1.6 1.05-3.7z" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linejoin="round"></path><path d="M6.6 13a1.5 1.5 0 002.8 0" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round"></path>',
   cadeadoSlot: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"></rect><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7" fill="none" stroke="currentColor" stroke-width="1.3"></path>',
+  // Sinal cortado (barras de conexão + traço diagonal) — erro de rede ao
+  // salvar (09/09/2026), pra não mostrar mensagem técnica crua.
+  semSinal: '<rect x="1.6" y="10.6" width="2.1" height="3.5" rx=".6" fill="currentColor" opacity=".5"></rect><rect x="5" y="8.3" width="2.1" height="5.8" rx=".6" fill="currentColor" opacity=".5"></rect><rect x="8.4" y="6" width="2.1" height="8.1" rx=".6" fill="currentColor" opacity=".5"></rect><rect x="11.8" y="3.7" width="2.1" height="10.4" rx=".6" fill="currentColor" opacity=".5"></rect><path d="M2 2l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>',
 };
 // Candidatura congelada (desistência / sub judice) — política 21/08/2026:
 // fica no elenco com etiqueta branca antes do nome e a célula travada
