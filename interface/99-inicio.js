@@ -52,6 +52,32 @@ document.addEventListener("keydown", (e) => {
   if (pcState.avisoLimiteCedulaAberto) return fechar(() => { pcState.avisoLimiteCedulaAberto = false; });
 });
 
+// Guarda de reentrada das entradas animadas (08/09/2026). Modais e painéis
+// que entram com @keyframes (css: .pc-overlay-fade, #pcCmdLegendaPainel,
+// #pcTmCoringaOverlay) são recriados do zero por qualquer re-render da
+// tela — e um re-render com o modal já ABERTO (escolher um slot dentro do
+// "Salvar em…", arrastar um voto com a legenda de comandos aberta) fazia a
+// entrada tocar de novo: um "pisca" a cada toque. Este observador roda
+// ANTES da pintura (microtask) e marca com .pc-sem-entrada todo elemento
+// recém-inserido cujo id acabou de sair do DOM no mesmo lote — é o mesmo
+// modal renascendo, não uma abertura nova. Abrir de verdade (id ausente
+// antes) continua animando normalmente.
+(function inicGuardaReentrada() {
+  const SEL = ".pc-overlay-fade[id], #pcCmdLegendaPainel, #pcTmCoringaOverlay";
+  const colher = (nos, para) => nos.forEach((n) => {
+    if (n.nodeType !== 1) return;
+    if (n.matches(SEL)) para.add(n);
+    n.querySelectorAll(SEL).forEach((x) => para.add(x));
+  });
+  new MutationObserver((registros) => {
+    const saidos = new Set(), entrados = new Set();
+    registros.forEach((r) => { colher(r.removedNodes, saidos); colher(r.addedNodes, entrados); });
+    if (!saidos.size || !entrados.size) return;
+    const idsSaidos = new Set([...saidos].map((el) => el.id));
+    entrados.forEach((el) => { if (el.id && idsSaidos.has(el.id)) el.classList.add("pc-sem-entrada"); });
+  }).observe(document.body, { childList: true, subtree: true });
+})();
+
 // Efeito de toque padrão do app inteiro — ver a delegação única em
 // interface/00-estado.js (variante "Combo", aprovada 30/08/2026). Existiu
 // uma segunda implementação aqui (28/08/2026, classe .pc-toque-pressionado)

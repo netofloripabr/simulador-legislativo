@@ -556,6 +556,29 @@ function setaFinoHtml(dataAttr, valor, dir) {
   return `<button type="button" class="pc-seta-fino" ${dataAttr}="${escaparAtributoHtml(valor)}|${dir}" title="${titulo}" aria-label="${titulo}"><svg viewBox="0 0 16 16" width="9" height="9">${glifo}</svg></button>`;
 }
 
+// Abre/fecha um bloco animando a ALTURA REAL (scrollHeight) — padrão único
+// dos abrir/fechar suaves de 08/09/2026 (Plenário, faixa de vagas, card do
+// partido, painel "i"). max-height não anima de/para "auto", então o JS
+// fixa o número exato nas duas pontas; ao terminar, LIMPA o style inline —
+// senão conteúdo que crescer depois (painel financeiro de um candidato,
+// mais uma linha na faixa…) ficaria cortado no valor calculado no clique.
+// A classe .aberto tem um max-height de reserva grande em css/estilo.css,
+// que cobre esse caso e o re-render inteiro (que recria o elemento sem
+// passar por aqui).
+function animarAlturaCorpo(el, abrir) {
+  if (!el) return;
+  clearTimeout(el._pcTimerAltura);
+  el.style.maxHeight = el.scrollHeight + "px";
+  if (abrir) {
+    el.classList.add("aberto");
+  } else {
+    void el.offsetHeight; // força o navegador a "ver" a altura atual antes de mandar pra 0
+    el.style.maxHeight = "0px";
+    el.classList.remove("aberto");
+  }
+  el._pcTimerAltura = setTimeout(() => { el.style.maxHeight = ""; }, 650);
+}
+
 function faderDepHtml(chaveDrag, v, cap, mini) {
   const pct = Math.min(100, cap > 0 ? v / cap * 100 : 0);
   return `

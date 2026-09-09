@@ -2009,18 +2009,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
     // altura, sem recarregar o card — o texto do painel é sempre o mesmo
     // conteúdo estático, não precisa de re-render pra existir.
     b.classList.toggle("aberto", abrindo);
-    const corpo = document.getElementById("pcDepInfoCorpo-" + gi2);
-    if (corpo) {
-      if (abrindo) {
-        corpo.style.maxHeight = corpo.scrollHeight + "px";
-        corpo.classList.add("aberto");
-      } else {
-        corpo.style.maxHeight = corpo.scrollHeight + "px";
-        void corpo.offsetHeight;
-        corpo.style.maxHeight = "0px";
-        corpo.classList.remove("aberto");
-      }
-    }
+    animarAlturaCorpo(document.getElementById("pcDepInfoCorpo-" + gi2), abrindo);
   }));
 
   document.querySelectorAll("[data-dep-toggle]").forEach((h) => h.addEventListener("click", (e) => {
@@ -2035,18 +2024,7 @@ function attachListenersDeputadosFader(E, totalVagas) {
     // candidatos + faders) já nasce sempre presente no DOM — só escondido
     // por altura zero quando fechado — então os próprios controles de
     // arrastar voto continuam funcionando normalmente, aberto ou não.
-    const corpo = document.getElementById("pcDepCorpo-" + gi2);
-    if (corpo) {
-      if (abrindo) {
-        corpo.style.maxHeight = corpo.scrollHeight + "px";
-        corpo.classList.add("aberto");
-      } else {
-        corpo.style.maxHeight = corpo.scrollHeight + "px";
-        void corpo.offsetHeight;
-        corpo.style.maxHeight = "0px";
-        corpo.classList.remove("aberto");
-      }
-    }
+    animarAlturaCorpo(document.getElementById("pcDepCorpo-" + gi2), abrindo);
     document.querySelectorAll(`[data-dep-toggle="${gi2}"]`).forEach((el) => {
       el.classList.toggle("aberto", abrindo);
       if (el.classList.contains("pc-dep-puxador")) el.title = abrindo ? "Recolher candidatos" : "Abrir candidatos";
@@ -3344,20 +3322,7 @@ function attachListenersSelecao() {
       // — pedido do usuário, 08/09/2026: um teto bem maior que o conteúdo
       // real fazia a animação "chegar" quase toda de uma vez no começo e
       // passar o resto do tempo sem nada visível acontecendo.
-      const corpo = document.getElementById("pcPlenarioCorpo");
-      if (corpo) {
-        if (novoCol) {
-          // fechando: primeiro fixa a altura atual (senão não há de onde
-          // a transição partir), só depois manda pra 0.
-          corpo.style.maxHeight = corpo.scrollHeight + "px";
-          void corpo.offsetHeight;
-          corpo.style.maxHeight = "0px";
-          corpo.classList.remove("aberto");
-        } else {
-          corpo.style.maxHeight = corpo.scrollHeight + "px";
-          corpo.classList.add("aberto");
-        }
-      }
+      animarAlturaCorpo(document.getElementById("pcPlenarioCorpo"), !novoCol);
       const seta = btnColapsarPlenario.querySelector("svg");
       if (seta) seta.style.transform = novoCol ? "rotate(-90deg)" : "none";
       btnColapsarPlenario.title = novoCol ? "Expandir" : "Recolher";
@@ -3429,18 +3394,7 @@ function attachListenersSelecao() {
       // Mesmo padrão do Plenário (08/09/2026): só alterna classe + altura
       // real do conteúdo, sem re-render da tela inteira, pra CSS animar
       // em vez de trocar na hora.
-      const corpo = document.getElementById("pcFvaCorpo");
-      if (corpo) {
-        if (novaAberta) {
-          corpo.style.maxHeight = corpo.scrollHeight + "px";
-          corpo.classList.add("aberto");
-        } else {
-          corpo.style.maxHeight = corpo.scrollHeight + "px";
-          void corpo.offsetHeight;
-          corpo.style.maxHeight = "0px";
-          corpo.classList.remove("aberto");
-        }
-      }
+      animarAlturaCorpo(document.getElementById("pcFvaCorpo"), novaAberta);
       faixaVagas.classList.toggle("aberta", novaAberta);
     });
   }
