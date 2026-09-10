@@ -167,8 +167,12 @@
     /* limite único de largura pra toda a Prospecção Coletiva — sem isso,
        telas sem max-width próprio (P-03 em diante) esticavam até os 1280px
        do .wrap em telas largas, com fonte pequena boiando no espaço vazio.
-       Em celular (viewport < 640px) isso não muda nada, já ocupa 100%. */
-    max-width: 640px;
+       Em celular (viewport < 640px) isso não muda nada, já ocupa 100%.
+       820px (era 640px até 09/09/2026): o usuário achou 640 pequeno demais
+       no desktop e mandou um print da tela de editar lista como
+       referência de tamanho — a largura aqui foi calibrada por aquele
+       print, não por uma exceção que já existisse no código. */
+    max-width: 820px;
     /* Removido overflow-x:hidden em 16/08/2026: qualquer overflow-x
        diferente de "visible" nesse elemento força o navegador a tratar
        overflow-y como "auto" (regra do próprio CSS, não é bug), o que
