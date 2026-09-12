@@ -52,7 +52,9 @@ function _ligarIndicadorToqueDemo() {
   if (!window.SEL_DEMO) return;
   const el = document.createElement("div");
   el.id = "pcDemoToque";
-  el.style.cssText = "position:fixed; left:0; top:0; width:46px; height:46px; border-radius:50%; background:rgba(52,232,74,.22); border:2px solid rgba(52,232,74,.85); box-shadow:0 0 0 6px rgba(52,232,74,.12); pointer-events:none; z-index:99999; transform:translate(-50%,-50%) scale(0); opacity:0; transition:transform .12s ease, opacity .12s ease;";
+  // Tamanho -25% (46px→35px) e opacidade -50% em todas as camadas (pedido
+  // do usuário, 12/09/2026), depois de ver a captura de teste.
+  el.style.cssText = "position:fixed; left:0; top:0; width:35px; height:35px; border-radius:50%; background:rgba(52,232,74,.11); border:2px solid rgba(52,232,74,.43); box-shadow:0 0 0 4.5px rgba(52,232,74,.06); pointer-events:none; z-index:99999; transform:translate(-50%,-50%) scale(0); opacity:0; transition:transform .12s ease, opacity .12s ease;";
   document.body.appendChild(el);
   const mover = (x, y) => { el.style.left = x + "px"; el.style.top = y + "px"; };
   document.addEventListener("pointerdown", (e) => {
