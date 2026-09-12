@@ -53,8 +53,11 @@ function _ligarIndicadorToqueDemo() {
   const el = document.createElement("div");
   el.id = "pcDemoToque";
   // Tamanho -25% (46px→35px) e opacidade -50% em todas as camadas (pedido
-  // do usuário, 12/09/2026), depois de ver a captura de teste.
-  el.style.cssText = "position:fixed; left:0; top:0; width:35px; height:35px; border-radius:50%; background:rgba(52,232,74,.11); border:2px solid rgba(52,232,74,.43); box-shadow:0 0 0 4.5px rgba(52,232,74,.06); pointer-events:none; z-index:99999; transform:translate(-50%,-50%) scale(0); opacity:0; transition:transform .12s ease, opacity .12s ease;";
+  // do usuário, 12/09/2026), depois de ver a captura de teste. Cor trocada
+  // pro laranja do projeto (--pc-laranja: #FF8A3D = rgb(255,138,61)) —
+  // esse indicador é isolado do CSS do app (roda antes de qualquer tela
+  // renderizar), por isso o valor vem hardcoded aqui, não via var().
+  el.style.cssText = "position:fixed; left:0; top:0; width:35px; height:35px; border-radius:50%; background:rgba(255,138,61,.11); border:2px solid rgba(255,138,61,.43); box-shadow:0 0 0 4.5px rgba(255,138,61,.06); pointer-events:none; z-index:99999; transform:translate(-50%,-50%) scale(0); opacity:0; transition:transform .12s ease, opacity .12s ease;";
   document.body.appendChild(el);
   const mover = (x, y) => { el.style.left = x + "px"; el.style.top = y + "px"; };
   document.addEventListener("pointerdown", (e) => {
