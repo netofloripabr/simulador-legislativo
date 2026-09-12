@@ -40,3 +40,32 @@ async function iniciarModoDemo() {
   pcState.tela = "selecao-convidado";
   renderColaborativo();
 }
+
+// Indicador visual de toque, só no modo demonstração (pedido do usuário,
+// 12/09/2026) — ajuda a gravar vídeo de marketing mostrando onde está o
+// dedo, principalmente durante o arrasto da barra (fader): o efeito de
+// clique padrão do app (ver 00-estado.js, ".pulsando") é só um pulso
+// rápido em botão, não acompanha o dedo num arrasto contínuo. Este é um
+// círculo que nasce onde o ponteiro desce e segue o arrasto até soltar.
+// Nunca aparece fora do modo demo (guarda no topo da função).
+function _ligarIndicadorToqueDemo() {
+  if (!window.SEL_DEMO) return;
+  const el = document.createElement("div");
+  el.id = "pcDemoToque";
+  el.style.cssText = "position:fixed; left:0; top:0; width:46px; height:46px; border-radius:50%; background:rgba(52,232,74,.22); border:2px solid rgba(52,232,74,.85); box-shadow:0 0 0 6px rgba(52,232,74,.12); pointer-events:none; z-index:99999; transform:translate(-50%,-50%) scale(0); opacity:0; transition:transform .12s ease, opacity .12s ease;";
+  document.body.appendChild(el);
+  const mover = (x, y) => { el.style.left = x + "px"; el.style.top = y + "px"; };
+  document.addEventListener("pointerdown", (e) => {
+    mover(e.clientX, e.clientY);
+    el.style.opacity = "1";
+    el.style.transform = "translate(-50%,-50%) scale(1)";
+  });
+  document.addEventListener("pointermove", (e) => {
+    if (el.style.opacity !== "1") return;
+    mover(e.clientX, e.clientY);
+  });
+  const soltar = () => { el.style.opacity = "0"; el.style.transform = "translate(-50%,-50%) scale(0)"; };
+  document.addEventListener("pointerup", soltar);
+  document.addEventListener("pointercancel", soltar);
+}
+_ligarIndicadorToqueDemo();
