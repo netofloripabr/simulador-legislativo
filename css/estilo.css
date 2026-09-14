@@ -55,6 +55,15 @@
     font-family:var(--sans); font-size:14px; line-height:1.5;
   }
   .wrap{ max-width:1280px; margin:0 auto; padding:28px 20px 60px; }
+  /* Desktop (14/09/2026): o app é desenhado pra 640px de largura (celular
+     grande). Em tela larga, em vez de esticar o layout (letra pequena
+     boiando, componentes deformados — achado do usuário), o card inteiro
+     é AMPLIADO com zoom, letra e espaçamento juntos, como uma tela de
+     celular vista maior. 640px × 1.25 = 800px de card num notebook
+     comum (≈1470px), que foi a referência que o usuário aprovou. */
+  @media (min-width:1100px){ #modoColaborativoWrap{ zoom:1.25; } }
+  @media (min-width:1600px){ #modoColaborativoWrap{ zoom:1.45; } }
+  @media (min-width:2200px){ #modoColaborativoWrap{ zoom:1.7; } }
   table{ width:100%; border-collapse:collapse; font-size:13px; }
   th{
     text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.08em;
@@ -168,14 +177,14 @@
        telas sem max-width próprio (P-03 em diante) esticavam até os 1280px
        do .wrap em telas largas, com fonte pequena boiando no espaço vazio.
        Em celular (viewport < 640px) isso não muda nada, já ocupa 100%.
-       10/09/2026: era um número fixo (640px, depois 820px) — o usuário
-       apontou que isso sempre vai parecer "travado no tamanho de
-       celular" em monitor grande, porque não acompanha a tela de cada
-       um. Trocado por clamp(): a largura acompanha a janela entre um
-       piso (nunca menor que 640px de conteúdo útil) e um teto (nunca
-       maior que 1100px, pra não virar linha de texto imensa) — em vez
-       de fixar um valor calibrado só pro monitor de uma pessoa. */
-    max-width: clamp(640px, 58vw, 1100px);
+       10/09/2026: tentou-se clamp(640px, 58vw, 1100px) pra acompanhar a
+       tela — mas alargar sem escalar a letra deixou "muitas letras
+       pequenas" no desktop (achado do usuário, 14/09/2026), que é a
+       queixa original de 19/08. 14/09/2026: volta ao desenho de 640px e,
+       em tela larga, o app inteiro é AMPLIADO com zoom (ver as media
+       queries logo abaixo do bloco) — o layout continua o de celular,
+       só que maior, letra incluída. */
+    max-width: 640px;
     /* Removido overflow-x:hidden em 16/08/2026: qualquer overflow-x
        diferente de "visible" nesse elemento força o navegador a tratar
        overflow-y como "auto" (regra do próprio CSS, não é bug), o que
