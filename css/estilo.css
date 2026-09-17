@@ -1051,8 +1051,13 @@
     /* Quebra de página entre cargos (pedido do usuário, 17/09/2026): cada
        cargo (Estadual/Federal/Senador) começa página nova, exceto o
        primeiro — ele já está logo abaixo do cabeçalho, uma quebra ali só
-       deixaria a 1ª página quase em branco. */
-    #pcImpressaoConteudo .di-cargo-bloco:not(:first-child){ page-break-before:always; break-before:page; }
+       deixaria a 1ª página em branco. .di-quebra é marcada em JS (índice
+       > 0 na lista de cargos) — corrigido de :not(:first-child) em
+       17/09/2026: aquele seletor NUNCA era falso pro bloco do 1º cargo,
+       porque ele vem depois de .di-cab/.di-regra (não é o 1º filho de
+       verdade do pai), então TODOS os blocos quebravam, sobrando uma
+       página 1 em branco (achado do usuário, print real de 26 páginas). */
+    #pcImpressaoConteudo .di-cargo-bloco.di-quebra{ page-break-before:always; break-before:page; }
     #pcImpressaoConteudo .di-tit{ font-size:14px; font-weight:800; color:#111; margin-top:6px; }
     #pcImpressaoConteudo .di-sub{ font-size:9.5px; color:#5C6268; margin:1px 0 10px; }
     /* linha de candidato: fio de .5px entre os campos */
@@ -1095,6 +1100,7 @@
     /* legenda de ícones — idêntica em todo documento */
     #pcImpressaoConteudo .di-chip{ flex-shrink:0; font-size:7px; font-weight:800; background:#1FA83A; color:#fff; border-radius:999px; padding:3px 0; width:46px; text-align:center; letter-spacing:.02em; }
     #pcImpressaoConteudo .di-chip.di-chip-s{ background:none; border:1px solid #C9CCCE; color:#8A9096; }
+    #pcImpressaoConteudo .di-chip.di-chip-f{ background:none; border:1px dashed #DDE0E2; color:#B4B9BE; }
     #pcImpressaoConteudo .di-chip.di-chip-em{ background:#8AA300; }
     #pcImpressaoConteudo .di-pchips{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 10px; }
     #pcImpressaoConteudo .di-pchip{ display:inline-flex; align-items:baseline; gap:4px; border:1px solid #DDE0E2; border-radius:999px; padding:3.5px 10px; font-size:8.5px; font-weight:800; color:#111; }

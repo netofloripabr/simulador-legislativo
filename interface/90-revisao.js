@@ -226,7 +226,8 @@ function docLegenda() {
   return `
     <div class="di-legenda">
       <span>${docIcLetra("E", 11, "meu")} eleito no seu palpite</span>
-      <span>${docIcLetra("S", 11, "meu")} suplente</span>
+      <span>${docIcLetra("S", 11, "meu")} suplente (partido/federação com cadeira)</span>
+      <span>${docIcLetra("F", 11, "meu")} fora (partido sem cadeira, ou Senador)</span>
       <span>${docIcLetra("E", 11, "fato")} eleito de fato</span>
       <span style="margin-left:auto;">pontos: ${docIcLetra("E", 10, "hdr")} acerto de eleição · ${docIcAlvo(10)} proximidade de votos (%) · ${docIcPosicao(10)} acerto de posição · <b>Pts</b>&nbsp;= soma dos três</span>
     </div>`;
@@ -299,8 +300,19 @@ function montarSecaoImpressaoCargo(cargo, op) {
   const generoPorChave = new Map();
   (lista || []).forEach((p) => (p.candidatos || []).forEach((c) => generoPorChave.set(c.chave, c.genero || "")));
 
+  // Suplência de verdade (Código Eleitoral, art. 112) só existe dentro do
+  // partido/federação que TEM uma cadeira pra eventualmente perder —
+  // achado do usuário, 17/09/2026, ao notar candidato de partido com ZERO
+  // eleitos impresso como "S". Cargo majoritário (Senador) não tem
+  // suplência por ordem de voto — é chapa registrada junto com o titular
+  // na candidatura, dado que o app não coleta; então nenhum não-eleito de
+  // Senador é "S". Quem não se qualifica vira "F" (fora) — não tem
+  // caminho nenhum pra assumir a vaga nesta legislatura.
+  const partidosComEleito = new Set(eleitos.map((e) => e.partido));
+  const tipoSuplencia = (c) => (cargo !== "senador" && partidosComEleito.has(c.partido)) ? "S" : "F";
+
   let linhas = eleitos.map((c) => ({ ...c, tipo: "E" }))
-    .concat(suplentes.map((c) => ({ ...c, tipo: "S" })));
+    .concat(suplentes.map((c) => ({ ...c, tipo: tipoSuplencia(c) })));
   if (op.recorte === "eleitos") linhas = linhas.filter((l) => l.tipo === "E");
   else if (op.recorte === "candidatas") linhas = linhas.filter((l) => String(generoPorChave.get(l.chave) || "").toUpperCase().startsWith("FEM"));
   else if (op.recorte === "partido" && op.partido) {
@@ -316,14 +328,15 @@ function montarSecaoImpressaoCargo(cargo, op) {
       .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0))
       .map((c) => chavesE.has(c.chave)
         ? { ...eleitoPorChave.get(c.chave), tipo: "E" }
-        : { chave: c.chave, nome: nomeExibicao(c), partido: grupoP.nome, votos: Number(c.votos) || 0, tipo: "S" });
+        : { chave: c.chave, nome: nomeExibicao(c), partido: grupoP.nome, votos: Number(c.votos) || 0, tipo: (cargo !== "senador" && chavesE.size > 0) ? "S" : "F" });
   }
   if (op.ordenacao === "crescente") linhas = [...linhas].sort((a, b) => a.votos - b.votos);
   else if (op.ordenacao === "decrescente") linhas = [...linhas].sort((a, b) => b.votos - a.votos);
   if (op.recorte === "top10") linhas = linhas.slice(0, 10);
 
   const nE = linhas.filter((l) => l.tipo === "E").length;
-  const nS = linhas.length - nE;
+  const nS = linhas.filter((l) => l.tipo === "S").length;
+  const nF = linhas.filter((l) => l.tipo === "F").length;
   const rotuloRecorte = ({ eleitos: "só os eleitos", candidatas: "só as candidatas", partido: op.partido || "", top10: "top 10" })[op.recorte] || "";
 
   // ===== v9 (protótipo aprovado 31/08/2026): etiquetas E-QP/E-M·nª no
@@ -363,13 +376,15 @@ function montarSecaoImpressaoCargo(cargo, op) {
       </div>`;
     }
   }
+  const sufixoSF = `${nS ? ` + ${nS} suplente${nS === 1 ? "" : "s"}` : ""}${nF ? ` + ${nF} fora${nF === 1 ? "" : "s"}` : ""}`;
   const sub = aplicaV9
     ? `${nE} eleito${nE === 1 ? "" : "s"}${rotuloRecorte ? ` · recorte: ${rotuloRecorte}` : ""} · votação de referência 2022 · as colunas de resultado e pontos serão preenchidas na apuração oficial — acompanhe.`
-    : `${nE} eleito${nE === 1 ? "" : "s"}${nS ? ` + ${nS} suplente${nS === 1 ? "" : "s"}` : ""}${rotuloRecorte ? ` · recorte: ${rotuloRecorte}` : ""} · votação de referência 2022 · as colunas de resultado e pontos serão preenchidas na apuração oficial — acompanhe.`;
+    : `${nE} eleito${nE === 1 ? "" : "s"}${sufixoSF}${rotuloRecorte ? ` · recorte: ${rotuloRecorte}` : ""} · votação de referência 2022 · as colunas de resultado e pontos serão preenchidas na apuração oficial — acompanhe.`;
 
   const chipDe = (l) => {
     if (!aplicaV9) return docIcLetra(l.tipo, 15, "meu");
     if (l.tipo === "S") return '<span class="di-chip di-chip-s">S</span>';
+    if (l.tipo === "F") return '<span class="di-chip di-chip-f">F</span>';
     const rod = rodadaPorChave.get(l.chave);
     const eM = l.tag === "média";
     const rotulo = eM ? `E-M${rod !== undefined ? ` · ${rod}ª` : ""}` : "E-QP";
@@ -486,7 +501,7 @@ function montarDocumentoImpresso(cargosParaGerar, op) {
         <div class="di-meta"><b>${nomeEstado}</b>${nomeAutor ? ` · Lista de ${nomeAutor}` : ""}<br>gerada em ${dataTxt} · ${ordemLabel}</div>
       </div>
       <div class="di-regra"></div>
-      ${cargosParaGerar.map((c) => `<div class="di-cargo-bloco">${montarSecaoImpressaoCargo(c, op)}</div>`).join("")}
+      ${cargosParaGerar.map((c, i) => `<div class="di-cargo-bloco${i > 0 ? " di-quebra" : ""}">${montarSecaoImpressaoCargo(c, op)}</div>`).join("")}
       ${docLegenda()}
       ${op.registrar ? docRegistro(dataTxt, horaTxt, op.anonimo) : ""}
       ${docRodape()}
