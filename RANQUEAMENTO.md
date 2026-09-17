@@ -1,11 +1,37 @@
-# Sistema de pontuação e ranqueamento — RASCUNHO (não implementado)
+# Sistema de pontuação e ranqueamento
 
 Documento de design, escrito em 18/08/2026 a pedido do usuário, pra
 começar a discussão de como pontuar e ranquear quem preencheu uma
-cédula. **Nada aqui está implementado ou decidido** — é ponto de
-partida pra revisão. Fórmulas exatas (pesos, faixas) são a parte mais
-fácil de ajustar depois; a estrutura de quatro eixos é o que precisa de
-aval primeiro.
+cédula. Fórmulas exatas (pesos, faixas) são a parte mais fácil de
+ajustar depois; a estrutura de quatro eixos foi o que precisou de aval
+primeiro.
+
+**17/09/2026 — eixos 1 e 2 implementados** em `calculo/pontuacao.js`
+(função pura, testada com 2022 como ensaio em `testes/pontuacao.test.js`
+— rodar `node testes/pontuacao.test.js`). Eixos 3 (timing) e 4 (tarefas)
+ainda não têm schema/RPC no Supabase; a fórmula de timing já existe
+(`bonusTiming`), só falta ligar ao banco. As 5 perguntas em aberto abaixo
+foram respondidas com a opção mais simples/reversível, igual ao resto do
+`PROJETO.md`:
+
+1. **Ranking por cargo, + um geral combinado.** `pontuarCedulaCargo`
+   calcula por cargo; o geral é a soma/média dos 3, calculada por quem
+   chama — nenhuma decisão nova de fórmula, só agregação.
+2. **Falso positivo NÃO desconta.** `pontosTotal` nunca fica negativo
+   (testado no cenário 2 de `pontuacao.test.js`).
+3. **A cédula pontua pelo conteúdo ATUAL** — reconciliação necessária: a
+   premissa original deste documento ("cédula depositada é imutável") foi
+   superada pela migração 25 (`editar_cedula_depositada`, edição paga até
+   3×, existe desde antes deste documento ser revisado). O bônus de
+   timing (eixo 3) usa sempre o **primeiro** depósito (`depositado_em`),
+   nunca a data de edição — editar depois não altera o bônus de "chegou
+   cedo". Conteúdo pro eixo 1/2 é sempre o mais recente (é a cédula que
+   existe agora, não faria sentido pontuar uma versão velha).
+4. **Privacidade do ranking reaproveita o campo `anonimo`** que a cédula
+   já tem (mesmo usado no compartilhamento — "Eleitor(a) anônimo(a)").
+   Nenhum mecanismo novo de privacidade.
+5. **Prêmio real fica fora do escopo técnico** por enquanto — não bloqueia
+   nada da engenharia (funciona igual com ou sem prêmio externo).
 
 ## Por que 4 eixos, não 1 número só
 
