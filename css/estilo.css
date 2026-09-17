@@ -1048,6 +1048,11 @@
     #pcImpressaoConteudo .di-meta b{ color:#111; }
     #pcImpressaoConteudo .di-regra{ margin:10px 0 14px; height:2px; background:#C9CCCE; position:relative; }
     #pcImpressaoConteudo .di-regra:after{ content:""; position:absolute; left:0; right:0; top:4px; height:1px; background:#E7E9EA; }
+    /* Quebra de página entre cargos (pedido do usuário, 17/09/2026): cada
+       cargo (Estadual/Federal/Senador) começa página nova, exceto o
+       primeiro — ele já está logo abaixo do cabeçalho, uma quebra ali só
+       deixaria a 1ª página quase em branco. */
+    #pcImpressaoConteudo .di-cargo-bloco:not(:first-child){ page-break-before:always; break-before:page; }
     #pcImpressaoConteudo .di-tit{ font-size:14px; font-weight:800; color:#111; margin-top:6px; }
     #pcImpressaoConteudo .di-sub{ font-size:9.5px; color:#5C6268; margin:1px 0 10px; }
     /* linha de candidato: fio de .5px entre os campos */

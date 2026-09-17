@@ -486,7 +486,7 @@ function montarDocumentoImpresso(cargosParaGerar, op) {
         <div class="di-meta"><b>${nomeEstado}</b>${nomeAutor ? ` · Lista de ${nomeAutor}` : ""}<br>gerada em ${dataTxt} · ${ordemLabel}</div>
       </div>
       <div class="di-regra"></div>
-      ${cargosParaGerar.map((c) => montarSecaoImpressaoCargo(c, op)).join("")}
+      ${cargosParaGerar.map((c) => `<div class="di-cargo-bloco">${montarSecaoImpressaoCargo(c, op)}</div>`).join("")}
       ${docLegenda()}
       ${op.registrar ? docRegistro(dataTxt, horaTxt, op.anonimo) : ""}
       ${docRodape()}
