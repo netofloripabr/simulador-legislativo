@@ -1095,7 +1095,15 @@ function vagasApuradasPorGrupo() {
 // baseada no mais votado de 2022 do cargo — SC estadual = 250 mil redondos
 // Régua do fader por candidato — ver o comentário dentro da função (regra
 // única de 21/08/2026: 125% do maior voto de 2022 do estado+cargo).
+// Exceções à régua automática abaixo (estado::cargo → teto em votos).
+// SC/Federal: pedido do usuário em 18/09/2026 — a régua dava 300k
+// (227.632 da Carol de Toni × 1,25 = 284,5k → 300k) e ele quer permitir
+// palpite até 400k pro cargo. Só o DESENHO da barra muda; a regra geral
+// continua valendo pra todo o resto.
+const CAP_CANDIDATO_EXCECOES = { "SC::federal": 400000 };
 function capCandidatoDeputado() {
+  const excecao = CAP_CANDIDATO_EXCECOES[`${pcState.estado}::${pcState.cargoAtivo}`];
+  if (excecao) return excecao;
   // Régua ÚNICA derivada do recorte de 2022 do próprio estado+cargo
   // (decisão do usuário, 21/08/2026): 125% do maior voto individual de
   // 2022, arredondado PRA CIMA em múltiplos de 50k. Em SC/Estadual dá
