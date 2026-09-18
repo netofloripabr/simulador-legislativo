@@ -628,6 +628,9 @@ function montarConsoleHtml(o) {
     </div>`;
 }
 
+// Valor sentinela do <select> "Por partido" da impressão = todas as
+// chapas, um bloco por partido (ver montarSecaoImpressaoCargo, 18/09/2026).
+const DOC_PARTIDO_TODOS = "__todos__";
 const DOC_APP_URL = "netofloripabr.github.io/simulador-legislativo";
 // QR de https://netofloripabr.github.io/simulador-legislativo/ (33×33,
 // correção M) — gerado offline uma única vez; um path SVG por linha de

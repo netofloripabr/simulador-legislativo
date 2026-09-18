@@ -1102,6 +1102,8 @@
     #pcImpressaoConteudo .di-chip.di-chip-s{ background:none; border:1px solid #C9CCCE; color:#8A9096; }
     #pcImpressaoConteudo .di-chip.di-chip-f{ background:none; border:1px dashed #DDE0E2; color:#B4B9BE; }
     #pcImpressaoConteudo .di-chip.di-chip-em{ background:#8AA300; }
+    #pcImpressaoConteudo .di-ptit{ display:flex; align-items:baseline; justify-content:space-between; margin:12px 0 3px; padding:5px 8px; background:#F3F5F6; border-left:3px solid #1FA83A; font-size:10px; font-weight:800; color:#111; page-break-after:avoid; }
+    #pcImpressaoConteudo .di-ptit .di-ptit-n{ font-size:7.5px; font-weight:600; color:#8A9096; }
     #pcImpressaoConteudo .di-pchips{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 10px; }
     #pcImpressaoConteudo .di-pchip{ display:inline-flex; align-items:baseline; gap:4px; border:1px solid #DDE0E2; border-radius:999px; padding:3.5px 10px; font-size:8.5px; font-weight:800; color:#111; }
     #pcImpressaoConteudo .di-pchip b{ color:#1FA83A; font-size:10px; font-variant-numeric:tabular-nums; }

@@ -276,7 +276,7 @@ function opcoesPartidosImpressao() {
     const lista = pcState.palpitesPorCargo && pcState.palpitesPorCargo[c.id];
     (lista || []).forEach((p) => { if (p.nome) nomes.add(p.nome); });
   });
-  return [...nomes].sort((a, b) => a.localeCompare(b, "pt"))
+  return `<option value="${DOC_PARTIDO_TODOS}">Todos (um bloco por partido)</option>` + [...nomes].sort((a, b) => a.localeCompare(b, "pt"))
     .map((n) => `<option value="${n}">${n}</option>`).join("");
 }
 
@@ -322,23 +322,50 @@ function montarSecaoImpressaoCargo(cargo, op) {
     // deixava de fora quem não estava entre os 30 melhores do cargo
     // inteiro). Eleitos mantêm a etiqueta E; o resto sai como suplente
     // do partido, por votação decrescente.
-    const grupoP = (lista || []).find((pp) => pp.nome === op.partido);
-    const chavesE = new Set(eleitos.filter((e) => e.partido === op.partido).map((e) => e.chave));
-    const eleitoPorChave = new Map(eleitos.filter((e) => e.partido === op.partido).map((e) => [e.chave, e]));
-    linhas = (grupoP ? grupoP.candidatos.filter((c) => c.fonte !== "legenda" && !c.status) : [])
-      .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0))
-      .map((c) => chavesE.has(c.chave)
-        ? { ...eleitoPorChave.get(c.chave), tipo: "E" }
-        : { chave: c.chave, nome: nomeExibicao(c), partido: grupoP.nome, votos: Number(c.votos) || 0, tipo: (cargo !== "senador" && chavesE.size > 0) ? "S" : "F" });
+    const chapaDe = (grupoP) => {
+      const chavesE = new Set(eleitos.filter((e) => e.partido === grupoP.nome).map((e) => e.chave));
+      const eleitoPorChave = new Map(eleitos.filter((e) => e.partido === grupoP.nome).map((e) => [e.chave, e]));
+      return grupoP.candidatos.filter((c) => c.fonte !== "legenda" && !c.status)
+        .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0))
+        .map((c) => chavesE.has(c.chave)
+          ? { ...eleitoPorChave.get(c.chave), tipo: "E" }
+          : { chave: c.chave, nome: nomeExibicao(c), partido: grupoP.nome, votos: Number(c.votos) || 0, tipo: (cargo !== "senador" && chavesE.size > 0) ? "S" : "F" });
+    };
+    if (op.partido === DOC_PARTIDO_TODOS) {
+      // "Todos" (pedido do usuário, 18/09/2026): cada partido/federação
+      // vira um bloco próprio (chapa completa, numeração reiniciando), na
+      // ordem de quem mais elegeu — pra ver os eleitos organizados por
+      // legenda, não misturados num ranking geral.
+      const nEleitosDe = (nome) => eleitos.filter((e) => e.partido === nome).length;
+      linhas = [...(lista || [])]
+        .filter((pp) => pp.candidatos && pp.candidatos.some((c) => c.fonte !== "legenda" && !c.status))
+        .sort((a, b) => nEleitosDe(b.nome) - nEleitosDe(a.nome) || partyVotos(b) - partyVotos(a) || a.nome.localeCompare(b.nome, "pt"))
+        .flatMap((pp) => [{ _grupo: pp.nome, _nE: nEleitosDe(pp.nome) }, ...chapaDe(pp)]);
+    } else {
+      const grupoP = (lista || []).find((pp) => pp.nome === op.partido);
+      linhas = grupoP ? chapaDe(grupoP) : [];
+    }
   }
-  if (op.ordenacao === "crescente") linhas = [...linhas].sort((a, b) => a.votos - b.votos);
-  else if (op.ordenacao === "decrescente") linhas = [...linhas].sort((a, b) => b.votos - a.votos);
-  if (op.recorte === "mais1000") linhas = linhas.filter((l) => l.votos > 1000);
+  const ehTodosPartidos = op.recorte === "partido" && op.partido === DOC_PARTIDO_TODOS;
+  // Em "Todos" a ordenação/filtro vale DENTRO de cada bloco de partido,
+  // preservando os cabeçalhos de grupo.
+  const porBloco = (fn) => {
+    if (!ehTodosPartidos) return fn(linhas);
+    const saida = [];
+    let cab = null, buf = [];
+    const fecha = () => { if (cab) saida.push(cab, ...fn(buf)); cab = null; buf = []; };
+    linhas.forEach((l) => { if (l._grupo) { fecha(); cab = l; } else buf.push(l); });
+    fecha();
+    return saida;
+  };
+  if (op.ordenacao === "crescente") linhas = porBloco((ls) => [...ls].sort((a, b) => a.votos - b.votos));
+  else if (op.ordenacao === "decrescente") linhas = porBloco((ls) => [...ls].sort((a, b) => b.votos - a.votos));
+  if (op.recorte === "mais1000") linhas = porBloco((ls) => ls.filter((l) => l.votos > 1000));
 
   const nE = linhas.filter((l) => l.tipo === "E").length;
   const nS = linhas.filter((l) => l.tipo === "S").length;
   const nF = linhas.filter((l) => l.tipo === "F").length;
-  const rotuloRecorte = ({ eleitos: "só os eleitos", candidatas: "só as candidatas", partido: op.partido || "", mais1000: "mais de 1.000 votos" })[op.recorte] || "";
+  const rotuloRecorte = ({ eleitos: "só os eleitos", candidatas: "só as candidatas", partido: op.partido === DOC_PARTIDO_TODOS ? "todos os partidos" : (op.partido || ""), mais1000: "mais de 1.000 votos" })[op.recorte] || "";
 
   // ===== v9 (protótipo aprovado 31/08/2026): etiquetas E-QP/E-M·nª no
   // padrão da tela, chips de partido por eleitos (decrescente) e a relação
@@ -414,7 +441,10 @@ function montarSecaoImpressaoCargo(cargo, op) {
       <span class="di-votos di-vh"><span class="di-vv">Palpite</span><span class="di-vv">Resultado</span><span class="di-vd">Dif.</span><span class="di-vp">%</span></span>
       <span class="di-painel di-ph"><span class="di-pt">${docIcLetra("E", 10, "hdr")}</span><span class="di-pt">${docIcAlvo(10)}</span><span class="di-pt">${docIcPosicao(10)}</span><span class="di-pt di-tot">Pts</span></span>
     </div>
-    ${linhas.length ? linhas.map((l, i) => linhaHtml(l, i, i === linhas.length - 1)).join("") : '<div class="di-sub" style="padding:8px 0;">Nenhum candidato neste recorte pra este cargo.</div>'}
+    ${linhas.length ? (() => { let n = 0; return linhas.map((l, i) => {
+      if (l._grupo) { n = 0; return `<div class="di-ptit"><span>${l._grupo}</span><span class="di-ptit-n">${l._nE} eleito${l._nE === 1 ? "" : "s"} no seu palpite</span></div>`; }
+      return linhaHtml(l, n++, i === linhas.length - 1 || !!(linhas[i + 1] && linhas[i + 1]._grupo));
+    }).join(""); })() : '<div class="di-sub" style="padding:8px 0;">Nenhum candidato neste recorte pra este cargo.</div>'}
     ${sobrasHtml}
   `;
 }
