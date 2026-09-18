@@ -1094,23 +1094,15 @@ function vagasApuradasPorGrupo() {
 // Curso da BARRA do candidato (regra do usuário, 17/08/2026): régua fixa
 // baseada no mais votado de 2022 do cargo — SC estadual = 250 mil redondos
 // Régua do fader por candidato — ver o comentário dentro da função (regra
-// única de 21/08/2026: 125% do maior voto de 2022 do estado+cargo).
-// Exceções à régua automática abaixo (estado::cargo → teto em votos).
-// SC/Federal: pedido do usuário em 18/09/2026 — a régua dava 300k
-// (227.632 da Carol de Toni × 1,25 = 284,5k → 300k) e ele quer permitir
-// palpite até 400k pro cargo. Só o DESENHO da barra muda; a regra geral
-// continua valendo pra todo o resto.
-const CAP_CANDIDATO_EXCECOES = { "SC::federal": 400000 };
+// única desde 18/09/2026: 2× o maior voto de 2022 do estado+cargo).
 function capCandidatoDeputado() {
-  const excecao = CAP_CANDIDATO_EXCECOES[`${pcState.estado}::${pcState.cargoAtivo}`];
-  if (excecao) return excecao;
-  // Régua ÚNICA derivada do recorte de 2022 do próprio estado+cargo
-  // (decisão do usuário, 21/08/2026): 125% do maior voto individual de
-  // 2022, arredondado PRA CIMA em múltiplos de 50k. Em SC/Estadual dá
-  // exatamente os 250k usados desde o início (196.571 da Ana Campagnolo
-  // × 1,25 = 245,7k → 250k) — e limita palpite desproporcional em
-  // qualquer estado, na escala local. É limite do DESENHO, não do voto:
-  // quem digitar acima mostra o número real com a barra cravada no fim.
+  // Régua ÚNICA derivada do recorte de 2022 do próprio estado+cargo:
+  // 2× o maior voto individual de 2022, arredondado PRA CIMA em múltiplos
+  // de 50k (decisão do usuário, 18/09/2026 — antes era 1,25×, que em
+  // SC/Federal travava em 300k; ele pediu 400k, e em vez de exceção
+  // preferiu subir a régua geral). Em SC: Estadual 196.571 → 400k;
+  // Federal 227.632 → 500k. É limite do DESENHO, não do voto: quem
+  // digitar acima mostra o número real com a barra cravada no fim.
   const todos = candidatosEstadoCargo(pcState.estado, pcState.cargoAtivo) || [];
   let maior = 0;
   todos.forEach((p) => p.candidatos.forEach((c) => {
@@ -1118,7 +1110,7 @@ function capCandidatoDeputado() {
     const v = Number(c.votos) || 0;
     if (v > maior) maior = v;
   }));
-  return Math.max(50000, Math.ceil((maior * 1.25) / 50000) * 50000);
+  return Math.max(50000, Math.ceil((maior * 2) / 50000) * 50000);
 }
 
 function somaVotosGrupo(p) {
