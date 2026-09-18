@@ -295,7 +295,8 @@ function montarSecaoImpressaoCargo(cargo, op) {
   // votados — o corte em 30 aqui era o bug relatado pelo usuário
   // (03/09/2026): cargos com mais de 30 suplentes (ex.: Dep. Estadual)
   // imprimiam incompletos mesmo escolhendo "Lista completa". Continua
-  // existindo um limite de exibição só pra "Top 10", aplicado depois.
+  // existindo um filtro só pro recorte "+1000" (votos acima de 1.000,
+  // substituiu o "Top 10" em 18/09/2026 a pedido do usuário), aplicado depois.
   const suplentes = proximosSuplentes(Infinity, lista);
   const generoPorChave = new Map();
   (lista || []).forEach((p) => (p.candidatos || []).forEach((c) => generoPorChave.set(c.chave, c.genero || "")));
@@ -332,12 +333,12 @@ function montarSecaoImpressaoCargo(cargo, op) {
   }
   if (op.ordenacao === "crescente") linhas = [...linhas].sort((a, b) => a.votos - b.votos);
   else if (op.ordenacao === "decrescente") linhas = [...linhas].sort((a, b) => b.votos - a.votos);
-  if (op.recorte === "top10") linhas = linhas.slice(0, 10);
+  if (op.recorte === "mais1000") linhas = linhas.filter((l) => l.votos > 1000);
 
   const nE = linhas.filter((l) => l.tipo === "E").length;
   const nS = linhas.filter((l) => l.tipo === "S").length;
   const nF = linhas.filter((l) => l.tipo === "F").length;
-  const rotuloRecorte = ({ eleitos: "só os eleitos", candidatas: "só as candidatas", partido: op.partido || "", top10: "top 10" })[op.recorte] || "";
+  const rotuloRecorte = ({ eleitos: "só os eleitos", candidatas: "só as candidatas", partido: op.partido || "", mais1000: "mais de 1.000 votos" })[op.recorte] || "";
 
   // ===== v9 (protótipo aprovado 31/08/2026): etiquetas E-QP/E-M·nª no
   // padrão da tela, chips de partido por eleitos (decrescente) e a relação
@@ -367,12 +368,17 @@ function montarSecaoImpressaoCargo(cargo, op) {
     });
     if (disputa.rodadas && disputa.rodadas.length) {
       const vagasQP = totalVagasCargoDoc - disputa.totalSobrasCargo;
+      const extras = continuarDisputaSobra(lista, totalVagasCargoDoc, disputa);
+      const linhaRodada = (r, real) => `
+        <div class="di-srod${real ? "" : " di-srod-fora"}"><span class="rn">${r.numero}ª</span>${real ? `<span class="di-chip di-chip-em">E-M · ${r.numero}ª</span>` : '<span class="di-chip di-chip-f">F</span>'}<span class="rp">${r.vencedorNome}</span><span class="rc">${r.vencedorCandidato ? (real ? "elegeu " : "próximo: ") + r.vencedorCandidato : "sem candidato na fila"}</span><span class="rm">média ${Math.round(r.vencedorMedia || 0).toLocaleString("pt-BR")}</span></div>`;
       sobrasHtml = `
       <div class="di-sobras">
         <div class="di-sobras-tit">Distribuição das sobras — método das médias (art. 109)</div>
         <div class="di-sobras-intro">${vagasQP} vaga${vagasQP === 1 ? " saiu" : "s saíram"} direto pelo quociente partidário (QE ${Number(disputa.qe || 0).toLocaleString("pt-BR")}). A${disputa.totalSobrasCargo === 1 ? "" : "s"} <b>${disputa.totalSobrasCargo} restante${disputa.totalSobrasCargo === 1 ? "" : "s"}</b> ${disputa.totalSobrasCargo === 1 ? "foi distribuída" : "foram distribuídas"} rodada a rodada — em cada uma, ganha o partido com a maior média (votos ÷ vagas já obtidas + 1):</div>
-        ${disputa.rodadas.map((r) => `
-        <div class="di-srod"><span class="rn">${r.numero}ª</span><span class="rp">${r.vencedorNome}</span><span class="rc">${r.vencedorCandidato ? "elegeu " + r.vencedorCandidato : ""}</span><span class="rm">média ${Math.round(r.vencedorMedia || 0).toLocaleString("pt-BR")}</span></div>`).join("")}
+        ${disputa.rodadas.map((r) => linhaRodada(r, true)).join("")}
+        ${extras.length ? `
+        <div class="di-sobras-div">Se houvesse mais vagas — os próximos da fila, na mesma regra (${extras.length} rodada${extras.length === 1 ? "" : "s"} a mais, até completar ${totalVagasCargoDoc}). Ninguém aqui se elege.</div>
+        ${extras.map((r) => linhaRodada(r, false)).join("")}` : ""}
       </div>`;
     }
   }
@@ -501,8 +507,8 @@ function montarDocumentoImpresso(cargosParaGerar, op) {
         <div class="di-meta"><b>${nomeEstado}</b>${nomeAutor ? ` · Lista de ${nomeAutor}` : ""}<br>gerada em ${dataTxt} · ${ordemLabel}</div>
       </div>
       <div class="di-regra"></div>
-      ${cargosParaGerar.map((c, i) => `<div class="di-cargo-bloco${i > 0 ? " di-quebra" : ""}">${montarSecaoImpressaoCargo(c, op)}</div>`).join("")}
       ${docLegenda()}
+      ${cargosParaGerar.map((c, i) => `<div class="di-cargo-bloco${i > 0 ? " di-quebra" : ""}">${montarSecaoImpressaoCargo(c, op)}</div>`).join("")}
       ${op.registrar ? docRegistro(dataTxt, horaTxt, op.anonimo) : ""}
       ${docRodape()}
       <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dataTxt} ${horaTxt}</span></div>
@@ -633,6 +639,41 @@ function calcularDisputaSobra(lista, totalVagasCargo) {
   });
 
   return { qe, cadeirasPorPartido, corte, qpPorPartido, totalQP, rodadaSobraPorPartido, totalSobrasCargo, rodadas, minimoVotosNominal };
+}
+
+// Continuação HIPOTÉTICA da disputa de sobra, pro documento impresso
+// (pedido do usuário, 17/09/2026): depois da última vaga real, segue
+// rodando o método das médias como se houvesse mais cadeiras, até o total
+// de rodadas listadas bater com o número de vagas do cargo. Quem "ganha"
+// essas rodadas extras NÃO se elege — é só a ordem em que os partidos/
+// candidatos seriam chamados se surgissem mais vagas, pra quem quiser
+// conferir os próximos da fila. D'Hondt é sequencial, então as primeiras
+// `totalVagas` rodadas do cálculo estendido são idênticas às reais e
+// só o excedente é usado aqui.
+function continuarDisputaSobra(lista, totalVagas, disputa) {
+  const extras = Math.max(0, totalVagas - disputa.totalSobrasCargo);
+  if (!extras) return [];
+  const ext = dhondtComCorte(lista, totalVagas + extras);
+  const votosPorPartido = lista.map((p) => partyVotos(p));
+  const contador = lista.map(() => 0);
+  const filas = lista.map((p) => [...p.candidatos]
+    .filter((c) => c.fonte !== "legenda")
+    .sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0)));
+  const rodadas = [];
+  ext.historico.forEach((pIdx, s) => {
+    if (s >= totalVagas) {
+      const media = votosPorPartido[pIdx] / (contador[pIdx] + 1);
+      const cand = filas[pIdx][contador[pIdx]];
+      rodadas.push({
+        numero: disputa.totalSobrasCargo + rodadas.length + 1,
+        vencedorNome: lista[pIdx].nome,
+        vencedorMedia: media,
+        vencedorCandidato: cand ? nomeExibicao(cand) : null,
+      });
+    }
+    contador[pIdx]++;
+  });
+  return rodadas;
 }
 
 function listaUnificadaRevisao(listaParam, cargo) {
@@ -1194,7 +1235,7 @@ function renderRevisaoDeposito() {
           <button data-pc-imprimir-recorte="eleitos">Só os eleitos</button>
           <button data-pc-imprimir-recorte="candidatas">Candidatas</button>
           <button data-pc-imprimir-recorte="partido">Por partido</button>
-          <button data-pc-imprimir-recorte="top10">Top 10</button>
+          <button data-pc-imprimir-recorte="mais1000">+1000</button>
         </div>
         <select id="pcImprimirPartido" class="di-opt-select" style="display:none;">${opcoesPartidosImpressao()}</select>
         <div class="di-opt-tit">Ordenação</div>
