@@ -1299,7 +1299,7 @@
   flex:1 1 0; min-width:0;
   /* Card v2 (18/09/2026): mesma régua do nome de Deputados, quebra em vez
      de cortar — a caixa de votos desceu pras 3 caixas. */
-  font-size:clamp(11.9px, 2.04vw, 16.6px); font-weight:750; color:#F2F4F5; line-height:1.15;
+  font-size:clamp(15.5px, 2.65vw, 21.6px); font-weight:750; color:#F2F4F5; line-height:1.15;
   overflow:visible; white-space:normal; display:block;
 }
 #modoColaborativoWrap .pc-sen-nm .pc-sen-nm-txt{ display:block; white-space:normal; }
@@ -1743,12 +1743,12 @@
 #modoColaborativoWrap .pc-dep-cicons .pc-insta-mini,
 #modoColaborativoWrap .pc-dep-cicons .pc-financeiro-mini,
 #modoColaborativoWrap .pc-dep-cicons .pc-mini-btn{
-  width:20px; height:20px; border-radius:6px; margin:0; top:0; position:static;
+  width:23px; height:23px; border-radius:6px; margin:0; top:0; position:static;
   display:inline-flex; align-items:center; justify-content:center;
   background:rgba(242,244,245,.05); border:1px solid #2B2F33; color:#AEB5BB;
 }
 #modoColaborativoWrap .pc-dep-cicons .pc-insta-mini svg,
-#modoColaborativoWrap .pc-dep-cicons .pc-financeiro-mini svg{ width:11px; height:11px; }
+#modoColaborativoWrap .pc-dep-cicons .pc-financeiro-mini svg{ width:12.7px; height:12.7px; }
 #modoColaborativoWrap .pc-dep-tiles{ display:grid; grid-template-columns:1fr 1fr 1.1fr; gap:5px; margin:8px 0 0 0; }
 #modoColaborativoWrap .pc-dep-tile{
   display:flex; flex-direction:column; justify-content:center; gap:2px; min-width:0;
@@ -1763,8 +1763,8 @@
 #modoColaborativoWrap .pc-dep-tile.termo .tr{ color:#6E757C; }
 #modoColaborativoWrap .pc-dep-tile.termo.vazia{ opacity:.25; cursor:default; }
 #modoColaborativoWrap .pc-dep-tile.votos{ align-items:flex-end; text-align:right; padding:4px 8px; cursor:pointer; }
-#modoColaborativoWrap .pc-dep-tile.votos .tv{ color:#F2F4F5; }
-#modoColaborativoWrap .pc-dep-tile.votos .tr{ color:rgba(52,232,74,.9); }
+#modoColaborativoWrap .pc-dep-tile.votos .tv{ color:#F2F4F5; font-size:14.4px; }
+#modoColaborativoWrap .pc-dep-tile.votos .tr{ color:rgba(52,232,74,.9); font-size:7.1px; }
 #modoColaborativoWrap .pc-dep-crow-cong .pc-dep-tiles{ opacity:.38; }
 #modoColaborativoWrap .pc-dep-crow.manual{ border-left-color:rgba(52,232,74,.38); }
 #modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:7px; }
@@ -1786,7 +1786,7 @@
   flex:1 1 0; min-width:0;
   /* −15% (18/09/2026, card v2) e quebra em 2 linhas em vez de cortar —
      agora o nome tem a linha só pra ele, os votos desceram pras caixas. */
-  font-size:clamp(11.9px, 2.04vw, 16.6px); font-weight:750;
+  font-size:clamp(15.5px, 2.65vw, 21.6px); font-weight:750;
   color:#F2F4F5; line-height:1.15; overflow:visible; white-space:normal;
   display:block;
 }
