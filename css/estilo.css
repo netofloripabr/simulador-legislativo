@@ -243,6 +243,14 @@
      usuário, 04/09/2026: aparece em TODA linha, sempre visível, junto com
      a mediana. Trilho fino + segmento absoluto Q1→Q3 + traço na mediana;
      semPalpites pinta o trilho inteiro (incerteza total). */
+  /* Termômetro no card da lista (19/09/2026) */
+  #modoColaborativoWrap .pc-tm-partido{ flex:none; font-size:10px; font-weight:600; color:#8A9096; letter-spacing:.02em; max-width:38%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #modoColaborativoWrap .pc-tm-vagas{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 12px; }
+  #modoColaborativoWrap .pc-tm-vaga-chip{ font-size:11px; font-weight:700; padding:5px 10px; border-radius:999px; background:#2C3239; border:1px solid #4D545C; color:#F2F4F5; }
+  #modoColaborativoWrap .pc-tm-vaga-chip b{ color:#34E84A; }
+  #modoColaborativoWrap .pc-dep-crow .pc-tm-faixa{ margin-top:10px; }
+  #modoColaborativoWrap .pc-dep-crow .pc-tm-faixa-trilho{ background:rgba(242,244,245,.08); height:6px; }
+  #modoColaborativoWrap .pc-dep-crow .pc-tm-faixa-seg{ opacity:.7; }
   #modoColaborativoWrap .pc-tm-faixa{ width:100%; margin-top:6px; box-sizing:border-box; }
   #modoColaborativoWrap .pc-tm-faixa-trilho{
     position:relative; height:5px; border-radius:999px; background:var(--pc-glass); overflow:hidden;

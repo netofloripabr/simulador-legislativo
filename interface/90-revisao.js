@@ -1774,21 +1774,49 @@ async function renderQuadroMedias() {
     </div>`;
   };
 
-  const linha = (c, i) => {
-    return `<div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:0;">
-      <span style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-        <span style="display:flex; align-items:baseline; gap:10px; min-width:0;">
-          <span style="width:24px; flex-shrink:0; font-size:11px; font-weight:600; color:${c.eleito ? "var(--pc-accent)" : "var(--pc-ink-dim)"};">${i + 1}º</span>
-          <span style="min-width:0;">
-            <div style="font-size:13px; font-weight:600; color:var(--pc-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.nomeUrna || c.nome}${c.eleito ? ` <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:#07230C; background:var(--pc-accent); border-radius:999px; padding:1px 6px;">eleito</span>` : ""}</div>
-            <div style="font-size:10.5px; color:var(--pc-ink-dim);">${c.partido}${c.semPalpites ? " · sem palpite ainda" : ` · ${c.amostras} palpite${c.amostras === 1 ? "" : "s"}`}</div>
-          </span>
-        </span>
-        ${votosOuCadeado(c)}
-      </span>
+  // ===== Card do candidato no Termômetro = mesmo conceito do card da
+  // lista (protótipo aprovado 19/09/2026): posição · etiqueta pela regra
+  // do cargo (E-QP / E-M·nª nas proporcionais, E no Senador, S/F fora) ·
+  // nome com a linha toda · partido à direita; 3 caixas (2022 / palpites /
+  // mediana com cadeado até revelar); e a faixa Q1–Q3 preservada. =====
+  const disputaTm = cargo !== "senador" ? calcularDisputaSobra(parties, totalVagasCargo) : null;
+  const idxPartido = new Map(parties.map((p, k) => [p.nome, k]));
+  const posNoPartido = new Map();
+  parties.forEach((p) => [...p.candidatos].sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0))
+    .forEach((c, k) => posNoPartido.set(c.chave, k)));
+  const etiquetaTm = (c) => {
+    if (cargo === "senador") return c.eleito ? '<span class="pc-sen-chip" title="Eleito (mais votado)">E</span>' : '<span class="pc-sen-chip sup" title="Fora — Senador não tem suplência por ordem de voto">F</span>';
+    const pIdx = idxPartido.get(c.partido);
+    const k = posNoPartido.get(c.chave) || 0;
+    if (c.eleito) {
+      if (pIdx !== undefined && k < (disputaTm.qpPorPartido[pIdx] || 0)) return '<span class="pc-sen-chip" title="Eleito direto pelo quociente partidário (art. 107)">E-QP</span>';
+      const rod = pIdx !== undefined ? (disputaTm.rodadaSobraPorPartido[pIdx] || [])[k] : undefined;
+      return `<span class="pc-sen-chip em" title="Eleito pela sobra (método das médias, art. 109)">E-M${rod !== undefined ? ` · ${rod}ª` : ""}</span>`;
+    }
+    const temCadeira = pIdx !== undefined && (disputaTm.cadeirasPorPartido[pIdx] || 0) > 0;
+    return temCadeira
+      ? '<span class="pc-sen-chip sup" title="Suplente — partido/federação com cadeira projetada">S</span>'
+      : '<span class="pc-sen-chip sup" style="opacity:.55;" title="Fora — partido sem cadeira projetada">F</span>';
+  };
+  const chipsVagas = seatsProj.filter((p) => p.seats > 0).sort((a, b) => b.seats - a.seats)
+    .map((p) => `<span class="pc-tm-vaga-chip">${nomePartidoExibicao(p.nome)} <b>${p.seats}</b></span>`).join("");
+  const caixaMediana = (c) => (pcState.souAdmin || votosRevelados.has(c.chave))
+    ? `<div class="pc-dep-tile votos"><span class="tv">${Number(c.votos || 0).toLocaleString("pt-BR")}</span><span class="tr">Mediana</span></div>`
+    : `<div class="pc-dep-tile termo" data-pc-tm-revelar="${escaparAtributoHtml(c.chave)}" title="Revele a votação mediana deste candidato"><span class="tv">${iconeSvg("cadeadoSlot", 11)}</span><span class="tr">Mediana</span></div>`;
+  const linha = (c, i) => `
+    <div class="pc-dep-crow">
+      <div class="pc-dep-cl1">
+        <span class="pc-dep-pos">${i + 1}º</span>${etiquetaTm(c)}
+        <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${c.nomeUrna || c.nome}</span></span>
+        <span class="pc-tm-partido">${nomePartidoExibicao(c.partido)}</span>
+      </div>
+      <div class="pc-dep-tiles">
+        <div class="pc-dep-tile ref" title="Votação de 2022">${Number(c.votos2022) > 0 ? `<span class="tv">${Number(c.votos2022).toLocaleString("pt-BR")}</span><span class="tr">2022</span>` : `<span class="tv">—</span><span class="tr">sem 2022</span>`}</div>
+        <div class="pc-dep-tile ref" title="Quantas pessoas deram palpite neste candidato"><span class="tv">${c.amostras || 0}</span><span class="tr">palpite${c.amostras === 1 ? "" : "s"}</span></div>
+        ${caixaMediana(c)}
+      </div>
       ${faixaIncertezaHtml(c)}
     </div>`;
-  };
 
   // ===== painel "Revelar agora" — Coringa + avulso/pacote/cargo, preço
   // por escopo × prazo (decisão de 24/08/2026). ==========
@@ -1858,9 +1886,10 @@ async function renderQuadroMedias() {
     <div class="pc-lobby-card" style="padding:14px;">
       ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(52,232,74,.14)", vago: "#1B1E22", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
     </div>
-    <div class="pc-lobby-card">
+    ${chipsVagas ? `<div class="pc-tm-vagas">${chipsVagas}</div>` : ""}
+    <div class="pc-dep-card" style="padding:0 12px;"><div class="pc-dep-cands">
       ${projecao.length ? projecao.map((c, i) => linha(c, i)).join("") : estadoVazio({ icone: "chart", titulo: "Ninguém preencheu esse cargo", texto: "Assim que alguém depositar uma cédula pública desse cargo, o Termômetro aparece aqui." })}
-    </div>
+    </div></div>
     ${painelPrecos}
     <div class="pc-aviso-nao-pesquisa">Jogo de palpites entre participantes. Não é pesquisa eleitoral e não tem valor estatístico.</div>
     ${pcState.perfil ? `<div style="margin-top:12px; text-align:center; font-size:11.5px; color:var(--pc-ink-dim);"><button type="button" style="background:none; border:none; padding:0; margin:0; cursor:pointer; color:var(--pc-accent); font-weight:700; font-family:var(--sans); font-size:inherit;" id="pcBtnDesafiarDoTermometro">Lance o seu desafio.</button></div>` : ""}
@@ -1910,6 +1939,18 @@ async function renderQuadroMedias() {
   const overlayFechar = document.getElementById("pcBtnFecharCoringa");
   if (overlayFechar) overlayFechar.addEventListener("click", () => { pcState.termometroCoringaResultado = null; renderQuadroMedias(); });
 
+  // Toque na caixa "Mediana" (cadeado) do card revela AQUELE candidato —
+  // mesma revelação avulsa do painel, com a economia desligada é grátis.
+  document.querySelectorAll("[data-pc-tm-revelar]").forEach((el) => {
+    el.addEventListener("click", async () => {
+      if (!pcState.perfil) { pcState.pendenteRegistro = true; pcState.pendenteAcao = "medias"; pcState.tela = "cadastro"; renderColaborativo(); return; }
+      const chave = el.getAttribute("data-pc-tm-revelar");
+      const r = await revelarCandidatosTermometro(pcState.perfil.id, pcState.estado, cargo, [chave], ECONOMIA_ATIVA ? 5 : 0, "candidato avulso (card)", null, null);
+      if (!r.ok) { const st = document.getElementById("pcTermometroStatus"); if (st) st.textContent = "Não deu: " + r.mensagem; return; }
+      delete pcState.termometroRevelacoesCache[chaveCache];
+      renderQuadroMedias();
+    });
+  });
   const btnAvulso = document.getElementById("pcBtnRevelarAvulso");
   if (btnAvulso) btnAvulso.addEventListener("click", async () => {
     const sel = document.getElementById("pcSelectCandidatoAvulso");
