@@ -818,6 +818,15 @@ async function renderAceitarDesafio() {
   const fase = pcState.desafioAceitarFase;
   const nomeDesafiante = desafio.criador ? desafio.criador.nome : "Alguém";
   const escopo = desafio.escopo_candidatos || [];
+  // O escopo gravado no duelo não traz a referência de 2022 — completa a
+  // partir do elenco do cargo, pela chave (caixa "2022" do card, 19/09/2026).
+  {
+    const ref = new Map();
+    (origemElencoCargo(desafio.estado, desafio.cargo) || []).forEach((p) => p.candidatos.forEach((c) => {
+      ref.set(chaveCandidato(c.nome, p.nome, c.id), { votos2022: c.votos, eleito2022: !!c.eleito2022 });
+    }));
+    escopo.forEach((c) => { const r = ref.get(c.chave); if (r && !(Number(c.votos2022) > 0)) { c.votos2022 = r.votos2022; c.eleito2022 = r.eleito2022; } });
+  }
   const cargoLabel = (CARGOS.find((c) => c.id === desafio.cargo) || {}).label || "";
   const ehEleitos = desafio.tipo_disputa === "eleitos";
   const votosRivalPorChave = new Map((desafio.votos_criador || []).map((v) => [v.chave, Number(v.votos) || 0]));
@@ -1054,23 +1063,34 @@ async function renderAceitarDesafio() {
         inp.value = (Number(votosAceitar[inp.getAttribute("data-pc-voto-aceitar")]) || 0).toLocaleString("pt-BR");
       });
     });
+    // Desfazer/Zerar/Copiar atualizam a tela EM LUGAR (inputs, faders e
+    // consoles) — antes chamavam renderAceitarDesafio(), que passa pelo
+    // "Carregando…" e espera o banco: a tela piscava (achado do usuário,
+    // 19/09/2026).
+    const aplicarTodos = () => {
+      escopo.forEach((c) => aoMudarChave(c.chave, "lote"));
+      const bV0 = document.getElementById("pcDueloBtnVoltar");
+      if (bV0) bV0.disabled = !pcState.desafioAceitarHistorico.length;
+    };
     const bZ = document.getElementById("pcDueloBtnZerar");
     if (bZ) bZ.addEventListener("click", () => {
       snapDuelo();
       escopo.forEach((c) => { votosAceitar[c.chave] = 0; });
-      renderAceitarDesafio();
+      aplicarTodos();
     });
     const bC = document.getElementById("pcDueloBtnCopiar");
     if (bC) bC.addEventListener("click", () => {
       snapDuelo();
       escopo.forEach((c) => { votosAceitar[c.chave] = votosRivalPorChave.get(c.chave) || 0; });
-      renderAceitarDesafio();
+      aplicarTodos();
     });
     const bV = document.getElementById("pcDueloBtnVoltar");
     if (bV) bV.addEventListener("click", () => {
       if (!pcState.desafioAceitarHistorico.length) return;
-      pcState.desafioAceitarVotos = pcState.desafioAceitarHistorico.pop();
-      renderAceitarDesafio();
+      const anterior = pcState.desafioAceitarHistorico.pop();
+      Object.keys(votosAceitar).forEach((k) => { delete votosAceitar[k]; });
+      Object.assign(votosAceitar, anterior);
+      aplicarTodos();
     });
     const bL = document.getElementById("pcDueloCmdLegendaToggle");
     if (bL) bL.addEventListener("click", () => {
