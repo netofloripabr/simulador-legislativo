@@ -644,7 +644,6 @@ async function renderPainelPrincipal() {
       <button class="pc-app" id="pcMenuDesafios" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("desafio", 30)}</span><span class="pc-app-rot">Duelos</span>${totalDesafiosAtivos ? `<span class="pc-app-badge">${totalDesafiosAtivos}</span>` : ""}</button>
       <button class="pc-app" id="pcMenuGrupos" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("grupos", 30)}</span><span class="pc-app-rot">Grupos</span>${totalGrupos ? `<span class="pc-app-badge">${totalGrupos}</span>` : ""}</button>
       <button class="pc-app" id="pcMenuRanking"><span class="pc-app-ic">${iconeSvg("ranking", 30)}</span><span class="pc-app-rot">Ranking</span></button>
-      <button class="pc-app" id="pcMenuAjudaLobby"><span class="pc-app-ic">${iconeSvg("ajuda", 30)}</span><span class="pc-app-rot">Ajuda</span></button>
       ${ECONOMIA_ATIVA ? `<button class="pc-app" id="pcMenuLoja" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("loja", 30)}</span><span class="pc-app-rot">Loja</span></button>` : ""}
     </div>
 `; })()}
@@ -652,6 +651,7 @@ async function renderPainelPrincipal() {
     <div class="pc-lobby-mais-tit">Mais funções</div>
     <div class="pc-lobby-mais">
       <button class="pc-lobby-mais-item" id="pcMenuTrocarEstado">${iconeSvg("mapa", 15)}<span>Trocar estado · <b style="color:var(--pc-accent);">${pcState.estado}</b></span>${iconeSvg("setaDireita", 13)}</button>
+      <button class="pc-lobby-mais-item" id="pcMenuAjudaLobby">${iconeSvg("ajuda", 15)}<span>Central de ajuda</span>${iconeSvg("setaDireita", 13)}</button>
     </div>
   `;
 
