@@ -404,17 +404,8 @@ function atualizarMenuFixo(destino) {
   }
   const div = document.createElement("div");
   div.id = "pcMenuFixoWrap";
-  // Botão "Início" flutuante (pedido do usuário, 19/09/2026: em Minhas
-  // listas e outras telas a pessoa ficava sem um caminho óbvio de volta —
-  // a pílula fechada vira só uma alça, que a barra do Safari cobre). Fica
-  // fixo no canto inferior esquerdo, acima da alça, em toda tela que não
-  // é a inicial, independente de rolagem.
-  div.innerHTML = renderMenuFixo(destino) + (destino !== "painel"
-    ? `<button type="button" id="pcBtnInicioFlutuante" class="pc-inicio-flutuante" title="Voltar ao início" aria-label="Voltar ao início">${iconeSvg("home", 20)}<span>Início</span></button>`
-    : "");
+  div.innerHTML = renderMenuFixo(destino);
   wrap.appendChild(div);
-  const btnInicio = document.getElementById("pcBtnInicioFlutuante");
-  if (btnInicio) btnInicio.addEventListener("click", () => irParaDestinoMenuFixo("painel"));
   document.getElementById("pcMenuFixoAlca").addEventListener("click", () => {
     pcState.menuFixoAberto = !pcState.menuFixoAberto;
     clearTimeout(pcState._menuFixoAutoCloseTimer);
