@@ -790,10 +790,24 @@ function renderListaSenador(totalVagas, E) {
     <div class="pc-sen-card${eleito ? " eleito" : ""}${c.votosEditado ? " manual" : ""}" data-sen-idx="${it.idx}">
       <div class="pc-sen-l1">
         ${badge}
-        <span class="pc-sen-nm"><span class="pc-sen-nm-txt">${nomeExibicao(c)}</span>${instaDepois}${iconeFinanceiro}${lapisAdmin}</span>
-        <span class="pc-sen-pct" data-pc-sen-editar="${it.idx}"><span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
+        <span class="pc-sen-nm"><span class="pc-sen-nm-txt">${nomeExibicao(c)}</span></span>
+        <span class="pc-dep-cicons">${instaDepois}${iconeFinanceiro}${lapisAdmin}</span>
       </div>
       <div class="pc-sen-sub">${posRanking}º · ${nomePartidoExibicao(it.partido)}${it.partidoOriginal && it.partidoOriginal !== it.partido ? ` (${it.partidoOriginal})` : ""}</div>
+      ${(() => {
+        // Mesmas 3 caixas do card de Deputados (card v2, 18/09/2026) — a
+        // de votos guarda .pc-sen-pct/.valNum pro atualizarCardSenador.
+        const v22 = Number(c.votos2022) || 0;
+        const ref22 = v22 > 0
+          ? `<span class="tv">${v22.toLocaleString("pt-BR")}</span><span class="tr">2022${c.eleito2022 ? (String(c.genero || "").toUpperCase().startsWith("FEM") ? " · eleita" : " · eleito") : ""}</span>`
+          : `<span class="tv">—</span><span class="tr">sem 2022</span>`;
+        return `
+      <div class="pc-dep-tiles">
+        <div class="pc-dep-tile ref" title="${v22 > 0 ? `Votação de 2022: ${v22.toLocaleString("pt-BR")} votos` : "Não concorreu ao Senado em 2022"}">${ref22}</div>
+        <div class="pc-dep-tile termo" data-pc-dep-termo="${escaparAtributoHtml(c.chave)}" title="Termômetro 2026 — mediana dos palpites dos outros participantes pra este candidato (revelação com SL)"><span class="tv">${iconeSvg("cadeado", 11)}</span><span class="tr">Termômetro</span></div>
+        <div class="pc-dep-tile votos pc-sen-pct" data-pc-sen-editar="${it.idx}" title="Toque pra digitar os votos"><span class="tv valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="tr valRot">Votos 2026</span></div>
+      </div>`;
+      })()}
       ${painelFinanceiro}
       ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
       <div class="pc-fader-linha">
@@ -845,7 +859,8 @@ function atualizarCardSenador(idx, E) {
   // E (curso do fader), número sobre 2E (régua do cabeçalho).
   const pctBarra = E > 0 ? (Number(c.votos) || 0) / E * 100 : 0;
   const pctLabel = E > 0 ? (Number(c.votos) || 0) / (E * 2) * 100 : 0;
-  card.querySelector(".pc-sen-pct").innerHTML = `<span class="valNum">${(Number(c.votos) || 0).toLocaleString("pt-BR")}</span><span class="valRot">votos</span>`;
+  const valNumSen = card.querySelector(".pc-sen-pct .valNum");
+  if (valNumSen) valNumSen.textContent = (Number(c.votos) || 0).toLocaleString("pt-BR");
   card.querySelector(".pc-sen-fill").style.width = Math.min(100, pctBarra) + "%";
   card.querySelector(".pc-sen-grip").style.left = Math.min(100, pctBarra) + "%";
   const gripAlvoSen = card.querySelector(".pc-sen-grip-alvo");

@@ -1297,11 +1297,14 @@
   /* flex:1 1 0 empurra a caixa de votos pro final fixo da linha (mesmo
      bug do card de Deputados — achado do usuário, 28/08/2026). */
   flex:1 1 0; min-width:0;
-  font-size:13px; font-weight:650; color:#F2F4F5; line-height:1.25;
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  display:flex; align-items:center; gap:5px;
+  /* Card v2 (18/09/2026): mesma régua do nome de Deputados, quebra em vez
+     de cortar — a caixa de votos desceu pras 3 caixas. */
+  font-size:clamp(11.9px, 2.04vw, 16.6px); font-weight:750; color:#F2F4F5; line-height:1.15;
+  overflow:visible; white-space:normal; display:block;
 }
-#modoColaborativoWrap .pc-sen-nm .pc-sen-nm-txt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#modoColaborativoWrap .pc-sen-nm .pc-sen-nm-txt{ display:block; white-space:normal; }
+#modoColaborativoWrap .pc-sen-card .pc-sen-chip{ font-size:7.6px; padding:2.4px 5.6px; min-width:14.4px; height:14.4px; }
+#modoColaborativoWrap .pc-sen-card .pc-dep-tiles{ margin-top:8px; }
 /* Número de votos na mesma linha do nome (no lugar de onde a % ficava),
    com "votos" numa linha curta abaixo — caixa suave por trás do número
    diferencia do nome sem depender de cor. Clicável — toque abre a
@@ -1309,19 +1312,8 @@
 /* O rótulo "votos" fica FORA do fluxo (absoluto, pendurado embaixo) —
    assim o NÚMERO centraliza na mesma linha horizontal do nome do
    candidato, sem o rótulo empurrar ele pra cima (pedido 28/08/2026). */
-#modoColaborativoWrap .pc-sen-pct{
-  flex:none; position:relative; align-self:center; display:flex; align-items:center;
-  cursor:pointer;
-}
-#modoColaborativoWrap .pc-sen-pct .valNum{
-  font-size:16px; font-weight:800; color:#F2F4F5; font-variant-numeric:tabular-nums; line-height:1;
-  background:rgba(242,244,245,.07); border:1px solid rgba(242,244,245,.1);
-  border-radius:7px; padding:3px 8px;
-}
-#modoColaborativoWrap .pc-sen-pct .valRot{
-  position:absolute; top:100%; right:2px; margin-top:3px;
-  font-size:9px; font-weight:650; color:#8A9096; line-height:1;
-}
+/* .pc-sen-pct virou a caixa "Votos 2026" (.pc-dep-tile.votos) em 18/09/2026. */
+#modoColaborativoWrap .pc-sen-pct{ cursor:pointer; }
 #modoColaborativoWrap .pc-sen-sub{ font-size:10.5px; color:#8A9096; margin-top:1px; }
 #modoColaborativoWrap .pc-sen-slider{
   position:relative; height:31px; margin-top:7px; cursor:default;
@@ -2128,7 +2120,7 @@
   display:inline-flex; vertical-align:middle; margin-left:4px; position:relative; top:-2px;
 }
 #modoColaborativoWrap .pc-dep-cl1{ gap:9px; }
-#modoColaborativoWrap .pc-sen-l1{ gap:10px; }
+#modoColaborativoWrap .pc-sen-l1{ gap:7px; }
 
 /* Ícone de moeda (bens/recursos, dados do TSE) — mesmo padrão visual e de
    posição do .pc-insta-mini acima, ao lado dele. Painel abre embaixo do
