@@ -42,14 +42,14 @@ async function renderGrupoHub() {
     <div class="pc-lobby-banner" style="margin-bottom:16px;">
       <div class="pc-lobby-banner-eyebrow">Convide e ganhe</div>
       <div class="pc-lobby-banner-titulo">Seu link pessoal de convite</div>
-      <div class="pc-lobby-banner-corpo">Cada amigo que entrar pelo seu link e <b>depositar a primeira cédula</b> rende <b>1 SL</b> pra você, automaticamente. Você recebe uma notificação a cada convite convertido.</div>
+      <div class="pc-lobby-banner-corpo">${ECONOMIA_ATIVA ? "Cada amigo que entrar pelo seu link e <b>depositar a primeira cédula</b> rende <b>1 SL</b> pra você, automaticamente." : "Mande seu link pra quem gosta de discutir eleição — quem entrar por ele já cai direto no app."} Você recebe uma notificação a cada convite convertido.</div>
       <div style="display:flex; gap:8px; flex-wrap:wrap;">
         <button class="pc-lobby-banner-btn" id="pcBtnCopiarConvite">${iconeSvg("copiar", 13)} Copiar link</button>
         <button class="pc-lobby-banner-btn" id="pcBtnZapConvite" style="background:none; border:1px solid #4D545C; color:var(--pc-ink);">${iconeSvg("send", 13)} WhatsApp</button>
       </div>
       <div class="pc-status" id="pcConviteStatus" style="margin-top:6px; min-height:12px;"></div>
     </div>` : ""}
-    ${pcState.avisoLimiteGrupoAberto ? `
+    ${pcState.avisoLimiteGrupoAberto && ECONOMIA_ATIVA ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Você chegou no limite grátis</div>
       <div class="pc-aviso-corpo">Sua conta tem espaço grátis pra <b>1 grupo criado</b>. Abrir outro custa <b>10 SL</b> — dá pra juntar convidando amigos: cada convite que vira cédula depositada rende <b>1 SL</b> (Menu → Convidar amigos), além dos SL dos marcos de presença e da Loja.</div>
@@ -300,7 +300,7 @@ async function renderGrupoMembro() {
           ${ehVip ? `<span style="font-size:8.5px; font-weight:800; letter-spacing:.06em; background:rgba(232,236,239,.35); border:1px solid rgba(242,244,245,.4); color:var(--pc-ink); border-radius:5px; padding:2px 7px;">VIP · entrada livre pra convidados</span>` : ""}
         </span>
       </div>
-      ${souDono && capacidade < 30 ? `
+      ${souDono && capacidade < 30 && ECONOMIA_ATIVA ? `
       <div class="pc-lobby-linha" style="flex-direction:column; align-items:stretch; gap:8px;">
         <span style="font-size:11px; color:var(--pc-ink-dim);">Amplie o grupo — quem entra pelo seu código nunca paga nada:</span>
         <div style="display:flex; gap:8px;">

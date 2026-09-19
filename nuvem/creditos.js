@@ -17,6 +17,7 @@
 // chamar essa mesma função; nada aqui precisa mudar.
 
 async function obterSaldoCreditos(perfilId) {
+  if (typeof ECONOMIA_ATIVA !== "undefined" && !ECONOMIA_ATIVA) return 0; // economia desligada (19/09/2026)
   const { data, error } = await supabaseClient
     .from("creditos_conta")
     .select("saldo")
@@ -27,6 +28,7 @@ async function obterSaldoCreditos(perfilId) {
 }
 
 async function consumirCreditoConta(perfilId) {
+  if (typeof ECONOMIA_ATIVA !== "undefined" && !ECONOMIA_ATIVA) return { consumiu: true, error: null }; // economia desligada
   const { data, error } = await supabaseClient.rpc("consumir_credito_proprio", { p_perfil_id: perfilId });
   if (error) return { consumiu: false, error };
   return { consumiu: !!data, error: null };
@@ -89,6 +91,7 @@ async function adminSaldos(limite) {
 // nova cédula depositada (70) etc. Devolve gastou=false se saldo
 // insuficiente (nada é debitado nem registrado nesse caso).
 async function gastarCreditosConta(perfilId, quantidade, tipo, referencia) {
+  if (typeof ECONOMIA_ATIVA !== "undefined" && !ECONOMIA_ATIVA) return { gastou: true, error: null }; // economia desligada
   const { data, error } = await supabaseClient.rpc("gastar_creditos_proprio", {
     p_perfil_id: perfilId, p_quantidade: quantidade, p_tipo: tipo, p_referencia: referencia || null,
   });

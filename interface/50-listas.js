@@ -576,12 +576,12 @@ async function renderMinhasListas() {
       <div class="pc-aviso-titulo">Edição de cédula</div>
       <div class="pc-aviso-corpo">${pcState.avisoEdicaoStatus}</div>
     </div>` : ""}
-    ${pcState.avisoLimiteCedulaAberto ? `
+    ${pcState.avisoLimiteCedulaAberto && ECONOMIA_ATIVA ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Sua cédula oficial já está na urna</div>
       <div class="pc-aviso-corpo">Cada conta deposita <b>1 cédula grátis</b> — é ela que vale no ranking. Depositar uma segunda (cenário paralelo) custa <b>70 créditos</b>.<br><br>Créditos vêm de convites: cada amigo que entra e deposita a primeira cédula rende <b>10</b> (Menu → Convidar amigos).</div>
     </div>` : ""}
-    ${pcState.avisoLimiteListaAberto ? `
+    ${pcState.avisoLimiteListaAberto && ECONOMIA_ATIVA ? `
     <div class="pc-aviso-card">
       <div class="pc-aviso-titulo">Você chegou no limite grátis</div>
       <div class="pc-aviso-corpo">Sua conta tem espaço grátis pra <b>2 listas em aberto</b> — e as duas já estão em uso. Criar mais uma custa <b>1 crédito</b>.<br><br>O jeito grátis de ganhar créditos: <b>convide um amigo</b> — quando ele criar conta e depositar a primeira cédula, você ganha <b>10 créditos</b> (Menu → Convidar amigos).</div>
@@ -1254,7 +1254,7 @@ function renderModalSalvarDestino() {
         ${sel === "novo"
           ? `<input class="pc-slotb-input" id="pcInputDestinoNome" placeholder="nome da lista…" maxlength="40" value="${escaparAtributoHtml(pcState._destinoNomeDigitado || "")}">`
           : `<div class="pc-slotb-nome vazia">vazio — toque pra salvar aqui</div>`}
-        <div class="pc-slotb-meta">${pcState._destinoDesbloqueado && !podeVazioGratis ? "slot desbloqueado — 1 crédito ao salvar" : "&nbsp;"}</div>
+        <div class="pc-slotb-meta">${pcState._destinoDesbloqueado && !podeVazioGratis && ECONOMIA_ATIVA ? "slot desbloqueado — 1 crédito ao salvar" : "&nbsp;"}</div>
       </div>
     </div>`);
   } else {
@@ -1263,7 +1263,7 @@ function renderModalSalvarDestino() {
       ${anel(numVazio, null, "trancado")}
       <div class="pc-slotb-corpo">
         <div class="pc-slotb-nome" style="color:var(--pc-ink-dim);">Bloqueado</div>
-        <div class="pc-slotb-meta">${pcState.perfil ? `1 crédito (saldo: ${pcState.perfil.creditos || 0}) — ou convide um amigo` : "criar outra lista pede uma conta"}</div>
+        <div class="pc-slotb-meta">${pcState.perfil ? (ECONOMIA_ATIVA ? `1 crédito (saldo: ${pcState.perfil.creditos || 0}) — ou convide um amigo` : "toque pra desbloquear") : "criar outra lista pede uma conta"}</div>
       </div>
     </div>`);
   }

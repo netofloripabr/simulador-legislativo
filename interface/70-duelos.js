@@ -137,7 +137,7 @@ async function _renderDesafiosHubCorpo(conteudo) {
       ${dueloAberto ? `
       <div class="pc-duelo-acoes">
         <button class="primary" data-pc-duelo-cartao="${d.codigo}" data-pc-duelo-nome="${escaparAtributoHtml(d.nome)}" data-pc-duelo-cargo="${d.cargo}" data-pc-duelo-ncand="${(d.escopo_candidatos || []).length}" data-pc-duelo-uf="${d.estado}" title="Enviar o convite" style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:9px;">${iconeSvg("compartilhar", 15)} Enviar convite</button>
-        <button class="ghost" data-pc-cancelar="${d.id}" title="Cancelar${d.custo_sl ? ` e recuperar ${d.custo_sl} SL` : ""}" style="font-size:16px; line-height:1; padding:9px 12px;">×</button>
+        <button class="ghost" data-pc-cancelar="${d.id}" title="Cancelar${d.custo_sl && ECONOMIA_ATIVA ? ` e recuperar ${d.custo_sl} SL` : ""}" style="font-size:16px; line-height:1; padding:9px 12px;">×</button>
       </div>` : ""}
       ${["selado", "apuracao", "encerrado"].includes(d.status) ? `<div class="pc-duelo-acoes"><button class="ghost" data-pc-comparar="${d.id}" style="flex:1; font-size:11.5px; display:flex; align-items:center; justify-content:center; gap:6px;">Ver comparação ${setaSvg}</button></div>` : ""}
     </div>`;
@@ -611,7 +611,7 @@ async function _renderCriarDesafioCorpo(conteudo) {
       <input class="cell" id="pcInputNomeDesafio" placeholder="Duelo de Titãs" maxlength="40" value="${escaparAtributoHtml(pcState.desafioCriarNome || "")}" style="width:100%; margin-bottom:10px;">
 
       <div class="pc-precinho">
-        <span class="pc-precinho-txt"><b>Grátis</b> — duelar não custa SL, desafie quantos quiser.</span>
+        <span class="pc-precinho-txt"><b>Grátis</b> — desafie quantos quiser.</span>
         <span class="pc-precinho-val" style="color:var(--pc-accent);">grátis</span>
       </div>
 

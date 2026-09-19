@@ -80,8 +80,8 @@ function renderAppColaborativo() {
       atualizarMenuFixo("desafios");
     } else { renderDesafiosHub(); atualizarMenuFixo("desafios"); }
   }
-  else if (pcState.subaba === "carteira") { renderCarteira(); atualizarMenuFixo("carteira"); }
-  else if (pcState.subaba === "loja") { renderLoja(); atualizarMenuFixo("loja"); }
+  else if (pcState.subaba === "carteira" && ECONOMIA_ATIVA) { renderCarteira(); atualizarMenuFixo("carteira"); }
+  else if (pcState.subaba === "loja" && ECONOMIA_ATIVA) { renderLoja(); atualizarMenuFixo("loja"); }
   else if (pcState.subaba === "notificacoes") { renderNotificacoes(); atualizarMenuFixo("notificacoes"); }
   // Subaba desconhecida (typo, sessão antiga restaurada): cai no PAINEL,
   // não mais no Ranking por acidente — o ranking ganhou ramo explícito
@@ -222,7 +222,7 @@ function renderMenuConta() {
     <div class="glass-card" style="padding:0; overflow:hidden; margin-bottom:18px;">
       ${linhaMenu("pcBtnMenuDados", "perfil", "#2C3239", "Meus dados", "Telefone, CEP, município, gênero")}
       ${linhaMenu("pcBtnMenuSenha", "chave", "#2C3239", "Trocar senha", "Atualize sua senha de acesso")}
-      ${linhaMenu("pcBtnMenuCreditos", "credito", "#2C3239", "Créditos", `Saldo: ${Number(p.creditos ?? 0).toLocaleString("pt-BR")} crédito${(p.creditos ?? 0) === 1 ? "" : "s"} — toque pro extrato`)}
+      ${ECONOMIA_ATIVA ? linhaMenu("pcBtnMenuCreditos", "credito", "#2C3239", "Créditos", `Saldo: ${Number(p.creditos ?? 0).toLocaleString("pt-BR")} crédito${(p.creditos ?? 0) === 1 ? "" : "s"} — toque pro extrato`) : ""}
       <div style="display:flex; align-items:center; gap:13px; padding:14px 16px; border-bottom:1px solid var(--pc-glass-border);">
         <div style="width:36px; height:36px; border-radius:10px; background:#2C3239; border:1px solid #4D545C; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${iconeSvg("alerta", 17)}</div>
         <div style="flex:1; min-width:0;">
@@ -265,7 +265,8 @@ function renderMenuConta() {
     await atualizarPerfil(p.id, { notif_email: valor });
   });
   document.getElementById("pcBtnMenuReportar").addEventListener("click", () => { pcState.modalReportarProblema = true; renderMenuConta(); });
-  document.getElementById("pcBtnMenuCreditos").addEventListener("click", async () => {
+  const btnMenuCreditos = document.getElementById("pcBtnMenuCreditos");
+  if (btnMenuCreditos) btnMenuCreditos.addEventListener("click", async () => {
     pcState.modalCreditos = { carregando: true };
     renderMenuConta();
     const [saldo, extrato] = await Promise.all([
@@ -471,7 +472,7 @@ function diasAteEleicao() {
 // hora de ligar de novo. Não apagar as mensagens/CSS junto.
 const LETREIRO_ATIVO = false;
 const LETREIRO_MENSAGENS = [
-  { tag: "Dica", texto: "Convide amigos: quando alguém entra pelo seu link e deposita a 1ª cédula, você ganha 1 SL" },
+  { tag: "Dica", texto: "Convide amigos: mande seu link pra quem gosta de discutir eleição" },
   { tag: "Orientação", texto: "Arraste a barra do candidato pra distribuir os votos — ou toque duas vezes pra digitar o número direto" },
   { tag: "Orientação", texto: "O botão \"Salvar\" já registra o palpite — não precisa de mais nenhum passo depois" },
   { tag: "Dica", texto: "Depois do quociente partidário, o resto das vagas vai pra aba \"Disputa das sobras\"" },
@@ -582,7 +583,7 @@ async function renderPainelPrincipal() {
 
     <div class="pc-topbar">
       <div class="pc-topbar-marca"><span class="pc-topbar-nome"><b>Simula</b>LEGIS</span><span class="pc-topbar-prevendo">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: chapa completa"}</span></div>
-      ${pcState.perfil ? `<button class="pc-topbar-cred" id="pcBtnSaldoTopo" title="Seus créditos">${iconeSvg("credito", 14)}<span>${Number((pcState.perfil && pcState.perfil.creditos) || 0)}</span></button>` : ""}
+      ${pcState.perfil && ECONOMIA_ATIVA ? `<button class="pc-topbar-cred" id="pcBtnSaldoTopo" title="Seus créditos">${iconeSvg("credito", 14)}<span>${Number((pcState.perfil && pcState.perfil.creditos) || 0)}</span></button>` : ""}
       <button class="pc-topbar-btn" id="pcBtnConvidarTopo" title="Convidar amigos">${iconeSvg("convidar", 17)}</button>
       ${pcState.perfil ? `<button class="pc-topbar-btn" id="pcBtnSinoTopo" title="Notificações" style="position:relative;">${iconeSvg("sino", 17)}${pcState.notificacoesNaoLidas ? `<span class="pc-topbar-pip"></span>` : ""}</button>` : ""}
       <button class="pc-topbar-btn" id="pcBtnPerfilTopo" title="${gateConvidado ? "Precisa se cadastrar" : "Menu e perfil"}">${iconeSvg("perfil", 17)}</button>
@@ -659,10 +660,10 @@ async function renderPainelPrincipal() {
         <span class="pc-lobby-tile-rot">Duelos</span>
         ${totalDesafiosAtivos ? `<span class="pc-lobby-tile-badge">${totalDesafiosAtivos}</span>` : ""}
       </button>
-      <button class="pc-lobby-tile" id="pcMenuLoja" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
+      ${ECONOMIA_ATIVA ? `<button class="pc-lobby-tile" id="pcMenuLoja" ${gateConvidado ? 'data-pc-gate="1"' : ""}>
         <span class="pc-lobby-tile-ic">${iconeSvg("loja", 24)}</span>
         <span class="pc-lobby-tile-rot">Loja</span>
-      </button>
+      </button>` : ""}
     </div>
 
     <div class="pc-lobby-mais-tit">Mais funções</div>

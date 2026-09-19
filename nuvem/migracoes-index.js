@@ -1249,5 +1249,32 @@ const MIGRACOES_INDEX = [
     "recusar_desafio"
    ]
   ]
+ },
+ {
+  "num": 53,
+  "arquivo": "migracao-53-economia-desligada.sql",
+  "descricao": "Migração 53 — economia SL DESLIGADA por chave (19/09/2026).",
+  "objetos": [
+   [
+    "table",
+    "config_app"
+   ],
+   [
+    "policy",
+    "config_app_leitura"
+   ],
+   [
+    "function",
+    "economia_ativa"
+   ],
+   [
+    "function",
+    "gastar_creditos"
+   ],
+   [
+    "function",
+    "consumir_credito"
+   ]
+  ]
  }
 ];

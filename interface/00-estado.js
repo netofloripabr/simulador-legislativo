@@ -16,6 +16,16 @@
 // nunca precisar lembrar de bumpar em 2 lugares — já é obrigatório subir
 // esse número em TODAS as tags <script> junto (regra do CLAUDE.md), isso
 // só aproveita o que já teria que estar certo de qualquer forma.
+// ===== Economia SL DESLIGADA (decisão do usuário, 19/09/2026) =====
+// Não houve adesão à venda de SL, então a economia inteira (saldo, loja,
+// carteira, cobranças de crédito, textos "custa N SL") fica DESATIVADA —
+// não apagada. Com false: nada é cobrado (nuvem/creditos.js devolve
+// "consumiu/gastou" sem chamar o banco, e a migração 53 faz o mesmo do
+// lado do servidor), e toda menção a SL some da interface. Pra religar,
+// trocar pra true aqui E `update public.config_app set valor='true' where
+// chave='economia_ativa'` no banco. Não remover o código da economia.
+const ECONOMIA_ATIVA = false;
+
 const PC_VERSAO_APP = (() => {
   try {
     const src = document.currentScript && document.currentScript.src;

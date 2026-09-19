@@ -1801,13 +1801,13 @@ async function renderQuadroMedias() {
       <div class="pc-tm-linha-op pc-tm-coringa" id="pcBtnCoringa">
         <span class="pc-tm-op-ic">${iconeSvg("desafio", 15)}</span>
         <span class="pc-tm-op-c"><span class="pc-tm-op-t">Coringa</span><span class="pc-tm-op-d">O sistema sorteia 1 candidato e abre a votação dele</span></span>
-        <span class="pc-tm-op-p" style="color:#E8B04A;">2 SL</span>
+        ${ECONOMIA_ATIVA ? `<span class="pc-tm-op-p" style="color:#E8B04A;">2 SL</span>` : `<span class="pc-tm-op-p" style="color:var(--pc-accent);">grátis</span>`}
       </div>
 
       <div class="pc-tm-linha-op" id="pcBtnRevelarAvulso" data-custo7="3" data-custo-def="5">
         <span class="pc-tm-op-ic">${iconeSvg("buscar", 14)}</span>
         <span class="pc-tm-op-c"><span class="pc-tm-op-t">Candidato</span><span class="pc-tm-op-d">Escolha de quem abrir a votação</span></span>
-        <span class="pc-tm-op-p">5 SL</span>
+        ${ECONOMIA_ATIVA ? `<span class="pc-tm-op-p">5 SL</span>` : `<span class="pc-tm-op-p" style="color:var(--pc-accent);">grátis</span>`}
       </div>
       <select class="cell" id="pcSelectCandidatoAvulso" style="width:100%; margin:-4px 0 8px;">
         ${candidatosVotoOculto.map((c) => `<option value="${c.chave}">${c.nomeUrna || c.nome} — ${c.partido}</option>`).join("")}
@@ -1816,12 +1816,12 @@ async function renderQuadroMedias() {
       <div class="pc-tm-linha-op" id="pcBtnRevelarPacote" data-custo7="20" data-custo-def="35">
         <span class="pc-tm-op-ic">${iconeSvg("lista", 14)}</span>
         <span class="pc-tm-op-c"><span class="pc-tm-op-t">Pacote de 10</span><span class="pc-tm-op-d">10 candidatos com a votação ainda fechada</span></span>
-        <span class="pc-tm-op-p">35 SL</span>
+        ${ECONOMIA_ATIVA ? `<span class="pc-tm-op-p">35 SL</span>` : `<span class="pc-tm-op-p" style="color:var(--pc-accent);">grátis</span>`}
       </div>
       <div class="pc-tm-linha-op" id="pcBtnRevelarCargo" data-custo7="30" data-custo-def="50">
         <span class="pc-tm-op-ic">${iconeSvg("checkCirculo", 14)}</span>
         <span class="pc-tm-op-c"><span class="pc-tm-op-t">Cargo inteiro</span></span>
-        <span class="pc-tm-op-p">50 SL</span>
+        ${ECONOMIA_ATIVA ? `<span class="pc-tm-op-p">50 SL</span>` : `<span class="pc-tm-op-p" style="color:var(--pc-accent);">grátis</span>`}
       </div>
 
       <div class="pc-tm-dur">
@@ -1884,7 +1884,7 @@ async function renderQuadroMedias() {
       document.querySelectorAll("[data-custo7]").forEach((op) => {
         const custo = dias === "7" ? op.getAttribute("data-custo7") : op.getAttribute("data-custo-def");
         const preco = op.querySelector(".pc-tm-op-p");
-        if (preco) preco.textContent = custo + " SL";
+        if (preco) preco.textContent = ECONOMIA_ATIVA ? custo + " SL" : "grátis";
       });
     });
   });
