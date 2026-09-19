@@ -130,6 +130,10 @@ function salvarAvisoLimiteVagasOculto(oculto) {
 // navegador — sem esta flag ele reabria a cada recarregada da página
 // (bug achado em 21/08/2026 durante verificação no preview).
 const CHAVE_TUTORIAL_VISTO = "simulador-legislativo-tutorial-visto";
+// Tutorial DESLIGADO (pedido do usuário, 19/09/2026) — o Farol já orienta
+// dentro da tela; a instrução dos "..." na 1ª visita fica guardada, não
+// apagada. Trocar pra true religa exatamente como era.
+const TUTORIAL_PRIMEIRA_VISITA_ATIVO = false;
 function tutorialVistoSalvo() {
   try { return localStorage.getItem(CHAVE_TUTORIAL_VISTO) === "1"; } catch (e) { return false; }
 }
@@ -2990,7 +2994,7 @@ async function renderCargoEstadual() {
     ? renderListaSenador(totalVagasCargo, votosValidos2026Proj)
     : renderListaDeputadosFader(partidosParaMostrar, votosValidos2026Proj, totalVagasCargo);
 
-  const instrucaoAberta = pcState.instrucaoSelecaoAberta !== false && !tutorialVistoSalvo();
+  const instrucaoAberta = TUTORIAL_PRIMEIRA_VISITA_ATIVO && pcState.instrucaoSelecaoAberta !== false && !tutorialVistoSalvo();
   // Card do Painel Eleitoral — renderizado no slot do cabeçalho fixo
   // (#pcPainelSlot, criado por renderSelecaoCandidatos), NÃO dentro de
   // pcCargoConteudo: abas de cargo + este card formam um bloco único
