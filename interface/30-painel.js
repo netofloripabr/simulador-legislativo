@@ -639,6 +639,7 @@ async function renderPainelPrincipal() {
 
     <div class="pc-lobby-menu-tit">Atalhos</div>
     <div class="pc-app-grade">
+      <button class="pc-app" id="pcMenuListas"><span class="pc-app-ic">${iconeSvg("lista", 36)}</span><span class="pc-app-rot">Listas</span>${totalListas ? `<span class="pc-app-badge">${totalListas}</span>` : ""}</button>
       <button class="pc-app" id="pcMenuMedias" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("termometro", 36)}</span><span class="pc-app-rot">Termômetro</span></button>
       <button class="pc-app" id="pcMenuDesafios" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("desafio", 36)}</span><span class="pc-app-rot">Duelos</span>${totalDesafiosAtivos ? `<span class="pc-app-badge">${totalDesafiosAtivos}</span>` : ""}</button>
       <button class="pc-app" id="pcMenuGrupos" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("grupos", 36)}</span><span class="pc-app-rot">Grupos</span>${totalGrupos ? `<span class="pc-app-badge">${totalGrupos}</span>` : ""}</button>
@@ -674,6 +675,7 @@ async function renderPainelPrincipal() {
   // deposita a cédula.
   const btnUrna = document.getElementById("pcBtnUrna");
   if (btnUrna) btnUrna.addEventListener("click", irParaListas);
+  document.getElementById("pcMenuListas").addEventListener("click", irParaListas);
   // Herói (v2, 19/09/2026): sem lista/em andamento → Seleção (o palpite
   // ativo continua de onde parou); completa → Revisão pra depositar.
   const btnHeroi = document.getElementById("pcBtnHeroi");
