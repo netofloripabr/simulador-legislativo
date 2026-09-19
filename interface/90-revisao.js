@@ -1883,9 +1883,35 @@ async function renderQuadroMedias() {
     <div style="height:6px; background:var(--pc-glass); border:1px solid var(--pc-glass-border); border-radius:4px; overflow:hidden; margin:-8px 0 4px;"><div style="width:${Math.round(Math.min(1, reaisNoEstado / LIMIAR_MEDIANA_REAL) * 100)}%; height:100%; background:var(--pc-accent); opacity:.7;"></div></div>
     <div style="font-size:10px; color:var(--pc-ink-faint); margin:0 0 14px 2px;">${reaisNoEstado} de ${LIMIAR_MEDIANA_REAL} cédulas reais pra virar "mediana do grupo"</div>` : ""}
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
-    <div class="pc-lobby-card" style="padding:14px;">
-      ${desenharHemiciclo(seatsProj, totalVagasCargo, { preenchido: "rgba(52,232,74,.14)", vago: "#1B1E22", borda: "var(--pc-ink)", texto: "var(--pc-ink)", porPartido: false })}
-    </div>
+    ${(() => {
+      // Plenário = o MESMO "terreno" da montagem de listas (pedido do
+      // usuário, 19/09/2026), recolhível, com a legenda de cores embaixo —
+      // aqui composto pelas vagas projetadas pela mediana (seatsProj).
+      const comp = seatsProj.filter((p) => p.seats > 0);
+      const _k = "plenarioColapsado_tm_" + cargo;
+      const colapsado = pcState.expandido[_k] === undefined ? true : !!pcState.expandido[_k];
+      const ord = [...comp].sort((a, b) => b.seats - a.seats);
+      const legenda = `<div style="display:flex; flex-wrap:wrap; gap:4px; opacity:0.55;">${ord.map((o, idx) => `
+        <div style="display:inline-flex; align-items:center; justify-content:center; gap:3px; padding:4px 6px; border:1px solid rgba(242,244,245,.12); border-radius:6px; white-space:nowrap;">
+          <span style="width:5px; height:5px; border-radius:50%; background:${corTerreno(idx)}; flex-shrink:0;"></span>
+          <span style="font-size:9px; font-weight:600;">${siglaCurta(o.nome)}: ${o.seats} (${(o.seats / totalVagasCargo * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</span>
+        </div>`).join("")}</div>`;
+      return `
+    <div class="glass-card" style="padding:14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+        <div class="pc-sub" style="margin:0;">Plenário projetado — ${totalVagasCargo} vagas</div>
+        <button id="pcBtnColapsarPlenarioTm" class="pc-mini-btn" title="${colapsado ? "Expandir" : "Recolher"}">
+          <svg viewBox="0 0 16 16" width="13" height="13" style="transform:${colapsado ? "rotate(-90deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </button>
+      </div>
+      <div id="pcPlenarioCorpoTm" class="pc-plen-corpo${colapsado ? "" : " aberto"}">
+        <div style="margin-top:14px;">
+          ${renderPlenarioTerreno(comp, totalVagasCargo)}
+          <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legenda}</div>
+        </div>
+      </div>
+    </div>`;
+    })()}
     ${chipsVagas ? `<div class="pc-tm-vagas">${chipsVagas}</div>` : ""}
     <div class="pc-dep-card" style="padding:0 12px;"><div class="pc-dep-cands">
       ${projecao.length ? projecao.map((c, i) => linha(c, i)).join("") : estadoVazio({ icone: "chart", titulo: "Ninguém preencheu esse cargo", texto: "Assim que alguém depositar uma cédula pública desse cargo, o Termômetro aparece aqui." })}
@@ -1896,6 +1922,15 @@ async function renderQuadroMedias() {
   `;
   if (coringaOverlay) document.body.insertAdjacentHTML("beforeend", coringaOverlay);
 
+  const btnPlenTm = document.getElementById("pcBtnColapsarPlenarioTm");
+  if (btnPlenTm) btnPlenTm.addEventListener("click", () => {
+    const k = "plenarioColapsado_tm_" + cargo;
+    const atual = pcState.expandido[k] === undefined ? true : !!pcState.expandido[k];
+    pcState.expandido[k] = !atual;
+    const corpo = document.getElementById("pcPlenarioCorpoTm");
+    if (corpo) { corpo.classList.toggle("aberto", atual); }
+    btnPlenTm.querySelector("svg").style.transform = atual ? "none" : "rotate(-90deg)";
+  });
   document.querySelectorAll("[data-pc-cargo-medias]").forEach((btn) => {
     btn.addEventListener("click", () => {
       pcState.cargoAtivoMedias = btn.getAttribute("data-pc-cargo-medias");
