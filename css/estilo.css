@@ -2618,7 +2618,7 @@
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.09'/%3E%3C/svg%3E") repeat,
     rgba(242,244,245,.04);
   -webkit-backdrop-filter:blur(18px) saturate(1.1); backdrop-filter:blur(18px) saturate(1.1);
-  border:1px solid transparent;
+  border:0; /* a borda é o ::after abaixo, rente à extremidade (sem aresta) */
   box-shadow:0 6px 18px rgba(0,0,0,.40);
 }
 /* Borda em degradê linear (pedido 19/09/2026): luz no alto à esquerda
