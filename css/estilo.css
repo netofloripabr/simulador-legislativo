@@ -2614,7 +2614,10 @@
   min-height:92px; padding:14px 6px 11px; border-radius:16px;
   /* Vidro chapado (sem degradê — escolha do usuário, 19/09/2026) + grão
      fino por cima (mesma textura feTurbulence do fundo do app). */
+  /* Ordem das camadas (de cima pra baixo): degradê suave POR CIMA do
+     grão (pedido 19/09/2026), grão, vidro chapado. */
   background:
+    linear-gradient(160deg, rgba(242,244,245,.055), rgba(242,244,245,.012) 55%, rgba(0,0,0,.10)),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.09'/%3E%3C/svg%3E") repeat,
     rgba(242,244,245,.04);
   -webkit-backdrop-filter:blur(18px) saturate(1.1); backdrop-filter:blur(18px) saturate(1.1);
