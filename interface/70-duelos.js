@@ -942,35 +942,40 @@ async function renderAceitarDesafio() {
   // usuário 09/09/2026, protótipo aprovado em _proto-duelo-refino.html.
   // A votação de cada lado (desafiante/você) vira duas colunas centradas
   // à direita, com um trilho vertical contínuo entre elas.
-  const linhaCandidatoHtml = (c) => {
+  // Card do candidato = o MESMO da montagem de listas (protótipo aprovado
+  // 19/09/2026): posição · nome · partido · ícones; 3 caixas (2022 /
+  // Desafiante / Você — a sua é um input dentro da caixa, mesmo
+  // data-pc-voto-aceitar de antes, então os listeners não mudam); fader.
+  const linhaCandidatoHtml = (c, i) => {
     const v = Number(votosAceitar[c.chave]) || 0;
     const linkInsta = linkInstagramDe(c.chave);
     const instaDepois = linkInsta ? `<a href="${escaparAtributoHtml(linkInsta)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" class="pc-insta-mini" onclick="event.stopPropagation()">${iconeSvg("instagram", 14)}</a>` : "";
     const { icone: iconeFinanceiro, painel: painelFinanceiro } = financeiroIconeHtml(c);
+    const v22 = Number(c.votos2022) || 0;
+    const caixaRival = votosOcultos
+      ? `<div class="pc-dep-tile termo" title="O desafiante escondeu os votos até você selar"><span class="tv">${iconeSvg("cadeadoSlot", 11)}</span><span class="tr">Desafiante</span></div>`
+      : `<div class="pc-dep-tile ref rival" title="Palpite do desafiante"><span class="tv">${(votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR")}</span><span class="tr">Desafiante</span></div>`;
     return `
-      <div class="pc-duelo-crow${votosOcultos ? " oculto" : ""}" data-dep-cand="${escaparAtributoHtml(c.chave)}">
-        <div class="pc-dep-cnm">
-          <span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>
-          <span class="cnm-icones">${instaDepois}${iconeFinanceiro}</span>
+      <div class="pc-dep-crow" data-dep-cand="${escaparAtributoHtml(c.chave)}">
+        <div class="pc-dep-cl1">
+          <span class="pc-dep-pos">${i + 1}º</span>
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span></span>
+          <span class="pc-tm-partido">${c.partido}</span>
+          <span class="pc-dep-cicons">${instaDepois}${iconeFinanceiro}</span>
         </div>
-        <div class="pc-dep-pos">${c.partido}</div>
-        ${votosOcultos ? "" : `<div class="col-rival"><span class="pc-voto-rival">${(votosRivalPorChave.get(c.chave) || 0).toLocaleString("pt-BR")}</span></div>`}
-        <div class="col-voce"><input type="number" min="0" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${v}" placeholder="0"></div>
-        ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}</div>` : ""}
+        <div class="pc-dep-tiles">
+          <div class="pc-dep-tile ref" title="Votação de 2022">${v22 > 0 ? `<span class="tv">${v22.toLocaleString("pt-BR")}</span><span class="tr">2022${c.eleito2022 ? " · eleito" : ""}</span>` : `<span class="tv">—</span><span class="tr">sem 2022</span>`}</div>
+          ${caixaRival}
+          <div class="pc-dep-tile votos pc-dep-cpct duelo-voce" title="Digite os seus votos"><input class="tv valNum" type="text" inputmode="numeric" data-pc-voto-aceitar="${escaparAtributoHtml(c.chave)}" value="${v.toLocaleString("pt-BR")}" placeholder="0"><span class="tr valRot">Você</span></div>
+        </div>
         ${painelFinanceiro}
         ${faderDepHtml("d|" + c.chave, v, metricasD.cap, true)}
       </div>`;
   };
-  // Cabeçalho das colunas uma vez só, logo abaixo do primeiro console
-  // (dentro do card, então sem o padding lateral próprio do .pc-duelo-colcab
-  // — o pc-lobby-card ao redor já dá 14px). Colunas centralizadas, mesma
-  // largura fixa das linhas (92px), pra alinhar com "Desafiante"/"Você".
-  const colcabHtml = `<div class="pc-duelo-colcab v2${votosOcultos ? " oculto" : ""}"><span class="cand"></span>${votosOcultos ? "" : `<span class="rival">Desafiante</span>`}<span class="voce">Você</span></div>`;
   const consolesHtml = ehEleitos ? "" : (desafio.tipo_disputa === "cargo" ? consoleHtmlDe(consolesD[0], 0) + `<div style="height:12px;"></div>` : "");
   const gruposHtml = ehEleitos ? "" : ordemG.map(([partido, cands], i) => `
     ${desafio.tipo_disputa === "cargo" ? "" : consoleHtmlDe(consolesD[i], i) + (i === 0 ? "" : `<div style="height:12px;"></div>`)}
-    ${i === 0 ? colcabHtml : ""}
-    ${[...cands].sort((a, b) => (votosRivalPorChave.get(b.chave) || 0) - (votosRivalPorChave.get(a.chave) || 0)).map(linhaCandidatoHtml).join("")}`).join("");
+    <div class="pc-dep-cands">${[...cands].sort((a, b) => (votosRivalPorChave.get(b.chave) || 0) - (votosRivalPorChave.get(a.chave) || 0)).map((c, k) => linhaCandidatoHtml(c, k)).join("")}</div>`).join("");
 
   conteudo.innerHTML = `
     <div class="glass-card" style="max-width:560px; margin:0 auto;">
@@ -1020,7 +1025,7 @@ async function renderAceitarDesafio() {
       const v = Number(votosAceitar[chave]) || 0;
       if (origem !== "input") {
         const inp = document.querySelector(`[data-pc-voto-aceitar="${CSS.escape(chave)}"]`);
-        if (inp) inp.value = v;
+        if (inp) inp.value = v.toLocaleString("pt-BR");
       }
       if (origem !== "fader") {
         const sl = document.querySelector(`[data-dep-fader="d|${CSS.escape(chave)}"]`);
@@ -1041,8 +1046,12 @@ async function renderAceitarDesafio() {
     document.querySelectorAll("[data-pc-voto-aceitar]").forEach((inp) => {
       inp.addEventListener("focus", snapDuelo);
       inp.addEventListener("input", () => {
-        votosAceitar[inp.getAttribute("data-pc-voto-aceitar")] = Math.max(0, Math.round(Number(inp.value) || 0));
+        votosAceitar[inp.getAttribute("data-pc-voto-aceitar")] = Math.max(0, Math.round(Number(String(inp.value).replace(/\D/g, "")) || 0));
         aoMudarChave(inp.getAttribute("data-pc-voto-aceitar"), "input");
+      });
+      // Ao sair do campo, mostra com separador de milhar (igual às outras caixas)
+      inp.addEventListener("blur", () => {
+        inp.value = (Number(votosAceitar[inp.getAttribute("data-pc-voto-aceitar")]) || 0).toLocaleString("pt-BR");
       });
     });
     const bZ = document.getElementById("pcDueloBtnZerar");

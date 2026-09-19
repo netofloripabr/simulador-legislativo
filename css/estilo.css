@@ -2954,6 +2954,17 @@
   width:100%; max-width:80px; text-align:center; background:#101214; border:1px solid var(--pc-glass-border);
   border-radius:8px; color:var(--pc-ink); font:inherit; font-size:13px; font-weight:700; padding:6px 4px;
 }
+/* Aceitar duelo no card da lista (19/09/2026): o input "Você" vive
+   dentro da caixa de votos, com a cara do número. */
+#modoColaborativoWrap .pc-dep-tile.votos.duelo-voce input.tv{
+  width:100%; background:none; border:none; padding:0; margin:0; text-align:right; outline:none;
+  font:inherit; font-size:14.4px; font-weight:800; color:#F2F4F5; font-variant-numeric:tabular-nums; line-height:1;
+  -moz-appearance:textfield;
+}
+#modoColaborativoWrap .pc-dep-tile.votos.duelo-voce input.tv::-webkit-outer-spin-button,
+#modoColaborativoWrap .pc-dep-tile.votos.duelo-voce input.tv::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+#modoColaborativoWrap .pc-dep-tile.votos.duelo-voce:focus-within{ border-color:rgba(52,232,74,.55); }
+#modoColaborativoWrap .pc-dep-tile.ref.rival .tv{ color:#DDE0E2; }
 #modoColaborativoWrap .pc-duelo-crow .pc-financeiro-painel{ grid-column:1 / -1; }
 #modoColaborativoWrap .pc-duelo-crow .pc-fader-linha{ grid-column:1 / -1; margin-top:16px; }
 
