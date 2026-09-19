@@ -1505,10 +1505,10 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <div class="pc-dep-cl1">
           ${posicao}
           <span class="pc-sen-chip statusbranco">${st.etiqueta}</span>
-          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${financeiroIconeHtml(c).icone}${lapisAdmin}</span>
-          <span class="pc-dep-cpct">—</span>
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span></span>
+          <span class="pc-dep-cicons">${instaDepois}${financeiroIconeHtml(c).icone}${lapisAdmin}</span>
         </div>
-        ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
+        ${tilesDepHtml(c, 0, null)}
         <div class="pc-dep-zone pc-dep-zone-cong">
           <div class="pc-dep-trk"></div>
           <div class="pc-dep-grip" style="left:0%;"><div class="pc-dep-grip-haste"></div></div>
@@ -1521,13 +1521,13 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <div class="pc-dep-cl1">
           ${posicao}
           ${selo}
-          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span>${instaDepois}${iconeFinanceiro}${lapisAdmin}</span>
-          <span class="pc-dep-cpct" data-pc-dep-editar="${escaparAtributoHtml(c.chave)}"><span class="valNum">${cv.toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
+          <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${nomeExibicao(c)}</span></span>
+          <span class="pc-dep-cicons">${instaDepois}${iconeFinanceiro}${lapisAdmin}</span>
         </div>
+        ${tilesDepHtml(c, cv, c.chave)}
         ${painelFinanceiro}
         ${naFila ? `<div class="pc-dep-fila-tag">ganhando a ${k + 1}\u00aa vaga pela vota\u00e7\u00e3o \u2014 marque pra confirmar</div>` : ""}
         ${c.fonte === "ficticio" ? `<div class="pc-dep-provisorio">candidato fictício — nome de preenchimento até a ata real sair</div>` : c.fonte === "rrc" ? `<div class="pc-dep-provisorio">registro oficial (TSE) — ata de convenção ainda não publicada</div>` : ""}
-        ${Number(c.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(c.votos2022).toLocaleString("pt-BR")} votos${c.eleito2022 ? " · eleito" : ""}${c.partidoOrigem2022 ? `${c.eleito2022 ? " pelo" : " · veio do"} ${c.partidoOrigem2022}` : ""}</div>` : ""}
         ${faderDepHtml("c|" + gi + "|" + c.chave, cv, capCand, true)}
       </div>`;
     }).join("");
@@ -1541,9 +1541,12 @@ function renderListaDeputadosFader(grupos, E, totalVagas) {
         <div class="pc-dep-cl1">
           <span class="pc-sen-chip chiplegenda" title="Voto dado apenas na sigla do partido — soma pro quociente partid\u00e1rio, mas n\u00e3o elege ningu\u00e9m sozinho.">LEG</span>
           <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">Legenda</span></span>
-          <span class="pc-dep-cpct" data-pc-dep-editar="${escaparAtributoHtml(legendaCand.chave)}"><span class="valNum">${cvLeg.toLocaleString("pt-BR")}</span><span class="valRot">votos</span></span>
         </div>
-        ${Number(legendaCand.votos2022) > 0 ? `<div class="pc-dep-c2022">2022: ${Number(legendaCand.votos2022).toLocaleString("pt-BR")} votos s\u00f3 na sigla (TSE)</div>` : ""}
+        <div class="pc-dep-tiles">
+          <div class="pc-dep-tile ref" title="Votos dados só na sigla em 2022 (TSE)">${Number(legendaCand.votos2022) > 0 ? `<span class="tv">${Number(legendaCand.votos2022).toLocaleString("pt-BR")}</span><span class="tr">2022 · só sigla</span>` : `<span class="tv">—</span><span class="tr">sem 2022</span>`}</div>
+          <div class="pc-dep-tile termo vazia"></div>
+          <div class="pc-dep-tile votos pc-dep-cpct" data-pc-dep-editar="${escaparAtributoHtml(legendaCand.chave)}" title="Toque pra digitar os votos"><span class="tv valNum">${cvLeg.toLocaleString("pt-BR")}</span><span class="tr valRot">Votos 2026</span></div>
+        </div>
         ${faderDepHtml("c|" + gi + "|" + legendaCand.chave, cvLeg, capCand, true)}
       </div>` : "";
     // Marcador "preenchido" (prototipado e aprovado, 31/08/2026, variante
@@ -2718,6 +2721,24 @@ function financeiroIconeHtml(c) {
         <a class="pc-financeiro-link" href="${escaparAtributoHtml(linkTseDoCandidato(fin.tseId))}" target="_blank" rel="noopener noreferrer">Ver detalhes no TSE ${iconeSvg("externo", 11)}</a>
       </div>`;
   return { icone, painel };
+}
+
+// Linha de caixas do card do candidato (protótipo aprovado 18/09/2026,
+// inspirado no box do Cartola): 2022 à esquerda (apagada), Termômetro no
+// meio (tracejado, "fantasma" — toque leva ao Termômetro do cargo), Votos
+// 2026 à direita (a única editável; mantém .pc-dep-cpct/.valNum porque
+// atualizarValorDep e o editor de votos procuram por elas).
+function tilesDepHtml(c, cv, chaveEditar) {
+  const v22 = Number(c.votos2022) || 0;
+  const ref22 = v22 > 0
+    ? `<span class="tv">${v22.toLocaleString("pt-BR")}</span><span class="tr">2022${c.eleito2022 ? (String(c.genero || "").toUpperCase().startsWith("FEM") ? " · eleita" : " · eleito") : ""}${c.partidoOrigem2022 ? ` · ${c.partidoOrigem2022}` : ""}</span>`
+    : `<span class="tv">—</span><span class="tr">sem 2022</span>`;
+  return `
+        <div class="pc-dep-tiles">
+          <div class="pc-dep-tile ref" title="${v22 > 0 ? `Votação de 2022: ${v22.toLocaleString("pt-BR")} votos${c.eleito2022 ? " (eleito)" : ""}${c.partidoOrigem2022 ? ` pelo ${c.partidoOrigem2022}` : ""}` : "Não concorreu em 2022"}">${ref22}</div>
+          <div class="pc-dep-tile termo" data-pc-dep-termo="${escaparAtributoHtml(c.chave)}" title="Termômetro 2026 — mediana dos palpites dos outros participantes pra este candidato (revelação com SL)"><span class="tv">${iconeSvg("cadeado", 11)}</span><span class="tr">Termômetro</span></div>
+          <div class="pc-dep-tile votos pc-dep-cpct"${chaveEditar ? ` data-pc-dep-editar="${escaparAtributoHtml(chaveEditar)}"` : ""} title="Toque pra digitar os votos"><span class="tv valNum">${cv.toLocaleString("pt-BR")}</span><span class="tr valRot">Votos 2026</span></div>
+        </div>`;
 }
 
 // Instagram de UM candidato, já carregado pra pcState.estado/cargoAtivo
@@ -3999,6 +4020,16 @@ function attachListenersSelecao() {
   }
   // Ícone de moeda — abre/fecha o painel de bens e recursos do candidato
   // (só um aberto por vez, clicar de novo no mesmo fecha).
+  // Caixa "Termômetro" do card do candidato (18/09/2026): por enquanto
+  // leva pra tela do Termômetro; a revelação individual direto daqui
+  // fica pra uma rodada seguinte. Sem conta → cadastro e volta pra lá.
+  document.querySelectorAll("[data-pc-dep-termo]").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!pcState.perfil) { pcState.pendenteRegistro = true; pcState.pendenteAcao = "medias"; pcState.tela = "cadastro"; renderColaborativo(); return; }
+      pcState.subaba = "medias"; renderAppColaborativo();
+    });
+  });
   document.querySelectorAll("[data-pc-toggle-financeiro]").forEach((el) => {
     el.addEventListener("click", () => {
       const chave = el.dataset.pcToggleFinanceiro;

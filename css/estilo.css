@@ -1268,6 +1268,7 @@
    (--pc-warning), pedido do usuário 01/09/2026, pra distinguir de cara
    quem entrou pelo quociente de quem entrou na disputa de sobra. */
 #modoColaborativoWrap .pc-sen-chip.em{ background:var(--pc-warning); color:#1C2400; }
+#modoColaborativoWrap .pc-sen-chip.sup{ background:#C6E62A; color:#1C2400; }
 /* "i" que explica os badges (E-QP/E-M/E) — mesmo padrão visual do "i" do
    painel de comandos, mas sem depender de estar dentro de .pc-cmd-painel
    (esse botão vive no cabeçalho do Plenário / na dica da lista). */
@@ -1736,12 +1737,45 @@
 /* Borda esquerda SEMPRE presente (cinza) — só a COR muda pra verde
    discreto quando o candidato foi preenchido à mão (votosEditado=true),
    não pelo mágico/auto-preenchimento (protótipo aprovado 28/08/2026). */
+/* Card do candidato v2 (protótipo aprovado 18/09/2026, inspirado no box do
+   Cartola): nome isolado na 1ª linha (quebra em vez de cortar), ícones em
+   caixinhas à direita, 3 caixas embaixo (2022 / Termômetro / Votos 2026),
+   fader. Separador entre candidatos mais evidente. */
 #modoColaborativoWrap .pc-dep-crow{
-  padding:14px 0 10px 10px; margin-left:-10px; border-top:1px solid #1E2226;
+  padding:15px 0 11px 10px; margin-left:-10px; border-top:1px solid #2F353B;
   border-left:2.5px solid #3A3F45;
 }
+#modoColaborativoWrap .pc-dep-crow:first-child{ border-top-color:transparent; }
+#modoColaborativoWrap .pc-dep-crow .pc-sen-chip{ font-size:7.6px; padding:2.4px 5.6px; min-width:14.4px; height:14.4px; }
+#modoColaborativoWrap .pc-dep-cicons{ flex:none; display:flex; align-items:center; gap:4px; }
+#modoColaborativoWrap .pc-dep-cicons .pc-insta-mini,
+#modoColaborativoWrap .pc-dep-cicons .pc-financeiro-mini,
+#modoColaborativoWrap .pc-dep-cicons .pc-mini-btn{
+  width:20px; height:20px; border-radius:6px; margin:0; top:0; position:static;
+  display:inline-flex; align-items:center; justify-content:center;
+  background:rgba(242,244,245,.05); border:1px solid #2B2F33; color:#AEB5BB;
+}
+#modoColaborativoWrap .pc-dep-cicons .pc-insta-mini svg,
+#modoColaborativoWrap .pc-dep-cicons .pc-financeiro-mini svg{ width:11px; height:11px; }
+#modoColaborativoWrap .pc-dep-tiles{ display:grid; grid-template-columns:1fr 1fr 1.1fr; gap:5px; margin:8px 0 0 0; }
+#modoColaborativoWrap .pc-dep-tile{
+  display:flex; flex-direction:column; justify-content:center; gap:2px; min-width:0;
+  background:rgba(242,244,245,.035); border:1px solid #2B2F33; border-radius:7px; padding:4px 6px;
+}
+#modoColaborativoWrap .pc-dep-tile .tv{ font-size:12.5px; font-weight:800; color:#DDE0E2; font-variant-numeric:tabular-nums; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#modoColaborativoWrap .pc-dep-tile .tr{ font-size:6.2px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:#8A9096; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+#modoColaborativoWrap .pc-dep-tile.ref{ align-items:flex-start; background:rgba(242,244,245,.015); }
+#modoColaborativoWrap .pc-dep-tile.ref .tv{ font-size:10px; color:#AEB5BB; }
+#modoColaborativoWrap .pc-dep-tile.termo{ align-items:center; text-align:center; border-style:dashed; border-color:#3A3F45; background:rgba(242,244,245,.015); opacity:.55; padding:4px 3px; cursor:pointer; }
+#modoColaborativoWrap .pc-dep-tile.termo .tv{ color:#8A9096; display:flex; align-items:center; }
+#modoColaborativoWrap .pc-dep-tile.termo .tr{ color:#6E757C; }
+#modoColaborativoWrap .pc-dep-tile.termo.vazia{ opacity:.25; cursor:default; }
+#modoColaborativoWrap .pc-dep-tile.votos{ align-items:flex-end; text-align:right; padding:4px 8px; cursor:pointer; }
+#modoColaborativoWrap .pc-dep-tile.votos .tv{ color:#F2F4F5; }
+#modoColaborativoWrap .pc-dep-tile.votos .tr{ color:rgba(52,232,74,.9); }
+#modoColaborativoWrap .pc-dep-crow-cong .pc-dep-tiles{ opacity:.38; }
 #modoColaborativoWrap .pc-dep-crow.manual{ border-left-color:rgba(52,232,74,.38); }
-#modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:6px; }
+#modoColaborativoWrap .pc-dep-cl1{ display:flex; align-items:center; gap:7px; }
 /* Posição na lista do partido (pedido do usuário, 24/08/2026) — discreto,
    por isso o mesmo tom apagado da referência "2022:" e não um chip. */
 #modoColaborativoWrap .pc-dep-pos{
@@ -1758,29 +1792,20 @@
      só (antes quebrava em várias — pedido 28/08/2026 testando nome
      grande no protótipo). */
   flex:1 1 0; min-width:0;
-  font-size:clamp(14px, 2.4vw, 19.5px); font-weight:750;
-  color:#F2F4F5; line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  display:flex; align-items:center; gap:5px;
+  /* −15% (18/09/2026, card v2) e quebra em 2 linhas em vez de cortar —
+     agora o nome tem a linha só pra ele, os votos desceram pras caixas. */
+  font-size:clamp(11.9px, 2.04vw, 16.6px); font-weight:750;
+  color:#F2F4F5; line-height:1.15; overflow:visible; white-space:normal;
+  display:block;
 }
-#modoColaborativoWrap .pc-dep-cnm .pc-dep-cnm-txt{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#modoColaborativoWrap .pc-dep-cnm .pc-dep-cnm-txt{ display:block; white-space:normal; }
 /* Número de votos na mesma linha do nome (no lugar de onde a % ficava),
    "votos" numa linha curta abaixo, caixa suave por trás do número. */
 /* Mesmo tratamento do Senador: "votos" absoluto embaixo, número
    centralizado na linha do nome (pedido 28/08/2026). */
-#modoColaborativoWrap .pc-dep-cpct{
-  flex:none; position:relative; align-self:center; display:flex; align-items:center;
-  cursor:pointer;
-}
-#modoColaborativoWrap .pc-dep-cpct .valNum{
-  font-size:clamp(13px, 2.2vw, 17px); font-weight:800; color:#F2F4F5;
-  font-variant-numeric:tabular-nums; line-height:1;
-  background:rgba(242,244,245,.07); border:1px solid rgba(242,244,245,.1);
-  border-radius:7px; padding:3px 8px;
-}
-#modoColaborativoWrap .pc-dep-cpct .valRot{
-  position:absolute; top:100%; right:2px; margin-top:3px;
-  font-size:9px; font-weight:650; color:#8A9096; line-height:1;
-}
+/* .pc-dep-cpct virou a caixa "Votos 2026" (.pc-dep-tile.votos) em 18/09/2026;
+   .valNum/.valRot continuam existindo só como gancho do JS. */
+#modoColaborativoWrap .pc-dep-cpct{ cursor:pointer; }
 /* Fontes/barra do fader do candidato +20% (pedido do usuário 26/08/2026:
    "quando abre no celular fica pequeno demais"). */
 #modoColaborativoWrap .pc-sen-slider-mini{ height:30px; margin-top:3px; }
