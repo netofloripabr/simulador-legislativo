@@ -1033,6 +1033,9 @@
       display:block !important; position:relative; overflow:hidden;
       background:#fff; color:#111; font-family:var(--sans); padding:0;
       -webkit-print-color-adjust:exact; print-color-adjust:exact;
+      /* Cinzas um tom mais escuros e texto sem suavização "borrada" (pedido
+         do usuário, 19/09/2026, ao ver o PDF impresso). */
+      -webkit-font-smoothing:antialiased; text-rendering:geometricPrecision;
     }
     /* marca d'água 3% (o toque de verde fica em 4,5% pra sobreviver) */
     #pcImpressaoConteudo .di-agua{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; z-index:0; }
@@ -1043,11 +1046,11 @@
     #pcImpressaoConteudo .di-cab{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
     #pcImpressaoConteudo .di-wm{ font-size:18px; font-weight:800; letter-spacing:-.01em; line-height:1; color:#111; }
     #pcImpressaoConteudo .di-wm b{ color:#1FA83A; }
-    #pcImpressaoConteudo .di-wmsub{ font-size:7px; font-weight:800; letter-spacing:.2em; color:#8A9096; text-transform:uppercase; margin-top:3px; }
-    #pcImpressaoConteudo .di-meta{ text-align:right; font-size:9px; color:#5C6268; line-height:1.5; }
+    #pcImpressaoConteudo .di-wmsub{ font-size:7px; font-weight:800; letter-spacing:.2em; color:#6B7178; text-transform:uppercase; margin-top:3px; }
+    #pcImpressaoConteudo .di-meta{ text-align:right; font-size:9px; color:#3F454B; line-height:1.5; }
     #pcImpressaoConteudo .di-meta b{ color:#111; }
-    #pcImpressaoConteudo .di-regra{ margin:10px 0 14px; height:2px; background:#C9CCCE; position:relative; }
-    #pcImpressaoConteudo .di-regra:after{ content:""; position:absolute; left:0; right:0; top:4px; height:1px; background:#E7E9EA; }
+    #pcImpressaoConteudo .di-regra{ margin:10px 0 14px; height:2px; background:#A9AEB3; position:relative; }
+    #pcImpressaoConteudo .di-regra:after{ content:""; position:absolute; left:0; right:0; top:4px; height:1px; background:#D3D6D8; }
     /* Quebra de página entre cargos (pedido do usuário, 17/09/2026): cada
        cargo (Estadual/Federal/Senador) começa página nova, exceto o
        primeiro — ele já está logo abaixo do cabeçalho, uma quebra ali só
@@ -1059,33 +1062,33 @@
        página 1 em branco (achado do usuário, print real de 26 páginas). */
     #pcImpressaoConteudo .di-cargo-bloco.di-quebra{ page-break-before:always; break-before:page; }
     #pcImpressaoConteudo .di-tit{ font-size:14px; font-weight:800; color:#111; margin-top:6px; }
-    #pcImpressaoConteudo .di-sub{ font-size:9.5px; color:#5C6268; margin:1px 0 10px; }
+    #pcImpressaoConteudo .di-sub{ font-size:9.5px; color:#3F454B; margin:1px 0 10px; }
     /* linha de candidato: fio de .5px entre os campos */
-    #pcImpressaoConteudo .di-linha{ display:flex; align-items:center; gap:8px; padding:3.5px 0; border-bottom:.5px solid #F0F2F3; page-break-inside:avoid; }
+    #pcImpressaoConteudo .di-linha{ display:flex; align-items:center; gap:8px; padding:3.5px 0; border-bottom:.5px solid #DCDFE2; page-break-inside:avoid; }
     #pcImpressaoConteudo .di-linha.di-fim{ border-bottom:none; }
-    #pcImpressaoConteudo .di-pos{ width:22px; flex-shrink:0; color:#8A9096; font-variant-numeric:tabular-nums; font-size:9.5px; text-align:right; }
+    #pcImpressaoConteudo .di-pos{ width:22px; flex-shrink:0; color:#6B7178; font-variant-numeric:tabular-nums; font-size:9.5px; text-align:right; }
     #pcImpressaoConteudo .di-ic{ flex-shrink:0; }
     #pcImpressaoConteudo .di-ic.di-fato{ color:#1FA83A; }
     #pcImpressaoConteudo .di-ic.di-meu{ color:#9AA0A4; }
-    #pcImpressaoConteudo .di-ic.di-hdr{ color:#8A9096; }
+    #pcImpressaoConteudo .di-ic.di-hdr{ color:#6B7178; }
     /* nome com reticências (política aprovada pro nome longo) */
     #pcImpressaoConteudo .di-cand{ width:230px; flex:none; min-width:0; line-height:1.25; }
     #pcImpressaoConteudo .di-cand .di-n{ display:block; font-size:11.5px; font-weight:500; color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     #pcImpressaoConteudo .di-cand .di-p{ display:block; font-size:7.5px; color:#9AA0A4; letter-spacing:.04em; text-transform:uppercase; margin-top:1px; }
     /* caixa de votos (sólida) — Palpite · Resultado · Dif. · % */
-    #pcImpressaoConteudo .di-votos{ flex-shrink:0; display:flex; align-items:center; gap:6px; background:#FAFBFB; border:1px solid #EEF0F1; border-radius:6px; padding:4.5px 8px; }
-    #pcImpressaoConteudo .di-vv{ width:58px; text-align:center; font-size:10px; color:#5C6268; font-variant-numeric:tabular-nums; }
+    #pcImpressaoConteudo .di-votos{ flex-shrink:0; display:flex; align-items:center; gap:6px; background:#F3F5F6; border:1px solid #DCDFE2; border-radius:6px; padding:4.5px 8px; }
+    #pcImpressaoConteudo .di-vv{ width:58px; text-align:center; font-size:10px; color:#3F454B; font-variant-numeric:tabular-nums; }
     #pcImpressaoConteudo .di-vv.di-forte{ font-weight:750; color:#111; }
-    #pcImpressaoConteudo .di-vd{ width:46px; text-align:center; font-size:7.5px; color:#8A9096; font-variant-numeric:tabular-nums; display:inline-flex; align-items:center; justify-content:center; gap:2px; }
+    #pcImpressaoConteudo .di-vd{ width:46px; text-align:center; font-size:7.5px; color:#6B7178; font-variant-numeric:tabular-nums; display:inline-flex; align-items:center; justify-content:center; gap:2px; }
     #pcImpressaoConteudo .di-vd.di-vdup{ color:#1FA83A; }
-    #pcImpressaoConteudo .di-vp{ width:28px; text-align:right; font-size:7.5px; color:#5C6268; font-variant-numeric:tabular-nums; }
+    #pcImpressaoConteudo .di-vp{ width:28px; text-align:right; font-size:7.5px; color:#3F454B; font-variant-numeric:tabular-nums; }
     #pcImpressaoConteudo .di-seta{ width:5px; height:5px; flex-shrink:0; }
     #pcImpressaoConteudo .di-seta.di-up{ color:#1FA83A; }
     #pcImpressaoConteudo .di-seta.di-dn{ color:#9AA0A4; }
-    #pcImpressaoConteudo .di-aguarda{ color:#C9CCCE !important; font-weight:400 !important; }
+    #pcImpressaoConteudo .di-aguarda{ color:#A9AEB3 !important; font-weight:400 !important; }
     /* quadro de pontos (tracejado, estreito — o nome tem prioridade) */
-    #pcImpressaoConteudo .di-painel{ flex-shrink:0; display:flex; align-items:center; background:#F7F8F8; border:1px dashed #DFE2E3; border-radius:6px; padding:4.5px 6px; margin-left:auto; }
-    #pcImpressaoConteudo .di-pt{ width:23px; text-align:right; font-size:7.5px; color:#8A9096; font-variant-numeric:tabular-nums; }
+    #pcImpressaoConteudo .di-painel{ flex-shrink:0; display:flex; align-items:center; background:#F1F3F4; border:1px dashed #C9CDD0; border-radius:6px; padding:4.5px 6px; margin-left:auto; }
+    #pcImpressaoConteudo .di-pt{ width:23px; text-align:right; font-size:7.5px; color:#6B7178; font-variant-numeric:tabular-nums; }
     #pcImpressaoConteudo .di-pt.di-vazio{ color:#CDD1D3; }
     #pcImpressaoConteudo .di-pt.di-tot{ width:27px; font-size:8.5px; font-weight:750; color:#3A3F45; }
     #pcImpressaoConteudo .di-pt.di-tot.di-aguarda{ color:#CDD1D3; font-weight:400; }
@@ -1099,55 +1102,55 @@
     #pcImpressaoConteudo .di-cols .di-painel.di-ph .di-pt.di-tot{ display:block; font-size:7px; font-weight:800; color:#9AA0A4; }
     /* legenda de ícones — idêntica em todo documento */
     #pcImpressaoConteudo .di-chip{ flex-shrink:0; font-size:7px; font-weight:800; background:#1FA83A; color:#fff; border-radius:999px; padding:3px 0; width:46px; text-align:center; letter-spacing:.02em; }
-    #pcImpressaoConteudo .di-chip.di-chip-s{ background:none; border:1px solid #C9CCCE; color:#8A9096; }
-    #pcImpressaoConteudo .di-chip.di-chip-f{ background:none; border:1px dashed #DDE0E2; color:#B4B9BE; }
+    #pcImpressaoConteudo .di-chip.di-chip-s{ background:none; border:1px solid #A9AEB3; color:#6B7178; }
+    #pcImpressaoConteudo .di-chip.di-chip-f{ background:none; border:1px dashed #C4C8CC; color:#9298A0; }
     #pcImpressaoConteudo .di-chip.di-chip-em{ background:#8AA300; }
     #pcImpressaoConteudo .di-ptit{ display:flex; align-items:baseline; justify-content:space-between; margin:12px 0 3px; padding:5px 8px; background:#F3F5F6; border-left:3px solid #1FA83A; font-size:10px; font-weight:800; color:#111; page-break-after:avoid; }
-    #pcImpressaoConteudo .di-ptit .di-ptit-n{ font-size:7.5px; font-weight:600; color:#8A9096; }
+    #pcImpressaoConteudo .di-ptit .di-ptit-n{ font-size:7.5px; font-weight:600; color:#6B7178; }
     #pcImpressaoConteudo .di-pchips{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 10px; }
-    #pcImpressaoConteudo .di-pchip{ display:inline-flex; align-items:baseline; gap:4px; border:1px solid #DDE0E2; border-radius:999px; padding:3.5px 10px; font-size:8.5px; font-weight:800; color:#111; }
+    #pcImpressaoConteudo .di-pchip{ display:inline-flex; align-items:baseline; gap:4px; border:1px solid #C4C8CC; border-radius:999px; padding:3.5px 10px; font-size:8.5px; font-weight:800; color:#111; }
     #pcImpressaoConteudo .di-pchip b{ color:#1FA83A; font-size:10px; font-variant-numeric:tabular-nums; }
     /* Sem page-break-inside:avoid no quadro inteiro desde 17/09/2026 — com a
        continuação hipotética das rodadas ele pode passar de uma página;
        cada linha é que não quebra. */
-    #pcImpressaoConteudo .di-sobras{ margin-top:12px; border:1px solid #DDE0E2; border-radius:6px; padding:10px 12px; }
+    #pcImpressaoConteudo .di-sobras{ margin-top:12px; border:1px solid #C4C8CC; border-radius:6px; padding:10px 12px; }
     #pcImpressaoConteudo .di-srod{ page-break-inside:avoid; }
     #pcImpressaoConteudo .di-srod .di-chip{ align-self:center; font-size:6.5px; padding:2px 0; width:40px; }
-    #pcImpressaoConteudo .di-srod.di-srod-fora .rn{ color:#B4B9BE; }
-    #pcImpressaoConteudo .di-srod.di-srod-fora .rp{ color:#5C6268; font-weight:600; }
-    #pcImpressaoConteudo .di-srod.di-srod-fora .rc{ color:#8A9096; }
-    #pcImpressaoConteudo .di-sobras-div{ margin:8px 0 4px; padding-top:6px; border-top:1px dashed #C9CCCE; font-size:7.5px; color:#8A9096; line-height:1.45; }
-    #pcImpressaoConteudo .di-sobras-tit{ font-size:7px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#8A9096; margin-bottom:6px; }
-    #pcImpressaoConteudo .di-sobras-intro{ font-size:8px; color:#5C6268; line-height:1.5; margin-bottom:7px; }
-    #pcImpressaoConteudo .di-srod{ display:flex; align-items:baseline; gap:8px; padding:2.5px 0; border-bottom:.5px solid #F0F2F3; font-size:9px; }
+    #pcImpressaoConteudo .di-srod.di-srod-fora .rn{ color:#9298A0; }
+    #pcImpressaoConteudo .di-srod.di-srod-fora .rp{ color:#3F454B; font-weight:600; }
+    #pcImpressaoConteudo .di-srod.di-srod-fora .rc{ color:#6B7178; }
+    #pcImpressaoConteudo .di-sobras-div{ margin:8px 0 4px; padding-top:6px; border-top:1px dashed #A9AEB3; font-size:7.5px; color:#6B7178; line-height:1.45; }
+    #pcImpressaoConteudo .di-sobras-tit{ font-size:7px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#6B7178; margin-bottom:6px; }
+    #pcImpressaoConteudo .di-sobras-intro{ font-size:8px; color:#3F454B; line-height:1.5; margin-bottom:7px; }
+    #pcImpressaoConteudo .di-srod{ display:flex; align-items:baseline; gap:8px; padding:2.5px 0; border-bottom:.5px solid #DCDFE2; font-size:9px; }
     #pcImpressaoConteudo .di-srod:last-child{ border-bottom:none; }
     #pcImpressaoConteudo .di-srod .rn{ width:24px; flex-shrink:0; font-weight:800; color:#1FA83A; font-variant-numeric:tabular-nums; }
     #pcImpressaoConteudo .di-srod .rp{ width:110px; flex-shrink:0; font-weight:750; color:#111; }
-    #pcImpressaoConteudo .di-srod .rc{ flex:1; min-width:0; color:#5C6268; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    #pcImpressaoConteudo .di-srod .rm{ flex-shrink:0; color:#8A9096; font-variant-numeric:tabular-nums; font-size:8px; }
-    #pcImpressaoConteudo .di-legenda{ display:flex; gap:14px; margin:8px 0 10px; padding:6px 9px; background:#F8F9F9; border:1px solid #EEF0F1; border-radius:5px; font-size:7.5px; color:#5C6268; align-items:center; flex-wrap:wrap; page-break-inside:avoid; }
+    #pcImpressaoConteudo .di-srod .rc{ flex:1; min-width:0; color:#3F454B; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    #pcImpressaoConteudo .di-srod .rm{ flex-shrink:0; color:#6B7178; font-variant-numeric:tabular-nums; font-size:8px; }
+    #pcImpressaoConteudo .di-legenda{ display:flex; gap:14px; margin:8px 0 10px; padding:6px 9px; background:#F1F3F4; border:1px solid #DCDFE2; border-radius:5px; font-size:7.5px; color:#3F454B; align-items:center; flex-wrap:wrap; page-break-inside:avoid; }
     #pcImpressaoConteudo .di-legenda span{ display:flex; align-items:center; gap:3px; }
     /* pontuação total (documento de resultado, futuro) */
-    #pcImpressaoConteudo .di-total{ margin-top:10px; background:#F5F7F6; border:1px solid #E7E9EA; border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center; }
+    #pcImpressaoConteudo .di-total{ margin-top:10px; background:#F5F7F6; border:1px solid #D3D6D8; border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center; }
     /* bloco de registro (toggle Registrar) */
-    #pcImpressaoConteudo .di-reg{ margin-top:14px; border:1px solid #DDE0E2; border-radius:6px; padding:10px 14px; page-break-inside:avoid; }
-    #pcImpressaoConteudo .di-reg-tit{ font-size:7px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#8A9096; margin-bottom:7px; }
+    #pcImpressaoConteudo .di-reg{ margin-top:14px; border:1px solid #C4C8CC; border-radius:6px; padding:10px 14px; page-break-inside:avoid; }
+    #pcImpressaoConteudo .di-reg-tit{ font-size:7px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; color:#6B7178; margin-bottom:7px; }
     #pcImpressaoConteudo .di-reg-corpo{ display:flex; gap:22px; align-items:flex-end; }
     #pcImpressaoConteudo .di-reg-dados{ flex:1; min-width:0; }
     #pcImpressaoConteudo .di-reg-nome{ font-size:10.5px; color:#111; }
     #pcImpressaoConteudo .di-reg-nome.di-reg-linha-nome{ border-bottom:1px solid #B7BBBE; max-width:220px; height:14px; }
-    #pcImpressaoConteudo .di-reg-meta{ font-size:8px; color:#8A9096; margin-top:1px; }
+    #pcImpressaoConteudo .di-reg-meta{ font-size:8px; color:#6B7178; margin-top:1px; }
     #pcImpressaoConteudo .di-reg-ass{ flex-shrink:0; width:180px; text-align:center; }
     #pcImpressaoConteudo .di-reg-ass-linha{ border-bottom:1px solid #B7BBBE; height:18px; }
     #pcImpressaoConteudo .di-reg-ass-leg{ font-size:7px; color:#9AA0A4; margin-top:3px; letter-spacing:.06em; text-transform:uppercase; }
     /* rodapé: convite + QR */
-    #pcImpressaoConteudo .di-rodape{ margin-top:14px; border-top:1px solid #E7E9EA; padding-top:9px; display:flex; align-items:center; gap:14px; page-break-inside:avoid; }
+    #pcImpressaoConteudo .di-rodape{ margin-top:14px; border-top:1px solid #D3D6D8; padding-top:9px; display:flex; align-items:center; gap:14px; page-break-inside:avoid; }
     #pcImpressaoConteudo .di-convite{ flex:1; min-width:0; }
     #pcImpressaoConteudo .di-frase{ font-size:11.5px; font-weight:800; color:#111; }
-    #pcImpressaoConteudo .di-texto{ font-size:9px; color:#5C6268; line-height:1.45; margin-top:2px; }
-    #pcImpressaoConteudo .di-url{ font-size:8.5px; color:#8A9096; margin-top:2px; font-family:var(--mono); }
+    #pcImpressaoConteudo .di-texto{ font-size:9px; color:#3F454B; line-height:1.45; margin-top:2px; }
+    #pcImpressaoConteudo .di-url{ font-size:8.5px; color:#6B7178; margin-top:2px; font-family:var(--mono); }
     #pcImpressaoConteudo .di-qrbox{ flex-shrink:0; text-align:center; }
-    #pcImpressaoConteudo .di-qrbox svg{ display:block; border:1px solid #EEF0F1; padding:4px; background:#fff; }
+    #pcImpressaoConteudo .di-qrbox svg{ display:block; border:1px solid #DCDFE2; padding:4px; background:#fff; }
     #pcImpressaoConteudo .di-qrleg{ font-size:6.5px; color:#9AA0A4; margin-top:2px; letter-spacing:.04em; text-transform:uppercase; }
     #pcImpressaoConteudo .di-pagfoot{ margin-top:10px; display:flex; justify-content:space-between; font-size:7.5px; color:#B7BBBE; letter-spacing:.04em; }
     #pcImpressaoConteudo .di-pagfoot b{ color:#9AA0A4; }
