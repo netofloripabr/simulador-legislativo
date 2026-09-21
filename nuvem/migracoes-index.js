@@ -1276,5 +1276,44 @@ const MIGRACOES_INDEX = [
     "consumir_credito"
    ]
   ]
+ },
+ {
+  "num": 54,
+  "arquivo": "migracao-54-apuracao-tse.sql",
+  "descricao": "Migração 54 — apuração em tempo real do TSE (Fase 6, Resultados), 21/09/2026.",
+  "objetos": [
+   [
+    "table",
+    "apuracao_status"
+   ],
+   [
+    "table",
+    "apuracao_candidato"
+   ],
+   [
+    "index",
+    "apuracao_candidato_votos_idx"
+   ],
+   [
+    "policy",
+    "apuracao_status_leitura"
+   ],
+   [
+    "policy",
+    "apuracao_candidato_leitura"
+   ],
+   [
+    "policy",
+    "apuracao_bucket_leitura"
+   ],
+   [
+    "table",
+    "config_privada"
+   ],
+   [
+    "function",
+    "apuracao_chamar_rotina"
+   ]
+  ]
  }
 ];
