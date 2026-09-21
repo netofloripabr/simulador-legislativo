@@ -53,6 +53,55 @@ async function _resCarregar(ano, cargo, sufixo) {
   }
   return pcState._resCache[k];
 }
+// ---------- apuração AO VIVO (Fase 6, passo 2 — 21/09/2026) ----------
+// A rotina apuracao-tse publica storage://apuracao/sc-{ano}/{cargo}.json no
+// mesmo formato do arquivo estático (+ meta). Quando config_app diz que a
+// apuração está ativa (ou ?aovivo=1 na URL, pra ensaio), o "apurado" passa
+// a vir de lá, e a tela se atualiza sozinha enquanto não chegar a 100%.
+const RES_APURACAO_URL = `${SUPABASE_URL}/storage/v1/object/public/apuracao`;
+async function _resApuracaoConfig() {
+  if (pcState._resApuCfg && Date.now() - pcState._resApuCfg.t < 60000) return pcState._resApuCfg;
+  const forcado = /[?&]aovivo=1/.test(location.search);
+  let cfg = { ativa: forcado, ano: RES_ANO_APURADO, t: Date.now() };
+  try {
+    const { data } = await supabaseClient.from("config_app").select("chave, valor").in("chave", ["apuracao_ativa", "apuracao_ano"]);
+    const m = Object.fromEntries((data || []).map((r) => [r.chave, r.valor]));
+    cfg = { ativa: forcado || m.apuracao_ativa === "true", ano: Number(m.apuracao_ano) || RES_ANO_APURADO, t: Date.now() };
+  } catch (e) { /* sem banco: fica estático */ }
+  pcState._resApuCfg = cfg;
+  return cfg;
+}
+async function _resCarregarAoVivo(ano, cargo) {
+  try {
+    const r = await fetch(`${RES_APURACAO_URL}/${RES_UF.toLowerCase()}-${ano}/${cargo}.json?t=${Math.floor(Date.now() / 30000)}`, { cache: "no-store" });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch (e) { return null; }
+}
+// Junta o ao vivo (totais/situação) com o estático (votos por município,
+// que a rotina ainda não traz) — por SQ_CANDIDATO.
+function _resMesclar(vivo, estatico) {
+  if (!vivo) return estatico;
+  const porSq = new Map(((estatico && estatico.candidatos) || []).map((c) => [c.sq, c]));
+  return { ...vivo, candidatos: vivo.candidatos.map((c) => { const e = porSq.get(c.sq); return e ? { ...e, ...c, nome: e.nome || c.nome, nomeUrna: e.nomeUrna || c.nomeUrna, municipios: e.municipios || {} } : c; }) };
+}
+function _resTempoRelativo(iso) {
+  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+  if (s < 60) return `há ${s} s`;
+  const m = Math.round(s / 60); if (m < 60) return `há ${m} min`;
+  return `há ${Math.round(m / 60)} h`;
+}
+function _resArmarAtualizacao(meta) {
+  clearTimeout(pcState._resTimer);
+  if (!meta || meta.final || (meta.pctSecoes || 0) >= 100) return;
+  pcState._resTimer = setTimeout(() => {
+    if ((pcState.subaba === "resultados" || pcState.tela === "resultados-convidado") && document.getElementById("pcResCorpo")) {
+      pcState._resApuCfg = null;
+      renderResultados();
+    }
+  }, 60000);
+}
+
 async function _resCarregarSecoes(municipioChave) {
   return _resCarregar(RES_ANO_APURADO, "secoes/" + _resSlug(municipioChave), "");
 }
@@ -136,7 +185,14 @@ async function renderResultados() {
   const st = pcState.res = pcState.res || { cargo: "estadual", aba: "candidatos", ordem: "desc", modo: "votos", regiao: "", assoc: "", cenario: null, munSel: null, munAba: "zonas", fichaSq: null, fichaAba: "mun", fichaMun: null, busca: "" };
   conteudo.innerHTML = telaCarregando("Carregando resultados…");
   const cargo = st.cargo;
-  const [apu, ant] = await Promise.all([_resCarregar(RES_ANO_APURADO, cargo), _resCarregar(RES_ANO_ANTERIOR, cargo)]);
+  const apuCfg = await _resApuracaoConfig();
+  const anoApurado = apuCfg.ativa ? apuCfg.ano : RES_ANO_APURADO;
+  const anoAnterior = anoApurado === RES_ANO_APURADO ? RES_ANO_ANTERIOR : RES_ANO_APURADO;
+  st.anoApurado = anoApurado; st.anoAnterior = anoAnterior;
+  const [apuEst, ant, vivo] = await Promise.all([_resCarregar(anoApurado, cargo), _resCarregar(anoAnterior, cargo), apuCfg.ativa ? _resCarregarAoVivo(anoApurado, cargo) : null]);
+  const apu = _resMesclar(vivo, apuEst);
+  const meta = vivo && vivo.meta;
+  _resArmarAtualizacao(meta);
   if (!apu) { conteudo.innerHTML = estadoVazio({ icone: "alerta", titulo: "Resultados indisponíveis", texto: "Não consegui carregar os dados deste cargo. Tente de novo em instantes." }); return; }
   const totalVagas = vagasFixasCargo(RES_UF, cargo);
   const cands = apu.candidatos;
@@ -167,12 +223,21 @@ async function renderResultados() {
     </div>`).join("")}</div>`;
 
   conteudo.innerHTML = `
-    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Resultados ${RES_ANO_APURADO}</div>
-    <div class="pc-sub" style="margin:0 0 12px 2px;">Santa Catarina · resultado oficial (TSE) · ${_resFmt(totalValidos)} votos nominais</div>
+    <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Resultados ${anoApurado}</div>
+    <div class="pc-sub" style="margin:0 0 12px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : "resultado oficial (TSE)"} · ${_resFmt(totalValidos)} votos nominais</div>
+    ${meta ? `
+    <div class="pc-heroi" style="margin-bottom:12px;">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
+        <span style="font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:7px;"><span class="pc-res-vivo${meta.final ? " fim" : ""}"></span>${meta.final ? "Totalização final" : "Apuração ao vivo"}</span>
+        <span style="font-size:11.5px; font-weight:600; color:#34E84A;">${Number(meta.pctSecoes || 0).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%<span style="color:#8A9096;"> das seções</span></span>
+      </div>
+      <div class="pc-lobby-barra"><div style="width:${Math.min(100, Number(meta.pctSecoes) || 0)}%; background:#34E84A;"></div></div>
+      <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#8A9096; margin-top:8px;"><span>${_resFmt(meta.secoesTotalizadas)} de ${_resFmt(meta.secoesTotal)} seções</span><span id="pcResAtualizado">atualizado ${_resTempoRelativo(meta.atualizadoEm)}${meta.final ? "" : " · próxima em 60 s"}</span></div>
+    </div>` : `
     <div class="pc-lobby-duelo on" style="margin-bottom:12px; cursor:default;">
       <span class="pc-lobby-duelo-ic">${iconeSvg("relogio", 18)}</span>
-      <span class="pc-lobby-duelo-tx"><b>Ensaio com o resultado de ${RES_ANO_APURADO}</b><i>na eleição de 2026 esta tela mostra a apuração ao vivo, com ${RES_ANO_APURADO} como "anterior"</i></span>
-    </div>
+      <span class="pc-lobby-duelo-tx"><b>Ensaio com o resultado de ${anoApurado}</b><i>na eleição de 2026 esta tela mostra a apuração ao vivo, com ${anoApurado} como "anterior"</i></span>
+    </div>`}
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
     <div class="glass-card" style="padding:14px; margin-bottom:12px;">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
@@ -224,11 +289,11 @@ function _resRenderCandidatos(ctx) {
         <button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}" title="Favoritar">${RES_IC_ESTRELA}</button>
       </div>
       <div class="pc-dep-tiles">
-        <div class="pc-dep-tile ref" title="Votação em ${RES_ANO_ANTERIOR}">${a ? `<span class="tv">${_resFmt(a.total)}</span><span class="tr">${RES_ANO_ANTERIOR}</span>` : `<span class="tv">—</span><span class="tr">sem ${RES_ANO_ANTERIOR}</span>`}</div>
+        <div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior}">${a ? `<span class="tv">${_resFmt(a.total)}</span><span class="tr">${st.anoAnterior}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior}</span>`}</div>
         <div class="pc-dep-tile ref" title="O que você indicou na sua lista">${p ? `<span class="tv">${_resFmt(p.votos)}</span><span class="tr">seu palpite${p.marcado ? " · E" : ""}</span>` : `<span class="tv">—</span><span class="tr">sem palpite</span>`}</div>
-        <div class="pc-dep-tile votos" title="Resultado oficial"><span class="tv">${_resFmt(c.total)}</span><span class="tr">apurado ${RES_ANO_APURADO}</span></div>
+        <div class="pc-dep-tile votos" title="Resultado oficial"><span class="tv">${_resFmt(c.total)}</span><span class="tr">apurado ${st.anoApurado}</span></div>
       </div>
-      <div style="display:flex; justify-content:space-between; font-size:10px; color:#8A9096; margin-top:6px;"><span>${(c.situacao || "").toLowerCase()}</span><span>vs ${RES_ANO_ANTERIOR}: ${_resPctHtml(varr)}</span></div>
+      <div style="display:flex; justify-content:space-between; font-size:10px; color:#8A9096; margin-top:6px;"><span>${(c.situacao || "").toLowerCase()}</span><span>vs ${st.anoAnterior}: ${_resPctHtml(varr)}</span></div>
       ${aberta ? `<div id="pcResFicha"></div>` : ""}
     </div>`;
   };

@@ -3010,3 +3010,9 @@
 #modoColaborativoWrap .pc-fav{ width:26px; height:26px; border-radius:7px; border:1px solid #2B2F33; background:rgba(242,244,245,.05); display:inline-flex; align-items:center; justify-content:center; color:#8A9096; cursor:pointer; flex:none; padding:0; }
 #modoColaborativoWrap .pc-fav.on{ color:#C6E62A; border-color:rgba(198,230,42,.5); }
 #modoColaborativoWrap .pc-dep-crow.res-aberta{ background:rgba(242,244,245,.025); }
+
+/* selo "ao vivo" da apuração (Resultados) — pulso vermelho-alaranjado da identidade */
+#modoColaborativoWrap .pc-res-vivo{ width:8px; height:8px; border-radius:50%; background:#E8432A; box-shadow:0 0 0 3px rgba(232,67,42,.22); animation:pcResPulso 1.6s ease-in-out infinite; }
+#modoColaborativoWrap .pc-res-vivo.fim{ background:#34E84A; box-shadow:0 0 0 3px rgba(52,232,74,.22); animation:none; }
+@keyframes pcResPulso{ 0%,100%{ box-shadow:0 0 0 3px rgba(232,67,42,.22); } 50%{ box-shadow:0 0 0 6px rgba(232,67,42,.06); } }
+@media (prefers-reduced-motion: reduce){ #modoColaborativoWrap .pc-res-vivo{ animation:none; } }
