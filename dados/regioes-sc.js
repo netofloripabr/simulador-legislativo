@@ -110,7 +110,7 @@ const MUNICIPIOS_SC_REGIOES = [
   { ibge:"4206504", nome:"Guaramirim", chave:"GUARAMIRIM", meso:"Norte Catarinense", micro:"Joinville", assoc:"AMUNESC" },
   { ibge:"4206603", nome:"Guarujá do Sul", chave:"GUARUJA DO SUL", meso:"Oeste Catarinense", micro:"São Miguel do Oeste", assoc:"AMEOSC" },
   { ibge:"4206652", nome:"Guatambú", chave:"GUATAMBU", meso:"Oeste Catarinense", micro:"Chapecó", assoc:"AMOSC" },
-  { ibge:"4206702", nome:"Herval d'Oeste", chave:"HERVAL D'OESTE", meso:"Oeste Catarinense", micro:"Joaçaba", assoc:"AMMOC" },
+  { ibge:"4206702", nome:"Herval d'Oeste", chave:"HERVAL D OESTE", meso:"Oeste Catarinense", micro:"Joaçaba", assoc:"AMMOC" },
   { ibge:"4206751", nome:"Ibiam", chave:"IBIAM", meso:"Oeste Catarinense", micro:"Joaçaba", assoc:"AMMOC" },
   { ibge:"4206801", nome:"Ibicaré", chave:"IBICARE", meso:"Oeste Catarinense", micro:"Joaçaba", assoc:"AMMOC" },
   { ibge:"4206900", nome:"Ibirama", chave:"IBIRAMA", meso:"Vale do Itajaí", micro:"Rio do Sul", assoc:"AMAVI" },

@@ -83,6 +83,7 @@ function renderAppColaborativo() {
   else if (pcState.subaba === "carteira" && ECONOMIA_ATIVA) { renderCarteira(); atualizarMenuFixo("carteira"); }
   else if (pcState.subaba === "loja" && ECONOMIA_ATIVA) { renderLoja(); atualizarMenuFixo("loja"); }
   else if (pcState.subaba === "notificacoes") { renderNotificacoes(); atualizarMenuFixo("notificacoes"); }
+  else if (pcState.subaba === "resultados") { renderResultados(); atualizarMenuFixo("resultados"); }
   // Subaba desconhecida (typo, sessão antiga restaurada): cai no PAINEL,
   // não mais no Ranking por acidente — o ranking ganhou ramo explícito
   // acima (auditoria de telas, 22/08/2026; antes 3 setters dependiam do
@@ -644,6 +645,7 @@ async function renderPainelPrincipal() {
       <button class="pc-app" id="pcMenuDesafios" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("desafio", 30)}</span><span class="pc-app-rot">Duelos</span>${totalDesafiosAtivos ? `<span class="pc-app-badge">${totalDesafiosAtivos}</span>` : ""}</button>
       <button class="pc-app" id="pcMenuGrupos" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("grupos", 30)}</span><span class="pc-app-rot">Grupos</span>${totalGrupos ? `<span class="pc-app-badge">${totalGrupos}</span>` : ""}</button>
       <button class="pc-app" id="pcMenuRanking"><span class="pc-app-ic">${iconeSvg("ranking", 30)}</span><span class="pc-app-rot">Ranking</span></button>
+      <button class="pc-app" id="pcMenuResultados"><span class="pc-app-ic">${iconeSvg("checkCirculo", 30)}</span><span class="pc-app-rot">Resultados</span></button>
       ${ECONOMIA_ATIVA ? `<button class="pc-app" id="pcMenuLoja" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("loja", 30)}</span><span class="pc-app-rot">Loja</span></button>` : ""}
     </div>
 `; })()}
@@ -714,6 +716,11 @@ async function renderPainelPrincipal() {
   if (btnLoja) btnLoja.addEventListener("click", () => {
     if (gateConvidado) return irParaCadastro("loja");
     pcState.subaba = "loja"; renderAppColaborativo();
+  });
+  const btnRes = document.getElementById("pcMenuResultados");
+  if (btnRes) btnRes.addEventListener("click", () => {
+    if (pcState.perfil) { pcState.subaba = "resultados"; renderAppColaborativo(); }
+    else { pcState.tela = "resultados-convidado"; renderColaborativo(); }
   });
   document.getElementById("pcMenuRanking").addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "ranking"; renderAppColaborativo(); }

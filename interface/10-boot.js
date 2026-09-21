@@ -755,6 +755,7 @@ function renderColaborativo() {
   if (pcState.tela === "painel-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderPainelPrincipal(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "minhas-listas-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderMinhasListas(); atualizarMenuFixo("minhas-listas"); return; }
   if (pcState.tela === "ranking-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderRankingPlaceholder(); atualizarMenuFixo("ranking"); return; }
+  if (pcState.tela === "resultados-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderResultados(); atualizarMenuFixo("resultados"); return; }
   if (pcState.tela === "ajuda-convidado") { el.innerHTML = `<div id="pcConteudo"></div>`; renderCentralAjuda(); atualizarMenuFixo(null); return; }
   if (pcState.tela === "login") return renderTelaLogin();
   if (pcState.tela === "recuperar-senha") return renderTelaRecuperarSenha();
