@@ -37,9 +37,13 @@ def abrir_csvs(pasta, prefixo, ano, uf):
     alvos = []
     for z in glob.glob(os.path.join(pasta, f"{prefixo}_{ano}*.zip")):
         with zipfile.ZipFile(z) as zf:
-            for n in zf.namelist():
-                if n.lower().endswith(".csv") and (f"_{uf}." in n or "_BRASIL." in n or n.endswith(f"{ano}.csv")):
-                    alvos.append((z, n))
+            nomes = [n for n in zf.namelist() if n.lower().endswith(".csv")]
+            # O zip do Brasil traz o CSV por UF E o BRASIL inteiro — ler os
+            # dois duplicava tudo (Ana Campagnolo saía com 393 mil). Prefere
+            # o da UF; só cai pro BRASIL se não houver o da UF.
+            so_uf = [n for n in nomes if f"_{uf}." in n]
+            for n in (so_uf or [n for n in nomes if "_BRASIL." in n or n.endswith(f"{ano}.csv")]):
+                alvos.append((z, n))
     for c in glob.glob(os.path.join(pasta, f"{prefixo}_{ano}*.csv")):
         alvos.append((None, c))
     for z, n in alvos:
