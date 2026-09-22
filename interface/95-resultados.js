@@ -1,7 +1,7 @@
 // Resultados (Fase 6) — Santa Catarina. Protótipo aprovado em 19-20/09/2026:
 // hub com apuração, plenário terreno com o resultado APURADO, lista de
 // candidatos no card padrão (etiqueta pela situação oficial, caixas
-// anterior / seu palpite / apurado, ficha com Municípios / Seções /
+// seu palpite / anterior / apurado, ficha com Municípios / Seções /
 // Histórico e favorito) e mapa de calor com a malha real do IBGE (modos
 // Votos / Variação, região por mesorregião ou associação, lista município
 // → zona → seção, ordenador suspenso).
@@ -312,8 +312,8 @@ function _resRenderCandidatos(ctx) {
         <button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}" title="Favoritar">${RES_IC_ESTRELA}</button>
       </div>
       <div class="pc-dep-tiles">
-        <div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior}">${a ? `<span class="tv">${_resFmt(a.total)}</span><span class="tr">${st.anoAnterior}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior}</span>`}</div>
         <div class="pc-dep-tile ref" title="O que você indicou na sua lista">${p ? `<span class="tv">${_resFmt(p.votos)}</span><span class="tr">seu palpite${p.marcado ? " · E" : ""}</span>` : `<span class="tv">—</span><span class="tr">sem palpite</span>`}</div>
+        <div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior}">${a ? `<span class="tv">${_resFmt(a.total)}</span><span class="tr">${st.anoAnterior}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior}</span>`}</div>
         <div class="pc-dep-tile votos" title="Resultado oficial"><span class="tv">${_resFmt(c.total)}</span><span class="tr">apurado ${st.anoApurado}</span></div>
       </div>
       <div style="display:flex; justify-content:space-between; font-size:10px; color:#8A9096; margin-top:6px;"><span>${(c.situacao || "").toLowerCase()}</span><span>vs ${st.anoAnterior}: ${_resPctHtml(varr)}</span></div>
