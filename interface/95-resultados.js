@@ -106,6 +106,29 @@ async function _resCarregarSecoes(municipioChave) {
   return _resCarregar(RES_ANO_APURADO, "secoes/" + _resSlug(municipioChave), "");
 }
 
+// Casa um candidato com a eleição anterior: nome completo igual; senão nome
+// de urna igual; senão um nome completo é PREFIXO do outro (≥ 2 palavras) —
+// caso real: "Ana Caroline Campagnolo" (2018) → "Ana Caroline Campagnolo
+// Galvao" (2022), achado do usuário em 22/09/2026. Mesma pessoa, sobrenome
+// novo. Não usa número nem partido (mudam entre eleições).
+function _resCasarEntreEleicoes(c, mapa, lista) {
+  const N = _resNorm(c.nome), U = _resNorm(c.nomeUrna);
+  const direto = mapa.get(N) || mapa.get("URNA::" + U);
+  if (direto) return direto;
+  for (const x of lista) {
+    const M = _resNorm(x.nome);
+    const curto = N.length <= M.length ? N : M;
+    if ((N.startsWith(M) || M.startsWith(N)) && curto.split(/\s+/).length >= 2) return x;
+  }
+  return null;
+}
+function _resHistoricoDe(c, listaAno) {
+  if (!listaAno) return null;
+  const mapa = new Map();
+  listaAno.forEach((y) => { mapa.set(_resNorm(y.nome), y); mapa.set("URNA::" + _resNorm(y.nomeUrna), y); });
+  return _resCasarEntreEleicoes(c, mapa, listaAno);
+}
+
 // Etiqueta pela situação OFICIAL do TSE (não pela nossa apuração — aqui o
 // dado é o resultado de verdade).
 function _resEtiqueta(c, cargo) {
@@ -201,7 +224,7 @@ async function renderResultados() {
   // Campagnolo ganhou "Galvao" em 2022).
   const antPorNome = new Map();
   (ant ? ant.candidatos : []).forEach((c) => { antPorNome.set(_resNorm(c.nome), c); antPorNome.set("URNA::" + _resNorm(c.nomeUrna), c); });
-  const _antDe = (c) => antPorNome.get(_resNorm(c.nome)) || antPorNome.get("URNA::" + _resNorm(c.nomeUrna)) || null;
+  const _antDe = (c) => _resCasarEntreEleicoes(c, antPorNome, ant ? ant.candidatos : []);
   const meu = _resMeuPalpiteMapa(cargo);
   const favs = _resFavoritos();
   const totalValidos = cands.reduce((s, c) => s + c.total, 0);
@@ -363,7 +386,7 @@ async function _resRenderFicha(ctx) {
     const hist = [];
     for (const ano of RES_ANOS_HISTORICO) {
       const d = await _resCarregar(ano, cargo);
-      const x = d && (d.candidatos.find((y) => _resNorm(y.nome) === _resNorm(c.nome)) || d.candidatos.find((y) => _resNorm(y.nomeUrna) === _resNorm(c.nomeUrna)));
+      const x = d && _resHistoricoDe(c, d.candidatos);
       hist.push({ ano, c: x });
     }
     const max = Math.max(...hist.map((h) => h.c ? h.c.total : 0), 1);
@@ -498,7 +521,7 @@ async function _resRenderMunDet(ctx, dados) {
     const hist = [];
     for (const ano of RES_ANOS_HISTORICO) {
       const dta = await _resCarregar(ano, cargo);
-      const x = dta && (dta.candidatos.find((y) => _resNorm(y.nome) === _resNorm(cenario.nome)) || dta.candidatos.find((y) => _resNorm(y.nomeUrna) === _resNorm(cenario.nomeUrna)));
+      const x = dta && _resHistoricoDe(cenario, dta.candidatos);
       hist.push({ ano, v: x ? (x.municipios[chave] || 0) : null });
     }
     const max = Math.max(1, ...hist.map((h) => h.v || 0));
