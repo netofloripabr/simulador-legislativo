@@ -2619,7 +2619,10 @@
 #modoColaborativoWrap .pc-notifs{ display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
 #modoColaborativoWrap .pc-notifs .pc-lobby-duelo{ margin:0; }
 /* Atalhos em VIDRO: fundo mais escuro que a tela, borda de luz, blur do fundo abstrato */
-#modoColaborativoWrap .pc-app-grade{ display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin:6px 0 22px; }
+/* Grade 2 grandes + 4 quadrados (aprovado 22/09/2026): Listas e Resultados
+   2026 em destaque (borda com luz verde, legenda pequena) na 1ª linha; os
+   demais atalhos quadrados numa linha só embaixo. */
+#modoColaborativoWrap .pc-app-grade{ display:grid; grid-template-columns:repeat(4,1fr); gap:9px; margin:6px 0 22px; }
 #modoColaborativoWrap .pc-app{
   all:unset; box-sizing:border-box; cursor:pointer; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
   min-height:92px; padding:14px 6px 11px; border-radius:16px;
@@ -2649,6 +2652,17 @@
 #modoColaborativoWrap .pc-app-rot{ font-family:var(--sans); font-size:10.5px; font-weight:600; letter-spacing:.02em; color:#DDE0E2; text-align:center; line-height:1.2; }
 #modoColaborativoWrap .pc-app-badge{ position:absolute; top:8px; right:9px; min-width:17px; height:17px; padding:0 5px; border-radius:999px; background:#34E84A; color:#07230C; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; z-index:1; }
 #modoColaborativoWrap .pc-app-gate{ opacity:.45; }
+#modoColaborativoWrap .pc-app.dest{ grid-column:span 2; min-height:118px; gap:12px; box-shadow:0 6px 18px rgba(0,0,0,.40), 0 0 22px rgba(52,232,74,.08); }
+#modoColaborativoWrap .pc-app.dest .pc-app-ic svg{ width:38px; height:38px; }
+#modoColaborativoWrap .pc-app.dest .pc-app-rot{ color:#F2F4F5; font-weight:700; font-size:12.5px; white-space:nowrap; }
+#modoColaborativoWrap .pc-app.dest::after{ background:linear-gradient(155deg, rgba(52,232,74,.70) 0%, rgba(52,232,74,.22) 45%, rgba(242,244,245,.04) 100%); }
+#modoColaborativoWrap .pc-app-sub{ display:flex; align-items:center; gap:6px; margin-top:-6px; font-family:var(--sans); font-size:10px; font-weight:500; letter-spacing:.02em; color:#8A9096; line-height:1.2; }
+#modoColaborativoWrap .pc-app-sub .pc-res-vivo{ width:6px; height:6px; box-shadow:0 0 0 2px rgba(232,67,42,.22); }
+#modoColaborativoWrap .pc-app-sub .pc-res-vivo.verde{ background:#34E84A; box-shadow:0 0 0 2px rgba(52,232,74,.22); }
+#modoColaborativoWrap .pc-app.mini{ min-height:0; aspect-ratio:1/1; padding:8px 4px; gap:7px; border-radius:14px; }
+#modoColaborativoWrap .pc-app.mini .pc-app-ic svg{ width:22px; height:22px; }
+#modoColaborativoWrap .pc-app.mini .pc-app-rot{ font-size:9.5px; }
+#modoColaborativoWrap .pc-app.mini .pc-app-badge{ top:5px; right:5px; min-width:15px; height:15px; font-size:9px; }
 #modoColaborativoWrap .pc-lobby-duelo{
   display:flex; align-items:center; gap:11px; width:100%; margin-bottom:16px;
   background:rgba(29,32,35,.85); border:1px solid #26292D; border-radius:12px; padding:13px 14px;

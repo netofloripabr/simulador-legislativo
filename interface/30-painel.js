@@ -640,13 +640,13 @@ async function renderPainelPrincipal() {
 
     <div class="pc-lobby-menu-tit">Atalhos</div>
     <div class="pc-app-grade">
-      <button class="pc-app" id="pcMenuListas"><span class="pc-app-ic">${iconeSvg("lista", 30)}</span><span class="pc-app-rot">Listas</span>${totalListas ? `<span class="pc-app-badge">${totalListas}</span>` : ""}</button>
-      <button class="pc-app" id="pcMenuMedias" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("termometro", 30)}</span><span class="pc-app-rot">Termômetro</span></button>
-      <button class="pc-app" id="pcMenuDesafios" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("desafio", 30)}</span><span class="pc-app-rot">Duelos</span>${totalDesafiosAtivos ? `<span class="pc-app-badge">${totalDesafiosAtivos}</span>` : ""}</button>
-      <button class="pc-app" id="pcMenuGrupos" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("grupos", 30)}</span><span class="pc-app-rot">Grupos</span>${totalGrupos ? `<span class="pc-app-badge">${totalGrupos}</span>` : ""}</button>
-      <button class="pc-app" id="pcMenuRanking"><span class="pc-app-ic">${iconeSvg("ranking", 30)}</span><span class="pc-app-rot">Ranking</span></button>
-      <button class="pc-app" id="pcMenuResultados"><span class="pc-app-ic">${iconeSvg("checkCirculo", 30)}</span><span class="pc-app-rot">Resultados</span></button>
-      ${ECONOMIA_ATIVA ? `<button class="pc-app" id="pcMenuLoja" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("loja", 30)}</span><span class="pc-app-rot">Loja</span></button>` : ""}
+      <button class="pc-app dest" id="pcMenuListas"><span class="pc-app-ic">${iconeSvg("lista", 38)}</span><span class="pc-app-rot">Listas</span><span class="pc-app-sub"><span class="pc-res-vivo verde"></span>Crie a sua lista</span>${totalListas ? `<span class="pc-app-badge">${totalListas}</span>` : ""}</button>
+      <button class="pc-app dest" id="pcMenuResultados"><span class="pc-app-ic">${iconeSvg("checkCirculo", 38)}</span><span class="pc-app-rot">Resultados 2026</span><span class="pc-app-sub"><span class="pc-res-vivo"></span>Ao vivo</span></button>
+      <button class="pc-app mini" id="pcMenuMedias" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("termometro", 22)}</span><span class="pc-app-rot">Termômetro</span></button>
+      <button class="pc-app mini" id="pcMenuDesafios" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("desafio", 22)}</span><span class="pc-app-rot">Duelos</span>${totalDesafiosAtivos ? `<span class="pc-app-badge">${totalDesafiosAtivos}</span>` : ""}</button>
+      <button class="pc-app mini" id="pcMenuGrupos" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("grupos", 22)}</span><span class="pc-app-rot">Grupos</span>${totalGrupos ? `<span class="pc-app-badge">${totalGrupos}</span>` : ""}</button>
+      <button class="pc-app mini" id="pcMenuRanking"><span class="pc-app-ic">${iconeSvg("ranking", 22)}</span><span class="pc-app-rot">Ranking</span></button>
+      ${ECONOMIA_ATIVA ? `<button class="pc-app mini" id="pcMenuLoja" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("loja", 22)}</span><span class="pc-app-rot">Loja</span></button>` : ""}
     </div>
 `; })()}
 
