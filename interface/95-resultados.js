@@ -212,7 +212,12 @@ async function renderResultados() {
   const anoApurado = apuCfg.ativa ? apuCfg.ano : RES_ANO_APURADO;
   const anoAnterior = anoApurado === RES_ANO_APURADO ? RES_ANO_ANTERIOR : RES_ANO_APURADO;
   st.anoApurado = anoApurado; st.anoAnterior = anoAnterior;
-  const [apuEst, ant, vivo] = await Promise.all([_resCarregar(anoApurado, cargo), _resCarregar(anoAnterior, cargo), apuCfg.ativa ? _resCarregarAoVivo(anoApurado, cargo) : null]);
+  // Duas eleições atrás: entra no lugar da caixa "seu palpite" quando o
+  // usuário desliga o botão "P" (pedido de 22/09/2026).
+  const anoAnterior2 = anoAnterior - 4;
+  st.anoAnterior2 = anoAnterior2;
+  if (st.palpiteOn === undefined) st.palpiteOn = true;
+  const [apuEst, ant, vivo, ant2] = await Promise.all([_resCarregar(anoApurado, cargo), _resCarregar(anoAnterior, cargo), apuCfg.ativa ? _resCarregarAoVivo(anoApurado, cargo) : null, _resCarregar(anoAnterior2, cargo)]);
   const apu = _resMesclar(vivo, apuEst);
   const meta = vivo && vivo.meta;
   _resArmarAtualizacao(meta);
@@ -225,6 +230,9 @@ async function renderResultados() {
   const antPorNome = new Map();
   (ant ? ant.candidatos : []).forEach((c) => { antPorNome.set(_resNorm(c.nome), c); antPorNome.set("URNA::" + _resNorm(c.nomeUrna), c); });
   const _antDe = (c) => _resCasarEntreEleicoes(c, antPorNome, ant ? ant.candidatos : []);
+  const ant2PorNome = new Map();
+  (ant2 ? ant2.candidatos : []).forEach((c) => { ant2PorNome.set(_resNorm(c.nome), c); ant2PorNome.set("URNA::" + _resNorm(c.nomeUrna), c); });
+  const _ant2De = (c) => _resCasarEntreEleicoes(c, ant2PorNome, ant2 ? ant2.candidatos : []);
   const meu = _resMeuPalpiteMapa(cargo);
   const favs = _resFavoritos();
   const totalValidos = cands.reduce((s, c) => s + c.total, 0);
@@ -284,7 +292,7 @@ async function renderResultados() {
     tg.querySelector("svg").style.transform = atual ? "none" : "rotate(-90deg)";
   });
 
-  const ctx = { st, cargo, cands, antPorNome, antDe: _antDe, meu, favs, totalVagas, cenario, ant };
+  const ctx = { st, cargo, cands, antPorNome, antDe: _antDe, ant2De: _ant2De, meu, favs, totalVagas, cenario, ant, ant2 };
   if (st.aba === "mapa") await _resRenderMapa(ctx); else _resRenderCandidatos(ctx);
 }
 
@@ -300,6 +308,7 @@ function _resRenderCandidatos(ctx) {
 
   const linha = (c, i) => {
     const a = ctx.antDe(c);
+    const a2 = st.palpiteOn ? null : ctx.ant2De(c);
     const p = meu.get(_resNorm(c.nomeUrna)) || meu.get(_resNorm(c.nome));
     const varr = a ? _resPct(c.total, a.total) : null;
     const aberta = st.fichaSq === c.sq;
@@ -312,7 +321,9 @@ function _resRenderCandidatos(ctx) {
         <button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}" title="Favoritar">${RES_IC_ESTRELA}</button>
       </div>
       <div class="pc-dep-tiles">
-        <div class="pc-dep-tile ref" title="O que você indicou na sua lista">${p ? `<span class="tv">${_resFmt(p.votos)}</span><span class="tr">seu palpite${p.marcado ? " · E" : ""}</span>` : `<span class="tv">—</span><span class="tr">sem palpite</span>`}</div>
+        ${st.palpiteOn
+          ? `<div class="pc-dep-tile ref" title="O que você indicou na sua lista">${p ? `<span class="tv">${_resFmt(p.votos)}</span><span class="tr">seu palpite${p.marcado ? " · E" : ""}</span>` : `<span class="tv">—</span><span class="tr">sem palpite</span>`}</div>`
+          : `<div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior2}">${a2 ? `<span class="tv">${_resFmt(a2.total)}</span><span class="tr">${st.anoAnterior2}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior2}</span>`}</div>`}
         <div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior}">${a ? `<span class="tv">${_resFmt(a.total)}</span><span class="tr">${st.anoAnterior}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior}</span>`}</div>
         <div class="pc-dep-tile votos" title="Resultado oficial"><span class="tv">${_resFmt(c.total)}</span><span class="tr">apurado ${st.anoApurado}</span></div>
       </div>
@@ -324,6 +335,7 @@ function _resRenderCandidatos(ctx) {
   corpo.innerHTML = `
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
       <input class="cell" id="pcResBusca" placeholder="Buscar candidato ou partido…" value="${escaparAtributoHtml(st.busca || "")}" style="flex:1; margin:0;">
+      <button type="button" class="pc-dd-btn ico${st.palpiteOn ? " on" : ""}" id="pcResPalpite" title="${st.palpiteOn ? "Ocultar meu palpite (mostra " + st.anoAnterior2 + ")" : "Mostrar meu palpite"}" style="font-size:11px; font-weight:800; ${st.palpiteOn ? "color:#34E84A; border-color:rgba(52,232,74,.5);" : ""}">P</button>
       <button type="button" class="pc-dd-btn ico${st.soFav ? " on" : ""}" id="pcResSoFav" title="Só favoritos" style="${st.soFav ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>
       ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 170, titulo: "Ordenar" })}
     </div>
@@ -335,6 +347,7 @@ function _resRenderCandidatos(ctx) {
   const inp = document.getElementById("pcResBusca");
   inp.addEventListener("input", () => { st.busca = inp.value; clearTimeout(pcState._resBuscaT); pcState._resBuscaT = setTimeout(() => { _resRenderCandidatos(ctx); const i2 = document.getElementById("pcResBusca"); if (i2) { i2.focus(); i2.setSelectionRange(i2.value.length, i2.value.length); } }, 250); });
   document.getElementById("pcResSoFav").addEventListener("click", () => { st.soFav = !st.soFav; _resRenderCandidatos(ctx); });
+  document.getElementById("pcResPalpite").addEventListener("click", () => { st.palpiteOn = !st.palpiteOn; _resRenderCandidatos(ctx); });
   _resLigarDropdowns(corpo, (id, it) => { if (id === "pcResOrd") { st.ordem = it.dataset.o; _resRenderCandidatos(ctx); } });
   const mais = document.getElementById("pcResMais");
   if (mais) mais.addEventListener("click", () => { st.limite = (st.limite || 60) + 60; _resRenderCandidatos(ctx); });
