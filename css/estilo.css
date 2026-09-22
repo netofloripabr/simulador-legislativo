@@ -3021,7 +3021,7 @@
 #modoColaborativoWrap .pc-lin.cab{ cursor:default; border-top:none; padding:4px 0 2px; font-size:9px; letter-spacing:.05em; text-transform:uppercase; color:#6B7178; }
 #modoColaborativoWrap .pc-lin .n{ font-weight:700; color:#F2F4F5; min-width:0; line-height:1.2; }
 #modoColaborativoWrap .pc-lin .v{ text-align:left; font-variant-numeric:tabular-nums; }
-#modoColaborativoWrap .pc-lin.cab .v{ text-align:left; }
+#modoColaborativoWrap .pc-lin.cab .v{ text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 /* ano anterior: apagado e menor · ano mais recente: forte, mas comedido
    (pedido de 22/09/2026: "reduza o tamanho das fontes dos votos") */
 #modoColaborativoWrap .pc-lin .v.v-ant{ color:#8A9096; font-size:10px; }
@@ -3035,7 +3035,7 @@
 #modoColaborativoWrap .pc-sub-abas span{ padding:8px 10px; font-size:11.5px; font-weight:700; color:#8A9096; border-bottom:2px solid transparent; cursor:pointer; }
 #modoColaborativoWrap .pc-sub-abas span.on{ color:#F2F4F5; border-bottom-color:#34E84A; }
 #modoColaborativoWrap .pc-mun-det{ margin:4px 0 6px 30px; }
-#modoColaborativoWrap .pc-mun-det .pc-lin{ grid-template-columns:1fr 64px 64px 58px; font-size:12px; }
+#modoColaborativoWrap .pc-mun-det .pc-lin{ grid-template-columns:14px minmax(0,120px) 42px 44px 44px; font-size:12px; }
 #modoColaborativoWrap .pc-fav{ width:26px; height:26px; border-radius:7px; border:1px solid #2B2F33; background:rgba(242,244,245,.05); display:inline-flex; align-items:center; justify-content:center; color:#8A9096; cursor:pointer; flex:none; padding:0; }
 #modoColaborativoWrap .pc-fav.on{ color:#C6E62A; border-color:rgba(198,230,42,.5); }
 #modoColaborativoWrap .pc-dep-crow.res-aberta{ background:rgba(242,244,245,.025); }
@@ -3121,3 +3121,15 @@
   html.pc-print-tela #pcResImprimir, html.pc-print-tela .pc-res-tog, html.pc-print-tela #pcResMais, html.pc-print-tela .pc-dd-menu{ display:none !important; }
   html.pc-print-tela .pc-plen-corpo{ max-height:none !important; }
 }
+
+/* Modo comparação de candidatos no mapa (22/09/2026): a caixa grande vira o
+   próprio seletor (dropdown), e as duas caixas de totais ficam lado a lado. */
+#modoColaborativoWrap .pc-cenario-btn{ display:block; width:100%; text-align:left; background:none; border:none; padding:0; }
+#modoColaborativoWrap .pc-cenario-btn:active .pc-cenario{ background:rgba(242,244,245,.05); }
+#modoColaborativoWrap .pc-cenario-dica{ width:100%; display:flex; align-items:center; gap:4px; font-size:9.5px; font-weight:600; color:#8A9096; margin-top:2px; }
+#modoColaborativoWrap .pc-cmp-tot{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+#modoColaborativoWrap .pc-cmp-box{ border-radius:12px; padding:10px 12px; border:1px solid rgba(242,244,245,.12); background:rgba(242,244,245,.03); min-width:0; }
+#modoColaborativoWrap .pc-cmp-box.lead{ border-color:rgba(52,232,74,.5); background:rgba(52,232,74,.08); }
+#modoColaborativoWrap .pc-cmp-box .nm{ font-size:11px; font-weight:700; color:#F2F4F5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#modoColaborativoWrap .pc-cmp-box .vv{ font-size:16px; font-weight:800; color:#F2F4F5; margin-top:2px; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-cmp-box .pc{ font-size:10px; color:#8A9096; margin-top:1px; }
