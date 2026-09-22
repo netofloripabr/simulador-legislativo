@@ -202,6 +202,89 @@ function _resLigarDropdowns(raiz, aoEscolher) {
   }
 }
 
+
+// ---------- plenário por ano / evolução (22/09/2026) ----------
+// Partidos que mudaram de nome ou se fundiram entre 2014 e 2022 somam na
+// mesma linha — sem isso o PL "surge do zero" em 2022.
+const RES_PARTIDO_RENOMEADO = { PMDB: "MDB", PRB: "REPUBLICANOS", PR: "PL", PSL: "UNIÃO", DEM: "UNIÃO", PPS: "CIDADANIA", PHS: "PODE", PTN: "PODE", "PT do B": "AVANTE", PEN: "PATRIOTA", PMB: "PMB", PTC: "AGIR", PRP: "PATRIOTA" };
+function _resPartidoAtual(p) { return RES_PARTIDO_RENOMEADO[p] || p; }
+function _resSeatsDe(lista) {
+  const m = {};
+  (lista || []).filter(_resEleito).forEach((c) => { const k = _resPartidoAtual(c.partido); m[k] = (m[k] || 0) + 1; });
+  return m;
+}
+// Cadeiras do MEU palpite: candidatos marcados como eleitos na lista do cargo.
+function _resPalpiteSeats(cargo) {
+  const lista = pcState.palpitesPorCargo && pcState.palpitesPorCargo[cargo];
+  if (!lista || !lista.length) return null;
+  const m = {}; let n = 0;
+  lista.forEach((p) => (p.candidatos || []).forEach((c) => { if (c.fonte === "legenda" || !c.marcadoEleito) return; const k = _resPartidoAtual(c.partido || p.partido); m[k] = (m[k] || 0) + 1; n++; }));
+  return n ? m : null;
+}
+function _resVarHtml(d) {
+  if (d > 0) return `<span class="var up">+${d}</span>`;
+  if (d < 0) return `<span class="var dn">−${-d}</span>`;
+  return `<span class="var eq">=</span>`;
+}
+// Renderiza só o corpo do plenário (troca de ano/evolução não redesenha a tela).
+function _resRenderPlenario(ctx) {
+  const { st, totalVagas, seatsPorAno, anos, palSeats } = ctx;
+  const corpo = document.getElementById("pcResPlenCorpo");
+  const tit = document.getElementById("pcResPlenTit");
+  if (!corpo) return;
+  const modo = st.plenModo || "ano";
+  const anoSel = st.plenAno || st.anoApurado;
+  const nomes = [...new Set([].concat(...anos.map((a) => Object.keys(seatsPorAno[a] || {})), Object.keys(palSeats || {})))]
+    .sort((x, y) => ((seatsPorAno[st.anoApurado] || {})[y] || 0) - ((seatsPorAno[st.anoApurado] || {})[x] || 0));
+  const botoes = `<div class="pc-plen-anos">${anos.map((a) => `<button data-plen-ano="${a}" class="${modo === "ano" && anoSel === a ? "active" : ""}">${a}</button>`).join("")}<button data-plen-ano="pal" class="pal${modo === "ano" && anoSel === "pal" ? " active" : ""}" ${palSeats ? "" : 'disabled title="Você ainda não tem palpite neste cargo"'}>Palpite</button><button data-plen-ano="evo" class="${modo === "evo" ? "active" : ""}">Evolução</button></div>`;
+  if (modo === "evo") {
+    if (tit) tit.textContent = "Plenário — evolução das cadeiras";
+    const linhas = nomes.filter((n) => anos.some((a) => (seatsPorAno[a] || {})[n]) || (palSeats && palSeats[n])).map((n) => {
+      const sq = anos.map((a) => (seatsPorAno[a] || {})[n] || 0);
+      const cel = (val, i) => { const d = i > 0 ? val - sq[i - 1] : null; return `<span class="n${i === anos.length - 1 ? " at" : ""}">${val}${d === null ? '<small class="eq">&nbsp;</small>' : `<small class="${d > 0 ? "up" : d < 0 ? "dn" : "eq"}">${d > 0 ? "+" + d : d < 0 ? "−" + (-d) : "="}</small>`}</span>`; };
+      const pv = palSeats ? (palSeats[n] || 0) : null; const dp = pv === null ? null : pv - sq[sq.length - 1];
+      const palCel = pv === null ? `<span class="n pal">—<small class="eq">&nbsp;</small></span>` : `<span class="n pal">${pv}<small class="${dp > 0 ? "up" : dp < 0 ? "dn" : "eq"}">${dp > 0 ? "+" + dp : dp < 0 ? "−" + (-dp) : "="}</small></span>`;
+      return `<div class="pc-evo-l"><span class="pn"><i style="background:${corTerreno(nomes.indexOf(n))};"></i>${nomePartidoExibicao(n)}</span>${sq.map(cel).join("")}${palCel}</div>`;
+    }).join("");
+    corpo.innerHTML = `<div style="margin-top:14px;">${botoes}<div class="pc-evo"><div class="pc-evo-cab"><span style="text-align:left;">Partido</span>${anos.map((a) => `<span>${a}</span>`).join("")}<span>Palpite</span></div>${linhas}</div></div>`;
+  } else {
+    const src = anoSel === "pal" ? (palSeats || {}) : (seatsPorAno[anoSel] || {});
+    const prevAno = anoSel === "pal" ? st.anoApurado : anos[anos.indexOf(anoSel) - 1];
+    const prev = prevAno ? seatsPorAno[prevAno] : null;
+    if (tit) tit.textContent = anoSel === "pal" ? `Plenário do seu palpite — ${totalVagas} vagas` : `Plenário apurado ${anoSel} — ${totalVagas} vagas`;
+    const seats = Object.entries(src).filter(([, n]) => n > 0).map(([nome, n]) => ({ nome, seats: n })).sort((a, b) => b.seats - a.seats);
+    const mostrarVar = prev && st.variacaoOn !== false;
+    const chips = seats.map((x) => `<span class="pc-tm-vaga-chip">${nomePartidoExibicao(x.nome)} <b>${x.seats}</b>${mostrarVar ? _resVarHtml(x.seats - (prev[x.nome] || 0)) : ""}</span>`).join("")
+      + (mostrarVar ? Object.keys(prev).filter((n) => !src[n]).map((n) => `<span class="pc-tm-vaga-chip" style="opacity:.5;">${nomePartidoExibicao(n)} <b>0</b>${_resVarHtml(-prev[n])}</span>`).join("") : "");
+    corpo.innerHTML = `<div style="margin-top:14px;">${botoes}<div>${seats.length ? renderPlenarioTerreno(seats, totalVagas) : `<div class="pc-sub" style="margin:8px 0;">Sem dados para ${anoSel}.</div>`}</div><div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);"><div class="pc-sub" style="margin:0 0 8px; font-size:10px;">Cadeiras por partido${mostrarVar ? ` · variação vs ${prevAno}` : ""}</div><div class="pc-tm-vagas" style="margin:0;">${chips}</div></div></div>`;
+  }
+  corpo.querySelectorAll("[data-plen-ano]").forEach((b) => b.addEventListener("click", () => {
+    const v = b.dataset.plenAno;
+    if (v === "evo") st.plenModo = "evo"; else { st.plenModo = "ano"; st.plenAno = v === "pal" ? "pal" : Number(v); }
+    _resRenderPlenario(ctx);
+  }));
+}
+
+// Aba Ferramentas: atalhos no vidro da página inicial (22/09/2026).
+function _resRenderFerramentas(ctx) {
+  const { st, favs } = ctx;
+  const corpo = document.getElementById("pcResCorpo");
+  const item = (id, ic, tit, sub, extra) => `<button type="button" class="pc-app" data-res-ferr="${id}" ${extra || ""}><span class="pc-app-ic">${ic}</span><span class="pc-app-tx"><span class="pc-app-rot">${tit}</span><span class="pc-app-sub">${sub}</span></span></button>`;
+  corpo.innerHTML = `<div class="pc-res-ferr">
+    ${item("favoritos", RES_IC_ESTRELA.replace('width="14" height="14"', 'width="22" height="22"'), "Favoritos", favs.size ? `${favs.size} candidato${favs.size === 1 ? "" : "s"}` : "nenhum marcado")}
+    ${item("relatorio", iconeSvg("impressora", 22), "Relatório", st.relatorio ? "ligado" : "lista em formato de relatório")}
+    ${item("comparativos", iconeSvg("desafio", 22), "Comparativos", "em breve", 'data-em-breve="1"')}
+    ${item("secoes", iconeSvg("mapa", 22), "Seções", "em breve", 'data-em-breve="1"')}
+    ${item("pontuacao", iconeSvg("ranking", 22), "Minha pontuação", "em breve", 'data-em-breve="1"')}
+    ${item("grupos", iconeSvg("grupos", 22), "Meus grupos", "em breve", 'data-em-breve="1"')}
+  </div>`;
+  corpo.querySelectorAll("[data-res-ferr]").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.emBreve) { if (typeof pcToast === "function") pcToast("Em breve."); return; }
+    if (b.dataset.resFerr === "favoritos") { st.soFav = true; st.aba = "candidatos"; renderResultados(); }
+    if (b.dataset.resFerr === "relatorio") { st.relatorio = true; st.aba = "candidatos"; renderResultados(); }
+  }));
+}
+
 // ---------- tela ----------
 async function renderResultados() {
   const conteudo = document.getElementById("pcConteudo");
@@ -217,7 +300,8 @@ async function renderResultados() {
   const anoAnterior2 = anoAnterior - 4;
   st.anoAnterior2 = anoAnterior2;
   if (st.palpiteOn === undefined) st.palpiteOn = true;
-  const [apuEst, ant, vivo, ant2] = await Promise.all([_resCarregar(anoApurado, cargo), _resCarregar(anoAnterior, cargo), apuCfg.ativa ? _resCarregarAoVivo(anoApurado, cargo) : null, _resCarregar(anoAnterior2, cargo)]);
+  const anosPlen = [...new Set([...RES_ANOS_HISTORICO, anoApurado])].sort((a, b) => a - b);
+  const [apuEst, ant, vivo, ant2, ...hist] = await Promise.all([_resCarregar(anoApurado, cargo), _resCarregar(anoAnterior, cargo), apuCfg.ativa ? _resCarregarAoVivo(anoApurado, cargo) : null, _resCarregar(anoAnterior2, cargo), ...anosPlen.map((a) => _resCarregar(a, cargo))]);
   const apu = _resMesclar(vivo, apuEst);
   const meta = vivo && vivo.meta;
   _resArmarAtualizacao(meta);
@@ -236,27 +320,31 @@ async function renderResultados() {
   const meu = _resMeuPalpiteMapa(cargo);
   const favs = _resFavoritos();
   const totalValidos = cands.reduce((s, c) => s + c.total, 0);
-  const eleitos = cands.filter(_resEleito);
-  const porPartido = {};
-  eleitos.forEach((c) => { porPartido[c.partido] = (porPartido[c.partido] || 0) + 1; });
-  const seats = Object.entries(porPartido).map(([nome, n]) => ({ nome, seats: n })).sort((a, b) => b.seats - a.seats);
   if (!st.cenario) st.cenario = cands[0] ? cands[0].sq : null;
   const cenario = cands.find((c) => c.sq === st.cenario) || cands[0];
 
   const botoesCargo = CARGOS.map((c) => `<button data-res-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
-  const chips = seats.map((p) => `<span class="pc-tm-vaga-chip">${nomePartidoExibicao(p.nome)} <b>${p.seats}</b></span>`).join("");
+  // Cadeiras por ano (2014/2018/2022 + apurado) e do meu palpite
+  const seatsPorAno = {};
+  anosPlen.forEach((a, i) => { seatsPorAno[a] = _resSeatsDe(a === anoApurado ? cands : (hist[i] ? hist[i].candidatos : [])); });
+  const palSeats = _resPalpiteSeats(cargo);
+  if (st.variacaoOn === undefined) st.variacaoOn = true;
+  if (st.vivoOn === undefined) st.vivoOn = true;
   const _k = "plenarioColapsado_res_" + cargo;
   const colapsado = pcState.expandido[_k] === undefined ? true : !!pcState.expandido[_k];
-  const legenda = `<div style="display:flex; flex-wrap:wrap; gap:4px; opacity:0.55;">${seats.map((o, idx) => `
-    <div style="display:inline-flex; align-items:center; gap:3px; padding:4px 6px; border:1px solid rgba(242,244,245,.12); border-radius:6px; white-space:nowrap;">
-      <span style="width:5px; height:5px; border-radius:50%; background:${corTerreno(idx)};"></span>
-      <span style="font-size:9px; font-weight:600;">${siglaCurta(o.nome)}: ${o.seats} (${(o.seats / totalVagas * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%)</span>
-    </div>`).join("")}</div>`;
+  const tog = (id, on, ic, rotulo, extra) => `<button type="button" data-res-tog="${id}" class="${on ? "on" : ""}" ${extra || ""}>${ic}${rotulo}</button>`;
+  const IC = (n) => iconeSvg(n, 14);
 
   conteudo.innerHTML = `
     <div style="font-size:20px; font-weight:700; margin:2px 0 4px 2px;">Resultados ${anoApurado}</div>
-    <div class="pc-sub" style="margin:0 0 12px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : "resultado oficial (TSE)"} · ${_resFmt(totalValidos)} votos nominais</div>
-    ${meta ? `
+    <div class="pc-sub" style="margin:0 0 10px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : "resultado oficial (TSE)"} · ${_resFmt(totalValidos)} votos nominais</div>
+    <div class="pc-res-tog">
+      ${tog("vivo", !!meta && st.vivoOn, `<span class="pt${meta && !meta.final ? " vivo" : ""}"></span>`, meta && meta.final ? "Totalização final" : "Ao vivo", meta ? "" : 'disabled title="A apuração ao vivo liga em 4/10/2026"')}
+      ${tog("palpite", st.palpiteOn, IC("editar"), "Meu palpite")}
+      ${tog("relatorio", st.relatorio, IC("impressora"), "Relatório")}
+      ${tog("variacao", st.variacaoOn, IC("relogio"), "Variação")}
+    </div>
+    ${meta && st.vivoOn ? `
     <div class="pc-heroi" style="margin-bottom:12px;">
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
         <span style="font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:7px;"><span class="pc-res-vivo${meta.final ? " fim" : ""}"></span>${meta.final ? "Totalização final" : "Apuração ao vivo"}</span>
@@ -264,26 +352,29 @@ async function renderResultados() {
       </div>
       <div class="pc-lobby-barra"><div style="width:${Math.min(100, Number(meta.pctSecoes) || 0)}%; background:#34E84A;"></div></div>
       <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#8A9096; margin-top:8px;"><span>${_resFmt(meta.secoesTotalizadas)} de ${_resFmt(meta.secoesTotal)} seções</span><span id="pcResAtualizado">atualizado ${_resTempoRelativo(meta.atualizadoEm)}${meta.final ? "" : " · próxima em 60 s"}</span></div>
-    </div>` : `
-    <div class="pc-lobby-duelo on" style="margin-bottom:12px; cursor:default;">
-      <span class="pc-lobby-duelo-ic">${iconeSvg("relogio", 18)}</span>
-      <span class="pc-lobby-duelo-tx"><b>Ensaio com o resultado de ${anoApurado}</b><i>na eleição de 2026 esta tela mostra a apuração ao vivo, com ${anoApurado} como "anterior"</i></span>
-    </div>`}
+    </div>` : ""}
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
     <div class="glass-card" style="padding:14px; margin-bottom:12px;">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-        <div class="pc-sub" style="margin:0;">Plenário apurado — ${totalVagas} vagas</div>
+        <div class="pc-sub" id="pcResPlenTit" style="margin:0;">Plenário apurado ${anoApurado} — ${totalVagas} vagas</div>
         <button id="pcResPlenToggle" class="pc-mini-btn" title="${colapsado ? "Expandir" : "Recolher"}"><svg viewBox="0 0 16 16" width="13" height="13" style="transform:${colapsado ? "rotate(-90deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
       </div>
-      <div id="pcResPlenCorpo" class="pc-plen-corpo${colapsado ? "" : " aberto"}"><div style="margin-top:14px;">${renderPlenarioTerreno(seats, totalVagas)}<div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--pc-glass-border);">${legenda}</div></div></div>
+      <div id="pcResPlenCorpo" class="pc-plen-corpo${colapsado ? "" : " aberto"}"></div>
     </div>
-    <div class="pc-tm-vagas">${chips}</div>
-    <div class="pc-sub-abas" style="margin:4px 0 12px;"><span class="${st.aba === "candidatos" ? "on" : ""}" data-res-aba="candidatos">Candidatos</span><span class="${st.aba === "mapa" ? "on" : ""}" data-res-aba="mapa">Mapa</span></div>
+    <div class="pc-cargo-switch" style="margin:4px 0 12px;"><button data-res-aba="candidatos" class="${st.aba === "candidatos" ? "active" : ""}">Candidatos</button><button data-res-aba="mapa" class="${st.aba === "mapa" ? "active" : ""}">Mapa</button><button data-res-aba="ferramentas" class="${st.aba === "ferramentas" ? "active" : ""}">Ferramentas</button></div>
     <div id="pcResCorpo"></div>
     <div class="pc-aviso-nao-pesquisa" style="margin-top:16px;">Dados oficiais do TSE. Jogo de palpites entre participantes — não é pesquisa eleitoral.</div>
   `;
-  document.querySelectorAll("[data-res-cargo]").forEach((b) => b.addEventListener("click", () => { st.cargo = b.dataset.resCargo; st.cenario = null; st.munSel = null; st.fichaSq = null; renderResultados(); }));
+  document.querySelectorAll("[data-res-cargo]").forEach((b) => b.addEventListener("click", () => { st.cargo = b.dataset.resCargo; st.cenario = null; st.munSel = null; st.fichaSq = null; st.plenAno = null; st.plenModo = "ano"; renderResultados(); }));
   document.querySelectorAll("[data-res-aba]").forEach((b) => b.addEventListener("click", () => { st.aba = b.dataset.resAba; renderResultados(); }));
+  document.querySelectorAll("[data-res-tog]").forEach((b) => b.addEventListener("click", () => {
+    const id = b.dataset.resTog;
+    if (id === "vivo") st.vivoOn = !st.vivoOn;
+    if (id === "palpite") st.palpiteOn = !st.palpiteOn;
+    if (id === "relatorio") st.relatorio = !st.relatorio;
+    if (id === "variacao") st.variacaoOn = !st.variacaoOn;
+    renderResultados();
+  }));
   const tg = document.getElementById("pcResPlenToggle");
   tg.addEventListener("click", () => {
     const atual = pcState.expandido[_k] === undefined ? true : !!pcState.expandido[_k];
@@ -292,8 +383,10 @@ async function renderResultados() {
     tg.querySelector("svg").style.transform = atual ? "none" : "rotate(-90deg)";
   });
 
-  const ctx = { st, cargo, cands, antPorNome, antDe: _antDe, ant2De: _ant2De, meu, favs, totalVagas, cenario, ant, ant2 };
-  if (st.aba === "mapa") await _resRenderMapa(ctx); else _resRenderCandidatos(ctx);
+  const ctx = { st, cargo, cands, antPorNome, antDe: _antDe, ant2De: _ant2De, meu, favs, totalVagas, cenario, ant, ant2, seatsPorAno, anos: anosPlen, palSeats };
+  if (!st.plenAno) st.plenAno = anoApurado;
+  _resRenderPlenario(ctx);
+  if (st.aba === "mapa") await _resRenderMapa(ctx); else if (st.aba === "ferramentas") _resRenderFerramentas(ctx); else _resRenderCandidatos(ctx);
 }
 
 // ---------- aba Candidatos ----------
@@ -312,6 +405,22 @@ function _resRenderCandidatos(ctx) {
     const p = meu.get(_resNorm(c.nomeUrna)) || meu.get(_resNorm(c.nome));
     const varr = a ? _resPct(c.total, a.total) : null;
     const aberta = st.fichaSq === c.sq;
+    const tilePalpite = st.palpiteOn
+      ? `<div class="pc-dep-tile ref pal" title="O que você indicou na sua lista">${p ? `<span class="tv">${_resFmt(p.votos)}</span><span class="tr">seu palpite${p.marcado ? " · E" : ""}</span>` : `<span class="tv">—</span><span class="tr">sem palpite</span>`}</div>`
+      : `<div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior2}">${a2 ? `<span class="tv">${_resFmt(a2.total)}</span><span class="tr">${st.anoAnterior2}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior2}</span>`}</div>`;
+    const tileAnt = `<div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior}">${a ? `<span class="tv">${_resFmt(a.total)}</span><span class="tr">${st.anoAnterior}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior}</span>`}</div>`;
+    if (st.relatorio) {
+      // Modo Relatório (22/09/2026): linha 1 posição/etiqueta/nome, linha 2 as
+      // mesmas caixas do card, compactas; variação dentro da caixa Apurado.
+      const dif = varr === null || !st.variacaoOn ? "" : `<b class="${varr >= 0 ? "up" : "dn"}">${varr >= 0 ? "+" : ""}${varr.toFixed(1).replace(".", ",")}%</b>`;
+      return `
+    <div class="pc-rel-l${aberta ? " res-aberta" : ""}" data-res-cand="${c.sq}">
+      <span class="pos">${i + 1}º</span>
+      <span class="nm pc-dep-cl1">${_resEtiqueta(c, cargo)}<span class="nm-tx">${c.nomeUrna}<i>${nomePartidoExibicao(c.partido)}</i></span><button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}" title="Favoritar">${RES_IC_ESTRELA}</button></span>
+      <div class="pc-dep-tiles">${tilePalpite}${tileAnt}<div class="pc-dep-tile votos" title="Resultado oficial"><span class="tv">${_resFmt(c.total)}</span><span class="tr"><span>apurado</span>${dif}</span></div></div>
+      ${aberta ? `<div id="pcResFicha" style="grid-column:1 / 3;"></div>` : ""}
+    </div>`;
+    }
     return `
     <div class="pc-dep-crow${aberta ? " res-aberta" : ""}" data-res-cand="${c.sq}">
       <div class="pc-dep-cl1">
@@ -321,13 +430,11 @@ function _resRenderCandidatos(ctx) {
         <button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}" title="Favoritar">${RES_IC_ESTRELA}</button>
       </div>
       <div class="pc-dep-tiles">
-        ${st.palpiteOn
-          ? `<div class="pc-dep-tile ref" title="O que você indicou na sua lista">${p ? `<span class="tv">${_resFmt(p.votos)}</span><span class="tr">seu palpite${p.marcado ? " · E" : ""}</span>` : `<span class="tv">—</span><span class="tr">sem palpite</span>`}</div>`
-          : `<div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior2}">${a2 ? `<span class="tv">${_resFmt(a2.total)}</span><span class="tr">${st.anoAnterior2}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior2}</span>`}</div>`}
-        <div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior}">${a ? `<span class="tv">${_resFmt(a.total)}</span><span class="tr">${st.anoAnterior}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior}</span>`}</div>
+        ${tilePalpite}
+        ${tileAnt}
         <div class="pc-dep-tile votos" title="Resultado oficial"><span class="tv">${_resFmt(c.total)}</span><span class="tr">apurado ${st.anoApurado}</span></div>
       </div>
-      <div style="display:flex; justify-content:space-between; font-size:10px; color:#8A9096; margin-top:6px;"><span>${(c.situacao || "").toLowerCase()}</span><span>vs ${st.anoAnterior}: ${_resPctHtml(varr)}</span></div>
+      <div style="display:flex; justify-content:space-between; font-size:10px; color:#8A9096; margin-top:6px;"><span>${(c.situacao || "").toLowerCase()}</span>${st.variacaoOn ? `<span>vs ${st.anoAnterior}: ${_resPctHtml(varr)}</span>` : ""}</div>
       ${aberta ? `<div id="pcResFicha"></div>` : ""}
     </div>`;
   };
@@ -339,9 +446,11 @@ function _resRenderCandidatos(ctx) {
       <button type="button" class="pc-dd-btn ico${st.soFav ? " on" : ""}" id="pcResSoFav" title="Só favoritos" style="${st.soFav ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>
       ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 170, titulo: "Ordenar" })}
     </div>
-    <div class="pc-dep-card" style="padding:0 12px;"><div class="pc-dep-cands">
+    ${st.relatorio
+      ? `<div class="glass-card pc-rel" style="padding:4px 0;">${lista.length ? lista.slice(0, limite).map(linha).join("") : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato", texto: "Confira a busca ou o filtro de favoritos." })}</div>`
+      : `<div class="pc-dep-card" style="padding:0 12px;"><div class="pc-dep-cands">
       ${lista.length ? lista.slice(0, limite).map(linha).join("") : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato", texto: "Confira a busca ou o filtro de favoritos." })}
-    </div></div>
+    </div></div>`}
     ${lista.length > limite ? `<button class="ghost" id="pcResMais" style="width:100%; margin-top:10px;">Mostrar mais (${lista.length - limite} restantes)</button>` : ""}
   `;
   const inp = document.getElementById("pcResBusca");
