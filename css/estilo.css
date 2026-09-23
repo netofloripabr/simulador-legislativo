@@ -3238,3 +3238,8 @@
 #modoColaborativoWrap .pc-part-cx b{ font-size:14px; font-weight:800; color:#F2F4F5; font-variant-numeric:tabular-nums; }
 #modoColaborativoWrap .pc-part-cx .n{ font-size:9.5px; color:#8A9096; font-variant-numeric:tabular-nums; }
 #modoColaborativoWrap .pc-mun-det .pc-part-bloco, #modoColaborativoWrap .pc-cmp-det .pc-part-bloco{ margin:4px 0 8px; }
+/* Revisão 23/09/2026: os 4 interruptores cabem numa linha em 375px. */
+#modoColaborativoWrap .pc-res-tog{ gap:5px; }
+#modoColaborativoWrap .pc-res-tog button{ height:30px; padding:0 9px; font-size:11px; gap:5px; }
+#modoColaborativoWrap .pc-res-tog button svg{ width:12px; height:12px; }
+#modoColaborativoWrap .pc-sub-abas span{ white-space:nowrap; }
