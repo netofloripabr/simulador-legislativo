@@ -131,12 +131,36 @@ function _resHistoricoDe(c, listaAno) {
 
 // Etiqueta pela situação OFICIAL do TSE (não pela nossa apuração — aqui o
 // dado é o resultado de verdade).
+// Etiquetas no padrão dos palpites (23/09/2026): cor só pra eleito —
+// verde vivo E-QP (quociente), lima E-M com a ordem da sobra ("E-M · 3ª",
+// igual à disputa de sobras do palpite); suplente e não eleito em etiqueta
+// neutra, sem cor.
 function _resEtiqueta(c, cargo) {
   const s = (c.situacao || "").toUpperCase();
-  if (s.includes("ELEITO POR QP") || (cargo === "senador" && s.startsWith("ELEITO"))) return `<span class="pc-sen-chip" title="${cargo === "senador" ? "Eleito (mais votado)" : "Eleito pelo quociente partidário"}">${cargo === "senador" ? "E" : "E-QP"}</span>`;
-  if (s.includes("ELEITO POR M") || s.startsWith("ELEITO")) return `<span class="pc-sen-chip em" title="Eleito pela sobra (método das médias)">E-M</span>`;
-  if (s.includes("SUPLENTE")) return `<span class="pc-sen-chip sup" title="Suplente">S</span>`;
-  return `<span class="pc-sen-chip sup" style="opacity:.55;" title="${c.situacao || "Não eleito"}">F</span>`;
+  if (s.includes("ELEITO POR QP") || (cargo === "senador" && s.startsWith("ELEITO"))) return `<span class="pc-sen-chip" title="${cargo === "senador" ? "Eleito (mais votado)" : "Eleito direto pelo quociente partidário (art. 107)"}">${cargo === "senador" ? "E" : "E-QP"}</span>`;
+  if (s.includes("ELEITO POR M") || s.startsWith("ELEITO")) {
+    const r = (pcState._resRodadas || {})[c.sq];
+    return `<span class="pc-sen-chip em" title="Eleito pela sobra (método das médias, art. 109)${r ? ` — ${r}ª sobra distribuída` : ""}">E-M${r ? ` · ${r}ª` : ""}</span>`;
+  }
+  if (s.includes("SUPLENTE")) return `<span class="pc-sen-chip neutro" title="Suplente">S</span>`;
+  return `<span class="pc-sen-chip neutro" title="${c.situacao || "Não eleito"}">F</span>`;
+}
+// Ordem das sobras: rodadas do método das médias (maior média = votos do
+// partido/federação ÷ (vagas já obtidas + 1)) só entre quem de fato levou
+// sobra no resultado oficial — reproduz a ordem sem contradizer o TSE.
+function _resCalcRodadas(ctx) {
+  const R = _resPartidos(ctx);
+  const rod = {};
+  const g = R.lista.map((x) => ({ total: x.total, tem: x.diretas, resta: x.sobras, em: x.cands.filter((c) => { const s = (c.situacao || "").toUpperCase(); return s.startsWith("ELEITO") && !s.includes("ELEITO POR QP"); }).sort((a, b) => b.total - a.total) }));
+  let n = 0;
+  for (;;) {
+    let melhor = null;
+    g.forEach((x) => { if (x.resta > 0 && (!melhor || x.total / (x.tem + 1) > melhor.total / (melhor.tem + 1))) melhor = x; });
+    if (!melhor) break;
+    n++; const c = melhor.em[melhor.sobras_i = (melhor.sobras_i || 0)]; if (c) rod[c.sq] = n;
+    melhor.sobras_i++; melhor.tem++; melhor.resta--;
+  }
+  return rod;
 }
 function _resEleito(c) { return (c.situacao || "").toUpperCase().startsWith("ELEITO"); }
 
@@ -438,7 +462,7 @@ async function renderResultados() {
   const IC = (n) => iconeSvg(n, 14);
 
   conteudo.innerHTML = `
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 4px 2px;"><span style="font-size:20px; font-weight:700;">Resultados ${anoApurado}</span><button type="button" class="pc-dd-btn ico" id="pcResImprimir" title="Imprimir a tela como está" style="width:32px; height:32px;">${iconeSvg("impressora", 15)}</button></div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 4px 2px;"><span style="display:flex; align-items:center; gap:8px;"><button type="button" class="pc-dd-btn ico" id="pcResHome" title="Página inicial" style="width:32px; height:32px;">${iconeSvg("home", 15)}</button><span style="font-size:20px; font-weight:700;">Apuração ${anoApurado}</span></span><button type="button" class="pc-dd-btn ico" id="pcResImprimir" title="Imprimir a tela como está" style="width:32px; height:32px;">${iconeSvg("impressora", 15)}</button></div>
     <div class="pc-sub" style="margin:0 0 10px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : "resultado oficial (TSE)"}</div>
     <div class="pc-res-tog">
       ${tog("vivo", !!meta && st.vivoOn, `<span class="pt${meta && !meta.final ? " vivo" : ""}"></span>`, meta && meta.final ? "Totalização final" : "Ao vivo", meta ? "" : 'disabled title="A apuração ao vivo liga em 4/10/2026"')}
@@ -479,6 +503,12 @@ async function renderResultados() {
   }));
   // Imprimir a TELA como está (não o documento .di-*): classe na raiz
   // ativa o bloco @media print de "pc-print-tela" no CSS.
+  document.getElementById("pcResHome").addEventListener("click", () => {
+    clearTimeout(pcState._resTimer);
+    if (!pcState.perfil && pcState._telaAntesRes && pcState._telaAntesRes !== "resultados-convidado") pcState.tela = pcState._telaAntesRes;
+    pcState.subaba = "painel"; renderAppColaborativo();
+    window.scrollTo(0, 0);
+  });
   document.getElementById("pcResImprimir").addEventListener("click", () => {
     const raiz = document.documentElement;
     raiz.classList.add("pc-print-tela");
@@ -496,6 +526,7 @@ async function renderResultados() {
   });
 
   const ctx = { st, cargo, cands, antPorNome, antDe: _antDe, ant2De: _ant2De, meu, favs, totalVagas, cenario, ant, ant2, seatsPorAno, anos: anosPlen, palSeats };
+  pcState._resRodadas = cargo === "senador" ? {} : _resCalcRodadas(ctx);
   if (!st.plenAno) st.plenAno = anoApurado;
   _resRenderPlenario(ctx);
   if (st.aba === "mapa") await _resRenderMapa(ctx); else if (st.aba === "ferramentas") _resRenderFerramentas(ctx); else _resRenderCandidatos(ctx);

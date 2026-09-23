@@ -3263,3 +3263,5 @@
 #modoColaborativoWrap .pc-map-filtros .pc-dd-btn small{ font-size:8px; }
 #modoColaborativoWrap .pc-map-filtros .pc-dd-btn [data-dd-txt]{ font-size:11.5px; max-width:100%; }
 #modoColaborativoWrap .pc-map-filtros .pc-dd-btn > svg{ position:absolute; right:7px; top:50%; transform:translateY(-50%); }
+/* Suplente / não eleito: etiqueta neutra, sem cor (padrão dos palpites). */
+#modoColaborativoWrap .pc-sen-chip.neutro{ background:#2C3239; color:#AEB5BB; }

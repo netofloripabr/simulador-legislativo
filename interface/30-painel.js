@@ -720,7 +720,7 @@ async function renderPainelPrincipal() {
   const btnRes = document.getElementById("pcMenuResultados");
   if (btnRes) btnRes.addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "resultados"; renderAppColaborativo(); }
-    else { pcState.tela = "resultados-convidado"; renderColaborativo(); }
+    else { pcState._telaAntesRes = pcState.tela; pcState.tela = "resultados-convidado"; renderColaborativo(); }
   });
   document.getElementById("pcMenuRanking").addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "ranking"; renderAppColaborativo(); }
