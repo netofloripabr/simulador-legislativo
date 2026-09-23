@@ -3210,3 +3210,20 @@
 #modoColaborativoWrap .pc-filtro-trilho button{ all:unset; cursor:pointer; font-size:10px; font-weight:700; color:#E8432A; padding:3px 8px; border-radius:999px; background:rgba(232,67,42,.12); }
 #modoColaborativoWrap .pc-lin.pc-lin-pos.clic{ cursor:pointer; }
 #modoColaborativoWrap .pc-mun-det .pc-sub-abas span{ font-size:11.5px; padding-left:7px; padding-right:7px; }
+
+/* Resultado por partido (23/09/2026). */
+#modoColaborativoWrap .pc-part-voltar{ all:unset; cursor:pointer; display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color:#8A9096; margin:2px 0 10px; }
+#modoColaborativoWrap .pc-part-cab{ display:flex; flex-wrap:wrap; gap:14px; font-size:11px; color:#8A9096; margin:0 2px 10px; }
+#modoColaborativoWrap .pc-part-cab b{ color:#F2F4F5; font-weight:800; margin-left:3px; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-part-cab .obs{ font-size:10px; color:#6B7178; }
+#modoColaborativoWrap .pc-lin.pc-part-lin{ grid-template-columns:minmax(0,1fr) 70px 44px 46px; align-items:center; gap:6px; }
+#modoColaborativoWrap .pc-lin.pc-part-lin > .n{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#modoColaborativoWrap .pc-lin.pc-part-lin > .v{ text-align:right; font-variant-numeric:tabular-nums; font-weight:700; color:#F2F4F5; }
+#modoColaborativoWrap .pc-lin.pc-part-lin > .v.p{ font-size:10.5px; font-weight:600; color:#AEB5BB; }
+#modoColaborativoWrap .pc-lin.pc-part-lin > .c{ display:flex; justify-content:center; }
+#modoColaborativoWrap .pc-lin.pc-part-lin.cab > span{ font-size:9px; font-weight:600; color:#6B7178; }
+#modoColaborativoWrap .pc-lin.pc-part-lin.clic{ cursor:pointer; }
+#modoColaborativoWrap .pc-part-tit{ font-size:18px; font-weight:800; color:#F2F4F5; margin:0 2px 10px; }
+#modoColaborativoWrap .pc-part-tit i{ display:block; font-style:normal; font-size:10.5px; font-weight:600; color:#8A9096; margin-top:2px; }
+#modoColaborativoWrap .pc-part-tiles{ grid-template-columns:repeat(4,1fr); margin:0 0 12px; }
+#modoColaborativoWrap .pc-part-tiles .pc-dep-tile.ref .tv{ color:#F2F4F5; }

@@ -266,12 +266,80 @@ function _resRenderPlenario(ctx) {
 }
 
 // Aba Ferramentas: atalhos no vidro da página inicial (22/09/2026).
+// Votos válidos oficiais (TSE, total do cargo: votos − brancos − nulos).
+const RES_VALIDOS_OFICIAIS = { 2022: { estadual: 4471619 - 289065 - 153702 } };
+// Federações de 2022 (TSE): contam como UM partido no quociente
+// partidário e na sobra. Em 2018/2014 não existia federação.
+const RES_FEDERACOES = {
+  2022: { "PT": "Fed. Brasil da Esperança", "PC do B": "Fed. Brasil da Esperança", "PV": "Fed. Brasil da Esperança",
+          "PSDB": "Fed. PSDB Cidadania", "CIDADANIA": "Fed. PSDB Cidadania", "PSOL": "Fed. PSOL Rede", "REDE": "Fed. PSOL Rede" },
+};
+// Resultado por partido (modelo de referência, 23/09/2026): QE, QP, votos
+// nominais + legenda, eleitos (diretas pelo QP / sobras pela média) e o
+// ranking interno. Eleitos vêm da situação OFICIAL do TSE, não de recálculo.
+function _resPartidos(ctx) {
+  const { st, cands, cargo, totalVagas } = ctx;
+  const fed = RES_FEDERACOES[st.anoApurado] || {};
+  const leg = (st.anoApurado === 2022 && typeof LEGENDA_2022 !== "undefined" && LEGENDA_2022[cargo]) || null;
+  const grupos = {};
+  const g = (p) => fed[p] || p;
+  cands.forEach((c) => {
+    const k = g(c.partido);
+    const x = grupos[k] = grupos[k] || { nome: k, partidos: new Set(), nominal: 0, legenda: 0, cands: [], diretas: 0, sobras: 0 };
+    x.partidos.add(c.partido); x.nominal += c.total; x.cands.push(c);
+    const s = (c.situacao || "").toUpperCase();
+    if (s.includes("ELEITO POR QP")) x.diretas++; else if (s.startsWith("ELEITO")) x.sobras++;
+  });
+  if (leg) Object.entries(leg).forEach(([p, v]) => { const k = g(p); if (grupos[k]) grupos[k].legenda += v; });
+  // Soma do arquivo por município/zona fica ~25 mil abaixo do oficial em
+  // 2022 (votos de candidatos com situação revista depois). Quando há o
+  // total oficial, ele manda no QE — mesmo número de testes/eleitoral.test.js.
+  const somaArquivo = Object.values(grupos).reduce((a, x) => a + x.nominal + x.legenda, 0);
+  const validos = (RES_VALIDOS_OFICIAIS[st.anoApurado] || {})[cargo] || somaArquivo;
+  const qe = cargo === "senador" ? null : quocienteEleitoral(validos, totalVagas);
+  const lista = Object.values(grupos).map((x) => ({ ...x, total: x.nominal + x.legenda, eleitos: x.diretas + x.sobras, qp: qe ? (x.nominal + x.legenda) / qe : null }))
+    .sort((a, b) => b.eleitos - a.eleitos || b.total - a.total);
+  return { lista, validos, qe, temLegenda: !!leg };
+}
+function _resRenderPartidos(ctx) {
+  const { st, cargo } = ctx;
+  const corpo = document.getElementById("pcResCorpo");
+  const R = _resPartidos(ctx);
+  const pct = (v) => (v / R.validos * 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%";
+  const voltar = `<button type="button" class="pc-part-voltar" id="pcResPartVoltar">${iconeSvg("setaEsquerda", 13)}${st.partidoSel ? "Partidos" : "Ferramentas"}</button>`;
+  const sel = st.partidoSel && R.lista.find((x) => x.nome === st.partidoSel);
+  if (!sel) {
+    corpo.innerHTML = voltar + `
+      <div class="pc-part-cab"><span>QE <b>${R.qe ? _resFmt(R.qe) : "—"}</b></span><span>Válidos <b>${_resFmt(R.validos)}</b></span>${R.temLegenda ? "" : `<span class="obs">sem voto de legenda em ${st.anoApurado}</span>`}</div>
+      <div class="pc-dep-card" style="padding:0 12px;">
+        <div class="pc-lin pc-part-lin cab"><span>Partido</span><span class="v">Votos</span><span class="v">QP</span><span class="c">Eleitos</span></div>
+        ${R.lista.map((x) => `<div class="pc-lin pc-part-lin clic" data-partido="${escaparAtributoHtml(x.nome)}"><span class="n">${x.nome}${x.partidos.size > 1 ? `<i class="pc-loc-sub">${[...x.partidos].join(" · ")}</i>` : ""}</span><span class="v">${_resFmt(x.total)}<i class="pc-loc-sub" style="text-align:right;">${pct(x.total)}</i></span><span class="v p">${x.qp === null ? "—" : x.qp.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span class="c">${x.eleitos ? `<span class="pc-sen-chip pos">${x.eleitos}</span>` : `<span style="color:#6B7178;">0</span>`}</span></div>`).join("")}
+      </div>`;
+  } else {
+    const t = (rot, val, sub, cls) => `<div class="pc-dep-tile ref"><span class="tv"${cls ? ` style="color:${cls};"` : ""}>${val}</span><span class="tr">${rot}${sub ? " · " + sub : ""}</span></div>`;
+    const cs = [...sel.cands].sort((a, b) => b.total - a.total);
+    corpo.innerHTML = voltar + `
+      <div class="pc-part-tit">${sel.nome}${sel.partidos.size > 1 ? `<i>${[...sel.partidos].join(" · ")}</i>` : ""}</div>
+      <div class="pc-dep-tiles pc-part-tiles">
+        ${t("votos", _resFmt(sel.total), pct(sel.total))}${t("legenda", R.temLegenda ? _resFmt(sel.legenda) : "—")}${t("eleitos", sel.eleitos)}${t("candidatos", sel.cands.length)}
+        ${t("QE", R.qe ? _resFmt(R.qe) : "—")}${t("QP", sel.qp === null ? "—" : sel.qp.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}${t("diretas", sel.diretas, "", "#34E84A")}${t("sobras", sel.sobras, "", "var(--pc-warning)")}
+      </div>
+      <div class="pc-dep-card pc-cand-lista" style="padding:0 12px;">
+        ${cs.map((c) => `<div class="pc-cand-lin"><div class="pc-dep-cl1" style="cursor:default;">${_resEtiqueta(c, cargo)}<span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span><span class="voto">${_resFmt(c.total)}</span></div></div>`).join("")}
+      </div>`;
+  }
+  document.getElementById("pcResPartVoltar").addEventListener("click", () => { if (st.partidoSel) st.partidoSel = null; else st.ferr = null; _resRenderFerramentas(ctx); });
+  corpo.querySelectorAll("[data-partido]").forEach((el) => el.addEventListener("click", () => { st.partidoSel = el.dataset.partido; _resRenderPartidos(ctx); corpo.scrollIntoView({ block: "start" }); }));
+}
+
 function _resRenderFerramentas(ctx) {
   const { st, favs } = ctx;
   const corpo = document.getElementById("pcResCorpo");
+  if (st.ferr === "partidos") { _resRenderPartidos(ctx); return; }
   const item = (id, ic, tit, sub, extra) => `<button type="button" class="pc-app" data-res-ferr="${id}" ${extra || ""}><span class="pc-app-ic">${ic}</span><span class="pc-app-tx"><span class="pc-app-rot">${tit}</span><span class="pc-app-sub">${sub}</span></span></button>`;
   corpo.innerHTML = `<div class="pc-res-ferr">
     ${item("favoritos", RES_IC_ESTRELA.replace('width="14" height="14"', 'width="22" height="22"'), "Favoritos", favs.size ? `${favs.size} candidato${favs.size === 1 ? "" : "s"}` : "nenhum marcado")}
+    ${item("partidos", iconeSvg("grupos", 22), "Partidos", "QE, QP, eleitos e sobras")}
     ${item("comparativos", iconeSvg("desafio", 22), "Comparativos", "em breve", 'data-em-breve="1"')}
     ${item("secoes", iconeSvg("mapa", 22), "Seções", "em breve", 'data-em-breve="1"')}
     ${item("pontuacao", iconeSvg("ranking", 22), "Minha pontuação", "em breve", 'data-em-breve="1"')}
@@ -280,6 +348,7 @@ function _resRenderFerramentas(ctx) {
   corpo.querySelectorAll("[data-res-ferr]").forEach((b) => b.addEventListener("click", () => {
     if (b.dataset.emBreve) { if (typeof pcToast === "function") pcToast("Em breve."); return; }
     if (b.dataset.resFerr === "favoritos") { st.soFav = true; st.aba = "candidatos"; renderResultados(); }
+    if (b.dataset.resFerr === "partidos") { st.ferr = "partidos"; st.partidoSel = null; _resRenderPartidos(ctx); }
   }));
 }
 
@@ -379,7 +448,7 @@ async function renderResultados() {
     <div id="pcResCorpo"></div>
     <div class="pc-aviso-nao-pesquisa" style="margin-top:16px;">Dados oficiais do TSE. Jogo de palpites entre participantes — não é pesquisa eleitoral.</div>
   `;
-  document.querySelectorAll("[data-res-cargo]").forEach((b) => b.addEventListener("click", () => { st.cargo = b.dataset.resCargo; st.cenario = null; st.munSel = null; st.fichaSq = null; st.plenAno = null; st.plenModo = "ano"; renderResultados(); }));
+  document.querySelectorAll("[data-res-cargo]").forEach((b) => b.addEventListener("click", () => { st.cargo = b.dataset.resCargo; st.partidoSel = null; st.cenario = null; st.munSel = null; st.fichaSq = null; st.plenAno = null; st.plenModo = "ano"; renderResultados(); }));
   document.querySelectorAll("[data-res-aba]").forEach((b) => b.addEventListener("click", () => { st.aba = b.dataset.resAba; renderResultados(); }));
   document.querySelectorAll("[data-res-tog]").forEach((b) => b.addEventListener("click", () => {
     const id = b.dataset.resTog;
