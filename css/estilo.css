@@ -3255,3 +3255,11 @@
 #modoColaborativoWrap .pc-cand-lin .voto{ display:flex; flex-direction:column; align-items:flex-end; }
 #modoColaborativoWrap .pc-acerto{ font-style:normal; font-size:8px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:#8A9096; margin-top:2px; }
 #modoColaborativoWrap .pc-acerto.ok{ color:#34E84A; }
+
+/* Filtros do mapa lado a lado (23/09/2026): Região · Modo · Comparar. */
+#modoColaborativoWrap .pc-map-filtros{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin-bottom:10px; }
+#modoColaborativoWrap .pc-map-filtros .pc-dd{ min-width:0; }
+#modoColaborativoWrap .pc-map-filtros .pc-dd-btn{ width:100%; box-sizing:border-box; flex-direction:column; align-items:flex-start; gap:2px; padding:7px 22px 7px 9px; position:relative; }
+#modoColaborativoWrap .pc-map-filtros .pc-dd-btn small{ font-size:8px; }
+#modoColaborativoWrap .pc-map-filtros .pc-dd-btn [data-dd-txt]{ font-size:11.5px; max-width:100%; }
+#modoColaborativoWrap .pc-map-filtros .pc-dd-btn > svg{ position:absolute; right:7px; top:50%; transform:translateY(-50%); }

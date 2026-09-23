@@ -677,10 +677,10 @@ async function _resRenderMapa(ctx) {
       </button>
       <div class="pc-dd-menu" style="min-width:260px;"><div style="padding:6px 8px;"><input class="cell" id="pcResCenBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCenLista" style="max-height:240px; overflow:auto;">${listaCand(cenario.sq)}</div></div>
     </div>
-    <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; align-items:center;">
-      ${_resDropdown("pcResCmp", "Comparar com", cmp ? cmp.nomeUrna : "ninguém", `<div class="pc-dd-it${!cmp ? " on" : ""}" data-sq="">Sem comparação</div><div style="padding:6px 8px;"><input class="cell" id="pcResCmpBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCmpLista" style="max-height:240px; overflow:auto;">${listaCand(st.cmpSq)}</div>`, { largura: 260 })}
-      ${cmp ? "" : _resDropdown("pcResModo", "Modo", st.modo === "var" ? `Variação vs ${RES_ANO_ANTERIOR}` : `Votos ${RES_ANO_APURADO}`, `<div class="pc-dd-grp">Votos de ${cenario.nomeUrna}</div><div class="pc-dd-it${st.modo === "votos" ? " on" : ""}" data-m="votos">Votos ${RES_ANO_APURADO}</div><div class="pc-dd-it${st.modo === "var" ? " on" : ""}" data-m="var">Variação vs ${RES_ANO_ANTERIOR} (ganhou / perdeu)</div>`, { largura: 230 })}
-      ${_resDropdown("pcResReg", "Região", regTxt, `<div class="pc-dd-it${!st.regiao && !st.assoc ? " on" : ""}" data-r="">Todo o estado</div><div class="pc-dd-grp">Mesorregiões (IBGE)</div><div class="pc-dd-grid">${meso.map((r) => `<div class="pc-dd-it${st.regiao === r ? " on" : ""}" data-r="${r}">${r.replace(" Catarinense", "")}</div>`).join("")}</div><div class="pc-dd-grp">Associações de municípios</div><div class="pc-dd-grid">${ASSOCIACOES_SC.map((x) => `<div class="pc-dd-it${st.assoc === x ? " on" : ""}" data-a="${x}">${x}</div>`).join("")}</div>`, { largura: 270 })}
+    <div class="pc-map-filtros">
+      ${_resDropdown("pcResReg", "Região", st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado"), `<div class="pc-dd-it${!st.regiao && !st.assoc ? " on" : ""}" data-r="">Todo o estado</div><div class="pc-dd-grp">Mesorregiões (IBGE)</div><div class="pc-dd-grid">${meso.map((r) => `<div class="pc-dd-it${st.regiao === r ? " on" : ""}" data-r="${r}">${r.replace(" Catarinense", "")}</div>`).join("")}</div><div class="pc-dd-grp">Associações de municípios</div><div class="pc-dd-grid">${ASSOCIACOES_SC.map((x) => `<div class="pc-dd-it${st.assoc === x ? " on" : ""}" data-a="${x}">${x}</div>`).join("")}</div>`, { largura: 270 })}
+      ${cmp ? "" : _resDropdown("pcResModo", "Modo", st.modo === "var" ? `Var. ${RES_ANO_ANTERIOR}` : `${RES_ANO_APURADO}`, `<div class="pc-dd-grp">Votos de ${cenario.nomeUrna}</div><div class="pc-dd-it${st.modo === "votos" ? " on" : ""}" data-m="votos">Votos ${RES_ANO_APURADO}</div><div class="pc-dd-it${st.modo === "var" ? " on" : ""}" data-m="var">Variação vs ${RES_ANO_ANTERIOR} (ganhou / perdeu)</div>`, { largura: 230 })}
+      ${_resDropdown("pcResCmp", "Comparar", cmp ? cmp.nomeUrna : "ninguém", `<div class="pc-dd-it${!cmp ? " on" : ""}" data-sq="">Sem comparação</div><div style="padding:6px 8px;"><input class="cell" id="pcResCmpBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCmpLista" style="max-height:240px; overflow:auto;">${listaCand(st.cmpSq)}</div>`, { largura: 260, direita: true })}
     </div>
     <div class="glass-card" style="padding:10px;">${pcState._resGeoSvg}
       <div class="pc-legmapa"><span id="pcResLegA"></span><i id="pcResLegBar"></i><span id="pcResLegB"></span></div>
@@ -752,8 +752,9 @@ async function _resRenderMapa(ctx) {
   };
   svg.querySelectorAll("path").forEach((p) => p.addEventListener("click", () => { const d = dados[p.dataset.ibge]; if (!d) return; st.munSel = st.munSel === d.m.chave ? null : d.m.chave; pintar(); const s = document.querySelector("#pcResMapaLista .pc-lin.sel"); if (s) s.scrollIntoView({ block: "center", behavior: "smooth" }); }));
   _resLigarDropdowns(corpo, (id, it) => {
-    if (id === "pcResModo") { st.modo = it.dataset.m; pintar(); }
-    if (id === "pcResReg") { st.regiao = it.dataset.r || ""; st.assoc = it.dataset.a || ""; st.munSel = null; pintar(); }
+    const rot = (dd, t) => { const e = document.querySelector(`#${dd} [data-dd-txt]`); if (e) e.textContent = t; };
+    if (id === "pcResModo") { st.modo = it.dataset.m; rot("pcResModo", st.modo === "var" ? `Var. ${RES_ANO_ANTERIOR}` : `${RES_ANO_APURADO}`); pintar(); }
+    if (id === "pcResReg") { st.regiao = it.dataset.r || ""; st.assoc = it.dataset.a || ""; st.munSel = null; rot("pcResReg", st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado")); pintar(); }
     if (id === "pcResMapaOrd") { st.ordem = it.dataset.o; pintar(); }
     if (id === "pcResCen") { st.cenario = it.dataset.sq; st.munSel = null; renderResultados(); }
     if (id === "pcResCmp") { st.cmpSq = it.dataset.sq || null; st.munSel = null; renderResultados(); }
