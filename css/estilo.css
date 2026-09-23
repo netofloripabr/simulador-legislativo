@@ -3035,7 +3035,15 @@
 #modoColaborativoWrap .pc-sub-abas span{ padding:8px 10px; font-size:11.5px; font-weight:700; color:#8A9096; border-bottom:2px solid transparent; cursor:pointer; }
 #modoColaborativoWrap .pc-sub-abas span.on{ color:#F2F4F5; border-bottom-color:#34E84A; }
 #modoColaborativoWrap .pc-mun-det{ margin:4px 0 6px 30px; }
-#modoColaborativoWrap .pc-mun-det .pc-lin{ grid-template-columns:14px minmax(0,120px) 42px 44px 44px; font-size:12px; }
+#modoColaborativoWrap .pc-mun-det .pc-lin{ grid-template-columns:minmax(0,1fr) 64px 64px 58px; font-size:12px; align-items:start; padding:10px 0; }
+/* Legenda de localidade real do TSE — bairro por zona, escola por seção
+   (pedido de 22/09/2026, dado achado nos zips que o usuário já tinha
+   baixado). Bloco próprio abaixo do nome, pra não colidir com os números
+   da linha (que ficam centrados no topo via align-items:start acima). */
+#modoColaborativoWrap .pc-loc-sub{ display:block; font-style:normal; font-weight:500; font-size:9px; color:#6E757C; line-height:1.25; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+#modoColaborativoWrap .pc-mun-det .pc-lin .v, #modoColaborativoWrap .pc-mun-det .pc-lin .d{ padding-top:1px; }
+#modoColaborativoWrap .pc-cmp-det-card .pc-cmp-lin{ align-items:start; padding:9px 0; }
+#modoColaborativoWrap .pc-cmp-det-card .pc-cmp-lin .stat, #modoColaborativoWrap .pc-cmp-det-card .pc-cmp-lin .dif{ padding-top:1px; }
 #modoColaborativoWrap .pc-fav{ width:26px; height:26px; border-radius:7px; border:1px solid #2B2F33; background:rgba(242,244,245,.05); display:inline-flex; align-items:center; justify-content:center; color:#8A9096; cursor:pointer; flex:none; padding:0; }
 #modoColaborativoWrap .pc-fav.on{ color:#C6E62A; border-color:rgba(198,230,42,.5); }
 #modoColaborativoWrap .pc-dep-crow.res-aberta{ background:rgba(242,244,245,.025); }
@@ -3147,6 +3155,12 @@
 #modoColaborativoWrap .pc-cmp-mun .stat.forte b{ font-size:13px; }
 #modoColaborativoWrap .pc-cmp-mun .stat b.venceu{ color:#34E84A; }
 #modoColaborativoWrap .pc-cmp-mun .stat small{ font-size:7.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6B7178; }
+/* Cabeçalho único com os nomes por extenso (pedido de 22/09/2026: repetir
+   o nome embaixo de cada voto poluía a lista — o nome aparece 1x aqui). */
+#modoColaborativoWrap .pc-cmp-cab{ display:grid; grid-template-columns:20px minmax(0,1fr) 58px 58px 52px; gap:6px; align-items:end; padding:0 0 6px; }
+#modoColaborativoWrap .pc-cmp-cab .stat{ font-size:9px; font-weight:700; letter-spacing:.02em; color:#8A9096; text-align:right; line-height:1.2; overflow-wrap:break-word; }
+#modoColaborativoWrap .pc-cmp-cab .stat.forte{ color:#DDE0E2; }
+#modoColaborativoWrap .pc-cmp-det-card .pc-cmp-cab{ grid-template-columns:minmax(0,1fr) 56px 56px 50px; padding:0 0 8px; border-bottom:1px solid rgba(242,244,245,.08); margin-bottom:2px; }
 #modoColaborativoWrap .pc-cmp-mun .dif{ font-size:10.5px; font-weight:700; color:#8A9096; text-align:right; font-variant-numeric:tabular-nums; }
 /* Painel do município expandido: cartão próprio, claramente separado da
    lista (pedido de 22/09/2026 — antes ficava "grudado" entre as linhas). */
@@ -3161,3 +3175,17 @@
 #modoColaborativoWrap .pc-cmp-lin .stat b.venceu{ color:#34E84A; }
 #modoColaborativoWrap .pc-cmp-lin .stat small{ font-size:7px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:#6B7178; }
 #modoColaborativoWrap .pc-cmp-lin .dif{ font-size:10px; font-weight:700; color:#8A9096; text-align:right; font-variant-numeric:tabular-nums; }
+
+/* Lista com colocação (Pos. · Votos · %), alinhamento do app de referência
+   aprovado em 23/09/2026 — etiqueta no modelo .pc-sen-chip, sem emoji. */
+#modoColaborativoWrap .pc-lin.pc-lin-pos, #modoColaborativoWrap .pc-mun-det .pc-lin.pc-lin-pos{ grid-template-columns:18px minmax(0,1fr) 40px 54px 38px; align-items:center; }
+#modoColaborativoWrap .pc-lin.pc-lin-pos > span{ line-height:1.1; }
+#modoColaborativoWrap .pc-lin.pc-lin-pos > .i{ font-size:9px; color:#8A9096; }
+#modoColaborativoWrap .pc-lin.pc-lin-pos > .c{ display:flex; justify-content:center; }
+#modoColaborativoWrap .pc-lin.pc-lin-pos > .v{ text-align:right; font-variant-numeric:tabular-nums; font-weight:700; color:#F2F4F5; }
+#modoColaborativoWrap .pc-lin.pc-lin-pos > .v.p{ font-size:9px; font-weight:600; color:#8A9096; }
+#modoColaborativoWrap .pc-lin.pc-lin-pos.cab > span{ font-size:9px; font-weight:600; color:#6B7178; }
+#modoColaborativoWrap .pc-lin.pc-lin-pos.cab > .c{ justify-content:center; }
+#modoColaborativoWrap .pc-sen-chip.pos{ font-size:8.5px; padding:2.4px 6px; height:15px; min-width:0; }
+#modoColaborativoWrap .pc-sen-chip.pos.neutro{ background:#3A3F45; color:#DDE0E2; }
+#modoColaborativoWrap .pc-lin.pc-lin-pos > .n{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }

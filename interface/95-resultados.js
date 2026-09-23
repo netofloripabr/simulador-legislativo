@@ -285,6 +285,22 @@ function _resRenderFerramentas(ctx) {
   }));
 }
 
+
+// Colocação do candidato num recorte: 1 + quantos candidatos do cargo
+// tiveram MAIS votos ali. Sem voto no recorte → sem colocação.
+function _resPosicao(lista, k, v, votosDe) {
+  if (!v) return 0;
+  let n = 1;
+  for (const c of lista) if ((votosDe(c, k) || 0) > v) n++;
+  return n;
+}
+function _resChipPos(pos) {
+  if (!pos) return `<span style="color:#6B7178;">—</span>`;
+  return `<span class="pc-sen-chip pos${pos <= 3 ? "" : " neutro"}">${pos}º</span>`;
+}
+function _resPctTotal(v, total) {
+  return total ? (v / total * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : "—";
+}
 // ---------- tela ----------
 async function renderResultados() {
   const conteudo = document.getElementById("pcConteudo");
@@ -631,14 +647,15 @@ async function _resRenderMapa(ctx) {
         <div class="pc-cmp-box${leadA ? " lead" : ""}"><div class="nm">${cenario.nomeUrna}</div><div class="vv${leadA ? " venceu" : ""}">${_resFmt(tot)}</div><div class="pc">${nomePartidoExibicao(cenario.partido)}${leadA ? " · lidera" : ""}</div></div>
         <div class="pc-cmp-box${!leadA ? " lead" : ""}"><div class="nm">${cmp.nomeUrna}</div><div class="vv${!leadA ? " venceu" : ""}">${_resFmt(totC)}</div><div class="pc">${nomePartidoExibicao(cmp.partido)}${!leadA ? " · lidera" : ""}</div></div>
       </div>`;
-      const nomeCmp = primeiroNome(cmp.nomeUrna), nomeCen = primeiroNome(cenario.nomeUrna);
-      // Quem venceu naquele recorte fica em verde (só o número); quem
-      // perdeu e a diferença ficam em branco/neutro (pedido de 22/09/2026).
-      document.getElementById("pcResMapaLista").innerHTML = lista.slice(0, 15).map((d, i) => { const dif = d.v - d.vc; const cenVenceu = d.v >= d.vc;
+      // Os nomes dos candidatos aparecem uma vez só, no cabeçalho (pedido de
+      // 22/09/2026: repetir o nome embaixo de cada voto poluía a lista); as
+      // linhas ficam só com os números, e o vencedor daquele recorte em verde.
+      const cabCmp = `<div class="pc-cmp-cab"><span></span><span></span><span class="stat">${cmp.nomeUrna}</span><span class="stat forte">${cenario.nomeUrna}</span><span></span></div>`;
+      document.getElementById("pcResMapaLista").innerHTML = cabCmp + lista.slice(0, 15).map((d, i) => { const dif = d.v - d.vc; const cenVenceu = d.v >= d.vc;
         return `<div class="pc-cmp-mun${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}">
           <span class="pos">${i + 1}º</span><span class="nome">${d.m.nome}</span>
-          <span class="stat"><b class="${cenVenceu ? "" : "venceu"}">${_resFmt(d.vc)}</b><small>${nomeCmp}</small></span>
-          <span class="stat forte"><b class="${cenVenceu ? "venceu" : ""}">${_resFmt(d.v)}</b><small>${nomeCen}</small></span>
+          <span class="stat"><b class="${cenVenceu ? "" : "venceu"}">${_resFmt(d.vc)}</b></span>
+          <span class="stat forte"><b class="${cenVenceu ? "venceu" : ""}">${_resFmt(d.v)}</b></span>
           <span class="dif">${dif >= 0 ? "+" : ""}${_resFmt(dif)}</span>
         </div>${st.munSel === d.m.chave ? `<div class="pc-cmp-det" id="pcResMunDet"></div>` : ""}`; }).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
     } else {
@@ -646,8 +663,11 @@ async function _resRenderMapa(ctx) {
       // "Vale do Itajaí = 30.205 · 81,8% do total".
       const pctDe = (v, base) => base ? ` · ${(v / base * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : "";
       document.getElementById("pcResTotais").outerHTML = `<div class="pc-dep-tiles" id="pcResTotais" style="margin-top:10px;"><div class="pc-dep-tile ref"><span class="tv">${_resFmt(tot)}</span><span class="tr">votos ${RES_ANO_APURADO}${pctDe(tot, cenario.total)}</span></div><div class="pc-dep-tile ref"><span class="tv">${tot0 === null ? "—" : _resFmt(tot0)}</span><span class="tr">votos ${RES_ANO_ANTERIOR}${tot0 === null ? "" : pctDe(tot0, a.total)}</span></div><div class="pc-dep-tile ref"><span class="tv">${_resPctHtml(tot0 ? _resPct(tot, tot0) : null)}</span><span class="tr">variação</span></div></div>`;
-      const cab = `<div class="pc-lin cab"><span></span><span>Município</span><span class="v">${RES_ANO_ANTERIOR}</span><span class="v">${RES_ANO_APURADO}</span><span class="v">Δ</span></div>`;
-      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, 15).map((d, i) => `<div class="pc-lin${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span style="color:#8A9096;">${i + 1}º</span><span class="n">${d.m.nome}</span><span class="v v-ant">${d.v0 === null ? "—" : _resFmt(d.v0)}${d.v0 && a && a.total ? `<small class="pc-lin-pct">${(d.v0 / a.total * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%</small>` : ""}</span><span class="v v-atu">${_resFmt(d.v)}<small class="pc-lin-pct">${cenario.total ? (d.v / cenario.total * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : ""}</small></span><span class="d">${_resPctHtml(d.var)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
+      // Colunas no alinhamento da referência (Politique, aprovado 23/09/2026):
+      // Pos. = colocação do candidato entre TODOS do cargo naquele município
+      // (etiqueta verde do 1º ao 3º), Votos, % = fatia do total do candidato.
+      const cab = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Município</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>`;
+      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${d.m.nome}</span><span class="c">${_resChipPos(_resPosicao(cands, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${_resPctTotal(d.v, cenario.total)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
     }
     document.querySelectorAll("#pcResMapaLista [data-mun]").forEach((el) => el.addEventListener("click", () => { st.munSel = st.munSel === el.dataset.mun ? null : el.dataset.mun; pintar(); }));
     if (st.munSel) _resRenderMunDet(ctx, dados, cmp);
@@ -690,6 +710,14 @@ async function _resRenderMunDet(ctx, dados, cmp) {
   const primeiroNome = (nm) => (nm || "").split(" ")[0];
   let corpo = "";
   if (cmp && st.munAba === "hist") st.munAba = "zonas";
+  // Localidade real do TSE (22/09/2026): bairro por zona (do local mais
+  // votado nela) e nome da escola por seção — vêm do MESMO arquivo de
+  // seções que já carregamos (_zonas/_secoes), sem fetch a mais. Só 2022 e
+  // 2018 têm; 2014 fica sem (o dataset do TSE não traz local por seção).
+  const secLoc = await _resCarregarSecoes(chave);
+  const bairroDaZona = (zona) => secLoc && secLoc._zonas && secLoc._zonas[zona];
+  const escolaDaSecao = (k) => secLoc && secLoc._secoes && secLoc._secoes[k];
+  const subtit = (t) => t ? `<i class="pc-loc-sub">${t}</i>` : "";
   if (st.munAba === "zonas") {
     const z = await _resCarregar(RES_ANO_APURADO, cargo, "-zonas");
     const mine = (z && z[cenario.sq]) || {};
@@ -697,12 +725,11 @@ async function _resRenderMunDet(ctx, dados, cmp) {
       const zc = (z && z[cmp.sq]) || {};
       const chaves = [...new Set(Object.keys(mine).concat(Object.keys(zc)).filter((k) => k.startsWith(chave + "::")))];
       const linhas = chaves.map((k) => ({ zona: k.split("::")[1], v: mine[k] || 0, vc: zc[k] || 0 })).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
-      const nomeCmp = primeiroNome(cmp.nomeUrna), nomeCen = primeiroNome(cenario.nomeUrna);
-      corpo = `<div class="pc-cmp-det-card">` + (linhas.map((l) => { const dif = l.v - l.vc; const cenVenceu = l.v >= l.vc;
+      corpo = `<div class="pc-cmp-det-card"><div class="pc-cmp-cab"><span></span><span class="stat">${cmp.nomeUrna}</span><span class="stat forte">${cenario.nomeUrna}</span><span></span></div>` + (linhas.map((l) => { const dif = l.v - l.vc; const cenVenceu = l.v >= l.vc;
         return `<div class="pc-cmp-lin">
-          <span class="nome">${l.zona}ª zona</span>
-          <span class="stat"><b class="${cenVenceu ? "" : "venceu"}">${_resFmt(l.vc)}</b><small>${nomeCmp}</small></span>
-          <span class="stat forte"><b class="${cenVenceu ? "venceu" : ""}">${_resFmt(l.v)}</b><small>${nomeCen}</small></span>
+          <span class="nome">${l.zona}ª zona${subtit(bairroDaZona(l.zona))}</span>
+          <span class="stat"><b class="${cenVenceu ? "" : "venceu"}">${_resFmt(l.vc)}</b></span>
+          <span class="stat forte"><b class="${cenVenceu ? "venceu" : ""}">${_resFmt(l.v)}</b></span>
           <span class="dif">${dif >= 0 ? "+" : ""}${_resFmt(dif)}</span>
         </div>`; }).join("") || `<div class="pc-sub" style="padding:6px 0;">Sem votos aqui.</div>`) + `</div>`;
     } else {
@@ -710,10 +737,11 @@ async function _resRenderMunDet(ctx, dados, cmp) {
       const a = ctx.antDe(cenario);
       const ant = (z0 && a && z0[a.sq]) || {};
       const linhas = Object.entries(mine).filter(([k]) => k.startsWith(chave + "::")).map(([k, v]) => ({ zona: k.split("::")[1], v, v0: ant[k] || 0 })).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
-      corpo = linhas.map((l) => `<div class="pc-lin"><span class="n" style="font-weight:600;">${l.zona}ª zona</span><span class="v">${_resFmt(l.v)}</span><span class="v" style="color:#8A9096;">${l.v0 ? _resFmt(l.v0) : "—"}</span><span class="d">${_resPctHtml(l.v0 ? _resPct(l.v, l.v0) : null)}</span></div>`).join("") || `<div class="pc-sub" style="padding:6px 0;">Sem votos aqui.</div>`;
+      const zCands = Object.values(z || {});
+      corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Zona</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + (linhas.map((l) => `<div class="pc-lin pc-lin-pos"><span></span><span class="n">${l.zona}ª zona${subtit(bairroDaZona(l.zona))}</span><span class="c">${_resChipPos(_resPosicao(zCands, `${chave}::${l.zona}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, cenario.total)}</span></div>`).join("") || `<div class="pc-sub" style="padding:6px 0;">Sem votos aqui.</div>`);
     }
   } else if (st.munAba === "secoes") {
-    const sec = await _resCarregarSecoes(chave);
+    const sec = secLoc;
     const dd = sec && sec[cargo] && sec[cargo][cenario.numero];
     if (cmp) {
       const ddc = sec && sec[cargo] && sec[cargo][cmp.numero];
@@ -721,19 +749,19 @@ async function _resRenderMunDet(ctx, dados, cmp) {
       else {
         const chaves = [...new Set(Object.keys(dd || {}).concat(Object.keys(ddc || {})))];
         const linhas = chaves.map((k) => { const [z, s] = k.split("::"); return { z, s, v: (dd && dd[k]) || 0, vc: (ddc && ddc[k]) || 0 }; }).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
-        const nomeCmp = primeiroNome(cmp.nomeUrna), nomeCen = primeiroNome(cenario.nomeUrna);
-        corpo = `<div class="pc-cmp-det-card">` + linhas.slice(0, 40).map((l) => { const dif = l.v - l.vc; const cenVenceu = l.v >= l.vc;
+        corpo = `<div class="pc-cmp-det-card"><div class="pc-cmp-cab"><span></span><span class="stat">${cmp.nomeUrna}</span><span class="stat forte">${cenario.nomeUrna}</span><span></span></div>` + linhas.slice(0, 40).map((l) => { const dif = l.v - l.vc; const cenVenceu = l.v >= l.vc;
           return `<div class="pc-cmp-lin">
-            <span class="nome" style="font-size:11px;">${l.z}ª zona · seção ${l.s}</span>
-            <span class="stat"><b class="${cenVenceu ? "" : "venceu"}">${_resFmt(l.vc)}</b><small>${nomeCmp}</small></span>
-            <span class="stat forte"><b class="${cenVenceu ? "venceu" : ""}">${_resFmt(l.v)}</b><small>${nomeCen}</small></span>
+            <span class="nome" style="font-size:11px;">${l.z}ª zona · seção ${l.s}${subtit(escolaDaSecao(`${l.z}::${l.s}`))}</span>
+            <span class="stat"><b class="${cenVenceu ? "" : "venceu"}">${_resFmt(l.vc)}</b></span>
+            <span class="stat forte"><b class="${cenVenceu ? "venceu" : ""}">${_resFmt(l.v)}</b></span>
             <span class="dif">${dif >= 0 ? "+" : ""}${_resFmt(dif)}</span>
           </div>`; }).join("") + `</div>` + (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} seções</div>` : "");
       }
     } else if (!dd) corpo = `<div class="pc-sub" style="padding:6px 0;">Sem dado por seção.</div>`;
     else {
       const linhas = Object.entries(dd).map(([k, v]) => { const [z, s] = k.split("::"); return { z, s, v }; }).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
-      corpo = linhas.slice(0, 40).map((l) => `<div class="pc-lin"><span class="n" style="font-weight:600;">${l.z}ª zona · seção ${l.s}</span><span class="v">${_resFmt(l.v)}</span><span></span><span></span></div>`).join("") + (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} seções</div>` : "");
+      const sCands = Object.values(sec[cargo] || {});
+      corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Seção</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + linhas.slice(0, 40).map((l) => `<div class="pc-lin pc-lin-pos"><span></span><span class="n">${l.z}ª zona · seção ${l.s}${subtit(escolaDaSecao(`${l.z}::${l.s}`))}</span><span class="c">${_resChipPos(_resPosicao(sCands, `${l.z}::${l.s}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, cenario.total)}</span></div>`).join("") + (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} seções</div>` : "");
     }
   } else {
     const hist = [];
