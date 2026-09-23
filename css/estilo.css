@@ -3227,3 +3227,14 @@
 #modoColaborativoWrap .pc-part-tit i{ display:block; font-style:normal; font-size:10.5px; font-weight:600; color:#8A9096; margin-top:2px; }
 #modoColaborativoWrap .pc-part-tiles{ grid-template-columns:repeat(4,1fr); margin:0 0 12px; }
 #modoColaborativoWrap .pc-part-tiles .pc-dep-tile.ref .tv{ color:#F2F4F5; }
+
+/* Cabeçalho de participação (23/09/2026). */
+#modoColaborativoWrap .pc-part-bloco{ margin:0 0 12px; border:1px solid rgba(242,244,245,.10); border-radius:12px; background:rgba(242,244,245,.03); overflow:hidden; }
+#modoColaborativoWrap .pc-part-bloco-tit{ font-size:11px; font-weight:700; color:#DDE0E2; padding:8px 12px; border-bottom:1px solid rgba(242,244,245,.08); }
+#modoColaborativoWrap .pc-part-grade{ display:grid; grid-template-columns:repeat(4,1fr); }
+#modoColaborativoWrap .pc-part-cx{ display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 2px; border-left:1px solid rgba(242,244,245,.08); }
+#modoColaborativoWrap .pc-part-cx:first-child{ border-left:none; }
+#modoColaborativoWrap .pc-part-cx .r{ font-size:8px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#8A9096; }
+#modoColaborativoWrap .pc-part-cx b{ font-size:14px; font-weight:800; color:#F2F4F5; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-part-cx .n{ font-size:9.5px; color:#8A9096; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-mun-det .pc-part-bloco, #modoColaborativoWrap .pc-cmp-det .pc-part-bloco{ margin:4px 0 8px; }

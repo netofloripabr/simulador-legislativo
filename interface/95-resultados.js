@@ -368,6 +368,23 @@ function _resChipPos(pos) {
 function _resPctTotal(v, total) {
   return total ? (v / total * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : "—";
 }
+
+// Cabeçalho de participação (modelo de referência, 23/09/2026):
+// Apurados · Abstenção · Br/Nulos · Válidos. P = [aptos, comparecimento,
+// abstenções, brancos, nulos, válidos] (ferramentas/tratar_participacao.py).
+function _resPartHtml(P, titulo) {
+  if (!P || !P[0]) return "";
+  const pc = (v, b) => b ? (v / b * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : "—";
+  const cx = (rot, pct, num) => `<div class="pc-part-cx"><span class="r">${rot}</span><b>${pct}</b><span class="n">${_resFmt(num)}</span></div>`;
+  return `<div class="pc-part-bloco">${titulo ? `<div class="pc-part-bloco-tit">${titulo}</div>` : ""}<div class="pc-part-grade">
+    ${cx("Apurados", pc(P[1], P[0]), P[1])}${cx("Abstenção", pc(P[2], P[0]), P[2])}${cx("Br/Nulos", pc(P[3] + P[4], P[1]), P[3] + P[4])}${cx("Válidos", pc(P[5], P[1]), P[5])}
+  </div></div>`;
+}
+function _resSomaP(lista) {
+  const t = [0, 0, 0, 0, 0, 0];
+  lista.forEach((p) => p && p.forEach((v, j) => { t[j] += v; }));
+  return t;
+}
 // ---------- tela ----------
 async function renderResultados() {
   const conteudo = document.getElementById("pcConteudo");
@@ -383,6 +400,7 @@ async function renderResultados() {
   const anoAnterior2 = anoAnterior - 4;
   st.anoAnterior2 = anoAnterior2;
   const anosPlen = [...new Set([...RES_ANOS_HISTORICO, anoApurado])].sort((a, b) => a - b);
+  const part = await _resCarregar(anoApurado, "participacao");
   const [apuEst, ant, vivo, ant2, ...hist] = await Promise.all([_resCarregar(anoApurado, cargo), _resCarregar(anoAnterior, cargo), apuCfg.ativa ? _resCarregarAoVivo(anoApurado, cargo) : null, _resCarregar(anoAnterior2, cargo), ...anosPlen.map((a) => _resCarregar(a, cargo))]);
   const apu = _resMesclar(vivo, apuEst);
   const meta = vivo && vivo.meta;
@@ -437,6 +455,7 @@ async function renderResultados() {
       <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#8A9096; margin-top:8px;"><span>${_resFmt(meta.secoesTotalizadas)} de ${_resFmt(meta.secoesTotal)} seções</span><span id="pcResAtualizado">atualizado ${_resTempoRelativo(meta.atualizadoEm)}${meta.final ? "" : " · próxima em 60 s"}</span></div>
     </div>` : ""}
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
+    ${meta ? "" : _resPartHtml(part && part[cargo] && part[cargo].estado, "Santa Catarina")}
     <div class="glass-card" style="padding:14px; margin-bottom:12px;">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
         <div class="pc-sub" id="pcResPlenTit" style="margin:0;">Plenário apurado ${anoApurado} — ${totalVagas} vagas</div>
@@ -864,7 +883,15 @@ async function _resRenderMunDet(ctx, dados, cmp) {
     const max = Math.max(1, ...hist.map((h) => h.v || 0));
     corpo = hist.map((h) => `<div style="display:grid; grid-template-columns:44px 1fr 76px; gap:8px; align-items:center; padding:8px 0; border-top:1px solid #23262A; font-size:12px;"><b>${h.ano}</b><div style="height:6px; border-radius:999px; background:rgba(242,244,245,.08); overflow:hidden;"><div style="width:${h.v ? h.v / max * 100 : 0}%; height:100%; background:${h.ano === RES_ANO_APURADO ? "#34E84A" : "#6B7178"};"></div></div><span style="text-align:right; font-variant-numeric:tabular-nums;">${h.v === null ? "—" : _resFmt(h.v)}</span></div>`).join("");
   }
-  alvo.innerHTML = abas + trilho + corpo;
+  let cabPart = "";
+  if (secLoc && secLoc._part && secLoc._part[cargo] && (F.zona || F.bairro || F.local)) {
+    const ks = Object.keys(secLoc._part[cargo]).filter(passaFiltro);
+    cabPart = _resPartHtml(_resSomaP(ks.map((k) => secLoc._part[cargo][k])), [F.zona && `${F.zona}ª zona`, F.bairro, F.local].filter(Boolean).pop());
+  } else {
+    const pm = await _resCarregar(RES_ANO_APURADO, "participacao");
+    cabPart = _resPartHtml(pm && pm[cargo] && pm[cargo].mun[chave], d ? d.m.nome : "");
+  }
+  alvo.innerHTML = cabPart + abas + trilho + corpo;
   const proxima = { zona: "bairros", bairro: "locais", local: "secoes" };
   alvo.querySelectorAll("[data-filtra]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); F[x.dataset.filtra] = x.dataset.valor; st.munAba = proxima[x.dataset.filtra]; _resRenderMunDet(ctx, dados, cmp); }));
   alvo.querySelectorAll("[data-limpa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); const ordemNiveis = ["zona", "bairro", "local"]; ordemNiveis.slice(ordemNiveis.indexOf(x.dataset.limpa)).forEach((n) => delete F[n]); _resRenderMunDet(ctx, dados, cmp); }));
