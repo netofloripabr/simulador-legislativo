@@ -3189,3 +3189,17 @@
 #modoColaborativoWrap .pc-sen-chip.pos{ font-size:8.5px; padding:2.4px 6px; height:15px; min-width:0; }
 #modoColaborativoWrap .pc-sen-chip.pos.neutro{ background:#3A3F45; color:#DDE0E2; }
 #modoColaborativoWrap .pc-lin.pc-lin-pos > .n{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+/* Lista compacta de candidatos (aprovada 23/09/2026): uma linha por
+   candidato — etiqueta · PARTIDO — Nome · votação. */
+#modoColaborativoWrap .pc-cand-lin{ border-top:1px solid rgba(242,244,245,.07); }
+#modoColaborativoWrap .pc-cand-lin:first-of-type{ border-top:none; }
+#modoColaborativoWrap .pc-cand-lin .pc-dep-cl1{ display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:8px; align-items:center; padding:10px 0; cursor:pointer; }
+#modoColaborativoWrap .pc-cand-lin .pc-sen-chip{ justify-self:start; white-space:nowrap; }
+#modoColaborativoWrap .pc-cand-lin .nome{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
+#modoColaborativoWrap .pc-cand-lin .nome b{ font-weight:700; color:#F2F4F5; }
+#modoColaborativoWrap .pc-cand-lin .nome .pt{ font-weight:700; color:#8A9096; }
+#modoColaborativoWrap .pc-cand-lin .voto{ font-size:14.5px; font-weight:800; color:#F2F4F5; font-variant-numeric:tabular-nums; text-align:right; white-space:nowrap; }
+#modoColaborativoWrap .pc-cand-lin.alt .voto{ color:#AEB5BB; }
+#modoColaborativoWrap .pc-cand-aviso{ font-size:10px; color:#8A9096; padding:8px 0 2px; }
+#modoColaborativoWrap .pc-cand-fav{ display:flex; justify-content:flex-end; margin:-4px 0 4px; }
+#modoColaborativoWrap .pc-cand-fav .pc-fav{ display:inline-flex; align-items:center; gap:5px; width:auto; padding:0 8px; font-size:10.5px; font-weight:600; }

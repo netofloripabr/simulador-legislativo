@@ -272,7 +272,6 @@ function _resRenderFerramentas(ctx) {
   const item = (id, ic, tit, sub, extra) => `<button type="button" class="pc-app" data-res-ferr="${id}" ${extra || ""}><span class="pc-app-ic">${ic}</span><span class="pc-app-tx"><span class="pc-app-rot">${tit}</span><span class="pc-app-sub">${sub}</span></span></button>`;
   corpo.innerHTML = `<div class="pc-res-ferr">
     ${item("favoritos", RES_IC_ESTRELA.replace('width="14" height="14"', 'width="22" height="22"'), "Favoritos", favs.size ? `${favs.size} candidato${favs.size === 1 ? "" : "s"}` : "nenhum marcado")}
-    ${item("relatorio", iconeSvg("impressora", 22), "Relatório", st.relatorio ? "ligado" : "lista em formato de relatório")}
     ${item("comparativos", iconeSvg("desafio", 22), "Comparativos", "em breve", 'data-em-breve="1"')}
     ${item("secoes", iconeSvg("mapa", 22), "Seções", "em breve", 'data-em-breve="1"')}
     ${item("pontuacao", iconeSvg("ranking", 22), "Minha pontuação", "em breve", 'data-em-breve="1"')}
@@ -281,7 +280,6 @@ function _resRenderFerramentas(ctx) {
   corpo.querySelectorAll("[data-res-ferr]").forEach((b) => b.addEventListener("click", () => {
     if (b.dataset.emBreve) { if (typeof pcToast === "function") pcToast("Em breve."); return; }
     if (b.dataset.resFerr === "favoritos") { st.soFav = true; st.aba = "candidatos"; renderResultados(); }
-    if (b.dataset.resFerr === "relatorio") { st.relatorio = true; st.aba = "candidatos"; renderResultados(); }
   }));
 }
 
@@ -315,7 +313,6 @@ async function renderResultados() {
   // usuário desliga o botão "P" (pedido de 22/09/2026).
   const anoAnterior2 = anoAnterior - 4;
   st.anoAnterior2 = anoAnterior2;
-  if (st.palpiteOn === undefined) st.palpiteOn = true;
   const anosPlen = [...new Set([...RES_ANOS_HISTORICO, anoApurado])].sort((a, b) => a - b);
   const [apuEst, ant, vivo, ant2, ...hist] = await Promise.all([_resCarregar(anoApurado, cargo), _resCarregar(anoAnterior, cargo), apuCfg.ativa ? _resCarregarAoVivo(anoApurado, cargo) : null, _resCarregar(anoAnterior2, cargo), ...anosPlen.map((a) => _resCarregar(a, cargo))]);
   const apu = _resMesclar(vivo, apuEst);
@@ -356,8 +353,8 @@ async function renderResultados() {
     <div class="pc-sub" style="margin:0 0 10px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : "resultado oficial (TSE)"} · ${_resFmt(totalValidos)} votos nominais</div>
     <div class="pc-res-tog">
       ${tog("vivo", !!meta && st.vivoOn, `<span class="pt${meta && !meta.final ? " vivo" : ""}"></span>`, meta && meta.final ? "Totalização final" : "Ao vivo", meta ? "" : 'disabled title="A apuração ao vivo liga em 4/10/2026"')}
-      ${tog("palpite", st.palpiteOn, IC("editar"), "Meu palpite")}
-      ${tog("relatorio", st.relatorio, IC("impressora"), "Relatório")}
+      ${tog("palpite", st.fonteVoto === "palpite", IC("editar"), "Palpite")}
+      ${tog("anterior", st.fonteVoto === "anterior", IC("relogio"), String(anoAnterior))}
       ${tog("variacao", st.variacaoOn, IC("relogio"), "Variação")}
       <button type="button" id="pcResImprimir" title="Imprimir a tela como está">${IC("impressora")}Imprimir</button>
     </div>
@@ -387,8 +384,8 @@ async function renderResultados() {
   document.querySelectorAll("[data-res-tog]").forEach((b) => b.addEventListener("click", () => {
     const id = b.dataset.resTog;
     if (id === "vivo") st.vivoOn = !st.vivoOn;
-    if (id === "palpite") st.palpiteOn = !st.palpiteOn;
-    if (id === "relatorio") st.relatorio = !st.relatorio;
+    if (id === "palpite") st.fonteVoto = st.fonteVoto === "palpite" ? "apurado" : "palpite";
+    if (id === "anterior") st.fonteVoto = st.fonteVoto === "anterior" ? "apurado" : "anterior";
     if (id === "variacao") st.variacaoOn = !st.variacaoOn;
     renderResultados();
   }));
@@ -426,64 +423,44 @@ function _resRenderCandidatos(ctx) {
   if (st.ordem === "asc") lista = [...lista].sort((a, b) => a.total - b.total);
   const limite = Math.min(lista.length, st.limite || 60);
 
-  const linha = (c, i) => {
-    const a = ctx.antDe(c);
-    const a2 = st.palpiteOn ? null : ctx.ant2De(c);
-    const p = meu.get(_resNorm(c.nomeUrna)) || meu.get(_resNorm(c.nome));
-    const varr = a ? _resPct(c.total, a.total) : null;
+  // Lista compacta (aprovada 23/09/2026): etiqueta · PARTIDO — Nome ·
+  // votação, uma linha por candidato. O número mostra o apurado; os botões
+  // "Palpite" e "{ano anterior}" do cabeçalho trocam a fonte desse número
+  // (um exclui o outro). Toque abre a ficha embaixo.
+  const fonte = st.fonteVoto || "apurado";
+  const linha = (c) => {
     const aberta = st.fichaSq === c.sq;
-    const tilePalpite = st.palpiteOn
-      ? `<div class="pc-dep-tile ref pal" title="O que você indicou na sua lista">${p ? `<span class="tv">${_resFmt(p.votos)}</span><span class="tr">seu palpite${p.marcado ? " · E" : ""}</span>` : `<span class="tv">—</span><span class="tr">sem palpite</span>`}</div>`
-      : `<div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior2}">${a2 ? `<span class="tv">${_resFmt(a2.total)}</span><span class="tr">${st.anoAnterior2}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior2}</span>`}</div>`;
-    const tileAnt = `<div class="pc-dep-tile ref" title="Votação em ${st.anoAnterior}">${a ? `<span class="tv">${_resFmt(a.total)}</span><span class="tr">${st.anoAnterior}</span>` : `<span class="tv">—</span><span class="tr">sem ${st.anoAnterior}</span>`}</div>`;
-    if (st.relatorio) {
-      // Modo Relatório (22/09/2026): linha 1 posição/etiqueta/nome, linha 2 as
-      // mesmas caixas do card, compactas; variação dentro da caixa Apurado.
-      const dif = varr === null || !st.variacaoOn ? "" : `<b class="${varr >= 0 ? "up" : "dn"}">${varr >= 0 ? "+" : ""}${varr.toFixed(1).replace(".", ",")}%</b>`;
-      return `
-    <div class="pc-rel-l${aberta ? " res-aberta" : ""}" data-res-cand="${c.sq}">
-      <span class="pos">${i + 1}º</span>
-      <span class="nm pc-dep-cl1">${_resEtiqueta(c, cargo)}<span class="nm-tx">${c.nomeUrna}<i>${nomePartidoExibicao(c.partido)}</i></span><button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}" title="Favoritar">${RES_IC_ESTRELA}</button></span>
-      <div class="pc-dep-tiles">${tilePalpite}${tileAnt}<div class="pc-dep-tile votos" title="Resultado oficial"><span class="tv">${_resFmt(c.total)}</span><span class="tr"><span>apurado</span>${dif}</span></div></div>
-      ${aberta ? `<div id="pcResFicha" style="grid-column:1 / 3;"></div>` : ""}
-    </div>`;
-    }
+    let num, vazio = false;
+    if (fonte === "palpite") { const p = meu.get(_resNorm(c.nomeUrna)) || meu.get(_resNorm(c.nome)); num = p ? p.votos : null; }
+    else if (fonte === "anterior") { const a = ctx.antDe(c); num = a ? a.total : null; }
+    else num = c.total;
+    if (num === null || num === undefined) vazio = true;
     return `
-    <div class="pc-dep-crow${aberta ? " res-aberta" : ""}" data-res-cand="${c.sq}">
+    <div class="pc-cand-lin${aberta ? " res-aberta" : ""}${fonte !== "apurado" ? " alt" : ""}" data-res-cand="${c.sq}">
       <div class="pc-dep-cl1">
-        <span class="pc-dep-pos">${i + 1}º</span>${_resEtiqueta(c, cargo)}
-        <span class="pc-dep-cnm"><span class="pc-dep-cnm-txt">${c.nomeUrna}</span></span>
-        <span class="pc-tm-partido">${nomePartidoExibicao(c.partido)}</span>
-        <button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}" title="Favoritar">${RES_IC_ESTRELA}</button>
+        ${_resEtiqueta(c, cargo)}
+        <span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span>
+        <span class="voto">${vazio ? "—" : _resFmt(num)}</span>
       </div>
-      <div class="pc-dep-tiles">
-        ${tilePalpite}
-        ${tileAnt}
-        <div class="pc-dep-tile votos" title="Resultado oficial"><span class="tv">${_resFmt(c.total)}</span><span class="tr">apurado ${st.anoApurado}</span></div>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:10px; color:#8A9096; margin-top:6px;"><span>${(c.situacao || "").toLowerCase()}</span>${st.variacaoOn ? `<span>vs ${st.anoAnterior}: ${_resPctHtml(varr)}</span>` : ""}</div>
-      ${aberta ? `<div id="pcResFicha"></div>` : ""}
+      ${aberta ? `<div class="pc-cand-fav"><button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}">${RES_IC_ESTRELA}<span>${favs.has(c.sq) ? "Favorito" : "Favoritar"}</span></button></div><div id="pcResFicha"></div>` : ""}
     </div>`;
   };
 
   corpo.innerHTML = `
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
       <input class="cell" id="pcResBusca" placeholder="Buscar candidato ou partido…" value="${escaparAtributoHtml(st.busca || "")}" style="flex:1; margin:0;">
-      <button type="button" class="pc-dd-btn ico${st.palpiteOn ? " on" : ""}" id="pcResPalpite" title="${st.palpiteOn ? "Ocultar meu palpite (mostra " + st.anoAnterior2 + ")" : "Mostrar meu palpite"}" style="font-size:11px; font-weight:800; ${st.palpiteOn ? "color:#34E84A; border-color:rgba(52,232,74,.5);" : ""}">P</button>
       <button type="button" class="pc-dd-btn ico${st.soFav ? " on" : ""}" id="pcResSoFav" title="Só favoritos" style="${st.soFav ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>
       ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 170, titulo: "Ordenar" })}
     </div>
-    ${st.relatorio
-      ? `<div class="glass-card pc-rel" style="padding:4px 0;">${lista.length ? lista.slice(0, limite).map(linha).join("") : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato", texto: "Confira a busca ou o filtro de favoritos." })}</div>`
-      : `<div class="pc-dep-card" style="padding:0 12px;"><div class="pc-dep-cands">
+    <div class="pc-dep-card pc-cand-lista" style="padding:0 12px;">
+      ${fonte !== "apurado" ? `<div class="pc-cand-aviso">Mostrando ${fonte === "palpite" ? "seu palpite" : "a votação de " + st.anoAnterior} no lugar do apurado</div>` : ""}
       ${lista.length ? lista.slice(0, limite).map(linha).join("") : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato", texto: "Confira a busca ou o filtro de favoritos." })}
-    </div></div>`}
+    </div>
     ${lista.length > limite ? `<button class="ghost" id="pcResMais" style="width:100%; margin-top:10px;">Mostrar mais (${lista.length - limite} restantes)</button>` : ""}
   `;
   const inp = document.getElementById("pcResBusca");
   inp.addEventListener("input", () => { st.busca = inp.value; clearTimeout(pcState._resBuscaT); pcState._resBuscaT = setTimeout(() => { _resRenderCandidatos(ctx); const i2 = document.getElementById("pcResBusca"); if (i2) { i2.focus(); i2.setSelectionRange(i2.value.length, i2.value.length); } }, 250); });
   document.getElementById("pcResSoFav").addEventListener("click", () => { st.soFav = !st.soFav; _resRenderCandidatos(ctx); });
-  document.getElementById("pcResPalpite").addEventListener("click", () => { st.palpiteOn = !st.palpiteOn; _resRenderCandidatos(ctx); });
   _resLigarDropdowns(corpo, (id, it) => { if (id === "pcResOrd") { st.ordem = it.dataset.o; _resRenderCandidatos(ctx); } });
   const mais = document.getElementById("pcResMais");
   if (mais) mais.addEventListener("click", () => { st.limite = (st.limite || 60) + 60; _resRenderCandidatos(ctx); });
