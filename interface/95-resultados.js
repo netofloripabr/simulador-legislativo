@@ -516,6 +516,16 @@ function _resRenderCandidatos(ctx) {
   // "Palpite" e "{ano anterior}" do cabeçalho trocam a fonte desse número
   // (um exclui o outro). Toque abre a ficha embaixo.
   const fonte = st.fonteVoto || "apurado";
+  // Pontuação do palpite (regra de calculo/pontuacao.js, RANQUEAMENTO.md):
+  // aparece só com o botão Palpite ligado e acompanha a apuração, porque
+  // "oficiais" é a lista apurada do momento (ao vivo quando houver).
+  let pont = null;
+  if (fonte === "palpite" && meu.size && typeof pontuarCedulaCargo === "function") {
+    const previstos = [...meu.entries()].map(([k, v]) => ({ chave: k, votos: v.votos, marcadoEleito: v.marcado }));
+    const oficiais = cands.map((c) => ({ chave: _resNorm(c.nomeUrna), votosReais: c.total, eleitoReal: _resEleito(c), status: "valido" }));
+    pont = pontuarCedulaCargo(previstos, oficiais, ctx.totalVagas);
+  }
+  const marcouDe = (c) => { const p = meu.get(_resNorm(c.nomeUrna)) || meu.get(_resNorm(c.nome)); return p && p.marcado; };
   const linha = (c) => {
     const aberta = st.fichaSq === c.sq;
     let num, vazio = false;
@@ -528,7 +538,7 @@ function _resRenderCandidatos(ctx) {
       <div class="pc-dep-cl1">
         ${_resEtiqueta(c, cargo)}
         <span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span>
-        <span class="voto">${vazio ? "—" : _resFmt(num)}</span>
+        <span class="voto">${vazio ? "—" : _resFmt(num)}${pont && marcouDe(c) ? `<i class="pc-acerto${_resEleito(c) ? " ok" : ""}">${_resEleito(c) ? "acertou" : "não elegeu"}</i>` : ""}</span>
       </div>
       ${aberta ? `<div class="pc-cand-fav"><button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}">${RES_IC_ESTRELA}<span>${favs.has(c.sq) ? "Favorito" : "Favoritar"}</span></button></div><div id="pcResFicha"></div>` : ""}
     </div>`;
@@ -541,6 +551,8 @@ function _resRenderCandidatos(ctx) {
       ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 170, titulo: "Ordenar" })}
     </div>
     <div class="pc-dep-card pc-cand-lista" style="padding:0 12px;">
+      ${pont ? `<div class="pc-pont"><div><b>${Math.round(pont.pontosTotal * 1000)}</b><span>pontos</span></div><div><b>${pont.acertosEleicao}/${pont.vagasValidas || ctx.totalVagas}</b><span>eleitos acertados</span></div><div><b>${Math.round(pont.pctProximidade * 100)}%</b><span>proximidade dos votos</span></div></div>` : ""}
+      ${fonte === "palpite" && !meu.size ? `<div class="pc-cand-aviso">Você ainda não tem palpite neste cargo.</div>` : ""}
       ${fonte !== "apurado" ? `<div class="pc-cand-aviso">Mostrando ${fonte === "palpite" ? "seu palpite" : "a votação de " + st.anoAnterior} no lugar do apurado</div>` : ""}
       ${lista.length ? lista.slice(0, limite).map(linha).join("") : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato", texto: "Confira a busca ou o filtro de favoritos." })}
     </div>

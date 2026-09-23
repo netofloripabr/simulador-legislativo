@@ -3244,3 +3244,14 @@
 #modoColaborativoWrap .pc-res-tog button svg{ width:12px; height:12px; }
 #modoColaborativoWrap .pc-sub-abas span{ white-space:nowrap; }
 #modoColaborativoWrap .pc-lin.pc-lin-pos > .v.p span{ font-size:9px; }
+
+/* Pontuação do palpite na lista (23/09/2026). */
+#modoColaborativoWrap .pc-pont{ display:grid; grid-template-columns:repeat(3,1fr); margin:10px 0 4px; border:1px solid rgba(52,232,74,.35); border-radius:12px; background:rgba(52,232,74,.06); }
+#modoColaborativoWrap .pc-pont > div{ display:flex; flex-direction:column; align-items:center; gap:2px; padding:9px 4px; border-left:1px solid rgba(242,244,245,.08); text-align:center; }
+#modoColaborativoWrap .pc-pont > div:first-child{ border-left:none; }
+#modoColaborativoWrap .pc-pont b{ font-size:16px; font-weight:800; color:#F2F4F5; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-pont > div:first-child b{ color:#34E84A; }
+#modoColaborativoWrap .pc-pont span{ font-size:8.5px; font-weight:600; color:#8A9096; }
+#modoColaborativoWrap .pc-cand-lin .voto{ display:flex; flex-direction:column; align-items:flex-end; }
+#modoColaborativoWrap .pc-acerto{ font-style:normal; font-size:8px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color:#8A9096; margin-top:2px; }
+#modoColaborativoWrap .pc-acerto.ok{ color:#34E84A; }
