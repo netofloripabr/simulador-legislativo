@@ -683,7 +683,10 @@ async function _resRenderMunDet(ctx, dados, cmp) {
   const chave = st.munSel;
   const ordem = st.munOrdem || "desc";
   const d = Object.values(dados).find((x) => x.m.chave === chave);
-  const abas = `<div class="pc-sub-abas" style="margin:6px 0 4px;"><span class="${st.munAba === "zonas" ? "on" : ""}" data-ma="zonas">Zonas</span><span class="${st.munAba === "secoes" ? "on" : ""}" data-ma="secoes">Seções</span><span class="${cmp ? "" : (st.munAba === "hist" ? "on" : "")}" data-ma="hist" ${cmp ? "hidden" : ""}>Histórico</span><span style="margin-left:auto; padding:4px 0;">${_resDropdown("pcResMunOrd", "", "", `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 130 })}</span></div>`;
+  if (!st.munFiltro || st.munFiltro.muni !== chave) st.munFiltro = { muni: chave };
+  const F = st.munFiltro;
+  if (cmp && (st.munAba === "bairros" || st.munAba === "locais")) st.munAba = "zonas";
+  const abas = `<div class="pc-sub-abas" style="margin:6px 0 4px;"><span class="${st.munAba === "zonas" ? "on" : ""}" data-ma="zonas">Zonas</span>${cmp ? "" : `<span class="${st.munAba === "bairros" ? "on" : ""}" data-ma="bairros">Bairros</span><span class="${st.munAba === "locais" ? "on" : ""}" data-ma="locais">Locais</span>`}<span class="${st.munAba === "secoes" ? "on" : ""}" data-ma="secoes">Seções</span><span class="${cmp ? "" : (st.munAba === "hist" ? "on" : "")}" data-ma="hist" ${cmp ? "hidden" : ""}>Histórico</span><span style="margin-left:auto; padding:4px 0;">${_resDropdown("pcResMunOrd", "", "", `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 130 })}</span></div>`;
   const primeiroNome = (nm) => (nm || "").split(" ")[0];
   let corpo = "";
   if (cmp && st.munAba === "hist") st.munAba = "zonas";
@@ -695,7 +698,49 @@ async function _resRenderMunDet(ctx, dados, cmp) {
   const bairroDaZona = (zona) => secLoc && secLoc._zonas && secLoc._zonas[zona];
   const escolaDaSecao = (k) => secLoc && secLoc._secoes && secLoc._secoes[k];
   const subtit = (t) => t ? `<i class="pc-loc-sub">${t}</i>` : "";
-  if (st.munAba === "zonas") {
+  // Filtro em cascata (modelo de referência aprovado 23/09/2026):
+  // Zona → Bairro → Local → Seção. Tocar numa linha filtra o nível seguinte;
+  // cada filtro ativo vira um "trilho" com Limpar.
+  const bairroDaSecao = (k) => secLoc && secLoc._bairroSec && secLoc._bairroSec[k];
+  const passaFiltro = (k) => {
+    const z = k.split("::")[0];
+    if (F.zona && z !== F.zona) return false;
+    if (F.bairro && bairroDaSecao(k) !== F.bairro) return false;
+    if (F.local && escolaDaSecao(k) !== F.local) return false;
+    return true;
+  };
+  const trilho = cmp ? "" : [["zona", F.zona && `${F.zona}ª zona`], ["bairro", F.bairro], ["local", F.local]].filter((x) => x[1]).map(([t, v]) => `<div class="pc-filtro-trilho"><span>${v}</span><button type="button" data-limpa="${t}">Limpar</button></div>`).join("");
+  const cabPos = (rot) => `<div class="pc-lin pc-lin-pos cab"><span></span><span>${rot}</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>`;
+  // Agrupa votos por seção num grupo (bairro/local) pra todos os candidatos
+  // e devolve [{g, v, pos}] do candidato da tela.
+  const agrupar = (grupoDe) => {
+    const porNum = (secLoc && secLoc[cargo]) || {};
+    const tot = {};
+    for (const [num, mapa] of Object.entries(porNum)) {
+      for (const [k, v] of Object.entries(mapa)) {
+        if (!passaFiltro(k)) continue;
+        const g = grupoDe(k); if (!g) continue;
+        (tot[g] = tot[g] || {})[num] = (tot[g][num] || 0) + v;
+      }
+    }
+    return Object.entries(tot).map(([g, m]) => {
+      const v = m[cenario.numero] || 0;
+      let pos = 0; if (v) { pos = 1; for (const x of Object.values(m)) if (x > v) pos++; }
+      return { g, v, pos };
+    }).filter((x) => x.v > 0).sort((a, b) => (ordem === "desc" ? 1 : -1) * (b.v - a.v));
+  };
+  const linhaGrupo = (x, sub, tipo) => `<div class="pc-lin pc-lin-pos clic" data-filtra="${tipo}" data-valor="${escaparAtributoHtml(x.g)}"><span></span><span class="n">${x.g}${subtit(sub)}</span><span class="c">${_resChipPos(x.pos)}</span><span class="v">${_resFmt(x.v)}</span><span class="v p">${_resPctTotal(x.v, cenario.total)}</span></div>`;
+  if (st.munAba === "bairros" || st.munAba === "locais") {
+    if (!secLoc || !secLoc._bairroSec) corpo = `<div class="pc-sub" style="padding:6px 0;">Sem dado de ${st.munAba === "bairros" ? "bairro" : "local"} para esta eleição.</div>`;
+    else if (st.munAba === "bairros") {
+      const l = agrupar(bairroDaSecao);
+      corpo = cabPos("Bairro") + (l.map((x) => linhaGrupo(x, "", "bairro")).join("") || `<div class="pc-sub" style="padding:6px 0;">Sem votos aqui.</div>`);
+    } else {
+      const l = agrupar(escolaDaSecao);
+      const bairroDoLocal = {}; Object.entries(secLoc._secoes || {}).forEach(([k, e]) => { if (!bairroDoLocal[e]) bairroDoLocal[e] = bairroDaSecao(k); });
+      corpo = cabPos("Local") + (l.map((x) => linhaGrupo(x, F.bairro ? "" : bairroDoLocal[x.g], "local")).join("") || `<div class="pc-sub" style="padding:6px 0;">Sem votos aqui.</div>`);
+    }
+  } else if (st.munAba === "zonas") {
     const z = await _resCarregar(RES_ANO_APURADO, cargo, "-zonas");
     const mine = (z && z[cenario.sq]) || {};
     if (cmp) {
@@ -715,7 +760,7 @@ async function _resRenderMunDet(ctx, dados, cmp) {
       const ant = (z0 && a && z0[a.sq]) || {};
       const linhas = Object.entries(mine).filter(([k]) => k.startsWith(chave + "::")).map(([k, v]) => ({ zona: k.split("::")[1], v, v0: ant[k] || 0 })).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
       const zCands = Object.values(z || {});
-      corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Zona</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + (linhas.map((l) => `<div class="pc-lin pc-lin-pos"><span></span><span class="n">${l.zona}ª zona${subtit(bairroDaZona(l.zona))}</span><span class="c">${_resChipPos(_resPosicao(zCands, `${chave}::${l.zona}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, cenario.total)}</span></div>`).join("") || `<div class="pc-sub" style="padding:6px 0;">Sem votos aqui.</div>`);
+      corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Zona</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + (linhas.map((l) => `<div class="pc-lin pc-lin-pos clic" data-filtra="zona" data-valor="${l.zona}"><span></span><span class="n">${l.zona}ª zona${subtit(bairroDaZona(l.zona))}</span><span class="c">${_resChipPos(_resPosicao(zCands, `${chave}::${l.zona}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, cenario.total)}</span></div>`).join("") || `<div class="pc-sub" style="padding:6px 0;">Sem votos aqui.</div>`);
     }
   } else if (st.munAba === "secoes") {
     const sec = secLoc;
@@ -736,9 +781,9 @@ async function _resRenderMunDet(ctx, dados, cmp) {
       }
     } else if (!dd) corpo = `<div class="pc-sub" style="padding:6px 0;">Sem dado por seção.</div>`;
     else {
-      const linhas = Object.entries(dd).map(([k, v]) => { const [z, s] = k.split("::"); return { z, s, v }; }).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
+      const linhas = Object.entries(dd).filter(([k]) => passaFiltro(k)).map(([k, v]) => { const [z, s] = k.split("::"); return { z, s, v }; }).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
       const sCands = Object.values(sec[cargo] || {});
-      corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Seção</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + linhas.slice(0, 40).map((l) => `<div class="pc-lin pc-lin-pos"><span></span><span class="n">${l.z}ª zona · seção ${l.s}${subtit(escolaDaSecao(`${l.z}::${l.s}`))}</span><span class="c">${_resChipPos(_resPosicao(sCands, `${l.z}::${l.s}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, cenario.total)}</span></div>`).join("") + (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} seções</div>` : "");
+      corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Seção</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + linhas.slice(0, 40).map((l) => `<div class="pc-lin pc-lin-pos"><span></span><span class="n">Seção ${l.s}${subtit(`${l.z}ª zona${F.local ? "" : " · " + (escolaDaSecao(`${l.z}::${l.s}`) || "")}`.replace(/ · $/, ""))}</span><span class="c">${_resChipPos(_resPosicao(sCands, `${l.z}::${l.s}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, cenario.total)}</span></div>`).join("") + (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} seções</div>` : "");
     }
   } else {
     const hist = [];
@@ -750,7 +795,10 @@ async function _resRenderMunDet(ctx, dados, cmp) {
     const max = Math.max(1, ...hist.map((h) => h.v || 0));
     corpo = hist.map((h) => `<div style="display:grid; grid-template-columns:44px 1fr 76px; gap:8px; align-items:center; padding:8px 0; border-top:1px solid #23262A; font-size:12px;"><b>${h.ano}</b><div style="height:6px; border-radius:999px; background:rgba(242,244,245,.08); overflow:hidden;"><div style="width:${h.v ? h.v / max * 100 : 0}%; height:100%; background:${h.ano === RES_ANO_APURADO ? "#34E84A" : "#6B7178"};"></div></div><span style="text-align:right; font-variant-numeric:tabular-nums;">${h.v === null ? "—" : _resFmt(h.v)}</span></div>`).join("");
   }
-  alvo.innerHTML = abas + corpo;
+  alvo.innerHTML = abas + trilho + corpo;
+  const proxima = { zona: "bairros", bairro: "locais", local: "secoes" };
+  alvo.querySelectorAll("[data-filtra]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); F[x.dataset.filtra] = x.dataset.valor; st.munAba = proxima[x.dataset.filtra]; _resRenderMunDet(ctx, dados, cmp); }));
+  alvo.querySelectorAll("[data-limpa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); const ordemNiveis = ["zona", "bairro", "local"]; ordemNiveis.slice(ordemNiveis.indexOf(x.dataset.limpa)).forEach((n) => delete F[n]); _resRenderMunDet(ctx, dados, cmp); }));
   alvo.querySelectorAll("[data-ma]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.munAba = x.dataset.ma; _resRenderMunDet(ctx, dados, cmp); }));
   _resLigarDropdowns(alvo, (id, it) => { if (id === "pcResMunOrd") { st.munOrdem = it.dataset.o; _resRenderMunDet(ctx, dados, cmp); } });
 }

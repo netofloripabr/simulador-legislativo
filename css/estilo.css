@@ -3203,3 +3203,10 @@
 #modoColaborativoWrap .pc-cand-aviso{ font-size:10px; color:#8A9096; padding:8px 0 2px; }
 #modoColaborativoWrap .pc-cand-fav{ display:flex; justify-content:flex-end; margin:-4px 0 4px; }
 #modoColaborativoWrap .pc-cand-fav .pc-fav{ display:inline-flex; align-items:center; gap:5px; width:auto; padding:0 8px; font-size:10.5px; font-weight:600; }
+
+/* Filtro em cascata Zona → Bairro → Local → Seção (23/09/2026). */
+#modoColaborativoWrap .pc-filtro-trilho{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:7px 10px; margin:6px 0 0; border-radius:10px; background:rgba(242,244,245,.04); border:1px solid rgba(242,244,245,.10); font-size:11.5px; font-weight:700; color:#F2F4F5; }
+#modoColaborativoWrap .pc-filtro-trilho span{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#modoColaborativoWrap .pc-filtro-trilho button{ all:unset; cursor:pointer; font-size:10px; font-weight:700; color:#E8432A; padding:3px 8px; border-radius:999px; background:rgba(232,67,42,.12); }
+#modoColaborativoWrap .pc-lin.pc-lin-pos.clic{ cursor:pointer; }
+#modoColaborativoWrap .pc-mun-det .pc-sub-abas span{ font-size:11.5px; padding-left:7px; padding-right:7px; }

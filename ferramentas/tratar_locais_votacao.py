@@ -19,6 +19,7 @@ Uso (mesma pasta com os zips de ambos os datasets, ex. ~/Downloads):
 Escreve em cada dados/resultados/{uf}-{ano}/secoes/{município}.json:
   "_zonas":  { "<zona>": "Bairro" }
   "_secoes": { "<zona>::<seção>": "Nome curto da escola" }
+  "_bairroSec": { "<zona>::<seção>": "Bairro do local" }  (filtro Bairro/Local)
 """
 import csv, glob, io, json, os, re, sys, unicodedata, zipfile
 
@@ -68,6 +69,7 @@ def main():
     pasta = os.path.expanduser(pasta)
 
     escola_de = {}          # (municipio, zona, secao) -> nome do local
+    local_da_secao = {}     # (municipio, zona, secao) -> nr_local
     votos_local = {}        # (municipio, zona, nr_local) -> votos (cargo estadual)
     nome_local_de = {}      # (municipio, zona, nr_local) -> nome do local
 
@@ -83,6 +85,7 @@ def main():
             k = (muni, zona, sec)
             if k not in escola_de:
                 escola_de[k] = nome_curto(r["NM_LOCAL_VOTACAO"])
+                local_da_secao[k] = nrlocal
             if r.get("CD_CARGO") == CARGO_REF:
                 kl = (muni, zona, nrlocal)
                 votos_local[kl] = votos_local.get(kl, 0) + int(r.get("QT_VOTOS") or 0)
@@ -97,8 +100,9 @@ def main():
         print("lendo", nome, "—", len(linhas), "linhas")
         for r in linhas:
             if r.get("SG_UF") != uf: continue
-            muni = norm(r["NM_MUNICIPIO"]); nrlocal = r.get("NR_LOCAL_VOTACAO", "")
-            bairro_de.setdefault((muni, nrlocal), r.get("NM_BAIRRO", "").title())
+            # NR_LOCAL_VOTACAO só é único DENTRO da zona — chave inclui a zona.
+            muni = norm(r["NM_MUNICIPIO"]); zona = r["NR_ZONA"].lstrip("0") or "0"; nrlocal = r.get("NR_LOCAL_VOTACAO", "")
+            bairro_de.setdefault((muni, zona, nrlocal), r.get("NM_BAIRRO", "").title())
 
     # bairro por (município, zona) = bairro do local mais votado da zona
     melhor_por_zona = {}
@@ -108,7 +112,7 @@ def main():
             melhor_por_zona[k] = (nrlocal, v)
     bairro_por_zona = {}
     for (muni, zona), (nrlocal, _) in melhor_por_zona.items():
-        b = bairro_de.get((muni, nrlocal))
+        b = bairro_de.get((muni, zona, nrlocal))
         if b: bairro_por_zona[(muni, zona)] = b
 
     # aplica em cada dados/resultados/{uf}-{ano}/secoes/{slug}.json
@@ -133,8 +137,13 @@ def main():
         secoes = {}
         for (m, zona, sec), nomeesc in escola_de.items():
             if m == muni: secoes[f"{zona}::{sec}"] = nomeesc
+        bairros = {}
+        for (m, zona, sec), nrl in local_da_secao.items():
+            if m == muni:
+                b = bairro_de.get((m, zona, nrl))
+                if b: bairros[f"{zona}::{sec}"] = b
         if not zonas and not secoes: continue
-        d["_zonas"] = zonas; d["_secoes"] = secoes
+        d["_zonas"] = zonas; d["_secoes"] = secoes; d["_bairroSec"] = bairros
         json.dump(d, open(arq, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
         tocados += 1
     print(f"Pronto: {tocados} municípios de {uf}-{ano} com _zonas/_secoes (bairro/escola).")
