@@ -3243,3 +3243,4 @@
 #modoColaborativoWrap .pc-res-tog button{ height:30px; padding:0 9px; font-size:11px; gap:5px; }
 #modoColaborativoWrap .pc-res-tog button svg{ width:12px; height:12px; }
 #modoColaborativoWrap .pc-sub-abas span{ white-space:nowrap; }
+#modoColaborativoWrap .pc-lin.pc-lin-pos > .v.p span{ font-size:9px; }

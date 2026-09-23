@@ -340,8 +340,7 @@ function _resRenderFerramentas(ctx) {
   corpo.innerHTML = `<div class="pc-res-ferr">
     ${item("favoritos", RES_IC_ESTRELA.replace('width="14" height="14"', 'width="22" height="22"'), "Favoritos", favs.size ? `${favs.size} candidato${favs.size === 1 ? "" : "s"}` : "nenhum marcado")}
     ${item("partidos", iconeSvg("grupos", 22), "Partidos", "QE, QP, eleitos e sobras")}
-    ${item("comparativos", iconeSvg("desafio", 22), "Comparar", "dois candidatos no mapa")}
-    ${item("pontuacao", iconeSvg("ranking", 22), "Minha pontuação", "em breve", 'data-em-breve="1"')}
+    ${item("comparativos", iconeSvg("desafio", 22), "Comparar", "dois candidatos no mapa", 'style="grid-column:1 / 3;"')}
   </div>`;
   corpo.querySelectorAll("[data-res-ferr]").forEach((b) => b.addEventListener("click", () => {
     if (b.dataset.emBreve) { if (typeof pcToast === "function") pcToast("Em breve."); return; }
@@ -445,7 +444,6 @@ async function renderResultados() {
       ${tog("vivo", !!meta && st.vivoOn, `<span class="pt${meta && !meta.final ? " vivo" : ""}"></span>`, meta && meta.final ? "Totalização final" : "Ao vivo", meta ? "" : 'disabled title="A apuração ao vivo liga em 4/10/2026"')}
       ${tog("palpite", st.fonteVoto === "palpite", IC("editar"), "Palpite")}
       ${tog("anterior", st.fonteVoto === "anterior", IC("relogio"), String(anoAnterior))}
-      ${tog("variacao", st.variacaoOn, IC("relogio"), "Variação")}
     </div>
     ${meta && st.vivoOn ? `
     <div class="pc-heroi" style="margin-bottom:12px;">
@@ -734,8 +732,8 @@ async function _resRenderMapa(ctx) {
       // Colunas no alinhamento da referência (Politique, aprovado 23/09/2026):
       // Pos. = colocação do candidato entre TODOS do cargo naquele município
       // (etiqueta verde do 1º ao 3º), Votos, % = fatia do total do candidato.
-      const cab = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Município</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>`;
-      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(d.m.nome)}</span><span class="c">${_resChipPos(_resPosicao(cands, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${_resPctTotal(d.v, cenario.total)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
+      const cab = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Município</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">${st.modo === "var" ? "Δ " + RES_ANO_ANTERIOR : "%"}</span></div>`;
+      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(d.m.nome)}</span><span class="c">${_resChipPos(_resPosicao(cands, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${st.modo === "var" ? _resPctHtml(d.var) : _resPctTotal(d.v, cenario.total)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
     }
     document.querySelectorAll("#pcResMapaLista [data-mun]").forEach((el) => el.addEventListener("click", () => { st.munSel = st.munSel === el.dataset.mun ? null : el.dataset.mun; pintar(); }));
     if (st.munSel) _resRenderMunDet(ctx, dados, cmp);
