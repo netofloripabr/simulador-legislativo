@@ -62,60 +62,63 @@ function pontuarCandidato(previsto, oficial) {
 //   por ser "o núcleo do jogo" (RANQUEAMENTO.md) — ajustável, não é regra
 //   eleitoral fixa, só o valor inicial.
 function pontuarCedulaCargo(previstos, oficiais, vagasCargo, opcoes) {
+  // Regra dos TRÊS ÍCONES do documento impresso (aprovada 28/09/2026),
+  // candidato a candidato, só para quem a pessoa MARCOU como eleito:
+  //   Alvo    = 10 × proximidade (1 − |previsto − real| ÷ real, mínimo 0)
+  //   E       = se ele se elegeu, soma de novo os pontos do Alvo (×2)
+  //   Posição = +5 se acertou a colocação dele DENTRO do partido, +2 se
+  //             errou por uma (é a ordem da lista que decide as vagas)
+  //   Pts     = soma dos três, máximo 25 por candidato.
+  // pontosTotal = soma ÷ (vagas × 25) — escala 0..1 (×1000 na tela).
+  // Falso positivo não desconta (continua valendo o Alvo). Candidatura
+  // inválida/sub judice não pontua (pontuarCandidato devolve null).
   opcoes = opcoes || {};
-  const pisoErro = opcoes.pisoErro != null ? opcoes.pisoErro : 1;
-  const pesoAcertos = opcoes.pesoAcertos != null ? opcoes.pesoAcertos : 0.6;
-  const pesoProximidade = opcoes.pesoProximidade != null ? opcoes.pesoProximidade : 0.4;
-
+  const MAX_CAND = 25;
   const previstosPorChave = {};
   (previstos || []).forEach((p) => { previstosPorChave[p.chave] = p; });
 
+  // colocação dentro do partido — prevista (pelos votos do palpite) e real
+  const posDentro = (lista, votosDe) => {
+    const porPart = {};
+    lista.forEach((x) => { if (x.partido) (porPart[x.partido] = porPart[x.partido] || []).push(x); });
+    const pos = {};
+    Object.values(porPart).forEach((arr) => arr.sort((a, b) => votosDe(b) - votosDe(a)).forEach((x, i) => { pos[x.chave] = i + 1; }));
+    return pos;
+  };
+  const validos = (oficiais || []).filter((o) => o.status === "valido");
+  const posReal = posDentro(validos, (o) => Number(o.votosReais) || 0);
+  const posPrev = posDentro((previstos || []).map((p) => ({ ...p, partido: p.partido || (validos.find((o) => o.chave === p.chave) || {}).partido })), (p) => Number(p.votos) || 0);
 
-  let acertosEleicao = 0;
-  let vagasValidas = 0; // denominador real do eixo 1 (pode ser < vagasCargo se algum eleito ficou sub judice/cassado)
-  // Proximidade (eixo 2) — revisada em 28/09/2026 com ok do usuário: antes o
-  // erro de cada candidato era dividido pelo total de votos válidos do
-  // ESTADO, o que dava ~100% pra qualquer palpite (errar 20% de um
-  // candidato de 50 mil votos virava 0,25% de erro). Agora é o erro
-  // ponderado pela votação real dos candidatos que a pessoa PREENCHEU:
-  // soma |previsto − real| ÷ soma real. Errar 20% em todos = 80% de
-  // proximidade; candidato fora do palpite não entra (não pune por omissão
-  // — omissão já pesa no eixo 1).
-  let somaDif = 0;
-  let somaReal = 0;
-  let candidatosComparados = 0;
+  let acertosEleicao = 0, vagasValidas = 0, total = 0, somaProx = 0, marcados = 0;
   const detalhe = [];
-
   (oficiais || []).forEach((oficial) => {
     const previsto = previstosPorChave[oficial.chave];
     const r = pontuarCandidato(previsto, oficial);
-    if (!r) return; // status inválido — não pontua, não conta
-    if (r.eleito) {
-      vagasValidas++;
-      if (r.acertoEleicao) acertosEleicao++;
-    }
-    let erroRelativo = null;
-    if (previsto) {
-      somaDif += Math.abs(r.votosPrevisto - r.votosReais);
-      somaReal += r.votosReais;
-      candidatosComparados++;
-      erroRelativo = Math.min(r.votosReais > 0 ? Math.abs(r.votosPrevisto - r.votosReais) / r.votosReais : (r.votosPrevisto > 0 ? 1 : 0), pisoErro);
-    }
-    detalhe.push({ chave: r.chave, marcou: r.marcou, eleito: r.eleito, acertoEleicao: r.acertoEleicao, erroRelativo });
+    if (!r) return;
+    if (r.eleito) { vagasValidas++; if (r.acertoEleicao) acertosEleicao++; }
+    if (!r.marcou) return;
+    marcados++;
+    const prox = r.votosReais > 0 ? Math.max(0, 1 - Math.abs(r.votosPrevisto - r.votosReais) / r.votosReais) : (r.votosPrevisto > 0 ? 0 : 1);
+    const alvo = 10 * prox;
+    const e = r.eleito ? alvo : 0;
+    let posicao = 0;
+    if (posReal[r.chave] && posPrev[r.chave]) { const dif = Math.abs(posReal[r.chave] - posPrev[r.chave]); posicao = dif === 0 ? 5 : dif === 1 ? 2 : 0; }
+    const pts = alvo + e + posicao;
+    total += pts; somaProx += prox;
+    detalhe.push({ chave: r.chave, marcou: true, eleito: r.eleito, acertoEleicao: r.acertoEleicao, prox, alvo, e, posicao, pts });
   });
 
   const denominadorAcertos = vagasValidas > 0 ? vagasValidas : (vagasCargo || 0);
   const pctAcertos = denominadorAcertos > 0 ? acertosEleicao / denominadorAcertos : 0;
-  const erroMedio = candidatosComparados > 0 && somaReal > 0 ? Math.min(somaDif / somaReal, pisoErro) : pisoErro;
-  const pctProximidade = pisoErro > 0 ? Math.max(0, 1 - erroMedio / pisoErro) : 0;
-
-  const pontosTotal = pctAcertos * pesoAcertos + pctProximidade * pesoProximidade;
-
+  const pctProximidade = marcados ? somaProx / marcados : 0;
+  const maxTotal = (vagasCargo || denominadorAcertos || 1) * MAX_CAND;
+  const pontosTotal = Math.min(1, total / maxTotal);
   return {
     acertosEleicao, vagasValidas, pctAcertos,
-    erroMedio, pctProximidade,
-    candidatosComparados,
-    pontosTotal, // 0..1 — quem chama decide a escala de exibição (ex.: ×1000)
+    erroMedio: 1 - pctProximidade, pctProximidade,
+    candidatosComparados: marcados,
+    pontos: total, pontosMax: maxTotal,
+    pontosTotal, // 0..1 — a tela mostra ×1000
     detalhe,
   };
 }

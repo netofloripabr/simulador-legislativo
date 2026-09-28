@@ -34,7 +34,7 @@ function ok(cond, msg, detalhe) {
 // nesse gabarito (é resultado já apurado e diplomado).
 function chaveDe(c) { return c.nome; } // 2022 usa nome como identificador único no gabarito
 const oficiais = BASE_2022.flatMap((p) =>
-  p.candidatos.map((c) => ({ chave: chaveDe(c), votosReais: c.votos, eleitoReal: !!c.eleito2022, status: "valido" }))
+  p.candidatos.map((c) => ({ chave: chaveDe(c), partido: p.nome, votosReais: c.votos, eleitoReal: !!c.eleito2022, status: "valido" }))
 );
 const vagasCargo = BASE_2022.reduce((s, p) => s + (p.vagas2022 || 0), 0);
 ok(vagasCargo === 40, "ALESC 2022 tem 40 vagas no gabarito", vagasCargo);
@@ -55,7 +55,7 @@ console.log("\nCenário 2 — palpite EM BRANCO (ninguém marcado, todos os voto
   const r = pontuarCedulaCargo(previstos, oficiais, vagasCargo);
   ok(r.pctAcertos === 0, "acerta 0% dos eleitos", r.pctAcertos);
   // tudo zerado → erro ponderado = 100% (proximidade 0) desde a revisão de 28/09/2026
-  ok(r.erroMedio === 1, "erro médio no piso (100%)", r.erroMedio);
+  ok(r.pontosTotal === 0, "ninguém marcado → 0 ponto", r.pontosTotal);
   ok(r.pontosTotal < 0.5, "pontuação total baixa (bem abaixo da metade)", r.pontosTotal);
   ok(r.pontosTotal >= 0, "pontuação nunca fica negativa (falso positivo não pune)", r.pontosTotal);
 }
@@ -65,6 +65,8 @@ console.log("\nCenário 2b — palpite 20% ACIMA do real em todos (revisão 28/0
   const previstos = oficiais.map((o) => ({ chave: o.chave, votos: Math.round(o.votosReais * 1.2), marcadoEleito: o.eleitoReal }));
   const r = pontuarCedulaCargo(previstos, oficiais, vagasCargo);
   ok(Math.abs(r.pctProximidade - 0.8) < 0.01, "proximidade ~80% (antes dava ~100%)", r.pctProximidade);
+  // 40 eleitos × (8 alvo + 8 E + 5 posição) = 840 de 1000
+  ok(Math.abs(r.pontosTotal - 0.84) < 0.01, "pontuação 840/1000 (regra dos três ícones)", r.pontosTotal);
 }
 
 console.log("\nCenário 3 — candidatura INVÁLIDA não pontua nem positivo nem negativo");

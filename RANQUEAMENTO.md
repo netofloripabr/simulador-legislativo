@@ -160,3 +160,12 @@ Decisões do usuário (não são mais rascunho):
 ## Revisão do eixo 2 (proximidade) — 28/09/2026
 
 Aprovada pelo usuário. O erro deixou de ser dividido pelo total de votos válidos do estado (que dava ~100% de proximidade pra qualquer palpite) e passou a ser o erro ponderado pela votação real dos candidatos que a pessoa preencheu: soma |previsto − real| ÷ soma real, limitado a 100%. Errar 20% em todos os candidatos = 80% de proximidade. Candidato fora do palpite não entra na proximidade (a omissão já pesa no eixo 1). Implementação: `pontuarCedulaCargo` em `calculo/pontuacao.js`; cenário 2b em `testes/pontuacao.test.js`.
+
+## Regra dos três ícones — 28/09/2026 (substitui a revisão acima)
+
+Aprovada pelo usuário. Pontuação candidato a candidato, só para quem a pessoa marcou como eleito, usando os três ícones do documento impresso:
+- **Alvo** = 10 × proximidade (1 − |previsto − real| ÷ real, mínimo 0).
+- **E** = se o candidato se elegeu, soma de novo os pontos do Alvo (multiplicador ×2).
+- **Posição** = +5 se acertou a colocação dele dentro do partido; +2 se errou por uma.
+- **Pts** = soma dos três, máximo 25 por candidato; total ÷ (vagas × 25) na escala 0–1000.
+Falso positivo não desconta. Implementação: `pontuarCedulaCargo` em `calculo/pontuacao.js`; teste em `testes/pontuacao.test.js` (palpite 20% acima em todos = 840/1000).

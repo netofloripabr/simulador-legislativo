@@ -3279,3 +3279,9 @@
 #modoColaborativoWrap .pc-leg-bol{ display:inline-block; border-radius:50%; background:rgba(52,232,74,.45); border:1px solid #34E84A; margin:0 2px; vertical-align:middle; }
 #modoColaborativoWrap .pc-leg-bol.neg{ background:rgba(232,67,42,.45); border-color:#E8432A; }
 #modoColaborativoWrap #pcResFicha .pc-mun-det{ margin:6px 0 0; padding:0; }
+
+/* Três ícones do documento impresso na lista (E · proximidade · posição). */
+#modoColaborativoWrap .pc-acerto{ display:flex; align-items:center; gap:3px; text-transform:none; letter-spacing:0; }
+#modoColaborativoWrap .pc-acerto b{ font-size:8px; font-weight:800; padding:1px 4px; border-radius:4px; background:#2C3239; color:#6B7178; }
+#modoColaborativoWrap .pc-acerto b.on{ background:#34E84A; color:#07230C; }
+#modoColaborativoWrap .pc-acerto span{ font-size:9px; font-weight:700; color:#DDE0E2; margin-left:2px; }
