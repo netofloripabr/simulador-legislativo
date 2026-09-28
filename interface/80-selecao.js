@@ -2350,7 +2350,7 @@ async function renderSelecaoCandidatos() {
       // esvaziado na troca) — o pontinho de "concluído" apagava ao voltar
       // pra essa aba depois, mesmo com tudo ainda marcado. Achado testando
       // o pontinho em 06/08/2026.
-      if (pcState.palpiteEdicao) {
+      if (pcState.palpiteEdicao && pcState.cargoPalpiteEdicao === `${pcState.estado}::${pcState.cargoAtivo}`) {
         if (!pcState.palpitesPorCargo) pcState.palpitesPorCargo = {};
         pcState.palpitesPorCargo[pcState.cargoAtivo] = pcState.palpiteEdicao;
       }

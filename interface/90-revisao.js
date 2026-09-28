@@ -171,7 +171,10 @@ function proximosSuplentes(limite, listaParam) {
 function garantirPalpitesPorCargo() {
   if (!pcState.palpitesPorCargo) pcState.palpitesPorCargo = {};
   CARGOS.forEach((c) => {
-    if (c.id === pcState.cargoAtivo && pcState.palpiteEdicao) {
+    // Só usa o palpiteEdicao se ele for DESTE cargo (cargoPalpiteEdicao) —
+    // bug de 28/09/2026: com cargoAtivo já trocado e palpiteEdicao ainda com
+    // os senadores, a lista de Senado entrava como Dep. Federal (QE, sobra).
+    if (c.id === pcState.cargoAtivo && pcState.palpiteEdicao && pcState.cargoPalpiteEdicao === `${pcState.estado}::${c.id}`) {
       pcState.palpitesPorCargo[c.id] = pcState.palpiteEdicao;
     } else if (!pcState.palpitesPorCargo[c.id]) {
       // Prioridade: rascunho salvo (já carregado em pcState.rascunhosCache
