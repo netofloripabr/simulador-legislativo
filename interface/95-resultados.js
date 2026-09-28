@@ -704,7 +704,7 @@ function _resRenderCandidatos(ctx) {
     return `
     <div class="pc-cand-lin${aberta ? " res-aberta" : ""}${fonte !== "apurado" ? " alt" : ""}" data-res-cand="${c.sq}">
       <div class="pc-dep-cl1">
-        <span class="pos">${posGeral.get(c.sq)}º</span>
+        <span class="pos">${c.total ? posGeral.get(c.sq) + "º" : "—"}</span>
         ${_resEtiqueta(c, cargo)}
         <span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span>
         <span class="voto">${vazio ? "—" : _resFmt(num)}${pont && pont.porChave[_resNorm(c.nomeUrna)] ? (() => { const x = pont.porChave[_resNorm(c.nomeUrna)]; return `<i class="pc-acerto"><b class="${x.e ? "on" : ""}" title="acerto de eleição">E</b><b class="${x.alvo >= 5 ? "on" : ""}" title="proximidade dos votos">${Math.round(x.prox * 100)}%</b><b class="${x.posicao ? "on" : ""}" title="colocação no partido">P</b><span>${x.pts.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} pts</span></i>`; })() : ""}</span>
