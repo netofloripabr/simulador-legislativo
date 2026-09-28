@@ -156,3 +156,7 @@ Decisões do usuário (não são mais rascunho):
    21/08/2026: `listaEhDaEraAntiga` em interface/80-selecao.js, aplicada no
    Editar e no Depositar). Cédulas antigas JÁ depositadas permanecem
    imutáveis e são tratadas pela régua dos itens 2-3 na apuração.
+
+## Revisão do eixo 2 (proximidade) — 28/09/2026
+
+Aprovada pelo usuário. O erro deixou de ser dividido pelo total de votos válidos do estado (que dava ~100% de proximidade pra qualquer palpite) e passou a ser o erro ponderado pela votação real dos candidatos que a pessoa preencheu: soma |previsto − real| ÷ soma real, limitado a 100%. Errar 20% em todos os candidatos = 80% de proximidade. Candidato fora do palpite não entra na proximidade (a omissão já pesa no eixo 1). Implementação: `pontuarCedulaCargo` em `calculo/pontuacao.js`; cenário 2b em `testes/pontuacao.test.js`.

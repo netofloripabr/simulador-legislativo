@@ -70,11 +70,19 @@ function pontuarCedulaCargo(previstos, oficiais, vagasCargo, opcoes) {
   const previstosPorChave = {};
   (previstos || []).forEach((p) => { previstosPorChave[p.chave] = p; });
 
-  const totalVotosValidosReal = (oficiais || []).reduce((s, o) => s + (o.status === "valido" ? Number(o.votosReais) || 0 : 0), 0);
 
   let acertosEleicao = 0;
   let vagasValidas = 0; // denominador real do eixo 1 (pode ser < vagasCargo se algum eleito ficou sub judice/cassado)
-  let somaErro = 0;
+  // Proximidade (eixo 2) — revisada em 28/09/2026 com ok do usuário: antes o
+  // erro de cada candidato era dividido pelo total de votos válidos do
+  // ESTADO, o que dava ~100% pra qualquer palpite (errar 20% de um
+  // candidato de 50 mil votos virava 0,25% de erro). Agora é o erro
+  // ponderado pela votação real dos candidatos que a pessoa PREENCHEU:
+  // soma |previsto − real| ÷ soma real. Errar 20% em todos = 80% de
+  // proximidade; candidato fora do palpite não entra (não pune por omissão
+  // — omissão já pesa no eixo 1).
+  let somaDif = 0;
+  let somaReal = 0;
   let candidatosComparados = 0;
   const detalhe = [];
 
@@ -86,19 +94,19 @@ function pontuarCedulaCargo(previstos, oficiais, vagasCargo, opcoes) {
       vagasValidas++;
       if (r.acertoEleicao) acertosEleicao++;
     }
-    // Proximidade: só faz sentido pra quem o usuário efetivamente
-    // preencheu (candidato ausente do palpite = votosPrevisto 0, o que já
-    // é o comportamento natural — não precisa de caso especial).
-    const erroRelativo = totalVotosValidosReal > 0 ? Math.abs(r.votosPrevisto - r.votosReais) / totalVotosValidosReal : 0;
-    const erroLimitado = Math.min(erroRelativo, pisoErro);
-    somaErro += erroLimitado;
-    candidatosComparados++;
-    detalhe.push({ chave: r.chave, marcou: r.marcou, eleito: r.eleito, acertoEleicao: r.acertoEleicao, erroRelativo: erroLimitado });
+    let erroRelativo = null;
+    if (previsto) {
+      somaDif += Math.abs(r.votosPrevisto - r.votosReais);
+      somaReal += r.votosReais;
+      candidatosComparados++;
+      erroRelativo = Math.min(r.votosReais > 0 ? Math.abs(r.votosPrevisto - r.votosReais) / r.votosReais : (r.votosPrevisto > 0 ? 1 : 0), pisoErro);
+    }
+    detalhe.push({ chave: r.chave, marcou: r.marcou, eleito: r.eleito, acertoEleicao: r.acertoEleicao, erroRelativo });
   });
 
   const denominadorAcertos = vagasValidas > 0 ? vagasValidas : (vagasCargo || 0);
   const pctAcertos = denominadorAcertos > 0 ? acertosEleicao / denominadorAcertos : 0;
-  const erroMedio = candidatosComparados > 0 ? somaErro / candidatosComparados : pisoErro;
+  const erroMedio = candidatosComparados > 0 && somaReal > 0 ? Math.min(somaDif / somaReal, pisoErro) : pisoErro;
   const pctProximidade = pisoErro > 0 ? Math.max(0, 1 - erroMedio / pisoErro) : 0;
 
   const pontosTotal = pctAcertos * pesoAcertos + pctProximidade * pesoProximidade;

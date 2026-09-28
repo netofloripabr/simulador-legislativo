@@ -54,11 +54,17 @@ console.log("\nCenário 2 — palpite EM BRANCO (ninguém marcado, todos os voto
   const previstos = oficiais.map((o) => ({ chave: o.chave, votos: 0, marcadoEleito: false }));
   const r = pontuarCedulaCargo(previstos, oficiais, vagasCargo);
   ok(r.pctAcertos === 0, "acerta 0% dos eleitos", r.pctAcertos);
-  // erro relativo de cada candidato eleito real = votosReais/totalValidos, não é 1 pra todos
-  // (candidato pequeno errado por 0 pesa menos que um grande) — só confere que o erro é > 0 e <= piso.
-  ok(r.erroMedio > 0 && r.erroMedio <= 1, "erro médio entre 0 e o piso (100%)", r.erroMedio);
+  // tudo zerado → erro ponderado = 100% (proximidade 0) desde a revisão de 28/09/2026
+  ok(r.erroMedio === 1, "erro médio no piso (100%)", r.erroMedio);
   ok(r.pontosTotal < 0.5, "pontuação total baixa (bem abaixo da metade)", r.pontosTotal);
   ok(r.pontosTotal >= 0, "pontuação nunca fica negativa (falso positivo não pune)", r.pontosTotal);
+}
+
+console.log("\nCenário 2b — palpite 20% ACIMA do real em todos (revisão 28/09/2026)");
+{
+  const previstos = oficiais.map((o) => ({ chave: o.chave, votos: Math.round(o.votosReais * 1.2), marcadoEleito: o.eleitoReal }));
+  const r = pontuarCedulaCargo(previstos, oficiais, vagasCargo);
+  ok(Math.abs(r.pctProximidade - 0.8) < 0.01, "proximidade ~80% (antes dava ~100%)", r.pctProximidade);
 }
 
 console.log("\nCenário 3 — candidatura INVÁLIDA não pontua nem positivo nem negativo");
