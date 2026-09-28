@@ -447,7 +447,7 @@ function _resDocImpresso(st, cargo, cands) {
           else if (I.modo === "var") { const t = d.var === null ? 0 : Math.max(-1, Math.min(1, d.var / 50)); fill = t >= 0 ? mix("#FFFFFF", "#1FA83A", t) : mix("#FFFFFF", "#D9482F", -t); }
           else { const t = Math.pow(Math.log(1 + d.v) / Math.log(1 + maxV), 1.5); fill = mix("#FFFFFF", "#1FA83A", t); }
         }
-        p.setAttribute("fill", fill); p.setAttribute("stroke", d && I.dentro(d) ? "#8A9096" : "#C9CDD1"); p.setAttribute("stroke-width", "0.6");
+        p.setAttribute("fill", fill); p.setAttribute("stroke", d && I.dentro(d) ? "#9AA0A6" : "#D3D6D9"); p.setAttribute("stroke-width", "0.35"); p.setAttribute("vector-effect", "non-scaling-stroke");
       });
       cl.querySelectorAll("#pcResBolhas circle").forEach((c) => { const neg = c.classList.contains("neg"); c.removeAttribute("class"); c.setAttribute("fill", neg ? "#D9482F" : "#1FA83A"); c.setAttribute("fill-opacity", "0.28"); c.setAttribute("stroke", neg ? "#B23A24" : "#178A2F"); c.setAttribute("stroke-width", "1"); c.setAttribute("stroke-opacity", "0.85"); });
       const g = cl.querySelector("#pcResBolhas"); if (g) g.removeAttribute("id");
@@ -614,6 +614,8 @@ function _resRenderCandidatos(ctx) {
   let lista = cands.filter((c) => !busca || _resNorm(c.nomeUrna + " " + c.nome + " " + c.partido).includes(busca));
   if (st.soFav) lista = lista.filter((c) => favs.has(c.sq));
   if (st.ordem === "asc") lista = [...lista].sort((a, b) => a.total - b.total);
+  // "Eleitos primeiro": eleitos por votos, depois o resto na mesma ordem (28/09/2026)
+  if (st.ordem === "eleitos") lista = [...lista].sort((a, b) => (_resEleito(b) - _resEleito(a)) || (b.total - a.total));
   const limite = Math.min(lista.length, st.limite || 60);
 
   // Lista compacta (aprovada 23/09/2026): etiqueta · PARTIDO — Nome ·
@@ -658,7 +660,7 @@ function _resRenderCandidatos(ctx) {
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
       <input class="cell" id="pcResBusca" placeholder="Buscar candidato ou partido…" value="${escaparAtributoHtml(st.busca || "")}" style="flex:1; margin:0;">
       <button type="button" class="pc-dd-btn ico${st.soFav ? " on" : ""}" id="pcResSoFav" title="Só favoritos" style="${st.soFav ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>
-      ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 170, titulo: "Ordenar" })}
+      ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div><div class="pc-dd-it${st.ordem === "eleitos" ? " on" : ""}" data-o="eleitos">Eleitos primeiro</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 170, titulo: "Ordenar" })}
     </div>
     <div class="pc-dep-card pc-cand-lista" style="padding:0 12px;">
       ${pont ? `<div class="pc-pont"><div><b>${Math.round(pont.pontosTotal * 1000)}</b><span>pontos</span></div><div><b>${pont.acertosEleicao}/${pont.vagasValidas || ctx.totalVagas}</b><span>eleitos acertados</span></div><div><b>${Math.round(pont.pctProximidade * 100)}%</b><span>proximidade média</span></div></div>` : ""}
