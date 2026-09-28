@@ -17,8 +17,12 @@
 // index.html (o maior tem ~3 MB). Ver ferramentas/tratar_resultados_municipio.py.
 
 const RES_UF = "SC";
-const RES_ANO_APURADO = 2022;
-const RES_ANO_ANTERIOR = 2018;
+// Desde 28/09/2026 a tela abre em 2026 (dados zerados em
+// dados/resultados/sc-2026/, prontos pra receber a apuração ao vivo).
+// O ensaio com o resultado de 2022 continua em ?ensaio=2022.
+const RES_ENSAIO_2022 = typeof location !== "undefined" && /[?&]ensaio=2022/.test(location.search);
+const RES_ANO_APURADO = RES_ENSAIO_2022 ? 2022 : 2026;
+const RES_ANO_ANTERIOR = RES_ENSAIO_2022 ? 2018 : 2022;
 const RES_ANOS_HISTORICO = [2022, 2018, 2014];
 
 function _resNorm(s) {
@@ -39,16 +43,21 @@ function _resPctHtml(p, extra) {
 }
 
 // ---------- carga sob demanda ----------
+// 2026 só tem o elenco zerado até o TSE publicar os arquivos detalhados
+// (dias depois da eleição). Virar pra true quando rodar os tratadores de 2026.
+const RES_2026_DETALHE = false;
 async function _resCarregar(ano, cargo, sufixo) {
   pcState._resCache = pcState._resCache || {};
   const k = `${ano}/${cargo}${sufixo || ""}`;
   if (pcState._resCache[k]) return pcState._resCache[k];
+  if (ano >= 2026 && !RES_2026_DETALHE && (sufixo || /^(participacao|secoes\/)/.test(cargo))) { pcState._resCache[k] = null; return null; }
   try {
     const r = await fetch(`dados/resultados/${RES_UF.toLowerCase()}-${ano}/${cargo}${sufixo || ""}.json`, { cache: "force-cache" });
     if (!r.ok) throw new Error(r.status);
     pcState._resCache[k] = await r.json();
   } catch (e) {
-    console.error("Resultados: falha ao carregar", k, e);
+    // 404 é esperado (ex.: 2026 ainda sem arquivos por zona/seção) — só avisa em outro erro
+    if (String(e && e.message) !== "404") console.error("Resultados: falha ao carregar", k, e);
     pcState._resCache[k] = null;
   }
   return pcState._resCache[k];
@@ -82,8 +91,15 @@ async function _resCarregarAoVivo(ano, cargo) {
 // que a rotina ainda não traz) — por SQ_CANDIDATO.
 function _resMesclar(vivo, estatico) {
   if (!vivo) return estatico;
-  const porSq = new Map(((estatico && estatico.candidatos) || []).map((c) => [c.sq, c]));
-  return { ...vivo, candidatos: vivo.candidatos.map((c) => { const e = porSq.get(c.sq); return e ? { ...e, ...c, nome: e.nome || c.nome, nomeUrna: e.nomeUrna || c.nomeUrna, municipios: e.municipios || {} } : c; }) };
+  // Casa por SQ_CANDIDATO e, na falta (arquivo 2026 preparado a partir do
+  // elenco, sem SQ), pelo NÚMERO do candidato — único por cargo no estado.
+  const est = (estatico && estatico.candidatos) || [];
+  const porSq = new Map(est.filter((c) => c.sq).map((c) => [c.sq, c]));
+  const porNum = new Map(est.filter((c) => c.numero).map((c) => [String(c.numero), c]));
+  const vistos = new Set();
+  const lista = vivo.candidatos.map((c) => { const e = porSq.get(c.sq) || porNum.get(String(c.numero)); if (e) vistos.add(e); return e ? { ...e, ...c, nome: e.nome || c.nome, nomeUrna: e.nomeUrna || c.nomeUrna, municipios: e.municipios || {} } : c; });
+  est.forEach((e) => { if (!vistos.has(e)) lista.push({ ...e, total: 0 }); });
+  return { ...vivo, candidatos: lista.sort((a, b) => b.total - a.total) };
 }
 function _resTempoRelativo(iso) {
   const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
@@ -137,6 +153,7 @@ function _resHistoricoDe(c, listaAno) {
 // neutra, sem cor.
 function _resEtiqueta(c, cargo) {
   const s = (c.situacao || "").toUpperCase();
+  if (!s) return "";
   if (s.includes("ELEITO POR QP") || (cargo === "senador" && s.startsWith("ELEITO"))) return `<span class="pc-sen-chip" title="${cargo === "senador" ? "Eleito (mais votado)" : "Eleito direto pelo quociente partidário (art. 107)"}">${cargo === "senador" ? "E" : "E-QP"}</span>`;
   if (s.includes("ELEITO POR M") || s.startsWith("ELEITO")) {
     const r = (pcState._resRodadas || {})[c.sq];
@@ -547,7 +564,8 @@ async function renderResultados() {
   _resArmarAtualizacao(meta);
   if (!apu) { conteudo.innerHTML = estadoVazio({ icone: "alerta", titulo: "Resultados indisponíveis", texto: "Não consegui carregar os dados deste cargo. Tente de novo em instantes." }); return; }
   const totalVagas = vagasFixasCargo(RES_UF, cargo);
-  const cands = apu.candidatos;
+  const cands = apu.candidatos.every((c) => !c.total) ? [...apu.candidatos].sort((a, b) => String(a.nomeUrna).localeCompare(String(b.nomeUrna), "pt-BR")) : apu.candidatos;
+  const aguardando = !meta && cands.every((c) => !c.total);
   // Casamento entre eleições: nome completo, senão nome de urna (a pessoa
   // muda de sobrenome/partido/número entre um pleito e outro — ex.: Ana
   // Campagnolo ganhou "Galvao" em 2022).
@@ -577,7 +595,7 @@ async function renderResultados() {
 
   conteudo.innerHTML = `
     <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 4px 2px;"><span style="display:flex; align-items:center; gap:8px;"><button type="button" class="pc-dd-btn ico" id="pcResHome" title="Página inicial" style="width:32px; height:32px;">${iconeSvg("home", 15)}</button><span style="font-size:20px; font-weight:700;">Apuração ${anoApurado}</span></span><button type="button" class="pc-dd-btn ico" id="pcResImprimir" title="Imprimir a tela como está" style="width:32px; height:32px;">${iconeSvg("impressora", 15)}</button></div>
-    <div class="pc-sub" style="margin:0 0 10px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : "resultado oficial (TSE)"}</div>
+    <div class="pc-sub" style="margin:0 0 10px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : aguardando ? "aguardando a apuração" : "resultado oficial (TSE)"}</div>
     <div class="pc-res-tog">
       ${tog("vivo", !!meta && st.vivoOn, `<span class="pt${meta && !meta.final ? " vivo" : ""}"></span>`, meta && meta.final ? "Totalização final" : "Ao vivo", meta ? "" : 'disabled title="A apuração ao vivo liga em 4/10/2026"')}
       ${tog("palpite", st.fonteVoto === "palpite", IC("editar"), "Palpite")}
@@ -592,6 +610,7 @@ async function renderResultados() {
       <div class="pc-lobby-barra"><div style="width:${Math.min(100, Number(meta.pctSecoes) || 0)}%; background:#34E84A;"></div></div>
       <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#8A9096; margin-top:8px;"><span>${_resFmt(meta.secoesTotalizadas)} de ${_resFmt(meta.secoesTotal)} seções</span><span id="pcResAtualizado">atualizado ${_resTempoRelativo(meta.atualizadoEm)}${meta.final ? "" : " · próxima em 60 s"}</span></div>
     </div>` : ""}
+    ${aguardando ? `<div class="pc-lobby-duelo on" style="margin-bottom:12px; cursor:default;"><span class="pc-lobby-duelo-ic">${iconeSvg("relogio", 18)}</span><span class="pc-lobby-duelo-tx"><b>Aguardando a apuração de ${anoApurado}</b><i>os votos entram ao vivo quando o TSE começar a divulgar, em 4/10. Até lá, a lista mostra o elenco zerado.</i></span></div>` : ""}
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
     ${meta ? "" : _resPartHtml(part && part[cargo] && part[cargo].estado, "Santa Catarina")}
     <div class="glass-card" style="padding:14px; margin-bottom:12px;">
