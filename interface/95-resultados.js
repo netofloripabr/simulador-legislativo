@@ -343,6 +343,7 @@ function _resRenderPartidos(ctx) {
     const t = (rot, val, sub, cls) => `<div class="pc-dep-tile ref"><span class="tv"${cls ? ` style="color:${cls};"` : ""}>${val}</span><span class="tr">${rot}${sub ? " · " + sub : ""}</span></div>`;
     const cs = [...sel.cands].sort((a, b) => b.total - a.total);
     corpo.innerHTML = voltar + `
+      <button type="button" class="pc-dd-btn" id="pcResPartMapa" style="float:right; margin-top:-2px;">${iconeSvg("mapa", 13)}Ver no mapa</button>
       <div class="pc-part-tit">${sel.nome}${sel.partidos.size > 1 ? `<i>${[...sel.partidos].join(" · ")}</i>` : ""}</div>
       <div class="pc-dep-tiles pc-part-tiles">
         ${t("votos", _resFmt(sel.total), pct(sel.total))}${t("legenda", R.temLegenda ? _resFmt(sel.legenda) : "—")}${t("eleitos", sel.eleitos)}${t("candidatos", sel.cands.length)}
@@ -352,6 +353,8 @@ function _resRenderPartidos(ctx) {
         ${cs.map((c, i) => `<div class="pc-cand-lin"><div class="pc-dep-cl1" style="cursor:default;"><span class="pos">${i + 1}º</span>${_resEtiqueta(c, cargo)}<span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span><span class="voto">${_resFmt(c.total)}</span></div></div>`).join("")}
       </div>`;
   }
+  const bm = document.getElementById("pcResPartMapa");
+  if (bm) bm.addEventListener("click", () => { st.partMapa = true; if (st._partMapa) st._partMapa.cenario = "P:" + st.partidoSel; _resRenderPartidoMapa(ctx); });
   document.getElementById("pcResPartVoltar").addEventListener("click", () => { if (st.partidoSel) st.partidoSel = null; else st.ferr = null; _resRenderFerramentas(ctx); });
   corpo.querySelectorAll("[data-partido]").forEach((el) => el.addEventListener("click", () => { st.partidoSel = el.dataset.partido; _resRenderPartidos(ctx); corpo.scrollIntoView({ block: "start" }); }));
 }
@@ -359,7 +362,7 @@ function _resRenderPartidos(ctx) {
 function _resRenderFerramentas(ctx) {
   const { st, favs } = ctx;
   const corpo = document.getElementById("pcResCorpo");
-  if (st.ferr === "partidos") { _resRenderPartidos(ctx); return; }
+  if (st.ferr === "partidos") { if (st.partMapa) _resRenderPartidoMapa(ctx); else _resRenderPartidos(ctx); return; }
   const item = (id, ic, tit, sub, extra) => `<button type="button" class="pc-app" data-res-ferr="${id}" ${extra || ""}><span class="pc-app-ic">${ic}</span><span class="pc-app-tx"><span class="pc-app-rot">${tit}</span><span class="pc-app-sub">${sub}</span></span></button>`;
   corpo.innerHTML = `<div class="pc-res-ferr">
     ${item("favoritos", RES_IC_ESTRELA.replace('width="14" height="14"', 'width="22" height="22"'), "Favoritos", favs.size ? `${favs.size} candidato${favs.size === 1 ? "" : "s"}` : "nenhum marcado")}
@@ -486,6 +489,41 @@ function _resDocImpresso(st, cargo, cands) {
       <div class="di-sub" style="margin-top:12px;">Dados oficiais do TSE. Jogo de palpites entre participantes — não é pesquisa eleitoral.</div>
       <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dataTxt} ${horaTxt}</span></div>
     </div>`;
+}
+
+// Mapa por PARTIDO (28/09/2026): mesma tela do mapa de candidato (região,
+// modo votos/variação, comparar, cores/bolhas), com o partido/federação como
+// "candidato". Votos por município = soma dos candidatos (sem legenda, que
+// não vem por município). Anterior agrupado pelo nome ATUAL do partido.
+function _resPartidoPseudo(lista, ano) {
+  const fed = RES_FEDERACOES[ano] || {};
+  const fedAtual = RES_FEDERACOES[pcState.res.anoApurado] || {};
+  const g = {};
+  (lista || []).forEach((c) => {
+    let k = fed[c.partido] || _resPartidoAtual(c.partido);
+    k = fedAtual[k] || k;
+    const x = g[k] = g[k] || { sq: "P:" + k, nome: k, nomeUrna: k, partido: k, total: 0, municipios: {}, eleitos: 0, situacao: "" };
+    x.total += c.total;
+    if (_resEleito(c)) x.eleitos++;
+    for (const [m, v] of Object.entries(c.municipios || {})) x.municipios[m] = (x.municipios[m] || 0) + v;
+  });
+  return Object.values(g).sort((a, b) => b.total - a.total);
+}
+async function _resRenderPartidoMapa(ctx) {
+  const st = pcState.res;
+  const pm = st._partMapa = st._partMapa || { cargo: ctx.cargo, modo: "votos", ordem: "desc", regiao: "", assoc: "", mapaForma: "cores" };
+  if (pm.cargo !== ctx.cargo) { pm.cargo = ctx.cargo; pm.cmpSq = null; pm.cenario = null; }
+  pm.anoApurado = st.anoApurado; pm.anoAnterior = st.anoAnterior;
+  const partes = _resPartidoPseudo(ctx.cands, st.anoApurado);
+  const antL = _resPartidoPseudo(ctx.ant ? ctx.ant.candidatos : [], st.anoAnterior);
+  const antMap = new Map(antL.map((x) => [x.nome, x]));
+  if (!pm.cenario || !partes.find((x) => x.sq === pm.cenario)) pm.cenario = "P:" + (st.partidoSel || partes[0].nome);
+  const cenario = partes.find((x) => x.sq === pm.cenario) || partes[0];
+  const pctx = { ...ctx, st: pm, cands: partes, cenario, antDe: (x) => antMap.get(x.nome) || null, modoPartido: true, rerender: () => _resRenderPartidoMapa(ctx) };
+  await _resRenderMapa(pctx);
+  const corpo = document.getElementById("pcResCorpo");
+  corpo.insertAdjacentHTML("afterbegin", `<button type="button" class="pc-part-voltar" id="pcResPartMapaVoltar">${iconeSvg("setaEsquerda", 13)}Partidos</button>`);
+  document.getElementById("pcResPartMapaVoltar").addEventListener("click", () => { st.partMapa = false; _resRenderPartidos(ctx); });
 }
 // ---------- tela ----------
 async function renderResultados() {
@@ -783,10 +821,10 @@ async function _resRenderMapa(ctx) {
     <div class="pc-dd" id="pcResCen">
       <button type="button" class="pc-dd-btn pc-cenario-btn">
         <div class="pc-cenario">
-          <span class="pc-dep-pos">${cands.indexOf(cenario) + 1}º</span>${_resEtiqueta(cenario, cargo)}
+          <span class="pc-dep-pos">${cands.indexOf(cenario) + 1}º</span>${ctx.modoPartido ? (cenario.eleitos ? `<span class="pc-sen-chip">${cenario.eleitos} eleito${cenario.eleitos > 1 ? "s" : ""}</span>` : "") : _resEtiqueta(cenario, cargo)}
           <span class="pc-dep-cnm" style="flex:1 1 140px;"><span class="pc-dep-cnm-txt">${cenTxt}</span></span>
           <span class="pc-tm-partido" style="max-width:none;">${nomePartidoExibicao(cenario.partido)} · ${(CARGOS.find((x) => x.id === cargo) || {}).label || ""}</span>
-          <span class="pc-cenario-dica">toque para trocar de candidato ${RES_IC_CHEV}</span>
+          <span class="pc-cenario-dica">toque para trocar de ${ctx.modoPartido ? "partido" : "candidato"} ${RES_IC_CHEV}</span>
         </div>
       </button>
       <div class="pc-dd-menu" style="min-width:260px;"><div style="padding:6px 8px;"><input class="cell" id="pcResCenBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCenLista" style="max-height:240px; overflow:auto;">${listaCand(cenario.sq)}</div></div>
@@ -889,7 +927,7 @@ async function _resRenderMapa(ctx) {
       document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(d.m.nome)}</span><span class="c">${_resChipPos(_resPosicao(cands, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${st.modo === "var" ? _resPctHtml(d.var) : _resPctTotal(d.v, cenario.total)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
     }
     document.querySelectorAll("#pcResMapaLista [data-mun]").forEach((el) => el.addEventListener("click", () => { st.munSel = st.munSel === el.dataset.mun ? null : el.dataset.mun; pintar(); }));
-    if (st.munSel) _resRenderMunDet(ctx, dados, cmp);
+    if (st.munSel && !ctx.modoPartido) _resRenderMunDet(ctx, dados, cmp);
   };
   svg.querySelectorAll("path").forEach((p) => p.addEventListener("click", () => { const d = dados[p.dataset.ibge]; if (!d) return; st.munSel = st.munSel === d.m.chave ? null : d.m.chave; pintar(); const s = document.querySelector("#pcResMapaLista .pc-lin.sel"); if (s) s.scrollIntoView({ block: "center", behavior: "smooth" }); }));
   corpo.querySelectorAll("[data-forma]").forEach((b) => b.addEventListener("click", () => {
@@ -902,8 +940,8 @@ async function _resRenderMapa(ctx) {
     if (id === "pcResModo") { st.modo = it.dataset.m; rot("pcResModo", st.modo === "var" ? `Var. ${RES_ANO_ANTERIOR}` : `${RES_ANO_APURADO}`); pintar(); }
     if (id === "pcResReg") { st.regiao = it.dataset.r || ""; st.assoc = it.dataset.a || ""; st.munSel = null; rot("pcResReg", st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado")); pintar(); }
     if (id === "pcResMapaOrd") { st.ordem = it.dataset.o; pintar(); }
-    if (id === "pcResCen") { st.cenario = it.dataset.sq; st.munSel = null; renderResultados(); }
-    if (id === "pcResCmp") { st.cmpSq = it.dataset.sq || null; st.munSel = null; renderResultados(); }
+    if (id === "pcResCen") { st.cenario = it.dataset.sq; st.munSel = null; (ctx.rerender || renderResultados)(); }
+    if (id === "pcResCmp") { st.cmpSq = it.dataset.sq || null; st.munSel = null; (ctx.rerender || renderResultados)(); }
   });
   const buscaCand = (inputId, listaId, aoEscolher) => {
     const cb = document.getElementById(inputId);
@@ -915,8 +953,8 @@ async function _resRenderMapa(ctx) {
       l.querySelectorAll(".pc-dd-it").forEach((it) => it.addEventListener("click", (e) => { e.stopPropagation(); aoEscolher(it.dataset.sq); }));
     });
   };
-  buscaCand("pcResCenBusca", "pcResCenLista", (sq) => { st.cenario = sq; st.munSel = null; renderResultados(); });
-  buscaCand("pcResCmpBusca", "pcResCmpLista", (sq) => { st.cmpSq = sq || null; st.munSel = null; renderResultados(); });
+  buscaCand("pcResCenBusca", "pcResCenLista", (sq) => { st.cenario = sq; st.munSel = null; (ctx.rerender || renderResultados)(); });
+  buscaCand("pcResCmpBusca", "pcResCmpLista", (sq) => { st.cmpSq = sq || null; st.munSel = null; (ctx.rerender || renderResultados)(); });
   pintar();
 }
 
