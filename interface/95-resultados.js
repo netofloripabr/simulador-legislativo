@@ -784,6 +784,7 @@ async function _resRenderMapa(ctx) {
       document.getElementById("pcResTotais").outerHTML = `<div class="pc-cmp-tot" id="pcResTotais">
         <div class="pc-cmp-box${leadA ? " lead" : ""}"><div class="nm">${cenario.nomeUrna}</div><div class="vv${leadA ? " venceu" : ""}">${_resFmt(tot)}</div><div class="pc">${nomePartidoExibicao(cenario.partido)}${leadA ? " · lidera" : ""}</div></div>
         <div class="pc-cmp-box${!leadA ? " lead" : ""}"><div class="nm">${cmp.nomeUrna}</div><div class="vv${!leadA ? " venceu" : ""}">${_resFmt(totC)}</div><div class="pc">${nomePartidoExibicao(cmp.partido)}${!leadA ? " · lidera" : ""}</div></div>
+        <div class="pc-cmp-dif">Diferença · ${st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado")}<b>${(leadA ? cenario : cmp).nomeUrna} +${_resFmt(Math.abs(tot - totC))}</b></div>
       </div>`;
       // Os nomes dos candidatos aparecem uma vez só, no cabeçalho (pedido de
       // 22/09/2026: repetir o nome embaixo de cada voto poluía a lista); as

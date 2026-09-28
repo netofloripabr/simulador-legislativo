@@ -3287,3 +3287,6 @@
 #modoColaborativoWrap .pc-acerto span{ font-size:9px; font-weight:700; color:#DDE0E2; margin-left:2px; }
 
 #modoColaborativoWrap .pc-cand-lin .pos{ font-size:10.5px; font-weight:600; color:#8A9096; text-align:right; font-variant-numeric:tabular-nums; }
+/* Diferença total na comparação (acompanha o filtro de região). */
+#modoColaborativoWrap .pc-cmp-dif{ grid-column:1 / 3; display:flex; justify-content:space-between; align-items:center; padding:9px 12px; border-radius:12px; border:1px solid rgba(242,244,245,.10); background:rgba(242,244,245,.03); font-size:10.5px; font-weight:600; color:#8A9096; }
+#modoColaborativoWrap .pc-cmp-dif b{ font-size:13px; font-weight:800; color:#34E84A; font-variant-numeric:tabular-nums; }
