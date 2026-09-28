@@ -764,7 +764,9 @@ async function _resRenderMapa(ctx) {
     const primeiroNome = (nm) => (nm || "").split(" ")[0];
     const L = cmp ? [`${primeiroNome(cmp.nomeUrna)} venceu`, "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", `${primeiroNome(cenario.nomeUrna)} venceu`]
       : st.modo === "var" ? ["perdeu (−50%)", "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", "ganhou (+50%)"] : ["menos votos", "linear-gradient(90deg,#15191E,#34E84A)", "mais votos"];
-    document.getElementById("pcResLegA").textContent = L[0]; const lb = document.getElementById("pcResLegBar"); lb.style.background = bolhas ? "none" : L[1]; lb.innerHTML = bolhas ? `<span class="pc-leg-bol" style="width:5px;height:5px;"></span><span class="pc-leg-bol" style="width:9px;height:9px;"></span><span class="pc-leg-bol" style="width:15px;height:15px;"></span>${(cmp || st.modo === "var") ? `<span class="pc-leg-bol neg" style="width:9px;height:9px;margin-left:8px;"></span>` : ""}` : ""; document.getElementById("pcResLegB").textContent = L[2];
+    document.getElementById("pcResLegA").textContent = L[0]; const lb = document.getElementById("pcResLegBar"); lb.style.background = bolhas ? "none" : L[1]; lb.innerHTML = !bolhas ? "" : (cmp || st.modo === "var")
+      ? `<span class="pc-leg-bol neg" style="width:13px;height:13px;"></span><span class="pc-leg-bol neg" style="width:7px;height:7px;"></span><span style="display:inline-block;width:10px;"></span><span class="pc-leg-bol" style="width:7px;height:7px;"></span><span class="pc-leg-bol" style="width:13px;height:13px;"></span>`
+      : `<span class="pc-leg-bol" style="width:5px;height:5px;"></span><span class="pc-leg-bol" style="width:9px;height:9px;"></span><span class="pc-leg-bol" style="width:15px;height:15px;"></span>`; document.getElementById("pcResLegB").textContent = L[2];
     const lista = Object.values(dados).filter(dentro);
     const key = cmp ? "v" : st.modo === "var" ? "var" : "v";
     lista.sort((x, y) => (st.ordem === "desc" ? 1 : -1) * (((y[key] === null ? -1e9 : y[key])) - ((x[key] === null ? -1e9 : x[key]))));
