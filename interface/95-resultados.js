@@ -652,7 +652,7 @@ function _resRenderCandidatos(ctx) {
         <span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span>
         <span class="voto">${vazio ? "—" : _resFmt(num)}${pont && pont.porChave[_resNorm(c.nomeUrna)] ? (() => { const x = pont.porChave[_resNorm(c.nomeUrna)]; return `<i class="pc-acerto"><b class="${x.e ? "on" : ""}" title="acerto de eleição">E</b><b class="${x.alvo >= 5 ? "on" : ""}" title="proximidade dos votos">${Math.round(x.prox * 100)}%</b><b class="${x.posicao ? "on" : ""}" title="colocação no partido">P</b><span>${x.pts.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} pts</span></i>`; })() : ""}</span>
       </div>
-      ${aberta ? `<div class="pc-cand-fav"><button type="button" class="pc-fav${favs.has(c.sq) ? " on" : ""}" data-res-fav="${c.sq}">${RES_IC_ESTRELA}<span>${favs.has(c.sq) ? "Favorito" : "Favoritar"}</span></button></div><div id="pcResFicha"></div>` : ""}
+      ${aberta ? `<div id="pcResFicha"></div>` : ""}
     </div>`;
   };
 
@@ -698,7 +698,7 @@ async function _resRenderFicha(ctx) {
     <span class="${st.fichaAba === "mun" ? "on" : ""}" data-fa="mun">Municípios</span>
     <span class="${st.fichaAba === "sec" ? "on" : ""}" data-fa="sec">Locais${st.fichaMun ? ` · ${(pcState._resCache[`${RES_ANO_APURADO}/municipios`] || { municipios: {} }).municipios[st.fichaMun]?.nome || st.fichaMun}` : ""}</span>
     <span class="${st.fichaAba === "hist" ? "on" : ""}" data-fa="hist">Histórico</span>
-    <span style="margin-left:auto; padding:4px 0;">${_resDropdown("pcResFichaOrd", "", "", `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 130, titulo: "Ordenar" })}</span>
+    <span style="margin-left:auto; padding:4px 0; display:flex; gap:6px; align-items:center;"><button type="button" class="pc-dd-btn ico${_resFavoritos().has(c.sq) ? " on" : ""}" data-ficha-fav="${c.sq}" title="${_resFavoritos().has(c.sq) ? "Remover dos favoritos" : "Favoritar"}" style="${_resFavoritos().has(c.sq) ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>${_resDropdown("pcResFichaOrd", "", "", `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 130, titulo: "Ordenar" })}</span>
   </div>`;
   let corpo = "";
   // Ano mais recente à direita, junto do Δ (pedido de 22/09/2026).
@@ -735,6 +735,7 @@ async function _resRenderFicha(ctx) {
     _resRenderMunDet({ ...ctx, st: fd, cenario: c }, { x: { m: { chave: st.fichaMun, nome: _resNomeMun(nome) } } }, null);
   }
   alvo.querySelectorAll("[data-fa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.fichaAba = x.dataset.fa; _resRenderFicha(ctx); }));
+  alvo.querySelectorAll("[data-ficha-fav]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); _resToggleFav(b.dataset.fichaFav); ctx.favs = _resFavoritos(); const on = ctx.favs.has(b.dataset.fichaFav); b.classList.toggle("on", on); b.style.color = on ? "#C6E62A" : ""; b.style.borderColor = on ? "rgba(198,230,42,.5)" : ""; b.title = on ? "Remover dos favoritos" : "Favoritar"; }));
   alvo.querySelectorAll("[data-fmun]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.fichaMun = x.dataset.fmun; st.fichaAba = "sec"; _resRenderFicha(ctx); }));
   _resLigarDropdowns(alvo, (id, it) => { if (id === "pcResFichaOrd") { st.fichaOrdem = it.dataset.o; _resRenderFicha(ctx); } });
   alvo.addEventListener("click", (e) => e.stopPropagation());
