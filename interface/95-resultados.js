@@ -349,7 +349,7 @@ function _resRenderPartidos(ctx) {
         ${t("QE", R.qe ? _resFmt(R.qe) : "—")}${t("QP", sel.qp === null ? "—" : sel.qp.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}${t("diretas", sel.diretas, "", "#34E84A")}${t("sobras", sel.sobras, "", "var(--pc-warning)")}
       </div>
       <div class="pc-dep-card pc-cand-lista" style="padding:0 12px;">
-        ${cs.map((c) => `<div class="pc-cand-lin"><div class="pc-dep-cl1" style="cursor:default;">${_resEtiqueta(c, cargo)}<span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span><span class="voto">${_resFmt(c.total)}</span></div></div>`).join("")}
+        ${cs.map((c, i) => `<div class="pc-cand-lin"><div class="pc-dep-cl1" style="cursor:default;"><span class="pos">${i + 1}º</span>${_resEtiqueta(c, cargo)}<span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span><span class="voto">${_resFmt(c.total)}</span></div></div>`).join("")}
       </div>`;
   }
   document.getElementById("pcResPartVoltar").addEventListener("click", () => { if (st.partidoSel) st.partidoSel = null; else st.ferr = null; _resRenderFerramentas(ctx); });
@@ -557,6 +557,9 @@ function _resRenderCandidatos(ctx) {
     pont = pontuarCedulaCargo(previstos, oficiais, ctx.totalVagas);
     pont.porChave = Object.fromEntries(pont.detalhe.map((x) => [x.chave, x]));
   }
+  // Posição na lista geral do cargo (pela votação apurada), a mesma com
+  // busca/filtro/ordem ativos — pedido de 28/09/2026.
+  const posGeral = new Map([...cands].sort((a, b) => b.total - a.total).map((c, i) => [c.sq, i + 1]));
   const marcouDe = (c) => { const p = meu.get(_resNorm(c.nomeUrna)) || meu.get(_resNorm(c.nome)); return p && p.marcado; };
   const linha = (c) => {
     const aberta = st.fichaSq === c.sq;
@@ -568,6 +571,7 @@ function _resRenderCandidatos(ctx) {
     return `
     <div class="pc-cand-lin${aberta ? " res-aberta" : ""}${fonte !== "apurado" ? " alt" : ""}" data-res-cand="${c.sq}">
       <div class="pc-dep-cl1">
+        <span class="pos">${posGeral.get(c.sq)}º</span>
         ${_resEtiqueta(c, cargo)}
         <span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span>
         <span class="voto">${vazio ? "—" : _resFmt(num)}${pont && pont.porChave[_resNorm(c.nomeUrna)] ? (() => { const x = pont.porChave[_resNorm(c.nomeUrna)]; return `<i class="pc-acerto"><b class="${x.e ? "on" : ""}" title="acerto de eleição">E</b><b class="${x.alvo >= 5 ? "on" : ""}" title="proximidade dos votos">${Math.round(x.prox * 100)}%</b><b class="${x.posicao ? "on" : ""}" title="colocação no partido">P</b><span>${x.pts.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} pts</span></i>`; })() : ""}</span>

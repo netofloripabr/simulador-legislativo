@@ -3193,7 +3193,7 @@
    candidato — etiqueta · PARTIDO — Nome · votação. */
 #modoColaborativoWrap .pc-cand-lin{ border-top:1px solid rgba(242,244,245,.07); }
 #modoColaborativoWrap .pc-cand-lin:first-of-type{ border-top:none; }
-#modoColaborativoWrap .pc-cand-lin .pc-dep-cl1{ display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:8px; align-items:center; padding:10px 0; cursor:pointer; }
+#modoColaborativoWrap .pc-cand-lin .pc-dep-cl1{ display:grid; grid-template-columns:26px auto minmax(0,1fr) auto; gap:8px; align-items:center; padding:10px 0; cursor:pointer; }
 #modoColaborativoWrap .pc-cand-lin .pc-sen-chip{ justify-self:start; white-space:nowrap; }
 #modoColaborativoWrap .pc-cand-lin .nome{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
 #modoColaborativoWrap .pc-cand-lin .nome b{ font-weight:700; color:#F2F4F5; }
@@ -3285,3 +3285,5 @@
 #modoColaborativoWrap .pc-acerto b{ font-size:8px; font-weight:800; padding:1px 4px; border-radius:4px; background:#2C3239; color:#6B7178; }
 #modoColaborativoWrap .pc-acerto b.on{ background:#34E84A; color:#07230C; }
 #modoColaborativoWrap .pc-acerto span{ font-size:9px; font-weight:700; color:#DDE0E2; margin-left:2px; }
+
+#modoColaborativoWrap .pc-cand-lin .pos{ font-size:10.5px; font-weight:600; color:#8A9096; text-align:right; font-variant-numeric:tabular-nums; }
