@@ -411,6 +411,82 @@ function _resSomaP(lista) {
   lista.forEach((p) => p && p.forEach((v, j) => { t[j] += v; }));
   return t;
 }
+
+// Documento impresso da Apuração — MESMO padrão do palpite (fundo branco,
+// marca d'água, cabeçalho SimulaLEGIS, classes .di-*), pedido de 28/09/2026
+// depois do PDF da tela escura sair desconfigurado. Mapa redesenhado pra
+// papel: malha em cinza médio com traço fino e fundo vazado; bolhas com
+// transparência pra ver sobreposição.
+function _resDocImpresso(st, cargo, cands) {
+  const agora = new Date();
+  const dataTxt = agora.toLocaleDateString("pt-BR"), horaTxt = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const cargoLbl = (CARGOS.find((c) => c.id === cargo) || {}).label || "";
+  const esc = (t) => String(t == null ? "" : t).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+  const pct = (v, b) => b ? (v / b * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : "—";
+  const chip = (c) => { const e = _resEtiqueta(c, cargo); const t = e.replace(/<[^>]+>/g, ""); const cls = /class="pc-sen-chip em/.test(e) ? " di-chip-em" : /neutro/.test(e) ? (t === "S" ? " di-chip-s" : " di-chip-f") : ""; return `<span class="di-chip${cls}">${t}</span>`; };
+  let corpo = "", titulo = "", sub = "";
+  const I = st._imp;
+  if (st.aba === "mapa" && I) {
+    const { cenario, cmp, lista } = I;
+    titulo = cmp ? `${esc(cenario.nomeUrna)} × ${esc(cmp.nomeUrna)}` : esc(cenario.nomeUrna);
+    sub = `${cargoLbl} · ${st.anoApurado} · região: ${esc(I.regiao)} · ${cmp ? "comparação" : I.modo === "var" ? `variação vs ${st.anoAnterior}` : "votos"} · mapa em ${I.bolhas ? "bolhas" : "cores"}`;
+    // mapa pra papel
+    const svg = document.getElementById("pcResMapaSvg");
+    let mapa = "";
+    if (svg) {
+      const cl = svg.cloneNode(true);
+      cl.removeAttribute("id"); cl.removeAttribute("class"); cl.setAttribute("class", "di-mapa");
+      const mix = (c1, c2, t) => { const q = (x, i) => parseInt(x.slice(i, i + 2), 16); const f = (i) => Math.round(q(c1, i) + (q(c2, i) - q(c1, i)) * t); return `rgb(${f(1)},${f(3)},${f(5)})`; };
+      const vals = Object.values(I.dados).filter(I.dentro).map((d) => d.v);
+      const maxV = Math.max(1, ...vals);
+      cl.querySelectorAll("path").forEach((p) => {
+        const d = I.dados[p.dataset.ibge]; p.removeAttribute("style"); p.removeAttribute("class");
+        let fill = "none";
+        if (!I.bolhas && d && I.dentro(d)) {
+          if (cmp) { const t = (d.v + d.vc) ? Math.max(-1, Math.min(1, (d.v - d.vc) / Math.max(1, (d.v + d.vc) * 0.6))) : 0; fill = t >= 0 ? mix("#FFFFFF", "#1FA83A", t) : mix("#FFFFFF", "#D9482F", -t); }
+          else if (I.modo === "var") { const t = d.var === null ? 0 : Math.max(-1, Math.min(1, d.var / 50)); fill = t >= 0 ? mix("#FFFFFF", "#1FA83A", t) : mix("#FFFFFF", "#D9482F", -t); }
+          else { const t = Math.pow(Math.log(1 + d.v) / Math.log(1 + maxV), 1.5); fill = mix("#FFFFFF", "#1FA83A", t); }
+        }
+        p.setAttribute("fill", fill); p.setAttribute("stroke", d && I.dentro(d) ? "#8A9096" : "#C9CDD1"); p.setAttribute("stroke-width", "0.6");
+      });
+      cl.querySelectorAll("#pcResBolhas circle").forEach((c) => { const neg = c.classList.contains("neg"); c.removeAttribute("class"); c.setAttribute("fill", neg ? "#D9482F" : "#1FA83A"); c.setAttribute("fill-opacity", "0.28"); c.setAttribute("stroke", neg ? "#B23A24" : "#178A2F"); c.setAttribute("stroke-width", "1"); c.setAttribute("stroke-opacity", "0.85"); });
+      const g = cl.querySelector("#pcResBolhas"); if (g) g.removeAttribute("id");
+      mapa = cl.outerHTML;
+    }
+    const n1 = (nm) => esc((nm || "").split(" ")[0]);
+    const leg = cmp ? `<span><i style="background:#D9482F"></i>${n1(cmp.nomeUrna)} venceu</span><span><i style="background:#1FA83A"></i>${n1(cenario.nomeUrna)} venceu</span><span>${I.bolhas ? "tamanho da bolha = diferença de votos" : "cor mais forte = diferença maior"}</span>`
+      : I.modo === "var" ? `<span><i style="background:#1FA83A"></i>ganhou votos</span><span><i style="background:#D9482F"></i>perdeu votos</span>` : `<span><i style="background:#1FA83A"></i>${I.bolhas ? "tamanho da bolha = votos" : "cor mais forte = mais votos"}</span>`;
+    const resumo = cmp
+      ? `<div class="di-rres"><div><b>${_resFmt(I.tot)}</b>${esc(cenario.nomeUrna)} · ${esc(cenario.partido)}</div><div><b>${_resFmt(I.totC)}</b>${esc(cmp.nomeUrna)} · ${esc(cmp.partido)}</div><div><b>${(I.tot >= I.totC ? "+" : "−")}${_resFmt(Math.abs(I.tot - I.totC))}</b>diferença · ${esc(I.regiao)} · ${esc(I.tot >= I.totC ? cenario.nomeUrna : cmp.nomeUrna)} à frente</div></div>`
+      : `<div class="di-rres"><div><b>${_resFmt(I.tot)}</b>votos em ${esc(I.regiao)} (${pct(I.tot, cenario.total)} do total)</div><div><b>${I.tot0 === null ? "—" : _resFmt(I.tot0)}</b>votos em ${st.anoAnterior}</div><div><b>${_resFmt(cenario.total)}</b>total no estado</div></div>`;
+    const cab = cmp ? `<div class="di-rlin di-rcab"><span></span><span>Município</span><span>${n1(cmp.nomeUrna)}</span><span>${n1(cenario.nomeUrna)}</span><span>Dif.</span></div>`
+      : `<div class="di-rlin di-rcab"><span></span><span>Município</span><span>Pos.</span><span>Votos</span><span>${I.modo === "var" ? "Δ " + st.anoAnterior : "%"}</span></div>`;
+    const linhas = lista.filter((d) => cmp ? (d.v || d.vc) : d.v).map((d, i) => cmp
+      ? `<div class="di-rlin"><span>${i + 1}º</span><span>${esc(_resNomeMun(d.m.nome))}</span><span class="${d.vc > d.v ? "di-rv" : ""}">${_resFmt(d.vc)}</span><span class="${d.v >= d.vc ? "di-rv" : ""}">${_resFmt(d.v)}</span><span>${d.v - d.vc >= 0 ? "+" : "−"}${_resFmt(Math.abs(d.v - d.vc))}</span></div>`
+      : `<div class="di-rlin"><span>${i + 1}º</span><span>${esc(_resNomeMun(d.m.nome))}</span><span>${_resPosicao(cands, d.m.chave, d.v, (c, k) => c.municipios[k]) || "—"}º</span><span>${_resFmt(d.v)}</span><span>${I.modo === "var" ? (d.var === null ? "—" : (d.var >= 0 ? "+" : "") + d.var.toFixed(1).replace(".", ",") + "%") : pct(d.v, cenario.total)}</span></div>`).join("");
+    corpo = `${resumo}<div class="di-rmapa">${mapa}<div class="di-rleg">${leg}</div></div>${cab}${linhas}`;
+  } else {
+    titulo = `${cargoLbl} — apuração ${st.anoApurado}`;
+    sub = `Santa Catarina · resultado oficial (TSE) · ${cands.length} candidatos`;
+    const pos = new Map([...cands].sort((a, b) => b.total - a.total).map((c, i) => [c.sq, i + 1]));
+    corpo = `<div class="di-rlin di-rcab di-rcand"><span></span><span></span><span>Candidato</span><span>Votos</span></div>` +
+      [...cands].sort((a, b) => b.total - a.total).map((c) => `<div class="di-rlin di-rcand"><span>${pos.get(c.sq)}º</span>${chip(c)}<span><b>${esc(c.nomeUrna)}</b> <i>${esc(nomePartidoExibicao(c.partido))}</i></span><span>${_resFmt(c.total)}</span></div>`).join("");
+  }
+  return `
+    <div class="di-agua"><span><b>Simula</b>LEGIS</span></div>
+    <div class="di-conteudo">
+      <div class="di-cab">
+        <div class="di-marca"><div class="di-wm"><b>Simula</b><span>LEGIS</span></div><div class="di-wmsub">Simulador Eleitoral Legislativo 2026</div></div>
+        <div class="di-meta"><b>Santa Catarina</b> · Apuração ${st.anoApurado}<br>gerado em ${dataTxt} · ${horaTxt}</div>
+      </div>
+      <div class="di-regra"></div>
+      <div class="di-tit">${titulo}</div>
+      <div class="di-sub">${sub}</div>
+      ${corpo}
+      <div class="di-sub" style="margin-top:12px;">Dados oficiais do TSE. Jogo de palpites entre participantes — não é pesquisa eleitoral.</div>
+      <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dataTxt} ${horaTxt}</span></div>
+    </div>`;
+}
 // ---------- tela ----------
 async function renderResultados() {
   const conteudo = document.getElementById("pcConteudo");
@@ -510,12 +586,10 @@ async function renderResultados() {
     window.scrollTo(0, 0);
   });
   document.getElementById("pcResImprimir").addEventListener("click", () => {
-    const raiz = document.documentElement;
-    raiz.classList.add("pc-print-tela");
-    const limpar = () => { raiz.classList.remove("pc-print-tela"); window.removeEventListener("afterprint", limpar); };
-    window.addEventListener("afterprint", limpar);
-    setTimeout(() => window.print(), 50);
-    setTimeout(limpar, 60000);
+    let container = document.getElementById("pcImpressaoConteudo");
+    if (!container) { container = document.createElement("div"); container.id = "pcImpressaoConteudo"; document.body.appendChild(container); }
+    container.innerHTML = _resDocImpresso(st, cargo, cands);
+    window.print();
   });
   const tg = document.getElementById("pcResPlenToggle");
   tg.addEventListener("click", () => {
@@ -777,6 +851,9 @@ async function _resRenderMapa(ctx) {
     lista.sort((x, y) => (st.ordem === "desc" ? 1 : -1) * (((y[key] === null ? -1e9 : y[key])) - ((x[key] === null ? -1e9 : x[key]))));
     const tot = lista.reduce((s, d) => s + d.v, 0), tot0 = a ? lista.reduce((s, d) => s + (d.v0 || 0), 0) : null;
     document.getElementById("pcResOrdTit").textContent = "Municípios · " + (st.assoc || st.regiao || "todo o estado");
+    // Estado do mapa pra impressão (documento no padrão do palpite, 28/09/2026)
+    st._imp = { tipo: "mapa", cenario, cmp, lista, tot, totC: cmp ? lista.reduce((x, d) => x + d.vc, 0) : null, tot0,
+      regiao: st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado"), modo: st.modo, bolhas: st.mapaForma === "bolhas", dados, dentro };
     if (cmp) {
       // Totais lado a lado (pedido de 22/09/2026): quem lidera ganha borda verde.
       const totC = lista.reduce((s, d) => s + d.vc, 0);
