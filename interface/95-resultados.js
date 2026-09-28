@@ -615,7 +615,7 @@ async function _resRenderFicha(ctx) {
   const ordem = st.fichaOrdem || "desc";
   const abas = `<div class="pc-sub-abas" style="margin:12px 0 4px;">
     <span class="${st.fichaAba === "mun" ? "on" : ""}" data-fa="mun">Municípios</span>
-    <span class="${st.fichaAba === "sec" ? "on" : ""}" data-fa="sec">Seções${st.fichaMun ? ` · ${(pcState._resCache[`${RES_ANO_APURADO}/municipios`] || { municipios: {} }).municipios[st.fichaMun]?.nome || st.fichaMun}` : ""}</span>
+    <span class="${st.fichaAba === "sec" ? "on" : ""}" data-fa="sec">Locais${st.fichaMun ? ` · ${(pcState._resCache[`${RES_ANO_APURADO}/municipios`] || { municipios: {} }).municipios[st.fichaMun]?.nome || st.fichaMun}` : ""}</span>
     <span class="${st.fichaAba === "hist" ? "on" : ""}" data-fa="hist">Histórico</span>
     <span style="margin-left:auto; padding:4px 0;">${_resDropdown("pcResFichaOrd", "", "", `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 130, titulo: "Ordenar" })}</span>
   </div>`;
@@ -629,18 +629,10 @@ async function _resRenderFicha(ctx) {
     linhas.sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
     corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Município</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + linhas.slice(0, 40).map((l, i) => `<div class="pc-lin pc-lin-pos clic" data-fmun="${l.k}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(l.nome)}</span><span class="c">${_resChipPos(_resPosicao(cands, l.k, l.v, (x, k) => x.municipios[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, c.total)}</span></div>`).join("") + (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} municípios (use a busca do mapa)</div>` : "");
   } else if (st.fichaAba === "sec") {
-    if (!st.fichaMun) {
-      corpo = `<div class="pc-sub" style="padding:8px 0;">Toque num município na aba "Municípios" pra ver as seções dele.</div>`;
-    } else {
-      const sec = await _resCarregarSecoes(st.fichaMun);
-      const d = sec && sec[cargo] && sec[cargo][c.numero];
-      if (!d) corpo = `<div class="pc-sub" style="padding:8px 0;">Sem dado por seção pra este município.</div>`;
-      else {
-        const linhas = Object.entries(d).map(([k, v]) => { const [z, s] = k.split("::"); return { z, s, v }; }).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
-        const loc = sec._secoes || {}; const todos = Object.values(sec[cargo] || {});
-        corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Seção</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + linhas.slice(0, 60).map((l) => `<div class="pc-lin pc-lin-pos"><span></span><span class="n">Seção ${l.s}<i class="pc-loc-sub">${l.z}ª zona${loc[`${l.z}::${l.s}`] ? " · " + loc[`${l.z}::${l.s}`] : ""}</i></span><span class="c">${_resChipPos(_resPosicao(todos, `${l.z}::${l.s}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, c.total)}</span></div>`).join("") + (linhas.length > 60 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 60} seções</div>` : "");
-      }
-    }
+    // Mesma navegação do mapa (Zonas · Bairros · Locais · Seções), pedido
+    // de 28/09/2026 — reaproveita _resRenderMunDet com um estado próprio da
+    // ficha, pra não mexer no município aberto no mapa.
+    corpo = st.fichaMun ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : `<div class="pc-sub" style="padding:8px 0;">Toque num município na aba "Municípios" pra ver zonas, bairros, colégios e seções.</div>`;
   } else {
     const hist = [];
     for (const ano of RES_ANOS_HISTORICO) {
@@ -652,6 +644,15 @@ async function _resRenderFicha(ctx) {
     corpo = hist.map((h) => `<div style="display:grid; grid-template-columns:44px 1fr 76px 110px; gap:8px; align-items:center; padding:9px 0; border-top:1px solid #23262A; font-size:12px;"><b>${h.ano}</b><div style="height:6px; border-radius:999px; background:rgba(242,244,245,.08); overflow:hidden;"><div style="width:${h.c ? h.c.total / max * 100 : 0}%; height:100%; background:${h.ano === RES_ANO_APURADO ? "#34E84A" : "#6B7178"};"></div></div><span style="text-align:right; font-variant-numeric:tabular-nums;">${h.c ? _resFmt(h.c.total) : "—"}</span><span style="text-align:right; color:#8A9096;">${h.c ? (h.c.situacao || "").toLowerCase() : "não concorreu"}</span></div>`).join("");
   }
   alvo.innerHTML = abas + corpo;
+  if (st.fichaAba === "sec" && st.fichaMun) {
+    const muns = await _resCarregar(RES_ANO_APURADO, "municipios");
+    const nome = (muns && muns.municipios[st.fichaMun] && muns.municipios[st.fichaMun].nome) || st.fichaMun;
+    st._fichaDet = st._fichaDet || {};
+    const fd = st._fichaDet;
+    if (fd.munSel !== st.fichaMun) { fd.munSel = st.fichaMun; fd.munAba = "bairros"; fd.munFiltro = null; }
+    fd.semHist = true; if (fd.munAba === "hist") fd.munAba = "bairros";
+    _resRenderMunDet({ ...ctx, st: fd, cenario: c }, { x: { m: { chave: st.fichaMun, nome: _resNomeMun(nome) } } }, null);
+  }
   alvo.querySelectorAll("[data-fa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.fichaAba = x.dataset.fa; _resRenderFicha(ctx); }));
   alvo.querySelectorAll("[data-fmun]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.fichaMun = x.dataset.fmun; st.fichaAba = "sec"; _resRenderFicha(ctx); }));
   _resLigarDropdowns(alvo, (id, it) => { if (id === "pcResFichaOrd") { st.fichaOrdem = it.dataset.o; _resRenderFicha(ctx); } });
@@ -713,7 +714,7 @@ async function _resRenderMapa(ctx) {
       ${cmp ? "" : _resDropdown("pcResModo", "Modo", st.modo === "var" ? `Var. ${RES_ANO_ANTERIOR}` : `${RES_ANO_APURADO}`, `<div class="pc-dd-grp">Votos de ${cenario.nomeUrna}</div><div class="pc-dd-it${st.modo === "votos" ? " on" : ""}" data-m="votos">Votos ${RES_ANO_APURADO}</div><div class="pc-dd-it${st.modo === "var" ? " on" : ""}" data-m="var">Variação vs ${RES_ANO_ANTERIOR} (ganhou / perdeu)</div>`, { largura: 230 })}
       ${_resDropdown("pcResCmp", "Comparar", cmp ? cmp.nomeUrna : "ninguém", `<div class="pc-dd-it${!cmp ? " on" : ""}" data-sq="">Sem comparação</div><div style="padding:6px 8px;"><input class="cell" id="pcResCmpBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCmpLista" style="max-height:240px; overflow:auto;">${listaCand(st.cmpSq)}</div>`, { largura: 260, direita: true })}
     </div>
-    <div class="glass-card" style="padding:10px;">${pcState._resGeoSvg}
+    <div class="glass-card pc-mapa-card" style="padding:10px;"><div class="pc-mapa-forma"><button type="button" data-forma="cores" class="${st.mapaForma !== "bolhas" ? "on" : ""}">Cores</button><button type="button" data-forma="bolhas" class="${st.mapaForma === "bolhas" ? "on" : ""}">Bolhas</button></div>${pcState._resGeoSvg}
       <div class="pc-legmapa"><span id="pcResLegA"></span><i id="pcResLegBar"></i><span id="pcResLegB"></span></div>
     </div>
     <div class="pc-dep-tiles" id="pcResTotais" style="margin-top:10px;"></div>
@@ -738,11 +739,32 @@ async function _resRenderMapa(ctx) {
   };
   const svg = document.getElementById("pcResMapaSvg");
   const pintar = () => {
-    svg.querySelectorAll("path").forEach((p) => { const d = dados[p.dataset.ibge]; if (!d) return; p.style.fill = cor(d); p.classList.toggle("fora", !dentro(d)); p.classList.toggle("sel", st.munSel === d.m.chave); });
+    // Formato "Bolhas" (pedido de 28/09/2026): círculo no centro de cada
+    // município, área proporcional aos votos (ou à diferença, nos modos de
+    // variação/comparação). Malha fica escura, só contorno.
+    const bolhas = st.mapaForma === "bolhas";
+    svg.classList.toggle("bolhas", bolhas);
+    svg.querySelectorAll("path").forEach((p) => { const d = dados[p.dataset.ibge]; if (!d) return; p.style.fill = bolhas ? "" : cor(d); p.classList.toggle("fora", !dentro(d)); p.classList.toggle("sel", st.munSel === d.m.chave); });
+    const gAnt = svg.querySelector("#pcResBolhas");
+    if (gAnt) gAnt.remove();
+    if (bolhas) {
+      if (!pcState._resCentros) { pcState._resCentros = {}; svg.querySelectorAll("path").forEach((p) => { const b = p.getBBox(); pcState._resCentros[p.dataset.ibge] = [b.x + b.width / 2, b.y + b.height / 2]; }); }
+      const val = (d) => cmp ? d.v - d.vc : st.modo === "var" ? (d.v0 === null ? 0 : d.v - d.v0) : d.v;
+      const vis = Object.entries(dados).filter(([, d]) => dentro(d));
+      const maxAbs = Math.max(1, ...vis.map(([, d]) => Math.abs(val(d))));
+      const circ = vis.map(([ib, d]) => {
+        const v = val(d); if (!v) return null;
+        const c = pcState._resCentros[ib]; if (!c) return null;
+        const r = Math.max(1.6, 30 * Math.sqrt(Math.abs(v) / maxAbs));
+        return { r, html: `<circle cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" r="${r.toFixed(1)}" data-ibge="${ib}" class="${v < 0 ? "neg" : ""}${st.munSel === d.m.chave ? " sel" : ""}"></circle>` };
+      }).filter(Boolean).sort((a, b) => b.r - a.r);
+      svg.insertAdjacentHTML("beforeend", `<g id="pcResBolhas">${circ.map((x) => x.html).join("")}</g>`);
+      svg.querySelectorAll("#pcResBolhas circle").forEach((ci) => ci.addEventListener("click", () => { const d = dados[ci.dataset.ibge]; st.munSel = st.munSel === d.m.chave ? null : d.m.chave; pintar(); const s2 = document.querySelector("#pcResMapaLista .sel"); if (s2) s2.scrollIntoView({ block: "center", behavior: "smooth" }); }));
+    }
     const primeiroNome = (nm) => (nm || "").split(" ")[0];
     const L = cmp ? [`${primeiroNome(cmp.nomeUrna)} venceu`, "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", `${primeiroNome(cenario.nomeUrna)} venceu`]
       : st.modo === "var" ? ["perdeu (−50%)", "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", "ganhou (+50%)"] : ["menos votos", "linear-gradient(90deg,#15191E,#34E84A)", "mais votos"];
-    document.getElementById("pcResLegA").textContent = L[0]; document.getElementById("pcResLegBar").style.background = L[1]; document.getElementById("pcResLegB").textContent = L[2];
+    document.getElementById("pcResLegA").textContent = L[0]; const lb = document.getElementById("pcResLegBar"); lb.style.background = bolhas ? "none" : L[1]; lb.innerHTML = bolhas ? `<span class="pc-leg-bol" style="width:5px;height:5px;"></span><span class="pc-leg-bol" style="width:9px;height:9px;"></span><span class="pc-leg-bol" style="width:15px;height:15px;"></span>${(cmp || st.modo === "var") ? `<span class="pc-leg-bol neg" style="width:9px;height:9px;margin-left:8px;"></span>` : ""}` : ""; document.getElementById("pcResLegB").textContent = L[2];
     const lista = Object.values(dados).filter(dentro);
     const key = cmp ? "v" : st.modo === "var" ? "var" : "v";
     lista.sort((x, y) => (st.ordem === "desc" ? 1 : -1) * (((y[key] === null ? -1e9 : y[key])) - ((x[key] === null ? -1e9 : x[key]))));
@@ -782,6 +804,11 @@ async function _resRenderMapa(ctx) {
     if (st.munSel) _resRenderMunDet(ctx, dados, cmp);
   };
   svg.querySelectorAll("path").forEach((p) => p.addEventListener("click", () => { const d = dados[p.dataset.ibge]; if (!d) return; st.munSel = st.munSel === d.m.chave ? null : d.m.chave; pintar(); const s = document.querySelector("#pcResMapaLista .pc-lin.sel"); if (s) s.scrollIntoView({ block: "center", behavior: "smooth" }); }));
+  corpo.querySelectorAll("[data-forma]").forEach((b) => b.addEventListener("click", () => {
+    st.mapaForma = b.dataset.forma;
+    corpo.querySelectorAll("[data-forma]").forEach((x) => x.classList.toggle("on", x === b));
+    pintar();
+  }));
   _resLigarDropdowns(corpo, (id, it) => {
     const rot = (dd, t) => { const e = document.querySelector(`#${dd} [data-dd-txt]`); if (e) e.textContent = t; };
     if (id === "pcResModo") { st.modo = it.dataset.m; rot("pcResModo", st.modo === "var" ? `Var. ${RES_ANO_ANTERIOR}` : `${RES_ANO_APURADO}`); pintar(); }
@@ -819,7 +846,7 @@ async function _resRenderMunDet(ctx, dados, cmp) {
   if (!st.munFiltro || st.munFiltro.muni !== chave) st.munFiltro = { muni: chave };
   const F = st.munFiltro;
   if (cmp && (st.munAba === "bairros" || st.munAba === "locais")) st.munAba = "zonas";
-  const abas = `<div class="pc-sub-abas" style="margin:6px 0 4px;"><span class="${st.munAba === "zonas" ? "on" : ""}" data-ma="zonas">Zonas</span>${cmp ? "" : `<span class="${st.munAba === "bairros" ? "on" : ""}" data-ma="bairros">Bairros</span><span class="${st.munAba === "locais" ? "on" : ""}" data-ma="locais">Locais</span>`}<span class="${st.munAba === "secoes" ? "on" : ""}" data-ma="secoes">Seções</span><span class="${cmp ? "" : (st.munAba === "hist" ? "on" : "")}" data-ma="hist" ${cmp ? "hidden" : ""}>Histórico</span><span style="margin-left:auto; padding:4px 0;">${_resDropdown("pcResMunOrd", "", "", `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 130 })}</span></div>`;
+  const abas = `<div class="pc-sub-abas" style="margin:6px 0 4px;"><span class="${st.munAba === "zonas" ? "on" : ""}" data-ma="zonas">Zonas</span>${cmp ? "" : `<span class="${st.munAba === "bairros" ? "on" : ""}" data-ma="bairros">Bairros</span><span class="${st.munAba === "locais" ? "on" : ""}" data-ma="locais">Locais</span>`}<span class="${st.munAba === "secoes" ? "on" : ""}" data-ma="secoes">Seções</span><span class="${cmp ? "" : (st.munAba === "hist" ? "on" : "")}" data-ma="hist" ${cmp || st.semHist ? "hidden" : ""}>Histórico</span><span style="margin-left:auto; padding:4px 0;">${_resDropdown("pcResMunOrd", "", "", `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 130 })}</span></div>`;
   const primeiroNome = (nm) => (nm || "").split(" ")[0];
   let corpo = "";
   if (cmp && st.munAba === "hist") st.munAba = "zonas";
@@ -862,7 +889,7 @@ async function _resRenderMunDet(ctx, dados, cmp) {
       return { g, v, pos };
     }).filter((x) => x.v > 0).sort((a, b) => (ordem === "desc" ? 1 : -1) * (b.v - a.v));
   };
-  const linhaGrupo = (x, sub, tipo) => `<div class="pc-lin pc-lin-pos clic" data-filtra="${tipo}" data-valor="${escaparAtributoHtml(x.g)}"><span></span><span class="n">${x.g}${subtit(sub)}</span><span class="c">${_resChipPos(x.pos)}</span><span class="v">${_resFmt(x.v)}</span><span class="v p">${_resPctTotal(x.v, cenario.total)}</span></div>`;
+  const linhaGrupo = (x, sub, tipo) => `<div class="pc-lin pc-lin-pos clic" data-filtra="${tipo}" data-valor="${escaparAtributoHtml(x.g)}"><span></span><span class="n">${_resNomeMun(x.g)}${subtit(sub)}</span><span class="c">${_resChipPos(x.pos)}</span><span class="v">${_resFmt(x.v)}</span><span class="v p">${_resPctTotal(x.v, cenario.total)}</span></div>`;
   if (st.munAba === "bairros" || st.munAba === "locais") {
     if (!secLoc || !secLoc._bairroSec) corpo = `<div class="pc-sub" style="padding:6px 0;">Sem dado de ${st.munAba === "bairros" ? "bairro" : "local"} para esta eleição.</div>`;
     else if (st.munAba === "bairros") {
