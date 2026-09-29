@@ -645,8 +645,9 @@ async function renderResultados() {
   document.getElementById("pcResImprimir").addEventListener("click", () => {
     let container = document.getElementById("pcImpressaoConteudo");
     if (!container) { container = document.createElement("div"); container.id = "pcImpressaoConteudo"; document.body.appendChild(container); }
-    container.innerHTML = _resDocImpresso(st, cargo, cands);
-    window.print();
+    // Janela de filtros de impressão (aprovada 29/09/2026); o mapa segue
+    // imprimindo como está na tela (_resDocImpresso).
+    _resImpAbrir(pcState._resCtx);
   });
   const tg = document.getElementById("pcResPlenToggle");
   tg.addEventListener("click", () => {
@@ -657,6 +658,7 @@ async function renderResultados() {
   });
 
   const ctx = { st, cargo, cands, antPorNome, antDe: _antDe, ant2De: _ant2De, meu, favs, totalVagas, cenario, ant, ant2, seatsPorAno, anos: anosPlen, palSeats };
+  pcState._resCtx = ctx;
   pcState._resRodadas = cargo === "senador" ? {} : _resCalcRodadas(ctx);
   if (!st.plenAno) st.plenAno = anoApurado;
   _resRenderPlenario(ctx);
@@ -1290,4 +1292,276 @@ async function _resRenderMunDet(ctx, dados, cmp) {
   alvo.querySelectorAll("[data-limpa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); const ordemNiveis = ["zona", "bairro", "local"]; ordemNiveis.slice(ordemNiveis.indexOf(x.dataset.limpa)).forEach((n) => delete F[n]); _resRenderMunDet(ctx, dados, cmp); }));
   alvo.querySelectorAll("[data-ma]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.munAba = x.dataset.ma; _resRenderMunDet(ctx, dados, cmp); }));
   _resLigarDropdowns(alvo, (id, it) => { if (id === "pcResMunOrd") { st.munOrdem = it.dataset.o; _resRenderMunDet(ctx, dados, cmp); } });
+}
+
+
+// ---------- Impressão com filtros (aprovada 29/09/2026) ----------
+// Uma janela com um filtro pra cada coisa que a tela de Resultados mostra;
+// o papel continua sendo o documento .di-* (mesma casca do _resDocImpresso).
+const RES_IMP_TIPOS = [["lista", "Lista de candidatos"], ["ficha", "Ficha do candidato"], ["mapa", "Mapa"], ["partidos", "Partidos"], ["plenario", "Plenário"]];
+const RES_IMP_DETALHES = [["mun", "Municípios"], ["zonas", "Zonas"], ["bairros", "Bairros"], ["colegios", "Colégios"], ["secoes", "Seções"], ["hist", "Histórico"]];
+const RES_IMP_QTD = [[20, "20 primeiros"], [50, "50 primeiros"], [0, "Todos"]];
+
+function _resImpAbrir(ctx) {
+  if (!ctx) return;
+  const st = ctx.st;
+  const deTela = st.aba === "mapa" ? "mapa" : st.aba === "partidos" ? "partidos" : st.fichaSq ? "ficha" : "lista";
+  st.imp = {
+    tipo: deTela, sq: st.fichaSq || (ctx.cands[0] && ctx.cands[0].sq), cargo: ctx.cargo,
+    ano: st.anoApurado >= 2026 ? "cmp" : String(st.anoApurado),
+    recorte: st.fichaMun ? "mun" : (st.regiao || st.assoc) ? "regiao" : "estado",
+    regiao: st.assoc || st.regiao || "", mun: st.fichaMun || "",
+    det: new Set(st.fichaMun ? ["bairros", "colegios"] : ["mun"]), inc: new Set(["part"]),
+    ordem: RES_ARV_ORDENS.some(([o]) => o === st.fichaOrdem) ? st.fichaOrdem : (st.anoApurado >= 2026 ? "d22" : "d26"), qtd: 0,
+  };
+  _resImpRender(ctx);
+}
+
+function _resImpFechar() { const m = document.getElementById("pcResImpModal"); if (m) m.remove(); }
+
+function _resImpRender(ctx) {
+  const st = ctx.st, I = st.imp;
+  const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
+  const op = (grupo, val, rot, on, dis) => `<span class="pc-imp-op${on ? " on" : ""}${dis ? " dis" : ""}" data-imp="${grupo}" data-v="${esc(val)}">${rot}</span>`;
+  const grp = (tit, corpo, extra = "") => `<div class="pc-imp-g"><div class="pc-imp-t">${tit}${extra}</div><div class="pc-imp-ops">${corpo}</div></div>`;
+  const t = I.tipo, mun = I.recorte === "mun" && I.mun;
+  const anos = t === "plenario" ? [["2026", "2026"], ["2022", "2022"], ["2018", "2018"]] : [["2026", "2026"], ["2022", "2022"], ["2018", "2018"], ["cmp", "2026 × 2022"]];
+  if (t === "plenario" && I.ano === "cmp") I.ano = "2026";
+  const c = ctx.cands.find((x) => x.sq === I.sq);
+  const listaCands = [...ctx.cands].sort((a, b) => a.nomeUrna.localeCompare(b.nomeUrna, "pt-BR"));
+  const munsOrd = [...MUNICIPIOS_SC_REGIOES].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+  const meso = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.meso))].sort();
+  const assoc = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.assoc))].sort();
+  let h = grp("O que imprimir", RES_IMP_TIPOS.map(([v, r]) => op("tipo", v, r, t === v)).join(""));
+  if (t === "mapa") {
+    h += `<div class="pc-imp-nota">O mapa sai como está na tela agora (candidato, região, modo e cores/bolhas). Para mudar, ajuste o mapa e toque em imprimir de novo.</div>`;
+  } else {
+    if (t === "ficha") h += `<div class="pc-imp-g"><div class="pc-imp-t">Candidato</div><select class="pc-imp-sel" data-imp-sel="sq">${listaCands.map((x) => `<option value="${esc(x.sq)}"${x.sq === I.sq ? " selected" : ""}>${esc(x.nomeUrna)} — ${esc(nomePartidoExibicao(x.partido))}</option>`).join("")}</select>${I.cargo !== ctx.cargo ? `<div class="pc-imp-nota">O candidato é do cargo aberto na tela (${esc((CARGOS.find((x) => x.id === ctx.cargo) || {}).label || "")}).</div>` : ""}</div>`;
+    if (t !== "ficha") h += grp("Cargo", CARGOS.map((x) => op("cargo", x.id, x.label.replace("Deputado", "Dep."), I.cargo === x.id)).join(""));
+    h += grp("Ano", anos.map(([v, r]) => op("ano", v, r, I.ano === v)).join(""));
+    if (t !== "plenario") {
+      h += grp("Recorte", [["estado", "Estado"], ["regiao", "Região"], ["mun", "Município"]].map(([v, r]) => op("recorte", v, r, I.recorte === v)).join(""));
+      if (I.recorte === "regiao") h += `<select class="pc-imp-sel" data-imp-sel="regiao"><option value="">Escolha a região</option><optgroup label="Mesorregiões (IBGE)">${meso.map((r) => `<option${I.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup><optgroup label="Associações de municípios">${assoc.map((r) => `<option${I.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup></select>`;
+      if (I.recorte === "mun") h += `<select class="pc-imp-sel" data-imp-sel="mun"><option value="">Escolha o município</option>${munsOrd.map((m) => `<option value="${esc(m.chave)}"${I.mun === m.chave ? " selected" : ""}>${esc(m.nome)}</option>`).join("")}</select>`;
+    }
+    if (t === "ficha") {
+      h += grp("Detalhe", RES_IMP_DETALHES.map(([v, r]) => { const dis = ["bairros", "colegios", "secoes"].includes(v) && !mun; return op("det", v, r, I.det.has(v) && !dis, dis); }).join(""), mun ? "" : ` <i>bairros, colégios e seções: escolha um município</i>`);
+      h += grp("Incluir", op("inc", "lista", "Lista completa de cada local", I.inc.has("lista") && mun, !mun) + op("inc", "part", "Participação (abstenção, brancos, nulos)", I.inc.has("part")));
+    }
+    if (t !== "plenario") {
+      h += grp("Ordenar", RES_ARV_ORDENS.map(([v, r]) => op("ordem", v, r, I.ordem === v)).join(""));
+      h += grp("Quantidade", RES_IMP_QTD.map(([v, r]) => op("qtd", String(v), r, I.qtd === v)).join(""));
+    }
+  }
+  const resumo = _resImpResumo(ctx);
+  const html = `<div class="pc-overlay-fade pc-imp-fundo"><div class="pc-imp-caixa">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;"><b style="font-size:15px; color:#F2F4F5;">Imprimir</b><span style="font-size:10.5px; color:#8A9096;">documento SimulaLEGIS</span></div>
+    ${h}
+    <div class="pc-imp-resumo">Vai imprimir: <b>${esc(resumo)}</b></div>
+    <div style="display:flex; gap:8px;"><button type="button" class="ghost" data-imp-acao="fechar" style="flex:1;">Cancelar</button><button type="button" class="pc-imp-ok" data-imp-acao="ok"${resumo ? "" : " disabled"}>Imprimir</button></div>
+  </div></div>`;
+  let m = document.getElementById("pcResImpModal");
+  if (!m) { m = document.createElement("div"); m.id = "pcResImpModal"; (document.getElementById("modoColaborativoWrap") || document.body).appendChild(m); }
+  const rolagem = m.querySelector(".pc-imp-caixa") ? m.querySelector(".pc-imp-caixa").scrollTop : 0;
+  m.innerHTML = html;
+  m.querySelector(".pc-imp-caixa").scrollTop = rolagem;
+  m.querySelectorAll("[data-imp]").forEach((b) => b.addEventListener("click", () => {
+    if (b.classList.contains("dis")) return;
+    const g = b.dataset.imp, v = b.dataset.v;
+    if (g === "det" || g === "inc") { I[g].has(v) ? I[g].delete(v) : I[g].add(v); }
+    else I[g] = g === "qtd" ? +v : v;
+    _resImpRender(ctx);
+  }));
+  m.querySelectorAll("[data-imp-sel]").forEach((s) => s.addEventListener("change", () => { I[s.dataset.impSel] = s.value; _resImpRender(ctx); }));
+  m.querySelector("[data-imp-acao=fechar]").addEventListener("click", _resImpFechar);
+  m.querySelector(".pc-imp-fundo").addEventListener("click", (e) => { if (e.target.classList.contains("pc-imp-fundo")) _resImpFechar(); });
+  m.querySelector("[data-imp-acao=ok]").addEventListener("click", async (e) => {
+    e.target.textContent = "Montando…"; e.target.disabled = true;
+    let container = document.getElementById("pcImpressaoConteudo");
+    if (!container) { container = document.createElement("div"); container.id = "pcImpressaoConteudo"; document.body.appendChild(container); }
+    try { container.innerHTML = I.tipo === "mapa" ? _resDocImpresso(st, ctx.cargo, ctx.cands) : await _resImpDocumento(ctx); }
+    catch (err) { console.error("impressão", err); e.target.textContent = "Não foi possível montar"; return; }
+    _resImpFechar();
+    window.print();
+  });
+}
+
+function _resImpAnoTxt(I) { return I.ano === "cmp" ? `${RES_ANO_APURADO} × ${RES_ANO_ANTERIOR}` : I.ano; }
+function _resImpRecorteTxt(I) {
+  if (I.recorte === "regiao") return I.regiao ? I.regiao.replace(" Catarinense", "") : "";
+  if (I.recorte === "mun") { const m = MUNICIPIOS_SC_REGIOES.find((x) => x.chave === I.mun); return m ? m.nome : ""; }
+  return "Santa Catarina";
+}
+function _resImpResumo(ctx) {
+  const I = ctx.st.imp;
+  if (I.tipo === "mapa") return "o mapa como está na tela";
+  const rec = I.tipo === "plenario" ? "Santa Catarina" : _resImpRecorteTxt(I);
+  if (!rec) return "";
+  const cargoLbl = (CARGOS.find((x) => x.id === (I.tipo === "ficha" ? ctx.cargo : I.cargo)) || {}).label || "";
+  const ord = (RES_ARV_ORDENS.find(([o]) => o === I.ordem) || [])[1] || "";
+  const qtd = I.qtd ? `${I.qtd} primeiros` : "todos";
+  if (I.tipo === "ficha") {
+    const c = ctx.cands.find((x) => x.sq === I.sq);
+    const det = RES_IMP_DETALHES.filter(([v]) => I.det.has(v) && (I.recorte === "mun" || !["bairros", "colegios", "secoes"].includes(v))).map(([, r]) => r.toLowerCase());
+    if (!c || !det.length) return "";
+    const inc = [I.inc.has("lista") && I.recorte === "mun" ? "lista completa de cada local" : "", I.inc.has("part") ? "participação" : ""].filter(Boolean);
+    return `${c.nomeUrna} · ${rec} · ${det.join(", ")} · ${_resImpAnoTxt(I)} · ${ord.toLowerCase()} · ${qtd}${inc.length ? " · com " + inc.join(" e ") : ""}`;
+  }
+  const nome = { lista: "Lista de candidatos", partidos: "Partidos", plenario: "Plenário (eleitos)" }[I.tipo];
+  return `${nome} · ${cargoLbl} · ${rec} · ${_resImpAnoTxt(I)}${I.tipo === "plenario" ? "" : ` · ${ord.toLowerCase()} · ${qtd}`}`;
+}
+
+// Carrega a lista de candidatos de um ano/cargo; 2026 do cargo aberto usa a
+// lista da tela (já mesclada com a apuração ao vivo).
+async function _resImpCands(ctx, ano, cargo) {
+  if (+ano === ctx.st.anoApurado && cargo === ctx.cargo) return ctx.cands;
+  const d = await _resCarregar(+ano, cargo);
+  return (d && d.candidatos) || [];
+}
+
+async function _resImpDocumento(ctx) {
+  const st = ctx.st, I = st.imp;
+  const esc = (t) => String(t == null ? "" : t).replace(/[&<>]/g, (x) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[x]));
+  const f1 = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const pct = (v, b) => b ? f1(v / b * 100) + "%" : "—";
+  const cmp = I.ano === "cmp";
+  const cargo = I.tipo === "ficha" ? ctx.cargo : I.cargo;
+  const cargoLbl = (CARGOS.find((x) => x.id === cargo) || {}).label || "";
+  const regInfo = new Map(MUNICIPIOS_SC_REGIOES.map((m) => [m.chave, m]));
+  const dentro = (k) => I.recorte === "estado" || (I.recorte === "mun" ? k === I.mun : (() => { const m = regInfo.get(k); return m && (m.meso === I.regiao || m.assoc === I.regiao); })());
+  const somaRec = (c) => c ? Object.entries(c.municipios || {}).reduce((a, [k, v]) => a + (dentro(k) ? v : 0), 0) : 0;
+  const nomeMun = (k) => { const m = regInfo.get(k); return m ? m.nome : _resNomeMun(k); };
+  const limitar = (l) => I.qtd ? l.slice(0, I.qtd) : l;
+  const difTxt = (v26, v22) => { const d = v26 - v22; return `${d >= 0 ? "+" : "−"}${_resFmt(Math.abs(d))}`; };
+  // linha de 5 colunas do documento: pos | nome | A | B | C
+  const lin = (pos, nome, a, b, cc, cls = "") => `<div class="di-rlin${cls}"><span>${pos}</span><span>${nome}</span><span>${a}</span><span>${b}</span><span>${cc}</span></div>`;
+  const cabVal = (rot) => cmp ? lin("", rot, String(RES_ANO_ANTERIOR), String(RES_ANO_APURADO), "Dif.", " di-rcab") : lin("", rot, "", "Votos", "%", " di-rcab");
+  const valCols = (x, base) => cmp ? [_resFmt(x.v22), x.v26 ? _resFmt(x.v26) : "—", x.v26 ? difTxt(x.v26, x.v22) : "—"] : ["", _resFmt(x.v26), pct(x.v26, base)];
+  const partTxt = (P) => P && P[0] ? `<i class="di-rpart">comparecimento ${pct(P[1], P[0])} · abstenção ${pct(P[2], P[0])} · brancos/nulos ${pct(P[3] + P[4], P[1])}</i>` : "";
+  const casar = (lista) => { const m = new Map(); lista.forEach((y) => { m.set(_resNorm(y.nome), y); m.set("URNA::" + _resNorm(y.nomeUrna), y); }); return (c) => c ? _resCasarEntreEleicoes(c, m, lista) : null; };
+  let titulo = "", sub = "", corpo = "";
+  const recTxt = _resImpRecorteTxt(I);
+
+  if (I.tipo === "lista" || I.tipo === "partidos") {
+    const a26 = cmp ? await _resImpCands(ctx, RES_ANO_APURADO, cargo) : await _resImpCands(ctx, I.ano, cargo);
+    const a22 = cmp ? await _resImpCands(ctx, RES_ANO_ANTERIOR, cargo) : null;
+    if (I.tipo === "lista") {
+      const de22 = a22 ? casar(a22) : null;
+      let linhas = a26.map((c) => { const v = I.recorte === "estado" ? c.total : somaRec(c); const o = de22 ? de22(c) : null; return { c, v26: v, v22: cmp ? (o ? (I.recorte === "estado" ? o.total : somaRec(o)) : 0) : v }; });
+      if (cmp) { const ja = new Set(linhas.map((l) => l.c.sq)); a22.forEach((o) => { if (!a26.some((c) => de22(c) === o)) linhas.push({ c: o, v22: I.recorte === "estado" ? o.total : somaRec(o), v26: 0, so22: true }); }); }
+      linhas = limitar(_resArvOrdenar(linhas.filter((l) => l.v22 || l.v26), I.ordem));
+      const base = linhas.reduce((a, l) => a + l.v26, 0);
+      titulo = `${cargoLbl} — ${esc(recTxt)}`;
+      sub = `Lista de candidatos · ${_resImpAnoTxt(I)} · ${linhas.length} candidatos`;
+      corpo = cabVal("Candidato") + linhas.map((l, i) => lin(`${i + 1}º`, `<b>${esc(l.c.nomeUrna)}</b> <i>${esc(nomePartidoExibicao(l.c.partido))}${l.so22 ? ` · não concorre em ${RES_ANO_APURADO}` : ""}</i>`, ...valCols(l, base))).join("");
+    } else {
+      const agrupa = (lista, ano) => { const fed = RES_FEDERACOES[ano] || {}; const g = {}; lista.forEach((c) => { const k = fed[c.partido] || _resPartidoAtual(c.partido); g[k] = (g[k] || 0) + (I.recorte === "estado" ? c.total : somaRec(c)); }); return g; };
+      const g26 = agrupa(a26, cmp ? RES_ANO_APURADO : +I.ano), g22 = cmp ? agrupa(a22, RES_ANO_ANTERIOR) : null;
+      let linhas = [...new Set([...Object.keys(g26), ...Object.keys(g22 || {})])].map((k) => ({ nome: k, v26: g26[k] || 0, v22: cmp ? (g22[k] || 0) : (g26[k] || 0) }));
+      linhas = limitar(_resArvOrdenar(linhas.filter((l) => l.v22 || l.v26), I.ordem));
+      const base = linhas.reduce((a, l) => a + l.v26, 0);
+      titulo = `Partidos — ${cargoLbl}`;
+      sub = `${esc(recTxt)} · ${_resImpAnoTxt(I)} · votos nominais somados por partido/federação${I.recorte === "estado" ? "" : " (legenda não vem por município)"}`;
+      corpo = cabVal("Partido / federação") + linhas.map((l, i) => lin(`${i + 1}º`, `<b>${esc(nomePartidoExibicao(l.nome))}</b>`, ...valCols(l, base))).join("");
+    }
+  } else if (I.tipo === "plenario") {
+    const lista = await _resImpCands(ctx, I.ano, cargo);
+    const eleitos = lista.filter((c) => (c.situacao || "").toUpperCase().startsWith("ELEITO")).sort((a, b) => nomePartidoExibicao(a.partido).localeCompare(nomePartidoExibicao(b.partido), "pt-BR") || b.total - a.total);
+    titulo = `Plenário — ${cargoLbl}`;
+    sub = `Santa Catarina · ${I.ano} · ${eleitos.length} eleitos`;
+    corpo = !eleitos.length ? `<div class="di-sub">Os eleitos de ${I.ano} aparecem aqui quando o TSE concluir a totalização.</div>`
+      : lin("", "Eleito", "", "Votos", "Situação", " di-rcab") + eleitos.map((c, i) => lin(`${i + 1}`, `<b>${esc(c.nomeUrna)}</b> <i>${esc(nomePartidoExibicao(c.partido))}</i>`, "", _resFmt(c.total), esc((c.situacao || "").toLowerCase().replace("eleito ", "")))).join("");
+  } else {
+    // ficha
+    const c = ctx.cands.find((x) => x.sq === I.sq);
+    const a = ctx.antDe(c);
+    const anoUnico = cmp ? null : +I.ano;
+    const cUnico = anoUnico ? (anoUnico === st.anoApurado ? c : _resHistoricoDe(c, await _resImpCands(ctx, anoUnico, cargo))) : null;
+    const c26 = cmp ? c : cUnico, c22 = cmp ? a : null;
+    titulo = esc(c.nomeUrna) + ` <span style="font-weight:600; color:#6B7178;">— ${esc(nomePartidoExibicao(c.partido))}</span>`;
+    sub = `${cargoLbl} · ${esc(recTxt)} · ${_resImpAnoTxt(I)}`;
+    if (!c26 && !c22) corpo = `<div class="di-sub">Sem votação deste candidato em ${_resImpAnoTxt(I)}.</div>`;
+    const anoA = cmp ? RES_ANO_APURADO : anoUnico, anoB = cmp ? RES_ANO_ANTERIOR : null;
+    const partMun = await _resCarregar(anoB || anoA, "participacao");
+    const partC = partMun && partMun[cargo];
+    const tot = { v26: c26 ? (I.recorte === "estado" ? c26.total : somaRec(c26)) : 0, v22: cmp ? (c22 ? (I.recorte === "estado" ? c22.total : somaRec(c22)) : 0) : 0 };
+    if (!cmp) tot.v22 = tot.v26;
+    corpo += `<div class="di-rres"><div><b>${_resFmt(cmp ? tot.v22 : tot.v26)}</b>votos em ${cmp ? RES_ANO_ANTERIOR : anoUnico} · ${esc(recTxt)}</div>${cmp ? `<div><b>${tot.v26 ? _resFmt(tot.v26) : "—"}</b>votos em ${RES_ANO_APURADO}</div><div><b>${tot.v26 ? difTxt(tot.v26, tot.v22) : "—"}</b>diferença</div>` : `<div><b>${_resFmt(c26 ? c26.total : 0)}</b>total no estado</div>`}</div>`;
+    const secao = (tit, cab, linhas) => `<div class="di-rsec">${tit}</div>${cab}${linhas || `<div class="di-sub">Sem dados neste recorte.</div>`}`;
+    const base = tot.v26;
+    if (I.det.has("mun")) {
+      const ks = [...new Set([...Object.keys((c26 && c26.municipios) || {}), ...Object.keys((c22 && c22.municipios) || {})])].filter(dentro);
+      const l = limitar(_resArvOrdenar(ks.map((k) => { const v26 = (c26 && c26.municipios[k]) || 0; return { k, v26, v22: cmp ? ((c22 && c22.municipios[k]) || 0) : v26 }; }), I.ordem));
+      corpo += secao("Municípios", cabVal("Município"), l.map((x, i) => lin(`${i + 1}º`, `${esc(nomeMun(x.k))}${I.inc.has("part") && partC ? partTxt(partC.mun[x.k]) : ""}`, ...valCols(x, base))).join(""));
+    }
+    if (I.det.has("zonas")) {
+      const z26 = c26 ? await _resCarregar(cmp ? RES_ANO_APURADO : anoUnico, cargo, "-zonas") : null;
+      const z22 = cmp && c22 ? await _resCarregar(RES_ANO_ANTERIOR, cargo, "-zonas") : null;
+      const m26 = (z26 && c26 && z26[c26.sq]) || {}, m22 = (z22 && c22 && z22[c22.sq]) || {};
+      const ks = [...new Set([...Object.keys(m26), ...Object.keys(m22)])].filter((k) => dentro(k.split("::")[0]));
+      const l = limitar(_resArvOrdenar(ks.map((k) => ({ k, v26: m26[k] || 0, v22: cmp ? (m22[k] || 0) : (m26[k] || 0) })), I.ordem));
+      corpo += secao("Zonas eleitorais", cabVal("Zona"), l.map((x, i) => { const [mk, z] = x.k.split("::"); return lin(`${i + 1}º`, `${z}ª zona · ${esc(nomeMun(mk))}${I.inc.has("part") && partC ? partTxt(partC.zona[x.k]) : ""}`, ...valCols(x, base)); }).join(""));
+    }
+    const mun = I.recorte === "mun" && I.mun;
+    if (mun && ["bairros", "colegios", "secoes"].some((d) => I.det.has(d))) {
+      const anoSec = cmp ? RES_ANO_ANTERIOR : anoUnico;
+      const secB = await _resCarregar(anoSec, "secoes/" + _resSlug(I.mun), "");
+      const secA = cmp ? await _resCarregar(RES_ANO_APURADO, "secoes/" + _resSlug(I.mun), "") : null;
+      const arv = {};
+      _resArvAgrupar(secB, cargo, (cmp ? c22 : c26 || {}).numero, arv, "v22");
+      if (cmp) _resArvAgrupar(secA, cargo, c26.numero, arv, "v26"); else Object.values(arv).forEach((b) => { b.v26 = b.v22; Object.values(b.locais).forEach((l) => { l.v26 = l.v22; Object.values(l.secoes).forEach((s) => { s.v26 = s.v22; }); }); });
+      const partSec = (secB && secB._part && secB._part[cargo]) || {};
+      const somaPart = (keys) => { const P = [0, 0, 0, 0, 0, 0]; let tem = false; keys.forEach((k) => { const x = partSec[k]; if (x) { tem = true; x.forEach((v, j) => { P[j] += v; }); } }); return tem ? P : null; };
+      // lista completa (todos os candidatos) de um conjunto de seções, ano base
+      const listaAno = await _resImpCands(ctx, anoSec, cargo);
+      const porNum = new Map(listaAno.map((x) => [String(x.numero), x]));
+      const eu = String((cmp ? c22 : c26 || {}).numero || "");
+      const rank = (keys) => {
+        const t = new Map(), ks = new Set(keys);
+        for (const [num, m] of Object.entries((secB && secB[cargo]) || {})) { let v = 0; for (const k of ks) v += m[k] || 0; if (v && porNum.has(num)) t.set(num, v); }
+        const soma = [...t.values()].reduce((x, y) => x + y, 0);
+        return `<div class="di-rlista">${[...t.entries()].sort((x, y) => y[1] - x[1]).map(([num, v], i) => `<span class="${num === eu ? "eu" : ""}">${i + 1}º ${esc(porNum.get(num).nomeUrna)} (${esc(nomePartidoExibicao(porNum.get(num).partido))}) ${_resFmt(v)} · ${pct(v, soma)}</span>`).join("")}</div>`;
+      };
+      const extras = (keys) => `${I.inc.has("part") ? partTxt(somaPart(keys)) : ""}`;
+      const posLista = (keys) => I.inc.has("lista") ? rank(keys) : "";
+      const bl = limitar(_resArvOrdenar(Object.entries(arv).map(([nome, n]) => ({ nome, ...n })), I.ordem));
+      const secKeysB = (b) => Object.values(b.locais).flatMap((x) => Object.keys(x.secoes));
+      if (I.det.has("bairros")) corpo += secao(`Bairros · ${esc(nomeMun(I.mun))}`, cabVal("Bairro"), bl.map((b, i) => lin(`${i + 1}º`, `${esc(b.nome)}${extras(secKeysB(b))}`, ...valCols(b, base)) + (I.det.has("colegios") ? "" : posLista(secKeysB(b)))).join(""));
+      if (I.det.has("colegios")) {
+        const cl = limitar(_resArvOrdenar(Object.entries(arv).flatMap(([bn, b]) => Object.entries(b.locais).map(([nome, n]) => ({ nome, bairro: bn, ...n }))), I.ordem));
+        corpo += secao(`Colégios · ${esc(nomeMun(I.mun))}`, cabVal("Local de votação"), cl.map((l, i) => lin(`${i + 1}º`, `${esc(l.nome)} <i>${esc(l.bairro)}</i>${extras(Object.keys(l.secoes))}`, ...valCols(l, base)) + posLista(Object.keys(l.secoes))).join(""));
+      }
+      if (I.det.has("secoes")) {
+        const sl = limitar(_resArvOrdenar(Object.values(arv).flatMap((b) => Object.values(b.locais).flatMap((l) => Object.entries(l.secoes).map(([k, n]) => ({ k, ...n })))), I.ordem));
+        const nomeLocal = (k) => (secB && secB._secoes && secB._secoes[k]) || "";
+        corpo += secao(`Seções · ${esc(nomeMun(I.mun))}`, cabVal("Seção"), sl.map((s, i) => { const [z, n] = s.k.split("::"); return lin(`${i + 1}º`, `Seção ${n} · ${z}ª zona <i>${esc(nomeLocal(s.k))}</i>${extras([s.k])}`, ...valCols(s, base)) + (I.inc.has("lista") && !I.det.has("colegios") ? rank([s.k]) : ""); }).join(""));
+      }
+      if (cmp) corpo += `<div class="di-sub">Bairros, colégios e seções: a votação de ${RES_ANO_APURADO} por local entra quando o TSE publicar os dados por seção.</div>`;
+    }
+    if (I.det.has("hist")) {
+      const hist = [];
+      for (const ano of [RES_ANO_APURADO, ...RES_ANOS_HISTORICO]) { const d = ano === st.anoApurado ? { candidatos: ctx.cands } : await _resCarregar(ano, cargo); const x = d && (ano === st.anoApurado ? c : _resHistoricoDe(c, d.candidatos)); hist.push({ ano, x }); }
+      corpo += secao("Histórico", lin("", "Eleição", "", "Votos", "Situação", " di-rcab"), hist.map((h) => lin("", String(h.ano), "", h.x && h.x.total ? _resFmt(h.x.total) : "—", h.x ? esc((h.x.situacao || (h.ano === RES_ANO_APURADO ? "em apuração" : "")).toLowerCase()) : "não concorreu")).join(""));
+    }
+  }
+  return _resDocCasca(titulo, sub, corpo, st.anoApurado);
+}
+
+function _resDocCasca(titulo, sub, corpo, ano) {
+  const agora = new Date();
+  const dataTxt = agora.toLocaleDateString("pt-BR"), horaTxt = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return `
+    <div class="di-agua"><span><b>Simula</b>LEGIS</span></div>
+    <div class="di-conteudo">
+      <div class="di-cab">
+        <div class="di-marca"><div class="di-wm"><b>Simula</b><span>LEGIS</span></div><div class="di-wmsub">Simulador Eleitoral Legislativo 2026</div></div>
+        <div class="di-meta"><b>Santa Catarina</b> · Apuração ${ano}<br>gerado em ${dataTxt} · ${horaTxt}</div>
+      </div>
+      <div class="di-regra"></div>
+      <div class="di-tit">${titulo}</div>
+      <div class="di-sub">${sub}</div>
+      ${corpo}
+      <div class="di-sub" style="margin-top:12px;">Dados oficiais do TSE. Jogo de palpites entre participantes — não é pesquisa eleitoral.</div>
+      <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dataTxt} ${horaTxt}</span></div>
+    </div>`;
 }

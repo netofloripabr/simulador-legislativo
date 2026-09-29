@@ -3348,3 +3348,27 @@
 #modoColaborativoWrap .pc-lin.pc-arv-rk .v.p{ font-size:10px; color:#8A9096; }
 #modoColaborativoWrap .pc-lin.pc-arv-rk.eu{ background:rgba(52,232,74,.08); }
 #modoColaborativoWrap .pc-lin.pc-arv-rk.cab > span{ font-size:9px; font-weight:600; color:#6B7178; }
+/* janela de impressão com filtros (29/09/2026) */
+#pcResImpModal .pc-imp-fundo{ position:fixed; inset:0; z-index:100; background:rgba(8,9,11,.6); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); display:flex; align-items:flex-start; justify-content:center; padding:14px; overflow-y:auto; }
+#pcResImpModal .pc-imp-caixa{ max-width:350px; width:100%; background:rgba(29,32,35,.97); border:1px solid #2B2F33; border-radius:18px; padding:16px 14px; margin:auto 0; }
+#pcResImpModal .pc-imp-g{ margin:10px 0 0; }
+#pcResImpModal .pc-imp-t{ font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#6B7178; margin-bottom:5px; }
+#pcResImpModal .pc-imp-t i{ font-style:normal; text-transform:none; letter-spacing:0; font-weight:500; margin-left:4px; }
+#pcResImpModal .pc-imp-ops{ display:flex; flex-wrap:wrap; gap:5px; }
+#pcResImpModal .pc-imp-op{ font-size:11px; font-weight:600; color:#B5BBC0; padding:5px 9px; border-radius:999px; border:1px solid rgba(242,244,245,.14); cursor:pointer; user-select:none; }
+#pcResImpModal .pc-imp-op.on{ background:#34E84A; color:#0B0D0E; border-color:#34E84A; }
+#pcResImpModal .pc-imp-op.dis{ opacity:.35; cursor:default; }
+#pcResImpModal .pc-imp-sel{ width:100%; margin-top:6px; font-size:12px; color:#F2F4F5; background:#1D2023; padding:7px 10px; border:1px solid rgba(242,244,245,.14); border-radius:9px; }
+#pcResImpModal .pc-imp-nota{ font-size:10.5px; color:#8A9096; margin-top:8px; line-height:1.4; }
+#pcResImpModal .pc-imp-resumo{ font-size:10.5px; color:#8A9096; margin:12px 0; line-height:1.4; }
+#pcResImpModal .pc-imp-resumo b{ color:#D5D9DC; }
+#pcResImpModal .pc-imp-ok{ flex:2; background:#34E84A; color:#0B0D0E; font-weight:800; border:none; border-radius:10px; padding:10px; cursor:pointer; }
+#pcResImpModal .pc-imp-ok:disabled{ opacity:.4; cursor:default; }
+@media print{
+  #pcImpressaoConteudo .di-rsec{ font-size:10.5px; font-weight:800; color:#111; margin:12px 0 4px; page-break-after:avoid; }
+  #pcImpressaoConteudo .di-rpart{ display:block; font-style:normal; font-size:8px; color:#6B7178; }
+  #pcImpressaoConteudo .di-rlin i{ font-style:normal; color:#6B7178; }
+  #pcImpressaoConteudo .di-rlista{ display:flex; flex-wrap:wrap; gap:2px 10px; padding:3px 0 6px 32px; font-size:8px; color:#444; border-bottom:.5px solid #DCDFE2; }
+  #pcImpressaoConteudo .di-rlista .eu{ font-weight:800; color:#1FA83A; }
+  #pcResImpModal{ display:none !important; }
+}
