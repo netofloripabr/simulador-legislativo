@@ -760,7 +760,33 @@ async function _resRenderFicha(ctx) {
   let corpo = "";
   // Ano mais recente à direita, junto do Δ (pedido de 22/09/2026).
   const cab = (c1, c2, c3) => `<div class="pc-lin cab"><span></span><span>${c1}</span><span class="v">${c3}</span><span class="v">${c2}</span><span class="v">Δ</span></div>`;
-  if (st.fichaAba === "mun") {
+  if (st.fichaAba === "mun" && st.anoApurado >= 2026 && a) {
+    // 2026 × 2022 por município (aprovado 29/09/2026): a votação de 2022 já
+    // aparece antes da apuração; 2026 e a diferença preenchem conforme os
+    // números por município chegam (ao vivo, se o TSE publicar por município).
+    const muns = await _resCarregar(RES_ANO_ANTERIOR, "municipios");
+    const nomeDe = (k) => (muns && muns.municipios[k] && muns.municipios[k].nome) || k;
+    const f1 = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const dif = (v26, v22, tem) => {
+      if (!tem) return `<span class="d" style="color:#6B7178;">—</span>`;
+      const d = v26 - v22, pc = v22 ? d / v22 * 100 : null, cor = d >= 0 ? "#34E84A" : "#E8432A";
+      return `<span class="d" style="color:${cor};">${d >= 0 ? "+" : "−"}${_resFmt(Math.abs(d))}${pc === null ? "" : `<i class="pc-rf-pc">${d >= 0 ? "+" : "−"}${f1(Math.abs(pc))}%</i>`}</span>`;
+    };
+    const chaves = [...new Set([...Object.keys(a.municipios || {}), ...Object.keys(c.municipios || {})])];
+    const linhas = chaves.map((k) => ({ k, nome: nomeDe(k), v22: a.municipios[k] || 0, v26: (c.municipios || {})[k] || 0 }))
+      .sort((x, y) => (ordem === "desc" ? 1 : -1) * ((y.v26 - x.v26) || (y.v22 - x.v22)));
+    const temMun = Object.keys(c.municipios || {}).length > 0;
+    const tot26 = c.total || 0, tem26 = tot26 > 0;
+    const dTot = tot26 - a.total, pTot = a.total ? dTot / a.total * 100 : null, corTot = dTot >= 0 ? "#34E84A" : "#E8432A";
+    corpo = `<div class="pc-rf-tot">
+        <div><b>${_resFmt(a.total)}</b><span>${RES_ANO_ANTERIOR}</span></div>
+        <div><b>${_resFmt(tot26)}</b><span>${st.anoApurado}</span></div>
+        <div>${tem26 ? `<b style="color:${corTot};">${dTot >= 0 ? "+" : "−"}${_resFmt(Math.abs(dTot))}</b><span style="color:${corTot};">${pTot === null ? "" : (dTot >= 0 ? "+" : "−") + f1(Math.abs(pTot)) + "%"}</span>` : `<b style="color:#6B7178;">—</b><span>diferença</span>`}</div>
+      </div>
+      <div class="pc-lin pc-rf cab"><span></span><span>Município</span><span class="v">${RES_ANO_ANTERIOR}</span><span class="v">${st.anoApurado}</span><span class="v">Dif.</span></div>` +
+      linhas.slice(0, 40).map((l, i) => { const tem = temMun && l.v26 > 0; return `<div class="pc-lin pc-rf clic" data-fmun="${l.k}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(l.nome)}${tem ? "" : `<i class="pc-loc-sub">aguardando</i>`}</span><span class="v v-ant">${_resFmt(l.v22)}</span><span class="v v-atu">${tem ? _resFmt(l.v26) : "—"}</span>${dif(l.v26, l.v22, tem)}</div>`; }).join("") +
+      (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} municípios</div>` : "");
+  } else if (st.fichaAba === "mun") {
     const muns = await _resCarregar(RES_ANO_APURADO, "municipios");
     const nomeDe = (k) => (muns && muns.municipios[k] && muns.municipios[k].nome) || k;
     let linhas = Object.entries(c.municipios).map(([k, v]) => ({ k, nome: nomeDe(k), v, v0: a ? (a.municipios[k] || 0) : null }));
@@ -789,7 +815,8 @@ async function _resRenderFicha(ctx) {
     const fd = st._fichaDet;
     if (fd.munSel !== st.fichaMun) { fd.munSel = st.fichaMun; fd.munAba = "bairros"; fd.munFiltro = null; }
     fd.semHist = true; if (fd.munAba === "hist") fd.munAba = "bairros";
-    _resRenderMunDet({ ...ctx, st: fd, cenario: c }, { x: { m: { chave: st.fichaMun, nome: _resNomeMun(nome) } } }, null);
+    const usa22 = st.anoApurado >= 2026 && !Object.keys(c.municipios || {}).length && ctx.antDe(c);
+    _resRenderMunDet({ ...ctx, st: fd, cenario: usa22 ? ctx.antDe(c) : c, anoDet: usa22 ? RES_ANO_ANTERIOR : null }, { x: { m: { chave: st.fichaMun, nome: _resNomeMun(nome) } } }, null);
   }
   alvo.querySelectorAll("[data-fa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.fichaAba = x.dataset.fa; _resRenderFicha(ctx); }));
   alvo.querySelectorAll("[data-ficha-fav]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); _resToggleFav(b.dataset.fichaFav); ctx.favs = _resFavoritos(); const on = ctx.favs.has(b.dataset.fichaFav); b.classList.toggle("on", on); b.style.color = on ? "#C6E62A" : ""; b.style.borderColor = on ? "rgba(198,230,42,.5)" : ""; b.title = on ? "Remover dos favoritos" : "Favoritar"; }));
@@ -1008,7 +1035,9 @@ async function _resRenderMunDet(ctx, dados, cmp) {
   // votado nela) e nome da escola por seção — vêm do MESMO arquivo de
   // seções que já carregamos (_zonas/_secoes), sem fetch a mais. Só 2022 e
   // 2018 têm; 2014 fica sem (o dataset do TSE não traz local por seção).
-  const secLoc = await _resCarregarSecoes(chave);
+  // anoDet: a ficha 2026 abre o detalhe com 2022 enquanto 2026 não tem dado por local
+  const anoDet = ctx.anoDet || RES_ANO_APURADO;
+  const secLoc = await _resCarregar(anoDet, "secoes/" + _resSlug(chave), "");
   const bairroDaZona = (zona) => secLoc && secLoc._zonas && secLoc._zonas[zona];
   const escolaDaSecao = (k) => secLoc && secLoc._secoes && secLoc._secoes[k];
   const subtit = (t) => t ? `<i class="pc-loc-sub">${t}</i>` : "";
@@ -1055,7 +1084,7 @@ async function _resRenderMunDet(ctx, dados, cmp) {
       corpo = cabPos("Local") + (l.map((x) => linhaGrupo(x, F.bairro ? "" : bairroDoLocal[x.g], "local")).join("") || `<div class="pc-sub" style="padding:6px 0;">Sem votos aqui.</div>`);
     }
   } else if (st.munAba === "zonas") {
-    const z = await _resCarregar(RES_ANO_APURADO, cargo, "-zonas");
+    const z = await _resCarregar(anoDet, cargo, "-zonas");
     const mine = (z && z[cenario.sq]) || {};
     if (cmp) {
       const zc = (z && z[cmp.sq]) || {};
@@ -1114,10 +1143,11 @@ async function _resRenderMunDet(ctx, dados, cmp) {
     const ks = Object.keys(secLoc._part[cargo]).filter(passaFiltro);
     cabPart = _resPartHtml(_resSomaP(ks.map((k) => secLoc._part[cargo][k])), [F.zona && `${F.zona}ª zona`, F.bairro, F.local].filter(Boolean).pop());
   } else {
-    const pm = await _resCarregar(RES_ANO_APURADO, "participacao");
+    const pm = await _resCarregar(anoDet, "participacao");
     cabPart = _resPartHtml(pm && pm[cargo] && pm[cargo].mun[chave], d ? d.m.nome : "");
   }
-  alvo.innerHTML = cabPart + abas + trilho + corpo;
+  const avisoAno = ctx.anoDet && ctx.anoDet !== RES_ANO_APURADO ? `<div class="pc-rf-aviso">Votação de ${ctx.anoDet} por local. A de ${RES_ANO_APURADO} entra aqui quando o TSE publicar os dados por local.</div>` : "";
+  alvo.innerHTML = avisoAno + cabPart + abas + trilho + corpo;
   const proxima = { zona: "bairros", bairro: "locais", local: "secoes" };
   alvo.querySelectorAll("[data-filtra]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); F[x.dataset.filtra] = x.dataset.valor; st.munAba = proxima[x.dataset.filtra]; _resRenderMunDet(ctx, dados, cmp); }));
   alvo.querySelectorAll("[data-limpa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); const ordemNiveis = ["zona", "bairro", "local"]; ordemNiveis.slice(ordemNiveis.indexOf(x.dataset.limpa)).forEach((n) => delete F[n]); _resRenderMunDet(ctx, dados, cmp); }));
