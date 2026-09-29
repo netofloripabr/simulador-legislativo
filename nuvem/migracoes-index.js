@@ -1321,5 +1321,16 @@ const MIGRACOES_INDEX = [
   "arquivo": "migracao-55-notificacao-mudanca-candidato.sql",
   "descricao": "Migração 55 — corrige o aviso de mudança de elenco (28/09/2026).",
   "objetos": []
+ },
+ {
+  "num": 56,
+  "arquivo": "migracao-56-apuracao-liga-sozinha.sql",
+  "descricao": "Migração 56 — a apuração de 2026 liga SOZINHA no servidor (29/09/2026).",
+  "objetos": [
+   [
+    "function",
+    "apuracao_ligar_2026"
+   ]
+  ]
  }
 ];
