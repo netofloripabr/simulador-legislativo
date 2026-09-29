@@ -753,7 +753,7 @@ async function _resRenderFicha(ctx) {
   const ordem = st.fichaOrdem || "desc";
   const abas = `<div class="pc-sub-abas" style="margin:12px 0 4px;">
     <span class="${st.fichaAba === "mun" ? "on" : ""}" data-fa="mun">Municípios</span>
-    <span class="${st.fichaAba === "sec" ? "on" : ""}" data-fa="sec">Locais${st.fichaMun ? ` · ${(pcState._resCache[`${RES_ANO_APURADO}/municipios`] || { municipios: {} }).municipios[st.fichaMun]?.nome || st.fichaMun}` : ""}</span>
+    <span class="${st.fichaAba === "sec" ? "on" : ""}" data-fa="sec">Locais</span>
     <span class="${st.fichaAba === "hist" ? "on" : ""}" data-fa="hist">Histórico</span>
     <span style="margin-left:auto; padding:4px 0; display:flex; gap:6px; align-items:center;"><button type="button" class="pc-dd-btn ico${_resFavoritos().has(c.sq) ? " on" : ""}" data-ficha-fav="${c.sq}" title="${_resFavoritos().has(c.sq) ? "Remover dos favoritos" : "Favoritar"}" style="${_resFavoritos().has(c.sq) ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>${_resDropdown("pcResFichaOrd", "", "", `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 130, titulo: "Ordenar" })}</span>
   </div>`;
@@ -1148,6 +1148,13 @@ async function _resRenderMunDet(ctx, dados, cmp) {
   }
   const avisoAno = ctx.anoDet && ctx.anoDet !== RES_ANO_APURADO ? `<div class="pc-rf-aviso">Votação de ${ctx.anoDet} por local. A de ${RES_ANO_APURADO} entra aqui quando o TSE publicar os dados por local.</div>` : "";
   alvo.innerHTML = avisoAno + cabPart + abas + trilho + corpo;
+  // base 2022 com 2026 ainda sem dado por local: colunas viram 2022 | 2026 ("—" até o TSE publicar)
+  if (avisoAno) alvo.querySelectorAll(".pc-lin.pc-lin-pos").forEach((l) => {
+    const vs = l.querySelectorAll(".v");
+    if (vs.length < 2) return;
+    if (l.classList.contains("cab")) { vs[0].textContent = String(ctx.anoDet); vs[1].textContent = String(RES_ANO_APURADO); }
+    else { vs[1].textContent = "—"; vs[1].style.color = "#6B7178"; }
+  });
   const proxima = { zona: "bairros", bairro: "locais", local: "secoes" };
   alvo.querySelectorAll("[data-filtra]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); F[x.dataset.filtra] = x.dataset.valor; st.munAba = proxima[x.dataset.filtra]; _resRenderMunDet(ctx, dados, cmp); }));
   alvo.querySelectorAll("[data-limpa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); const ordemNiveis = ["zona", "bairro", "local"]; ordemNiveis.slice(ordemNiveis.indexOf(x.dataset.limpa)).forEach((n) => delete F[n]); _resRenderMunDet(ctx, dados, cmp); }));
