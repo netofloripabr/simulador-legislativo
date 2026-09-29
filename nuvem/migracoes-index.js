@@ -1315,5 +1315,11 @@ const MIGRACOES_INDEX = [
     "apuracao_chamar_rotina"
    ]
   ]
+ },
+ {
+  "num": 55,
+  "arquivo": "migracao-55-notificacao-mudanca-candidato.sql",
+  "descricao": "Migração 55 — corrige o aviso de mudança de elenco (28/09/2026).",
+  "objetos": []
  }
 ];
