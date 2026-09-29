@@ -801,7 +801,7 @@ async function _resRenderFicha(ctx) {
     if (fd.munSel !== st.fichaMun) { fd.munSel = st.fichaMun; fd.munAba = "bairros"; fd.munFiltro = null; }
     fd.semHist = true; if (fd.munAba === "hist") fd.munAba = "bairros";
     const usa22 = st.anoApurado >= 2026 && !Object.keys(c.municipios || {}).length && ctx.antDe(c);
-    _resRenderMunDet({ ...ctx, st: fd, cenario: usa22 ? ctx.antDe(c) : c, anoDet: usa22 ? RES_ANO_ANTERIOR : null }, { x: { m: { chave: st.fichaMun, nome: _resNomeMun(nome) } } }, null);
+    _resRenderMunDet({ ...ctx, st: fd, cenario: usa22 ? ctx.antDe(c) : c, anoDet: usa22 ? RES_ANO_ANTERIOR : null, rank: a ? { ctx, c, a, st, rerender: () => _resRenderFicha(ctx) } : null }, { x: { m: { chave: st.fichaMun, nome: _resNomeMun(nome) } } }, null);
   }
   alvo.querySelectorAll("[data-fa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.fichaAba = x.dataset.fa; _resRenderFicha(ctx); }));
   alvo.querySelectorAll("[data-ficha-fav]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); _resToggleFav(b.dataset.fichaFav); ctx.favs = _resFavoritos(); const on = ctx.favs.has(b.dataset.fichaFav); b.classList.toggle("on", on); b.style.color = on ? "#C6E62A" : ""; b.style.borderColor = on ? "rgba(198,230,42,.5)" : ""; b.title = on ? "Remover dos favoritos" : "Favoritar"; }));
@@ -1258,7 +1258,7 @@ async function _resRenderMunDet(ctx, dados, cmp) {
     else {
       const linhas = Object.entries(dd).filter(([k]) => passaFiltro(k)).map(([k, v]) => { const [z, s] = k.split("::"); return { z, s, v }; }).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
       const sCands = Object.values(sec[cargo] || {});
-      corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Seção</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + linhas.slice(0, 40).map((l) => `<div class="pc-lin pc-lin-pos"><span></span><span class="n">Seção ${l.s}${subtit(`${l.z}ª zona${F.local ? "" : " · " + (escolaDaSecao(`${l.z}::${l.s}`) || "")}`.replace(/ · $/, ""))}</span><span class="c">${_resChipPos(_resPosicao(sCands, `${l.z}::${l.s}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, cenario.total)}</span></div>`).join("") + (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} seções</div>` : "");
+      corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Seção</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + linhas.slice(0, 40).map((l) => `<div class="pc-lin pc-lin-pos" data-sec="${l.z}::${l.s}"><span></span><span class="n">Seção ${l.s}${subtit(`${l.z}ª zona${F.local ? "" : " · " + (escolaDaSecao(`${l.z}::${l.s}`) || "")}`.replace(/ · $/, ""))}</span><span class="c">${_resChipPos(_resPosicao(sCands, `${l.z}::${l.s}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, cenario.total)}</span></div>`).join("") + (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} seções</div>` : "");
     }
   } else {
     const hist = [];
@@ -1287,6 +1287,31 @@ async function _resRenderMunDet(ctx, dados, cmp) {
     if (l.classList.contains("cab")) { vs[0].textContent = String(ctx.anoDet); vs[1].textContent = String(RES_ANO_APURADO); }
     else { vs[1].textContent = "—"; vs[1].style.color = "#6B7178"; }
   });
+  // Ícone de votação completa também na aba Locais da ficha (29/09/2026):
+  // zona, bairro, colégio e seção abrem o ranking de todos os candidatos.
+  if (ctx.rank && secLoc) {
+    const todas = Object.keys(secLoc._secoes || secLoc._bairroSec || {});
+    const chavesDe = (el) => {
+      if (el.dataset.sec) return [el.dataset.sec];
+      const v = el.dataset.valor, t = el.dataset.filtra;
+      if (t === "zona") return todas.filter((k) => k.split("::")[0] === v);
+      if (t === "bairro") return todas.filter((k) => bairroDaSecao(k) === v);
+      if (t === "local") return todas.filter((k) => escolaDaSecao(k) === v && (!F.bairro || bairroDaSecao(k) === F.bairro));
+      return null;
+    };
+    const R = ctx.rank;
+    for (const el of alvo.querySelectorAll(".pc-lin.pc-lin-pos:not(.cab)")) {
+      const ks = chavesDe(el); if (!ks) continue;
+      const id = `loc|${st.munAba}|${el.dataset.sec || el.dataset.valor}`;
+      const n = el.querySelector(".n");
+      n.style.cssText += "display:flex; align-items:center; gap:6px;";
+      n.insertAdjacentHTML("beforeend", `<button type="button" class="pc-arv-lista${R.st.arvRank === id ? " on" : ""}" data-loc-rank="${escaparAtributoHtml(id)}" title="Votação completa neste local">${RES_IC_LISTA}</button>`);
+      n.querySelector("[data-loc-rank]").addEventListener("click", (e) => { e.stopPropagation(); R.st.arvRank = R.st.arvRank === id ? null : id; R.st.arvRankTodos = false; R.rerender(); });
+      if (R.st.arvRank === id) el.insertAdjacentHTML("afterend", await _resArvRanking(R.ctx, R.c, R.a, chave, ks));
+    }
+    alvo.querySelectorAll("[data-arv-ano]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); R.st.arvRankAno = +b.dataset.arvAno; R.rerender(); }));
+    alvo.querySelectorAll("[data-arv-todos]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); R.st.arvRankTodos = true; R.rerender(); }));
+  }
   const proxima = { zona: "bairros", bairro: "locais", local: "secoes" };
   alvo.querySelectorAll("[data-filtra]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); F[x.dataset.filtra] = x.dataset.valor; st.munAba = proxima[x.dataset.filtra]; _resRenderMunDet(ctx, dados, cmp); }));
   alvo.querySelectorAll("[data-limpa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); const ordemNiveis = ["zona", "bairro", "local"]; ordemNiveis.slice(ordemNiveis.indexOf(x.dataset.limpa)).forEach((n) => delete F[n]); _resRenderMunDet(ctx, dados, cmp); }));
