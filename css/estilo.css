@@ -3378,3 +3378,4 @@
 #modoColaborativoWrap .pc-arv-pos .pc-sen-chip, #modoColaborativoWrap .pc-arv-pos > *{ transform:scale(.85); transform-origin:right center; }
 #modoColaborativoWrap .pc-lin.pc-rf.pc-arv, #modoColaborativoWrap .pc-lin.pc-rf.cab{ grid-template-columns:12px minmax(0,1fr) 42px 30px 44px; column-gap:3px; }
 #modoColaborativoWrap .pc-lin.pc-arv.n1 .n{ padding-left:4px; } #modoColaborativoWrap .pc-lin.pc-arv.n2 .n{ padding-left:8px; } #modoColaborativoWrap .pc-lin.pc-arv.n3 .n{ padding-left:12px; }
+#modoColaborativoWrap .pc-sen-chip.pos:not(.neutro){ color:#FFFFFF !important; }
