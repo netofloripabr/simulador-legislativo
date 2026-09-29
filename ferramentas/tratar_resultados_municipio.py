@@ -25,7 +25,7 @@ Saída (pequena, entra no repositório):
 `chave` do município = NM_MUNICIPIO do TSE (sem acento, maiúsculo) — a
 mesma de dados/regioes-sc.js, que liga ao código IBGE e à malha do mapa.
 """
-import csv, glob, io, json, os, sys, unicodedata, zipfile
+import csv, glob, io, json, os, re, sys, unicodedata, zipfile
 
 CARGO = {"7": "estadual", "6": "federal", "5": "senador"}  # CD_CARGO do TSE
 
@@ -35,7 +35,8 @@ def norm(s):
 def abrir_csvs(pasta, prefixo, ano, uf):
     """Devolve iteradores de linhas (dict) dos CSVs que casam, abrindo zip ou csv solto."""
     alvos = []
-    for z in glob.glob(os.path.join(pasta, f"{prefixo}_{ano}*.zip")):
+    # ignora cópias "arquivo (1).zip" — em 29/09/2026 três cópias do mesmo zip triplicaram os votos por seção de 2022
+    for z in [z for z in glob.glob(os.path.join(pasta, f"{prefixo}_{ano}*.zip")) if not re.search(r" \(\d+\)\.zip$", z)]:
         with zipfile.ZipFile(z) as zf:
             nomes = [n for n in zf.namelist() if n.lower().endswith(".csv")]
             # O zip do Brasil traz o CSV por UF E o BRASIL inteiro — ler os

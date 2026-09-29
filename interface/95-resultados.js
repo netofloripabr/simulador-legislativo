@@ -613,14 +613,14 @@ async function renderResultados() {
     ${aguardando ? `<div class="pc-lobby-duelo on" style="margin-bottom:12px; cursor:default;"><span class="pc-lobby-duelo-ic">${iconeSvg("relogio", 18)}</span><span class="pc-lobby-duelo-tx"><b>Aguardando a apuração de ${anoApurado}</b><i>os votos entram ao vivo quando o TSE começar a divulgar, em 4/10. Até lá, a lista mostra o elenco zerado.</i></span></div>` : ""}
     <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
     ${meta ? "" : _resPartHtml(part && part[cargo] && part[cargo].estado, "Santa Catarina")}
-    <div class="glass-card" style="padding:14px; margin-bottom:12px;">
+    <div class="glass-card" style="padding:14px; margin-bottom:12px;${st.aba === "mapa" ? " display:none;" : ""}">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
         <div class="pc-sub" id="pcResPlenTit" style="margin:0;">Plenário apurado ${anoApurado} — ${totalVagas} vagas</div>
         <button id="pcResPlenToggle" class="pc-mini-btn" title="${colapsado ? "Expandir" : "Recolher"}"><svg viewBox="0 0 16 16" width="13" height="13" style="transform:${colapsado ? "rotate(-90deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
       </div>
       <div id="pcResPlenCorpo" class="pc-plen-corpo${colapsado ? "" : " aberto"}"></div>
     </div>
-    <div class="pc-cargo-switch" style="margin:4px 0 12px;"><button data-res-aba="candidatos" class="${st.aba === "candidatos" ? "active" : ""}">Candidatos</button><button data-res-aba="mapa" class="${st.aba === "mapa" ? "active" : ""}">Mapa</button><button data-res-aba="ferramentas" class="${st.aba === "ferramentas" ? "active" : ""}">Ferramentas</button></div>
+    <div class="pc-cargo-switch" style="margin:4px 0 12px;"><button data-res-aba="candidatos" class="${st.aba === "candidatos" ? "active" : ""}">Candidatos</button><button data-res-aba="mapa" class="${st.aba === "mapa" ? "active" : ""}">Mapa</button></div>
     <div id="pcResCorpo"></div>
     <div class="pc-aviso-nao-pesquisa" style="margin-top:16px;">Dados oficiais do TSE. Jogo de palpites entre participantes — não é pesquisa eleitoral.</div>
   `;
@@ -662,6 +662,7 @@ async function renderResultados() {
   pcState._resRodadas = cargo === "senador" ? {} : _resCalcRodadas(ctx);
   if (!st.plenAno) st.plenAno = anoApurado;
   _resRenderPlenario(ctx);
+  if (st.aba === "ferramentas") st.aba = "candidatos"; // aba removida em 29/09/2026
   if (st.aba === "mapa") await _resRenderMapa(ctx); else if (st.aba === "ferramentas") _resRenderFerramentas(ctx); else _resRenderCandidatos(ctx);
 }
 
@@ -1004,7 +1005,7 @@ async function _resRenderMapa(ctx) {
   }
 
   const meso = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.meso))].sort();
-  const regTxt = st.assoc || st.regiao || "Todo o estado";
+  const regTxt = st.assoc || st.regiao || "Estado";
   const cenTxt = `${cenario.nomeUrna}`;
   // Modo comparação (22/09/2026): a caixa grande do candidato virou o
   // próprio seletor (toque abre a busca); o antigo dropdown "Candidato"
@@ -1017,16 +1018,16 @@ async function _resRenderMapa(ctx) {
     <div class="pc-dd" id="pcResCen">
       <button type="button" class="pc-dd-btn pc-cenario-btn">
         <div class="pc-cenario">
-          <span class="pc-dep-pos">${cands.indexOf(cenario) + 1}º</span>${ctx.modoPartido ? (cenario.eleitos ? `<span class="pc-sen-chip">${cenario.eleitos} eleito${cenario.eleitos > 1 ? "s" : ""}</span>` : "") : _resEtiqueta(cenario, cargo)}
+          ${cenario.total ? `<span class="pc-dep-pos">${cands.indexOf(cenario) + 1}º</span>` : ""}${ctx.modoPartido ? (cenario.eleitos ? `<span class="pc-sen-chip">${cenario.eleitos} eleito${cenario.eleitos > 1 ? "s" : ""}</span>` : "") : _resEtiqueta(cenario, cargo)}
           <span class="pc-dep-cnm" style="flex:1 1 140px;"><span class="pc-dep-cnm-txt">${cenTxt}</span></span>
           <span class="pc-tm-partido" style="max-width:none;">${nomePartidoExibicao(cenario.partido)} · ${(CARGOS.find((x) => x.id === cargo) || {}).label || ""}</span>
-          <span class="pc-cenario-dica">toque para trocar de ${ctx.modoPartido ? "partido" : "candidato"} ${RES_IC_CHEV}</span>
+          <span class="pc-cenario-dica">Selecionar ${ctx.modoPartido ? "partido" : "candidato"} ${RES_IC_CHEV}</span>
         </div>
       </button>
       <div class="pc-dd-menu" style="min-width:260px;"><div style="padding:6px 8px;"><input class="cell" id="pcResCenBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCenLista" style="max-height:240px; overflow:auto;">${listaCand(cenario.sq)}</div></div>
     </div>
     <div class="pc-map-filtros">
-      ${_resDropdown("pcResReg", "Região", st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado"), `<div class="pc-dd-it${!st.regiao && !st.assoc ? " on" : ""}" data-r="">Todo o estado</div><div class="pc-dd-grp">Mesorregiões (IBGE)</div><div class="pc-dd-grid">${meso.map((r) => `<div class="pc-dd-it${st.regiao === r ? " on" : ""}" data-r="${r}">${r.replace(" Catarinense", "")}</div>`).join("")}</div><div class="pc-dd-grp">Associações de municípios</div><div class="pc-dd-grid">${ASSOCIACOES_SC.map((x) => `<div class="pc-dd-it${st.assoc === x ? " on" : ""}" data-a="${x}">${x}</div>`).join("")}</div>`, { largura: 270 })}
+      ${_resDropdown("pcResReg", "Região", st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado"), `<div class="pc-dd-it${!st.regiao && !st.assoc ? " on" : ""}" data-r="">Estado</div><div class="pc-dd-grp">Mesorregiões (IBGE)</div><div class="pc-dd-grid">${meso.map((r) => `<div class="pc-dd-it${st.regiao === r ? " on" : ""}" data-r="${r}">${r.replace(" Catarinense", "")}</div>`).join("")}</div><div class="pc-dd-grp">Associações de municípios</div><div class="pc-dd-grid">${ASSOCIACOES_SC.map((x) => `<div class="pc-dd-it${st.assoc === x ? " on" : ""}" data-a="${x}">${x}</div>`).join("")}</div>`, { largura: 270 })}
       ${_resDropdown("pcResModo", "Ano", `${anoSel}`, [st.anoApurado, st.anoAnterior, st.anoAnterior2].filter(Boolean).map((y) => `<div class="pc-dd-it${anoSel === y ? " on" : ""}" data-y="${y}">${y}</div>`).join(""), { largura: 150 })}
       ${_resDropdown("pcResCmp", "Comparar", cmp ? cmp.nomeUrna : "ninguém", `<div class="pc-dd-it${!cmp ? " on" : ""}" data-sq="">Sem comparação</div><div style="padding:6px 8px;"><input class="cell" id="pcResCmpBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCmpLista" style="max-height:240px; overflow:auto;">${listaCand(st.cmpSq)}</div>`, { largura: 260, direita: true })}
     </div>
@@ -1080,9 +1081,14 @@ async function _resRenderMapa(ctx) {
     const primeiroNome = (nm) => (nm || "").split(" ")[0];
     const L = cmp ? [`${primeiroNome(cmp.nomeUrna)} venceu`, "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", `${primeiroNome(cenario.nomeUrna)} venceu`]
       : st.modo === "var" ? ["perdeu (−50%)", "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", "ganhou (+50%)"] : ["menos votos", "linear-gradient(90deg,#15191E,#34E84A)", "mais votos"];
-    document.getElementById("pcResLegA").textContent = L[0]; const lb = document.getElementById("pcResLegBar"); lb.style.background = bolhas ? "none" : L[1]; lb.innerHTML = !bolhas ? "" : (cmp || st.modo === "var")
-      ? `<span class="pc-leg-bol neg" style="width:13px;height:13px;"></span><span class="pc-leg-bol neg" style="width:7px;height:7px;"></span><span style="display:inline-block;width:10px;"></span><span class="pc-leg-bol" style="width:7px;height:7px;"></span><span class="pc-leg-bol" style="width:13px;height:13px;"></span>`
-      : `<span class="pc-leg-bol" style="width:5px;height:5px;"></span><span class="pc-leg-bol" style="width:9px;height:9px;"></span><span class="pc-leg-bol" style="width:15px;height:15px;"></span>`; document.getElementById("pcResLegB").textContent = L[2];
+    // Bolhas coladas no rótulo de cada lado (29/09/2026): a verde ficava longe
+    // de "Napoleão venceu" e não dava pra associar.
+    const lb = document.getElementById("pcResLegBar"); lb.style.background = bolhas ? "none" : L[1];
+    const bol = (neg, t) => `<span class="pc-leg-bol${neg ? " neg" : ""}" style="width:${t}px;height:${t}px;"></span>`;
+    const dois = bolhas && (cmp || st.modo === "var");
+    document.getElementById("pcResLegA").innerHTML = dois ? `<span style="display:inline-flex;align-items:center;gap:5px;">${bol(true, 13)}${bol(true, 7)}<span>${L[0]}</span></span>` : L[0];
+    document.getElementById("pcResLegB").innerHTML = dois ? `<span style="display:inline-flex;align-items:center;gap:5px;"><span>${L[2]}</span>${bol(false, 7)}${bol(false, 13)}</span>` : L[2];
+    lb.innerHTML = !bolhas || dois ? "" : `${bol(false, 5)}${bol(false, 9)}${bol(false, 15)}`;
     const lista = Object.values(dados).filter(dentro);
     const key = cmp ? "v" : st.modo === "var" ? "var" : "v";
     lista.sort((x, y) => (st.ordem === "desc" ? 1 : -1) * (((y[key] === null ? -1e9 : y[key])) - ((x[key] === null ? -1e9 : x[key]))));
@@ -1096,8 +1102,8 @@ async function _resRenderMapa(ctx) {
       const totC = lista.reduce((s, d) => s + d.vc, 0);
       const leadA = tot >= totC;
       document.getElementById("pcResTotais").outerHTML = `<div class="pc-cmp-tot" id="pcResTotais">
-        <div class="pc-cmp-box${leadA ? " lead" : ""}"><div class="nm">${cenario.nomeUrna}</div><div class="vv${leadA ? " venceu" : ""}">${_resFmt(tot)}</div><div class="pc">${nomePartidoExibicao(cenario.partido)}${leadA ? " · lidera" : ""}</div></div>
-        <div class="pc-cmp-box${!leadA ? " lead" : ""}"><div class="nm">${cmp.nomeUrna}</div><div class="vv${!leadA ? " venceu" : ""}">${_resFmt(totC)}</div><div class="pc">${nomePartidoExibicao(cmp.partido)}${!leadA ? " · lidera" : ""}</div></div>
+        <div class="pc-cmp-box${leadA ? " lead" : ""}"><div class="nm">${cenario.nomeUrna}</div><div class="vv${leadA ? " venceu" : ""}">${_resFmt(tot)}</div><div class="pc">${nomePartidoExibicao(cenario.partido)}</div></div>
+        <div class="pc-cmp-box${!leadA ? " lead" : ""}"><div class="nm">${cmp.nomeUrna}</div><div class="vv${!leadA ? " venceu" : ""}">${_resFmt(totC)}</div><div class="pc">${nomePartidoExibicao(cmp.partido)}</div></div>
         <div class="pc-cmp-dif">Diferença · ${st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado")}<b>${(leadA ? cenario : cmp).nomeUrna} +${_resFmt(Math.abs(tot - totC))}</b></div>
       </div>`;
       // Os nomes dos candidatos aparecem uma vez só, no cabeçalho (pedido de

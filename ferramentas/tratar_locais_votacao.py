@@ -46,7 +46,8 @@ def nome_curto(nome):
 
 def abrir_csvs(pasta, prefixo, ano, uf):
     alvos = []
-    for z in glob.glob(os.path.join(pasta, f"{prefixo}_{ano}*.zip")):
+    # ignora cópias "arquivo (1).zip" — em 29/09/2026 três cópias do mesmo zip triplicaram os votos por seção de 2022
+    for z in [z for z in glob.glob(os.path.join(pasta, f"{prefixo}_{ano}*.zip")) if not re.search(r" \(\d+\)\.zip$", z)]:
         with zipfile.ZipFile(z) as zf:
             nomes = [n for n in zf.namelist() if n.lower().endswith(".csv")]
             so_uf = [n for n in nomes if f"_{uf}." in n or f"_{uf}.csv" in n.upper()]
