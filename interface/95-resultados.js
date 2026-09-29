@@ -751,41 +751,22 @@ async function _resRenderFicha(ctx) {
   if (!alvo || !c) return;
   const a = ctx.antDe(c);
   const ordem = st.fichaOrdem || "desc";
+  // Modo 2026 com base 2022: aba Municípios vira árvore (município → bairro →
+  // colégio → seção), aprovado 29/09/2026; a aba Locais sai (ficaria repetida).
+  const arv = st.anoApurado >= 2026 && !!a;
+  const ordemArv = RES_ARV_ORDENS.some(([o]) => o === ordem) ? ordem : "d26";
+  if (arv && st.fichaAba === "sec") st.fichaAba = "mun";
   const abas = `<div class="pc-sub-abas" style="margin:12px 0 4px;">
     <span class="${st.fichaAba === "mun" ? "on" : ""}" data-fa="mun">Municípios</span>
-    <span class="${st.fichaAba === "sec" ? "on" : ""}" data-fa="sec">Locais</span>
+    ${arv ? "" : `<span class="${st.fichaAba === "sec" ? "on" : ""}" data-fa="sec">Locais</span>`}
     <span class="${st.fichaAba === "hist" ? "on" : ""}" data-fa="hist">Histórico</span>
-    <span style="margin-left:auto; padding:4px 0; display:flex; gap:6px; align-items:center;"><button type="button" class="pc-dd-btn ico${_resFavoritos().has(c.sq) ? " on" : ""}" data-ficha-fav="${c.sq}" title="${_resFavoritos().has(c.sq) ? "Remover dos favoritos" : "Favoritar"}" style="${_resFavoritos().has(c.sq) ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>${_resDropdown("pcResFichaOrd", "", "", `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 130, titulo: "Ordenar" })}</span>
+    <span style="margin-left:auto; padding:4px 0; display:flex; gap:6px; align-items:center;"><button type="button" class="pc-dd-btn ico${_resFavoritos().has(c.sq) ? " on" : ""}" data-ficha-fav="${c.sq}" title="${_resFavoritos().has(c.sq) ? "Remover dos favoritos" : "Favoritar"}" style="${_resFavoritos().has(c.sq) ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>${_resDropdown("pcResFichaOrd", "", "", arv ? RES_ARV_ORDENS.map(([o, t]) => `<div class="pc-dd-it${ordemArv === o ? " on" : ""}" data-o="${o}">${t}</div>`).join("") : `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: arv ? 170 : 130, titulo: "Ordenar" })}</span>
   </div>`;
   let corpo = "";
   // Ano mais recente à direita, junto do Δ (pedido de 22/09/2026).
   const cab = (c1, c2, c3) => `<div class="pc-lin cab"><span></span><span>${c1}</span><span class="v">${c3}</span><span class="v">${c2}</span><span class="v">Δ</span></div>`;
-  if (st.fichaAba === "mun" && st.anoApurado >= 2026 && a) {
-    // 2026 × 2022 por município (aprovado 29/09/2026): a votação de 2022 já
-    // aparece antes da apuração; 2026 e a diferença preenchem conforme os
-    // números por município chegam (ao vivo, se o TSE publicar por município).
-    const muns = await _resCarregar(RES_ANO_ANTERIOR, "municipios");
-    const nomeDe = (k) => (muns && muns.municipios[k] && muns.municipios[k].nome) || k;
-    const f1 = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-    const dif = (v26, v22, tem) => {
-      if (!tem) return `<span class="d" style="color:#6B7178;">—</span>`;
-      const d = v26 - v22, pc = v22 ? d / v22 * 100 : null, cor = d >= 0 ? "#34E84A" : "#E8432A";
-      return `<span class="d" style="color:${cor};">${d >= 0 ? "+" : "−"}${_resFmt(Math.abs(d))}${pc === null ? "" : `<i class="pc-rf-pc">${d >= 0 ? "+" : "−"}${f1(Math.abs(pc))}%</i>`}</span>`;
-    };
-    const chaves = [...new Set([...Object.keys(a.municipios || {}), ...Object.keys(c.municipios || {})])];
-    const linhas = chaves.map((k) => ({ k, nome: nomeDe(k), v22: a.municipios[k] || 0, v26: (c.municipios || {})[k] || 0 }))
-      .sort((x, y) => (ordem === "desc" ? 1 : -1) * ((y.v26 - x.v26) || (y.v22 - x.v22)));
-    const temMun = Object.keys(c.municipios || {}).length > 0;
-    const tot26 = c.total || 0, tem26 = tot26 > 0;
-    const dTot = tot26 - a.total, pTot = a.total ? dTot / a.total * 100 : null, corTot = dTot >= 0 ? "#34E84A" : "#E8432A";
-    corpo = `<div class="pc-rf-tot">
-        <div><b>${_resFmt(a.total)}</b><span>${RES_ANO_ANTERIOR}</span></div>
-        <div><b>${_resFmt(tot26)}</b><span>${st.anoApurado}</span></div>
-        <div>${tem26 ? `<b style="color:${corTot};">${dTot >= 0 ? "+" : "−"}${_resFmt(Math.abs(dTot))}</b><span style="color:${corTot};">${pTot === null ? "" : (dTot >= 0 ? "+" : "−") + f1(Math.abs(pTot)) + "%"}</span>` : `<b style="color:#6B7178;">—</b><span>diferença</span>`}</div>
-      </div>
-      <div class="pc-lin pc-rf cab"><span></span><span>Município</span><span class="v">${RES_ANO_ANTERIOR}</span><span class="v">${st.anoApurado}</span><span class="v">Dif.</span></div>` +
-      linhas.slice(0, 40).map((l, i) => { const tem = temMun && l.v26 > 0; return `<div class="pc-lin pc-rf clic" data-fmun="${l.k}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(l.nome)}${tem ? "" : `<i class="pc-loc-sub">aguardando</i>`}</span><span class="v v-ant">${_resFmt(l.v22)}</span><span class="v v-atu">${tem ? _resFmt(l.v26) : "—"}</span>${dif(l.v26, l.v22, tem)}</div>`; }).join("") +
-      (linhas.length > 40 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${linhas.length - 40} municípios</div>` : "");
+  if (st.fichaAba === "mun" && arv) {
+    corpo = await _resArvore(ctx, c, a, ordemArv);
   } else if (st.fichaAba === "mun") {
     const muns = await _resCarregar(RES_ANO_APURADO, "municipios");
     const nomeDe = (k) => (muns && muns.municipios[k] && muns.municipios[k].nome) || k;
@@ -820,9 +801,156 @@ async function _resRenderFicha(ctx) {
   }
   alvo.querySelectorAll("[data-fa]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.fichaAba = x.dataset.fa; _resRenderFicha(ctx); }));
   alvo.querySelectorAll("[data-ficha-fav]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); _resToggleFav(b.dataset.fichaFav); ctx.favs = _resFavoritos(); const on = ctx.favs.has(b.dataset.fichaFav); b.classList.toggle("on", on); b.style.color = on ? "#C6E62A" : ""; b.style.borderColor = on ? "rgba(198,230,42,.5)" : ""; b.title = on ? "Remover dos favoritos" : "Favoritar"; }));
-  alvo.querySelectorAll("[data-fmun]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.fichaMun = x.dataset.fmun; st.fichaAba = "sec"; _resRenderFicha(ctx); }));
+  if (!arv) alvo.querySelectorAll("[data-fmun]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); st.fichaMun = x.dataset.fmun; st.fichaAba = "sec"; _resRenderFicha(ctx); }));
+  if (arv && st.fichaAba === "mun") _resArvLigar(alvo, st, () => _resRenderFicha(ctx));
   _resLigarDropdowns(alvo, (id, it) => { if (id === "pcResFichaOrd") { st.fichaOrdem = it.dataset.o; _resRenderFicha(ctx); } });
   alvo.addEventListener("click", (e) => e.stopPropagation());
+}
+
+// ---------- árvore da ficha (2026 × 2022), aprovada 29/09/2026 ----------
+const RES_ARV_ORDENS = [["d26", "Maior 2026"], ["a26", "Menor 2026"], ["d22", "Maior 2022"], ["a22", "Menor 2022"], ["cresc", "Maior crescimento"], ["perda", "Maior perda"]];
+const RES_IC_LISTA = '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M5.5 4h8M5.5 8h8M5.5 12h8"/><circle cx="2.3" cy="4" r=".9" fill="currentColor" stroke="none"/><circle cx="2.3" cy="8" r=".9" fill="currentColor" stroke="none"/><circle cx="2.3" cy="12" r=".9" fill="currentColor" stroke="none"/></svg>';
+
+function _resArvOrdenar(lista, ordem) {
+  const f = {
+    d26: (x, y) => (y.v26 - x.v26) || (y.v22 - x.v22), a26: (x, y) => (x.v26 - y.v26) || (x.v22 - y.v22),
+    d22: (x, y) => y.v22 - x.v22, a22: (x, y) => x.v22 - y.v22,
+    cresc: (x, y) => ((y.v26 - y.v22) - (x.v26 - x.v22)) || (y.v22 - x.v22),
+    perda: (x, y) => ((x.v26 - x.v22) - (y.v26 - y.v22)) || (y.v22 - x.v22),
+  }[ordem] || ((x, y) => y.v22 - x.v22);
+  return lista.sort(f);
+}
+
+// Agrupa os votos de um número por bairro → local → seção num arquivo secoes/.
+function _resArvAgrupar(sec, cargo, numero, alvo, campo) {
+  const m = sec && sec[cargo] && sec[cargo][String(numero)];
+  if (!m) return;
+  for (const [k, v] of Object.entries(m)) {
+    const b = (sec._bairroSec || {})[k] || "Sem bairro", l = (sec._secoes || {})[k] || "Local não informado";
+    const nb = alvo[b] = alvo[b] || { v22: 0, v26: 0, locais: {} };
+    const nl = nb.locais[l] = nb.locais[l] || { v22: 0, v26: 0, secoes: {} };
+    const ns = nl.secoes[k] = nl.secoes[k] || { v22: 0, v26: 0 };
+    nb[campo] += v; nl[campo] += v; ns[campo] += v;
+  }
+}
+
+async function _resArvore(ctx, c, a, ordem) {
+  const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
+  const { st, cargo } = ctx;
+  st.arvAb = st.arvAb || {};
+  const muns = await _resCarregar(RES_ANO_ANTERIOR, "municipios");
+  const nomeDe = (k) => (muns && muns.municipios[k] && muns.municipios[k].nome) || k;
+  const f1 = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const temMun = Object.keys(c.municipios || {}).length > 0;
+  const dif = (v26, v22, tem) => {
+    if (!tem) return `<span class="d" style="color:#6B7178;">—</span>`;
+    const d = v26 - v22, pc = v22 ? d / v22 * 100 : null, cor = d >= 0 ? "#34E84A" : "#E8432A";
+    return `<span class="d" style="color:${cor};">${d >= 0 ? "+" : "−"}${_resFmt(Math.abs(d))}${pc === null ? "" : `<i class="pc-rf-pc">${d >= 0 ? "+" : "−"}${f1(Math.abs(pc))}%</i>`}</span>`;
+  };
+  const lista = async (chave, secKeys, rot) => st.arvRank === rot ? await _resArvRanking(ctx, c, a, chave, secKeys) : "";
+  const linha = (nivel, id, nome, sub, v22, v26, tem, opts = {}) => {
+    const aberto = !!st.arvAb[id];
+    const chev = opts.folha ? "" : `<span class="pc-arv-chev${aberto ? " on" : ""}">${RES_IC_CHEV}</span>`;
+    const ic = `<button type="button" class="pc-arv-lista${st.arvRank === id ? " on" : ""}" data-arv-rank="${esc(id)}" title="Votação completa neste local">${RES_IC_LISTA}</button>`;
+    return `<div class="pc-lin pc-rf pc-arv n${nivel}${opts.folha ? "" : " clic"}${aberto ? " aberto" : ""}"${opts.folha ? "" : ` data-arv="${esc(id)}"`}><span class="i">${opts.pos || ""}</span><span class="n">${chev}<span class="pc-arv-nome">${nome}${sub ? `<i class="pc-loc-sub">${sub}</i>` : ""}</span>${ic}</span><span class="v v-ant">${_resFmt(v22)}</span><span class="v v-atu">${tem ? _resFmt(v26) : "—"}</span>${dif(v26, v22, tem)}</div>`;
+  };
+
+  const chaves = [...new Set([...Object.keys(a.municipios || {}), ...Object.keys(c.municipios || {})])];
+  const mlin = _resArvOrdenar(chaves.map((k) => ({ k, nome: nomeDe(k), v22: a.municipios[k] || 0, v26: (c.municipios || {})[k] || 0 })), ordem);
+  const tot26 = c.total || 0, tem26 = tot26 > 0;
+  const dTot = tot26 - a.total, pTot = a.total ? dTot / a.total * 100 : null, corTot = dTot >= 0 ? "#34E84A" : "#E8432A";
+  let h = `<div class="pc-rf-tot">
+      <div><b>${_resFmt(a.total)}</b><span>${RES_ANO_ANTERIOR}</span></div>
+      <div><b>${_resFmt(tot26)}</b><span>${st.anoApurado}</span></div>
+      <div>${tem26 ? `<b style="color:${corTot};">${dTot >= 0 ? "+" : "−"}${_resFmt(Math.abs(dTot))}</b><span style="color:${corTot};">${pTot === null ? "" : (dTot >= 0 ? "+" : "−") + f1(Math.abs(pTot)) + "%"}</span>` : `<b style="color:#6B7178;">—</b><span>diferença</span>`}</div>
+    </div>
+    <div class="pc-lin pc-rf cab"><span></span><span>Município</span><span class="v">${RES_ANO_ANTERIOR}</span><span class="v">${st.anoApurado}</span><span class="v">Dif.</span></div>`;
+  const limM = st.arvMais && st.arvMais.__mun ? mlin.length : 40;
+  for (const [i, l] of mlin.slice(0, limM).entries()) {
+    const idM = "m|" + l.k, tem = temMun && l.v26 > 0;
+    h += linha(0, idM, _resNomeMun(l.nome), tem ? "" : "aguardando", l.v22, l.v26, tem, { pos: `${i + 1}º` });
+    h += await lista(l.k, null, idM);
+    if (!st.arvAb[idM]) continue;
+    const sec22 = await _resCarregar(RES_ANO_ANTERIOR, "secoes/" + _resSlug(l.k), "");
+    const sec26 = await _resCarregar(RES_ANO_APURADO, "secoes/" + _resSlug(l.k), "");
+    const arvore = {};
+    _resArvAgrupar(sec22, cargo, a.numero, arvore, "v22");
+    _resArvAgrupar(sec26, cargo, c.numero, arvore, "v26");
+    const tem26L = !!(sec26 && sec26[cargo]);
+    const bl = _resArvOrdenar(Object.entries(arvore).map(([nome, n]) => ({ nome, ...n })), ordem);
+    if (!bl.length) { h += `<div class="pc-arv-vazio">Sem votação por local neste município.</div>`; continue; }
+    const limB = st.arvMais && st.arvMais[idM] ? bl.length : 6;
+    for (const b of bl.slice(0, limB)) {
+      const idB = idM + "|" + b.nome;
+      const secsB = Object.values(b.locais).flatMap((x) => Object.keys(x.secoes));
+      h += linha(1, idB, esc(b.nome), "", b.v22, b.v26, tem26L);
+      h += await lista(l.k, secsB, idB);
+      if (!st.arvAb[idB]) continue;
+      for (const lc of _resArvOrdenar(Object.entries(b.locais).map(([nome, n]) => ({ nome, ...n })), ordem)) {
+        const idL = idB + "|" + lc.nome;
+        h += linha(2, idL, esc(lc.nome), "", lc.v22, lc.v26, tem26L);
+        h += await lista(l.k, Object.keys(lc.secoes), idL);
+        if (!st.arvAb[idL]) continue;
+        for (const sc of _resArvOrdenar(Object.entries(lc.secoes).map(([k, n]) => ({ k, ...n })), ordem)) {
+          const [z, sn] = sc.k.split("::"), idS = idL + "|" + sc.k;
+          h += linha(3, idS, `Seção ${sn}`, `${z}ª zona`, sc.v22, sc.v26, tem26L, { folha: true });
+          h += await lista(l.k, [sc.k], idS);
+        }
+      }
+    }
+    if (bl.length > limB) h += `<div class="pc-arv-mais" data-arv-mais="${esc(idM)}">+ ${bl.length - limB} bairros</div>`;
+  }
+  if (mlin.length > limM) h += `<div class="pc-arv-mais" data-arv-mais="__mun">+ ${mlin.length - limM} municípios</div>`;
+  return h;
+}
+
+// Votação completa de todos os candidatos num recorte (município inteiro, ou
+// o conjunto de seções de um bairro/colégio/seção), no ano escolhido.
+async function _resArvRanking(ctx, c, a, chave, secKeys) {
+  const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
+  const { st, cargo } = ctx;
+  const ano = st.arvRankAno === RES_ANO_APURADO ? RES_ANO_APURADO : RES_ANO_ANTERIOR;
+  const eu = ano === RES_ANO_APURADO ? c : a;
+  const cands = ano === RES_ANO_APURADO ? ctx.cands : ((ctx.ant && ctx.ant.candidatos) || []);
+  const porNum = new Map(cands.map((x) => [String(x.numero), x]));
+  const tot = new Map();
+  if (!secKeys) {
+    for (const x of cands) { const v = (x.municipios || {})[chave] || 0; if (v) tot.set(String(x.numero), v); }
+  } else {
+    const sec = await _resCarregar(ano, "secoes/" + _resSlug(chave), "");
+    const ks = new Set(secKeys);
+    for (const [num, m] of Object.entries((sec && sec[cargo]) || {})) {
+      let v = 0; for (const k of ks) v += m[k] || 0;
+      if (v && porNum.has(num)) tot.set(num, v);
+    }
+  }
+  const soma = [...tot.values()].reduce((x, y) => x + y, 0);
+  const ord = [...tot.entries()].sort((x, y) => y[1] - x[1]);
+  const lim = st.arvRankTodos ? ord.length : 12;
+  const chips = [RES_ANO_ANTERIOR, RES_ANO_APURADO].map((y) => `<span class="pc-sen-chip pc-arv-ano${y === ano ? " on" : ""}" data-arv-ano="${y}">${y}</span>`).join("");
+  const f1 = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  const corpo = !ord.length ? `<div class="pc-arv-vazio">${ano === RES_ANO_APURADO ? `A votação de ${ano} neste local ainda não foi publicada.` : "Sem votos neste recorte."}</div>`
+    : `<div class="pc-lin pc-arv-rk cab"><span></span><span>Candidato</span><span class="v">Votos</span><span class="v">%</span></div>` +
+      ord.slice(0, lim).map(([num, v], i) => { const x = porNum.get(num); const sou = eu && String(eu.numero) === num;
+        return `<div class="pc-lin pc-arv-rk${sou ? " eu" : ""}"><span class="i">${i + 1}º</span><span class="n">${esc(x.nomeUrna)}<i class="pc-loc-sub">${nomePartidoExibicao(x.partido)}</i></span><span class="v">${_resFmt(v)}</span><span class="v p">${soma ? f1(v / soma * 100) + "%" : ""}</span></div>`; }).join("") +
+      (ord.length > lim ? `<div class="pc-arv-mais" data-arv-todos="1">+ ${ord.length - lim} candidatos com voto neste local</div>` : "");
+  return `<div class="pc-arv-painel"><div class="pc-arv-painel-cab">${chips}<span>${ord.length ? `${_resFmt(soma)} votos nominais` : ""}</span></div>${corpo}</div>`;
+}
+
+function _resArvLigar(alvo, st, rerender) {
+  alvo.querySelectorAll("[data-arv]").forEach((x) => x.addEventListener("click", (e) => {
+    e.stopPropagation(); const id = x.dataset.arv;
+    if (st.arvAb[id]) Object.keys(st.arvAb).forEach((k) => { if (k === id || k.startsWith(id + "|")) delete st.arvAb[k]; });
+    else st.arvAb[id] = true;
+    rerender();
+  }));
+  alvo.querySelectorAll("[data-arv-rank]").forEach((b) => b.addEventListener("click", (e) => {
+    e.stopPropagation(); const id = b.dataset.arvRank;
+    st.arvRank = st.arvRank === id ? null : id; st.arvRankTodos = false; rerender();
+  }));
+  alvo.querySelectorAll("[data-arv-ano]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.arvRankAno = +b.dataset.arvAno; rerender(); }));
+  alvo.querySelectorAll("[data-arv-todos]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.arvRankTodos = true; rerender(); }));
+  alvo.querySelectorAll("[data-arv-mais]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.arvMais = st.arvMais || {}; st.arvMais[b.dataset.arvMais] = true; rerender(); }));
 }
 
 // ---------- aba Mapa ----------
