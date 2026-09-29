@@ -3203,7 +3203,7 @@
 #modoColaborativoWrap .pc-lin.pc-lin-pos > .v.p{ font-size:9px; font-weight:600; color:#8A9096; }
 #modoColaborativoWrap .pc-lin.pc-lin-pos.cab > span{ font-size:9px; font-weight:600; color:#6B7178; }
 #modoColaborativoWrap .pc-lin.pc-lin-pos.cab > .c{ justify-content:center; }
-#modoColaborativoWrap .pc-sen-chip.pos{ font-size:8.5px; padding:2.4px 6px; height:15px; min-width:0; }
+#modoColaborativoWrap .pc-sen-chip.pos{ font-size:8.5px; padding:2.4px 6px; height:15px; min-width:0; color:#FFFFFF; font-weight:800; }
 #modoColaborativoWrap .pc-sen-chip.pos.neutro{ background:#3A3F45; color:#DDE0E2; }
 #modoColaborativoWrap .pc-lin.pc-lin-pos > .n{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
 /* Lista compacta de candidatos (aprovada 23/09/2026): uma linha por
