@@ -811,6 +811,14 @@ async function _resRenderMapa(ctx) {
   const regPorIbge = new Map(MUNICIPIOS_SC_REGIOES.map((m) => [m.ibge, m]));
   const regPorChave = new Map(MUNICIPIOS_SC_REGIOES.map((m) => [m.chave, m]));
   const a = ctx.antDe(cenario);
+  // Ano do mapa (28/09/2026): 2026 · 2022 · 2018, no lugar do modo Variação.
+  st.modo = "votos";
+  const anoSel = st.modoAno || st.anoApurado;
+  const doAno = (c, y) => !c ? null : y === st.anoApurado ? c : y === st.anoAnterior ? ctx.antDe(c) : y === st.anoAnterior2 && ctx.ant2De ? ctx.ant2De(c) : null;
+  const prevAno = anoSel === st.anoApurado ? st.anoAnterior : anoSel === st.anoAnterior ? st.anoAnterior2 : null;
+  const baseCen = doAno(cenario, anoSel), basePrev = prevAno ? doAno(cenario, prevAno) : null;
+  const candsAno = anoSel === st.anoApurado ? cands : anoSel === st.anoAnterior ? ((ctx.ant && ctx.ant.candidatos) || []) : ((ctx.ant2 && ctx.ant2.candidatos) || []);
+  const cenTotal = baseCen ? baseCen.total : 0;
 
   // projeção equiretangular pro viewBox
   if (!pcState._resGeoSvg) {
@@ -835,6 +843,7 @@ async function _resRenderMapa(ctx) {
   // deu lugar a "Comparar com" — escolher um 2º candidato troca a cor do
   // mapa, os totais e a lista pra ele vs o candidato principal.
   const cmp = st.cmpSq ? cands.find((c) => c.sq === st.cmpSq) : null;
+  const baseCmp = cmp ? doAno(cmp, st.modoAno || st.anoApurado) : null;
   const listaCand = (idAtivo) => cands.slice(0, 40).map((c) => `<div class="pc-dd-it${c.sq === idAtivo ? " on" : ""}" data-sq="${c.sq}">${c.nomeUrna} <small style="color:#8A9096;">${c.partido}</small></div>`).join("");
   corpo.innerHTML = `
     <div class="pc-dd" id="pcResCen">
@@ -850,7 +859,7 @@ async function _resRenderMapa(ctx) {
     </div>
     <div class="pc-map-filtros">
       ${_resDropdown("pcResReg", "Região", st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado"), `<div class="pc-dd-it${!st.regiao && !st.assoc ? " on" : ""}" data-r="">Todo o estado</div><div class="pc-dd-grp">Mesorregiões (IBGE)</div><div class="pc-dd-grid">${meso.map((r) => `<div class="pc-dd-it${st.regiao === r ? " on" : ""}" data-r="${r}">${r.replace(" Catarinense", "")}</div>`).join("")}</div><div class="pc-dd-grp">Associações de municípios</div><div class="pc-dd-grid">${ASSOCIACOES_SC.map((x) => `<div class="pc-dd-it${st.assoc === x ? " on" : ""}" data-a="${x}">${x}</div>`).join("")}</div>`, { largura: 270 })}
-      ${cmp ? "" : _resDropdown("pcResModo", "Modo", st.modo === "var" ? `Var. ${RES_ANO_ANTERIOR}` : `${RES_ANO_APURADO}`, `<div class="pc-dd-grp">Votos de ${cenario.nomeUrna}</div><div class="pc-dd-it${st.modo === "votos" ? " on" : ""}" data-m="votos">Votos ${RES_ANO_APURADO}</div><div class="pc-dd-it${st.modo === "var" ? " on" : ""}" data-m="var">Variação vs ${RES_ANO_ANTERIOR} (ganhou / perdeu)</div>`, { largura: 230 })}
+      ${_resDropdown("pcResModo", "Ano", `${anoSel}`, [st.anoApurado, st.anoAnterior, st.anoAnterior2].filter(Boolean).map((y) => `<div class="pc-dd-it${anoSel === y ? " on" : ""}" data-y="${y}">${y}</div>`).join(""), { largura: 150 })}
       ${_resDropdown("pcResCmp", "Comparar", cmp ? cmp.nomeUrna : "ninguém", `<div class="pc-dd-it${!cmp ? " on" : ""}" data-sq="">Sem comparação</div><div style="padding:6px 8px;"><input class="cell" id="pcResCmpBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCmpLista" style="max-height:240px; overflow:auto;">${listaCand(st.cmpSq)}</div>`, { largura: 260, direita: true })}
     </div>
     <div class="glass-card pc-mapa-card" style="padding:10px;"><div class="pc-mapa-forma"><button type="button" data-forma="cores" class="${st.mapaForma !== "bolhas" ? "on" : ""}">Cores</button><button type="button" data-forma="bolhas" class="${st.mapaForma === "bolhas" ? "on" : ""}">Bolhas</button></div>${pcState._resGeoSvg}
@@ -863,9 +872,9 @@ async function _resRenderMapa(ctx) {
 
   const dados = {};
   MUNICIPIOS_SC_REGIOES.forEach((m) => {
-    const v = cenario.municipios[m.chave] || 0;
-    const v0 = a ? (a.municipios[m.chave] || 0) : null;
-    const vc = cmp ? (cmp.municipios[m.chave] || 0) : null;
+    const v = baseCen ? (baseCen.municipios[m.chave] || 0) : 0;
+    const v0 = basePrev ? (basePrev.municipios[m.chave] || 0) : null;
+    const vc = cmp ? (baseCmp ? (baseCmp.municipios[m.chave] || 0) : 0) : null;
     dados[m.ibge] = { m, v, v0, vc, var: v0 ? _resPct(v, v0) : null };
   });
   const dentro = (d) => (!st.regiao || d.m.meso === st.regiao) && (!st.assoc || d.m.assoc === st.assoc);
@@ -909,7 +918,7 @@ async function _resRenderMapa(ctx) {
     const lista = Object.values(dados).filter(dentro);
     const key = cmp ? "v" : st.modo === "var" ? "var" : "v";
     lista.sort((x, y) => (st.ordem === "desc" ? 1 : -1) * (((y[key] === null ? -1e9 : y[key])) - ((x[key] === null ? -1e9 : x[key]))));
-    const tot = lista.reduce((s, d) => s + d.v, 0), tot0 = a ? lista.reduce((s, d) => s + (d.v0 || 0), 0) : null;
+    const tot = lista.reduce((s, d) => s + d.v, 0), tot0 = basePrev ? lista.reduce((s, d) => s + (d.v0 || 0), 0) : null;
     document.getElementById("pcResOrdTit").textContent = "Municípios · " + (st.assoc || st.regiao || "todo o estado");
     // Estado do mapa pra impressão (documento no padrão do palpite, 28/09/2026)
     st._imp = { tipo: "mapa", cenario, cmp, lista, tot, totC: cmp ? lista.reduce((x, d) => x + d.vc, 0) : null, tot0,
@@ -938,12 +947,12 @@ async function _resRenderMapa(ctx) {
       // Proporção do recorte sobre o total do candidato (pedido de 22/09/2026):
       // "Vale do Itajaí = 30.205 · 81,8% do total".
       const pctDe = (v, base) => base ? ` · ${(v / base * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` : "";
-      document.getElementById("pcResTotais").outerHTML = `<div class="pc-dep-tiles" id="pcResTotais" style="margin-top:10px;"><div class="pc-dep-tile ref"><span class="tv">${_resFmt(tot)}</span><span class="tr">votos ${RES_ANO_APURADO}${pctDe(tot, cenario.total)}</span></div><div class="pc-dep-tile ref"><span class="tv">${tot0 === null ? "—" : _resFmt(tot0)}</span><span class="tr">votos ${RES_ANO_ANTERIOR}${tot0 === null ? "" : pctDe(tot0, a.total)}</span></div><div class="pc-dep-tile ref"><span class="tv">${_resPctHtml(tot0 ? _resPct(tot, tot0) : null)}</span><span class="tr">variação</span></div></div>`;
+      document.getElementById("pcResTotais").outerHTML = `<div class="pc-dep-tiles" id="pcResTotais" style="margin-top:10px;"><div class="pc-dep-tile ref"><span class="tv">${_resFmt(tot)}</span><span class="tr">votos ${anoSel}${pctDe(tot, cenTotal)}</span></div><div class="pc-dep-tile ref"><span class="tv">${tot0 === null ? "—" : _resFmt(tot0)}</span><span class="tr">${prevAno ? "votos " + prevAno : "—"}${tot0 === null || !basePrev ? "" : pctDe(tot0, basePrev.total)}</span></div><div class="pc-dep-tile ref"><span class="tv">${_resPctHtml(tot0 ? _resPct(tot, tot0) : null)}</span><span class="tr">variação</span></div></div>`;
       // Colunas no alinhamento da referência (Politique, aprovado 23/09/2026):
       // Pos. = colocação do candidato entre TODOS do cargo naquele município
       // (etiqueta verde do 1º ao 3º), Votos, % = fatia do total do candidato.
       const cab = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Município</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">${st.modo === "var" ? "Δ " + RES_ANO_ANTERIOR : "%"}</span></div>`;
-      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(d.m.nome)}</span><span class="c">${_resChipPos(_resPosicao(cands, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${st.modo === "var" ? _resPctHtml(d.var) : _resPctTotal(d.v, cenario.total)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
+      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(d.m.nome)}</span><span class="c">${_resChipPos(_resPosicao(candsAno, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${st.modo === "var" ? _resPctHtml(d.var) : _resPctTotal(d.v, cenTotal)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
     }
     document.querySelectorAll("#pcResMapaLista [data-mun]").forEach((el) => el.addEventListener("click", () => { st.munSel = st.munSel === el.dataset.mun ? null : el.dataset.mun; pintar(); }));
     if (st.munSel && !ctx.modoPartido) _resRenderMunDet(ctx, dados, cmp);
@@ -956,7 +965,7 @@ async function _resRenderMapa(ctx) {
   }));
   _resLigarDropdowns(corpo, (id, it) => {
     const rot = (dd, t) => { const e = document.querySelector(`#${dd} [data-dd-txt]`); if (e) e.textContent = t; };
-    if (id === "pcResModo") { st.modo = it.dataset.m; rot("pcResModo", st.modo === "var" ? `Var. ${RES_ANO_ANTERIOR}` : `${RES_ANO_APURADO}`); pintar(); }
+    if (id === "pcResModo") { st.modoAno = Number(it.dataset.y); st.munSel = null; (ctx.rerender || renderResultados)(); }
     if (id === "pcResReg") { st.regiao = it.dataset.r || ""; st.assoc = it.dataset.a || ""; st.munSel = null; rot("pcResReg", st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado")); pintar(); }
     if (id === "pcResMapaOrd") { st.ordem = it.dataset.o; pintar(); }
     if (id === "pcResCen") { st.cenario = it.dataset.sq; st.munSel = null; (ctx.rerender || renderResultados)(); }
