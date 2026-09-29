@@ -856,7 +856,7 @@ async function _resArvore(ctx, c, a, ordem) {
     const aberto = !!st.arvAb[id];
     const chev = opts.folha ? "" : `<span class="pc-arv-chev${aberto ? " on" : ""}">${RES_IC_CHEV}</span>`;
     const ic = `<button type="button" class="pc-arv-lista${st.arvRank === id ? " on" : ""}" data-arv-rank="${esc(id)}" title="Votação completa neste local">${RES_IC_LISTA}</button>`;
-    return `<div class="pc-lin pc-rf pc-arv n${nivel}${opts.folha ? "" : " clic"}${aberto ? " aberto" : ""}"${opts.folha ? "" : ` data-arv="${esc(id)}"`}><span class="i">${opts.pos || ""}</span><span class="n">${chev}<span class="pc-arv-nome">${nome}${sub ? `<i class="pc-loc-sub">${sub}</i>` : ""}</span>${ic}</span><span class="v v-ant">${_resFmt(v22)}</span><span class="v v-atu">${tem ? _resFmt(v26) : "—"}</span>${dif(v26, v22, tem)}</div>`;
+    return `<div class="pc-lin pc-rf pc-arv n${nivel}${opts.folha ? "" : " clic"}${aberto ? " aberto" : ""}"${opts.folha ? "" : ` data-arv="${esc(id)}"`}><span class="i">${opts.pos || ""}</span><span class="n">${chev}<span class="pc-arv-nome">${nome}${sub ? `<i class="pc-loc-sub">${sub}</i>` : ""}</span>${opts.chip ? `<span class="pc-arv-pos">${_resChipPos(opts.chip)}</span>` : ""}${ic}</span><span class="v v-ant">${_resFmt(v22)}</span><span class="v v-atu">${tem ? _resFmt(v26) : "—"}</span>${dif(v26, v22, tem)}</div>`;
   };
 
   const chaves = [...new Set([...Object.keys(a.municipios || {}), ...Object.keys(c.municipios || {})])];
@@ -872,7 +872,9 @@ async function _resArvore(ctx, c, a, ordem) {
   const limM = st.arvMais && st.arvMais.__mun ? mlin.length : 40;
   for (const [i, l] of mlin.slice(0, limM).entries()) {
     const idM = "m|" + l.k, tem = temMun && l.v26 > 0;
-    h += linha(0, idM, _resNomeMun(l.nome), tem ? "" : "aguardando", l.v22, l.v26, tem, { pos: `${i + 1}º` });
+    // etiqueta de posição do candidato no recorte (base 2022 até 2026 chegar por local)
+    const chipM = tem ? _resPosicao(ctx.cands, l.k, l.v26, (x, k) => (x.municipios || {})[k]) : _resPosicao((ctx.ant && ctx.ant.candidatos) || [], l.k, l.v22, (x, k) => (x.municipios || {})[k]);
+    h += linha(0, idM, _resNomeMun(l.nome), tem ? "" : "aguardando", l.v22, l.v26, tem, { pos: `${i + 1}º`, chip: l.v22 || tem ? chipM : null });
     h += await lista(l.k, null, idM);
     if (!st.arvAb[idM]) continue;
     const sec22 = await _resCarregar(RES_ANO_ANTERIOR, "secoes/" + _resSlug(l.k), "");
@@ -881,23 +883,30 @@ async function _resArvore(ctx, c, a, ordem) {
     _resArvAgrupar(sec22, cargo, a.numero, arvore, "v22");
     _resArvAgrupar(sec26, cargo, c.numero, arvore, "v26");
     const tem26L = !!(sec26 && sec26[cargo]);
+    const secPos = tem26L ? sec26 : sec22, meuNum = String(tem26L ? c.numero : a.numero);
+    const posEm = (keys) => {
+      const m = (secPos && secPos[cargo]) || {}; const soma = (num) => keys.reduce((t, k) => t + ((m[num] || {})[k] || 0), 0);
+      const eu = soma(meuNum); if (!eu) return null;
+      let p = 1; for (const num in m) if (num !== meuNum && soma(num) > eu) p++;
+      return p;
+    };
     const bl = _resArvOrdenar(Object.entries(arvore).map(([nome, n]) => ({ nome, ...n })), ordem);
     if (!bl.length) { h += `<div class="pc-arv-vazio">Sem votação por local neste município.</div>`; continue; }
     const limB = st.arvMais && st.arvMais[idM] ? bl.length : 6;
     for (const b of bl.slice(0, limB)) {
       const idB = idM + "|" + b.nome;
       const secsB = Object.values(b.locais).flatMap((x) => Object.keys(x.secoes));
-      h += linha(1, idB, esc(b.nome), "", b.v22, b.v26, tem26L);
+      h += linha(1, idB, esc(b.nome), "", b.v22, b.v26, tem26L, { chip: posEm(secsB) });
       h += await lista(l.k, secsB, idB);
       if (!st.arvAb[idB]) continue;
       for (const lc of _resArvOrdenar(Object.entries(b.locais).map(([nome, n]) => ({ nome, ...n })), ordem)) {
         const idL = idB + "|" + lc.nome;
-        h += linha(2, idL, esc(lc.nome), "", lc.v22, lc.v26, tem26L);
+        h += linha(2, idL, esc(lc.nome), "", lc.v22, lc.v26, tem26L, { chip: posEm(Object.keys(lc.secoes)) });
         h += await lista(l.k, Object.keys(lc.secoes), idL);
         if (!st.arvAb[idL]) continue;
         for (const sc of _resArvOrdenar(Object.entries(lc.secoes).map(([k, n]) => ({ k, ...n })), ordem)) {
           const [z, sn] = sc.k.split("::"), idS = idL + "|" + sc.k;
-          h += linha(3, idS, `Seção ${sn}`, `${z}ª zona`, sc.v22, sc.v26, tem26L, { folha: true });
+          h += linha(3, idS, `Seção ${sn}`, `${z}ª zona`, sc.v22, sc.v26, tem26L, { folha: true, chip: posEm([sc.k]) });
           h += await lista(l.k, [sc.k], idS);
         }
       }
