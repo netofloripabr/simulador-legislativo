@@ -367,7 +367,7 @@ function _resRenderPartidos(ctx) {
         ${t("QE", R.qe ? _resFmt(R.qe) : "—")}${t("QP", sel.qp === null ? "—" : sel.qp.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}${t("diretas", sel.diretas, "", "#34E84A")}${t("sobras", sel.sobras, "", "var(--pc-warning)")}
       </div>
       <div class="pc-dep-card pc-cand-lista" style="padding:0 12px;">
-        ${cs.map((c, i) => `<div class="pc-cand-lin"><div class="pc-dep-cl1" style="cursor:default;"><span class="pos">${i + 1}º</span>${_resEtiqueta(c, cargo)}<span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span><span class="voto">${_resFmt(c.total)}</span></div></div>`).join("")}
+        ${cs.map((c, i) => `<div class="pc-cand-lin"><div class="pc-dep-cl1" style="cursor:default;"><span class="pos">${i + 1}º</span>${_resEtiqueta(c, cargo)}<span class="nome"><b>${c.nomeUrna}</b><span class="pt"> — ${nomePartidoExibicao(c.partido)}</span></span><span class="voto">${_resFmt(c.total)}</span></div></div>`).join("")}
       </div>`;
   }
   const bm = document.getElementById("pcResPartMapa");
@@ -706,7 +706,7 @@ function _resRenderCandidatos(ctx) {
       <div class="pc-dep-cl1">
         <span class="pos">${c.total ? posGeral.get(c.sq) + "º" : "—"}</span>
         ${_resEtiqueta(c, cargo)}
-        <span class="nome"><span class="pt">${nomePartidoExibicao(c.partido)} — </span><b>${c.nomeUrna}</b></span>
+        <span class="nome"><b>${c.nomeUrna}</b><span class="pt"> — ${nomePartidoExibicao(c.partido)}</span></span>
         <span class="voto">${vazio ? "—" : _resFmt(num)}${pont && pont.porChave[_resNorm(c.nomeUrna)] ? (() => { const x = pont.porChave[_resNorm(c.nomeUrna)]; return `<i class="pc-acerto"><b class="${x.e ? "on" : ""}" title="acerto de eleição">E</b><b class="${x.alvo >= 5 ? "on" : ""}" title="proximidade dos votos">${Math.round(x.prox * 100)}%</b><b class="${x.posicao ? "on" : ""}" title="colocação no partido">P</b><span>${x.pts.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} pts</span></i>`; })() : ""}</span>
       </div>
       ${aberta ? `<div id="pcResFicha"></div>` : ""}
