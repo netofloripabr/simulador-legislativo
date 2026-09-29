@@ -755,10 +755,12 @@ async function _resRenderFicha(ctx) {
   // colégio → seção), aprovado 29/09/2026; a aba Locais sai (ficaria repetida).
   const arv = st.anoApurado >= 2026 && !!a;
   const ordemArv = RES_ARV_ORDENS.some(([o]) => o === ordem) ? ordem : "d26";
-  if (arv && st.fichaAba === "sec") st.fichaAba = "mun";
+  // Locais (Zonas/Bairros/Locais/Seções) volta ao lado da árvore (29/09/2026);
+  // abre no último município aberto na árvore, ou no mais votado de 2022.
+  if (arv && st.fichaAba === "sec" && !st.fichaMun) st.fichaMun = Object.entries(a.municipios || {}).sort((x, y) => y[1] - x[1]).map((x) => x[0])[0] || null;
   const abas = `<div class="pc-sub-abas" style="margin:12px 0 4px;">
     <span class="${st.fichaAba === "mun" ? "on" : ""}" data-fa="mun">Municípios</span>
-    ${arv ? "" : `<span class="${st.fichaAba === "sec" ? "on" : ""}" data-fa="sec">Locais</span>`}
+    <span class="${st.fichaAba === "sec" ? "on" : ""}" data-fa="sec">Locais</span>
     <span class="${st.fichaAba === "hist" ? "on" : ""}" data-fa="hist">Histórico</span>
     <span style="margin-left:auto; padding:4px 0; display:flex; gap:6px; align-items:center;"><button type="button" class="pc-dd-btn ico${_resFavoritos().has(c.sq) ? " on" : ""}" data-ficha-fav="${c.sq}" title="${_resFavoritos().has(c.sq) ? "Remover dos favoritos" : "Favoritar"}" style="${_resFavoritos().has(c.sq) ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>${_resDropdown("pcResFichaOrd", "", "", arv ? RES_ARV_ORDENS.map(([o, t]) => `<div class="pc-dd-it${ordemArv === o ? " on" : ""}" data-o="${o}">${t}</div>`).join("") : `<div class="pc-dd-it${ordem === "desc" ? " on" : ""}" data-o="desc">Maior</div><div class="pc-dd-it${ordem === "asc" ? " on" : ""}" data-o="asc">Menor</div>`, { icone: RES_IC_FILTRO, direita: true, largura: arv ? 170 : 130, titulo: "Ordenar" })}</span>
   </div>`;
@@ -941,7 +943,7 @@ function _resArvLigar(alvo, st, rerender) {
   alvo.querySelectorAll("[data-arv]").forEach((x) => x.addEventListener("click", (e) => {
     e.stopPropagation(); const id = x.dataset.arv;
     if (st.arvAb[id]) Object.keys(st.arvAb).forEach((k) => { if (k === id || k.startsWith(id + "|")) delete st.arvAb[k]; });
-    else st.arvAb[id] = true;
+    else { st.arvAb[id] = true; if (id.split("|").length === 2) st.fichaMun = id.split("|")[1]; }
     rerender();
   }));
   alvo.querySelectorAll("[data-arv-rank]").forEach((b) => b.addEventListener("click", (e) => {
