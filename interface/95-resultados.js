@@ -1017,16 +1017,14 @@ async function _resRenderMapa(ctx) {
   const baseCmp = cmp ? doAno(cmp, st.modoAno || st.anoApurado) : null;
   const listaCand = (idAtivo) => cands.slice(0, 40).map((c) => `<div class="pc-dd-it${c.sq === idAtivo ? " on" : ""}" data-sq="${c.sq}">${c.nomeUrna} <small style="color:#8A9096;">${c.partido}</small></div>`).join("");
   corpo.innerHTML = `
-    <div class="pc-dd" id="pcResCen" style="position:relative;">
+    <div class="pc-dd" id="pcResCen" style="position:relative; margin-bottom:10px;">
       <button type="button" class="pc-dd-btn pc-cenario-btn">
-        <div class="pc-cenario"${ctx.modoPartido ? "" : ` style="padding-right:44px;"`}>
-          ${cenario.total ? `<span class="pc-dep-pos">${cands.indexOf(cenario) + 1}º</span>` : ""}${ctx.modoPartido ? (cenario.eleitos ? `<span class="pc-sen-chip">${cenario.eleitos} eleito${cenario.eleitos > 1 ? "s" : ""}</span>` : "") : _resEtiqueta(cenario, cargo)}
-          <span class="pc-dep-cnm" style="flex:1 1 140px;"><span class="pc-dep-cnm-txt">${cenTxt}</span></span>
-          <span class="pc-tm-partido" style="max-width:none;">${nomePartidoExibicao(cenario.partido)} · ${(CARGOS.find((x) => x.id === cargo) || {}).label || ""}</span>
-          <span class="pc-cenario-dica">Selecionar ${ctx.modoPartido ? "partido" : "candidato"} ${RES_IC_CHEV}</span>
+        <div class="pc-cenario pc-cen2">
+          <div class="l1">${cenario.total ? `<span class="pc-dep-pos">${cands.indexOf(cenario) + 1}º</span>` : ""}${ctx.modoPartido ? (cenario.eleitos ? `<span class="pc-sen-chip">${cenario.eleitos} eleito${cenario.eleitos > 1 ? "s" : ""}</span>` : "") : _resEtiqueta(cenario, cargo)}<span class="pc-dep-cnm-txt nm">${cenTxt}</span>${ctx.modoPartido ? "" : `<span class="vaga-estrela"></span>`}</div>
+          <div class="l2"><span class="pt">${nomePartidoExibicao(cenario.partido)} <i>(${(CARGOS.find((x) => x.id === cargo) || {}).label || ""})</i></span><span class="pc-cenario-dica">Selecionar ${ctx.modoPartido ? "partido" : "candidato"} ${RES_IC_CHEV}</span></div>
         </div>
       </button>
-      ${ctx.modoPartido ? "" : `<button type="button" class="pc-dd-btn ico pc-cen-fav${_resFavoritos().has(cenario.sq) ? " on" : ""}" data-cen-fav="${cenario.sq}" title="${_resFavoritos().has(cenario.sq) ? "Remover dos favoritos" : "Favoritar"}" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); z-index:2;${_resFavoritos().has(cenario.sq) ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>`}
+      ${ctx.modoPartido ? "" : `<button type="button" class="pc-dd-btn ico pc-cen-fav${_resFavoritos().has(cenario.sq) ? " on" : ""}" data-cen-fav="${cenario.sq}" title="${_resFavoritos().has(cenario.sq) ? "Remover dos favoritos" : "Favoritar"}" style="position:absolute; right:14px; top:12px; z-index:2;${_resFavoritos().has(cenario.sq) ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>`}
       <div class="pc-dd-menu" style="min-width:260px;"><div style="padding:6px 8px;"><input class="cell" id="pcResCenBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCenLista" style="max-height:240px; overflow:auto;">${listaCand(cenario.sq)}</div></div>
     </div>
     <div class="pc-map-filtros">
@@ -1067,6 +1065,12 @@ async function _resRenderMapa(ctx) {
     const bolhas = st.mapaForma === "bolhas";
     svg.classList.toggle("bolhas", bolhas);
     svg.querySelectorAll("path").forEach((p) => { const d = dados[p.dataset.ibge]; if (!d) return; p.style.fill = bolhas ? "" : cor(d); p.classList.toggle("fora", !dentro(d)); p.classList.toggle("sel", st.munSel === d.m.chave); });
+    // Região em destaque (30/09/2026): borda clara na região, resto do estado
+    // com blur suave em vez de quase apagado; região desenhada por cima.
+    const comReg = !!(st.regiao || st.assoc);
+    svg.classList.toggle("com-reg", comReg);
+    if (comReg && !svg.querySelector("#pcResBlur")) svg.insertAdjacentHTML("afterbegin", `<defs><filter id="pcResBlur"><feGaussianBlur stdDeviation="0.9"/></filter></defs>`);
+    if (comReg) svg.querySelectorAll("path:not(.fora)").forEach((p) => p.parentNode.appendChild(p));
     const gAnt = svg.querySelector("#pcResBolhas");
     if (gAnt) gAnt.remove();
     if (bolhas) {

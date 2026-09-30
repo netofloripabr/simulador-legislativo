@@ -3383,3 +3383,18 @@
 #modoColaborativoWrap .pc-arv-alca{ display:flex; flex-direction:column; align-items:center; gap:5px; padding:8px 0 10px; cursor:pointer; }
 #modoColaborativoWrap .pc-arv-alca .pega{ width:34px; height:4px; border-radius:999px; background:rgba(242,244,245,.18); }
 #modoColaborativoWrap .pc-arv-alca .rot{ display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:600; color:#8A9096; padding:4px 11px; border-radius:999px; background:rgba(242,244,245,.05); border:1px solid rgba(242,244,245,.10); }
+/* cartão do candidato no mapa, 2 linhas (aprovado 30/09/2026) */
+#modoColaborativoWrap .pc-cenario.pc-cen2{ display:flex; flex-direction:column; align-items:stretch; gap:8px; width:100%; text-align:left; }
+#modoColaborativoWrap .pc-cen2 .l1{ display:flex; align-items:center; gap:8px; min-height:34px; }
+#modoColaborativoWrap .pc-cen2 .l1 .nm{ flex:1; min-width:0; font-size:19px; font-weight:800; color:#F2F4F5; line-height:1.15; white-space:normal; }
+#modoColaborativoWrap .pc-cen2 .vaga-estrela{ flex:none; width:34px; }
+#modoColaborativoWrap .pc-cen2 .l2{ display:flex; align-items:center; gap:10px; }
+#modoColaborativoWrap .pc-cen2 .l2 .pt{ flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11.5px; font-weight:700; color:#8A9096; }
+#modoColaborativoWrap .pc-cen2 .l2 .pt i{ font-style:normal; font-weight:500; color:#6B7178; }
+#modoColaborativoWrap .pc-cen2 .pc-cenario-dica{ flex:none; width:auto; margin:0; font-size:10.5px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; }
+/* região em destaque no mapa (30/09/2026) */
+#modoColaborativoWrap #pcResMapaSvg.com-reg path.fora{ opacity:.85; filter:url(#pcResBlur); stroke:#2A2E33; }
+#modoColaborativoWrap #pcResMapaSvg.com-reg path:not(.fora){ stroke:rgba(242,244,245,.55); stroke-width:.9; }
+#modoColaborativoWrap #pcResMapaSvg.com-reg.bolhas path:not(.fora){ fill:rgba(242,244,245,.07); }
+#modoColaborativoWrap #pcResMapaSvg.com-reg path.sel{ stroke:#F2F4F5; stroke-width:2.2; }
+#modoColaborativoWrap #pcResMapaSvg.com-reg:not(.bolhas) path.fora{ opacity:.35; }
