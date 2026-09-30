@@ -912,9 +912,11 @@ async function _resArvore(ctx, c, a, ordem) {
         }
       }
     }
-    if (bl.length > limB) h += `<div class="pc-arv-mais" data-arv-mais="${esc(idM)}">+ ${bl.length - limB} bairros</div>`;
+    if (st.arvMais && st.arvMais[idM] && bl.length > 6) h += `<div class="pc-arv-alca" data-arv-mais="${esc(idM)}"><span class="pega"></span><span class="rot">mostrar menos</span></div>`;
+    else if (bl.length > limB) h += `<div class="pc-arv-alca" data-arv-mais="${esc(idM)}"><span class="pega"></span><span class="rot">${RES_IC_CHEV}+ ${bl.length - limB} bairros</span></div>`;
   }
-  if (mlin.length > limM) h += `<div class="pc-arv-mais" data-arv-mais="__mun">+ ${mlin.length - limM} municípios</div>`;
+  if (st.arvMais && st.arvMais.__mun && mlin.length > 40) h += `<div class="pc-arv-alca" data-arv-mais="__mun"><span class="pega"></span><span class="rot">mostrar menos</span></div>`;
+  else if (mlin.length > limM) h += `<div class="pc-arv-alca" data-arv-mais="__mun"><span class="pega"></span><span class="rot">${RES_IC_CHEV}+ ${mlin.length - limM} municípios</span></div>`;
   return h;
 }
 
@@ -947,7 +949,7 @@ async function _resArvRanking(ctx, c, a, chave, secKeys) {
     : `<div class="pc-lin pc-arv-rk cab"><span></span><span>Candidato</span><span class="v">Votos</span><span class="v">%</span></div>` +
       ord.slice(0, lim).map(([num, v], i) => { const x = porNum.get(num); const sou = eu && String(eu.numero) === num;
         return `<div class="pc-lin pc-arv-rk${sou ? " eu" : ""}"><span class="i">${i + 1}º</span><span class="n">${esc(x.nomeUrna)}<i class="pc-loc-sub">${nomePartidoExibicao(x.partido)}</i></span><span class="v">${_resFmt(v)}</span><span class="v p">${soma ? f1(v / soma * 100) + "%" : ""}</span></div>`; }).join("") +
-      (ord.length > lim ? `<div class="pc-arv-mais" data-arv-todos="1">+ ${ord.length - lim} candidatos com voto neste local</div>` : "");
+      (ord.length > lim ? `<div class="pc-arv-alca" data-arv-todos="1"><span class="pega"></span><span class="rot">${RES_IC_CHEV}+ ${ord.length - lim} candidatos</span></div>` : st.arvRankTodos && ord.length > 12 ? `<div class="pc-arv-alca" data-arv-todos="1"><span class="pega"></span><span class="rot">mostrar menos</span></div>` : "");
   return `<div class="pc-arv-painel"><div class="pc-arv-painel-cab">${chips}<span>${ord.length ? `${_resFmt(soma)} votos nominais` : ""}</span></div>${corpo}</div>`;
 }
 
@@ -963,8 +965,8 @@ function _resArvLigar(alvo, st, rerender) {
     st.arvRank = st.arvRank === id ? null : id; st.arvRankTodos = false; rerender();
   }));
   alvo.querySelectorAll("[data-arv-ano]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.arvRankAno = +b.dataset.arvAno; rerender(); }));
-  alvo.querySelectorAll("[data-arv-todos]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.arvRankTodos = true; rerender(); }));
-  alvo.querySelectorAll("[data-arv-mais]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.arvMais = st.arvMais || {}; st.arvMais[b.dataset.arvMais] = true; rerender(); }));
+  alvo.querySelectorAll("[data-arv-todos]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.arvRankTodos = !st.arvRankTodos; rerender(); }));
+  alvo.querySelectorAll("[data-arv-mais]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.arvMais = st.arvMais || {}; st.arvMais[b.dataset.arvMais] = !st.arvMais[b.dataset.arvMais]; rerender(); }));
 }
 
 // ---------- aba Mapa ----------
@@ -1329,7 +1331,7 @@ async function _resRenderMunDet(ctx, dados, cmp) {
       if (R.st.arvRank === id) el.insertAdjacentHTML("afterend", await _resArvRanking(R.ctx, R.c, R.a, chave, ks));
     }
     alvo.querySelectorAll("[data-arv-ano]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); R.st.arvRankAno = +b.dataset.arvAno; R.rerender(); }));
-    alvo.querySelectorAll("[data-arv-todos]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); R.st.arvRankTodos = true; R.rerender(); }));
+    alvo.querySelectorAll("[data-arv-todos]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); R.st.arvRankTodos = !R.st.arvRankTodos; R.rerender(); }));
   }
   const proxima = { zona: "bairros", bairro: "locais", local: "secoes" };
   alvo.querySelectorAll("[data-filtra]").forEach((x) => x.addEventListener("click", (e) => { e.stopPropagation(); F[x.dataset.filtra] = x.dataset.valor; st.munAba = proxima[x.dataset.filtra]; _resRenderMunDet(ctx, dados, cmp); }));
