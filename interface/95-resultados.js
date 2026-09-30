@@ -1017,14 +1017,14 @@ async function _resRenderMapa(ctx) {
   corpo.innerHTML = `
     <div class="pc-dd" id="pcResCen" style="position:relative;">
       <button type="button" class="pc-dd-btn pc-cenario-btn">
-        <div class="pc-cenario">
+        <div class="pc-cenario"${ctx.modoPartido ? "" : ` style="padding-right:44px;"`}>
           ${cenario.total ? `<span class="pc-dep-pos">${cands.indexOf(cenario) + 1}º</span>` : ""}${ctx.modoPartido ? (cenario.eleitos ? `<span class="pc-sen-chip">${cenario.eleitos} eleito${cenario.eleitos > 1 ? "s" : ""}</span>` : "") : _resEtiqueta(cenario, cargo)}
           <span class="pc-dep-cnm" style="flex:1 1 140px;"><span class="pc-dep-cnm-txt">${cenTxt}</span></span>
           <span class="pc-tm-partido" style="max-width:none;">${nomePartidoExibicao(cenario.partido)} · ${(CARGOS.find((x) => x.id === cargo) || {}).label || ""}</span>
           <span class="pc-cenario-dica">Selecionar ${ctx.modoPartido ? "partido" : "candidato"} ${RES_IC_CHEV}</span>
         </div>
       </button>
-      ${ctx.modoPartido ? "" : `<button type="button" class="pc-dd-btn ico pc-cen-fav${_resFavoritos().has(cenario.sq) ? " on" : ""}" data-cen-fav="${cenario.sq}" title="${_resFavoritos().has(cenario.sq) ? "Remover dos favoritos" : "Favoritar"}" style="position:absolute; right:12px; bottom:10px; z-index:2;${_resFavoritos().has(cenario.sq) ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>`}
+      ${ctx.modoPartido ? "" : `<button type="button" class="pc-dd-btn ico pc-cen-fav${_resFavoritos().has(cenario.sq) ? " on" : ""}" data-cen-fav="${cenario.sq}" title="${_resFavoritos().has(cenario.sq) ? "Remover dos favoritos" : "Favoritar"}" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); z-index:2;${_resFavoritos().has(cenario.sq) ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>`}
       <div class="pc-dd-menu" style="min-width:260px;"><div style="padding:6px 8px;"><input class="cell" id="pcResCenBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCenLista" style="max-height:240px; overflow:auto;">${listaCand(cenario.sq)}</div></div>
     </div>
     <div class="pc-map-filtros">
@@ -1113,13 +1113,13 @@ async function _resRenderMapa(ctx) {
       // 22/09/2026: repetir o nome embaixo de cada voto poluía a lista); as
       // linhas ficam só com os números, e o vencedor daquele recorte em verde.
       const cabCmp = `<div class="pc-cmp-cab"><span></span><span></span><span class="stat">${cmp.nomeUrna}</span><span class="stat forte">${cenario.nomeUrna}</span><span></span></div>`;
-      document.getElementById("pcResMapaLista").innerHTML = cabCmp + lista.slice(0, 15).map((d, i) => { const dif = d.v - d.vc; const cenVenceu = d.v >= d.vc;
+      document.getElementById("pcResMapaLista").innerHTML = cabCmp + lista.slice(0, st.mapaTodos ? lista.length : 15).map((d, i) => { const dif = d.v - d.vc; const cenVenceu = d.v >= d.vc;
         return `<div class="pc-cmp-mun${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}">
           <span class="pos">${i + 1}º</span><span class="nome">${d.m.nome}</span>
           <span class="stat"><b class="${cenVenceu ? "" : "venceu"}">${_resFmt(d.vc)}</b></span>
           <span class="stat forte"><b class="${cenVenceu ? "venceu" : ""}">${_resFmt(d.v)}</b></span>
           <span class="dif">${dif >= 0 ? "+" : ""}${_resFmt(dif)}</span>
-        </div>${st.munSel === d.m.chave ? `<div class="pc-cmp-det" id="pcResMunDet"></div>` : ""}`; }).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
+        </div>${st.munSel === d.m.chave ? `<div class="pc-cmp-det" id="pcResMunDet"></div>` : ""}`; }).join("") + (lista.length > 15 ? `<div class="pc-arv-alca" data-mapa-todos="1"><span class="pega"></span><span class="rot">${st.mapaTodos ? "mostrar menos" : `${RES_IC_CHEV}+ ${lista.length - 15} municípios`}</span></div>` : "");
     } else {
       // Proporção do recorte sobre o total do candidato (pedido de 22/09/2026):
       // "Vale do Itajaí = 30.205 · 81,8% do total".
@@ -1129,8 +1129,9 @@ async function _resRenderMapa(ctx) {
       // Pos. = colocação do candidato entre TODOS do cargo naquele município
       // (etiqueta verde do 1º ao 3º), Votos, % = fatia do total do candidato.
       const cab = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Município</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">${st.modo === "var" ? "Δ " + RES_ANO_ANTERIOR : "%"}</span></div>`;
-      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(d.m.nome)}</span><span class="c">${_resChipPos(_resPosicao(candsAno, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${st.modo === "var" ? _resPctHtml(d.var) : _resPctTotal(d.v, cenTotal)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div style="font-size:10px; color:#8A9096; padding:6px 0;">+ ${lista.length - 15} municípios — refine pela região</div>` : "");
+      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, st.mapaTodos ? lista.length : 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(d.m.nome)}</span><span class="c">${_resChipPos(_resPosicao(candsAno, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${st.modo === "var" ? _resPctHtml(d.var) : _resPctTotal(d.v, cenTotal)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div class="pc-arv-alca" data-mapa-todos="1"><span class="pega"></span><span class="rot">${st.mapaTodos ? "mostrar menos" : `${RES_IC_CHEV}+ ${lista.length - 15} municípios`}</span></div>` : "");
     }
+    document.querySelectorAll("#pcResMapaLista [data-mapa-todos]").forEach((el) => el.addEventListener("click", (e) => { e.stopPropagation(); st.mapaTodos = !st.mapaTodos; pintar(); }));
     document.querySelectorAll("#pcResMapaLista [data-mun]").forEach((el) => el.addEventListener("click", () => { st.munSel = st.munSel === el.dataset.mun ? null : el.dataset.mun; pintar(); }));
     if (st.munSel && !ctx.modoPartido) _resRenderMunDet(ctx, dados, cmp);
   };
