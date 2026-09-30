@@ -3397,4 +3397,4 @@
 #modoColaborativoWrap #pcResMapaSvg.com-reg path:not(.fora){ stroke:rgba(242,244,245,.55); stroke-width:.9; }
 #modoColaborativoWrap #pcResMapaSvg.com-reg.bolhas path:not(.fora){ fill:rgba(242,244,245,.07); }
 #modoColaborativoWrap #pcResMapaSvg.com-reg path.sel{ stroke:#F2F4F5; stroke-width:2.2; }
-#modoColaborativoWrap #pcResMapaSvg.com-reg:not(.bolhas) path.fora{ opacity:.35; }
+#modoColaborativoWrap #pcResMapaSvg.com-reg:not(.bolhas) path.fora{ opacity:.1 !important; }
