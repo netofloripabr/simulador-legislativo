@@ -1015,7 +1015,14 @@ async function _resRenderMapa(ctx) {
   // mapa, os totais e a lista pra ele vs o candidato principal.
   const cmp = st.cmpSq ? cands.find((c) => c.sq === st.cmpSq) : null;
   const baseCmp = cmp ? doAno(cmp, st.modoAno || st.anoApurado) : null;
-  const listaCand = (idAtivo) => cands.slice(0, 40).map((c) => `<div class="pc-dd-it${c.sq === idAtivo ? " on" : ""}" data-sq="${c.sq}">${c.nomeUrna} <small style="color:#8A9096;">${c.partido}</small></div>`).join("");
+  // Favoritos no topo da lista de seleção (30/09/2026): a estrela do cartão
+  // alimenta este grupo, igual ao filtro de favoritos da lista de Candidatos.
+  const itCand = (c, idAtivo) => `<div class="pc-dd-it${c.sq === idAtivo ? " on" : ""}" data-sq="${c.sq}">${c.nomeUrna} <small style="color:#8A9096;">${c.partido}</small></div>`;
+  const listaCand = (idAtivo) => {
+    const fav = ctx.modoPartido ? new Set() : _resFavoritos();
+    const favs = cands.filter((c) => fav.has(c.sq));
+    return (favs.length ? `<div class="pc-dd-grp">Favoritos</div>${favs.map((c) => itCand(c, idAtivo)).join("")}<div class="pc-dd-grp">Todos</div>` : "") + cands.slice(0, 40).map((c) => itCand(c, idAtivo)).join("");
+  };
   corpo.innerHTML = `
     <div class="pc-dd" id="pcResCen" style="position:relative; margin-bottom:10px;">
       <button type="button" class="pc-dd-btn pc-cenario-btn">
@@ -1041,7 +1048,7 @@ async function _resRenderMapa(ctx) {
   `;
 
   // Favoritar direto do mapa (29/09/2026), mesma estrela da ficha
-  corpo.querySelectorAll("[data-cen-fav]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); _resToggleFav(b.dataset.cenFav); ctx.favs = _resFavoritos(); const on = ctx.favs.has(b.dataset.cenFav); b.classList.toggle("on", on); b.style.color = on ? "#C6E62A" : ""; b.style.borderColor = on ? "rgba(198,230,42,.5)" : ""; b.title = on ? "Remover dos favoritos" : "Favoritar"; }));
+  corpo.querySelectorAll("[data-cen-fav]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); _resToggleFav(b.dataset.cenFav); ctx.favs = _resFavoritos(); const on = ctx.favs.has(b.dataset.cenFav); b.classList.toggle("on", on); b.style.color = on ? "#C6E62A" : ""; b.style.borderColor = on ? "rgba(198,230,42,.5)" : ""; b.title = on ? "Remover dos favoritos" : "Favoritar"; (ctx.rerender || renderResultados)(); }));
   const dados = {};
   MUNICIPIOS_SC_REGIOES.forEach((m) => {
     const v = baseCen ? (baseCen.municipios[m.chave] || 0) : 0;
