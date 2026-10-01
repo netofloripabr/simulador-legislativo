@@ -1764,8 +1764,8 @@ async function _resRenderPainel(ctx) {
     const a = ctx.antDe(c);
     const fav = _resFavoritos().has(c.sq);
     h += `<div class="pn-cand" data-pn-bloco="${bi}">
-      <div class="pn-ch"><div><div class="pn-nm">${esc(c.nomeUrna)}</div><div class="pn-pt">${esc(nomePartidoExibicao(c.partido))} <i>(${cargoLbl})</i> · nº ${esc(c.numero)}</div></div><button type="button" class="pc-dd-btn ico" data-pn-fav="${c.sq}" title="${fav ? "Remover dos favoritos" : "Favoritar"}" style="flex:none;${fav ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button><button type="button" class="pc-dd-btn ico${st.pnLocal === bi ? " on" : ""}" data-pn-local="${bi}" title="Adicionar local para ${esc(c.nomeUrna)}" style="flex:none;">${iconeSvg("mais", 14)}</button></div>
-      ${st.pnLocal === bi ? await _resPainelFormHtml(st, cargo, cands, "local") : ""}
+      <div class="pn-ch"><div style="flex:1; min-width:0;"><div class="pn-nm">${esc(c.nomeUrna)}</div><div class="pn-pt">${esc(nomePartidoExibicao(c.partido))} <i>(${cargoLbl})</i> · nº ${esc(c.numero)}</div></div><span class="pn-ibs"><button type="button" class="pc-dd-btn ico" data-pn-fav="${c.sq}" title="${fav ? "Remover dos favoritos" : "Favoritar"}" style="flex:none;${fav ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button><button type="button" class="pc-dd-btn ico${st.pnLocal === bi ? " on" : ""}" data-pn-local="${bi}" title="Adicionar local para ${esc(c.nomeUrna)}" style="flex:none;">${iconeSvg("mais", 14)}</button></span></div>
+      ${st.pnLocal === bi ? await _resPainelLocalHtml(ctx, c, a) : ""}
       <div class="pn-resumo"><div><span>${RES_ANO_ANTERIOR}</span><b>${a ? _resFmt(a.total) : "—"}</b></div><div><span>${RES_ANO_APURADO}</span><b class="${c.total ? "" : "z"}">${c.total ? _resFmt(c.total) : "—"}</b></div></div>
       ${barra(pctEst, " pn-ap-g")}
       <div class="pn-grid">`;
@@ -1792,6 +1792,64 @@ async function _resRenderPainel(ctx) {
   _resPainelLigar(ctx, corpo, dados);
 }
 
+// Escolher local (aprovado 01/10/2026): menu "Local" + "Município" no padrão
+// do app e uma lista sempre visível, pesquisável e selecionável, ordenada
+// pelos votos do candidato (2026 quando houver, senão 2022).
+async function _resPainelOpcoes(ctx, c, a, F) {
+  const cargo = ctx.cargo, vt = (q, s26, s22) => _resPainelVotos(c, q, s26, cargo) || _resPainelVotos(a, q, s22, cargo);
+  if (F.tipo === "regiao") {
+    const nomes = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.meso))].sort().concat([...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.assoc))].sort());
+    return nomes.map((n) => { const q = { tipo: "regiao", chave: n, rotulo: n.replace(" Catarinense", "") }; return { q, sub: MUNICIPIOS_SC_REGIOES.some((m) => m.meso === n) ? "mesorregião (IBGE)" : "associação de municípios", v: vt(q) }; }).sort((x, y) => y.v - x.v);
+  }
+  if (F.tipo === "mun") return _resPainelMuns(c, a);
+  if (!F.mun) return [];
+  const s22 = await _resCarregar(RES_ANO_ANTERIOR, "secoes/" + _resSlug(F.mun), ""), s26 = await _resCarregar(RES_ANO_APURADO, "secoes/" + _resSlug(F.mun), "");
+  const base = s22 || s26; if (!base) return [];
+  const nm = _resNomeMun(_resPainelNomeMun(F.mun)), ks = Object.keys(base._secoes || {});
+  const vistos = new Map();
+  ks.forEach((k) => {
+    const chave = F.tipo === "bairro" ? base._bairroSec[k] : F.tipo === "local" ? base._secoes[k] : k;
+    if (!chave || vistos.has(chave)) return;
+    const q = { tipo: F.tipo, mun: F.mun, chave, rotulo: F.tipo === "secao" ? `Seção ${k.split("::")[1]}` : chave };
+    const sub = F.tipo === "bairro" ? nm : F.tipo === "local" ? `${base._bairroSec[k] || ""} · ${nm}` : `${k.split("::")[0]}ª zona · ${base._secoes[k] || ""}`;
+    vistos.set(chave, { q, sub, v: vt(q, s26, s22) });
+  });
+  return [...vistos.values()].sort((x, y) => y.v - x.v);
+}
+function _resPainelMuns(c, a) {
+  return MUNICIPIOS_SC_REGIOES.map((m) => ({ q: { tipo: "mun", mun: m.chave, rotulo: _resNomeMun(m.nome) }, sub: m.assoc, v: ((c.municipios || {})[m.chave] || 0) || ((a && a.municipios || {})[m.chave] || 0) })).sort((x, y) => y.v - x.v || x.q.rotulo.localeCompare(y.q.rotulo, "pt-BR"));
+}
+const RES_IC_LUPA = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>';
+function _resPainelListaHtml(itens, selKey, id, ph) {
+  const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
+  return `<label class="pn-busca"><span class="lupa">${RES_IC_LUPA}</span><input id="${id}" placeholder="${ph}" autocomplete="off"></label>
+    <div class="pn-lista" data-pn-lista="${id}">${itens.map((x, i) => { const k = JSON.stringify(x.q); return `<div class="pn-li${k === selKey ? " on" : ""}" data-pn-q-item='${esc(k)}' data-busca="${esc(_resNorm(x.q.rotulo + " " + (x.sub || "")))}"><span class="r"></span><span class="tx"><b>${esc(x.q.rotulo)}</b>${x.sub ? `<i>${esc(x.sub)}</i>` : ""}</span><span class="v">${x.v ? _resFmt(x.v) : ""}</span></div>`; }).join("") || `<div class="pc-sub" style="padding:10px 12px;">Nada por aqui.</div>`}</div>`;
+}
+async function _resPainelLocalHtml(ctx, c, a) {
+  const st = ctx.st, F = st.pnForm;
+  const nomes = { estado: "Estado", regiao: "Região", mun: "Município", bairro: "Bairro", local: "Colégio", secao: "Seção" };
+  const ddTipo = _resDropdown("pnLocTipo", "Local", nomes[F.tipo], Object.entries(nomes).map(([v, r]) => `<div class="pc-dd-it${F.tipo === v ? " on" : ""}" data-t="${v}">${r}</div>`).join(""), { largura: 180 });
+  const precisaMun = ["bairro", "local", "secao"].includes(F.tipo);
+  let ddMun = "";
+  if (precisaMun) {
+    ddMun = `<div class="pc-dd" id="pnLocMun"><button class="pc-dd-btn" type="button"><small>Município</small><span data-dd-txt>${F.mun ? escaparAtributoHtml(_resNomeMun(_resPainelNomeMun(F.mun))) : "Escolha"}</span>${RES_IC_CHEV}</button><div class="pc-dd-menu right" style="min-width:250px; padding:8px;">${_resPainelListaHtml(_resPainelMuns(c, a), F.mun ? JSON.stringify({ tipo: "mun", mun: F.mun, rotulo: _resNomeMun(_resPainelNomeMun(F.mun)) }) : "", "pcPnFiltroMun", "Filtrar municípios…")}</div></div>`;
+  }
+  let corpo = "";
+  if (F.tipo === "estado") corpo = `<div class="pc-sub" style="padding:4px 2px;">Santa Catarina inteiro.</div>`;
+  else if (precisaMun && !F.mun) corpo = `<div class="pc-sub" style="padding:4px 2px;">Escolha o município ao lado.</div>`;
+  else {
+    const itens = await _resPainelOpcoes(ctx, c, a, F);
+    const plural = { regiao: "regiões", mun: "municípios", bairro: "bairros", local: "colégios", secao: "seções" }[F.tipo];
+    corpo = `<div class="pn-lista-t">${itens.length} ${plural}${precisaMun ? " em " + _resNomeMun(_resPainelNomeMun(F.mun)) : ""} · mais votados primeiro</div>` + _resPainelListaHtml(itens, F.sel || "", "pcPnFiltro", `Filtrar ${plural}…`);
+  }
+  const pronto = F.tipo === "estado" || !!F.sel;
+  const X = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>';
+  const V = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+  return `<div class="pn-f2"><div class="pn-f2-sec"><div class="pc-map-filtros" style="grid-template-columns:${precisaMun ? "1fr 1fr" : "1fr"}; margin:0;">${ddTipo}${ddMun}</div></div>
+    <div class="pn-f2-sec">${corpo}</div>
+    <div class="pn-f2-acoes2"><button type="button" class="pn-rx" data-pn-form-x="1" title="Cancelar">${X}</button><button type="button" class="pn-rv" data-pn-loc-ok="1" title="Adicionar"${pronto ? "" : " disabled"}>${V}</button></div></div>`;
+}
+
 function _resPainelNomeMun(chave) { const m = MUNICIPIOS_SC_REGIOES.find((x) => x.chave === chave); return m ? m.nome : (chave || ""); }
 
 async function _resPainelFormHtml(st, cargo, cands, modo) {
@@ -1804,7 +1862,7 @@ async function _resPainelFormHtml(st, cargo, cands, modo) {
   const favs = ordem.filter((c) => fav.has(c.sq));
   const opC = (c) => `<option value="${esc(c.sq)}"${F.sq === c.sq ? " selected" : ""}>${esc(c.nomeUrna)} — ${esc(nomePartidoExibicao(c.partido))}</option>`;
   // modo "cand": só o candidato (+ do topo); modo "local": filtros dentro do bloco do candidato
-  let h = `<div class="pn-form">${modo === "local" ? "" : `<div class="pn-form-t">Candidato</div>${F.sq && cands.find((c) => c.sq === F.sq) ? (() => { const c = cands.find((x) => x.sq === F.sq); return `<div class="pn-cand-sel"><b>${esc(c.nomeUrna)}</b> <span>${esc(nomePartidoExibicao(c.partido))}</span><button type="button" data-pn-trocar="1">trocar</button></div>`; })() : `<input class="cell" id="pcPnBuscaC" placeholder="Buscar candidato ou partido…" style="width:100%; margin:0;"><div id="pcPnBuscaL" class="pn-busca-l"></div>`}`}${modo === "cand" ? "" : `<div class="pn-form-t">Adicionar local</div><div class="pc-imp-ops">${op("estado", "Estado")}${op("regiao", "Região")}${op("mun", "Município")}${op("bairro", "Bairro")}${op("local", "Colégio")}${op("secao", "Seção")}</div>`}`;
+  let h = `<div class="pn-form">${modo === "local" ? "" : `<div class="pn-form-t">Candidato</div>${F.sq && cands.find((c) => c.sq === F.sq) ? (() => { const c = cands.find((x) => x.sq === F.sq); return `<div class="pn-cand-sel"><b>${esc(c.nomeUrna)}</b> <span>${esc(nomePartidoExibicao(c.partido))}</span><button type="button" data-pn-trocar="1">trocar</button></div>`; })() : `<label class="pn-busca"><span class="lupa">${RES_IC_LUPA}</span><input id="pcPnBuscaC" placeholder="Buscar candidato ou partido…" autocomplete="off"></label><div id="pcPnBuscaL" class="pn-busca-l"></div>`}`}${modo === "cand" ? "" : `<div class="pn-form-t">Adicionar local</div><div class="pc-imp-ops">${op("estado", "Estado")}${op("regiao", "Região")}${op("mun", "Município")}${op("bairro", "Bairro")}${op("local", "Colégio")}${op("secao", "Seção")}</div>`}`;
   if (modo !== "cand" && F.tipo === "regiao") {
     const meso = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.meso))].sort(), assoc = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.assoc))].sort();
     h += `<select class="pc-imp-sel" data-pn-sel="regiao"><option value="">Escolha a região</option><optgroup label="Mesorregiões (IBGE)">${meso.map((r) => `<option${F.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup><optgroup label="Associações de municípios">${assoc.map((r) => `<option${F.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup></select>`;
@@ -1855,11 +1913,31 @@ function _resPainelLigar(ctx, corpo, dados) {
     };
     bc.addEventListener("input", pintar); bc.addEventListener("click", (e) => e.stopPropagation()); pintar();
   }
+  _resLigarDropdowns(corpo, (id, it) => { if (id === "pnLocTipo") { st.pnForm = { tipo: it.dataset.t, sq: st.pnForm.sq, mun: st.pnForm.mun }; _resRenderPainel(ctx); } });
   on("[data-pn-rm]", (el) => { const [bi, qi] = el.dataset.pnRm.split("|").map(Number); blocos[bi].quadros.splice(qi, 1); if (!blocos[bi].quadros.length) blocos.splice(bi, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
   on("[data-pn-rm-c]", (el) => { blocos.splice(+el.dataset.pnRmC, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
   on("[data-pn-tudo]", () => { if (!st.pnConfTudo) { st.pnConfTudo = true; _resRenderPainel(ctx); return; } blocos.splice(0); st.pnConfTudo = false; st.pnModo = null; Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); salvar(); });
+  // escolher local: filtro em tempo real, seleção, menus Local/Município
+  corpo.querySelectorAll(".pn-busca input").forEach((inp) => {
+    inp.addEventListener("click", (e) => e.stopPropagation());
+    inp.addEventListener("input", () => { const q = _resNorm(inp.value); const l = corpo.querySelector(`[data-pn-lista="${inp.id}"]`); if (l) l.querySelectorAll(".pn-li").forEach((li) => { li.style.display = !q || li.dataset.busca.includes(q) ? "" : "none"; }); });
+  });
+  corpo.querySelectorAll("[data-pn-q-item]").forEach((li) => li.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const q = JSON.parse(li.dataset.pnQItem);
+    if (li.closest("#pnLocMun")) { st.pnForm.mun = q.mun; st.pnForm.sel = ""; _resRenderPainel(ctx); return; }
+    st.pnForm.sel = li.dataset.pnQItem;
+    li.parentElement.querySelectorAll(".pn-li").forEach((x) => x.classList.toggle("on", x === li));
+    const ok = corpo.querySelector("[data-pn-loc-ok]"); if (ok) ok.disabled = false;
+  }));
+  on("[data-pn-loc-ok]", () => {
+    const F = st.pnForm, bl = blocos.find((b) => b.sq === F.sq);
+    const q = F.tipo === "estado" ? { tipo: "estado", rotulo: "Estado" } : JSON.parse(F.sel);
+    if (bl && !bl.quadros.some((x) => x.tipo === q.tipo && x.chave === q.chave && x.mun === q.mun)) bl.quadros.push(q);
+    st.pnLocal = null; salvar();
+  });
   on("[data-pn-form-x]", () => { st.pnModo = null; st.pnLocal = null; _resRenderPainel(ctx); });
-  on("[data-pn-local]", (el) => { const bi = +el.dataset.pnLocal; st.pnLocal = st.pnLocal === bi ? null : bi; st.pnModo = null; st.pnForm = { tipo: "estado", sq: blocos[bi].sq }; _resRenderPainel(ctx); });
+  on("[data-pn-local]", (el) => { const bi = +el.dataset.pnLocal; st.pnLocal = st.pnLocal === bi ? null : bi; st.pnModo = null; st.pnForm = { tipo: "mun", sq: blocos[bi].sq }; _resRenderPainel(ctx); });
   on("[data-pn-form-ok]", () => {
     const F = st.pnForm;
     if (st.pnModo === "add") {
