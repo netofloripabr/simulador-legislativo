@@ -1688,7 +1688,7 @@ async function _resRenderPainel(ctx) {
     const abre = !sub && ["mun", "bairro", "local"].includes(q.tipo);
     return `<div class="pn-tile${aberto ? " aberto" : ""}${sub ? " sub" : ""}" ${sub ? `data-pn-fixar='${esc(JSON.stringify(q))}' data-pn-b="${bi}"` : `data-pn-q="${idx}" data-pn-b="${bi}"${abre ? ` data-pn-abre="${id}"` : ""}`}>
       ${pos ? `<span class="pn-pos">${_resChipPos(pos)}</span>` : ""}
-      <div class="pn-t1"><b>${esc(q.rotulo)}</b></div><div class="pn-tipo">${tipoTxt}</div>
+      <div class="pn-t1">${sub ? "" : `<span class="pn-h" data-pn-arrasta title="Arraste para reorganizar"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></svg></span>`}<b>${esc(q.rotulo)}</b></div><div class="pn-tipo">${tipoTxt}</div>
       <div class="pn-l"><span>${RES_ANO_ANTERIOR}</span><b>${a ? _resFmt(v22) : "—"}</b></div>
       <div class="pn-l"><span>${RES_ANO_APURADO}</span><b class="${tem26 ? "" : "z"}">${tem26 ? _resFmt(v26) : "—"}</b></div>
       ${barra(pct)}
@@ -1731,31 +1731,54 @@ async function _resRenderPainel(ctx) {
         const nomeF = { mun: "bairros", bairro: "colégios", local: "seções" }[q.tipo];
         let sub = "";
         for (const f of fs.slice(0, lim)) sub += await tile(c, a, f, -1, bi, true);
-        h += grade + `</div><div class="pn-sub"><div class="pn-sub-t">${esc(q.rotulo)} · ${nomeF}<span>toque num quadro para fixar no painel</span><button type="button" class="pn-sub-x" data-pn-tira="${id}">remover ${esc(q.rotulo)} do painel</button></div>${fs.length ? `<div class="pn-grid sm">${sub}</div>` : `<div class="pc-sub" style="padding:6px 0;">Sem votação por local aqui.</div>`}${fs.length > 6 ? `<div class="pc-arv-alca" data-pn-todos="${id}"><span class="pega"></span><span class="rot">${st.pnAberto[id + "|todos"] ? "mostrar menos" : `${RES_IC_CHEV}+ ${fs.length - 6} ${nomeF}`}</span></div>` : ""}</div><div class="pn-grid">`;
+        h += grade + `</div><div class="pn-sub"><div class="pn-sub-t">${esc(q.rotulo)} · ${nomeF}<span>toque num quadro para fixar no painel</span></div>${fs.length ? `<div class="pn-grid sm">${sub}</div>` : `<div class="pc-sub" style="padding:6px 0;">Sem votação por local aqui.</div>`}${fs.length > 6 ? `<div class="pc-arv-alca" data-pn-todos="${id}"><span class="pega"></span><span class="rot">${st.pnAberto[id + "|todos"] ? "mostrar menos" : `${RES_IC_CHEV}+ ${fs.length - 6} ${nomeF}`}</span></div>` : ""}</div><div class="pn-grid">`;
         grade = "";
       }
     }
     h += grade + `</div>
-      <div class="pn-acoes"><button type="button" class="pn-add" data-pn-novo="${bi}">+ Fixar quadro <span>estado, região, município, bairro, colégio ou seção</span></button></div>
-      ${st.pnNovo === bi ? await _resPainelFormHtml(st, cargo) : ""}
-      <button type="button" class="pn-tirar-c" data-pn-tirar-c="${bi}">remover candidato do painel</button>
     </div>`;
   }
-  const busca = st.pnBusca != null;
-  h += busca ? `<div class="pn-cand"><input class="cell" id="pcPnBusca" placeholder="Buscar candidato ou partido…" style="width:100%; margin:0 0 6px;" value="${esc(st.pnBusca)}"><div id="pcPnBuscaLista"></div><button type="button" class="pn-tirar-c" data-pn-busca-fecha="1">cancelar</button></div>`
-    : `<button type="button" class="pn-add pn-add-c" data-pn-cand="1">+ Adicionar candidato ao painel</button>`;
-  if (!blocos.length && !busca) h = `<div class="pc-sub" style="padding:4px 2px 12px;">Fixe candidatos e locais para acompanhar a apuração em tempo real. O painel fica salvo neste aparelho.</div>` + h;
+  // barra: "+" abre candidato + filtro (o último candidato fica escolhido); lixeira abre a exclusão
+  const barraTopo = `<div class="pn-barra"><span>${blocos.length ? `${blocos.length} candidato${blocos.length > 1 ? "s" : ""} no painel` : "Painel vazio"}</span><button type="button" class="pc-dd-btn ico${st.pnModo === "add" ? " on" : ""}" data-pn-modo="add" title="Adicionar ao painel">${iconeSvg("mais", 15)}</button><button type="button" class="pc-dd-btn ico${st.pnModo === "del" ? " on" : ""}" data-pn-modo="del" title="Excluir do painel"${blocos.length ? "" : " disabled"}>${iconeSvg("lixeira", 15)}</button></div>`;
+  let painelAcao = "";
+  if (st.pnModo === "add") painelAcao = await _resPainelFormHtml(st, cargo, cands);
+  if (st.pnModo === "del") painelAcao = _resPainelExcluirHtml(st, blocos, cands);
+  if (!blocos.length && !st.pnModo) h = `<div class="pc-sub" style="padding:4px 2px 12px;">Toque em + para escolher um candidato e o local que quer acompanhar. O painel fica salvo neste aparelho.</div>`;
+  h = barraTopo + painelAcao + h;
   corpo.innerHTML = h;
   _resPainelLigar(ctx, corpo, dados);
 }
 
+function _resPainelExcluirHtml(st, blocos, cands) {
+  const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
+  const S = st.pnDel = st.pnDel || {};
+  const todas = [];
+  blocos.forEach((bl, bi) => { todas.push(`${bi}`); bl.quadros.forEach((q, qi) => todas.push(`${bi}|${qi}`)); });
+  const tudo = todas.length && todas.every((k) => S[k]);
+  const ck = (k, rot, cls = "") => `<label class="pn-ck${cls}"><input type="checkbox" data-pn-ck="${k}"${S[k] ? " checked" : ""}><span>${rot}</span></label>`;
+  let h = `<div class="pn-form">${ck("__todos", "<b>Selecionar todos</b>", " todos").replace(`data-pn-ck="__todos"`, `data-pn-ck="__todos"${tudo ? " checked" : ""}`)}`;
+  blocos.forEach((bl, bi) => {
+    const c = cands.find((x) => x.sq === bl.sq);
+    h += ck(`${bi}`, `<b>${esc(c ? c.nomeUrna : "Candidato")}</b> <i>candidato inteiro</i>`, " cand");
+    bl.quadros.forEach((q, qi) => { h += ck(`${bi}|${qi}`, esc(q.rotulo), " q"); });
+  });
+  const n = Object.values(S).filter(Boolean).length;
+  h += `<div style="display:flex; gap:8px; margin-top:10px;"><button type="button" class="ghost" data-pn-modo="del" style="flex:1;">Cancelar</button><button type="button" class="pn-del-ok" data-pn-del-ok="1"${n ? "" : " disabled"}>Excluir selecionados</button></div></div>`;
+  return h;
+}
+
 function _resPainelNomeMun(chave) { const m = MUNICIPIOS_SC_REGIOES.find((x) => x.chave === chave); return m ? m.nome : (chave || ""); }
 
-async function _resPainelFormHtml(st, cargo) {
+async function _resPainelFormHtml(st, cargo, cands) {
   const F = st.pnForm = st.pnForm || { tipo: "estado" };
+  if (!F.sq) F.sq = st.pnUltimo || "";
   const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
   const op = (v, r) => `<span class="pc-imp-op${F.tipo === v ? " on" : ""}" data-pn-tipo="${v}">${r}</span>`;
-  let h = `<div class="pn-form"><div class="pc-imp-ops">${op("estado", "Estado")}${op("regiao", "Região")}${op("mun", "Município")}${op("bairro", "Bairro")}${op("local", "Colégio")}${op("secao", "Seção")}</div>`;
+  const fav = _resFavoritos();
+  const ordem = [...cands].sort((a, b) => a.nomeUrna.localeCompare(b.nomeUrna, "pt-BR"));
+  const favs = ordem.filter((c) => fav.has(c.sq));
+  const opC = (c) => `<option value="${esc(c.sq)}"${F.sq === c.sq ? " selected" : ""}>${esc(c.nomeUrna)} — ${esc(nomePartidoExibicao(c.partido))}</option>`;
+  let h = `<div class="pn-form"><div class="pn-form-t">Candidato</div><select class="pc-imp-sel" data-pn-sel="sq" style="margin-top:0;"><option value="">Escolha o candidato</option>${favs.length ? `<optgroup label="Favoritos">${favs.map(opC).join("")}</optgroup>` : ""}<optgroup label="Todos">${ordem.map(opC).join("")}</optgroup></select><div class="pn-form-t">Local</div><div class="pc-imp-ops">${op("estado", "Estado")}${op("regiao", "Região")}${op("mun", "Município")}${op("bairro", "Bairro")}${op("local", "Colégio")}${op("secao", "Seção")}</div>`;
   if (F.tipo === "regiao") {
     const meso = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.meso))].sort(), assoc = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.assoc))].sort();
     h += `<select class="pc-imp-sel" data-pn-sel="regiao"><option value="">Escolha a região</option><optgroup label="Mesorregiões (IBGE)">${meso.map((r) => `<option${F.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup><optgroup label="Associações de municípios">${assoc.map((r) => `<option${F.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup></select>`;
@@ -1771,8 +1794,8 @@ async function _resPainelFormHtml(st, cargo) {
       h += opts.length ? `<select class="pc-imp-sel" data-pn-sel="chave"><option value="">Escolha</option>${opts.map(([v, r]) => `<option value="${esc(v)}"${F.chave === v ? " selected" : ""}>${esc(r)}</option>`).join("")}</select>` : `<div class="pc-sub" style="padding:6px 0;">Sem dado por local neste município.</div>`;
     }
   }
-  const pronto = F.tipo === "estado" || (F.tipo === "regiao" && F.regiao) || (F.tipo === "mun" && F.mun) || (F.chave && F.mun);
-  h += `<div style="display:flex; gap:8px; margin-top:8px;"><button type="button" class="ghost" data-pn-form-x="1" style="flex:1;">Cancelar</button><button type="button" class="pc-imp-ok" data-pn-form-ok="1"${pronto ? "" : " disabled"}>Fixar</button></div></div>`;
+  const pronto = F.sq && (F.tipo === "estado" || (F.tipo === "regiao" && F.regiao) || (F.tipo === "mun" && F.mun) || (F.chave && F.mun));
+  h += `<div style="display:flex; gap:8px; margin-top:8px;"><button type="button" class="ghost" data-pn-form-x="1" style="flex:1;">Cancelar</button><button type="button" class="pc-imp-ok" data-pn-form-ok="1"${pronto ? "" : " disabled"}>Adicionar ao painel</button></div></div>`;
   return h;
 }
 
@@ -1788,47 +1811,48 @@ function _resPainelLigar(ctx, corpo, dados) {
     salvar();
   });
   on("[data-pn-todos]", (el) => { const k = el.dataset.pnTodos + "|todos"; st.pnAberto[k] = !st.pnAberto[k]; _resRenderPainel(ctx); });
-  on("[data-pn-tira]", (el) => { const [bi, qi] = el.dataset.pnTira.split("|").map(Number); blocos[bi].quadros.splice(qi, 1); st.pnAberto = {}; salvar(); });
-  on("[data-pn-tirar-c]", (el) => { blocos.splice(+el.dataset.pnTirarC, 1); st.pnAberto = {}; salvar(); });
-  on("[data-pn-novo]", (el) => { st.pnNovo = st.pnNovo === +el.dataset.pnNovo ? null : +el.dataset.pnNovo; st.pnForm = { tipo: "estado" }; _resRenderPainel(ctx); });
-  on("[data-pn-tipo]", (el) => { st.pnForm = { tipo: el.dataset.pnTipo, mun: st.pnForm.mun }; _resRenderPainel(ctx); });
+  on("[data-pn-modo]", (el) => { const m = el.dataset.pnModo; st.pnModo = st.pnModo === m ? null : m; st.pnForm = { tipo: "estado" }; st.pnDel = {}; _resRenderPainel(ctx); });
+  on("[data-pn-tipo]", (el) => { st.pnForm = { tipo: el.dataset.pnTipo, mun: st.pnForm.mun, sq: st.pnForm.sq }; _resRenderPainel(ctx); });
+  corpo.querySelectorAll("[data-pn-ck]").forEach((cb) => cb.addEventListener("change", () => {
+    const k = cb.dataset.pnCk, S = st.pnDel;
+    if (k === "__todos") { blocos.forEach((bl, bi) => { S[bi] = cb.checked; bl.quadros.forEach((q, qi) => { S[`${bi}|${qi}`] = cb.checked; }); }); }
+    else { S[k] = cb.checked; if (!k.includes("|")) blocos[+k].quadros.forEach((q, qi) => { S[`${k}|${qi}`] = cb.checked; }); }
+    _resRenderPainel(ctx);
+  }));
+  on("[data-pn-del-ok]", () => {
+    const S = st.pnDel;
+    for (let bi = blocos.length - 1; bi >= 0; bi--) {
+      if (S[bi]) { blocos.splice(bi, 1); continue; }
+      blocos[bi].quadros = blocos[bi].quadros.filter((q, qi) => !S[`${bi}|${qi}`]);
+      if (!blocos[bi].quadros.length) blocos.splice(bi, 1);
+    }
+    st.pnModo = null; st.pnDel = {}; st.pnAberto = {}; salvar();
+  });
   corpo.querySelectorAll("[data-pn-sel]").forEach((s) => s.addEventListener("change", () => { st.pnForm[s.dataset.pnSel] = s.value; if (s.dataset.pnSel === "mun") st.pnForm.chave = ""; _resRenderPainel(ctx); }));
-  on("[data-pn-form-x]", () => { st.pnNovo = null; _resRenderPainel(ctx); });
+  on("[data-pn-form-x]", () => { st.pnModo = null; _resRenderPainel(ctx); });
   on("[data-pn-form-ok]", () => {
-    const F = st.pnForm, bl = blocos[st.pnNovo];
+    const F = st.pnForm;
+    let bl = blocos.find((b) => b.sq === F.sq);
+    if (!bl) { const c = ctx.cands.find((x) => x.sq === F.sq); bl = { sq: c.sq, numero: c.numero, quadros: [] }; blocos.push(bl); }
+    st.pnUltimo = F.sq;
     const nomeMun = _resNomeMun(_resPainelNomeMun(F.mun));
     const q = F.tipo === "estado" ? { tipo: "estado", rotulo: "Estado" }
       : F.tipo === "regiao" ? { tipo: "regiao", chave: F.regiao, rotulo: F.regiao.replace(" Catarinense", "") }
       : F.tipo === "mun" ? { tipo: "mun", mun: F.mun, rotulo: nomeMun }
       : { tipo: F.tipo, mun: F.mun, chave: F.chave, rotulo: F.tipo === "secao" ? `Seção ${F.chave.split("::")[1]} · ${F.chave.split("::")[0]}ª zona` : F.chave };
     if (!bl.quadros.some((x) => x.tipo === q.tipo && x.chave === q.chave && x.mun === q.mun)) bl.quadros.push(q);
-    st.pnNovo = null; salvar();
+    st.pnModo = null; salvar();
   });
-  on("[data-pn-cand]", () => { st.pnBusca = ""; _resRenderPainel(ctx); });
-  on("[data-pn-busca-fecha]", () => { st.pnBusca = null; _resRenderPainel(ctx); });
-  const bx = document.getElementById("pcPnBusca");
-  if (bx) {
-    const pintar = () => {
-      const qn = _resNorm(bx.value); st.pnBusca = bx.value;
-      const fav = _resFavoritos();
-      const l = ctx.cands.filter((c) => !blocos.some((b) => b.sq === c.sq) && (!qn ? fav.has(c.sq) || true : _resNorm(c.nomeUrna + " " + c.partido).includes(qn)));
-      l.sort((x, y) => (fav.has(y.sq) - fav.has(x.sq)) || x.nomeUrna.localeCompare(y.nomeUrna, "pt-BR"));
-      document.getElementById("pcPnBuscaLista").innerHTML = l.slice(0, 30).map((c) => `<div class="pc-dd-it" data-pn-add="${c.sq}">${fav.has(c.sq) ? RES_IC_ESTRELA.replace('width="14" height="14"', 'width="11" height="11" style="color:#C6E62A;margin-right:4px;"') : ""}${c.nomeUrna} <small style="color:#8A9096;">${c.partido}</small></div>`).join("");
-      document.querySelectorAll("[data-pn-add]").forEach((it) => it.addEventListener("click", (e) => { e.stopPropagation(); const c = ctx.cands.find((x) => x.sq === it.dataset.pnAdd); blocos.push({ sq: c.sq, numero: c.numero, quadros: [{ tipo: "estado", rotulo: "Estado" }] }); st.pnBusca = null; salvar(); }));
-    };
-    bx.addEventListener("input", pintar); bx.addEventListener("click", (e) => e.stopPropagation()); pintar(); bx.focus();
-  }
-  // Reorganizar: segurar o quadro ~0,45 s e arrastar (troca de lugar ao passar sobre outro)
-  corpo.querySelectorAll(".pn-tile[data-pn-q]").forEach((el) => {
-    let t = null, ativo = false;
-    el.addEventListener("pointerdown", (e) => {
-      t = setTimeout(() => { ativo = true; el.classList.add("arrastando"); el.setPointerCapture(e.pointerId); if (navigator.vibrate) navigator.vibrate(15); }, 450);
-    });
-    const parar = () => { clearTimeout(t); if (!ativo) return; ativo = false; el.classList.remove("arrastando"); el._arrastou = true; setTimeout(() => { el._arrastou = false; }, 50); salvar(); };
-    el.addEventListener("pointerup", parar); el.addEventListener("pointercancel", parar);
-    el.addEventListener("pointermove", (e) => {
-      if (!ativo) { return; }
-      e.preventDefault();
+  // Reorganizar pela alça de 6 pontos: arrastar por cima de outro quadro troca os dois
+  corpo.querySelectorAll(".pn-tile[data-pn-q] [data-pn-arrasta]").forEach((h) => {
+    const el = h.closest(".pn-tile");
+    let ativo = false;
+    h.addEventListener("click", (e) => e.stopPropagation());
+    h.addEventListener("pointerdown", (e) => { e.stopPropagation(); e.preventDefault(); ativo = true; el.classList.add("arrastando"); h.setPointerCapture(e.pointerId); });
+    const parar = () => { if (!ativo) return; ativo = false; el.classList.remove("arrastando"); _resPainelGravar(dados); };
+    h.addEventListener("pointerup", parar); h.addEventListener("pointercancel", parar);
+    h.addEventListener("pointermove", (e) => {
+      if (!ativo) return;
       const alvo = document.elementFromPoint(e.clientX, e.clientY);
       const outro = alvo && alvo.closest(".pn-tile[data-pn-q]");
       if (!outro || outro === el || outro.dataset.pnB !== el.dataset.pnB) return;
@@ -1836,6 +1860,9 @@ function _resPainelLigar(ctx, corpo, dados) {
       [bl.quadros[i], bl.quadros[j]] = [bl.quadros[j], bl.quadros[i]];
       const marc = document.createComment(""); el.replaceWith(marc); outro.replaceWith(el); marc.replaceWith(outro);
       el.dataset.pnQ = j; outro.dataset.pnQ = i;
+      if (el.dataset.pnAbre) { const [b0] = el.dataset.pnAbre.split("|"); el.dataset.pnAbre = `${b0}|${j}`; }
+      if (outro.dataset.pnAbre) { const [b0] = outro.dataset.pnAbre.split("|"); outro.dataset.pnAbre = `${b0}|${i}`; }
+      st.pnAberto = {};
     });
   });
 }

@@ -3409,7 +3409,7 @@
 #modoColaborativoWrap .pn-resumo span{ display:block; font-size:9px; color:#8A9096; text-transform:uppercase; letter-spacing:.05em; }
 #modoColaborativoWrap .pn-resumo b{ font-size:15px; color:#F2F4F5; font-variant-numeric:tabular-nums; }
 #modoColaborativoWrap .pn-cand .z{ color:#6B7178 !important; }
-#modoColaborativoWrap .pn-grid{ display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:1fr; gap:8px; margin-bottom:8px; }
+#modoColaborativoWrap .pn-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); grid-auto-rows:1fr; gap:8px; margin-bottom:8px; }
 #modoColaborativoWrap .pn-tile{ position:relative; display:flex; flex-direction:column; min-height:118px; border:1px solid rgba(242,244,245,.12); border-radius:12px; padding:9px 10px; background:rgba(242,244,245,.025); cursor:pointer; user-select:none; -webkit-user-select:none; touch-action:pan-y; }
 #modoColaborativoWrap .pn-tile.aberto{ border-color:rgba(52,232,74,.55); background:rgba(52,232,74,.05); }
 #modoColaborativoWrap .pn-tile.arrastando{ transform:scale(1.04); box-shadow:0 8px 24px rgba(0,0,0,.5); border-color:#34E84A; z-index:5; touch-action:none; }
@@ -3442,3 +3442,19 @@
 #modoColaborativoWrap .pn-form .pc-imp-ok{ flex:2; background:#34E84A; color:#0B0D0E; font-weight:800; border:none; border-radius:10px; padding:10px; cursor:pointer; }
 #modoColaborativoWrap .pn-form .pc-imp-ok:disabled{ opacity:.4; }
 #modoColaborativoWrap .pc-cargo-switch [data-res-aba]{ flex:1; }
+#modoColaborativoWrap .pn-barra{ display:flex; align-items:center; gap:8px; margin:0 0 10px; }
+#modoColaborativoWrap .pn-barra > span{ flex:1; font-size:11px; color:#8A9096; }
+#modoColaborativoWrap .pn-barra .pc-dd-btn.ico{ width:34px; height:34px; }
+#modoColaborativoWrap .pn-barra .pc-dd-btn.ico.on{ color:#34E84A; border-color:rgba(52,232,74,.5); }
+#modoColaborativoWrap .pn-barra .pc-dd-btn:disabled{ opacity:.35; }
+#modoColaborativoWrap .pn-form-t{ font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#6B7178; margin:4px 0 6px; }
+#modoColaborativoWrap .pn-form{ margin:0 0 12px; }
+#modoColaborativoWrap .pn-h{ flex:none; display:inline-flex; align-items:center; justify-content:center; width:16px; height:20px; margin:-2px 2px 0 -4px; color:#6B7178; cursor:grab; touch-action:none; }
+#modoColaborativoWrap .pn-t1{ display:flex; align-items:flex-start; }
+#modoColaborativoWrap .pn-ck{ display:flex; align-items:center; gap:8px; padding:7px 2px; font-size:12px; color:#D5D9DC; border-bottom:1px solid rgba(242,244,245,.06); cursor:pointer; }
+#modoColaborativoWrap .pn-ck input{ accent-color:#34E84A; width:16px; height:16px; }
+#modoColaborativoWrap .pn-ck.q{ padding-left:22px; color:#B5BBC0; }
+#modoColaborativoWrap .pn-ck.cand i{ font-style:normal; font-size:10px; color:#6B7178; }
+#modoColaborativoWrap .pn-ck.todos{ border-bottom:1px solid rgba(242,244,245,.14); }
+#modoColaborativoWrap .pn-del-ok{ flex:2; background:#E8432A; color:#fff; font-weight:800; border:none; border-radius:10px; padding:10px; cursor:pointer; }
+#modoColaborativoWrap .pn-del-ok:disabled{ opacity:.4; }
