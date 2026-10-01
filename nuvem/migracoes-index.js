@@ -1332,5 +1332,20 @@ const MIGRACOES_INDEX = [
     "apuracao_ligar_2026"
    ]
   ]
+ },
+ {
+  "num": 57,
+  "arquivo": "migracao-57-painel-resultados.sql",
+  "descricao": "Migração 57 (01/10/2026): aba Painel da tela de Resultados.",
+  "objetos": [
+   [
+    "table",
+    "painel_resultados"
+   ],
+   [
+    "policy",
+    "painel_resultados_proprio"
+   ]
+  ]
  }
 ];

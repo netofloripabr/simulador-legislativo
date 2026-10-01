@@ -1631,8 +1631,25 @@ function _resDocCasca(titulo, sub, corpo, ano) {
 // colégio, seção) e acompanha 2022 × 2026 e o andamento da apuração.
 // Fica salvo neste aparelho (localStorage), por cargo.
 const RES_PAINEL_CHAVE = "simulalegis_painel_v1";
-function _resPainelLer() { try { return JSON.parse(localStorage.getItem(RES_PAINEL_CHAVE)) || {}; } catch (e) { return {}; } }
-function _resPainelGravar(d) { try { localStorage.setItem(RES_PAINEL_CHAVE, JSON.stringify(d)); } catch (e) { /* sem armazenamento: painel vale só nesta visita */ } }
+// Com conta: também vai pra tabela painel_resultados (migração 57) e acompanha
+// o usuário em qualquer aparelho; vale o mais recente (_ts).
+function _resPainelChave() { return RES_PAINEL_CHAVE + ((pcState.perfil && pcState.perfil.id) ? "-" + pcState.perfil.id : ""); }
+function _resPainelLer() { try { return JSON.parse(localStorage.getItem(_resPainelChave())) || JSON.parse(localStorage.getItem(RES_PAINEL_CHAVE)) || {}; } catch (e) { return {}; } }
+function _resPainelGravar(d) {
+  d._ts = Date.now();
+  try { localStorage.setItem(_resPainelChave(), JSON.stringify(d)); } catch (e) { /* sem armazenamento: painel vale só nesta visita */ }
+  const id = pcState.perfil && pcState.perfil.id;
+  if (id && typeof painelResultadosSalvar === "function") { clearTimeout(pcState._pnNuvemT); pcState._pnNuvemT = setTimeout(() => painelResultadosSalvar(id, d), 800); }
+}
+async function _resPainelSincronizar() {
+  const id = pcState.perfil && pcState.perfil.id;
+  if (!id || pcState._pnSinc === id || typeof painelResultadosCarregar !== "function") return;
+  pcState._pnSinc = id;
+  const nuvem = await painelResultadosCarregar(id);
+  const local = _resPainelLer();
+  if (nuvem && nuvem.dados && (nuvem.dados._ts || 0) > (local._ts || 0)) { try { localStorage.setItem(_resPainelChave(), JSON.stringify(nuvem.dados)); } catch (e) { /* ok */ } }
+  else if (Object.keys(local).some((k) => !k.startsWith("_"))) painelResultadosSalvar(id, local);
+}
 
 // votos de um candidato num quadro; sec = arquivo secoes/ do município (ou null)
 function _resPainelVotos(c, q, sec, cargo) {
@@ -1663,6 +1680,7 @@ async function _resRenderPainel(ctx) {
   const { st, cargo, cands } = ctx;
   const corpo = document.getElementById("pcResCorpo");
   const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
+  await _resPainelSincronizar();
   const dados = _resPainelLer();
   const blocos = dados[cargo] = dados[cargo] || [];
   // camadas abertas também ficam salvas (voltam abertas ao reabrir o app)
@@ -1756,7 +1774,7 @@ async function _resRenderPainel(ctx) {
   let painelAcao = "";
   if (st.pnModo === "add") painelAcao = await _resPainelFormHtml(st, cargo, cands);
   if (st.pnModo === "del") painelAcao = `<div class="pn-del-barra"><span>Toque na lixeira do quadro que quer tirar do painel.</span><button type="button" class="pn-del-tudo${st.pnConfTudo ? " conf" : ""}" data-pn-tudo="1">${st.pnConfTudo ? "Confirmar: remover tudo" : "Remover tudo"}</button></div>`;
-  if (!blocos.length && !st.pnModo) h = `<div class="pc-sub" style="padding:4px 2px 12px;">Toque em + para escolher um candidato e o local que quer acompanhar. O painel fica salvo neste aparelho.</div>`;
+  if (!blocos.length && !st.pnModo) h = `<div class="pc-sub" style="padding:4px 2px 12px;">Toque em + para escolher um candidato e o local que quer acompanhar. ${pcState.perfil ? "O painel fica salvo na sua conta." : "O painel fica salvo neste aparelho; entre na sua conta para levá-lo a qualquer aparelho."}</div>`;
   h = barraTopo + painelAcao + h;
   corpo.innerHTML = h;
   _resPainelLigar(ctx, corpo, dados);
