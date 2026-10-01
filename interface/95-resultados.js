@@ -1764,7 +1764,8 @@ async function _resRenderPainel(ctx) {
     const a = ctx.antDe(c);
     const fav = _resFavoritos().has(c.sq);
     h += `<div class="pn-cand" data-pn-bloco="${bi}">
-      <div class="pn-ch"><div><div class="pn-nm">${esc(c.nomeUrna)}</div><div class="pn-pt">${esc(nomePartidoExibicao(c.partido))} <i>(${cargoLbl})</i> · nº ${esc(c.numero)}</div></div><button type="button" class="pc-dd-btn ico" data-pn-fav="${c.sq}" title="${fav ? "Remover dos favoritos" : "Favoritar"}" style="flex:none;${fav ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button></div>
+      <div class="pn-ch"><div><div class="pn-nm">${esc(c.nomeUrna)}</div><div class="pn-pt">${esc(nomePartidoExibicao(c.partido))} <i>(${cargoLbl})</i> · nº ${esc(c.numero)}</div></div><button type="button" class="pc-dd-btn ico" data-pn-fav="${c.sq}" title="${fav ? "Remover dos favoritos" : "Favoritar"}" style="flex:none;${fav ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button><button type="button" class="pc-dd-btn ico${st.pnLocal === bi ? " on" : ""}" data-pn-local="${bi}" title="Adicionar local para ${esc(c.nomeUrna)}" style="flex:none;">${iconeSvg("mais", 14)}</button></div>
+      ${st.pnLocal === bi ? await _resPainelFormHtml(st, cargo, cands, "local") : ""}
       <div class="pn-resumo"><div><span>${RES_ANO_ANTERIOR}</span><b>${a ? _resFmt(a.total) : "—"}</b></div><div><span>${RES_ANO_APURADO}</span><b class="${c.total ? "" : "z"}">${c.total ? _resFmt(c.total) : "—"}</b></div></div>
       ${barra(pctEst, " pn-ap-g")}
       <div class="pn-grid">`;
@@ -1781,9 +1782,9 @@ async function _resRenderPainel(ctx) {
     </div>`;
   }
   // barra: "+" abre candidato + filtro (o último candidato fica escolhido); lixeira abre a exclusão
-  const barraTopo = `<div class="pn-barra"><span>${blocos.length ? `${blocos.length} candidato${blocos.length > 1 ? "s" : ""} no painel` : "Painel vazio"}</span><button type="button" class="pc-dd-btn ico${st.pnModo === "add" ? " on" : ""}" data-pn-modo="add" title="Adicionar ao painel">${iconeSvg("mais", 15)}</button><button type="button" class="pc-dd-btn ico${st.pnModo === "del" ? " on" : ""}" data-pn-modo="del" title="Excluir do painel"${blocos.length ? "" : " disabled"}>${iconeSvg("lixeira", 15)}</button></div>`;
+  const barraTopo = `<div class="pn-barra"><span>${blocos.length ? `${blocos.length} candidato${blocos.length > 1 ? "s" : ""} no painel` : "Painel vazio"}</span><button type="button" class="pc-dd-btn ico${st.pnModo === "add" ? " on" : ""}" data-pn-modo="add" title="Adicionar candidato ao painel">${iconeSvg("mais", 15)}</button><button type="button" class="pc-dd-btn ico${st.pnModo === "del" ? " on" : ""}" data-pn-modo="del" title="Excluir do painel"${blocos.length ? "" : " disabled"}>${iconeSvg("lixeira", 15)}</button></div>`;
   let painelAcao = "";
-  if (st.pnModo === "add") painelAcao = await _resPainelFormHtml(st, cargo, cands);
+  if (st.pnModo === "add") painelAcao = await _resPainelFormHtml(st, cargo, cands, "cand");
   if (st.pnModo === "del") painelAcao = `<div class="pn-del-barra"><span>Toque na lixeira do quadro que quer tirar do painel.</span><button type="button" class="pn-del-tudo${st.pnConfTudo ? " conf" : ""}" data-pn-tudo="1">${st.pnConfTudo ? "Confirmar: remover tudo" : "Remover tudo"}</button></div>`;
   if (!blocos.length && !st.pnModo) h = `<div class="pc-sub" style="padding:4px 2px 12px;">Toque em + para escolher um candidato e o local que quer acompanhar. ${pcState.perfil ? "O painel fica salvo na sua conta." : "O painel fica salvo neste aparelho; entre na sua conta para levá-lo a qualquer aparelho."}</div>`;
   h = barraTopo + painelAcao + h;
@@ -1793,21 +1794,22 @@ async function _resRenderPainel(ctx) {
 
 function _resPainelNomeMun(chave) { const m = MUNICIPIOS_SC_REGIOES.find((x) => x.chave === chave); return m ? m.nome : (chave || ""); }
 
-async function _resPainelFormHtml(st, cargo, cands) {
+async function _resPainelFormHtml(st, cargo, cands, modo) {
   const F = st.pnForm = st.pnForm || { tipo: "estado" };
-  if (!F.sq) F.sq = st.pnUltimo || "";
+  if (!F.sq && modo !== "cand") F.sq = st.pnUltimo || "";
   const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
   const op = (v, r) => `<span class="pc-imp-op${F.tipo === v ? " on" : ""}" data-pn-tipo="${v}">${r}</span>`;
   const fav = _resFavoritos();
   const ordem = [...cands].sort((a, b) => a.nomeUrna.localeCompare(b.nomeUrna, "pt-BR"));
   const favs = ordem.filter((c) => fav.has(c.sq));
   const opC = (c) => `<option value="${esc(c.sq)}"${F.sq === c.sq ? " selected" : ""}>${esc(c.nomeUrna)} — ${esc(nomePartidoExibicao(c.partido))}</option>`;
-  let h = `<div class="pn-form"><div class="pn-form-t">Candidato</div>${F.sq && cands.find((c) => c.sq === F.sq) ? (() => { const c = cands.find((x) => x.sq === F.sq); return `<div class="pn-cand-sel"><b>${esc(c.nomeUrna)}</b> <span>${esc(nomePartidoExibicao(c.partido))}</span><button type="button" data-pn-trocar="1">trocar</button></div>`; })() : `<input class="cell" id="pcPnBuscaC" placeholder="Buscar candidato ou partido…" style="width:100%; margin:0;"><div id="pcPnBuscaL" class="pn-busca-l"></div>`}<div class="pn-form-t">Local</div><div class="pc-imp-ops">${op("estado", "Estado")}${op("regiao", "Região")}${op("mun", "Município")}${op("bairro", "Bairro")}${op("local", "Colégio")}${op("secao", "Seção")}</div>`;
-  if (F.tipo === "regiao") {
+  // modo "cand": só o candidato (+ do topo); modo "local": filtros dentro do bloco do candidato
+  let h = `<div class="pn-form">${modo === "local" ? "" : `<div class="pn-form-t">Candidato</div>${F.sq && cands.find((c) => c.sq === F.sq) ? (() => { const c = cands.find((x) => x.sq === F.sq); return `<div class="pn-cand-sel"><b>${esc(c.nomeUrna)}</b> <span>${esc(nomePartidoExibicao(c.partido))}</span><button type="button" data-pn-trocar="1">trocar</button></div>`; })() : `<input class="cell" id="pcPnBuscaC" placeholder="Buscar candidato ou partido…" style="width:100%; margin:0;"><div id="pcPnBuscaL" class="pn-busca-l"></div>`}`}${modo === "cand" ? "" : `<div class="pn-form-t">Adicionar local</div><div class="pc-imp-ops">${op("estado", "Estado")}${op("regiao", "Região")}${op("mun", "Município")}${op("bairro", "Bairro")}${op("local", "Colégio")}${op("secao", "Seção")}</div>`}`;
+  if (modo !== "cand" && F.tipo === "regiao") {
     const meso = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.meso))].sort(), assoc = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.assoc))].sort();
     h += `<select class="pc-imp-sel" data-pn-sel="regiao"><option value="">Escolha a região</option><optgroup label="Mesorregiões (IBGE)">${meso.map((r) => `<option${F.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup><optgroup label="Associações de municípios">${assoc.map((r) => `<option${F.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup></select>`;
   }
-  if (["mun", "bairro", "local", "secao"].includes(F.tipo)) {
+  if (modo !== "cand" && ["mun", "bairro", "local", "secao"].includes(F.tipo)) {
     h += `<select class="pc-imp-sel" data-pn-sel="mun"><option value="">Escolha o município</option>${[...MUNICIPIOS_SC_REGIOES].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")).map((m) => `<option value="${esc(m.chave)}"${F.mun === m.chave ? " selected" : ""}>${esc(m.nome)}</option>`).join("")}</select>`;
     if (F.tipo !== "mun" && F.mun) {
       const sec = await _resCarregar(RES_ANO_ANTERIOR, "secoes/" + _resSlug(F.mun), "");
@@ -1818,8 +1820,8 @@ async function _resPainelFormHtml(st, cargo, cands) {
       h += opts.length ? `<select class="pc-imp-sel" data-pn-sel="chave"><option value="">Escolha</option>${opts.map(([v, r]) => `<option value="${esc(v)}"${F.chave === v ? " selected" : ""}>${esc(r)}</option>`).join("")}</select>` : `<div class="pc-sub" style="padding:6px 0;">Sem dado por local neste município.</div>`;
     }
   }
-  const pronto = F.sq && (F.tipo === "estado" || (F.tipo === "regiao" && F.regiao) || (F.tipo === "mun" && F.mun) || (F.chave && F.mun));
-  h += `</div><div class="pn-form-acoes"><button type="button" class="pn-ic-x" data-pn-form-x="1" title="Cancelar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button><button type="button" class="pn-ic-v" data-pn-form-ok="1" title="Adicionar ao painel"${pronto ? "" : " disabled"}><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg></button></div></div>`;
+  const pronto = modo === "cand" ? !!F.sq : F.sq && (F.tipo === "estado" || (F.tipo === "regiao" && F.regiao) || (F.tipo === "mun" && F.mun) || (F.chave && F.mun));
+  h += `</div><div class="pn-form-acoes"><button type="button" class="pn-ic-x" data-pn-form-x="1" title="Cancelar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button><button type="button" class="pn-ic-v" data-pn-form-ok="1" title="Adicionar ao painel"${pronto ? "" : " disabled"}><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg></button></div>`;
   return h;
 }
 
@@ -1836,7 +1838,7 @@ function _resPainelLigar(ctx, corpo, dados) {
   });
   on("[data-pn-subabre]", (el) => { const k = el.dataset.pnSubabre; if (st.pnAberto[k]) Object.keys(st.pnAberto).forEach((x) => { if (x === k || x.startsWith(k + "|")) delete st.pnAberto[x]; }); else st.pnAberto[k] = true; salvar(); });
   on("[data-pn-todos]", (el) => { const k = el.dataset.pnTodos + "|todos"; st.pnAberto[k] = !st.pnAberto[k]; salvar(); });
-  on("[data-pn-modo]", (el) => { const m = el.dataset.pnModo; st.pnModo = st.pnModo === m ? null : m; st.pnForm = { tipo: "estado" }; st.pnConfTudo = false; _resRenderPainel(ctx); });
+  on("[data-pn-modo]", (el) => { const m = el.dataset.pnModo; st.pnModo = st.pnModo === m ? null : m; st.pnLocal = null; st.pnForm = { tipo: "estado" }; st.pnConfTudo = false; _resRenderPainel(ctx); });
   on("[data-pn-tipo]", (el) => { st.pnForm = { tipo: el.dataset.pnTipo, mun: st.pnForm.mun, sq: st.pnForm.sq }; _resRenderPainel(ctx); });
   corpo.querySelectorAll("[data-pn-sel]").forEach((x) => x.addEventListener("change", () => { st.pnForm[x.dataset.pnSel] = x.value; if (x.dataset.pnSel === "mun") st.pnForm.chave = ""; _resRenderPainel(ctx); }));
   on("[data-pn-trocar]", () => { st.pnForm.sq = ""; _resRenderPainel(ctx).then(() => { const b = document.getElementById("pcPnBuscaC"); if (b) b.focus(); }); });
@@ -1856,9 +1858,14 @@ function _resPainelLigar(ctx, corpo, dados) {
   on("[data-pn-rm]", (el) => { const [bi, qi] = el.dataset.pnRm.split("|").map(Number); blocos[bi].quadros.splice(qi, 1); if (!blocos[bi].quadros.length) blocos.splice(bi, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
   on("[data-pn-rm-c]", (el) => { blocos.splice(+el.dataset.pnRmC, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
   on("[data-pn-tudo]", () => { if (!st.pnConfTudo) { st.pnConfTudo = true; _resRenderPainel(ctx); return; } blocos.splice(0); st.pnConfTudo = false; st.pnModo = null; Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); salvar(); });
-  on("[data-pn-form-x]", () => { st.pnModo = null; _resRenderPainel(ctx); });
+  on("[data-pn-form-x]", () => { st.pnModo = null; st.pnLocal = null; _resRenderPainel(ctx); });
+  on("[data-pn-local]", (el) => { const bi = +el.dataset.pnLocal; st.pnLocal = st.pnLocal === bi ? null : bi; st.pnModo = null; st.pnForm = { tipo: "estado", sq: blocos[bi].sq }; _resRenderPainel(ctx); });
   on("[data-pn-form-ok]", () => {
     const F = st.pnForm;
+    if (st.pnModo === "add") {
+      if (!blocos.some((b) => b.sq === F.sq)) { const c = ctx.cands.find((x) => x.sq === F.sq); blocos.push({ sq: c.sq, numero: c.numero, quadros: [{ tipo: "estado", rotulo: "Estado" }] }); }
+      st.pnUltimo = F.sq; st.pnModo = null; salvar(); return;
+    }
     let bl = blocos.find((b) => b.sq === F.sq);
     if (!bl) { const c = ctx.cands.find((x) => x.sq === F.sq); bl = { sq: c.sq, numero: c.numero, quadros: [] }; blocos.push(bl); }
     st.pnUltimo = F.sq;
@@ -1868,18 +1875,21 @@ function _resPainelLigar(ctx, corpo, dados) {
       : F.tipo === "mun" ? { tipo: "mun", mun: F.mun, rotulo: nomeMun }
       : { tipo: F.tipo, mun: F.mun, chave: F.chave, rotulo: F.tipo === "secao" ? `Seção ${F.chave.split("::")[1]}` : F.chave };
     if (!bl.quadros.some((x) => x.tipo === q.tipo && x.chave === q.chave && x.mun === q.mun)) bl.quadros.push(q);
-    st.pnModo = null; salvar();
+    st.pnModo = null; st.pnLocal = null; salvar();
   });
   // Reorganizar pela alça de 6 pontos: arrastar por cima de outro quadro troca os dois
   corpo.querySelectorAll(".pn-tile[data-pn-q] [data-pn-arrasta]").forEach((h) => {
     const el = h.closest(".pn-tile");
     let ativo = false;
     h.addEventListener("click", (e) => e.stopPropagation());
-    h.addEventListener("pointerdown", (e) => { e.stopPropagation(); e.preventDefault(); ativo = true; el.classList.add("arrastando"); h.setPointerCapture(e.pointerId); });
-    const parar = () => { if (!ativo) return; ativo = false; el.classList.remove("arrastando"); _resPainelGravar(dados); };
-    h.addEventListener("pointerup", parar); h.addEventListener("pointercancel", parar);
-    h.addEventListener("pointermove", (e) => {
+    h.addEventListener("pointerdown", (e) => { e.stopPropagation(); e.preventDefault(); ativo = true; el.classList.add("arrastando"); });
+    // a troca de lugar tira o elemento do DOM e ele perde a captura do ponteiro,
+    // então o "soltar" e o "mover" são ouvidos no documento inteiro
+    const parar = () => { if (!ativo) return; ativo = false; el.classList.remove("arrastando"); document.removeEventListener("pointermove", mover); document.removeEventListener("pointerup", parar); document.removeEventListener("pointercancel", parar); _resPainelGravar(dados); _resRenderPainel(ctx); };
+    h.addEventListener("pointerdown", () => { document.addEventListener("pointermove", mover, { passive: false }); document.addEventListener("pointerup", parar); document.addEventListener("pointercancel", parar); });
+    const mover = (e) => {
       if (!ativo) return;
+      e.preventDefault();
       const alvo = document.elementFromPoint(e.clientX, e.clientY);
       const outro = alvo && alvo.closest(".pn-tile[data-pn-q]");
       if (!outro || outro === el || outro.dataset.pnB !== el.dataset.pnB) return;
@@ -1890,6 +1900,6 @@ function _resPainelLigar(ctx, corpo, dados) {
       if (el.dataset.pnAbre) { const [b0] = el.dataset.pnAbre.split("|"); el.dataset.pnAbre = `${b0}|${j}`; }
       if (outro.dataset.pnAbre) { const [b0] = outro.dataset.pnAbre.split("|"); outro.dataset.pnAbre = `${b0}|${i}`; }
       Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]);
-    });
+    };
   });
 }
