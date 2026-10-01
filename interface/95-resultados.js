@@ -1675,20 +1675,20 @@ async function _resRenderPainel(ctx) {
   const secCache = {};
   const sec = async (ano, mun) => { const k = ano + mun; if (!(k in secCache)) secCache[k] = mun ? await _resCarregar(ano, "secoes/" + _resSlug(mun), "") : null; return secCache[k]; };
 
-  const tile = async (c, a, q, idx, bi, sub) => {
+  const tile = async (c, a, q, idx, bi, sub, path) => {
     const s26 = await sec(RES_ANO_APURADO, q.mun), s22 = await sec(RES_ANO_ANTERIOR, q.mun);
     const local = ["bairro", "local", "secao"].includes(q.tipo);
     const v26 = _resPainelVotos(c, q, s26, cargo), v22 = _resPainelVotos(a, q, s22, cargo);
     const tem26 = v26 > 0;
     const pos = tem26 ? _resPainelPos(cands, c, q, s26, cargo) : (a ? _resPainelPos(lista22, a, q, s22, cargo) : null);
     const pct = q.tipo === "estado" ? pctEst : null;
-    const tipoTxt = { estado: "Santa Catarina", regiao: "região", mun: "município", bairro: "bairro · " + _resNomeMun(_resPainelNomeMun(q.mun)), local: "colégio · " + _resNomeMun(_resPainelNomeMun(q.mun)), secao: "seção · " + _resNomeMun(_resPainelNomeMun(q.mun)) }[q.tipo];
+    const tipoTxt = { estado: "Santa Catarina", regiao: "região", mun: "município", bairro: "bairro · " + _resNomeMun(_resPainelNomeMun(q.mun)), local: "colégio · " + _resNomeMun(_resPainelNomeMun(q.mun)), secao: (q.chave || "").split("::")[0] + "ª zona · " + _resNomeMun(_resPainelNomeMun(q.mun)) }[q.tipo];
     const id = `${bi}|${idx}`;
-    const aberto = !sub && st.pnAberto[id];
+    const aberto = sub ? !!st.pnAberto[path] : st.pnAberto[id];
     const abre = !sub && ["mun", "bairro", "local"].includes(q.tipo);
-    return `<div class="pn-tile${aberto ? " aberto" : ""}${sub ? " sub" : ""}" ${sub ? `data-pn-fixar='${esc(JSON.stringify(q))}' data-pn-b="${bi}"` : `data-pn-q="${idx}" data-pn-b="${bi}"${abre ? ` data-pn-abre="${id}"` : ""}`}>
+    return `<div class="pn-tile${aberto ? " aberto" : ""}${sub ? " sub" : ""}" ${sub ? `data-pn-b="${bi}"${q.tipo !== "secao" ? ` data-pn-subabre="${esc(path)}"` : ""}` : `data-pn-q="${idx}" data-pn-b="${bi}"${abre ? ` data-pn-abre="${id}"` : ""}`}>
       ${!sub && st.pnModo === "del" ? `<button type="button" class="pn-rm" data-pn-rm="${bi}|${idx}" title="Remover ${esc(q.rotulo)} do painel">${iconeSvg("lixeira", 12)}</button>` : pos ? `<span class="pn-pos">${_resChipPos(pos)}</span>` : ""}
-      <div class="pn-t1">${sub || st.pnModo === "del" ? "" : `<span class="pn-h" data-pn-arrasta title="Arraste para reorganizar"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></svg></span>`}<b>${esc(q.rotulo)}</b></div><div class="pn-tipo">${tipoTxt}</div>
+      <div class="pn-t1">${sub || st.pnModo === "del" ? "" : `<span class="pn-h" data-pn-arrasta title="Arraste para reorganizar"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></svg></span>`}<b>${esc(q.rotulo)}</b></div><div class="pn-tipo"><span>${tipoTxt}</span>${sub ? `<button type="button" class="pn-fix" data-pn-fixar='${esc(JSON.stringify(q))}' data-pn-b="${bi}" title="Fixar ${esc(q.rotulo)} no painel">${iconeSvg("mais", 10)}</button>` : ""}</div>
       <div class="pn-l"><span>${RES_ANO_ANTERIOR}</span><b>${a ? _resFmt(v22) : "—"}</b></div>
       <div class="pn-l"><span>${RES_ANO_APURADO}</span><b class="${tem26 ? "" : "z"}">${tem26 ? _resFmt(v26) : "—"}</b></div>
       ${barra(pct)}
@@ -1706,8 +1706,24 @@ async function _resRenderPainel(ctx) {
       if (nome) grupos[nome] = true;
     });
     const tipoF = q.tipo === "mun" ? "bairro" : q.tipo === "bairro" ? "local" : "secao";
-    const arr = Object.keys(grupos).map((nome) => { const f = { tipo: tipoF, mun: q.mun, chave: nome, rotulo: tipoF === "secao" ? `Seção ${nome.split("::")[1]} · ${nome.split("::")[0]}ª zona` : nome }; return { f, v: _resPainelVotos(a, f, s22, cargo) + _resPainelVotos(c, f, s26, cargo) }; });
+    const arr = Object.keys(grupos).map((nome) => { const f = { tipo: tipoF, mun: q.mun, chave: nome, rotulo: tipoF === "secao" ? `Seção ${nome.split("::")[1]}` : nome }; return { f, v: _resPainelVotos(a, f, s22, cargo) + _resPainelVotos(c, f, s26, cargo) }; });
     return arr.sort((x, y) => y.v - x.v).map((x) => x.f);
+  };
+
+  // subpasta em camadas: tocar num item abre o nível de baixo dentro dela;
+  // o "+" do item fixa no painel (01/10/2026)
+  const subpasta = async (c, a, q, path, bi, nivel) => {
+    const fs = await filhos(c, a, q);
+    const lim = st.pnAberto[path + "|todos"] ? fs.length : 6;
+    const nomeF = { mun: "bairros", bairro: "colégios", local: "seções" }[q.tipo];
+    let out = "", grade = "";
+    for (const f of fs.slice(0, lim)) {
+      const p2 = path + "|" + f.tipo + ":" + f.chave;
+      grade += await tile(c, a, f, -1, bi, true, p2);
+      if (st.pnAberto[p2]) { out += `<div class="pn-grid sm">${grade}</div>` + await subpasta(c, a, f, p2, bi, nivel + 1); grade = ""; }
+    }
+    if (grade) out += `<div class="pn-grid sm">${grade}</div>`;
+    return `<div class="pn-sub n${nivel}"><div class="pn-sub-t">${esc(q.rotulo)} · ${nomeF}<span>toque para abrir · + para fixar no painel</span></div>${fs.length ? out : `<div class="pc-sub" style="padding:6px 0;">Sem votação por local aqui.</div>`}${fs.length > 6 ? `<div class="pc-arv-alca" data-pn-todos="${esc(path)}"><span class="pega"></span><span class="rot">${st.pnAberto[path + "|todos"] ? "mostrar menos" : `${RES_IC_CHEV}+ ${fs.length - 6} ${nomeF}`}</span></div>` : ""}</div>`;
   };
 
   let h = "";
@@ -1726,12 +1742,7 @@ async function _resRenderPainel(ctx) {
       grade += await tile(c, a, q, qi, bi, false);
       const id = `${bi}|${qi}`;
       if (st.pnAberto[id]) {
-        const fs = await filhos(c, a, q);
-        const lim = st.pnAberto[id + "|todos"] ? fs.length : 6;
-        const nomeF = { mun: "bairros", bairro: "colégios", local: "seções" }[q.tipo];
-        let sub = "";
-        for (const f of fs.slice(0, lim)) sub += await tile(c, a, f, -1, bi, true);
-        h += grade + `</div><div class="pn-sub"><div class="pn-sub-t">${esc(q.rotulo)} · ${nomeF}<span>toque num quadro para fixar no painel</span></div>${fs.length ? `<div class="pn-grid sm">${sub}</div>` : `<div class="pc-sub" style="padding:6px 0;">Sem votação por local aqui.</div>`}${fs.length > 6 ? `<div class="pc-arv-alca" data-pn-todos="${id}"><span class="pega"></span><span class="rot">${st.pnAberto[id + "|todos"] ? "mostrar menos" : `${RES_IC_CHEV}+ ${fs.length - 6} ${nomeF}`}</span></div>` : ""}</div><div class="pn-grid">`;
+        h += grade + `</div>` + await subpasta(c, a, q, id, bi, 0) + `<div class="pn-grid">`;
         grade = "";
       }
     }
@@ -1792,6 +1803,7 @@ function _resPainelLigar(ctx, corpo, dados) {
     if (!bl.quadros.some((x) => x.tipo === q.tipo && x.chave === q.chave && x.mun === q.mun)) bl.quadros.push(q);
     salvar();
   });
+  on("[data-pn-subabre]", (el) => { const k = el.dataset.pnSubabre; if (st.pnAberto[k]) Object.keys(st.pnAberto).forEach((x) => { if (x === k || x.startsWith(k + "|")) delete st.pnAberto[x]; }); else st.pnAberto[k] = true; _resRenderPainel(ctx); });
   on("[data-pn-todos]", (el) => { const k = el.dataset.pnTodos + "|todos"; st.pnAberto[k] = !st.pnAberto[k]; _resRenderPainel(ctx); });
   on("[data-pn-modo]", (el) => { const m = el.dataset.pnModo; st.pnModo = st.pnModo === m ? null : m; st.pnForm = { tipo: "estado" }; st.pnConfTudo = false; _resRenderPainel(ctx); });
   on("[data-pn-tipo]", (el) => { st.pnForm = { tipo: el.dataset.pnTipo, mun: st.pnForm.mun, sq: st.pnForm.sq }; _resRenderPainel(ctx); });
@@ -1823,7 +1835,7 @@ function _resPainelLigar(ctx, corpo, dados) {
     const q = F.tipo === "estado" ? { tipo: "estado", rotulo: "Estado" }
       : F.tipo === "regiao" ? { tipo: "regiao", chave: F.regiao, rotulo: F.regiao.replace(" Catarinense", "") }
       : F.tipo === "mun" ? { tipo: "mun", mun: F.mun, rotulo: nomeMun }
-      : { tipo: F.tipo, mun: F.mun, chave: F.chave, rotulo: F.tipo === "secao" ? `Seção ${F.chave.split("::")[1]} · ${F.chave.split("::")[0]}ª zona` : F.chave };
+      : { tipo: F.tipo, mun: F.mun, chave: F.chave, rotulo: F.tipo === "secao" ? `Seção ${F.chave.split("::")[1]}` : F.chave };
     if (!bl.quadros.some((x) => x.tipo === q.tipo && x.chave === q.chave && x.mun === q.mun)) bl.quadros.push(q);
     st.pnModo = null; salvar();
   });

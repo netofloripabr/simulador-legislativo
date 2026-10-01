@@ -3481,3 +3481,11 @@
 #modoColaborativoWrap .pn-cand-sel{ display:flex; align-items:center; gap:6px; padding:8px 10px; border:1px solid rgba(52,232,74,.4); border-radius:9px; background:rgba(52,232,74,.05); font-size:12.5px; color:#F2F4F5; }
 #modoColaborativoWrap .pn-cand-sel span{ flex:1; font-size:11px; color:#8A9096; }
 #modoColaborativoWrap .pn-cand-sel button{ background:none; border:none; color:#34E84A; font-size:11px; font-weight:700; cursor:pointer; padding:0; }
+#modoColaborativoWrap .pn-fix{ position:absolute; top:30px; right:8px; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; padding:0; border-radius:7px; background:rgba(52,232,74,.08); border:1px solid rgba(52,232,74,.45); color:#34E84A; cursor:pointer; z-index:2; }
+#modoColaborativoWrap .pn-tile.sub.aberto{ border-color:rgba(52,232,74,.5); background:rgba(52,232,74,.05); }
+#modoColaborativoWrap .pn-sub .pn-sub{ background:#0F1113; margin:0 0 8px; }
+#modoColaborativoWrap .pn-sub .pn-sub .pn-tile{ background:#15171A; }
+#modoColaborativoWrap .pn-sub .pn-sub .pn-sub{ background:#0B0D0E; }
+#modoColaborativoWrap .pn-tipo{ display:flex; align-items:center; gap:6px; }
+#modoColaborativoWrap .pn-tipo > span{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+#modoColaborativoWrap .pn-fix{ position:static; flex:none; width:20px; height:20px; border-radius:6px; }
