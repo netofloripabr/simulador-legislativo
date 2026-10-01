@@ -1665,7 +1665,9 @@ async function _resRenderPainel(ctx) {
   const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
   const dados = _resPainelLer();
   const blocos = dados[cargo] = dados[cargo] || [];
-  st.pnAberto = st.pnAberto || {};
+  // camadas abertas também ficam salvas (voltam abertas ao reabrir o app)
+  dados._aberto = dados._aberto || {};
+  st.pnAberto = dados._aberto[cargo] = dados._aberto[cargo] || {};
   const meta = pcState._resMeta;
   const pctEst = meta && meta.pctSecoes != null ? Number(meta.pctSecoes) : 0;
   const lista22 = (ctx.ant && ctx.ant.candidatos) || [];
@@ -1688,7 +1690,7 @@ async function _resRenderPainel(ctx) {
     const abre = !sub && ["mun", "bairro", "local"].includes(q.tipo);
     return `<div class="pn-tile${aberto ? " aberto" : ""}${sub ? " sub" : ""}" ${sub ? `data-pn-b="${bi}"${q.tipo !== "secao" ? ` data-pn-subabre="${esc(path)}"` : ""}` : `data-pn-q="${idx}" data-pn-b="${bi}"${abre ? ` data-pn-abre="${id}"` : ""}`}>
       ${!sub && st.pnModo === "del" ? `<button type="button" class="pn-rm" data-pn-rm="${bi}|${idx}" title="Remover ${esc(q.rotulo)} do painel">${iconeSvg("lixeira", 12)}</button>` : pos ? `<span class="pn-pos">${_resChipPos(pos)}</span>` : ""}
-      <div class="pn-t1">${sub || st.pnModo === "del" ? "" : `<span class="pn-h" data-pn-arrasta title="Arraste para reorganizar"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></svg></span>`}<b>${esc(q.rotulo)}</b></div><div class="pn-tipo"><span>${tipoTxt}</span>${sub ? `<button type="button" class="pn-fix" data-pn-fixar='${esc(JSON.stringify(q))}' data-pn-b="${bi}" title="Fixar ${esc(q.rotulo)} no painel">${iconeSvg("mais", 10)}</button>` : ""}</div>
+      <div class="pn-t1">${sub || st.pnModo === "del" ? "" : `<span class="pn-h" data-pn-arrasta title="Arraste para reorganizar"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></svg></span>`}<b>${esc(q.rotulo)}</b></div><div class="pn-tipo"><span>${tipoTxt}</span></div>
       <div class="pn-l"><span>${RES_ANO_ANTERIOR}</span><b>${a ? _resFmt(v22) : "—"}</b></div>
       <div class="pn-l"><span>${RES_ANO_APURADO}</span><b class="${tem26 ? "" : "z"}">${tem26 ? _resFmt(v26) : "—"}</b></div>
       ${barra(pct)}
@@ -1723,7 +1725,7 @@ async function _resRenderPainel(ctx) {
       if (st.pnAberto[p2]) { out += `<div class="pn-grid sm">${grade}</div>` + await subpasta(c, a, f, p2, bi, nivel + 1); grade = ""; }
     }
     if (grade) out += `<div class="pn-grid sm">${grade}</div>`;
-    return `<div class="pn-sub n${nivel}"><div class="pn-sub-t">${esc(q.rotulo)} · ${nomeF}<span>toque para abrir · + para fixar no painel</span></div>${fs.length ? out : `<div class="pc-sub" style="padding:6px 0;">Sem votação por local aqui.</div>`}${fs.length > 6 ? `<div class="pc-arv-alca" data-pn-todos="${esc(path)}"><span class="pega"></span><span class="rot">${st.pnAberto[path + "|todos"] ? "mostrar menos" : `${RES_IC_CHEV}+ ${fs.length - 6} ${nomeF}`}</span></div>` : ""}</div>`;
+    return `<div class="pn-sub n${nivel}"><div class="pn-sub-t">${esc(q.rotulo)} · ${nomeF}<span>toque num quadro para abrir ou fechar</span></div>${fs.length ? out : `<div class="pc-sub" style="padding:6px 0;">Sem votação por local aqui.</div>`}${fs.length > 6 ? `<div class="pc-arv-alca" data-pn-todos="${esc(path)}"><span class="pega"></span><span class="rot">${st.pnAberto[path + "|todos"] ? "mostrar menos" : `${RES_IC_CHEV}+ ${fs.length - 6} ${nomeF}`}</span></div>` : ""}</div>`;
   };
 
   let h = "";
@@ -1797,14 +1799,14 @@ function _resPainelLigar(ctx, corpo, dados) {
   const salvar = () => { _resPainelGravar(dados); _resRenderPainel(ctx); };
   const on = (sel, fn) => corpo.querySelectorAll(sel).forEach((el) => el.addEventListener("click", (e) => { e.stopPropagation(); fn(el, e); }));
   on("[data-pn-fav]", (b) => { _resToggleFav(b.dataset.pnFav); ctx.favs = _resFavoritos(); _resRenderPainel(ctx); });
-  on("[data-pn-abre]", (el) => { if (el._arrastou || st.pnModo === "del") return; const id = el.dataset.pnAbre; st.pnAberto[id] = !st.pnAberto[id]; _resRenderPainel(ctx); });
+  on("[data-pn-abre]", (el) => { if (el._arrastou || st.pnModo === "del") return; const id = el.dataset.pnAbre; st.pnAberto[id] = !st.pnAberto[id]; salvar(); });
   on("[data-pn-fixar]", (el) => {
     const q = JSON.parse(el.dataset.pnFixar), bl = blocos[+el.dataset.pnB];
     if (!bl.quadros.some((x) => x.tipo === q.tipo && x.chave === q.chave && x.mun === q.mun)) bl.quadros.push(q);
     salvar();
   });
-  on("[data-pn-subabre]", (el) => { const k = el.dataset.pnSubabre; if (st.pnAberto[k]) Object.keys(st.pnAberto).forEach((x) => { if (x === k || x.startsWith(k + "|")) delete st.pnAberto[x]; }); else st.pnAberto[k] = true; _resRenderPainel(ctx); });
-  on("[data-pn-todos]", (el) => { const k = el.dataset.pnTodos + "|todos"; st.pnAberto[k] = !st.pnAberto[k]; _resRenderPainel(ctx); });
+  on("[data-pn-subabre]", (el) => { const k = el.dataset.pnSubabre; if (st.pnAberto[k]) Object.keys(st.pnAberto).forEach((x) => { if (x === k || x.startsWith(k + "|")) delete st.pnAberto[x]; }); else st.pnAberto[k] = true; salvar(); });
+  on("[data-pn-todos]", (el) => { const k = el.dataset.pnTodos + "|todos"; st.pnAberto[k] = !st.pnAberto[k]; salvar(); });
   on("[data-pn-modo]", (el) => { const m = el.dataset.pnModo; st.pnModo = st.pnModo === m ? null : m; st.pnForm = { tipo: "estado" }; st.pnConfTudo = false; _resRenderPainel(ctx); });
   on("[data-pn-tipo]", (el) => { st.pnForm = { tipo: el.dataset.pnTipo, mun: st.pnForm.mun, sq: st.pnForm.sq }; _resRenderPainel(ctx); });
   corpo.querySelectorAll("[data-pn-sel]").forEach((x) => x.addEventListener("change", () => { st.pnForm[x.dataset.pnSel] = x.value; if (x.dataset.pnSel === "mun") st.pnForm.chave = ""; _resRenderPainel(ctx); }));
@@ -1822,9 +1824,9 @@ function _resPainelLigar(ctx, corpo, dados) {
     };
     bc.addEventListener("input", pintar); bc.addEventListener("click", (e) => e.stopPropagation()); pintar();
   }
-  on("[data-pn-rm]", (el) => { const [bi, qi] = el.dataset.pnRm.split("|").map(Number); blocos[bi].quadros.splice(qi, 1); if (!blocos[bi].quadros.length) blocos.splice(bi, 1); st.pnAberto = {}; if (!blocos.length) st.pnModo = null; salvar(); });
-  on("[data-pn-rm-c]", (el) => { blocos.splice(+el.dataset.pnRmC, 1); st.pnAberto = {}; if (!blocos.length) st.pnModo = null; salvar(); });
-  on("[data-pn-tudo]", () => { if (!st.pnConfTudo) { st.pnConfTudo = true; _resRenderPainel(ctx); return; } blocos.splice(0); st.pnConfTudo = false; st.pnModo = null; st.pnAberto = {}; salvar(); });
+  on("[data-pn-rm]", (el) => { const [bi, qi] = el.dataset.pnRm.split("|").map(Number); blocos[bi].quadros.splice(qi, 1); if (!blocos[bi].quadros.length) blocos.splice(bi, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
+  on("[data-pn-rm-c]", (el) => { blocos.splice(+el.dataset.pnRmC, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
+  on("[data-pn-tudo]", () => { if (!st.pnConfTudo) { st.pnConfTudo = true; _resRenderPainel(ctx); return; } blocos.splice(0); st.pnConfTudo = false; st.pnModo = null; Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); salvar(); });
   on("[data-pn-form-x]", () => { st.pnModo = null; _resRenderPainel(ctx); });
   on("[data-pn-form-ok]", () => {
     const F = st.pnForm;
@@ -1858,7 +1860,7 @@ function _resPainelLigar(ctx, corpo, dados) {
       el.dataset.pnQ = j; outro.dataset.pnQ = i;
       if (el.dataset.pnAbre) { const [b0] = el.dataset.pnAbre.split("|"); el.dataset.pnAbre = `${b0}|${j}`; }
       if (outro.dataset.pnAbre) { const [b0] = outro.dataset.pnAbre.split("|"); outro.dataset.pnAbre = `${b0}|${i}`; }
-      st.pnAberto = {};
+      Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]);
     });
   });
 }
