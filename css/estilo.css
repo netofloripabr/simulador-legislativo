@@ -3472,3 +3472,5 @@
 #modoColaborativoWrap .pn-ic-x{ background:transparent; border:1px solid rgba(242,244,245,.18); color:#8A9096; }
 #modoColaborativoWrap .pn-ic-v{ background:#34E84A; border:none; color:#0B0D0E; }
 #modoColaborativoWrap .pn-ic-v:disabled{ opacity:.35; cursor:default; }
+#modoColaborativoWrap .pn-ic-x, #modoColaborativoWrap .pn-ic-v{ width:40px; height:26px; border-radius:999px; }
+#modoColaborativoWrap .pn-ic-x svg, #modoColaborativoWrap .pn-ic-v svg{ width:13px; height:13px; }
