@@ -3468,3 +3468,7 @@
 #modoColaborativoWrap .pn-t1{ padding-right:26px; } #modoColaborativoWrap .pn-t1 b{ letter-spacing:-.01em; }
 #modoColaborativoWrap .pn-t1{ padding-right:30px; } #modoColaborativoWrap .pn-t1 b{ font-size:12px; }
 #modoColaborativoWrap .pn-rm{ width:22px; height:22px; top:6px; right:6px; }
+#modoColaborativoWrap .pn-ic-x, #modoColaborativoWrap .pn-ic-v{ width:44px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; cursor:pointer; padding:0; }
+#modoColaborativoWrap .pn-ic-x{ background:transparent; border:1px solid rgba(242,244,245,.18); color:#8A9096; }
+#modoColaborativoWrap .pn-ic-v{ background:#34E84A; border:none; color:#0B0D0E; }
+#modoColaborativoWrap .pn-ic-v:disabled{ opacity:.35; cursor:default; }
