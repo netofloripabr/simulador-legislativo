@@ -1687,8 +1687,8 @@ async function _resRenderPainel(ctx) {
     const aberto = !sub && st.pnAberto[id];
     const abre = !sub && ["mun", "bairro", "local"].includes(q.tipo);
     return `<div class="pn-tile${aberto ? " aberto" : ""}${sub ? " sub" : ""}" ${sub ? `data-pn-fixar='${esc(JSON.stringify(q))}' data-pn-b="${bi}"` : `data-pn-q="${idx}" data-pn-b="${bi}"${abre ? ` data-pn-abre="${id}"` : ""}`}>
-      ${pos ? `<span class="pn-pos">${_resChipPos(pos)}</span>` : ""}
-      <div class="pn-t1">${sub ? "" : `<span class="pn-h" data-pn-arrasta title="Arraste para reorganizar"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></svg></span>`}<b>${esc(q.rotulo)}</b></div><div class="pn-tipo">${tipoTxt}</div>
+      ${!sub && st.pnModo === "del" ? `<button type="button" class="pn-rm" data-pn-rm="${bi}|${idx}" title="Remover ${esc(q.rotulo)} do painel">${iconeSvg("lixeira", 12)}</button>` : pos ? `<span class="pn-pos">${_resChipPos(pos)}</span>` : ""}
+      <div class="pn-t1">${sub || st.pnModo === "del" ? "" : `<span class="pn-h" data-pn-arrasta title="Arraste para reorganizar"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></svg></span>`}<b>${esc(q.rotulo)}</b></div><div class="pn-tipo">${tipoTxt}</div>
       <div class="pn-l"><span>${RES_ANO_ANTERIOR}</span><b>${a ? _resFmt(v22) : "—"}</b></div>
       <div class="pn-l"><span>${RES_ANO_APURADO}</span><b class="${tem26 ? "" : "z"}">${tem26 ? _resFmt(v26) : "—"}</b></div>
       ${barra(pct)}
@@ -1735,36 +1735,18 @@ async function _resRenderPainel(ctx) {
         grade = "";
       }
     }
-    h += grade + `</div>
+    h += grade + `</div>${st.pnModo === "del" ? `<button type="button" class="pn-rm-c" data-pn-rm-c="${bi}">remover candidato do painel</button>` : ""}
     </div>`;
   }
   // barra: "+" abre candidato + filtro (o último candidato fica escolhido); lixeira abre a exclusão
   const barraTopo = `<div class="pn-barra"><span>${blocos.length ? `${blocos.length} candidato${blocos.length > 1 ? "s" : ""} no painel` : "Painel vazio"}</span><button type="button" class="pc-dd-btn ico${st.pnModo === "add" ? " on" : ""}" data-pn-modo="add" title="Adicionar ao painel">${iconeSvg("mais", 15)}</button><button type="button" class="pc-dd-btn ico${st.pnModo === "del" ? " on" : ""}" data-pn-modo="del" title="Excluir do painel"${blocos.length ? "" : " disabled"}>${iconeSvg("lixeira", 15)}</button></div>`;
   let painelAcao = "";
   if (st.pnModo === "add") painelAcao = await _resPainelFormHtml(st, cargo, cands);
-  if (st.pnModo === "del") painelAcao = _resPainelExcluirHtml(st, blocos, cands);
+  if (st.pnModo === "del") painelAcao = `<div class="pn-del-barra"><span>Toque na lixeira do quadro que quer tirar do painel.</span><button type="button" class="pn-del-tudo${st.pnConfTudo ? " conf" : ""}" data-pn-tudo="1">${st.pnConfTudo ? "Confirmar: remover tudo" : "Remover tudo"}</button></div>`;
   if (!blocos.length && !st.pnModo) h = `<div class="pc-sub" style="padding:4px 2px 12px;">Toque em + para escolher um candidato e o local que quer acompanhar. O painel fica salvo neste aparelho.</div>`;
   h = barraTopo + painelAcao + h;
   corpo.innerHTML = h;
   _resPainelLigar(ctx, corpo, dados);
-}
-
-function _resPainelExcluirHtml(st, blocos, cands) {
-  const esc = (x) => escaparAtributoHtml(x).replace(/>/g, "&gt;");
-  const S = st.pnDel = st.pnDel || {};
-  const todas = [];
-  blocos.forEach((bl, bi) => { todas.push(`${bi}`); bl.quadros.forEach((q, qi) => todas.push(`${bi}|${qi}`)); });
-  const tudo = todas.length && todas.every((k) => S[k]);
-  const ck = (k, rot, cls = "") => `<label class="pn-ck${cls}"><input type="checkbox" data-pn-ck="${k}"${S[k] ? " checked" : ""}><span>${rot}</span></label>`;
-  let h = `<div class="pn-form">${ck("__todos", "<b>Selecionar todos</b>", " todos").replace(`data-pn-ck="__todos"`, `data-pn-ck="__todos"${tudo ? " checked" : ""}`)}`;
-  blocos.forEach((bl, bi) => {
-    const c = cands.find((x) => x.sq === bl.sq);
-    h += ck(`${bi}`, `<b>${esc(c ? c.nomeUrna : "Candidato")}</b> <i>candidato inteiro</i>`, " cand");
-    bl.quadros.forEach((q, qi) => { h += ck(`${bi}|${qi}`, esc(q.rotulo), " q"); });
-  });
-  const n = Object.values(S).filter(Boolean).length;
-  h += `<div style="display:flex; gap:8px; margin-top:10px;"><button type="button" class="ghost" data-pn-modo="del" style="flex:1;">Cancelar</button><button type="button" class="pn-del-ok" data-pn-del-ok="1"${n ? "" : " disabled"}>Excluir selecionados</button></div></div>`;
-  return h;
 }
 
 function _resPainelNomeMun(chave) { const m = MUNICIPIOS_SC_REGIOES.find((x) => x.chave === chave); return m ? m.nome : (chave || ""); }
@@ -1804,31 +1786,19 @@ function _resPainelLigar(ctx, corpo, dados) {
   const salvar = () => { _resPainelGravar(dados); _resRenderPainel(ctx); };
   const on = (sel, fn) => corpo.querySelectorAll(sel).forEach((el) => el.addEventListener("click", (e) => { e.stopPropagation(); fn(el, e); }));
   on("[data-pn-fav]", (b) => { _resToggleFav(b.dataset.pnFav); ctx.favs = _resFavoritos(); _resRenderPainel(ctx); });
-  on("[data-pn-abre]", (el) => { if (el._arrastou) return; const id = el.dataset.pnAbre; st.pnAberto[id] = !st.pnAberto[id]; _resRenderPainel(ctx); });
+  on("[data-pn-abre]", (el) => { if (el._arrastou || st.pnModo === "del") return; const id = el.dataset.pnAbre; st.pnAberto[id] = !st.pnAberto[id]; _resRenderPainel(ctx); });
   on("[data-pn-fixar]", (el) => {
     const q = JSON.parse(el.dataset.pnFixar), bl = blocos[+el.dataset.pnB];
     if (!bl.quadros.some((x) => x.tipo === q.tipo && x.chave === q.chave && x.mun === q.mun)) bl.quadros.push(q);
     salvar();
   });
   on("[data-pn-todos]", (el) => { const k = el.dataset.pnTodos + "|todos"; st.pnAberto[k] = !st.pnAberto[k]; _resRenderPainel(ctx); });
-  on("[data-pn-modo]", (el) => { const m = el.dataset.pnModo; st.pnModo = st.pnModo === m ? null : m; st.pnForm = { tipo: "estado" }; st.pnDel = {}; _resRenderPainel(ctx); });
+  on("[data-pn-modo]", (el) => { const m = el.dataset.pnModo; st.pnModo = st.pnModo === m ? null : m; st.pnForm = { tipo: "estado" }; st.pnConfTudo = false; _resRenderPainel(ctx); });
   on("[data-pn-tipo]", (el) => { st.pnForm = { tipo: el.dataset.pnTipo, mun: st.pnForm.mun, sq: st.pnForm.sq }; _resRenderPainel(ctx); });
-  corpo.querySelectorAll("[data-pn-ck]").forEach((cb) => cb.addEventListener("change", () => {
-    const k = cb.dataset.pnCk, S = st.pnDel;
-    if (k === "__todos") { blocos.forEach((bl, bi) => { S[bi] = cb.checked; bl.quadros.forEach((q, qi) => { S[`${bi}|${qi}`] = cb.checked; }); }); }
-    else { S[k] = cb.checked; if (!k.includes("|")) blocos[+k].quadros.forEach((q, qi) => { S[`${k}|${qi}`] = cb.checked; }); }
-    _resRenderPainel(ctx);
-  }));
-  on("[data-pn-del-ok]", () => {
-    const S = st.pnDel;
-    for (let bi = blocos.length - 1; bi >= 0; bi--) {
-      if (S[bi]) { blocos.splice(bi, 1); continue; }
-      blocos[bi].quadros = blocos[bi].quadros.filter((q, qi) => !S[`${bi}|${qi}`]);
-      if (!blocos[bi].quadros.length) blocos.splice(bi, 1);
-    }
-    st.pnModo = null; st.pnDel = {}; st.pnAberto = {}; salvar();
-  });
-  corpo.querySelectorAll("[data-pn-sel]").forEach((s) => s.addEventListener("change", () => { st.pnForm[s.dataset.pnSel] = s.value; if (s.dataset.pnSel === "mun") st.pnForm.chave = ""; _resRenderPainel(ctx); }));
+  corpo.querySelectorAll("[data-pn-sel]").forEach((x) => x.addEventListener("change", () => { st.pnForm[x.dataset.pnSel] = x.value; if (x.dataset.pnSel === "mun") st.pnForm.chave = ""; _resRenderPainel(ctx); }));
+  on("[data-pn-rm]", (el) => { const [bi, qi] = el.dataset.pnRm.split("|").map(Number); blocos[bi].quadros.splice(qi, 1); if (!blocos[bi].quadros.length) blocos.splice(bi, 1); st.pnAberto = {}; if (!blocos.length) st.pnModo = null; salvar(); });
+  on("[data-pn-rm-c]", (el) => { blocos.splice(+el.dataset.pnRmC, 1); st.pnAberto = {}; if (!blocos.length) st.pnModo = null; salvar(); });
+  on("[data-pn-tudo]", () => { if (!st.pnConfTudo) { st.pnConfTudo = true; _resRenderPainel(ctx); return; } blocos.splice(0); st.pnConfTudo = false; st.pnModo = null; st.pnAberto = {}; salvar(); });
   on("[data-pn-form-x]", () => { st.pnModo = null; _resRenderPainel(ctx); });
   on("[data-pn-form-ok]", () => {
     const F = st.pnForm;
