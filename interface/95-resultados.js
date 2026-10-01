@@ -1357,7 +1357,7 @@ async function _resRenderMunDet(ctx, dados, cmp) {
 // ---------- Impressão com filtros (aprovada 29/09/2026) ----------
 // Uma janela com um filtro pra cada coisa que a tela de Resultados mostra;
 // o papel continua sendo o documento .di-* (mesma casca do _resDocImpresso).
-const RES_IMP_TIPOS = [["lista", "Lista de candidatos"], ["ficha", "Ficha do candidato"], ["mapa", "Mapa"], ["partidos", "Partidos"], ["plenario", "Plenário"]];
+const RES_IMP_TIPOS = [["atual", "Seleção atual"], ["lista", "Lista de candidatos"], ["ficha", "Ficha do candidato"], ["mapa", "Mapa"], ["partidos", "Partidos"], ["plenario", "Plenário"]];
 const RES_IMP_DETALHES = [["mun", "Municípios"], ["zonas", "Zonas"], ["bairros", "Bairros"], ["colegios", "Colégios"], ["secoes", "Seções"], ["hist", "Histórico"]];
 const RES_IMP_QTD = [[20, "20 primeiros"], [50, "50 primeiros"], [0, "Todos"]];
 
@@ -1366,7 +1366,7 @@ function _resImpAbrir(ctx) {
   const st = ctx.st;
   const deTela = st.aba === "mapa" ? "mapa" : st.aba === "partidos" ? "partidos" : st.fichaSq ? "ficha" : "lista";
   st.imp = {
-    tipo: deTela, sq: st.fichaSq || (ctx.cands[0] && ctx.cands[0].sq), cargo: ctx.cargo,
+    tipo: "atual", sq: st.fichaSq || (ctx.cands[0] && ctx.cands[0].sq), cargo: ctx.cargo,
     ano: st.anoApurado >= 2026 ? "cmp" : String(st.anoApurado),
     recorte: st.fichaMun ? "mun" : (st.regiao || st.assoc) ? "regiao" : "estado",
     regiao: st.assoc || st.regiao || "", mun: st.fichaMun || "",
@@ -1392,7 +1392,9 @@ function _resImpRender(ctx) {
   const meso = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.meso))].sort();
   const assoc = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.assoc))].sort();
   let h = grp("O que imprimir", RES_IMP_TIPOS.map(([v, r]) => op("tipo", v, r, t === v)).join(""));
-  if (t === "mapa") {
+  if (t === "atual") {
+    h += `<div class="pc-imp-nota">Imprime exatamente o que está na tela agora: a aba aberta (Candidatos, Mapa ou Painel), com os filtros, a região, o candidato e as camadas que estiverem abertas.</div>`;
+  } else if (t === "mapa") {
     h += `<div class="pc-imp-nota">O mapa sai como está na tela agora (candidato, região, modo e cores/bolhas). Para mudar, ajuste o mapa e toque em imprimir de novo.</div>`;
   } else {
     if (t === "ficha") h += `<div class="pc-imp-g"><div class="pc-imp-t">Candidato</div><select class="pc-imp-sel" data-imp-sel="sq">${listaCands.map((x) => `<option value="${esc(x.sq)}"${x.sq === I.sq ? " selected" : ""}>${esc(x.nomeUrna)} — ${esc(nomePartidoExibicao(x.partido))}</option>`).join("")}</select>${I.cargo !== ctx.cargo ? `<div class="pc-imp-nota">O candidato é do cargo aberto na tela (${esc((CARGOS.find((x) => x.id === ctx.cargo) || {}).label || "")}).</div>` : ""}</div>`;
@@ -1435,6 +1437,14 @@ function _resImpRender(ctx) {
   m.querySelector("[data-imp-acao=fechar]").addEventListener("click", _resImpFechar);
   m.querySelector(".pc-imp-fundo").addEventListener("click", (e) => { if (e.target.classList.contains("pc-imp-fundo")) _resImpFechar(); });
   m.querySelector("[data-imp-acao=ok]").addEventListener("click", async (e) => {
+    if (I.tipo === "atual") {
+      _resImpFechar();
+      document.documentElement.classList.add("pc-print-tela");
+      const tirar = () => { document.documentElement.classList.remove("pc-print-tela"); window.removeEventListener("afterprint", tirar); };
+      window.addEventListener("afterprint", tirar);
+      setTimeout(() => window.print(), 50);
+      return;
+    }
     e.target.textContent = "Montando…"; e.target.disabled = true;
     let container = document.getElementById("pcImpressaoConteudo");
     if (!container) { container = document.createElement("div"); container.id = "pcImpressaoConteudo"; document.body.appendChild(container); }
@@ -1453,6 +1463,7 @@ function _resImpRecorteTxt(I) {
 }
 function _resImpResumo(ctx) {
   const I = ctx.st.imp;
+  if (I.tipo === "atual") return "a tela como está agora";
   if (I.tipo === "mapa") return "o mapa como está na tela";
   const rec = I.tipo === "plenario" ? "Santa Catarina" : _resImpRecorteTxt(I);
   if (!rec) return "";
