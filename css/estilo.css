@@ -3474,3 +3474,6 @@
 #modoColaborativoWrap .pn-ic-v:disabled{ opacity:.35; cursor:default; }
 #modoColaborativoWrap .pn-ic-x, #modoColaborativoWrap .pn-ic-v{ width:40px; height:26px; border-radius:999px; }
 #modoColaborativoWrap .pn-ic-x svg, #modoColaborativoWrap .pn-ic-v svg{ width:13px; height:13px; }
+#modoColaborativoWrap .pn-ic-x, #modoColaborativoWrap .pn-ic-v{ border-radius:8px; }
+#modoColaborativoWrap .pn-form{ margin-bottom:8px; }
+#modoColaborativoWrap .pn-form-acoes{ display:flex; justify-content:center; gap:8px; margin:0 0 12px; padding:8px; border-radius:12px; background:#141619; border:1px solid rgba(0,0,0,.4); }

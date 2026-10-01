@@ -1777,7 +1777,7 @@ async function _resPainelFormHtml(st, cargo, cands) {
     }
   }
   const pronto = F.sq && (F.tipo === "estado" || (F.tipo === "regiao" && F.regiao) || (F.tipo === "mun" && F.mun) || (F.chave && F.mun));
-  h += `<div style="display:flex; justify-content:center; gap:8px; margin-top:10px;"><button type="button" class="pn-ic-x" data-pn-form-x="1" title="Cancelar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button><button type="button" class="pn-ic-v" data-pn-form-ok="1" title="Adicionar ao painel"${pronto ? "" : " disabled"}><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg></button></div></div>`;
+  h += `</div><div class="pn-form-acoes"><button type="button" class="pn-ic-x" data-pn-form-x="1" title="Cancelar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button><button type="button" class="pn-ic-v" data-pn-form-ok="1" title="Adicionar ao painel"${pronto ? "" : " disabled"}><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg></button></div></div>`;
   return h;
 }
 
