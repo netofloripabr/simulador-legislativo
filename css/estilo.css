@@ -3516,3 +3516,26 @@
 #modoColaborativoWrap .pn-rv{ background:#34E84A; border:none; color:#0B0D0E; }
 #modoColaborativoWrap .pn-rv:disabled{ opacity:.3; cursor:default; }
 #modoColaborativoWrap #pnLocMun .pn-lista{ max-height:220px; }
+/* subpasta do Painel em linhas (01/10/2026) */
+#modoColaborativoWrap .pn-sub{ padding:6px 8px 4px; }
+#modoColaborativoWrap .pn-ln{ padding:8px 6px; border-bottom:1px solid rgba(242,244,245,.05); cursor:pointer; }
+#modoColaborativoWrap .pn-ln.on{ background:rgba(52,232,74,.05); }
+#modoColaborativoWrap .pn-ln.n1{ background:#101214; padding-left:18px; }
+#modoColaborativoWrap .pn-ln.n2{ background:#0C0E10; padding-left:30px; }
+#modoColaborativoWrap .pn-ln .l1{ display:flex; align-items:flex-start; gap:6px; }
+#modoColaborativoWrap .pn-ln .ch{ width:14px; flex:none; display:inline-flex; margin-top:2px; color:#6B7178; transform:rotate(-90deg); }
+#modoColaborativoWrap .pn-ln .ch.on{ transform:none; color:#34E84A; }
+#modoColaborativoWrap .pn-ln .nm{ flex:1; min-width:0; display:flex; flex-direction:column; }
+#modoColaborativoWrap .pn-ln .nm b{ font-size:12.5px; font-weight:700; color:#F2F4F5; line-height:1.25; }
+#modoColaborativoWrap .pn-ln .nm i{ font-style:normal; font-size:9.5px; color:#6B7178; }
+#modoColaborativoWrap .pn-ln.n1 .nm b{ font-size:12px; color:#D5D9DC; }
+#modoColaborativoWrap .pn-ln.n2 .nm b{ font-size:11.5px; color:#B5BBC0; font-weight:600; }
+#modoColaborativoWrap .pn-ln .ps{ flex:none; }
+#modoColaborativoWrap .pn-ln .l2{ display:grid; grid-template-columns:74px 74px 1fr; gap:8px; align-items:center; margin:4px 0 0 20px; font-size:11px; }
+#modoColaborativoWrap .pn-ln .l2 em{ font-style:normal; font-size:10px; color:#6B7178; margin-right:5px; }
+#modoColaborativoWrap .pn-ln .l2 b{ color:#F2F4F5; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pn-ln .l2 b.z{ color:#6B7178; font-weight:500; }
+#modoColaborativoWrap .pn-ln .l2 .ap{ display:flex; align-items:center; gap:6px; }
+#modoColaborativoWrap .pn-ln .l2 .ap i{ flex:1; height:4px; border-radius:9px; background:rgba(242,244,245,.1); overflow:hidden; }
+#modoColaborativoWrap .pn-ln .l2 .ap u{ display:block; height:100%; background:#34E84A; }
+#modoColaborativoWrap .pn-ln .l2 .ap small{ font-size:9px; color:#6B7178; font-variant-numeric:tabular-nums; }

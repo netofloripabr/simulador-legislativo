@@ -1743,18 +1743,32 @@ async function _resRenderPainel(ctx) {
 
   // subpasta em camadas: tocar num item abre o nível de baixo dentro dela;
   // o "+" do item fixa no painel (01/10/2026)
+  // subpasta em linhas (aprovado 01/10/2026): linha 1 nome + posição,
+  // linha 2 2022 · 2026 · apurado; tocar abre/fecha o nível de baixo
+  const linha = async (c, a, q, path, nivel) => {
+    const s26 = await sec(RES_ANO_APURADO, q.mun), s22 = await sec(RES_ANO_ANTERIOR, q.mun);
+    const v26 = _resPainelVotos(c, q, s26, cargo), v22 = _resPainelVotos(a, q, s22, cargo), tem26 = v26 > 0;
+    const pos = tem26 ? _resPainelPos(cands, c, q, s26, cargo) : (a ? _resPainelPos(lista22, a, q, s22, cargo) : null);
+    const folha = q.tipo === "secao", aberto = !!st.pnAberto[path];
+    const sub = q.tipo === "local" ? "colégio" : q.tipo === "secao" ? (q.chave || "").split("::")[0] + "ª zona" : "";
+    return `<div class="pn-ln n${nivel}${aberto ? " on" : ""}"${folha ? "" : ` data-pn-subabre="${esc(path)}"`}>
+      <div class="l1"><span class="ch${aberto ? " on" : ""}">${folha ? "" : RES_IC_CHEV}</span><span class="nm"><b>${esc(q.rotulo)}</b>${sub ? `<i>${sub}</i>` : ""}</span><span class="ps">${pos ? _resChipPos(pos) : ""}</span></div>
+      <div class="l2"><span><em>${RES_ANO_ANTERIOR}</em><b>${a ? _resFmt(v22) : "—"}</b></span><span><em>${RES_ANO_APURADO}</em><b class="${tem26 ? "" : "z"}">${tem26 ? _resFmt(v26) : "—"}</b></span><span class="ap"><i><u style="width:0%"></u></i><small>—</small></span></div>
+    </div>`;
+  };
   const subpasta = async (c, a, q, path, bi, nivel) => {
     const fs = await filhos(c, a, q);
-    const lim = st.pnAberto[path + "|todos"] ? fs.length : 6;
+    const lim = st.pnAberto[path + "|todos"] ? fs.length : 8;
     const nomeF = { mun: "bairros", bairro: "colégios", local: "seções" }[q.tipo];
-    let out = "", grade = "";
+    let out = "";
     for (const f of fs.slice(0, lim)) {
       const p2 = path + "|" + f.tipo + ":" + f.chave;
-      grade += await tile(c, a, f, -1, bi, true, p2);
-      if (st.pnAberto[p2]) { out += `<div class="pn-grid sm">${grade}</div>` + await subpasta(c, a, f, p2, bi, nivel + 1); grade = ""; }
+      out += await linha(c, a, f, p2, nivel);
+      if (st.pnAberto[p2]) out += await subpasta(c, a, f, p2, bi, nivel + 1);
     }
-    if (grade) out += `<div class="pn-grid sm">${grade}</div>`;
-    return `<div class="pn-sub n${nivel}"><div class="pn-sub-t">${esc(q.rotulo)} · ${nomeF}<span>toque num quadro para abrir ou fechar</span></div>${fs.length ? out : `<div class="pc-sub" style="padding:6px 0;">Sem votação por local aqui.</div>`}${fs.length > 6 ? `<div class="pc-arv-alca" data-pn-todos="${esc(path)}"><span class="pega"></span><span class="rot">${st.pnAberto[path + "|todos"] ? "mostrar menos" : `${RES_IC_CHEV}+ ${fs.length - 6} ${nomeF}`}</span></div>` : ""}</div>`;
+    const alca = fs.length > 8 ? `<div class="pc-arv-alca" data-pn-todos="${esc(path)}"><span class="pega"></span><span class="rot">${st.pnAberto[path + "|todos"] ? "mostrar menos" : `${RES_IC_CHEV}+ ${fs.length - 8} ${nomeF}`}</span></div>` : "";
+    if (nivel > 0) return out + alca;
+    return `<div class="pn-sub"><div class="pn-sub-t">${esc(q.rotulo)} · ${nomeF}<span>toque para abrir ou fechar</span></div>${fs.length ? out : `<div class="pc-sub" style="padding:6px 0;">Sem votação por local aqui.</div>`}${alca}</div>`;
   };
 
   let h = "";
