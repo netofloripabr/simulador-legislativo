@@ -594,6 +594,7 @@ async function renderResultados() {
   if (st.vivoOn === undefined) st.vivoOn = true;
   const _k = "plenarioColapsado_res_" + cargo;
   const colapsado = pcState.expandido[_k] === undefined ? true : !!pcState.expandido[_k];
+  st.fonteVoto = "apurado"; // etiquetas Palpite/2022 removidas em 01/10/2026
   const tog = (id, on, ic, rotulo, extra) => `<button type="button" data-res-tog="${id}" class="${on ? "on" : ""}" ${extra || ""}>${ic}${rotulo}</button>`;
   const IC = (n) => iconeSvg(n, 14);
 
@@ -601,9 +602,8 @@ async function renderResultados() {
     <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 4px 2px;"><span style="display:flex; align-items:center; gap:8px;"><button type="button" class="pc-dd-btn ico" id="pcResHome" title="Página inicial" style="width:32px; height:32px;">${iconeSvg("home", 15)}</button><span style="font-size:20px; font-weight:700;">Apuração ${anoApurado}</span></span><button type="button" class="pc-dd-btn ico" id="pcResImprimir" title="Imprimir a tela como está" style="width:32px; height:32px;">${iconeSvg("impressora", 15)}</button></div>
     <div class="pc-sub" style="margin:0 0 10px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : aguardando ? "aguardando a apuração" : "resultado oficial (TSE)"}</div>
     <div class="pc-res-tog">
-      ${tog("vivo", !!meta && st.vivoOn, `<span class="pt${meta && !meta.final ? " vivo" : ""}"></span>`, meta && meta.final ? "Totalização final" : "Ao vivo", meta ? "" : 'disabled title="A apuração ao vivo liga em 4/10/2026"')}
-      ${tog("palpite", st.fonteVoto === "palpite", IC("editar"), "Palpite")}
-      ${tog("anterior", st.fonteVoto === "anterior", IC("relogio"), String(anoAnterior))}
+      ${tog("vivo", !!meta && st.vivoOn, `<span class="pt${meta && !meta.final ? " vivo" : ""}"></span>`, meta && meta.final ? "Totalização final" : `Ao vivo${meta ? "" : ` <b class="pc-res-cont" id="pcResCont">${_resContagem()}</b>`}`, meta ? "" : 'disabled title="Contagem até a abertura das urnas (4/10/2026, 8h de Brasília)"')}
+
     </div>
     ${meta && st.vivoOn ? `
     <div class="pc-heroi" style="margin-bottom:12px;">
@@ -2006,3 +2006,15 @@ function _resPainelLigar(ctx, corpo, dados) {
     };
   });
 }
+
+// Contagem regressiva até a abertura das urnas (4/10/2026, 8h de Brasília),
+// junto da etiqueta "Ao vivo" (01/10/2026).
+const RES_ABERTURA_URNAS = Date.parse("2026-10-04T08:00:00-03:00");
+function _resContagem() {
+  const ms = RES_ABERTURA_URNAS - Date.now();
+  if (ms <= 0) return "urnas abertas";
+  const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, sg = Math.floor(ms / 1e3) % 60;
+  const p2 = (x) => String(x).padStart(2, "0");
+  return `${d ? d + "d " : ""}${p2(h)}:${p2(m)}:${p2(sg)}`;
+}
+setInterval(() => { const el = document.getElementById("pcResCont"); if (el) el.textContent = _resContagem(); }, 1000);
