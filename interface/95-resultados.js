@@ -740,6 +740,7 @@ function _resRenderCandidatos(ctx) {
       <button type="button" class="pc-dd-btn ico${st.soFav ? " on" : ""}" id="pcResSoFav" title="Só favoritos" style="${st.soFav ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>
       ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div><div class="pc-dd-it${st.ordem === "eleitos" ? " on" : ""}" data-o="eleitos">Eleitos primeiro</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 170, titulo: "Ordenar" })}
     </div>
+    ${_resMajor(cargo) ? "" : `<details class="pn-sob-item"${st.sobAberta ? " open" : ""}><summary><span>Disputa das sobras</span><i>QE, vagas por partido e quem leva cada sobra${pcState._resMeta && !pcState._resMeta.final ? " · parcial" : ""}</i>${RES_IC_CHEV}</summary><div id="pcResSobras"></div></details>`}
     <div class="pc-dep-card pc-cand-lista" style="padding:0 12px;">
       ${pont ? `<div class="pc-pont"><div><b>${Math.round(pont.pontosTotal * 1000)}</b><span>pontos</span></div><div><b>${pont.acertosEleicao}/${pont.vagasValidas || ctx.totalVagas}</b><span>eleitos acertados</span></div><div><b>${Math.round(pont.pctProximidade * 100)}%</b><span>proximidade média</span></div></div>` : ""}
       ${fonte === "palpite" && !meu.size ? `<div class="pc-cand-aviso">Você ainda não tem palpite neste cargo.</div>` : ""}
@@ -750,6 +751,19 @@ function _resRenderCandidatos(ctx) {
   `;
   const inp = document.getElementById("pcResBusca");
   inp.addEventListener("input", () => { st.busca = inp.value; clearTimeout(pcState._resBuscaT); pcState._resBuscaT = setTimeout(() => { _resRenderCandidatos(ctx); const i2 = document.getElementById("pcResBusca"); if (i2) { i2.focus(); i2.setSelectionRange(i2.value.length, i2.value.length); } }, 250); });
+  // Disputa das sobras como item da lista (02/10/2026): calcula só ao abrir
+  const sobEl = corpo.querySelector(".pn-sob-item");
+  if (sobEl) {
+    const pintarSob = () => {
+      const alvoS = document.getElementById("pcResSobras");
+      if (!alvoS || alvoS.dataset.ok) return;
+      const leg = st.anoApurado === 2022 && typeof LEGENDA_2022 !== "undefined" ? LEGENDA_2022[cargo] : null;
+      alvoS.innerHTML = _resSobrasHtml(_resSobrasDados(cands, ctx.totalVagas, leg, RES_FEDERACOES[st.anoApurado]), !!(pcState._resMeta && !pcState._resMeta.final));
+      alvoS.dataset.ok = "1";
+    };
+    sobEl.addEventListener("toggle", () => { st.sobAberta = sobEl.open; if (sobEl.open) pintarSob(); });
+    if (sobEl.open) pintarSob();
+  }
   document.getElementById("pcResSoFav").addEventListener("click", () => { st.soFav = !st.soFav; _resRenderCandidatos(ctx); });
   _resLigarDropdowns(corpo, (id, it) => { if (id === "pcResOrd") { st.ordem = it.dataset.o; _resRenderCandidatos(ctx); } });
   const mais = document.getElementById("pcResMais");
