@@ -2069,6 +2069,8 @@ function _resSobrasDados(cands, totalVagas, legenda, fed) {
   const g = {};
   cands.forEach((c) => { const k = (fed && fed[c.partido]) || c.partido; (g[k] = g[k] || { nome: k, candidatos: [] }).candidatos.push({ nome: c.nome, nomeUrna: c.nomeUrna, votos: c.total }); });
   if (legenda) Object.entries(legenda).forEach(([p, v]) => { const k = (fed && fed[p]) || p; if (g[k]) g[k].candidatos.push({ fonte: "legenda", nome: "legenda", votos: v }); });
+  // federação aparece pelas siglas dos partidos (ex.: "PT / PC do B / PV"), não pelo nome
+  Object.values(g).forEach((p) => { const sig = [...new Set(cands.filter((c) => ((fed && fed[c.partido]) || c.partido) === p.nome).map((c) => c.partido))]; if (sig.length > 1) p.nome = sig.join(" / "); });
   const lista = Object.values(g).filter((p) => partyVotos(p) > 0);
   return { lista, disputa: lista.length ? calcularDisputaSobra(lista, totalVagas) : null };
 }
