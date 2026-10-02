@@ -3580,3 +3580,11 @@
 #modoColaborativoWrap .pn-ln .l2 .ap i{ flex:1 1 auto; min-width:22px; display:block; }
 #modoColaborativoWrap .pc-res-cont{ margin-left:6px; font-weight:800; color:#F2F4F5; font-variant-numeric:tabular-nums; }
 #modoColaborativoWrap [data-res-tog]:disabled .pc-res-cont{ color:#34E84A; opacity:1; }
+/* abas de candidato do Painel (02/10/2026) */
+#modoColaborativoWrap .pn-tabs{ display:flex; gap:6px; overflow-x:auto; margin:0 0 10px; padding-bottom:2px; scrollbar-width:none; }
+#modoColaborativoWrap .pn-tabs > a, #modoColaborativoWrap .pn-tabs > button{ flex:none; height:34px; padding:0 14px; border-radius:999px; border:1px solid rgba(242,244,245,.14); background:rgba(242,244,245,.03); color:#8A9096; font-size:12px; font-weight:700; display:inline-flex; align-items:center; gap:6px; text-decoration:none; cursor:pointer; }
+#modoColaborativoWrap .pn-tabs > a.on{ background:#2C3239; color:#F2F4F5; border-color:rgba(52,232,74,.55); }
+#modoColaborativoWrap .pn-tabs > a.on i{ width:6px; height:6px; border-radius:50%; background:#34E84A; }
+#modoColaborativoWrap .pn-tabs > button.mais{ width:34px; padding:0; justify-content:center; }
+#modoColaborativoWrap .pn-tabs > button.mais.on{ color:#34E84A; border-color:rgba(52,232,74,.5); }
+#modoColaborativoWrap .pn-ibs a.pc-dd-btn{ display:inline-flex; align-items:center; justify-content:center; text-decoration:none; color:#B5BBC0; }

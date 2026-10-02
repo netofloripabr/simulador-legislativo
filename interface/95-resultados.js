@@ -1697,6 +1697,13 @@ async function _resRenderPainel(ctx) {
   await _resPainelSincronizar();
   const dados = _resPainelLer();
   const blocos = dados[cargo] = dados[cargo] || [];
+  dados._ativa = dados._ativa || {};
+  if (st.pnAbrirNum) {
+    const c0 = cands.find((x) => String(x.numero) === String(st.pnAbrirNum));
+    if (c0) { if (!blocos.some((b) => b.sq === c0.sq)) blocos.push({ sq: c0.sq, numero: c0.numero, quadros: [{ tipo: "estado", rotulo: "Estado" }] }); dados._ativa[cargo] = c0.sq; _resPainelGravar(dados); }
+    st.pnAbrirNum = null;
+  }
+  if (!blocos.some((b) => b.sq === dados._ativa[cargo])) dados._ativa[cargo] = blocos[0] ? blocos[0].sq : null;
   // camadas abertas também ficam salvas (voltam abertas ao reabrir o app)
   dados._aberto = dados._aberto || {};
   st.pnAberto = dados._aberto[cargo] = dados._aberto[cargo] || {};
@@ -1783,12 +1790,13 @@ async function _resRenderPainel(ctx) {
 
   let h = "";
   for (const [bi, bl] of blocos.entries()) {
+    if (bl.sq !== dados._ativa[cargo]) continue;
     const c = cands.find((x) => x.sq === bl.sq) || cands.find((x) => String(x.numero) === String(bl.numero));
     if (!c) continue;
     const a = ctx.antDe(c);
     const fav = _resFavoritos().has(c.sq);
     h += `<div class="pn-cand" data-pn-bloco="${bi}">
-      <div class="pn-ch"><div style="flex:1; min-width:0;"><div class="pn-nm">${esc(c.nomeUrna)}</div><div class="pn-pt">${esc(nomePartidoExibicao(c.partido))} <i>(${cargoLbl})</i> · nº ${esc(c.numero)}</div></div><span class="pn-ibs"><button type="button" class="pc-dd-btn ico" data-pn-fav="${c.sq}" title="${fav ? "Remover dos favoritos" : "Favoritar"}" style="flex:none;${fav ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button><button type="button" class="pc-dd-btn ico${st.pnLocal === bi ? " on" : ""}" data-pn-local="${bi}" title="Adicionar local para ${esc(c.nomeUrna)}" style="flex:none;">${iconeSvg("mais", 14)}</button></span></div>
+      <div class="pn-ch"><div style="flex:1; min-width:0;"><div class="pn-nm">${esc(c.nomeUrna)}</div><div class="pn-pt">${esc(nomePartidoExibicao(c.partido))} <i>(${cargoLbl})</i> · nº ${esc(c.numero)}</div></div><span class="pn-ibs"><a class="pc-dd-btn ico" href="?painel=${esc(c.numero)}&cargo=${cargo}" target="_blank" rel="noopener" title="Abrir ${esc(c.nomeUrna)} em nova aba do navegador" data-pn-novaaba="1"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h4v4M13 3L7.5 8.5M11.5 9.5v3a1 1 0 01-1 1h-7a1 1 0 01-1-1v-7a1 1 0 011-1h3"/></svg></a><button type="button" class="pc-dd-btn ico" data-pn-fav="${c.sq}" title="${fav ? "Remover dos favoritos" : "Favoritar"}" style="flex:none;${fav ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button><button type="button" class="pc-dd-btn ico${st.pnLocal === bi ? " on" : ""}" data-pn-local="${bi}" title="Adicionar local para ${esc(c.nomeUrna)}" style="flex:none;">${iconeSvg("mais", 14)}</button></span></div>
       ${st.pnLocal === bi ? await _resPainelLocalHtml(ctx, c, a) : ""}
       <div class="pn-resumo"><div><span>${RES_ANO_ANTERIOR}</span><b>${a ? _resFmt(a.total) : "—"}</b></div><div><span>${RES_ANO_APURADO}</span><b class="${c.total ? "" : "z"}">${c.total ? _resFmt(c.total) : "—"}</b></div></div>
       ${barra(pctEst, " pn-ap-g")}
@@ -1806,12 +1814,13 @@ async function _resRenderPainel(ctx) {
     </div>`;
   }
   // barra: "+" abre candidato + filtro (o último candidato fica escolhido); lixeira abre a exclusão
-  const barraTopo = `<div class="pn-barra"><span>${blocos.length ? `${blocos.length} candidato${blocos.length > 1 ? "s" : ""} no painel` : "Painel vazio"}</span><span class="pn-fmt"><button type="button" class="${dados._formato !== "quadros" ? "on" : ""}" data-pn-fmt="linhas" title="Locais em linhas"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg></button><button type="button" class="${dados._formato === "quadros" ? "on" : ""}" data-pn-fmt="quadros" title="Locais em quadros"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/></svg></button></span><button type="button" class="pc-dd-btn ico${st.pnModo === "add" ? " on" : ""}" data-pn-modo="add" title="Adicionar candidato ao painel">${iconeSvg("mais", 15)}</button><button type="button" class="pc-dd-btn ico${st.pnModo === "del" ? " on" : ""}" data-pn-modo="del" title="Excluir do painel"${blocos.length ? "" : " disabled"}>${iconeSvg("lixeira", 15)}</button></div>`;
+  const barraTopo = `<div class="pn-barra"><span>${blocos.length ? `${blocos.length} candidato${blocos.length > 1 ? "s" : ""} no painel` : "Painel vazio"}</span><span class="pn-fmt"><button type="button" class="${dados._formato !== "quadros" ? "on" : ""}" data-pn-fmt="linhas" title="Locais em linhas"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg></button><button type="button" class="${dados._formato === "quadros" ? "on" : ""}" data-pn-fmt="quadros" title="Locais em quadros"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/></svg></button></span><button type="button" class="pc-dd-btn ico${st.pnModo === "del" ? " on" : ""}" data-pn-modo="del" title="Excluir do painel"${blocos.length ? "" : " disabled"}>${iconeSvg("lixeira", 15)}</button></div>`;
   let painelAcao = "";
   if (st.pnModo === "add") painelAcao = await _resPainelFormHtml(st, cargo, cands, "cand");
   if (st.pnModo === "del") painelAcao = `<div class="pn-del-barra"><span>Toque na lixeira do quadro que quer tirar do painel.</span><button type="button" class="pn-del-tudo${st.pnConfTudo ? " conf" : ""}" data-pn-tudo="1">${st.pnConfTudo ? "Confirmar: remover tudo" : "Remover tudo"}</button></div>`;
   if (!blocos.length && !st.pnModo) h = `<div class="pc-sub" style="padding:4px 2px 12px;">Toque em + para escolher um candidato e o local que quer acompanhar. ${pcState.perfil ? "O painel fica salvo na sua conta." : "O painel fica salvo neste aparelho; entre na sua conta para levá-lo a qualquer aparelho."}</div>`;
-  h = barraTopo + painelAcao + h;
+  const abas = `<div class="pn-tabs">${blocos.map((b) => { const c = cands.find((x) => x.sq === b.sq); if (!c) return ""; const on = b.sq === dados._ativa[cargo]; return `<a class="${on ? "on" : ""}" href="?painel=${esc(c.numero)}&cargo=${cargo}" data-pn-aba="${esc(b.sq)}" title="${esc(c.nomeUrna)}"><span>${esc(c.nomeUrna.split(" ")[0])}</span>${on ? "<i></i>" : ""}</a>`; }).join("")}<button type="button" class="mais${st.pnModo === "add" ? " on" : ""}" data-pn-modo="add" title="Adicionar candidato">${iconeSvg("mais", 14)}</button></div>`;
+  h = barraTopo + abas + painelAcao + h;
   corpo.innerHTML = h;
   _resPainelLigar(ctx, corpo, dados);
 }
@@ -1938,6 +1947,11 @@ function _resPainelLigar(ctx, corpo, dados) {
     bc.addEventListener("input", pintar); bc.addEventListener("click", (e) => e.stopPropagation()); pintar();
   }
   _resLigarDropdowns(corpo, (id, it) => { if (id === "pnLocTipo") { st.pnForm = { tipo: it.dataset.t, sq: st.pnForm.sq, mun: st.pnForm.mun }; _resRenderPainel(ctx); } });
+  corpo.querySelectorAll("[data-pn-aba]").forEach((a) => a.addEventListener("click", (e) => {
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return; // deixa o navegador abrir em nova aba
+    e.preventDefault(); e.stopPropagation(); dados._ativa[cargo] = a.dataset.pnAba; st.pnModo = null; salvar();
+  }));
+  corpo.querySelectorAll("[data-pn-novaaba]").forEach((a) => a.addEventListener("click", (e) => e.stopPropagation()));
   on("[data-pn-fmt]", (el) => { dados._formato = el.dataset.pnFmt; salvar(); });
   on("[data-pn-rm]", (el) => { const [bi, qi] = el.dataset.pnRm.split("|").map(Number); blocos[bi].quadros.splice(qi, 1); if (!blocos[bi].quadros.length) blocos.splice(bi, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
   on("[data-pn-rm-c]", (el) => { blocos.splice(+el.dataset.pnRmC, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
@@ -1967,6 +1981,7 @@ function _resPainelLigar(ctx, corpo, dados) {
     const F = st.pnForm;
     if (st.pnModo === "add") {
       if (!blocos.some((b) => b.sq === F.sq)) { const c = ctx.cands.find((x) => x.sq === F.sq); blocos.push({ sq: c.sq, numero: c.numero, quadros: [{ tipo: "estado", rotulo: "Estado" }] }); }
+      dados._ativa[cargo] = F.sq;
       st.pnUltimo = F.sq; st.pnModo = null; salvar(); return;
     }
     let bl = blocos.find((b) => b.sq === F.sq);

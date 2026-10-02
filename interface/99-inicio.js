@@ -28,7 +28,16 @@ if (_perfilCompartilhado) {
   renderColaborativo();
 } else {
   pcState.iniciado = true;
-  initColaborativo();
+  const _painelCand = _paramsIniciais.get("painel");
+  const _ini = initColaborativo();
+  // Link de um candidato do Painel (?painel=<número>[&cargo=...], 02/10/2026):
+  // abre a Apuração já na aba Painel com esse candidato — usado pelo botão
+  // "abrir em nova aba" do card do candidato.
+  if (_painelCand) Promise.resolve(_ini).then(() => {
+    pcState.res = Object.assign(pcState.res || { cargo: "estadual", ordem: "desc", modo: "votos", regiao: "", assoc: "", munAba: "zonas", fichaAba: "mun", busca: "" }, { aba: "painel", pnAbrirNum: _painelCand, cargo: _paramsIniciais.get("cargo") || (pcState.res && pcState.res.cargo) || "estadual" });
+    if (pcState.perfil) { pcState.subaba = "resultados"; renderAppColaborativo(); }
+    else { pcState.tela = "resultados-convidado"; renderColaborativo(); }
+  });
 }
 
 // Esc fecha a janela sobreposta ativa (pedido do usuário, 21/08/2026 —
