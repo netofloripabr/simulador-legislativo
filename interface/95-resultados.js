@@ -2089,7 +2089,7 @@ function _resSobrasHtml(d, parcial, totalVagas) {
     ext.historico.forEach((pIdx, k) => { if (k >= totalVagas) { const c = filas[pIdx][cont[pIdx]]; out.push({ numero: D.totalSobrasCargo + out.length + 1, vencedorNome: d.lista[pIdx].nome, vencedorMedia: votos[pIdx] / (cont[pIdx] + 1), vencedorCandidato: c ? nomeExibicao(c) : null }); } cont[pIdx]++; });
     return out;
   })();
-  const linha = (r, real) => `<div class="pn-srod${real ? "" : " fora"}"><span class="rn">${r.numero}ª</span>${real ? `<span class="pc-sen-chip ${parcial ? "neutro pc-chip-parcial" : "em"}">E-M · ${r.numero}ª</span>` : `<span class="pc-sen-chip neutro">F</span>`}<span class="rp">${nomePartidoExibicao(r.vencedorNome)}</span><span class="rc">${r.vencedorCandidato ? (real ? "elegeu " : "próximo: ") + r.vencedorCandidato : "sem candidato na fila"}</span><span class="rm">média ${F(r.vencedorMedia)}</span></div>`;
+  const linha = (r, real) => `<div class="pn-srod${real ? "" : " fora"}"><span class="rn">${r.numero}ª</span>${real ? `<span class="pc-sen-chip ${parcial ? "neutro pc-chip-parcial" : "em"}">E-M · ${r.numero}ª</span>` : `<span class="pc-sen-chip neutro">F</span>`}<span class="rp">${nomePartidoExibicao(r.vencedorNome)}</span><span class="rc">${r.vencedorCandidato || "sem candidato na fila"}</span><span class="rm"><small>média</small><b>${F(r.vencedorMedia)}</b></span></div>`;
   return `<div class="pn-sob-box">
     ${parcial ? `<div class="pc-rf-aviso" style="margin:0 0 10px;">Cálculo parcial — muda a cada atualização da apuração.</div>` : ""}
     <div class="pn-sob-t">Distribuição das sobras — método das médias (art. 109)</div>
@@ -2115,13 +2115,14 @@ async function _resPainelEleicao(cargo, meta, part, ano, anoRef) {
   }
   if (!D) return "";
   const qe = _resMajor(cargo) ? null : quocienteEleitoral(D.val || 0, vagas);
-  const cx = (rot, val, sub) => `<div class="pn-el-cx"><span>${rot}</span><b>${val}</b>${sub ? `<i>${sub}</i>` : ""}</div>`;
+  // linhas do maior para o menor número, barra fixa à direita (02/10/2026)
+  const linhas = [["Comparecimento", D.comp, D.apt], ["Válidos", D.val, D.comp], ["Abstenção", D.abst, D.apt], ["Brancos", D.br, D.comp], ["Nulos", D.nu, D.comp]]
+    .filter((x) => x[1] != null).sort((a, b) => b[1] - a[1]);
+  const ln = (rot, v, base) => { const p = base ? v / base * 100 : 0; return `<div class="pn-el-ln"><span class="r">${rot}</span><b>${F(v)}</b><span class="p">${pc(v, base)}</span><i><u style="width:${Math.min(100, p)}%"></u></i></div>`; };
   return `<div class="pn-el">
-    <div class="pn-el-t"><span>Santa Catarina · ${ref ? `referência ${anoRef}` : `apuração ${ano}`}</span>${ref ? `<i>os números de ${ano} entram quando o TSE começar a divulgar</i>` : ""}</div>
-    <div class="pn-el-ap"><span>Seções apuradas</span><i><u style="width:${Math.min(100, D.pct || 0)}%"></u></i><b>${D.pct == null ? "—" : pc(D.pct, 100)}</b></div>
-    <div class="pn-el-g">
-      ${cx("Comparecimento", pc(D.comp, D.apt), F(D.comp))}${cx("Abstenção", pc(D.abst, D.apt), F(D.abst))}${cx("Válidos", pc(D.val, D.comp), F(D.val))}
-      ${cx("Brancos", pc(D.br, D.comp), F(D.br))}${cx("Nulos", pc(D.nu, D.comp), F(D.nu))}${qe ? cx("Quociente eleitoral", F(qe), `${vagas} vagas`) : cx("Vagas", String(vagas), "")}
-    </div>
+    <div class="pn-el-t"><span>Santa Catarina · ${ref ? `referência ${anoRef}` : `apuração ${ano}`}</span></div>
+    <div class="pn-el-ln ap"><span class="r">Seções apuradas</span><b></b><span class="p">${D.pct == null ? "—" : pc(D.pct, 100)}</span><i><u style="width:${Math.min(100, D.pct || 0)}%"></u></i></div>
+    ${linhas.map((x) => ln(...x)).join("")}
+    <div class="pn-el-ln qe"><span class="r">${qe ? `Quociente eleitoral <small>· ${vagas} vagas</small>` : "Vagas"}</span><b>${qe ? F(qe) : vagas}</b><span class="p"></span><i style="visibility:hidden"></i></div>
   </div>`;
 }
