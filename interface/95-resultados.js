@@ -1760,12 +1760,19 @@ async function _resRenderPainel(ctx) {
     const fs = await filhos(c, a, q);
     const lim = st.pnAberto[path + "|todos"] ? fs.length : 8;
     const nomeF = { mun: "bairros", bairro: "colégios", local: "seções" }[q.tipo];
-    let out = "";
+    let out = "", grade = "";
+    const quadros = dados._formato === "quadros";
     for (const f of fs.slice(0, lim)) {
       const p2 = path + "|" + f.tipo + ":" + f.chave;
-      out += await linha(c, a, f, p2, nivel);
-      if (st.pnAberto[p2]) out += await subpasta(c, a, f, p2, bi, nivel + 1);
+      if (quadros) {
+        grade += await tile(c, a, f, -1, bi, true, p2);
+        if (st.pnAberto[p2]) { out += `<div class="pn-grid sm">${grade}</div>` + `<div class="pn-sub">${await subpasta(c, a, f, p2, bi, nivel + 1)}</div>`; grade = ""; }
+      } else {
+        out += await linha(c, a, f, p2, nivel);
+        if (st.pnAberto[p2]) out += await subpasta(c, a, f, p2, bi, nivel + 1);
+      }
     }
+    if (grade) out += `<div class="pn-grid sm">${grade}</div>`;
     const alca = fs.length > 8 ? `<div class="pc-arv-alca" data-pn-todos="${esc(path)}"><span class="pega"></span><span class="rot">${st.pnAberto[path + "|todos"] ? "mostrar menos" : `${RES_IC_CHEV}+ ${fs.length - 8} ${nomeF}`}</span></div>` : "";
     if (nivel > 0) return out + alca;
     return `<div class="pn-sub"><div class="pn-sub-t">${esc(q.rotulo)} · ${nomeF}<span>toque para abrir ou fechar</span></div>${fs.length ? out : `<div class="pc-sub" style="padding:6px 0;">Sem votação por local aqui.</div>`}${alca}</div>`;
@@ -1796,7 +1803,7 @@ async function _resRenderPainel(ctx) {
     </div>`;
   }
   // barra: "+" abre candidato + filtro (o último candidato fica escolhido); lixeira abre a exclusão
-  const barraTopo = `<div class="pn-barra"><span>${blocos.length ? `${blocos.length} candidato${blocos.length > 1 ? "s" : ""} no painel` : "Painel vazio"}</span><button type="button" class="pc-dd-btn ico${st.pnModo === "add" ? " on" : ""}" data-pn-modo="add" title="Adicionar candidato ao painel">${iconeSvg("mais", 15)}</button><button type="button" class="pc-dd-btn ico${st.pnModo === "del" ? " on" : ""}" data-pn-modo="del" title="Excluir do painel"${blocos.length ? "" : " disabled"}>${iconeSvg("lixeira", 15)}</button></div>`;
+  const barraTopo = `<div class="pn-barra"><span>${blocos.length ? `${blocos.length} candidato${blocos.length > 1 ? "s" : ""} no painel` : "Painel vazio"}</span><button type="button" class="pc-dd-btn ico" data-pn-formato="1" title="${dados._formato === "quadros" ? "Ver locais em linhas" : "Ver locais em quadros"}">${dados._formato === "quadros" ? '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3 4h10M3 8h10M3 12h10"/></svg>' : '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/></svg>'}</button><button type="button" class="pc-dd-btn ico${st.pnModo === "add" ? " on" : ""}" data-pn-modo="add" title="Adicionar candidato ao painel">${iconeSvg("mais", 15)}</button><button type="button" class="pc-dd-btn ico${st.pnModo === "del" ? " on" : ""}" data-pn-modo="del" title="Excluir do painel"${blocos.length ? "" : " disabled"}>${iconeSvg("lixeira", 15)}</button></div>`;
   let painelAcao = "";
   if (st.pnModo === "add") painelAcao = await _resPainelFormHtml(st, cargo, cands, "cand");
   if (st.pnModo === "del") painelAcao = `<div class="pn-del-barra"><span>Toque na lixeira do quadro que quer tirar do painel.</span><button type="button" class="pn-del-tudo${st.pnConfTudo ? " conf" : ""}" data-pn-tudo="1">${st.pnConfTudo ? "Confirmar: remover tudo" : "Remover tudo"}</button></div>`;
@@ -1928,6 +1935,7 @@ function _resPainelLigar(ctx, corpo, dados) {
     bc.addEventListener("input", pintar); bc.addEventListener("click", (e) => e.stopPropagation()); pintar();
   }
   _resLigarDropdowns(corpo, (id, it) => { if (id === "pnLocTipo") { st.pnForm = { tipo: it.dataset.t, sq: st.pnForm.sq, mun: st.pnForm.mun }; _resRenderPainel(ctx); } });
+  on("[data-pn-formato]", () => { dados._formato = dados._formato === "quadros" ? "linhas" : "quadros"; salvar(); });
   on("[data-pn-rm]", (el) => { const [bi, qi] = el.dataset.pnRm.split("|").map(Number); blocos[bi].quadros.splice(qi, 1); if (!blocos[bi].quadros.length) blocos.splice(bi, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
   on("[data-pn-rm-c]", (el) => { blocos.splice(+el.dataset.pnRmC, 1); Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); if (!blocos.length) st.pnModo = null; salvar(); });
   on("[data-pn-tudo]", () => { if (!st.pnConfTudo) { st.pnConfTudo = true; _resRenderPainel(ctx); return; } blocos.splice(0); st.pnConfTudo = false; st.pnModo = null; Object.keys(st.pnAberto).forEach((k) => delete st.pnAberto[k]); salvar(); });
