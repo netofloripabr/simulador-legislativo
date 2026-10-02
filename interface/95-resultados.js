@@ -737,10 +737,10 @@ function _resRenderCandidatos(ctx) {
   corpo.innerHTML = `
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
       <input class="cell" id="pcResBusca" placeholder="Buscar candidato ou partido…" value="${escaparAtributoHtml(st.busca || "")}" style="flex:1; margin:0;">
-      <button type="button" class="pc-dd-btn ico${st.soFav ? " on" : ""}" id="pcResSoFav" title="Só favoritos" style="${st.soFav ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>
+      <button type="button" class="pc-dd-btn ico${st.soFav ? " on" : ""}" id="pcResSoFav" title="Só favoritos" style="${st.soFav ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>${_resMajor(cargo) ? "" : `<button type="button" class="pc-dd-btn ico pn-sob-btn${st.sobAberta ? " on" : ""}" id="pcResSob" title="Disputa das sobras">S</button>`}
       ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div><div class="pc-dd-it${st.ordem === "eleitos" ? " on" : ""}" data-o="eleitos">Eleitos primeiro</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 170, titulo: "Ordenar" })}
     </div>
-    ${_resMajor(cargo) ? "" : `<details class="pn-sob-item"${st.sobAberta ? " open" : ""}><summary><span>Disputa das sobras</span><i>QE, vagas por partido e quem leva cada sobra${pcState._resMeta && !pcState._resMeta.final ? " · parcial" : ""}</i>${RES_IC_CHEV}</summary><div id="pcResSobras"></div></details>`}
+    ${!_resMajor(cargo) && st.sobAberta ? `<div class="pn-sob-item"><div class="pn-sob-cab"><span>Disputa das sobras${pcState._resMeta && !pcState._resMeta.final ? " · parcial" : ""}</span></div><div id="pcResSobras"></div></div>` : ""}
     <div class="pc-dep-card pc-cand-lista" style="padding:0 12px;">
       ${pont ? `<div class="pc-pont"><div><b>${Math.round(pont.pontosTotal * 1000)}</b><span>pontos</span></div><div><b>${pont.acertosEleicao}/${pont.vagasValidas || ctx.totalVagas}</b><span>eleitos acertados</span></div><div><b>${Math.round(pont.pctProximidade * 100)}%</b><span>proximidade média</span></div></div>` : ""}
       ${fonte === "palpite" && !meu.size ? `<div class="pc-cand-aviso">Você ainda não tem palpite neste cargo.</div>` : ""}
@@ -751,7 +751,9 @@ function _resRenderCandidatos(ctx) {
   `;
   const inp = document.getElementById("pcResBusca");
   inp.addEventListener("input", () => { st.busca = inp.value; clearTimeout(pcState._resBuscaT); pcState._resBuscaT = setTimeout(() => { _resRenderCandidatos(ctx); const i2 = document.getElementById("pcResBusca"); if (i2) { i2.focus(); i2.setSelectionRange(i2.value.length, i2.value.length); } }, 250); });
-  // Disputa das sobras como item da lista (02/10/2026): calcula só ao abrir
+  // Disputa das sobras: botão "S" ao lado da estrela liga/desliga (02/10/2026)
+  const bS = document.getElementById("pcResSob");
+  if (bS) bS.addEventListener("click", () => { st.sobAberta = !st.sobAberta; _resRenderCandidatos(ctx); });
   const sobEl = corpo.querySelector(".pn-sob-item");
   if (sobEl) {
     const pintarSob = () => {
@@ -761,8 +763,7 @@ function _resRenderCandidatos(ctx) {
       alvoS.innerHTML = _resSobrasHtml(_resSobrasDados(cands, ctx.totalVagas, leg, RES_FEDERACOES[st.anoApurado]), !!(pcState._resMeta && !pcState._resMeta.final));
       alvoS.dataset.ok = "1";
     };
-    sobEl.addEventListener("toggle", () => { st.sobAberta = sobEl.open; if (sobEl.open) pintarSob(); });
-    if (sobEl.open) pintarSob();
+    pintarSob();
   }
   document.getElementById("pcResSoFav").addEventListener("click", () => { st.soFav = !st.soFav; _resRenderCandidatos(ctx); });
   _resLigarDropdowns(corpo, (id, it) => { if (id === "pcResOrd") { st.ordem = it.dataset.o; _resRenderCandidatos(ctx); } });

@@ -3620,3 +3620,7 @@
 #modoColaborativoWrap .pn-sob-item > summary svg{ grid-row:1/3; grid-column:2; align-self:center; color:#8A9096; }
 #modoColaborativoWrap .pn-sob-item[open] > summary svg{ transform:rotate(180deg); }
 #modoColaborativoWrap .pn-sob-item .pn-sob-box{ border:none; border-top:1px solid rgba(242,244,245,.08); border-radius:0 0 14px 14px; }
+#modoColaborativoWrap .pn-sob-btn{ font-size:13px; font-weight:800; }
+#modoColaborativoWrap .pn-sob-btn.on{ color:#C6E62A; border-color:rgba(198,230,42,.5); }
+#modoColaborativoWrap .pn-sob-cab{ padding:12px 14px 0; font-size:13px; font-weight:700; color:#F2F4F5; }
+#modoColaborativoWrap .pn-sob-item .pn-sob-box{ border-top:none; }
