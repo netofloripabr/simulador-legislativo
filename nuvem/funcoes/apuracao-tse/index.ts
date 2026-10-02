@@ -80,7 +80,7 @@ Deno.serve(async (req: Request) => {
       meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
       candidatos: cands.sort((a: any, b: any) => b.votos - a.votos).map((c: any) => ({
         sq: c.sq, nome: c.nome_urna, nomeUrna: c.nome_urna, numero: c.numero, partido: c.partido,
-        situacao: (c.situacao || "").toUpperCase(), total: c.votos, municipios: {},
+        situacao: (c.situacao || "").toUpperCase(), eleito: c.eleito, total: c.votos, municipios: {},
       })),
     };
     const up = await sb.storage.from("apuracao").upload(`${ufl}-${ano}/${cargo}.json`, new Blob([JSON.stringify(arquivo)], { type: "application/json" }), { upsert: true, contentType: "application/json", cacheControl: "30" });

@@ -157,9 +157,19 @@ function _resHistoricoDe(c, listaAno) {
 // verde vivo E-QP (quociente), lima E-M com a ordem da sobra ("E-M · 3ª",
 // igual à disputa de sobras do palpite); suplente e não eleito em etiqueta
 // neutra, sem cor.
+// 02/10/2026: antes da apuração o espaço da etiqueta fica opaco (vazio);
+// durante a apuração E-QP/E-M ficam CINZA (eleição momentânea, parcial) e só
+// ganham verde/lima quando o TSE confirma a eleição (c.eleito) ou na
+// totalização final.
 function _resEtiqueta(c, cargo) {
   const s = (c.situacao || "").toUpperCase();
-  if (!s) return "";
+  const meta = pcState._resMeta;
+  if (!s) return meta || c.total ? "" : `<span class="pc-sen-chip pc-chip-vazio" title="Aguardando a apuração"></span>`;
+  const parcial = !!meta && !meta.final && !c.eleito;
+  if (parcial && (s.startsWith("ELEITO"))) {
+    const em = !(s.includes("ELEITO POR QP") || _resMajor(cargo));
+    return `<span class="pc-sen-chip neutro pc-chip-parcial" title="Eleito parcialmente — muda conforme a apuração avança">${_resMajor(cargo) ? "E" : em ? "E-M" : "E-QP"}</span>`;
+  }
   if (s.includes("ELEITO POR QP") || (_resMajor(cargo) && s.startsWith("ELEITO"))) return `<span class="pc-sen-chip" title="${_resMajor(cargo) ? "Eleito (mais votado)" : "Eleito direto pelo quociente partidário (art. 107)"}">${cargo === "senador" ? "E" : "E-QP"}</span>`;
   if (s.includes("ELEITO POR M") || s.startsWith("ELEITO")) {
     const r = (pcState._resRodadas || {})[c.sq];
@@ -627,7 +637,7 @@ async function renderResultados() {
       </div>
       <div id="pcResPlenCorpo" class="pc-plen-corpo${colapsado ? "" : " aberto"}"></div>
     </div>
-    <div class="pc-cargo-switch" style="margin:4px 0 12px;"><button data-res-aba="candidatos" class="${st.aba === "candidatos" ? "active" : ""}">Candidatos</button><button data-res-aba="mapa" class="${st.aba === "mapa" ? "active" : ""}">Mapa</button><button data-res-aba="painel" class="${st.aba === "painel" ? "active" : ""}">Painel</button></div>
+    <div class="pc-cargo-switch" style="margin:4px 0 12px;"><button data-res-aba="candidatos" class="${st.aba === "candidatos" ? "active" : ""}">Geral</button><button data-res-aba="painel" class="${st.aba === "painel" ? "active" : ""}">Candidato</button><button data-res-aba="mapa" class="${st.aba === "mapa" ? "active" : ""}">Mapa</button></div>
     <div id="pcResCorpo"></div>
     <div class="pc-aviso-nao-pesquisa" style="margin-top:16px;">Dados oficiais do TSE. Jogo de palpites entre participantes — não é pesquisa eleitoral.</div>
   `;

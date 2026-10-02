@@ -3592,3 +3592,5 @@
 #modoColaborativoWrap .pc-cargo-switch.pc-res-cargos{ display:grid; grid-template-columns:repeat(6,1fr); border-radius:18px; }
 #modoColaborativoWrap .pc-res-cargos button{ grid-column:span 2; }
 #modoColaborativoWrap .pc-res-cargos button:nth-child(4), #modoColaborativoWrap .pc-res-cargos button:nth-child(5){ grid-column:span 3; }
+#modoColaborativoWrap .pc-sen-chip.pc-chip-vazio{ background:rgba(242,244,245,.06) !important; border:1px dashed rgba(242,244,245,.12); min-width:30px; color:transparent !important; }
+#modoColaborativoWrap .pc-sen-chip.pc-chip-parcial{ background:#3A3F45 !important; color:#DDE0E2 !important; }
