@@ -2046,3 +2046,32 @@ function _resContagem() {
   return `${d ? d + "d " : ""}${p2(h)}:${p2(m)}:${p2(sg)}`;
 }
 setInterval(() => { const el = document.getElementById("pcResCont"); if (el) el.textContent = _resContagem(); }, 1000);
+
+// ---------- Disputa das sobras na Apuração (protótipo 02/10/2026) ----------
+// Mesmo cálculo da Revisão do palpite (calcularDisputaSobra, regime 2026 sem
+// piso), alimentado com os votos apurados: partido/federação = soma dos
+// nominais + legenda (quando houver).
+function _resSobrasDados(cands, totalVagas, legenda, fed) {
+  const g = {};
+  cands.forEach((c) => { const k = (fed && fed[c.partido]) || c.partido; (g[k] = g[k] || { nome: k, candidatos: [] }).candidatos.push({ nome: c.nome, nomeUrna: c.nomeUrna, votos: c.total }); });
+  if (legenda) Object.entries(legenda).forEach(([p, v]) => { const k = (fed && fed[p]) || p; if (g[k]) g[k].candidatos.push({ fonte: "legenda", nome: "legenda", votos: v }); });
+  const lista = Object.values(g).filter((p) => partyVotos(p) > 0);
+  return { lista, disputa: lista.length ? calcularDisputaSobra(lista, totalVagas) : null };
+}
+function _resSobrasHtml(d, parcial) {
+  if (!d.disputa) return `<div class="pc-sub" style="padding:8px 2px;">A disputa das sobras aparece quando os votos começarem a ser apurados.</div>`;
+  const D = d.disputa, F = (x) => Math.round(x).toLocaleString("pt-BR");
+  const linhas = D.rodadas.map((r) => `<details class="pn-sob">
+      <summary><span class="n">${r.numero}ª</span><span class="q"><b>${r.vencedorCandidato || "—"}</b><i>${nomePartidoExibicao(r.vencedorNome)}</i></span><span class="m">${F(r.vencedorMedia)}<i>média</i></span>${RES_IC_CHEV}</summary>
+      <div class="det"><div class="t">Rodada ${r.numero} — votos ÷ (vagas atuais + 1)</div>${r.medias.filter((m) => m.votos > 0).slice(0, 8).map((m) => `<div class="li${m.venceu ? " v" : ""}"><span>${nomePartidoExibicao(m.nome)}<i>${F(m.votos)} ÷ ${m.cadeiraAtual + 1}</i></span><b>${F(m.media)}</b></div>`).join("")}</div>
+    </details>`).join("");
+  const qp = d.lista.map((p, i) => ({ nome: p.nome, qp: D.qpPorPartido[i], tot: D.cadeirasPorPartido[i] || 0, votos: partyVotos(p) })).filter((x) => x.tot).sort((a, b) => b.tot - a.tot || b.votos - a.votos);
+  return `<div class="pn-sob-box">
+    ${parcial ? `<div class="pc-rf-aviso" style="margin:0 0 10px;">Cálculo parcial — muda a cada atualização da apuração.</div>` : ""}
+    <div class="pn-sob-res"><div><span>Quociente eleitoral</span><b>${F(D.qe)}</b></div><div><span>Vagas por QP</span><b>${D.totalQP}</b></div><div><span>Vagas por sobra</span><b>${D.totalSobrasCargo}</b></div></div>
+    <div class="pn-sob-t">Vagas por partido</div>
+    <div class="pn-sob-part">${qp.map((x) => `<div><span>${nomePartidoExibicao(x.nome)}</span><b>${x.tot}</b><i>${x.qp} QP${x.tot - x.qp ? ` + ${x.tot - x.qp} sobra` : ""}</i></div>`).join("")}</div>
+    <div class="pn-sob-t">Quem levou cada vaga de sobra</div>
+    ${linhas}
+  </div>`;
+}
