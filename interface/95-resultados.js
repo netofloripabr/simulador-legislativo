@@ -598,7 +598,7 @@ async function renderResultados() {
   if (!st.cenario) st.cenario = cands[0] ? cands[0].sq : null;
   const cenario = cands.find((c) => c.sq === st.cenario) || cands[0];
 
-  const botoesCargo = RES_CARGOS.map((c) => `<button data-res-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
+  const botoesCargo = RES_CARGOS.map((c) => `<button data-res-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label.replace(/^Deputado /, "").replace(/^Dep\. /, "")}</button>`).join("");
   // Cadeiras por ano (2014/2018/2022 + apurado) e do meu palpite
   const seatsPorAno = {};
   anosPlen.forEach((a, i) => { seatsPorAno[a] = _resSeatsDe(a === anoApurado ? cands : (hist[i] ? hist[i].candidatos : [])); });
@@ -612,7 +612,7 @@ async function renderResultados() {
   const IC = (n) => iconeSvg(n, 14);
 
   conteudo.innerHTML = `
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 4px 2px;"><span style="display:flex; align-items:center; gap:8px;"><button type="button" class="pc-dd-btn ico" id="pcResHome" title="Página inicial" style="width:32px; height:32px;">${iconeSvg("home", 15)}</button><span style="font-size:20px; font-weight:700;">Apuração ${anoApurado}</span></span><button type="button" class="pc-dd-btn ico" id="pcResImprimir" title="Imprimir a tela como está" style="width:32px; height:32px;">${iconeSvg("impressora", 15)}</button></div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 4px 2px;"><span style="display:flex; align-items:center; gap:8px;"><button type="button" class="pc-dd-btn ico" id="pcResImprimir" title="Imprimir a tela como está" style="width:32px; height:32px;">${iconeSvg("impressora", 15)}</button><button type="button" class="pc-dd-btn ico" id="pcResHome" title="Página inicial" style="width:32px; height:32px;">${iconeSvg("home", 15)}</button><span style="font-size:20px; font-weight:700;">Apuração ${anoApurado}</span></span></div>
     <div class="pc-sub" style="margin:0 0 10px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : aguardando ? "aguardando a apuração" : "resultado oficial (TSE)"}</div>
     <div class="pc-res-tog">
       ${tog("vivo", !!meta && st.vivoOn, `<span class="pt${meta && !meta.final ? " vivo" : ""}"></span>`, meta && meta.final ? "Totalização final" : `Ao vivo${meta ? "" : ` <b class="pc-res-cont" id="pcResCont">${_resContagem()}</b>`}`, meta ? "" : 'disabled title="Contagem até a abertura das urnas (4/10/2026, 8h de Brasília)"')}
@@ -627,9 +627,8 @@ async function renderResultados() {
       <div class="pc-lobby-barra"><div style="width:${Math.min(100, Number(meta.pctSecoes) || 0)}%; background:#34E84A;"></div></div>
       <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#8A9096; margin-top:8px;"><span>${_resFmt(meta.secoesTotalizadas)} de ${_resFmt(meta.secoesTotal)} seções</span><span id="pcResAtualizado">atualizado ${_resTempoRelativo(meta.atualizadoEm)}${meta.final ? "" : " · próxima em 60 s"}</span></div>
     </div>` : ""}
-    ${aguardando ? `<div class="pc-lobby-duelo on" style="margin-bottom:12px; cursor:default;"><span class="pc-lobby-duelo-ic">${iconeSvg("relogio", 18)}</span><span class="pc-lobby-duelo-tx"><b>Aguardando a apuração de ${anoApurado}</b><i>os votos entram ao vivo quando o TSE começar a divulgar, em 4/10. Até lá, a lista mostra o elenco zerado.</i></span></div>` : ""}
     <div class="pc-cargo-switch pc-res-cargos" style="margin-bottom:14px;">${botoesCargo}</div>
-    ${meta ? "" : _resPartHtml(part && part[cargo] && part[cargo].estado, "Santa Catarina")}
+    ${await _resPainelEleicao(cargo, meta, part, anoApurado, anoAnterior)}
     <div class="glass-card" style="padding:14px; margin-bottom:12px;${st.aba === "mapa" || st.aba === "painel" || cargo === "governador" || cargo === "presidente" ? " display:none;" : ""}">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
         <div class="pc-sub" id="pcResPlenTit" style="margin:0;">Plenário apurado ${anoApurado} — ${totalVagas} vagas</div>
@@ -760,7 +759,7 @@ function _resRenderCandidatos(ctx) {
       const alvoS = document.getElementById("pcResSobras");
       if (!alvoS || alvoS.dataset.ok) return;
       const leg = st.anoApurado === 2022 && typeof LEGENDA_2022 !== "undefined" ? LEGENDA_2022[cargo] : null;
-      alvoS.innerHTML = _resSobrasHtml(_resSobrasDados(cands, ctx.totalVagas, leg, RES_FEDERACOES[st.anoApurado]), !!(pcState._resMeta && !pcState._resMeta.final));
+      alvoS.innerHTML = _resSobrasHtml(_resSobrasDados(cands, ctx.totalVagas, leg, RES_FEDERACOES[st.anoApurado]), !!(pcState._resMeta && !pcState._resMeta.final), ctx.totalVagas);
       alvoS.dataset.ok = "1";
     };
     pintarSob();
@@ -2073,20 +2072,56 @@ function _resSobrasDados(cands, totalVagas, legenda, fed) {
   const lista = Object.values(g).filter((p) => partyVotos(p) > 0);
   return { lista, disputa: lista.length ? calcularDisputaSobra(lista, totalVagas) : null };
 }
-function _resSobrasHtml(d, parcial) {
+// Mesmo formato do documento impresso do palpite (.di-sobras): introdução,
+// rodadas reais (E-M · nª, partido, quem elegeu, média) e a continuação
+// "se houvesse mais vagas" até 3× o número de sobras (pedido 02/10/2026).
+function _resSobrasHtml(d, parcial, totalVagas) {
   if (!d.disputa) return `<div class="pc-sub" style="padding:8px 2px;">A disputa das sobras aparece quando os votos começarem a ser apurados.</div>`;
-  const D = d.disputa, F = (x) => Math.round(x).toLocaleString("pt-BR");
-  const linhas = D.rodadas.map((r) => `<details class="pn-sob">
-      <summary><span class="n">${r.numero}ª</span><span class="q"><b>${r.vencedorCandidato || "—"}</b><i>${nomePartidoExibicao(r.vencedorNome)}</i></span><span class="m">${F(r.vencedorMedia)}<i>média</i></span>${RES_IC_CHEV}</summary>
-      <div class="det"><div class="t">Rodada ${r.numero} — votos ÷ (vagas atuais + 1)</div>${r.medias.filter((m) => m.votos > 0).slice(0, 8).map((m) => `<div class="li${m.venceu ? " v" : ""}"><span>${nomePartidoExibicao(m.nome)}<i>${F(m.votos)} ÷ ${m.cadeiraAtual + 1}</i></span><b>${F(m.media)}</b></div>`).join("")}</div>
-    </details>`).join("");
-  const qp = d.lista.map((p, i) => ({ nome: p.nome, qp: D.qpPorPartido[i], tot: D.cadeirasPorPartido[i] || 0, votos: partyVotos(p) })).filter((x) => x.tot).sort((a, b) => b.tot - a.tot || b.votos - a.votos);
+  const D = d.disputa, F = (x) => Math.round(x || 0).toLocaleString("pt-BR");
+  const vagasQP = totalVagas - D.totalSobrasCargo;
+  const nExtras = D.totalSobrasCargo * 2;
+  const extras = (() => {
+    if (!nExtras) return [];
+    const ext = dhondtComCorte(d.lista, totalVagas + nExtras);
+    const votos = d.lista.map((p) => partyVotos(p)), cont = d.lista.map(() => 0);
+    const filas = d.lista.map((p) => [...p.candidatos].filter((c) => c.fonte !== "legenda").sort((a, b) => (Number(b.votos) || 0) - (Number(a.votos) || 0)));
+    const out = [];
+    ext.historico.forEach((pIdx, k) => { if (k >= totalVagas) { const c = filas[pIdx][cont[pIdx]]; out.push({ numero: D.totalSobrasCargo + out.length + 1, vencedorNome: d.lista[pIdx].nome, vencedorMedia: votos[pIdx] / (cont[pIdx] + 1), vencedorCandidato: c ? nomeExibicao(c) : null }); } cont[pIdx]++; });
+    return out;
+  })();
+  const linha = (r, real) => `<div class="pn-srod${real ? "" : " fora"}"><span class="rn">${r.numero}ª</span>${real ? `<span class="pc-sen-chip ${parcial ? "neutro pc-chip-parcial" : "em"}">E-M · ${r.numero}ª</span>` : `<span class="pc-sen-chip neutro">F</span>`}<span class="rp">${nomePartidoExibicao(r.vencedorNome)}</span><span class="rc">${r.vencedorCandidato ? (real ? "elegeu " : "próximo: ") + r.vencedorCandidato : "sem candidato na fila"}</span><span class="rm">média ${F(r.vencedorMedia)}</span></div>`;
   return `<div class="pn-sob-box">
     ${parcial ? `<div class="pc-rf-aviso" style="margin:0 0 10px;">Cálculo parcial — muda a cada atualização da apuração.</div>` : ""}
-    <div class="pn-sob-res"><div><span>Quociente eleitoral</span><b>${F(D.qe)}</b></div><div><span>Vagas por QP</span><b>${D.totalQP}</b></div><div><span>Vagas por sobra</span><b>${D.totalSobrasCargo}</b></div></div>
-    <div class="pn-sob-t">Vagas por partido</div>
-    <div class="pn-sob-part">${qp.map((x) => `<div><span>${nomePartidoExibicao(x.nome)}</span><b>${x.tot}</b><i>${x.qp} QP${x.tot - x.qp ? ` + ${x.tot - x.qp} sobra` : ""}</i></div>`).join("")}</div>
-    <div class="pn-sob-t">Quem levou cada vaga de sobra</div>
-    ${linhas}
+    <div class="pn-sob-t">Distribuição das sobras — método das médias (art. 109)</div>
+    <div class="pn-sob-intro">${vagasQP} vaga${vagasQP === 1 ? " saiu" : "s saíram"} direto pelo quociente partidário (QE ${F(D.qe)}). A${D.totalSobrasCargo === 1 ? "" : "s"} <b>${D.totalSobrasCargo} restante${D.totalSobrasCargo === 1 ? "" : "s"}</b> ${D.totalSobrasCargo === 1 ? "foi distribuída" : "foram distribuídas"} rodada a rodada — em cada uma, ganha o partido com a maior média (votos ÷ vagas já obtidas + 1):</div>
+    ${D.rodadas.map((r) => linha(r, true)).join("")}
+    ${extras.length ? `<div class="pn-sob-div">Se houvesse mais vagas — os próximos da fila, na mesma regra (${extras.length} rodadas a mais). Ninguém aqui se elege.</div>${extras.map((r) => linha(r, false)).join("")}` : ""}
+  </div>`;
+}
+
+// Painel fixo com os dados da eleição (02/10/2026): % apurado, comparecimento,
+// abstenção, brancos, nulos, válidos, QE e vagas. Durante a apuração vem do
+// TSE (meta do arquivo ao vivo); antes, mostra a referência do ano anterior.
+async function _resPainelEleicao(cargo, meta, part, ano, anoRef) {
+  const F = (n) => n || n === 0 ? _resFmt(n) : "—";
+  const pc = (v, b) => b && v != null ? (v / b * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : "—";
+  const vagas = cargo === "governador" || cargo === "presidente" ? 1 : vagasFixasCargo(RES_UF, cargo);
+  let D, ref = false;
+  if (meta && meta.validos != null) D = { pct: meta.pctSecoes, apt: meta.eleitorado, comp: meta.comparecimento, abst: meta.abstencao, br: meta.brancos, nu: meta.nulos, val: meta.validos };
+  else {
+    let P = part && part[cargo] && part[cargo].estado;
+    if (!P) { const pr = await _resCarregar(anoRef, "participacao"); P = pr && pr[cargo] && pr[cargo].estado; ref = !!P; }
+    if (P) D = { pct: meta ? meta.pctSecoes : (ref ? null : 100), apt: P[0], comp: P[1], abst: P[2], br: P[3], nu: P[4], val: P[5] };
+  }
+  if (!D) return "";
+  const qe = _resMajor(cargo) ? null : quocienteEleitoral(D.val || 0, vagas);
+  const cx = (rot, val, sub) => `<div class="pn-el-cx"><span>${rot}</span><b>${val}</b>${sub ? `<i>${sub}</i>` : ""}</div>`;
+  return `<div class="pn-el">
+    <div class="pn-el-t"><span>Santa Catarina · ${ref ? `referência ${anoRef}` : `apuração ${ano}`}</span>${ref ? `<i>os números de ${ano} entram quando o TSE começar a divulgar</i>` : ""}</div>
+    <div class="pn-el-ap"><span>Seções apuradas</span><i><u style="width:${Math.min(100, D.pct || 0)}%"></u></i><b>${D.pct == null ? "—" : pc(D.pct, 100)}</b></div>
+    <div class="pn-el-g">
+      ${cx("Comparecimento", pc(D.comp, D.apt), F(D.comp))}${cx("Abstenção", pc(D.abst, D.apt), F(D.abst))}${cx("Válidos", pc(D.val, D.comp), F(D.val))}
+      ${cx("Brancos", pc(D.br, D.comp), F(D.br))}${cx("Nulos", pc(D.nu, D.comp), F(D.nu))}${qe ? cx("Quociente eleitoral", F(qe), `${vagas} vagas`) : cx("Vagas", String(vagas), "")}
+    </div>
   </div>`;
 }

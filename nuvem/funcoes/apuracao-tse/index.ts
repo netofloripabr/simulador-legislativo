@@ -77,7 +77,7 @@ Deno.serve(async (req: Request) => {
     // JSON consolidado no formato de dados/resultados/{uf}-{ano}/{cargo}.json
     const arquivo = {
       ano, cargo, aoVivo: true,
-      meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
+      meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, eleitorado: num(tse.e), comparecimento: num(tse.c), abstencao: num(tse.a), brancos: num(tse.vb), nulos: num(tse.tvn) || num(tse.vn), validos: num(tse.vv), vagas: num(tse.v), geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
       candidatos: cands.sort((a: any, b: any) => b.votos - a.votos).map((c: any) => ({
         sq: c.sq, nome: c.nome_urna, nomeUrna: c.nome_urna, numero: c.numero, partido: c.partido,
         situacao: (c.situacao || "").toUpperCase(), eleito: c.eleito, total: c.votos, municipios: {},
