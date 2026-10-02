@@ -46,13 +46,16 @@ function _resPctHtml(p, extra) {
 // 2026 só tem o elenco zerado até o TSE publicar os arquivos detalhados
 // (dias depois da eleição). Virar pra true quando rodar os tratadores de 2026.
 const RES_2026_DETALHE = false;
+const RES_DADOS_VER = "20261001";
 async function _resCarregar(ano, cargo, sufixo) {
   pcState._resCache = pcState._resCache || {};
   const k = `${ano}/${cargo}${sufixo || ""}`;
   if (pcState._resCache[k]) return pcState._resCache[k];
   if (ano >= 2026 && !RES_2026_DETALHE && (sufixo || /^(participacao|secoes\/)/.test(cargo))) { pcState._resCache[k] = null; return null; }
   try {
-    const r = await fetch(`dados/resultados/${RES_UF.toLowerCase()}-${ano}/${cargo}${sufixo || ""}.json`, { cache: "force-cache" });
+    // ?v= muda quando os arquivos de dados são corrigidos (01/10/2026: votos por
+    // seção de 2022 estavam triplicados e o navegador seguia com a cópia velha)
+    const r = await fetch(`dados/resultados/${RES_UF.toLowerCase()}-${ano}/${cargo}${sufixo || ""}.json?v=${RES_DADOS_VER}`, { cache: "force-cache" });
     if (!r.ok) throw new Error(r.status);
     pcState._resCache[k] = await r.json();
   } catch (e) {
@@ -1753,7 +1756,7 @@ async function _resRenderPainel(ctx) {
     const sub = q.tipo === "local" ? "colégio" : q.tipo === "secao" ? (q.chave || "").split("::")[0] + "ª zona" : "";
     return `<div class="pn-ln n${nivel}${aberto ? " on" : ""}"${folha ? "" : ` data-pn-subabre="${esc(path)}"`}>
       <div class="l1"><span class="ch${aberto ? " on" : ""}">${folha ? "" : RES_IC_CHEV}</span><span class="nm"><b>${esc(q.rotulo)}</b>${sub ? `<i>${sub}</i>` : ""}</span><span class="ps">${pos ? _resChipPos(pos) : ""}</span></div>
-      <div class="l2"><span><em>${RES_ANO_ANTERIOR}</em><b>${a ? _resFmt(v22) : "—"}</b></span><span><em>${RES_ANO_APURADO}</em><b class="${tem26 ? "" : "z"}">${tem26 ? _resFmt(v26) : "—"}</b></span><span class="ap"><i><u style="width:0%"></u></i><small>—</small></span></div>
+      <div class="l2"><span><em>${RES_ANO_ANTERIOR}</em><b>${a ? _resFmt(v22) : "—"}</b></span><span><em>${RES_ANO_APURADO}</em><b class="${tem26 ? "" : "z"}">${tem26 ? _resFmt(v26) : "—"}</b></span>${(() => { if (!tem26 || !a) return `<span class="df z">—</span>`; const d = v26 - v22, pc = v22 ? d / v22 * 100 : null, cor = d >= 0 ? "#34E84A" : "#E8432A"; return `<span class="df" style="color:${cor};">${d >= 0 ? "+" : "−"}${_resFmt(Math.abs(d))}${pc === null ? "" : `<small>${d >= 0 ? "+" : "−"}${Math.abs(pc).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%</small>`}</span>`; })()}<span class="ap"><i><u style="width:0%"></u></i><small>—</small></span></div>
     </div>`;
   };
   const subpasta = async (c, a, q, path, bi, nivel) => {
