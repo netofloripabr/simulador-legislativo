@@ -46,7 +46,10 @@ function _resPctHtml(p, extra) {
 // 2026 só tem o elenco zerado até o TSE publicar os arquivos detalhados
 // (dias depois da eleição). Virar pra true quando rodar os tratadores de 2026.
 const RES_2026_DETALHE = false;
-const RES_DADOS_VER = "20261001";
+const RES_DADOS_VER = "20261002";
+// Governador e Presidente só na Apuração (02/10/2026) — os palpites seguem nos 3 do legislativo
+const RES_CARGOS = [...CARGOS, { id: "governador", label: "Governador" }, { id: "presidente", label: "Presidente" }];
+const _resMajor = (cargo) => cargo === "senador" || cargo === "governador" || cargo === "presidente";
 async function _resCarregar(ano, cargo, sufixo) {
   pcState._resCache = pcState._resCache || {};
   const k = `${ano}/${cargo}${sufixo || ""}`;
@@ -157,7 +160,7 @@ function _resHistoricoDe(c, listaAno) {
 function _resEtiqueta(c, cargo) {
   const s = (c.situacao || "").toUpperCase();
   if (!s) return "";
-  if (s.includes("ELEITO POR QP") || (cargo === "senador" && s.startsWith("ELEITO"))) return `<span class="pc-sen-chip" title="${cargo === "senador" ? "Eleito (mais votado)" : "Eleito direto pelo quociente partidário (art. 107)"}">${cargo === "senador" ? "E" : "E-QP"}</span>`;
+  if (s.includes("ELEITO POR QP") || (_resMajor(cargo) && s.startsWith("ELEITO"))) return `<span class="pc-sen-chip" title="${_resMajor(cargo) ? "Eleito (mais votado)" : "Eleito direto pelo quociente partidário (art. 107)"}">${cargo === "senador" ? "E" : "E-QP"}</span>`;
   if (s.includes("ELEITO POR M") || s.startsWith("ELEITO")) {
     const r = (pcState._resRodadas || {})[c.sq];
     return `<span class="pc-sen-chip em" title="Eleito pela sobra (método das médias, art. 109)${r ? ` — ${r}ª sobra distribuída` : ""}">E-M${r ? ` · ${r}ª` : ""}</span>`;
@@ -340,7 +343,7 @@ function _resPartidos(ctx) {
   // total oficial, ele manda no QE — mesmo número de testes/eleitoral.test.js.
   const somaArquivo = Object.values(grupos).reduce((a, x) => a + x.nominal + x.legenda, 0);
   const validos = (RES_VALIDOS_OFICIAIS[st.anoApurado] || {})[cargo] || somaArquivo;
-  const qe = cargo === "senador" ? null : quocienteEleitoral(validos, totalVagas);
+  const qe = _resMajor(cargo) ? null : quocienteEleitoral(validos, totalVagas);
   const lista = Object.values(grupos).map((x) => ({ ...x, total: x.nominal + x.legenda, eleitos: x.diretas + x.sobras, qp: qe ? (x.nominal + x.legenda) / qe : null }))
     .sort((a, b) => b.eleitos - a.eleitos || b.total - a.total);
   return { lista, validos, qe, temLegenda: !!leg };
@@ -443,7 +446,7 @@ function _resSomaP(lista) {
 function _resDocImpresso(st, cargo, cands) {
   const agora = new Date();
   const dataTxt = agora.toLocaleDateString("pt-BR"), horaTxt = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  const cargoLbl = (CARGOS.find((c) => c.id === cargo) || {}).label || "";
+  const cargoLbl = (RES_CARGOS.find((c) => c.id === cargo) || {}).label || "";
   const esc = (t) => String(t == null ? "" : t).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
   const pct = (v, b) => b ? (v / b * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : "—";
   const chip = (c) => { const e = _resEtiqueta(c, cargo); const t = e.replace(/<[^>]+>/g, ""); const cls = /class="pc-sen-chip em/.test(e) ? " di-chip-em" : /neutro/.test(e) ? (t === "S" ? " di-chip-s" : " di-chip-f") : ""; return `<span class="di-chip${cls}">${t}</span>`; };
@@ -567,7 +570,7 @@ async function renderResultados() {
   pcState._resMeta = meta || null;
   _resArmarAtualizacao(meta);
   if (!apu) { conteudo.innerHTML = estadoVazio({ icone: "alerta", titulo: "Resultados indisponíveis", texto: "Não consegui carregar os dados deste cargo. Tente de novo em instantes." }); return; }
-  const totalVagas = vagasFixasCargo(RES_UF, cargo);
+  const totalVagas = cargo === "governador" || cargo === "presidente" ? 1 : vagasFixasCargo(RES_UF, cargo);
   const cands = apu.candidatos.every((c) => !c.total) ? [...apu.candidatos].sort((a, b) => String(a.nomeUrna).localeCompare(String(b.nomeUrna), "pt-BR")) : apu.candidatos;
   const aguardando = !meta && cands.every((c) => !c.total);
   // Casamento entre eleições: nome completo, senão nome de urna (a pessoa
@@ -585,7 +588,7 @@ async function renderResultados() {
   if (!st.cenario) st.cenario = cands[0] ? cands[0].sq : null;
   const cenario = cands.find((c) => c.sq === st.cenario) || cands[0];
 
-  const botoesCargo = CARGOS.map((c) => `<button data-res-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
+  const botoesCargo = RES_CARGOS.map((c) => `<button data-res-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label}</button>`).join("");
   // Cadeiras por ano (2014/2018/2022 + apurado) e do meu palpite
   const seatsPorAno = {};
   anosPlen.forEach((a, i) => { seatsPorAno[a] = _resSeatsDe(a === anoApurado ? cands : (hist[i] ? hist[i].candidatos : [])); });
@@ -615,9 +618,9 @@ async function renderResultados() {
       <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#8A9096; margin-top:8px;"><span>${_resFmt(meta.secoesTotalizadas)} de ${_resFmt(meta.secoesTotal)} seções</span><span id="pcResAtualizado">atualizado ${_resTempoRelativo(meta.atualizadoEm)}${meta.final ? "" : " · próxima em 60 s"}</span></div>
     </div>` : ""}
     ${aguardando ? `<div class="pc-lobby-duelo on" style="margin-bottom:12px; cursor:default;"><span class="pc-lobby-duelo-ic">${iconeSvg("relogio", 18)}</span><span class="pc-lobby-duelo-tx"><b>Aguardando a apuração de ${anoApurado}</b><i>os votos entram ao vivo quando o TSE começar a divulgar, em 4/10. Até lá, a lista mostra o elenco zerado.</i></span></div>` : ""}
-    <div class="pc-cargo-switch" style="margin-bottom:14px;">${botoesCargo}</div>
+    <div class="pc-cargo-switch pc-res-cargos" style="margin-bottom:14px;">${botoesCargo}</div>
     ${meta ? "" : _resPartHtml(part && part[cargo] && part[cargo].estado, "Santa Catarina")}
-    <div class="glass-card" style="padding:14px; margin-bottom:12px;${st.aba === "mapa" || st.aba === "painel" ? " display:none;" : ""}">
+    <div class="glass-card" style="padding:14px; margin-bottom:12px;${st.aba === "mapa" || st.aba === "painel" || cargo === "governador" || cargo === "presidente" ? " display:none;" : ""}">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
         <div class="pc-sub" id="pcResPlenTit" style="margin:0;">Plenário apurado ${anoApurado} — ${totalVagas} vagas</div>
         <button id="pcResPlenToggle" class="pc-mini-btn" title="${colapsado ? "Expandir" : "Recolher"}"><svg viewBox="0 0 16 16" width="13" height="13" style="transform:${colapsado ? "rotate(-90deg)" : "none"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
@@ -663,7 +666,7 @@ async function renderResultados() {
 
   const ctx = { st, cargo, cands, antPorNome, antDe: _antDe, ant2De: _ant2De, meu, favs, totalVagas, cenario, ant, ant2, seatsPorAno, anos: anosPlen, palSeats };
   pcState._resCtx = ctx;
-  pcState._resRodadas = cargo === "senador" ? {} : _resCalcRodadas(ctx);
+  pcState._resRodadas = _resMajor(cargo) ? {} : _resCalcRodadas(ctx);
   if (!st.plenAno) st.plenAno = anoApurado;
   _resRenderPlenario(ctx);
   if (st.aba === "ferramentas") st.aba = "candidatos"; // aba removida em 29/09/2026
@@ -1033,7 +1036,7 @@ async function _resRenderMapa(ctx) {
       <button type="button" class="pc-dd-btn pc-cenario-btn">
         <div class="pc-cenario pc-cen2">
           <div class="l1">${cenario.total ? `<span class="pc-dep-pos">${cands.indexOf(cenario) + 1}º</span>` : ""}${ctx.modoPartido ? (cenario.eleitos ? `<span class="pc-sen-chip">${cenario.eleitos} eleito${cenario.eleitos > 1 ? "s" : ""}</span>` : "") : _resEtiqueta(cenario, cargo)}<span class="pc-dep-cnm-txt nm">${cenTxt}</span>${ctx.modoPartido ? "" : `<span class="vaga-estrela"></span>`}</div>
-          <div class="l2"><span class="pt">${nomePartidoExibicao(cenario.partido)} <i>(${(CARGOS.find((x) => x.id === cargo) || {}).label || ""})</i></span><span class="pc-cenario-dica">Selecionar ${ctx.modoPartido ? "partido" : "candidato"} ${RES_IC_CHEV}</span></div>
+          <div class="l2"><span class="pt">${nomePartidoExibicao(cenario.partido)} <i>(${(RES_CARGOS.find((x) => x.id === cargo) || {}).label || ""})</i></span><span class="pc-cenario-dica">Selecionar ${ctx.modoPartido ? "partido" : "candidato"} ${RES_IC_CHEV}</span></div>
         </div>
       </button>
       ${ctx.modoPartido ? "" : `<button type="button" class="pc-dd-btn ico pc-cen-fav${_resFavoritos().has(cenario.sq) ? " on" : ""}" data-cen-fav="${cenario.sq}" title="${_resFavoritos().has(cenario.sq) ? "Remover dos favoritos" : "Favoritar"}" style="position:absolute; right:14px; top:12px; z-index:2;${_resFavoritos().has(cenario.sq) ? " color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>`}
@@ -1400,8 +1403,8 @@ function _resImpRender(ctx) {
   } else if (t === "mapa") {
     h += `<div class="pc-imp-nota">O mapa sai como está na tela agora (candidato, região, modo e cores/bolhas). Para mudar, ajuste o mapa e toque em imprimir de novo.</div>`;
   } else {
-    if (t === "ficha") h += `<div class="pc-imp-g"><div class="pc-imp-t">Candidato</div><select class="pc-imp-sel" data-imp-sel="sq">${listaCands.map((x) => `<option value="${esc(x.sq)}"${x.sq === I.sq ? " selected" : ""}>${esc(x.nomeUrna)} — ${esc(nomePartidoExibicao(x.partido))}</option>`).join("")}</select>${I.cargo !== ctx.cargo ? `<div class="pc-imp-nota">O candidato é do cargo aberto na tela (${esc((CARGOS.find((x) => x.id === ctx.cargo) || {}).label || "")}).</div>` : ""}</div>`;
-    if (t !== "ficha") h += grp("Cargo", CARGOS.map((x) => op("cargo", x.id, x.label.replace("Deputado", "Dep."), I.cargo === x.id)).join(""));
+    if (t === "ficha") h += `<div class="pc-imp-g"><div class="pc-imp-t">Candidato</div><select class="pc-imp-sel" data-imp-sel="sq">${listaCands.map((x) => `<option value="${esc(x.sq)}"${x.sq === I.sq ? " selected" : ""}>${esc(x.nomeUrna)} — ${esc(nomePartidoExibicao(x.partido))}</option>`).join("")}</select>${I.cargo !== ctx.cargo ? `<div class="pc-imp-nota">O candidato é do cargo aberto na tela (${esc((RES_CARGOS.find((x) => x.id === ctx.cargo) || {}).label || "")}).</div>` : ""}</div>`;
+    if (t !== "ficha") h += grp("Cargo", RES_CARGOS.map((x) => op("cargo", x.id, x.label.replace("Deputado", "Dep."), I.cargo === x.id)).join(""));
     h += grp("Ano", anos.map(([v, r]) => op("ano", v, r, I.ano === v)).join(""));
     if (t !== "plenario") {
       h += grp("Recorte", [["estado", "Estado"], ["regiao", "Região"], ["mun", "Município"]].map(([v, r]) => op("recorte", v, r, I.recorte === v)).join(""));
@@ -1470,7 +1473,7 @@ function _resImpResumo(ctx) {
   if (I.tipo === "mapa") return "o mapa como está na tela";
   const rec = I.tipo === "plenario" ? "Santa Catarina" : _resImpRecorteTxt(I);
   if (!rec) return "";
-  const cargoLbl = (CARGOS.find((x) => x.id === (I.tipo === "ficha" ? ctx.cargo : I.cargo)) || {}).label || "";
+  const cargoLbl = (RES_CARGOS.find((x) => x.id === (I.tipo === "ficha" ? ctx.cargo : I.cargo)) || {}).label || "";
   const ord = (RES_ARV_ORDENS.find(([o]) => o === I.ordem) || [])[1] || "";
   const qtd = I.qtd ? `${I.qtd} primeiros` : "todos";
   if (I.tipo === "ficha") {
@@ -1499,7 +1502,7 @@ async function _resImpDocumento(ctx) {
   const pct = (v, b) => b ? f1(v / b * 100) + "%" : "—";
   const cmp = I.ano === "cmp";
   const cargo = I.tipo === "ficha" ? ctx.cargo : I.cargo;
-  const cargoLbl = (CARGOS.find((x) => x.id === cargo) || {}).label || "";
+  const cargoLbl = (RES_CARGOS.find((x) => x.id === cargo) || {}).label || "";
   const regInfo = new Map(MUNICIPIOS_SC_REGIOES.map((m) => [m.chave, m]));
   const dentro = (k) => I.recorte === "estado" || (I.recorte === "mun" ? k === I.mun : (() => { const m = regInfo.get(k); return m && (m.meso === I.regiao || m.assoc === I.regiao); })());
   const somaRec = (c) => c ? Object.entries(c.municipios || {}).reduce((a, [k, v]) => a + (dentro(k) ? v : 0), 0) : 0;
@@ -1711,7 +1714,7 @@ async function _resRenderPainel(ctx) {
   const pctEst = meta && meta.pctSecoes != null ? Number(meta.pctSecoes) : 0;
   const lista22 = (ctx.ant && ctx.ant.candidatos) || [];
   const f1 = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 1 });
-  const cargoLbl = (CARGOS.find((x) => x.id === cargo) || {}).label || "";
+  const cargoLbl = (RES_CARGOS.find((x) => x.id === cargo) || {}).label || "";
   const barra = (pct, cls = "") => `<div class="pn-ap${cls}"><span>Apurado</span><i><em style="width:${pct == null ? 0 : Math.min(100, pct)}%"></em></i><b>${pct == null ? "—" : f1(pct) + "%"}</b></div>`;
   const secCache = {};
   const sec = async (ano, mun) => { const k = ano + mun; if (!(k in secCache)) secCache[k] = mun ? await _resCarregar(ano, "secoes/" + _resSlug(mun), "") : null; return secCache[k]; };

@@ -1347,5 +1347,11 @@ const MIGRACOES_INDEX = [
     "painel_resultados_proprio"
    ]
   ]
+ },
+ {
+  "num": 58,
+  "arquivo": "migracao-58-apuracao-governador-presidente.sql",
+  "descricao": "Migração 58 (02/10/2026): Governador e Presidente na Apuração.",
+  "objetos": []
  }
 ];

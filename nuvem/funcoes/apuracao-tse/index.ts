@@ -5,7 +5,7 @@
 // header x-rotina-token; também aceita chamada manual (mesmo header) pra
 // "rodar agora". Sem token válido → 401.
 //
-// Fluxo por cargo (5 Senador, 6 Dep. Federal, 7 Dep. Estadual):
+// Fluxo por cargo (1 Presidente, 3 Governador, 5 Senador, 6 Dep. Federal, 7 Dep. Estadual):
 //   1. GET https://resultados.tse.jus.br/oficial/ele{ano}/{cd}/dados-simplificados/{uf}/{uf}-c000{cargo}-e000{cd}-r.json
 //   2. Se dg/hg (geração no TSE) não mudou desde a última gravação → pula.
 //   3. Upsert em apuracao_status + apuracao_candidato.
@@ -17,7 +17,10 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const CARGOS: Record<string, string> = { "7": "estadual", "6": "federal", "5": "senador" };
+// cargo TSE -> [nome no app, eleição]. Governador sai na mesma eleição dos
+// deputados/senador (apuracao_cd_eleicao); Presidente é outra eleição
+// (apuracao_cd_eleicao_pres). Desde 02/10/2026.
+const CARGOS: Record<string, [string, string]> = { "7": ["estadual", "est"], "6": ["federal", "est"], "5": ["senador", "est"], "3": ["governador", "est"], "1": ["presidente", "pres"] };
 
 Deno.serve(async (req: Request) => {
   const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
@@ -38,12 +41,14 @@ Deno.serve(async (req: Request) => {
   const cd = cfg.apuracao_cd_eleicao || "";
   const uf = (cfg.apuracao_uf || "SC").toUpperCase();
   const ufl = uf.toLowerCase();
-  const cdPad = cd.padStart(6, "0");
+  const cdPres = cfg.apuracao_cd_eleicao_pres || "";
   const resumo: Record<string, unknown> = {};
   let todosFinais = true;
 
-  for (const [cdCargo, cargo] of Object.entries(CARGOS)) {
-    const url = `https://resultados.tse.jus.br/oficial/ele${ano}/${cd}/dados-simplificados/${ufl}/${ufl}-c000${cdCargo}-e${cdPad}-r.json`;
+  for (const [cdCargo, [cargo, qual]] of Object.entries(CARGOS)) {
+    const cdE = qual === "pres" ? cdPres : cd;
+    if (!cdE) { resumo[cargo] = "sem código de eleição"; continue; }
+    const url = `https://resultados.tse.jus.br/oficial/ele${ano}/${cdE}/dados-simplificados/${ufl}/${ufl}-c000${cdCargo}-e${cdE.padStart(6, "0")}-r.json`;
     let tse: any;
     try {
       const r = await fetch(url, { headers: { "User-Agent": "SimulaLEGIS/1.0 (apuracao)" } });

@@ -3588,3 +3588,7 @@
 #modoColaborativoWrap .pn-tabs > button.mais{ width:34px; padding:0; justify-content:center; }
 #modoColaborativoWrap .pn-tabs > button.mais.on{ color:#34E84A; border-color:rgba(52,232,74,.5); }
 #modoColaborativoWrap .pn-ibs a.pc-dd-btn{ display:inline-flex; align-items:center; justify-content:center; text-decoration:none; color:#B5BBC0; }
+/* 5 cargos na Apuração: legislativo em cima, executivo embaixo (02/10/2026) */
+#modoColaborativoWrap .pc-cargo-switch.pc-res-cargos{ display:grid; grid-template-columns:repeat(6,1fr); border-radius:18px; }
+#modoColaborativoWrap .pc-res-cargos button{ grid-column:span 2; }
+#modoColaborativoWrap .pc-res-cargos button:nth-child(4), #modoColaborativoWrap .pc-res-cargos button:nth-child(5){ grid-column:span 3; }
