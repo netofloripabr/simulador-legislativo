@@ -328,8 +328,9 @@ const RES_VALIDOS_OFICIAIS = { 2022: { estadual: 4471619 - 289065 - 153702 } };
 // Federações de 2022 (TSE): contam como UM partido no quociente
 // partidário e na sobra. Em 2018/2014 não existia federação.
 const RES_FEDERACOES = {
-  2022: { "PT": "Fed. Brasil da Esperança", "PC do B": "Fed. Brasil da Esperança", "PV": "Fed. Brasil da Esperança",
-          "PSDB": "Fed. PSDB Cidadania", "CIDADANIA": "Fed. PSDB Cidadania", "PSOL": "Fed. PSOL Rede", "REDE": "Fed. PSOL Rede" },
+  // federação exibida pelas siglas dos partidos (02/10/2026), não pelo nome
+  2022: { "PT": "PT / PC do B / PV", "PC do B": "PT / PC do B / PV", "PV": "PT / PC do B / PV",
+          "PSDB": "PSDB / CIDADANIA", "CIDADANIA": "PSDB / CIDADANIA", "PSOL": "PSOL / REDE", "REDE": "PSOL / REDE" },
 };
 // Resultado por partido (modelo de referência, 23/09/2026): QE, QP, votos
 // nominais + legenda, eleitos (diretas pelo QP / sobras pela média) e o
