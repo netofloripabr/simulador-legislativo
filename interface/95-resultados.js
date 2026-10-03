@@ -666,6 +666,8 @@ async function renderResultados() {
     // imprimindo como está na tela (_resDocImpresso).
     _resImpAbrir(pcState._resCtx);
   });
+  const tgEl = document.getElementById("pcResDadosTog");
+  if (tgEl) tgEl.addEventListener("click", () => { const k = "dadosEleicaoAberto_res"; pcState.expandido[k] = !pcState.expandido[k]; const box = document.getElementById("pcResDadosEl"); box.classList.toggle("fechado", !pcState.expandido[k]); tgEl.querySelector("svg").style.transform = pcState.expandido[k] ? "none" : "rotate(-90deg)"; });
   const tg = document.getElementById("pcResPlenToggle");
   tg.addEventListener("click", () => {
     const atual = pcState.expandido[_k] === undefined ? true : !!pcState.expandido[_k];
@@ -2112,20 +2114,22 @@ async function _resPainelEleicao(cargo, meta, part, ano, anoRef) {
   let D, ref = false;
   if (meta && meta.validos != null) D = { pct: meta.pctSecoes, apt: meta.eleitorado, comp: meta.comparecimento, abst: meta.abstencao, br: meta.brancos, nu: meta.nulos, val: meta.validos };
   else {
-    let P = part && part[cargo] && part[cargo].estado;
-    if (!P) { const pr = await _resCarregar(anoRef, "participacao"); P = pr && pr[cargo] && pr[cargo].estado; ref = !!P; }
-    if (P) D = { pct: meta ? meta.pctSecoes : (ref ? null : 100), apt: P[0], comp: P[1], abst: P[2], br: P[3], nu: P[4], val: P[5] };
+    const P = part && part[cargo] && part[cargo].estado;
+    // 2026 antes da apuração: campos em branco (sem referência de outro ano)
+    D = P ? { pct: meta ? meta.pctSecoes : 100, apt: P[0], comp: P[1], abst: P[2], br: P[3], nu: P[4], val: P[5] } : { pct: meta ? meta.pctSecoes : null, vazio: true };
   }
-  if (!D) return "";
-  const qe = _resMajor(cargo) ? null : quocienteEleitoral(D.val || 0, vagas);
+  const qe = _resMajor(cargo) || !D.val ? null : quocienteEleitoral(D.val, vagas);
   // linhas do maior para o menor número, barra fixa à direita (02/10/2026)
   const linhas = [["Comparecimento", D.comp, D.apt], ["Válidos", D.val, D.comp], ["Abstenção", D.abst, D.apt], ["Brancos", D.br, D.comp], ["Nulos", D.nu, D.comp]]
-    .filter((x) => x[1] != null).sort((a, b) => b[1] - a[1]);
+    .sort((a, b) => (b[1] || 0) - (a[1] || 0));
   const ln = (rot, v, base) => { const p = base ? v / base * 100 : 0; return `<div class="pn-el-ln"><span class="r">${rot}</span><b>${F(v)}</b><span class="p">${pc(v, base)}</span><i><u style="width:${Math.min(100, p)}%"></u></i></div>`; };
-  return `<div class="pn-el">
-    <div class="pn-el-t"><span>Santa Catarina · ${ref ? `referência ${anoRef}` : `apuração ${ano}`}</span></div>
+  // fechado por padrão, igual ao plenário (02/10/2026)
+  const k = "dadosEleicaoAberto_res";
+  const aberto = !!pcState.expandido[k];
+  return `<div class="pn-el${aberto ? "" : " fechado"}" id="pcResDadosEl">
+    <div class="pn-el-t" id="pcResDadosTog"><span>Dados da eleição · ${ano}</span><button type="button" class="pc-mini-btn" title="${aberto ? "Recolher" : "Expandir"}"><svg viewBox="0 0 16 16" width="13" height="13" style="transform:${aberto ? "none" : "rotate(-90deg)"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></div>
     <div class="pn-el-ln ap"><span class="r">Seções apuradas</span><b></b><span class="p">${D.pct == null ? "—" : pc(D.pct, 100)}</span><i><u style="width:${Math.min(100, D.pct || 0)}%"></u></i></div>
     ${linhas.map((x) => ln(...x)).join("")}
-    <div class="pn-el-ln qe"><span class="r">${qe ? `Quociente eleitoral <small>· ${vagas} vagas</small>` : "Vagas"}</span><b>${qe ? F(qe) : vagas}</b><span class="p"></span><i style="visibility:hidden"></i></div>
+    <div class="pn-el-ln qe"><span class="r">${_resMajor(cargo) ? "Vagas" : `Quociente eleitoral <small>· ${vagas} vagas</small>`}</span><b>${_resMajor(cargo) ? vagas : qe ? F(qe) : "—"}</b><span class="p"></span><i style="visibility:hidden"></i></div>
   </div>`;
 }

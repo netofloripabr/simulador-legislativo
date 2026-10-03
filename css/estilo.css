@@ -3661,3 +3661,7 @@
 #modoColaborativoWrap .pn-srod{ grid-template-columns:20px 64px minmax(0,1fr) auto; }
 #modoColaborativoWrap .pn-srod .pc-sen-chip{ white-space:nowrap; }
 #modoColaborativoWrap .pn-srod .pc-sen-chip{ min-width:56px; justify-self:center; }
+#modoColaborativoWrap .pn-el .pn-el-t{ flex-direction:row; align-items:center; justify-content:space-between; cursor:pointer; margin:0; }
+#modoColaborativoWrap .pn-el:not(.fechado) .pn-el-t{ margin-bottom:8px; }
+#modoColaborativoWrap .pn-el .pn-el-t span{ font-size:14px; font-weight:500; color:#8A9096; }
+#modoColaborativoWrap .pn-el.fechado .pn-el-ln{ display:none; }
