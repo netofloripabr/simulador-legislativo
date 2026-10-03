@@ -3665,3 +3665,8 @@
 #modoColaborativoWrap .pn-el:not(.fechado) .pn-el-t{ margin-bottom:8px; }
 #modoColaborativoWrap .pn-el .pn-el-t span{ font-size:14px; font-weight:500; color:#8A9096; }
 #modoColaborativoWrap .pn-el.fechado .pn-el-ln{ display:none; }
+#modoColaborativoWrap .pn-el-ln, #modoColaborativoWrap .pn-el-ln.qe{ grid-template-columns:minmax(0,1fr) 78px 44px 56px; }
+#modoColaborativoWrap .pn-el-ln .ref{ text-align:right; font-size:10.5px; color:#6B7178; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pn-el-ln.qe .p{ display:block; } #modoColaborativoWrap .pn-el-ln.qe .ref{ color:#8A9096; }
+#modoColaborativoWrap .pn-el-ln.cab{ border-top:none; padding-bottom:2px; } #modoColaborativoWrap .pn-el-ln.cab > *{ font-size:9.5px; font-weight:700; letter-spacing:.04em; color:#6B7178; text-align:right; }
+#modoColaborativoWrap .pn-el-ln, #modoColaborativoWrap .pn-el-ln.qe{ grid-template-columns:minmax(0,1fr) 68px 42px 50px; gap:6px; }

@@ -2111,25 +2111,25 @@ async function _resPainelEleicao(cargo, meta, part, ano, anoRef) {
   const F = (n) => n || n === 0 ? _resFmt(n) : "—";
   const pc = (v, b) => b && v != null ? (v / b * 100).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%" : "—";
   const vagas = cargo === "governador" || cargo === "presidente" ? 1 : vagasFixasCargo(RES_UF, cargo);
-  let D, ref = false;
+  const deP = (P) => P ? { apt: P[0], comp: P[1], abst: P[2], br: P[3], nu: P[4], val: P[5] } : {};
+  let D;
   if (meta && meta.validos != null) D = { pct: meta.pctSecoes, apt: meta.eleitorado, comp: meta.comparecimento, abst: meta.abstencao, br: meta.brancos, nu: meta.nulos, val: meta.validos };
-  else {
-    const P = part && part[cargo] && part[cargo].estado;
-    // 2026 antes da apuração: campos em branco (sem referência de outro ano)
-    D = P ? { pct: meta ? meta.pctSecoes : 100, apt: P[0], comp: P[1], abst: P[2], br: P[3], nu: P[4], val: P[5] } : { pct: meta ? meta.pctSecoes : null, vazio: true };
-  }
+  else { const P = part && part[cargo] && part[cargo].estado; D = P ? { pct: 100, ...deP(P) } : { pct: meta ? meta.pctSecoes : null }; }
+  // coluna de referência: o ano anterior fixo como parâmetro (02/10/2026)
+  const pr = anoRef ? await _resCarregar(anoRef, "participacao") : null;
+  const R = deP(pr && pr[cargo] && pr[cargo].estado);
   const qe = _resMajor(cargo) || !D.val ? null : quocienteEleitoral(D.val, vagas);
-  // linhas do maior para o menor número, barra fixa à direita (02/10/2026)
-  const linhas = [["Comparecimento", D.comp, D.apt], ["Válidos", D.val, D.comp], ["Abstenção", D.abst, D.apt], ["Brancos", D.br, D.comp], ["Nulos", D.nu, D.comp]]
-    .sort((a, b) => (b[1] || 0) - (a[1] || 0));
-  const ln = (rot, v, base) => { const p = base ? v / base * 100 : 0; return `<div class="pn-el-ln"><span class="r">${rot}</span><b>${F(v)}</b><span class="p">${pc(v, base)}</span><i><u style="width:${Math.min(100, p)}%"></u></i></div>`; };
-  // fechado por padrão, igual ao plenário (02/10/2026)
+  const qeR = _resMajor(cargo) || !R.val ? null : quocienteEleitoral(R.val, vagas);
+  const linhas = [["Comparecimento", "comp", "apt"], ["Válidos", "val", "comp"], ["Abstenção", "abst", "apt"], ["Brancos", "br", "comp"], ["Nulos", "nu", "comp"]]
+    .sort((a, b) => ((D[b[1]] || R[b[1]] || 0) - (D[a[1]] || R[a[1]] || 0)));
+  const ln = (rot, v, base) => `<div class="pn-el-ln"><span class="r">${rot}</span><b>${F(D[v])}</b><span class="p">${pc(D[v], D[base])}</span><span class="ref">${pc(R[v], R[base])}</span></div>`;
   const k = "dadosEleicaoAberto_res";
   const aberto = !!pcState.expandido[k];
   return `<div class="pn-el${aberto ? "" : " fechado"}" id="pcResDadosEl">
     <div class="pn-el-t" id="pcResDadosTog"><span>Dados da eleição · ${ano}</span><button type="button" class="pc-mini-btn" title="${aberto ? "Recolher" : "Expandir"}"><svg viewBox="0 0 16 16" width="13" height="13" style="transform:${aberto ? "none" : "rotate(-90deg)"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></div>
-    <div class="pn-el-ln ap"><span class="r">Seções apuradas</span><b></b><span class="p">${D.pct == null ? "—" : pc(D.pct, 100)}</span><i><u style="width:${Math.min(100, D.pct || 0)}%"></u></i></div>
+    <div class="pn-el-ln cab"><span class="r"></span><b>${ano}</b><span class="p">%</span><span class="ref">${anoRef || ""}</span></div>
+    <div class="pn-el-ln"><span class="r">Seções apuradas</span><b></b><span class="p">${D.pct == null ? "—" : pc(D.pct, 100)}</span><span class="ref">${R.val ? "100,0%" : "—"}</span></div>
     ${linhas.map((x) => ln(...x)).join("")}
-    <div class="pn-el-ln qe"><span class="r">${_resMajor(cargo) ? "Vagas" : `Quociente eleitoral <small>· ${vagas} vagas</small>`}</span><b>${_resMajor(cargo) ? vagas : qe ? F(qe) : "—"}</b><span class="p"></span><i style="visibility:hidden"></i></div>
+    <div class="pn-el-ln qe"><span class="r">${_resMajor(cargo) ? "Vagas" : `QE <small>· ${vagas} vagas</small>`}</span><b>${_resMajor(cargo) ? vagas : qe ? F(qe) : "—"}</b><span class="p"></span><span class="ref">${_resMajor(cargo) ? vagas : qeR ? F(qeR) : "—"}</span></div>
   </div>`;
 }
