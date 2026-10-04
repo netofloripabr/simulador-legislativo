@@ -603,6 +603,7 @@ async function renderResultados() {
   _resArmarAtualizacao(meta);
   if (!apu) { conteudo.innerHTML = estadoVazio({ icone: "alerta", titulo: "Resultados indisponíveis", texto: "Não consegui carregar os dados deste cargo. Tente de novo em instantes." }); return; }
   const totalVagas = cargo === "governador" || cargo === "presidente" ? 1 : vagasFixasCargo(RES_UF, cargo);
+  if (meta && !meta.final) _resEleicaoParcial(apu.candidatos, cargo, totalVagas, meta.legenda);
   const cands = apu.candidatos.every((c) => !c.total) ? [...apu.candidatos].sort((a, b) => String(a.nomeUrna).localeCompare(String(b.nomeUrna), "pt-BR")) : apu.candidatos;
   const aguardando = !meta && cands.every((c) => !c.total);
   // Casamento entre eleições: nome completo, senão nome de urna (a pessoa
@@ -2273,4 +2274,28 @@ async function _resRecarregarNoLugar() {
   try { await renderResultados(); } finally { pcState._resSilencioso = false; }
   window.scrollTo(0, y);
   setTimeout(() => { window.scrollTo(0, y); if (el) el.style.minHeight = ""; }, 900);
+}
+
+// Eleitos parciais (04/10/2026): durante a apuração o TSE não marca situação
+// por candidato; o app calcula com os votos do momento (mesma regra do
+// palpite: QE/QP + método das médias, sem piso) e marca E-QP / E-M / E como
+// parcial (etiqueta cinza). Situação vinda do TSE sempre prevalece.
+function _resEleicaoParcial(cands, cargo, vagas, legenda) {
+  if (cands.some((c) => c.situacao)) return;
+  const comVoto = cands.filter((c) => c.total > 0);
+  if (!comVoto.length) return;
+  if (_resMajor(cargo)) {
+    [...comVoto].sort((a, b) => b.total - a.total).slice(0, vagas).forEach((c) => { c.situacao = "ELEITO"; c._parcial = true; });
+    return;
+  }
+  const grupos = {};
+  comVoto.forEach((c) => { (grupos[c.partido] = grupos[c.partido] || []).push(c); });
+  const nomes = Object.keys(grupos);
+  const lista = nomes.map((n) => ({ nome: n, candidatos: grupos[n].map((c) => ({ votos: c.total, nome: c.nome })).concat(legenda && legenda[n] ? [{ fonte: "legenda", nome: "legenda", votos: legenda[n] }] : []) }));
+  const D = calcularDisputaSobra(lista, vagas);
+  nomes.forEach((n, i) => {
+    const ord = [...grupos[n]].sort((a, b) => b.total - a.total);
+    const cad = D.cadeirasPorPartido[i] || 0, qp = D.qpPorPartido[i] || 0;
+    ord.slice(0, cad).forEach((c, k) => { c.situacao = k < qp ? "ELEITO POR QP" : "ELEITO POR MÉDIA"; c._parcial = true; });
+  });
 }
