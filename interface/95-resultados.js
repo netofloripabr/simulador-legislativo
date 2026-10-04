@@ -2120,16 +2120,18 @@ async function _resPainelEleicao(cargo, meta, part, ano, anoRef) {
   const R = deP(pr && pr[cargo] && pr[cargo].estado);
   const qe = _resMajor(cargo) || !D.val ? null : quocienteEleitoral(D.val, vagas);
   const qeR = _resMajor(cargo) || !R.val ? null : quocienteEleitoral(R.val, vagas);
-  const linhas = [["Comparecimento", "comp", "apt"], ["Válidos", "val", "comp"], ["Abstenção", "abst", "apt"], ["Brancos", "br", "comp"], ["Nulos", "nu", "comp"]]
+  const linhas = [["Comparec.", "comp", "apt"], ["Válidos", "val", "comp"], ["Abstenção", "abst", "apt"], ["Brancos", "br", "comp"], ["Nulos", "nu", "comp"]]
     .sort((a, b) => ((D[b[1]] || R[b[1]] || 0) - (D[a[1]] || R[a[1]] || 0)));
-  const ln = (rot, v, base) => `<div class="pn-el-ln"><span class="r">${rot}</span><b>${F(D[v])}</b><span class="p">${pc(D[v], D[base])}</span><span class="ref">${pc(R[v], R[base])}</span></div>`;
+  // nome | barra (2026) | % | nominal 2026 | nominal 2022 (02/10/2026)
+  const barra = (v, b) => `<i><u style="width:${b && v ? Math.min(100, v / b * 100) : 0}%"></u></i>`;
+  const ln = (rot, v, base) => `<div class="pn-el-ln"><span class="r">${rot}</span>${barra(D[v], D[base])}<span class="p">${pc(D[v], D[base])}</span><b>${F(D[v])}</b><span class="ref">${F(R[v])}</span></div>`;
   const k = "dadosEleicaoAberto_res";
   const aberto = !!pcState.expandido[k];
   return `<div class="pn-el${aberto ? "" : " fechado"}" id="pcResDadosEl">
     <div class="pn-el-t" id="pcResDadosTog"><span>Dados da eleição · ${ano}</span><button type="button" class="pc-mini-btn" title="${aberto ? "Recolher" : "Expandir"}"><svg viewBox="0 0 16 16" width="13" height="13" style="transform:${aberto ? "none" : "rotate(-90deg)"}; transition:transform .2s;"><path d="M4 6.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></div>
-    <div class="pn-el-ln cab"><span class="r"></span><b>${ano}</b><span class="p">%</span><span class="ref">${anoRef || ""}</span></div>
-    <div class="pn-el-ln"><span class="r">Seções apuradas</span><b></b><span class="p">${D.pct == null ? "—" : pc(D.pct, 100)}</span><span class="ref">${R.val ? "100,0%" : "—"}</span></div>
+    <div class="pn-el-ln cab"><span class="r"></span><i style="visibility:hidden"></i><span class="p">%</span><b>${ano}</b><span class="ref">${anoRef || ""}</span></div>
+    <div class="pn-el-ln ap"><span class="r">Seções apuradas</span>${barra(D.pct, 100)}<span class="p">${D.pct == null ? "—" : pc(D.pct, 100)}</span><b></b><span class="ref"></span></div>
     ${linhas.map((x) => ln(...x)).join("")}
-    <div class="pn-el-ln qe"><span class="r">${_resMajor(cargo) ? "Vagas" : `QE <small>· ${vagas} vagas</small>`}</span><b>${_resMajor(cargo) ? vagas : qe ? F(qe) : "—"}</b><span class="p"></span><span class="ref">${_resMajor(cargo) ? vagas : qeR ? F(qeR) : "—"}</span></div>
+    <div class="pn-el-ln qe"><span class="r">${_resMajor(cargo) ? "Vagas" : `QE <small>· ${vagas} vagas</small>`}</span><i style="visibility:hidden"></i><span class="p"></span><b>${_resMajor(cargo) ? vagas : qe ? F(qe) : "—"}</b><span class="ref">${_resMajor(cargo) ? vagas : qeR ? F(qeR) : "—"}</span></div>
   </div>`;
 }
