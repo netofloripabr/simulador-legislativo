@@ -586,6 +586,14 @@ async function renderResultados() {
   const part = await _resCarregar(anoApurado, "participacao");
   const [apuEst, ant, vivo, ant2, ...hist] = await Promise.all([_resCarregar(anoApurado, cargo), _resCarregar(anoAnterior, cargo), apuCfg.ativa ? _resCarregarAoVivo(anoApurado, cargo) : null, _resCarregar(anoAnterior2, cargo), ...anosPlen.map((a) => _resCarregar(a, cargo))]);
   const apu = _resMesclar(vivo, apuEst);
+  // % de seções apuradas por município (chave do app), pra legenda nas listas (04/10/2026)
+  pcState._resMunPct = null;
+  const metaV = vivo && vivo.meta;
+  if (metaV && metaV.munPct) {
+    const mj0 = await _resCarregar(RES_ANO_ANTERIOR, "municipios");
+    const mp = {}; Object.entries((mj0 && mj0.municipios) || {}).forEach(([k, m]) => { const cod = String(Number(m.tse)).padStart(5, "0"); if (metaV.munPct[cod] != null) mp[k] = metaV.munPct[cod]; });
+    pcState._resMunPct = mp;
+  }
   // votos por município ao vivo (munTse = código TSE do município) → chave do app (04/10/2026)
   if (vivo && apu && apu.candidatos.some((c) => c.munTse)) {
     const mj = await _resCarregar(RES_ANO_ANTERIOR, "municipios");
@@ -932,7 +940,7 @@ async function _resArvore(ctx, c, a, ordem) {
     const idM = "m|" + l.k, tem = temMun && l.v26 > 0;
     // etiqueta de posição do candidato no recorte (base 2022 até 2026 chegar por local)
     const chipM = tem ? _resPosicao(ctx.cands, l.k, l.v26, (x, k) => (x.municipios || {})[k]) : _resPosicao((ctx.ant && ctx.ant.candidatos) || [], l.k, l.v22, (x, k) => (x.municipios || {})[k]);
-    h += linha(0, idM, _resNomeMun(l.nome), tem ? "" : "aguardando", l.v22, l.v26, tem, { pos: `${i + 1}º`, chip: l.v22 || tem ? chipM : null });
+    h += linha(0, idM, _resNomeMun(l.nome), _resMunApur(l.k) || (tem ? "" : "aguardando"), l.v22, l.v26, tem, { pos: `${i + 1}º`, chip: l.v22 || tem ? chipM : null });
     h += await lista(l.k, null, idM);
     if (!st.arvAb[idM]) continue;
     const sec22 = await _resCarregar(RES_ANO_ANTERIOR, "secoes/" + _resSlug(l.k), "");
@@ -1202,7 +1210,7 @@ async function _resRenderMapa(ctx) {
       // Pos. = colocação do candidato entre TODOS do cargo naquele município
       // (etiqueta verde do 1º ao 3º), Votos, % = fatia do total do candidato.
       const cab = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Município</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">${st.modo === "var" ? "Δ " + RES_ANO_ANTERIOR : "%"}</span></div>`;
-      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, st.mapaTodos ? lista.length : 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(d.m.nome)}</span><span class="c">${_resChipPos(_resPosicao(candsAno, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${st.modo === "var" ? _resPctHtml(d.var) : _resPctTotal(d.v, cenTotal)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div class="pc-arv-alca" data-mapa-todos="1"><span class="pega"></span><span class="rot">${st.mapaTodos ? "mostrar menos" : `${RES_IC_CHEV}+ ${lista.length - 15} municípios`}</span></div>` : "");
+      document.getElementById("pcResMapaLista").innerHTML = cab + lista.slice(0, st.mapaTodos ? lista.length : 15).map((d, i) => `<div class="pc-lin pc-lin-pos${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><span class="i">${i + 1}º</span><span class="n">${_resNomeMun(d.m.nome)}${_resMunApur(d.m.chave) ? `<i class="pc-loc-sub">${_resMunApur(d.m.chave)}</i>` : ""}</span><span class="c">${_resChipPos(_resPosicao(candsAno, d.m.chave, d.v, (c, k) => c.municipios[k]))}</span><span class="v">${_resFmt(d.v)}</span><span class="v p">${st.modo === "var" ? _resPctHtml(d.var) : _resPctTotal(d.v, cenTotal)}</span></div>${st.munSel === d.m.chave ? `<div class="pc-mun-det" id="pcResMunDet"></div>` : ""}`).join("") + (lista.length > 15 ? `<div class="pc-arv-alca" data-mapa-todos="1"><span class="pega"></span><span class="rot">${st.mapaTodos ? "mostrar menos" : `${RES_IC_CHEV}+ ${lista.length - 15} municípios`}</span></div>` : "");
     }
     document.querySelectorAll("#pcResMapaLista [data-mapa-todos]").forEach((el) => el.addEventListener("click", (e) => { e.stopPropagation(); st.mapaTodos = !st.mapaTodos; pintar(); }));
     document.querySelectorAll("#pcResMapaLista [data-mun]").forEach((el) => el.addEventListener("click", () => { st.munSel = st.munSel === el.dataset.mun ? null : el.dataset.mun; pintar(); }));
@@ -2248,4 +2256,10 @@ async function _resPctRecorte(q, meta, cargo) {
   let soma = 0, peso = 0;
   MUNICIPIOS_SC_REGIOES.filter((m) => m.meso === q.chave || m.assoc === q.chave).forEach((m) => { const p = pctDe(m.chave); if (p == null) return; soma += p * apt(m.chave); peso += apt(m.chave); });
   return peso ? soma / peso : null;
+}
+
+function _resMunApur(chave) {
+  const m = pcState._resMunPct; if (!m || m[chave] == null) return "";
+  const p = m[chave];
+  return p >= 100 ? "100% apurado" : p > 0 ? `${p.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% apurado` : "aguardando";
 }
