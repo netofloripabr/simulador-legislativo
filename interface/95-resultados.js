@@ -126,10 +126,7 @@ function _resArmarAtualizacao(meta) {
     const st = pcState.res || {};
     const novo = await _resCarregarAoVivo(st.anoApurado || RES_ANO_APURADO, st.cargo || "estadual");
     if (!novo || !novo.meta || (meta && novo.meta.geradoEm === meta.geradoEm && novo.meta.atualizadoEm === meta.atualizadoEm)) { _resArmarAtualizacao(meta); return; }
-    const y = window.scrollY;
-    pcState._resApuCfg = null;
-    await renderResultados();
-    window.scrollTo(0, y);
+    await _resRecarregarNoLugar();
   }, 20000);
 }
 
@@ -572,7 +569,7 @@ async function _resRenderPartidoMapa(ctx) {
 async function renderResultados() {
   const conteudo = document.getElementById("pcConteudo");
   const st = pcState.res = pcState.res || { cargo: "estadual", aba: "candidatos", ordem: "desc", modo: "votos", regiao: "", assoc: "", cenario: null, munSel: null, munAba: "zonas", fichaSq: null, fichaAba: "mun", fichaMun: null, busca: "" };
-  conteudo.innerHTML = telaCarregando("Carregando resultados…");
+  if (!pcState._resSilencioso) conteudo.innerHTML = telaCarregando("Carregando resultados…");
   const cargo = st.cargo;
   const apuCfg = await _resApuracaoConfig();
   const anoApurado = apuCfg.ativa ? apuCfg.ano : RES_ANO_APURADO;
@@ -669,7 +666,7 @@ async function renderResultados() {
   document.querySelectorAll("[data-res-cargo]").forEach((b) => b.addEventListener("click", () => { st.cargo = b.dataset.resCargo; st.partidoSel = null; st.cenario = null; st.munSel = null; st.fichaSq = null; st.plenAno = null; st.plenModo = "ano"; renderResultados(); }));
   document.querySelectorAll("[data-res-aba]").forEach((b) => b.addEventListener("click", () => { st.aba = b.dataset.resAba; renderResultados(); }));
   const bAt = document.getElementById("pcResAtualizar");
-  if (bAt) bAt.addEventListener("click", async (e) => { e.stopPropagation(); bAt.classList.add("girando"); const y = window.scrollY; pcState._resApuCfg = null; await renderResultados(); window.scrollTo(0, y); });
+  if (bAt) bAt.addEventListener("click", async (e) => { e.stopPropagation(); bAt.classList.add("girando"); await _resRecarregarNoLugar(); });
   document.querySelectorAll("[data-res-tog]").forEach((b) => b.addEventListener("click", () => {
     const id = b.dataset.resTog;
     if (id === "vivo") st.vivoOn = !st.vivoOn;
@@ -2262,4 +2259,18 @@ function _resMunApur(chave) {
   const m = pcState._resMunPct; if (!m || m[chave] == null) return "";
   const p = m[chave];
   return p >= 100 ? "100% apurado" : p > 0 ? `${p.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}% apurado` : "aguardando";
+}
+
+// Atualiza a Apuração sem voltar pro topo (04/10/2026): mantém a altura da
+// página durante o redesenho, sem tela de "carregando", e devolve a rolagem
+// depois que a ficha/Painel abertos terminam de montar.
+async function _resRecarregarNoLugar() {
+  const y = window.scrollY;
+  const el = document.getElementById("pcConteudo");
+  if (el) el.style.minHeight = el.offsetHeight + "px";
+  pcState._resSilencioso = true;
+  pcState._resApuCfg = null;
+  try { await renderResultados(); } finally { pcState._resSilencioso = false; }
+  window.scrollTo(0, y);
+  setTimeout(() => { window.scrollTo(0, y); if (el) el.style.minHeight = ""; }, 900);
 }
