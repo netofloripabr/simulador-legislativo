@@ -125,7 +125,7 @@ function _resArmarAtualizacao(meta) {
     if (!((pcState.subaba === "resultados" || pcState.tela === "resultados-convidado") && document.getElementById("pcResCorpo"))) return;
     const st = pcState.res || {};
     const novo = await _resCarregarAoVivo(st.anoApurado || RES_ANO_APURADO, st.cargo || "estadual");
-    if (!novo || !novo.meta || (meta && novo.meta.geradoEm === meta.geradoEm)) { _resArmarAtualizacao(meta); return; }
+    if (!novo || !novo.meta || (meta && novo.meta.geradoEm === meta.geradoEm && novo.meta.atualizadoEm === meta.atualizadoEm)) { _resArmarAtualizacao(meta); return; }
     const y = window.scrollY;
     pcState._resApuCfg = null;
     await renderResultados();
