@@ -627,7 +627,7 @@ async function renderResultados() {
     <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 4px 2px;"><span style="display:flex; align-items:center; gap:8px;"><button type="button" class="pc-dd-btn ico" id="pcResImprimir" title="Imprimir a tela como está" style="width:32px; height:32px;">${iconeSvg("impressora", 15)}</button><button type="button" class="pc-dd-btn ico" id="pcResHome" title="Página inicial" style="width:32px; height:32px;">${iconeSvg("home", 15)}</button><span style="font-size:20px; font-weight:700;">Apuração ${anoApurado}</span></span></div>
     <div class="pc-sub" style="margin:0 0 10px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : aguardando ? "aguardando a apuração" : "resultado oficial (TSE)"}</div>
     <div class="pc-res-tog">
-      ${tog("vivo", !!meta && st.vivoOn, `<span class="pt${meta && !meta.final ? " vivo" : ""}"></span>`, meta && meta.final ? "Totalização final" : `Ao vivo${meta ? "" : ` <b class="pc-res-cont" id="pcResCont">${_resContagem()}</b>`}`, meta ? "" : 'disabled title="Contagem até a abertura das urnas (4/10/2026, 8h de Brasília)"')}
+      ${_resVivoChip(meta)}
 
     </div>
     ${meta && st.vivoOn ? `
@@ -654,6 +654,8 @@ async function renderResultados() {
   `;
   document.querySelectorAll("[data-res-cargo]").forEach((b) => b.addEventListener("click", () => { st.cargo = b.dataset.resCargo; st.partidoSel = null; st.cenario = null; st.munSel = null; st.fichaSq = null; st.plenAno = null; st.plenModo = "ano"; renderResultados(); }));
   document.querySelectorAll("[data-res-aba]").forEach((b) => b.addEventListener("click", () => { st.aba = b.dataset.resAba; renderResultados(); }));
+  const bAt = document.getElementById("pcResAtualizar");
+  if (bAt) bAt.addEventListener("click", async (e) => { e.stopPropagation(); bAt.classList.add("girando"); const y = window.scrollY; pcState._resApuCfg = null; await renderResultados(); window.scrollTo(0, y); });
   document.querySelectorAll("[data-res-tog]").forEach((b) => b.addEventListener("click", () => {
     const id = b.dataset.resTog;
     if (id === "vivo") st.vivoOn = !st.vivoOn;
@@ -1770,7 +1772,7 @@ async function _resRenderPainel(ctx) {
     const tipoTxt = { estado: "Santa Catarina", regiao: "região", mun: "município", bairro: "bairro · " + _resNomeMun(_resPainelNomeMun(q.mun)), local: "colégio · " + _resNomeMun(_resPainelNomeMun(q.mun)), secao: (q.chave || "").split("::")[0] + "ª zona · " + _resNomeMun(_resPainelNomeMun(q.mun)) }[q.tipo];
     const id = `${bi}|${idx}`;
     const aberto = sub ? !!st.pnAberto[path] : st.pnAberto[id];
-    const abre = !sub && ["mun", "bairro", "local"].includes(q.tipo);
+    const abre = !sub && ["regiao", "mun", "bairro", "local"].includes(q.tipo);
     return `<div class="pn-tile${aberto ? " aberto" : ""}${sub ? " sub" : ""}" ${sub ? `data-pn-b="${bi}"${q.tipo !== "secao" ? ` data-pn-subabre="${esc(path)}"` : ""}` : `data-pn-q="${idx}" data-pn-b="${bi}"${abre ? ` data-pn-abre="${id}"` : ""}`}>
       ${!sub && st.pnModo === "del" ? `<button type="button" class="pn-rm" data-pn-rm="${bi}|${idx}" title="Remover ${esc(q.rotulo)} do painel">${iconeSvg("lixeira", 12)}</button>` : pos ? `<span class="pn-pos">${_resChipPos(pos)}</span>` : ""}
       <div class="pn-t1">${sub || st.pnModo === "del" ? "" : `<span class="pn-h" data-pn-arrasta title="Arraste para reorganizar"><svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="3" cy="3" r="1.2"/><circle cx="7" cy="3" r="1.2"/><circle cx="3" cy="7" r="1.2"/><circle cx="7" cy="7" r="1.2"/><circle cx="3" cy="11" r="1.2"/><circle cx="7" cy="11" r="1.2"/></svg></span>`}<b>${esc(q.rotulo)}</b></div><div class="pn-tipo"><span>${tipoTxt}</span></div>
@@ -1781,6 +1783,10 @@ async function _resRenderPainel(ctx) {
   };
   // subpasta: filhos de um quadro aberto (bairros do município, colégios do bairro, seções do colégio)
   const filhos = async (c, a, q) => {
+    // região abre todos os municípios dela (04/10/2026), mais votados primeiro
+    if (q.tipo === "regiao") return MUNICIPIOS_SC_REGIOES.filter((m) => m.meso === q.chave || m.assoc === q.chave)
+      .map((m) => { const f = { tipo: "mun", mun: m.chave, rotulo: _resNomeMun(m.nome) }; return { f, v: ((c.municipios || {})[m.chave] || 0) + ((a && a.municipios || {})[m.chave] || 0) }; })
+      .sort((x, y) => y.v - x.v).map((x) => x.f);
     const s22 = await sec(RES_ANO_ANTERIOR, q.mun), s26 = await sec(RES_ANO_APURADO, q.mun);
     const base = s26 && s26[cargo] ? s26 : s22;
     if (!base) return [];
@@ -1813,11 +1819,11 @@ async function _resRenderPainel(ctx) {
   const subpasta = async (c, a, q, path, bi, nivel) => {
     const fs = await filhos(c, a, q);
     const lim = st.pnAberto[path + "|todos"] ? fs.length : 8;
-    const nomeF = { mun: "bairros", bairro: "colégios", local: "seções" }[q.tipo];
+    const nomeF = { regiao: "municípios", mun: "bairros", bairro: "colégios", local: "seções" }[q.tipo];
     let out = "", grade = "";
     const quadros = dados._formato === "quadros";
     for (const f of fs.slice(0, lim)) {
-      const p2 = path + "|" + f.tipo + ":" + f.chave;
+      const p2 = path + "|" + f.tipo + ":" + (f.chave || f.mun);
       if (quadros) {
         grade += await tile(c, a, f, -1, bi, true, p2);
         if (st.pnAberto[p2]) { out += `<div class="pn-grid sm">${grade}</div>` + `<div class="pn-sub">${await subpasta(c, a, f, p2, bi, nivel + 1)}</div>`; grade = ""; }
@@ -2076,7 +2082,7 @@ function _resContagem() {
   const p2 = (x) => String(x).padStart(2, "0");
   return `${d ? d + "d " : ""}${p2(h)}:${p2(m)}:${p2(sg)}`;
 }
-setInterval(() => { const el = document.getElementById("pcResCont"); if (el) el.textContent = _resContagem(); }, 1000);
+setInterval(() => { const el = document.getElementById("pcResCont"); if (el && !pcState._resMeta) el.textContent = _resVivoStatus(null).txt; }, 1000);
 
 // ---------- Disputa das sobras na Apuração (protótipo 02/10/2026) ----------
 // Mesmo cálculo da Revisão do palpite (calcularDisputaSobra, regime 2026 sem
@@ -2197,4 +2203,25 @@ function _resToast(titulo, linhas) {
   clearTimeout(pcState._resToastT);
   pcState._resToastT = setTimeout(() => { el.className = ""; }, linhas && linhas.length ? 9000 : 5000);
   el.onclick = () => { el.className = ""; };
+}
+
+// Etiqueta "Ao vivo" com o status da sessão e barra de seções apuradas
+// dentro dela, mais um botão de atualizar (04/10/2026).
+const RES_FECHA_URNAS = Date.parse("2026-10-04T17:00:00-03:00");
+function _resVivoStatus(meta) {
+  if (meta && meta.final) return { txt: "totalização final", pct: 100 };
+  if (meta) return { txt: `${(meta.pctSecoes || 0).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`, pct: meta.pctSecoes || 0 };
+  const t = Date.now();
+  if (t < RES_ABERTURA_URNAS) return { txt: `abre em ${_resContagem()}`, pct: null, cont: true };
+  if (t < RES_FECHA_URNAS) { const ms = RES_FECHA_URNAS - t, h = Math.floor(ms / 36e5), m = Math.floor(ms / 6e4) % 60; return { txt: `fecham em ${h ? `${h}h${String(m).padStart(2, "0")}` : `${m} min`}`, pct: null }; }
+  return { txt: "aguardando o TSE", pct: 0 };
+}
+function _resVivoChip(meta) {
+  const S = _resVivoStatus(meta);
+  const ativo = !!meta && !meta.final;
+  return `<div class="pc-vivo${ativo ? " on" : ""}">
+    <span class="pt${ativo ? " vivo" : ""}"></span><b>Ao vivo</b><span class="st" id="pcResCont">${S.txt}</span>
+    ${S.pct != null ? `<i class="bar"><u style="width:${Math.min(100, S.pct)}%"></u></i>` : ""}
+    <button type="button" id="pcResAtualizar" title="Atualizar agora">${iconeSvg("reset", 13)}</button>
+  </div>`;
 }

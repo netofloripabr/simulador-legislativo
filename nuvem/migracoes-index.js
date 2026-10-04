@@ -1359,5 +1359,16 @@ const MIGRACOES_INDEX = [
   "arquivo": "migracao-59-apuracao-20s.sql",
   "descricao": "Migração 59 (04/10/2026, dia da eleição): a rotina apuracao-tse passa de",
   "objetos": []
+ },
+ {
+  "num": 60,
+  "arquivo": "migracao-60-apuracao-config-anon.sql",
+  "descricao": "Migração 60 (04/10/2026, dia da eleição): visitante sem login (anon) não",
+  "objetos": [
+   [
+    "policy",
+    "config_app_leitura_apuracao_anon"
+   ]
+  ]
  }
 ];
