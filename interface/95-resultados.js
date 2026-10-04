@@ -637,7 +637,7 @@ async function renderResultados() {
       </div>
       <div id="pcResPlenCorpo" class="pc-plen-corpo${colapsado ? "" : " aberto"}"></div>
     </div>
-    <div class="pc-res-abas">${[["candidatos", "Geral", "lista"], ["painel", "Candidato", "perfil"], ["mapa", "Mapa", "mapa"]].map(([id, rot, ic]) => `<button data-res-aba="${id}" class="${st.aba === id ? "active" : ""}">${iconeSvg(ic, 18)}<span>${rot}</span></button>`).join("")}</div>
+    <div class="pc-cargo-switch pc-res-abas2" style="margin:4px 0 12px;"><button data-res-aba="candidatos" class="${st.aba === "candidatos" ? "active" : ""}">Geral</button><button data-res-aba="painel" class="${st.aba === "painel" ? "active" : ""}">Candidato</button><button data-res-aba="mapa" class="${st.aba === "mapa" ? "active" : ""}">Mapa</button></div>
     <div id="pcResCorpo"></div>
     <div class="pc-aviso-nao-pesquisa" style="margin-top:16px;">Dados oficiais do TSE. Jogo de palpites entre participantes — não é pesquisa eleitoral.</div>
   `;

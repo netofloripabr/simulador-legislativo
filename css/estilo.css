@@ -3685,3 +3685,4 @@
 #modoColaborativoWrap .pc-res-abas button{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; height:62px; border-radius:14px; border:1px solid rgba(242,244,245,.14); background:#1D2023; color:#8A9096; font-size:12.5px; font-weight:700; cursor:pointer; }
 #modoColaborativoWrap .pc-res-abas button.active{ background:#232A25; color:#F2F4F5; border-color:#34E84A; box-shadow:0 0 0 1px rgba(52,232,74,.25), 0 4px 14px rgba(52,232,74,.12); }
 #modoColaborativoWrap .pc-res-abas button.active svg{ color:#34E84A; }
+#modoColaborativoWrap .pc-res-abas2 button.active{ border:1px solid #34E84A !important; box-shadow:0 0 0 1px rgba(52,232,74,.25); }
