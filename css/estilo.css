@@ -3705,3 +3705,10 @@
 #modoColaborativoWrap .pc-cand-lin .lnk{ width:40px; }
 #modoColaborativoWrap .pc-cand-lin .lnk svg{ width:14px !important; height:14px !important; }
 #modoColaborativoWrap .pc-cand-lin .pc-dep-cl1 > .pc-sen-chip{ font-size:7.6px !important; height:14.4px !important; padding:2.4px 5.6px !important; }
+/* aviso de dados novos da apuração (04/10/2026) */
+#pcResToast{ position:fixed; left:50%; top:12px; transform:translate(-50%,-140%); z-index:200; width:min(92vw,420px); box-sizing:border-box; padding:10px 14px; border-radius:14px; background:rgba(29,32,35,.97); border:1px solid #34E84A; box-shadow:0 10px 30px rgba(0,0,0,.5); color:#F2F4F5; font-family:inherit; transition:transform .35s ease; cursor:pointer; display:flex; flex-direction:column; gap:3px; }
+#pcResToast.on{ transform:translate(-50%,0); }
+#pcResToast b{ display:flex; align-items:center; gap:8px; font-size:13px; }
+#pcResToast b .pt{ width:8px; height:8px; border-radius:50%; background:#E8432A; box-shadow:0 0 0 3px rgba(232,67,42,.25); }
+#pcResToast i{ font-style:normal; font-size:11.5px; color:#C6E62A; padding-left:16px; }
+#pcResToast{ background:#1D2023; }

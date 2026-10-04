@@ -103,7 +103,8 @@ function _resMesclar(vivo, estatico) {
   const porSq = new Map(est.filter((c) => c.sq).map((c) => [c.sq, c]));
   const porNum = new Map(est.filter((c) => c.numero).map((c) => [String(c.numero), c]));
   const vistos = new Set();
-  const lista = vivo.candidatos.map((c) => { const e = porSq.get(c.sq) || porNum.get(String(c.numero)); if (e) vistos.add(e); return e ? { ...e, ...c, nome: e.nome || c.nome, nomeUrna: e.nomeUrna || c.nomeUrna, municipios: e.municipios || {} } : c; });
+  // sq do elenco se mantém (04/10/2026): favoritos e Painel salvos antes da apuração continuam valendo
+  const lista = vivo.candidatos.map((c) => { const e = porSq.get(c.sq) || porNum.get(String(c.numero)); if (e) vistos.add(e); return e ? { ...e, ...c, sq: e.sq || c.sq, sqTse: c.sq, nome: e.nome || c.nome, nomeUrna: e.nomeUrna || c.nomeUrna, municipios: e.municipios || {} } : c; });
   est.forEach((e) => { if (!vistos.has(e)) lista.push({ ...e, total: 0 }); });
   return { ...vivo, candidatos: lista.sort((a, b) => b.total - a.total) };
 }
@@ -606,6 +607,7 @@ async function renderResultados() {
   const favs = _resFavoritos();
   const totalValidos = cands.reduce((s, c) => s + c.total, 0);
   if (!st.cenario) st.cenario = cands[0] ? cands[0].sq : null;
+  _resAvisarNovidades(cargo, meta, cands, favs);
   const cenario = cands.find((c) => c.sq === st.cenario) || cands[0];
 
   const botoesCargo = RES_CARGOS.map((c) => `<button data-res-cargo="${c.id}" class="${cargo === c.id ? "active" : ""}">${c.label.replace(/^Deputado /, "").replace(/^Dep\. /, "")}</button>`).join("");
@@ -2156,4 +2158,43 @@ async function _resGarantirLinks(cargo) {
   pcState._resLinksCargo = pcState._resLinksCargo || {};
   if (pcState._resLinksCargo[cargo]) { pcState._resLinks = pcState._resLinksCargo[cargo].ig; pcState._resFin = pcState._resLinksCargo[cargo].fin; return; }
   try { const [ig, fin] = await Promise.all([obterLinksCandidatos(RES_UF, cargo), obterFinanceiroCandidatos(RES_UF, cargo)]); pcState._resLinksCargo[cargo] = { ig, fin }; pcState._resLinks = ig; pcState._resFin = fin; } catch (e) { pcState._resLinks = {}; pcState._resFin = {}; }
+}
+
+// Aviso ativo de dados novos (04/10/2026): faixa no topo quando o TSE gera
+// arquivo novo + mudanças dos favoritos (posição no partido / situação) e o
+// percentual no título da aba do navegador.
+function _resAvisarNovidades(cargo, meta, cands, favs) {
+  const base = "SimulaLEGIS";
+  if (!meta) { document.title = base; return; }
+  const pct = (meta.pctSecoes || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+  document.title = `(${pct}%) Apuração · ${base}`;
+  const mem = pcState._resAvisoMem = pcState._resAvisoMem || {};
+  const ant = mem[cargo];
+  const posPart = new Map();
+  const porPartido = {};
+  cands.forEach((c) => { (porPartido[c.partido] = porPartido[c.partido] || []).push(c); });
+  Object.values(porPartido).forEach((l) => l.sort((a, b) => b.total - a.total).forEach((c, i) => posPart.set(c.sq, i + 1)));
+  const agora = { gerado: meta.geradoEm, fav: {} };
+  cands.forEach((c) => { if (favs.has(c.sq)) agora.fav[c.sq] = { pos: posPart.get(c.sq), sit: (c.situacao || "").toUpperCase(), eleito: !!c.eleito, nome: c.nomeUrna, partido: c.partido }; });
+  mem[cargo] = agora;
+  if (!ant || ant.gerado === agora.gerado) return;
+  const msgs = [];
+  Object.entries(agora.fav).forEach(([sq, f]) => {
+    const o = ant.fav[sq]; if (!o) return;
+    const nm = _resNomeMun(f.nome);
+    if (f.eleito && !o.eleito) msgs.push(`${nm} está eleito`);
+    else if (f.sit.startsWith("ELEITO") && !o.sit.startsWith("ELEITO")) msgs.push(`${nm} aparece como eleito (parcial)`);
+    else if (!f.sit.startsWith("ELEITO") && o.sit.startsWith("ELEITO")) msgs.push(`${nm} saiu da faixa de eleitos`);
+    if (o.pos && f.pos && f.pos !== o.pos) msgs.push(`${nm} ${f.pos < o.pos ? "subiu" : "caiu"} para ${f.pos}º no ${nomePartidoExibicao(f.partido)}`);
+  });
+  _resToast(`Atualizado agora · ${pct}% das seções`, msgs);
+}
+function _resToast(titulo, linhas) {
+  let el = document.getElementById("pcResToast");
+  if (!el) { el = document.createElement("div"); el.id = "pcResToast"; document.body.appendChild(el); }
+  el.innerHTML = `<b><span class="pt"></span>${titulo}</b>${(linhas || []).slice(0, 3).map((l) => `<i>${l}</i>`).join("")}`;
+  el.className = "on";
+  clearTimeout(pcState._resToastT);
+  pcState._resToastT = setTimeout(() => { el.className = ""; }, linhas && linhas.length ? 9000 : 5000);
+  el.onclick = () => { el.className = ""; };
 }
