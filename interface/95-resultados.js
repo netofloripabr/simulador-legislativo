@@ -1774,7 +1774,10 @@ async function _resRenderPainel(ctx) {
     const v26 = _resPainelVotos(c, q, s26, cargo), v22 = _resPainelVotos(a, q, s22, cargo);
     const tem26 = v26 > 0;
     const pos = tem26 ? _resPainelPos(cands, c, q, s26, cargo) : (a ? _resPainelPos(lista22, a, q, s22, cargo) : null);
-    const pct = q.tipo === "estado" ? pctEst : null;
+    // % apurado por município (meta.munPct, código TSE) — 04/10/2026
+    const mp = meta && meta.munPct, mjm = mp && q.mun ? await _resCarregar(RES_ANO_ANTERIOR, "municipios") : null;
+    const codTse = mjm && mjm.municipios[q.mun] ? String(Number(mjm.municipios[q.mun].tse)).padStart(5, "0") : null;
+    const pct = q.tipo === "estado" ? pctEst : (codTse && mp[codTse] != null ? mp[codTse] : null);
     const tipoTxt = { estado: "Santa Catarina", regiao: "região", mun: "município", bairro: "bairro · " + _resNomeMun(_resPainelNomeMun(q.mun)), local: "colégio · " + _resNomeMun(_resPainelNomeMun(q.mun)), secao: (q.chave || "").split("::")[0] + "ª zona · " + _resNomeMun(_resPainelNomeMun(q.mun)) }[q.tipo];
     const id = `${bi}|${idx}`;
     const aberto = sub ? !!st.pnAberto[path] : st.pnAberto[id];
