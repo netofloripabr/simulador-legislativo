@@ -115,14 +115,16 @@ function _resTempoRelativo(iso) {
 }
 function _resArmarAtualizacao(meta) {
   clearTimeout(pcState._resTimer);
-  if (!meta || meta.final || (meta.pctSecoes || 0) >= 100) return;
+  // segue conferindo também ANTES do 1º arquivo do TSE (meta nulo, apuração
+  // ligada) e até a totalização final — antes parava sem meta ou em 100%
+  if (meta ? meta.final : !(pcState._resApuCfg && pcState._resApuCfg.ativa)) return;
   // 04/10/2026: confere a cada 20 s e só redesenha quando o TSE gerou
   // arquivo novo (geradoEm mudou), mantendo a rolagem onde o usuário está.
   pcState._resTimer = setTimeout(async () => {
     if (!((pcState.subaba === "resultados" || pcState.tela === "resultados-convidado") && document.getElementById("pcResCorpo"))) return;
     const st = pcState.res || {};
     const novo = await _resCarregarAoVivo(st.anoApurado || RES_ANO_APURADO, st.cargo || "estadual");
-    if (novo && novo.meta && novo.meta.geradoEm === meta.geradoEm) { _resArmarAtualizacao(meta); return; }
+    if (!novo || !novo.meta || (meta && novo.meta.geradoEm === meta.geradoEm)) { _resArmarAtualizacao(meta); return; }
     const y = window.scrollY;
     pcState._resApuCfg = null;
     await renderResultados();
@@ -633,7 +635,7 @@ async function renderResultados() {
         <span style="font-size:11.5px; font-weight:600; color:#34E84A;">${Number(meta.pctSecoes || 0).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%<span style="color:#8A9096;"> das seções</span></span>
       </div>
       <div class="pc-lobby-barra"><div style="width:${Math.min(100, Number(meta.pctSecoes) || 0)}%; background:#34E84A;"></div></div>
-      <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#8A9096; margin-top:8px;"><span>${_resFmt(meta.secoesTotalizadas)} de ${_resFmt(meta.secoesTotal)} seções</span><span id="pcResAtualizado">atualizado ${_resTempoRelativo(meta.atualizadoEm)}${meta.final ? "" : " · próxima em 60 s"}</span></div>
+      <div style="display:flex; justify-content:space-between; font-size:10.5px; color:#8A9096; margin-top:8px;"><span>${_resFmt(meta.secoesTotalizadas)} de ${_resFmt(meta.secoesTotal)} seções</span><span id="pcResAtualizado">atualizado ${meta.atualizadoEm ? _resTempoRelativo(meta.atualizadoEm) : "agora"}${meta.final ? "" : " · confere a cada 20 s"}</span></div>
     </div>` : ""}
     <div class="pc-cargo-switch pc-res-cargos" style="margin-bottom:14px;">${botoesCargo}</div>
     ${await _resPainelEleicao(cargo, meta, part, anoApurado, anoAnterior)}
