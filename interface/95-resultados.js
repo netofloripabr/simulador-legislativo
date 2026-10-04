@@ -1774,10 +1774,7 @@ async function _resRenderPainel(ctx) {
     const v26 = _resPainelVotos(c, q, s26, cargo), v22 = _resPainelVotos(a, q, s22, cargo);
     const tem26 = v26 > 0;
     const pos = tem26 ? _resPainelPos(cands, c, q, s26, cargo) : (a ? _resPainelPos(lista22, a, q, s22, cargo) : null);
-    // % apurado por município (meta.munPct, código TSE) — 04/10/2026
-    const mp = meta && meta.munPct, mjm = mp && q.mun ? await _resCarregar(RES_ANO_ANTERIOR, "municipios") : null;
-    const codTse = mjm && mjm.municipios[q.mun] ? String(Number(mjm.municipios[q.mun].tse)).padStart(5, "0") : null;
-    const pct = q.tipo === "estado" ? pctEst : (codTse && mp[codTse] != null ? mp[codTse] : null);
+    const pct = q.tipo === "estado" ? pctEst : await _resPctRecorte(q, meta, cargo);
     const tipoTxt = { estado: "Santa Catarina", regiao: "região", mun: "município", bairro: "bairro · " + _resNomeMun(_resPainelNomeMun(q.mun)), local: "colégio · " + _resNomeMun(_resPainelNomeMun(q.mun)), secao: (q.chave || "").split("::")[0] + "ª zona · " + _resNomeMun(_resPainelNomeMun(q.mun)) }[q.tipo];
     const id = `${bi}|${idx}`;
     const aberto = sub ? !!st.pnAberto[path] : st.pnAberto[id];
@@ -1822,7 +1819,7 @@ async function _resRenderPainel(ctx) {
     const sub = q.tipo === "local" ? "colégio" : q.tipo === "secao" ? (q.chave || "").split("::")[0] + "ª zona" : "";
     return `<div class="pn-ln n${nivel}${aberto ? " on" : ""}"${folha ? "" : ` data-pn-subabre="${esc(path)}"`}>
       <div class="l1"><span class="ch${aberto ? " on" : ""}">${folha ? "" : RES_IC_CHEV}</span><span class="nm"><b>${esc(q.rotulo)}</b>${sub ? `<i>${sub}</i>` : ""}</span><span class="ps">${pos ? _resChipPos(pos) : ""}</span></div>
-      <div class="l2"><span><em>${RES_ANO_ANTERIOR}</em><b>${a ? _resFmt(v22) : "—"}</b></span><span><em>${RES_ANO_APURADO}</em><b class="${tem26 ? "" : "z"}">${tem26 ? _resFmt(v26) : "—"}</b></span>${(() => { if (!tem26 || !a) return `<span class="df z">—</span>`; const d = v26 - v22, pc = v22 ? d / v22 * 100 : null, cor = d >= 0 ? "#34E84A" : "#E8432A"; return `<span class="df" style="color:${cor};">${d >= 0 ? "+" : "−"}${_resFmt(Math.abs(d))}${pc === null ? "" : `<small>${d >= 0 ? "+" : "−"}${Math.abs(pc).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%</small>`}</span>`; })()}<span class="ap"><i><u style="width:0%"></u></i><small>—</small></span></div>
+      <div class="l2"><span><em>${RES_ANO_ANTERIOR}</em><b>${a ? _resFmt(v22) : "—"}</b></span><span><em>${RES_ANO_APURADO}</em><b class="${tem26 ? "" : "z"}">${tem26 ? _resFmt(v26) : "—"}</b></span>${(() => { if (!tem26 || !a) return `<span class="df z">—</span>`; const d = v26 - v22, pc = v22 ? d / v22 * 100 : null, cor = d >= 0 ? "#34E84A" : "#E8432A"; return `<span class="df" style="color:${cor};">${d >= 0 ? "+" : "−"}${_resFmt(Math.abs(d))}${pc === null ? "" : `<small>${d >= 0 ? "+" : "−"}${Math.abs(pc).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%</small>`}</span>`; })()}${await (async () => { const pq = await _resPctRecorte(q, meta, cargo); return `<span class="ap"><i><u style="width:${pq == null ? 0 : Math.min(100, pq)}%"></u></i><small>${pq == null ? "—" : pq.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%"}</small></span>`; })()}</div>
     </div>`;
   };
   const subpasta = async (c, a, q, path, bi, nivel) => {
@@ -2233,4 +2230,19 @@ function _resVivoChip(meta) {
     ${S.pct != null ? `<i class="bar"><u style="width:${Math.min(100, S.pct)}%"></u></i>` : ""}
     <button type="button" id="pcResAtualizar" title="Atualizar agora">${iconeSvg("reset", 13)}</button>
   </div>`;
+}
+
+// % apurado de um recorte (04/10/2026): município direto do TSE (meta.munPct);
+// região = média dos municípios ponderada pelo eleitorado de 2022.
+async function _resPctRecorte(q, meta, cargo) {
+  const mp = meta && meta.munPct; if (!mp || !["mun", "regiao"].includes(q.tipo)) return null;
+  const mj = await _resCarregar(RES_ANO_ANTERIOR, "municipios");
+  const cod = (k) => mj && mj.municipios[k] && mj.municipios[k].tse ? String(Number(mj.municipios[k].tse)).padStart(5, "0") : null;
+  const pctDe = (k) => { const c = cod(k); return c && mp[c] != null ? mp[c] : null; };
+  if (q.tipo === "mun") return pctDe(q.mun);
+  const part = await _resCarregar(RES_ANO_ANTERIOR, "participacao");
+  const apt = (k) => ((part && part[cargo] && part[cargo].mun[k]) || [1])[0] || 1;
+  let soma = 0, peso = 0;
+  MUNICIPIOS_SC_REGIOES.filter((m) => m.meso === q.chave || m.assoc === q.chave).forEach((m) => { const p = pctDe(m.chave); if (p == null) return; soma += p * apt(m.chave); peso += apt(m.chave); });
+  return peso ? soma / peso : null;
 }
