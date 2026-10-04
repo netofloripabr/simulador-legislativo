@@ -170,7 +170,7 @@ function _resHistoricoDe(c, listaAno) {
 function _resEtiqueta(c, cargo) {
   const s = (c.situacao || "").toUpperCase();
   const meta = pcState._resMeta;
-  if (!s) return meta || c.total ? "" : `<span class="pc-sen-chip pc-chip-vazio" title="Aguardando a apuração"></span>`;
+  if (!s) return c.total && !meta ? "" : `<span class="pc-sen-chip pc-chip-vazio" title="${meta ? "Fora da faixa de eleitos no momento" : "Aguardando a apuração"}"></span>`;
   const parcial = !!meta && !meta.final && !c.eleito;
   if (parcial && (s.startsWith("ELEITO"))) {
     const em = !(s.includes("ELEITO POR QP") || _resMajor(cargo));
@@ -798,7 +798,8 @@ function _resRenderCandidatos(ctx) {
     const pintarSob = () => {
       const alvoS = document.getElementById("pcResSobras");
       if (!alvoS || alvoS.dataset.ok) return;
-      const leg = st.anoApurado === 2022 && typeof LEGENDA_2022 !== "undefined" ? LEGENDA_2022[cargo] : null;
+      // mesma base da etiqueta parcial: legenda ao vivo do TSE (04/10/2026)
+      const leg = pcState._resMeta && pcState._resMeta.legenda ? pcState._resMeta.legenda : st.anoApurado === 2022 && typeof LEGENDA_2022 !== "undefined" ? LEGENDA_2022[cargo] : null;
       alvoS.innerHTML = _resSobrasHtml(_resSobrasDados(cands, ctx.totalVagas, leg, RES_FEDERACOES[st.anoApurado]), !!(pcState._resMeta && !pcState._resMeta.final), ctx.totalVagas);
       alvoS.dataset.ok = "1";
     };
