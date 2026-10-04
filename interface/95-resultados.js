@@ -586,6 +586,12 @@ async function renderResultados() {
   const part = await _resCarregar(anoApurado, "participacao");
   const [apuEst, ant, vivo, ant2, ...hist] = await Promise.all([_resCarregar(anoApurado, cargo), _resCarregar(anoAnterior, cargo), apuCfg.ativa ? _resCarregarAoVivo(anoApurado, cargo) : null, _resCarregar(anoAnterior2, cargo), ...anosPlen.map((a) => _resCarregar(a, cargo))]);
   const apu = _resMesclar(vivo, apuEst);
+  // votos por município ao vivo (munTse = código TSE do município) → chave do app (04/10/2026)
+  if (vivo && apu && apu.candidatos.some((c) => c.munTse)) {
+    const mj = await _resCarregar(RES_ANO_ANTERIOR, "municipios");
+    const porTse = {}; Object.entries((mj && mj.municipios) || {}).forEach(([k, m]) => { if (m.tse) porTse[String(Number(m.tse))] = k; });
+    apu.candidatos.forEach((c) => { if (!c.munTse) return; const m = {}; Object.entries(c.munTse).forEach(([cod, v]) => { const k = porTse[String(Number(cod))]; if (k) m[k] = (m[k] || 0) + v; }); c.municipios = m; });
+  }
   const meta = vivo && vivo.meta;
   pcState._resMeta = meta || null;
   await _resGarantirLinks(cargo);

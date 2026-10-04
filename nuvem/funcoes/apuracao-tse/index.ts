@@ -22,6 +22,33 @@ import { createClient } from "jsr:@supabase/supabase-js@2";
 // (apuracao_cd_eleicao_pres). Desde 02/10/2026.
 const CARGOS: Record<string, [string, string]> = { "7": ["estadual", "est"], "6": ["federal", "est"], "5": ["senador", "est"], "3": ["governador", "est"], "1": ["presidente", "pres"] };
 
+const UA = { headers: { "User-Agent": "SimulaLEGIS/1.0 (apuracao)" } };
+const numBR = (s: string) => Number(String(s || "0").replace(/\./g, "").replace(",", ".")) || 0;
+async function getJson(u: string) { try { const r = await fetch(u, UA); return r.ok ? await r.json() : null; } catch (_e) { return null; } }
+async function lerStorage(sb: any, caminho: string) { try { const { data } = await sb.storage.from("apuracao").download(caminho); return data ? JSON.parse(await data.text()) : null; } catch (_e) { return null; } }
+async function gravarStorage(sb: any, caminho: string, obj: unknown) { return await sb.storage.from("apuracao").upload(caminho, new Blob([JSON.stringify(obj)], { type: "application/json" }), { upsert: true, contentType: "application/json", cacheControl: "10" }); }
+// Votos por município (04/10/2026): o TSE publica um arquivo por município
+// ({uf}{cod}-c000{cargo}-e{cd}-u.json); o arquivo de andamento (-ab.json)
+// diz quando cada município mudou. Busca só os que mudaram (até 40 por
+// rodada e cargo) e guarda o acumulado em _mun-{cargo}.json.
+async function atualizarMunicipios(sb: any, ano: number, cdE: string, ufl: string, cdCargo: string, cargo: string, ab: any) {
+  const pad = cdE.padStart(6, "0");
+  const estado = (await lerStorage(sb, `${ufl}-${ano}/_mun-${cargo}.json`)) || { ver: {}, votos: {} };
+  const mudados = ((ab && ab.abr) || []).filter((m: any) => m.tpabr === "mun" && m.dt && estado.ver[m.cdabr] !== `${m.dt} ${m.ht}`).slice(0, 40);
+  if (!mudados.length) return { estado, mudou: 0 };
+  for (let i = 0; i < mudados.length; i += 10) {
+    await Promise.all(mudados.slice(i, i + 10).map(async (m: any) => {
+      const d = await getJson(`https://resultados.tse.jus.br/oficial/ele${ano}/${cdE}/dados/${ufl}/${ufl}${m.cdabr}-c000${cdCargo}-e${pad}-u.json`);
+      if (!d || !d.carg) return;
+      const v: Record<string, number> = {};
+      (d.carg[0].agr || []).forEach((a: any) => (a.par || []).forEach((p: any) => (p.cand || []).forEach((c: any) => { const n = numBR(c.vap); if (n) v[String(c.n)] = n; })));
+      estado.votos[m.cdabr] = v; estado.ver[m.cdabr] = `${m.dt} ${m.ht}`;
+    }));
+  }
+  await gravarStorage(sb, `${ufl}-${ano}/_mun-${cargo}.json`, estado);
+  return { estado, mudou: mudados.length };
+}
+
 Deno.serve(async (req: Request) => {
   const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   // Token na tabela config_privada (RLS sem policy = só a service role lê).
@@ -45,6 +72,8 @@ Deno.serve(async (req: Request) => {
   const resumo: Record<string, unknown> = {};
   let todosFinais = true;
 
+  const abs: Record<string, any> = {};
+  for (const cdE of [cd, cdPres].filter(Boolean)) abs[cdE] = await getJson(`https://resultados.tse.jus.br/oficial/ele${ano}/${cdE}/dados/${ufl}/${ufl}-e${cdE.padStart(6, "0")}-ab.json`);
   for (const [cdCargo, [cargo, qual]] of Object.entries(CARGOS)) {
     const cdE = qual === "pres" ? cdPres : cd;
     if (!cdE) { resumo[cargo] = "sem código de eleição"; continue; }
@@ -65,7 +94,8 @@ Deno.serve(async (req: Request) => {
     if (!tse) { resumo[cargo] = "HTTP 404"; todosFinais = false; continue; }
     const geracao = `${tse.dg} ${tse.hg}`;
     const { data: st } = await sb.from("apuracao_status").select("dg, hg").eq("ano", ano).eq("uf", uf).eq("cargo", cargo).maybeSingle();
-    if (st && `${st.dg} ${st.hg}` === geracao && !forcar) { resumo[cargo] = "sem mudança"; if (tse.tf !== "s") todosFinais = false; continue; }
+    const mun = await atualizarMunicipios(sb, ano, cdE, ufl, cdCargo, cargo, abs[cdE]);
+    if (st && `${st.dg} ${st.hg}` === geracao && !mun.mudou && !forcar) { resumo[cargo] = "sem mudança"; if (tse.tf !== "s") todosFinais = false; continue; }
 
     const num = (s: string) => Number(String(s || "0").replace(/\./g, "").replace(",", ".")) || 0;
     let candsTse: any[] = [], legenda: Record<string, number> = {}, S: any, E: any, V: any, vagas = 0;
@@ -94,19 +124,21 @@ Deno.serve(async (req: Request) => {
       eleitorado: num(E.te), votos_validos: num(V.vv), votos_nominais: num(V.vnom), vagas, qe: null,
       final: tse.tf === "s", dg: tse.dg, hg: tse.hg, fonte: url, atualizado_em: new Date().toISOString(),
     };
+    if (tse.tf !== "s") todosFinais = false;
     const e1 = await sb.from("apuracao_status").upsert(status);
     const e2 = cands.length ? await sb.from("apuracao_candidato").upsert(cands) : { error: null };
     // JSON consolidado no formato de dados/resultados/{uf}-{ano}/{cargo}.json
     const arquivo = {
       ano, cargo, aoVivo: true,
-      meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, eleitorado: num(E.te), comparecimento: num(E.c), abstencao: num(E.a), brancos: num(V.vb), nulos: num(V.tvn), validos: num(V.vv), vagas, legenda, geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
+      meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, eleitorado: num(E.te), comparecimento: num(E.c), abstencao: num(E.a), brancos: num(V.vb), nulos: num(V.tvn), validos: num(V.vv), vagas, legenda, munPct: Object.fromEntries(((abs[cdE] && abs[cdE].abr) || []).filter((m: any) => m.tpabr === "mun").map((m: any) => [m.cdabr, num(m.s && m.s.pst)])), geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
       candidatos: cands.sort((a: any, b: any) => b.votos - a.votos).map((c: any) => ({
         sq: c.sq, nome: c.nome_urna, nomeUrna: c.nome_urna, numero: c.numero, partido: c.partido,
         situacao: (c.situacao || "").toUpperCase(), eleito: c.eleito, total: c.votos, municipios: {},
+        munTse: Object.fromEntries(Object.entries(mun.estado.votos).map(([cod, v]: [string, any]) => [cod, v[c.numero] || 0]).filter((x) => x[1])),
       })),
     };
     const up = await sb.storage.from("apuracao").upload(`${ufl}-${ano}/${cargo}.json`, new Blob([JSON.stringify(arquivo)], { type: "application/json" }), { upsert: true, contentType: "application/json", cacheControl: "10" });
-    resumo[cargo] = { candidatos: cands.length, pct: status.pct_secoes, final: status.final, erros: [e1.error?.message, e2.error?.message, up.error?.message].filter(Boolean) };
+    resumo[cargo] = { municipiosNovos: mun.mudou, candidatos: cands.length, pct: status.pct_secoes, final: status.final, erros: [e1.error?.message, e2.error?.message, up.error?.message].filter(Boolean) };
   }
 
   if (todosFinais && cfg.apuracao_ativa === "true") {
