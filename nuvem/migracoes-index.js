@@ -1353,5 +1353,11 @@ const MIGRACOES_INDEX = [
   "arquivo": "migracao-58-apuracao-governador-presidente.sql",
   "descricao": "Migração 58 (02/10/2026): Governador e Presidente na Apuração.",
   "objetos": []
+ },
+ {
+  "num": 59,
+  "arquivo": "migracao-59-apuracao-20s.sql",
+  "descricao": "Migração 59 (04/10/2026, dia da eleição): a rotina apuracao-tse passa de",
+  "objetos": []
  }
 ];

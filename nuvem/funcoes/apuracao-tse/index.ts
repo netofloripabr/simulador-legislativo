@@ -1,7 +1,7 @@
 // Edge Function `apuracao-tse` — coleta a apuração do painel de resultados
 // do TSE e publica pro app (Fase 6, Resultados). Ver nuvem/migracao-54.
 //
-// Chamada pelo pg_cron a cada minuto (public.apuracao_chamar_rotina) com o
+// Chamada pelo pg_cron a cada 20 s (public.apuracao_chamar_rotina, migração 59) com o
 // header x-rotina-token; também aceita chamada manual (mesmo header) pra
 // "rodar agora". Sem token válido → 401.
 //
@@ -83,7 +83,7 @@ Deno.serve(async (req: Request) => {
         situacao: (c.situacao || "").toUpperCase(), eleito: c.eleito, total: c.votos, municipios: {},
       })),
     };
-    const up = await sb.storage.from("apuracao").upload(`${ufl}-${ano}/${cargo}.json`, new Blob([JSON.stringify(arquivo)], { type: "application/json" }), { upsert: true, contentType: "application/json", cacheControl: "30" });
+    const up = await sb.storage.from("apuracao").upload(`${ufl}-${ano}/${cargo}.json`, new Blob([JSON.stringify(arquivo)], { type: "application/json" }), { upsert: true, contentType: "application/json", cacheControl: "10" });
     resumo[cargo] = { candidatos: cands.length, pct: status.pct_secoes, final: status.final, erros: [e1.error?.message, e2.error?.message, up.error?.message].filter(Boolean) };
   }
 

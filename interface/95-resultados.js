@@ -88,7 +88,7 @@ async function _resApuracaoConfig() {
 }
 async function _resCarregarAoVivo(ano, cargo) {
   try {
-    const r = await fetch(`${RES_APURACAO_URL}/${RES_UF.toLowerCase()}-${ano}/${cargo}.json?t=${Math.floor(Date.now() / 30000)}`, { cache: "no-store" });
+    const r = await fetch(`${RES_APURACAO_URL}/${RES_UF.toLowerCase()}-${ano}/${cargo}.json?t=${Math.floor(Date.now() / 10000)}`, { cache: "no-store" });
     if (!r.ok) return null;
     return await r.json();
   } catch (e) { return null; }
@@ -116,12 +116,18 @@ function _resTempoRelativo(iso) {
 function _resArmarAtualizacao(meta) {
   clearTimeout(pcState._resTimer);
   if (!meta || meta.final || (meta.pctSecoes || 0) >= 100) return;
-  pcState._resTimer = setTimeout(() => {
-    if ((pcState.subaba === "resultados" || pcState.tela === "resultados-convidado") && document.getElementById("pcResCorpo")) {
-      pcState._resApuCfg = null;
-      renderResultados();
-    }
-  }, 60000);
+  // 04/10/2026: confere a cada 20 s e só redesenha quando o TSE gerou
+  // arquivo novo (geradoEm mudou), mantendo a rolagem onde o usuário está.
+  pcState._resTimer = setTimeout(async () => {
+    if (!((pcState.subaba === "resultados" || pcState.tela === "resultados-convidado") && document.getElementById("pcResCorpo"))) return;
+    const st = pcState.res || {};
+    const novo = await _resCarregarAoVivo(st.anoApurado || RES_ANO_APURADO, st.cargo || "estadual");
+    if (novo && novo.meta && novo.meta.geradoEm === meta.geradoEm) { _resArmarAtualizacao(meta); return; }
+    const y = window.scrollY;
+    pcState._resApuCfg = null;
+    await renderResultados();
+    window.scrollTo(0, y);
+  }, 20000);
 }
 
 async function _resCarregarSecoes(municipioChave) {
