@@ -3686,3 +3686,22 @@
 #modoColaborativoWrap .pc-res-abas button.active{ background:#232A25; color:#F2F4F5; border-color:#34E84A; box-shadow:0 0 0 1px rgba(52,232,74,.25), 0 4px 14px rgba(52,232,74,.12); }
 #modoColaborativoWrap .pc-res-abas button.active svg{ color:#34E84A; }
 #modoColaborativoWrap .pc-res-abas2 button.active{ border:1px solid #34E84A !important; box-shadow:0 0 0 1px rgba(52,232,74,.25); }
+/* lista Geral em 2 linhas (02/10/2026) */
+#modoColaborativoWrap .pc-cand-lin .nome.nome2{ display:flex; flex-direction:column; min-width:0; }
+#modoColaborativoWrap .nome2 > b{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#modoColaborativoWrap .nome2 .l2{ display:flex; align-items:center; gap:8px; margin-top:2px; font-size:10.5px; color:#8A9096; font-weight:500; }
+#modoColaborativoWrap .nome2 .l2 .pt{ font-weight:700; color:#8A9096; }
+#modoColaborativoWrap .nome2 .l2 .v22 b{ color:#B5BBC0; font-weight:700; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .nome2 .l2 a{ display:inline-flex; color:#8A9096; }
+#modoColaborativoWrap .pc-cand-lin .lnk{ flex:none; display:grid; grid-template-columns:18px 18px; gap:4px; align-self:flex-start; margin-top:1px; }
+#modoColaborativoWrap .pc-cand-lin .lnk a{ display:inline-flex; color:#8A9096; }
+#modoColaborativoWrap .nome2 .l2{ font-size:8px; gap:6px; margin-top:1px; }
+#modoColaborativoWrap .pc-cand-lin .pc-dep-cl1{ grid-template-columns:26px auto minmax(0,1fr) auto auto; }
+#modoColaborativoWrap .pc-cand-lin .nome.nome2 > b{ font-size:11.7px; }
+#modoColaborativoWrap .pc-cand-lin .pc-dep-cl1 > .pc-sen-chip{ font-size:7.6px; height:14.4px; padding:2.4px 5.6px; min-width:14.4px; }
+#modoColaborativoWrap .pc-cand-lin .pc-dep-cl1 > .pc-sen-chip.pc-chip-vazio{ min-width:24px; }
+#modoColaborativoWrap .pc-cand-lin .lnk{ align-self:center; margin-top:0; }
+#modoColaborativoWrap .pc-cand-lin .pc-dep-cl1{ grid-template-columns:26px auto minmax(0,1fr) 40px auto; }
+#modoColaborativoWrap .pc-cand-lin .lnk{ width:40px; }
+#modoColaborativoWrap .pc-cand-lin .lnk svg{ width:14px !important; height:14px !important; }
+#modoColaborativoWrap .pc-cand-lin .pc-dep-cl1 > .pc-sen-chip{ font-size:7.6px !important; height:14.4px !important; padding:2.4px 5.6px !important; }

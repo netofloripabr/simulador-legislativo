@@ -579,6 +579,7 @@ async function renderResultados() {
   const apu = _resMesclar(vivo, apuEst);
   const meta = vivo && vivo.meta;
   pcState._resMeta = meta || null;
+  await _resGarantirLinks(cargo);
   _resArmarAtualizacao(meta);
   if (!apu) { conteudo.innerHTML = estadoVazio({ icone: "alerta", titulo: "Resultados indisponíveis", texto: "Não consegui carregar os dados deste cargo. Tente de novo em instantes." }); return; }
   const totalVagas = cargo === "governador" || cargo === "presidente" ? 1 : vagasFixasCargo(RES_UF, cargo);
@@ -729,7 +730,10 @@ function _resRenderCandidatos(ctx) {
       <div class="pc-dep-cl1">
         <span class="pos">${c.total ? posGeral.get(c.sq) + "º" : "—"}</span>
         ${_resEtiqueta(c, cargo)}
-        <span class="nome"><b>${c.nomeUrna}</b><span class="pt"> — ${nomePartidoExibicao(c.partido)}</span></span>
+        <span class="nome nome2"><b>${c.nomeUrna}</b><span class="l2">${(() => { const a22 = ctx.antDe(c); const k = _resChaveLink(c); const ig = (pcState._resLinks || {})[k]; const fin = (pcState._resFin || {})[k];
+          return `<span class="pt">${nomePartidoExibicao(c.partido)}</span><span class="v22">${st.anoAnterior} <b>${a22 && a22.total ? _resFmt(a22.total) : "—"}</b></span>`; })()}</span></span>
+        ${(() => { const k = _resChaveLink(c); const ig = (pcState._resLinks || {})[k]; const fin = (pcState._resFin || {})[k];
+          return `<span class="lnk">${ig ? `<a class="pc-insta-mini" href="${escaparAtributoHtml(ig)}" target="_blank" rel="noopener noreferrer" title="Instagram do candidato" onclick="event.stopPropagation()">${iconeSvg("instagram", 13)}</a>` : "<i></i>"}${fin ? `<a class="pc-financeiro-mini" href="${escaparAtributoHtml(linkTseDoCandidato(fin.tseId))}" target="_blank" rel="noopener noreferrer" title="Bens e recursos no TSE" onclick="event.stopPropagation()">${iconeSvg("credito", 13)}</a>` : "<i></i>"}</span>`; })()}
         <span class="voto">${vazio ? "—" : _resFmt(num)}${pont && pont.porChave[_resNorm(c.nomeUrna)] ? (() => { const x = pont.porChave[_resNorm(c.nomeUrna)]; return `<i class="pc-acerto"><b class="${x.e ? "on" : ""}" title="acerto de eleição">E</b><b class="${x.alvo >= 5 ? "on" : ""}" title="proximidade dos votos">${Math.round(x.prox * 100)}%</b><b class="${x.posicao ? "on" : ""}" title="colocação no partido">P</b><span>${x.pts.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} pts</span></i>`; })() : ""}</span>
       </div>
       ${aberta ? `<div id="pcResFicha"></div>` : ""}
@@ -2134,4 +2138,14 @@ async function _resPainelEleicao(cargo, meta, part, ano, anoRef) {
     ${linhas.map((x) => ln(...x)).join("")}
     <div class="pn-el-ln qe"><span class="r">${_resMajor(cargo) ? "Vagas" : `QE <small>· ${vagas} vagas</small>`}</span><i style="visibility:hidden"></i><span class="p"></span><b>${_resMajor(cargo) ? vagas : qe ? F(qe) : "—"}</b><span class="ref">${_resMajor(cargo) ? vagas : qeR ? F(qeR) : "—"}</span></div>
   </div>`;
+}
+
+// Links do card do palpite (Instagram + bens/recursos no TSE) na lista Geral
+// (02/10/2026). Chave = partido-nome-completo em slug, a mesma de candidato_links.
+function _resChaveLink(c) { const sl = (x) => _resNorm(x).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); return `${sl(c.partido)}-${sl(c.nome)}`; }
+async function _resGarantirLinks(cargo) {
+  if (!["estadual", "federal", "senador"].includes(cargo) || typeof obterLinksCandidatos !== "function") return;
+  pcState._resLinksCargo = pcState._resLinksCargo || {};
+  if (pcState._resLinksCargo[cargo]) { pcState._resLinks = pcState._resLinksCargo[cargo].ig; pcState._resFin = pcState._resLinksCargo[cargo].fin; return; }
+  try { const [ig, fin] = await Promise.all([obterLinksCandidatos(RES_UF, cargo), obterFinanceiroCandidatos(RES_UF, cargo)]); pcState._resLinksCargo[cargo] = { ig, fin }; pcState._resLinks = ig; pcState._resFin = fin; } catch (e) { pcState._resLinks = {}; pcState._resFin = {}; }
 }
