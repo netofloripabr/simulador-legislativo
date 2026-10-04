@@ -3680,3 +3680,8 @@
 #modoColaborativoWrap .pn-el-ln.cab b, #modoColaborativoWrap .pn-el-ln.cab .ref, #modoColaborativoWrap .pn-el-ln.cab .p{ font-size:9.5px; font-weight:700; color:#6B7178; }
 #modoColaborativoWrap .pn-el-ln .r{ white-space:normal; line-height:1.2; font-size:10.5px; }
 #modoColaborativoWrap .pn-el-ln.qe .r small{ display:block; }
+/* abas Geral/Candidato/Mapa em destaque (04/10/2026) */
+#modoColaborativoWrap .pc-res-abas{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:6px 0 14px; }
+#modoColaborativoWrap .pc-res-abas button{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; height:62px; border-radius:14px; border:1px solid rgba(242,244,245,.14); background:#1D2023; color:#8A9096; font-size:12.5px; font-weight:700; cursor:pointer; }
+#modoColaborativoWrap .pc-res-abas button.active{ background:#232A25; color:#F2F4F5; border-color:#34E84A; box-shadow:0 0 0 1px rgba(52,232,74,.25), 0 4px 14px rgba(52,232,74,.12); }
+#modoColaborativoWrap .pc-res-abas button.active svg{ color:#34E84A; }
