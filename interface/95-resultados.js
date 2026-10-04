@@ -721,7 +721,16 @@ function _resRenderCandidatos(ctx) {
   if (st.ordem === "asc") lista = [...lista].sort((a, b) => a.total - b.total);
   // "Eleitos primeiro": eleitos por votos, depois o resto na mesma ordem (28/09/2026)
   if (st.ordem === "eleitos") lista = [...lista].sort((a, b) => (_resEleito(b) - _resEleito(a)) || (b.total - a.total));
-  const limite = Math.min(lista.length, st.limite || 60);
+  // "Eleitos por partido" (04/10/2026): só eleitos, agrupados por partido
+  // (partido com mais cadeiras primeiro), com cabeçalho de cada partido
+  let porPartido = null;
+  if (st.ordem === "partido") {
+    const g = {};
+    lista.filter(_resEleito).forEach((c) => { (g[c.partido] = g[c.partido] || []).push(c); });
+    porPartido = Object.entries(g).sort((a, b) => b[1].length - a[1].length || b[1].reduce((t, c) => t + c.total, 0) - a[1].reduce((t, c) => t + c.total, 0)).map(([p, cs]) => [p, cs.sort((a, b) => b.total - a.total)]);
+    lista = porPartido.flatMap((x) => x[1]);
+  }
+  const limite = st.ordem === "partido" ? lista.length : Math.min(lista.length, st.limite || 60);
 
   // Lista compacta (aprovada 23/09/2026): etiqueta · PARTIDO — Nome ·
   // votação, uma linha por candidato. O número mostra o apurado; os botões
@@ -768,14 +777,14 @@ function _resRenderCandidatos(ctx) {
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
       <input class="cell" id="pcResBusca" placeholder="Buscar candidato ou partido…" value="${escaparAtributoHtml(st.busca || "")}" style="flex:1; margin:0;">
       <button type="button" class="pc-dd-btn ico${st.soFav ? " on" : ""}" id="pcResSoFav" title="Só favoritos" style="${st.soFav ? "color:#C6E62A; border-color:rgba(198,230,42,.5);" : ""}">${RES_IC_ESTRELA}</button>${_resMajor(cargo) ? "" : `<button type="button" class="pc-dd-btn ico pn-sob-btn${st.sobAberta ? " on" : ""}" id="pcResSob" title="Disputa das sobras">S</button>`}
-      ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div><div class="pc-dd-it${st.ordem === "eleitos" ? " on" : ""}" data-o="eleitos">Eleitos primeiro</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 170, titulo: "Ordenar" })}
+      ${_resDropdown("pcResOrd", "", "", `<div class="pc-dd-it${st.ordem === "desc" ? " on" : ""}" data-o="desc">Maior votação</div><div class="pc-dd-it${st.ordem === "asc" ? " on" : ""}" data-o="asc">Menor votação</div><div class="pc-dd-it${st.ordem === "eleitos" ? " on" : ""}" data-o="eleitos">Eleitos primeiro</div><div class="pc-dd-it${st.ordem === "partido" ? " on" : ""}" data-o="partido">Eleitos por partido</div>`, { icone: RES_IC_FILTRO, direita: true, largura: 180, titulo: "Ordenar" })}
     </div>
     ${!_resMajor(cargo) && st.sobAberta ? `<div class="pn-sob-item"><div class="pn-sob-cab"><span>Disputa das sobras${pcState._resMeta && !pcState._resMeta.final ? " · parcial" : ""}</span></div><div id="pcResSobras"></div></div>` : ""}
     <div class="pc-dep-card pc-cand-lista" style="padding:0 12px;">
       ${pont ? `<div class="pc-pont"><div><b>${Math.round(pont.pontosTotal * 1000)}</b><span>pontos</span></div><div><b>${pont.acertosEleicao}/${pont.vagasValidas || ctx.totalVagas}</b><span>eleitos acertados</span></div><div><b>${Math.round(pont.pctProximidade * 100)}%</b><span>proximidade média</span></div></div>` : ""}
       ${fonte === "palpite" && !meu.size ? `<div class="pc-cand-aviso">Você ainda não tem palpite neste cargo.</div>` : ""}
       ${fonte !== "apurado" ? `<div class="pc-cand-aviso">Mostrando ${fonte === "palpite" ? "seu palpite" : "a votação de " + st.anoAnterior} no lugar do apurado</div>` : ""}
-      ${lista.length ? lista.slice(0, limite).map(linha).join("") : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato", texto: "Confira a busca ou o filtro de favoritos." })}
+      ${lista.length ? (porPartido ? porPartido.map(([pt, cs]) => `<div class="pc-res-gp"><b>${nomePartidoExibicao(pt)}</b><span>${cs.length} eleito${cs.length > 1 ? "s" : ""}${pcState._resMeta && !pcState._resMeta.final ? " · parcial" : ""}</span></div>` + cs.map(linha).join("")).join("") : lista.slice(0, limite).map(linha).join("")) : estadoVazio({ icone: "buscar", titulo: "Nenhum candidato", texto: "Confira a busca ou o filtro de favoritos." })}
     </div>
     ${lista.length > limite ? `<button class="ghost" id="pcResMais" style="width:100%; margin-top:10px;">Mostrar mais (${lista.length - limite} restantes)</button>` : ""}
   `;
