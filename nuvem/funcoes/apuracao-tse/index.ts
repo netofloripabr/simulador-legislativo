@@ -48,36 +48,58 @@ Deno.serve(async (req: Request) => {
   for (const [cdCargo, [cargo, qual]] of Object.entries(CARGOS)) {
     const cdE = qual === "pres" ? cdPres : cd;
     if (!cdE) { resumo[cargo] = "sem código de eleição"; continue; }
-    const url = `https://resultados.tse.jus.br/oficial/ele${ano}/${cdE}/dados-simplificados/${ufl}/${ufl}-c000${cdCargo}-e${cdE.padStart(6, "0")}-r.json`;
-    let tse: any;
-    try {
-      const r = await fetch(url, { headers: { "User-Agent": "SimulaLEGIS/1.0 (apuracao)" } });
-      if (!r.ok) { resumo[cargo] = `HTTP ${r.status}`; todosFinais = false; continue; }
-      tse = await r.json();
-    } catch (e) {
-      resumo[cargo] = "falha: " + String(e); todosFinais = false; continue;
+    // 2026: o TSE publica .../dados/{uf}/{uf}-c000{cargo}-e{cd}-u.json (formato novo,
+    // achado no dia da eleição, 04/10/2026); o -r.json de dados-simplificados (2022) fica de reserva.
+    const pad = cdE.padStart(6, "0");
+    const urls = [
+      `https://resultados.tse.jus.br/oficial/ele${ano}/${cdE}/dados/${ufl}/${ufl}-c000${cdCargo}-e${pad}-u.json`,
+      `https://resultados.tse.jus.br/oficial/ele${ano}/${cdE}/dados-simplificados/${ufl}/${ufl}-c000${cdCargo}-e${pad}-r.json`,
+    ];
+    let tse: any = null, url = "";
+    for (const u of urls) {
+      try {
+        const r = await fetch(u, { headers: { "User-Agent": "SimulaLEGIS/1.0 (apuracao)" } });
+        if (r.ok) { tse = await r.json(); url = u; break; }
+      } catch (_e) { /* tenta o próximo */ }
     }
+    if (!tse) { resumo[cargo] = "HTTP 404"; todosFinais = false; continue; }
     const geracao = `${tse.dg} ${tse.hg}`;
     const { data: st } = await sb.from("apuracao_status").select("dg, hg").eq("ano", ano).eq("uf", uf).eq("cargo", cargo).maybeSingle();
     if (st && `${st.dg} ${st.hg}` === geracao && !forcar) { resumo[cargo] = "sem mudança"; if (tse.tf !== "s") todosFinais = false; continue; }
 
     const num = (s: string) => Number(String(s || "0").replace(/\./g, "").replace(",", ".")) || 0;
-    const cands = (tse.cand || []).map((c: any) => ({
+    let candsTse: any[] = [], legenda: Record<string, number> = {}, S: any, E: any, V: any, vagas = 0;
+    if (tse.carg) {
+      // formato novo: carg[0].agr[].par[].cand[]; federação pela sigla (fed[].sg)
+      const cg = tse.carg[0] || {};
+      vagas = num(cg.nv);
+      const fedSg: Record<string, string> = {};
+      (cg.fed || []).forEach((f: any) => { fedSg[String(f.n)] = String(f.sg || "").replace(/\s*\/\s*/g, " / "); });
+      (cg.agr || []).forEach((a: any) => (a.par || []).forEach((p: any) => {
+        const sig = (p.nfed && fedSg[String(p.nfed)]) || p.sg || a.com || "";
+        if (num(p.tvtl)) legenda[sig] = (legenda[sig] || 0) + num(p.tvtl);
+        (p.cand || []).forEach((c: any) => candsTse.push({ sqcand: c.sqcand, n: c.n, nm: c.nmu || c.nm, cc: sig, vap: c.vap, pvap: c.pvap, st: c.st, e: c.e }));
+      }));
+      S = tse.s || {}; E = tse.e || {}; V = tse.v || {};
+    } else {
+      candsTse = tse.cand || []; vagas = num(tse.v);
+      S = { ts: tse.s, st: tse.st, pst: tse.pst }; E = { te: tse.e, c: tse.c, a: tse.a }; V = { vv: tse.vv, vb: tse.vb, tvn: tse.tvn || tse.vn, vnom: tse.vnom };
+    }
+    const cands = candsTse.map((c: any) => ({
       ano, uf, cargo, sq: String(c.sqcand), numero: String(c.n), nome_urna: c.nm, partido: String(c.cc || "").split(" - ")[0].trim(),
       votos: num(c.vap), pct: num(c.pvap), situacao: c.st || "", eleito: c.e === "s", atualizado_em: new Date().toISOString(),
     }));
     const status = {
-      ano, uf, cargo, secoes_total: num(tse.s), secoes_totalizadas: num(tse.st), pct_secoes: num(tse.pst),
-      eleitorado: num(tse.e), votos_validos: num(tse.vv), votos_nominais: num(tse.vnom), vagas: num(tse.v), qe: null,
+      ano, uf, cargo, secoes_total: num(S.ts), secoes_totalizadas: num(S.st), pct_secoes: num(S.pst),
+      eleitorado: num(E.te), votos_validos: num(V.vv), votos_nominais: num(V.vnom), vagas, qe: null,
       final: tse.tf === "s", dg: tse.dg, hg: tse.hg, fonte: url, atualizado_em: new Date().toISOString(),
     };
-    if (tse.tf !== "s") todosFinais = false;
     const e1 = await sb.from("apuracao_status").upsert(status);
     const e2 = cands.length ? await sb.from("apuracao_candidato").upsert(cands) : { error: null };
     // JSON consolidado no formato de dados/resultados/{uf}-{ano}/{cargo}.json
     const arquivo = {
       ano, cargo, aoVivo: true,
-      meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, eleitorado: num(tse.e), comparecimento: num(tse.c), abstencao: num(tse.a), brancos: num(tse.vb), nulos: num(tse.tvn) || num(tse.vn), validos: num(tse.vv), vagas: num(tse.v), geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
+      meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, eleitorado: num(E.te), comparecimento: num(E.c), abstencao: num(E.a), brancos: num(V.vb), nulos: num(V.tvn), validos: num(V.vv), vagas, legenda, geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
       candidatos: cands.sort((a: any, b: any) => b.votos - a.votos).map((c: any) => ({
         sq: c.sq, nome: c.nome_urna, nomeUrna: c.nome_urna, numero: c.numero, partido: c.partido,
         situacao: (c.situacao || "").toUpperCase(), eleito: c.eleito, total: c.votos, municipios: {},
