@@ -1070,8 +1070,11 @@ async function _resRenderMapa(ctx) {
   // próprio seletor (toque abre a busca); o antigo dropdown "Candidato"
   // deu lugar a "Comparar com" — escolher um 2º candidato troca a cor do
   // mapa, os totais e a lista pra ele vs o candidato principal.
-  const cmp = st.cmpSq ? cands.find((c) => c.sq === st.cmpSq) : null;
-  const baseCmp = cmp ? doAno(cmp, st.modoAno || st.anoApurado) : null;
+  // "__ano:AAAA" = o próprio candidato em outra eleição (04/10/2026)
+  const cmpAno = /^__ano:/.test(st.cmpSq || "") ? Number(st.cmpSq.slice(6)) : null;
+  const cmpAnoBase = cmpAno ? doAno(cenario, cmpAno) : null;
+  const cmp = cmpAno ? (cmpAnoBase ? { ...cmpAnoBase, sq: st.cmpSq, nomeUrna: `${cenario.nomeUrna} ${cmpAno}` } : null) : st.cmpSq ? cands.find((c) => c.sq === st.cmpSq) : null;
+  const baseCmp = cmpAno ? cmpAnoBase : cmp ? doAno(cmp, st.modoAno || st.anoApurado) : null;
   // Favoritos no topo da lista de seleção (30/09/2026): a estrela do cartão
   // alimenta este grupo, igual ao filtro de favoritos da lista de Candidatos.
   const itCand = (c, idAtivo) => `<div class="pc-dd-it${c.sq === idAtivo ? " on" : ""}" data-sq="${c.sq}">${c.nomeUrna} <small style="color:#8A9096;">${c.partido}</small></div>`;
@@ -1094,7 +1097,7 @@ async function _resRenderMapa(ctx) {
     <div class="pc-map-filtros">
       ${_resDropdown("pcResReg", "Região", st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado"), `<div class="pc-dd-it${!st.regiao && !st.assoc ? " on" : ""}" data-r="">Estado</div><div class="pc-dd-grp">Mesorregiões (IBGE)</div><div class="pc-dd-grid">${meso.map((r) => `<div class="pc-dd-it${st.regiao === r ? " on" : ""}" data-r="${r}">${r.replace(" Catarinense", "")}</div>`).join("")}</div><div class="pc-dd-grp">Associações de municípios</div><div class="pc-dd-grid">${ASSOCIACOES_SC.map((x) => `<div class="pc-dd-it${st.assoc === x ? " on" : ""}" data-a="${x}">${x}</div>`).join("")}</div>`, { largura: 270 })}
       ${_resDropdown("pcResModo", "Ano", `${anoSel}`, [st.anoApurado, st.anoAnterior, st.anoAnterior2].filter(Boolean).map((y) => `<div class="pc-dd-it${anoSel === y ? " on" : ""}" data-y="${y}">${y}</div>`).join(""), { largura: 150 })}
-      ${_resDropdown("pcResCmp", "Comparar", cmp ? cmp.nomeUrna : "ninguém", `<div class="pc-dd-it${!cmp ? " on" : ""}" data-sq="">Sem comparação</div><div style="padding:6px 8px;"><input class="cell" id="pcResCmpBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCmpLista" style="max-height:240px; overflow:auto;">${listaCand(st.cmpSq)}</div>`, { largura: 260, direita: true })}
+      ${_resDropdown("pcResCmp", "Comparar", cmp ? cmp.nomeUrna : "ninguém", `<div class="pc-dd-it${!cmp ? " on" : ""}" data-sq="">Sem comparação</div>${[st.anoAnterior, st.anoAnterior2].filter((y) => y && doAno(cenario, y)).map((y) => `<div class="pc-dd-it${st.cmpSq === "__ano:" + y ? " on" : ""}" data-sq="__ano:${y}">${cenario.nomeUrna} em ${y}</div>`).join("")}<div style="padding:6px 8px;"><input class="cell" id="pcResCmpBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCmpLista" style="max-height:240px; overflow:auto;">${listaCand(st.cmpSq)}</div>`, { largura: 260, direita: true })}
     </div>
     <div class="glass-card pc-mapa-card" style="padding:10px;"><div class="pc-mapa-forma"><button type="button" data-forma="cores" class="${st.mapaForma !== "bolhas" ? "on" : ""}">Cores</button><button type="button" data-forma="bolhas" class="${st.mapaForma === "bolhas" ? "on" : ""}">Bolhas</button></div>${pcState._resGeoSvg}
       <div class="pc-legmapa"><span id="pcResLegA"></span><i id="pcResLegBar"></i><span id="pcResLegB"></span></div>
@@ -1152,7 +1155,7 @@ async function _resRenderMapa(ctx) {
       svg.querySelectorAll("#pcResBolhas circle").forEach((ci) => ci.addEventListener("click", () => { const d = dados[ci.dataset.ibge]; st.munSel = st.munSel === d.m.chave ? null : d.m.chave; pintar(); const s2 = document.querySelector("#pcResMapaLista .sel"); if (s2) s2.scrollIntoView({ block: "center", behavior: "smooth" }); }));
     }
     const primeiroNome = (nm) => (nm || "").split(" ")[0];
-    const L = cmp ? [`${primeiroNome(cmp.nomeUrna)} venceu`, "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", `${primeiroNome(cenario.nomeUrna)} venceu`]
+    const L = cmp ? (cmpAno ? [`melhor em ${cmpAno}`, "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", `melhor em ${anoSel}`] : [`${primeiroNome(cmp.nomeUrna)} venceu`, "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", `${primeiroNome(cenario.nomeUrna)} venceu`])
       : st.modo === "var" ? ["perdeu (−50%)", "linear-gradient(90deg,#E8432A,#2A2C2E,#34E84A)", "ganhou (+50%)"] : ["menos votos", "linear-gradient(90deg,#15191E,#34E84A)", "mais votos"];
     // Bolhas coladas no rótulo de cada lado (29/09/2026): a verde ficava longe
     // de "Napoleão venceu" e não dava pra associar.
