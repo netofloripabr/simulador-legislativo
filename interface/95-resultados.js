@@ -2141,7 +2141,8 @@ setInterval(() => { const el = document.getElementById("pcResCont"); if (el && !
 // nominais + legenda (quando houver).
 function _resSobrasDados(cands, totalVagas, legenda, fed) {
   const g = {};
-  cands.forEach((c) => { const k = (fed && fed[c.partido]) || c.partido; (g[k] = g[k] || { nome: k, candidatos: [] }).candidatos.push({ nome: c.nome, nomeUrna: c.nomeUrna, votos: c.total }); });
+  // votos "anulado sub judice" (c.valido === false) não entram no QE nem nas sobras (05/10/2026)
+  cands.forEach((c) => { const k = (fed && fed[c.partido]) || c.partido; (g[k] = g[k] || { nome: k, candidatos: [] }).candidatos.push({ nome: c.nome, nomeUrna: c.nomeUrna, votos: c.valido === false ? 0 : c.total }); });
   if (legenda) Object.entries(legenda).forEach(([p, v]) => { const k = (fed && fed[p]) || p; if (g[k]) g[k].candidatos.push({ fonte: "legenda", nome: "legenda", votos: v }); });
   // federação aparece pelas siglas dos partidos (ex.: "PT / PC do B / PV"), não pelo nome
   Object.values(g).forEach((p) => { const sig = [...new Set(cands.filter((c) => ((fed && fed[c.partido]) || c.partido) === p.nome).map((c) => c.partido))]; if (sig.length > 1) p.nome = sig.join(" / "); });
@@ -2318,7 +2319,7 @@ async function _resRecarregarNoLugar() {
 // parcial (etiqueta cinza). Situação vinda do TSE sempre prevalece.
 function _resEleicaoParcial(cands, cargo, vagas, legenda) {
   if (cands.some((c) => c.situacao)) return;
-  const comVoto = cands.filter((c) => c.total > 0);
+  const comVoto = cands.filter((c) => c.total > 0 && c.valido !== false);
   if (!comVoto.length) return;
   if (_resMajor(cargo)) {
     [...comVoto].sort((a, b) => b.total - a.total).slice(0, vagas).forEach((c) => { c.situacao = "ELEITO"; c._parcial = true; });

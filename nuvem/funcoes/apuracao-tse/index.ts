@@ -31,10 +31,14 @@ async function gravarStorage(sb: any, caminho: string, obj: unknown) { return aw
 // ({uf}{cod}-c000{cargo}-e{cd}-u.json); o arquivo de andamento (-ab.json)
 // diz quando cada município mudou. Busca só os que mudaram (até 40 por
 // rodada e cargo) e guarda o acumulado em _mun-{cargo}.json.
-async function atualizarMunicipios(sb: any, ano: number, cdE: string, ufl: string, cdCargo: string, cargo: string, ab: any) {
+async function atualizarMunicipios(sb: any, ano: number, cdE: string, ufl: string, cdCargo: string, cargo: string, ab: any, refazer = false) {
   const pad = cdE.padStart(6, "0");
   const estado = (await lerStorage(sb, `${ufl}-${ano}/_mun-${cargo}.json`)) || { ver: {}, votos: {} };
-  const mudados = ((ab && ab.abr) || []).filter((m: any) => m.tpabr === "mun" && m.dt && estado.ver[m.cdabr] !== `${m.dt} ${m.ht}`).slice(0, 40);
+  // refazer=1 (05/10/2026): o dt/ht do -ab.json não muda a cada lote, então
+  // municípios lidos no meio da apuração ficavam desatualizados; relê todos
+  // uma vez (marca "#r") em lotes de 60.
+  const chave = (m: any) => `${m.dt} ${m.ht}${refazer ? "#r" : ""}`;
+  const mudados = ((ab && ab.abr) || []).filter((m: any) => m.tpabr === "mun" && m.dt && (refazer ? estado.ver[m.cdabr] !== chave(m) : String(estado.ver[m.cdabr] || "").replace("#r", "") !== chave(m))).slice(0, refazer ? 60 : 40);
   if (!mudados.length) return { estado, mudou: 0 };
   for (let i = 0; i < mudados.length; i += 10) {
     await Promise.all(mudados.slice(i, i + 10).map(async (m: any) => {
@@ -42,7 +46,7 @@ async function atualizarMunicipios(sb: any, ano: number, cdE: string, ufl: strin
       if (!d || !d.carg) return;
       const v: Record<string, number> = {};
       (d.carg[0].agr || []).forEach((a: any) => (a.par || []).forEach((p: any) => (p.cand || []).forEach((c: any) => { const n = numBR(c.vap); if (n) v[String(c.n)] = n; })));
-      estado.votos[m.cdabr] = v; estado.ver[m.cdabr] = `${m.dt} ${m.ht}`;
+      estado.votos[m.cdabr] = v; estado.ver[m.cdabr] = chave(m);
     }));
   }
   await gravarStorage(sb, `${ufl}-${ano}/_mun-${cargo}.json`, estado);
@@ -61,6 +65,7 @@ Deno.serve(async (req: Request) => {
   const cfg: Record<string, string> = {};
   (cfgRows || []).forEach((r: { chave: string; valor: string }) => { cfg[r.chave] = r.valor; });
   const forcar = new URL(req.url).searchParams.get("forcar") === "1";
+  const refazer = new URL(req.url).searchParams.get("refazer") === "1";
   if (cfg.apuracao_ativa !== "true" && !forcar) {
     return new Response(JSON.stringify({ ok: true, pulado: "apuracao_ativa=false" }), { headers: { "Content-Type": "application/json" } });
   }
@@ -94,7 +99,7 @@ Deno.serve(async (req: Request) => {
     if (!tse) { resumo[cargo] = "HTTP 404"; todosFinais = false; continue; }
     const geracao = `${tse.dg} ${tse.hg}`;
     const { data: st } = await sb.from("apuracao_status").select("dg, hg").eq("ano", ano).eq("uf", uf).eq("cargo", cargo).maybeSingle();
-    const mun = await atualizarMunicipios(sb, ano, cdE, ufl, cdCargo, cargo, abs[cdE]);
+    const mun = await atualizarMunicipios(sb, ano, cdE, ufl, cdCargo, cargo, abs[cdE], refazer);
     if (st && `${st.dg} ${st.hg}` === geracao && !mun.mudou && !forcar) { resumo[cargo] = "sem mudança"; if (tse.tf !== "s") todosFinais = false; continue; }
 
     const num = (s: string) => Number(String(s || "0").replace(/\./g, "").replace(",", ".")) || 0;
@@ -108,7 +113,7 @@ Deno.serve(async (req: Request) => {
       (cg.agr || []).forEach((a: any) => (a.par || []).forEach((p: any) => {
         const sig = (p.nfed && fedSg[String(p.nfed)]) || p.sg || a.com || "";
         if (num(p.tvtl)) legenda[sig] = (legenda[sig] || 0) + num(p.tvtl);
-        (p.cand || []).forEach((c: any) => candsTse.push({ sqcand: c.sqcand, n: c.n, nm: c.nmu || c.nm, cc: sig, vap: c.vap, pvap: c.pvap, st: c.st, e: c.e }));
+        (p.cand || []).forEach((c: any) => candsTse.push({ sqcand: c.sqcand, n: c.n, nm: c.nmu || c.nm, cc: sig, vap: c.vap, pvap: c.pvap, st: c.st, e: c.e, dvt: c.dvt }));
       }));
       S = tse.s || {}; E = tse.e || {}; V = tse.v || {};
     } else {
@@ -117,7 +122,7 @@ Deno.serve(async (req: Request) => {
     }
     const cands = candsTse.map((c: any) => ({
       ano, uf, cargo, sq: String(c.sqcand), numero: String(c.n), nome_urna: c.nm, partido: String(c.cc || "").split(" - ")[0].trim(),
-      votos: num(c.vap), pct: num(c.pvap), situacao: c.st || "", eleito: c.e === "s", atualizado_em: new Date().toISOString(),
+      votos: num(c.vap), pct: num(c.pvap), situacao: c.st || "", eleito: c.e === "s", valido: !c.dvt || String(c.dvt).startsWith("Válido"), atualizado_em: new Date().toISOString(),
     }));
     const status = {
       ano, uf, cargo, secoes_total: num(S.ts), secoes_totalizadas: num(S.st), pct_secoes: num(S.pst),
@@ -126,14 +131,14 @@ Deno.serve(async (req: Request) => {
     };
     if (tse.tf !== "s") todosFinais = false;
     const e1 = await sb.from("apuracao_status").upsert(status);
-    const e2 = cands.length ? await sb.from("apuracao_candidato").upsert(cands) : { error: null };
+    const e2 = cands.length ? await sb.from("apuracao_candidato").upsert(cands.map(({ valido: _v, ...r }: any) => r)) : { error: null };
     // JSON consolidado no formato de dados/resultados/{uf}-{ano}/{cargo}.json
     const arquivo = {
       ano, cargo, aoVivo: true,
       meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, eleitorado: num(E.te), comparecimento: num(E.c), abstencao: num(E.a), brancos: num(V.vb), nulos: num(V.tvn), validos: num(V.vv), vagas, legenda, munPct: Object.fromEntries(((abs[cdE] && abs[cdE].abr) || []).filter((m: any) => m.tpabr === "mun").map((m: any) => [m.cdabr, num(m.s && m.s.pst)])), geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
       candidatos: cands.sort((a: any, b: any) => b.votos - a.votos).map((c: any) => ({
         sq: c.sq, nome: c.nome_urna, nomeUrna: c.nome_urna, numero: c.numero, partido: c.partido,
-        situacao: (c.situacao || "").toUpperCase(), eleito: c.eleito, total: c.votos, municipios: {},
+        situacao: (c.situacao || "").toUpperCase(), eleito: c.eleito, valido: c.valido, total: c.votos, municipios: {},
         munTse: Object.fromEntries(Object.entries(mun.estado.votos).map(([cod, v]: [string, any]) => [cod, v[c.numero] || 0]).filter((x) => x[1])),
       })),
     };
