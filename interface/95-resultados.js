@@ -1445,6 +1445,7 @@ function _resImpAbrir(ctx) {
     recorte: st.fichaMun ? "mun" : (st.regiao || st.assoc) ? "regiao" : "estado",
     regiao: st.assoc || st.regiao || "", mun: st.fichaMun || "",
     det: new Set(st.fichaMun ? ["bairros", "colegios"] : ["mun"]), inc: new Set(["part"]),
+    forma: "bolhas",
     ordem: RES_ARV_ORDENS.some(([o]) => o === st.fichaOrdem) ? st.fichaOrdem : (st.anoApurado >= 2026 && !pcState._resMeta ? "d22" : "d26"), qtd: 0,
   };
   _resImpRender(ctx);
@@ -1469,7 +1470,8 @@ function _resImpRender(ctx) {
   if (t === "atual") {
     h += `<div class="pc-imp-nota">Imprime exatamente o que está na tela agora: a aba aberta (Candidatos, Mapa ou Painel), com os filtros, a região, o candidato e as camadas que estiverem abertas.</div>`;
   } else if (t === "mapa") {
-    h += `<div class="pc-imp-nota">O mapa sai como está na tela agora (candidato, região, modo e cores/bolhas). Para mudar, ajuste o mapa e toque em imprimir de novo.</div>`;
+    h += grp("Mapa em", [["bolhas", "Bolhas"], ["cores", "Mapa de calor"]].map(([v, r]) => op("forma", v, r, I.forma === v)).join(""));
+    h += `<div class="pc-imp-nota">O mapa sai com o candidato, a região e o modo que estão na tela agora. Para mudar, ajuste o mapa e toque em imprimir de novo.</div>`;
   } else {
     if (t === "ficha") h += `<div class="pc-imp-g"><div class="pc-imp-t">Candidato</div><select class="pc-imp-sel" data-imp-sel="sq">${listaCands.map((x) => `<option value="${esc(x.sq)}"${x.sq === I.sq ? " selected" : ""}>${esc(x.nomeUrna)} — ${esc(nomePartidoExibicao(x.partido))}</option>`).join("")}</select>${I.cargo !== ctx.cargo ? `<div class="pc-imp-nota">O candidato é do cargo aberto na tela (${esc((RES_CARGOS.find((x) => x.id === ctx.cargo) || {}).label || "")}).</div>` : ""}</div>`;
     if (t !== "ficha") h += grp("Cargo", RES_CARGOS.map((x) => op("cargo", x.id, x.label.replace("Deputado", "Dep."), I.cargo === x.id)).join(""));
@@ -1522,6 +1524,7 @@ function _resImpRender(ctx) {
     e.target.textContent = "Montando…"; e.target.disabled = true;
     let container = document.getElementById("pcImpressaoConteudo");
     if (!container) { container = document.createElement("div"); container.id = "pcImpressaoConteudo"; document.body.appendChild(container); }
+    if (I.tipo === "mapa" && st._imp) st._imp.bolhas = I.forma !== "cores";
     try { container.innerHTML = I.tipo === "mapa" ? _resDocImpresso(st, ctx.cargo, ctx.cands) : await _resImpDocumento(ctx); }
     catch (err) { console.error("impressão", err); e.target.textContent = "Não foi possível montar"; return; }
     _resImpFechar();
