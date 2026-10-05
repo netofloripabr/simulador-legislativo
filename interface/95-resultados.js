@@ -105,7 +105,19 @@ function _resMesclar(vivo, estatico) {
   const porNum = new Map(est.filter((c) => c.numero).map((c) => [String(c.numero), c]));
   const vistos = new Set();
   // sq do elenco se mantém (04/10/2026): favoritos e Painel salvos antes da apuração continuam valendo
-  const lista = vivo.candidatos.map((c) => { const e = porSq.get(c.sq) || porNum.get(String(c.numero)); if (e) vistos.add(e); return e ? { ...e, ...c, sq: e.sq || c.sq, sqTse: c.sq, nome: e.nome || c.nome, nomeUrna: e.nomeUrna || c.nomeUrna, municipios: e.municipios || {} } : c; });
+  // Nome de urna SEMPRE do TSE (revisão de 05/10/2026: 54 nomes do elenco
+  // diferiam do registro oficial, e o nº 1007 aparecia com o nome de outra
+  // candidata). O nome completo do elenco só fica quando é a mesma pessoa
+  // (alguma palavra em comum) — ele casa o candidato com 2022.
+  const tit = (x) => String(x || "").toLowerCase().replace(/(^|[\s'-])(\p{L})/gu, (m, a, l) => a + l.toUpperCase());
+  const sem = (x) => String(x || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().split(/[^A-Z0-9]+/).filter((w) => w.length > 2);
+  const lista = vivo.candidatos.map((c) => {
+    const e = porSq.get(c.sq) || porNum.get(String(c.numero)); if (e) vistos.add(e);
+    const urna = tit(c.nomeUrna);
+    if (!e) return { ...c, nome: tit(c.nome), nomeUrna: urna };
+    const mesma = sem(e.nomeUrna + " " + e.nome).some((w) => sem(c.nomeUrna).includes(w));
+    return { ...e, ...c, sq: e.sq || c.sq, sqTse: c.sq, nome: mesma ? (e.nome || tit(c.nome)) : tit(c.nome), nomeUrna: urna, municipios: e.municipios || {} };
+  });
   est.forEach((e) => { if (!vistos.has(e)) lista.push({ ...e, total: 0 }); });
   return { ...vivo, candidatos: lista.sort((a, b) => b.total - a.total) };
 }
