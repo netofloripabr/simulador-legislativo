@@ -119,7 +119,9 @@ function _resArmarAtualizacao(meta) {
   clearTimeout(pcState._resTimer);
   // segue conferindo também ANTES do 1º arquivo do TSE (meta nulo, apuração
   // ligada) e até a totalização final — antes parava sem meta ou em 100%
-  if (meta ? meta.final : !(pcState._resApuCfg && pcState._resApuCfg.ativa)) return;
+  // 05/10/2026: depois da totalização final segue conferindo a cada 2 min —
+  // aba aberta antes de uma correção dos dados ficava com números velhos
+  if (!meta && !(pcState._resApuCfg && pcState._resApuCfg.ativa)) return;
   // 04/10/2026: confere a cada 20 s e só redesenha quando o TSE gerou
   // arquivo novo (geradoEm mudou), mantendo a rolagem onde o usuário está.
   pcState._resTimer = setTimeout(async () => {
@@ -128,7 +130,7 @@ function _resArmarAtualizacao(meta) {
     const novo = await _resCarregarAoVivo(st.anoApurado || RES_ANO_APURADO, st.cargo || "estadual");
     if (!novo || !novo.meta || (meta && novo.meta.geradoEm === meta.geradoEm && novo.meta.atualizadoEm === meta.atualizadoEm)) { _resArmarAtualizacao(meta); return; }
     await _resRecarregarNoLugar();
-  }, 20000);
+  }, meta && meta.final ? 120000 : 20000);
 }
 
 async function _resCarregarSecoes(municipioChave) {
@@ -1569,6 +1571,11 @@ function _resImpRender(ctx) {
       return;
     }
     e.target.textContent = "Montando…"; e.target.disabled = true;
+    // confere se o TSE/rotina publicou dado novo antes de montar (05/10/2026)
+    const mAnt = pcState._resMeta, novo = await _resCarregarAoVivo(st.anoApurado || RES_ANO_APURADO, ctx.cargo);
+    if (novo && novo.meta && mAnt && (novo.meta.geradoEm !== mAnt.geradoEm || novo.meta.atualizadoEm !== mAnt.atualizadoEm)) {
+      const imp = st.imp; await _resRecarregarNoLugar(); ctx = pcState._resCtx; ctx.st.imp = imp;
+    }
     let container = document.getElementById("pcImpressaoConteudo");
     if (!container) { container = document.createElement("div"); container.id = "pcImpressaoConteudo"; document.body.appendChild(container); }
     if (I.tipo === "mapa" && st._imp) st._imp.bolhas = I.forma !== "cores";
@@ -1717,7 +1724,7 @@ async function _resImpDocumento(ctx) {
     if (I.det.has("mun")) {
       const ks = [...new Set([...Object.keys((c26 && c26.municipios) || {}), ...Object.keys((c22 && c22.municipios) || {})])].filter(dentro);
       const l = limitar(_resArvOrdenar(ks.map((k) => { const v26 = (c26 && c26.municipios[k]) || 0; return { k, v26, v22: cmp ? ((c22 && c22.municipios[k]) || 0) : v26 }; }).filter((x) => x.v22 || x.v26), I.ordem));
-      corpo += secao("Municípios", cabVal("Município"), l.map((x, i) => lin(`${i + 1}º`, `${esc(nomeMun(x.k))}${I.inc.has("part") && partC ? partTxt(partC.mun[x.k]) : ""}`, ...valCols(x, base))).join(""));
+      corpo += secao("Municípios", cabVal("Município"), l.map((x, i) => lin(`${i + 1}º`, `${esc(nomeMun(x.k))}${I.inc.has("part") && partC ? partTxt(partC.mun[x.k]) : ""}`, ...valCols(x, base)).replace('class="di-rlin', 'class="di-rlin di-rmun')).join(""));
     }
     if (I.det.has("regioes")) {
       // comparação por região (05/10/2026): mesorregiões (IBGE) e associações de municípios

@@ -1080,6 +1080,10 @@
     #pcImpressaoConteudo .di-rres > div{ border:.5px solid #C9CDD1; border-radius:6px; padding:6px 8px; font-size:8px; color:#3F454B; line-height:1.3; }
     #pcImpressaoConteudo .di-rres b{ display:block; font-size:13px; font-weight:800; color:#111; font-variant-numeric:tabular-nums; }
     #pcImpressaoConteudo .di-rmapa{ margin:0 0 10px; page-break-inside:avoid; }
+    /* margem da folha (05/10/2026: o PDF saía colado na borda) e nome do
+       município 25% maior na ficha (9,5px → 11,9px) */
+    @page{ margin:14mm 12mm; }
+    #pcImpressaoConteudo .di-rlin.di-rmun > span:nth-child(2){ font-size:11.9px; }
     #pcImpressaoConteudo .di-mapa{ width:100%; height:auto; display:block; }
     #pcImpressaoConteudo .di-rleg{ display:flex; flex-wrap:wrap; gap:12px; font-size:8px; color:#3F454B; margin-top:4px; }
     #pcImpressaoConteudo .di-rleg i{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px; vertical-align:-1px; opacity:.6; }
