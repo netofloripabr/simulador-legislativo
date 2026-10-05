@@ -33,12 +33,13 @@ async function gravarStorage(sb: any, caminho: string, obj: unknown) { return aw
 // rodada e cargo) e guarda o acumulado em _mun-{cargo}.json.
 async function atualizarMunicipios(sb: any, ano: number, cdE: string, ufl: string, cdCargo: string, cargo: string, ab: any, refazer = false) {
   const pad = cdE.padStart(6, "0");
-  const estado = (await lerStorage(sb, `${ufl}-${ano}/_mun-${cargo}.json`)) || { ver: {}, votos: {} };
+  const estado = (await lerStorage(sb, `${ufl}-${ano}/_mun-${cargo}.json`)) || { ver: {}, votos: {}, part: {} };
+  estado.part = estado.part || {};
   // refazer=1 (05/10/2026): o dt/ht do -ab.json não muda a cada lote, então
   // municípios lidos no meio da apuração ficavam desatualizados; relê todos
   // uma vez (marca "#r") em lotes de 60.
-  const chave = (m: any) => `${m.dt} ${m.ht}${refazer ? "#r" : ""}`;
-  const mudados = ((ab && ab.abr) || []).filter((m: any) => m.tpabr === "mun" && m.dt && (refazer ? estado.ver[m.cdabr] !== chave(m) : String(estado.ver[m.cdabr] || "").replace("#r", "") !== chave(m))).slice(0, refazer ? 60 : 40);
+  const chave = (m: any) => `${m.dt} ${m.ht}${refazer ? "#p" : ""}`;
+  const mudados = ((ab && ab.abr) || []).filter((m: any) => m.tpabr === "mun" && m.dt && (refazer ? estado.ver[m.cdabr] !== chave(m) : String(estado.ver[m.cdabr] || "").replace(/#.*/, "") !== chave(m))).slice(0, refazer ? 60 : 40);
   if (!mudados.length) return { estado, mudou: 0 };
   for (let i = 0; i < mudados.length; i += 10) {
     await Promise.all(mudados.slice(i, i + 10).map(async (m: any) => {
@@ -47,6 +48,9 @@ async function atualizarMunicipios(sb: any, ano: number, cdE: string, ufl: strin
       const v: Record<string, number> = {};
       (d.carg[0].agr || []).forEach((a: any) => (a.par || []).forEach((p: any) => (p.cand || []).forEach((c: any) => { const n = numBR(c.vap); if (n) v[String(c.n)] = n; })));
       estado.votos[m.cdabr] = v; estado.ver[m.cdabr] = chave(m);
+      // participação do município em 2026: [aptos, comparecimento, abstenção, brancos, nulos, válidos] (05/10/2026)
+      const E = d.e || {}, V = d.v || {};
+      estado.part[m.cdabr] = [numBR(E.te), numBR(E.c), numBR(E.a), numBR(V.vb), numBR(V.tvn), numBR(V.vv)];
     }));
   }
   await gravarStorage(sb, `${ufl}-${ano}/_mun-${cargo}.json`, estado);
@@ -135,7 +139,7 @@ Deno.serve(async (req: Request) => {
     // JSON consolidado no formato de dados/resultados/{uf}-{ano}/{cargo}.json
     const arquivo = {
       ano, cargo, aoVivo: true,
-      meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, eleitorado: num(E.te), comparecimento: num(E.c), abstencao: num(E.a), brancos: num(V.vb), nulos: num(V.tvn), validos: num(V.vv), vagas, legenda, munPct: Object.fromEntries(((abs[cdE] && abs[cdE].abr) || []).filter((m: any) => m.tpabr === "mun").map((m: any) => [m.cdabr, num(m.s && m.s.pst)])), geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
+      meta: { pctSecoes: status.pct_secoes, secoesTotalizadas: status.secoes_totalizadas, secoesTotal: status.secoes_total, final: status.final, eleitorado: num(E.te), comparecimento: num(E.c), abstencao: num(E.a), brancos: num(V.vb), nulos: num(V.tvn), validos: num(V.vv), vagas, legenda, munPart: mun.estado.part || {}, munPct: Object.fromEntries(((abs[cdE] && abs[cdE].abr) || []).filter((m: any) => m.tpabr === "mun").map((m: any) => [m.cdabr, num(m.s && m.s.pst)])), geradoEm: geracao, atualizadoEm: status.atualizado_em, fonte: url },
       candidatos: cands.sort((a: any, b: any) => b.votos - a.votos).map((c: any) => ({
         sq: c.sq, nome: c.nome_urna, nomeUrna: c.nome_urna, numero: c.numero, partido: c.partido,
         situacao: (c.situacao || "").toUpperCase(), eleito: c.eleito, valido: c.valido, total: c.votos, municipios: {},

@@ -51,6 +51,7 @@ const RES_DADOS_VER = "20261002";
 const RES_CARGOS = [...CARGOS, { id: "governador", label: "Governador" }, { id: "presidente", label: "Presidente" }];
 const _resMajor = (cargo) => cargo === "senador" || cargo === "governador" || cargo === "presidente";
 async function _resCarregar(ano, cargo, sufixo) {
+  if (ano >= 2026 && cargo === "participacao" && !sufixo && pcState._resPart26) return pcState._resPart26;
   pcState._resCache = pcState._resCache || {};
   const k = `${ano}/${cargo}${sufixo || ""}`;
   if (pcState._resCache[k]) return pcState._resCache[k];
@@ -590,6 +591,13 @@ async function renderResultados() {
     const mj0 = await _resCarregar(RES_ANO_ANTERIOR, "municipios");
     const mp = {}; Object.entries((mj0 && mj0.municipios) || {}).forEach(([k, m]) => { const cod = String(Number(m.tse)).padStart(5, "0"); if (metaV.munPct[cod] != null) mp[k] = metaV.munPct[cod]; });
     pcState._resMunPct = mp;
+    // participação 2026 por município, vinda do TSE (05/10/2026): antes a
+    // impressão e as fichas mostravam a de 2022 no lugar
+    if (metaV.munPart && Object.keys(metaV.munPart).length) {
+      const pm = {}; Object.entries((mj0 && mj0.municipios) || {}).forEach(([k, m]) => { const P = metaV.munPart[String(Number(m.tse)).padStart(5, "0")]; if (P) pm[k] = P; });
+      const P26 = pcState._resPart26 = pcState._resPart26 || {};
+      P26[cargo] = { estado: [metaV.eleitorado, metaV.comparecimento, metaV.abstencao, metaV.brancos, metaV.nulos, metaV.validos], mun: pm };
+    }
   }
   // votos por município ao vivo (munTse = código TSE do município) → chave do app (04/10/2026)
   if (vivo && apu && apu.candidatos.some((c) => c.munTse)) {
@@ -1645,8 +1653,8 @@ async function _resImpDocumento(ctx) {
     sub = `${cargoLbl} · ${esc(recTxt)} · ${_resImpAnoTxt(I)}`;
     if (!c26 && !c22) corpo = `<div class="di-sub">Sem votação deste candidato em ${_resImpAnoTxt(I)}.</div>`;
     const anoA = cmp ? RES_ANO_APURADO : anoUnico, anoB = cmp ? RES_ANO_ANTERIOR : null;
-    const partMun = await _resCarregar(anoB || anoA, "participacao");
-    const partC = partMun && partMun[cargo];
+    const partMun = await _resCarregar(anoA, "participacao"), partMun0 = anoB ? await _resCarregar(anoB, "participacao") : null;
+    const partC = (partMun && partMun[cargo]) || (partMun0 && partMun0[cargo]);
     const tot = { v26: c26 ? (I.recorte === "estado" ? c26.total : somaRec(c26)) : 0, v22: cmp ? (c22 ? (I.recorte === "estado" ? c22.total : somaRec(c22)) : 0) : 0 };
     if (!cmp) tot.v22 = tot.v26;
     corpo += `<div class="di-rres"><div><b>${_resFmt(cmp ? tot.v22 : tot.v26)}</b>votos em ${cmp ? RES_ANO_ANTERIOR : anoUnico} · ${esc(recTxt)}</div>${cmp ? `<div><b>${tot.v26 ? _resFmt(tot.v26) : "—"}</b>votos em ${RES_ANO_APURADO}</div><div><b>${tot.v26 ? difTxt(tot.v26, tot.v22) : "—"}</b>diferença</div>` : `<div><b>${_resFmt(c26 ? c26.total : 0)}</b>total no estado</div>`}</div>`;
