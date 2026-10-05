@@ -1445,7 +1445,7 @@ function _resImpAbrir(ctx) {
     recorte: st.fichaMun ? "mun" : (st.regiao || st.assoc) ? "regiao" : "estado",
     regiao: st.assoc || st.regiao || "", mun: st.fichaMun || "",
     det: new Set(st.fichaMun ? ["bairros", "colegios"] : ["mun"]), inc: new Set(["part"]),
-    ordem: RES_ARV_ORDENS.some(([o]) => o === st.fichaOrdem) ? st.fichaOrdem : (st.anoApurado >= 2026 ? "d22" : "d26"), qtd: 0,
+    ordem: RES_ARV_ORDENS.some(([o]) => o === st.fichaOrdem) ? st.fichaOrdem : (st.anoApurado >= 2026 && !pcState._resMeta ? "d22" : "d26"), qtd: 0,
   };
   _resImpRender(ctx);
 }
@@ -1475,7 +1475,7 @@ function _resImpRender(ctx) {
     if (t !== "ficha") h += grp("Cargo", RES_CARGOS.map((x) => op("cargo", x.id, x.label.replace("Deputado", "Dep."), I.cargo === x.id)).join(""));
     h += grp("Ano", anos.map(([v, r]) => op("ano", v, r, I.ano === v)).join(""));
     if (t !== "plenario") {
-      h += grp("Recorte", [["estado", "Estado"], ["regiao", "Região"], ["mun", "Município"]].map(([v, r]) => op("recorte", v, r, I.recorte === v)).join(""));
+      h += grp("Recorte", [["estado", "Estado"], ["regiao", "Região"], ["mun", "Município"]].concat(t === "lista" ? [["todos", "Todos os municípios"]] : []).map(([v, r]) => op("recorte", v, r, I.recorte === v)).join(""));
       if (I.recorte === "regiao") h += `<select class="pc-imp-sel" data-imp-sel="regiao"><option value="">Escolha a região</option><optgroup label="Mesorregiões (IBGE)">${meso.map((r) => `<option${I.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup><optgroup label="Associações de municípios">${assoc.map((r) => `<option${I.regiao === r ? " selected" : ""}>${esc(r)}</option>`).join("")}</optgroup></select>`;
       if (I.recorte === "mun") h += `<select class="pc-imp-sel" data-imp-sel="mun"><option value="">Escolha o município</option>${munsOrd.map((m) => `<option value="${esc(m.chave)}"${I.mun === m.chave ? " selected" : ""}>${esc(m.nome)}</option>`).join("")}</select>`;
     }
@@ -1533,6 +1533,7 @@ function _resImpAnoTxt(I) { return I.ano === "cmp" ? `${RES_ANO_APURADO} × ${RE
 function _resImpRecorteTxt(I) {
   if (I.recorte === "regiao") return I.regiao ? I.regiao.replace(" Catarinense", "") : "";
   if (I.recorte === "mun") { const m = MUNICIPIOS_SC_REGIOES.find((x) => x.chave === I.mun); return m ? m.nome : ""; }
+  if (I.recorte === "todos") return "todos os municípios (um bloco por cidade)";
   return "Santa Catarina";
 }
 function _resImpResumo(ctx) {
@@ -1589,7 +1590,20 @@ async function _resImpDocumento(ctx) {
   if (I.tipo === "lista" || I.tipo === "partidos") {
     const a26 = cmp ? await _resImpCands(ctx, RES_ANO_APURADO, cargo) : await _resImpCands(ctx, I.ano, cargo);
     const a22 = cmp ? await _resImpCands(ctx, RES_ANO_ANTERIOR, cargo) : null;
-    if (I.tipo === "lista") {
+    if (I.tipo === "lista" && I.recorte === "todos") {
+      // um bloco por município, em ordem alfabética, com o ranking da cidade (05/10/2026)
+      const de22 = a22 ? casar(a22) : null;
+      const muns = [...MUNICIPIOS_SC_REGIOES].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+      titulo = `${cargoLbl} — todos os municípios`;
+      sub = `Lista de candidatos por município · ${_resImpAnoTxt(I)} · ${I.qtd ? I.qtd + " primeiros por cidade" : "todos por cidade"}`;
+      corpo = muns.map((m) => {
+        let l = a26.map((c) => { const o = de22 ? de22(c) : null; const v26 = (c.municipios || {})[m.chave] || 0; return { c, v26, v22: cmp ? ((o && o.municipios || {})[m.chave] || 0) : v26 }; });
+        l = limitar(_resArvOrdenar(l.filter((x) => x.v22 || x.v26), I.ordem));
+        if (!l.length) return "";
+        const base = l.reduce((a, x) => a + x.v26, 0);
+        return `<div class="di-rsec">${esc(m.nome)}</div>` + cabVal("Candidato") + l.map((x, i) => lin(`${i + 1}º`, `<b>${esc(x.c.nomeUrna)}</b> <i>${esc(nomePartidoExibicao(x.c.partido))}</i>`, ...valCols(x, base))).join("");
+      }).join("");
+    } else if (I.tipo === "lista") {
       const de22 = a22 ? casar(a22) : null;
       let linhas = a26.map((c) => { const v = I.recorte === "estado" ? c.total : somaRec(c); const o = de22 ? de22(c) : null; return { c, v26: v, v22: cmp ? (o ? (I.recorte === "estado" ? o.total : somaRec(o)) : 0) : v }; });
       if (cmp) { const ja = new Set(linhas.map((l) => l.c.sq)); a22.forEach((o) => { if (!a26.some((c) => de22(c) === o)) linhas.push({ c: o, v22: I.recorte === "estado" ? o.total : somaRec(o), v26: 0, so22: true }); }); }
