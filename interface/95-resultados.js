@@ -1579,9 +1579,11 @@ async function _resImpDocumento(ctx) {
   const limitar = (l) => I.qtd ? l.slice(0, I.qtd) : l;
   const difTxt = (v26, v22) => { const d = v26 - v22; return `${d >= 0 ? "+" : "−"}${_resFmt(Math.abs(d))}`; };
   // linha de 5 colunas do documento: pos | nome | A | B | C
-  const lin = (pos, nome, a, b, cc, cls = "") => `<div class="di-rlin${cls}"><span>${pos}</span><span>${nome}</span><span>${a}</span><span>${b}</span><span>${cc}</span></div>`;
-  const cabVal = (rot) => cmp ? lin("", rot, String(RES_ANO_ANTERIOR), String(RES_ANO_APURADO), "Dif.", " di-rcab") : lin("", rot, "", "Votos", "%", " di-rcab");
-  const valCols = (x, base) => cmp ? [_resFmt(x.v22), x.v26 ? _resFmt(x.v26) : "—", x.v26 ? difTxt(x.v26, x.v22) : "—"] : ["", _resFmt(x.v26), pct(x.v26, base)];
+  // 6ª coluna opcional: % da diferença (verde/vermelho), só na comparação 2026 × 2022 (05/10/2026)
+  const lin = (pos, nome, a, b, cc, dp, cls = "") => { if (dp !== undefined && dp !== null && typeof dp === "string" && dp.startsWith(" di-")) { cls = dp; dp = undefined; } return `<div class="di-rlin${dp !== undefined ? " di-r6" : ""}${cls}"><span>${pos}</span><span>${nome}</span><span>${a}</span><span>${b}</span><span>${cc}</span>${dp !== undefined ? `<span>${dp}</span>` : ""}</div>`; };
+  const difPct = (v26, v22) => { if (!v22) return "—"; const p = (v26 - v22) / v22 * 100; return `<b style="color:${p >= 0 ? "#1FA83A" : "#D9482F"};">${p >= 0 ? "+" : "−"}${Math.abs(p).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%</b>`; };
+  const cabVal = (rot) => cmp ? lin("", rot, String(RES_ANO_ANTERIOR), String(RES_ANO_APURADO), "Dif.", "%", " di-rcab") : lin("", rot, "", "Votos", "%", " di-rcab");
+  const valCols = (x, base) => cmp ? [_resFmt(x.v22), x.v26 || pcState._resMeta ? _resFmt(x.v26) : "—", x.v26 || pcState._resMeta ? difTxt(x.v26, x.v22) : "—", x.v26 || pcState._resMeta ? difPct(x.v26, x.v22) : "—"] : ["", _resFmt(x.v26), pct(x.v26, base)];
   const partTxt = (P) => P && P[0] ? `<i class="di-rpart">comparecimento ${pct(P[1], P[0])} · abstenção ${pct(P[2], P[0])} · brancos/nulos ${pct(P[3] + P[4], P[1])}</i>` : "";
   const casar = (lista) => { const m = new Map(); lista.forEach((y) => { m.set(_resNorm(y.nome), y); m.set("URNA::" + _resNorm(y.nomeUrna), y); }); return (c) => c ? _resCasarEntreEleicoes(c, m, lista) : null; };
   let titulo = "", sub = "", corpo = "";
