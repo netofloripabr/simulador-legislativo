@@ -1050,6 +1050,57 @@ function _resArvLigar(alvo, st, rerender) {
   alvo.querySelectorAll("[data-arv-mais]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.arvMais = st.arvMais || {}; st.arvMais[b.dataset.arvMais] = !st.arvMais[b.dataset.arvMais]; rerender(); }));
 }
 
+// Malha SVG dos municípios (projeção equiretangular) + centro de cada um
+// pelas coordenadas — usada pela aba Mapa e pelo mini mapa da ficha impressa.
+async function _resGeoGarantir() {
+  if (!pcState._resGeo) {
+    try { pcState._resGeo = await (await fetch("dados/mapas/sc-municipios.geojson", { cache: "force-cache" })).json(); } catch (e) { pcState._resGeo = null; }
+  }
+  if (pcState._resGeo) _resGeoMontar(pcState._resGeo);
+  return pcState._resGeo;
+}
+function _resGeoMontar(geo) {
+  if (pcState._resGeoSvg) return;
+  let minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9;
+  const walk = (c, f) => { if (typeof c[0] === "number") f(c); else c.forEach((x) => walk(x, f)); };
+  geo.features.forEach((f) => walk(f.geometry.coordinates, ([x, y]) => { minx = Math.min(minx, x); maxx = Math.max(maxx, x); miny = Math.min(miny, y); maxy = Math.max(maxy, y); }));
+  const W = 1000, k = Math.cos((miny + maxy) / 2 * Math.PI / 180), H = Math.round(W * (maxy - miny) / ((maxx - minx) * k));
+  const X = (lon) => (lon - minx) / (maxx - minx) * W, Y = (lat) => (maxy - lat) / (maxy - miny) * H;
+  const P = ([lon, lat]) => `${X(lon).toFixed(1)} ${Y(lat).toFixed(1)}`;
+  const centros = {};
+  const paths = geo.features.map((f) => {
+    const g = f.geometry; const polys = g.type === "MultiPolygon" ? g.coordinates : [g.coordinates];
+    let a = 1e9, b = -1e9, c = 1e9, d2 = -1e9; walk(g.coordinates, ([x, y]) => { a = Math.min(a, x); b = Math.max(b, x); c = Math.min(c, y); d2 = Math.max(d2, y); });
+    centros[f.properties.ibge] = [X((a + b) / 2), Y((c + d2) / 2)];
+    const d = polys.map((poly) => poly.map((ring) => "M" + ring.map(P).join(" L") + "Z").join("")).join("");
+    return `<path d="${d}" data-ibge="${f.properties.ibge}"></path>`;
+  }).join("");
+  pcState._resGeoCentros = centros; pcState._resGeoVB = [W, H];
+  pcState._resGeoSvg = `<svg id="pcResMapaSvg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">${paths}</svg>`;
+}
+// Mini mapa pra papel (05/10/2026), no mesmo padrão do mapa impresso:
+// malha cinza, bolhas verdes translúcidas (padrão) ou mapa de calor.
+// vals = { chaveApp: votos }; dentro(chave) marca o recorte.
+function _resMiniMapaHtml(vals, dentro, bolhas) {
+  if (!pcState._resGeoSvg) return "";
+  const porIbge = new Map(MUNICIPIOS_SC_REGIOES.map((m) => [String(m.ibge), m.chave]));
+  const mix = (t) => { const f = (a, b) => Math.round(a + (b - a) * t); return `rgb(${f(255, 31)},${f(255, 168)},${f(255, 58)})`; };
+  const vis = Object.entries(vals).filter(([k, v]) => v && dentro(k));
+  const maxV = Math.max(1, ...vis.map(([, v]) => v));
+  const paths = pcState._resGeoSvg.replace(/<path d="([^"]+)" data-ibge="([^"]+)"><\/path>/g, (_, d, ib) => {
+    const k = porIbge.get(String(ib)), v = (k && vals[k]) || 0, den = k && dentro(k);
+    const fill = !bolhas && den && v ? mix(Math.pow(Math.log(1 + v) / Math.log(1 + maxV), 1.5)) : "none";
+    return `<path d="${d}" fill="${fill}" stroke="${den ? "#9AA0A6" : "#D3D6D9"}" stroke-width="0.35" vector-effect="non-scaling-stroke"></path>`;
+  }).replace(/ id="pcResMapaSvg"| style="[^"]*"/g, "").replace("<svg", '<svg class="di-mapa"');
+  let circ = "";
+  if (bolhas) {
+    const ibPor = new Map(MUNICIPIOS_SC_REGIOES.map((m) => [m.chave, String(m.ibge)]));
+    circ = vis.map(([k, v]) => { const c = pcState._resGeoCentros[ibPor.get(k)]; if (!c) return null; const r = Math.max(1.6, 30 * Math.sqrt(v / maxV)); return { r, h: `<circle cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" r="${r.toFixed(1)}" fill="#1FA83A" fill-opacity="0.28" stroke="#178A2F" stroke-width="1" stroke-opacity="0.85"></circle>` }; })
+      .filter(Boolean).sort((a, b) => b.r - a.r).map((x) => x.h).join("");
+  }
+  return `<div class="di-rmapa" style="max-width:440px; margin:0 auto;">${paths.replace("</svg>", `<g>${circ}</g></svg>`)}<div class="di-rleg"><span><i style="background:#1FA83A"></i>${bolhas ? "tamanho da bolha = votos" : "cor mais forte = mais votos"}</span></div></div>`;
+}
+
 // ---------- aba Mapa ----------
 async function _resRenderMapa(ctx) {
   const { st, cargo, cands, antPorNome, cenario } = ctx;
@@ -1072,20 +1123,7 @@ async function _resRenderMapa(ctx) {
   const candsAno = anoSel === st.anoApurado ? cands : anoSel === st.anoAnterior ? ((ctx.ant && ctx.ant.candidatos) || []) : ((ctx.ant2 && ctx.ant2.candidatos) || []);
   const cenTotal = baseCen ? baseCen.total : 0;
 
-  // projeção equiretangular pro viewBox
-  if (!pcState._resGeoSvg) {
-    let minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9;
-    const walk = (c, f) => { if (typeof c[0] === "number") f(c); else c.forEach((x) => walk(x, f)); };
-    geo.features.forEach((f) => walk(f.geometry.coordinates, ([x, y]) => { minx = Math.min(minx, x); maxx = Math.max(maxx, x); miny = Math.min(miny, y); maxy = Math.max(maxy, y); }));
-    const W = 1000, k = Math.cos((miny + maxy) / 2 * Math.PI / 180), H = Math.round(W * (maxy - miny) / ((maxx - minx) * k));
-    const P = ([lon, lat]) => `${((lon - minx) / (maxx - minx) * W).toFixed(1)} ${((maxy - lat) / (maxy - miny) * H).toFixed(1)}`;
-    const paths = geo.features.map((f) => {
-      const g = f.geometry; const polys = g.type === "MultiPolygon" ? g.coordinates : [g.coordinates];
-      const d = polys.map((poly) => poly.map((ring) => "M" + ring.map(P).join(" L") + "Z").join("")).join("");
-      return `<path d="${d}" data-ibge="${f.properties.ibge}"></path>`;
-    }).join("");
-    pcState._resGeoSvg = `<svg id="pcResMapaSvg" viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">${paths}</svg>`;
-  }
+  _resGeoMontar(geo);
 
   const meso = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m.meso))].sort();
   const regTxt = st.assoc || st.regiao || "Estado";
@@ -1491,7 +1529,8 @@ function _resImpRender(ctx) {
     }
     if (t === "ficha") {
       h += grp("Detalhe", RES_IMP_DETALHES.map(([v, r]) => { const dis = ["bairros", "colegios", "secoes"].includes(v) && !mun; return op("det", v, r, I.det.has(v) && !dis, dis); }).join(""), mun ? "" : ` <i>bairros, colégios e seções: escolha um município</i>`);
-      h += grp("Incluir", op("inc", "lista", "Lista completa de cada local", I.inc.has("lista") && mun, !mun) + op("inc", "part", "Participação (abstenção, brancos, nulos)", I.inc.has("part")));
+      h += grp("Incluir", op("inc", "lista", "Lista completa de cada local", I.inc.has("lista") && mun, !mun) + op("inc", "part", "Participação (abstenção, brancos, nulos)", I.inc.has("part")) + op("inc", "dados", "Dados da eleição", I.inc.has("dados")) + op("inc", "mapa", "Mini mapa", I.inc.has("mapa")));
+      if (I.inc.has("mapa")) h += grp("Mapa em", [["bolhas", "Bolhas"], ["cores", "Mapa de calor"]].map(([v, r]) => op("forma", v, r, I.forma === v)).join(""));
     }
     if (t !== "plenario") {
       h += grp("Ordenar", RES_ARV_ORDENS.map(([v, r]) => op("ordem", v, r, I.ordem === v)).join(""));
@@ -1560,7 +1599,7 @@ function _resImpResumo(ctx) {
     const c = ctx.cands.find((x) => x.sq === I.sq);
     const det = RES_IMP_DETALHES.filter(([v]) => I.det.has(v) && (I.recorte === "mun" || !["bairros", "colegios", "secoes"].includes(v))).map(([, r]) => r.toLowerCase());
     if (!c || !det.length) return "";
-    const inc = [I.inc.has("lista") && I.recorte === "mun" ? "lista completa de cada local" : "", I.inc.has("part") ? "participação" : ""].filter(Boolean);
+    const inc = [I.inc.has("lista") && I.recorte === "mun" ? "lista completa de cada local" : "", I.inc.has("part") ? "participação" : "", I.inc.has("dados") ? "dados da eleição" : "", I.inc.has("mapa") ? `mini mapa (${I.forma === "cores" ? "calor" : "bolhas"})` : ""].filter(Boolean);
     return `${c.nomeUrna} · ${rec} · ${det.join(", ")} · ${_resImpAnoTxt(I)} · ${ord.toLowerCase()} · ${qtd}${inc.length ? " · com " + inc.join(" e ") : ""}`;
   }
   const nome = { lista: "Lista de candidatos", partidos: "Partidos", plenario: "Plenário (eleitos)" }[I.tipo];
@@ -1658,6 +1697,21 @@ async function _resImpDocumento(ctx) {
     const tot = { v26: c26 ? (I.recorte === "estado" ? c26.total : somaRec(c26)) : 0, v22: cmp ? (c22 ? (I.recorte === "estado" ? c22.total : somaRec(c22)) : 0) : 0 };
     if (!cmp) tot.v22 = tot.v26;
     corpo += `<div class="di-rres"><div><b>${_resFmt(cmp ? tot.v22 : tot.v26)}</b>votos em ${cmp ? RES_ANO_ANTERIOR : anoUnico} · ${esc(recTxt)}</div>${cmp ? `<div><b>${tot.v26 ? _resFmt(tot.v26) : "—"}</b>votos em ${RES_ANO_APURADO}</div><div><b>${tot.v26 ? difTxt(tot.v26, tot.v22) : "—"}</b>diferença</div>` : `<div><b>${_resFmt(c26 ? c26.total : 0)}</b>total no estado</div>`}</div>`;
+    // Dados da eleição do recorte (05/10/2026): eleitorado, comparecimento,
+    // abstenção, brancos, nulos e válidos — 2026 (TSE) e 2022 lado a lado
+    if (I.inc.has("dados")) {
+      const somaP = (pc) => { if (!pc) return null; if (I.recorte === "estado" && pc.estado) return pc.estado; const t = [0, 0, 0, 0, 0, 0]; Object.entries(pc.mun || {}).forEach(([k, P]) => { if (dentro(k)) P.forEach((x, i) => { t[i] += x || 0; }); }); return t[0] ? t : null; };
+      const pA = await _resCarregar(anoA, "participacao"), pB = anoB ? await _resCarregar(anoB, "participacao") : null;
+      const A = somaP(pA && pA[cargo]), B = cmp ? somaP(pB && pB[cargo]) : null;
+      if (A || B) {
+        const lp = (rot, i, base) => { const a = A ? A[i] : null, b = B ? B[i] : null; const pa = A && base != null ? ` <i>${pct(a, A[base])}</i>` : "", pb = B && base != null ? ` <i>${pct(b, B[base])}</i>` : ""; return cmp ? lin("", rot, b == null ? "—" : _resFmt(b) + pb, a == null ? "—" : _resFmt(a) + pa, a != null && b != null ? difTxt(a, b) : "—", a != null && b ? difPct(a, b) : "—") : lin("", rot, "", _resFmt(a) + pa, ""); };
+        corpo += `<div class="di-rsec">Dados da eleição · ${esc(recTxt)}</div>` + (cmp ? lin("", "", String(RES_ANO_ANTERIOR), String(RES_ANO_APURADO), "Dif.", "%", " di-rcab") : lin("", "", "", String(anoA), "", undefined, " di-rcab"))
+          + lp("Eleitorado", 0, null) + lp("Comparecimento", 1, 0) + lp("Abstenção", 2, 0) + lp("Brancos", 3, 1) + lp("Nulos", 4, 1) + lp("Válidos", 5, 1);
+      }
+    }
+    if (I.inc.has("mapa") && await _resGeoGarantir()) {
+      corpo += `<div class="di-rsec">Mapa · ${esc(recTxt)} · ${cmp ? RES_ANO_APURADO : anoUnico}</div>` + _resMiniMapaHtml((c26 && c26.municipios) || {}, (k) => I.recorte === "estado" || dentro(k), I.forma !== "cores");
+    }
     const secao = (tit, cab, linhas) => `<div class="di-rsec">${tit}</div>${cab}${linhas || `<div class="di-sub">Sem dados neste recorte.</div>`}`;
     const base = tot.v26;
     if (I.det.has("mun")) {
