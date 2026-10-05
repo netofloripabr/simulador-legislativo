@@ -1432,7 +1432,7 @@ async function _resRenderMunDet(ctx, dados, cmp) {
 // Uma janela com um filtro pra cada coisa que a tela de Resultados mostra;
 // o papel continua sendo o documento .di-* (mesma casca do _resDocImpresso).
 const RES_IMP_TIPOS = [["atual", "Seleção atual"], ["lista", "Lista de candidatos"], ["ficha", "Ficha do candidato"], ["mapa", "Mapa"], ["partidos", "Partidos"], ["plenario", "Plenário"]];
-const RES_IMP_DETALHES = [["mun", "Municípios"], ["zonas", "Zonas"], ["bairros", "Bairros"], ["colegios", "Colégios"], ["secoes", "Seções"], ["hist", "Histórico"]];
+const RES_IMP_DETALHES = [["mun", "Municípios"], ["regioes", "Regiões"], ["zonas", "Zonas"], ["bairros", "Bairros"], ["colegios", "Colégios"], ["secoes", "Seções"], ["hist", "Histórico"]];
 const RES_IMP_QTD = [[20, "20 primeiros"], [50, "50 primeiros"], [0, "Todos"]];
 
 function _resImpAbrir(ctx) {
@@ -1649,8 +1649,18 @@ async function _resImpDocumento(ctx) {
     const base = tot.v26;
     if (I.det.has("mun")) {
       const ks = [...new Set([...Object.keys((c26 && c26.municipios) || {}), ...Object.keys((c22 && c22.municipios) || {})])].filter(dentro);
-      const l = limitar(_resArvOrdenar(ks.map((k) => { const v26 = (c26 && c26.municipios[k]) || 0; return { k, v26, v22: cmp ? ((c22 && c22.municipios[k]) || 0) : v26 }; }), I.ordem));
+      const l = limitar(_resArvOrdenar(ks.map((k) => { const v26 = (c26 && c26.municipios[k]) || 0; return { k, v26, v22: cmp ? ((c22 && c22.municipios[k]) || 0) : v26 }; }).filter((x) => x.v22 || x.v26), I.ordem));
       corpo += secao("Municípios", cabVal("Município"), l.map((x, i) => lin(`${i + 1}º`, `${esc(nomeMun(x.k))}${I.inc.has("part") && partC ? partTxt(partC.mun[x.k]) : ""}`, ...valCols(x, base))).join(""));
+    }
+    if (I.det.has("regioes")) {
+      // comparação por região (05/10/2026): mesorregiões (IBGE) e associações de municípios
+      const somaReg = (cand, f) => cand ? MUNICIPIOS_SC_REGIOES.filter(f).reduce((t, m) => t + ((cand.municipios || {})[m.chave] || 0), 0) : 0;
+      const bloco = (rot, campo) => {
+        const nomes = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m[campo]))];
+        const l = _resArvOrdenar(nomes.map((n) => { const f = (m) => m[campo] === n && dentro(m.chave); const v26 = somaReg(c26, f); return { nome: n, v26, v22: cmp ? somaReg(c22, f) : v26 }; }).filter((x) => x.v22 || x.v26), I.ordem);
+        return secao(rot, cabVal(rot === "Mesorregiões" ? "Mesorregião" : "Associação"), l.map((x, i) => lin(`${i + 1}º`, esc(x.nome.replace(" Catarinense", "")), ...valCols(x, base))).join(""));
+      };
+      corpo += bloco("Mesorregiões", "meso") + bloco("Associações de municípios", "assoc");
     }
     if (I.det.has("zonas")) {
       const z26 = c26 ? await _resCarregar(cmp ? RES_ANO_APURADO : anoUnico, cargo, "-zonas") : null;
