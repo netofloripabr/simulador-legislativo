@@ -12,8 +12,9 @@
 //   4. Publica storage://apuracao/{uf}-{ano}/{cargo}.json no formato de
 //      dados/resultados/{uf}-{ano}/{cargo}.json (+ campo `meta`).
 //   5. Registra em execucoes_rotina.
-// Quando todos os cargos estão com 100% e "tf":"s" (totalização final), a
-// função desliga apuracao_ativa sozinha.
+// Na totalização final segue ligada (o app depende de apuracao_ativa pra
+// mostrar o resultado); desligar à mão só quando a apuração 2026 for
+// substituída por arquivos estáticos.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -150,10 +151,9 @@ Deno.serve(async (req: Request) => {
     resumo[cargo] = { municipiosNovos: mun.mudou, candidatos: cands.length, pct: status.pct_secoes, final: status.final, erros: [e1.error?.message, e2.error?.message, up.error?.message].filter(Boolean) };
   }
 
-  if (todosFinais && cfg.apuracao_ativa === "true") {
-    await sb.from("config_app").update({ valor: "false", atualizado_em: new Date().toISOString() }).eq("chave", "apuracao_ativa");
-    resumo.desligou = "totalização final em todos os cargos";
-  }
+  // 05/10/2026: NÃO desliga mais apuracao_ativa na totalização final — com
+  // ela desligada o app mostrava a apuração zerada ("aguardando o TSE").
+  if (todosFinais) resumo.todosFinais = true;
   await sb.from("execucoes_rotina").insert({ rotina: "apuracao-tse", sucesso: !Object.values(resumo).some((v) => typeof v === "string" && /HTTP|falha/.test(v)), detalhe: JSON.stringify(resumo).slice(0, 2000) });
   return new Response(JSON.stringify({ ok: true, ano, cd, uf, resumo }), { headers: { "Content-Type": "application/json" } });
 });
