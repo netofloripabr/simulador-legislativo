@@ -1370,5 +1370,20 @@ const MIGRACOES_INDEX = [
     "config_app_leitura_apuracao_anon"
    ]
   ]
+ },
+ {
+  "num": 61,
+  "arquivo": "migracao-61-investimento-municipio.sql",
+  "descricao": "Migração 61 (06/10/2026): investimento do gabinete por município (aba",
+  "objetos": [
+   [
+    "table",
+    "investimento_municipio"
+   ],
+   [
+    "policy",
+    "investimento_municipio_admin_le"
+   ]
+  ]
  }
 ];
