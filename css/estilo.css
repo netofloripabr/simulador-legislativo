@@ -3207,7 +3207,7 @@
 #modoColaborativoWrap .pc-lin.pc-lin-pos > .v.p{ font-size:9px; font-weight:600; color:#8A9096; }
 #modoColaborativoWrap .pc-lin.pc-lin-pos.cab > span{ font-size:9px; font-weight:600; color:#6B7178; }
 #modoColaborativoWrap .pc-lin.pc-lin-pos.cab > .c{ justify-content:center; }
-#modoColaborativoWrap .pc-sen-chip.pos{ font-size:8.5px; padding:2.4px 6px; height:15px; min-width:0; color:#FFFFFF; font-weight:800; }
+#modoColaborativoWrap .pc-sen-chip.pos{ font-size:8.5px; padding:2.4px 6px; height:15px; min-width:0; color:#1D2023; font-weight:800; }
 #modoColaborativoWrap .pc-sen-chip.pos.neutro{ background:#3A3F45; color:#DDE0E2; }
 #modoColaborativoWrap .pc-lin.pc-lin-pos > .n{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
 /* Lista compacta de candidatos (aprovada 23/09/2026): uma linha por
@@ -3382,7 +3382,8 @@
 #modoColaborativoWrap .pc-arv-pos .pc-sen-chip, #modoColaborativoWrap .pc-arv-pos > *{ transform:scale(.85); transform-origin:right center; }
 #modoColaborativoWrap .pc-lin.pc-rf.pc-arv, #modoColaborativoWrap .pc-lin.pc-rf.cab{ grid-template-columns:12px minmax(0,1fr) 42px 30px 44px; column-gap:3px; }
 #modoColaborativoWrap .pc-lin.pc-arv.n1 .n{ padding-left:4px; } #modoColaborativoWrap .pc-lin.pc-arv.n2 .n{ padding-left:8px; } #modoColaborativoWrap .pc-lin.pc-arv.n3 .n{ padding-left:12px; }
-#modoColaborativoWrap .pc-sen-chip.pos:not(.neutro){ color:#FFFFFF !important; }
+/* 06/10/2026: texto no cinza escuro do fundo do card (contraste no verde) */
+#modoColaborativoWrap .pc-sen-chip.pos:not(.neutro){ color:#1D2023 !important; }
 /* alça "+ N" (aprovada 29/09/2026) */
 #modoColaborativoWrap .pc-arv-alca{ display:flex; flex-direction:column; align-items:center; gap:5px; padding:8px 0 10px; cursor:pointer; }
 #modoColaborativoWrap .pc-arv-alca .pega{ width:34px; height:4px; border-radius:999px; background:rgba(242,244,245,.18); }

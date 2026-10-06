@@ -45,13 +45,12 @@ function _resPctHtml(p, extra) {
 // ---------- carga sob demanda ----------
 // 2026 só tem o elenco zerado até o TSE publicar os arquivos detalhados
 // (dias depois da eleição). Virar pra true quando rodar os tratadores de 2026.
-const RES_2026_DETALHE = false;
-const RES_DADOS_VER = "20261002";
+const RES_2026_DETALHE = true;  // 06/10/2026: zonas/seções/escolas de 2026 geradas do boletim de urna (ferramentas/tratar_bu_2026.py)
+const RES_DADOS_VER = "20261006";
 // Governador e Presidente só na Apuração (02/10/2026) — os palpites seguem nos 3 do legislativo
 const RES_CARGOS = [...CARGOS, { id: "governador", label: "Governador" }, { id: "presidente", label: "Presidente" }];
 const _resMajor = (cargo) => cargo === "senador" || cargo === "governador" || cargo === "presidente";
 async function _resCarregar(ano, cargo, sufixo) {
-  if (ano >= 2026 && cargo === "participacao" && !sufixo && pcState._resPart26) return pcState._resPart26;
   pcState._resCache = pcState._resCache || {};
   const k = `${ano}/${cargo}${sufixo || ""}`;
   if (pcState._resCache[k]) return pcState._resCache[k];
@@ -63,6 +62,7 @@ async function _resCarregar(ano, cargo, sufixo) {
     if (!r.ok) throw new Error(r.status);
     pcState._resCache[k] = await r.json();
   } catch (e) {
+    if (ano >= 2026 && cargo === "participacao" && pcState._resPart26) { pcState._resCache[k] = pcState._resPart26; return pcState._resCache[k]; }
     // 404 é esperado (ex.: 2026 ainda sem arquivos por zona/seção) — só avisa em outro erro
     if (String(e && e.message) !== "404") console.error("Resultados: falha ao carregar", k, e);
     pcState._resCache[k] = null;
@@ -1393,9 +1393,9 @@ async function _resRenderMunDet(ctx, dados, cmp) {
     }
   } else if (st.munAba === "zonas") {
     const z = await _resCarregar(anoDet, cargo, "-zonas");
-    const mine = (z && z[cenario.sq]) || {};
+    const mine = (z && (z[cenario.sq] || z[String(cenario.numero)])) || {};
     if (cmp) {
-      const zc = (z && z[cmp.sq]) || {};
+      const zc = (z && (z[cmp.sq] || z[String(cmp.numero)])) || {};
       const chaves = [...new Set(Object.keys(mine).concat(Object.keys(zc)).filter((k) => k.startsWith(chave + "::")))];
       const linhas = chaves.map((k) => ({ zona: k.split("::")[1], v: mine[k] || 0, vc: zc[k] || 0 })).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
       corpo = `<div class="pc-cmp-det-card"><div class="pc-cmp-cab"><span></span><span class="stat">${cmp.nomeUrna}</span><span class="stat forte">${cenario.nomeUrna}</span><span></span></div>` + (linhas.map((l) => { const dif = l.v - l.vc; const cenVenceu = l.v >= l.vc;
@@ -1408,7 +1408,7 @@ async function _resRenderMunDet(ctx, dados, cmp) {
     } else {
       const z0 = await _resCarregar(RES_ANO_ANTERIOR, cargo, "-zonas");
       const a = ctx.antDe(cenario);
-      const ant = (z0 && a && z0[a.sq]) || {};
+      const ant = (z0 && a && (z0[a.sq] || z0[String(a.numero)])) || {};
       const linhas = Object.entries(mine).filter(([k]) => k.startsWith(chave + "::")).map(([k, v]) => ({ zona: k.split("::")[1], v, v0: ant[k] || 0 })).sort((x, y) => (ordem === "desc" ? 1 : -1) * (y.v - x.v));
       const zCands = Object.values(z || {});
       corpo = `<div class="pc-lin pc-lin-pos cab"><span></span><span>Zona</span><span class="c">Pos.</span><span class="v">Votos</span><span class="v">%</span></div>` + (linhas.map((l) => `<div class="pc-lin pc-lin-pos clic" data-filtra="zona" data-valor="${l.zona}"><span></span><span class="n">${l.zona}ª zona${subtit(bairroDaZona(l.zona))}</span><span class="c">${_resChipPos(_resPosicao(zCands, `${chave}::${l.zona}`, l.v, (m, k) => m[k]))}</span><span class="v">${_resFmt(l.v)}</span><span class="v p">${_resPctTotal(l.v, cenario.total)}</span></div>`).join("") || `<div class="pc-sub" style="padding:6px 0;">Sem votos aqui.</div>`);
@@ -1800,7 +1800,7 @@ async function _resImpDocumento(ctx) {
     if (I.det.has("zonas")) {
       const z26 = c26 ? await _resCarregar(cmp ? RES_ANO_APURADO : anoUnico, cargo, "-zonas") : null;
       const z22 = cmp && c22 ? await _resCarregar(RES_ANO_ANTERIOR, cargo, "-zonas") : null;
-      const m26 = (z26 && c26 && z26[c26.sq]) || {}, m22 = (z22 && c22 && z22[c22.sq]) || {};
+      const m26 = (z26 && c26 && (z26[c26.sq] || z26[String(c26.numero)])) || {}, m22 = (z22 && c22 && (z22[c22.sq] || z22[String(c22.numero)])) || {};
       const ks = [...new Set([...Object.keys(m26), ...Object.keys(m22)])].filter((k) => dentro(k.split("::")[0]));
       const l = limitar(_resArvOrdenar(ks.map((k) => ({ k, v26: m26[k] || 0, v22: cmp ? (m22[k] || 0) : (m26[k] || 0) })), I.ordem));
       corpo += secao("Zonas eleitorais", cabVal("Zona"), l.map((x, i) => { const [mk, z] = x.k.split("::"); return lin(`${i + 1}º`, `${z}ª zona · ${esc(nomeMun(mk))}${I.inc.has("part") && partC ? partTxt(partC.zona[x.k]) : ""}`, ...valCols(x, base)); }).join(""));
