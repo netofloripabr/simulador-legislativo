@@ -11,6 +11,7 @@ const MUN = JSON.parse(fs.readFileSync(__dirname + "/../../dados/resultados/sc-2
 const tsePorChave = {}; Object.entries(MUN).forEach(([k, m]) => { tsePorChave[k] = String(Number(m.tse)).padStart(5, "0"); });
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().trim();
 const rel = {};
+const _resMajorJs = (c) => ["senador", "governador", "presidente"].includes(c);
 const erro = (cargo, item, det) => { (rel[cargo] = rel[cargo] || { ok: {}, erros: [] }).erros.push({ item, ...det }); };
 const ok = (cargo, item, n = 1) => { const r = (rel[cargo] = rel[cargo] || { ok: {}, erros: [] }); r.ok[item] = (r.ok[item] || 0) + n; };
 
@@ -54,6 +55,15 @@ const ok = (cargo, item, n = 1) => { const r = (rel[cargo] = rel[cargo] || { ok:
     Object.entries(MUN).forEach(([k]) => { const tp = (T.mun[tsePorChave[k]] || {}).part, ap = A.part && A.part.mun[k]; JSON.stringify(tp) === JSON.stringify(ap) ? ok(cargo, "participação por município") : erro(cargo, "participação por município", { municipio: k, app: ap, tse: tp }); });
     // legenda por partido
     if (A.meta.legenda) Object.entries(T.estado.legenda).forEach(([sg, v]) => { if (!v) return; const av = Object.entries(A.meta.legenda).filter(([k]) => norm(k).replace(/\s/g, "") === norm(sg).replace(/\s/g, "")).reduce((s, [, x]) => s + x, 0); av === v ? ok(cargo, "voto de legenda") : erro(cargo, "voto de legenda", { partido: sg, app: av, tse: v }); });
+    // tela Ferramentas → Partidos: QE, válidos, nominais (sem anulados), legenda, total, eleitos
+    const PT = await p.evaluate(() => { const R = _resPartidos(pcState._resCtx); return { qe: R.qe, validos: R.validos, lista: R.lista.map((x) => ({ nome: x.nome, nominal: x.nominal, legenda: x.legenda, total: x.total, eleitos: x.eleitos })) }; });
+    PT.validos === P[5] ? ok(cargo, "Partidos (tela) — válidos") : erro(cargo, "Partidos (tela) — válidos", { app: PT.validos, tse: P[5] });
+    if (PT.qe !== null) { const qe = Math.floor(P[5] / T.estado.vagas) + ((P[5] / T.estado.vagas) % 1 > 0.5 ? 1 : 0); PT.qe === qe ? ok(cargo, "Partidos (tela) — QE") : erro(cargo, "Partidos (tela) — QE", { app: PT.qe, tse: qe }); }
+    const chv = (s) => norm(s).replace(/\s/g, "").split("/").sort().join("/");
+    const grupoTse = {}; Object.entries(T.estado.cands).forEach(([n, t]) => { const c = porNum.get(n); const k = chv(c ? c.partido : t.partido); const x = grupoTse[k] = grupoTse[k] || { nominal: 0, eleitos: 0 }; if (String(t.dvt || "Válido").startsWith("Válido")) x.nominal += t.votos; if (norm(t.st).startsWith("ELEITO")) x.eleitos++; });
+    Object.entries(T.estado.legenda).forEach(([g, v]) => { const x = grupoTse[chv(g)]; if (x) x.legenda = (x.legenda || 0) + v; });
+    PT.lista.forEach((x) => { const t = grupoTse[chv(x.nome)]; if (!t) return erro(cargo, "Partidos (tela) — partido fora do TSE", { nome: x.nome }); const tl = t.legenda || 0;
+      [["nominais", x.nominal, t.nominal], ["legenda", x.legenda, _resMajorJs(cargo) ? x.legenda : tl], ["total", x.total, t.nominal + (_resMajorJs(cargo) ? x.legenda : tl)], ["eleitos", x.eleitos, t.eleitos]].forEach(([k, a, b]) => a === b ? ok(cargo, "Partidos (tela) — " + k) : erro(cargo, "Partidos (tela) — " + k, { partido: x.nome, app: a, tse: b })); });
     // 2) filtros de região (aba Mapa): top 3 candidatos × mesorregiões e associações
     const top = Object.entries(T.estado.cands).sort((a, b) => b[1].votos - a[1].votos).slice(0, 3);
     for (const [n] of top) {

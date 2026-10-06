@@ -26,7 +26,14 @@ const CARGOS: Record<string, [string, string]> = { "7": ["estadual", "est"], "6"
 const UA = { headers: { "User-Agent": "SimulaLEGIS/1.0 (apuracao)" } };
 const numBR = (s: string) => Number(String(s || "0").replace(/\./g, "").replace(",", ".")) || 0;
 async function getJson(u: string) { try { const r = await fetch(u, UA); return r.ok ? await r.json() : null; } catch (_e) { return null; } }
-async function lerStorage(sb: any, caminho: string) { try { const { data } = await sb.storage.from("apuracao").download(caminho); return data ? JSON.parse(await data.text()) : null; } catch (_e) { return null; } }
+// 06/10/2026: falha de leitura NÃO vira "arquivo vazio" — às 03:43 de 06/10 uma
+// falha momentânea zerou o acumulado e o Presidente foi publicado com 40 de
+// 295 municípios. Só "não existe" devolve null; qualquer outro erro aborta o cargo.
+async function lerStorage(sb: any, caminho: string) {
+  const { data, error } = await sb.storage.from("apuracao").download(caminho);
+  if (error) { if (/not.?found|404|does not exist/i.test(String((error as any).message || "") + String((error as any).statusCode || ""))) return null; throw new Error("leitura do storage falhou: " + caminho); }
+  return data ? JSON.parse(await data.text()) : null;
+}
 async function gravarStorage(sb: any, caminho: string, obj: unknown) { return await sb.storage.from("apuracao").upload(caminho, new Blob([JSON.stringify(obj)], { type: "application/json" }), { upsert: true, contentType: "application/json", cacheControl: "10" }); }
 // Votos por município (04/10/2026): o TSE publica um arquivo por município
 // ({uf}{cod}-c000{cargo}-e{cd}-u.json); o arquivo de andamento (-ab.json)
@@ -104,7 +111,9 @@ Deno.serve(async (req: Request) => {
     if (!tse) { resumo[cargo] = "HTTP 404"; todosFinais = false; continue; }
     const geracao = `${tse.dg} ${tse.hg}`;
     const { data: st } = await sb.from("apuracao_status").select("dg, hg").eq("ano", ano).eq("uf", uf).eq("cargo", cargo).maybeSingle();
-    const mun = await atualizarMunicipios(sb, ano, cdE, ufl, cdCargo, cargo, abs[cdE], refazer);
+    let mun: any;
+    try { mun = await atualizarMunicipios(sb, ano, cdE, ufl, cdCargo, cargo, abs[cdE], refazer); }
+    catch (e) { resumo[cargo] = "falha: " + String((e as any).message || e); todosFinais = false; continue; }
     if (st && `${st.dg} ${st.hg}` === geracao && !mun.mudou && !forcar) { resumo[cargo] = "sem mudança"; if (tse.tf !== "s") todosFinais = false; continue; }
 
     const num = (s: string) => Number(String(s || "0").replace(/\./g, "").replace(",", ".")) || 0;

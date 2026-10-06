@@ -59,7 +59,8 @@ const cmp = (c, i, app, tse, d) => app === tse ? ok(c, i) : erro(c, i, { ...d, a
       P.linhas.forEach(([, , g, , v]) => {
         const nomes = Object.entries(G).filter(([, x]) => gNorm(x) === gNorm(g)).map(([n]) => n);
         if (!nomes.length) return erro(cargo, "Partidos — grupo não reconhecido", { recorte: r, grupo: g });
-        const nominal = nomes.reduce((s, n) => s + T(cargo, n, muns), 0), leg = Tleg(cargo, g, muns);
+        const valido = (n) => !TSE[cargo].estado.cands[n] || String(TSE[cargo].estado.cands[n].dvt || "Válido").startsWith("Válido");
+        const nominal = nomes.filter(valido).reduce((s, n) => s + T(cargo, n, muns), 0), leg = Tleg(cargo, g, muns);
         const a = num(v); a === nominal ? ok(cargo, "Partidos por recorte (votos nominais; legenda fora, por decisão antiga)") : a === nominal + leg ? ok(cargo, "Partidos por recorte (nominal + legenda)") : erro(cargo, "Partidos por recorte", { recorte: r || "estado", grupo: g, app: a, tseNominal: nominal, tseLegenda: leg });
       });
     }

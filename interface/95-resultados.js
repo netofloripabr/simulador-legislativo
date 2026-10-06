@@ -359,24 +359,29 @@ const RES_FEDERACOES = {
 function _resPartidos(ctx) {
   const { st, cands, cargo, totalVagas } = ctx;
   const fed = RES_FEDERACOES[st.anoApurado] || {};
-  const leg = (st.anoApurado === 2022 && typeof LEGENDA_2022 !== "undefined" && LEGENDA_2022[cargo]) || null;
+  // 2026 (06/10/2026): legenda e válidos vêm do TSE (meta da apuração); antes
+  // a tela dizia "sem voto de legenda" e calculava QE/QP só com nominais.
+  const meta = st.anoApurado >= 2026 ? pcState._resMeta : null;
+  const leg = (meta && meta.legenda) || (st.anoApurado === 2022 && typeof LEGENDA_2022 !== "undefined" && LEGENDA_2022[cargo]) || null;
   const grupos = {};
+  const chave = (p) => String(p || "").replace(/\s/g, "").toUpperCase().split("/").sort().join("/");
   const g = (p) => fed[p] || p;
   cands.forEach((c) => {
-    const k = g(c.partido);
-    const x = grupos[k] = grupos[k] || { nome: k, partidos: new Set(), nominal: 0, legenda: 0, cands: [], diretas: 0, sobras: 0 };
-    x.partidos.add(c.partido); x.nominal += c.total; x.cands.push(c);
+    const nm = g(c.partido), k = chave(nm);
+    const x = grupos[k] = grupos[k] || { nome: nm, partidos: new Set(), nominal: 0, legenda: 0, cands: [], diretas: 0, sobras: 0 };
+    // voto "anulado sub judice" não é válido (não entra no QE/QP)
+    x.partidos.add(c.partido); x.nominal += c.valido === false ? 0 : c.total; x.cands.push(c);
     const s = (c.situacao || "").toUpperCase();
     if (s.includes("ELEITO POR QP")) x.diretas++; else if (s.startsWith("ELEITO")) x.sobras++;
   });
-  if (leg) Object.entries(leg).forEach(([p, v]) => { const k = g(p); if (grupos[k]) grupos[k].legenda += v; });
+  if (leg) Object.entries(leg).forEach(([p, v]) => { const k = chave(g(p)); if (grupos[k]) grupos[k].legenda += v; });
   // Soma do arquivo por município/zona fica ~25 mil abaixo do oficial em
   // 2022 (votos de candidatos com situação revista depois). Quando há o
   // total oficial, ele manda no QE — mesmo número de testes/eleitoral.test.js.
   const somaArquivo = Object.values(grupos).reduce((a, x) => a + x.nominal + x.legenda, 0);
-  const validos = (RES_VALIDOS_OFICIAIS[st.anoApurado] || {})[cargo] || somaArquivo;
+  const validos = (meta && meta.validos) || (RES_VALIDOS_OFICIAIS[st.anoApurado] || {})[cargo] || somaArquivo;
   const qe = _resMajor(cargo) ? null : quocienteEleitoral(validos, totalVagas);
-  const lista = Object.values(grupos).map((x) => ({ ...x, total: x.nominal + x.legenda, eleitos: x.diretas + x.sobras, qp: qe ? (x.nominal + x.legenda) / qe : null }))
+  const lista = Object.values(grupos).filter((x) => x.nominal + x.legenda > 0 || x.diretas + x.sobras > 0).map((x) => ({ ...x, total: x.nominal + x.legenda, eleitos: x.diretas + x.sobras, qp: qe ? (x.nominal + x.legenda) / qe : null }))
     .sort((a, b) => b.eleitos - a.eleitos || b.total - a.total);
   return { lista, validos, qe, temLegenda: !!leg };
 }
@@ -392,7 +397,7 @@ function _resRenderPartidos(ctx) {
       <div class="pc-part-cab"><span>QE <b>${R.qe ? _resFmt(R.qe) : "—"}</b></span><span>Válidos <b>${_resFmt(R.validos)}</b></span>${R.temLegenda ? "" : `<span class="obs">sem voto de legenda em ${st.anoApurado}</span>`}</div>
       <div class="pc-dep-card" style="padding:0 12px;">
         <div class="pc-lin pc-part-lin cab"><span>Partido</span><span class="v">Votos</span><span class="v">QP</span><span class="c">Eleitos</span></div>
-        ${R.lista.map((x) => `<div class="pc-lin pc-part-lin clic" data-partido="${escaparAtributoHtml(x.nome)}"><span class="n">${x.nome}${x.partidos.size > 1 ? `<i class="pc-loc-sub">${[...x.partidos].join(" · ")}</i>` : ""}</span><span class="v">${_resFmt(x.total)}<i class="pc-loc-sub" style="text-align:right;">${pct(x.total)}</i></span><span class="v p">${x.qp === null ? "—" : x.qp.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span class="c">${x.eleitos ? `<span class="pc-sen-chip pos">${x.eleitos}</span>` : `<span style="color:#6B7178;">0</span>`}</span></div>`).join("")}
+        ${R.lista.map((x) => `<div class="pc-lin pc-part-lin clic" data-partido="${escaparAtributoHtml(x.nome)}"><span class="n">${x.nome}${R.temLegenda ? `<i class="pc-loc-sub">nominais ${_resFmt(x.nominal)}</i><i class="pc-loc-sub">legenda ${_resFmt(x.legenda)}</i>` : x.partidos.size > 1 ? `<i class="pc-loc-sub">${[...x.partidos].join(" · ")}</i>` : ""}</span><span class="v">${_resFmt(x.total)}<i class="pc-loc-sub" style="text-align:right;">${pct(x.total)}</i></span><span class="v p">${x.qp === null ? "—" : x.qp.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span><span class="c">${x.eleitos ? `<span class="pc-sen-chip pos">${x.eleitos}</span>` : `<span style="color:#6B7178;">0</span>`}</span></div>`).join("")}
       </div>`;
   } else {
     const t = (rot, val, sub, cls) => `<div class="pc-dep-tile ref"><span class="tv"${cls ? ` style="color:${cls};"` : ""}>${val}</span><span class="tr">${rot}${sub ? " · " + sub : ""}</span></div>`;
@@ -1684,14 +1689,20 @@ async function _resImpDocumento(ctx) {
       sub = `Lista de candidatos · ${_resImpAnoTxt(I)} · ${linhas.length} candidatos`;
       corpo = cabVal("Candidato") + linhas.map((l, i) => lin(`${i + 1}º`, `<b>${esc(l.c.nomeUrna)}</b> <i>${esc(nomePartidoExibicao(l.c.partido))}${l.so22 ? ` · não concorre em ${RES_ANO_APURADO}` : ""}</i>`, ...valCols(l, base))).join("");
     } else {
-      const agrupa = (lista, ano) => { const fed = RES_FEDERACOES[ano] || {}; const g = {}; lista.forEach((c) => { const k = fed[c.partido] || _resPartidoAtual(c.partido); g[k] = (g[k] || 0) + (I.recorte === "estado" ? c.total : somaRec(c)); }); return g; };
+      const agrupa = (lista, ano) => { const fed = RES_FEDERACOES[ano] || {}; const g = {}; lista.forEach((c) => { const k = fed[c.partido] || _resPartidoAtual(c.partido); g[k] = (g[k] || 0) + (c.valido === false ? 0 : I.recorte === "estado" ? c.total : somaRec(c)); }); return g; };
       const g26 = agrupa(a26, cmp ? RES_ANO_APURADO : +I.ano), g22 = cmp ? agrupa(a22, RES_ANO_ANTERIOR) : null;
       let linhas = [...new Set([...Object.keys(g26), ...Object.keys(g22 || {})])].map((k) => ({ nome: k, v26: g26[k] || 0, v22: cmp ? (g22[k] || 0) : (g26[k] || 0) }));
       linhas = limitar(_resArvOrdenar(linhas.filter((l) => l.v22 || l.v26), I.ordem));
       const base = linhas.reduce((a, l) => a + l.v26, 0);
       titulo = `Partidos — ${cargoLbl}`;
       sub = `${esc(recTxt)} · ${_resImpAnoTxt(I)} · votos nominais somados por partido/federação${I.recorte === "estado" ? "" : " (legenda não vem por município)"}`;
-      corpo = cabVal("Partido / federação") + linhas.map((l, i) => lin(`${i + 1}º`, `<b>${esc(nomePartidoExibicao(l.nome))}</b>`, ...valCols(l, base))).join("");
+      // 2026 no estado (06/10/2026): legenda e total oficial do TSE embaixo do nome;
+      // as colunas seguem nominais pra comparar com 2022 em qualquer recorte
+      const leg26 = I.recorte === "estado" && (cmp || +I.ano >= 2026) && pcState._resMeta && pcState._resMeta.legenda;
+      const chv = (p) => String(p || "").replace(/\s/g, "").toUpperCase().split("/").sort().join("/");
+      const legDe = (nome) => leg26 ? Object.entries(leg26).filter(([k]) => chv(k) === chv(nome)).reduce((a, [, v]) => a + v, 0) : 0;
+      if (leg26) sub = `${esc(recTxt)} · ${_resImpAnoTxt(I)} · colunas com votos nominais; embaixo do partido, a legenda e o total oficial de ${RES_ANO_APURADO} (TSE)`;
+      corpo = cabVal("Partido / federação") + linhas.map((l, i) => { const lg = legDe(l.nome); return lin(`${i + 1}º`, `<b>${esc(nomePartidoExibicao(l.nome))}</b>${leg26 ? `<i class="di-rpart">${RES_ANO_APURADO}: legenda ${_resFmt(lg)} · total ${_resFmt(l.v26 + lg)}</i>` : ""}`, ...valCols(l, base)); }).join("");
     }
   } else if (I.tipo === "plenario") {
     const lista = await _resImpCands(ctx, I.ano, cargo);
