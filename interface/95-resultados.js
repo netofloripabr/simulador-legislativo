@@ -540,7 +540,7 @@ function _resDocImpresso(st, cargo, cands) {
     <div class="di-conteudo">
       <div class="di-cab">
         <div class="di-marca"><div class="di-wm"><b>Simula</b><span>LEGIS</span></div><div class="di-wmsub">Simulador Eleitoral Legislativo 2026</div></div>
-        <div class="di-meta"><b>Santa Catarina</b> · Apuração ${st.anoApurado}<br>gerado em ${dataTxt} · ${horaTxt}</div>
+        <div class="di-meta"><b>Santa Catarina</b> · Resultado ${st.anoApurado}<br>gerado em ${dataTxt} · ${horaTxt}</div>
       </div>
       <div class="di-regra"></div>
       <div class="di-tit">${titulo}</div>
@@ -663,7 +663,7 @@ async function renderResultados() {
   const IC = (n) => iconeSvg(n, 14);
 
   conteudo.innerHTML = `
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 4px 2px;"><span style="display:flex; align-items:center; gap:8px;"><button type="button" class="pc-dd-btn ico" id="pcResImprimir" title="Imprimir a tela como está" style="width:32px; height:32px;">${iconeSvg("impressora", 15)}</button><button type="button" class="pc-dd-btn ico" id="pcResHome" title="Página inicial" style="width:32px; height:32px;">${iconeSvg("home", 15)}</button><span style="font-size:20px; font-weight:700;">Apuração ${anoApurado}</span></span></div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin:2px 0 4px 2px;"><span style="display:flex; align-items:center; gap:8px;"><button type="button" class="pc-dd-btn ico" id="pcResImprimir" title="Imprimir a tela como está" style="width:32px; height:32px;">${iconeSvg("impressora", 15)}</button><button type="button" class="pc-dd-btn ico" id="pcResHome" title="Página inicial" style="width:32px; height:32px;">${iconeSvg("home", 15)}</button><span style="font-size:20px; font-weight:700;">Resultado ${anoApurado}</span></span></div>
     <div class="pc-sub" style="margin:0 0 10px 2px;">Santa Catarina · ${meta ? "apuração oficial (TSE)" : aguardando ? "aguardando a apuração" : "resultado oficial (TSE)"}</div>
     <div class="pc-res-tog">
       ${_resVivoChip(meta)}
@@ -1858,7 +1858,7 @@ function _resDocCasca(titulo, sub, corpo, ano) {
     <div class="di-conteudo">
       <div class="di-cab">
         <div class="di-marca"><div class="di-wm"><b>Simula</b><span>LEGIS</span></div><div class="di-wmsub">Simulador Eleitoral Legislativo 2026</div></div>
-        <div class="di-meta"><b>Santa Catarina</b> · Apuração ${ano}<br>gerado em ${dataTxt} · ${horaTxt}</div>
+        <div class="di-meta"><b>Santa Catarina</b> · Resultado ${ano}<br>gerado em ${dataTxt} · ${horaTxt}</div>
       </div>
       <div class="di-regra"></div>
       <div class="di-tit">${titulo}</div>
@@ -2358,7 +2358,7 @@ function _resAvisarNovidades(cargo, meta, cands, favs) {
   const base = "SimulaLEGIS";
   if (!meta) { document.title = base; return; }
   const pct = (meta.pctSecoes || 0).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
-  document.title = `(${pct}%) Apuração · ${base}`;
+  document.title = `(${pct}%) Resultado · ${base}`;
   const mem = pcState._resAvisoMem = pcState._resAvisoMem || {};
   const ant = mem[cargo];
   const posPart = new Map();

@@ -621,7 +621,7 @@ async function renderPainelPrincipal() {
 
     <div class="pc-lobby-menu-tit">Atalhos</div>
     <div class="pc-app-grade">
-      <button class="pc-app dest" id="pcMenuResultados"><span class="pc-app-ic">${iconeSvg("checkCirculo", 38)}</span><span class="pc-app-rot">Apuração 2026</span><span class="pc-app-sub"><span class="pc-res-vivo"></span>Ao vivo</span></button>
+      <button class="pc-app dest" id="pcMenuResultados"><span class="pc-app-ic">${iconeSvg("checkCirculo", 38)}</span><span class="pc-app-rot">Resultado 2026</span><span class="pc-app-sub"><span class="pc-res-vivo"></span>Ao vivo</span></button>
       <button class="pc-app dest" id="pcMenuListas"><span class="pc-app-ic">${iconeSvg("lista", 38)}</span><span class="pc-app-rot">Listas</span><span class="pc-app-sub"><span class="pc-res-vivo verde"></span>Crie a sua lista (palpite)</span>${totalListas ? `<span class="pc-app-badge">${totalListas}</span>` : ""}</button>
       <button class="pc-app mini" id="pcMenuMedias" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("termometro", 22)}</span><span class="pc-app-rot">Termômetro</span></button>
       <button class="pc-app mini" id="pcMenuDesafios" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("desafio", 22)}</span><span class="pc-app-rot">Duelos</span>${totalDesafiosAtivos ? `<span class="pc-app-badge">${totalDesafiosAtivos}</span>` : ""}</button>
