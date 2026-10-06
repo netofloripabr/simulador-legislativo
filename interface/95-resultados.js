@@ -2300,7 +2300,10 @@ function _resSobrasHtml(d, parcial, totalVagas) {
     ext.historico.forEach((pIdx, k) => { if (k >= totalVagas) { const c = filas[pIdx][cont[pIdx]]; out.push({ numero: D.totalSobrasCargo + out.length + 1, vencedorNome: d.lista[pIdx].nome, vencedorMedia: votos[pIdx] / (cont[pIdx] + 1), vencedorCandidato: c ? nomeExibicao(c) : null }); } cont[pIdx]++; });
     return out;
   })();
-  const linha = (r, real) => `<div class="pn-srod${real ? "" : " fora"}"><span class="rn">${r.numero}ª</span>${real ? `<span class="pc-sen-chip ${parcial ? "neutro pc-chip-parcial" : "em"}">E-M · ${r.numero}ª</span>` : `<span class="pc-sen-chip neutro">F</span>`}<span class="rp">${nomePartidoExibicao(r.vencedorNome)}</span><span class="rc">${r.vencedorCandidato || "sem candidato na fila"}</span><span class="rm"><small>média</small><b>${F(r.vencedorMedia)}</b></span></div>`;
+  // votação de cada parlamentar ao lado do nome (pedido de 06/10/2026)
+  const votosDe = {}; d.lista.forEach((p) => p.candidatos.forEach((c) => { if (c.fonte !== "legenda") votosDe[nomeExibicao(c)] = Number(c.votos) || 0; }));
+  const vtx = (nm) => nm && votosDe[nm] != null ? ` <small class="pn-svotos">${F(votosDe[nm])} votos</small>` : "";
+  const linha = (r, real) => `<div class="pn-srod${real ? "" : " fora"}"><span class="rn">${r.numero}ª</span>${real ? `<span class="pc-sen-chip ${parcial ? "neutro pc-chip-parcial" : "em"}">E-M · ${r.numero}ª</span>` : `<span class="pc-sen-chip neutro">F</span>`}<span class="rp">${nomePartidoExibicao(r.vencedorNome)}</span><span class="rc">${r.vencedorCandidato || "sem candidato na fila"}${vtx(r.vencedorCandidato)}</span><span class="rm"><small>média</small><b>${F(r.vencedorMedia)}</b></span></div>`;
   return `<div class="pn-sob-box">
     ${parcial ? `<div class="pc-rf-aviso" style="margin:0 0 10px;">Cálculo parcial — muda a cada atualização da apuração.</div>` : ""}
     <div class="pn-sob-t">Distribuição das sobras — método das médias (art. 109)</div>

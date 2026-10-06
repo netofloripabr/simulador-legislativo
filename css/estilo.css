@@ -3328,7 +3328,9 @@
 #modoColaborativoWrap .pc-rf-aviso{ font-size:10px; color:#8A9096; padding:6px 10px; margin:6px 0; border-radius:8px; background:rgba(242,244,245,.04); }
 /* árvore da ficha 2026 × 2022 (29/09/2026) */
 #modoColaborativoWrap .pc-lin.pc-rf.pc-arv .n{ display:flex; align-items:center; gap:4px; min-width:0; }
-#modoColaborativoWrap .pc-lin.pc-rf.pc-arv, #modoColaborativoWrap .pc-lin.pc-rf.cab{ grid-template-columns:16px minmax(0,1fr) 46px 36px 48px; column-gap:4px; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv, #modoColaborativoWrap .pc-lin.pc-rf.cab{ grid-template-columns:14px minmax(0,1fr) 46px 44px 52px; column-gap:6px; }
+/* 06/10/2026: etiqueta e botão de lista mais perto do nome, sobrando espaço pros números */
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-lista{ margin-right:2px; }
 #modoColaborativoWrap .pc-arv-nome{ flex:1 1 0; min-width:0; white-space:normal; line-height:1.2; overflow-wrap:break-word; }
 #modoColaborativoWrap .pc-arv-chev{ display:inline-flex; flex:none; color:#8A9096; transform:rotate(-90deg); transition:transform .15s; }
 #modoColaborativoWrap .pc-arv-chev.on{ transform:none; }
@@ -3336,9 +3338,16 @@
 #modoColaborativoWrap .pc-arv-lista.on{ color:#34E84A; border-color:rgba(52,232,74,.5); }
 #modoColaborativoWrap .pc-lin.pc-arv.n0.aberto{ background:rgba(242,244,245,.05); }
 #modoColaborativoWrap .pc-lin.pc-arv.n1, #modoColaborativoWrap .pc-lin.pc-arv.n2, #modoColaborativoWrap .pc-lin.pc-arv.n3{ border-left:1px solid rgba(52,232,74,.25); }
+/* Camadas (06/10/2026): cada nível aberto ganha um fundo um tom mais claro e
+   um recuo, como folhas empilhadas — bairro → colégio → seção */
+#modoColaborativoWrap .pc-lin.pc-arv.n1{ background:rgba(242,244,245,.022); }
+#modoColaborativoWrap .pc-lin.pc-arv.n2{ background:rgba(242,244,245,.045); margin-left:3px; border-left:2px solid rgba(52,232,74,.35); }
+#modoColaborativoWrap .pc-lin.pc-arv.n3{ background:rgba(242,244,245,.07); margin-left:6px; border-left:2px solid rgba(52,232,74,.5); }
+#modoColaborativoWrap .pc-lin.pc-arv.n1.aberto{ background:rgba(242,244,245,.045); box-shadow:inset 0 -1px 0 rgba(0,0,0,.25); }
+#modoColaborativoWrap .pc-lin.pc-arv.n2.aberto{ background:rgba(242,244,245,.065); box-shadow:inset 0 -1px 0 rgba(0,0,0,.25); }
 #modoColaborativoWrap .pc-lin.pc-arv.n1 .n{ padding-left:8px; font-size:12.5px; }
-#modoColaborativoWrap .pc-lin.pc-arv.n2 .n{ padding-left:12px; font-size:12px; font-weight:600; color:#D5D9DC; }
-#modoColaborativoWrap .pc-lin.pc-arv.n3 .n{ padding-left:18px; font-size:11.5px; font-weight:500; color:#B5BBC0; }
+#modoColaborativoWrap .pc-lin.pc-arv.n2 .n{ padding-left:6px; font-size:12px; font-weight:600; color:#D5D9DC; }
+#modoColaborativoWrap .pc-lin.pc-arv.n3 .n{ padding-left:8px; font-size:11.5px; font-weight:500; color:#B5BBC0; }
 #modoColaborativoWrap .pc-arv-mais{ font-size:10.5px; color:#8A9096; padding:8px 0 8px 12px; cursor:pointer; }
 #modoColaborativoWrap .pc-arv-vazio{ font-size:10.5px; color:#8A9096; padding:8px 0 8px 12px; }
 #modoColaborativoWrap .pc-arv-painel{ margin:4px 0 8px; padding:8px 10px; border:1px solid rgba(242,244,245,.10); border-radius:12px; background:rgba(242,244,245,.03); }
@@ -3734,3 +3743,7 @@
 @media print{ #pcImpressaoConteudo .di-rlin.di-r6{ grid-template-columns:24px minmax(0,1fr) 56px 56px 56px 52px; } }
 /* Investimento e R$/voto na ficha (06/10/2026, só admin): +2 colunas */
 @media print{ #pcImpressaoConteudo .di-rlin.di-r8{ grid-template-columns:24px minmax(0,1fr) 52px 52px 52px 50px 76px 60px; } #pcImpressaoConteudo .di-rlin.di-r7{ grid-template-columns:24px minmax(0,1fr) 40px 60px 50px 76px 60px; } }
+
+/* votos do parlamentar nas sobras (06/10/2026) */
+#modoColaborativoWrap .pn-svotos{ display:block; font-size:.85em; color:#8A9096; font-weight:600; margin:1px 0 0; white-space:nowrap; }
+#modoColaborativoWrap .pn-srod .rc{ white-space:normal; overflow:visible; }
