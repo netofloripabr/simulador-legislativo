@@ -1788,8 +1788,12 @@ async function _resImpDocumento(ctx) {
       const somaReg = (cand, f) => cand ? MUNICIPIOS_SC_REGIOES.filter(f).reduce((t, m) => t + ((cand.municipios || {})[m.chave] || 0), 0) : 0;
       const bloco = (rot, campo) => {
         const nomes = [...new Set(MUNICIPIOS_SC_REGIOES.map((m) => m[campo]))];
-        const l = _resArvOrdenar(nomes.map((n) => { const f = (m) => m[campo] === n && dentro(m.chave); const v26 = somaReg(c26, f); return { nome: n, v26, v22: cmp ? somaReg(c22, f) : v26 }; }).filter((x) => x.v22 || x.v26), I.ordem);
-        return secao(rot, cabVal(rot === "Mesorregiões" ? "Mesorregião" : "Associação"), l.map((x, i) => lin(`${i + 1}º`, esc(x.nome.replace(" Catarinense", "")), ...valCols(x, base))).join(""));
+        // Investimento e R$/voto também por região (06/10/2026, só admin)
+        const inv = I.inc.has("inv") && c26 ? (pcState._resInv || {})[`${cargo}:${c26.numero}`] : null;
+        const R$ = (v) => "R$ " + Math.round(v).toLocaleString("pt-BR");
+        const extra = (html, a, b) => inv ? html.replace('class="di-rlin', `class="di-rlin ${cmp ? "di-r8" : "di-r7"}`).replace(/<\/div>$/, `<span>${a}</span><span>${b}</span></div>`) : html;
+        const l = _resArvOrdenar(nomes.map((n) => { const f = (m) => m[campo] === n && dentro(m.chave); const v26 = somaReg(c26, f); const iv = inv ? MUNICIPIOS_SC_REGIOES.filter(f).reduce((t, m) => t + (inv[m.chave] || 0), 0) : 0; return { nome: n, v26, v22: cmp ? somaReg(c22, f) : v26, iv, rv: iv && v26 ? iv / v26 : null }; }).filter((x) => x.v22 || x.v26 || x.iv), I.ordem);
+        return secao(rot, extra(cabVal(rot === "Mesorregiões" ? "Mesorregião" : "Associação"), "Investimento", "R$/voto"), l.map((x, i) => extra(lin(`${i + 1}º`, esc(x.nome.replace(" Catarinense", "")), ...valCols(x, base)), x.iv ? R$(x.iv) : "—", x.rv ? `<b>${R$(x.rv)}</b>` : "—")).join(""));
       };
       corpo += bloco("Mesorregiões", "meso") + bloco("Associações de municípios", "assoc");
     }
