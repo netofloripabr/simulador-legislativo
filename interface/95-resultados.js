@@ -1577,7 +1577,7 @@ function _resImpRender(ctx) {
     }
     if (t !== "plenario") {
       if (!I.inc.has("inv") && /^rv/.test(I.ordem)) I.ordem = "d26";
-      h += grp("Ordenar", RES_ARV_ORDENS.concat(t === "ficha" && I.inc.has("inv") ? [["rvd", "Maior R$/voto"], ["rva", "Menor R$/voto"]] : []).map(([v, r]) => op("ordem", v, r, I.ordem === v)).join(""));
+      h += grp("Ordenar", RES_ARV_ORDENS.concat(t === "ficha" && I.inc.has("inv") ? [["rvd", "Maior custo do voto"], ["rva", "Menor custo do voto"]] : []).map(([v, r]) => op("ordem", v, r, I.ordem === v)).join(""));
       h += grp("Quantidade", RES_IMP_QTD.map(([v, r]) => op("qtd", String(v), r, I.qtd === v)).join(""));
     }
   }
@@ -1642,7 +1642,7 @@ function _resImpResumo(ctx) {
   const rec = I.tipo === "plenario" ? "Santa Catarina" : _resImpRecorteTxt(I);
   if (!rec) return "";
   const cargoLbl = (RES_CARGOS.find((x) => x.id === (I.tipo === "ficha" ? ctx.cargo : I.cargo)) || {}).label || "";
-  const ord = (RES_ARV_ORDENS.concat([["rvd", "Maior R$/voto"], ["rva", "Menor R$/voto"]]).find(([o]) => o === I.ordem) || [])[1] || "";
+  const ord = (RES_ARV_ORDENS.concat([["rvd", "Maior custo do voto"], ["rva", "Menor custo do voto"]]).find(([o]) => o === I.ordem) || [])[1] || "";
   const qtd = I.qtd ? `${I.qtd} primeiros` : "todos";
   if (I.tipo === "ficha") {
     const c = ctx.cands.find((x) => x.sq === I.sq);
@@ -1779,9 +1779,9 @@ async function _resImpDocumento(ctx) {
       const extra = (html, a, b) => inv ? html.replace('class="di-rlin', `class="di-rlin ${cmp ? "di-r8" : "di-r7"}`).replace(/<\/div>$/, `<span>${a}</span><span>${b}</span></div>`) : html;
       if (inv) {
         const tInv = Object.entries(inv).filter(([k]) => dentro(k)).reduce((a, [, v]) => a + v, 0);
-        corpo = corpo.replace("<!--rresfim-->", `<div><b>${R$(tInv)}</b>investimento · ${esc(recTxt)}</div><div><b>${tot.v26 ? R$(tInv / tot.v26) : "—"}</b>R$ por voto · ${esc(recTxt)}</div>`).replace('<div class="di-rres">', '<div class="di-rres" style="grid-template-columns:repeat(5,1fr);">');
+        corpo = corpo.replace("<!--rresfim-->", `<div><b>${R$(tInv)}</b>investimento · ${esc(recTxt)}</div><div><b>${tot.v26 ? R$(tInv / tot.v26) : "—"}</b>custo do voto · ${esc(recTxt)}</div>`).replace('<div class="di-rres">', '<div class="di-rres" style="grid-template-columns:repeat(5,1fr);">');
       }
-      corpo += secao("Municípios", extra(cabVal("Município"), "Investimento", "R$/voto"), l.map((x, i) => extra(lin(`${i + 1}º`, `${esc(nomeMun(x.k))}${I.inc.has("part") && partC ? partTxt(partC.mun[x.k]) : ""}`, ...valCols(x, base)).replace('class="di-rlin', 'class="di-rlin di-rmun'), x.iv ? R$(x.iv) : "—", x.rv ? `<b>${R$(x.rv)}</b>` : "—")).join(""));
+      corpo += secao("Municípios", extra(cabVal("Município"), "Investimento", "Custo do voto"), l.map((x, i) => extra(lin(`${i + 1}º`, `${esc(nomeMun(x.k))}${I.inc.has("part") && partC ? partTxt(partC.mun[x.k]) : ""}`, ...valCols(x, base)).replace('class="di-rlin', 'class="di-rlin di-rmun'), x.iv ? R$(x.iv) : "—", x.rv ? `<b>${R$(x.rv)}</b>` : "—")).join(""));
     }
     if (I.det.has("regioes")) {
       // comparação por região (05/10/2026): mesorregiões (IBGE) e associações de municípios
@@ -1793,7 +1793,7 @@ async function _resImpDocumento(ctx) {
         const R$ = (v) => "R$ " + Math.round(v).toLocaleString("pt-BR");
         const extra = (html, a, b) => inv ? html.replace('class="di-rlin', `class="di-rlin ${cmp ? "di-r8" : "di-r7"}`).replace(/<\/div>$/, `<span>${a}</span><span>${b}</span></div>`) : html;
         const l = _resArvOrdenar(nomes.map((n) => { const f = (m) => m[campo] === n && dentro(m.chave); const v26 = somaReg(c26, f); const iv = inv ? MUNICIPIOS_SC_REGIOES.filter(f).reduce((t, m) => t + (inv[m.chave] || 0), 0) : 0; return { nome: n, v26, v22: cmp ? somaReg(c22, f) : v26, iv, rv: iv && v26 ? iv / v26 : null }; }).filter((x) => x.v22 || x.v26 || x.iv), I.ordem);
-        return secao(rot, extra(cabVal(rot === "Mesorregiões" ? "Mesorregião" : "Associação"), "Investimento", "R$/voto"), l.map((x, i) => extra(lin(`${i + 1}º`, esc(x.nome.replace(" Catarinense", "")), ...valCols(x, base)), x.iv ? R$(x.iv) : "—", x.rv ? `<b>${R$(x.rv)}</b>` : "—")).join(""));
+        return secao(rot, extra(cabVal(rot === "Mesorregiões" ? "Mesorregião" : "Associação"), "Investimento", "Custo do voto"), l.map((x, i) => extra(lin(`${i + 1}º`, esc(x.nome.replace(" Catarinense", "")), ...valCols(x, base)), x.iv ? R$(x.iv) : "—", x.rv ? `<b>${R$(x.rv)}</b>` : "—")).join(""));
       };
       corpo += bloco("Mesorregiões", "meso") + bloco("Associações de municípios", "assoc");
     }
