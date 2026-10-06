@@ -46,7 +46,7 @@ function _resPctHtml(p, extra) {
 // 2026 só tem o elenco zerado até o TSE publicar os arquivos detalhados
 // (dias depois da eleição). Virar pra true quando rodar os tratadores de 2026.
 const RES_2026_DETALHE = true;  // 06/10/2026: zonas/seções/escolas de 2026 geradas do boletim de urna (ferramentas/tratar_bu_2026.py)
-const RES_DADOS_VER = "20261006";
+const RES_DADOS_VER = "20261006b";
 // Governador e Presidente só na Apuração (02/10/2026) — os palpites seguem nos 3 do legislativo
 const RES_CARGOS = [...CARGOS, { id: "governador", label: "Governador" }, { id: "presidente", label: "Presidente" }];
 const _resMajor = (cargo) => cargo === "senador" || cargo === "governador" || cargo === "presidente";
@@ -1839,7 +1839,8 @@ async function _resImpDocumento(ctx) {
         const nomeLocal = (k) => (secB && secB._secoes && secB._secoes[k]) || "";
         corpo += secao(`Seções · ${esc(nomeMun(I.mun))}`, cabVal("Seção"), sl.map((s, i) => { const [z, n] = s.k.split("::"); return lin(`${i + 1}º`, `Seção ${n} · ${z}ª zona <i>${esc(nomeLocal(s.k))}</i>${extras([s.k])}`, ...valCols(s, base)) + (I.inc.has("lista") && !I.det.has("colegios") ? rank([s.k]) : ""); }).join(""));
       }
-      if (cmp) corpo += `<div class="di-sub">Bairros, colégios e seções: a votação de ${RES_ANO_APURADO} por local entra quando o TSE publicar os dados por seção.</div>`;
+      // 06/10/2026: colégios de 2022 casados com os de 2026 (ferramentas/casar_locais_2022_2026.py)
+      if (cmp && (I.det.has("colegios") || I.det.has("secoes"))) corpo += `<div class="di-sub">Colégios de ${RES_ANO_ANTERIOR} identificados com os de ${RES_ANO_APURADO} pelo cadastro de locais de votação do TSE (nº do local, endereço e coordenadas).${I.det.has("secoes") ? ` A numeração das seções muda entre eleições: para comparar anos, use os colégios.` : ""}</div>`;
     }
     if (I.det.has("hist")) {
       const hist = [];
