@@ -3844,3 +3844,22 @@
 #modoColaborativoWrap .pc-ficha-perfil .vv{ font-size:15px; font-weight:800; color:#34E84A; margin-top:2px; font-variant-numeric:tabular-nums; }
 #modoColaborativoWrap .pc-ficha-perfil .vv i{ font-style:normal; font-size:10.5px; font-weight:500; color:#8A9096; }
 #modoColaborativoWrap .pc-ficha-perfil .pc-dd-btn{ flex:none; white-space:nowrap; }
+/* Árvore: subníveis com mais ênfase (07/10/2026): recuo por nível, faixa verde
+   à esquerda que vai clareando, nome e números um degrau menores */
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv.n1 .n{ padding-left:14px !important; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv.n2 .n{ padding-left:28px !important; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv.n3 .n{ padding-left:42px !important; }
+#modoColaborativoWrap .pc-lin.pc-arv.n1{ box-shadow:inset 3px 0 0 rgba(52,232,74,.75) !important; }
+#modoColaborativoWrap .pc-lin.pc-arv.n2{ box-shadow:inset 3px 0 0 rgba(52,232,74,.45) !important; }
+#modoColaborativoWrap .pc-lin.pc-arv.n3{ box-shadow:inset 3px 0 0 rgba(52,232,74,.22) !important; }
+#modoColaborativoWrap .pc-lin.pc-arv.n1 .pc-arv-nome{ font-size:13px; font-weight:700; }
+#modoColaborativoWrap .pc-lin.pc-arv.n2 .pc-arv-nome{ font-size:12px; font-weight:600; color:#E3E6E8; }
+#modoColaborativoWrap .pc-lin.pc-arv.n1 .v-atu, #modoColaborativoWrap .pc-lin.pc-arv.n2 .v-atu{ font-size:12.5px; }
+#modoColaborativoWrap .pc-lin.pc-arv.n3 .v-atu{ font-size:11.5px; }
+#modoColaborativoWrap .pc-lin.pc-arv.n1 .v-ant, #modoColaborativoWrap .pc-lin.pc-arv.n2 .v-ant, #modoColaborativoWrap .pc-lin.pc-arv.n3 .v-ant{ font-size:10.5px; }
+#modoColaborativoWrap .pc-lin.pc-arv.n0.aberto{ background:rgba(52,232,74,.07); box-shadow:inset 3px 0 0 #34E84A; }
+@media (max-width:479px){
+  #modoColaborativoWrap .pc-lin.pc-rf.pc-arv.n1 .n{ padding-left:6px !important; }
+  #modoColaborativoWrap .pc-lin.pc-rf.pc-arv.n2 .n{ padding-left:12px !important; }
+  #modoColaborativoWrap .pc-lin.pc-rf.pc-arv.n3 .n{ padding-left:18px !important; }
+}

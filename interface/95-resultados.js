@@ -571,7 +571,7 @@ function _resPartidoPseudo(lista, ano) {
 }
 async function _resRenderPartidoMapa(ctx) {
   const st = pcState.res;
-  const pm = st._partMapa = st._partMapa || { cargo: ctx.cargo, modo: "votos", ordem: "desc", regiao: "", assoc: "", mapaForma: "cores" };
+  const pm = st._partMapa = st._partMapa || { cargo: ctx.cargo, modo: "votos", ordem: "desc", regiao: "", assoc: "", mapaForma: "bolhas" };
   if (pm.cargo !== ctx.cargo) { pm.cargo = ctx.cargo; pm.cmpSq = null; pm.cenario = null; }
   pm.anoApurado = st.anoApurado; pm.anoAnterior = st.anoAnterior;
   const partes = _resPartidoPseudo(ctx.cands, st.anoApurado);
@@ -1252,7 +1252,7 @@ async function _resRenderMapa(ctx) {
       ${_resDropdown("pcResModo", "Ano", `${anoSel}`, [st.anoApurado, st.anoAnterior, st.anoAnterior2].filter(Boolean).map((y) => `<div class="pc-dd-it${anoSel === y ? " on" : ""}" data-y="${y}">${y}</div>`).join(""), { largura: 150 })}
       ${_resDropdown("pcResCmp", "Comparar", cmp ? cmp.nomeUrna : "ninguém", `<div class="pc-dd-it${!cmp ? " on" : ""}" data-sq="">Sem comparação</div>${[st.anoAnterior, st.anoAnterior2].filter((y) => y && doAno(cenario, y)).map((y) => `<div class="pc-dd-it${st.cmpSq === "__ano:" + y ? " on" : ""}" data-sq="__ano:${y}">${cenario.nomeUrna} em ${y}</div>`).join("")}<div style="padding:6px 8px;"><input class="cell" id="pcResCmpBusca" placeholder="Buscar…" style="width:100%; margin:0;"></div><div id="pcResCmpLista" style="max-height:240px; overflow:auto;">${listaCand(st.cmpSq)}</div>`, { largura: 260, direita: true })}
     </div>
-    <div class="glass-card pc-mapa-card" style="padding:10px;"><div class="pc-mapa-forma"><button type="button" data-forma="cores" class="${st.mapaForma !== "bolhas" ? "on" : ""}">Cores</button><button type="button" data-forma="bolhas" class="${st.mapaForma === "bolhas" ? "on" : ""}">Bolhas</button></div>${pcState._resGeoSvg}
+    <div class="glass-card pc-mapa-card" style="padding:10px;"><div class="pc-mapa-forma"><button type="button" data-forma="cores" class="${st.mapaForma === "cores" ? "on" : ""}">Cores</button><button type="button" data-forma="bolhas" class="${st.mapaForma !== "cores" ? "on" : ""}">Bolhas</button></div>${pcState._resGeoSvg}
       <div class="pc-legmapa"><span id="pcResLegA"></span><i id="pcResLegBar"></i><span id="pcResLegB"></span></div>
     </div>
     <div class="pc-dep-tiles" id="pcResTotais" style="margin-top:10px;"></div>
@@ -1282,7 +1282,7 @@ async function _resRenderMapa(ctx) {
     // Formato "Bolhas" (pedido de 28/09/2026): círculo no centro de cada
     // município, área proporcional aos votos (ou à diferença, nos modos de
     // variação/comparação). Malha fica escura, só contorno.
-    const bolhas = st.mapaForma === "bolhas";
+    const bolhas = st.mapaForma !== "cores";
     svg.classList.toggle("bolhas", bolhas);
     svg.querySelectorAll("path").forEach((p) => { const d = dados[p.dataset.ibge]; if (!d) return; p.style.fill = bolhas ? "" : cor(d); p.classList.toggle("fora", !dentro(d)); p.classList.toggle("sel", st.munSel === d.m.chave); });
     // Região em destaque (30/09/2026): borda clara na região, resto do estado
@@ -1335,7 +1335,7 @@ async function _resRenderMapa(ctx) {
     document.getElementById("pcResOrdTit").textContent = "Municípios · " + (st.assoc || st.regiao || "todo o estado");
     // Estado do mapa pra impressão (documento no padrão do palpite, 28/09/2026)
     st._imp = { tipo: "mapa", cenario, cmp, lista, tot, totC: cmp ? lista.reduce((x, d) => x + d.vc, 0) : null, tot0,
-      regiao: st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado"), modo: st.modo, bolhas: st.mapaForma === "bolhas", dados, dentro };
+      regiao: st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado"), modo: st.modo, bolhas: st.mapaForma !== "cores", dados, dentro };
     if (cmp && !cmpAno) {
       // Duelo (07/10/2026): foto oficial do TSE frente a frente, barra de
       // disputa dividida e município a município em barras espelhadas
