@@ -1119,6 +1119,23 @@ function _resGeoMontar(geo) {
 // Mini mapa pra papel (05/10/2026), no mesmo padrão do mapa impresso:
 // malha cinza, bolhas verdes translúcidas (padrão) ou mapa de calor.
 // vals = { chaveApp: votos }; dentro(chave) marca o recorte.
+// Mapa de bairros de um município (dados/mapas/bairros-sc): bairro do IBGE
+// pintado pela soma dos votos dos colégios dentro dele; bolinha por colégio.
+function _resMapaBairrosHtml(g, sec, cargo, numero) {
+  const esc = (t) => String(t).replace(/[&<>"]/g, (x) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[x]));
+  const porSec = ((sec && sec[cargo]) || {})[String(numero)] || {}, vl = {};
+  Object.entries((sec && sec._secoes) || {}).forEach(([k, n]) => { vl[n] = (vl[n] || 0) + (porSec[k] || 0); });
+  const vb = g.b.map(() => 0);
+  Object.entries(g.l).forEach(([n, [, , bi]]) => { if (bi >= 0) vb[bi] += vl[n] || 0; });
+  const mb = Math.max(1, ...vb), ml = Math.max(1, ...Object.values(vl));
+  const mix = (t) => { const f = (a, b) => Math.round(a + (b - a) * t); return `rgb(${f(255, 31)},${f(255, 168)},${f(255, 58)})`; };
+  const corte = [...vb].sort((a, b) => b - a)[Math.min(13, vb.length - 1)] || 1;
+  const fundo = g.c ? `<path d="${g.c}" fill="#F4F5F6" stroke="#8A9096" stroke-width="1"/>` : g.b.map(([, d], i) => `<path d="${d}" fill="${vb[i] ? mix(Math.pow(vb[i] / mb, 0.6)) : "#F4F5F6"}" fill-rule="evenodd" stroke="#8A9096" stroke-width=".7"/>`).join("");
+  const bol = Object.entries(g.l).sort((a, b) => (vl[b[0]] || 0) - (vl[a[0]] || 0)).map(([n, [x, y]]) => `<circle cx="${x}" cy="${y}" r="${(2 + 9 * Math.sqrt((vl[n] || 0) / ml)).toFixed(1)}" fill="#0F6B24" fill-opacity=".55" stroke="#fff" stroke-width=".8"/>`).join("");
+  const lab = g.b.map(([n, , [x, y]], i) => vb[i] && vb[i] >= corte ? `<text x="${x}" y="${y}" text-anchor="middle" font-size="11" font-weight="800" fill="#22272B" stroke="#fff" stroke-width="3" paint-order="stroke">${esc(n)}</text>` : "").join("");
+  return `<svg class="di-mapa di-mapab" viewBox="0 0 ${g.w} ${g.h}">${fundo}${bol}${lab}</svg><div class="di-sub">Bolinha = local de votação (tamanho = votos). ${g.c ? "Contorno do município (o IBGE não publica bairros dele)." : "Bairros = limites oficiais do IBGE (Censo 2022); mais escuro = mais votos."}</div>`;
+}
+
 function _resMiniMapaHtml(vals, dentro, bolhas) {
   if (!pcState._resGeoSvg) return "";
   const porIbge = new Map(MUNICIPIOS_SC_REGIOES.map((m) => [String(m.ibge), m.chave]));
@@ -1780,7 +1797,13 @@ async function _resImpDocumento(ctx) {
           + lp("Eleitorado", 0, null) + lp("Comparecimento", 1, 0) + lp("Abstenção", 2, 0) + lp("Brancos", 3, 1) + lp("Nulos", 4, 1) + lp("Válidos", 5, 1);
       }
     }
-    if (I.inc.has("mapa") && await _resGeoGarantir()) {
+    // município: mapa de bairros do IBGE + colégios (06/10/2026, ferramentas/gerar_mapas_bairros.py)
+    const geoB = I.inc.has("mapa") && I.recorte === "mun" && I.mun ? await fetch(`dados/mapas/bairros-sc/${_resSlug(I.mun)}.json?v=${RES_DADOS_VER}`).then((r) => r.ok ? r.json() : null).catch(() => null) : null;
+    if (geoB) {
+      const anoM = cmp ? RES_ANO_APURADO : anoUnico, cM = cmp ? c26 : (c26 || c22);
+      const secM = await _resCarregar(anoM, "secoes/" + _resSlug(I.mun), "");
+      corpo += `<div class="di-rsec">Mapa · ${esc(recTxt)} · ${anoM}</div>` + _resMapaBairrosHtml(geoB, secM, cargo, cM && cM.numero);
+    } else if (I.inc.has("mapa") && await _resGeoGarantir()) {
       corpo += `<div class="di-rsec">Mapa · ${esc(recTxt)} · ${cmp ? RES_ANO_APURADO : anoUnico}</div>` + _resMiniMapaHtml((c26 && c26.municipios) || {}, (k) => I.recorte === "estado" || dentro(k), I.forma !== "cores");
     }
     const secao = (tit, cab, linhas) => `<div class="di-rsec">${tit}</div>${cab}${linhas || `<div class="di-sub">Sem dados neste recorte.</div>`}`;
@@ -1845,8 +1868,13 @@ async function _resImpDocumento(ctx) {
       const posLista = (keys) => I.inc.has("lista") ? rank(keys) : "";
       const bl = limitar(_resArvOrdenar(Object.entries(arv).map(([nome, n]) => ({ nome, ...n })), I.ordem));
       const secKeysB = (b) => Object.values(b.locais).flatMap((x) => Object.keys(x.secoes));
-      if (I.det.has("bairros")) corpo += secao(`Bairros · ${esc(nomeMun(I.mun))}`, cabVal("Bairro"), bl.map((b, i) => lin(`${i + 1}º`, `${esc(b.nome)}${extras(secKeysB(b))}`, ...valCols(b, base)) + (I.det.has("colegios") ? "" : posLista(secKeysB(b)))).join(""));
-      if (I.det.has("colegios")) {
+      // bairros + colégios juntos: colégios dentro do bairro, recuados (06/10/2026).
+      // Bairro pela ordem escolhida; colégio da maior perda pra menor na comparação.
+      const aninhar = I.det.has("bairros") && I.det.has("colegios");
+      const ordColeg = (l) => cmp ? l.sort((x, y) => (x.v26 - x.v22) - (y.v26 - y.v22) || y.v26 - x.v26) : _resArvOrdenar(l, I.ordem);
+      if (aninhar) corpo += secao(`Bairros e colégios · ${esc(nomeMun(I.mun))}`, cabVal("Bairro / local de votação"), bl.map((b, i) => lin(`${i + 1}º`, `${esc(b.nome)}${extras(secKeysB(b))}`, ...valCols(b, base), " di-rbairro") + ordColeg(Object.entries(b.locais).map(([nome, n]) => ({ nome, ...n }))).map((l) => lin("", `${esc(l.nome)}${extras(Object.keys(l.secoes))}`, ...valCols(l, base), " di-rfilho") + posLista(Object.keys(l.secoes))).join("")).join(""));
+      else if (I.det.has("bairros")) corpo += secao(`Bairros · ${esc(nomeMun(I.mun))}`, cabVal("Bairro"), bl.map((b, i) => lin(`${i + 1}º`, `${esc(b.nome)}${extras(secKeysB(b))}`, ...valCols(b, base)) + (I.det.has("colegios") ? "" : posLista(secKeysB(b)))).join(""));
+      if (I.det.has("colegios") && !aninhar) {
         const cl = limitar(_resArvOrdenar(Object.entries(arv).flatMap(([bn, b]) => Object.entries(b.locais).map(([nome, n]) => ({ nome, bairro: bn, ...n }))), I.ordem));
         corpo += secao(`Colégios · ${esc(nomeMun(I.mun))}`, cabVal("Local de votação"), cl.map((l, i) => lin(`${i + 1}º`, `${esc(l.nome)} <i>${esc(l.bairro)}</i>${extras(Object.keys(l.secoes))}`, ...valCols(l, base)) + posLista(Object.keys(l.secoes))).join(""));
       }

@@ -3790,3 +3790,9 @@
 #modoColaborativoWrap .pc-lin.pc-arv.n3 .pc-arv-pos .pc-sen-chip{ transform:scale(.88); transform-origin:left center; }
 /* % da diferença em cinza (06/10/2026) — a cor fica só no valor em votos */
 #modoColaborativoWrap .pc-lin.pc-rf.pc-arv .d .pc-rf-pc{ color:#8A9096 !important; font-weight:600; }
+/* ficha por município: bairros com colégios dentro + mapa de bairros (06/10/2026) */
+#pcImpressaoConteudo .di-rlin.di-rbairro{ background:#F3F5F4; border-top:1px solid #C9CDD1; font-weight:700; }
+#pcImpressaoConteudo .di-rlin.di-rbairro > span:nth-child(2){ font-size:10.5px; }
+#pcImpressaoConteudo .di-rlin.di-rfilho > span:nth-child(2){ padding-left:22px; border-left:2px solid #D3D6D9; margin-left:4px; color:#3F454B; font-size:9px; }
+#pcImpressaoConteudo .di-rlin.di-rfilho{ color:#3F454B; }
+#pcImpressaoConteudo .di-mapab{ max-height:135mm; border:.5px solid #D3D6D9; border-radius:6px; }
