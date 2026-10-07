@@ -3329,6 +3329,13 @@
 /* árvore da ficha 2026 × 2022 (29/09/2026) */
 #modoColaborativoWrap .pc-lin.pc-rf.pc-arv .n{ display:flex; align-items:center; gap:4px; min-width:0; }
 #modoColaborativoWrap .pc-lin.pc-rf.pc-arv, #modoColaborativoWrap .pc-lin.pc-rf.cab{ grid-template-columns:14px minmax(0,1fr) 46px 44px 52px; column-gap:6px; }
+/* 06/10/2026: em tela maior (desktop/tablet) os números ganham colunas largas e
+   respiro entre si — a etiqueta e o botão ficam junto do nome */
+@media (min-width:480px){
+  #modoColaborativoWrap .pc-lin.pc-rf.pc-arv, #modoColaborativoWrap .pc-lin.pc-rf.cab{ grid-template-columns:18px minmax(0,1fr) 64px 64px 74px; column-gap:14px; }
+  #modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-lista{ margin-left:10px; margin-right:6px; }
+  #modoColaborativoWrap .pc-lin.pc-rf.pc-arv .n{ gap:8px; }
+}
 /* 06/10/2026: etiqueta e botão de lista mais perto do nome, sobrando espaço pros números */
 #modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-lista{ margin-right:2px; }
 #modoColaborativoWrap .pc-arv-nome{ flex:1 1 0; min-width:0; white-space:normal; line-height:1.2; overflow-wrap:break-word; }
@@ -3747,3 +3754,37 @@
 /* votos do parlamentar nas sobras (06/10/2026) */
 #modoColaborativoWrap .pn-svotos{ display:block; font-size:.85em; color:#8A9096; font-weight:600; margin:1px 0 0; white-space:nowrap; }
 #modoColaborativoWrap .pn-srod .rc{ white-space:normal; overflow:visible; }
+
+/* ===== Árvore Município → Bairro → Colégio → Seção (06/10/2026, ideia A aprovada) =====
+   Uma linha por item, colunas 2022/2026/Dif. alinhadas; etiqueta de posição
+   colada à margem esquerda; respiro na margem direita; subníveis por
+   SOBREPOSIÇÃO DE TONS (cada nível aberto soma uma camada mais clara). */
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv, #modoColaborativoWrap .pc-lin.pc-rf.cab{ grid-template-columns:10px minmax(0,1fr) 38px 42px 50px; column-gap:5px; padding-left:4px; padding-right:12px; }
+@media (min-width:480px){
+  #modoColaborativoWrap .pc-lin.pc-rf.pc-arv, #modoColaborativoWrap .pc-lin.pc-rf.cab{ grid-template-columns:16px minmax(0,1fr) 60px 64px 74px; column-gap:12px; padding-right:16px; }
+}
+#modoColaborativoWrap .pc-lin.pc-rf.cab > span:nth-child(n+3){ text-align:right; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .n{ gap:5px; padding-left:0 !important; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-pos{ order:-1; margin-left:0; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-pos .pc-sen-chip, #modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-pos > *{ transform:none; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-nome{ flex:1 1 0; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-lista{ margin-left:auto; margin-right:0; width:20px; height:20px; }
+@media (max-width:479px){
+  #modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-lista, #modoColaborativoWrap .pc-lin.pc-rf.pc-arv .pc-arv-chev{ display:none; }
+}
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .v-ant{ font-size:11.5px; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .v-atu{ font-size:13.5px; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .d{ font-size:11.5px; display:flex; flex-direction:column; align-items:flex-end; line-height:1.1; }
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .d .pc-rf-pc{ font-size:9.5px; }
+/* camadas: sem recuo nem barra — o tom vai clareando a cada nível */
+#modoColaborativoWrap .pc-lin.pc-arv.n1, #modoColaborativoWrap .pc-lin.pc-arv.n2, #modoColaborativoWrap .pc-lin.pc-arv.n3{ border-left:0; margin-left:0; box-shadow:none; }
+#modoColaborativoWrap .pc-lin.pc-arv.n0.aberto{ background:rgba(242,244,245,.05); }
+#modoColaborativoWrap .pc-lin.pc-arv.n1{ background:rgba(242,244,245,.075); }
+#modoColaborativoWrap .pc-lin.pc-arv.n2{ background:rgba(242,244,245,.105); }
+#modoColaborativoWrap .pc-lin.pc-arv.n3{ background:rgba(242,244,245,.14); padding-top:6px; padding-bottom:6px; }
+#modoColaborativoWrap .pc-lin.pc-arv.n1.aberto, #modoColaborativoWrap .pc-lin.pc-arv.n2.aberto{ box-shadow:inset 0 -1px 0 rgba(0,0,0,.35); }
+#modoColaborativoWrap .pc-lin.pc-arv.n1 > .i, #modoColaborativoWrap .pc-lin.pc-arv.n2 > .i, #modoColaborativoWrap .pc-lin.pc-arv.n3 > .i{ visibility:hidden; }
+#modoColaborativoWrap .pc-lin.pc-arv.n3 .pc-arv-nome{ font-size:11.5px; color:#D5D9DC; }
+#modoColaborativoWrap .pc-lin.pc-arv.n3 .pc-arv-nome{ white-space:nowrap; }
+#modoColaborativoWrap .pc-lin.pc-arv.n3 .pc-arv-nome .pc-loc-sub{ display:block; }
+#modoColaborativoWrap .pc-lin.pc-arv.n3 .pc-arv-pos .pc-sen-chip{ transform:scale(.88); transform-origin:left center; }

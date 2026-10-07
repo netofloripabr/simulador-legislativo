@@ -929,12 +929,28 @@ function _resArvOrdenar(lista, ordem) {
   return lista.sort(f);
 }
 
+// Nome do local de votação no padrão abreviado de uso comum (06/10/2026):
+// "Escola de Educação Básica X" → "EEB X", "Escola Básica Municipal" → "EBM"…
+const RES_ABREV_LOCAL = [
+  [/^escola de educa[çc][ãa]o b[áa]sica municipal\b/i, "EEBM"], [/^escola de educa[çc][ãa]o b[áa]sica\b/i, "EEB"],
+  [/^escola municipal de educa[çc][ãa]o b[áa]sica\b/i, "EMEB"], [/^escola municipal de ensino fundamental\b/i, "EMEF"],
+  [/^escola b[áa]sica municipal\b/i, "EBM"], [/^escola de ensino fundamental\b/i, "EEF"], [/^escola de ensino m[ée]dio\b/i, "EEM"],
+  [/^escola estadual b[áa]sica\b/i, "EEB"], [/^escola estadual\b/i, "EE"], [/^escola municipal\b/i, "EM"], [/^escola isolada\b/i, "EI"],
+  [/^escola b[áa]sica\b/i, "EB"], [/^centro de educa[çc][ãa]o infantil\b/i, "CEI"], [/^centro municipal de educa[çc][ãa]o infantil\b/i, "CMEI"],
+  [/^n[úu]cleo de educa[çc][ãa]o infantil\b/i, "NEI"], [/^centro de educa[çc][ãa]o profissional\b/i, "CEDUP"], [/^centro educacional\b/i, "CE"],
+  [/^grupo escolar\b/i, "GE"], [/^col[ée]gio estadual\b/i, "CE"], [/^escola\b/i, "Esc."],
+];
+function _resAbrevLocal(n) {
+  let s = String(n || "").trim();
+  for (const [re, ab] of RES_ABREV_LOCAL) if (re.test(s)) { s = s.replace(re, ab); break; }
+  return s.replace(/\s+-\s+/g, " – ").replace(/\s{2,}/g, " ");
+}
 // Agrupa os votos de um número por bairro → local → seção num arquivo secoes/.
 function _resArvAgrupar(sec, cargo, numero, alvo, campo) {
   const m = sec && sec[cargo] && sec[cargo][String(numero)];
   if (!m) return;
   for (const [k, v] of Object.entries(m)) {
-    const b = (sec._bairroSec || {})[k] || "Sem bairro", l = (sec._secoes || {})[k] || "Local não informado";
+    const b = (sec._bairroSec || {})[k] || "Sem bairro", l = _resAbrevLocal((sec._secoes || {})[k]) || "Local não informado";
     const nb = alvo[b] = alvo[b] || { v22: 0, v26: 0, locais: {} };
     const nl = nb.locais[l] = nb.locais[l] || { v22: 0, v26: 0, secoes: {} };
     const ns = nl.secoes[k] = nl.secoes[k] || { v22: 0, v26: 0 };
