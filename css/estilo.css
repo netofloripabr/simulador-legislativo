@@ -3788,3 +3788,5 @@
 #modoColaborativoWrap .pc-lin.pc-arv.n3 .pc-arv-nome{ white-space:nowrap; }
 #modoColaborativoWrap .pc-lin.pc-arv.n3 .pc-arv-nome .pc-loc-sub{ display:block; }
 #modoColaborativoWrap .pc-lin.pc-arv.n3 .pc-arv-pos .pc-sen-chip{ transform:scale(.88); transform-origin:left center; }
+/* % da diferença em cinza (06/10/2026) — a cor fica só no valor em votos */
+#modoColaborativoWrap .pc-lin.pc-rf.pc-arv .d .pc-rf-pc{ color:#8A9096 !important; font-weight:600; }
