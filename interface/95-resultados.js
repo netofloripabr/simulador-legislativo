@@ -1136,7 +1136,7 @@ function _resMapaBairrosHtml(g, sec, cargo, numero) {
   return `<svg class="di-mapa di-mapab" viewBox="0 0 ${g.w} ${g.h}">${fundo}${bol}${lab}</svg><div class="di-sub">Bolinha = local de votação (tamanho = votos). ${g.c ? "Contorno do município (o IBGE não publica bairros dele)." : "Bairros = limites oficiais do IBGE (Censo 2022); mais escuro = mais votos."}</div>`;
 }
 
-function _resMiniMapaHtml(vals, dentro, bolhas) {
+function _resMiniMapaHtml(vals, dentro, bolhas, enquadrar) {
   if (!pcState._resGeoSvg) return "";
   const porIbge = new Map(MUNICIPIOS_SC_REGIOES.map((m) => [String(m.ibge), m.chave]));
   const mix = (t) => { const f = (a, b) => Math.round(a + (b - a) * t); return `rgb(${f(255, 31)},${f(255, 168)},${f(255, 58)})`; };
@@ -1147,13 +1147,25 @@ function _resMiniMapaHtml(vals, dentro, bolhas) {
     const fill = !bolhas && den && v ? mix(Math.pow(Math.log(1 + v) / Math.log(1 + maxV), 1.5)) : "none";
     return `<path d="${d}" fill="${fill}" stroke="${den ? "#9AA0A6" : "#D3D6D9"}" stroke-width="0.35" vector-effect="non-scaling-stroke"></path>`;
   }).replace(/ id="pcResMapaSvg"| style="[^"]*"/g, "").replace("<svg", '<svg class="di-mapa"');
+  // recorte regional: enquadra a região (vizinhos ficam como contexto) (06/10/2026)
+  let paths2 = paths, esc2 = 1;
+  if (enquadrar) {
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    pcState._resGeoSvg.replace(/<path d="([^"]+)" data-ibge="([^"]+)">/g, (_, d, ib) => { const k = porIbge.get(String(ib)); if (!k || !dentro(k)) return; const n = d.match(/-?\d+(\.\d+)?/g).map(Number); for (let i = 0; i + 1 < n.length; i += 2) { x0 = Math.min(x0, n[i]); x1 = Math.max(x1, n[i]); y0 = Math.min(y0, n[i + 1]); y1 = Math.max(y1, n[i + 1]); } });
+    if (x1 > x0) {
+      const W0 = +(pcState._resGeoSvg.match(/viewBox="0 0 ([\d.]+)/) || [])[1] || 1;
+      const m = Math.max(x1 - x0, y1 - y0) * 0.08; x0 -= m; y0 -= m; x1 += m; y1 += m;
+      esc2 = (x1 - x0) / W0;
+      paths2 = paths.replace(/viewBox="[^"]*"/, `viewBox="${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1 - x0).toFixed(1)} ${(y1 - y0).toFixed(1)}"`);
+    }
+  }
   let circ = "";
   if (bolhas) {
     const ibPor = new Map(MUNICIPIOS_SC_REGIOES.map((m) => [m.chave, String(m.ibge)]));
-    circ = vis.map(([k, v]) => { const c = pcState._resGeoCentros[ibPor.get(k)]; if (!c) return null; const r = Math.max(1.6, 30 * Math.sqrt(v / maxV)); return { r, h: `<circle cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" r="${r.toFixed(1)}" fill="#1FA83A" fill-opacity="0.28" stroke="#178A2F" stroke-width="1" stroke-opacity="0.85"></circle>` }; })
+    circ = vis.map(([k, v]) => { const c = pcState._resGeoCentros[ibPor.get(k)]; if (!c) return null; const r = Math.max(1.6, 30 * Math.sqrt(v / maxV)) * esc2; return { r, h: `<circle cx="${c[0].toFixed(1)}" cy="${c[1].toFixed(1)}" r="${r.toFixed(1)}" fill="#1FA83A" fill-opacity="0.28" stroke="#178A2F" stroke-width="1" stroke-opacity="0.85"></circle>` }; })
       .filter(Boolean).sort((a, b) => b.r - a.r).map((x) => x.h).join("");
   }
-  return `<div class="di-rmapa" style="max-width:440px; margin:0 auto;">${paths.replace("</svg>", `<g>${circ}</g></svg>`)}<div class="di-rleg"><span><i style="background:#1FA83A"></i>${bolhas ? "tamanho da bolha = votos" : "cor mais forte = mais votos"}</span></div></div>`;
+  return `<div class="di-rmapa" style="max-width:440px; margin:0 auto;">${paths2.replace("</svg>", `<g>${circ}</g></svg>`)}<div class="di-rleg"><span><i style="background:#1FA83A"></i>${bolhas ? "tamanho da bolha = votos" : "cor mais forte = mais votos"}</span></div></div>`;
 }
 
 // ---------- aba Mapa ----------
@@ -1804,7 +1816,7 @@ async function _resImpDocumento(ctx) {
       const secM = await _resCarregar(anoM, "secoes/" + _resSlug(I.mun), "");
       corpo += `<div class="di-rsec">Mapa · ${esc(recTxt)} · ${anoM}</div>` + _resMapaBairrosHtml(geoB, secM, cargo, cM && cM.numero);
     } else if (I.inc.has("mapa") && await _resGeoGarantir()) {
-      corpo += `<div class="di-rsec">Mapa · ${esc(recTxt)} · ${cmp ? RES_ANO_APURADO : anoUnico}</div>` + _resMiniMapaHtml((c26 && c26.municipios) || {}, (k) => I.recorte === "estado" || dentro(k), I.forma !== "cores");
+      corpo += `<div class="di-rsec">Mapa · ${esc(recTxt)} · ${cmp ? RES_ANO_APURADO : anoUnico}</div>` + _resMiniMapaHtml((c26 && c26.municipios) || {}, (k) => I.recorte === "estado" || dentro(k), I.forma !== "cores", I.recorte === "regiao");
     }
     const secao = (tit, cab, linhas) => `<div class="di-rsec">${tit}</div>${cab}${linhas || `<div class="di-sub">Sem dados neste recorte.</div>`}`;
     const base = tot.v26;
