@@ -893,7 +893,12 @@ async function _resRenderFicha(ctx) {
     const max = Math.max(...hist.map((h) => h.c ? h.c.total : 0), 1);
     corpo = hist.map((h) => `<div style="display:grid; grid-template-columns:44px 1fr 76px 110px; gap:8px; align-items:center; padding:9px 0; border-top:1px solid #23262A; font-size:12px;"><b>${h.ano}</b><div style="height:6px; border-radius:999px; background:rgba(242,244,245,.08); overflow:hidden;"><div style="width:${h.c ? h.c.total / max * 100 : 0}%; height:100%; background:${h.ano === RES_ANO_APURADO ? "#34E84A" : "#6B7178"};"></div></div><span style="text-align:right; font-variant-numeric:tabular-nums;">${h.c ? _resFmt(h.c.total) : "—"}</span><span style="text-align:right; color:#8A9096;">${h.c ? (h.c.situacao || "").toLowerCase() : "não concorreu"}</span></div>`).join("");
   }
-  alvo.innerHTML = abas + corpo;
+  // Perfil no topo da ficha (07/10/2026): foto oficial do TSE + atalho pro mapa dele
+  const perfil = ctx.modoPartido ? "" : `<div class="pc-ficha-perfil"><div class="ft"><img src="dados/fotos/sc-${st.anoApurado}/${cargo}/${c.numero}.jpg" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${(c.nomeUrna || "?").trim()[0]}'}))"></div>
+    <div class="tx"><div class="nm">${c.nomeUrna}</div><div class="pt">${nomePartidoExibicao(c.partido)} · nº ${c.numero}</div><div class="vv">${_resFmt(c.total || 0)} <i>votos em ${st.anoApurado}</i></div></div>
+    <button type="button" class="pc-dd-btn ico" data-ficha-mapa="${c.sq}" title="Ver a votação no mapa">${iconeSvg("mapa", 16)}</button></div>`;
+  alvo.innerHTML = perfil + abas + corpo;
+  alvo.querySelectorAll("[data-ficha-mapa]").forEach((b) => b.addEventListener("click", (e) => { e.stopPropagation(); st.cenario = b.dataset.fichaMapa; st.cmpSq = null; st.aba = "mapa"; renderResultados().then(() => window.scrollTo({ top: 0, behavior: "smooth" })); }));
   if (st.fichaAba === "sec" && st.fichaMun) {
     const muns = await _resCarregar(RES_ANO_APURADO, "municipios");
     const nome = (muns && muns.municipios[st.fichaMun] && muns.municipios[st.fichaMun].nome) || st.fichaMun;

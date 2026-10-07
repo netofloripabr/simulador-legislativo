@@ -3834,3 +3834,13 @@
 #modoColaborativoWrap .pc-esp-lin.bairro .mn{ color:#F2F4F5; font-weight:700; text-align:left; }
 #modoColaborativoWrap .pc-esp-lin.local{ background:rgba(242,244,245,.03); }
 #modoColaborativoWrap .pc-esp-lin.local .mn{ font-size:10px; color:#8A9096; text-align:left; padding-left:10px; }
+/* Ficha (Geral): perfil com foto + Ver no mapa (07/10/2026) */
+#modoColaborativoWrap .pc-ficha-perfil{ display:flex; align-items:center; gap:12px; margin:10px 0 4px; padding:10px; border-radius:14px; background:rgba(242,244,245,.04); }
+#modoColaborativoWrap .pc-ficha-perfil .ft{ width:56px; height:56px; border-radius:50%; padding:2px; background:#34E84A; flex:none; }
+#modoColaborativoWrap .pc-ficha-perfil .ft img, #modoColaborativoWrap .pc-ficha-perfil .ft span{ width:100%; height:100%; border-radius:50%; object-fit:cover; object-position:50% 20%; display:flex; align-items:center; justify-content:center; background:#2A2E33; color:#F2F4F5; font-weight:800; font-size:20px; }
+#modoColaborativoWrap .pc-ficha-perfil .tx{ flex:1; min-width:0; }
+#modoColaborativoWrap .pc-ficha-perfil .nm{ font-weight:800; font-size:14px; color:#F2F4F5; }
+#modoColaborativoWrap .pc-ficha-perfil .pt{ font-size:11px; color:#8A9096; }
+#modoColaborativoWrap .pc-ficha-perfil .vv{ font-size:15px; font-weight:800; color:#34E84A; margin-top:2px; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-ficha-perfil .vv i{ font-style:normal; font-size:10.5px; font-weight:500; color:#8A9096; }
+#modoColaborativoWrap .pc-ficha-perfil .pc-dd-btn{ flex:none; white-space:nowrap; }
