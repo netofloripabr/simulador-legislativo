@@ -1169,6 +1169,25 @@ function _resMiniMapaHtml(vals, dentro, bolhas, enquadrar) {
 }
 
 // ---------- aba Mapa ----------
+// Duelo · município aberto (07/10/2026): bairros em barras espelhadas; tocar
+// num bairro abre os locais de votação. O usuário vai ampliando o filtro.
+async function _resDueloDet(ctx, chave, A, B, cargo, ano, repintar) {
+  const alvo = document.getElementById("pcResMunDet"); if (!alvo) return;
+  const st = ctx.st, sec = await _resCarregar(ano, "secoes/" + _resSlug(chave), "");
+  if (!sec || !sec._secoes) { alvo.innerHTML = `<div class="pc-sub" style="padding:8px 0;">Sem detalhe por bairro para este município.</div>`; return; }
+  const vA = (sec[cargo] || {})[String(A.numero)] || {}, vB = (sec[cargo] || {})[String(B.numero)] || {}, arv = {};
+  Object.entries(sec._secoes).forEach(([k, nm]) => { const bn = (sec._bairroSec || {})[k] || "Sem bairro", b = arv[bn] = arv[bn] || { a: 0, b: 0, l: {} }, l = b.l[nm] = b.l[nm] || { a: 0, b: 0 };
+    l.a += vA[k] || 0; l.b += vB[k] || 0; b.a += vA[k] || 0; b.b += vB[k] || 0; });
+  const bs = Object.entries(arv).filter(([, x]) => x.a || x.b).sort((x, y) => (y[1].a + y[1].b) - (x[1].a + x[1].b));
+  const mx = Math.max(1, ...bs.map(([, x]) => Math.max(x.a, x.b)));
+  const lin = (nome, x, cls, attr = "") => { const aV = x.a >= x.b;
+    return `<div class="pc-esp-lin ${cls}"${attr}><div class="la"><b class="${aV ? "on" : ""}">${_resFmt(x.a)}</b><i class="${aV ? "" : "fraco"}" style="width:calc((100% - 50px) * ${(x.a / mx).toFixed(3)});${x.a ? "" : " min-width:0;"}"></i></div><div class="mn">${nome}</div><div class="lb"><i class="${!aV ? "" : "fraco"}" style="width:calc((100% - 50px) * ${(x.b / mx).toFixed(3)});${x.b ? "" : " min-width:0;"}"></i><b class="${!aV ? "on" : ""}">${_resFmt(x.b)}</b></div></div>`; };
+  alvo.className = "pc-esp-det";
+  alvo.innerHTML = `<div class="pc-esp-tit">Bairros · toque para ver os locais de votação</div>` + bs.map(([bn, x]) => { const ab = st.dueloBairro === chave + "|" + bn;
+    return lin(`${ab ? "▾" : "▸"} ${bn}`, x, "bairro" + (ab ? " sel" : ""), ` data-duelo-bairro="${bn.replace(/"/g, "&quot;")}"`) + (ab ? Object.entries(x.l).filter(([, l]) => l.a || l.b).sort((p, q) => (q[1].a + q[1].b) - (p[1].a + p[1].b)).map(([ln, l]) => lin(_resAbrevLocal(ln), l, "local")).join("") : ""); }).join("");
+  alvo.querySelectorAll("[data-duelo-bairro]").forEach((el) => el.addEventListener("click", (e) => { e.stopPropagation(); const k = chave + "|" + el.dataset.dueloBairro; st.dueloBairro = st.dueloBairro === k ? null : k; _resDueloDet(ctx, chave, A, B, cargo, ano, repintar); }));
+}
+
 async function _resRenderMapa(ctx) {
   const { st, cargo, cands, antPorNome, cenario } = ctx;
   const corpo = document.getElementById("pcResCorpo");
@@ -1365,7 +1384,7 @@ async function _resRenderMapa(ctx) {
     }
     document.querySelectorAll("#pcResMapaLista [data-mapa-todos]").forEach((el) => el.addEventListener("click", (e) => { e.stopPropagation(); st.mapaTodos = !st.mapaTodos; pintar(); }));
     document.querySelectorAll("#pcResMapaLista [data-mun]").forEach((el) => el.addEventListener("click", () => { st.munSel = st.munSel === el.dataset.mun ? null : el.dataset.mun; pintar(); }));
-    if (st.munSel && !ctx.modoPartido) _resRenderMunDet(ctx, dados, cmp);
+    if (st.munSel && !ctx.modoPartido) { if (cmp && !cmpAno) _resDueloDet(ctx, st.munSel, cenario, cmp, cargo, anoSel, () => pintar()); else _resRenderMunDet(ctx, dados, cmp); }
   };
   svg.querySelectorAll("path").forEach((p) => p.addEventListener("click", () => { const d = dados[p.dataset.ibge]; if (!d) return; st.munSel = st.munSel === d.m.chave ? null : d.m.chave; pintar(); const s = document.querySelector("#pcResMapaLista .pc-lin.sel"); if (s) s.scrollIntoView({ block: "center", behavior: "smooth" }); }));
   corpo.querySelectorAll("[data-forma]").forEach((b) => b.addEventListener("click", () => {

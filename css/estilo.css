@@ -3829,3 +3829,8 @@
 #modoColaborativoWrap .pc-esp-lin b{ font-size:11px; font-weight:500; color:#8A9096; font-variant-numeric:tabular-nums; }
 #modoColaborativoWrap .pc-esp-lin b.on{ font-weight:800; color:#F2F4F5; }
 #modoColaborativoWrap .pc-esp-lin .mn{ text-align:center; font-size:11px; color:#C9CDD1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#modoColaborativoWrap .pc-esp-det{ margin:2px 0 8px; padding:4px 0 4px 8px; border-left:2px solid rgba(52,232,74,.5); }
+#modoColaborativoWrap .pc-esp-tit{ font-size:10px; color:#8A9096; text-transform:uppercase; letter-spacing:.06em; padding:4px 0; }
+#modoColaborativoWrap .pc-esp-lin.bairro .mn{ color:#F2F4F5; font-weight:700; text-align:left; }
+#modoColaborativoWrap .pc-esp-lin.local{ background:rgba(242,244,245,.03); }
+#modoColaborativoWrap .pc-esp-lin.local .mn{ font-size:10px; color:#8A9096; text-align:left; padding-left:10px; }
