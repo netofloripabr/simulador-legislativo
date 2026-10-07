@@ -3796,3 +3796,36 @@
 #pcImpressaoConteudo .di-rlin.di-rfilho > span:nth-child(2){ padding-left:22px; border-left:2px solid #D3D6D9; margin-left:4px; color:#3F454B; font-size:9px; }
 #pcImpressaoConteudo .di-rlin.di-rfilho{ color:#3F454B; }
 #pcImpressaoConteudo .di-mapab{ max-height:135mm; border:.5px solid #D3D6D9; border-radius:6px; }
+/* Aba Mapa · duelo entre candidatos (07/10/2026): foto frente a frente + barras espelhadas */
+#modoColaborativoWrap .pc-duelo{ padding:14px; margin:0 0 10px; }
+#modoColaborativoWrap .pc-duelo-top{ display:flex; align-items:flex-start; gap:8px; }
+#modoColaborativoWrap .pc-duelo-top .x{ align-self:center; font-size:12px; font-weight:800; color:#5A6066; }
+#modoColaborativoWrap .pc-duelo-lado{ flex:1; min-width:0; display:flex; flex-direction:column; }
+#modoColaborativoWrap .pc-duelo-lado.a{ align-items:flex-start; text-align:left; }
+#modoColaborativoWrap .pc-duelo-lado.b{ align-items:flex-end; text-align:right; }
+#modoColaborativoWrap .pc-duelo-lado .ft{ width:64px; height:64px; border-radius:50%; padding:2px; background:#34E84A; flex:none; }
+#modoColaborativoWrap .pc-duelo-lado.b .ft{ background:#E8432A; }
+#modoColaborativoWrap .pc-duelo-lado .ft img, #modoColaborativoWrap .pc-duelo-lado .ft span{ width:100%; height:100%; border-radius:50%; object-fit:cover; object-position:50% 20%; display:flex; align-items:center; justify-content:center; background:#2A2E33; color:#F2F4F5; font-weight:800; font-size:22px; }
+#modoColaborativoWrap .pc-duelo-lado .nm{ font-weight:800; font-size:14px; color:#F2F4F5; margin-top:8px; line-height:1.15; }
+#modoColaborativoWrap .pc-duelo-lado .pt, #modoColaborativoWrap .pc-duelo-lado .rot{ font-size:11px; color:#8A9096; }
+#modoColaborativoWrap .pc-duelo-lado .vv{ font-size:22px; font-weight:800; color:#34E84A; margin-top:6px; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-duelo-lado.b .vv{ color:#E8432A; }
+#modoColaborativoWrap .pc-duelo-barra{ display:flex; gap:2px; height:12px; border-radius:6px; overflow:hidden; margin-top:12px; background:#0E1114; }
+#modoColaborativoWrap .pc-duelo-barra i:first-child{ background:#34E84A; }
+#modoColaborativoWrap .pc-duelo-barra i:last-child{ flex:1; background:#E8432A; }
+#modoColaborativoWrap .pc-duelo-pcs{ display:flex; justify-content:space-between; font-size:11px; margin-top:5px; font-variant-numeric:tabular-nums; color:#8A9096; }
+#modoColaborativoWrap .pc-duelo-pcs .a{ color:#34E84A; } #modoColaborativoWrap .pc-duelo-pcs .b{ color:#E8432A; }
+#modoColaborativoWrap .pc-espelho{ padding:10px 12px; }
+#modoColaborativoWrap .pc-esp-cab, #modoColaborativoWrap .pc-esp-lin{ display:grid; grid-template-columns:1fr 96px 1fr; align-items:center; gap:6px; }
+#modoColaborativoWrap .pc-esp-cab{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+#modoColaborativoWrap .pc-esp-cab .a{ text-align:right; color:#34E84A; } #modoColaborativoWrap .pc-esp-cab .b{ color:#E8432A; }
+#modoColaborativoWrap .pc-esp-lin{ padding:5px 0; border-bottom:1px solid rgba(242,244,245,.06); cursor:pointer; }
+#modoColaborativoWrap .pc-esp-lin.sel{ background:rgba(242,244,245,.05); }
+#modoColaborativoWrap .pc-esp-lin .la, #modoColaborativoWrap .pc-esp-lin .lb{ display:flex; align-items:center; gap:5px; min-width:0; }
+#modoColaborativoWrap .pc-esp-lin .la{ justify-content:flex-end; }
+#modoColaborativoWrap .pc-esp-lin i{ height:10px; background:#34E84A; border-radius:5px 2px 2px 5px; flex:none; min-width:2px; }
+#modoColaborativoWrap .pc-esp-lin .lb i{ background:#E8432A; border-radius:2px 5px 5px 2px; }
+#modoColaborativoWrap .pc-esp-lin i.fraco{ opacity:.45; }
+#modoColaborativoWrap .pc-esp-lin b{ font-size:11px; font-weight:500; color:#8A9096; font-variant-numeric:tabular-nums; }
+#modoColaborativoWrap .pc-esp-lin b.on{ font-weight:800; color:#F2F4F5; }
+#modoColaborativoWrap .pc-esp-lin .mn{ text-align:center; font-size:11px; color:#C9CDD1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
