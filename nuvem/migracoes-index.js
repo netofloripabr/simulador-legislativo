@@ -1385,5 +1385,40 @@ const MIGRACOES_INDEX = [
     "investimento_municipio_admin_le"
    ]
   ]
+ },
+ {
+  "num": 62,
+  "arquivo": "migracao-62-corrida-mesa.sql",
+  "descricao": "Migração 62 (08/10/2026): Corrida da Mesa (painel/mesa.html).",
+  "objetos": [
+   [
+    "table",
+    "mesa_acesso"
+   ],
+   [
+    "policy",
+    "mesa_acesso_le_proprio"
+   ],
+   [
+    "table",
+    "mesa_cenarios"
+   ],
+   [
+    "index",
+    "mesa_cenarios_perfil_idx"
+   ],
+   [
+    "policy",
+    "mesa_cenarios_dono"
+   ],
+   [
+    "function",
+    "pode_acessar_mesa"
+   ],
+   [
+    "function",
+    "admin_definir_acesso_mesa"
+   ]
+  ]
  }
 ];

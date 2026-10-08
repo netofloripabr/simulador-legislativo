@@ -1,114 +1,219 @@
-// Corrida da Mesa (protótipo 08/10/2026). Ver cabeçalho do mesa.html.
-const $ = (s) => document.querySelector(s);
+// Corrida da Mesa — versão funcional (08/10/2026). Ver cabeçalho do mesa.html.
+const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-const ni = (x) => Math.round(x).toLocaleString("pt-BR");
-const CORES = ["#34E84A", "#5A86FF", "#FFA23E", "#E85AD0", "#2ED3F0", "#C6E62A"];
-const MAIORIA = 21;
-// catálogo provisório — substituído por dados/painel/alesc-estrutura.json quando existir
-let CAT = {
-  mesa: { rot: "Mesa Diretora", itens: ["1º Vice-Presidente", "2º Vice-Presidente", "1º Secretário", "2º Secretário", "3º Secretário", "4º Secretário"] },
-  comissoes: { rot: "Presidência de comissão permanente", itens: ["Constituição e Justiça", "Finanças e Tributação", "Trabalho, Administração e Serviço Público", "Educação, Cultura e Desporto", "Saúde", "Agricultura e Política Rural", "Economia, Ciência, Tecnologia, Minas e Energia", "Transportes e Desenvolvimento Urbano", "Segurança Pública", "Direitos Humanos", "Turismo e Meio Ambiente", "Pesca e Aquicultura", "Ética e Decoro Parlamentar"] },
-  alesc: { rot: "Estrutura da ALESC", itens: ["Diretoria Legislativa", "Diretoria Administrativa", "Diretoria de Comunicação Social", "Escola do Legislativo", "Procuradoria", "Coordenadoria de Imprensa", "TV ALESC", "Ouvidoria"] },
-  gov1: { rot: "Governo · 1º escalão", itens: ["Secretaria de Estado (a definir)"] },
-  gov2: { rot: "Governo · 2º escalão", itens: ["Autarquia / estatal (a definir)"] },
-  gov3: { rot: "Governo · 3º escalão", itens: ["Regional / gerência (a definir)"] },
-};
-const LIVRES = [["conv", "Convênios (R$)", "valor em R$, ex.: 2.000.000"], ["outro", "Outro acordo", "ex.: apoio do partido, liderança"]];
-let DEP = [], S;
-const salvar = () => { try { localStorage.setItem("sl_mesa", JSON.stringify(S)); } catch (e) {} };
+const ni = (x) => Math.round(x || 0).toLocaleString("pt-BR");
+const fm = (v) => !v ? "R$ 0" : v < 1e6 ? `R$ ${(v / 1e3).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil` : `R$ ${(v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 2 })} mi`;
+const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const CORES = ["#34E84A", "#5A86FF", "#FFA23E", "#E85AD0", "#2ED3F0"];
+const MAIORIA = 21, MESA = ["2º Vice-Presidente", "Presidente", "1º Vice-Presidente", "1º Secretário", "2º Secretário", "3º Secretário", "4º Secretário"];
+const COM9 = /constitui|financas|trabalho|etica/;
+const foto = (n) => `../dados/fotos/sc-2026/estadual/${n}.jpg`;
+const img = (d, cls = "av", st = "") => `<img class="${cls}" src="${foto(d.n)}" alt="" style="${st}">`;
+const hole = () => `<span class="ho">+</span>`;
+let DEP = [], COMS = [], EST = {}, S, UID = null, CEN_ID = null, salvarT;
 
+// ---------------- dados e acesso ----------------
 async function iniciar() {
-  const d = await (await fetch("../dados/painel/sc-estadual.json?v=20261008a")).json();
-  DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => b.t - a.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t, s: c.r > 0 ? `E-M · ${c.r}ª` : "E-QP" }));
-  try { const e = await (await fetch("../dados/painel/alesc-estrutura.json")).json(); if (e && e.mesa) {
-    const it = (l) => (l || []).map((x) => typeof x === "string" ? x : x.nome).filter(Boolean);
-    CAT.mesa.itens = it(e.mesa.cargos).filter((x) => !/^presidente$/i.test(x));
-    if (e.comissoes) CAT.comissoes.itens = it(e.comissoes);
-    if (e.alesc) CAT.alesc.itens = e.alesc.flatMap((g) => it(g.itens).map((n) => `${n}`));
-    if (e.governo) { CAT.gov1.itens = it(e.governo["1"]); CAT.gov2.itens = it(e.governo["2"]); CAT.gov3.itens = it(e.governo["3"]); }
-  } } catch (e) { /* segue com o catálogo provisório */ }
-  try { S = JSON.parse(localStorage.getItem("sl_mesa")); } catch (e) {}
-  if (!S || !S.chapas) {
-    S = { chapas: [{ id: "c1", cor: CORES[0], cand: DEP[0].n }, { id: "c2", cor: CORES[1], cand: DEP[1].n }], dep: {}, ativa: "c1", sel: DEP[0].n };
-    S.dep[DEP[0].n] = { ch: "c1", ben: [] }; S.dep[DEP[1].n] = { ch: "c2", ben: [] };
-  }
-  desenhar();
+  const app = $("#app");
+  if (!supabaseClient) { app.innerHTML = `<div class="bloq"><h1>Sem conexão.</h1><p>Não foi possível carregar o acesso. Tente de novo.</p></div>`; return; }
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (!session) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">Entre na sua conta para acessar o jogo.</p><a href="../?entrar=1">Entrar</a></div>`; return; }
+  UID = session.user.id;
+  const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
+  if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
+  const { data: admin } = await supabaseClient.rpc("sou_admin");
+  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=1").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
+  DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
+  COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
+  COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão /, "").replace(/^de /, ""));
+  EST = e;
+  const { data: cen } = await supabaseClient.from("mesa_cenarios").select("id,dados").eq("perfil_id", UID).order("atualizado_em", { ascending: false }).limit(1);
+  if (cen && cen[0] && cen[0].dados && cen[0].dados.chapas) { CEN_ID = cen[0].id; S = cen[0].dados; }
+  else { try { S = JSON.parse(localStorage.getItem("sl_mesa2")); } catch (er) {} }
+  if (!S || !S.chapas) S = novoCenario();
+  S.ui = { aba: S.chapas[0].id, comAb: null, estAb: null, mais: {}, pat: { col: "v", dir: -1 }, patAb: null, gav: true, qAb: false, selB: null };
+  desenhar(!!admin);
 }
+function novoCenario() {
+  return { chapas: [{ id: "c1", cor: CORES[0], mesa: {}, out: {}, com: {}, pres: {} }], dep: {}, blocos: [...new Set(DEP.map((d) => d.p))].map((p) => [p]), reserva: null };
+}
+function salvar() {
+  try { localStorage.setItem("sl_mesa2", JSON.stringify({ ...S, ui: undefined })); } catch (e) {}
+  clearTimeout(salvarT); $("#salvo").textContent = "salvando…";
+  salvarT = setTimeout(async () => {
+    const dados = { ...S, ui: undefined };
+    if (CEN_ID) await supabaseClient.from("mesa_cenarios").update({ dados, atualizado_em: new Date().toISOString() }).eq("id", CEN_ID);
+    else { const { data } = await supabaseClient.from("mesa_cenarios").insert({ perfil_id: UID, dados }).select("id").single(); if (data) CEN_ID = data.id; }
+    $("#salvo").textContent = "salvo";
+  }, 800);
+}
+
+// ---------------- consultas ----------------
 const dep = (n) => DEP.find((d) => d.n === n);
 const chapa = (id) => S.chapas.find((c) => c.id === id);
-const votos = (id) => DEP.filter((d) => S.dep[d.n] && S.dep[d.n].ch === id && !S.dep[d.n].duv).length;
-const foto = (n, u) => `<img src="../dados/fotos/sc-2026/estadual/${n}.jpg" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${esc((u || '?')[0])}'}))">`;
-// item fixo já prometido por esta chapa? (uma vez por chapa)
-function usadoNaChapa(chId, cat, nome) { for (const [n, x] of Object.entries(S.dep)) if (x.ch === chId) for (const b of x.ben) if (b.cat === cat && b.nome === nome) return n; return null; }
+const chDe = (n) => S.dep[n] && S.dep[n].ch;
+const membros = (ch) => DEP.filter((d) => chDe(d.n) === ch.id);
+const votos = (ch) => membros(ch).filter((d) => !S.dep[d.n].duv).length;
+const presDe = (ch) => ch.mesa["Presidente"] ? dep(ch.mesa["Presidente"]) : null;
+const nomeCh = (ch) => { const p = presDe(ch); return p ? `Chapa ${p.u}` : `Chapa ${S.chapas.indexOf(ch) + 1}`; };
+const naMesa = (ch, n) => Object.values(ch.mesa).includes(n);
+const blocoDe = (p) => S.blocos.find((b) => b.includes(p));
+const nB = (b) => b.reduce((s, p) => s + DEP.filter((d) => d.p === p).length, 0);
+const AC = { Relacoes: "Relações", Camaras: "Câmaras", Familia: "Família", Gestao: "Gestão", Comunicacao: "Comunicação", Inovacao: "Inovação", Comissoes: "Comissões", Orcamento: "Orçamento", Saude: "Saúde", Assistencia: "Assistência", Documentacao: "Documentação", Publicacao: "Publicação", Informacoes: "Informações", Patrimonio: "Patrimônio", Seguranca: "Segurança", Administracao: "Administração", Nucleo: "Núcleo", Gerencia: "Gerência", Execucao: "Execução", Orcamentaria: "Orçamentária", Contratacoes: "Contratações", Licitacoes: "Licitações", Memoria: "Memória", Logistico: "Logístico", Tecnico: "Técnico", Manutencao: "Manutenção", Lotacao: "Lotação", Juridica: "Jurídica", Operacoes: "Operações", Taquigrafia: "Taquigrafia", Plenario: "Plenário", Transito: "Trânsito", Informatica: "Informática", Cerimonial: "Cerimonial", Tecnologia: "Tecnologia", Expedicao: "Expedição", As: "às" };
+const acento = (t) => String(t).replace(/\b[A-Z][a-z]+\b/g, (w) => AC[w] || w);
+const estLista = () => Object.values(EST.grupos).flat();
+const estDe = (nome) => estLista().find((x) => x.n === nome);
+const comEst = (c) => (EST.grupos["Comissões · secretário de comissão"] || []).find((x) => norm(x.n).includes(norm(c).slice(0, 18)));
+function poeNaChapa(n, ch) { S.dep[n] = S.dep[n] || {}; if (S.dep[n].ch && S.dep[n].ch !== ch.id) tiraDeTudo(n, chapa(S.dep[n].ch)); S.dep[n].ch = ch.id; S.dep[n].duv = false; }
+function tiraDeTudo(n, ch) { if (!ch) return; for (const k in ch.mesa) if (ch.mesa[k] === n) delete ch.mesa[k]; for (const k in ch.out) if (ch.out[k] === n) delete ch.out[k]; for (const c in ch.com) ch.com[c] = ch.com[c].map((x) => x === n ? null : x); for (const c in ch.pres) if (ch.pres[c] === n) delete ch.pres[c]; }
 
-function desenhar() { placar(); plenario(); ficha(); comparar(); salvar(); }
-
-function placar() {
-  $("#placar").innerHTML = S.chapas.map((c, k) => { const d = dep(c.cand), v = votos(c.id);
-    return `<div class="ch${S.ativa === c.id ? " on" : ""}${v >= MAIORIA ? " venc" : ""}" style="--c:${c.cor}" data-ch="${c.id}"><button class="x" data-del="${c.id}" title="Remover chapa">×</button>
-      <div class="top"><div class="ft">${foto(d.n, d.u)}</div><div><div class="nm">${esc(d.u)}</div><div class="sub">Chapa ${k + 1} · ${esc(d.p)}</div></div></div>
-      <div class="num"><b>${v}</b><span>de ${MAIORIA} necessários</span></div><div class="bar"><i style="width:${v / 40 * 100}%"></i></div></div>`; }).join("")
-    + (S.chapas.length < CORES.length ? `<div class="ch nova" id="nova"><b style="font-size:22px">+</b>Nova chapa</div>` : "");
-  const duv = DEP.filter((d) => S.dep[d.n] && S.dep[d.n].duv).length, ind = DEP.filter((d) => !S.dep[d.n] || !S.dep[d.n].ch).length;
-  $("#resumo").innerHTML = S.chapas.map((c, k) => `<span><b style="color:${c.cor}">${votos(c.id)}</b> chapa ${k + 1}</span>`).join("<span>×</span>") + `<span>· <b>${duv}</b> em dúvida · <b>${ind}</b> indecisos</span>`;
-  $("#placar").querySelectorAll("[data-ch]").forEach((e) => e.onclick = (ev) => { if (ev.target.closest("[data-del]")) return; S.ativa = e.dataset.ch; desenhar(); });
-  $("#placar").querySelectorAll("[data-del]").forEach((b) => b.onclick = () => { if (S.chapas.length < 2) return; const id = b.dataset.del; S.chapas = S.chapas.filter((c) => c.id !== id); Object.values(S.dep).forEach((x) => { if (x.ch === id) { x.ch = null; x.ben = []; x.duv = false; } }); S.ativa = S.chapas[0].id; desenhar(); });
-  const nv = $("#nova"); if (nv) nv.onclick = () => { const livre = DEP.find((d) => !S.chapas.some((c) => c.cand === d.n)); const id = "c" + Date.now(); const cor = CORES.find((c) => !S.chapas.some((x) => x.cor === c)); S.chapas.push({ id, cor, cand: livre.n }); S.dep[livre.n] = { ch: id, ben: [] }; S.ativa = id; S.sel = livre.n; desenhar(); };
+// distribuição das vagas de comissão (RI art. 30)
+function dist(n) {
+  const q = 40 / (n - 1), L = S.blocos.map((b) => ({ b, d: nB(b), q: nB(b) / q }));
+  L.forEach((x) => { x.v = Math.floor(x.q); });
+  let r = n - L.reduce((s, x) => s + x.v, 0);
+  const peq = L.filter((x) => x.d < 5).sort((a, c) => c.d - a.d || c.q - a.q);
+  const res = S.reserva ? peq.find((x) => x.b.join("+") === S.reserva) || peq[0] : peq[0];
+  if (r > 0 && res) { res.v++; res.res = true; r--; }
+  L.filter((x) => !x.res).sort((a, c) => (c.q % 1) - (a.q % 1) || c.d - a.d).slice(0, r).forEach((x) => { x.v++; });
+  return { q, L };
 }
+const vagasCom = (c) => COM9.test(norm(c)) ? 9 : 7;
+const slotsCom = (c) => dist(vagasCom(c)).L.flatMap((x) => Array(x.v).fill(x.b.join(" + ")));
 
-let ultimo = {};
-function plenario() {
-  // hemiciclo: 40 cadeiras em 4 fileiras (8, 9, 11, 12), ordenadas da esquerda para a direita pela chapa
-  const filas = [8, 9, 11, 12], R = [150, 210, 270, 330], cx = 400, cy = 400;
-  const ordemCh = (d) => { const x = S.dep[d.n]; const i = x && x.ch ? S.chapas.findIndex((c) => c.id === x.ch) : 99; return i * 2 + (x && x.duv ? 1 : 0); };
-  const L = [...DEP].sort((a, b) => ordemCh(a) - ordemCh(b) || b.t - a.t);
-  const pos = []; filas.forEach((n, f) => { for (let k = 0; k < n; k++) { const ang = Math.PI - (k + .5) / n * Math.PI; pos.push({ x: cx + R[f] * Math.cos(ang), y: cy - R[f] * Math.sin(ang), ang }); } });
-  pos.sort((a, b) => b.ang - a.ang || a.y - b.y);
-  let h = `<defs>${DEP.map((d) => `<clipPath id="cp${d.n}"><circle r="19"/></clipPath>`).join("")}<filter id="gl"><feGaussianBlur stdDeviation="5"/></filter></defs>`;
-  L.forEach((d, i) => { const p = pos[i], x = S.dep[d.n], c = x && x.ch ? chapa(x.ch) : null, cor = c ? c.cor : "#3A3F45", pres = S.chapas.some((ch) => ch.cand === d.n);
-    const mudou = ultimo[d.n] !== undefined && ultimo[d.n] !== (c ? c.id : null); ultimo[d.n] = c ? c.id : null;
-    h += `<g class="seat${S.sel === d.n ? " sel" : ""}${x && x.duv ? " duv" : ""}" data-n="${d.n}" transform="translate(${p.x.toFixed(1)},${p.y.toFixed(1)})"><g class="in">
-      ${c && !(x && x.duv) ? `<circle r="22" fill="${cor}" opacity=".35" filter="url(#gl)"/>` : ""}
-      <circle r="21" fill="#1B2022"/><image href="../dados/fotos/sc-2026/estadual/${d.n}.jpg" x="-19" y="-19" width="38" height="38" preserveAspectRatio="xMidYMin slice" clip-path="url(#cp${d.n})" opacity="${c ? 1 : .45}"/>
-      <circle class="ring" r="21" fill="none" stroke="${cor}" stroke-width="${c ? 3 : 1.5}"/>
-      ${pres ? `<circle r="7" cx="15" cy="-15" fill="${cor}" stroke="#14191A" stroke-width="2"/><text x="15" y="-12" text-anchor="middle" font-size="8" font-weight="900" fill="#0B0D0E">P</text>` : ""}
-      ${mudou ? `<circle class="onda" r="22" stroke="${cor}"/>` : ""}
-      <title>${esc(d.u)} · ${esc(d.p)}</title></g></g>`; });
-  $("#plen").innerHTML = h;
-  $("#plen").querySelectorAll(".seat").forEach((g) => g.onclick = () => { S.sel = g.dataset.n; desenhar(); });
-  const lider = [...S.chapas].sort((a, b) => votos(b.id) - votos(a.id))[0], vl = votos(lider.id);
-  $("#meio").innerHTML = "";
-  $("#plen").insertAdjacentHTML("beforeend", `<text x="400" y="378" text-anchor="middle" font-size="58" font-weight="900" letter-spacing="-3" fill="${lider.cor}">${vl}<tspan font-size="24" fill="#6B7178" letter-spacing="0"> / ${MAIORIA}</tspan></text><text x="400" y="408" text-anchor="middle" font-size="12" letter-spacing="2" fill="#6B7178">${(vl >= MAIORIA ? "MAIORIA FORMADA" : `FALTAM ${MAIORIA - vl} PARA ${esc(dep(lider.cand).u.split(" ")[0]).toUpperCase()}`)}</text>`);
-  $("#leg").innerHTML = S.chapas.map((c, k) => `<span><i style="background:${c.cor}"></i>Chapa ${k + 1}</span>`).join("") + `<span><i style="border:1.5px dashed #A9AEB3"></i>em dúvida</span><span><i style="background:#3A3F45"></i>indeciso</span><span><b style="color:var(--texto)">P</b> candidato à Presidência</span>`;
-}
-
-function ficha() {
-  const d = dep(S.sel); if (!d) { $("#fic").innerHTML = `<p class="dica">Toque numa cadeira.</p>`; return; }
-  const x = S.dep[d.n] = S.dep[d.n] || { ch: null, ben: [] }, c = x.ch ? chapa(x.ch) : null, pres = S.chapas.find((ch) => ch.cand === d.n);
-  let h = `<div style="display:flex;gap:12px;align-items:center"><div class="ch" style="flex:none;padding:0;border:0;background:none;cursor:default;--c:${c ? c.cor : "#3A3F45"}"><div class="ft" style="width:56px;height:56px">${foto(d.n, d.u)}</div></div><div><h2>${esc(d.u)}</h2><div class="sub">${esc(d.p)} · ${ni(d.t)} votos · ${d.s}</div></div></div>
-    <h3>Vota em</h3><div class="chips">${S.chapas.map((ch, k) => `<button data-v="${ch.id}" class="${x.ch === ch.id ? "on" : ""}" style="--c:${ch.cor}"${pres && pres.id !== ch.id ? " disabled" : ""}>Chapa ${k + 1}</button>`).join("")}<button data-v="" class="${!x.ch ? "on" : ""}">Indeciso</button></div>`;
-  if (x.ch && !pres) h += `<div class="chips" style="margin-top:8px"><button data-duv="1" class="${x.duv ? "on" : ""}" style="--c:#A9AEB3">${x.duv ? "Em dúvida (não conta)" : "Marcar como em dúvida"}</button></div>`;
-  if (!pres) h += `<div class="chips" style="margin-top:8px"><button data-pres="1" style="--c:${c ? c.cor : "#A9AEB3"}">Lançar como candidato à Presidência</button></div>`;
-  else h += `<p class="dica" style="margin-top:8px">Candidato à Presidência da chapa ${S.chapas.indexOf(pres) + 1}.</p>`;
-  if (x.ch) {
-    h += `<h3>O que recebe</h3>${x.ben.length ? x.ben.map((b, i) => `<div class="ben"><span>${esc(b.nome)}<small>${esc(b.rot)}${b.valor ? " · " + esc(b.valor) : ""}</small></span><button data-rm="${i}">×</button></div>`).join("") : `<p class="dica">Nada atribuído ainda.</p>`}
-      <h3>Atribuir</h3>${Object.entries(CAT).map(([k, g]) => `<details class="cat"><summary>${g.rot}<span>uma vez por chapa</span></summary>${g.itens.map((it) => { const u = usadoNaChapa(x.ch, k, it); return `<button class="it" data-cat="${k}" data-it="${esc(it)}"${u ? " disabled" : ""}><span>${esc(it)}</span>${u ? `<small>com ${esc(dep(u).u)}</small>` : ""}</button>`; }).join("")}</details>`).join("")}
-      ${LIVRES.map(([k, r, ph]) => `<details class="cat"><summary>${r}<span>livre</span></summary><div class="livre"><input id="lv-${k}" placeholder="${ph}"><button data-lv="${k}">Adicionar</button></div></details>`).join("")}`;
+// patrimônio: estruturas (CC + FC/FG + grat. exercício) + secretário de comissão presidida + convênios
+function patrimonio(n) {
+  const ch = chapa(chDe(n)); const it = []; let v = 0;
+  if (ch) {
+    for (const [k, x] of Object.entries(ch.mesa)) if (x === n) it.push(["Mesa", k, 0]);
+    for (const [c, x] of Object.entries(ch.pres)) if (x === n) { const e = comEst(c); it.push(["Comissão", "Presidência · " + c, e ? e.t : 0]); v += e ? e.t : 0; }
+    for (const [c, l] of Object.entries(ch.com)) if (l.includes(n) && ch.pres[c] !== n) it.push(["Comissão", "Membro · " + c, 0]);
+    for (const [k, x] of Object.entries(ch.out)) if (x === n) { const e = estDe(k); it.push(["Estrutura", acento(k), e ? e.t : 0]); v += e ? e.t : 0; }
   }
-  $("#fic").innerHTML = h;
-  const F = $("#fic");
-  F.querySelectorAll("[data-v]").forEach((b) => b.onclick = () => { const v = b.dataset.v || null; if (x.ch !== v) x.ben = []; x.ch = v; x.duv = false; desenhar(); });
-  F.querySelectorAll("[data-duv]").forEach((b) => b.onclick = () => { x.duv = !x.duv; desenhar(); });
-  F.querySelectorAll("[data-pres]").forEach((b) => b.onclick = () => { if (!x.ch) { x.ch = S.ativa; } chapa(x.ch).cand = d.n; x.duv = false; desenhar(); });
-  F.querySelectorAll("[data-rm]").forEach((b) => b.onclick = () => { x.ben.splice(+b.dataset.rm, 1); desenhar(); });
-  F.querySelectorAll("[data-cat]").forEach((b) => b.onclick = () => { x.ben.push({ cat: b.dataset.cat, nome: b.dataset.it, rot: CAT[b.dataset.cat].rot }); desenhar(); });
-  F.querySelectorAll("[data-lv]").forEach((b) => b.onclick = () => { const k = b.dataset.lv, v = $("#lv-" + k).value.trim(); if (!v) return; x.ben.push(k === "conv" ? { cat: k, nome: "Convênios", rot: "R$", valor: "R$ " + v } : { cat: k, nome: v, rot: "Outro acordo" }); desenhar(); });
+  const cv = (S.dep[n] && S.dep[n].conv) || 0;
+  return { it, v, cv };
 }
 
-function comparar() {
-  const conv = (id) => DEP.reduce((s, d) => { const x = S.dep[d.n]; if (!x || x.ch !== id) return s; return s + x.ben.filter((b) => b.cat === "conv").reduce((t, b) => t + (Number(String(b.valor).replace(/\D/g, "")) || 0), 0); }, 0);
-  const cont = (id, cats) => DEP.reduce((s, d) => { const x = S.dep[d.n]; return x && x.ch === id ? s + x.ben.filter((b) => cats.includes(b.cat)).length : s; }, 0);
-  $("#cmp").innerHTML = `<table><tr><th>Projeto</th><th>Votos</th><th>Em dúvida</th><th>Mesa</th><th>Comissões</th><th>Estrutura ALESC</th><th>Governo</th><th>Convênios</th></tr>${S.chapas.map((c, k) => { const dv = DEP.filter((d) => S.dep[d.n] && S.dep[d.n].ch === c.id && S.dep[d.n].duv).length;
-    return `<tr style="--c:${c.cor}"><td><b>Chapa ${k + 1}</b> · ${esc(dep(c.cand).u)}</td><td><b>${votos(c.id)}</b></td><td>${dv}</td><td>${cont(c.id, ["mesa"])}/${CAT.mesa.itens.length}</td><td>${cont(c.id, ["comissoes"])}</td><td>${cont(c.id, ["alesc"])}</td><td>${cont(c.id, ["gov1", "gov2", "gov3"])}</td><td>R$ ${ni(conv(c.id))}</td></tr>`; }).join("")}</table>`;
+// ---------------- desenho ----------------
+let ADMIN = false;
+function desenhar(admin) {
+  if (admin !== undefined) ADMIN = admin;
+  const ch = chapa(S.ui.aba) || S.chapas[0]; S.ui.aba = ch.id;
+  const y = scrollY;
+  $("#app").innerHTML = `<div class="pg"><main>
+    <h1>Corrida da <i>Mesa.</i></h1>
+    <div class="chapas">${S.chapas.map((c) => `<button data-ch="${c.id}" class="${c.id === ch.id ? "on" : ""}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))} <b>${votos(c)}</b>/21</button>`).join("")}${S.chapas.length < CORES.length ? `<button data-nova="1">+ nova chapa</button>` : ""}</div>
+    <div class="placar">${S.chapas.map((c) => `<span><b style="color:${c.cor}">${votos(c)}</b> ${esc(nomeCh(c))}${votos(c) >= MAIORIA ? ` <b style="color:${c.cor}">· maioria</b>` : ""}</span>`).join("<span>×</span>")}<span>· <b>${DEP.filter((d) => S.dep[d.n] && S.dep[d.n].duv).length}</b> em dúvida · <b>${DEP.filter((d) => !chDe(d.n)).length}</b> sem chapa</span></div>
+    <div class="acoesch"><button class="mini" data-bancada="1">+ bancada inteira</button><button class="mini" data-aliado="1">+ aliado</button>${S.chapas.length > 1 ? `<button class="mini" data-delch="1">Excluir esta chapa</button>` : ""}<button class="mini" data-zerar="1">Recomeçar cenário</button></div>
+    <section id="s1"><h2>Jogo da <i>Mesa.</i></h2>${secMesa(ch)}</section>
+    <section id="s2"><h2>Composição das <i>comissões.</i></h2>${secCom(ch)}</section>
+    <section id="s3"><h2>Outros <i>cargos.</i></h2>${secOut(ch)}</section>
+    ${ADMIN ? `<div class="adm"><b style="color:#C6E62A">Administrador</b> · liberar acesso à Corrida da Mesa: <input id="admEmail" placeholder="e-mail da conta"> <button class="mini" data-adm="1">Liberar</button> <button class="mini" data-adm="0">Retirar</button> <span id="admMsg"></span></div>` : ""}
+  </main>${secPat()}</div>`;
+  scrollTo(0, y); ligar(ch); salvar();
+}
+function secMesa(ch) {
+  const cards = MESA.map((k) => { const n = ch.mesa[k], d = n && dep(n), pres = k === "Presidente";
+    return d ? `<div class="card${pres ? " pres" : ""}" style="--c:${ch.cor};--cc:${ch.cor}88" data-mesa="${k}">${img(d, "", "")}<div class="l"><span>${k}</span><b>${esc(d.u)}</b></div></div>` : `<div class="card vazio${pres ? " pres" : ""}" data-mesa="${k}"><b style="font-size:18px">+</b><span>${k}</span></div>`; }).join("");
+  const al = membros(ch).filter((d) => !naMesa(ch, d.n));
+  const nm = Object.keys(ch.mesa).length, falta = Math.max(0, MAIORIA - votos(ch));
+  return `<div class="rot">Mesa Diretora · ${nm}/7 · fora das comissões</div><div class="cards">${cards}</div>
+    <div class="rot">Votos da chapa · ${nm} na Mesa + ${al.filter((d) => !S.dep[d.n].duv).length} aliados = <b style="color:${ch.cor}">${votos(ch)}</b>/21${falta ? ` · faltam ${falta}` : " · maioria formada"}</div>
+    <div class="cards">${al.map((d) => `<div class="card sm${S.dep[d.n].duv ? " duv" : ""}" style="--cc:${ch.cor}77" data-dep="${d.n}">${img(d, "")}<div class="l"><span>${esc(d.p)}</span><b>${esc(d.u)}</b></div></div>`).join("")}${Array.from({ length: Math.max(1, falta) }, () => `<div class="card sm vazio" data-aliado="1"><b>+</b></div>`).join("")}</div>`;
+}
+function secCom(ch) {
+  const A = dist(9), Z = dist(7), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  let h = `<button class="qb" data-q="1">÷ Quociente das comissões ${S.ui.qAb ? "▾" : "▸"}</button>`;
+  if (S.ui.qAb) h += `<div class="qbox"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). A vaga reservada vai ao conjunto dos partidos com menos de 5 deputados; as demais, às maiores frações (empate: maior bancada). Membros da Mesa contam na base de 40, mas não ocupam vaga. CCJ, Finanças, Trabalho e Ética têm 9 membros; as demais, 7.</p>
+    <div class="conta" style="margin:0 12px 8px">Blocos parlamentares · toque em dois para juntar, toque num bloco para desfazer · toque em "res." para escolher quem leva a vaga reservada</div>
+    <div class="chipsb">${S.blocos.map((b, i) => `<button data-bl="${i}" class="${b.length > 1 ? "bk" : ""}${S.ui.selB === i ? " sel" : ""}">${esc(b.join(" + "))} · ${nB(b)}</button>`).join("")}</div>
+    <table class="qt"><tr><th>Partido / bloco</th><th>Deputados</th><th>Quoc. 9 (${f(A.q)})</th><th>Vagas · 9</th><th>Quoc. 7 (${f(Z.q)})</th><th>Vagas · 7</th></tr>
+    ${A.L.map((x, i) => { const y = Z.L[i]; return `<tr><td>${esc(x.b.join(" + "))}</td><td>${x.d}</td><td class="f">${f(x.q)}</td><td><b>${x.v || "—"}</b>${x.res ? ` <small>res.</small>` : x.d < 5 ? ` <small data-res="${esc(x.b.join("+"))}" style="cursor:pointer;color:#4A5058">res.?</small>` : ""}</td><td class="f">${f(y.q)}</td><td><b>${y.v || "—"}</b>${y.res ? ` <small>res.</small>` : ""}</td></tr>`; }).join("")}
+    <tr class="t"><td>Total</td><td>40</td><td></td><td>9</td><td></td><td>7</td></tr></table></div>`;
+  const linhas = COMS.map((c) => {
+    const sl = slotsCom(c), l = (ch.com[c] = (ch.com[c] || []).slice(0, sl.length)), cheio = l.filter(Boolean).length, ab = S.ui.comAb === c, p = ch.pres[c] && dep(ch.pres[c]);
+    let x = `<div><div class="ln${ab ? " ab" : ""}" data-com="${esc(c)}">${p ? img(p) : hole()}<span class="n">${esc(c)}</span><span class="q">${cheio}/${sl.length}</span><span style="color:#6B7178;font-size:11px">${ab ? "▾" : "▸"}</span></div>`;
+    if (ab) {
+      const d = dist(sl.length), e = comEst(c);
+      x += `<div class="abre"><div class="conta">${sl.length} vagas · quociente ${f(d.q)} · ${d.L.filter((y) => y.v).map((y) => `${esc(y.b.join("+"))} ${y.v}`).join(" · ")}${e ? ` · presidência: secretário de comissão ${fm(e.t)}/mês` : ""}</div>
+        ${sl.map((b, i) => { const n = l[i], dd = n && dep(n), err = dd && !b.split(" + ").includes(dd.p);
+          return `<div class="vg" data-vaga="${esc(c)}|${i}">${dd ? img(dd, "av" + (err ? " err" : "")) : hole()}<div>${dd ? esc(dd.u) : `<span style="color:#4A5058">vaga</span>`}${err ? `<small>${esc(dd.p)} · vaga do ${esc(b)}</small>` : ""}</div><span class="bl">${esc(b)}</span>${dd ? `<button class="pr${ch.pres[c] === n ? " on" : ""}" data-pres="${esc(c)}|${n}" title="Presidente da comissão">★</button>` : "<span></span>"}</div>`; }).join("")}</div>`;
+    }
+    return x + "</div>";
+  });
+  const meio = Math.ceil(linhas.length / 2);
+  return h + `<div class="rot">Comissões permanentes · ${COMS.length} · toque para abrir · ★ marca o presidente</div><div class="dois"><div style="border-top:1px solid var(--linha)">${linhas.slice(0, meio).join("")}</div><div style="border-top:1px solid var(--linha)">${linhas.slice(meio).join("")}</div></div>`;
+}
+function secOut(ch) {
+  let h = "";
+  for (const [g, L] of Object.entries(EST.grupos)) {
+    if (/Comiss/.test(g) || !L.length) continue;
+    const lim = S.ui.mais[g] ? L.length : 8;
+    h += `<div class="ec"><h3><span>${esc(g)} · ${L.length}</span><b>${fm(L.reduce((s, x) => s + x.t, 0))}/mês</b></h3><div class="er cab"><span></span><span>Estrutura</span><span>Comiss.</span><span>FC / FG</span><span>Grat. exerc.</span><span>Total/mês</span></div>`;
+    for (const x of L.slice(0, lim)) {
+      const n = ch.out[x.n], d = n && dep(n), ab = S.ui.estAb === x.n;
+      h += `<div class="er${ab ? " ab" : ""}" data-est="${esc(x.n)}">${d ? img(d) : hole()}<span>${esc(acento(x.n))}<small>${d ? esc(d.u) : "vago"}</small></span><span class="v">${x.cc[0] || "—"}</span><span class="v">${x.fc[0] || "—"}</span><span class="v">${x.fg[0] || "—"}</span><span class="tt">${fm(x.t)}</span></div>`;
+      if (ab) h += `<div class="det"><div><span>Cargos comissionados</span><b>${x.cc[0]}</b><i>${fm(x.cc[1])}</i></div><div><span>Funções de confiança / gratificadas</span><b>${x.fc[0]}</b><i>${fm(x.fc[1])}</i></div><div><span>Gratificação de exercício</span><b>${x.fg[0]}</b><i>${fm(x.fg[1])}</i></div>${x.niveis ? `<div style="grid-column:1/-1"><span>Níveis ocupados</span><i style="margin:0">${esc(Object.entries(x.niveis).map(([k, v]) => `${k} ×${v}`).join(" · "))}</i></div>` : ""}<div style="grid-column:1/-1;display:flex;gap:8px;align-items:center"><button class="mini" data-atrib="${esc(x.n)}">${d ? "Trocar ocupante" : "Atribuir a um deputado da chapa"}</button>${d ? `<button class="mini" data-desatrib="${esc(x.n)}">Deixar vago</button>` : ""}</div></div>`;
+    }
+    if (L.length > 8) h += `<button class="mais" data-mais="${esc(g)}">${S.ui.mais[g] ? "mostrar menos" : `+ ${L.length - 8} ${g.toLowerCase()}`}</button>`;
+    h += "</div>";
+  }
+  return h + `<p style="font-size:11.5px;color:#6B7178;margin-top:12px">Soma cargos comissionados (PL/DAS), funções de confiança e gratificadas (PL/FC e PL/FG) e gratificação de exercício. Salário de efetivo fora. Contracheques de ${esc(EST.mes || "09/2026")}, Portal da Transparência da ALESC. Cada estrutura vale uma vez por chapa.</p>`;
+}
+function secPat() {
+  if (!S.ui.gav) return `<aside class="gav fechada" data-gav="1"><span class="vert">Patrimônio · 40</span></aside>`;
+  const { col, dir } = S.ui.pat, P = DEP.map((d) => ({ d, ...patrimonio(d.n) }));
+  P.sort((a, b) => col === "nome" ? dir * a.d.u.localeCompare(b.d.u, "pt-BR") : dir * ((a.v + a.cv) - (b.v + b.cv)));
+  const seta = (c) => `<span class="ord"><i class="u${col === c && dir > 0 ? " on" : ""}"></i><i class="d${col === c && dir < 0 ? " on" : ""}"></i></span>`;
+  return `<aside class="gav"><div class="alca" data-gav="1" title="Recolher"><i></i><i></i></div><div class="rot" style="margin-top:14px">Patrimônio dos parlamentares · 40</div>
+    <div class="pcab"><span data-po="nome" class="${col === "nome" ? "on" : ""}">Nome${seta("nome")}</span><span data-po="v" class="${col === "v" ? "on" : ""}">Patrimônio${seta("v")}</span></div>
+    ${P.map(({ d, it, v, cv }) => { const ch = chapa(chDe(d.n)), ab = S.ui.patAb === d.n;
+      return `<div class="pl"><div class="h" data-pat="${d.n}">${img(d, "av", `box-shadow:0 0 0 2px ${ch ? ch.cor : "#3A3F45"}`)}<div style="min-width:0"><div class="nm"${ab ? ' style="font-weight:700"' : ""}>${esc(d.u)}</div><div class="pt">${esc(d.p)}${S.dep[d.n] && S.dep[d.n].duv ? " · em dúvida" : ""}</div></div><b class="v">${v ? fm(v) + "/mês" : ""}${cv ? `<br><span style="color:#A9AEB3;font-weight:500">+ ${fm(cv)}</span>` : ""}</b></div>
+        ${ab ? `<div class="corpo">${it.length ? it.map(([g, t, val]) => `<div class="it"><span>${g}</span><b>${esc(t)}${val ? ` · ${fm(val)}` : ""}</b></div>`).join("") : `<div class="it"><b style="color:#6B7178">Nada atribuído</b></div>`}
+          <div class="it"><span>Convênios</span><b></b></div><input data-conv="${d.n}" inputmode="numeric" placeholder="R$ — digite o valor" value="${cv ? ni(cv) : ""}"></div>` : ""}</div>`; }).join("")}</aside>`;
+}
+
+// ---------------- seletor de deputado ----------------
+function escolher(titulo, desc, filtro, aoEscolher, extra) {
+  const el = $("#sel");
+  const lista = (q) => DEP.filter(filtro).filter((d) => !q || norm(d.u + " " + d.p).includes(norm(q))).map((d) => { const c = chapa(chDe(d.n)); return `<button class="op" data-n="${d.n}">${img(d, "av", `box-shadow:0 0 0 2px ${c ? c.cor : "#3A3F45"}`)}<span>${esc(d.u)} <small>${esc(d.p)}</small></span><small>${c ? esc(nomeCh(c)) : "sem chapa"}</small></button>`; }).join("") || `<p style="color:#6B7178;font-size:13px">Ninguém disponível.</p>`;
+  el.innerHTML = `<div class="f"></div><div class="cx"><h3>${esc(titulo)}</h3><div class="ds">${desc || ""}</div><input id="selq" placeholder="Buscar nome ou partido"><div class="ls" id="sell">${lista("")}</div>${extra || ""}<button class="bt" data-fechar="1">Fechar</button></div>`;
+  el.hidden = false;
+  const fecha = () => { el.hidden = true; };
+  $(".f", el).onclick = fecha; $("[data-fechar]", el).onclick = fecha;
+  $("#selq").oninput = (e) => { $("#sell").innerHTML = lista(e.target.value); };
+  el.onclick = (e) => { const b = e.target.closest(".op"); if (b) { fecha(); aoEscolher(b.dataset.n); desenhar(); } const x = e.target.closest("[data-extra]"); if (x) { fecha(); aoEscolher(null, x.dataset.extra); desenhar(); } };
+}
+
+// ---------------- eventos ----------------
+function ligar(ch) {
+  const A = $("#app");
+  A.onclick = (e) => {
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-q],[data-bl],[data-res],[data-com],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
+    if (!t) return; const ds = t.dataset;
+    if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
+    if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
+    if (ds.delch) { DEP.forEach((d) => { if (chDe(d.n) === ch.id) delete S.dep[d.n]; }); S.chapas = S.chapas.filter((c) => c !== ch); S.ui.aba = S.chapas[0].id; return desenhar(); }
+    if (ds.zerar) { if (t.dataset.ok) { const ui = S.ui; S = novoCenario(); S.ui = { ...ui, aba: "c1" }; return desenhar(); } t.dataset.ok = 1; t.textContent = "Confirmar: apagar tudo"; return; }
+    if (ds.mesa) { const k = ds.mesa; return escolher(k, `${nomeCh(ch)} · quem estiver em outra chapa muda para esta`, (d) => !naMesa(ch, d.n) || ch.mesa[k] === d.n, (n, x) => { if (x === "vago") { delete ch.mesa[k]; return; } poeNaChapa(n, ch); for (const c in ch.com) ch.com[c] = ch.com[c].map((y) => y === n ? null : y); for (const c in ch.pres) if (ch.pres[c] === n) delete ch.pres[c]; ch.mesa[k] = n; }, ch.mesa[k] ? `<button class="bt" data-extra="vago">Deixar ${k} vago</button>` : ""); }
+    if (ds.dep) { const n = ds.dep, d = dep(n); return escolher(d.u, "Escolha uma ação", () => false, (x, a) => { if (a === "duv") S.dep[n].duv = !S.dep[n].duv; if (a === "sai") { tiraDeTudo(n, ch); delete S.dep[n]; } }, `<button class="bt" data-extra="duv">${S.dep[n].duv ? "Tirar da dúvida (volta a contar)" : "Marcar como em dúvida (não conta voto)"}</button><button class="bt" data-extra="sai">Tirar da chapa</button>`); }
+    if (ds.aliado) return escolher("Adicionar aliado", `${nomeCh(ch)}`, (d) => chDe(d.n) !== ch.id, (n) => poeNaChapa(n, ch));
+    if (ds.bancada) { const ps = [...new Set(DEP.map((d) => d.p))]; return escolher("Bancada inteira", "Todos os deputados do partido entram nesta chapa", () => false, (x, p) => DEP.filter((d) => d.p === p).forEach((d) => poeNaChapa(d.n, ch)), ps.map((p) => `<button class="bt" data-extra="${esc(p)}">${esc(p)} · ${DEP.filter((d) => d.p === p).length}</button>`).join("")); }
+    if (ds.q) { S.ui.qAb = !S.ui.qAb; return desenhar(); }
+    if (ds.bl !== undefined) { const i = +ds.bl; if (S.blocos[i].length > 1 && S.ui.selB === null) { const b = S.blocos.splice(i, 1)[0]; b.forEach((p) => S.blocos.push([p])); } else if (S.ui.selB === null) S.ui.selB = i; else if (S.ui.selB === i) S.ui.selB = null; else { const a = S.blocos[S.ui.selB], c = S.blocos[i]; S.blocos = S.blocos.filter((_, k) => k !== S.ui.selB && k !== i); S.blocos.push(a.concat(c)); S.ui.selB = null; } S.blocos.sort((x, y) => nB(y) - nB(x)); return desenhar(); }
+    if (ds.res) { S.reserva = ds.res; return desenhar(); }
+    if (ds.pres) { e.stopPropagation(); const [c, n] = ds.pres.split("|"); if (ch.pres[c] === n) delete ch.pres[c]; else { for (const k in ch.pres) if (ch.pres[k] === n) delete ch.pres[k]; ch.pres[c] = n; } return desenhar(); }
+    if (ds.vaga) { const [c, i] = ds.vaga.split("|"), bl = slotsCom(c)[+i]; return escolher(`${c} · vaga ${+i + 1}`, `Vaga do bloco <b>${esc(bl)}</b>. Membros da Mesa não ocupam vaga.`, (d) => !Object.values(S.chapas).some((x) => naMesa(x, d.n)) && !(ch.com[c] || []).includes(d.n), (n, x) => { if (x === "vago") { const o = ch.com[c][+i]; ch.com[c][+i] = null; if (ch.pres[c] === o) delete ch.pres[c]; return; } ch.com[c][+i] = n; }, (ch.com[c] || [])[+i] ? `<button class="bt" data-extra="vago">Deixar vaga</button>` : ""); }
+    if (ds.com) { S.ui.comAb = S.ui.comAb === ds.com ? null : ds.com; return desenhar(); }
+    if (ds.atrib) { const k = ds.atrib; return escolher(acento(k), `${nomeCh(ch)} · uma vez por chapa`, (d) => chDe(d.n) === ch.id, (n) => { ch.out[k] = n; }); }
+    if (ds.desatrib) { delete ch.out[ds.desatrib]; return desenhar(); }
+    if (ds.est) { S.ui.estAb = S.ui.estAb === ds.est ? null : ds.est; return desenhar(); }
+    if (ds.mais) { S.ui.mais[ds.mais] = !S.ui.mais[ds.mais]; return desenhar(); }
+    if (ds.gav) { S.ui.gav = !S.ui.gav; return desenhar(); }
+    if (ds.po) { const c = ds.po; S.ui.pat = { col: c, dir: S.ui.pat.col === c ? -S.ui.pat.dir : (c === "nome" ? 1 : -1) }; return desenhar(); }
+    if (ds.pat) { S.ui.patAb = S.ui.patAb === ds.pat ? null : ds.pat; return desenhar(); }
+    if (ds.adm !== undefined) { supabaseClient.rpc("admin_definir_acesso_mesa", { p_email: $("#admEmail").value, p_liberar: ds.adm === "1" }).then(({ data, error }) => { $("#admMsg").textContent = error ? error.message : data; }); }
+  };
+  A.querySelectorAll("[data-conv]").forEach((inp) => inp.onchange = () => { const n = inp.dataset.conv; S.dep[n] = S.dep[n] || {}; S.dep[n].conv = Number(inp.value.replace(/\D/g, "")) || 0; desenhar(); });
 }
 iniciar();
