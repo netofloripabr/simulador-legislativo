@@ -1,0 +1,998 @@
+{
+ "fonte": {
+  "url": "https://transparencia.alesc.sc.gov.br/servidores",
+  "mes_referencia": "09/2026",
+  "como": "Raspagem da lista pública de servidores (135 páginas, 2672 registros: vínculo + lotação) e do contracheque de cada servidor ativo (endpoint htmx /servidores/contracheque/{id}), somando o BRUTO da 1ª aba (folha 09/2026). Excluídos aposentados, deputados e registros sem lotação. Coletado em 08/10/2026. Sem nomes no arquivo."
+ },
+ "ressalvas": [
+  "Bruto = 1ª aba do contracheque; folhas complementares/atrasados em outras abas não somados",
+  "Servidores à disposição (cedidos) muitas vezes não têm contracheque na ALESC: contam em servidores mas não na folha",
+  "Não existe lotação \"Procuradoria Especial da Mulher\" nem \"Secretaria-Geral da Mesa\" na lista; Mulher aparece como CGP - SECRETARIA DA MULHER",
+  "Siglas: CGP=Chefia de Gabinete da Presidência, MD=Mesa Diretora, DG=Diretoria-Geral, DL=Dir. Legislativa, DA=Dir. Administrativa, DF=Dir. Financeira, DCS=Dir. Comunicação Social (TV/Rádio), DGP=Dir. Gestão de Pessoas, DTI=Dir. Tecnologia, EL=Escola do Legislativo, CC=Coord. Comissões",
+  "Grupo Outros inclui comissões permanentes, lideranças, colegiados de bancada, Casa Militar, gerências e gabinetes da Mesa"
+ ],
+ "totais_sem_gabinetes": {
+  "servidores": 786,
+  "comissionados": 347,
+  "folha_mensal": 16652637.52
+ },
+ "grupos": [
+  {
+   "grupo": "Secretarias",
+   "itens": [
+    {
+     "nome": "CGP - SECRETARIA DA FAMILIA",
+     "servidores": 4,
+     "comissionados": 4,
+     "folha_mensal": 31644.66,
+     "media": 7911.16
+    },
+    {
+     "nome": "CGP - SECRETARIA DA MULHER",
+     "servidores": 7,
+     "comissionados": 6,
+     "folha_mensal": 68666.18,
+     "media": 9809.45
+    },
+    {
+     "nome": "CGP - SECRETARIA EXECUTIVA DE RELACOES INSTITUCIONAIS",
+     "servidores": 7,
+     "comissionados": 6,
+     "folha_mensal": 187081.15,
+     "media": 31180.19,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "CGP - SECRETARIA GERAL",
+     "servidores": 7,
+     "comissionados": 3,
+     "folha_mensal": 161482.44,
+     "media": 26913.74,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "SG - SECRETARIA DE APOIO AS CAMARAS MUNICIPAIS",
+     "servidores": 6,
+     "comissionados": 3,
+     "folha_mensal": 132109.55,
+     "media": 22018.26
+    }
+   ]
+  },
+  {
+   "grupo": "Procuradorias",
+   "itens": [
+    {
+     "nome": "MD - PROCURADORIA",
+     "servidores": 12,
+     "comissionados": 2,
+     "folha_mensal": 479229.53,
+     "media": 39935.79
+    }
+   ]
+  },
+  {
+   "grupo": "Escola do Legislativo",
+   "itens": [
+    {
+     "nome": "DG - ESCOLA DO LEGISLATIVO",
+     "servidores": 10,
+     "comissionados": 7,
+     "folha_mensal": 220615.45,
+     "media": 27576.93,
+     "verificar": true,
+     "obs": "2 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "EL - COORDENADORIA DA ESCOLA DO LEGISLATIVO",
+     "servidores": 25,
+     "comissionados": 1,
+     "folha_mensal": 655873.37,
+     "media": 31232.07,
+     "verificar": true,
+     "obs": "4 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    }
+   ]
+  },
+  {
+   "grupo": "Coordenadorias",
+   "itens": [
+    {
+     "nome": "CGP - COORDENADORIA DE EVENTOS",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 142434.48,
+     "media": 35608.62
+    },
+    {
+     "nome": "DA - COORDENADORIA DE LICITACOES E CONTRATOS",
+     "servidores": 6,
+     "comissionados": 1,
+     "folha_mensal": 161117.36,
+     "media": 26852.89
+    },
+    {
+     "nome": "DA - COORDENADORIA DE RECURSOS MATERIAIS",
+     "servidores": 3,
+     "comissionados": 1,
+     "folha_mensal": 62569.9,
+     "media": 31284.95,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DA - COORDENADORIA DE SERVICOS GERAIS",
+     "servidores": 3,
+     "comissionados": 1,
+     "folha_mensal": 65347.59,
+     "media": 32673.79,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DA - COORDENADORIA DE SERVICOS TECNICOS",
+     "servidores": 6,
+     "comissionados": 1,
+     "folha_mensal": 165034.21,
+     "media": 33006.84,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DA - COORDENADORIA DE SUSTENTABILIDADE E ACESSIBILIDADE",
+     "servidores": 2,
+     "comissionados": 2,
+     "folha_mensal": 53004.21,
+     "media": 26502.1
+    },
+    {
+     "nome": "DA - COORDENADORIA DE TRANSPORTES",
+     "servidores": 5,
+     "comissionados": 1,
+     "folha_mensal": 95704.98,
+     "media": 31901.66,
+     "verificar": true,
+     "obs": "2 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DCS - COORDENADORIA DE GESTAO E PUBLICIDADE",
+     "servidores": 6,
+     "comissionados": 2,
+     "folha_mensal": 130011.15,
+     "media": 21668.52
+    },
+    {
+     "nome": "DCS - COORDENADORIA DE IMPRENSA",
+     "servidores": 8,
+     "comissionados": 2,
+     "folha_mensal": 252614.39,
+     "media": 36087.77,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DCS - COORDENADORIA DE RADIO",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 157649.6,
+     "media": 39412.4
+    },
+    {
+     "nome": "DCS - COORDENADORIA DE TV",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 154655.91,
+     "media": 38663.98
+    },
+    {
+     "nome": "DF - COORDENADORIA DE CONTABILIDADE",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 99583.39,
+     "media": 24895.85
+    },
+    {
+     "nome": "DF - COORDENADORIA DE EXECUCAO ORCAMENTARIA",
+     "servidores": 4,
+     "comissionados": 2,
+     "folha_mensal": 139264.28,
+     "media": 34816.07
+    },
+    {
+     "nome": "DF - COORDENADORIA DE PRESTACAO DE CONTAS",
+     "servidores": 5,
+     "comissionados": 1,
+     "folha_mensal": 170869.68,
+     "media": 34173.94
+    },
+    {
+     "nome": "DF - COORDENADORIA DE TESOURARIA",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 83831.46,
+     "media": 27943.82,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DF - COORDENADORIA DO ORCAMENTO PARLAMENTAR",
+     "servidores": 2,
+     "comissionados": 1,
+     "folha_mensal": 57881.4,
+     "media": 28940.7
+    },
+    {
+     "nome": "DGP - COORDENADORIA DE ATOS E REGISTROS FUNCIONAIS",
+     "servidores": 5,
+     "comissionados": 1,
+     "folha_mensal": 178324.53,
+     "media": 35664.91
+    },
+    {
+     "nome": "DGP - COORDENADORIA DE ESTAGIOS, INTEGRACAO E DESENVOLVIMENTO",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 149973.38,
+     "media": 37493.35
+    },
+    {
+     "nome": "DGP - COORDENADORIA DE GESTAO E CONTROLE DE BENEFICIOS",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 166047.51,
+     "media": 41511.88
+    },
+    {
+     "nome": "DGP - COORDENADORIA DE PROCESSAMENTO DO SISTEMA DE PESSOAL",
+     "servidores": 5,
+     "comissionados": 1,
+     "folha_mensal": 199123.51,
+     "media": 39824.7
+    },
+    {
+     "nome": "DGP - COORDENADORIA DE SAUDE E ASSISTENCIA",
+     "servidores": 20,
+     "comissionados": 1,
+     "folha_mensal": 383563.12,
+     "media": 20187.53,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DL - COORDENADORIA DAS COMISSOES",
+     "servidores": 45,
+     "comissionados": 33,
+     "folha_mensal": 694657.66,
+     "media": 15787.67,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DL - COORDENADORIA DE DOCUMENTACAO",
+     "servidores": 9,
+     "comissionados": 1,
+     "folha_mensal": 236663.02,
+     "media": 33809.0,
+     "verificar": true,
+     "obs": "2 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DL - COORDENADORIA DE EXPEDIENTE",
+     "servidores": 7,
+     "comissionados": 1,
+     "folha_mensal": 221235.58,
+     "media": 36872.6,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "DL - COORDENADORIA DE PUBLICACAO",
+     "servidores": 6,
+     "comissionados": 1,
+     "folha_mensal": 211397.53,
+     "media": 35232.92
+    },
+    {
+     "nome": "DL - COORDENADORIA DE TAQUIGRAFIA DAS COMISSOES",
+     "servidores": 9,
+     "comissionados": 1,
+     "folha_mensal": 324531.81,
+     "media": 36059.09
+    },
+    {
+     "nome": "DL - COORDENADORIA DE TAQUIGRAFIA DO PLENARIO",
+     "servidores": 5,
+     "comissionados": 1,
+     "folha_mensal": 191168.44,
+     "media": 38233.69
+    },
+    {
+     "nome": "DL - COORDENADORIA DO ORCAMENTO ESTADUAL",
+     "servidores": 10,
+     "comissionados": 1,
+     "folha_mensal": 391689.1,
+     "media": 39168.91
+    },
+    {
+     "nome": "DL - COORDENADORIA DO PLENARIO E DAS SESSOES",
+     "servidores": 6,
+     "comissionados": 1,
+     "folha_mensal": 172581.56,
+     "media": 28763.59
+    },
+    {
+     "nome": "DTI - COORDENADORIA DE DIVULGACAO E SERVICOS GRAFICOS",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 156714.27,
+     "media": 39178.57
+    },
+    {
+     "nome": "DTI - COORDENADORIA DE INFRAESTRUTURA E SEGURANCA",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 33048.46,
+     "media": 33048.46
+    },
+    {
+     "nome": "DTI - COORDENADORIA DE INOVACAO",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 39874.36,
+     "media": 39874.36
+    },
+    {
+     "nome": "DTI - COORDENADORIA DE PROJETOS E DESENVOLVIMENTO",
+     "servidores": 3,
+     "comissionados": 1,
+     "folha_mensal": 120480.78,
+     "media": 40160.26
+    },
+    {
+     "nome": "DTI - COORDENADORIA DE SUPORTE E MANUTENCAO",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 32113.13,
+     "media": 32113.13
+    }
+   ]
+  },
+  {
+   "grupo": "Diretorias",
+   "itens": [
+    {
+     "nome": "DG - DIRETORIA ADMINISTRATIVA",
+     "servidores": 7,
+     "comissionados": 1,
+     "folha_mensal": 147853.32,
+     "media": 21121.9
+    },
+    {
+     "nome": "DG - DIRETORIA DE COMUNICACAO SOCIAL",
+     "servidores": 13,
+     "comissionados": 9,
+     "folha_mensal": 274171.6,
+     "media": 21090.12
+    },
+    {
+     "nome": "DG - DIRETORIA DE GESTAO DE PESSOAS",
+     "servidores": 9,
+     "comissionados": 1,
+     "folha_mensal": 318983.89,
+     "media": 35442.65
+    },
+    {
+     "nome": "DG - DIRETORIA DE TECNOLOGIA E INOVACAO",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 140711.65,
+     "media": 35177.91
+    },
+    {
+     "nome": "DG - DIRETORIA FINANCEIRA",
+     "servidores": 4,
+     "comissionados": 1,
+     "folha_mensal": 118689.01,
+     "media": 29672.25
+    },
+    {
+     "nome": "DG - DIRETORIA LEGISLATIVA",
+     "servidores": 3,
+     "comissionados": 1,
+     "folha_mensal": 110894.44,
+     "media": 36964.81
+    },
+    {
+     "nome": "DGP - DIRETORIA DE GESTAO DE PESSOAS - SEM LOTACAO",
+     "servidores": 2,
+     "comissionados": 0,
+     "folha_mensal": 64903.88,
+     "media": 32451.94
+    },
+    {
+     "nome": "GP - DIRETORIA GERAL",
+     "servidores": 8,
+     "comissionados": 1,
+     "folha_mensal": 239994.69,
+     "media": 34284.96,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    }
+   ]
+  },
+  {
+   "grupo": "Outros",
+   "itens": [
+    {
+     "nome": "1SEC - CORREGEDORIA DA ASSEMBLEIA LEGISLATIVA",
+     "servidores": 3,
+     "comissionados": 3,
+     "folha_mensal": 46553.3,
+     "media": 15517.77
+    },
+    {
+     "nome": "CC - COMISSAO DE AGRICULTURA E DESENVOLVIMENTO RURAL",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 16287.67,
+     "media": 16287.67
+    },
+    {
+     "nome": "CC - COMISSAO DE ASSUNTOS MUNICIPAIS",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 15883.85,
+     "media": 15883.85
+    },
+    {
+     "nome": "CC - COMISSAO DE CONSTITUICAO E JUSTICA",
+     "servidores": 2,
+     "comissionados": 1,
+     "folha_mensal": 13864.71,
+     "media": 13864.71,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "CC - COMISSAO DE DEFESA CIVIL E DESASTRES NATURAIS",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 13864.71,
+     "media": 13864.71
+    },
+    {
+     "nome": "CC - COMISSAO DE DEFESA DOS DIREITOS DA CRIANCA E DO ADOLESCENTE",
+     "servidores": 2,
+     "comissionados": 1,
+     "folha_mensal": 51391.14,
+     "media": 25695.57
+    },
+    {
+     "nome": "CC - COMISSAO DE DIREITOS HUMANOS E FAMILIA",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 20031.41,
+     "media": 20031.41
+    },
+    {
+     "nome": "CC - COMISSAO DE ECONOMIA, CIENCIA, TECNOLOGIA E INOVACAO",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 19494.86,
+     "media": 19494.86
+    },
+    {
+     "nome": "CC - COMISSAO DE EDUCACAO E CULTURA",
+     "servidores": 2,
+     "comissionados": 1,
+     "folha_mensal": 18958.3,
+     "media": 18958.3,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "CC - COMISSAO DE ESPORTES E LAZER",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 14268.54,
+     "media": 14268.54
+    },
+    {
+     "nome": "CC - COMISSAO DE ETICA E DECORO PARLAMENTAR",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 18958.3,
+     "media": 18958.3
+    },
+    {
+     "nome": "CC - COMISSAO DE FINANCAS E TRIBUTACAO",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 14672.37,
+     "media": 14672.37
+    },
+    {
+     "nome": "CC - COMISSAO DE MEIO AMBIENTE E DESENVOLVIMENTO SUSTENTAVEL",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 18421.74,
+     "media": 18421.74
+    },
+    {
+     "nome": "CC - COMISSAO DE PESCA E AQUICULTURA",
+     "servidores": 2,
+     "comissionados": 1,
+     "folha_mensal": 18692.85,
+     "media": 9346.42
+    },
+    {
+     "nome": "CC - COMISSAO DE PREVENCAO E COMBATE AS DROGAS",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 17885.2,
+     "media": 17885.2
+    },
+    {
+     "nome": "CC - COMISSAO DE PROTECAO, DEFESA E BEM-ESTAR ANIMAL",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 18958.3,
+     "media": 18958.3
+    },
+    {
+     "nome": "CC - COMISSAO DE RELACIONAMENTO INSTITUCIONAL, DAS RELACOES INTERNACIONAIS E DO MERCO",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 15883.85,
+     "media": 15883.85
+    },
+    {
+     "nome": "CC - COMISSAO DE SAUDE",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 17499.15,
+     "media": 17499.15
+    },
+    {
+     "nome": "CC - COMISSAO DE SEGURANCA PUBLICA",
+     "servidores": 2,
+     "comissionados": 1,
+     "folha_mensal": 18554.47,
+     "media": 9277.24
+    },
+    {
+     "nome": "CC - COMISSAO DE TRABALHO, ADMINISTRACAO E SERVICO PUBLICO",
+     "servidores": 3,
+     "comissionados": 1,
+     "folha_mensal": 108153.74,
+     "media": 36051.25
+    },
+    {
+     "nome": "CC - COMISSAO DE TRANSPORTES, DESENVOLVIMENTO URBANO E INFRAESTRUTURA",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 20567.97,
+     "media": 20567.97
+    },
+    {
+     "nome": "CC - COMISSAO DE TURISMO",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 21641.08,
+     "media": 21641.08
+    },
+    {
+     "nome": "CC - COMISSAO DOS DIREITOS DA PESSOA COM DEFICIENCIA",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 18421.74,
+     "media": 18421.74
+    },
+    {
+     "nome": "CC - COMISSAO DOS DIREITOS DA PESSOA IDOSA",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 14268.54,
+     "media": 14268.54
+    },
+    {
+     "nome": "CC - COMISSAO DOS DIREITOS DO CONSUMIDOR E DO CONTRIBUINTE E DE LEGISLACAO PARTICIPAT",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 13864.71,
+     "media": 13864.71
+    },
+    {
+     "nome": "CDOC - GERENCIA DE PROTOCOLO",
+     "servidores": 2,
+     "comissionados": 0,
+     "folha_mensal": 49159.35,
+     "media": 24579.67
+    },
+    {
+     "nome": "CDOC - GERENCIA DO CENTRO DE MEMORIA",
+     "servidores": 1,
+     "comissionados": 0,
+     "folha_mensal": 33157.64,
+     "media": 33157.64
+    },
+    {
+     "nome": "CE - GERENCIA CULTURAL",
+     "servidores": 2,
+     "comissionados": 0,
+     "folha_mensal": 33976.05,
+     "media": 33976.05,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "CE - GERENCIA DE CERIMONIAL",
+     "servidores": 2,
+     "comissionados": 0,
+     "folha_mensal": 68340.86,
+     "media": 34170.43
+    },
+    {
+     "nome": "CGP - ASSESSORIA DO CORPO DE BOMBEIROS MILITAR",
+     "servidores": 6,
+     "comissionados": 0,
+     "folha_mensal": 45961.91,
+     "media": 7660.32
+    },
+    {
+     "nome": "CGP - CASA MILITAR",
+     "servidores": 109,
+     "comissionados": 0,
+     "folha_mensal": 1327264.63,
+     "media": 12176.74
+    },
+    {
+     "nome": "CIS - GERENCIA DE SEGURANCA E ADMINISTRACAO DE REDE",
+     "servidores": 3,
+     "comissionados": 0,
+     "folha_mensal": 97067.58,
+     "media": 32355.86
+    },
+    {
+     "nome": "COP - GERENCIA DO SISTEMA DE CONTROLE DO ORCAMENTO DE GABINETE",
+     "servidores": 1,
+     "comissionados": 0,
+     "folha_mensal": 40511.04,
+     "media": 40511.04
+    },
+    {
+     "nome": "CPD - GERENCIA DE SISTEMAS DE INFORMACOES",
+     "servidores": 12,
+     "comissionados": 0,
+     "folha_mensal": 385510.58,
+     "media": 32125.88
+    },
+    {
+     "nome": "CPS - GERENCIA DE APOIO AO PLENARIO",
+     "servidores": 1,
+     "comissionados": 0,
+     "folha_mensal": 39379.75,
+     "media": 39379.75
+    },
+    {
+     "nome": "CRM - GERENCIA DE ALMOXARIFADO",
+     "servidores": 3,
+     "comissionados": 0,
+     "folha_mensal": 60586.74,
+     "media": 30293.37,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "CRM - GERENCIA DE CONTROLE DE PROCESSOS DE COMPRAS DE BENS E SERVICOS",
+     "servidores": 1,
+     "comissionados": 0,
+     "folha_mensal": 32145.52,
+     "media": 32145.52
+    },
+    {
+     "nome": "CRM - GERENCIA DE PATRIMONIO",
+     "servidores": 3,
+     "comissionados": 0,
+     "folha_mensal": 122421.32,
+     "media": 40807.11
+    },
+    {
+     "nome": "CSM - GERENCIA DE SUPORTE TECNICO E MANUTENCAO",
+     "servidores": 3,
+     "comissionados": 0,
+     "folha_mensal": 100123.24,
+     "media": 33374.41
+    },
+    {
+     "nome": "CST - GERENCIA DE MANUTENCAO",
+     "servidores": 1,
+     "comissionados": 0,
+     "folha_mensal": 30325.97,
+     "media": 30325.97
+    },
+    {
+     "nome": "CST - GERENCIA DE PROJETOS E SERVICOS TECNICOS",
+     "servidores": 1,
+     "comissionados": 0,
+     "folha_mensal": 38920.31,
+     "media": 38920.31
+    },
+    {
+     "nome": "CT - GERENCIA DE APOIO LOGISTICO",
+     "servidores": 1,
+     "comissionados": 0,
+     "folha_mensal": 31309.7,
+     "media": 31309.7
+    },
+    {
+     "nome": "DCS - GERENCIA DE COMUNICACAO SOCIAL",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 14910.55,
+     "media": 14910.55
+    },
+    {
+     "nome": "DCS - GERENCIA DE REDES SOCIAIS",
+     "servidores": 4,
+     "comissionados": 2,
+     "folha_mensal": 84255.53,
+     "media": 21063.88
+    },
+    {
+     "nome": "DG - ASSESSORIA DE PLANEJAMENTO DE CONTRATACOES",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 33983.8,
+     "media": 33983.8
+    },
+    {
+     "nome": "DGP - SERVIDORES A DISPOSICAO",
+     "servidores": 2,
+     "comissionados": 0,
+     "folha_mensal": 79172.45,
+     "media": 39586.22
+    },
+    {
+     "nome": "DL - COLEGIADO DE BANCADA",
+     "servidores": 20,
+     "comissionados": 20,
+     "folha_mensal": 270653.93,
+     "media": 13532.7
+    },
+    {
+     "nome": "DL - COLEGIADO DE BANCADA DA GRANDE FLORIANOPOLIS",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 14239.27,
+     "media": 14239.27
+    },
+    {
+     "nome": "DL - COLEGIADO DE BANCADA DO NORTE",
+     "servidores": 2,
+     "comissionados": 2,
+     "folha_mensal": 28064.63,
+     "media": 14032.32
+    },
+    {
+     "nome": "DL - COLEGIADO DE BANCADA DO OESTE",
+     "servidores": 2,
+     "comissionados": 2,
+     "folha_mensal": 28167.24,
+     "media": 14083.62
+    },
+    {
+     "nome": "DL - COLEGIADO DE BANCADA DO SUL",
+     "servidores": 2,
+     "comissionados": 2,
+     "folha_mensal": 29245.42,
+     "media": 14622.71
+    },
+    {
+     "nome": "DL - COLEGIADO DE BANCADA DO VALE DO ITAJAI",
+     "servidores": 2,
+     "comissionados": 2,
+     "folha_mensal": 28063.81,
+     "media": 14031.91
+    },
+    {
+     "nome": "DL - COLEGIADO DE BANCADA SERRANA",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 13824.54,
+     "media": 13824.54
+    },
+    {
+     "nome": "DTI - NUCLEO DE ESTUDO DE DADOS",
+     "servidores": 3,
+     "comissionados": 0,
+     "folha_mensal": 75738.29,
+     "media": 25246.1
+    },
+    {
+     "nome": "GABINETE DA PRESIDENCIA",
+     "servidores": 26,
+     "comissionados": 25,
+     "folha_mensal": 377465.75,
+     "media": 15098.63,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "GP - CHEFIA DE GABINETE DA PRESIDENCIA",
+     "servidores": 1,
+     "comissionados": 1,
+     "folha_mensal": 41845.49,
+     "media": 41845.49
+    },
+    {
+     "nome": "LIDERANCA DO MDB",
+     "servidores": 11,
+     "comissionados": 11,
+     "folha_mensal": 170366.86,
+     "media": 15487.9
+    },
+    {
+     "nome": "LIDERANCA DO NOVO",
+     "servidores": 5,
+     "comissionados": 5,
+     "folha_mensal": 38589.82,
+     "media": 7717.96
+    },
+    {
+     "nome": "LIDERANCA DO PDT",
+     "servidores": 6,
+     "comissionados": 6,
+     "folha_mensal": 45434.91,
+     "media": 7572.49
+    },
+    {
+     "nome": "LIDERANCA DO PL",
+     "servidores": 14,
+     "comissionados": 14,
+     "folha_mensal": 192148.31,
+     "media": 13724.88
+    },
+    {
+     "nome": "LIDERANCA DO PODEMOS",
+     "servidores": 6,
+     "comissionados": 6,
+     "folha_mensal": 41640.03,
+     "media": 6940.01
+    },
+    {
+     "nome": "LIDERANCA DO PP",
+     "servidores": 8,
+     "comissionados": 8,
+     "folha_mensal": 105986.11,
+     "media": 13248.26
+    },
+    {
+     "nome": "LIDERANCA DO PSD",
+     "servidores": 9,
+     "comissionados": 9,
+     "folha_mensal": 111383.52,
+     "media": 12375.95
+    },
+    {
+     "nome": "LIDERANCA DO PSDB",
+     "servidores": 3,
+     "comissionados": 3,
+     "folha_mensal": 32978.4,
+     "media": 10992.8
+    },
+    {
+     "nome": "LIDERANCA DO PSOL",
+     "servidores": 5,
+     "comissionados": 5,
+     "folha_mensal": 45121.82,
+     "media": 9024.36
+    },
+    {
+     "nome": "LIDERANCA DO PT",
+     "servidores": 8,
+     "comissionados": 8,
+     "folha_mensal": 118282.73,
+     "media": 14785.34
+    },
+    {
+     "nome": "LIDERANCA DO REPUBLICANOS",
+     "servidores": 7,
+     "comissionados": 7,
+     "folha_mensal": 66695.04,
+     "media": 9527.86
+    },
+    {
+     "nome": "LIDERANCA DO UNIAO BRASIL",
+     "servidores": 6,
+     "comissionados": 6,
+     "folha_mensal": 63333.95,
+     "media": 10555.66
+    },
+    {
+     "nome": "MD - 1ª SECRETARIA",
+     "servidores": 9,
+     "comissionados": 9,
+     "folha_mensal": 73560.6,
+     "media": 8173.4
+    },
+    {
+     "nome": "MD - 1ª VICE-PRESIDENCIA",
+     "servidores": 9,
+     "comissionados": 9,
+     "folha_mensal": 82753.58,
+     "media": 9194.84
+    },
+    {
+     "nome": "MD - 2ª SECRETARIA",
+     "servidores": 9,
+     "comissionados": 9,
+     "folha_mensal": 80719.08,
+     "media": 8968.79
+    },
+    {
+     "nome": "MD - 2ª VICE-PRESIDENCIA",
+     "servidores": 9,
+     "comissionados": 9,
+     "folha_mensal": 78944.03,
+     "media": 8771.56
+    },
+    {
+     "nome": "MD - 3ª SECRETARIA",
+     "servidores": 8,
+     "comissionados": 8,
+     "folha_mensal": 82157.7,
+     "media": 10269.71
+    },
+    {
+     "nome": "MD - 4ª SECRETARIA",
+     "servidores": 9,
+     "comissionados": 9,
+     "folha_mensal": 75464.39,
+     "media": 8384.93
+    },
+    {
+     "nome": "MD - CONSULTORIA LEGISLATIVA",
+     "servidores": 32,
+     "comissionados": 0,
+     "folha_mensal": 1256057.41,
+     "media": 39251.79
+    },
+    {
+     "nome": "MD - CONTROLADORIA-GERAL",
+     "servidores": 8,
+     "comissionados": 2,
+     "folha_mensal": 298835.2,
+     "media": 37354.4
+    },
+    {
+     "nome": "MD - NUCLEO INSTITUCIONAL DE SEGURANCA",
+     "servidores": 6,
+     "comissionados": 0,
+     "folha_mensal": 32331.97,
+     "media": 6466.39,
+     "verificar": true,
+     "obs": "1 servidor(es) sem contracheque no portal (em geral cedidos/à disposição); folha subestimada"
+    },
+    {
+     "nome": "MD - OUVIDORIA",
+     "servidores": 2,
+     "comissionados": 0,
+     "folha_mensal": 69350.12,
+     "media": 34675.06
+    }
+   ]
+  }
+ ],
+ "gabinete_medio": {
+  "gabinetes": 40,
+  "servidores_medio": 27.5,
+  "folha_mensal_media": 223327.07,
+  "folha_mensal_mediana": 223773.32,
+  "min": 174025.0,
+  "max": 279782.67,
+  "folha_total_gabinetes": 8933082.75
+ }
+}
