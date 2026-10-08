@@ -126,6 +126,13 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 html,body{ overflow-x:hidden; max-width:100%; }
 .topo{ padding-left:max(16px,env(safe-area-inset-left)); padding-right:max(16px,env(safe-area-inset-right)); }
 @media (max-width:520px){ .hero .txt{ padding-left:20px; padding-right:20px; } .hero h1{ font-size:clamp(40px,12.5vw,64px); } .painel{ padding-left:14px; padding-right:14px; } .hero .olho{ white-space:normal; } }
+.rk-ico{ width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; border:1px solid var(--linha); background:var(--sup2); color:var(--sec); cursor:pointer; } .rk-ico.on{ color:var(--a); border-color:rgba(52,232,74,.5); }
+.rk-menu{ position:absolute; top:42px; left:0; z-index:30; display:flex; flex-direction:column; gap:10px; min-width:240px; background:#191E20; border:1px solid rgba(242,244,245,.14); border-radius:14px; padding:12px; box-shadow:0 18px 40px rgba(0,0,0,.5); } .rk-menu[hidden]{ display:none; }
+.rk-menu label{ display:flex; flex-direction:column; gap:5px; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); } .rk-menu select{ font:600 13px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:10px; padding:8px 10px; }
+.rk-sob{ font:700 13px "Inter"; color:var(--texto); background:transparent; border:1px solid rgba(242,244,245,.2); border-radius:999px; padding:8px 14px; cursor:pointer; } .rk-sob[hidden]{ display:none; }
+.rel-caixa.sob{ width:min(560px,100%); } .sob-t{ border-top:1px solid var(--linha); margin-top:8px; }
+.sob-l{ display:grid; grid-template-columns:minmax(0,1fr) 78px 36px 46px 42px; gap:8px; padding:7px 2px; border-bottom:1px solid var(--linha); font-size:13px; font-variant-numeric:tabular-nums; } .sob-l > :nth-child(n+2){ text-align:right; }
+.sob-l.cab{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); } .sob-l.r{ grid-template-columns:34px minmax(0,1fr) 80px; } .sob-l.r > :nth-child(2){ text-align:left; } .sob-l.r .i{ text-align:left; color:var(--a); font-weight:800; } .sob-l small{ color:var(--ter); }
 @media (max-width:860px){ .corpo{ grid-template-columns:1fr; } .ficha{ border-left:0; border-top:1px solid var(--linha); min-height:0; } .cena{ height:500px; } }
 @media (max-width:520px){ .barra-sel{ grid-template-columns:1fr; } .vs{ text-align:center; } .cand.b{ flex-direction:row; text-align:left; } .hero{ min-height:620px; } }
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
@@ -168,11 +175,11 @@ html,body{ overflow-x:hidden; max-width:100%; }
 </main>
 <main class="painel" id="ranking" hidden>
   <div class="rk-cab"><div><div class="olho">Resultado 2026 · Santa Catarina</div><h2 class="rk-tit">Ranking dos candidatos</h2></div></div>
-  <div class="rk-ctl"><nav class="lentes rk-cargos" id="rkCargos"></nav><div class="filtros" style="padding:0"><label>Recorte <select id="rkRecorte"></select></label><input id="rkBusca" class="rk-busca" placeholder="Buscar nome, partido ou número"><button class="btn-rel" id="btnRelRk">Imprimir ranking</button></div></div>
+  <div class="rk-ctl"><nav class="lentes rk-cargos" id="rkCargos"></nav><div class="filtros" style="padding:0"><label>Recorte <select id="rkRecorte"></select></label><input id="rkBusca" class="rk-busca" placeholder="Buscar nome, partido ou número"><span style="position:relative"><button class="rk-ico" id="rkFiltro" title="Filtrar por partido e situação"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4h11M4.5 8h7M6.5 12h3"/></svg></button><div class="rk-menu" id="rkFiltroMenu" hidden></div></span><button class="rk-sob" id="rkSobras">Sobras</button><button class="btn-rel" id="btnRelRk">Imprimir ranking</button></div></div>
   <section class="tabela rk" id="rkTab"></section>
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
-<script src="painel.js?cb=16"></script>
+<script src="painel.js?cb=17"></script>
 <script src="relatorio.js?cb=19"></script>
 </body>
 </html>

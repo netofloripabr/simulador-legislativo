@@ -6,6 +6,7 @@
 // cargos diferentes = fatia do total de cada um vinda da cidade (p.p.).
 
 const $ = (s) => document.querySelector(s);
+const DV = "20261008a"; // muda quando dados/painel é regerado (cache do navegador)
 const nf = (x, c = 1) => x.toLocaleString("pt-BR", { minimumFractionDigits: c, maximumFractionDigits: c });
 const ni = (x) => Math.round(x).toLocaleString("pt-BR");
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
@@ -25,7 +26,7 @@ let atual = null, eixos = null, anim = null;
 const cv = $("#cv"), ctx = cv.getContext("2d");
 let W = 0, H = 0, DPR = 1;
 
-async function cargo(c) { if (!DADOS[c]) DADOS[c] = await (await fetch(`../dados/painel/sc-${c}.json`)).json(); return DADOS[c]; }
+async function cargo(c) { if (!DADOS[c]) DADOS[c] = await (await fetch(`../dados/painel/sc-${c}.json?v=${DV}`)).json(); return DADOS[c]; }
 function cand(ref) { if (!ref) return null; const d = DADOS[ref.cargo]; const c = d.c.find((x) => x.n === ref.n); return c ? { ...c, cargo: ref.cargo, val: d.val, val22: d.val22 } : null; }
 const pctMun = (c, i) => c.val[i] ? c.v[i] / c.val[i] * 100 : NaN;
 const pct22 = (c, i) => c.v22 && c.val22[i] ? c.v22[i] / c.val22[i] * 100 : NaN;
@@ -49,7 +50,7 @@ function corDe(i) {
 
 // ---------------- dados ----------------
 async function carregar() {
-  const b = await (await fetch("../dados/painel/sc-base.json")).json();
+  const b = await (await fetch(`../dados/painel/sc-base.json?v=${DV}`)).json();
   M = b.mun; N = M.length; CONT = b.contorno;
   M.forEach((m) => { m.chave = norm(m.n); });
   await Promise.all(CARGOS.map(([c]) => cargo(c)));
@@ -573,7 +574,7 @@ new ResizeObserver(() => {
 }).observe(cv);
 
 // ---------------- Ranking: todos os candidatos do cargo, abrindo município → bairro → local → seção ----------------
-const rk = { cargo: "estadual", rec: null, busca: "", ord: { col: "t", dir: -1 }, aberto: null, abertos: {}, todos: false };
+const rk = { cargo: "estadual", rec: null, busca: "", partido: "", sit: "", ord: { col: "t", dir: -1 }, aberto: null, abertos: {}, todos: false };
 const dentroRk = (i) => !rk.rec || M[i][rk.rec.tipo] === rk.rec.nome;
 function setaRk(o, col) { return `<span class="ord"><i class="up${o.col === col && o.dir > 0 ? " on" : ""}"></i><i class="dn${o.col === col && o.dir < 0 ? " on" : ""}"></i></span>`; }
 function montarRanking() {
@@ -582,6 +583,14 @@ function montarRanking() {
   const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${rk.rec && rk.rec.tipo === tp && rk.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
   $("#rkRecorte").innerHTML = `<option value="">Santa Catarina</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
   $("#rkRecorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); rk.rec = t ? { tipo: t, nome: n.join("|") } : null; rk.abertos = {}; tabelaRanking(); };
+  const d0 = DADOS[rk.cargo], parts = [...new Set(d0.c.map((c) => c.p))].sort(), prop = !!(d0.meta && d0.meta.qe);
+  const sits = [["", "Todos"], ["eleitos", "Eleitos"]].concat(prop ? [["qp", "Eleitos por QP"], ["media", "Eleitos por média"], ["suplente", "Suplentes"]] : [["nao", "Não eleitos"]]);
+  $("#rkFiltroMenu").innerHTML = `<label>Partido<select id="rkPart"><option value="">Todos os partidos</option>${parts.map((p) => `<option${rk.partido === p ? " selected" : ""}>${esc(p)}</option>`).join("")}</select></label><label>Situação<select id="rkSit">${sits.map(([v, r]) => `<option value="${v}"${rk.sit === v ? " selected" : ""}>${r}</option>`).join("")}</select></label>`;
+  $("#rkPart").onchange = (e) => { rk.partido = e.target.value; rk.aberto = null; montarRanking(); };
+  $("#rkSit").onchange = (e) => { rk.sit = e.target.value; rk.aberto = null; montarRanking(); };
+  $("#rkFiltro").classList.toggle("on", !!(rk.partido || rk.sit));
+  $("#rkFiltro").onclick = (e) => { e.stopPropagation(); $("#rkFiltroMenu").hidden = !$("#rkFiltroMenu").hidden; };
+  $("#rkSobras").hidden = !prop; $("#rkSobras").onclick = () => abrirSobras();
   $("#rkBusca").value = rk.busca; $("#rkBusca").oninput = (e) => { rk.busca = e.target.value; tabelaRanking(); };
   tabelaRanking();
 }
@@ -590,15 +599,18 @@ async function tabelaRanking() {
   const val = idx.reduce((s, i) => s + d.val[i], 0);
   let L = d.c.map((c) => { const t = rk.rec ? idx.reduce((s, i) => s + c.v[i], 0) : c.t; const t22 = c.v22 ? (rk.rec ? idx.reduce((s, i) => s + c.v22[i], 0) : c.t22) : null; return { c: { ...c, cargo: rk.cargo, val: d.val, val22: d.val22 }, t, t22, pct: val ? t / val * 100 : 0 }; });
   L.sort((x, y) => y.t - x.t); L.forEach((x, k) => { x.pos = k + 1; });
+  if (rk.partido) L = L.filter((x) => x.c.p === rk.partido);
+  const sitDe = (c) => c.r === 0 || /qp/i.test(c.s || "") ? "qp" : c.r > 0 || /m[ée]dia/i.test(c.s || "") ? "media" : /^eleito/i.test(c.s || "") ? "eleito" : /suplente/i.test(c.s || "") ? "suplente" : "nao";
+  if (rk.sit) L = L.filter((x) => rk.sit === "eleitos" ? ["qp", "media", "eleito"].includes(sitDe(x.c)) : sitDe(x.c) === rk.sit);
   const k = norm(rk.busca); if (k) L = L.filter((x) => norm(x.c.u + " " + x.c.p + " " + x.c.n + " " + x.c.nome).includes(k));
   const { col, dir } = rk.ord, vO = (x) => col === "t" ? x.t : col === "t22" ? (x.t22 ?? -1) : col === "d" ? (x.t22 == null ? -1e12 : x.t - x.t22) : col === "pct" ? x.pct : 0;
   L.sort((x, y) => col === "nome" ? dir * x.c.u.localeCompare(y.c.u, "pt-BR") : dir * (vO(x) - vO(y)));
   const cab = (c, r) => `<span data-o="${c}" class="${col === c ? "on" : ""}">${r}${setaRk(rk.ord, c)}</span>`;
   let h = `<h3>${CARGO_LBL[rk.cargo]} · ${rk.rec ? esc(rk.rec.nome) : "Santa Catarina"} · ${d.c.length} candidatos</h3><div class="tl cab"><span></span>${cab("nome", "Candidato")}${cab("t", "2026")}${cab("t22", "2022")}${cab("d", "Dif.")}${cab("pct", "%")}</div>`;
-  const lim = rk.todos || k ? L.length : 50;
+  const lim = rk.todos || k || rk.partido || rk.sit ? L.length : 50;
   for (const x of L.slice(0, lim)) {
     const c = x.c, eleito = /^eleito/i.test(c.s || ""), ab = rk.aberto === c.n, dif = x.t22 == null ? null : x.t - x.t22;
-    h += `<div class="tl lin${ab ? " aberto" : ""}" data-rk="${c.n}"><span class="i">${x.pos}º</span><span class="rk-c"><span class="ft${eleito ? " el" : ""}">${foto(c)}</span><span class="tx"><b>${esc(c.u)}${eleito ? `<span class="chip e">${/m[ée]dia/i.test(c.s) ? "E-M" : "E-QP"}</span>` : /suplente/i.test(c.s || "") ? `<span class="chip s">Supl.</span>` : ""}${botoesLinks(c)}</b><span class="sub">${esc(c.p)} · nº ${c.n}</span></span></span><span><b>${ni(x.t)}</b></span><span class="vfr">${x.t22 == null ? "—" : ni(x.t22)}</span><span class="${dif == null ? "vfr" : dif >= 0 ? "dpos" : "dred"}">${dif == null ? "—" : `${dif >= 0 ? "+" : "−"}${ni(Math.abs(dif))}`}</span><span class="vfr">${nf(x.pct, 2)}%</span></div>`;
+    h += `<div class="tl lin${ab ? " aberto" : ""}" data-rk="${c.n}"><span class="i">${x.pos}º</span><span class="rk-c"><span class="ft${eleito ? " el" : ""}">${foto(c)}</span><span class="tx"><b>${esc(c.u)}${eleito ? `<span class="chip e">${c.r > 0 ? `E-M · ${c.r}ª` : /m[ée]dia/i.test(c.s) ? "E-M" : /qp/i.test(c.s) ? "E-QP" : "Eleito"}</span>` : /suplente/i.test(c.s || "") ? `<span class="chip s">Supl.</span>` : ""}${botoesLinks(c)}</b><span class="sub">${esc(c.p)} · nº ${c.n}</span></span></span><span><b>${ni(x.t)}</b></span><span class="vfr">${x.t22 == null ? "—" : ni(x.t22)}</span><span class="${dif == null ? "vfr" : dif >= 0 ? "dpos" : "dred"}">${dif == null ? "—" : `${dif >= 0 ? "+" : "−"}${ni(Math.abs(dif))}`}</span><span class="vfr">${nf(x.pct, 2)}%</span></div>`;
     if (ab) {
       h += `<div class="rk-acoes"><button data-acao="analisar">Analisar no painel</button><button data-acao="comparar">Comparar com o candidato do painel</button></div>`;
       const ms = idx.map((i) => [M[i].n, [c.v22 ? c.v22[i] : 0, c.v[i]], i]).filter(([, v]) => v[0] || v[1]);
@@ -642,3 +654,20 @@ if (location.hash === "#ranking") { const t = setInterval(() => { if (M && LINKS
 
 document.getElementById("btnRel").onclick = () => abrirRelatorios();
 document.getElementById("btnRelRk").onclick = async () => { const html = await montarRelatorio("ranking"); const w = window.open("", "_blank"); w.document.write(html); w.document.close(); };
+
+// Sobras (quociente, cadeiras por partido e rodadas pelo método das médias) — calculado em ferramentas/gerar_painel_sc.py
+function abrirSobras() {
+  const d = DADOS[rk.cargo], m = d.meta; let el = $("#relModal");
+  if (!el) { el = document.createElement("div"); el.id = "relModal"; document.body.appendChild(el); }
+  const G = Object.entries(m.grupos).filter(([, g]) => g.cad || g.v >= m.qe * .5).sort((a, b) => b[1].cad - a[1].cad || b[1].v - a[1].v);
+  const rod = d.c.filter((c) => c.r > 0).sort((a, b) => a.r - b.r);
+  el.innerHTML = `<div class="rel-fundo"></div><div class="rel-caixa sob"><h3>Sobras · ${CARGO_LBL[rk.cargo]}</h3>
+    <p class="dica">${ni(m.validos)} válidos ÷ ${m.vagas} vagas = quociente eleitoral <b style="color:var(--texto)">${ni(m.qe)}</b>. Cada partido/federação leva uma vaga por quociente inteiro (QP); as que sobram vão, uma por rodada, para a maior média (votos ÷ cadeiras + 1).</p>
+    <div class="sob-t"><div class="sob-l cab"><span>Partido / federação</span><span>Votos</span><span>QP</span><span>Média</span><span>Total</span></div>
+    ${G.map(([k, g]) => `<div class="sob-l"><span>${esc(k)}</span><span>${ni(g.v)}</span><span>${g.qp}</span><span>${g.cad - g.qp || "—"}</span><b>${g.cad}</b></div>`).join("")}</div>
+    <h3 style="font-size:15px;margin-top:16px">Rodadas das sobras</h3>
+    <div class="sob-t">${rod.map((c) => `<div class="sob-l r"><span class="i">${c.r}ª</span><span><b>${esc(c.u)}</b> <small>${esc(c.p)}</small></span><span>${ni(c.t)}</span></div>`).join("")}</div>
+    <button class="rel-fechar" id="relFechar">Fechar</button></div>`;
+  el.hidden = false; el.querySelector(".rel-fundo").onclick = el.querySelector("#relFechar").onclick = () => { el.hidden = true; };
+}
+document.addEventListener("click", (e) => { const m = $("#rkFiltroMenu"); if (m && !e.target.closest("#rkFiltroMenu,#rkFiltro")) m.hidden = true; });
