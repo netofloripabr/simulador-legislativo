@@ -49,6 +49,8 @@ for cargo in ('estadual', 'federal', 'senador', 'governador', 'presidente'):
   tse = TSE[cargo]['estado']['cands']
   a22 = json.load(open(R + f'dados/resultados/sc-2022/{cargo}.json')); a22 = a22['candidatos'] if isinstance(a22, dict) else a22
   por22 = {norm(c.get('nomeUrna') or c.get('nome')): c for c in a22}
+  # 2022 também pelo NOME COMPLETO (nome de urna muda: "Repórter Sérgio Guimarães" → "Sérgio Guimarães")
+  porNome22 = {norm(c.get('nome')): c for c in a22 if c.get('nome')}
   p22 = json.load(open(R + 'dados/resultados/sc-2022/participacao.json')).get(cargo, {}).get('mun', {})
   val22 = [(p22.get(m['k']) or [0] * 6)[5] for m in mun]
   out = []
@@ -57,7 +59,7 @@ for cargo in ('estadual', 'federal', 'senador', 'governador', 'presidente'):
     v = votos.get(num, [0] * N); mt = meta.get(num, {})
     u = mt.get('nomeUrna') or t['nome'].title()
     c = {'n': num, 'u': u, 'nome': mt.get('nome') or t['nome'].title(), 'p': mt.get('partido') or t.get('partido'), 's': t.get('st', ''), 't': t['votos'], 'v': v}
-    o = por22.get(norm(u)) or por22.get(norm(t['nome']))
+    o = por22.get(norm(u)) or porNome22.get(norm(mt.get('nome') or t['nome'])) or por22.get(norm(t['nome']))
     if o and o.get('municipios'):
       c['v22'] = [o['municipios'].get(m['k'], 0) for m in mun]; c['t22'] = sum(c['v22']); c['n22'] = str(o.get('numero', ''))
     out.append(c)

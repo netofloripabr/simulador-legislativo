@@ -74,10 +74,13 @@ function svgMapaSC(valor, cor, raioF) {
   const mg = Math.max(.12, (lon1 - lon0) * .08); lon0 -= mg; lon1 += mg; lat0 += mg; lat1 -= mg;
   const K = Math.cos(27.5 * Math.PI / 180), Wd = 700, S = Wd / ((lon1 - lon0) * K), Hd = (lat0 - lat1) * S;
   const P = (lon, lat) => [(lon - lon0) * K * S, (lat0 - lat) * S];
-  const cont = CONT.map((an) => an.map((r) => "M" + r.map(([x, y]) => P(x, y).map((v) => v.toFixed(1)).join(",")).join("L") + "Z").join("")).join("");
+  const pth = (an) => an.map((r) => "M" + r.map(([x, y]) => P(x, y).map((v) => v.toFixed(1)).join(",")).join("L") + "Z").join("");
+  const cont = CONT.map((an, i) => st.rec && dentro(i) ? "" : pth(an)).join("");
+  // municípios do recorte: fundo branco e borda mais escura, para o desenho da região aparecer
+  const contR = st.rec ? CONT.map((an, i) => dentro(i) ? pth(an) : "").join("") : "";
   const mx = Math.max(1, ...idx.map((i) => Math.abs(valor(i)) || 0));
   const bol = idx.filter((i) => valor(i)).sort((a, b) => Math.abs(valor(b)) - Math.abs(valor(a))).map((i) => { const [x, y] = P(M[i].lon, M[i].lat), v = valor(i); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(raioF(Math.abs(v) / mx) * Math.min(2.5, Math.sqrt(S / 120))).toFixed(1)}" fill="${cor(v, true)}" stroke="${cor(v)}" stroke-width=".8"/>`; }).join("");
-  return `<svg class="mapa" viewBox="0 0 ${Wd} ${Hd.toFixed(0)}"><defs><filter id="gl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs><path d="${cont}" fill="#FAFBFB" stroke="#D3D6D9" stroke-width=".6"/><g filter="url(#gl)" opacity=".35">${bol}</g>${bol}</svg>`;
+  return `<svg class="mapa" viewBox="0 0 ${Wd} ${Hd.toFixed(0)}"><defs><filter id="gl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs><path d="${cont}" fill="${st.rec ? "#F3F4F5" : "#FAFBFB"}" stroke="${st.rec ? "#E3E5E8" : "#D3D6D9"}" stroke-width=".6"/>${contR ? `<path d="${contR}" fill="#fff" stroke="#8A9096" stroke-width="1"/>` : ""}<g filter="url(#gl)" opacity=".35">${bol}</g>${bol}</svg>`;
 }
 // mapa de bairros (IBGE) de um município com bolhas por local de votação
 async function svgMapaBairros(k, valorLocal, cor) {
