@@ -3896,3 +3896,18 @@
 #modoColaborativoWrap .pc-esp-lin .la{ padding-right:12px; } #modoColaborativoWrap .pc-esp-lin .lb{ padding-left:12px; }
 #modoColaborativoWrap .pc-esp-lin .la::after{ right:3px; } #modoColaborativoWrap .pc-esp-lin .lb::before{ left:3px; }
 #modoColaborativoWrap .pc-esp-lin.bairro .mn, #modoColaborativoWrap .pc-esp-lin.local .mn{ text-align:center; }
+/* Duelo · cores da documentação (07/10/2026): verde #34E84A → verde-lima #C6E62A;
+   laranja do sistema (vermelho-alaranjado #E8432A) → vermelho #B81D12 */
+#modoColaborativoWrap .pc-esp-lin .la i{ background:linear-gradient(270deg,#34E84A,#C6E62A); box-shadow:0 0 10px rgba(52,232,74,.45); }
+#modoColaborativoWrap .pc-esp-lin .lb i{ background:linear-gradient(90deg,#E8432A,#B81D12); box-shadow:0 0 10px rgba(232,67,42,.45); }
+#modoColaborativoWrap .pc-esp-lin i.fraco{ box-shadow:none; }
+#modoColaborativoWrap .pc-esp-lin .la i.fraco{ background:linear-gradient(270deg,#30353B,#565C63); }
+#modoColaborativoWrap .pc-esp-lin .lb i.fraco{ background:linear-gradient(90deg,#30353B,#565C63); }
+#modoColaborativoWrap .pc-esp-lin .lb::before{ background:#E8432A; }
+#modoColaborativoWrap .pc-esp-cab .b{ color:#E8432A; }
+#modoColaborativoWrap .pc-duelo-lado.b .ft{ background:#E8432A; }
+#modoColaborativoWrap .pc-duelo-lado.b .vv, #modoColaborativoWrap .pc-duelo-pcs .b{ color:#E8432A; }
+#modoColaborativoWrap .pc-duelo-barra i:first-child{ background:linear-gradient(90deg,#C6E62A,#34E84A); }
+#modoColaborativoWrap .pc-duelo-barra i:last-child{ background:linear-gradient(90deg,#E8432A,#B81D12); }
+#modoColaborativoWrap #pcResMapaSvg.duelo #pcResBolhas circle.neg{ fill:rgba(232,67,42,.45); stroke:#E8432A; }
+#modoColaborativoWrap .pc-legmapa.duelo .pc-leg-bol.neg{ background:rgba(232,67,42,.45); border-color:#E8432A; }
