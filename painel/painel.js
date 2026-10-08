@@ -227,7 +227,11 @@ function contorno(c, z, a) {
   if (!z) return; c.save(); c.globalAlpha = a;
   const p = new Path2D();
   for (const aneis of CONT) for (const an of aneis) { an.forEach(([lon, lat], j) => { const x = z.ox + (lon - z.lon0) * z.K * z.S, y = z.oy + (z.lat0 - lat) * z.S; j ? p.lineTo(x, y) : p.moveTo(x, y); }); p.closePath(); }
-  c.fillStyle = "rgba(242,244,245,.025)"; c.fill(p); c.strokeStyle = "rgba(242,244,245,.07)"; c.lineWidth = .6; c.stroke(p); c.restore();
+  c.fillStyle = "rgba(242,244,245,.025)"; c.fill(p); c.strokeStyle = "rgba(242,244,245,.07)"; c.lineWidth = .6; c.stroke(p);
+  // recorte regional: municípios da região com borda um pouco mais clara e leve preenchimento
+  if (st.rec) { const q = new Path2D(); CONT.forEach((aneis, i) => { if (!dentro(i)) return; for (const an of aneis) { an.forEach(([lon, lat], j) => { const x = z.ox + (lon - z.lon0) * z.K * z.S, y = z.oy + (z.lat0 - lat) * z.S; j ? q.lineTo(x, y) : q.moveTo(x, y); }); q.closePath(); } });
+    c.fillStyle = "rgba(242,244,245,.035)"; c.fill(q); c.strokeStyle = "rgba(242,244,245,.22)"; c.lineWidth = .9; c.stroke(q); }
+  c.restore();
 }
 function desenharEixos(c, e, a) {
   if (!e) return; contorno(c, e.contorno, a);
