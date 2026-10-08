@@ -17,7 +17,7 @@ async function iniciar() {
   const app = $("#app");
   if (!supabaseClient) { app.innerHTML = `<div class="bloq"><h1>Sem conexão.</h1><p>Não foi possível carregar o acesso. Tente de novo.</p></div>`; return; }
   const { data: { session } } = await supabaseClient.auth.getSession();
-  if (!session) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">Entre na sua conta para acessar o jogo.</p><a href="../?entrar=1">Entrar</a></div>`; return; }
+  if (!session) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">Entre na sua conta para acessar o jogo.</p><a href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}">Entrar</a></div>`; return; }
   UID = session.user.id;
   const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }

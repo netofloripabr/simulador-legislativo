@@ -23,6 +23,9 @@ async function initColaborativo() {
       return;
     }
     pcState.souAdmin = await souAdmin();
+    // Volta para a página de onde a pessoa saiu para entrar (ex.: Corrida da Mesa,
+    // painel/mesa.html grava "sl_volta" antes de mandar pro login) — 08/10/2026
+    try { const v = localStorage.getItem("sl_volta"); if (v) { localStorage.removeItem("sl_volta"); location.href = v; return; } } catch (e) {}
     // Saldo REAL da carteira (creditos_conta) — pcState.perfil vem da
     // tabela "perfis", que não tem essa coluna: sem esta carga, todo
     // "saldo: X" da interface (slot trancado, gates) mostrava 0 pra
