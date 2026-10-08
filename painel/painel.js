@@ -411,10 +411,11 @@ const hero = (() => {
   function medir() {
     const r = cvH.getBoundingClientRect(); if (!r.width || !r.height) return; dpr = Math.min(innerWidth < 760 ? 1.5 : 2, devicePixelRatio || 1); w = r.width; h = r.height;
     for (const c of [cvH, camada, blur]) { c.width = w * dpr; c.height = h * dpr; }
-    const movel = innerWidth < 760, cx = movel ? { x0: 10, y0: 70, x1: w - 10, y1: h * .5 } : { x0: w * .4, y0: h * .06, x1: w * .98, y1: h * .94 };
-    let lon0 = 1e9, lon1 = -1e9, lat0 = -1e9, lat1 = 1e9; M.forEach((m) => { lon0 = Math.min(lon0, m.lon); lon1 = Math.max(lon1, m.lon); lat0 = Math.max(lat0, m.lat); lat1 = Math.min(lat1, m.lat); });
+    // celular: mapa inteiro dentro da tela, com folga para as bolhas e o brilho (contorno de SC como limite)
+    const movel = innerWidth < 760, cx = movel ? { x0: 34, y0: 80, x1: w - 34, y1: h * .46 } : { x0: w * .4, y0: h * .06, x1: w * .96, y1: h * .94 };
+    let lon0 = 1e9, lon1 = -1e9, lat0 = -1e9, lat1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lon0 = Math.min(lon0, lo); lon1 = Math.max(lon1, lo); lat0 = Math.max(lat0, la); lat1 = Math.min(lat1, la); })));
     const K = Math.cos(27.5 * Math.PI / 180), S = Math.min((cx.x1 - cx.x0) / ((lon1 - lon0) * K), (cx.y1 - cx.y0) / (lat0 - lat1));
-    const ox = cx.x0 + ((cx.x1 - cx.x0) - (lon1 - lon0) * K * S) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (lat0 - lat1) * S) / 2, k = Math.min(w, h) / 560;
+    const ox = cx.x0 + ((cx.x1 - cx.x0) - (lon1 - lon0) * K * S) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (lat0 - lat1) * S) / 2, k = Math.min(w, h) / 560 * (movel ? .8 : 1);
     bx = M.map((m) => ox + (m.lon - lon0) * K * S); by = M.map((m) => oy + (lat0 - m.lat) * S); br = M.map((m, i) => raio(i, k * 1.1));
     hero.z = { ox, oy, S, K, lon0, lat0, w: (lon1 - lon0) * K * S, h: (lat0 - lat1) * S };
     if (nascido) pintar(1e9);
