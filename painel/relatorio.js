@@ -30,27 +30,37 @@ function abrirRelatorios() {
 }
 
 // ---------- peças do documento ----------
-const R_CSS = `@page{size:A4;margin:12mm 11mm}*{box-sizing:border-box}body{margin:0;font:10px/1.45 Inter,system-ui,sans-serif;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff}
+const R_CSS = `@page{size:A4;margin:0}*{box-sizing:border-box}html,body{background:#0B0F0D}
+body{margin:0;font:10px/1.45 Inter,system-ui,sans-serif;color:#F2F4F5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 @font-face{font-family:Inter;src:url(${location.origin}${location.pathname.replace(/painel\/.*$/, "")}fontes/InterVariable.woff2);font-weight:100 900}
-.pg{max-width:190mm;margin:0 auto;padding:8mm 0}.cab{display:flex;justify-content:space-between;align-items:flex-end}.wm{font-size:17px;font-weight:800;letter-spacing:-.02em}.wm b{color:#1FA83A}.wm small{display:block;font-size:6.5px;letter-spacing:.2em;color:#6B7178;font-weight:700;text-transform:uppercase}
-.meta{text-align:right;font-size:8.5px;color:#3F454B;line-height:1.5}.regra{height:2px;background:#A9AEB3;margin:9px 0 12px}
-.tit{font-size:15px;font-weight:800}.tit span{font-weight:600;color:#6B7178}.sub{font-size:9px;color:#3F454B;margin:2px 0 9px}
-.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:6px}.kp div{border:1px solid #C9CDD1;border-radius:6px;padding:6px 8px}.kp b{display:block;font-size:15px}.kp span{font-size:7.5px;color:#3F454B}
-.sec{font-size:10.5px;font-weight:800;margin:12px 0 5px;page-break-after:avoid}.nota{font-size:8px;color:#3F454B;margin:4px 0}
-svg{width:100%;height:auto;display:block}.mapa{border:.5px solid #D3D6D9;border-radius:6px;max-height:150mm}
-.l{display:grid;grid-template-columns:22px minmax(0,1fr) 62px 62px 62px 50px;gap:6px;align-items:center;padding:3px 4px;border-bottom:.5px solid #E3E5E8;font-variant-numeric:tabular-nums;page-break-inside:avoid}
-.l>span:nth-child(n+3){text-align:right}.l>span:first-child{color:#6B7178;font-size:7.5px}.l.c{font-size:7px;letter-spacing:.06em;text-transform:uppercase;color:#6B7178;border-bottom:1px solid #A9AEB3}
-.l.n0{font-weight:700;background:#F3F5F4;border-top:1px solid #C9CDD1}.l.n1>span:nth-child(2){padding-left:14px;border-left:2px solid #D3D6D9}.l.n1{font-size:9px;color:#3F454B}
-.l.n2>span:nth-child(2){padding-left:28px}.l.n2{font-size:8.5px;color:#6B7178}.p{color:#1FA83A;font-weight:700}.n{color:#D9482F;font-weight:700}.az{color:#3D6FE0;font-weight:700}
-.grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{border:.5px solid #D3D6D9;border-radius:6px;padding:6px;page-break-inside:avoid}.mini h4{margin:0 0 2px;font-size:9.5px}.mini p{margin:4px 0 0;font-size:8px;color:#3F454B}
-.rod{margin-top:12px;font-size:7.5px;color:#6B7178;border-top:.5px solid #D3D6D9;padding-top:5px}.pb{page-break-before:always}`;
+.pg{padding:12mm 12mm 10mm;background:radial-gradient(circle at 85% 0%, rgba(52,232,74,.10), transparent 38%) #0B0F0D;min-height:297mm}
+.cab{display:flex;justify-content:space-between;align-items:center;padding-bottom:9px;border-bottom:1px solid rgba(242,244,245,.10)}
+.wm{font-size:15px;font-weight:800;letter-spacing:-.02em}.wm b{color:#34E84A}.wm small{display:block;font-size:6px;letter-spacing:.22em;color:#6B7178;font-weight:700;text-transform:uppercase}
+.meta{text-align:right;font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:#6B7178;line-height:1.7}.meta b{color:#A9AEB3}.regra{display:none}
+.olho{font-size:7.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#A9AEB3;margin:14px 0 4px}
+.tit{font-size:30px;font-weight:900;letter-spacing:-.045em;line-height:.98}.tit span{font-weight:900;color:#34E84A}.tit i{font-style:normal;color:#5A86FF}
+.sub{font-size:9px;color:#A9AEB3;margin:6px 0 12px}
+.kp{display:flex;gap:26px;margin:0 0 12px}.kp div{display:flex;flex-direction:column}.kp b{font-size:24px;font-weight:800;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.kp div:first-child b{color:#34E84A}.kp span{font-size:6.5px;letter-spacing:.16em;text-transform:uppercase;color:#6B7178;margin-top:5px}
+.sec{font-size:7.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#6B7178;margin:14px 0 6px;page-break-after:avoid}.nota{font-size:8px;color:#8A9096;margin:5px 0}
+svg{width:100%;height:auto;display:block}.mapa{background:#14191A;border:1px solid rgba(242,244,245,.08);border-radius:12px;max-height:160mm}
+.l{display:grid;grid-template-columns:22px minmax(0,1fr) 60px 60px 62px 50px;gap:6px;align-items:center;padding:4px 8px;border-bottom:1px solid rgba(242,244,245,.06);font-variant-numeric:tabular-nums;page-break-inside:avoid;color:#C9CDD1}
+.l>span:nth-child(n+3){text-align:right}.l>span:first-child{color:#6B7178;font-size:7.5px}.l>span:nth-child(4){color:#F2F4F5;font-weight:700}
+.l.c{font-size:6.5px;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;border-bottom:1px solid rgba(242,244,245,.14)}.l.c>span{color:#6B7178!important;font-weight:600!important}
+.l.n0{font-weight:700;color:#F2F4F5;background:rgba(52,232,74,.06);box-shadow:inset 2.5px 0 0 #34E84A}
+.l.n1{font-size:9px;background:rgba(242,244,245,.03);box-shadow:inset 2.5px 0 0 rgba(52,232,74,.45)}.l.n1>span:nth-child(2){padding-left:12px}
+.l.n2{font-size:8.5px;color:#8A9096;background:rgba(242,244,245,.055);box-shadow:inset 2.5px 0 0 rgba(52,232,74,.22)}.l.n2>span:nth-child(2){padding-left:24px}
+.p{color:#34E84A;font-weight:700}.n{color:#FF7A63;font-weight:700}.az{color:#7FA4FF;font-weight:700}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{background:#14191A;border:1px solid rgba(242,244,245,.08);border-radius:12px;padding:9px;page-break-inside:avoid}
+.mini h4{margin:0 0 4px;font-size:9px;font-weight:700}.mini p{margin:5px 0 0;font-size:8px;color:#A9AEB3}
+.rod{margin-top:14px;font-size:7px;letter-spacing:.04em;color:#6B7178;border-top:1px solid rgba(242,244,245,.08);padding-top:6px}.pb{page-break-before:always;padding-top:12mm}`;
 const fmt = (v) => Math.round(v).toLocaleString("pt-BR"), pc = (v) => nf(v) + "%";
 const sinal = (d) => `${d >= 0 ? "+" : "−"}${fmt(Math.abs(d))}`;
 function docHtml(titulo, sub, cards, corpo) {
   const agora = new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${titulo.replace(/<[^>]+>/g, "")} · SimulaLEGIS</title><style>${R_CSS}</style></head><body><div class="pg">
   <div class="cab"><div class="wm"><b>Simula</b>LEGIS<small>Simulador Eleitoral Legislativo 2026</small></div><div class="meta"><b>Santa Catarina</b> · Resultado 2026<br>gerado em ${agora}</div></div><div class="regra"></div>
-  <div class="tit">${titulo}</div><div class="sub">${sub}</div>${cards ? `<div class="kp">${cards.map(([v, r]) => `<div><b>${v}</b><span>${r}</span></div>`).join("")}</div>` : ""}
+  <div class="olho">${sub.split(" · ").slice(0, 2).join(" · ")}</div><div class="tit">${titulo}</div><div class="sub">${sub}</div>${cards ? `<div class="kp">${cards.map(([v, r]) => `<div><b>${v}</b><span>${r}</span></div>`).join("")}</div>` : ""}
   ${corpo}<div class="rod">Dados oficiais do TSE (2026 e 2022), IBGE (Censo 2022) e MDS. Não é pesquisa eleitoral. SimulaLEGIS · documento gerado pelo painel.</div></div>
   <script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`;
 }
@@ -67,26 +77,26 @@ function svgMapaSC(valor, cor, raioF) {
   const cont = CONT.map((an) => an.map((r) => "M" + r.map(([x, y]) => P(x, y).map((v) => v.toFixed(1)).join(",")).join("L") + "Z").join("")).join("");
   const mx = Math.max(1, ...idx.map((i) => Math.abs(valor(i)) || 0));
   const bol = idx.filter((i) => valor(i)).sort((a, b) => Math.abs(valor(b)) - Math.abs(valor(a))).map((i) => { const [x, y] = P(M[i].lon, M[i].lat), v = valor(i); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(raioF(Math.abs(v) / mx) * Math.min(2.5, Math.sqrt(S / 120))).toFixed(1)}" fill="${cor(v, true)}" stroke="${cor(v)}" stroke-width=".8"/>`; }).join("");
-  return `<svg class="mapa" viewBox="0 0 ${Wd} ${Hd.toFixed(0)}"><path d="${cont}" fill="#FAFBFB" stroke="#D3D6D9" stroke-width=".5"/>${bol}</svg>`;
+  return `<svg class="mapa" viewBox="0 0 ${Wd} ${Hd.toFixed(0)}"><defs><filter id="gl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs><path d="${cont}" fill="rgba(242,244,245,.03)" stroke="rgba(242,244,245,.09)" stroke-width=".6"/><g filter="url(#gl)" opacity=".75">${bol}</g>${bol}</svg>`;
 }
 // mapa de bairros (IBGE) de um município com bolhas por local de votação
 async function svgMapaBairros(k, valorLocal, cor) {
   let g; try { g = await (await fetch(`../dados/mapas/bairros-sc/${slugArq(k)}.json`)).json(); } catch (e) { return ""; }
   const ls = Object.entries(g.l).map(([n, [x, y]]) => ({ x, y, v: valorLocal(n) })).filter((o) => o.v);
   const mx = Math.max(1, ...ls.map((o) => Math.abs(o.v)));
-  const fundo = g.c ? `<path d="${g.c}" fill="#FAFBFB" stroke="#A9AEB3"/>` : g.b.map(([, d]) => `<path d="${d}" fill="#FAFBFB" fill-rule="evenodd" stroke="#C9CDD1" stroke-width=".8"/>`).join("");
-  const lab = g.b ? g.b.map(([n, , [x, y]]) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="10" font-weight="700" fill="#8A9096" stroke="#fff" stroke-width="3" paint-order="stroke">${esc(n)}</text>`).join("") : "";
+  const fundo = g.c ? `<path d="${g.c}" fill="rgba(242,244,245,.03)" stroke="rgba(242,244,245,.14)"/>` : g.b.map(([, d]) => `<path d="${d}" fill="rgba(242,244,245,.03)" fill-rule="evenodd" stroke="rgba(242,244,245,.12)" stroke-width=".8"/>`).join("");
+  const lab = g.b ? g.b.map(([n, , [x, y]]) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="10" font-weight="700" fill="#6B7178" stroke="#14191A" stroke-width="3" paint-order="stroke">${esc(n)}</text>`).join("") : "";
   const bol = ls.sort((a, b) => Math.abs(b.v) - Math.abs(a.v)).map((o) => `<circle cx="${o.x}" cy="${o.y}" r="${(2.5 + 20 * Math.sqrt(Math.abs(o.v) / mx)).toFixed(1)}" fill="${cor(o.v, true)}" stroke="${cor(o.v)}" stroke-width="1"/>`).join("");
-  return `<svg class="mapa" viewBox="0 0 ${g.w} ${g.h}">${fundo}${lab}${bol}</svg><div class="nota">${g.c ? "Contorno do município (o IBGE não publica bairros dele)." : "Bairros = limites oficiais do IBGE (Censo 2022)."} Bolha = local de votação.</div>`;
+  return `<svg class="mapa" viewBox="0 0 ${g.w} ${g.h}"><defs><filter id="gb" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter></defs>${fundo}${lab}<g filter="url(#gb)" opacity=".7">${bol}</g>${bol}</svg><div class="nota">${g.c ? "Contorno do município (o IBGE não publica bairros dele)." : "Bairros = limites oficiais do IBGE (Censo 2022)."} Bolha = local de votação.</div>`;
 }
-const corVerde = (v, f) => f ? "rgba(31,168,58,.40)" : "#1FA83A";
-const corDuelo = (v, f) => v >= 0 ? (f ? "rgba(31,168,58,.40)" : "#1FA83A") : (f ? "rgba(61,111,224,.40)" : "#3D6FE0");
+const corVerde = (v, f) => f ? "rgba(52,232,74,.55)" : "#7CF58A";
+const corDuelo = (v, f) => v >= 0 ? (f ? "rgba(52,232,74,.55)" : "#7CF58A") : (f ? "rgba(61,123,255,.6)" : "#7FA4FF");
 // votos por local (nome 2026) de um candidato no município
 async function votosLocal(k, c) { const s = await secoes(2026, k); const v = ((s || {})[c.cargo] || {})[c.n] || {}, o = {}; Object.entries((s || {})._secoes || {}).forEach(([sk, n]) => { o[n] = (o[n] || 0) + (v[sk] || 0); }); return o; }
 
 // ---------- os relatórios ----------
 async function montarRelatorio(tipo) {
-  const A = st.A, B = st.B, rec = st.rec ? st.rec.nome : "Santa Catarina", nomeA = `${esc(A.u)} <span>— ${esc(A.p)}</span>`;
+  const A = st.A, B = st.B, rec = st.rec ? st.rec.nome : "Santa Catarina", nomeA = `${esc(A.u)} <span style="color:#6B7178;font-weight:700;font-size:16px;letter-spacing:-.01em">${esc(A.p)}</span>`;
   const idx = [...Array(N).keys()].filter(dentro), cargoA = CARGO_LBL[A.cargo];
   if (tipo === "ficha-mun" || tipo === "duelo-mun") {
     const i = st.sel, k = M[i].k, duelo = tipo === "duelo-mun", nos = await arvoreMun(k, A, duelo ? B : null);
@@ -105,7 +115,7 @@ async function montarRelatorio(tipo) {
     });
     const tA = A.v[i], t22 = A.v22 ? A.v22[i] : null;
     const cards = duelo ? [[fmt(A.v[i]), esc(A.u)], [fmt(B.v[i]), esc(B.u)], [sinal(A.v[i] - B.v[i]), "diferença"]] : [[t22 == null ? "—" : fmt(t22), "votos em 2022"], [fmt(tA), "votos em 2026 · " + pc(pctMun(A, i))], [t22 == null ? "—" : sinal(tA - t22), "diferença"]];
-    return docHtml(duelo ? `${esc(A.u)} × ${esc(B.u)}` : nomeA, `${duelo ? `Duelo · ${cargoA} × ${CARGO_LBL[B.cargo]}` : cargoA} · ${esc(M[i].n)} · ${duelo ? "2026" : "2026 × 2022"}`, cards,
+    return docHtml(duelo ? `${esc(A.u)} <span style="color:#6B7178">×</span> <i>${esc(B.u)}</i>` : nomeA, `${duelo ? `Duelo · ${cargoA} × ${CARGO_LBL[B.cargo]}` : cargoA} · ${esc(M[i].n)} · ${duelo ? "2026" : "2026 × 2022"}`, cards,
       `<div class="sec">Mapa · ${esc(M[i].n)}</div>${mapa}<div class="sec pb">Bairros e colégios · ${esc(M[i].n)}</div>${L}${duelo ? `<div class="nota">Verde: ${esc(pn(A))} à frente; azul: ${esc(pn(B))}.</div>` : `<div class="nota">Bairros do mais votado para o menos votado; colégios da maior perda para a maior alta. Colégios de 2022 casados com os de 2026 pelo cadastro do TSE.</div>`}`);
   }
   if (tipo === "ficha-reg" || tipo === "duelo-reg") {
@@ -130,7 +140,7 @@ async function montarRelatorio(tipo) {
     });
     const tA = idx.reduce((s, i) => s + A.v[i], 0), tB = duelo ? idx.reduce((s, i) => s + B.v[i], 0) : (A.v22 ? idx.reduce((s, i) => s + A.v22[i], 0) : null);
     const cards = duelo ? [[fmt(tA), esc(A.u)], [fmt(tB), esc(B.u)], [sinal(tA - tB), "diferença"]] : [[tB == null ? "—" : fmt(tB), "votos em 2022 · " + esc(rec)], [fmt(tA), "votos em 2026"], [tB == null ? "—" : sinal(tA - tB), "diferença"]];
-    return docHtml(duelo ? `${esc(A.u)} × ${esc(B.u)}` : nomeA, `${duelo ? `Duelo · ${cargoA} × ${CARGO_LBL[B.cargo]}` : cargoA} · ${esc(rec)} · ${duelo ? "2026" : "2026 × 2022"}`, cards,
+    return docHtml(duelo ? `${esc(A.u)} <span style="color:#6B7178">×</span> <i>${esc(B.u)}</i>` : nomeA, `${duelo ? `Duelo · ${cargoA} × ${CARGO_LBL[B.cargo]}` : cargoA} · ${esc(rec)} · ${duelo ? "2026" : "2026 × 2022"}`, cards,
       `<div class="sec">Mapa · ${esc(rec)}</div>${mapa}<div class="nota">${duelo ? `Bolha verde = ${esc(pn(A))} mais forte; azul = ${esc(pn(B))}. ${mc ? "Tamanho = diferença de votos." : "Cargos diferentes: tamanho = diferença do peso da cidade no total de cada um."}` : "Tamanho da bolha = votos em 2026."}</div>
       <div class="sec pb">${grupo ? "Regiões e municípios" : "Municípios"} · ${esc(rec)}</div>${L}<div class="nota">Em negrito, as cidades abertas por bairro (${abrir.map((i) => esc(M[i].n)).join(", ")}).</div>`);
   }
@@ -143,8 +153,8 @@ async function montarRelatorio(tipo) {
       const xs = pts.map((p) => p[0]).sort((a, b) => a - b), lo = xs[Math.floor(xs.length * .01)], hi = xs[Math.floor(xs.length * .99)];
       const ys = pts.map((p) => p[1]); let ylo = Math.min(...ys), yhi = Math.max(...ys); if (st.B) { const m = Math.max(-ylo, yhi); ylo = -m; yhi = m; } else ylo = 0;
       const tf = log ? Math.log : (v) => v, X = (v) => 30 + (tf(Math.max(lo, Math.min(hi, v))) - tf(lo)) / (tf(hi) - tf(lo) || 1) * 300, Y = (v) => 150 - (v - ylo) / (yhi - ylo || 1) * 140;
-      const c = pts.map(([x, y, e]) => `<circle cx="${X(x).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="${(1 + 6 * Math.sqrt(e / 470000)).toFixed(1)}" fill="${st.B ? (y >= 0 ? "rgba(31,168,58,.55)" : "rgba(61,111,224,.55)") : "rgba(31,168,58,.55)"}"/>`).join("");
-      blocos.push(`<div class="mini"><h4>${rot}</h4><svg viewBox="0 0 340 172"><line x1="30" x2="330" y1="150" y2="150" stroke="#C9CDD1"/>${st.B ? `<line x1="30" x2="330" y1="${Y(0)}" y2="${Y(0)}" stroke="#A9AEB3" stroke-dasharray="3 3"/>` : ""}${c}<text x="30" y="166" font-size="8" fill="#6B7178">${f(lo)}</text><text x="330" y="166" font-size="8" fill="#6B7178" text-anchor="end">${f(hi)}</text><text x="2" y="12" font-size="8" fill="#6B7178">${st.B ? "vantagem" : "% votos"}</text></svg><p>${frase.replace(/<[^>]+>/g, "")}</p></div>`);
+      const c = pts.map(([x, y, e]) => `<circle cx="${X(x).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="${(1 + 6 * Math.sqrt(e / 470000)).toFixed(1)}" fill="${st.B ? (y >= 0 ? "rgba(52,232,74,.7)" : "rgba(61,123,255,.75)") : "rgba(52,232,74,.7)"}"/>`).join("");
+      blocos.push(`<div class="mini"><h4>${rot}</h4><svg viewBox="0 0 340 172"><line x1="30" x2="330" y1="150" y2="150" stroke="rgba(242,244,245,.18)"/>${st.B ? `<line x1="30" x2="330" y1="${Y(0)}" y2="${Y(0)}" stroke="rgba(242,244,245,.3)" stroke-dasharray="3 3"/>` : ""}${c}<text x="30" y="166" font-size="8" fill="#8A9096">${f(lo)}</text><text x="330" y="166" font-size="8" fill="#8A9096" text-anchor="end">${f(hi)}</text><text x="2" y="12" font-size="8" fill="#8A9096">${st.B ? "vantagem" : "% votos"}</text></svg><p>${frase.replace(/<[^>]+>/g, "")}</p></div>`);
     }
     return docHtml(st.B ? `${esc(A.u)} × ${esc(B.u)}` : nomeA, `Perfil da cidade × voto · ${cargoA} · ${esc(rec)} · 2026`, null,
       `<div class="nota">Cada ponto é um município (tamanho = eleitorado). Eixo horizontal: o indicador da cidade; vertical: ${st.B ? "a vantagem de " + esc(pn(A)) : "a fatia de votos de " + esc(A.u)}. A frase compara o terço de cidades com menos e com mais do indicador.</div><div class="grade">${blocos.join("")}</div>`);
