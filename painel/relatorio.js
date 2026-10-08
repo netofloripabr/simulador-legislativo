@@ -50,7 +50,7 @@ svg{width:100%;height:auto;display:block}.mapa{background:#fff;border:1px solid 
 .l.n0{font-weight:700;color:#111;box-shadow:inset 1px 0 0 #A9AEB3}
 .l.n1{font-size:9px;box-shadow:inset 1px 0 0 #C9CDD1}.l.n1>span:nth-child(2){padding-left:12px}
 .l.n2{font-size:8.5px;color:#6B7178;box-shadow:inset 1px 0 0 #DDE0E3}.l.n2>span:nth-child(2){padding-left:24px}
-.p{color:#1FA83A;font-weight:700}.n{color:#D9482F;font-weight:700}.az{color:#3D6FE0;font-weight:700}
+.chip{display:inline-block;font-size:7px;font-weight:800;padding:1px 6px;border-radius:999px;margin-left:5px;vertical-align:1px}.ce{background:#34E84A;color:#0B0D0E}.cs{background:#E3E5E8;color:#3F454B}.p{color:#1FA83A;font-weight:700}.n{color:#D9482F;font-weight:700}.az{color:#3D6FE0;font-weight:700}
 .grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{background:#fff;border:1px solid #D3D6D9;border-radius:12px;padding:9px;page-break-inside:avoid}
 .mini h4{margin:0 0 4px;font-size:9px;font-weight:700}.mini p{margin:5px 0 0;font-size:8px;color:#3F454B}
 .rod{margin-top:14px;font-size:7px;letter-spacing:.04em;color:#6B7178;border-top:1px solid #D3D6D9;padding-top:6px}.pb{page-break-before:always;padding-top:12mm}`;
@@ -160,11 +160,31 @@ async function montarRelatorio(tipo) {
       `<div class="nota">Cada ponto é um município (tamanho = eleitorado). Eixo horizontal: o indicador da cidade; vertical: ${st.B ? "a vantagem de " + esc(pn(A)) : "a fatia de votos de " + esc(A.u)}. A frase compara o terço de cidades com menos e com mais do indicador.</div><div class="grade">${blocos.join("")}</div>`);
   }
   if (tipo === "ranking") {
-    const naRk = !document.getElementById("ranking").hidden, cg = naRk ? rk.cargo : st.A.cargo; if (naRk) idx.splice(0, idx.length, ...[...Array(N).keys()].filter(dentroRk));
-    const recR = naRk ? (rk.rec ? rk.rec.nome : "Santa Catarina") : rec, d = DADOS[cg], val = idx.reduce((s, i) => s + d.val[i], 0);
+    const naRk = !document.getElementById("ranking").hidden, cg = naRk ? rk.cargo : st.A.cargo;
+    const dRk = naRk ? dentroRk : dentro; idx.splice(0, idx.length, ...[...Array(N).keys()].filter(dRk));
+    const recR = naRk ? (rk.rec ? rk.rec.nome : "Santa Catarina") : rec, d = DADOS[cg], prop = cg === "estadual" || cg === "federal", todo = idx.length === N;
+    // dados da eleição do recorte (2026, com 2022 de referência)
+    const part = async (ano) => { try { const p = (await (await fetch(`../dados/resultados/sc-${ano}/participacao.json`)).json())[cg]; if (todo && p.estado) return p.estado; return idx.reduce((s, i) => { const x = p.mun[M[i].k] || [0, 0, 0, 0, 0, 0]; return s.map((v, k) => v + x[k]); }, [0, 0, 0, 0, 0, 0]); } catch (e) { return null; } };
+    const P26 = await part(2026), P22 = await part(2022);
+    const pp = (v, b) => b ? nf(v / b * 100) + "%" : "";
+    const ld = (rot, k, base) => { const a = P22 ? P22[k] : null, b = P26 ? P26[k] : null; return linha("", "", rot, a == null ? "—" : `${fmt(a)} <span style="color:#8A9096">${base == null ? "" : pp(a, P22[base])}</span>`, b == null ? "—" : `<b>${fmt(b)}</b> <span style="color:#8A9096">${base == null ? "" : pp(b, P26[base])}</span>`, a == null || b == null ? "—" : `<span class="${b - a >= 0 ? "p" : "n"}">${sinal(b - a)}</span>`, ""); };
+    let dados = linha("c", "", "Dados da eleição", "2022", "2026", "Dif.", "") + ld("Eleitorado", 0, null) + ld("Comparecimento", 1, 0) + ld("Abstenção", 2, 0) + ld("Brancos", 3, 1) + ld("Nulos", 4, 1) + ld("Válidos", 5, 1);
+    if (prop && d.meta && d.meta.qe) dados += linha("n0", "", `Quociente eleitoral <span style="color:#8A9096;font-weight:500">· ${d.meta.vagas} vagas · válidos ÷ vagas</span>`, "", `<b>${fmt(d.meta.qe)}</b>`, "", "");
+    const val = idx.reduce((s, i) => s + d.val[i], 0);
     const L0 = d.c.map((c) => ({ c, t: idx.reduce((s, i) => s + c.v[i], 0), t22: c.v22 ? idx.reduce((s, i) => s + c.v22[i], 0) : null })).sort((p, q) => q.t - p.t);
+    const etq = (c) => { const s = String(c.s || ""); if (c.r === 0 || /qp/i.test(s)) return `<span class="chip ce">E-QP</span>`; if (c.r > 0) return `<span class="chip ce">E-M · ${c.r}ª</span>`; if (/^eleito/i.test(s)) return `<span class="chip ce">Eleito</span>`; if (/2º turno/i.test(s)) return `<span class="chip cs">2º turno</span>`; if (/suplente/i.test(s)) return `<span class="chip cs">Supl.</span>`; return ""; };
     let L = linha("c", "", "Candidato", "2022", "2026", "Dif.", "%");
-    L0.forEach((x, j) => { const dif = x.t22 == null ? null : x.t - x.t22; L += linha(j % 2 ? "" : "", `${j + 1}º`, `<b>${esc(x.c.u)}</b> <span style="color:#6B7178">${esc(x.c.p)} · nº ${x.c.n}${/^eleito/i.test(x.c.s) ? " · eleito" : ""}</span>`, x.t22 == null ? "—" : fmt(x.t22), `<b>${fmt(x.t)}</b>`, dif == null ? "—" : `<span class="${dif >= 0 ? "p" : "n"}">${sinal(dif)}</span>`, val ? nf(x.t / val * 100, 2) + "%" : ""); });
-    return docHtml(`Ranking · ${CARGO_LBL[cg]}`, `${esc(recR)} · 2026 × 2022 · ${d.c.length} candidatos`, [[fmt(val), "votos válidos no recorte"], [esc(L0[0].c.u), "mais votado"], [fmt(L0[0].t), "votos do 1º"]], L);
+    L0.forEach((x, j) => { const dif = x.t22 == null ? null : x.t - x.t22; L += linha("", `${j + 1}º`, `<b>${esc(x.c.u)}</b>${etq(x.c)} <span style="color:#8A9096">${esc(x.c.p)} · nº ${x.c.n}</span>`, x.t22 == null ? "—" : fmt(x.t22), `<b>${fmt(x.t)}</b>`, dif == null ? "—" : `<span class="${dif >= 0 ? "p" : "n"}">${sinal(dif)}</span>`, val ? nf(x.t / val * 100, 2) + "%" : ""); });
+    let sob = "";
+    if (prop && d.meta && d.meta.grupos) {
+      const G = Object.entries(d.meta.grupos).filter(([, g]) => g.cad).sort((a, b) => b[1].cad - a[1].cad || b[1].v - a[1].v);
+      sob = `<div class="sec">Cadeiras por partido/federação · QE ${fmt(d.meta.qe)}</div>` + linha("c", "", "Partido / federação", "Votos", "Por QP", "Por média", "Total") +
+        G.map(([k, g]) => linha("", "", esc(k), fmt(g.v), String(g.qp), String(g.cad - g.qp), `<b>${g.cad}</b>`)).join("") +
+        `<div class="sec">Rodadas das sobras (método das médias)</div>` + linha("c", "", "Rodada · eleito", "Partido", "Votos", "", "") +
+        d.c.filter((c) => c.r > 0).sort((a, b) => a.r - b.r).map((c) => linha("", `${c.r}ª`, `<b>${esc(c.u)}</b>`, esc(c.p), fmt(c.t), "", "")).join("");
+    }
+    return docHtml(`Ranking · ${CARGO_LBL[cg]}`, `${esc(recR)} · 2026 × 2022 · ${d.c.length} candidatos`, null,
+      `<div class="sec">Dados da eleição · ${esc(recR)}</div>${dados}<div class="sec">Candidatos</div>${L}${todo ? sob : prop ? `<div class="nota">Quociente e sobras são do estado inteiro (a eleição é estadual); a lista acima mostra os votos só no recorte.</div>` : ""}<div class="nota">Etiquetas: E-QP = eleito pelo quociente partidário; E-M · nª = eleito pela média, na rodada n das sobras.</div>`);
   }
+
 }

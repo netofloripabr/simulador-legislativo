@@ -62,6 +62,26 @@ for cargo in ('estadual', 'federal', 'senador', 'governador', 'presidente'):
       c['v22'] = [o['municipios'].get(m['k'], 0) for m in mun]; c['t22'] = sum(c['v22']); c['n22'] = str(o.get('numero', ''))
     out.append(c)
   out.sort(key=lambda c: -c['t'])
-  json.dump({'val': val, 'val22': val22, 'c': out}, open(R + f'dados/painel/sc-{cargo}.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+  # proporcionais: QE, QP e rodada das sobras (D'Hondt, sem piso — regra 2026) por grupo
+  meta = {'part': TSE[cargo]['estado'].get('part')}
+  if cargo in ('estadual', 'federal'):
+    E = TSE[cargo]['estado']; vagas = E['vagas']; validos = E['part'][5]
+    q = validos / vagas; qe = int(q) + (1 if q - int(q) > .5 else 0)
+    g = collections.defaultdict(lambda: {'v': 0, 'c': []})
+    for c in out: g[c['p']]['v'] += c['t']; g[c['p']]['c'].append(c)
+    for k, v in E.get('legenda', {}).items(): g[k]['v'] += v
+    cad = {k: x['v'] // qe for k, x in g.items()}
+    for k, x in g.items(): x['c'].sort(key=lambda c: -c['t'])
+    for k, x in g.items():
+      for c in x['c'][:min(cad[k], len(x['c']))]: c['r'] = 0
+    sob = vagas - sum(min(cad[k], len(x['c'])) for k, x in g.items()); n = dict(cad); rod = 0
+    while sob > 0:
+      rod += 1; k = max((k for k in g if n[k] < len(g[k]['c'])), key=lambda k: g[k]['v'] / (n[k] + 1)); g[k]['c'][n[k]]['r'] = rod; n[k] += 1; sob -= 1
+    meta.update({'vagas': vagas, 'validos': validos, 'qe': qe, 'grupos': {k: {'v': x['v'], 'qp': cad[k], 'cad': n[k]} for k, x in g.items() if x['v']}})
+    ok = sum(1 for c in out if ('r' in c) == str(c['s']).lower().startswith('eleito') and (('r' in c) <= 0 or (c['r'] == 0) == ('qp' in c['s'].lower())))
+    print(cargo, 'QE', qe, '· conferência eleito/QP/média com TSE:', ok, '/', len(out))
+  p22e = json.load(open(R + 'dados/resultados/sc-2022/participacao.json')).get(cargo, {}).get('estado')
+  meta['part22'] = p22e
+  json.dump({'val': val, 'val22': val22, 'meta': meta, 'c': out}, open(R + f'dados/painel/sc-{cargo}.json', 'w'), ensure_ascii=False, separators=(',', ':'))
   ok = sum(1 for c in out if sum(c['v']) == c['t'])
   print(cargo, len(out), 'candidatos ·', ok, 'com soma = TSE ·', sum(1 for c in out if 'v22' in c), 'com 2022')
