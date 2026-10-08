@@ -109,7 +109,7 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .rk-c{ display:flex; align-items:center; gap:10px; min-width:0; } .rk-c .ft{ width:34px; height:34px; border-radius:50%; padding:2px; background:#30353B; flex:none; } .rk-c .ft.el{ background:var(--a); }
 .rk-c .ft img, .rk-c .ft span{ width:100%; height:100%; border-radius:50%; object-fit:cover; object-position:50% 20%; display:flex; align-items:center; justify-content:center; background:#2A2E33; font-weight:800; font-size:13px; }
 .rk-c .tx{ min-width:0; } .rk-c b{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
-.chip{ display:inline-block; font-size:10px; font-weight:800; padding:1px 7px; border-radius:999px; margin-left:6px; vertical-align:1px; } .chip.e{ background:var(--a); color:#0B0D0E; } .chip.s{ background:rgba(242,244,245,.08); color:var(--sec); }
+.chip{ display:inline-block; font-size:10px; font-weight:800; padding:1px 7px; border-radius:999px; margin-left:6px; vertical-align:1px; } .chip.e{ background:var(--a); color:#0B0D0E; } .chip.e.m{ background:var(--a2); color:#1C2400; } .chip.s{ background:rgba(242,244,245,.08); color:var(--sec); }
 .rk-acoes{ display:flex; gap:6px; padding:8px 16px 10px 60px; background:rgba(52,232,74,.05); border-top:1px solid var(--linha); flex-wrap:wrap; }
 .rk-acoes button{ font:600 12px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:999px; padding:6px 12px; cursor:pointer; }
 .tabela.rk .tl.n1, .tabela.rk .tl.n2, .tabela.rk .tl.n3{ grid-template-columns:34px minmax(0,1fr) 80px 80px 86px 64px; }
@@ -133,6 +133,18 @@ html,body{ overflow-x:hidden; max-width:100%; }
 .rel-caixa.sob{ width:min(560px,100%); } .sob-t{ border-top:1px solid var(--linha); margin-top:8px; }
 .sob-l{ display:grid; grid-template-columns:minmax(0,1fr) 78px 36px 46px 42px; gap:8px; padding:7px 2px; border-bottom:1px solid var(--linha); font-size:13px; font-variant-numeric:tabular-nums; } .sob-l > :nth-child(n+2){ text-align:right; }
 .sob-l.cab{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); } .sob-l.r{ grid-template-columns:34px minmax(0,1fr) 80px; } .sob-l.r > :nth-child(2){ text-align:left; } .sob-l.r .i{ text-align:left; color:var(--a); font-weight:800; } .sob-l small{ color:var(--ter); }
+.rel-caixa.sob{ background:#1D2023; border-color:#3A3F45; padding:0 14px 10px; }
+.sob-cab{ padding:14px 0 10px; font-size:15px; font-weight:800; }
+.sob-res{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:10px 12px; background:#0C0E10; border:1px solid #23262A; border-radius:10px; } .sob-res span{ display:block; font-size:9.5px; color:#6B7178; } .sob-res b{ font-size:15px; font-variant-numeric:tabular-nums; }
+.sob-t{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#AEB5BB; margin:14px 0 6px; }
+.sob-part{ display:grid; grid-template-columns:1fr 1fr; gap:6px; } .sob-part > div{ display:grid; grid-template-columns:1fr auto; padding:7px 9px; border:1px solid rgba(242,244,245,.08); border-radius:9px; }
+.sob-part span{ font-size:11.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .sob-part b{ font-size:14px; color:var(--a); } .sob-part i{ grid-column:1/-1; font-style:normal; font-size:9.5px; color:#6B7178; }
+.sob-intro{ font-size:11px; color:#B5BBC0; line-height:1.5; margin:0 0 8px; } .sob-intro b{ color:var(--texto); }
+.srod{ display:grid; grid-template-columns:26px auto 1fr auto; grid-template-rows:auto auto; gap:2px 8px; align-items:center; padding:7px 0; border-top:1px solid rgba(242,244,245,.06); }
+.srod .rn{ grid-row:1/3; font-size:10px; color:#8A9096; } .srod .chip-s{ grid-row:1/3; font-size:9.5px; font-weight:800; padding:3px 7px; border-radius:999px; } .chip-s.em{ background:var(--a2); color:#1C2400; } .chip-s.neu{ background:#2C3239; color:#AEB5BB; }
+.srod .rp{ font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .srod .rc{ grid-column:3; grid-row:2; font-size:10.5px; color:#8A9096; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .srod .rc small{ color:#6B7178; }
+.srod .rm{ grid-column:4; grid-row:1/3; font-size:10.5px; color:#AEB5BB; text-align:right; font-variant-numeric:tabular-nums; } .srod .rm small{ display:block; font-size:9px; color:#6B7178; } .srod.fora{ opacity:.6; }
+.sob-div{ margin:10px 0 4px; padding-top:8px; border-top:1px dashed #4D545C; font-size:10px; color:#8A9096; line-height:1.45; }
 @media (max-width:860px){ .corpo{ grid-template-columns:1fr; } .ficha{ border-left:0; border-top:1px solid var(--linha); min-height:0; } .cena{ height:500px; } }
 @media (max-width:520px){ .barra-sel{ grid-template-columns:1fr; } .vs{ text-align:center; } .cand.b{ flex-direction:row; text-align:left; } .hero{ min-height:620px; } }
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
@@ -179,7 +191,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
   <section class="tabela rk" id="rkTab"></section>
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
-<script src="painel.js?cb=17"></script>
+<script src="painel.js?cb=18"></script>
 <script src="relatorio.js?cb=19"></script>
 </body>
 </html>

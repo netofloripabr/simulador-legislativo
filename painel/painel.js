@@ -610,7 +610,7 @@ async function tabelaRanking() {
   const lim = rk.todos || k || rk.partido || rk.sit ? L.length : 50;
   for (const x of L.slice(0, lim)) {
     const c = x.c, eleito = /^eleito/i.test(c.s || ""), ab = rk.aberto === c.n, dif = x.t22 == null ? null : x.t - x.t22;
-    h += `<div class="tl lin${ab ? " aberto" : ""}" data-rk="${c.n}"><span class="i">${x.pos}º</span><span class="rk-c"><span class="ft${eleito ? " el" : ""}">${foto(c)}</span><span class="tx"><b>${esc(c.u)}${eleito ? `<span class="chip e">${c.r > 0 ? `E-M · ${c.r}ª` : /m[ée]dia/i.test(c.s) ? "E-M" : /qp/i.test(c.s) ? "E-QP" : "Eleito"}</span>` : /suplente/i.test(c.s || "") ? `<span class="chip s">Supl.</span>` : ""}${botoesLinks(c)}</b><span class="sub">${esc(c.p)} · nº ${c.n}</span></span></span><span><b>${ni(x.t)}</b></span><span class="vfr">${x.t22 == null ? "—" : ni(x.t22)}</span><span class="${dif == null ? "vfr" : dif >= 0 ? "dpos" : "dred"}">${dif == null ? "—" : `${dif >= 0 ? "+" : "−"}${ni(Math.abs(dif))}`}</span><span class="vfr">${nf(x.pct, 2)}%</span></div>`;
+    h += `<div class="tl lin${ab ? " aberto" : ""}" data-rk="${c.n}"><span class="i">${x.pos}º</span><span class="rk-c"><span class="ft${eleito ? " el" : ""}">${foto(c)}</span><span class="tx"><b>${esc(c.u)}${eleito ? `<span class="chip e${c.r > 0 ? " m" : ""}">${c.r > 0 ? `E-M · ${c.r}ª` : /m[ée]dia/i.test(c.s) ? "E-M" : /qp/i.test(c.s) ? "E-QP" : "Eleito"}</span>` : /suplente/i.test(c.s || "") ? `<span class="chip s">Supl.</span>` : ""}${botoesLinks(c)}</b><span class="sub">${esc(c.p)} · nº ${c.n}</span></span></span><span><b>${ni(x.t)}</b></span><span class="vfr">${x.t22 == null ? "—" : ni(x.t22)}</span><span class="${dif == null ? "vfr" : dif >= 0 ? "dpos" : "dred"}">${dif == null ? "—" : `${dif >= 0 ? "+" : "−"}${ni(Math.abs(dif))}`}</span><span class="vfr">${nf(x.pct, 2)}%</span></div>`;
     if (ab) {
       h += `<div class="rk-acoes"><button data-acao="analisar">Analisar no painel</button><button data-acao="comparar">Comparar com o candidato do painel</button></div>`;
       const ms = idx.map((i) => [M[i].n, [c.v22 ? c.v22[i] : 0, c.v[i]], i]).filter(([, v]) => v[0] || v[1]);
@@ -657,16 +657,29 @@ document.getElementById("btnRelRk").onclick = async () => { const html = await m
 
 // Sobras (quociente, cadeiras por partido e rodadas pelo método das médias) — calculado em ferramentas/gerar_painel_sc.py
 function abrirSobras() {
+  // mesmo desenho da "Disputa das sobras" do app (pn-sob-*): resumo, cadeiras por partido e rodadas
   const d = DADOS[rk.cargo], m = d.meta; let el = $("#relModal");
   if (!el) { el = document.createElement("div"); el.id = "relModal"; document.body.appendChild(el); }
-  const G = Object.entries(m.grupos).filter(([, g]) => g.cad || g.v >= m.qe * .5).sort((a, b) => b[1].cad - a[1].cad || b[1].v - a[1].v);
-  const rod = d.c.filter((c) => c.r > 0).sort((a, b) => a.r - b.r);
-  el.innerHTML = `<div class="rel-fundo"></div><div class="rel-caixa sob"><h3>Sobras · ${CARGO_LBL[rk.cargo]}</h3>
-    <p class="dica">${ni(m.validos)} válidos ÷ ${m.vagas} vagas = quociente eleitoral <b style="color:var(--texto)">${ni(m.qe)}</b>. Cada partido/federação leva uma vaga por quociente inteiro (QP); as que sobram vão, uma por rodada, para a maior média (votos ÷ cadeiras + 1).</p>
-    <div class="sob-t"><div class="sob-l cab"><span>Partido / federação</span><span>Votos</span><span>QP</span><span>Média</span><span>Total</span></div>
-    ${G.map(([k, g]) => `<div class="sob-l"><span>${esc(k)}</span><span>${ni(g.v)}</span><span>${g.qp}</span><span>${g.cad - g.qp || "—"}</span><b>${g.cad}</b></div>`).join("")}</div>
-    <h3 style="font-size:15px;margin-top:16px">Rodadas das sobras</h3>
-    <div class="sob-t">${rod.map((c) => `<div class="sob-l r"><span class="i">${c.r}ª</span><span><b>${esc(c.u)}</b> <small>${esc(c.p)}</small></span><span>${ni(c.t)}</span></div>`).join("")}</div>
+  const G = Object.entries(m.grupos), vot = Object.fromEntries(G.map(([k, g]) => [k, g.v]));
+  const filas = {}; d.c.forEach((c) => (filas[c.p] = filas[c.p] || []).push(c)); Object.values(filas).forEach((f) => f.sort((a, b) => b.t - a.t));
+  const cont = Object.fromEntries(G.map(([k, g]) => [k, Math.min(g.qp, (filas[k] || []).length)]));
+  const qpTot = Object.values(cont).reduce((a, b) => a + b, 0), nSob = m.vagas - qpTot, rods = [];
+  for (let r = 1; r <= nSob * 3; r++) {
+    const k = Object.keys(vot).filter((k) => cont[k] < (filas[k] || []).length).sort((a, b) => vot[b] / (cont[b] + 1) - vot[a] / (cont[a] + 1))[0]; if (!k) break;
+    rods.push({ r, p: k, media: vot[k] / (cont[k] + 1), c: filas[k][cont[k]] }); cont[k]++;
+  }
+  const lin = (o, real) => `<div class="srod${real ? "" : " fora"}"><span class="rn">${o.r}ª</span><span class="chip-s ${real ? "em" : "neu"}">${real ? `E-M · ${o.r}ª` : "F"}</span><span class="rp">${esc(o.p)}</span><span class="rc">${o.c ? `${esc(o.c.u)} <small>${ni(o.c.t)} votos</small>` : "sem candidato na fila"}</span><span class="rm"><small>média</small><b>${ni(o.media)}</b></span></div>`;
+  const cad = G.filter(([, g]) => g.cad).sort((a, b) => b[1].cad - a[1].cad || b[1].v - a[1].v);
+  el.innerHTML = `<div class="rel-fundo"></div><div class="rel-caixa sob">
+    <div class="sob-cab">Disputa das sobras · ${CARGO_LBL[rk.cargo]}</div>
+    <div class="sob-res"><div><span>Válidos</span><b>${ni(m.validos)}</b></div><div><span>Vagas</span><b>${m.vagas}</b></div><div><span>Quociente eleitoral</span><b>${ni(m.qe)}</b></div></div>
+    <div class="sob-t">Cadeiras por partido · QP + média</div>
+    <div class="sob-part">${cad.map(([k, g]) => `<div><span>${esc(k)}</span><b>${g.cad}</b><i>${g.qp} QP${g.cad - g.qp ? ` + ${g.cad - g.qp} média` : ""} · ${ni(g.v)} votos</i></div>`).join("")}</div>
+    <div class="sob-t">Distribuição das sobras — método das médias (art. 109)</div>
+    <div class="sob-intro">${qpTot} vagas saíram direto pelo quociente partidário. As <b>${nSob} restantes</b> foram distribuídas rodada a rodada — em cada uma, ganha o partido com a maior média (votos ÷ vagas já obtidas + 1):</div>
+    ${rods.slice(0, nSob).map((o) => lin(o, true)).join("")}
+    <div class="sob-div">Se houvesse mais vagas — os próximos da fila, na mesma regra (${rods.length - nSob} rodadas a mais). Ninguém aqui se elege.</div>
+    ${rods.slice(nSob).map((o) => lin(o, false)).join("")}
     <button class="rel-fechar" id="relFechar">Fechar</button></div>`;
   el.hidden = false; el.querySelector(".rel-fundo").onclick = el.querySelector("#relFechar").onclick = () => { el.hidden = true; };
 }
