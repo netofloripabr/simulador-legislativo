@@ -9,7 +9,7 @@ import json, os, re, math, unicodedata, collections
 R = os.path.join(os.path.dirname(__file__), '..') + '/'
 norm = lambda s: ' '.join(unicodedata.normalize('NFD', s or '').encode('ascii', 'ignore').decode().upper().split())
 slug = lambda s: '-'.join(''.join(c if c.isalnum() else ' ' for c in norm(s)).split()).lower()
-reg = [dict(zip(('ibge', 'nome', 'chave', 'meso', 'assoc'), m)) for m in re.findall(r'ibge:"(\d+)", nome:"([^"]+)", chave:"([^"]+)", meso:"([^"]+)", micro:"[^"]+", assoc:"([^"]+)"', open(R + 'dados/regioes-sc.js').read())]
+reg = [dict(zip(('ibge', 'nome', 'chave', 'meso', 'micro', 'assoc'), m)) for m in re.findall(r'ibge:"(\d+)", nome:"([^"]+)", chave:"([^"]+)", meso:"([^"]+)", micro:"([^"]+)", assoc:"([^"]+)"', open(R + 'dados/regioes-sc.js').read())]
 geo = {f['properties']['ibge']: f['geometry'] for f in json.load(open(R + 'dados/mapas/sc-municipios.geojson'))['features']}
 part = json.load(open(R + 'dados/resultados/sc-2026/participacao.json'))
 def centro(g):
@@ -23,7 +23,7 @@ mun = []
 for m in reg:
   lon, lat = centro(geo[m['ibge']])
   el = (part['estadual']['mun'].get(m['chave']) or [0])[0]
-  mun.append({'k': m['chave'], 'n': m['nome'], 'lon': lon, 'lat': lat, 'el': el, 'meso': m['meso'], 'assoc': m['assoc']})
+  mun.append({'k': m['chave'], 'n': m['nome'], 'lon': lon, 'lat': lat, 'el': el, 'meso': m['meso'], 'micro': m['micro'], 'assoc': m['assoc']})
 # contorno: todos os municípios simplificados (o painel desenha bem translúcido)
 def simp(r, tol=.01):
   out = [r[0]]
@@ -56,10 +56,10 @@ for cargo in ('estadual', 'federal', 'senador', 'governador', 'presidente'):
     if not str(t.get('dvt', 'Válido')).startswith('Válido'): continue
     v = votos.get(num, [0] * N); mt = meta.get(num, {})
     u = mt.get('nomeUrna') or t['nome'].title()
-    c = {'n': num, 'u': u, 'p': mt.get('partido') or t.get('partido'), 's': t.get('st', ''), 't': t['votos'], 'v': v}
+    c = {'n': num, 'u': u, 'nome': mt.get('nome') or t['nome'].title(), 'p': mt.get('partido') or t.get('partido'), 's': t.get('st', ''), 't': t['votos'], 'v': v}
     o = por22.get(norm(u)) or por22.get(norm(t['nome']))
     if o and o.get('municipios'):
-      c['v22'] = [o['municipios'].get(m['k'], 0) for m in mun]; c['t22'] = sum(c['v22'])
+      c['v22'] = [o['municipios'].get(m['k'], 0) for m in mun]; c['t22'] = sum(c['v22']); c['n22'] = str(o.get('numero', ''))
     out.append(c)
   out.sort(key=lambda c: -c['t'])
   json.dump({'val': val, 'val22': val22, 'c': out}, open(R + f'dados/painel/sc-{cargo}.json', 'w'), ensure_ascii=False, separators=(',', ':'))

@@ -17,7 +17,10 @@ const COR = { a: [52, 232, 74], a2: [198, 230, 42], b: [232, 67, 42], b2: [184, 
 
 let M, N, CONT;                 // municípios, quantidade, contorno
 const DADOS = {};               // por cargo
-const st = { lente: "mapa", a: null, b: null, sel: -1, hover: -1 };
+const st = { lente: "mapa", a: null, b: null, sel: -1, hover: -1, rec: null, tipoReg: "meso", ord: { col: "v", dir: -1 }, abertos: {}, todos: false };
+// recorte: {tipo:"meso"|"micro"|"assoc", nome}; null = estado inteiro
+const dentro = (i) => !st.rec || M[i][st.rec.tipo] === st.rec.nome;
+const TIPOS = [["meso", "Mesorregiões"], ["micro", "Microrregiões"], ["assoc", "Associações"]];
 let atual = null, eixos = null, anim = null;
 const cv = $("#cv"), ctx = cv.getContext("2d");
 let W = 0, H = 0, DPR = 1;
@@ -31,6 +34,7 @@ const mesmoCargo = () => st.b && st.a.cargo === st.b.cargo;
 // valor que colore/posiciona o ponto
 function metrica(i) {
   const A = st.A, B = st.B;
+  if (!dentro(i)) return NaN;
   if (!B) return pctMun(A, i);
   return mesmoCargo() ? pctMun(A, i) - pctMun(B, i) : fatia(A, i) - fatia(B, i);
 }
@@ -56,7 +60,7 @@ async function carregar() {
 }
 function preparar() {
   st.A = cand(st.a); st.B = cand(st.b);
-  const vals = [...Array(N).keys()].map(metrica).filter((x) => !Number.isNaN(x)).map(Math.abs).sort((x, y) => x - y);
+  const vals = [...Array(N).keys()].filter(dentro).map(metrica).filter((x) => !Number.isNaN(x)).map(Math.abs).sort((x, y) => x - y);
   st.escala = Math.max(1, vals[Math.floor(vals.length * .95)] || 1);
   st.cores = [...Array(N).keys()].map(corDe);
   st.ordem = [...Array(N).keys()].sort((x, y) => M[y].el - M[x].el);
@@ -67,7 +71,7 @@ function foto(c) { const p = `../dados/fotos/sc-2026/${c.cargo}/${c.n}.jpg`; ret
 function caixaCand(el, lado) {
   const c = lado === "a" ? st.A : st.B;
   el.classList.toggle("vazio", !c);
-  el.innerHTML = c ? `<div class="ft">${foto(c)}</div><div class="tx"><div class="nm">${esc(c.u)}</div><div class="pt">${esc(c.p)} · ${CARGO_LBL[c.cargo]} · ${ni(c.t)} votos</div></div>`
+  el.innerHTML = c ? `<div class="ft">${foto(c)}</div><div class="tx"><div class="nm">${esc(c.u)}${botoesLinks(c)}</div><div class="pt">${esc(c.p)} · ${CARGO_LBL[c.cargo]} · ${ni(c.t)} votos</div></div>`
     : `<div class="ft"><span>+</span></div><div class="tx"><div class="nm">Comparar com…</div><div class="pt">qualquer candidato de SC</div></div>`;
   el.insertAdjacentHTML("beforeend", `<div class="busca" hidden><input id="q${lado}" placeholder="Nome, partido ou número"><div class="res"></div></div>`);
   const bx = el.querySelector(".busca"), inp = bx.querySelector("input"), res = bx.querySelector(".res");
@@ -86,19 +90,26 @@ function caixaCand(el, lado) {
   res.onclick = (e) => { const it = e.target.closest(".it"); if (!it) return; if (it.dataset.limpar) st.b = null; else st[lado] = { cargo: it.dataset.cg, n: it.dataset.n }; bx.hidden = true; trocouCandidato(); };
 }
 function trocouCandidato() {
-  preparar(); montarSeletores(); montarLentes();
+  preparar(); montarSeletores(); montarLentes(); montarRecorte();
   if (st.lente === "d22" && !st.A.v22) st.lente = "mapa";
-  irPara(st.lente); ficha(); frase(); legenda(); placarHero();
+  irPara(st.lente); ficha(); frase(); legenda(); placarHero(); tabela();
   const q = new URLSearchParams({ cargo: st.a.cargo, a: st.a.n }); if (st.b) { q.set("b", st.b.n); q.set("cargob", st.b.cargo); }
   history.replaceState(null, "", "?" + q);
 }
 function montarSeletores() { caixaCand($("#candA"), "a"); caixaCand($("#candB"), "b"); }
 
 // ---------------- lentes ----------------
-const LENTES = [["mapa", "Mapa"], ["forca", "A distribuição"], ["porte", "Cidade grande × pequena"], ["regioes", "Regiões"], ["d22", "2022 → 2026"]];
+const LENTES = [["mapa", "Mapa"], ["forca", "A distribuição"], ["social", "Perfil da cidade"], ["porte", "Cidade grande × pequena"], ["regioes", "Regiões"], ["d22", "2022 → 2026"]];
+// cruzamentos (dados/painel/sc-social.json, ferramentas/gerar_social_sc.py): IBGE Censo 2022, MDS, TSE perfil do eleitorado
+const VARS = [["renda_pc_media", "Renda", "Renda por pessoa", (v) => "R$ " + ni(v), true], ["pct_evangelicos", "Evangélicos", "Evangélicos na população", (v) => nf(v, 0) + "%"],
+  ["pct_catolicos", "Católicos", "Católicos na população", (v) => nf(v, 0) + "%"], ["pct_pop_pbf", "Bolsa Família", "População no Bolsa Família", (v) => nf(v, 0) + "%"],
+  ["pct_superior_eleit", "Escolaridade", "Eleitores com superior completo", (v) => nf(v, 0) + "%"], ["pct_60mais_eleit", "60+", "Eleitores com 60 anos ou mais", (v) => nf(v, 0) + "%"],
+  ["pct_mulheres_eleit", "Mulheres", "Mulheres no eleitorado", (v) => nf(v, 1) + "%"], ["pct_urbana", "Urbana", "População urbana", (v) => nf(v, 0) + "%"]];
+let SOC = null; st.var = "renda_pc_media";
+const soc = (i) => SOC && SOC[M[i].k] ? SOC[M[i].k][st.var] : NaN;
 function montarLentes() {
   $("#lentes").innerHTML = LENTES.map(([k, r]) => `<button data-l="${k}" class="${st.lente === k ? "on" : ""}"${k === "d22" && !(st.A.v22 && (!st.B || st.B.v22)) ? " disabled" : ""}>${r}</button>`).join("");
-  $("#lentes").onclick = (e) => { const b = e.target.closest("button[data-l]"); if (!b || b.disabled) return; st.lente = b.dataset.l; montarLentes(); irPara(st.lente); frase(); legenda(); };
+  $("#lentes").onclick = (e) => { const b = e.target.closest("button[data-l]"); if (!b || b.disabled) return; st.lente = b.dataset.l; montarLentes(); montarRecorte(); irPara(st.lente); frase(); legenda(); };
 }
 const lin = (d0, d1, r0, r1) => (v) => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
 function area() { const p = W < 560; return { l: p ? 46 : 64, r: W - (p ? 12 : 22), t: 14, b: H - (p ? 34 : 40) }; }
@@ -113,7 +124,7 @@ function eixoY(e, P, ys, dom) {
 function niceStep(r) { const s = r / 5, p = Math.pow(10, Math.floor(Math.log10(s))), n = s / p; return (n < 1.5 ? 1 : n < 3 ? 2 : n < 7 ? 5 : 10) * p; }
 function rotY(v) { if (!st.B) return nf(v, 0) + "%"; const u = mesmoCargo() ? "" : " p.p."; return v === 0 ? "empate" : (v > 0 ? "+" : "−") + nf(Math.abs(v), Math.abs(v) < 1 ? 1 : 0) + u; }
 function domY() {
-  const v = [...Array(N).keys()].map(metrica).filter((x) => !Number.isNaN(x));
+  const v = [...Array(N).keys()].filter(dentro).map(metrica).filter((x) => !Number.isNaN(x));
   let lo = Math.min(...v), hi = Math.max(...v);
   if (!st.B) { lo = 0; hi = Math.max(1, hi * 1.06); } else { const m = Math.max(Math.abs(lo), Math.abs(hi)) * 1.08; lo = -m; hi = m; }
   return [lo, hi];
@@ -124,17 +135,17 @@ function layout(nome) {
   const peq = W < 560;
   if (nome === "mapa") {
     let lon0 = 1e9, lon1 = -1e9, lat0 = -1e9, lat1 = 1e9;
-    M.forEach((m) => { lon0 = Math.min(lon0, m.lon); lon1 = Math.max(lon1, m.lon); lat0 = Math.max(lat0, m.lat); lat1 = Math.min(lat1, m.lat); });
-    const K = Math.cos(27.5 * Math.PI / 180), pad = 22;
-    lon0 -= .15; lon1 += .15; lat0 += .15; lat1 -= .15;
+    M.forEach((m, i) => { if (!dentro(i)) return; lon0 = Math.min(lon0, m.lon); lon1 = Math.max(lon1, m.lon); lat0 = Math.max(lat0, m.lat); lat1 = Math.min(lat1, m.lat); });
+    const K = Math.cos(27.5 * Math.PI / 180), pad = 22, mg = Math.max(.15, (lon1 - lon0) * .08);
+    lon0 -= mg; lon1 += mg; lat0 += mg; lat1 -= mg;
     const S = Math.min((W - 2 * pad) / ((lon1 - lon0) * K), (H - 2 * pad) / (lat0 - lat1));
     const ox = (W - (lon1 - lon0) * K * S) / 2, oy = (H - (lat0 - lat1) * S) / 2;
-    const k = Math.min(W, H) / 520;
-    for (let i = 0; i < N; i++) { o.x[i] = ox + (M[i].lon - lon0) * K * S; o.y[i] = oy + (lat0 - M[i].lat) * S; o.r[i] = raio(i, k); }
+    const k = Math.min(W, H) / 520 * (st.rec ? Math.min(2.4, Math.sqrt(S / 120)) : 1);
+    for (let i = 0; i < N; i++) { o.x[i] = ox + (M[i].lon - lon0) * K * S; o.y[i] = oy + (lat0 - M[i].lat) * S; o.r[i] = raio(i, k); if (!dentro(i)) o.a[i] = .09; }
     e.contorno = { lon0, lat0, K, S, ox, oy };
     return { o, e };
   }
-  const P = area(), dom = domY(), ys = lin(dom[0], dom[1], P.b, P.t), kR = Math.min(W, H) / 560;
+  const P = area(), dom = domY(), ys = lin(dom[0], dom[1], P.b, P.t), kR = Math.min(W, H) / 560 * (st.rec ? 1.5 : 1);
   if (nome === "forca") {
     // histograma de pontos: colunas pela métrica, pontos empilhados
     const nb = peq ? 30 : 46, xs = lin(dom[0], dom[1], P.l + 6, P.r - 6), larg = (P.r - P.l - 12) / nb;
@@ -152,6 +163,16 @@ function layout(nome) {
     if (st.B) { e.textos.push([xs(dom[0] / 2), P.t + 2, `← ${pn(st.B)} mais forte`, "center", "b", "top"]); e.textos.push([xs(dom[1] / 2), P.t + 2, `${pn(st.A)} mais forte →`, "center", "a", "top"]); }
     return { o, e };
   }
+  if (nome === "social") {
+    const cfg = VARS.find((v) => v[0] === st.var), vals = [...Array(N).keys()].filter(dentro).map(soc).filter((x) => x != null && !Number.isNaN(x)).sort((x, y) => x - y);
+    let lo = vals[Math.floor(vals.length * .01)], hi = vals[Math.floor(vals.length * .99)]; const pad = (hi - lo) * .04; lo -= pad; hi += pad;
+    const tf = cfg[4] ? Math.log : (v) => v, xs0 = lin(tf(lo), tf(hi), P.l + 10, P.r - 10), xs = (v) => xs0(tf(Math.max(lo, Math.min(hi, v))));
+    eixoY(e, P, ys, dom);
+    const pas = niceStep(hi - lo); for (let v = Math.ceil(lo / pas) * pas; v <= hi; v += pas) { e.linhas.push([xs(v), P.t, xs(v), P.b, COR.grade]); e.textos.push([xs(v), P.b + 16, cfg[3](v), "center", "sec"]); }
+    e.textos.push([P.r, P.b + 30, cfg[2] + " →", "right", "sec"]);
+    for (let i = 0; i < N; i++) { const v = metrica(i), x = soc(i); if (Number.isNaN(v) || x == null || Number.isNaN(x)) { o.a[i] = 0; o.r[i] = 0; continue; } o.x[i] = xs(x); o.y[i] = ys(v); o.r[i] = raio(i, kR * .8); o.a[i] = .92; }
+    return { o, e };
+  }
   if (nome === "porte") {
     const xs0 = lin(Math.log(1000), Math.log(480000), P.l + 10, P.r - 10), xs = (v) => xs0(Math.log(Math.max(1000, Math.min(480000, v))));
     eixoY(e, P, ys, dom);
@@ -161,15 +182,16 @@ function layout(nome) {
     return { o, e };
   }
   if (nome === "regioes") {
-    const R = [...new Set(M.map((m) => m.meso))].sort();
+    const tp = st.rec && st.tipoReg === st.rec.tipo ? (st.rec.tipo === "meso" ? "micro" : "assoc") : st.tipoReg;
+    const R = [...new Set(M.filter((m, i) => dentro(i)).map((m) => m[tp]))].sort();
     const col = (P.r - P.l) / R.length;
     eixoY(e, P, ys, dom);
-    R.forEach((r, j) => { const cx = P.l + col * (j + .5); e.textos.push([cx, P.b + 16, peq ? r.split(" ")[0] : r.replace(" Catarinense", ""), "center", "sec"]); if (j) e.linhas.push([P.l + col * j, P.t, P.l + col * j, P.b, COR.grade]); });
+    R.forEach((r, j) => { const cx = P.l + col * (j + .5); e.textos.push([cx, P.b + 16, (R.length > 8 || peq) ? r.replace(" Catarinense", "").split(" ")[0].slice(0, R.length > 14 ? 5 : 10) : r.replace(" Catarinense", ""), "center", "sec"]); if (j) e.linhas.push([P.l + col * j, P.t, P.l + col * j, P.b, COR.grade]); });
     // enxame simples: espalha na horizontal os pontos que colidem
     const pos = R.map(() => []);
     st.ordem.forEach((i) => {
       const v = metrica(i); if (Number.isNaN(v)) { o.a[i] = 0; return; }
-      const j = R.indexOf(M[i].meso), cx = P.l + col * (j + .5), y = ys(v), r = raio(i, kR * .7);
+      const j = R.indexOf(M[i][tp]), cx = P.l + col * (j + .5), y = ys(v), r = raio(i, kR * .7);
       let dx = 0;
       for (let t = 0; t < 60; t++) { const x = cx + dx; if (!pos[j].some(([px, py, pr]) => (px - x) ** 2 + (py - y) ** 2 < (pr + r + .6) ** 2)) break; dx = dx <= 0 ? -dx + 1.5 : -dx; }
       dx = Math.max(-col * .45, Math.min(col * .45, dx));
@@ -273,7 +295,7 @@ function irPara(nome) {
 
 // ---------------- textos ----------------
 function frase() {
-  const A = st.A, B = st.B, idx = [...Array(N).keys()];
+  const A = st.A, B = st.B, idx = [...Array(N).keys()].filter(dentro);
   const top = (f) => idx.filter((i) => !Number.isNaN(f(i))).sort((x, y) => f(y) - f(x));
   let s = "";
   if (!B) {
@@ -283,6 +305,7 @@ function frase() {
       forca: `Quantas cidades deram cada fatia de votos a <b>${esc(A.u)}</b>. Em <b>${acima}</b> das ${N} cidades ele(a) ficou acima da própria média estadual.`,
       porte: `Cidade pequena à esquerda, grande à direita. Mostra se <b>${esc(A.u)}</b> depende das cidades grandes ou do interior.`,
       regioes: `Cada coluna é uma mesorregião do IBGE; cada ponto, uma cidade dela, na altura da fatia de votos.`,
+      social: fraseSocial(),
       d22: `Acima da linha tracejada, a cidade deu mais a <b>${esc(A.u)}</b> em 2026 do que em 2022: <b>${idx.filter((i) => pctMun(A, i) > pct22(A, i)).length}</b> cidades.` }[st.lente];
   } else {
     const va = idx.filter((i) => metrica(i) > 0).length, vb = idx.filter((i) => metrica(i) < 0).length;
@@ -291,9 +314,18 @@ function frase() {
       forca: `A divisão: <b>${va}</b> cidades pendem para ${esc(pn(A))} e <b>${vb}</b> para ${esc(pn(B))}.`,
       porte: `Quem leva as cidades grandes e quem leva o interior.`,
       regioes: `A disputa região por região: acima da linha tracejada, ${esc(pn(A))}; abaixo, ${esc(pn(B))}.`,
+      social: fraseSocial(),
       d22: `O mesmo duelo em 2022 (horizontal) e em 2026 (vertical).` }[st.lente];
   }
   $("#frase").innerHTML = s;
+}
+function fraseSocial() {
+  const cfg = VARS.find((v) => v[0] === st.var), idx = [...Array(N).keys()].filter((i) => dentro(i) && !Number.isNaN(metrica(i)) && soc(i) != null).sort((x, y) => soc(x) - soc(y));
+  if (idx.length < 9) return "Poucas cidades neste recorte para cruzar.";
+  const t = Math.floor(idx.length / 3), med = (l) => { let a = 0, b = 0; l.forEach((i) => { a += st.B ? metrica(i) * M[i].el : st.A.v[i]; b += st.B ? M[i].el : st.A.val[i]; }); return st.B ? a / b : a / b * 100; };
+  const baixo = med(idx.slice(0, t)), alto = med(idx.slice(-t)), f = (v) => st.B ? rotY(v) : nf(v) + "%";
+  const quem = st.B ? `a vantagem de <b>${esc(pn(st.A))}</b>` : `<b>${esc(st.A.u)}</b>`;
+  return `Nas cidades com <b>menos</b> ${cfg[2].toLowerCase()}, ${quem} ${st.B ? "fica em" : "teve"} <b>${f(baixo)}</b>; nas com <b>mais</b>, <b>${f(alto)}</b>. ${Math.abs(alto - baixo) < (st.B ? 1 : .3) ? "Praticamente sem diferença." : alto > baixo ? "Cresce com o indicador." : "Cai com o indicador."}`;
 }
 function legenda() {
   const g = st.B ? `linear-gradient(90deg,rgb(${COR.b}),rgb(${COR.neutro}),rgb(${COR.a}))` : `linear-gradient(90deg,rgb(${COR.neutro}),rgb(${COR.a}),rgb(${COR.a2}))`;
@@ -310,8 +342,8 @@ function placarHero() {
 function ficha() {
   const el = $("#ficha"), A = st.A, B = st.B, i = st.sel;
   if (i < 0) {
-    const t = [...Array(N).keys()].sort((x, y) => (B ? metrica(y) - metrica(x) : A.v[y] - A.v[x]));
-    el.innerHTML = `<h2>${B ? `${esc(pn(A))} × ${esc(pn(B))}` : esc(A.u)}</h2><div class="onde">${B ? `${CARGO_LBL[A.cargo]} × ${CARGO_LBL[B.cargo]}` : `${esc(A.p)} · ${CARGO_LBL[A.cargo]} · ${esc(A.s || "")}`}</div>
+    const t = [...Array(N).keys()].filter(dentro).sort((x, y) => (B ? metrica(y) - metrica(x) : A.v[y] - A.v[x]));
+    el.innerHTML = `<h2>${B ? `${esc(pn(A))} × ${esc(pn(B))}` : esc(A.u) + botoesLinks(A)}</h2><div class="onde">${B ? `${CARGO_LBL[A.cargo]} × ${CARGO_LBL[B.cargo]}` : `${esc(A.p)} · ${CARGO_LBL[A.cargo]} · ${esc(A.s || "")}`}</div>
       ${B ? barra(A.t, B.t, A.t + B.t, "no estado") : ""}
       <h3>${B ? `Onde ${esc(pn(A))} vai melhor` : "Cidades com mais votos"}</h3><div class="top"><ol>${t.slice(0, 6).map((j) => `<li><span>${esc(M[j].n)}</span><b>${B ? rotY(metrica(j)) : ni(A.v[j])}</b></li>`).join("")}</ol></div>
       ${B ? `<h3>Onde ${esc(pn(B))} vai melhor</h3><div class="top"><ol>${t.slice(-6).reverse().map((j) => `<li><span>${esc(M[j].n)}</span><b style="color:#FF8A75">${rotY(metrica(j))}</b></li>`).join("")}</ol></div>` : ""}
@@ -328,6 +360,7 @@ function ficha() {
       <span>Fatia dos votos da cidade</span><b>${nf(p26)}%</b><i>média dele(a) no estado: ${nf(A.t / A.val.reduce((x, y) => x + y, 0) * 100)}%</i>
       <span>Peso no total dele(a)</span><b>${nf(fatia(A, i), 2)}%</b>
       ${A.v22 ? `<span>2022</span><b>${ni(A.v22[i])} · ${nf(p22)}%</b><i>${p26 >= p22 ? "cresceu" : "caiu"} ${nf(Math.abs(p26 - p22))} pontos</i>` : ""}</div>
+    ${SOC && SOC[m.k] ? `<h3>A cidade</h3><div class="kv">${VARS.slice(0, 6).map(([k, , rot, f]) => { const v = SOC[m.k][k]; if (v == null) return ""; const todos = M.map((x) => SOC[x.k] && SOC[x.k][k]).filter((x) => x != null); const pc = todos.filter((x) => x < v).length / todos.length * 100; return `<span>${rot}</span><b>${f(v)}</b><i>acima de ${nf(pc, 0)}% das cidades de SC</i>`; }).join("")}</div>` : ""}
     <h3>Mais votados na cidade · ${CARGO_LBL[A.cargo]}</h3><div class="top"><ol>${rank.slice(0, 5).map(([c, v], k) => `<li class="${c.n === A.n ? "eu" : B && c.n === B.n && B.cargo === A.cargo ? "eu2" : ""}"><span>${k + 1}º ${esc(c.u)} <small style="color:var(--ter)">${esc(c.p)}</small></span><b>${ni(v)}</b></li>`).join("")}</ol></div>
     <p style="margin-top:14px"><a href="../?painel=${A.n}&cargo=${A.cargo}" style="color:var(--a);font-weight:700;font-size:13px;text-decoration:none">Abrir bairros e locais de votação no app →</a></p>`;
   $("#fFechar").onclick = () => { st.sel = -1; ficha(); sobrepor(); };
@@ -409,7 +442,9 @@ addEventListener("scroll", () => {
 
 (async () => {
   await carregar();
-  montarSeletores(); montarLentes(); medir(); irPara("mapa"); frase(); legenda(); ficha(); placarHero();
+  await carregarLinks();
+  try { SOC = (await (await fetch("../dados/painel/sc-social.json")).json()).mun; } catch (e) { SOC = null; }
+  montarSeletores(); montarLentes(); montarRecorte(); medir(); irPara("mapa"); frase(); legenda(); ficha(); placarHero(); tabela();
   hero.iniciar();
   const _t = trocouCandidato; window.trocouCandidato = _t;
 })();
@@ -417,3 +452,91 @@ addEventListener("scroll", () => {
 const _troca = trocouCandidato;
 // eslint-disable-next-line no-func-assign
 trocouCandidato = function () { _troca(); hero.recolorir(); };
+
+// ---------------- recorte (estado / mesorregião / microrregião / associação) ----------------
+function montarRecorte() {
+  const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${st.rec && st.rec.tipo === tp && st.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
+  $("#recorte").innerHTML = `<option value="">Santa Catarina inteira</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
+  $("#recorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); st.rec = t ? { tipo: t, nome: n.join("|") } : null; st.sel = -1; st.abertos = {}; trocouCandidato(); };
+  if (st.lente === "social") { $("#tiposReg").innerHTML = VARS.map(([k, r]) => `<button data-var="${k}" class="${st.var === k ? "on" : ""}">${r}</button>`).join(""); $("#tiposReg").onclick = (e) => { const b = e.target.closest("[data-var]"); if (!b) return; st.var = b.dataset.var; montarRecorte(); irPara("social"); frase(); }; return; }
+  $("#tiposReg").innerHTML = st.lente === "regioes" ? TIPOS.map(([t, r]) => `<button data-tr="${t}" class="${st.tipoReg === t ? "on" : ""}">${r}</button>`).join("") : "";
+  $("#tiposReg").onclick = (e) => { const b = e.target.closest("[data-tr]"); if (!b) return; st.tipoReg = b.dataset.tr; montarRecorte(); irPara("regioes"); };
+}
+
+// ---------------- Instagram e $ (mesma fonte do app: candidato_links no Supabase) ----------------
+const LINKS = {};
+const slugLink = (x) => String(x || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+async function carregarLinks() {
+  try {
+    const r = await fetch("https://qgjfkpsjveatonziwkvj.supabase.co/rest/v1/candidato_links?select=chave,cargo,instagram,tse_id&estado=eq.SC", { headers: { apikey: "sb_publishable_eQbVaB7fNEjgEtfat2AGyA_f4uRVPpg" } });
+    (await r.json()).forEach((l) => { LINKS[l.cargo + "|" + l.chave] = l; });
+  } catch (e) { /* sem links: os botões só não aparecem */ }
+}
+function botoesLinks(c) {
+  const l = LINKS[c.cargo + "|" + slugLink(c.p) + "-" + slugLink(c.nome)]; if (!l) return "";
+  return `<span class="links">${l.instagram ? `<a href="${esc(l.instagram)}" target="_blank" rel="noopener" title="Instagram do candidato" onclick="event.stopPropagation()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></a>` : ""}${l.tse_id ? `<a href="https://divulgacandcontas.tse.jus.br/divulga/#/candidato/SUL/SC/20322002026/${esc(l.tse_id)}/2026/SC" target="_blank" rel="noopener" title="Bens e recursos no TSE" onclick="event.stopPropagation()">$</a>` : ""}</span>`;
+}
+
+// ---------------- tabela município a município, com abertura por bairro / local / seção ----------------
+const SEC = {};
+const slugArq = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+async function secoes(ano, k) { const id = ano + k; if (!(id in SEC)) { try { SEC[id] = await (await fetch(`../dados/resultados/sc-${ano}/secoes/${slugArq(k)}.json`)).json(); } catch (e) { SEC[id] = null; } } return SEC[id]; }
+const abrevLocal = (n) => String(n || "").replace(/^Escola de Educa[çc][ãa]o B[áa]sica /i, "EEB ").replace(/^Escola B[áa]sica Municipal /i, "EBM ").replace(/^Escola de Ensino Fundamental /i, "EEF ").replace(/^Escola Municipal /i, "EM ").replace(/^Centro de Educa[çc][ãa]o Infantil /i, "CEI ").replace(/^Escola /i, "Esc. ");
+// valores de uma linha: [col1, col2] — candidato só: [2022, 2026]; duelo: [A, B]
+function colsTab() { return st.B ? [pn(st.A), pn(st.B), "Dif."] : ["2022", "2026", "Dif."]; }
+async function arvoreMun(k) {
+  const A = st.A, B = st.B, s26 = await secoes(2026, k), s22 = !B && A.n22 ? await secoes(2022, k) : null;
+  if (!s26) return [];
+  const pega = (s, cg, n) => ((s || {})[cg] || {})[n] || {};
+  const vA = pega(s26, A.cargo, A.n), vB = B ? pega(s26, B.cargo, B.n) : pega(s22, A.cargo, A.n22);
+  const nos = {}, add = (s, bn, ln, sk, c, v) => { const b = nos[bn] = nos[bn] || { x: [0, 0], l: {} }, l = b.l[ln] = l0(b, ln), q = l.s[sk] = l.s[sk] || [0, 0]; b.x[c] += v; l.x[c] += v; q[c] += v; };
+  const l0 = (b, ln) => b.l[ln] || { x: [0, 0], s: {} };
+  Object.entries(s26._secoes || {}).forEach(([sk, ln]) => add(s26, (s26._bairroSec || {})[sk] || "Sem bairro", abrevLocal(ln), sk, B ? 0 : 1, vA[sk] || 0));
+  if (B) Object.entries(s26._secoes || {}).forEach(([sk, ln]) => add(s26, (s26._bairroSec || {})[sk] || "Sem bairro", abrevLocal(ln), sk, 1, vB[sk] || 0));
+  else if (s22) Object.entries(s22._secoes || {}).forEach(([sk, ln]) => add(s22, (s22._bairroSec || {})[sk] || "Sem bairro", abrevLocal(ln), "22:" + sk, 0, vB[sk] || 0));
+  return nos;
+}
+function valorOrd(x, col) { return col === "nome" ? 0 : col === "a" ? x[0] : col === "b" ? x[1] : col === "d" ? (st.B ? x[0] - x[1] : x[1] - x[0]) : x[1]; }
+function ordenar(lista) { // lista: [nome, x]
+  const { col, dir } = st.ord;
+  return lista.sort((p, q) => col === "nome" ? dir * p[0].localeCompare(q[0], "pt-BR") : dir * (valorOrd(p[1], col) - valorOrd(q[1], col)));
+}
+function linhaTab(cls, pos, nome, x, attr = "") {
+  if (Number.isNaN(x[0])) return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="vfr">—</span><span><b>${ni(x[1])}</b></span><span class="vfr">—</span></div>`;
+  const d = st.B ? x[0] - x[1] : x[1] - x[0], base = st.B ? 0 : x[0];
+  const dTxt = `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}${!st.B && base ? `<span class="sub">${d >= 0 ? "+" : "−"}${nf(Math.abs(d) / base * 100)}%</span>` : ""}`;
+  return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="${st.B ? (x[0] >= x[1] ? "dpos" : "vfr") : "vfr"}">${ni(x[0])}</span><span class="${st.B ? (x[1] > x[0] ? "dneg" : "vfr") : ""}"><b>${ni(x[1])}</b></span><span class="${d >= 0 ? "dpos" : "dneg"}">${dTxt}</span></div>`;
+}
+async function tabela() {
+  const el = $("#tabela"), A = st.A, B = st.B;
+  const muns = [...Array(N).keys()].filter(dentro).map((i) => [M[i].n, B ? [A.v[i], B.v[i]] : [A.v22 ? A.v22[i] : 0, A.v[i]], i]).filter(([, x]) => x[0] || x[1]);
+  ordenar(muns);
+  const [c1, c2] = colsTab(), seta = (col) => `<span class="ord"><i class="up${st.ord.col === col && st.ord.dir > 0 ? " on" : ""}"></i><i class="dn${st.ord.col === col && st.ord.dir < 0 ? " on" : ""}"></i></span>`;
+  const cab = (col, rot) => `<span data-ord="${col}" class="${st.ord.col === col ? "on" : ""}">${rot}${seta(col)}</span>`;
+  let h = `<h3>Município a município · ${st.rec ? esc(st.rec.nome) : "Santa Catarina"}</h3><div class="tl cab"><span></span>${cab("nome", "Município")}${cab("a", esc(c1))}${cab("v", esc(c2))}${cab("d", "Dif.")}</div>`;
+  const lim = st.todos ? muns.length : 20;
+  for (const [k, [nome, x, i]] of muns.slice(0, lim).entries()) {
+    const ch = M[i].k, ab = st.abertos[ch];
+    h += linhaTab("lin" + (ab ? " aberto" : ""), `${k + 1}º`, `<b>${esc(nome)}</b><span class="sub">${esc(M[i].micro)}</span>`, x, ` data-mun="${ch}"`);
+    if (ab) {
+      const nos = await arvoreMun(ch);
+      for (const [bn, bx, bo] of ordenar(Object.entries(nos).map(([n, o]) => [n, o.x, o])).filter(([, x]) => x[0] || x[1])) {
+        const kb = ch + "|" + bn, abB = st.abertos[kb];
+        h += linhaTab("lin n1" + (abB ? " aberto" : ""), "", `${abB ? "▾" : "▸"} ${esc(bn)}`, bx, ` data-ab="${esc(kb)}"`);
+        if (!abB) continue;
+        for (const [ln, lx, lo] of ordenar(Object.entries(bo.l).map(([n, o]) => [n, o.x, o])).filter(([, x]) => x[0] || x[1])) {
+          const kl = kb + "|" + ln, abL = st.abertos[kl];
+          h += linhaTab("lin n2" + (abL ? " aberto" : ""), "", `${abL ? "▾" : "▸"} ${esc(ln)}`, lx, ` data-ab="${esc(kl)}"`);
+          if (abL) for (const [sk, q] of ordenar(Object.entries(lo.s).map(([n, o]) => [n, o]))) { if (sk.startsWith("22:")) continue; const [z, n] = sk.split("::"); h += linhaTab("n3", "", `Seção ${n} <span class="sub">${z}ª zona</span>`, st.B ? q : [NaN, q[1]]); }
+        }
+      }
+    }
+  }
+  if (muns.length > 20) h += `<button class="mais" id="tabMais">${st.todos ? "mostrar menos" : `+ ${muns.length - 20} municípios`}</button>`;
+  if (!B && !A.v22) h += `<div class="dica" style="padding:10px 16px">${esc(A.u)} não concorreu em 2022 (ou mudou de nome de urna): coluna 2022 fica zerada.</div>`;
+  el.innerHTML = h;
+  el.querySelectorAll("[data-ord]").forEach((s) => s.onclick = () => { const c = s.dataset.ord; st.ord = { col: c, dir: st.ord.col === c ? -st.ord.dir : (c === "nome" ? 1 : -1) }; tabela(); });
+  el.querySelectorAll("[data-mun]").forEach((r) => r.onclick = () => { const c = r.dataset.mun; st.abertos[c] = !st.abertos[c]; const i = M.findIndex((m) => m.k === c); if (st.abertos[c]) { st.sel = i; ficha(); sobrepor(); } tabela(); });
+  el.querySelectorAll("[data-ab]").forEach((r) => r.onclick = () => { const c = r.dataset.ab; st.abertos[c] = !st.abertos[c]; tabela(); });
+  const m = $("#tabMais"); if (m) m.onclick = () => { st.todos = !st.todos; tabela(); };
+}

@@ -75,6 +75,30 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .dica{ color:var(--ter); font-size:13px; }
 .selo{ display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; background:rgba(198,230,42,.15); color:var(--a2); margin-left:6px; }
 .aviso{ max-width:1180px; margin:0 auto; padding:0 16px 40px; color:var(--ter); font-size:12px; }
+.filtros{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; padding:12px 14px 0; font-size:12px; color:var(--ter); }
+.filtros select{ font:600 13px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:10px; padding:7px 10px; margin-left:6px; max-width:240px; }
+.tipos{ display:flex; gap:6px; } .tipos button{ font:600 12px "Inter"; color:var(--sec); background:transparent; border:1px solid var(--linha); border-radius:999px; padding:5px 11px; cursor:pointer; } .tipos button.on{ color:var(--a); border-color:rgba(52,232,74,.5); }
+.links{ display:inline-flex; gap:6px; margin-left:8px; vertical-align:middle; } .links a{ display:inline-flex; width:24px; height:24px; align-items:center; justify-content:center; border-radius:7px; border:1px solid rgba(242,244,245,.16); color:var(--sec); text-decoration:none; font:800 12px "Inter"; }
+.links a:hover{ color:var(--texto); border-color:rgba(242,244,245,.35); }
+.tabela{ margin-top:16px; background:var(--sup); border:1px solid var(--linha); border-radius:18px; overflow:hidden; }
+.tabela h3{ margin:0; padding:14px 16px 10px; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); font-weight:600; }
+.tl{ display:grid; grid-template-columns:28px minmax(0,1fr) 78px 78px 86px; gap:8px; align-items:center; padding:9px 16px; border-top:1px solid var(--linha); font-variant-numeric:tabular-nums; font-size:13.5px; }
+.tl > span:nth-child(n+3){ text-align:right; } .tl .i{ color:var(--ter); font-size:11px; }
+.tl.cab{ font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ter); font-weight:600; border-top:0; padding-top:4px; }
+.tl.cab span{ cursor:pointer; user-select:none; white-space:nowrap; } .tl.cab span.on{ color:var(--texto); }
+.ord{ display:inline-flex; flex-direction:column; gap:2px; margin-left:5px; vertical-align:middle; }
+.ord i{ width:0; height:0; border-left:4.5px solid transparent; border-right:4.5px solid transparent; display:block; }
+.ord i.up{ border-bottom:5.5px solid #4A5058; } .ord i.dn{ border-top:5.5px solid #4A5058; }
+.ord i.up.on{ border-bottom-color:var(--a); filter:drop-shadow(0 0 3px rgba(52,232,74,.8)); } .ord i.dn.on{ border-top-color:var(--a); filter:drop-shadow(0 0 3px rgba(52,232,74,.8)); }
+.tl.lin{ cursor:pointer; } .tl.lin:hover{ background:rgba(242,244,245,.03); }
+.tl .nm b{ font-weight:700; } .tl .sub{ display:block; font-size:11px; color:var(--ter); }
+.tl.n1{ background:rgba(242,244,245,.045); box-shadow:inset 3px 0 0 rgba(52,232,74,.75); } .tl.n1 .nm{ padding-left:12px; font-size:13px; }
+.tl.n2{ background:rgba(242,244,245,.075); box-shadow:inset 3px 0 0 rgba(52,232,74,.45); } .tl.n2 .nm{ padding-left:24px; font-size:12.5px; }
+.tl.n3{ background:rgba(242,244,245,.105); box-shadow:inset 3px 0 0 rgba(52,232,74,.22); } .tl.n3 .nm{ padding-left:36px; font-size:12px; color:#D5D9DC; }
+.tl.aberto{ background:rgba(52,232,74,.07); box-shadow:inset 3px 0 0 var(--a); }
+.dpos{ color:var(--a); } .dneg{ color:#FF7A63; } .vfr{ color:var(--ter); }
+.mais{ display:block; width:100%; padding:12px; background:none; border:0; border-top:1px solid var(--linha); color:var(--sec); font:600 13px "Inter"; cursor:pointer; }
+@media (max-width:520px){ .tl{ grid-template-columns:22px minmax(0,1fr) 58px 62px 60px; gap:5px; padding:9px 12px; font-size:12.5px; } }
 @media (max-width:860px){ .corpo{ grid-template-columns:1fr; } .ficha{ border-left:0; border-top:1px solid var(--linha); min-height:0; } .cena{ min-height:470px; } }
 @media (max-width:520px){ .barra-sel{ grid-template-columns:1fr; } .vs{ text-align:center; } .cand.b{ flex-direction:row; text-align:left; } .hero{ min-height:620px; } }
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
@@ -102,6 +126,7 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
       <div class="vs">×</div>
       <div class="cand b" id="candB"></div>
     </div>
+    <div class="filtros"><label>Recorte <select id="recorte"></select></label><span id="tiposReg" class="tipos"></span></div>
     <nav class="lentes" id="lentes"></nav>
     <div class="corpo">
       <div class="cena" id="cena">
@@ -112,8 +137,9 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
       <aside class="ficha" id="ficha"></aside>
     </div>
   </div>
+  <section class="tabela" id="tabela"></section>
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
-<script src="painel.js?cb=1"></script>
+<script src="painel.js?cb=5"></script>
 </body>
 </html>
