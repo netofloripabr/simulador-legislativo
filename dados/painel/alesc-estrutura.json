@@ -1,0 +1,106 @@
+{
+  "fontes": [
+    {"desc": "Agência ALESC - atribuições dos componentes da Mesa", "url": "https://www.alesc.sc.gov.br/agencia/noticia/conheca-as-atribuicoes-dos-componentes-da-mesa-que-seraeo-eleitos-hoje-1/", "data": "2026-10-08"},
+    {"desc": "Portal eLegis ALESC - Comissões Permanentes", "url": "https://portalelegis.alesc.sc.gov.br/comissoes-permanentes", "data": "2026-10-08"},
+    {"desc": "ALESC - Estrutura Organizacional (cita Resolução 001/2006, LC 896/2026, Ato da Mesa 120/2026)", "url": "https://www.alesc.sc.gov.br/estrutura-organizacional/", "data": "2026-10-08"},
+    {"desc": "Transparência ALESC (servidores, terceirizados, estagiários, gabinetes)", "url": "https://transparencia.alesc.sc.gov.br/", "data": "2026-10-08"},
+    {"desc": "LC estadual 741/2019 - estrutura do Poder Executivo SC", "url": "https://leis.alesc.sc.gov.br/ato-normativo/20438", "data": "2026-10-08"},
+    {"desc": "ND+ - secretários do governo Jorginho Mello (01/01/2023, não oficial)", "url": "https://ndmais.com.br/politica/veja-quem-sao-os-secretarios-do-governo-jorginho-mello-em-santa-catarina/", "data": "2026-10-08"}
+  ],
+  "mesa": {
+    "cargos": ["Presidente", "1º Vice-Presidente", "2º Vice-Presidente", "1º Secretário", "2º Secretário", "3º Secretário", "4º Secretário"],
+    "regra": "Mesa com 7 deputados, mandato de 2 anos. Eleição em sessões preparatórias com voto nominal ao microfone: Presidente eleito primeiro, demais cargos em sessão seguinte. Competências no art. 63 do Regimento Interno (25 incisos).",
+    "verificar_regra": ["quórum/maioria exigida (presume-se maioria absoluta, 21 de 40)", "regra de reeleição na mesma legislatura"],
+    "verificar": true
+  },
+  "comissoes": [
+    {"nome": "Comissão de Agricultura e Desenvolvimento Rural"},
+    {"nome": "Comissão de Assuntos Municipais"},
+    {"nome": "Comissão de Constituição e Justiça"},
+    {"nome": "Comissão de Defesa dos Direitos da Criança e do Adolescente"},
+    {"nome": "Comissão dos Direitos da Pessoa com Deficiência"},
+    {"nome": "Comissão dos Direitos da Pessoa Idosa"},
+    {"nome": "Comissão de Direitos Humanos e Família"},
+    {"nome": "Comissão de Economia, Ciência, Tecnologia e Inovação"},
+    {"nome": "Comissão de Educação e Cultura"},
+    {"nome": "Comissão de Ética e Decoro Parlamentar"},
+    {"nome": "Comissão de Finanças e Tributação"},
+    {"nome": "Comissão dos Direitos do Consumidor e do Contribuinte e de Legislação Participativa"},
+    {"nome": "Comissão de Pesca e Aquicultura"},
+    {"nome": "Comissão de Prevenção e Combate às Drogas"},
+    {"nome": "Comissão de Defesa Civil e Desastres Naturais"},
+    {"nome": "Comissão de Relacionamento Institucional, das Relações Internacionais e do MERCOSUL"},
+    {"nome": "Comissão de Saúde"},
+    {"nome": "Comissão de Segurança Pública"},
+    {"nome": "Comissão de Trabalho, Administração e Serviço Público"},
+    {"nome": "Comissão de Transportes, Desenvolvimento Urbano e Infraestrutura"},
+    {"nome": "Comissão de Turismo"},
+    {"nome": "Comissão de Esportes e Lazer"},
+    {"nome": "Comissão de Proteção, Defesa e Bem-Estar Animal"},
+    {"nome": "Comissão de Meio Ambiente e Desenvolvimento Sustentável"}
+  ],
+  "comissoes_cargos": {"cargos": ["Presidente", "Vice-Presidente"], "verificar": true},
+  "alesc": [
+    {"grupo": "Confirmadas no site oficial", "itens": [
+      {"nome": "Consultoria Legislativa"},
+      {"nome": "Escola do Legislativo"},
+      {"nome": "TV Alesc"},
+      {"nome": "Rádio Alesc"}
+    ]},
+    {"grupo": "Não confirmadas (nomes genéricos, conferir Resolução 001/2006 / Ato da Mesa 120/2026)", "itens": [
+      {"nome": "Gabinete da Presidência", "verificar": true},
+      {"nome": "Secretaria-Geral da Mesa", "verificar": true},
+      {"nome": "Diretoria-Geral", "verificar": true},
+      {"nome": "Procuradoria", "verificar": true},
+      {"nome": "Ouvidoria", "verificar": true},
+      {"nome": "Controladoria", "verificar": true}
+    ]}
+  ],
+  "numeros": {
+    "deputados": 40,
+    "maioria_absoluta": 21,
+    "servidores_aprox": {"valor": 1700, "obs": "cerca de 1.700 servidores + ~500 aposentados e militares à disposição; citado em busca, não confirmado no portal", "verificar": true},
+    "nomeados_concurso_2024": {"valor": 47, "obs": "Analista Legislativo III, concurso mai/2024 (notícia Agência ALESC)", "verificar": true},
+    "efetivos": null, "comissionados": null, "terceirizados": null, "cedidos": null, "cargos_por_gabinete": null,
+    "obs": "Portal de transparência tem listas (Servidores por vínculo, Terceirizados, Estagiários, Gabinetes Parlamentares) mas os totais não foram extraídos"
+  },
+  "governo": {
+    "1": [
+      {"nome": "Casa Civil"},
+      {"nome": "Secretaria de Estado da Administração"},
+      {"nome": "Secretaria de Estado da Saúde"},
+      {"nome": "Secretaria de Estado da Educação"},
+      {"nome": "Secretaria de Estado da Fazenda"},
+      {"nome": "Secretaria de Estado da Agricultura, Aquicultura e Pesca", "verificar": true},
+      {"nome": "Secretaria de Estado da Assistência Social, Mulher e Família", "verificar": true},
+      {"nome": "Secretaria de Estado da Comunicação", "verificar": true},
+      {"nome": "Secretaria de Estado da Ciência, Tecnologia e Inovação", "verificar": true},
+      {"nome": "Secretaria de Estado da Administração Prisional e Socioeducativa"},
+      {"nome": "Secretaria de Estado da Infraestrutura e Mobilidade"},
+      {"nome": "Secretaria de Estado da Segurança Pública"},
+      {"nome": "Secretaria de Estado da Proteção e Defesa Civil"},
+      {"nome": "Secretaria-Geral de Governo", "verificar": true},
+      {"nome": "Procuradoria-Geral do Estado"},
+      {"nome": "Casa Militar"}
+    ],
+    "2": [
+      {"nome": "Centrais Elétricas de Santa Catarina (Celesc)"},
+      {"nome": "Companhia Catarinense de Águas e Saneamento (Casan)"},
+      {"nome": "Companhia de Gás de Santa Catarina (SCGás)"},
+      {"nome": "Centro de Informática e Automação de Santa Catarina (Ciasc)"},
+      {"nome": "Fundação Catarinense de Educação Especial (FCEE)"},
+      {"nome": "Empresa de Pesquisa Agropecuária e Extensão Rural de Santa Catarina (Epagri)"},
+      {"nome": "Companhia Integrada de Desenvolvimento Agrícola de Santa Catarina (Cidasc)"},
+      {"nome": "Instituto do Meio Ambiente (IMA)"},
+      {"nome": "Fundação de Amparo à Pesquisa e Inovação do Estado de Santa Catarina (Fapesc)"},
+      {"nome": "Agência de Fomento do Estado de Santa Catarina (Badesc)"},
+      {"nome": "Banco Regional de Desenvolvimento do Extremo Sul (BRDE)"},
+      {"nome": "Departamento Estadual de Infraestrutura (Deinfra)", "verificar": true, "obs": "pode ter sido extinto/absorvido; checar órgão rodoviário vigente"}
+    ],
+    "3": [
+      {"nome": "Coordenadorias Regionais de Educação", "verificar": true},
+      {"nome": "Superintendências / Diretorias / Gerências das Secretarias (estrutura-padrão da LC 741/2019)"},
+      {"nome": "Agências de Desenvolvimento Regional (ADRs)", "verificar": true, "obs": "extintas em 2019; uso só histórico"}
+    ]
+  }
+}

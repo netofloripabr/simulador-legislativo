@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Corrida da Mesa · SimulaLEGIS</title>
+<!-- Protótipo (08/10/2026): simulador da eleição da Mesa da ALESC. O usuário é o
+     "mestre": cria chapas, põe deputados em cada uma e atribui o que cada um
+     recebe. Itens fixos (Mesa, comissões, estrutura, cargos de governo) valem uma
+     vez POR CHAPA; convênios e outros são livres. Cenário salvo no navegador. -->
+<style>
+@font-face{ font-family:"Inter"; src:url(../fontes/InterVariable.woff2) format("woff2"); font-weight:100 900; font-display:swap; }
+:root{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --linha:rgba(242,244,245,.09); --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178; --a:#34E84A; --a2:#C6E62A; color-scheme:dark; }
+*{ box-sizing:border-box; } html,body{ margin:0; background:var(--fundo); color:var(--texto); font:14px/1.45 "Inter",system-ui,sans-serif; overflow-x:hidden; }
+.topo{ position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:12px; height:56px; padding:0 16px; background:rgba(11,15,13,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--linha); }
+.wm{ font-weight:800; font-size:17px; letter-spacing:-.02em; } .wm b{ color:var(--a); } .topo nav{ margin-left:auto; display:flex; gap:4px; } .topo nav a{ font-weight:700; font-size:13px; color:var(--sec); text-decoration:none; padding:7px 12px; border-radius:999px; } .topo nav a.on{ color:var(--texto); background:rgba(242,244,245,.08); }
+.pg{ max-width:1240px; margin:0 auto; padding:24px 16px 60px; }
+.olho{ font-size:11px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--sec); }
+h1{ font-weight:900; font-size:clamp(40px,7vw,72px); line-height:.9; letter-spacing:-.05em; margin:8px 0 6px; } h1 i{ font-style:normal; color:var(--a); }
+.lead{ color:var(--sec); max-width:640px; margin:0 0 18px; }
+/* placar */
+.placar{ display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+.ch{ flex:0 0 220px; position:relative; background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:12px; cursor:pointer; transition:border-color .2s, transform .2s; }
+.ch.on{ border-color:var(--c); box-shadow:0 0 0 1px var(--c), 0 10px 30px -12px var(--c); transform:translateY(-2px); }
+.ch .top{ display:flex; gap:10px; align-items:center; } .ch .ft{ width:40px; height:40px; border-radius:50%; padding:2px; background:var(--c); flex:none; }
+.ch .ft img,.ch .ft span{ width:100%; height:100%; border-radius:50%; object-fit:cover; object-position:50% 20%; display:flex; align-items:center; justify-content:center; background:#2A2E33; font-weight:800; }
+.ch .nm{ font-weight:800; font-size:13.5px; line-height:1.15; } .ch .sub{ font-size:11px; color:var(--ter); }
+.ch .num{ display:flex; align-items:baseline; gap:6px; margin-top:10px; } .ch .num b{ font-size:30px; font-weight:900; letter-spacing:-.04em; color:var(--c); font-variant-numeric:tabular-nums; } .ch .num span{ font-size:11px; color:var(--ter); }
+.ch .bar{ height:6px; border-radius:3px; background:#0F1314; margin-top:6px; position:relative; overflow:hidden; } .ch .bar i{ position:absolute; inset:0 auto 0 0; background:var(--c); border-radius:3px; transition:width .6s cubic-bezier(.2,.8,.2,1); }
+.ch .bar::after{ content:""; position:absolute; left:52.5%; top:-2px; bottom:-2px; width:2px; background:#F2F4F5; opacity:.5; }
+.ch.venc .num b::after{ content:" maioria"; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#0B0D0E; background:var(--c); border-radius:999px; padding:2px 7px; margin-left:6px; vertical-align:4px; }
+.ch .x{ position:absolute; top:8px; right:8px; border:0; background:none; color:var(--ter); cursor:pointer; font-size:14px; }
+.ch.nova{ display:flex; align-items:center; justify-content:center; flex-direction:column; gap:4px; color:var(--sec); border-style:dashed; font-weight:700; }
+.resumo{ display:flex; gap:16px; align-items:center; margin:14px 0 6px; font-size:13px; color:var(--sec); flex-wrap:wrap; } .resumo b{ color:var(--texto); }
+/* tabuleiro */
+.grid{ display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:16px; margin-top:12px; }
+.tab{ position:relative; background:radial-gradient(circle at 50% 100%, rgba(52,232,74,.08), transparent 60%) var(--sup); border:1px solid var(--linha); border-radius:18px; padding:16px; }
+.tab svg{ width:100%; height:auto; display:block; }
+.seat{ cursor:pointer; } .seat .in{ transition:transform .35s cubic-bezier(.2,.8,.2,1); }
+.seat:hover .in{ transform:scale(1.12); } .seat.sel .in{ transform:scale(1.2); }
+.seat .ring{ transition:stroke .4s, stroke-width .3s; } .seat.duv .ring{ stroke-dasharray:4 3; }
+@keyframes pulso{ 0%{ r:22; opacity:.9 } 100%{ r:44; opacity:0 } } .onda{ fill:none; stroke-width:3; animation:pulso .8s ease-out forwards; }
+.tab{ display:flex; flex-direction:column; } .meio{ position:absolute; left:50%; top:calc(16px + (100% - 60px) * .78); transform:translateX(-50%); text-align:center; pointer-events:none; }
+.meio b{ display:block; font-size:44px; font-weight:900; letter-spacing:-.05em; line-height:1; } .meio span{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); }
+.leg{ display:flex; gap:12px; flex-wrap:wrap; font-size:11.5px; color:var(--sec); margin-top:8px; } .leg i{ display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:-1px; }
+/* ficha */
+.fic{ background:var(--sup); border:1px solid var(--linha); border-radius:18px; padding:16px; align-self:start; position:sticky; top:72px; max-height:calc(100vh - 90px); overflow:auto; }
+.fic h2{ margin:0; font-size:22px; font-weight:900; letter-spacing:-.03em; } .fic .sub{ font-size:12px; color:var(--ter); margin:2px 0 12px; }
+.fic h3{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); margin:16px 0 8px; font-weight:600; }
+.chips{ display:flex; flex-wrap:wrap; gap:6px; } .chips button{ font:600 12.5px "Inter"; color:var(--sec); background:var(--sup2); border:1px solid var(--linha); border-radius:999px; padding:6px 11px; cursor:pointer; }
+.chips button.on{ color:#0B0D0E; background:var(--c, var(--texto)); border-color:var(--c, var(--texto)); }
+.ben{ display:flex; justify-content:space-between; gap:8px; align-items:center; padding:8px 10px; border:1px solid var(--linha); border-radius:10px; margin-bottom:6px; font-size:13px; } .ben small{ display:block; color:var(--ter); font-size:11px; } .ben button{ border:0; background:none; color:var(--ter); cursor:pointer; }
+.cat{ border:1px solid var(--linha); border-radius:12px; margin-bottom:8px; } .cat summary{ padding:9px 12px; cursor:pointer; font-weight:700; font-size:13px; list-style:none; display:flex; justify-content:space-between; } .cat summary::-webkit-details-marker{ display:none; } .cat summary span{ color:var(--ter); font-weight:500; font-size:11.5px; }
+.cat .it{ display:flex; justify-content:space-between; gap:8px; width:100%; text-align:left; font:13px "Inter"; color:var(--texto); background:none; border:0; border-top:1px solid var(--linha); padding:8px 12px; cursor:pointer; }
+.cat .it:hover:not(:disabled){ background:rgba(242,244,245,.04); } .cat .it:disabled{ color:var(--ter); cursor:default; } .cat .it small{ color:var(--ter); font-size:11px; white-space:nowrap; }
+.livre{ display:flex; gap:6px; padding:8px 12px; border-top:1px solid var(--linha); } .livre input{ flex:1; min-width:0; font:13px "Inter"; color:var(--texto); background:#0F1314; border:1px solid var(--linha); border-radius:8px; padding:7px 9px; } .livre button{ font:700 12px "Inter"; background:var(--texto); color:#0B0D0E; border:0; border-radius:8px; padding:0 12px; cursor:pointer; }
+.dica{ color:var(--ter); font-size:12.5px; }
+.cmp{ margin-top:16px; background:var(--sup); border:1px solid var(--linha); border-radius:18px; overflow:auto; }
+.cmp table{ width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; } .cmp th{ font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); text-align:right; padding:10px 12px; font-weight:600; } .cmp th:first-child,.cmp td:first-child{ text-align:left; }
+.cmp td{ padding:10px 12px; border-top:1px solid var(--linha); text-align:right; } .cmp td b{ color:var(--c); }
+.aviso{ font-size:11.5px; color:var(--ter); margin-top:14px; }
+@media (max-width:520px){ .topo nav a{ padding:6px 8px; font-size:12px; } .topo nav a.on{ white-space:nowrap; } .wm{ font-size:15px; } }
+@media (max-width:900px){ .grid{ grid-template-columns:1fr; } .fic{ position:static; max-height:none; } .meio b{ font-size:34px; } }
+@media (prefers-reduced-motion:reduce){ *{ transition:none!important; animation:none!important; } }
+</style>
+</head>
+<body>
+<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><nav><a href="./">Painel</a><a href="./#ranking">Ranking</a><a class="on" href="mesa.html">Corrida da Mesa</a></nav></header>
+<main class="pg">
+  <div class="olho">ALESC · eleição da Mesa Diretora · 2027–2029</div>
+  <h1>Corrida da <i>Mesa.</i></h1>
+  <p class="lead">Monte as chapas, coloque cada deputado num projeto e defina o que ele recebe. Quem fechar <b>21 dos 40 votos</b> leva a Presidência.</p>
+  <div class="placar" id="placar"></div>
+  <div class="resumo" id="resumo"></div>
+  <div class="grid">
+    <section class="tab"><svg id="plen" viewBox="0 30 800 390"></svg><div class="meio" id="meio"></div><div class="leg" id="leg"></div></section>
+    <aside class="fic" id="fic"></aside>
+  </div>
+  <section class="cmp" id="cmp"></section>
+  <div class="aviso">Protótipo. Simulação livre: nada aqui é informação real sobre negociações. Cada chapa só pode prometer cada cargo uma vez; convênios e outros acordos são livres. Cenário salvo neste navegador.</div>
+</main>
+<script src="mesa.js?cb=3"></script>
+</body>
+</html>
