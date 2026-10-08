@@ -115,6 +115,14 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .tabela.rk .tl.n1, .tabela.rk .tl.n2, .tabela.rk .tl.n3{ grid-template-columns:34px minmax(0,1fr) 80px 80px 86px 64px; }
 @media (max-width:520px){ .tabela.rk .tl{ grid-template-columns:24px minmax(0,1fr) 62px 54px; } .tabela.rk .tl:not(.n1):not(.n2):not(.n3) > span:nth-child(4), .tabela.rk .tl:not(.n1):not(.n2):not(.n3) > span:nth-child(6){ display:none; }
   .tabela.rk .tl.n1, .tabela.rk .tl.n2, .tabela.rk .tl.n3{ grid-template-columns:8px minmax(0,1fr) 54px 58px 62px; } .vistas button{ padding:6px 8px; } .topo .sep{ display:none; } }
+.btn-rel{ margin-left:auto; font:700 13px "Inter"; color:#0B0D0E; background:var(--texto); border:0; border-radius:999px; padding:8px 16px; cursor:pointer; }
+#relModal{ position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:16px; } #relModal[hidden]{ display:none; }
+.rel-fundo{ position:absolute; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); }
+.rel-caixa{ position:relative; width:min(460px,100%); max-height:90vh; overflow:auto; background:#171C1E; border:1px solid rgba(242,244,245,.14); border-radius:18px; padding:18px; }
+.rel-caixa h3{ margin:0; font-size:20px; font-weight:900; letter-spacing:-.03em; } .rel-caixa .dica{ margin:4px 0 12px; }
+.rel-op{ display:block; width:100%; text-align:left; background:var(--sup2); border:1px solid var(--linha); border-radius:12px; padding:11px 13px; margin-bottom:8px; cursor:pointer; color:var(--texto); font:inherit; }
+.rel-op b{ display:block; font-size:14px; } .rel-op span{ font-size:12px; color:var(--ter); } .rel-op:hover:not(:disabled){ border-color:rgba(52,232,74,.5); } .rel-op:disabled{ opacity:.45; cursor:default; }
+.rel-fechar{ width:100%; margin-top:4px; font:600 13px "Inter"; color:var(--sec); background:none; border:0; padding:10px; cursor:pointer; }
 @media (max-width:860px){ .corpo{ grid-template-columns:1fr; } .ficha{ border-left:0; border-top:1px solid var(--linha); min-height:0; } .cena{ height:500px; } }
 @media (max-width:520px){ .barra-sel{ grid-template-columns:1fr; } .vs{ text-align:center; } .cand.b{ flex-direction:row; text-align:left; } .hero{ min-height:620px; } }
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
@@ -142,7 +150,7 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
       <div class="vs">×</div>
       <div class="cand b" id="candB"></div>
     </div>
-    <div class="filtros"><label>Recorte <select id="recorte"></select></label><span id="tiposReg" class="tipos"></span></div>
+    <div class="filtros"><label>Recorte <select id="recorte"></select></label><span id="tiposReg" class="tipos"></span><button class="btn-rel" id="btnRel">Relatório</button></div>
     <nav class="lentes" id="lentes"></nav>
     <div class="corpo">
       <div class="cena" id="cena">
@@ -157,10 +165,11 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 </main>
 <main class="painel" id="ranking" hidden>
   <div class="rk-cab"><div><div class="olho">Resultado 2026 · Santa Catarina</div><h2 class="rk-tit">Ranking dos candidatos</h2></div></div>
-  <div class="rk-ctl"><nav class="lentes rk-cargos" id="rkCargos"></nav><div class="filtros" style="padding:0"><label>Recorte <select id="rkRecorte"></select></label><input id="rkBusca" class="rk-busca" placeholder="Buscar nome, partido ou número"></div></div>
+  <div class="rk-ctl"><nav class="lentes rk-cargos" id="rkCargos"></nav><div class="filtros" style="padding:0"><label>Recorte <select id="rkRecorte"></select></label><input id="rkBusca" class="rk-busca" placeholder="Buscar nome, partido ou número"><button class="btn-rel" id="btnRelRk">Imprimir ranking</button></div></div>
   <section class="tabela rk" id="rkTab"></section>
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
-<script src="painel.js?cb=12"></script>
+<script src="painel.js?cb=13"></script>
+<script src="relatorio.js?cb=13"></script>
 </body>
 </html>

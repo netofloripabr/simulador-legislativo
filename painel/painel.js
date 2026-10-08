@@ -470,7 +470,7 @@ trocouCandidato = function () { _troca(); hero.recolorir(); };
 // ---------------- recorte (estado / mesorregião / microrregião / associação) ----------------
 function montarRecorte() {
   const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${st.rec && st.rec.tipo === tp && st.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
-  $("#recorte").innerHTML = `<option value="">Santa Catarina inteira</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
+  $("#recorte").innerHTML = `<option value="">Santa Catarina</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
   $("#recorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); st.rec = t ? { tipo: t, nome: n.join("|") } : null; st.sel = -1; st.abertos = {}; trocouCandidato(); };
   if (st.lente === "social") { $("#tiposReg").innerHTML = VARS.map(([k, r]) => `<button data-var="${k}" class="${st.var === k ? "on" : ""}">${r}</button>`).join(""); $("#tiposReg").onclick = (e) => { const b = e.target.closest("[data-var]"); if (!b) return; st.var = b.dataset.var; montarRecorte(); irPara("social"); frase(); }; return; }
   $("#tiposReg").innerHTML = st.lente === "regioes" ? TIPOS.map(([t, r]) => `<button data-tr="${t}" class="${st.tipoReg === t ? "on" : ""}">${r}</button>`).join("") : "";
@@ -575,7 +575,7 @@ function montarRanking() {
   $("#rkCargos").innerHTML = CARGOS.map(([c, r]) => `<button data-c="${c}" class="${rk.cargo === c ? "on" : ""}">${r}</button>`).join("");
   $("#rkCargos").onclick = (e) => { const b = e.target.closest("[data-c]"); if (!b) return; rk.cargo = b.dataset.c; rk.aberto = null; rk.abertos = {}; rk.todos = false; montarRanking(); };
   const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${rk.rec && rk.rec.tipo === tp && rk.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
-  $("#rkRecorte").innerHTML = `<option value="">Santa Catarina inteira</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
+  $("#rkRecorte").innerHTML = `<option value="">Santa Catarina</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
   $("#rkRecorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); rk.rec = t ? { tipo: t, nome: n.join("|") } : null; rk.abertos = {}; tabelaRanking(); };
   $("#rkBusca").value = rk.busca; $("#rkBusca").oninput = (e) => { rk.busca = e.target.value; tabelaRanking(); };
   tabelaRanking();
@@ -634,3 +634,6 @@ function trocarVista(v) {
 }
 document.querySelectorAll(".vistas button").forEach((b) => b.onclick = () => trocarVista(b.dataset.vista));
 if (location.hash === "#ranking") { const t = setInterval(() => { if (M && LINKS) { clearInterval(t); trocarVista("ranking"); } }, 100); }
+
+document.getElementById("btnRel").onclick = () => abrirRelatorios();
+document.getElementById("btnRelRk").onclick = async () => { const html = await montarRelatorio("ranking"); const w = window.open("", "_blank"); w.document.write(html); w.document.close(); };
