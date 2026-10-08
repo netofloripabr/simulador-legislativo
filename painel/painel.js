@@ -342,11 +342,21 @@ function placarHero() {
 function ficha() {
   const el = $("#ficha"), A = st.A, B = st.B, i = st.sel;
   if (i < 0) {
-    const t = [...Array(N).keys()].filter(dentro).sort((x, y) => (B ? metrica(y) - metrica(x) : A.v[y] - A.v[x]));
+    // Duelo (08/10/2026): ordena pela diferença de VOTOS (mesmo cargo) — antes era pelos
+    // pontos percentuais, que destacava cidade pequena e parecia não bater com a realidade.
+    // Cargos diferentes seguem pela fatia do total de cada um (votos brutos não comparam).
+    const idx = [...Array(N).keys()].filter(dentro), mc = mesmoCargo();
+    const chave = (j) => B ? (mc ? A.v[j] - B.v[j] : metrica(j)) : A.v[j];
+    const t = idx.sort((x, y) => chave(y) - chave(x));
+    const somaA = idx.reduce((s, j) => s + A.v[j], 0), somaB = B ? idx.reduce((s, j) => s + B.v[j], 0) : 0;
+    const onde = st.rec ? "em " + esc(st.rec.nome.replace(" Catarinense", "")) : "no estado";
+    const linha = (j, lado) => { const d = A.v[j] - B.v[j], m = metrica(j);
+      return `<li><span>${esc(M[j].n)}<small style="display:block;color:var(--ter);font-size:11px">${ni(A.v[j])} × ${ni(B.v[j])} votos</small></span><b style="text-align:right${lado ? ";color:#FF8A75" : ""}">${mc ? `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}` : rotY(m)}<small style="display:block;color:var(--ter);font-size:11px;font-weight:500">${mc ? `${m >= 0 ? "+" : "−"}${nf(Math.abs(m))} pts` : "peso no total"}</small></b></li>`; };
     el.innerHTML = `<h2>${B ? `${esc(pn(A))} × ${esc(pn(B))}` : esc(A.u) + botoesLinks(A)}</h2><div class="onde">${B ? `${CARGO_LBL[A.cargo]} × ${CARGO_LBL[B.cargo]}` : `${esc(A.p)} · ${CARGO_LBL[A.cargo]} · ${esc(A.s || "")}`}</div>
-      ${B ? barra(A.t, B.t, A.t + B.t, "no estado") : ""}
-      <h3>${B ? `Onde ${esc(pn(A))} vai melhor` : "Cidades com mais votos"}</h3><div class="top"><ol>${t.slice(0, 6).map((j) => `<li><span>${esc(M[j].n)}</span><b>${B ? rotY(metrica(j)) : ni(A.v[j])}</b></li>`).join("")}</ol></div>
-      ${B ? `<h3>Onde ${esc(pn(B))} vai melhor</h3><div class="top"><ol>${t.slice(-6).reverse().map((j) => `<li><span>${esc(M[j].n)}</span><b style="color:#FF8A75">${rotY(metrica(j))}</b></li>`).join("")}</ol></div>` : ""}
+      ${B ? barra(somaA, somaB, somaA + somaB, onde) : ""}
+      <h3>${B ? `Maior vantagem de ${esc(pn(A))}` : "Cidades com mais votos"}</h3><div class="top"><ol>${t.slice(0, 6).map((j) => B ? linha(j, 0) : `<li><span>${esc(M[j].n)}</span><b>${ni(A.v[j])}</b></li>`).join("")}</ol></div>
+      ${B ? `<h3>Maior vantagem de ${esc(pn(B))}</h3><div class="top"><ol>${t.slice(-6).reverse().map((j) => linha(j, 1)).join("")}</ol></div>
+      <p class="dica" style="margin-top:8px">${mc ? "Diferença em votos; embaixo, a diferença em pontos percentuais dos votos válidos da cidade." : "Cargos diferentes: ordenado pelo peso da cidade no total de cada um."}</p>` : ""}
       <p class="dica" style="margin-top:14px">Toque num ponto para ver a cidade.</p>`;
     animarBarra(el); return;
   }
