@@ -1186,7 +1186,7 @@ async function _resDueloDet(ctx, chave, A, B, cargo, ano, repintar) {
   const bs = Object.entries(arv).filter(([, x]) => x.a || x.b).sort((x, y) => (y[1].a + y[1].b) - (x[1].a + x[1].b));
   const mx = Math.max(1, ...bs.map(([, x]) => Math.max(x.a, x.b)));
   const lin = (nome, x, cls, attr = "") => { const aV = x.a >= x.b;
-    return `<div class="pc-esp-lin ${cls}"${attr}><div class="la"><b class="${aV ? "on" : ""}">${_resFmt(x.a)}</b><i class="${aV ? "" : "fraco"}" style="width:calc((100% - 50px) * ${(x.a / mx).toFixed(3)});${x.a ? "" : " min-width:0;"}"></i></div><div class="mn">${nome}</div><div class="lb"><i class="${!aV ? "" : "fraco"}" style="width:calc((100% - 50px) * ${(x.b / mx).toFixed(3)});${x.b ? "" : " min-width:0;"}"></i><b class="${!aV ? "on" : ""}">${_resFmt(x.b)}</b></div></div>`; };
+    return `<div class="pc-esp-lin ${cls}"${attr}><div class="la"><b class="${aV ? "on" : ""}">${_resFmt(x.a)}</b><i class="${aV ? "" : "fraco"}" style="--k:${(x.a / mx).toFixed(3)}; width:calc((100% - 50px) * var(--k));${x.a ? "" : " min-width:0;"}"></i></div><div class="mn">${nome}</div><div class="lb"><i class="${!aV ? "" : "fraco"}" style="--k:${(x.b / mx).toFixed(3)}; width:calc((100% - 50px) * var(--k));${x.b ? "" : " min-width:0;"}"></i><b class="${!aV ? "on" : ""}">${_resFmt(x.b)}</b></div></div>`; };
   alvo.className = "pc-esp-det";
   alvo.innerHTML = `<div class="pc-esp-tit">Bairros · toque para ver os locais de votação</div>` + bs.map(([bn, x]) => { const ab = st.dueloBairro === chave + "|" + bn;
     return lin(`${ab ? "▾" : "▸"} ${bn}`, x, "bairro" + (ab ? " sel" : ""), ` data-duelo-bairro="${bn.replace(/"/g, "&quot;")}"`) + (ab ? Object.entries(x.l).filter(([, l]) => l.a || l.b).sort((p, q) => (q[1].a + q[1].b) - (p[1].a + p[1].b)).map(([ln, l]) => lin(_resAbrevLocal(ln), l, "local")).join("") : ""); }).join("");
@@ -1336,6 +1336,7 @@ async function _resRenderMapa(ctx) {
     // Estado do mapa pra impressão (documento no padrão do palpite, 28/09/2026)
     st._imp = { tipo: "mapa", cenario, cmp, lista, tot, totC: cmp ? lista.reduce((x, d) => x + d.vc, 0) : null, tot0,
       regiao: st.assoc || (st.regiao ? st.regiao.replace(" Catarinense", "") : "Estado"), modo: st.modo, bolhas: st.mapaForma !== "cores", dados, dentro };
+    svg.classList.toggle("duelo", !!(cmp && !cmpAno)); { const lg = document.querySelector("#pcResCorpo .pc-legmapa"); if (lg) lg.classList.toggle("duelo", !!(cmp && !cmpAno)); }
     if (cmp && !cmpAno) {
       // Duelo (07/10/2026): foto oficial do TSE frente a frente, barra de
       // disputa dividida e município a município em barras espelhadas
@@ -1354,7 +1355,7 @@ async function _resRenderMapa(ctx) {
       const pn = (c) => c.nomeUrna.split(" ")[0];
       document.getElementById("pcResOrdTit").textContent = "Município a município · " + (recNome || "todo o estado");
       document.getElementById("pcResMapaLista").innerHTML = `<div class="glass-card pc-espelho"><div class="pc-esp-cab"><span class="a">◀ ${pn(cenario)}</span><span></span><span class="b">${pn(cmp)} ▶</span></div>` + lista.slice(0, st.mapaTodos ? lista.length : 15).map((d) => { const aV = d.v >= d.vc;
-        return `<div class="pc-esp-lin${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><div class="la"><b class="${aV ? "on" : ""}">${_resFmt(d.v)}</b><i class="${aV ? "" : "fraco"}" style="width:calc((100% - 50px) * ${(d.v / mx).toFixed(3)});${d.v ? "" : " min-width:0;"}"></i></div><div class="mn">${_resNomeMun(d.m.nome)}</div><div class="lb"><i class="${!aV ? "" : "fraco"}" style="width:calc((100% - 50px) * ${(d.vc / mx).toFixed(3)});${d.vc ? "" : " min-width:0;"}"></i><b class="${!aV ? "on" : ""}">${_resFmt(d.vc)}</b></div></div>${st.munSel === d.m.chave ? `<div class="pc-cmp-det" id="pcResMunDet"></div>` : ""}`; }).join("")
+        return `<div class="pc-esp-lin${st.munSel === d.m.chave ? " sel" : ""}" data-mun="${d.m.chave}"><div class="la"><b class="${aV ? "on" : ""}">${_resFmt(d.v)}</b><i class="${aV ? "" : "fraco"}" style="--k:${(d.v / mx).toFixed(3)}; width:calc((100% - 50px) * var(--k));${d.v ? "" : " min-width:0;"}"></i></div><div class="mn">${_resNomeMun(d.m.nome)}</div><div class="lb"><i class="${!aV ? "" : "fraco"}" style="--k:${(d.vc / mx).toFixed(3)}; width:calc((100% - 50px) * var(--k));${d.vc ? "" : " min-width:0;"}"></i><b class="${!aV ? "on" : ""}">${_resFmt(d.vc)}</b></div></div>${st.munSel === d.m.chave ? `<div class="pc-cmp-det" id="pcResMunDet"></div>` : ""}`; }).join("")
         + (lista.length > 15 ? `<div class="pc-arv-alca" data-mapa-todos="1"><span class="pega"></span><span class="rot">${st.mapaTodos ? "mostrar menos" : `${RES_IC_CHEV}+ ${lista.length - 15} municípios`}</span></div>` : "") + `</div>`;
     } else if (cmp) {
       // Totais lado a lado (pedido de 22/09/2026): quem lidera ganha borda verde.
