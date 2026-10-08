@@ -3917,3 +3917,13 @@
 /* Duelo: marcador inicial descartado (07/10/2026); barras saem direto do centro */
 #modoColaborativoWrap .pc-esp-lin .la::after, #modoColaborativoWrap .pc-esp-lin .lb::before{ display:none; }
 #modoColaborativoWrap .pc-esp-lin .la{ padding-right:4px; } #modoColaborativoWrap .pc-esp-lin .lb{ padding-left:4px; }
+/* Duelo · lado do comparado em AZUL PROFUNDO (opção C, 08/10/2026): azul #3D7BFF no
+   eixo → violeta-azulado #7B6BFF na ponta; o verde segue verde → verde-lima */
+#modoColaborativoWrap .pc-esp-lin .lb i{ background:linear-gradient(90deg,#3D7BFF,#7B6BFF); box-shadow:0 0 10px rgba(61,123,255,.45); }
+#modoColaborativoWrap .pc-esp-lin .lb i.fraco{ background:linear-gradient(90deg,#30353B,#565C63); box-shadow:none; }
+#modoColaborativoWrap .pc-esp-cab .b{ color:#5A86FF; }
+#modoColaborativoWrap .pc-duelo-lado.b .ft{ background:#3D7BFF; }
+#modoColaborativoWrap .pc-duelo-lado.b .vv, #modoColaborativoWrap .pc-duelo-pcs .b{ color:#5A86FF; }
+#modoColaborativoWrap .pc-duelo-barra i:last-child{ background:linear-gradient(90deg,#3D7BFF,#7B6BFF); }
+#modoColaborativoWrap #pcResMapaSvg.duelo #pcResBolhas circle.neg{ fill:rgba(61,123,255,.45); stroke:#5A86FF; }
+#modoColaborativoWrap .pc-legmapa.duelo .pc-leg-bol.neg{ background:rgba(61,123,255,.45); border-color:#5A86FF; }

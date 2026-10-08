@@ -10,7 +10,7 @@
 <style>
 @font-face{ font-family:"Inter"; src:url(../fontes/InterVariable.woff2) format("woff2"); font-weight:100 900; font-display:swap; }
 :root{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --linha:rgba(242,244,245,.09); --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178;
-  --a:#34E84A; --a2:#C6E62A; --b:#E8432A; --b2:#B81D12; color-scheme:dark; }
+  --a:#34E84A; --a2:#C6E62A; --b:#3D7BFF; --b2:#7B6BFF; color-scheme:dark; }
 *{ box-sizing:border-box; }
 html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 "Inter",system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
 .topo{ position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:12px; height:56px; padding:0 16px; background:rgba(11,15,13,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--linha); }
@@ -20,7 +20,7 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 /* abertura */
 .hero{ position:relative; height:min(88vh,760px); min-height:560px; overflow:hidden; }
 .hero canvas{ position:absolute; inset:0; width:100%; height:100%; }
-.hero .luz{ position:absolute; inset:-20%; background:radial-gradient(circle at 70% 30%, rgba(52,232,74,.16), transparent 45%), radial-gradient(circle at 20% 90%, rgba(232,67,42,.10), transparent 40%); pointer-events:none; }
+.hero .luz{ position:absolute; inset:-20%; background:radial-gradient(circle at 70% 30%, rgba(52,232,74,.16), transparent 45%), radial-gradient(circle at 20% 90%, rgba(61,123,255,.12), transparent 40%); pointer-events:none; }
 .hero .txt{ position:absolute; left:0; right:0; bottom:0; padding:0 20px 44px; max-width:1180px; margin:0 auto; }
 .olho{ font-size:11px; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--sec); }
 .hero h1{ font-weight:900; font-size:clamp(52px,11vw,124px); line-height:.86; letter-spacing:-.055em; margin:12px 0 14px; }
@@ -67,11 +67,11 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .fb i.a{ background:linear-gradient(90deg,var(--a2),var(--a)); } .fb i.b{ background:linear-gradient(90deg,var(--b),var(--b2)); }
 .fn{ display:flex; justify-content:space-between; margin-top:8px; font-variant-numeric:tabular-nums; }
 .fn b{ font-size:26px; font-weight:800; letter-spacing:-.03em; display:block; line-height:1; } .fn small{ font-size:11.5px; color:var(--ter); }
-.fn .a b{ color:var(--a); } .fn .b{ text-align:right; } .fn .b b{ color:var(--b); }
+.fn .a b{ color:var(--a); } .fn .b{ text-align:right; } .fn .b b{ color:#5A86FF; }
 .kv{ display:grid; grid-template-columns:1fr auto; gap:6px 10px; font-size:13.5px; } .kv span{ color:var(--sec); } .kv b{ font-variant-numeric:tabular-nums; text-align:right; }
 .kv i{ font-style:normal; display:block; grid-column:1/-1; font-size:11px; color:var(--ter); margin-top:-4px; }
 .top li{ display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px solid var(--linha); font-size:13px; } .top ol{ list-style:none; padding:0; margin:0; }
-.top li.eu{ color:var(--a); font-weight:700; } .top li.eu2{ color:#FF7A63; font-weight:700; }
+.top li.eu{ color:var(--a); font-weight:700; } .top li.eu2{ color:#7FA4FF; font-weight:700; }
 .dica{ color:var(--ter); font-size:13px; }
 .selo{ display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; background:rgba(198,230,42,.15); color:var(--a2); margin-left:6px; }
 .aviso{ max-width:1180px; margin:0 auto; padding:0 16px 40px; color:var(--ter); font-size:12px; }
@@ -96,7 +96,7 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .tl.n2{ background:rgba(242,244,245,.075); box-shadow:inset 3px 0 0 rgba(52,232,74,.45); } .tl.n2 .nm{ padding-left:24px; font-size:12.5px; }
 .tl.n3{ background:rgba(242,244,245,.105); box-shadow:inset 3px 0 0 rgba(52,232,74,.22); } .tl.n3 .nm{ padding-left:36px; font-size:12px; color:#D5D9DC; }
 .tl.aberto{ background:rgba(52,232,74,.07); box-shadow:inset 3px 0 0 var(--a); }
-.dpos{ color:var(--a); } .dneg{ color:#FF7A63; } .vfr{ color:var(--ter); }
+.dpos{ color:var(--a); } .dneg{ color:#7FA4FF; } .dred{ color:#FF7A63; } .vfr{ color:var(--ter); }
 .mais{ display:block; width:100%; padding:12px; background:none; border:0; border-top:1px solid var(--linha); color:var(--sec); font:600 13px "Inter"; cursor:pointer; }
 @media (max-width:520px){ .tl{ grid-template-columns:22px minmax(0,1fr) 58px 62px 60px; gap:5px; padding:9px 12px; font-size:12.5px; } }
 @media (max-width:860px){ .corpo{ grid-template-columns:1fr; } .ficha{ border-left:0; border-top:1px solid var(--linha); min-height:0; } .cena{ height:500px; } }
@@ -140,6 +140,6 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
   <section class="tabela" id="tabela"></section>
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
-<script src="painel.js?cb=7"></script>
+<script src="painel.js?cb=9"></script>
 </body>
 </html>

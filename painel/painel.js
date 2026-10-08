@@ -13,7 +13,7 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 const reduzido = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const CARGOS = [["estadual", "Dep. Estadual"], ["federal", "Dep. Federal"], ["senador", "Senador"], ["governador", "Governador"], ["presidente", "Presidente"]];
 const CARGO_LBL = Object.fromEntries(CARGOS);
-const COR = { a: [52, 232, 74], a2: [198, 230, 42], b: [232, 67, 42], b2: [184, 29, 18], neutro: [58, 64, 70], fundo: "#14191A", grade: "rgba(242,244,245,.07)", linha: "rgba(242,244,245,.18)", sec: "#8A9096" };
+const COR = { a: [52, 232, 74], a2: [198, 230, 42], b: [61, 123, 255], b2: [123, 107, 255], neutro: [58, 64, 70], fundo: "#14191A", grade: "rgba(242,244,245,.07)", linha: "rgba(242,244,245,.18)", sec: "#8A9096" };
 
 let M, N, CONT;                 // municípios, quantidade, contorno
 const DADOS = {};               // por cargo
@@ -234,7 +234,7 @@ function desenharEixos(c, e, a) {
   c.save(); c.globalAlpha = a;
   for (const [x1, y1, x2, y2, cor, tr] of e.linhas) { c.strokeStyle = cor; c.lineWidth = 1; c.setLineDash(tr || []); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); }
   c.setLineDash([]); c.font = `500 ${W < 560 ? 10 : 11.5}px Inter, system-ui`;
-  for (const [x, y, s, al, cor, bl] of e.textos) { c.textAlign = al; c.textBaseline = bl || "middle"; c.fillStyle = cor === "a" ? "#7CF58A" : cor === "b" ? "#FF8A75" : COR.sec; c.fillText(s, x, y); }
+  for (const [x, y, s, al, cor, bl] of e.textos) { c.textAlign = al; c.textBaseline = bl || "middle"; c.fillStyle = cor === "a" ? "#7CF58A" : cor === "b" ? "#7FA4FF" : COR.sec; c.fillText(s, x, y); }
   c.restore();
 }
 function quadro(p, ea, eb, t) {
@@ -276,6 +276,8 @@ function irPara(nome) {
   const { o, e } = layout(nome); const eAnt = eixos; eixos = e;
   if (!atual || reduzido) { atual = clonar(o); quadro(atual, null, e, 1); return; }
   const de = clonar(atual), t0 = performance.now(), dur = 900;
+  // ponto sem posição válida na origem (NaN) parte direto do destino — senão some
+  for (let i = 0; i < N; i++) if (!Number.isFinite(de.x[i]) || !Number.isFinite(de.y[i]) || !Number.isFinite(de.r[i])) { de.x[i] = o.x[i]; de.y[i] = o.y[i]; de.r[i] = 0; de.a[i] = 0; }
   cancelAnimationFrame(anim);
   // cada ponto sai com um pequeno atraso (pela posição de origem) — a nuvem "escorre" em vez de pular
   const atraso = new Float32Array(N); for (let i = 0; i < N; i++) atraso[i] = (de.x[i] / Math.max(1, W)) * .25;
@@ -289,6 +291,7 @@ function irPara(nome) {
     }
     quadro(atual, eAnt, e, Math.min(1, T));
     if (vivo) anim = requestAnimationFrame(passo);
+    else { atual = clonar(o); quadro(atual, null, e, 1); }   // quadro final garantido na posição de destino
   };
   anim = requestAnimationFrame(passo);
 }
@@ -351,7 +354,7 @@ function ficha() {
     const somaA = idx.reduce((s, j) => s + A.v[j], 0), somaB = B ? idx.reduce((s, j) => s + B.v[j], 0) : 0;
     const onde = st.rec ? "em " + esc(st.rec.nome.replace(" Catarinense", "")) : "no estado";
     const linha = (j, lado) => { const d = A.v[j] - B.v[j], m = metrica(j);
-      return `<li><span>${esc(M[j].n)}<small style="display:block;color:var(--ter);font-size:11px">${ni(A.v[j])} × ${ni(B.v[j])} votos</small></span><b style="text-align:right${lado ? ";color:#FF8A75" : ""}">${mc ? `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}` : rotY(m)}<small style="display:block;color:var(--ter);font-size:11px;font-weight:500">${mc ? `${m >= 0 ? "+" : "−"}${nf(Math.abs(m))} pts` : "peso no total"}</small></b></li>`; };
+      return `<li><span>${esc(M[j].n)}<small style="display:block;color:var(--ter);font-size:11px">${ni(A.v[j])} × ${ni(B.v[j])} votos</small></span><b style="text-align:right${lado ? ";color:#7FA4FF" : ""}">${mc ? `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}` : rotY(m)}<small style="display:block;color:var(--ter);font-size:11px;font-weight:500">${mc ? `${m >= 0 ? "+" : "−"}${nf(Math.abs(m))} pts` : "peso no total"}</small></b></li>`; };
     el.innerHTML = `<h2>${B ? `${esc(pn(A))} × ${esc(pn(B))}` : esc(A.u) + botoesLinks(A)}</h2><div class="onde">${B ? `${CARGO_LBL[A.cargo]} × ${CARGO_LBL[B.cargo]}` : `${esc(A.p)} · ${CARGO_LBL[A.cargo]} · ${esc(A.s || "")}`}</div>
       ${B ? barra(somaA, somaB, somaA + somaB, onde) : ""}
       <h3>${B ? `Maior vantagem de ${esc(pn(A))}` : "Cidades com mais votos"}</h3><div class="top"><ol>${t.slice(0, 6).map((j) => B ? linha(j, 0) : `<li><span>${esc(M[j].n)}</span><b>${ni(A.v[j])}</b></li>`).join("")}</ol></div>
@@ -515,7 +518,7 @@ function linhaTab(cls, pos, nome, x, attr = "") {
   if (Number.isNaN(x[0])) return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="vfr">—</span><span><b>${ni(x[1])}</b></span><span class="vfr">—</span></div>`;
   const d = st.B ? x[0] - x[1] : x[1] - x[0], base = st.B ? 0 : x[0];
   const dTxt = `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}${!st.B && base ? `<span class="sub">${d >= 0 ? "+" : "−"}${nf(Math.abs(d) / base * 100)}%</span>` : ""}`;
-  return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="${st.B ? (x[0] >= x[1] ? "dpos" : "vfr") : "vfr"}">${ni(x[0])}</span><span class="${st.B ? (x[1] > x[0] ? "dneg" : "vfr") : ""}"><b>${ni(x[1])}</b></span><span class="${d >= 0 ? "dpos" : "dneg"}">${dTxt}</span></div>`;
+  return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="${st.B ? (x[0] >= x[1] ? "dpos" : "vfr") : "vfr"}">${ni(x[0])}</span><span class="${st.B ? (x[1] > x[0] ? "dneg" : "vfr") : ""}"><b>${ni(x[1])}</b></span><span class="${d >= 0 ? "dpos" : st.B ? "dneg" : "dred"}">${dTxt}</span></div>`;
 }
 async function tabela() {
   const el = $("#tabela"), A = st.A, B = st.B;
