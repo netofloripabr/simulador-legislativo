@@ -3914,3 +3914,6 @@
 /* Lista de municípios do Mapa na mesma superfície da lista da aba Geral (07/10/2026):
    tom diferente só para subníveis e casos específicos */
 #modoColaborativoWrap #pcResMapaLista:not(:has(.pc-espelho)){ background:rgba(29,32,35,.85); border:1px solid rgba(242,244,245,.08); border-radius:12px; padding:2px 10px 4px; }
+/* Duelo: marcador inicial descartado (07/10/2026); barras saem direto do centro */
+#modoColaborativoWrap .pc-esp-lin .la::after, #modoColaborativoWrap .pc-esp-lin .lb::before{ display:none; }
+#modoColaborativoWrap .pc-esp-lin .la{ padding-right:4px; } #modoColaborativoWrap .pc-esp-lin .lb{ padding-left:4px; }
