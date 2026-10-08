@@ -53,7 +53,7 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .lentes button.on{ color:#0B0D0E; background:var(--texto); border-color:var(--texto); }
 .lentes button:disabled{ opacity:.35; cursor:default; }
 .corpo{ display:grid; grid-template-columns:minmax(0,1fr) 330px; }
-.cena{ position:relative; min-height:560px; }
+.cena{ position:relative; height:620px; align-self:start; }
 .cena .frase{ padding:14px 16px 0; font-size:14.5px; color:var(--sec); max-width:640px; min-height:44px; } .cena .frase b{ color:var(--texto); }
 #cv{ position:absolute; left:0; right:0; top:58px; bottom:30px; width:100%; height:calc(100% - 88px); cursor:crosshair; }
 .leg{ position:absolute; left:16px; right:16px; bottom:8px; display:flex; align-items:center; gap:8px; font-size:11px; color:var(--ter); }
@@ -99,7 +99,7 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .dpos{ color:var(--a); } .dneg{ color:#FF7A63; } .vfr{ color:var(--ter); }
 .mais{ display:block; width:100%; padding:12px; background:none; border:0; border-top:1px solid var(--linha); color:var(--sec); font:600 13px "Inter"; cursor:pointer; }
 @media (max-width:520px){ .tl{ grid-template-columns:22px minmax(0,1fr) 58px 62px 60px; gap:5px; padding:9px 12px; font-size:12.5px; } }
-@media (max-width:860px){ .corpo{ grid-template-columns:1fr; } .ficha{ border-left:0; border-top:1px solid var(--linha); min-height:0; } .cena{ min-height:470px; } }
+@media (max-width:860px){ .corpo{ grid-template-columns:1fr; } .ficha{ border-left:0; border-top:1px solid var(--linha); min-height:0; } .cena{ height:500px; } }
 @media (max-width:520px){ .barra-sel{ grid-template-columns:1fr; } .vs{ text-align:center; } .cand.b{ flex-direction:row; text-align:left; } .hero{ min-height:620px; } }
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
 </style>
@@ -140,6 +140,6 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
   <section class="tabela" id="tabela"></section>
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
-<script src="painel.js?cb=5"></script>
+<script src="painel.js?cb=6"></script>
 </body>
 </html>

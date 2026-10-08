@@ -540,3 +540,11 @@ async function tabela() {
   el.querySelectorAll("[data-ab]").forEach((r) => r.onclick = () => { const c = r.dataset.ab; st.abertos[c] = !st.abertos[c]; tabela(); });
   const m = $("#tabMais"); if (m) m.onclick = () => { st.todos = !st.todos; tabela(); };
 }
+
+// A ficha ao lado pode crescer (cidade selecionada) e esticar a área do gráfico:
+// redimensiona o canvas junto, sem animar, para os pontos não ficarem ovais.
+new ResizeObserver(() => {
+  if (!atual) return; const r = cv.getBoundingClientRect();
+  if (Math.round(r.width) === W && Math.round(r.height) === H) return;
+  medir(); atual = null; irPara(st.lente);
+}).observe(cv);
