@@ -219,7 +219,7 @@ const pn = (c) => c.u.replace(/^A /, "").split(" ")[0];
 // ---------------- desenho ----------------
 const base = document.createElement("canvas"), brilho = document.createElement("canvas");
 function medir() {
-  const r = cv.getBoundingClientRect(); DPR = Math.min(2, devicePixelRatio || 1);
+  const r = cv.getBoundingClientRect(); if (!r.width || !r.height) return; DPR = Math.min(2, devicePixelRatio || 1);
   W = Math.round(r.width); H = Math.round(r.height);
   for (const c of [cv, base, brilho]) { c.width = W * DPR; c.height = H * DPR; }
 }
@@ -238,6 +238,7 @@ function desenharEixos(c, e, a) {
   c.restore();
 }
 function quadro(p, ea, eb, t) {
+  if (!base.width) return;
   const c = base.getContext("2d"); c.setTransform(DPR, 0, 0, DPR, 0, 0);
   c.clearRect(0, 0, W, H);
   if (ea && t < 1) desenharEixos(c, ea, 1 - t);
@@ -404,7 +405,7 @@ const hero = (() => {
   let w, h, dpr, bx, by, br, nasc, cint = [], t0 = 0, nascido = false, rodando = false;
   const NASCER = 4.5, CRESCER = .7;
   function medir() {
-    const r = cvH.getBoundingClientRect(); dpr = Math.min(innerWidth < 760 ? 1.5 : 2, devicePixelRatio || 1); w = r.width; h = r.height;
+    const r = cvH.getBoundingClientRect(); if (!r.width || !r.height) return; dpr = Math.min(innerWidth < 760 ? 1.5 : 2, devicePixelRatio || 1); w = r.width; h = r.height;
     for (const c of [cvH, camada, blur]) { c.width = w * dpr; c.height = h * dpr; }
     const movel = innerWidth < 760, cx = movel ? { x0: 10, y0: 70, x1: w - 10, y1: h * .5 } : { x0: w * .4, y0: h * .06, x1: w * .98, y1: h * .94 };
     let lon0 = 1e9, lon1 = -1e9, lat0 = -1e9, lat1 = 1e9; M.forEach((m) => { lon0 = Math.min(lon0, m.lon); lon1 = Math.max(lon1, m.lon); lat0 = Math.max(lat0, m.lat); lat1 = Math.min(lat1, m.lat); });
@@ -425,7 +426,7 @@ const hero = (() => {
     const b = blur.getContext("2d"); b.setTransform(1, 0, 0, 1, 0, 0); b.clearRect(0, 0, blur.width, blur.height); b.filter = `blur(${10 * dpr}px)`; b.drawImage(camada, 0, 0); b.filter = "none";
   }
   function quadro(agora) {
-    const t = (agora - t0) / 1000; cH.setTransform(1, 0, 0, 1, 0, 0); cH.clearRect(0, 0, cvH.width, cvH.height);
+    if (!camada.width || !blur.width) return; const t = (agora - t0) / 1000; cH.setTransform(1, 0, 0, 1, 0, 0); cH.clearRect(0, 0, cvH.width, cvH.height);
     cH.globalAlpha = .6; cH.globalCompositeOperation = "lighter"; cH.drawImage(blur, 0, 0); cH.globalCompositeOperation = "source-over"; cH.globalAlpha = 1; cH.drawImage(camada, 0, 0);
     if (nascido) { cH.setTransform(dpr, 0, 0, dpr, 0, 0); cH.globalCompositeOperation = "lighter";
       for (const q of cint) { const v = (Math.sin(t / q.per * 6.283 + q.fase) + 1) / 2, a = v * v * .5; if (a < .03) continue; cH.globalAlpha = a; cH.fillStyle = "rgb(198,230,42)"; cH.beginPath(); cH.arc(bx[q.i], by[q.i], br[q.i] * (1 + .35 * v), 0, 6.2832); cH.fill(); }
@@ -497,8 +498,8 @@ async function secoes(ano, k) { const id = ano + k; if (!(id in SEC)) { try { SE
 const abrevLocal = (n) => String(n || "").replace(/^Escola de Educa[çc][ãa]o B[áa]sica /i, "EEB ").replace(/^Escola B[áa]sica Municipal /i, "EBM ").replace(/^Escola de Ensino Fundamental /i, "EEF ").replace(/^Escola Municipal /i, "EM ").replace(/^Centro de Educa[çc][ãa]o Infantil /i, "CEI ").replace(/^Escola /i, "Esc. ");
 // valores de uma linha: [col1, col2] — candidato só: [2022, 2026]; duelo: [A, B]
 function colsTab() { return st.B ? [pn(st.A), pn(st.B), "Dif."] : ["2022", "2026", "Dif."]; }
-async function arvoreMun(k) {
-  const A = st.A, B = st.B, s26 = await secoes(2026, k), s22 = !B && A.n22 ? await secoes(2022, k) : null;
+async function arvoreMun(k, A = st.A, B = st.B) {
+  const s26 = await secoes(2026, k), s22 = !B && A.n22 ? await secoes(2022, k) : null;
   if (!s26) return [];
   const pega = (s, cg, n) => ((s || {})[cg] || {})[n] || {};
   const vA = pega(s26, A.cargo, A.n), vB = B ? pega(s26, B.cargo, B.n) : pega(s22, A.cargo, A.n22);
@@ -514,7 +515,11 @@ function ordenar(lista) { // lista: [nome, x]
   const { col, dir } = st.ord;
   return lista.sort((p, q) => col === "nome" ? dir * p[0].localeCompare(q[0], "pt-BR") : dir * (valorOrd(p[1], col) - valorOrd(q[1], col)));
 }
-function linhaTab(cls, pos, nome, x, attr = "") {
+function linhaTab(cls, pos, nome, x, attr = "", duelo = !!st.B) {
+  const B0 = st.B; if (!duelo) st.B = null;
+  try { return linhaTab0(cls, pos, nome, x, attr); } finally { st.B = B0; }
+}
+function linhaTab0(cls, pos, nome, x, attr) {
   if (Number.isNaN(x[0])) return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="vfr">—</span><span><b>${ni(x[1])}</b></span><span class="vfr">—</span></div>`;
   const d = st.B ? x[0] - x[1] : x[1] - x[0], base = st.B ? 0 : x[0];
   const dTxt = `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}${!st.B && base ? `<span class="sub">${d >= 0 ? "+" : "−"}${nf(Math.abs(d) / base * 100)}%</span>` : ""}`;
@@ -557,7 +562,75 @@ async function tabela() {
 // A ficha ao lado pode crescer (cidade selecionada) e esticar a área do gráfico:
 // redimensiona o canvas junto, sem animar, para os pontos não ficarem ovais.
 new ResizeObserver(() => {
-  if (!atual) return; const r = cv.getBoundingClientRect();
+  if (!atual) return; const r = cv.getBoundingClientRect(); if (!r.width) return;
   if (Math.round(r.width) === W && Math.round(r.height) === H) return;
   medir(); atual = null; irPara(st.lente);
 }).observe(cv);
+
+// ---------------- Ranking: todos os candidatos do cargo, abrindo município → bairro → local → seção ----------------
+const rk = { cargo: "estadual", rec: null, busca: "", ord: { col: "t", dir: -1 }, aberto: null, abertos: {}, todos: false };
+const dentroRk = (i) => !rk.rec || M[i][rk.rec.tipo] === rk.rec.nome;
+function setaRk(o, col) { return `<span class="ord"><i class="up${o.col === col && o.dir > 0 ? " on" : ""}"></i><i class="dn${o.col === col && o.dir < 0 ? " on" : ""}"></i></span>`; }
+function montarRanking() {
+  $("#rkCargos").innerHTML = CARGOS.map(([c, r]) => `<button data-c="${c}" class="${rk.cargo === c ? "on" : ""}">${r}</button>`).join("");
+  $("#rkCargos").onclick = (e) => { const b = e.target.closest("[data-c]"); if (!b) return; rk.cargo = b.dataset.c; rk.aberto = null; rk.abertos = {}; rk.todos = false; montarRanking(); };
+  const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${rk.rec && rk.rec.tipo === tp && rk.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
+  $("#rkRecorte").innerHTML = `<option value="">Santa Catarina inteira</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
+  $("#rkRecorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); rk.rec = t ? { tipo: t, nome: n.join("|") } : null; rk.abertos = {}; tabelaRanking(); };
+  $("#rkBusca").value = rk.busca; $("#rkBusca").oninput = (e) => { rk.busca = e.target.value; tabelaRanking(); };
+  tabelaRanking();
+}
+async function tabelaRanking() {
+  const d = DADOS[rk.cargo], idx = [...Array(N).keys()].filter(dentroRk);
+  const val = idx.reduce((s, i) => s + d.val[i], 0);
+  let L = d.c.map((c) => { const t = rk.rec ? idx.reduce((s, i) => s + c.v[i], 0) : c.t; const t22 = c.v22 ? (rk.rec ? idx.reduce((s, i) => s + c.v22[i], 0) : c.t22) : null; return { c: { ...c, cargo: rk.cargo, val: d.val, val22: d.val22 }, t, t22, pct: val ? t / val * 100 : 0 }; });
+  L.sort((x, y) => y.t - x.t); L.forEach((x, k) => { x.pos = k + 1; });
+  const k = norm(rk.busca); if (k) L = L.filter((x) => norm(x.c.u + " " + x.c.p + " " + x.c.n + " " + x.c.nome).includes(k));
+  const { col, dir } = rk.ord, vO = (x) => col === "t" ? x.t : col === "t22" ? (x.t22 ?? -1) : col === "d" ? (x.t22 == null ? -1e12 : x.t - x.t22) : col === "pct" ? x.pct : 0;
+  L.sort((x, y) => col === "nome" ? dir * x.c.u.localeCompare(y.c.u, "pt-BR") : dir * (vO(x) - vO(y)));
+  const cab = (c, r) => `<span data-o="${c}" class="${col === c ? "on" : ""}">${r}${setaRk(rk.ord, c)}</span>`;
+  let h = `<h3>${CARGO_LBL[rk.cargo]} · ${rk.rec ? esc(rk.rec.nome) : "Santa Catarina"} · ${d.c.length} candidatos</h3><div class="tl cab"><span></span>${cab("nome", "Candidato")}${cab("t", "2026")}${cab("t22", "2022")}${cab("d", "Dif.")}${cab("pct", "%")}</div>`;
+  const lim = rk.todos || k ? L.length : 50;
+  for (const x of L.slice(0, lim)) {
+    const c = x.c, eleito = /^eleito/i.test(c.s || ""), ab = rk.aberto === c.n, dif = x.t22 == null ? null : x.t - x.t22;
+    h += `<div class="tl lin${ab ? " aberto" : ""}" data-rk="${c.n}"><span class="i">${x.pos}º</span><span class="rk-c"><span class="ft${eleito ? " el" : ""}">${foto(c)}</span><span class="tx"><b>${esc(c.u)}${eleito ? `<span class="chip e">${/m[ée]dia/i.test(c.s) ? "E-M" : "E-QP"}</span>` : /suplente/i.test(c.s || "") ? `<span class="chip s">Supl.</span>` : ""}${botoesLinks(c)}</b><span class="sub">${esc(c.p)} · nº ${c.n}</span></span></span><span><b>${ni(x.t)}</b></span><span class="vfr">${x.t22 == null ? "—" : ni(x.t22)}</span><span class="${dif == null ? "vfr" : dif >= 0 ? "dpos" : "dred"}">${dif == null ? "—" : `${dif >= 0 ? "+" : "−"}${ni(Math.abs(dif))}`}</span><span class="vfr">${nf(x.pct, 2)}%</span></div>`;
+    if (ab) {
+      h += `<div class="rk-acoes"><button data-acao="analisar">Analisar no painel</button><button data-acao="comparar">Comparar com o candidato do painel</button></div>`;
+      const ms = idx.map((i) => [M[i].n, [c.v22 ? c.v22[i] : 0, c.v[i]], i]).filter(([, v]) => v[0] || v[1]);
+      ordenar(ms);
+      for (const [nome, v, i] of ms.slice(0, rk.abertos["_todos" + c.n] ? ms.length : 15)) {
+        const ch = c.n + "|" + M[i].k, abM = rk.abertos[ch];
+        h += linhaTab("lin n1" + (abM ? " aberto" : ""), "", `${abM ? "▾" : "▸"} ${esc(nome)}`, v, ` data-rka="${esc(ch)}"`, false);
+        if (!abM) continue;
+        const nos = await arvoreMun(M[i].k, c, null);
+        for (const [bn, bx, bo] of ordenar(Object.entries(nos).map(([n, o]) => [n, o.x, o])).filter(([, z]) => z[0] || z[1])) {
+          const kb = ch + "|" + bn, abB = rk.abertos[kb];
+          h += linhaTab("lin n2" + (abB ? " aberto" : ""), "", `${abB ? "▾" : "▸"} ${esc(bn)}`, bx, ` data-rka="${esc(kb)}"`, false);
+          if (!abB) continue;
+          for (const [ln, lx, lo] of ordenar(Object.entries(bo.l).map(([n, o]) => [n, o.x, o])).filter(([, z]) => z[0] || z[1])) {
+            const kl = kb + "|" + ln, abL = rk.abertos[kl];
+            h += linhaTab("lin n3" + (abL ? " aberto" : ""), "", `${abL ? "▾" : "▸"} ${esc(ln)}`, lx, ` data-rka="${esc(kl)}"`, false);
+            if (abL) for (const [sk, q] of Object.entries(lo.s).sort((p, r) => r[1][1] - p[1][1])) { if (sk.startsWith("22:")) continue; const [z, n] = sk.split("::"); h += linhaTab("n3", "", `<span style="padding-left:12px">Seção ${n} <span class="sub">${z}ª zona</span></span>`, [NaN, q[1]], "", false); }
+          }
+        }
+      }
+      if (ms.length > 15) h += `<button class="mais" data-rkt="${c.n}">${rk.abertos["_todos" + c.n] ? "menos municípios" : `+ ${ms.length - 15} municípios`}</button>`;
+    }
+  }
+  if (L.length > lim) h += `<button class="mais" id="rkMais">+ ${L.length - lim} candidatos</button>`;
+  const el = $("#rkTab"); el.innerHTML = h;
+  el.querySelectorAll("[data-o]").forEach((s) => s.onclick = () => { const c = s.dataset.o; rk.ord = { col: c, dir: rk.ord.col === c ? -rk.ord.dir : (c === "nome" ? 1 : -1) }; tabelaRanking(); });
+  el.querySelectorAll("[data-rk]").forEach((r) => r.onclick = (e) => { if (e.target.closest("a")) return; rk.aberto = rk.aberto === r.dataset.rk ? null : r.dataset.rk; tabelaRanking(); });
+  el.querySelectorAll("[data-rka]").forEach((r) => r.onclick = () => { const c = r.dataset.rka; rk.abertos[c] = !rk.abertos[c]; tabelaRanking(); });
+  el.querySelectorAll("[data-rkt]").forEach((b) => b.onclick = () => { const c = "_todos" + b.dataset.rkt; rk.abertos[c] = !rk.abertos[c]; tabelaRanking(); });
+  el.querySelectorAll("[data-acao]").forEach((b) => b.onclick = () => { const ref = { cargo: rk.cargo, n: rk.aberto }; if (b.dataset.acao === "analisar") { st.a = ref; st.b = null; } else st.b = ref; trocarVista("painel"); trocouCandidato(); $("#painel").scrollIntoView({ behavior: "smooth" }); });
+  const m = $("#rkMais"); if (m) m.onclick = () => { rk.todos = true; tabelaRanking(); };
+}
+function trocarVista(v) {
+  document.querySelectorAll(".vistas button").forEach((b) => b.classList.toggle("on", b.dataset.vista === v));
+  $("#hero").hidden = v !== "painel"; $("#painel").hidden = v !== "painel"; $("#ranking").hidden = v !== "ranking";
+  if (v === "ranking") { if (!$("#rkTab").innerHTML) montarRanking(); scrollTo(0, 0); } else { medir(); atual = null; irPara(st.lente); hero.medir(); }
+  history.replaceState(null, "", location.search + (v === "ranking" ? "#ranking" : ""));
+}
+document.querySelectorAll(".vistas button").forEach((b) => b.onclick = () => trocarVista(b.dataset.vista));
+if (location.hash === "#ranking") { const t = setInterval(() => { if (M && LINKS) { clearInterval(t); trocarVista("ranking"); } }, 100); }

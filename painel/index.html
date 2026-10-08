@@ -99,13 +99,29 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .dpos{ color:var(--a); } .dneg{ color:#7FA4FF; } .dred{ color:#FF7A63; } .vfr{ color:var(--ter); }
 .mais{ display:block; width:100%; padding:12px; background:none; border:0; border-top:1px solid var(--linha); color:var(--sec); font:600 13px "Inter"; cursor:pointer; }
 @media (max-width:520px){ .tl{ grid-template-columns:22px minmax(0,1fr) 58px 62px 60px; gap:5px; padding:9px 12px; font-size:12.5px; } }
+.vistas{ margin-left:auto; display:flex; gap:4px; } .vistas button{ font:700 13px "Inter"; color:var(--sec); background:none; border:0; padding:7px 12px; border-radius:999px; cursor:pointer; } .vistas button.on{ color:var(--texto); background:rgba(242,244,245,.08); }
+.topo a.ent{ margin-left:8px; }
+.rk-cab{ padding:20px 0 8px; } .rk-tit{ font-size:clamp(34px,6vw,56px); font-weight:900; letter-spacing:-.045em; margin:6px 0 0; line-height:1; }
+.rk-ctl{ display:flex; flex-direction:column; gap:10px; margin:12px 0; } .rk-ctl .lentes{ padding:0; border:0; }
+.rk-busca{ font:14px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:10px; padding:8px 12px; min-width:240px; outline:none; }
+.tabela.rk .tl{ grid-template-columns:34px minmax(0,1fr) 80px 80px 86px 64px; }
+.tabela.rk .tl > span:nth-child(n+3){ text-align:right; }
+.rk-c{ display:flex; align-items:center; gap:10px; min-width:0; } .rk-c .ft{ width:34px; height:34px; border-radius:50%; padding:2px; background:#30353B; flex:none; } .rk-c .ft.el{ background:var(--a); }
+.rk-c .ft img, .rk-c .ft span{ width:100%; height:100%; border-radius:50%; object-fit:cover; object-position:50% 20%; display:flex; align-items:center; justify-content:center; background:#2A2E33; font-weight:800; font-size:13px; }
+.rk-c .tx{ min-width:0; } .rk-c b{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:block; }
+.chip{ display:inline-block; font-size:10px; font-weight:800; padding:1px 7px; border-radius:999px; margin-left:6px; vertical-align:1px; } .chip.e{ background:var(--a); color:#0B0D0E; } .chip.s{ background:rgba(242,244,245,.08); color:var(--sec); }
+.rk-acoes{ display:flex; gap:6px; padding:8px 16px 10px 60px; background:rgba(52,232,74,.05); border-top:1px solid var(--linha); flex-wrap:wrap; }
+.rk-acoes button{ font:600 12px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:999px; padding:6px 12px; cursor:pointer; }
+.tabela.rk .tl.n1, .tabela.rk .tl.n2, .tabela.rk .tl.n3{ grid-template-columns:34px minmax(0,1fr) 80px 80px 86px 64px; }
+@media (max-width:520px){ .tabela.rk .tl{ grid-template-columns:24px minmax(0,1fr) 62px 54px; } .tabela.rk .tl:not(.n1):not(.n2):not(.n3) > span:nth-child(4), .tabela.rk .tl:not(.n1):not(.n2):not(.n3) > span:nth-child(6){ display:none; }
+  .tabela.rk .tl.n1, .tabela.rk .tl.n2, .tabela.rk .tl.n3{ grid-template-columns:8px minmax(0,1fr) 54px 58px 62px; } .vistas button{ padding:6px 8px; } .topo .sep{ display:none; } }
 @media (max-width:860px){ .corpo{ grid-template-columns:1fr; } .ficha{ border-left:0; border-top:1px solid var(--linha); min-height:0; } .cena{ height:500px; } }
 @media (max-width:520px){ .barra-sel{ grid-template-columns:1fr; } .vs{ text-align:center; } .cand.b{ flex-direction:row; text-align:left; } .hero{ min-height:620px; } }
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
 </style>
 </head>
 <body>
-<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Santa Catarina · Resultado 2026</span><a class="ent" href="../?entrar=1">Entrar</a></header>
+<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Santa Catarina · Resultado 2026</span><nav class="vistas"><button data-vista="painel" class="on">Painel</button><button data-vista="ranking">Ranking</button></nav><a class="ent" href="../?entrar=1">Entrar</a></header>
 
 <section class="hero" id="hero">
   <div class="luz" id="heroLuz"></div>
@@ -139,7 +155,12 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
   </div>
   <section class="tabela" id="tabela"></section>
 </main>
+<main class="painel" id="ranking" hidden>
+  <div class="rk-cab"><div><div class="olho">Resultado 2026 · Santa Catarina</div><h2 class="rk-tit">Ranking dos candidatos</h2></div></div>
+  <div class="rk-ctl"><nav class="lentes rk-cargos" id="rkCargos"></nav><div class="filtros" style="padding:0"><label>Recorte <select id="rkRecorte"></select></label><input id="rkBusca" class="rk-busca" placeholder="Buscar nome, partido ou número"></div></div>
+  <section class="tabela rk" id="rkTab"></section>
+</main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
-<script src="painel.js?cb=9"></script>
+<script src="painel.js?cb=12"></script>
 </body>
 </html>
