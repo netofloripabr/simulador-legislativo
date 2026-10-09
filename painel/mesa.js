@@ -25,7 +25,7 @@ async function iniciar() {
   const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=1").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
-  COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão /, "").replace(/^de /, ""));
+  COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
   EST = e;
   const { data: cen } = await supabaseClient.from("mesa_cenarios").select("id,dados").eq("perfil_id", UID).order("atualizado_em", { ascending: false }).limit(1);
   if (cen && cen[0] && cen[0].dados && cen[0].dados.chapas) { CEN_ID = cen[0].id; S = cen[0].dados; }
