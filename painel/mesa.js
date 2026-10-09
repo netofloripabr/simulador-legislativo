@@ -22,7 +22,7 @@ async function iniciar() {
   const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
   const { data: admin } = await supabaseClient.rpc("sou_admin");
-  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=5").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
+  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=6").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
   COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
@@ -122,7 +122,7 @@ function patrimonio(n) {
   const ch = chapa(chDe(n)); const it = []; let v = 0;
   const GM = EST.gabinetes_mesa || {}, CC = EST.comissao_cargos || {}, add = (g, t, x) => { it.push([g, t, x || 0]); v += x || 0; };
   if (ch) {
-    for (const [k, x] of Object.entries(ch.mesa)) if (x === n) add("Mesa", `${k} · gabinete (${GM[k] ? GM[k].serv + " servidores" : "—"})`, GM[k] && GM[k].t);
+    for (const [k, x] of Object.entries(ch.mesa)) if (x === n) add("Mesa", `${k} · gabinete: ${GM[k] ? `${GM[k].serv} servidores na folha; lei permite até ${GM[k].cargos_max} cargos PL/GAM, cota ${fm(GM[k].cota)}` : "—"}`, GM[k] && GM[k].t);
     for (const [c, x] of Object.entries(ch.pres)) if (x === n) { const e = comEst(c), sec = e ? e.cc[1] : 0, fg = COM9.test(norm(c)) && !/etica/.test(norm(c)) ? CC.fg5 : CC.fg3; add("Comissão", `Presidência · ${c} · Assessor de Comissão (GAC-59) + ${fg === CC.fg5 ? "FG-5" : "FG-3"}`, sec + (fg || 0)); }
     const mem = Object.entries(ch.com).filter(([c, l]) => l.includes(n)).map(([c]) => c);
     if (mem.length) add("Comissão", `Membro de ${mem.length} comiss${mem.length > 1 ? "ões" : "ão"} · Assessor de Membro (GAC-45)${CC.assessor_membro ? "" : " (valor a confirmar)"}`, CC.assessor_membro);
