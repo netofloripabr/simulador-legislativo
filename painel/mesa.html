@@ -57,7 +57,7 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 .det > div{ border:1px solid var(--linha); border-radius:10px; padding:9px 11px; } .det span{ display:block; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); } .det b{ font-size:17px; } .det i{ font-style:normal; font-size:12px; color:var(--sec); margin-left:6px; }
 .mais{ display:block; width:100%; text-align:left; padding:11px 16px; border:0; border-top:1px solid var(--linha); background:none; color:var(--sec); font-size:13px; cursor:pointer; }
 .gav{ transition:width .45s cubic-bezier(.2,.8,.2,1), padding .45s; position:sticky; top:70px; align-self:start; width:330px; max-height:calc(100vh - 86px); background:#151B1D; border-left:2px solid #34E84A; border-radius:16px 0 0 16px; padding:4px 16px 14px 22px; overflow:auto; box-shadow:-18px 0 40px -20px rgba(0,0,0,.6); }
-.gav.fechada{ width:30px; padding:0; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:400px; } .gav > *{ transition:opacity .25s; } .gav.fechada > *:not(.vert){ opacity:0; pointer-events:none; position:absolute; } .gav .vert{ display:none; } .gav.fechada .vert{ display:block; writing-mode:vertical-rl; transform:rotate(180deg); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:#34E84A; }
+.gav.fechada{ background:#34E84A; width:30px; padding:0; overflow:hidden; display:flex; align-items:center; justify-content:center; cursor:pointer; min-height:400px; } .gav > *{ transition:opacity .25s; } .gav.fechada > *:not(.vert){ opacity:0; pointer-events:none; position:absolute; } .gav .vert{ display:none; } .gav.fechada .vert{ display:block; writing-mode:vertical-rl; transform:rotate(180deg); font-size:10.5px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:#2A2F33; }
 .alca{ display:flex; align-items:center; justify-content:center; gap:4px; width:64px; height:18px; margin:10px auto 0; border-radius:9px; background:#0F1314; border:1px solid #34E84A; cursor:pointer; }
 .alca i{ width:16px; height:2px; border-radius:2px; background:#34E84A; }
 .pcab{ display:flex; justify-content:space-between; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); padding:4px 2px 8px; clear:both; } .pcab span{ cursor:pointer; } .pcab span.on{ color:var(--texto); }
@@ -87,6 +87,6 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=1"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="mesa.js?cb=9"></script>
+<script src="mesa.js?cb=10"></script>
 </body>
 </html>
