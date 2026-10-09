@@ -22,7 +22,7 @@ async function iniciar() {
   const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
   const { data: admin } = await supabaseClient.rpc("sou_admin");
-  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=1").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
+  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=2").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
   COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
@@ -34,6 +34,7 @@ async function iniciar() {
   // nomes antigos de comissão ("dos Direitos…") → nome atual; descarta presidências órfãs
   const chaveCom = (k) => COMS.find((c) => norm(c) === norm(k.replace(/^(de|dos|das|da|do) /i, ""))) || null;
   for (const c of S.chapas) for (const campo of ["com", "pres"]) { const o = c[campo] || {}, n = {}; for (const [k, v] of Object.entries(o)) { const k2 = chaveCom(k); if (k2 && !(k2 in n && campo === "com" && (n[k2] || []).some(Boolean))) n[k2] = v; } c[campo] = n; }
+  for (const c of S.chapas) delete (c.out || {})["Diretoria de Gestao de Pessoas - Sem Lotacao"];
   for (const c of S.chapas) for (const [k, n] of Object.entries(c.pres)) if (!(c.com[k] || []).includes(n)) delete c.pres[k];
   S.ui = { aba: S.chapas[0].id, comAb: null, estAb: null, mais: {}, pat: { col: "v", dir: -1 }, patAb: null, gav: true, qAb: false, selB: null };
   desenhar(!!admin);
