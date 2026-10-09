@@ -133,6 +133,8 @@ function patrimonio(n) {
 // ---------------- desenho ----------------
 let ADMIN = false;
 function desenhar(admin) {
+  // cargos de estrutura sem dono ficam com o presidente da chapa (exceto os marcados "Deixar vago")
+  for (const c of S.chapas) { const pr = c.mesa["Presidente"]; if (!pr) continue; c.out = c.out || {}; const vg = c.outVago || []; for (const L of Object.values(EST.grupos || {})) for (const x of L) if (!c.out[x.n] && !vg.includes(x.n)) c.out[x.n] = pr; }
   if (admin !== undefined) ADMIN = admin;
   const ch = chapa(S.ui.aba) || S.chapas[0]; S.ui.aba = ch.id;
   const y = scrollY;
@@ -293,8 +295,8 @@ function ligar(ch0) { let ch = ch0;
     if (ds.presc) { const c = ds.presc, l = (ch.com[c] || []).filter(Boolean); if (!l.length) return escolher(c, "Preencha as vagas da comissão primeiro; o presidente é escolhido entre os membros.", () => false, () => {}); return escolher(`Presidente · ${c}`, "Entre os membros da comissão · cada deputado preside no máximo uma comissão", (d) => l.includes(d.n) && !Object.entries(ch.pres).some(([k, v]) => v === d.n && k !== c), (n, x) => { if (x === "tirar") { delete ch.pres[c]; return; } for (const k in ch.pres) if (ch.pres[k] === n) delete ch.pres[k]; ch.pres[c] = n; }, ch.pres[c] ? `<button class="bt" data-extra="tirar">Sem presidente</button>` : ""); }
     if (ds.vaga) { const [c, i] = ds.vaga.split("|"), bl = slotsCom(c)[+i]; ORDEM_BLOCO = S.blocos.find((x) => nomeB(x) === bl) || [bl]; return escolher(`${c} · vaga ${+i + 1}`, `Vaga do bloco <b>${esc(bl)}</b>. Membros da Mesa não ocupam vaga.`, (d) => !Object.values(S.chapas).some((x) => naMesa(x, d.n)) && !(ch.com[c] || []).includes(d.n), (n, x) => { if (x === "vago") { const o = ch.com[c][+i]; ch.com[c][+i] = null; if (ch.pres[c] === o) delete ch.pres[c]; return; } ch.com[c][+i] = n; }, (ch.com[c] || [])[+i] ? `<button class="bt" data-extra="vago">Deixar vaga</button>` : ""); }
     if (ds.com) { S.ui.comAb = S.ui.comAb === ds.com ? null : ds.com; return desenhar(); }
-    if (ds.atrib) { const k = ds.atrib; ORDEM_CH = ch.id; return escolher(acento(k), `${nomeCh(ch)} · uma vez por chapa · quem é de outra chapa ou sem chapa passa a votar nesta`, () => true, (n, x) => { if (x === "vago") { delete ch.out[k]; return; } if (chDe(n) !== ch.id) poeNaChapa(n, ch); ch.out[k] = n; }, ch.out[k] ? `<button class="bt" data-extra="vago">Deixar vago</button>` : ""); }
-    if (ds.desatrib) { delete ch.out[ds.desatrib]; return desenhar(); }
+    if (ds.atrib) { const k = ds.atrib; ORDEM_CH = ch.id; return escolher(acento(k), `${nomeCh(ch)} · uma vez por chapa · quem é de outra chapa ou sem chapa passa a votar nesta`, () => true, (n, x) => { if (x === "vago") { delete ch.out[k]; ch.outVago = [...new Set([...(ch.outVago || []), k])]; return; } ch.outVago = (ch.outVago || []).filter((v) => v !== k); if (chDe(n) !== ch.id) poeNaChapa(n, ch); ch.out[k] = n; }, ch.out[k] ? `<button class="bt" data-extra="vago">Deixar vago</button>` : ""); }
+    if (ds.desatrib) { delete ch.out[ds.desatrib]; ch.outVago = [...new Set([...(ch.outVago || []), ds.desatrib])]; return desenhar(); }
     if (ds.est) { S.ui.estAb = S.ui.estAb === ds.est ? null : ds.est; return desenhar(); }
     if (ds.mais) { S.ui.mais[ds.mais] = !S.ui.mais[ds.mais]; return desenhar(); }
     if (ds.gav) { S.ui.gav = !S.ui.gav; const g = $(".gav"); g.classList.toggle("fechada", !S.ui.gav); return; }
