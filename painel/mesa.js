@@ -117,6 +117,7 @@ function secMesa(ch) {
   const livres = DEP.filter((d) => !chDe(d.n));
   let h = `<p class="conta" style="max-width:640px">Monte a Mesa de cada chapa e arraste as cartas dos deputados para os votos da chapa. Cada deputado vota em uma chapa só: arrastar para outra tira o voto e o cargo da anterior. Toque numa carta para marcar dúvida ou tirar.</p>`;
   h += `<div class="zona" data-drop=""><div class="rot" style="margin-top:6px">Ainda sem voto · ${livres.length}</div><div class="cards">${livres.map((d) => cartaDep(d, "#3A3F45")).join("") || `<span class="conta">Todos os 40 já votam em alguma chapa.</span>`}</div></div>`;
+  h += `<div class="chgrid" style="--n:${Math.min(3, S.chapas.length)}">`;
   for (const c of S.chapas) {
     const al = membros(c).filter((d) => !naMesa(c, d.n)), nm = Object.keys(c.mesa).length, v = votos(c), falta = Math.max(0, MAIORIA - v);
     const mesa = MESA.map((k) => { const n = c.mesa[k], d = n && dep(n), pres = k === "Presidente";
@@ -126,6 +127,7 @@ function secMesa(ch) {
       <div class="rot">Mesa · ${nm}/7</div><div class="cards">${mesa}</div>
       <div class="zona" data-drop="${c.id}"><div class="rot">Votos · ${nm} na Mesa + ${al.filter((d) => !S.dep[d.n].duv).length} aliados · solte as cartas aqui</div><div class="cards">${al.map((d) => cartaDep(d, c.cor)).join("")}${Array.from({ length: Math.min(falta, 6) }, () => `<div class="card sm vazio" data-aliado="${c.id}"><b>+</b></div>`).join("")}</div></div></div>`;
   }
+  h += `</div>`;
   return h;
 }
 function secCom(ch) {
