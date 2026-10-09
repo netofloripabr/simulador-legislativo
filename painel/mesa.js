@@ -335,6 +335,27 @@ async function arquivo(ch) {
 }
 
 // ---------------- eventos ----------------
+function soltarDep(n, z) {
+  if (z.dataset.dropmesa) { const [cid, k] = z.dataset.dropmesa.split("|"), c = chapa(cid); poeNaChapa(n, c); for (const x in c.mesa) if (c.mesa[x] === n) delete c.mesa[x]; for (const x in c.com) c.com[x] = c.com[x].map((y) => y === n ? null : y); for (const x in c.pres) if (c.pres[x] === n) delete c.pres[x]; c.mesa[k] = n; }
+  else if (z.dataset.drop) { const c = chapa(z.dataset.drop); if (chDe(n) === c.id) { for (const x in c.mesa) if (c.mesa[x] === n) delete c.mesa[x]; } else poeNaChapa(n, c); }
+  else { tiraDeTudo(n, chapa(chDe(n))); delete S.dep[n]; }
+}
+const TOQUE = matchMedia("(pointer: coarse)").matches;
+function toque(e) {
+  if (!TOQUE) return;
+  const pare = () => { e.stopPropagation(); e.preventDefault(); desenhar(); }, tq = S.ui.tq;
+  const chip = e.target.closest("[data-dp],[data-dbl=tesoura]");
+  if (chip) { const k = chip.dataset.dp, alvo = chip.dataset.dbl;
+    if (tq && tq.t === "bl" && tq.k !== k) { moverPartido(tq.k, alvo); S.ui.tq = null; return pare(); }
+    if (k && !(tq && tq.k === k)) { S.ui.tq = { t: "bl", k }; return pare(); }
+    if (tq && tq.k === k) { S.ui.tq = null; if (!chip.dataset.renb) return pare(); return; } return; }
+  const carta = e.target.closest("[data-arr]"), zona = e.target.closest("[data-dropmesa],[data-drop]");
+  if (tq && tq.t === "dep") {
+    if (carta && carta.dataset.arr === tq.k) { S.ui.tq = null; return; } // 2º toque na mesma carta abre o menu
+    if (zona && !(carta && carta.dataset.arr !== tq.k && !zona.dataset.dropmesa)) { soltarDep(tq.k, zona); S.ui.tq = null; return pare(); }
+  }
+  if (carta) { S.ui.tq = { t: "dep", k: carta.dataset.arr }; return pare(); }
+}
 function ligar(ch0) { let ch = ch0;
   document.querySelectorAll("[data-dp]").forEach((c) => { c.ondragstart = (e) => { e.dataTransfer.setData("text/partido", c.dataset.dp); e.dataTransfer.effectAllowed = "move"; e.stopPropagation(); }; });
   document.querySelectorAll("[data-dbl]").forEach((z) => { z.ondragover = (e) => { if (e.dataTransfer.types.includes("text/partido")) { e.preventDefault(); z.classList.add("sobre"); } }; z.ondragleave = () => z.classList.remove("sobre"); z.ondrop = (e) => { const p = e.dataTransfer.getData("text/partido"); if (!p) return; e.preventDefault(); e.stopPropagation(); moverPartido(p, z.dataset.dbl); desenhar(); }; });
@@ -343,12 +364,11 @@ function ligar(ch0) { let ch = ch0;
   document.querySelectorAll("[data-arr]").forEach((c) => { c.ondragstart = (e) => { arr = c.dataset.arr; e.dataTransfer.setData("text/plain", arr); e.dataTransfer.effectAllowed = "move"; c.style.opacity = ".4"; }; c.ondragend = () => { c.style.opacity = ""; }; });
   document.querySelectorAll("[data-drop],[data-dropmesa]").forEach((z) => {
     z.ondragover = (e) => { e.preventDefault(); z.classList.add("sobre"); }; z.ondragleave = () => z.classList.remove("sobre");
-    z.ondrop = (e) => { e.preventDefault(); e.stopPropagation(); z.classList.remove("sobre"); const n = arr || e.dataTransfer.getData("text/plain"); arr = null; if (!n) return;
-      if (z.dataset.dropmesa) { const [cid, k] = z.dataset.dropmesa.split("|"), c = chapa(cid); poeNaChapa(n, c); for (const x in c.mesa) if (c.mesa[x] === n) delete c.mesa[x]; for (const x in c.com) c.com[x] = c.com[x].map((y) => y === n ? null : y); for (const x in c.pres) if (c.pres[x] === n) delete c.pres[x]; c.mesa[k] = n; }
-      else if (z.dataset.drop) { const c = chapa(z.dataset.drop); if (chDe(n) === c.id) { for (const x in c.mesa) if (c.mesa[x] === n) delete c.mesa[x]; } else poeNaChapa(n, c); }
-      else { tiraDeTudo(n, chapa(chDe(n))); delete S.dep[n]; }
-      desenhar(); };
+    z.ondrop = (e) => { e.preventDefault(); e.stopPropagation(); z.classList.remove("sobre"); const n = arr || e.dataTransfer.getData("text/plain"); arr = null; if (!n) return; soltarDep(n, z); desenhar(); };
   });
+  // celular: tocar numa carta/etiqueta seleciona; tocar no destino move (mesmo efeito do arrastar)
+  const A0 = $("#app"); if (A0 && !A0.dataset.toque) { A0.dataset.toque = 1; A0.addEventListener("click", toque, true); }
+  if (S.ui.tq) { const el = document.querySelector(S.ui.tq.t === "bl" ? `[data-dp="${CSS.escape(S.ui.tq.k)}"]` : `[data-arr="${S.ui.tq.k}"]`); if (el) el.classList.add("tq"); else S.ui.tq = null; }
   const A = $("#app");
   A.onclick = (e) => {
     const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
