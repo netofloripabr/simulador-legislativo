@@ -200,21 +200,16 @@ const chCom = () => chapa(S.ui.abaCom) || chapa(S.ui.aba) || S.chapas[0];
 const chOut = () => chapa(S.ui.abaOut) || chapa(S.ui.aba) || S.chapas[0];
 function seletorCh(ch, sec) { return `<div class="selch"><span>Montando para</span>${S.chapas.map((c) => `<button data-chsec="${sec}|${c.id}" class="${c.id === ch.id ? "on" : ""}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))}</button>`).join("")}</div>`; }
 // editor de blocos por arrastar: chip = partido; caixa = bloco; bandeja = partidos sem bloco; zona "novo" começa um bloco
-const chipP = (p) => `<span class="pch" draggable="true" data-dp="${esc(p)}">${esc(p)} <i>${nB([p])}</i></span>`;
+// blocos por etiquetas: arrastar uma etiqueta sobre outra funde; soltar na tesoura separa
+const TESOURA = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>`;
 function editorBlocos() {
-  const semente = S.ui.semente && S.blocos.some((b) => b.length === 1 && b[0] === S.ui.semente) ? S.ui.semente : null;
-  const soltos = S.blocos.filter((b) => b.length === 1 && b[0] !== semente).map((b) => b[0]);
-  return `${S.blocos.filter((b) => b.length > 1).map((b) => `<div class="blk dz" data-dbl="${esc(b.join("+"))}"><b data-renb="${esc(b.join("+"))}" title="Renomear">${esc(nomeB(b))}</b><span>${nB(b)} deputados</span><button class="mini" data-desfb="${esc(b.join("+"))}">Desfazer</button><div class="pchs">${b.map(chipP).join("")}</div></div>`).join("")}
-    <div class="blk novo dz" data-dbl="novo"><span>${semente ? "Solte mais um partido para formar o bloco" : "Solte aqui um partido para começar um novo bloco"}</span><div class="pchs">${semente ? chipP(semente) : ""}</div></div>
-    <div class="dz band" data-dbl="sem"><span class="r">Partidos sem bloco</span><div class="pchs">${soltos.map(chipP).join("") || `<span class="r">todos estão em blocos</span>`}</div></div>`;
+  return `<div class="pchs"><span class="pch tes dz" data-dbl="tesoura" title="Solte um bloco aqui para separar">${TESOURA}</span>${S.blocos.map((b) => { const k = b.join("+"); return `<span class="pch dz${b.length > 1 ? " bl" : ""}" draggable="true" data-dp="${esc(k)}" data-dbl="${esc(k)}"${b.length > 1 ? ` data-renb="${esc(k)}" title="${esc(b.join(", "))} · clique para renomear"` : ""}>${esc(nomeB(b))} <i>${nB(b)}</i></span>`; }).join("")}</div>`;
 }
-function moverPartido(p, alvo) {
-  const ori = S.blocos.find((b) => b.includes(p)); if (!ori) return;
-  if (alvo === "novo") { if (S.ui.semente && S.ui.semente !== p && S.blocos.some((b) => b.length === 1 && b[0] === S.ui.semente)) { alvo = S.ui.semente; S.ui.semente = null; } else { if (ori.length > 1) { ori.splice(ori.indexOf(p), 1); S.blocos.push([p]); } S.ui.semente = p; return; } }
-  else if (S.ui.semente === p) S.ui.semente = null;
-  if (alvo === "sem") { if (ori.length > 1) { ori.splice(ori.indexOf(p), 1); S.blocos.push([p]); } }
-  else { const dst = S.blocos.find((b) => b.join("+") === alvo || (b.length === 1 && b[0] === alvo)); if (!dst || dst === ori) return; ori.splice(ori.indexOf(p), 1); dst.push(p); }
-  S.blocos = S.blocos.filter((b) => b.length); S.blocos.sort((x, y) => nB(y) - nB(x));
+function moverPartido(k, alvo) {
+  const ori = S.blocos.find((b) => b.join("+") === k); if (!ori || alvo === k) return;
+  if (alvo === "tesoura") { if (ori.length < 2) return; S.blocos = S.blocos.filter((b) => b !== ori); ori.forEach((p) => S.blocos.push([p])); }
+  else { const dst = S.blocos.find((b) => b.join("+") === alvo); if (!dst) return; S.blocos = S.blocos.filter((b) => b !== ori); dst.push(...ori); }
+  S.blocos.sort((x, y) => nB(y) - nB(x));
 }
 // composição real formada em fev/2025 (Agência ALESC, 05/02/2025) — partidos daquela legislatura
 function legenda2025() {
@@ -237,7 +232,7 @@ function secCom(ch) {
   let h = outras.length ? `<div class="selch" style="margin-top:-6px"><span>Copiar composição de</span>${outras.map((c) => `<button data-copiar="${c.id}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))}</button>`).join("")}</div>` : "";
   h += `<button class="qb" data-q="1">÷ Quociente das comissões ${S.ui.qAb ? "▾" : "▸"}</button>`;
   if (S.ui.qAb) h += `<div class="qbox"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). A vaga reservada vai ao conjunto dos partidos com menos de 5 deputados; as demais, às maiores frações (empate: maior bancada). Membros da Mesa contam na base de 40, mas não ocupam vaga. CCJ, Finanças, Trabalho e Ética têm 9 membros; as demais, 7.</p>
-    <div class="conta" style="margin:0 12px 8px">Blocos parlamentares · arraste os partidos para dentro ou para fora de um bloco</div>
+    <div class="conta" style="margin:0 12px 8px">Blocos parlamentares · arraste uma etiqueta sobre outra para formar bloco; solte na tesoura para separar</div>
     <div style="margin:0 12px 12px">${editorBlocos()}</div>
     ${legenda2025()}
     ${quocTabela()}
