@@ -199,6 +199,28 @@ function secMesa(ch) {
 const chCom = () => chapa(S.ui.abaCom) || chapa(S.ui.aba) || S.chapas[0];
 const chOut = () => chapa(S.ui.abaOut) || chapa(S.ui.aba) || S.chapas[0];
 function seletorCh(ch, sec) { return `<div class="selch"><span>Montando para</span>${S.chapas.map((c) => `<button data-chsec="${sec}|${c.id}" class="${c.id === ch.id ? "on" : ""}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))}</button>`).join("")}</div>`; }
+// editor de blocos por arrastar: chip = partido; caixa = bloco; bandeja = partidos sem bloco; zona "novo" começa um bloco
+const chipP = (p) => `<span class="pch" draggable="true" data-dp="${esc(p)}">${esc(p)} <i>${nB([p])}</i></span>`;
+function editorBlocos() {
+  const semente = S.ui.semente && S.blocos.some((b) => b.length === 1 && b[0] === S.ui.semente) ? S.ui.semente : null;
+  const soltos = S.blocos.filter((b) => b.length === 1 && b[0] !== semente).map((b) => b[0]);
+  return `${S.blocos.filter((b) => b.length > 1).map((b) => `<div class="blk dz" data-dbl="${esc(b.join("+"))}"><b data-renb="${esc(b.join("+"))}" title="Renomear">${esc(nomeB(b))}</b><span>${nB(b)} deputados</span><button class="mini" data-desfb="${esc(b.join("+"))}">Desfazer</button><div class="pchs">${b.map(chipP).join("")}</div></div>`).join("")}
+    <div class="blk novo dz" data-dbl="novo"><span>${semente ? "Solte mais um partido para formar o bloco" : "Solte aqui um partido para começar um novo bloco"}</span><div class="pchs">${semente ? chipP(semente) : ""}</div></div>
+    <div class="dz band" data-dbl="sem"><span class="r">Partidos sem bloco</span><div class="pchs">${soltos.map(chipP).join("") || `<span class="r">todos estão em blocos</span>`}</div></div>`;
+}
+function moverPartido(p, alvo) {
+  const ori = S.blocos.find((b) => b.includes(p)); if (!ori) return;
+  if (alvo === "novo") { if (S.ui.semente && S.ui.semente !== p && S.blocos.some((b) => b.length === 1 && b[0] === S.ui.semente)) { alvo = S.ui.semente; S.ui.semente = null; } else { if (ori.length > 1) { ori.splice(ori.indexOf(p), 1); S.blocos.push([p]); } S.ui.semente = p; return; } }
+  else if (S.ui.semente === p) S.ui.semente = null;
+  if (alvo === "sem") { if (ori.length > 1) { ori.splice(ori.indexOf(p), 1); S.blocos.push([p]); } }
+  else { const dst = S.blocos.find((b) => b.join("+") === alvo || (b.length === 1 && b[0] === alvo)); if (!dst || dst === ori) return; ori.splice(ori.indexOf(p), 1); dst.push(p); }
+  S.blocos = S.blocos.filter((b) => b.length); S.blocos.sort((x, y) => nB(y) - nB(x));
+}
+// composição real formada em fev/2025 (Agência ALESC, 05/02/2025) — partidos daquela legislatura
+function legenda2025() {
+  const B = [["PL", "partido", "2"], ["Bloco Social Democrático", "MDB + PSDB", "2"], ["Bloco PRD-PSD-União", "PRD + PSD + União", "2"], ["Bloco Democracia, Inclusão Social e Igualdade", "PT + PSOL", "1"], ["Podemos-Novo-Republicanos", "bloco", "1"], ["Partidos com menos de 5 deputados", "PP + PDT · vaga compartilhada", "1"]];
+  return `<div class="leg25"><div class="r">Composição atual · formada em fevereiro de 2025 · vagas nas comissões de 9</div>${B.map(([n, p, v]) => `<div><b>${esc(n)}</b><span>${esc(p)}</span><i>${v}</i></div>`).join("")}<p>Legislatura 2023–2027, biênio 2025–2027. Partidos daquela eleição; nas de 7 membros, PL tem 2 e os demais 1. Fonte: Agência ALESC, 05/02/2025.</p></div>`;
+}
 function quocTabela() { const A = dist(9), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return (() => { const BL = A.L.map((x) => nomeB(x.b)), dep_ = A.L.map((x) => x.d), linha = (c) => { const sl = slotsCom(c); return `<tr><td>${esc(c)}</td><td class="f">${sl.length}</td>${BL.map((b) => { const v = sl.filter((y) => y === b).length; return `<td>${v ? `<b>${v}</b>` : `<span style="color:#3A3F45">·</span>`}</td>`; }).join("")}</tr>`; };
       const tot = BL.map((b) => COMS.reduce((s2, c) => s2 + slotsCom(c).filter((y) => y === b).length, 0));
       return `<div style="overflow-x:auto"><table class="qt mz"><tr><th>Comissão</th><th>Vagas</th>${BL.map((b, k) => `<th class="bc"><span class="bn">${esc(b).replace(/ \+ /g, " +<br>")}</span><span class="bd">${dep_[k]} dep.</span></th>`).join("")}</tr>
@@ -215,9 +237,9 @@ function secCom(ch) {
   let h = outras.length ? `<div class="selch" style="margin-top:-6px"><span>Copiar composição de</span>${outras.map((c) => `<button data-copiar="${c.id}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))}</button>`).join("")}</div>` : "";
   h += `<button class="qb" data-q="1">÷ Quociente das comissões ${S.ui.qAb ? "▾" : "▸"}</button>`;
   if (S.ui.qAb) h += `<div class="qbox"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). A vaga reservada vai ao conjunto dos partidos com menos de 5 deputados; as demais, às maiores frações (empate: maior bancada). Membros da Mesa contam na base de 40, mas não ocupam vaga. CCJ, Finanças, Trabalho e Ética têm 9 membros; as demais, 7.</p>
-    <div class="conta" style="margin:0 12px 8px">Blocos parlamentares</div>
-    <div style="margin:0 12px 12px">${S.blocos.filter((b) => b.length > 1).map((b) => `<div class="blk"><b>${esc(nomeB(b))}</b><span>${esc(b.join(", "))} · ${nB(b)} deputados</span><button class="mini" data-desfb="${esc(b.join("+"))}">Desfazer</button></div>`).join("")}
-      ${S.ui.novoB ? `<div class="blk novo"><input id="nbNome" placeholder="Nome do bloco (ex.: Bloco Parlamentar Democrático)"><div class="chk">${S.blocos.filter((b) => b.length === 1).map((b) => `<label><input type="checkbox" value="${esc(b[0])}"> ${esc(b[0])} · ${nB(b)}</label>`).join("")}</div><button class="mini" data-salvab="1">Criar bloco</button> <button class="mini" data-novob="0">Cancelar</button></div>` : `<button class="mini" data-novob="1">+ Novo bloco</button>`}</div>
+    <div class="conta" style="margin:0 12px 8px">Blocos parlamentares · arraste os partidos para dentro ou para fora de um bloco</div>
+    <div style="margin:0 12px 12px">${editorBlocos()}</div>
+    ${legenda2025()}
     ${quocTabela()}
   </div>`;;
   const linhas = COMS.map((c) => {
@@ -319,6 +341,8 @@ async function arquivo(ch) {
 
 // ---------------- eventos ----------------
 function ligar(ch0) { let ch = ch0;
+  document.querySelectorAll("[data-dp]").forEach((c) => { c.ondragstart = (e) => { e.dataTransfer.setData("text/partido", c.dataset.dp); e.dataTransfer.effectAllowed = "move"; e.stopPropagation(); }; });
+  document.querySelectorAll("[data-dbl]").forEach((z) => { z.ondragover = (e) => { if (e.dataTransfer.types.includes("text/partido")) { e.preventDefault(); z.classList.add("sobre"); } }; z.ondragleave = () => z.classList.remove("sobre"); z.ondrop = (e) => { const p = e.dataTransfer.getData("text/partido"); if (!p) return; e.preventDefault(); e.stopPropagation(); moverPartido(p, z.dataset.dbl); desenhar(); }; });
   // arrastar cartas (mouse) — no toque, o clique abre o seletor
   let arr = null;
   document.querySelectorAll("[data-arr]").forEach((c) => { c.ondragstart = (e) => { arr = c.dataset.arr; e.dataTransfer.setData("text/plain", arr); e.dataTransfer.effectAllowed = "move"; c.style.opacity = ".4"; }; c.ondragend = () => { c.style.opacity = ""; }; });
@@ -332,7 +356,7 @@ function ligar(ch0) { let ch = ch0;
   });
   const A = $("#app");
   A.onclick = (e) => {
-    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
     if (!t) return; const ds = t.dataset;
     if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
     if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
@@ -352,6 +376,7 @@ function ligar(ch0) { let ch = ch0;
       <div class="rot" style="margin-top:4px">Chapas</div><div class="chk" id="impCh">${S.chapas.map((c) => `<label><input type="checkbox" value="${c.id}" checked> ${esc(nomeCh(c))}</label>`).join("")}</div>
       <div class="rot">Seções</div><div class="chk" id="impSec">${[["mesa", "Mesa e votos"], ["duelo", "Duelo (placar lado a lado)"], ["com", "Comissões"], ["out", "Outros cargos"], ["pat", "Patrimônio dos deputados"], ["quoc", "Quociente e blocos"]].map(([k, r]) => `<label><input type="checkbox" value="${k}" checked> ${r}</label>`).join("")}</div>
       <button class="bt" data-gerar="1" style="color:#0B0D0E;background:#34E84A;border-color:#34E84A;font-weight:700">Gerar documento</button><button class="bt" data-fechar="1">Fechar</button></div>`; el.hidden = false; el.onclick = (ev) => { if (ev.target.closest(".f,[data-fechar]")) el.hidden = true; if (ev.target.closest("[data-gerar]")) { const chs = [...el.querySelectorAll("#impCh input:checked")].map((x) => x.value), secs = [...el.querySelectorAll("#impSec input:checked")].map((x) => x.value); el.hidden = true; imprimir(chs, secs); } }; return; }
+    if (ds.renb) { const nm = prompt("Nome do bloco", nomeB(ds.renb.split("+"))); if (nm !== null) { S.nomes = S.nomes || {}; S.nomes[ds.renb.split("+").sort().join("+")] = nm.trim() || undefined; } return desenhar(); }
     if (ds.desfb) { const b = S.blocos.find((x) => x.join("+") === ds.desfb); S.blocos = S.blocos.filter((x) => x !== b); b.forEach((p) => S.blocos.push([p])); S.blocos.sort((x, y) => nB(y) - nB(x)); return desenhar(); }
     if (ds.novob !== undefined) { S.ui.novoB = ds.novob === "1"; return desenhar(); }
     if (ds.salvab) { const ps = [...document.querySelectorAll(".blk.novo input[type=checkbox]:checked")].map((x) => x.value); if (ps.length < 2) { alert("Marque pelo menos dois partidos."); return; } S.blocos = S.blocos.filter((b) => !(b.length === 1 && ps.includes(b[0]))); S.blocos.push(ps); S.nomes = S.nomes || {}; const nm = $("#nbNome").value.trim(); if (nm) S.nomes[[...ps].sort().join("+")] = nm; S.ui.novoB = false; S.blocos.sort((x, y) => nB(y) - nB(x)); return desenhar(); }
