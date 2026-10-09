@@ -31,6 +31,10 @@ async function iniciar() {
   if (cen && cen[0] && cen[0].dados && cen[0].dados.chapas) { CEN_ID = cen[0].id; S = cen[0].dados; }
   else { try { S = JSON.parse(localStorage.getItem("sl_mesa2")); } catch (er) {} }
   if (!S || !S.chapas) S = novoCenario();
+  // nomes antigos de comissão ("dos Direitos…") → nome atual; descarta presidências órfãs
+  const chaveCom = (k) => COMS.find((c) => norm(c) === norm(k.replace(/^(de|dos|das|da|do) /i, ""))) || null;
+  for (const c of S.chapas) for (const campo of ["com", "pres"]) { const o = c[campo] || {}, n = {}; for (const [k, v] of Object.entries(o)) { const k2 = chaveCom(k); if (k2 && !(k2 in n && campo === "com" && (n[k2] || []).some(Boolean))) n[k2] = v; } c[campo] = n; }
+  for (const c of S.chapas) for (const [k, n] of Object.entries(c.pres)) if (!(c.com[k] || []).includes(n)) delete c.pres[k];
   S.ui = { aba: S.chapas[0].id, comAb: null, estAb: null, mais: {}, pat: { col: "v", dir: -1 }, patAb: null, gav: true, qAb: false, selB: null };
   desenhar(!!admin);
 }
