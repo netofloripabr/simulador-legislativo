@@ -27,7 +27,7 @@ async function iniciar() {
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
   COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
   EST = e;
-  const { data: cen } = await supabaseClient.from("mesa_cenarios").select("id,dados").eq("perfil_id", UID).order("atualizado_em", { ascending: false }).limit(1);
+  const { data: cen } = await supabaseClient.from("mesa_cenarios").select("id,dados").eq("perfil_id", UID).eq("nome", "Meu cenário").order("atualizado_em", { ascending: false }).limit(1);
   if (cen && cen[0] && cen[0].dados && cen[0].dados.chapas) { CEN_ID = cen[0].id; S = cen[0].dados; }
   else { try { S = JSON.parse(localStorage.getItem("sl_mesa2")); } catch (er) {} }
   if (!S || !S.chapas) S = novoCenario();
@@ -142,7 +142,7 @@ function desenhar(admin) {
     <h1>Corrida da <i>Mesa.</i></h1>
     <div class="chapas">${S.chapas.map((c) => `<button data-ch="${c.id}" class="${c.id === ch.id ? "on" : ""}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))} <b>${votos(c)}</b>/21</button>`).join("")}${S.chapas.length < CORES.length ? `<button data-nova="1">+ nova chapa</button>` : ""}</div>
     <div class="placar">${S.chapas.map((c) => `<span><b style="color:${c.cor}">${votos(c)}</b> ${esc(nomeCh(c))}${votos(c) >= MAIORIA ? ` <b style="color:${c.cor}">· maioria</b>` : ""}</span>`).join("<span>×</span>")}<span>· <b>${DEP.filter((d) => S.dep[d.n] && S.dep[d.n].duv).length}</b> em dúvida · <b>${DEP.filter((d) => !chDe(d.n)).length}</b> sem chapa</span></div>
-    <div class="acoesch"><button class="mini" data-bancada="1">+ bancada inteira</button><button class="mini" data-aliado="1">+ aliado</button>${S.chapas.length > 1 ? `<button class="mini" data-delch="1">Excluir esta chapa</button>` : ""}<button class="mini" data-zerar="1">Recomeçar cenário</button><button class="mini" data-imp="1" style="margin-left:auto;color:#F2F4F5;border-color:rgba(242,244,245,.3)">Imprimir</button></div>
+    <div class="acoesch"><button class="mini" data-bancada="1">+ bancada inteira</button><button class="mini" data-aliado="1">+ aliado</button>${S.chapas.length > 1 ? `<button class="mini" data-delch="1">Excluir esta chapa</button>` : ""}<button class="mini" data-arq="1">Salvar / carregar</button><button class="mini" data-zerar="1">Recomeçar cenário</button><button class="mini" data-imp="1" style="margin-left:auto;color:#F2F4F5;border-color:rgba(242,244,245,.3)">Imprimir</button></div>
     <section id="s1"><h2>Jogo da <i>Mesa.</i></h2>${secMesa(ch)}</section>
     <section id="s2"><h2>Composição das <i>comissões.</i></h2>${seletorCh(chCom(), "com")}${secCom(chCom())}</section>
     <section id="s3"><h2>Outros <i>cargos.</i></h2>${seletorCh(chOut(), "out")}${secOut(chOut())}</section>
@@ -253,6 +253,42 @@ function escolher(titulo, desc, filtro, aoEscolher, extra) {
   el.onclick = (e) => { const b = e.target.closest(".op"); if (b) { fecha(); aoEscolher(b.dataset.n); desenhar(); } const x = e.target.closest("[data-extra]"); if (x) { fecha(); aoEscolher(null, x.dataset.extra); desenhar(); } };
 }
 
+// ---------------- salvar / carregar ----------------
+// guardados ficam em mesa_cenarios com nome "chapa:…" ou "cenario:…"; o trabalho corrente é "Meu cenário"
+async function arquivo(ch) {
+  const el = $("#sel");
+  const { data } = await supabaseClient.from("mesa_cenarios").select("id,nome,atualizado_em").eq("perfil_id", UID).or("nome.like.chapa:*,nome.like.cenario:*").order("atualizado_em", { ascending: false });
+  const L = data || [], dt = (t) => new Date(t).toLocaleDateString("pt-BR");
+  const linha = (r) => { const [tp, ...nm] = r.nome.split(":"); return `<div class="op" style="cursor:default"><span>${esc(nm.join(":"))} <small>${tp === "chapa" ? "chapa" : "cenário inteiro"} · ${dt(r.atualizado_em)}</small></span><span style="display:flex;gap:6px"><button class="mini" data-carr="${r.id}">Carregar</button><button class="mini" data-excl="${r.id}">Excluir</button></span></div>`; };
+  el.innerHTML = `<div class="f"></div><div class="cx"><h3>Salvar / carregar</h3><div class="ds">Guarde a ${esc(nomeCh(ch))} sozinha ou o cenário inteiro (todas as chapas) com um nome.</div>
+    <input id="arqn" placeholder="Nome (ex.: cenário otimista)"><div style="display:flex;gap:8px;margin:8px 0 14px"><button class="bt" data-sv="chapa" style="flex:1">Salvar esta chapa</button><button class="bt" data-sv="cenario" style="flex:1">Salvar cenário inteiro</button></div>
+    <div class="ls">${L.map(linha).join("") || `<p style="color:#6B7178;font-size:13px">Nada guardado ainda.</p>`}</div><p id="arqmsg" style="color:#A9AEB3;font-size:12.5px"></p><button class="bt" data-fechar="1">Fechar</button></div>`;
+  el.hidden = false;
+  const msg = (t) => { $("#arqmsg").textContent = t; };
+  el.onclick = async (e) => {
+    const t = e.target.closest("[data-fechar],.f,[data-sv],[data-carr],[data-excl]"); if (!t) return;
+    if (t.matches("[data-fechar],.f")) { el.hidden = true; return; }
+    if (t.dataset.sv) {
+      const nm = $("#arqn").value.trim() || (t.dataset.sv === "chapa" ? nomeCh(ch) : "Cenário " + new Date().toLocaleDateString("pt-BR"));
+      const dados = t.dataset.sv === "chapa" ? { chapa: ch, dep: Object.fromEntries(Object.entries(S.dep).filter(([, v]) => v.ch === ch.id)) } : { ...S, ui: undefined };
+      const { error } = await supabaseClient.from("mesa_cenarios").insert({ perfil_id: UID, nome: t.dataset.sv + ":" + nm, dados });
+      if (error) return msg("Não foi possível salvar."); return arquivo(ch);
+    }
+    if (t.dataset.excl) { if (!t.dataset.ok) { t.dataset.ok = 1; t.textContent = "Confirmar"; return; } await supabaseClient.from("mesa_cenarios").delete().eq("id", t.dataset.excl); return arquivo(ch); }
+    if (t.dataset.carr) {
+      const r = L.find((x) => x.id === t.dataset.carr), cenario = r.nome.startsWith("cenario:");
+      if (cenario && !t.dataset.ok) { t.dataset.ok = 1; t.textContent = "Substituir tudo?"; return; }
+      const { data: d } = await supabaseClient.from("mesa_cenarios").select("dados").eq("id", r.id).single(); if (!d) return msg("Não foi possível carregar.");
+      if (cenario) { const ui = S.ui; S = d.dados; S.ui = { ...ui, aba: S.chapas[0].id }; el.hidden = true; return desenhar(); }
+      // chapa avulsa entra como chapa nova; quem já está em outra chapa continua lá
+      const c = JSON.parse(JSON.stringify(d.dados.chapa)); c.id = "c" + Date.now(); c.cor = CORES[S.chapas.length % CORES.length];
+      const fora = []; for (const [n, v] of Object.entries(d.dados.dep || {})) { if (S.dep[n] && S.dep[n].ch) { fora.push(n); continue; } S.dep[n] = { ...v, ch: c.id }; }
+      S.chapas.push(c); for (const n of fora) tiraDeTudo(n, c); S.ui.aba = c.id; el.hidden = true; desenhar();
+      if (fora.length) alert(`${fora.length} deputado(s) já estavam em outra chapa e continuam nela: ${fora.map((n) => dep(n) ? dep(n).u : n).join(", ")}.`);
+    }
+  };
+}
+
 // ---------------- eventos ----------------
 function ligar(ch0) { let ch = ch0;
   // arrastar cartas (mouse) — no toque, o clique abre o seletor
@@ -268,11 +304,12 @@ function ligar(ch0) { let ch = ch0;
   });
   const A = $("#app");
   A.onclick = (e) => {
-    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
     if (!t) return; const ds = t.dataset;
     if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
     if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
     if (ds.delch) { DEP.forEach((d) => { if (chDe(d.n) === ch.id) delete S.dep[d.n]; }); S.chapas = S.chapas.filter((c) => c !== ch); S.ui.aba = S.chapas[0].id; return desenhar(); }
+    if (ds.arq) return arquivo(ch);
     if (ds.zerar) { if (t.dataset.ok) { const ui = S.ui; S = novoCenario(); S.ui = { ...ui, aba: "c1" }; return desenhar(); } t.dataset.ok = 1; t.textContent = "Confirmar: apagar tudo"; return; }
     if (ds.mesa) { const [cid, k] = ds.mesa.split("|"); ch = chapa(cid); return escolher(k, `${nomeCh(ch)} · quem estiver em outra chapa muda para esta`, (d) => !naMesa(ch, d.n) || ch.mesa[k] === d.n, (n, x) => { if (x === "vago") { delete ch.mesa[k]; return; } poeNaChapa(n, ch); for (const c in ch.com) ch.com[c] = ch.com[c].map((y) => y === n ? null : y); for (const c in ch.pres) if (ch.pres[c] === n) delete ch.pres[c]; ch.mesa[k] = n; }, ch.mesa[k] ? `<button class="bt" data-extra="vago">Deixar ${k} vago</button>` : ""); }
     if (ds.dep) { const n = ds.dep, d = dep(n); if (!S.dep[n]) return; return escolher(d.u, "Escolha uma ação", () => false, (x, a) => { if (a === "duv") S.dep[n].duv = !S.dep[n].duv; if (a === "sai") { tiraDeTudo(n, ch); delete S.dep[n]; } }, `<button class="bt" data-extra="duv">${S.dep[n].duv ? "Tirar da dúvida (volta a contar)" : "Marcar como em dúvida (não conta voto)"}</button><button class="bt" data-extra="sai">Tirar da chapa</button>`); }
