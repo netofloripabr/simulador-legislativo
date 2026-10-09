@@ -208,7 +208,10 @@ function secCom(ch) {
     return x + "</div>";
   });
   const meio = Math.ceil(linhas.length / 2);
-  return h + `<div class="rot">Comissões permanentes · ${COMS.length} · toque para abrir · ★ marca o presidente</div><div class="dois"><div style="border-top:1px solid var(--linha)">${linhas.slice(0, meio).join("")}</div><div style="border-top:1px solid var(--linha)">${linhas.slice(meio).join("")}</div></div>`;
+  const pp = {}; for (const c of COMS) { const d = ch.pres[c] && dep(ch.pres[c]); if (d) pp[d.p] = (pp[d.p] || 0) + 1; }
+  const semP = COMS.length - Object.values(pp).reduce((s, v) => s + v, 0);
+  const etq = `<div class="etqp"><span class="r">Presidências por partido</span>${Object.entries(pp).sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0])).map(([p, v]) => `<span class="e"><b>${v}</b> ${esc(p)}</span>`).join("")}${semP ? `<span class="e vz"><b>${semP}</b> sem presidente</span>` : ""}</div>`;
+  return h + etq + `<div class="rot">Comissões permanentes · ${COMS.length} · toque para abrir · ★ marca o presidente</div><div class="dois"><div style="border-top:1px solid var(--linha)">${linhas.slice(0, meio).join("")}</div><div style="border-top:1px solid var(--linha)">${linhas.slice(meio).join("")}</div></div>`;
 }
 function secOut(ch) {
   let h = "";
