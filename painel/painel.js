@@ -422,6 +422,7 @@ const hero = (() => {
     if (nascido) pintar(1e9);
   }
   function pintar(t) {
+    if (!bx) return;
     const c = camada.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
     const z = hero.z, p = new Path2D();
     for (const aneis of CONT) for (const an of aneis) { an.forEach(([lon, lat], j) => { const x = z.ox + (lon - z.lon0) * z.K * z.S, y = z.oy + (z.lat0 - lat) * z.S; j ? p.lineTo(x, y) : p.moveTo(x, y); }); p.closePath(); }
@@ -432,7 +433,7 @@ const hero = (() => {
     const b = blur.getContext("2d"); b.setTransform(1, 0, 0, 1, 0, 0); b.clearRect(0, 0, blur.width, blur.height); b.filter = `blur(${10 * dpr}px)`; b.drawImage(camada, 0, 0); b.filter = "none";
   }
   function quadro(agora) {
-    if (!camada.width || !blur.width) return; const t = (agora - t0) / 1000; cH.setTransform(1, 0, 0, 1, 0, 0); cH.clearRect(0, 0, cvH.width, cvH.height);
+    if (!bx || !camada.width || !blur.width) return; const t = (agora - t0) / 1000; cH.setTransform(1, 0, 0, 1, 0, 0); cH.clearRect(0, 0, cvH.width, cvH.height);
     cH.globalAlpha = .6; cH.globalCompositeOperation = "lighter"; cH.drawImage(blur, 0, 0); cH.globalCompositeOperation = "source-over"; cH.globalAlpha = 1; cH.drawImage(camada, 0, 0);
     if (nascido) { cH.setTransform(dpr, 0, 0, dpr, 0, 0); cH.globalCompositeOperation = "lighter";
       for (const q of cint) { const v = (Math.sin(t / q.per * 6.283 + q.fase) + 1) / 2, a = v * v * .5; if (a < .03) continue; cH.globalAlpha = a; cH.fillStyle = "rgb(198,230,42)"; cH.beginPath(); cH.arc(bx[q.i], by[q.i], br[q.i] * (1 + .35 * v), 0, 6.2832); cH.fill(); }
@@ -450,7 +451,7 @@ const hero = (() => {
     new IntersectionObserver((es) => { const v = es[0].isIntersecting; if (v && !rodando) { rodando = true; requestAnimationFrame(passo); } if (!v) rodando = false; }).observe(cvH);
   }
   function recolorir() { if (bx) pintar(nascido ? 1e9 : 0); }
-  return { iniciar, medir: () => bx && medir(), recolorir };
+  return { iniciar, medir: () => nasc && medir(), recolorir };
 })();
 // parallax: camadas da abertura em ritmos diferentes ao rolar
 addEventListener("scroll", () => {
