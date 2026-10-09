@@ -82,7 +82,7 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 .blk.novo{ display:block; border-style:dashed; } .blk.novo input#nbNome{ width:100%; font:13px "Inter"; color:var(--texto); background:#0F1314; border:1px solid var(--linha); border-radius:8px; padding:8px 10px; margin-bottom:8px; } .chk{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; margin-bottom:10px; } .chk label{ display:flex; gap:6px; align-items:center; cursor:pointer; }
 .gps{ display:flex; flex-wrap:wrap; gap:10px 18px; } .gp{ min-width:0; } .gpt{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--sec); margin-bottom:5px; font-weight:600; }
 .selch{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0 14px; font-size:12px; color:var(--ter); } .selch button{ font:600 12.5px "Inter"; padding:6px 12px; border-radius:999px; border:1px solid var(--linha); background:none; cursor:pointer; color:var(--sec); } .selch button.on{ color:var(--texto); border-color:var(--c); box-shadow:inset 0 0 0 1px var(--c); } .selch i{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--c); margin-right:6px; }
-.qt.mz td, .qt.mz th{ text-align:center; padding:6px 8px; } .qt.mz td:first-child, .qt.mz th:first-child{ text-align:left; } .qt.mz th{ font-size:9.5px; line-height:1.3; } .qt.mz tr.grp td{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--lima); padding-top:14px; text-align:left; }
+.qt.mz td, .qt.mz th{ text-align:center; padding:6px 8px; } .qt.mz td:first-child, .qt.mz th:first-child{ text-align:left; } .qt.mz th{ font-size:9.5px; line-height:1.3; vertical-align:bottom; } .qt.mz th.bc{ min-width:72px; } .qt.mz .bn{ display:block; color:var(--sec); white-space:nowrap; } .qt.mz .bd{ display:block; margin-top:4px; font-weight:500; color:var(--ter); letter-spacing:.04em; text-transform:none; white-space:nowrap; } .qt.mz tr.grp td{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--lima); padding-top:14px; text-align:left; }
 .pgt{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; padding:12px 2px 4px; border-bottom:1px solid var(--linha); }
 #sel .chk{ gap:6px; } #sel .chk label{ position:relative; display:inline-flex; padding:7px 13px; border-radius:999px; border:1px solid var(--linha); color:var(--sec); font:600 12.5px "Inter"; cursor:pointer; user-select:none; }
 #sel .chk label input{ position:absolute; opacity:0; pointer-events:none; } #sel .chk label:has(input:checked){ color:#0B0D0E; background:#34E84A; border-color:#34E84A; }
@@ -98,6 +98,6 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=1"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="mesa.js?cb=20"></script>
+<script src="mesa.js?cb=21"></script>
 </body>
 </html>
