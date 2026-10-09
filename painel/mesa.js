@@ -143,9 +143,12 @@ function desenhar(admin) {
 }
 function cartaDep(d, cor, sm = true) { const x = S.dep[d.n] || {}; return `<div class="card${sm ? " sm" : ""}${x.duv ? " duv" : ""}" draggable="true" data-arr="${d.n}" data-dep="${d.n}" style="--cc:${cor}77">${img(d, "")}<div class="l"><span>${esc(d.p)}</span><b>${esc(d.u)}</b></div></div>`; }
 function secMesa(ch) {
-  const livres = DEP.filter((d) => !chDe(d.n));
+  const ord = S.ui.ordSV || "bancada", livres = DEP.filter((d) => !chDe(d.n)).sort((a, b) => ord === "nome" ? a.u.localeCompare(b.u, "pt-BR") : ord === "votos" ? b.t - a.t : (nB([b.p]) - nB([a.p])) || a.p.localeCompare(b.p) || a.u.localeCompare(b.u, "pt-BR"));
+  const opOrd = `<span style="float:right;display:inline-flex;gap:4px;text-transform:none;letter-spacing:0">${[["bancada", "Bancada"], ["nome", "Nome"], ["votos", "Votos"]].map(([k, r]) => `<button class="mini" data-ordsv="${k}" style="${ord === k ? "color:#0B0D0E;background:#F2F4F5;border-color:#F2F4F5" : ""}">${r}</button>`).join("")}</span>`;
+  let grupos = "";
+  if (ord === "bancada") { const ps = [...new Set(livres.map((d) => d.p))]; grupos = ps.map((p) => `<div class="gp"><div class="gpt">${esc(p)} · ${livres.filter((d) => d.p === p).length}</div><div class="cards">${livres.filter((d) => d.p === p).map((d) => cartaDep(d, "#3A3F45")).join("")}</div></div>`).join(""); }
   let h = `<p class="conta" style="max-width:640px">Monte a Mesa de cada chapa e arraste as cartas dos deputados para os votos da chapa. Cada deputado vota em uma chapa só: arrastar para outra tira o voto e o cargo da anterior. Toque numa carta para marcar dúvida ou tirar.</p>`;
-  h += `<div class="zona" data-drop=""><div class="rot" style="margin-top:6px">Ainda sem voto · ${livres.length}</div><div class="cards">${livres.map((d) => cartaDep(d, "#3A3F45")).join("") || `<span class="conta">Todos os 40 já votam em alguma chapa.</span>`}</div></div>`;
+  h += `<div class="zona" data-drop=""><div class="rot" style="margin-top:6px">Ainda sem voto · ${livres.length} ${opOrd}</div>${!livres.length ? `<span class="conta">Todos os 40 já votam em alguma chapa.</span>` : ord === "bancada" ? `<div class="gps">${grupos}</div>` : `<div class="cards">${livres.map((d) => cartaDep(d, "#3A3F45")).join("")}</div>`}</div>`;
   h += `<div class="chgrid" style="--n:${Math.min(3, S.chapas.length)}">`;
   for (const c of S.chapas) {
     const al = membros(c).filter((d) => !naMesa(c, d.n)), nm = Object.keys(c.mesa).length, v = votos(c), falta = Math.max(0, MAIORIA - v);
@@ -241,7 +244,7 @@ function ligar(ch0) { let ch = ch0;
   });
   const A = $("#app");
   A.onclick = (e) => {
-    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-imp],[data-gerar],[data-q],[data-desfb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
     if (!t) return; const ds = t.dataset;
     if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
     if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
@@ -252,6 +255,7 @@ function ligar(ch0) { let ch = ch0;
     if (ds.aliado) { if (ds.aliado !== "1") ch = chapa(ds.aliado); } if (ds.aliado) return escolher("Adicionar aliado", `${nomeCh(ch)}`, (d) => chDe(d.n) !== ch.id, (n) => poeNaChapa(n, ch));
     if (ds.bancada) { const ps = [...new Set(DEP.map((d) => d.p))]; return escolher("Bancada inteira", "Todos os deputados do partido entram nesta chapa", () => false, (x, p) => DEP.filter((d) => d.p === p).forEach((d) => poeNaChapa(d.n, ch)), ps.map((p) => `<button class="bt" data-extra="${esc(p)}">${esc(p)} · ${DEP.filter((d) => d.p === p).length}</button>`).join("")); }
     if (ds.q) { S.ui.qAb = !S.ui.qAb; return desenhar(); }
+    if (ds.ordsv) { S.ui.ordSV = ds.ordsv; return desenhar(); }
     if (ds.imp) { const el = $("#sel"); el.innerHTML = `<div class="f"></div><div class="cx"><h3>Imprimir</h3><div class="ds">Escolha o que entra no documento</div>
       <div class="rot" style="margin-top:4px">Chapas</div><div class="chk" id="impCh">${S.chapas.map((c) => `<label><input type="checkbox" value="${c.id}" checked> ${esc(nomeCh(c))}</label>`).join("")}</div>
       <div class="rot">Seções</div><div class="chk" id="impSec">${[["mesa", "Mesa e votos"], ["duelo", "Duelo (placar lado a lado)"], ["com", "Comissões"], ["out", "Outros cargos"], ["pat", "Patrimônio dos deputados"], ["quoc", "Quociente e blocos"]].map(([k, r]) => `<label><input type="checkbox" value="${k}" checked> ${r}</label>`).join("")}</div>
