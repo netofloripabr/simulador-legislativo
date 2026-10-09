@@ -22,7 +22,7 @@ async function iniciar() {
   const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
   const { data: admin } = await supabaseClient.rpc("sou_admin");
-  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=8").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
+  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=9").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
   COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
@@ -118,23 +118,40 @@ function alocar() {
 const slotsCom = (c) => alocar().porCom[c] || [];
 
 // patrimônio: estruturas (CC + FC/FG + grat. exercício) + secretário de comissão presidida + convênios
+// patrimônio em grupos: [titulo, subtotal, itens[[rotulo, detalhe, valor, informativo?]]]
+// soma tudo na capacidade máxima (todas as nomeações feitas, cota cheia); itens informativos (valor dentro da cota) não somam
 function patrimonio(n) {
-  const ch = chapa(chDe(n)); const it = []; let v = 0;
-  const GM = EST.gabinetes_mesa || {}, CC = EST.comissao_cargos || {}, add = (g, t, x) => { it.push([g, t, x || 0]); v += x || 0; };
-  if (ch) {
-    for (const [k, x] of Object.entries(ch.mesa)) if (x === n) add("Mesa", `${k} · gabinete: ${GM[k] ? `${GM[k].serv} servidores na folha; lei permite até ${GM[k].cargos_max} cargos PL/GAM, cota ${fm(GM[k].cota)}` : "—"}`, GM[k] && GM[k].t);
-    for (const [c, x] of Object.entries(ch.pres)) if (x === n) { const e = comEst(c), sec = e ? e.cc[1] : 0, fg = COM9.test(norm(c)) && !/etica/.test(norm(c)) ? CC.fg5 : CC.fg3; add("Comissão", `Presidência · ${c} · Assessor de Comissão (GAC-59) + ${fg === CC.fg5 ? "FG-5" : "FG-3"}`, sec + (fg || 0)); }
-    const mem = Object.entries(ch.com).filter(([c, l]) => l.includes(n)).map(([c]) => c);
-    if (mem.length) add("Comissão", `Membro de ${mem.length} comiss${mem.length > 1 ? "ões" : "ão"} · Assessor de Membro (GAC-45)${CC.assessor_membro ? "" : " (valor a confirmar)"}`, CC.assessor_membro);
-    for (const [k, x] of Object.entries(ch.out)) if (x === n) { const e = estDe(k); add("Estrutura", acento(k), e && e.t); }
-  }
-  const cv = (S.dep[n] && S.dep[n].conv) || 0, PA = EST.parlamentar || {};
-  // pessoal do deputado (contracheque) separado da estrutura do mandato (cargos/gratificações de terceiros)
+  const ch = chapa(chDe(n)), PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, I = EST.indenizatorias || {};
+  const GM = EST.gabinetes_mesa || {}, CC = EST.comissao_cargos || {}, gg = ((EST.gastos_gabinete || {}).dep || {})[n];
   const ehPres = ch && ch.mesa["Presidente"] === n, gp = ehPres ? PA.gestao_pres : PA.gestao_demais;
-  const par = [["Subsídio", "Deputado estadual · Lei 18.642/2023", PA.subsidio || 0],
-    ["Gestão Executiva", `${Math.round((gp || 0) * 100)}% do subsídio · ${ehPres ? "Presidente da Mesa" : "hoje paga aos 40 (45%), por Ato da Mesa"} · LC 828/2023`, (PA.subsidio || 0) * (gp || 0)],
-    ["Auxílio Saúde", "15% do subsídio", PA.aux_saude || 0], ["Auxílio Alimentação", "", PA.aux_alim || 0]];
-  return { it, v, cv, par, sub: par.reduce((s, x) => s + x[2], 0) };
+  const mesa = ch ? Object.keys(ch.mesa).find((k) => ch.mesa[k] === n) : null, pc = ch && Object.values(ch.pres).includes(n);
+  const ad = mesa ? ["Adicional de Membro da Mesa", C.ad_mesa] : pc ? ["Adicional de Presidente de Comissão", C.ad_pres_lider] : null;
+  const grp = [];
+  grp.push(["Parlamentar", [["Subsídio", "Lei 18.642/2023", PA.subsidio], ["Gestão Executiva", `${Math.round((gp || 0) * 100)}% do subsídio · LC 828/2023${ehPres ? " · Presidente da Mesa" : ""}`, (PA.subsidio || 0) * (gp || 0)], ["Auxílio Saúde", "15% do subsídio", PA.aux_saude], ["Auxílio Alimentação", "Ato da Mesa 021/2025", PA.aux_alim]]]);
+  grp.push(["Gabinete", [["Secretários Parlamentares", `${G.cargos} vagas de nomeação · cota cheia`, G.cota], ["Chefe de Gabinete", "PL/DAS-7 · 1 por gabinete", G.chefe], ["Operação de sistemas", "FC-5 + FC-4 · 1 de cada por gabinete", G.retrib]]]);
+  const vb = [["Cota de custeio do gabinete", "Ato da Mesa 066/2024 art. 12", C.base]];
+  if (ad) vb.push([ad[0], "na cota · não acumula", ad[1]]);
+  vb.push(["Moradia na Capital", "aluguel ou hospedagem", C.moradia],
+    ["Escritório regional", `até 2 imóveis · até ${fm(I.escritorio_lim)} cada · sai da cota`, 0, 1],
+    ["Custeio do escritório", "condomínio, energia, internet, móveis · sai da cota", 0, 1],
+    ["Divulgação do mandato", "inclusive mídias digitais · sai da cota", 0, 1],
+    ["Veículo", `1 veículo locado pela Alesc (${fm(I.veiculo_locado)}) + indenização do veículo próprio (${fm(I.veiculo_proprio)}/mês), ou 2 veículos locados sem a indenização · sai da cota`, 0, 1],
+    ["Passagens, diárias, telefone", "serviços contratados pela Alesc · saem da cota", 0, 1]);
+  if (gg) vb.push(["Gasto real 2026", `média de ${gg.meses} meses · dados abertos`, gg.media, 1]);
+  grp.push(["Verba de gabinete e indenizatórias", vb]);
+  const fu = [];
+  if (ch) {
+    if (mesa && GM[mesa]) fu.push([`Gabinete da Mesa · ${mesa}`, `até ${GM[mesa].cargos_max} cargos PL/GAM · cota cheia (folha 09/2026: ${fm(GM[mesa].t)})`, GM[mesa].cota]);
+    for (const [c, x] of Object.entries(ch.pres)) if (x === n) { const e = comEst(c), fg = COM9.test(norm(c)) && !/etica/.test(norm(c)) ? CC.fg5 : CC.fg3; fu.push([`Presidência · ${c}`, `Assessor de Comissão (GAC-59) + ${fg === CC.fg5 ? "FG-5" : "FG-3"}`, (e ? e.cc[1] : CC.assessor_comissao || 0) + (fg || 0)]); }
+    const mem = Object.entries(ch.com).filter(([c, l]) => l.includes(n)).length;
+    if (mem) fu.push([`Membro de ${mem} comiss${mem > 1 ? "ões" : "ão"}`, "Assessor de Membro (GAC-45) · 1 por deputado", CC.assessor_membro]);
+    for (const [k, x] of Object.entries(ch.out)) if (x === n) { const e = estDe(k); fu.push([acento(k), "estrutura administrativa", e && e.t]); }
+  }
+  if (fu.length) grp.push(["Funções e estruturas", fu]);
+  const tot = (L) => L.reduce((s2, x) => s2 + (x[3] ? 0 : x[2] || 0), 0);
+  const G2 = grp.map(([t, L]) => [t, tot(L), L]), v = G2.reduce((s2, g) => s2 + g[1], 0);
+  const cv = (S.dep[n] && S.dep[n].conv) || 0;
+  return { G: G2, v, cv, sub: G2[0][1], it: fu };
 }
 
 // ---------------- desenho ----------------
@@ -237,17 +254,6 @@ function secOut(ch) {
   }
   return h + `<p style="font-size:11.5px;color:#6B7178;margin-top:12px">Soma cargos comissionados (PL/DAS), funções de confiança e gratificadas (PL/FC e PL/FG) e gratificação de exercício. Salário de efetivo fora. Contracheques de ${esc(EST.mes || "09/2026")}, Portal da Transparência da ALESC. Cada estrutura vale uma vez por chapa.</p>`;
 }
-// limites do gabinete (o que o deputado pode gastar/nomear) — informativo, fora da soma do patrimônio
-function gabDetalhe(n) {
-  const G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, ch = chapa(chDe(n)), g = (EST.gastos_gabinete || {}).dep || {};
-  const mesa = ch && Object.values(ch.mesa).includes(n), pc = ch && Object.values(ch.pres).includes(n);
-  const ad = mesa ? ["Adicional Membro da Mesa", C.ad_mesa] : pc ? ["Adicional Presidente de Comissão", C.ad_pres_lider] : null;
-  const L = (a, b) => `<div class="it"><span>${a}</span><b>${b}</b></div>`;
-  return `<div class="gdet">${L("Gabinete parlamentar", `até ${G.cargos} Secretários Parlamentares · cota ${fm(G.cota)}/mês`)}${L("Chefe de Gabinete", `PL/DAS-7 · ${fm(G.chefe)}`)}${L("Operação de sistemas", `FC-5 + FC-4 · ${fm(G.retrib)}`)}
-    ${L("Cota de custeio", `${fm(C.base)}/mês`)}${ad ? L(ad[0], `+ ${fm(ad[1])}/mês`) : ""}${L("Moradia na Capital", `até ${fm(C.moradia)}/mês`)}
-    ${g[n] ? L("Gasto real 2026", `${fm(g[n].media)}/mês · média de ${g[n].meses} meses`) : L("Gasto real 2026", "não exerce mandato atual")}
-    <p>Limites, não entram no total. Res. 002/2006 Anexo IX-F; Ato da Mesa 066/2024 art. 12; dados abertos ALESC.</p></div>`;
-}
 function secPat() {
   
   const { col, dir } = S.ui.pat, P = DEP.map((d) => ({ d, ...patrimonio(d.n) }));
@@ -256,10 +262,10 @@ function secPat() {
   const seta = (c) => `<span class="ord"><i class="u${col === c && dir > 0 ? " on" : ""}"></i><i class="d${col === c && dir < 0 ? " on" : ""}"></i></span>`;
   return `<aside class="gav${S.ui.gav ? "" : " fechada"}"><span class="vert" data-gav="1">Patrimônio · 40</span><div class="alca" data-gav="1" title="Recolher"><i></i><i></i></div><div class="rot" style="margin-top:14px">Patrimônio dos parlamentares · 40</div>
     <div class="pcab"><span data-po="nome" class="${col === "nome" ? "on" : ""}">Nome${seta("nome")}</span><span data-po="chapa" class="${col === "chapa" ? "on" : ""}">Chapa</span><span data-po="v" class="${col === "v" ? "on" : ""}">Patrimônio${seta("v")}</span></div>
-    ${P.map(({ d, it, v, cv, par }, k) => { const ch = chapa(chDe(d.n)), ab = S.ui.patAb === d.n, ant = k && P[k - 1].d;
+    ${P.map(({ d, G, v, cv }, k) => { const ch = chapa(chDe(d.n)), ab = S.ui.patAb === d.n, ant = k && P[k - 1].d;
       const tit = col === "chapa" && (!k || chDe(ant.n) !== chDe(d.n)) ? `<div class="pgt" style="color:${ch ? ch.cor : "#6B7178"}">${ch ? esc(nomeCh(ch)) : "Sem chapa"} · ${fm(P.filter((x) => chDe(x.d.n) === chDe(d.n)).reduce((s2, x) => s2 + x.v, 0))}/mês</div>` : "";
       return tit + `<div class="pl"><div class="h" data-pat="${d.n}">${img(d, "av", `box-shadow:0 0 0 2px ${ch ? ch.cor : "#3A3F45"}`)}<div style="min-width:0"><div class="nm"${ab ? ' style="font-weight:700"' : ""}>${esc(d.u)}</div><div class="pt">${esc(d.p)}${S.dep[d.n] && S.dep[d.n].duv ? " · em dúvida" : ""}</div></div><b class="v">${v ? fm(v) + "/mês" : ""}${cv ? `<br><span style="color:#A9AEB3;font-weight:500">+ ${fm(cv)}</span>` : ""}</b></div>
-        ${ab ? `<div class="corpo"><div class="it"><span style="color:#F2F4F5">Parlamentar</span><b></b></div>${par.map(([g, t, val]) => `<div class="it"><span>${g}</span><b>${esc(t)}${val ? ` · ${fm(val)}` : ""}</b></div>`).join("")}<div class="it"><span style="color:#F2F4F5">Estrutura do mandato <button class="gi${S.ui.gabI === d.n ? " on" : ""}" data-gabi="${d.n}" title="Limites do gabinete">i</button></span><b>${v ? fm(v) + "/mês" : ""}</b></div>${S.ui.gabI === d.n ? gabDetalhe(d.n) : ""}${it.length ? it.map(([g, t, val]) => `<div class="it"><span>${g}</span><b>${esc(t)}${val ? ` · ${fm(val)}` : ""}</b></div>`).join("") : `<div class="it"><b style="color:#6B7178">Nada atribuído</b></div>`}
+        ${ab ? `<div class="corpo">${G.map(([t, st, L]) => `<div class="it gt"><span>${esc(t)}</span><b>${fm(st)}/mês</b></div>${L.map(([r, dt, val, inf]) => `<div class="it${inf ? " inf" : ""}"><span>${esc(r)}</span><b>${esc(dt)}${val ? ` · ${inf ? "" : ""}${fm(val)}` : ""}</b></div>`).join("")}`).join("")}
           <div class="it"><span>Convênios</span><b></b></div><input data-conv="${d.n}" inputmode="numeric" placeholder="R$ — digite o valor" value="${cv ? ni(cv) : ""}"></div>` : ""}</div>`; }).join("")}</aside>`;
 }
 
@@ -326,7 +332,7 @@ function ligar(ch0) { let ch = ch0;
   });
   const A = $("#app");
   A.onclick = (e) => {
-    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-gabi],[data-adm]");
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
     if (!t) return; const ds = t.dataset;
     if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
     if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
@@ -360,7 +366,6 @@ function ligar(ch0) { let ch = ch0;
     if (ds.mais) { S.ui.mais[ds.mais] = !S.ui.mais[ds.mais]; return desenhar(); }
     if (ds.gav) { S.ui.gav = !S.ui.gav; const g = $(".gav"); g.classList.toggle("fechada", !S.ui.gav); return; }
     if (ds.po) { const c = ds.po; S.ui.pat = { col: c, dir: S.ui.pat.col === c ? -S.ui.pat.dir : (c === "nome" ? 1 : -1) }; return desenhar(); }
-    if (ds.gabi) { S.ui.gabI = S.ui.gabI === ds.gabi ? null : ds.gabi; return desenhar(); }
     if (ds.pat) { S.ui.patAb = S.ui.patAb === ds.pat ? null : ds.pat; return desenhar(); }
     if (ds.adm !== undefined) { supabaseClient.rpc("admin_definir_acesso_mesa", { p_email: $("#admEmail").value, p_liberar: ds.adm === "1" }).then(({ data, error }) => { $("#admMsg").textContent = error ? error.message : data; }); }
   };
@@ -400,7 +405,9 @@ function imprimir(ids, secs) {
         h += `<div class="ec"><h3><span>${esc(g)} · ${L.length}</span><b>${fm(L.reduce((s, x) => s + x.t, 0))}/mês</b></h3>` + L.map((x) => { const d = c.out[x.n] && dep(c.out[x.n]); return `<div class="er">${d ? av(d, 22) : oco(22)}<span>${esc(acento(x.n))}<small>${d ? esc(d.u) : "vago"}</small></span><span class="tt">${fm(x.t)}</span></div>`; }).join("") + `</div>`;
       }
     }
-    if (secs.includes("pat")) { const P = membros(c).map((d) => ({ d, ...patrimonio(d.n) })).sort((a, b) => (b.v + b.cv) - (a.v + a.cv)); h += T("Patrimônio da", "chapa.") + `<p class="nota">Parlamentar: o que o deputado recebe no próprio contracheque (subsídio). Estrutura do mandato: cargos e gratificações de servidores que passam a ser indicados por ele (gabinete da Mesa, secretário e chefia de comissão, diretorias, coordenadorias).</p><div class="er cab p5"><span></span><span>Deputado · estrutura</span><span>Subsídio</span><span>Estrutura/mês</span><span>Convênios</span></div>` + P.map((x) => `<div class="er p5">${av(x.d, 22)}<span>${esc(x.d.u)}<small>${x.it.map((i) => esc(i[1])).join(" · ") || "—"}</small></span><span>${fm(x.sub)}</span><span class="tt">${x.v ? fm(x.v) : "—"}</span><span>${x.cv ? fm(x.cv) : "—"}</span></div>`).join("") + `<div class="er p5 tot"><span></span><span>Total</span><span>${fm(P.reduce((s, x) => s + x.sub, 0))}</span><span class="tt">${fm(P.reduce((s, x) => s + x.v, 0))}</span><span>${fm(P.reduce((s, x) => s + x.cv, 0))}</span></div>`; }
+    if (secs.includes("pat")) { const P = membros(c).map((d) => ({ d, ...patrimonio(d.n) })).sort((a, b) => (b.v + b.cv) - (a.v + a.cv)), gv = (x, t) => (x.G.find((g) => g[0] === t) || [0, 0])[1];
+      const COL = ["Parlamentar", "Gabinete", "Verba de gabinete e indenizatórias", "Funções e estruturas"];
+      h += T("Patrimônio da", "chapa.") + `<p class="nota">Mensal, na capacidade máxima: todas as nomeações feitas e cotas cheias. Parlamentar = subsídio, Gestão Executiva e auxílios. Gabinete = 27 Secretários Parlamentares, Chefe de Gabinete e operação de sistemas. Verba = cota de custeio (+ adicional de Mesa ou presidência de comissão) e moradia; escritório regional, divulgação e veículo saem dessa cota. Funções = gabinete da Mesa, comissões e estruturas administrativas.</p><div class="er cab p6"><span></span><span>Deputado · funções</span><span>Parlam.</span><span>Gabinete</span><span>Verba</span><span>Funções</span><span>Total</span></div>` + P.map((x) => `<div class="er p6">${av(x.d, 22)}<span>${esc(x.d.u)}<small>${x.it.map((i) => esc(i[0])).join(" · ") || "—"}</small></span>${COL.map((t) => `<span>${gv(x, t) ? fm(gv(x, t)) : "—"}</span>`).join("")}<span class="tt">${fm(x.v)}</span></div>`).join("") + `<div class="er p6 tot"><span></span><span>Total</span>${COL.map((t) => `<span>${fm(P.reduce((s2, x) => s2 + gv(x, t), 0))}</span>`).join("")}<span class="tt">${fm(P.reduce((s2, x) => s2 + x.v, 0))}</span></div>`; }
     h += `</div>`;
   }
   if (secs.includes("quoc") && !secs.includes("com")) { const A = dist(9); CHA = null; h += `<div>` + T("Quociente das", "comissões.") + `<div class="rot">RI art. 30 · partidos e blocos</div><div class="er cab p4"><span></span><span>Partido / bloco</span><span>Comissões de 9</span><span>Comissões de 7</span></div>` + A.L.map((x) => { const a = alocar().resumo[nomeB(x.b) + "|9"], z = alocar().resumo[nomeB(x.b) + "|7"]; return `<div class="er p4"><span class="dp">${x.d}</span><span>${esc(nomeB(x.b))}${x.b.length > 1 ? `<small>${esc(x.b.join(", "))}</small>` : ""}</span><span>${a.tot} vagas</span><span>${z.tot} vagas</span></div>`; }).join("") + `</div>`; }
@@ -423,7 +430,7 @@ function imprimir(ids, secs) {
   .ln{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:9px;align-items:center;padding:6px 0;border-bottom:.5px solid #E3E5E8;page-break-inside:avoid}.ln .n{font-size:10px;font-weight:500}.ln small,.er small{display:block;font-size:7.5px;color:#6B7178;font-weight:400;margin-top:1px}.ln .q{font-size:8.5px;color:#6B7178;font-variant-numeric:tabular-nums}
   .ec{margin-top:12px}.ec h3{display:flex;justify-content:space-between;margin:0;padding:6px 0;border-bottom:1px solid #0B0D0E;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#3F454B;background:#F4F5F6;page-break-after:avoid}.ec h3 b{color:#1A8A32;letter-spacing:0}.ec .er{padding-left:0;padding-right:0}
   .er{display:grid;grid-template-columns:22px minmax(0,1fr) 80px;gap:9px;align-items:center;padding:5px 12px;border-top:.5px solid #E3E5E8;font-variant-numeric:tabular-nums;page-break-inside:avoid}.er>span:nth-child(n+3){text-align:right}.er .tt{color:#1A8A32;font-weight:800}
-  .er.p4{grid-template-columns:22px minmax(0,1fr) 80px 80px}.er.p5{grid-template-columns:22px minmax(0,1fr) 62px 72px 62px}.er.cab{font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7178;font-weight:600;border-top:0}.er.tot{font-weight:800;border-top:1px solid #0B0D0E}.dp{font-weight:800;text-align:center}
+  .er.p4{grid-template-columns:22px minmax(0,1fr) 80px 80px}.er.p6{grid-template-columns:22px minmax(0,1fr) 56px 60px 56px 60px 64px}.er.cab{font-size:7.5px;letter-spacing:.1em;text-transform:uppercase;color:#6B7178;font-weight:600;border-top:0}.er.tot{font-weight:800;border-top:1px solid #0B0D0E}.dp{font-weight:800;text-align:center}
   .nota{font-size:8px;color:#3F454B;margin:6px 0 8px;max-width:640px}.qt{width:100%;border-collapse:collapse;font-size:7.5px;font-variant-numeric:tabular-nums}.qt th,.qt td{padding:3px 4px;border-bottom:.5px solid #E3E5E8;text-align:center}.qt td:first-child,.qt th:first-child{text-align:left}.qt th{font-weight:600;color:#3F454B;vertical-align:bottom}.qt .bd,.qt td span{display:block;font-weight:400;color:#6B7178;font-size:6.5px}.qt .grp td{font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:7px;padding-top:8px;border-bottom:1px solid #0B0D0E}.qt .qrow td{background:#F4F5F6}.qt .t td{font-weight:800;border-top:1px solid #0B0D0E}.qt tr{page-break-inside:avoid}.qt+p,div:has(>.qt)+p{font-size:8px;color:#3F454B}
   .rod{margin-top:16px;font-size:7px;color:#6B7178;border-top:.5px solid #D3D6D9;padding-top:5px}</style></head><body>
   <div class="cab"><div class="wm"><b>Simula</b>LEGIS</div><div class="meta"><b>Corrida da Mesa · ALESC</b><br>gerado em ${new Date().toLocaleString("pt-BR")}</div></div>
