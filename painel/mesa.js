@@ -97,12 +97,14 @@ function alocar() {
     const peq = L.filter((x) => x.d < 5), dp = peq.reduce((s, x) => s + x.d, 0);
     L.forEach((x) => { x.w = (x.q - x.min) * k + (x.d < 5 && dp ? k * x.d / dp : 0); });
     let r = E; L.forEach((x) => { x.ex = Math.min(k, Math.floor(x.w)); r -= x.ex; });
-    L.filter((x) => x.ex < k).sort((a, c) => (c.w - Math.floor(c.w)) - (a.w - Math.floor(a.w)) || c.d - a.d).forEach((x) => { if (r > 0 && x.ex < k) { x.ex++; r--; } });
+    for (let volta = 0; r > 0 && volta < 50; volta++) L.filter((x) => x.ex < k).sort((a, c) => (c.w - c.ex) - (a.w - a.ex) || c.d - a.d).forEach((x) => { if (r > 0 && x.ex < k) { x.ex++; r--; } });
     const coms0 = coms.map((c) => ({ c, l: [] }));
     L.forEach((x) => coms0.forEach((o) => { for (let t = 0; t < x.min; t++) o.l.push(x.b); }));
-    let rod = 0;
-    [...L].sort((a, c) => c.ex - a.ex || c.d - a.d).forEach((x) => { let dado = 0, tent = 0;
-      while (dado < x.ex && tent < k * 3) { const o = coms0[rod % k]; rod++; tent++; if (o.l.length < n && !o.l.includes(x.b) || (o.l.length < n && x.min > 0 && o.l.filter((y) => y === x.b).length < x.min + 1)) { o.l.push(x.b); dado++; } } });
+    // cada bloco recebe no máximo 1 vaga extra por comissão; preenche sempre as comissões que mais faltam
+    const falta = coms0.map((o) => n - o.l.length);
+    [...L].sort((a, c) => c.ex - a.ex || c.d - a.d).forEach((x) => {
+      coms0.map((o, i) => i).sort((i, j) => falta[j] - falta[i] || i - j).slice(0, x.ex).forEach((i) => { if (falta[i] > 0) { coms0[i].l.push(x.b); falta[i]--; } });
+    });
     coms0.forEach((o) => { out.porCom[o.c] = o.l.map(nomeB); });
     L.forEach((x) => { out.resumo[nomeB(x.b) + "|" + n] = { q: x.q, min: x.min, max: x.min + (x.ex ? 1 : 0), tot: x.min * k + x.ex, k }; });
   }
@@ -135,8 +137,8 @@ function desenhar(admin) {
     <div class="placar">${S.chapas.map((c) => `<span><b style="color:${c.cor}">${votos(c)}</b> ${esc(nomeCh(c))}${votos(c) >= MAIORIA ? ` <b style="color:${c.cor}">· maioria</b>` : ""}</span>`).join("<span>×</span>")}<span>· <b>${DEP.filter((d) => S.dep[d.n] && S.dep[d.n].duv).length}</b> em dúvida · <b>${DEP.filter((d) => !chDe(d.n)).length}</b> sem chapa</span></div>
     <div class="acoesch"><button class="mini" data-bancada="1">+ bancada inteira</button><button class="mini" data-aliado="1">+ aliado</button>${S.chapas.length > 1 ? `<button class="mini" data-delch="1">Excluir esta chapa</button>` : ""}<button class="mini" data-zerar="1">Recomeçar cenário</button><button class="mini" data-imp="1" style="margin-left:auto;color:#F2F4F5;border-color:rgba(242,244,245,.3)">Imprimir</button></div>
     <section id="s1"><h2>Jogo da <i>Mesa.</i></h2>${secMesa(ch)}</section>
-    <section id="s2"><h2>Composição das <i>comissões.</i></h2>${secCom(ch)}</section>
-    <section id="s3"><h2>Outros <i>cargos.</i></h2>${secOut(ch)}</section>
+    <section id="s2"><h2>Composição das <i>comissões.</i></h2>${seletorCh(ch)}${secCom(ch)}</section>
+    <section id="s3"><h2>Outros <i>cargos.</i></h2>${seletorCh(ch)}${secOut(ch)}</section>
     ${ADMIN ? `<div class="adm"><b style="color:#C6E62A">Administrador</b> · liberar acesso à Corrida da Mesa: <input id="admEmail" placeholder="e-mail da conta"> <button class="mini" data-adm="1">Liberar</button> <button class="mini" data-adm="0">Retirar</button> <span id="admMsg"></span></div>` : ""}
   </main>${secPat()}</div>`;
   scrollTo(0, y); ligar(ch); salvar();
@@ -148,7 +150,7 @@ function secMesa(ch) {
   let grupos = "";
   if (ord === "bancada") { const ps = [...new Set(livres.map((d) => d.p))]; grupos = ps.map((p) => `<div class="gp"><div class="gpt">${esc(p)} · ${livres.filter((d) => d.p === p).length}</div><div class="cards">${livres.filter((d) => d.p === p).map((d) => cartaDep(d, "#3A3F45")).join("")}</div></div>`).join(""); }
   let h = `<p class="conta" style="max-width:640px">Monte a Mesa de cada chapa e arraste as cartas dos deputados para os votos da chapa. Cada deputado vota em uma chapa só: arrastar para outra tira o voto e o cargo da anterior. Toque numa carta para marcar dúvida ou tirar.</p>`;
-  h += `<div class="zona" data-drop=""><div class="rot" style="margin-top:6px">Ainda sem voto · ${livres.length} ${opOrd}</div>${!livres.length ? `<span class="conta">Todos os 40 já votam em alguma chapa.</span>` : ord === "bancada" ? `<div class="gps">${grupos}</div>` : `<div class="cards">${livres.map((d) => cartaDep(d, "#3A3F45")).join("")}</div>`}</div>`;
+
   h += `<div class="chgrid" style="--n:${Math.min(3, S.chapas.length)}">`;
   for (const c of S.chapas) {
     const al = membros(c).filter((d) => !naMesa(c, d.n)), nm = Object.keys(c.mesa).length, v = votos(c), falta = Math.max(0, MAIORIA - v);
@@ -160,8 +162,10 @@ function secMesa(ch) {
       <div class="zona" data-drop="${c.id}"><div class="rot">Votos · ${nm} na Mesa + ${al.filter((d) => !S.dep[d.n].duv).length} aliados · solte as cartas aqui</div><div class="cards">${al.map((d) => cartaDep(d, c.cor)).join("")}${Array.from({ length: Math.min(falta, 6) }, () => `<div class="card sm vazio" data-aliado="${c.id}"><b>+</b></div>`).join("")}</div></div></div>`;
   }
   h += `</div>`;
+  h += `<div class="zona" data-drop="" style="margin-top:18px"><div class="rot" style="margin-top:6px">Ainda sem voto · ${livres.length} ${opOrd}</div>${!livres.length ? `<span class="conta">Todos os 40 já votam em alguma chapa.</span>` : ord === "bancada" ? `<div class="gps">${grupos}</div>` : `<div class="cards">${livres.map((d) => cartaDep(d, "#3A3F45")).join("")}</div>`}</div>`;
   return h;
 }
+function seletorCh(ch) { return `<div class="selch"><span>Montando para</span>${S.chapas.map((c) => `<button data-ch="${c.id}" class="${c.id === ch.id ? "on" : ""}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))}</button>`).join("")}</div>`; }
 function secCom(ch) {
   const A = dist(9), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   let h = `<button class="qb" data-q="1">÷ Quociente das comissões ${S.ui.qAb ? "▾" : "▸"}</button>`;
@@ -169,10 +173,14 @@ function secCom(ch) {
     <div class="conta" style="margin:0 12px 8px">Blocos parlamentares</div>
     <div style="margin:0 12px 12px">${S.blocos.filter((b) => b.length > 1).map((b) => `<div class="blk"><b>${esc(nomeB(b))}</b><span>${esc(b.join(", "))} · ${nB(b)} deputados</span><button class="mini" data-desfb="${esc(b.join("+"))}">Desfazer</button></div>`).join("")}
       ${S.ui.novoB ? `<div class="blk novo"><input id="nbNome" placeholder="Nome do bloco (ex.: Bloco Parlamentar Democrático)"><div class="chk">${S.blocos.filter((b) => b.length === 1).map((b) => `<label><input type="checkbox" value="${esc(b[0])}"> ${esc(b[0])} · ${nB(b)}</label>`).join("")}</div><button class="mini" data-salvab="1">Criar bloco</button> <button class="mini" data-novob="0">Cancelar</button></div>` : `<button class="mini" data-novob="1">+ Novo bloco</button>`}</div>
-    <table class="qt"><tr><th>Partido / bloco</th><th>Dep.</th><th>Quoc. 9</th><th>Por comissão · 9</th><th>Total · 4 comissões</th><th>Quoc. 7</th><th>Por comissão · 7</th><th>Total · 20 comissões</th></tr>
-    ${A.L.map((x) => { const r9 = alocar().resumo[nomeB(x.b) + "|9"], r7 = alocar().resumo[nomeB(x.b) + "|7"], mm = (r) => r.min === r.max ? `${r.min || "—"}` : `${r.min}–${r.max}`;
-      return `<tr><td>${esc(nomeB(x.b))}</td><td>${x.d}</td><td class="f">${f(r9.q)}</td><td>${mm(r9)}</td><td><b>${r9.tot}</b></td><td class="f">${f(r7.q)}</td><td>${mm(r7)}</td><td><b>${r7.tot}</b></td></tr>`; }).join("")}
-    <tr class="t"><td>Total</td><td>40</td><td></td><td>9</td><td>36</td><td></td><td>7</td><td>140</td></tr></table><p style="margin-top:10px">Por comissão: mínimo = parte inteira do quociente; quem tem fração entra em parte das comissões (máximo +1). Total: as frações somadas no conjunto das comissões viram vagas inteiras, garantindo a presença dos partidos menores.</p></div>`;
+    ${(() => { const BL = A.L.map((x) => nomeB(x.b)), dep_ = A.L.map((x) => x.d), linha = (c) => { const sl = slotsCom(c); return `<tr><td>${esc(c)}</td><td class="f">${sl.length}</td>${BL.map((b) => { const v = sl.filter((y) => y === b).length; return `<td>${v ? `<b>${v}</b>` : `<span style="color:#3A3F45">·</span>`}</td>`; }).join("")}</tr>`; };
+      const tot = BL.map((b) => COMS.reduce((s2, c) => s2 + slotsCom(c).filter((y) => y === b).length, 0));
+      return `<div style="overflow-x:auto"><table class="qt mz"><tr><th>Comissão</th><th>Vagas</th>${BL.map((b, k) => `<th title="${esc(b)}">${esc(b.length > 14 ? b.slice(0, 13) + "…" : b)}<br><span style="font-weight:500">${dep_[k]} dep.</span></th>`).join("")}</tr>
+        <tr class="grp"><td colspan="${BL.length + 2}">Comissões de 9 membros</td></tr>${COMS.filter((c) => vagasCom(c) === 9).map(linha).join("")}
+        <tr class="grp"><td colspan="${BL.length + 2}">Comissões de 7 membros</td></tr>${COMS.filter((c) => vagasCom(c) === 7).map(linha).join("")}
+        <tr class="t"><td>Total de vagas</td><td>176</td>${tot.map((v) => `<td>${v}</td>`).join("")}</tr></table></div>
+        <p style="margin-top:10px">Cada linha é uma comissão; cada coluna, um partido ou bloco: o número é quantas vagas ele tem ali. Quem tem fração de quociente entra em parte das comissões, para que os partidos menores também tenham presença.</p>`; })()}
+  </div>`;;
   const linhas = COMS.map((c) => {
     const sl = slotsCom(c), l = (ch.com[c] = (ch.com[c] || []).slice(0, sl.length)), cheio = l.filter(Boolean).length, ab = S.ui.comAb === c, p = ch.pres[c] && dep(ch.pres[c]);
     let x = `<div><div class="ln${ab ? " ab" : ""}" data-com="${esc(c)}">${p ? img(p) : hole()}<span class="n">${esc(c)}</span><span class="q">${cheio}/${sl.length}</span><span style="color:#6B7178;font-size:11px">${ab ? "▾" : "▸"}</span></div>`;
@@ -207,12 +215,14 @@ function secOut(ch) {
 function secPat() {
   
   const { col, dir } = S.ui.pat, P = DEP.map((d) => ({ d, ...patrimonio(d.n) }));
-  P.sort((a, b) => col === "nome" ? dir * a.d.u.localeCompare(b.d.u, "pt-BR") : dir * ((a.v + a.cv) - (b.v + b.cv)));
+  const ordCh = (d) => { const i = S.chapas.findIndex((c) => c.id === chDe(d.n)); return i < 0 ? 99 : i; };
+  P.sort((a, b) => col === "chapa" ? (ordCh(a.d) - ordCh(b.d)) || ((b.v + b.cv) - (a.v + a.cv)) : col === "nome" ? dir * a.d.u.localeCompare(b.d.u, "pt-BR") : dir * ((a.v + a.cv) - (b.v + b.cv)));
   const seta = (c) => `<span class="ord"><i class="u${col === c && dir > 0 ? " on" : ""}"></i><i class="d${col === c && dir < 0 ? " on" : ""}"></i></span>`;
   return `<aside class="gav${S.ui.gav ? "" : " fechada"}"><span class="vert" data-gav="1">Patrimônio · 40</span><div class="alca" data-gav="1" title="Recolher"><i></i><i></i></div><div class="rot" style="margin-top:14px">Patrimônio dos parlamentares · 40</div>
-    <div class="pcab"><span data-po="nome" class="${col === "nome" ? "on" : ""}">Nome${seta("nome")}</span><span data-po="v" class="${col === "v" ? "on" : ""}">Patrimônio${seta("v")}</span></div>
-    ${P.map(({ d, it, v, cv }) => { const ch = chapa(chDe(d.n)), ab = S.ui.patAb === d.n;
-      return `<div class="pl"><div class="h" data-pat="${d.n}">${img(d, "av", `box-shadow:0 0 0 2px ${ch ? ch.cor : "#3A3F45"}`)}<div style="min-width:0"><div class="nm"${ab ? ' style="font-weight:700"' : ""}>${esc(d.u)}</div><div class="pt">${esc(d.p)}${S.dep[d.n] && S.dep[d.n].duv ? " · em dúvida" : ""}</div></div><b class="v">${v ? fm(v) + "/mês" : ""}${cv ? `<br><span style="color:#A9AEB3;font-weight:500">+ ${fm(cv)}</span>` : ""}</b></div>
+    <div class="pcab"><span data-po="nome" class="${col === "nome" ? "on" : ""}">Nome${seta("nome")}</span><span data-po="chapa" class="${col === "chapa" ? "on" : ""}">Chapa</span><span data-po="v" class="${col === "v" ? "on" : ""}">Patrimônio${seta("v")}</span></div>
+    ${P.map(({ d, it, v, cv }, k) => { const ch = chapa(chDe(d.n)), ab = S.ui.patAb === d.n, ant = k && P[k - 1].d;
+      const tit = col === "chapa" && (!k || chDe(ant.n) !== chDe(d.n)) ? `<div class="pgt" style="color:${ch ? ch.cor : "#6B7178"}">${ch ? esc(nomeCh(ch)) : "Sem chapa"} · ${fm(P.filter((x) => chDe(x.d.n) === chDe(d.n)).reduce((s2, x) => s2 + x.v, 0))}/mês</div>` : "";
+      return tit + `<div class="pl"><div class="h" data-pat="${d.n}">${img(d, "av", `box-shadow:0 0 0 2px ${ch ? ch.cor : "#3A3F45"}`)}<div style="min-width:0"><div class="nm"${ab ? ' style="font-weight:700"' : ""}>${esc(d.u)}</div><div class="pt">${esc(d.p)}${S.dep[d.n] && S.dep[d.n].duv ? " · em dúvida" : ""}</div></div><b class="v">${v ? fm(v) + "/mês" : ""}${cv ? `<br><span style="color:#A9AEB3;font-weight:500">+ ${fm(cv)}</span>` : ""}</b></div>
         ${ab ? `<div class="corpo">${it.length ? it.map(([g, t, val]) => `<div class="it"><span>${g}</span><b>${esc(t)}${val ? ` · ${fm(val)}` : ""}</b></div>`).join("") : `<div class="it"><b style="color:#6B7178">Nada atribuído</b></div>`}
           <div class="it"><span>Convênios</span><b></b></div><input data-conv="${d.n}" inputmode="numeric" placeholder="R$ — digite o valor" value="${cv ? ni(cv) : ""}"></div>` : ""}</div>`; }).join("")}</aside>`;
 }

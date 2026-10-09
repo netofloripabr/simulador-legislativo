@@ -34,7 +34,7 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 .card{ flex:none; width:96px; height:128px; border-radius:12px; overflow:hidden; background:var(--sup); box-shadow:0 0 0 1px var(--cc,rgba(52,232,74,.45)); cursor:pointer; position:relative; }
 .card img{ width:100%; height:68%; object-fit:cover; object-position:50% 18%; display:block; } .card .l{ padding:4px 7px; } .card .l span{ display:block; font-size:8.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ter); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .card .l b{ display:block; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .card.pres{ width:112px; height:146px; box-shadow:0 0 0 2px var(--c), 0 10px 26px -10px var(--c); } .card.pres .l span{ color:var(--c); }
-.card.vazio{ background:none; box-shadow:none; border:1px dashed rgba(242,244,245,.2); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; color:#4A5058; } .card.vazio span{ font-size:8.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ter); }
+.card.vazio{ background:none; box-shadow:none; border:1px dashed rgba(242,244,245,.2); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; color:#4A5058; } .card.vazio span{ text-align:center; padding:0 4px; line-height:1.25; width:100%;  font-size:8.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ter); }
 .card.sm{ width:72px; height:96px; } .card.duv{ opacity:.55; outline:1px dashed var(--lima); outline-offset:2px; }
 .dois{ display:grid; grid-template-columns:1fr 1fr; gap:0 26px; align-items:start; }
 .ln{ display:grid; grid-template-columns:30px minmax(0,1fr) auto 12px; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--linha); cursor:pointer; }
@@ -81,6 +81,9 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 .blk{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 10px; align-items:center; padding:9px 12px; border:1px solid rgba(198,230,42,.35); background:rgba(198,230,42,.05); border-radius:12px; margin-bottom:8px; } .blk b{ font-size:13px; } .blk span{ grid-column:1; font-size:11.5px; color:var(--sec); } .blk .mini{ grid-row:1/3; grid-column:2; }
 .blk.novo{ display:block; border-style:dashed; } .blk.novo input#nbNome{ width:100%; font:13px "Inter"; color:var(--texto); background:#0F1314; border:1px solid var(--linha); border-radius:8px; padding:8px 10px; margin-bottom:8px; } .chk{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:13px; margin-bottom:10px; } .chk label{ display:flex; gap:6px; align-items:center; cursor:pointer; }
 .gps{ display:flex; flex-wrap:wrap; gap:10px 18px; } .gp{ min-width:0; } .gpt{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--sec); margin-bottom:5px; font-weight:600; }
+.selch{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0 14px; font-size:12px; color:var(--ter); } .selch button{ font:600 12.5px "Inter"; padding:6px 12px; border-radius:999px; border:1px solid var(--linha); background:none; cursor:pointer; color:var(--sec); } .selch button.on{ color:var(--texto); border-color:var(--c); box-shadow:inset 0 0 0 1px var(--c); } .selch i{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--c); margin-right:6px; }
+.qt.mz td, .qt.mz th{ text-align:center; padding:6px 8px; } .qt.mz td:first-child, .qt.mz th:first-child{ text-align:left; } .qt.mz th{ font-size:9.5px; line-height:1.3; } .qt.mz tr.grp td{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--lima); padding-top:14px; text-align:left; }
+.pgt{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; padding:12px 2px 4px; border-bottom:1px solid var(--linha); }
 .bloq{ max-width:560px; margin:14vh auto; padding:0 18px; } .bloq a{ display:inline-block; margin-top:14px; font-weight:700; color:#0B0D0E; background:var(--a); border-radius:999px; padding:10px 18px; text-decoration:none; }
 .adm{ margin-top:30px; padding:14px; border:1px dashed rgba(198,230,42,.4); border-radius:14px; font-size:12.5px; color:var(--sec); } .adm input{ font:13px "Inter"; color:var(--texto); background:#0F1314; border:1px solid var(--linha); border-radius:8px; padding:7px 9px; width:260px; }
 @media (max-width:1000px){ .pg{ grid-template-columns:1fr; } .gav{ position:static; width:auto; max-height:none; border-radius:16px; } .alca{ display:none; } .dois{ grid-template-columns:1fr; } .er{ grid-template-columns:30px minmax(0,1fr) 40px 40px 40px 78px; font-size:12.5px; } .det{ grid-template-columns:1fr; padding-left:16px; } .topo a.t{ padding:6px 7px; font-size:12px; } .topo .dir{ display:none; } }
@@ -93,6 +96,6 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=1"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="mesa.js?cb=14"></script>
+<script src="mesa.js?cb=16"></script>
 </body>
 </html>
