@@ -180,8 +180,11 @@ function secCom(ch) {
     ${(() => { const BL = A.L.map((x) => nomeB(x.b)), dep_ = A.L.map((x) => x.d), linha = (c) => { const sl = slotsCom(c); return `<tr><td>${esc(c)}</td><td class="f">${sl.length}</td>${BL.map((b) => { const v = sl.filter((y) => y === b).length; return `<td>${v ? `<b>${v}</b>` : `<span style="color:#3A3F45">·</span>`}</td>`; }).join("")}</tr>`; };
       const tot = BL.map((b) => COMS.reduce((s2, c) => s2 + slotsCom(c).filter((y) => y === b).length, 0));
       return `<div style="overflow-x:auto"><table class="qt mz"><tr><th>Comissão</th><th>Vagas</th>${BL.map((b, k) => `<th class="bc"><span class="bn">${esc(b).replace(/ \+ /g, " +<br>")}</span><span class="bd">${dep_[k]} dep.</span></th>`).join("")}</tr>
-        <tr class="grp"><td colspan="${BL.length + 2}">Comissões de 9 membros</td></tr>${COMS.filter((c) => vagasCom(c) === 9).map(linha).join("")}
-        <tr class="grp"><td colspan="${BL.length + 2}">Comissões de 7 membros</td></tr>${COMS.filter((c) => vagasCom(c) === 7).map(linha).join("")}
+        ${[9, 7].map((n) => { const qq = 40 / (n - 1), R_ = BL.map((b) => alocar().resumo[b + "|" + n]);
+          return `<tr class="grp"><td colspan="${BL.length + 2}">Comissões de ${n} membros</td></tr>
+          <tr class="qrow"><td>Quociente <span>40 ÷ (${n} − 1) = ${f(qq)}</span></td><td></td>${BL.map((b, k) => `<td><b>${f(dep_[k] / qq)}</b><span>${dep_[k]} ÷ ${f(qq)}</span></td>`).join("")}</tr>
+          <tr class="qrow"><td>Vagas por comissão <span>parte inteira; fração = vaga em parte das comissões</span></td><td></td>${R_.map((r) => `<td><b>${r.min === r.max ? r.min || "0" : r.min + " a " + r.max}</b><span>${r.tot} no total</span></td>`).join("")}</tr>
+          ${COMS.filter((c) => vagasCom(c) === n).map(linha).join("")}`; }).join("")}
         <tr class="t"><td>Total de vagas</td><td>176</td>${tot.map((v) => `<td>${v}</td>`).join("")}</tr></table></div>
         <p style="margin-top:10px">Cada linha é uma comissão; cada coluna, um partido ou bloco: o número é quantas vagas ele tem ali. Quem tem fração de quociente entra em parte das comissões, para que os partidos menores também tenham presença.</p>`; })()}
   </div>`;;
