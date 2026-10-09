@@ -84,6 +84,8 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 .selch{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0 14px; font-size:12px; color:var(--ter); } .selch button{ font:600 12.5px "Inter"; padding:6px 12px; border-radius:999px; border:1px solid var(--linha); background:none; cursor:pointer; color:var(--sec); } .selch button.on{ color:var(--texto); border-color:var(--c); box-shadow:inset 0 0 0 1px var(--c); } .selch i{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--c); margin-right:6px; }
 .qt.mz td, .qt.mz th{ text-align:center; padding:6px 8px; } .qt.mz td:first-child, .qt.mz th:first-child{ text-align:left; } .qt.mz th{ font-size:9.5px; line-height:1.3; } .qt.mz tr.grp td{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--lima); padding-top:14px; text-align:left; }
 .pgt{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; padding:12px 2px 4px; border-bottom:1px solid var(--linha); }
+#sel .chk{ gap:6px; } #sel .chk label{ position:relative; display:inline-flex; padding:7px 13px; border-radius:999px; border:1px solid var(--linha); color:var(--sec); font:600 12.5px "Inter"; cursor:pointer; user-select:none; }
+#sel .chk label input{ position:absolute; opacity:0; pointer-events:none; } #sel .chk label:has(input:checked){ color:#0B0D0E; background:#34E84A; border-color:#34E84A; }
 .bloq{ max-width:560px; margin:14vh auto; padding:0 18px; } .bloq a{ display:inline-block; margin-top:14px; font-weight:700; color:#0B0D0E; background:var(--a); border-radius:999px; padding:10px 18px; text-decoration:none; }
 .adm{ margin-top:30px; padding:14px; border:1px dashed rgba(198,230,42,.4); border-radius:14px; font-size:12.5px; color:var(--sec); } .adm input{ font:13px "Inter"; color:var(--texto); background:#0F1314; border:1px solid var(--linha); border-radius:8px; padding:7px 9px; width:260px; }
 @media (max-width:1000px){ .pg{ grid-template-columns:1fr; } .gav{ position:static; width:auto; max-height:none; border-radius:16px; } .alca{ display:none; } .dois{ grid-template-columns:1fr; } .er{ grid-template-columns:30px minmax(0,1fr) 40px 40px 40px 78px; font-size:12.5px; } .det{ grid-template-columns:1fr; padding-left:16px; } .topo a.t{ padding:6px 7px; font-size:12px; } .topo .dir{ display:none; } }
@@ -96,6 +98,6 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=1"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="mesa.js?cb=16"></script>
+<script src="mesa.js?cb=17"></script>
 </body>
 </html>
