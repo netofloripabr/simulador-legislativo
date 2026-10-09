@@ -218,8 +218,8 @@ function moverPartido(p, alvo) {
 }
 // composição real formada em fev/2025 (Agência ALESC, 05/02/2025) — partidos daquela legislatura
 function legenda2025() {
-  const B = [["PL", "partido", "2"], ["Bloco Social Democrático", "MDB + PSDB", "2"], ["Bloco PRD-PSD-União", "PRD + PSD + União", "2"], ["Bloco Democracia, Inclusão Social e Igualdade", "PT + PSOL", "1"], ["Podemos-Novo-Republicanos", "bloco", "1"], ["Partidos com menos de 5 deputados", "PP + PDT · vaga compartilhada", "1"]];
-  return `<div class="leg25"><div class="r">Composição atual · formada em fevereiro de 2025 · vagas nas comissões de 9</div>${B.map(([n, p, v]) => `<div><b>${esc(n)}</b><span>${esc(p)}</span><i>${v}</i></div>`).join("")}<p>Legislatura 2023–2027, biênio 2025–2027. Partidos daquela eleição; nas de 7 membros, PL tem 2 e os demais 1. Fonte: Agência ALESC, 05/02/2025.</p></div>`;
+  const B = [["PL", 2], ["MDB/PSDB", 2], ["PRD/PSD/União", 2], ["PT/PSOL", 1], ["Podemos/Novo/Republicanos", 1], ["PP/PDT", 1]];
+  return `<p class="leg25"><b>2025:</b> ${B.map(([n, v]) => `${esc(n)} <b>${v}</b>`).join(" · ")} <span>vagas nas comissões de 9 · Agência ALESC, 05/02/2025</span></p>`;
 }
 function quocTabela() { const A = dist(9), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return (() => { const BL = A.L.map((x) => nomeB(x.b)), dep_ = A.L.map((x) => x.d), linha = (c) => { const sl = slotsCom(c); return `<tr><td>${esc(c)}</td><td class="f">${sl.length}</td>${BL.map((b) => { const v = sl.filter((y) => y === b).length; return `<td>${v ? `<b>${v}</b>` : `<span style="color:#3A3F45">·</span>`}</td>`; }).join("")}</tr>`; };
       const tot = BL.map((b) => COMS.reduce((s2, c) => s2 + slotsCom(c).filter((y) => y === b).length, 0));

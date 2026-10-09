@@ -88,7 +88,7 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 .blk .pchs, .dz .pchs{ grid-column:1/-1; display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; } .blk b[data-renb]{ cursor:text; }
 .pch{ font:600 12px "Inter"; padding:5px 10px; border-radius:999px; border:1px solid var(--linha); background:#0F1314; color:var(--texto); cursor:grab; user-select:none; } .pch i{ font-style:normal; color:var(--ter); font-weight:500; margin-left:2px; }
 .dz.sobre{ box-shadow:0 0 0 2px var(--lima); } .blk.novo span{ font-size:12px; color:var(--ter); } .band{ border:1px dashed var(--linha); border-radius:12px; padding:9px 12px; } .band .r, .leg25 .r{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:600; }
-.leg25{ margin:0 12px 14px; padding:10px 12px; border-left:2px solid var(--linha); } .leg25 > div{ display:grid; grid-template-columns:minmax(0,1fr) auto; gap:0 10px; padding:4px 0; border-bottom:1px solid var(--linha); font-size:12.5px; } .leg25 > div span{ grid-column:1; font-size:11px; color:var(--ter); } .leg25 > div i{ grid-row:1/3; grid-column:2; align-self:center; font-style:normal; font-weight:700; } .leg25 p{ font-size:11px; color:var(--ter); margin:6px 0 0; } .leg25 .r{ margin-bottom:4px; }
+.leg25{ margin:0 12px 14px; font-size:12.5px; color:var(--sec); line-height:1.6; } .leg25 b{ color:var(--texto); } .leg25 span{ color:var(--ter); font-size:11px; margin-left:4px; }
 .selch{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0 14px; font-size:12px; color:var(--ter); } .selch button{ font:600 12.5px "Inter"; padding:6px 12px; border-radius:999px; border:1px solid var(--linha); background:none; cursor:pointer; color:var(--sec); } .selch button.on{ color:var(--texto); border-color:var(--c); box-shadow:inset 0 0 0 1px var(--c); } .selch i{ display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--c); margin-right:6px; }
 .qt.mz td, .qt.mz th{ text-align:center; padding:6px 8px; } .qt.mz td:first-child, .qt.mz th:first-child{ text-align:left; } .qt.mz th{ font-size:9.5px; line-height:1.3; vertical-align:bottom; } .qt.mz th.bc{ min-width:72px; } .qt.mz .bn{ display:block; color:var(--sec); white-space:nowrap; } .qt.mz .bd{ display:block; margin-top:4px; font-weight:500; color:var(--ter); letter-spacing:.04em; text-transform:none; white-space:nowrap; } .qt.mz tr.grp td{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--lima); padding-top:14px; text-align:left; }
 .qt.mz tr.qrow td{ background:rgba(198,230,42,.05); color:var(--texto); } .qt.mz tr.qrow td b{ color:var(--lima); } .qt.mz tr.qrow td span{ display:block; font-size:10px; color:var(--ter); white-space:nowrap; } .qt.mz tr.qrow td:first-child{ font-weight:700; font-size:12px; }
@@ -107,6 +107,6 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=1"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="mesa.js?cb=37"></script>
+<script src="mesa.js?cb=38"></script>
 </body>
 </html>
