@@ -10,7 +10,7 @@ const COM9 = /constitui|financas|trabalho|etica/;
 const foto = (n) => `../dados/fotos/sc-2026/estadual/${n}.jpg`;
 const img = (d, cls = "av", st = "") => `<img class="${cls}" src="${foto(d.n)}" alt="" style="${st}">`;
 const hole = () => `<span class="ho">+</span>`;
-let DEP = [], COMS = [], EST = {}, S, UID = null, CEN_ID = null, salvarT;
+let ORDEM_BLOCO = null, DEP = [], COMS = [], EST = {}, S, UID = null, CEN_ID = null, salvarT;
 
 // ---------------- dados e acesso ----------------
 async function iniciar() {
@@ -143,8 +143,9 @@ function secCom(ch) {
     if (ab) {
       const d = dist(sl.length), e = comEst(c);
       x += `<div class="abre"><div class="conta">${sl.length} vagas · quociente ${f(d.q)} · ${d.L.filter((y) => y.v).map((y) => `${esc(y.b.join("+"))} ${y.v}`).join(" · ")}${e ? ` · presidência: secretário de comissão ${fm(e.t)}/mês` : ""}</div>
+        <div class="vg" data-presc="${esc(c)}" style="border-bottom:1px solid rgba(242,244,245,.12)">${p ? img(p) : hole()}<div>${p ? `<b>${esc(p.u)}</b>` : `<span style="color:#A9AEB3">Escolher presidente</span>`}<span style="display:block;font-size:10.5px;color:#6B7178">entre os membros da comissão</span></div><span class="bl" style="color:#C6E62A">Presidente</span><span style="color:#C6E62A">★</span></div>
         ${sl.map((b, i) => { const n = l[i], dd = n && dep(n), err = dd && !b.split(" + ").includes(dd.p);
-          return `<div class="vg" data-vaga="${esc(c)}|${i}">${dd ? img(dd, "av" + (err ? " err" : "")) : hole()}<div>${dd ? esc(dd.u) : `<span style="color:#4A5058">vaga</span>`}${err ? `<small>${esc(dd.p)} · vaga do ${esc(b)}</small>` : ""}</div><span class="bl">${esc(b)}</span>${dd ? `<button class="pr${ch.pres[c] === n ? " on" : ""}" data-pres="${esc(c)}|${n}" title="Presidente da comissão">★</button>` : "<span></span>"}</div>`; }).join("")}</div>`;
+          return `<div class="vg" data-vaga="${esc(c)}|${i}">${dd ? img(dd, "av" + (err ? " err" : "")) : hole()}<div>${dd ? esc(dd.u) : `<span style="color:#6B7178">toque para escolher</span>`}${err ? `<small>${esc(dd.p)} · vaga do ${esc(b)}</small>` : ""}</div><span class="bl">${esc(b)}</span>${dd ? `<button class="pr${ch.pres[c] === n ? " on" : ""}" data-pres="${esc(c)}|${n}" title="Presidente da comissão">★</button>` : "<span></span>"}</div>`; }).join("")}</div>`;
     }
     return x + "</div>";
   });
@@ -183,10 +184,10 @@ function secPat() {
 // ---------------- seletor de deputado ----------------
 function escolher(titulo, desc, filtro, aoEscolher, extra) {
   const el = $("#sel");
-  const lista = (q) => DEP.filter(filtro).filter((d) => !q || norm(d.u + " " + d.p).includes(norm(q))).map((d) => { const c = chapa(chDe(d.n)); return `<button class="op" data-n="${d.n}">${img(d, "av", `box-shadow:0 0 0 2px ${c ? c.cor : "#3A3F45"}`)}<span>${esc(d.u)} <small>${esc(d.p)}</small></span><small>${c ? esc(nomeCh(c)) : "sem chapa"}</small></button>`; }).join("") || `<p style="color:#6B7178;font-size:13px">Ninguém disponível.</p>`;
+  const lista = (q) => [...DEP].sort((a, b) => ORDEM_BLOCO ? (ORDEM_BLOCO.includes(b.p) - ORDEM_BLOCO.includes(a.p)) : 0).filter(filtro).filter((d) => !q || norm(d.u + " " + d.p).includes(norm(q))).map((d) => { const c = chapa(chDe(d.n)); return `<button class="op" data-n="${d.n}">${img(d, "av", `box-shadow:0 0 0 2px ${c ? c.cor : "#3A3F45"}`)}<span>${esc(d.u)} <small>${esc(d.p)}</small></span><small>${c ? esc(nomeCh(c)) : "sem chapa"}</small></button>`; }).join("") || `<p style="color:#6B7178;font-size:13px">Ninguém disponível.</p>`;
   el.innerHTML = `<div class="f"></div><div class="cx"><h3>${esc(titulo)}</h3><div class="ds">${desc || ""}</div><input id="selq" placeholder="Buscar nome ou partido"><div class="ls" id="sell">${lista("")}</div>${extra || ""}<button class="bt" data-fechar="1">Fechar</button></div>`;
   el.hidden = false;
-  const fecha = () => { el.hidden = true; };
+  const fecha = () => { el.hidden = true; ORDEM_BLOCO = null; };
   $(".f", el).onclick = fecha; $("[data-fechar]", el).onclick = fecha;
   $("#selq").oninput = (e) => { $("#sell").innerHTML = lista(e.target.value); };
   el.onclick = (e) => { const b = e.target.closest(".op"); if (b) { fecha(); aoEscolher(b.dataset.n); desenhar(); } const x = e.target.closest("[data-extra]"); if (x) { fecha(); aoEscolher(null, x.dataset.extra); desenhar(); } };
@@ -207,7 +208,7 @@ function ligar(ch0) { let ch = ch0;
   });
   const A = $("#app");
   A.onclick = (e) => {
-    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-q],[data-desf],[data-bl],[data-res],[data-com],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-q],[data-desf],[data-bl],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
     if (!t) return; const ds = t.dataset;
     if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
     if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
@@ -222,7 +223,8 @@ function ligar(ch0) { let ch = ch0;
     if (ds.bl !== undefined) { const i = +ds.bl; if (S.ui.selB === null) S.ui.selB = i; else if (S.ui.selB === i) S.ui.selB = null; else { const a = S.blocos[S.ui.selB], c = S.blocos[i]; S.blocos = S.blocos.filter((_, k) => k !== S.ui.selB && k !== i); S.blocos.push(a.concat(c)); S.ui.selB = null; } S.blocos.sort((x, y) => nB(y) - nB(x)); return desenhar(); }
     if (ds.res) { S.reserva = ds.res; return desenhar(); }
     if (ds.pres) { e.stopPropagation(); const [c, n] = ds.pres.split("|"); if (ch.pres[c] === n) delete ch.pres[c]; else { for (const k in ch.pres) if (ch.pres[k] === n) delete ch.pres[k]; ch.pres[c] = n; } return desenhar(); }
-    if (ds.vaga) { const [c, i] = ds.vaga.split("|"), bl = slotsCom(c)[+i]; return escolher(`${c} · vaga ${+i + 1}`, `Vaga do bloco <b>${esc(bl)}</b>. Membros da Mesa não ocupam vaga.`, (d) => !Object.values(S.chapas).some((x) => naMesa(x, d.n)) && !(ch.com[c] || []).includes(d.n), (n, x) => { if (x === "vago") { const o = ch.com[c][+i]; ch.com[c][+i] = null; if (ch.pres[c] === o) delete ch.pres[c]; return; } ch.com[c][+i] = n; }, (ch.com[c] || [])[+i] ? `<button class="bt" data-extra="vago">Deixar vaga</button>` : ""); }
+    if (ds.presc) { const c = ds.presc, l = (ch.com[c] || []).filter(Boolean); if (!l.length) return escolher(c, "Preencha as vagas da comissão primeiro; o presidente é escolhido entre os membros.", () => false, () => {}); return escolher(`Presidente · ${c}`, "Entre os membros da comissão", (d) => l.includes(d.n), (n, x) => { if (x === "tirar") { delete ch.pres[c]; return; } for (const k in ch.pres) if (ch.pres[k] === n) delete ch.pres[k]; ch.pres[c] = n; }, ch.pres[c] ? `<button class="bt" data-extra="tirar">Sem presidente</button>` : ""); }
+    if (ds.vaga) { const [c, i] = ds.vaga.split("|"), bl = slotsCom(c)[+i]; ORDEM_BLOCO = bl.split(" + "); return escolher(`${c} · vaga ${+i + 1}`, `Vaga do bloco <b>${esc(bl)}</b>. Membros da Mesa não ocupam vaga.`, (d) => !Object.values(S.chapas).some((x) => naMesa(x, d.n)) && !(ch.com[c] || []).includes(d.n), (n, x) => { if (x === "vago") { const o = ch.com[c][+i]; ch.com[c][+i] = null; if (ch.pres[c] === o) delete ch.pres[c]; return; } ch.com[c][+i] = n; }, (ch.com[c] || [])[+i] ? `<button class="bt" data-extra="vago">Deixar vaga</button>` : ""); }
     if (ds.com) { S.ui.comAb = S.ui.comAb === ds.com ? null : ds.com; return desenhar(); }
     if (ds.atrib) { const k = ds.atrib; return escolher(acento(k), `${nomeCh(ch)} · uma vez por chapa`, (d) => chDe(d.n) === ch.id, (n) => { ch.out[k] = n; }); }
     if (ds.desatrib) { delete ch.out[ds.desatrib]; return desenhar(); }
