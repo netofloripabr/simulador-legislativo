@@ -22,7 +22,7 @@ async function iniciar() {
   const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
   const { data: admin } = await supabaseClient.rpc("sou_admin");
-  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=6").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
+  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=7").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
   COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
@@ -130,9 +130,10 @@ function patrimonio(n) {
   }
   const cv = (S.dep[n] && S.dep[n].conv) || 0, PA = EST.parlamentar || {};
   // pessoal do deputado (contracheque) separado da estrutura do mandato (cargos/gratificações de terceiros)
-  const par = [["Subsídio", "Deputado estadual", PA.subsidio || 0]];
-  if (ch && Object.values(ch.pres).includes(n)) par.push(["Adicional", "Presidência de comissão · sem adicional (Lei 18.642/2023 fixa só o subsídio; contracheque 09/2026)", 0]);
-  if (ch && Object.values(ch.mesa).includes(n)) par.push(["Adicional", "Cargo na Mesa · sem adicional (Lei 18.642/2023 fixa só o subsídio; contracheque 09/2026)", 0]);
+  const ehPres = ch && ch.mesa["Presidente"] === n, gp = ehPres ? PA.gestao_pres : PA.gestao_demais;
+  const par = [["Subsídio", "Deputado estadual · Lei 18.642/2023", PA.subsidio || 0],
+    ["Gestão Executiva", `${Math.round((gp || 0) * 100)}% do subsídio · ${ehPres ? "Presidente da Mesa" : "hoje paga aos 40 (45%), por Ato da Mesa"} · LC 828/2023`, (PA.subsidio || 0) * (gp || 0)],
+    ["Auxílio Saúde", "15% do subsídio", PA.aux_saude || 0], ["Auxílio Alimentação", "", PA.aux_alim || 0]];
   return { it, v, cv, par, sub: par.reduce((s, x) => s + x[2], 0) };
 }
 
