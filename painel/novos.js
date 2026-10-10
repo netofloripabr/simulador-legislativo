@@ -51,19 +51,20 @@ function perfil(n) {
     <div class="txt"><img class="ftp" src="${foto(n)}" alt=""><div class="olho" style="margin-top:14px">Eleições 2026 · Deputado estadual · ${esc(c.p)}</div><h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") : c.u)}<i>${esc(nm.length > 1 ? nm.slice(-1)[0] + "." : "")}</i></h1>
     <div class="pops">${[[ni(c.t), "votos", 1], [`${pos}º`, "entre os 40 eleitos"], [`${nf(c.t / VAL * 100, 2)}%`, "dos válidos"], [`${posBase}º`, "em " + M[i0].n], [`${nf(pctMax * 100)}%`, "em " + M[iPct].n + ", seu maior índice"], [ordM.length, "municípios com voto"]].map(([v, r, a], k) => `<div style="animation-delay:${1.2 + k * .35}s"><b class="${a ? "a" : ""}">${esc(v)}</b><span>${esc(r)}</span></div>`).join("")}</div>
     <div style="display:flex;gap:10px;margin-top:22px"><button class="btn" id="caderno">Imprimir caderno</button><button class="btn sec" id="trocar">Trocar parlamentar</button></div></div><a class="seta" href="#s1" title="Próxima etapa">↓</a></section>
+    <nav class="secnav" id="secnav"><a href="#hero">${esc(c.u)}</a><a href="#s1">Eleitoral</a><a href="#s2">Legislativo</a><a href="#s3">Administrativo</a></nav>
     ${secEleitoral(c)}${secLegislativo(c)}${secAdministrativo(c)}`;
   $("#trocar").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(n); };
   heroMapa(c, ordM); ligarEleitoral(c, ordM); ligarPolitica(c); ligarGabinete(c); revelar(); scrollTo(0, 0);
   $("#caderno").onclick = () => caderno(c, ordM);
 }
-const cabSec = (id, num, tit, lead) => `<section class="secao" id="${id}"><div class="wrap"><div class="tag rv"><b>${num}</b><h2>${tit}</h2></div><p class="lead rv">${lead}</p>`;
-const fimSec = (prox) => `</div>${prox ? `<a class="seta" href="#${prox}" title="Próxima etapa">↓</a>` : ""}</section>`;
+const cabSec = (id, num, tit, lead) => `<section class="secao" id="${id}"><div class="wrap"><div class="tag rv"><button class="tg" data-tg="${id}" title="Recolher ou abrir">−</button><h2>${tit}</h2></div><div class="corpoSec" id="cs-${id}"><p class="lead rv">${lead}</p>`;
+const fimSec = (prox) => `</div></div>${prox ? `<a class="seta" href="#${prox}" title="Próxima etapa">↓</a>` : ""}</section>`;
 
 // 01 · Eleitoral: Painel completo embutido (sanfona aberta) com filtros prontos
 function secEleitoral(c) {
   return cabSec("s1", "01", "Eleitoral", "O Painel completo da sua eleição. As etiquetas abrem o Painel já filtrado: sua região, sua legenda, as comparações que importam.") +
     `<div class="rv"><button class="sanf${AB.painel ? " on" : ""}" data-sec="painel"><span>Painel eleitoral</span><i>mapa, distribuição, perfil das cidades, comparação, ranking</i><em>${AB.painel ? "−" : "+"}</em></button>
-    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="chips" id="chips"></div><iframe class="emb" id="emb" src="index.html?embed=1&cargo=estadual&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe></div></div>` + fimSec("s2");
+    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="chips" id="chips"></div><div class="elg"><iframe class="emb" id="emb" src="index.html?embed=1&cargo=estadual&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe><aside class="cid" id="cid" hidden></aside></div></div></div>` + fimSec("s2");
 }
 function ligarEleitoral(c, ordM) {
   const base = M[ordM[0]], reg = base.meso, leg = D.c.filter((x) => x.p === c.p && x.n !== c.n).sort((a, b) => b.t - a.t)[0], E = eleitos(), k = E.findIndex((x) => x.n === c.n), viz = E[k ? k - 1 : 1];
@@ -72,39 +73,36 @@ function ligarEleitoral(c, ordM) {
     ["Ranking da sua legenda", { vista: "ranking", partido: c.p }], ["Ranking da sua região", { vista: "ranking", rec: { tipo: "meso", nome: reg } }], c.v22 && ["2022 → 2026", { rec: null, b: null, lente: "d22" }]].filter(Boolean);
   $("#chips").innerHTML = `<span class="r">Filtros prontos</span>` + P.map(([r], i) => `<button data-p="${i}">${esc(r)}</button>`).join("");
   $("#chips").onclick = (e) => { const b = e.target.closest("[data-p]"); if (!b) return; const w = $("#emb").contentWindow; if (!w.painelPreset) return; document.querySelectorAll("#chips button").forEach((x) => x.classList.toggle("on", x === b)); w.painelPreset(P[+b.dataset.p][1]); $("#emb").scrollIntoView({ behavior: "smooth", block: "start" }); };
-  const fr = $("#emb"); fr.onload = () => { const aj = () => { fr.style.height = fr.contentDocument.documentElement.scrollHeight + "px"; }; aj(); new ResizeObserver(aj).observe(fr.contentDocument.body); };
+  const fr = $("#emb"); fr.onload = () => { const dd = fr.contentDocument, aj = () => { const vis = [...dd.querySelectorAll("#painel, #ranking")].filter((x) => !x.hidden); fr.style.height = Math.ceil(Math.max(400, ...vis.map((x) => x.getBoundingClientRect().bottom + dd.defaultView.scrollY)) + 8) + "px"; }; aj(); new ResizeObserver(aj).observe(dd.body); };
   document.querySelector('[data-sec="painel"]').onclick = (e) => { AB.painel = !AB.painel; $("#c-painel").hidden = !AB.painel; e.currentTarget.classList.toggle("on", AB.painel); e.currentTarget.querySelector("em").textContent = AB.painel ? "−" : "+"; };
 }
 
 // 02 · Processo legislativo
 const TRILHA = {
-  PL: [["Protocolo", "Apresentação do projeto"], ["Leitura", "Lido no Expediente da sessão"], ["1ª Secretaria", "Define as comissões que vão analisar"], ["CCJ", "Primeiro exame: constitucionalidade e legalidade"], ["Comissões de mérito", "Análise do tema; emendas"], ["Volta à CCJ", "Se houver emendas, depois da última comissão"], ["Plenário", "Maioria simples, presente a maioria absoluta"], ["Sanção ou veto", "Governador: sanciona, ou veta no todo ou em parte"], ["Veto", "Volta à Casa: CCJ e depois Plenário", 1], ["Derrubada", "Maioria absoluta: 21 votos", 1]],
-  PLC: [["Protocolo", "Lei complementar"], ["Leitura", "Expediente"], ["1ª Secretaria", "Distribui às comissões"], ["CCJ", "Constitucionalidade"], ["Mérito", "Comissões temáticas"], ["Plenário", "Maioria absoluta: 21 votos"], ["Sanção ou veto", "Governador"], ["Veto", "CCJ e Plenário", 1], ["Derrubada", "21 votos", 1]],
-  PEC: [["Proposta", "Por 1/3 dos deputados, pelo Governador ou por câmaras municipais"], ["Leitura", "Expediente"], ["CCJ / comissão especial", "Admissibilidade e mérito"], ["1º turno", "3/5: 24 votos"], ["2º turno", "3/5: 24 votos"], ["Promulgação", "Pela Mesa da Assembleia, sem sanção"]],
-  MP: [["Edição", "Governador, em caso de relevância e urgência; vale como lei"], ["Envio imediato", "À Assembleia"], ["Comissões", "Análise com prazo curto"], ["Plenário", "Converte em lei ou rejeita"], ["30 dias", "Sem conversão, perde a eficácia desde a edição", 1]],
+  PL: [["Protocolo", "Apresentação do projeto"], ["Leitura", "Lido no Expediente da sessão"], ["1ª Secretaria", "Define as comissões que vão analisar"], ["CCJ", "Primeiro exame: constitucionalidade e legalidade"], ["Comissões de mérito", "Análise do tema; emendas"], ["Volta à CCJ", "Se houver emendas, depois da última comissão"], ["Plenário", "Maioria simples, presente a maioria absoluta", [["Rejeitado", "arquivo", "n"]]], ["Governador", "15 dias úteis", [["Sanciona", "vira lei", "s"], ["Veta", "no todo ou em parte", "n"]]], ["Veto na Casa", "CCJ e depois Plenário", [["Derrubado", "21 votos · promulgação", "s"], ["Mantido", "arquivo", "n"]], 1]],
+  PLC: [["Protocolo", "Lei complementar"], ["Leitura", "Expediente"], ["1ª Secretaria", "Distribui às comissões"], ["CCJ", "Constitucionalidade"], ["Mérito", "Comissões temáticas"], ["Plenário", "Maioria absoluta: 21 votos", [["Rejeitado", "arquivo", "n"]]], ["Governador", "sanção ou veto", [["Sanciona", "vira lei", "s"], ["Veta", "no todo ou em parte", "n"]]], ["Veto na Casa", "CCJ e Plenário", [["Derrubado", "21 votos · promulgação", "s"], ["Mantido", "arquivo", "n"]], 1]],
+  PEC: [["Proposta", "1/3 dos deputados, Governador ou câmaras municipais"], ["Leitura", "Expediente"], ["CCJ / comissão especial", "Admissibilidade e mérito"], ["1º turno", "3/5: 24 votos", [["Rejeitada", "arquivo", "n"]]], ["2º turno", "3/5: 24 votos", [["Rejeitada", "arquivo", "n"]]], ["Promulgação", "Pela Mesa, sem sanção do Governador"]],
+  MP: [["Edição", "Governador, em caso de relevância e urgência; vale como lei"], ["Envio imediato", "À Assembleia"], ["Comissões", "Análise"], ["45 dias", "Sem votação, entra em urgência e tranca a pauta", 0, 1], ["60 dias", "Prorrogável uma vez por mais 60", 0, 1], ["Plenário", "Decide", [["Convertida", "vira lei", "s"], ["Rejeitada ou vencida", "perde a eficácia; decreto legislativo regula os efeitos", "n"]]]],
 };
 function secLegislativo(c) {
-  return cabSec("s2", "02", "Processo legislativo", "Como funciona a Casa: a composição, o calendário do mandato, a rotina da semana, as regras de votação e o caminho de cada proposta.") + secPolitica(c) +
-    `<div class="bloco rv"><h3>Calendário do mandato</h3><p>Legislatura de quatro anos, dividida em dois biênios da Mesa e das comissões.</p>
-      <div class="tl4"><div><b>1º fev 2027</b><span>Posse dos 40 deputados e eleição da Mesa (1º biênio)</span></div><div><b>fev 2027</b><span>Instalação das 24 comissões permanentes, com mandato de 2 anos</span></div><div><b>fev 2029</b><span>Eleição da Mesa e novas comissões (2º biênio)</span></div><div><b>jan 2031</b><span>Fim da legislatura</span></div></div>
-      <div class="tl4" style="margin-top:14px"><div><b>2 fev – 17 jul</b><span>1º período da sessão legislativa</span></div><div><b>18 – 31 jul</b><span>Recesso de meio de ano</span></div><div><b>1º ago – 22 dez</b><span>2º período da sessão legislativa</span></div><div><b>23 dez – 1º fev</b><span>Recesso de fim de ano</span></div></div>
-      <p class="nota">Sessão legislativa: Constituição do Estado. Datas que caem em fim de semana ou feriado passam para o dia útil seguinte.</p></div>
-    <div class="bloco rv"><h3>A semana da Assembleia</h3><p>Sessões ordinárias de terça a quinta; comissões em horários fixados pelos presidentes.</p>
-      <div class="semana"><div><b>Segunda</b><div class="it" style="color:var(--ter)">Base, agenda regional, gabinete</div></div>
+  return cabSec("s2", "02", "Legislativo", "Como funciona a Casa: o calendário do mandato, a rotina da semana, as regras de votação, o caminho de cada proposta e a composição.") +
+    `<div class="legg rv"><div class="bloco cal"><h3 data-bl>Calendário do mandato</h3><div class="blc"><ol class="vt">
+      <li><b>1º fev 2027</b><span>Posse dos 40 deputados e eleição da Mesa (1º biênio)</span></li><li><b>fev 2027</b><span>Instalação das 24 comissões, mandato de 2 anos</span></li><li><b>2 fev – 17 jul</b><span>1º período da sessão legislativa</span></li><li class="rc"><b>18 – 31 jul</b><span>Recesso</span></li><li><b>1º ago – 22 dez</b><span>2º período</span></li><li class="rc"><b>23 dez – 1º fev</b><span>Recesso</span></li><li><b>fev 2029</b><span>Nova Mesa e novas comissões (2º biênio)</span></li><li><b>jan 2031</b><span>Fim da legislatura</span></li></ol>
+      <p class="nota">Sessão legislativa: Constituição do Estado. Datas em fim de semana ou feriado passam ao dia útil seguinte.</p></div></div>
+    <div><div class="bloco"><h3 data-bl>Rotina semanal</h3><div class="blc"><div class="semana"><div><b>Segunda</b><div class="it" style="color:var(--ter)">Base, agenda regional, gabinete</div></div>
       <div class="on"><b>Terça</b><div class="it"><i>10h</i>CCJ (tradicionalmente)</div><div class="it"><i>14h</i>Sessão: Pequeno Expediente, horário dos partidos e oradores</div><div class="it"><i>16h</i>Ordem do Dia (votações)</div></div>
       <div class="on"><b>Quarta</b><div class="it"><i>9h</i>Finanças e Tributação</div><div class="it"><i>14h</i>Sessão: Expediente</div><div class="it"><i>16h</i>Ordem do Dia</div></div>
-      <div class="on"><b>Quinta</b><div class="it"><i>9h</i>Sessão sem Ordem do Dia</div><div class="it">Demais comissões conforme demanda</div></div>
-      <div><b>Sexta</b><div class="it" style="color:var(--ter)">Base, agenda regional</div></div></div></div>
-    <div class="bloco rv"><h3>Votação e quórum</h3><p>Quantos votos cada tipo de proposição precisa, numa Casa de 40 deputados.</p>
-      <table class="qtab"><tr><td>Projeto de lei ordinária<small>maioria simples dos presentes, com a maioria absoluta (21) em plenário</small></td><td>maioria simples</td></tr>
-      <tr><td>Projeto de lei complementar<small>maioria absoluta da Casa</small></td><td>21 votos</td></tr>
+      <div class="on"><b>Quinta</b><div class="it"><i>9h</i>Sessão sem Ordem do Dia</div><div class="it">Demais comissões conforme demanda; horários fixados pelos presidentes</div></div>
+      <div><b>Sexta</b><div class="it" style="color:var(--ter)">Base, agenda regional</div></div></div></div></div>
+    <div class="bloco"><h3 data-bl>Votação e quórum</h3><div class="blc"><table class="qtab"><tr><td>Projeto de lei ordinária<small>maioria simples, presente a maioria absoluta (21) em plenário</small></td><td>maioria simples</td></tr>
+      <tr><td>Lei complementar · derrubada de veto<small>maioria absoluta da Casa</small></td><td>21 votos</td></tr>
       <tr><td>Proposta de emenda à Constituição<small>três quintos, em dois turnos</small></td><td>24 votos × 2</td></tr>
-      <tr><td>Derrubada de veto<small>maioria absoluta</small></td><td>21 votos</td></tr>
-      <tr><td>Medida provisória<small>perde a eficácia se não convertida em lei em 30 dias</small></td><td>30 dias</td></tr></table>
-      <p class="nota">Votação simbólica ou nominal (painel), conforme o caso. Ausência pode ser justificada pelo deputado. Conferir detalhes no Regimento Interno.</p></div>
-    <div class="bloco rv"><h3>Trilha das propostas</h3><p>Escolha o tipo e acompanhe o caminho, do protocolo à lei.</p><div class="chips" id="trTipos">${Object.keys(TRILHA).map((k, i) => `<button data-tr="${k}" class="${i ? "" : "on"}">${k}</button>`).join("")}</div><div class="trilha" id="trilha"></div></div>` + fimSec("s3");
+      <tr><td>Medida provisória<small>vigora 60 dias, prorrogáveis uma vez por mais 60; sem votação em 45 dias, entra em urgência e tranca a pauta</small></td><td>60 + 60 dias</td></tr></table>
+      <p class="nota">Votação simbólica ou nominal (painel). Ausência pode ser justificada. Medida provisória: Constituição do Estado, art. 51. Conferir detalhes no Regimento Interno.</p></div></div></div></div>
+    <div class="bloco rv"><h3 data-bl>Trilha das propostas</h3><div class="blc"><p>Escolha o tipo e acompanhe o caminho, do protocolo à lei ou ao arquivo.</p><div class="chips" id="trTipos">${Object.keys(TRILHA).map((k, i) => `<button data-tr="${k}" class="${i ? "" : "on"}">${k}</button>`).join("")}</div><div class="trilha" id="trilha"></div></div></div>
+    ${secPolitica(c)}` + fimSec("s3");
 }
-function trilha(k) { $("#trilha").innerHTML = TRILHA[k].map(([t, d, v], i) => `<div class="e${v ? " vt" : ""}" style="animation-delay:${i * 120}ms"><b>${esc(t)}</b><span>${esc(d)}</span></div>`).join(""); }
+function trilha(k) { $("#trilha").innerHTML = TRILHA[k].map(([t, d, alt, v, pz], i) => `<div class="e${v ? " vt" : ""}${pz ? " pz" : ""}" style="animation-delay:${i * 120}ms"><b>${esc(t)}</b><span>${esc(d)}</span>${alt ? `<div class="alt">${alt.map(([a, b, kk]) => `<div class="${kk}"><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join("")}</div>` : ""}</div>`).join(""); }
 
 // 03 · Administrativo
 function secAdministrativo(c) {
@@ -116,22 +114,20 @@ function secAdministrativo(c) {
     <div class="bloco rv"><h3>Estrutura do gabinete</h3><p>O que pode ser nomeado e custeado.</p><table class="qtab">
       ${L("Secretários Parlamentares", `até ${G.cargos || 27} · ${fm(G.cota || 0)}`, "cota máxima mensal de nomeações")}${L("Chefe de Gabinete", fm(G.chefe || 0), "PL/DAS-7 · 1 por gabinete")}${L("Operação de sistemas", fm(G.retrib || 0), "FC-5 + FC-4")}
       ${L("Cota de custeio do gabinete", fm(C.base || 0), "diárias, passagens, telefone, divulgação, escritório, veículo")}${L("Escritório regional", `até 2 · ${fm(I.escritorio_lim || 0)} cada`, "aluguel, dentro da cota")}${L("Veículo", `${fm(I.veiculo_proprio || 0)} ou 2 locados`, "indenização do veículo próprio, dentro da cota")}${L("Moradia na Capital", fm(C.moradia || 0))}</table>
-</div>` + secGabinete(c) + secCasa() + secPatrimonio(c) + fimSec(null);
+</div><div class="bloco rv"><h3 data-bl>Liderança do ${esc(c.p)}</h3><div class="blc" id="lid"></div></div>` + secGabinete(c) + secCasa() + secPatrimonio(c) + fimSec(null);
 }
 
 // ---------- estrutura política: composição 2027 × 2022, comissões (quociente com simulação de bloco) e liderança ----------
 const PART22 = { "PT/PC do B/PV": ["PT"], "UNIÃO/PP": ["UNIÃO", "PP"], "PSOL/REDE": ["PSOL"] };
 const nbanc = (p) => eleitos().filter((x) => x.p === p).length;
 function secPolitica(c) {
-  const E = eleitos(), ps = [...new Set(E.map((x) => x.p))].sort((a, b) => nbanc(b) - nbanc(a)), B22 = A22.bancadas || {}, e22 = new Set(A22.eleitos_nomes || []);
-  const nrm = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z ]/g, ""), novos = E.filter((x) => !e22.has(nrm(x.nome || x.u))).length;
-  const v22 = (p) => (PART22[p] || [p]).reduce((s2, q) => s2 + (B22[q] || 0), 0), mx = Math.max(...ps.map(nbanc));
-  return `<div class="bloco rv"><h3>A nova Assembleia</h3><p>${novos} dos 40 deputados estreiam em 2027. Bancadas eleitas em 2026, comparadas com 2022.</p>
-    <div class="banc">${ps.map((p) => { const n = nbanc(p), d = n - v22(p); return `<div class="${p === c.p ? "eu" : ""}"><span>${esc(p)}</span><i style="width:${n / mx * 100}%"></i><b>${n}</b><small>${d ? (d > 0 ? "+" : "") + d : "="} vs 2022</small></div>`; }).join("")}</div>
-    <p class="nota">2022: resultado da eleição (antes das trocas de partido da legislatura). Federações de 2026 somam os partidos que a compõem.</p></div>
-    <div class="bloco rv"><h3>Comissões: quanto o ${esc(c.p)} leva</h3><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). Marque partidos para simular um bloco com o ${esc(c.p)} e veja as vagas em cada cenário.</p>
-    <div class="chips" id="blocoP">${ps.filter((p) => p !== c.p).map((p) => `<button data-bp="${esc(p)}">${esc(p)} · ${nbanc(p)}</button>`).join("")}</div><div id="quoc"></div></div>
-    <div class="bloco rv"><h3>Liderança do ${esc(c.p)}</h3><div id="lid"></div></div>`;
+  const ps = [...new Set(eleitos().map((x) => x.p))].sort((a, b) => nbanc(b) - nbanc(a));
+  return `<div class="bloco rv"><h3 data-bl>A nova Assembleia: 2022 × 2026</h3><div class="blc"><p>À esquerda, os eleitos de 2022; à direita, os de 2026. Cada segmento é um deputado, do tamanho da sua votação. Verde: cadeiras ganhas; vermelho: perdidas.</p>
+    <div class="ordc" id="ordComp"><span class="r">Ordenar</span>${[["n26", "2026"], ["n22", "2022"], ["var", "variação"], ["vot", "votos 2026"]].map(([k, r], i) => `<button data-oc="${k}" class="${i ? "" : "on"}">${r} ↓</button>`).join("")}</div><div class="comp" id="comp"></div>
+    <p class="nota">2022: resultado da eleição (antes das trocas de partido). Federações de 2026 somam os partidos que a compõem (UNIÃO/PP = União + PP; PT/PC do B/PV = PT; PSOL/REDE = PSOL).</p></div></div>
+    <div class="bloco rv"><h3 data-bl>Comissões: quanto o ${esc(c.p)} leva</h3><div class="blc"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). O ${esc(c.p)} já está marcado; some outros partidos para simular um bloco.</p>
+    <div class="chips" id="blocoP"><button class="on fixo" title="seu partido">${esc(c.p)} · ${nbanc(c.p)}</button>${ps.filter((p) => p !== c.p).map((p) => `<button data-bp="${esc(p)}">${esc(p)} · ${nbanc(p)}</button>`).join("")}</div><div id="quoc"></div>
+    <div class="olho" style="margin:18px 0 8px">As 176 vagas nas 24 comissões · cada ponto é uma vaga</div><div class="gcom" id="gcom"></div></div></div>`;
 }
 // vagas no conjunto das comissões do mesmo tamanho (k comissões de n membros): direito = k × deputados ÷ quociente;
 // parte inteira garantida, depois 1 vaga reservada por comissão aos partidos com menos de 5, e o resto às maiores frações
@@ -139,16 +135,31 @@ function vagas(grupos, n, k) { const q = 40 / (n - 1), L = grupos.map((g) => { c
   let r = k * n - L.reduce((s2, x) => s2 + x.v, 0), res = Math.min(k, r); const peq = L.filter((x) => x.d < 5);
   while (res > 0 && peq.length) { peq.sort((a, b) => (b.e - b.v) - (a.e - a.v) || b.d - a.d); peq[0].v++; res--; r--; }
   while (r > 0) { L.sort((a, b) => (b.e - b.v) - (a.e - a.v) || b.d - a.d); L[0].v++; r--; } return { q, L }; }
-let BLOCO = [];
+let BLOCO = [], ORDC = "n26";
+const COMS9 = ["CCJ", "Finanças", "Trabalho", "Ética"], COMS7 = ["Agricultura", "Assuntos Mun.", "Criança", "Deficiência", "Idoso", "Dir. Humanos", "Economia", "Educação", "Consumidor", "Pesca", "Drogas", "Defesa Civil", "Rel. Inst.", "Saúde", "Segurança", "Transportes", "Turismo", "Esportes", "Animal", "Meio Ambiente"];
 function ligarPolitica(c) {
-  const desenha = () => { const ps = [...new Set(eleitos().map((x) => x.p))], meu = [c.p, ...BLOCO], grupos = [meu, ...ps.filter((p) => !meu.includes(p)).map((p) => [p])];
-    const sim = (g) => { const a = vagas(g, 9, 4), b = vagas(g, 7, 20), f = (r) => r.L.find((x) => x.g.includes(c.p)); return { v9: f(a).v, v7: f(b).v, q9: f(a).d / a.q, q7: f(b).d / b.q, tot: f(a).v + f(b).v, d: f(a).d }; };
-    const so = sim([[c.p], ...ps.filter((p) => p !== c.p).map((p) => [p])]), cb = sim(grupos);
-    const sep = BLOCO.reduce((t, p) => { const g = [[p], ...ps.filter((q) => q !== p).map((q) => [q])], a = vagas(g, 9, 4), b = vagas(g, 7, 20), f = (r) => r.L.find((x) => x.g.includes(p)).v; return t + f(a) + f(b); }, so.tot);
-    const card = (t, x) => `<div class="cen"><span>${t}</span><b>${x.tot}</b><small>vagas nas 24 comissões · ${x.d} deputados</small><div>Comissões de 9 (4): <b>${x.v9}</b> vagas · ${nf(x.q9, 2)} quocientes por comissão</div><div>Comissões de 7 (20): <b>${x.v7}</b> vagas · ${nf(x.q7, 2)} quocientes por comissão</div></div>`;
-    $("#quoc").innerHTML = `<div class="cens">${card(`${c.p} sozinho`, so)}${BLOCO.length ? card(`Bloco ${meu.join(" + ")}`, cb) : `<div class="cen vz"><span>Com bloco</span><small>marque partidos acima</small></div>`}</div>${BLOCO.length ? `<p class="nota">Separados, esses partidos somam ${sep} vagas; em bloco, ${cb.tot}: ${cb.tot - sep > 0 ? "ganho" : cb.tot - sep < 0 ? "perda" : "mesmo número"}${cb.tot - sep ? " de " + Math.abs(cb.tot - sep) + " vaga(s)" : ""}. Bloco só compensa se o total continuar abaixo de 5 deputados ou se a soma das frações completar uma vaga inteira.</p>` : ""}`; };
+  // composição 2022 × 2026, barras divergentes com um segmento por deputado (largura = votos)
+  const E = eleitos(), E22 = A22.eleitos || [], ps = [...new Set(E.map((x) => x.p))], de22 = (p) => E22.filter((x) => (PART22[p] || [p]).includes(x.p));
+  const tot = (L) => L.reduce((s2, x) => s2 + x.t, 0), mxv = Math.max(...ps.map((p) => Math.max(tot(E.filter((x) => x.p === p)), tot(de22(p))))) || 1;
+  const comp = () => { const R = ps.map((p) => { const a = de22(p).sort((x, y) => y.t - x.t), b = E.filter((x) => x.p === p).sort((x, y) => y.t - x.t); return { p, a, b, d: b.length - a.length }; });
+    R.sort((x, y) => ORDC === "n22" ? y.a.length - x.a.length : ORDC === "var" ? y.d - x.d : ORDC === "vot" ? tot(y.b) - tot(x.b) : y.b.length - x.b.length || tot(y.b) - tot(x.b));
+    $("#comp").innerHTML = R.map((r, ri) => { const L = r.a.map((x, k) => `<i class="${k >= r.b.length ? "perd" : ""}" style="width:${x.t / mxv * 100}%;animation-delay:${ri * 60 + k * 25}ms" title="${esc(x.u)} · ${ni(x.t)} votos (2022)"></i>`).join(""),
+      Rr = r.b.map((x, k) => `<i class="${k >= r.a.length ? "ganh" : ""}" style="width:${x.t / mxv * 100}%;animation-delay:${ri * 60 + k * 25}ms" title="${esc(x.u)} · ${ni(x.t)} votos"><img src="${foto(x.n)}" alt=""></i>`).join("");
+      return `<div class="cl${r.p === c.p ? " eu" : ""}"><div class="lado e"><b>${r.a.length}</b><div class="seg">${L}</div></div><div class="pn">${esc(r.p)}<small>${r.d > 0 ? "+" + r.d : r.d < 0 ? r.d : "="}</small></div><div class="lado d"><div class="seg">${Rr}</div><b>${r.b.length}</b></div></div>`; }).join("") + `<div class="cl cab"><div class="lado e"><span>2022</span></div><div class="pn"></div><div class="lado d"><span>2026</span></div></div>`; };
+  $("#ordComp").onclick = (e) => { const b = e.target.closest("[data-oc]"); if (!b) return; ORDC = b.dataset.oc; $("#ordComp").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); comp(); };
+  comp();
+  // simulador de bloco: vagas por cenário + grade de 176 pontos nas 24 comissões
+  const desenha = () => { const meu = [c.p, ...BLOCO], grupos = [meu, ...ps.filter((p) => !meu.includes(p)).map((p) => [p])];
+    const sim = (g, quem) => { const a = vagas(g, 9, 4), b = vagas(g, 7, 20), f = (r) => r.L.find((x) => x.g.includes(quem)); return { v9: f(a).v, v7: f(b).v, tot: f(a).v + f(b).v, d: f(a).d }; };
+    const so = sim([[c.p], ...ps.filter((p) => p !== c.p).map((p) => [p])], c.p), cb = sim(grupos, c.p);
+    const sep = BLOCO.reduce((t, p) => t + sim([[p], ...ps.filter((q) => q !== p).map((q) => [q])], p).tot, so.tot);
+    const card = (t, x) => `<div class="cen"><span>${t}</span><b>${x.tot}</b><small>vagas nas 24 comissões · ${x.d} deputado(s)</small><div>${x.v9 <= 4 ? `Presente em <b>${x.v9}</b> das 4 comissões de 9 membros` : `<b>${x.v9}</b> vagas nas 4 comissões de 9 membros`}</div><div>${x.v7 <= 20 ? `Presente em <b>${x.v7}</b> das 20 comissões de 7 membros` : `<b>${x.v7}</b> vagas nas 20 comissões de 7 membros`}</div></div>`;
+    $("#quoc").innerHTML = `<div class="cens">${card(`${c.p} sozinho`, so)}${BLOCO.length ? card(`Bloco ${meu.join(" + ")}`, cb) : `<div class="cen vz"><span>Com bloco</span><small>marque partidos acima</small></div>`}</div>${BLOCO.length ? `<p class="nota">Separados, esses partidos somam ${sep} vagas; em bloco, ${cb.tot}: ${cb.tot - sep > 0 ? "ganho" : cb.tot - sep < 0 ? "perda" : "mesmo número"}${cb.tot - sep ? " de " + Math.abs(cb.tot - sep) + " vaga(s)" : ""}. Bloco só compensa se o total continuar abaixo de 5 deputados ou se a soma das frações completar uma vaga inteira.</p>` : ""}`;
+    const v = BLOCO.length ? cb : so, col = (nm, n, k, j) => `<div class="cc"><div class="pts">${Array.from({ length: n }, (_, q) => `<i class="${q < Math.floor(v[k] / (n === 9 ? 4 : 20)) + (j < v[k] % (n === 9 ? 4 : 20) ? 1 : 0) ? "on" : ""}" style="animation-delay:${(q + j) * 18}ms"></i>`).join("")}</div><span>${nm}</span></div>`;
+    $("#gcom").innerHTML = COMS9.map((nm, j) => col(nm, 9, "v9", j)).join("") + `<div class="sepc"></div>` + COMS7.map((nm, j) => col(nm, 7, "v7", j)).join(""); };
   $("#blocoP").onclick = (e) => { const b = e.target.closest("[data-bp]"); if (!b) return; const p = b.dataset.bp; BLOCO = BLOCO.includes(p) ? BLOCO.filter((x) => x !== p) : [...BLOCO, p]; b.classList.toggle("on"); desenha(); };
   BLOCO = []; desenha();
+  // liderança (seção Administrativo)
   const T = (EST.liderancas || {}).tabela || {}, nb = nbanc(c.p), e = T[Math.min(9, nb)] || {}, F = ((EST.liderancas || {}).folha || {})[c.p];
   $("#lid").innerHTML = `<table class="qtab"><tr><td>Bancada<small>deputados do ${esc(c.p)} em 2027</small></td><td>${nb}</td></tr><tr><td>Cargos da liderança<small>Secretário Parlamentar PL/GAL · Res. 002/2006, Anexo IX-C</small></td><td>até ${e.cargos || "—"}</td></tr><tr><td>Cota mensal da liderança<small>índice de cota × R$ 356,34</small></td><td>${fm(e.cota || 0)}</td></tr>${F ? `<tr><td>Folha atual da liderança<small>contracheques 09/2026</small></td><td>${fm(F)}</td></tr>` : ""}<tr><td>Adicional de cota do líder<small>Ato da Mesa 066/2024, não cumulativo</small></td><td>${fm(((EST.cota_custeio || {}).ad_pres_lider) || 0)}</td></tr></table>`;
 }
@@ -214,11 +225,35 @@ function caderno(c, ordM) {
 
 // entrada suave das seções ao rolar
 function revelar() {
+  document.querySelectorAll("[data-tg]").forEach((b) => b.onclick = () => { const cs = $("#cs-" + b.dataset.tg), f = !cs.hidden; cs.hidden = f; b.textContent = f ? "+" : "−"; });
+  document.querySelectorAll(".bloco > h3").forEach((h) => { if (!(h.nextElementSibling && h.nextElementSibling.classList.contains("blc"))) { const w = document.createElement("div"); w.className = "blc"; while (h.nextSibling) w.appendChild(h.nextSibling); h.after(w); } h.dataset.bl = 1; h.onclick = () => h.parentElement.classList.toggle("fech"); });
+  const nav = $("#secnav"); if (nav) { const io3 = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) nav.querySelectorAll("a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-40% 0px -55% 0px" }); ["hero", "s1", "s2", "s3"].forEach((id) => $("#" + id) && io3.observe($("#" + id))); }
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -12% 0px" });
   document.querySelectorAll(".rv").forEach((x) => io.observe(x));
   const t = $("#trTipos"); if (t) t.onclick = (e) => { const b = e.target.closest("[data-tr]"); if (!b) return; t.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); trilha(b.dataset.tr); };
   const tr = $("#trilha"); if (tr) { const io2 = new IntersectionObserver((es) => { if (es[0].isIntersecting) { trilha("PL"); io2.disconnect(); } }); io2.observe(tr); }
 }
+
+// cidade escolhida no Painel embutido: mapa de bairros e locais de votação, preso à direita enquanto rola
+const slugArq = (x) => String(x).normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+let CID_FECH = null;
+async function mapaCidade({ k, a, b }) {
+  const el = $("#cid"); if (!el) return; if (!k || CID_FECH === k) { el.hidden = true; return; }
+  let g, s; try { [g, s] = await Promise.all([fetch(`../dados/mapas/bairros-sc/${slugArq(k)}.json`).then((r) => r.json()), fetch(`../dados/resultados/sc-2026/secoes/${slugArq(k)}.json`).then((r) => r.json())]); } catch (e) { el.hidden = true; return; }
+  const soma = (n) => { const v = ((s.estadual || {})[n]) || {}, o = {}; Object.entries(s._secoes || {}).forEach(([sk, ln]) => { o[ln] = (o[ln] || 0) + (v[sk] || 0); }); return o; };
+  const vA = soma(a), vB = b ? soma(b) : null, cA = D.c.find((x) => x.n === a), cB = b && D.c.find((x) => x.n === b);
+  const ls = Object.entries(g.l).map(([nm, [x, y]]) => ({ nm, x, y, v: vB ? (vA[nm] || 0) - (vB[nm] || 0) : vA[nm] || 0 })).filter((o) => o.v), mx = Math.max(1, ...ls.map((o) => Math.abs(o.v)));
+  const fundo = g.c ? `<path d="${g.c}" fill="rgba(242,244,245,.04)" stroke="rgba(242,244,245,.2)"/>` : g.b.map(([, d]) => `<path d="${d}" fill="rgba(242,244,245,.035)" fill-rule="evenodd" stroke="rgba(242,244,245,.12)" stroke-width=".8"/>`).join("");
+  const lab = g.b ? g.b.map(([nm, , [x, y]]) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="10" font-weight="600" fill="rgba(242,244,245,.35)">${esc(nm)}</text>`).join("") : "";
+  const bol = ls.sort((p, q) => Math.abs(q.v) - Math.abs(p.v)).map((o) => { const az = o.v < 0; return `<circle cx="${o.x}" cy="${o.y}" r="${(3 + 20 * Math.sqrt(Math.abs(o.v) / mx)).toFixed(1)}" fill="${az ? "rgba(122,140,160,.45)" : "rgba(var(--a-rgb),.5)"}" stroke="${az ? "#9AA6B2" : "var(--a)"}" stroke-width="1"><title>${esc(o.nm)}: ${vB ? (o.v > 0 ? "+" : "") + ni(o.v) : ni(o.v)}</title></circle>`; }).join("");
+  const top = Object.entries(vA).filter(([, x]) => x).sort((p, q) => q[1] - p[1]).slice(0, 5);
+  el.innerHTML = `<div class="cidc"><div class="cidh"><div><div class="olho">${esc(k)}</div><b>${esc(cA ? cA.u : "")}${cB ? ` × ${esc(cB.u)}` : ""}</b></div><button class="x" title="Fechar mapa">×</button></div>
+    <svg viewBox="0 0 ${g.w} ${g.h}" preserveAspectRatio="xMidYMid meet" class="${g.h > g.w * 1.25 ? "alto" : ""}">${fundo}${lab}${bol}</svg>
+    <div class="nota">${vB ? `Laranja: vantagem de ${esc(cA.u)}; cinza: de ${esc(cB.u)}.` : "Círculo = local de votação, do tamanho dos votos."} ${g.c ? "Sem bairros no IBGE." : "Bairros: IBGE 2022."}</div>
+    <ol class="rank">${top.map(([n, v], i) => `<li><i>${i + 1}º</i><span>${esc(n)}</span><b>${ni(v)}</b></li>`).join("")}</ol></div>`;
+  el.hidden = false; el.querySelector(".x").onclick = () => { CID_FECH = k; el.hidden = true; };
+}
+addEventListener("message", (e) => { if (e.origin === location.origin && e.data && e.data.tipo === "cidade") mapaCidade(e.data); });
 
 // relatório do Painel embutido abre por cima (sem nova aba)
 addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data || e.data.tipo !== "relatorio") return;
@@ -250,8 +285,8 @@ function heroMapa(c, ordM) {
     ordM.slice(0, 6).forEach((i, q) => { const b = B[i], v = (Math.sin(t * 1.4 + q) + 1) / 2; if (t < 3) return; ctx.globalAlpha = .25 * v; ctx.fillStyle = `rgb(${rgb})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1.2 + .5 * v), 0, 6.2832); ctx.fill(); });
     ctx.globalAlpha = 1; heroRaf = requestAnimationFrame(quadro); };
   heroRaf = requestAnimationFrame(quadro);
-  const pos0 = [], escolha = []; for (const i of ordM) { const x = Math.min(w - 80, Math.max(80, B[i].x)), y = B[i].y - B[i].r; if (pos0.some(([a, b]) => Math.abs(a - x) < 150 && Math.abs(b - y) < 34)) continue; pos0.push([x, y]); escolha.push([i, x, y]); if (escolha.length === 5) break; }
-  $("#etqs").innerHTML = escolha.map(([i, x, y], q) => `<div class="etq" style="left:${x}px;top:${y}px;animation-delay:${2.6 + q * .45}s">${esc(M[i].n)}<b>${ni(c.v[i])}</b></div>`).join("");
+  const pos0 = [], escolha = []; for (const i of ordM.slice(0, 40)) { const x = Math.min(w - 80, Math.max(80, B[i].x)), y = B[i].y - B[i].r; if (pos0.some(([a, b]) => Math.abs(a - x) < 150 && Math.abs(b - y) < 34)) continue; pos0.push([x, y]); escolha.push([i, x, y]); if (escolha.length === 5) break; }
+  $("#etqs").innerHTML = escolha.map(([i, x, y], q) => `<div class="etq" style="left:${x}px;top:${y}px;animation-delay:${2.4 + q * .55}s"><span>${esc(M[i].n)}</span><b>${ni(c.v[i])}</b></div>`).join("");
 }
 
 (async () => {

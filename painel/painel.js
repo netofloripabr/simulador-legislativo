@@ -11,6 +11,7 @@ const nf = (x, c = 1) => x.toLocaleString("pt-BR", { minimumFractionDigits: c, m
 const ni = (x) => Math.round(x).toLocaleString("pt-BR");
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const EMB = /[?&]embed=1/.test(location.search);
 const reduzido = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const CARGOS = [["estadual", "Dep. Estadual"], ["federal", "Dep. Federal"], ["senador", "Senador"], ["governador", "Governador"], ["presidente", "Presidente"]];
 const CARGO_LBL = Object.fromEntries(CARGOS);
@@ -351,6 +352,7 @@ function placarHero() {
 
 // ---------------- ficha ----------------
 function ficha() {
+  if (EMB && parent !== window) { const k = st.sel >= 0 ? M[st.sel].n : st.rec && st.rec.tipo === "n" ? st.rec.nome : null; parent.postMessage({ tipo: "cidade", k, a: st.a.n, b: st.b ? st.b.n : null }, location.origin); }
   const el = $("#ficha"), A = st.A, B = st.B, i = st.sel;
   if (i < 0) {
     // Duelo (08/10/2026): ordena pela diferença de VOTOS (mesmo cargo) — antes era pelos
@@ -365,8 +367,8 @@ function ficha() {
       return `<li><span>${esc(M[j].n)}<small style="display:block;color:var(--ter);font-size:11px">${ni(A.v[j])} × ${ni(B.v[j])} votos</small></span><b style="text-align:right${lado ? ";color:#7FA4FF" : ""}">${mc ? `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}` : rotY(m)}<small style="display:block;color:var(--ter);font-size:11px;font-weight:500">${mc ? `${m >= 0 ? "+" : "−"}${nf(Math.abs(m))} pts` : "peso no total"}</small></b></li>`; };
     el.innerHTML = `<h2>${B ? `${esc(pn(A))} × ${esc(pn(B))}` : esc(A.u) + botoesLinks(A)}</h2><div class="onde">${B ? `${CARGO_LBL[A.cargo]} × ${CARGO_LBL[B.cargo]}` : `${esc(A.p)} · ${CARGO_LBL[A.cargo]} · ${esc(A.s || "")}`}</div>
       ${B ? barra(somaA, somaB, somaA + somaB, onde) : ""}
-      <h3>${B ? `Maior vantagem de ${esc(pn(A))}` : "Cidades com mais votos"}</h3><div class="top"><ol>${t.slice(0, 6).map((j) => B ? linha(j, 0) : `<li><span>${esc(M[j].n)}</span><b>${ni(A.v[j])}</b></li>`).join("")}</ol></div>
-      ${B ? `<h3>Maior vantagem de ${esc(pn(B))}</h3><div class="top"><ol>${t.slice(-6).reverse().map((j) => linha(j, 1)).join("")}</ol></div>
+      <h3>${B ? `Maior vantagem de ${esc(pn(A))}` : "Cidades com mais votos"}</h3><div class="top"><ol>${t.slice(0, EMB ? 3 : 6).map((j) => B ? linha(j, 0) : `<li><span>${esc(M[j].n)}</span><b>${ni(A.v[j])}</b></li>`).join("")}</ol></div>
+      ${B ? `<h3>Maior vantagem de ${esc(pn(B))}</h3><div class="top"><ol>${t.slice(EMB ? -3 : -6).reverse().map((j) => linha(j, 1)).join("")}</ol></div>
       <p class="dica" style="margin-top:8px">${mc ? "Diferença em votos; embaixo, a diferença em pontos percentuais dos votos válidos da cidade." : "Cargos diferentes: ordenado pelo peso da cidade no total de cada um."}</p>` : ""}
       <p class="dica" style="margin-top:14px">Toque num ponto para ver a cidade.</p>`;
     animarBarra(el); return;
@@ -479,7 +481,7 @@ trocouCandidato = function () { _troca(); hero.recolorir(); };
 // ---------------- recorte (estado / mesorregião / microrregião / associação) ----------------
 function montarRecorte() {
   const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${st.rec && st.rec.tipo === tp && st.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
-  $("#recorte").innerHTML = `<option value="">Santa Catarina</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
+  $("#recorte").innerHTML = `<option value="">Santa Catarina</option>` + TIPOS.map(([t, r]) => g(t, r)).join("") + (EMB ? g("n", "Municípios") : "");
   $("#recorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); st.rec = t ? { tipo: t, nome: n.join("|") } : null; st.sel = -1; st.abertos = {}; trocouCandidato(); };
   if (st.lente === "social") { $("#tiposReg").innerHTML = VARS.map(([k, r]) => `<button data-var="${k}" class="${st.var === k ? "on" : ""}">${r}</button>`).join(""); $("#tiposReg").onclick = (e) => { const b = e.target.closest("[data-var]"); if (!b) return; st.var = b.dataset.var; montarRecorte(); irPara("social"); frase(); }; return; }
   $("#tiposReg").innerHTML = st.lente === "regioes" ? TIPOS.map(([t, r]) => `<button data-tr="${t}" class="${st.tipoReg === t ? "on" : ""}">${r}</button>`).join("") : "";
