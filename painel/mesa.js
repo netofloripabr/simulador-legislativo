@@ -217,6 +217,9 @@ function legenda2025() {
   const B = [["PL", 2], ["MDB/PSDB", 2], ["PRD/PSD/União", 2], ["PT/PSOL", 1], ["Podemos/Novo/Republicanos", 1], ["PP/PDT", 1]];
   return `<p class="leg25"><b>2025:</b> ${B.map(([n, v]) => `${esc(n)} <b>${v}</b>`).join(" · ")} <span>vagas nas comissões de 9 · Agência ALESC, 05/02/2025</span></p>`;
 }
+// nome curto só para exibir na lista (a chave continua o nome oficial)
+const CURTO = { "Relacionamento Institucional, das Relações Internacionais e do MERCOSUL": "Rel. Institucionais, Internacionais e MERCOSUL", "Direitos do Consumidor e do Contribuinte e de Legislação Participativa": "Consumidor, Contribuinte e Leg. Participativa", "Transportes, Desenvolvimento Urbano e Infraestrutura": "Transportes, Des. Urbano e Infraestrutura", "Defesa dos Direitos da Criança e do Adolescente": "Direitos da Criança e do Adolescente", "Economia, Ciência, Tecnologia e Inovação": "Economia, Ciência, Tec. e Inovação", "Meio Ambiente e Desenvolvimento Sustentável": "Meio Ambiente e Des. Sustentável", "Trabalho, Administração e Serviço Público": "Trabalho, Adm. e Serviço Público" };
+const curto = (c) => CURTO[c] || c;
 function quocTabela() { const A = dist(9), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return (() => { const BL = A.L.map((x) => nomeB(x.b)), dep_ = A.L.map((x) => x.d), linha = (c) => { const sl = slotsCom(c); return `<tr><td>${esc(c)}</td><td class="f">${sl.length}</td>${BL.map((b) => { const v = sl.filter((y) => y === b).length; return `<td>${v ? `<b>${v}</b>` : `<span style="color:#3A3F45">·</span>`}</td>`; }).join("")}</tr>`; };
       const tot = BL.map((b) => COMS.reduce((s2, c) => s2 + slotsCom(c).filter((y) => y === b).length, 0));
       return `<div style="overflow-x:auto"><table class="qt mz"><tr><th>Comissão</th><th>Vagas</th>${BL.map((b, k) => `<th class="bc"><span class="bn">${esc(b).replace(/ \+ /g, " +<br>")}</span><span class="bd">${dep_[k]} dep.</span></th>`).join("")}</tr>
@@ -242,7 +245,7 @@ function secCom(ch) {
   const linhas = COMS.map((c) => {
     const sl = slotsCom(c), l = (ch.com[c] = (ch.com[c] || []).slice(0, sl.length)), cheio = l.filter(Boolean).length, ab = S.ui.comAb === c, p = ch.pres[c] && dep(ch.pres[c]);
     const v = S.ui.c25 && PRES25[c], f25 = v ? (v.n || v.src ? `<img class="av a25" src="${v.src || foto(v.n)}" alt="" title="2025: ${esc(v.u)} (${esc(v.p)})">` : `<span class="av a25 ini" title="2025: ${esc(v.u)} (${esc(v.p)})">${esc(v.u.split(" ").map((w) => w[0]).slice(0, 2).join(""))}</span>`) : "";
-    let x = `<div><div class="ln${ab ? " ab" : ""}${v ? " l25" : ""}" data-com="${esc(c)}"><span class="pst">${f25}${p ? img(p) : hole()}</span><span class="n">${esc(c)}${v ? `<small class="s25">2025: ${esc(v.u)} · ${esc(v.p)}</small>` : ""}</span><span class="q">${cheio}/${sl.length}</span><span style="color:#6B7178;font-size:11px">${ab ? "▾" : "▸"}</span></div>`;
+    let x = `<div><div class="ln${ab ? " ab" : ""}${v ? " l25" : ""}" data-com="${esc(c)}"><span class="pst">${f25}${p ? img(p) : hole()}</span><span class="n" title="${esc(c)}"><span class="nm1">${esc(curto(c))}</span>${v ? `<small class="s25">2025: ${esc(v.u)} · ${esc(v.p)}</small>` : ""}</span><span class="q">${cheio}/${sl.length}</span><span style="color:#6B7178;font-size:11px">${ab ? "▾" : "▸"}</span></div>`;
     if (ab) {
       const d = dist(sl.length), e = comEst(c);
       x += `<div class="abre"><div class="conta">${sl.length} vagas · quociente ${f(d.q)} · ${Object.entries(sl.reduce((o, b) => (o[b] = (o[b] || 0) + 1, o), {})).map(([b, v]) => `${esc(b)} ${v}`).join(" · ")}${e ? ` · presidência: secretário de comissão ${fm(e.t)}/mês` : ""}</div>
