@@ -370,6 +370,8 @@ function ficha() {
       <h3>${B ? `Maior vantagem de ${esc(pn(A))}` : "Cidades com mais votos"}</h3><div class="top"><ol>${t.slice(0, EMB ? 3 : 6).map((j) => B ? linha(j, 0) : `<li><span>${esc(M[j].n)}</span><b>${ni(A.v[j])}</b></li>`).join("")}</ol></div>
       ${B ? `<h3>Maior vantagem de ${esc(pn(B))}</h3><div class="top"><ol>${t.slice(EMB ? -3 : -6).reverse().map((j) => linha(j, 1)).join("")}</ol></div>
       <p class="dica" style="margin-top:8px">${mc ? "Diferença em votos; embaixo, a diferença em pontos percentuais dos votos válidos da cidade." : "Cargos diferentes: ordenado pelo peso da cidade no total de cada um."}</p>` : ""}
+      ${EMB && !B ? (() => { const R = {}; [...Array(N).keys()].forEach((j) => { R[M[j].meso] = (R[M[j].meso] || 0) + (A.v[j] || 0); }); const L = Object.entries(R).sort((x, y) => y[1] - x[1]), tot = L.reduce((s2, x) => s2 + x[1], 0) || 1, mx = L[0][1] || 1;
+        return `<h3>Votos por macrorregião</h3><div class="mrg">${L.map(([m, v]) => `<div><span>${esc(m.replace(" Catarinense", ""))}</span><b>${ni(v)}<small>${nf(v / tot * 100)}%</small></b><i style="width:${v / mx * 100}%"></i></div>`).join("")}</div>`; })() : ""}
       <p class="dica" style="margin-top:14px">Toque num ponto para ver a cidade.</p>`;
     animarBarra(el); return;
   }
