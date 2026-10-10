@@ -10,7 +10,7 @@ const COM9 = /constitui|financas|trabalho|etica/;
 const foto = (n) => `../dados/fotos/sc-2026/estadual/${n}.jpg`;
 const img = (d, cls = "av", st = "") => `<img class="${cls}" src="${foto(d.n)}" alt="" style="${st}">`;
 const hole = () => `<span class="ho">+</span>`;
-let ORDEM_CH = null, ORDEM_BLOCO = null, DEP = [], COMS = [], EST = {}, S, UID = null, CEN_ID = null, salvarT;
+let PRES25 = {}, ORDEM_CH = null, ORDEM_BLOCO = null, DEP = [], COMS = [], EST = {}, S, UID = null, CEN_ID = null, salvarT;
 
 // ---------------- dados e acesso ----------------
 async function iniciar() {
@@ -22,11 +22,11 @@ async function iniciar() {
   const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
   const { data: admin } = await supabaseClient.rpc("sou_admin");
-  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=11").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
+  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=11").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json?v=2").then((r) => r.json())]);
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
   COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
-  EST = e;
+  EST = e; PRES25 = (a.presidentes_2025 || {}).com || {};
   const { data: cen } = await supabaseClient.from("mesa_cenarios").select("id,dados").eq("perfil_id", UID).eq("nome", "Meu cenário").order("atualizado_em", { ascending: false }).limit(1);
   if (cen && cen[0] && cen[0].dados && cen[0].dados.chapas) { CEN_ID = cen[0].id; S = cen[0].dados; }
   else { try { S = JSON.parse(localStorage.getItem("sl_mesa2")); } catch (er) {} }
@@ -231,6 +231,7 @@ function secCom(ch) {
   const outras = S.chapas.filter((c) => c !== ch && Object.values(c.com).some((l) => l.some(Boolean)));
   const A = dist(9), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   let h = outras.length ? `<div class="selch" style="margin-top:-6px"><span>Copiar composição de</span>${outras.map((c) => `<button data-copiar="${c.id}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))}</button>`).join("")}</div>` : "";
+  h += `<button class="qb c25${S.ui.c25 ? " on" : ""}" data-c25="1" title="Mostrar quem preside cada comissão no biênio 2025–2027">2025</button>`;
   h += `<button class="qb" data-q="1">÷ Quociente das comissões ${S.ui.qAb ? "▾" : "▸"}</button>`;
   if (S.ui.qAb) h += `<div class="qbox"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). A vaga reservada vai ao conjunto dos partidos com menos de 5 deputados; as demais, às maiores frações (empate: maior bancada). Membros da Mesa contam na base de 40, mas não ocupam vaga. CCJ, Finanças, Trabalho e Ética têm 9 membros; as demais, 7.</p>
     <div class="conta" style="margin:0 12px 8px">Blocos parlamentares · arraste uma etiqueta sobre outra para formar bloco; solte na tesoura para separar <button class="gi${S.ui.qInfo ? " on" : ""}" data-qinfo="1" title="Quando vale fazer bloco">i</button></div>${S.ui.qInfo ? `<div class="gdet" style="margin:0 12px 10px"><p style="margin:0;color:var(--sec);font-size:12px;line-height:1.55">Bloco só compensa se o total continuar abaixo de 5 deputados, juntando frações que sozinhas eram pequenas.<br>Passar de 5 tira o bloco da vaga reservada. O bloco só passa a ganhar se a soma das frações completar uma vaga inteira a mais do que cada um somava sozinho.<br>O PL ganha muito pouco com blocos. O que mais ajuda o PL é os outros se juntarem e ficarem com menos frações, mas essa regra pune quem se junta.</p></div>` : ""}
@@ -240,7 +241,8 @@ function secCom(ch) {
   </div>`;;
   const linhas = COMS.map((c) => {
     const sl = slotsCom(c), l = (ch.com[c] = (ch.com[c] || []).slice(0, sl.length)), cheio = l.filter(Boolean).length, ab = S.ui.comAb === c, p = ch.pres[c] && dep(ch.pres[c]);
-    let x = `<div><div class="ln${ab ? " ab" : ""}" data-com="${esc(c)}">${p ? img(p) : hole()}<span class="n">${esc(c)}</span><span class="q">${cheio}/${sl.length}</span><span style="color:#6B7178;font-size:11px">${ab ? "▾" : "▸"}</span></div>`;
+    const v = S.ui.c25 && PRES25[c], f25 = v ? (v.n ? `<img class="av a25" src="${foto(v.n)}" alt="" title="2025: ${esc(v.u)} (${esc(v.p)})">` : `<span class="av a25 ini" title="2025: ${esc(v.u)} (${esc(v.p)})">${esc(v.u.split(" ").map((w) => w[0]).slice(0, 2).join(""))}</span>`) : "";
+    let x = `<div><div class="ln${ab ? " ab" : ""}${v ? " l25" : ""}" data-com="${esc(c)}"><span class="pst">${f25}${p ? img(p) : hole()}</span><span class="n">${esc(c)}${v ? `<small class="s25">2025: ${esc(v.u)} · ${esc(v.p)}</small>` : ""}</span><span class="q">${cheio}/${sl.length}</span><span style="color:#6B7178;font-size:11px">${ab ? "▾" : "▸"}</span></div>`;
     if (ab) {
       const d = dist(sl.length), e = comEst(c);
       x += `<div class="abre"><div class="conta">${sl.length} vagas · quociente ${f(d.q)} · ${Object.entries(sl.reduce((o, b) => (o[b] = (o[b] || 0) + 1, o), {})).map(([b, v]) => `${esc(b)} ${v}`).join(" · ")}${e ? ` · presidência: secretário de comissão ${fm(e.t)}/mês` : ""}</div>
@@ -267,7 +269,7 @@ function secLid() {
 }
 // "i" no canto direito: como cada valor é calculado (fonte + conta + conferência com a folha)
 const INFO = {
-  "Comissões": "Vagas pelo Regimento, art. 30: quociente = 40 ÷ (membros − 1) — 5,00 nas comissões de 9 (CCJ, Finanças, Trabalho, Ética) e 6,67 nas de 7. Parte inteira garante vaga; as sobras vão às maiores frações, e uma vaga é reservada ao conjunto dos partidos com menos de 5 deputados. Membros da Mesa contam na base de 40, mas não ocupam vaga. Presidência: Assessor de Comissão PL/GAC-59 (índice 11,9183 × R$ 1.129,43 = R$ 13.461, confere com o contracheque 09/2026) + chefia da secretaria FG-3 (FG-5 em CCJ, Finanças e Trabalho), Res. 002/2006 art. 18.",
+  "Comissões": "Vagas pelo Regimento, art. 30: quociente = 40 ÷ (membros − 1) — 5,00 nas comissões de 9 (CCJ, Finanças, Trabalho, Ética) e 6,67 nas de 7. Parte inteira garante vaga; as sobras vão às maiores frações, e uma vaga é reservada ao conjunto dos partidos com menos de 5 deputados. Membros da Mesa contam na base de 40, mas não ocupam vaga. Presidência: Assessor de Comissão PL/GAC-59 (índice 11,9183 × R$ 1.129,43 = R$ 13.461, confere com o contracheque 09/2026) + chefia da secretaria FG-3 (FG-5 em CCJ, Finanças e Trabalho), Res. 002/2006 art. 18. Etiqueta 2025: presidentes do biênio 2025–2027 conforme a Agência ALESC (instalação das comissões, fev/2025); foto em cinza à esquerda da atual.",
   "Lideranças": "Cargos e cota pelo Anexo IX-C da Res. 002/2006 (Ato da Mesa 106/2024; níveis LC 870/2025): de 6 cargos (1 deputado) a 14 (9 ou mais). Valor em reais: índice de cota × 1,2016 (reajustes aplicados aos índices de quota, LC 858/2024 art. 28) × R$ 296,55 (valor do índice dos cargos PL/GAB, PL/GAL e PL/GAM — 27 salários de 09/2026 batem exatamente) = R$ 356,34 por ponto. Conferência: gabinetes cheios somam 525,27 pontos = 437,14 × 1,2016; Liderança do PL usa 573 de 581 pontos. Folha: contracheques 09/2026 por lotação.",
   "Estruturas": "Total de cada estrutura = cargos comissionados (PL/DAS) + funções de confiança e gratificadas (PL/FC, PL/FG) + gratificação de exercício, somados dos contracheques 09/2026 por lotação. Salário de efetivo fica fora. Índices de DAS/FC/FG × R$ 1.129,43 (valor do índice dessas tabelas, deduzido dos contracheques: FC-5 = 7,9527 × 1.129,43 = R$ 8.982,02)."
 };
@@ -402,7 +404,7 @@ function ligar(ch0) { let ch = ch0;
   if (S.ui.tq) { const el = document.querySelector(S.ui.tq.t === "bl" ? `[data-dp="${CSS.escape(S.ui.tq.k)}"]` : `[data-arr="${S.ui.tq.k}"]`); if (el) el.classList.add("tq"); else S.ui.tq = null; }
   const A = $("#app");
   A.onclick = (e) => {
-    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-qinfo],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-lid],[data-outab],[data-polab],[data-info],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-qinfo],[data-c25],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-lid],[data-outab],[data-polab],[data-info],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
     if (!t) return; const ds = t.dataset;
     if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
     if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
@@ -423,6 +425,7 @@ function ligar(ch0) { let ch = ch0;
       <div class="rot">Seções</div><div class="chk" id="impSec">${[["mesa", "Mesa e votos"], ["duelo", "Duelo (placar lado a lado)"], ["com", "Comissões"], ["out", "Outros cargos"], ["pat", "Patrimônio dos deputados"], ["quoc", "Quociente e blocos"]].map(([k, r]) => `<label><input type="checkbox" value="${k}" checked> ${r}</label>`).join("")}</div>
       <button class="bt" data-gerar="1" style="color:#0B0D0E;background:#34E84A;border-color:#34E84A;font-weight:700">Gerar documento</button><button class="bt" data-fechar="1">Fechar</button></div>`; el.hidden = false; el.onclick = (ev) => { if (ev.target.closest(".f,[data-fechar]")) el.hidden = true; if (ev.target.closest("[data-gerar]")) { const chs = [...el.querySelectorAll("#impCh input:checked")].map((x) => x.value), secs = [...el.querySelectorAll("#impSec input:checked")].map((x) => x.value); el.hidden = true; imprimir(chs, secs); } }; return; }
     if (ds.renb) { const nm = prompt("Nome do bloco", nomeB(ds.renb.split("+"))); if (nm !== null) { S.nomes = S.nomes || {}; S.nomes[ds.renb.split("+").sort().join("+")] = nm.trim() || undefined; } return desenhar(); }
+    if (ds.c25) { S.ui.c25 = !S.ui.c25; return desenhar(); }
     if (ds.qinfo) { S.ui.qInfo = !S.ui.qInfo; return desenhar(); }
     if (ds.desfb) { const b = S.blocos.find((x) => x.join("+") === ds.desfb); S.blocos = S.blocos.filter((x) => x !== b); b.forEach((p) => S.blocos.push([p])); S.blocos.sort((x, y) => nB(y) - nB(x)); return desenhar(); }
     if (ds.novob !== undefined) { S.ui.novoB = ds.novob === "1"; return desenhar(); }
