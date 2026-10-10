@@ -544,7 +544,7 @@ async function tabela() {
   ordenar(muns);
   const [c1, c2] = colsTab(), seta = (col) => `<span class="ord"><i class="up${st.ord.col === col && st.ord.dir > 0 ? " on" : ""}"></i><i class="dn${st.ord.col === col && st.ord.dir < 0 ? " on" : ""}"></i></span>`;
   const cab = (col, rot) => `<span data-ord="${col}" class="${st.ord.col === col ? "on" : ""}">${rot}${seta(col)}</span>`;
-  let h = `<h3>Município a município · ${st.rec ? esc(st.rec.nome) : "Santa Catarina"}</h3><div class="tl cab"><span></span>${cab("nome", "Município")}${cab("a", esc(c1))}${cab("v", esc(c2))}${cab("d", "Dif.")}</div>`;
+  let h = `<h3>${EMB ? `<button class="tgTab" title="Recolher ou abrir">${st.tabFech ? "+" : "−"}</button>Ranking locais` : `Município a município · ${st.rec ? esc(st.rec.nome) : "Santa Catarina"}`}</h3>${EMB && st.tabFech ? "" : ""}<div class="tl cab"><span></span>${cab("nome", "Município")}${cab("a", esc(c1))}${cab("v", esc(c2))}${cab("d", "Dif.")}</div>`;
   const lim = st.todos ? muns.length : 20;
   for (const [k, [nome, x, i]] of muns.slice(0, lim).entries()) {
     const ch = M[i].k, ab = st.abertos[ch];

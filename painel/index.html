@@ -9,7 +9,7 @@
      cargo; comparação entre dois. Dados: dados/painel (ferramentas/gerar_painel_sc.py). -->
 <script>if (/[?&]embed=1/.test(location.search)) document.documentElement.classList.add("embed");</script>
 <style>
-html.embed .topo, html.embed #hero, html.embed footer{ display:none !important; } html.embed .painel{ padding-top:8px; } html.embed.cidOn #cena{ display:none !important; } html.embed.cidOn .corpo{ grid-template-columns:1fr !important; } #recBusca{ font:14px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:10px; padding:9px 12px; min-width:200px; }
+html.embed .topo, html.embed #hero, html.embed footer{ display:none !important; } html.embed .painel{ padding-top:8px; } html.embed .cena{ height:var(--cenaH,560px); } html.embed #tabela.fech > :not(h3){ display:none; } .tgTab{ width:26px; height:26px; border-radius:50%; border:1px solid var(--linha); background:none; color:var(--ter); margin-right:10px; cursor:pointer; font:600 15px/1 "Inter"; } html.embed.cidOn #cena{ display:none !important; } html.embed.cidOn .corpo{ grid-template-columns:1fr !important; } #recBusca{ font:14px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:10px; padding:9px 12px; min-width:200px; }
 @font-face{ font-family:"Inter"; src:url(../fontes/InterVariable.woff2) format("woff2"); font-weight:100 900; font-display:swap; }
 :root{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --linha:rgba(242,244,245,.09); --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178;
   --a:#34E84A; --a2:#C6E62A; --b:#3D7BFF; --b2:#7B6BFF; color-scheme:dark; }
@@ -194,7 +194,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
   <section class="tabela rk" id="rkTab"></section>
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
-<script src="painel.js?cb=24"></script>
+<script src="painel.js?cb=25"></script>
 <script src="relatorio.js?cb=20"></script>
 </body>
 </html>
