@@ -81,6 +81,7 @@ function ligarEleitoral(c, ordM) {
     dd.addEventListener("click", (e) => { const t = e.target.closest(".tgTab"); if (!t) return; const tb = dd.querySelector("#tabela"), f = tb.classList.toggle("fech"); t.textContent = f ? "+" : "−"; });
     const fl = dd.querySelector("#painel .filtros"); if (fl && !dd.querySelector(".presets")) { (dd.querySelector("#recBusca") || fl.querySelector(".btn-rel")).insertAdjacentHTML(dd.querySelector("#recBusca") ? "afterend" : "beforebegin", `<div class="presets">${chipsHtml}</div>`);
       dd.querySelector(".presets").onclick = (e) => { const b = e.target.closest("[data-p]"); if (!b) return; dd.querySelectorAll(".presets button").forEach((x) => x.classList.toggle("on", x === b)); const y0 = scrollY, cvx = dd.querySelector("#cv"); cvx && cvx.classList.add("troca"); w.painelPreset(P[+b.dataset.p][1]); requestAnimationFrame(() => { scrollTo({ top: y0, behavior: "instant" }); cvx && requestAnimationFrame(() => cvx.classList.remove("troca")); }); setTimeout(() => scrollTo({ top: y0, behavior: "instant" }), 120); }; }
+    const rk = dd.querySelector("#ranking"); if (rk && rk.hidden) { rk.hidden = false; rk.classList.add("embRk"); let k = 0; const tenta = () => { try { w.montarRanking(); } catch (e) {} if (!dd.querySelector("#rkTab").innerHTML && k++ < 30) setTimeout(tenta, 300); }; tenta(); }
     const aj = () => { const vis = [...dd.querySelectorAll("#painel, #ranking, .aviso")].filter((x) => !x.hidden && x.offsetParent !== null); fr.style.height = Math.ceil(Math.max(400, ...vis.map((x) => x.getBoundingClientRect().bottom + dd.defaultView.scrollY)) + 12) + "px"; }; aj(); new ResizeObserver(aj).observe(dd.body); };
   document.querySelector('[data-sec="painel"]').onclick = (e) => { AB.painel = !AB.painel; $("#c-painel").hidden = !AB.painel; e.currentTarget.classList.toggle("on", AB.painel); e.currentTarget.querySelector("em").textContent = AB.painel ? "−" : "+"; };
 }
@@ -118,17 +119,17 @@ function trilha(k) {
   const curva = (x) => cy + Math.sin(x / W * Math.PI * 2.4 + .6) * 22, rgb = hexRgb(getComputedStyle(document.documentElement).getPropertyValue("--a").trim()).split(",").map(Number);
   const nos = T.map((t, i) => ({ x: x0 + i * dx, vt: !!t[3] }));
   const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5, N = 320;
-  const alvo = () => { const perto = Math.random() < .72, no = nos[Math.floor(Math.random() * nos.length)], x = perto ? no.x + gauss() * 10 : 20 + Math.random() * (W - 40), dn = Math.min(...nos.map((n) => Math.abs(n.x - x))), sp = perto ? 6 : 10 + (dn / dx) * 8;
+  const alvo = () => { const perto = Math.random() < .4, no = nos[Math.floor(Math.random() * nos.length)], x = perto ? no.x + gauss() * 16 : 20 + Math.random() * (W - 40), dn = Math.min(...nos.map((n) => Math.abs(n.x - x))), sp = perto ? 8 : 9 + (dn / dx) * 6;
     const vt = nos.find((n) => Math.abs(n.x - x) < dx * .5)?.vt; return { x, y: curva(x) + gauss() * sp, z: Math.random(), vt, fase: Math.random() * 6.28 }; };
   const novos = Array.from({ length: N }, alvo);
-  TR_P = (TR_P && TR_P.length === N ? TR_P : Array.from({ length: N }, () => ({ x: W / 2 + gauss() * W * .4, y: cy + gauss() * 120, z: Math.random() }))).map((p, i) => ({ ...novos[i], sx: p.cx ?? p.x, sy: p.cy ?? p.y }));
+  TR_P = (TR_P && TR_P.length === N ? TR_P : Array.from({ length: N }, () => ({ x: W / 2 + gauss() * W * .4, y: cy + gauss() * 120, z: Math.random() }))).map((p, i) => ({ ...novos[i], sx: novos[i].x + ((p.cx ?? p.x) - novos[i].x) * .05, sy: novos[i].y + ((p.cy ?? p.y) - novos[i].y) * .05 }));
   const t0 = performance.now(); cancelAnimationFrame(TR_RAF);
   const quadro = (agora) => { if (!document.body.contains(cv)) return; const t = (agora - t0) / 1000, e = Math.min(1, t / 1.4), ee = 1 - Math.pow(1 - e, 3);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
     for (const p of TR_P) { const dz = 0; p.cx = p.sx + (p.x - p.sx) * ee; p.cy = p.sy + (p.y + dz - p.sy) * ee;
       const dn = Math.min(...nos.map((n) => Math.abs(n.x - p.x))) / dx, forte = Math.max(0, 1 - dn * 2.2), r = (1.4 + p.z * p.z * 6 + forte * 5) * (.4 + .6 * ee), c = p.vt ? [229, 72, 77] : [58 + (rgb[0] - 58) * (.3 + .7 * forte), 64 + (rgb[1] - 64) * (.3 + .7 * forte), 70 + (rgb[2] - 70) * (.3 + .7 * forte)].map(Math.round);
       ctx.globalAlpha = (.25 + .6 * forte + .15 * p.z) * Math.min(1, t * 1.5); ctx.shadowColor = `rgba(${c},.8)`; ctx.shadowBlur = 10 * forte; ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(p.cx, p.cy, r, 0, 6.2832); ctx.fill(); } ctx.shadowBlur = 0;
-    nos.forEach((n, i) => { const y = curva(n.x), v = (Math.sin(t * 1.6 + i) + 1) / 2; ctx.globalAlpha = .18 + .2 * v; ctx.fillStyle = n.vt ? "rgb(229,72,77)" : `rgb(${rgb})`; ctx.beginPath(); ctx.arc(n.x, y, 12 + 5 * v, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(n.x, y, 5.5, 0, 6.2832); ctx.fill(); });
+    nos.forEach((n, i) => { const y = curva(n.x), v = (Math.sin(t * 1.6 + i) + 1) / 2; ctx.globalAlpha = .18 + .2 * v; ctx.fillStyle = n.vt ? "rgb(229,72,77)" : `rgb(${rgb})`; ctx.beginPath(); ctx.arc(n.x, y, 12 + .25 * v, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(n.x, y, 5.5, 0, 6.2832); ctx.fill(); });
     ctx.globalAlpha = 1; TR_RAF = requestAnimationFrame(quadro); };
   TR_RAF = requestAnimationFrame(quadro);
   el.querySelector(".trl").innerHTML = T.map(([tt, d, alt, v, pz], i) => { const x = x0 + i * dx, y = curva(x), cima = i % 2 === 0;
