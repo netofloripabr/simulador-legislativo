@@ -22,7 +22,7 @@ async function iniciar() {
   const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
   const { data: admin } = await supabaseClient.rpc("sou_admin");
-  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=11").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json?v=2").then((r) => r.json())]);
+  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=11").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json?v=3").then((r) => r.json())]);
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
   COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
@@ -241,7 +241,7 @@ function secCom(ch) {
   </div>`;;
   const linhas = COMS.map((c) => {
     const sl = slotsCom(c), l = (ch.com[c] = (ch.com[c] || []).slice(0, sl.length)), cheio = l.filter(Boolean).length, ab = S.ui.comAb === c, p = ch.pres[c] && dep(ch.pres[c]);
-    const v = S.ui.c25 && PRES25[c], f25 = v ? (v.n ? `<img class="av a25" src="${foto(v.n)}" alt="" title="2025: ${esc(v.u)} (${esc(v.p)})">` : `<span class="av a25 ini" title="2025: ${esc(v.u)} (${esc(v.p)})">${esc(v.u.split(" ").map((w) => w[0]).slice(0, 2).join(""))}</span>`) : "";
+    const v = S.ui.c25 && PRES25[c], f25 = v ? (v.n || v.src ? `<img class="av a25" src="${v.src || foto(v.n)}" alt="" title="2025: ${esc(v.u)} (${esc(v.p)})">` : `<span class="av a25 ini" title="2025: ${esc(v.u)} (${esc(v.p)})">${esc(v.u.split(" ").map((w) => w[0]).slice(0, 2).join(""))}</span>`) : "";
     let x = `<div><div class="ln${ab ? " ab" : ""}${v ? " l25" : ""}" data-com="${esc(c)}"><span class="pst">${f25}${p ? img(p) : hole()}</span><span class="n">${esc(c)}${v ? `<small class="s25">2025: ${esc(v.u)} · ${esc(v.p)}</small>` : ""}</span><span class="q">${cheio}/${sl.length}</span><span style="color:#6B7178;font-size:11px">${ab ? "▾" : "▸"}</span></div>`;
     if (ab) {
       const d = dist(sl.length), e = comEst(c);
