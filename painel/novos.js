@@ -118,8 +118,8 @@ function trilha(k) {
   const cv = el.querySelector("canvas"), ctx = cv.getContext("2d"), dpr = Math.min(2, devicePixelRatio || 1); cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + "px";
   const curva = (x) => cy + Math.sin(x / W * Math.PI * 2.4 + .6) * 22, rgb = hexRgb(getComputedStyle(document.documentElement).getPropertyValue("--a").trim()).split(",").map(Number);
   const nos = T.map((t, i) => ({ x: x0 + i * dx, vt: !!t[3] }));
-  const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5, N = 320;
-  const alvo = () => { const perto = Math.random() < .4, no = nos[Math.floor(Math.random() * nos.length)], x = perto ? no.x + gauss() * 16 : 20 + Math.random() * (W - 40), dn = Math.min(...nos.map((n) => Math.abs(n.x - x))), sp = perto ? 8 : 9 + (dn / dx) * 6;
+  const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5, N = 160;
+  const alvo = () => { const perto = Math.random() < .4, no = nos[Math.floor(Math.random() * nos.length)], x = perto ? no.x + gauss() * 26 : 20 + Math.random() * (W - 40), dn = Math.min(...nos.map((n) => Math.abs(n.x - x))), sp = perto ? 16 : 18 + (dn / dx) * 10;
     const vt = nos.find((n) => Math.abs(n.x - x) < dx * .5)?.vt; return { x, y: curva(x) + gauss() * sp, z: Math.random(), vt, fase: Math.random() * 6.28 }; };
   const novos = Array.from({ length: N }, alvo);
   TR_P = (TR_P && TR_P.length === N ? TR_P : Array.from({ length: N }, () => ({ x: W / 2 + gauss() * W * .4, y: cy + gauss() * 120, z: Math.random() }))).map((p, i) => ({ ...novos[i], sx: novos[i].x + ((p.cx ?? p.x) - novos[i].x) * .05, sy: novos[i].y + ((p.cy ?? p.y) - novos[i].y) * .05 }));
@@ -127,9 +127,11 @@ function trilha(k) {
   const quadro = (agora) => { if (!document.body.contains(cv)) return; const t = (agora - t0) / 1000, e = Math.min(1, t / 1.4), ee = 1 - Math.pow(1 - e, 3);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
     for (const p of TR_P) { const dz = 0; p.cx = p.sx + (p.x - p.sx) * ee; p.cy = p.sy + (p.y + dz - p.sy) * ee;
-      const dn = Math.min(...nos.map((n) => Math.abs(n.x - p.x))) / dx, forte = Math.max(0, 1 - dn * 2.2), r = (1.4 + p.z * p.z * 6 + forte * 5) * (.4 + .6 * ee), c = p.vt ? [229, 72, 77] : [58 + (rgb[0] - 58) * (.3 + .7 * forte), 64 + (rgb[1] - 64) * (.3 + .7 * forte), 70 + (rgb[2] - 70) * (.3 + .7 * forte)].map(Math.round);
-      ctx.globalAlpha = (.25 + .6 * forte + .15 * p.z) * Math.min(1, t * 1.5); ctx.shadowColor = `rgba(${c},.8)`; ctx.shadowBlur = 10 * forte; ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(p.cx, p.cy, r, 0, 6.2832); ctx.fill(); } ctx.shadowBlur = 0;
-    nos.forEach((n, i) => { const y = curva(n.x), v = (Math.sin(t * 1.6 + i) + 1) / 2; ctx.globalAlpha = .18 + .2 * v; ctx.fillStyle = n.vt ? "rgb(229,72,77)" : `rgb(${rgb})`; ctx.beginPath(); ctx.arc(n.x, y, 12 + .25 * v, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(n.x, y, 5.5, 0, 6.2832); ctx.fill(); });
+      const dn = Math.min(...nos.map((n) => Math.abs(n.x - p.x))) / dx, forte = Math.max(0, 1 - dn * 2.2), r = (1.2 + p.z * p.z * 4 + forte * 2.5) * (.4 + .6 * ee), c = p.vt ? [229, 72, 77] : [58 + (rgb[0] - 58) * (.3 + .7 * forte), 64 + (rgb[1] - 64) * (.3 + .7 * forte), 70 + (rgb[2] - 70) * (.3 + .7 * forte)].map(Math.round);
+      ctx.globalAlpha = (.14 + .3 * forte + .1 * p.z) * Math.min(1, t * 1.5); ctx.shadowBlur = 0; ctx.fillStyle = `rgb(${c})`; ctx.beginPath(); ctx.arc(p.cx, p.cy, r, 0, 6.2832); ctx.fill(); } ctx.shadowBlur = 0;
+    ctx.globalAlpha = .45; ctx.strokeStyle = `rgba(${rgb},.6)`; ctx.lineWidth = 1.2; ctx.setLineDash([2, 6]); ctx.beginPath(); for (let x = nos[0].x; x <= nos[nos.length - 1].x; x += 4) { const yy = curva(x); x === nos[0].x ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy); } ctx.stroke(); ctx.setLineDash([]);
+    nos.forEach((n, i) => { const y = curva(n.x), c2 = n.vt ? "229,72,77" : rgb; ctx.globalAlpha = .22; ctx.fillStyle = `rgb(${c2})`; ctx.beginPath(); ctx.arc(n.x, y, 15, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1; ctx.lineWidth = 2; ctx.strokeStyle = `rgb(${c2})`; ctx.fillStyle = "#14191A"; ctx.beginPath(); ctx.arc(n.x, y, 8, 0, 6.2832); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.fillStyle = `rgb(${c2})`; ctx.arc(n.x, y, 4, 0, 6.2832); ctx.fill(); });
+    if (0) nos.forEach((n, i) => { const y = curva(n.x), v = (Math.sin(t * 1.6 + i) + 1) / 2; ctx.globalAlpha = .18 + .2 * v; ctx.fillStyle = n.vt ? "rgb(229,72,77)" : `rgb(${rgb})`; ctx.beginPath(); ctx.arc(n.x, y, 12 + .25 * v, 0, 6.2832); ctx.fill(); ctx.globalAlpha = 1; ctx.beginPath(); ctx.arc(n.x, y, 5.5, 0, 6.2832); ctx.fill(); });
     ctx.globalAlpha = 1; TR_RAF = requestAnimationFrame(quadro); };
   TR_RAF = requestAnimationFrame(quadro);
   el.querySelector(".trl").innerHTML = T.map(([tt, d, alt, v, pz], i) => { const x = x0 + i * dx, y = curva(x), cima = i % 2 === 0;
