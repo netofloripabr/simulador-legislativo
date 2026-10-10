@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Novos Parlamentares · SimulaLEGIS</title>
+<title>Parlamentares · SimulaLEGIS</title>
 <!-- Protótipo (10/10/2026): manual do parlamentar de primeiro mandato — seleção de perfil,
      parabéns e capítulos com rolagem em foco (figura presa enquanto o texto passa).
      A cor de destaque segue o partido do deputado escolhido (--a). -->
@@ -20,55 +20,34 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.55
 h1,h2{ font-weight:900; letter-spacing:-.05em; margin:0; } h1 i, h2 i{ font-style:normal; color:var(--a); }
 .wrap{ max-width:1180px; margin:0 auto; padding:0 20px; }
 
-/* ---------- seleção de perfil ---------- */
-.sel{ padding-block:64px 80px; }
-.sel h1{ font-size:clamp(48px,9vw,104px); line-height:.9; margin:12px 0 16px; }
-.sel p.lead{ color:var(--sec); font-size:18px; max-width:640px; margin:0 0 28px; }
-.busca{ width:100%; max-width:420px; font:15px "Inter"; color:var(--texto); background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:12px 18px; margin-bottom:26px; }
-.grade{ display:grid; grid-template-columns:repeat(auto-fill,minmax(168px,1fr)); gap:14px; }
-.perf{ position:relative; border-radius:18px; overflow:hidden; background:var(--sup); border:1px solid var(--linha); cursor:pointer; text-align:left; padding:0; color:inherit; font:inherit; transition:transform .25s cubic-bezier(.2,.8,.3,1), box-shadow .25s; animation:sobe .6s cubic-bezier(.2,.8,.3,1) both; }
-.perf:hover{ transform:translateY(-4px); box-shadow:0 18px 40px -18px var(--pc), 0 0 0 1px var(--pc); }
-.perf img{ width:100%; aspect-ratio:4/5; object-fit:cover; object-position:50% 18%; display:block; filter:saturate(.9); }
-.perf .tx{ padding:10px 12px 12px; } .perf b{ display:block; font-size:14px; line-height:1.2; } .perf span{ font-size:11.5px; color:var(--ter); }
-.perf .pt{ position:absolute; top:10px; left:10px; font:800 10px "Inter"; letter-spacing:.08em; padding:4px 8px; border-radius:999px; background:var(--pc); color:#0B0D0E; }
-.perf .nv{ position:absolute; top:10px; right:10px; font:700 10px "Inter"; padding:4px 8px; border-radius:999px; background:rgba(11,15,13,.75); color:var(--texto); backdrop-filter:blur(6px); }
-@keyframes sobe{ from{ opacity:0; transform:translateY(18px); } }
+/* ---------- seleção por rolagem: faixa horizontal, o cartão do centro é o escolhido ---------- */
+.sel{ padding-block:40px 60px; }
+.faixa{ display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x mandatory; padding:24px calc(50% - 110px) 30px; scrollbar-width:none; } .faixa::-webkit-scrollbar{ display:none; }
+.perf{ flex:none; width:220px; scroll-snap-align:center; border-radius:20px; overflow:hidden; background:var(--sup); border:1px solid var(--linha); cursor:pointer; padding:0; color:inherit; font:inherit; text-align:left; transform:scale(.86); opacity:.45; transition:transform .35s cubic-bezier(.2,.8,.3,1), opacity .35s, box-shadow .35s; }
+.perf.on{ transform:scale(1); opacity:1; box-shadow:0 24px 60px -24px var(--pc), 0 0 0 1.5px var(--pc); }
+.perf img{ width:100%; aspect-ratio:4/5; object-fit:cover; object-position:50% 18%; display:block; }
+.perf .tx{ padding:10px 14px 14px; } .perf b{ display:block; font-size:15px; } .perf span{ font-size:12px; color:var(--ter); }
+.selinfo{ text-align:center; } .selinfo .nm{ font-size:clamp(28px,4vw,44px); font-weight:900; letter-spacing:-.04em; } .selinfo .pt{ color:var(--sec); margin:2px 0 14px; }
+.busca{ display:block; margin:0 auto; width:100%; max-width:360px; font:14px "Inter"; color:var(--texto); background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:10px 16px; }
+.btn{ display:inline-flex; align-items:center; gap:8px; font:700 14px "Inter"; color:#0B0D0E; background:var(--a); border:0; border-radius:999px; padding:11px 20px; cursor:pointer; text-decoration:none; } .btn.sec{ background:none; color:var(--texto); border:1px solid rgba(242,244,245,.2); }
 
-/* ---------- manual ---------- */
-.man[hidden]{ display:none; }
-.capa{ position:relative; min-height:calc(100vh - 56px); display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr); gap:40px; align-items:center; padding-block:40px; overflow:hidden; }
-.capa::before{ content:""; position:absolute; inset:-20%; background:radial-gradient(circle at 75% 35%, rgba(var(--a-rgb),.22), transparent 45%); pointer-events:none; }
-.capa h1{ font-size:clamp(44px,7.5vw,92px); line-height:.92; margin:14px 0 18px; position:relative; }
-.capa .ft{ position:relative; justify-self:center; width:min(380px,80%); aspect-ratio:4/5; border-radius:28px; overflow:hidden; box-shadow:0 30px 80px -30px rgba(var(--a-rgb),.7), 0 0 0 1px rgba(var(--a-rgb),.5); }
-.capa .ft img{ width:100%; height:100%; object-fit:cover; object-position:50% 18%; }
-.placar{ display:flex; gap:28px; flex-wrap:wrap; margin:22px 0; position:relative; }
-.placar div{ display:flex; flex-direction:column; } .placar b{ font-size:36px; font-weight:800; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums; } .placar b.a{ color:var(--a); }
-.placar span{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); margin-top:6px; }
-.bio{ position:relative; color:var(--sec); font-size:16.5px; max-width:620px; } .bio p{ margin:0 0 12px; } .fonte{ font-size:11px; color:var(--ter); }
-.btn{ display:inline-flex; align-items:center; gap:8px; font:700 14px "Inter"; color:#0B0D0E; background:var(--a); border:0; border-radius:999px; padding:12px 20px; cursor:pointer; text-decoration:none; }
-.btn.sec{ background:none; color:var(--texto); border:1px solid rgba(242,244,245,.2); }
-
-/* capítulo com rolagem em foco: texto rola à esquerda, figura presa à direita */
-.cap{ padding:90px 0 40px; border-top:1px solid var(--linha); }
-.cap > .wrap > h2{ font-size:clamp(40px,6vw,72px); line-height:.95; margin:10px 0 8px; }
-.cap .sub{ color:var(--sec); max-width:640px; font-size:17px; }
-.scr{ display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:40px; margin-top:40px; }
-.passos .p{ min-height:78vh; display:flex; flex-direction:column; justify-content:center; opacity:.28; transition:opacity .4s; }
-.passos .p.on{ opacity:1; }
-.passos .p h3{ font-size:28px; font-weight:800; letter-spacing:-.03em; margin:8px 0 10px; } .passos .p p{ color:var(--sec); margin:0 0 10px; }
-.passos .num{ font-size:52px; font-weight:900; letter-spacing:-.04em; color:var(--a); line-height:1; }
-.fig{ position:sticky; top:76px; height:calc(100vh - 100px); border-radius:22px; background:var(--sup); border:1px solid var(--linha); overflow:hidden; display:flex; flex-direction:column; }
-.fig .fc{ flex:1; position:relative; } .fig .fc > div{ position:absolute; inset:0; padding:18px; opacity:0; transition:opacity .5s; display:flex; flex-direction:column; } .fig .fc > div.on{ opacity:1; }
-.fig svg{ width:100%; flex:1; min-height:0; }
-.fig .leg{ font-size:11.5px; color:var(--ter); padding-top:6px; }
-.rank{ list-style:none; margin:10px 0 0; padding:0; counter-reset:r; } .rank li{ counter-increment:r; display:grid; grid-template-columns:22px minmax(0,1fr) auto; gap:8px; padding:6px 0; border-bottom:1px solid var(--linha); font-size:13.5px; } .rank li::before{ content:counter(r); color:var(--ter); font-size:12px; } .rank b{ font-variant-numeric:tabular-nums; }
-.rank li.eu{ color:var(--a); font-weight:700; }
-@media (max-width:860px){ .capa{ grid-template-columns:1fr; } .capa .ft{ order:-1; width:60%; } .scr{ grid-template-columns:1fr; } .fig{ top:62px; height:58vh; z-index:2; } .passos .p{ min-height:60vh; } }
+/* ---------- perfil ---------- */
+.cab{ display:flex; align-items:center; gap:16px; padding-block:28px 18px; } .cab img{ width:72px; height:72px; border-radius:50%; object-fit:cover; object-position:50% 18%; box-shadow:0 0 0 2.5px var(--a); }
+.cab h1{ font-size:clamp(30px,4.5vw,48px); line-height:1; } .cab .pt{ color:var(--sec); font-size:14px; margin-top:4px; } .cab .btn{ margin-left:auto; }
+.sanf{ width:100%; display:grid; grid-template-columns:minmax(0,1fr) auto 24px; gap:14px; align-items:center; padding:18px 4px; background:none; border:0; border-top:1px solid var(--linha); color:var(--texto); font:800 22px "Inter"; letter-spacing:-.03em; text-align:left; cursor:pointer; }
+.sanf i{ font:500 13px "Inter"; font-style:normal; color:var(--ter); letter-spacing:0; } .sanf em{ font-style:normal; color:var(--ter); font-size:22px; text-align:center; } .sanf.on em{ color:var(--a); }
+.sanf.sub{ font-size:16px; padding:14px 4px; } .corpo{ padding:4px 0 26px; }
+.ctx{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; } .ctx button{ font:600 13px "Inter"; padding:8px 14px; border-radius:999px; border:1px solid var(--linha); background:none; color:var(--sec); cursor:pointer; } .ctx button.on{ color:#0B0D0E; background:var(--a); border-color:var(--a); }
+.quadro{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:24px; background:var(--sup); border:1px solid var(--linha); border-radius:20px; padding:20px; } .quadro h3{ margin:4px 0 6px; font-size:22px; letter-spacing:-.03em; } .quadro p{ color:var(--sec); margin:0 0 10px; font-size:14px; } .quadro svg{ width:100%; height:auto; max-height:420px; }
+.rank{ list-style:none; margin:6px 0 0; padding:0; } .rank li{ display:grid; grid-template-columns:24px minmax(0,1fr) auto; gap:8px; align-items:center; padding:7px 0; border-bottom:1px solid var(--linha); font-size:13.5px; } .rank li i{ font-style:normal; color:var(--ter); font-size:12px; } .rank b{ font-variant-numeric:tabular-nums; } .rank li.eu{ color:var(--a); font-weight:700; } .rank small{ color:var(--ter); }
+.emb{ width:100%; height:1400px; border:0; border-radius:18px; background:var(--sup); }
+.breve{ color:var(--ter); font-size:14px; padding:6px 4px 20px; }
+@media (max-width:860px){ .quadro{ grid-template-columns:1fr; } .cab .btn{ display:none; } }
 </style>
 </head>
 <body>
-<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Novos Parlamentares · 2027–2031</span><nav class="vistas"><a href="./">Painel</a><a href="mesa.html">Corrida da Mesa</a><a href="novos.html" class="on">Novos Parlamentares</a></nav></header>
+<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Parlamentares · 2027–2031</span><nav class="vistas"><a href="./">Painel</a><a href="mesa.html">Corrida da Mesa</a><a href="novos.html" class="on">Parlamentares</a></nav></header>
 <main id="app"><div class="wrap sel"><div class="olho">Carregando…</div></div></main>
-<script src="novos.js?cb=1"></script>
+<script src="novos.js?cb=3"></script>
 </body>
 </html>

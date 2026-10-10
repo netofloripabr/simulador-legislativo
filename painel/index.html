@@ -7,7 +7,9 @@
 <!-- Protótipo (07/10/2026): painel analítico público de SC, inspirado no painel
      "o brasil dividido". Um ponto por município; qualquer candidato de qualquer
      cargo; comparação entre dois. Dados: dados/painel (ferramentas/gerar_painel_sc.py). -->
+<script>if (/[?&]embed=1/.test(location.search)) document.documentElement.classList.add("embed");</script>
 <style>
+html.embed .topo, html.embed #hero, html.embed footer{ display:none !important; } html.embed .painel{ padding-top:8px; }
 @font-face{ font-family:"Inter"; src:url(../fontes/InterVariable.woff2) format("woff2"); font-weight:100 900; font-display:swap; }
 :root{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --linha:rgba(242,244,245,.09); --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178;
   --a:#34E84A; --a2:#C6E62A; --b:#3D7BFF; --b2:#7B6BFF; color-scheme:dark; }
@@ -152,7 +154,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
 </style>
 </head>
 <body>
-<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Santa Catarina · Resultado 2026</span><nav class="vistas"><button data-vista="painel" class="on">Painel</button><button data-vista="ranking">Ranking</button><a href="mesa.html" style="font:700 13px Inter;color:var(--sec);text-decoration:none;padding:7px 12px">Corrida da Mesa</a></nav><a class="ent" href="../?entrar=1">Entrar</a></header>
+<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Santa Catarina · Resultado 2026</span><nav class="vistas"><button data-vista="painel" class="on">Painel</button><button data-vista="ranking">Ranking</button><a href="mesa.html" style="font:700 13px Inter;color:var(--sec);text-decoration:none;padding:7px 12px">Corrida da Mesa</a><a href="novos.html" style="font:700 13px Inter;color:var(--sec);text-decoration:none;padding:7px 12px">Parlamentares</a></nav><a class="ent" href="../?entrar=1">Entrar</a></header>
 
 <section class="hero" id="hero">
   <div class="luz" id="heroLuz"></div>
