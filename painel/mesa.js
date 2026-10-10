@@ -170,7 +170,7 @@ function desenhar(admin) {
     <div class="acoesch"><button class="mini" data-bancada="1">+ bancada inteira</button><button class="mini" data-aliado="1">+ aliado</button>${S.chapas.length > 1 ? `<button class="mini" data-delch="1">Excluir esta chapa</button>` : ""}<button class="mini" data-arq="1">Salvar / carregar</button><button class="mini" data-zerar="1">Recomeçar cenário</button><button class="mini" data-imp="1" style="margin-left:auto;color:#F2F4F5;border-color:rgba(242,244,245,.3)">Imprimir</button></div>
     <section id="s1"><h2>Jogo da <i>Mesa.</i></h2>${secMesa(ch)}</section>
     <section id="s2"><h2>Estrutura <i>política.</i></h2>${secPol(chCom())}</section>
-    <section id="s3"><h2>Outros <i>cargos.</i></h2>${seletorCh(chOut(), "out")}${secOut(chOut())}</section>
+    <section id="s3"><h2 class="hi">Outros <i>cargos.</i>${infoBt("Estruturas")}</h2>${infoTx("Estruturas")}${seletorCh(chOut(), "out")}${secOut(chOut())}</section>
     ${ADMIN ? `<div class="adm"><b style="color:#C6E62A">Administrador</b> · liberar acesso à Corrida da Mesa: <input id="admEmail" placeholder="e-mail da conta"> <button class="mini" data-adm="1">Liberar</button> <button class="mini" data-adm="0">Retirar</button> <span id="admMsg"></span></div>` : ""}
   </main>${secPat()}</div>`;
   scrollTo(0, y); ligar(ch); salvar();
@@ -265,9 +265,17 @@ function secLid() {
   return `<div class="ec"><div class="er cab lid"><span></span><span>Partido · líder</span><span>Deputados</span><span>Cargos</span><span>Folha 09/2026</span><span>Cota/mês</span></div>` +
     L.map((p) => { const d = S.lid && S.lid[p] && dep(S.lid[p]), e = lidEst(p); return `<div class="er lid"><span data-lid="${esc(p)}" title="Escolher líder" style="cursor:pointer">${d ? img(d) : hole()}</span><span>${esc(p)}<small>${d ? esc(d.u) : "toque para escolher o líder"}</small></span><span class="v">${nB([p])}</span><span class="v">${e.cargos}</span><span class="v">${F[p] ? fm(F[p]) : "—"}</span><span class="tt">${fm(e.cota)}</span></div>`; }).join("") + `</div>`;
 }
+// "i" no canto direito: como cada valor é calculado (fonte + conta + conferência com a folha)
+const INFO = {
+  "Comissões": "Vagas pelo Regimento, art. 30: quociente = 40 ÷ (membros − 1) — 5,00 nas comissões de 9 (CCJ, Finanças, Trabalho, Ética) e 6,67 nas de 7. Parte inteira garante vaga; as sobras vão às maiores frações, e uma vaga é reservada ao conjunto dos partidos com menos de 5 deputados. Membros da Mesa contam na base de 40, mas não ocupam vaga. Presidência: Assessor de Comissão PL/GAC-59 (índice 11,9183 × R$ 1.129,43 = R$ 13.461, confere com o contracheque 09/2026) + chefia da secretaria FG-3 (FG-5 em CCJ, Finanças e Trabalho), Res. 002/2006 art. 18.",
+  "Lideranças": "Cargos e cota pelo Anexo IX-C da Res. 002/2006 (Ato da Mesa 106/2024; níveis LC 870/2025): de 6 cargos (1 deputado) a 14 (9 ou mais). Valor em reais: índice de cota × 1,2016 (reajustes aplicados aos índices de quota, LC 858/2024 art. 28) × R$ 296,55 (valor do índice dos cargos PL/GAB, PL/GAL e PL/GAM — 27 salários de 09/2026 batem exatamente) = R$ 356,34 por ponto. Conferência: gabinetes cheios somam 525,27 pontos = 437,14 × 1,2016; Liderança do PL usa 573 de 581 pontos. Folha: contracheques 09/2026 por lotação.",
+  "Estruturas": "Total de cada estrutura = cargos comissionados (PL/DAS) + funções de confiança e gratificadas (PL/FC, PL/FG) + gratificação de exercício, somados dos contracheques 09/2026 por lotação. Salário de efetivo fica fora. Índices de DAS/FC/FG × R$ 1.129,43 (valor do índice dessas tabelas, deduzido dos contracheques: FC-5 = 7,9527 × 1.129,43 = R$ 8.982,02)."
+};
+const infoBt = (k) => `<span class="gi${S.ui.info === k ? " on" : ""}" data-info="${esc(k)}" title="Como é calculado">i</span>`;
+const infoTx = (k) => S.ui.info === k ? `<div class="gdet info"><p>${esc(INFO[k] || "")}</p></div>` : "";
 function secPol(ch) {
   const AB = S.ui.polAb || (S.ui.polAb = { "Comissões": 1 }), nP = Object.keys(ch.pres).length;
-  const cab = (g, cont, tot) => `<button class="sanf${AB[g] ? " on" : ""}" data-polab="${esc(g)}"><span>${esc(g)}</span><i>${cont}</i><b>${tot}</b><em>${AB[g] ? "−" : "+"}</em></button>`;
+  const cab = (g, cont, tot) => `<div class="sanfw"><button class="sanf${AB[g] ? " on" : ""}" data-polab="${esc(g)}"><span>${esc(g)}</span><i>${cont}</i><b>${tot}</b><em>${AB[g] ? "−" : "+"}</em></button>${infoBt(g)}</div>${infoTx(g)}`;
   let h = cab("Comissões", `${nP}/${COMS.length} presidências`, `${COMS.length} comissões`);
   if (AB["Comissões"]) h += `<div class="sanfc">${seletorCh(ch, "com")}${secCom(ch)}</div>`;
   h += cab("Lideranças", `${Object.keys(S.lid || {}).length}/${lidPartidos().length} líderes`, fm(lidPartidos().reduce((s2, p) => s2 + lidEst(p).cota, 0)) + "/mês");
@@ -394,7 +402,7 @@ function ligar(ch0) { let ch = ch0;
   if (S.ui.tq) { const el = document.querySelector(S.ui.tq.t === "bl" ? `[data-dp="${CSS.escape(S.ui.tq.k)}"]` : `[data-arr="${S.ui.tq.k}"]`); if (el) el.classList.add("tq"); else S.ui.tq = null; }
   const A = $("#app");
   A.onclick = (e) => {
-    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-qinfo],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-lid],[data-outab],[data-polab],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-qinfo],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-lid],[data-outab],[data-polab],[data-info],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
     if (!t) return; const ds = t.dataset;
     if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
     if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
@@ -424,6 +432,7 @@ function ligar(ch0) { let ch = ch0;
     if (ds.presc) { const c = ds.presc, l = (ch.com[c] || []).filter(Boolean); if (!l.length) return escolher(c, "Preencha as vagas da comissão primeiro; o presidente é escolhido entre os membros.", () => false, () => {}); return escolher(`Presidente · ${c}`, "Entre os membros da comissão · cada deputado preside no máximo uma comissão", (d) => l.includes(d.n) && !Object.entries(ch.pres).some(([k, v]) => v === d.n && k !== c), (n, x) => { if (x === "tirar") { delete ch.pres[c]; return; } for (const k in ch.pres) if (ch.pres[k] === n) delete ch.pres[k]; ch.pres[c] = n; }, ch.pres[c] ? `<button class="bt" data-extra="tirar">Sem presidente</button>` : ""); }
     if (ds.vaga) { const [c, i] = ds.vaga.split("|"), bl = slotsCom(c)[+i]; ORDEM_BLOCO = S.blocos.find((x) => nomeB(x) === bl) || [bl]; return escolher(`${c} · vaga ${+i + 1}`, `Vaga do bloco <b>${esc(bl)}</b>. Membros da Mesa não ocupam vaga.`, (d) => !Object.values(S.chapas).some((x) => naMesa(x, d.n)) && !(ch.com[c] || []).includes(d.n), (n, x) => { if (x === "vago") { const o = ch.com[c][+i]; ch.com[c][+i] = null; if (ch.pres[c] === o) delete ch.pres[c]; return; } ch.com[c][+i] = n; }, (ch.com[c] || [])[+i] ? `<button class="bt" data-extra="vago">Deixar vaga</button>` : ""); }
     if (ds.com) { S.ui.comAb = S.ui.comAb === ds.com ? null : ds.com; return desenhar(); }
+    if (ds.info) { S.ui.info = S.ui.info === ds.info ? null : ds.info; return desenhar(); }
     if (ds.polab) { S.ui.polAb = S.ui.polAb || {}; S.ui.polAb[ds.polab] = !S.ui.polAb[ds.polab]; return desenhar(); }
     if (ds.outab) { S.ui.outAb = S.ui.outAb || {}; S.ui.outAb[ds.outab] = !S.ui.outAb[ds.outab]; return desenhar(); }
     if (ds.lid) { const p = ds.lid; return escolher(`Líder · ${p}`, "Escolhido pela bancada · vale para todas as chapas", (d) => d.p === p, (n, x) => { S.lid = S.lid || {}; if (x === "tirar") { delete S.lid[p]; return; } S.lid[p] = n; }, S.lid && S.lid[p] ? `<button class="bt" data-extra="tirar">Sem líder</button>` : ""); }
