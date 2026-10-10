@@ -313,7 +313,10 @@ function caderno(c, ordM) {
   ${h3("A estrutura da Casa")}${secCasa().replace(/<details class="cas">/g, '<details class="cas" open>').replace(/^<div class="bloco rv"><h3>.*?<\/h3>/s, "<div>")}
   <div class="rod">SimulaLEGIS · material de apoio, sem vínculo oficial com a Assembleia. Fontes: TSE 2026, Constituição do Estado, Res. 002/2006, Atos da Mesa, contracheques e dados abertos da ALESC (09/2026).</div></div></body></html>`;
   const ov = document.createElement("div"); ov.className = "relov"; ov.innerHTML = `<div class="bar"><button class="btn" data-imp>Imprimir</button><button class="btn sec" data-fec>Fechar</button></div><iframe></iframe>`; document.body.appendChild(ov);
-  const f = ov.querySelector("iframe"); f.srcdoc = html; ov.querySelector("[data-imp]").onclick = () => f.contentWindow.print(); ov.querySelector("[data-fec]").onclick = () => ov.remove();
+  const f = ov.querySelector("iframe"); f.srcdoc = html; // cópia para impressão no próprio documento: imprime só o caderno, com paginação real (o iframe cortava no fim da altura visível)
+  document.querySelector("#cadPrint")?.remove(); const css = html.match(/<style>([\s\S]*?)<\/style>/)[1], ff = (css.match(/@font-face\{[^}]*\}/) || [""])[0], corpo = html.match(/<body>([\s\S]*)<\/body>/)[1];
+  const cp = Object.assign(document.createElement("div"), { id: "cadPrint" }); cp.innerHTML = `<style>${ff} #cadPrint{display:none} @media print{ html,body{background:#fff !important;color:#0B0D0E} body>*:not(#cadPrint){display:none !important} #cadPrint{display:block !important;font:10px/1.5 Inter,system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact} ${css.replace(ff, "").replace(/(^|\})\s*([^{}@]+)\{/g, (m, a, sel) => a + sel.split(",").map((x) => x.trim().startsWith("@") || /^(from|to|\d)/.test(x.trim()) ? x : "#cadPrint " + x.trim().replace(/^body\b/, "")).join(",") + "{")} }</style>${corpo}`; document.body.appendChild(cp);
+  ov.querySelector("[data-imp]").onclick = () => window.print(); ov.querySelector("[data-fec]").onclick = () => { ov.remove(); cp.remove(); };
 }
 
 // entrada suave das seções ao rolar
@@ -367,7 +370,10 @@ addEventListener("message", (e) => { if (e.origin === location.origin && e.data 
 addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data || e.data.tipo !== "relatorio") return;
   const ov = document.createElement("div"); ov.className = "relov"; ov.innerHTML = `<div class="bar"><button class="btn" data-imp>Imprimir</button><button class="btn sec" data-fec>Fechar</button></div><iframe></iframe>`; document.body.appendChild(ov);
   const f = ov.querySelector("iframe"); f.srcdoc = e.data.html.replace(/<script>document\.fonts\.ready\.then\(\(\)=>setTimeout\(\(\)=>print\(\),300\)\)<\/script>/, "");
-  ov.querySelector("[data-imp]").onclick = () => f.contentWindow.print(); ov.querySelector("[data-fec]").onclick = () => ov.remove(); });
+  // cópia para impressão no próprio documento: imprime só o caderno, com paginação real (o iframe cortava no fim da altura visível)
+  document.querySelector("#cadPrint")?.remove(); const css = html.match(/<style>([\s\S]*?)<\/style>/)[1], ff = (css.match(/@font-face\{[^}]*\}/) || [""])[0], corpo = html.match(/<body>([\s\S]*)<\/body>/)[1];
+  const cp = Object.assign(document.createElement("div"), { id: "cadPrint" }); cp.innerHTML = `<style>${ff} #cadPrint{display:none} @media print{ html,body{background:#fff !important;color:#0B0D0E} body>*:not(#cadPrint){display:none !important} #cadPrint{display:block !important;font:10px/1.5 Inter,system-ui,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact} ${css.replace(ff, "").replace(/(^|\})\s*([^{}@]+)\{/g, (m, a, sel) => a + sel.split(",").map((x) => x.trim().startsWith("@") || /^(from|to|\d)/.test(x.trim()) ? x : "#cadPrint " + x.trim().replace(/^body\b/, "")).join(",") + "{")} }</style>${corpo}`; document.body.appendChild(cp);
+  ov.querySelector("[data-imp]").onclick = () => window.print(); ov.querySelector("[data-fec]").onclick = () => { ov.remove(); cp.remove(); }; });
 
 // capa: mapa de SC com bolhas (tamanho = eleitorado, cor = força do deputado na cor do partido), nascendo uma a uma
 let heroRaf = null;
