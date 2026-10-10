@@ -169,7 +169,7 @@ function desenhar(admin) {
     <div class="placar">${S.chapas.map((c) => `<span><b style="color:${c.cor}">${votos(c)}</b> ${esc(nomeCh(c))}${votos(c) >= MAIORIA ? ` <b style="color:${c.cor}">· maioria</b>` : ""}</span>`).join("<span>×</span>")}<span>· <b>${DEP.filter((d) => S.dep[d.n] && S.dep[d.n].duv).length}</b> em dúvida · <b>${DEP.filter((d) => !chDe(d.n)).length}</b> sem chapa</span></div>
     <div class="acoesch"><button class="mini" data-bancada="1">+ bancada inteira</button><button class="mini" data-aliado="1">+ aliado</button>${S.chapas.length > 1 ? `<button class="mini" data-delch="1">Excluir esta chapa</button>` : ""}<button class="mini" data-arq="1">Salvar / carregar</button><button class="mini" data-zerar="1">Recomeçar cenário</button><button class="mini" data-imp="1" style="margin-left:auto;color:#F2F4F5;border-color:rgba(242,244,245,.3)">Imprimir</button></div>
     <section id="s1"><h2>Jogo da <i>Mesa.</i></h2>${secMesa(ch)}</section>
-    <section id="s2"><h2><i>Comissões.</i></h2>${seletorCh(chCom(), "com")}${secCom(chCom())}</section>
+    <section id="s2"><h2>Estrutura <i>política.</i></h2>${secPol(chCom())}</section>
     <section id="s3"><h2>Outros <i>cargos.</i></h2>${seletorCh(chOut(), "out")}${secOut(chOut())}</section>
     ${ADMIN ? `<div class="adm"><b style="color:#C6E62A">Administrador</b> · liberar acesso à Corrida da Mesa: <input id="admEmail" placeholder="e-mail da conta"> <button class="mini" data-adm="1">Liberar</button> <button class="mini" data-adm="0">Retirar</button> <span id="admMsg"></span></div>` : ""}
   </main>${secPat()}</div>`;
@@ -265,12 +265,20 @@ function secLid() {
   return `<div class="ec"><div class="er cab lid"><span></span><span>Partido · líder</span><span>Deputados</span><span>Cargos</span><span>Folha 09/2026</span><span>Cota/mês</span></div>` +
     L.map((p) => { const d = S.lid && S.lid[p] && dep(S.lid[p]), e = lidEst(p); return `<div class="er lid"><span data-lid="${esc(p)}" title="Escolher líder" style="cursor:pointer">${d ? img(d) : hole()}</span><span>${esc(p)}<small>${d ? esc(d.u) : "toque para escolher o líder"}</small></span><span class="v">${nB([p])}</span><span class="v">${e.cargos}</span><span class="v">${F[p] ? fm(F[p]) : "—"}</span><span class="tt">${fm(e.cota)}</span></div>`; }).join("") + `</div>`;
 }
+function secPol(ch) {
+  const AB = S.ui.polAb || (S.ui.polAb = { "Comissões": 1 }), nP = Object.keys(ch.pres).length;
+  const cab = (g, cont, tot) => `<button class="sanf${AB[g] ? " on" : ""}" data-polab="${esc(g)}"><span>${esc(g)}</span><i>${cont}</i><b>${tot}</b><em>${AB[g] ? "−" : "+"}</em></button>`;
+  let h = cab("Comissões", `${nP}/${COMS.length} presidências`, `${COMS.length} comissões`);
+  if (AB["Comissões"]) h += `<div class="sanfc">${seletorCh(ch, "com")}${secCom(ch)}</div>`;
+  h += cab("Lideranças", `${Object.keys(S.lid || {}).length}/${lidPartidos().length} líderes`, fm(lidPartidos().reduce((s2, p) => s2 + lidEst(p).cota, 0)) + "/mês");
+  if (AB["Lideranças"]) h += secLid();
+  return h;
+}
 function secOut(ch) {
   // seções que abrem e fecham (sanfona): cabeçalho com contagem e total; várias podem ficar abertas
-  const GR = Object.entries(EST.grupos).filter(([g, L]) => !/Comiss/.test(g) && L.length), AB = S.ui.outAb || (S.ui.outAb = { "Lideranças": 1 }), ocup = (L) => L.filter((x) => ch.out[x.n]).length;
+  const GR = Object.entries(EST.grupos).filter(([g, L]) => !/Comiss/.test(g) && L.length), AB = S.ui.outAb || (S.ui.outAb = {}), ocup = (L) => L.filter((x) => ch.out[x.n]).length;
   const cab = (g, cont, tot) => `<button class="sanf${AB[g] ? " on" : ""}" data-outab="${esc(g)}"><span>${esc(g)}</span><i>${cont}</i><b>${tot}</b><em>${AB[g] ? "−" : "+"}</em></button>`;
-  let h = cab("Lideranças", `${Object.keys(S.lid || {}).length}/${lidPartidos().length} líderes`, fm(lidPartidos().reduce((s2, p) => s2 + lidEst(p).cota, 0)) + "/mês");
-  if (AB["Lideranças"]) h += secLid();
+  let h = "";
   for (const [g, L] of GR) {
     h += cab(g, `${ocup(L)}/${L.length} ocupados`, fm(L.reduce((s2, x) => s2 + x.t, 0)) + "/mês");
     if (!AB[g]) continue;
@@ -386,7 +394,7 @@ function ligar(ch0) { let ch = ch0;
   if (S.ui.tq) { const el = document.querySelector(S.ui.tq.t === "bl" ? `[data-dp="${CSS.escape(S.ui.tq.k)}"]` : `[data-arr="${S.ui.tq.k}"]`); if (el) el.classList.add("tq"); else S.ui.tq = null; }
   const A = $("#app");
   A.onclick = (e) => {
-    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-qinfo],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-lid],[data-outab],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-qinfo],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-lid],[data-outab],[data-polab],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
     if (!t) return; const ds = t.dataset;
     if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
     if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
@@ -416,6 +424,7 @@ function ligar(ch0) { let ch = ch0;
     if (ds.presc) { const c = ds.presc, l = (ch.com[c] || []).filter(Boolean); if (!l.length) return escolher(c, "Preencha as vagas da comissão primeiro; o presidente é escolhido entre os membros.", () => false, () => {}); return escolher(`Presidente · ${c}`, "Entre os membros da comissão · cada deputado preside no máximo uma comissão", (d) => l.includes(d.n) && !Object.entries(ch.pres).some(([k, v]) => v === d.n && k !== c), (n, x) => { if (x === "tirar") { delete ch.pres[c]; return; } for (const k in ch.pres) if (ch.pres[k] === n) delete ch.pres[k]; ch.pres[c] = n; }, ch.pres[c] ? `<button class="bt" data-extra="tirar">Sem presidente</button>` : ""); }
     if (ds.vaga) { const [c, i] = ds.vaga.split("|"), bl = slotsCom(c)[+i]; ORDEM_BLOCO = S.blocos.find((x) => nomeB(x) === bl) || [bl]; return escolher(`${c} · vaga ${+i + 1}`, `Vaga do bloco <b>${esc(bl)}</b>. Membros da Mesa não ocupam vaga.`, (d) => !Object.values(S.chapas).some((x) => naMesa(x, d.n)) && !(ch.com[c] || []).includes(d.n), (n, x) => { if (x === "vago") { const o = ch.com[c][+i]; ch.com[c][+i] = null; if (ch.pres[c] === o) delete ch.pres[c]; return; } ch.com[c][+i] = n; }, (ch.com[c] || [])[+i] ? `<button class="bt" data-extra="vago">Deixar vaga</button>` : ""); }
     if (ds.com) { S.ui.comAb = S.ui.comAb === ds.com ? null : ds.com; return desenhar(); }
+    if (ds.polab) { S.ui.polAb = S.ui.polAb || {}; S.ui.polAb[ds.polab] = !S.ui.polAb[ds.polab]; return desenhar(); }
     if (ds.outab) { S.ui.outAb = S.ui.outAb || {}; S.ui.outAb[ds.outab] = !S.ui.outAb[ds.outab]; return desenhar(); }
     if (ds.lid) { const p = ds.lid; return escolher(`Líder · ${p}`, "Escolhido pela bancada · vale para todas as chapas", (d) => d.p === p, (n, x) => { S.lid = S.lid || {}; if (x === "tirar") { delete S.lid[p]; return; } S.lid[p] = n; }, S.lid && S.lid[p] ? `<button class="bt" data-extra="tirar">Sem líder</button>` : ""); }
     if (ds.atrib) { const k = ds.atrib; ORDEM_CH = ch.id; return escolher(acento(k), `${nomeCh(ch)} · uma vez por chapa · quem é de outra chapa ou sem chapa passa a votar nesta`, () => true, (n, x) => { if (x === "vago") { delete ch.out[k]; ch.outVago = [...new Set([...(ch.outVago || []), k])]; return; } ch.outVago = (ch.outVago || []).filter((v) => v !== k); if (chDe(n) !== ch.id) poeNaChapa(n, ch); ch.out[k] = n; }, ch.out[k] ? `<button class="bt" data-extra="vago">Deixar vago</button>` : ""); }
@@ -454,10 +463,11 @@ function imprimir(ids, secs) {
       const semP = COMS.length - Object.values(pp).reduce((s, x) => s + x, 0);
       const ls = COMS.map((cm) => { const sl = slotsCom(cm), l = (c.com[cm] || []).filter(Boolean), p = c.pres[cm] && dep(c.pres[cm]); return `<div class="ln">${p ? av(p, 24) : oco(24)}<span class="n">${esc(cm)}${l.length ? `<small>${l.map((n) => (n === c.pres[cm] ? "★ " : "") + esc(dep(n).u)).join(" · ")}</small>` : ""}</span><span class="q">${l.length}/${sl.length}</span></div>`; });
       const m = Math.ceil(ls.length / 2);
-      h += T("", "Comissões.") + `<div class="etqp"><span class="r">Presidências por partido</span>${Object.entries(pp).sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0])).map(([p, x]) => `<span class="e"><b>${x}</b> ${esc(p)}</span>`).join("")}${semP ? `<span class="e vz"><b>${semP}</b> sem presidente</span>` : ""}</div><div class="dois"><div>${ls.slice(0, m).join("")}</div><div>${ls.slice(m).join("")}</div></div>`;      h += T("Comissões ·", "quociente.") + `<p class="nota">Regimento, art. 30: quociente = 40 ÷ (membros − 1). A vaga reservada vai ao conjunto dos partidos com menos de 5 deputados; as demais, às maiores frações. Membros da Mesa contam na base de 40, mas não ocupam vaga. CCJ, Finanças, Trabalho e Ética têm 9 membros; as demais, 7.</p>${quocTabela()}`;
+      h += T("Estrutura política ·", "comissões.") + `<div class="etqp"><span class="r">Presidências por partido</span>${Object.entries(pp).sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0])).map(([p, x]) => `<span class="e"><b>${x}</b> ${esc(p)}</span>`).join("")}${semP ? `<span class="e vz"><b>${semP}</b> sem presidente</span>` : ""}</div><div class="dois"><div>${ls.slice(0, m).join("")}</div><div>${ls.slice(m).join("")}</div></div>`;      h += T("Comissões ·", "quociente.") + `<p class="nota">Regimento, art. 30: quociente = 40 ÷ (membros − 1). A vaga reservada vai ao conjunto dos partidos com menos de 5 deputados; as demais, às maiores frações. Membros da Mesa contam na base de 40, mas não ocupam vaga. CCJ, Finanças, Trabalho e Ética têm 9 membros; as demais, 7.</p>${quocTabela()}`;
+      h += T("Estrutura política ·", "lideranças.") + `<div class="ec"><h3><span>Lideranças · um líder por partido</span><b>${fm(lidPartidos().reduce((s2, p) => s2 + lidEst(p).cota, 0))}/mês</b></h3>` + lidPartidos().map((p) => { const d = S.lid && S.lid[p] && dep(S.lid[p]), e = lidEst(p); return `<div class="er">${d ? av(d, 22) : oco(22)}<span>${esc(p)} · ${nB([p])} dep. · ${e.cargos} cargos<small>${d ? esc(d.u) : "sem líder"}</small></span><span class="tt">${fm(e.cota)}</span></div>`; }).join("") + `</div>`;
     }
     if (secs.includes("out")) {
-      h += T("Outros", "cargos.") + `<div class="ec"><h3><span>Lideranças · um líder por partido</span><b>${fm(lidPartidos().reduce((s2, p) => s2 + lidEst(p).cota, 0))}/mês</b></h3>` + lidPartidos().map((p) => { const d = S.lid && S.lid[p] && dep(S.lid[p]), e = lidEst(p); return `<div class="er">${d ? av(d, 22) : oco(22)}<span>${esc(p)} · ${nB([p])} dep. · ${e.cargos} cargos<small>${d ? esc(d.u) : "sem líder"}</small></span><span class="tt">${fm(e.cota)}</span></div>`; }).join("") + `</div>`;
+      h += T("Outros", "cargos.");
       for (const [g, L] of Object.entries(EST.grupos)) {
         if (/Comiss/.test(g) || !L.length) continue;
         h += `<div class="ec"><h3><span>${esc(g)} · ${L.length}</span><b>${fm(L.reduce((s, x) => s + x.t, 0))}/mês</b></h3>` + L.map((x) => { const d = c.out[x.n] && dep(c.out[x.n]); return `<div class="er">${d ? av(d, 22) : oco(22)}<span>${esc(acento(x.n))}<small>${d ? esc(d.u) : "vago"}</small></span><span class="tt">${fm(x.t)}</span></div>`; }).join("") + `</div>`;
