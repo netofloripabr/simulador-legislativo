@@ -26,7 +26,7 @@ function abrirRelatorios() {
     <button class="rel-fechar" id="relFechar">Fechar</button></div>`;
   m.hidden = false;
   m.querySelector(".rel-fundo").onclick = m.querySelector("#relFechar").onclick = () => { m.hidden = true; };
-  m.querySelectorAll("[data-rel]").forEach((b) => b.onclick = async () => { b.querySelector("span").textContent = "Montando…"; const html = await montarRelatorio(b.dataset.rel); m.hidden = true; const w = window.open("", "_blank"); w.document.write(html); w.document.close(); });
+  m.querySelectorAll("[data-rel]").forEach((b) => b.onclick = async () => { b.querySelector("span").textContent = "Montando…"; const html = await montarRelatorio(b.dataset.rel); m.hidden = true; abrirRelatorioHtml(html); });
 }
 
 // ---------- peças do documento ----------

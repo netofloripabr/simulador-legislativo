@@ -656,7 +656,7 @@ document.querySelectorAll(".vistas button").forEach((b) => b.onclick = () => tro
 if (location.hash === "#ranking") { const t = setInterval(() => { if (M && LINKS) { clearInterval(t); trocarVista("ranking"); } }, 100); }
 
 document.getElementById("btnRel").onclick = () => abrirRelatorios();
-document.getElementById("btnRelRk").onclick = async () => { const html = await montarRelatorio("ranking"); const w = window.open("", "_blank"); w.document.write(html); w.document.close(); };
+document.getElementById("btnRelRk").onclick = async () => { abrirRelatorioHtml(await montarRelatorio("ranking")); };
 
 // Sobras (quociente, cadeiras por partido e rodadas pelo método das médias) — calculado em ferramentas/gerar_painel_sc.py
 function abrirSobras() {
@@ -687,3 +687,13 @@ function abrirSobras() {
   el.hidden = false; el.querySelector(".rel-fundo").onclick = el.querySelector("#relFechar").onclick = () => { el.hidden = true; };
 }
 document.addEventListener("click", (e) => { const m = $("#rkFiltroMenu"); if (m && !e.target.closest("#rkFiltroMenu,#rkFiltro")) m.hidden = true; });
+
+// ---------------- embutido (aba Parlamentares) ----------------
+// filtros pré-selecionados vindos da página de fora: recorte, comparação, lente, ranking por partido
+window.painelPreset = (o) => {
+  if ("rec" in o) st.rec = o.rec; if ("b" in o) st.b = o.b ? { cargo: "estadual", n: o.b } : null; if (o.lente) st.lente = o.lente; st.sel = -1; st.abertos = {};
+  if (o.vista === "ranking") { rk.partido = o.partido || ""; rk.rec = o.rec || null; rk.aberto = null; trocarVista("ranking"); montarRanking(); return; }
+  trocarVista("painel"); trocouCandidato();
+};
+// relatório: embutido, abre por cima da página de fora (sem nova aba)
+window.abrirRelatorioHtml = (html) => { if (document.documentElement.classList.contains("embed") && parent !== window) { parent.postMessage({ tipo: "relatorio", html }, location.origin); return; } const w = window.open("", "_blank"); w.document.write(html); w.document.close(); };

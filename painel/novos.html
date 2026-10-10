@@ -11,7 +11,7 @@
 @font-face{ font-family:"Inter"; src:url(../fontes/InterVariable.woff2) format("woff2"); font-weight:100 900; font-display:swap; }
 :root{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --linha:rgba(242,244,245,.09); --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178; --a:#34E84A; --a-rgb:52,232,74; color-scheme:dark; }
 *{ box-sizing:border-box; }
-html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.55 "Inter",system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+html{ scroll-behavior:smooth; } html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.55 "Inter",system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
 .topo{ position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:12px; height:56px; padding:0 16px; background:rgba(11,15,13,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--linha); }
 .wm{ font-weight:800; font-size:17px; letter-spacing:-.02em; } .wm b{ color:#34E84A; }
 .topo .sep{ font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ter); padding-left:12px; border-left:1px solid var(--linha); }
@@ -23,8 +23,8 @@ h1,h2{ font-weight:900; letter-spacing:-.05em; margin:0; } h1 i, h2 i{ font-styl
 /* ---------- seleção: roda de nomes (rolagem vertical, o nome do centro é o escolhido) ---------- */
 .roda{ position:relative; height:calc(100vh - 56px - 170px); overflow-y:auto; scroll-snap-type:y mandatory; scrollbar-width:none; -webkit-mask-image:linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image:linear-gradient(transparent, #000 30%, #000 70%, transparent); } .roda::-webkit-scrollbar{ display:none; }
 .roda ol{ list-style:none; margin:0; padding:calc(50vh - 140px) 0; }
-.roda li{ scroll-snap-align:center; text-align:center; font:900 clamp(30px,5.4vw,64px)/1.15 "Inter"; letter-spacing:-.045em; color:rgba(242,244,245,.16); cursor:pointer; padding:4px 16px; transition:color .25s, transform .25s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.roda li.on{ color:var(--a); transform:scale(1.04); } .roda li.v1{ color:rgba(242,244,245,.42); }
+.roda li{ scroll-snap-align:center; text-align:center; font:900 clamp(30px,5.4vw,64px)/1.12 "Inter"; letter-spacing:-.045em; color:#F2F4F5; cursor:pointer; padding:2px 16px; white-space:nowrap; will-change:transform,filter,opacity; transform-origin:center; }
+.roda li.on{ color:var(--a); }
 .rodainfo{ text-align:center; padding:14px 16px 24px; } .rodainfo .pt{ color:var(--sec); font-size:14px; margin-bottom:10px; } .rodainfo .btn{ pointer-events:auto; }
 .rodainfo .dica{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); margin-top:10px; }
 .btn{ display:inline-flex; align-items:center; gap:8px; font:700 14px "Inter"; color:#0B0D0E; background:var(--a); border:0; border-radius:999px; padding:11px 20px; cursor:pointer; text-decoration:none; } .btn.sec{ background:none; color:var(--texto); border:1px solid rgba(242,244,245,.2); }
@@ -55,11 +55,30 @@ h1,h2{ font-weight:900; letter-spacing:-.05em; margin:0; } h1 i, h2 i{ font-styl
 .emb{ width:100%; height:1200px; margin-top:24px; border:0; border-radius:18px; background:var(--sup); }
 .breve{ color:var(--ter); font-size:14px; padding:6px 4px 20px; }
 @media (max-width:860px){ .quadro{ grid-template-columns:1fr; } .cab .btn{ display:none; } }
+/* seções do perfil: faixa de título, entrada suave e seta para a próxima */
+.secao{ position:relative; padding:70px 0 90px; border-top:1px solid var(--linha); }
+.secao .tag{ display:flex; align-items:baseline; gap:16px; } .secao .tag b{ font:900 72px/1 "Inter"; letter-spacing:-.05em; color:rgba(var(--a-rgb),.9); } .secao .tag h2{ font-size:clamp(36px,5.5vw,64px); line-height:.95; }
+.secao .lead{ color:var(--sec); font-size:17px; max-width:680px; margin:10px 0 26px; }
+.rv{ opacity:0; transform:translateY(40px); transition:opacity .9s cubic-bezier(.2,.8,.3,1), transform .9s cubic-bezier(.2,.8,.3,1); } .rv.in{ opacity:1; transform:none; }
+.seta{ position:absolute; left:50%; bottom:22px; transform:translateX(-50%); width:38px; height:38px; border-radius:50%; border:1px solid rgba(var(--a-rgb),.5); color:var(--a); display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:18px; animation:quica 2.2s ease-in-out infinite; } .seta:hover{ background:rgba(var(--a-rgb),.12); }
+@keyframes quica{ 50%{ transform:translate(-50%,6px); } }
+.hero .seta{ z-index:3; }
+.chips{ display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 14px; } .chips button{ font:600 13px "Inter"; padding:8px 14px; border-radius:999px; border:1px solid var(--linha); background:none; color:var(--sec); cursor:pointer; } .chips button.on{ color:#0B0D0E; background:var(--a); border-color:var(--a); } .chips .r{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); align-self:center; margin-right:4px; }
+.bloco{ background:var(--sup); border:1px solid var(--linha); border-radius:20px; padding:22px; margin-bottom:16px; } .bloco h3{ margin:0 0 4px; font-size:22px; letter-spacing:-.03em; } .bloco > p{ color:var(--sec); margin:0 0 14px; font-size:14px; }
+.tl4{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; } .tl4 > div{ border-top:3px solid rgba(var(--a-rgb),.6); padding-top:10px; } .tl4 b{ display:block; font-size:20px; } .tl4 span{ font-size:12.5px; color:var(--sec); display:block; margin-top:4px; line-height:1.45; }
+.semana{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; } .semana > div{ background:var(--sup2); border-radius:14px; padding:12px; min-height:120px; } .semana > div.on{ box-shadow:inset 0 0 0 1.5px rgba(var(--a-rgb),.6); } .semana b{ display:block; font-size:13px; letter-spacing:.06em; text-transform:uppercase; color:var(--ter); margin-bottom:6px; } .semana .it{ font-size:12.5px; color:var(--texto); margin-bottom:6px; line-height:1.35; } .semana .it i{ font-style:normal; color:var(--a); font-weight:700; margin-right:4px; }
+.qtab{ width:100%; border-collapse:collapse; font-size:14px; } .qtab td{ padding:9px 6px; border-bottom:1px solid var(--linha); } .qtab td:last-child{ text-align:right; font-weight:800; color:var(--a); white-space:nowrap; } .qtab small{ display:block; color:var(--ter); font-size:12px; }
+.trilha{ position:relative; display:flex; gap:0; overflow-x:auto; padding:24px 4px 8px; scrollbar-width:thin; } .trilha .e{ flex:none; width:170px; position:relative; padding-top:26px; opacity:0; transform:translateY(10px); animation:pop .5s cubic-bezier(.2,.9,.3,1.2) forwards; }
+.trilha .e::before{ content:""; position:absolute; top:7px; left:0; right:0; height:2px; background:rgba(var(--a-rgb),.35); } .trilha .e::after{ content:""; position:absolute; top:0; left:0; width:16px; height:16px; border-radius:50%; background:var(--a); box-shadow:0 0 12px rgba(var(--a-rgb),.8); }
+.trilha .e b{ display:block; font-size:14px; padding-right:12px; } .trilha .e span{ display:block; font-size:12px; color:var(--sec); padding-right:14px; margin-top:4px; line-height:1.4; } .trilha .e.vt::after{ background:#E5484D; box-shadow:0 0 12px rgba(229,72,77,.8); }
+.nota{ font-size:11.5px; color:var(--ter); margin-top:10px; }
+.relov{ position:fixed; inset:0; z-index:60; background:rgba(5,7,6,.82); backdrop-filter:blur(6px); display:flex; flex-direction:column; padding:20px; } .relov .bar{ display:flex; gap:10px; justify-content:flex-end; max-width:1000px; width:100%; margin:0 auto 10px; } .relov iframe{ flex:1; width:100%; max-width:1000px; margin:0 auto; border:0; border-radius:14px; background:#fff; }
+@media (max-width:760px){ .tl4, .semana{ grid-template-columns:1fr 1fr; } }
 </style>
 </head>
 <body>
 <header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Parlamentares · 2027–2031</span><nav class="vistas"><a href="./">Painel</a><a href="mesa.html">Corrida da Mesa</a><a href="novos.html" class="on">Parlamentares</a></nav></header>
 <main id="app"><div class="wrap sel"><div class="olho">Carregando…</div></div></main>
-<script src="novos.js?cb=6"></script>
+<script src="novos.js?cb=8"></script>
 </body>
 </html>
