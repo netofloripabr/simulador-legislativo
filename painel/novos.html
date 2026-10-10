@@ -148,11 +148,20 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .pb2 .trk{ position:relative; height:16px; border-radius:8px; background:rgba(242,244,245,.04); } .pb2 .trk i{ position:absolute; top:0; height:100%; border-radius:8px; transform-origin:left; animation:cresce .9s cubic-bezier(.2,1.2,.4,1) var(--d) both; } .pb2 .b22{ left:0; background:rgba(242,244,245,.16); top:2px !important; height:12px !important; } .pb2 .b26{ left:0; background:rgba(242,244,245,.55); } .pb2.eu .b26{ background:var(--a); box-shadow:0 0 10px rgba(var(--a-rgb),.6); } .pb2 .gan{ background:#34C759; box-shadow:0 0 10px rgba(52,199,89,.55); border-radius:0 8px 8px 0; } .pb2 .per{ background:transparent; border:1.5px dashed #E5484D; border-radius:0 8px 8px 0; box-sizing:border-box; }
 .pb2 .nn{ text-align:right; font-variant-numeric:tabular-nums; color:var(--ter); font-size:13px; } .pb2 .nn b{ color:var(--texto); font-size:15px; } .pb2 .nn em{ font-style:normal; } .pb2 small{ text-align:right; font-weight:700; color:var(--ter); } .pb2 small.up{ color:#34C759; } .pb2 small.dn{ color:#E5484D; }
 .leg2{ display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; font-size:12px; color:var(--ter); } .leg2 i{ display:inline-block; width:18px; height:8px; border-radius:4px; margin-right:6px; vertical-align:middle; } .leg2 .b22{ background:rgba(242,244,245,.16); } .leg2 .b26{ background:rgba(242,244,245,.55); } .leg2 .gan{ background:#34C759; } .leg2 .per{ border:1.5px dashed #E5484D; }
+.comp.v1 .cl{ display:grid; grid-template-columns:minmax(0,1fr) 130px minmax(0,1fr); align-items:center; gap:10px; padding:5px 0; } .comp.v1 .pn{ text-align:center; font-weight:700; font-size:13px; } .comp.v1 .pn small{ display:block; font-size:11px; color:var(--ter); font-weight:500; } .comp.v1 .eu .pn{ color:var(--a); }
+.comp.v1 .lado{ display:flex; align-items:center; gap:8px; } .comp.v1 .lado.e{ flex-direction:row; justify-content:flex-end; } .comp.v1 .lado b{ font-size:13px; width:20px; text-align:center; color:var(--sec); } .comp.v1 .seg{ display:flex; gap:2px; width:100%; } .comp.v1 .lado.e .seg{ flex-direction:row-reverse; }
+.comp.v1 .seg i{ position:relative; display:block; height:14px; min-width:4px; border-radius:3px; background:rgba(242,244,245,.22); animation:cresce .6s cubic-bezier(.2,.8,.3,1) both; } .comp.v1 .lado.d .seg i{ background:rgba(242,244,245,.32); } .comp.v1 .lado .seg i.perd{ background:#E5484D; } .comp.v1 .lado .seg i.ganh{ background:#34C759; box-shadow:0 0 8px rgba(52,199,89,.5); } .comp.v1 .eu .lado.d .seg i:not(.ganh){ background:var(--a); } .comp.v1 .lado.d{ flex-wrap:nowrap; }
+.comp.v1 .seg i img{ position:absolute; left:50%; bottom:16px; transform:translateX(-50%); width:20px; height:20px; border-radius:50%; object-fit:cover; object-position:50% 18%; box-shadow:0 0 0 1.5px var(--fundo); } .comp.v1 .lado.d{ padding-top:20px; } .comp.v1 .cl.cab span{ font-size:10.5px; letter-spacing:.14em; color:var(--ter); } .comp.v1 .cl.cab .lado.d{ padding-top:0; }
+.comp.v1 .lado.e .seg i{ transform-origin:right; } .comp.v1 .lado.d .seg i{ transform-origin:left; }
+.comp.v1 .lado.d{ padding-top:20px; } .comp.v1 .lado.e .seg{ flex-direction:row-reverse; } .comp.v1 .seg{ display:flex; gap:2px; width:100%; } .comp.v1 .lado .seg i.perd{ background:#E5484D; } .comp.v1 .lado .seg i.ganh{ background:#34C759; box-shadow:0 0 8px rgba(52,199,89,.5); } .comp.v1 .eu .lado.d .seg i:not(.ganh){ background:var(--a); }
+.qn > b{ display:block; font-size:15px; } .qn small b.kw{ display:inline; font-size:inherit; }
+.legg{ align-items:start; } .legg .cal h3{ font-size:18px; } .bloco.fech > h3{ margin:0; align-items:center; }
+.topo .sep:hover{ color:var(--a); }
 </style>
 </head>
 <body>
 <header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Parlamentares · 2027–2031</span><nav class="vistas"><a href="./">Painel</a><a href="mesa.html">Corrida da Mesa</a><a href="novos.html" class="on">Parlamentares</a></nav></header>
 <main id="app"><div class="wrap sel"><div class="olho">Carregando…</div></div></main>
-<script src="novos.js?cb=27"></script>
+<script src="novos.js?cb=28"></script>
 </body>
 </html>
