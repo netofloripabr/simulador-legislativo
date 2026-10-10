@@ -22,7 +22,7 @@ async function iniciar() {
   const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
   const { data: admin } = await supabaseClient.rpc("sou_admin");
-  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=10").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
+  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=11").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json").then((r) => r.json())]);
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
   COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
@@ -262,15 +262,20 @@ const lidEst = (p) => { const T = (EST.liderancas || {}).tabela || {}, n = Math.
 const liderDe = (n) => Object.keys(S.lid || {}).find((p) => S.lid[p] === n);
 function secLid() {
   const F = (EST.liderancas || {}).folha || {}, L = lidPartidos();
-  return `<div class="ec"><h3><span>Lideranças · ${L.length} · um líder por partido no cenário</span><b>${fm(L.reduce((s2, p) => s2 + lidEst(p).cota, 0))}/mês</b></h3><div class="er cab lid"><span></span><span>Partido · líder</span><span>Deputados</span><span>Cargos</span><span>Folha 09/2026</span><span>Cota/mês</span></div>` +
+  return `<div class="ec"><div class="er cab lid"><span></span><span>Partido · líder</span><span>Deputados</span><span>Cargos</span><span>Folha 09/2026</span><span>Cota/mês</span></div>` +
     L.map((p) => { const d = S.lid && S.lid[p] && dep(S.lid[p]), e = lidEst(p); return `<div class="er lid"><span data-lid="${esc(p)}" title="Escolher líder" style="cursor:pointer">${d ? img(d) : hole()}</span><span>${esc(p)}<small>${d ? esc(d.u) : "toque para escolher o líder"}</small></span><span class="v">${nB([p])}</span><span class="v">${e.cargos}</span><span class="v">${F[p] ? fm(F[p]) : "—"}</span><span class="tt">${fm(e.cota)}</span></div>`; }).join("") + `</div>`;
 }
 function secOut(ch) {
-  let h = secLid();
-  for (const [g, L] of Object.entries(EST.grupos)) {
-    if (/Comiss/.test(g) || !L.length) continue;
-    const lim = S.ui.mais[g] ? L.length : 8;
-    h += `<div class="ec"><h3><span>${esc(g)} · ${L.length}</span><b>${fm(L.reduce((s, x) => s + x.t, 0))}/mês</b></h3><div class="er cab"><span></span><span>Estrutura</span><span>Comiss.</span><span>FC / FG</span><span>Grat. exerc.</span><span>Total/mês</span></div>`;
+  // seções que abrem e fecham (sanfona): cabeçalho com contagem e total; várias podem ficar abertas
+  const GR = Object.entries(EST.grupos).filter(([g, L]) => !/Comiss/.test(g) && L.length), AB = S.ui.outAb || (S.ui.outAb = { "Lideranças": 1 }), ocup = (L) => L.filter((x) => ch.out[x.n]).length;
+  const cab = (g, cont, tot) => `<button class="sanf${AB[g] ? " on" : ""}" data-outab="${esc(g)}"><span>${esc(g)}</span><i>${cont}</i><b>${tot}</b><em>${AB[g] ? "−" : "+"}</em></button>`;
+  let h = cab("Lideranças", `${Object.keys(S.lid || {}).length}/${lidPartidos().length} líderes`, fm(lidPartidos().reduce((s2, p) => s2 + lidEst(p).cota, 0)) + "/mês");
+  if (AB["Lideranças"]) h += secLid();
+  for (const [g, L] of GR) {
+    h += cab(g, `${ocup(L)}/${L.length} ocupados`, fm(L.reduce((s2, x) => s2 + x.t, 0)) + "/mês");
+    if (!AB[g]) continue;
+    const lim = L.length;
+    h += `<div class="ec"><div class="er cab"><span></span><span>Estrutura</span><span>Comiss.</span><span>FC / FG</span><span>Grat. exerc.</span><span>Total/mês</span></div>`;
     for (const x of L.slice(0, lim)) {
       const n = ch.out[x.n], d = n && dep(n), ab = S.ui.estAb === x.n;
       h += `<div class="er${ab ? " ab" : ""}" data-est="${esc(x.n)}"><span data-atrib="${esc(x.n)}" title="Escolher parlamentar" style="cursor:pointer">${d ? img(d) : hole()}</span><span>${esc(acento(x.n))}<small>${d ? esc(d.u) : "vago"}</small></span><span class="v">${x.cc[0] || "—"}</span><span class="v">${x.fc[0] || "—"}</span><span class="v">${x.fg[0] || "—"}</span><span class="tt">${fm(x.t)}</span></div>`;
@@ -381,7 +386,7 @@ function ligar(ch0) { let ch = ch0;
   if (S.ui.tq) { const el = document.querySelector(S.ui.tq.t === "bl" ? `[data-dp="${CSS.escape(S.ui.tq.k)}"]` : `[data-arr="${S.ui.tq.k}"]`); if (el) el.classList.add("tq"); else S.ui.tq = null; }
   const A = $("#app");
   A.onclick = (e) => {
-    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-qinfo],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-lid],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
+    const t = e.target.closest("[data-ch],[data-nova],[data-mesa],[data-dep],[data-aliado],[data-bancada],[data-delch],[data-zerar],[data-arq],[data-chsec],[data-copiar],[data-ordsv],[data-imp],[data-gerar],[data-q],[data-desfb],[data-qinfo],[data-renb],[data-novob],[data-salvab],[data-res],[data-com],[data-presc],[data-vaga],[data-pres],[data-est],[data-atrib],[data-desatrib],[data-lid],[data-outab],[data-mais],[data-gav],[data-po],[data-pat],[data-adm]");
     if (!t) return; const ds = t.dataset;
     if (ds.ch) { S.ui.aba = ds.ch; return desenhar(); }
     if (ds.nova) { const id = "c" + Date.now(); S.chapas.push({ id, cor: CORES.find((c) => !S.chapas.some((x) => x.cor === c)), mesa: {}, out: {}, com: {}, pres: {} }); S.ui.aba = id; return desenhar(); }
@@ -411,6 +416,7 @@ function ligar(ch0) { let ch = ch0;
     if (ds.presc) { const c = ds.presc, l = (ch.com[c] || []).filter(Boolean); if (!l.length) return escolher(c, "Preencha as vagas da comissão primeiro; o presidente é escolhido entre os membros.", () => false, () => {}); return escolher(`Presidente · ${c}`, "Entre os membros da comissão · cada deputado preside no máximo uma comissão", (d) => l.includes(d.n) && !Object.entries(ch.pres).some(([k, v]) => v === d.n && k !== c), (n, x) => { if (x === "tirar") { delete ch.pres[c]; return; } for (const k in ch.pres) if (ch.pres[k] === n) delete ch.pres[k]; ch.pres[c] = n; }, ch.pres[c] ? `<button class="bt" data-extra="tirar">Sem presidente</button>` : ""); }
     if (ds.vaga) { const [c, i] = ds.vaga.split("|"), bl = slotsCom(c)[+i]; ORDEM_BLOCO = S.blocos.find((x) => nomeB(x) === bl) || [bl]; return escolher(`${c} · vaga ${+i + 1}`, `Vaga do bloco <b>${esc(bl)}</b>. Membros da Mesa não ocupam vaga.`, (d) => !Object.values(S.chapas).some((x) => naMesa(x, d.n)) && !(ch.com[c] || []).includes(d.n), (n, x) => { if (x === "vago") { const o = ch.com[c][+i]; ch.com[c][+i] = null; if (ch.pres[c] === o) delete ch.pres[c]; return; } ch.com[c][+i] = n; }, (ch.com[c] || [])[+i] ? `<button class="bt" data-extra="vago">Deixar vaga</button>` : ""); }
     if (ds.com) { S.ui.comAb = S.ui.comAb === ds.com ? null : ds.com; return desenhar(); }
+    if (ds.outab) { S.ui.outAb = S.ui.outAb || {}; S.ui.outAb[ds.outab] = !S.ui.outAb[ds.outab]; return desenhar(); }
     if (ds.lid) { const p = ds.lid; return escolher(`Líder · ${p}`, "Escolhido pela bancada · vale para todas as chapas", (d) => d.p === p, (n, x) => { S.lid = S.lid || {}; if (x === "tirar") { delete S.lid[p]; return; } S.lid[p] = n; }, S.lid && S.lid[p] ? `<button class="bt" data-extra="tirar">Sem líder</button>` : ""); }
     if (ds.atrib) { const k = ds.atrib; ORDEM_CH = ch.id; return escolher(acento(k), `${nomeCh(ch)} · uma vez por chapa · quem é de outra chapa ou sem chapa passa a votar nesta`, () => true, (n, x) => { if (x === "vago") { delete ch.out[k]; ch.outVago = [...new Set([...(ch.outVago || []), k])]; return; } ch.outVago = (ch.outVago || []).filter((v) => v !== k); if (chDe(n) !== ch.id) poeNaChapa(n, ch); ch.out[k] = n; }, ch.out[k] ? `<button class="bt" data-extra="vago">Deixar vago</button>` : ""); }
     if (ds.desatrib) { delete ch.out[ds.desatrib]; ch.outVago = [...new Set([...(ch.outVago || []), ds.desatrib])]; return desenhar(); }
