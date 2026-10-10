@@ -15,6 +15,8 @@ const reduzido = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const CARGOS = [["estadual", "Dep. Estadual"], ["federal", "Dep. Federal"], ["senador", "Senador"], ["governador", "Governador"], ["presidente", "Presidente"]];
 const CARGO_LBL = Object.fromEntries(CARGOS);
 const COR = { a: [52, 232, 74], a2: [198, 230, 42], b: [61, 123, 255], b2: [123, 107, 255], neutro: [58, 64, 70], fundo: "#14191A", grade: "rgba(242,244,245,.07)", linha: "rgba(242,244,245,.18)", sec: "#8A9096" };
+// embutido na aba Parlamentares: ?cor=RRGGBB troca o destaque pela cor do partido (do apagado ao forte)
+{ const h = new URLSearchParams(location.search).get("cor"); if (h && /^[0-9a-f]{6}$/i.test(h)) { const c = [0, 2, 4].map((k) => parseInt(h.slice(k, k + 2), 16)); COR.a = c; COR.a2 = c.map((v) => Math.round(v + (255 - v) * .45)); document.documentElement.style.setProperty("--a", "#" + h); document.documentElement.style.setProperty("--a2", `rgb(${COR.a2})`); } }
 
 let M, N, CONT;                 // municípios, quantidade, contorno
 const DADOS = {};               // por cargo

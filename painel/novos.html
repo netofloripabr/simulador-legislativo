@@ -20,16 +20,28 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.55
 h1,h2{ font-weight:900; letter-spacing:-.05em; margin:0; } h1 i, h2 i{ font-style:normal; color:var(--a); }
 .wrap{ max-width:1180px; margin:0 auto; padding:0 20px; }
 
-/* ---------- seleção por rolagem: faixa horizontal, o cartão do centro é o escolhido ---------- */
-.sel{ padding-block:40px 60px; }
-.faixa{ display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x mandatory; padding:24px calc(50% - 110px) 30px; scrollbar-width:none; } .faixa::-webkit-scrollbar{ display:none; }
-.perf{ flex:none; width:220px; scroll-snap-align:center; border-radius:20px; overflow:hidden; background:var(--sup); border:1px solid var(--linha); cursor:pointer; padding:0; color:inherit; font:inherit; text-align:left; transform:scale(.86); opacity:.45; transition:transform .35s cubic-bezier(.2,.8,.3,1), opacity .35s, box-shadow .35s; }
-.perf.on{ transform:scale(1); opacity:1; box-shadow:0 24px 60px -24px var(--pc), 0 0 0 1.5px var(--pc); }
-.perf img{ width:100%; aspect-ratio:4/5; object-fit:cover; object-position:50% 18%; display:block; }
-.perf .tx{ padding:10px 14px 14px; } .perf b{ display:block; font-size:15px; } .perf span{ font-size:12px; color:var(--ter); }
-.selinfo{ text-align:center; } .selinfo .nm{ font-size:clamp(28px,4vw,44px); font-weight:900; letter-spacing:-.04em; } .selinfo .pt{ color:var(--sec); margin:2px 0 14px; }
-.busca{ display:block; margin:0 auto; width:100%; max-width:360px; font:14px "Inter"; color:var(--texto); background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:10px 16px; }
+/* ---------- seleção: roda de nomes (rolagem vertical, o nome do centro é o escolhido) ---------- */
+.roda{ position:relative; height:calc(100vh - 56px - 170px); overflow-y:auto; scroll-snap-type:y mandatory; scrollbar-width:none; -webkit-mask-image:linear-gradient(transparent, #000 30%, #000 70%, transparent); mask-image:linear-gradient(transparent, #000 30%, #000 70%, transparent); } .roda::-webkit-scrollbar{ display:none; }
+.roda ol{ list-style:none; margin:0; padding:calc(50vh - 140px) 0; }
+.roda li{ scroll-snap-align:center; text-align:center; font:900 clamp(30px,5.4vw,64px)/1.15 "Inter"; letter-spacing:-.045em; color:rgba(242,244,245,.16); cursor:pointer; padding:4px 16px; transition:color .25s, transform .25s; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.roda li.on{ color:var(--a); transform:scale(1.04); } .roda li.v1{ color:rgba(242,244,245,.42); }
+.rodainfo{ text-align:center; padding:14px 16px 24px; } .rodainfo .pt{ color:var(--sec); font-size:14px; margin-bottom:10px; } .rodainfo .btn{ pointer-events:auto; }
+.rodainfo .dica{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); margin-top:10px; }
 .btn{ display:inline-flex; align-items:center; gap:8px; font:700 14px "Inter"; color:#0B0D0E; background:var(--a); border:0; border-radius:999px; padding:11px 20px; cursor:pointer; text-decoration:none; } .btn.sec{ background:none; color:var(--texto); border:1px solid rgba(242,244,245,.2); }
+
+/* ---------- capa do perfil: mapa pipocando na cor do partido ---------- */
+.hero{ position:relative; height:min(92vh,800px); min-height:600px; overflow:hidden; }
+.hero canvas{ position:absolute; inset:0; width:100%; height:100%; }
+.hero .luz{ position:absolute; inset:-20%; background:radial-gradient(circle at 70% 35%, rgba(var(--a-rgb),.18), transparent 45%); pointer-events:none; }
+.hero .txt{ position:absolute; left:0; right:0; bottom:0; padding:0 20px 44px; max-width:1180px; margin:0 auto; }
+.hero h1{ font-size:clamp(48px,9vw,112px); line-height:.88; margin:12px 0 18px; } .hero h1 i{ display:block; }
+.hero .ftp{ width:64px; height:64px; border-radius:50%; object-fit:cover; object-position:50% 18%; box-shadow:0 0 0 2.5px var(--a), 0 10px 30px -8px rgba(var(--a-rgb),.8); }
+.pops{ display:flex; gap:26px; flex-wrap:wrap; } .pops div{ display:flex; flex-direction:column; opacity:0; transform:translateY(14px) scale(.96); animation:pop .6s cubic-bezier(.2,.9,.3,1.3) forwards; }
+.pops b{ font-size:34px; font-weight:800; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums; } .pops b.a{ color:var(--a); } .pops span{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); margin-top:6px; }
+.etq{ position:absolute; z-index:2; transform:translate(-50%,-130%); font:700 12px "Inter"; padding:5px 10px; border-radius:999px; background:rgba(11,15,13,.82); border:1px solid rgba(var(--a-rgb),.55); color:var(--texto); white-space:nowrap; backdrop-filter:blur(6px); opacity:0; animation:popE .5s ease forwards; pointer-events:none; }
+.etq b{ color:var(--a); margin-left:4px; } .etq::after{ content:""; position:absolute; left:50%; bottom:-6px; width:1px; height:6px; background:rgba(var(--a-rgb),.6); }
+@keyframes pop{ to{ opacity:1; transform:none; } } .etq{ --t:translate(-50%,-130%); } @keyframes popE{ to{ opacity:1; } }
+@media (max-width:760px){ .hero{ height:auto; min-height:0; } .hero canvas{ position:relative; height:52vh; } .hero .txt{ position:relative; } }
 
 /* ---------- perfil ---------- */
 .cab{ display:flex; align-items:center; gap:16px; padding-block:28px 18px; } .cab img{ width:72px; height:72px; border-radius:50%; object-fit:cover; object-position:50% 18%; box-shadow:0 0 0 2.5px var(--a); }
@@ -40,7 +52,7 @@ h1,h2{ font-weight:900; letter-spacing:-.05em; margin:0; } h1 i, h2 i{ font-styl
 .ctx{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; } .ctx button{ font:600 13px "Inter"; padding:8px 14px; border-radius:999px; border:1px solid var(--linha); background:none; color:var(--sec); cursor:pointer; } .ctx button.on{ color:#0B0D0E; background:var(--a); border-color:var(--a); }
 .quadro{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:24px; background:var(--sup); border:1px solid var(--linha); border-radius:20px; padding:20px; } .quadro h3{ margin:4px 0 6px; font-size:22px; letter-spacing:-.03em; } .quadro p{ color:var(--sec); margin:0 0 10px; font-size:14px; } .quadro svg{ width:100%; height:auto; max-height:420px; }
 .rank{ list-style:none; margin:6px 0 0; padding:0; } .rank li{ display:grid; grid-template-columns:24px minmax(0,1fr) auto; gap:8px; align-items:center; padding:7px 0; border-bottom:1px solid var(--linha); font-size:13.5px; } .rank li i{ font-style:normal; color:var(--ter); font-size:12px; } .rank b{ font-variant-numeric:tabular-nums; } .rank li.eu{ color:var(--a); font-weight:700; } .rank small{ color:var(--ter); }
-.emb{ width:100%; height:1400px; border:0; border-radius:18px; background:var(--sup); }
+.emb{ width:100%; height:1200px; margin-top:24px; border:0; border-radius:18px; background:var(--sup); }
 .breve{ color:var(--ter); font-size:14px; padding:6px 4px 20px; }
 @media (max-width:860px){ .quadro{ grid-template-columns:1fr; } .cab .btn{ display:none; } }
 </style>
@@ -48,6 +60,6 @@ h1,h2{ font-weight:900; letter-spacing:-.05em; margin:0; } h1 i, h2 i{ font-styl
 <body>
 <header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Parlamentares · 2027–2031</span><nav class="vistas"><a href="./">Painel</a><a href="mesa.html">Corrida da Mesa</a><a href="novos.html" class="on">Parlamentares</a></nav></header>
 <main id="app"><div class="wrap sel"><div class="olho">Carregando…</div></div></main>
-<script src="novos.js?cb=3"></script>
+<script src="novos.js?cb=6"></script>
 </body>
 </html>
