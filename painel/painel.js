@@ -482,6 +482,8 @@ trocouCandidato = function () { _troca(); hero.recolorir(); };
 function montarRecorte() {
   const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${st.rec && st.rec.tipo === tp && st.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
   $("#recorte").innerHTML = `<option value="">Santa Catarina</option>` + TIPOS.map(([t, r]) => g(t, r)).join("") + (EMB ? g("n", "Municípios") : "");
+  if (EMB && !$("#recBusca")) { $("#recorte").closest("label").insertAdjacentHTML("afterend", `<input id="recBusca" list="recLista" placeholder="Digite o município" autocomplete="off"><datalist id="recLista">${[...M].map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>`);
+    $("#recBusca").onchange = (e) => { const m = M.find((x) => norm(x.n) === norm(e.target.value)); if (!m) return; st.rec = { tipo: "n", nome: m.n }; st.sel = -1; st.abertos = {}; e.target.value = ""; trocouCandidato(); }; }
   $("#recorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); st.rec = t ? { tipo: t, nome: n.join("|") } : null; st.sel = -1; st.abertos = {}; trocouCandidato(); };
   if (st.lente === "social") { $("#tiposReg").innerHTML = VARS.map(([k, r]) => `<button data-var="${k}" class="${st.var === k ? "on" : ""}">${r}</button>`).join(""); $("#tiposReg").onclick = (e) => { const b = e.target.closest("[data-var]"); if (!b) return; st.var = b.dataset.var; montarRecorte(); irPara("social"); frase(); }; return; }
   $("#tiposReg").innerHTML = st.lente === "regioes" ? TIPOS.map(([t, r]) => `<button data-tr="${t}" class="${st.tipoReg === t ? "on" : ""}">${r}</button>`).join("") : "";
