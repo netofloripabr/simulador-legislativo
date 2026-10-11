@@ -282,7 +282,7 @@ function caderno(c, ordM) {
   // comissões: bloco simulado e vagas distribuídas
   const sel = (typeof BLOCO !== "undefined" && BLOCO.length ? BLOCO : [c.p]), nm = [...COMS9, ...COMS7];
   const comHtml = comPrint(sel, cor); const coms = nm.map((n, j) => `<div class="cm${(COLOC[j] || 0) ? " on" : ""}"><span>${esc(n)}</span><b>${COLOC[j] ? "●".repeat(COLOC[j]) : "—"}</b></div>`).join("");
-  const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Caderno do mandato · ${esc(c.u)}</title><style>@page{size:A4;margin:30mm 20mm 20mm 30mm}*{box-sizing:border-box}body{margin:0;font:10px/1.5 Inter,system-ui,sans-serif;color:#0B0D0E;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Caderno do mandato · ${esc(c.u)}</title><style>@page{size:A4}*{box-sizing:border-box}body{margin:0;font:10px/1.5 Inter,system-ui,sans-serif;color:#0B0D0E;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   @font-face{font-family:Inter;src:url(${location.origin}${location.pathname.replace(/painel\/.*$/, "")}fontes/InterVariable.woff2);font-weight:100 900}
   .pg{break-before:page}.pg:first-of-type{break-before:auto} .olho{font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:#6B7178;font-weight:600}
   .capa{display:grid;grid-template-columns:1fr 1.25fr;gap:18px;align-items:end;margin-top:6px} .capa img.ft{width:62px;height:62px;border-radius:50%;object-fit:cover;object-position:50% 18%;box-shadow:0 0 0 2.5px ${cor}} .capa h1{font-size:46px;font-weight:900;letter-spacing:-.055em;line-height:.88;margin:10px 0 12px} .capa h1 i{display:block;font-style:normal;color:${cor}}
