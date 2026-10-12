@@ -103,7 +103,7 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .gcom .cc span{ font-size:9px; color:var(--ter); writing-mode:vertical-rl; transform:rotate(180deg); height:68px; white-space:nowrap; } .gcom .sepc{ width:1px; align-self:stretch; background:var(--linha); margin:0 6px; }
 .elg{ display:flex; gap:16px; align-items:flex-start; } .elg .emb{ flex:1; min-width:0; margin-top:0; } .cid{ flex:none; width:min(360px,36%); position:sticky; top:70px; } .cidc{ background:var(--sup); border:1px solid var(--linha); border-radius:18px; padding:14px; } .cidh{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; } .cidh b{ font-size:15px; } .cidh .x{ background:none; border:1px solid var(--linha); color:var(--sec); width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:16px; }
 .cid.min svg, .cid.min .rank, .cid.min .nota{ display:none; } .cid.min{ width:220px; } .cid svg{ width:100%; height:auto; max-height:42vh; margin:8px 0; } .cid svg.alto{ max-height:60vh; } .cid .rank li{ font-size:12px; }
-@media (max-width:900px){ .legg{ grid-template-columns:1fr; } .elg{ flex-direction:column; } .cid{ position:relative; top:0; width:100%; } .comp .cl{ grid-template-columns:minmax(0,1fr) 84px minmax(0,1fr); } }
+@media (max-width:900px){ .legg{ grid-template-columns:1fr; } .elg{ flex-direction:column; align-items:stretch; } .elg .emb{ flex:none; } .cid{ position:relative; top:0; width:100%; } .comp .cl{ grid-template-columns:minmax(0,1fr) 84px minmax(0,1fr); } }
 .un{ display:inline-grid; grid-template-columns:repeat(var(--w,3),3px); gap:1.5px; vertical-align:middle; } .un i{ width:3px; height:3px; border-radius:50%; background:rgba(242,244,245,.14); transition:background .5s ease var(--d), box-shadow .5s ease var(--d), transform .5s ease var(--d); }
 .un.on i{ background:rgba(242,244,245,.5); } .un.meu i{ background:var(--a); box-shadow:0 0 4px rgba(var(--a-rgb),.9); transform:scale(1.15); } .un.ganh i{ background:#34C759; box-shadow:0 0 4px rgba(52,199,89,.8); } .un.perd i{ background:#E5484D; box-shadow:0 0 4px rgba(229,72,77,.7); }
 .qvis{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,.8fr); gap:20px; align-items:center; } .qgrid{ display:grid; grid-template-columns:repeat(10,1fr); gap:10px; justify-items:center; perspective:600px; transform:rotateX(18deg); } .qgrid .un{ grid-template-columns:repeat(4,4px); gap:2px; } .qgrid .un i{ width:4px; height:4px; }
@@ -166,6 +166,6 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 </style>
 <header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Parlamentares · 2027–2031</span><nav class="vistas"><a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a></nav><a class="ent ico" href="../?entrar=1" title="Entrar" aria-label="Entrar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.8 14c.6-2.8 2.7-4.3 5.2-4.3s4.6 1.5 5.2 4.3"/></svg></a></header>
 <main id="app"><div class="wrap sel"><div class="olho">Carregando…</div></div></main>
-<script src="novos.js?cb=48"></script>
+<script src="novos.js?cb=51"></script>
 </body>
 </html>
