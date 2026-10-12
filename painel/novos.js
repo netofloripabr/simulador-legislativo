@@ -23,7 +23,7 @@ const eleitos = () => D.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) 
 
 // ---------------- entrada: roda de nomes (ordem alfabética; o do centro em destaque, os demais menores e desfocados) ----------------
 function telaSelecao(foco) {
-  $(".topo .sep").textContent = "Parlamentares · 2027–2031"; $(".topo .sep").onclick = null; $(".topo .sep").style.cursor = ""; $(".topo .secs") && $(".topo .secs").remove(); $(".vistas").innerHTML = `<a href="./">Painel</a><a href="mesa.html">Corrida da Mesa</a><a href="novos.html" class="on">Parlamentares</a>`;
+  $(".topo .sep").textContent = "Parlamentares · 2027–2031"; $(".topo .sep").onclick = null; $(".topo .sep").style.cursor = ""; $(".topo .secs") && $(".topo .secs").remove(); $(".vistas").innerHTML = `<a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a>`;
   const E = eleitos().sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
   $("#app").innerHTML = `<div class="roda" id="roda"><ol>${E.map((c) => `<li data-n="${c.n}">${esc(c.u)}</li>`).join("")}</ol></div>
     <div class="rodainfo"><div class="pt" id="spt"></div><button class="btn" id="sabrir">Abrir</button><div class="dica">role para escolher · ${E.length} parlamentares eleitos</div></div>`;
@@ -55,7 +55,7 @@ function perfil(n) {
     ${secEleitoral(c)}${secLegislativo(c)}${secAdministrativo(c)}`;
   $("#trocar").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(n); };
   $(".topo .sep").textContent = c.u; $(".topo .sep").style.cursor = "pointer"; $(".topo .sep").title = "Trocar parlamentar"; $(".topo .sep").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(c.n); }; const sx = $(".topo .secs") || $(".topo .sep").insertAdjacentElement("afterend", Object.assign(document.createElement("nav"), { className: "secs" })); sx.innerHTML = `<a href="#s1" data-s="s1">Eleitoral</a><a href="#s2" data-s="s2">Legislativo</a><a href="#s3" data-s="s3">Administrativo</a>`;
-  $(".vistas").innerHTML = `<a href="./">Painel</a><a href="mesa.html">Corrida da Mesa</a><a href="novos.html" class="on0">Parlamentares</a>`;
+  $(".vistas").innerHTML = `<a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a>`;
   heroMapa(c, ordM); ligarEleitoral(c, ordM); ligarPolitica(c); ligarGabinete(c); revelar(); scrollTo(0, 0);
   $("#caderno").onclick = () => caderno(c, ordM);
 }
@@ -74,7 +74,7 @@ function ligarEleitoral(c, ordM) {
   const P = [["Estado", { rec: null, b: null, lente: "mapa" }], [reg.replace(" Catarinense", ""), { rec: { tipo: "meso", nome: reg }, b: null, lente: "mapa" }], [`Microrregião de ${base.micro}`, { rec: { tipo: "micro", nome: base.micro }, b: null, lente: "mapa" }],
     c.v22 && ["2022 → 2026", { rec: null, b: null, lente: "d22" }]].filter(Boolean);
   const chipsHtml = P.map(([r], i) => `<button data-p="${i}">${esc(r)}</button>`).join("");
-  const fr = $("#emb"); fr.onload = () => { if (!/[?&]embed=1/.test(fr.contentWindow.location.search)) { fr.src = fr.getAttribute("src"); return; } // saiu do modo embutido: volta ao painel const dd = fr.contentDocument, w = fr.contentWindow, cor = getComputedStyle(document.documentElement).getPropertyValue("--a").trim();
+  const fr = $("#emb"); fr.onload = () => { if (!/[?&]embed=1/.test(fr.contentWindow.location.search)) { fr.src = fr.getAttribute("src"); return; } /* saiu do modo embutido: volta ao painel */ const dd = fr.contentDocument, w = fr.contentWindow, cor = getComputedStyle(document.documentElement).getPropertyValue("--a").trim();
     // etiquetas de filtros prontos na mesma linha dos filtros; setas entre as subseções; cabeçalho compacto
     dd.head.insertAdjacentHTML("beforeend", `<style>.presets{ display:flex; gap:6px; flex-wrap:wrap; flex:1 1 auto; } html.embed #cv{ transition:transform .7s cubic-bezier(.2,1.4,.4,1), opacity .5s; } html.embed #cv.troca{ transform:scale(.94); opacity:.25; transition:none; } .presets button{ font:600 12.5px "Inter"; padding:7px 12px; border-radius:999px; border:1px solid var(--linha); background:none; color:var(--sec); cursor:pointer; white-space:nowrap; } .presets button.on{ color:#0B0D0E; background:${cor}; border-color:${cor}; }
       html.embed .barra-sel{ padding:8px 12px; } html.embed .cand{ padding:5px 8px; } html.embed .cand .ft{ width:34px; height:34px; } html.embed .filtros{ flex-wrap:wrap; gap:8px; } .setaE{ display:flex; align-items:center; gap:10px; margin:18px auto 6px; background:none; border:0; cursor:pointer; color:${cor}; font:600 12px "Inter"; letter-spacing:.12em; text-transform:uppercase; } .setaE b{ width:34px; height:34px; border-radius:50%; border:1px solid ${cor}; display:flex; align-items:center; justify-content:center; font-size:16px; } .setaE span{ color:#8A9096; } html.embed #ranking .rk-cab{ display:none; } html.embed #ranking.fech > :not(.rkH){ display:none; } html.embed #ranking .rkH{ margin-bottom:12px; } html.embed #ranking.embRk{ margin-top:-28px; }</style>`);
@@ -240,7 +240,7 @@ function secCasa() { const GR = Object.entries(EST.grupos || {}).filter(([g, L])
 function secPatrimonio(c) { const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {};
   const par = PA.subsidio * (1 + PA.gestao_demais) + PA.aux_saude + PA.aux_alim, gab = G.cota + G.chefe + G.retrib, ver = C.base + C.moradia, tot = par + gab + ver;
   const L = [["Parlamentar", par, "subsídio, Gestão Executiva e auxílios"], ["Gabinete", gab, "27 Secretários Parlamentares (cota cheia), chefe e gratificações"], ["Verbas", ver, "cota de custeio e moradia"]];
-  return `<div class="bloco rv"><h3>O mandato em números</h3><p>Tudo o que o mandato movimenta por mês, na capacidade máxima.</p><div class="pat">${L.map(([t, v, d]) => `<div><span>${t}</span><b>${fm(v)}</b><small>${d}</small><i style="width:${v / tot * 100}%"></i></div>`).join("")}<div class="tot"><span>Total mensal</span><b>${fm(tot)}</b><small>${fm(tot * 12)} por ano · ${fm(tot * 48)} na legislatura</small></div></div><p class="nota">Funções extras (Mesa, presidência de comissão, liderança) somam a isso. Ver Corrida da Mesa.</p></div>`; }
+  return `<div class="bloco rv"><h3>O mandato em números</h3><p>Tudo o que o mandato movimenta por mês, na capacidade máxima.</p><div class="pat">${L.map(([t, v, d]) => `<div><span>${t}</span><b>${fm(v)}</b><small>${d}</small><i style="width:${v / tot * 100}%"></i></div>`).join("")}<div class="tot"><span>Total mensal</span><b>${fm(tot)}</b><small>${fm(tot * 12)} por ano · ${fm(tot * 48)} na legislatura</small></div></div><p class="nota">Funções extras (Mesa, presidência de comissão, liderança) somam a isso. Ver Mesa.</p></div>`; }
 
 // ---------- caderno impresso (fundo branco) ----------
 // ---------- caderno impresso: mesma estrutura do perfil, em fundo branco com a cor do partido ----------

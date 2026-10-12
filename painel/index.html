@@ -7,7 +7,7 @@
 <!-- Protótipo (07/10/2026): painel analítico público de SC, inspirado no painel
      "o brasil dividido". Um ponto por município; qualquer candidato de qualquer
      cargo; comparação entre dois. Dados: dados/painel (ferramentas/gerar_painel_sc.py). -->
-<script>if (/[?&]embed=1/.test(location.search)) document.documentElement.classList.add("embed");</script>
+<script>if (/[?&]embed=1/.test(location.search)) document.documentElement.classList.add("embed"); else if (!location.search && location.hash !== "#ranking") location.replace("novos.html"); // acesso padrão: Parlamentares</script>
 <style>
 html.embed .topo, html.embed #hero, html.embed footer{ display:none !important; } html.embed .painel{ padding-top:8px; } html.embed #ranking.embRk{ padding-top:0; } html.embed #ranking.embRk .rk-cab .olho{ display:none; } html.embed .cena{ height:var(--cenaH,560px); } html.embed #tabela.fech > :not(h3){ display:none; } .mrg div{ position:relative; display:flex; justify-content:space-between; gap:10px; padding:8px 0 10px; border-bottom:1px solid var(--linha); font-size:14px; } .mrg b{ font-variant-numeric:tabular-nums; } .mrg small{ color:var(--ter); font-weight:500; margin-left:8px; } .mrg i{ position:absolute; left:0; bottom:-1px; height:2px; background:var(--a); border-radius:2px; } .tgTab{ width:26px; height:26px; border-radius:50%; border:1px solid var(--linha); background:none; color:var(--ter); margin-right:10px; cursor:pointer; font:600 15px/1 "Inter"; } html.embed.cidOn #cena{ display:none !important; } html.embed.cidOn .corpo{ grid-template-columns:1fr !important; } #recBusca{ font:14px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:10px; padding:9px 12px; min-width:200px; }
 @font-face{ font-family:"Inter"; src:url(../fontes/InterVariable.woff2) format("woff2"); font-weight:100 900; font-display:swap; }
@@ -102,7 +102,7 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .mais{ display:block; width:100%; padding:12px; background:none; border:0; border-top:1px solid var(--linha); color:var(--sec); font:600 13px "Inter"; cursor:pointer; }
 @media (max-width:520px){ .tl{ grid-template-columns:22px minmax(0,1fr) 58px 62px 60px; gap:5px; padding:9px 12px; font-size:12.5px; } }
 .vistas{ margin-left:auto; display:flex; gap:4px; } .vistas button{ font:700 13px "Inter"; color:var(--sec); background:none; border:0; padding:7px 12px; border-radius:999px; cursor:pointer; } .vistas button.on{ color:var(--texto); background:rgba(242,244,245,.08); }
-.topo a.ent{ margin-left:8px; }
+.topo a.ent{ margin-left:8px; } .topo a.ent.ico{ width:36px; height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center; flex:none; }
 .rk-cab{ padding:20px 0 8px; } .rk-tit{ font-size:clamp(34px,6vw,56px); font-weight:900; letter-spacing:-.045em; margin:6px 0 0; line-height:1; }
 .rk-ctl{ display:flex; flex-direction:column; gap:10px; margin:12px 0; } .rk-ctl .lentes{ padding:0; border:0; }
 .rk-busca{ font:14px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:10px; padding:8px 12px; min-width:240px; outline:none; }
@@ -154,7 +154,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
 </style>
 </head>
 <body>
-<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Santa Catarina · Resultado 2026</span><nav class="vistas"><button data-vista="painel" class="on">Painel</button><button data-vista="ranking">Ranking</button><a href="mesa.html" style="font:700 13px Inter;color:var(--sec);text-decoration:none;padding:7px 12px">Corrida da Mesa</a><a href="novos.html" style="font:700 13px Inter;color:var(--sec);text-decoration:none;padding:7px 12px">Parlamentares</a></nav><a class="ent" href="../?entrar=1">Entrar</a></header>
+<header class="topo"><a class="wm" href="novos.html" style="text-decoration:none;color:inherit"><b>Simula</b>LEGIS</a><span class="sep">Santa Catarina · Resultado 2026</span><nav class="vistas"><button data-vista="painel" hidden>Painel</button><button data-vista="ranking">Ranking</button><a href="mesa.html" style="font:700 13px Inter;color:var(--sec);text-decoration:none;padding:7px 12px">Mesa</a></nav><a class="ent ico" href="../?entrar=1" title="Entrar" aria-label="Entrar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.8 14c.6-2.8 2.7-4.3 5.2-4.3s4.6 1.5 5.2 4.3"/></svg></a></header>
 
 <section class="hero" id="hero">
   <div class="luz" id="heroLuz"></div>

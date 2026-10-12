@@ -161,8 +161,11 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 </style>
 </head>
 <body>
-<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Parlamentares · 2027–2031</span><nav class="vistas"><a href="./">Painel</a><a href="mesa.html">Corrida da Mesa</a><a href="novos.html" class="on">Parlamentares</a></nav></header>
+<style>.topo a.ent.ico{ width:34px; height:34px; border-radius:50%; border:1px solid rgba(242,244,245,.18); display:inline-flex; align-items:center; justify-content:center; color:var(--texto); flex:none; }
+@media (max-width:760px){ .topo{ flex-wrap:wrap; height:auto; row-gap:6px; padding:8px 12px; } .topo .wm{ order:1; } .topo .vistas{ order:2; } .topo a.ent.ico{ order:3; } .topo::after{ content:""; order:4; flex-basis:100%; height:0; } .topo .sep{ order:5; padding-left:0; border-left:0; } .topo .secs{ order:6; margin-left:auto; } .topo .secs a{ padding:6px 9px; font-size:12px; } .vistas a{ padding:6px 9px; font-size:12.5px; } .secnav{ top:92px; } .etq{ display:none !important; } }
+</style>
+<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep">Parlamentares · 2027–2031</span><nav class="vistas"><a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a></nav><a class="ent ico" href="../?entrar=1" title="Entrar" aria-label="Entrar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.8 14c.6-2.8 2.7-4.3 5.2-4.3s4.6 1.5 5.2 4.3"/></svg></a></header>
 <main id="app"><div class="wrap sel"><div class="olho">Carregando…</div></div></main>
-<script src="novos.js?cb=46"></script>
+<script src="novos.js?cb=48"></script>
 </body>
 </html>

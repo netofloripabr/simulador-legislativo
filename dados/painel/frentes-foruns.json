@@ -1,0 +1,605 @@
+{
+"fonte": "ALESC, relação de Frentes e Fóruns Parlamentares ativos (documento enviado em 11/10/2026)",
+"itens": [
+{
+"tipo": "Frente Parlamentar",
+"rcc": "004/2023",
+"ato": "004-DL",
+"dt": "10/02/2023",
+"nome": "Frente Parlamentar da Liberdade Econômica e Inovação",
+"coord": "Matheus Cadorin"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "006/2023",
+"ato": "006-DL",
+"dt": "10/02/2023",
+"nome": "Frente Parlamentar em Defesa da Saúde Catarinense",
+"coord": "José Milton"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "007/2023",
+"ato": "007-DL",
+"dt": "10/02/2023",
+"nome": "Frente Parlamentar de Defesa e Desenvolvimento do Comércio Atacadista e Dis…",
+"coord": "Ivan Naatz"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "030/2023",
+"ato": "029-DL",
+"dt": "17/02/2023",
+"nome": "Frente Parlamentar da Ordem Pública",
+"coord": "Sargento Lima"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "038/2023",
+"ato": "061-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar de Apoio ao Comércio Varejista",
+"coord": "Nilso Berlanda"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "042/2023",
+"ato": "039-DL",
+"dt": "23/02/2023",
+"nome": "Frente Parlamentar de Incentivo à Produção Artesanal de Cervejarias e Criação",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "043/2023",
+"ato": "040-DL",
+"dt": "23/02/2023",
+"nome": "Frente Parlamentar em Defesa das Micros e Pequenas Empresas de Santa Cata…",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "044/2023",
+"ato": "041-DL",
+"dt": "23/02/2023",
+"nome": "Frente Parlamentar em Defesa da Cadeia Produtiva da Reciclagem",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "045/2023",
+"ato": "042-DL",
+"dt": "23/02/2023",
+"nome": "Frente Parlamentar para Acompanhar as Obras nas Serras Catarinenses",
+"coord": "Volnei Weber"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "046/2023",
+"ato": "045-DL",
+"dt": "24/02/2023",
+"nome": "Frente Parlamentar em Defesa do Transporte Público Integrado e outros Modais…",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "047/2023",
+"ato": "046-DL",
+"dt": "24/02/2023",
+"nome": "Frente Parlamentar em Favor da Recuperação da SC - 283",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "048/2023",
+"ato": "047-DL",
+"dt": "24/02/2023",
+"nome": "Frente Parlamentar em Favor da Nova Rota do Milho em Santa Catarina",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "049/2023",
+"ato": "048-DL",
+"dt": "24/02/2023",
+"nome": "Frente Parlamentar de Luta pela Construção da Rodovia Paralela a BR-101",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "050/2023",
+"ato": "049-DL",
+"dt": "24/02/2023",
+"nome": "Frente Parlamentar de Luta pelo Segundo Acesso de Bombinhas/ Porto Belo",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "053/2023",
+"ato": "052-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar de Fomento ao Turismo",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "054/2023",
+"ato": "053-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar em Defesa da Construção Civil",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "055/2023",
+"ato": "054-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar de Apoio e Incentivo à Cultura",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "056/2023",
+"ato": "055-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar de Apoio a Política Pesqueira de Santa Catarina",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "057/2023",
+"ato": "056-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar em Defesa da Região da Associação dos Municípios da Reg…",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "058/2023",
+"ato": "057-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar do Empreendorismo Rural e da Agricultura Familiar",
+"coord": "Volnei Weber"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "059/2023",
+"ato": "058-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar em Defesa dos Consórcios Intermunicipais de Saúde",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "060/2023",
+"ato": "059-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar dos Portos e Aeroportos do Estado de Santa Catarina",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "062/2023",
+"ato": "062-DL",
+"dt": "09/03/2023",
+"nome": "Frente Parlamentar de Apoio a Política de Gás Natural",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "065/2023",
+"ato": "065-DL",
+"dt": "09/03/2023",
+"nome": "Frente Parlamentar em Defesa das Farmácias e Indústria Farmacêutica",
+"coord": "Ivan Naatz"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "067/2023",
+"ato": "067-DL",
+"dt": "09/03/2023",
+"nome": "Frente Parlamentar de Acompanhamento das Obras do Contorno Viário de Flori…",
+"coord": "Ivan Naatz"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "071/2023",
+"ato": "071-DL",
+"dt": "15/03/2023",
+"nome": "Frente Parlamentar de apoio às Cooperativas de Energia de Santa Catarina",
+"coord": "Volnei Weber"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "082/2023",
+"ato": "086-DL",
+"dt": "10/04/2023",
+"nome": "Frente Parlamentar em Apoio ao Turismo Marítimo de Navios de Cruzeiros",
+"coord": "Emerson Stein"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "083/2023",
+"ato": "088-DL",
+"dt": "13/04/2023",
+"nome": "Frente Parlamentar de Apoio ao Desenvolvimento do Terceiro Setor",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "087/2023",
+"ato": "095-DL",
+"dt": "08/05/2023",
+"nome": "Frente Parlamentar Evangélica",
+"coord": "Jair Miotto"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "088/2023",
+"ato": "096-DL",
+"dt": "08/05/2023",
+"nome": "Frente Parlamentar Ética contra a Corrupção",
+"coord": "Sargento Lima"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "089/2023",
+"ato": "097-DL",
+"dt": "08/05/2023",
+"nome": "Frente Parlamentar pela Aprovação da Resolução n°. 003, de 26/06/19 da ALES…",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "091/2023",
+"ato": "099-DL",
+"dt": "08/05/2023",
+"nome": "Frente Parlamentar em Defesa da Propriedade Privada e do Marco Temporal",
+"coord": "Sargento Lima"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "092/2023",
+"ato": "100-DL",
+"dt": "08/05/2023",
+"nome": "Frente Parlamentar em defesa dos Povos Originários",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "093/2023",
+"ato": "101-DL",
+"dt": "15/05/2023",
+"nome": "Frente Parlamentar de Apoio aos Lares, Abrigos e Casas de Acolhimento",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "094/2023",
+"ato": "103-DL",
+"dt": "17/05/2023",
+"nome": "Frente Parlamentar em em Defesa do Paradesporto",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "096/2023",
+"ato": "105-DL",
+"dt": "17/05/2023",
+"nome": "Frente Parlamentar de Acompanhamento de Extração Mineral em Santa Catarin…",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "100/2023",
+"ato": "116-DL",
+"dt": "08/08/2023",
+"nome": "Frente Parlamentar da Silvicultura",
+"coord": "José Milton"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "101/2023",
+"ato": "117-DL",
+"dt": "11/08/2023",
+"nome": "Frente Parlamentar para Estudo dos Impactos da Reforma Tributária nos Setore…",
+"coord": "Sargento Lima"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "103/2023",
+"ato": "118-DL",
+"dt": "25/08/2023",
+"nome": "Frente Parlamentar em apoio as Guardas Municipais",
+"coord": "Emerson Stein"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "108/2023",
+"ato": "131-DL",
+"dt": "16/10/2023",
+"nome": "Frente Parlamentar para implantação do transporte marítimo na Grande Florianópolis",
+"coord": "Pedrão Silvestre"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "112/2023",
+"ato": "135-DL",
+"dt": "26/10/2023",
+"nome": "Frente Parlamentar Invasão Zero",
+"coord": "Sargento Lima"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "004/2024",
+"ato": "013-DL",
+"dt": "19/04/2024",
+"nome": "Frente Parlamentar em Defesa da Produção de Uva e Vinho no Estado de Santa Catarina",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "007/2024",
+"ato": "022-DL",
+"dt": "19/06/2024",
+"nome": "Frente Parlamentar Mista para acompanhar a Devolução dos Recursos",
+"coord": "Ivan Naatz"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "010/2024",
+"ato": "031-DL",
+"dt": "10/09/2024",
+"nome": "Frente Parlamentar em Apoio ao Cultivo sem Solo - Hidroponia",
+"coord": "Sargento Lima"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "015/2024",
+"ato": "037-DL",
+"dt": "04/12/2024",
+"nome": "Frente Parlamentar de Combate ao Vício em Jogos de Azar e Apostas Online",
+"coord": "Matheus Cadorin"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "007/2025",
+"ato": "010-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar do Cooperativismo - FRENCOOP",
+"coord": "José Milton"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "004/2025",
+"ato": "007-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar em Defesa da Saúde Catarinense",
+"coord": "José Milton"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "003/2025",
+"ato": "006-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar Frente da Liberdade Econômica e Inovação",
+"coord": "Matheus Cadorin"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "008/2025",
+"ato": "011-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar do Bombeiro Voluntário e Terceiro Setor",
+"coord": "Matheus Cadorin"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "018/2025",
+"ato": "022-DL",
+"dt": "27/02/2025",
+"nome": "Frente Parlamentar em Defesa da Cadeia Produtiva da Reciclagem",
+"coord": "Volnei Weber"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "019/2025",
+"ato": "023-DL",
+"dt": "27/02/2025",
+"nome": "Frente Parlamentar para Acompanhar as Obras nas Serras Catarinenses",
+"coord": "Volnei Weber"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "024/2025",
+"ato": "029-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar em Favor da Recuperação da SC-283",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "025/2025",
+"ato": "030-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar em Favor da Nova Rota do Milho em Santa Catarina",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "023/2025",
+"ato": "028-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar em Defesa do Transporte Público Integrado e outros Modais da Grande Florianópolis",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "022/2025",
+"ato": "027-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar em Defesa dos Consórcios Intermunicipais de Saúde",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "026/2025",
+"ato": "031-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar de Apoio à Segurança Pública",
+"coord": "Alex Brasil"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "028/2025",
+"ato": "033-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar de Apoio à Revitalização Urbana da Grande Florianópolis",
+"coord": "Alex Brasil"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "027/2025",
+"ato": "032-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar de Apoio aos Policiais Penais e Agentes de Segurança Socioeducativos",
+"coord": "Alex Brasil"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "037/2025",
+"ato": "045-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar de Apoio às Cooperativas de Energia de Santa Catarina",
+"coord": "Volnei Weber"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "030/2025",
+"ato": "038-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar de Apoio a Política Pesqueira de Santa Catarina",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "029/2025",
+"ato": "037-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar pela Região da Associação dos Municípios da Região da Foz do Rio Itajaí (AMFRI)",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "033/2025",
+"ato": "041-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar dos Portos e Aeroportos do Estado de Santa Catarina",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "031/2025",
+"ato": "039-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar de Apoio ao Comércio Varejista",
+"coord": "Nilso Berlanda"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "048/2025",
+"ato": "062-DL",
+"dt": "03/07/2025",
+"nome": "Frente Parlamentar Evangélica",
+"coord": "Jair Miotto"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "050/2025",
+"ato": "065-DL",
+"dt": "12/08/2025",
+"nome": "Frente Parlamentar pela Construção da Via Mar - Rodovia paralela a BR 101 entre Joinville e Biguaçu",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "052/2025",
+"ato": "067-DL",
+"dt": "21/08/2025",
+"nome": "Frente Parlamentar em Defesa da Educação no Trânsito",
+"coord": "Paulinha"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "059/2025",
+"ato": "075-DL",
+"dt": "19/11/2025",
+"nome": "Administrativo da Secretaria de Estado de Justiça e Reintegração Social",
+"coord": "Alex Brasil"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "005/2026",
+"ato": "006-DL",
+"dt": "25/02/2026",
+"nome": "Frente Parlamentar da Liberdade Econômica e Inovação",
+"coord": "Matheus Cadorin"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "004/2026",
+"ato": "005-DL",
+"dt": "25/02/2026",
+"nome": "Frente Parlamentar do Bombeiro Voluntário e Terceiro Setor",
+"coord": "Matheus Cadorin"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "006/2026",
+"ato": "008-DL",
+"dt": "04/03/2026",
+"nome": "Frente Parlamentar Santa Catarina - Polônia",
+"coord": "Ivan Naatz"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "010/2026",
+"ato": "016-DL",
+"dt": "28/04/2026",
+"nome": "Frente Parlamentar em Defesa da Produção de Uva e Vinho no Estado de Santa Catarina",
+"coord": "Marcos Vieira"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "0011/2026",
+"ato": "020-DL",
+"dt": "02/06/2026",
+"nome": "Frente Parlarmentar de Apoio às Guardas Municipais",
+"coord": "Alex Brasil"
+},
+{
+"tipo": "Fórum",
+"rcc": "066/2023",
+"ato": "066-DL",
+"dt": "09/03/2023",
+"nome": "Fórum Parlamentar para Defesa do Serviço de Facção de Santa Catarina",
+"coord": "Ivan Naatz"
+},
+{
+"tipo": "Fórum",
+"rcc": "086/2023",
+"ato": "091-DL",
+"dt": "19/04/2023",
+"nome": "Fórum Parlamentar em Defesa do Consumidor",
+"coord": "Ivan Naatz"
+},
+{
+"tipo": "Fórum",
+"rcc": "109/2023",
+"ato": "132-DL",
+"dt": "19/10/2023",
+"nome": "Fórum Parlamentar para a Municipalização de Naufragados",
+"coord": "Pedrão Silvestre"
+}
+]
+}

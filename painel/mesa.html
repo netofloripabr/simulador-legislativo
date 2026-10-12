@@ -110,7 +110,8 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 </style>
 </head>
 <body>
-<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><a class="t" href="#s1">1 · Jogo da Mesa</a><a class="t" href="#s2">2 · Estrutura política</a><a class="t" href="#s3">3 · Outros cargos</a><span class="dir"><span class="salvo" id="salvo"></span><a href="./">Painel</a><a href="./#ranking">Ranking</a></span></header>
+<style>.topo .dir a.ent.ico{ width:32px; height:32px; border-radius:50%; border:1px solid rgba(242,244,245,.18); display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; color:var(--texto); }</style>
+<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><a class="t" href="#s1">1 · Jogo da Mesa</a><a class="t" href="#s2">2 · Estrutura política</a><a class="t" href="#s3">3 · Outros cargos</a><span class="dir"><span class="salvo" id="salvo"></span><a href="novos.html">Parlamentares</a><a href="index.html#ranking">Ranking</a><a class="ent ico" href="../?entrar=1" title="Entrar" aria-label="Entrar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.8 14c.6-2.8 2.7-4.3 5.2-4.3s4.6 1.5 5.2 4.3"/></svg></a></span></header>
 <div id="app"><div class="bloq"><p style="color:#6B7178">Carregando…</p></div></div>
 <div id="sel" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
