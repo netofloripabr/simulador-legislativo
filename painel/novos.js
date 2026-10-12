@@ -113,6 +113,8 @@ function secLegislativo(c) {
 // profundidade (tamanho/brilho) e transição animada entre os tipos; textos alternam acima e abaixo
 let TR_P = null, TR_RAF = 0;
 function trilha(k) {
+  // celular: lista vertical simples (o desenho horizontal não cabe)
+  if (innerWidth < 700) { const el0 = $("#trilha"); cancelAnimationFrame(TR_RAF); el0.innerHTML = `<ol class="trm">${TRILHA[k].map(([tt, d, alt, v, pz]) => `<li class="${v ? "vt" : ""}"><b>${esc(tt)}</b><span>${esc(d)}</span>${alt ? alt.map(([a2, b2, kk]) => `<em class="${kk}">${esc(a2)} · ${esc(b2)}</em>`).join("") : ""}</li>`).join("")}</ol>`; return; }
   const T = TRILHA[k], el = $("#trilha"), W = el.clientWidth || 900, H = 300, cy = 150, x0 = 80, dx = (W - 160) / (T.length - 1);
   if (!el.querySelector("canvas")) el.innerHTML = `<canvas></canvas><div class="trl"></div>`;
   const cv = el.querySelector("canvas"), ctx = cv.getContext("2d"), dpr = Math.min(2, devicePixelRatio || 1); cv.width = W * dpr; cv.height = H * dpr; cv.style.height = H + "px";
@@ -182,6 +184,8 @@ function ligarPolitica(c) {
   const comp = () => { const R = ps.map((p) => { const a = de22(p).sort((x, y) => y.t - x.t), b = E.filter((x) => x.p === p).sort((x, y) => y.t - x.t); return { p, a, b, d: b.length - a.length }; });
     R.sort((x, y) => ORDC === "n22" ? y.a.length - x.a.length : ORDC === "var" ? y.d - x.d : ORDC === "vot" ? tot(y.b) - tot(x.b) : y.b.length - x.b.length || tot(y.b) - tot(x.b));
     const nrm = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z ]/g, "").trim(), cand26 = new Map(D.c.map((x) => [nrm(x.nome || x.u), x]));
+    if (innerWidth < 700) { const mx = Math.max(...R.map((r) => Math.max(r.a.length, r.b.length))) || 1; // celular: barras sobrepostas, sem fotos
+      $("#comp").innerHTML = `<div class="cmob">${R.map((r) => `<div class="cb${r.p === c.p ? " eu" : ""}"><span>${esc(r.p)}</span><div class="tk"><i class="a" style="width:${r.a.length / mx * 100}%"></i><i class="b" style="width:${r.b.length / mx * 100}%"></i></div><b>${r.a.length} → ${r.b.length}<small class="${r.d > 0 ? "g" : r.d < 0 ? "p" : ""}">${r.d > 0 ? "+" + r.d : r.d < 0 ? r.d : "="}</small></b></div>`).join("")}<div class="cleg"><span><i class="a"></i>2022</span><span><i class="b"></i>2026</span></div></div>`; return; }
     $("#comp").innerHTML = R.map((r, ri) => { const L = r.a.map((x, k) => `<i class="${k >= r.b.length ? "perd" : ""}" style="width:${x.t / mxv * 100}%;animation-delay:${ri * 60 + k * 25}ms" title="${esc(x.u)} · ${ni(x.t)} votos (2022)"></i>`).join(""),
       Rr = r.b.map((x, k) => `<i class="${k >= r.a.length ? "ganh" : ""}" style="width:${x.t / mxv * 100}%;animation-delay:${ri * 60 + k * 25}ms" title="${esc(x.u)} · ${ni(x.t)} votos"><img src="${foto(x.n)}" alt=""></i>`).join("");
       return `<div class="cl${r.p === c.p ? " eu" : ""}"><div class="lado e"><b>${r.a.length}</b><div class="seg">${L}</div></div><div class="pn">${esc(r.p)}<small>${r.d > 0 ? "+" + r.d : r.d < 0 ? r.d : "="}</small></div><div class="lado d"><div class="seg">${Rr}</div><b>${r.b.length}</b></div></div>`; }).join("") + `<div class="cl cab"><div class="lado e"><span>2022</span></div><div class="pn"></div><div class="lado d"><span>2026</span></div></div>`; };
