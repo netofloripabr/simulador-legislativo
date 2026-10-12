@@ -16,7 +16,7 @@ const GAB_IDX = [1.6863,1.7441,1.8039,1.8658,1.9298,1.9959,2.0644,2.1352,2.2084,
 
 async function carregar() {
   const [b, d, e] = await Promise.all([fetch(`../dados/painel/sc-base.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/sc-estadual.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/mesa-estruturas.json?v=11`).then((r) => r.json()).catch(() => ({}))]);
-  FF = await fetch(`../dados/painel/frentes-foruns.json?v=1`).then((r) => r.json()).catch(() => ({ itens: [] }));
+  FF = await fetch(`../dados/painel/frentes-foruns.json?v=2`).then((r) => r.json()).catch(() => ({ itens: [] }));
   A22 = await fetch(`../dados/painel/alesc-2022.json?v=1`).then((r) => r.json()).catch(() => ({}));
   M = b.mun; N = M.length; CONT = b.contorno; D = d; EST = e; VAL = d.val.reduce((s, x) => s + x, 0);
 }
