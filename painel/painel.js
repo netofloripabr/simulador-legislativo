@@ -12,6 +12,8 @@ const ni = (x) => Math.round(x).toLocaleString("pt-BR");
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const EMB = /[?&]embed=1/.test(location.search);
+// embutido: qualquer link sai do quadro e abre na janela principal (antes o app inteiro carregava dentro do painel)
+if (EMB) document.addEventListener("click", (e) => { const l = e.target.closest("a[href]"); if (!l || l.target === "_blank" || l.getAttribute("href").startsWith("#")) return; e.preventDefault(); top.location.href = l.href; }, true);
 const reduzido = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const CARGOS = [["estadual", "Dep. Estadual"], ["federal", "Dep. Federal"], ["senador", "Senador"], ["governador", "Governador"], ["presidente", "Presidente"]];
 const CARGO_LBL = Object.fromEntries(CARGOS);
