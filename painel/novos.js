@@ -58,7 +58,7 @@ function perfil(n) {
   $(".topo .sep").textContent = c.u; $(".topo .sep").style.cursor = "pointer"; $(".topo .sep").title = "Trocar parlamentar"; $(".topo .sep").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(c.n); }; const sx = $(".topo .secs") || $(".topo .sep").insertAdjacentElement("afterend", Object.assign(document.createElement("nav"), { className: "secs" })); sx.innerHTML = `<a href="#s1" data-s="s1">Eleitoral</a><a href="#s2" data-s="s2">Legislativo</a><a href="#s3" data-s="s3">Administrativo</a>`;
   $(".vistas").innerHTML = `<a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a>`;
   heroMapa(c, ordM); ligarEleitoral(c, ordM); ligarPolitica(c); ligarGabinete(c); revelar(); scrollTo(0, 0);
-  $("#caderno").onclick = () => caderno(c, ordM);
+  $("#caderno").onclick = () => caderno(c, ordM); window._ordM = ordM;
 }
 const cabSec = (id, num, tit, lead) => `<section class="secao" id="${id}"><div class="wrap"><div class="tag rv"><button class="tg" data-tg="${id}" title="Recolher ou abrir">−</button><h2>${tit}</h2><p class="lead">${lead}</p></div><div class="corpoSec" id="cs-${id}">`;
 const ROT = { s1: "Eleitoral", s2: "Legislativo", s3: "Administrativo" };
@@ -233,8 +233,9 @@ function ligarPolitica(c) {
 // ---------- simulador de gabinete: 27 vagas + chefe; níveis de GAB e gratificações; saldo da cota ----------
 const chaveGab = (c) => "sl_gab_" + c.n;
 function lerGab(c) { try { return JSON.parse(localStorage.getItem(chaveGab(c))) || null; } catch (e) { return null; } }
-function secGabinete(c) { return `<div class="bloco rv" id="gabSim"><h3>Simulador de gabinete</h3><p>Indique as pessoas, escolha o nível de cada Secretário Parlamentar (PL/GAB) e as gratificações. O saldo mostra quanto da cota mensal ainda cabe.</p><div id="gab"></div></div>`; }
+function secGabinete(c) { return `<div class="bloco rv" id="gabSim"><h3>Simulador de gabinete<button class="ib imp" id="gabImp" title="Imprimir o simulador (preenchido e em branco)"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 6V2.5h7V6"/><rect x="2" y="6" width="12" height="5.5" rx="1.2"/><path d="M4.5 9.5h7v4h-7z"/></svg></button></h3><p>Indique as pessoas, escolha o nível de cada Secretário Parlamentar (PL/GAB) e as gratificações. O saldo mostra quanto da cota mensal ainda cabe.</p><div id="gab"></div></div>`; }
 function ligarGabinete(c) {
+  const gi = $("#gabImp"); if (gi) gi.onclick = (e) => { e.stopPropagation(); caderno(c, window._ordM || [], "Simulador de gabinete"); };
   const G = EST.gabinete_parlamentar || {}, st = lerGab(c) || { chefe: "", v: Array.from({ length: G.cargos || 27 }, () => ({ nome: "", nv: 0, op: "" })) };
   const salva = () => { try { localStorage.setItem(chaveGab(c), JSON.stringify(st)); } catch (e) {} };
   const desenha = () => { const usado = st.v.reduce((s2, x) => s2 + (x.nv ? GAB_IDX[x.nv - 1] * GAB_VAL : 0), 0), saldo = COTA_GAB - usado, ocup = st.v.filter((x) => x.nv).length, ops = st.v.filter((x) => x.op).length, grat = st.v.reduce((s2, x) => s2 + (x.op === "5" ? 8982.02 : x.op === "4" ? 6198.2 : 0), 0);
@@ -283,7 +284,7 @@ function comPrint(sel, cor) { if (!sel.length) return `<p class="nota">Nenhum pa
   const pool = (n, t) => `<div class="pool"><div>${Array.from({ length: n }, () => "<i></i>").join("") || "<small>todas distribuídas</small>"}</div><span>${n} de ${t} para distribuir</span></div>`;
   return `<div class="cens"><b>${a.v + b.v}</b><div><span>${sel.length > 1 ? "Bloco " + esc(sel.join(" + ")) : esc(sel[0]) + " sozinho"}</span><small>${a.d} deputado(s)</small></div></div><div class="cens2"><span>${a.v <= 4 ? `Presente em <b>${a.v}</b> das 4 comissões de 9 membros` : `<b>${a.v}</b> vagas nas 4 comissões de 9 membros`}</span><span>${b.v <= 20 ? `Presente em <b>${b.v}</b> das 20 comissões de 7 membros` : `<b>${b.v}</b> vagas nas 20 comissões de 7 membros`}</span></div>
   <div class="gc"><div class="g9"><div class="cols">${COMS9.map((n, j) => col(n, 9, j)).join("")}</div>${pool(a.v - u9, a.v)}</div><div class="sepc"></div><div class="g7"><div class="cols">${COMS7.map((n, j) => col(n, 7, j + 4)).join("")}</div>${pool(b.v - u7, b.v)}</div></div><p class="nota">Pontos em cor: vagas levadas às comissões no painel; na reserva, as que ainda faltam distribuir. Regimento, art. 30: quociente = 40 ÷ (membros − 1).</p>`; }
-function caderno(c, ordM) {
+function caderno(c, ordM, foco) {
   const E = eleitos(), pos = E.findIndex((x) => x.n === c.n) + 1, base = M[ordM[0]], reg = base.meso, idx = [...Array(N).keys()], st = window._gab || { v: [] };
   const cor = getComputedStyle(document.documentElement).getPropertyValue("--a").trim(), PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, I = EST.indenizatorias || {};
   const i0 = ordM[0], posBase = D.c.filter((x) => (x.v[i0] || 0) > c.v[i0]).length + 1, pctMax = Math.max(...idx.map((i) => D.val[i] ? c.v[i] / D.val[i] : 0)), iPct = idx.find((i) => D.val[i] && c.v[i] / D.val[i] === pctMax);
@@ -344,7 +345,8 @@ function caderno(c, ordM) {
   // seletor de seções e subseções: o que for desmarcado some da prévia e da impressão
   const estrutura = (doc) => { const L = []; let g = null; doc.querySelectorAll(".capa, .sec h1, h3").forEach((el) => { if (el.classList.contains("capa")) { g = { t: "Capa", el, subs: [] }; L.push(g); } else if (el.tagName === "H1") { g = { t: el.textContent, el: el.parentNode, subs: [] }; L.push(g); } else g && g.subs.push(el); }); return L; };
   const nosDe = (h) => { const R = [h]; let n = h.nextElementSibling; while (n && n.tagName !== "H3" && !n.classList.contains("rod") && !n.classList.contains("pg")) { R.push(n); n = n.nextElementSibling; } return R; };
-  const OFF = new Set(["Anexo"]);
+  const OFF = new Set(foco ? [] : ["Anexo"]);
+  if (foco) { const L0 = estrutura(new DOMParser().parseFromString(html, "text/html")); L0.forEach((g) => { if (g.t === "Anexo") return; if (g.t !== "Administrativo") { OFF.add(g.t); return; } g.subs.forEach((h, si) => { if (!h.textContent.startsWith(foco)) OFF.add(g.t + "/" + si); }); }); }
   const aplica = (doc) => { if (!doc) return; doc.querySelectorAll("[data-off]").forEach((x) => { x.style.display = ""; x.removeAttribute("data-off"); }); const esc2 = (x) => { x.style.display = "none"; x.setAttribute("data-off", ""); };
     estrutura(doc).forEach((g, gi) => { const gOff = OFF.has(g.t); let vis = 0; g.subs.forEach((h, si) => { if (gOff || OFF.has(g.t + "/" + si)) nosDe(h).forEach(esc2); else vis++; }); if (gOff || (g.subs.length && !vis)) esc2(g.el); });
     doc.querySelectorAll(".pg").forEach((pg) => { const algum = [...pg.querySelectorAll("h3, .capa")].some((x) => !x.closest("[data-off]")); if (!algum) esc2(pg); }); };
@@ -383,7 +385,7 @@ function decorarAdm() { const c = window._cAtual; if (!c || !$("#s3")) return; c
   document.querySelectorAll("#s3 .bloco > h3").forEach((h) => { if (h.querySelector(".adt")) return; const k = Object.keys(M2).find((t) => h.textContent.trim().startsWith(t)); if (!k) return; const [v, tx] = M2[k];
     h.insertAdjacentHTML("beforeend", `<span class="adt">${fm(v)}<small>/mês</small></span><button class="ib" title="Base dos dados">i</button>`);
     h.insertAdjacentHTML("afterend", `<div class="ibx" hidden>${tx}</div>`);
-    h.querySelector(".ib").onclick = (e) => { e.stopPropagation(); const b = h.parentElement, x = b.querySelector(".ibx"); b.classList.remove("fech"); x.hidden = !x.hidden; }; }); }
+    h.querySelector(".ib:not(.imp)").onclick = (e) => { e.stopPropagation(); const b = h.parentElement, x = b.querySelector(".ibx"); b.classList.remove("fech"); x.hidden = !x.hidden; }; }); }
 function revelar() { setTimeout(setaFlutuante, 2500); document.querySelectorAll(".bloco").forEach((b) => b.classList.add("fech"));
   document.querySelectorAll("[data-tg]").forEach((b) => b.onclick = () => { const cs = $("#cs-" + b.dataset.tg), f = !cs.hidden; cs.hidden = f; b.textContent = f ? "+" : "−"; });
   decorarAdm();
