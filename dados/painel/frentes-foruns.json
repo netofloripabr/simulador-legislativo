@@ -1,13 +1,142 @@
 {
-"fonte": "ALESC, relação de Frentes e Fóruns Parlamentares ativos (documento enviado em 11/10/2026)",
+"fonte": "ALESC, planilha de Frentes e Fóruns Parlamentares 2023–2026 (enviada em 12/10/2026)",
+"legenda": {
+"Vigente": "em andamento",
+"Concluída": "prazo vencido",
+"Arquivado": "arquivada no eLegis"
+},
 "itens": [
+{
+"tipo": "Frente Parlamentar",
+"rcc": "001/2023",
+"ato": "001-DL",
+"dt": "09/02/2023",
+"nome": "Frente Parlamentar da Infraestrutura e Mobilidade",
+"coord": "Oscar Gutz",
+"membros": [
+"Ana Campagnolo",
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Jerry Comper",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Paulinha",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Camilo Martins",
+"Massoco",
+"Delegado Egídio",
+"Lucas Neves",
+"Marquito",
+"Mário Motta",
+"Napoleão",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "002/2023",
+"ato": "002-DL",
+"dt": "10/02/2023",
+"nome": "Frente Parlamentar Santa Catarina-Itália",
+"coord": "Dr. Vicente Caropreso",
+"membros": [
+"Ana Campagnolo",
+"Ivan Naatz",
+"Jair Miotto",
+"Luciane Carminatti",
+"Marcos Vieira",
+"Nilso Berlanda",
+"Paulinha",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Matheus Cadorin",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "003/2023",
+"ato": "003-DL",
+"dt": "10/02/2023",
+"nome": "Frente Parlamentar em Apoio os Bombeiros Voluntários",
+"coord": "Dr. Vicente Caropreso",
+"membros": [
+"Fernando Krelling",
+"Ivan Naatz",
+"Jair Miotto",
+"Jerry Comper",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Paulinha",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Julio Garcia",
+"Matheus Cadorin",
+"Napoleão",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
+},
 {
 "tipo": "Frente Parlamentar",
 "rcc": "004/2023",
 "ato": "004-DL",
 "dt": "10/02/2023",
 "nome": "Frente Parlamentar da Liberdade Econômica e Inovação",
-"coord": "Matheus Cadorin"
+"coord": "Matheus Cadorin",
+"membros": [
+"Jessé Lopes",
+"Paulinha",
+"Rodrigo Minotto",
+"Dr. Vicente Caropreso",
+"Sergio Motta",
+"Volnei Weber",
+"Pepe Collaço",
+"Mário Motta",
+"Napoleão",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "005/2023",
+"ato": "005-DL",
+"dt": "10/02/2023",
+"nome": "Frente Parlamentar do Esporte",
+"coord": "Fernando Krelling",
+"membros": [
+"Neodi Saretta",
+"Padre Pedro",
+"Paulinha",
+"Rodrigo Minotto",
+"Sargento Lima",
+"Volnei Weber",
+"Pepe Collaço",
+"Napoleão",
+"Oscar Gutz",
+"Sergio Guimarães",
+"Tiago Zilli"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -15,15 +144,258 @@
 "ato": "006-DL",
 "dt": "10/02/2023",
 "nome": "Frente Parlamentar em Defesa da Saúde Catarinense",
-"coord": "José Milton"
+"coord": "José Milton",
+"membros": [
+"Dr. Vicente Caropreso",
+"Marcius Machado",
+"Altair Silva",
+"Pepe Collaço",
+"Matheus Cadorin",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
 "rcc": "007/2023",
 "ato": "007-DL",
 "dt": "10/02/2023",
-"nome": "Frente Parlamentar de Defesa e Desenvolvimento do Comércio Atacadista e Dis…",
-"coord": "Ivan Naatz"
+"nome": "Frente Parlamentar de Defesa e Desenvolvimento do Comércio Atacadista e Distribuidor",
+"coord": "Ivan Naatz",
+"membros": [
+"Marcius Machado",
+"Maurício Eskudlark",
+"Volnei Weber",
+"Oscar Gutz",
+"Maurício Peixer"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "011/2023",
+"ato": "008-DL",
+"dt": "10/02/2023",
+"nome": "Frente Parlamentar dos Calçados e Componentes",
+"coord": "Altair Silva",
+"membros": [
+"Jerry Comper",
+"José Milton",
+"Pepe Collaço"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "012/2023",
+"ato": "010-DL",
+"dt": "10/02/2023",
+"nome": "Frente Parlamentar da Suinocultura",
+"coord": "Altair Silva",
+"membros": [
+"Jerry Comper",
+"José Milton",
+"Camilo Martins",
+"Pepe Collaço"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "013/2023",
+"ato": "011-DL",
+"dt": "10/02/2023",
+"nome": "Frente Parlamentar do Cooperativismo - FRENCOOP",
+"coord": "Altair Silva",
+"membros": [
+"Jerry Comper",
+"José Milton",
+"Pepe Collaço"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "016/2023",
+"ato": "014-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar em Defesa das Pessoas com Espectro Autista",
+"coord": "Pepe Collaço",
+"membros": [
+"José Milton",
+"Altair Silva",
+"Matheus Cadorin",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "017/2023",
+"ato": "015-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar de Proteção e Bem-Estar Animal",
+"coord": "Marcius Machado",
+"membros": [
+"Massoco",
+"Delegado Egídio",
+"Marquito"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "018/2023",
+"ato": "016-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar de Promoção do Turismo das Águas Termais",
+"coord": "Pepe Collaço",
+"membros": [
+"José Milton",
+"Altair Silva",
+"Lucas Neves",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "019/2023",
+"ato": "017-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar de Fomento, Cultivo e Inovação da Ovinocultura",
+"coord": "Pepe Collaço",
+"membros": [
+"José Milton",
+"Altair Silva",
+"Lucas Neves",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "020/2023",
+"ato": "018-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar das Dragagens dos Rios Catarinenses",
+"coord": "Pepe Collaço",
+"membros": [
+"Jerry Comper",
+"José Milton",
+"Altair Silva",
+"Lucas Neves",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "021/2023",
+"ato": "019-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar da Área de Proteção Ambiental da Baleia Franca",
+"coord": "Pepe Collaço",
+"membros": [
+"José Milton",
+"Altair Silva",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "022/2023",
+"ato": "020-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar em Apoio ao Carvão Mineral",
+"coord": "Pepe Collaço",
+"membros": [
+"José Milton",
+"Altair Silva",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "023/2023",
+"ato": "021-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar em Defesa das Instituições de Educação Superior Legalmente Habilitadas a Funcionar em Santa Catarina",
+"coord": "Rodrigo Minotto",
+"membros": [
+"Fabiano da Luz",
+"Jerry Comper",
+"Marcos da Rosa",
+"Marquito",
+"Napoleão",
+"Tiago Zilli"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "024/2023",
+"ato": "022-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar em Defesa do Setor Madeireiro e Moveleiro do Estado de Santa Catarina",
+"coord": "Oscar Gutz",
+"membros": [
+"José Milton",
+"Sargento Lima",
+"Carlos Humberto"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "025/2023",
+"ato": "023-DL",
+"dt": "13/02/2023",
+"nome": "Frente Parlamentar em Defesa do Serviço Público e das Empresas Públicas",
+"coord": "Fabiano da Luz",
+"membros": [
+"Dr. Vicente Caropreso",
+"Luciane Carminatti",
+"Neodi Saretta",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Marquito"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "027/2023",
+"ato": "027-DL",
+"dt": "17/02/2023",
+"nome": "Frente Parlamentar SANTA CATARINA-CHINA",
+"coord": "Rodrigo Minotto",
+"membros": [
+"Fernando Krelling",
+"Ivan Naatz",
+"Padre Pedro",
+"Camilo Martins",
+"Tiago Zilli"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -31,7 +403,152 @@
 "ato": "029-DL",
 "dt": "17/02/2023",
 "nome": "Frente Parlamentar da Ordem Pública",
-"coord": "Sargento Lima"
+"coord": "Sargento Lima",
+"membros": [
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Carlos Humberto",
+"Oscar Gutz",
+"Maurício Peixer"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "031/2023",
+"ato": "030-DL",
+"dt": "17/02/2023",
+"nome": "Frente Parlamentar em Defesa do Saneamento Básico",
+"coord": "Carlos Humberto",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Altair Silva",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Lucas Neves",
+"Marquito",
+"Mário Motta",
+"Matheus Cadorin",
+"Maurício Peixer"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "032/2023",
+"ato": "031-DL",
+"dt": "17/02/2023",
+"nome": "Frente Parlamentar pela Implantação de Terceiras Faixas na BR-282",
+"coord": "Lucas Neves",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Padre Pedro",
+"Paulinha",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Camilo Martins",
+"Delegado Egídio",
+"Marquito",
+"Mário Motta",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "034/2023",
+"ato": "032-DL",
+"dt": "17/02/2023",
+"nome": "Frente Parlamentar da Grande Florianópolis",
+"coord": "Camilo Martins",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Paulinha",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Lucas Neves",
+"Marquito",
+"Mário Motta",
+"Oscar Gutz",
+"Sergio Guimarães",
+"Maurício Peixer"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "035/2023",
+"ato": "033-DL",
+"dt": "17/02/2023",
+"nome": "Frente Parlamentar em Defesa das Comunidades Terapêuticas",
+"coord": "Marcos da Rosa",
+"membros": [
+"Jair Miotto",
+"Maurício Eskudlark",
+"Sergio Motta",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "036/2023",
+"ato": "034-DL",
+"dt": "17/02/2023",
+"nome": "Frente Parlamentar Ambientalista de Santa Catarina",
+"coord": "Padre Pedro",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Marcius Machado",
+"Rodrigo Minotto",
+"Altair Silva"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "037/2023",
+"ato": "035-DL",
+"dt": "17/02/2023",
+"nome": "Frente Parlamentar de Fiscalização, Programa Zera Fila, Saúde",
+"coord": "Sergio Guimarães",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Maurício Eskudlark",
+"Marquito"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -39,23 +556,121 @@
 "ato": "061-DL",
 "dt": "02/03/2023",
 "nome": "Frente Parlamentar de Apoio ao Comércio Varejista",
-"coord": "Nilso Berlanda"
+"coord": "Nilso Berlanda",
+"membros": [
+"Altair Silva",
+"Napoleão",
+"Tiago Zilli",
+"Maurício Peixer"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "039/2023",
+"ato": "036-DL",
+"dt": "23/02/2023",
+"nome": "Frente Parlamentar da Fiscalização da Balneabilidade e Infraestrutura Básica do Litoral Catarinense",
+"coord": "Sergio Guimarães",
+"membros": [
+"Jair Miotto",
+"Jessé Lopes",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Paulinha",
+"Altair Silva",
+"Marquito",
+"Mário Motta"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "040/2023",
+"ato": "037-DL",
+"dt": "23/02/2023",
+"nome": "Frente Parlamentar em Defesa de Naufragados",
+"coord": "Sergio Guimarães",
+"membros": [
+"Jair Miotto",
+"Jessé Lopes",
+"Marcos Vieira",
+"Paulinha",
+"Pepe Collaço",
+"Marquito",
+"Maurício Peixer"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "041/2023",
+"ato": "038-DL",
+"dt": "23/02/2023",
+"nome": "Frente Parlamentar em Defesa da Vida",
+"coord": "Maurício Peixer",
+"membros": [
+"Ana Campagnolo",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Paulinha",
+"Sargento Lima",
+"Altair Silva",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Lucas Neves",
+"Matheus Cadorin",
+"Napoleão",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
 "rcc": "042/2023",
 "ato": "039-DL",
 "dt": "23/02/2023",
-"nome": "Frente Parlamentar de Incentivo à Produção Artesanal de Cervejarias e Criação",
-"coord": "Marcos Vieira"
+"nome": "Frente Parlamentar de Incentivo à Produção Artesanal de Cervejarias e Criação de Rotas Gastronômicas no Estado de Santa Catarina",
+"coord": "Marcos Vieira",
+"membros": [
+"Padre Pedro",
+"Paulinha",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Napoleão",
+"Oscar Gutz",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
 "rcc": "043/2023",
 "ato": "040-DL",
 "dt": "23/02/2023",
-"nome": "Frente Parlamentar em Defesa das Micros e Pequenas Empresas de Santa Cata…",
-"coord": "Marcos Vieira"
+"nome": "Frente Parlamentar em Defesa das Micros e Pequenas Empresas de Santa Catarina",
+"coord": "Marcos Vieira",
+"membros": [
+"Padre Pedro",
+"Paulinha",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Napoleão",
+"Oscar Gutz",
+"Sergio Guimarães",
+"Tiago Zilli"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -63,7 +678,17 @@
 "ato": "041-DL",
 "dt": "23/02/2023",
 "nome": "Frente Parlamentar em Defesa da Cadeia Produtiva da Reciclagem",
-"coord": "Marcos Vieira"
+"coord": "Marcos Vieira",
+"membros": [
+"Padre Pedro",
+"Paulinha",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Napoleão",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -71,15 +696,40 @@
 "ato": "042-DL",
 "dt": "23/02/2023",
 "nome": "Frente Parlamentar para Acompanhar as Obras nas Serras Catarinenses",
-"coord": "Volnei Weber"
+"coord": "Volnei Weber",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Altair Silva",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Lucas Neves",
+"Marquito",
+"Mário Motta"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
 "rcc": "046/2023",
 "ato": "045-DL",
 "dt": "24/02/2023",
-"nome": "Frente Parlamentar em Defesa do Transporte Público Integrado e outros Modais…",
-"coord": "Marcos Vieira"
+"nome": "Frente Parlamentar em Defesa do Transporte Público Integrado e outros Modais da Grande Florianópolis",
+"coord": "Marcos Vieira",
+"membros": [
+"Padre Pedro",
+"Paulinha",
+"Volnei Weber",
+"Oscar Gutz",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -87,7 +737,15 @@
 "ato": "046-DL",
 "dt": "24/02/2023",
 "nome": "Frente Parlamentar em Favor da Recuperação da SC - 283",
-"coord": "Marcos Vieira"
+"coord": "Marcos Vieira",
+"membros": [
+"Padre Pedro",
+"Paulinha",
+"Napoleão",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -95,7 +753,16 @@
 "ato": "047-DL",
 "dt": "24/02/2023",
 "nome": "Frente Parlamentar em Favor da Nova Rota do Milho em Santa Catarina",
-"coord": "Marcos Vieira"
+"coord": "Marcos Vieira",
+"membros": [
+"Padre Pedro",
+"Paulinha",
+"Volnei Weber",
+"Napoleão",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -103,7 +770,23 @@
 "ato": "048-DL",
 "dt": "24/02/2023",
 "nome": "Frente Parlamentar de Luta pela Construção da Rodovia Paralela a BR-101",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Antídio Lunelli",
+"Camilo Martins",
+"Delegado Egídio",
+"Lucas Neves",
+"Marquito",
+"Matheus Cadorin",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -111,7 +794,38 @@
 "ato": "049-DL",
 "dt": "24/02/2023",
 "nome": "Frente Parlamentar de Luta pelo Segundo Acesso de Bombinhas/ Porto Belo",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Pepe Collaço",
+"Lucas Neves",
+"Mário Motta",
+"Matheus Cadorin",
+"Napoleão"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "051/2023",
+"ato": "051-DL",
+"dt": "02/03/2023",
+"nome": "Frente Parlamentar de Estudos Técnicos, Científicos e Associativos sobre Cannabis Medicinal",
+"coord": "Sergio Guimarães",
+"membros": [
+"Marcos Vieira",
+"Padre Pedro",
+"Paulinha",
+"Marquito"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -119,7 +833,29 @@
 "ato": "052-DL",
 "dt": "02/03/2023",
 "nome": "Frente Parlamentar de Fomento ao Turismo",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Antídio Lunelli",
+"Camilo Martins",
+"Delegado Egídio",
+"Lucas Neves",
+"Marquito",
+"Mário Motta",
+"Matheus Cadorin",
+"Napoleão",
+"Sergio Guimarães"
+],
+"status": "Concluída",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -127,7 +863,20 @@
 "ato": "053-DL",
 "dt": "02/03/2023",
 "nome": "Frente Parlamentar em Defesa da Construção Civil",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Fabiano da Luz",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Volnei Weber",
+"Antídio Lunelli",
+"Carlos Humberto",
+"Delegado Egídio",
+"Lucas Neves",
+"Napoleão"
+],
+"status": "Concluída",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -135,7 +884,27 @@
 "ato": "054-DL",
 "dt": "02/03/2023",
 "nome": "Frente Parlamentar de Apoio e Incentivo à Cultura",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Padre Pedro",
+"Volnei Weber",
+"Antídio Lunelli",
+"Lucas Neves",
+"Marquito",
+"Mário Motta",
+"Matheus Cadorin",
+"Napoleão",
+"Sergio Guimarães"
+],
+"status": "Concluída",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -143,15 +912,51 @@
 "ato": "055-DL",
 "dt": "02/03/2023",
 "nome": "Frente Parlamentar de Apoio a Política Pesqueira de Santa Catarina",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Padre Pedro",
+"Volnei Weber",
+"Antídio Lunelli",
+"Camilo Martins",
+"Delegado Egídio",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Napoleão",
+"Sergio Guimarães",
+"Tiago Zilli"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
 "rcc": "057/2023",
 "ato": "056-DL",
 "dt": "02/03/2023",
-"nome": "Frente Parlamentar em Defesa da Região da Associação dos Municípios da Reg…",
-"coord": "Paulinha"
+"nome": "Frente Parlamentar em Defesa da Região da Associação dos Municípios da Região da Foz do Rio Itajaí - AMFRI",
+"coord": "Paulinha",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Antídio Lunelli",
+"Camilo Martins",
+"Delegado Egídio",
+"Lucas Neves",
+"Marquito",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -159,7 +964,27 @@
 "ato": "057-DL",
 "dt": "02/03/2023",
 "nome": "Frente Parlamentar do Empreendorismo Rural e da Agricultura Familiar",
-"coord": "Volnei Weber"
+"coord": "Volnei Weber",
+"membros": [
+"Ana Campagnolo",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Altair Silva",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Mário Motta",
+"Matheus Cadorin"
+],
+"status": "Concluída",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -167,7 +992,18 @@
 "ato": "058-DL",
 "dt": "02/03/2023",
 "nome": "Frente Parlamentar em Defesa dos Consórcios Intermunicipais de Saúde",
-"coord": "Marcos Vieira"
+"coord": "Marcos Vieira",
+"membros": [
+"Padre Pedro",
+"Paulinha",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Napoleão",
+"Oscar Gutz",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -175,7 +1011,16 @@
 "ato": "059-DL",
 "dt": "02/03/2023",
 "nome": "Frente Parlamentar dos Portos e Aeroportos do Estado de Santa Catarina",
-"coord": "Marcos Vieira"
+"coord": "Marcos Vieira",
+"membros": [
+"Paulinha",
+"Volnei Weber",
+"Napoleão",
+"Oscar Gutz",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -183,7 +1028,82 @@
 "ato": "062-DL",
 "dt": "09/03/2023",
 "nome": "Frente Parlamentar de Apoio a Política de Gás Natural",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Fabiano da Luz",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Antídio Lunelli",
+"Massoco",
+"Delegado Egídio",
+"Pepe Collaço",
+"Lucas Neves",
+"Marcos da Rosa",
+"Tiago Zilli"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "063/2023",
+"ato": "064-DL",
+"dt": "09/03/2023",
+"nome": "Frente Parlamentar de Fomento ao Turismo Sustentável do Sul de Santa Catarina",
+"coord": "Tiago Zilli",
+"membros": [
+"Ana Campagnolo",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Camilo Martins",
+"Delegado Egídio",
+"Lucas Neves",
+"Marquito",
+"Mário Motta",
+"Napoleão",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "064/2023",
+"ato": "063-DL",
+"dt": "09/03/2023",
+"nome": "Frente Parlamentar de Recuperação, Manutenção e Duplicação da BR-470",
+"coord": "Oscar Gutz",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Altair Silva",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Mário Motta",
+"Napoleão"
+],
+"status": "Concluída",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -191,15 +1111,133 @@
 "ato": "065-DL",
 "dt": "09/03/2023",
 "nome": "Frente Parlamentar em Defesa das Farmácias e Indústria Farmacêutica",
-"coord": "Ivan Naatz"
+"coord": "Ivan Naatz",
+"membros": [
+"Marcius Machado",
+"Maurício Eskudlark",
+"Altair Silva",
+"Antídio Lunelli",
+"Massoco",
+"Matheus Cadorin",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
 "rcc": "067/2023",
 "ato": "067-DL",
 "dt": "09/03/2023",
-"nome": "Frente Parlamentar de Acompanhamento das Obras do Contorno Viário de Flori…",
-"coord": "Ivan Naatz"
+"nome": "Frente Parlamentar de Acompanhamento das Obras do Contorno Viário de Florianópolis",
+"coord": "Ivan Naatz",
+"membros": [
+"Marcius Machado",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Massoco",
+"Marquito",
+"Mário Motta",
+"Matheus Cadorin",
+"Oscar Gutz",
+"Maurício Peixer"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "068/2023",
+"ato": "068-DL",
+"dt": "09/03/2023",
+"nome": "Frente Parlamentar dos Combustíveis",
+"coord": "Napoleão",
+"membros": [
+"Fabiano da Luz",
+"Fernando Krelling",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Altair Silva",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Lucas Neves",
+"Marcos da Rosa",
+"Mário Motta",
+"Matheus Cadorin",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "069/2023",
+"ato": "069-DL",
+"dt": "09/03/2023",
+"nome": "Frente Parlamentar de Apoio aos Vereadores Mirins",
+"coord": "Napoleão",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Padre Pedro",
+"Volnei Weber",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Mário Motta",
+"Matheus Cadorin",
+"Oscar Gutz",
+"Tiago Zilli",
+"Maurício Peixer"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "070/2023",
+"ato": "070-DL",
+"dt": "09/03/2023",
+"nome": "Frente Parlamentar de Apoio as Redes Femininas de Combate ao Câncer",
+"coord": "Napoleão",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Jessé Lopes",
+"Luciane Carminatti",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Padre Pedro",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Mário Motta",
+"Matheus Cadorin",
+"Oscar Gutz",
+"Tiago Zilli",
+"Emerson Stein"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -207,7 +1245,223 @@
 "ato": "071-DL",
 "dt": "15/03/2023",
 "nome": "Frente Parlamentar de apoio às Cooperativas de Energia de Santa Catarina",
-"coord": "Volnei Weber"
+"coord": "Volnei Weber",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jair Miotto",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Altair Silva",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Marcos da Rosa",
+"Marquito",
+"Mário Motta",
+"Matheus Cadorin"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "072/2023",
+"ato": "072-DL",
+"dt": "15/03/2023",
+"nome": "Frente Parlamentar da Juventude",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Luciane Carminatti",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Paulinha",
+"Altair Silva",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "074/2023",
+"ato": "073-DL",
+"dt": "15/03/2023",
+"nome": "Frente Parlamentar de Saúde Mental",
+"coord": "Marquito",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Paulinha",
+"Rodrigo Minotto",
+"Altair Silva",
+"Lucas Neves",
+"Mário Motta",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "075/2023",
+"ato": "074-DL",
+"dt": "15/03/2023",
+"nome": "Frente Parlamentar para a Primeira Infância",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Marcos Vieira",
+"Padre Pedro",
+"Paulinha",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "076/2023",
+"ato": "080-DL",
+"dt": "22/03/2023",
+"nome": "Frente Parlamentar em Defesa da Saúde do Trabalhador",
+"coord": "Neodi Saretta",
+"membros": [
+"Fabiano da Luz",
+"Luciane Carminatti",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Marquito"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "077/2023",
+"ato": "081-DL",
+"dt": "22/03/2023",
+"nome": "Frente Parlamentar da Advocacia",
+"coord": "Pepe Collaço",
+"membros": [
+"Ivan Naatz",
+"Camilo Martins",
+"Napoleão",
+"Tiago Zilli"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "078/2023",
+"ato": "082-DL",
+"dt": "22/03/2023",
+"nome": "Frente Parlamentar para Acompanhar a Obra da Duplicação da BR-280",
+"coord": "Maurício Peixer",
+"membros": [
+"Ana Campagnolo",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Altair Silva",
+"Antídio Lunelli",
+"Matheus Cadorin"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "079/2023",
+"ato": "083-DL",
+"dt": "30/03/2023",
+"nome": "Frente Parlamentar do Comércio de Materiais de Construção",
+"coord": "Fernando Krelling",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Paulinha",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Napoleão",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "080/2023",
+"ato": "084-DL",
+"dt": "05/04/2023",
+"nome": "Frente Parlamentar em Apoio às Catadoras e aos Catadores de Materiais Reutilizáveis e Recicláveis",
+"coord": "Marquito",
+"membros": [
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Luciane Carminatti",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Altair Silva",
+"Lucas Neves",
+"Mário Motta",
+"Matheus Cadorin",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "081/2023",
+"ato": "085-DL",
+"dt": "10/04/2023",
+"nome": "Frente Parlamentar em Apoio aos Objetivos do Desenvolvimento Sustentável - ODS",
+"coord": "Fabiano da Luz",
+"membros": [
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Altair Silva",
+"Marquito",
+"Napoleão",
+"Sergio Guimarães",
+"Emerson Stein"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -215,7 +1469,14 @@
 "ato": "086-DL",
 "dt": "10/04/2023",
 "nome": "Frente Parlamentar em Apoio ao Turismo Marítimo de Navios de Cruzeiros",
-"coord": "Emerson Stein"
+"coord": "Emerson Stein",
+"membros": [
+"Ivan Naatz",
+"Carlos Humberto",
+"Mário Motta"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -223,7 +1484,68 @@
 "ato": "088-DL",
 "dt": "13/04/2023",
 "nome": "Frente Parlamentar de Apoio ao Desenvolvimento do Terceiro Setor",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Fabiano da Luz",
+"Fernando Krelling",
+"Jessé Lopes",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Marquito",
+"Mário Motta",
+"Matheus Cadorin",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "084/2023",
+"ato": "089-DL",
+"dt": "13/04/2023",
+"nome": "Frente Parlamentar em Defesa da Família Catarinense",
+"coord": "Marcos da Rosa",
+"membros": [
+"Ana Campagnolo",
+"Maurício Eskudlark",
+"Sergio Motta",
+"Antídio Lunelli",
+"Carlos Humberto",
+"Delegado Egídio",
+"Mário Motta",
+"Napoleão",
+"Sergio Guimarães"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "085/2023",
+"ato": "090-DL",
+"dt": "13/04/2023",
+"nome": "Frente Parlamentar em Defesa da Segurança nas Instituições de Ensino Catarinense",
+"coord": "Sergio Guimarães",
+"membros": [
+"Fabiano da Luz",
+"Jair Miotto",
+"Jessé Lopes",
+"Marcius Machado",
+"Neodi Saretta",
+"Volnei Weber",
+"Altair Silva",
+"Antídio Lunelli",
+"Lucas Neves",
+"Marcos da Rosa",
+"Matheus Cadorin",
+"Napoleão",
+"Oscar Gutz",
+"Maurício Peixer"
+],
+"status": "Concluída",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -231,7 +1553,15 @@
 "ato": "095-DL",
 "dt": "08/05/2023",
 "nome": "Frente Parlamentar Evangélica",
-"coord": "Jair Miotto"
+"coord": "Jair Miotto",
+"membros": [
+"Sergio Motta",
+"Lucas Neves",
+"Marcos da Rosa",
+"Matheus Cadorin"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -239,15 +1569,55 @@
 "ato": "096-DL",
 "dt": "08/05/2023",
 "nome": "Frente Parlamentar Ética contra a Corrupção",
-"coord": "Sargento Lima"
+"coord": "Sargento Lima",
+"membros": [
+"Ana Campagnolo",
+"Jessé Lopes",
+"Marcius Machado",
+"Maurício Eskudlark",
+"Oscar Gutz",
+"Maurício Peixer"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
 "rcc": "089/2023",
 "ato": "097-DL",
 "dt": "08/05/2023",
-"nome": "Frente Parlamentar pela Aprovação da Resolução n°. 003, de 26/06/19 da ALES…",
-"coord": "Paulinha"
+"nome": "Frente Parlamentar pela Aprovação da Resolução n°. 003, de 26/06/19 da ALESC no Congresso Nacional",
+"coord": "Paulinha",
+"membros": [
+"Fabiano da Luz",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Delegado Egídio",
+"Lucas Neves",
+"Matheus Cadorin"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "090/2023",
+"ato": "098-DL",
+"dt": "08/05/2023",
+"nome": "Frente Parlamentar em Defesa do Sistema Único da Assistência Social (SUAS)",
+"coord": "Luciane Carminatti",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Marcius Machado",
+"Neodi Saretta",
+"Padre Pedro",
+"Paulinha",
+"Altair Silva",
+"Marquito"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -255,7 +1625,26 @@
 "ato": "099-DL",
 "dt": "08/05/2023",
 "nome": "Frente Parlamentar em Defesa da Propriedade Privada e do Marco Temporal",
-"coord": "Sargento Lima"
+"coord": "Sargento Lima",
+"membros": [
+"Ana Campagnolo",
+"Ivan Naatz",
+"Jessé Lopes",
+"José Milton",
+"Marcius Machado",
+"Maurício Eskudlark",
+"Nilso Berlanda",
+"Altair Silva",
+"Antídio Lunelli",
+"Carlos Humberto",
+"Delegado Egídio",
+"Matheus Cadorin",
+"Oscar Gutz",
+"Sergio Guimarães",
+"Maurício Peixer"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -263,7 +1652,15 @@
 "ato": "100-DL",
 "dt": "08/05/2023",
 "nome": "Frente Parlamentar em defesa dos Povos Originários",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Fabiano da Luz",
+"Luciane Carminatti",
+"Maurício Eskudlark",
+"Padre Pedro"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -271,7 +1668,16 @@
 "ato": "101-DL",
 "dt": "15/05/2023",
 "nome": "Frente Parlamentar de Apoio aos Lares, Abrigos e Casas de Acolhimento",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Fabiano da Luz",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Delegado Egídio",
+"Matheus Cadorin"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -279,15 +1685,118 @@
 "ato": "103-DL",
 "dt": "17/05/2023",
 "nome": "Frente Parlamentar em em Defesa do Paradesporto",
-"coord": "Paulinha"
+"coord": "Paulinha",
+"membros": [
+"Fabiano da Luz",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Padre Pedro",
+"Delegado Egídio",
+"Mário Motta",
+"Matheus Cadorin",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "095/2023",
+"ato": "104-DL",
+"dt": "17/05/2023",
+"nome": "Frente Parlamentar em Defesa da Economia Solidária (ECOSOL)",
+"coord": "Luciane Carminatti",
+"membros": [
+"Fabiano da Luz",
+"Neodi Saretta",
+"Padre Pedro",
+"Marquito"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
 "rcc": "096/2023",
 "ato": "105-DL",
 "dt": "17/05/2023",
-"nome": "Frente Parlamentar de Acompanhamento de Extração Mineral em Santa Catarin…",
-"coord": "Marcos Vieira"
+"nome": "Frente Parlamentar de Acompanhamento de Extração Mineral em Santa Catarina",
+"coord": "Marcos Vieira",
+"membros": [
+"Paulinha",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Oscar Gutz"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "097/2023",
+"ato": "107-DL",
+"dt": "07/06/2023",
+"nome": "Frente Parlamentar do Audiovisual Independente de Santa Catarina",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Luciane Carminatti",
+"Neodi Saretta",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Delegado Egídio",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "098/2023",
+"ato": "109-DL",
+"dt": "07/06/2023",
+"nome": "Frente Parlamentar Católica",
+"coord": "Maurício Peixer",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Sargento Lima",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Matheus Cadorin"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "099/2023",
+"ato": "115-DL",
+"dt": "08/08/2023",
+"nome": "Frente Parlamentar para o fortalecimento da COP-30 - Belém/Pará 2025",
+"coord": "Fernando Krelling",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Sergio Motta",
+"Volnei Weber",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Marquito",
+"Matheus Cadorin",
+"Tiago Zilli",
+"Emerson Stein"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -295,311 +1804,36 @@
 "ato": "116-DL",
 "dt": "08/08/2023",
 "nome": "Frente Parlamentar da Silvicultura",
-"coord": "José Milton"
+"coord": "José Milton",
+"membros": [
+"Marcius Machado",
+"Altair Silva",
+"Antídio Lunelli",
+"Lucas Neves",
+"Mário Motta"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
 "rcc": "101/2023",
 "ato": "117-DL",
 "dt": "11/08/2023",
-"nome": "Frente Parlamentar para Estudo dos Impactos da Reforma Tributária nos Setore…",
-"coord": "Sargento Lima"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "103/2023",
-"ato": "118-DL",
-"dt": "25/08/2023",
-"nome": "Frente Parlamentar em apoio as Guardas Municipais",
-"coord": "Emerson Stein"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "108/2023",
-"ato": "131-DL",
-"dt": "16/10/2023",
-"nome": "Frente Parlamentar para implantação do transporte marítimo na Grande Florianópolis",
-"coord": "Pedrão Silvestre"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "112/2023",
-"ato": "135-DL",
-"dt": "26/10/2023",
-"nome": "Frente Parlamentar Invasão Zero",
-"coord": "Sargento Lima"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "004/2024",
-"ato": "013-DL",
-"dt": "19/04/2024",
-"nome": "Frente Parlamentar em Defesa da Produção de Uva e Vinho no Estado de Santa Catarina",
-"coord": "Marcos Vieira"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "007/2024",
-"ato": "022-DL",
-"dt": "19/06/2024",
-"nome": "Frente Parlamentar Mista para acompanhar a Devolução dos Recursos",
-"coord": "Ivan Naatz"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "010/2024",
-"ato": "031-DL",
-"dt": "10/09/2024",
-"nome": "Frente Parlamentar em Apoio ao Cultivo sem Solo - Hidroponia",
-"coord": "Sargento Lima"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "015/2024",
-"ato": "037-DL",
-"dt": "04/12/2024",
-"nome": "Frente Parlamentar de Combate ao Vício em Jogos de Azar e Apostas Online",
-"coord": "Matheus Cadorin"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "007/2025",
-"ato": "010-DL",
-"dt": "13/02/2025",
-"nome": "Frente Parlamentar do Cooperativismo - FRENCOOP",
-"coord": "José Milton"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "004/2025",
-"ato": "007-DL",
-"dt": "13/02/2025",
-"nome": "Frente Parlamentar em Defesa da Saúde Catarinense",
-"coord": "José Milton"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "003/2025",
-"ato": "006-DL",
-"dt": "13/02/2025",
-"nome": "Frente Parlamentar Frente da Liberdade Econômica e Inovação",
-"coord": "Matheus Cadorin"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "008/2025",
-"ato": "011-DL",
-"dt": "13/02/2025",
-"nome": "Frente Parlamentar do Bombeiro Voluntário e Terceiro Setor",
-"coord": "Matheus Cadorin"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "018/2025",
-"ato": "022-DL",
-"dt": "27/02/2025",
-"nome": "Frente Parlamentar em Defesa da Cadeia Produtiva da Reciclagem",
-"coord": "Volnei Weber"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "019/2025",
-"ato": "023-DL",
-"dt": "27/02/2025",
-"nome": "Frente Parlamentar para Acompanhar as Obras nas Serras Catarinenses",
-"coord": "Volnei Weber"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "024/2025",
-"ato": "029-DL",
-"dt": "17/03/2025",
-"nome": "Frente Parlamentar em Favor da Recuperação da SC-283",
-"coord": "Marcos Vieira"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "025/2025",
-"ato": "030-DL",
-"dt": "17/03/2025",
-"nome": "Frente Parlamentar em Favor da Nova Rota do Milho em Santa Catarina",
-"coord": "Marcos Vieira"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "023/2025",
-"ato": "028-DL",
-"dt": "17/03/2025",
-"nome": "Frente Parlamentar em Defesa do Transporte Público Integrado e outros Modais da Grande Florianópolis",
-"coord": "Marcos Vieira"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "022/2025",
-"ato": "027-DL",
-"dt": "17/03/2025",
-"nome": "Frente Parlamentar em Defesa dos Consórcios Intermunicipais de Saúde",
-"coord": "Marcos Vieira"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "026/2025",
-"ato": "031-DL",
-"dt": "17/03/2025",
-"nome": "Frente Parlamentar de Apoio à Segurança Pública",
-"coord": "Alex Brasil"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "028/2025",
-"ato": "033-DL",
-"dt": "17/03/2025",
-"nome": "Frente Parlamentar de Apoio à Revitalização Urbana da Grande Florianópolis",
-"coord": "Alex Brasil"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "027/2025",
-"ato": "032-DL",
-"dt": "17/03/2025",
-"nome": "Frente Parlamentar de Apoio aos Policiais Penais e Agentes de Segurança Socioeducativos",
-"coord": "Alex Brasil"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "037/2025",
-"ato": "045-DL",
-"dt": "03/04/2025",
-"nome": "Frente Parlamentar de Apoio às Cooperativas de Energia de Santa Catarina",
-"coord": "Volnei Weber"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "030/2025",
-"ato": "038-DL",
-"dt": "03/04/2025",
-"nome": "Frente Parlamentar de Apoio a Política Pesqueira de Santa Catarina",
-"coord": "Paulinha"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "029/2025",
-"ato": "037-DL",
-"dt": "03/04/2025",
-"nome": "Frente Parlamentar pela Região da Associação dos Municípios da Região da Foz do Rio Itajaí (AMFRI)",
-"coord": "Paulinha"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "033/2025",
-"ato": "041-DL",
-"dt": "03/04/2025",
-"nome": "Frente Parlamentar dos Portos e Aeroportos do Estado de Santa Catarina",
-"coord": "Marcos Vieira"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "031/2025",
-"ato": "039-DL",
-"dt": "03/04/2025",
-"nome": "Frente Parlamentar de Apoio ao Comércio Varejista",
-"coord": "Nilso Berlanda"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "048/2025",
-"ato": "062-DL",
-"dt": "03/07/2025",
-"nome": "Frente Parlamentar Evangélica",
-"coord": "Jair Miotto"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "050/2025",
-"ato": "065-DL",
-"dt": "12/08/2025",
-"nome": "Frente Parlamentar pela Construção da Via Mar - Rodovia paralela a BR 101 entre Joinville e Biguaçu",
-"coord": "Paulinha"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "052/2025",
-"ato": "067-DL",
-"dt": "21/08/2025",
-"nome": "Frente Parlamentar em Defesa da Educação no Trânsito",
-"coord": "Paulinha"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "059/2025",
-"ato": "075-DL",
-"dt": "19/11/2025",
-"nome": "Frente Parlamentar de Apoio aos Servidores Efetivos do Quadro Administrativo da Secretaria de Estado de Justiça e Reintegração Social (SEJURI)",
-"coord": "Alex Brasil"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "005/2026",
-"ato": "006-DL",
-"dt": "25/02/2026",
-"nome": "Frente Parlamentar da Liberdade Econômica e Inovação",
-"coord": "Matheus Cadorin"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "004/2026",
-"ato": "005-DL",
-"dt": "25/02/2026",
-"nome": "Frente Parlamentar do Bombeiro Voluntário e Terceiro Setor",
-"coord": "Matheus Cadorin"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "006/2026",
-"ato": "008-DL",
-"dt": "04/03/2026",
-"nome": "Frente Parlamentar Santa Catarina - Polônia",
-"coord": "Ivan Naatz"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "010/2026",
-"ato": "016-DL",
-"dt": "28/04/2026",
-"nome": "Frente Parlamentar em Defesa da Produção de Uva e Vinho no Estado de Santa Catarina",
-"coord": "Marcos Vieira"
-},
-{
-"tipo": "Frente Parlamentar",
-"rcc": "0011/2026",
-"ato": "020-DL",
-"dt": "02/06/2026",
-"nome": "Frente Parlarmentar de Apoio às Guardas Municipais",
-"coord": "Alex Brasil"
-},
-{
-"tipo": "Fórum",
-"rcc": "066/2023",
-"ato": "066-DL",
-"dt": "09/03/2023",
-"nome": "Fórum Parlamentar para Defesa do Serviço de Facção de Santa Catarina",
-"coord": "Ivan Naatz"
-},
-{
-"tipo": "Fórum",
-"rcc": "086/2023",
-"ato": "091-DL",
-"dt": "19/04/2023",
-"nome": "Fórum Parlamentar em Defesa do Consumidor",
-"coord": "Ivan Naatz"
-},
-{
-"tipo": "Fórum",
-"rcc": "109/2023",
-"ato": "132-DL",
-"dt": "19/10/2023",
-"nome": "Fórum Parlamentar para a Municipalização de Naufragados",
-"coord": "Pedrão Silvestre"
+"nome": "Frente Parlamentar para Estudo dos Impactos da Reforma Tributária nos Setores de Bens e Serviços de Santa Catarina",
+"coord": "Sargento Lima",
+"membros": [
+"Fernando Krelling",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Maurício Eskudlark",
+"Lucas Neves",
+"Mário Motta",
+"Matheus Cadorin"
+],
+"status": "Arquivado",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -607,7 +1841,1370 @@
 "ato": "-",
 "dt": "-",
 "nome": "Frente Parlamentar do Bombeiro Voluntário e Terceiro Setor",
-"coord": "Matheus Cadorin"
+"coord": "Matheus Cadorin",
+"membros": [
+"Fernando Krelling",
+"Jessé Lopes",
+"Maurício Eskudlark",
+"Antídio Lunelli",
+"Napoleão"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "103/2023",
+"ato": "118-DL",
+"dt": "25/08/2023",
+"nome": "Frente Parlamentar em apoio as Guardas Municipais",
+"coord": "Emerson Stein",
+"membros": [
+"Jessé Lopes",
+"Antídio Lunelli",
+"Carlos Humberto",
+"Delegado Egídio"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "104/2023",
+"ato": "119-DL",
+"dt": "30/08/2023",
+"nome": "Frente Parlamentar Imobiliária de Santa Catarina",
+"coord": "Marcius Machado",
+"membros": [
+"Fernando Krelling",
+"Jessé Lopes",
+"Maurício Eskudlark",
+"Antídio Lunelli",
+"Carlos Humberto",
+"Lucas Neves",
+"Mário Motta",
+"Matheus Cadorin",
+"Maurício Peixer",
+"Emerson Stein"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "111/2023",
+"ato": "134-DL",
+"dt": "25/10/2023",
+"nome": "Frente Parlamentar de Ações de Prevenção e Recuperação Pós-Cheias no Vale do Itajaí",
+"coord": "Oscar Gutz",
+"membros": [
+"Ana Campagnolo",
+"Ivan Naatz",
+"Carlos Humberto",
+"Napoleão",
+"Emerson Stein"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "105/2023",
+"ato": "123-DL",
+"dt": "13/09/2023",
+"nome": "Frente Parlamentar de Apuração e Fiscalização dos Rompimentos Ocasionados pela CASAN",
+"coord": "Sergio Guimarães",
+"membros": [
+"Jair Miotto",
+"Neodi Saretta",
+"Marcos da Rosa"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "108/2023",
+"ato": "131-DL",
+"dt": "16/10/2023",
+"nome": "Frente Parlamentar para implantação do transporte marítimo na grande Florianópolis",
+"coord": "Pedrão Silvestre",
+"membros": [
+"José Milton",
+"Lucas Neves",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Paulinha",
+"Pepe Collaço",
+"Fernando Krelling",
+"Marcius Machado",
+"Padre Pedro"
+],
+"status": "Arquivado",
+"obs": "(Fernanda Gabinete Dep. Altair)"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "111/2023",
+"ato": "134-DL",
+"dt": "25/10/2023",
+"nome": "Frente Parlamentar de Ações de Prevenção e Recuperação Pós-Cheias no Vale do Itajaí,",
+"coord": "Oscar Gutz",
+"membros": [
+"Ana Campagnolo",
+"Carlos Humberto",
+"Emerson Stein",
+"Ivan Naatz",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "112/2023",
+"ato": "135-DL",
+"dt": "26/10/2023",
+"nome": "Frente Parlamentar Invasão Zero",
+"coord": "Sargento Lima",
+"membros": [
+"Oscar Gutz",
+"Antídio Lunelli",
+"Nilso Berlanda",
+"Ana Campagnolo",
+"Maurício Peixer",
+"Mário Motta",
+"Marcius Machado",
+"Maurício Eskudlark",
+"Massoco",
+"Napoleão"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "113/2023",
+"ato": "137-DL",
+"dt": "27/11/2023",
+"nome": "Frente Parlamentar do Conservadorismo",
+"coord": "Jessé Lopes",
+"membros": [
+"Ana Campagnolo",
+"Maurício Eskudlark",
+"Oscar Gutz",
+"Srg. Lima",
+"Marcius Machado"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "002/2024",
+"ato": "009-DL",
+"dt": "20/03/2024",
+"nome": "Frente Parlamentar de Políticas Públicas da População em Situação de Rua",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Lucas Neves",
+"Marcos Vieira",
+"Padre Pedro",
+"Luciane Carminatti"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "003/2024",
+"ato": "010-DL",
+"dt": "20/03/2024",
+"nome": "Frente Parlamentar pela implantação da Zona de Processamento de Exportação (ZPE) de Lages",
+"coord": "Lucas Neves",
+"membros": [
+"Marcius Machado",
+"Mário Motta",
+"Nilso Berlanda"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "001/2024",
+"ato": "008-DL",
+"dt": "20/03/2024",
+"nome": "Frente Parlamentar do Ensino Técnico",
+"coord": "Mário Motta",
+"membros": [
+"Fernando Krelling",
+"Marquito",
+"Matheus Cadorin"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "004/2024",
+"ato": "013-DL",
+"dt": "19/04/2024",
+"nome": "Frente Parlamentar em Defesa da Produção de Uva e Vinho no Estado de Santa Catarina",
+"coord": "Marcos Vieira",
+"membros": [
+"Camilo Martins",
+"Fabiano da Luz",
+"Marcius Machado",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Lucas Neves",
+"Marquito",
+"Napoleão",
+"Matheus Cadorin"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "007/2024",
+"ato": "022-DL",
+"dt": "19/06/2024",
+"nome": "Frente Parlamentar Mista para acompanhar a Devolução dos Recursos",
+"coord": "Ivan Naatz",
+"membros": [
+"Altair Silva",
+"Camilo Martins",
+"Neodi Saretta",
+"Rodrigo Minotto",
+"Mário Motta"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "008/2024",
+"ato": "026-DL",
+"dt": "22/07/2024",
+"nome": "Frente Parlamentar de Altas Habilidades ou Superdotação",
+"coord": "Fernando Krelling",
+"membros": [
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jair Miotto",
+"Marcius Machado",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Antídio Lunelli",
+"Ana Campagnolo",
+"Camilo Martins",
+"Carlos Humberto",
+"Soratto",
+"Pepe Collaço",
+"Lucas Neves",
+"Marquito",
+"Matheus Cadorin",
+"Napoleão",
+"Oscar Gutz",
+"Emerson Stein"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "009/2024",
+"ato": "028-DL",
+"dt": "08/08/2024",
+"nome": "Frente Parlamentar do Corredor Rodoviário Litorâneo Norte",
+"coord": "Carlos Humberto",
+"membros": [
+"Sargento Lima",
+"Ana Campagnolo",
+"Fernando Krelling",
+"Emerson Stein"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "010/2024",
+"ato": "031-DL",
+"dt": "10/09/2024",
+"nome": "Frente Parlamentar em Apoio ao Cultivo sem Solo - Hidroponia",
+"coord": "Sargento Lima",
+"membros": [
+"Delegado Egídio",
+"Ivan Naatz",
+"Maurício Eskudlark",
+"Fabiano da Luz"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "012/2024",
+"ato": "033-DL",
+"dt": "09/10/2024",
+"nome": "Frente Parlamentar em Defesa do Esporte Escolar",
+"coord": "Mário Motta",
+"membros": [
+"Alex Brasil",
+"Ze Caramori",
+"Marcius Machado",
+"Fabiano da Luz",
+"Lucas Neves",
+"Tiago Zilli",
+"21/15/2025 Fernando Krelling",
+"Ivan Naatz",
+"Padre Pedro",
+"Antídio Lunelli",
+"Delegado Egídio",
+"Matheus Cadorin"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "011/2024",
+"ato": "032-DL",
+"dt": "09/10/2024",
+"nome": "Frente Parlamentar de Apoio ao Microcrédito e às Microfinanças",
+"coord": "Mário Motta",
+"membros": [
+"Alex Brasil",
+"Fernando Krelling",
+"Ze Caramori",
+"Marcius Machado",
+"Matheus Cadorin",
+"Tiago Zilli",
+"Fabiano da Luz",
+"Lucas Neves",
+"Antídio Lunelli",
+"Marquito"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "013/2024",
+"ato": "034-DL",
+"dt": "23/10/2024",
+"nome": "Frente Parlamentar Santa Catarina - Bahrein",
+"coord": "Mário Motta",
+"membros": [
+"Antídio Lunelli",
+"Fernando Krelling",
+"Ivan Naatz",
+"Marcius Machado"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "014/2024",
+"ato": "035-DL",
+"dt": "31/10/2024",
+"nome": "Frente Parlamentar do Setor de Eventos de Santa Catarina",
+"coord": "Napoleão",
+"membros": [
+"Alex Brasil",
+"Carlos Humberto",
+"Fabiano da Luz",
+"Matheus Cadorin"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "015/2024",
+"ato": "037-DL",
+"dt": "04/12/2024",
+"nome": "Frente Parlamentar de Combate ao Vício em Jogos de Azar e Apostas Online",
+"coord": "Matheus Cadorin",
+"membros": [
+"Camilo Martins",
+"Napoleão",
+"Sergio Guimarães"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "007/2025",
+"ato": "010-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar do Cooperativismo - FRENCOOP",
+"coord": "José Milton",
+"membros": [
+"Altair Silva",
+"Antídio Lunelli",
+"Camilo Martins",
+"Dr. Vicente Caropreso",
+"Fernando Krelling",
+"Marcos Vieira",
+"Mauro de Nadal",
+"Napoleão",
+"Pepe Collaço",
+"Oscar Gutz"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "017/2025",
+"ato": "004-DL",
+"dt": "06/02/2025",
+"nome": "Frente Parlamentar de Acompanhamento das Políticas Estaduais de Desenvolvimento Socioeconômico Regionais",
+"coord": "Napoleão",
+"membros": [
+"Fernando Krelling",
+"Ivan Naatz",
+"Matheus Cadorin",
+"Tiago Zilli",
+"Volnei Weber",
+"Fabiano da Luz"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "004/2025",
+"ato": "007-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar em Defesa da Saúde Catarinense",
+"coord": "José Milton",
+"membros": [
+"Altair Silva",
+"Marcius Machado",
+"Marquito",
+"Matheus Cadorin",
+"Maurício Peixer",
+"Pepe Collaço",
+"Oscar Gutz",
+"Rodrigo Minotto",
+"Dr. Vicente Caropreso"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "001/2025",
+"ato": "005-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar Santa Catarina - Itália",
+"coord": "Dr. Vicente Caropreso",
+"membros": [
+"Alex Brasil",
+"Ana Campagnolo",
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Jair Miotto",
+"José Milton",
+"Junior Cardoso",
+"Luciane Carminatti",
+"Lucas Neves",
+"Antídio Lunelli",
+"Marcius Machado",
+"Marcos da Rosa",
+"Marquito",
+"Marcos Vieira",
+"Matheus Cadorin",
+"Maurício Peixer",
+"Napoleão",
+"Pepe Collaço",
+"Rodrigo Minotto",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "006/2025",
+"ato": "009-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar da Suinocultura",
+"coord": "Altair Silva",
+"membros": [
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"José Milton",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marcos Vieira",
+"Mauro de Nadal",
+"Napoleão",
+"Pepe Collaço",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "005/2025",
+"ato": "008-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar dos Calçados e Componentes",
+"coord": "Altair Silva",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Fabiano da Luz",
+"Ivan Naatz",
+"José Milton",
+"Marcos Vieira",
+"Lucas Neves",
+"Marcos da Rosa",
+"Mauro de Nadal",
+"Napoleão",
+"Pepe Collaço",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "003/2025",
+"ato": "006-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar Frente da Liberdade Econômica e Inovação",
+"coord": "Matheus Cadorin",
+"membros": [
+"Ana Campagnolo",
+"Jessé Lopes",
+"Junior Cardoso",
+"Napoleão",
+"Oscar Gutz",
+"Pepe Collaço",
+"Volnei Weber"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "008/2025",
+"ato": "011-DL",
+"dt": "13/02/2025",
+"nome": "Frente Parlamentar do Bombeiro Voluntário e Terceiro Setor",
+"coord": "Matheus Cadorin",
+"membros": [
+"Alex Brasil",
+"Ana Campagnolo",
+"Camilo Martins",
+"Dr. Vicente Caropreso",
+"Ivan Naatz",
+"Jessé Lopes",
+"Napoleão",
+"Oscar Gutz",
+"Pepe Collaço",
+"Volnei Weber"
+],
+"status": "Arquivado",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "009/2025",
+"ato": "012-DL",
+"dt": "19/02/2025",
+"nome": "Frente Parlamentar da Apicultura e Meliponicultura",
+"coord": "Padre Pedro",
+"membros": [
+"Altair Silva",
+"Fabiano da Luz",
+"Neodi Saretta",
+"Tiago Zilli"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "010/2025",
+"ato": "013-DL",
+"dt": "19/02/2025",
+"nome": "Frente Parlamentar em defesa das pessoas com Transtorno do Espectro Autista",
+"coord": "Pepe Collaço",
+"membros": [
+"Altair Silva",
+"Camilo Martins",
+"Emerson Stein",
+"Jair Miotto",
+"José Milton",
+"Lucas Neves",
+"Luciane Carminatti",
+"Matheus Cadorin",
+"Mauro de Nadal",
+"Paulinha",
+"Rodrigo Minotto"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "014/2025",
+"ato": "017-DL",
+"dt": "19/02/2025",
+"nome": "Frente Parlamentar SANTA CATARINA-CHINA",
+"coord": "Rodrigo Minotto",
+"membros": [
+"Altair Silva",
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Mário Motta",
+"Marquito",
+"Matheus Cadorin",
+"Padre Pedro",
+"Pepe Collaço"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "017/2025",
+"ato": "021-DL",
+"dt": "20/02/2025",
+"nome": "Frente Parlamentar em Defesa das Comunidades Terapêuticas",
+"coord": "Marcos da Rosa",
+"membros": [
+"Antídio Lunelli",
+"Emerson Stein",
+"Jair Miotto",
+"Marcos Vieira",
+"Napoleão",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "015/2025",
+"ato": "018-DL",
+"dt": "19/02/2025",
+"nome": "Frente Parlamentar pela criação de Escolas Cívico-Militares no Estado de Santa Catarina",
+"coord": "Marcos da Rosa",
+"membros": [
+"Antídio Lunelli",
+"Emerson Stein",
+"Jair Miotto",
+"Matheus Cadorin",
+"Napoleão",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "012/2025",
+"ato": "015-DL",
+"dt": "19/02/2025",
+"nome": "Frente Parlamentar de Energias Renováveis",
+"coord": "Padre Pedro",
+"membros": [
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Luciane Carminatti",
+"Marquito"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "011/2025",
+"ato": "014-DL",
+"dt": "19/02/2025",
+"nome": "Frente Parlamentar em Defesa do Serviço Público e das Empresas Públicas",
+"coord": "Fabiano da Luz",
+"membros": [
+"Emerson Stein",
+"Luciane Carminatti",
+"Marcos Vieira",
+"Marquito",
+"Maurício Eskudlark",
+"Napoleão",
+"Nilso Berlanda",
+"Padre Pedro",
+"Tiago Zilli",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "013/2025",
+"ato": "016-DL",
+"dt": "19/02/2025",
+"nome": "Frente Parlamentar de APOIO À ATUAÇÃO NOTARIAL E REGISTRAL",
+"coord": "Napoleão",
+"membros": [
+"Alex Brasil",
+"Ana Campagnolo",
+"Antídio Lunelli",
+"Camilo Martins",
+"Marcos Vieira",
+"Lucas Neves",
+"Mauro de Nadal",
+"Marquito",
+"Nilso Berlanda",
+"Rodrigo Minotto",
+"Tiago Zilli",
+"Volnei Weber",
+"Fabiano da Luz"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "016/2025",
+"ato": "020-DL",
+"dt": "20/02/2025",
+"nome": "Frente Parlamentar pela duplicação da BR-282",
+"coord": "Lucas Neves",
+"membros": [
+"Altair Silva",
+"Ana Campagnolo",
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Marcius Machado",
+"Marcos Vieira",
+"Padre Pedro",
+"Volnei Weber",
+"Marquito",
+"Napoleão",
+"Alex Brasil",
+"Junior Cardoso"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "018/2025",
+"ato": "022-DL",
+"dt": "27/02/2025",
+"nome": "Frente Parlamentar em Defesa da Cadeia Produtiva da Reciclagem",
+"coord": "Volnei Weber",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Marcos Vieira",
+"Napoleão",
+"Marcius Machado",
+"Padre Pedro"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "019/2025",
+"ato": "023-DL",
+"dt": "27/02/2025",
+"nome": "Frente Parlamentar para Acompanhar as Obras nas Serras Catarinenses",
+"coord": "Volnei Weber",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Fabiano da Luz",
+"José Milton",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marcos Vieira",
+"Marquito",
+"Napoleão",
+"Marcius Machado"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "020/2025",
+"ato": "024-DL",
+"dt": "06/03/2025",
+"nome": "Frente Parlamentar da Cadeia Produtiva da Cerveja Catarinense e das Rotas Gastronômicas no Estado de Santa Catarina",
+"coord": "Napoleão",
+"membros": [
+"Alex Brasil",
+"Ana Campagnolo",
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Lucas Neves",
+"Marcos Vieira",
+"Marquito",
+"Rodrigo Minotto",
+"Nilso Berlanda",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": "Requerimento e coordenador divergentes"
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "024/2025",
+"ato": "029-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar em Favor da Recuperação da SC-283",
+"coord": "Marcos Vieira",
+"membros": [
+"Camilo Martins",
+"Fabiano da Luz",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Napoleão",
+"Neodi Saretta",
+"Volnei Weber",
+"Padre Pedro"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "025/2025",
+"ato": "030-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar em Favor da Nova Rota do Milho em Santa Catarina",
+"coord": "Marcos Vieira",
+"membros": [
+"Camilo Martins",
+"Fabiano da Luz",
+"Lucas Neves",
+"Marcos da Rosa",
+"Mauro de Nadal",
+"Napoleão",
+"Neodi Saretta",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "023/2025",
+"ato": "028-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar em Defesa do Transporte Público Integrado e outros Modais da Grande Florianópolis",
+"coord": "Marcos Vieira",
+"membros": [
+"Camilo Martins",
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Napoleão",
+"Volnei Weber",
+"Marcius Machado"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "022/2025",
+"ato": "027-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar em Defesa dos Consórcios Intermunicipais de Saúde",
+"coord": "Marcos Vieira",
+"membros": [
+"Camilo Martins",
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Junior Cardoso",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Napoleão",
+"Neodi Saretta",
+"Pepe Collaço",
+"Volnei Weber",
+"Marcius Machado",
+"Emerson Stein"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "026/2025",
+"ato": "031-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar de Apoio à Segurança Pública",
+"coord": "Alex Brasil",
+"membros": [
+"Ana Campagnolo",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Oscar Gutz",
+"Volnei Weber",
+"Sargento Lima",
+"Sergio Guimarães"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "028/2025",
+"ato": "033-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar de Apoio à Revitalização Urbana da Grande Florianópolis",
+"coord": "Alex Brasil",
+"membros": [
+"Ana Campagnolo",
+"Camilo Martins",
+"Fabiano da Luz",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Oscar Gutz",
+"Volnei Weber",
+"Marquito",
+"Sergio Guimarães"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "027/2025",
+"ato": "032-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar de Apoio aos Policiais Penais e Agentes de Segurança Socioeducativos",
+"coord": "Alex Brasil",
+"membros": [
+"Ana Campagnolo",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Jessé Lopes",
+"Marcius Machado",
+"Marcos Vieira",
+"Oscar Gutz",
+"Sargento Lima",
+"Volnei Weber",
+"Marquito",
+"Sergio Guimarães",
+"Junior Cardoso"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "021/2025",
+"ato": "026-DL",
+"dt": "17/03/2025",
+"nome": "Frente Parlamentar em Defesa da Vida",
+"coord": "Maurício Peixer",
+"membros": [
+"Alex Brasil",
+"Fabiano da Luz",
+"Jessé Lopes",
+"Marcius Machado",
+"Ana Campagnolo"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "039/2025",
+"ato": "046-DL",
+"dt": "08/04/2025",
+"nome": "Frente Parlamentar de Saúde Mental",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Fernando Krelling",
+"Lucas Neves",
+"Marcos Vieira",
+"Padre Pedro"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "041/2025",
+"ato": "048-DL",
+"dt": "08/04/2025",
+"nome": "Frente Parlamentar em Defesa da Transição Energética Justa",
+"coord": "Rodrigo Minotto",
+"membros": [
+"Alex Brasil",
+"Ivan Naatz",
+"Marcos Vieira",
+"Napoleão",
+"Padre Pedro",
+"Fabiano da Luz",
+"Marquito"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "037/2025",
+"ato": "045-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar de Apoio às Cooperativas de Energia de Santa Catarina",
+"coord": "Volnei Weber",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Junior Cardoso",
+"Lucas Neves",
+"Marcius Machado",
+"Marcos da Rosa",
+"Marcos Vieira",
+"Marquito",
+"Napoleão",
+"Rodrigo Minotto"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "030/2025",
+"ato": "038-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar de Apoio a Política Pesqueira de Santa Catarina",
+"coord": "Paulinha",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Junior Cardoso",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marcos Vieira",
+"Marquito",
+"Napoleão",
+"Neodi Saretta",
+"Padre Pedro",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "029/2025",
+"ato": "037-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar pela Região da Associação dos Municípios da Região da Foz do Rio Itajaí (AMFRI)",
+"coord": "Paulinha",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Junior Cardoso",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marcos Vieira",
+"Marquito",
+"Napoleão"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "033/2025",
+"ato": "041-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar dos Portos e Aeroportos do Estado de Santa Catarina",
+"coord": "Marcos Vieira",
+"membros": [
+"Camilo Martins",
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Junior Cardoso",
+"Lucas Neves",
+"Marcos da Rosa",
+"Mauro de Nadal",
+"Napoleão",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Marcius Machado",
+"Marquito",
+"Emerson Stein"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "032/2025",
+"ato": "040-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar de Estudos Técnicos, Científicos e Associativos sobre Cannabis Medicinal",
+"coord": "Sergio Guimarães",
+"membros": [
+"Marquito",
+"Padre Pedro",
+"Volnei Weber",
+"Paulinha"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "031/2025",
+"ato": "039-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar de Apoio ao Comércio Varejista",
+"coord": "Nilso Berlanda",
+"membros": [
+"Altair Silva",
+"Fabiano da Luz",
+"Lucas Neves",
+"Marcos Vieira",
+"Napoleão",
+"Maurício Peixer",
+"Tiago Zilli"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "040/2025",
+"ato": "047-DL",
+"dt": "08/04/2025",
+"nome": "Frente Parlamentar para a Primeira Infância",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Fernando Krelling",
+"Marcos Vieira",
+"Napoleão",
+"Padre Pedro"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "036/2025",
+"ato": "044-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar de Apoio às Redes Femininas de Combate ao Câncer",
+"coord": "Napoleão",
+"membros": [
+"Ana Campagnolo",
+"Antídio Lunelli",
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Junior Cardoso",
+"Lucas Neves",
+"Marcius Machado",
+"Marcos Vieira",
+"Marquito",
+"Padre Pedro",
+"Tiago Zilli",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "035/2025",
+"ato": "043-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar de Apoio aos Vereadores Mirins",
+"coord": "Napoleão",
+"membros": [
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Lucas Neves",
+"Marcius Machado",
+"Marcos Vieira",
+"Marquito",
+"Padre Pedro",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "042/2025",
+"ato": "049-DL",
+"dt": "14/04/2025",
+"nome": "Frente Parlamentar da Juventude",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Fernando Krelling",
+"Lucas Neves",
+"Marcius Machado",
+"Marcos Vieira",
+"Padre Pedro"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "045/2025",
+"ato": "052-DL",
+"dt": "24/05/2025",
+"nome": "Frente Parlamentar em Defesa da Família e da Vida",
+"coord": "Marcos da Rosa",
+"membros": [
+"Antídio Lunelli",
+"Jair Miotto",
+"Marcos Vieira",
+"Napoleão",
+"Volnei Weber",
+"Emerson Stein"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "043/2025",
+"ato": "050-DL",
+"dt": "24/05/2025",
+"nome": "Frente Parlamentar em Apoio às Catadoras e aos Catadores de Materiais Reutilizáveis e Recicláveis",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Lucas Neves",
+"Marcos Vieira",
+"Padre Pedro"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "044/2025",
+"ato": "051-DL",
+"dt": "24/05/2025",
+"nome": "Frente Parlamentar em Apoio aos Objetivos do Desenvolvimento Sustentável - ODS",
+"coord": "Fabiano da Luz",
+"membros": [
+"Marcos Vieira",
+"Marquito",
+"Napoleão",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Sergio Guimarães"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "046/2025",
+"ato": "058-DL",
+"dt": "13/05/2025",
+"nome": "Frente Parlamentar em Defesa da Produção da Maçã",
+"coord": "Lucas Neves",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Fabiano da Luz",
+"José Milton",
+"Marcos Vieira",
+"Marquito",
+"Maurício Eskudlark",
+"Volnei Weber",
+"Marcius Machado",
+"Padre Pedro",
+"Maurício Peixer"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "034/2025",
+"ato": "042-DL",
+"dt": "03/04/2025",
+"nome": "Frente Parlamentar dos Combustíveis",
+"coord": "Napoleão",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Lucas Neves",
+"Marcos Vieira",
+"Rodrigo Minotto",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -615,7 +3212,85 @@
 "ato": "060-DL",
 "dt": "13/06/2025",
 "nome": "Frente Parlamentar para a Transposição da \"Boca da Barra\" / Construção da Ponte Balneário Barra do Sul - Praia do Ervino",
-"coord": "Sargento Lima"
+"coord": "Sargento Lima",
+"membros": [
+"Fernando Krelling",
+"Maurício Eskudlark",
+"Matheus Cadorin",
+"Maurício Peixer"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "048/2025",
+"ato": "062-DL",
+"dt": "03/07/2025",
+"nome": "Frente Parlamentar Evangélica",
+"coord": "Jair Miotto",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Junior Cardoso",
+"Lucas Neves",
+"Marcius Machado",
+"Marcos da Rosa",
+"Napoleão",
+"Sergio Motta"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "049/2025",
+"ato": "063-DL",
+"dt": "10/07/2025",
+"nome": "Frente Parlamentar em Defesa do Povo Tradicional de Matriz Africana - POTMA",
+"coord": "Fabiano da Luz",
+"membros": [
+"Luciane Carminatti",
+"Marcos Vieira",
+"Marquito",
+"Maurício Eskudlark",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Neodi Saretta",
+"Paulinha",
+"Volnei Weber",
+"Mário Motta"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "050/2025",
+"ato": "065-DL",
+"dt": "12/08/2025",
+"nome": "Frente Parlamentar pela Construção da Via Mar - Rodovia paralela a BR 101 entre Joinville e Biguaçu",
+"coord": "Paulinha",
+"membros": [
+"Alex Brasil",
+"Camilo Martins",
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Junior Cardoso",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marcos Vieira",
+"Marquito",
+"Matheus Cadorin",
+"Napoleão",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
 },
 {
 "tipo": "Frente Parlamentar",
@@ -623,7 +3298,681 @@
 "ato": "066-DL",
 "dt": "15/08/2025",
 "nome": "Frente Parlamentar da Silvicultura",
-"coord": "José Milton"
+"coord": "José Milton",
+"membros": [
+"Altair Silva",
+"Antídio Lunelli",
+"Lucas Neves"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "052/2025",
+"ato": "067-DL",
+"dt": "21/08/2025",
+"nome": "Frente Parlamentar em Defesa da Educação no Trânsito",
+"coord": "Paulinha",
+"membros": [
+"Adilson Girard",
+"Fabiano da Luz",
+"Lucas Neves",
+"Marcos Vieira",
+"Mário Motta",
+"Matheus Cadorin",
+"Sergio Motta"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "053/2025",
+"ato": "068-DL",
+"dt": "21/08/2025",
+"nome": "Frente Parlamentar para Fortalecimento da COP-30",
+"coord": "Mauro de Nadal",
+"membros": [
+"Antídio Lunielli",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Ivan Naatz",
+"Mário Motta",
+"Rodrigo Minotto",
+"Tiago Zilli",
+"Volnei Weber",
+"Antídio Lunelli",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Padre Pedro"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "055/2025",
+"ato": "070-DL",
+"dt": "11/09/2025",
+"nome": "Frente Parlamentar em Defesa do Sistema Único da Assistência Social (SUAS)",
+"coord": "Luciane Carminatti",
+"membros": [
+"Fabiano da Luz",
+"Marcos Vieira",
+"Neodi Saretta",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Marquito",
+"Paulinha"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "054/2025",
+"ato": "071-DL",
+"dt": "11/09/2025",
+"nome": "Frente Parlamentar Imobiliária de Santa Catarina",
+"coord": "Marcius Machado",
+"membros": [
+"Marcos Vieira",
+"Oscar Gutz",
+"Adilson Girard",
+"Jessé Lopes",
+"Maurício Eskudlark",
+"Sargento Lima",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "057/2025",
+"ato": "073-DL",
+"dt": "13/10/2025",
+"nome": "Frente Parlamentar do Carnaval em Santa Catarina",
+"coord": "Luciane Carminatti",
+"membros": [
+"Fabiano da Luz",
+"Marquito",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Mário Motta",
+"Neodi Saretta"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "056/2025",
+"ato": "072-DL",
+"dt": "13/10/2025",
+"nome": "Frente Parlamentar em Defesa da Economia Solidária (ECOSOL)",
+"coord": "Luciane Carminatti",
+"membros": [
+"Fabiano da Luz",
+"Marcos Vieira",
+"Marquito",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Maurício Eskudlark",
+"Neodi Saretta"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "058/2025",
+"ato": "074-DL",
+"dt": "15/10/2025",
+"nome": "Frente Parlamentar do Futebol Catarinense",
+"coord": "Mário Motta",
+"membros": [
+"Fernando Krelling",
+"Marcius Machado",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Nilso Berlanda",
+"Rodrigo Minotto",
+"Sargento Lima",
+"Camilo Martins",
+"Lucas Neves",
+"Padre Pedro"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "059/2025",
+"ato": "075-DL",
+"dt": "19/11/2025",
+"nome": "Frente Parlamentar de Apoio aos Servidores Efetivos do Quadro Administrativo da Secretaria de Estado de Justiça e Reintegração Social (SEJURI)",
+"coord": "Alex Brasil",
+"membros": [
+"Ivan Naatz",
+"Jessé Lopes",
+"Lucas Neves",
+"Marcos Vieira",
+"Pepe Collaço",
+"Sargento Lima"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "001/2026",
+"ato": "002-DL",
+"dt": "18/02/2026",
+"nome": "Frente Parlamentar em Defesa da Limpeza e Desassoreamento do Rio Urussanga",
+"coord": "Rodrigo Minotto",
+"membros": [
+"Carlos Humberto",
+"José Milton",
+"Napoleão",
+"Camilo Martins"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "003/2026",
+"ato": "004-DL",
+"dt": "19/02/2026",
+"nome": "Frente Parlamentar Catarinense dos Homens Pelo Fim da Violência Contra a Mulher",
+"coord": "Padre Pedro",
+"membros": [
+"Altair Silva",
+"Fabiano da Luz",
+"Luciane Carminatti",
+"Marcos Vieira",
+"Neodi Saretta",
+"Tiago Zilli",
+"Paulinha",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "002/2026",
+"ato": "003-DL",
+"dt": "18/02/2026",
+"nome": "Frente Parlamentar de Defesa, Indústria de Defesa, Segurança Estratégica e Emprego Dual",
+"coord": "Mauro de Nadal",
+"membros": [
+"Marcos Vieira",
+"Tiago Zilli",
+"Emerson Stein",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "005/2026",
+"ato": "006-DL",
+"dt": "25/02/2026",
+"nome": "Frente Parlamentar da Liberdade Econômica e Inovação",
+"coord": "Matheus Cadorin",
+"membros": [
+"Napoleão",
+"Oscar Gutz",
+"Pepe Collaço",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "004/2026",
+"ato": "005-DL",
+"dt": "25/02/2026",
+"nome": "Frente Parlamentar do Bombeiro Voluntário e Terceiro Setor",
+"coord": "Matheus Cadorin",
+"membros": [
+"Lucas Neves",
+"Marcius Machado",
+"Marcos Vieira",
+"Napoleão",
+"Oscar Gutz",
+"Pepe Collaço",
+"Volnei Weber",
+"Dr. Vicente Caropreso",
+"Fabiano da Luz",
+"Maurício Eskudlark",
+"Neodi Saretta",
+"Paulinha",
+"Sergio Guimarães"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "006/2026",
+"ato": "008-DL",
+"dt": "04/03/2026",
+"nome": "Frente Parlamentar Santa Catarina - Polônia",
+"coord": "Ivan Naatz",
+"membros": [
+"Fabiano da Luz",
+"Sargento Lima",
+"Mário Motta",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "007/2026",
+"ato": "010-DL",
+"dt": "12/03/2026",
+"nome": "Frente Parlamentar Santa Catarina - Portugal",
+"coord": "Rodrigo Minotto",
+"membros": [
+"Carlos Humberto",
+"Fabiano da Luz",
+"Napoleão",
+"Mauro de Nadal"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "008/2026",
+"ato": "011-DL",
+"dt": "01/04/2026",
+"nome": "Frente Parlamentar de Políticas Públicas da População em Situação de Rua",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Fernando Krelling",
+"Marcos Vieira",
+"Lucas Neves",
+"Padre Pedro"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "009/2026",
+"ato": "012-DL",
+"dt": "01/04/2026",
+"nome": "Frente Parlamentar pela Implantação da Zona de Processamento de Exportação (ZPE) de Lages",
+"coord": "Lucas Neves",
+"membros": [
+"Marcius Machado",
+"Nilso Berlanda",
+"Mário Motta"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "010/2026",
+"ato": "016-DL",
+"dt": "28/04/2026",
+"nome": "Frente Parlamentar em Defesa da Produção de Uva e Vinho no Estado de Santa Catarina",
+"coord": "Marcos Vieira",
+"membros": [
+"Camilo Martins",
+"Fabiano da Luz",
+"Fernando Krelling",
+"Lucas Neves",
+"Marcos da Rosa",
+"Marquito",
+"Napoleão",
+"Padre Pedro",
+"Rodrigo Minotto",
+"Volnei Weber",
+"Ana Campagnolo"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "0011/2026",
+"ato": "020-DL",
+"dt": "02/06/2026",
+"nome": "Frente Parlarmentar de Apoio às Guardas Municipais",
+"coord": "Alex Brasil",
+"membros": [
+"Camilo Martins",
+"Matheus Cadorin",
+"Marcius Machado",
+"Sargento Lima",
+"Volnei Weber"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "0012/2026",
+"ato": "022-DL",
+"dt": "17/06/2026",
+"nome": "Frente Parlamentar dos Cuidados Paliativos",
+"coord": "Padre Pedro",
+"membros": [
+"Fabiano da Luz",
+"Neodi Saretta",
+"Rodrigo Minotto"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Frente Parlamentar",
+"rcc": "0013/2026",
+"ato": "028-DL",
+"dt": "18/08/2026",
+"nome": "Frente Parlamentar de Altas Habilidades ou Superdotação",
+"coord": "Fernando Krelling",
+"membros": [
+"Fabiano da Luz",
+"Marcius Machado",
+"Marcos Vieira"
+],
+"status": "Vigente",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "010/2023",
+"ato": "009-DL",
+"dt": "10/02/2023",
+"nome": "FÓRUM PARLAMENTAR DE APOIO AO GOVERNO ABERTO: Transparência, Participação e Inovação dos Serviços Públicos",
+"coord": "Napoleão",
+"membros": [
+"Matheus Cadorin",
+"Jessé Lopes",
+"Volnei Weber",
+"Dr. Vicente Caropreso",
+"Maurício Eskudlark",
+"Ivan Naatz",
+"Fernando Krelling",
+"Delegado Egídio",
+"Paulinha",
+"Rodrigo Minotto",
+"Oscar Gutz",
+"Marquito",
+"Pepe Collaço",
+"Lucas Neves",
+"Marcos Vieira",
+"Fabiano da Luz",
+"Jerry Comper",
+"Tiago Zilli",
+"Mário Motta",
+"Marcos da Rosa",
+"Camilo Martins",
+"Altair Silva",
+"Marcius Machado",
+"Padre Pedro",
+"Antídio Lunelli"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "015/2023",
+"ato": "013-DL",
+"dt": "13/02/2023",
+"nome": "Fórum Parlamentar da Agroecologia e da Produção Orgânica",
+"coord": "Padre Pedro",
+"membros": [
+"Dr. Vicente Caropreso",
+"Ivan Naatz",
+"Altair Silva",
+"Paulinha",
+"Marquito",
+"Julio Garcia",
+"Marcius Machado",
+"Marcos Vieira",
+"Mário Motta",
+"Luciane Carminatti"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "026/2023",
+"ato": "026-DL",
+"dt": "01/02/2023",
+"nome": "Fórum Parlamentar de Práticas Integrativas em Saúde",
+"coord": "Padre Pedro",
+"membros": [
+"Dr. Vicente Caropreso",
+"Neodi Saretta",
+"Marcos Vieira",
+"Mário Motta",
+"Napoleão",
+"Marcius Machado",
+"Altair Silva",
+"Volnei Weber"
+],
+"status": "Concluída",
+"obs": "Não achei o número do Ato no E-Legis"
+},
+{
+"tipo": "Fórum",
+"rcc": "052/2023",
+"ato": "050-DL",
+"dt": "01/03/2023",
+"nome": "Fórum Parlamentar do Aquífero Guarani e das Águas Superficiais",
+"coord": "Padre Pedro",
+"membros": [
+"Paulinha",
+"Marquito",
+"Neodi Saretta",
+"Julio Garcia",
+"Fabiano da Luz",
+"Marcius Machado",
+"Rodrigo Minotto"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "061/2023",
+"ato": "060-DL",
+"dt": "02/03/2023",
+"nome": "Fórum Parlamentar em Defesa das Instituições Comunitárias de Ensino Superior de Santa Catarina",
+"coord": "Napoleão",
+"membros": [
+"Sergio Guimarães",
+"Paulinha",
+"Maurício Eskudlark",
+"Jessé Lopes",
+"Mário Motta",
+"Dr. Vicente Caropreso",
+"Jair Miotto",
+"Volnei Weber",
+"Marcos da Rosa",
+"Matheus Cadorin",
+"Delegado Egídio",
+"Pepe Collaço",
+"Padre Pedro",
+"Ivan Naatz",
+"Fabiano da Luz",
+"Marquito",
+"Lucas Neves",
+"Antídio Lunelli",
+"Marcos Vieira",
+"Altair Silva",
+"Marcius Machado",
+"Oscar Gutz",
+"Rodrigo Minotto",
+"Tiago Zilli",
+"Jerry Comper",
+"Luciane Carminatti",
+"Maurício Peixer"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "066/2023",
+"ato": "066-DL",
+"dt": "09/03/2023",
+"nome": "Fórum Parlamentar para Defesa do Serviço de Facção de Santa Catarina",
+"coord": "Ivan Naatz",
+"membros": [
+"Marcius Machado",
+"Maurício Eskudlark",
+"Altair Silva",
+"Mário Motta",
+"Massoco",
+"Oscar Gutz",
+"Jessé Lopes",
+"Maurício Peixer",
+"Fabiano da Luz",
+"Napoleão"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "073/2023",
+"ato": "075-DL",
+"dt": "15/03/2023",
+"nome": "Fórum Parlamentar para a Soberania e Segurança Alimentar e Nutricional",
+"coord": "Marquito",
+"membros": [
+"Luciane Carminatti",
+"Fabiano da Luz",
+"Paulinha",
+"Padre Pedro",
+"Marcos Vieira",
+"Napoleão",
+"Altair Silva",
+"Ivan Naatz",
+"Matheus Cadorin",
+"Marcius Machado",
+"Maurício Eskudlark",
+"Fernando Krelling"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "029/2023",
+"ato": "087-DL",
+"dt": "10/04/2023",
+"nome": "Fórum Parlamentar de Defesa e Desenvolvimento do Comércio Atacadista e Distribuidor do Estado de Santa Catarina",
+"coord": "Napoleão",
+"membros": [
+"Ivan Naatz",
+"Marcos Vieira",
+"Jessé Lopes",
+"Fabiano da Luz",
+"Marcos da Rosa",
+"Dr. Vicente Caropreso",
+"Maurício Peixer",
+"Maurício Eskudlark",
+"Mário Motta",
+"Paulinha",
+"Matheus Cadorin",
+"Altair Silva",
+"Carlos Humberto",
+"Delegado Egídio",
+"Volnei Weber",
+"Padre Pedro",
+"Lucas Neves",
+"Antídio Lunelli",
+"Marcius Machado",
+"Oscar Gutz",
+"Tiago Zilli",
+"Jerry Comper"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "086/2023",
+"ato": "091-DL",
+"dt": "19/04/2023",
+"nome": "Fórum Parlamentar em Defesa do Consumidor",
+"coord": "Ivan Naatz",
+"membros": [
+"Fabiano da Luz",
+"Neodi Saretta",
+"Maurício Peixer",
+"Maurício Eskudlark",
+"Mário Motta",
+"Oscar Gutz",
+"Altair Silva",
+"Marcius Machado",
+"Padre Pedro",
+"Tiago Zilli",
+"Jessé Lopes",
+"Volnei Weber"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "109/2023",
+"ato": "132-DL",
+"dt": "19/10/2023",
+"nome": "Fórum Parlamentar para a Municipalização de Naufragados",
+"coord": "Pedrão Silvestre",
+"membros": [
+"Fernando Krelling",
+"José Milton",
+"Lucas Neves",
+"Marcos Vieira",
+"Maurício Eskudlark",
+"Paulinha",
+"Pepe Collaço",
+"Marcius Machado",
+"Padre Pedro"
+],
+"status": "Concluída",
+"obs": ""
+},
+{
+"tipo": "Fórum",
+"rcc": "110/2023",
+"ato": "133-DL",
+"dt": "25/10/2023",
+"nome": "Fórum Parlamentar de Justiça do Bem Viver - Teko Porã",
+"coord": "Marquito",
+"membros": [
+"Fabiano da Luz",
+"Luciane Carminatti",
+"Marcius Machado",
+"Neodi Saretta",
+"Padre Pedro",
+"Pedrão Silvestre",
+"Rodrigo Minotto",
+"Vanessa da Rosa"
+],
+"status": "Concluída",
+"obs": ""
 }
 ]
 }
