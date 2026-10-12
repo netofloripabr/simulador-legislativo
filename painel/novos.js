@@ -44,7 +44,7 @@ const ir = (n) => { history.pushState(null, "", "?d=" + n); perfil(n); };
 
 // ---------------- perfil ----------------
 function perfil(n) {
-  const c = D.c.find((x) => x.n === n); if (!c) return telaSelecao();
+  const c = D.c.find((x) => x.n === n); if (!c) return telaSelecao(); window._cAtual = c;
   tingir(COR_P[c.p] || "#34E84A");
   const E = eleitos(), pos = E.findIndex((x) => x.n === n) + 1, idx = [...Array(N).keys()], ordM = idx.filter((i) => c.v[i]).sort((a, b) => c.v[b] - c.v[a]), i0 = ordM[0];
   const posBase = D.c.filter((x) => (x.v[i0] || 0) > c.v[i0]).length + 1, pctMax = Math.max(...idx.map((i) => D.val[i] ? c.v[i] / D.val[i] : 0)), iPct = idx.find((i) => D.val[i] && c.v[i] / D.val[i] === pctMax);
@@ -368,8 +368,25 @@ function setaFlutuante() { let b = $("#setaF"); if (!b) { b = Object.assign(docu
   const prox = alvos.find(([a]) => topoDe(a) > y + 40); if (!prox || !$("#s1")) { b.classList.remove("vis"); return; }
   b.dataset.ir = prox[0]; b.innerHTML = `<b>↓</b><span>${esc(prox[1])}</span>`; b.classList.add("vis"); clearTimeout(SETA_T); }
 addEventListener("scroll", () => { const b = $("#setaF"); if (b) b.classList.remove("vis"); clearTimeout(SETA_T); SETA_T = setTimeout(setaFlutuante, 450); }, { passive: true });
+// Administrativo: total no cabeçalho de cada aba + botão "i" com a base de dados e o significado (bruto/líquido)
+function decorarAdm() { const c = window._cAtual; if (!c || !$("#s3")) return; const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, F = (window.FOLHA_GAB || {});
+  const par = PA.subsidio * (1 + PA.gestao_demais) + PA.aux_saude + PA.aux_alim, gab = G.cota + G.chefe + G.retrib, T = (EST.liderancas || {}).tabela || {}, lid = (T[Math.min(9, nbanc(c.p))] || {}).cota || 0;
+  const casa = Object.entries(EST.grupos || {}).filter(([g, L]) => !/Comiss/.test(g)).reduce((s2, [g, L]) => s2 + L.reduce((a, x) => a + x.t, 0), 0);
+  const BR = "Todos os valores são <b>brutos</b> (antes de imposto de renda e previdência), exceto as verbas indenizatórias, que não sofrem desconto.";
+  const M2 = {
+    "Subsídio e verbas do parlamentar": [par, `Base: Lei 18.642/2023 (subsídio), LC 828/2023 art. 18 com redação da Lei 19.606/2025 (Gestão Executiva, 45%; 50% para o Presidente da Mesa), Atos da Mesa 002/2015 e 021/2025 (auxílios) e contracheques de 09/2026 do portal da transparência. <b>Subsídio</b>: remuneração do mandato, sofre IR e previdência. <b>Gestão Executiva</b>: verba indenizatória, sem IR; o empenho de 09/2026 mostra que os 40 recebem. <b>Auxílios</b>: saúde (15% do subsídio) e alimentação. ${BR} O líquido varia de deputado para deputado (regime de previdência, dependentes, consignações), por isso o app trabalha com o bruto.`],
+    "Estrutura do gabinete": [gab + C.base + C.moradia, `Base: Res. 002/2006 Anexo IX-F (LC 870/2025) para os cargos do gabinete; LC 858/2024 para o Chefe de Gabinete (PL/DAS-7); Ato da Mesa 066/2024 art. 12 (cota de custeio) e Ato 329/2024 (escritório). <b>Cota de nomeações</b>: teto mensal para até 27 Secretários Parlamentares. <b>Chefe de Gabinete</b>: valor do cargo PL/DAS-7 na tabela; o contracheque real pode ser maior por adicionais pessoais (tempo de serviço, vantagens incorporadas). Referência real: a folha bruta média de um gabinete em 09/2026 foi de R$ 223,3 mil (mín. 174,0 mil, máx. 279,8 mil). <b>Cota de custeio</b>: verba para diárias, passagens, telefone, divulgação, escritório e veículo; o saldo acumula no ano. ${BR}`],
+    "Simulador de gabinete": [COTA_GAB, `Base: tabela de níveis PL/GAB (120 níveis, índice × R$ ${nf(GAB_VAL, 2)}) e cota de 525,27 pontos (Res. 002/2006 Anexo IX-F). O simulador soma o nível escolhido para cada pessoa e compara com a cota. Chefe de Gabinete fica fora da cota. Valores brutos.`],
+    "Liderança": [lid, `Base: Res. 002/2006 Anexo IX-C (cargos e cota da liderança conforme o tamanho da bancada; 9 ou mais deputados = 14 cargos), índice de cota × R$ 356,34; folha atual das lideranças pelos contracheques de 09/2026; adicional do líder no Ato da Mesa 066/2024. Valores brutos.`],
+    "A estrutura da Casa": [casa, `Base: contracheques de 09/2026 do portal da transparência da ALESC (1ª aba, valor bruto), somados por lotação. Cargos comissionados, funções de confiança (FC/FG) e gratificações de exercício por estrutura. Não inclui gabinetes parlamentares nem comissões. ${BR}`],
+    "O mandato em números": [par + gab + C.base + C.moradia, `Soma das três partes na capacidade máxima: parlamentar (subsídio, Gestão Executiva e auxílios), gabinete (cota cheia, chefe e gratificações) e verbas (cota de custeio e moradia). Funções extras (Mesa, presidência de comissão, liderança) somam a isso. ${BR}`] };
+  document.querySelectorAll("#s3 .bloco > h3").forEach((h) => { if (h.querySelector(".adt")) return; const k = Object.keys(M2).find((t) => h.textContent.trim().startsWith(t)); if (!k) return; const [v, tx] = M2[k];
+    h.insertAdjacentHTML("beforeend", `<span class="adt">${fm(v)}<small>/mês</small></span><button class="ib" title="Base dos dados">i</button>`);
+    h.insertAdjacentHTML("afterend", `<div class="ibx" hidden>${tx}</div>`);
+    h.querySelector(".ib").onclick = (e) => { e.stopPropagation(); const b = h.parentElement, x = b.querySelector(".ibx"); b.classList.remove("fech"); x.hidden = !x.hidden; }; }); }
 function revelar() { setTimeout(setaFlutuante, 2500); document.querySelectorAll(".bloco").forEach((b) => b.classList.add("fech"));
   document.querySelectorAll("[data-tg]").forEach((b) => b.onclick = () => { const cs = $("#cs-" + b.dataset.tg), f = !cs.hidden; cs.hidden = f; b.textContent = f ? "+" : "−"; });
+  decorarAdm();
   document.querySelectorAll(".bloco > h3").forEach((h) => { if (!(h.nextElementSibling && h.nextElementSibling.classList.contains("blc"))) { const w = document.createElement("div"); w.className = "blc"; while (h.nextSibling) w.appendChild(h.nextSibling); h.after(w); } h.dataset.bl = 1; h.onclick = () => h.parentElement.classList.toggle("fech"); });
   const nav = $(".topo .secs"); if (nav && $("#s1")) { const io3 = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) nav.querySelectorAll("a[data-s]").forEach((a) => a.classList.toggle("on", a.dataset.s === e.target.id)); }), { rootMargin: "-40% 0px -55% 0px" }); ["hero", "s1", "s2", "s3"].forEach((id) => $("#" + id) && io3.observe($("#" + id))); }
   const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -12% 0px" });
