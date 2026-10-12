@@ -16,7 +16,7 @@ const GAB_IDX = [1.6863,1.7441,1.8039,1.8658,1.9298,1.9959,2.0644,2.1352,2.2084,
 
 async function carregar() {
   const [b, d, e] = await Promise.all([fetch(`../dados/painel/sc-base.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/sc-estadual.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/mesa-estruturas.json?v=11`).then((r) => r.json()).catch(() => ({}))]);
-  FF = await fetch(`../dados/painel/frentes-foruns.json?v=2`).then((r) => r.json()).catch(() => ({ itens: [] }));
+  FF = await fetch(`../dados/painel/frentes-foruns.json?v=3`).then((r) => r.json()).catch(() => ({ itens: [] }));
   A22 = await fetch(`../dados/painel/alesc-2022.json?v=1`).then((r) => r.json()).catch(() => ({}));
   M = b.mun; N = M.length; CONT = b.contorno; D = d; EST = e; VAL = d.val.reduce((s, x) => s + x, 0);
 }
@@ -223,8 +223,9 @@ function ligarPolitica(c) {
   BLOCO = [c.p]; COLOC = Array(24).fill(0); desenha();
   const ffb = $("#ffbt"); if (ffb) ffb.onclick = () => { const L = $("#fflista"), ab = L.hidden; L.hidden = !ab; ffb.classList.toggle("on", ab); ffb.querySelector("b").textContent = ab ? "↑" : "↓";
     if (ab && !L.innerHTML) { const nm = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(), eu = nm(c.u);
-      const G = {}; FF.itens.forEach((x) => (G[x.coord] = G[x.coord] || []).push(x));
-      L.innerHTML = Object.entries(G).sort((a2, b2) => b2[1].length - a2[1].length).map(([co, it]) => `<div class="ffg${nm(co) === eu ? " eu" : ""}"><div class="ffc"><b>${esc(co)}</b><span>${it.length}</span></div>${it.map((x) => `<div class="ffi"><span>${esc(x.nome.replace(/^Frente Parlamentar /, "").replace(/^Fórum Parlamentar /, ""))}</span><small>${/F[óo]rum/.test(x.tipo) ? "Fórum" : "Frente"} · ${esc(x.dt)}</small></div>`).join("")}</div>`).join(""); } };
+      const bloco = (tit, L0) => { const G = {}; L0.forEach((x) => (G[x.coord] = G[x.coord] || []).push(x));
+        return `<div class="fft"><b>${tit}</b><span>${L0.length}</span></div><div class="ffcols">${Object.entries(G).sort((a2, b2) => b2[1].length - a2[1].length || a2[0].localeCompare(b2[0])).map(([co, it]) => `<div class="ffg${nm(co) === eu ? " eu" : ""}"><div class="ffc"><b>${esc(co)}</b><span>${it.length}</span></div>${it.map((x) => `<div class="ffi"><span>${esc(x.nome)}</span><small>${esc(x.dt)}</small></div>`).join("")}</div>`).join("")}</div>`; };
+      L.innerHTML = bloco("Frentes parlamentares", FF.itens.filter((x) => !/F[óo]rum/.test(x.tipo))) + bloco("Fóruns parlamentares", FF.itens.filter((x) => /F[óo]rum/.test(x.tipo))); } };
   // liderança (seção Administrativo)
   const T = (EST.liderancas || {}).tabela || {}, nb = nbanc(c.p), e = T[Math.min(9, nb)] || {}, F = ((EST.liderancas || {}).folha || {})[c.p];
   $("#lid").innerHTML = `<table class="qtab"><tr><td>Bancada<small>deputados do ${esc(c.p)} em 2027</small></td><td>${nb}</td></tr><tr><td>Cargos da liderança<small>Secretário Parlamentar PL/GAL · Res. 002/2006, Anexo IX-C</small></td><td>até ${e.cargos || "—"}</td></tr><tr><td>Cota mensal da liderança<small>índice de cota × R$ 356,34</small></td><td>${fm(e.cota || 0)}</td></tr>${F ? `<tr><td>Folha atual da liderança<small>contracheques 09/2026</small></td><td>${fm(F)}</td></tr>` : ""}<tr><td>Adicional de cota do líder<small>Ato da Mesa 066/2024, não cumulativo</small></td><td>${fm(((EST.cota_custeio || {}).ad_pres_lider) || 0)}</td></tr></table>`;
