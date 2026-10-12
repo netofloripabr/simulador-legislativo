@@ -10,12 +10,13 @@ const foto = (n) => `../dados/fotos/sc-2026/estadual/${n}.jpg`;
 const COR_P = { "NOVO": "#F37021", "PL": "#3D7BFF", "PT/PC do B/PV": "#E5383B", "MDB": "#34C759", "UNIÃO/PP": "#2FB5E8", "PSD": "#F2C230", "REPUBLICANOS": "#4D8DFF", "PODE": "#3FB37F", "PDT": "#E5484D", "PSOL/REDE": "#F5B700" };
 const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)).join(",");
 const tingir = (cor) => { document.documentElement.style.setProperty("--a", cor); document.documentElement.style.setProperty("--a-rgb", hexRgb(cor)); };
-let M, N, CONT, D, VAL, EST, A22 = {}, AB = { painel: 0 };
+let M, N, CONT, D, VAL, EST, FF = { itens: [] }, A22 = {}, AB = { painel: 0 };
 // índices de vencimento PL/GAB, níveis 1–120 (Res. 002/2006, Anexo VII-E); salário = índice × R$ 296,55 (contracheques 09/2026)
 const GAB_IDX = [1.6863,1.7441,1.8039,1.8658,1.9298,1.9959,2.0644,2.1352,2.2084,2.2841,2.3624,2.4434,2.5272,2.6139,2.7035,2.7962,2.8992,2.9912,3.0938,3.1999,3.3096,3.4231,3.5405,3.6619,3.7875,3.9173,4.0517,4.1906,4.3343,4.4829,4.6366,4.7956,4.9600,5.1301,5.3060,5.4879,5.6761,5.8708,6.0721,6.2803,6.4956,6.7184,6.9487,7.1870,7.4334,7.6890,7.9527,8.2253,8.5074,8.7991,9.1008,9.4129,9.7356,10.0695,10.4147,10.7718,11.1412,11.5232,11.9183,12.3270,12.7498,13.1871,13.6394,14.1072,15.0901,15.6077,16.1430,16.6967,17.2694,17.8617,18.9334,20.0694,21.2735,22.5499,23.9029,25.6503,27.3976,29.1449,30.8922,32.6395,34.3868,36.1341,37.8814,39.6287,41.3760,43.1233,44.8706,46.6179,48.3652,50.1125,51.8598,53.6071,55.3544,57.1017,58.8490,60.5963,62.3436,64.0909,65.8382,67.5873,69.3364,71.0855,72.8346,74.5837,76.3328,78.0819,79.8310,81.5801,83.3292,85.0783,86.8274,88.5765,90.3256,92.0747,93.8238,95.5729,97.3220,99.0711,100.8202,102.5693], GAB_VAL = 296.55, COTA_GAB = 525.27 * 296.55;
 
 async function carregar() {
   const [b, d, e] = await Promise.all([fetch(`../dados/painel/sc-base.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/sc-estadual.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/mesa-estruturas.json?v=11`).then((r) => r.json()).catch(() => ({}))]);
+  FF = await fetch(`../dados/painel/frentes-foruns.json?v=1`).then((r) => r.json()).catch(() => ({ itens: [] }));
   A22 = await fetch(`../dados/painel/alesc-2022.json?v=1`).then((r) => r.json()).catch(() => ({}));
   M = b.mun; N = M.length; CONT = b.contorno; D = d; EST = e; VAL = d.val.reduce((s, x) => s + x, 0);
 }
@@ -167,7 +168,14 @@ function secPolitica(c) {
     <p class="nota">2022: resultado da eleição (antes das trocas de partido). Federações de 2026 somam os partidos que a compõem (UNIÃO/PP = União + PP; PT/PC do B/PV = PT; PSOL/REDE = PSOL).</p></div></div>
     <div class="bloco rv"><h3 data-bl>Comissões: ${esc(c.p)}</h3><div class="blc"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). O ${esc(c.p)} vem marcado; marque ou desmarque partidos para simular qualquer bloco.</p>
     <div class="chips" id="blocoP">${ps.map((p) => `<button data-bp="${esc(p)}" class="${p === c.p ? "on" : ""}">${esc(p)} · ${nbanc(p)}</button>`).join("")}</div><div id="quoc"></div>
-    <div class="gcom3"><div class="gcom" id="gcom"></div></div><div class="distr" id="distr"></div></div></div>`;
+    <div class="gcom3"><div class="gcom" id="gcom"></div></div><div class="distr" id="distr"></div></div></div>
+    <div class="bloco rv"><h3 data-bl>Frentes e fóruns parlamentares</h3><div class="blc"><p>Grupos suprapartidários de deputados em torno de um tema: setor econômico, região, obra, causa social. Não votam projetos; mobilizam, debatem e levam pautas ao governo e às comissões.</p>
+    <div class="ffx"><div><b>Frente parlamentar</b><span>Criada por requerimento de deputados e formalizada por ato da Mesa. Precisa de no mínimo <b>4 deputados</b> para ser instalada e dura <b>365 dias</b>, prorrogáveis uma única vez pelo mesmo período. Coordena o primeiro signatário.</span></div><div><b>Fórum parlamentar</b><span>Espaço permanente de debate de um tema com a sociedade civil e órgãos públicos, também coordenado por um deputado.</span></div><div><b>O que fazem</b><span>Reuniões, audiências públicas, seminários, visitas técnicas, relatórios e proposições apresentadas pelos membros.</span></div></div>
+    <button class="ffbt" id="ffbt"><b>↓</b><span>Ver as ${FF.itens.length} frentes e fóruns ativos</span></button><div class="fflista" id="fflista" hidden></div>
+    <p class="nota">Fonte: ${esc(FF.fonte || "ALESC")}. Legislatura 2023–2027; novas frentes são criadas a partir de 2027. Regras: Regimento Interno (Res. 001/2019).</p></div></div>
+    <div class="bloco rv"><h3 data-bl>Eventos: audiências, seminários e sessões</h3><div class="blc"><p>Além das votações, o mandato aparece nos eventos que promove na Casa ou no interior.</p>
+    <div class="ffx"><div><b>Audiência pública</b><span>Requerida por deputado e aprovada pela comissão; ouve sociedade, especialistas e governo sobre um tema ou projeto. Pode ocorrer fora da Capital.</span></div><div><b>Seminário e fórum de debate</b><span>Evento temático, em geral ligado a uma comissão ou frente, com palestrantes e público.</span></div><div><b>Sessão especial e solene</b><span>Sessão do Plenário para homenagens, datas comemorativas e entregas de honrarias, a pedido de deputado.</span></div><div><b>Visita técnica e diligência</b><span>Ida de comissão ou frente a obras, órgãos e municípios para verificar situações e produzir relatório.</span></div></div>
+    <p class="nota">Conferir no Regimento Interno os prazos e requisitos de cada tipo de evento.</p></div></div>`;
 }
 // vagas no conjunto das comissões do mesmo tamanho (k comissões de n membros): direito = k × deputados ÷ quociente;
 // parte inteira garantida, depois 1 vaga reservada por comissão aos partidos com menos de 5, e o resto às maiores frações
@@ -213,6 +221,10 @@ function ligarPolitica(c) {
       if (aceso) COLOC[j]--; else if (livre > 0 && COLOC[j] < (n9 ? lim9 : lim7)) COLOC[j]++; desenha(); }; };
   $("#blocoP").onclick = (e) => { const b = e.target.closest("[data-bp]"); if (!b) return; const p = b.dataset.bp; BLOCO = BLOCO.includes(p) ? BLOCO.filter((x) => x !== p) : [...BLOCO, p]; b.classList.toggle("on"); desenha(); };
   BLOCO = [c.p]; COLOC = Array(24).fill(0); desenha();
+  const ffb = $("#ffbt"); if (ffb) ffb.onclick = () => { const L = $("#fflista"), ab = L.hidden; L.hidden = !ab; ffb.classList.toggle("on", ab); ffb.querySelector("b").textContent = ab ? "↑" : "↓";
+    if (ab && !L.innerHTML) { const nm = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(), eu = nm(c.u);
+      const G = {}; FF.itens.forEach((x) => (G[x.coord] = G[x.coord] || []).push(x));
+      L.innerHTML = Object.entries(G).sort((a2, b2) => b2[1].length - a2[1].length).map(([co, it]) => `<div class="ffg${nm(co) === eu ? " eu" : ""}"><div class="ffc"><b>${esc(co)}</b><span>${it.length}</span></div>${it.map((x) => `<div class="ffi"><span>${esc(x.nome.replace(/^Frente Parlamentar /, "").replace(/^Fórum Parlamentar /, ""))}</span><small>${/F[óo]rum/.test(x.tipo) ? "Fórum" : "Frente"} · ${esc(x.dt)}</small></div>`).join("")}</div>`).join(""); } };
   // liderança (seção Administrativo)
   const T = (EST.liderancas || {}).tabela || {}, nb = nbanc(c.p), e = T[Math.min(9, nb)] || {}, F = ((EST.liderancas || {}).folha || {})[c.p];
   $("#lid").innerHTML = `<table class="qtab"><tr><td>Bancada<small>deputados do ${esc(c.p)} em 2027</small></td><td>${nb}</td></tr><tr><td>Cargos da liderança<small>Secretário Parlamentar PL/GAL · Res. 002/2006, Anexo IX-C</small></td><td>até ${e.cargos || "—"}</td></tr><tr><td>Cota mensal da liderança<small>índice de cota × R$ 356,34</small></td><td>${fm(e.cota || 0)}</td></tr>${F ? `<tr><td>Folha atual da liderança<small>contracheques 09/2026</small></td><td>${fm(F)}</td></tr>` : ""}<tr><td>Adicional de cota do líder<small>Ato da Mesa 066/2024, não cumulativo</small></td><td>${fm(((EST.cota_custeio || {}).ad_pres_lider) || 0)}</td></tr></table>`;
