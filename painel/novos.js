@@ -477,7 +477,7 @@ addEventListener("message", (e) => { if (e.origin === location.origin && e.data 
 function topoDe(a) { const fr = $("#emb"); if (a.startsWith("emb:")) { const el = fr && fr.contentDocument && fr.contentDocument.querySelector(a.slice(4)); return el ? fr.getBoundingClientRect().top + scrollY + el.getBoundingClientRect().top : 1e9; } const el = $("#" + a); return el ? el.getBoundingClientRect().top + scrollY : 1e9; }
 let SETA_T = 0;
 // contato do Neto: aparece no canto inferior direito em momentos-chave (20 s na página e ao chegar no Administrativo), no máximo 2x por sessão; clique fecha
-const NETO_ON = false; // protótipo aguardando aprovação do usuário
+const NETO_ON = true; // aprovado em 13/10/2026, só na página Parlamentares
 function contatoNeto(motivo) { if (!NETO_ON && motivo !== "teste") return; let n = 0; try { if (sessionStorage.getItem("sl_neto_x")) return; n = +sessionStorage.getItem("sl_neto_n") || 0; if (n >= 2 || sessionStorage.getItem("sl_neto_" + motivo)) return; sessionStorage.setItem("sl_neto_" + motivo, 1); sessionStorage.setItem("sl_neto_n", n + 1); } catch (e) {}
   if ($("#netoC")) return; const d = Object.assign(document.createElement("button"), { id: "netoC", className: "netoC", title: "Fechar" });
   d.innerHTML = `<span class="nb"><small>Dúvidas e sugestões:</small><b>Neto</b><em>(48) 99120-5200</em></span><img src="../dados/fotos/equipe/neto.png" alt="Neto">`;
