@@ -708,6 +708,7 @@ document.addEventListener("click", (e) => { const m = $("#rkFiltroMenu"); if (m 
 
 // ---------------- embutido (aba Parlamentares) ----------------
 // filtros pré-selecionados vindos da página de fora: recorte, comparação, lente, ranking por partido
+window.painelEstado = () => ({ rec: st.rec, b: st.b ? st.b.n : null, lente: st.lente }); // lido pela página Parlamentares para salvar o recorte
 window.painelPreset = (o) => {
   if ("rec" in o) st.rec = o.rec; if ("b" in o) st.b = o.b ? { cargo: "estadual", n: o.b } : null; if (o.lente) st.lente = o.lente; st.sel = -1; st.abertos = {};
   if (o.vista === "ranking") { rk.partido = o.partido || ""; rk.rec = o.rec || null; rk.aberto = null; trocarVista("ranking"); montarRanking(); return; }

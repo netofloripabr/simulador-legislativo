@@ -1447,5 +1447,20 @@ const MIGRACOES_INDEX = [
     "admin_visitas"
    ]
   ]
+ },
+ {
+  "num": 64,
+  "arquivo": "migracao-64-parlamentar-rascunhos.sql",
+  "descricao": "Migração 64: rascunhos da página Parlamentares salvos na conta (pedido do usuário em 13/10/2026).",
+  "objetos": [
+   [
+    "table",
+    "parlamentar_rascunhos"
+   ],
+   [
+    "policy",
+    "parlamentar_rascunhos_dono"
+   ]
+  ]
  }
 ];

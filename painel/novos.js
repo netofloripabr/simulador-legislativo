@@ -56,13 +56,16 @@ function perfil(n) {
   $("#app").innerHTML = `<section class="hero" id="hero"><div class="luz"></div><canvas id="heroCv"></canvas><div id="etqs"></div>
     <div class="txt"><img class="ftp" src="${foto(n)}" alt=""><div class="olho" style="margin-top:14px">Eleições 2026 · Deputado estadual · ${esc(c.p)}</div><h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") : c.u)}<i>${esc(nm.length > 1 ? nm.slice(-1)[0] + "." : "")}</i></h1>
     <div class="pops">${[[ni(c.t), "votos", 1], [`${pos}º`, "entre os 40 eleitos"], [`${nf(c.t / VAL * 100, 2)}%`, "dos válidos"], [`${posBase}º`, "em " + M[i0].n], [`${nf(pctMax * 100)}%`, "em " + M[iPct].n + ", seu maior índice"], [ordM.length, "municípios com voto"]].map(([v, r, a], k) => `<div style="animation-delay:${.5 + k * .55}s"><b class="${a ? "a" : ""}">${esc(v)}</b><span>${esc(r)}</span></div>`).join("")}</div>
-    <div style="display:flex;gap:10px;margin-top:22px"><button class="btn" id="caderno">Imprimir caderno</button><button class="btn sec" id="trocar">Trocar parlamentar</button></div></div></section>
+    <div style="display:flex;gap:10px;margin-top:22px"><button class="btn" id="caderno">Imprimir caderno</button><button class="btn sec" id="trocar">Trocar parlamentar</button><button class="btn sec" id="salvarConta" title="Guarda o que você montou nesta página na sua conta, para abrir em outro aparelho">Entrar para salvar</button></div></div></section>
     ${secEleitoral(c)}${secLegislativo(c)}${secAdministrativo(c)}`;
   $("#trocar").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(n); };
   $(".topo .sep").textContent = c.u; $(".topo .sep").style.cursor = "pointer"; $(".topo .sep").title = "Trocar parlamentar"; $(".topo .sep").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(c.n); }; const sx = $(".topo .secs") || $(".topo .sep").insertAdjacentElement("afterend", Object.assign(document.createElement("nav"), { className: "secs" })); sx.innerHTML = `<a href="#s1" data-s="s1">Eleitoral</a><a href="#s2" data-s="s2">Legislativo</a><a href="#s3" data-s="s3">Administrativo</a>`;
   $(".vistas").innerHTML = `<a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a>`;
   heroMapa(c, ordM); ligarEleitoral(c, ordM); ligarPolitica(c); ligarGabinete(c); revelar(); scrollTo(0, 0);
   $("#caderno").onclick = () => caderno(c, ordM); window._ordM = ordM;
+  $("#salvarConta").onclick = (e) => salvarConta(c, e.currentTarget);
+  if (window._daConta !== n) carregarConta(c); window._daConta = null;
+  clearInterval(window._salvaPainelT); window._salvaPainelT = setInterval(salvarPainelLocal, 4000);
 }
 const cabSec = (id, num, tit, lead) => `<section class="secao" id="${id}"><div class="wrap"><div class="tag rv"><button class="tg ab" data-tg="${id}" title="Recolher ou abrir">−</button><h2>${tit}</h2><p class="lead">${lead}</p></div><div class="corpoSec" id="cs-${id}">`;
 const ROT = { s1: "Eleitoral", s2: "Legislativo", s3: "Administrativo" };
@@ -72,7 +75,7 @@ const fimSec = () => `</div></div></section>`;
 // 01 · Eleitoral: Painel completo embutido (sanfona aberta) com filtros prontos
 function secEleitoral(c) {
   return `<section class="secao s1" id="s1"><div class="wrap"><div class="tag rv"><button class="tg${AB.painel ? " on ab" : ""}" data-sec="painel" title="Recolher ou abrir">${AB.painel ? "−" : "+"}</button><h2>Eleitoral</h2><p class="lead">Onde estão os votos: mapa, distribuição, perfil das cidades, comparação e ranking.</p></div><div>
-    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="elg"><iframe class="emb" id="emb" src="index.html?embed=1&v=34&cargo=estadual&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe><aside class="cid" id="cid" hidden></aside></div></div></div></div></section>`;
+    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="elg"><iframe class="emb" id="emb" src="index.html?embed=1&v=35&cargo=estadual&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe><aside class="cid" id="cid" hidden></aside></div></div></div></div></section>`;
 }
 function ligarEleitoral(c, ordM) {
   const base = M[ordM[0]], reg = base.meso, leg = D.c.filter((x) => x.p === c.p && x.n !== c.n).sort((a, b) => b.t - a.t)[0], E = eleitos(), k = E.findIndex((x) => x.n === c.n), viz = E[k ? k - 1 : 1];
@@ -87,7 +90,7 @@ function ligarEleitoral(c, ordM) {
     const fl = dd.querySelector("#painel .filtros"); if (fl && !dd.querySelector(".presets")) { (dd.querySelector("#recBusca") || fl.querySelector(".btn-rel")).insertAdjacentHTML(dd.querySelector("#recBusca") ? "afterend" : "beforebegin", `<div class="presets">${chipsHtml}</div>`);
       dd.querySelector(".presets").onclick = (e) => { const b = e.target.closest("[data-p]"); if (!b) return; dd.querySelectorAll(".presets button").forEach((x) => x.classList.toggle("on", x === b)); const y0 = scrollY, cvx = dd.querySelector("#cv"); cvx && cvx.classList.add("troca"); w.painelPreset(P[+b.dataset.p][1]); requestAnimationFrame(() => { scrollTo({ top: y0, behavior: "instant" }); cvx && requestAnimationFrame(() => cvx.classList.remove("troca")); }); setTimeout(() => scrollTo({ top: y0, behavior: "instant" }), 120); }; }
     const rk = dd.querySelector("#ranking"); if (rk && rk.hidden) { rk.hidden = false; rk.classList.add("embRk", "fech"); rk.insertAdjacentHTML("afterbegin", `<section class="tabela rkH"><h3><button class="tgTab" title="Recolher ou abrir">+</button>Ranking dos candidatos</h3></section>`); montarVmg(dd, cor); const tb0 = dd.querySelector("#tabela"); if (tb0) { tb0.classList.add("fech"); const b0 = tb0.querySelector(".tgTab"); if (b0) b0.textContent = "+"; } let k = 0; const tenta = () => { try { w.montarRanking(); } catch (e) {} if (!dd.querySelector("#rkTab").innerHTML && k++ < 30) setTimeout(tenta, 300); }; tenta(); }
-    const aj = () => { const vis = [...dd.querySelectorAll("#painel, #ranking, .aviso")].filter((x) => !x.hidden && x.offsetParent !== null); fr.style.height = Math.ceil(Math.max(400, ...vis.map((x) => x.getBoundingClientRect().bottom + dd.defaultView.scrollY)) + 12) + "px"; }; fr._aj = aj; aj(); new ResizeObserver(aj).observe(dd.body); }; try { const d0 = fr.contentDocument; if (d0 && d0.readyState === "complete" && d0.location.href !== "about:blank") fr.onload(); } catch (e) {} // já carregou antes do handler
+    const aj = () => { const vis = [...dd.querySelectorAll("#painel, #ranking, .aviso")].filter((x) => !x.hidden && x.offsetParent !== null); fr.style.height = Math.ceil(Math.max(400, ...vis.map((x) => x.getBoundingClientRect().bottom + dd.defaultView.scrollY)) + 12) + "px"; }; fr._aj = aj; aj(); new ResizeObserver(aj).observe(dd.body); { const pv = lerP(window._cAtual || {}).painel; if (pv && !fr._restaurou && w.painelPreset) { fr._restaurou = 1; try { w.painelPreset({ rec: pv.rec || null, b: pv.b || null, lente: pv.lente || "mapa" }); } catch (e) {} } } }; try { const d0 = fr.contentDocument; if (d0 && d0.readyState === "complete" && d0.location.href !== "about:blank") fr.onload(); } catch (e) {} // já carregou antes do handler
   document.querySelector('[data-sec="painel"]').onclick = (e) => { AB.painel = !AB.painel; $("#c-painel").hidden = !AB.painel; e.currentTarget.classList.toggle("on", AB.painel); e.currentTarget.textContent = AB.painel ? "−" : "+"; e.currentTarget.classList.toggle("ab", !!AB.painel); const fe = $("#emb"); if (AB.painel && fe) { if (!fe.style.height) try { fe.onload && fe.onload(); } catch (x) {} [100, 600, 1500].forEach((t) => setTimeout(() => fe._aj && fe._aj(), t)); } };
 }
 
@@ -232,9 +235,9 @@ function ligarPolitica(c) {
     const col = (nmc, n, j) => `<div class="cc${COLOC[j] ? " tem" : ""}" data-cc="${j}"><span>${nmc}</span><div class="pts">${Array.from({ length: n }, (_, q) => `<i class="${q < COLOC[j] ? "meu" : ""}"></i>`).join("")}</div></div>`;
     $("#gcom").innerHTML = `<div class="g9"><div class="cols">${COMS9.map((nmc, j) => col(nmc, 9, j)).join("")}</div>${pool(v.v9 - u9, `${v.v9 - u9} de ${v.v9} para distribuir`)}</div><div class="sepc"></div><div class="g7"><div class="cols">${COMS7.map((nmc, j) => col(nmc, 7, j + nm9)).join("")}</div>${pool(v.v7 - u7, `${v.v7 - u7} de ${v.v7} para distribuir`)}</div>`;
     $("#gcom").onclick = (e) => { const cc = e.target.closest("[data-cc]"); if (!cc) return; const j = +cc.dataset.cc, n9 = j < nm9, livre = n9 ? v.v9 - u9 : v.v7 - u7, aceso = e.target.closest("i.meu");
-      if (aceso) COLOC[j]--; else if (livre > 0 && COLOC[j] < (n9 ? lim9 : lim7)) COLOC[j]++; desenha(); }; };
-  $("#blocoP").onclick = (e) => { const b = e.target.closest("[data-bp]"); if (!b) return; const p = b.dataset.bp; BLOCO = BLOCO.includes(p) ? BLOCO.filter((x) => x !== p) : [...BLOCO, p]; b.classList.toggle("on"); desenha(); };
-  BLOCO = [c.p]; COLOC = Array(24).fill(0); desenha();
+      if (aceso) COLOC[j]--; else if (livre > 0 && COLOC[j] < (n9 ? lim9 : lim7)) COLOC[j]++; desenha(); gravarP(c, { bloco: BLOCO, coloc: COLOC }); }; };
+  $("#blocoP").onclick = (e) => { const b = e.target.closest("[data-bp]"); if (!b) return; const p = b.dataset.bp; BLOCO = BLOCO.includes(p) ? BLOCO.filter((x) => x !== p) : [...BLOCO, p]; b.classList.toggle("on"); desenha(); gravarP(c, { bloco: BLOCO, coloc: COLOC }); };
+  { const sv = lerP(c); BLOCO = sv.bloco && sv.bloco.length ? sv.bloco.filter((p) => ps.includes(p)) : [c.p]; COLOC = Array.isArray(sv.coloc) && sv.coloc.length === 24 ? sv.coloc.slice() : Array(24).fill(0); $("#blocoP").querySelectorAll("[data-bp]").forEach((b) => b.classList.toggle("on", BLOCO.includes(b.dataset.bp))); } desenha();
   const qb = $("#qbt"); if (qb) qb.onclick = (e) => { e.stopPropagation(); quocPainel(ps); };
   const ffb = $("#ffbt"); if (ffb) ffb.onclick = () => { const L = $("#fflista"), ab = L.hidden; L.hidden = !ab; ffb.classList.toggle("on", ab); ffb.querySelector("b").textContent = ab ? "↑" : "↓";
     if (ab && !L.innerHTML) { const nm = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(), eu = nm(c.u).split(" ")[0]; let filtro = "Vigente";
@@ -252,6 +255,22 @@ function ligarPolitica(c) {
 
 // ---------- simulador de gabinete: 27 vagas + chefe; níveis de GAB e gratificações; saldo da cota ----------
 const chaveGab = (c) => "sl_gab_" + c.n;
+// rascunho da página por parlamentar (comissões, caderno, painel): navegador sempre; conta quando logado (migração 64)
+const chaveP = (c) => "sl_parl_" + c.n;
+function lerP(c) { try { return JSON.parse(localStorage.getItem(chaveP(c))) || {}; } catch (e) { return {}; } }
+function gravarP(c, parcial) { try { localStorage.setItem(chaveP(c), JSON.stringify({ ...lerP(c), ...parcial, ts: Date.now() })); } catch (e) {} }
+addEventListener("pagehide", () => salvarPainelLocal());
+function salvarPainelLocal() { const c = window._cAtual, f = document.querySelector("#emb"); try { if (c && f && f.contentWindow.painelEstado) gravarP(c, { painel: f.contentWindow.painelEstado() }); } catch (e) {} }
+async function sessaoSL() { try { if (typeof supabaseClient === "undefined" || !supabaseClient) return null; const { data: { session } } = await supabaseClient.auth.getSession(); return session; } catch (e) { return null; } }
+async function salvarConta(c, btn) { const s = await sessaoSL(); if (!s) { try { localStorage.setItem("sl_volta", location.href); } catch (e) {} location.href = "../?entrar=1"; return; }
+  salvarPainelLocal(); btn.disabled = true; btn.textContent = "Salvando…";
+  const { error } = await supabaseClient.from("parlamentar_rascunhos").upsert({ perfil_id: s.user.id, parlamentar: String(c.n), dados: { parl: lerP(c), gab: lerGab(c) }, atualizado_em: new Date().toISOString() });
+  btn.disabled = false; btn.textContent = error ? "Erro ao salvar, tente de novo" : "Salvo na sua conta"; if (!error) setTimeout(() => { btn.textContent = "Salvar na minha conta"; }, 2500); }
+async function carregarConta(c) { const s = await sessaoSL(); if (!s) return; const btn = $("#salvarConta"); if (btn) btn.textContent = "Salvar na minha conta";
+  const { data } = await supabaseClient.from("parlamentar_rascunhos").select("dados,atualizado_em").eq("parlamentar", String(c.n)).maybeSingle(); if (!data || !data.dados) return;
+  const rem = Date.parse(data.atualizado_em); if (rem <= (lerP(c).ts || 0) + 1000) return;
+  try { localStorage.setItem(chaveP(c), JSON.stringify({ ...(data.dados.parl || {}), ts: rem })); if (data.dados.gab) localStorage.setItem(chaveGab(c), JSON.stringify(data.dados.gab)); } catch (e) {}
+  if (window._cAtual === c) { window._daConta = c.n; perfil(c.n); } }
 function lerGab(c) { try { return JSON.parse(localStorage.getItem(chaveGab(c))) || null; } catch (e) { return null; } }
 function secGabinete(c) { return `<div class="bloco rv" id="gabSim"><h3>Simulador de gabinete<button class="ib imp" id="gabImp" title="Imprimir o simulador (preenchido e em branco)"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 6V2.5h7V6"/><rect x="2" y="6" width="12" height="5.5" rx="1.2"/><path d="M4.5 9.5h7v4h-7z"/></svg></button></h3><p>Indique as pessoas, escolha o nível de cada Secretário Parlamentar (PL/GAB) e as gratificações. O saldo mostra quanto da cota mensal ainda cabe.</p><div id="gab"></div></div>`; }
 function ligarGabinete(c) {
@@ -407,14 +426,14 @@ function caderno(c, ordM, foco) {
   // seletor de seções e subseções: o que for desmarcado some da prévia e da impressão
   const estrutura = (doc) => { const L = []; let g = null; doc.querySelectorAll(".capa, .sec h1, h3").forEach((el) => { if (el.classList.contains("capa")) { g = { t: "Capa", el, subs: [] }; L.push(g); } else if (el.tagName === "H1") { g = { t: el.textContent, el: el.parentNode, subs: [] }; L.push(g); } else g && g.subs.push(el); }); return L; };
   const nosDe = (h) => { const R = [h]; let n = h.nextElementSibling; while (n && n.tagName !== "H3" && !n.classList.contains("rod") && !n.classList.contains("pg")) { R.push(n); n = n.nextElementSibling; } return R; };
-  const OFF = new Set(foco ? [] : ["Anexo"]);
+  const OFF = new Set(foco ? [] : (lerP(c).cadOff || ["Anexo"]));
   if (foco) { const L0 = estrutura(new DOMParser().parseFromString(html, "text/html")); L0.forEach((g) => { if (g.t === "Anexo") return; if (g.t !== "Administrativo") { OFF.add(g.t); return; } g.subs.forEach((h, si) => { if (!h.textContent.startsWith(foco)) OFF.add(g.t + "/" + si); }); }); }
   const aplica = (doc) => { if (!doc) return; doc.querySelectorAll("[data-off]").forEach((x) => { x.style.display = ""; x.removeAttribute("data-off"); }); const esc2 = (x) => { x.style.display = "none"; x.setAttribute("data-off", ""); };
     estrutura(doc).forEach((g, gi) => { const gOff = OFF.has(g.t); let vis = 0; g.subs.forEach((h, si) => { if (gOff || OFF.has(g.t + "/" + si)) nosDe(h).forEach(esc2); else vis++; }); if (gOff || (g.subs.length && !vis)) esc2(g.el); });
     doc.querySelectorAll(".pg").forEach((pg) => { const algum = [...pg.querySelectorAll("h3, .capa")].some((x) => !x.closest("[data-off]")); if (!algum) esc2(pg); }); };
   const montaSel = () => { const L = estrutura(f.contentDocument); ov.querySelector(".cadSel").innerHTML = L.map((g) => `<div class="cg1"><label class="gt"><input type="checkbox" data-g="${esc(g.t)}" ${OFF.has(g.t) ? "" : "checked"}> ${esc(g.t)}</label>${g.subs.map((h, si) => `<label><input type="checkbox" data-g="${esc(g.t)}/${si}" ${OFF.has(g.t) || OFF.has(g.t + "/" + si) ? "" : "checked"} ${OFF.has(g.t) ? "disabled" : ""}> ${esc(h.textContent)}</label>`).join("")}</div>`).join(""); };
   f.onload = () => { montaSel(); aplica(f.contentDocument); aplica(cp); };
-  ov.querySelector(".cadSel").onchange = (e) => { const k = e.target.dataset.g; e.target.checked ? OFF.delete(k) : OFF.add(k); montaSel(); aplica(f.contentDocument); aplica(cp); };
+  ov.querySelector(".cadSel").onchange = (e) => { const k = e.target.dataset.g; e.target.checked ? OFF.delete(k) : OFF.add(k); if (!foco) gravarP(c, { cadOff: [...OFF] }); montaSel(); aplica(f.contentDocument); aplica(cp); };
   ov.querySelector("[data-imp]").onclick = () => window.print(); ov.querySelector("[data-fec]").onclick = () => { ov.remove(); cp.remove(); };
 }
 
