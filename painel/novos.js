@@ -527,12 +527,18 @@ function aplicarTrava() { const ok = ACESSO === "liberado"; document.querySelect
   if (ok) return;
   // as abas continuam abertas; só os valores em R$ viram cadeado (o simulador de gabinete fica livre)
   const msg = ACESSO === "pendente" ? `<b>Valores aguardando liberação.</b><span>Seu pedido foi enviado; você recebe um aviso quando o administrador liberar.</span>` : ACESSO === "negado" ? `<b>Valores não liberados.</b><span>Fale com o administrador: Neto · (48) 99120-5200.</span>` : `<b>Valores restritos.</b><span>Os valores de Subsídio e verbas do parlamentar e da Estrutura da Casa são liberados para usuários cadastrados, após análise do administrador.</span><button class="btn trvb">Entrar ou cadastrar</button>`;
-  const s3 = $("#s3"); if (!s3) return; const intro = [...s3.querySelectorAll(".bloco")].find((b) => /^Subsídio e verbas/.test((b.querySelector(":scope > h3")?.firstChild?.textContent || "").trim())); intro && intro.insertAdjacentHTML("beforebegin", `<div class="trv">${CADEADO}<div>${msg}</div></div>`);
+  const s3 = $("#s3"); if (!s3) return;
+  // o comunicado só aparece ao clicar num cadeado de valor
+  if (s3._vcadFn) s3.removeEventListener("click", s3._vcadFn, true); s3._vcadFn = (e) => { const v = e.target.closest(".vcad"); if (!v) return; e.stopPropagation(); e.preventDefault(); document.querySelector(".trvpop")?.remove();
+    const p = Object.assign(document.createElement("div"), { className: "trv trvpop" }); p.innerHTML = `${CADEADO}<div>${msg}</div>`; document.body.appendChild(p);
+    const r = v.getBoundingClientRect(), w = Math.min(380, innerWidth - 24); p.style.width = w + "px"; p.style.left = Math.max(12, Math.min(innerWidth - w - 12, r.left + r.width / 2 - w / 2)) + "px"; p.style.top = (r.bottom + 8 + scrollY) + "px";
+    p.querySelector(".trvb") && (p.querySelector(".trvb").onclick = (ev) => { ev.stopPropagation(); try { localStorage.setItem("sl_volta", location.href); } catch (er) {} location.href = "../?entrar=1"; });
+    setTimeout(() => document.addEventListener("click", function fx(ev) { if (!p.contains(ev.target)) { p.remove(); document.removeEventListener("click", fx); } }), 0); }; s3.addEventListener("click", s3._vcadFn, true);
   const RE = /R\$\s?[\d.,]+(?:\s?(?:mil|mi))?/g;
   s3.querySelectorAll(".bloco").forEach((b) => { const t0 = (b.querySelector(":scope > h3")?.firstChild?.textContent || "").trim(); if (!/^(Subsídio e verbas|A estrutura da Casa)/.test(t0)) return; const tw = document.createTreeWalker(b, NodeFilter.SHOW_TEXT), L = []; while (tw.nextNode()) if (RE.test(tw.currentNode.nodeValue)) L.push(tw.currentNode); RE.lastIndex = 0;
     L.forEach((t) => { const sp = document.createElement("span"); sp.innerHTML = esc(t.nodeValue).replace(RE, `<i class="vcad" title="Valor restrito">${CADEADO}</i>`); t.replaceWith(sp); });
     b.querySelectorAll(".adt, .pat b, .ibx").forEach((x) => { if (x.classList.contains("ibx")) return; x.innerHTML = `<i class="vcad" title="Valor restrito">${CADEADO}</i>`; }); });
-  document.querySelectorAll(".trvb").forEach((x) => x.onclick = (e) => { e.stopPropagation(); try { localStorage.setItem("sl_volta", location.href); } catch (er) {} location.href = "../?entrar=1"; }); }
+}
 function decorarAdm() { const c = window._cAtual; if (!c || !$("#s3")) return; const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, F = (window.FOLHA_GAB || {});
   const par = PA.subsidio * (1 + PA.gestao_demais) + PA.aux_saude + PA.aux_alim, gab = G.cota + G.chefe + G.retrib, T = (EST.liderancas || {}).tabela || {}, lid = (T[Math.min(9, nbanc(c.p))] || {}).cota || 0;
   const casa = Object.entries(EST.grupos || {}).filter(([g, L]) => !/Comiss/.test(g)).reduce((s2, [g, L]) => s2 + L.reduce((a, x) => a + x.t, 0), 0);
