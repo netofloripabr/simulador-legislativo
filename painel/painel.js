@@ -71,7 +71,7 @@ const hexRgbP = (h) => [1, 3, 5].map((k) => parseInt(h.slice(k, k + 2), 16)), co
 const claro = (c) => c.map((v) => Math.round(v + (255 - v) * .45)), distCor = (x, y) => Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
 function aplicarCores() { const A = st.A, B = st.B, ds = document.documentElement.style;
   if (!COR_FIXA) { COR.a = (A && corDoPartido(A.p)) || COR_A0; COR.a2 = claro(COR.a); ds.setProperty("--a", `rgb(${COR.a})`); ds.setProperty("--a2", `rgb(${COR.a2})`); }
-  let b = (B && corDoPartido(B.p)) || [61, 123, 255]; if (distCor(b, COR.a) < 110) b = distCor([155, 107, 255], COR.a) > 110 ? [155, 107, 255] : [169, 174, 179];
+  let b = (B && corDoPartido(B.p)) || [61, 123, 255]; if (distCor(b, COR.a) < 45) b = distCor([155, 107, 255], COR.a) > 45 ? [155, 107, 255] : [169, 174, 179];
   COR.b = b; COR.b2 = claro(b); ds.setProperty("--b", `rgb(${b})`); ds.setProperty("--b2", `rgb(${COR.b2})`); }
 function preparar() {
   st.A = cand(st.a); st.B = cand(st.b); aplicarCores();
