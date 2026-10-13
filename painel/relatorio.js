@@ -58,7 +58,7 @@ const fmt = (v) => Math.round(v).toLocaleString("pt-BR"), pc = (v) => nf(v) + "%
 const sinal = (d) => `${d >= 0 ? "+" : "−"}${fmt(Math.abs(d))}`;
 function docHtml(titulo, sub, cards, corpo) {
   const agora = new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
-  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${titulo.replace(/<[^>]+>/g, "")} · SimulaLEGIS</title><style>${R_CSS}</style></head><body><div class="pg">
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${titulo.replace(/<[^>]+>/g, "")} · SimulaLEGIS</title><style>${R_CSS}</style></head><body><div class="ctt" style="position:fixed;top:0;right:0;font-size:7px;color:#8A9096">Dúvidas e sugestões: Neto · (48) 99120-5200</div><div class="pg">
   <div class="cab"><div class="wm"><b>Simula</b>LEGIS<small>Simulador Eleitoral Legislativo 2026</small></div><div class="meta"><b>Santa Catarina</b> · Resultado 2026<br>gerado em ${agora}</div></div><div class="regra"></div>
   <div class="olho">${sub.split(" · ").slice(0, 2).join(" · ")}</div><div class="tit">${titulo}</div><div class="sub">${sub}</div>${cards ? `<div class="kp">${cards.map(([v, r]) => `<div><b>${v}</b><span>${r}</span></div>`).join("")}</div>` : ""}
   ${corpo}<div class="rod">Dados oficiais do TSE (2026 e 2022), IBGE (Censo 2022) e MDS. Não é pesquisa eleitoral. SimulaLEGIS · documento gerado pelo painel.</div></div>
