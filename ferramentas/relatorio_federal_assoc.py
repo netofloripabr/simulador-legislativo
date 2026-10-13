@@ -4,6 +4,7 @@
 import json, sys, os, html, subprocess, datetime
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PAGINAS = "--paginas" in sys.argv; sys.argv = [a for a in sys.argv if a != "--paginas"]
 sigla, nome_assoc = sys.argv[1], (sys.argv[2] if len(sys.argv) > 2 else "")
 base = json.load(open(f"{RAIZ}/dados/painel/sc-base.json"))
 fed = json.load(open(f"{RAIZ}/dados/painel/sc-federal.json"))
@@ -17,6 +18,7 @@ cor = lambda p: next((v for k, v in COR.items() if k in p.upper()), "#8A9096")
 foto = lambda n: f"file://{RAIZ}/dados/fotos/sc-2026/federal/{n}.jpg" if os.path.exists(f"{RAIZ}/dados/fotos/sc-2026/federal/{n}.jpg") else ""
 
 def tabela(i_list, titulo, sub, val):
+    if PAGINAS: titulo = f"{titulo} · deputado federal, os 10 mais votados"
     tot = {c["n"]: sum(c["v"][i] for i in i_list) for c in C}
     top = sorted(C, key=lambda c: -tot[c["n"]])[:10]
     mx = tot[top[0]["n"]] or 1
@@ -32,6 +34,7 @@ for i in sorted(idx, key=lambda i: M[i]["n"]):
     partes.append(tabela([i], M[i]["n"], f"{ni(VAL[i])} votos válidos · {ni(M[i]['el'])} eleitores", VAL[i]))
 
 agora = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
+CAB = f'''<div class="cab"><div class="wm">Simula<b>LEGIS</b><small>Simulador eleitoral legislativo 2026</small></div><div class="meta"><b>{sigla}{(" · " + e(nome_assoc)) if nome_assoc else ""}</b><br>Eleições 2026 · gerado em {agora}</div></div>'''
 doc = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>{sigla} · deputados federais mais votados</title><style>
 @font-face{{font-family:Inter;src:url(file://{RAIZ}/fontes/InterVariable.woff2);font-weight:100 900}}
 @page{{size:A4;margin:12mm 12mm 14mm}} *{{box-sizing:border-box}} body{{margin:0;font:10px/1.4 Inter,system-ui,sans-serif;color:#0B0D0E;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
@@ -43,14 +46,15 @@ table{{width:100%;border-collapse:collapse}} td{{padding:2.5px 3px;border-bottom
 td.r{{width:18px;color:#8A9096;font-size:8.5px}} td.ft{{width:20px}} td.ft img{{width:17px;height:17px;border-radius:50%;object-fit:cover;object-position:50% 20%;display:block}} td b{{font-size:9px}} td small{{display:block;font-size:6.8px;color:#8A9096}}
 td.bar{{width:24%}} td.bar i{{display:block;height:5px;border-radius:3px}} td.v{{text-align:right;font-weight:800;font-variant-numeric:tabular-nums;width:46px}} td.p{{text-align:right;color:#6B7178;width:36px;font-variant-numeric:tabular-nums}}
 .bloco:first-child td b{{font-size:10px}} .bloco:first-child td.ft img{{width:22px;height:22px}}
+.pgx{{break-after:page}} .pgx:last-child{{break-after:auto}} .pgx .bloco{{border-color:#1FA83A}} .pgx td b{{font-size:11px}} .pgx td small{{font-size:8px}} .pgx td{{padding:5px 4px}} .pgx td.ft img{{width:26px;height:26px}} .pgx td.ft{{width:32px}} .pgx td.v{{width:60px;font-size:11px}} .pgx td.p{{width:44px;font-size:10px}} .pgx .bh h2{{font-size:18px}} .pgx .bh span{{font-size:9px}}
 .rod{{margin-top:12px;font-size:7px;color:#6B7178;border-top:.5px solid #D3D6D9;padding-top:5px}} .ctt{{position:fixed;top:-8mm;right:0;font-size:7px;color:#8A9096}}
 </style></head><body><div class="ctt">Dúvidas e sugestões: Neto · (48) 99120-5200</div>
-<div class="cab"><div class="wm">Simula<b>LEGIS</b><small>Simulador eleitoral legislativo 2026</small></div><div class="meta"><b>{sigla}{(" · " + e(nome_assoc)) if nome_assoc else ""}</b><br>Eleições 2026 · gerado em {agora}</div></div>
-<h1>Deputado federal: os 10 mais votados</h1><p class="lead">Na associação e em cada município da {sigla}. Percentual sobre os votos válidos para deputado federal no recorte.</p>
-<div class="grade">{"".join(partes)}</div>
-<div class="rod">Dados oficiais do TSE (totalização final 2026). SimulaLEGIS · material de apoio, sem vínculo oficial com a Assembleia. Não é pesquisa eleitoral.</div></body></html>'''
+{"" if PAGINAS else CAB}
+{"" if PAGINAS else f'<h1>Deputado federal: os 10 mais votados</h1><p class="lead">Na associação e em cada município da {sigla}. Percentual sobre os votos válidos para deputado federal no recorte.</p>'}
+{("".join(f'<div class="pgx">{CAB}{p}<div class="rod">Dados oficiais do TSE (totalização final 2026). Percentual sobre os votos válidos para deputado federal no recorte.</div></div>' for p in partes)) if PAGINAS else f'<div class="grade">{"".join(partes)}</div>'}
+{"" if PAGINAS else '<div class="rod">Dados oficiais do TSE (totalização final 2026). SimulaLEGIS · material de apoio, sem vínculo oficial com a Assembleia. Não é pesquisa eleitoral.</div>'}</body></html>'''
 os.makedirs(f"{RAIZ}/apresentacao", exist_ok=True)
-saida = f"{RAIZ}/apresentacao/{sigla}-federais-mais-votados"
+saida = f"{RAIZ}/apresentacao/{sigla}-federais-mais-votados" + ("-paginas" if PAGINAS else "")
 open(saida + ".html", "w").write(doc)
 subprocess.run(["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--allow-file-access-from-files", "--virtual-time-budget=8000", f"--print-to-pdf={saida}.pdf", f"file://{saida}.html"], capture_output=True)
 print(saida + ".pdf")
