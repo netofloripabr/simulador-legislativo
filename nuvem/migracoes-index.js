@@ -1493,5 +1493,11 @@ const MIGRACOES_INDEX = [
     "admin_decidir_acesso_parlamentares"
    ]
   ]
+ },
+ {
+  "num": 66,
+  "arquivo": "migracao-66-notificacoes-tipos.sql",
+  "descricao": "Migração 66: novos tipos de notificação (13/10/2026).",
+  "objetos": []
  }
 ];
