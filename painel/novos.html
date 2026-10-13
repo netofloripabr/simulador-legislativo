@@ -142,7 +142,7 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .comp .pil{ flex:1; display:flex; flex-direction:column; gap:5px; min-width:0; } .comp .lado.e .pil{ align-items:flex-end; } .comp .pil .seg{ gap:2px; flex-wrap:wrap; } .comp .lado.e .pil .seg{ justify-content:flex-start; width:100%; } .comp .dp .ft{ width:20px; height:20px; }
 .comp .bar{ display:flex; gap:2px; height:9px; } .comp .bar i{ display:block; height:100%; border-radius:3px; background:rgba(242,244,245,.3); min-width:3px; animation:cresce .8s cubic-bezier(.2,.8,.3,1) both; } .comp .lado.e .bar{ flex-direction:row-reverse; } .comp .lado.e .bar i{ transform-origin:right; } .comp .lado.d .bar i{ transform-origin:left; }
 .comp .bar i.pb{ background:rgba(242,244,245,.12); } .comp .bar i.perd, .comp .bar i.pb.perd{ background:#E5484D; } .comp .bar i.ganh{ background:#34C759; box-shadow:0 0 8px rgba(52,199,89,.5); } .comp .bar i.meu{ background:var(--a); } .comp .dp.pb .ft img, .comp .dp.pb .ft b{ filter:grayscale(1) brightness(.6); } .comp .dp .br{ display:none; }
-.setaF{ position:fixed; left:50%; bottom:22px; z-index:40; transform:translate(-50%,12px); opacity:0; pointer-events:none; display:flex; align-items:center; gap:8px; padding:7px 14px 7px 10px; border-radius:999px; border:1px solid rgba(var(--a-rgb),.35); background:rgba(11,15,13,.8); backdrop-filter:blur(8px); color:var(--a); cursor:pointer; transition:opacity .35s, transform .35s; } .setaF.vis{ opacity:1; transform:translate(-50%,0); pointer-events:auto; } .setaF b{ font-size:14px; animation:quica2 1.8s ease-in-out infinite; } .setaF span{ font:600 11px "Inter"; letter-spacing:.12em; text-transform:uppercase; color:var(--sec); } @keyframes quica2{ 50%{ transform:translateY(3px); } }
+.setaF{ position:fixed; left:50%; bottom:22px; z-index:40; transform:translate(-50%,12px); opacity:0; pointer-events:none; display:flex; align-items:center; gap:8px; padding:7px 14px 7px 10px; border-radius:999px; border:1px solid rgba(var(--a-rgb),.35); background:rgba(11,15,13,.8); backdrop-filter:blur(8px); color:var(--a); cursor:pointer; transition:opacity .35s, transform .35s; } .setaF:focus, .setaF:focus-visible{ outline:none; } .setaF.vis{ opacity:1; transform:translate(-50%,0); pointer-events:auto; } .setaF b{ font-size:14px; animation:quica2 1.8s ease-in-out infinite; } .setaF span{ font:600 11px "Inter"; letter-spacing:.12em; text-transform:uppercase; color:var(--sec); } @keyframes quica2{ 50%{ transform:translateY(3px); } }
 .sanf.esq{ grid-template-columns:24px auto minmax(0,1fr); } .sanf.esq em{ order:-1; } .sanf.esq i{ text-align:right; } .secao.s1{ padding-top:24px; border-top:0; }
 .qn small b.kw{ color:var(--a); font-weight:700; } .qv em{ font-size:13.5px; }
 .pb2{ display:grid; grid-template-columns:130px minmax(0,1fr) 70px 34px; gap:12px; align-items:center; padding:7px 0; } .pb2 .nm{ font-weight:700; font-size:13.5px; } .pb2.eu .nm{ color:var(--a); }
@@ -188,7 +188,7 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=1"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="novos.js?cb=100"></script>
+<script src="novos.js?cb=102"></script>
 <script src="../nuvem/visitas.js?cb=1"></script>
 </body>
 </html>
