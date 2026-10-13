@@ -64,8 +64,17 @@ async function carregar() {
   if (q.get("b")) st.b = { cargo: q.get("cargob") || st.a.cargo, n: q.get("b") };
   preparar();
 }
+// cores dos candidatos pela identidade do partido (quando dois partidos têm cor parecida, o segundo usa um tom alternativo)
+const CORP = [[/NOVO/, "#F37021"], [/PSOL/, "#F5B700"], [/\bPT\b/, "#E5383B"], [/PDT/, "#E5484D"], [/PSB/, "#F2A900"], [/\bPL\b/, "#3D7BFF"], [/REPUBLICANOS/, "#4D8DFF"], [/MDB/, "#34C759"], [/UNI[ÃA]O|\bPP\b/, "#2FB5E8"], [/PSD/, "#F2C230"], [/PODE/, "#3FB37F"], [/PSDB/, "#1E6FD9"], [/CIDADANIA/, "#E4007C"], [/REDE/, "#00A5A5"]];
+const COR_A0 = COR.a.slice(), COR_FIXA = /[?&]cor=/.test(location.search);
+const hexRgbP = (h) => [1, 3, 5].map((k) => parseInt(h.slice(k, k + 2), 16)), corDoPartido = (p) => { const r = CORP.find(([re]) => re.test(String(p || "").toUpperCase())); return r ? hexRgbP(r[1]) : null; };
+const claro = (c) => c.map((v) => Math.round(v + (255 - v) * .45)), distCor = (x, y) => Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
+function aplicarCores() { const A = st.A, B = st.B, ds = document.documentElement.style;
+  if (!COR_FIXA) { COR.a = (A && corDoPartido(A.p)) || COR_A0; COR.a2 = claro(COR.a); ds.setProperty("--a", `rgb(${COR.a})`); ds.setProperty("--a2", `rgb(${COR.a2})`); }
+  let b = (B && corDoPartido(B.p)) || [61, 123, 255]; if (distCor(b, COR.a) < 110) b = distCor([155, 107, 255], COR.a) > 110 ? [155, 107, 255] : [169, 174, 179];
+  COR.b = b; COR.b2 = claro(b); ds.setProperty("--b", `rgb(${b})`); ds.setProperty("--b2", `rgb(${COR.b2})`); }
 function preparar() {
-  st.A = cand(st.a); st.B = cand(st.b);
+  st.A = cand(st.a); st.B = cand(st.b); aplicarCores();
   const vals = [...Array(N).keys()].filter(dentro).map(metrica).filter((x) => !Number.isNaN(x)).map(Math.abs).sort((x, y) => x - y);
   st.escala = Math.max(1, vals[Math.floor(vals.length * .95)] || 1);
   st.cores = [...Array(N).keys()].map(corDe);
@@ -244,7 +253,7 @@ function desenharEixos(c, e, a) {
   c.save(); c.globalAlpha = a;
   for (const [x1, y1, x2, y2, cor, tr] of e.linhas) { c.strokeStyle = cor; c.lineWidth = 1; c.setLineDash(tr || []); c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); }
   c.setLineDash([]); c.font = `500 ${W < 560 ? 10 : 11.5}px Inter, system-ui`;
-  for (const [x, y, s, al, cor, bl] of e.textos) { c.textAlign = al; c.textBaseline = bl || "middle"; c.fillStyle = cor === "a" ? "#7CF58A" : cor === "b" ? "#7FA4FF" : COR.sec; c.fillText(s, x, y); }
+  for (const [x, y, s, al, cor, bl] of e.textos) { c.textAlign = al; c.textBaseline = bl || "middle"; c.fillStyle = cor === "a" ? `rgb(${COR.a2})` : cor === "b" ? `rgb(${COR.b2})` : COR.sec; c.fillText(s, x, y); }
   c.restore();
 }
 function quadro(p, ea, eb, t) {
@@ -324,7 +333,7 @@ function frase() {
   } else {
     const va = idx.filter((i) => metrica(i) > 0).length, vb = idx.filter((i) => metrica(i) < 0).length;
     const regua = mesmoCargo() ? "diferença em pontos dos votos válidos" : "cargos diferentes: comparamos o peso de cada cidade no total de cada um";
-    s = { mapa: `Verde, <b>${esc(A.u)}</b> mais forte; vermelho, <b>${esc(B.u)}</b>. ${va} × ${vb} cidades. <span style="color:#6B7178">(${regua})</span>`,
+    s = { mapa: `<b style="color:var(--a)">${esc(A.u)}</b> mais forte na cor dele; <b style="color:var(--b2)">${esc(B.u)}</b> na cor dele. ${va} × ${vb} cidades. <span style="color:#6B7178">(${regua})</span>`,
       forca: `A divisão: <b>${va}</b> cidades pendem para ${esc(pn(A))} e <b>${vb}</b> para ${esc(pn(B))}.`,
       porte: `Quem leva as cidades grandes e quem leva o interior.`,
       regioes: `A disputa região por região: acima da linha tracejada, ${esc(pn(A))}; abaixo, ${esc(pn(B))}.`,
@@ -366,7 +375,7 @@ function ficha() {
     const somaA = idx.reduce((s, j) => s + A.v[j], 0), somaB = B ? idx.reduce((s, j) => s + B.v[j], 0) : 0;
     const onde = st.rec ? "em " + esc(st.rec.nome.replace(" Catarinense", "")) : "no estado";
     const linha = (j, lado) => { const d = A.v[j] - B.v[j], m = metrica(j);
-      return `<li><span>${esc(M[j].n)}<small style="display:block;color:var(--ter);font-size:11px">${ni(A.v[j])} × ${ni(B.v[j])} votos</small></span><b style="text-align:right${lado ? ";color:#7FA4FF" : ""}">${mc ? `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}` : rotY(m)}<small style="display:block;color:var(--ter);font-size:11px;font-weight:500">${mc ? `${m >= 0 ? "+" : "−"}${nf(Math.abs(m))} pts` : "peso no total"}</small></b></li>`; };
+      return `<li><span>${esc(M[j].n)}<small style="display:block;color:var(--ter);font-size:11px">${ni(A.v[j])} × ${ni(B.v[j])} votos</small></span><b style="text-align:right${lado ? ";color:var(--b2)" : ""}">${mc ? `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}` : rotY(m)}<small style="display:block;color:var(--ter);font-size:11px;font-weight:500">${mc ? `${m >= 0 ? "+" : "−"}${nf(Math.abs(m))} pts` : "peso no total"}</small></b></li>`; };
     el.innerHTML = `<h2>${B ? `${esc(pn(A))} × ${esc(pn(B))}` : esc(A.u) + botoesLinks(A)}</h2><div class="onde">${B ? `${CARGO_LBL[A.cargo]} × ${CARGO_LBL[B.cargo]}` : `${esc(A.p)} · ${CARGO_LBL[A.cargo]} · ${esc(A.s || "")}`}</div>
       ${B ? barra(somaA, somaB, somaA + somaB, onde) : ""}
       <h3>${B ? `Maior vantagem de ${esc(pn(A))}` : "Cidades com mais votos"}</h3><div class="top"><ol>${t.slice(0, EMB ? 3 : 6).map((j) => B ? linha(j, 0) : `<li><span>${esc(M[j].n)}</span><b>${ni(A.v[j])}</b></li>`).join("")}</ol></div>

@@ -71,7 +71,7 @@ const fimSec = () => `</div></div></section>`;
 // 01 · Eleitoral: Painel completo embutido (sanfona aberta) com filtros prontos
 function secEleitoral(c) {
   return `<section class="secao s1" id="s1"><div class="wrap"><div class="tag rv"><button class="tg${AB.painel ? " on ab" : ""}" data-sec="painel" title="Recolher ou abrir">${AB.painel ? "−" : "+"}</button><h2>Eleitoral</h2><p class="lead">Onde estão os votos: mapa, distribuição, perfil das cidades, comparação e ranking.</p></div><div>
-    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="elg"><iframe class="emb" id="emb" src="index.html?embed=1&v=29&cargo=estadual&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe><aside class="cid" id="cid" hidden></aside></div></div></div></div></section>`;
+    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="elg"><iframe class="emb" id="emb" src="index.html?embed=1&v=31&cargo=estadual&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe><aside class="cid" id="cid" hidden></aside></div></div></div></div></section>`;
 }
 function ligarEleitoral(c, ordM) {
   const base = M[ordM[0]], reg = base.meso, leg = D.c.filter((x) => x.p === c.p && x.n !== c.n).sort((a, b) => b.t - a.t)[0], E = eleitos(), k = E.findIndex((x) => x.n === c.n), viz = E[k ? k - 1 : 1];
