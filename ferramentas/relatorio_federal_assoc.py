@@ -13,7 +13,7 @@ idx = [i for i, m in enumerate(M) if m["assoc"] == sigla]
 e = html.escape
 ni = lambda x: f"{round(x):,}".replace(",", ".")
 pc = lambda x: f"{x:.1f}".replace(".", ",") + "%"
-COR = {"PL": "#3D7BFF", "PT": "#E5383B", "NOVO": "#F37021", "MDB": "#34C759", "PSD": "#D9A400", "PP": "#2FB5E8", "UNIÃO": "#2FB5E8", "REPUBLICANOS": "#4D8DFF", "PODE": "#3FB37F", "PSDB": "#1E6FD9", "PDT": "#E5484D", "PSB": "#F2A900", "PSOL": "#C9A400"}
+COR = {"PL": "#3D7BFF", "PT": "#E5383B", "NOVO": "#F37021", "MDB": "#34C759", "PSD": "#2B5FD9", "PP": "#2FB5E8", "UNIÃO": "#2FB5E8", "REPUBLICANOS": "#4D8DFF", "PODE": "#3FB37F", "PSDB": "#1E6FD9", "PDT": "#E5484D", "PSB": "#F2A900", "PSOL": "#C9A400"}
 cor = lambda p: next((v for k, v in COR.items() if k in p.upper()), "#8A9096")
 foto = lambda n: f"file://{RAIZ}/dados/fotos/sc-2026/federal/{n}.jpg" if os.path.exists(f"{RAIZ}/dados/fotos/sc-2026/federal/{n}.jpg") else ""
 

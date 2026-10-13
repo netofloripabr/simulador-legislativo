@@ -65,7 +65,7 @@ async function carregar() {
   preparar();
 }
 // cores dos candidatos pela identidade do partido (quando dois partidos têm cor parecida, o segundo usa um tom alternativo)
-const CORP = [[/NOVO/, "#F37021"], [/PSOL/, "#F5B700"], [/\bPT\b/, "#E5383B"], [/PDT/, "#E5484D"], [/PSB/, "#F2A900"], [/\bPL\b/, "#3D7BFF"], [/REPUBLICANOS/, "#4D8DFF"], [/MDB/, "#34C759"], [/UNI[ÃA]O|\bPP\b/, "#2FB5E8"], [/PSD/, "#F2C230"], [/PODE/, "#3FB37F"], [/PSDB/, "#1E6FD9"], [/CIDADANIA/, "#E4007C"], [/REDE/, "#00A5A5"]];
+const CORP = [[/NOVO/, "#F37021"], [/PSOL/, "#F5B700"], [/\bPT\b/, "#E5383B"], [/PDT/, "#E5484D"], [/PSB/, "#F2A900"], [/\bPL\b/, "#3D7BFF"], [/REPUBLICANOS/, "#4D8DFF"], [/MDB/, "#34C759"], [/UNI[ÃA]O|\bPP\b/, "#2FB5E8"], [/PSD/, "#2B5FD9"], [/PODE/, "#3FB37F"], [/PSDB/, "#1E6FD9"], [/CIDADANIA/, "#E4007C"], [/REDE/, "#00A5A5"]];
 const COR_A0 = COR.a.slice(), COR_FIXA = /[?&]cor=/.test(location.search);
 const hexRgbP = (h) => [1, 3, 5].map((k) => parseInt(h.slice(k, k + 2), 16)), corDoPartido = (p) => { const r = CORP.find(([re]) => re.test(String(p || "").toUpperCase())); return r ? hexRgbP(r[1]) : null; };
 const claro = (c) => c.map((v) => Math.round(v + (255 - v) * .45)), distCor = (x, y) => Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
