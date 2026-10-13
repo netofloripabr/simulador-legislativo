@@ -65,6 +65,7 @@ function perfil(n) {
   $("#caderno").onclick = () => caderno(c, ordM); window._ordM = ordM;
   $("#salvarConta").onclick = (e) => salvarConta(c, e.currentTarget);
   if (window._daConta !== n) carregarConta(c); window._daConta = null;
+  { const q0 = new URLSearchParams(location.search); if (q0.has("pdf")) { window._pdfSem = (q0.get("sem") || "").split("|").filter(Boolean); setTimeout(() => caderno(c, ordM), 600); } } // ?pdf=1&sem=Título|Título: abre só o caderno (para gerar PDF)
   clearInterval(window._salvaPainelT); window._salvaPainelT = setInterval(salvarPainelLocal, 4000);
 }
 const cabSec = (id, num, tit, lead) => `<section class="secao" id="${id}"><div class="wrap"><div class="tag rv"><button class="tg ab" data-tg="${id}" title="Recolher ou abrir">−</button><h2>${tit}</h2><p class="lead">${lead}</p></div><div class="corpoSec" id="cs-${id}">`;
@@ -473,7 +474,9 @@ async function caderno(c, ordM, foco) {
     estrutura(doc).forEach((g, gi) => { const gOff = OFF.has(g.t); let vis = 0; g.subs.forEach((h, si) => { if (gOff || OFF.has(g.t + "/" + si)) nosDe(h).forEach(esc2); else vis++; }); if (gOff || (g.subs.length && !vis)) esc2(g.el); });
     doc.querySelectorAll(".pg").forEach((pg) => { const algum = [...pg.querySelectorAll("h3, .capa")].some((x) => !x.closest("[data-off]")); if (!algum) esc2(pg); }); };
   const montaSel = () => { const L = estrutura(f.contentDocument); ov.querySelector(".cadSel").innerHTML = L.map((g) => `<div class="cg1"><label class="gt"><input type="checkbox" data-g="${esc(g.t)}" ${OFF.has(g.t) ? "" : "checked"}> ${esc(g.t)}</label>${g.subs.map((h, si) => `<label><input type="checkbox" data-g="${esc(g.t)}/${si}" ${OFF.has(g.t) || OFF.has(g.t + "/" + si) ? "" : "checked"} ${OFF.has(g.t) ? "disabled" : ""}> ${esc(h.firstChild.textContent)}</label>`).join("")}</div>`).join(""); };
-  f.onload = () => { montaSel(); aplica(f.contentDocument); aplica(cp.shadowRoot); };
+  f.onload = () => { if (window._pdfSem) { const L0 = estrutura(f.contentDocument); L0.forEach((g) => { if (window._pdfSem.some((t) => g.t === t)) OFF.add(g.t); g.subs.forEach((h, si) => { if (window._pdfSem.some((t) => h.firstChild.textContent.startsWith(t))) OFF.add(g.t + "/" + si); }); }); }
+    montaSel(); aplica(f.contentDocument); aplica(cp.shadowRoot);
+    if (window._pdfSem) { const d0 = f.contentDocument; setTimeout(() => { document.open(); document.write("<!doctype html>" + d0.documentElement.outerHTML); document.close(); }, 300); } };
   ov.querySelector(".cadSel").onchange = (e) => { const k = e.target.dataset.g; e.target.checked ? OFF.delete(k) : OFF.add(k); if (!foco) gravarP(c, { cadOff: [...OFF] }); montaSel(); aplica(f.contentDocument); aplica(cp.shadowRoot); };
   ov.querySelector("[data-imp]").onclick = () => window.print(); ov.querySelector("[data-fec]").onclick = () => { ov.remove(); cp.remove(); document.querySelector("#cadPrintCss")?.remove(); };
 }
