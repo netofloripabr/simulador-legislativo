@@ -74,7 +74,10 @@ async function _resCarregar(ano, cargo, sufixo) {
 // mesmo formato do arquivo estático (+ meta). Quando config_app diz que a
 // apuração está ativa (ou ?aovivo=1 na URL, pra ensaio), o "apurado" passa
 // a vir de lá, e a tela se atualiza sozinha enquanto não chegar a 100%.
-const RES_APURACAO_URL = `${SUPABASE_URL}/storage/v1/object/public/apuracao`;
+// 13/10/2026: apuração final (100%) copiada para o próprio site (dados/resultados/apuracao/),
+// servida pelo GitHub Pages. Antes cada aba aberta baixava ~0,5 MB do Storage do Supabase a cada
+// 2 min e estourou a cota de tráfego do plano gratuito. Para nova eleição, voltar para o Storage.
+const RES_APURACAO_URL = "dados/resultados/apuracao";
 async function _resApuracaoConfig() {
   if (pcState._resApuCfg && Date.now() - pcState._resApuCfg.t < 60000) return pcState._resApuCfg;
   const forcado = /[?&]aovivo=1/.test(location.search);
@@ -82,14 +85,14 @@ async function _resApuracaoConfig() {
   try {
     const { data } = await supabaseClient.from("config_app").select("chave, valor").in("chave", ["apuracao_ativa", "apuracao_ano"]);
     const m = Object.fromEntries((data || []).map((r) => [r.chave, r.valor]));
-    cfg = { ativa: forcado || m.apuracao_ativa === "true", ano: Number(m.apuracao_ano) || RES_ANO_APURADO, t: Date.now() };
+    cfg = { ativa: true, ano: Number(m.apuracao_ano) || RES_ANO_APURADO, t: Date.now() }; // resultado final está no site; a rotina do banco pode ficar desligada
   } catch (e) { /* sem banco: fica estático */ }
   pcState._resApuCfg = cfg;
   return cfg;
 }
 async function _resCarregarAoVivo(ano, cargo) {
   try {
-    const r = await fetch(`${RES_APURACAO_URL}/${RES_UF.toLowerCase()}-${ano}/${cargo}.json?t=${Math.floor(Date.now() / 10000)}`, { cache: "no-store" });
+    const r = await fetch(`${RES_APURACAO_URL}/${RES_UF.toLowerCase()}-${ano}/${cargo}.json?v=20261013`);
     if (!r.ok) return null;
     return await r.json();
   } catch (e) { return null; }
@@ -134,6 +137,7 @@ function _resArmarAtualizacao(meta) {
   // 05/10/2026: depois da totalização final segue conferindo a cada 2 min —
   // aba aberta antes de uma correção dos dados ficava com números velhos
   if (!meta && !(pcState._resApuCfg && pcState._resApuCfg.ativa)) return;
+  if (meta && meta.final) return; // apuração encerrada: nada mais muda, não fica conferindo
   // 04/10/2026: confere a cada 20 s e só redesenha quando o TSE gerou
   // arquivo novo (geradoEm mudou), mantendo a rolagem onde o usuário está.
   pcState._resTimer = setTimeout(async () => {
