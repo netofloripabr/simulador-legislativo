@@ -1420,5 +1420,32 @@ const MIGRACOES_INDEX = [
     "admin_definir_acesso_mesa"
    ]
   ]
+ },
+ {
+  "num": 63,
+  "arquivo": "migracao-63-visitas.sql",
+  "descricao": "Migração 63: contador de visitas por página (pedido do usuário em 12/10/2026).",
+  "objetos": [
+   [
+    "table",
+    "visitas"
+   ],
+   [
+    "index",
+    "visitas_criado_em_idx"
+   ],
+   [
+    "index",
+    "visitas_dedup_idx"
+   ],
+   [
+    "function",
+    "registrar_visita"
+   ],
+   [
+    "function",
+    "admin_visitas"
+   ]
+  ]
  }
 ];

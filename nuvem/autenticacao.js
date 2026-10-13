@@ -350,6 +350,13 @@ async function adminResolverErroCliente(id) {
   return { error };
 }
 
+// Visitas por página (migração 63, nuvem/visitas.js) — painel admin → Visitas.
+async function adminVisitas(dias) {
+  const { data, error } = await supabaseClient.rpc("admin_visitas", { p_dias: dias || 7 });
+  if (error) { console.error("Erro ao ler visitas:", error); return null; }
+  return data;
+}
+
 async function adminAnalitico(incluirBots) {
   const { data, error } = await supabaseClient.rpc("admin_analitico", { p_incluir_bots: !!incluirBots });
   if (error) { console.error("Erro no analítico:", error); return null; }

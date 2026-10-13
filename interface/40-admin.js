@@ -132,6 +132,23 @@ async function montarAdminErros() {
       </div>`).join("")}</div>`;
 }
 
+// Seção "Visitas" — contador de páginas abertas (migração 63). Últimos 7 dias:
+// totais, por dia e por página. Visitante = navegador (id aleatório), não pessoa.
+async function montarAdminVisitas() {
+  const v = await adminVisitas(7);
+  if (!v) return estadoVazio({ icone: "alerta", titulo: "Não foi possível ler as visitas", texto: "Confira se a migração 63 está aplicada." });
+  const NOMES = { app: "App (palpites)", painel: "Painel", ranking: "Ranking", parlamentares: "Parlamentares", mesa: "Mesa" };
+  const card = (t, n) => `<div class="pc-lobby-card" style="flex:1; min-width:120px; padding:12px;"><div style="font-size:10.5px; color:var(--pc-ink-dim); text-transform:uppercase; letter-spacing:.1em;">${t}</div><div style="font-size:22px; font-weight:800;">${n}</div></div>`;
+  const linha = (a, b, c) => `<div class="pc-lobby-linha"><span>${a}</span><span style="font-variant-numeric:tabular-nums; text-align:right;">${b}<span style="color:var(--pc-ink-dim); font-size:11px; margin-left:8px;">${c}</span></span></div>`;
+  return `<div style="font-size:14px; font-weight:700; margin:0 0 10px 2px;">Visitas · últimos 7 dias</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">${card("Páginas abertas", v.total)}${card("Navegadores", v.visitantes)}${card("Com login", v.logados)}</div>
+    <div style="font-size:12px; font-weight:700; margin:10px 2px 6px;">Por dia</div>
+    <div class="pc-lobby-card">${(v.por_dia || []).length ? v.por_dia.map((d) => linha(d.dia.split("-").reverse().join("/"), d.visitas + " páginas", d.visitantes + " navegadores · " + d.logados + " com login")).join("") : `<div class="pc-lobby-linha"><span>Sem visitas registradas ainda.</span></div>`}</div>
+    <div style="font-size:12px; font-weight:700; margin:14px 2px 6px;">Por página</div>
+    <div class="pc-lobby-card">${(v.por_pagina || []).map((p) => linha(NOMES[p.pagina] || p.pagina, p.visitas + " aberturas", p.visitantes + " navegadores")).join("")}</div>
+    <p style="font-size:11px; color:var(--pc-ink-dim); margin:10px 2px;">Contagem desde 12/10/2026. O mesmo navegador na mesma página conta uma vez a cada 30 minutos. "Navegadores" aproxima pessoas (a mesma pessoa no celular e no computador conta 2).</p>`;
+}
+
 async function montarAdminPesquisa() {
   const filtro = pcState.adminPesquisaFiltro || {};
   let resultadoHtml = "";
@@ -740,6 +757,7 @@ async function renderAdminPainel() {
     { id: "usuarios", label: "Usuários" },
     { id: "problemas", label: "Problemas" },
     { id: "erros", label: "Erros" },
+    { id: "visitas", label: "Visitas" },
     { id: "pesquisa", label: "Pesquisa" },
     { id: "financeiro", label: "Financeiro" },
     { id: "rotinas", label: "Rotinas" },
@@ -752,6 +770,7 @@ async function renderAdminPainel() {
   if (pcState.adminSecao === "usuarios") conteudoSecao = await montarAdminUsuarios();
   else if (pcState.adminSecao === "problemas") conteudoSecao = await montarAdminProblemas();
   else if (pcState.adminSecao === "erros") conteudoSecao = await montarAdminErros();
+  else if (pcState.adminSecao === "visitas") conteudoSecao = await montarAdminVisitas();
   else if (pcState.adminSecao === "pesquisa") conteudoSecao = await montarAdminPesquisa();
   else if (pcState.adminSecao === "financeiro") conteudoSecao = await montarAdminFinanceiro();
   else if (pcState.adminSecao === "bots") conteudoSecao = await montarAdminBots();
