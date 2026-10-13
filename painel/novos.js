@@ -66,6 +66,7 @@ function perfil(n) {
   $("#salvarConta").onclick = (e) => salvarConta(c, e.currentTarget);
   if (window._daConta !== n) carregarConta(c); window._daConta = null;
   { const q0 = new URLSearchParams(location.search); if (q0.has("pdf")) { window._pdfSem = (q0.get("sem") || "").split("|").filter(Boolean); setTimeout(() => caderno(c, ordM), 600); } } // ?pdf=1&sem=Título|Título: abre só o caderno (para gerar PDF)
+  verificarAcesso();
   clearInterval(window._salvaPainelT); window._salvaPainelT = setInterval(salvarPainelLocal, 4000);
 }
 const cabSec = (id, num, tit, lead) => `<section class="secao" id="${id}"><div class="wrap"><div class="tag rv"><button class="tg ab" data-tg="${id}" title="Recolher ou abrir">−</button><h2>${tit}</h2><p class="lead">${lead}</p></div><div class="corpoSec" id="cs-${id}">`;
@@ -277,7 +278,7 @@ async function carregarConta(c) { const s = await sessaoSL(); if (!s) return; co
 function lerGab(c) { try { return JSON.parse(localStorage.getItem(chaveGab(c))) || null; } catch (e) { return null; } }
 function secGabinete(c) { return `<div class="bloco rv" id="gabSim"><h3>Simulador de gabinete<button class="ib imp" id="gabImp" title="Imprimir o simulador (preenchido e em branco)"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 6V2.5h7V6"/><rect x="2" y="6" width="12" height="5.5" rx="1.2"/><path d="M4.5 9.5h7v4h-7z"/></svg></button></h3><p>Indique as pessoas, escolha o nível de cada Secretário Parlamentar (PL/GAB) e as gratificações. O saldo mostra quanto da cota mensal ainda cabe.</p><div id="gab"></div></div>`; }
 function ligarGabinete(c) {
-  const gi = $("#gabImp"); if (gi) gi.onclick = (e) => { e.stopPropagation(); caderno(c, window._ordM || [], "Simulador de gabinete"); };
+  const gi = $("#gabImp"); if (gi) gi.onclick = (e) => { e.stopPropagation(); if (ACESSO !== "liberado") return; caderno(c, window._ordM || [], "Simulador de gabinete"); };
   const G = EST.gabinete_parlamentar || {}, st = lerGab(c) || { chefe: "", v: Array.from({ length: G.cargos || 27 }, () => ({ nome: "", nv: 0, op: "" })) };
   const salva = () => { try { localStorage.setItem(chaveGab(c), JSON.stringify(st)); } catch (e) {} };
   const desenha = () => { const usado = st.v.reduce((s2, x) => s2 + (x.nv ? GAB_IDX[x.nv - 1] * GAB_VAL : 0), 0), saldo = COTA_GAB - usado, ocup = st.v.filter((x) => x.nv).length, ops = st.v.filter((x) => x.op).length, grat = st.v.reduce((s2, x) => s2 + (x.op === "5" ? 8982.02 : x.op === "4" ? 6198.2 : 0), 0);
@@ -479,11 +480,12 @@ async function caderno(c, ordM, foco) {
   const estrutura = (doc) => { const L = []; let g = null; doc.querySelectorAll(".capa, .sec h1, h3").forEach((el) => { if (el.classList.contains("capa")) { g = { t: "Capa", el, subs: [] }; L.push(g); } else if (el.tagName === "H1") { g = { t: el.textContent, el: el.parentNode, subs: [] }; L.push(g); } else g && g.subs.push(el); }); return L; };
   const nosDe = (h) => { const R = [h]; let n = h.nextElementSibling; while (n && n.tagName !== "H3" && !n.classList.contains("rod") && !n.classList.contains("pg")) { R.push(n); n = n.nextElementSibling; } return R; };
   const OFF = new Set(foco || window._pdfSem ? [] : (lerP(c).cadOff || ["Anexo"]));
+  const TRAVA = ACESSO !== "liberado" && !window._pdfSem; if (TRAVA) { OFF.add("Administrativo"); OFF.add("Anexo"); }
   if (foco) { const L0 = estrutura(new DOMParser().parseFromString(html, "text/html")); L0.forEach((g) => { if (g.t === "Anexo") return; if (g.t !== "Administrativo") { OFF.add(g.t); return; } g.subs.forEach((h, si) => { if (!h.textContent.startsWith(foco)) OFF.add(g.t + "/" + si); }); }); }
   const aplica = (doc) => { if (!doc) return; doc.querySelectorAll("[data-off]").forEach((x) => { x.style.display = ""; x.removeAttribute("data-off"); }); const esc2 = (x) => { x.style.display = "none"; x.setAttribute("data-off", ""); };
     estrutura(doc).forEach((g, gi) => { const gOff = OFF.has(g.t); let vis = 0; g.subs.forEach((h, si) => { if (gOff || OFF.has(g.t + "/" + si)) nosDe(h).forEach(esc2); else vis++; }); if (gOff || (g.subs.length && !vis)) esc2(g.el); });
     doc.querySelectorAll(".pg").forEach((pg) => { const algum = [...pg.querySelectorAll("h3, .capa")].some((x) => !x.closest("[data-off]")); if (!algum) esc2(pg); }); };
-  const montaSel = () => { const L = estrutura(f.contentDocument); ov.querySelector(".cadSel").innerHTML = L.map((g) => `<div class="cg1"><label class="gt"><input type="checkbox" data-g="${esc(g.t)}" ${OFF.has(g.t) ? "" : "checked"}> ${esc(g.t)}</label>${g.subs.map((h, si) => `<label><input type="checkbox" data-g="${esc(g.t)}/${si}" ${OFF.has(g.t) || OFF.has(g.t + "/" + si) ? "" : "checked"} ${OFF.has(g.t) ? "disabled" : ""}> ${esc(h.firstChild.textContent)}</label>`).join("")}</div>`).join(""); };
+  const montaSel = () => { const L = estrutura(f.contentDocument); ov.querySelector(".cadSel").innerHTML = L.map((g) => `<div class="cg1"><label class="gt"><input type="checkbox" data-g="${esc(g.t)}" ${OFF.has(g.t) ? "" : "checked"}${TRAVA && (g.t === "Administrativo" || g.t === "Anexo") ? " disabled" : ""}> ${esc(g.t)}${TRAVA && (g.t === "Administrativo" || g.t === "Anexo") ? " · restrito" : ""}</label>${g.subs.map((h, si) => `<label><input type="checkbox" data-g="${esc(g.t)}/${si}" ${OFF.has(g.t) || OFF.has(g.t + "/" + si) ? "" : "checked"} ${OFF.has(g.t) ? "disabled" : ""}> ${esc(h.firstChild.textContent)}</label>`).join("")}</div>`).join(""); };
   f.onload = () => { if (window._pdfSem) { const L0 = estrutura(f.contentDocument); L0.forEach((g) => { if (window._pdfSem.some((t) => g.t === t)) OFF.add(g.t); g.subs.forEach((h, si) => { if (window._pdfSem.some((t) => h.firstChild.textContent.startsWith(t))) OFF.add(g.t + "/" + si); }); }); }
     montaSel(); aplica(f.contentDocument); aplica(cp.shadowRoot);
     if (window._pdfSem) { const d0 = f.contentDocument; setTimeout(() => { document.open(); document.write("<!doctype html>" + d0.documentElement.outerHTML); document.close(); }, 300); } };
@@ -515,6 +517,17 @@ function setaFlutuante() { let b = $("#setaF"); if (!b) { b = Object.assign(docu
   b.dataset.ir = prox[0]; b.innerHTML = `<b>↓</b><span>${esc(prox[1])}</span>`; b.classList.add("vis"); clearTimeout(SETA_T); }
 addEventListener("scroll", () => { const b = $("#setaF"); if (b) b.classList.remove("vis"); clearTimeout(SETA_T); SETA_T = setTimeout(setaFlutuante, 450); }, { passive: true });
 // Administrativo: total no cabeçalho de cada aba + botão "i" com a base de dados e o significado (bruto/líquido)
+// cadeado dos valores (migração 65): Administrativo e anexo só para quem o administrador liberou
+let ACESSO = "verificando";
+async function verificarAcesso() { const s = await sessaoSL(); if (!s) { ACESSO = "nenhum"; aplicarTrava(); return; }
+  try { let r = (await supabaseClient.rpc("acesso_parlamentares")).data || "nenhum"; if (r === "nenhum") r = (await supabaseClient.rpc("solicitar_acesso_parlamentares")).data || "pendente"; ACESSO = r; } catch (e) { ACESSO = "nenhum"; } aplicarTrava(); }
+const CADEADO = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
+function aplicarTrava() { const ok = ACESSO === "liberado";
+  document.querySelectorAll("#s3 .bloco").forEach((b) => { b.classList.toggle("trava", !ok); b.querySelector(".trv")?.remove(); const h = b.querySelector(":scope > h3"); h && h.querySelector(".cad")?.remove();
+    if (ok) return; h && h.insertAdjacentHTML("beforeend", `<span class="cad" title="Conteúdo restrito">${CADEADO}</span>`);
+    const msg = ACESSO === "pendente" ? `<b>Pedido de acesso enviado.</b><span>O administrador vai analisar e você recebe um aviso quando for liberado.</span>` : ACESSO === "negado" ? `<b>Acesso não liberado.</b><span>Fale com o administrador: Neto · (48) 99120-5200.</span>` : `<b>Conteúdo restrito.</b><span>Os valores do mandato são liberados para usuários cadastrados, após análise do administrador.</span><button class="btn trvb">Entrar ou cadastrar</button>`;
+    (b.querySelector(".blc") || b).insertAdjacentHTML("afterbegin", `<div class="trv">${CADEADO}<div>${msg}</div></div>`); });
+  document.querySelectorAll(".trvb").forEach((x) => x.onclick = (e) => { e.stopPropagation(); try { localStorage.setItem("sl_volta", location.href); } catch (er) {} location.href = "../?entrar=1"; }); }
 function decorarAdm() { const c = window._cAtual; if (!c || !$("#s3")) return; const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, F = (window.FOLHA_GAB || {});
   const par = PA.subsidio * (1 + PA.gestao_demais) + PA.aux_saude + PA.aux_alim, gab = G.cota + G.chefe + G.retrib, T = (EST.liderancas || {}).tabela || {}, lid = (T[Math.min(9, nbanc(c.p))] || {}).cota || 0;
   const casa = Object.entries(EST.grupos || {}).filter(([g, L]) => !/Comiss/.test(g)).reduce((s2, [g, L]) => s2 + L.reduce((a, x) => a + x.t, 0), 0);

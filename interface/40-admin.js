@@ -134,6 +134,20 @@ async function montarAdminErros() {
 
 // Seção "Visitas" — contador de páginas abertas (migração 63). Últimos 7 dias:
 // totais, por dia e por página. Visitante = navegador (id aleatório), não pessoa.
+// Seção "Acessos" — pedidos de acesso aos valores da página Parlamentares (migração 65).
+async function montarAdminAcessos() {
+  const L = await adminListarAcessoParlamentares();
+  if (!L) return estadoVazio({ icone: "alerta", titulo: "Não foi possível ler os pedidos", texto: "Confira se a migração 65 está aplicada." });
+  const esc = (x) => escaparAtributoHtml(x || "").replace(/>/g, "&gt;"), pend = L.filter((x) => x.status === "pendente").length;
+  const titulo = `<div style="font-size:14px; font-weight:700; margin:0 0 10px 2px;">Acessos · Parlamentares · ${pend} pendente${pend === 1 ? "" : "s"}</div>`;
+  if (!L.length) return titulo + estadoVazio({ icone: "alerta", titulo: "Nenhum pedido ainda", texto: "Quando alguém pedir acesso aos valores da página Parlamentares, aparece aqui." });
+  const cor = { pendente: "#F5A623", liberado: "var(--pc-accent)", negado: "#FF6B70" };
+  return `${titulo}<div class="pc-lobby-card">${L.map((x) => `<div class="pc-lobby-linha" style="align-items:center;">
+      <span style="min-width:0;"><div style="font-size:12.5px; font-weight:700;">${esc(x.nome || "Sem nome")}</div><div style="font-size:11px; color:var(--pc-ink-dim);">${esc(x.email)} · pedido em ${new Date(x.solicitado_em).toLocaleString("pt-BR")}</div><div style="font-size:10.5px; font-weight:700; color:${cor[x.status]}; text-transform:uppercase; letter-spacing:.06em;">${x.status}</div></span>
+      <span style="flex-shrink:0; display:flex; gap:6px;">${x.status !== "liberado" ? `<button data-pc-acesso="${x.perfil_id}" data-lib="1" style="font-size:11px; padding:5px 10px;">Liberar</button>` : ""}${x.status !== "negado" ? `<button data-pc-acesso="${x.perfil_id}" data-lib="0" class="ghost" style="font-size:11px; padding:5px 10px;">${x.status === "liberado" ? "Retirar" : "Negar"}</button>` : ""}</span>
+    </div>`).join("")}</div>`;
+}
+
 async function montarAdminVisitas() {
   const v = await adminVisitas(7);
   if (!v) return estadoVazio({ icone: "alerta", titulo: "Não foi possível ler as visitas", texto: "Confira se a migração 63 está aplicada." });
@@ -758,6 +772,7 @@ async function renderAdminPainel() {
     { id: "problemas", label: "Problemas" },
     { id: "erros", label: "Erros" },
     { id: "visitas", label: "Visitas" },
+    { id: "acessos", label: "Acessos" },
     { id: "pesquisa", label: "Pesquisa" },
     { id: "financeiro", label: "Financeiro" },
     { id: "rotinas", label: "Rotinas" },
@@ -771,6 +786,7 @@ async function renderAdminPainel() {
   else if (pcState.adminSecao === "problemas") conteudoSecao = await montarAdminProblemas();
   else if (pcState.adminSecao === "erros") conteudoSecao = await montarAdminErros();
   else if (pcState.adminSecao === "visitas") conteudoSecao = await montarAdminVisitas();
+  else if (pcState.adminSecao === "acessos") conteudoSecao = await montarAdminAcessos();
   else if (pcState.adminSecao === "pesquisa") conteudoSecao = await montarAdminPesquisa();
   else if (pcState.adminSecao === "financeiro") conteudoSecao = await montarAdminFinanceiro();
   else if (pcState.adminSecao === "bots") conteudoSecao = await montarAdminBots();
@@ -820,6 +836,15 @@ async function renderAdminPainel() {
     document.querySelectorAll("[data-pc-resolver-problema]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         await adminMarcarProblemaResolvido(btn.getAttribute("data-pc-resolver-problema"));
+        renderAdminPainel();
+      });
+    });
+  }
+  if (pcState.adminSecao === "acessos") {
+    document.querySelectorAll("[data-pc-acesso]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        await adminDecidirAcessoParlamentares(btn.getAttribute("data-pc-acesso"), btn.getAttribute("data-lib") === "1");
         renderAdminPainel();
       });
     });

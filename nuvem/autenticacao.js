@@ -350,6 +350,17 @@ async function adminResolverErroCliente(id) {
   return { error };
 }
 
+// Acesso aos valores da página Parlamentares (migração 65) — painel admin → Acessos.
+async function adminListarAcessoParlamentares() {
+  const { data, error } = await supabaseClient.rpc("admin_listar_acesso_parlamentares");
+  if (error) { console.error("Erro ao listar acessos:", error); return null; }
+  return data || [];
+}
+async function adminDecidirAcessoParlamentares(perfilId, liberar) {
+  const { error } = await supabaseClient.rpc("admin_decidir_acesso_parlamentares", { p_perfil: perfilId, p_liberar: !!liberar });
+  return { error };
+}
+
 // Visitas por página (migração 63, nuvem/visitas.js) — painel admin → Visitas.
 async function adminVisitas(dias) {
   const { data, error } = await supabaseClient.rpc("admin_visitas", { p_dias: dias || 7 });

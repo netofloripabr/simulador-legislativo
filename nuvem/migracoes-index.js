@@ -1462,5 +1462,36 @@ const MIGRACOES_INDEX = [
     "parlamentar_rascunhos_dono"
    ]
   ]
+ },
+ {
+  "num": 65,
+  "arquivo": "migracao-65-acesso-parlamentares.sql",
+  "descricao": "Migração 65: acesso controlado aos valores da página Parlamentares (pedido do usuário em 13/10/2026).",
+  "objetos": [
+   [
+    "table",
+    "parlamentares_acesso"
+   ],
+   [
+    "policy",
+    "parlamentares_acesso_le_proprio"
+   ],
+   [
+    "function",
+    "acesso_parlamentares"
+   ],
+   [
+    "function",
+    "solicitar_acesso_parlamentares"
+   ],
+   [
+    "function",
+    "admin_listar_acesso_parlamentares"
+   ],
+   [
+    "function",
+    "admin_decidir_acesso_parlamentares"
+   ]
+  ]
  }
 ];
