@@ -169,7 +169,7 @@ function secPolitica(c) {
   return `<div class="bloco rv"><h3 data-bl>ALESC26</h3><div class="blc"><p>À esquerda, os eleitos de 2022; à direita, os de 2026. Cada segmento é um deputado, do tamanho da sua votação. Verde: cadeiras ganhas; vermelho: perdidas.</p>
     <div class="ordc" id="ordComp"><span class="r">Ordenar</span>${[["n26", "2026"], ["n22", "2022"], ["var", "variação"], ["vot", "votos 2026"]].map(([k, r], i) => `<button data-oc="${k}" class="${i ? "" : "on"}">${r} ↓</button>`).join("")}</div><div class="comp v1" id="comp"></div>
     <p class="nota">2022: resultado da eleição (antes das trocas de partido). Federações de 2026 somam os partidos que a compõem (UNIÃO/PP = União + PP; PT/PC do B/PV = PT; PSOL/REDE = PSOL).</p></div></div>
-    <div class="bloco rv"><h3 data-bl>Comissões: ${esc(c.p)}</h3><div class="blc"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). O ${esc(c.p)} vem marcado; marque ou desmarque partidos para simular qualquer bloco.</p>
+    <div class="bloco rv"><h3 data-bl>Comissões: ${esc(c.p)}<button class="qbt" id="qbt" title="Cálculo completo por comissão">÷ Quociente por comissão</button></h3><div class="blc"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). O ${esc(c.p)} vem marcado; marque ou desmarque partidos para simular qualquer bloco.</p>
     <div class="chips" id="blocoP">${ps.map((p) => `<button data-bp="${esc(p)}" class="${p === c.p ? "on" : ""}">${esc(p)} · ${nbanc(p)}</button>`).join("")}</div><div id="quoc"></div>
     <div class="gcom3"><div class="gcom" id="gcom"></div></div><div class="distr" id="distr"></div></div></div>
     <div class="bloco rv"><h3 data-bl>Frentes e fóruns parlamentares</h3><div class="blc"><p>Grupos suprapartidários de deputados em torno de um tema: setor econômico, região, obra, causa social. Não votam projetos; mobilizam, debatem e levam pautas ao governo e às comissões.</p>
@@ -224,6 +224,7 @@ function ligarPolitica(c) {
       if (aceso) COLOC[j]--; else if (livre > 0 && COLOC[j] < (n9 ? lim9 : lim7)) COLOC[j]++; desenha(); }; };
   $("#blocoP").onclick = (e) => { const b = e.target.closest("[data-bp]"); if (!b) return; const p = b.dataset.bp; BLOCO = BLOCO.includes(p) ? BLOCO.filter((x) => x !== p) : [...BLOCO, p]; b.classList.toggle("on"); desenha(); };
   BLOCO = [c.p]; COLOC = Array(24).fill(0); desenha();
+  const qb = $("#qbt"); if (qb) qb.onclick = (e) => { e.stopPropagation(); quocPainel(ps); };
   const ffb = $("#ffbt"); if (ffb) ffb.onclick = () => { const L = $("#fflista"), ab = L.hidden; L.hidden = !ab; ffb.classList.toggle("on", ab); ffb.querySelector("b").textContent = ab ? "↑" : "↓";
     if (ab && !L.innerHTML) { const nm = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(), eu = nm(c.u).split(" ")[0]; let filtro = "Vigente";
       const meu = (x) => nm(x.coord).includes(eu) || x.membros.some((m) => nm(m).includes(eu));
@@ -301,6 +302,20 @@ function montarVmg(dd, cor) { if (dd.querySelector("#vmg")) return; const tb = d
   sec.querySelector(".vml").onclick = (e) => { const b = e.target.closest(".vm > button"); if (!b) return; const vm = b.parentElement, i = +vm.dataset.i; if (vm.classList.toggle("ab")) { b.querySelector("i").textContent = "−"; const L = D.c.filter((x) => (x.v[i] || 0) > 0).sort((a, b2) => b2.v[i] - a.v[i]);
       vm.insertAdjacentHTML("beforeend", `<ol>${L.slice(0, 15).map((x, k) => `<li class="${x.n === c.n ? "eu" : ""}"><span>${k + 1}º ${esc(x.u)}<em>${esc(x.p)}</em></span><b>${ni(x.v[i])}</b><small>${nf(x.v[i] / D.val[i] * 100)}%</small></li>`).join("")}${L.length > 15 ? `<li><span style="color:var(--ter)">+ ${L.length - 15} candidatos com voto</span><b></b><small></small></li>` : ""}</ol>`); }
     else { b.querySelector("i").textContent = "+"; vm.querySelector("ol")?.remove(); } }; }
+// painel completo do quociente: cada comissão × cada partido/bloco (mesma lógica de vagas(), repartida entre as comissões em rodízio)
+function quocPainel(ps) { const meu = BLOCO.length ? BLOCO : [], G = [...(meu.length ? [meu] : []), ...ps.filter((p) => !meu.includes(p)).map((p) => [p])], f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const nomeG = (g) => g.join(" + "), dep = G.map((g) => g.reduce((s2, p) => s2 + nbanc(p), 0));
+  const grupo = (n, nomes) => { const k = nomes.length, r = vagas(G, n, k), q = r.q, V = G.map((g) => (r.L.find((x) => x.g === g) || {}).v || 0);
+    const cad = nomes.map(() => []); let pos = 0; G.map((g, i) => i).sort((a, b) => V[b] - V[a]).forEach((i) => { for (let t = 0; t < V[i]; t++) { let tent = 0; while (cad[pos % k].length >= n && tent++ < k) pos++; cad[pos % k].push(i); pos++; } });
+    return `<tr class="grp"><td colspan="${G.length + 2}">Comissões de ${n} membros · ${k} comissões · ${n * k} vagas</td></tr>
+      <tr class="qr"><td>Quociente<span>40 ÷ (${n} − 1) = ${f(q)}</span></td><td></td>${G.map((g, i) => `<td><b>${f(dep[i] / q)}</b><span>${dep[i]} ÷ ${f(q)}</span></td>`).join("")}</tr>
+      <tr class="qr"><td>Vagas no conjunto<span>direito = ${k} × deputados ÷ quociente; sobras pelas maiores frações (reserva aos partidos com menos de 5)</span></td><td></td>${G.map((g, i) => `<td><b>${V[i]}</b><span>${f(k * dep[i] / q)} de direito</span></td>`).join("")}</tr>
+      ${nomes.map((nm, j) => `<tr><td>${esc(nm)}</td><td class="nv">${n}</td>${G.map((g, i) => { const v = cad[j].filter((x) => x === i).length; return `<td>${v ? `<b>${v}</b>` : `<i>·</i>`}</td>`; }).join("")}</tr>`).join("")}`; };
+  const ov = document.createElement("div"); ov.className = "qov"; ov.innerHTML = `<div class="qcx"><div class="qtop"><div><b>Quociente das comissões</b><span>Regimento Interno, art. 30 · ${meu.length ? (meu.length > 1 ? "bloco " + esc(nomeG(meu)) : esc(meu[0]) + " sozinho") + " e os demais partidos separados" : "todos os partidos separados"}</span></div><button class="btn sec" data-fec>Fechar</button></div>
+    <div class="qsc"><table class="qtb"><tr><th>Comissão</th><th>Vagas</th>${G.map((g, i) => `<th class="${g === meu ? "eu" : ""}">${esc(nomeG(g))}<span>${dep[i]} dep.</span></th>`).join("")}</tr>${grupo(9, COMS9)}${grupo(7, COMS7)}
+    <tr class="tt"><td>Total</td><td>176</td>${G.map((g, i) => `<td>${vagas(G, 9, 4).L.find((x) => x.g === g).v + vagas(G, 7, 20).L.find((x) => x.g === g).v}</td>`).join("")}</tr></table></div>
+    <p class="nota">Cada linha é uma comissão; cada coluna, um partido ou bloco. A divisão das vagas entre as comissões é uma simulação em rodízio; quem decide onde cada partido fica são as lideranças, na indicação dos membros.</p></div>`;
+  document.body.appendChild(ov); ov.onclick = (e) => { if (e.target === ov || e.target.closest("[data-fec]")) ov.remove(); }; }
 function caderno(c, ordM, foco) {
   const E = eleitos(), pos = E.findIndex((x) => x.n === c.n) + 1, base = M[ordM[0]], reg = base.meso, idx = [...Array(N).keys()], st = window._gab || { v: [] };
   const cor = getComputedStyle(document.documentElement).getPropertyValue("--a").trim(), PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, I = EST.indenizatorias || {};
