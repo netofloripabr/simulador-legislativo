@@ -570,21 +570,21 @@ function setaFlutuante() { let b = $("#setaF"); if (!b) { b = Object.assign(docu
 addEventListener("scroll", () => { const b = $("#setaF"); if (b) b.classList.remove("vis"); clearTimeout(SETA_T); SETA_T = setTimeout(setaFlutuante, 450); }, { passive: true });
 // Administrativo: total no cabeçalho de cada aba + botão "i" com a base de dados e o significado (bruto/líquido)
 // cadeado dos valores (migração 65): Administrativo e anexo só para quem o administrador liberou
-// login obrigatório (15/10/2026): Eleitoral, Legislativo e Ranking ficam abertos; Administrativo, Mesa e o caderno pedem conta
+// login obrigatório (15/10/2026): Eleitoral e Ranking ficam abertos; Legislativo, Administrativo, Mesa e o caderno pedem conta
 function guardarVolta() { try { localStorage.setItem("sl_volta", location.href); } catch (e) {} }
 function irLogin() { guardarVolta(); location.href = "../?entrar=1"; }
 async function irGoogle() { guardarVolta(); try { await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: new URL("../", location.href).href } }); } catch (e) { irLogin(); } }
 function avisoLogin(oque) { document.querySelector(".lgfundo")?.remove();
   const f = Object.assign(document.createElement("div"), { className: "lgfundo" });
-  f.innerHTML = `<div class="lgcx" role="dialog" aria-modal="true"><button class="lgx" aria-label="Fechar">×</button>${CADEADO}<b>Entre para ver ${esc(oque)}</b><span>O Eleitoral, o Legislativo e o Ranking são abertos. Administrativo e Mesa ficam disponíveis para usuários cadastrados. O cadastro é gratuito: nome, e-mail e senha.</span>
+  f.innerHTML = `<div class="lgcx" role="dialog" aria-modal="true"><button class="lgx" aria-label="Fechar">×</button>${CADEADO}<b>Entre para ver ${esc(oque)}</b><span>O Eleitoral e o Ranking são abertos. Legislativo, Administrativo e Mesa ficam disponíveis para usuários cadastrados. O cadastro é gratuito: nome, e-mail e senha.</span>
     <button class="btn lgg"><svg viewBox="0 0 18 18" width="16" height="16"><path fill="#4285F4" d="M17.6 9.2c0-.6-.1-1.2-.2-1.7H9v3.3h4.8a4.1 4.1 0 0 1-1.8 2.7v2.2h2.9c1.7-1.6 2.7-3.9 2.7-6.5z"/><path fill="#34A853" d="M9 18c2.4 0 4.5-.8 6-2.2l-2.9-2.2c-.8.5-1.9.9-3.1.9-2.4 0-4.4-1.6-5.1-3.7H.9v2.3A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.9 10.8a5.4 5.4 0 0 1 0-3.5V5H.9a9 9 0 0 0 0 8z"/><path fill="#EA4335" d="M9 3.6c1.3 0 2.5.5 3.4 1.3l2.6-2.6A9 9 0 0 0 .9 5l3 2.3C4.6 5.2 6.6 3.6 9 3.6z"/></svg>Entrar com Google</button>
     <button class="btn sec lge">Entrar ou cadastrar com e-mail</button></div>`;
   document.body.appendChild(f); f.onclick = (e) => { if (e.target === f || e.target.closest(".lgx")) f.remove(); };
   f.querySelector(".lgg").onclick = irGoogle; f.querySelector(".lge").onclick = irLogin; }
 async function travaLogin() { if (new URLSearchParams(location.search).has("pdf")) return; const s = await sessaoSL(); window._logado = !!s; if (s) return;
-  [["s3", "o Administrativo"]].forEach(([id, oque]) => { const sec = $("#" + id); if (!sec || sec.classList.contains("lgbloq")) return; sec.classList.add("lgbloq");
+  [["s2", "o Legislativo"], ["s3", "o Administrativo"]].forEach(([id, oque]) => { const sec = $("#" + id); if (!sec || sec.classList.contains("lgbloq")) return; sec.classList.add("lgbloq");
     const cs = sec.querySelector(".corpoSec"); if (cs) { const g = Object.assign(document.createElement("div"), { className: "lggate" }); g.innerHTML = `${CADEADO}<b>Conteúdo para usuários cadastrados</b><span>Entre ou cadastre-se para ver ${oque}.</span><button class="btn">Entrar ou cadastrar</button>`; g.querySelector(".btn").onclick = () => avisoLogin(oque); cs.before(g); } });
-  document.querySelectorAll('.topo .secs a[data-s="s3"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); avisoLogin("o Administrativo"); });
+  document.querySelectorAll('.topo .secs a[data-s="s2"], .topo .secs a[data-s="s3"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); avisoLogin(a.dataset.s === "s2" ? "o Legislativo" : "o Administrativo"); });
   const cad = $("#caderno"); if (cad) cad.onclick = (e) => { e.preventDefault(); avisoLogin("o caderno completo"); }; }
 // links do topo que pedem conta (Mesa) também na tela de seleção
 function travaLinksTopo() { sessaoSL().then((s) => { if (s) return; document.querySelectorAll('.vistas a[href="mesa.html"], .mnu a[href="mesa.html"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); avisoLogin("a Mesa"); }); }); }
