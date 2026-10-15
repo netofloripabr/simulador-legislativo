@@ -27,8 +27,11 @@ async function carregar() {
 const eleitos = () => D.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => b.t - a.t);
 
 // ---------------- entrada: roda de nomes (ordem alfabética; o do centro em destaque, os demais menores e desfocados) ----------------
+// topo: Ranking e Mesa à direita; o simulador (sistema) fica no menu ☰ (15/10/2026)
+const VISTAS = `<a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a><span class="mnuw"><button class="mnub" aria-label="Menu" title="Menu"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button><span class="mnu" hidden><a href="../">Simulador eleitoral 2026<small>monte seu palpite de deputados e senadores</small></a><a href="novos.html">Parlamentares</a><a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a></span></span>`;
+function ligarMenu() { const b = $(".mnub"), m = $(".mnu"); if (!b || !m) return; b.onclick = (e) => { e.stopPropagation(); m.hidden = !m.hidden; }; document.addEventListener("click", (e) => { if (!e.target.closest(".mnuw")) m.hidden = true; }); }
 function telaSelecao(foco) {
-  $(".topo .sep").textContent = "Parlamentares · 2027–2031"; $(".topo .sep").onclick = null; $(".topo .sep").style.cursor = ""; $(".topo .secs") && $(".topo .secs").remove(); $(".vistas").innerHTML = `<a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a>`;
+  $(".topo .sep").textContent = "Parlamentares · 2027–2031"; $(".topo .sep").onclick = null; $(".topo .sep").style.cursor = ""; $(".topo .secs") && $(".topo .secs").remove(); $(".vistas").innerHTML = VISTAS; ligarMenu(); travaLinksTopo();
   const E = eleitos().sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
   $("#app").innerHTML = `<div class="roda" id="roda"><ol>${E.map((c) => `<li data-n="${c.n}">${esc(c.u)}</li>`).join("")}</ol></div>
     <div class="rodainfo"><div class="pt" id="spt"></div><button class="btn" id="sabrir">Abrir</button><div class="dica">role para escolher · ${E.length} parlamentares eleitos</div></div>`;
@@ -60,13 +63,13 @@ function perfil(n) {
     ${secEleitoral(c)}${secLegislativo(c)}${secAdministrativo(c)}`;
   $("#trocar").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(n); };
   $(".topo .sep").textContent = c.u; $(".topo .sep").style.cursor = "pointer"; $(".topo .sep").title = "Trocar parlamentar"; $(".topo .sep").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(c.n); }; const sx = $(".topo .secs") || $(".topo .sep").insertAdjacentElement("afterend", Object.assign(document.createElement("nav"), { className: "secs" })); sx.innerHTML = `<a href="#s1" data-s="s1">Eleitoral</a><a href="#s2" data-s="s2">Legislativo</a><a href="#s3" data-s="s3">Administrativo</a><button class="svbtn" id="salvarConta" title="Entre na sua conta para salvar"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h8l2.5 2.5v8.5h-11z"/><path d="M5 2.5v3.5h5V2.5"/><rect x="5" y="9" width="6" height="4.5" rx=".5"/></svg><span class="svt"></span></button>`;
-  $(".vistas").innerHTML = `<a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a>`;
+  $(".vistas").innerHTML = VISTAS; ligarMenu(); travaLinksTopo();
   heroMapa(c, ordM); ligarEleitoral(c, ordM); ligarPolitica(c); ligarGabinete(c); ligarPrazos(); revelar(); scrollTo(0, 0);
   $("#caderno").onclick = () => caderno(c, ordM); window._ordM = ordM;
   $("#salvarConta").onclick = (e) => salvarConta(c, e.currentTarget);
   if (window._daConta !== n) carregarConta(c); window._daConta = null;
   { const q0 = new URLSearchParams(location.search); if (q0.has("pdf")) { window._pdfSem = (q0.get("sem") || "").split("|").filter(Boolean); setTimeout(() => caderno(c, ordM), 600); } } // ?pdf=1&sem=Título|Título: abre só o caderno (para gerar PDF)
-  verificarAcesso();
+  verificarAcesso(); travaLogin(); travaLinksTopo();
   clearInterval(window._salvaPainelT); window._salvaPainelT = setInterval(salvarPainelLocal, 4000);
 }
 const cabSec = (id, num, tit, lead) => `<section class="secao" id="${id}"><div class="wrap"><div class="tag rv"><button class="tg ab" data-tg="${id}" title="Recolher ou abrir">−</button><h2>${tit}</h2><p class="lead">${lead}</p></div><div class="corpoSec" id="cs-${id}">`;
@@ -567,6 +570,24 @@ function setaFlutuante() { let b = $("#setaF"); if (!b) { b = Object.assign(docu
 addEventListener("scroll", () => { const b = $("#setaF"); if (b) b.classList.remove("vis"); clearTimeout(SETA_T); SETA_T = setTimeout(setaFlutuante, 450); }, { passive: true });
 // Administrativo: total no cabeçalho de cada aba + botão "i" com a base de dados e o significado (bruto/líquido)
 // cadeado dos valores (migração 65): Administrativo e anexo só para quem o administrador liberou
+// login obrigatório (15/10/2026): Eleitoral e Ranking ficam abertos; Legislativo, Administrativo, Mesa e o caderno pedem conta
+function guardarVolta() { try { localStorage.setItem("sl_volta", location.href); } catch (e) {} }
+function irLogin() { guardarVolta(); location.href = "../?entrar=1"; }
+async function irGoogle() { guardarVolta(); try { await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: new URL("../", location.href).href } }); } catch (e) { irLogin(); } }
+function avisoLogin(oque) { document.querySelector(".lgfundo")?.remove();
+  const f = Object.assign(document.createElement("div"), { className: "lgfundo" });
+  f.innerHTML = `<div class="lgcx" role="dialog" aria-modal="true"><button class="lgx" aria-label="Fechar">×</button>${CADEADO}<b>Entre para ver ${esc(oque)}</b><span>O Eleitoral e o Ranking são abertos. Legislativo, Administrativo e Mesa ficam disponíveis para usuários cadastrados. O cadastro é gratuito: nome, e-mail e senha.</span>
+    <button class="btn lgg"><svg viewBox="0 0 18 18" width="16" height="16"><path fill="#4285F4" d="M17.6 9.2c0-.6-.1-1.2-.2-1.7H9v3.3h4.8a4.1 4.1 0 0 1-1.8 2.7v2.2h2.9c1.7-1.6 2.7-3.9 2.7-6.5z"/><path fill="#34A853" d="M9 18c2.4 0 4.5-.8 6-2.2l-2.9-2.2c-.8.5-1.9.9-3.1.9-2.4 0-4.4-1.6-5.1-3.7H.9v2.3A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.9 10.8a5.4 5.4 0 0 1 0-3.5V5H.9a9 9 0 0 0 0 8z"/><path fill="#EA4335" d="M9 3.6c1.3 0 2.5.5 3.4 1.3l2.6-2.6A9 9 0 0 0 .9 5l3 2.3C4.6 5.2 6.6 3.6 9 3.6z"/></svg>Entrar com Google</button>
+    <button class="btn sec lge">Entrar ou cadastrar com e-mail</button></div>`;
+  document.body.appendChild(f); f.onclick = (e) => { if (e.target === f || e.target.closest(".lgx")) f.remove(); };
+  f.querySelector(".lgg").onclick = irGoogle; f.querySelector(".lge").onclick = irLogin; }
+async function travaLogin() { if (new URLSearchParams(location.search).has("pdf")) return; const s = await sessaoSL(); window._logado = !!s; if (s) return;
+  [["s2", "o Legislativo"], ["s3", "o Administrativo"]].forEach(([id, oque]) => { const sec = $("#" + id); if (!sec || sec.classList.contains("lgbloq")) return; sec.classList.add("lgbloq");
+    const cs = sec.querySelector(".corpoSec"); if (cs) { const g = Object.assign(document.createElement("div"), { className: "lggate" }); g.innerHTML = `${CADEADO}<b>Conteúdo para usuários cadastrados</b><span>Entre ou cadastre-se para ver ${oque}.</span><button class="btn">Entrar ou cadastrar</button>`; g.querySelector(".btn").onclick = () => avisoLogin(oque); cs.before(g); } });
+  document.querySelectorAll('.topo .secs a[data-s="s2"], .topo .secs a[data-s="s3"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); avisoLogin(a.dataset.s === "s2" ? "o Legislativo" : "o Administrativo"); });
+  const cad = $("#caderno"); if (cad) cad.onclick = (e) => { e.preventDefault(); avisoLogin("o caderno completo"); }; }
+// links do topo que pedem conta (Mesa) também na tela de seleção
+function travaLinksTopo() { sessaoSL().then((s) => { if (s) return; document.querySelectorAll('.vistas a[href="mesa.html"], .mnu a[href="mesa.html"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); avisoLogin("a Mesa"); }); }); }
 let ACESSO = "verificando";
 async function verificarAcesso() { const s = await sessaoSL(); if (!s) { ACESSO = "nenhum"; aplicarTrava(); return; }
   try { let r = (await supabaseClient.rpc("acesso_parlamentares")).data || "nenhum"; if (r === "nenhum") r = (await supabaseClient.rpc("solicitar_acesso_parlamentares")).data || "pendente"; ACESSO = r; } catch (e) { ACESSO = "nenhum"; } aplicarTrava(); }
