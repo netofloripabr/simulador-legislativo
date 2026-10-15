@@ -124,6 +124,8 @@ async function initColaborativo() {
     // está desligado. Sem isso, cadastro/login cai direto no app, igual
     // era antes dessas duas telas existirem.
     pcState.tela = "app";
+    // ?notif=1 (sino do menu de Parlamentares/Ranking, 15/10/2026): abre direto nas notificações
+    if (new URLSearchParams(location.search).get("notif")) pcState.subaba = "notificacoes";
     renderColaborativo();
     return;
   }
