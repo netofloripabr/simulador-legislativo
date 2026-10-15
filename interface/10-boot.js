@@ -26,6 +26,9 @@ async function initColaborativo() {
     // Volta para a página de onde a pessoa saiu para entrar (ex.: Corrida da Mesa,
     // painel/mesa.html grava "sl_volta" antes de mandar pro login) — 08/10/2026
     try { const v = localStorage.getItem("sl_volta"); if (v) { localStorage.removeItem("sl_volta"); location.href = v; return; } } catch (e) {}
+    // Página inicial = Parlamentares também para quem está logado (15/10/2026);
+    // o simulador abre pelo menu de lá (?capa=1) ou por qualquer link com parâmetro.
+    if (!location.search && !location.hash) { location.replace("painel/novos.html"); return; }
     // Saldo REAL da carteira (creditos_conta) — pcState.perfil vem da
     // tabela "perfis", que não tem essa coluna: sem esta carga, todo
     // "saldo: X" da interface (slot trancado, gates) mostrava 0 pra
