@@ -1499,5 +1499,16 @@ const MIGRACOES_INDEX = [
   "arquivo": "migracao-66-notificacoes-tipos.sql",
   "descricao": "Migração 66: novos tipos de notificação (13/10/2026).",
   "objetos": []
+ },
+ {
+  "num": 67,
+  "arquivo": "migracao-67-visitas-relatorio.sql",
+  "descricao": "Migração 67: relatório de visitas com nomes (pedido do usuário em 15/10/2026).",
+  "objetos": [
+   [
+    "function",
+    "admin_visitas"
+   ]
+  ]
  }
 ];
