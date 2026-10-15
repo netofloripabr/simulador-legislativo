@@ -1414,17 +1414,33 @@ async function renderComparacaoDesafio() {
   } else {
     const escopo = d.escopo_candidatos || [];
     const ordenados = [...escopo].sort((a, b) => (votosEu.get(b.chave) || 0) - (votosEu.get(a.chave) || 0));
+    // Duelo apurado: resultado oficial e pontos por candidato, mesma conta de
+    // ferramentas/apurar_duelos.js (regra dos três ícones, só onde o lado pôs votos) — 15/10/2026
+    const ofic = {}, ptsEu = {}, ptsOutro = {};
+    if (encerrado) {
+      try {
+        const D = await fetch(`dados/painel/${String(d.estado || "SC").toLowerCase()}-${d.cargo}.json?v=20261013`).then((r) => r.json());
+        const slug = (x) => String(x || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        const porNome = {}; D.c.forEach((c) => { porNome[slug(c.nome)] = c; porNome[slug(c.u)] = porNome[slug(c.u)] || c; });
+        const oficiais = escopo.map((e) => { const pp = slug(e.partido), resto = e.chave.startsWith(pp + "-") ? e.chave.slice(pp.length + 1) : e.chave, c = porNome[resto] || porNome[slug(e.nome)];
+          if (!c) return null; ofic[e.chave] = { v: c.t, el: /^eleito/i.test(c.s || "") }; return { chave: e.chave, partido: e.partido, votosReais: c.t, eleitoReal: ofic[e.chave].el, status: "valido" }; }).filter(Boolean);
+        const lado = (m, alvo) => { const prev = [...m].filter(([, v]) => v > 0).map(([chave, votos]) => ({ chave, votos, marcadoEleito: true })); (pontuarCedulaCargo(prev, oficiais, escopo.length).detalhe || []).forEach((x) => { alvo[x.chave] = x.pts; }); };
+        lado(votosEu, ptsEu); lado(votosOutro, ptsOutro);
+      } catch (e) { /* sem arquivo oficial: colunas ficam com — */ }
+    }
+    const fmtP = (x) => x == null ? "—" : String(Math.round(x));
     linhas = ordenados.map((c, i) => {
       const vEu = votosEu.get(c.chave) || 0;
       const vOutro = votosOutro.get(c.chave) || 0;
+      const o = ofic[c.chave], pe = ptsEu[c.chave], po = ptsOutro[c.chave];
       return `
       <div class="pc-cmp-linha">
         <span class="pc-cmp-pos">${i + 1}º</span>
         <span class="pc-cmp-cand"><span class="n">${c.nome}</span><span class="p">${c.partido}</span></span>
         <span class="pc-cmp-val num">${vEu.toLocaleString("pt-BR")}</span>
         <span class="pc-cmp-val num">${vOutro.toLocaleString("pt-BR")}</span>
-        <span class="pc-cmp-res">—</span>
-        <span class="pc-cmp-pts">—</span><span class="pc-cmp-pts">—</span>
+        <span class="pc-cmp-res num"${o && o.el ? ' style="color:var(--pc-accent); font-weight:800;" title="Eleito"' : ""}>${o ? o.v.toLocaleString("pt-BR") : "—"}</span>
+        <span class="pc-cmp-pts"${pe != null && po != null && pe > po ? ' style="color:var(--pc-accent); font-weight:800;"' : ""}>${fmtP(pe)}</span><span class="pc-cmp-pts"${pe != null && po != null && po > pe ? ' style="color:var(--pc-accent); font-weight:800;"' : ""}>${fmtP(po)}</span>
       </div>`;
     }).join("");
   }
@@ -1482,7 +1498,7 @@ async function renderComparacaoDesafio() {
       </div>` : ""}
       <div class="pc-sub" style="margin:1px 0 12px;">${ehEleitos
         ? `${Math.max(setEu.size, setOutro.size)} cadeiras por lado · a coluna de resultado preenche na apuração oficial · pontos = acerto da composição.`
-        : `${(d.escopo_candidatos || []).length} candidatos no recorte · resultado e pontos preenchem na apuração oficial · pontos = acerto de eleição + proximidade do voto.`}</div>
+        : `${(d.escopo_candidatos || []).length} candidatos no recorte · ${encerrado ? "resultado oficial 2026 (verde = eleito) e pontos por candidato" : "resultado e pontos preenchem na apuração oficial"} · pontos = acerto de eleição + proximidade do voto.`}</div>
 
       <div class="pc-cmp-cols">
         <span class="pc-cmp-pos"></span>
