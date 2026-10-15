@@ -1549,5 +1549,11 @@ const MIGRACOES_INDEX = [
     "parlamentares_acesso.valores"
    ]
   ]
+ },
+ {
+  "num": 69,
+  "arquivo": "migracao-69-acesso-cadastros-antigos.sql",
+  "descricao": "Migração 69: quem já tinha cadastro até 15/10/2026 mantém o acesso que tinha",
+  "objetos": []
  }
 ];
