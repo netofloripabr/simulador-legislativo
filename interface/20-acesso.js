@@ -12,6 +12,8 @@
 function voltarDeLoginOuCadastro() {
   pcState.erro = "";
   pcState.cadRascunho = null;
+  // veio da página Parlamentares (aviso de login): o voltar devolve pra lá (15/10/2026)
+  try { const v = localStorage.getItem("sl_volta"); if (v && /\/painel\//.test(v)) { localStorage.removeItem("sl_volta"); location.href = v; return; } } catch (e) {}
   if (pcState.estado) { pcState.tela = "painel-convidado"; } else { pcState.tela = "landing"; }
   renderColaborativo();
 }
@@ -191,6 +193,12 @@ function cascaAcessoTopo(voltarId) {
   </div>`;
 }
 
+// Login e cadastro no visual da página Parlamentares (15/10/2026): título
+// grande à esquerda, card à direita; no celular o título vem em cima.
+function heroAcesso(card) {
+  return `<div class="pc-acesso-dup"><section class="pc-acesso-hero"><div class="pc-acesso-olho">Simulador eleitoral legislativo · 2026</div><h1>Os dados mais estratégicos <i>do seu mandato</i></h1><p>Cadastro gratuito</p></section>${card}</div>`;
+}
+
 // Pílulas de gênero (substituem o <select>, mesmo id num input hidden pra
 // não mexer nos handlers de submit).
 function pilulasGenero(idCampo, valorInicial) {
@@ -214,7 +222,7 @@ function attachPilulasGenero() {
 
 function renderTelaLogin() {
   const el = document.getElementById("modoColaborativoWrap");
-  el.innerHTML = `
+  el.innerHTML = `${heroAcesso(`
     <div class="pc-acesso">
       ${cascaAcessoTopo("pcBtnVoltarLogin")}
       <div class="pc-acesso-h2">Que bom te ver de novo</div>
@@ -229,7 +237,7 @@ function renderTelaLogin() {
         <button type="button" class="pc-acesso-link" id="pcLinkEsqueciSenha">Esqueci minha senha</button> ·
         <button type="button" class="pc-acesso-link destaque" id="pcBtnIrCadastro">Criar conta</button>
       </div>
-    </div>`;
+    </div>`)}`;
 
   document.getElementById("pcBtnVoltarLogin").addEventListener("click", voltarDeLoginOuCadastro);
   document.getElementById("pcBtnIrCadastro").addEventListener("click", () => {
@@ -574,7 +582,7 @@ function renderTelaCadastro() {
   // ela veio de um link de amigo, já que o código em si fica silencioso
   // no localStorage até o cadastro terminar (_resolverConvidadoPor).
   const veioDeConvite = !!localStorage.getItem("sl_convite_pendente");
-  el.innerHTML = `
+  el.innerHTML = `${heroAcesso(`
     <div class="pc-acesso" style="max-width:460px;">
       ${cascaAcessoTopo("pcBtnVoltarCadastro")}
       <div class="pc-acesso-h2">Crie sua conta</div>
@@ -600,7 +608,7 @@ function renderTelaCadastro() {
       <div class="pc-erro" id="pcCadErro">${pcState.erro || ""}</div>
       <button class="primary" id="pcBtnCadastrar">Criar conta</button>
       <div class="pc-acesso-links">Já tenho conta — <button type="button" class="pc-acesso-link destaque" id="pcBtnIrLogin">entrar</button></div>
-    </div>`;
+    </div>`)}`;
 
   document.getElementById("pcBtnVoltarCadastro").addEventListener("click", voltarDeLoginOuCadastro);
   document.getElementById("pcBtnIrLogin").addEventListener("click", () => {

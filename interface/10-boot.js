@@ -134,6 +134,9 @@ async function initColaborativo() {
   if (_convitePendente) {
     pcState.pendenteRegistro = true;
     pcState.tela = "cadastro";
+  } else if (_paramsIniciais.get("entrar")) {
+    // ?entrar=1 (vindo de Parlamentares/Mesa): direto na tela de acesso, sem a capa (15/10/2026)
+    pcState.tela = "login";
   } else if (!_paramsIniciais.get("entrar") && !_dueloPendente && !_paramsIniciais.toString()) {
     // Capa pública (07/10/2026): visitante sem login cai no painel analítico
     // de SC (painel/). O "Entrar" de lá volta com ?entrar=1 pra esta capa de acesso.
