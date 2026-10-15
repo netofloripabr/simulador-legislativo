@@ -1510,5 +1510,44 @@ const MIGRACOES_INDEX = [
     "admin_visitas"
    ]
   ]
+ },
+ {
+  "num": 68,
+  "arquivo": "migracao-68-acesso-por-area.sql",
+  "descricao": "Migração 68: liberação por área na página Parlamentares (pedido do usuário em 15/10/2026).",
+  "objetos": [
+   [
+    "function",
+    "acesso_parlamentares_areas"
+   ],
+   [
+    "function",
+    "acesso_parlamentares"
+   ],
+   [
+    "function",
+    "admin_listar_acesso_parlamentares"
+   ],
+   [
+    "function",
+    "admin_definir_areas_parlamentares"
+   ],
+   [
+    "function",
+    "solicitar_acesso_parlamentares"
+   ],
+   [
+    "column",
+    "parlamentares_acesso.legislativo"
+   ],
+   [
+    "column",
+    "parlamentares_acesso.administrativo"
+   ],
+   [
+    "column",
+    "parlamentares_acesso.valores"
+   ]
+  ]
  }
 ];

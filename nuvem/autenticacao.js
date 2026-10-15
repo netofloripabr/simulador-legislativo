@@ -361,6 +361,12 @@ async function adminDecidirAcessoParlamentares(perfilId, liberar) {
   return { error };
 }
 
+// Liberação por área (migração 68): Legislativo, Administrativo, Valores, Mesa.
+async function adminDefinirAreasParlamentares(perfilId, a) {
+  const { error } = await supabaseClient.rpc("admin_definir_areas_parlamentares", { p_perfil: perfilId, p_leg: !!a.legislativo, p_adm: !!a.administrativo, p_val: !!a.valores, p_mesa: !!a.mesa });
+  return { error };
+}
+
 // Visitas por página (migração 63, nuvem/visitas.js) — painel admin → Visitas.
 async function adminVisitas(dias) {
   const { data, error } = await supabaseClient.rpc("admin_visitas", { p_dias: dias || 7 });

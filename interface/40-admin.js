@@ -139,12 +139,13 @@ async function montarAdminAcessos() {
   const L = await adminListarAcessoParlamentares();
   if (!L) return estadoVazio({ icone: "alerta", titulo: "Não foi possível ler os pedidos", texto: "Confira se a migração 65 está aplicada." });
   const esc = (x) => escaparAtributoHtml(x || "").replace(/>/g, "&gt;"), pend = L.filter((x) => x.status === "pendente").length;
-  const titulo = `<div style="font-size:14px; font-weight:700; margin:0 0 10px 2px;">Acessos · Parlamentares · ${pend} pendente${pend === 1 ? "" : "s"}</div>`;
-  if (!L.length) return titulo + estadoVazio({ icone: "alerta", titulo: "Nenhum pedido ainda", texto: "Quando alguém pedir acesso aos valores da página Parlamentares, aparece aqui." });
-  const cor = { pendente: "#F5A623", liberado: "var(--pc-accent)", negado: "#FF6B70" };
-  return `${titulo}<div class="pc-lobby-card">${L.map((x) => `<div class="pc-lobby-linha" style="align-items:center;">
-      <span style="min-width:0;"><div style="font-size:12.5px; font-weight:700;">${esc(x.nome || "Sem nome")}</div><div style="font-size:11px; color:var(--pc-ink-dim);">${esc(x.email)} · pedido em ${new Date(x.solicitado_em).toLocaleString("pt-BR")}</div><div style="font-size:10.5px; font-weight:700; color:${cor[x.status]}; text-transform:uppercase; letter-spacing:.06em;">${x.status}</div></span>
-      <span style="flex-shrink:0; display:flex; gap:6px;">${x.status !== "liberado" ? `<button data-pc-acesso="${x.perfil_id}" data-lib="1" style="font-size:11px; padding:5px 10px;">Liberar</button>` : ""}${x.status !== "negado" ? `<button data-pc-acesso="${x.perfil_id}" data-lib="0" class="ghost" style="font-size:11px; padding:5px 10px;">${x.status === "liberado" ? "Retirar" : "Negar"}</button>` : ""}</span>
+  const titulo = `<div style="font-size:14px; font-weight:700; margin:0 0 4px 2px;">Acessos · Parlamentares · ${pend} pendente${pend === 1 ? "" : "s"}</div><div style="font-size:11.5px; color:var(--pc-ink-dim); margin:0 0 10px 2px;">Todo cadastro novo pede acesso. Marque o que cada pessoa pode ver e toque em Salvar; ela recebe o aviso no sino. Tudo desmarcado = não liberado.</div>`;
+  if (!L.length) return titulo + estadoVazio({ icone: "alerta", titulo: "Nenhum pedido ainda", texto: "Quando alguém se cadastrar e abrir a página Parlamentares, o pedido aparece aqui." });
+  const cor = { pendente: "#F5A623", liberado: "var(--pc-accent)", negado: "#FF6B70" }, AR = [["legislativo", "Legislativo"], ["administrativo", "Administrativo"], ["valores", "Valores R$"], ["mesa", "Mesa"]];
+  return `${titulo}<div class="pc-lobby-card">${L.map((x) => `<div class="pc-lobby-linha" style="flex-wrap:wrap; gap:8px; align-items:center;" data-pc-areas="${x.perfil_id}">
+      <span style="min-width:0; flex:1 1 220px;"><div style="font-size:12.5px; font-weight:700;">${esc(x.nome || "Sem nome")}</div><div style="font-size:11px; color:var(--pc-ink-dim);">${esc(x.email)} · pedido em ${new Date(x.solicitado_em).toLocaleString("pt-BR")}</div><div style="font-size:10.5px; font-weight:700; color:${cor[x.status]}; text-transform:uppercase; letter-spacing:.06em;">${x.status}</div></span>
+      <span style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; font-size:12px;">${AR.map(([k, t]) => `<label style="display:inline-flex; gap:5px; align-items:center; cursor:pointer;"><input type="checkbox" data-area="${k}"${x[k] ? " checked" : ""}>${t}</label>`).join("")}
+        <button data-pc-salvar-areas="${x.perfil_id}" style="font-size:11px; padding:5px 12px;">Salvar</button></span>
     </div>`).join("")}</div>`;
 }
 
@@ -852,10 +853,13 @@ async function renderAdminPainel() {
     });
   }
   if (pcState.adminSecao === "acessos") {
-    document.querySelectorAll("[data-pc-acesso]").forEach((btn) => {
+    document.querySelectorAll("[data-pc-salvar-areas]").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        btn.disabled = true;
-        await adminDecidirAcessoParlamentares(btn.getAttribute("data-pc-acesso"), btn.getAttribute("data-lib") === "1");
+        const id = btn.getAttribute("data-pc-salvar-areas"), row = document.querySelector(`[data-pc-areas="${id}"]`), a = {};
+        row.querySelectorAll("[data-area]").forEach((c) => { a[c.getAttribute("data-area")] = c.checked; });
+        btn.disabled = true; btn.textContent = "Salvando...";
+        const { error } = await adminDefinirAreasParlamentares(id, a);
+        if (error) { btn.disabled = false; btn.textContent = "Erro, tentar de novo"; return; }
         renderAdminPainel();
       });
     });

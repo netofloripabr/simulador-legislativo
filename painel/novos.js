@@ -69,7 +69,7 @@ function perfil(n) {
   $("#salvarConta").onclick = (e) => salvarConta(c, e.currentTarget);
   if (window._daConta !== n) carregarConta(c); window._daConta = null;
   { const q0 = new URLSearchParams(location.search); if (q0.has("pdf")) { window._pdfSem = (q0.get("sem") || "").split("|").filter(Boolean); setTimeout(() => caderno(c, ordM), 600); } } // ?pdf=1&sem=Título|Título: abre só o caderno (para gerar PDF)
-  verificarAcesso(); travaLogin(); travaLinksTopo();
+  travaLogin().then(verificarAcesso);
   clearInterval(window._salvaPainelT); window._salvaPainelT = setInterval(salvarPainelLocal, 4000);
 }
 const cabSec = (id, num, tit, lead) => `<section class="secao" id="${id}"><div class="wrap"><div class="tag rv"><button class="tg ab" data-tg="${id}" title="Recolher ou abrir">−</button><h2>${tit}</h2><p class="lead">${lead}</p></div><div class="corpoSec" id="cs-${id}">`;
@@ -581,13 +581,25 @@ function avisoLogin(oque) { document.querySelector(".lgfundo")?.remove();
     <button class="btn sec lge">Entrar ou cadastrar com e-mail</button></div>`;
   document.body.appendChild(f); f.onclick = (e) => { if (e.target === f || e.target.closest(".lgx")) f.remove(); };
   f.querySelector(".lgg").onclick = irGoogle; f.querySelector(".lge").onclick = irLogin; }
-async function travaLogin() { if (new URLSearchParams(location.search).has("pdf")) return; const s = await sessaoSL(); window._logado = !!s; if (s) return;
-  [["s2", "o Legislativo"], ["s3", "o Administrativo"]].forEach(([id, oque]) => { const sec = $("#" + id); if (!sec || sec.classList.contains("lgbloq")) return; sec.classList.add("lgbloq");
-    const cs = sec.querySelector(".corpoSec"); if (cs) { const g = Object.assign(document.createElement("div"), { className: "lggate" }); g.innerHTML = `${CADEADO}<b>Conteúdo para usuários cadastrados</b><span>Entre ou cadastre-se para ver ${oque}.</span><button class="btn">Entrar ou cadastrar</button>`; g.querySelector(".btn").onclick = () => avisoLogin(oque); cs.before(g); } });
-  document.querySelectorAll('.topo .secs a[data-s="s2"], .topo .secs a[data-s="s3"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); avisoLogin(a.dataset.s === "s2" ? "o Legislativo" : "o Administrativo"); });
-  const cad = $("#caderno"); if (cad) cad.onclick = (e) => { e.preventDefault(); avisoLogin("o caderno completo"); }; }
+// liberação por área (migração 68): logado não basta, o administrador escolhe Legislativo/Administrativo/Valores/Mesa
+let AREAS = null;
+async function lerAreas() { const s = await sessaoSL(); if (!s) return { status: "nenhum" };
+  try { let a = (await supabaseClient.rpc("acesso_parlamentares_areas")).data || { status: "nenhum" }; if (a.status === "nenhum") { await supabaseClient.rpc("solicitar_acesso_parlamentares"); a = (await supabaseClient.rpc("acesso_parlamentares_areas")).data || { status: "pendente" }; } return a; } catch (e) { return { status: "pendente" }; } }
+function avisoArea(oque) { if (AREAS.status === "nenhum") return avisoLogin(oque); document.querySelector(".lgfundo")?.remove();
+  const f = Object.assign(document.createElement("div"), { className: "lgfundo" });
+  f.innerHTML = `<div class="lgcx" role="dialog" aria-modal="true"><button class="lgx" aria-label="Fechar">×</button>${CADEADO}<b>${AREAS.status === "pendente" ? "Aguardando liberação" : "Acesso não liberado"}</b><span>${AREAS.status === "pendente" ? `Seu pedido de acesso foi enviado ao administrador. Você recebe um aviso no sino quando ${esc(oque)} for liberado.` : `${esc(oque[0].toUpperCase() + oque.slice(1))} não está liberado para a sua conta. Fale com o administrador: Neto · (48) 99120-5200.`}</span></div>`;
+  document.body.appendChild(f); f.onclick = (e) => { if (e.target === f || e.target.closest(".lgx")) f.remove(); }; }
+async function travaLogin() { if (new URLSearchParams(location.search).has("pdf")) return; AREAS = await lerAreas(); window._logado = AREAS.status !== "nenhum";
+  const tranca = { s2: !AREAS.legislativo, s3: !AREAS.administrativo }, nome = { s2: "o Legislativo", s3: "o Administrativo" };
+  ["s2", "s3"].forEach((id) => { const sec = $("#" + id); if (!sec || !tranca[id] || sec.classList.contains("lgbloq")) return; sec.classList.add("lgbloq");
+    const cs = sec.querySelector(".corpoSec"); if (cs) { const g = Object.assign(document.createElement("div"), { className: "lggate" }); const log = AREAS.status !== "nenhum";
+      g.innerHTML = `${CADEADO}<b>${log ? (AREAS.status === "pendente" ? "Aguardando liberação do administrador" : "Área não liberada para a sua conta") : "Conteúdo para usuários cadastrados"}</b><span>${log ? `Quando ${nome[id]} for liberado, você recebe um aviso no sino.` : `Entre ou cadastre-se para ver ${nome[id]}.`}</span>${log ? "" : `<button class="btn">Entrar ou cadastrar</button>`}`;
+      g.querySelector(".btn") && (g.querySelector(".btn").onclick = () => avisoLogin(nome[id])); cs.before(g); } });
+  document.querySelectorAll('.topo .secs a[data-s="s2"], .topo .secs a[data-s="s3"]').forEach((a) => { if (tranca[a.dataset.s]) a.onclick = (e) => { e.preventDefault(); avisoArea(nome[a.dataset.s]); }; });
+  const cad = $("#caderno"); if (cad && (tranca.s2 || tranca.s3)) cad.onclick = (e) => { e.preventDefault(); avisoArea("o caderno completo"); };
+  travaLinksTopo(); }
 // links do topo que pedem conta (Mesa) também na tela de seleção
-function travaLinksTopo() { sessaoSL().then((s) => { if (s) return; document.querySelectorAll('.vistas a[href="mesa.html"], .mnu a[href="mesa.html"]').forEach((a) => a.onclick = (e) => { e.preventDefault(); avisoLogin("a Mesa"); }); }); }
+function travaLinksTopo() { (AREAS ? Promise.resolve(AREAS) : lerAreas()).then((a) => { AREAS = a; if (a.mesa) return; document.querySelectorAll('.vistas a[href="mesa.html"], .mnu a[href="mesa.html"]').forEach((x) => x.onclick = (e) => { e.preventDefault(); avisoArea("a Mesa"); }); }); }
 let ACESSO = "verificando";
 async function verificarAcesso() { const s = await sessaoSL(); if (!s) { ACESSO = "nenhum"; aplicarTrava(); return; }
   try { let r = (await supabaseClient.rpc("acesso_parlamentares")).data || "nenhum"; if (r === "nenhum") r = (await supabaseClient.rpc("solicitar_acesso_parlamentares")).data || "pendente"; ACESSO = r; } catch (e) { ACESSO = "nenhum"; } aplicarTrava(); }
