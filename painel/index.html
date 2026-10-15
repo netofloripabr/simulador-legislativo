@@ -151,10 +151,12 @@ html,body{ overflow-x:hidden; max-width:100%; }
 @media (max-width:860px){ .corpo{ grid-template-columns:1fr; } .ficha{ border-left:0; border-top:1px solid var(--linha); min-height:0; } .cena{ height:500px; } }
 @media (max-width:520px){ .barra-sel{ grid-template-columns:1fr; } .vs{ text-align:center; } .cand.b{ flex-direction:row; text-align:left; } .hero{ min-height:620px; } }
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+.mnuw{ position:relative; display:inline-flex; margin-left:6px; } .mnub{ width:34px; height:34px; border-radius:50%; border:1px solid rgba(242,244,245,.18); background:none; color:var(--texto,#F2F4F5); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+.mnu{ position:absolute; right:0; top:42px; z-index:60; min-width:250px; background:#14191A; border:1px solid rgba(242,244,245,.09); border-radius:14px; padding:6px; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,.55); } .mnu[hidden]{ display:none; } .mnu a{ font:700 13px Inter; border-radius:10px; padding:9px 12px; color:#F2F4F5; text-decoration:none; } .mnu a:hover{ background:rgba(242,244,245,.06); } .mnu a small{ display:block; font-weight:500; font-size:11.5px; color:#6B7178; } .mnu .mconta, .mnu .msim{ border-bottom:1px solid rgba(242,244,245,.09); border-radius:10px 10px 0 0; margin-bottom:4px; } .mnu .msim{ color:#34E84A; }
 </style>
 </head>
 <body>
-<header class="topo"><a class="wm" href="novos.html" style="text-decoration:none;color:inherit"><b>Simula</b>LEGIS</a><span class="sep">Santa Catarina · Resultado 2026</span><nav class="vistas"><button data-vista="painel" hidden>Painel</button><button data-vista="ranking">Ranking</button><a href="mesa.html" style="font:700 13px Inter;color:var(--sec);text-decoration:none;padding:7px 12px">Mesa</a></nav><a class="ent ico" href="../?entrar=1" title="Entrar" aria-label="Entrar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5.5" r="2.8"/><path d="M2.8 14c.6-2.8 2.7-4.3 5.2-4.3s4.6 1.5 5.2 4.3"/></svg></a></header>
+<header class="topo"><a class="wm" href="novos.html" style="text-decoration:none;color:inherit"><b>Simula</b>LEGIS</a><span class="sep">Santa Catarina · Resultado 2026</span><nav class="vistas"><button data-vista="painel" hidden>Painel</button><a href="novos.html" style="font:700 13px Inter;color:var(--sec);text-decoration:none;padding:7px 12px">Parlamentares</a><button data-vista="ranking">Ranking</button><a href="mesa.html" style="font:700 13px Inter;color:var(--sec);text-decoration:none;padding:7px 12px">Mesa</a></nav><span class="mnuw"><button class="mnub" aria-label="Menu" title="Menu"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button><span class="mnu" hidden><a href="../?entrar=1" class="mconta" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}">Entrar ou cadastrar<small>login com e-mail ou Google</small></a><a href="../?capa=1" class="msim">Simulador eleitoral 2026<small>monte seu palpite de deputados e senadores</small></a><a href="novos.html">Parlamentares</a><a href="index.html#ranking">Ranking</a><a href="mesa.html">Mesa</a></span></span></header>
 
 <section class="hero" id="hero">
   <div class="luz" id="heroLuz"></div>
@@ -195,6 +197,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
 <script src="painel.js?cb=36"></script>
+<script>(function(){var b=document.querySelector(".mnub"),m=document.querySelector(".mnu");if(!b)return;b.onclick=function(e){e.stopPropagation();m.hidden=!m.hidden;};document.addEventListener("click",function(e){if(!e.target.closest(".mnuw"))m.hidden=true;});})();</script>
 <script src="../nuvem/visitas.js?cb=1"></script>
 <script src="relatorio.js?cb=21"></script>
 </body>
