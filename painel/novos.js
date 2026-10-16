@@ -687,7 +687,7 @@ let SEL = null;
 function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   if (!SEL || SEL.cv !== cv) { const r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height; cv.width = w * dpr; cv.height = h * dpr;
     let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
-    const pad = 24, xl = innerWidth > 760 ? Math.max(260, w * .22) : pad, K = Math.cos(27.5 * Math.PI / 180), S = Math.min((w - xl - pad) / ((lo1 - lo0) * K), (h - 2 * pad) / (la0 - la1)), ox = xl + ((w - xl - pad) - (lo1 - lo0) * K * S) / 2, oy = pad + ((h - 2 * pad) - (la0 - la1) * S) / 2;
+    const pad = 24, xl = innerWidth > 760 ? Math.max(320, w * .24) : pad, K = Math.cos(27.5 * Math.PI / 180), S = Math.min((w - xl - pad) / ((lo1 - lo0) * K), (h - 2 * pad) / (la0 - la1)), ox = xl + ((w - xl - pad) - (lo1 - lo0) * K * S) / 2, oy = pad + ((h - 2 * pad) - (la0 - la1) * S) / 2;
     const P = (lo, la) => [ox + (lo - lo0) * K * S, oy + (la0 - la) * S], k = Math.min(w, h) / 560, cont = new Path2D();
     CONT.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
     const B = M.map((m) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / 470000)) * k * 1.1, t0: 0, t1: 0 }; });
@@ -706,8 +706,7 @@ function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   const pct = M.map((m, i) => D.val[i] ? c.v[i] / D.val[i] : 0), e95 = [...pct].sort((a, b) => a - b)[Math.floor(N * .95)] || 1;
   SEL.B.forEach((b, i) => { b.t1 = Math.min(1, pct[i] / e95); }); SEL.rgb1 = hexRgb(COR_P[c.p] || "#34E84A").split(",").map(Number); SEL.ini = agora;
   const ordV = [...M.keys()].sort((a, b) => c.v[b] - c.v[a]); SEL.top = ordV.slice(0, 5);
-  const i1 = ordV[0], b1 = SEL.B[i1];
-  $("#selEtq").innerHTML = `<div class="se" style="left:${b1.x}px;top:${b1.y}px"><span>${esc(M[i1].n)}</span><b>${ni(c.v[i1])}</b></div><div class="seR">${ordV.slice(0, 3).map((i, q) => `<div><span>${q + 1}º ${esc(M[i].n)}</span><b>${ni(c.v[i])}</b></div>`).join("")}</div>`;
+  $("#selEtq").innerHTML = "";
 }
 function heroMapa(c, ordM) {
   cancelAnimationFrame(heroRaf);
