@@ -9,7 +9,7 @@ const CORES = ["#34E84A", "#5A86FF", "#FFA23E", "#E85AD0", "#2ED3F0"];
 const NDEP = UFI.vagas, MAIORIA = Math.floor(NDEP / 2) + 1, SC = UF === "sc";
 const MESA = SC ? ["Presidente", "1º Vice-Presidente", "2º Vice-Presidente", "1º Secretário", "2º Secretário", "3º Secretário", "4º Secretário"] : ["Presidente", "1º Vice-Presidente", "2º Vice-Presidente", "3º Vice-Presidente", "4º Vice-Presidente", "1º Secretário", "2º Secretário", "3º Secretário", "4º Secretário"];
 const CHAVE_LS = SC ? "sl_mesa2" : "sl_mesa2_" + UF, NOME_CEN = SC ? "Meu cenário" : "Meu cenário " + UFI.sigla;
-let TAM = {};
+let TAM = {}, ADM_SP = null, EST_SP = null;
 const COM9 = /constitui|financas|trabalho|etica/;
 const foto = (n) => `../dados/fotos/${UF}-2026/estadual/${n}.jpg`;
 const img = (d, cls = "av", st = "") => `<img class="${cls}" src="${foto(d.n)}" alt="" style="${st}">`;
@@ -27,7 +27,8 @@ async function iniciar() {
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
   const { data: admin } = await supabaseClient.rpc("sou_admin");
   const [d, e, a] = await Promise.all([fetch(`../dados/painel/${UF}-estadual.json?v=20261008a`).then((r) => r.json()), SC ? fetch("../dados/painel/mesa-estruturas.json?v=11").then((r) => r.json()) : { grupos: {} }, fetch(SC ? "../dados/painel/alesc-estrutura.json?v=3" : `../dados/painel/${UFI.casa.toLowerCase()}-mesa.json?v=1`).then((r) => r.json())]);
-  if (!SC) { const L = (a.comissoes || {}).lista || []; a.comissoes = L.map((x) => ({ nome: x.nome })); L.forEach((x) => { const k = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); TAM[k[0].toUpperCase() + k.slice(1)] = x.membros; });
+  if (!SC) { const cs = UFI.casa.toLowerCase(); [ADM_SP, EST_SP] = await Promise.all([fetch(`../dados/painel/${cs}-administrativo.json?v=2`).then((r) => r.json()).catch(() => ({})), fetch(`../dados/painel/${cs}-estrutura.json?v=1`).then((r) => r.json()).catch(() => ({}))]);
+    const L = (a.comissoes || {}).lista || []; a.comissoes = L.map((x) => ({ nome: x.nome })); L.forEach((x) => { const k = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); TAM[k[0].toUpperCase() + k.slice(1)] = x.membros; });
     a.presidentes_2025 = { com: Object.fromEntries(L.filter((x) => x.presidente_atual && !/confirmar/i.test(x.presidente_atual)).map((x) => { const k = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return [k[0].toUpperCase() + k.slice(1), { u: x.presidente_atual, p: x.partido_presidente }]; })) }; }
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
@@ -130,7 +131,26 @@ const slotsCom = (c) => alocar().porCom[c] || [];
 // patrimônio: estruturas (CC + FC/FG + grat. exercício) + secretário de comissão presidida + convênios
 // patrimônio em grupos: [titulo, subtotal, itens[[rotulo, detalhe, valor, informativo?]]]
 // soma tudo na capacidade máxima (todas as nomeações feitas, cota cheia); itens informativos (valor dentro da cota) não somam
+// SP (ALESP): parlamentar, gabinete (estrutura cheia), verbas em UFESP convertidas, gabinete da Mesa e liderança pela lotação real
+const rsDe = (t) => { const m = /R\$\s?([\d.]+,\d{2})/.exec(String(t || "")); return m ? +m[1].replace(/\./g, "").replace(",", ".") : 0; };
+const somaCargos = (L) => (L || []).reduce((t, x) => t + (x.vencimento || 0) * (x.qtd || 1), 0);
+function lidSP(p) { const L = ((EST_SP || {}).liderancas || {}).lotacao_real || [], k = norm(p).split(/[\/ ]/)[0]; const x = L.find((y) => norm(y.lideranca).includes(k)); return x ? { cargos: x.servidores_ativos, cota: somaCargos(x.cargos), lot: x.lideranca } : { cargos: 0, cota: 0 }; }
+function patrimonioSP(n) {
+  const ch = chapa(chDe(n)), A = ADM_SP || {}, P = A.parlamentar || {}, G = A.gabinete || {}, VI = P.verba_indenizatoria || {};
+  const cheio = (G.cargos || []).reduce((t, x) => { const m = /\((\d+) vagas?\)/.exec(x.cargo); return m ? t + (+m[1]) * x.vencimento : t; }, 0);
+  const grp = [["Parlamentar", [["Subsídio", "Lei 17.617/2023", P.subsidio || 0]]], ["Gabinete", [["Estrutura cheia do gabinete", `16 cargos em comissão (até ${G.cargos_maximos || 23} se divididos) · LC 1.431/2025`, cheio]]]];
+  const vb = [[VI.nome || "Auxílio-Encargos Gerais de Gabinete", "1.250 UFESPs · por reembolso", rsDe(VI.valor_mensal_teto)]];
+  (P.auxilios || []).forEach((x) => vb.push([x.nome, String(x.valor).split("(")[0].trim(), rsDe(x.valor)]));
+  grp.push(["Verbas e auxílios", vb]);
+  const fu = [], mesa = ch ? Object.keys(ch.mesa).find((k) => ch.mesa[k] === n) : null, lp = liderDe(n);
+  if (mesa) { const g = ((EST_SP || {}).gabinetes_mesa || []).find((x) => x.cargo_mesa === mesa); if (g) fu.push([`Gabinete da Mesa · ${mesa}`, `${g.servidores_ativos} servidores lotados hoje · cargos em comissão`, g.total_mensal || somaCargos(g.cargos_extras)]); }
+  if (lp) { const e = lidSP(lp); fu.push([`Liderança do ${lp}`, `${e.cargos} servidores lotados hoje · cargos em comissão`, e.cota]); }
+  if (fu.length) grp.push(["Funções e estruturas", fu]);
+  const tot = (L) => L.reduce((s2, x) => s2 + (x[3] ? 0 : x[2] || 0), 0), G2 = grp.map(([t, L]) => [t, tot(L), L]), v = G2.reduce((s2, g) => s2 + g[1], 0), cv = (S.dep[n] && S.dep[n].conv) || 0;
+  return { G: G2, v, cv, sub: G2[0][1], it: fu };
+}
 function patrimonio(n) {
+  if (!SC) return patrimonioSP(n);
   const ch = chapa(chDe(n)), PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, I = EST.indenizatorias || {};
   const GM = EST.gabinetes_mesa || {}, CC = EST.comissao_cargos || {}, gg = ((EST.gastos_gabinete || {}).dep || {})[n];
   const ehPres = ch && ch.mesa["Presidente"] === n, gp = ehPres ? PA.gestao_pres : PA.gestao_demais;
@@ -180,9 +200,9 @@ function desenhar(admin) {
     <div class="acoesch"><button class="mini" data-bancada="1">+ bancada inteira</button><button class="mini" data-aliado="1">+ aliado</button>${S.chapas.length > 1 ? `<button class="mini" data-delch="1">Excluir esta chapa</button>` : ""}<button class="mini" data-arq="1">Salvar / carregar</button><button class="mini" data-zerar="1">Recomeçar cenário</button><button class="mini" data-imp="1" style="margin-left:auto;color:#F2F4F5;border-color:rgba(242,244,245,.3)">Imprimir</button></div>
     <section id="s1"><h2>Jogo da <i>Mesa.</i></h2>${secMesa(ch)}</section>
     <section id="s2"><h2>Estrutura <i>política.</i></h2>${secPol(chCom())}</section>
-    ${SC ? "" : `<p class="leg25" style="margin-top:30px">Outros cargos e o patrimônio por deputado da ${UFI.casa} entram quando os valores das estruturas forem levantados nas fontes oficiais.</p>`}${!SC ? "" : `<section id="s3"><h2 class="hi">Outros <i>cargos.</i>${infoBt("Estruturas")}</h2>${infoTx("Estruturas")}${seletorCh(chOut(), "out")}${secOut(chOut())}</section>`}
+    ${SC ? "" : `<p class="leg25" style="margin-top:30px">Outros cargos (secretarias e diretorias da ${UFI.casa}) entram quando os valores dessas estruturas forem levantados. O patrimônio de cada deputado (gaveta ao lado) já soma subsídio, gabinete, verbas, gabinete da Mesa e liderança.</p>`}${!SC ? "" : `<section id="s3"><h2 class="hi">Outros <i>cargos.</i>${infoBt("Estruturas")}</h2>${infoTx("Estruturas")}${seletorCh(chOut(), "out")}${secOut(chOut())}</section>`}
     ${ADMIN ? `<div class="adm"><b style="color:#C6E62A">Administrador</b> · liberar acesso à Corrida da Mesa: <input id="admEmail" placeholder="e-mail da conta"> <button class="mini" data-adm="1">Liberar</button> <button class="mini" data-adm="0">Retirar</button> <span id="admMsg"></span></div>` : ""}
-  </main>${SC ? secPat() : ""}</div>`;
+  </main>${secPat()}</div>`;
   scrollTo(0, y); ligar(ch); salvar();
 }
 function cartaDep(d, cor, sm = true) { const x = S.dep[d.n] || {}; return `<div class="card${sm ? " sm" : ""}${x.duv ? " duv" : ""}" draggable="true" data-arr="${d.n}" data-dep="${d.n}" style="--cc:${cor}77">${img(d, "")}<div class="l"><span>${esc(d.p)}</span><b>${esc(d.u)}</b></div></div>`; }
@@ -273,7 +293,7 @@ function secCom(ch) {
 }
 // lideranças partidárias: um líder por partido no cenário (decisão da bancada, vale para todas as chapas)
 const lidPartidos = () => [...new Set(DEP.map((d) => d.p))].sort((a, b) => nB([b]) - nB([a]) || a.localeCompare(b));
-const lidEst = (p) => { const T = (EST.liderancas || {}).tabela || {}, n = Math.min(9, nB([p])); return T[n] || { cargos: 0, cota: 0 }; };
+const lidEst = (p) => { if (!SC) return lidSP(p); const T = (EST.liderancas || {}).tabela || {}, n = Math.min(9, nB([p])); return T[n] || { cargos: 0, cota: 0 }; };
 const liderDe = (n) => Object.keys(S.lid || {}).find((p) => S.lid[p] === n);
 function secLid() {
   const F = (EST.liderancas || {}).folha || {}, L = lidPartidos();
@@ -323,7 +343,7 @@ function secPat() {
   const ordCh = (d) => { const i = S.chapas.findIndex((c) => c.id === chDe(d.n)); return i < 0 ? 99 : i; };
   P.sort((a, b) => col === "chapa" ? (ordCh(a.d) - ordCh(b.d)) || ((b.v + b.cv) - (a.v + a.cv)) : col === "nome" ? dir * a.d.u.localeCompare(b.d.u, "pt-BR") : dir * ((a.v + a.cv) - (b.v + b.cv)));
   const seta = (c) => `<span class="ord"><i class="u${col === c && dir > 0 ? " on" : ""}"></i><i class="d${col === c && dir < 0 ? " on" : ""}"></i></span>`;
-  return `<aside class="gav${S.ui.gav ? "" : " fechada"}"><span class="vert" data-gav="1">Patrimônio · ${NDEP}</span><div class="alca" data-gav="1" title="Recolher"><i></i><i></i></div><div class="rot" style="margin-top:14px">Patrimônio dos parlamentares · 40</div>
+  return `<aside class="gav${S.ui.gav ? "" : " fechada"}"><span class="vert" data-gav="1">Patrimônio · ${NDEP}</span><div class="alca" data-gav="1" title="Recolher"><i></i><i></i></div><div class="rot" style="margin-top:14px">Patrimônio dos parlamentares · ${NDEP}</div>
     <div class="pcab"><span data-po="nome" class="${col === "nome" ? "on" : ""}">Nome${seta("nome")}</span><span data-po="chapa" class="${col === "chapa" ? "on" : ""}">Chapa</span><span data-po="v" class="${col === "v" ? "on" : ""}">Patrimônio${seta("v")}</span></div>
     ${P.map(({ d, G, v, cv }, k) => { const ch = chapa(chDe(d.n)), ab = S.ui.patAb === d.n, ant = k && P[k - 1].d;
       const tit = col === "chapa" && (!k || chDe(ant.n) !== chDe(d.n)) ? `<div class="pgt" style="color:${ch ? ch.cor : "#6B7178"}">${ch ? esc(nomeCh(ch)) : "Sem chapa"} · ${fm(P.filter((x) => chDe(x.d.n) === chDe(d.n)).reduce((s2, x) => s2 + x.v, 0))}/mês</div>` : "";
