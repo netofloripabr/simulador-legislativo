@@ -1555,5 +1555,16 @@ const MIGRACOES_INDEX = [
   "arquivo": "migracao-69-acesso-cadastros-antigos.sql",
   "descricao": "Migração 69: quem já tinha cadastro até 15/10/2026 mantém o acesso que tinha",
   "objetos": []
+ },
+ {
+  "num": 70,
+  "arquivo": "migracao-70-pedido-acesso-na-notificacao.sql",
+  "descricao": "Migração 70: liberar o acesso direto pela notificação (pedido do usuário em 15/10/2026).",
+  "objetos": [
+   [
+    "function",
+    "solicitar_acesso_parlamentares"
+   ]
+  ]
  }
 ];

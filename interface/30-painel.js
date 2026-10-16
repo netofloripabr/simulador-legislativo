@@ -796,6 +796,22 @@ async function renderNotificacoes() {
   const lista = await listarMinhasNotificacoes(40);
   await marcarNotificacoesLidas();
   pcState.notificacoesNaoLidas = 0;
+  // pedidos de acesso (migração 70): o admin libera ali mesmo — 4 áreas marcadas por padrão, V libera, X nega
+  const pedidos = {};
+  if (pcState.souAdmin && lista.some((n) => n.tipo === "acesso_parlamentares" && n.referencia_id)) {
+    try { ((await adminListarAcessoParlamentares()) || []).forEach((a) => { pedidos[a.perfil_id] = a; }); } catch (e) {}
+  }
+  const AREAS_P = [["legislativo", "Legislativo"], ["administrativo", "Administrativo"], ["valores", "Valores R$"], ["mesa", "Mesa"]];
+  const blocoPedido = (n) => {
+    const a = pedidos[n.referencia_id]; if (!a) return "";
+    if (a.status !== "pendente") { const lib = AREAS_P.filter(([k]) => a[k]).map(([, t]) => t); return `<div class="pc-notif-desc" style="margin-top:6px; font-weight:700; color:${a.status === "liberado" ? "var(--pc-accent)" : "#FF6B70"};">${a.status === "liberado" ? "Liberado: " + lib.join(", ") : "Não liberado"}</div>`; }
+    return `<div class="pc-notif-acesso" data-pc-pedido="${n.referencia_id}" style="display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin-top:8px; font-size:12px;">
+      ${AREAS_P.map(([k, t]) => `<label style="display:inline-flex; gap:5px; align-items:center; cursor:pointer;"><input type="checkbox" data-area="${k}" checked>${t}</label>`).join("")}
+      <span style="margin-left:auto; display:flex; gap:6px;">
+        <button type="button" class="pc-console-btn" data-pc-pedido-ok title="Liberar as áreas marcadas" style="width:34px; height:34px; color:var(--pc-accent);">${iconeSvg("confere", 15)}</button>
+        <button type="button" class="pc-console-btn" data-pc-pedido-nao title="Negar o acesso" style="width:34px; height:34px; color:#FF6B70;"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+      </span></div>`;
+  };
 
   const novas = lista.filter((n) => !n.lida_em);
   const antes = lista.filter((n) => n.lida_em);
@@ -805,6 +821,7 @@ async function renderNotificacoes() {
       <div class="pc-notif-corpo">
         <div class="pc-notif-titulo">${n.titulo}</div>
         ${n.corpo ? `<div class="pc-notif-desc">${n.corpo}</div>` : ""}
+        ${n.tipo === "acesso_parlamentares" && n.referencia_id ? blocoPedido(n) : ""}
         ${n.tipo === "desafio_recebido" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver duelo</button>` : ""}
         ${n.tipo === "desafio_aceito" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver o duelo selado</button>` : ""}
         ${n.tipo === "desafio_lembrete" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Reenviar o convite</button>` : ""}
@@ -822,6 +839,17 @@ async function renderNotificacoes() {
       ${!lista.length ? estadoVazio({ icone: "ajuda", titulo: "Nada por aqui ainda", texto: "Duelos, convites e créditos aparecem aqui conforme forem acontecendo." }) : ""}
     </div>`;
   document.getElementById("pcBtnVoltarNotif").addEventListener("click", () => { pcState.subaba = "painel"; renderAppColaborativo(); });
+  document.querySelectorAll("[data-pc-pedido]").forEach((box) => {
+    const decidir = async (liberar, btn) => {
+      const a = {}; box.querySelectorAll("[data-area]").forEach((c) => { a[c.getAttribute("data-area")] = liberar && c.checked; });
+      box.querySelectorAll("button").forEach((b) => { b.disabled = true; }); btn.style.opacity = ".5";
+      const { error } = await adminDefinirAreasParlamentares(box.getAttribute("data-pc-pedido"), a);
+      if (error) { box.querySelectorAll("button").forEach((b) => { b.disabled = false; }); btn.style.opacity = ""; alert("Não consegui salvar: " + error.message); return; }
+      renderNotificacoes();
+    };
+    box.querySelector("[data-pc-pedido-ok]").addEventListener("click", (e) => decidir(true, e.currentTarget));
+    box.querySelector("[data-pc-pedido-nao]").addEventListener("click", (e) => decidir(false, e.currentTarget));
+  });
   document.querySelectorAll("[data-pc-ver-desafio]").forEach((btn) => btn.addEventListener("click", () => {
     pcState.desafioDestacadoId = btn.getAttribute("data-pc-ver-desafio");
     pcState.subaba = "desafios"; renderAppColaborativo();
