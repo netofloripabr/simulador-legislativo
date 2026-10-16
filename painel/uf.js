@@ -15,8 +15,8 @@
   function por() {
     var t = document.getElementById("topoSL"), wm = t && t.querySelector(".wm"); if (!wm || t.querySelector(".sl-uf")) return;
     // lista com a sigla (16/10/2026): começa sempre em SC; a escolha vale só nesta aba
-    var cur = MESA ? "sc" : uf, s = document.createElement("label"); s.className = "sl-uf"; s.title = "Estado";
-    s.innerHTML = '<select aria-label="Estado">' + Object.keys(INFO).map(function (k) { return '<option value="' + k + '"' + (k === cur ? " selected" : "") + (MESA && k !== "sc" ? " disabled" : "") + ">" + INFO[k].sigla + "</option>"; }).join("") + '</select><svg viewBox="0 0 10 10" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4l3 3 3-3"/></svg>';
+    var cur = uf, s = document.createElement("label"); s.className = "sl-uf"; s.title = "Estado";
+    s.innerHTML = '<select aria-label="Estado">' + Object.keys(INFO).map(function (k) { return '<option value="' + k + '"' + (k === cur ? " selected" : "") + ">" + INFO[k].sigla + "</option>"; }).join("") + '</select><svg viewBox="0 0 10 10" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 4l3 3 3-3"/></svg>';
     wm.after(s);
     s.querySelector("select").onchange = function () { var v = this.value; if (v === cur) return; try { sessionStorage.setItem("sl_uf", v); } catch (er) {}
       var u = new URL(location.href); location.href = u.pathname + "?uf=" + v + (/index\.html/.test(u.pathname) ? location.hash : ""); };

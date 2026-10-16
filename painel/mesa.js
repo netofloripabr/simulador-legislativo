@@ -5,9 +5,13 @@ const ni = (x) => Math.round(x || 0).toLocaleString("pt-BR");
 const fm = (v) => !v ? "R$ 0" : v < 1e6 ? `R$ ${(v / 1e3).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil` : `R$ ${(v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 2 })} mi`;
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const CORES = ["#34E84A", "#5A86FF", "#FFA23E", "#E85AD0", "#2ED3F0"];
-const MAIORIA = 21, MESA = ["Presidente", "1º Vice-Presidente", "2º Vice-Presidente", "1º Secretário", "2º Secretário", "3º Secretário", "4º Secretário"];
+// estado (uf.js): SC = ALESC (40); SP = ALESP (94) — 16/10/2026
+const NDEP = UFI.vagas, MAIORIA = Math.floor(NDEP / 2) + 1, SC = UF === "sc";
+const MESA = SC ? ["Presidente", "1º Vice-Presidente", "2º Vice-Presidente", "1º Secretário", "2º Secretário", "3º Secretário", "4º Secretário"] : ["Presidente", "1º Vice-Presidente", "2º Vice-Presidente", "3º Vice-Presidente", "4º Vice-Presidente", "1º Secretário", "2º Secretário", "3º Secretário", "4º Secretário"];
+const CHAVE_LS = SC ? "sl_mesa2" : "sl_mesa2_" + UF, NOME_CEN = SC ? "Meu cenário" : "Meu cenário " + UFI.sigla;
+let TAM = {};
 const COM9 = /constitui|financas|trabalho|etica/;
-const foto = (n) => `../dados/fotos/sc-2026/estadual/${n}.jpg`;
+const foto = (n) => `../dados/fotos/${UF}-2026/estadual/${n}.jpg`;
 const img = (d, cls = "av", st = "") => `<img class="${cls}" src="${foto(d.n)}" alt="" style="${st}">`;
 const hole = () => `<span class="ho">+</span>`;
 let PRES25 = {}, ORDEM_CH = null, ORDEM_BLOCO = null, DEP = [], COMS = [], EST = {}, S, UID = null, CEN_ID = null, salvarT;
@@ -22,14 +26,16 @@ async function iniciar() {
   const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
   if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
   const { data: admin } = await supabaseClient.rpc("sou_admin");
-  const [d, e, a] = await Promise.all([fetch("../dados/painel/sc-estadual.json?v=20261008a").then((r) => r.json()), fetch("../dados/painel/mesa-estruturas.json?v=11").then((r) => r.json()), fetch("../dados/painel/alesc-estrutura.json?v=3").then((r) => r.json())]);
+  const [d, e, a] = await Promise.all([fetch(`../dados/painel/${UF}-estadual.json?v=20261008a`).then((r) => r.json()), SC ? fetch("../dados/painel/mesa-estruturas.json?v=11").then((r) => r.json()) : { grupos: {} }, fetch(SC ? "../dados/painel/alesc-estrutura.json?v=3" : `../dados/painel/${UFI.casa.toLowerCase()}-mesa.json?v=1`).then((r) => r.json())]);
+  if (!SC) { const L = (a.comissoes || {}).lista || []; a.comissoes = L.map((x) => ({ nome: x.nome })); L.forEach((x) => { const k = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); TAM[k[0].toUpperCase() + k.slice(1)] = x.membros; });
+    a.presidentes_2025 = { com: Object.fromEntries(L.filter((x) => x.presidente_atual && !/confirmar/i.test(x.presidente_atual)).map((x) => { const k = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return [k[0].toUpperCase() + k.slice(1), { u: x.presidente_atual, p: x.partido_presidente }]; })) }; }
   DEP = d.c.filter((c) => /^eleito/i.test(c.s || "")).sort((x, y) => y.t - x.t).map((c) => ({ n: c.n, u: c.u, p: c.p, t: c.t }));
   COMS = a.comissoes.map((x) => x.nome.replace(/^Comissão (de |dos |da |do )?/, (m) => m.replace("Comissão ", "")).replace(/^de /, ""));
   COMS = a.comissoes.map((x) => { const t = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); return t[0].toUpperCase() + t.slice(1); });
   EST = e; PRES25 = (a.presidentes_2025 || {}).com || {};
-  const { data: cen } = await supabaseClient.from("mesa_cenarios").select("id,dados").eq("perfil_id", UID).eq("nome", "Meu cenário").order("atualizado_em", { ascending: false }).limit(1);
+  const { data: cen } = await supabaseClient.from("mesa_cenarios").select("id,dados").eq("perfil_id", UID).eq("nome", NOME_CEN).order("atualizado_em", { ascending: false }).limit(1);
   if (cen && cen[0] && cen[0].dados && cen[0].dados.chapas) { CEN_ID = cen[0].id; S = cen[0].dados; }
-  else { try { S = JSON.parse(localStorage.getItem("sl_mesa2")); } catch (er) {} }
+  else { try { S = JSON.parse(localStorage.getItem(CHAVE_LS)); } catch (er) {} }
   if (!S || !S.chapas) S = novoCenario();
   // nomes antigos de comissão ("dos Direitos…") → nome atual; descarta presidências órfãs
   const chaveCom = (k) => COMS.find((c) => norm(c) === norm(k.replace(/^(de|dos|das|da|do) /i, ""))) || null;
@@ -43,12 +49,12 @@ function novoCenario() {
   return { chapas: [{ id: "c1", cor: CORES[0], mesa: {}, out: {}, com: {}, pres: {} }], dep: {}, blocos: [...new Set(DEP.map((d) => d.p))].map((p) => [p]), reserva: null };
 }
 function salvar() {
-  try { localStorage.setItem("sl_mesa2", JSON.stringify({ ...S, ui: undefined })); } catch (e) {}
+  try { localStorage.setItem(CHAVE_LS, JSON.stringify({ ...S, ui: undefined })); } catch (e) {}
   clearTimeout(salvarT); $("#salvo").textContent = "salvando…";
   salvarT = setTimeout(async () => {
     const dados = { ...S, ui: undefined };
     if (CEN_ID) await supabaseClient.from("mesa_cenarios").update({ dados, atualizado_em: new Date().toISOString() }).eq("id", CEN_ID);
-    else { const { data } = await supabaseClient.from("mesa_cenarios").insert({ perfil_id: UID, dados }).select("id").single(); if (data) CEN_ID = data.id; }
+    else { const { data } = await supabaseClient.from("mesa_cenarios").insert({ perfil_id: UID, nome: NOME_CEN, dados }).select("id").single(); if (data) CEN_ID = data.id; }
     $("#salvo").textContent = "salvo";
   }, 800);
 }
@@ -74,16 +80,20 @@ function tiraDeTudo(n, ch) { if (!ch) return; for (const k in ch.mesa) if (ch.me
 
 // distribuição das vagas de comissão (RI art. 30)
 function dist(n) {
-  const q = 40 / (n - 1), L = S.blocos.map((b) => ({ b, d: nB(b), q: nB(b) / q }));
+  const q = SC ? 40 / (n - 1) : NDEP / n, L = S.blocos.map((b) => ({ b, d: nB(b), q: nB(b) / q }));
   L.forEach((x) => { x.v = Math.floor(x.q); });
   let r = n - L.reduce((s, x) => s + x.v, 0);
+  if (!SC) { // ALESP, RI art. 26: sobras primeiro a quem ficou sem vaga, depois às maiores frações com resto ≥ 1/4 do quociente
+    let r2 = n - L.reduce((s, x) => s + x.v, 0); L.filter((x) => !x.v && x.d).sort((a, c) => c.d - a.d).forEach((x) => { if (r2 > 0) { x.v++; r2--; } });
+    L.filter((x) => (x.q % 1) >= .25).sort((a, c) => (c.q % 1) - (a.q % 1)).forEach((x) => { if (r2 > 0) { x.v++; r2--; } }); return { q, L }; }
   const peq = L.filter((x) => x.d < 5).sort((a, c) => c.d - a.d || c.q - a.q);
   const res = S.reserva ? peq.find((x) => x.b.join("+") === S.reserva) || peq[0] : peq[0];
   if (r > 0 && res) { res.v++; res.res = true; r--; }
   L.filter((x) => !x.res).sort((a, c) => (c.q % 1) - (a.q % 1) || c.d - a.d).slice(0, r).forEach((x) => { x.v++; });
   return { q, L };
 }
-const vagasCom = (c) => COM9.test(norm(c)) ? 9 : 7;
+const vagasCom = (c) => SC ? (COM9.test(norm(c)) ? 9 : 7) : (TAM[c] || 11);
+const TAMS = () => SC ? [9, 7] : [...new Set(COMS.map(vagasCom))].sort((a, b) => b - a);
 const nomeB = (b) => (S.nomes && S.nomes[[...b].sort().join("+")]) || b.join(" + ");
 // Distribuição no CONJUNTO das comissões do mesmo tamanho (08/10/2026): cada bloco tem
 // mínimo = parte inteira do quociente e máximo = mínimo + 1 por comissão; as frações
@@ -95,11 +105,11 @@ function alocar() {
   const chave = JSON.stringify([S.blocos, S.reserva]);
   if (ALOC && ALOC.chave === chave) return ALOC;
   const out = { chave, porCom: {}, resumo: {} };
-  for (const n of [9, 7]) {
+  for (const n of TAMS()) {
     const coms = COMS.filter((c) => vagasCom(c) === n), k = coms.length, D = dist(n);
     const L = D.L.map((x) => ({ b: x.b, d: x.d, q: x.q, min: Math.floor(x.q), ex: 0 }));
     const E = k * (n - L.reduce((s, x) => s + x.min, 0));
-    const peq = L.filter((x) => x.d < 5), dp = peq.reduce((s, x) => s + x.d, 0);
+    const peq = L.filter((x) => SC && x.d < 5), dp = peq.reduce((s, x) => s + x.d, 0);
     L.forEach((x) => { x.w = (x.q - x.min) * k + (x.d < 5 && dp ? k * x.d / dp : 0); });
     let r = E; L.forEach((x) => { x.ex = Math.min(k, Math.floor(x.w)); r -= x.ex; });
     for (let volta = 0; r > 0 && volta < 50; volta++) L.filter((x) => x.ex < k).sort((a, c) => (c.w - c.ex) - (a.w - a.ex) || c.d - a.d).forEach((x) => { if (r > 0 && x.ex < k) { x.ex++; r--; } });
@@ -165,14 +175,14 @@ function desenhar(admin) {
   const y = scrollY;
   $("#app").innerHTML = `<div class="pg"><main>
     <h1>Corrida da <i>Mesa.</i></h1>
-    <div class="chapas">${S.chapas.map((c) => `<button data-ch="${c.id}" class="${c.id === ch.id ? "on" : ""}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))} <b>${votos(c)}</b>/21</button>`).join("")}${S.chapas.length < CORES.length ? `<button data-nova="1">+ nova chapa</button>` : ""}</div>
+    <div class="chapas">${S.chapas.map((c) => `<button data-ch="${c.id}" class="${c.id === ch.id ? "on" : ""}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))} <b>${votos(c)}</b>/${MAIORIA}</button>`).join("")}${S.chapas.length < CORES.length ? `<button data-nova="1">+ nova chapa</button>` : ""}</div>
     <div class="placar">${S.chapas.map((c) => `<span><b style="color:${c.cor}">${votos(c)}</b> ${esc(nomeCh(c))}${votos(c) >= MAIORIA ? ` <b style="color:${c.cor}">· maioria</b>` : ""}</span>`).join("<span>×</span>")}<span>· <b>${DEP.filter((d) => S.dep[d.n] && S.dep[d.n].duv).length}</b> em dúvida · <b>${DEP.filter((d) => !chDe(d.n)).length}</b> sem chapa</span></div>
     <div class="acoesch"><button class="mini" data-bancada="1">+ bancada inteira</button><button class="mini" data-aliado="1">+ aliado</button>${S.chapas.length > 1 ? `<button class="mini" data-delch="1">Excluir esta chapa</button>` : ""}<button class="mini" data-arq="1">Salvar / carregar</button><button class="mini" data-zerar="1">Recomeçar cenário</button><button class="mini" data-imp="1" style="margin-left:auto;color:#F2F4F5;border-color:rgba(242,244,245,.3)">Imprimir</button></div>
     <section id="s1"><h2>Jogo da <i>Mesa.</i></h2>${secMesa(ch)}</section>
     <section id="s2"><h2>Estrutura <i>política.</i></h2>${secPol(chCom())}</section>
-    <section id="s3"><h2 class="hi">Outros <i>cargos.</i>${infoBt("Estruturas")}</h2>${infoTx("Estruturas")}${seletorCh(chOut(), "out")}${secOut(chOut())}</section>
+    ${SC ? "" : `<p class="leg25" style="margin-top:30px">Outros cargos e o patrimônio por deputado da ${UFI.casa} entram quando os valores das estruturas forem levantados nas fontes oficiais.</p>`}${!SC ? "" : `<section id="s3"><h2 class="hi">Outros <i>cargos.</i>${infoBt("Estruturas")}</h2>${infoTx("Estruturas")}${seletorCh(chOut(), "out")}${secOut(chOut())}</section>`}
     ${ADMIN ? `<div class="adm"><b style="color:#C6E62A">Administrador</b> · liberar acesso à Corrida da Mesa: <input id="admEmail" placeholder="e-mail da conta"> <button class="mini" data-adm="1">Liberar</button> <button class="mini" data-adm="0">Retirar</button> <span id="admMsg"></span></div>` : ""}
-  </main>${secPat()}</div>`;
+  </main>${SC ? secPat() : ""}</div>`;
   scrollTo(0, y); ligar(ch); salvar();
 }
 function cartaDep(d, cor, sm = true) { const x = S.dep[d.n] || {}; return `<div class="card${sm ? " sm" : ""}${x.duv ? " duv" : ""}" draggable="true" data-arr="${d.n}" data-dep="${d.n}" style="--cc:${cor}77">${img(d, "")}<div class="l"><span>${esc(d.p)}</span><b>${esc(d.u)}</b></div></div>`; }
@@ -188,9 +198,9 @@ function secMesa(ch) {
     const al = membros(c).filter((d) => !naMesa(c, d.n)), nm = Object.keys(c.mesa).length, v = votos(c), falta = Math.max(0, MAIORIA - v);
     const mesa = MESA.map((k) => { const n = c.mesa[k], d = n && dep(n), pres = k === "Presidente";
       return d ? `<div class="card${pres ? " pres" : ""}" draggable="true" data-arr="${d.n}" style="--c:${c.cor};--cc:${c.cor}88" data-mesa="${c.id}|${k}" data-dropmesa="${c.id}|${k}">${img(d, "")}<div class="l"><span>${k}</span><b>${esc(d.u)}</b></div></div>` : `<div class="card vazio${pres ? " pres" : ""}" data-mesa="${c.id}|${k}" data-dropmesa="${c.id}|${k}"><b style="font-size:18px">+</b><span>${k}</span></div>`; }).join("");
-    h += `<div class="chbox${c.id === ch.id ? " at" : ""}" style="--c:${c.cor}"><div class="chcab"><b>${esc(nomeCh(c))}</b><span><b style="color:${c.cor};font-size:26px">${v}</b>/21${v >= MAIORIA ? " · maioria" : falta ? ` · faltam ${falta}` : ""}</span></div>
+    h += `<div class="chbox${c.id === ch.id ? " at" : ""}" style="--c:${c.cor}"><div class="chcab"><b>${esc(nomeCh(c))}</b><span><b style="color:${c.cor};font-size:26px">${v}</b>/${MAIORIA}${v >= MAIORIA ? " · maioria" : falta ? ` · faltam ${falta}` : ""}</span></div>
       <div class="bar"><i style="width:${v / 40 * 100}%"></i></div>
-      <div class="rot">Mesa · ${nm}/7</div><div class="cards">${mesa}</div>
+      <div class="rot">Mesa · ${nm}/${MESA.length}</div><div class="cards">${mesa}</div>
       <div class="zona" data-drop="${c.id}"><div class="rot">Votos · ${nm} na Mesa + ${al.filter((d) => !S.dep[d.n].duv).length} aliados · solte as cartas aqui</div><div class="cards">${al.map((d) => cartaDep(d, c.cor)).join("")}${Array.from({ length: Math.min(falta, 6) }, () => `<div class="card sm vazio" data-aliado="${c.id}"><b>+</b></div>`).join("")}</div></div></div>`;
   }
   h += `</div>`;
@@ -213,30 +223,30 @@ function moverPartido(k, alvo) {
   S.blocos.sort((x, y) => nB(y) - nB(x));
 }
 // composição real formada em fev/2025 (Agência ALESC, 05/02/2025) — partidos daquela legislatura
-function legenda2025() {
+function legenda2025() { if (!SC) return "";
   const B = [["PL", 2], ["MDB/PSDB", 2], ["PRD/PSD/União", 2], ["PT/PSOL", 1], ["Podemos/Novo/Republicanos", 1], ["PP/PDT", 1]];
   return `<p class="leg25"><b>2025:</b> ${B.map(([n, v]) => `${esc(n)} <b>${v}</b>`).join(" · ")} <span>vagas nas comissões de 9 · Agência ALESC, 05/02/2025</span></p>`;
 }
 // nome curto só para exibir na lista (a chave continua o nome oficial)
 const CURTO = { "Relacionamento Institucional, das Relações Internacionais e do MERCOSUL": "Rel. Institucionais, Internacionais e MERCOSUL", "Direitos do Consumidor e do Contribuinte e de Legislação Participativa": "Consumidor, Contribuinte e Leg. Participativa", "Transportes, Desenvolvimento Urbano e Infraestrutura": "Transportes, Des. Urbano e Infraestrutura", "Defesa dos Direitos da Criança e do Adolescente": "Direitos da Criança e do Adolescente", "Economia, Ciência, Tecnologia e Inovação": "Economia, Ciência, Tec. e Inovação", "Meio Ambiente e Desenvolvimento Sustentável": "Meio Ambiente e Des. Sustentável", "Trabalho, Administração e Serviço Público": "Trabalho, Adm. e Serviço Público" };
 const curto = (c) => CURTO[c] || c;
-function quocTabela() { const A = dist(9), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return (() => { const BL = A.L.map((x) => nomeB(x.b)), dep_ = A.L.map((x) => x.d), linha = (c) => { const sl = slotsCom(c); return `<tr><td>${esc(c)}</td><td class="f">${sl.length}</td>${BL.map((b) => { const v = sl.filter((y) => y === b).length; return `<td>${v ? `<b>${v}</b>` : `<span style="color:#3A3F45">·</span>`}</td>`; }).join("")}</tr>`; };
+function quocTabela() { const A = dist(TAMS()[0]), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return (() => { const BL = A.L.map((x) => nomeB(x.b)), dep_ = A.L.map((x) => x.d), linha = (c) => { const sl = slotsCom(c); return `<tr><td>${esc(c)}</td><td class="f">${sl.length}</td>${BL.map((b) => { const v = sl.filter((y) => y === b).length; return `<td>${v ? `<b>${v}</b>` : `<span style="color:#3A3F45">·</span>`}</td>`; }).join("")}</tr>`; };
       const tot = BL.map((b) => COMS.reduce((s2, c) => s2 + slotsCom(c).filter((y) => y === b).length, 0));
       return `<div style="overflow-x:auto"><table class="qt mz"><tr><th>Comissão</th><th>Vagas</th>${BL.map((b, k) => `<th class="bc"><span class="bn">${esc(b).replace(/ \+ /g, " +<br>")}</span><span class="bd">${dep_[k]} dep.</span></th>`).join("")}</tr>
-        ${[9, 7].map((n) => { const qq = 40 / (n - 1), R_ = BL.map((b) => alocar().resumo[b + "|" + n]);
+        ${TAMS().map((n) => { const qq = SC ? 40 / (n - 1) : NDEP / n, R_ = BL.map((b) => alocar().resumo[b + "|" + n]);
           return `<tr class="grp"><td colspan="${BL.length + 2}">Comissões de ${n} membros</td></tr>
-          <tr class="qrow"><td>Quociente <span>40 ÷ (${n} − 1) = ${f(qq)}</span></td><td></td>${BL.map((b, k) => `<td><b>${f(dep_[k] / qq)}</b><span>${dep_[k]} ÷ ${f(qq)}</span></td>`).join("")}</tr>
+          <tr class="qrow"><td>Quociente <span>${SC ? `40 ÷ (${n} − 1)` : `${NDEP} ÷ ${n}`} = ${f(qq)}</span></td><td></td>${BL.map((b, k) => `<td><b>${f(dep_[k] / qq)}</b><span>${dep_[k]} ÷ ${f(qq)}</span></td>`).join("")}</tr>
           <tr class="qrow"><td>Vagas por comissão <span>parte inteira; fração = vaga em parte das comissões</span></td><td></td>${R_.map((r) => `<td><b>${r.min === r.max ? r.min || "0" : r.min + " a " + r.max}</b><span>${r.tot} no total</span></td>`).join("")}</tr>
           ${COMS.filter((c) => vagasCom(c) === n).map(linha).join("")}`; }).join("")}
-        <tr class="t"><td>Total de vagas</td><td>176</td>${tot.map((v) => `<td>${v}</td>`).join("")}</tr></table></div>
+        <tr class="t"><td>Total de vagas</td><td>${COMS.reduce((t, c) => t + vagasCom(c), 0)}</td>${tot.map((v) => `<td>${v}</td>`).join("")}</tr></table></div>
         <p style="margin-top:10px">Cada linha é uma comissão; cada coluna, um partido ou bloco: o número é quantas vagas ele tem ali. Quem tem fração de quociente entra em parte das comissões, para que os partidos menores também tenham presença.</p>`; })(); }
 function secCom(ch) {
   const outras = S.chapas.filter((c) => c !== ch && Object.values(c.com).some((l) => l.some(Boolean)));
-  const A = dist(9), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const A = dist(TAMS()[0]), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   let h = outras.length ? `<div class="selch" style="margin-top:-6px"><span>Copiar composição de</span>${outras.map((c) => `<button data-copiar="${c.id}" style="--c:${c.cor}"><i></i>${esc(nomeCh(c))}</button>`).join("")}</div>` : "";
   h += `<button class="qb c25${S.ui.c25 ? " on" : ""}" data-c25="1" title="Mostrar quem preside cada comissão no biênio 2025–2027">2025</button>`;
   h += `<button class="qb" data-q="1">÷ Quociente das comissões ${S.ui.qAb ? "▾" : "▸"}</button>`;
-  if (S.ui.qAb) h += `<div class="qbox"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). A vaga reservada vai ao conjunto dos partidos com menos de 5 deputados; as demais, às maiores frações (empate: maior bancada). Membros da Mesa contam na base de 40, mas não ocupam vaga. CCJ, Finanças, Trabalho e Ética têm 9 membros; as demais, 7.</p>
+  if (S.ui.qAb) h += `<div class="qbox"><p>${SC ? "Regimento, art. 30: quociente = 40 ÷ (membros − 1). A vaga reservada vai ao conjunto dos partidos com menos de 5 deputados; as demais, às maiores frações (empate: maior bancada). Membros da Mesa contam na base de 40, mas não ocupam vaga. CCJ, Finanças, Trabalho e Ética têm 9 membros; as demais, 7." : "Regimento da ALESP, art. 26: quociente = 94 ÷ membros da comissão. Sobras primeiro aos partidos ainda sem vaga, depois às maiores frações com resto de ao menos 1/4 do quociente. CCJR, Educação, Assuntos Metropolitanos e Transportes têm 13 membros; as demais, 11 (art. 30). Membros efetivos da Mesa não integram comissões (art. 13)."}</p>
     <div class="conta" style="margin:0 12px 8px">Blocos parlamentares · arraste uma etiqueta sobre outra para formar bloco; solte na tesoura para separar <button class="gi${S.ui.qInfo ? " on" : ""}" data-qinfo="1" title="Quando vale fazer bloco">i</button></div>${S.ui.qInfo ? `<div class="gdet" style="margin:0 12px 10px"><p style="margin:0;color:var(--sec);font-size:12px;line-height:1.55">Bloco só compensa se o total continuar abaixo de 5 deputados, juntando frações que sozinhas eram pequenas.<br>Passar de 5 tira o bloco da vaga reservada. O bloco só passa a ganhar se a soma das frações completar uma vaga inteira a mais do que cada um somava sozinho.<br>O PL ganha muito pouco com blocos. O que mais ajuda o PL é os outros se juntarem e ficarem com menos frações, mas essa regra pune quem se junta.</p></div>` : ""}
     <div style="margin:0 12px 12px">${editorBlocos()}</div>
     ${legenda2025()}
@@ -272,7 +282,7 @@ function secLid() {
 }
 // "i" no canto direito: como cada valor é calculado (fonte + conta + conferência com a folha)
 const INFO = {
-  "Comissões": "Vagas pelo Regimento, art. 30: quociente = 40 ÷ (membros − 1) — 5,00 nas comissões de 9 (CCJ, Finanças, Trabalho, Ética) e 6,67 nas de 7. Parte inteira garante vaga; as sobras vão às maiores frações, e uma vaga é reservada ao conjunto dos partidos com menos de 5 deputados. Membros da Mesa contam na base de 40, mas não ocupam vaga. Presidência: Assessor de Comissão PL/GAC-59 (índice 11,9183 × R$ 1.129,43 = R$ 13.461, confere com o contracheque 09/2026) + chefia da secretaria FG-3 (FG-5 em CCJ, Finanças e Trabalho), Res. 002/2006 art. 18. Etiqueta 2025: presidentes do biênio 2025–2027 conforme a Agência ALESC (instalação das comissões, fev/2025); foto em cinza à esquerda da atual.",
+  "Comissões": !SC ? "Vagas pelo Regimento da ALESP (Res. 576/1970), art. 26: quociente = 94 ÷ membros da comissão (7,23 nas de 13; 8,55 nas de 11); cada partido ou bloco tem a parte inteira de bancada ÷ quociente. Sobras: primeiro aos partidos ainda sem vaga, depois às maiores frações, desde que o resto seja de ao menos 1/4 do quociente. Os líderes indicam os nomes (art. 27); presidente e vice são eleitos pela comissão (art. 36). As 21 comissões e os tamanhos estão no art. 30." : "Vagas pelo Regimento, art. 30: quociente = 40 ÷ (membros − 1) — 5,00 nas comissões de 9 (CCJ, Finanças, Trabalho, Ética) e 6,67 nas de 7. Parte inteira garante vaga; as sobras vão às maiores frações, e uma vaga é reservada ao conjunto dos partidos com menos de 5 deputados. Membros da Mesa contam na base de 40, mas não ocupam vaga. Presidência: Assessor de Comissão PL/GAC-59 (índice 11,9183 × R$ 1.129,43 = R$ 13.461, confere com o contracheque 09/2026) + chefia da secretaria FG-3 (FG-5 em CCJ, Finanças e Trabalho), Res. 002/2006 art. 18. Etiqueta 2025: presidentes do biênio 2025–2027 conforme a Agência ALESC (instalação das comissões, fev/2025); foto em cinza à esquerda da atual.",
   "Lideranças": "Cargos e cota pelo Anexo IX-C da Res. 002/2006 (Ato da Mesa 106/2024; níveis LC 870/2025): de 6 cargos (1 deputado) a 14 (9 ou mais). Valor em reais: índice de cota × 1,2016 (reajustes aplicados aos índices de quota, LC 858/2024 art. 28) × R$ 296,55 (valor do índice dos cargos PL/GAB, PL/GAL e PL/GAM — 27 salários de 09/2026 batem exatamente) = R$ 356,34 por ponto. Conferência: gabinetes cheios somam 525,27 pontos = 437,14 × 1,2016; Liderança do PL usa 573 de 581 pontos. Folha: contracheques 09/2026 por lotação.",
   "Estruturas": "Total de cada estrutura = cargos comissionados (PL/DAS) + funções de confiança e gratificadas (PL/FC, PL/FG) + gratificação de exercício, somados dos contracheques 09/2026 por lotação. Salário de efetivo fica fora. Índices de DAS/FC/FG × R$ 1.129,43 (valor do índice dessas tabelas, deduzido dos contracheques: FC-5 = 7,9527 × 1.129,43 = R$ 8.982,02)."
 };
@@ -313,7 +323,7 @@ function secPat() {
   const ordCh = (d) => { const i = S.chapas.findIndex((c) => c.id === chDe(d.n)); return i < 0 ? 99 : i; };
   P.sort((a, b) => col === "chapa" ? (ordCh(a.d) - ordCh(b.d)) || ((b.v + b.cv) - (a.v + a.cv)) : col === "nome" ? dir * a.d.u.localeCompare(b.d.u, "pt-BR") : dir * ((a.v + a.cv) - (b.v + b.cv)));
   const seta = (c) => `<span class="ord"><i class="u${col === c && dir > 0 ? " on" : ""}"></i><i class="d${col === c && dir < 0 ? " on" : ""}"></i></span>`;
-  return `<aside class="gav${S.ui.gav ? "" : " fechada"}"><span class="vert" data-gav="1">Patrimônio · 40</span><div class="alca" data-gav="1" title="Recolher"><i></i><i></i></div><div class="rot" style="margin-top:14px">Patrimônio dos parlamentares · 40</div>
+  return `<aside class="gav${S.ui.gav ? "" : " fechada"}"><span class="vert" data-gav="1">Patrimônio · ${NDEP}</span><div class="alca" data-gav="1" title="Recolher"><i></i><i></i></div><div class="rot" style="margin-top:14px">Patrimônio dos parlamentares · 40</div>
     <div class="pcab"><span data-po="nome" class="${col === "nome" ? "on" : ""}">Nome${seta("nome")}</span><span data-po="chapa" class="${col === "chapa" ? "on" : ""}">Chapa</span><span data-po="v" class="${col === "v" ? "on" : ""}">Patrimônio${seta("v")}</span></div>
     ${P.map(({ d, G, v, cv }, k) => { const ch = chapa(chDe(d.n)), ab = S.ui.patAb === d.n, ant = k && P[k - 1].d;
       const tit = col === "chapa" && (!k || chDe(ant.n) !== chDe(d.n)) ? `<div class="pgt" style="color:${ch ? ch.cor : "#6B7178"}">${ch ? esc(nomeCh(ch)) : "Sem chapa"} · ${fm(P.filter((x) => chDe(x.d.n) === chDe(d.n)).reduce((s2, x) => s2 + x.v, 0))}/mês</div>` : "";
@@ -461,19 +471,19 @@ function imprimir(ids, secs) {
   const CH = S.chapas.filter((c) => ids.includes(c.id)), F = (n) => location.origin + location.pathname.replace(/mesa\.html.*$/, "") + `../dados/fotos/sc-2026/estadual/${n}.jpg`;
   const av = (d, s = 26) => `<img class="av" src="${F(d.n)}" style="width:${s}px;height:${s}px">`, oco = (s = 26) => `<span class="oco" style="width:${s}px;height:${s}px"></span>`;
   const carta = (d, rot, cor, pres) => d ? `<div class="card${pres ? " pres" : ""}" style="--c:${cor}"><img src="${F(d.n)}"><div class="l"><span>${esc(rot)}</span><b>${esc(d.u)}</b></div></div>` : `<div class="card vazio${pres ? " pres" : ""}"><b>+</b><span>${esc(rot)}</span></div>`;
-  let nSeg = 0, CHA = null; const T = (a, b, cls = "") => `</div><div class="seg ${cls}${nSeg++ ? "" : " prim"}"><h2>${a} <i>${b}</i></h2>${CHA ? `<div class="chtit mini" style="--c:${CHA.cor}"><b>${esc(nomeCh(CHA))}</b><span><b style="color:${CHA.cor}">${votos(CHA)}</b>/21</span></div>` : ""}`;
+  let nSeg = 0, CHA = null; const T = (a, b, cls = "") => `</div><div class="seg ${cls}${nSeg++ ? "" : " prim"}"><h2>${a} <i>${b}</i></h2>${CHA ? `<div class="chtit mini" style="--c:${CHA.cor}"><b>${esc(nomeCh(CHA))}</b><span><b style="color:${CHA.cor}">${votos(CHA)}</b>/${MAIORIA}</span></div>` : ""}`;
   const duelo = secs.includes("duelo") && CH.length > 1;
   let h = "";
-  if (secs.includes("duelo") && CH.length > 1) h += `<div class="rot">Duelo · placar · maioria 21 de 40 · sem chapa: ${DEP.filter((d) => !chDe(d.n)).length}</div><div class="duo">${CH.map((c) => { const v = votos(c); return `<div class="chbox" style="--c:${c.cor}"><div class="chcab"><b>${esc(nomeCh(c))}</b><span><b style="color:${c.cor};font-size:24px">${v}</b>/21</span></div><div class="bar"><i style="width:${v / 40 * 100}%;background:${c.cor}"></i></div><small>${Object.keys(c.mesa).length}/7 na Mesa · ${membros(c).filter((d) => S.dep[d.n].duv).length} em dúvida</small></div>`; }).join("")}</div>`;
+  if (secs.includes("duelo") && CH.length > 1) h += `<div class="rot">Duelo · placar · maioria ${MAIORIA} de ${NDEP} · sem chapa: ${DEP.filter((d) => !chDe(d.n)).length}</div><div class="duo">${CH.map((c) => { const v = votos(c); return `<div class="chbox" style="--c:${c.cor}"><div class="chcab"><b>${esc(nomeCh(c))}</b><span><b style="color:${c.cor};font-size:24px">${v}</b>/${MAIORIA}</span></div><div class="bar"><i style="width:${v / 40 * 100}%;background:${c.cor}"></i></div><small>${Object.keys(c.mesa).length}/7 na Mesa · ${membros(c).filter((d) => S.dep[d.n].duv).length} em dúvida</small></div>`; }).join("")}</div>`;
   // duelo: Mesa e votos de cada chapa lado a lado, cada uma na sua coluna (as fotos não invadem a coluna da outra)
   if (duelo && secs.includes("mesa")) h += T("Jogo da", "Mesa.") + `<div class="duoc" style="grid-template-columns:repeat(${CH.length},minmax(0,1fr))">${CH.map((c) => { const al = membros(c).filter((d) => !naMesa(c, d.n));
-      return `<div class="dcol" style="--c:${c.cor}"><div class="chtit" style="--c:${c.cor}"><b>${esc(nomeCh(c))}</b><span><b style="color:${c.cor}">${votos(c)}</b>/21</span></div><div class="rot">Mesa · ${Object.keys(c.mesa).length}/7</div><div class="cards">${MESA.map((k) => carta(c.mesa[k] && dep(c.mesa[k]), k, c.cor, k === "Presidente")).join("")}</div><div class="rot">Votos · ${al.filter((d) => !S.dep[d.n].duv).length} aliados</div><div class="cards">${al.map((d) => `<div class="card sm${S.dep[d.n].duv ? " duv" : ""}" style="--c:${c.cor}"><img src="${F(d.n)}"><div class="l"><span>${esc(d.p)}</span><b>${esc(d.u)}</b></div></div>`).join("")}</div></div>`; }).join("")}</div>`;
+      return `<div class="dcol" style="--c:${c.cor}"><div class="chtit" style="--c:${c.cor}"><b>${esc(nomeCh(c))}</b><span><b style="color:${c.cor}">${votos(c)}</b>/${MAIORIA}</span></div><div class="rot">Mesa · ${Object.keys(c.mesa).length}/${MESA.length}</div><div class="cards">${MESA.map((k) => carta(c.mesa[k] && dep(c.mesa[k]), k, c.cor, k === "Presidente")).join("")}</div><div class="rot">Votos · ${al.filter((d) => !S.dep[d.n].duv).length} aliados</div><div class="cards">${al.map((d) => `<div class="card sm${S.dep[d.n].duv ? " duv" : ""}" style="--c:${c.cor}"><img src="${F(d.n)}"><div class="l"><span>${esc(d.p)}</span><b>${esc(d.u)}</b></div></div>`).join("")}</div></div>`; }).join("")}</div>`;
   for (const c of CH) {
     const v = votos(c), falta = Math.max(0, MAIORIA - v);
     CHA = c; h += `<div>`;
     if (secs.includes("mesa") && !duelo) {
       const al = membros(c).filter((d) => !naMesa(c, d.n));
-      h += T("Jogo da", "Mesa.") + `<div class="rot">Mesa · ${Object.keys(c.mesa).length}/7</div><div class="cards">${MESA.map((k) => carta(c.mesa[k] && dep(c.mesa[k]), k, c.cor, k === "Presidente")).join("")}</div>`;
+      h += T("Jogo da", "Mesa.") + `<div class="rot">Mesa · ${Object.keys(c.mesa).length}/${MESA.length}</div><div class="cards">${MESA.map((k) => carta(c.mesa[k] && dep(c.mesa[k]), k, c.cor, k === "Presidente")).join("")}</div>`;
       h += `<div class="rot">Votos · ${al.filter((d) => !S.dep[d.n].duv).length} aliados</div><div class="cards">${al.map((d) => `<div class="card sm${S.dep[d.n].duv ? " duv" : ""}" style="--c:${c.cor}"><img src="${F(d.n)}"><div class="l"><span>${esc(d.p)}</span><b>${esc(d.u)}</b></div></div>`).join("")}</div>`;
     }
     if (secs.includes("com")) {
@@ -496,7 +506,7 @@ function imprimir(ids, secs) {
       h += T("Patrimônio da", "chapa.") + `<p class="nota">Mensal, na capacidade máxima: todas as nomeações feitas e cotas cheias. Parlamentar = subsídio, Gestão Executiva e auxílios. Gabinete = 27 Secretários Parlamentares, Chefe de Gabinete e operação de sistemas. Verba = cota de custeio (+ adicional de Mesa ou presidência de comissão) e moradia; escritório regional, divulgação e veículo saem dessa cota. Funções = gabinete da Mesa, comissões e estruturas administrativas.</p><div class="er cab p6"><span></span><span>Deputado · funções</span><span>Parlam.</span><span>Gabinete</span><span>Verba</span><span>Funções</span><span>Total</span></div>` + P.map((x) => `<div class="er p6">${av(x.d, 22)}<span>${esc(x.d.u)}<small>${x.it.map((i) => esc(i[0])).join(" · ") || "—"}</small></span>${COL.map((t) => `<span>${gv(x, t) ? fm(gv(x, t)) : "—"}</span>`).join("")}<span class="tt">${fm(x.v)}</span></div>`).join("") + `<div class="er p6 tot"><span></span><span>Total</span>${COL.map((t) => `<span>${fm(P.reduce((s2, x) => s2 + gv(x, t), 0))}</span>`).join("")}<span class="tt">${fm(P.reduce((s2, x) => s2 + x.v, 0))}</span></div>`; }
     h += `</div>`;
   }
-  if (secs.includes("quoc") && !secs.includes("com")) { const A = dist(9); CHA = null; h += `<div>` + T("Quociente das", "comissões.") + `<div class="rot">RI art. 30 · partidos e blocos</div><div class="er cab p4"><span></span><span>Partido / bloco</span><span>Comissões de 9</span><span>Comissões de 7</span></div>` + A.L.map((x) => { const a = alocar().resumo[nomeB(x.b) + "|9"], z = alocar().resumo[nomeB(x.b) + "|7"]; return `<div class="er p4"><span class="dp">${x.d}</span><span>${esc(nomeB(x.b))}${x.b.length > 1 ? `<small>${esc(x.b.join(", "))}</small>` : ""}</span><span>${a.tot} vagas</span><span>${z.tot} vagas</span></div>`; }).join("") + `</div>`; }
+  if (secs.includes("quoc") && !secs.includes("com")) { const A = dist(TAMS()[0]); CHA = null; h += `<div>` + T("Quociente das", "comissões.") + `<div class="rot">RI art. 30 · partidos e blocos</div><div class="er cab p4"><span></span><span>Partido / bloco</span><span>Comissões de 9</span><span>Comissões de 7</span></div>` + A.L.map((x) => { const a = alocar().resumo[nomeB(x.b) + "|9"], z = alocar().resumo[nomeB(x.b) + "|7"]; return `<div class="er p4"><span class="dp">${x.d}</span><span>${esc(nomeB(x.b))}${x.b.length > 1 ? `<small>${esc(x.b.join(", "))}</small>` : ""}</span><span>${a.tot} vagas</span><span>${z.tot} vagas</span></div>`; }).join("") + `</div>`; }
   const w = window.open("", "_blank");
   w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Corrida da Mesa · SimulaLEGIS</title><style>@page{size:A4;margin:11mm 10mm}*{box-sizing:border-box}body{margin:0;font:10px/1.4 Inter,system-ui,sans-serif;color:#0B0D0E;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   @font-face{font-family:Inter;src:url(${location.origin}${location.pathname.replace(/painel\/.*$/, "")}fontes/InterVariable.woff2);font-weight:100 900}

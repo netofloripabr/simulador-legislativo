@@ -1,0 +1,241 @@
+{
+  "consultado_em": "2026-10-16",
+  "fontes": [
+    {
+      "url": "https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1970/compilacao-resolucao.alesp-576-26.06.1970.html",
+      "desc": "Regimento Interno ALESP (Res. 576/1970) compilado, com alterações até Res. 948 de 12/02/2026"
+    },
+    {
+      "url": "https://www.al.sp.gov.br/alesp/mesa-diretora/",
+      "desc": "Página oficial Mesa Diretora (composição vigente)"
+    },
+    {
+      "url": "https://www.al.sp.gov.br/repositorioDados/processo_legislativo/comissoes_membros.xml",
+      "desc": "Dados abertos ALESP - membros de comissões (papel Presidente Comissão, sem DataFim)"
+    },
+    {
+      "url": "https://www.al.sp.gov.br/repositorioDados/processo_legislativo/comissoes.xml",
+      "desc": "Dados abertos ALESP - cadastro de comissões"
+    },
+    {
+      "url": "https://www.al.sp.gov.br/repositorioDados/deputados/deputados.xml",
+      "desc": "Dados abertos ALESP - deputados (partido ATUAL do deputado)"
+    }
+  ],
+  "mesa": {
+    "cargos": [
+      "Presidente",
+      "1º Vice-Presidente",
+      "2º Vice-Presidente",
+      "3º Vice-Presidente",
+      "4º Vice-Presidente",
+      "1º Secretário",
+      "2º Secretário",
+      "3º Secretário",
+      "4º Secretário"
+    ],
+    "nota_composicao": "Mesa efetiva (Comissão Diretora) = Presidente, 1º e 2º Secretários; Vice-Presidentes (1º a 4º) e 3º/4º Secretários são substitutos (art. 10 caput e §1º; art. 14). Ordem acima = ordem de votação do art. 6º §2º (art. 10 caput e §1º). Membros efetivos da Mesa não podem ser Líderes nem integrar comissões, exceto Representativa (art. 13).",
+    "eleicao": "Eleição por maioria absoluta de votos, cargo a cargo; se ninguém obtém maioria absoluta, 2º escrutínio por maioria relativa entre os 2 mais votados; empate = mais idoso (art. 5º). Votação do Presidente obrigatoriamente NOMINAL (aberta); demais cargos por processo simbólico, salvo se houver mais de um candidato, quando é nominal (art. 6º §§3º-4º, Res. 917/2018). Logo, NÃO há escrutínio secreto. 1º biênio: na sessão preparatória do início da legislatura; 2º biênio: 1ª sessão preparatória do 3º ano às 15h de 1º de fevereiro (art. 9º, redação Res. 948/2026; antes era 15 de março). Candidatos registrados pelo Líder da bancada (art. 78 §4º). Cargos distribuídos com proporcionalidade partidária (art. 11 §3º).",
+    "mandato": "2 anos (art. 11, redação Res. 948/2026, que suprimiu a vedação de recondução para o mesmo cargo na eleição imediatamente subsequente). Substitutos com mesma duração (art. 11 §1º).",
+    "fonte": "https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1970/compilacao-resolucao.alesp-576-26.06.1970.html (arts. 5º, 6º, 9º, 10, 11, 13, 14)"
+  },
+  "mesa_atual": [
+    {
+      "cargo": "Presidente",
+      "deputado": "André do Prado",
+      "partido": "PL"
+    },
+    {
+      "cargo": "1º Vice-Presidente",
+      "deputado": "Gilmaci Santos",
+      "partido": "REPUBLICANOS"
+    },
+    {
+      "cargo": "2º Vice-Presidente",
+      "deputado": "Milton Leite Filho",
+      "partido": "UNIÃO"
+    },
+    {
+      "cargo": "3º Vice-Presidente",
+      "deputado": "Fábio Faria de Sá",
+      "partido": "PODE"
+    },
+    {
+      "cargo": "4º Vice-Presidente",
+      "deputado": "Paulo Correa Jr",
+      "partido": "REPUBLICANOS"
+    },
+    {
+      "cargo": "1º Secretário",
+      "deputado": "Maurici",
+      "partido": "PT"
+    },
+    {
+      "cargo": "2º Secretário",
+      "deputado": "Barros Munhoz",
+      "partido": "PSD"
+    },
+    {
+      "cargo": "3º Secretário",
+      "deputado": "Gil Diniz Bolsonaro",
+      "partido": "PL"
+    },
+    {
+      "cargo": "4º Secretário",
+      "deputado": "Léo Oliveira",
+      "partido": "MDB"
+    }
+  ],
+  "mesa_atual_fonte": "https://www.al.sp.gov.br/alesp/mesa-diretora/ (consultado 16/10/2026; biênio 2025-2027)",
+  "comissoes": {
+    "regra_proporcionalidade": "Representação proporcional dos Partidos 'tanto quanto possível' (art. 26). Fórmula (art. 26 §1º): quociente = nº de Parlamentares (94) / nº de membros da Comissão; vagas do partido = nº de deputados do partido / esse quociente (parte inteira). Sobras (art. 26 §2º): partidos já representados cujo resto final seja >= 1/4 do quociente concorrem com os partidos ainda não representados às vagas restantes, preenchidas por acordo em 72h; sem acordo, o Presidente nomeia de ofício observando a proporcionalidade (§3º). Base: bancadas 5 dias após início da 1ª sessão legislativa e, no 2º biênio, em 1º de fevereiro (art. 26 I, Res. 948/2026). Membros nomeados por Ato do Presidente mediante indicação escrita dos Líderes em 15 dias (art. 27).",
+    "presidencias": "Cada Comissão Permanente elege Presidente e Vice-Presidente nos 5 dias seguintes à sua constituição, por maioria simples; empate = mais idoso (art. 36 caput e §3º). Convocação: no início da legislatura pelo membro mais idoso; no biênio seguinte pelo Presidente anterior (art. 36 §1º). O Regimento NÃO fixa distribuição proporcional das presidências entre partidos (eventual acordo partidário: a confirmar).",
+    "fonte": "https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1970/compilacao-resolucao.alesp-576-26.06.1970.html (arts. 26, 27, 29, 30, 36)",
+    "total_permanentes": 21,
+    "lista": [
+      {
+        "nome": "Comissão de Constituição, Justiça e Redação",
+        "membros": 13,
+        "presidente_atual": "Thiago Auricchio",
+        "partido_presidente": "PL"
+      },
+      {
+        "nome": "Comissão de Finanças, Orçamento e Planejamento",
+        "membros": 11,
+        "presidente_atual": "Gilmaci Santos",
+        "partido_presidente": "REPUBLICANOS"
+      },
+      {
+        "nome": "Comissão de Saúde",
+        "membros": 11,
+        "presidente_atual": "a confirmar",
+        "partido_presidente": "a confirmar"
+      },
+      {
+        "nome": "Comissão de Educação e Cultura",
+        "membros": 13,
+        "presidente_atual": "Professora Bebel",
+        "partido_presidente": "PT"
+      },
+      {
+        "nome": "Comissão de Assuntos Desportivos",
+        "membros": 11,
+        "presidente_atual": "a confirmar",
+        "partido_presidente": "a confirmar"
+      },
+      {
+        "nome": "Comissão de Assuntos Metropolitanos e Municipais",
+        "membros": 13,
+        "presidente_atual": "Ana Carolina Serra",
+        "partido_presidente": "PSDB"
+      },
+      {
+        "nome": "Comissão de Infraestrutura",
+        "membros": 11,
+        "presidente_atual": "Luiz Fernando T. Ferreira",
+        "partido_presidente": "PT"
+      },
+      {
+        "nome": "Comissão de Transportes e Comunicações",
+        "membros": 13,
+        "presidente_atual": "Ricardo Madalena",
+        "partido_presidente": "PL"
+      },
+      {
+        "nome": "Comissão de Segurança Pública e Assuntos Penitenciários",
+        "membros": 11,
+        "presidente_atual": "Major Mecca",
+        "partido_presidente": "PL"
+      },
+      {
+        "nome": "Comissão de Administração Pública e Relações do Trabalho",
+        "membros": 11,
+        "presidente_atual": "Solange Freitas",
+        "partido_presidente": "UNIÃO"
+      },
+      {
+        "nome": "Comissão de Meio Ambiente e Desenvolvimento Sustentável",
+        "membros": 11,
+        "presidente_atual": "Ricardo França",
+        "partido_presidente": "PODE"
+      },
+      {
+        "nome": "Comissão de Atividades Econômicas",
+        "membros": 11,
+        "presidente_atual": "Itamar Borges",
+        "partido_presidente": "MDB"
+      },
+      {
+        "nome": "Comissão de Defesa dos Direitos da Pessoa Humana, da Cidadania, da Participação e das Questões Sociais",
+        "membros": 11,
+        "presidente_atual": "Márcia Lia",
+        "partido_presidente": "PT"
+      },
+      {
+        "nome": "Comissão de Ciência, Tecnologia, Inovação e Informação",
+        "membros": 11,
+        "presidente_atual": "a confirmar",
+        "partido_presidente": "a confirmar"
+      },
+      {
+        "nome": "Comissão de Fiscalização e Controle",
+        "membros": 11,
+        "presidente_atual": "Delegado Olim",
+        "partido_presidente": "PP"
+      },
+      {
+        "nome": "Comissão de Defesa dos Direitos do Consumidor",
+        "membros": 11,
+        "presidente_atual": "Jorge Wilson Xerife do Consumidor",
+        "partido_presidente": "REPUBLICANOS"
+      },
+      {
+        "nome": "Comissão de Defesa e dos Direitos das Mulheres",
+        "membros": 11,
+        "presidente_atual": "Dani Alonso",
+        "partido_presidente": "PL"
+      },
+      {
+        "nome": "Comissão de Relações Internacionais",
+        "membros": 11,
+        "presidente_atual": "Paulo Fiorilo",
+        "partido_presidente": "PT"
+      },
+      {
+        "nome": "Comissão de Defesa dos Direitos das Pessoas com Deficiência",
+        "membros": 11,
+        "presidente_atual": "Andréa Werner",
+        "partido_presidente": "PSB"
+      },
+      {
+        "nome": "Comissão de Turismo",
+        "membros": 11,
+        "presidente_atual": "a confirmar",
+        "partido_presidente": "a confirmar"
+      },
+      {
+        "nome": "Comissão de Habitação, Desenvolvimento e Reforma Urbana",
+        "membros": 11,
+        "presidente_atual": "Rafael Saraiva",
+        "partido_presidente": "UNIÃO"
+      }
+    ],
+    "lista_fonte": "Nomes e nº de membros: RI art. 30 (I-XXI). Presidentes: https://www.al.sp.gov.br/repositorioDados/processo_legislativo/comissoes_membros.xml (registros 'Presidente Comissão' sem DataFim); partido = partido atual em https://www.al.sp.gov.br/repositorioDados/deputados/deputados.xml. Saúde, Assuntos Desportivos, Ciência/Tecnologia e Turismo sem presidente ativo nos dados abertos: a confirmar."
+  },
+  "outros_orgaos": [
+    {
+      "nome": "Conselho de Ética e Decoro Parlamentar",
+      "presidente_atual": "Delegado Olim",
+      "partido": "PP",
+      "fonte": "https://www.al.sp.gov.br/repositorioDados/processo_legislativo/comissoes_membros.xml"
+    },
+    {
+      "nome": "Corregedoria Parlamentar",
+      "presidente_atual": "Alex Madureira",
+      "partido": "PL",
+      "fonte": "https://www.al.sp.gov.br/repositorioDados/processo_legislativo/comissoes_membros.xml (início 2023-04-05; vigência atual a confirmar)"
+    }
+  ],
+  "liderancas": "Líder = porta-voz de Representação Partidária ou Bloco; bancadas indicam Líder e Vice-Líderes à Mesa em 15 dias do início da sessão legislativa; Vice-Líderes no máximo 1/3 da bancada; Líder registra candidatos à Mesa e indica membros de comissões (art. 78, Res. 948/2026). Líder do Governo indicado pelo Governador, com 2 Vice-Líderes (art. 79). Bloco Parlamentar: 2+ partidos somando 10% das cadeiras (art. 80). Maioria = partido/bloco com maioria absoluta; Minoria = representação imediatamente inferior com posição diversa da Maioria em relação ao Governo (art. 81). Colégio de Líderes presidido pelo Presidente da ALESP, votos ponderados pelo tamanho da bancada; Líderes de Bloco e da Minoria só com voz (art. 83). Comunicações de liderança 5 min (art. 82). Fonte: https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1970/compilacao-resolucao.alesp-576-26.06.1970.html. Lista nominal de líderes atuais: a confirmar (https://www.al.sp.gov.br/alesp/liderancas/).",
+  "gratificacoes": "a confirmar - o Regimento Interno não fixa valores/gratificações para membros da Mesa, presidentes de comissão ou líderes; estrutura de cargos em comissão de lideranças/Mesa depende de resoluções administrativas/atos da Mesa não verificados nesta pesquisa."
+}
