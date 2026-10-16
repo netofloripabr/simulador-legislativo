@@ -33,14 +33,16 @@ function ligarMenu() { const b = $(".mnub"), m = $(".mnu"); if (!b || !m) return
 function telaSelecao(foco) {
   $(".topo .sep").textContent = "Parlamentares · 2027–2031"; $(".topo .sep").onclick = null; $(".topo .sep").style.cursor = ""; $(".topo .secs") && $(".topo .secs").remove(); $(".vistas").innerHTML = VISTAS; ligarMenu(); travaLinksTopo();
   const E = eleitos().sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
-  $("#app").innerHTML = `<div class="roda" id="roda"><ol>${E.map((c) => `<li data-n="${c.n}">${esc(c.u)}</li>`).join("")}</ol></div>
-    <div class="rodainfo"><div class="pt" id="spt"></div><button class="btn" id="sabrir">Abrir</button><div class="dica">role para escolher · ${E.length} parlamentares eleitos</div></div>`;
+  // capa (16/10/2026): roda menor fixa à esquerda; mapa do estado à direita reage à base de votos do nome em foco
+  $("#app").innerHTML = `<div class="capa2"><div class="capaE"><div class="roda" id="roda"><ol>${E.map((c) => `<li data-n="${c.n}">${esc(c.u)}</li>`).join("")}</ol></div>
+    <div class="rodainfo"><div class="pt" id="spt"></div><button class="btn" id="sabrir">Abrir</button><div class="dica">role para escolher · ${E.length} parlamentares eleitos</div></div></div>
+    <div class="capaD"><canvas id="selCv"></canvas><div class="selEtq" id="selEtq"></div></div></div>`;
   const rd = $("#roda"), L = [...rd.querySelectorAll("li")];
   let atual = null;
   const pintar = () => { const m = rd.getBoundingClientRect().top + rd.clientHeight / 2, h = L[0].offsetHeight || 60; let melhor = null, dm = 1e9;
     L.forEach((li) => { const r = li.getBoundingClientRect(), d = (r.top + r.height / 2 - m) / h, a = Math.abs(d); if (a < dm) { dm = a; melhor = li; }
       li.style.transform = `scale(${Math.max(.5, 1 - a * .125)})`; li.style.filter = a < .5 ? "none" : `blur(${Math.min(6, (a - .4) * 1.4).toFixed(2)}px)`; li.style.opacity = a > 4.5 ? 0 : Math.max(.12, 1 - a * .2); });
-    if (melhor !== atual) { atual = melhor; L.forEach((x) => x.classList.toggle("on", x === atual)); const c = D.c.find((x) => x.n === atual.dataset.n); $("#spt").textContent = `${c.p} · ${ni(c.t)} votos`; tingir(COR_P[c.p] || "#34E84A"); } };
+    if (melhor !== atual) { atual = melhor; L.forEach((x) => x.classList.toggle("on", x === atual)); const c = D.c.find((x) => x.n === atual.dataset.n); $("#spt").textContent = `${c.p} · ${ni(c.t)} votos`; tingir(COR_P[c.p] || "#34E84A"); mapaSelecao(c); } };
   rd.addEventListener("scroll", () => requestAnimationFrame(pintar), { passive: true });
   rd.onclick = (e) => { const li = e.target.closest("li"); if (!li) return; if (li === atual) return ir(li.dataset.n); li.scrollIntoView({ behavior: "smooth", block: "center" }); };
   $("#sabrir").onclick = () => atual && ir(atual.dataset.n);
@@ -680,6 +682,33 @@ addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data
 
 // capa: mapa de SC com bolhas (tamanho = eleitorado, cor = força do deputado na cor do partido), nascendo uma a uma
 let heroRaf = null;
+// mapa da capa: bolhas por município; ao trocar o nome em foco, cada bolha interpola até a nova intensidade e a nova cor
+let SEL = null;
+function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
+  if (!SEL || SEL.cv !== cv) { const r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height; cv.width = w * dpr; cv.height = h * dpr;
+    let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
+    const pad = 24, xl = innerWidth > 760 ? Math.max(260, w * .22) : pad, K = Math.cos(27.5 * Math.PI / 180), S = Math.min((w - xl - pad) / ((lo1 - lo0) * K), (h - 2 * pad) / (la0 - la1)), ox = xl + ((w - xl - pad) - (lo1 - lo0) * K * S) / 2, oy = pad + ((h - 2 * pad) - (la0 - la1) * S) / 2;
+    const P = (lo, la) => [ox + (lo - lo0) * K * S, oy + (la0 - la) * S], k = Math.min(w, h) / 560, cont = new Path2D();
+    CONT.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
+    const B = M.map((m) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / 470000)) * k * 1.1, t0: 0, t1: 0 }; });
+    SEL = { cv, ctx: cv.getContext("2d"), dpr, w, h, cont, B, ord: [...B.keys()].sort((a, b) => M[b].el - M[a].el), rgb0: [52, 232, 74], rgb1: [52, 232, 74], ini: 0, top: [] };
+    const quadro = (agora) => { if (!document.body.contains(cv)) { SEL = null; return; } const { ctx, B } = SEL, e0 = Math.min(1, (agora - SEL.ini) / 650), e = 1 - Math.pow(1 - e0, 3), ne = [58, 64, 70];
+      const rgb = SEL.rgb0.map((v, q) => v + (SEL.rgb1[q] - v) * e);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); ctx.globalAlpha = 1; ctx.fillStyle = "rgba(242,244,245,.03)"; ctx.fill(cont); ctx.strokeStyle = "rgba(242,244,245,.07)"; ctx.lineWidth = .6; ctx.stroke(cont);
+      for (const i of SEL.ord) { const b = B[i], t = b.t0 + (b.t1 - b.t0) * e, col = t < .02 ? ne : ne.map((v, q) => Math.round(v + (rgb[q] - v) * Math.min(1, .25 + t)));
+        ctx.globalAlpha = .22 + .72 * t; ctx.shadowColor = `rgba(${rgb.map(Math.round)},${.8 * t})`; ctx.shadowBlur = 16 * t; ctx.fillStyle = `rgb(${col})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (.75 + .35 * t), 0, 6.2832); ctx.fill(); }
+      ctx.shadowBlur = 0; const pul = (Math.sin(agora / 450) + 1) / 2;
+      SEL.top.forEach((i, q) => { const b = B[i]; ctx.globalAlpha = .22 * pul * e; ctx.fillStyle = `rgb(${rgb.map(Math.round)})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1.25 + .5 * pul), 0, 6.2832); ctx.fill(); });
+      ctx.globalAlpha = 1; requestAnimationFrame(quadro); };
+    requestAnimationFrame(quadro); }
+  const agora = performance.now(), e0 = Math.min(1, (agora - SEL.ini) / 650), e = 1 - Math.pow(1 - e0, 3);
+  SEL.B.forEach((b) => { b.t0 = b.t0 + (b.t1 - b.t0) * e; }); SEL.rgb0 = SEL.rgb0.map((v, q) => v + (SEL.rgb1[q] - v) * e);
+  const pct = M.map((m, i) => D.val[i] ? c.v[i] / D.val[i] : 0), e95 = [...pct].sort((a, b) => a - b)[Math.floor(N * .95)] || 1;
+  SEL.B.forEach((b, i) => { b.t1 = Math.min(1, pct[i] / e95); }); SEL.rgb1 = hexRgb(COR_P[c.p] || "#34E84A").split(",").map(Number); SEL.ini = agora;
+  const ordV = [...M.keys()].sort((a, b) => c.v[b] - c.v[a]); SEL.top = ordV.slice(0, 5);
+  const i1 = ordV[0], b1 = SEL.B[i1];
+  $("#selEtq").innerHTML = `<div class="se" style="left:${b1.x}px;top:${b1.y}px"><span>${esc(M[i1].n)}</span><b>${ni(c.v[i1])}</b></div><div class="seR">${ordV.slice(0, 3).map((i, q) => `<div><span>${q + 1}º ${esc(M[i].n)}</span><b>${ni(c.v[i])}</b></div>`).join("")}</div>`;
+}
 function heroMapa(c, ordM) {
   cancelAnimationFrame(heroRaf);
   const cv = $("#heroCv"), ctx = cv.getContext("2d"), r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height;
