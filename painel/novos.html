@@ -184,6 +184,7 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .capa2 .roda{ overflow-x:hidden; overscroll-behavior-x:none; touch-action:pan-y; } .capa2, .capaE{ overflow-x:hidden; }
 .topo .wm b{ color:#34E84A !important; } .vistas > a.on{ background:#34E84A !important; color:#0B0D0E !important; }
 </style>
+<link rel="stylesheet" href="topo.css?cb=2">
 </head>
 <body>
 <style>#salvarConta.svbtn{ display:inline-flex; align-items:center; gap:6px; margin-left:6px; padding:6px 8px; border:0; background:none; color:var(--ter); cursor:pointer; border-radius:999px; font:inherit; } #salvarConta.svbtn:hover{ color:var(--texto); background:rgba(242,244,245,.06); } #salvarConta.lg{ border:0 !important; } #salvarConta.lg{ color:var(--a); border-color:rgba(var(--a-rgb),.5); } #salvarConta .svt{ font-size:12.5px; font-weight:600; } #salvarConta .svt:empty{ display:none; }
@@ -211,12 +212,12 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 .topo a.ent.ico{ width:34px; height:34px; border-radius:50%; border:1px solid rgba(242,244,245,.18); display:inline-flex; align-items:center; justify-content:center; color:var(--texto); flex:none; }
 @media (max-width:760px){ .topo{ flex-wrap:wrap; height:auto; row-gap:6px; padding:8px 12px; } .topo .wm{ order:1; } .topo .vistas{ order:2; } .topo a.ent.ico{ order:3; } .topo::after{ content:""; order:4; flex-basis:100%; height:0; } .topo .sep{ order:5; padding-left:0; border-left:0; } .topo .secs{ order:6; margin-left:auto; } .topo .secs a{ padding:6px 9px; font-size:12px; } .vistas a{ padding:6px 9px; font-size:12.5px; } .secnav{ top:92px; }  }
 </style>
-<header class="topo"><span class="wm"><b>Simula</b>LEGIS</span><span class="sep" style="display:none"></span><nav class="vistas"></nav></header>
+<header class="topo" id="topoSL"><a class="wm" href="novos.html"><b>Simula</b>LEGIS</a><span class="sep" style="display:none"></span><nav class="vistas sl-nav"></nav></header>
 <main id="app"><div class="wrap sel"><div class="olho">Carregando…</div></div></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=1"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="novos.js?cb=154"></script>
+<script src="novos.js?cb=155"></script>
 <script src="../nuvem/visitas.js?cb=1"></script>
 <script src="sino-menu.js?cb=1"></script>
 </body>
