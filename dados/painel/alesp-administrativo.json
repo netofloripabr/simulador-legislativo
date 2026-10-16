@@ -1,0 +1,60 @@
+{
+  "fontes": [
+    "https://www.al.sp.gov.br/repositorio/legislacao/lei/2023/lei-17617-16.01.2023.html",
+    "https://www.al.sp.gov.br/repositorio/legislacao/ato.da.mesa/2024/ato.da.mesa-33-20.12.2024.html",
+    "https://www3.al.sp.gov.br/atestados/documentos/Estrutura_Pessoal.pdf",
+    "https://www3.al.sp.gov.br/atestados/documentos/atribuicoes_cargos.pdf",
+    "https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf",
+    "https://www.al.sp.gov.br/institucional/administracao-da-alesp/gestao-de-pessoal/vencimentos/",
+    "https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1996/compilacao-resolucao.alesp-776-14.10.1996.html",
+    "https://www.al.sp.gov.br/servidor/vagas/"
+  ],
+  "parlamentar": {
+    "subsidio": 34774.64,
+    "norma_subsidio": "Lei estadual nº 17.617/2023 (subsídio 2023-2025; R$ 34.774,64 a partir de 01/02/2025). Para 2026 o valor permanece R$ 34.774,64 segundo imprensa (teto de 75% do deputado federal, CF art. 27 §2º) — norma específica de 2026 a confirmar",
+    "auxilios": [
+      {"nome": "Auxílio-hospedagem/moradia (despesas em São Paulo)", "valor": "até 178 UFESPs/mês (≈ R$ 6.838,76 com UFESP 2026 = R$ 38,42, valor da UFESP a confirmar)", "norma": "Ato da Mesa nº 33/2024"},
+      {"nome": "Locação de automóvel de representação", "valor": "160 UFESPs/mês (250 UFESPs se blindado)", "norma": "Ato da Mesa nº 33/2024"},
+      {"nome": "Manutenção corretiva de veículo", "valor": "até 20 UFESPs/mês", "norma": "Ato da Mesa nº 33/2024"}
+    ],
+    "verba_indenizatoria": {
+      "nome": "Auxílio-Encargos Gerais de Gabinete de Deputado",
+      "valor_mensal_teto": "1.250 UFESPs/mês (≈ R$ 48.025,00 com UFESP 2026 = R$ 38,42; valor da UFESP a confirmar)",
+      "o_que_cobre": "Funcionamento e manutenção do gabinete, hospedagem e despesas do exercício parlamentar: reprografia, correspondência, material de escritório, assinaturas (TV, jornais, internet), equipamentos, telefonia, locação de imóveis, contratação de profissionais especializados, deslocamentos; por reembolso",
+      "norma": "Resolução ALESP nº 783/1997 (e nº 822/2001), regulamentada pelo Ato da Mesa nº 33/2024"
+    },
+    "observacoes": "Valores dos auxílios definidos em UFESP; conversão em reais depende da UFESP do exercício (a confirmar). Não há verba de gabinete em reais: o gabinete é composto por cargos em comissão com quantitativo fixo."
+  },
+  "gabinete": {
+    "cargos_maximos": 23,
+    "verba_ou_cota_mensal": "não há cota em reais; limite por número/tipo de cargos (sistema 'cheio' = 16 cargos ≈ R$ 247.995/mês em vencimentos totais 2025; com cargos 'divididos' até 23) — cálculo próprio a partir da tabela oficial",
+    "norma": "Estrutura de Pessoal do gabinete (documento oficial ALESP) + Resolução ALESP nº 776/1996; vencimentos pela LC nº 1.431, de 16/07/2025 (tabela vigência 01/03/2025)",
+    "cargos": [
+      {"cargo": "Assessor Especial Parlamentar (3 vagas)", "referencia": "código 0112", "vencimento": 21972.52},
+      {"cargo": "Secretário Especial Legislativo (1 vaga)", "referencia": "código 4561", "vencimento": 19811.26},
+      {"cargo": "Secretário Especial Parlamentar (2 vagas)", "referencia": "código 4564", "vencimento": 17057.61},
+      {"cargo": "Assistente Especial Parlamentar (2 vagas)", "referencia": "código 4570", "vencimento": 16618.00},
+      {"cargo": "Jornalista (1 vaga)", "referencia": "código 3811", "vencimento": 16393.62},
+      {"cargo": "Auxiliar Parlamentar (5 vagas)", "referencia": "código 4565", "vencimento": 9228.73},
+      {"cargo": "Auxiliar Legislativo (2 vagas)", "referencia": "código 5759", "vencimento": 9008.77},
+      {"cargo": "Assistente Parlamentar VII (até 6, em troca dos Assessores Especiais: 1 AEP = 2 AP VII)", "referencia": "código 5359", "vencimento": 10986.22},
+      {"cargo": "Assistente Parlamentar VI (até 2, em troca do Sec. Esp. Legislativo)", "referencia": "código 5358", "vencimento": 9905.59},
+      {"cargo": "Assistente Parlamentar V (até 4, em troca dos Sec. Esp. Parlamentares)", "referencia": "código 5357", "vencimento": 8528.76},
+      {"cargo": "Assistente Parlamentar III (até 2, em troca do Jornalista)", "referencia": "código 5355", "vencimento": 8196.73},
+      {"cargo": "Secretário Parlamentar I (presença no gabinete parlamentar a confirmar)", "referencia": "código 4569", "vencimento": 12603.87}
+    ],
+    "chefe_de_gabinete": {
+      "cargo": "Não há cargo específico de chefe na estrutura oficial do gabinete parlamentar; a função costuma recair no Assessor Especial Parlamentar (a confirmar). Existe 'Assessor Chefe Gabinete' (cód. 4774, R$ 38.502,72) na escala de Assessoria, aparentemente para gabinetes da Presidência/Mesa — a confirmar",
+      "valor": 21972.52
+    }
+  },
+  "liderancas": "A tabela 2025 prevê 'Assessor Chefe Gabinete - Liderança' (cód. 4775). Quantitativo de cargos por liderança e norma específica: a confirmar.",
+  "mesa": "A tabela prevê 'Assessor Chefe Gabinete - Subst. Membro Mesa' (cód. 4776) e 'Assessor Chefe Gabinete' (cód. 4774). Gratificação pecuniária para membros da Mesa e estrutura completa: a confirmar.",
+  "transparencia": {
+    "portal": "https://www.al.sp.gov.br/transparencia/",
+    "normas": ["Lei federal nº 12.527/2011 (LAI); norma interna da ALESP de acesso à informação — número e ano a confirmar"],
+    "folha": "Portal da transparência da ALESP (seção servidores/remuneração) e tabelas de vencimentos em https://www.al.sp.gov.br/institucional/administracao-da-alesp/gestao-de-pessoal/vencimentos/ — URL exata da folha nominal a confirmar",
+    "verbas": "Portal da transparência da ALESP, seção de gastos com Auxílio-Encargos Gerais de Gabinete por deputado — URL exata a confirmar"
+  },
+  "estrutura_casa": "94 deputados. Número de servidores efetivos/comissionados e dotação da ALESP na LOA 2026 (Lei do PL 1036/2025): a confirmar. Quadro de cargos e vagas em https://www.al.sp.gov.br/servidor/vagas/"
+}

@@ -21,7 +21,8 @@ const GAB_IDX = [1.6863,1.7441,1.8039,1.8658,1.9298,1.9959,2.0644,2.1352,2.2084,
 async function carregar() {
   const [b, d, e] = await Promise.all([fetch(`../dados/painel/${UF}-base.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/${UF}-estadual.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/mesa-estruturas.json?v=12`).then((r) => r.json()).catch(() => ({}))]);
   FF = UF === "sc" ? await fetch(`../dados/painel/frentes-foruns.json?v=4`).then((r) => r.json()).catch(() => ({ itens: [] })) : { itens: [] };
-  A22 = UF === "sc" ? await fetch(`../dados/painel/alesc-2022.json?v=1`).then((r) => r.json()).catch(() => ({})) : {};
+  A22 = await fetch(`../dados/painel/${UF === "sc" ? "alesc" : "alesp"}-2022.json?v=1`).then((r) => r.json()).catch(() => ({}));
+  await carregarUF();
   M = b.mun; N = M.length; CONT = b.contorno; D = d; EST = e; { const G0 = EST.gabinete_parlamentar; if (G0 && G0.grat_chefe && !G0.chefe_cargo) { G0.chefe_cargo = G0.chefe; G0.chefe = G0.chefe + G0.grat_chefe; } } /* chefe = cargo DAS-7 + Gratificação de Exercício */ VAL = d.val.reduce((s, x) => s + x, 0);
 }
 const eleitos = () => D.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => b.t - a.t);
@@ -66,7 +67,7 @@ function perfil(n) {
     <div class="txt"><img class="ftp" src="${foto(n)}" alt=""><div class="olho" style="margin-top:14px">Eleições 2026 · Deputado estadual · ${esc(UFI.sigla)} · ${esc(c.p)}</div><h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") : c.u)}<i>${esc(nm.length > 1 ? nm.slice(-1)[0] + "." : "")}</i></h1>
     <div class="pops">${[[ni(c.t), "votos", 1], [`${pos}º`, `entre os ${E.length} eleitos`], [`${nf(c.t / VAL * 100, 2)}%`, "dos válidos"], [`${posBase}º`, "em " + M[i0].n], [`${nf(pctMax * 100)}%`, "em " + M[iPct].n + ", seu maior índice"], [ordM.length, "municípios com voto"]].map(([v, r, a], k) => `<div style="animation-delay:${.5 + k * .55}s"><b class="${a ? "a" : ""}">${esc(v)}</b><span>${esc(r)}</span></div>`).join("")}</div>
     <div style="display:flex;gap:10px;margin-top:22px"><button class="btn" id="caderno">Caderno</button><button class="btn sec" id="trocar">Trocar parlamentar</button></div></div></section>
-    ${secEleitoral(c)}${UFI.completo ? secLegislativo(c) + secAdministrativo(c) : emPreparo()}`;
+    ${secEleitoral(c)}${UFI.completo ? secLegislativo(c) + secAdministrativo(c) : LEGUF ? secLegislativoUF(c) + secAdministrativoUF(c) : emPreparo()}`;
   $("#trocar").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(n); };
   $(".topo .sep").style.display = ""; $(".topo .sep").textContent = c.u; $(".topo .sep").style.cursor = "pointer"; $(".topo .sep").title = "Trocar parlamentar"; $(".topo .sep").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(c.n); }; const sx = $(".topo .secs") || $(".topo .sep").insertAdjacentElement("afterend", Object.assign(document.createElement("nav"), { className: "secs" })); sx.innerHTML = `<a href="#s1" data-s="s1">Eleitoral</a><a href="#s2" data-s="s2">Legislativo</a><a href="#s3" data-s="s3">Administrativo</a><button class="svbtn" id="salvarConta" title="Entre na sua conta para salvar"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h8l2.5 2.5v8.5h-11z"/><path d="M5 2.5v3.5h5V2.5"/><rect x="5" y="9" width="6" height="4.5" rx=".5"/></svg><span class="svt"></span></button>`;
   $(".vistas").innerHTML = VISTAS; ligarMenu(); travaLinksTopo();
@@ -178,7 +179,7 @@ function secAdministrativo(c) {
 const un = (cls = "", n = 9, st = "") => `<span class="un ${cls}" style="${st}">${Array.from({ length: n }, () => `<i style="--d:${(Math.random() * .5).toFixed(2)}s"></i>`).join("")}</span>`;
 
 // ---------- estrutura política: composição 2027 × 2022, comissões (quociente com simulação de bloco) e liderança ----------
-const PART22 = { "PT/PC do B/PV": ["PT"], "UNIÃO/PP": ["UNIÃO", "PP"], "PSOL/REDE": ["PSOL"] };
+const PART22 = { "PT/PC do B/PV": ["PT", "PC do B", "PV"], "UNIÃO/PP": ["UNIÃO", "PP"], "PSOL/REDE": ["PSOL", "REDE"], "PSDB/CIDADANIA": ["PSDB", "CIDADANIA"], "PRD/SOLIDARIEDADE": ["PRD", "SOLIDARIEDADE", "PTB", "PATRIOTA"] };
 const nbanc = (p) => eleitos().filter((x) => x.p === p).length;
 function secPolitica(c, trilhaHtml = "") {
   const ps = [...new Set(eleitos().map((x) => x.p))].sort((a, b) => nbanc(b) - nbanc(a));
@@ -628,7 +629,7 @@ function aplicarTrava() { const ok = ACESSO === "liberado"; document.querySelect
     L.forEach((t) => { const sp = document.createElement("span"); sp.innerHTML = esc(t.nodeValue).replace(RE, `<i class="vcad" title="Valor restrito">${CADEADO}</i>`); t.replaceWith(sp); });
     b.querySelectorAll(".adt, .pat b, .ibx").forEach((x) => { if (x.classList.contains("ibx")) return; x.innerHTML = `<i class="vcad" title="Valor restrito">${CADEADO}</i>`; }); });
 }
-function decorarAdm() { const c = window._cAtual; if (!c || !$("#s3")) return; const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, F = (window.FOLHA_GAB || {});
+function decorarAdm() { const c = window._cAtual; if (!c || !$("#s3") || UF !== "sc") return; const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, F = (window.FOLHA_GAB || {});
   const par = PA.subsidio * (1 + PA.gestao_demais) + PA.aux_saude + PA.aux_alim, gab = G.cota + G.chefe + G.retrib, T = (EST.liderancas || {}).tabela || {}, lid = (T[Math.min(9, nbanc(c.p))] || {}).cota || 0;
   const casa = Object.entries(EST.grupos || {}).filter(([g, L]) => !/Comiss/.test(g)).reduce((s2, [g, L]) => s2 + L.reduce((a, x) => a + x.t, 0), 0);
   const BR = "Todos os valores são <b>brutos</b> (antes de imposto de renda e previdência), exceto as verbas indenizatórias, que não sofrem desconto.";
