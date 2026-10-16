@@ -5,9 +5,9 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const ni = (x) => Math.round(x).toLocaleString("pt-BR"), nf = (x, d = 1) => x.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
 const fm = (v) => "R$ " + (v >= 1e6 ? nf(v / 1e6, 2) + " mi" : v >= 1e3 ? nf(v / 1e3, 1).replace(/,0$/, "") + " mil" : ni(v));
 const DV = "20261008a";
-const foto = (n) => `../dados/fotos/sc-2026/estadual/${n}.jpg`;
+const foto = (n) => `../dados/fotos/${UF}-2026/estadual/${n}.jpg`;
 // cor de destaque por partido (identidade de cada legenda, ajustada para fundo escuro)
-const COR_P = { "NOVO": "#F37021", "PL": "#3D7BFF", "PT/PC do B/PV": "#E5383B", "MDB": "#34C759", "UNIÃO/PP": "#2FB5E8", "PSD": "#2B5FD9", "REPUBLICANOS": "#4D8DFF", "PODE": "#3FB37F", "PDT": "#E5484D", "PSOL/REDE": "#F5B700" };
+const COR_P = { "NOVO": "#F37021", "PL": "#3D7BFF", "PT/PC do B/PV": "#E5383B", "MDB": "#34C759", "UNIÃO/PP": "#2FB5E8", "PSD": "#2B5FD9", "REPUBLICANOS": "#4D8DFF", "PODE": "#3FB37F", "PDT": "#E5484D", "PSOL/REDE": "#F5B700", "PSB": "#F2A900", "PSDB/CIDADANIA": "#1E6FD9", "MISSÃO": "#9B6CF0", "PRD/SOLIDARIEDADE": "#E8833A" };
 const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)).join(",");
 const tingir = (cor) => { document.documentElement.style.setProperty("--a", cor); document.documentElement.style.setProperty("--a-rgb", hexRgb(cor)); };
 let M, N, CONT, D, VAL, EST, FF = { itens: [] }, A22 = {}, AB = { painel: 0 };
@@ -19,9 +19,9 @@ const SAL_MIN = 1621; // salário mínimo nacional 2026: nível GAB abaixo dele 
 const GAB_IDX = [1.6863,1.7441,1.8039,1.8658,1.9298,1.9959,2.0644,2.1352,2.2084,2.2841,2.3624,2.4434,2.5272,2.6139,2.7035,2.7962,2.8992,2.9912,3.0938,3.1999,3.3096,3.4231,3.5405,3.6619,3.7875,3.9173,4.0517,4.1906,4.3343,4.4829,4.6366,4.7956,4.9600,5.1301,5.3060,5.4879,5.6761,5.8708,6.0721,6.2803,6.4956,6.7184,6.9487,7.1870,7.4334,7.6890,7.9527,8.2253,8.5074,8.7991,9.1008,9.4129,9.7356,10.0695,10.4147,10.7718,11.1412,11.5232,11.9183,12.3270,12.7498,13.1871,13.6394,14.1072,15.0901,15.6077,16.1430,16.6967,17.2694,17.8617,18.9334,20.0694,21.2735,22.5499,23.9029,25.6503,27.3976,29.1449,30.8922,32.6395,34.3868,36.1341,37.8814,39.6287,41.3760,43.1233,44.8706,46.6179,48.3652,50.1125,51.8598,53.6071,55.3544,57.1017,58.8490,60.5963,62.3436,64.0909,65.8382,67.5873,69.3364,71.0855,72.8346,74.5837,76.3328,78.0819,79.8310,81.5801,83.3292,85.0783,86.8274,88.5765,90.3256,92.0747,93.8238,95.5729,97.3220,99.0711,100.8202,102.5693], GAB_VAL = 296.55, COTA_GAB = 525.27 * 296.55;
 
 async function carregar() {
-  const [b, d, e] = await Promise.all([fetch(`../dados/painel/sc-base.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/sc-estadual.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/mesa-estruturas.json?v=12`).then((r) => r.json()).catch(() => ({}))]);
-  FF = await fetch(`../dados/painel/frentes-foruns.json?v=4`).then((r) => r.json()).catch(() => ({ itens: [] }));
-  A22 = await fetch(`../dados/painel/alesc-2022.json?v=1`).then((r) => r.json()).catch(() => ({}));
+  const [b, d, e] = await Promise.all([fetch(`../dados/painel/${UF}-base.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/${UF}-estadual.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/mesa-estruturas.json?v=12`).then((r) => r.json()).catch(() => ({}))]);
+  FF = UF === "sc" ? await fetch(`../dados/painel/frentes-foruns.json?v=4`).then((r) => r.json()).catch(() => ({ itens: [] })) : { itens: [] };
+  A22 = UF === "sc" ? await fetch(`../dados/painel/alesc-2022.json?v=1`).then((r) => r.json()).catch(() => ({})) : {};
   M = b.mun; N = M.length; CONT = b.contorno; D = d; EST = e; { const G0 = EST.gabinete_parlamentar; if (G0 && G0.grat_chefe && !G0.chefe_cargo) { G0.chefe_cargo = G0.chefe; G0.chefe = G0.chefe + G0.grat_chefe; } } /* chefe = cargo DAS-7 + Gratificação de Exercício */ VAL = d.val.reduce((s, x) => s + x, 0);
 }
 const eleitos = () => D.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => b.t - a.t);
@@ -63,21 +63,23 @@ function perfil(n) {
   const posBase = D.c.filter((x) => (x.v[i0] || 0) > c.v[i0]).length + 1, pctMax = Math.max(...idx.map((i) => D.val[i] ? c.v[i] / D.val[i] : 0)), iPct = idx.find((i) => D.val[i] && c.v[i] / D.val[i] === pctMax);
   const nm = c.u.split(" ");
   $("#app").innerHTML = `<section class="hero" id="hero"><div class="luz"></div><canvas id="heroCv"></canvas><div id="etqs"></div>
-    <div class="txt"><img class="ftp" src="${foto(n)}" alt=""><div class="olho" style="margin-top:14px">Eleições 2026 · Deputado estadual · ${esc(c.p)}</div><h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") : c.u)}<i>${esc(nm.length > 1 ? nm.slice(-1)[0] + "." : "")}</i></h1>
-    <div class="pops">${[[ni(c.t), "votos", 1], [`${pos}º`, "entre os 40 eleitos"], [`${nf(c.t / VAL * 100, 2)}%`, "dos válidos"], [`${posBase}º`, "em " + M[i0].n], [`${nf(pctMax * 100)}%`, "em " + M[iPct].n + ", seu maior índice"], [ordM.length, "municípios com voto"]].map(([v, r, a], k) => `<div style="animation-delay:${.5 + k * .55}s"><b class="${a ? "a" : ""}">${esc(v)}</b><span>${esc(r)}</span></div>`).join("")}</div>
+    <div class="txt"><img class="ftp" src="${foto(n)}" alt=""><div class="olho" style="margin-top:14px">Eleições 2026 · Deputado estadual · ${esc(UFI.sigla)} · ${esc(c.p)}</div><h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") : c.u)}<i>${esc(nm.length > 1 ? nm.slice(-1)[0] + "." : "")}</i></h1>
+    <div class="pops">${[[ni(c.t), "votos", 1], [`${pos}º`, `entre os ${E.length} eleitos`], [`${nf(c.t / VAL * 100, 2)}%`, "dos válidos"], [`${posBase}º`, "em " + M[i0].n], [`${nf(pctMax * 100)}%`, "em " + M[iPct].n + ", seu maior índice"], [ordM.length, "municípios com voto"]].map(([v, r, a], k) => `<div style="animation-delay:${.5 + k * .55}s"><b class="${a ? "a" : ""}">${esc(v)}</b><span>${esc(r)}</span></div>`).join("")}</div>
     <div style="display:flex;gap:10px;margin-top:22px"><button class="btn" id="caderno">Caderno</button><button class="btn sec" id="trocar">Trocar parlamentar</button></div></div></section>
-    ${secEleitoral(c)}${secLegislativo(c)}${secAdministrativo(c)}`;
+    ${secEleitoral(c)}${UFI.completo ? secLegislativo(c) + secAdministrativo(c) : emPreparo()}`;
   $("#trocar").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(n); };
   $(".topo .sep").style.display = ""; $(".topo .sep").textContent = c.u; $(".topo .sep").style.cursor = "pointer"; $(".topo .sep").title = "Trocar parlamentar"; $(".topo .sep").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(c.n); }; const sx = $(".topo .secs") || $(".topo .sep").insertAdjacentElement("afterend", Object.assign(document.createElement("nav"), { className: "secs" })); sx.innerHTML = `<a href="#s1" data-s="s1">Eleitoral</a><a href="#s2" data-s="s2">Legislativo</a><a href="#s3" data-s="s3">Administrativo</a><button class="svbtn" id="salvarConta" title="Entre na sua conta para salvar"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h8l2.5 2.5v8.5h-11z"/><path d="M5 2.5v3.5h5V2.5"/><rect x="5" y="9" width="6" height="4.5" rx=".5"/></svg><span class="svt"></span></button>`;
   $(".vistas").innerHTML = VISTAS; ligarMenu(); travaLinksTopo();
-  heroMapa(c, ordM); ligarEleitoral(c, ordM); ligarPolitica(c); ligarGabinete(c); ligarPrazos(); revelar(); scrollTo(0, 0);
-  $("#caderno").onclick = () => caderno(c, ordM); window._ordM = ordM;
+  heroMapa(c, ordM); ligarEleitoral(c, ordM); if (UFI.completo) { ligarPolitica(c); ligarGabinete(c); ligarPrazos(); } revelar(); scrollTo(0, 0);
+  $("#caderno").onclick = () => UFI.completo ? caderno(c, ordM) : alert("O caderno de " + UFI.nome + " está em preparação."); window._ordM = ordM;
   $("#salvarConta").onclick = (e) => salvarConta(c, e.currentTarget);
   if (window._daConta !== n) carregarConta(c); window._daConta = null;
   { const q0 = new URLSearchParams(location.search); if (q0.has("pdf")) { window._pdfSem = (q0.get("sem") || "").split("|").filter(Boolean); setTimeout(() => caderno(c, ordM), 600); } } // ?pdf=1&sem=Título|Título: abre só o caderno (para gerar PDF)
   travaLogin().then(verificarAcesso);
   clearInterval(window._salvaPainelT); window._salvaPainelT = setInterval(salvarPainelLocal, 4000);
 }
+// SP e outros estados (etapa 1): Legislativo e Administrativo ainda em preparação
+const emPreparo = () => ["s2", "s3"].map((id, k) => cabSec(id, "0" + (k + 2), k ? "Administrativo" : "Legislativo", k ? `Subsídio, verbas, gabinete e estrutura da ${UFI.casa}.` : `Regimento, comissões, proposições e prazos da ${UFI.casa}.`) + `<div class="bloco rv"><h3>Em preparação</h3><p>Esta parte de ${esc(UFI.nome)} está sendo levantada nas fontes oficiais da ${esc(UFI.casa)} e entra na próxima etapa. Por enquanto, o Eleitoral de ${esc(UFI.nome)} já está completo.</p></div></div></div></section>`).join("");
 const cabSec = (id, num, tit, lead) => `<section class="secao" id="${id}"><div class="wrap"><div class="tag rv"><button class="tg ab" data-tg="${id}" title="Recolher ou abrir">−</button><h2>${tit}</h2><p class="lead">${lead}</p></div><div class="corpoSec" id="cs-${id}">`;
 const ROT = { s1: "Eleitoral", s2: "Legislativo", s3: "Administrativo" };
 const seta = (alvo, rot) => `<button class="seta" data-ir="${alvo}" title="Próxima etapa"><b>↓</b><span>${esc(rot)}</span></button>`;
@@ -86,7 +88,7 @@ const fimSec = () => `</div></div></section>`;
 // 01 · Eleitoral: Painel completo embutido (sanfona aberta) com filtros prontos
 function secEleitoral(c) {
   return `<section class="secao s1" id="s1"><div class="wrap"><div class="tag rv"><button class="tg${AB.painel ? " on ab" : ""}" data-sec="painel" title="Recolher ou abrir">${AB.painel ? "−" : "+"}</button><h2>Eleitoral</h2><p class="lead">Onde estão os votos: mapa, distribuição, perfil das cidades, comparação e ranking.</p></div><div>
-    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="elg"><iframe class="emb" id="emb" src="index.html?embed=1&v=37&cargo=estadual&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe><aside class="cid" id="cid" hidden></aside></div></div></div></div></section>`;
+    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="elg"><iframe class="emb" id="emb" src="index.html?embed=1&v=38&uf=${UF}&cargo=estadual&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe><aside class="cid" id="cid" hidden></aside></div></div></div></div></section>`;
 }
 function ligarEleitoral(c, ordM) {
   const base = M[ordM[0]], reg = base.meso, leg = D.c.filter((x) => x.p === c.p && x.n !== c.n).sort((a, b) => b.t - a.t)[0], E = eleitos(), k = E.findIndex((x) => x.n === c.n), viz = E[k ? k - 1 : 1];
@@ -331,10 +333,10 @@ function secPatrimonio(c) { const PA = EST.parlamentar || {}, G = EST.gabinete_p
 // ---------- caderno impresso: mesma estrutura do perfil, em fundo branco com a cor do partido ----------
 function mapaPrint(c, cor) {
   let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
-  const K = Math.cos(27.5 * Math.PI / 180), W = 700, S = W / ((lo1 - lo0) * K), H = (la0 - la1) * S, P = (lo, la) => [(lo - lo0) * K * S, (la0 - la) * S];
+  const K = Math.cos(UFI.lat * Math.PI / 180), W = 700, S = W / ((lo1 - lo0) * K), H = (la0 - la1) * S, P = (lo, la) => [(lo - lo0) * K * S, (la0 - la) * S];
   const pth = (an) => an.map((r) => "M" + r.map(([lo, la]) => P(lo, la).map((v) => v.toFixed(1)).join(",")).join("L") + "Z").join("");
   const pct = M.map((m, i) => D.val[i] ? c.v[i] / D.val[i] : 0), e95 = [...pct].sort((a, b) => a - b)[Math.floor(N * .95)] || 1;
-  const bol = [...Array(N).keys()].sort((a, b) => M[b].el - M[a].el).map((i) => { const [x, y] = P(M[i].lon, M[i].lat), t = Math.min(1, pct[i] / e95), r = 1.2 + 24 * Math.sqrt(M[i].el / 470000); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${t < .02 ? "#E3E5E8" : cor}" fill-opacity="${t < .02 ? 1 : (.18 + .75 * t).toFixed(2)}" stroke="#fff" stroke-width=".6"/>`; }).join("");
+  const bol = [...Array(N).keys()].sort((a, b) => M[b].el - M[a].el).map((i) => { const [x, y] = P(M[i].lon, M[i].lat), t = Math.min(1, pct[i] / e95), r = 1.2 + 24 * Math.sqrt(M[i].el / UFI.refEl); return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${t < .02 ? "#E3E5E8" : cor}" fill-opacity="${t < .02 ? 1 : (.18 + .75 * t).toFixed(2)}" stroke="#fff" stroke-width=".6"/>`; }).join("");
   return `<svg viewBox="0 0 ${W} ${H.toFixed(0)}" class="mp"><path d="${CONT.map(pth).join("")}" fill="#F4F5F6" stroke="#D3D6D9" stroke-width=".5"/>${bol}</svg>`;
 }
 function trilhaPrint(k, cor) {
@@ -657,6 +659,7 @@ const slugArq = (x) => String(x).normalize("NFD").replace(/[̀-ͯ]/g, "").toUppe
 let CID_FECH = null;
 async function mapaCidade({ k, a, b }) {
   const el = $("#cid"); if (!el) return; if (!k) { el.hidden = true; try { $("#emb").contentDocument.documentElement.classList.remove("cidOn"); } catch (e) {} return; }
+  if (UF !== "sc") { el.hidden = true; return; } /* mapa de bairros/locais: só SC por enquanto */
   let g, s; try { [g, s] = await Promise.all([fetch(`../dados/mapas/bairros-sc/${slugArq(k)}.json`).then((r) => r.json()), fetch(`../dados/resultados/sc-2026/secoes/${slugArq(k)}.json`).then((r) => r.json())]); } catch (e) { el.hidden = true; return; }
   const soma = (n) => { const v = ((s.estadual || {})[n]) || {}, o = {}; Object.entries(s._secoes || {}).forEach(([sk, ln]) => { o[ln] = (o[ln] || 0) + (v[sk] || 0); }); return o; };
   const vA = soma(a), vB = b ? soma(b) : null, cA = D.c.find((x) => x.n === a), cB = b && D.c.find((x) => x.n === b);
@@ -692,12 +695,12 @@ function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   if (!SEL || SEL.cv !== cv) { const r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height; cv.width = w * dpr; cv.height = h * dpr;
     let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
     const hh0 = Math.min(h, Math.max(600, Math.min(innerHeight * .92, 800))), cx = innerWidth < 760 ? { x0: 16, y0: 16, x1: w - 16, y1: h - 16 } : { x0: w * .075 + 24, y0: h * .075 + 24, x1: w * .925 - 24, y1: h * .925 - 24 }; /* computador: mapa central e amplo (85% da área) */ /* mesma caixa do mapa da capa do perfil (heroMapa) */
-    const K = Math.cos(27.5 * Math.PI / 180), S = Math.min((cx.x1 - cx.x0) / ((lo1 - lo0) * K), (cx.y1 - cx.y0) / (la0 - la1)), ox = cx.x0 + ((cx.x1 - cx.x0) - (lo1 - lo0) * K * S) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (la0 - la1) * S) / 2;
+    const K = Math.cos(UFI.lat * Math.PI / 180), S = Math.min((cx.x1 - cx.x0) / ((lo1 - lo0) * K), (cx.y1 - cx.y0) / (la0 - la1)), ox = cx.x0 + ((cx.x1 - cx.x0) - (lo1 - lo0) * K * S) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (la0 - la1) * S) / 2;
     const P = (lo, la) => [ox + (lo - lo0) * K * S, oy + (la0 - la) * S], k = Math.min(w, h) / 560, cont = new Path2D();
     CONT.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
-    const B = M.map((m) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / 470000)) * k * 1.1, t0: 0, t1: 0 }; });
+    const B = M.map((m) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / UFI.refEl)) * k * 1.1, t0: 0, t1: 0 }; });
     // nomes no vão do mapa (ao sul da faixa oeste); no celular ficam abaixo do mapa
-    if (innerWidth > 760) { const e = cv.closest(".capa2").querySelector(".capaE"), [x0, y0] = P(-53.6, -27.45), [x1, y1] = P(-50.6, -29.4), hh = Math.max(220, y1 - y0);
+    if (innerWidth > 760) { const e = cv.closest(".capa2").querySelector(".capaE"), [x0, y0] = P(UFI.vao[0], UFI.vao[1]), [x1, y1] = P(UFI.vao[2], UFI.vao[3]), hh = Math.max(220, y1 - y0);
       Object.assign(e.style, { left: x0 + "px", top: y0 + "px", width: Math.max(420, x1 - x0 + 200) + "px", height: hh + "px" }); const ol = e.querySelector("ol"); ol.style.padding = `${hh / 2 - 26}px 0`; }
     SEL = { cv, ctx: cv.getContext("2d"), dpr, w, h, cont, B, ord: [...B.keys()].sort((a, b) => M[b].el - M[a].el), rgb0: [52, 232, 74], rgb1: [52, 232, 74], ini: 0, top: [] };
     const quadro = (agora) => { if (!document.body.contains(cv)) { SEL = null; return; } const { ctx, B } = SEL, e0 = Math.min(1, (agora - SEL.ini) / 650), e = 1 - Math.pow(1 - e0, 3), ne = [58, 64, 70];
@@ -729,11 +732,11 @@ function heroMapa(c, ordM) {
   cv.width = w * dpr; cv.height = h * dpr;
   const movel = innerWidth < 760, cx = movel ? { x0: 16, y0: 16, x1: w - 16, y1: h - 16 } : { x0: w * .4, y0: h * .06, x1: w * .97, y1: h * .94 };
   let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
-  const K = Math.cos(27.5 * Math.PI / 180), S = Math.min((cx.x1 - cx.x0) / ((lo1 - lo0) * K), (cx.y1 - cx.y0) / (la0 - la1)), ox = cx.x0 + ((cx.x1 - cx.x0) - (lo1 - lo0) * K * S) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (la0 - la1) * S) / 2;
+  const K = Math.cos(UFI.lat * Math.PI / 180), S = Math.min((cx.x1 - cx.x0) / ((lo1 - lo0) * K), (cx.y1 - cx.y0) / (la0 - la1)), ox = cx.x0 + ((cx.x1 - cx.x0) - (lo1 - lo0) * K * S) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (la0 - la1) * S) / 2;
   const P = (lo, la) => [ox + (lo - lo0) * K * S, oy + (la0 - la) * S], k = Math.min(w, h) / 560;
   const rgb = hexRgb(getComputedStyle(document.documentElement).getPropertyValue("--a").trim()).split(",").map(Number), ne = [58, 64, 70];
   const pct = M.map((m, i) => D.val[i] ? c.v[i] / D.val[i] : 0), esc95 = [...pct].sort((a, b) => a - b)[Math.floor(N * .95)] || 1;
-  const B = M.map((m, i) => { const [x, y] = P(m.lon, m.lat), t = Math.min(1, pct[i] / esc95); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / 470000)) * k * 1.1, t, nasce: (Math.sin((i + 1) * 12.9898) * 43758.5453 % 1 + 1) % 1 * 2.6 }; });
+  const B = M.map((m, i) => { const [x, y] = P(m.lon, m.lat), t = Math.min(1, pct[i] / esc95); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / UFI.refEl)) * k * 1.1, t, nasce: (Math.sin((i + 1) * 12.9898) * 43758.5453 % 1 + 1) % 1 * 2.6 }; });
   const ord = [...B.keys()].sort((a, b) => M[b].el - M[a].el), cont = new Path2D();
   CONT.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
   // único indicador: a cidade com mais votos, fora do mapa, ligado por uma linha fina

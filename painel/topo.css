@@ -26,3 +26,8 @@ html{ scrollbar-gutter:stable; }
   #topoSL .sl-meio{ order:5; flex-basis:100%; }
 }
 #topoSL .sl-nav > .mnuw{ margin-left:10px; }
+
+/* seletor de estado (uf.js) logo depois do logo */
+#topoSL .sl-uf{ display:inline-flex; gap:2px; padding:2px; margin-left:4px; border:1px solid rgba(242,244,245,.09); border-radius:999px; flex:none; }
+#topoSL .sl-uf button{ all:unset; box-sizing:border-box; font:700 11px/1 "InterSL",system-ui,sans-serif; letter-spacing:.06em; color:#A9AEB3; padding:6px 9px; border-radius:999px; cursor:pointer; }
+#topoSL .sl-uf button.on{ color:#0B0D0E; background:#F2F4F5; } #topoSL .sl-uf button:disabled{ opacity:.35; cursor:default; }

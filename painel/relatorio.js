@@ -19,7 +19,7 @@ function abrirRelatorios() {
   let m = document.getElementById("relModal");
   if (!m) { m = document.createElement("div"); m.id = "relModal"; document.body.appendChild(m); }
   const s = { B: st.B, sel: st.sel };
-  const rec = st.rec ? st.rec.nome : "Santa Catarina", cid = st.sel >= 0 ? M[st.sel].n : null;
+  const rec = st.rec ? st.rec.nome : UFI.nome, cid = st.sel >= 0 ? M[st.sel].n : null;
   m.innerHTML = `<div class="rel-fundo"></div><div class="rel-caixa"><h3>Relatório impresso</h3>
     <p class="dica">${st.B ? `${esc(st.A.u)} × ${esc(st.B.u)}` : esc(st.A.u)} · ${esc(cid || rec)}</p>
     ${REL.map(([k, t, d, ok]) => { const pode = ok(s); return `<button class="rel-op" data-rel="${k}"${pode ? "" : " disabled"}><b>${t}</b><span>${pode ? d : k.endsWith("-mun") ? "Toque numa cidade no mapa ou na tabela primeiro" : k.startsWith("duelo") ? "Escolha um candidato em “Comparar com…”" : "Tire a comparação para usar este"}</span></button>`; }).join("")}
@@ -59,7 +59,7 @@ const sinal = (d) => `${d >= 0 ? "+" : "−"}${fmt(Math.abs(d))}`;
 function docHtml(titulo, sub, cards, corpo) {
   const agora = new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${titulo.replace(/<[^>]+>/g, "")} · SimulaLEGIS</title><style>${R_CSS}</style></head><body><div class="ctt" style="position:fixed;top:0;right:0;font-size:7px;color:#8A9096">Dúvidas e sugestões: Neto · (48) 99120-5200</div><div class="pg">
-  <div class="cab"><div class="wm"><b>Simula</b>LEGIS<small>Simulador Eleitoral Legislativo 2026</small></div><div class="meta"><b>Santa Catarina</b> · Resultado 2026<br>gerado em ${agora}</div></div><div class="regra"></div>
+  <div class="cab"><div class="wm"><b>Simula</b>LEGIS<small>Simulador Eleitoral Legislativo 2026</small></div><div class="meta"><b>${UFI.nome}</b> · Resultado 2026<br>gerado em ${agora}</div></div><div class="regra"></div>
   <div class="olho">${sub.split(" · ").slice(0, 2).join(" · ")}</div><div class="tit">${titulo}</div><div class="sub">${sub}</div>${cards ? `<div class="kp">${cards.map(([v, r]) => `<div><b>${v}</b><span>${r}</span></div>`).join("")}</div>` : ""}
   ${corpo}<div class="rod">Dados oficiais do TSE (2026 e 2022), IBGE (Censo 2022) e MDS. Não é pesquisa eleitoral. SimulaLEGIS · documento gerado pelo painel.</div></div>
   <script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`;
@@ -99,7 +99,7 @@ async function votosLocal(k, c) { const s = await secoes(2026, k); const v = ((s
 
 // ---------- os relatórios ----------
 async function montarRelatorio(tipo) {
-  const A = st.A, B = st.B, rec = st.rec ? st.rec.nome : "Santa Catarina", nomeA = `${esc(A.u)} <span style="color:#6B7178;font-weight:700;font-size:16px;letter-spacing:-.01em">${esc(A.p)}</span>`;
+  const A = st.A, B = st.B, rec = st.rec ? st.rec.nome : UFI.nome, nomeA = `${esc(A.u)} <span style="color:#6B7178;font-weight:700;font-size:16px;letter-spacing:-.01em">${esc(A.p)}</span>`;
   const idx = [...Array(N).keys()].filter(dentro), cargoA = CARGO_LBL[A.cargo];
   if (tipo === "ficha-mun" || tipo === "duelo-mun") {
     const i = st.sel, k = M[i].k, duelo = tipo === "duelo-mun", nos = await arvoreMun(k, A, duelo ? B : null);
@@ -156,7 +156,7 @@ async function montarRelatorio(tipo) {
       const xs = pts.map((p) => p[0]).sort((a, b) => a - b), lo = xs[Math.floor(xs.length * .01)], hi = xs[Math.floor(xs.length * .99)];
       const ys = pts.map((p) => p[1]); let ylo = Math.min(...ys), yhi = Math.max(...ys); if (st.B) { const m = Math.max(-ylo, yhi); ylo = -m; yhi = m; } else ylo = 0;
       const tf = log ? Math.log : (v) => v, X = (v) => 30 + (tf(Math.max(lo, Math.min(hi, v))) - tf(lo)) / (tf(hi) - tf(lo) || 1) * 300, Y = (v) => 150 - (v - ylo) / (yhi - ylo || 1) * 140;
-      const c = pts.map(([x, y, e]) => `<circle cx="${X(x).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="${(1 + 6 * Math.sqrt(e / 470000)).toFixed(1)}" fill="${st.B ? (y >= 0 ? "rgba(31,168,58,.6)" : "rgba(61,111,224,.6)") : "rgba(31,168,58,.6)"}"/>`).join("");
+      const c = pts.map(([x, y, e]) => `<circle cx="${X(x).toFixed(1)}" cy="${Y(y).toFixed(1)}" r="${(1 + 6 * Math.sqrt(e / UFI.refEl)).toFixed(1)}" fill="${st.B ? (y >= 0 ? "rgba(31,168,58,.6)" : "rgba(61,111,224,.6)") : "rgba(31,168,58,.6)"}"/>`).join("");
       blocos.push(`<div class="mini"><h4>${rot}</h4><svg viewBox="0 0 340 172"><line x1="30" x2="330" y1="150" y2="150" stroke="#C9CDD1"/>${st.B ? `<line x1="30" x2="330" y1="${Y(0)}" y2="${Y(0)}" stroke="#A9AEB3" stroke-dasharray="3 3"/>` : ""}${c}<text x="30" y="166" font-size="8" fill="#6B7178">${f(lo)}</text><text x="330" y="166" font-size="8" fill="#6B7178" text-anchor="end">${f(hi)}</text><text x="2" y="12" font-size="8" fill="#6B7178">${st.B ? "vantagem" : "% votos"}</text></svg><p>${frase.replace(/<[^>]+>/g, "")}</p></div>`);
     }
     return docHtml(st.B ? `${esc(A.u)} × ${esc(B.u)}` : nomeA, `Perfil da cidade × voto · ${cargoA} · ${esc(rec)} · 2026`, null,
@@ -165,7 +165,7 @@ async function montarRelatorio(tipo) {
   if (tipo === "ranking") {
     const naRk = !document.getElementById("ranking").hidden, cg = naRk ? rk.cargo : st.A.cargo;
     const dRk = naRk ? dentroRk : dentro; idx.splice(0, idx.length, ...[...Array(N).keys()].filter(dRk));
-    const recR = naRk ? (rk.rec ? rk.rec.nome : "Santa Catarina") : rec, d = DADOS[cg], prop = cg === "estadual" || cg === "federal", todo = idx.length === N;
+    const recR = naRk ? (rk.rec ? rk.rec.nome : UFI.nome) : rec, d = DADOS[cg], prop = cg === "estadual" || cg === "federal", todo = idx.length === N;
     // dados da eleição do recorte (2026, com 2022 de referência)
     const part = async (ano) => { try { const p = (await (await fetch(`../dados/resultados/sc-${ano}/participacao.json`)).json())[cg]; if (todo && p.estado) return p.estado; return idx.reduce((s, i) => { const x = p.mun[M[i].k] || [0, 0, 0, 0, 0, 0]; return s.map((v, k) => v + x[k]); }, [0, 0, 0, 0, 0, 0]); } catch (e) { return null; } };
     const P26 = await part(2026), P22 = await part(2022);

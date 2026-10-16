@@ -157,8 +157,9 @@ html,body{ overflow-x:hidden; max-width:100%; }
 .mnu a.mnot{ display:flex; align-items:center; gap:8px; } .mnu a.mnot em{ margin-left:auto; font-style:normal; font:800 11px Inter; color:#0B0D0E; background:#34E84A; border-radius:999px; padding:1px 7px; }
 .topo .wm b{ color:#34E84A !important; }
 </style>
+<script src="uf.js?cb=2"></script>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="topo.css?cb=6">
+<link rel="stylesheet" href="topo.css?cb=7">
 </head>
 <body>
 <header class="topo" id="topoSL"><a class="wm" href="novos.html?v=8"><b>Simula</b>LEGIS</a><nav class="vistas sl-nav"><button data-vista="painel" hidden>Painel</button><a href="novos.html?v=8">Parlamentares</a><button data-vista="ranking">Ranking</button><a href="mesa.html?v=8">Mesa</a></nav><span class="mnuw"><button class="mnub" aria-label="Menu" title="Menu"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button><span class="mnu" hidden><a href="../?entrar=1" class="mconta" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}">Entrar ou cadastrar<small>login com e-mail ou Google</small></a><a href="../?capa=1" class="msim">Sistema SimulaLEGIS<small>resultado, duelos, grupos e suas listas</small></a><a href="novos.html?v=8">Parlamentares</a><a href="index.html?v=8#ranking">Ranking</a><a href="mesa.html?v=8">Mesa</a></span></span></header>
@@ -168,7 +169,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
   <canvas id="heroCv"></canvas>
   <div class="txt" id="heroTxt">
     <div class="olho" id="heroOlho">Eleições 2026 · Santa Catarina</div>
-    <h1>santa catarina<br><i>em pontos.</i></h1>
+    <h1><span class="ufn">santa catarina</span><br><i>em pontos.</i></h1>
     <p>Veja onde cada candidato foi forte, cidade por cidade. Compare quem você quiser.</p>
     <div class="placar" id="heroPlacar"></div>
     <button class="btn" id="irPainel">Escolher candidato ↓</button>
@@ -196,15 +197,16 @@ html,body{ overflow-x:hidden; max-width:100%; }
   <section class="tabela" id="tabela"></section>
 </main>
 <main class="painel" id="ranking" hidden>
-  <div class="rk-cab"><div><div class="olho">Resultado 2026 · Santa Catarina</div><h2 class="rk-tit">Ranking dos candidatos</h2></div></div>
+  <div class="rk-cab"><div><div class="olho">Resultado 2026 · <span class="ufn">Santa Catarina</span></div><h2 class="rk-tit">Ranking dos candidatos</h2></div></div>
   <div class="rk-ctl"><nav class="lentes rk-cargos" id="rkCargos"></nav><div class="filtros" style="padding:0"><label>Recorte <select id="rkRecorte"></select></label><input id="rkBusca" class="rk-busca" placeholder="Buscar nome, partido ou número"><span class="rk-acts"><button class="rk-ico" id="rkSobras" title="Disputa das sobras"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 13.5h11"/><rect x="3.5" y="8" width="2.4" height="5.5" rx=".6"/><rect x="6.8" y="5" width="2.4" height="8.5" rx=".6"/><rect x="10.1" y="2.5" width="2.4" height="11" rx=".6"/></svg></button><button class="rk-ico" id="btnRelRk" title="Imprimir ranking"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 6V2.5h7V6"/><rect x="2" y="6" width="12" height="5.5" rx="1.2"/><path d="M4.5 9.5h7v4h-7z"/></svg></button><span style="position:relative"><button class="rk-ico" id="rkFiltro" title="Filtrar por partido e situação"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4h11M4.5 8h7M6.5 12h3"/></svg></button><div class="rk-menu" id="rkFiltroMenu" hidden></div></span></span></div></div>
   <section class="tabela rk" id="rkTab"></section>
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
-<script src="painel.js?cb=36"></script>
+<script>document.querySelectorAll(".ufn").forEach(function(e){ e.textContent = e.closest("h1") ? UFI.nome.toLowerCase() : UFI.nome; }); document.title = UFI.nome + " em pontos · SimulaLEGIS";</script>
+<script src="painel.js?cb=38"></script>
 <script>(function(){var b=document.querySelector(".mnub"),m=document.querySelector(".mnu");if(!b)return;b.onclick=function(e){e.stopPropagation();m.hidden=!m.hidden;};document.addEventListener("click",function(e){if(!e.target.closest(".mnuw"))m.hidden=true;});/* logado? lê a sessão do Supabase guardada pelo app (mesma origem); Sair apaga a sessão local */try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var ss=JSON.parse(localStorage.getItem(k)),u=ss&&(ss.user||(ss.currentSession&&ss.currentSession.user));if(u){var md=u.user_metadata||{},ct=m.querySelector(".mconta"),nm=md.full_name||md.nome||u.email,esc=function(x){return String(x||"").replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};ct.innerHTML="<b>"+esc(nm)+"</b><small>"+esc(u.email)+" · minha conta</small>";ct.href="../?capa=1";ct.onclick=null;ct.classList.remove("mconta");var sa=document.createElement("a");sa.href="#";sa.className="mconta msair";sa.textContent="Sair da conta";sa.onclick=(function(kk){return function(e){e.preventDefault();try{localStorage.removeItem(kk);}catch(er){}location.reload();};})(k);ct.after(sa);}}}}catch(e){}})();</script>
 <script src="../nuvem/visitas.js?cb=1"></script>
-<script src="relatorio.js?cb=21"></script>
+<script src="relatorio.js?cb=22"></script>
 <script src="sino-menu.js?cb=1"></script>
 <script>(function(){var t=null;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var s=JSON.parse(localStorage.getItem(k));t=s&&(s.access_token||(s.currentSession&&s.currentSession.access_token));}}}catch(e){}var go=function(){sinoMenuAdmin("https://qgjfkpsjveatonziwkvj.supabase.co","sb_publishable_eQbVaB7fNEjgEtfat2AGyA_f4uRVPpg",t);};document.querySelector(".mnu")?go():setTimeout(go,1500);})();</script>
 </body>

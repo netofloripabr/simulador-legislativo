@@ -26,12 +26,12 @@ const DADOS = {};               // por cargo
 const st = { lente: "mapa", a: null, b: null, sel: -1, hover: -1, rec: null, tipoReg: "meso", ord: { col: "v", dir: -1 }, abertos: {}, todos: false };
 // recorte: {tipo:"meso"|"micro"|"assoc", nome}; null = estado inteiro
 const dentro = (i) => !st.rec || M[i][st.rec.tipo] === st.rec.nome;
-const TIPOS = [["meso", "Mesorregiões"], ["micro", "Microrregiões"], ["assoc", "Associações"]];
+const TIPOS = [["meso", "Mesorregiões"], ["micro", "Microrregiões"], ["assoc", UFI.regTipo]];
 let atual = null, eixos = null, anim = null;
 const cv = $("#cv"), ctx = cv.getContext("2d");
 let W = 0, H = 0, DPR = 1;
 
-async function cargo(c) { if (!DADOS[c]) DADOS[c] = await (await fetch(`../dados/painel/sc-${c}.json?v=${DV}`)).json(); return DADOS[c]; }
+async function cargo(c) { if (!DADOS[c]) DADOS[c] = await (await fetch(`../dados/painel/${UF}-${c}.json?v=${DV}`)).json(); return DADOS[c]; }
 function cand(ref) { if (!ref) return null; const d = DADOS[ref.cargo]; const c = d.c.find((x) => x.n === ref.n); return c ? { ...c, cargo: ref.cargo, val: d.val, val22: d.val22 } : null; }
 const pctMun = (c, i) => c.val[i] ? c.v[i] / c.val[i] * 100 : NaN;
 const pct22 = (c, i) => c.v22 && c.val22[i] ? c.v22[i] / c.val22[i] * 100 : NaN;
@@ -55,7 +55,7 @@ function corDe(i) {
 
 // ---------------- dados ----------------
 async function carregar() {
-  const b = await (await fetch(`../dados/painel/sc-base.json?v=${DV}`)).json();
+  const b = await (await fetch(`../dados/painel/${UF}-base.json?v=${DV}`)).json();
   M = b.mun; N = M.length; CONT = b.contorno;
   M.forEach((m) => { m.chave = norm(m.n); });
   await Promise.all(CARGOS.map(([c]) => cargo(c)));
@@ -65,7 +65,7 @@ async function carregar() {
   preparar();
 }
 // cores dos candidatos pela identidade do partido (quando dois partidos têm cor parecida, o segundo usa um tom alternativo)
-const CORP = [[/NOVO/, "#F37021"], [/PSOL/, "#F5B700"], [/\bPT\b/, "#E5383B"], [/PDT/, "#E5484D"], [/PSB/, "#F2A900"], [/\bPL\b/, "#3D7BFF"], [/REPUBLICANOS/, "#4D8DFF"], [/MDB/, "#34C759"], [/UNI[ÃA]O|\bPP\b/, "#2FB5E8"], [/PSD/, "#2B5FD9"], [/PODE/, "#3FB37F"], [/PSDB/, "#1E6FD9"], [/CIDADANIA/, "#E4007C"], [/REDE/, "#00A5A5"]];
+const CORP = [[/NOVO/, "#F37021"], [/PSOL/, "#F5B700"], [/\bPT\b/, "#E5383B"], [/PDT/, "#E5484D"], [/PSB/, "#F2A900"], [/\bPL\b/, "#3D7BFF"], [/REPUBLICANOS/, "#4D8DFF"], [/MDB/, "#34C759"], [/UNI[ÃA]O|\bPP\b/, "#2FB5E8"], [/PSD/, "#2B5FD9"], [/PODE/, "#3FB37F"], [/PSDB/, "#1E6FD9"], [/CIDADANIA/, "#E4007C"], [/REDE/, "#00A5A5"], [/MISS[ÃA]O/, "#9B6CF0"], [/PRD|SOLIDARIEDADE/, "#E8833A"]];
 const COR_A0 = COR.a.slice(), COR_FIXA = /[?&]cor=/.test(location.search);
 const hexRgbP = (h) => [1, 3, 5].map((k) => parseInt(h.slice(k, k + 2), 16)), corDoPartido = (p) => { const r = CORP.find(([re]) => re.test(String(p || "").toUpperCase())); return r ? hexRgbP(r[1]) : null; };
 const claro = (c) => c.map((v) => Math.round(v + (255 - v) * .45)), distCor = (x, y) => Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]);
@@ -83,7 +83,7 @@ function preparar() {
 }
 
 // ---------------- seletor de candidato ----------------
-function foto(c) { const p = `../dados/fotos/sc-2026/${c.cargo}/${c.n}.jpg`; return `<img src="${p}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${esc(c.u[0])}'}))">`; }
+function foto(c) { const p = `../dados/fotos/${UF}-2026/${c.cargo}/${c.n}.jpg`; return `<img src="${p}" alt="" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'${esc(c.u[0])}'}))">`; }
 function caixaCand(el, lado) {
   const c = lado === "a" ? st.A : st.B;
   el.classList.toggle("vazio", !c);
@@ -129,7 +129,7 @@ function montarLentes() {
 }
 const lin = (d0, d1, r0, r1) => (v) => r0 + (v - d0) / (d1 - d0) * (r1 - r0);
 function area() { const p = W < 560; return { l: p ? 46 : 64, r: W - (p ? 12 : 22), t: 14, b: H - (p ? 34 : 40) }; }
-const raio = (i, k = 1) => (1.2 + 26 * Math.sqrt(M[i].el / 470000)) * k;
+const raio = (i, k = 1) => (1.2 + 26 * Math.sqrt(M[i].el / UFI.refEl)) * k;
 function eixoY(e, P, ys, dom) {
   const passo = niceStep(dom[1] - dom[0]);
   for (let v = Math.ceil(dom[0] / passo) * passo; v <= dom[1]; v += passo) {
@@ -152,7 +152,7 @@ function layout(nome) {
   if (nome === "mapa") {
     let lon0 = 1e9, lon1 = -1e9, lat0 = -1e9, lat1 = 1e9;
     M.forEach((m, i) => { if (!dentro(i)) return; lon0 = Math.min(lon0, m.lon); lon1 = Math.max(lon1, m.lon); lat0 = Math.max(lat0, m.lat); lat1 = Math.min(lat1, m.lat); });
-    const K = Math.cos(27.5 * Math.PI / 180), pad = 22, mg = Math.max(.15, (lon1 - lon0) * .08);
+    const K = Math.cos(UFI.lat * Math.PI / 180), pad = 22, mg = Math.max(.15, (lon1 - lon0) * .08);
     lon0 -= mg; lon1 += mg; lat0 += mg; lat1 -= mg;
     const S = Math.min((W - 2 * pad) / ((lon1 - lon0) * K), (H - 2 * pad) / (lat0 - lat1));
     const ox = (W - (lon1 - lon0) * K * S) / 2, oy = (H - (lat0 - lat1) * S) / 2;
@@ -358,7 +358,7 @@ function legenda() {
 }
 function placarHero() {
   const A = st.A, B = st.B;
-  $("#heroOlho").textContent = `Eleições 2026 · ${CARGO_LBL[A.cargo]} · Santa Catarina`;
+  $("#heroOlho").textContent = `Eleições 2026 · ${CARGO_LBL[A.cargo]} · ${UFI.nome}`;
   $("#heroPlacar").innerHTML = `<div><b>${ni(A.t)}</b><span>${esc(A.u)}</span></div>` + (B ? `<div><b style="color:var(--b)">${ni(B.t)}</b><span>${esc(B.u)}</span></div>` : `<div><b>${nf(A.t / A.val.reduce((x, y) => x + y, 0) * 100)}%</b><span>dos válidos</span></div>`) + `<div><b>${N}</b><span>municípios</span></div>`;
 }
 
@@ -433,7 +433,7 @@ const hero = (() => {
     // celular: mapa inteiro dentro da tela, com folga para as bolhas e o brilho (contorno de SC como limite)
     const movel = innerWidth < 760, cx = movel ? { x0: 34, y0: 80, x1: w - 34, y1: h * .46 } : { x0: w * .4, y0: h * .06, x1: w * .96, y1: h * .94 };
     let lon0 = 1e9, lon1 = -1e9, lat0 = -1e9, lat1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lon0 = Math.min(lon0, lo); lon1 = Math.max(lon1, lo); lat0 = Math.max(lat0, la); lat1 = Math.min(lat1, la); })));
-    const K = Math.cos(27.5 * Math.PI / 180), S = Math.min((cx.x1 - cx.x0) / ((lon1 - lon0) * K), (cx.y1 - cx.y0) / (lat0 - lat1));
+    const K = Math.cos(UFI.lat * Math.PI / 180), S = Math.min((cx.x1 - cx.x0) / ((lon1 - lon0) * K), (cx.y1 - cx.y0) / (lat0 - lat1));
     const ox = cx.x0 + ((cx.x1 - cx.x0) - (lon1 - lon0) * K * S) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (lat0 - lat1) * S) / 2, k = Math.min(w, h) / 560 * (movel ? .8 : 1);
     bx = M.map((m) => ox + (m.lon - lon0) * K * S); by = M.map((m) => oy + (lat0 - m.lat) * S); br = M.map((m, i) => raio(i, k * 1.1));
     hero.z = { ox, oy, S, K, lon0, lat0, w: (lon1 - lon0) * K * S, h: (lat0 - lat1) * S };
@@ -482,7 +482,7 @@ addEventListener("scroll", () => {
 (async () => {
   await carregar();
   await carregarLinks();
-  try { SOC = (await (await fetch("../dados/painel/sc-social.json")).json()).mun; } catch (e) { SOC = null; }
+  try { SOC = UF === "sc" ? (await (await fetch("../dados/painel/sc-social.json")).json()).mun : null; } catch (e) { SOC = null; }
   montarSeletores(); montarLentes(); montarRecorte(); medir(); irPara("mapa"); frase(); legenda(); ficha(); placarHero(); tabela();
   hero.iniciar();
   const _t = trocouCandidato; window.trocouCandidato = _t;
@@ -495,7 +495,7 @@ trocouCandidato = function () { _troca(); hero.recolorir(); };
 // ---------------- recorte (estado / mesorregião / microrregião / associação) ----------------
 function montarRecorte() {
   const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${st.rec && st.rec.tipo === tp && st.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
-  $("#recorte").innerHTML = `<option value="">Santa Catarina</option>` + TIPOS.map(([t, r]) => g(t, r)).join("") + (EMB ? g("n", "Municípios") : "");
+  $("#recorte").innerHTML = `<option value="">${UFI.nome}</option>` + TIPOS.map(([t, r]) => g(t, r)).join("") + (EMB ? g("n", "Municípios") : "");
   if (EMB && !$("#recBusca")) { $("#recorte").closest("label").insertAdjacentHTML("afterend", `<input id="recBusca" list="recLista" placeholder="Digite o município" autocomplete="off"><datalist id="recLista">${[...M].map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>`);
     $("#recBusca").onchange = (e) => { const m = M.find((x) => norm(x.n) === norm(e.target.value)); if (!m) return; st.rec = { tipo: "n", nome: m.n }; st.sel = -1; st.abertos = {}; e.target.value = ""; trocouCandidato(); }; }
   $("#recorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); st.rec = t ? { tipo: t, nome: n.join("|") } : null; st.sel = -1; st.abertos = {}; trocouCandidato(); };
@@ -521,7 +521,7 @@ function botoesLinks(c) {
 // ---------------- tabela município a município, com abertura por bairro / local / seção ----------------
 const SEC = {};
 const slugArq = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
-async function secoes(ano, k) { const id = ano + k; if (!(id in SEC)) { try { SEC[id] = await (await fetch(`../dados/resultados/sc-${ano}/secoes/${slugArq(k)}.json`)).json(); } catch (e) { SEC[id] = null; } } return SEC[id]; }
+async function secoes(ano, k) { const id = ano + k; if (UF !== "sc") return null; if (!(id in SEC)) { try { SEC[id] = await (await fetch(`../dados/resultados/sc-${ano}/secoes/${slugArq(k)}.json`)).json(); } catch (e) { SEC[id] = null; } } return SEC[id]; }
 const abrevLocal = (n) => String(n || "").replace(/^Escola de Educa[çc][ãa]o B[áa]sica /i, "EEB ").replace(/^Escola B[áa]sica Municipal /i, "EBM ").replace(/^Escola de Ensino Fundamental /i, "EEF ").replace(/^Escola Municipal /i, "EM ").replace(/^Centro de Educa[çc][ãa]o Infantil /i, "CEI ").replace(/^Escola /i, "Esc. ");
 // valores de uma linha: [col1, col2] — candidato só: [2022, 2026]; duelo: [A, B]
 function colsTab() { return st.B ? [pn(st.A), pn(st.B), "Dif."] : ["2022", "2026", "Dif."]; }
@@ -558,7 +558,7 @@ async function tabela() {
   ordenar(muns);
   const [c1, c2] = colsTab(), seta = (col) => `<span class="ord"><i class="up${st.ord.col === col && st.ord.dir > 0 ? " on" : ""}"></i><i class="dn${st.ord.col === col && st.ord.dir < 0 ? " on" : ""}"></i></span>`;
   const cab = (col, rot) => `<span data-ord="${col}" class="${st.ord.col === col ? "on" : ""}">${rot}${seta(col)}</span>`;
-  let h = `<h3>${EMB ? `<button class="tgTab" title="Recolher ou abrir">${document.querySelector("#tabela")?.classList.contains("fech") ? "+" : "−"}</button>Votos por município (${esc(st.a ? (st.A || {}).u || "candidato" : "candidato")})` : `Município a município · ${st.rec ? esc(st.rec.nome) : "Santa Catarina"}`}</h3>${EMB && st.tabFech ? "" : ""}<div class="tl cab"><span></span>${cab("nome", "Município")}${cab("a", esc(c1))}${cab("v", esc(c2))}${cab("d", "Dif.")}</div>`;
+  let h = `<h3>${EMB ? `<button class="tgTab" title="Recolher ou abrir">${document.querySelector("#tabela")?.classList.contains("fech") ? "+" : "−"}</button>Votos por município (${esc(st.a ? (st.A || {}).u || "candidato" : "candidato")})` : `Município a município · ${st.rec ? esc(st.rec.nome) : UFI.nome}`}</h3>${EMB && st.tabFech ? "" : ""}<div class="tl cab"><span></span>${cab("nome", "Município")}${cab("a", esc(c1))}${cab("v", esc(c2))}${cab("d", "Dif.")}</div>`;
   const lim = st.todos ? muns.length : 20;
   for (const [k, [nome, x, i]] of muns.slice(0, lim).entries()) {
     const ch = M[i].k, ab = st.abertos[ch];
@@ -602,7 +602,7 @@ function montarRanking() {
   $("#rkCargos").innerHTML = CARGOS.map(([c, r]) => `<button data-c="${c}" class="${rk.cargo === c ? "on" : ""}">${r}</button>`).join("");
   $("#rkCargos").onclick = (e) => { const b = e.target.closest("[data-c]"); if (!b) return; rk.cargo = b.dataset.c; rk.aberto = null; rk.abertos = {}; rk.todos = false; montarRanking(); };
   const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${rk.rec && rk.rec.tipo === tp && rk.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
-  $("#rkRecorte").innerHTML = `<option value="">Santa Catarina</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
+  $("#rkRecorte").innerHTML = `<option value="">${UFI.nome}</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
   $("#rkRecorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); rk.rec = t ? { tipo: t, nome: n.join("|") } : null; rk.abertos = {}; tabelaRanking(); };
   const d0 = DADOS[rk.cargo], parts = [...new Set(d0.c.map((c) => c.p))].sort(), prop = !!(d0.meta && d0.meta.qe);
   const sits = [["", "Todos"], ["eleitos", "Eleitos"]].concat(prop ? [["qp", "Eleitos por QP"], ["media", "Eleitos por média"], ["suplente", "Suplentes"]] : [["nao", "Não eleitos"]]);
@@ -627,7 +627,7 @@ async function tabelaRanking() {
   const { col, dir } = rk.ord, vO = (x) => col === "t" ? x.t : col === "t22" ? (x.t22 ?? -1) : col === "d" ? (x.t22 == null ? -1e12 : x.t - x.t22) : col === "pct" ? x.pct : 0;
   L.sort((x, y) => col === "nome" ? dir * x.c.u.localeCompare(y.c.u, "pt-BR") : dir * (vO(x) - vO(y)));
   const cab = (c, r) => `<span data-o="${c}" class="${col === c ? "on" : ""}">${r}${setaRk(rk.ord, c)}</span>`;
-  let h = `<h3>${CARGO_LBL[rk.cargo]} · ${rk.rec ? esc(rk.rec.nome) : "Santa Catarina"} · ${d.c.length} candidatos</h3><div class="tl cab"><span></span>${cab("nome", "Candidato")}${cab("t", "2026")}${cab("t22", "2022")}${cab("d", "Dif.")}${cab("pct", "%")}</div>`;
+  let h = `<h3>${CARGO_LBL[rk.cargo]} · ${rk.rec ? esc(rk.rec.nome) : UFI.nome} · ${d.c.length} candidatos</h3><div class="tl cab"><span></span>${cab("nome", "Candidato")}${cab("t", "2026")}${cab("t22", "2022")}${cab("d", "Dif.")}${cab("pct", "%")}</div>`;
   const lim = rk.todos || k || rk.partido || rk.sit ? L.length : 50;
   for (const x of L.slice(0, lim)) {
     const c = x.c, eleito = /^eleito/i.test(c.s || ""), ab = rk.aberto === c.n, dif = x.t22 == null ? null : x.t - x.t22;
