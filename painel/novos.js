@@ -691,7 +691,8 @@ let SEL = null;
 function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   if (!SEL || SEL.cv !== cv) { const r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height; cv.width = w * dpr; cv.height = h * dpr;
     let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
-    const pad = innerWidth > 760 ? 24 : 8, xl = pad, K = Math.cos(27.5 * Math.PI / 180), S = (innerWidth > 760 ? .85 : 1) * Math.min((w - xl - pad) / ((lo1 - lo0) * K), (h - 2 * pad) / (la0 - la1)), ox = xl + ((w - xl - pad) - (lo1 - lo0) * K * S) / 2, oy = pad + ((h - 2 * pad) - (la0 - la1) * S) / 2;
+    const hh0 = Math.min(h, Math.max(600, Math.min(innerHeight * .92, 800))), cx = innerWidth < 760 ? { x0: 16, y0: 16, x1: w - 16, y1: h - 16 } : { x0: w * .4, y0: (h - hh0) / 2 + hh0 * .06, x1: w * .97, y1: (h - hh0) / 2 + hh0 * .94 }; /* mesma caixa do mapa da capa do perfil (heroMapa) */
+    const K = Math.cos(27.5 * Math.PI / 180), S = Math.min((cx.x1 - cx.x0) / ((lo1 - lo0) * K), (cx.y1 - cx.y0) / (la0 - la1)), ox = cx.x0 + ((cx.x1 - cx.x0) - (lo1 - lo0) * K * S) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (la0 - la1) * S) / 2;
     const P = (lo, la) => [ox + (lo - lo0) * K * S, oy + (la0 - la) * S], k = Math.min(w, h) / 560, cont = new Path2D();
     CONT.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
     const B = M.map((m) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / 470000)) * k * 1.1, t0: 0, t1: 0 }; });
