@@ -702,6 +702,7 @@ function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
         ctx.globalAlpha = .22 + .72 * t; ctx.shadowColor = `rgba(${rgb.map(Math.round)},${.8 * t})`; ctx.shadowBlur = 16 * t; ctx.fillStyle = `rgb(${col})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (.75 + .35 * t), 0, 6.2832); ctx.fill(); }
       ctx.shadowBlur = 0; const pul = (Math.sin(agora / 450) + 1) / 2;
       SEL.top.forEach((i, q) => { const b = B[i]; ctx.globalAlpha = .22 * pul * e; ctx.fillStyle = `rgb(${rgb.map(Math.round)})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1.25 + .5 * pul), 0, 6.2832); ctx.fill(); });
+      if (SEL.lab && e > .5) { const L = SEL.lab; ctx.globalAlpha = Math.min(1, (e - .5) * 2) * .7; ctx.strokeStyle = `rgb(${rgb.map(Math.round)})`; ctx.lineWidth = 1; ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(L.x0, L.y0); ctx.lineTo(L.x1, L.y1); ctx.stroke(); ctx.setLineDash([]); }
       ctx.globalAlpha = 1; requestAnimationFrame(quadro); };
     requestAnimationFrame(quadro); }
   const agora = performance.now(), e0 = Math.min(1, (agora - SEL.ini) / 650), e = 1 - Math.pow(1 - e0, 3);
@@ -710,7 +711,10 @@ function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   SEL.B.forEach((b, i) => { b.t1 = Math.min(1, pct[i] / e95); }); SEL.rgb1 = hexRgb(COR_P[c.p] || "#34E84A").split(",").map(Number); SEL.ini = agora;
   const ordV = [...M.keys()].sort((a, b) => c.v[b] - c.v[a]); SEL.top = ordV.slice(0, 5);
   const i1 = ordV[0], b1 = SEL.B[i1];
-  $("#selEtq").innerHTML = `<div class="se" style="left:${b1.x}px;top:${b1.y - b1.r * 1.1}px"><span>${esc(M[i1].n)}</span><b>${ni(c.v[i1])}</b></div>`;
+  // etiqueta saltada fora do mapa, ligada à bolha por linha pontilhada (mesmo desenho da capa do perfil)
+  const xr = Math.max(...SEL.B.map((b) => b.x + b.r)), lx = Math.min(SEL.w - 70, xr + 80), ly = Math.max(40, Math.min(SEL.h - 40, b1.y)), fora = lx - 60 > b1.x + b1.r;
+  SEL.lab = fora ? { x0: b1.x + b1.r + 3, y0: b1.y, x1: lx - 58, y1: ly } : null;
+  $("#selEtq").innerHTML = `<div class="etq fora" style="left:${fora ? lx : b1.x}px;top:${fora ? ly : b1.y - b1.r}px;animation-delay:.35s, 1.1s"><span>${esc(M[i1].n)}</span><b>${ni(c.v[i1])}</b></div>`;
 }
 function heroMapa(c, ordM) {
   cancelAnimationFrame(heroRaf);
