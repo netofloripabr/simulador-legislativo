@@ -579,82 +579,71 @@ async function renderPainelPrincipal() {
   const totalGrupos = pcState.meusGrupos ? pcState.meusGrupos.length : 0;
   const totalDesafiosAtivos = gateConvidado ? 0 : await contarMeusDesafiosAtivos();
 
+  const esc2 = (x) => escaparAtributoHtml(String(x || "")).replace(/>/g, "&gt;");
   el.innerHTML = `
     <div id="pcFarolBloco"></div>
 
-    <div class="pc-topbar">
-      <div class="pc-topbar-marca"><span class="pc-topbar-nome"><b>Simula</b>LEGIS</span><span class="pc-topbar-prevendo">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: chapa completa"}</span></div>
-      ${pcState.perfil && ECONOMIA_ATIVA ? `<button class="pc-topbar-cred" id="pcBtnSaldoTopo" title="Seus créditos">${iconeSvg("credito", 14)}<span>${Number((pcState.perfil && pcState.perfil.creditos) || 0)}</span></button>` : ""}
-      <button class="pc-topbar-btn" id="pcBtnConvidarTopo" title="Convidar amigos">${iconeSvg("convidar", 17)}</button>
-      ${pcState.perfil ? `<button class="pc-topbar-btn" id="pcBtnSinoTopo" title="Notificações" style="position:relative;">${iconeSvg("sino", 17)}${pcState.notificacoesNaoLidas ? `<span class="pc-topbar-pip"></span>` : ""}</button>` : ""}
-      <button class="pc-topbar-btn" id="pcBtnPerfilTopo" title="${gateConvidado ? "Precisa se cadastrar" : "Menu e perfil"}">${iconeSvg("perfil", 17)}</button>
-    </div>
-    <nav class="pc-paineis-links"><span>Painéis</span><a href="painel/novos.html">Parlamentares</a><a href="painel/index.html#ranking">Ranking</a><a href="painel/mesa.html">Mesa</a></nav>
+    <div class="lb2">
+    <header class="lb2-topo">
+      <span class="lb2-wm"><b>Simula</b>LEGIS</span><span class="lb2-sep">Simulador 2026 · ${pcState.perfil && pcState.perfil.escopo === "partido" ? esc2(pcState.perfil.partido_escopo) : "chapa completa"}</span>
+      <nav class="lb2-vistas"><a href="painel/novos.html">Parlamentares</a><a href="painel/index.html#ranking">Ranking</a><a href="painel/mesa.html">Mesa</a></nav>
+      <span class="lb2-icones">
+        ${pcState.perfil && ECONOMIA_ATIVA ? `<button class="lb2-cred" id="pcBtnSaldoTopo" title="Seus créditos">${iconeSvg("credito", 13)}<span>${Number((pcState.perfil && pcState.perfil.creditos) || 0)}</span></button>` : ""}
+        <button class="lb2-ic" id="pcBtnConvidarTopo" title="Convidar amigos">${iconeSvg("convidar", 16)}</button>
+        ${pcState.perfil ? `<button class="lb2-ic" id="pcBtnSinoTopo" title="Notificações">${iconeSvg("sino", 16)}${pcState.notificacoesNaoLidas ? `<i class="lb2-luz"></i>` : ""}</button>` : ""}
+        <button class="lb2-ic" id="pcBtnPerfilTopo" title="${gateConvidado ? "Precisa se cadastrar" : "Menu e perfil"}">${iconeSvg("perfil", 16)}</button>
+      </span>
+    </header>
 
     ${montarLetreiroPainel()}
 
     ${(() => {
-      // ===== Página inicial v2 (protótipo aprovado 19/09/2026) =====
-      // Um herói só, com a ação principal mudando pelo ESTADO da lista:
-      // sem lista → "Criar minha lista"; em andamento → "Continuar";
-      // completa → "Revisar e depositar". Convite (link do app) e Duelo
-      // viram itens de notificação; Duelo só acende com lista completa.
+      // ===== Página inicial v3 no padrão dos painéis (aprovada 15/10/2026) =====
+      // Mesmo herói por ESTADO da lista (v2, 19/09): sem → "Criar minha lista";
+      // em andamento → "Continuar"; completa → "Revisar e depositar".
       const temAlgo = totalMarcado > 0 || totalListas > 0;
       const estadoLista = completa ? "completa" : (temAlgo ? "andamento" : "sem");
       const rotuloBtn = ({ sem: "Criar minha lista", andamento: "Continuar minha lista", completa: "Revisar e depositar" })[estadoLista];
+      const titulo = ({ sem: `Comece sua <i>lista.</i>`, andamento: `Continue sua <i>lista.</i>`, completa: `Sua lista está <i>completa.</i>` })[estadoLista];
+      const nome = pcState.perfil && pcState.perfil.nome ? esc2(String(pcState.perfil.nome).split(" ")[0]) : "";
+      const it = (id, ic, rot, sub, extra, gate) => `<button class="lb2-it" id="${id}"${gate ? ' data-pc-gate="1"' : ""} style="${gate ? estiloApagado : ""}">${iconeSvg(ic, 20)}<span><b>${rot}</b><small>${sub}</small></span>${extra || ""}</button>`;
+      const bdg = (n) => n ? `<em>${n}</em>` : "";
       return `
-    <div class="pc-heroi">
-      <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;">
-        <span style="font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:6px; color:#F2F4F5;">${completa ? `<span style="color:#34E84A; display:flex;">${iconeSvg("checkCirculo", 14)}</span>Lista completa` : "Sua lista"}</span>
-        <span style="font-size:11.5px; font-weight:600; color:${completa ? "#34E84A" : "#8A9096"};">${totalMarcado}<span style="color:#8A9096;">/${totalVagas}</span></span>
+    <section class="lb2-hero">
+      <div><div class="lb2-olho">${nome ? `Olá, ${nome} · ` : ""}seu palpite 2026</div><h1>${titulo}</h1></div>
+      <div class="lb2-prog">
+        <div class="lb2-num">${totalMarcado}<small>/${totalVagas}</small></div>
+        <div class="lb2-barra">
+          <i style="width:${(fracaoPreenchida * pesoEstadual * 100).toFixed(1)}%; background:#34E84A;"></i><i style="width:${(fracaoPreenchida * pesoFederal * 100).toFixed(1)}%; background:#1D8038;"></i><i style="width:${(fracaoPreenchida * pesoSenador * 100).toFixed(1)}%; background:#14602A;"></i>
+        </div>
+        <div class="lb2-meta"><span>vagas preenchidas</span><span>Faltam ${diasAteEleicao()} dias pra eleição</span></div>
+        ${atividadeAmigo ? `<div class="lb2-meta" style="color:#34E84A; font-weight:600;">${esc2(atividadeAmigo)} atualizou a lista</div>` : ""}
+        <button class="lb2-btn" id="pcBtnHeroi" data-estado="${estadoLista}">${rotuloBtn} →</button>
+        ${estadoLista !== "sem" ? `<button class="lb2-lnk" id="pcBtnUrna">Minhas listas${totalListas ? ` · ${totalListas}` : ""}</button>` : ""}
       </div>
-      <div class="pc-lobby-barra">
-        <div style="width:${(fracaoPreenchida * pesoEstadual * 100).toFixed(1)}%; background:#34E84A;"></div>
-        <div style="width:${(fracaoPreenchida * pesoFederal * 100).toFixed(1)}%; background:#1D8038;"></div>
-        <div style="width:${(fracaoPreenchida * pesoSenador * 100).toFixed(1)}%; background:#14602A;"></div>
+    </section>
+
+    <section class="lb2-sec"><div class="lb2-sh"><h2>Atalhos</h2><p>Tudo o que dá para fazer com o seu palpite.</p></div>
+      <div class="lb2-lista">
+        ${it("pcMenuResultados", "checkCirculo", "Resultado 2026", "apuração oficial", `<span class="lb2-vivo">ao vivo</span>`)}
+        ${it("pcMenuListas", "lista", "Listas", "crie a sua lista (palpite)", bdg(totalListas))}
+        ${it("pcMenuMedias", "termometro", "Termômetro", "quadro de médias", "", gateConvidado)}
+        ${it("pcMenuDesafios", "desafio", "Duelos", "desafios 1 × 1", bdg(totalDesafiosAtivos), gateConvidado)}
+        ${it("pcMenuGrupos", "grupos", "Grupos", "família, trabalho, amigos", bdg(totalGrupos), gateConvidado)}
+        ${it("pcMenuRanking", "ranking", "Ranking", "quem mais acertou", "")}
+        ${ECONOMIA_ATIVA ? it("pcMenuLoja", "loja", "Loja", "créditos SL", "", gateConvidado) : ""}
+        ${it("pcBtnConviteBanner", "convidar", "Convidar amigos", "compartilhe seu link do app", "")}
+        <button class="lb2-it" id="pcBtnDueloLobby" title="${tituloApagado}" style="${completa && !gateConvidado ? "" : "opacity:.5;"}">${iconeSvg("desafio", 20)}<span><b>Duelo 1×1</b><small>${completa ? "desafie alguém pra bater palpite" : "complete a lista pra desafiar alguém"}</small></span></button>
+        ${listaDepositadaPainel && !gateConvidado ? it("pcBtnCompartilharLobby", "compartilhar", "Compartilhar minha cédula", "cartão da cédula depositada", "") : ""}
+        ${it("pcMenuTrocarEstado", "mapa", "Trocar estado", `estado atual: ${pcState.estado}`, "")}
+        ${it("pcMenuAjudaLobby", "ajuda", "Central de ajuda", "dúvidas sobre o simulador", "")}
       </div>
-      ${estadoLista === "sem" ? `<div class="pc-heroi-corpo">Monte sua previsão pros 3 cargos — dá pra salvar e continuar depois.</div>` : ""}
-      <div style="font-size:12px; color:#8A9096; display:flex; align-items:center; gap:6px; margin-top:10px;">${iconeSvg("calendario", 14)}Faltam ${diasAteEleicao()} dias pra eleição</div>
-      ${atividadeAmigo ? `<div style="font-size:12px; color:#34E84A; font-weight:600; display:flex; align-items:center; gap:6px; margin-top:6px;">${iconeSvg("grupos", 14)}${atividadeAmigo} atualizou a lista</div>` : ""}
-      <button class="pc-heroi-btn" id="pcBtnHeroi" data-estado="${estadoLista}">${iconeSvg("urna", 18)}${rotuloBtn}${iconeSvg("setaDireita", 14)}</button>
-      ${estadoLista !== "sem" ? `<button class="pc-heroi-sec" id="pcBtnUrna">Minhas listas${totalListas ? ` · ${totalListas}` : ""}</button>` : ""}
-    </div>
+    </section>
 
-    <div class="pc-lobby-menu-tit">Atalhos</div>
-    <div class="pc-app-grade">
-      <button class="pc-app dest" id="pcMenuResultados"><span class="pc-app-ic">${iconeSvg("checkCirculo", 38)}</span><span class="pc-app-rot">Resultado 2026</span><span class="pc-app-sub"><span class="pc-res-vivo"></span>Ao vivo</span></button>
-      <button class="pc-app dest" id="pcMenuListas"><span class="pc-app-ic">${iconeSvg("lista", 38)}</span><span class="pc-app-rot">Listas</span><span class="pc-app-sub"><span class="pc-res-vivo verde"></span>Crie a sua lista (palpite)</span>${totalListas ? `<span class="pc-app-badge">${totalListas}</span>` : ""}</button>
-      <button class="pc-app mini" id="pcMenuMedias" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("termometro", 22)}</span><span class="pc-app-rot">Termômetro</span></button>
-      <button class="pc-app mini" id="pcMenuDesafios" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("desafio", 22)}</span><span class="pc-app-rot">Duelos</span>${totalDesafiosAtivos ? `<span class="pc-app-badge">${totalDesafiosAtivos}</span>` : ""}</button>
-      <button class="pc-app mini" id="pcMenuGrupos" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("grupos", 22)}</span><span class="pc-app-rot">Grupos</span>${totalGrupos ? `<span class="pc-app-badge">${totalGrupos}</span>` : ""}</button>
-      <button class="pc-app mini" id="pcMenuRanking"><span class="pc-app-ic">${iconeSvg("ranking", 22)}</span><span class="pc-app-rot">Ranking</span></button>
-      ${ECONOMIA_ATIVA ? `<button class="pc-app mini" id="pcMenuLoja" ${gateConvidado ? 'data-pc-gate="1"' : ""}><span class="pc-app-ic">${iconeSvg("loja", 22)}</span><span class="pc-app-rot">Loja</span></button>` : ""}
-    </div>
-
-    <div class="pc-notifs" style="margin-top:14px;">
-      <button class="pc-lobby-duelo on" id="pcBtnConviteBanner">
-        <span class="pc-lobby-duelo-ic">${iconeSvg("convidar", 18)}</span>
-        <span class="pc-lobby-duelo-tx"><b>Convide seus amigos que entendem de política</b><i>compartilhar seu link do app</i></span>
-        ${iconeSvg("setaDireita", 14)}
-      </button>
-      <button class="pc-lobby-duelo${completa && !gateConvidado ? " on" : ""}" id="pcBtnDueloLobby" title="${tituloApagado}">
-        <span class="pc-lobby-duelo-ic">${iconeSvg("desafio", 18)}</span>
-        <span class="pc-lobby-duelo-tx"><b>Duelo 1×1</b><i>${completa ? "desafie alguém pra bater palpite" : "complete a lista pra desafiar alguém"}</i></span>
-        ${iconeSvg("setaDireita", 14)}
-      </button>
-      ${listaDepositadaPainel && !gateConvidado ? `
-      <button class="pc-lobby-duelo" id="pcBtnCompartilharLobby">
-        <span class="pc-lobby-duelo-ic">${iconeSvg("compartilhar", 16)}</span>
-        <span class="pc-lobby-duelo-tx"><b>Compartilhar minha cédula</b><i>cartão da cédula depositada</i></span>
-        ${iconeSvg("setaDireita", 14)}
-      </button>` : ""}
-    </div>
+    <section class="lb2-sec"><div class="lb2-sh"><h2>Painéis</h2><p>Resultado e mandato 2027–2031.</p></div>
+      <div class="lb2-paineis"><a href="painel/novos.html"><b>Parlamentares</b><span>Eleitoral, Legislativo e Administrativo de cada eleito</span></a><a href="painel/index.html#ranking"><b>Ranking</b><span>Todos os candidatos de SC, 2026 × 2022</span></a><a href="painel/mesa.html"><b>Mesa</b><span>Monte a chapa e as comissões</span></a></div>
+    </section>
 `; })()}
-
-    <div class="pc-lobby-mais-tit">Mais funções</div>
-    <div class="pc-lobby-mais">
-      <button class="pc-lobby-mais-item" id="pcMenuTrocarEstado">${iconeSvg("mapa", 15)}<span>Trocar estado · <b style="color:var(--pc-accent);">${pcState.estado}</b></span>${iconeSvg("setaDireita", 13)}</button>
-      <button class="pc-lobby-mais-item" id="pcMenuAjudaLobby">${iconeSvg("ajuda", 15)}<span>Central de ajuda</span>${iconeSvg("setaDireita", 13)}</button>
     </div>
   `;
 
