@@ -169,15 +169,15 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .mnu a.mnot{ display:flex; align-items:center; gap:8px; } .mnu a.mnot em{ margin-left:auto; font-style:normal; font:800 11px Inter; color:#0B0D0E; background:#34E84A; border-radius:999px; padding:1px 7px; }
 /* capa (16/10/2026): roda à esquerda, mapa à direita */
 .capa2{ position:relative; height:calc(100vh - 56px); }
-.capaE{ position:relative; z-index:2; display:flex; flex-direction:column; width:max(300px,22%); height:100%; min-height:0; background:linear-gradient(90deg, rgba(11,15,13,.92) 70%, rgba(11,15,13,0)); }
+.capaE{ position:absolute; z-index:2; display:flex; flex-direction:column; min-height:0; }
 .capa2 .roda{ flex:1; height:auto; min-height:0; }
-.capa2 .roda ol{ padding:calc(50vh - 160px) 0 calc(50vh - 160px) 28px; }
+.capa2 .roda ol{ padding:120px 0; } .capa2 .roda{ -webkit-mask-image:linear-gradient(transparent, #000 25%, #000 75%, transparent); mask-image:linear-gradient(transparent, #000 25%, #000 75%, transparent); }
 .capa2 .roda li{ text-align:left; font-size:clamp(27px,2.55vw,39px); padding:2px 0; transform-origin:left center; }
 .capa2 .rodainfo{ text-align:left; padding:14px 28px 22px; }
 .capaD{ position:absolute; inset:0; z-index:1; } .capaD canvas{ position:absolute; inset:0; width:100%; height:100%; }
 .selEtq .se{ position:absolute; transform:translate(14px,-50%); pointer-events:none; font-size:12px; color:var(--sec); white-space:nowrap; transition:left .6s, top .6s; } .selEtq .se b{ display:block; color:var(--texto); font-size:15px; }
 .selEtq .seR{ position:absolute; right:22px; bottom:22px; display:flex; flex-direction:column; gap:6px; font-size:12px; color:var(--sec); text-align:right; } .selEtq .seR b{ color:var(--a); margin-left:8px; font-variant-numeric:tabular-nums; }
-@media (max-width:760px){ .capa2{ display:grid; grid-template-rows:38vh 1fr; height:calc(100vh - 92px); } .capaD{ position:relative; inset:auto; order:-1; border-bottom:1px solid var(--linha); } .capaE{ width:auto; background:none; } .capa2 .roda li{ text-align:center; transform-origin:center; font-size:26px; } .capa2 .rodainfo{ text-align:center; padding:10px 16px 14px; } .capa2 .roda ol{ padding:calc(25vh - 60px) 0; } .capa2 .roda li{ padding:2px 16px; } .selEtq .seR{ display:none; } }
+@media (max-width:760px){ .capa2{ display:grid; grid-template-rows:42vh 1fr; height:calc(100vh - 92px); } .capaD{ position:relative; inset:auto; order:-1; border-bottom:1px solid var(--linha); } .capaE{ position:relative; } .capa2 .roda li{ text-align:center; transform-origin:center; font-size:26px; } .capa2 .rodainfo{ text-align:center; padding:10px 16px 14px; } .capa2 .roda ol{ padding:calc(25vh - 60px) 0; } .capa2 .roda li{ padding:2px 16px; } .selEtq .seR{ display:none; } }
 </style>
 </head>
 <body>
@@ -211,7 +211,7 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=1"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="novos.js?cb=143"></script>
+<script src="novos.js?cb=144"></script>
 <script src="../nuvem/visitas.js?cb=1"></script>
 <script src="sino-menu.js?cb=1"></script>
 </body>

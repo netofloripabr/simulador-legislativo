@@ -35,7 +35,7 @@ function telaSelecao(foco) {
   const E = eleitos().sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
   // capa (16/10/2026): roda menor fixa à esquerda; mapa do estado à direita reage à base de votos do nome em foco
   $("#app").innerHTML = `<div class="capa2"><div class="capaE"><div class="roda" id="roda"><ol>${E.map((c) => `<li data-n="${c.n}">${esc(c.u)}</li>`).join("")}</ol></div>
-    <div class="rodainfo"><div class="pt" id="spt"></div><button class="btn" id="sabrir">Abrir</button><div class="dica">role para escolher · ${E.length} parlamentares eleitos</div></div></div>
+<span id="spt" hidden></span><button id="sabrir" hidden></button></div>
     <div class="capaD"><canvas id="selCv"></canvas><div class="selEtq" id="selEtq"></div></div></div>`;
   const rd = $("#roda"), L = [...rd.querySelectorAll("li")];
   let atual = null;
@@ -687,10 +687,13 @@ let SEL = null;
 function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   if (!SEL || SEL.cv !== cv) { const r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height; cv.width = w * dpr; cv.height = h * dpr;
     let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
-    const pad = 24, xl = innerWidth > 760 ? Math.max(320, w * .24) : pad, K = Math.cos(27.5 * Math.PI / 180), S = Math.min((w - xl - pad) / ((lo1 - lo0) * K), (h - 2 * pad) / (la0 - la1)), ox = xl + ((w - xl - pad) - (lo1 - lo0) * K * S) / 2, oy = pad + ((h - 2 * pad) - (la0 - la1) * S) / 2;
+    const pad = 24, xl = pad, K = Math.cos(27.5 * Math.PI / 180), S = Math.min((w - xl - pad) / ((lo1 - lo0) * K), (h - 2 * pad) / (la0 - la1)), ox = xl + ((w - xl - pad) - (lo1 - lo0) * K * S) / 2, oy = pad + ((h - 2 * pad) - (la0 - la1) * S) / 2;
     const P = (lo, la) => [ox + (lo - lo0) * K * S, oy + (la0 - la) * S], k = Math.min(w, h) / 560, cont = new Path2D();
     CONT.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
     const B = M.map((m) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / 470000)) * k * 1.1, t0: 0, t1: 0 }; });
+    // nomes no vão do mapa (ao sul da faixa oeste); no celular ficam abaixo do mapa
+    if (innerWidth > 760) { const e = cv.closest(".capa2").querySelector(".capaE"), [x0, y0] = P(-53.6, -27.45), [x1, y1] = P(-50.6, -29.4), hh = Math.max(220, y1 - y0);
+      Object.assign(e.style, { left: x0 + "px", top: y0 + "px", width: Math.max(260, x1 - x0) + "px", height: hh + "px" }); const ol = e.querySelector("ol"); ol.style.padding = `${hh / 2 - 26}px 0`; }
     SEL = { cv, ctx: cv.getContext("2d"), dpr, w, h, cont, B, ord: [...B.keys()].sort((a, b) => M[b].el - M[a].el), rgb0: [52, 232, 74], rgb1: [52, 232, 74], ini: 0, top: [] };
     const quadro = (agora) => { if (!document.body.contains(cv)) { SEL = null; return; } const { ctx, B } = SEL, e0 = Math.min(1, (agora - SEL.ini) / 650), e = 1 - Math.pow(1 - e0, 3), ne = [58, 64, 70];
       const rgb = SEL.rgb0.map((v, q) => v + (SEL.rgb1[q] - v) * e);
