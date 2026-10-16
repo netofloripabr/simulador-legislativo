@@ -698,7 +698,7 @@ function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
     const B = M.map((m) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / 470000)) * k * 1.1, t0: 0, t1: 0 }; });
     // nomes no vão do mapa (ao sul da faixa oeste); no celular ficam abaixo do mapa
     if (innerWidth > 760) { const e = cv.closest(".capa2").querySelector(".capaE"), [x0, y0] = P(-53.6, -27.45), [x1, y1] = P(-50.6, -29.4), hh = Math.max(220, y1 - y0);
-      Object.assign(e.style, { left: x0 + "px", top: y0 + "px", width: Math.max(260, x1 - x0) + "px", height: hh + "px" }); const ol = e.querySelector("ol"); ol.style.padding = `${hh / 2 - 26}px 0`; }
+      Object.assign(e.style, { left: x0 + "px", top: y0 + "px", width: Math.max(420, x1 - x0 + 200) + "px", height: hh + "px" }); const ol = e.querySelector("ol"); ol.style.padding = `${hh / 2 - 26}px 0`; }
     SEL = { cv, ctx: cv.getContext("2d"), dpr, w, h, cont, B, ord: [...B.keys()].sort((a, b) => M[b].el - M[a].el), rgb0: [52, 232, 74], rgb1: [52, 232, 74], ini: 0, top: [] };
     const quadro = (agora) => { if (!document.body.contains(cv)) { SEL = null; return; } const { ctx, B } = SEL, e0 = Math.min(1, (agora - SEL.ini) / 650), e = 1 - Math.pow(1 - e0, 3), ne = [58, 64, 70];
       const rgb = SEL.rgb0.map((v, q) => v + (SEL.rgb1[q] - v) * e);
@@ -718,8 +718,10 @@ function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   const i1 = ordV[0], b1 = SEL.B[i1];
   // etiqueta saltada fora do mapa, ligada à bolha por linha pontilhada (mesmo desenho da capa do perfil)
   const xr = Math.max(...SEL.B.map((b) => b.x + b.r)), lx = Math.min(SEL.w - 70, xr + 80), ly = Math.max(40, Math.min(SEL.h - 40, b1.y)), fora = lx - 60 > b1.x + b1.r;
-  SEL.lab = fora ? { x0: b1.x + b1.r + 3, y0: b1.y, x1: lx - 58, y1: ly } : null;
-  $("#selEtq").innerHTML = `<div class="etq fora" style="left:${fora ? lx : b1.x}px;top:${fora ? ly : b1.y - b1.r}px;animation-delay:.35s, 1.1s"><span>${esc(M[i1].n)}</span><b>${ni(c.v[i1])}</b></div>`;
+  // sem espaço à direita (cidade no litoral/celular): o balão vai para a esquerda da bolha e a linha pontilhada continua ligando ao centro
+  const ax = fora ? lx : Math.max(70, b1.x - b1.r - 150), ay = fora ? ly : Math.max(46, Math.min(SEL.h - 40, b1.y + 24));
+  SEL.lab = fora ? { x0: b1.x, y0: b1.y, x1: lx - 58, y1: ly } : { x0: b1.x, y0: b1.y, x1: ax + 58, y1: ay };
+  $("#selEtq").innerHTML = `<div class="etq fora" style="left:${ax}px;top:${ay}px;animation-delay:.35s, 1.1s"><span>${esc(M[i1].n)}</span><b>${ni(c.v[i1])}</b></div>`;
 }
 function heroMapa(c, ordM) {
   cancelAnimationFrame(heroRaf);
