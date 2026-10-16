@@ -610,33 +610,26 @@ async function renderPainelPrincipal() {
       const bdg = (n) => n ? `<em>${n}</em>` : "";
       return `
     <section class="lb2-hero">
-      <div><div class="lb2-olho">${nome ? `Olá, ${nome} · ` : ""}seu palpite 2026</div><h1>${titulo}</h1></div>
+      <div><div class="lb2-olho">${nome ? `Olá, ${nome} · ` : ""}eleições 2026</div><h1>Eleições <i>apuradas.</i></h1></div>
       <div class="lb2-prog">
-        <div class="lb2-num">${totalMarcado}<small>/${totalVagas}</small></div>
-        <div class="lb2-barra">
-          <i style="width:${(fracaoPreenchida * pesoEstadual * 100).toFixed(1)}%; background:#34E84A;"></i><i style="width:${(fracaoPreenchida * pesoFederal * 100).toFixed(1)}%; background:#1D8038;"></i><i style="width:${(fracaoPreenchida * pesoSenador * 100).toFixed(1)}%; background:#14602A;"></i>
-        </div>
-        <div class="lb2-meta"><span>vagas preenchidas</span><span>Faltam ${diasAteEleicao()} dias pra eleição</span></div>
-        ${atividadeAmigo ? `<div class="lb2-meta" style="color:#34E84A; font-weight:600;">${esc2(atividadeAmigo)} atualizou a lista</div>` : ""}
-        <button class="lb2-btn" id="pcBtnHeroi" data-estado="${estadoLista}">${rotuloBtn} →</button>
-        ${estadoLista !== "sem" ? `<button class="lb2-lnk" id="pcBtnUrna">Minhas listas${totalListas ? ` · ${totalListas}` : ""}</button>` : ""}
+        <p style="margin:0; color:#A9AEB3; font-size:15px;">Confira o resultado oficial de Santa Catarina, os duelos e os grupos. Os painéis mostram o mandato 2027–2031 de cada eleito.</p>
+        <button class="lb2-btn" id="pcBtnResHeroi">Ver o resultado 2026 →</button>
+        <a class="lb2-lnk" href="painel/novos.html" style="text-decoration:none;">Painel Parlamentares</a>
       </div>
     </section>
 
-    <section class="lb2-sec"><div class="lb2-sh"><h2>Atalhos</h2><p>Tudo o que dá para fazer com o seu palpite.</p></div>
+    <section class="lb2-sec"><div class="lb2-sh"><h2>Atalhos</h2><p>O que segue valendo depois da eleição.</p></div>
       <div class="lb2-lista">
-        ${it("pcMenuResultados", "checkCirculo", "Resultado 2026", "apuração oficial", `<span class="lb2-vivo">ao vivo</span>`)}
-        ${it("pcMenuListas", "lista", "Listas", "crie a sua lista (palpite)", bdg(totalListas))}
-        ${it("pcMenuMedias", "termometro", "Termômetro", "quadro de médias", "", gateConvidado)}
-        ${it("pcMenuDesafios", "desafio", "Duelos", "desafios 1 × 1", bdg(totalDesafiosAtivos), gateConvidado)}
-        ${it("pcMenuGrupos", "grupos", "Grupos", "família, trabalho, amigos", bdg(totalGrupos), gateConvidado)}
+        ${it("pcMenuResultados", "checkCirculo", "Resultado 2026", "apuração oficial", "")}
+        ${it("pcMenuDesafios", "desafio", "Duelos", "resultado dos desafios 1 × 1", bdg(totalDesafiosAtivos), gateConvidado)}
+        ${it("pcMenuGrupos", "grupos", "Grupos", "comparação com os amigos", bdg(totalGrupos), gateConvidado)}
         ${it("pcMenuRanking", "ranking", "Ranking", "quem mais acertou", "")}
-        ${ECONOMIA_ATIVA ? it("pcMenuLoja", "loja", "Loja", "créditos SL", "", gateConvidado) : ""}
-        ${it("pcBtnConviteBanner", "convidar", "Convidar amigos", "compartilhe seu link do app", "")}
-        <button class="lb2-it" id="pcBtnDueloLobby" title="${tituloApagado}" style="${completa && !gateConvidado ? "" : "opacity:.5;"}">${iconeSvg("desafio", 20)}<span><b>Duelo 1×1</b><small>${completa ? "desafie alguém pra bater palpite" : "complete a lista pra desafiar alguém"}</small></span></button>
+        ${it("pcMenuMedias", "termometro", "Termômetro", "quadro de médias", "", gateConvidado)}
+        ${it("pcMenuListas", "lista", "Minhas listas", "palpites salvos e cédulas", bdg(totalListas))}
         ${listaDepositadaPainel && !gateConvidado ? it("pcBtnCompartilharLobby", "compartilhar", "Compartilhar minha cédula", "cartão da cédula depositada", "") : ""}
-        ${it("pcMenuTrocarEstado", "mapa", "Trocar estado", `estado atual: ${pcState.estado}`, "")}
+        ${ECONOMIA_ATIVA ? it("pcMenuLoja", "loja", "Loja", "créditos SL", "", gateConvidado) : ""}
         ${it("pcMenuAjudaLobby", "ajuda", "Central de ajuda", "dúvidas sobre o simulador", "")}
+        <span hidden>${it("pcBtnConviteBanner", "convidar", "", "", "")}${it("pcMenuTrocarEstado", "mapa", "", "", "")}</span>
       </div>
     </section>
 
@@ -707,6 +700,8 @@ async function renderPainelPrincipal() {
     if (gateConvidado) return irParaCadastro("loja");
     pcState.subaba = "loja"; renderAppColaborativo();
   });
+  const btnResH = document.getElementById("pcBtnResHeroi");
+  if (btnResH) btnResH.addEventListener("click", () => document.getElementById("pcMenuResultados").click());
   const btnRes = document.getElementById("pcMenuResultados");
   if (btnRes) btnRes.addEventListener("click", () => {
     if (pcState.perfil) { pcState.subaba = "resultados"; renderAppColaborativo(); }
