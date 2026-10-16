@@ -6,7 +6,7 @@
 // cargos diferentes = fatia do total de cada um vinda da cidade (p.p.).
 
 const $ = (s) => document.querySelector(s);
-const DV = "20261008a"; // muda quando dados/painel é regerado (cache do navegador)
+const DV = "20261016a"; // muda quando dados/painel é regerado (cache do navegador)
 const nf = (x, c = 1) => x.toLocaleString("pt-BR", { minimumFractionDigits: c, maximumFractionDigits: c });
 const ni = (x) => Math.round(x).toLocaleString("pt-BR");
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
@@ -26,7 +26,7 @@ const DADOS = {};               // por cargo
 const st = { lente: "mapa", a: null, b: null, sel: -1, hover: -1, rec: null, tipoReg: "meso", ord: { col: "v", dir: -1 }, abertos: {}, todos: false };
 // recorte: {tipo:"meso"|"micro"|"assoc", nome}; null = estado inteiro
 const dentro = (i) => !st.rec || M[i][st.rec.tipo] === st.rec.nome;
-const TIPOS = [["meso", "Mesorregiões"], ["micro", "Microrregiões"], ["assoc", UFI.regTipo]];
+const TIPOS = [["meso", "Mesorregiões"], ["micro", "Microrregiões"], ["assoc", UFI.regTipo]].concat(UF === "sp" ? [["rm", "Regiões metropolitanas"]] : []);
 let atual = null, eixos = null, anim = null;
 const cv = $("#cv"), ctx = cv.getContext("2d");
 let W = 0, H = 0, DPR = 1;
@@ -494,7 +494,7 @@ trocouCandidato = function () { _troca(); hero.recolorir(); };
 
 // ---------------- recorte (estado / mesorregião / microrregião / associação) ----------------
 function montarRecorte() {
-  const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${st.rec && st.rec.tipo === tp && st.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
+  const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].filter(Boolean).sort().map((r) => `<option value="${tp}|${esc(r)}"${st.rec && st.rec.tipo === tp && st.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
   $("#recorte").innerHTML = `<option value="">${UFI.nome}</option>` + TIPOS.map(([t, r]) => g(t, r)).join("") + (EMB ? g("n", "Municípios") : "");
   if (EMB && !$("#recBusca")) { $("#recorte").closest("label").insertAdjacentHTML("afterend", `<input id="recBusca" list="recLista" placeholder="Digite o município" autocomplete="off"><datalist id="recLista">${[...M].map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>`);
     $("#recBusca").onchange = (e) => { const m = M.find((x) => norm(x.n) === norm(e.target.value)); if (!m) return; st.rec = { tipo: "n", nome: m.n }; st.sel = -1; st.abertos = {}; e.target.value = ""; trocouCandidato(); }; }
@@ -601,7 +601,7 @@ function setaRk(o, col) { return `<span class="ord"><i class="up${o.col === col 
 function montarRanking() {
   $("#rkCargos").innerHTML = CARGOS.map(([c, r]) => `<button data-c="${c}" class="${rk.cargo === c ? "on" : ""}">${r}</button>`).join("");
   $("#rkCargos").onclick = (e) => { const b = e.target.closest("[data-c]"); if (!b) return; rk.cargo = b.dataset.c; rk.aberto = null; rk.abertos = {}; rk.todos = false; montarRanking(); };
-  const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].sort().map((r) => `<option value="${tp}|${esc(r)}"${rk.rec && rk.rec.tipo === tp && rk.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
+  const g = (tp, rot) => `<optgroup label="${rot}">${[...new Set(M.map((m) => m[tp]))].filter(Boolean).sort().map((r) => `<option value="${tp}|${esc(r)}"${rk.rec && rk.rec.tipo === tp && rk.rec.nome === r ? " selected" : ""}>${esc(r.replace(" Catarinense", ""))}</option>`).join("")}</optgroup>`;
   $("#rkRecorte").innerHTML = `<option value="">${UFI.nome}</option>` + TIPOS.map(([t, r]) => g(t, r)).join("");
   $("#rkRecorte").onchange = (e) => { const [t, ...n] = e.target.value.split("|"); rk.rec = t ? { tipo: t, nome: n.join("|") } : null; rk.abertos = {}; tabelaRanking(); };
   const d0 = DADOS[rk.cargo], parts = [...new Set(d0.c.map((c) => c.p))].sort(), prop = !!(d0.meta && d0.meta.qe);

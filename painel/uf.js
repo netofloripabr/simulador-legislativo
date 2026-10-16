@@ -4,7 +4,7 @@
 (function () {
   var INFO = {
     sc: { nome: "Santa Catarina", sigla: "SC", casa: "ALESC", vagas: 40, lat: 27.5, vao: [-53.6, -27.45, -50.6, -29.4], regTipo: "Associações", regUm: "Associação", refEl: 470000, completo: true },
-    sp: { nome: "São Paulo", sigla: "SP", casa: "ALESP", vagas: 94, lat: 22.5, vao: [-53.0, -23.25, -50.1, -25.2], regTipo: "Regiões intermediárias (IBGE)", regUm: "Região intermediária", refEl: 3500000, completo: false },
+    sp: { nome: "São Paulo", sigla: "SP", casa: "ALESP", vagas: 94, lat: 22.5, vao: [-53.0, -23.25, -50.1, -25.2], regTipo: "Regiões administrativas", regUm: "Região administrativa", refEl: 3500000, completo: false },
   };
   var q = new URLSearchParams(location.search).get("uf"), uf = (q || "").toLowerCase();
   if (!INFO[uf]) { try { uf = sessionStorage.getItem("sl_uf") || ""; } catch (e) {} }

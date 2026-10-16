@@ -157,7 +157,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
 .mnu a.mnot{ display:flex; align-items:center; gap:8px; } .mnu a.mnot em{ margin-left:auto; font-style:normal; font:800 11px Inter; color:#0B0D0E; background:#34E84A; border-radius:999px; padding:1px 7px; }
 .topo .wm b{ color:#34E84A !important; }
 </style>
-<script src="uf.js?cb=4"></script>
+<script src="uf.js?cb=5"></script>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=9">
 </head>
@@ -203,7 +203,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
 <script>document.querySelectorAll(".ufn").forEach(function(e){ e.textContent = e.closest("h1") ? UFI.nome.toLowerCase() : UFI.nome; }); document.title = UFI.nome + " em pontos · SimulaLEGIS";</script>
-<script src="painel.js?cb=38"></script>
+<script src="painel.js?cb=39"></script>
 <script>(function(){var b=document.querySelector(".mnub"),m=document.querySelector(".mnu");if(!b)return;b.onclick=function(e){e.stopPropagation();m.hidden=!m.hidden;};document.addEventListener("click",function(e){if(!e.target.closest(".mnuw"))m.hidden=true;});/* logado? lê a sessão do Supabase guardada pelo app (mesma origem); Sair apaga a sessão local */try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var ss=JSON.parse(localStorage.getItem(k)),u=ss&&(ss.user||(ss.currentSession&&ss.currentSession.user));if(u){var md=u.user_metadata||{},ct=m.querySelector(".mconta"),nm=md.full_name||md.nome||u.email,esc=function(x){return String(x||"").replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};ct.innerHTML="<b>"+esc(nm)+"</b><small>"+esc(u.email)+" · minha conta</small>";ct.href="../?capa=1";ct.onclick=null;ct.classList.remove("mconta");var sa=document.createElement("a");sa.href="#";sa.className="mconta msair";sa.textContent="Sair da conta";sa.onclick=(function(kk){return function(e){e.preventDefault();try{localStorage.removeItem(kk);}catch(er){}location.reload();};})(k);ct.after(sa);}}}}catch(e){}})();</script>
 <script src="../nuvem/visitas.js?cb=1"></script>
 <script src="relatorio.js?cb=22"></script>

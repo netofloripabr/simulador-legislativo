@@ -48,6 +48,13 @@ for m in tse_mun:
                 "assoc": L["regiao-imediata"]["regiao-intermediaria"]["nome"], "tse": m["cd"], "ibge": m["cdi"]})
     aneis = g["coordinates"] if g["type"] == "Polygon" else [p[0] for p in g["coordinates"]]
     cont.append([simp(a) for a in aneis if len(a) > 3])
+# regiões administrativas e metropolitanas (SEADE), quando existir o arquivo do estado
+_ra = R + f"dados/painel/{UF}-regioes-administrativas.json"
+if os.path.exists(_ra):
+    _r = json.load(open(_ra))
+    for m in mun:
+        m["assoc"] = _r["ra"].get(m["ibge"], m["assoc"]).replace("Região Metropolitana de São Paulo", "RA Metropolitana de São Paulo")
+        if m["ibge"] in _r.get("rm", {}): m["rm"] = _r["rm"][m["ibge"]]
 N = len(mun); idx_tse = {m["tse"]: i for i, m in enumerate(mun)}
 print("municípios:", N)
 

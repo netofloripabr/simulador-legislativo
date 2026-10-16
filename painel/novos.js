@@ -4,7 +4,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const ni = (x) => Math.round(x).toLocaleString("pt-BR"), nf = (x, d = 1) => x.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
 const fm = (v) => "R$ " + (v >= 1e6 ? nf(v / 1e6, 2) + " mi" : v >= 1e3 ? nf(v / 1e3, 1).replace(/,0$/, "") + " mil" : ni(v));
-const DV = "20261008a";
+const DV = "20261016a";
 const foto = (n) => `../dados/fotos/${UF}-2026/estadual/${n}.jpg`;
 // cor de destaque por partido (identidade de cada legenda, ajustada para fundo escuro)
 const COR_P = { "NOVO": "#F37021", "PL": "#3D7BFF", "PT/PC do B/PV": "#E5383B", "MDB": "#34C759", "UNIÃO/PP": "#2FB5E8", "PSD": "#2B5FD9", "REPUBLICANOS": "#4D8DFF", "PODE": "#3FB37F", "PDT": "#E5484D", "PSOL/REDE": "#F5B700", "PSB": "#F2A900", "PSDB/CIDADANIA": "#1E6FD9", "MISSÃO": "#9B6CF0", "PRD/SOLIDARIEDADE": "#E8833A" };
