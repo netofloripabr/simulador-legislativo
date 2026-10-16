@@ -585,7 +585,7 @@ async function renderPainelPrincipal() {
 
     <div class="lb2">
     <header class="lb2-topo">
-      <span class="lb2-wm"><b>Simula</b>LEGIS</span><span class="lb2-sep">Simulador 2026 · ${pcState.perfil && pcState.perfil.escopo === "partido" ? esc2(pcState.perfil.partido_escopo) : "chapa completa"}</span>
+      <a class="lb2-wm" href="painel/novos.html" title="Início: Parlamentares" style="text-decoration:none;color:inherit"><b>Simula</b>LEGIS</a><span class="lb2-sep">Simulador 2026 · ${pcState.perfil && pcState.perfil.escopo === "partido" ? esc2(pcState.perfil.partido_escopo) : "chapa completa"}</span>
       <nav class="lb2-vistas"><a href="painel/novos.html">Parlamentares</a><a href="painel/index.html#ranking">Ranking</a><a href="painel/mesa.html">Mesa</a></nav>
       <span class="lb2-icones">
         ${pcState.perfil && ECONOMIA_ATIVA ? `<button class="lb2-cred" id="pcBtnSaldoTopo" title="Seus créditos">${iconeSvg("credito", 13)}<span>${Number((pcState.perfil && pcState.perfil.creditos) || 0)}</span></button>` : ""}
