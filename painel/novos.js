@@ -43,7 +43,7 @@ function telaSelecao(foco) {
     L.forEach((li) => { const r = li.getBoundingClientRect(), d = (r.top + r.height / 2 - m) / h, a = Math.abs(d); if (a < dm) { dm = a; melhor = li; }
       li.style.transform = `scale(${Math.max(.5, 1 - a * .125) + .2 * Math.max(0, 1 - a)})`; li.style.filter = a < .5 ? "none" : `blur(${Math.min(6, (a - .4) * 1.4).toFixed(2)}px)`; li.style.opacity = a > 4.5 ? 0 : Math.max(.12, 1 - a * .2); });
     if (melhor !== atual) { atual = melhor; L.forEach((x) => x.classList.toggle("on", x === atual)); const c = D.c.find((x) => x.n === atual.dataset.n); $("#spt").textContent = `${c.p} · ${ni(c.t)} votos`; tingir(COR_P[c.p] || "#34E84A"); mapaSelecao(c); } };
-  rd.addEventListener("scroll", () => requestAnimationFrame(pintar), { passive: true });
+  rd.addEventListener("scroll", () => { if (rd.scrollLeft) rd.scrollLeft = 0; requestAnimationFrame(pintar); }, { passive: true });
   rd.onclick = (e) => { const li = e.target.closest("li"); if (!li) return; if (li === atual) return ir(li.dataset.n); li.scrollIntoView({ behavior: "smooth", block: "center" }); };
   $("#sabrir").onclick = () => atual && ir(atual.dataset.n);
   onkeydown = (e) => { if (!$("#roda")) return; if (e.key === "Enter" && atual) ir(atual.dataset.n); if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); const k = L.indexOf(atual) + (e.key === "ArrowDown" ? 1 : -1); if (L[k]) L[k].scrollIntoView({ behavior: "smooth", block: "center" }); } };
@@ -691,7 +691,7 @@ let SEL = null;
 function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   if (!SEL || SEL.cv !== cv) { const r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height; cv.width = w * dpr; cv.height = h * dpr;
     let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
-    const pad = innerWidth > 760 ? 24 : 10, xl = pad, K = Math.cos(27.5 * Math.PI / 180), S = (innerWidth > 760 ? .85 : 1) * Math.min((w - xl - pad) / ((lo1 - lo0) * K), (h - 2 * pad) / (la0 - la1)), ox = xl + ((w - xl - pad) - (lo1 - lo0) * K * S) / 2, oy = pad + ((h - 2 * pad) - (la0 - la1) * S) / 2;
+    const pad = 24, xl = pad, K = Math.cos(27.5 * Math.PI / 180), S = .85 * Math.min((w - xl - pad) / ((lo1 - lo0) * K), (h - 2 * pad) / (la0 - la1)), ox = xl + ((w - xl - pad) - (lo1 - lo0) * K * S) / 2, oy = pad + ((h - 2 * pad) - (la0 - la1) * S) / 2;
     const P = (lo, la) => [ox + (lo - lo0) * K * S, oy + (la0 - la) * S], k = Math.min(w, h) / 560, cont = new Path2D();
     CONT.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
     const B = M.map((m) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / 470000)) * k * 1.1, t0: 0, t1: 0 }; });
