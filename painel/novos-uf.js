@@ -47,3 +47,28 @@ function secAdministrativoUF(c) {
     blocoUF("Transparência", `<table class="qtab">${linha("Portal da transparência", esc((T.portal || "").replace(/^https?:\/\//, "")), `<a href="${esc(T.portal || "#")}" target="_blank" rel="noopener" style="color:inherit">abrir</a>`)}${linha("Normas", (T.normas || []).map(aConf).join(" · "), /a confirmar/i.test((T.normas || []).join(" ")) ? aConf("a confirmar") : "")}${linha("Folha de pagamento", aConf(T.folha || ""), /a confirmar/i.test(T.folha || "") ? aConf("a confirmar") : "")}${linha("Gastos de verba por deputado", aConf(T.verbas || ""), /a confirmar/i.test(T.verbas || "") ? aConf("a confirmar") : "")}</table>`) +
     `<div class="bloco rv"><p class="nota">Valores brutos. A UFESP do ano ainda está a confirmar, por isso os auxílios aparecem em UFESP com a conversão aproximada. Fontes consultadas: ${(A.fontes || []).map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www[0-9]?\.)?/, "").slice(0, 60))}</a>`).join(" · ")}</p></div>` + fechaSec;
 }
+
+// caderno impresso (outros estados): páginas de Legislativo e Administrativo no formato do caderno de SC
+function cadUF(c, sec, h3) {
+  const L = LEGUF || {}, A = ADMUF || {}, Q = L.quorum || {}, P = A.parlamentar || {}, G = A.gabinete || {}, VI = P.verba_indenizatoria || {}, T = A.transparencia || {};
+  const tx = (t) => esc(t), tr = (a, b, sub) => `<tr><td>${a}${sub ? `<small>${tx(sub)}</small>` : ""}</td><td>${b}</td></tr>`;
+  const rs = (v) => typeof v === "number" ? "R$ " + v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : tx(v);
+  const E = eleitos(), E22 = A22.eleitos || [], ps = [...new Set(E.map((x) => x.p))], R = ps.map((p) => ({ p, a: E22.filter((x) => (PART22[p] || [p]).includes(x.p)).length, b: E.filter((x) => x.p === p).length })).sort((x, y) => y.b - x.b);
+  return `<div class="pg">${sec("Legislativo", `Como funciona a ${UFI.casa}: calendário, votação, proposições, caminho do projeto e comissões.`)}<div class="duas"><div>
+    ${h3("Calendário do mandato")}<ol class="vt"><li><b>1º fev 2027</b><span>Posse dos ${UFI.vagas} deputados e eleição da Mesa (2 anos)</span></li><li><b>1º fev – 30 jun</b><span>1º período</span></li><li><b>jul</b><span>Recesso</span></li><li><b>1º ago – 15 dez</b><span>2º período</span></li><li><b>16 dez – 31 jan</b><span>Recesso</span></li><li><b>fev 2029</b><span>Nova Mesa (2º biênio)</span></li></ol>
+    ${h3("Votação e quórum")}<table>${tr("Lei ordinária", "maioria simples", "com a maioria absoluta presente")}${tr("Lei complementar", Q.maioria_absoluta + " votos", "maioria absoluta")}${tr("Emenda à Constituição", Q.tres_quintos + " votos", "3/5, em 2 turnos")}${tr("Derrubada de veto", Q.maioria_absoluta + " votos", "maioria absoluta")}</table>
+    ${h3("Prazos de análise")}<table>${(L.regimes || []).map((r) => { const d = /(\d+)\s*dias/.exec(r.prazos); return tr(tx(r.nome), d ? d[1] + " dias" : "a confirmar", r.prazos + " · " + r.fonte); }).join("")}</table>
+    ${h3("Orçamento e emendas impositivas")}<p class="tx">${tx((L.orcamento || {}).emendas_impositivas || "")}</p>
+  </div><div>
+    ${h3("Tipos de proposição")}<table>${(L.proposicoes || []).map((p) => tr(`<b>${tx(p.sigla)}</b> · ${tx(p.nome)}`, /a confirmar/i.test(p.aprovacao) ? "a confirmar" : tx(p.aprovacao), p.uso + " · quem propõe: " + p.quem_propoe)).join("")}</table>
+    ${h3("Caminho de um projeto de lei")}<ol class="vt">${(L.trilha || []).map((t) => `<li><b>${tx(t.etapa)}</b><span>${tx(t.detalhe)}</span></li>`).join("")}</ol>
+  </div></div>
+  <div class="duas"><div>${h3(`${UFI.casa}26 · cadeiras por partido`)}<table>${R.map((r) => tr(tx(r.p), `${r.a} → ${r.b}`)).join("")}</table></div>
+  <div>${h3(`Comissões permanentes · ${(L.comissoes_permanentes || []).length}`)}<table>${(L.comissoes_permanentes || []).map((x) => tr(tx(x.nome), x.membros + " membros")).join("")}</table></div></div></div>
+  <div class="pg">${sec("Administrativo", `O que o mandato recebe e o que pode estruturar na ${UFI.casa}.`)}<div class="duas"><div>
+    ${h3("Subsídio e verbas do parlamentar")}<table>${tr("Subsídio mensal", rs(P.subsidio), P.norma_subsidio)}${(() => { const [v, r] = curto(VI.valor_mensal_teto || ""); return tr(tx(VI.nome || "Verba indenizatória"), tx(v), (r ? r + " · " : "") + (VI.norma || "")); })()}${(P.auxilios || []).map((x) => { const [v, r] = curto(x.valor); return tr(tx(x.nome), tx(v), (r ? r + " · " : "") + x.norma); }).join("")}</table>
+    ${h3("Transparência")}<table>${tr("Portal da transparência", "", T.portal)}${tr("Normas", "", (T.normas || []).join(" · "))}${tr("Folha de pagamento", "", T.folha)}${tr("Gastos de verba por deputado", "", T.verbas)}</table>
+  </div><div>
+    ${h3("Estrutura do gabinete", `até ${G.cargos_maximos || "?"} cargos`)}<table>${(G.cargos || []).map((x) => { const [c0, r] = curto(x.cargo); return tr(tx(c0), rs(x.vencimento), (r ? r + " · " : "") + (x.referencia || "")); }).join("")}</table><p class="tx">${tx(G.norma || "")}</p>
+  </div></div></div>`;
+}
