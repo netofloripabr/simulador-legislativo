@@ -589,6 +589,7 @@ async function renderPainelPrincipal() {
       ${pcState.perfil ? `<button class="pc-topbar-btn" id="pcBtnSinoTopo" title="Notificações" style="position:relative;">${iconeSvg("sino", 17)}${pcState.notificacoesNaoLidas ? `<span class="pc-topbar-pip"></span>` : ""}</button>` : ""}
       <button class="pc-topbar-btn" id="pcBtnPerfilTopo" title="${gateConvidado ? "Precisa se cadastrar" : "Menu e perfil"}">${iconeSvg("perfil", 17)}</button>
     </div>
+    <nav class="pc-paineis-links"><span>Painéis</span><a href="painel/novos.html">Parlamentares</a><a href="painel/index.html#ranking">Ranking</a><a href="painel/mesa.html">Mesa</a></nav>
 
     ${montarLetreiroPainel()}
 
