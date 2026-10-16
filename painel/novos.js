@@ -34,7 +34,7 @@ function telaSelecao(foco) {
   $(".topo .sep").textContent = "Parlamentares · 2027–2031"; $(".topo .sep").onclick = null; $(".topo .sep").style.cursor = ""; $(".topo .secs") && $(".topo .secs").remove(); $(".vistas").innerHTML = VISTAS; ligarMenu(); travaLinksTopo();
   const E = eleitos().sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
   // capa (16/10/2026): roda menor fixa à esquerda; mapa do estado à direita reage à base de votos do nome em foco
-  $("#app").innerHTML = `<div class="capa2"><div class="capaE"><div class="roda" id="roda"><ol>${E.map((c) => `<li data-n="${c.n}">${esc(c.u)}</li>`).join("")}</ol></div>
+  $("#app").innerHTML = `<div class="capa2"><div class="capaE"><div class="roda" id="roda"><ol>${E.map((c) => `<li data-n="${c.n}">${esc(c.u)}<small class="vt">${ni(c.t)} votos</small></li>`).join("")}</ol></div>
 <span id="spt" hidden></span><button id="sabrir" hidden></button></div>
     <div class="capaD"><canvas id="selCv"></canvas><div class="selEtq" id="selEtq"></div></div></div>`;
   const rd = $("#roda"), L = [...rd.querySelectorAll("li")];
@@ -709,7 +709,8 @@ function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   const pct = M.map((m, i) => D.val[i] ? c.v[i] / D.val[i] : 0), e95 = [...pct].sort((a, b) => a - b)[Math.floor(N * .95)] || 1;
   SEL.B.forEach((b, i) => { b.t1 = Math.min(1, pct[i] / e95); }); SEL.rgb1 = hexRgb(COR_P[c.p] || "#34E84A").split(",").map(Number); SEL.ini = agora;
   const ordV = [...M.keys()].sort((a, b) => c.v[b] - c.v[a]); SEL.top = ordV.slice(0, 5);
-  $("#selEtq").innerHTML = "";
+  const i1 = ordV[0], b1 = SEL.B[i1];
+  $("#selEtq").innerHTML = `<div class="se" style="left:${b1.x}px;top:${b1.y - b1.r * 1.1}px"><span>${esc(M[i1].n)}</span><b>${ni(c.v[i1])}</b></div>`;
 }
 function heroMapa(c, ordM) {
   cancelAnimationFrame(heroRaf);
