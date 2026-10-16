@@ -5,13 +5,13 @@
 let LEGUF = null, ADMUF = null;
 async function carregarUF() {
   if (UF === "sc") return; const c = UFI.casa.toLowerCase();
-  [LEGUF, ADMUF] = await Promise.all([fetch(`../dados/painel/${c}-legislativo.json?v=1`).then((r) => r.json()).catch(() => null), fetch(`../dados/painel/${c}-administrativo.json?v=1`).then((r) => r.json()).catch(() => null)]);
+  [LEGUF, ADMUF] = await Promise.all([fetch(`../dados/painel/${c}-legislativo.json?v=2`).then((r) => r.json()).catch(() => null), fetch(`../dados/painel/${c}-administrativo.json?v=2`).then((r) => r.json()).catch(() => null)]);
 }
 const aConf = (t) => esc(t).replace(/a confirmar/gi, '<em class="acf">a confirmar</em>');
 const blocoUF = (tit, corpo, extra = "") => `<div class="bloco rv"${extra}><h3 data-bl>${tit}</h3><div class="blc">${corpo}</div></div>`;
 const fechaSec = `</div></div></section>`;
 // coluna da direita da tabela (.qtab) é só o valor curto; o resto do texto vai para a linha de baixo, como em SC
-const curto = (v) => { const t = String(v ?? ""), m = /^([^(;—]+?)\s*[(;—]\s*(.*?)\)?$/.exec(t); return m ? [m[1].trim(), m[2].trim()] : [t, ""]; };
+const curto = (v) => { const t = String(v ?? ""), rr = /R\$\s?[\d.]+,\d{2}/.exec(t); if (rr) return [rr[0], t]; const m = /^([^(;—]+?)\s*[(;—]\s*(.*?)\)?$/.exec(t); return m ? [m[1].trim(), m[2].trim()] : [t, ""]; };
 const linha = (rot, sub, val) => `<tr><td>${rot}${sub ? `<small>${sub}</small>` : ""}</td><td>${val}</td></tr>`;
 const fonteUF = (t) => `<p class="nota">Fonte: ${aConf(t)}</p>`;
 
@@ -21,6 +21,7 @@ function secLegislativoUF(c) {
   const QR = [["Lei ordinária", Q.maioria_absoluta, "maioria dos votos, com a maioria absoluta presente", "maioria simples"], ["Lei complementar", Q.maioria_absoluta, "maioria absoluta dos membros", Q.maioria_absoluta + " votos"], ["Emenda à Constituição", Q.tres_quintos, "3/5 dos membros, em 2 turnos", Q.tres_quintos + " votos"], ["Derrubada de veto", Q.maioria_absoluta, "maioria absoluta dos membros", Q.maioria_absoluta + " votos"]];
   return cabSec("s2", "02", "Legislativo", `Como funciona a ${UFI.casa}: calendário, regras de votação, tipos de proposta, caminho de um projeto, comissões e composição.`) +
     blocoUF("Calendário do mandato", `<ol class="vt"><li><b>1º fev 2027</b><span>Posse dos ${V} deputados e eleição da Mesa (mandato de 2 anos)</span></li><li><b>1º fev – 30 jun</b><span>1º período da sessão legislativa</span></li><li class="rc"><b>jul</b><span>Recesso</span></li><li><b>1º ago – 15 dez</b><span>2º período</span></li><li class="rc"><b>16 dez – 31 jan</b><span>Recesso</span></li><li><b>fev 2029</b><span>Nova Mesa (2º biênio); vedada a recondução para o 3º mandato seguido</span></li></ol>${fonteUF(cal.fonte || "Constituição do Estado")}`) +
+    blocoUF("Rotina semanal", `<table class="qtab">${(L.rotina_semanal || []).map((r) => { const [o, f] = String(r.o_que).split(/\s\((?=Res\.|arts?\.)/); return linha(`<b>${esc(r.dia)}</b>`, aConf(o) + (f ? " · " + aConf("(" + f) : ""), ""); }).join("")}</table>`) +
     blocoUF("Votação e quórum", `<div class="qrows">${QR.map(([nm, nec, tx, val]) => `<div class="qr"><div class="qn"><b>${nm}</b><small>${esc(tx)}</small></div><div class="qv">${esf(nec)}<em>${esc(val)}</em></div></div>`).join("")}</div><p class="nota">Cada esfera é um deputado (${V}). Aceso: votos necessários. Fonte: Constituição do Estado, arts. 22, 23 e 28.</p>`) +
     blocoUF("Tipos de proposição", `<table class="qtab">${(L.proposicoes || []).map((p) => linha(`<b>${esc(p.sigla)}</b> · ${esc(p.nome)}`, `${aConf(p.uso)} · quem propõe: ${aConf(p.quem_propoe)}`, /a confirmar/i.test(p.aprovacao) ? aConf("a confirmar") : esc(p.aprovacao))).join("")}</table>${fonteUF("Constituição do Estado e Regimento Interno (Res. 576/1970)")}`) +
     blocoUF("Caminho de um projeto de lei", `<ol class="trm">${(L.trilha || []).map((t) => `<li><b>${esc(t.etapa)}</b><span>${aConf(t.detalhe)}</span></li>`).join("")}</ol>`, ' id="trilha"') +
@@ -28,7 +29,8 @@ function secLegislativoUF(c) {
     blocoUF(`${UFI.casa}26 · cadeiras por partido (2022 → 2026)`, compUF(c), ' id="comp"') +
     blocoUF(`Comissões permanentes · ${(L.comissoes_permanentes || []).length}`, `<table class="qtab">${(L.comissoes_permanentes || []).map((x) => `<tr><td>${esc(x.nome)}</td><td>${x.membros} membros</td></tr>`).join("")}</table>${fonteUF("Regimento Interno (Res. 576/1970), art. 30")}`, ' id="gcom"') +
     blocoUF("Orçamento e emendas impositivas", `<p>${aConf((L.orcamento || {}).emendas_impositivas || "")}</p><p>Prazos do PPA, LDO e LOA: ${aConf((L.orcamento || {}).ppa_ldo_loa_prazos || "a confirmar")}</p>${fonteUF((L.orcamento || {}).fonte || "")}`) +
-    `<div class="bloco rv"><p class="nota">Ainda a confirmar nas fontes da ${UFI.casa}: rotina semanal (dias e horários das sessões e comissões), prazos do plenário por regime, frentes parlamentares. Fontes consultadas: ${(L.fontes || []).map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/, "").slice(0, 60))}</a>`).join(" · ")}</p></div>` + fechaSec;
+    blocoUF("Frentes parlamentares", `<p>${aConf(L.frentes_parlamentares || "")}</p>`) +
+    `<div class="bloco rv"><p class="nota">Fontes consultadas: ${(L.fontes || []).map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/, "").slice(0, 60))}</a>`).join(" · ")}</p></div>` + fechaSec;
 }
 // composição: deputados por partido em 2022 (eleitos do TSE) e 2026
 function compUF(c) {
@@ -45,7 +47,7 @@ function secAdministrativoUF(c) {
     blocoUF("Subsídio e verbas do parlamentar", `<table class="qtab">${linha("Subsídio mensal", aConf(P.norma_subsidio || ""), rs(P.subsidio))}${(() => { const [v, r] = curto(VI.valor_mensal_teto || ""); return linha(esc(VI.nome || "Verba indenizatória"), `${aConf(r)}${r ? " · " : ""}${aConf(VI.o_que_cobre || "")} · ${aConf(VI.norma || "")}`, esc(v)); })()}${(P.auxilios || []).map((x) => { const [v, r] = curto(x.valor); return linha(esc(x.nome), `${aConf(r)}${r ? " · " : ""}${aConf(x.norma)}`, esc(v)); }).join("")}</table><p class="nota">${aConf(P.observacoes || "")}</p>`) +
     blocoUF("Estrutura do gabinete", `<p>Até <b>${G.cargos_maximos || "?"} cargos em comissão</b>. Não há cota em reais: o limite é o número e o tipo de cargo.</p><table class="qtab">${(G.cargos || []).map((x) => (() => { const [c0, r] = curto(x.cargo); return linha(esc(c0), `${aConf(r)}${r ? " · " : ""}${esc(x.referencia || "")}`, rs(x.vencimento)); })()).join("")}${cheio ? `<tr><td><b>Estrutura cheia (16 cargos)</b><small>soma dos vencimentos dos cargos acima com vagas fixas · cálculo do SimulaLEGIS</small></td><td><b>${rs(cheio)}</b></td></tr>` : ""}</table><p class="nota">Chefe de gabinete: ${aConf((G.chefe_de_gabinete || {}).cargo || "a confirmar")}. Fonte: ${aConf(G.norma || "")}</p>`) +
     blocoUF("Transparência", `<table class="qtab">${linha("Portal da transparência", esc((T.portal || "").replace(/^https?:\/\//, "")), `<a href="${esc(T.portal || "#")}" target="_blank" rel="noopener" style="color:inherit">abrir</a>`)}${linha("Normas", (T.normas || []).map(aConf).join(" · "), /a confirmar/i.test((T.normas || []).join(" ")) ? aConf("a confirmar") : "")}${linha("Folha de pagamento", aConf(T.folha || ""), /a confirmar/i.test(T.folha || "") ? aConf("a confirmar") : "")}${linha("Gastos de verba por deputado", aConf(T.verbas || ""), /a confirmar/i.test(T.verbas || "") ? aConf("a confirmar") : "")}</table>`) +
-    `<div class="bloco rv"><p class="nota">Valores brutos. A UFESP do ano ainda está a confirmar, por isso os auxílios aparecem em UFESP com a conversão aproximada. Fontes consultadas: ${(A.fontes || []).map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www[0-9]?\.)?/, "").slice(0, 60))}</a>`).join(" · ")}</p></div>` + fechaSec;
+    `<div class="bloco rv"><p class="nota">Valores brutos. Auxílios fixados em UFESP; conversão com a UFESP 2026 (R$ 38,42, Comunicado DICAR 88/2025 da Sefaz-SP). Fontes consultadas: ${(A.fontes || []).map((u) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www[0-9]?\.)?/, "").slice(0, 60))}</a>`).join(" · ")}</p></div>` + fechaSec;
 }
 
 // caderno impresso (outros estados): páginas de Legislativo e Administrativo no formato do caderno de SC

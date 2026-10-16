@@ -8,12 +8,36 @@
   ],
   "calendario": {
     "sessao_legislativa": "1º fev a 30 jun e 1º ago a 15 dez (CE-SP art. 9º, §1º)",
-    "recessos": [{"inicio": "07-01", "fim": "07-31"}, {"inicio": "12-16", "fim": "01-31"}],
+    "recessos": [
+      {
+        "inicio": "07-01",
+        "fim": "07-31"
+      },
+      {
+        "inicio": "12-16",
+        "fim": "01-31"
+      }
+    ],
     "posse_mesa": "Posse e eleição da Mesa a partir de 1º de fevereiro (art. 9º, §2º, redação EC 47/2019); sessão preparatória às 15h de 1º/fev (Regimento). Mandato da Mesa de 2 anos, vedada recondução para o 3º mandato consecutivo (art. 11, EC 54/2024)",
     "fonte": "CE-SP arts. 9º e 11 + Res. 576/1970 — https://www.al.sp.gov.br/repositorio/legislacao/constituicao/1989/compilacao-constituicao-0-05.10.1989.html"
   },
   "rotina_semanal": [
-    {"dia": "a confirmar", "o_que": "Dias e horários das sessões ordinárias/extraordinárias e reuniões de comissões não localizados no texto do Regimento consultado (a confirmar). Sessão ordinária tem Pequeno Expediente, Grande Expediente e Ordem do Dia (Res. 576/1970)."}
+    {
+      "dia": "Segunda a sexta (dias úteis, exceto sábados)",
+      "o_que": "Uma sessão ordinária por dia, das 14h às 19h: Pequeno Expediente, Grande Expediente, Comunicações de Líderes (até 16h30) e Ordem do Dia; sessões deliberativas prorrogáveis por até 2h30 (Res. 576/1970 art. 99, caput e §§1º-3º, red. Res. 938/2023 — https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1970/compilacao-resolucao.alesp-576-26.06.1970.html)"
+    },
+    {
+      "dia": "Segunda, quinta e sexta",
+      "o_que": "O Presidente pode deixar de anunciar a Ordem do Dia: são as 'sessões exclusivamente de debates' (Res. 576/1970 art. 99, §2º)"
+    },
+    {
+      "dia": "Terça e quarta",
+      "o_que": "Na prática, os dias deliberativos (com Ordem do Dia), por exclusão do art. 99, §2º. Sessões extraordinárias: convocadas pelo Presidente ou Líderes, até 2 entre duas ordinárias, duração 2h30 (arts. 100 e 102)"
+    },
+    {
+      "dia": "Comissões",
+      "o_que": "Reúnem-se ordinariamente uma ou mais vezes por semana, em dias e horas prefixados publicados semanalmente no Diário da Assembleia; o Regimento não fixa os dias (Res. 576/1970 art. 45)"
+    }
   ],
   "quorum": {
     "maioria_simples": "maioria dos votos, presente a maioria absoluta dos membros (regra geral; artigo específico a confirmar). Comissões: maioria simples (Res. 576 art. 51)",
@@ -22,68 +46,305 @@
     "dois_tercos": 63,
     "um_terco": 32,
     "regras": [
-      {"materia": "PEC", "iniciativa": "1/3 dos deputados; Governador; mais de 1/3 das Câmaras Municipais; iniciativa popular de 1% do eleitorado", "aprovacao": "3/5 dos membros (57)", "turnos": "2", "fonte": "CE-SP art. 22"},
-      {"materia": "Lei complementar", "iniciativa": "qualquer deputado ou comissão, Governador, TJ, PGJ, cidadãos (0,5% do eleitorado)", "aprovacao": "maioria absoluta (48)", "turnos": "a confirmar", "fonte": "CE-SP arts. 23 e 24"},
-      {"materia": "Lei ordinária", "iniciativa": "mesma do art. 24", "aprovacao": "maioria simples", "turnos": "a confirmar", "fonte": "CE-SP art. 24"},
-      {"materia": "Veto - derrubada", "iniciativa": "veto do Governador em 15 dias úteis", "aprovacao": "maioria absoluta (48)", "turnos": "único (a confirmar)", "fonte": "CE-SP art. 28, §§1º e 5º"},
-      {"materia": "Resolução", "iniciativa": "a confirmar", "aprovacao": "a confirmar", "turnos": "a confirmar", "fonte": "a confirmar"},
-      {"materia": "Decreto legislativo", "iniciativa": "a confirmar", "aprovacao": "a confirmar", "turnos": "a confirmar", "fonte": "a confirmar"}
+      {
+        "materia": "PEC",
+        "iniciativa": "1/3 dos deputados; Governador; mais de 1/3 das Câmaras Municipais; iniciativa popular de 1% do eleitorado",
+        "aprovacao": "3/5 dos membros (57)",
+        "turnos": "2",
+        "fonte": "CE-SP art. 22"
+      },
+      {
+        "materia": "Lei complementar",
+        "iniciativa": "qualquer deputado ou comissão, Governador, TJ, PGJ, cidadãos (0,5% do eleitorado)",
+        "aprovacao": "maioria absoluta (48)",
+        "turnos": "1 (turno único — Res. 576/1970 art. 183)",
+        "fonte": "CE-SP arts. 23 e 24"
+      },
+      {
+        "materia": "Lei ordinária",
+        "iniciativa": "mesma do art. 24",
+        "aprovacao": "maioria simples",
+        "turnos": "1 (turno único — Res. 576/1970 art. 183)",
+        "fonte": "CE-SP art. 24"
+      },
+      {
+        "materia": "Veto - derrubada",
+        "iniciativa": "veto do Governador em 15 dias úteis",
+        "aprovacao": "maioria absoluta (48)",
+        "turnos": "único (Res. 576/1970 art. 234)",
+        "fonte": "CE-SP art. 28, §§1º e 5º; Res. 576/1970 art. 234"
+      },
+      {
+        "materia": "Resolução",
+        "iniciativa": "Mesa, Comissões, deputados (Res. 576/1970 art. 146)",
+        "aprovacao": "maioria simples (regra geral; sem quórum especial no Regimento)",
+        "turnos": "1 (art. 183); alteração do Regimento: duas discussões (art. 266)",
+        "fonte": "Res. 576/1970 arts. 145 §3º, 146, 183, 266 — https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1970/compilacao-resolucao.alesp-576-26.06.1970.html"
+      },
+      {
+        "materia": "Decreto legislativo",
+        "iniciativa": "Mesa, Comissões, deputados (Res. 576/1970 art. 146)",
+        "aprovacao": "maioria simples (regra geral)",
+        "turnos": "1 (art. 183)",
+        "fonte": "Res. 576/1970 arts. 145 §2º, 146, 183 — https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1970/compilacao-resolucao.alesp-576-26.06.1970.html"
+      }
     ]
   },
   "proposicoes": [
-    {"sigla": "PEC", "nome": "Proposta de Emenda à Constituição", "quem_propoe": "1/3 deputados, Governador, >1/3 Câmaras, 1% eleitores", "aprovacao": "3/5 em 2 turnos", "uso": "alterar a Constituição Estadual", "fonte": "CE-SP art. 22"},
-    {"sigla": "PLC", "nome": "Projeto de Lei Complementar", "quem_propoe": "art. 24", "aprovacao": "maioria absoluta", "uso": "matérias reservadas a lei complementar", "fonte": "CE-SP arts. 23-24"},
-    {"sigla": "PL", "nome": "Projeto de Lei", "quem_propoe": "art. 24", "aprovacao": "maioria simples", "uso": "leis ordinárias", "fonte": "CE-SP art. 24"},
-    {"sigla": "PR", "nome": "Projeto de Resolução", "quem_propoe": "a confirmar", "aprovacao": "a confirmar", "uso": "matérias internas da Assembleia (a confirmar)", "fonte": "Res. 576/1970 (artigo a confirmar)"},
-    {"sigla": "PDL", "nome": "Projeto de Decreto Legislativo", "quem_propoe": "a confirmar", "aprovacao": "a confirmar", "uso": "competências exclusivas da Assembleia (a confirmar)", "fonte": "Res. 576/1970 (artigo a confirmar)"},
-    {"sigla": "Indicação", "nome": "Indicação", "quem_propoe": "a confirmar", "aprovacao": "a confirmar", "uso": "a confirmar", "fonte": "Res. 576/1970 (artigo a confirmar)"},
-    {"sigla": "Requerimento", "nome": "Requerimento", "quem_propoe": "a confirmar", "aprovacao": "a confirmar", "uso": "a confirmar", "fonte": "Res. 576/1970 (artigo a confirmar)"},
-    {"sigla": "Moção", "nome": "Moção", "quem_propoe": "a confirmar", "aprovacao": "a confirmar", "uso": "a confirmar", "fonte": "Res. 576/1970 (artigo a confirmar)"}
+    {
+      "sigla": "PEC",
+      "nome": "Proposta de Emenda à Constituição",
+      "quem_propoe": "1/3 deputados, Governador, >1/3 Câmaras, 1% eleitores",
+      "aprovacao": "3/5 em 2 turnos",
+      "uso": "alterar a Constituição Estadual",
+      "fonte": "CE-SP art. 22"
+    },
+    {
+      "sigla": "PLC",
+      "nome": "Projeto de Lei Complementar",
+      "quem_propoe": "art. 24",
+      "aprovacao": "maioria absoluta",
+      "uso": "matérias reservadas a lei complementar",
+      "fonte": "CE-SP arts. 23-24"
+    },
+    {
+      "sigla": "PL",
+      "nome": "Projeto de Lei",
+      "quem_propoe": "art. 24",
+      "aprovacao": "maioria simples",
+      "uso": "leis ordinárias",
+      "fonte": "CE-SP art. 24"
+    },
+    {
+      "sigla": "PR",
+      "nome": "Projeto de Resolução",
+      "quem_propoe": "Mesa, Comissões ou deputados",
+      "aprovacao": "Plenário, maioria simples, turno único; promulgada pelo Presidente da Assembleia em 10 dias após a redação final",
+      "uso": "matéria de competência exclusiva da Assembleia, de caráter político, processual, legislativo ou administrativo, com eficácia de lei ordinária",
+      "fonte": "Res. 576/1970 arts. 145 §3º, 146, 151 §4º, 183"
+    },
+    {
+      "sigla": "PDL",
+      "nome": "Projeto de Decreto Legislativo",
+      "quem_propoe": "Mesa, Comissões ou deputados",
+      "aprovacao": "Plenário, maioria simples, turno único; sem sanção do Governador, promulgado pelo Presidente da Assembleia",
+      "uso": "matérias de competência privativa do Legislativo, sem sanção",
+      "fonte": "Res. 576/1970 arts. 145 §2º, 146, 151 §4º, 183"
+    },
+    {
+      "sigla": "Indicação",
+      "nome": "Indicação",
+      "quem_propoe": "deputado",
+      "aprovacao": "não vai a voto: lida no Pequeno Expediente e encaminhada pelo Presidente; se ele recusar e o autor insistir, vai à CCJR/comissão de mérito",
+      "uso": "sugerir aos poderes do Estado ou da União medidas de interesse público que não caibam em projeto ou moção",
+      "fonte": "Res. 576/1970 arts. 159-161"
+    },
+    {
+      "sigla": "Requerimento",
+      "nome": "Requerimento",
+      "quem_propoe": "deputado, Líder, Comissão ou Mesa, conforme o caso (urgência: art. 226)",
+      "aprovacao": "uns por despacho do Presidente (arts. 164-167), outros por deliberação do Plenário (arts. 168-169); independem de parecer",
+      "uso": "pedidos de informação, urgência, preferência, adiamento, licença, inclusão em Ordem do Dia etc.",
+      "fonte": "Res. 576/1970 arts. 162-169, 226"
+    },
+    {
+      "sigla": "Moção",
+      "nome": "Moção",
+      "quem_propoe": "deputado",
+      "aprovacao": "Pauta por 5 sessões para emendas, vai à comissão de mérito (parecer contrário = rejeitada) e depois ao Plenário",
+      "uso": "manifestação da Assembleia apelando, aplaudindo ou protestando; não se recebe moção de apoio a poderes públicos nem de interesse só municipal",
+      "fonte": "Res. 576/1970 arts. 154-158"
+    }
   ],
   "trilha": [
-    {"etapa": "Apresentação/protocolo", "detalhe": "a confirmar (Regimento)"},
-    {"etapa": "Publicação e pauta para emendas", "detalhe": "prazo a confirmar"},
-    {"etapa": "Comissões", "detalhe": "CCJR (13 membros), comissões de mérito e Finanças, Orçamento e Planejamento (11); prazos 30/10/2 dias conforme regime (Res. 576 art. 53)"},
-    {"etapa": "Plenário", "detalhe": "Ordem do Dia; quórum conforme espécie"},
-    {"etapa": "Redação final", "detalhe": "a confirmar"},
-    {"etapa": "Autógrafo", "detalhe": "a confirmar"},
-    {"etapa": "Sanção/veto", "detalhe": "Governador tem 15 dias úteis para vetar (CE-SP art. 28, §1º)"},
-    {"etapa": "Apreciação do veto", "detalhe": "30 dias; derrubada por maioria absoluta; esgotado o prazo, entra na Ordem do Dia da sessão imediata, sobrestadas as demais (CE-SP art. 28, §§5º-6º)"}
+    {
+      "etapa": "Apresentação/protocolo",
+      "detalhe": "Entregue à Mesa e lido no Pequeno Expediente (Res. 576/1970 art. 148)"
+    },
+    {
+      "etapa": "Publicação e pauta para emendas",
+      "detalhe": "Publicação no Diário em até 2 dias e Pauta para emendas: 3 sessões (urgência/prioridade) ou 5 sessões (ordinária) (art. 148, parágrafo único)"
+    },
+    {
+      "etapa": "Comissões",
+      "detalhe": "CCJR (13 membros), comissões de mérito e Finanças, Orçamento e Planejamento (11); prazos 30/10/2 dias conforme regime (Res. 576 art. 53)"
+    },
+    {
+      "etapa": "Plenário",
+      "detalhe": "Ordem do Dia; quórum conforme espécie"
+    },
+    {
+      "etapa": "Redação final",
+      "detalhe": "CCJR redige o vencido; Pauta de 2 sessões para emendas; prazos: 1 dia (urgência), 5 (prioridade), 10 (ordinária); dispensada se aprovado nos próprios termos (arts. 151, 152, 217)"
+    },
+    {
+      "etapa": "Autógrafo",
+      "detalhe": "Expedido ao Governador em 1/5/10 dias conforme regime (art. 152); resoluções e decretos legislativos promulgados pelo Presidente em 10 dias (art. 151 §4º)"
+    },
+    {
+      "etapa": "Sanção/veto",
+      "detalhe": "Governador tem 15 dias úteis para vetar (CE-SP art. 28, §1º)"
+    },
+    {
+      "etapa": "Apreciação do veto",
+      "detalhe": "30 dias; derrubada por maioria absoluta; esgotado o prazo, entra na Ordem do Dia da sessão imediata, sobrestadas as demais (CE-SP art. 28, §§5º-6º)"
+    }
   ],
   "regimes": [
-    {"nome": "Ordinário", "prazos": "comissões: 30 dias; plenário a confirmar", "fonte": "Res. 576/1970 art. 53"},
-    {"nome": "Prioridade", "prazos": "comissões: 10 dias; plenário a confirmar", "fonte": "Res. 576/1970 art. 53"},
-    {"nome": "Urgência", "prazos": "comissões: 2 dias; plenário a confirmar", "fonte": "Res. 576/1970 art. 53"},
-    {"nome": "Urgência do Governador", "prazos": "45 dias para deliberação, senão entra na Ordem do Dia sobrestando as demais (efeito exato a confirmar)", "fonte": "CE-SP art. 26, parágrafo único"}
+    {
+      "nome": "Ordinário",
+      "prazos": "comissões: 30 dias; Ordem do Dia dentro de 10 dias após instrução; encerramento de discussão possível após 12h",
+      "fonte": "Res. 576/1970 arts. 53, 150 III, 194"
+    },
+    {
+      "nome": "Prioridade",
+      "prazos": "comissões: 10 dias; Ordem do Dia dentro de 3 dias; encerramento após 9h de discussão",
+      "fonte": "Res. 576/1970 arts. 53, 150 II, 194"
+    },
+    {
+      "nome": "Urgência",
+      "prazos": "comissões: 2 dias; Ordem do Dia na primeira sessão ordinária; encerramento após 6h de discussão",
+      "fonte": "Res. 576/1970 arts. 53, 150 I, 194, 228"
+    },
+    {
+      "nome": "Urgência do Governador",
+      "prazos": "45 dias para deliberação, senão entra na Ordem do Dia sobrestando as demais; tramita em regime de urgência",
+      "fonte": "CE-SP art. 26, parágrafo único; Res. 576/1970 art. 141, IV"
+    }
   ],
   "comissoes_permanentes": [
-    {"nome": "Constituição, Justiça e Redação", "sigla": "CCJR", "membros": 13, "tema": "constitucionalidade e redação"},
-    {"nome": "Finanças, Orçamento e Planejamento", "sigla": "CFOP", "membros": 11, "tema": "orçamento e finanças"},
-    {"nome": "Saúde", "sigla": "CS", "membros": 11, "tema": "saúde"},
-    {"nome": "Educação e Cultura", "sigla": "CEC", "membros": 13, "tema": "educação e cultura"},
-    {"nome": "Assuntos Desportivos", "sigla": "CAD", "membros": 11, "tema": "esporte"},
-    {"nome": "Assuntos Metropolitanos e Municipais", "sigla": "CAMM", "membros": 13, "tema": "municípios e regiões metropolitanas"},
-    {"nome": "Infraestrutura", "sigla": "CI", "membros": 11, "tema": "infraestrutura"},
-    {"nome": "Transportes e Comunicações", "sigla": "CTC", "membros": 13, "tema": "transportes e comunicações"},
-    {"nome": "Segurança Pública e Assuntos Penitenciários", "sigla": "CSPAP", "membros": 11, "tema": "segurança pública"},
-    {"nome": "Administração Pública e Relações do Trabalho", "sigla": "CAPRT", "membros": 11, "tema": "servidores e trabalho"},
-    {"nome": "Meio Ambiente e Desenvolvimento Sustentável", "sigla": "CMADS", "membros": 11, "tema": "meio ambiente"},
-    {"nome": "Atividades Econômicas", "sigla": "CAE", "membros": 11, "tema": "economia"},
-    {"nome": "Defesa dos Direitos da Pessoa Humana, da Cidadania, da Participação e das Questões Sociais", "sigla": "CDD", "membros": 11, "tema": "direitos humanos"},
-    {"nome": "Ciência, Tecnologia, Inovação e Informação", "sigla": "CCTI", "membros": 11, "tema": "ciência e tecnologia"},
-    {"nome": "Fiscalização e Controle", "sigla": "CFC", "membros": 11, "tema": "fiscalização do Executivo"},
-    {"nome": "Defesa dos Direitos do Consumidor", "sigla": "CDDC", "membros": 11, "tema": "consumidor"},
-    {"nome": "Defesa dos Direitos das Mulheres", "sigla": "CDDM", "membros": 11, "tema": "mulheres"},
-    {"nome": "Relações Internacionais", "sigla": "CRI", "membros": 11, "tema": "relações internacionais"},
-    {"nome": "Defesa dos Direitos das Pessoas com Deficiência", "sigla": "CDPD", "membros": 11, "tema": "pessoas com deficiência"},
-    {"nome": "Turismo", "sigla": "CT", "membros": 11, "tema": "turismo"},
-    {"nome": "Habitação, Desenvolvimento e Reforma Urbana", "sigla": "CHDRU", "membros": 11, "tema": "habitação e urbanismo"}
+    {
+      "nome": "Constituição, Justiça e Redação",
+      "sigla": "CCJR",
+      "membros": 13,
+      "tema": "constitucionalidade e redação"
+    },
+    {
+      "nome": "Finanças, Orçamento e Planejamento",
+      "sigla": "CFOP",
+      "membros": 11,
+      "tema": "orçamento e finanças"
+    },
+    {
+      "nome": "Saúde",
+      "sigla": "CS",
+      "membros": 11,
+      "tema": "saúde"
+    },
+    {
+      "nome": "Educação e Cultura",
+      "sigla": "CEC",
+      "membros": 13,
+      "tema": "educação e cultura"
+    },
+    {
+      "nome": "Assuntos Desportivos",
+      "sigla": "CAD",
+      "membros": 11,
+      "tema": "esporte"
+    },
+    {
+      "nome": "Assuntos Metropolitanos e Municipais",
+      "sigla": "CAMM",
+      "membros": 13,
+      "tema": "municípios e regiões metropolitanas"
+    },
+    {
+      "nome": "Infraestrutura",
+      "sigla": "CI",
+      "membros": 11,
+      "tema": "infraestrutura"
+    },
+    {
+      "nome": "Transportes e Comunicações",
+      "sigla": "CTC",
+      "membros": 13,
+      "tema": "transportes e comunicações"
+    },
+    {
+      "nome": "Segurança Pública e Assuntos Penitenciários",
+      "sigla": "CSPAP",
+      "membros": 11,
+      "tema": "segurança pública"
+    },
+    {
+      "nome": "Administração Pública e Relações do Trabalho",
+      "sigla": "CAPRT",
+      "membros": 11,
+      "tema": "servidores e trabalho"
+    },
+    {
+      "nome": "Meio Ambiente e Desenvolvimento Sustentável",
+      "sigla": "CMADS",
+      "membros": 11,
+      "tema": "meio ambiente"
+    },
+    {
+      "nome": "Atividades Econômicas",
+      "sigla": "CAE",
+      "membros": 11,
+      "tema": "economia"
+    },
+    {
+      "nome": "Defesa dos Direitos da Pessoa Humana, da Cidadania, da Participação e das Questões Sociais",
+      "sigla": "CDD",
+      "membros": 11,
+      "tema": "direitos humanos"
+    },
+    {
+      "nome": "Ciência, Tecnologia, Inovação e Informação",
+      "sigla": "CCTI",
+      "membros": 11,
+      "tema": "ciência e tecnologia"
+    },
+    {
+      "nome": "Fiscalização e Controle",
+      "sigla": "CFC",
+      "membros": 11,
+      "tema": "fiscalização do Executivo"
+    },
+    {
+      "nome": "Defesa dos Direitos do Consumidor",
+      "sigla": "CDDC",
+      "membros": 11,
+      "tema": "consumidor"
+    },
+    {
+      "nome": "Defesa dos Direitos das Mulheres",
+      "sigla": "CDDM",
+      "membros": 11,
+      "tema": "mulheres"
+    },
+    {
+      "nome": "Relações Internacionais",
+      "sigla": "CRI",
+      "membros": 11,
+      "tema": "relações internacionais"
+    },
+    {
+      "nome": "Defesa dos Direitos das Pessoas com Deficiência",
+      "sigla": "CDPD",
+      "membros": 11,
+      "tema": "pessoas com deficiência"
+    },
+    {
+      "nome": "Turismo",
+      "sigla": "CT",
+      "membros": 11,
+      "tema": "turismo"
+    },
+    {
+      "nome": "Habitação, Desenvolvimento e Reforma Urbana",
+      "sigla": "CHDRU",
+      "membros": 11,
+      "tema": "habitação e urbanismo"
+    }
   ],
   "_obs_comissoes": "Lista e nº de membros: Res. 576/1970 art. 30 (texto compilado). Siglas são abreviações nossas, a confirmar com as siglas oficiais da ALESP.",
   "orcamento": {
-    "ppa_ldo_loa_prazos": "a confirmar (datas de envio/devolução não localizadas no texto consultado)",
-    "emendas_impositivas": "Emendas individuais = 0,45% da receita corrente líquida prevista no projeto do Executivo, metade no mínimo para ações e serviços de saúde (vedado pessoal/encargos/dívida). Instituídas pela EC 45/2017 (§§6º-10 do art. 175, então 0,3%); EC 52/2022 elevou para 0,45%. Há também art. 175-A (conteúdo a confirmar).",
-    "fonte": "CE-SP art. 175 §§6º e 8º; EC 45/2017; EC 52/2022 — https://www.al.sp.gov.br/leis/orcamento/emendas-impositivas/"
+    "ppa_ldo_loa_prazos": "Envio pelo Governador: PPA até 15/ago do 1º ano de mandato; LDO até 30/abr; LOA até 30/set (CE-SP art. 174, §9º, red. EC 24/2008). Devolução: a sessão legislativa não é interrompida sem aprovar a LDO e sem deliberar sobre a LOA e as contas do Governador (CE-SP art. 9º, §4º). Data específica de devolução para sanção não fixada na CE-SP (a confirmar).",
+    "emendas_impositivas": "Emendas individuais = 0,45% da receita corrente líquida prevista no projeto do Executivo, metade no mínimo para ações e serviços de saúde (vedado pessoal/encargos/dívida). Instituídas pela EC 45/2017 (§§6º-10 do art. 175, então 0,3%); EC 52/2022 elevou para 0,45%. Art. 175-A (EC 50/2021, desde 2022): emendas individuais impositivas podem alocar recursos aos Municípios por transferência especial (direta, sem convênio) ou com finalidade definida; vedado uso em pessoal e dívida.",
+    "fonte": "CE-SP arts. 9º §4º, 174 §9º, 175 §§6º e 8º, 175-A; EC 45/2017; EC 50/2021; EC 52/2022 — https://www.al.sp.gov.br/repositorio/legislacao/constituicao/1989/compilacao-constituicao-0-05.10.1989.html"
   },
-  "frentes_parlamentares": "a confirmar (forma de criação, quantidade e link da lista oficial não verificados)"
+  "frentes_parlamentares": "Reguladas pela Resolução ALESP nº 870/2011 (https://www.al.sp.gov.br/norma/?id=161231): associação suprapartidária de deputados; relatório anual à Mesa; lista oficial (art. 14) em https://www.al.sp.gov.br/alesp/frentes-parlamentares. Quantidade em funcionamento: a confirmar."
 }
