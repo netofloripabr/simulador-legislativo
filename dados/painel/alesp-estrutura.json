@@ -1,0 +1,1503 @@
+{
+ "fontes": [
+  "https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf",
+  "https://www3.al.sp.gov.br/atestados/documentos/Estrutura_Pessoal.pdf",
+  "https://www.al.sp.gov.br/servidor/lista/",
+  "https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1996/compilacao-resolucao.alesp-776-14.10.1996.html",
+  "https://portal.fazenda.sp.gov.br/servicos/orcamento/Documents/LOA/LOA%202026%20Lei%2018.387%20de%2006_01_2026.pdf"
+ ],
+ "nota_metodo": "Lotação ativa consultada em 16/10/2026; vencimento = Total (base+gratif. legislativa+representação) da Tabela de Vencimentos vigência 01/03/2025 (LC 1.431/2025). Cargos efetivos (Analista/Técnico/Procurador/Aux. Serv. Op.) variam por nível: vencimento null (a confirmar), fora do total_mensal.",
+ "gabinete_deputado": {
+  "limite": "até 23 cargos em comissão conforme sistema de composição; estrutura 'cheia' = 16 cargos (3 Assessor Especial Parlamentar R$21.972,52; 1 Secretário Especial Legislativo R$19.811,26; 2 Secretário Especial Parlamentar R$17.057,61; 2 Assistente Especial Parlamentar R$16.618,00; 1 Jornalista R$16.393,62; 5 Auxiliar Parlamentar R$9.228,73; 2 Auxiliar Legislativo R$9.008,77) ou 'dividida' = 14 Assistentes Parlamentares (6 VII, 2 VI, 4 V, 2 III)",
+  "fonte": "https://www3.al.sp.gov.br/atestados/documentos/Estrutura_Pessoal.pdf ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+ },
+ "gabinetes_mesa": [
+  {
+   "cargo_mesa": "Presidente",
+   "unidade_lotacao": "P - PRESIDÊNCIA",
+   "servidores_ativos": 17,
+   "cargos_extras": [
+    {
+     "cargo": "Assessor Chefe De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 38502.72
+    },
+    {
+     "cargo": "Assessor Especial Parlamentar",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 21972.52
+    },
+    {
+     "cargo": "Assessor Legislativo De Planejamento E Organização",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 29426.68
+    },
+    {
+     "cargo": "Assessor Técnico",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 25767.51
+    },
+    {
+     "cargo": "Assistente Legislativo I",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 9676.44
+    },
+    {
+     "cargo": "Assistente Parlamentar Ix",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 4838.15
+    },
+    {
+     "cargo": "Assistente Parlamentar Vii",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 10986.22
+    },
+    {
+     "cargo": "Auxiliar Legislativo",
+     "regime": "COMISSÃO",
+     "qtd": 3,
+     "vencimento": 9008.77
+    },
+    {
+     "cargo": "Procurador Da Assembleia Legislativa",
+     "regime": "EFETIVO",
+     "qtd": 1,
+     "vencimento": null
+    },
+    {
+     "cargo": "Técnico Legislativo",
+     "regime": "EFETIVO",
+     "qtd": 2,
+     "vencimento": null
+    }
+   ],
+   "total_mensal": 202461.38,
+   "total_mensal_obs": "soma apenas dos cargos com valor na tabela; exclui efetivos (a confirmar)",
+   "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=53339&tpSituacao=A ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+  },
+  {
+   "cargo_mesa": "1º Secretário",
+   "unidade_lotacao": "1ª SECRETARIA",
+   "servidores_ativos": 33,
+   "cargos_extras": [
+    {
+     "cargo": "Analista Legislativo",
+     "regime": "EFETIVO",
+     "qtd": 3,
+     "vencimento": null
+    },
+    {
+     "cargo": "Assessor Chefe De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 38502.72
+    },
+    {
+     "cargo": "Assessor Especial De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 3,
+     "vencimento": 22634.6
+    },
+    {
+     "cargo": "Assessor Especial I",
+     "regime": "COMISSÃO",
+     "qtd": 4,
+     "vencimento": 10603.81
+    },
+    {
+     "cargo": "Assessor Especial Parlamentar",
+     "regime": "COMISSÃO",
+     "qtd": 4,
+     "vencimento": 21972.52
+    },
+    {
+     "cargo": "Assessor Legislativo De Planejamento E Organização",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 29426.68
+    },
+    {
+     "cargo": "Assessor Parlamentar Ii",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 11317.25
+    },
+    {
+     "cargo": "Assistente Legislativo I",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 9676.44
+    },
+    {
+     "cargo": "Assistente Parlamentar Ix",
+     "regime": "COMISSÃO",
+     "qtd": 3,
+     "vencimento": 4838.15
+    },
+    {
+     "cargo": "Assistente Parlamentar Vii",
+     "regime": "COMISSÃO",
+     "qtd": 3,
+     "vencimento": 10986.22
+    },
+    {
+     "cargo": "Auxiliar Legislativo",
+     "regime": "COMISSÃO",
+     "qtd": 3,
+     "vencimento": 9008.77
+    },
+    {
+     "cargo": "Auxiliar Legislativo De Serviços Operacionais",
+     "regime": "EFETIVO",
+     "qtd": 1,
+     "vencimento": null
+    },
+    {
+     "cargo": "Comissionados",
+     "regime": "COMISSIONAMENTO SEM PREJUÍZO",
+     "qtd": 1,
+     "vencimento": null
+    },
+    {
+     "cargo": "Procurador Da Assembleia Legislativa",
+     "regime": "EFETIVO",
+     "qtd": 1,
+     "vencimento": null
+    },
+    {
+     "cargo": "Secretário Especial De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 19317.67
+    }
+   ],
+   "total_mensal": 392266.55,
+   "total_mensal_obs": "soma apenas dos cargos com valor na tabela; exclui efetivos (a confirmar)",
+   "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=53353&tpSituacao=A ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+  },
+  {
+   "cargo_mesa": "2º Secretário",
+   "unidade_lotacao": "2ª SECRETARIA",
+   "servidores_ativos": 34,
+   "cargos_extras": [
+    {
+     "cargo": "Assessor Chefe De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 38502.72
+    },
+    {
+     "cargo": "Assessor Especial De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 3,
+     "vencimento": 22634.6
+    },
+    {
+     "cargo": "Assessor Especial I",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 10603.81
+    },
+    {
+     "cargo": "Assessor Especial Parlamentar",
+     "regime": "COMISSÃO",
+     "qtd": 3,
+     "vencimento": 21972.52
+    },
+    {
+     "cargo": "Assessor Parlamentar I",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 5301.81
+    },
+    {
+     "cargo": "Assessor Parlamentar Ii",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 11317.25
+    },
+    {
+     "cargo": "Assistente Parlamentar Ix",
+     "regime": "COMISSÃO",
+     "qtd": 7,
+     "vencimento": 4838.15
+    },
+    {
+     "cargo": "Assistente Parlamentar Vii",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 10986.22
+    },
+    {
+     "cargo": "Assistente Parlamentar Xii",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 9287.42
+    },
+    {
+     "cargo": "Auxiliar Legislativo",
+     "regime": "COMISSÃO",
+     "qtd": 12,
+     "vencimento": 9008.77
+    },
+    {
+     "cargo": "Técnico Legislativo",
+     "regime": "EFETIVO",
+     "qtd": 1,
+     "vencimento": null
+    }
+   ],
+   "total_mensal": 382066.52,
+   "total_mensal_obs": "soma apenas dos cargos com valor na tabela; exclui efetivos (a confirmar)",
+   "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=53357&tpSituacao=A ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+  },
+  {
+   "cargo_mesa": "3º Secretário",
+   "unidade_lotacao": "3ª SECRETARIA",
+   "servidores_ativos": 8,
+   "cargos_extras": [
+    {
+     "cargo": "Assessor Chefe De Gabinete De Substituto De Membro Da Mesa",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 32831.16
+    },
+    {
+     "cargo": "Assessor Especial De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 22634.6
+    },
+    {
+     "cargo": "Assessor Especial I",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 10603.81
+    },
+    {
+     "cargo": "Assessor Especial Parlamentar",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 21972.52
+    },
+    {
+     "cargo": "Assistente Parlamentar Vii",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 10986.22
+    },
+    {
+     "cargo": "Auxiliar Legislativo",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 9008.77
+    }
+   ],
+   "total_mensal": 130009.6,
+   "total_mensal_obs": "completo pela tabela",
+   "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=53367&tpSituacao=A ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+  },
+  {
+   "cargo_mesa": "4º Secretário",
+   "unidade_lotacao": "4ª SECRETARIA",
+   "servidores_ativos": 7,
+   "cargos_extras": [
+    {
+     "cargo": "Assessor Chefe De Gabinete De Substituto De Membro Da Mesa",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 32831.16
+    },
+    {
+     "cargo": "Assessor Especial De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 22634.6
+    },
+    {
+     "cargo": "Assessor Especial I",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 10603.81
+    },
+    {
+     "cargo": "Assessor Especial Parlamentar",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 21972.52
+    },
+    {
+     "cargo": "Auxiliar Legislativo",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 9008.77
+    }
+   ],
+   "total_mensal": 119023.38,
+   "total_mensal_obs": "completo pela tabela",
+   "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=53370&tpSituacao=A ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+  },
+  {
+   "cargo_mesa": "1º Vice-Presidente",
+   "unidade_lotacao": "1ª VICE-PRESIDÊNCIA",
+   "servidores_ativos": 9,
+   "cargos_extras": [
+    {
+     "cargo": "Assessor Chefe De Gabinete De Substituto De Membro Da Mesa",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 32831.16
+    },
+    {
+     "cargo": "Assessor Especial De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 22634.6
+    },
+    {
+     "cargo": "Assessor Especial Parlamentar",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 21972.52
+    },
+    {
+     "cargo": "Assessor Parlamentar I",
+     "regime": "COMISSÃO",
+     "qtd": 3,
+     "vencimento": 5301.81
+    },
+    {
+     "cargo": "Auxiliar Legislativo",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 9008.77
+    }
+   ],
+   "total_mensal": 124325.0,
+   "total_mensal_obs": "completo pela tabela",
+   "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=53361&tpSituacao=A ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+  },
+  {
+   "cargo_mesa": "2º Vice-Presidente",
+   "unidade_lotacao": "2ª VICE PRESIDÊNCIA",
+   "servidores_ativos": 7,
+   "cargos_extras": [
+    {
+     "cargo": "Assessor Chefe De Gabinete De Substituto De Membro Da Mesa",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 32831.16
+    },
+    {
+     "cargo": "Assessor Especial De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 22634.6
+    },
+    {
+     "cargo": "Assessor Especial I",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 10603.81
+    },
+    {
+     "cargo": "Assessor Especial Parlamentar",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 21972.52
+    },
+    {
+     "cargo": "Auxiliar Legislativo",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 9008.77
+    }
+   ],
+   "total_mensal": 106059.63,
+   "total_mensal_obs": "completo pela tabela",
+   "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=53364&tpSituacao=A ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+  },
+  {
+   "cargo_mesa": "3º Vice-Presidente",
+   "unidade_lotacao": "3ª VICE PRESIDÊNCIA",
+   "servidores_ativos": 11,
+   "cargos_extras": [
+    {
+     "cargo": "Assessor Chefe De Gabinete De Substituto De Membro Da Mesa",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 32831.16
+    },
+    {
+     "cargo": "Assessor Especial Parlamentar",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 21972.52
+    },
+    {
+     "cargo": "Assessor Parlamentar Ii",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 11317.25
+    },
+    {
+     "cargo": "Assistente Parlamentar Ix",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 4838.15
+    },
+    {
+     "cargo": "Assistente Parlamentar Vii",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 10986.22
+    },
+    {
+     "cargo": "Auxiliar Legislativo",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 9008.77
+    },
+    {
+     "cargo": "Técnico Legislativo",
+     "regime": "EFETIVO",
+     "qtd": 2,
+     "vencimento": null
+    }
+   ],
+   "total_mensal": 118095.69,
+   "total_mensal_obs": "soma apenas dos cargos com valor na tabela; exclui efetivos (a confirmar)",
+   "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=92677&tpSituacao=A ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+  },
+  {
+   "cargo_mesa": "4º Vice-Presidente",
+   "unidade_lotacao": "4ª VICE PRESIDÊNCIA",
+   "servidores_ativos": 7,
+   "cargos_extras": [
+    {
+     "cargo": "Assessor Chefe De Gabinete De Substituto De Membro Da Mesa",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 32831.16
+    },
+    {
+     "cargo": "Assessor Especial De Gabinete",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 22634.6
+    },
+    {
+     "cargo": "Assessor Especial Parlamentar",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 21972.52
+    },
+    {
+     "cargo": "Assistente Parlamentar Ix",
+     "regime": "COMISSÃO",
+     "qtd": 2,
+     "vencimento": 4838.15
+    },
+    {
+     "cargo": "Auxiliar Legislativo",
+     "regime": "COMISSÃO",
+     "qtd": 1,
+     "vencimento": 9008.77
+    }
+   ],
+   "total_mensal": 118095.87,
+   "total_mensal_obs": "completo pela tabela",
+   "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=92678&tpSituacao=A ; https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf"
+  }
+ ],
+ "comissoes": {
+  "estrutura_por_comissao": "a confirmar — não há quadro de cargos por comissão permanente publicado; o apoio às comissões é centralizado no Departamento de Comissões / Divisão de Apoio às Comissões da SGP (servidores majoritariamente efetivos). Presidência de comissão não tem gabinete próprio na lotação.",
+  "unidades": {
+   "DC - DEPARTAMENTO DE COMISSÕES": {
+    "servidores_ativos": 8,
+    "cargos": [
+     {
+      "cargo": "Analista Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     },
+     {
+      "cargo": "Auxiliar Legislativo De Serviços Operacionais",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     },
+     {
+      "cargo": "Diretor De Departamento",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32778.89
+     },
+     {
+      "cargo": "Técnico Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 2,
+      "vencimento": null
+     }
+    ],
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=53537&tpSituacao=A"
+   },
+   "DAC - DIVISÃO DE APOIO AS COMISSÕES": {
+    "servidores_ativos": 18,
+    "cargos": [
+     {
+      "cargo": "Analista Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 17,
+      "vencimento": null
+     }
+    ],
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=53538&tpSituacao=A"
+   }
+  },
+  "fonte": "https://www.al.sp.gov.br/servidor/lista/ ; Res. ALESP 776/1996 art. 1º (estrutura)"
+ },
+ "liderancas": {
+  "regra": "a confirmar — Res. 776/1996 cria 15 cargos de Assessor Chefe de Gabinete de Liderança (R$32.831,16) e 4 de Assessor Chefe de Gabinete de Substituto de Membro da Mesa; a tabela de cargos por tamanho de bancada (Ato da Mesa) não foi localizada. Abaixo, a lotação real por liderança.",
+  "tabela": [],
+  "lotacao_real": [
+   {
+    "lideranca": "Gabinete DA LIDERANÇA DA MINORIA",
+    "servidores_ativos": 9,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial I",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 10603.81
+     },
+     {
+      "cargo": "Assessor Parlamentar I",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 5301.81
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9008.77
+     }
+    ],
+    "total_mensal": 107654.3,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=92053&tpSituacao=A"
+   },
+   {
+    "lideranca": "GABINETE DA LIDERANÇA DO GOVERNO",
+    "servidores_ativos": 13,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assessor Parlamentar I",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 5301.81
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 4,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9008.77
+     }
+    ],
+    "total_mensal": 163630.05,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=21449&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. MDB",
+    "servidores_ativos": 35,
+    "cargos": [
+     {
+      "cargo": "Analista Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     },
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor De Relações Institucionais",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 23083.14
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 5,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assessor Parlamentar I",
+      "regime": "COMISSÃO",
+      "qtd": 8,
+      "vencimento": 5301.81
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 3,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Assistente Legislativo I",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9676.44
+     },
+     {
+      "cargo": "Assistente Parlamentar Ix",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 4838.15
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 4,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 3,
+      "vencimento": 9008.77
+     },
+     {
+      "cargo": "Secretário Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 19317.67
+     },
+     {
+      "cargo": "Técnico Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 2,
+      "vencimento": null
+     }
+    ],
+    "total_mensal": 411533.45,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=31249&tpSituacao=A"
+   },
+   {
+    "lideranca": "GABINETE LID. MISSÃO",
+    "servidores_ativos": 2,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9008.77
+     }
+    ],
+    "total_mensal": 41839.93,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=46495&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. NOVO",
+    "servidores_ativos": 2,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 21972.52
+     }
+    ],
+    "total_mensal": 54803.68,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=32303&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. PC DO B",
+    "servidores_ativos": 4,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Parlamentar I",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 5301.81
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9008.77
+     }
+    ],
+    "total_mensal": 47141.74,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=20355&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. PL",
+    "servidores_ativos": 45,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 5,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assessor Parlamentar I",
+      "regime": "COMISSÃO",
+      "qtd": 3,
+      "vencimento": 5301.81
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 11,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Assistente Parlamentar Ix",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 4838.15
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 14,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Assistente Parlamentar Viii",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 6922.45
+     },
+     {
+      "cargo": "Assistente Parlamentar Xii",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9287.42
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 3,
+      "vencimento": 9008.77
+     },
+     {
+      "cargo": "Comissionados",
+      "regime": "COMISSIONAMENTO SEM PREJUÍZO",
+      "qtd": 1,
+      "vencimento": null
+     }
+    ],
+    "total_mensal": 535077.7,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=32848&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. PODEMOS",
+    "servidores_ativos": 20,
+    "cargos": [
+     {
+      "cargo": "Analista Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     },
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assessor Parlamentar I",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 5301.81
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Assistente Parlamentar Ix",
+      "regime": "COMISSÃO",
+      "qtd": 4,
+      "vencimento": 4838.15
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Assistente Parlamentar Xii",
+      "regime": "COMISSÃO",
+      "qtd": 3,
+      "vencimento": 9287.42
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9008.77
+     },
+     {
+      "cargo": "Técnico Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     }
+    ],
+    "total_mensal": 188210.39,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=26449&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. PP",
+    "servidores_ativos": 20,
+    "cargos": [
+     {
+      "cargo": "Analista Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     },
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 4,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Parlamentar I",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 5301.81
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 4,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Assessor Técnico",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 25767.51
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 3,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Assistente Parlamentar Viii",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 6922.45
+     },
+     {
+      "cargo": "Assistente Parlamentar Xii",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9287.42
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 9008.77
+     }
+    ],
+    "total_mensal": 266893.95,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=20360&tpSituacao=A"
+   },
+   {
+    "lideranca": "GABINETE LID. PRD",
+    "servidores_ativos": 3,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9008.77
+     }
+    ],
+    "total_mensal": 41839.93,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=47697&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. PSB",
+    "servidores_ativos": 11,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assistente Legislativo I",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9676.44
+     },
+     {
+      "cargo": "Assistente Parlamentar Ix",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 4838.15
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9008.77
+     },
+     {
+      "cargo": "Técnico Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 2,
+      "vencimento": null
+     }
+    ],
+    "total_mensal": 116786.01,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=20361&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. PSD",
+    "servidores_ativos": 66,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 7,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Especial I",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 10603.81
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 11,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assessor Legislativo De Planejamento E Organização",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 29426.68
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 7,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Assistente De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 13845.09
+     },
+     {
+      "cargo": "Assistente Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 20643.6
+     },
+     {
+      "cargo": "Assistente Legislativo I",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 9676.44
+     },
+     {
+      "cargo": "Assistente Parlamentar Ix",
+      "regime": "COMISSÃO",
+      "qtd": 14,
+      "vencimento": 4838.15
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 9,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Assistente Parlamentar Viii",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 6922.45
+     },
+     {
+      "cargo": "Assistente Parlamentar Xii",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9287.42
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 6,
+      "vencimento": 9008.77
+     },
+     {
+      "cargo": "Técnico Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     }
+    ],
+    "total_mensal": 863580.06,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=95136&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. PSDB",
+    "servidores_ativos": 7,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assistente Parlamentar Xi",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 8124.41
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 4,
+      "vencimento": 9008.77
+     }
+    ],
+    "total_mensal": 76990.65,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=20363&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. PSOL",
+    "servidores_ativos": 11,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 5,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9008.77
+     },
+     {
+      "cargo": "Comissionados",
+      "regime": "COMISSIONAMENTO SEM PREJUÍZO",
+      "qtd": 2,
+      "vencimento": null
+     }
+    ],
+    "total_mensal": 141378.15,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=21452&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. PT",
+    "servidores_ativos": 47,
+    "cargos": [
+     {
+      "cargo": "Analista Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 2,
+      "vencimento": null
+     },
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 3,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 4,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assessor Legislativo De Planejamento E Organização",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 29426.68
+     },
+     {
+      "cargo": "Assessor Parlamentar I",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 5301.81
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 10,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Assistente Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 20643.6
+     },
+     {
+      "cargo": "Assistente Legislativo I",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9676.44
+     },
+     {
+      "cargo": "Assistente Parlamentar Ix",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 4838.15
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 16,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 9008.77
+     },
+     {
+      "cargo": "Secretário Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 19317.67
+     },
+     {
+      "cargo": "Técnico Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     }
+    ],
+    "total_mensal": 590100.76,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=20364&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. REPUBLICANOS",
+    "servidores_ativos": 13,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 5,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9008.77
+     },
+     {
+      "cargo": "Auxiliar Legislativo De Serviços Operacionais",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     },
+     {
+      "cargo": "Técnico Legislativo",
+      "regime": "EFETIVO",
+      "qtd": 1,
+      "vencimento": null
+     }
+    ],
+    "total_mensal": 208288.98,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=32989&tpSituacao=A"
+   },
+   {
+    "lideranca": "Gabinete Lid. UNIÃO BRASIL",
+    "servidores_ativos": 21,
+    "cargos": [
+     {
+      "cargo": "Assessor Chefe De Gabinete De Liderança",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 32831.16
+     },
+     {
+      "cargo": "Assessor Especial De Gabinete",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 22634.6
+     },
+     {
+      "cargo": "Assessor Especial I",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 10603.81
+     },
+     {
+      "cargo": "Assessor Especial Parlamentar",
+      "regime": "COMISSÃO",
+      "qtd": 3,
+      "vencimento": 21972.52
+     },
+     {
+      "cargo": "Assessor Legislativo De Planejamento E Organização",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 29426.68
+     },
+     {
+      "cargo": "Assessor Parlamentar Ii",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 11317.25
+     },
+     {
+      "cargo": "Assistente Legislativo I",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 9676.44
+     },
+     {
+      "cargo": "Assistente Parlamentar Ix",
+      "regime": "COMISSÃO",
+      "qtd": 1,
+      "vencimento": 4838.15
+     },
+     {
+      "cargo": "Assistente Parlamentar Vii",
+      "regime": "COMISSÃO",
+      "qtd": 4,
+      "vencimento": 10986.22
+     },
+     {
+      "cargo": "Assistente Parlamentar Viii",
+      "regime": "COMISSÃO",
+      "qtd": 2,
+      "vencimento": 6922.45
+     },
+     {
+      "cargo": "Auxiliar Legislativo",
+      "regime": "COMISSÃO",
+      "qtd": 3,
+      "vencimento": 9008.77
+     }
+    ],
+    "total_mensal": 294696.34,
+    "fonte": "https://www.al.sp.gov.br/servidor/lista/?idUA=34921&tpSituacao=A"
+   }
+  ],
+  "fonte": "https://www.al.sp.gov.br/repositorio/legislacao/resolucao.alesp/1996/compilacao-resolucao.alesp-776-14.10.1996.html ; https://www.al.sp.gov.br/servidor/lista/"
+ },
+ "gratificacoes": "a confirmar — não localizada norma de gratificação pecuniária a deputados membros da Mesa, presidentes de comissão ou líderes; a vantagem identificada é a estrutura de cargos dos gabinetes. A 'Gratificação Legislativa' (Anexo II LC 986/2005) é dos servidores, já embutida nos totais.",
+ "casa": {
+  "servidores_efetivos": 595,
+  "comissionados": 2810,
+  "total_ativos_todos_regimes": 3434,
+  "obs": "ativos em 16/10/2026; restante = comissionamento sem prejuízo, destacados, designados, Lei 500 etc.",
+  "fonte": "https://www.al.sp.gov.br/servidor/lista/?idRegime=0&tpSituacao=A (efetivo) e idRegime=1 (comissão)"
+ },
+ "orcamento_2026": {
+  "valor": 1522799643,
+  "fonte": "LOA 2026 SP, Lei 18.387 de 06/01/2026, órgão 01000 / UO 01001 Assembleia Legislativa — https://portal.fazenda.sp.gov.br/servicos/orcamento/Documents/LOA/LOA%202026%20Lei%2018.387%20de%2006_01_2026.pdf"
+ }
+}
