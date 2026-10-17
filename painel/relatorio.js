@@ -84,7 +84,7 @@ function svgMapaSC(valor, cor, raioF) {
 }
 // mapa de bairros (IBGE) de um município com bolhas por local de votação
 async function svgMapaBairros(k, valorLocal, cor) {
-  let g; try { g = await (await fetch(`../dados/mapas/bairros-sc/${slugArq(k)}.json`)).json(); } catch (e) { return ""; }
+  let g; try { g = await (await fetch(`../dados/mapas/bairros-${UF}/${slugArq(k)}.json`)).json(); } catch (e) { return ""; }
   const ls = Object.entries(g.l).map(([n, [x, y]]) => ({ x, y, v: valorLocal(n) })).filter((o) => o.v);
   const mx = Math.max(1, ...ls.map((o) => Math.abs(o.v)));
   const fundo = g.c ? `<path d="${g.c}" fill="#FAFBFB" stroke="#A9AEB3"/>` : g.b.map(([, d]) => `<path d="${d}" fill="#FAFBFB" fill-rule="evenodd" stroke="#C9CDD1" stroke-width=".8"/>`).join("");
@@ -167,7 +167,7 @@ async function montarRelatorio(tipo) {
     const dRk = naRk ? dentroRk : dentro; idx.splice(0, idx.length, ...[...Array(N).keys()].filter(dRk));
     const recR = naRk ? (rk.rec ? rk.rec.nome : UFI.nome) : rec, d = DADOS[cg], prop = cg === "estadual" || cg === "federal", todo = idx.length === N;
     // dados da eleição do recorte (2026, com 2022 de referência)
-    const part = async (ano) => { try { const p = (await (await fetch(`../dados/resultados/sc-${ano}/participacao.json`)).json())[cg]; if (todo && p.estado) return p.estado; return idx.reduce((s, i) => { const x = p.mun[M[i].k] || [0, 0, 0, 0, 0, 0]; return s.map((v, k) => v + x[k]); }, [0, 0, 0, 0, 0, 0]); } catch (e) { return null; } };
+    const part = async (ano) => { try { const p = (await (await fetch(`../dados/resultados/${UF}-${ano}/participacao.json`)).json())[cg]; if (todo && p.estado) return p.estado; return idx.reduce((s, i) => { const x = p.mun[M[i].k] || [0, 0, 0, 0, 0, 0]; return s.map((v, k) => v + x[k]); }, [0, 0, 0, 0, 0, 0]); } catch (e) { return null; } };
     const P26 = await part(2026), P22 = await part(2022);
     const pp = (v, b) => b ? nf(v / b * 100) + "%" : "";
     const ld = (rot, k, base) => { const a = P22 ? P22[k] : null, b = P26 ? P26[k] : null; return linha("", "", rot, a == null ? "—" : `${fmt(a)} <span style="color:#8A9096">${base == null ? "" : pp(a, P22[base])}</span>`, b == null ? "—" : `<b>${fmt(b)}</b> <span style="color:#8A9096">${base == null ? "" : pp(b, P26[base])}</span>`, a == null || b == null ? "—" : `<span class="${b - a >= 0 ? "p" : "n"}">${sinal(b - a)}</span>`, ""); };

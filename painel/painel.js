@@ -521,7 +521,7 @@ function botoesLinks(c) {
 // ---------------- tabela município a município, com abertura por bairro / local / seção ----------------
 const SEC = {};
 const slugArq = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
-async function secoes(ano, k) { const id = ano + k; if (UF !== "sc") return null; if (!(id in SEC)) { try { SEC[id] = await (await fetch(`../dados/resultados/sc-${ano}/secoes/${slugArq(k)}.json`)).json(); } catch (e) { SEC[id] = null; } } return SEC[id]; }
+async function secoes(ano, k) { const cg = [...new Set([st.A && st.A.cargo, st.B && st.B.cargo].filter(Boolean))], id = ano + k + cg.join(); if (UF !== "sc" && ano !== 2026) return null; if (!(id in SEC)) { try { SEC[id] = await lerSecoes(ano, slugArq(k), cg.length ? cg : ["estadual"]); } catch (e) { SEC[id] = null; } } return SEC[id]; }
 const abrevLocal = (n) => String(n || "").replace(/^Escola de Educa[çc][ãa]o B[áa]sica /i, "EEB ").replace(/^Escola B[áa]sica Municipal /i, "EBM ").replace(/^Escola de Ensino Fundamental /i, "EEF ").replace(/^Escola Municipal /i, "EM ").replace(/^Centro de Educa[çc][ãa]o Infantil /i, "CEI ").replace(/^Escola /i, "Esc. ");
 // valores de uma linha: [col1, col2] — candidato só: [2022, 2026]; duelo: [A, B]
 function colsTab() { return st.B ? [pn(st.A), pn(st.B), "Dif."] : ["2022", "2026", "Dif."]; }
