@@ -14,6 +14,10 @@ async function initColaborativo() {
   pcState.sessao = await sessaoAtual();
   if (pcState.sessao) {
     pcState.perfil = await meuPerfil();
+    // 17/10/2026: falha de leitura (token vencido, rede) NÃO é "conta sem perfil" — renova a sessão e tenta de novo
+    // antes de mostrar "Só mais um passo" (que só deve aparecer no 1º login pelo Google)
+    if (!pcState.perfil) { try { await supabaseClient.auth.refreshSession(); } catch (e) {} pcState.perfil = await meuPerfil(); }
+    if (!pcState.perfil && window._perfilErro) { try { await supabaseClient.auth.signOut({ scope: "local" }); } catch (e) {} pcState.sessao = null; pcState.erro = "Sua sessão expirou. Entre de novo."; pcState.tela = "login"; renderColaborativo(); return; }
     if (!pcState.perfil) {
       // Sessão existe mas ainda não tem linha em "perfis" — hoje só acontece
       // com quem acabou de entrar pelo Google (o Google não manda aceite de

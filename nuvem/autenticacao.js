@@ -140,6 +140,7 @@ async function meuPerfil() {
     .select("*")
     .eq("id", sessao.user.id)
     .maybeSingle();
+  window._perfilErro = error || null;
   if (error) {
     console.error("Erro ao carregar perfil:", error);
     return null;
