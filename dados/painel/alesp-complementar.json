@@ -1,0 +1,30 @@
+{
+ "vista": {
+  "regra": "Qualquer membro da comissão pode pedir vista. Prazo: 2 dias em regime de prioridade e 3 dias em tramitação ordinária. Não cabe vista em regime de urgência. Havendo mais de um pedido, a vista é conjunta (coletiva), na Secretaria da Comissão. Quem já obteve vista não ganha nova vista.",
+  "fonte": "Regimento Interno ALESP (Res. 576/1970, texto consolidado) art. 57 — https://www.al.sp.gov.br/StaticFile/documentacao/regimento_interno.htm (a URL de compilação indicada retornou 404 em 17/10/2026)"
+ },
+ "eventos": [
+  {"tipo": "Audiência pública", "regra": "As comissões permanentes podem convocar audiências públicas na sede da Assembleia ou em qualquer lugar do estado, para ouvir sociedade, especialistas e autoridades sobre um tema. CPIs também podem se deslocar pelo estado para fazer audiências. Forma de requerimento/aprovação detalhada: a confirmar.", "fonte": "Regimento Interno ALESP, competências das Comissões Permanentes (inciso VIII, 'convocar audiências públicas') e das CPIs (inciso IV) — numeração exata do artigo a confirmar no texto compilado"},
+  {"tipo": "Sessão solene", "regra": "Sessão para grandes comemorações ou homenagens especiais. Convocada pelo Presidente da Assembleia, seguindo no que couber as regras das sessões extraordinárias; a ordem dos trabalhos é definida pelo Presidente.", "fonte": "Regimento Interno ALESP arts. 98, IV e par. único; 104; art. 18 (competência do Presidente de convocar sessões solenes)"},
+  {"tipo": "Sessão especial", "regra": "a confirmar — o Regimento consolidado não prevê 'sessão especial' como tipo (só preparatória, ordinária, extraordinária e solene, art. 98); há apenas sessão especialmente convocada pela Mesa para relatar excesso de deputado (art. 281).", "fonte": "Regimento Interno ALESP arts. 98 e 281"},
+  {"tipo": "Visita/diligência", "regra": "Comissões podem fazer as diligências que considerarem indispensáveis para esclarecer a matéria, sem que isso estenda seus prazos. CPIs podem determinar diligências e encarregar membros ou servidores de realizá-las, avisando a Mesa antes.", "fonte": "Regimento Interno ALESP art. 62 (comissões) e artigo das CPIs (incisos II e III)"},
+  {"tipo": "Seminário", "regra": "a confirmar — não localizado no Regimento Interno.", "fonte": ""}
+ ],
+ "emendas_execucao": {
+  "etapas": [
+   {"quando": "na tramitação da LOA", "o_que": "Deputados indicam beneficiário, objeto e valor; tabelas consolidadas publicadas na LOA"},
+   {"quando": "até 5 dias", "o_que": "Análise de admissibilidade pelo órgão (documentação completa)"},
+   {"quando": "até 15 dias após notificação, prorrogáveis por mais 15", "o_que": "Beneficiário envia plano de trabalho e documentos pelo SP Sem Papel (cadastro/instrução)"},
+   {"quando": "até 70 dias após a publicação da LOA", "o_que": "Análise técnica pelo órgão executor: parecer favorável ou de impedimento técnico"},
+   {"quando": "até 15 dias", "o_que": "Havendo impedimento, a Assembleia/deputado indica o remanejamento"},
+   {"quando": "até 5 dias", "o_que": "Executivo publica a nova relação de emendas remanejadas"},
+   {"quando": "até 70 dias", "o_que": "Nova análise técnica das emendas remanejadas"}
+  ],
+  "valor_por_deputado_2026": "a confirmar — regra: 0,45% da receita corrente líquida prevista no PLOA, dividido igualmente entre os 94 deputados, mínimo metade para saúde; valor mínimo por emenda R$ 50 mil (OSC) ou R$ 100 mil (demais)",
+  "fonte": "CE-SP arts. 175 §§6º-10 e 175-A; Decreto 70.311/2025; Decreto 66.426/2022; LDO 2026 Lei 18.178/2025 — https://www.governo.sp.gov.br/sec_governo_relacoes/emendas_impositivas/faq ; https://www.al.sp.gov.br/leis/orcamento/emendas-impositivas/"
+ },
+ "liderancas": {
+  "tabela": "não localizada",
+  "fonte": "Regimento Interno ALESP (arts. 82-83 tratam de Líderes e Colégio de Líderes, sem tabela de cargos por bancada); Atos da Mesa não pesquisados a fundo — a confirmar"
+ }
+}

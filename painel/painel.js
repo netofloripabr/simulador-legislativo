@@ -482,7 +482,7 @@ addEventListener("scroll", () => {
 (async () => {
   await carregar();
   await carregarLinks();
-  try { SOC = UF === "sc" ? (await (await fetch("../dados/painel/sc-social.json")).json()).mun : null; } catch (e) { SOC = null; }
+  try { SOC = (await (await fetch(`../dados/painel/${UF}-social.json?v=1`)).json()).mun; } catch (e) { SOC = null; }
   montarSeletores(); montarLentes(); montarRecorte(); medir(); irPara("mapa"); frase(); legenda(); ficha(); placarHero(); tabela();
   hero.iniciar();
   const _t = trocouCandidato; window.trocouCandidato = _t;
