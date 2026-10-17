@@ -2,8 +2,9 @@
 // Conteúdo vem de dados/painel/{casa}-legislativo.json e {casa}-administrativo.json, levantados nas
 // fontes oficiais (cada item com a fonte). O que não foi confirmado aparece marcado "a confirmar".
 // Usa as mesmas classes visuais do Legislativo/Administrativo de SC (novos.html).
-let LEGUF = null, ADMUF = null, ESTUF = null, ESTCASA = null;
+let LEGUF = null, ADMUF = null, ESTUF = null, ESTCASA = null, ORCA = null;
 async function carregarUF() {
+  ORCA = await fetch(`../dados/painel/orcamento-assembleias.json?v=1`).then((r) => r.json()).catch(() => null);
   if (UF === "sc") return; const c = UFI.casa.toLowerCase();
   ESTUF = await fetch(`../dados/painel/${c}-estrutura.json?v=1`).then((r) => r.json()).catch(() => null);
   ESTCASA = await fetch(`../dados/painel/${c}-estruturas-casa.json?v=1`).then((r) => r.json()).catch(() => null);
@@ -99,7 +100,7 @@ function secAdministrativoUF(c) {
   const fixos = (G.cargos || []).filter((x) => vagas(x.cargo)), trocas = (G.cargos || []).filter((x) => !vagas(x.cargo) && /Assistente Parlamentar/.test(x.cargo));
   const cheio = fixos.reduce((t, x) => t + vagas(x.cargo) * x.vencimento, 0);
   const nomeC = (t) => esc(String(t).split("(")[0].trim());
-  const E = ESTUF, soma = (L) => (L || []).reduce((t, x) => t + (x.vencimento || 0) * (x.qtd || 1), 0), mi = (v) => "R$ " + (v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + " mi", mil = (v) => "R$ " + (v / 1e3).toLocaleString("pt-BR", { maximumFractionDigits: 0 }) + " mil";
+  const E = ESTUF, soma = (L) => (L || []).reduce((t, x) => t + (x.vencimento || 0) * (x.qtd || 1), 0), mi = (v) => v >= 1e9 ? "R$ " + (v / 1e9).toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + "B" : "R$ " + (v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + " mi", mil = (v) => "R$ " + (v / 1e3).toLocaleString("pt-BR", { maximumFractionDigits: 0 }) + " mil";
   const LD = E ? ((E.liderancas || {}).lotacao_real || []).map((x) => [x.lideranca.replace(/^Gabinete (DA |DO )?/i, "").replace(/^LIDERANÇA (DA |DO )?/i, "Liderança "), x.servidores_ativos, soma(x.cargos)]).sort((a, b) => b[2] - a[2]) : [];
   const num = (t) => { const m = /R\$\s?([\d.]+,\d{2})/.exec(String(t || "")); return m ? +m[1].replace(/\./g, "").replace(",", ".") : 0; };
   const vPar = (P.subsidio || 0), vVerb = num(VI.valor_mensal_teto) + aux.reduce((t, x) => t + num(x.valor), 0);
@@ -121,8 +122,8 @@ function secAdministrativoUF(c) {
       (() => { const tot = vPar + cheio + vVerb, fm2 = (v) => v >= 1e6 ? mi(v) : mil(v); return `<p>Tudo o que o mandato movimenta por mês, na capacidade máxima.</p><div class="pat">${[["Parlamentar", vPar, "subsídio"], ["Gabinete", cheio, "estrutura cheia de 16 cargos"], ["Verbas e auxílios", vVerb, "encargos de gabinete, hospedagem, carro e manutenção no teto"]].map(([t, v, d]) => `<div><span>${t}</span><b>${fm2(v)}</b><small>${d}</small><i style="width:${v / tot * 100}%"></i></div>`).join("")}<div class="tot"><span>Total mensal</span><b>${fm2(tot)}</b><small>${fm2(tot * 12)} por ano · ${fm2(tot * 48)} na legislatura</small></div></div><p class="nota">Funções extras (Mesa, liderança) somam a isso. Valores brutos.</p>`; })(), "", vPar + cheio + vVerb) +
     blocoI("Simulador de nomeação", "Estrutura de Pessoal do gabinete parlamentar da ALESP (16 cargos na estrutura cheia; trocas por Assistentes Parlamentares até 23 pessoas); vencimentos totais da tabela de 01/03/2025 (LC 1.431/2025).",
       `<p>Indique as pessoas do gabinete. Cada cargo maior pode ser dividido em dois assistentes: o número de pessoas sobe, até ${G.cargos_maximos || 23}, e a folha muda.</p><div id="gabsp"></div><p><button class="btn sec" style="margin-top:12px" onclick="caderno(window._cAtual, window._ordM || [])">Imprimir (caderno com o simulador e o anexo em branco)</button></p>`, ' id="gabSim"') +
-    (E ? blocoI("A estrutura da Casa", "LOA 2026 do Estado (Lei 18.387/2026, Assembleia Legislativa); lotação de servidores no portal da ALESP (consulta de 16/10/2026); vencimentos da tabela de 01/03/2025. Não foi localizada gratificação em dinheiro para membros da Mesa, presidentes de comissão ou líderes.",
-      `<table class="qtab">${linha("Orçamento da Assembleia em 2026", "o que a Casa pode gastar no ano", E.orcamento_2026 ? mi(E.orcamento_2026.valor) : "")}${linha("Servidores ativos", `${(E.casa || {}).servidores_efetivos} efetivos e ${(E.casa || {}).comissionados} em comissão`, ((E.casa || {}).total_ativos_todos_regimes || "").toLocaleString("pt-BR"))}</table>
+    (E ? blocoI("A estrutura da Casa", `Orçamento: Leis Orçamentárias Anuais de SP e tabela "Evolução da despesa por Poder e Órgão" (Secretaria da Fazenda), anos ${Object.keys((ORCA && ORCA.sp || {}).loa || {}).join(", ")}. ${orcFontes()}. LOA 2026 do Estado (Lei 18.387/2026, Assembleia Legislativa); lotação de servidores no portal da ALESP (consulta de 16/10/2026); vencimentos da tabela de 01/03/2025. Não foi localizada gratificação em dinheiro para membros da Mesa, presidentes de comissão ou líderes.`,
+      `${orcPainel()}
       ${ESTCASA ? Object.entries(ESTCASA.grupos || {}).map(([g, L]) => `<details class="cas"><summary><span>${esc(g)}</span><i>${L.length} unidades</i><b>${mil(L.reduce((t, x) => t + x.t, 0))}/mês</b></summary><table class="qtab">${L.sort((a, b) => b.t - a.t).map((x) => linha(esc(x.n), `${x.cc[0]} cargos em comissão · ${x.serv || 0} servidores`, mil(x.t))).join("")}</table></details>`).join("") : ""}
       <p style="margin-top:14px"><b>Gabinetes da Mesa</b> · quem está lotado hoje (só cargos em comissão entram na soma)</p><table class="qtab">${(E.gabinetes_mesa || []).map((g) => linha(esc(g.cargo_mesa), `${g.servidores_ativos} servidores`, mil(g.total_mensal || soma(g.cargos_extras)) + "/mês")).join("")}</table>
       <p style="margin-top:14px"><b>Lideranças</b> · ${LD.length} gabinetes</p><table class="qtab">${LD.map(([n, q, v]) => linha(esc(n), `${q} servidores`, mil(v) + "/mês")).join("")}</table>
@@ -192,3 +193,20 @@ function ligarGabUF(c) {
   el.onclick = (e) => { const b = e.target.closest("[data-gx]"); if (!b) return; st.s[+b.dataset.gx] = { m: 0, n: ["", ""] }; salva(); desenha(); };
   desenha();
 }
+
+// orçamento da Assembleia: números de hoje + gráfico dos últimos 10 anos (dotação na LOA × executado) — SC e SP
+const valR = (v) => v >= 1e9 ? "R$ " + (v / 1e9).toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + "B" : "R$ " + (v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " mi";
+function orcPainel() {
+  const O = ORCA && ORCA[UF]; if (!O) return "";
+  const anos = Object.keys(O.loa).sort(), atual = anos[anos.length - 1], loa = O.loa[atual], sv = O.servidores || {}, svUF = UF === "sp" && ESTUF ? ESTUF.casa || {} : {};
+  const tot = sv.total || svUF.total_ativos_todos_regimes, ef = sv.efetivos || svUF.servidores_efetivos, cm = sv.comissionados || svUF.comissionados;
+  const mx = Math.max(...anos.map((a) => Math.max(O.loa[a] || 0, (O.executado || {})[a] || 0))), W = 640, H = 190, bw = W / anos.length, cor = getComputedStyle(document.documentElement).getPropertyValue("--a").trim() || "#34E84A";
+  const y = (v) => H - 20 - (v / mx) * (H - 44);
+  const barras = anos.map((a, i) => { const L = O.loa[a] || 0, E = (O.executado || {})[a], x = i * bw + bw * .18, w = bw * .64;
+    return `<rect x="${x}" y="${y(L)}" width="${w}" height="${H - 20 - y(L)}" rx="3" fill="rgba(242,244,245,.12)"><title>${a} · dotação ${valR(L)}</title></rect>${E ? `<rect x="${x + w * .2}" y="${y(E)}" width="${w * .6}" height="${H - 20 - y(E)}" rx="2" fill="${cor}"><title>${a} · executado ${valR(E)} (${Math.round(E / L * 100)}%)</title></rect>` : ""}<text x="${x + w / 2}" y="${H - 5}" text-anchor="middle" font-size="10" fill="#6B7178">${a}</text><text x="${x + w / 2}" y="${y(L) - 5}" text-anchor="middle" font-size="9" fill="#A9AEB3">${(L / 1e9).toLocaleString("pt-BR", { maximumFractionDigits: 2 })}</text>`; }).join("");
+  const e25 = (O.executado || {})[anos[anos.length - 2]], l25 = O.loa[anos[anos.length - 2]];
+  return `<table class="qtab">${linha(`Orçamento da Assembleia em ${atual}`, "dotação na Lei Orçamentária Anual (o que a Casa pode gastar no ano)", valR(loa))}${e25 ? linha(`Executado em ${anos[anos.length - 2]}`, `${O.executado_tipo && /empenh/i.test(O.executado_tipo) ? "despesa empenhada" : "despesa realizada"} · ${Math.round(e25 / l25 * 100)}% da dotação`, valR(e25)) : ""}${tot ? linha("Servidores ativos", `${ef ? ef.toLocaleString("pt-BR") + " efetivos e " : ""}${cm ? cm.toLocaleString("pt-BR") + " em comissão" : ""}`, tot.toLocaleString("pt-BR")) : ""}</table>
+    <p style="margin-top:14px"><b>Últimos 10 anos</b> · em bilhões de reais, valores da época</p><div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:420px;height:auto;display:block">${barras}</svg></div>
+    <p class="nota"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:rgba(242,244,245,.25);vertical-align:-1px"></span> dotação na LOA · <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${cor};vertical-align:-1px"></span> executado (${esc(O.executado_tipo || "")}). Fontes oficiais de cada ano no botão "i".</p>`;
+}
+const orcFontes = () => { const O = ORCA && ORCA[UF]; return O ? Object.entries(O.fontes || {}).map(([a, u]) => `${a}: <a href="${esc(u)}" target="_blank" rel="noopener">fonte</a>`).join(" · ") : ""; };

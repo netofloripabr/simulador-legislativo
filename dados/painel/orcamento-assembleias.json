@@ -1,0 +1,93 @@
+{
+  "sc": {
+    "loa": {
+      "2017": 547876286,
+      "2018": 549574187,
+      "2019": 587330436,
+      "2020": 626601172,
+      "2021": 670228433,
+      "2022": 695391265,
+      "2023": 903211839,
+      "2024": 1046774226,
+      "2025": 1173691549,
+      "2026": 1351752057
+    },
+    "executado": {
+      "2017": 475961012.06,
+      "2018": 507137075.87,
+      "2019": 480121150.2,
+      "2020": 401975195.95,
+      "2021": 603951716.46,
+      "2022": 462460098.63,
+      "2023": 561034603.29,
+      "2024": 627500815.74,
+      "2025": 875938669.16
+    },
+    "executado_tipo": "empenhado acumulado até dezembro (UO 01001); loa = dotação inicial",
+    "fontes": {
+      "2017": "https://www.sef.sc.gov.br/api-portal/Documento/ver/3542",
+      "2018": "https://www.sef.sc.gov.br/api-portal/Documento/ver/3530",
+      "2019": "https://www.sef.sc.gov.br/api-portal/Documento/ver/3518",
+      "2020": "https://www.sef.sc.gov.br/api-portal/Documento/ver/3506",
+      "2021": "https://www.sef.sc.gov.br/api-portal/Documento/ver/3494",
+      "2022": "https://www.sef.sc.gov.br/api-portal/Documento/ver/3482",
+      "2023": "https://www.sef.sc.gov.br/api-portal/Documento/ver/3481",
+      "2024": "https://www.alesc.sc.gov.br/wp-content/uploads/2026/08/25/Exec-Orc-Planilha-Relatorio-Dezembro-2024.pdf",
+      "2025": "https://www.alesc.sc.gov.br/wp-content/uploads/2026/08/25/Execucao-Orcamentaria-Dezembro-2025.pdf",
+      "2026": "https://www.alesc.sc.gov.br/wp-content/uploads/2026/09/28/Exec-Orc-Planilha-Relatorio-ate-Agosto-2026.pdf"
+    },
+    "servidores": {
+      "efetivos": 276,
+      "comissionados": 1435,
+      "total": 1711,
+      "fonte": "https://transparencia.alesc.sc.gov.br/servidores (filtro vínculo, consulta 17/10/2026): Efetivo 268 + Efetivo/Comissionado 8; Comissionado 1.412 + Comissionado/Disposição 23. Exclui 41 deputados, 711 aposentados e cedidos/externos."
+    }
+  },
+  "sp": {
+    "loa": {
+      "2017": 1135428850,
+      "2018": 1273687877,
+      "2019": 1316339595,
+      "2020": 1271893723,
+      "2021": 1271893723,
+      "2022": 1287450199,
+      "2023": 1491136734,
+      "2024": 1455218239,
+      "2025": 1455360261,
+      "2026": 1522799643
+    },
+    "executado": {
+      "2017": 1122242466,
+      "2018": 1160359153,
+      "2019": 1163515564,
+      "2020": 1119142117,
+      "2021": 1138410851,
+      "2022": 1274688294,
+      "2023": 1415279704,
+      "2024": 1237392668,
+      "2025": 1366958597
+    },
+    "executado_tipo": "despesa realizada, tabela 'Evolução da despesa por Poder e Órgão' das LOAs/PLOA seguintes; loa = total fixado na LOA (órgão 01000)",
+    "fontes": {
+      "2017": "http://orcamento.planejamento.sp.gov.br/download_lei/2017",
+      "2018": "http://orcamento.planejamento.sp.gov.br/download_lei/2018",
+      "2019": "http://orcamento.planejamento.sp.gov.br/download_lei/2019",
+      "2020": "http://orcamento.planejamento.sp.gov.br/download_lei/2020",
+      "2021": "http://orcamento.planejamento.sp.gov.br/download_lei/2021",
+      "2022": "http://orcamento.planejamento.sp.gov.br/download_lei/2022",
+      "2023": "https://planejamento.sp.gov.br/static/arquivos/orcamento/LOA/2023/Lei_17614_de_26_12_2022.pdf",
+      "2024": "https://portal.fazenda.sp.gov.br/servicos/orcamento/Documents/LOA/Lei_17863_de_22_12_2023.pdf",
+      "2025": "https://portal.fazenda.sp.gov.br/servicos/orcamento/Documents/LOA/Lei_18078_de_03_01_2025.pdf",
+      "2026": "https://portal.fazenda.sp.gov.br/servicos/orcamento/Documents/LOA/LOA%202026%20Lei%2018.387%20de%2006_01_2026.pdf",
+      "executado_2017_2020": "http://orcamento.planejamento.sp.gov.br/download_lei/2021 e http://orcamento.planejamento.sp.gov.br/download_lei/2022",
+      "executado_2021_2024": "LOA 2025 e LOA 2026 (links acima)",
+      "executado_2025": "https://portal.fazenda.sp.gov.br/servicos/orcamento/Documents/LOA/%28PLOA%202027%29%20Projeto%20de%20Lei%20863%20de%2030_09_2026.pdf"
+    },
+    "servidores": {
+      "efetivos": null,
+      "comissionados": null,
+      "total": null,
+      "fonte": ""
+    }
+  }
+}
