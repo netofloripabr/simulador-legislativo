@@ -71,7 +71,7 @@ function perfil(n) {
   $("#trocar").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(n); };
   $(".topo .sep").style.display = ""; $(".topo .sep").textContent = c.u; $(".topo .sep").style.cursor = "pointer"; $(".topo .sep").title = "Trocar parlamentar"; $(".topo .sep").onclick = () => { history.pushState(null, "", location.pathname); telaSelecao(c.n); }; const sx = $(".topo .secs") || $(".topo .sep").insertAdjacentElement("afterend", Object.assign(document.createElement("nav"), { className: "secs" })); sx.innerHTML = `<a href="#s1" data-s="s1">Eleitoral</a><a href="#s2" data-s="s2">Legislativo</a><a href="#s3" data-s="s3">Administrativo</a><button class="svbtn" id="salvarConta" title="Entre na sua conta para salvar"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h8l2.5 2.5v8.5h-11z"/><path d="M5 2.5v3.5h5V2.5"/><rect x="5" y="9" width="6" height="4.5" rx=".5"/></svg><span class="svt"></span></button>`;
   $(".vistas").innerHTML = VISTAS; ligarMenu(); travaLinksTopo();
-  heroMapa(c, ordM); ligarEleitoral(c, ordM); if (UFI.completo) { ligarPolitica(c); ligarGabinete(c); ligarPrazos(); } revelar(); scrollTo(0, 0);
+  heroMapa(c, ordM); ligarEleitoral(c, ordM); if (UFI.completo) { ligarPolitica(c); ligarGabinete(c); ligarPrazos(); } else if (LEGUF) ligarPrazos(); revelar(); scrollTo(0, 0);
   $("#caderno").onclick = () => (UFI.completo || LEGUF) ? caderno(c, ordM) : alert("O caderno de " + UFI.nome + " está em preparação."); window._ordM = ordM;
   $("#salvarConta").onclick = (e) => salvarConta(c, e.currentTarget);
   if (window._daConta !== n) carregarConta(c); window._daConta = null;
@@ -405,7 +405,7 @@ const PRAZOS = {
   "Medida provisória": { tot: "60 + 60 dias", vista: "—", obs: "tranca a pauta a partir do dia 45", p: [["CCJ · admissibilidade", "1 reunião", 1], ["Plenário · admissibilidade", "Sessão seguinte", 0, 0, 1], ["Comissão de mérito", "3 reuniões: emendas e projeto de conversão", 4], ["CCJ", "2 reuniões", 6], ["Dia 45", "Urgência: tranca a pauta", 45, 0, 0, 1], ["Dia 120", "Perde a eficácia se não for convertida", 120, 0, 0, 1]] }
 };
 function ligarPrazos() { const el = $("#pzTipos"); if (!el) return; let cur = "Ordinário"; const dIn = $("#pzData"); dIn.value = "2027-03-02";
-  const recesso = (d) => { const m = d.getMonth() + 1, dd = d.getDate(); return (m === 7 && dd >= 18) || (m === 12 && dd >= 23) || m === 1 || (m === 2 && dd < 2); };
+  const recesso = (d) => { const m = d.getMonth() + 1, dd = d.getDate(); return UF === "sc" ? (m === 7 && dd >= 18) || (m === 12 && dd >= 23) || m === 1 || (m === 2 && dd < 2) : m === 7 || (m === 12 && dd >= 16) || m === 1; };
   const somaSem = (b, n) => { const x = new Date(b); let k = 1; while (k < n) { x.setDate(x.getDate() + 7); if (!recesso(x)) k++; } return x; }, somaDias = (b, n) => { const x = new Date(b); x.setDate(x.getDate() + n); return x; };
   const fmtD = (d) => d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
   const desenha = () => { const r = PRAZOS[cur], v = $("#pzVista").checked, b = new Date((dIn.value || "2027-03-02") + "T12:00");
@@ -695,13 +695,13 @@ let SEL = null;
 function mapaSelecao(c) { const cv = $("#selCv"); if (!cv) return;
   if (!SEL || SEL.cv !== cv) { const r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height; cv.width = w * dpr; cv.height = h * dpr;
     let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; CONT.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
-    const hh0 = Math.min(h, Math.max(600, Math.min(innerHeight * .92, 800))), cx = innerWidth < 760 ? { x0: 16, y0: 16, x1: w - 16, y1: h - 16 } : { x0: w * .075 + 24, y0: h * .075 + 24, x1: w * .925 - 24, y1: h * .925 - 24 }; /* computador: mapa central e amplo (85% da área) */ /* mesma caixa do mapa da capa do perfil (heroMapa) */
+    const hh0 = Math.min(h, Math.max(600, Math.min(innerHeight * .92, 800))), LAND = innerHeight < 520 && innerWidth > innerHeight, cx = LAND ? { x0: w * .44, y0: 10, x1: w - 12, y1: h - 10 } : innerWidth < 760 ? { x0: 16, y0: 16, x1: w - 16, y1: h - 16 } : { x0: w * .075 + 24, y0: h * .075 + 24, x1: w * .925 - 24, y1: h * .925 - 24 }; /* computador: mapa central e amplo (85% da área) */ /* mesma caixa do mapa da capa do perfil (heroMapa) */
     const K = Math.cos(UFI.lat * Math.PI / 180), S = Math.min((cx.x1 - cx.x0) / ((lo1 - lo0) * K), (cx.y1 - cx.y0) / (la0 - la1)), ox = cx.x0 + ((cx.x1 - cx.x0) - (lo1 - lo0) * K * S) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (la0 - la1) * S) / 2;
     const P = (lo, la) => [ox + (lo - lo0) * K * S, oy + (la0 - la) * S], k = Math.min(w, h) / 560, cont = new Path2D();
     CONT.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
     const B = M.map((m) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / UFI.refEl)) * k * 1.1, t0: 0, t1: 0 }; });
     // nomes no vão do mapa (ao sul da faixa oeste); no celular ficam abaixo do mapa
-    if (innerWidth > 760) { const e = cv.closest(".capa2").querySelector(".capaE"), [x0, y0] = P(UFI.vao[0], UFI.vao[1]), [x1, y1] = P(UFI.vao[2], UFI.vao[3]), hh = Math.max(220, y1 - y0);
+    if (innerWidth > 760 && !LAND) { const e = cv.closest(".capa2").querySelector(".capaE"), [x0, y0] = P(UFI.vao[0], UFI.vao[1]), [x1, y1] = P(UFI.vao[2], UFI.vao[3]), hh = Math.max(220, y1 - y0);
       Object.assign(e.style, { left: x0 + "px", top: y0 + "px", width: Math.max(420, x1 - x0 + 200) + "px", height: hh + "px" }); const ol = e.querySelector("ol"); ol.style.padding = `${hh / 2 - 26}px 0`; }
     SEL = { cv, ctx: cv.getContext("2d"), dpr, w, h, cont, B, ord: [...B.keys()].sort((a, b) => M[b].el - M[a].el), rgb0: [52, 232, 74], rgb1: [52, 232, 74], ini: 0, top: [] };
     const quadro = (agora) => { if (!document.body.contains(cv)) { SEL = null; return; } const { ctx, B } = SEL, e0 = Math.min(1, (agora - SEL.ini) / 650), e = 1 - Math.pow(1 - e0, 3), ne = [58, 64, 70];

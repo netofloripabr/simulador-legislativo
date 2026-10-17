@@ -33,3 +33,6 @@ html{ scrollbar-gutter:stable; }
 #topoSL .sl-uf select:hover{ border-color:rgba(242,244,245,.22); } #topoSL .sl-uf select option{ color:#0B0D0E; }
 #topoSL .sl-uf svg{ position:absolute; right:10px; pointer-events:none; }
 @media (max-width:760px){ #topoSL .wm, #topoSL .sl-uf{ order:1; } }
+/* quando não cabe numa linha (ex.: celular deitado, página do parlamentar), a barra quebra em duas linhas em vez de estourar */
+#topoSL{ flex-wrap:wrap; height:auto; row-gap:4px; }
+@media (max-width:1100px){ #topoSL .sep{ max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } }
