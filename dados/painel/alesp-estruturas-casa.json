@@ -1,0 +1,1116 @@
+{
+ "fonte": "Lotação: https://www.al.sp.gov.br/servidor/lista/?idUA=<id>&tpSituacao=A (servidores ativos, consulta 17/10/2026); vencimentos: Total (base+gratif. legislativa+representação) da Tabela de Vencimentos vigência 01/03/2025 (LC 1.431/2025) https://www.al.sp.gov.br/arquivos/administracao/gestao-de-pessoal/vencimentos/Tabelas_Vencimentos_2025_03_01.pdf; Auxiliar Legislativo = R$ 9.008,77 (mesmo valor de alesp-estrutura.json). Pendências: fc e fg = 0 porque a lista pública mostra só cargo e regime, não as funções/gratificações (GED, FC) dos efetivos; efetivos e demais regimes (Lei 500, cedidos etc.) contam só em 'serv'. Não existe unidade 'TV ALESP' separada na lista de lotação (comunicação/TV está em DC - Departamento de Comunicação, DCS e REDE ALESP). Excluídos: gabinetes de deputados, Mesa (9) e lideranças (17). Em Outros: gabinetes de ex-membros da Mesa, entidades AFALESP/ASPAL/SINDALESP e assistências policiais. Total mensal = soma só dos cargos em comissão; sem encargos, 13º, férias.",
+ "mes": "10/2026",
+ "grupos": {
+  "Secretarias": [
+   {
+    "n": "SGA - SECRETARIA GERAL DE ADMINISTRAÇÃO",
+    "idUA": 53436,
+    "cc": [
+     12,
+     246918.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 246918.2,
+    "serv": 13
+   },
+   {
+    "n": "SGP - SECRETARIA GERAL PARLAMENTAR",
+    "idUA": 53392,
+    "cc": [
+     8,
+     181530.77
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 181530.77,
+    "serv": 14
+   }
+  ],
+  "Assessorias e coordenadorias": [
+   {
+    "n": "ASSESSORIA DE GESTÃO DE PROCESSOS",
+    "idUA": 34286,
+    "cc": [
+     2,
+     43759.25
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 43759.25,
+    "serv": 3
+   },
+   {
+    "n": "ASSESSORIA TÉCNICA DA SECRETARIA GERAL DE ADMINISTRAÇÃO",
+    "idUA": 34271,
+    "cc": [
+     3,
+     77302.53
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 77302.53,
+    "serv": 7
+   },
+   {
+    "n": "CC - COORDENADORIA DE CONTRATOS",
+    "idUA": 35989,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 5
+   },
+   {
+    "n": "CCOM - COORDENADORIA DE COMPRAS",
+    "idUA": 35991,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 7
+   },
+   {
+    "n": "CGC - COORDENADORIA DE GOVERNANÇA E CONFORMIDADE",
+    "idUA": 35992,
+    "cc": [
+     4,
+     54696.23
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 54696.23,
+    "serv": 6
+   },
+   {
+    "n": "CL - COORDENADORIA DE LICITAÇÕES",
+    "idUA": 35990,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 5
+   },
+   {
+    "n": "REDE ALESP",
+    "idUA": 34278,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 5
+   },
+   {
+    "n": "ASSESSORIA TÉCNICA DA SECRETARIA GERAL PARLAMENTAR",
+    "idUA": 34264,
+    "cc": [
+     6,
+     154605.06
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 154605.06,
+    "serv": 6
+   }
+  ],
+  "Departamentos": [
+   {
+    "n": "DC - DEPARTAMENTO DE COMUNICAÇÃO",
+    "idUA": 53439,
+    "cc": [
+     8,
+     124831.96
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 124831.96,
+    "serv": 9
+   },
+   {
+    "n": "DINF - DEPARTAMENTO DE INFRAESTRUTURA",
+    "idUA": 34274,
+    "cc": [
+     6,
+     123810.59
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 123810.59,
+    "serv": 13
+   },
+   {
+    "n": "DOF - DEPARTAMENTO DE ORÇAMENTO E FINANÇAS",
+    "idUA": 34272,
+    "cc": [
+     2,
+     58546.4
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 58546.4,
+    "serv": 3
+   },
+   {
+    "n": "DRH - DEPARTAMENTO DE RECURSOS HUMANOS",
+    "idUA": 53444,
+    "cc": [
+     5,
+     128073.16
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 128073.16,
+    "serv": 9
+   },
+   {
+    "n": "DTI - DEPARTAMENTO DE TECNOLOGIA DA INFORMAÇÃO",
+    "idUA": 36003,
+    "cc": [
+     2,
+     58546.4
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 58546.4,
+    "serv": 7
+   },
+   {
+    "n": "DC - DEPARTAMENTO DE COMISSÕES",
+    "idUA": 53537,
+    "cc": [
+     4,
+     110081.42
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 110081.42,
+    "serv": 8
+   },
+   {
+    "n": "DP - DEPARTAMENTO PARLAMENTAR",
+    "idUA": 53416,
+    "cc": [
+     4,
+     110081.42
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 110081.42,
+    "serv": 4
+   }
+  ],
+  "Divisões": [
+   {
+    "n": "DBAH - DIVISÃO DE BIBLIOTECA E ACERVO HISTÓRICO",
+    "idUA": 34279,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 9
+   },
+   {
+    "n": "DCI - DIVISÃO DE COMUNICAÇÃO INSTITUCIONAL",
+    "idUA": 34277,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 12
+   },
+   {
+    "n": "DCS - DIVISÃO DE COMUNICAÇÃO SOCIAL",
+    "idUA": 53440,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 6
+   },
+   {
+    "n": "DA - DIVISÃO DE ALMOXARIFADO",
+    "idUA": 36002,
+    "cc": [
+     2,
+     43844.46
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 43844.46,
+    "serv": 8
+   },
+   {
+    "n": "DCSERV - DIVISÃO DE CONSERVAÇÃO E SERVIÇOS",
+    "idUA": 36000,
+    "cc": [
+     2,
+     43844.46
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 43844.46,
+    "serv": 7
+   },
+   {
+    "n": "DGD - DIVISÃO DE GESTÃO DOCUMENTAL",
+    "idUA": 34275,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 21
+   },
+   {
+    "n": "DMAN - DIVISÃO DE MANUTENÇÃO",
+    "idUA": 35999,
+    "cc": [
+     5,
+     97819.68
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 97819.68,
+    "serv": 18
+   },
+   {
+    "n": "DMOB - DIVISÃO DE MOBILIDADE",
+    "idUA": 36001,
+    "cc": [
+     12,
+     133932.16
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 133932.16,
+    "serv": 14
+   },
+   {
+    "n": "DCONT - DIVISÃO DE CONTABILIDADE",
+    "idUA": 34757,
+    "cc": [
+     2,
+     43844.46
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 43844.46,
+    "serv": 11
+   },
+   {
+    "n": "DLPD - DIVISÃO DE LIQUIDAÇÃO E PROGRAMAÇÃO DE DESEMBOLSOS",
+    "idUA": 35998,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 12
+   },
+   {
+    "n": "DPAT - DIVISÃO DE PATRIMÔNIO",
+    "idUA": 35997,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 5
+   },
+   {
+    "n": "DPCO - DIVISÃO DE PLANEJAMENTO E CONTROLE ORÇAMENTARIO",
+    "idUA": 53497,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 4
+   },
+   {
+    "n": "DTPC - DIVISÃO DE TESOURARIA E PRESTAÇÃO DE CONTAS",
+    "idUA": 34752,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 10
+   },
+   {
+    "n": "DAB - DIVISÃO DE APOSENTADORIAS E BENEFÍCIOS",
+    "idUA": 34753,
+    "cc": [
+     4,
+     79827.94
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 79827.94,
+    "serv": 11
+   },
+   {
+    "n": "DASS - DIVISÃO DE ATENDIMENTO DE SAÚDE AO SERVIDOR",
+    "idUA": 34291,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 40
+   },
+   {
+    "n": "DCCT - DIVISÃO DE CADASTRO E CONTAGEM DE TEMPO",
+    "idUA": 35994,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 9
+   },
+   {
+    "n": "DDP - DIVISÃO DE DESENVOLVIMENTO DE PESSOAS",
+    "idUA": 34754,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 16
+   },
+   {
+    "n": "DFP - DIVISÃO DE FOLHA DE PAGAMENTO",
+    "idUA": 34755,
+    "cc": [
+     4,
+     79827.94
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 79827.94,
+    "serv": 15
+   },
+   {
+    "n": "DPRF - DIVISÃO DE POSSE E REGISTRO FUNCIONAL",
+    "idUA": 35993,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 11
+   },
+   {
+    "n": "DAU - DIVISÃO DE ATENDIMENTO AO USUÁRIO",
+    "idUA": 34284,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 7
+   },
+   {
+    "n": "DDCBD - DIVISÃO DE DATA CENTER E BANCO DE DADOS",
+    "idUA": 36005,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 11
+   },
+   {
+    "n": "DRSI - DIVISÃO DE REDES E SEGURANÇA DA INFORMAÇÃO",
+    "idUA": 36006,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 12
+   },
+   {
+    "n": "DSS - DIVISÃO DE SISTEMAS E SOLUÇÕES",
+    "idUA": 36004,
+    "cc": [
+     3,
+     61836.2
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 61836.2,
+    "serv": 24
+   },
+   {
+    "n": "DAC - DIVISÃO DE APOIO AS COMISSÕES",
+    "idUA": 53538,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 18
+   },
+   {
+    "n": "DCL - DIVISÃO DE CONSULTORIA LEGISLATIVA",
+    "idUA": 34269,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 5
+   },
+   {
+    "n": "DRL - DIVISÃO DE REDAÇÃO LEGISLATIVA",
+    "idUA": 34270,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 5
+   },
+   {
+    "n": "DAMD - DIVISÃO DE APOIO À MESA DIRETORA",
+    "idUA": 34265,
+    "cc": [
+     8,
+     159570.67
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 159570.67,
+    "serv": 20
+   },
+   {
+    "n": "DPA - DIVISÃO DE PAINEL E AUDIOFONIA",
+    "idUA": 34268,
+    "cc": [
+     2,
+     43844.46
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 43844.46,
+    "serv": 16
+   },
+   {
+    "n": "DPAAN - DIVISÃO DE PESQUISA E ATUALIZAÇÃO DE ATOS NORMATIVOS",
+    "idUA": 34267,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 10
+   },
+   {
+    "n": "DRP - DIVISÃO DE REGISTRO DE PRONUNCIAMENTOS",
+    "idUA": 34266,
+    "cc": [
+     2,
+     43844.46
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 43844.46,
+    "serv": 21
+   }
+  ],
+  "Procuradoria e controle": [
+   {
+    "n": "OUVIDORIA DO PARLAMENTO",
+    "idUA": 98075,
+    "cc": [
+     11,
+     241697.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 241697.72,
+    "serv": 14
+   },
+   {
+    "n": "CONTROLADORIA DA ALESP",
+    "idUA": 34922,
+    "cc": [
+     1,
+     25852.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25852.72,
+    "serv": 5
+   },
+   {
+    "n": "CORREGEDORIA PARLAMENTAR",
+    "idUA": 98076,
+    "cc": [
+     12,
+     274528.88
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 274528.88,
+    "serv": 13
+   },
+   {
+    "n": "NAE - NÚCLEO DE AVALIAÇÃO ESTRATÉGICA",
+    "idUA": 98077,
+    "cc": [
+     49,
+     1076653.48
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 1076653.48,
+    "serv": 49
+   },
+   {
+    "n": "NFC - NÚCLEO DE FISCALIZAÇÃO E CONTROLE",
+    "idUA": 26430,
+    "cc": [
+     1,
+     25767.51
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 25767.51,
+    "serv": 9
+   },
+   {
+    "n": "PA - PROCURADORIA DA ALESP",
+    "idUA": 53347,
+    "cc": [
+     3,
+     79340.9
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 79340.9,
+    "serv": 21
+   }
+  ],
+  "Outros": [
+   {
+    "n": "GABINETE DO EX-PRESIDENTE",
+    "idUA": 92679,
+    "cc": [
+     15,
+     159642.0
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 159642.0,
+    "serv": 15
+   },
+   {
+    "n": "GABINETE DO EX-1º SECRETÁRIO",
+    "idUA": 92680,
+    "cc": [
+     16,
+     193535.03
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 193535.03,
+    "serv": 16
+   },
+   {
+    "n": "GABINETE DO EX-2º SECRETÁRIO",
+    "idUA": 92681,
+    "cc": [
+     16,
+     210383.72
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 210383.72,
+    "serv": 17
+   },
+   {
+    "n": "AFALESP / ASPAL / COOPERALESP / SINDALESP",
+    "idUA": 673,
+    "cc": [
+     0,
+     0.0
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 0.0,
+    "serv": 7
+   },
+   {
+    "n": "APC - ASSISTÊNCIA POLICIAL CIVIL",
+    "idUA": 53343,
+    "cc": [
+     0,
+     0.0
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 0.0,
+    "serv": 31
+   },
+   {
+    "n": "APM - ASSISTÊNCIA POLICIAL MILITAR",
+    "idUA": 53344,
+    "cc": [
+     0,
+     0.0
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 0.0,
+    "serv": 111
+   },
+   {
+    "n": "ILP - INST. DO LEGISLATIVO PAULISTA",
+    "idUA": 26429,
+    "cc": [
+     2,
+     32775.17
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 32775.17,
+    "serv": 9
+   },
+   {
+    "n": "SOS-RACISMO",
+    "idUA": 28461,
+    "cc": [
+     1,
+     9905.59
+    ],
+    "fc": [
+     0,
+     0
+    ],
+    "fg": [
+     0,
+     0
+    ],
+    "t": 9905.59,
+    "serv": 3
+   }
+  ]
+ }
+}
