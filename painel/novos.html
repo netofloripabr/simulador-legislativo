@@ -90,6 +90,7 @@ details.cas{ border-top:1px solid var(--linha); } details.cas summary{ list-styl
 .vistas a.tr{ color:var(--ter); } .vistas a.on{ color:#0B0D0E !important; background:var(--a) !important; } .secnav{ position:sticky; top:56px; z-index:25; display:flex; gap:4px; justify-content:center; padding:8px 12px; background:rgba(11,15,13,.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--linha); } .secnav a{ font:700 13px "Inter"; color:var(--sec); text-decoration:none; padding:7px 14px; border-radius:999px; } .secnav a.on{ color:#0B0D0E; background:var(--a); } .secnav a:first-child{ margin-right:auto; color:var(--ter); } .secnav a:first-child.on{ background:none; color:var(--a); }
 .bloco > h3[data-bl]{ cursor:pointer; display:flex; align-items:center; gap:8px; } .bloco > h3[data-bl]::after{ content:"−"; margin-left:auto; color:var(--ter); font-weight:500; } .bloco.fech > h3::after{ content:"+"; } .bloco.fech > .blc{ display:none; } .bloco.fech{ padding-block:14px; }
 .legg{ display:grid; grid-template-columns:minmax(220px,20%) minmax(0,1fr); gap:16px; margin-bottom:16px; } .legg .bloco{ margin-bottom:16px; } .legg > div:last-child > .bloco:last-child{ margin-bottom:0; }
+.ccg{ position:relative; padding:4px 0 2px; } .ccg > .ib{ position:absolute; right:0; top:6px; } .ccg .ibx{ margin:6px 34px 8px 0; } .ccf{ margin:10px 34px 4px 0; font-size:13px; color:var(--sec); line-height:1.45; } .ccf b{ color:var(--texto); } .ccu{ margin:14px 0 2px; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--ter); }
 details.cas summary::after{ content:""; width:7px; height:7px; border-right:1.6px solid var(--sec); border-bottom:1.6px solid var(--sec); transform:rotate(45deg); margin-top:-4px; transition:transform .2s; } details.cas[open] summary::after{ transform:rotate(-135deg); margin-top:3px; }
 @media (min-width:900px){ ol.vt.orcv{ display:grid; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); gap:14px; padding:20px 0 0; margin-top:10px; border-left:0; border-top:2px solid rgba(var(--a-rgb),.4); } ol.vt.orcv li{ padding:0; } ol.vt.orcv li::before{ left:0; top:-27px; } ol.vt.orcv li b{ display:block; } ol.vt.orcv li span{ display:block; } }
 ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px solid rgba(var(--a-rgb),.4); } ol.vt li{ position:relative; padding:0 0 14px 6px; } ol.vt li::before{ content:""; position:absolute; left:-25px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--a); box-shadow:0 0 10px rgba(var(--a-rgb),.7); } ol.vt li.rc::before{ background:var(--sup2); border:2px solid var(--ter); box-shadow:none; } ol.vt li{ padding-bottom:16px; } ol.vt b{ display:block; font:800 15px/1.2 "Inter"; letter-spacing:-.01em; font-variant-numeric:tabular-nums; color:var(--texto); } ol.vt span{ display:block; font-size:12.5px; line-height:1.4; color:var(--sec); margin-top:3px; } ol.vt li.rc b{ color:var(--ter); font-weight:700; }
@@ -224,8 +225,8 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="novos-uf.js?cb=16"></script>
-<script src="novos.js?cb=176"></script>
+<script src="novos-uf.js?cb=17"></script>
+<script src="novos.js?cb=177"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="sino-menu.js?cb=1"></script>
 </body>

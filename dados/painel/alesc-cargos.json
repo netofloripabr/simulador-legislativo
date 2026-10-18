@@ -1,0 +1,408 @@
+{
+ "fonte": "http://leis.alesc.sc.gov.br/html/Resolucao/2006/02_2006_Resolucao.html",
+ "metodo": "Níveis e índices da Resolução 002/2006 consolidada (anexos II-A, III-A, III-B, VII-A, VIII, IX). O valor em reais de cada índice não é publicado no texto: foi calculado pelo contracheque de 09/2026 (R$ 20.173,54 do DAS-7 ÷ índice 17,8617 = R$ 1.129,43 por ponto) e conferido com a gratificação FC-7 (R$ 15.404,97). Vencimento-base; o ocupante soma a gratificação de exercício do art. 20 quando prevista.",
+ "coletado_em": "2026-10-18",
+ "grupos": {
+  "Secretarias": [
+   {
+    "tipo": "Secretarias",
+    "formato": "Secretaria-Geral, Secretaria Executiva de Relações Institucionais, Secretaria de Apoio às Câmaras Municipais e Secretarias da Mulher/Família, ligadas à Chefia de Gabinete da Presidência",
+    "base": "LC 828/2023 (Mulher/Família), LC 870/2025 (Apoio às Câmaras)",
+    "cargos": [
+     {
+      "cargo": "Secretário-Geral",
+      "nivel": "PL/DAS-7",
+      "qtd": 1,
+      "venc": 20173.54,
+      "grat": 15404.97,
+      "grat_nivel": "FC-7",
+      "base": "Res. 002/2006, Anexo II-A (nível dado pela LC 870/2025)"
+     },
+     {
+      "cargo": "Assessor da Secretaria-Geral",
+      "nivel": "PL/DAS-6",
+      "qtd": 1,
+      "venc": 18232.39,
+      "grat": 12945.41,
+      "grat_nivel": "FC-6",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Secretário Executivo de Relações Institucionais",
+      "nivel": "PL/DAS-7",
+      "qtd": 1,
+      "venc": 20173.54,
+      "grat": 15404.97,
+      "grat_nivel": "FC-7",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Assessor de Rel. Institucionais p/ Assuntos Internacionais",
+      "nivel": "PL/DAS-6",
+      "qtd": 1,
+      "venc": 18232.39,
+      "grat": 12945.41,
+      "grat_nivel": "FC-6",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Assessor de Rel. Institucionais p/ Assuntos Nacionais e do Mercosul",
+      "nivel": "PL/DAS-6",
+      "qtd": 1,
+      "venc": 18232.39,
+      "grat": 12945.41,
+      "grat_nivel": "FC-6",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Assessor de Relações Institucionais",
+      "nivel": "PL/DAS-3",
+      "qtd": 2,
+      "venc": 12726.42,
+      "grat": 4424.32,
+      "grat_nivel": "FC-3",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Secretário de Apoio às Câmaras Municipais",
+      "nivel": "PL/DAS-6",
+      "qtd": 1,
+      "venc": 18232.39,
+      "grat": 12945.41,
+      "grat_nivel": "FC-6",
+      "base": "Res. 002/2006, Anexo II-A (incl. LC 870/2025)"
+     },
+     {
+      "cargo": "Assessor Administrativo da Sec. de Apoio às Câmaras",
+      "nivel": "PL/DAS-3",
+      "qtd": 2,
+      "venc": 12726.42,
+      "grat": 4424.32,
+      "grat_nivel": "FC-3",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Assessor Jurídico da Sec. de Apoio às Câmaras",
+      "nivel": "PL/DAS-3",
+      "qtd": 1,
+      "venc": 12726.42,
+      "grat": 4424.32,
+      "grat_nivel": "FC-3",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Secretário Parlamentar (Secretaria da Mulher)",
+      "nivel": "PL/GAR 01 a 120",
+      "qtd": 6,
+      "venc": null,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "Anexo IX-G (LC 870/2025)"
+     },
+     {
+      "cargo": "Secretário Parlamentar (Secretaria da Família)",
+      "nivel": "PL/GAF 01 a 120",
+      "qtd": 4,
+      "venc": null,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "Anexo IX-H (LC 870/2025)"
+     }
+    ]
+   }
+  ],
+  "Procuradoria e controle": [
+   {
+    "tipo": "Procuradoria",
+    "formato": "Órgão jurídico vinculado à Mesa (lotação 'MD - PROCURADORIA'); procuradores são cargo efetivo PL/ASI",
+    "base": "Res. 002/2006; LC 672/2016 (procuradores)",
+    "cargos": [
+     {
+      "cargo": "Procurador-Geral",
+      "nivel": "PL/DAS-8",
+      "qtd": 1,
+      "venc": null,
+      "grat": 15404.97,
+      "grat_nivel": "FC-7",
+      "base": "Res. 002/2006, Anexo II-A (Res. 10/2007)"
+     },
+     {
+      "cargo": "Procurador-Geral Adjunto",
+      "nivel": "PL/DAS-8",
+      "qtd": 1,
+      "venc": null,
+      "grat": 15404.97,
+      "grat_nivel": "FC-7",
+      "base": "Res. 002/2006, Anexo II-A"
+     }
+    ]
+   },
+   {
+    "tipo": "Controladoria-Geral",
+    "formato": "Controle interno, vinculada à Mesa",
+    "base": "LC 672/2016",
+    "cargos": [
+     {
+      "cargo": "Controlador-Geral",
+      "nivel": "PL/DAS-8",
+      "qtd": 1,
+      "venc": null,
+      "grat": 15404.97,
+      "grat_nivel": "FC-7",
+      "base": "Res. 002/2006, Anexo II-A (LC 672/2016)"
+     },
+     {
+      "cargo": "Controlador-Geral Adjunto",
+      "nivel": "PL/DAS-8",
+      "qtd": 1,
+      "venc": null,
+      "grat": 15404.97,
+      "grat_nivel": "FC-7",
+      "base": "Res. 002/2006, Anexo II-A (nível LC 698/2017)"
+     }
+    ]
+   },
+   {
+    "tipo": "Consultoria Legislativa",
+    "formato": "Assessoramento técnico-legislativo vinculado à Mesa; consultores são cargo efetivo PL/ASI; chefia é função de confiança",
+    "base": "Res. 002/2006 (LC 698/2017)",
+    "cargos": [
+     {
+      "cargo": "Chefe da Consultoria Legislativa",
+      "nivel": "PL/FC-7",
+      "qtd": 1,
+      "venc": 15404.97,
+      "grat": 12945.41,
+      "grat_nivel": "FC-6",
+      "base": "Anexo III-B; gratificação art. 20, II"
+     },
+     {
+      "cargo": "Chefe Adjunto da Consultoria Legislativa",
+      "nivel": "PL/FC-6",
+      "qtd": 1,
+      "venc": 12945.41,
+      "grat": 8982.02,
+      "grat_nivel": "FC-5",
+      "base": "Anexo III-B; gratificação art. 20, III"
+     }
+    ]
+   },
+   {
+    "tipo": "Corregedoria",
+    "formato": "Corregedoria da Assembleia Legislativa, ligada à 1ª Secretaria",
+    "base": "LC 828/2023",
+    "cargos": [
+     {
+      "cargo": "Secretário-Geral da Corregedoria",
+      "nivel": "PL/DAS-6",
+      "qtd": 1,
+      "venc": 18232.39,
+      "grat": 12945.41,
+      "grat_nivel": "FC-6",
+      "base": "Res. 002/2006, Anexo II-A (LC 828/2023)"
+     },
+     {
+      "cargo": "Secretário Parlamentar da Corregedoria",
+      "nivel": "PL/DAS-3",
+      "qtd": 2,
+      "venc": 12726.42,
+      "grat": 4424.32,
+      "grat_nivel": "FC-3",
+      "base": "Res. 002/2006, Anexo II-A (LC 828/2023)"
+     }
+    ]
+   },
+   {
+    "tipo": "Ouvidoria",
+    "formato": "Órgão vinculado à Mesa",
+    "base": "a confirmar",
+    "cargos": [
+     {
+      "cargo": "Ouvidor",
+      "nivel": "a confirmar",
+      "qtd": 1,
+      "venc": null,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "não consta no Anexo II-A; provavelmente exercido por deputado (Ouvidor Parlamentar) — a confirmar"
+     }
+    ]
+   }
+  ],
+  "Escola do Legislativo": [
+   {
+    "tipo": "Escola do Legislativo",
+    "formato": "Órgão de formação vinculado à Diretoria-Geral (lotação 'DG - ESCOLA DO LEGISLATIVO'), com Coordenadoria própria",
+    "base": "LC 828/2023 (cria Diretor da Escola)",
+    "cargos": [
+     {
+      "cargo": "Diretor da Escola do Legislativo",
+      "nivel": "PL/DAS-7",
+      "qtd": 1,
+      "venc": 20173.54,
+      "grat": 15404.97,
+      "grat_nivel": "FC-7",
+      "base": "Res. 002/2006, Anexo II-A (incl. LC 828/2023)"
+     },
+     {
+      "cargo": "Coordenador da Escola do Legislativo",
+      "nivel": "PL/DAS-6",
+      "qtd": 1,
+      "venc": 18232.39,
+      "grat": 12945.41,
+      "grat_nivel": "FC-6",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Assessor da Escola do Legislativo",
+      "nivel": "PL/DAS-5",
+      "qtd": 6,
+      "venc": 16340.59,
+      "grat": 8982.02,
+      "grat_nivel": "FC-5",
+      "base": "Res. 002/2006, Anexo II-A (incl. LC 828/2023)"
+     }
+    ]
+   }
+  ],
+  "Diretorias": [
+   {
+    "tipo": "Diretoria-Geral",
+    "formato": "Órgão de direção superior da administração; subordina as diretorias setoriais e a Escola; vinculada à Presidência/Mesa",
+    "base": "Res. 001/2006 (estrutura) — a confirmar redação vigente",
+    "cargos": [
+     {
+      "cargo": "Diretor-Geral",
+      "nivel": "PL/DAS-8",
+      "qtd": 1,
+      "venc": null,
+      "grat": 15404.97,
+      "grat_nivel": "FC-7",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Diretor-Geral Adjunto",
+      "nivel": "PL/FC-6",
+      "qtd": 1,
+      "venc": 12945.41,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "Res. 002/2006, Anexo III-B (red. LC 835/2023)"
+     }
+    ]
+   },
+   {
+    "tipo": "Diretoria",
+    "formato": "Unidade setorial (Administrativa, Financeira, Legislativa, Gestão de Pessoas, Comunicação Social, Tecnologia e Inovação) subordinada à Diretoria-Geral; agrupa Coordenadorias",
+    "base": "Res. 001/2006 + Anexo II-A da Res. 002/2006",
+    "cargos": [
+     {
+      "cargo": "Diretor",
+      "nivel": "PL/DAS-7",
+      "qtd": 1,
+      "venc": 20173.54,
+      "grat": 15404.97,
+      "grat_nivel": "FC-7",
+      "base": "Res. 002/2006, Anexo II-A"
+     },
+     {
+      "cargo": "Diretor Adjunto",
+      "nivel": "PL/FC-6",
+      "qtd": 1,
+      "venc": 12945.41,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "Res. 002/2006, Anexo III-B (incl. LC 870/2025) e art. 20, V (LC 896/2026)"
+     }
+    ]
+   }
+  ],
+  "Coordenadorias": [
+   {
+    "tipo": "Coordenadoria",
+    "formato": "Unidade operacional subordinada a uma Diretoria (ou à Chefia de Gabinete da Presidência, no caso de Eventos); pode conter Gerências",
+    "base": "Res. 002/2006 Anexo II-A (35 coordenadores listados) + Res. 001/2006",
+    "cargos": [
+     {
+      "cargo": "Coordenador",
+      "nivel": "PL/DAS-6",
+      "qtd": 1,
+      "venc": 18232.39,
+      "grat": 12945.41,
+      "grat_nivel": "FC-6",
+      "base": "Res. 002/2006, Anexo II-A"
+     }
+    ]
+   }
+  ],
+  "Gerências e núcleos": [
+   {
+    "tipo": "Gerência",
+    "formato": "Função de confiança (não é cargo em comissão) exercida por servidor dentro de uma Coordenadoria; sigla da lotação = coordenadoria-mãe (ex.: CRM, CST, CDOC)",
+    "base": "Anexo III-A da Res. 002/2006; algumas gerências transformadas/criadas por Ato da Mesa",
+    "cargos": [
+     {
+      "cargo": "Gerente",
+      "nivel": "PL/FC-5",
+      "qtd": 1,
+      "venc": 8982.02,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "Res. 002/2006, art. 17 e Anexo III-A (red. LC 870/2025, Atos da Mesa 498/2024 e 768/2025, LC 896/2026)"
+     }
+    ]
+   },
+   {
+    "tipo": "Núcleos",
+    "formato": "Unidades sem cargo próprio no Anexo II-A",
+    "base": "a confirmar (Ato da Mesa)",
+    "cargos": []
+   }
+  ],
+  "Comissões · secretário de comissão": [
+   {
+    "tipo": "Comissão Permanente",
+    "formato": "Órgão técnico do Legislativo, apoiado pela Coordenadoria das Comissões",
+    "base": "Res. 002/2006 Anexo IX-D; art. 20 §1º",
+    "cargos": [
+     {
+      "cargo": "Assessor de Comissão Permanente",
+      "nivel": "PL/GAC-59",
+      "qtd": 1,
+      "venc": null,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "Anexo IX-D (LC 870/2025)"
+     },
+     {
+      "cargo": "Assessor de Membro de Comissão Permanente",
+      "nivel": "PL/GAC-45",
+      "qtd": "1 por deputado membro",
+      "venc": null,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "Anexo IX-D (LC 870/2025)"
+     },
+     {
+      "cargo": "Chefia da Secretaria (CCJ, Finanças, Trabalho)",
+      "nivel": "PL/FG-5",
+      "qtd": 1,
+      "venc": 8982.02,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "art. 18 / Anexo III-B (LC 870/2025)"
+     },
+     {
+      "cargo": "Chefia da Secretaria (demais comissões)",
+      "nivel": "PL/FC-3",
+      "qtd": 1,
+      "venc": 4424.32,
+      "grat": null,
+      "grat_nivel": null,
+      "base": "Anexo III-B (21 vagas)"
+     }
+    ]
+   }
+  ]
+ }
+}
