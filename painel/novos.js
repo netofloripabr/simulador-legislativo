@@ -598,7 +598,9 @@ function avisoLogin(oque) { document.querySelector(".lgfundo")?.remove();
   f.querySelector(".lgg").onclick = irGoogle; f.querySelector(".lge").onclick = irLogin; }
 // liberação por área (migração 68): logado não basta, o administrador escolhe Legislativo/Administrativo/Valores/Mesa
 let AREAS = null;
-async function lerAreas() { const s = await sessaoSL(); if (!s) return { status: "nenhum" };
+// apresentação offline (servidor local do próprio computador): tudo aberto, sem depender do login/Supabase
+const LOCAL = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+async function lerAreas() { if (LOCAL) return { status: "liberado", legislativo: true, administrativo: true, valores: true, mesa: true }; const s = await sessaoSL(); if (!s) return { status: "nenhum" };
   try { let a = (await supabaseClient.rpc("acesso_parlamentares_areas")).data || { status: "nenhum" }; if (a.status === "nenhum") { await supabaseClient.rpc("solicitar_acesso_parlamentares"); a = (await supabaseClient.rpc("acesso_parlamentares_areas")).data || { status: "pendente" }; } return a; } catch (e) { return { status: "pendente" }; } }
 function avisoArea(oque) { if (AREAS.status === "nenhum") return avisoLogin(oque); document.querySelector(".lgfundo")?.remove();
   const f = Object.assign(document.createElement("div"), { className: "lgfundo" });
@@ -616,7 +618,7 @@ async function travaLogin() { if (new URLSearchParams(location.search).has("pdf"
 // links do topo que pedem conta (Mesa) também na tela de seleção
 function travaLinksTopo() { (AREAS ? Promise.resolve(AREAS) : lerAreas()).then((a) => { AREAS = a; if (a.mesa) return; document.querySelectorAll('.vistas a[href="mesa.html?v=8"], .mnu a[href="mesa.html?v=8"]').forEach((x) => x.onclick = (e) => { e.preventDefault(); avisoArea("a Mesa"); }); }); }
 let ACESSO = "verificando";
-async function verificarAcesso() { const s = await sessaoSL(); if (!s) { ACESSO = "nenhum"; aplicarTrava(); return; }
+async function verificarAcesso() { if (LOCAL) { ACESSO = "liberado"; aplicarTrava(); return; } const s = await sessaoSL(); if (!s) { ACESSO = "nenhum"; aplicarTrava(); return; }
   try { let r = (await supabaseClient.rpc("acesso_parlamentares")).data || "nenhum"; if (r === "nenhum") r = (await supabaseClient.rpc("solicitar_acesso_parlamentares")).data || "pendente"; ACESSO = r; } catch (e) { ACESSO = "nenhum"; } aplicarTrava(); }
 const CADEADO = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
 function aplicarTrava() { const ok = ACESSO === "liberado"; document.querySelectorAll(".trv").forEach((x) => x.remove());
