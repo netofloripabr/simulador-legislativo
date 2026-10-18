@@ -56,7 +56,7 @@ AQUI = Path(__file__).resolve().parent
 sys.path.insert(0, str(AQUI))
 import conferir_rrc  # noqa: E402  (reusa parse/cruzar/relatório da UF)
 
-SUPABASE_URL = "https://qgjfkpsjveatonziwkvj.supabase.co"
+SUPABASE_URL = "https://uxqxhvzeptuedyggwguh.supabase.co"
 UFS = ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG",
        "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR",
        "RS", "SC", "SE", "SP", "TO"]

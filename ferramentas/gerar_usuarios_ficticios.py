@@ -49,8 +49,8 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 
-SUPABASE_URL = "https://qgjfkpsjveatonziwkvj.supabase.co"
-SUPABASE_PUBLISHABLE_KEY = "sb_publishable_eQbVaB7fNEjgEtfat2AGyA_f4uRVPpg"
+SUPABASE_URL = "https://uxqxhvzeptuedyggwguh.supabase.co"
+SUPABASE_PUBLISHABLE_KEY = "sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph"
 SAL_CPF = "alesc-simulador-sal-v1"  # mesmo sal de nuvem/autenticacao.js (hashCPF) — não mudar sem mudar lá também
 
 NOMES_MASCULINOS = [

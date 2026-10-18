@@ -125,12 +125,12 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 <div id="app"><div class="bloq"><p style="color:#6B7178">Carregando…</p></div></div>
 <div id="sel" hidden></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
-<script src="../nuvem/config.js?cb=1"></script>
+<script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="mesa.js?cb=59"></script>
-<script src="../nuvem/visitas.js?cb=1"></script>
+<script src="../nuvem/visitas.js?cb=2"></script>
 <script>(function(){var b=document.querySelector(".mnub"),m=document.querySelector(".mnu");if(!b)return;b.onclick=function(e){e.stopPropagation();m.hidden=!m.hidden;};document.addEventListener("click",function(e){if(!e.target.closest(".mnuw"))m.hidden=true;});/* logado? lê a sessão do Supabase guardada pelo app (mesma origem); Sair apaga a sessão local */try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var ss=JSON.parse(localStorage.getItem(k)),u=ss&&(ss.user||(ss.currentSession&&ss.currentSession.user));if(u){var md=u.user_metadata||{},ct=m.querySelector(".mconta"),nm=md.full_name||md.nome||u.email,esc=function(x){return String(x||"").replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};ct.innerHTML="<b>"+esc(nm)+"</b><small>"+esc(u.email)+" · minha conta</small>";ct.href="../?capa=1";ct.onclick=null;ct.classList.remove("mconta");var sa=document.createElement("a");sa.href="#";sa.className="mconta msair";sa.textContent="Sair da conta";sa.onclick=(function(kk){return function(e){e.preventDefault();try{localStorage.removeItem(kk);}catch(er){}location.reload();};})(k);ct.after(sa);}}}}catch(e){}})();</script>
 <script src="sino-menu.js?cb=1"></script>
-<script>(function(){var t=null;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var s=JSON.parse(localStorage.getItem(k));t=s&&(s.access_token||(s.currentSession&&s.currentSession.access_token));}}}catch(e){}var go=function(){sinoMenuAdmin("https://qgjfkpsjveatonziwkvj.supabase.co","sb_publishable_eQbVaB7fNEjgEtfat2AGyA_f4uRVPpg",t);};document.querySelector(".mnu")?go():setTimeout(go,1500);})();</script>
+<script>(function(){var t=null;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var s=JSON.parse(localStorage.getItem(k));t=s&&(s.access_token||(s.currentSession&&s.currentSession.access_token));}}}catch(e){}var go=function(){sinoMenuAdmin("https://uxqxhvzeptuedyggwguh.supabase.co","sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph",t);};document.querySelector(".mnu")?go():setTimeout(go,1500);})();</script>
 </body>
 </html>

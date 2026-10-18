@@ -7,7 +7,7 @@
 (function () {
   try {
     if (/[?&]embed=1/.test(location.search)) return; // painel embutido não conta como página
-    var URL_SB = "https://qgjfkpsjveatonziwkvj.supabase.co", CHAVE = "sb_publishable_eQbVaB7fNEjgEtfat2AGyA_f4uRVPpg";
+    var URL_SB = "https://uxqxhvzeptuedyggwguh.supabase.co", CHAVE = "sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph";
     var p = location.pathname, pagina = /\/painel\/novos\.html/.test(p) ? "parlamentares" : /\/painel\/mesa\.html/.test(p) ? "mesa" : /\/painel\//.test(p) ? (location.hash === "#ranking" ? "ranking" : "painel") : "app";
     var vis = null, token = null;
     try { vis = localStorage.getItem("sl_visitante"); if (!vis) { vis = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()); localStorage.setItem("sl_visitante", vis); } } catch (e) { vis = "sem-armazenamento"; }

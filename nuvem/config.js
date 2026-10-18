@@ -5,5 +5,5 @@
 // de acesso do banco (RLS) autorizam explicitamente (ver nuvem/schema.sql) —
 // nunca a chave "secret"/"service_role", essa sim precisa ficar só no painel
 // do Supabase e nunca aparecer em nenhum arquivo do site.
-const SUPABASE_URL = "https://qgjfkpsjveatonziwkvj.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_eQbVaB7fNEjgEtfat2AGyA_f4uRVPpg";
+const SUPABASE_URL = "https://uxqxhvzeptuedyggwguh.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph";

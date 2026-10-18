@@ -509,7 +509,7 @@ const LINKS = {};
 const slugLink = (x) => String(x || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 async function carregarLinks() {
   try {
-    const r = await fetch("https://qgjfkpsjveatonziwkvj.supabase.co/rest/v1/candidato_links?select=chave,cargo,instagram,tse_id&estado=eq.SC", { headers: { apikey: "sb_publishable_eQbVaB7fNEjgEtfat2AGyA_f4uRVPpg" } });
+    const r = await fetch("https://uxqxhvzeptuedyggwguh.supabase.co/rest/v1/candidato_links?select=chave,cargo,instagram,tse_id&estado=eq.SC", { headers: { apikey: "sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph" } });
     (await r.json()).forEach((l) => { LINKS[l.cargo + "|" + l.chave] = l; });
   } catch (e) { /* sem links: os botões só não aparecem */ }
 }
