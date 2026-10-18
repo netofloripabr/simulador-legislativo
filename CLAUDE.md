@@ -123,6 +123,18 @@ verdade pro sino do admin no app, não depende de ele checar o Rotinas ou
 o git log. Resumo curto na `p_resumo` (o que mudou, quantos), detalhe
 com nomes/números na `p_detalhe`. Vale pra qualquer UF, não só SC.
 
+## REGRA DE OURO — capacidade dos serviços (18/10/2026)
+
+Todo comando ou mudança que possa comprometer a capacidade do Supabase ou
+de outro serviço (GitHub Pages, Google, cotas de API) deve ser DIMENSIONADO
+e COMUNICADO ao usuário ANTES de executar: tamanho gravado, tráfego/mês,
+logs gerados, frequência (cron/polling) e % do limite do plano.
+Limites do Supabase gratuito: 500 MB banco, 1 GB storage, 5 GB egress/mês,
+1 GB de logs. Projeto ativo: uxqxhvzeptuedyggwguh (org SimulaLEGIS); o
+antigo (qgjfkpsjveatonziwkvj) foi bloqueado por egress e depois por logs
+(cron de 20 s). Dados pesados/estáticos vão para dados/ no GitHub Pages;
+nada de polling; cron só com aprovação explícita e frequência justificada.
+
 ## Telemetria de erros do cliente (desde 07/09/2026)
 
 Erros de JS no navegador (`window.onerror` / `unhandledrejection`, capturados
