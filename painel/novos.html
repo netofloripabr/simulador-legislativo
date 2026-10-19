@@ -173,6 +173,13 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 /* capa (16/10/2026): roda à esquerda, mapa à direita */
 .capa2{ position:relative; height:calc(100vh - 56px); }
 .capaE{ position:absolute; z-index:2; display:flex; flex-direction:column; min-height:0; }
+.capa2{ position:relative; } .cgBox{ position:absolute; z-index:4; top:16px; left:16px; display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+.cgTab{ display:inline-flex; gap:4px; padding:4px; border-radius:999px; background:rgba(20,25,26,.85); border:1px solid var(--linha); }
+.cgTab button{ font:600 13px var(--sans,Inter); color:var(--sec); background:none; border:0; border-radius:999px; padding:7px 16px; cursor:pointer; }
+.cgTab button.on{ background:#F2F4F5; color:#0B0F0D; }
+.cgTab button:focus-visible, .buscC:focus-visible{ outline:2px solid var(--a); outline-offset:2px; }
+.buscC{ font:500 13px var(--sans,Inter); color:var(--texto); background:rgba(20,25,26,.85); border:1px solid var(--linha); border-radius:10px; padding:9px 12px; width:min(300px,calc(100vw - 32px)); }
+.buscC::placeholder{ color:var(--ter); }
 .capa2 .roda{ flex:1; height:auto; min-height:0; }
 .capa2 .roda ol{ padding:120px 0; } .capa2 .roda{ -webkit-mask-image:linear-gradient(transparent, #000 25%, #000 75%, transparent); mask-image:linear-gradient(transparent, #000 25%, #000 75%, transparent); }
 .capa2 .roda li{ text-align:left; font-size:clamp(27px,2.55vw,39px); padding:2px 0; transform-origin:left center; }
@@ -226,7 +233,7 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="novos-uf.js?cb=17"></script>
-<script src="novos.js?cb=177"></script>
+<script src="novos.js?cb=179"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="sino-menu.js?cb=1"></script>
 </body>

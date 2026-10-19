@@ -364,7 +364,7 @@ function placarHero() {
 
 // ---------------- ficha ----------------
 function ficha() {
-  if (EMB && parent !== window) { const k = st.sel >= 0 ? M[st.sel].n : st.rec && st.rec.tipo === "n" ? st.rec.nome : null; parent.postMessage({ tipo: "cidade", k, a: st.a.n, b: st.b ? st.b.n : null }, location.origin); }
+  if (EMB && parent !== window) { const k = st.sel >= 0 ? M[st.sel].n : st.rec && st.rec.tipo === "n" ? st.rec.nome : null; parent.postMessage({ tipo: "cidade", k, a: st.a.n, b: st.b ? st.b.n : null, cargob: st.b ? st.b.cargo : null }, location.origin); }
   const el = $("#ficha"), A = st.A, B = st.B, i = st.sel;
   if (i < 0) {
     // Duelo (08/10/2026): ordena pela diferença de VOTOS (mesmo cargo) — antes era pelos
