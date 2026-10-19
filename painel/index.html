@@ -43,7 +43,11 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .cand .ft img, .cand .ft span{ width:100%; height:100%; border-radius:50%; object-fit:cover; object-position:50% 20%; display:flex; align-items:center; justify-content:center; background:#2A2E33; font-weight:800; }
 .cand .nm{ font-weight:800; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .cand .pt{ font-size:11px; color:var(--ter); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .cand .tx{ min-width:0; }
-.vs{ font-weight:900; color:var(--ter); font-size:13px; }
+.vs{ font-weight:800; color:var(--sec); font-size:11px; letter-spacing:.08em; width:34px; height:34px; border-radius:50%; border:1px solid rgba(242,244,245,.18); display:flex; align-items:center; justify-content:center; background:#14191A; }
+.cmpT{ grid-column:1 / -1; display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin:-2px 2px 2px; } .cmpT b{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--sec); } .cmpT span{ font-size:12px; color:var(--ter); }
+.cand{ transition:border-color .2s, background .2s; } .cand:hover{ border-color:rgba(242,244,245,.24); background:#22282B; }
+.cand .cv{ margin-left:auto; flex:none; width:8px; height:8px; border:solid var(--ter); border-width:0 1.6px 1.6px 0; transform:rotate(45deg) translateY(-2px); } .cand.b .cv{ margin-left:0; margin-right:auto; }
+.cand.vazio{ border:1.5px dashed rgba(242,244,245,.22); background:transparent; } .cand.vazio:hover{ border-color:rgba(242,244,245,.45); background:rgba(242,244,245,.03); } .cand.vazio .ft{ background:none; border:1.5px dashed rgba(242,244,245,.25); padding:0; } .cand.vazio .ft span{ background:none; color:var(--sec); font-size:20px; font-weight:400; } .cand.vazio .nm{ color:var(--sec); } .cand.vazio .cv{ display:none; }
 .busca{ position:absolute; top:calc(100% + 6px); left:0; right:0; z-index:20; background:#191E20; border:1px solid rgba(242,244,245,.14); border-radius:14px; padding:8px; box-shadow:0 18px 40px rgba(0,0,0,.5); }
 .cand.b .busca{ left:auto; } .busca[hidden]{ display:none; }
 .busca input{ width:100%; font:15px "Inter"; color:var(--texto); background:#0F1314; border:1px solid var(--linha); border-radius:10px; padding:10px 12px; outline:none; }
@@ -117,7 +121,7 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .tabela.rk .tl.n1, .tabela.rk .tl.n2, .tabela.rk .tl.n3{ grid-template-columns:34px minmax(0,1fr) 80px 80px 86px 64px; }
 @media (max-width:520px){ .tabela.rk .tl{ grid-template-columns:24px minmax(0,1fr) 62px 54px; } .tabela.rk .tl:not(.n1):not(.n2):not(.n3) > span:nth-child(4), .tabela.rk .tl:not(.n1):not(.n2):not(.n3) > span:nth-child(6){ display:none; }
   .tabela.rk .tl.n1, .tabela.rk .tl.n2, .tabela.rk .tl.n3{ grid-template-columns:8px minmax(0,1fr) 54px 58px 62px; } .vistas button{ padding:6px 8px; } .topo .sep{ display:none; } }
-.btn-rel{ margin-left:auto; font:700 13px "Inter"; color:#0B0D0E; background:var(--texto); border:0; border-radius:999px; padding:8px 16px; cursor:pointer; }
+.btn-rel{ margin-left:auto; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; color:var(--sec); background:none; border:1px solid var(--linha); border-radius:50%; padding:0; cursor:pointer; } .btn-rel:hover{ color:var(--texto); border-color:rgba(242,244,245,.3); }
 #relModal{ position:fixed; inset:0; z-index:60; display:flex; align-items:center; justify-content:center; padding:16px; } #relModal[hidden]{ display:none; }
 .rel-fundo{ position:absolute; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); }
 .rel-caixa{ position:relative; width:min(460px,100%); max-height:90vh; overflow:auto; background:#171C1E; border:1px solid rgba(242,244,245,.14); border-radius:18px; padding:18px; }
@@ -179,11 +183,12 @@ html,body{ overflow-x:hidden; max-width:100%; }
 <main class="painel" id="painel">
   <div class="caixa-p">
     <div class="barra-sel">
+      <div class="cmpT"><b>Comparar candidatos</b><span>Clique em um nome para trocar. O segundo pode ser de qualquer cargo, eleito ou não.</span></div>
       <div class="cand a" id="candA"></div>
-      <div class="vs">×</div>
+      <div class="vs">VS</div>
       <div class="cand b" id="candB"></div>
     </div>
-    <div class="filtros"><label>Recorte <select id="recorte"></select></label><span id="tiposReg" class="tipos"></span><button class="btn-rel" id="btnRel">Relatório</button></div>
+    <div class="filtros"><label>Recorte <select id="recorte"></select></label><span id="tiposReg" class="tipos"></span><button class="btn-rel" id="btnRel" title="Imprimir relatório" aria-label="Imprimir relatório"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 6V2.5h7V6"/><rect x="2" y="6" width="12" height="5.5" rx="1.2"/><path d="M4.5 9.5h7v4h-7z"/></svg></button></div>
     <nav class="lentes" id="lentes"></nav>
     <div class="corpo">
       <div class="cena" id="cena">
@@ -203,7 +208,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
 <script>document.querySelectorAll(".ufn").forEach(function(e){ e.textContent = e.closest("h1") ? UFI.nome.toLowerCase() : UFI.nome; }); document.title = UFI.nome + " em pontos · SimulaLEGIS";</script>
-<script src="painel.js?cb=44"></script>
+<script src="painel.js?cb=46"></script>
 <script>(function(){var b=document.querySelector(".mnub"),m=document.querySelector(".mnu");if(!b)return;b.onclick=function(e){e.stopPropagation();m.hidden=!m.hidden;};document.addEventListener("click",function(e){if(!e.target.closest(".mnuw"))m.hidden=true;});/* logado? lê a sessão do Supabase guardada pelo app (mesma origem); Sair apaga a sessão local */try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var ss=JSON.parse(localStorage.getItem(k)),u=ss&&(ss.user||(ss.currentSession&&ss.currentSession.user));if(u){var md=u.user_metadata||{},ct=m.querySelector(".mconta"),nm=md.full_name||md.nome||u.email,esc=function(x){return String(x||"").replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};ct.innerHTML="<b>"+esc(nm)+"</b><small>"+esc(u.email)+" · minha conta</small>";ct.href="../?capa=1";ct.onclick=null;ct.classList.remove("mconta");var sa=document.createElement("a");sa.href="#";sa.className="mconta msair";sa.textContent="Sair da conta";sa.onclick=(function(kk){return function(e){e.preventDefault();try{localStorage.removeItem(kk);}catch(er){}location.reload();};})(k);ct.after(sa);}}}}catch(e){}})();</script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="relatorio.js?cb=23"></script>

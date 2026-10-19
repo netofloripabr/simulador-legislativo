@@ -97,7 +97,7 @@ const fimSec = () => `</div></div></section>`;
 // 01 · Eleitoral: Painel completo embutido (sanfona aberta) com filtros prontos
 function secEleitoral(c) {
   return `<section class="secao s1" id="s1"><div class="wrap"><div class="tag rv"><button class="tg${AB.painel ? " on ab" : ""}" data-sec="painel" title="Recolher ou abrir">${AB.painel ? "−" : "+"}</button><h2>Eleitoral</h2><p class="lead">Onde estão os votos: mapa, distribuição, perfil das cidades, comparação e ranking.</p></div><div>
-    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="elg"><iframe class="emb" id="emb" src="index.html?embed=1&v=39&uf=${UF}&cargo=${CARGO}&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe><aside class="cid" id="cid" hidden></aside></div></div></div></div></section>`;
+    <div id="c-painel"${AB.painel ? "" : " hidden"}><div class="elg"><iframe class="emb" id="emb" src="index.html?embed=1&v=40&uf=${UF}&cargo=${CARGO}&a=${c.n}&cor=${encodeURIComponent((COR_P[c.p] || "#34E84A").slice(1))}"></iframe><aside class="cid" id="cid" hidden></aside></div></div></div></div></section>`;
 }
 function ligarEleitoral(c, ordM) {
   const base = M[ordM[0]], reg = base.meso, leg = D.c.filter((x) => x.p === c.p && x.n !== c.n).sort((a, b) => b.t - a.t)[0], E = eleitos(), k = E.findIndex((x) => x.n === c.n), viz = E[k ? k - 1 : 1];
@@ -579,6 +579,7 @@ async function caderno(c, ordM, foco) {
 function irPara(alvo) { let y; const fr = $("#emb");
   if (alvo.startsWith("emb:")) { const el = fr && fr.contentDocument.querySelector(alvo.slice(4)); if (!el) return; y = fr.getBoundingClientRect().top + scrollY + el.getBoundingClientRect().top - 60; }
   else { const el = $("#" + alvo); if (!el) return; y = el.getBoundingClientRect().top + scrollY - 56; } scrollTo({ top: y, behavior: "smooth" }); }
+document.addEventListener("click", (e) => { const tg = e.target.closest(".secao .tag"); if (tg && !e.target.closest("button, a, input, select")) { const bt = tg.querySelector(".tg"); if (bt) bt.click(); return; } });
 document.addEventListener("click", (e) => { const b = e.target.closest("[data-ir]"); if (b) { e.preventDefault(); irPara(b.dataset.ir); } });
 addEventListener("message", (e) => { if (e.origin === location.origin && e.data && e.data.tipo === "ir") irPara(e.data.alvo); });
 // seta flutuante: mostra a próxima área conforme a posição da tela

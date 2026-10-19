@@ -87,8 +87,8 @@ function foto(c) { const p = `../dados/fotos/${UF}-2026/${c.cargo}/${c.n}.jpg`; 
 function caixaCand(el, lado) {
   const c = lado === "a" ? st.A : st.B;
   el.classList.toggle("vazio", !c);
-  el.innerHTML = c ? `<div class="ft">${foto(c)}</div><div class="tx"><div class="nm">${esc(c.u)}${botoesLinks(c)}</div><div class="pt">${esc(c.p)} · ${CARGO_LBL[c.cargo]} · ${ni(c.t)} votos</div></div>`
-    : `<div class="ft"><span>+</span></div><div class="tx"><div class="nm">Comparar com…</div><div class="pt">qualquer candidato de SC</div></div>`;
+  el.innerHTML = c ? `<div class="ft">${foto(c)}</div><div class="tx"><div class="nm">${esc(c.u)}${botoesLinks(c)}</div><div class="pt">${esc(c.p)} · ${CARGO_LBL[c.cargo]} · ${ni(c.t)} votos</div></div><i class="cv" aria-hidden="true"></i>`
+    : `<div class="ft"><span>+</span></div><div class="tx"><div class="nm">Comparar</div><div class="pt">qualquer cargo, eleito ou não · ${esc(UFI.nome)}</div></div>`;
   el.insertAdjacentHTML("beforeend", `<div class="busca" hidden><input id="q${lado}" placeholder="Nome, partido ou número"><div class="res"></div></div>`);
   const bx = el.querySelector(".busca"), inp = bx.querySelector("input"), res = bx.querySelector(".res");
   const lista = () => {
@@ -115,7 +115,7 @@ function trocouCandidato() {
 function montarSeletores() { caixaCand($("#candA"), "a"); caixaCand($("#candB"), "b"); }
 
 // ---------------- lentes ----------------
-const LENTES = [["mapa", "Mapa"], ["forca", "A distribuição"], ["social", "Perfil da cidade"], ["porte", "Cidade grande × pequena"], ["regioes", "Regiões"], ["d22", "2022 → 2026"]];
+const LENTES = [["mapa", "Mapa"], ["forca", "Distribuição"], ["social", "Cidade"], ["porte", "Grande × Pequena"], ["regioes", "Regiões"], ["d22", "2022 → 2026"]];
 // cruzamentos (dados/painel/sc-social.json, ferramentas/gerar_social_sc.py): IBGE Censo 2022, MDS, TSE perfil do eleitorado
 const VARS = [["renda_pc_media", "Renda", "Renda por pessoa", (v) => "R$ " + ni(v), true], ["pct_evangelicos", "Evangélicos", "Evangélicos na população", (v) => nf(v, 0) + "%"],
   ["pct_catolicos", "Católicos", "Católicos na população", (v) => nf(v, 0) + "%"], ["pct_pop_pbf", "Bolsa Família", "População no Bolsa Família", (v) => nf(v, 0) + "%"],

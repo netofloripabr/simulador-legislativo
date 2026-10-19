@@ -125,7 +125,7 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .qv{ display:flex; align-items:center; gap:12px; } .qv em{ font-style:normal; font-weight:800; color:var(--a); white-space:nowrap; min-width:110px; text-align:right; } .esf{ position:relative; flex:1; display:grid; grid-template-columns:repeat(20,1fr); gap:4px; }
 .esf i{ aspect-ratio:1; border-radius:50%; background:rgba(242,244,245,.1); transition:background .4s var(--d); } .esf i.on{ background:var(--a); box-shadow:0 0 6px rgba(var(--a-rgb),.7); } .esf i.pr{ box-shadow:inset 0 0 0 1.5px rgba(242,244,245,.45); }
 .esf.dias{ grid-template-columns:repeat(60,1fr); gap:2px; padding-bottom:16px; } .esf.dias i.on{ background:var(--a); box-shadow:none; } .esf.dias i.ur{ background:#E5484D; } .esf.dias i.pg{ background:rgba(var(--a-rgb),.28); } .esf .mk{ position:absolute; left:0; right:0; bottom:0; height:12px; } .esf .mk span{ position:absolute; transform:translateX(-50%); font-size:10px; color:var(--ter); white-space:nowrap; } .esf .mk span:last-child{ transform:translateX(-100%); }
-.secao .tag{ flex-wrap:wrap; margin-bottom:34px; padding-bottom:6px; } .secao .tag .lead{ flex:1; min-width:260px; margin:0 0 0 18px; font-size:15px; max-width:640px; }
+.secao .tag{ flex-wrap:wrap; margin-bottom:34px; padding:18px 22px; border:1px solid rgba(242,244,245,.06); background:rgba(242,244,245,.018); border-radius:16px; cursor:pointer; transition:border-color .2s, background .2s; } .secao .tag:hover{ border-color:rgba(242,244,245,.13); background:rgba(242,244,245,.03); } .secao .tag .lead{ flex:1; min-width:260px; margin:0 0 0 18px; font-size:15px; max-width:640px; }
 .topo .secs{ display:flex; gap:4px; margin-left:8px; } .topo .secs a{ font:700 13px "Inter"; color:var(--sec); text-decoration:none; padding:7px 12px; border-radius:999px; } .topo .secs a.on{ color:#0B0D0E; background:var(--a); }
 .seta{ display:flex; align-items:center; gap:10px; width:auto; height:auto; border:0; background:none; border-radius:0; cursor:pointer; color:var(--a); font:600 16px "Inter"; } .seta::first-letter{ } .seta{ padding:0; } .seta span{ font:600 12px "Inter"; letter-spacing:.14em; text-transform:uppercase; color:#8A9096; } .seta{ --c:var(--a); } .seta:not(:empty)::before{ content:""; } .seta{ text-indent:0; }
 @media (max-width:900px){ .qrows .qr{ grid-template-columns:1fr; } .topo .secs a{ padding:6px 8px; font-size:12px; } }
@@ -233,7 +233,7 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="novos-uf.js?cb=17"></script>
-<script src="novos.js?cb=180"></script>
+<script src="novos.js?cb=181"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="sino-menu.js?cb=1"></script>
 </body>
