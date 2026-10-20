@@ -211,7 +211,7 @@ function secPolitica(c, trilhaHtml = "") {
     <div class="ordc" id="ordComp"><span class="r">Ordenar</span>${[["n26", "2026"], ["n22", "2022"], ["var", "variação"], ["vot", "votos 2026"]].map(([k, r], i) => `<button data-oc="${k}" class="${i ? "" : "on"}">${r} ↓</button>`).join("")}</div><div class="comp v1" id="comp"></div>
     <p class="nota">2022: resultado da eleição (antes das trocas de partido). Federações de 2026 somam os partidos que a compõem (UNIÃO/PP = União + PP; PT/PC do B/PV = PT; PSOL/REDE = PSOL).</p></div></div>
     <div class="bloco rv"><h3 data-bl>Comissões: ${esc(c.p)}<button class="qbt" id="qbt" title="Cálculo completo por comissão">÷ Quociente por comissão</button></h3><div class="blc"><p>Regimento, art. 30: quociente = 40 ÷ (membros − 1). O ${esc(c.p)} vem marcado; marque ou desmarque partidos para simular qualquer bloco.</p>
-    <div class="chips" id="blocoP">${ps.map((p) => `<button data-bp="${esc(p)}" class="${p === c.p ? "on" : ""}">${esc(p)} · ${nbanc(p)}</button>`).join("")}</div><div id="quoc"></div>
+    <div class="chips" id="blocoP" style="margin-bottom:8px">${ps.map((p) => `<button data-bp="${esc(p)}" class="${p === c.p ? "on" : ""}">${esc(p)} · ${nbanc(p)}</button>`).join("")}</div><div class="blocosS" id="blocosS"></div><div id="quoc"></div>
     <div class="gcom3"><div class="gcom" id="gcom"></div></div><div class="distr" id="distr"></div></div></div>
     <div class="bloco rv"><h3 data-bl>Frentes e fóruns parlamentares</h3><div class="blc"><p>Grupos suprapartidários de deputados em torno de um tema: setor econômico, região, obra, causa social. Não votam projetos; mobilizam, debatem e levam pautas ao governo e às comissões.</p>
     <div class="ffx"><div><b>Frente parlamentar</b><span>Criada por requerimento de deputados e formalizada por ato da Mesa. Precisa de no mínimo <b>4 deputados</b> para ser instalada e dura <b>365 dias</b>, prorrogáveis uma única vez pelo mesmo período. Coordena o primeiro signatário.</span></div><div><b>Fórum parlamentar</b><span>Espaço permanente de debate de um tema com a sociedade civil e órgãos públicos, também coordenado por um deputado.</span></div><div><b>O que fazem</b><span>Reuniões, audiências públicas, seminários, visitas técnicas, relatórios e proposições apresentadas pelos membros.</span></div></div>
@@ -228,7 +228,11 @@ function vagas(grupos, n, k) { const q = QD(n), L = grupos.map((g) => { const d 
   if (!SC0) { /* ALESP, art. 26: sobras primeiro a quem não tem vaga, depois às maiores frações com resto de ao menos 1/4 */ L.filter((x) => !x.v && x.d).sort((a, b) => b.d - a.d).forEach((x) => { if (r > 0) { x.v++; r--; } }); L.filter((x) => (x.e - Math.floor(x.e)) >= .25 && x.v === Math.floor(x.e)).sort((a, b) => (b.e - b.v) - (a.e - a.v)).forEach((x) => { if (r > 0) { x.v++; r--; } }); }
   while (res > 0 && peq.length) { peq.sort((a, b) => (b.e - b.v) - (a.e - a.v) || b.d - a.d); peq[0].v++; res--; r--; }
   while (r > 0) { L.sort((a, b) => (b.e - b.v) - (a.e - a.v) || b.d - a.d); L[0].v++; r--; } return { q, L }; }
-let BLOCO = [], ORDC = "n26", COLOC = Array(24).fill(0);
+let BLOCO = [], BLOCOS = [], ORDC = "n26", COLOC = Array(24).fill(0);
+// blocos simultâneos (20/10/2026): BLOCOS = blocos já criados; BLOCO = seleção em montagem. Regimento, art. 20, § 3º: bloco de 2+ partidos, de 1/8 a 2/8 da Casa (5 a 10 deputados na ALESC)
+const BLOCO_MIN = () => Math.ceil(UFI.vagas / 8), BLOCO_MAX = () => Math.floor(UFI.vagas * 2 / 8);
+const grupoFoco = (p) => BLOCOS.find((g) => g.includes(p)) || (BLOCO.includes(p) ? BLOCO : null);
+const gruposSim = (ps, foco) => { const us = new Set([...BLOCOS.flat(), ...BLOCO]), L = [...BLOCOS, ...(BLOCO.length ? [BLOCO] : []), ...ps.filter((p) => !us.has(p)).map((p) => [p])]; const f = foco && L.find((g) => g === foco || (g.length === foco.length && foco.every((p) => g.includes(p)))); return f ? [f, ...L.filter((g) => g !== f)] : L; };
 let COMS9 = ["CCJ", "Finanças", "Trabalho", "Ética"], COMS7 = ["Agricultura", "Assuntos Mun.", "Criança", "Deficiência", "Idoso", "Dir. Humanos", "Economia", "Educação", "Consumidor", "Pesca", "Drogas", "Defesa Civil", "Rel. Inst.", "Saúde", "Segurança", "Transportes", "Turismo", "Esportes", "Animal", "Meio Ambiente"];
 // estado: SC (ALESC) comissões de 9 e 7, quociente 40 ÷ (membros − 1); SP (ALESP) de 13 e 11, quociente 94 ÷ membros (Regimento, arts. 26 e 30)
 const SC0 = typeof UF === "undefined" || UF === "sc";
@@ -250,8 +254,8 @@ function ligarPolitica(c) {
   $("#ordComp").onclick = (e) => { const b = e.target.closest("[data-oc]"); if (!b) return; ORDC = b.dataset.oc; $("#ordComp").querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); comp(); };
   comp();
   // simulador de bloco: vagas por cenário + grade de 176 pontos nas 24 comissões
-  const desenha = () => { const meu = BLOCO; if (!meu.length) { $("#quoc").innerHTML = `<div class="cen vz"><div class="ci" style="text-align:left"><span>Nenhum partido marcado</span><small>marque um ou mais partidos acima</small></div></div>`; $("#gcom").innerHTML = ""; $("#distr").innerHTML = ""; return; }
-    const grupos = [meu, ...ps.filter((p) => !meu.includes(p)).map((p) => [p])];
+  const desenha = () => { pintaBlocos(); const meu = grupoFoco(c.p) || (BLOCO.length ? BLOCO : []); if (!meu.length) { $("#quoc").innerHTML = `<div class="cen vz"><div class="ci" style="text-align:left"><span>Nenhum partido marcado</span><small>marque um ou mais partidos acima</small></div></div>`; $("#gcom").innerHTML = ""; $("#distr").innerHTML = ""; return; }
+    const grupos = gruposSim(ps, meu);
     const sim = (g, quem) => { const a = vagas(g, T9, K9), b = vagas(g, T7, K7), f = (r) => r.L.find((x) => x.g.includes(quem)); return { v9: f(a).v, v7: f(b).v, tot: f(a).v + f(b).v, d: f(a).d }; };
     const so1 = (p) => sim([[p], ...ps.filter((q) => q !== p).map((q) => [q])], p), cb = sim(grupos, meu[0]), so = meu.length === 1 ? cb : { ...so1(meu[0]), tot: 0 };
     const sep = meu.reduce((t, p) => t + so1(p).tot, 0);
@@ -268,9 +272,23 @@ function ligarPolitica(c) {
     const col = (nmc, n, j) => `<div class="cc${COLOC[j] ? " tem" : ""}" data-cc="${j}"><span>${nmc}</span><div class="pts">${Array.from({ length: n }, (_, q) => `<i class="${q < COLOC[j] ? "meu" : ""}"></i>`).join("")}</div></div>`;
     $("#gcom").innerHTML = `<div class="g9"><div class="cols">${COMS9.map((nmc, j) => col(nmc, T9, j)).join("")}</div>${pool(v.v9 - u9, `${v.v9 - u9} de ${v.v9} para distribuir`)}</div><div class="sepc"></div><div class="g7"><div class="cols">${COMS7.map((nmc, j) => col(nmc, T7, j + nm9)).join("")}</div>${pool(v.v7 - u7, `${v.v7 - u7} de ${v.v7} para distribuir`)}</div>`;
     $("#gcom").onclick = (e) => { const cc = e.target.closest("[data-cc]"); if (!cc) return; const j = +cc.dataset.cc, n9 = j < nm9, livre = n9 ? v.v9 - u9 : v.v7 - u7, aceso = e.target.closest("i.meu");
-      if (aceso) COLOC[j]--; else if (livre > 0 && COLOC[j] < (n9 ? lim9 : lim7)) COLOC[j]++; desenha(); gravarP(c, { bloco: BLOCO, coloc: COLOC }); }; };
-  $("#blocoP").onclick = (e) => { const b = e.target.closest("[data-bp]"); if (!b) return; const p = b.dataset.bp; BLOCO = BLOCO.includes(p) ? BLOCO.filter((x) => x !== p) : [...BLOCO, p]; b.classList.toggle("on"); desenha(); gravarP(c, { bloco: BLOCO, coloc: COLOC }); };
-  { const sv = lerP(c); BLOCO = sv.bloco && sv.bloco.length ? sv.bloco.filter((p) => ps.includes(p)) : [c.p]; COLOC = Array.isArray(sv.coloc) && sv.coloc.length === K9 + K7 ? sv.coloc.slice() : Array(K9 + K7).fill(0); $("#blocoP").querySelectorAll("[data-bp]").forEach((b) => b.classList.toggle("on", BLOCO.includes(b.dataset.bp))); } desenha();
+      if (aceso) COLOC[j]--; else if (livre > 0 && COLOC[j] < (n9 ? lim9 : lim7)) COLOC[j]++; desenha(); gravarP(c, { bloco: BLOCO, blocos: BLOCOS, coloc: COLOC }); }; };
+  // montagem de blocos: os já criados viram cartões arrastáveis; arrastar para a lixeira apaga
+  const somaD = (g) => g.reduce((t, p) => t + nbanc(p), 0);
+  function pintaBlocos() { const el = $("#blocosS"); if (!el) return; const d = somaD(BLOCO), ok = BLOCO.length >= 2 && d >= BLOCO_MIN() && d <= BLOCO_MAX();
+    $("#blocoP").querySelectorAll("[data-bp]").forEach((b) => { const uso = BLOCOS.some((g) => g.includes(b.dataset.bp)); b.classList.toggle("uso", uso); b.classList.toggle("on", BLOCO.includes(b.dataset.bp)); b.disabled = uso; });
+    el.innerHTML = `<div class="bmk"><button class="bcria" id="bCria"${ok ? "" : " disabled"}>+ Criar bloco</button><span class="bdica">${BLOCO.length < 2 ? "Marque dois ou mais partidos para formar um bloco." : `${BLOCO.join(" + ")}: ${d} deputados${ok ? "" : ` · o bloco precisa ter de ${BLOCO_MIN()} a ${BLOCO_MAX()} deputados (art. 20, § 3º)`}`}</span></div>
+      ${BLOCOS.length ? `<div class="blst">${BLOCOS.map((g, i) => `<div class="bcard" draggable="true" data-bi="${i}" title="Arraste para a lixeira para apagar"><span class="bn">Bloco ${i + 1}</span><b>${esc(g.join(" + "))}</b><small>${somaD(g)} deputados</small></div>`).join("")}<div class="blix" id="bLix" title="Arraste um bloco até aqui para apagar"><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5"/></svg><span>Lixeira</span></div></div>` : ""}`;
+    const cr = $("#bCria"); if (cr) cr.onclick = () => { BLOCOS.push(BLOCO.slice()); BLOCO = []; desenha(); gravarP(c, { bloco: BLOCO, blocos: BLOCOS, coloc: COLOC }); };
+    let arr = null; const apaga = (i) => { BLOCOS.splice(i, 1); desenha(); gravarP(c, { bloco: BLOCO, blocos: BLOCOS, coloc: COLOC }); };
+    el.querySelectorAll(".bcard").forEach((cd) => { cd.ondragstart = (e) => { arr = +cd.dataset.bi; e.dataTransfer.setData("text/plain", cd.dataset.bi); cd.classList.add("arr"); el.querySelector(".blix").classList.add("pronta"); };
+      cd.ondragend = () => { cd.classList.remove("arr"); const lx = el.querySelector(".blix"); if (lx) lx.classList.remove("pronta", "sobre"); };
+      cd.onclick = () => { el.querySelectorAll(".bcard").forEach((x) => x.classList.toggle("sel", x === cd && !x.classList.contains("sel"))); }; });
+    const lx = $("#bLix"); if (lx) { lx.ondragover = (e) => { e.preventDefault(); lx.classList.add("sobre"); }; lx.ondragleave = () => lx.classList.remove("sobre");
+      lx.ondrop = (e) => { e.preventDefault(); const i = +(e.dataTransfer.getData("text/plain") || arr); if (!isNaN(i)) apaga(i); };
+      lx.onclick = () => { const s2 = el.querySelector(".bcard.sel"); if (s2) apaga(+s2.dataset.bi); }; } }
+  $("#blocoP").onclick = (e) => { const b = e.target.closest("[data-bp]"); if (!b) return; const p = b.dataset.bp; if (BLOCOS.some((g) => g.includes(p))) return; BLOCO = BLOCO.includes(p) ? BLOCO.filter((x) => x !== p) : [...BLOCO, p]; desenha(); gravarP(c, { bloco: BLOCO, blocos: BLOCOS, coloc: COLOC }); };
+  { const sv = lerP(c); BLOCOS = Array.isArray(sv.blocos) ? sv.blocos.map((g) => g.filter((p) => ps.includes(p))).filter((g) => g.length > 1) : []; BLOCO = (Array.isArray(sv.bloco) ? sv.bloco.filter((p) => ps.includes(p)) : [c.p]).filter((p) => !BLOCOS.some((g) => g.includes(p))); COLOC = Array.isArray(sv.coloc) && sv.coloc.length === K9 + K7 ? sv.coloc.slice() : Array(K9 + K7).fill(0); $("#blocoP").querySelectorAll("[data-bp]").forEach((b) => b.classList.toggle("on", BLOCO.includes(b.dataset.bp))); } desenha();
   const qb = $("#qbt"); if (qb) qb.onclick = (e) => { e.stopPropagation(); quocPainel(ps); };
   const ffb = $("#ffbt"); if (ffb) ffb.onclick = () => { const L = $("#fflista"), ab = L.hidden; L.hidden = !ab; ffb.classList.toggle("on", ab); ffb.querySelector("b").textContent = ab ? "↑" : "↓";
     if (ab && !L.innerHTML) { const nm = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(), eu = nm(c.u).split(" ")[0]; let filtro = "Vigente";
@@ -370,7 +388,7 @@ function trilhaPrint(k, cor) {
 
 const TNOME = { PL: "Projeto de Lei", PLC: "Projeto de Lei Complementar", PEC: "Proposta de Emenda à Constituição", MP: "Medida Provisória" };
 function comPrint(sel, cor) { if (!sel.length) return `<p class="nota">Nenhum partido marcado no painel.</p>`;
-  const ps = [...new Set(eleitos().map((x) => x.p))], g = [sel, ...ps.filter((p) => !sel.includes(p)).map((p) => [p])], a = vagas(g, T9, K9).L.find((x) => x.g === sel), b = vagas(g, T7, K7).L.find((x) => x.g === sel);
+  const ps = [...new Set(eleitos().map((x) => x.p))], g = gruposSim(ps, sel), s0 = g[0].every((p) => sel.includes(p)) ? g[0] : sel, gg = s0 === g[0] ? g : [sel, ...g.filter((x) => !x.some((p) => sel.includes(p)))], a = vagas(gg, T9, K9).L.find((x) => x.g === gg[0]), b = vagas(gg, T7, K7).L.find((x) => x.g === gg[0]);
   // mesma organização do painel: grupo das 4 comissões de 9 e das 20 de 7, colunas de pontos e a reserva de vagas a distribuir
   const u9 = COLOC.slice(0, K9).reduce((x, y) => x + y, 0), u7 = COLOC.slice(K9).reduce((x, y) => x + y, 0);
   const col = (n, k, j) => `<div class="cc${COLOC[j] ? " tem" : ""}"><span>${esc(n)}</span><p>${Array.from({ length: k }, (_, q) => `<i class="${q < COLOC[j] ? "m" : ""}"></i>`).join("")}</p></div>`;
@@ -387,7 +405,7 @@ function montarVmg(dd, cor) { if (dd.querySelector("#vmg")) return; const tb = d
       vm.insertAdjacentHTML("beforeend", `<ol>${L.slice(0, 15).map((x, k) => `<li class="${x.n === c.n ? "eu" : ""}"><span>${k + 1}º ${esc(x.u)}<em>${esc(x.p)}</em></span><b>${ni(x.v[i])}</b><small>${nf(x.v[i] / D.val[i] * 100)}%</small></li>`).join("")}${L.length > 15 ? `<li><span style="color:var(--ter)">+ ${L.length - 15} candidatos com voto</span><b></b><small></small></li>` : ""}</ol>`); }
     else { b.querySelector("i").textContent = "+"; vm.querySelector("ol")?.remove(); } }; }
 // painel completo do quociente: cada comissão × cada partido/bloco (mesma lógica de vagas(), repartida entre as comissões em rodízio)
-function quocPainel(ps, soTabela) { const meu = BLOCO.length ? BLOCO : [], G = [...(meu.length ? [meu] : []), ...ps.filter((p) => !meu.includes(p)).map((p) => [p])], f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function quocPainel(ps, soTabela) { const c0 = window._cAtual || {}, meu = grupoFoco(c0.p) || (BLOCO.length ? BLOCO : []), G = gruposSim(ps, meu.length ? meu : null), f = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const nomeG = (g) => g.join(" + "), dep = G.map((g) => g.reduce((s2, p) => s2 + nbanc(p), 0));
   const grupo = (n, nomes) => { const k = nomes.length, r = vagas(G, n, k), q = r.q, V = G.map((g) => (r.L.find((x) => x.g === g) || {}).v || 0);
     const cad = nomes.map(() => []); let pos = 0; G.map((g, i) => i).sort((a, b) => V[b] - V[a]).forEach((i) => { for (let t = 0; t < V[i]; t++) { let tent = 0; while (cad[pos % k].length >= n && tent++ < k) pos++; cad[pos % k].push(i); pos++; } });
@@ -447,7 +465,7 @@ async function caderno(c, ordM, foco) {
   const E22 = A22.eleitos || [], ps = [...new Set(E.map((x) => x.p))], de22 = (p) => E22.filter((x) => (PART22[p] || [p]).includes(x.p)), R = ps.map((p) => ({ p, a: de22(p).length, b: E.filter((x) => x.p === p).length })).sort((x, y) => y.b - x.b), mxs = Math.max(...R.map((r) => Math.max(r.a, r.b)));
   const alesc = R.map((r) => `<div class="cb${r.p === c.p ? " eu" : ""}"><span>${esc(r.p)}</span><div class="tk"><i class="a" style="width:${r.a / mxs * 100}%"></i><i class="b" style="width:${r.b / mxs * 100}%"></i></div><b>${r.a} → ${r.b}</b></div>`).join("");
   // comissões: bloco simulado e vagas distribuídas
-  const sel = (typeof BLOCO !== "undefined" && BLOCO.length ? BLOCO : [c.p]), nm = [...COMS9, ...COMS7];
+  const sel = (typeof BLOCO !== "undefined" && (grupoFoco(c.p) || (BLOCO.length ? BLOCO : null))) || [c.p], nm = [...COMS9, ...COMS7];
   const comHtml = comPrint(sel, cor); const coms = nm.map((n, j) => `<div class="cm${(COLOC[j] || 0) ? " on" : ""}"><span>${esc(n)}</span><b>${COLOC[j] ? "●".repeat(COLOC[j]) : "—"}</b></div>`).join("");
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Caderno do mandato · ${esc(c.u)}</title><style>@page{size:A4}*{box-sizing:border-box}body{margin:0;font:10px/1.5 Inter,system-ui,sans-serif;color:#0B0D0E;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   @font-face{font-family:Inter;src:url(${location.origin}${location.pathname.replace(/painel\/.*$/, "")}fontes/InterVariable.woff2);font-weight:100 900}

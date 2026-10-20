@@ -101,6 +101,10 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .comp .seg i{ position:relative; display:block; height:14px; min-width:4px; border-radius:3px; background:rgba(242,244,245,.22); animation:cresce .6s cubic-bezier(.2,.8,.3,1) both; } .comp .lado.d .seg i{ background:rgba(242,244,245,.32); } .comp .lado .seg i.perd{ background:#E5484D; } .comp .lado .seg i.ganh{ background:#34C759; box-shadow:0 0 8px rgba(52,199,89,.5); } .comp .eu .lado.d .seg i:not(.ganh){ background:var(--a); } .comp .lado.d{ flex-wrap:nowrap; }
 .comp .seg i img{ position:absolute; left:50%; bottom:16px; transform:translateX(-50%); width:20px; height:20px; border-radius:50%; object-fit:cover; object-position:50% 18%; box-shadow:0 0 0 1.5px var(--fundo); } .comp .lado.d{ padding-top:20px; } .comp .cl.cab span{ font-size:10.5px; letter-spacing:.14em; color:var(--ter); } .comp .cl.cab .lado.d{ padding-top:0; }
 @keyframes cresce{ from{ transform:scaleX(0); opacity:0; } } .comp .lado.e .seg i{ transform-origin:right; } .comp .lado.d .seg i{ transform-origin:left; }
+.chips button.uso{ opacity:.35; cursor:not-allowed; text-decoration:line-through; }
+.blocosS{ margin:0 0 16px; } .bmk{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; } .bcria{ font:700 13px "Inter"; color:#0B0D0E; background:#F2F4F5; border:0; border-radius:999px; padding:8px 16px; cursor:pointer; } .bcria:disabled{ background:rgba(242,244,245,.12); color:var(--ter); cursor:not-allowed; } .bdica{ font-size:12.5px; color:var(--ter); }
+.blst{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; align-items:stretch; } .bcard{ display:flex; flex-direction:column; gap:2px; padding:10px 14px; border-radius:14px; background:var(--sup2); border:1px solid rgba(var(--a-rgb),.45); cursor:grab; user-select:none; min-width:160px; } .bcard .bn{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--a); font-weight:700; } .bcard b{ font-size:13.5px; } .bcard small{ font-size:11.5px; color:var(--ter); } .bcard.arr{ opacity:.4; } .bcard.sel{ box-shadow:0 0 0 2px var(--a); }
+.blix{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-width:92px; padding:10px 12px; border-radius:14px; border:1.5px dashed rgba(242,244,245,.18); color:var(--ter); font-size:11px; cursor:pointer; transition:border-color .2s, color .2s, background .2s; } .blix.pronta{ border-color:rgba(232,67,42,.55); color:#E8432A; } .blix.sobre{ background:rgba(232,67,42,.12); border-color:#E8432A; color:#E8432A; }
 .chips button.fixo{ cursor:default; box-shadow:inset 0 0 0 2px rgba(255,255,255,.35); }
 .gcom{ display:flex; gap:4px; align-items:flex-end; overflow-x:auto; padding-bottom:4px; } .gcom .cc{ flex:1; min-width:22px; display:flex; flex-direction:column; align-items:center; gap:4px; } .gcom .pts{ display:flex; flex-direction:column-reverse; gap:3px; } 
 .gcom .cc span{ font-size:9px; color:var(--ter); writing-mode:vertical-rl; transform:rotate(180deg); height:68px; white-space:nowrap; } .gcom .sepc{ width:1px; align-self:stretch; background:var(--linha); margin:0 6px; }
@@ -232,8 +236,8 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="novos-uf.js?cb=17"></script>
-<script src="novos.js?cb=186"></script>
+<script src="novos-uf.js?cb=18"></script>
+<script src="novos.js?cb=187"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="sino-menu.js?cb=1"></script>
 </body>
