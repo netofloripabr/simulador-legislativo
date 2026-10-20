@@ -268,20 +268,20 @@ function imprimirCenarios(c, ps) {
     const p2g = {}; G.forEach((o) => o.g.forEach((p) => { p2g[p] = o; })); return { G, p2g, fecha: G.reduce((t, o) => t + o.v9, 0) === T9 && G.reduce((t, o) => t + o.v7, 0) === T7 }; };
   const C = L.map((x) => ({ ...x, ...calc(x.blocos) }));
   const sim = (o, sz = 12) => `<i class="s" style="width:${sz}px;height:${sz}px;${o.bloco ? orbita(o.cor) : "background:" + o.cor}"></i>`;
-  const linha = (G, n) => `<div class="ln">${G.flatMap((o) => Array.from({ length: n === T9 ? o.v9 : o.v7 }, () => sim(o, 22))).join("")}</div>`;
-  const card = (x) => `<section class="cd"><h2>${esc(x.nome)}</h2>${x.fecha ? "" : `<p class="no">As comissões não fecham neste cenário.</p>`}
-    <small>Cada comissão de ${T9}</small>${linha(x.G, T9)}<small>Cada comissão de ${T7}</small>${linha(x.G, T7)}
-    <ul>${x.G.map((o) => `<li class="${o.g.includes(c.p) ? "eu" : ""}">${sim(o, 13)}<span>${o.min ? "Minoria" : esc(o.g.join(" + "))}</span><b>${o.tot}</b></li>`).join("")}</ul></section>`;
+  // um cenário por linha, uma embaixo da outra: as fileiras da comissão de 9 e de 7 ficam alinhadas para comparar; cada grupo com microlegenda
+  const curto = (o) => o.min ? "Minoria" : o.g.map((p) => p.split("/")[0].replace("REPUBLICANOS", "REP").replace("UNIÃO", "UNIÃO/PP")).join("+");
+  const faixa = (G, n) => `<div class="fx">${G.filter((o) => (n === T9 ? o.v9 : o.v7)).map((o) => `<div class="sg${o.g.includes(c.p) ? " eu" : ""}"><div class="pt">${Array.from({ length: n === T9 ? o.v9 : o.v7 }, () => sim(o, 16)).join("")}</div><span>${esc(curto(o))}</span></div>`).join("")}</div>`;
+  const linhaC = (x) => `<tr><th><b>${esc(x.nome)}</b>${x.fecha ? "" : `<em>não fecha</em>`}</th><td>${faixa(x.G, T9)}</td><td>${faixa(x.G, T7)}</td></tr>`;
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Cenários das comissões</title><style>@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}body{margin:0;font:12px/1.4 Inter,system-ui,sans-serif;color:#0B0D0E;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     .olho{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:#6B7178;font-weight:600}h1{font-size:28px;font-weight:900;letter-spacing:-.05em;margin:4px 0 4px}.lead{color:#6B7178;margin:0 0 14px;font-size:11px}
-    .grade{display:grid;grid-template-columns:repeat(${Math.min(3, C.length)},minmax(0,1fr));gap:14px}
-    .cd{break-inside:avoid;border:.5px solid #D3D6D9;border-radius:12px;padding:14px 16px}.cd h2{font-size:17px;font-weight:900;letter-spacing:-.02em;margin:0 0 10px}
-    .cd small{display:block;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;margin:8px 0 5px}.ln{display:flex;gap:5px}i.s{display:inline-block;border-radius:50%;flex:none}
-    .cd ul{list-style:none;margin:12px 0 0;padding:10px 0 0;border-top:.5px solid #E3E5E8;display:grid;gap:5px}.cd li{display:grid;grid-template-columns:16px 1fr auto;gap:8px;align-items:center;font-size:11.5px}.cd li b{font-variant-numeric:tabular-nums}.cd li.eu span{font-weight:800}
-    .no{color:#C6363B;font-size:11px;margin:-4px 0 6px}</style></head><body>
+    table{border-collapse:collapse;width:100%}thead th{font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;text-align:left;font-weight:700;padding:0 10px 6px;border-bottom:1px solid #0B0D0E}
+    tbody th{text-align:left;vertical-align:top;padding:12px 10px 10px 0;width:130px;font-size:12.5px}tbody th em{display:block;font-style:normal;font-size:9px;color:#C6363B;font-weight:600}
+    tbody td{padding:12px 10px 10px;border-bottom:.5px solid #E3E5E8;vertical-align:top}tbody tr{break-inside:avoid}
+    .fx{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}.sg{display:flex;flex-direction:column;align-items:center;gap:4px}.sg .pt{display:flex;gap:3px}.sg span{font-size:8px;color:#6B7178;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}.sg.eu span{color:#0B0D0E;font-weight:800}
+    i.s{display:inline-block;border-radius:50%;flex:none}</style></head><body>
     <div class="olho">SimulaLEGIS · Comissões permanentes · ${esc(UFI.casa)} · ${new Date().toLocaleDateString("pt-BR")}</div><h1>Cenários das comissões</h1>
-    <p class="lead">Composição de cada comissão em cada cenário. Bolinha cheia: partido sozinho · órbita: bloco · cinza: minoria. O número ao lado de cada grupo é o total de assentos nas 24 comissões.</p>
-    <div class="grade">${C.map(card).join("")}</div></body></html>`;
+    <p class="lead">Um cenário por linha, para comparar de cima para baixo. Bolinha cheia: partido sozinho · órbita: bloco · cinza: minoria.</p>
+    <table><thead><tr><th>Cenário</th><th>Cada comissão de ${T9} membros (${K9})</th><th>Cada comissão de ${T7} membros (${K7})</th></tr></thead><tbody>${C.map(linhaC).join("")}</tbody></table></body></html>`;
   const ov = document.createElement("div"); ov.className = "relov"; ov.innerHTML = `<div class="bar"><button class="btn" data-imp>Imprimir</button><button class="btn sec" data-fec>Fechar</button></div><iframe></iframe>`; document.body.appendChild(ov);
   const f = ov.querySelector("iframe"); f.srcdoc = html; ov.querySelector("[data-imp]").onclick = () => f.contentWindow.print(); ov.querySelector("[data-fec]").onclick = () => ov.remove();
 }
