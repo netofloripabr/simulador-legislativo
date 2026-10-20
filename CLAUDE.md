@@ -218,3 +218,21 @@ Quatro guardas implementadas:
    2026 gerado.
 Cuidado conhecido: "Editar" uma lista salva da era antiga é BLOQUEADO
 (listaEhDaEraAntiga, 21/08) — não recarrega mais o elenco embutido.
+
+## Tabelas novas precisam de GRANT explícito (Supabase, a partir de 30/10/2026)
+
+Aviso do Supabase (20/10/2026): tabela criada em `public` depois de
+30/10/2026 não fica mais acessível à API (supabase-js) sem GRANT. As
+tabelas que já existem não mudam. Toda migração nova que cria tabela deve
+trazer, logo após o `create table`, os GRANTs que ela precisa (só os
+papéis que de fato usam a tabela; o RLS continua sendo quem filtra linhas):
+
+```sql
+grant select on public.minha_tabela to anon;            -- só se for leitura pública
+grant select, insert, update, delete on public.minha_tabela to authenticated;
+grant select, insert, update, delete on public.minha_tabela to service_role;
+```
+
+Atenção: recriar o banco do zero a partir de `nuvem/migracao-*.sql` (projeto
+novo, branch) depois de 30/10 deixa as tabelas antigas sem GRANT — nesse caso
+rodar os GRANTs de todas as tabelas antes de abrir o app.
