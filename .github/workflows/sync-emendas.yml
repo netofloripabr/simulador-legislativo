@@ -1,0 +1,49 @@
+name: Sincronizar emendas (dados públicos SC)
+
+on:
+  schedule:
+    - cron: "30 9 * * *"   # 09:30 UTC = 06:30 Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-emendas
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      # dados públicos ficam no ramo "dados-emendas", sobrescrito a cada dia (só a versão mais recente: o histórico não cresce)
+      - name: Recuperar a última coleta
+        run: |
+          git fetch origin dados-emendas --depth=1 && git checkout FETCH_HEAD -- dados/gabinete || echo "primeira coleta"
+
+      - name: Coletar emendas
+        run: |
+          set +e
+          python3 ferramentas/sync_emendas.py
+          codigo=$?
+          # 0 = ok; 2 = uma fonte falhou (arquivos anteriores mantidos); 1 = nada coletado
+          if [ "$codigo" = "1" ]; then exit 1; fi
+          exit 0
+
+      - name: Publicar no ramo dados-emendas
+        run: |
+          mkdir -p /tmp/pub/dados && cp -r dados/gabinete /tmp/pub/dados/
+          cd /tmp/pub
+          git init -q -b dados-emendas
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dados
+          git commit -q -m "Emendas: sincronização diária"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" dados-emendas

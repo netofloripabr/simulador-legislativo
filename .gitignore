@@ -11,3 +11,6 @@ __pycache__/
 # não pode ficar exposta. Decisão de 28/08/2026.
 marketing/
 nuvem/backup/
+
+# dados públicos de emendas: publicados no ramo dados-emendas pela rotina diária
+dados/gabinete/
