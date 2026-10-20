@@ -241,11 +241,11 @@ function vagas(grupos, n, k) { if (SC0) return vagasRI(grupos, n, k); const q = 
 let BLOCO = [], BLOCOS = [], CENS = [], ALOC = {}, ALOC_SIG = "", ATIVO = null, ORDC = "n26", COLOC = Array(24).fill(0);
 const PAL_B = ["#E5383B", "#F5B700", "#34C759", "#9B6CF0", "#2FB5E8", "#F37021", "#E8579B"]; // (antigo)
 // cores das comissões (20/10/2026): partidos de esquerda e blocos com eles em tons de vermelho; os demais entre azul e verde; minoria em cinza
-const ESQ = /^(PT|PSOL|PDT|PSB|PC ?DO ?B|PV|REDE)/i, PAL_V = ["#E5383B", "#F07167", "#B5232A", "#FF9B85", "#C9415A"], PAL_AZ = ["#3D7BFF", "#2FB59E", "#9CC4FF", "#1E4FB0", "#7ED957", "#5AA9FF", "#1F8A70"];
+const ESQ = /^(PT|PSOL|PDT|PSB|PC ?DO ?B|PV|REDE)/i, PAL_V = ["#E5383B", "#F28C28", "#E8579B", "#B5232A", "#F5B700"], PAL_AZ = ["#3D7BFF", "#34C759", "#17B8C9", "#8E6CF0", "#1E4FB0", "#7BC67E"];
 const ehEsq = (g) => g.some((p) => ESQ.test(String(p).split("/")[0]));
 function coresGrupos(L) { const M = {}; let iv = 0, ia = 0; L.forEach((g) => { const k = g.join("+"); if (g.length === 1) { M[k] = ehEsq(g) ? "#E5383B" : "#3D7BFF"; return; } M[k] = ehEsq(g) ? PAL_V[1 + (iv++ % (PAL_V.length - 1))] : PAL_AZ[1 + (ia++ % (PAL_AZ.length - 1))]; }); return M; }
-// bloco = três minipontos agrupados (símbolo de grupo); bancada sozinha = bolinha cheia
-const orbita = (cor) => `background:radial-gradient(circle at 50% 27%, ${cor} 0 23%, transparent 25%), radial-gradient(circle at 25% 70%, ${cor} 0 23%, transparent 25%), radial-gradient(circle at 75% 70%, ${cor} 0 23%, transparent 25%)`;
+// bloco = símbolo de órbita (núcleo, anel aberto e satélite); bancada sozinha = bolinha cheia
+const orbita = (cor) => { const c2 = encodeURIComponent(cor); return `background:center/100% 100% no-repeat url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%224.6%22 fill=%22${c2}%22/%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229.3%22 fill=%22none%22 stroke=%22${c2}%22 stroke-width=%222.4%22 stroke-dasharray=%2246 12.4%22 transform=%22rotate(-112 12 12)%22/%3E%3Ccircle cx=%225.4%22 cy=%225.4%22 r=%222.5%22 fill=%22${c2}%22/%3E%3C/svg%3E')`; };
 // blocos simultâneos (20/10/2026): BLOCOS = blocos já criados; BLOCO = seleção em montagem. Regimento, art. 20, § 3º: bloco de 2+ partidos, de 1/8 a 2/8 da Casa (5 a 10 deputados na ALESC)
 const BLOCO_MIN = () => Math.ceil(UFI.vagas / 8), BLOCO_MAX = () => Math.floor(UFI.vagas * 2 / 8);
 const grupoFoco = (p) => BLOCOS.find((g) => g.includes(p)) || (BLOCO.includes(p) ? BLOCO : null);
@@ -313,7 +313,7 @@ function ligarPolitica(c) {
   function pintaBlocos() { const el = $("#blocosS"); if (!el) return; const d = somaD(BLOCO), ok = BLOCO.length >= 2 && d >= BLOCO_MIN() && d <= BLOCO_MAX();
     $("#blocoP").querySelectorAll("[data-bp]").forEach((b) => { const uso = BLOCOS.some((g) => g.includes(b.dataset.bp)); b.classList.toggle("uso", uso); b.classList.toggle("on", BLOCO.includes(b.dataset.bp)); b.disabled = uso; });
     el.innerHTML = `<div class="bmk"><button class="bcria" id="bCria"${ok ? "" : " disabled"}>+ Criar bloco</button><span class="bdica">${BLOCO.length < 2 ? "Marque dois ou mais partidos para formar um bloco." : `${BLOCO.join(" + ")}: ${d} deputados${ok ? "" : ` · o bloco precisa ter de ${BLOCO_MIN()} a ${BLOCO_MAX()} deputados (art. 20, § 3º)`}`}</span></div>
-      <div class="blst"><div class="gsel" id="gselA"></div>${BLOCOS.length ? `<div class="blix" id="bLix" title="Arraste um bloco até aqui para apagar"><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5"/></svg><span>Lixeira</span></div>` : ""}</div>`;
+      <div class="blst">${BLOCOS.length ? `<div class="blix" id="bLix" title="Arraste um bloco até aqui para apagar"><svg viewBox="0 0 16 16" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5"/></svg><span>Lixeira</span></div>` : ""}<div class="gsel" id="gselA"></div></div>`;
     const cr = $("#bCria"); if (cr) cr.onclick = () => { BLOCOS.push(BLOCO.slice()); BLOCO = []; desenha(); gravarP(c, { bloco: BLOCO, blocos: BLOCOS, coloc: COLOC }); };
   }
   function ligaArrasto() { const el = $("#blocosS"); if (!el) return;
