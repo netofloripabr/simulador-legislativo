@@ -289,7 +289,7 @@ function imprimirCenarios(c, ps) {
     .hd{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#6B7178;font-weight:700;padding-bottom:6px;border-bottom:1.5px solid #0B0D0E}
     .rw{display:contents}.rw > div{padding:14px 0 12px;border-bottom:.5px solid #E3E5E8;break-inside:avoid}
     .nm b{display:block;font-size:13px;font-weight:800;letter-spacing:-.01em}.nm small{display:block;font-size:9px;color:#C6363B;font-weight:600}
-    .fl{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start}.gp{display:flex;flex-direction:column;align-items:center;gap:5px}.as{display:flex;gap:2px}
+    .fl{display:flex;gap:6px;flex-wrap:nowrap;align-items:flex-start}.gp{display:flex;flex-direction:column;align-items:center;gap:5px}.as{display:flex;gap:2px}
     .gp span{font-size:8px;color:#6B7178;white-space:nowrap;letter-spacing:.01em;writing-mode:vertical-rl;transform:rotate(180deg);line-height:1}.gp.eu span{color:#0B0D0E;font-weight:800}.gp.eu .as{outline:1.5px solid #0B0D0E;outline-offset:2px;border-radius:999px}
     .sd{text-align:right}.sd b{display:block;font-size:20px;font-weight:900;letter-spacing:-.03em;line-height:1}.sd small{display:block;font-size:8.5px;color:#6B7178}.sd em{display:inline-block;margin-top:4px;font-style:normal;font-size:10px;font-weight:800;color:#6B7178}.sd em.up{color:#1F9E3B}.sd em.dn{color:#C6363B}
     i.s{display:inline-block;border-radius:50%;flex:none;vertical-align:-1px}.lg{display:flex;gap:16px;align-items:center;font-size:9px;color:#6B7178;margin-top:12px}.lg span{display:inline-flex;gap:5px;align-items:center}
