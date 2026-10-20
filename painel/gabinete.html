@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gabinete · SimulaLEGIS</title>
+<!-- Gabinete · Controle de Recursos (20/10/2026). Dados públicos das emendas: ramo dados-emendas
+     (rotina diária, ferramentas/sync_emendas.py). Dados privados do gabinete: tabelas gab_recursos e
+     gab_demandas (migração 71), só para o dono e, por enquanto, só para administradores. -->
+<style>
+@font-face{ font-family:"Inter"; src:url(../fontes/InterVariable.woff2) format("woff2"); font-weight:100 900; font-display:swap; }
+:root{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --linha:rgba(242,244,245,.09); --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178; --a:#2B5FD9; --a-rgb:43,95,217; --ok:#34E84A; --lima:#C6E62A; --erro:#E8432A; color-scheme:dark; }
+*{ box-sizing:border-box; } html,body{ margin:0; background:var(--fundo); color:var(--texto); font:14px/1.45 "Inter",system-ui,sans-serif; overflow-x:hidden; }
+button,input,select{ font:inherit; color:inherit; }
+.pg{ max-width:1240px; margin:0 auto; padding:26px 18px 90px; }
+.olho{ font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ter); font-weight:600; }
+h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; line-height:.9; margin:10px 0 12px; } h1 i{ font-style:normal; color:var(--a); }
+.lead{ color:var(--sec); font-size:15px; max-width:66ch; margin:0; }
+.fonte{ margin-top:10px; font-size:11.5px; color:var(--ter); }
+.anos{ display:flex; gap:6px; flex-wrap:wrap; margin:22px 0 4px; }
+.anos button{ padding:7px 14px; border-radius:999px; border:1px solid var(--linha); background:none; color:var(--sec); font-weight:600; font-size:13px; cursor:pointer; }
+.anos button.on{ background:#F2F4F5; color:#0B0D0E; border-color:#F2F4F5; }
+.kpis{ display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px; margin-top:16px; }
+.kpis div{ background:var(--sup); border:1px solid var(--linha); border-radius:14px; padding:14px 16px; }
+.kpis b{ display:block; font-size:24px; font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; } .kpis b.a{ color:var(--a); }
+.kpis span{ font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); }
+.funil{ display:flex; height:10px; border-radius:6px; overflow:hidden; margin:18px 0 6px; background:var(--sup2); }
+.funil i{ display:block; height:100%; }
+.funilL{ display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--sec); } .funilL span{ display:inline-flex; align-items:center; gap:6px; cursor:pointer; } .funilL i{ width:10px; height:10px; border-radius:3px; display:inline-block; } .funilL span.off{ opacity:.35; }
+.bx{ margin-top:30px; border:1px solid rgba(242,244,245,.06); background:rgba(242,244,245,.018); border-radius:16px; padding:18px 20px; }
+.bxh{ display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:12px; } .bxh h2{ margin:0; font-size:28px; font-weight:900; letter-spacing:-.045em; } .bxh p{ margin:0; color:var(--ter); font-size:13px; }
+.chips{ display:flex; gap:6px; flex-wrap:wrap; } .chips button{ padding:6px 12px; border-radius:999px; border:1px solid var(--linha); background:none; color:var(--sec); font-weight:600; font-size:12.5px; cursor:pointer; } .chips button.on{ background:#F2F4F5; color:#0B0D0E; border-color:#F2F4F5; }
+.mapa{ display:grid; grid-template-columns:minmax(0,1.7fr) minmax(0,1fr); gap:18px; align-items:start; margin-top:12px; }
+.mapa svg{ width:100%; height:auto; display:block; }
+.rk{ list-style:none; margin:0; padding:0; } .rk li{ display:grid; grid-template-columns:24px minmax(0,1fr) auto; gap:8px; padding:7px 0; border-bottom:1px solid var(--linha); font-size:13px; } .rk li i{ font-style:normal; color:var(--ter); font-size:11.5px; } .rk li b{ font-variant-numeric:tabular-nums; } .rk li small{ display:block; color:var(--ter); font-size:11px; }
+.leg{ font-size:11.5px; color:var(--ter); margin-top:6px; }
+.ctl{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+.ctl input, .ctl select{ background:var(--sup2); border:1px solid var(--linha); border-radius:10px; padding:8px 11px; font-size:13px; }
+.ctl input{ flex:1 1 220px; min-width:0; }
+.tb{ width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; }
+.tb th{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); font-weight:600; text-align:left; padding:8px 8px; border-bottom:1px solid var(--linha); white-space:nowrap; cursor:pointer; }
+.tb td{ padding:9px 8px; border-bottom:1px solid var(--linha); vertical-align:top; }
+.tb tr.r{ cursor:pointer; } .tb tr.r:hover td{ background:rgba(242,244,245,.025); } .tb tr.ab td{ background:rgba(var(--a-rgb),.07); }
+.tb td.v{ text-align:right; white-space:nowrap; } .tb th.v{ text-align:right; }
+.tb td small{ display:block; color:var(--ter); font-size:11.5px; }
+.et{ display:inline-flex; gap:3px; align-items:center; } .et i{ width:9px; height:9px; border-radius:50%; background:#2A3034; display:inline-block; } .et i.on{ background:var(--ok); } .et i.imp{ background:var(--erro); } .et em{ font-style:normal; font-size:11.5px; color:var(--sec); margin-left:6px; white-space:nowrap; }
+.det td{ padding:0 8px 14px !important; background:rgba(var(--a-rgb),.04); }
+.dg{ display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:18px; padding:12px 4px 0; }
+.tl{ list-style:none; margin:0; padding:0 0 0 14px; border-left:2px solid rgba(242,244,245,.12); } .tl li{ position:relative; padding:0 0 10px 8px; font-size:13px; } .tl li::before{ content:""; position:absolute; left:-20px; top:4px; width:10px; height:10px; border-radius:50%; background:#2A3034; } .tl li.on::before{ background:var(--ok); } .tl li b{ display:block; } .tl li span{ color:var(--ter); font-size:12px; }
+.kv{ display:grid; grid-template-columns:120px minmax(0,1fr); gap:5px 10px; font-size:12.5px; } .kv span{ color:var(--ter); } .kv a{ color:var(--a); }
+.priv{ margin-top:10px; padding:10px 12px; border:1px dashed rgba(242,244,245,.18); border-radius:10px; font-size:12.5px; color:var(--sec); } .priv b{ color:var(--texto); } .tg{ display:inline-block; font-size:11px; border:1px solid var(--linha); border-radius:999px; padding:1px 8px; margin:2px 3px 0 0; color:var(--sec); }
+.btn{ font-weight:700; font-size:13px; color:#0B0D0E; background:#F2F4F5; border:0; border-radius:999px; padding:8px 16px; cursor:pointer; } .btn.sec{ background:none; color:var(--sec); border:1px solid var(--linha); }
+.av{ font-size:12.5px; color:var(--sec); margin-top:8px; } .av b{ color:var(--texto); }
+.mais{ margin-top:10px; }
+@media (max-width:900px){ .kpis{ grid-template-columns:repeat(2,minmax(0,1fr)); } .mapa,.dg{ grid-template-columns:1fr; } .tb .hm{ display:none; } }
+</style>
+<link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="topo.css?cb=13">
+</head>
+<body>
+<header class="topo" id="topoSL"><a class="wm" href="novos.html?v=8"><b>Simula</b>LEGIS</a><nav class="sl-nav"><a href="novos.html?v=8">Parlamentares</a><a href="index.html?v=8#ranking">Ranking</a><a href="mesa.html?v=8">Mesa</a><a href="gabinete.html" class="on">Gabinete</a></nav></header>
+<main class="pg" id="app"><p style="color:#6B7178">Carregando…</p></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="../nuvem/config.js?cb=2"></script>
+<script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
+<script src="gabinete.js?cb=1"></script>
+</body>
+</html>
