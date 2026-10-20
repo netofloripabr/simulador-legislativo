@@ -243,7 +243,10 @@ const PAL_B = ["#E5383B", "#F5B700", "#34C759", "#9B6CF0", "#2FB5E8", "#F37021",
 // cores das comissões (20/10/2026): partidos de esquerda e blocos com eles em tons de vermelho; os demais entre azul e verde; minoria em cinza
 const ESQ = /^(PT|PSOL|PDT|PSB|PC ?DO ?B|PV|REDE)/i, PAL_V = ["#E5383B", "#F28C28", "#E8579B", "#B5232A", "#F5B700"], PAL_AZ = ["#3D7BFF", "#34C759", "#17B8C9", "#8E6CF0", "#1E4FB0", "#7BC67E"];
 const ehEsq = (g) => g.some((p) => ESQ.test(String(p).split("/")[0]));
-function coresGrupos(L) { const M = {}; let iv = 0, ia = 0; L.forEach((g) => { const k = g.join("+"); if (g.length === 1) { M[k] = ehEsq(g) ? "#E5383B" : "#3D7BFF"; return; } M[k] = ehEsq(g) ? PAL_V[1 + (iv++ % (PAL_V.length - 1))] : PAL_AZ[1 + (ia++ % (PAL_AZ.length - 1))]; }); return M; }
+// cor fixa por partido (esquerda em quentes, demais em frias); o bloco herda a cor do seu maior partido: a mesma cor em todos os cenários
+const COR_PARTIDO = { "PL": "#3D7BFF", "PT/PC do B/PV": "#E5383B", "MDB": "#34C759", "UNIÃO/PP": "#17B8C9", "PSD": "#1E4FB0", "REPUBLICANOS": "#8E6CF0", "PODE": "#7BC67E", "NOVO": "#A3B53A", "PSOL/REDE": "#F28C28", "PDT": "#E8579B", "PSB": "#F5B700" };
+const ancora = (g) => [...g].sort((a, b) => nbanc(b) - nbanc(a) || a.localeCompare(b))[0];
+function coresGrupos(L) { const M = {}; let iv = 0, ia = 0; L.forEach((g) => { const a = ancora(g); M[g.join("+")] = COR_PARTIDO[a] || (ehEsq(g) ? PAL_V[iv++ % PAL_V.length] : PAL_AZ[ia++ % PAL_AZ.length]); }); return M; }
 // bloco = símbolo de órbita (núcleo, anel aberto e satélite); bancada sozinha = bolinha cheia
 const orbita = (cor) => { const c2 = encodeURIComponent(cor); return `background:center/100% 100% no-repeat url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%224.6%22 fill=%22${c2}%22/%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229.3%22 fill=%22none%22 stroke=%22${c2}%22 stroke-width=%222.4%22 stroke-dasharray=%2246 12.4%22 transform=%22rotate(-112 12 12)%22/%3E%3Ccircle cx=%225.4%22 cy=%225.4%22 r=%222.5%22 fill=%22${c2}%22/%3E%3C/svg%3E')`; };
 // blocos simultâneos (20/10/2026): BLOCOS = blocos já criados; BLOCO = seleção em montagem. Regimento, art. 20, § 3º: bloco de 2+ partidos, de 1/8 a 2/8 da Casa (5 a 10 deputados na ALESC)
@@ -268,20 +271,29 @@ function imprimirCenarios(c, ps) {
     const p2g = {}; G.forEach((o) => o.g.forEach((p) => { p2g[p] = o; })); return { G, p2g, fecha: G.reduce((t, o) => t + o.v9, 0) === T9 && G.reduce((t, o) => t + o.v7, 0) === T7 }; };
   const C = L.map((x) => ({ ...x, ...calc(x.blocos) }));
   const sim = (o, sz = 12) => `<i class="s" style="width:${sz}px;height:${sz}px;${o.bloco ? orbita(o.cor) : "background:" + o.cor}"></i>`;
-  // um cenário por linha, uma embaixo da outra: as fileiras da comissão de 9 e de 7 ficam alinhadas para comparar; cada grupo com microlegenda
-  const curto = (o) => o.min ? "Minoria" : o.g.map((p) => p.split("/")[0].replace("REPUBLICANOS", "REP").replace("UNIÃO", "UNIÃO/PP")).join("+");
-  const faixa = (G, n) => `<div class="fx">${G.filter((o) => (n === T9 ? o.v9 : o.v7)).map((o) => `<div class="sg${o.g.includes(c.p) ? " eu" : ""}"><div class="pt">${Array.from({ length: n === T9 ? o.v9 : o.v7 }, () => sim(o, 16)).join("")}</div><span>${esc(curto(o))}</span></div>`).join("")}</div>`;
-  const linhaC = (x) => `<tr><th><b>${esc(x.nome)}</b>${x.fecha ? "" : `<em>não fecha</em>`}</th><td>${faixa(x.G, T9)}</td><td>${faixa(x.G, T7)}</td></tr>`;
+  // desenho da comparação (20/10/2026): cada cenário numa linha; cada comissão como uma fileira de assentos na mesma ordem (do maior partido ao menor,
+  // minoria no fim) e na mesma cor por partido em todos os cenários; rótulo uma vez por grupo; à direita, o grupo do parlamentar e a variação
+  const ordemP = [...ps].sort((a, b) => nbanc(b) - nbanc(a));
+  const posG = (o) => o.min ? 99 : Math.min(...o.g.map((p) => ordemP.indexOf(p)));
+  const rot = (o) => o.min ? "Minoria" : o.g.length > 1 ? o.g.map((p) => p.split("/")[0]).join(" + ") : o.g[0].split("/")[0];
+  const fileira = (G, n) => `<div class="fl">${[...G].sort((a, b) => posG(a) - posG(b)).filter((o) => (n === T9 ? o.v9 : o.v7)).map((o) => `<div class="gp${o.g.includes(c.p) ? " eu" : ""}"><div class="as">${Array.from({ length: n === T9 ? o.v9 : o.v7 }, () => sim(o, 15)).join("")}</div><span>${esc(rot(o))}</span></div>`).join("")}</div>`;
+  const meuG = (x) => x.G.find((o) => o.g.includes(c.p)), base = meuG(C[0]);
+  const lado = (x) => { const o = meuG(x); if (!o) return ""; const d = base ? o.tot - base.tot : 0; return `<b>${o.tot}</b><small>assentos ${o.min ? "da minoria" : "do grupo"}</small>${x === C[0] ? "" : `<em class="${d > 0 ? "up" : d < 0 ? "dn" : ""}">${d > 0 ? "+" : ""}${d || "="}</em>`}`; };
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Cenários das comissões</title><style>@page{size:A4 landscape;margin:12mm}*{box-sizing:border-box}body{margin:0;font:12px/1.4 Inter,system-ui,sans-serif;color:#0B0D0E;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    .olho{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:#6B7178;font-weight:600}h1{font-size:28px;font-weight:900;letter-spacing:-.05em;margin:4px 0 4px}.lead{color:#6B7178;margin:0 0 14px;font-size:11px}
-    table{border-collapse:collapse;width:100%}thead th{font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;text-align:left;font-weight:700;padding:0 10px 6px;border-bottom:1px solid #0B0D0E}
-    tbody th{text-align:left;vertical-align:top;padding:12px 10px 10px 0;width:130px;font-size:12.5px}tbody th em{display:block;font-style:normal;font-size:9px;color:#C6363B;font-weight:600}
-    tbody td{padding:12px 10px 10px;border-bottom:.5px solid #E3E5E8;vertical-align:top}tbody tr{break-inside:avoid}
-    .fx{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}.sg{display:flex;flex-direction:column;align-items:center;gap:4px}.sg .pt{display:flex;gap:3px}.sg span{font-size:8px;color:#6B7178;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}.sg.eu span{color:#0B0D0E;font-weight:800}
-    i.s{display:inline-block;border-radius:50%;flex:none}</style></head><body>
+    .olho{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:#6B7178;font-weight:600}h1{font-size:26px;font-weight:900;letter-spacing:-.05em;margin:4px 0 2px}.lead{color:#6B7178;margin:0 0 16px;font-size:10.5px}
+    .tb{display:grid;grid-template-columns:120px minmax(0,1.15fr) minmax(0,1fr) 92px;column-gap:18px}
+    .hd{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#6B7178;font-weight:700;padding-bottom:6px;border-bottom:1.5px solid #0B0D0E}
+    .rw{display:contents}.rw > div{padding:14px 0 12px;border-bottom:.5px solid #E3E5E8;break-inside:avoid}
+    .nm b{display:block;font-size:13px;font-weight:800;letter-spacing:-.01em}.nm small{display:block;font-size:9px;color:#C6363B;font-weight:600}
+    .fl{display:flex;gap:9px;flex-wrap:wrap;align-items:flex-start}.gp{display:flex;flex-direction:column;gap:5px}.as{display:flex;gap:2px}
+    .gp span{font-size:8px;color:#6B7178;white-space:nowrap;letter-spacing:.01em}.gp.eu span{color:#0B0D0E;font-weight:800}.gp.eu .as{outline:1.5px solid #0B0D0E;outline-offset:2px;border-radius:999px}
+    .sd{text-align:right}.sd b{display:block;font-size:20px;font-weight:900;letter-spacing:-.03em;line-height:1}.sd small{display:block;font-size:8.5px;color:#6B7178}.sd em{display:inline-block;margin-top:4px;font-style:normal;font-size:10px;font-weight:800;color:#6B7178}.sd em.up{color:#1F9E3B}.sd em.dn{color:#C6363B}
+    i.s{display:inline-block;border-radius:50%;flex:none}.lg{display:flex;gap:16px;align-items:center;font-size:9px;color:#6B7178;margin-top:12px}.lg span{display:inline-flex;gap:5px;align-items:center}</style></head><body>
     <div class="olho">SimulaLEGIS · Comissões permanentes · ${esc(UFI.casa)} · ${new Date().toLocaleDateString("pt-BR")}</div><h1>Cenários das comissões</h1>
-    <p class="lead">Um cenário por linha, para comparar de cima para baixo. Bolinha cheia: partido sozinho · órbita: bloco · cinza: minoria.</p>
-    <table><thead><tr><th>Cenário</th><th>Cada comissão de ${T9} membros (${K9})</th><th>Cada comissão de ${T7} membros (${K7})</th></tr></thead><tbody>${C.map(linhaC).join("")}</tbody></table></body></html>`;
+    <p class="lead">Cada linha é um cenário. As fileiras mostram os assentos de uma comissão, sempre na mesma ordem e na mesma cor por partido. O grupo de ${esc(c.u)} (${esc(c.p)}) vem contornado.</p>
+    <div class="tb"><div class="hd">Cenário</div><div class="hd">Comissão de ${T9} membros · ${K9} comissões</div><div class="hd">Comissão de ${T7} membros · ${K7} comissões</div><div class="hd" style="text-align:right">${esc(c.p)} nas 24</div>
+    ${C.map((x) => `<div class="rw"><div class="nm"><b>${esc(x.nome)}</b>${x.fecha ? "" : "<small>não fecha</small>"}</div><div>${fileira(x.G, T9)}</div><div>${fileira(x.G, T7)}</div><div class="sd">${lado(x)}</div></div>`).join("")}</div>
+    <div class="lg"><span>${sim({ cor: "#6B7178" }, 11)} partido sozinho</span><span>${sim({ cor: "#6B7178", bloco: true }, 11)} bloco (cor do maior partido)</span><span>${sim({ cor: "#8A9096" }, 11)} minoria</span><span>variação comparada ao primeiro cenário</span></div></body></html>`;
   const ov = document.createElement("div"); ov.className = "relov"; ov.innerHTML = `<div class="bar"><button class="btn" data-imp>Imprimir</button><button class="btn sec" data-fec>Fechar</button></div><iframe></iframe>`; document.body.appendChild(ov);
   const f = ov.querySelector("iframe"); f.srcdoc = html; ov.querySelector("[data-imp]").onclick = () => f.contentWindow.print(); ov.querySelector("[data-fec]").onclick = () => ov.remove();
 }
