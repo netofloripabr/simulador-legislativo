@@ -1566,5 +1566,44 @@ const MIGRACOES_INDEX = [
     "solicitar_acesso_parlamentares"
    ]
   ]
+ },
+ {
+  "num": 71,
+  "arquivo": "migracao-71-gabinete-recursos.sql",
+  "descricao": "Migração 71 (20/10/2026): painel Gabinete · Controle de Recursos.",
+  "objetos": [
+   [
+    "function",
+    "gab_pode"
+   ],
+   [
+    "table",
+    "gab_recursos"
+   ],
+   [
+    "index",
+    "gab_recursos_dono"
+   ],
+   [
+    "index",
+    "gab_recursos_chave"
+   ],
+   [
+    "table",
+    "gab_demandas"
+   ],
+   [
+    "index",
+    "gab_demandas_dono"
+   ],
+   [
+    "policy",
+    "gab_recursos_dono"
+   ],
+   [
+    "policy",
+    "gab_demandas_dono"
+   ]
+  ]
  }
 ];
