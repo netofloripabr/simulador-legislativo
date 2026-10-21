@@ -108,6 +108,8 @@ html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 
 .dpos{ color:var(--a); } .dneg{ color:var(--b2); } .dred{ color:#FF7A63; } .vfr{ color:var(--ter); }
 .mais{ display:block; width:100%; padding:12px; background:none; border:0; border-top:1px solid var(--linha); color:var(--sec); font:600 13px "Inter"; cursor:pointer; }
 @media (max-width:520px){ .tl{ grid-template-columns:22px minmax(0,1fr) 58px 62px 60px; gap:5px; padding:9px 12px; font-size:12.5px; } }
+#tabela.cv .tl{ grid-template-columns:28px minmax(0,1fr) 70px 70px 80px 92px 62px; }
+@media (max-width:520px){ #tabela.cv .tl{ grid-template-columns:22px minmax(0,1fr) 50px 54px 56px 46px; } #tabela.cv .tl > span:nth-child(6){ display:none; } }
 .vistas{ margin-left:auto; display:flex; gap:4px; } .vistas button{ font:700 13px "Inter"; color:var(--sec); background:none; border:0; padding:7px 12px; border-radius:999px; cursor:pointer; } .vistas button.on{ color:var(--texto); background:rgba(242,244,245,.08); }
 .topo a.ent{ margin-left:8px; } .topo a.ent.ico{ width:36px; height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center; flex:none; }
 .rk-cab{ padding:20px 0 8px; } .rk-tit{ font-size:clamp(34px,6vw,56px); font-weight:900; letter-spacing:-.045em; margin:6px 0 0; line-height:1; }
@@ -211,7 +213,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
 </main>
 <div class="aviso">Dados oficiais do TSE (2026 e 2022, por município) e IBGE. Um ponto por município, do tamanho do eleitorado. Não é pesquisa eleitoral. Protótipo.</div>
 <script>document.querySelectorAll(".ufn").forEach(function(e){ e.textContent = e.closest("h1") ? UFI.nome.toLowerCase() : UFI.nome; }); document.title = UFI.nome + " em pontos · SimulaLEGIS";</script>
-<script src="painel.js?cb=51"></script>
+<script src="painel.js?cb=52"></script>
 <script>(function(){var b=document.querySelector(".mnub"),m=document.querySelector(".mnu");if(!b)return;b.onclick=function(e){e.stopPropagation();m.hidden=!m.hidden;};document.addEventListener("click",function(e){if(!e.target.closest(".mnuw"))m.hidden=true;});/* logado? lê a sessão do Supabase guardada pelo app (mesma origem); Sair apaga a sessão local */try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var ss=JSON.parse(localStorage.getItem(k)),u=ss&&(ss.user||(ss.currentSession&&ss.currentSession.user));if(u){var md=u.user_metadata||{},ct=m.querySelector(".mconta"),nm=md.full_name||md.nome||u.email,esc=function(x){return String(x||"").replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};ct.innerHTML="<b>"+esc(nm)+"</b><small>"+esc(u.email)+" · minha conta</small>";ct.href="../?capa=1";ct.onclick=null;ct.classList.remove("mconta");var sa=document.createElement("a");sa.href="#";sa.className="mconta msair";sa.textContent="Sair da conta";sa.onclick=(function(kk){return function(e){e.preventDefault();try{localStorage.removeItem(kk);}catch(er){}location.reload();};})(k);ct.after(sa);}}}}catch(e){}})();</script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="relatorio.js?cb=23"></script>

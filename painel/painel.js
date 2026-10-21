@@ -535,14 +535,15 @@ async function arvoreMun(k, A = st.A, B = st.B) {
   if (!s26) return [];
   const pega = (s, cg, n) => ((s || {})[cg] || {})[n] || {};
   const vA = pega(s26, A.cargo, A.n), vB = B ? pega(s26, B.cargo, B.n) : pega(s22, A.cargo, A.n22);
-  const nos = {}, add = (s, bn, ln, sk, c, v) => { const b = nos[bn] = nos[bn] || { x: [0, 0], l: {} }, l = b.l[ln] = l0(b, ln), q = l.s[sk] = l.s[sk] || [0, 0]; b.x[c] += v; l.x[c] += v; q[c] += v; };
-  const l0 = (b, ln) => b.l[ln] || { x: [0, 0], s: {} };
+  const nos = {}, add = (s, bn, ln, sk, c, v) => { const b = nos[bn] = nos[bn] || { x: [0, 0, 0], l: {} }, l = b.l[ln] = l0(b, ln), q = l.s[sk] = l.s[sk] || [0, 0, 0]; b.x[c] += v; l.x[c] += v; q[c] += v; };
+  const l0 = (b, ln) => b.l[ln] || { x: [0, 0, 0], s: {} };
   Object.entries(s26._secoes || {}).forEach(([sk, ln]) => add(s26, (s26._bairroSec || {})[sk] || "Sem bairro", abrevLocal(ln), sk, B ? 0 : 1, vA[sk] || 0));
+  if (!B) { const pv = ((s26._part || {})[A.cargo]) || {}; Object.entries(s26._secoes || {}).forEach(([sk, ln]) => add(s26, (s26._bairroSec || {})[sk] || "Sem bairro", abrevLocal(ln), sk, 2, (pv[sk] || [])[5] || 0)); }
   if (B) Object.entries(s26._secoes || {}).forEach(([sk, ln]) => add(s26, (s26._bairroSec || {})[sk] || "Sem bairro", abrevLocal(ln), sk, 1, vB[sk] || 0));
   else if (s22) Object.entries(s22._secoes || {}).forEach(([sk, ln]) => add(s22, (s22._bairroSec || {})[sk] || "Sem bairro", abrevLocal(ln), "22:" + sk, 0, vB[sk] || 0));
   return nos;
 }
-function valorOrd(x, col) { return col === "nome" ? 0 : col === "a" ? x[0] : col === "b" ? x[1] : col === "d" ? (st.B ? x[0] - x[1] : x[1] - x[0]) : x[1]; }
+function valorOrd(x, col) { return col === "nome" ? 0 : col === "a" ? x[0] : col === "b" ? x[1] : col === "d" ? (st.B ? x[0] - x[1] : x[1] - x[0]) : col === "val" ? x[2] || 0 : col === "p" ? (x[2] ? x[1] / x[2] : 0) : x[1]; }
 function ordenar(lista) { // lista: [nome, x]
   const { col, dir } = st.ord;
   return lista.sort((p, q) => col === "nome" ? dir * p[0].localeCompare(q[0], "pt-BR") : dir * (valorOrd(p[1], col) - valorOrd(q[1], col)));
@@ -552,18 +553,19 @@ function linhaTab(cls, pos, nome, x, attr = "", duelo = !!st.B) {
   try { return linhaTab0(cls, pos, nome, x, attr); } finally { st.B = B0; }
 }
 function linhaTab0(cls, pos, nome, x, attr) {
-  if (Number.isNaN(x[0])) return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="vfr">—</span><span><b>${ni(x[1])}</b></span><span class="vfr">—</span></div>`;
+  const ext = st.B || x[2] == null ? "" : `<span class="vfr">${x[2] ? ni(x[2]) : "—"}</span><span>${x[2] ? nf(x[1] / x[2] * 100) + "%" : "—"}</span>`;
+  if (Number.isNaN(x[0])) return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="vfr">—</span><span><b>${ni(x[1])}</b></span><span class="vfr">—</span>${ext}</div>`;
   const d = st.B ? x[0] - x[1] : x[1] - x[0], base = st.B ? 0 : x[0];
   const dTxt = `${d >= 0 ? "+" : "−"}${ni(Math.abs(d))}${!st.B && base ? `<span class="sub">${d >= 0 ? "+" : "−"}${nf(Math.abs(d) / base * 100)}%</span>` : ""}`;
-  return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="${st.B ? (x[0] >= x[1] ? "dpos" : "vfr") : "vfr"}">${ni(x[0])}</span><span class="${st.B ? (x[1] > x[0] ? "dneg" : "vfr") : ""}"><b>${ni(x[1])}</b></span><span class="${d >= 0 ? "dpos" : st.B ? "dneg" : "dred"}">${dTxt}</span></div>`;
+  return `<div class="tl ${cls}"${attr}><span class="i">${pos}</span><span class="nm">${nome}</span><span class="${st.B ? (x[0] >= x[1] ? "dpos" : "vfr") : "vfr"}">${ni(x[0])}</span><span class="${st.B ? (x[1] > x[0] ? "dneg" : "vfr") : ""}"><b>${ni(x[1])}</b></span><span class="${d >= 0 ? "dpos" : st.B ? "dneg" : "dred"}">${dTxt}</span>${ext}</div>`;
 }
 async function tabela() {
   const el = $("#tabela"), A = st.A, B = st.B;
-  const muns = [...Array(N).keys()].filter(dentro).map((i) => [M[i].n, B ? [A.v[i], B.v[i]] : [A.v22 ? A.v22[i] : 0, A.v[i]], i]).filter(([, x]) => x[0] || x[1]);
+  const muns = [...Array(N).keys()].filter(dentro).map((i) => [M[i].n, B ? [A.v[i], B.v[i]] : [A.v22 ? A.v22[i] : 0, A.v[i], A.val[i]], i]).filter(([, x]) => x[0] || x[1]);
   ordenar(muns);
   const [c1, c2] = colsTab(), seta = (col) => `<span class="ord"><i class="up${st.ord.col === col && st.ord.dir > 0 ? " on" : ""}"></i><i class="dn${st.ord.col === col && st.ord.dir < 0 ? " on" : ""}"></i></span>`;
   const cab = (col, rot) => `<span data-ord="${col}" class="${st.ord.col === col ? "on" : ""}">${rot}${seta(col)}</span>`;
-  let h = `<h3>${EMB ? `<button class="tgTab" title="Recolher ou abrir">${document.querySelector("#tabela")?.classList.contains("fech") ? "+" : "−"}</button>Votos por município (${esc(st.a ? (st.A || {}).u || "candidato" : "candidato")})` : `Município a município · ${st.rec ? esc(st.rec.nome) : UFI.nome}`}</h3>${EMB && st.tabFech ? "" : ""}<div class="tl cab"><span></span>${cab("nome", "Município")}${cab("a", esc(c1))}${cab("v", esc(c2))}${cab("d", "Dif.")}</div>`;
+  let h = `<h3>${EMB ? `<button class="tgTab" title="Recolher ou abrir">${document.querySelector("#tabela")?.classList.contains("fech") ? "+" : "−"}</button>Votos por município (${esc(st.a ? (st.A || {}).u || "candidato" : "candidato")})` : `Município a município · ${st.rec ? esc(st.rec.nome) : UFI.nome}`}</h3>${EMB && st.tabFech ? "" : ""}<div class="tl cab"><span></span>${cab("nome", "Município")}${cab("a", esc(c1))}${cab("v", esc(c2))}${cab("d", "Dif.")}${B ? "" : cab("val", "Válidos 2026") + cab("p", "% 2026")}</div>`;
   const lim = st.todos ? muns.length : 20;
   for (const [k, [nome, x, i]] of muns.slice(0, lim).entries()) {
     const ch = M[i].k, ab = st.abertos[ch];
@@ -577,14 +579,14 @@ async function tabela() {
         for (const [ln, lx, lo] of ordenar(Object.entries(bo.l).map(([n, o]) => [n, o.x, o])).filter(([, x]) => x[0] || x[1])) {
           const kl = kb + "|" + ln, abL = st.abertos[kl];
           h += linhaTab("lin n2" + (abL ? " aberto" : ""), "", `${abL ? "▾" : "▸"} ${esc(ln)}`, lx, ` data-ab="${esc(kl)}"`);
-          if (abL) for (const [sk, q] of ordenar(Object.entries(lo.s).map(([n, o]) => [n, o]))) { if (sk.startsWith("22:")) continue; const [z, n] = sk.split("::"); h += linhaTab("n3", "", `Seção ${n} <span class="sub">${z}ª zona</span>`, st.B ? q : [NaN, q[1]]); }
+          if (abL) for (const [sk, q] of ordenar(Object.entries(lo.s).map(([n, o]) => [n, o]))) { if (sk.startsWith("22:")) continue; const [z, n] = sk.split("::"); h += linhaTab("n3", "", `Seção ${n} <span class="sub">${z}ª zona</span>`, st.B ? q : [NaN, q[1], q[2]]); }
         }
       }
     }
   }
   if (muns.length > 20) h += `<button class="mais" id="tabMais">${st.todos ? "mostrar menos" : `+ ${muns.length - 20} municípios`}</button>`;
   if (!B && !A.v22) h += `<div class="dica" style="padding:10px 16px">${esc(A.u)} não concorreu em 2022 (ou mudou de nome de urna): coluna 2022 fica zerada.</div>`;
-  el.innerHTML = h;
+  el.innerHTML = h; el.classList.toggle("cv", !B);
   el.querySelectorAll("[data-ord]").forEach((s) => s.onclick = () => { const c = s.dataset.ord; st.ord = { col: c, dir: st.ord.col === c ? -st.ord.dir : (c === "nome" ? 1 : -1) }; tabela(); });
   el.querySelectorAll("[data-mun]").forEach((r) => r.onclick = () => { const c = r.dataset.mun; st.abertos[c] = !st.abertos[c]; const i = M.findIndex((m) => m.k === c); if (st.abertos[c]) { st.sel = i; ficha(); sobrepor(); } tabela(); });
   el.querySelectorAll("[data-ab]").forEach((r) => r.onclick = () => { const c = r.dataset.ab; st.abertos[c] = !st.abertos[c]; tabela(); });
