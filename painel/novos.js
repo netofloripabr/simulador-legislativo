@@ -800,11 +800,12 @@ async function mapaCidade({ k, a, b, cargob }) {
   const ls = Object.entries(g.l).map(([nm, [x, y]]) => ({ nm, x, y, v: vB ? (vA[nm] || 0) - (vB[nm] || 0) : vA[nm] || 0 })).filter((o) => o.v), mx = Math.max(1, ...ls.map((o) => Math.abs(o.v)));
   const fundo = g.c ? `<path d="${g.c}" fill="rgba(242,244,245,.04)" stroke="rgba(242,244,245,.2)"/>` : g.b.map(([, d]) => `<path d="${d}" fill="rgba(242,244,245,.035)" fill-rule="evenodd" stroke="rgba(242,244,245,.12)" stroke-width=".8"/>`).join("");
   const lab = g.b ? g.b.map(([nm, , [x, y]]) => `<text x="${x}" y="${y}" text-anchor="middle" font-size="10" font-weight="600" fill="rgba(242,244,245,.35)">${esc(nm)}</text>`).join("") : "";
-  const bol = ls.sort((p, q) => Math.abs(q.v) - Math.abs(p.v)).map((o) => { const az = o.v < 0; return `<circle cx="${o.x}" cy="${o.y}" r="${(3 + 20 * Math.sqrt(Math.abs(o.v) / mx)).toFixed(1)}" fill="${az ? "rgba(61,123,255,.5)" : "rgba(var(--a-rgb),.55)"}" stroke="${az ? "#3D7BFF" : "var(--a)"}" stroke-width="1"><title>${esc(o.nm)}: ${vB ? (o.v > 0 ? "+" : "") + ni(o.v) : ni(o.v)}</title></circle>`; }).join("");
+  const rgbA = getComputedStyle(el).getPropertyValue("--a-rgb").split(",").map(Number), azulA = rgbA[2] > rgbA[0] + 40, CB = azulA ? [242, 140, 40] : [61, 123, 255], nCB = azulA ? "laranja" : "azul";
+  const bol = ls.sort((p, q) => Math.abs(q.v) - Math.abs(p.v)).map((o) => { const az = o.v < 0; return `<circle cx="${o.x}" cy="${o.y}" r="${(3 + 20 * Math.sqrt(Math.abs(o.v) / mx)).toFixed(1)}" fill="${az ? `rgba(${CB},.5)` : "rgba(var(--a-rgb),.55)"}" stroke="${az ? `rgb(${CB})` : "var(--a)"}" stroke-width="1"><title>${esc(o.nm)}: ${vB ? (o.v > 0 ? "+" : "") + ni(o.v) : ni(o.v)}</title></circle>`; }).join("");
   const top = Object.entries(vA).filter(([, x]) => x).sort((p, q) => q[1] - p[1]).slice(0, 5);
   el.innerHTML = `<div class="cidc"><div class="cidh"><div><div class="olho">${esc(k)}</div><b>${esc(cA ? cA.u : "")}${cB ? ` × ${esc(cB.u)}` : ""}</b></div><button class="x" title="Minimizar">–</button></div>
     <svg viewBox="0 0 ${g.w} ${g.h}" preserveAspectRatio="xMidYMid meet" class="${g.h > g.w * 1.25 ? "alto" : ""}">${fundo}${lab}${bol}</svg>
-    <div class="nota">${vB ? `Na cor do partido: mais votos de ${esc(cA.u)}; azul: de ${esc(cB.u)}.` : "Círculo = local de votação, do tamanho dos votos."} ${g.c ? "Sem bairros no IBGE." : "Bairros: IBGE 2022."}</div>
+    <div class="nota">${vB ? `Na cor do partido: mais votos de ${esc(cA.u)}; ${nCB}: de ${esc(cB.u)}.` : "Círculo = local de votação, do tamanho dos votos."} ${g.c ? "Sem bairros no IBGE." : "Bairros: IBGE 2022."}</div>
     <ol class="rank">${top.map(([n, v], i) => `<li><i>${i + 1}º</i><span>${esc(n)}</span><b>${ni(v)}</b></li>`).join("")}</ol></div>`;
   const fr = $("#emb"), grande = (on) => { try { fr.contentDocument.documentElement.classList.toggle("cidOn", on); } catch (e) {} };
   el.hidden = false; el.classList.remove("min"); grande(true);
