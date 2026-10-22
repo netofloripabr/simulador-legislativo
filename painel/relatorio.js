@@ -11,6 +11,8 @@ const REL = [
   ["ficha-reg", "Ficha do candidato · região", "Mapa da região, municípios e as principais cidades por bairro", (s) => !s.B],
   ["duelo-mun", "Duelo · município", "Mapa de bolhas, bairros → colégios com os dois", (s) => s.B && s.sel >= 0],
   ["duelo-reg", "Duelo · região", "Mapa, regiões → municípios e as bases de cada um por bairro", (s) => !!s.B],
+  ["votos-v", "Votação completa · por votos", "Todos os municípios e locais de votação: 2022, 2026, diferença, válidos 2026 e % do candidato", (s) => !s.B],
+  ["votos-p", "Votação completa · proporcional", "Igual ao anterior, com os municípios da maior para a menor % dos válidos em 2026", (s) => !s.B],
   ["perfil", "Perfil da cidade × voto", "Renda, religião, Bolsa Família, escolaridade e idade cruzados com o voto", () => true],
   ["ranking", "Ranking do cargo", "Todos os candidatos no recorte, com 2022 e diferença", () => true],
 ];
@@ -53,6 +55,10 @@ svg{width:100%;height:auto;display:block}.mapa{background:#fff;border:1px solid 
 .chip{display:inline-block;font-size:7px;font-weight:800;padding:1px 6px;border-radius:999px;margin-left:5px;vertical-align:1px}.ce{background:#34E84A;color:#0B0D0E}.cs{background:#E3E5E8;color:#3F454B}.p{color:#1FA83A;font-weight:700}.n{color:#D9482F;font-weight:700}.az{color:#3D6FE0;font-weight:700}
 .grade{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mini{background:#fff;border:1px solid #D3D6D9;border-radius:12px;padding:9px;page-break-inside:avoid}
 .mini h4{margin:0 0 4px;font-size:9px;font-weight:700}.mini p{margin:5px 0 0;font-size:8px;color:#3F454B}
+.l8{display:grid;grid-template-columns:22px minmax(0,1fr) 46px 50px 48px 46px 56px 44px;gap:5px;align-items:center;padding:3px 6px;border-bottom:.5px solid #E3E5E8;font-variant-numeric:tabular-nums;page-break-inside:avoid;color:#5A6067;font-size:8px}
+.l8>span:nth-child(n+3){text-align:right}.l8>span:first-child{color:#8A9096;font-size:7px}.l8>span:nth-child(4){color:#111;font-weight:800;font-size:9.5px}.l8>span:nth-child(2){color:#111;font-size:9px}.l8 small{display:block;color:#8A9096;font-size:7px}
+.l8.c{font-size:6.5px;letter-spacing:.1em;text-transform:uppercase;border-bottom:.5px solid #A9AEB3}.l8.c>span{color:#6B7178!important;font-weight:600!important;font-size:6.5px!important}.l8.t>span{font-weight:800;color:#111}
+.mh{display:flex;align-items:baseline;gap:6px;font-size:11px;font-weight:800;margin:12px 0 3px;page-break-after:avoid}.mh i{font-style:normal;color:#8A9096;font-size:8px}.mh small{margin-left:auto;font-weight:500;color:#6B7178;font-size:8px}
 .rod{margin-top:14px;font-size:7px;letter-spacing:.04em;color:#6B7178;border-top:1px solid #D3D6D9;padding-top:6px}.pb{page-break-before:always;padding-top:12mm}`;
 const fmt = (v) => Math.round(v).toLocaleString("pt-BR"), pc = (v) => nf(v) + "%";
 const sinal = (d) => `${d >= 0 ? "+" : "−"}${fmt(Math.abs(d))}`;
@@ -146,6 +152,25 @@ async function montarRelatorio(tipo) {
     return docHtml(duelo ? `${esc(A.u)} <span style="color:#6B7178">×</span> <i>${esc(B.u)}</i>` : nomeA, `${duelo ? `Duelo · ${cargoA} × ${CARGO_LBL[B.cargo]}` : cargoA} · ${esc(rec)} · ${duelo ? "2026" : "2026 × 2022"}`, cards,
       `<div class="sec">Mapa · ${esc(rec)}</div>${mapa}<div class="nota">${duelo ? `Bolha verde = ${esc(pn(A))} mais forte; azul = ${esc(pn(B))}. ${mc ? "Tamanho = diferença de votos." : "Cargos diferentes: tamanho = diferença do peso da cidade no total de cada um."}` : "Tamanho da bolha = votos em 2026."}</div>
       <div class="sec pb">${grupo ? "Regiões e municípios" : "Municípios"} · ${esc(rec)}</div>${L}<div class="nota">Em negrito, as cidades abertas por bairro (${abrir.map((i) => esc(M[i].n)).join(", ")}).</div>`);
+  }
+  if (tipo === "votos-v" || tipo === "votos-p") {
+    const prop = tipo === "votos-p", pf = (v, b) => b ? nf(v / b * 100, 2) + "%" : "—";
+    const l8 = (cls, pos, nome, a, b, val) => { const d = b - a; return `<div class="l8 ${cls}"><span>${pos}</span><span>${nome}</span><span>${fmt(a)}</span><span>${fmt(b)}</span><span class="${d >= 0 ? "p" : "n"}">${sinal(d)}</span><span class="${d >= 0 ? "p" : "n"}">${a ? (d >= 0 ? "+" : "−") + nf(Math.abs(d) / a * 100) + "%" : "—"}</span><span>${val ? fmt(val) : "—"}</span><span>${pf(b, val)}</span></div>`; };
+    const cab = (r) => `<div class="l8 c"><span>#</span><span>${r}</span><span>2022</span><span>2026</span><span>Dif.</span><span>Dif. %</span><span>Válidos 26</span><span>% 2026</span></div>`;
+    const v22 = (i) => A.v22 ? A.v22[i] : 0, pct = (i) => A.val[i] ? A.v[i] / A.val[i] : 0;
+    const L = idx.filter((i) => A.v[i] || v22(i)).sort((p, q) => prop ? pct(q) - pct(p) || A.v[q] - A.v[p] : A.v[q] - A.v[p]);
+    const t26 = L.reduce((s, i) => s + A.v[i], 0), t22 = L.reduce((s, i) => s + v22(i), 0), tv = idx.reduce((s, i) => s + A.val[i], 0);
+    let T = cab("Município") + L.map((i, j) => l8("", `${j + 1}º`, `<b>${esc(M[i].n)}</b><small>${esc(M[i].micro)}</small>`, v22(i), A.v[i], A.val[i])).join("") + l8("t", "", "Total", t22, t26, tv);
+    let D = "";
+    for (const [j, i] of L.entries()) {
+      const nos = await arvoreMun(M[i].k, A, null), ls = [];
+      Object.entries(nos).forEach(([bn, b]) => Object.entries(b.l).forEach(([ln, l]) => { if (l.x[0] || l.x[1]) ls.push([ln, bn, l.x]); }));
+      if (!ls.length) continue;
+      ls.sort((p, q) => q[2][1] - p[2][1] || q[2][0] - p[2][0]);
+      D += `<div class="mh"><i>${j + 1}º</i>${esc(M[i].n)}<small>${pf(A.v[i], A.val[i])} dos válidos · ${fmt(A.v[i])} votos · ${ls.length} locais</small></div>${cab("Local de votação")}` + ls.map(([ln, bn, x], k) => l8("", k + 1, `${esc(ln)}<small>${esc(bn)}</small>`, x[0], x[1], x[2])).join("");
+    }
+    return docHtml(nomeA, `${cargoA} · ${esc(rec)} · Votação completa · ${prop ? "ordem proporcional" : "ordem de votos"}`, [[fmt(t26), "votos em 2026"], [A.v22 ? fmt(t22) : "—", "votos em 2022"], [A.v22 ? sinal(t26 - t22) : "—", "diferença"], [pf(t26, tv), "dos válidos"]],
+      `<div class="sec">Por município · ${prop ? "maior % dos válidos em 2026 primeiro" : "mais votados em 2026 primeiro"}</div>${T}<div class="nota">% 2026 = votos do candidato ÷ votos válidos do cargo no município.</div><div class="sec pb">Por local de votação</div>${D}<div class="nota">Municípios na mesma ordem; locais pela votação de 2026, com o bairro abaixo. Locais de 2022 e 2026 casados pelo nome.</div>`);
   }
   if (tipo === "perfil") {
     const blocos = [];
