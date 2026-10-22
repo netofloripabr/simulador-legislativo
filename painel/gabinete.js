@@ -13,8 +13,8 @@ const PUB = LOCAL ? "../dados/gabinete/" : "https://raw.githubusercontent.com/ne
 const DEP = { nome: "Napoleão Bernardes", n: "55777", partido: "PSD" };
 const ETAPAS = [null, ["Indicada", "#5C6268"], ["Empenhada", "#8FA8E8"], ["Em pagamento", "#C6E62A"], ["Paga", "#34E84A"], ["Impedimento técnico", "#E8432A"]];
 const etapa = (e) => (e.imped && /impedimento/i.test(e.imped)) ? 5 : (e.v > 0 && (e.vp || 0) >= e.v * 0.995) ? 4 : (e.vl > 0 || e.vp > 0) ? 3 : (e.ve > 0 || (e.pagamentos_sef || []).length) ? 2 : 1;
-const S = { ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
-let E = [], META = {}, BASE = null, VOT = null, PRIV = null, PODE = false, SESS = null;
+const S = { aba: "geral", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
+let MEU = [], E = [], META = {}, BASE = null, VOT = null, PRIV = null, PODE = false, SESS = null;
 
 async function iniciar() {
   const [m, mt, b, est] = await Promise.all([fetch(PUB + "mandato-napoleao.json").then((r) => r.json()), fetch(PUB + "meta.json").then((r) => r.json()).catch(() => ({})), fetch("../dados/painel/sc-base.json").then((r) => r.json()), fetch("../dados/painel/sc-estadual.json").then((r) => r.json())]);
@@ -23,36 +23,74 @@ async function iniciar() {
   try { SESS = supabaseClient ? (await supabaseClient.auth.getSession()).data.session : null; if (SESS) { const r = await supabaseClient.rpc("gab_pode"); PODE = !!r.data; if (PODE) await lerPrivado(); } } catch (e) {}
   // área restrita: por enquanto só administradores (no computador local, liberado para testes)
   if (!PODE && !LOCAL) { $("#app").innerHTML = `<div style="max-width:560px;margin:12vh auto"><div class="olho">Gabinete</div><h1 style="font-size:44px">Área restrita.</h1><p class="lead">O painel Gabinete está em construção e, por enquanto, é liberado só para a administração.${SESS ? "" : " Se você tem acesso, entre com a sua conta."}</p>${SESS ? "" : `<p><a class="btn" href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}" style="display:inline-block;text-decoration:none;margin-top:12px">Entrar</a></p>`}</div>`; return; }
+  if (LOCAL && !MEU.length) { try { MEU = await (await fetch("../dados/gabinete/_priv-teste.json")).json(); PRIV = {}; MEU.forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = MEU.length; PODE = true; } catch (e) {} }
   desenhar();
 }
-async function lerPrivado() { const { data } = await supabaseClient.from("gab_recursos").select("*"); PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
+async function lerPrivado() { const { data } = await supabaseClient.from("gab_recursos").select("*").order("origem_planilha", { nullsFirst: false }); MEU = data || []; PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
 
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
+// títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
+const TITULOS = [["rec", "Controle de Recursos", "Emendas e recursos do mandato: a análise geral dos dados oficiais e o seu controle, no formato da planilha do gabinete."],
+  ["rh", "RH", "Equipe do gabinete, cargos, lotação e a cota de nomeações."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
+  ["ele", "Eleitoral", "Base eleitoral, lideranças e a relação entre votos e presença do mandato."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."]];
 function desenhar() {
+  $("#app").innerHTML = `<div class="olho">Gabinete · ${esc(DEP.nome)}</div><h1>Gabinete<i>.</i></h1><p class="lead">A gestão do mandato em um lugar só. Cada título abaixo é uma frente de trabalho do gabinete.</p>
+    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? (i > 0) ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs" title="Recolher ou abrir">${S.fech[k] ?? (i > 0) ? "+" : "−"}</button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
+  $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").textContent = S.fech[k] ? "+" : "−"; });
+  $("#abas").onclick = (e) => { const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; desenhar(); };
+  if (S.aba === "geral") ligarGeral(); else ligarMeu();
+}
+function corpoRec() {
+  return `<div class="chips abas" id="abas">${[["geral", "Análise geral"], ["meu", "Meu controle"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : meu()}</div>`;
+}
+function geral() {
   const L = doAno(), tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), anos = [...new Set(E.map((e) => e.ano))].sort();
   const cont = [0, 0, 0, 0, 0, 0]; L.forEach((e) => cont[e.et]++);
   
-  $("#app").innerHTML = `<div class="olho">Gabinete · Controle de Recursos</div><h1>${esc(DEP.nome.split(" ")[0])} <i>${esc(DEP.nome.split(" ").slice(1).join(" "))}.</i></h1>
-    <p class="lead">Todas as emendas indicadas pelo mandato, com o andamento oficial (empenho, liquidação, pagamento e OB) atualizado todo dia.</p>
+  return `<p class="lead" style="margin-top:14px">Todas as emendas indicadas pelo mandato, com o andamento oficial (empenho, liquidação, pagamento e OB) atualizado todo dia.</p>
     <div class="fonte">Fontes: Portal da Transparência SC e painel de emendas da SEF${META.coletado_em ? ` · coletado em ${esc(dtBR(META.coletado_em))} ${esc(String(META.coletado_em).slice(11, 16))}` : ""}.</div>
     <div class="anos">${[0, ...anos].map((a) => `<button data-ano="${a}" class="${S.ano === a ? "on" : ""}">${a || "Todos"}</button>`).join("")}</div>
     <div class="kpis"><div><b class="a">${fm(tv)}</b><span>indicado</span></div><div><b>${fm(tp)}</b><span>pago</span></div><div><b>${tv ? nf(tp / tv * 100) : "0,0"}%</b><span>executado</span></div><div><b>${ni(L.length)}</b><span>emendas</span></div><div><b>${new Set(L.map((e) => e.mun)).size}</b><span>municípios</span></div></div>
     <div class="funil">${[1, 2, 3, 4, 5].map((k) => cont[k] ? `<i style="width:${cont[k] / L.length * 100}%;background:${ETAPAS[k][1]}" title="${ETAPAS[k][0]}: ${cont[k]}"></i>` : "").join("")}</div>
     <div class="funilL">${[1, 2, 3, 4, 5].map((k) => `<span data-et="${k}" class="${S.et.has(k) ? "" : "off"}"><i style="background:${ETAPAS[k][1]}"></i>${ETAPAS[k][0]} <b>${cont[k]}</b></span>`).join("")}</div>
-    ${PODE ? blocoPrivado() : ""}
     <section class="bx"><div class="bxh"><h2>Mapa</h2><p>Recursos do mandato por município e relação com os votos de 2026.</p></div>
       <div class="chips" id="lentes">${[["rec", "Recursos"], ["pago", "% pago"], ["voto", "Votos"], ["rpv", "R$ por voto"]].map(([k, r]) => `<button data-l="${k}" class="${S.lente === k ? "on" : ""}">${r}</button>`).join("")}</div>
       <div class="mapa"><div>${mapa(L)}<div class="leg" id="legM"></div></div><div>${ranking(L)}</div></div></section>
     <section class="bx"><div class="bxh"><h2>Carteira</h2><p>Clique numa emenda para ver a linha do tempo.</p></div>
       <div class="ctl"><input id="busca" placeholder="Município, objeto, beneficiário ou nº" value="${esc(S.busca)}"><select id="mod"><option value="">Todas as modalidades</option>${[...new Set(E.map((e) => e.mod).filter(Boolean))].sort().map((m) => `<option ${S.mod === m ? "selected" : ""}>${esc(m)}</option>`).join("")}</select></div>
       <div id="tab"></div></section>`;
-  $("#app").querySelectorAll("[data-ano]").forEach((b) => b.onclick = () => { S.ano = +b.dataset.ano; S.aberto = null; desenhar(); });
-  $("#app").querySelectorAll("[data-et]").forEach((b) => b.onclick = () => { const k = +b.dataset.et; S.et.has(k) ? S.et.delete(k) : S.et.add(k); desenhar(); });
+}
+function ligarGeral() {
+  $("#corpoAba").querySelectorAll("[data-ano]").forEach((b) => b.onclick = () => { S.ano = +b.dataset.ano; S.aberto = null; desenhar(); });
+  $("#corpoAba").querySelectorAll("[data-et]").forEach((b) => b.onclick = () => { const k = +b.dataset.et; S.et.has(k) ? S.et.delete(k) : S.et.add(k); desenhar(); });
   $("#lentes").onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); };
   $("#busca").oninput = (e) => { S.busca = e.target.value; S.lim = 60; tabela(); };
   $("#mod").onchange = (e) => { S.mod = e.target.value; tabela(); };
-  const imp = $("#impBtn"); if (imp) imp.onclick = importar;
   tabela();
+}
+// ---------- Meu controle: a planilha do gabinete (EM Consolidado), privada ----------
+const supr = (r) => /^Suprimida/.test(r.status_manual || "");
+function meu() {
+  if (!PODE) return `<div class="obra">Entre com a sua conta para ver o seu controle.</div>`;
+  if (!MEU.length) return blocoPrivado();
+  const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
+  const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
+  return `<p class="lead" style="margin-top:14px">O controle do gabinete, no formato da planilha "Controle de Recursos". Visível só para você.</p>
+    <div class="anos">${[0, ...anos].map((a) => `<button data-mano="${a}" class="${S.mano === a ? "on" : ""}">${a || "Todos"}</button>`).join("")}</div>
+    <div class="kpis"><div><b class="a">${fm(tot)}</b><span>recursos ativos</span></div><div><b>${fm(pago)}</b><span>pago ou executado</span></div><div><b>${ni(at.length)}</b><span>linhas</span></div><div><b>${new Set(at.map((r) => norm(r.municipio))).size}</b><span>municípios</span></div><div><b>${ni(sp.length)}</b><span>suprimidas · ${fm(sp.reduce((s, r) => s + (+r.valor || 0), 0))}</span></div></div>
+    <section class="bx"><div class="ctl"><input id="mbusca" placeholder="Município, objeto, nº, processo ou tag" value="${esc(S.mq)}"></div><div id="mtab"></div></section>`;
+}
+function ligarMeu() {
+  $("#corpoAba").querySelectorAll("[data-mano]").forEach((b) => b.onclick = () => { S.mano = +b.dataset.mano; desenhar(); });
+  const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); };
+  const imp = $("#impBtn"); if (imp) imp.onclick = importar;
+  if ($("#mtab")) mtab();
+}
+function mtab() {
+  const q = norm(S.mq), L = MEU.filter((r) => (!S.mano || r.ano === S.mano) && (!q || norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem].join(" ")).includes(q)));
+  $("#mtab").innerHTML = `<table class="tb mt"><thead><tr><th>Ano · nº</th><th>Município</th><th class="hm">Objeto</th><th class="hm">Função · mod.</th><th class="v">R$</th><th>Status</th><th class="hm">Processo</th></tr></thead><tbody>${L.slice(0, S.mlim).map((r) => `<tr class="${supr(r) ? "sup" : ""}"><td>${r.ano || ""}${r.numero ? ` · ${esc(r.numero)}` : ""}<small>${esc(r.origem || "")}</small></td><td>${esc(r.municipio || "")}<small>${esc(r.regiao || "")}</small></td><td class="hm">${esc(r.objeto || "")}${(r.tags || []).length ? `<small>${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</small>` : ""}</td><td class="hm">${esc(r.funcao || "")}<small>${esc(r.modalidade || "")}</small></td><td class="v">${fr(+r.valor || 0)}</td><td>${esc(r.status_manual || "")}</td><td class="hm">${esc(r.processo || "")}</td></tr>`).join("")}</tbody></table>
+    ${L.length > S.mlim ? `<button class="btn sec mais" id="mmais">Mostrar mais (${L.length - S.mlim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> linhas</div>`;
+  const m = $("#mmais"); if (m) m.onclick = () => { S.mlim += 200; mtab(); };
 }
 
 // ---------- mapa de SC: bolha por município (tamanho = valor; cor = lente) ----------

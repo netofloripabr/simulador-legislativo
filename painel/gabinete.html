@@ -52,6 +52,14 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 .btn{ font-weight:700; font-size:13px; color:#0B0D0E; background:#F2F4F5; border:0; border-radius:999px; padding:8px 16px; cursor:pointer; } .btn.sec{ background:none; color:var(--sec); border:1px solid var(--linha); }
 .av{ font-size:12.5px; color:var(--sec); margin-top:8px; } .av b{ color:var(--texto); }
 .mais{ margin-top:10px; }
+.secao{ border-top:1px solid var(--linha); padding:26px 0 34px; } .secao:first-of-type{ margin-top:26px; }
+.secao .tag{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:18px 22px; border:1px solid rgba(242,244,245,.06); background:rgba(242,244,245,.018); border-radius:16px; cursor:pointer; } .secao .tag:hover{ border-color:rgba(242,244,245,.13); }
+.secao .tag h2{ margin:0; font-size:clamp(28px,4.4vw,48px); font-weight:900; letter-spacing:-.05em; line-height:.95; } .secao .tag .lead{ flex:1; min-width:240px; font-size:14px; margin:0 0 0 10px; }
+.tgs{ flex:none; width:30px; height:30px; border-radius:50%; border:1px solid var(--linha); background:none; color:var(--ter); font:600 18px/1 "Inter"; cursor:pointer; }
+.secao.fech .corpoT{ display:none; } .secao.fech{ padding-bottom:0; border-top:0; padding-top:10px; }
+.abas{ margin-top:22px; } .abas button{ font-size:14px; padding:8px 16px; }
+.obra{ margin-top:16px; padding:16px 18px; border:1px dashed rgba(242,244,245,.14); border-radius:12px; color:var(--ter); font-size:13.5px; }
+#mtab{ overflow-x:auto; } .tb.mt td{ font-size:12.5px; } @media (max-width:600px){ .kpis b{ font-size:19px; } .tb.mt td:nth-child(6), .tb.mt th:nth-child(6){ display:none; } } .tb tr.sup td{ opacity:.45; } .tb .tg{ font-size:10px; }
 @media (max-width:900px){ .kpis{ grid-template-columns:repeat(2,minmax(0,1fr)); } .mapa,.dg{ grid-template-columns:1fr; } .tb .hm{ display:none; } }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
@@ -63,6 +71,6 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="gabinete.js?cb=1"></script>
+<script src="gabinete.js?cb=2"></script>
 </body>
 </html>
