@@ -66,7 +66,7 @@ const ir = (n) => { history.pushState(null, "", "?c=" + CARGO + "&d=" + n); perf
 
 // ---------------- perfil ----------------
 function perfil(n) {
-  const c = D.c.find((x) => x.n === n); if (!c) return telaSelecao(); window._cAtual = c;
+  const c = D.c.find((x) => x.n === n); if (!c) return telaSelecao(); window._cAtual = c; try { if (!FED) localStorage.setItem("sl_dep", n); } catch (e) {}
   tingir(COR_P[c.p] || "#34E84A");
   const E = eleitos(), pos = E.findIndex((x) => x.n === n) + 1, idx = [...Array(N).keys()], ordM = idx.filter((i) => c.v[i]).sort((a, b) => c.v[b] - c.v[a]), i0 = ordM[0];
   const posBase = D.c.filter((x) => (x.v[i0] || 0) > c.v[i0]).length + 1, pctMax = Math.max(...idx.map((i) => D.val[i] ? c.v[i] / D.val[i] : 0)), iPct = idx.find((i) => D.val[i] && c.v[i] / D.val[i] === pctMax);

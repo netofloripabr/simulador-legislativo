@@ -10,7 +10,11 @@ const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toU
 const dtBR = (s) => s ? String(s).slice(0, 10).split("-").reverse().join("/") : "";
 const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const PUB = LOCAL ? "../dados/gabinete/" : "https://raw.githubusercontent.com/netofloripabr/simulador-legislativo/dados-emendas/dados/gabinete/";
+// gabinete do mandato que tem o controle privado (planilha) e o parlamentar aberto na página (?d=número)
 const DEP = { nome: "Napoleão Bernardes", n: "55777", partido: "PSD" };
+const DSEL = new URLSearchParams(location.search).get("d") || DEP.n;
+let PARL = null; // parlamentar aberto: { n, u, p, t }
+const proprio = () => PARL && PARL.n === DEP.n;
 const ETAPAS = [null, ["Indicada", "#5C6268"], ["Empenhada", "#8FA8E8"], ["Em pagamento", "#C6E62A"], ["Paga", "#34E84A"], ["Impedimento técnico", "#E8432A"]];
 const etapa = (e) => (e.imped && /impedimento/i.test(e.imped)) ? 5 : (e.v > 0 && (e.vp || 0) >= e.v * 0.995) ? 4 : (e.vl > 0 || e.vp > 0) ? 3 : (e.ve > 0 || (e.pagamentos_sef || []).length) ? 2 : 1;
 const S = { aba: "geral", outro: null, oano: 2026, oord: "v", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
@@ -18,8 +22,11 @@ let MEU = [], TODAS = null, E0 = [], V0 = [], EST = null, E = [], META = {}, BAS
 
 async function iniciar() {
   const [m, mt, b, est] = await Promise.all([fetch(PUB + "mandato-napoleao.json").then((r) => r.json()), fetch(PUB + "meta.json").then((r) => r.json()).catch(() => ({})), fetch("../dados/painel/sc-base.json").then((r) => r.json()), fetch("../dados/painel/sc-estadual.json").then((r) => r.json())]);
-  E = m.emendas.map((e) => ({ ...e, et: etapa(e) })); META = mt; BASE = b; VOT = (est.c.find((c) => c.n === DEP.n) || {}).v || []; E0 = E; V0 = VOT; EST = est;
-  const ix = {}; BASE.mun.forEach((x, i) => { ix[norm(x.n)] = i; }); E.forEach((e) => { e.mi = ix[norm(e.mun)]; });
+  META = mt; BASE = b; EST = est; PARL = est.c.find((c) => c.n === DSEL) || est.c.find((c) => c.n === DEP.n);
+  VOT = PARL.v || [];
+  if (proprio()) { E = m.emendas.map((e) => ({ ...e, et: etapa(e) })); const ix = {}; BASE.mun.forEach((x, i) => { ix[norm(x.n)] = i; }); E.forEach((e) => { e.mi = ix[norm(e.mun)]; }); }
+  else { await lerTodas(); const ds = casaDep(PARL); E = TODAS.filter((e) => ds.has(e.dep)); }
+  E0 = E; V0 = VOT;
   try { SESS = supabaseClient ? (await supabaseClient.auth.getSession()).data.session : null; if (SESS) { const r = await supabaseClient.rpc("gab_pode"); PODE = !!r.data; if (PODE) await lerPrivado(); } } catch (e) {}
   // área restrita: por enquanto só administradores (no computador local, liberado para testes)
   if (!PODE && !LOCAL) { $("#app").innerHTML = `<div style="max-width:560px;margin:12vh auto"><div class="olho">Gabinete</div><h1 style="font-size:44px">Área restrita.</h1><p class="lead">O painel Gabinete está em construção e, por enquanto, é liberado só para a administração.${SESS ? "" : " Se você tem acesso, entre com a sua conta."}</p>${SESS ? "" : `<p><a class="btn" href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}" style="display:inline-block;text-decoration:none;margin-top:12px">Entrar</a></p>`}</div>`; return; }
@@ -36,19 +43,23 @@ const TITULOS = [["rec", "Controle de Recursos", "Emendas e recursos do mandato:
 function desenhar() {
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
-  $("#app").innerHTML = `<div class="olho">Gabinete · ${esc(DEP.nome)}</div><h1>Gabinete<i>.</i></h1><p class="lead">A gestão do mandato em um lugar só. Cada título abaixo é uma frente de trabalho do gabinete.</p>
+  const nm = PARL.u.split(" "), EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
+  $("#app").innerHTML = `<div class="gcab"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div><h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
+    <p class="lead">A gestão do mandato em um lugar só. Cada título abaixo é uma frente de trabalho do gabinete.</p><select id="trocaP" class="trp"><option value="">Trocar parlamentar</option>${EL.map((c) => `<option value="${c.n}">${esc(c.u)} · ${esc(c.p)}</option>`).join("")}</select></div></div>
     ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? (i > 0) ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs" title="Recolher ou abrir">${S.fech[k] ?? (i > 0) ? "+" : "−"}</button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
+  $("#trocaP").onchange = (e) => { if (e.target.value) location.href = "gabinete.html?d=" + e.target.value; };
   $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").textContent = S.fech[k] ? "+" : "−"; });
   $("#abas").onclick = (e) => { const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
   if (S.aba === "geral" || (S.aba === "outros" && S.outro)) ligarGeral(); else if (S.aba === "meu") ligarMeu(); else ligarOutros();
 }
 function corpoRec() {
-  return `<div class="chips abas" id="abas">${[["geral", "Análise geral"], ["meu", "Meu controle"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
+  return `<div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
 }
 function geral() {
   const L = doAno(), tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), anos = [...new Set(E.map((e) => e.ano))].sort();
   const cont = [0, 0, 0, 0, 0, 0]; L.forEach((e) => cont[e.et]++);
   
+  if (!L.length && !S.outro) return `<div class="obra">Nenhuma emenda de ${esc(PARL.u)} nos dados oficiais de 2023 a 2026. O parlamentar não exerceu mandato na legislatura atual; as emendas dele começam a aparecer em 2027.</div>`;
   return `<p class="lead" style="margin-top:14px">Todas as emendas indicadas pelo mandato, com o andamento oficial (empenho, liquidação, pagamento e OB) atualizado todo dia.</p>
     <div class="fonte">Fontes: Portal da Transparência SC e painel de emendas da SEF${META.coletado_em ? ` · coletado em ${esc(dtBR(META.coletado_em))} ${esc(String(META.coletado_em).slice(11, 16))}` : ""}.</div>
     <div class="anos">${[0, ...anos].map((a) => `<button data-ano="${a}" class="${S.ano === a ? "on" : ""}">${a || "Todos"}</button>`).join("")}</div>
@@ -176,8 +187,12 @@ async function importar() {
 iniciar();
 
 // ---------- Outros deputados: o que cada parlamentar indicou e recebeu (dados oficiais, todos os anos) ----------
+// o nome nas emendas é o civil (às vezes abreviado); casa pelo nome de urna ou pelo nome civil do TSE
+const tkN = (x) => norm(x).split(" ").filter((w) => w.length > 2 && !["DOS", "DAS", "DEL", "DELEGADO", "PADRE", "SARGENTO"].includes(w));
+const contido = (a, b) => a.length && a.every((w) => b.includes(w));
+function casaDep(c) { const deps = [...new Set(TODAS.map((e) => e.dep))]; return new Set(deps.filter((d) => contido(tkN(d), tkN(c.nome || "")) || contido(tkN(c.u), tkN(d)))); }
 async function lerTodas() {
-  if (TODAS) return; const anos = [2023, 2024, 2025, 2026];
+  if (TODAS) return; if (!BASE) BASE = await (await fetch("../dados/painel/sc-base.json")).json(); const anos = [2023, 2024, 2025, 2026];
   const fs = await Promise.all(anos.map((a) => fetch(PUB + `emendas-${a}.json`).then((r) => r.json()).catch(() => null)));
   const ix = {}; BASE.mun.forEach((x, i) => { ix[norm(x.n)] = i; });
   TODAS = []; fs.forEach((f, j) => { if (!f) return; const c = f.campos; f.linhas.forEach((l) => { const e = { ano: anos[j] }; c.forEach((k, i) => { e[k] = l[i]; }); e.et = etapa(e); e.mi = ix[norm(e.mun)]; TODAS.push(e); }); });
