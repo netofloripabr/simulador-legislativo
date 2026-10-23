@@ -13,12 +13,12 @@ const PUB = LOCAL ? "../dados/gabinete/" : "https://raw.githubusercontent.com/ne
 const DEP = { nome: "Napoleão Bernardes", n: "55777", partido: "PSD" };
 const ETAPAS = [null, ["Indicada", "#5C6268"], ["Empenhada", "#8FA8E8"], ["Em pagamento", "#C6E62A"], ["Paga", "#34E84A"], ["Impedimento técnico", "#E8432A"]];
 const etapa = (e) => (e.imped && /impedimento/i.test(e.imped)) ? 5 : (e.v > 0 && (e.vp || 0) >= e.v * 0.995) ? 4 : (e.vl > 0 || e.vp > 0) ? 3 : (e.ve > 0 || (e.pagamentos_sef || []).length) ? 2 : 1;
-const S = { aba: "geral", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
-let MEU = [], E = [], META = {}, BASE = null, VOT = null, PRIV = null, PODE = false, SESS = null;
+const S = { aba: "geral", outro: null, oano: 2026, oord: "v", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
+let MEU = [], TODAS = null, E0 = [], V0 = [], EST = null, E = [], META = {}, BASE = null, VOT = null, PRIV = null, PODE = false, SESS = null;
 
 async function iniciar() {
   const [m, mt, b, est] = await Promise.all([fetch(PUB + "mandato-napoleao.json").then((r) => r.json()), fetch(PUB + "meta.json").then((r) => r.json()).catch(() => ({})), fetch("../dados/painel/sc-base.json").then((r) => r.json()), fetch("../dados/painel/sc-estadual.json").then((r) => r.json())]);
-  E = m.emendas.map((e) => ({ ...e, et: etapa(e) })); META = mt; BASE = b; VOT = (est.c.find((c) => c.n === DEP.n) || {}).v || [];
+  E = m.emendas.map((e) => ({ ...e, et: etapa(e) })); META = mt; BASE = b; VOT = (est.c.find((c) => c.n === DEP.n) || {}).v || []; E0 = E; V0 = VOT; EST = est;
   const ix = {}; BASE.mun.forEach((x, i) => { ix[norm(x.n)] = i; }); E.forEach((e) => { e.mi = ix[norm(e.mun)]; });
   try { SESS = supabaseClient ? (await supabaseClient.auth.getSession()).data.session : null; if (SESS) { const r = await supabaseClient.rpc("gab_pode"); PODE = !!r.data; if (PODE) await lerPrivado(); } } catch (e) {}
   // área restrita: por enquanto só administradores (no computador local, liberado para testes)
@@ -34,14 +34,16 @@ const TITULOS = [["rec", "Controle de Recursos", "Emendas e recursos do mandato:
   ["rh", "RH", "Equipe do gabinete, cargos, lotação e a cota de nomeações."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
   ["ele", "Eleitoral", "Base eleitoral, lideranças e a relação entre votos e presença do mandato."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."]];
 function desenhar() {
+  // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
+  if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
   $("#app").innerHTML = `<div class="olho">Gabinete · ${esc(DEP.nome)}</div><h1>Gabinete<i>.</i></h1><p class="lead">A gestão do mandato em um lugar só. Cada título abaixo é uma frente de trabalho do gabinete.</p>
     ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? (i > 0) ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs" title="Recolher ou abrir">${S.fech[k] ?? (i > 0) ? "+" : "−"}</button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
   $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").textContent = S.fech[k] ? "+" : "−"; });
-  $("#abas").onclick = (e) => { const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; desenhar(); };
-  if (S.aba === "geral") ligarGeral(); else ligarMeu();
+  $("#abas").onclick = (e) => { const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
+  if (S.aba === "geral" || (S.aba === "outros" && S.outro)) ligarGeral(); else if (S.aba === "meu") ligarMeu(); else ligarOutros();
 }
 function corpoRec() {
-  return `<div class="chips abas" id="abas">${[["geral", "Análise geral"], ["meu", "Meu controle"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : meu()}</div>`;
+  return `<div class="chips abas" id="abas">${[["geral", "Análise geral"], ["meu", "Meu controle"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
 }
 function geral() {
   const L = doAno(), tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), anos = [...new Set(E.map((e) => e.ano))].sort();
@@ -61,6 +63,7 @@ function geral() {
       <div id="tab"></div></section>`;
 }
 function ligarGeral() {
+  const vo = $("#voltaO"); if (vo) vo.onclick = () => { S.outro = null; desenhar(); };
   $("#corpoAba").querySelectorAll("[data-ano]").forEach((b) => b.onclick = () => { S.ano = +b.dataset.ano; S.aberto = null; desenhar(); });
   $("#corpoAba").querySelectorAll("[data-et]").forEach((b) => b.onclick = () => { const k = +b.dataset.et; S.et.has(k) ? S.et.delete(k) : S.et.add(k); desenhar(); });
   $("#lentes").onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); };
@@ -171,3 +174,29 @@ async function importar() {
   inp.click();
 }
 iniciar();
+
+// ---------- Outros deputados: o que cada parlamentar indicou e recebeu (dados oficiais, todos os anos) ----------
+async function lerTodas() {
+  if (TODAS) return; const anos = [2023, 2024, 2025, 2026];
+  const fs = await Promise.all(anos.map((a) => fetch(PUB + `emendas-${a}.json`).then((r) => r.json()).catch(() => null)));
+  const ix = {}; BASE.mun.forEach((x, i) => { ix[norm(x.n)] = i; });
+  TODAS = []; fs.forEach((f, j) => { if (!f) return; const c = f.campos; f.linhas.forEach((l) => { const e = { ano: anos[j] }; c.forEach((k, i) => { e[k] = l[i]; }); e.et = etapa(e); e.mi = ix[norm(e.mun)]; TODAS.push(e); }); });
+}
+function outros() {
+  if (S.outro) return `<div class="ctl" style="margin-top:16px"><button class="btn sec" id="voltaO">Todos os deputados</button><b style="font-size:18px">${esc(S.outro)}</b></div>${geral()}`;
+  if (!TODAS) return `<div class="obra">Carregando as emendas de todos os deputados…</div>`;
+  const L = TODAS.filter((e) => !S.oano || e.ano === S.oano), G = {};
+  L.forEach((e) => { const o = G[e.dep] = G[e.dep] || { dep: e.dep, v: 0, vp: 0, n: 0, m: new Set() }; o.v += e.v || 0; o.vp += e.vp || 0; o.n++; o.m.add(e.mun); });
+  const R = Object.values(G).sort((a, b) => S.oord === "x" ? b.vp / (b.v || 1) - a.vp / (a.v || 1) : b[S.oord] - a[S.oord]), mx = Math.max(1, ...R.map((o) => o.v)), meu = norm(DEP.nome);
+  const tot = L.reduce((s, e) => s + (e.v || 0), 0), totp = L.reduce((s, e) => s + (e.vp || 0), 0);
+  return `<p class="lead" style="margin-top:14px">O que cada parlamentar indicou e quanto já foi pago, pelos dados oficiais. Clique num deputado para abrir o painel dele.</p>
+    <div class="anos">${[0, 2023, 2024, 2025, 2026].map((a) => `<button data-oano="${a}" class="${S.oano === a ? "on" : ""}">${a || "Todos"}</button>`).join("")}</div>
+    <div class="kpis"><div><b class="a">${fm(tot)}</b><span>indicado na Casa</span></div><div><b>${fm(totp)}</b><span>pago</span></div><div><b>${tot ? nf(totp / tot * 100) : "0,0"}%</b><span>executado</span></div><div><b>${ni(L.length)}</b><span>emendas</span></div><div><b>${R.length}</b><span>parlamentares</span></div></div>
+    <section class="bx"><table class="tb ot"><thead><tr><th>#</th><th>Parlamentar</th><th class="v" data-oo="v">Indicado${S.oord === "v" ? " ↓" : ""}</th><th class="v" data-oo="vp">Pago${S.oord === "vp" ? " ↓" : ""}</th><th class="v hm" data-oo="x">% pago${S.oord === "x" ? " ↓" : ""}</th><th class="v hm" data-oo="n">Emendas${S.oord === "n" ? " ↓" : ""}</th><th class="v hm">Municípios</th></tr></thead><tbody>${R.map((o, i) => `<tr class="r${norm(o.dep) === meu ? " ab" : ""}" data-dep="${esc(o.dep)}"><td>${i + 1}</td><td><b>${esc(o.dep)}</b><i class="br" style="width:${(o.v / mx * 100).toFixed(1)}%"></i></td><td class="v">${fm(o.v)}</td><td class="v">${fm(o.vp)}</td><td class="v hm">${o.v ? nf(o.vp / o.v * 100) : "0,0"}%</td><td class="v hm">${o.n}</td><td class="v hm">${o.m.size}</td></tr>`).join("")}</tbody></table></section>`;
+}
+function ligarOutros() {
+  if (!TODAS) { lerTodas().then(desenhar); return; }
+  $("#corpoAba").querySelectorAll("[data-oano]").forEach((b) => b.onclick = () => { S.oano = +b.dataset.oano; desenhar(); });
+  $("#corpoAba").querySelectorAll("[data-oo]").forEach((b) => b.onclick = () => { S.oord = b.dataset.oo; desenhar(); });
+  $("#corpoAba").querySelectorAll("[data-dep]").forEach((r) => r.onclick = () => { S.outro = r.dataset.dep; S.ano = 0; S.aberto = null; desenhar(); window.scrollTo({ top: $("#abas").offsetTop - 70 }); });
+}
