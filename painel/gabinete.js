@@ -44,13 +44,22 @@ function desenhar() {
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
   const nm = PARL.u.split(" "), EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
-  $("#app").innerHTML = `<div class="gcab"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div><h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
-    <p class="lead">A gestão do mandato em um lugar só. Cada título abaixo é uma frente de trabalho do gabinete.</p><select id="trocaP" class="trp"><option value="">Trocar parlamentar</option>${EL.map((c) => `<option value="${c.n}">${esc(c.u)} · ${esc(c.p)}</option>`).join("")}</select></div></div>
-    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? (i > 0) ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs" title="Recolher ou abrir">${S.fech[k] ?? (i > 0) ? "+" : "−"}</button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
+  $("#app").innerHTML = `${capa(nm, EL)}
+    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
   $("#trocaP").onchange = (e) => { if (e.target.value) location.href = "gabinete.html?d=" + e.target.value; };
-  $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").textContent = S.fech[k] ? "+" : "−"; });
+  $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
   $("#abas").onclick = (e) => { const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
   if (S.aba === "geral" || (S.aba === "outros" && S.outro)) ligarGeral(); else if (S.aba === "meu") ligarMeu(); else ligarOutros();
+}
+// capa do gabinete: o mandato em números (mesma linguagem da capa de Parlamentares)
+function capa(nm, EL) {
+  const L = E0, tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), mun = new Set(L.map((e) => e.mun)).size, l0 = S.lente; S.lente = "rec";
+  const mp = L.length ? mapa(L) : ""; S.lente = l0;
+  const pops = [[ni(PARL.t), "votos em 2026", 1], [fm(tv), "indicado 2023-26"], [tv ? nf(tp / tv * 100) + "%" : "—", "já pago"], [ni(L.length), "emendas"], [mun, "municípios atendidos"], [fm(tp), "pago até hoje"]];
+  return `<section class="gcapa"><div class="gtxt"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho" style="margin-top:14px">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div><h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
+    <div class="pops">${pops.map(([v, r, a]) => `<div><b class="${a ? "a" : ""}">${esc(String(v))}</b><span>${esc(r)}</span></div>`).join("")}</div>
+    <select id="trocaP" class="trp"><option value="">Trocar parlamentar</option>${EL.map((c) => `<option value="${c.n}">${esc(c.u)} · ${esc(c.p)}</option>`).join("")}</select></div>
+    <div class="gmapa">${mp}${L.length ? `<div class="leg">Bolha = recursos indicados no município.</div>` : `<div class="obra">Sem emendas na legislatura atual: o mapa do mandato começa em 2027.</div>`}</div></section>`;
 }
 function corpoRec() {
   return `<div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
