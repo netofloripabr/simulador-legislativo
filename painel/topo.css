@@ -56,3 +56,21 @@ html{ scrollbar-gutter:stable; }
 }
 @media (max-width:360px){ #topoSL .wm{ font-size:12px; } #topoSL .sl-nav > a, #topoSL .sl-nav > button{ padding:5px 4px; } }
 @media (max-width:760px){ #topoSL .wm{ margin-right:0 !important; } #topoSL .salvo{ display:none !important; } }
+
+/* trilho dos painéis (24/10/2026): grupo cinza escuro sem borda = seletor + subtítulos do painel aberto */
+#topoSL.com-trilho .sl-nav > a, #topoSL.com-trilho .sl-nav > button{ display:none !important; }
+#topoSL .sl-trilho{ display:flex; align-items:center; gap:2px; background:#1A1F22; border-radius:999px; padding:3px; margin-left:14px; min-width:0; flex:0 1 auto; }
+#topoSL .psel{ position:relative; flex:none; }
+#topoSL .pselb{ all:unset; box-sizing:border-box; display:flex; align-items:center; gap:8px; font:700 13px/1 "InterSL",system-ui,sans-serif; color:#0B0D0E; background:#F2F4F5; border-radius:999px; padding:8px 12px 8px 14px; cursor:pointer; }
+#topoSL .pselb svg{ transition:transform .18s; } #topoSL .pselb.ab svg{ transform:rotate(180deg); }
+#topoSL .psell{ position:absolute; top:calc(100% + 8px); left:0; min-width:190px; background:#14181B; border:1px solid rgba(242,244,245,.12); border-radius:12px; padding:5px; display:flex; flex-direction:column; z-index:60; box-shadow:0 20px 50px rgba(0,0,0,.55); }
+#topoSL .psell[hidden]{ display:none !important; }
+#topoSL .psell a{ font:600 13px "InterSL",system-ui,sans-serif; color:#A9AEB3; text-decoration:none; padding:9px 11px; border-radius:8px; }
+#topoSL .psell a:hover{ background:rgba(242,244,245,.06); color:#F2F4F5; } #topoSL .psell a.on{ color:#F2F4F5; }
+#topoSL .psell a.on::before{ content:""; display:inline-block; width:6px; height:6px; border-radius:50%; background:#34E84A; margin-right:8px; vertical-align:1px; }
+#topoSL .sl-subs{ display:flex; min-width:0; overflow-x:auto; scrollbar-width:none; } #topoSL .sl-subs:empty{ display:none; }
+#topoSL .sl-subs > *{ display:flex !important; gap:0 !important; margin:0 !important; }
+#topoSL .sl-subs a{ font:600 12.5px/1 "InterSL",system-ui,sans-serif !important; color:#A9AEB3 !important; text-decoration:none; padding:8px 11px !important; border-radius:999px; white-space:nowrap; background:none !important; }
+#topoSL .sl-subs a:hover{ color:#F2F4F5 !important; background:rgba(242,244,245,.06) !important; }
+#topoSL .sl-uf{ margin-left:auto; }
+@media (max-width:760px){ #topoSL .sl-trilho{ order:5; flex-basis:100%; margin-left:0; } #topoSL .sl-subs > *{ display:flex !important; } }

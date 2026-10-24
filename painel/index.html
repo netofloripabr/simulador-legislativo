@@ -168,7 +168,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
 </style>
 <script src="uf.js?cb=6"></script>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="topo.css?cb=13">
+<link rel="stylesheet" href="topo.css?cb=14">
 </head>
 <body>
 <header class="topo" id="topoSL"><a class="wm" href="novos.html?v=8"><b>Simula</b>LEGIS</a><nav class="vistas sl-nav"><button data-vista="painel" hidden>Painel</button><a href="novos.html?v=8">Parlamentares</a><button data-vista="ranking">Ranking</button><a href="mesa.html?v=8">Mesa</a></nav><span class="mnuw"><button class="mnub" aria-label="Menu" title="Menu"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button><span class="mnu" hidden><a href="../?entrar=1" class="mconta" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}">Entrar ou cadastrar<small>login com e-mail ou Google</small></a><a href="../?capa=1" class="msim">Sistema SimulaLEGIS<small>resultado, duelos, grupos e suas listas</small></a><a href="novos.html?v=8">Parlamentares</a><a href="index.html?v=8#ranking">Ranking</a><a href="mesa.html?v=8">Mesa</a></span></span></header>
@@ -217,7 +217,7 @@ html,body{ overflow-x:hidden; max-width:100%; }
 <script>(function(){var b=document.querySelector(".mnub"),m=document.querySelector(".mnu");if(!b)return;b.onclick=function(e){e.stopPropagation();m.hidden=!m.hidden;};document.addEventListener("click",function(e){if(!e.target.closest(".mnuw"))m.hidden=true;});/* logado? lê a sessão do Supabase guardada pelo app (mesma origem); Sair apaga a sessão local */try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var ss=JSON.parse(localStorage.getItem(k)),u=ss&&(ss.user||(ss.currentSession&&ss.currentSession.user));if(u){var md=u.user_metadata||{},ct=m.querySelector(".mconta"),nm=md.full_name||md.nome||u.email,esc=function(x){return String(x||"").replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};ct.innerHTML="<b>"+esc(nm)+"</b><small>"+esc(u.email)+" · minha conta</small>";ct.href="../?capa=1";ct.onclick=null;ct.classList.remove("mconta");var sa=document.createElement("a");sa.href="#";sa.className="mconta msair";sa.textContent="Sair da conta";sa.onclick=(function(kk){return function(e){e.preventDefault();try{localStorage.removeItem(kk);}catch(er){}location.reload();};})(k);ct.after(sa);}}}}catch(e){}})();</script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="relatorio.js?cb=24"></script>
-<script src="sino-menu.js?cb=5"></script>
+<script src="sino-menu.js?cb=6"></script>
 <script>(function(){var t=null;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var s=JSON.parse(localStorage.getItem(k));t=s&&(s.access_token||(s.currentSession&&s.currentSession.access_token));}}}catch(e){}var go=function(){sinoMenuAdmin("https://uxqxhvzeptuedyggwguh.supabase.co","sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph",t);};document.querySelector(".mnu")?go():setTimeout(go,1500);})();</script>
 </body>
 </html>

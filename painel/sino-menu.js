@@ -13,3 +13,28 @@ function poeGabinete(){ document.querySelectorAll("a[href^='gabinete']").forEach
   var mg=document.querySelector(".mnu"); if(mg&&!mg.querySelector(".mgab")){ var g=document.createElement("a"); g.href=hrefGab(); g.dataset.g="1"; g.className="mgab"; g.textContent="Gabinete"; mg.appendChild(g); } }
 (function(){ var on=false; try{on=localStorage.getItem("sl_gab")==="1"}catch(e){} if(!on) return; var go=function(){ poeGabinete(); var tp=document.querySelector(".topo"); if(tp) new MutationObserver(function(){ poeGabinete(); }).observe(tp,{childList:true,subtree:true}); };
   document.readyState==="loading"?document.addEventListener("DOMContentLoaded",go):go(); })();
+
+/* Trilho dos painéis (24/10/2026): à esquerda um grupo de fundo cinza escuro, sem borda, com o seletor do painel
+   (lista: Gabinete, Parlamentares, Mesa, Ranking) e, na sequência, os subtítulos do painel aberto (.gsecs no
+   Gabinete, .sl-meio na Mesa). À direita só o estado (.sl-uf) e o menu. Padrão das quatro páginas. */
+(function(){
+  var PAIN=[["gabinete.html","Gabinete"],["novos.html?v=8","Parlamentares"],["mesa.html?v=8","Mesa"],["index.html?v=8#ranking","Ranking"]];
+  function atual(){ var p=location.pathname; if(/gabinete/.test(p)) return "Gabinete"; if(/mesa/.test(p)) return "Mesa"; if(/novos/.test(p)) return "Parlamentares"; return "Ranking"; }
+  function montar(){
+    var t=document.getElementById("topoSL"), wm=t&&t.querySelector(".wm"); if(!wm) return;
+    var tr=t.querySelector(".sl-trilho");
+    if(!tr){ var on=false; try{on=localStorage.getItem("sl_gab")==="1"}catch(e){} var a=atual(), ps=PAIN.filter(function(p){ return p[1]!=="Gabinete"||on||a==="Gabinete"; });
+      tr=document.createElement("div"); tr.className="sl-trilho";
+      tr.innerHTML='<span class="psel"><button class="pselb" aria-haspopup="listbox" title="Trocar de painel">'+a+'<svg viewBox="0 0 10 6" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 1l4 4 4-4"/></svg></button><span class="psell" hidden>'+ps.map(function(p){ return '<a href="'+(p[1]==="Gabinete"&&typeof hrefGab==="function"?hrefGab():p[0])+'"'+(p[1]===a?' class="on"':'')+'>'+p[1]+'</a>'; }).join("")+'</span></span><span class="sl-subs"></span>';
+      var uf=t.querySelector(".sl-uf"); (uf&&uf.previousElementSibling===wm?uf:wm).after(tr);
+      var bt=tr.querySelector(".pselb"), l=tr.querySelector(".psell"), mud=function(v){ l.hidden=!v; bt.classList.toggle("ab",v); };
+      bt.onclick=function(e){ e.stopPropagation(); mud(l.hidden); }; document.addEventListener("click",function(){ mud(false); });
+      t.classList.add("com-trilho"); }
+    var subs=tr.querySelector(".sl-subs"), g=t.querySelector(".gsecs, .sl-meio"); if(g&&g.parentNode!==subs) subs.appendChild(g);
+    var uf2=t.querySelector(".sl-uf"), mw=t.querySelector(".mnuw"); if(uf2&&mw&&uf2.nextElementSibling!==mw) mw.before(uf2);
+    if(uf2) uf2.style.marginLeft="auto"; else { var sv=t.querySelector(".sl-nav")||mw; if(sv) sv.style.marginLeft="auto"; }
+  }
+  var go=function(){ montar(); var t=document.getElementById("topoSL"); if(t) new MutationObserver(function(){ montar(); }).observe(t,{childList:true}); };
+  document.readyState==="loading"?document.addEventListener("DOMContentLoaded",go):go();
+  window.slTrilho=montar;
+})();

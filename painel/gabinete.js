@@ -131,8 +131,7 @@ function capaLente() {
 // leque de títulos no topo (mesmo papel da navegação de seções de Parlamentares): abre e leva ao título
 function leque() {
   let nv = document.querySelector(".gsecs"); if (!nv) { nv = document.createElement("nav"); nv.className = "gsecs"; document.querySelector(".topo .wm").after(nv); }
-  // à esquerda: seletor de painéis (lista); à direita: os subtítulos do painel atual
-  if (!document.querySelector(".psel")) { const ps = document.createElement("span"); ps.className = "psel"; ps.innerHTML = `<button class="pselb" aria-haspopup="listbox" title="Trocar de painel"><span class="pselt">Painel</span>Gabinete<i class="pselc"><svg viewBox="0 0 10 6" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 1l4 4 4-4"/></svg></i></button><span class="psell" hidden>${[["gabinete.html", "Gabinete"], ["novos.html?v=8", "Parlamentares"], ["mesa.html?v=8", "Mesa"], ["index.html?v=8#ranking", "Ranking"]].map(([h, t]) => `<a href="${h}"${t === "Gabinete" ? ' class="on"' : ""}>${t}</a>`).join("")}</span>`; document.querySelector(".topo .wm").after(ps); const l = ps.querySelector(".psell"); const bt = ps.querySelector(".pselb"), mud = (v) => { l.hidden = !v; bt.classList.toggle("ab", v); }; bt.onclick = (e) => { e.stopPropagation(); mud(l.hidden); }; document.addEventListener("click", () => mud(false)); }
+  if (window.slTrilho) slTrilho();
   nv.innerHTML = TITULOS.map(([k, t]) => `<a href="#t-${k}" data-gt="${k}">${t.replace("Controle de Recursos", "Recursos").replace("Processo legislativo", "Legislativo")}</a>`).join("");
   nv.onclick = (e) => { const a = e.target.closest("[data-gt]"); if (!a) return; e.preventDefault(); const k = a.dataset.gt, sec = $("#t-" + k); S.fech[k] = false; sec.classList.remove("fech"); sec.querySelector(".tgs").classList.add("ab"); sec.scrollIntoView({ behavior: "smooth" }); };
 }
