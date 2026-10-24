@@ -5,14 +5,16 @@
 // os campos do gabinete (liderança, contato, justificativa, prioridade, status, observação) ficam por cima.
 // Usa os globais de gabinete.js ($, esc, ni, nf, fm, norm, S, E0, PARL, EST, BASE, agregado, SESS, LOCAL, desenhar).
 
-const AREAS = [["14240", "Saúde", 48000, 48091], ["14227", "Educação", 45000, 45001], ["14203", "FUNDAM", 52000, 52090], ["15097", "Agricultura", 44000, 44001], ["15098", "Infraestrutura e Mobilidade", 53000, 53001], ["15100", "Segurança Pública", 16000, 16091]];
+const AREAS = [["14240", "Saúde", 48000, 48091], ["14227", "Educação", 45000, 45001], ["14203", "FUNDAM", 52000, 52090], ["15097", "Agricultura", 44000, 44001], ["15098", "Infraestrutura e Mobilidade", 53000, 53001], ["15100", "Segurança Pública", 16000, 16091], ["15382", "Fundo Social", "", ""]];
+// LDO 2027 (Lei 20.043/2026): art. 32 par. único até 120 emendas, mínimo R$ 100 mil; art. 33 Saúde no MÍNIMO 50%, demais até 50%;
+// art. 34 §4º 70% das transferências especiais em despesa de capital; art. 38 subações (15382 = Fundo Social, UO a confirmar)
 const MODS = ["Transferência Especial", "Convênio", "Execução Direta", "Outra"];
 const STATUS = ["Em análise", "Confirmado", "Enviado", "Descartado"];
 const PRIOR = ["Alta", "Média", "Baixa"];
 const MODELOS = {
   superavit26: { nome: "Superávit 2026 · Saúde", origem: "Superávit de arrecadação 2026 · Saúde", apelido: "Superávit 26", regras: { disp: 718997.79, min: 100000, max: 7, areas: ["Saúde"], prazo: "2026-10-28T18:00" } },
   // LOA 2027: 1,55% da RCL realizada em 2025 (EC estadual 101/2026) = R$ 790.997.259 ÷ 40 = quota de R$ 19.774.931; 50% Saúde
-  loa: { nome: "Emendas impositivas · LOA 2027", origem: "PL nº 452/2026 (LOA 2027)", apelido: "LOA27", regras: { disp: 19774931, saude: 9887466, min: null, max: null, areas: AREAS.map((a) => a[1]), prazo: "" } },
+  loa: { nome: "Emendas impositivas · LOA 2027", origem: "PL nº 452/2026 (LOA 2027)", apelido: "LOA27", regras: { disp: 19774931, saude: 9887466, min: 100000, max: 120, areas: AREAS.map((a) => a[1]), prazo: "" } },
   livre: { nome: "Livre", origem: "", apelido: "", regras: { disp: null, min: null, max: null, areas: AREAS.map((a) => a[1]), prazo: "" } },
 };
 const AD = { listas: [], itens: [], ok: false };
@@ -74,8 +76,8 @@ function ligarAdicionar() {
 function checar(L, it) {
   const r = (L && L.regras) || {}, tot = it.reduce((s, x) => s + (+x.valor || 0), 0), al = [];
   if (r.saude) { const s = it.filter((x) => x.area === "Saúde").reduce((t, x) => t + (+x.valor || 0), 0), o = tot - s;
-    if (s > r.saude + .005) al.push(`Saúde passou da metade da quota em ${fm(s - r.saude)}`);
-    if (r.disp && o > r.disp - r.saude + .005) al.push(`Outros setores passaram da metade da quota em ${fm(o - (r.disp - r.saude))}`); }
+    if (r.disp && o > r.disp - r.saude + .005) al.push(`Demais funções passaram do limite de 50% em ${fm(o - (r.disp - r.saude))} (LDO art. 33)`);
+    if (r.disp && tot >= r.disp - .005 && s < r.saude - .005) al.push(`Saúde abaixo do mínimo de 50%: faltam ${fm(r.saude - s)} (LDO art. 33)`); }
   if (r.disp && tot > r.disp + .005) al.push(`Passou do valor disponível em ${fm(tot - r.disp)}`);
   if (r.max && it.length > r.max) al.push(`${it.length} itens; o limite é ${r.max}`);
   if (r.min) it.filter((x) => (+x.valor || 0) < r.min).forEach((x) => al.push(`${x.municipio || "Item"}: abaixo do mínimo de ${fm(r.min)}`));
