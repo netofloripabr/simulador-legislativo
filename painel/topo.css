@@ -73,4 +73,7 @@ html{ scrollbar-gutter:stable; }
 #topoSL .sl-subs a{ font:600 12.5px/1 "InterSL",system-ui,sans-serif !important; color:#A9AEB3 !important; text-decoration:none; padding:8px 11px !important; border-radius:999px; white-space:nowrap; background:none !important; }
 #topoSL .sl-subs a:hover{ color:#F2F4F5 !important; background:rgba(242,244,245,.06) !important; }
 #topoSL .sl-uf{ margin-left:auto; }
-@media (max-width:760px){ #topoSL .sl-trilho{ order:5; flex-basis:100%; margin-left:0; } #topoSL .sl-subs > *{ display:flex !important; } }
+@media (max-width:760px){ #topoSL.com-trilho{ flex-wrap:nowrap !important; height:56px; padding:0 10px; gap:8px; }
+  #topoSL.com-trilho .sl-trilho{ order:0; flex:1 1 auto; margin-left:2px; } #topoSL.com-trilho .sl-uf, #topoSL.com-trilho .wm{ order:0; }
+  #topoSL.com-trilho .wm{ font-size:15px; } #topoSL .pselb{ padding:7px 9px 7px 11px; font-size:12.5px; } #topoSL .sl-subs a{ padding:7px 8px !important; font-size:12px !important; }
+  #topoSL.com-trilho .sl-uf{ margin-left:0; } #topoSL.com-trilho .sl-uf select{ padding:7px 22px 7px 9px; } #topoSL.com-trilho .sep{ display:none !important; } }
