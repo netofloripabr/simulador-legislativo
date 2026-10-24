@@ -235,31 +235,60 @@ function ranking(L) {
 
 // ---------- carteira ----------
 function filtradas() { const q = norm(S.busca); return doAno().filter((e) => S.et.has(e.et) && (!S.mod || e.mod === S.mod) && (!q || norm([e.mun, e.obj, e.benef, e.k, e.n, e.assoc].join(" ")).includes(q))); }
+// ---------- Carteira (inspirada na planilha do gabinete): município primeiro, valor e pago numa barra só,
+// etapa compacta; ao abrir: linha do tempo vertical, código, processo SCC, origem e anotações editáveis ----------
+const frase = (t) => { t = String(t || "").trim().replace(/\s+/g, " "); return t ? t[0].toUpperCase() + t.slice(1).toLowerCase() : ""; };
+const ORIGEM = { "Emenda LOA": ["Emenda impositiva", "prevista na Lei Orçamentária Anual (LOA) do ano, dentro da cota individual de cada deputado"], "Emenda 0.55%": ["Emenda impositiva adicional (0,55%)", "parcela adicional de emendas individuais, calculada sobre a receita, aprovada em lei específica do ano"], "Excesso": ["Excesso de arrecadação", "recurso extra, distribuído quando a receita do Estado supera a prevista na LOA"] };
+const ETQ = { 1: ["Indicada", "#8A9096"], 2: ["Empenhada", "#8FA8E8"], 3: ["Em pagamento", "#C6E62A"], 4: ["Paga", "#34E84A"], 5: ["Impedida", "#E8432A"] };
 function tabela() {
-  const L = filtradas().sort((a, b) => { const [c, d] = S.ord, x = a[c] ?? "", y = b[c] ?? ""; return (x > y ? 1 : x < y ? -1 : 0) * d; });
-  const cab = [["k", "Emenda"], ["mun", "Município"], ["obj", "Objeto", "hm"], ["v", "Valor", "v"], ["vp", "Pago", "v hm"], ["et", "Etapa"]];
-  $("#tab").innerHTML = `<table class="tb"><thead><tr>${cab.map(([k, r, c]) => `<th data-o="${k}" class="${c || ""}">${r}${S.ord[0] === k ? (S.ord[1] > 0 ? " ↑" : " ↓") : ""}</th>`).join("")}</tr></thead><tbody>${L.slice(0, S.lim).map((e) => linha(e)).join("")}</tbody></table>
-    ${L.length > S.lim ? `<button class="btn sec mais" id="mais">Mostrar mais (${L.length - S.lim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> emendas · ${fm(L.reduce((s, e) => s + (e.v || 0), 0))}</div>`;
-  $("#tab").querySelectorAll("th[data-o]").forEach((th) => th.onclick = () => { const k = th.dataset.o; S.ord = [k, S.ord[0] === k ? -S.ord[1] : (k === "v" || k === "vp" ? -1 : 1)]; tabela(); });
+  const L = filtradas().sort((a, b) => { const [c, d] = S.ord, x = c === "obj" ? frase(a.obj) : a[c] ?? "", y = c === "obj" ? frase(b.obj) : b[c] ?? ""; return (x > y ? 1 : x < y ? -1 : 0) * d; });
+  const cab = [["mun", "Município"], ["obj", "Objeto"], ["mod", "Modalidade", "hm"], ["v", "Valor · pago", "v"], ["et", "Etapa"]];
+  $("#tab").innerHTML = `<table class="tb ct"><thead><tr>${cab.map(([k, r, c]) => `<th data-o="${k}" class="${c || ""}">${r}${S.ord[0] === k ? (S.ord[1] > 0 ? " ↑" : " ↓") : ""}</th>`).join("")}</tr></thead><tbody>${L.slice(0, S.lim).map((e) => linha(e)).join("")}</tbody></table>
+    ${L.length > S.lim ? `<button class="btn sec mais" id="mais">Mostrar mais (${L.length - S.lim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> emendas · ${fm(L.reduce((s, e) => s + (e.v || 0), 0))} indicados · ${fm(L.reduce((s, e) => s + (e.vp || 0), 0))} pagos</div>`;
+  $("#tab").querySelectorAll("th[data-o]").forEach((th) => th.onclick = () => { const k = th.dataset.o; S.ord = [k, S.ord[0] === k ? -S.ord[1] : (k === "v" ? -1 : 1)]; tabela(); });
   $("#tab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { S.aberto = S.aberto === tr.dataset.k ? null : tr.dataset.k; tabela(); });
   const m = $("#mais"); if (m) m.onclick = () => { S.lim += 100; tabela(); };
+  const d = $("#tab .det"); if (d) ligarNotas(d);
 }
 function linha(e) {
-  const ab = S.aberto === e.k, et = [1, 2, 3, 4].map((k) => `<i class="${e.et === 5 ? (k === 1 ? "imp" : "") : k <= e.et ? "on" : ""}"></i>`).join("");
-  return `<tr class="r${ab ? " ab" : ""}" data-k="${esc(e.k)}"><td>${esc(e.n || e.k)}<small>${e.ano} · ${esc(e.tipo || "")}</small></td><td>${esc(e.mun)}<small>${esc(e.assoc || "")}</small></td><td class="hm">${esc(e.obj)}<small>${esc(e.mod || "")}</small></td><td class="v">${fr(e.v)}</td><td class="v hm">${fr(e.vp)}</td><td><span class="et">${et}<em>${ETAPAS[e.et][0]}</em></span></td></tr>${ab ? `<tr class="det"><td colspan="6">${detalhe(e)}</td></tr>` : ""}`;
+  const ab = S.aberto === e.k, pc = e.v ? Math.min(1, (e.vp || 0) / e.v) : 0, [et, cor] = ETQ[e.et];
+  return `<tr class="r${ab ? " ab" : ""}" data-k="${esc(e.k)}"><td><b>${esc(e.mun)}</b><small>${esc(e.assoc || "")}</small></td><td>${esc(frase(e.obj))}<small>${esc(e.benef ? frase(e.benef) : "")}</small></td><td class="hm">${esc(e.mod || "")}</td>
+    <td class="v vp"><b>${fm(e.v)}</b><span class="vb"><i style="width:${(pc * 100).toFixed(0)}%"></i></span><small>${pc >= .995 ? "pago" : pc ? nf(pc * 100, 0) + "% pago" : "não pago"}</small></td>
+    <td><span class="etc" style="--c:${cor}">${et}</span></td></tr>${ab ? `<tr class="det"><td colspan="5">${detalhe(e)}</td></tr>` : ""}`;
 }
 function detalhe(e) {
-  const X = e.extrato_portal || {}, Id = X.emendaIdentificacao || {}, PT = X.emendaPlanoTrabalho || {};
-  const ev = []; ev.push([1, "Indicada", `${e.mod || ""} · ${fr(e.v)}`]);
-  (X.emendaEmpenho || []).forEach((x) => ev.push([1, "Empenho " + (x.nunotaempenho || ""), dtBR(x.dtlancamento || "")]));
-  (X.emendaLiquidacao || []).forEach((x) => ev.push([1, "Liquidação " + (x.nunotaliquidacao || ""), dtBR(x.dtlancamento || "")]));
-  (e.pagamentos_sef || []).forEach(([ne, nl, pp, ob, dt, v]) => ev.push([1, "Pagamento " + (ob || pp || ""), `${dtBR(dt)} · ${fr(v)}${ne ? " · " + ne : ""}${nl ? " · " + nl : ""}${pp ? " · " + pp : ""}`]));
-  if (!(e.pagamentos_sef || []).length && e.et < 4) ev.push([0, "Pagamento", "ainda não pago"]);
-  if (e.et === 5) ev.push([0, "Impedimento técnico", e.imped || ""]);
-  const p = PRIV && PRIV[e.k];
-  return `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Linha do tempo</div><ul class="tl">${ev.map(([on, t, d]) => `<li class="${on ? "on" : ""}"><b>${esc(t)}</b><span>${esc(d)}</span></li>`).join("")}</ul></div>
-    <div><div class="kv"><span>Beneficiário</span><b>${esc(e.benef || "")}${e.doc ? `<small style="display:block;color:var(--ter)">${esc(e.doc)}</small>` : ""}</b><span>Tipo</span><b>${esc(e.tben || "")}</b><span>Origem</span><b>${esc(e.tipo || "")}</b><span>Processo</span><b>${e.sgpe ? `<a href="https://sgpe.sea.sc.gov.br/sgpe/" target="_blank" rel="noopener">${esc(e.sgpe)}</a>` : "não informado pela SEF"}</b>${Id.nmsubacao ? `<span>Subação</span><b>${esc(Id.nmsubacao)}</b>` : ""}${PT.deobjeto ? `<span>Plano de trabalho</span><b style="font-weight:400">${esc(PT.deobjeto)}</b>` : ""}</div>
-    ${p ? `<div class="priv"><div class="olho" style="margin-bottom:4px">Anotações do gabinete</div>${p.observacao ? `<div>${esc(p.observacao)}</div>` : ""}${p.status_manual ? `<div>Status anterior: <b>${esc(p.status_manual)}</b></div>` : ""}${(p.tags || []).map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</div>` : ""}</div></div>`;
+  const X = e.extrato_portal || {}, ne = (X.emendaEmpenho || [])[0], nl = (X.emendaLiquidacao || [])[0], pg = (e.pagamentos_sef || []);
+  const passos = [["Indicada", true, `${e.mod || ""} · ${fr(e.v)}`], ["Empenhada", e.et >= 2 && e.et !== 5 || !!ne, ne ? `${ne.nunotaempenho || ""} · ${dtBR(ne.dtlancamento || "")}` : ""], ["Liquidada", e.et >= 3 && e.et !== 5, nl ? `${nl.nunotaliquidacao || ""} · ${dtBR(nl.dtlancamento || "")}` : ""],
+    ["Paga", e.et === 4, pg.length ? pg.map(([, , pp, ob, dt, v]) => `${dtBR(dt)} · ${fr(v)}${ob ? " · " + ob : ""}`).join("<br>") : e.vp ? fr(e.vp) + " pagos" : "ainda não paga"]];
+  if (e.et === 5) passos.push(["Impedimento técnico", true, esc(e.imped || "")]);
+  const p = PRIV && PRIV[e.k], [o1, o2] = ORIGEM[e.tipo] || [e.tipo || "não informada", ""], scc = (p && p.processo) || e.sgpe;
+  const ed = PODE && proprio();
+  return `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Andamento</div><ul class="tl">${passos.map(([t, on, d]) => `<li class="${on ? "on" : ""}${t.startsWith("Imp") ? " imp" : ""}"><b>${t}</b><span>${d || (on ? "" : "pendente")}</span></li>`).join("")}</ul></div>
+    <div><div class="kv"><span>Processo SCC</span><b>${scc ? esc(scc) : "não informado"}</b><span>Código da emenda</span><b>${esc(e.n || e.k)} <small style="color:var(--ter);font-weight:400">(nº oficial na SEF)</small></b>
+    <span>Origem</span><b>${esc(o1)} · ${e.ano}${o2 ? `<small style="display:block;color:var(--ter);font-weight:400">${esc(o2)}</small>` : ""}${p && p.origem && norm(p.origem) !== norm(o1) ? `<small style="display:block;color:var(--sec);font-weight:400">Na planilha: ${esc(p.origem)}</small>` : ""}</b>
+    <span>Beneficiário</span><b>${esc(frase(e.benef || ""))}${e.doc ? `<small style="display:block;color:var(--ter);font-weight:400">${esc(e.doc)}</small>` : ""}</b></div>
+    ${ed ? `<div class="anot" data-k="${esc(e.k)}"><div class="olho">Anotações do gabinete</div>
+      <label>Liderança<input data-f="lideranca" value="${esc((p && (p.lideranca || (p.tags || []).filter((t) => !/^(Lista|of\.|10M|1º|Set|PT aj|ñ |⁉)/.test(t)).join(", "))) || "")}" placeholder="Quem indicou ou acompanha"></label>
+      <label>Observação<textarea data-f="observacao" rows="3" placeholder="Situação, contatos, próximos passos">${esc((p && p.observacao) || "")}</textarea></label>
+      <div class="notas">${((p && p.notas) || []).slice().reverse().map((n) => `<div><span>${dtBR(n.em)}</span>${esc(n.t)}</div>`).join("")}${p && p.status_manual ? `<div><span>planilha</span>${esc(p.status_manual)}</div>` : ""}</div>
+      <div class="nova"><input data-nova placeholder="Nova nota de status (ex.: plano de trabalho enviado)"><button class="btn sec" data-addnota>Anotar</button></div>
+      <div class="acs"><button class="btn" data-salvar>Salvar anotações</button><span class="av" data-msg></span></div></div>` : ""}</div></div>`;
+}
+function ligarNotas(d) {
+  const a = d.querySelector(".anot"); if (!a) return; a.onclick = (e) => e.stopPropagation();
+  const k = a.dataset.k, e0 = E.find((x) => x.k === k), msg = a.querySelector("[data-msg]");
+  const salvar = async (novaNota) => {
+    const p = PRIV[k] || {}, campos = { lideranca: a.querySelector('[data-f="lideranca"]').value.trim() || null, observacao: a.querySelector('[data-f="observacao"]').value.trim() || null, notas: [...(p.notas || []), ...(novaNota ? [{ t: novaNota, em: new Date().toISOString() }] : [])] };
+    msg.textContent = "Salvando…";
+    try {
+      if (LOCAL && !SESS) { PRIV[k] = { ...p, ...campos }; }
+      else if (p.id) { const { error } = await supabaseClient.from("gab_recursos").update({ ...campos, atualizado_em: new Date().toISOString() }).eq("id", p.id); if (error) throw error; PRIV[k] = { ...p, ...campos }; }
+      else { const { data, error } = await supabaseClient.from("gab_recursos").insert({ chave: k, ano: e0.ano, origem: e0.tipo, municipio: e0.mun, objeto: e0.obj, valor: e0.v, modalidade: e0.mod, ...campos }).select().single(); if (error) throw error; PRIV[k] = data; MEU.push(data); }
+      msg.textContent = "Salvo."; if (novaNota) tabela();
+    } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); }
+  };
+  a.querySelector("[data-salvar]").onclick = () => salvar(null);
+  a.querySelector("[data-addnota]").onclick = () => { const v = a.querySelector("[data-nova]").value.trim(); if (v) salvar(v); };
 }
 
 // ---------- camada privada: importar a planilha do gabinete ----------

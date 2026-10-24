@@ -1620,5 +1620,20 @@ const MIGRACOES_INDEX = [
     "gab_vinculo_dono"
    ]
   ]
+ },
+ {
+  "num": 73,
+  "arquivo": "migracao-73-gabinete-anotacoes.sql",
+  "descricao": "Migração 73 (24/10/2026): anotações do gabinete dentro de cada emenda da Carteira.",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.lideranca"
+   ],
+   [
+    "column",
+    "gab_recursos.notas"
+   ]
+  ]
  }
 ];
