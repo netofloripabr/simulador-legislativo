@@ -47,21 +47,18 @@ function refCidade(nome) {
 }
 const refTxt = (r) => r ? `${fm(r.rec)} · ${ni(r.v22)} → ${ni(r.v26)} votos${r.rpv ? ` · R$ ${nf(r.rpv, 0)}/voto` : ""}` : "";
 
-// ---------- barra do Controle de Recursos: botão verde e as listas ----------
+// ---------- botão verde: só a entrada. As listas e os itens aparecem dentro de "Meu controle" ----------
 function adicionarHtml() {
   if (!(PODE && proprio())) return "";
-  const avulsos = AD.itens.filter((x) => !x.lista_id);
-  const cards = AD.listas.map((l) => { const it = AD.itens.filter((x) => x.lista_id === l.id), tot = it.reduce((s, x) => s + (+x.valor || 0), 0), r = l.regras || {};
-    return `<button class="lcard${S.lista === l.id ? " on" : ""}" data-lista="${l.id}"><b>${esc(l.apelido || l.origem)}</b><span>${esc(l.apelido ? l.origem : "")}</span><em>${it.length}${r.max ? "/" + r.max : ""} itens · ${fm(tot)}${r.disp ? " de " + fm(r.disp) : ""}</em></button>`; }).join("");
-  return `<div class="adbar"><div class="lcards">${cards}${avulsos.length ? `<button class="lcard${S.lista === "avulsos" ? " on" : ""}" data-lista="avulsos"><b>Itens avulsos</b><span>fora de lista</span><em>${avulsos.length} itens · ${fm(avulsos.reduce((s, x) => s + (+x.valor || 0), 0))}</em></button>` : ""}</div>
-    <div class="adw"><button class="adbtn" id="adBtn">+ Adicionar</button><div class="admenu" id="adMenu" hidden><button data-ad="item"><b>Item</b><span>Uma indicação, no formulário padrão</span></button><button data-ad="lista"><b>Lista</b><span>Várias indicações de uma mesma origem: lei, PL, superávit</span></button></div></div></div>
-    ${S.lista ? painelLista() : ""}`;
+  return `<div class="adw"><button class="adbtn" id="adBtn">+ Adicionar</button><div class="admenu" id="adMenu" hidden><button data-ad="item"><b>Item</b><span>Uma indicação, no formulário padrão</span></button><button data-ad="lista"><b>Lista</b><span>Várias indicações de uma mesma origem: lei, PL, superávit</span></button></div></div>`;
 }
+// filtro "Lista" de Meu controle: a planilha importada, cada lista criada e os itens avulsos
+const opsListas = () => [["", "Planilha do gabinete"], ...AD.listas.map((l) => [l.id, l.apelido || l.origem]), ...(AD.itens.some((x) => !x.lista_id) ? [["avulsos", "Itens avulsos"]] : [])];
 function ligarAdicionar() {
   const b = $("#adBtn"); if (!b) return; const m = $("#adMenu");
   b.onclick = (e) => { e.stopPropagation(); m.hidden = !m.hidden; }; document.addEventListener("click", () => { if (m) m.hidden = true; }, { once: true });
   m.onclick = (e) => { const o = e.target.closest("[data-ad]"); if (!o) return; m.hidden = true; o.dataset.ad === "item" ? formItem({ lista_id: S.lista && S.lista !== "avulsos" ? S.lista : null }) : formLista(); };
-  document.querySelectorAll("[data-lista]").forEach((c) => c.onclick = () => { S.lista = S.lista === c.dataset.lista ? null : c.dataset.lista; desenhar(); });
+  const fl = $("#fLista"); if (fl) fl.onchange = (e) => { S.lista = e.target.value || null; desenhar(); };
   const p = $("#lpainel"); if (!p) return;
   p.querySelectorAll("[data-item]").forEach((r) => r.onclick = () => formItem(AD.itens.find((x) => x.id === r.dataset.item)));
   const on = (sel, fn) => { const x = p.querySelector(sel); if (x) x.onclick = fn; };
@@ -71,9 +68,7 @@ function ligarAdicionar() {
   on("[data-caderno]", () => imprimir(L, "caderno"));
   on("[data-relat]", () => imprimir(L, "relatorio"));
   on("[data-xlsx]", () => exportarOrcamento(L));
-  on("[data-fechar]", () => { S.lista = null; desenhar(); });
 }
-
 // ---------- painel de uma lista: números, alertas das regras, itens ----------
 function checar(L, it) {
   const r = (L && L.regras) || {}, tot = it.reduce((s, x) => s + (+x.valor || 0), 0), al = [];
@@ -85,16 +80,14 @@ function checar(L, it) {
 }
 function painelLista() {
   const av = S.lista === "avulsos", L = av ? null : AD.listas.find((x) => x.id === S.lista); if (!av && !L) return "";
-  const it = AD.itens.filter((x) => av ? !x.lista_id : x.lista_id === L.id), r = (L && L.regras) || {}, c = checar(L, it);
-  const pz = r.prazo ? new Date(r.prazo) : null;
-  return `<section class="bx lpainel" id="lpainel"><div class="lph"><div><div class="olho">${av ? "Itens fora de lista" : esc(L.origem)}</div><h2>${av ? "Itens avulsos" : esc(L.apelido || L.origem)}</h2></div>
-    <div class="lpacs">${av ? "" : `<button class="btn sec" data-edlista>Regras da lista</button><button class="btn sec" data-caderno>Imprimir caderno</button><button class="btn sec" data-relat>Relatório</button><button class="btn sec" data-xlsx>Exportar modelo do Orçamento</button>`}<button class="btn sec" data-fechar>Fechar</button></div></div>
-    ${av ? "" : `<div class="kpis lk"><div><b class="a">${r.disp ? fm(r.disp) : "—"}</b><span>disponível</span></div><div><b>${fm(c.tot)}</b><span>indicado</span></div><div><b${c.saldo != null && c.saldo < 0 ? ' style="color:var(--erro)"' : ""}>${c.saldo != null ? fm(c.saldo) : "—"}</b><span>saldo</span></div><div><b>${it.length}${r.max ? " / " + r.max : ""}</b><span>itens</span></div><div><b>${pz ? pz.toLocaleDateString("pt-BR") + " " + pz.toTimeString().slice(0, 5) : "—"}</b><span>prazo</span></div></div>
-    <p class="lreg">${[r.min ? `mínimo de ${fm(r.min)} por item` : "", r.areas && r.areas.length < AREAS.length ? `só ${r.areas.join(", ")}` : "", r.max ? `até ${r.max} itens` : ""].filter(Boolean).join(" · ") || "Sem regras definidas."}</p>`}
-    ${c.al.length ? `<div class="lal">${c.al.map((a) => `<div>${esc(a)}</div>`).join("")}</div>` : ""}
-    <table class="tb lt"><thead><tr><th>Município</th><th>Objeto</th><th class="hm">Área · modalidade</th><th class="v">Valor</th><th class="hm">A cidade no mandato</th><th>Status</th></tr></thead><tbody>
-    ${it.map((x) => { const rf = refCidade(x.municipio || ""); return `<tr class="r" data-item="${x.id}"><td><b>${esc(x.municipio || "—")}</b><small>${esc(x.lideranca || "")}</small></td><td>${esc(frase(x.objeto || ""))}<small>${esc(x.beneficiario || x.razao_social || "")}</small></td><td class="hm">${esc(x.area || "")}<small>${esc(x.modalidade || "")}</small></td><td class="v"><b>${fm(+x.valor || 0)}</b></td><td class="hm"><small style="color:var(--sec)">${esc(refTxt(rf))}</small></td><td><span class="etc" style="--c:${{ Confirmado: "#34E84A", Enviado: "#8FA8E8", Descartado: "#E8432A" }[x.status] || "#8A9096"}">${esc(x.status || "Em análise")}</span></td></tr>`; }).join("")}
-    <tr class="r"><td colspan="6" data-novo style="color:var(--ter);cursor:pointer">+ Adicionar item${av ? "" : " a esta lista"}</td></tr></tbody></table></section>`;
+  const it = AD.itens.filter((x) => av ? !x.lista_id : x.lista_id === L.id), r = (L && L.regras) || {}, c = checar(L, it), pz = r.prazo ? new Date(r.prazo) : null;
+  const resumo = av ? `${it.length} itens · ${fm(c.tot)}` : [`<b>${fm(c.tot)}</b>${r.disp ? ` de ${fm(r.disp)}` : ""}`, c.saldo != null ? `saldo <b${c.saldo < 0 ? ' style="color:var(--erro)"' : ""}>${fm(c.saldo)}</b>` : "", `<b>${it.length}</b>${r.max ? "/" + r.max : ""} itens`, r.min ? `mín. ${fm(r.min)}` : "", r.areas && r.areas.length < AREAS.length ? r.areas.join(", ") : "", pz ? `prazo ${pz.toLocaleDateString("pt-BR")} ${pz.toTimeString().slice(0, 5)}` : ""].filter(Boolean).join(" · ");
+  return `<div id="lpainel"><div class="lres"><div><div class="olho">${av ? "Fora de lista" : esc(L.origem)}</div><div class="lnum">${resumo}</div></div>
+    <div class="lpacs">${av ? "" : `<button class="btn sec" data-edlista>Regras</button><button class="btn sec" data-caderno>Caderno</button><button class="btn sec" data-relat>Relatório</button><button class="btn sec" data-xlsx>Exportar para o Orçamento</button>`}</div></div>
+    ${c.al.length ? `<div class="lal">${c.al.map((x) => `<div>${esc(x)}</div>`).join("")}</div>` : ""}
+    <section class="bx"><table class="tb mt lt"><thead><tr><th>Município</th><th>Objeto</th><th class="hm">Área · modalidade</th><th class="v">R$</th><th class="hm">A cidade no mandato</th><th>Status</th></tr></thead><tbody>
+    ${it.map((x) => { const rf = refCidade(x.municipio || ""); return `<tr class="r" data-item="${x.id}"><td><b>${esc(x.municipio || "—")}</b><small>${esc(x.lideranca || "")}</small></td><td>${esc(frase(x.objeto || ""))}<small>${esc(x.beneficiario || x.razao_social || "")}</small></td><td class="hm">${esc(x.area || "")}<small>${esc(x.modalidade || "")}</small></td><td class="v">${fr(+x.valor || 0)}</td><td class="hm"><small style="color:var(--sec)">${esc(refTxt(rf))}</small></td><td><span class="etc" style="--c:${{ Confirmado: "#34E84A", Enviado: "#8FA8E8", Descartado: "#E8432A" }[x.status] || "#8A9096"}">${esc(x.status || "Em análise")}</span></td></tr>`; }).join("")}
+    <tr class="r"><td colspan="6" data-novo style="color:var(--ter);cursor:pointer">+ Adicionar item${av ? "" : " a esta lista"}</td></tr></tbody></table></section></div>`;
 }
 
 // ---------- modal genérico ----------
@@ -133,7 +126,7 @@ function formItem(x) {
     m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), msg = m.querySelector("[data-msg]");
       if (!o.municipio || !o.objeto || !o.valor) { msg.textContent = "Preencha município, objeto e valor."; return; }
       o.valor = +o.valor; msg.textContent = "Salvando…";
-      try { await gravar("gab_itens", { ...(x.id ? { id: x.id } : {}), ...o }); fechar(); S.lista = o.lista_id || "avulsos"; desenhar(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+      try { await gravar("gab_itens", { ...(x.id ? { id: x.id } : {}), ...o }); fechar(); S.aba = "meu"; S.lista = o.lista_id || "avulsos"; desenhar(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
     const ap = m.querySelector("[data-apaga]"); if (ap) ap.onclick = async () => { if (ap.dataset.ok !== "1") { ap.dataset.ok = "1"; ap.textContent = "Confirmar exclusão"; return; } await apagar("gab_itens", x.id); fechar(); desenhar(); };
   });
 }
@@ -153,7 +146,7 @@ function formLista(L) {
     m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), msg = m.querySelector("[data-msg]"); if (!o.origem) { msg.textContent = "Informe a origem legal."; return; }
       const regras = { disp: o.disp ? +o.disp : null, min: o.min ? +o.min : null, max: o.max ? +o.max : null, prazo: o.prazo || "", areas: [...m.querySelectorAll("[data-area]:checked")].map((c) => c.value) };
       msg.textContent = "Salvando…";
-      try { const nl = await gravar("gab_listas", { ...(L.id ? { id: L.id } : {}), origem: o.origem, apelido: o.apelido, modelo: (m.querySelector("[data-mod].on") || {}).dataset?.mod || L.modelo || null, regras }); fechar(); S.lista = nl.id; desenhar(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+      try { const nl = await gravar("gab_listas", { ...(L.id ? { id: L.id } : {}), origem: o.origem, apelido: o.apelido, modelo: (m.querySelector("[data-mod].on") || {}).dataset?.mod || L.modelo || null, regras }); fechar(); S.aba = "meu"; S.lista = nl.id; desenhar(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
     const ap = m.querySelector("[data-apaga]"); if (ap) ap.onclick = async () => { if (ap.dataset.ok !== "1") { ap.dataset.ok = "1"; ap.textContent = "Confirmar: apaga a lista e os itens"; return; } await apagar("gab_listas", L.id); fechar(); S.lista = null; desenhar(); };
   });
 }

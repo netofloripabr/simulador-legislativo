@@ -154,7 +154,7 @@ function blocos() {
     hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; S.bxf[k] = !S.bxf[k]; bx.classList.toggle("fech", S.bxf[k]); hd.querySelector(".tgs").classList.toggle("ab", !S.bxf[k]); }; });
 }
 function corpoRec() {
-  return `${typeof adicionarHtml === "function" ? adicionarHtml() : ""}<div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
+  return `<div class="abar"><div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div>${typeof adicionarHtml === "function" ? adicionarHtml() : ""}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
 }
 function geral() {
   const L = doAno(), tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), anos = [...new Set(E.map((e) => e.ano))].sort();
@@ -187,16 +187,18 @@ function ligarGeral() {
 const supr = (r) => /^Suprimida/.test(r.status_manual || "");
 function meu() {
   if (!PODE) return `<div class="obra">Entre com a sua conta para ver o seu controle.</div>`;
-  if (!MEU.length) return blocoPrivado();
+  const fLista = typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista", opsListas(), S.lista || "") : "";
+  if (S.lista && typeof painelLista === "function") return `<p class="lead" style="margin-top:14px">O controle do gabinete. Visível só para você.</p><div class="leqs">${fLista}</div>${painelLista()}`;
+  if (!MEU.length) return `<div class="leqs">${fLista}</div>` + blocoPrivado();
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
   return `<p class="lead" style="margin-top:14px">O controle do gabinete, no formato da planilha "Controle de Recursos". Visível só para você.</p>
-    <div class="leqs">${leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano)}</div>
+    <div class="leqs">${fLista}${leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano)}</div>
     <div class="kpis"><div><b class="a">${fm(tot)}</b><span>recursos ativos</span></div><div><b>${fm(pago)}</b><span>pago ou executado</span></div><div><b>${ni(at.length)}</b><span>linhas</span></div><div><b>${new Set(at.map((r) => norm(r.municipio))).size}</b><span>municípios</span></div><div><b>${ni(sp.length)}</b><span>suprimidas · ${fm(sp.reduce((s, r) => s + (+r.valor || 0), 0))}</span></div></div>
     <section class="bx"><div class="ctl"><input id="mbusca" placeholder="Município, objeto, nº, processo ou tag" value="${esc(S.mq)}"></div><div id="mtab"></div></section>`;
 }
 function ligarMeu() {
-  $("#fMano").onchange = (e) => { S.mano = +e.target.value; desenhar(); };
+  const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); };
   const imp = $("#impBtn"); if (imp) imp.onclick = importar;
   if ($("#mtab")) mtab();
