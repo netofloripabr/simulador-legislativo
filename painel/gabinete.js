@@ -38,6 +38,7 @@ async function iniciar() {
   else { await lerTodas(); const ds = casaDep(PARL); E = TODAS.filter((e) => ds.has(e.dep)); }
   E0 = E; V0 = VOT;
   try { if (PODE && proprio()) await lerPrivado(); } catch (e) {}
+  try { if ((PODE || LOCAL) && proprio() && typeof lerAdicionar === "function") await lerAdicionar(); } catch (e) {}
   // área restrita: por enquanto só administradores (no computador local, liberado para testes)
   if (LOCAL && !MEU.length) { try { MEU = await (await fetch("../dados/gabinete/_priv-teste.json")).json(); PRIV = {}; MEU.forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = MEU.length; PODE = true; } catch (e) {} }
   desenhar();
@@ -70,7 +71,7 @@ function desenhar() {
   const tv = $("#trocaV"); if (tv) tv.onclick = (e) => { e.preventDefault(); escolha(true); };
   $("#glc").onchange = (e) => { S.lc = e.target.value; capaLente(); };
   if (!GH || !document.body.contains($("#gCv")) || !GH.vivo) { capaMapa(); GH.vivo = true; }
-  leque(); ligarCapaCliques();
+  leque(); ligarCapaCliques(); if (typeof ligarAdicionar === "function") ligarAdicionar();
   blocos();
   $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
   $("#abas").onclick = (e) => { const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
@@ -153,7 +154,7 @@ function blocos() {
     hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; S.bxf[k] = !S.bxf[k]; bx.classList.toggle("fech", S.bxf[k]); hd.querySelector(".tgs").classList.toggle("ab", !S.bxf[k]); }; });
 }
 function corpoRec() {
-  return `<div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
+  return `${typeof adicionarHtml === "function" ? adicionarHtml() : ""}<div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
 }
 function geral() {
   const L = doAno(), tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), anos = [...new Set(E.map((e) => e.ano))].sort();

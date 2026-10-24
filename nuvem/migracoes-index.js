@@ -1635,5 +1635,32 @@ const MIGRACOES_INDEX = [
     "gab_recursos.notas"
    ]
   ]
+ },
+ {
+  "num": 74,
+  "arquivo": "migracao-74-gabinete-listas-itens.sql",
+  "descricao": "Migração 74 (24/10/2026): Gabinete · botão \"Adicionar\" do Controle de Recursos.",
+  "objetos": [
+   [
+    "table",
+    "gab_listas"
+   ],
+   [
+    "table",
+    "gab_itens"
+   ],
+   [
+    "index",
+    "gab_itens_lista"
+   ],
+   [
+    "policy",
+    "gab_listas_dono"
+   ],
+   [
+    "policy",
+    "gab_itens_dono"
+   ]
+  ]
  }
 ];
