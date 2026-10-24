@@ -131,6 +131,8 @@ function capaLente() {
 // leque de títulos no topo (mesmo papel da navegação de seções de Parlamentares): abre e leva ao título
 function leque() {
   let nv = document.querySelector(".gsecs"); if (!nv) { nv = document.createElement("nav"); nv.className = "gsecs"; document.querySelector(".topo .wm").after(nv); }
+  // à esquerda: seletor de painéis (lista); à direita: os subtítulos do painel atual
+  if (!document.querySelector(".psel")) { const ps = document.createElement("span"); ps.className = "psel"; ps.innerHTML = `<button class="pselb">Gabinete <svg viewBox="0 0 10 6" width="10" height="6" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 1l4 4 4-4"/></svg></button><span class="psell" hidden>${[["gabinete.html", "Gabinete"], ["novos.html?v=8", "Parlamentares"], ["mesa.html?v=8", "Mesa"], ["index.html?v=8#ranking", "Ranking"]].map(([h, t]) => `<a href="${h}"${t === "Gabinete" ? ' class="on"' : ""}>${t}</a>`).join("")}</span>`; document.querySelector(".topo .wm").after(ps); const l = ps.querySelector(".psell"); ps.querySelector(".pselb").onclick = (e) => { e.stopPropagation(); l.hidden = !l.hidden; }; document.addEventListener("click", () => { l.hidden = true; }); }
   nv.innerHTML = TITULOS.map(([k, t]) => `<a href="#t-${k}" data-gt="${k}">${t.replace("Controle de Recursos", "Recursos").replace("Processo legislativo", "Legislativo")}</a>`).join("");
   nv.onclick = (e) => { const a = e.target.closest("[data-gt]"); if (!a) return; e.preventDefault(); const k = a.dataset.gt, sec = $("#t-" + k); S.fech[k] = false; sec.classList.remove("fech"); sec.querySelector(".tgs").classList.add("ab"); sec.scrollIntoView({ behavior: "smooth" }); };
 }
@@ -154,7 +156,7 @@ function blocos() {
     hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; S.bxf[k] = !S.bxf[k]; bx.classList.toggle("fech", S.bxf[k]); hd.querySelector(".tgs").classList.toggle("ab", !S.bxf[k]); }; });
 }
 function corpoRec() {
-  return `<div class="abar"><div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div>${typeof adicionarHtml === "function" ? adicionarHtml() : ""}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
+  return `<div class="abar"><div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div></div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
 }
 function geral() {
   const L = doAno(), tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), anos = [...new Set(E.map((e) => e.ano))].sort();
@@ -170,7 +172,7 @@ function geral() {
     <section class="bx"><div class="bxh"><h2>Mapa</h2><p>Recursos do mandato por município e relação com os votos de 2026.</p></div>
       <div class="chips" id="lentes">${[["rec", "Recursos"], ["pago", "% pago"], ["voto", "Votos"], ["rpv", "R$ por voto"]].map(([k, r]) => `<button data-l="${k}" class="${S.lente === k ? "on" : ""}">${r}</button>`).join("")}</div>
       <div class="mapa"><div>${mapa(L)}<div class="leg" id="legM"></div></div><div>${ranking(L)}</div></div></section>
-    <section class="bx"><div class="bxh"><h2>Carteira</h2><p>Clique numa emenda para ver a linha do tempo.</p></div>
+    <section class="bx"><div class="bxh"><h2>Carteira</h2><p>Clique numa emenda para ver a linha do tempo.</p>${typeof adicionarHtml === "function" ? adicionarHtml() : ""}</div>
       <div class="ctl"><input id="busca" placeholder="Município, objeto, beneficiário ou nº" value="${esc(S.busca)}"><select id="mod"><option value="">Todas as modalidades</option>${[...new Set(E.map((e) => e.mod).filter(Boolean))].sort().map((m) => `<option ${S.mod === m ? "selected" : ""}>${esc(m)}</option>`).join("")}</select></div>
       <div id="tab"></div></section>`;
 }

@@ -6,12 +6,13 @@
 // Usa os globais de gabinete.js ($, esc, ni, nf, fm, norm, S, E0, PARL, EST, BASE, agregado, SESS, LOCAL, desenhar).
 
 const AREAS = [["14240", "Saúde", 48000, 48091], ["14227", "Educação", 45000, 45001], ["14203", "FUNDAM", 52000, 52090], ["15097", "Agricultura", 44000, 44001], ["15098", "Infraestrutura e Mobilidade", 53000, 53001], ["15100", "Segurança Pública", 16000, 16091]];
-const MODS = ["Transferência Especial", "Convênio", "Execução Direta"];
+const MODS = ["Transferência Especial", "Convênio", "Execução Direta", "Outra"];
 const STATUS = ["Em análise", "Confirmado", "Enviado", "Descartado"];
 const PRIOR = ["Alta", "Média", "Baixa"];
 const MODELOS = {
   superavit26: { nome: "Superávit 2026 · Saúde", origem: "Superávit de arrecadação 2026 · Saúde", apelido: "Superávit 26", regras: { disp: 718997.79, min: 100000, max: 7, areas: ["Saúde"], prazo: "2026-10-28T18:00" } },
-  loa: { nome: "Emendas impositivas · LOA", origem: "PL nº 452/2026 (LOA 2027)", apelido: "LOA27", regras: { disp: null, min: null, max: null, areas: AREAS.map((a) => a[1]), prazo: "" } },
+  // LOA 2027: 1,55% da RCL realizada em 2025 (EC estadual 101/2026) = R$ 790.997.259 ÷ 40 = quota de R$ 19.774.931; 50% Saúde
+  loa: { nome: "Emendas impositivas · LOA 2027", origem: "PL nº 452/2026 (LOA 2027)", apelido: "LOA27", regras: { disp: 19774931, saude: 9887466, min: null, max: null, areas: AREAS.map((a) => a[1]), prazo: "" } },
   livre: { nome: "Livre", origem: "", apelido: "", regras: { disp: null, min: null, max: null, areas: AREAS.map((a) => a[1]), prazo: "" } },
 };
 const AD = { listas: [], itens: [], ok: false };
@@ -57,7 +58,7 @@ const opsListas = () => [["", "Planilha do gabinete"], ...AD.listas.map((l) => [
 function ligarAdicionar() {
   const b = $("#adBtn"); if (!b) return; const m = $("#adMenu");
   b.onclick = (e) => { e.stopPropagation(); m.hidden = !m.hidden; }; document.addEventListener("click", () => { if (m) m.hidden = true; }, { once: true });
-  m.onclick = (e) => { const o = e.target.closest("[data-ad]"); if (!o) return; m.hidden = true; o.dataset.ad === "item" ? formItem({ lista_id: S.lista && S.lista !== "avulsos" ? S.lista : null }) : formLista(); };
+  m.onclick = (e) => { e.stopPropagation(); const o = e.target.closest("[data-ad]"); if (!o) return; m.hidden = true; o.dataset.ad === "item" ? formItem({ lista_id: S.lista && S.lista !== "avulsos" ? S.lista : null }) : formLista(); };
   const fl = $("#fLista"); if (fl) fl.onchange = (e) => { S.lista = e.target.value || null; desenhar(); };
   const p = $("#lpainel"); if (!p) return;
   p.querySelectorAll("[data-item]").forEach((r) => r.onclick = () => formItem(AD.itens.find((x) => x.id === r.dataset.item)));
@@ -72,6 +73,9 @@ function ligarAdicionar() {
 // ---------- painel de uma lista: números, alertas das regras, itens ----------
 function checar(L, it) {
   const r = (L && L.regras) || {}, tot = it.reduce((s, x) => s + (+x.valor || 0), 0), al = [];
+  if (r.saude) { const s = it.filter((x) => x.area === "Saúde").reduce((t, x) => t + (+x.valor || 0), 0), o = tot - s;
+    if (s > r.saude + .005) al.push(`Saúde passou da metade da quota em ${fm(s - r.saude)}`);
+    if (r.disp && o > r.disp - r.saude + .005) al.push(`Outros setores passaram da metade da quota em ${fm(o - (r.disp - r.saude))}`); }
   if (r.disp && tot > r.disp + .005) al.push(`Passou do valor disponível em ${fm(tot - r.disp)}`);
   if (r.max && it.length > r.max) al.push(`${it.length} itens; o limite é ${r.max}`);
   if (r.min) it.filter((x) => (+x.valor || 0) < r.min).forEach((x) => al.push(`${x.municipio || "Item"}: abaixo do mínimo de ${fm(r.min)}`));
@@ -103,6 +107,9 @@ const sel = (f, ops, v, vazio) => `<select data-f="${f}">${vazio ? `<option valu
 const lerCampos = (m) => { const o = {}; m.querySelectorAll("[data-f]").forEach((x) => { o[x.dataset.f] = x.value.trim() === "" ? null : x.value.trim(); }); return o; };
 
 // ---------- formulário do item ----------
+// "Quem pediu": lista fixa montada com as lideranças da planilha do gabinete e das indicações já cadastradas;
+// nome novo digitado entra na lista ao salvar
+const pessoas = () => [...new Set([...(typeof MEU !== "undefined" ? MEU : []).flatMap((p) => [p.lideranca, ...(p.tags || [])]), ...AD.itens.map((x) => x.lideranca)].filter((s) => s && String(s).trim()).map((s) => String(s).trim()))].sort((a, b) => a.localeCompare(b, "pt-BR"));
 function formItem(x) {
   x = x || {}; const L = AD.listas.find((l) => l.id === x.lista_id), r = (L && L.regras) || {}, areas = r.areas && r.areas.length ? r.areas : AREAS.map((a) => a[1]);
   const muns = BASE.mun.map((m) => m.n).sort((a, b) => a.localeCompare(b, "pt-BR"));
@@ -111,14 +118,14 @@ function formItem(x) {
       ${campo("Município", `<input data-f="municipio" list="adMuns" value="${esc(x.municipio || "")}" placeholder="Digite o município"><datalist id="adMuns">${muns.map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`)}
       ${campo("Valor (R$)", inp("valor", x.valor, r.min ? "mínimo " + ni(r.min) : "100000", "number"))}
       ${campo("Objeto", `<textarea data-f="objeto" rows="2" placeholder="O que será feito com o recurso">${esc(x.objeto || "")}</textarea>`, 1)}
+      ${campo("Justificativa", `<textarea data-f="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 1)}
       ${campo("Área", sel("area", areas, x.area || (areas.length === 1 ? areas[0] : ""), "Escolha"))}${campo("Modalidade", sel("modalidade", MODS, x.modalidade, "Escolha"))}
       ${campo("CNPJ da entidade <em>só convênio</em>", inp("cnpj", x.cnpj, "00.000.000/0000-00"))}${campo("Razão social", inp("razao_social", x.razao_social))}</div>
       <div class="refc" id="refc"></div></div>
     <div class="fsec"><div class="fst">Gabinete <em>só para você</em></div><div class="fg">
-      ${campo("Liderança", inp("lideranca", x.lideranca, "Quem pediu"))}${campo("Contato", inp("contato", x.contato, "Telefone ou e-mail"))}
+      ${campo("Quem pediu", `<input data-f="lideranca" list="adPes" value="${esc(x.lideranca || "")}" placeholder="Escolha ou digite um nome novo"><datalist id="adPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`)}${campo("Contato", inp("contato", x.contato, "Telefone ou e-mail"))}
       ${campo("Beneficiário", inp("beneficiario", x.beneficiario, "Prefeitura, hospital, APAE…"))}${campo("Prioridade", sel("prioridade", PRIOR, x.prioridade, "—"))}
       ${campo("Status", sel("status", STATUS, x.status || "Em análise"))}${campo("Lista", `<select data-f="lista_id"><option value="">Avulso</option>${AD.listas.map((l) => `<option value="${l.id}"${l.id === x.lista_id ? " selected" : ""}>${esc(l.apelido || l.origem)}</option>`).join("")}</select>`)}
-      ${campo("Justificativa", `<textarea data-f="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 1)}
       ${campo("Observação", `<textarea data-f="observacao" rows="2">${esc(x.observacao || "")}</textarea>`, 1)}</div></div>
     <div class="mrod">${x.id ? `<button class="btn sec" data-apaga style="color:var(--erro)">Excluir</button>` : ""}<span class="av" data-msg></span><button class="btn sec" data-fecha>Cancelar</button><button class="btn" data-salva>Salvar</button></div>`, (m, fechar) => {
     const ref = () => { const rf = refCidade(m.querySelector('[data-f="municipio"]').value); m.querySelector("#refc").innerHTML = rf ? `<div><span>Já indicado 2023-26</span><b>${fm(rf.rec)}</b></div><div><span>Votos 2022</span><b>${ni(rf.v22)}</b></div><div><span>Votos 2026</span><b>${ni(rf.v26)}</b></div><div><span>R$ por voto</span><b>${rf.rpv ? "R$ " + nf(rf.rpv, 0) : "—"}</b></div><div><span>Eleitores</span><b>${ni(rf.el)}</b></div>` : ""; };
