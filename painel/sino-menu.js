@@ -8,8 +8,7 @@ function sinoMenuAdmin(URL_SB, CHAVE, token){ if(!token) return; var H={"Content
       if(n){ var l=document.createElement("i"); l.className="mluz"; b.appendChild(l); b.title="Menu · "+n+" notificação"+(n>1?"ões":"")+" não lida"+(n>1?"s":""); } }); }).catch(function(){}); }
 
 /* link Gabinete (só administrador): na barra do topo e no menu; refaz se a página redesenhar o topo */
-/* o Gabinete abre no parlamentar escolhido por último em Parlamentares */
-function hrefGab(){ var d=""; try{d=localStorage.getItem("sl_dep")||""}catch(e){} return "gabinete.html"+(d?"?d="+d:""); }
+function hrefGab(){ return "gabinete.html"; } /* o Gabinete abre no parlamentar vinculado à conta (gab_vinculo) */
 function poeGabinete(){ document.querySelectorAll("a[href^='gabinete']").forEach(function(a){ if(!/\?d=/.test(a.getAttribute("href"))||a.dataset.g!=="1"){ a.href=hrefGab(); a.dataset.g="1"; } }); var nv=document.querySelector(".sl-nav"); if(nv&&!nv.querySelector(":scope > a[href^='gabinete']")){ var t=document.createElement("a"); t.href=hrefGab(); t.dataset.g="1"; t.textContent="Gabinete"; var w=nv.querySelector(":scope > .mnuw"); w?w.before(t):nv.appendChild(t); }
   var mg=document.querySelector(".mnu"); if(mg&&!mg.querySelector(".mgab")){ var g=document.createElement("a"); g.href=hrefGab(); g.dataset.g="1"; g.className="mgab"; g.textContent="Gabinete"; mg.appendChild(g); } }
 (function(){ var on=false; try{on=localStorage.getItem("sl_gab")==="1"}catch(e){} if(!on) return; var go=function(){ poeGabinete(); var tp=document.querySelector(".topo"); if(tp) new MutationObserver(function(){ poeGabinete(); }).observe(tp,{childList:true,subtree:true}); };

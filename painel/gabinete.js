@@ -29,7 +29,8 @@ async function iniciar() {
   try { SESS = supabaseClient ? (await supabaseClient.auth.getSession()).data.session : null; if (SESS) { const r = await supabaseClient.rpc("gab_pode"); PODE = !!r.data; if (PODE) { const v = await supabaseClient.from("gab_vinculo").select("parlamentar").maybeSingle(); VINC = v.data ? v.data.parlamentar : null; } } } catch (e) {}
   if (!PODE && !LOCAL) return restrito();
   if (LOCAL && !VINC) { try { VINC = localStorage.getItem("gab_vinc_local"); } catch (e) {} }
-  DSEL = DSEL || VINC; if (!DSEL) return escolha();
+  if (!VINC) return escolha(); // sem vínculo, a conta escolhe primeiro o próprio gabinete
+  DSEL = DSEL || VINC;
   PARL = est.c.find((c) => c.n === DSEL) || est.c.find((c) => c.n === DEP.n);
   const cr = hexRgb(COR_P[PARL.p] || "#2B5FD9"); document.documentElement.style.setProperty("--a", COR_P[PARL.p] || "#2B5FD9"); document.documentElement.style.setProperty("--a-rgb", cr.join(","));
   VOT = PARL.v || [];
