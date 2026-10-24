@@ -277,21 +277,36 @@ function mtab() {
 }
 // ---------- item do Controle aberto: andamento oficial (quando ligado a uma emenda do portal), dados da planilha,
 // anotações e as ações Editar, Substituir (trocar a emenda oficial ligada) e Excluir ----------
+// linha do tempo vertical num quadro próprio: coluna de datas | bolinha e linha (contínua no feito, tracejada no que falta) | etapa e um dado por linha
+function tlVert(passos, tit, res) {
+  const cur = passos.findIndex((p) => !p.on);
+  return `<div class="tlq"><div class="tlh"><span>${tit}</span>${res ? `<b>${esc(res)}</b>` : ""}</div>${passos.map((p, i) => `<div class="tlr${p.on ? " on" : ""}${i === cur ? " cur" : ""}${p.v ? " vv" : ""}${p.nota ? " nt" : ""}"><div class="tld">${esc(p.dt || "")}</div><div class="tlv"><i></i>${i < passos.length - 1 ? "<s></s>" : ""}</div><div class="tlc"><b>${esc(p.t)}</b>${(p.l || []).filter((x) => x && x[1]).map(([k, v]) => `<span>${k ? `<em>${esc(k)}</em>` : ""}${esc(v)}</span>`).join("")}${!p.on && !p.nota && !(p.l || []).some((x) => x && x[1]) ? `<span class="pd">${i === cur ? "em andamento" : "pendente"}</span>` : ""}</div></div>`).join("")}</div>`;
+}
+function passosOficiais(e) {
+  const X = e.extrato_portal || {}, ne = (X.emendaEmpenho || [])[0], nl = (X.emendaLiquidacao || [])[0], pg = e.pagamentos_sef || [];
+  const P = [{ t: "Indicada", on: true, dt: String(e.ano || ""), l: [["", e.mod], ["R$", fr(e.v).replace("R$ ", "")]] },
+    { t: "Empenhada", on: e.et >= 2 && e.et !== 5 || !!ne, dt: ne ? dtBR(ne.dtlancamento || "") : "", l: [["NE", ne && ne.nunotaempenho]] },
+    { t: "Liquidada", on: e.et >= 3 && e.et !== 5, dt: nl ? dtBR(nl.dtlancamento || "") : "", l: [["NL", nl && nl.nunotaliquidacao]] }];
+  if (pg.length) pg.forEach(([, , , ob, dt, v], k) => P.push({ t: pg.length > 1 ? `Paga (${k + 1}/${pg.length})` : "Paga", on: true, dt: dtBR(dt), l: [["R$", fr(v).replace("R$ ", "")], ["OB", ob]] }));
+  else P.push({ t: "Paga", on: e.et === 4, dt: "", l: [["R$", e.vp ? fr(e.vp).replace("R$ ", "") : ""]] });
+  if (e.et === 5) P.push({ t: "Impedimento técnico", on: true, v: true, l: [["", e.imped]] });
+  return P;
+}
 function detalheMeu(r) {
   const e = r.chave && E0.find((x) => x.k === r.chave);
   const es = etapasStatus(r.status_manual), S3 = es.d || [false, false, false], dt = (x) => x ? dtBR(String(x)) : "";
   const passos = [["Indicada", true, `${r.ano || ""}${r.valor ? " · " + fr(+r.valor) : ""}`], ["Portaria", S3[1] || es.k >= 1, r.publicacao || (S3[1] ? "" : es.k === 1 ? "em andamento" : "")],
     ["Empenho", !!r.empenho || S3[2], r.empenho || ""], ["Pagamento", S3[2], [r.ob, dt(r.data_pagamento), r.pagamento].filter(Boolean).join(" · ")]];
-  const ul = e ? (detalhe(e, true).match(/<ul class="tl">[\s\S]*?<\/ul>/) || [""])[0].replace('class="tl"', 'class="tl hz"')
-    : `<ul class="tl hz">${passos.map(([t, on, d], i) => `<li class="${on ? "on" : ""}${es.ver && !on && (i === 0 || passos[i - 1][1]) ? " imp" : ""}"><b>${t}</b><span>${esc(d)}</span></li>`).join("")}</ul>`;
+  const PV = e ? passosOficiais(e) : passos.map(([t, on, d], i) => ({ t, on, l: [["", d]], dt: i === 0 ? String(r.ano || "") : i === 3 ? dt(r.data_pagamento) : "", v: es.ver && !on && (i === 0 || passos[i - 1][1]) }));
+  (r.notas || []).forEach((n) => PV.push({ t: "Nota do gabinete", on: true, nota: true, dt: dtBR(n.em), l: [["", n.t]] }));
+  const ul = tlVert(PV, e ? "Andamento · oficial" : "Andamento · pela planilha", e ? ETQ[e.et][0] : es.t);
   const kv = [["Processo", r.processo], ["Origem", r.origem], ["Função", [r.funcao, r.natureza].filter(Boolean).join(" · ")], ["Beneficiário", r.beneficiario], ...(e ? [["Emenda", e.n || e.k]] : [])].filter(([, v]) => v);
-  return `<div class="dm"><div><div class="olho">Andamento · ${e ? "oficial" : "pela planilha"}</div>${ul}
+  return `<div class="dm">${ul}<div><div class="olho">Dados</div>
       <div class="kv2">${kv.map(([k, v]) => `<span>${k}</span><b>${esc(v)}</b>`).join("")}</div>
       ${e ? "" : `<button class="lk" data-subst>Ligar a uma emenda do portal</button>`}</div>
     <div><div class="olho">Gabinete</div>
       <div class="nota${r.observacao ? "" : " vz"}">${r.observacao ? esc(r.observacao).replace(/\n/g, "<br>") : "Sem observação."}</div>
       ${(r.tags || []).length ? `<div class="tgs2">${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</div>` : ""}
-      <div class="hist">${(r.notas || []).slice().reverse().map((n) => `<div><span>${dtBR(n.em)}</span>${esc(n.t)}</div>`).join("")}</div>
       <button class="lk" data-anotar>+ Anotar</button><div class="nova" hidden><input data-nova placeholder="Nova nota (ex.: plano de trabalho enviado)"><button class="btn sec" data-addnota>Salvar nota</button></div></div></div>
     <div class="acs2"><span class="av" data-msg></span><button class="btn sec" data-atencao${r.atencao ? ' style="color:#F29A38;border-color:#F29A38"' : ""}>${r.atencao ? "Tirar atenção" : "Marcar atenção"}</button><button class="btn sec" data-editar>Editar</button>${e ? `<button class="btn sec" data-subst>Substituir</button>` : ""}<button class="btn sec" data-excl style="color:var(--erro)">Excluir</button></div>`;
 }
