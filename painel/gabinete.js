@@ -210,9 +210,10 @@ function etapasStatus(s) {
   const ok = (re) => new RegExp("✅\\s*" + re, "i").test(s), and = (re) => new RegExp("🔄\\s*" + re, "i").test(s), ver = /🛑/.test(s);
   const fim = ok("(Pago|Executado)"), inst = ok("(Portaria|Termo)") || fim, d = [true, inst, fim];
   const t = ver ? "Verificar" : fim ? (ok("Pago") ? "Pago" : "Executado") : and("A ?Pagar") ? "A pagar" : and("Execu") ? "Em execução" : and("(Portaria|Aguardando)") ? "Aguardando" : inst ? "Portaria" : /🔄/.test(s) ? "Em andamento" : s.trim() ? "Indicada" : "—";
-  return { t, d, ver };
+  const k = fim || and("(A ?Pagar|Execu)") ? 2 : inst || and("(Portaria|Aguardando)") ? 1 : 0;
+  return { t, d, ver, k };
 }
-const stHtml = (s) => { const e = etapasStatus(s); return `<span class="stx" title="${esc(s || "")}">${e.t}${e.d ? `<i>${e.d.map((x, k) => `<b class="${x ? "f" : ""}${e.ver && !x && (k === 0 || e.d[k - 1]) ? " v" : ""}"></b>`).join("")}</i>` : ""}</span>`; };
+const stHtml = (s) => { const e = etapasStatus(s); return `<span class="stx" title="${esc(s || "")}">${e.t}${e.d ? `<i>${[0, 1, 2].map((k) => `<b class="${k === e.k ? (e.ver ? "v" : "f") : ""}"></b>`).join("")}</i>` : ""}</span>`; };
 const mk = (r) => r.id || "p" + (r.origem_planilha ?? MEU.indexOf(r));
 const supr = (r) => /^Suprimida/.test(r.status_manual || "");
 function meu() {
@@ -244,7 +245,10 @@ function mtab() {
 // anotações e as ações Editar, Substituir (trocar a emenda oficial ligada) e Excluir ----------
 function detalheMeu(r) {
   const e = r.chave && E0.find((x) => x.k === r.chave);
-  const topo = e ? detalhe(e, true) : `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Andamento</div><div class="av" style="margin:0">Sem emenda correspondente no portal. Use "Substituir" para ligar a uma emenda oficial, se houver.</div></div>
+  const es = etapasStatus(r.status_manual), S3 = es.d || [false, false, false], dt = (x) => x ? dtBR(String(x)) : "";
+  const passos = [["Indicada", true, `${r.ano || ""}${r.valor ? " · " + fr(+r.valor) : ""}`], ["Portaria / instrumento", S3[1] || es.k >= 1, r.publicacao || (S3[1] ? "concluída" : es.k === 1 ? "em andamento" : "")],
+    ["Empenhada", !!r.empenho || S3[2], r.empenho || ""], ["Paga / executada", S3[2], [r.ob, dt(r.data_pagamento), r.pagamento].filter(Boolean).join(" · ")]];
+  const topo = e ? detalhe(e, true) : `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Andamento <small style="text-transform:none;letter-spacing:0;color:var(--ter)">pela planilha</small></div><ul class="tl">${passos.map(([t, on, d], i) => `<li class="${on ? "on" : ""}${es.ver && !on && (i === 0 || passos[i - 1][1]) ? " imp" : ""}"><b>${t}</b><span>${esc(d || (on ? "" : "pendente"))}</span></li>`).join("")}</ul><div class="av" style="margin:8px 0 0">Sem emenda ligada no portal. Use "Substituir" para ligar a uma emenda oficial, se houver.</div></div>
     <div><div class="kv"><span>Processo SCC</span><b>${esc(r.processo || "não informado")}</b><span>Nº na planilha</span><b>${esc(r.numero || "—")}</b><span>Origem</span><b>${esc(r.origem || "não informada")}${r.ano ? " · " + r.ano : ""}</b><span>Beneficiário</span><b>${esc(r.beneficiario || "—")}</b></div></div></div>`;
   return `${topo}<div class="anot"><div class="olho">Anotações do gabinete</div>
     <label>Liderança<input data-f="lideranca" value="${esc(r.lideranca || (r.tags || []).filter((t) => !/^(Lista|of\.|10M|1º|Set|PT aj|ñ |⁉)/.test(t)).join(", ") || "")}" placeholder="Quem indicou ou acompanha"></label>
