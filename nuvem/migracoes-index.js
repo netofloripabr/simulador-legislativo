@@ -1684,5 +1684,16 @@ const MIGRACOES_INDEX = [
     "gab_itens.tipo"
    ]
   ]
+ },
+ {
+  "num": 77,
+  "arquivo": "migracao-77-gabinete-atencao.sql",
+  "descricao": "Migração 77 (24/10/2026): Gabinete · marcação \"atenção\" do usuário num recurso do Controle (balão laranja).",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.atencao"
+   ]
+  ]
  }
 ];
