@@ -59,7 +59,7 @@ async function lerPrivado() { const { data } = await supabaseClient.from("gab_re
 
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
-const TITULOS = [["rec", "Controle de Recursos", "O controle do gabinete (emendas, convênios e recursos informais) e, para consulta, os dados oficiais da Transparência SC."],
+const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos por você. Transparência: os dados divulgados pelo estado."],
   ["rh", "RH", "Equipe do gabinete, cargos, lotação e a cota de nomeações."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
   ["ele", "Eleitoral", "Base eleitoral, lideranças e a relação entre votos e presença do mandato."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."]];
 function desenhar() {  if (S.aba === "meu" && !(proprio() && PODE)) S.aba = "geral";
@@ -156,7 +156,7 @@ function blocos() {
     hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; S.bxf[k] = !S.bxf[k]; bx.classList.toggle("fech", S.bxf[k]); hd.querySelector(".tgs").classList.toggle("ab", !S.bxf[k]); }; });
 }
 function corpoRec() {
-  return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o painel de indicadores"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13.5h12 M4 11V7 M8 11V3 M12 11V8"/></svg>Painel</button></div></div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
+  return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o painel de indicadores"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13.5h12 M4 11V7 M8 11V3 M12 11V8"/></svg>Painel</button></div>${S.aba === "meu" ? '<div id="mtool"></div>' : ""}</div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
 }
 // mapa: só abre quando o botão Mapa da faixa das abas é selecionado; mostra as emendas oficiais do recorte atual
 function blocoMapa() {
@@ -229,7 +229,7 @@ function meu() {
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
   S.mtool = fLista + leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano); S.mad = ad;
-  return `<p class="lead" style="margin-top:14px">O controle do gabinete: emendas, convênios e recursos informais, inclusive os que não aparecem no portal. Visível só para você.</p>
+  return `
     <section class="bx"><div id="mfil"></div><div id="mtab"></div></section>`;
 }
 function ligarMeu() {
@@ -241,8 +241,8 @@ function ligarMeu() {
 const ETF = [["", "Todas as etapas"], ["0", "Só indicada"], ["1", "Com portaria"], ["2", "Pago / executado"], ["v", "Verificar"], ["s", "Suprimida"]];
 function mfiltros() {
   const n = [S.mq, S.mori, S.met].filter(Boolean).length, oris = [...new Set(MEU.map((r) => sigla(r.origem)).filter(Boolean))].sort();
-  $("#mfil").innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar filtros</button>` : ""}${S.mtool || ""}<button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar e pesquisar" aria-label="Filtrar e pesquisar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>${n ? `<b>${n}</b>` : ""}</button>${S.mad || ""}</div>
-    ${S.mfa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Município, objeto, processo ou tag" value="${esc(S.mq || "")}">${leq("fOri", "Origem", [["", "Todas"], ...oris.map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}</div>` : ""}`;
+  const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar filtros</button>` : ""}${S.mtool || ""}<button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar e pesquisar" aria-label="Filtrar e pesquisar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>${n ? `<b>${n}</b>` : ""}</button>${S.mad || ""}</div>`;
+  $("#mfil").innerHTML = `${S.mfa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Município, objeto, processo ou tag" value="${esc(S.mq || "")}">${leq("fOri", "Origem", [["", "Todas"], ...oris.map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}</div>` : ""}`;
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   if (typeof ligarAdicionar === "function") ligarAdicionar();
   $("#filB").onclick = () => { S.mfa = !S.mfa; mfiltros(); const b = $("#mbusca"); if (b) b.focus(); };
