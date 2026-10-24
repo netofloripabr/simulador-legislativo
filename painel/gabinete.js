@@ -199,6 +199,7 @@ function ligarGeral() {
   tabela();
 }
 // ---------- Meu controle: a planilha do gabinete (EM Consolidado), privada ----------
+const mk = (r) => r.id || "p" + (r.origem_planilha ?? MEU.indexOf(r));
 const supr = (r) => /^Suprimida/.test(r.status_manual || "");
 function meu() {
   if (!PODE) return `<div class="obra">Entre com a sua conta para ver o seu controle.</div>`;
@@ -219,9 +220,54 @@ function ligarMeu() {
 }
 function mtab() {
   const q = norm(S.mq), L = MEU.filter((r) => (!S.mano || r.ano === S.mano) && (!q || norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem].join(" ")).includes(q)));
-  $("#mtab").innerHTML = `<table class="tb mt"><thead><tr><th>Ano · nº</th><th>Município</th><th class="hm">Objeto</th><th class="hm">Função · mod.</th><th class="v">R$</th><th>Status</th><th class="hm">Processo</th></tr></thead><tbody>${L.slice(0, S.mlim).map((r) => `<tr class="${supr(r) ? "sup" : ""}"><td>${r.ano || ""}${r.numero ? ` · ${esc(r.numero)}` : ""}<small>${esc(r.origem || "")}</small></td><td>${esc(r.municipio || "")}<small>${esc(r.regiao || "")}</small></td><td class="hm">${esc(r.objeto || "")}${(r.tags || []).length ? `<small>${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</small>` : ""}</td><td class="hm">${esc(r.funcao || "")}<small>${esc(r.modalidade || "")}</small></td><td class="v">${fr(+r.valor || 0)}</td><td>${esc(r.status_manual || "")}</td><td class="hm">${esc(r.processo || "")}</td></tr>`).join("")}</tbody></table>
+  $("#mtab").innerHTML = `<table class="tb mt ct"><thead><tr><th>Ano · nº</th><th>Município</th><th class="hm">Objeto</th><th class="hm">Função · mod.</th><th class="v">R$</th><th>Status</th><th class="hm">Processo</th></tr></thead><tbody>${L.slice(0, S.mlim).map((r) => `<tr class="r${supr(r) ? " sup" : ""}${S.maberto === mk(r) ? " ab" : ""}" data-id="${esc(mk(r))}"><td>${r.ano || ""}${r.numero ? ` · ${esc(r.numero)}` : ""}<small>${esc(r.origem || "")}</small></td><td>${esc(r.municipio || "")}<small>${esc(r.regiao || "")}</small></td><td class="hm">${esc(r.objeto || "")}${(r.tags || []).length ? `<small>${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</small>` : ""}</td><td class="hm">${esc(r.funcao || "")}<small>${esc(r.modalidade || "")}</small></td><td class="v">${fr(+r.valor || 0)}</td><td>${esc(r.status_manual || "")}</td><td class="hm">${esc(r.processo || "")}</td></tr>${S.maberto === mk(r) ? `<tr class="det"><td colspan="7">${detalheMeu(r)}</td></tr>` : ""}`).join("")}</tbody></table>
     ${L.length > S.mlim ? `<button class="btn sec mais" id="mmais">Mostrar mais (${L.length - S.mlim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> linhas</div>`;
   const m = $("#mmais"); if (m) m.onclick = () => { S.mlim += 200; mtab(); };
+  $("#mtab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { S.maberto = S.maberto === tr.dataset.id ? null : tr.dataset.id; mtab(); });
+  const d = $("#mtab .det"); if (d) ligarMeuDet(d, MEU.find((r) => mk(r) === S.maberto));
+}
+// ---------- item do Controle aberto: andamento oficial (quando ligado a uma emenda do portal), dados da planilha,
+// anotações e as ações Editar, Substituir (trocar a emenda oficial ligada) e Excluir ----------
+function detalheMeu(r) {
+  const e = r.chave && E0.find((x) => x.k === r.chave);
+  const topo = e ? detalhe(e) : `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Andamento</div><div class="av" style="margin:0">Sem emenda correspondente no portal. Use "Substituir" para ligar a uma emenda oficial, se houver.</div></div>
+    <div><div class="kv"><span>Processo SCC</span><b>${esc(r.processo || "não informado")}</b><span>Nº na planilha</span><b>${esc(r.numero || "—")}</b><span>Origem</span><b>${esc(r.origem || "não informada")}${r.ano ? " · " + r.ano : ""}</b><span>Beneficiário</span><b>${esc(r.beneficiario || "—")}</b></div></div></div>`;
+  return `${topo}<div class="anot"><div class="olho">Anotações do gabinete</div>
+    <label>Liderança<input data-f="lideranca" value="${esc(r.lideranca || (r.tags || []).filter((t) => !/^(Lista|of\.|10M|1º|Set|PT aj|ñ |⁉)/.test(t)).join(", ") || "")}" placeholder="Quem indicou ou acompanha"></label>
+    <label>Observação<textarea data-f="observacao" rows="3" placeholder="Situação, contatos, próximos passos">${esc(r.observacao || "")}</textarea></label>
+    <div class="notas">${(r.notas || []).slice().reverse().map((n) => `<div><span>${dtBR(n.em)}</span>${esc(n.t)}</div>`).join("")}${r.status_manual ? `<div><span>planilha</span>${esc(r.status_manual)}</div>` : ""}</div>
+    <div class="nova"><input data-nova placeholder="Nova nota de status (ex.: plano de trabalho enviado)"><button class="btn sec" data-addnota>Anotar</button></div>
+    <div class="acs"><button class="btn" data-salvar>Salvar anotações</button><span class="av" data-msg></span><span style="margin-left:auto;display:flex;gap:8px"><button class="btn sec" data-editar>Editar</button><button class="btn sec" data-subst>Substituir</button><button class="btn sec" data-excl style="color:var(--erro)">Excluir</button></span></div></div>`;
+}
+async function gravaMeu(r, campos) {
+  if (LOCAL && !SESS) { Object.assign(r, campos); }
+  else { const { error } = await supabaseClient.from("gab_recursos").update({ ...campos, atualizado_em: new Date().toISOString() }).eq("id", r.id); if (error) throw error; Object.assign(r, campos); }
+  if (r.chave) PRIV[r.chave] = r;
+}
+function ligarMeuDet(d, r) {
+  if (!r) return; const a = d.querySelector(".anot"), msg = a.querySelector("[data-msg]"); d.onclick = (e) => e.stopPropagation();
+  const salvar = async (nova) => { msg.textContent = "Salvando…";
+    try { await gravaMeu(r, { lideranca: a.querySelector('[data-f="lideranca"]').value.trim() || null, observacao: a.querySelector('[data-f="observacao"]').value.trim() || null, notas: [...(r.notas || []), ...(nova ? [{ t: nova, em: new Date().toISOString() }] : [])] }); msg.textContent = "Salvo."; if (nova) mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+  a.querySelector("[data-salvar]").onclick = () => salvar(null);
+  a.querySelector("[data-addnota]").onclick = () => { const v = a.querySelector("[data-nova]").value.trim(); if (v) salvar(v); };
+  a.querySelector("[data-editar]").onclick = () => modal(`<div class="mh"><div><div class="olho">Controle</div><h3>Editar recurso</h3></div><button class="x" data-fecha>×</button></div>
+    <div class="fsec"><div class="fg">${campo("Município", inp("municipio", r.municipio))}${campo("Valor (R$)", inp("valor", r.valor, "", "number"))}${campo("Objeto", `<textarea data-f="objeto" rows="2">${esc(r.objeto || "")}</textarea>`, 1)}
+      ${campo("Ano", inp("ano", r.ano, "", "number"))}${campo("Nº", inp("numero", r.numero))}${campo("Origem", inp("origem", r.origem, "Emenda impositiva, convênio, outros"))}${campo("Função", inp("funcao", r.funcao))}${campo("Modalidade", inp("modalidade", r.modalidade))}${campo("Beneficiário", inp("beneficiario", r.beneficiario))}${campo("Processo SCC", inp("processo", r.processo))}${campo("Status", inp("status_manual", r.status_manual))}</div></div>
+    <div class="mrod"><span class="av" data-msg></span><button class="btn sec" data-fecha>Cancelar</button><button class="btn" data-salva>Salvar</button></div>`, (m, fechar) => {
+      m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), ms = m.querySelector("[data-msg]"); o.valor = o.valor ? +o.valor : null; o.ano = o.ano ? +o.ano : null; ms.textContent = "Salvando…";
+        try { await gravaMeu(r, o); fechar(); mtab(); } catch (er) { ms.textContent = "Não foi possível salvar: " + (er.message || er); } }; });
+  a.querySelector("[data-subst]").onclick = () => { const ops = E0.slice().sort((x, y) => (y.ano - x.ano) || String(x.mun).localeCompare(y.mun, "pt-BR"));
+    modal(`<div class="mh"><div><div class="olho">Controle</div><h3>Substituir emenda ligada</h3></div><button class="x" data-fecha>×</button></div>
+    <p class="lead">Escolha a emenda oficial do portal que corresponde a este recurso. Hoje: <b>${esc(r.chave || "nenhuma")}</b>.</p>
+    <div class="fsec"><div class="fg">${campo("Emenda do portal", `<input data-f="nova" list="adEms" placeholder="Digite município, objeto ou código"><datalist id="adEms">${ops.map((e) => `<option value="${esc(e.k)}">${esc(e.ano + " · " + e.mun + " · " + frase(e.obj).slice(0, 70) + " · " + fm(e.v))}</option>`).join("")}</datalist>`, 1)}</div></div>
+    <div class="mrod"><button class="btn sec" data-solta>Desligar do portal</button><span class="av" data-msg></span><button class="btn sec" data-fecha>Cancelar</button><button class="btn" data-salva>Substituir</button></div>`, (m, fechar) => {
+      const ok = async (k) => { const ms = m.querySelector("[data-msg]"); if (k && !E0.some((e) => e.k === k)) { ms.textContent = "Código não encontrado no portal."; return; } ms.textContent = "Salvando…";
+        try { if (r.chave && PRIV[r.chave] === r) delete PRIV[r.chave]; await gravaMeu(r, { chave: k || null }); fechar(); mtab(); } catch (er) { ms.textContent = "Não foi possível salvar: " + (er.message || er); } };
+      m.querySelector("[data-salva]").onclick = () => ok(m.querySelector('[data-f="nova"]').value.trim());
+      m.querySelector("[data-solta]").onclick = () => ok(null); }); };
+  const ex = a.querySelector("[data-excl]"); ex.onclick = async () => { if (ex.dataset.ok !== "1") { ex.dataset.ok = "1"; ex.textContent = "Confirmar exclusão"; return; }
+    try { if (!(LOCAL && !SESS)) { const { error } = await supabaseClient.from("gab_recursos").delete().eq("id", r.id); if (error) throw error; }
+      MEU.splice(MEU.indexOf(r), 1); if (r.chave && PRIV[r.chave] === r) delete PRIV[r.chave]; S.maberto = null; desenhar(); } catch (er) { msg.textContent = "Não foi possível excluir: " + (er.message || er); } };
 }
 
 // ---------- mapa de SC: bolha por município (tamanho = valor; cor = lente) ----------
@@ -263,12 +309,10 @@ function tabela() {
   $("#tab").innerHTML = `<table class="tb ct"><thead><tr>${cab.map(([k, r, c]) => `<th data-o="${k}" class="${c || ""}">${r}${S.ord[0] === k ? (S.ord[1] > 0 ? " ↑" : " ↓") : ""}</th>`).join("")}</tr></thead><tbody>${L.slice(0, S.lim).map((e) => linha(e)).join("")}</tbody></table>
     ${L.length > S.lim ? `<button class="btn sec mais" id="mais">Mostrar mais (${L.length - S.lim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> emendas · ${fm(L.reduce((s, e) => s + (e.v || 0), 0))} indicados · ${fm(L.reduce((s, e) => s + (e.vp || 0), 0))} pagos</div>`;
   $("#tab").querySelectorAll("th[data-o]").forEach((th) => th.onclick = () => { const k = th.dataset.o; S.ord = [k, S.ord[0] === k ? -S.ord[1] : (k === "v" ? -1 : 1)]; tabela(); });
-  $("#tab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { S.aberto = S.aberto === tr.dataset.k ? null : tr.dataset.k; tabela(); });
   const m = $("#mais"); if (m) m.onclick = () => { S.lim += 100; tabela(); };
-  const d = $("#tab .det"); if (d) ligarNotas(d);
 }
 function linha(e) {
-  const ab = S.aberto === e.k, pc = e.v ? Math.min(1, (e.vp || 0) / e.v) : 0, [et, cor] = ETQ[e.et];
+  const ab = false, pc = e.v ? Math.min(1, (e.vp || 0) / e.v) : 0, [et, cor] = ETQ[e.et];
   return `<tr class="r${ab ? " ab" : ""}" data-k="${esc(e.k)}"><td><b>${esc(e.mun)}</b><small>${esc(e.assoc || "")}</small></td><td>${esc(frase(e.obj))}<small>${esc(e.benef ? frase(e.benef) : "")}</small></td><td class="hm">${esc(e.mod || "")}</td>
     <td class="v vp"><b>${fm(e.v)}</b><span class="vb"><i style="width:${(pc * 100).toFixed(0)}%"></i></span><small>${pc >= .995 ? "pago" : pc ? nf(pc * 100, 0) + "% pago" : "não pago"}</small></td>
     <td><span class="etc" style="--c:${cor}">${et}</span></td></tr>${ab ? `<tr class="det"><td colspan="5">${detalhe(e)}</td></tr>` : ""}`;
