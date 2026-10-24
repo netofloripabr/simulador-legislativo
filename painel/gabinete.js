@@ -230,7 +230,7 @@ function mtab() {
 // anotações e as ações Editar, Substituir (trocar a emenda oficial ligada) e Excluir ----------
 function detalheMeu(r) {
   const e = r.chave && E0.find((x) => x.k === r.chave);
-  const topo = e ? detalhe(e) : `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Andamento</div><div class="av" style="margin:0">Sem emenda correspondente no portal. Use "Substituir" para ligar a uma emenda oficial, se houver.</div></div>
+  const topo = e ? detalhe(e, true) : `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Andamento</div><div class="av" style="margin:0">Sem emenda correspondente no portal. Use "Substituir" para ligar a uma emenda oficial, se houver.</div></div>
     <div><div class="kv"><span>Processo SCC</span><b>${esc(r.processo || "não informado")}</b><span>Nº na planilha</span><b>${esc(r.numero || "—")}</b><span>Origem</span><b>${esc(r.origem || "não informada")}${r.ano ? " · " + r.ano : ""}</b><span>Beneficiário</span><b>${esc(r.beneficiario || "—")}</b></div></div></div>`;
   return `${topo}<div class="anot"><div class="olho">Anotações do gabinete</div>
     <label>Liderança<input data-f="lideranca" value="${esc(r.lideranca || (r.tags || []).filter((t) => !/^(Lista|of\.|10M|1º|Set|PT aj|ñ |⁉)/.test(t)).join(", ") || "")}" placeholder="Quem indicou ou acompanha"></label>
@@ -308,21 +308,23 @@ function tabela() {
   const cab = [["mun", "Município"], ["obj", "Objeto"], ["mod", "Modalidade", "hm"], ["v", "Valor · pago", "v"], ["et", "Etapa"]];
   $("#tab").innerHTML = `<table class="tb ct"><thead><tr>${cab.map(([k, r, c]) => `<th data-o="${k}" class="${c || ""}">${r}${S.ord[0] === k ? (S.ord[1] > 0 ? " ↑" : " ↓") : ""}</th>`).join("")}</tr></thead><tbody>${L.slice(0, S.lim).map((e) => linha(e)).join("")}</tbody></table>
     ${L.length > S.lim ? `<button class="btn sec mais" id="mais">Mostrar mais (${L.length - S.lim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> emendas · ${fm(L.reduce((s, e) => s + (e.v || 0), 0))} indicados · ${fm(L.reduce((s, e) => s + (e.vp || 0), 0))} pagos</div>`;
+  $("#tab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { S.aberto = S.aberto === tr.dataset.k ? null : tr.dataset.k; tabela(); });
   $("#tab").querySelectorAll("th[data-o]").forEach((th) => th.onclick = () => { const k = th.dataset.o; S.ord = [k, S.ord[0] === k ? -S.ord[1] : (k === "v" ? -1 : 1)]; tabela(); });
   const m = $("#mais"); if (m) m.onclick = () => { S.lim += 100; tabela(); };
 }
 function linha(e) {
-  const ab = false, pc = e.v ? Math.min(1, (e.vp || 0) / e.v) : 0, [et, cor] = ETQ[e.et];
+  const ab = S.aberto === e.k, pc = e.v ? Math.min(1, (e.vp || 0) / e.v) : 0, [et, cor] = ETQ[e.et];
   return `<tr class="r${ab ? " ab" : ""}" data-k="${esc(e.k)}"><td><b>${esc(e.mun)}</b><small>${esc(e.assoc || "")}</small></td><td>${esc(frase(e.obj))}<small>${esc(e.benef ? frase(e.benef) : "")}</small></td><td class="hm">${esc(e.mod || "")}</td>
     <td class="v vp"><b>${fm(e.v)}</b><span class="vb"><i style="width:${(pc * 100).toFixed(0)}%"></i></span><small>${pc >= .995 ? "pago" : pc ? nf(pc * 100, 0) + "% pago" : "não pago"}</small></td>
     <td><span class="etc" style="--c:${cor}">${et}</span></td></tr>${ab ? `<tr class="det"><td colspan="5">${detalhe(e)}</td></tr>` : ""}`;
 }
-function detalhe(e) {
+// priv = false (Transparência SC): só o que consta nos painéis da SEF e do TCE; true (Controle): soma os dados do gabinete
+function detalhe(e, priv) {
   const X = e.extrato_portal || {}, ne = (X.emendaEmpenho || [])[0], nl = (X.emendaLiquidacao || [])[0], pg = (e.pagamentos_sef || []);
   const passos = [["Indicada", true, `${e.mod || ""} · ${fr(e.v)}`], ["Empenhada", e.et >= 2 && e.et !== 5 || !!ne, ne ? `${ne.nunotaempenho || ""} · ${dtBR(ne.dtlancamento || "")}` : ""], ["Liquidada", e.et >= 3 && e.et !== 5, nl ? `${nl.nunotaliquidacao || ""} · ${dtBR(nl.dtlancamento || "")}` : ""],
     ["Paga", e.et === 4, pg.length ? pg.map(([, , pp, ob, dt, v]) => `${dtBR(dt)} · ${fr(v)}${ob ? " · " + ob : ""}`).join("<br>") : e.vp ? fr(e.vp) + " pagos" : "ainda não paga"]];
   if (e.et === 5) passos.push(["Impedimento técnico", true, esc(e.imped || "")]);
-  const p = PRIV && PRIV[e.k], [o1, o2] = ORIGEM[e.tipo] || [e.tipo || "não informada", ""], scc = (p && p.processo) || e.sgpe;
+  const p = priv && PRIV && PRIV[e.k], [o1, o2] = ORIGEM[e.tipo] || [e.tipo || "não informada", ""], scc = (p && p.processo) || e.sgpe;
   const ed = false; // Transparência SC é só consulta; anotações e controle ficam na aba Controle
   return `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Andamento</div><ul class="tl">${passos.map(([t, on, d]) => `<li class="${on ? "on" : ""}${t.startsWith("Imp") ? " imp" : ""}"><b>${t}</b><span>${d || (on ? "" : "pendente")}</span></li>`).join("")}</ul></div>
     <div><div class="kv"><span>Processo SCC</span><b>${scc ? esc(scc) : "não informado"}</b><span>Código da emenda</span><b>${esc(e.n || e.k)} <small style="color:var(--ter);font-weight:400">(nº oficial na SEF)</small></b>
