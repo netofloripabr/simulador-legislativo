@@ -30,11 +30,12 @@ function poeGabinete(){ document.querySelectorAll("a[href^='gabinete']").forEach
       var bt=tr.querySelector(".pselb"), l=tr.querySelector(".psell"), mud=function(v){ l.hidden=!v; bt.classList.toggle("ab",v); };
       bt.onclick=function(e){ e.stopPropagation(); mud(l.hidden); }; document.addEventListener("click",function(){ mud(false); });
       t.classList.add("com-trilho"); }
-    var subs=tr.querySelector(".sl-subs"), g=t.querySelector(".gsecs, .sl-meio"); if(g&&g.parentNode!==subs) subs.appendChild(g);
-    var uf2=t.querySelector(".sl-uf"), mw=t.querySelector(".mnuw"); if(uf2&&mw&&uf2.nextElementSibling!==mw) mw.before(uf2);
+    if(!t.querySelector(".sl-uf")&&window.slPorUF) window.slPorUF();
+    var subs=tr.querySelector(".sl-subs"), g=t.querySelector(".gsecs, .sl-meio, .secs"); if(g&&g.parentNode!==subs) subs.appendChild(g);
+    var uf2=t.querySelector(".sl-uf"), mw=t.querySelector(".mnuw"), alvo=mw; while(alvo&&alvo.parentNode!==t) alvo=alvo.parentNode; if(uf2&&alvo&&uf2.nextElementSibling!==alvo) alvo.before(uf2);
     if(uf2) uf2.style.marginLeft="auto"; else { var sv=t.querySelector(".sl-nav")||mw; if(sv) sv.style.marginLeft="auto"; }
   }
-  var go=function(){ montar(); var t=document.getElementById("topoSL"); if(t) new MutationObserver(function(){ montar(); }).observe(t,{childList:true}); };
+  var go=function(){ montar(); var t=document.getElementById("topoSL"); if(t) new MutationObserver(function(){ montar(); }).observe(t,{childList:true,subtree:true}); };
   document.readyState==="loading"?document.addEventListener("DOMContentLoaded",go):go();
   window.slTrilho=montar;
 })();

@@ -13,7 +13,7 @@
 <style>
 @font-face{ font-family:"Inter"; src:url(../fontes/InterVariable.woff2) format("woff2"); font-weight:100 900; font-display:swap; }
 :root{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --linha:rgba(242,244,245,.09); --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178; --a:#34E84A; --lima:#C6E62A; color-scheme:dark; }
-*{ box-sizing:border-box; } html,body{ margin:0; background:var(--fundo); color:var(--texto); font:14px/1.45 "Inter",system-ui,sans-serif; overflow-x:hidden; }
+*{ box-sizing:border-box; } html,body{ margin:0; background:var(--fundo); color:var(--texto); font:14px/1.45 "Inter",system-ui,sans-serif; overflow-x:clip; }
 button{ font:inherit; color:inherit; }
 .topo{ position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:6px; height:54px; padding:0 18px; background:rgba(11,15,13,.9); backdrop-filter:blur(10px); border-bottom:1px solid var(--linha); }
 .wm{ font-weight:800; font-size:16px; letter-spacing:-.02em; margin-right:12px; } .wm b{ color:var(--a); }
@@ -115,7 +115,7 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 .topo .dir{ display:flex; align-items:center; gap:2px; } .topo .dir > a{ font:700 13px "Inter"; color:var(--sec); text-decoration:none; padding:7px 10px; border-radius:999px; margin-left:0 !important; } .topo .dir .mnu a{ margin-left:0; }
 @media (max-width:760px){ #topoSL .salvo{ display:none; } }
 </style>
-<script src="uf.js?cb=6"></script>
+<script src="uf.js?cb=7"></script>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=14">
 </head>
@@ -130,7 +130,7 @@ section{ padding-top:36px; scroll-margin-top:70px; }
 <script src="mesa.js?cb=59"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script>(function(){var b=document.querySelector(".mnub"),m=document.querySelector(".mnu");if(!b)return;b.onclick=function(e){e.stopPropagation();m.hidden=!m.hidden;};document.addEventListener("click",function(e){if(!e.target.closest(".mnuw"))m.hidden=true;});/* logado? lê a sessão do Supabase guardada pelo app (mesma origem); Sair apaga a sessão local */try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var ss=JSON.parse(localStorage.getItem(k)),u=ss&&(ss.user||(ss.currentSession&&ss.currentSession.user));if(u){var md=u.user_metadata||{},ct=m.querySelector(".mconta"),nm=md.full_name||md.nome||u.email,esc=function(x){return String(x||"").replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});};ct.innerHTML="<b>"+esc(nm)+"</b><small>"+esc(u.email)+" · minha conta</small>";ct.href="../?capa=1";ct.onclick=null;ct.classList.remove("mconta");var sa=document.createElement("a");sa.href="#";sa.className="mconta msair";sa.textContent="Sair da conta";sa.onclick=(function(kk){return function(e){e.preventDefault();try{localStorage.removeItem(kk);}catch(er){}location.reload();};})(k);ct.after(sa);}}}}catch(e){}})();</script>
-<script src="sino-menu.js?cb=6"></script>
+<script src="sino-menu.js?cb=8"></script>
 <script>(function(){var t=null;try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){var s=JSON.parse(localStorage.getItem(k));t=s&&(s.access_token||(s.currentSession&&s.currentSession.access_token));}}}catch(e){}var go=function(){sinoMenuAdmin("https://uxqxhvzeptuedyggwguh.supabase.co","sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph",t);};document.querySelector(".mnu")?go():setTimeout(go,1500);})();</script>
 </body>
 </html>

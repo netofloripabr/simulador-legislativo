@@ -31,5 +31,6 @@
     s.querySelector("select").onchange = function () { var v = this.value; if (v === cur) return; try { sessionStorage.setItem("sl_uf", v); } catch (er) {}
       var u = new URL(location.href); location.href = u.pathname + "?uf=" + v + (/index\.html/.test(u.pathname) ? location.hash : ""); };
   }
+  window.slPorUF = por;
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", por); else por();
 })();
