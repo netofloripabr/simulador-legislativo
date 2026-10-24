@@ -229,19 +229,37 @@ function meu() {
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
   return `${topoC(fLista + leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano))}
-    <section class="bx"><div class="ctl"><input id="mbusca" placeholder="Município, objeto, nº, processo ou tag" value="${esc(S.mq)}"></div><div id="mtab"></div></section>`;
+    <section class="bx"><div id="mfil"></div><div id="mtab"></div></section>`;
 }
 function ligarMeu() {
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
-  const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); };
+  if ($("#mfil")) mfiltros();
   const imp = $("#impBtn"); if (imp) imp.onclick = importar;
   if ($("#mtab")) mtab();
 }
+// filtro do Controle: ícone que abre a pesquisa (texto, origem, etapa); fechado mostra só o ícone e quantos filtros estão ativos
+const ETF = [["", "Todas as etapas"], ["0", "Só indicada"], ["1", "Com portaria"], ["2", "Pago / executado"], ["v", "Verificar"], ["s", "Suprimida"]];
+function mfiltros() {
+  const n = [S.mq, S.mori, S.met].filter(Boolean).length, oris = [...new Set(MEU.map((r) => sigla(r.origem)).filter(Boolean))].sort();
+  $("#mfil").innerHTML = `<div class="mfb"><button class="filb${S.mfa ? " on" : ""}" id="filB" title="Filtrar e pesquisar"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>Filtrar${n ? `<b>${n}</b>` : ""}</button>${n ? `<button class="filx" id="filX">Limpar</button>` : ""}</div>
+    ${S.mfa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Município, objeto, processo ou tag" value="${esc(S.mq || "")}">${leq("fOri", "Origem", [["", "Todas"], ...oris.map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}</div>` : ""}`;
+  $("#filB").onclick = () => { S.mfa = !S.mfa; mfiltros(); const b = $("#mbusca"); if (b) b.focus(); };
+  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; mfiltros(); mtab(); };
+  const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); };
+  const fo = $("#fOri"); if (fo) fo.onchange = (e) => { S.mori = e.target.value; mfiltros(); mtab(); };
+  const fe = $("#fEt"); if (fe) fe.onchange = (e) => { S.met = e.target.value; mfiltros(); mtab(); };
+}
+const MCOL = [["ano", "Ano", (r) => +r.ano || 0], ["mun", "Município", (r) => norm(r.municipio)], ["obj", "Objeto", (r) => norm(r.objeto), "hm"], ["fun", "Função · mod.", (r) => norm(r.funcao), "hm"], ["v", "R$", (r) => +r.valor || 0], ["st", "Status", (r) => { const e = etapasStatus(r.status_manual); return e.d ? e.d.filter(Boolean).length - (e.ver ? .5 : 0) : -1; }], ["pr", "Processo", (r) => norm(r.processo), "hm"], ["inf", "Informações", (r) => (r.observacao ? 2 : 0) + ((r.tags || []).length ? 1 : 0), "hm"]];
 function mtab() {
-  const q = norm(S.mq), L = MEU.filter((r) => (!S.mano || r.ano === S.mano) && (!q || norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem].join(" ")).includes(q)));
-  $("#mtab").innerHTML = `<table class="tb mt ct"><thead><tr><th>Ano</th><th>Município</th><th class="hm">Objeto</th><th class="hm">Função · mod.</th><th>R$</th><th>Status</th><th class="hm">Processo</th><th class="hm">Informações</th></tr></thead><tbody>${L.slice(0, S.mlim).map((r) => `<tr class="r${supr(r) ? " sup" : ""}${S.maberto === mk(r) ? " ab" : ""}" data-id="${esc(mk(r))}"><td>${S.maberto === mk(r) ? (r.ano || "") : r.ano ? String(r.ano).slice(-2) : ""}<small title="${esc(r.origem || "")}">${esc(S.maberto === mk(r) ? r.origem || "" : sigla(r.origem))}</small></td><td>${esc(r.municipio || "")}<small>${esc(r.regiao || "")}</small></td><td class="hm">${esc(r.objeto || "")}</td><td class="hm">${esc(r.funcao || "")}<small>${esc(r.modalidade || "")}</small></td><td class="vi">${"R$ " + ni(Math.round(+r.valor || 0))}</td><td>${stHtml(r.status_manual, S.maberto === mk(r))}</td><td class="hm">${(() => { const m = String(r.processo || "").match(/^\s*([A-Za-zÀ-ú]+)\s*(.*)$/); return m ? `${esc(m[1])}<small>${esc(m[2])}</small>` : esc(r.processo || ""); })()}</td><td class="hm inf"><span class="obs${r.observacao ? " tem" : ""}" title="${esc(r.observacao || "Sem observação")}" aria-label="${r.observacao ? "Tem observação" : "Sem observação"}">${OBS_I}</span>${(r.tags || []).length ? `<small>${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</small>` : ""}</td></tr>${S.maberto === mk(r) ? `<tr class="det"><td colspan="8">${detalheMeu(r)}</td></tr>` : ""}`).join("")}</tbody></table>
+  const q = norm(S.mq), L = MEU.filter((r) => { if (S.mano && r.ano !== S.mano) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
+    if (S.mori && sigla(r.origem) !== S.mori) return false;
+    if (S.met) { const e = etapasStatus(r.status_manual); if (S.met === "s" ? e.d : !e.d) return false; if (S.met === "v" && !e.ver) return false; if (/^\d$/.test(S.met) && (e.d.lastIndexOf(true) !== +S.met)) return false; }
+    return true; });
+  if (S.mord) { const c = MCOL.find((x) => x[0] === S.mord[0]), d = S.mord[1]; L.sort((a, b) => { const x = c[2](a), y = c[2](b); return (x > y ? 1 : x < y ? -1 : 0) * d; }); }
+  $("#mtab").innerHTML = `<table class="tb mt ct"><thead><tr>${MCOL.map(([k, t, , c]) => `<th data-mo="${k}" class="so${c ? " " + c : ""}${S.mord && S.mord[0] === k ? " on" : ""}">${t}<i>${S.mord && S.mord[0] === k ? (S.mord[1] > 0 ? "↑" : "↓") : "↕"}</i></th>`).join("")}</tr></thead><tbody>${L.slice(0, S.mlim).map((r) => `<tr class="r${supr(r) ? " sup" : ""}${S.maberto === mk(r) ? " ab" : ""}" data-id="${esc(mk(r))}"><td>${S.maberto === mk(r) ? (r.ano || "") : r.ano ? String(r.ano).slice(-2) : ""}<small title="${esc(r.origem || "")}">${esc(S.maberto === mk(r) ? r.origem || "" : sigla(r.origem))}</small></td><td>${esc(r.municipio || "")}<small>${esc(r.regiao || "")}</small></td><td class="hm">${esc(r.objeto || "")}</td><td class="hm">${esc(r.funcao || "")}<small>${esc(r.modalidade || "")}</small></td><td class="vi">${"R$ " + ni(Math.round(+r.valor || 0))}</td><td>${stHtml(r.status_manual, S.maberto === mk(r))}</td><td class="hm">${(() => { const m = String(r.processo || "").match(/^\s*([A-Za-zÀ-ú]+)\s*(.*)$/); return m ? `${esc(m[1])}<small>${esc(m[2])}</small>` : esc(r.processo || ""); })()}</td><td class="hm inf"><span class="obs${r.observacao ? " tem" : ""}" title="${esc(r.observacao || "Sem observação")}" aria-label="${r.observacao ? "Tem observação" : "Sem observação"}">${OBS_I}</span>${(r.tags || []).length ? `<small>${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</small>` : ""}</td></tr>${S.maberto === mk(r) ? `<tr class="det"><td colspan="8">${detalheMeu(r)}</td></tr>` : ""}`).join("")}</tbody></table>
     ${L.length > S.mlim ? `<button class="btn sec mais" id="mmais">Mostrar mais (${L.length - S.mlim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> linhas</div>`;
   const m = $("#mmais"); if (m) m.onclick = () => { S.mlim += 200; mtab(); };
+  $("#mtab").querySelectorAll("th[data-mo]").forEach((th) => th.onclick = () => { const k = th.dataset.mo; S.mord = S.mord && S.mord[0] === k ? (S.mord[1] < 0 ? null : [k, -1]) : [k, 1]; mtab(); });
   $("#mtab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { S.maberto = S.maberto === tr.dataset.id ? null : tr.dataset.id; mtab(); });
   const d = $("#mtab .det"); if (d) ligarMeuDet(d, MEU.find((r) => mk(r) === S.maberto));
 }
