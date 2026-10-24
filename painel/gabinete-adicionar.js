@@ -78,6 +78,8 @@ function checar(L, it) {
   if (r.saude) { const s = it.filter((x) => x.area === "Saúde").reduce((t, x) => t + (+x.valor || 0), 0), o = tot - s;
     if (r.disp && o > r.disp - r.saude + .005) al.push(`Demais funções passaram do limite de 50% em ${fm(o - (r.disp - r.saude))} (LDO art. 33)`);
     if (r.disp && tot >= r.disp - .005 && s < r.saude - .005) al.push(`Saúde abaixo do mínimo de 50%: faltam ${fm(r.saude - s)} (LDO art. 33)`); }
+  if (r.saude) { const te = it.filter((x) => x.modalidade === "Transferência Especial"), tt = te.reduce((t, x) => t + (+x.valor || 0), 0), inv = te.filter((x) => x.natureza === "Investimento").reduce((t, x) => t + (+x.valor || 0), 0);
+    if (tt && inv < tt * .7 - .005) al.push(`Transferências especiais: ${nf(inv / tt * 100, 0)}% em investimento; o mínimo é 70% (LDO art. 34 §4º)`); }
   if (r.disp && tot > r.disp + .005) al.push(`Passou do valor disponível em ${fm(tot - r.disp)}`);
   if (r.max && it.length > r.max) al.push(`${it.length} itens; o limite é ${r.max}`);
   if (r.min) it.filter((x) => (+x.valor || 0) < r.min).forEach((x) => al.push(`${x.municipio || "Item"}: abaixo do mínimo de ${fm(r.min)}`));
@@ -121,7 +123,7 @@ function formItem(x) {
       ${campo("Valor (R$)", inp("valor", x.valor, r.min ? "mínimo " + ni(r.min) : "100000", "number"))}
       ${campo("Objeto", `<textarea data-f="objeto" rows="2" placeholder="O que será feito com o recurso">${esc(x.objeto || "")}</textarea>`, 1)}
       ${campo("Justificativa", `<textarea data-f="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 1)}
-      ${campo("Área", sel("area", areas, x.area || (areas.length === 1 ? areas[0] : ""), "Escolha"))}${campo("Modalidade", sel("modalidade", MODS, x.modalidade, "Escolha"))}
+      ${campo("Área", sel("area", areas, x.area || (areas.length === 1 ? areas[0] : ""), "Escolha"))}${campo("Modalidade", sel("modalidade", MODS, x.modalidade, "Escolha"))}${campo("Natureza da despesa", sel("natureza", ["Investimento", "Custeio"], x.natureza, "Escolha"))}
       ${campo("CNPJ da entidade <em>só convênio</em>", inp("cnpj", x.cnpj, "00.000.000/0000-00"))}${campo("Razão social", inp("razao_social", x.razao_social))}</div>
       <div class="refc" id="refc"></div></div>
     <div class="fsec"><div class="fst">Gabinete <em>só para você</em></div><div class="fg">

@@ -1662,5 +1662,16 @@ const MIGRACOES_INDEX = [
     "gab_itens_dono"
    ]
   ]
+ },
+ {
+  "num": 75,
+  "arquivo": "migracao-75-gabinete-natureza.sql",
+  "descricao": "Migração 75 (24/10/2026): Gabinete · natureza da despesa no item (Investimento | Custeio).",
+  "objetos": [
+   [
+    "column",
+    "gab_itens.natureza"
+   ]
+  ]
  }
 ];
