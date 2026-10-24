@@ -1695,5 +1695,16 @@ const MIGRACOES_INDEX = [
     "gab_recursos.atencao"
    ]
   ]
+ },
+ {
+  "num": 78,
+  "arquivo": "migracao-78-gabinete-recursos-natureza.sql",
+  "descricao": "Migração 78 (24/10/2026): Gabinete · natureza da despesa (Investimento | Custeio) nos recursos da planilha do ",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.natureza"
+   ]
+  ]
  }
 ];
