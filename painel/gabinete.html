@@ -81,7 +81,7 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 .tl li.imp::before{ background:var(--erro) !important; } .anot{ margin-top:14px; padding:12px; border:1px solid var(--linha); border-radius:12px; display:flex; flex-direction:column; gap:8px; } .anot label{ display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--ter); letter-spacing:.06em; text-transform:uppercase; }
 .anot input, .anot textarea{ background:var(--sup2); border:1px solid var(--linha); border-radius:8px; padding:8px 10px; font-size:13px; text-transform:none; letter-spacing:0; resize:vertical; } .notas div{ font-size:12.5px; padding:5px 0; border-top:1px solid var(--linha); } .notas span{ color:var(--ter); margin-right:8px; font-size:11px; }
 .nova{ display:flex; gap:6px; } .nova input{ flex:1; } .acs{ display:flex; align-items:center; gap:10px; }
-.mapab{ display:inline-flex; align-items:center; gap:6px; margin-left:6px; padding-left:12px !important; border-left:1px solid rgba(242,244,245,.12) !important; } .cbar{ align-items:flex-end; } .cbar .adw{ margin-left:auto; } #bxMapa{ margin-top:14px; }
+.mapab{ display:inline-flex; align-items:center; gap:6px; margin-left:6px; padding-left:12px !important; border-left:1px solid rgba(242,244,245,.12) !important; } .cbar{ align-items:flex-end; } .cbar .adw{ margin-left:auto; } #bxMapa{ margin-top:14px; } #bxMapa .pnt{ margin:18px 0 6px; } #bxMapa .kpis{ margin-top:0; }
 .abar{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; } .abar .abas{ flex:1; } .lres{ display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; margin-top:14px; } .lnum{ font-size:14px; color:var(--sec); margin-top:4px; } .lnum b{ color:var(--texto); }
 .adbar{ display:flex; align-items:flex-start; gap:12px; margin-top:20px; } .lcards{ display:flex; gap:8px; flex-wrap:wrap; flex:1; }
 .lcard{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:10px 14px; border:1px solid var(--linha); border-radius:14px; background:var(--sup); cursor:pointer; text-align:left; min-width:170px; } .lcard b{ font-size:15px; } .lcard span{ font-size:11px; color:var(--ter); } .lcard em{ font-style:normal; font-size:12px; color:var(--sec); margin-top:4px; } .lcard.on{ border-color:#34E84A; }
@@ -114,7 +114,7 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="gabinete.js?cb=15"></script>
+<script src="gabinete.js?cb=16"></script>
 <script src="gabinete-adicionar.js?cb=6"></script>
 <script src="sino-menu.js?cb=8"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */

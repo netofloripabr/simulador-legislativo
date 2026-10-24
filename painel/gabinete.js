@@ -156,12 +156,22 @@ function blocos() {
     hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; S.bxf[k] = !S.bxf[k]; bx.classList.toggle("fech", S.bxf[k]); hd.querySelector(".tgs").classList.toggle("ab", !S.bxf[k]); }; });
 }
 function corpoRec() {
-  return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o mapa"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M1.5 3.5l4-1.5 5 2 4-1.5v10l-4 1.5-5-2-4 1.5z M5.5 2v10 M10.5 4v10"/></svg>Mapa</button></div></div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
+  return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o painel de indicadores"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13.5h12 M4 11V7 M8 11V3 M12 11V8"/></svg>Painel</button></div></div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
 }
 // mapa: só abre quando o botão Mapa da faixa das abas é selecionado; mostra as emendas oficiais do recorte atual
 function blocoMapa() {
-  const L = doAno();
-  return `<section class="bx" id="bxMapa"><div class="bxh"><h2>Mapa</h2><p>Recursos oficiais por município e relação com os votos de 2026.</p></div>
+  const L = doAno(), tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0);
+  const s26 = (PARL.v || []).reduce((s, x) => s + (x || 0), 0), s22 = (PARL.v22 || []).reduce((s, x) => s + (x || 0), 0);
+  const kp = (b, s, a) => `<div><b${a ? ' class="a"' : ""}>${b}</b><span>${s}</span></div>`;
+  let ctl = "";
+  if (proprio() && PODE && MEU.length) { const at = MEU.filter((r) => !supr(r)), sp = MEU.filter(supr), tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pg = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0), ext = (AD && AD.itens || []).filter((x) => x.tipo && x.tipo !== "Emenda impositiva");
+    ctl = `<div class="olho pnt">Controle do gabinete</div><div class="kpis">${kp(fm(tot), "recursos ativos", 1)}${kp(fm(pg), "pago ou executado")}${kp(ni(at.length), "linhas")}${kp(new Set(at.map((r) => norm(r.municipio))).size, "municípios")}${kp(ni(sp.length), "suprimidas · " + fm(sp.reduce((s, r) => s + (+r.valor || 0), 0)))}${ext.length ? kp(fm(ext.reduce((s, x) => s + (+x.valor || 0), 0)), ext.length + " convênios e informais") : ""}</div>`; }
+  return `<section class="bx" id="bxMapa"><div class="bxh"><h2>Painel</h2><p>Indicadores, comparações e o mapa do recorte escolhido.</p></div>
+    ${ctl}<div class="olho pnt">Transparência SC${S.ano ? " · " + S.ano : ""}</div>
+    <div class="kpis">${kp(fm(tv), "indicado no portal", 1)}${kp(fm(tp), "pago")}${kp((tv ? nf(tp / tv * 100) : "0,0") + "%", "executado")}${kp(ni(L.length), "emendas")}${kp(new Set(L.map((e) => e.mun)).size, "municípios")}</div>
+    <div class="olho pnt">Votos e retorno</div>
+    <div class="kpis">${kp(ni(s22), "votos 2022")}${kp(ni(s26), "votos 2026")}${kp((s22 ? (s26 >= s22 ? "+" : "") + nf((s26 / s22 - 1) * 100) : "—") + (s22 ? "%" : ""), "variação")}${kp(s26 ? "R$ " + nf(tv / s26, 0) : "—", "reais indicados por voto")}</div>
+    <div class="olho pnt">Mapa</div>
     <div class="chips" id="lentes">${[["rec", "Recursos"], ["pago", "% pago"], ["voto", "Votos"], ["rpv", "R$ por voto"]].map(([k, r]) => `<button data-l="${k}" class="${S.lente === k ? "on" : ""}">${r}</button>`).join("")}</div>
     <div class="mapa"><div>${mapa(L)}<div class="leg" id="legM"></div></div><div>${ranking(L)}</div></div></section>`;
 }
@@ -173,7 +183,6 @@ function geral() {
   return `<p class="lead" style="margin-top:14px">Dados oficiais do Portal da Transparência SC e da SEF, só para consulta: as emendas do mandato e o andamento (empenho, liquidação, pagamento e OB), atualizado todo dia. O controle do gabinete fica na aba Controle.</p>
     <div class="fonte">Fontes: Portal da Transparência SC e painel de emendas da SEF${META.coletado_em ? ` · coletado em ${esc(dtBR(META.coletado_em))} ${esc(String(META.coletado_em).slice(11, 16))}` : ""}.</div>
     <div class="leqs">${leq("fAno", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.ano)}</div>
-    <div class="kpis"><div><b class="a">${fm(tv)}</b><span>indicado</span></div><div><b>${fm(tp)}</b><span>pago</span></div><div><b>${tv ? nf(tp / tv * 100) : "0,0"}%</b><span>executado</span></div><div><b>${ni(L.length)}</b><span>emendas</span></div><div><b>${new Set(L.map((e) => e.mun)).size}</b><span>municípios</span></div></div>
     <div class="funil">${[1, 2, 3, 4, 5].map((k) => cont[k] ? `<i style="width:${cont[k] / L.length * 100}%;background:${ETAPAS[k][1]}" title="${ETAPAS[k][0]}: ${cont[k]}"></i>` : "").join("")}</div>
     <div class="funilL">${[1, 2, 3, 4, 5].map((k) => `<span data-et="${k}" class="${S.et.has(k) ? "" : "off"}"><i style="background:${ETAPAS[k][1]}"></i>${ETAPAS[k][0]} <b>${cont[k]}</b></span>`).join("")}</div>
     <section class="bx"><div class="bxh"><h2>Emendas no portal</h2><p>Só consulta. Clique numa emenda para ver a linha do tempo.</p></div>
@@ -200,7 +209,6 @@ function meu() {
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
   return `${topoC(fLista + leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano))}
-    <div class="kpis"><div><b class="a">${fm(tot)}</b><span>recursos ativos</span></div><div><b>${fm(pago)}</b><span>pago ou executado</span></div><div><b>${ni(at.length)}</b><span>linhas</span></div><div><b>${new Set(at.map((r) => norm(r.municipio))).size}</b><span>municípios</span></div><div><b>${ni(sp.length)}</b><span>suprimidas · ${fm(sp.reduce((s, r) => s + (+r.valor || 0), 0))}</span></div></div>
     <section class="bx"><div class="ctl"><input id="mbusca" placeholder="Município, objeto, nº, processo ou tag" value="${esc(S.mq)}"></div><div id="mtab"></div></section>`;
 }
 function ligarMeu() {
