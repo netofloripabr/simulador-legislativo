@@ -20,7 +20,7 @@ let PARL = null; // parlamentar aberto: { n, u, p, t }
 const proprio = () => PARL && PARL.n === DEP.n;
 const ETAPAS = [null, ["Indicada", "#5C6268"], ["Empenhada", "#8FA8E8"], ["Em pagamento", "#C6E62A"], ["Paga", "#34E84A"], ["Impedimento técnico", "#E8432A"]];
 const etapa = (e) => (e.imped && /impedimento/i.test(e.imped)) ? 5 : (e.v > 0 && (e.vp || 0) >= e.v * 0.995) ? 4 : (e.vl > 0 || e.vp > 0) ? 3 : (e.ve > 0 || (e.pagamentos_sef || []).length) ? 2 : 1;
-const S = { lc: "votos", aba: "geral", outro: null, oano: 2026, oord: "v", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
+const S = { lc: "votos", aba: "meu", mapa: false, outro: null, oano: 2026, oord: "v", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
 let MEU = [], TODAS = null, E0 = [], V0 = [], EST = null, E = [], META = {}, BASE = null, VOT = null, PRIV = null, PODE = false, SESS = null;
 
 async function iniciar() {
@@ -59,10 +59,10 @@ async function lerPrivado() { const { data } = await supabaseClient.from("gab_re
 
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
-const TITULOS = [["rec", "Controle de Recursos", "Emendas e recursos do mandato: a análise geral dos dados oficiais e o seu controle, no formato da planilha do gabinete."],
+const TITULOS = [["rec", "Controle de Recursos", "O controle do gabinete (emendas, convênios e recursos informais) e, para consulta, os dados oficiais da Transparência SC."],
   ["rh", "RH", "Equipe do gabinete, cargos, lotação e a cota de nomeações."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
   ["ele", "Eleitoral", "Base eleitoral, lideranças e a relação entre votos e presença do mandato."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."]];
-function desenhar() {
+function desenhar() {  if (S.aba === "meu" && !(proprio() && PODE)) S.aba = "geral";
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
   const nm = PARL.u.split(" "), EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
@@ -74,7 +74,8 @@ function desenhar() {
   leque(); ligarCapaCliques(); if (typeof ligarAdicionar === "function") ligarAdicionar();
   blocos();
   $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
-  $("#abas").onclick = (e) => { const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
+  $("#abas").onclick = (e) => { if (e.target.closest("#mapaBt")) { S.mapa = !S.mapa; desenhar(); return; } const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
+  if (S.mapa && S.aba !== "geral" && !(S.aba === "outros" && S.outro)) { const lt = $("#lentes"); if (lt) lt.onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); }; }
   if (S.aba === "geral" || (S.aba === "outros" && S.outro)) ligarGeral(); else if (S.aba === "meu") ligarMeu(); else ligarOutros();
 }
 // capa do gabinete: mesma dinâmica da capa de Parlamentares (mapa animado, números saltando, a cidade de
@@ -155,23 +156,27 @@ function blocos() {
     hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; S.bxf[k] = !S.bxf[k]; bx.classList.toggle("fech", S.bxf[k]); hd.querySelector(".tgs").classList.toggle("ab", !S.bxf[k]); }; });
 }
 function corpoRec() {
-  return `<div class="abar"><div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div></div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
+  return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o mapa"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M1.5 3.5l4-1.5 5 2 4-1.5v10l-4 1.5-5-2-4 1.5z M5.5 2v10 M10.5 4v10"/></svg>Mapa</button></div></div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
+}
+// mapa: só abre quando o botão Mapa da faixa das abas é selecionado; mostra as emendas oficiais do recorte atual
+function blocoMapa() {
+  const L = doAno();
+  return `<section class="bx" id="bxMapa"><div class="bxh"><h2>Mapa</h2><p>Recursos oficiais por município e relação com os votos de 2026.</p></div>
+    <div class="chips" id="lentes">${[["rec", "Recursos"], ["pago", "% pago"], ["voto", "Votos"], ["rpv", "R$ por voto"]].map(([k, r]) => `<button data-l="${k}" class="${S.lente === k ? "on" : ""}">${r}</button>`).join("")}</div>
+    <div class="mapa"><div>${mapa(L)}<div class="leg" id="legM"></div></div><div>${ranking(L)}</div></div></section>`;
 }
 function geral() {
   const L = doAno(), tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), anos = [...new Set(E.map((e) => e.ano))].sort();
   const cont = [0, 0, 0, 0, 0, 0]; L.forEach((e) => cont[e.et]++);
   
   if (!L.length && !S.outro) return `<div class="obra">Nenhuma emenda de ${esc(PARL.u)} nos dados oficiais de 2023 a 2026. O parlamentar não exerceu mandato na legislatura atual; as emendas dele começam a aparecer em 2027.</div>`;
-  return `<p class="lead" style="margin-top:14px">Todas as emendas indicadas pelo mandato, com o andamento oficial (empenho, liquidação, pagamento e OB) atualizado todo dia.</p>
+  return `<p class="lead" style="margin-top:14px">Dados oficiais do Portal da Transparência SC e da SEF, só para consulta: as emendas do mandato e o andamento (empenho, liquidação, pagamento e OB), atualizado todo dia. O controle do gabinete fica na aba Controle.</p>
     <div class="fonte">Fontes: Portal da Transparência SC e painel de emendas da SEF${META.coletado_em ? ` · coletado em ${esc(dtBR(META.coletado_em))} ${esc(String(META.coletado_em).slice(11, 16))}` : ""}.</div>
     <div class="leqs">${leq("fAno", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.ano)}</div>
     <div class="kpis"><div><b class="a">${fm(tv)}</b><span>indicado</span></div><div><b>${fm(tp)}</b><span>pago</span></div><div><b>${tv ? nf(tp / tv * 100) : "0,0"}%</b><span>executado</span></div><div><b>${ni(L.length)}</b><span>emendas</span></div><div><b>${new Set(L.map((e) => e.mun)).size}</b><span>municípios</span></div></div>
     <div class="funil">${[1, 2, 3, 4, 5].map((k) => cont[k] ? `<i style="width:${cont[k] / L.length * 100}%;background:${ETAPAS[k][1]}" title="${ETAPAS[k][0]}: ${cont[k]}"></i>` : "").join("")}</div>
     <div class="funilL">${[1, 2, 3, 4, 5].map((k) => `<span data-et="${k}" class="${S.et.has(k) ? "" : "off"}"><i style="background:${ETAPAS[k][1]}"></i>${ETAPAS[k][0]} <b>${cont[k]}</b></span>`).join("")}</div>
-    <section class="bx"><div class="bxh"><h2>Mapa</h2><p>Recursos do mandato por município e relação com os votos de 2026.</p></div>
-      <div class="chips" id="lentes">${[["rec", "Recursos"], ["pago", "% pago"], ["voto", "Votos"], ["rpv", "R$ por voto"]].map(([k, r]) => `<button data-l="${k}" class="${S.lente === k ? "on" : ""}">${r}</button>`).join("")}</div>
-      <div class="mapa"><div>${mapa(L)}<div class="leg" id="legM"></div></div><div>${ranking(L)}</div></div></section>
-    <section class="bx"><div class="bxh"><h2>Carteira</h2><p>Clique numa emenda para ver a linha do tempo.</p>${typeof adicionarHtml === "function" ? adicionarHtml() : ""}</div>
+    <section class="bx"><div class="bxh"><h2>Emendas no portal</h2><p>Só consulta. Clique numa emenda para ver a linha do tempo.</p></div>
       <div class="ctl"><input id="busca" placeholder="Município, objeto, beneficiário ou nº" value="${esc(S.busca)}"><select id="mod"><option value="">Todas as modalidades</option>${[...new Set(E.map((e) => e.mod).filter(Boolean))].sort().map((m) => `<option ${S.mod === m ? "selected" : ""}>${esc(m)}</option>`).join("")}</select></div>
       <div id="tab"></div></section>`;
 }
@@ -179,7 +184,7 @@ function ligarGeral() {
   const vo = $("#voltaO"); if (vo) vo.onclick = () => { S.outro = null; desenhar(); };
   $("#fAno").onchange = (e) => { S.ano = +e.target.value; S.aberto = null; desenhar(); };
   $("#corpoAba").querySelectorAll("[data-et]").forEach((b) => b.onclick = () => { const k = +b.dataset.et; S.et.has(k) ? S.et.delete(k) : S.et.add(k); desenhar(); });
-  $("#lentes").onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); };
+  const lt = $("#lentes"); if (lt) lt.onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); };
   $("#busca").oninput = (e) => { S.busca = e.target.value; S.lim = 60; tabela(); };
   $("#mod").onchange = (e) => { S.mod = e.target.value; tabela(); };
   tabela();
@@ -189,12 +194,12 @@ const supr = (r) => /^Suprimida/.test(r.status_manual || "");
 function meu() {
   if (!PODE) return `<div class="obra">Entre com a sua conta para ver o seu controle.</div>`;
   const fLista = typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista", opsListas(), S.lista || "") : "";
-  if (S.lista && typeof painelLista === "function") return `<p class="lead" style="margin-top:14px">O controle do gabinete. Visível só para você.</p><div class="leqs">${fLista}</div>${painelLista()}`;
-  if (!MEU.length) return `<div class="leqs">${fLista}</div>` + blocoPrivado();
+  const ad = typeof adicionarHtml === "function" ? adicionarHtml() : "", topoC = (f) => `<p class="lead" style="margin-top:14px">O controle do gabinete: emendas, convênios e recursos informais, inclusive os que não aparecem no portal. Visível só para você.</p><div class="leqs cbar">${f}${ad}</div>`;
+  if (S.lista && typeof painelLista === "function") return topoC(fLista) + painelLista();
+  if (!MEU.length) return topoC(fLista) + blocoPrivado();
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
-  return `<p class="lead" style="margin-top:14px">O controle do gabinete, no formato da planilha "Controle de Recursos". Visível só para você.</p>
-    <div class="leqs">${fLista}${leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano)}</div>
+  return `${topoC(fLista + leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano))}
     <div class="kpis"><div><b class="a">${fm(tot)}</b><span>recursos ativos</span></div><div><b>${fm(pago)}</b><span>pago ou executado</span></div><div><b>${ni(at.length)}</b><span>linhas</span></div><div><b>${new Set(at.map((r) => norm(r.municipio))).size}</b><span>municípios</span></div><div><b>${ni(sp.length)}</b><span>suprimidas · ${fm(sp.reduce((s, r) => s + (+r.valor || 0), 0))}</span></div></div>
     <section class="bx"><div class="ctl"><input id="mbusca" placeholder="Município, objeto, nº, processo ou tag" value="${esc(S.mq)}"></div><div id="mtab"></div></section>`;
 }
@@ -266,7 +271,7 @@ function detalhe(e) {
     ["Paga", e.et === 4, pg.length ? pg.map(([, , pp, ob, dt, v]) => `${dtBR(dt)} · ${fr(v)}${ob ? " · " + ob : ""}`).join("<br>") : e.vp ? fr(e.vp) + " pagos" : "ainda não paga"]];
   if (e.et === 5) passos.push(["Impedimento técnico", true, esc(e.imped || "")]);
   const p = PRIV && PRIV[e.k], [o1, o2] = ORIGEM[e.tipo] || [e.tipo || "não informada", ""], scc = (p && p.processo) || e.sgpe;
-  const ed = PODE && proprio();
+  const ed = false; // Transparência SC é só consulta; anotações e controle ficam na aba Controle
   return `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Andamento</div><ul class="tl">${passos.map(([t, on, d]) => `<li class="${on ? "on" : ""}${t.startsWith("Imp") ? " imp" : ""}"><b>${t}</b><span>${d || (on ? "" : "pendente")}</span></li>`).join("")}</ul></div>
     <div><div class="kv"><span>Processo SCC</span><b>${scc ? esc(scc) : "não informado"}</b><span>Código da emenda</span><b>${esc(e.n || e.k)} <small style="color:var(--ter);font-weight:400">(nº oficial na SEF)</small></b>
     <span>Origem</span><b>${esc(o1)} · ${e.ano}${o2 ? `<small style="display:block;color:var(--ter);font-weight:400">${esc(o2)}</small>` : ""}${p && p.origem && norm(p.origem) !== norm(o1) ? `<small style="display:block;color:var(--sec);font-weight:400">Na planilha: ${esc(p.origem)}</small>` : ""}</b>

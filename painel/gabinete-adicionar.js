@@ -9,6 +9,7 @@ const AREAS = [["14240", "Saúde", 48000, 48091], ["14227", "Educação", 45000,
 // LDO 2027 (Lei 20.043/2026): art. 32 par. único até 120 emendas, mínimo R$ 100 mil; art. 33 Saúde no MÍNIMO 50%, demais até 50%;
 // art. 34 §4º 70% das transferências especiais em despesa de capital; art. 38 subações (15382 = Fundo Social, UO a confirmar)
 const MODS = ["Transferência Especial", "Convênio", "Execução Direta", "Outra"];
+const TIPOS = ["Emenda impositiva", "Convênio", "Outros (informal)"];
 const STATUS = ["Em análise", "Confirmado", "Enviado", "Descartado"];
 const PRIOR = ["Alta", "Média", "Baixa"];
 const MODELOS = {
@@ -94,7 +95,7 @@ function painelLista() {
     <div class="lpacs">${av ? "" : `<button class="btn sec" data-edlista>Regras</button><button class="btn sec" data-caderno>Caderno</button><button class="btn sec" data-relat>Relatório</button><button class="btn sec" data-xlsx>Exportar para o Orçamento</button>`}</div></div>
     ${c.al.length ? `<div class="lal">${c.al.map((x) => `<div>${esc(x)}</div>`).join("")}</div>` : ""}
     <section class="bx"><table class="tb mt lt"><thead><tr><th>Município</th><th>Objeto</th><th class="hm">Área · modalidade</th><th class="v">R$</th><th class="hm">A cidade no mandato</th><th>Status</th></tr></thead><tbody>
-    ${it.map((x) => { const rf = refCidade(x.municipio || ""); return `<tr class="r" data-item="${x.id}"><td><b>${esc(x.municipio || "—")}</b><small>${esc(x.lideranca || "")}</small></td><td>${esc(frase(x.objeto || ""))}<small>${esc(x.beneficiario || x.razao_social || "")}</small></td><td class="hm">${esc(x.area || "")}<small>${esc(x.modalidade || "")}</small></td><td class="v">${fr(+x.valor || 0)}</td><td class="hm"><small style="color:var(--sec)">${esc(refTxt(rf))}</small></td><td><span class="etc" style="--c:${{ Confirmado: "#34E84A", Enviado: "#8FA8E8", Descartado: "#E8432A" }[x.status] || "#8A9096"}">${esc(x.status || "Em análise")}</span></td></tr>`; }).join("")}
+    ${it.map((x) => { const rf = refCidade(x.municipio || ""); return `<tr class="r" data-item="${x.id}"><td><b>${esc(x.municipio || "—")}</b><small>${esc(x.lideranca || "")}</small></td><td>${esc(frase(x.objeto || ""))}<small>${esc(x.beneficiario || x.razao_social || "")}</small></td><td class="hm">${esc(x.area || x.tipo || "")}<small>${esc([x.tipo && x.area ? x.tipo : "", x.modalidade].filter(Boolean).join(" · "))}</small></td><td class="v">${fr(+x.valor || 0)}</td><td class="hm"><small style="color:var(--sec)">${esc(refTxt(rf))}</small></td><td><span class="etc" style="--c:${{ Confirmado: "#34E84A", Enviado: "#8FA8E8", Descartado: "#E8432A" }[x.status] || "#8A9096"}">${esc(x.status || "Em análise")}</span></td></tr>`; }).join("")}
     <tr class="r"><td colspan="6" data-novo style="color:var(--ter);cursor:pointer">+ Adicionar item${av ? "" : " a esta lista"}</td></tr></tbody></table></section></div>`;
 }
 
@@ -119,6 +120,7 @@ function formItem(x) {
   const muns = BASE.mun.map((m) => m.n).sort((a, b) => a.localeCompare(b, "pt-BR"));
   modal(`<div class="mh"><div><div class="olho">${L ? esc(L.apelido || L.origem) : "Item avulso"}</div><h3>${x.id ? "Editar indicação" : "Nova indicação"}</h3></div><button class="x" data-fecha>×</button></div>
     <div class="fsec"><div class="fst">Onde e o quê <em>vai para o Orçamento</em></div><div class="fg">
+      ${campo("Tipo de recurso", sel("tipo", TIPOS, x.tipo || (L ? "Emenda impositiva" : ""), "Escolha"))}
       ${campo("Município", `<input data-f="municipio" list="adMuns" value="${esc(x.municipio || "")}" placeholder="Digite o município"><datalist id="adMuns">${muns.map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`)}
       ${campo("Valor (R$)", inp("valor", x.valor, r.min ? "mínimo " + ni(r.min) : "100000", "number"))}
       ${campo("Objeto", `<textarea data-f="objeto" rows="2" placeholder="O que será feito com o recurso">${esc(x.objeto || "")}</textarea>`, 1)}

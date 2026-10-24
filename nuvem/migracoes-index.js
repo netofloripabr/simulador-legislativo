@@ -1673,5 +1673,16 @@ const MIGRACOES_INDEX = [
     "gab_itens.natureza"
    ]
   ]
+ },
+ {
+  "num": 76,
+  "arquivo": "migracao-76-gabinete-tipo-recurso.sql",
+  "descricao": "Migração 76 (24/10/2026): Gabinete · tipo do recurso no Controle (Emenda impositiva | Convênio | Outros (infor",
+  "objetos": [
+   [
+    "column",
+    "gab_itens.tipo"
+   ]
+  ]
  }
 ];
