@@ -280,16 +280,20 @@ function mtab() {
 function detalheMeu(r) {
   const e = r.chave && E0.find((x) => x.k === r.chave);
   const es = etapasStatus(r.status_manual), S3 = es.d || [false, false, false], dt = (x) => x ? dtBR(String(x)) : "";
-  const passos = [["Indicada", true, `${r.ano || ""}${r.valor ? " · " + fr(+r.valor) : ""}`], ["Portaria / instrumento", S3[1] || es.k >= 1, r.publicacao || (S3[1] ? "concluída" : es.k === 1 ? "em andamento" : "")],
-    ["Empenhada", !!r.empenho || S3[2], r.empenho || ""], ["Paga / executada", S3[2], [r.ob, dt(r.data_pagamento), r.pagamento].filter(Boolean).join(" · ")]];
-  const topo = e ? detalhe(e, true).replace('<ul class="tl">', '<ul class="tl hz">') : `<div class="dg"><div><div class="olho" style="margin-bottom:8px">Andamento <small style="text-transform:none;letter-spacing:0;color:var(--ter)">pela planilha</small></div><ul class="tl hz">${passos.map(([t, on, d], i) => `<li class="${on ? "on" : ""}${es.ver && !on && (i === 0 || passos[i - 1][1]) ? " imp" : ""}"><b>${t}</b><span>${esc(d || (on ? "" : "pendente"))}</span></li>`).join("")}</ul><div class="av" style="margin:8px 0 0">Sem emenda ligada no portal. Use "Substituir" para ligar a uma emenda oficial, se houver.</div></div>
-    <div><div class="kv"><span>Processo SCC</span><b>${esc(r.processo || "não informado")}</b><span>Nº na planilha</span><b>${esc(r.numero || "—")}</b><span>Origem</span><b>${esc(r.origem || "não informada")}${r.ano ? " · " + r.ano : ""}</b><span>Beneficiário</span><b>${esc(r.beneficiario || "—")}</b></div></div></div>`;
-  return `${topo}<div class="anot"><div class="olho">Anotações do gabinete</div>
-    <label>Liderança<input data-f="lideranca" value="${esc(r.lideranca || (r.tags || []).filter((t) => !/^(Lista|of\.|10M|1º|Set|PT aj|ñ |⁉)/.test(t)).join(", ") || "")}" placeholder="Quem indicou ou acompanha"></label>
-    <label>Observação<textarea data-f="observacao" rows="3" placeholder="Situação, contatos, próximos passos">${esc(r.observacao || "")}</textarea></label>
-    <div class="notas">${(r.notas || []).slice().reverse().map((n) => `<div><span>${dtBR(n.em)}</span>${esc(n.t)}</div>`).join("")}${r.status_manual ? `<div><span>planilha</span>${esc(r.status_manual)}</div>` : ""}</div>
-    <div class="nova"><input data-nova placeholder="Nova nota de status (ex.: plano de trabalho enviado)"><button class="btn sec" data-addnota>Anotar</button></div>
-    <div class="acs"><button class="btn" data-salvar>Salvar anotações</button><span class="av" data-msg></span><span style="margin-left:auto;display:flex;gap:8px"><button class="btn sec" data-atencao style="${r.atencao ? "color:#F29A38;border-color:#F29A38" : ""}">${r.atencao ? "Tirar atenção" : "Marcar atenção"}</button><button class="btn sec" data-editar>Editar</button><button class="btn sec" data-subst>Substituir</button><button class="btn sec" data-excl style="color:var(--erro)">Excluir</button></span></div></div>`;
+  const passos = [["Indicada", true, `${r.ano || ""}${r.valor ? " · " + fr(+r.valor) : ""}`], ["Portaria", S3[1] || es.k >= 1, r.publicacao || (S3[1] ? "" : es.k === 1 ? "em andamento" : "")],
+    ["Empenho", !!r.empenho || S3[2], r.empenho || ""], ["Pagamento", S3[2], [r.ob, dt(r.data_pagamento), r.pagamento].filter(Boolean).join(" · ")]];
+  const ul = e ? (detalhe(e, true).match(/<ul class="tl">[\s\S]*?<\/ul>/) || [""])[0].replace('class="tl"', 'class="tl hz"')
+    : `<ul class="tl hz">${passos.map(([t, on, d], i) => `<li class="${on ? "on" : ""}${es.ver && !on && (i === 0 || passos[i - 1][1]) ? " imp" : ""}"><b>${t}</b><span>${esc(d)}</span></li>`).join("")}</ul>`;
+  const kv = [["Processo", r.processo], ["Origem", r.origem], ["Função", [r.funcao, r.natureza].filter(Boolean).join(" · ")], ["Beneficiário", r.beneficiario], ...(e ? [["Emenda", e.n || e.k]] : [])].filter(([, v]) => v);
+  return `<div class="dm"><div><div class="olho">Andamento · ${e ? "oficial" : "pela planilha"}</div>${ul}
+      <div class="kv2">${kv.map(([k, v]) => `<span>${k}</span><b>${esc(v)}</b>`).join("")}</div>
+      ${e ? "" : `<button class="lk" data-subst>Ligar a uma emenda do portal</button>`}</div>
+    <div><div class="olho">Gabinete</div>
+      <div class="nota${r.observacao ? "" : " vz"}">${r.observacao ? esc(r.observacao).replace(/\n/g, "<br>") : "Sem observação."}</div>
+      ${(r.tags || []).length ? `<div class="tgs2">${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</div>` : ""}
+      <div class="hist">${(r.notas || []).slice().reverse().map((n) => `<div><span>${dtBR(n.em)}</span>${esc(n.t)}</div>`).join("")}</div>
+      <button class="lk" data-anotar>+ Anotar</button><div class="nova" hidden><input data-nova placeholder="Nova nota (ex.: plano de trabalho enviado)"><button class="btn sec" data-addnota>Salvar nota</button></div></div></div>
+    <div class="acs2"><span class="av" data-msg></span><button class="btn sec" data-atencao${r.atencao ? ' style="color:#F29A38;border-color:#F29A38"' : ""}>${r.atencao ? "Tirar atenção" : "Marcar atenção"}</button><button class="btn sec" data-editar>Editar</button>${e ? `<button class="btn sec" data-subst>Substituir</button>` : ""}<button class="btn sec" data-excl style="color:var(--erro)">Excluir</button></div>`;
 }
 async function gravaMeu(r, campos) {
   if (LOCAL && !SESS) { Object.assign(r, campos); }
@@ -297,19 +301,18 @@ async function gravaMeu(r, campos) {
   if (r.chave) PRIV[r.chave] = r;
 }
 function ligarMeuDet(d, r) {
-  if (!r) return; const a = d.querySelector(".anot"), msg = a.querySelector("[data-msg]"); d.onclick = (e) => e.stopPropagation();
-  const salvar = async (nova) => { msg.textContent = "Salvando…";
-    try { await gravaMeu(r, { lideranca: a.querySelector('[data-f="lideranca"]').value.trim() || null, observacao: a.querySelector('[data-f="observacao"]').value.trim() || null, notas: [...(r.notas || []), ...(nova ? [{ t: nova, em: new Date().toISOString() }] : [])] }); msg.textContent = "Salvo."; if (nova) mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
-  a.querySelector("[data-salvar]").onclick = () => salvar(null);
-  a.querySelector("[data-addnota]").onclick = () => { const v = a.querySelector("[data-nova]").value.trim(); if (v) salvar(v); };
+  if (!r) return; const a = d, msg = a.querySelector("[data-msg]"); d.onclick = (e) => e.stopPropagation();
+  a.querySelector("[data-anotar]").onclick = () => { const n = a.querySelector(".nova"); n.hidden = false; n.querySelector("input").focus(); };
+  a.querySelector("[data-addnota]").onclick = async () => { const v = a.querySelector("[data-nova]").value.trim(); if (!v) return; msg.textContent = "Salvando…";
+    try { await gravaMeu(r, { notas: [...(r.notas || []), { t: v, em: new Date().toISOString() }] }); try { localStorage.setItem("gab_visto_" + mk(r), new Date().toISOString()); } catch (e) {} mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
   a.querySelector("[data-atencao]").onclick = async () => { try { await gravaMeu(r, { atencao: !r.atencao }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
   a.querySelector("[data-editar]").onclick = () => modal(`<div class="mh"><div><div class="olho">Controle</div><h3>Editar recurso</h3></div><button class="x" data-fecha>×</button></div>
     <div class="fsec"><div class="fg">${campo("Município", inp("municipio", r.municipio))}${campo("Valor (R$)", inp("valor", r.valor, "", "number"))}${campo("Objeto", `<textarea data-f="objeto" rows="2">${esc(r.objeto || "")}</textarea>`, 1)}
-      ${campo("Ano", inp("ano", r.ano, "", "number"))}${campo("Nº", inp("numero", r.numero))}${campo("Origem", inp("origem", r.origem, "Emenda impositiva, convênio, outros"))}${campo("Função", inp("funcao", r.funcao))}${campo("Modalidade", inp("modalidade", r.modalidade))}${campo("Natureza", sel("natureza", ["Investimento", "Custeio"], r.natureza, "—"))}${campo("Beneficiário", inp("beneficiario", r.beneficiario))}${campo("Processo SCC", inp("processo", r.processo))}${campo("Status", inp("status_manual", r.status_manual))}</div></div>
+      ${campo("Ano", inp("ano", r.ano, "", "number"))}${campo("Nº", inp("numero", r.numero))}${campo("Origem", inp("origem", r.origem, "Emenda impositiva, convênio, outros"))}${campo("Função", inp("funcao", r.funcao))}${campo("Modalidade", inp("modalidade", r.modalidade))}${campo("Natureza", sel("natureza", ["Investimento", "Custeio"], r.natureza, "—"))}${campo("Beneficiário", inp("beneficiario", r.beneficiario))}${campo("Processo SCC", inp("processo", r.processo))}${campo("Status", inp("status_manual", r.status_manual))}${campo("Tags <em>separadas por vírgula</em>", inp("tags", (r.tags || []).join(", ")), 1)}${campo("Observação", `<textarea data-f="observacao" rows="3">${esc(r.observacao || "")}</textarea>`, 1)}</div></div>
     <div class="mrod"><span class="av" data-msg></span><button class="btn sec" data-fecha>Cancelar</button><button class="btn" data-salva>Salvar</button></div>`, (m, fechar) => {
-      m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), ms = m.querySelector("[data-msg]"); o.valor = o.valor ? +o.valor : null; o.ano = o.ano ? +o.ano : null; ms.textContent = "Salvando…";
+      m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), ms = m.querySelector("[data-msg]"); o.valor = o.valor ? +o.valor : null; o.ano = o.ano ? +o.ano : null; o.tags = o.tags ? o.tags.split(",").map((t) => t.trim()).filter(Boolean) : []; ms.textContent = "Salvando…";
         try { await gravaMeu(r, o); fechar(); mtab(); } catch (er) { ms.textContent = "Não foi possível salvar: " + (er.message || er); } }; });
-  a.querySelector("[data-subst]").onclick = () => { const ops = E0.slice().sort((x, y) => (y.ano - x.ano) || String(x.mun).localeCompare(y.mun, "pt-BR"));
+  const subst = () => { const ops = E0.slice().sort((x, y) => (y.ano - x.ano) || String(x.mun).localeCompare(y.mun, "pt-BR"));
     modal(`<div class="mh"><div><div class="olho">Controle</div><h3>Substituir emenda ligada</h3></div><button class="x" data-fecha>×</button></div>
     <p class="lead">Escolha a emenda oficial do portal que corresponde a este recurso. Hoje: <b>${esc(r.chave || "nenhuma")}</b>.</p>
     <div class="fsec"><div class="fg">${campo("Emenda do portal", `<input data-f="nova" list="adEms" placeholder="Digite município, objeto ou código"><datalist id="adEms">${ops.map((e) => `<option value="${esc(e.k)}">${esc(e.ano + " · " + e.mun + " · " + frase(e.obj).slice(0, 70) + " · " + fm(e.v))}</option>`).join("")}</datalist>`, 1)}</div></div>
@@ -318,6 +321,7 @@ function ligarMeuDet(d, r) {
         try { if (r.chave && PRIV[r.chave] === r) delete PRIV[r.chave]; await gravaMeu(r, { chave: k || null }); fechar(); mtab(); } catch (er) { ms.textContent = "Não foi possível salvar: " + (er.message || er); } };
       m.querySelector("[data-salva]").onclick = () => ok(m.querySelector('[data-f="nova"]').value.trim());
       m.querySelector("[data-solta]").onclick = () => ok(null); }); };
+  a.querySelectorAll("[data-subst]").forEach((b) => b.onclick = subst);
   const ex = a.querySelector("[data-excl]"); ex.onclick = async () => { if (ex.dataset.ok !== "1") { ex.dataset.ok = "1"; ex.textContent = "Confirmar exclusão"; return; }
     try { if (!(LOCAL && !SESS)) { const { error } = await supabaseClient.from("gab_recursos").delete().eq("id", r.id); if (error) throw error; }
       MEU.splice(MEU.indexOf(r), 1); if (r.chave && PRIV[r.chave] === r) delete PRIV[r.chave]; S.maberto = null; desenhar(); } catch (er) { msg.textContent = "Não foi possível excluir: " + (er.message || er); } };
