@@ -1605,5 +1605,20 @@ const MIGRACOES_INDEX = [
     "gab_demandas_dono"
    ]
   ]
+ },
+ {
+  "num": 72,
+  "arquivo": "migracao-72-gabinete-vinculo.sql",
+  "descricao": "Migração 72 (24/10/2026): painel Gabinete · vínculo do usuário com o parlamentar.",
+  "objetos": [
+   [
+    "table",
+    "gab_vinculo"
+   ],
+   [
+    "policy",
+    "gab_vinculo_dono"
+   ]
+  ]
  }
 ];

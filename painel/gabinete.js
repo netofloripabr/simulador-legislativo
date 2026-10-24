@@ -12,26 +12,46 @@ const LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const PUB = LOCAL ? "../dados/gabinete/" : "https://raw.githubusercontent.com/netofloripabr/simulador-legislativo/dados-emendas/dados/gabinete/";
 // gabinete do mandato que tem o controle privado (planilha) e o parlamentar aberto na página (?d=número)
 const DEP = { nome: "Napoleão Bernardes", n: "55777", partido: "PSD" };
-const DSEL = new URLSearchParams(location.search).get("d") || DEP.n;
+const DURL = new URLSearchParams(location.search).get("d"); // explorar outro gabinete sem mudar o vínculo
+let DSEL = DURL || null, VINC = null; // VINC: parlamentar vinculado à conta (gab_vinculo, migração 72)
+const COR_P = { "NOVO": "#F37021", "PL": "#3D7BFF", "PT/PC do B/PV": "#E5383B", "MDB": "#34C759", "UNIÃO/PP": "#2FB5E8", "PSD": "#2B5FD9", "REPUBLICANOS": "#4D8DFF", "PODE": "#3FB37F", "PDT": "#E5484D", "PSOL/REDE": "#F5B700", "PSB": "#F2A900" };
+const hexRgb = (h) => { h = h.replace("#", ""); return [0, 2, 4].map((k) => parseInt(h.slice(k, k + 2), 16)); };
 let PARL = null; // parlamentar aberto: { n, u, p, t }
 const proprio = () => PARL && PARL.n === DEP.n;
 const ETAPAS = [null, ["Indicada", "#5C6268"], ["Empenhada", "#8FA8E8"], ["Em pagamento", "#C6E62A"], ["Paga", "#34E84A"], ["Impedimento técnico", "#E8432A"]];
 const etapa = (e) => (e.imped && /impedimento/i.test(e.imped)) ? 5 : (e.v > 0 && (e.vp || 0) >= e.v * 0.995) ? 4 : (e.vl > 0 || e.vp > 0) ? 3 : (e.ve > 0 || (e.pagamentos_sef || []).length) ? 2 : 1;
-const S = { aba: "geral", outro: null, oano: 2026, oord: "v", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
+const S = { lc: "votos", aba: "geral", outro: null, oano: 2026, oord: "v", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
 let MEU = [], TODAS = null, E0 = [], V0 = [], EST = null, E = [], META = {}, BASE = null, VOT = null, PRIV = null, PODE = false, SESS = null;
 
 async function iniciar() {
   const [m, mt, b, est] = await Promise.all([fetch(PUB + "mandato-napoleao.json").then((r) => r.json()), fetch(PUB + "meta.json").then((r) => r.json()).catch(() => ({})), fetch("../dados/painel/sc-base.json").then((r) => r.json()), fetch("../dados/painel/sc-estadual.json").then((r) => r.json())]);
-  META = mt; BASE = b; EST = est; PARL = est.c.find((c) => c.n === DSEL) || est.c.find((c) => c.n === DEP.n);
+  META = mt; BASE = b; EST = est;
+  try { SESS = supabaseClient ? (await supabaseClient.auth.getSession()).data.session : null; if (SESS) { const r = await supabaseClient.rpc("gab_pode"); PODE = !!r.data; if (PODE) { const v = await supabaseClient.from("gab_vinculo").select("parlamentar").maybeSingle(); VINC = v.data ? v.data.parlamentar : null; } } } catch (e) {}
+  if (!PODE && !LOCAL) return restrito();
+  if (LOCAL && !VINC) { try { VINC = localStorage.getItem("gab_vinc_local"); } catch (e) {} }
+  DSEL = DSEL || VINC; if (!DSEL) return escolha();
+  PARL = est.c.find((c) => c.n === DSEL) || est.c.find((c) => c.n === DEP.n);
+  const cr = hexRgb(COR_P[PARL.p] || "#2B5FD9"); document.documentElement.style.setProperty("--a", COR_P[PARL.p] || "#2B5FD9"); document.documentElement.style.setProperty("--a-rgb", cr.join(","));
   VOT = PARL.v || [];
   if (proprio()) { E = m.emendas.map((e) => ({ ...e, et: etapa(e) })); const ix = {}; BASE.mun.forEach((x, i) => { ix[norm(x.n)] = i; }); E.forEach((e) => { e.mi = ix[norm(e.mun)]; }); }
   else { await lerTodas(); const ds = casaDep(PARL); E = TODAS.filter((e) => ds.has(e.dep)); }
   E0 = E; V0 = VOT;
-  try { SESS = supabaseClient ? (await supabaseClient.auth.getSession()).data.session : null; if (SESS) { const r = await supabaseClient.rpc("gab_pode"); PODE = !!r.data; if (PODE) await lerPrivado(); } } catch (e) {}
+  try { if (PODE && proprio()) await lerPrivado(); } catch (e) {}
   // área restrita: por enquanto só administradores (no computador local, liberado para testes)
-  if (!PODE && !LOCAL) { $("#app").innerHTML = `<div style="max-width:560px;margin:12vh auto"><div class="olho">Gabinete</div><h1 style="font-size:44px">Área restrita.</h1><p class="lead">O painel Gabinete está em construção e, por enquanto, é liberado só para a administração.${SESS ? "" : " Se você tem acesso, entre com a sua conta."}</p>${SESS ? "" : `<p><a class="btn" href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}" style="display:inline-block;text-decoration:none;margin-top:12px">Entrar</a></p>`}</div>`; return; }
   if (LOCAL && !MEU.length) { try { MEU = await (await fetch("../dados/gabinete/_priv-teste.json")).json(); PRIV = {}; MEU.forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = MEU.length; PODE = true; } catch (e) {} }
   desenhar();
+}
+function restrito() { $("#app").innerHTML = `<div style="max-width:560px;margin:12vh auto"><div class="olho">Gabinete</div><h1 style="font-size:44px">Área restrita.</h1><p class="lead">O painel Gabinete está em construção e, por enquanto, é liberado só para a administração.${SESS ? "" : " Se você tem acesso, entre com a sua conta."}</p>${SESS ? "" : `<p><a class="btn" href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}" style="display:inline-block;text-decoration:none;margin-top:12px">Entrar</a></p>`}</div>`;  }
+// primeira vez: a conta escolhe o parlamentar do gabinete; depois o painel abre sempre nele
+function escolha(trocar) {
+  const EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
+  $("#app").innerHTML = `<div style="max-width:760px;margin:6vh auto 0"><div class="olho">Gabinete · ${trocar ? "trocar o vínculo" : "primeiro acesso"}</div><h1 style="font-size:48px">De qual parlamentar é este gabinete?</h1>
+    <p class="lead">A sua conta fica vinculada a um parlamentar. O painel passa a abrir sempre nele; dá para trocar depois.</p><input id="escB" class="trp" style="width:100%;margin:18px 0 10px" placeholder="Buscar pelo nome"><div class="escL" id="escL"></div></div>`;
+  const L = (q) => { $("#escL").innerHTML = EL.filter((c) => !q || norm(c.u + " " + c.p).includes(norm(q))).map((c) => `<button data-n="${c.n}" style="--c:${COR_P[c.p] || "#8A9096"}"><img src="../dados/fotos/sc-2026/estadual/${c.n}.jpg" alt="" onerror="this.style.visibility='hidden'"><b>${esc(c.u)}</b><span>${esc(c.p)}</span></button>`).join(""); };
+  L(""); $("#escB").oninput = (e) => L(e.target.value);
+  $("#escL").onclick = async (e) => { const b = e.target.closest("[data-n]"); if (!b) return; b.disabled = true;
+    try { if (SESS) { const { error } = await supabaseClient.from("gab_vinculo").upsert({ dono: SESS.user.id, parlamentar: b.dataset.n, atualizado_em: new Date().toISOString() }); if (error) throw error; } else localStorage.setItem("gab_vinc_local", b.dataset.n); } catch (er) { alert("Não foi possível salvar o vínculo: " + (er.message || er)); return; }
+    location.href = "gabinete.html"; };
 }
 async function lerPrivado() { const { data } = await supabaseClient.from("gab_recursos").select("*").order("origem_planilha", { nullsFirst: false }); MEU = data || []; PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
 
@@ -44,22 +64,83 @@ function desenhar() {
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
   const nm = PARL.u.split(" "), EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
-  $("#app").innerHTML = `${capa(nm, EL)}
+  $("#app").innerHTML = `${capa(nm)}
     ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
-  $("#trocaP").onchange = (e) => { if (e.target.value) location.href = "gabinete.html?d=" + e.target.value; };
+  const tv = $("#trocaV"); if (tv) tv.onclick = (e) => { e.preventDefault(); escolha(true); };
+  $("#glc").onchange = (e) => { S.lc = e.target.value; capaLente(); };
+  if (!GH || !document.body.contains($("#gCv")) || !GH.vivo) { capaMapa(); GH.vivo = true; }
+  leque(); ligarCapaCliques();
   $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
   $("#abas").onclick = (e) => { const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
   if (S.aba === "geral" || (S.aba === "outros" && S.outro)) ligarGeral(); else if (S.aba === "meu") ligarMeu(); else ligarOutros();
 }
-// capa do gabinete: o mandato em números (mesma linguagem da capa de Parlamentares)
-function capa(nm, EL) {
-  const L = E0, tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), mun = new Set(L.map((e) => e.mun)).size, l0 = S.lente; S.lente = "rec";
-  const mp = L.length ? mapa(L) : ""; S.lente = l0;
-  const pops = [[ni(PARL.t), "votos em 2026", 1], [fm(tv), "indicado 2023-26"], [tv ? nf(tp / tv * 100) + "%" : "—", "já pago"], [ni(L.length), "emendas"], [mun, "municípios atendidos"], [fm(tp), "pago até hoje"]];
-  return `<section class="gcapa"><div class="gtxt"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho" style="margin-top:14px">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div><h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
-    <div class="pops">${pops.map(([v, r, a]) => `<div><b class="${a ? "a" : ""}">${esc(String(v))}</b><span>${esc(r)}</span></div>`).join("")}</div>
-    <select id="trocaP" class="trp"><option value="">Trocar parlamentar</option>${EL.map((c) => `<option value="${c.n}">${esc(c.u)} · ${esc(c.p)}</option>`).join("")}</select></div>
-    <div class="gmapa">${mp}${L.length ? `<div class="leg">Bolha = recursos indicados no município.</div>` : `<div class="obra">Sem emendas na legislatura atual: o mapa do mandato começa em 2027.</div>`}</div></section>`;
+// capa do gabinete: mesma dinâmica da capa de Parlamentares (mapa animado, números saltando, a cidade de
+// destaque fora do mapa), com filtros que trocam o que o mapa mostra
+const leq = (id, tit, ops, cur) => `<label class="leq"><span>${tit}</span><select id="${id}">${ops.map(([v, r]) => `<option value="${v}"${String(v) === String(cur) ? " selected" : ""}>${r}</option>`).join("")}</select></label>`;
+const LENTES = [["votos", "Votos 2026"], ["rec", "Recursos 2023-26"], ["pago", "% pago"], ["rpv", "R$ por voto"]];
+function valoresCapa() {
+  const A = agregado(E0), val = EST.val || [];
+  if (S.lc === "votos") return { v: BASE.mun.map((m, i) => val[i] ? (PARL.v[i] || 0) / val[i] : 0), top: BASE.mun.map((m, i) => PARL.v[i] || 0), rot: (x) => ni(x) + " votos" };
+  if (S.lc === "rec") return { v: BASE.mun.map((m, i) => (A[i] || {}).v || 0), top: BASE.mun.map((m, i) => (A[i] || {}).v || 0), rot: fm };
+  if (S.lc === "pago") return { v: BASE.mun.map((m, i) => A[i] && A[i].v ? A[i].vp / A[i].v : 0), top: BASE.mun.map((m, i) => (A[i] || {}).vp || 0), rot: (x) => fm(x) + " pagos" };
+  return { v: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), top: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), rot: (x) => "R$ " + nf(x, 0) + " por voto" };
+}
+function capa(nm) {
+  const L = E0, tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), mun = new Set(L.map((e) => e.mun)).size;
+  const pops = [[ni(PARL.t), "votos em 2026", 1], [fm(tv), "indicado em emendas 2023-26"], [tv ? nf(tp / tv * 100) + "%" : "—", "já pago"], [ni(L.length), "emendas"], [mun, "municípios atendidos"], [fm(tp), "pago até hoje"]];
+  return `<section class="ghero" id="ghero"><div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
+    <div class="gtxt"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho" style="margin-top:14px">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div>
+    <h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
+    <div class="pops">${pops.map(([v, r, a], k) => `<div style="animation-delay:${.4 + k * .35}s"><b class="${a ? "a" : ""}">${esc(String(v))}</b><span>${esc(r)}</span></div>`).join("")}</div>
+    <div class="leqs glc">${leq("glc", "Mapa", LENTES, S.lc)}</div>
+    ${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section>`;
+}
+let gRaf = null, GH = null;
+function capaMapa() {
+  const cv = $("#gCv"); if (!cv) return; cancelAnimationFrame(gRaf);
+  const r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height; cv.width = w * dpr; cv.height = h * dpr; const ctx = cv.getContext("2d");
+  const movel = innerWidth < 760, cx = movel ? { x0: 16, y0: 16, x1: w - 16, y1: h - 16 } : { x0: w * .42, y0: h * .06, x1: w * .97, y1: h * .94 };
+  let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; BASE.contorno.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
+  const K = Math.cos(27.5 * Math.PI / 180), Sx = Math.min((cx.x1 - cx.x0) / ((lo1 - lo0) * K), (cx.y1 - cx.y0) / (la0 - la1)), ox = cx.x0 + ((cx.x1 - cx.x0) - (lo1 - lo0) * K * Sx) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (la0 - la1) * Sx) / 2;
+  const P = (lo, la) => [ox + (lo - lo0) * K * Sx, oy + (la0 - la) * Sx], k = Math.min(w, h) / 560, cont = new Path2D();
+  BASE.contorno.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
+  const refEl = Math.max(...BASE.mun.map((m) => m.el)) / 4;
+  const B = BASE.mun.map((m, i) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / refEl)) * k * .9, t0: 0, t1: 0, nasce: (Math.sin((i + 1) * 12.9898) * 43758.5453 % 1 + 1) % 1 * 2.2 }; });
+  const ord = [...B.keys()].sort((a, b) => BASE.mun[b].el - BASE.mun[a].el), rgb = hexRgb(COR_P[PARL.p] || "#2B5FD9"), ne = [58, 64, 70], t0 = performance.now();
+  GH = { B, w, h, ini: t0, top: [] };
+  const quadro = (agora) => { if (!document.body.contains(cv)) return; const t = (agora - t0) / 1000, e1 = Math.min(1, (agora - GH.ini) / 650), ee = 1 - Math.pow(1 - e1, 3);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); ctx.globalAlpha = Math.min(1, t / 1.2); ctx.fillStyle = "rgba(242,244,245,.03)"; ctx.fill(cont); ctx.strokeStyle = "rgba(242,244,245,.06)"; ctx.lineWidth = .6; ctx.stroke(cont);
+    for (const i of ord) { const b = B[i], e0 = Math.min(1, Math.max(0, (t - b.nasce) / .7)); if (!e0) continue; const e = 1 - Math.pow(1 - e0, 3), tt = b.t0 + (b.t1 - b.t0) * ee, col = tt < .02 ? ne : ne.map((v, q) => Math.round(v + (rgb[q] - v) * Math.min(1, .25 + tt)));
+      ctx.globalAlpha = (.22 + .72 * tt) * e; ctx.shadowColor = `rgba(${rgb},${.8 * tt})`; ctx.shadowBlur = 16 * tt; ctx.fillStyle = `rgb(${col})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (.4 + .6 * e) * (.8 + .3 * tt), 0, 6.2832); ctx.fill(); }
+    ctx.shadowBlur = 0; GH.top.forEach((i, q) => { const b = B[i], v = (Math.sin(t * 1.4 + q) + 1) / 2; if (t < 2.6) return; ctx.globalAlpha = .25 * v; ctx.fillStyle = `rgb(${rgb})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1.2 + .5 * v), 0, 6.2832); ctx.fill(); });
+    ctx.globalAlpha = 1; gRaf = requestAnimationFrame(quadro); };
+  gRaf = requestAnimationFrame(quadro); capaLente();
+}
+function capaLente() {
+  if (!GH) return; const agora = performance.now(), e1 = Math.min(1, (agora - GH.ini) / 650), ee = 1 - Math.pow(1 - e1, 3);
+  GH.B.forEach((b) => { b.t0 = b.t0 + (b.t1 - b.t0) * ee; });
+  const X = valoresCapa(), e95 = [...X.v].sort((a, b) => a - b)[Math.floor(X.v.length * .95)] || 1;
+  GH.B.forEach((b, i) => { b.t1 = Math.min(1, X.v[i] / e95); }); GH.ini = agora;
+  const ordT = [...X.top.keys()].sort((a, b) => X.top[b] - X.top[a]); GH.top = ordT.slice(0, 5);
+  const i1 = ordT[0], b1 = GH.B[i1]; if (!X.top[i1]) { $("#gEtq").innerHTML = ""; return; }
+  GH.i1 = i1; $("#gEtq").innerHTML = `<div class="etq" data-cid="${esc(BASE.mun[i1].n)}" title="Ver as emendas de ${esc(BASE.mun[i1].n)}" style="left:${b1.x}px;top:${b1.y - b1.r}px;animation-delay:.4s, 1.1s"><span>${esc(BASE.mun[i1].n)}</span><b>${esc(X.rot(X.top[i1]))}</b></div>`;
+}
+// leque de títulos no topo (mesmo papel da navegação de seções de Parlamentares): abre e leva ao título
+function leque() {
+  let nv = document.querySelector(".gsecs"); if (!nv) { nv = document.createElement("nav"); nv.className = "gsecs"; document.querySelector(".topo .wm").after(nv); }
+  nv.innerHTML = TITULOS.map(([k, t]) => `<a href="#t-${k}" data-gt="${k}">${t.replace("Controle de Recursos", "Recursos").replace("Processo legislativo", "Legislativo")}</a>`).join("");
+  nv.onclick = (e) => { const a = e.target.closest("[data-gt]"); if (!a) return; e.preventDefault(); const k = a.dataset.gt, sec = $("#t-" + k); S.fech[k] = false; sec.classList.remove("fech"); sec.querySelector(".tgs").classList.add("ab"); sec.scrollIntoView({ behavior: "smooth" }); };
+}
+// clicar numa cidade da capa (etiqueta ou bolha) abre Controle de Recursos com a carteira filtrada nela
+function irCidade(nome) {
+  S.fech.rec = false; S.aba = "geral"; S.outro = null; S.ano = 0; S.busca = nome; S.lim = 60; desenhar();
+  const c = $("#busca"); if (c) { c.value = nome; tabela(); c.closest(".bx").scrollIntoView({ behavior: "smooth", block: "start" }); }
+}
+function ligarCapaCliques() {
+  const et = $("#gEtq"); if (et) et.onclick = (e) => { const d = e.target.closest("[data-cid]"); if (d) irCidade(d.dataset.cid); };
+  const cv = $("#gCv"); if (cv) { cv.onclick = (e) => { if (!GH) return; const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; let m = -1, md = 1e9;
+    GH.B.forEach((b, i) => { const d = Math.hypot(b.x - x, b.y - y); if (d < Math.max(b.r, 8) && d < md) { md = d; m = i; } }); if (m >= 0) irCidade(BASE.mun[m].n); };
+    cv.onmousemove = (e) => { if (!GH) return; const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; cv.style.cursor = GH.B.some((b) => Math.hypot(b.x - x, b.y - y) < Math.max(b.r, 8)) ? "pointer" : ""; }; }
 }
 function corpoRec() {
   return `<div class="chips abas" id="abas">${[["geral", "Análise geral"], ...(proprio() ? [["meu", "Meu controle"]] : []), ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}</div><div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
@@ -71,7 +152,7 @@ function geral() {
   if (!L.length && !S.outro) return `<div class="obra">Nenhuma emenda de ${esc(PARL.u)} nos dados oficiais de 2023 a 2026. O parlamentar não exerceu mandato na legislatura atual; as emendas dele começam a aparecer em 2027.</div>`;
   return `<p class="lead" style="margin-top:14px">Todas as emendas indicadas pelo mandato, com o andamento oficial (empenho, liquidação, pagamento e OB) atualizado todo dia.</p>
     <div class="fonte">Fontes: Portal da Transparência SC e painel de emendas da SEF${META.coletado_em ? ` · coletado em ${esc(dtBR(META.coletado_em))} ${esc(String(META.coletado_em).slice(11, 16))}` : ""}.</div>
-    <div class="anos">${[0, ...anos].map((a) => `<button data-ano="${a}" class="${S.ano === a ? "on" : ""}">${a || "Todos"}</button>`).join("")}</div>
+    <div class="leqs">${leq("fAno", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.ano)}</div>
     <div class="kpis"><div><b class="a">${fm(tv)}</b><span>indicado</span></div><div><b>${fm(tp)}</b><span>pago</span></div><div><b>${tv ? nf(tp / tv * 100) : "0,0"}%</b><span>executado</span></div><div><b>${ni(L.length)}</b><span>emendas</span></div><div><b>${new Set(L.map((e) => e.mun)).size}</b><span>municípios</span></div></div>
     <div class="funil">${[1, 2, 3, 4, 5].map((k) => cont[k] ? `<i style="width:${cont[k] / L.length * 100}%;background:${ETAPAS[k][1]}" title="${ETAPAS[k][0]}: ${cont[k]}"></i>` : "").join("")}</div>
     <div class="funilL">${[1, 2, 3, 4, 5].map((k) => `<span data-et="${k}" class="${S.et.has(k) ? "" : "off"}"><i style="background:${ETAPAS[k][1]}"></i>${ETAPAS[k][0]} <b>${cont[k]}</b></span>`).join("")}</div>
@@ -84,7 +165,7 @@ function geral() {
 }
 function ligarGeral() {
   const vo = $("#voltaO"); if (vo) vo.onclick = () => { S.outro = null; desenhar(); };
-  $("#corpoAba").querySelectorAll("[data-ano]").forEach((b) => b.onclick = () => { S.ano = +b.dataset.ano; S.aberto = null; desenhar(); });
+  $("#fAno").onchange = (e) => { S.ano = +e.target.value; S.aberto = null; desenhar(); };
   $("#corpoAba").querySelectorAll("[data-et]").forEach((b) => b.onclick = () => { const k = +b.dataset.et; S.et.has(k) ? S.et.delete(k) : S.et.add(k); desenhar(); });
   $("#lentes").onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); };
   $("#busca").oninput = (e) => { S.busca = e.target.value; S.lim = 60; tabela(); };
@@ -99,12 +180,12 @@ function meu() {
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
   return `<p class="lead" style="margin-top:14px">O controle do gabinete, no formato da planilha "Controle de Recursos". Visível só para você.</p>
-    <div class="anos">${[0, ...anos].map((a) => `<button data-mano="${a}" class="${S.mano === a ? "on" : ""}">${a || "Todos"}</button>`).join("")}</div>
+    <div class="leqs">${leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano)}</div>
     <div class="kpis"><div><b class="a">${fm(tot)}</b><span>recursos ativos</span></div><div><b>${fm(pago)}</b><span>pago ou executado</span></div><div><b>${ni(at.length)}</b><span>linhas</span></div><div><b>${new Set(at.map((r) => norm(r.municipio))).size}</b><span>municípios</span></div><div><b>${ni(sp.length)}</b><span>suprimidas · ${fm(sp.reduce((s, r) => s + (+r.valor || 0), 0))}</span></div></div>
     <section class="bx"><div class="ctl"><input id="mbusca" placeholder="Município, objeto, nº, processo ou tag" value="${esc(S.mq)}"></div><div id="mtab"></div></section>`;
 }
 function ligarMeu() {
-  $("#corpoAba").querySelectorAll("[data-mano]").forEach((b) => b.onclick = () => { S.mano = +b.dataset.mano; desenhar(); });
+  $("#fMano").onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); };
   const imp = $("#impBtn"); if (imp) imp.onclick = importar;
   if ($("#mtab")) mtab();
@@ -214,13 +295,13 @@ function outros() {
   const R = Object.values(G).sort((a, b) => S.oord === "x" ? b.vp / (b.v || 1) - a.vp / (a.v || 1) : b[S.oord] - a[S.oord]), mx = Math.max(1, ...R.map((o) => o.v)), meu = norm(DEP.nome);
   const tot = L.reduce((s, e) => s + (e.v || 0), 0), totp = L.reduce((s, e) => s + (e.vp || 0), 0);
   return `<p class="lead" style="margin-top:14px">O que cada parlamentar indicou e quanto já foi pago, pelos dados oficiais. Clique num deputado para abrir o painel dele.</p>
-    <div class="anos">${[0, 2023, 2024, 2025, 2026].map((a) => `<button data-oano="${a}" class="${S.oano === a ? "on" : ""}">${a || "Todos"}</button>`).join("")}</div>
+    <div class="leqs">${leq("fOano", "Ano", [[0, "Todos"], [2023, 2023], [2024, 2024], [2025, 2025], [2026, 2026]], S.oano)}</div>
     <div class="kpis"><div><b class="a">${fm(tot)}</b><span>indicado na Casa</span></div><div><b>${fm(totp)}</b><span>pago</span></div><div><b>${tot ? nf(totp / tot * 100) : "0,0"}%</b><span>executado</span></div><div><b>${ni(L.length)}</b><span>emendas</span></div><div><b>${R.length}</b><span>parlamentares</span></div></div>
     <section class="bx"><table class="tb ot"><thead><tr><th>#</th><th>Parlamentar</th><th class="v" data-oo="v">Indicado${S.oord === "v" ? " ↓" : ""}</th><th class="v" data-oo="vp">Pago${S.oord === "vp" ? " ↓" : ""}</th><th class="v hm" data-oo="x">% pago${S.oord === "x" ? " ↓" : ""}</th><th class="v hm" data-oo="n">Emendas${S.oord === "n" ? " ↓" : ""}</th><th class="v hm">Municípios</th></tr></thead><tbody>${R.map((o, i) => `<tr class="r${norm(o.dep) === meu ? " ab" : ""}" data-dep="${esc(o.dep)}"><td>${i + 1}</td><td><b>${esc(o.dep)}</b><i class="br" style="width:${(o.v / mx * 100).toFixed(1)}%"></i></td><td class="v">${fm(o.v)}</td><td class="v">${fm(o.vp)}</td><td class="v hm">${o.v ? nf(o.vp / o.v * 100) : "0,0"}%</td><td class="v hm">${o.n}</td><td class="v hm">${o.m.size}</td></tr>`).join("")}</tbody></table></section>`;
 }
 function ligarOutros() {
   if (!TODAS) { lerTodas().then(desenhar); return; }
-  $("#corpoAba").querySelectorAll("[data-oano]").forEach((b) => b.onclick = () => { S.oano = +b.dataset.oano; desenhar(); });
+  $("#fOano").onchange = (e) => { S.oano = +e.target.value; desenhar(); };
   $("#corpoAba").querySelectorAll("[data-oo]").forEach((b) => b.onclick = () => { S.oord = b.dataset.oo; desenhar(); });
   $("#corpoAba").querySelectorAll("[data-dep]").forEach((r) => r.onclick = () => { S.outro = r.dataset.dep; S.ano = 0; S.aberto = null; desenhar(); window.scrollTo({ top: $("#abas").offsetTop - 70 }); });
 }
