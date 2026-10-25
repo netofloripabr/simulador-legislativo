@@ -239,14 +239,27 @@ function ligarMeu() {
 }
 // filtro do Controle: ícone que abre a pesquisa (texto, origem, etapa); fechado mostra só o ícone e quantos filtros estão ativos
 const ETF = [["", "Todas as etapas"], ["0", "Só indicada"], ["1", "Com portaria"], ["2", "Pago / executado"], ["v", "Verificar"], ["s", "Suprimida"]];
+const todasTags = () => [...new Set(MEU.flatMap((r) => r.tags || []))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+function etiquetarGrupo(L) {
+  modal(`<div class="mh"><div><div class="olho">Controle</div><h3>Etiquetar ${ni(L.length)} itens</h3></div><button class="x" data-fecha>×</button></div>
+    <p class="lead">A etiqueta entra em todos os itens do filtro atual. Itens que já têm a etiqueta ficam como estão.</p>
+    <div class="fsec"><div class="fg">${campo("Etiqueta", `<input data-f="tag" list="adTags" placeholder="Nova ou existente"><datalist id="adTags">${todasTags().map((t) => `<option value="${esc(t)}">`).join("")}</datalist>`, 1)}</div></div>
+    <div class="mrod"><button class="btn sec" data-tira>Remover esta etiqueta do grupo</button><span class="av" data-msg></span><button class="btn sec" data-fecha>Cancelar</button><button class="btn" data-salva>Aplicar</button></div>`, (m, fechar) => {
+    const run = async (tira) => { const t = m.querySelector('[data-f="tag"]').value.trim(), ms = m.querySelector("[data-msg]"); if (!t) { ms.textContent = "Informe a etiqueta."; return; }
+      const alvo = L.filter((r) => tira ? (r.tags || []).includes(t) : !(r.tags || []).includes(t)); let k = 0;
+      try { for (let i = 0; i < alvo.length; i += 8) { await Promise.all(alvo.slice(i, i + 8).map((r) => gravaMeu(r, { tags: tira ? r.tags.filter((x) => x !== t) : [...(r.tags || []), t] }))); k = Math.min(alvo.length, i + 8); ms.textContent = `${k} de ${alvo.length}…`; }
+        fechar(); mtab(); mfiltros(); } catch (er) { ms.textContent = "Parou em " + k + ": " + (er.message || er); } };
+    m.querySelector("[data-salva]").onclick = () => run(false); m.querySelector("[data-tira]").onclick = () => run(true); });
+}
 function mfiltros() {
   const n = [S.mq, S.mori, S.met].filter(Boolean).length, oris = [...new Set(MEU.map((r) => sigla(r.origem)).filter(Boolean))].sort();
   const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar filtros</button>` : ""}${S.mtool || ""}<button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar e pesquisar" aria-label="Filtrar e pesquisar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>${n ? `<b>${n}</b>` : ""}</button>${S.mad || ""}</div>`;
-  $("#mfil").innerHTML = `${S.mfa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Município, objeto, processo ou tag" value="${esc(S.mq || "")}">${leq("fOri", "Origem", [["", "Todas"], ...oris.map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}</div>` : ""}`;
+  $("#mfil").innerHTML = `${S.mfa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Município, objeto, processo ou tag" value="${esc(S.mq || "")}">${leq("fOri", "Origem", [["", "Todas"], ...oris.map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens filtrados</button>` : ""}</div>` : ""}`;
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   if (typeof ligarAdicionar === "function") ligarAdicionar();
   $("#filB").onclick = () => { S.mfa = !S.mfa; mfiltros(); const b = $("#mbusca"); if (b) b.focus(); };
   const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; mfiltros(); mtab(); };
+  const eg = $("#etqG"); if (eg) eg.onclick = () => etiquetarGrupo(mfiltradas());
   const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); };
   const fo = $("#fOri"); if (fo) fo.onchange = (e) => { S.mori = e.target.value; mfiltros(); mtab(); };
   const fe = $("#fEt"); if (fe) fe.onchange = (e) => { S.met = e.target.value; mfiltros(); mtab(); };
@@ -261,12 +274,15 @@ const MCOL = [["ano", "Ano", (r) => +r.ano || 0], ["mun", "Município", (r) => n
 // balão: cinza claro = sem observação; branco = tem observação; verde = nota nova (não vista); laranja = marcado para atenção
 const visto = (r) => { try { return localStorage.getItem("gab_visto_" + mk(r)) || ""; } catch (e) { return ""; } };
 const balao = (r) => { const ul = (r.notas || []).slice(-1)[0];
-  if (r.atencao) return ["at", 4, "Marcado para atenção"]; if (ul && ul.em > visto(r)) return ["nv", 3, "Nova nota: " + ul.t]; if (r.observacao || (r.notas || []).length) return ["tem", 2, r.observacao || ul.t]; return ["", 1, "Sem observação"]; };
-function mtab() {
-  const q = norm(S.mq), L = MEU.filter((r) => { if (S.mano && r.ano !== S.mano) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
+  if (r.atencao) return ["at", 4, "Marcado para atenção"]; if (r.obs_em && r.obs_em > visto(r)) return ["nv", 3, "Observação atualizada: " + (r.observacao || "")]; if (ul && ul.em > visto(r)) return ["nv", 3, "Nova nota: " + ul.t]; if (r.observacao || (r.notas || []).length) return ["tem", 2, r.observacao || ul.t]; return ["", 1, "Sem observação"]; };
+function mfiltradas() {
+  const q = norm(S.mq); return MEU.filter((r) => { if (S.mano && r.ano !== S.mano) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
     if (S.mori && sigla(r.origem) !== S.mori) return false;
     if (S.met) { const e = etapasStatus(r.status_manual); if (S.met === "s" ? e.d : !e.d) return false; if (S.met === "v" && !e.ver) return false; if (/^\d$/.test(S.met) && (e.d.lastIndexOf(true) !== +S.met)) return false; }
     return true; });
+}
+function mtab() {
+  const L = mfiltradas();
   if (S.mord) { const c = MCOL.find((x) => x[0] === S.mord[0]), d = S.mord[1]; L.sort((a, b) => { const x = c[2](a), y = c[2](b); return (x > y ? 1 : x < y ? -1 : 0) * d; }); }
   $("#mtab").innerHTML = `<table class="tb mt ct"><thead><tr>${MCOL.map(([k, t, , c]) => `<th data-mo="${k}" class="so${c ? " " + c : ""}${S.mord && S.mord[0] === k ? " on" : ""}">${t}${t ? `<i>${S.mord && S.mord[0] === k ? (S.mord[1] > 0 ? "↑" : "↓") : "↕"}</i>` : ""}</th>`).join("")}</tr></thead><tbody>${L.slice(0, S.mlim).map((r) => `<tr class="r${supr(r) ? " sup" : ""}${S.maberto === mk(r) ? " ab" : ""}" data-id="${esc(mk(r))}"><td>${S.maberto === mk(r) ? (r.ano || "") : r.ano ? String(r.ano).slice(-2) : ""}<small title="${esc(r.origem || "")}">${esc(S.maberto === mk(r) ? r.origem || "" : sigla(r.origem))}</small></td><td>${esc(r.municipio || "")}<small>${esc(r.regiao || "")}</small></td><td class="hm ob">${esc(r.objeto || "")}</td><td class="hm c">${funHtml(r)}</td><td class="hm c"><span class="modc" title="${esc(r.modalidade || "")}">${esc(r.modalidade || "—")}</span></td><td class="vi">${"R$ " + ni(Math.round(+r.valor || 0))}</td><td>${stHtml(r.status_manual, S.maberto === mk(r))}</td><td class="hm">${(() => { const m = String(r.processo || "").match(/^\s*([A-Za-zÀ-ú]+)\s*(.*)$/); return m ? `${esc(m[1])}<small>${esc(m[2])}</small>` : esc(r.processo || ""); })()}</td><td class="hm inf c bl">${(() => { const [c, , t] = balao(r); return `<span class="obs ${c}" title="${esc(t)}" aria-label="${esc(t)}">${OBS_I}</span>`; })()}</td><td class="hm inf">${(r.tags || []).length ? `<small>${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</small>` : ""}</td></tr>${S.maberto === mk(r) ? `<tr class="det"><td colspan="10">${detalheMeu(r)}</td></tr>` : ""}`).join("")}</tbody></table>
     ${L.length > S.mlim ? `<button class="btn sec mais" id="mmais">Mostrar mais (${L.length - S.mlim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> linhas</div>`;
@@ -282,33 +298,40 @@ function tlVert(passos, tit, res) {
   const cur = passos.findIndex((p) => !p.on);
   return `<div class="tlq"><div class="tlh"><span>${tit}</span>${res ? `<b>${esc(res)}</b>` : ""}</div>${passos.map((p, i) => `<div class="tlr${p.on ? " on" : ""}${i === cur ? " cur" : ""}${p.v ? " vv" : ""}${p.nota ? " nt" : ""}${p.dt ? " dtd" : ""}"><div class="tlv">${p.dt ? `<span class="tld">${esc(p.dt)}</span>` : ""}<i></i>${i < passos.length - 1 ? "<s></s>" : ""}</div><div class="tlc"><b>${esc(p.t)}</b>${(p.l || []).filter((x) => x && x[1]).map(([k, v]) => `<span>${k ? `<em>${esc(k)}</em>` : ""}${esc(v)}</span>`).join("")}${!p.on && !p.nota && !(p.l || []).some((x) => x && x[1]) ? `<span class="pd">${i === cur ? "em andamento" : "pendente"}</span>` : ""}</div></div>`).join("")}</div>`;
 }
-function passosOficiais(e) {
-  const X = e.extrato_portal || {}, ne = (X.emendaEmpenho || [])[0], nl = (X.emendaLiquidacao || [])[0], pg = e.pagamentos_sef || [];
+function passosOficiais(e, r) {
+  const X = e.extrato_portal || {}, ne = (X.emendaEmpenho || [])[0], nl = (X.emendaLiquidacao || [])[0], pg = e.pagamentos_sef || [], es = etapasStatus(r && r.status_manual);
   const P = [{ t: "Indicada", on: true, dt: String(e.ano || ""), l: [["", e.mod], ["R$", fr(e.v).replace("R$ ", "")]] },
-    { t: "Empenhada", on: e.et >= 2 && e.et !== 5 || !!ne, dt: ne ? dtBR(ne.dtlancamento || "") : "", l: [["NE", ne && ne.nunotaempenho]] },
-    { t: "Liquidada", on: e.et >= 3 && e.et !== 5, dt: nl ? dtBR(nl.dtlancamento || "") : "", l: [["NL", nl && nl.nunotaliquidacao]] }];
-  if (pg.length) pg.forEach(([, , , ob, dt, v], k) => P.push({ t: pg.length > 1 ? `Paga (${k + 1}/${pg.length})` : "Paga", on: true, dt: dtBR(dt), l: [["R$", fr(v).replace("R$ ", "")], ["OB", ob]] }));
-  else P.push({ t: "Paga", on: e.et === 4, dt: "", l: [["R$", e.vp ? fr(e.vp).replace("R$ ", "") : ""]] });
+    { t: "Portaria / instrumento", on: !!(es.d && es.d[1]) || !!ne || e.et >= 2 && e.et !== 5, l: [["", r && r.publicacao]] }];
+  if (ne) P.push({ t: "Empenho", on: true, dt: dtBR(ne.dtlancamento || ""), l: [["NE", ne.nunotaempenho]] });
+  if (nl) P.push({ t: "Liquidação", on: true, dt: dtBR(nl.dtlancamento || ""), l: [["NL", nl.nunotaliquidacao]] });
+  if (pg.length) pg.forEach(([, , , ob, dt, v], k) => P.push({ t: pg.length > 1 ? `Pagamento (${k + 1}/${pg.length})` : "Pagamento", on: true, dt: dtBR(dt), l: [["R$", fr(v).replace("R$ ", "")], ["OB", ob]] }));
+  else P.push({ t: "Pagamento", on: e.et === 4, l: [["R$", e.vp ? fr(e.vp).replace("R$ ", "") : ""]] });
   if (e.et === 5) P.push({ t: "Impedimento técnico", on: true, v: true, l: [["", e.imped]] });
   return P;
 }
+const contato = (r, papel) => (r.contatos || []).filter((c) => c.papel === papel && (c.nome || c.tel));
+const BAND_I = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M3.5 14V2.5 M3.5 3h8.5l-2 3 2 3H3.5"/></svg>';
 function detalheMeu(r) {
   const e = r.chave && E0.find((x) => x.k === r.chave);
   const es = etapasStatus(r.status_manual), S3 = es.d || [false, false, false], dt = (x) => x ? dtBR(String(x)) : "";
-  const passos = [["Indicada", true, `${r.ano || ""}${r.valor ? " · " + fr(+r.valor) : ""}`], ["Portaria", S3[1] || es.k >= 1, r.publicacao || (S3[1] ? "" : es.k === 1 ? "em andamento" : "")],
-    ["Empenho", !!r.empenho || S3[2], r.empenho || ""], ["Pagamento", S3[2], [r.ob, dt(r.data_pagamento), r.pagamento].filter(Boolean).join(" · ")]];
-  const PV = e ? passosOficiais(e) : passos.map(([t, on, d], i) => ({ t, on, l: [["", d]], dt: i === 0 ? String(r.ano || "") : i === 3 ? dt(r.data_pagamento) : "", v: es.ver && !on && (i === 0 || passos[i - 1][1]) }));
+  const PV = e ? passosOficiais(e, r) : [{ t: "Indicada", on: true, dt: String(r.ano || ""), l: [["R$", r.valor ? fr(+r.valor).replace("R$ ", "") : ""]] },
+    { t: "Portaria / instrumento", on: S3[1], l: [["", r.publicacao]], v: es.ver && !S3[1] },
+    ...(r.empenho ? [{ t: "Empenho", on: true, l: [["NE", r.empenho]] }] : []), ...(r.liquidacao ? [{ t: "Liquidação", on: true, l: [["NL", r.liquidacao]] }] : []),
+    { t: "Pagamento", on: S3[2], dt: dt(r.data_pagamento), l: [["", r.pagamento], ["OB", r.ob]], v: es.ver && S3[1] && !S3[2] }];
   (r.notas || []).forEach((n) => PV.push({ t: "Nota do gabinete", on: true, nota: true, dt: dtBR(n.em), l: [["", n.t]] }));
   const ul = tlVert(PV, e ? "Andamento · oficial" : "Andamento · pela planilha", e ? ETQ[e.et][0] : es.t);
   const kv = [["Processo", r.processo], ["Origem", r.origem], ["Função", [r.funcao, r.natureza].filter(Boolean).join(" · ")], ["Beneficiário", r.beneficiario], ...(e ? [["Emenda", e.n || e.k]] : [])].filter(([, v]) => v);
+  const pes = (L, rot) => `<div class="ctt"><span>${rot}</span>${L.length ? L.map((c) => `<b>${esc(c.nome || "—")}${c.tel ? `<small>${esc(c.tel)}</small>` : ""}</b>`).join("") : `<b class="vz">não informado</b>`}</div>`;
   return `<div class="dm">${ul}<div><div class="olho">Dados</div>
       <div class="kv2">${kv.map(([k, v]) => `<span>${k}</span><b>${esc(v)}</b>`).join("")}</div>
-      ${e ? "" : `<button class="lk" data-subst>Ligar a uma emenda do portal</button>`}</div>
-    <div><div class="olho">Gabinete</div>
+      ${e ? "" : `<button class="lk" data-subst>Ligar a uma emenda do portal</button>`}
+      <div class="olho" style="margin-top:22px">Contatos</div>${pes(contato(r, "lider"), "Líder")}${pes(contato(r, "tecnico"), "Técnico")}</div>
+    <div><div class="olho">Observação${r.obs_em ? ` <small>· ${dtBR(r.obs_em)}</small>` : ""}</div>
       <div class="nota${r.observacao ? "" : " vz"}">${r.observacao ? esc(r.observacao).replace(/\n/g, "<br>") : "Sem observação."}</div>
-      ${(r.tags || []).length ? `<div class="tgs2">${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</div>` : ""}
-      <button class="lk" data-anotar>+ Anotar</button><div class="nova" hidden><input data-nova placeholder="Nova nota (ex.: plano de trabalho enviado)"><button class="btn sec" data-addnota>Salvar nota</button></div></div></div>
-    <div class="acs2"><span class="av" data-msg></span><button class="btn sec" data-atencao${r.atencao ? ' style="color:#F29A38;border-color:#F29A38"' : ""}>${r.atencao ? "Tirar atenção" : "Marcar atenção"}</button><button class="btn sec" data-editar>Editar</button>${e ? `<button class="btn sec" data-subst>Substituir</button>` : ""}<button class="btn sec" data-excl style="color:var(--erro)">Excluir</button></div>`;
+      <div class="olho" style="margin-top:22px">Etiquetas</div>
+      <div class="tgs2">${(r.tags || []).map((t) => `<span class="tg">${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<button class="lk" data-etq style="margin:0">+ Etiqueta</button></div>
+      <div class="nova" hidden><input data-nova list="adTags2" placeholder="Nova ou existente"><datalist id="adTags2">${todasTags().map((t) => `<option value="${esc(t)}">`).join("")}</datalist><button class="btn sec" data-addtag>Colar</button></div></div></div>
+    <div class="acs2"><span class="av" data-msg></span><button class="atb${r.atencao ? " on" : ""}" data-atencao title="${r.atencao ? "Tirar a marcação de atenção" : "Marcar para atenção"}" aria-label="Atenção">${BAND_I}</button><button class="btn sec" data-editar>Editar</button>${e ? `<button class="btn sec" data-subst>Substituir</button>` : ""}<button class="btn sec" data-excl style="color:var(--erro)">Excluir</button></div>`;
 }
 async function gravaMeu(r, campos) {
   if (LOCAL && !SESS) { Object.assign(r, campos); }
@@ -317,15 +340,20 @@ async function gravaMeu(r, campos) {
 }
 function ligarMeuDet(d, r) {
   if (!r) return; const a = d, msg = a.querySelector("[data-msg]"); d.onclick = (e) => e.stopPropagation();
-  a.querySelector("[data-anotar]").onclick = () => { const n = a.querySelector(".nova"); n.hidden = false; n.querySelector("input").focus(); };
-  a.querySelector("[data-addnota]").onclick = async () => { const v = a.querySelector("[data-nova]").value.trim(); if (!v) return; msg.textContent = "Salvando…";
-    try { await gravaMeu(r, { notas: [...(r.notas || []), { t: v, em: new Date().toISOString() }] }); try { localStorage.setItem("gab_visto_" + mk(r), new Date().toISOString()); } catch (e) {} mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+  a.querySelector("[data-etq]").onclick = () => { const n = a.querySelector(".nova"); n.hidden = false; n.querySelector("input").focus(); };
+  const addT = async () => { const v = a.querySelector("[data-nova]").value.trim(); if (!v || (r.tags || []).includes(v)) return; msg.textContent = "Salvando…";
+    try { await gravaMeu(r, { tags: [...(r.tags || []), v] }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+  a.querySelector("[data-addtag]").onclick = addT; a.querySelector("[data-nova]").onkeydown = (ev) => { if (ev.key === "Enter") addT(); };
+  a.querySelectorAll("[data-xtag]").forEach((b) => b.onclick = async () => { try { await gravaMeu(r, { tags: (r.tags || []).filter((t) => t !== b.dataset.xtag) }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } });
   a.querySelector("[data-atencao]").onclick = async () => { try { await gravaMeu(r, { atencao: !r.atencao }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
   a.querySelector("[data-editar]").onclick = () => modal(`<div class="mh"><div><div class="olho">Controle</div><h3>Editar recurso</h3></div><button class="x" data-fecha>×</button></div>
     <div class="fsec"><div class="fg">${campo("Município", inp("municipio", r.municipio))}${campo("Valor (R$)", inp("valor", r.valor, "", "number"))}${campo("Objeto", `<textarea data-f="objeto" rows="2">${esc(r.objeto || "")}</textarea>`, 1)}
       ${campo("Ano", inp("ano", r.ano, "", "number"))}${campo("Nº", inp("numero", r.numero))}${campo("Origem", inp("origem", r.origem, "Emenda impositiva, convênio, outros"))}${campo("Função", inp("funcao", r.funcao))}${campo("Modalidade", inp("modalidade", r.modalidade))}${campo("Natureza", sel("natureza", ["Investimento", "Custeio"], r.natureza, "—"))}${campo("Beneficiário", inp("beneficiario", r.beneficiario))}${campo("Processo SCC", inp("processo", r.processo))}${campo("Status", inp("status_manual", r.status_manual))}${campo("Tags <em>separadas por vírgula</em>", inp("tags", (r.tags || []).join(", ")), 1)}${campo("Observação", `<textarea data-f="observacao" rows="3">${esc(r.observacao || "")}</textarea>`, 1)}</div></div>
+    <div class="fsec"><div class="fst">Contatos <em>líder político que indicou e técnicos do processo</em></div><div class="fg">${(() => { const Lc = contato(r, "lider")[0] || {}, T = contato(r, "tecnico"); return campo("Líder", `<input data-c="lider.nome" value="${esc(Lc.nome || "")}" placeholder="Nome">`) + campo("Telefone do líder", `<input data-c="lider.tel" value="${esc(Lc.tel || "")}">`) + [0, 1].map((k) => campo("Técnico " + (k + 1), `<input data-c="tecnico${k}.nome" value="${esc((T[k] || {}).nome || "")}" placeholder="Nome">`) + campo("Telefone", `<input data-c="tecnico${k}.tel" value="${esc((T[k] || {}).tel || "")}">`)).join(""); })()}</div></div>
     <div class="mrod"><span class="av" data-msg></span><button class="btn sec" data-fecha>Cancelar</button><button class="btn" data-salva>Salvar</button></div>`, (m, fechar) => {
-      m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), ms = m.querySelector("[data-msg]"); o.valor = o.valor ? +o.valor : null; o.ano = o.ano ? +o.ano : null; o.tags = o.tags ? o.tags.split(",").map((t) => t.trim()).filter(Boolean) : []; ms.textContent = "Salvando…";
+      m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), ms = m.querySelector("[data-msg]"); o.valor = o.valor ? +o.valor : null; o.ano = o.ano ? +o.ano : null; o.tags = o.tags ? o.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
+        const cv = (k) => (m.querySelector(`[data-c="${k}"]`).value || "").trim(); o.contatos = [["lider", "lider"], ["tecnico", "tecnico0"], ["tecnico", "tecnico1"]].map(([p, k]) => ({ papel: p, nome: cv(k + ".nome"), tel: cv(k + ".tel") })).filter((c) => c.nome || c.tel);
+        if ((o.observacao || "") !== (r.observacao || "")) o.obs_em = new Date().toISOString(); ms.textContent = "Salvando…";
         try { await gravaMeu(r, o); fechar(); mtab(); } catch (er) { ms.textContent = "Não foi possível salvar: " + (er.message || er); } }; });
   const subst = () => { const ops = E0.slice().sort((x, y) => (y.ano - x.ano) || String(x.mun).localeCompare(y.mun, "pt-BR"));
     modal(`<div class="mh"><div><div class="olho">Controle</div><h3>Substituir emenda ligada</h3></div><button class="x" data-fecha>×</button></div>

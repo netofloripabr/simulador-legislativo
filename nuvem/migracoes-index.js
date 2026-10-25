@@ -1706,5 +1706,16 @@ const MIGRACOES_INDEX = [
     "gab_recursos.natureza"
    ]
   ]
+ },
+ {
+  "num": 79,
+  "arquivo": "migracao-79-gabinete-contatos.sql",
+  "descricao": "Migração 79 (25/10/2026): Gabinete · contatos do recurso (líder político que indicou e técnicos do processamen",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.contatos"
+   ]
+  ]
  }
 ];
