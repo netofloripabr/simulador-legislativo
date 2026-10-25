@@ -124,6 +124,8 @@ function formItem(x) {
       ${campo("Município", `<input data-f="municipio" list="adMuns" value="${esc(x.municipio || "")}" placeholder="Digite o município"><datalist id="adMuns">${muns.map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`)}
       ${campo("Valor (R$)", inp("valor", x.valor, r.min ? "mínimo " + ni(r.min) : "100000", "number"))}
       ${campo("Objeto", `<textarea data-f="objeto" rows="2" placeholder="O que será feito com o recurso">${esc(x.objeto || "")}</textarea>`, 1)}
+      ${campo("Projeto de lei <em>emenda impositiva</em>", inp("pl", x.pl || (L && /PL/i.test(L.origem || "") ? (L.origem.match(/PL[^()]*/i) || [""])[0].trim() : ""), "PL nº 452/2026"))}${campo("Lei sancionada", inp("lei", x.lei, "Lei nº 19.684/2026"))}
+      ${campo("Acordo <em>convênio e outros</em>", inp("acordo", x.acordo, "Termo, ofício, ajuste"), 1)}
       ${campo("Justificativa", `<textarea data-f="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 1)}
       ${campo("Área", sel("area", areas, x.area || (areas.length === 1 ? areas[0] : ""), "Escolha"))}${campo("Modalidade", sel("modalidade", MODS, x.modalidade, "Escolha"))}${campo("Natureza da despesa", sel("natureza", ["Investimento", "Custeio"], x.natureza, "Escolha"))}
       ${campo("CNPJ da entidade <em>só convênio</em>", inp("cnpj", x.cnpj, "00.000.000/0000-00"))}${campo("Razão social", inp("razao_social", x.razao_social))}</div>

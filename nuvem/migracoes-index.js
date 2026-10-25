@@ -1717,5 +1717,20 @@ const MIGRACOES_INDEX = [
     "gab_recursos.contatos"
    ]
   ]
+ },
+ {
+  "num": 80,
+  "arquivo": "migracao-80-gabinete-origem-legal.sql",
+  "descricao": "Migração 80 (25/10/2026): Gabinete · origem legal do recurso: projeto de lei (pl), lei sancionada (lei) e, par",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.pl"
+   ],
+   [
+    "column",
+    "gab_itens.pl"
+   ]
+  ]
  }
 ];
