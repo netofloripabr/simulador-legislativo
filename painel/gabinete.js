@@ -342,10 +342,10 @@ function detalheMeu(r) {
   (r.notas || []).forEach((n) => PV.push({ t: "Nota do gabinete", on: true, nota: true, dt: dtBR(n.em), l: [["", n.t]] }));
   const ul = tlVert(PV, e ? "Andamento · oficial" : "Andamento · pela planilha", e ? ETQ[e.et][0] : es.t);
   const lg = ehEI(r) ? [["Projeto de lei", r.pl], ["Lei", leiDe(r) ? leiDe(r) + (r.lei ? "" : " (da planilha)") : ""]] : [["Acordo", r.acordo]];
-  const kv = [["Processo", r.processo], ["Origem", r.origem], ...lg, ["Função", [r.funcao, r.natureza].filter(Boolean).join(" · ")], ["Beneficiário", r.beneficiario], ...(e ? [["Emenda", e.n || e.k]] : [])].filter(([, v]) => v);
+  const kv = [["Processo", r.processo], ["Origem", r.origem], ...lg.map(([k, v]) => [k, v || null, 1]), ["Função", [r.funcao, r.natureza].filter(Boolean).join(" · ")], ["Beneficiário", r.beneficiario], ...(e ? [["Emenda", e.n || e.k]] : [])].filter(([, v, fixo]) => v || fixo);
   const pes = (L, rot) => `<div class="ctt"><span>${rot}</span>${L.length ? L.map((c) => `<b>${esc(c.nome || "—")}${c.tel ? `<small>${esc(c.tel)}</small>` : ""}</b>`).join("") : `<b class="vz">não informado</b>`}</div>`;
   return `<div class="dm">${ul}<div><div class="olho">Dados</div>
-      <div class="kv2">${kv.map(([k, v]) => `<span>${k}</span><b>${esc(v)}</b>`).join("")}</div>
+      <div class="kv2">${kv.map(([k, v]) => `<span>${k}</span>${v ? `<b>${esc(v)}</b>` : `<b class="vz">não informado · <button class="lk" data-editar2 style="margin:0">preencher</button></b>`}`).join("")}</div>
       ${e ? "" : `<button class="lk" data-subst>Ligar a uma emenda do portal</button>`}
       <div class="olho" style="margin-top:22px">Contatos</div>${pes(contato(r, "lider"), "Líder")}${pes(contato(r, "tecnico"), "Técnico")}</div>
     <div><div class="olho">Observação${r.obs_em ? ` <small>· ${dtBR(r.obs_em)}</small>` : ""}</div>
@@ -368,6 +368,7 @@ function ligarMeuDet(d, r) {
   a.querySelector("[data-addtag]").onclick = addT; a.querySelector("[data-nova]").onkeydown = (ev) => { if (ev.key === "Enter") addT(); };
   a.querySelectorAll("[data-xtag]").forEach((b) => b.onclick = async () => { try { await gravaMeu(r, { tags: (r.tags || []).filter((t) => t !== b.dataset.xtag) }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } });
   a.querySelector("[data-atencao]").onclick = async () => { try { await gravaMeu(r, { atencao: !r.atencao }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+  a.querySelectorAll("[data-editar2]").forEach((b) => b.onclick = () => a.querySelector("[data-editar]").click());
   a.querySelector("[data-editar]").onclick = () => modal(`<div class="mh"><div><div class="olho">Controle</div><h3>Editar recurso</h3></div><button class="x" data-fecha>×</button></div>
     <div class="fsec"><div class="fg">${campo("Município", inp("municipio", r.municipio))}${campo("Valor (R$)", inp("valor", r.valor, "", "number"))}${campo("Objeto", `<textarea data-f="objeto" rows="2">${esc(r.objeto || "")}</textarea>`, 1)}
       ${campo("Ano", inp("ano", r.ano, "", "number"))}${campo("Nº", inp("numero", r.numero))}${campo("Origem", inp("origem", r.origem, "Emenda impositiva, convênio, outros"))}${campo("Projeto de lei <em>emenda impositiva</em>", inp("pl", r.pl, "PL nº 452/2026"))}${campo("Lei sancionada", inp("lei", r.lei, "Lei nº 19.684/2026"))}${campo("Acordo <em>convênio e outros</em>", inp("acordo", r.acordo, "Termo, ofício, ajuste"))}
