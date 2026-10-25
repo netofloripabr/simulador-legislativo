@@ -251,18 +251,28 @@ function etiquetarGrupo(L) {
         fechar(); mtab(); mfiltros(); } catch (er) { ms.textContent = "Parou em " + k + ": " + (er.message || er); } };
     m.querySelector("[data-salva]").onclick = () => run(false); m.querySelector("[data-tira]").onclick = () => run(true); });
 }
+// pesquisa (lupa: texto livre) e filtro (funil: os campos da planilha) são botões separados
+const MF = [["reg", "Região", (r) => r.regiao], ["mun", "Município", (r) => r.municipio], ["lid", "Líder", (r) => [...contato(r, "lider").map((c) => c.nome), r.lideranca]], ["fun", "Função", (r) => r.funcao], ["mod", "Modalidade", (r) => r.modalidade], ["ben", "Beneficiário", (r) => r.beneficiario], ["tag", "Etiqueta", (r) => r.tags]];
+const LUPA_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>';
+const FUNIL_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>';
 function mfiltros() {
-  const n = [S.mq, S.mori, S.met].filter(Boolean).length, oris = [...new Set(MEU.map((r) => sigla(r.origem)).filter(Boolean))].sort();
-  const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar filtros</button>` : ""}${S.mtool || ""}<button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar e pesquisar" aria-label="Filtrar e pesquisar"><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>${n ? `<b>${n}</b>` : ""}</button>${S.mad || ""}</div>`;
-  $("#mfil").innerHTML = `${S.mfa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Município, objeto, processo ou tag" value="${esc(S.mq || "")}">${leq("fOri", "Origem", [["", "Todas"], ...oris.map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens filtrados</button>` : ""}</div>` : ""}`;
+  S.mf = S.mf || {}; const nf = [S.mori, S.met, ...Object.values(S.mf)].filter(Boolean).length, n = nf + (S.mq ? 1 : 0);
+  const ops = (f) => [...new Set(MEU.flatMap((r) => [].concat(f(r) || [])).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR"));
+  const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar</button>` : ""}${S.mtool || ""}<button class="filb ico${S.mpa || S.mq ? " on" : ""}" id="lupB" title="Pesquisar" aria-label="Pesquisar">${LUPA_I}</button><button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar" aria-label="Filtrar">${FUNIL_I}${nf ? `<b>${nf}</b>` : ""}</button>${S.mad || ""}</div>`;
+  $("#mfil").innerHTML = `${S.mpa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Pesquisar município, objeto, processo, observação ou etiqueta" value="${esc(S.mq || "")}"></div>` : ""}
+    ${S.mfa ? `<div class="mfp mfg">${leq("fOri", "Origem", [["", "Todas"], ...ops((r) => sigla(r.origem)).map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}
+      ${MF.map(([k, t, f]) => leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o])], S.mf[k] || "")).join("")}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}
+      ${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens</button>` : ""}</div>` : ""}`;
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   if (typeof ligarAdicionar === "function") ligarAdicionar();
-  $("#filB").onclick = () => { S.mfa = !S.mfa; mfiltros(); const b = $("#mbusca"); if (b) b.focus(); };
-  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; mfiltros(); mtab(); };
+  $("#lupB").onclick = () => { S.mpa = !S.mpa; mfiltros(); const b = $("#mbusca"); if (b) b.focus(); };
+  $("#filB").onclick = () => { S.mfa = !S.mfa; mfiltros(); };
+  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.mf = {}; mfiltros(); mtab(); };
   const eg = $("#etqG"); if (eg) eg.onclick = () => etiquetarGrupo(mfiltradas());
-  const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); };
+  const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); const t = $("#mtool .filx"); if (!!S.mq !== !!t) { mfiltros(); const b = $("#mbusca"); b.focus(); b.setSelectionRange(b.value.length, b.value.length); } };
   const fo = $("#fOri"); if (fo) fo.onchange = (e) => { S.mori = e.target.value; mfiltros(); mtab(); };
   const fe = $("#fEt"); if (fe) fe.onchange = (e) => { S.met = e.target.value; mfiltros(); mtab(); };
+  [...MF.map(([k]) => k), "obs"].forEach((k) => { const s = $("#mf_" + k); if (s) s.onchange = (e) => { S.mf[k] = e.target.value; mfiltros(); mtab(); }; });
 }
 // função como ícone (saúde, educação, FUNDAM, agricultura, infraestrutura, segurança, social); etiqueta abaixo = natureza (investimento/custeio)
 const FUN_I = [[/sa[uú]de/i, "Saúde", '<path d="M6 2.5h4v3.5h3.5v4H10v3.5H6V10H2.5V6H6z"/>'], [/educa/i, "Educação", '<path d="M1.5 6L8 3l6.5 3L8 9z M4.5 7.5V11c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5V7.5 M14.5 6v3.5"/>'],
@@ -278,6 +288,10 @@ const balao = (r) => { const ul = (r.notas || []).slice(-1)[0];
 function mfiltradas() {
   const q = norm(S.mq); return MEU.filter((r) => { if (S.mano && r.ano !== S.mano) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
     if (S.mori && sigla(r.origem) !== S.mori) return false;
+    const F = S.mf || {}; if (F.lid && !contato(r, "lider").some((c) => c.nome === F.lid) && r.lideranca !== F.lid) return false;
+    if (F.reg && r.regiao !== F.reg) return false; if (F.mun && r.municipio !== F.mun) return false; if (F.fun && r.funcao !== F.fun) return false;
+    if (F.mod && r.modalidade !== F.mod) return false; if (F.tag && !(r.tags || []).includes(F.tag)) return false; if (F.ben && r.beneficiario !== F.ben) return false;
+    if (F.obs === "com" && !r.observacao) return false; if (F.obs === "sem" && r.observacao) return false; if (F.obs === "at" && !r.atencao) return false;
     if (S.met) { const e = etapasStatus(r.status_manual); if (S.met === "s" ? e.d : !e.d) return false; if (S.met === "v" && !e.ver) return false; if (/^\d$/.test(S.met) && (e.d.lastIndexOf(true) !== +S.met)) return false; }
     return true; });
 }
