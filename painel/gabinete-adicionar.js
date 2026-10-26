@@ -126,13 +126,12 @@ function formItem(x) {
       ${campo("Valor (R$)", inp("valor", x.valor, r.min ? "mínimo " + ni(r.min) : "100000", "number"))}
       ${campo("Objeto", `<textarea data-f="objeto" rows="2" placeholder="O que será feito com o recurso">${esc(x.objeto || "")}</textarea>`, 1)}
       ${campo("Projeto de lei <em>emenda impositiva</em>", inp("pl", x.pl || (L && /PL/i.test(L.origem || "") ? (L.origem.match(/PL[^()]*/i) || [""])[0].trim() : ""), "PL nº 452/2026"))}${campo("Lei sancionada", inp("lei", x.lei, "Lei nº 19.684/2026"))}
-      ${campo("Acordo <em>convênio e outros</em>", inp("acordo", x.acordo, "Termo, ofício, ajuste"), 1)}
       ${campo("Justificativa", `<textarea data-f="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 1)}
       ${campo("Área", sel("area", areas, x.area || (areas.length === 1 ? areas[0] : ""), "Escolha"))}${campo("Instrumento de repasse", sel("modalidade", MODS, x.modalidade, "Escolha"))}${campo("Natureza da despesa", sel("natureza", ["Investimento", "Custeio"], x.natureza, "Escolha"))}
       ${campo("CNPJ da entidade <em>só convênio</em>", inp("cnpj", x.cnpj, "00.000.000/0000-00"))}${campo("Razão social", inp("razao_social", x.razao_social))}</div>
       <div class="refc" id="refc"></div></div>
     <div class="fsec"><div class="fst">Gabinete <em>só para você</em></div><div class="fg">
-      ${campo("Quem pediu", `<input data-f="lideranca" list="adPes" value="${esc(x.lideranca || "")}" placeholder="Escolha ou digite um nome novo"><datalist id="adPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`)}${campo("Contato", inp("contato", x.contato, "Telefone ou e-mail"))}
+      ${campo("Líder", `<input data-f="lideranca" list="adPes" value="${esc(x.lideranca || "")}" placeholder="Escolha ou digite um nome novo"><datalist id="adPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`)}${campo("Contato", inp("contato", x.contato, "Telefone ou e-mail"))}
       ${campo("Beneficiário", inp("beneficiario", x.beneficiario, "Prefeitura, hospital, APAE…"))}${campo("Prioridade", sel("prioridade", PRIOR, x.prioridade, "—"))}
       ${campo("Status", sel("status", STATUS, x.status || "Em análise"))}${campo("Lista", `<select data-f="lista_id"><option value="">Avulso</option>${AD.listas.map((l) => `<option value="${l.id}"${l.id === x.lista_id ? " selected" : ""}>${esc(l.apelido || l.origem)}</option>`).join("")}</select>`)}
       ${campo("Observação", `<textarea data-f="observacao" rows="2">${esc(x.observacao || "")}</textarea>`, 1)}</div></div>
