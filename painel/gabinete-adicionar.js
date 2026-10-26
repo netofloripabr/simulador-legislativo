@@ -54,7 +54,7 @@ const refTxt = (r) => r ? `${fm(r.rec)} · ${ni(r.v22)} → ${ni(r.v26)} votos${
 // ---------- botão verde: só a entrada. As listas e os itens aparecem dentro de "Meu controle" ----------
 function adicionarHtml() {
   if (!(PODE && proprio())) return "";
-  return `<div class="adw"><button class="adbtn" id="adBtn" title="Adicionar item ou lista" aria-label="Adicionar">+</button><div class="admenu" id="adMenu" hidden><button data-ad="item"><b>Item</b><span>Uma indicação, no formulário padrão</span></button><button data-ad="lista"><b>Lista</b><span>Várias indicações de uma mesma origem: lei, PL, superávit</span></button></div></div>`;
+  return `<div class="adw"><button class="adbtn" id="adBtn" title="Adicionar item ou lista" aria-label="Adicionar">+</button><div class="admenu" id="adMenu" hidden><button data-ad="item"><b>Item</b><span>Uma indicação, no formulário padrão</span></button><button data-ad="lista"><b>Lista</b><span>Formulário de indicações em Google Planilhas, gerado no seu Drive</span></button></div></div>`;
 }
 // filtro "Lista" de Meu controle: a planilha importada, cada lista criada e os itens avulsos
 const opsListas = () => [["", "Planilha do gabinete"], ...AD.listas.map((l) => [l.id, l.apelido || l.origem]), ...(AD.itens.some((x) => !x.lista_id) ? [["avulsos", "Itens avulsos"]] : [])];
@@ -69,6 +69,7 @@ function ligarAdicionar() {
   const L = AD.listas.find((x) => x.id === S.lista);
   on("[data-novo]", () => formItem({ lista_id: L ? L.id : null }));
   on("[data-edlista]", () => formLista(L));
+  on("[data-gplan]", () => abrirGerarPlanilha(L));
   on("[data-caderno]", () => imprimir(L, "caderno"));
   on("[data-relat]", () => imprimir(L, "relatorio"));
   on("[data-xlsx]", () => exportarOrcamento(L));
@@ -92,7 +93,7 @@ function painelLista() {
   const it = AD.itens.filter((x) => av ? !x.lista_id : x.lista_id === L.id), r = (L && L.regras) || {}, c = checar(L, it), pz = r.prazo ? new Date(r.prazo) : null;
   const resumo = av ? `${it.length} itens · ${fm(c.tot)}` : [`<b>${fm(c.tot)}</b>${r.disp ? ` de ${fm(r.disp)}` : ""}`, c.saldo != null ? `saldo <b${c.saldo < 0 ? ' style="color:var(--erro)"' : ""}>${fm(c.saldo)}</b>` : "", `<b>${it.length}</b>${r.max ? "/" + r.max : ""} itens`, r.min ? `mín. ${fm(r.min)}` : "", r.areas && r.areas.length < AREAS.length ? r.areas.join(", ") : "", pz ? `prazo ${pz.toLocaleDateString("pt-BR")} ${pz.toTimeString().slice(0, 5)}` : ""].filter(Boolean).join(" · ");
   return `<div id="lpainel"><div class="lres"><div><div class="olho">${av ? "Fora de lista" : esc(L.origem)}</div><div class="lnum">${resumo}</div></div>
-    <div class="lpacs">${av ? "" : `<button class="btn sec" data-edlista>Regras</button><button class="btn sec" data-caderno>Caderno</button><button class="btn sec" data-relat>Relatório</button><button class="btn sec" data-xlsx>Exportar para o Orçamento</button>`}</div></div>
+    <div class="lpacs">${av ? "" : `<button class="btn sec" data-edlista>Regras</button><button class="btn sec" data-gplan>Planilha Google</button><button class="btn sec" data-caderno>Caderno</button><button class="btn sec" data-relat>Relatório</button><button class="btn sec" data-xlsx>Exportar para o Orçamento</button>`}</div></div>
     ${c.al.length ? `<div class="lal">${c.al.map((x) => `<div>${esc(x)}</div>`).join("")}</div>` : ""}
     <section class="bx"><table class="tb mt lt"><thead><tr><th>Município</th><th>Objeto</th><th class="hm">Área · modalidade</th><th class="v">R$</th><th class="hm">A cidade no mandato</th><th>Status</th></tr></thead><tbody>
     ${it.map((x) => { const rf = refCidade(x.municipio || ""); return `<tr class="r" data-item="${x.id}"><td><b>${esc(x.municipio || "—")}</b><small>${esc(x.lideranca || "")}</small></td><td>${esc(frase(x.objeto || ""))}<small>${esc(x.beneficiario || x.razao_social || "")}</small></td><td class="hm">${esc(x.area || x.tipo || "")}<small>${esc([x.tipo && x.area ? x.tipo : "", x.modalidade].filter(Boolean).join(" · "))}</small></td><td class="v">${fr(+x.valor || 0)}</td><td class="hm"><small style="color:var(--sec)">${esc(refTxt(rf))}</small></td><td><span class="etc" style="--c:${{ Confirmado: "#34E84A", Enviado: "#8FA8E8", Descartado: "#E8432A" }[x.status] || "#8A9096"}">${esc(x.status || "Em análise")}</span></td></tr>`; }).join("")}
@@ -161,7 +162,7 @@ function formLista(L) {
     m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), msg = m.querySelector("[data-msg]"); if (!o.origem) { msg.textContent = "Informe a origem legal."; return; }
       const regras = { disp: o.disp ? +o.disp : null, min: o.min ? +o.min : null, max: o.max ? +o.max : null, prazo: o.prazo || "", areas: [...m.querySelectorAll("[data-area]:checked")].map((c) => c.value) };
       msg.textContent = "Salvando…";
-      try { const nl = await gravar("gab_listas", { ...(L.id ? { id: L.id } : {}), origem: o.origem, apelido: o.apelido, modelo: (m.querySelector("[data-mod].on") || {}).dataset?.mod || L.modelo || null, regras }); fechar(); S.aba = "meu"; S.lista = nl.id; desenhar(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+      try { const nl = await gravar("gab_listas", { ...(L.id ? { id: L.id } : {}), origem: o.origem, apelido: o.apelido, modelo: (m.querySelector("[data-mod].on") || {}).dataset?.mod || L.modelo || null, regras }); fechar(); S.aba = "meu"; S.lista = nl.id; desenhar(); if (typeof abrirGerarPlanilha === "function" && !L.id) abrirGerarPlanilha(nl); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
     const ap = m.querySelector("[data-apaga]"); if (ap) ap.onclick = async () => { if (ap.dataset.ok !== "1") { ap.dataset.ok = "1"; ap.textContent = "Confirmar: apaga a lista e os itens"; return; } await apagar("gab_listas", L.id); fechar(); S.lista = null; desenhar(); };
   });
 }
