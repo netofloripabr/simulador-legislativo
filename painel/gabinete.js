@@ -262,7 +262,7 @@ function mfiltros() {
   const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar</button>` : ""}${S.mtool || ""}<button class="filb ico${S.mpa || S.mq ? " on" : ""}" id="lupB" title="Pesquisar" aria-label="Pesquisar">${LUPA_I}</button><button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar" aria-label="Filtrar">${FUNIL_I}${nf ? `<b>${nf}</b>` : ""}</button>${S.mad || ""}</div>`;
   $("#mfil").innerHTML = `${S.mpa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Pesquisar município, objeto, processo, observação ou etiqueta" value="${esc(S.mq || "")}"></div>` : ""}
     ${S.mfa ? `<div class="mfp mfg">${leq("fOri", "Origem", [["", "Todas"], ...ops((r) => sigla(r.origem)).map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}
-      ${MF.map(([k, t, f]) => leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o])], S.mf[k] || "")).join("")}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}
+      ${MF.map(([k, t, f]) => leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o]), ...(["mod", "fun", "reg"].includes(k) ? [["(vazio)", "Não informado"]] : [])], S.mf[k] || "")).join("")}${S.mf.num ? leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num) : ""}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}
       ${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens</button>` : ""}<button class="filb ico borr" id="filBorr" title="Limpar filtros" aria-label="Limpar filtros"${n ? "" : " disabled"}><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 2.5l4 4-6.5 6.5H4.5l-2-2z M6.5 5.5l4 4 M7 13h6.5"/></svg></button></div>` : ""}`;
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   if (typeof ligarAdicionar === "function") ligarAdicionar();
@@ -274,7 +274,7 @@ function mfiltros() {
   const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); const t = $("#mtool .filx"); if (!!S.mq !== !!t) { mfiltros(); const b = $("#mbusca"); b.focus(); b.setSelectionRange(b.value.length, b.value.length); } };
   const fo = $("#fOri"); if (fo) fo.onchange = (e) => { S.mori = e.target.value; mfiltros(); mtab(); };
   const fe = $("#fEt"); if (fe) fe.onchange = (e) => { S.met = e.target.value; mfiltros(); mtab(); };
-  [...MF.map(([k]) => k), "obs"].forEach((k) => { const s = $("#mf_" + k); if (s) s.onchange = (e) => { S.mf[k] = e.target.value; mfiltros(); mtab(); }; });
+  [...MF.map(([k]) => k), "obs", "num"].forEach((k) => { const s = $("#mf_" + k); if (s) s.onchange = (e) => { S.mf[k] = e.target.value; mfiltros(); mtab(); }; });
 }
 // função como ícone (saúde, educação, FUNDAM, agricultura, infraestrutura, segurança, social); etiqueta abaixo = natureza (investimento/custeio)
 const FUN_I = [[/sa[uú]de/i, "Saúde", '<path d="M6 2.5h4v3.5h3.5v4H10v3.5H6V10H2.5V6H6z"/>'], [/educa/i, "Educação", '<path d="M1.5 6L8 3l6.5 3L8 9z M4.5 7.5V11c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5V7.5 M14.5 6v3.5"/>'],
@@ -305,9 +305,12 @@ const balao = (r) => { const ul = (r.notas || []).slice(-1)[0];
 function mfiltradas() {
   const q = norm(S.mq); return MEU.filter((r) => { if (S.mano && r.ano !== S.mano) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
     if (S.mori && sigla(r.origem) !== S.mori) return false;
-    const F = S.mf || {}; if (F.lid && !contato(r, "lider").some((c) => c.nome === F.lid) && r.lideranca !== F.lid) return false;
-    if (F.reg && regDe(r) !== F.reg) return false; if (F.mun && r.municipio !== F.mun) return false; if (F.fun && r.funcao !== F.fun) return false;
-    if (F.mod && instrNome(r.modalidade) !== F.mod) return false; if (F.tag && !(r.tags || []).includes(F.tag)) return false; if (F.ben && r.beneficiario !== F.ben) return false;
+    const F = S.mf || {}; const vz = (k, cheio) => F[k] === "(vazio)" ? !cheio : null;
+    if (vz("mod", r.modalidade) === false || vz("fun", r.funcao) === false || vz("reg", regDe(r)) === false) return false;
+    if (F.num === "(vazio)" && (/^\d+$/.test(String(r.numero || "")) || !/^EI/.test(sigla(r.origem)))) return false;
+    if (F.lid && !contato(r, "lider").some((c) => c.nome === F.lid) && r.lideranca !== F.lid) return false;
+    if (F.reg && F.reg !== "(vazio)" && regDe(r) !== F.reg) return false; if (F.mun && r.municipio !== F.mun) return false; if (F.fun && F.fun !== "(vazio)" && r.funcao !== F.fun) return false;
+    if (F.mod && F.mod !== "(vazio)" && instrNome(r.modalidade) !== F.mod) return false; if (F.tag && !(r.tags || []).includes(F.tag)) return false; if (F.ben && r.beneficiario !== F.ben) return false;
     if (F.obs === "com" && !r.observacao) return false; if (F.obs === "sem" && r.observacao) return false; if (F.obs === "at" && !r.atencao) return false;
     if (S.met) { const e = etapasStatus(r.status_manual); if (S.met === "s" ? e.d : !e.d) return false; if (S.met === "v" && !e.ver) return false; if (/^\d$/.test(S.met) && (e.d.lastIndexOf(true) !== +S.met)) return false; }
     return true; });
