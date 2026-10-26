@@ -50,20 +50,22 @@ function cotas() {
   const POR = {}; anos.forEach((a) => cotasDoAno(a).forEach((c) => { (POR[c.t] = POR[c.t] || {})[a] = c; }));
   const tipos = Object.keys(COTA_T).filter((t) => POR[t]), mx = Math.max(1, ...tipos.flatMap((t) => Object.values(POR[t]).map((c) => Math.max(c.tot, c.disp || 0))));
   const sel = S.cota && S.cano && POR[S.cota] && POR[S.cota][S.cano];
-  const cartao = (t) => { const o = POR[t], mx = Math.max(1, ...Object.values(o).map((c) => Math.max(c.tot, c.disp || 0))), vs = anos.map((a) => (o[a] || {}).tot || 0), fim = vs.filter(Boolean), d = fim.length > 1 ? fim[fim.length - 1] / fim[fim.length - 2] - 1 : null;
-    return `<div class="ccard"><div class="cch"><b>${COTA_T[t][0]}</b>${d != null ? `<span class="${d >= 0 ? "up" : "dn"}">${d >= 0 ? "▲" : "▼"} ${nf(Math.abs(d) * 100, 0)}%</span>` : ""}</div>
-      ${anos.map((a) => { const c = o[a]; if (!c) return `<div class="cyr vz"><span>${a}</span><div class="cyb"></div><em>—</em></div>`;
-        const lv = c.disp ? Math.max(0, c.disp - c.tot) : 0;
-        return `<button class="cyr${S.cota === t && S.cano === a ? " on" : ""}" data-abre="${t}|${a}" title="${esc(c.leis.join(" + ") || COTA_T[t][0])}"><span>${a}</span><div class="cyb"><i style="width:${(c.tot / mx * 100).toFixed(1)}%"></i>${lv ? `<s style="width:${(lv / mx * 100).toFixed(1)}%"></s>` : ""}</div><em>${fm(c.tot)}${lv ? ` <small>+ ${fm(lv)} livres</small>` : ""}</em></button>`; }).join("")}</div>`; };
-  return `<div class="cotas">${comparacao(anos)}<div class="clb">Cotas por exercício</div><div class="ccards">${tipos.map(cartao).join("")}</div>
+  // gráfico dinâmico: botões por tipo de cota; uma barra por ano (mesmo padrão da comparação), parte livre tracejada
+  if (!S.ctipo || !POR[S.ctipo]) S.ctipo = tipos[0];
+  const o = POR[S.ctipo], m2 = Math.max(1, ...Object.values(o).map((c) => Math.max(c.tot, c.disp || 0)));
+  const graf = `<div class="ccomp"><div class="cctl"><div class="cfils"><b>${COTA_T[S.ctipo][0]}</b><span>${anos.filter((a) => o[a]).length} exercício(s)</span></div>
+      <div class="cabas">${tipos.map((t) => `<button data-ctipo="${t}" class="${S.ctipo === t ? "on" : ""}">${COTA_T[t][0]}</button>`).join("")}</div></div>
+    ${anos.map((a) => { const c = o[a]; if (!c) return `<div class="cano vz"><span class="ca">${a}</span><div class="cab"></div><b class="ct">—</b></div>`;
+      const lv = c.disp ? Math.max(0, c.disp - c.tot) : 0, ant = o[a - 1], d = ant && ant.tot ? c.tot / ant.tot - 1 : null;
+      return `<button class="cano cyr2${S.cota === S.ctipo && S.cano === a ? " on" : ""}" data-abre="${S.ctipo}|${a}" title="${esc(c.leis.join(" + "))}"><span class="ca">${a}</span><div class="cab"><div style="width:${(c.tot / m2 * 100).toFixed(2)}%"><i style="flex:1;background:${S.cota === S.ctipo && S.cano === a ? "#F2F4F5" : "#A9AEB3"}"><em>${esc(c.leis[0] || "")}</em></i></div>${lv ? `<s style="width:${(lv / m2 * 100).toFixed(2)}%"></s>` : ""}</div><b class="ct">${fm(c.tot)}${d != null ? `<small class="${d >= 0 ? "up" : "dn"}">${d >= 0 ? "▲" : "▼"} ${nf(Math.abs(d) * 100, 0)}%</small>` : ""}${lv ? `<small class="lv">+ ${fm(lv)} livres</small>` : ""}</b></button>`; }).join("")}</div>`;
+  return `<div class="cotas">${comparacao(anos)}<div class="clb">Cotas por exercício</div>${graf}
     ${sel ? cotaAberta(sel) : ""}</div>`;
 }
 function cotaAberta(c) {
   const [nm] = COTA_T[c.t], livre = c.disp ? Math.max(0, c.disp - c.tot) : 0, base = Math.max(c.disp || 0, c.tot) || 1;
   const it = c.itens.slice().sort((a, b) => a.fun.localeCompare(b.fun) || b.v - a.v), fs = [...new Set(it.map((x) => x.fun))];
   return `<div class="caberta"><div class="ch"><b>${livre ? fm(livre) + " livres" : fm(c.tot)}</b><span>${livre ? "de " + fm(c.disp) + " · " : ""}${nm} ${S.cano} · ${it.length} indicaç${it.length === 1 ? "ão" : "ões"}</span></div>
-    <div class="cbar">${it.map((x) => `<i style="flex:${x.v / base};background:${FUN_COR[x.fun] || "#6B7178"}${x.plan ? ";opacity:.6" : ""}" title="${esc(x.mun || "")} · ${esc((x.obj || "").slice(0, 80))} · ${fm(x.v)}"></i>`).join("")}${livre ? `<button class="cfree" style="flex:${livre / base}" data-cind>+ indicar</button>` : ""}</div>
-    <div class="cleg">${fs.map((f) => `<span><i style="background:${FUN_COR[f] || "#6B7178"}"></i>${esc(f)}</span>`).join("")}</div>
+    ${livre ? `<button class="lk" data-cind>+ indicar (${fm(livre)} livres)</button>` : ""}
     <div class="cits">${it.slice().sort((a, b) => b.v - a.v).slice(0, S.call ? 999 : 8).map((x) => `<div><i style="background:${FUN_COR[x.fun] || "#6B7178"}"></i><span>${esc(x.mun || "—")} <small>· ${esc((x.obj || "").slice(0, 90))}</small></span><b>${fm(x.v)}</b></div>`).join("")}</div>
     ${it.length > 8 && !S.call ? `<button class="lk" data-call>ver as ${it.length} indicações</button>` : ""}</div>`;
 }
@@ -72,6 +74,7 @@ function ligarCotas() {
   w.querySelectorAll("[data-cdim]").forEach((b) => b.onclick = () => { S.cdim = b.dataset.cdim; desenhar(); });
   w.querySelectorAll("[data-seg]").forEach((b) => b.onclick = () => { S.cfil.push([S.cdim, b.dataset.seg]); const prox = DIMS.find(([k]) => !S.cfil.some(([d]) => d === k)); S.cdim = prox ? prox[0] : S.cdim; desenhar(); });
   w.querySelectorAll("[data-tira]").forEach((b) => b.onclick = () => { S.cfil = S.cfil.slice(0, +b.dataset.tira); S.cdim = DIMS.find(([k]) => !S.cfil.some(([d]) => d === k))[0]; desenhar(); });
+  w.querySelectorAll("[data-ctipo]").forEach((b) => b.onclick = () => { S.ctipo = b.dataset.ctipo; S.cota = null; desenhar(); });
   w.querySelectorAll("[data-abre]").forEach((b) => b.onclick = () => { const [t, a] = b.dataset.abre.split("|"); if (S.cota === t && S.cano === +a) { S.cota = null; } else { S.cota = t; S.cano = +a; } S.call = 0; desenhar(); const ab = $(".caberta"); if (ab) ab.scrollIntoView({ behavior: "smooth", block: "nearest" }); });
   const ci = w.querySelector("[data-cind]"); if (ci) ci.onclick = () => { const c = cotasDoAno(S.cano).find((x) => x.t === S.cota); formItem({ lista_id: c && c.lista ? c.lista.id : null }); };
   const ca = w.querySelector("[data-call]"); if (ca) ca.onclick = () => { S.call = 1; desenhar(); };
