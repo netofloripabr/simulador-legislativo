@@ -53,7 +53,7 @@ function cotas() {
   // gráfico dinâmico: botões por tipo de cota; uma barra por ano (mesmo padrão da comparação), parte livre tracejada
   if (!S.ctipo || !POR[S.ctipo]) S.ctipo = tipos[0];
   const o = POR[S.ctipo], m2 = Math.max(1, ...Object.values(o).map((c) => Math.max(c.tot, c.disp || 0)));
-  const graf = `<div class="ccomp"><div class="cctl"><div class="cfils"><b>${COTA_T[S.ctipo][0]}</b><span>${anos.filter((a) => o[a]).length} exercício(s)</span></div>
+  const graf = `<div class="ccomp"><div class="cctl"><div class="cfils"><b>${fm(Object.values(o).reduce((s, c) => s + c.tot, 0))}</b><span>${anos[0]}–${anos[anos.length - 1]}</span></div>
       <div class="cabas">${tipos.map((t) => `<button data-ctipo="${t}" class="${S.ctipo === t ? "on" : ""}">${COTA_T[t][0]}</button>`).join("")}</div></div>
     ${anos.map((a) => { const c = o[a]; if (!c) return `<div class="cano vz"><span class="ca">${a}</span><div class="cab"></div><b class="ct">—</b></div>`;
       const lv = c.disp ? Math.max(0, c.disp - c.tot) : 0, ant = o[a - 1], d = ant && ant.tot ? c.tot / ant.tot - 1 : null;
@@ -69,12 +69,19 @@ function cotaAberta(c) {
     <div class="cits">${it.slice().sort((a, b) => b.v - a.v).slice(0, S.call ? 999 : 8).map((x) => `<div><i style="background:${FUN_COR[x.fun] || "#6B7178"}"></i><span>${esc(x.mun || "—")} <small>· ${esc((x.obj || "").slice(0, 90))}</small></span><b>${fm(x.v)}</b></div>`).join("")}</div>
     ${it.length > 8 && !S.call ? `<button class="lk" data-call>ver as ${it.length} indicações</button>` : ""}</div>`;
 }
+// redesenha mantendo o quadro parado: guarda a largura de cada barra, redesenha e anima da largura antiga até a nova
+function redesenharSuave() {
+  const ant = [...document.querySelectorAll(".cotas .cab > div, .cotas .cab > s")].map((e) => e.getBoundingClientRect().width);
+  const y = window.scrollY; desenhar(); window.scrollTo(0, y);
+  const nov = [...document.querySelectorAll(".cotas .cab > div, .cotas .cab > s")];
+  nov.forEach((e, k) => { const alvo = e.style.width; e.style.transition = "none"; e.style.width = (ant[k] != null ? ant[k] : 0) + "px"; e.getBoundingClientRect(); e.style.transition = ""; e.style.width = alvo; });
+}
 function ligarCotas() {
   const w = $("#corpoAba .cotas"); if (!w) return;
-  w.querySelectorAll("[data-cdim]").forEach((b) => b.onclick = () => { S.cdim = b.dataset.cdim; desenhar(); });
-  w.querySelectorAll("[data-seg]").forEach((b) => b.onclick = () => { S.cfil.push([S.cdim, b.dataset.seg]); const prox = DIMS.find(([k]) => !S.cfil.some(([d]) => d === k)); S.cdim = prox ? prox[0] : S.cdim; desenhar(); });
-  w.querySelectorAll("[data-tira]").forEach((b) => b.onclick = () => { S.cfil = S.cfil.slice(0, +b.dataset.tira); S.cdim = DIMS.find(([k]) => !S.cfil.some(([d]) => d === k))[0]; desenhar(); });
-  w.querySelectorAll("[data-ctipo]").forEach((b) => b.onclick = () => { S.ctipo = b.dataset.ctipo; S.cota = null; desenhar(); });
+  w.querySelectorAll("[data-cdim]").forEach((b) => b.onclick = () => { S.cdim = b.dataset.cdim; redesenharSuave(); });
+  w.querySelectorAll("[data-seg]").forEach((b) => b.onclick = () => { S.cfil.push([S.cdim, b.dataset.seg]); const prox = DIMS.find(([k]) => !S.cfil.some(([d]) => d === k)); S.cdim = prox ? prox[0] : S.cdim; redesenharSuave(); });
+  w.querySelectorAll("[data-tira]").forEach((b) => b.onclick = () => { S.cfil = S.cfil.slice(0, +b.dataset.tira); S.cdim = DIMS.find(([k]) => !S.cfil.some(([d]) => d === k))[0]; redesenharSuave(); });
+  w.querySelectorAll("[data-ctipo]").forEach((b) => b.onclick = () => { S.ctipo = b.dataset.ctipo; S.cota = null; redesenharSuave(); });
   w.querySelectorAll("[data-abre]").forEach((b) => b.onclick = () => { const [t, a] = b.dataset.abre.split("|"); if (S.cota === t && S.cano === +a) { S.cota = null; } else { S.cota = t; S.cano = +a; } S.call = 0; desenhar(); const ab = $(".caberta"); if (ab) ab.scrollIntoView({ behavior: "smooth", block: "nearest" }); });
   const ci = w.querySelector("[data-cind]"); if (ci) ci.onclick = () => { const c = cotasDoAno(S.cano).find((x) => x.t === S.cota); formItem({ lista_id: c && c.lista ? c.lista.id : null }); };
   const ca = w.querySelector("[data-call]"); if (ca) ca.onclick = () => { S.call = 1; desenhar(); };
