@@ -34,7 +34,12 @@ function itensCotas() {
     L.push({ x, ano: a, v: +x.valor || 0, t, ori: COTA_T[t][0], area: funDe(x), instr: x.modalidade || "Não informado", reg: regDe(x) || "Sem região", mun: x.municipio ? frase(x.municipio) : "—", obj: x.objeto, pago: 0, plan: 1 }); });
   return L.filter((i) => noEsc(i.t));
 }
-function dispDoAno(ano, t) { return (typeof AD !== "undefined" ? AD.listas : []).filter((L) => anoLista(L) === ano && (!t || tipoLista(L) === t)).reduce((s, L) => s + ((L.regras || {}).disp || 0), 0); }
+// cotas legais com valor disponível cadastrado pela administração (fixas): excesso de arrecadação 2026 (LDO 2026, art. 30:
+// 1,55% do crescimento da RCL, só Saúde) = R$ 718.997,79 por parlamentar, até 7 indicações, prazo 28/10/2026
+const COTAS_LEGAIS = { 2026: { EX: { disp: 718997.79, max: 7, prazo: "2026-10-28T18:00", base: "LDO 2026 (Lei 19.401/2025), art. 30" } } };
+function dispDoAno(ano, t) {
+  const leg = COTAS_LEGAIS[ano] || {}, dl = t ? (leg[t] || {}).disp || 0 : Object.values(leg).reduce((s, x) => s + (x.disp || 0), 0);
+  return dl || (typeof AD !== "undefined" ? AD.listas : []).filter((L) => anoLista(L) === ano && (!t || tipoLista(L) === t)).reduce((s, L) => s + ((L.regras || {}).disp || 0), 0); }
 
 // ---------- peças comuns ----------
 const varTxt = (v, ant) => { if (ant == null || !ant) return ""; const d = v - ant, p = d / ant;
@@ -65,7 +70,7 @@ function comparacao(anos, I) {
 
 // ---------- gráfico 2: por tipo de cota ----------
 function porTipo(anos, I) {
-  const tipos = Object.keys(COTA_T).filter((t) => I.some((x) => x.t === t)); if (!S.ctipo || (S.ctipo !== "TODOS" && !tipos.includes(S.ctipo))) S.ctipo = "TODOS";
+  const tipos = Object.keys(COTA_T).filter((t) => I.some((x) => x.t === t) || (S.cesc !== "neg" && Object.values(COTAS_LEGAIS).some((g) => g[t]))); if (!S.ctipo || (S.ctipo !== "TODOS" && !tipos.includes(S.ctipo))) S.ctipo = "TODOS";
   const sel = I.filter((x) => S.ctipo === "TODOS" || x.t === S.ctipo), porAno = {};
   sel.forEach((x) => { const o = porAno[x.ano] = porAno[x.ano] || { t: 0, p: 0, s: {} }; o.t += x.v; o.p += x.pago; if (x.t === "AN" || x.t === "0,55") o.q = (o.q || 0) + x.v; o.s[x.t] = (o.s[x.t] || 0) + x.v; });
   const livre = (a) => { const d = dispDoAno(a, S.ctipo === "TODOS" ? null : S.ctipo); return d ? Math.max(0, d - ((porAno[a] || {}).t || 0)) : 0; };
@@ -105,7 +110,7 @@ const INFO_COTAS = `<b>O que entra:</b> itens do Controle não suprimidos e as i
 function cotas() {
   try { const g = JSON.parse(localStorage.getItem("gab_cotas") || "{}"); if (S.cesc == null) Object.assign(S, { cesc: g.cesc || "imp", cdim: g.cdim || "ori", cfil: g.cfil || [], ctipo: g.ctipo || "TODOS" }); } catch (e) {}
   S.cesc = S.cesc || "imp"; S.cfil = S.cfil || []; S.cdim = S.cdim || "ori";
-  const I = itensCotas(), anos = [...new Set(I.map((x) => x.ano))].sort();
+  const I = itensCotas(), anos = [...new Set([...I.map((x) => x.ano), ...(S.cesc !== "neg" ? Object.keys(COTAS_LEGAIS).map(Number) : [])])].sort();
   const esc0 = `<div class="ctop"><div class="cabas">${ESC.map(([k, t]) => `<button data-cesc="${k}" class="${S.cesc === k ? "on" : ""}">${t}</button>`).join("")}</div>
     <span class="ctopd"><button class="lk" data-cimp>Imprimir</button><button class="ibt${S.cinfo ? " on" : ""}" data-cinfo aria-label="Como os números são calculados">i</button></span></div>${S.cinfo ? `<div class="cinfo">${INFO_COTAS}</div>` : ""}`;
   if (!anos.length) return `<div class="cotas">${esc0}<div class="obra">Sem itens neste recorte.</div></div>`;
