@@ -77,3 +77,6 @@ html{ scrollbar-gutter:stable; }
   #topoSL.com-trilho .sl-trilho{ order:0; flex:1 1 auto; margin-left:2px; } #topoSL.com-trilho .sl-uf, #topoSL.com-trilho .wm{ order:0; }
   #topoSL.com-trilho .wm{ font-size:15px; } #topoSL .pselb{ padding:7px 9px 7px 11px; font-size:12.5px; } #topoSL .sl-subs a{ padding:7px 8px !important; font-size:12px !important; }
   #topoSL.com-trilho .sl-uf{ margin-left:0; } #topoSL.com-trilho .sl-uf select{ padding:7px 22px 7px 9px; } #topoSL.com-trilho .sep{ display:none !important; } }
+
+/* Parlamentares: estado ao lado de Estaduais/Federais (25/10/2026) */
+.cgRow{ display:flex; align-items:center; gap:10px; } .cgRow .sl-uf{ position:relative; display:inline-flex; align-items:center; color:#A9AEB3; } .cgRow .sl-uf select{ all:unset; box-sizing:border-box; font:700 12px/1 "InterSL",system-ui,sans-serif; letter-spacing:.06em; color:#F2F4F5; padding:9px 26px 9px 12px; border:1px solid rgba(242,244,245,.12); border-radius:999px; cursor:pointer; } .cgRow .sl-uf select option{ color:#0B0D0E; } .cgRow .sl-uf svg{ position:absolute; right:10px; pointer-events:none; }
