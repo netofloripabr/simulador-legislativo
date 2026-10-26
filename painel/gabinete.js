@@ -62,7 +62,7 @@ const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos por você. Transparência: os dados divulgados pelo estado."],
   ["rh", "RH", "Equipe do gabinete, cargos, lotação e a cota de nomeações."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
   ["ele", "Eleitoral", "Base eleitoral, lideranças e a relação entre votos e presença do mandato."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."]];
-function desenhar() {  if (S.aba === "meu" && !(proprio() && PODE)) S.aba = "geral";
+function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio() && PODE)) S.aba = "geral";
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
   const nm = PARL.u.split(" "), EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
@@ -76,7 +76,7 @@ function desenhar() {  if (S.aba === "meu" && !(proprio() && PODE)) S.aba = "ger
   $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
   $("#abas").onclick = (e) => { if (e.target.closest("#mapaBt")) { S.mapa = !S.mapa; desenhar(); return; } const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
   if (S.mapa && S.aba !== "geral" && !(S.aba === "outros" && S.outro)) { const lt = $("#lentes"); if (lt) lt.onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); }; }
-  if (S.aba === "geral" || (S.aba === "outros" && S.outro)) ligarGeral(); else if (S.aba === "meu") ligarMeu(); else ligarOutros();
+  if (S.aba === "geral" || (S.aba === "outros" && S.outro)) ligarGeral(); else if (S.aba === "meu") ligarMeu(); else if (S.aba === "cotas") ligarCotas(); else ligarOutros();
 }
 // capa do gabinete: mesma dinâmica da capa de Parlamentares (mapa animado, números saltando, a cidade de
 // destaque fora do mapa), com filtros que trocam o que o mapa mostra
@@ -156,7 +156,7 @@ function blocos() {
     hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; S.bxf[k] = !S.bxf[k]; bx.classList.toggle("fech", S.bxf[k]); hd.querySelector(".tgs").classList.toggle("ab", !S.bxf[k]); }; });
 }
 function corpoRec() {
-  return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o painel de indicadores"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13.5h12 M4 11V7 M8 11V3 M12 11V8"/></svg>Painel</button></div>${S.aba === "meu" ? '<div id="mtool"></div>' : ""}</div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : outros()}</div>`;
+  return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"], ["cotas", "Cotas"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o painel de indicadores"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13.5h12 M4 11V7 M8 11V3 M12 11V8"/></svg>Painel</button></div>${S.aba === "meu" ? '<div id="mtool"></div>' : ""}</div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : S.aba === "cotas" ? cotas() : outros()}</div>`;
 }
 // mapa: só abre quando o botão Mapa da faixa das abas é selecionado; mostra as emendas oficiais do recorte atual
 function blocoMapa() {
