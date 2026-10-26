@@ -21,7 +21,7 @@ async function gapi(token, url, corpo) {
   const j = await r.json(); if (!r.ok) throw new Error((j.error && j.error.message) || r.status); return j;
 }
 
-const COLS = [["Município", 150], ["Região", 90, 1], ["Objeto", 300], ["Justificativa", 220], ["Função / área", 120], ["Instrumento de repasse", 150], ["Natureza", 100], ["Valor (R$)", 110], ["Beneficiário", 160], ["CNPJ (convênio)", 130], ["Razão social", 160], ["Quem pediu (líder)", 140], ["Contato", 120], ["Prioridade", 85], ["Status", 100], ["Observação", 220],
+const COLS = [["Município", 150], ["Região", 90, 1], ["Objeto", 300], ["Justificativa", 220], ["Função / área", 120], ["Instrumento de repasse", 150], ["Natureza", 100], ["Valor (R$)", 110], ["Beneficiário", 160], ["CNPJ (convênio)", 130], ["Razão social", 160], ["Líder", 140], ["Contato", 120], ["Prioridade", 85], ["Status", 100], ["Observação", 220],
   ["Votos 2022", 80, 1], ["Votos 2026", 80, 1], ["Já repassado (R$)", 110, 1], ["R$ por voto", 85, 1], ["Alerta", 220, 1]];
 const L0 = 6, LN = 205; // linhas de preenchimento (cabeçalho na 5)
 
