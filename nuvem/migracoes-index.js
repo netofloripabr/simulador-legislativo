@@ -1769,5 +1769,16 @@ const MIGRACOES_INDEX = [
     "gab_recursos.objeto_fmt"
    ]
   ]
+ },
+ {
+  "num": 84,
+  "arquivo": "migracao-84-gabinete-correcoes.sql",
+  "descricao": "Migração 84 (26/10/2026): Gabinete · correções da revisão (leis × SEF) sem apagar o original da planilha: o va",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.corr"
+   ]
+  ]
  }
 ];
