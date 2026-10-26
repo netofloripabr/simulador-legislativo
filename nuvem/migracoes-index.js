@@ -1758,5 +1758,16 @@ const MIGRACOES_INDEX = [
     "gab_recursos.num_lei"
    ]
   ]
+ },
+ {
+  "num": 83,
+  "arquivo": "migracao-83-gabinete-objeto-fmt.sql",
+  "descricao": "Migração 83 (26/10/2026): Gabinete · objeto com marcação de tachado (~~texto~~) copiada da planilha: o trecho ",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.objeto_fmt"
+   ]
+  ]
  }
 ];
