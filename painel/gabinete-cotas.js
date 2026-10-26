@@ -2,8 +2,8 @@
 // bancada, convênios e outros), com o valor no centro e a lei de origem; abaixo, barras arredondadas por função divididas
 // pela cor da cota. Clicar num anel abre a cota: saldo, barra única com um bloco por indicação e "+ indicar" no espaço livre.
 // As cotas vêm do Controle (itens não suprimidos, agrupados por ano e tipo) e das listas cadastradas (gab_listas: valor disponível).
-const COTA_T = { AN: ["LOA", "#2B5FD9"], "0,55": ["Adicional 0,55%", "#8FA8E8"], EX: ["Excesso de receita", "#C6A12A"], BC: ["Bancada regional", "#9C7BE0"], CV: ["Convênios e outros", "#6B7178"] };
-const FUN_COR = { "Saúde": "#34E84A", "Educação": "#8FA8E8", "FUNDAM": "#C6A12A", "Agricultura": "#7FC97F", "Infraestrutura": "#E89A4A", "Segurança": "#9C7BE0", "Social": "#E86A8A" };
+const COTA_T = { AN: ["LOA", "#C9CDD1"], "0,55": ["Adicional 0,55%", "#9AA0A6"], EX: ["Excesso de receita", "#767C82"], BC: ["Bancada regional", "#555B61"], CV: ["Convênios e outros", "#3E4449"] };
+const FUN_COR = { "Saúde": "#D7DBDE", "FUNDAM": "#A9AEB3", "Educação": "#80868C", "Agricultura": "#62686E", "Infraestrutura": "#4C5257", "Segurança": "#3A4045", "Social": "#2E3338" };
 const tipoCota = (r) => { const s = sigla(r.origem); return s.startsWith("EI - ") ? s.slice(5) : "CV"; };
 const funDe = (r) => { const f = FUN_I.find(([re]) => re.test(r.funcao || "") || re.test(r.area || "")); return f ? f[1].replace(/ \(.*\)/, "") : "Outras"; };
 function cotasDoAno(ano) {
@@ -22,6 +22,32 @@ function anel(c, on) {
   return `<button class="cring${on ? " on" : ""}" data-cota="${c.t}"><svg width="96" height="96" viewBox="0 0 92 92"><circle cx="46" cy="46" r="${R}" fill="none" stroke="#22282B" stroke-width="10"/><circle cx="46" cy="46" r="${R}" fill="none" stroke="${cor}" stroke-width="10" stroke-dasharray="${(P * fr2).toFixed(1)} ${P.toFixed(1)}" transform="rotate(-90 46 46)" stroke-linecap="round"/><text x="46" y="45" text-anchor="middle" fill="#E8EAEB" font-size="15" font-weight="600">${mi(c.tot)}</text><text x="46" y="59" text-anchor="middle" fill="#7D838A" font-size="9.5">${c.disp ? "de " + mi(c.disp) + (c.disp >= 1e6 ? " mi" : " mil") : c.tot >= 1e6 ? "milhões" : "mil"}</text></svg>
     <b>${nm}${c.t === "AN" ? " " + S.cano : ""}</b><small>${esc(c.leis.slice(0, 2).join(" + ") || (c.t === "CV" ? "acordos e convênios" : "sem lei informada"))}${c.disp && c.disp > c.tot ? `<br><em>${fm(c.disp - c.tot)} livres</em>` : ""}</small></button>`;
 }
+// comparação anual: anos sobrepostos, filtro Total / Por origem / Por área e formato Anéis / Barras / Colunas
+function comparacao(anos) {
+  const COR = (k, n) => k === n - 1 ? "#34E84A" : ["#2E3338", "#4C5257", "#767C82", "#A9AEB3", "#D7DBDE"][Math.max(0, 4 - (n - 1 - k))];
+  const grupos = {}, add = (cat, a, v) => { (grupos[cat] = grupos[cat] || {})[a] = (grupos[cat][a] || 0) + v; };
+  anos.forEach((a) => cotasDoAno(a).forEach((c) => c.itens.forEach((x) => add(S.cmod === "ori" ? COTA_T[c.t][0] : S.cmod === "area" ? x.fun : "Total", a, x.v))));
+  const cats = Object.entries(grupos).sort((p, q) => Object.values(q[1]).reduce((s, v) => s + v, 0) - Object.values(p[1]).reduce((s, v) => s + v, 0));
+  const mx = Math.max(1, ...cats.flatMap(([, o]) => Object.values(o))), n = anos.length, tot = cats.reduce((s, [, o]) => s + Object.values(o).reduce((t, v) => t + v, 0), 0);
+  const ordem = (o) => anos.map((a, k) => [a, k]).sort((p, q) => (o[q[0]] || 0) - (o[p[0]] || 0)); // maior atrás, menor na frente
+  const tip = (cat, a, v) => `${cat} · ${a}: ${fm(v || 0)}`;
+  let g = "";
+  if (S.cfmt === "colunas") {
+    g = `<div class="ccols">${cats.map(([cat, o]) => `<div class="ccol"><div class="ccb">${ordem(o).map(([a, k]) => `<i style="height:${((o[a] || 0) / mx * 100).toFixed(1)}%;background:${COR(k, n)}" title="${esc(tip(cat, a, o[a]))}"></i>`).join("")}</div><span>${esc(cat)}</span></div>`).join("")}</div>`;
+  } else if (S.cfmt === "barras") {
+    g = cats.map(([cat, o]) => `<div class="cbh"><span>${esc(cat)}</span><div>${ordem(o).map(([a, k]) => `<i style="width:${((o[a] || 0) / mx * 100).toFixed(1)}%;background:${COR(k, n)}" title="${esc(tip(cat, a, o[a]))}"></i>`).join("")}</div></div>`).join("");
+  } else {
+    const [cat, o] = cats[0] && S.cmod === "tot" ? cats[0] : [null, null];
+    const serie = S.cmod === "tot" ? anos.map((a) => (o || {})[a] || 0) : anos.map((a) => cats.reduce((s, [, oo]) => s + (oo[a] || 0), 0)), m2 = Math.max(1, ...serie);
+    g = `<div class="cringcomp"><svg viewBox="0 0 220 220" width="220" height="220">${anos.map((a, k) => { const r = 96 - (n - 1 - k) * (70 / Math.max(1, n - 1)) * (n > 1 ? 1 : 0), P = 2 * Math.PI * r; return `<circle cx="110" cy="110" r="${r}" fill="none" stroke="#1A1F22" stroke-width="11"/><circle cx="110" cy="110" r="${r}" fill="none" stroke="${COR(k, n)}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${(P * serie[k] / m2 * .75).toFixed(1)} ${P.toFixed(1)}" transform="rotate(-90 110 110)"><title>${a}: ${fm(serie[k])}</title></circle>`; }).join("")}
+      <text x="110" y="112" text-anchor="middle" fill="#E8EAEB" font-size="15" font-weight="700">${fm(tot)}</text><text x="110" y="127" text-anchor="middle" fill="#7D838A" font-size="9.5">${anos[0]}–${anos[n - 1]}</text></svg>
+      ${S.cmod !== "tot" ? `<div class="cmini">${cats.map(([cat, oo]) => `<div class="cbh"><span>${esc(cat)}</span><div>${ordem(oo).map(([a, k]) => `<i style="width:${((oo[a] || 0) / mx * 100).toFixed(1)}%;background:${COR(k, n)}" title="${esc(tip(cat, a, oo[a]))}"></i>`).join("")}</div></div>`).join("")}</div>` : ""}</div>`;
+  }
+  return `<div class="ccomp"><div class="cctl"><div class="cabas">${[["tot", "Total"], ["ori", "Por origem"], ["area", "Por área"]].map(([k, t]) => `<button data-cmod="${k}" class="${S.cmod === k ? "on" : ""}">${t}</button>`).join("")}</div>
+    <div class="cabas">${[["aneis", "Anéis"], ["barras", "Barras"], ["colunas", "Colunas"]].map(([k, t]) => `<button data-cfmt="${k}" class="${S.cfmt === k ? "on" : ""}">${t}</button>`).join("")}</div></div>
+    ${g}
+    <table class="ctab"><tr><th></th>${anos.map((a, k) => `<th><i style="background:${COR(k, n)}"></i>${a}</th>`).join("")}</tr>${cats.map(([cat, o]) => `<tr><td>${esc(cat)}</td>${anos.map((a) => `<td>${o[a] ? fm(o[a]) : "—"}</td>`).join("")}</tr>`).join("")}</table></div>`;
+}
 function cotas() {
   const anos = [...new Set([...MEU.map((r) => +r.ano).filter(Boolean), ...(typeof AD !== "undefined" ? AD.listas : []).map((L) => +(String(L.apelido || "").match(/(\d{2})$/) || [])[1] + 2000).filter((a) => a > 2000)])].sort();
   if (!anos.length) return `<div class="obra">Sem dados no Controle.</div>`;
@@ -29,7 +55,8 @@ function cotas() {
   const C = cotasDoAno(S.cano), tot = C.reduce((s, c) => s + c.tot, 0), leis = new Set(C.flatMap((c) => c.leis)).size, sel = C.find((c) => c.t === S.cota);
   const F = {}; C.forEach((c) => c.itens.forEach((x) => { const f = F[x.fun] = F[x.fun] || { v: 0, p: {} }; f.v += x.v; f.p[c.t] = (f.p[c.t] || 0) + x.v; }));
   const fmax = Math.max(1, ...Object.values(F).map((f) => f.v));
-  return `<div class="cotas"><div class="cabas">${anos.map((a) => `<button data-cano="${a}" class="${a === S.cano ? "on" : ""}">${a}</button>`).join("")}</div>
+  S.cmod = S.cmod || "tot"; S.cfmt = S.cfmt || "aneis";
+  return `<div class="cotas">${comparacao(anos)}<div class="clb">Cotas por exercício</div><div class="cabas">${anos.map((a) => `<button data-cano="${a}" class="${a === S.cano ? "on" : ""}">${a}</button>`).join("")}</div>
     <div class="ctot"><b>${fm(tot)}</b><span>indicados em ${S.cano} · ${C.length} cota${C.length > 1 ? "s" : ""} · ${leis} lei${leis === 1 ? "" : "s"}</span></div>
     <div class="crings">${C.map((c) => anel(c, c.t === S.cota)).join("")}</div>
     ${sel ? cotaAberta(sel) : ""}
@@ -48,6 +75,8 @@ function cotaAberta(c) {
 }
 function ligarCotas() {
   const w = $("#corpoAba .cotas"); if (!w) return;
+  w.querySelectorAll("[data-cmod]").forEach((b) => b.onclick = () => { S.cmod = b.dataset.cmod; desenhar(); });
+  w.querySelectorAll("[data-cfmt]").forEach((b) => b.onclick = () => { S.cfmt = b.dataset.cfmt; desenhar(); });
   w.querySelectorAll("[data-cano]").forEach((b) => b.onclick = () => { S.cano = +b.dataset.cano; S.cota = null; S.call = 0; desenhar(); });
   w.querySelectorAll("[data-cota]").forEach((b) => b.onclick = () => { S.cota = S.cota === b.dataset.cota ? null : b.dataset.cota; S.call = 0; desenhar(); });
   const ci = w.querySelector("[data-cind]"); if (ci) ci.onclick = () => { const c = cotasDoAno(S.cano).find((x) => x.t === S.cota); formItem({ lista_id: c && c.lista ? c.lista.id : null }); };
