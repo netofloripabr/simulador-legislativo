@@ -8,7 +8,7 @@
 const AREAS = [["14240", "Saúde", 48000, 48091], ["14227", "Educação", 45000, 45001], ["14203", "FUNDAM", 52000, 52090], ["15097", "Agricultura", 44000, 44001], ["15098", "Infraestrutura e Mobilidade", 53000, 53001], ["15100", "Segurança Pública", 16000, 16091], ["15382", "Fundo Social", "", ""]];
 // LDO 2027 (Lei 20.043/2026): art. 32 par. único até 120 emendas, mínimo R$ 100 mil; art. 33 Saúde no MÍNIMO 50%, demais até 50%;
 // art. 34 §4º 70% das transferências especiais em despesa de capital; art. 38 subações (15382 = Fundo Social, UO a confirmar)
-const MODS = ["Transferência Especial", "Convênio", "Execução Direta", "Outra"];
+const MODS = ["Transferência Especial", "Convênio", "Convênio Simplificado", "Termo de Fomento", "Termo de Colaboração", "Acordo de Cooperação", "Execução Direta", "Outros"];
 const TIPOS = ["Emenda impositiva", "Convênio", "Outros (informal)"];
 const STATUS = ["Em análise", "Confirmado", "Enviado", "Descartado"];
 const PRIOR = ["Alta", "Média", "Baixa"];
@@ -127,7 +127,7 @@ function formItem(x) {
       ${campo("Projeto de lei <em>emenda impositiva</em>", inp("pl", x.pl || (L && /PL/i.test(L.origem || "") ? (L.origem.match(/PL[^()]*/i) || [""])[0].trim() : ""), "PL nº 452/2026"))}${campo("Lei sancionada", inp("lei", x.lei, "Lei nº 19.684/2026"))}
       ${campo("Acordo <em>convênio e outros</em>", inp("acordo", x.acordo, "Termo, ofício, ajuste"), 1)}
       ${campo("Justificativa", `<textarea data-f="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 1)}
-      ${campo("Área", sel("area", areas, x.area || (areas.length === 1 ? areas[0] : ""), "Escolha"))}${campo("Modalidade", sel("modalidade", MODS, x.modalidade, "Escolha"))}${campo("Natureza da despesa", sel("natureza", ["Investimento", "Custeio"], x.natureza, "Escolha"))}
+      ${campo("Área", sel("area", areas, x.area || (areas.length === 1 ? areas[0] : ""), "Escolha"))}${campo("Instrumento de repasse", sel("modalidade", MODS, x.modalidade, "Escolha"))}${campo("Natureza da despesa", sel("natureza", ["Investimento", "Custeio"], x.natureza, "Escolha"))}
       ${campo("CNPJ da entidade <em>só convênio</em>", inp("cnpj", x.cnpj, "00.000.000/0000-00"))}${campo("Razão social", inp("razao_social", x.razao_social))}</div>
       <div class="refc" id="refc"></div></div>
     <div class="fsec"><div class="fst">Gabinete <em>só para você</em></div><div class="fg">
