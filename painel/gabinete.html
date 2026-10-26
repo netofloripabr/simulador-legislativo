@@ -90,7 +90,11 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 .tgs2 .tg{ display:inline-flex; align-items:center; gap:4px; } .tgs2 .tg button{ background:none; border:0; color:var(--ter); cursor:pointer; padding:0 0 0 2px; font-size:13px; line-height:1; } .tgs2 .tg button:hover{ color:var(--erro); } .tgs2{ align-items:center; } .dm .olho small{ text-transform:none; letter-spacing:0; }
 .atb{ width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%; border:1px solid rgba(242,154,56,.45); background:none; color:#F29A38; cursor:pointer; } .atb:hover{ background:rgba(242,154,56,.1); } .atb.on{ background:#F29A38; color:#0B0D0E; border-color:#F29A38; }
 .mt tr.sup > td{ opacity:.42; } .mt tr.sup > td .stx{ opacity:1; } .stx svg.sp{ stroke:#F29A38 !important; } .mt tr.sup > td:has(.stx){ opacity:1; } .mt tr.sup .stx svg:not(.sp){ opacity:.35; }
-.cotas{ margin-top:18px; } .ccomp{ padding:20px 22px; background:rgba(242,244,245,.03); border-radius:18px; margin-bottom:8px; } .cctl{ display:flex; gap:12px; flex-wrap:wrap; justify-content:space-between; margin-bottom:18px; }
+.cotas{ margin-top:18px; } .cfils{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; } .cfils b{ font-size:26px; font-weight:800; letter-spacing:-.03em; } .cfils > span{ color:var(--ter); font-size:13px; } .cchip{ font:600 12px Inter; color:var(--texto); background:rgba(242,244,245,.08); border:0; border-radius:999px; padding:5px 11px; cursor:pointer; } .cchip:hover{ background:rgba(232,67,42,.2); }
+.cseg{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); align-self:center; padding:0 8px; }
+.cano{ display:grid; grid-template-columns:48px minmax(0,1fr) 110px; gap:14px; align-items:center; margin-bottom:12px; } .ca{ font-weight:700; font-size:14px; } .ct{ text-align:right; font-weight:600; font-variant-numeric:tabular-nums; }
+.cab > div{ display:flex; gap:2px; height:30px; border-radius:999px; overflow:hidden; min-width:4px; } .cab button{ border:0; padding:0 10px; cursor:pointer; min-width:3px; overflow:hidden; display:flex; align-items:center; } .cab button:hover{ filter:brightness(1.25); } .cab em{ font:600 11px Inter; font-style:normal; color:#0B0D0E; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cleg2{ display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:14px; } .cleg2 button{ background:none; border:0; color:var(--sec); font:500 12px Inter; cursor:pointer; padding:3px 0; } .cleg2 button:hover{ color:var(--texto); } .cleg2 i{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; } .cleg2 small{ color:var(--ter); margin-left:4px; } .cmais{ color:var(--ter); font-size:12px; } .ccomp{ padding:20px 22px; background:rgba(242,244,245,.03); border-radius:18px; margin-bottom:8px; } .cctl{ display:flex; gap:12px; flex-wrap:wrap; justify-content:space-between; margin-bottom:18px; }
 .cringcomp{ display:grid; grid-template-columns:220px minmax(0,1fr); gap:28px; align-items:center; } .cringcomp:not(:has(.cmini)){ grid-template-columns:220px; justify-content:center; }
 .cbh{ display:grid; grid-template-columns:130px minmax(0,1fr); gap:12px; align-items:center; margin-bottom:12px; font-size:13px; } .cbh > div{ position:relative; height:16px; } .cbh i{ position:absolute; left:0; top:0; height:100%; border-radius:999px; }
 .cbh i{ mix-blend-mode:normal; } .cbh > div{ display:grid; } .cbh > div i{ position:static; grid-area:1/1; }
@@ -158,7 +162,7 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 <script src="gabinete.js?cb=53"></script>
 <script src="gabinete-adicionar.js?cb=11"></script>
 <script src="gabinete-planilha.js?cb=2"></script>
-<script src="gabinete-cotas.js?cb=3"></script>
+<script src="gabinete-cotas.js?cb=4"></script>
 <script src="sino-menu.js?cb=10"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */
 (function(){ var b=document.querySelector(".mnub"), m=document.querySelector(".mnu"); if(!b||!m) return;

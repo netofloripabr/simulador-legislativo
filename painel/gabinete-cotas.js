@@ -22,31 +22,26 @@ function anel(c, on) {
   return `<button class="cring${on ? " on" : ""}" data-cota="${c.t}"><svg width="96" height="96" viewBox="0 0 92 92"><circle cx="46" cy="46" r="${R}" fill="none" stroke="#22282B" stroke-width="10"/><circle cx="46" cy="46" r="${R}" fill="none" stroke="${cor}" stroke-width="10" stroke-dasharray="${(P * fr2).toFixed(1)} ${P.toFixed(1)}" transform="rotate(-90 46 46)" stroke-linecap="round"/><text x="46" y="45" text-anchor="middle" fill="#E8EAEB" font-size="15" font-weight="600">${mi(c.tot)}</text><text x="46" y="59" text-anchor="middle" fill="#7D838A" font-size="9.5">${c.disp ? "de " + mi(c.disp) + (c.disp >= 1e6 ? " mi" : " mil") : c.tot >= 1e6 ? "milhões" : "mil"}</text></svg>
     <b>${nm}${c.t === "AN" ? " " + S.cano : ""}</b><small>${esc(c.leis.slice(0, 2).join(" + ") || (c.t === "CV" ? "acordos e convênios" : "sem lei informada"))}${c.disp && c.disp > c.tot ? `<br><em>${fm(c.disp - c.tot)} livres</em>` : ""}</small></button>`;
 }
-// comparação anual: anos sobrepostos, filtro Total / Por origem / Por área e formato Anéis / Barras / Colunas
+// comparação anual: uma barra horizontal por ano (total indicado), segmentada pela dimensão escolhida; clicar num segmento
+// filtra por ele e segmenta pela próxima dimensão (ex.: Saúde → por instrumento → por região)
+const DIMS = [["ori", "Origem"], ["area", "Área"], ["instr", "Instrumento"], ["reg", "Região"], ["mun", "Município"]];
+const TONS = ["#D7DBDE", "#A9AEB3", "#80868C", "#62686E", "#4C5257", "#3A4045", "#2E3338"];
+function linhasComp() {
+  const L = MEU.filter((r) => r.ano && !supr(r)).map((r) => ({ ano: +r.ano, v: +r.valor || 0, ori: COTA_T[tipoCota(r)][0], area: funDe(r), instr: instrNome(r.modalidade) || "Não informado", reg: regDe(r) || "Sem região", mun: r.municipio ? frase(r.municipio) : "—" }));
+  (typeof AD !== "undefined" ? AD.itens : []).forEach((x) => { const Lr = AD.listas.find((l) => l.id === x.lista_id), a = Lr ? +(String(Lr.apelido || "").match(/(\d{2})$/) || [])[1] + 2000 : 0;
+    if (a > 2000) L.push({ ano: a, v: +x.valor || 0, ori: "LOA", area: funDe(x), instr: x.modalidade || "Não informado", reg: regDe(x) || "Sem região", mun: x.municipio ? frase(x.municipio) : "—" }); });
+  return L;
+}
 function comparacao(anos) {
-  const COR = (k, n) => k === n - 1 ? "#34E84A" : ["#2E3338", "#4C5257", "#767C82", "#A9AEB3", "#D7DBDE"][Math.max(0, 4 - (n - 1 - k))];
-  const grupos = {}, add = (cat, a, v) => { (grupos[cat] = grupos[cat] || {})[a] = (grupos[cat][a] || 0) + v; };
-  anos.forEach((a) => cotasDoAno(a).forEach((c) => c.itens.forEach((x) => add(S.cmod === "ori" ? COTA_T[c.t][0] : S.cmod === "area" ? x.fun : "Total", a, x.v))));
-  const cats = Object.entries(grupos).sort((p, q) => Object.values(q[1]).reduce((s, v) => s + v, 0) - Object.values(p[1]).reduce((s, v) => s + v, 0));
-  const mx = Math.max(1, ...cats.flatMap(([, o]) => Object.values(o))), n = anos.length, tot = cats.reduce((s, [, o]) => s + Object.values(o).reduce((t, v) => t + v, 0), 0);
-  const ordem = (o) => anos.map((a, k) => [a, k]).sort((p, q) => (o[q[0]] || 0) - (o[p[0]] || 0)); // maior atrás, menor na frente
-  const tip = (cat, a, v) => `${cat} · ${a}: ${fm(v || 0)}`;
-  let g = "";
-  if (S.cfmt === "colunas") {
-    g = `<div class="ccols">${cats.map(([cat, o]) => `<div class="ccol"><div class="ccb">${ordem(o).map(([a, k]) => `<i style="height:${((o[a] || 0) / mx * 100).toFixed(1)}%;background:${COR(k, n)}" title="${esc(tip(cat, a, o[a]))}"></i>`).join("")}</div><span>${esc(cat)}</span></div>`).join("")}</div>`;
-  } else if (S.cfmt === "barras") {
-    g = cats.map(([cat, o]) => `<div class="cbh"><span>${esc(cat)}</span><div>${ordem(o).map(([a, k]) => `<i style="width:${((o[a] || 0) / mx * 100).toFixed(1)}%;background:${COR(k, n)}" title="${esc(tip(cat, a, o[a]))}"></i>`).join("")}</div></div>`).join("");
-  } else {
-    const [cat, o] = cats[0] && S.cmod === "tot" ? cats[0] : [null, null];
-    const serie = S.cmod === "tot" ? anos.map((a) => (o || {})[a] || 0) : anos.map((a) => cats.reduce((s, [, oo]) => s + (oo[a] || 0), 0)), m2 = Math.max(1, ...serie);
-    g = `<div class="cringcomp"><svg viewBox="0 0 220 220" width="220" height="220">${anos.map((a, k) => { const r = 96 - (n - 1 - k) * (70 / Math.max(1, n - 1)) * (n > 1 ? 1 : 0), P = 2 * Math.PI * r; return `<circle cx="110" cy="110" r="${r}" fill="none" stroke="#1A1F22" stroke-width="11"/><circle cx="110" cy="110" r="${r}" fill="none" stroke="${COR(k, n)}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${(P * serie[k] / m2 * .75).toFixed(1)} ${P.toFixed(1)}" transform="rotate(-90 110 110)"><title>${a}: ${fm(serie[k])}</title></circle>`; }).join("")}
-      <text x="110" y="112" text-anchor="middle" fill="#E8EAEB" font-size="15" font-weight="700">${fm(tot)}</text><text x="110" y="127" text-anchor="middle" fill="#7D838A" font-size="9.5">${anos[0]}–${anos[n - 1]}</text></svg>
-      ${S.cmod !== "tot" ? `<div class="cmini">${cats.map(([cat, oo]) => `<div class="cbh"><span>${esc(cat)}</span><div>${ordem(oo).map(([a, k]) => `<i style="width:${((oo[a] || 0) / mx * 100).toFixed(1)}%;background:${COR(k, n)}" title="${esc(tip(cat, a, oo[a]))}"></i>`).join("")}</div></div>`).join("")}</div>` : ""}</div>`;
-  }
-  return `<div class="ccomp"><div class="cctl"><div class="cabas">${[["tot", "Total"], ["ori", "Por origem"], ["area", "Por área"]].map(([k, t]) => `<button data-cmod="${k}" class="${S.cmod === k ? "on" : ""}">${t}</button>`).join("")}</div>
-    <div class="cabas">${[["aneis", "Anéis"], ["barras", "Barras"], ["colunas", "Colunas"]].map(([k, t]) => `<button data-cfmt="${k}" class="${S.cfmt === k ? "on" : ""}">${t}</button>`).join("")}</div></div>
-    ${g}
-    <table class="ctab"><tr><th></th>${anos.map((a, k) => `<th><i style="background:${COR(k, n)}"></i>${a}</th>`).join("")}</tr>${cats.map(([cat, o]) => `<tr><td>${esc(cat)}</td>${anos.map((a) => `<td>${o[a] ? fm(o[a]) : "—"}</td>`).join("")}</tr>`).join("")}</table></div>`;
+  S.cfil = S.cfil || []; S.cdim = S.cdim || "ori";
+  const L = linhasComp().filter((x) => S.cfil.every(([d, v]) => x[d] === v)), dim = S.cdim;
+  const porAno = {}, cats = {}; L.forEach((x) => { const o = porAno[x.ano] = porAno[x.ano] || { t: 0, s: {} }; o.t += x.v; o.s[x[dim]] = (o.s[x[dim]] || 0) + x.v; cats[x[dim]] = (cats[x[dim]] || 0) + x.v; });
+  const ord = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([k]) => k), cor = (k) => TONS[Math.min(ord.indexOf(k), TONS.length - 1)];
+  const mx = Math.max(1, ...Object.values(porAno).map((o) => o.t)), tot = L.reduce((s, x) => s + x.v, 0);
+  return `<div class="ccomp"><div class="cctl"><div class="cfils"><b>${fm(tot)}</b><span>${anos[0]}–${anos[anos.length - 1]}</span>${S.cfil.map(([d, v], k) => `<button class="cchip" data-tira="${k}">${esc(DIMS.find((x) => x[0] === d)[1])}: ${esc(v)} ×</button>`).join("")}</div>
+      <div class="cabas"><span class="cseg">Segmentar por</span>${DIMS.filter(([k]) => !S.cfil.some(([d]) => d === k)).map(([k, t]) => `<button data-cdim="${k}" class="${dim === k ? "on" : ""}">${t}</button>`).join("")}</div></div>
+    ${anos.map((a) => { const o = porAno[a] || { t: 0, s: {} }; return `<div class="cano"><span class="ca">${a}</span><div class="cab"><div style="width:${(o.t / mx * 100).toFixed(2)}%">${ord.filter((k) => o.s[k]).map((k) => `<button style="flex:${o.s[k]};background:${cor(k)}" data-seg="${esc(k)}" title="${esc(k)} · ${a}: ${fm(o.s[k])} (${nf(o.s[k] / o.t * 100, 0)}%)">${o.s[k] / mx > .09 ? `<em>${esc(k)}</em>` : ""}</button>`).join("")}</div></div><b class="ct">${o.t ? fm(o.t) : "—"}</b></div>`; }).join("")}
+    <div class="cleg2">${ord.slice(0, 12).map((k) => `<button data-seg="${esc(k)}"><i style="background:${cor(k)}"></i>${esc(k)} <small>${fm(cats[k])}</small></button>`).join("")}${ord.length > 12 ? `<span class="cmais">+ ${ord.length - 12}</span>` : ""}</div></div>`;
 }
 function cotas() {
   const anos = [...new Set([...MEU.map((r) => +r.ano).filter(Boolean), ...(typeof AD !== "undefined" ? AD.listas : []).map((L) => +(String(L.apelido || "").match(/(\d{2})$/) || [])[1] + 2000).filter((a) => a > 2000)])].sort();
@@ -55,7 +50,6 @@ function cotas() {
   const C = cotasDoAno(S.cano), tot = C.reduce((s, c) => s + c.tot, 0), leis = new Set(C.flatMap((c) => c.leis)).size, sel = C.find((c) => c.t === S.cota);
   const F = {}; C.forEach((c) => c.itens.forEach((x) => { const f = F[x.fun] = F[x.fun] || { v: 0, p: {} }; f.v += x.v; f.p[c.t] = (f.p[c.t] || 0) + x.v; }));
   const fmax = Math.max(1, ...Object.values(F).map((f) => f.v));
-  S.cmod = S.cmod || "tot"; S.cfmt = S.cfmt || "aneis";
   return `<div class="cotas">${comparacao(anos)}<div class="clb">Cotas por exercício</div><div class="cabas">${anos.map((a) => `<button data-cano="${a}" class="${a === S.cano ? "on" : ""}">${a}</button>`).join("")}</div>
     <div class="ctot"><b>${fm(tot)}</b><span>indicados em ${S.cano} · ${C.length} cota${C.length > 1 ? "s" : ""} · ${leis} lei${leis === 1 ? "" : "s"}</span></div>
     <div class="crings">${C.map((c) => anel(c, c.t === S.cota)).join("")}</div>
@@ -75,8 +69,9 @@ function cotaAberta(c) {
 }
 function ligarCotas() {
   const w = $("#corpoAba .cotas"); if (!w) return;
-  w.querySelectorAll("[data-cmod]").forEach((b) => b.onclick = () => { S.cmod = b.dataset.cmod; desenhar(); });
-  w.querySelectorAll("[data-cfmt]").forEach((b) => b.onclick = () => { S.cfmt = b.dataset.cfmt; desenhar(); });
+  w.querySelectorAll("[data-cdim]").forEach((b) => b.onclick = () => { S.cdim = b.dataset.cdim; desenhar(); });
+  w.querySelectorAll("[data-seg]").forEach((b) => b.onclick = () => { S.cfil.push([S.cdim, b.dataset.seg]); const prox = DIMS.find(([k]) => !S.cfil.some(([d]) => d === k)); S.cdim = prox ? prox[0] : S.cdim; desenhar(); });
+  w.querySelectorAll("[data-tira]").forEach((b) => b.onclick = () => { S.cfil = S.cfil.slice(0, +b.dataset.tira); S.cdim = DIMS.find(([k]) => !S.cfil.some(([d]) => d === k))[0]; desenhar(); });
   w.querySelectorAll("[data-cano]").forEach((b) => b.onclick = () => { S.cano = +b.dataset.cano; S.cota = null; S.call = 0; desenhar(); });
   w.querySelectorAll("[data-cota]").forEach((b) => b.onclick = () => { S.cota = S.cota === b.dataset.cota ? null : b.dataset.cota; S.call = 0; desenhar(); });
   const ci = w.querySelector("[data-cind]"); if (ci) ci.onclick = () => { const c = cotasDoAno(S.cano).find((x) => x.t === S.cota); formItem({ lista_id: c && c.lista ? c.lista.id : null }); };
