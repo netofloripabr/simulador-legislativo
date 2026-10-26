@@ -1747,5 +1747,16 @@ const MIGRACOES_INDEX = [
     "gab_itens.lei_url"
    ]
   ]
+ },
+ {
+  "num": 82,
+  "arquivo": "migracao-82-gabinete-num-lei.sql",
+  "descricao": "Migração 82 (26/10/2026): Gabinete · número da emenda como publicado na lei (LOA). Em 2024 a numeração da lei ",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.num_lei"
+   ]
+  ]
  }
 ];
