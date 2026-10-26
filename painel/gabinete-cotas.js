@@ -73,10 +73,18 @@ function cotaAberta(c) {
 }
 // redesenha mantendo o quadro parado: guarda a largura de cada barra, redesenha e anima da largura antiga até a nova
 function redesenharSuave() {
-  const ant = [...document.querySelectorAll(".cotas .cab > div, .cotas .cab > s")].map((e) => e.getBoundingClientRect().width);
+  const SEL = ".cotas .cab > div, .cotas .cab > s", SG = ".cotas .cab > div > *";
+  const chave = (e) => { const lin = e.closest(".cano"), ano = lin && lin.querySelector(".ca") ? lin.querySelector(".ca").textContent : "", g = e.closest(".ccomp"); return [...document.querySelectorAll(".cotas .ccomp")].indexOf(g) + "|" + ano + "|" + (e.dataset.seg || e.dataset.ctipo || e.title.split(" · ")[0]); };
+  const ant = [...document.querySelectorAll(SEL)].map((e) => e.getBoundingClientRect().width);
+  const antS = {}; document.querySelectorAll(SG).forEach((e) => { antS[chave(e)] = e.getBoundingClientRect().width; });
   const y = window.scrollY; desenhar(); window.scrollTo(0, y);
-  const nov = [...document.querySelectorAll(".cotas .cab > div, .cotas .cab > s")];
-  nov.forEach((e, k) => { const alvo = e.style.width; e.style.transition = "none"; e.style.width = (ant[k] != null ? ant[k] : 0) + "px"; e.getBoundingClientRect(); e.style.transition = ""; e.style.width = alvo; });
+  const nov = [...document.querySelectorAll(SEL)], novS = [...document.querySelectorAll(SG)];
+  const alvoS = novS.map((e) => e.getBoundingClientRect().width), alvo = nov.map((e) => e.style.width);
+  nov.forEach((e, k) => { e.style.transition = "none"; e.style.width = (ant[k] != null ? ant[k] : 0) + "px"; });
+  novS.forEach((e) => { e.dataset.fx = e.style.flex; e.style.transition = "none"; e.style.flex = `0 0 ${antS[chave(e)] || 0}px`; });
+  document.body.getBoundingClientRect();
+  nov.forEach((e, k) => { e.style.transition = ""; e.style.width = alvo[k]; });
+  novS.forEach((e, k) => { e.style.transition = "flex-basis .45s linear"; e.style.flex = `0 0 ${alvoS[k]}px`; setTimeout(() => { e.style.transition = ""; e.style.flex = e.dataset.fx; }, 480); });
 }
 function ligarCotas() {
   const w = $("#corpoAba .cotas"); if (!w) return;
