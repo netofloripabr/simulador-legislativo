@@ -1732,5 +1732,20 @@ const MIGRACOES_INDEX = [
     "gab_itens.pl"
    ]
   ]
+ },
+ {
+  "num": 81,
+  "arquivo": "migracao-81-gabinete-lei-url.sql",
+  "descricao": "Migração 81 (25/10/2026): Gabinete · link da lei sancionada (ex.: leis.alesc.sc.gov.br), mostrado como ícone n",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.lei_url"
+   ],
+   [
+    "column",
+    "gab_itens.lei_url"
+   ]
+  ]
  }
 ];
