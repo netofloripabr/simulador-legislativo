@@ -8,8 +8,10 @@ const COTA_T = { AN: ["LOA", "#E4E7E9"], "0,55": ["Adicional 0,55%", "#B0B5BA"],
 const IMPOSITIVAS = ["AN", "0,55", "EX", "BC"];
 const FUN_COR = { "Saúde": "#E4E7E9", "FUNDAM": "#B0B5BA", "Educação": "#7E848A", "Agricultura": "#545A60", "Infraestrutura": "#3E4449", "Segurança": "#33383D", "Social": "#2A2E32" };
 const TONS = ["#E4E7E9", "#B0B5BA", "#7E848A", "#545A60", "#3E4449"];
-// quota individual pela lei (soma da LOA de cada exercício; 2025 inclui o adicional 0,55%; 2027 pela LDO 2027)
-const QUOTA = { 2024: 10609175.54, 2025: 18079339.80, 2026: 20308908.97, 2027: 19774931 };
+// quota individual legal (1% da RCL até 2024; 1,55% desde a EC estadual 96/2024), conferida nos anexos das LOAs: valor igual
+// para os 40 deputados. 2024: LOA (Lei 18.836; LDO Lei 18.674/2023). 2025: LOA R$ 11.709.889,51 (Lei 19.229; LDO Lei 19.039/2024)
+// + adicional 0,55% R$ 6.440.439,24 (Lei 19.458/2025, EC 96/2024). 2026: Lei 19.683 (LDO Lei 19.401/2025). 2027: LDO Lei 20.043/2026.
+const QUOTA = { 2024: 10609175.54, 2025: 18150328.75, 2026: 20308908.97, 2027: 19774931 };
 const DIMS = [["ori", "Origem"], ["area", "Área"], ["instr", "Instrumento"], ["reg", "Região"], ["mun", "Município"]];
 const ESC = [["imp", "Impositivas"], ["neg", "Negociados"], ["tudo", "Tudo"]];
 const tipoCota = (r) => { const s = sigla(r.origem); return s.startsWith("EI - ") ? s.slice(5) : "CV"; };
@@ -98,7 +100,7 @@ function avisos(I) {
   return `<div class="cavs">${vsp ? `<button class="cav" data-vsup>${fm(vsp)} suprimidos fora da conta (${sp.length})</button>` : ""}${Q.map(([k, t, c]) => `<button class="cav q" data-qual="${k}" title="Abrir no Controle para corrigir">${c / n < .01 ? "<1" : nf(c / n * 100, 0)}% ${t} (${c})</button>`).join("")}</div>
     ${S.vsup ? `<div class="caberta"><div class="ch"><b>${fm(vsp)}</b><span>suprimidos · fora das contas</span><span class="chac"><button class="x" data-vsup aria-label="Fechar">×</button></span></div><div class="cits">${sp.sort((a, b) => (+b.valor || 0) - (+a.valor || 0)).map((r) => `<div><i style="background:#3E4449"></i><span>${r.ano || ""} · ${esc(r.municipio || "—")} <small>· ${esc((r.objeto || "").slice(0, 90))} · ${esc(r.status_manual || "")}</small></span><b>${fm(+r.valor || 0)}</b></div>`).join("")}</div></div>` : ""}`;
 }
-const INFO_COTAS = `<b>O que entra:</b> itens do Controle não suprimidos e as indicações das listas cadastradas. <b>Ano:</b> o do exercício da lei (o excesso de 2023 pago em 2024 conta em 2023). <b>Impositivas:</b> LOA, adicional 0,55%, excesso de receita e bancada; <b>negociados:</b> convênios e outros, fora da quota. <b>Quota:</b> soma das emendas do parlamentar na LOA de cada exercício (2025 inclui o adicional 0,55%; 2027 pela LDO 2027). <b>Pago:</b> valor pago no portal da SEF quando a emenda está ligada pelo número; sem ligação, o status da planilha. <b>Fontes:</b> planilha do gabinete, portal da SEF/Transparência SC e as leis orçamentárias.`;
+const INFO_COTAS = `<b>O que entra:</b> itens do Controle não suprimidos e as indicações das listas cadastradas. <b>Ano:</b> o do exercício da lei (o excesso de 2023 pago em 2024 conta em 2023). <b>Impositivas:</b> LOA, adicional 0,55%, excesso de receita e bancada; <b>negociados:</b> convênios e outros, fora da quota. <b>Quota:</b> valor individual legal, igual para os 40 deputados (1% da RCL até 2024; 1,55% desde a EC estadual 96/2024): 2024 R$ 10,61 mi (Lei 18.836); 2025 R$ 18,15 mi = LOA R$ 11,71 mi (Lei 19.229) + adicional 0,55% R$ 6,44 mi (Lei 19.458); 2026 R$ 20,31 mi (Lei 19.683); 2027 R$ 19,77 mi (LDO Lei 20.043). Bancada regional segue o valor da planilha (indicação informal por ofício da bancada). <b>Pago:</b> valor pago no portal da SEF quando a emenda está ligada pelo número; sem ligação, o status da planilha. <b>Fontes:</b> planilha do gabinete, portal da SEF/Transparência SC e as leis orçamentárias.`;
 
 function cotas() {
   try { const g = JSON.parse(localStorage.getItem("gab_cotas") || "{}"); if (S.cesc == null) Object.assign(S, { cesc: g.cesc || "imp", cdim: g.cdim || "ori", cfil: g.cfil || [], ctipo: g.ctipo || "TODOS" }); } catch (e) {}
