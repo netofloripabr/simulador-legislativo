@@ -232,6 +232,11 @@ body.dm-escuro .itb tr.iexp > td{ background:#1B2125; }
 .icapa .w4{ grid-column:1/-1; } .iseg4{ padding-bottom:16px !important; } .imk.b2 span{ bottom:auto; top:100%; padding:2px 0 0; } .isbar{ position:relative; height:14px; border-radius:999px; background:#DDE1E4; display:flex; margin:22px 0 26px; } .isbar > i{ display:block; height:100%; transition:width .4s; } .isbar > i:first-child{ border-radius:999px 0 0 999px; }
 .imk{ position:absolute; top:-6px; bottom:-6px; width:2px; background:#E8822A; margin-left:-1px; } .imk.ok{ background:#1FA845; } .imk span{ position:absolute; bottom:100%; left:50%; transform:translateX(-50%); white-space:nowrap; font:600 10.5px Inter; color:#9A4E10; padding-bottom:2px; } .imk.ok span{ color:#1FA845; }
 .islg{ display:flex; gap:18px; flex-wrap:wrap; font-size:12px; color:var(--mu); } .islg i{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:6px; vertical-align:0; } .islg b{ color:var(--tx); } .islg em{ font-style:normal; color:#C0392B; margin-left:4px; } .islg em.ok{ color:#1FA845; } .islg .mut{ margin-left:auto; }
+.ici{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; flex:none; vertical-align:-2px; }
+.iseg button{ display:inline-flex; align-items:center; gap:5px; padding:6px 8px !important; } .iseg button span{ font-size:11.5px; } .iacs button{ display:inline-flex; align-items:center; gap:6px; } .iinf .iacs{ flex-wrap:wrap; }
+.iqk button{ display:inline-flex; align-items:center; gap:3px; } .iqk .ici{ width:11px; height:11px; } .ied td.r input{ width:118px !important; } .iac button{ display:inline-flex; padding:5px !important; } .iac .ici{ width:15px; height:15px; }
+.ied textarea{ min-width:150px !important; } .ied select{ min-width:0 !important; } .itb tr.itt td.r small{ display:block; font-size:11px; font-weight:500; margin-top:2px; } .itb tr.itt td.r small.ierr{ color:#C0392B; }
+.itb.ied{ table-layout:auto; } .itb.ied td.iac{ width:1%; padding-right:10px; } .itb.ied td.itp{ width:1%; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -246,7 +251,7 @@ body.dm-escuro .itb tr.iexp > td{ background:#1B2125; }
 <script src="gabinete-adicionar.js?cb=14"></script>
 <script src="gabinete-planilha.js?cb=2"></script>
 <script src="gabinete-cotas.js?cb=19"></script>
-<script src="gabinete-indicar.js?cb=17"></script>
+<script src="gabinete-indicar.js?cb=18"></script>
 <script src="sino-menu.js?cb=10"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */
 (function(){ var b=document.querySelector(".mnub"), m=document.querySelector(".mnu"); if(!b||!m) return;

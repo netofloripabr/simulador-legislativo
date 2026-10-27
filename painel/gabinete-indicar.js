@@ -70,6 +70,11 @@ function objetosRef(q) {
   return Object.entries(C).filter(([t]) => n.every((w) => norm(t).includes(w))).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR")).slice(0, 40);
 }
 // tipo de quem recebe → instrumento sugerido (o usuário pode trocar): Município → TE, Entidade → Convênio, Estado → Execução Direta
+// ícones da página (traço fino, cor herdada)
+const ICI = { mun: '<path d="M2.5 13.5h11M4 13.5V6.5l4-3 4 3v7M6.5 13.5v-3h3v3"/>', ent: '<path d="M8 13.2S2.8 10 2.8 6.4A2.6 2.6 0 0 1 8 5a2.6 2.6 0 0 1 5.2 1.4C13.2 10 8 13.2 8 13.2z"/>', est: '<path d="M8 2.5l5 2v3.6c0 3-2.2 4.9-5 5.9-2.8-1-5-2.9-5-5.9V4.5z"/>',
+  min: '<path d="M8 3v8M4.5 7.5L8 11l3.5-3.5M3.5 13.5h9"/>', sal: '<path d="M2.5 8h11M9.5 4.5L13 8l-3.5 3.5M2.5 3.5v9"/>', seta: '<path d="M4 6l4 4 4-4"/>', x: '<path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/>',
+  regras: '<path d="M3 4.5h10M3 8h10M3 11.5h10"/><circle cx="6" cy="4.5" r="1.3"/><circle cx="10.5" cy="8" r="1.3"/><circle cx="5" cy="11.5" r="1.3"/>', impr: '<path d="M4.5 6V2.5h7V6M4.5 11.5H3V6h10v5.5h-1.5M4.5 9.5h7v4h-7z"/>', plan: '<path d="M2.5 3h11v10h-11zM2.5 6.5h11M2.5 10h11M6.5 3v10"/>' };
+const ici = (k) => `<svg class="ici" viewBox="0 0 16 16" aria-hidden="true">${ICI[k]}</svg>`;
 const BTIPO = [["mun", "Município", "Transferência Especial"], ["ent", "Entidade", "Convênio"], ["est", "Estado", "Execução Direta"]];
 const tipoDe = (x) => x.benef_tipo || (x.modalidade === "Transferência Especial" ? "mun" : /Convênio|Termo|Acordo/.test(x.modalidade || "") ? "ent" : x.modalidade === "Execução Direta" ? "est" : "");
 const benefAuto = (t, x, g) => { const a = AREAS.find((q) => q[1] === (x.area || g.trava)) || [];
@@ -81,25 +86,25 @@ function linhaInd(T, g, x, i, semExp) {
   const quem = t === "ent" ? `<input data-c="cnpj" value="${esc(x.cnpj || "")}" placeholder="CNPJ 00.000.000/0000-00"><input data-c="razao_social" value="${esc(x.razao_social || x.beneficiario || "")}" placeholder="Razão social da entidade">`
     : t ? `<input class="iauto" value="${esc(x.beneficiario || benefAuto(t, x, g))}" data-c="beneficiario" title="Preenchido pelo tipo; pode editar">` : "";
   return `<tr class="iw${x && IND.det === "a:" + x.id ? " on" : ""}" data-iw="${x ? x.id : ""}"><td class="n">${i + 1}</td>
-    <td class="itp"><div class="iseg">${BTIPO.map(([k, l]) => `<button data-bt="${k}" class="${t === k ? "on" : ""}">${l}</button>`).join("")}</div>
+    <td class="itp"><div class="iseg">${BTIPO.map(([k, l]) => `<button data-bt="${k}" class="${t === k ? "on" : ""}" title="${l}" aria-label="${l}">${ici(k)}${t === k ? `<span>${l}</span>` : ""}</button>`).join("")}</div>
       ${t ? `<select data-c="modalidade" class="iins">${g.mods.concat(g.mods.includes(x.modalidade) || !x.modalidade ? [] : [x.modalidade]).map((m) => `<option${x.modalidade === m ? " selected" : ""}>${esc(m)}</option>`).join("")}</select>` : ""}</td>
     <td><input data-c="municipio" list="indMun" value="${esc(x ? x.municipio || "" : "")}" placeholder="${x ? "Município" : "indicar"}"></td>
     <td class="iob"><div class="iqm">${quem}</div><div><textarea data-c="objeto" rows="1" placeholder="Objeto">${esc(x ? x.objeto || "" : "")}</textarea><button class="imais" data-iobj title="Objetos de referência">+</button></div></td>
     ${g.trava ? "" : `<td><select data-c="area"><option value=""></option>${g.areas.map((a) => `<option${x && x.area === a ? " selected" : ""}>${esc(a)}</option>`).join("")}</select></td>`}
-    <td class="r iv2"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"><div class="iqk">${g.min ? `<button data-iq="min">mín.</button>` : ""}${g.disp ? `<button data-iq="sal">usar saldo</button>` : ""}</div></td>
-    <td class="iac">${x ? `<button data-iexp class="iseta${IND.det === "a:" + x.id ? " ab" : ""}" title="Detalhar">⌄</button><button data-ilimpa title="Limpar linha">×</button>` : ""}</td></tr>
+    <td class="r iv2"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"><div class="iqk">${g.min ? `<button data-iq="min" title="Usar o mínimo (R$ ${moeda(g.min)})">${ici("min")}mín.</button>` : ""}${g.disp ? `<button data-iq="sal" title="Preencher com o saldo que falta">${ici("sal")}saldo</button>` : ""}</div></td>
+    <td class="iac">${x ? `<button data-iexp class="iseta${IND.det === "a:" + x.id ? " ab" : ""}" title="Detalhar">${ici("seta")}</button><button data-ilimpa title="Limpar linha">${ici("x")}</button>` : ""}</td></tr>
     ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}" data-ick="${x.id}"><td></td><td colspan="${g.trava ? 5 : 6}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
     ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${g.trava ? 6 : 7}">${detForm(x, T, g)}</td></tr>` : ""}`;
 }
 function rodapeInd(T, g, it) { it = it.filter(cheia); const tot = it.reduce((s, x) => s + (+x.valor || 0), 0);
-  return `<td></td><td colspan="${g.trava ? 3 : 4}">Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}</td><td>${g.disp ? `<span class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou R$ " + moeda(tot - g.disp) : "saldo R$ " + moeda(g.disp - tot)}</span>` : ""}</td>`; }
+  return `<td></td><td colspan="${g.trava ? 3 : 4}">Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}${g.disp ? `<small class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou " + moeda(tot - g.disp) : "saldo " + moeda(g.disp - tot)}</small>` : ""}</td><td></td>`; }
 function planInd(T) {
   if (!T) return `<div class="iinf">Nenhuma lista neste ano. Use “+ nova lista” para começar.</div>`;
   const R = linhasInd(T), c = T.cota, tot = R.reduce((s, x) => s + x.v, 0), edita = T.k !== "plan", g = regrasInd(T);
   const inf = c ? `<b>Cota fixa do administrador</b> · ${esc(c.doc || c.base || "")}${c.min ? ` · mín. ${fm(c.min)}` : ""}${c.max ? ` · até ${c.max} emendas` : ""}${c.saude ? ` · Saúde no mínimo ${c.saude * 100}%` : ""}${c.abre && new Date(c.abre) > new Date() ? ` · abre em ${new Date(c.abre).toLocaleDateString("pt-BR")}` : ""}`
     : T.k === "plan" ? "Planilha do gabinete · itens do exercício " + IND.ano : T.k === "avulsos" ? "Indicações fora de lista" : `Lista do gabinete · ${esc(T.L.origem || "")}`;
   const outras = !c && edita ? (() => { const sv = S.cesc; S.cesc = "imp"; const ind = itensCotas().filter((x) => x.ano === IND.ano).reduce((s, x) => s + x.v, 0); S.cesc = sv; const q = QUOTA[IND.ano]; return q ? `<span class="isal">Impositivas ${IND.ano}: saldo <b>${rc(Math.max(0, q - ind))}</b></span>` : ""; })() : "";
-  const acs = edita && (T.L || T.cota) ? `<span class="iacs">${T.L ? `<button data-ireg>Regras</button>` : ""}<button data-idoc>Documento</button><button data-ixls>Planilha de indicação</button></span>` : "";
+  const acs = edita && (T.L || T.cota) ? `<span class="iacs">${T.L ? `<button data-ireg>${ici("regras")}Regras</button>` : ""}<button data-idoc>${ici("impr")}Documento</button><button data-ixls>${ici("plan")}Planilha de indicação</button></span>` : "";
   const trava = edita && g.trava ? `<span class="itrava">Área travada: <b>${esc(g.trava)}</b>${(AREAS.find((a) => a[1] === g.trava) || [])[0] ? ` · subação ${AREAS.find((a) => a[1] === g.trava)[0]}` : ""}</span>` : "";
   if (!edita) return `<div class="iinf">${inf}</div><div class="itw"><table class="itb"><thead><tr><th></th><th>Município</th><th>Objeto</th><th>Instr.</th><th class="r">Valor</th><th class="hm">Status</th><th></th></tr></thead><tbody>
     ${R.map((x, i) => `<tr class="ir${IND.det === x.id ? " on" : ""}" data-ir="${esc(x.id)}"><td class="n">${i + 1}</td><td>${esc(x.mun || "—")}</td><td class="ob">${esc(frase(x.obj || ""))}</td><td>${esc(x.ins)}</td><td class="r">${ni(Math.round(x.v))}</td><td class="hm st">${esc(x.st)}</td><td class="ar">›</td></tr>`).join("")}
@@ -155,7 +160,7 @@ function ligarLinha(tr, T) {
   const sx = tr.querySelector("[data-iexp]"); if (sx) sx.onclick = (e) => { e.stopPropagation(); abre(); };
   tr.onclick = (e) => { if (e.target.closest("input,select,textarea,button,a")) return; abre(); };
   tr.addEventListener("focusin", () => marcaAtiva(tr.dataset.iw));
-  const l = tr.querySelector("[data-ilimpa]"); if (l) l.onclick = async () => { if (l.dataset.ok !== "1") { l.dataset.ok = "1"; l.textContent = "limpar?"; l.classList.add("ok"); setTimeout(() => { l.dataset.ok = ""; l.textContent = "×"; l.classList.remove("ok"); }, 3000); return; }
+  const l = tr.querySelector("[data-ilimpa]"); if (l) l.onclick = async () => { if (l.dataset.ok !== "1") { l.dataset.ok = "1"; l.textContent = "limpar?"; l.classList.add("ok"); setTimeout(() => { l.dataset.ok = ""; l.innerHTML = ici("x"); l.classList.remove("ok"); }, 3000); return; }
     try { await apagar("gab_itens", tr.dataset.iw); if (IND.det === "a:" + tr.dataset.iw) IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
   tr.querySelector("[data-iobj]").onclick = (e) => { e.stopPropagation(); popObjeto(tr, T); };
 }
