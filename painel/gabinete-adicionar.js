@@ -34,7 +34,7 @@ async function gravar(tab, reg) {
   if (nuvemAd()) {
     const q = reg.id ? supabaseClient.from(tab).update({ ...reg, atualizado_em: agora }).eq("id", reg.id) : supabaseClient.from(tab).insert(reg);
     const { data, error } = await q.select().single(); if (error) throw error; reg = data;
-  } else { reg = { ...reg, id: reg.id || novoId(), atualizado_em: agora, criado_em: reg.criado_em || agora }; }
+  } else { reg = { ...(reg.id ? col.find((x) => x.id === reg.id) || {} : {}), ...reg, id: reg.id || novoId(), atualizado_em: agora, criado_em: reg.criado_em || agora }; }
   const k = col.findIndex((x) => x.id === reg.id); k >= 0 ? (col[k] = reg) : col.push(reg); if (!nuvemAd()) guardaLocal(); return reg;
 }
 async function apagar(tab, id) {
@@ -119,22 +119,28 @@ const pessoas = () => [...new Set([...(typeof MEU !== "undefined" ? MEU : []).fl
 function formItem(x) {
   x = x || {}; const L = AD.listas.find((l) => l.id === x.lista_id), r = (L && L.regras) || {}, areas = r.areas && r.areas.length ? r.areas : AREAS.map((a) => a[1]);
   const muns = BASE.mun.map((m) => m.n).sort((a, b) => a.localeCompare(b, "pt-BR"));
-  modal(`<div class="mh"><div><div class="olho">${L ? esc(L.apelido || L.origem) : "Item avulso"}</div><h3>${x.id ? "Editar indicação" : "Nova indicação"}</h3></div><button class="x" data-fecha>×</button></div>
-    <div class="fsec"><div class="fst">Onde e o quê <em>vai para o Orçamento</em></div><div class="fg">
-      ${campo("Tipo de recurso", sel("tipo", TIPOS, x.tipo || (L ? "Emenda impositiva" : ""), "Escolha"))}
-      ${campo("Município", `<input data-f="municipio" list="adMuns" value="${esc(x.municipio || "")}" placeholder="Digite o município"><datalist id="adMuns">${muns.map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`)}
-      ${campo("Valor (R$)", inp("valor", x.valor, r.min ? "mínimo " + ni(r.min) : "100000", "number"))}
-      ${campo("Objeto", `<textarea data-f="objeto" rows="2" placeholder="O que será feito com o recurso">${esc(x.objeto || "")}</textarea>`, 1)}
-      ${campo("Projeto de lei <em>emenda impositiva</em>", inp("pl", x.pl || (L && /PL/i.test(L.origem || "") ? (L.origem.match(/PL[^()]*/i) || [""])[0].trim() : ""), "PL nº 452/2026"))}${campo("Lei sancionada", inp("lei", x.lei, "Lei nº 19.684/2026"))}
-      ${campo("Justificativa", `<textarea data-f="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 1)}
-      ${campo("Área", sel("area", areas, x.area || (areas.length === 1 ? areas[0] : ""), "Escolha"))}${campo("Instrumento de repasse", sel("modalidade", MODS, x.modalidade, "Escolha"))}${campo("Natureza da despesa", sel("natureza", ["Investimento", "Custeio"], x.natureza, "Escolha"))}
-      ${campo("CNPJ da entidade <em>só convênio</em>", inp("cnpj", x.cnpj, "00.000.000/0000-00"))}${campo("Razão social", inp("razao_social", x.razao_social))}</div>
-      <div class="refc" id="refc"></div></div>
-    <div class="fsec"><div class="fst">Gabinete <em>só para você</em></div><div class="fg">
-      ${campo("Líder", `<input data-f="lideranca" list="adPes" value="${esc(x.lideranca || "")}" placeholder="Escolha ou digite um nome novo"><datalist id="adPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`)}${campo("Contato", inp("contato", x.contato, "Telefone ou e-mail"))}
-      ${campo("Beneficiário", inp("beneficiario", x.beneficiario, "Prefeitura, hospital, APAE…"))}${campo("Prioridade", sel("prioridade", PRIOR, x.prioridade, "—"))}
-      ${campo("Status", sel("status", STATUS, x.status || "Em análise"))}${campo("Lista", `<select data-f="lista_id"><option value="">Avulso</option>${AD.listas.map((l) => `<option value="${l.id}"${l.id === x.lista_id ? " selected" : ""}>${esc(l.apelido || l.origem)}</option>`).join("")}</select>`)}
-      ${campo("Observação", `<textarea data-f="observacao" rows="2">${esc(x.observacao || "")}</textarea>`, 1)}</div></div>
+  const trava = areas.length === 1 ? areas[0] : null, mods = L && /^cota:/.test(L.modelo || "") && typeof COTAS_LEGAIS !== "undefined" ? ((Object.values(COTAS_LEGAIS).map((g) => g[L.modelo.slice(5)]).find(Boolean) || {}).mods || MODS) : MODS;
+  const F = (k, rot, html, w) => `<label class="tl2 fc2${w ? " w" + w : ""}"><span class="tk">${ic(k)}${rot}</span>${html}</label>`;
+  const S2 = (f, ops, v) => `<select data-f="${f}"><option value="">—</option>${ops.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>`;
+  modal(`<div class="mh"><div><div class="olho">${L ? esc(L.apelido || L.origem) : "Item avulso"}</div><h3>${x.id ? "Detalhar indicação" : "Nova indicação"}</h3></div><button class="x" data-fecha>×</button></div>
+    <div class="dm2 fm2"><div class="fgt">Indicação · vai para o Orçamento</div><div class="bnt">
+      ${F("pino", "Município", `<input data-f="municipio" list="adMuns" value="${esc(x.municipio || "")}" placeholder="Digite o município"><datalist id="adMuns">${muns.map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`, 2)}
+      ${F("moeda", "Valor (R$)", inp("valor", x.valor, r.min ? "mínimo " + ni(r.min) : "100000", "number"))}
+      ${F("selo", "Instrumento", S2("modalidade", mods, x.modalidade))}
+      ${F("doc", "Objeto", `<textarea data-f="objeto" rows="2" placeholder="O que será feito com o recurso">${esc(x.objeto || "")}</textarea>`, 4)}
+      ${trava ? `<div class="tl2"><span class="tk">${ic("lei")}Área</span><span class="tv">${esc(trava)}<small>travada pela regra da cota</small></span><input type="hidden" data-f="area" value="${esc(trava)}"></div>` : F("lei", "Área", S2("area", areas, x.area))}
+      ${F("moeda", "Natureza", S2("natureza", ["Investimento", "Custeio"], x.natureza))}
+      ${F("pred", "Beneficiário", inp("beneficiario", x.beneficiario, "Prefeitura, hospital, APAE…"), 2)}
+      ${F("hash", "CNPJ <em>convênio</em>", inp("cnpj", x.cnpj, "00.000.000/0000-00"), 2)}${F("pred", "Razão social <em>convênio</em>", inp("razao_social", x.razao_social), 2)}
+      ${F("doc", "Justificativa", `<textarea data-f="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 4)}</div>
+      <div class="refc" id="refc"></div>
+      <div class="fgt">Gabinete · só para você</div><div class="bnt">
+      ${F("pessoa", "Líder", `<input data-f="lideranca" list="adPes" value="${esc(x.lideranca || "")}" placeholder="Escolha ou digite"><datalist id="adPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist>`, 2)}${F("pessoa", "Contato", inp("contato", x.contato, "Telefone ou e-mail"), 2)}
+      ${F("band", "Prioridade", S2("prioridade", PRIOR, x.prioridade))}${F("ok", "Status", sel("status", STATUS, x.status || "Em análise"))}
+      ${F("lei", "Tipo de recurso", S2("tipo", TIPOS, x.tipo || (L ? "Emenda impositiva" : "")))}
+      ${F("doc", "Lista", `<select data-f="lista_id"><option value="">Avulso</option>${AD.listas.map((l) => `<option value="${l.id}"${l.id === x.lista_id ? " selected" : ""}>${esc(l.apelido || l.origem)}</option>`).join("")}</select>`)}
+      ${F("lei", "Projeto de lei", inp("pl", x.pl, "PL nº 452/2026"), 2)}${F("lei", "Lei sancionada", inp("lei", x.lei, "Lei nº 19.684/2026"), 2)}
+      ${F("doc", "Observação", `<textarea data-f="observacao" rows="2">${esc(x.observacao || "")}</textarea>`, 4)}</div></div>
     <div class="mrod">${x.id ? `<button class="btn sec" data-apaga style="color:var(--erro)">Excluir</button>` : ""}<span class="av" data-msg></span><button class="btn sec" data-fecha>Cancelar</button><button class="btn" data-salva>Salvar</button></div>`, (m, fechar) => {
     const ref = () => { const rf = refCidade(m.querySelector('[data-f="municipio"]').value); m.querySelector("#refc").innerHTML = rf ? `<div><span>Já indicado 2023-26</span><b>${fm(rf.rec)}</b></div><div><span>Votos 2022</span><b>${ni(rf.v22)}</b></div><div><span>Votos 2026</span><b>${ni(rf.v26)}</b></div><div><span>R$ por voto</span><b>${rf.rpv ? "R$ " + nf(rf.rpv, 0) : "—"}</b></div><div><span>Eleitores</span><b>${ni(rf.el)}</b></div>` : ""; };
     m.querySelector('[data-f="municipio"]').oninput = ref; ref();
