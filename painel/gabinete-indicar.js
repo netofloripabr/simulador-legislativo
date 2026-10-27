@@ -73,7 +73,7 @@ function objetosRef(q) {
 // ícones da página (traço fino, cor herdada)
 const ICI = { mun: '<path d="M2.5 13.5h11M4 13.5V6.5l4-3 4 3v7M6.5 13.5v-3h3v3"/>', ent: '<path d="M8 13.2S2.8 10 2.8 6.4A2.6 2.6 0 0 1 8 5a2.6 2.6 0 0 1 5.2 1.4C13.2 10 8 13.2 8 13.2z"/>', est: '<path d="M8 2.5l5 2v3.6c0 3-2.2 4.9-5 5.9-2.8-1-5-2.9-5-5.9V4.5z"/>',
   min: '<path d="M8 3v8M4.5 7.5L8 11l3.5-3.5M3.5 13.5h9"/>', sal: '<path d="M2.5 8h11M9.5 4.5L13 8l-3.5 3.5M2.5 3.5v9"/>', seta: '<path d="M4 6l4 4 4-4"/>', x: '<path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/>',
-  regras: '<path d="M3 4.5h10M3 8h10M3 11.5h10"/><circle cx="6" cy="4.5" r="1.3"/><circle cx="10.5" cy="8" r="1.3"/><circle cx="5" cy="11.5" r="1.3"/>', impr: '<path d="M4.5 6V2.5h7V6M4.5 11.5H3V6h10v5.5h-1.5M4.5 9.5h7v4h-7z"/>', plan: '<path d="M2.5 3h11v10h-11zM2.5 6.5h11M2.5 10h11M6.5 3v10"/>' };
+  regras: '<path d="M3 4.5h10M3 8h10M3 11.5h10"/><circle cx="6" cy="4.5" r="1.3"/><circle cx="10.5" cy="8" r="1.3"/><circle cx="5" cy="11.5" r="1.3"/>', impr: '<path d="M4.5 6V2.5h7V6M4.5 11.5H3V6h10v5.5h-1.5M4.5 9.5h7v4h-7z"/>', plan: '<path d="M2.5 3h11v10h-11zM2.5 6.5h11M2.5 10h11M6.5 3v10"/>', lixo: '<path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5"/>' };
 const ici = (k) => `<svg class="ici" viewBox="0 0 16 16" aria-hidden="true">${ICI[k]}</svg>`;
 const BTIPO = [["mun", "Município", "Transferência Especial"], ["ent", "Entidade", "Convênio"], ["est", "Estado", "Execução Direta"]];
 const tipoDe = (x) => x.benef_tipo || (x.modalidade === "Transferência Especial" ? "mun" : /Convênio|Termo|Acordo/.test(x.modalidade || "") ? "ent" : x.modalidade === "Execução Direta" ? "est" : "");
@@ -91,8 +91,8 @@ function linhaInd(T, g, x, i, semExp) {
     <td><input data-c="municipio" list="indMun" value="${esc(x ? x.municipio || "" : "")}" placeholder="${x ? "Município" : "indicar"}"></td>
     <td class="iob"><div class="iqm">${quem}</div><div><textarea data-c="objeto" rows="1" placeholder="Objeto">${esc(x ? x.objeto || "" : "")}</textarea><button class="imais" data-iobj title="Objetos de referência">+</button></div></td>
     ${g.trava ? "" : `<td><select data-c="area"><option value=""></option>${g.areas.map((a) => `<option${x && x.area === a ? " selected" : ""}>${esc(a)}</option>`).join("")}</select></td>`}
-    <td class="r iv2"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"><div class="iqk">${g.min ? `<button data-iq="min" title="Usar o mínimo (R$ ${moeda(g.min)})">${ici("min")}mín.</button>` : ""}${g.disp ? `<button data-iq="sal" title="Preencher com o saldo que falta">${ici("sal")}saldo</button>` : ""}</div></td>
-    <td class="iac">${x ? `<button data-iexp class="iseta${IND.det === "a:" + x.id ? " ab" : ""}" title="Detalhar">${ici("seta")}</button><button data-ilimpa title="Limpar linha">${ici("x")}</button>` : ""}</td></tr>
+    <td class="r iv2"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"></td>
+    <td class="iac">${x ? `<button data-iexp class="iseta${IND.det === "a:" + x.id ? " ab" : ""}" title="Detalhar">${ici("seta")}</button>` : ""}</td></tr>
     ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}" data-ick="${x.id}"><td></td><td colspan="${g.trava ? 5 : 6}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
     ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${g.trava ? 6 : 7}">${detForm(x, T, g)}</td></tr>` : ""}`;
 }
@@ -315,9 +315,11 @@ function detForm(x, T, g) {
       ${F("band", "Prioridade", S2("prioridade", PRIOR, x.prioridade), 2)}${F("lei", "Lei / PL", I("pl", x.pl, "PL nº 0633/2026"), 2)}
       ${F("doc", "Justificativa", `<textarea data-d="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 4)}
       ${F("doc", "Observação", `<textarea data-d="observacao" rows="2">${esc(x.observacao || "")}</textarea>`, 4)}</div>
-      <datalist id="indPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist><div class="isv mut" data-dmsg></div></div>`;
+      <datalist id="indPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist><div class="idrod"><span class="isv mut" data-dmsg></span><button class="ilix" data-ilimpa title="Excluir esta emenda">${ici("lixo")}Excluir emenda</button></div></div>`;
 }
 function ligarDet(d, x, T) {
+    const lx = d.querySelector("[data-ilimpa]"); if (lx) lx.onclick = async () => { if (lx.dataset.ok !== "1") { lx.dataset.ok = "1"; lx.innerHTML = ici("lixo") + "Confirmar exclusão"; lx.classList.add("ok"); setTimeout(() => { lx.dataset.ok = ""; lx.innerHTML = ici("lixo") + "Excluir emenda"; lx.classList.remove("ok"); }, 4000); return; }
+      try { await apagar("gab_itens", x.id); IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
     const msg = d.querySelector("[data-dmsg]");
     d.querySelectorAll("[data-d]").forEach((el) => { const ini = el.value; el.onchange = async () => { if (el.value === ini) return; const o = { [el.dataset.d]: el.value.trim() || null }; if (o.razao_social !== undefined) o.beneficiario = o.razao_social;
       msg.textContent = "Salvando…"; const tr = document.querySelector(`#indPg tr.iw[data-iw="${x.id}"]`);
