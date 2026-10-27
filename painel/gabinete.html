@@ -133,6 +133,12 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 .fx{ display:inline-block; width:5px; height:5px; border-radius:50%; background:#F0644A; margin-left:6px; vertical-align:3px; }
 .cad{ margin-top:10px; } .cdn{ display:grid; grid-template-columns:78px minmax(0,1fr); border-top:1px solid var(--bd); margin-top:2px; } .cd{ font-size:12px; color:var(--mu); padding:9px 12px 9px 0; border-bottom:1px solid #E6E9EC; font-variant-numeric:tabular-nums; } .ct2{ font-size:13px; line-height:1.55; color:#2C3237; padding:9px 0; border-bottom:1px solid #E6E9EC; } input.cd{ background:none; border:0; border-bottom:1px solid #E6E9EC; color:var(--tx); font:inherit; font-size:12px; outline:none; width:100%; } .cnova{ display:flex; gap:10px; } .cnova input{ flex:1; background:none; border:0; color:var(--tx); font:inherit; outline:none; } .cnova .lk0{ color:var(--ac); font-weight:600; font-size:12.5px; }
 .dm2 .nova[hidden]{ display:none; } .dm2 .nova{ display:flex; gap:8px; margin-top:8px; max-width:420px; } .dm2 .nova input{ flex:1; }
+.fm2{ margin:0 0 6px; padding:6px 0 0; background:none; } .fgt{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--mu); margin:16px 2px 8px; } .fgt:first-child{ margin-top:4px; }
+.fm2 .bnt{ grid-template-columns:repeat(4,minmax(0,1fr)); } .fm2 .tl2{ min-height:0; gap:6px; padding:10px 14px; } .fm2 .tl2.w2{ grid-column:span 2; } .fm2 .tl2.w4{ grid-column:span 4; } .fm2 .tk em{ font-style:normal; opacity:.75; margin-left:4px; }
+.fm2 input, .fm2 select, .fm2 textarea{ width:100%; background:none; border:0; border-bottom:1px solid var(--bd); border-radius:0; padding:4px 0 6px; font:500 14px Inter; color:var(--tx); outline:none; box-sizing:border-box; } .fm2 input:focus, .fm2 select:focus, .fm2 textarea:focus{ border-bottom-color:var(--ac); } .fm2 textarea{ resize:vertical; font-weight:400; line-height:1.5; }
+.fm2 .fck{ flex-direction:row; align-items:center; gap:8px; font-size:12.5px; color:var(--mu); } .fm2 .fck input{ width:auto; } .fm2 .cdn input.ct2{ border-bottom:1px solid var(--bd); padding:8px 0; } .fm2 .pl1 select, .fm2 .pl1 input{ font-size:13px; }
+#adModal .mcx:has(.fm2){ background:#EEF0F2; color:#1D2226; max-width:860px; } #adModal .mcx:has(.fm2) .x, #adModal .mcx:has(.fm2) h3{ color:#1D2226; } body.dm-escuro #adModal .mcx:has(.fm2){ background:#171C20; color:#E6E9EB; } body.dm-escuro #adModal .mcx:has(.fm2) h3{ color:#E6E9EB; }
+body.dm-escuro .dm2{ --sf:#171C20; --tl:#1B2125; --bd:#272D33; --tx:#E6E9EB; --mu:#8C939A; --ac:#4FE36A; } body.dm-escuro .fm2{ background:none; }
 .pes1{ display:block; margin-bottom:4px; } .pess{ display:flex; flex-direction:column; gap:8px; margin:10px 0 6px; } .pl1{ display:grid; grid-template-columns:110px minmax(0,1fr) 150px 28px; gap:8px; } .pl1 .x{ background:none; border:0; color:var(--ter); font-size:18px; cursor:pointer; }
 .tgs3{ display:flex; gap:6px; flex-wrap:wrap; margin-top:14px; } .tgs3 span{ font-size:11.5px; color:#4A5258; border:1px solid #D3D8DB; border-radius:999px; padding:3px 6px 3px 10px; display:inline-flex; gap:4px; align-items:center; } .tgs3 span button{ background:none; border:0; color:#8A9298; cursor:pointer; } .tgs3 .add{ font-size:11.5px; color:var(--mu); border:1px dashed #C9CED2; border-radius:999px; padding:3px 10px; background:none; cursor:pointer; }
 .dfx{ margin-top:18px; padding-top:12px; border-top:1px solid var(--bd); display:flex; align-items:center; gap:8px; font-size:11.5px; color:#C2412A; } .dfx .fx{ margin:0; }
@@ -189,7 +195,7 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="gabinete.js?cb=60"></script>
+<script src="gabinete.js?cb=62"></script>
 <script src="gabinete-adicionar.js?cb=11"></script>
 <script src="gabinete-planilha.js?cb=2"></script>
 <script src="gabinete-cotas.js?cb=15"></script>
