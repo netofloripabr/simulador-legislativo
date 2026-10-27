@@ -225,6 +225,10 @@ body.dm-escuro .ied input:hover, body.dm-escuro .ied select:hover, body.dm-escur
 .iv2 .iqk{ display:flex; gap:4px; justify-content:flex-end; margin-top:4px; } .iqk button{ border:0; background:#E4E7E9; color:#3A4146; font:500 10.5px Inter; padding:3px 8px; border-radius:999px; cursor:pointer; } .iqk button:hover{ background:#1D2226; color:#fff; }
 .itb tr.iw td{ border-bottom:0; } .itb tr.ick td{ padding:0 12px 9px; font-size:11px; color:var(--mu); } .ick span{ margin-right:12px; } .ick span.ok{ color:#1FA845; } .ick span.no{ color:#E8822A; } .itb tr.iw + tr.iw td{ border-top:1px solid var(--bd); } .itb tr.ick + tr.iw td{ border-top:1px solid var(--bd); }
 body.dm-escuro .iseg, body.dm-escuro .iqk button{ background:#272D33; } body.dm-escuro .iseg button.on{ background:#E6E9EB; color:#0B0D0E; }
+.itb tr.ick{ display:none; } .itb tr.ick.vis{ display:table-row; } .itb tr.iw{ cursor:pointer; } .iseta{ display:inline-block; transition:transform .2s; font-size:15px !important; } .iseta.ab{ transform:rotate(180deg); }
+.itb tr.iexp > td{ padding:4px 12px 16px; background:#fff; border-bottom:1px solid var(--bd); } .itb tr.iw:has(+ tr.ick.vis + tr.iexp) td, .itb tr.iw:has(+ tr.iexp) td{ background:#fff; } .itb tr.ick.vis:has(+ tr.iexp) td{ background:#fff; }
+.iexpd{ margin:0 !important; padding:4px 0 0 !important; background:none !important; } .iexpd .fgt:first-child{ margin-top:2px; } @media (min-width:900px){ .iexpd .bnt{ grid-template-columns:repeat(4,minmax(0,1fr)); } }
+body.dm-escuro .itb tr.iexp > td{ background:#1B2125; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -239,7 +243,7 @@ body.dm-escuro .iseg, body.dm-escuro .iqk button{ background:#272D33; } body.dm-
 <script src="gabinete-adicionar.js?cb=14"></script>
 <script src="gabinete-planilha.js?cb=2"></script>
 <script src="gabinete-cotas.js?cb=18"></script>
-<script src="gabinete-indicar.js?cb=8"></script>
+<script src="gabinete-indicar.js?cb=12"></script>
 <script src="sino-menu.js?cb=10"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */
 (function(){ var b=document.querySelector(".mnub"), m=document.querySelector(".mnu"); if(!b||!m) return;

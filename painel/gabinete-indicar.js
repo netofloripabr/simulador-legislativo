@@ -66,7 +66,7 @@ const tipoDe = (x) => x.benef_tipo || (x.modalidade === "Transferência Especial
 const benefAuto = (t, x, g) => { const a = AREAS.find((q) => q[1] === (x.area || g.trava)) || [];
   return t === "mun" ? `${a[1] === "Saúde" ? "Fundo Municipal de Saúde" : "Prefeitura Municipal"} de ${x.municipio || "…"}` : t === "est" ? `${a[1] === "Saúde" ? "Fundo Estadual de Saúde" : "Órgão estadual"}${a[3] ? " · UO " + a[3] : ""}` : ""; };
 const moeda = (v) => (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-function linhaInd(T, g, x, i) {
+function linhaInd(T, g, x, i, semExp) {
   const t = x ? tipoDe(x) : "", v = x ? +x.valor || 0 : 0;
   const ck = x ? [[x.municipio, "município"], [x.objeto, "objeto"], [t, "quem recebe"], [g.min ? v >= g.min : v > 0, g.min ? "valor ≥ " + rc(g.min) : "valor"], ...(t === "ent" ? [[String(x.cnpj || "").replace(/\D/g, "").length === 14, "CNPJ"], [x.razao_social || x.beneficiario, "razão social"]] : [])] : [];
   const quem = t === "ent" ? `<input data-c="cnpj" value="${esc(x.cnpj || "")}" placeholder="CNPJ 00.000.000/0000-00"><input data-c="razao_social" value="${esc(x.razao_social || x.beneficiario || "")}" placeholder="Razão social da entidade">`
@@ -78,8 +78,9 @@ function linhaInd(T, g, x, i) {
     <td class="iob"><div class="iqm">${quem}</div><div><textarea data-c="objeto" rows="1" placeholder="Objeto">${esc(x ? x.objeto || "" : "")}</textarea><button class="imais" data-iobj title="Objetos de referência">+</button></div></td>
     ${g.trava ? "" : `<td><select data-c="area"><option value=""></option>${g.areas.map((a) => `<option${x && x.area === a ? " selected" : ""}>${esc(a)}</option>`).join("")}</select></td>`}
     <td class="r iv2"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"><div class="iqk">${g.min ? `<button data-iq="min">mín.</button>` : ""}${g.disp ? `<button data-iq="sal">usar saldo</button>` : ""}</div></td>
-    <td class="iac">${x ? `<button data-idet title="Detalhar">↗</button><button data-ilimpa title="Limpar linha">×</button>` : ""}</td></tr>
-    ${ck.length ? `<tr class="ick" data-ick="${x.id}"><td></td><td colspan="${g.trava ? 5 : 6}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}`;
+    <td class="iac">${x ? `<button data-iexp class="iseta${IND.det === "a:" + x.id ? " ab" : ""}" title="Detalhar">⌄</button><button data-ilimpa title="Limpar linha">×</button>` : ""}</td></tr>
+    ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}" data-ick="${x.id}"><td></td><td colspan="${g.trava ? 5 : 6}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
+    ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${g.trava ? 6 : 7}">${detForm(x, T, g)}</td></tr>` : ""}`;
 }
 function rodapeInd(T, g, it) { it = it.filter(cheia); const tot = it.reduce((s, x) => s + (+x.valor || 0), 0);
   return `<td></td><td colspan="${g.trava ? 3 : 4}">Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}</td><td>${g.saude ? (() => { const sd = it.filter((x) => (x.area || g.trava) === "Saúde").reduce((s2, x) => s2 + (+x.valor || 0), 0), meta = g.disp * g.saude, okS = sd >= meta - .005; return `<span class="${okS ? "mut" : "ierr"}">Saúde R$ ${moeda(sd)} · ${tot ? Math.round(sd / tot * 100) : 0}% ${okS ? "✓" : `· faltam R$ ${moeda(meta - sd)} para 50%`}</span><br>`; })() : ""}${g.disp ? `<span class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou R$ " + moeda(tot - g.disp) : "saldo R$ " + moeda(g.disp - tot)}</span>` : ""}</td>`; }
@@ -118,7 +119,7 @@ async function salvarLinha(T, tr, campos) {
     const pr = gravar("gab_itens", reg); if (!x) tr._cria = pr; const nx = await pr; tr._cria = null;
     const ativo = document.activeElement, campoAt = ativo && tr.contains(ativo) ? ativo.dataset.c : null, sel = ativo && ativo.selectionStart;
     const i = [...tr.parentNode.querySelectorAll("tr.iw")].indexOf(tr), ck = tr.nextElementSibling && tr.nextElementSibling.classList.contains("ick") ? tr.nextElementSibling : null;
-    const tmp = document.createElement("tbody"); tmp.innerHTML = linhaInd(T, g, nx, i); if (ck) ck.remove();
+    const tmp = document.createElement("tbody"); tmp.innerHTML = linhaInd(T, g, nx, i, true); if (ck) ck.remove();
     const novos = [...tmp.children]; tr.replaceWith(...novos); ligarLinha(novos[0], T);
     if (campoAt) { const el = novos[0].querySelector(`[data-c="${campoAt}"]`); if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch (e) {} } }
     atualizarResumoInd(T);
@@ -141,12 +142,17 @@ function ligarLinha(tr, T) {
     salvarLinha(T, tr, { benef_tipo: t, modalidade: g.mods.includes(ins) ? ins : cur.modalidade || null, beneficiario: t === "ent" ? cur.razao_social || null : benefAuto(t, { ...cur, area: cur.area }, g) }); });
   tr.querySelectorAll("[data-iq]").forEach((b) => b.onclick = () => { const it = T.L ? AD.itens.filter((y) => y.lista_id === T.L.id && y.id !== tr.dataset.iw) : [];
     const v = b.dataset.iq === "min" ? g.min : Math.max(0, Math.round((g.disp - it.reduce((s, y) => s + (+y.valor || 0), 0)) * 100) / 100); salvarLinha(T, tr, { valor: v }); });
-  const d = tr.querySelector("[data-idet]"); if (d) d.onclick = () => { IND.det = "a:" + tr.dataset.iw; desenharInd(); };
+  const abre = () => { if (!tr.dataset.iw) return; IND.det = IND.det === "a:" + tr.dataset.iw ? null : "a:" + tr.dataset.iw; desenharInd(); };
+  const sx = tr.querySelector("[data-iexp]"); if (sx) sx.onclick = (e) => { e.stopPropagation(); abre(); };
+  tr.onclick = (e) => { if (e.target.closest("input,select,textarea,button,a")) return; abre(); };
+  tr.addEventListener("focusin", () => marcaAtiva(tr.dataset.iw));
   const l = tr.querySelector("[data-ilimpa]"); if (l) l.onclick = async () => { if (l.dataset.ok !== "1") { l.dataset.ok = "1"; l.textContent = "limpar?"; l.classList.add("ok"); setTimeout(() => { l.dataset.ok = ""; l.textContent = "×"; l.classList.remove("ok"); }, 3000); return; }
     try { await apagar("gab_itens", tr.dataset.iw); if (IND.det === "a:" + tr.dataset.iw) IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
   tr.querySelector("[data-iobj]").onclick = (e) => { e.stopPropagation(); popObjeto(tr, T); };
 }
-function ligarPlan(p, T) { p.querySelectorAll("tr.iw").forEach((tr) => ligarLinha(tr, T)); }
+function marcaAtiva(id) { if (!id || IND.ativa === id) return; IND.ativa = id; document.querySelectorAll("#indPg tr.ick").forEach((r) => r.classList.toggle("vis", r.dataset.ick === id || IND.det === "a:" + r.dataset.ick)); }
+function ligarPlan(p, T) { p.querySelectorAll("tr.iw").forEach((tr) => ligarLinha(tr, T));
+  p.querySelectorAll("tr.iexp").forEach((r) => { const x = AD.itens.find((y) => y.id === r.dataset.iexpw); if (x) ligarDet(r, x, T); }); }
 function popObjeto(tr, T) {
   document.querySelectorAll(".ipop").forEach((x) => x.remove());
   const b = tr.querySelector("[data-iobj]"), r = b.getBoundingClientRect(), pop = document.createElement("div"); pop.className = "ipop";
@@ -204,30 +210,30 @@ async function xlsxInd(T) {
   const buf = await wb.xlsx.writeBuffer(), a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   a.download = `${(L ? L.apelido || "lista" : T.nome).replace(/[^\w-]+/g, "_")}-${norm(PARL.u || "").replace(/ /g, "_")}.xlsx`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
-// ---------- detalhamento à direita ----------
-function detInd() {
-  const id = IND.det, d = $("#indDet"); if (!d) return; if (!id) { d.classList.remove("on"); return; }
-  if (id.startsWith("m:")) { const r = MEU.find((x) => "m:" + mk(x) === id); if (!r) return; d.innerHTML = `<button class="ix" data-ixd>×</button>${detalheMeu(r)}`; ligarMeuDet(d.querySelector(".dm2") || d, r); }
-  else { const x = AD.itens.find((y) => "a:" + y.id === id); if (!x) return; const L = AD.listas.find((l) => l.id === x.lista_id), T = etiquetas(IND.ano).find((t) => t.k === IND.tag) || {}, g = T.k ? regrasInd(T) : { areas: AREAS.map((a) => a[1]), mods: MODS };
-    // detalhamento direto no painel: cada campo grava ao sair dele, e a linha da planilha acompanha (sem botão Editar)
+// detalhamento da emenda dentro da própria linha (expansão), em vez de painel lateral (27/10/2026)
+function detForm(x, T, g) {
     const F = (k, rot, html, w) => `<label class="tl2 fc2${w ? " w" + w : ""}"><span class="tk">${ic(k)}${rot}</span>${html}</label>`, I = (f, v, ph = "", l = "") => `<input data-d="${f}" value="${esc(v ?? "")}" placeholder="${esc(ph)}"${l ? ` list="${l}"` : ""}>`;
     const S2 = (f, ops, v) => `<select data-d="${f}"><option value="">—</option>${ops.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}${v && !ops.includes(v) ? `<option selected>${esc(v)}</option>` : ""}</select>`, t = tipoDe(x);
-    d.innerHTML = `<button class="ix" data-ixd>×</button><div class="dm2 fm2"><div class="ttl"><span class="mut">${esc(L ? L.apelido || L.origem : "Avulso")}</span><h3>${esc(x.municipio || "—")}</h3><div class="mut">${esc(x.status || "Em análise")} · ${rc(+x.valor || 0)}</div></div>
-      <div class="fgt">Indicação</div><div class="bnt">
-      ${F("doc", "Objeto", `<textarea data-d="objeto" rows="3">${esc(x.objeto || "")}</textarea>`, 4)}
-      ${F("selo", "Instrumento", S2("modalidade", g.mods, x.modalidade), 2)}${g.trava ? `<div class="tl2 w2"><span class="tk">${ic("lei")}Área</span><span class="tv">${esc(g.trava)}<small>travada pela cota</small></span></div>` : F("lei", "Área", S2("area", g.areas, x.area), 2)}
+    return `<div class="dm2 fm2 iexpd">
+      <div class="bnt">
       ${F("moeda", "Natureza", S2("natureza", ["Investimento", "Custeio"], x.natureza), 2)}${F("ok", "Status", S2("status", STATUS, x.status || "Em análise"), 2)}
-      ${t === "ent" ? F("hash", "CNPJ", I("cnpj", x.cnpj, "00.000.000/0000-00"), 2) + F("pred", "Razão social", I("razao_social", x.razao_social || x.beneficiario), 2) : F("pred", "Beneficiário", I("beneficiario", x.beneficiario || (t ? benefAuto(t, x, g) : "")), 4)}</div>
-      <div class="fgt">Gabinete</div><div class="bnt">
       ${F("pessoa", "Líder", I("lideranca", x.lideranca, "Escolha ou digite", "indPes"), 2)}${F("pessoa", "Contato", I("contato", x.contato, "Telefone ou e-mail"), 2)}
       ${F("band", "Prioridade", S2("prioridade", PRIOR, x.prioridade), 2)}${F("lei", "Lei / PL", I("pl", x.pl, "PL nº 0633/2026"), 2)}
       ${F("doc", "Justificativa", `<textarea data-d="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 4)}
       ${F("doc", "Observação", `<textarea data-d="observacao" rows="2">${esc(x.observacao || "")}</textarea>`, 4)}</div>
       <datalist id="indPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist><div class="isv mut" data-dmsg></div></div>`;
+}
+function ligarDet(d, x, T) {
     const msg = d.querySelector("[data-dmsg]");
     d.querySelectorAll("[data-d]").forEach((el) => { const ini = el.value; el.onchange = async () => { if (el.value === ini) return; const o = { [el.dataset.d]: el.value.trim() || null }; if (o.razao_social !== undefined) o.beneficiario = o.razao_social;
       msg.textContent = "Salvando…"; const tr = document.querySelector(`#indPg tr.iw[data-iw="${x.id}"]`);
-      try { if (tr && T.k) await salvarLinha(T, tr, o); else await gravar("gab_itens", { id: x.id, ...o }); msg.textContent = "Salvo"; setTimeout(() => { msg.textContent = ""; }, 1500); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } }; }); }
+      try { if (tr && T.k) await salvarLinha(T, tr, o); else await gravar("gab_itens", { id: x.id, ...o }); msg.textContent = "Salvo"; setTimeout(() => { msg.textContent = ""; }, 1500); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } }; });
+}
+// ---------- detalhamento à direita (itens da planilha do gabinete) ----------
+function detInd() {
+  const id = IND.det, d = $("#indDet"); if (!d) return; if (!id) { d.classList.remove("on"); return; }
+  if (id.startsWith("m:")) { const r = MEU.find((x) => "m:" + mk(x) === id); if (!r) return; d.innerHTML = `<button class="ix" data-ixd>×</button>${detalheMeu(r)}`; ligarMeuDet(d.querySelector(".dm2") || d, r); }
+  else { d.classList.remove("on"); return; } // emenda da lista: abre na própria linha
   d.classList.add("on"); d.querySelector("[data-ixd]").onclick = () => { IND.det = null; desenharInd(); };
 }
 // ---------- página ----------
