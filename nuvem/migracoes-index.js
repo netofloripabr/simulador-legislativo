@@ -1780,5 +1780,24 @@ const MIGRACOES_INDEX = [
     "gab_recursos.corr"
    ]
   ]
+ },
+ {
+  "num": 85,
+  "arquivo": "migracao-85-gabinete-contatos.sql",
+  "descricao": "Migração 85 (26/10/2026): Gabinete · agenda de contatos do gabinete (líderes políticos e técnicos), reaproveit",
+  "objetos": [
+   [
+    "table",
+    "gab_contatos"
+   ],
+   [
+    "policy",
+    "gab_contatos_dono"
+   ],
+   [
+    "index",
+    "gab_contatos_dono_idx"
+   ]
+  ]
  }
 ];

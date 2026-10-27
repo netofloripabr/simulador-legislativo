@@ -58,7 +58,15 @@ function escolha(trocar) {
 // correções da revisão: o original fica em r._orig e o sistema passa a usar o valor corrigido (corr)
 const aplicarCorr = (r) => { if (!r.corr || r._orig) return r; r._orig = {}; Object.keys(r.corr).filter((k) => k !== "nota").forEach((k) => { r._orig[k] = r[k]; r[k] = r.corr[k]; }); return r; };
 const corrHtml = (r, k, html) => r._orig && k in r._orig ? `${html(r._orig[k])}<small class="corr" title="${esc((r.corr || {}).nota || "")}">→ ${html(r[k])}</small>` : html(r[k]);
-async function lerPrivado() { const { data } = await supabaseClient.from("gab_recursos").select("*").order("origem_planilha", { nullsFirst: false }); (data || []).forEach(aplicarCorr); MEU = data || []; PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
+let AGENDA = [];
+const pessoaLinha = (c) => `<div class="pl1"><select data-pp><option value="lider"${c.papel === "lider" ? " selected" : ""}>Líder</option><option value="tecnico"${c.papel === "tecnico" ? " selected" : ""}>Técnico</option><option value="outro"${c.papel === "outro" ? " selected" : ""}>Outro</option></select><input data-pn list="dlAgenda" value="${esc(c.nome || "")}" placeholder="Nome (escolha da agenda ou digite um novo)"><input data-pt value="${esc(c.tel || "")}" placeholder="Telefone"><button type="button" class="x" data-px title="Remover">×</button></div>`;
+async function lerAgenda() { try { if (LOCAL && !SESS) AGENDA = JSON.parse(localStorage.getItem("gab_agenda") || "[]"); else { const { data } = await supabaseClient.from("gab_contatos").select("*").order("nome"); AGENDA = data || []; } } catch (e) { AGENDA = []; } }
+async function salvarContato(c) { const ex = AGENDA.find((x) => norm(x.nome) === norm(c.nome)); if (ex) { if (c.tel && !ex.tel) { ex.tel = c.tel; if (!(LOCAL && !SESS)) await supabaseClient.from("gab_contatos").update({ tel: c.tel }).eq("id", ex.id); } return ex; }
+  let n = { nome: c.nome, papel: c.papel, tel: c.tel || null };
+  if (LOCAL && !SESS) { n.id = "l" + Date.now() + Math.random(); AGENDA.push(n); try { localStorage.setItem("gab_agenda", JSON.stringify(AGENDA)); } catch (e) {} }
+  else { const { data, error } = await supabaseClient.from("gab_contatos").insert(n).select().single(); if (error) throw error; n = data; AGENDA.push(n); }
+  return n; }
+async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient.from("gab_recursos").select("*").order("origem_planilha", { nullsFirst: false }); (data || []).forEach(aplicarCorr); MEU = data || []; PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
 
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
@@ -349,6 +357,24 @@ function passosOficiais(e, r) {
 const contato = (r, papel) => (r.contatos || []).filter((c) => c.papel === papel && (c.nome || c.tel));
 const BAND_I = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M3.5 14V2.5 M3.5 3h8.5l-2 3 2 3H3.5"/></svg>';
 const mi = (v) => v >= 1e6 ? nf(v / 1e6, 1) : nf(v / 1e3, 0);
+// valor curto: R$ 2M, R$ 2,5M, R$ 500 mil
+const rc = (v) => { v = +v || 0; return v >= 1e6 ? "R$ " + (Math.round(v / 1e5) / 10).toLocaleString("pt-BR") + "M" : v >= 1e3 ? "R$ " + Math.round(v / 1e3).toLocaleString("pt-BR") + " mil" : "R$ " + ni(v); };
+// etapas conforme o instrumento de repasse; o andamento vem da SEF (empenho, liquidação, pagamento), do status da planilha e
+// de pistas na observação (plano de trabalho, termo assinado, prestação de contas)
+function etapasProc(r, e) {
+  const es = etapasStatus(r.status_manual), S3 = es.d || [false, false, false], ob = String(r.observacao || ""), dt = (x) => x ? dtBR(String(x)) : "";
+  const X = e ? e.extrato_portal || {} : {}, ne = (X.emendaEmpenho || [])[0], nl = (X.emendaLiquidacao || [])[0], pgs = e ? e.pagamentos_sef || [] : [];
+  const pago = e ? e.et === 4 : S3[2], emp = !!ne || (e && e.et >= 2 && e.et !== 5) || !!r.empenho || pago, liq = !!nl || (e && e.et >= 3 && e.et !== 5) || pago;
+  const dPago = pgs.length ? dtBR(pgs[pgs.length - 1][4]) : dt(r.data_pagamento), sinal = (re) => re.test(ob);
+  const ins = instrSig(r.modalidade), I = { t: "Indicada", ic: "doc", on: true, s: `${r.ano || ""} · ${rc(r.valor)}` };
+  const P = { t: "Pagamento", ic: "ok", on: pago, s: pago ? dPago || "pago" : e && e.vp ? rc(e.vp) + " pagos" : "", v: es.ver && !pago };
+  if (ins === "TE") return [I, { t: "Portaria", ic: "selo", on: S3[1] || emp || pago, s: r.publicacao || (S3[1] ? "publicada" : "") }, ...(emp ? [{ t: "Empenho", ic: "moeda", on: true, s: ne ? dtBR(ne.dtlancamento || "") : r.empenho || "" }] : []), P];
+  if (["CO", "CS", "TF", "TC", "AC"].includes(ins)) return [I, { t: "Plano de trabalho", ic: "lapis", on: emp || pago || sinal(/plano de trabalho[^\n]{0,40}(cadastr|aprov|enviad)|cadastr[^\n]{0,30}plano de trabalho/i), s: "" },
+    { t: ins === "TF" ? "Termo de fomento" : ins === "TC" ? "Termo de colaboração" : "Convênio", ic: "selo", on: emp || pago || S3[1] || sinal(/(termo|conv[eê]nio)[^\n]{0,25}assinad|TF assinado/i), s: r.publicacao || "" },
+    { t: "Empenho", ic: "moeda", on: emp, s: ne ? dtBR(ne.dtlancamento || "") : r.empenho || "" }, P, { t: "Prestação de contas", ic: "doc", on: sinal(/presta[cç][aã]o de contas[^\n]{0,30}(aprovad|entregue|conclu)/i), s: "" }];
+  if (ins === "ED") return [I, { t: "Contratação", ic: "pred", on: emp || pago || sinal(/licita|contrat/i), s: "" }, { t: "Empenho", ic: "moeda", on: emp, s: ne ? dtBR(ne.dtlancamento || "") : "" }, { t: "Liquidação", ic: "selo", on: liq || pago, s: nl ? dtBR(nl.dtlancamento || "") : "" }, P];
+  return [I, { t: "Portaria / instrumento", ic: "selo", on: S3[1] || emp || pago, s: r.publicacao || "" }, ...(emp ? [{ t: "Empenho", ic: "moeda", on: true, s: ne ? dtBR(ne.dtlancamento || "") : "" }] : []), P];
+}
 // ícones finos (traço) usados no item aberto
 const IC = { doc: '<path d="M4.5 2.5h5l2 2v9h-7z M6.5 8h3 M6.5 10.5h2"/>', selo: '<circle cx="8" cy="6.5" r="3"/><path d="M6.2 9l-.7 4.5L8 12l2.5 1.5L9.8 9"/>', moeda: '<circle cx="8" cy="8" r="5"/><path d="M8 5.5v5"/>', ok: '<path d="M4 8.5l2.5 2.5L12 5.5"/>',
   pino: '<path d="M8 14s4.5-4.2 4.5-7.5a4.5 4.5 0 00-9 0C3.5 9.8 8 14 8 14z"/><circle cx="8" cy="6.5" r="1.5"/>', hash: '<path d="M3 6h10 M3 10h10 M6.5 2.5l-1 11 M10.5 2.5l-1 11"/>', lei: '<path d="M8 2.5v11 M4.5 13.5h7 M3 5h10 M4.5 5l-2 4.5h4zM11.5 5l-2 4.5h4z"/>',
@@ -367,19 +393,14 @@ function caderneta(r) {
 function detalheMeu(r) {
   const e = r.chave && E0.find((x) => x.k === r.chave);
   const es = etapasStatus(r.status_manual), S3 = es.d || [false, false, false], dt = (x) => x ? dtBR(String(x)) : "";
-  const PV = (e ? passosOficiais(e, r) : [{ t: "Indicada", on: true, dt: String(r.ano || ""), l: [["", r.valor ? "R$ " + mi(+r.valor) + (+r.valor >= 1e6 ? " mi" : " mil") : ""]] },
-    { t: "Portaria", on: S3[1], l: [["", r.publicacao]], v: es.ver && !S3[1] }, ...(r.empenho ? [{ t: "Empenho", on: true, l: [["", r.empenho]] }] : []),
-    { t: "Pagamento", on: S3[2], dt: dt(r.data_pagamento), l: [["", r.ob]], v: es.ver && S3[1] && !S3[2] }]).filter((p) => !p.nota);
-  const icoP = (t) => /indic/i.test(t) ? "doc" : /portaria|instrum/i.test(t) ? "selo" : /empenho|liquid/i.test(t) ? "moeda" : /pag/i.test(t) ? "ok" : "doc";
-  const feitos = PV.filter((p) => p.on).length, ultimo = PV.filter((p) => p.on).slice(-1)[0] || {};
-  const pagoTudo = e ? e.et === 4 : S3[2], dataFim = pagoTudo ? (ultimo.dt || dt(r.data_pagamento)) : "";
-  const titulo = pagoTudo ? `Pago${dataFim ? ` (${dataFim})` : ""}` : es.ver ? "Verificar" : e ? ETQ[e.et][0] : es.t;
-  const pg = e ? Math.min(+r.valor || e.v || 0, e.vp || 0) : (S3[2] ? +r.valor || 0 : 0), pct = +r.valor ? pg / +r.valor * 100 : 0;
-  const step = `<div class="stp" style="--n:${PV.length};--f:${Math.max(0, feitos - 1) / Math.max(1, PV.length - 1)}">${PV.map((p) => `<div class="sp${p.on ? " on" : ""}${p.v ? " vv" : ""}"><span class="sd">${ic(p.v ? "band" : icoP(p.t), "i s")}</span><b>${esc(p.t.replace(" / instrumento", "").replace(/ \(\d\/\d\)/, ""))}</b><small>${esc(p.dt || (p.l || []).map((x) => x[1]).filter(Boolean)[0] || (p.on ? "" : "pendente"))}</small></div>`).join("")}</div>`;
+  const PV = etapasProc(r, e), feitos = PV.filter((p) => p.on).length, pagoTudo = PV[PV.findIndex((p) => p.t === "Pagamento")].on;
+  const dataFim = pagoTudo ? PV.find((p) => p.t === "Pagamento").s : "";
+  const titulo = pagoTudo ? `Pago${/\d/.test(dataFim) ? ` (${dataFim})` : ""}` : es.ver ? "Verificar" : (PV.filter((p) => !p.on)[0] ? "Aguardando " + PV.filter((p) => !p.on)[0].t.toLowerCase() : es.t);
+  const pg = e ? Math.min(+r.valor || e.v || 0, e.vp || 0) : (S3[2] ? +r.valor || 0 : 0), pct = +r.valor ? pg / +r.valor * 100 : 0, ult = PV.map((p) => p.on).lastIndexOf(true);
+  const step = `<div class="stp" style="--n:${PV.length};--f:${Math.max(0, ult) / Math.max(1, PV.length - 1)}">${PV.map((p, k) => `<div class="sp${p.on ? " on" : ""}${k === ult + 1 && !p.on ? " nx" : ""}${p.v ? " vv" : ""}"><span class="sd">${ic(p.v ? "band" : p.ic, "i s")}</span><b>${esc(p.t)}</b><small>${esc(p.s || (p.on ? "" : "pendente"))}</small></div>`).join("")}</div>`;
   const ori = (k) => r._orig && k in r._orig ? `<span class="fx" title="${esc((r.corr || {}).nota || "corrigido")}"></span>` : "";
   const was = (k) => r._orig && k in r._orig ? `<s>${esc(r._orig[k] || "—")}</s> · ` : "";
   const sef = /^\d+$/.test(String(r.numero || "")) ? `${r.ano}EP${String(r.numero).padStart(6, "0")}` : "";
-  const ld = contato(r, "lider")[0], tc = contato(r, "tecnico");
   const tile = (k, rot, v, sub, cls) => `<div class="tl2${cls ? " " + cls : ""}"><span class="tk">${ic(k)}${rot}</span><span class="tv">${v}${sub ? `<small>${sub}</small>` : ""}</span></div>`;
   const leiV = leiDe(r) ? `${esc(leiDe(r).replace(/^Lei nº /, "Lei "))}${r.lei_url ? ` <a class="lnk2" href="${esc(r.lei_url)}" target="_blank" rel="noopener" title="Abrir a lei">↗</a>` : ""}` : `<span class="mut">+ adicionar</span>`;
   const bento = `<div class="bnt">
@@ -387,13 +408,12 @@ function detalheMeu(r) {
     ${tile("hash", "Emenda", r.num_lei || r.numero ? `${esc(r.num_lei || r.numero)}${ori("numero")}` : `<span class="mut">sem número</span>`, `${was("numero")}${sef ? "SEF " + sef : ""}`)}
     ${tile("lei", "Base legal", leiV, esc([r.pl && r.pl.replace(/^PL nº /, "PL "), r.origem].filter(Boolean).join(" · ")), "w2")}
     ${tile("pred", "Beneficiário", esc(r.beneficiario || "—"), esc([r.funcao, instrNome(r.modalidade), r.natureza, r.processo].filter(Boolean).join(" · ")), "w2")}
-    ${tile("pessoa", "Líder", ld ? esc(ld.nome || "—") : `<button class="mut lk0" data-editar2>+ adicionar</button>`, ld ? esc(ld.tel || "") : "")}
-    ${tile("pessoa", "Técnico", tc.length ? tc.map((c) => esc(c.nome || "—")).join(", ") : `<button class="mut lk0" data-editar2>+ adicionar</button>`, tc.length ? esc(tc.map((c) => c.tel).filter(Boolean).join(" · ")) : "")}</div>`;
+    ${["lider", "tecnico"].map((p) => { const L = contato(r, p); return `<div class="tl2"><span class="tk">${ic("pessoa")}${p === "lider" ? "Líder" : "Técnico"}${L.length > 1 ? "s" : ""}</span><span class="tv">${L.map((c) => `<span class="pes1">${esc(c.nome || "—")}${c.tel ? `<small>${esc(c.tel)}</small>` : ""}</span>`).join("")}<button class="mut lk0" data-editar2>+ ${L.length ? "pessoa" : "adicionar"}</button></span></div>`; }).join("")}</div>`;
   const cad = caderneta(r), hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
   const caderno = `<div class="bnt cad"><div class="tl2 w4"><span class="tk">${ic("balao")}Observação${r.obs_em ? ` · atualizada em ${dtBR(r.obs_em)}` : ""}</span>
       <div class="cdn">${cad.map((n) => `<span class="cd">${esc(n.d || "—")}</span><span class="ct2">${esc(n.t)}</span>`).join("")}
       <input class="cd" data-cdd value="${hoje}" aria-label="Data"><span class="ct2 cnova"><input data-cdt placeholder="Nova anotação…"><button class="lk0" data-cds>Anotar</button></span></div></div></div>`;
-  return `<div class="dm2"><div class="dh"><div><div class="dst"><i class="${pagoTudo ? "ok" : es.ver ? "vv" : ""}"></i>${esc(titulo)}</div><div class="dsub">${fm(+r.valor || 0)} · ${nf(pct, 0)}% pago · exercício ${esc(r.ano || "—")}</div></div>
+  return `<div class="dm2"><div class="dh"><div><div class="dst"><i class="${pagoTudo ? "ok" : es.ver ? "vv" : ""}"></i>${esc(titulo)}</div><div class="dsub">${rc(r.valor)} · ${nf(pct, 0)}% pago · ${esc(instrNome(r.modalidade) || "instrumento não informado")} · exercício ${esc(r.ano || "—")}</div></div>
       <div class="dac"><span class="av" data-msg></span><button class="${r.atencao ? "on" : ""}" data-atencao title="${r.atencao ? "Tirar a atenção" : "Marcar para atenção"}">${ic("band")}</button><button data-editar title="Editar">${ic("lapis")}</button><button data-subst title="${e ? "Substituir emenda do portal" : "Ligar a uma emenda do portal"}">${ic("elo")}</button><button data-excl title="Excluir">${ic("lixo")}</button></div></div>
     ${step}${bento}${caderno}
     <div class="tgs3">${(r.tags || []).map((t) => `<span>${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<button class="add" data-etq>+ etiqueta</button></div>
@@ -424,11 +444,15 @@ function ligarMeuDet(d, r) {
       ${campo("Município", `<input data-f="municipio" list="dlMun" value="${esc(r.municipio || "")}">`)}${campo("Valor (R$)", inp("valor", r.valor, "", "number"))}${campo("Objeto", `<textarea data-f="objeto" rows="2">${esc(r.objeto || "")}</textarea>`, 1)}
       ${campo("Ano", inp("ano", r.ano, "", "number"))}${campo("Nº", inp("numero", r.numero))}${campo("Origem", `<input data-f="origem" list="dlOri" value="${esc(r.origem || "")}" placeholder="Escolha ou digite">`)}${campo("Projeto de lei <em>emenda impositiva</em>", inp("pl", r.pl, "PL nº 452/2026"))}${campo("Lei sancionada", inp("lei", r.lei, "Lei nº 19.684/2026"))}${campo("Link da lei", inp("lei_url", r.lei_url, "https://leis.alesc.sc.gov.br/..."))}
       ${r.pl ? (() => { const n = MEU.filter((x) => x !== r && x.pl === r.pl && !x.lei).length; return n ? `<label class="fc lg" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" data-leitodos style="width:auto"> Aplicar a lei aos outros ${n} itens do ${esc(r.pl)} sem lei</label>` : ""; })() : ""}${campo("Função", `<input data-f="funcao" list="dlFun" value="${esc(r.funcao || "")}">`)}${campo("Instrumento de repasse", `<select data-f="modalidade"><option value="">—</option>${INSTR_OP.map((o) => `<option${instrNome(r.modalidade) === o ? " selected" : ""}>${o}</option>`).join("")}${r.modalidade && !INSTR_OP.includes(instrNome(r.modalidade)) ? `<option selected>${esc(r.modalidade)}</option>` : ""}</select>`)}${campo("Natureza", sel("natureza", ["Investimento", "Custeio"], r.natureza, "—"))}${campo("Beneficiário", `<input data-f="beneficiario" list="dlBen" value="${esc(r.beneficiario || "")}">`)}${campo("Processo SCC", inp("processo", r.processo))}${campo("Status", `<input data-f="status_manual" list="dlSt" value="${esc(r.status_manual || "")}">`)}${campo("Tags <em>separadas por vírgula</em>", inp("tags", (r.tags || []).join(", ")), 1)}${campo("Observação", `<textarea data-f="observacao" rows="3">${esc(r.observacao || "")}</textarea>`, 1)}</div></div>
-    <div class="fsec"><div class="fst">Contatos <em>líder político que indicou e técnicos do processo</em></div><div class="fg">${(() => { const Lc = contato(r, "lider")[0] || {}, T = contato(r, "tecnico"); return campo("Líder", `<input data-c="lider.nome" value="${esc(Lc.nome || "")}" placeholder="Nome">`) + campo("Telefone do líder", `<input data-c="lider.tel" value="${esc(Lc.tel || "")}">`) + [0, 1].map((k) => campo("Técnico " + (k + 1), `<input data-c="tecnico${k}.nome" value="${esc((T[k] || {}).nome || "")}" placeholder="Nome">`) + campo("Telefone", `<input data-c="tecnico${k}.tel" value="${esc((T[k] || {}).tel || "")}">`)).join(""); })()}</div></div>
+    <div class="fsec"><div class="fst">Contatos <em>líder político que indicou e técnicos do processo</em></div><div class="fg"></div><div class="pess" data-pess>${[...(r.contatos || []), ...((r.contatos || []).length ? [] : [{ papel: "lider" }])].map(pessoaLinha).join("")}</div><button class="lk" data-maispes type="button">+ pessoa</button>
+      <datalist id="dlAgenda">${AGENDA.map((c) => `<option value="${esc(c.nome)}">${esc([c.papel === "tecnico" ? "técnico" : c.papel === "lider" ? "líder" : "", c.tel].filter(Boolean).join(" · "))}</option>`).join("")}</datalist></div>
     <div class="mrod"><span class="av" data-msg></span><button class="btn sec" data-fecha>Cancelar</button><button class="btn" data-salva>Salvar</button></div>`, (m, fechar) => {
+      const ligPes = () => m.querySelectorAll(".pl1").forEach((l) => { l.querySelector("[data-px]").onclick = () => l.remove(); const n = l.querySelector("[data-pn]"); n.onchange = () => { const a = AGENDA.find((x) => norm(x.nome) === norm(n.value)); if (a) { const t = l.querySelector("[data-pt]"); if (!t.value) t.value = a.tel || ""; if (a.papel) l.querySelector("[data-pp]").value = a.papel; } }; });
+      m.querySelector("[data-maispes]").onclick = () => { m.querySelector("[data-pess]").insertAdjacentHTML("beforeend", pessoaLinha({ papel: "tecnico" })); ligPes(); }; ligPes();
       m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), ms = m.querySelector("[data-msg]"); o.valor = o.valor ? +o.valor : null; o.ano = o.ano ? +o.ano : null; { const mm = BASE.mun.find((x) => norm(x.n) === norm(o.municipio || "")); if (mm && mm.assoc) o.regiao = mm.assoc; }
         o.tags = o.tags ? o.tags.split(",").map((t) => t.trim()).filter(Boolean) : [];
-        const cv = (k) => (m.querySelector(`[data-c="${k}"]`).value || "").trim(); o.contatos = [["lider", "lider"], ["tecnico", "tecnico0"], ["tecnico", "tecnico1"]].map(([p, k]) => ({ papel: p, nome: cv(k + ".nome"), tel: cv(k + ".tel") })).filter((c) => c.nome || c.tel);
+        const P = [...m.querySelectorAll(".pl1")].map((l) => ({ papel: l.querySelector("[data-pp]").value, nome: l.querySelector("[data-pn]").value.trim(), tel: l.querySelector("[data-pt]").value.trim() })).filter((c) => c.nome);
+        o.contatos = []; for (const c of P) { const a = await salvarContato(c); o.contatos.push({ id: a.id, papel: c.papel, nome: a.nome, tel: c.tel || a.tel || "" }); }
         if ((o.observacao || "") !== (r.observacao || "")) o.obs_em = new Date().toISOString();
         const lt = m.querySelector("[data-leitodos]"); if (lt && lt.checked && o.lei) { const pl0 = r.pl; for (const x of MEU.filter((x) => x !== r && x.pl === pl0 && !x.lei)) await gravaMeu(x, { lei: o.lei, lei_url: o.lei_url }); } ms.textContent = "Salvando…";
         try { await gravaMeu(r, o); fechar(); mtab(); } catch (er) { ms.textContent = "Não foi possível salvar: " + (er.message || er); } }; });
