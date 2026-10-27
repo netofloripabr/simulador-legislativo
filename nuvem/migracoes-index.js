@@ -1799,5 +1799,16 @@ const MIGRACOES_INDEX = [
     "gab_contatos_dono_idx"
    ]
   ]
+ },
+ {
+  "num": 86,
+  "arquivo": "migracao-86-gabinete-benef-tipo.sql",
+  "descricao": "Migração 86 (27/10/2026): Gabinete · tipo de beneficiário da indicação (mun = município → TE, ent = entidade →",
+  "objetos": [
+   [
+    "column",
+    "gab_itens.benef_tipo"
+   ]
+  ]
  }
 ];

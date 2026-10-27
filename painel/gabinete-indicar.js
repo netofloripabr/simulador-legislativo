@@ -6,6 +6,8 @@
 
 const IND = { aberto: false, ano: null, tag: null, det: null, tick: null };
 const anoAtual = () => new Date().getFullYear();
+// linha que conta como emenda: tem município ou valor (objeto solto é rascunho, não entra em total, alerta nem documento)
+const cheia = (x) => !!(x && (x.municipio || +x.valor));
 // cotas fixas do administrador (COTAS_LEGAIS) viram etiquetas laranja; a lista do gabinete ligada a ela é criada no 1º item
 const cotaNome = { EX: "Excesso · Saúde", "0,55": "Adicional 0,55%" };
 function listaDaCota(ano, t) { return AD.listas.find((l) => anoLista(l) === ano && tipoLista(l) === t); }
@@ -24,7 +26,7 @@ function anosInd() {
 // ---------- capa ----------
 function capaInd(T) {
   if (T && T.cota) {
-    const c = T.cota, it = T.L ? AD.itens.filter((x) => x.lista_id === T.L.id) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), livre = c.disp - tot;
+    const c = T.cota, it = T.L ? AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x)) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), livre = c.disp - tot;
     return `<div class="t"><span class="tk">Disponível</span><span class="iv">R$ ${nf(c.disp, 2)}<small>${esc(c.base || "")}</small></span></div>
       <div class="t"><span class="tk">Livre</span><span class="iv"${livre < 0 ? ' style="color:#C0392B"' : ""}>${rc(livre)}<small>${it.length} de ${c.max || "—"} emendas</small></span><div class="ibar"><i style="width:${Math.min(100, tot / c.disp * 100)}%"></i></div></div>
       <div class="t w2"><span class="tk">${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</span><div class="icd" data-prazo="${esc(c.prazo || "")}"></div></div>`;
@@ -58,6 +60,29 @@ function objetosRef(q) {
   const n = norm(q || "").split(/\s+/).filter(Boolean);
   return Object.entries(C).filter(([t]) => n.every((w) => norm(t).includes(w))).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR")).slice(0, 40);
 }
+// tipo de quem recebe → instrumento sugerido (o usuário pode trocar): Município → TE, Entidade → Convênio, Estado → Execução Direta
+const BTIPO = [["mun", "Município", "Transferência Especial"], ["ent", "Entidade", "Convênio"], ["est", "Estado", "Execução Direta"]];
+const tipoDe = (x) => x.benef_tipo || (x.modalidade === "Transferência Especial" ? "mun" : /Convênio|Termo|Acordo/.test(x.modalidade || "") ? "ent" : x.modalidade === "Execução Direta" ? "est" : "");
+const benefAuto = (t, x, g) => { const a = AREAS.find((q) => q[1] === (x.area || g.trava)) || [];
+  return t === "mun" ? `${a[1] === "Saúde" ? "Fundo Municipal de Saúde" : "Prefeitura Municipal"} de ${x.municipio || "…"}` : t === "est" ? `${a[1] === "Saúde" ? "Fundo Estadual de Saúde" : "Órgão estadual"}${a[3] ? " · UO " + a[3] : ""}` : ""; };
+const moeda = (v) => (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function linhaInd(T, g, x, i) {
+  const t = x ? tipoDe(x) : "", v = x ? +x.valor || 0 : 0;
+  const ck = x ? [[x.municipio, "município"], [x.objeto, "objeto"], [t, "quem recebe"], [g.min ? v >= g.min : v > 0, g.min ? "valor ≥ " + rc(g.min) : "valor"], ...(t === "ent" ? [[String(x.cnpj || "").replace(/\D/g, "").length === 14, "CNPJ"], [x.razao_social || x.beneficiario, "razão social"]] : [])] : [];
+  const quem = t === "ent" ? `<input data-c="cnpj" value="${esc(x.cnpj || "")}" placeholder="CNPJ 00.000.000/0000-00"><input data-c="razao_social" value="${esc(x.razao_social || x.beneficiario || "")}" placeholder="Razão social da entidade">`
+    : t ? `<input class="iauto" value="${esc(x.beneficiario || benefAuto(t, x, g))}" data-c="beneficiario" title="Preenchido pelo tipo; pode editar">` : "";
+  return `<tr class="iw${x && IND.det === "a:" + x.id ? " on" : ""}" data-iw="${x ? x.id : ""}"><td class="n">${i + 1}</td>
+    <td class="itp"><div class="iseg">${BTIPO.map(([k, l]) => `<button data-bt="${k}" class="${t === k ? "on" : ""}">${l}</button>`).join("")}</div>
+      ${t ? `<select data-c="modalidade" class="iins">${g.mods.concat(g.mods.includes(x.modalidade) || !x.modalidade ? [] : [x.modalidade]).map((m) => `<option${x.modalidade === m ? " selected" : ""}>${esc(m)}</option>`).join("")}</select>` : ""}</td>
+    <td><input data-c="municipio" list="indMun" value="${esc(x ? x.municipio || "" : "")}" placeholder="${x ? "Município" : "indicar"}"></td>
+    <td class="iob"><div class="iqm">${quem}</div><div><textarea data-c="objeto" rows="1" placeholder="Objeto">${esc(x ? x.objeto || "" : "")}</textarea><button class="imais" data-iobj title="Objetos de referência">+</button></div></td>
+    ${g.trava ? "" : `<td><select data-c="area"><option value=""></option>${g.areas.map((a) => `<option${x && x.area === a ? " selected" : ""}>${esc(a)}</option>`).join("")}</select></td>`}
+    <td class="r iv2"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"><div class="iqk">${g.min ? `<button data-iq="min">mín.</button>` : ""}${g.disp ? `<button data-iq="sal">usar saldo</button>` : ""}</div></td>
+    <td class="iac">${x ? `<button data-idet title="Detalhar">↗</button><button data-ilimpa title="Limpar linha">×</button>` : ""}</td></tr>
+    ${ck.length ? `<tr class="ick" data-ick="${x.id}"><td></td><td colspan="${g.trava ? 5 : 6}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}`;
+}
+function rodapeInd(T, g, it) { it = it.filter(cheia); const tot = it.reduce((s, x) => s + (+x.valor || 0), 0);
+  return `<td></td><td colspan="${g.trava ? 3 : 4}">Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}</td><td>${g.disp ? `<span class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou R$ " + moeda(tot - g.disp) : "saldo R$ " + moeda(g.disp - tot)}</span>` : ""}</td>`; }
 function planInd(T) {
   if (!T) return `<div class="iinf">Nenhuma lista neste ano. Use “+ nova lista” para começar.</div>`;
   const R = linhasInd(T), c = T.cota, tot = R.reduce((s, x) => s + x.v, 0), edita = T.k !== "plan", g = regrasInd(T);
@@ -70,52 +95,58 @@ function planInd(T) {
     ${R.map((x, i) => `<tr class="ir${IND.det === x.id ? " on" : ""}" data-ir="${esc(x.id)}"><td class="n">${i + 1}</td><td>${esc(x.mun || "—")}</td><td class="ob">${esc(frase(x.obj || ""))}</td><td>${esc(x.ins)}</td><td class="r">${ni(Math.round(x.v))}</td><td class="hm st">${esc(x.st)}</td><td class="ar">›</td></tr>`).join("")}
     <tr class="itt"><td></td><td colspan="3">Total · ${R.length} itens</td><td class="r">${ni(Math.round(tot))}</td><td colspan="2" class="hm"></td></tr></tbody></table></div>`;
   const it = R.map((x) => AD.itens.find((y) => "a:" + y.id === x.id)), vaz = g.max ? Math.max(0, g.max - it.length) : 1;
-  const linha = (x, i) => { const v = x ? +x.valor || 0 : 0, baixo = x && g.min && v && v < g.min;
-    return `<tr class="iw${x && IND.det === "a:" + x.id ? " on" : ""}" data-iw="${x ? x.id : ""}"><td class="n">${i + 1}</td>
-      <td><input data-c="municipio" list="indMun" value="${esc(x ? x.municipio || "" : "")}" placeholder="${x ? "" : "indicar"}"></td>
-      <td class="iob"><div><textarea data-c="objeto" rows="1" placeholder="Objeto">${esc(x ? x.objeto || "" : "")}</textarea><button class="imais" data-iobj title="Objetos de referência">+</button></div></td>
-      ${g.trava ? "" : `<td><select data-c="area"><option value=""></option>${g.areas.map((a) => `<option${x && x.area === a ? " selected" : ""}>${esc(a)}</option>`).join("")}</select></td>`}
-      <td><select data-c="modalidade"><option value=""></option>${g.mods.map((m) => `<option${x && x.modalidade === m ? " selected" : ""}>${esc(m)}</option>`).join("")}</select></td>
-      <td class="r"><input data-c="valor" inputmode="decimal" class="${baixo ? "ierr" : ""}" value="${x && x.valor ? ni(Math.round(v)) : ""}" placeholder="${g.min ? "mín. " + ni(g.min) : "0"}" title="${baixo ? "Abaixo do mínimo de " + fm(g.min) : ""}"></td>
-      <td><input data-c="beneficiario" value="${esc(x ? x.beneficiario || x.razao_social || "" : "")}" placeholder="${x && x.modalidade === "Convênio" ? "Entidade (CNPJ no detalhe)" : "Beneficiário"}"></td>
-      <td class="iac">${x ? `<button data-idet title="Detalhar">↗</button><button data-ilimpa title="Limpar linha">×</button>` : ""}</td></tr>`; };
   return `<div class="iinf">${inf}${trava}${outras}${acs}</div><datalist id="indMun">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>
-    <div class="itw"><table class="itb ied"><thead><tr><th></th><th>Município</th><th>Objeto</th>${g.trava ? "" : "<th>Área</th>"}<th>Instrumento</th><th class="r">Valor</th><th>Beneficiário</th><th></th></tr></thead><tbody>
-    ${it.map((x, i) => linha(x, i)).join("")}${Array.from({ length: vaz }, (_, i) => linha(null, it.length + i)).join("")}
-    ${!g.max ? "" : ""}<tr class="itt"><td></td><td colspan="${g.trava ? 3 : 4}">Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${ni(Math.round(tot))}</td><td colspan="2">${g.disp ? `<span class="${tot > g.disp ? "ierr" : "mut"}">${tot > g.disp ? "passou " + rc(tot - g.disp) : "saldo " + rc(g.disp - tot)}</span>` : ""}</td></tr></tbody></table></div>`;
+    <div class="itw"><table class="itb ied"><thead><tr><th></th><th>Quem recebe · instrumento</th><th>Município</th><th>Beneficiário · objeto</th>${g.trava ? "" : "<th>Área</th>"}<th class="r">Valor (R$)</th><th></th></tr></thead><tbody>
+    ${it.map((x, i) => linhaInd(T, g, x, i)).join("")}${Array.from({ length: vaz }, (_, i) => linhaInd(T, g, null, it.length + i)).join("")}
+    <tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>`;
 }
-// ---------- edição direto na planilha ----------
+// ---------- edição direto na planilha: grava a célula e redesenha SÓ a linha (não perde o que está sendo digitado nas outras e não pula de campo) ----------
 const numBR = (s) => +String(s || "").replace(/[^\d,]/g, "").replace(",", ".") || 0;
 async function garantirLista(T) {
   if (T.L || T.k === "avulsos") return T.L || null; const c = T.cota;
   if (!c) return null; const g = regrasInd(T);
-  T.L = await gravar("gab_listas", { origem: `${COTA_T[c.t][0]} ${IND.ano}${c.areas ? " · " + c.areas.join(", ") : ""}`, apelido: `${c.t === "EX" ? "Excesso" : COTA_T[c.t][0]} ${String(IND.ano).slice(2)}`, modelo: "cota:" + c.t, regras: { disp: g.disp, min: g.min, max: g.max, prazo: c.prazo || "", areas: g.areas } });
-  return T.L;
+  if (!IND.criaL) IND.criaL = gravar("gab_listas", { origem: `${COTA_T[c.t][0]} ${IND.ano}${c.areas ? " · " + c.areas.join(", ") : ""}`, apelido: `${c.t === "EX" ? "Excesso" : COTA_T[c.t][0]} ${String(IND.ano).slice(2)}`, modelo: "cota:" + c.t, regras: { disp: g.disp, min: g.min, max: g.max, prazo: c.prazo || "", areas: g.areas } });
+  try { T.L = await IND.criaL; } finally { IND.criaL = null; } return T.L;
 }
-async function salvarCel(T, tr, campo, val) {
-  // linha nova ainda gravando: espera e passa a atualizar o item criado (evita duas linhas)
-  if (!tr.dataset.iw && tr._cria) { await tr._cria; }
-  const g = regrasInd(T), id = tr.dataset.iw || tr._novo; let x = id ? AD.itens.find((y) => y.id === id) : null;
-  if (campo === "valor") val = numBR(val) || null; else val = String(val || "").trim() || null;
-  if (!x && !val) return;
+async function salvarLinha(T, tr, campos) {
+  const g = regrasInd(T);
+  if (!tr.dataset.iw && tr._cria) await tr._cria;
+  const id = tr.dataset.iw; let x = id ? AD.itens.find((y) => y.id === id) : null;
+  if (!x && !Object.values(campos).some((v) => v != null && v !== "")) return;
   try { const L = await garantirLista(T);
-    const reg = x ? { id: x.id, [campo]: val } : { lista_id: L ? L.id : null, tipo: T.cota ? "Emenda impositiva" : null, status: "Em análise", ...(g.trava ? { area: g.trava } : {}), [campo]: val };
-    const pr = gravar("gab_itens", reg); if (!x) tr._cria = pr; const nx = await pr; tr._novo = nx.id; IND.foco = { id: nx.id, c: campo }; desenharInd();
+    const reg = x ? { id: x.id, ...campos } : { lista_id: L ? L.id : null, tipo: T.cota ? "Emenda impositiva" : null, status: "Em análise", ...(g.trava ? { area: g.trava } : {}), ...campos };
+    const pr = gravar("gab_itens", reg); if (!x) tr._cria = pr; const nx = await pr; tr._cria = null;
+    const ativo = document.activeElement, campoAt = ativo && tr.contains(ativo) ? ativo.dataset.c : null, sel = ativo && ativo.selectionStart;
+    const i = [...tr.parentNode.querySelectorAll("tr.iw")].indexOf(tr), ck = tr.nextElementSibling && tr.nextElementSibling.classList.contains("ick") ? tr.nextElementSibling : null;
+    const tmp = document.createElement("tbody"); tmp.innerHTML = linhaInd(T, g, nx, i); if (ck) ck.remove();
+    const novos = [...tmp.children]; tr.replaceWith(...novos); ligarLinha(novos[0], T);
+    if (campoAt) { const el = novos[0].querySelector(`[data-c="${campoAt}"]`); if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch (e) {} } }
+    atualizarResumoInd(T);
   } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); }
 }
-function ligarPlan(p, T) {
-  p.querySelectorAll("tr.iw").forEach((tr) => {
-    tr.querySelectorAll("[data-c]").forEach((el) => { const ini = el.value;
-      el.onchange = () => { if (el.value !== ini) salvarCel(T, tr, el.dataset.c, el.value); };
-      if (el.tagName === "TEXTAREA") { const aj = () => { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }; el.oninput = aj; aj(); el.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); el.blur(); } }; } });
-    const d = tr.querySelector("[data-idet]"); if (d) d.onclick = () => { IND.det = "a:" + tr.dataset.iw; desenharInd(); };
-    const l = tr.querySelector("[data-ilimpa]"); if (l) l.onclick = async () => { if (l.dataset.ok !== "1") { l.dataset.ok = "1"; l.textContent = "limpar?"; l.classList.add("ok"); setTimeout(() => { l.dataset.ok = ""; l.textContent = "×"; l.classList.remove("ok"); }, 3000); return; }
-      try { await apagar("gab_itens", tr.dataset.iw); if (IND.det === "a:" + tr.dataset.iw) IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
-    tr.querySelector("[data-iobj]").onclick = (e) => { e.stopPropagation(); popObjeto(tr, T); };
-  });
-  if (IND.foco) { const tr = p.querySelector(`tr.iw[data-iw="${IND.foco.id}"]`), ord = ["municipio", "objeto", "area", "modalidade", "valor", "beneficiario"];
-    if (tr) { const prox = ord.slice(ord.indexOf(IND.foco.c) + 1).map((c) => tr.querySelector(`[data-c="${c}"]`)).find((el) => el && !el.value); if (prox) prox.focus(); } IND.foco = null; }
+function atualizarResumoInd(T) { const g = regrasInd(T), it = T.L ? AD.itens.filter((x) => x.lista_id === T.L.id) : T.k === "avulsos" ? AD.itens.filter((x) => !x.lista_id) : [];
+  const r = $("#indRod"); if (r) r.innerHTML = rodapeInd(T, g, it); const cp = $("#indPg .icapa"); if (cp) { cp.innerHTML = capaInd(T); contador(); }
+  const tg = $(`#indPg [data-itag="${T.k}"] small`); if (tg && T.cota) tg.textContent = `${it.filter(cheia).length}/${T.cota.max || "—"}`; }
+function ligarLinha(tr, T) {
+  const g = regrasInd(T), x = () => AD.itens.find((y) => y.id === tr.dataset.iw);
+  tr.querySelectorAll("[data-c]").forEach((el) => { const ini = el.value, c = el.dataset.c;
+    if (c === "valor") { el.oninput = () => { const d = el.value.replace(/\D/g, ""); el.value = d ? moeda(+d / 100) : ""; el.setSelectionRange(el.value.length, el.value.length); };
+      el.onchange = () => { const v = numBR(el.value); salvarLinha(T, tr, { valor: v || null }); }; return; }
+    el.onchange = () => { if (el.value === ini) return; const o = { [c]: el.value.trim() || null };
+      if (c === "municipio" && x() && ["mun"].includes(tipoDe(x())) && (!x().beneficiario || /^(Fundo Municipal de Saúde|Prefeitura Municipal) de /.test(x().beneficiario))) o.beneficiario = benefAuto("mun", { ...x(), municipio: o.municipio }, g);
+      if (c === "razao_social") o.beneficiario = o.razao_social;
+      salvarLinha(T, tr, o); };
+    if (el.tagName === "TEXTAREA") { const aj = () => { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }; el.addEventListener("input", aj); aj(); el.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); el.blur(); } }; } });
+  tr.querySelectorAll("[data-bt]").forEach((b) => b.onclick = () => { const t = b.dataset.bt, ins = BTIPO.find((q) => q[0] === t)[2], cur = x() || {};
+    salvarLinha(T, tr, { benef_tipo: t, modalidade: g.mods.includes(ins) ? ins : cur.modalidade || null, beneficiario: t === "ent" ? cur.razao_social || null : benefAuto(t, { ...cur, area: cur.area }, g) }); });
+  tr.querySelectorAll("[data-iq]").forEach((b) => b.onclick = () => { const it = T.L ? AD.itens.filter((y) => y.lista_id === T.L.id && y.id !== tr.dataset.iw) : [];
+    const v = b.dataset.iq === "min" ? g.min : Math.max(0, Math.round((g.disp - it.reduce((s, y) => s + (+y.valor || 0), 0)) * 100) / 100); salvarLinha(T, tr, { valor: v }); });
+  const d = tr.querySelector("[data-idet]"); if (d) d.onclick = () => { IND.det = "a:" + tr.dataset.iw; desenharInd(); };
+  const l = tr.querySelector("[data-ilimpa]"); if (l) l.onclick = async () => { if (l.dataset.ok !== "1") { l.dataset.ok = "1"; l.textContent = "limpar?"; l.classList.add("ok"); setTimeout(() => { l.dataset.ok = ""; l.textContent = "×"; l.classList.remove("ok"); }, 3000); return; }
+    try { await apagar("gab_itens", tr.dataset.iw); if (IND.det === "a:" + tr.dataset.iw) IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
+  tr.querySelector("[data-iobj]").onclick = (e) => { e.stopPropagation(); popObjeto(tr, T); };
 }
+function ligarPlan(p, T) { p.querySelectorAll("tr.iw").forEach((tr) => ligarLinha(tr, T)); }
 function popObjeto(tr, T) {
   document.querySelectorAll(".ipop").forEach((x) => x.remove());
   const b = tr.querySelector("[data-iobj]"), r = b.getBoundingClientRect(), pop = document.createElement("div"); pop.className = "ipop";
@@ -123,13 +154,13 @@ function popObjeto(tr, T) {
   $("#indPg").appendChild(pop); pop.style.top = Math.min(r.bottom + 6, innerHeight - 340) + "px"; pop.style.left = Math.max(12, Math.min(r.left - 300, innerWidth - 440)) + "px";
   const q = pop.querySelector("input"), l = pop.querySelector(".ipl");
   const lista = () => { const O = objetosRef(q.value); l.innerHTML = O.length ? O.map(([t, n]) => `<button data-o="${esc(t)}"><span>${esc(t)}</span><small>${n}×</small></button>`).join("") : `<div class="mut" style="padding:10px">Nenhum objeto com esse termo.</div>`;
-    l.querySelectorAll("[data-o]").forEach((o) => o.onclick = () => { pop.remove(); const ta = tr.querySelector('[data-c="objeto"]'); ta.value = o.dataset.o; salvarCel(T, tr, "objeto", o.dataset.o); }); };
+    l.querySelectorAll("[data-o]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); pop.remove(); salvarLinha(T, tr, { objeto: o.dataset.o }); }); };
   q.oninput = lista; lista(); q.focus(); q.select();
   setTimeout(() => document.addEventListener("click", function f(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("click", f); } }), 0);
 }
 // ---------- saída: documento no padrão do palpite e planilha .xlsx no modelo do Orçamento ----------
 function documentoInd(T) {
-  const L = T.L, g = regrasInd(T), it = L ? AD.itens.filter((x) => x.lista_id === L.id) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), c = T.cota || {};
+  const L = T.L, g = regrasInd(T), it = L ? AD.itens.filter((x) => x.lista_id === L.id && cheia(x)) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), c = T.cota || {};
   const ag = new Date(), dt = ag.toLocaleDateString("pt-BR"), hr = ag.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), tit = T.nome + " · " + IND.ano;
   const lin = (x, i) => `<div class="di-linha"><span class="di-pos">${i + 1}</span><span class="di-cand"><span class="di-n">${esc(x ? x.municipio || "" : "")}</span><span class="di-p">${esc(x ? [x.area || g.trava, x.modalidade].filter(Boolean).join(" · ") : "")}</span></span><span class="di-obj">${esc(x ? frase(x.objeto || "") : "")}${x && (x.beneficiario || x.razao_social) ? `<small>${esc([x.beneficiario || x.razao_social, x.modalidade === "Convênio" ? x.cnpj : ""].filter(Boolean).join(" · "))}</small>` : ""}</span><span class="di-votos"><span class="di-vv di-forte">${x ? ni(Math.round(+x.valor || 0)) : ""}</span></span></div>`;
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(tit)}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"><style>
@@ -146,17 +177,17 @@ function documentoInd(T) {
   .di-rod{margin-top:18px;font-size:8px;color:#6B7178;line-height:1.5}.di-pagfoot{display:flex;justify-content:space-between;font-size:7.5px;color:#9AA0A4;border-top:.5px solid #DCDFE2;margin-top:16px;padding-top:6px}</style></head><body><div class="di-agua"><span>SimulaLEGIS</span></div><div class="pg">
   <div class="di-cab"><div><div class="di-wm">Simula<span>LEGIS</span></div><div class="di-wmsub">Gabinete · Indicação de recursos</div></div><div class="di-meta"><b>${esc(PARL.u || "")}</b> · ${esc(PARL.p || "")}<br>gerado em ${dt} às ${hr}</div></div><div class="di-regra"></div>
   <div class="di-tit">${esc(tit)}</div><div class="di-sub">${esc(c.doc || (L && L.origem) || "")}${c.prazo ? ` · prazo ${new Date(c.prazo).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}${c.entrega ? " " + c.entrega : ""}` : ""}${g.trava ? ` · área ${g.trava}` : ""}</div>
-  <div class="di-rres"><div><b>${g.disp ? "R$ " + nf(g.disp, 2) : "—"}</b><span>disponível</span></div><div><b>R$ ${nf(tot, 2)}</b><span>indicado</span></div><div><b>${g.disp ? "R$ " + nf(g.disp - tot, 2) : "—"}</b><span>saldo</span></div><div><b>${it.length}${g.max ? " de " + g.max : ""}</b><span>emendas</span></div></div>
-  ${g.min ? it.filter((x) => (+x.valor || 0) < g.min).map((x) => `<div class="di-al">${esc(x.municipio || "Item")}: abaixo do mínimo de ${fm(g.min)}</div>`).join("") : ""}${g.disp && tot > g.disp ? `<div class="di-al">Passou do disponível em R$ ${nf(tot - g.disp, 2)}</div>` : ""}
+  <div class="di-rres"><div><b>${g.disp ? "R$ " + nf(g.disp, 2) : "—"}</b><span>disponível</span></div><div><b>R$ ${nf(tot, 2)}</b><span>indicado</span></div><div><b>${g.disp ? "R$ " + nf(g.disp - tot, 2) : "—"}</b><span>saldo</span></div><div><b>${it.length}</b><span>emendas${g.max ? " (até " + g.max + ")" : ""}</span></div></div>
+  ${g.min ? it.filter((x) => +x.valor && +x.valor < g.min).map((x) => `<div class="di-al">${esc(x.municipio || "Item")}: abaixo do mínimo de ${fm(g.min)}</div>`).join("") : ""}${g.disp && tot > g.disp ? `<div class="di-al">Passou do disponível em R$ ${nf(tot - g.disp, 2)}</div>` : ""}
   <div class="di-linha di-hdr"><span class="di-pos">#</span><span class="di-cand">Município</span><span class="di-obj">Objeto · beneficiário</span><span class="di-votos">Valor R$</span></div>
-  ${it.map(lin).join("")}${Array.from({ length: g.max ? Math.max(0, g.max - it.length) : 0 }, (_, i) => lin(null, it.length + i)).join("")}
+  ${it.map(lin).join("")}
   <div class="di-tot"><span>Total</span><b>R$ ${nf(tot, 2)}</b></div>
   <div class="di-rod">Documento de trabalho do gabinete. A entrega oficial segue a planilha modelo do setor de Orçamento${c.entrega ? " " + esc(c.entrega) : ""}.</div>
   <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dt} ${hr}</span></div></div><script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`;
   const w = window.open("", "_blank"); if (!w) { alert("Libere as janelas pop-up para gerar o documento."); return; } w.document.write(html); w.document.close();
 }
 async function xlsxInd(T) {
-  const L = T.L, g = regrasInd(T), it = L ? AD.itens.filter((x) => x.lista_id === L.id) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), c = T.cota || {};
+  const L = T.L, g = regrasInd(T), it = L ? AD.itens.filter((x) => x.lista_id === L.id && cheia(x)) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), c = T.cota || {};
   if (!window.ExcelJS) await new Promise((ok, er) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"; s.onload = ok; s.onerror = er; document.head.appendChild(s); });
   const wb = new ExcelJS.Workbook(), ws = wb.addWorksheet("Emendas", { views: [{ showGridLines: false }], pageSetup: { orientation: "landscape", fitToPage: true, fitToWidth: 1, fitToHeight: 0 } });
   const cols = ["Emenda", "Objeto", "Subação deduzida", "Valor", "Modalidade", "Município", "Órgão", "Unidade orçamentária", "CNPJ", "Razão Social"];
@@ -194,7 +225,7 @@ function desenharInd() {
     <div class="ihd"><h2>Indicação de recursos</h2><span>${esc([PARL.u, PARL.p].filter(Boolean).join(" · "))}</span></div>
     <div class="ianos">${A.map((a) => `<button class="${a === IND.ano ? "on" : ""}" data-iano="${a}">${a}</button>`).join("")}</div>
     <div class="icapa">${capaInd(T)}</div>
-    <div class="itags">${TS.map((t) => `<button class="${t.cota ? "o " : ""}${t === T ? "on" : ""}" data-itag="${esc(t.k)}">${esc(t.nome)}${t.cota ? `<small>${t.L ? AD.itens.filter((x) => x.lista_id === t.L.id).length : 0}/${t.cota.max || "—"}</small>` : ""}</button>`).join("")}<button class="nw" data-inlista>+ nova lista</button></div>
+    <div class="itags">${TS.map((t) => `<button class="${t.cota ? "o " : ""}${t === T ? "on" : ""}" data-itag="${esc(t.k)}">${esc(t.nome)}${t.cota ? `<small>${t.L ? AD.itens.filter((x) => x.lista_id === t.L.id && cheia(x)).length : 0}/${t.cota.max || "—"}</small>` : ""}</button>`).join("")}<button class="nw" data-inlista>+ nova lista</button></div>
     <div class="isheet">${planInd(T)}</div></div><div id="indDet"></div>`;
   contador(); detInd();
   p.querySelector("[data-ivolta]").onclick = fecharInd;
