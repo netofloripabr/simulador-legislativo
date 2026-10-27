@@ -348,31 +348,57 @@ function passosOficiais(e, r) {
 }
 const contato = (r, papel) => (r.contatos || []).filter((c) => c.papel === papel && (c.nome || c.tel));
 const BAND_I = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M3.5 14V2.5 M3.5 3h8.5l-2 3 2 3H3.5"/></svg>';
+const mi = (v) => v >= 1e6 ? nf(v / 1e6, 1) : nf(v / 1e3, 0);
+// ícones finos (traço) usados no item aberto
+const IC = { doc: '<path d="M4.5 2.5h5l2 2v9h-7z M6.5 8h3 M6.5 10.5h2"/>', selo: '<circle cx="8" cy="6.5" r="3"/><path d="M6.2 9l-.7 4.5L8 12l2.5 1.5L9.8 9"/>', moeda: '<circle cx="8" cy="8" r="5"/><path d="M8 5.5v5"/>', ok: '<path d="M4 8.5l2.5 2.5L12 5.5"/>',
+  pino: '<path d="M8 14s4.5-4.2 4.5-7.5a4.5 4.5 0 00-9 0C3.5 9.8 8 14 8 14z"/><circle cx="8" cy="6.5" r="1.5"/>', hash: '<path d="M3 6h10 M3 10h10 M6.5 2.5l-1 11 M10.5 2.5l-1 11"/>', lei: '<path d="M8 2.5v11 M4.5 13.5h7 M3 5h10 M4.5 5l-2 4.5h4zM11.5 5l-2 4.5h4z"/>',
+  pessoa: '<circle cx="8" cy="5.5" r="2.5"/><path d="M3 13.5c.6-2.4 2.6-3.5 5-3.5s4.4 1.1 5 3.5"/>', pred: '<path d="M3 13.5V5l5-2.5L13 5v8.5 M6 13.5v-4h4v4"/>', band: '<path d="M3.5 14V2.5 M3.5 3h8.5l-2 3 2 3H3.5"/>', lapis: '<path d="M10.5 3l2.5 2.5L6 12.5H3.5V10z"/>',
+  elo: '<path d="M6.5 9.5l3-3 M7 4.5l1.2-1.2a2.8 2.8 0 014 4L11 8.5 M9 11.5l-1.2 1.2a2.8 2.8 0 01-4-4L5 7.5"/>', lixo: '<path d="M3 4.5h10 M6 4.5V3h4v1.5 M4.5 4.5l.7 9h5.6l.7-9"/>', balao: '<path d="M2.5 4h11v7h-6l-3 2.5V11h-2z"/>', liq: '<path d="M3 8h10 M8 3v10"/>' };
+const ic = (k, c = "i") => `<svg class="${c}" viewBox="0 0 16 16" aria-hidden="true">${IC[k]}</svg>`;
+// observação como caderneta: cada linha que começa com data abre uma anotação; o resto continua a anterior
+function caderneta(r) {
+  const L = []; let cur = null;
+  String(r.observacao || "").split(/\n/).forEach((ln) => { const t = ln.trim(); if (!t) { if (cur) cur.sep = 1; return; }
+    const m = t.match(/^[(→\-–•*\s]*(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)\)?\s*[-–→,:.]?\s*(.*)$/);
+    if (m) { cur = { d: m[1], t: m[2] }; L.push(cur); } else if (cur && !cur.sep) cur.t += " " + t; else { cur = { d: "", t }; L.push(cur); } });
+  (r.notas || []).forEach((n) => L.push({ d: dtBR(n.em), t: n.t }));
+  return L;
+}
 function detalheMeu(r) {
   const e = r.chave && E0.find((x) => x.k === r.chave);
   const es = etapasStatus(r.status_manual), S3 = es.d || [false, false, false], dt = (x) => x ? dtBR(String(x)) : "";
-  const PV = e ? passosOficiais(e, r) : [{ t: "Indicada", on: true, dt: String(r.ano || ""), l: [["R$", r.valor ? fr(+r.valor).replace("R$ ", "") : ""]] },
-    { t: "Portaria / instrumento", on: S3[1], l: [["", r.publicacao]], v: es.ver && !S3[1] },
-    ...(r.empenho ? [{ t: "Empenho", on: true, l: [["NE", r.empenho]] }] : []), ...(r.liquidacao ? [{ t: "Liquidação", on: true, l: [["NL", r.liquidacao]] }] : []),
-    { t: "Pagamento", on: S3[2], dt: dt(r.data_pagamento), l: [["", r.pagamento], ["OB", r.ob]], v: es.ver && S3[1] && !S3[2] }];
-  (r.notas || []).forEach((n) => PV.push({ t: "Nota do gabinete", on: true, nota: true, dt: dtBR(n.em), l: [["", n.t]] }));
-  const ul = tlVert(PV, e ? "Andamento · oficial" : "Andamento · pela planilha", e ? ETQ[e.et][0] : es.t);
-  const lg = ehEI(r) ? [["Projeto de lei", r.pl], ["Lei", leiDe(r) ? leiDe(r) + (r.lei ? "" : " (da planilha)") : ""]] : [];
+  const PV = (e ? passosOficiais(e, r) : [{ t: "Indicada", on: true, dt: String(r.ano || ""), l: [["", r.valor ? "R$ " + mi(+r.valor) + (+r.valor >= 1e6 ? " mi" : " mil") : ""]] },
+    { t: "Portaria", on: S3[1], l: [["", r.publicacao]], v: es.ver && !S3[1] }, ...(r.empenho ? [{ t: "Empenho", on: true, l: [["", r.empenho]] }] : []),
+    { t: "Pagamento", on: S3[2], dt: dt(r.data_pagamento), l: [["", r.ob]], v: es.ver && S3[1] && !S3[2] }]).filter((p) => !p.nota);
+  const icoP = (t) => /indic/i.test(t) ? "doc" : /portaria|instrum/i.test(t) ? "selo" : /empenho|liquid/i.test(t) ? "moeda" : /pag/i.test(t) ? "ok" : "doc";
+  const feitos = PV.filter((p) => p.on).length, ultimo = PV.filter((p) => p.on).slice(-1)[0] || {};
+  const pagoTudo = e ? e.et === 4 : S3[2], dataFim = pagoTudo ? (ultimo.dt || dt(r.data_pagamento)) : "";
+  const titulo = pagoTudo ? `Pago${dataFim ? ` (${dataFim})` : ""}` : es.ver ? "Verificar" : e ? ETQ[e.et][0] : es.t;
+  const pg = e ? Math.min(+r.valor || e.v || 0, e.vp || 0) : (S3[2] ? +r.valor || 0 : 0), pct = +r.valor ? pg / +r.valor * 100 : 0;
+  const step = `<div class="stp" style="--n:${PV.length};--f:${Math.max(0, feitos - 1) / Math.max(1, PV.length - 1)}">${PV.map((p) => `<div class="sp${p.on ? " on" : ""}${p.v ? " vv" : ""}"><span class="sd">${ic(p.v ? "band" : icoP(p.t), "i s")}</span><b>${esc(p.t.replace(" / instrumento", "").replace(/ \(\d\/\d\)/, ""))}</b><small>${esc(p.dt || (p.l || []).map((x) => x[1]).filter(Boolean)[0] || (p.on ? "" : "pendente"))}</small></div>`).join("")}</div>`;
+  const ori = (k) => r._orig && k in r._orig ? `<span class="fx" title="${esc((r.corr || {}).nota || "corrigido")}"></span>` : "";
+  const was = (k) => r._orig && k in r._orig ? `<s>${esc(r._orig[k] || "—")}</s> · ` : "";
   const sef = /^\d+$/.test(String(r.numero || "")) ? `${r.ano}EP${String(r.numero).padStart(6, "0")}` : "";
-  const cod = [["Nº na lei", r.num_lei ? r.num_lei + (r.num_lei !== String(r.numero) ? " (difere do código SEF)" : "") : null, ehEI(r) ? 1 : 0, "num_lei"], ["Código SEF", (e && (e.n || e.k)) || sef || null, ehEI(r) ? 1 : 0, "numero"], ...(r._orig && "municipio" in r._orig ? [["Município", r.municipio, 0, "municipio"]] : [])];
-  const kv = [["Processo", r.processo], ["Origem", r.origem], ...cod, ...lg.map(([k, v]) => [k, v || null, 1]), ["Função", [r.funcao, r.natureza].filter(Boolean).join(" · ")], ["Instrumento", instrNome(r.modalidade)], ["Beneficiário", r.beneficiario]].filter(([, v, fixo]) => v || fixo);
-  const pes = (L, rot) => `<div class="ctt"><span>${rot}</span>${L.length ? L.map((c) => `<b>${esc(c.nome || "—")}${c.tel ? `<small>${esc(c.tel)}</small>` : ""}</b>`).join("") : `<b class="vz">não informado</b>`}</div>`;
-  const ncorr = r.corr && r.corr.nota ? `<div class="corrn">Correção da revisão: ${esc(r.corr.nota)}</div>` : "";
-  return `${ncorr}<div class="dm">${ul}<div><div class="olho">Dados</div>
-      <div class="kv2">${kv.map(([k, v, , cmp]) => `<span>${k}</span>${v ? `<b>${cmp && r._orig && cmp in r._orig ? `<s class="corr-o">${esc(r._orig[cmp] || "—")}</s> ` : ""}${esc(v)}${cmp && r._orig && cmp in r._orig ? ` <small class="corr">corrigido</small>` : ""}${k === "Lei" && r.lei_url ? ` <a class="lnk" href="${esc(r.lei_url)}" target="_blank" rel="noopener" title="Abrir a lei"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 9.5l3-3 M7 4.5l1.2-1.2a2.8 2.8 0 014 4L11 8.5 M9 11.5l-1.2 1.2a2.8 2.8 0 01-4-4L5 7.5"/></svg></a>` : ""}</b>` : `<b class="vz">não informado · <button class="lk" data-editar2 style="margin:0">preencher</button></b>`}`).join("")}</div>
-      ${e ? "" : `<button class="lk" data-subst>Ligar a uma emenda do portal</button>`}
-      <div class="olho" style="margin-top:22px">Contatos</div>${pes(contato(r, "lider"), "Líder")}${pes(contato(r, "tecnico"), "Técnico")}</div>
-    <div><div class="olho">Observação${r.obs_em ? ` <small>· ${dtBR(r.obs_em)}</small>` : ""}</div>
-      <div class="nota${r.observacao ? "" : " vz"}">${r.observacao ? esc(r.observacao).replace(/\n/g, "<br>") : "Sem observação."}</div>
-      <div class="olho" style="margin-top:22px">Etiquetas</div>
-      <div class="tgs2">${(r.tags || []).map((t) => `<span class="tg">${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<button class="lk" data-etq style="margin:0">+ Etiqueta</button></div>
-      <div class="nova" hidden><input data-nova list="adTags2" placeholder="Nova ou existente"><datalist id="adTags2">${todasTags().map((t) => `<option value="${esc(t)}">`).join("")}</datalist><button class="btn sec" data-addtag>Colar</button></div></div></div>
-    <div class="acs2"><span class="av" data-msg></span><button class="atb${r.atencao ? " on" : ""}" data-atencao title="${r.atencao ? "Tirar a marcação de atenção" : "Marcar para atenção"}" aria-label="Atenção">${BAND_I}</button><button class="btn sec" data-editar>Editar</button>${e ? `<button class="btn sec" data-subst>Substituir</button>` : ""}<button class="btn sec" data-excl style="color:var(--erro)">Excluir</button></div>`;
+  const ld = contato(r, "lider")[0], tc = contato(r, "tecnico");
+  const tile = (k, rot, v, sub, cls) => `<div class="tl2${cls ? " " + cls : ""}"><span class="tk">${ic(k)}${rot}</span><span class="tv">${v}${sub ? `<small>${sub}</small>` : ""}</span></div>`;
+  const leiV = leiDe(r) ? `${esc(leiDe(r).replace(/^Lei nº /, "Lei "))}${r.lei_url ? ` <a class="lnk2" href="${esc(r.lei_url)}" target="_blank" rel="noopener" title="Abrir a lei">↗</a>` : ""}` : `<span class="mut">+ adicionar</span>`;
+  const bento = `<div class="bnt">
+    ${tile("pino", "Município", `${esc(frase(r.municipio || "—"))}${ori("municipio")}`, `${was("municipio")}${esc(regDe(r) || "")}`)}
+    ${tile("hash", "Emenda", r.num_lei || r.numero ? `${esc(r.num_lei || r.numero)}${ori("numero")}` : `<span class="mut">sem número</span>`, `${was("numero")}${sef ? "SEF " + sef : ""}`)}
+    ${tile("lei", "Base legal", leiV, esc([r.pl && r.pl.replace(/^PL nº /, "PL "), r.origem].filter(Boolean).join(" · ")), "w2")}
+    ${tile("pred", "Beneficiário", esc(r.beneficiario || "—"), esc([r.funcao, instrNome(r.modalidade), r.natureza, r.processo].filter(Boolean).join(" · ")), "w2")}
+    ${tile("pessoa", "Líder", ld ? esc(ld.nome || "—") : `<button class="mut lk0" data-editar2>+ adicionar</button>`, ld ? esc(ld.tel || "") : "")}
+    ${tile("pessoa", "Técnico", tc.length ? tc.map((c) => esc(c.nome || "—")).join(", ") : `<button class="mut lk0" data-editar2>+ adicionar</button>`, tc.length ? esc(tc.map((c) => c.tel).filter(Boolean).join(" · ")) : "")}</div>`;
+  const cad = caderneta(r), hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+  const caderno = `<div class="bnt cad"><div class="tl2 w4"><span class="tk">${ic("balao")}Observação${r.obs_em ? ` · atualizada em ${dtBR(r.obs_em)}` : ""}</span>
+      <div class="cdn">${cad.map((n) => `<span class="cd">${esc(n.d || "—")}</span><span class="ct2">${esc(n.t)}</span>`).join("")}
+      <input class="cd" data-cdd value="${hoje}" aria-label="Data"><span class="ct2 cnova"><input data-cdt placeholder="Nova anotação…"><button class="lk0" data-cds>Anotar</button></span></div></div></div>`;
+  return `<div class="dm2"><div class="dh"><div><div class="dst"><i class="${pagoTudo ? "ok" : es.ver ? "vv" : ""}"></i>${esc(titulo)}</div><div class="dsub">${fm(+r.valor || 0)} · ${nf(pct, 0)}% pago · exercício ${esc(r.ano || "—")}</div></div>
+      <div class="dac"><span class="av" data-msg></span><button class="${r.atencao ? "on" : ""}" data-atencao title="${r.atencao ? "Tirar a atenção" : "Marcar para atenção"}">${ic("band")}</button><button data-editar title="Editar">${ic("lapis")}</button><button data-subst title="${e ? "Substituir emenda do portal" : "Ligar a uma emenda do portal"}">${ic("elo")}</button><button data-excl title="Excluir">${ic("lixo")}</button></div></div>
+    ${step}${bento}${caderno}
+    <div class="tgs3">${(r.tags || []).map((t) => `<span>${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<button class="add" data-etq>+ etiqueta</button></div>
+    <div class="nova" hidden><input data-nova list="adTags2" placeholder="Nova ou existente"><datalist id="adTags2">${todasTags().map((t) => `<option value="${esc(t)}">`).join("")}</datalist><button class="btn sec" data-addtag>Colar</button></div>
+    ${r.corr && r.corr.nota ? `<div class="dfx"><span class="fx"></span>Corrigido na revisão · ${esc(r.corr.nota)}</div>` : ""}</div>`;
 }
 async function gravaMeu(r, campos) {
   if (LOCAL && !SESS) { Object.assign(r, campos); }
@@ -381,6 +407,10 @@ async function gravaMeu(r, campos) {
 }
 function ligarMeuDet(d, r) {
   if (!r) return; const a = d, msg = a.querySelector("[data-msg]"); d.onclick = (e) => e.stopPropagation();
+  const cds = a.querySelector("[data-cds]"), cdt = a.querySelector("[data-cdt]");
+  const anotar = async () => { const t = cdt.value.trim(), d = a.querySelector("[data-cdd]").value.trim(); if (!t) return; msg.textContent = "Salvando…";
+    try { await gravaMeu(r, { observacao: (r.observacao ? r.observacao.replace(/\s+$/, "") + "\n\n" : "") + (d ? d + " - " : "") + t, obs_em: new Date().toISOString() }); try { localStorage.setItem("gab_visto_" + mk(r), new Date().toISOString()); } catch (e) {} mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+  if (cds) { cds.onclick = anotar; cdt.onkeydown = (ev) => { if (ev.key === "Enter") anotar(); }; }
   a.querySelector("[data-etq]").onclick = () => { const n = a.querySelector(".nova"); n.hidden = false; n.querySelector("input").focus(); };
   const addT = async () => { const v = a.querySelector("[data-nova]").value.trim(); if (!v || (r.tags || []).includes(v)) return; msg.textContent = "Salvando…";
     try { await gravaMeu(r, { tags: [...(r.tags || []), v] }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
