@@ -36,7 +36,9 @@ function itensCotas() {
 }
 // cotas legais com valor disponível cadastrado pela administração (fixas): excesso de arrecadação 2026 (LDO 2026, art. 30:
 // 1,55% do crescimento da RCL, só Saúde) = R$ 718.997,79 por parlamentar, até 7 indicações, prazo 28/10/2026
-const COTAS_LEGAIS = { 2026: { EX: { disp: 718997.79, max: 7, min: 100000, areas: ["Saúde"], mods: ["Transferência Especial", "Convênio", "Execução Direta"], prazo: "2026-10-28T18:00", base: "LDO 2026 (Lei 19.401/2025), art. 30", doc: "Of. 004/2026 CFT · LDO 2026 art. 30", entrega: "via SEI" } } };
+// LOA 2027 (Of./circular 036/2026 CFT, 27/10/2026): PL 0633/2026, de 29/10 a 23/11/2026 no Sistema de Orçamento Estadual; mínimo R$ 100 mil,
+// até 120 emendas, R$ 19.774.931,47; LDO 2027 (Lei 20.043/2026) art. 33: no mínimo 50% em Saúde, até 50% nas demais funções
+const COTAS_LEGAIS = { 2027: { AN: { disp: 19774931.47, max: 120, min: 100000, saude: .5, areas: AREAS.map((a) => a[1]), mods: MODS, abre: "2026-10-29T00:00", prazo: "2026-11-23T23:59", base: "LDO 2027 (Lei 20.043/2026), art. 33", doc: "Of./circular 036/2026 CFT · PL 0633/2026 (LOA 2027)", entrega: "no Sistema de Orçamento Estadual" } }, 2026: { EX: { disp: 718997.79, max: 7, min: 100000, areas: ["Saúde"], mods: ["Transferência Especial", "Convênio", "Execução Direta"], prazo: "2026-10-28T18:00", base: "LDO 2026 (Lei 19.401/2025), art. 30", doc: "Of. 004/2026 CFT · LDO 2026 art. 30", entrega: "via SEI" } } };
 function dispDoAno(ano, t) {
   const leg = COTAS_LEGAIS[ano] || {}, dl = t ? (leg[t] || {}).disp || 0 : Object.values(leg).reduce((s, x) => s + (x.disp || 0), 0);
   return dl || (typeof AD !== "undefined" ? AD.listas : []).filter((L) => anoLista(L) === ano && (!t || tipoLista(L) === t)).reduce((s, L) => s + ((L.regras || {}).disp || 0), 0); }

@@ -9,7 +9,7 @@ const anoAtual = () => new Date().getFullYear();
 // linha que conta como emenda: tem município ou valor (objeto solto é rascunho, não entra em total, alerta nem documento)
 const cheia = (x) => !!(x && (x.municipio || +x.valor));
 // cotas fixas do administrador (COTAS_LEGAIS) viram etiquetas laranja; a lista do gabinete ligada a ela é criada no 1º item
-const cotaNome = { EX: "Excesso · Saúde", "0,55": "Adicional 0,55%" };
+const cotaNome = { EX: "Excesso · Saúde", "0,55": "Adicional 0,55%", AN: "Impositivas LOA" };
 function listaDaCota(ano, t) { return AD.listas.find((l) => anoLista(l) === ano && tipoLista(l) === t); }
 function etiquetas(ano) {
   const T = [];
@@ -32,7 +32,7 @@ function capaInd(T) {
       <div class="t w2"><span class="tk">${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</span><div class="icd" data-prazo="${esc(c.prazo || "")}"></div></div>`;
   }
   const a = IND.ano, sv = S.cesc; S.cesc = "imp"; const I = itensCotas().filter((x) => x.ano === a); S.cesc = sv;
-  const ind = I.reduce((s, x) => s + x.v, 0), pg = I.reduce((s, x) => s + x.pago, 0), q = (QUOTA[a] || 0) + Object.values(COTAS_LEGAIS[a] || {}).reduce((s, c) => s + (c.disp || 0), 0);
+  const ind = I.reduce((s, x) => s + x.v, 0), pg = I.reduce((s, x) => s + x.pago, 0), q = (QUOTA[a] || 0) + Object.entries(COTAS_LEGAIS[a] || {}).filter(([t]) => t !== "AN").map(([, c]) => c).reduce((s, c) => s + (c.disp || 0), 0);
   return `<div class="t"><span class="tk">Cota legal ${a}</span><span class="iv">${q ? rc(q) : "—"}</span></div><div class="t"><span class="tk">Indicado</span><span class="iv">${rc(ind)}</span></div>
     <div class="t"><span class="tk">Pago</span><span class="iv">${rc(pg)}</span></div><div class="t"><span class="tk">Saldo a indicar</span><span class="iv">${q ? rc(Math.max(0, q - ind)) : "—"}</span>${q ? `<div class="ibar"><i style="width:${Math.min(100, ind / q * 100)}%"></i></div>` : ""}</div>`;
 }
@@ -51,7 +51,7 @@ function linhasInd(T) {
 function regrasInd(T) {
   const c = T.cota || {}, r = (T.L && T.L.regras) || {};
   const areas = (c.areas || r.areas || AREAS.map((a) => a[1])), mods = c.mods || MODS;
-  return { areas, mods, min: c.min || r.min || null, max: c.max || r.max || null, disp: c.disp || r.disp || null, trava: areas.length === 1 ? areas[0] : null };
+  return { areas, mods, saude: c.saude || null, min: c.min || r.min || null, max: c.max || r.max || null, disp: c.disp || r.disp || null, trava: areas.length === 1 ? areas[0] : null };
 }
 // objetos de referência: histórico das emendas (planilha + indicações), sem o nome do município, do mais ao menos usado
 function objetosRef(q) {
@@ -82,11 +82,11 @@ function linhaInd(T, g, x, i) {
     ${ck.length ? `<tr class="ick" data-ick="${x.id}"><td></td><td colspan="${g.trava ? 5 : 6}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}`;
 }
 function rodapeInd(T, g, it) { it = it.filter(cheia); const tot = it.reduce((s, x) => s + (+x.valor || 0), 0);
-  return `<td></td><td colspan="${g.trava ? 3 : 4}">Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}</td><td>${g.disp ? `<span class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou R$ " + moeda(tot - g.disp) : "saldo R$ " + moeda(g.disp - tot)}</span>` : ""}</td>`; }
+  return `<td></td><td colspan="${g.trava ? 3 : 4}">Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}</td><td>${g.saude ? (() => { const sd = it.filter((x) => (x.area || g.trava) === "Saúde").reduce((s2, x) => s2 + (+x.valor || 0), 0), meta = g.disp * g.saude, okS = sd >= meta - .005; return `<span class="${okS ? "mut" : "ierr"}">Saúde R$ ${moeda(sd)} · ${tot ? Math.round(sd / tot * 100) : 0}% ${okS ? "✓" : `· faltam R$ ${moeda(meta - sd)} para 50%`}</span><br>`; })() : ""}${g.disp ? `<span class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou R$ " + moeda(tot - g.disp) : "saldo R$ " + moeda(g.disp - tot)}</span>` : ""}</td>`; }
 function planInd(T) {
   if (!T) return `<div class="iinf">Nenhuma lista neste ano. Use “+ nova lista” para começar.</div>`;
   const R = linhasInd(T), c = T.cota, tot = R.reduce((s, x) => s + x.v, 0), edita = T.k !== "plan", g = regrasInd(T);
-  const inf = c ? `<b>Cota fixa do administrador</b> · ${esc(c.doc || c.base || "")}${c.min ? ` · mín. ${fm(c.min)}` : ""}`
+  const inf = c ? `<b>Cota fixa do administrador</b> · ${esc(c.doc || c.base || "")}${c.min ? ` · mín. ${fm(c.min)}` : ""}${c.max ? ` · até ${c.max} emendas` : ""}${c.saude ? ` · Saúde no mínimo ${c.saude * 100}%` : ""}${c.abre && new Date(c.abre) > new Date() ? ` · abre em ${new Date(c.abre).toLocaleDateString("pt-BR")}` : ""}`
     : T.k === "plan" ? "Planilha do gabinete · itens do exercício " + IND.ano : T.k === "avulsos" ? "Indicações fora de lista" : `Lista do gabinete · ${esc(T.L.origem || "")}`;
   const outras = !c && edita ? (() => { const sv = S.cesc; S.cesc = "imp"; const ind = itensCotas().filter((x) => x.ano === IND.ano).reduce((s, x) => s + x.v, 0); S.cesc = sv; const q = QUOTA[IND.ano]; return q ? `<span class="isal">Impositivas ${IND.ano}: saldo <b>${rc(Math.max(0, q - ind))}</b></span>` : ""; })() : "";
   const acs = edita && (T.L || T.cota) ? `<span class="iacs">${T.L ? `<button data-ireg>Regras</button>` : ""}<button data-idoc>Documento</button><button data-ixls>Planilha do Orçamento</button></span>` : "";
@@ -94,7 +94,7 @@ function planInd(T) {
   if (!edita) return `<div class="iinf">${inf}</div><div class="itw"><table class="itb"><thead><tr><th></th><th>Município</th><th>Objeto</th><th>Instr.</th><th class="r">Valor</th><th class="hm">Status</th><th></th></tr></thead><tbody>
     ${R.map((x, i) => `<tr class="ir${IND.det === x.id ? " on" : ""}" data-ir="${esc(x.id)}"><td class="n">${i + 1}</td><td>${esc(x.mun || "—")}</td><td class="ob">${esc(frase(x.obj || ""))}</td><td>${esc(x.ins)}</td><td class="r">${ni(Math.round(x.v))}</td><td class="hm st">${esc(x.st)}</td><td class="ar">›</td></tr>`).join("")}
     <tr class="itt"><td></td><td colspan="3">Total · ${R.length} itens</td><td class="r">${ni(Math.round(tot))}</td><td colspan="2" class="hm"></td></tr></tbody></table></div>`;
-  const it = R.map((x) => AD.itens.find((y) => "a:" + y.id === x.id)), vaz = g.max ? Math.max(0, g.max - it.length) : 1;
+  const it = R.map((x) => AD.itens.find((y) => "a:" + y.id === x.id)), vaz = g.max ? Math.min(g.max > 10 ? 3 : g.max, Math.max(0, g.max - it.length)) : 1; // cota grande (LOA, 120): só 3 linhas em branco por vez
   return `<div class="iinf">${inf}${trava}${outras}${acs}</div><datalist id="indMun">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>
     <div class="itw"><table class="itb ied"><thead><tr><th></th><th>Quem recebe · instrumento</th><th>Município</th><th>Beneficiário · objeto</th>${g.trava ? "" : "<th>Área</th>"}<th class="r">Valor (R$)</th><th></th></tr></thead><tbody>
     ${it.map((x, i) => linhaInd(T, g, x, i)).join("")}${Array.from({ length: vaz }, (_, i) => linhaInd(T, g, null, it.length + i)).join("")}
