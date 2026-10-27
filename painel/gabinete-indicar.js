@@ -208,12 +208,26 @@ async function xlsxInd(T) {
 function detInd() {
   const id = IND.det, d = $("#indDet"); if (!d) return; if (!id) { d.classList.remove("on"); return; }
   if (id.startsWith("m:")) { const r = MEU.find((x) => "m:" + mk(x) === id); if (!r) return; d.innerHTML = `<button class="ix" data-ixd>×</button>${detalheMeu(r)}`; ligarMeuDet(d.querySelector(".dm2") || d, r); }
-  else { const x = AD.itens.find((y) => "a:" + y.id === id); if (!x) return; const L = AD.listas.find((l) => l.id === x.lista_id);
-    const tl = (k, v, w) => `<div class="tl2${w ? " w4" : ""}"><span class="tk">${k}</span><span class="tv">${v || '<span class="mut">—</span>'}</span></div>`;
-    d.innerHTML = `<button class="ix" data-ixd>×</button><div class="dm2"><div class="ttl"><span class="mut">${esc(L ? L.apelido || L.origem : "Avulso")}</span><h3>${esc(x.municipio || "—")}</h3><div class="mut">${esc(x.status || "Em análise")} · ${rc(+x.valor || 0)}</div></div>
-      <div class="bnt">${tl("Objeto", esc(frase(x.objeto || "")), 1)}${tl("Instrumento", esc(x.modalidade || ""))}${tl("Área", esc(x.area || ""))}${tl("Líder", esc(x.lideranca || ""))}${tl("Beneficiário", esc([x.beneficiario || x.razao_social, x.cnpj].filter(Boolean).join(" · ")))}${tl("Justificativa", esc(x.justificativa || ""), 1)}${tl("Observação", esc(x.observacao || ""), 1)}</div>
-      <div class="iacs" style="margin-top:14px"><button data-iedit>Editar</button></div></div>`;
-    d.querySelector("[data-iedit]").onclick = () => formItem(x); }
+  else { const x = AD.itens.find((y) => "a:" + y.id === id); if (!x) return; const L = AD.listas.find((l) => l.id === x.lista_id), T = etiquetas(IND.ano).find((t) => t.k === IND.tag) || {}, g = T.k ? regrasInd(T) : { areas: AREAS.map((a) => a[1]), mods: MODS };
+    // detalhamento direto no painel: cada campo grava ao sair dele, e a linha da planilha acompanha (sem botão Editar)
+    const F = (k, rot, html, w) => `<label class="tl2 fc2${w ? " w" + w : ""}"><span class="tk">${ic(k)}${rot}</span>${html}</label>`, I = (f, v, ph = "", l = "") => `<input data-d="${f}" value="${esc(v ?? "")}" placeholder="${esc(ph)}"${l ? ` list="${l}"` : ""}>`;
+    const S2 = (f, ops, v) => `<select data-d="${f}"><option value="">—</option>${ops.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}${v && !ops.includes(v) ? `<option selected>${esc(v)}</option>` : ""}</select>`, t = tipoDe(x);
+    d.innerHTML = `<button class="ix" data-ixd>×</button><div class="dm2 fm2"><div class="ttl"><span class="mut">${esc(L ? L.apelido || L.origem : "Avulso")}</span><h3>${esc(x.municipio || "—")}</h3><div class="mut">${esc(x.status || "Em análise")} · ${rc(+x.valor || 0)}</div></div>
+      <div class="fgt">Indicação</div><div class="bnt">
+      ${F("doc", "Objeto", `<textarea data-d="objeto" rows="3">${esc(x.objeto || "")}</textarea>`, 4)}
+      ${F("selo", "Instrumento", S2("modalidade", g.mods, x.modalidade), 2)}${g.trava ? `<div class="tl2 w2"><span class="tk">${ic("lei")}Área</span><span class="tv">${esc(g.trava)}<small>travada pela cota</small></span></div>` : F("lei", "Área", S2("area", g.areas, x.area), 2)}
+      ${F("moeda", "Natureza", S2("natureza", ["Investimento", "Custeio"], x.natureza), 2)}${F("ok", "Status", S2("status", STATUS, x.status || "Em análise"), 2)}
+      ${t === "ent" ? F("hash", "CNPJ", I("cnpj", x.cnpj, "00.000.000/0000-00"), 2) + F("pred", "Razão social", I("razao_social", x.razao_social || x.beneficiario), 2) : F("pred", "Beneficiário", I("beneficiario", x.beneficiario || (t ? benefAuto(t, x, g) : "")), 4)}</div>
+      <div class="fgt">Gabinete</div><div class="bnt">
+      ${F("pessoa", "Líder", I("lideranca", x.lideranca, "Escolha ou digite", "indPes"), 2)}${F("pessoa", "Contato", I("contato", x.contato, "Telefone ou e-mail"), 2)}
+      ${F("band", "Prioridade", S2("prioridade", PRIOR, x.prioridade), 2)}${F("lei", "Lei / PL", I("pl", x.pl, "PL nº 0633/2026"), 2)}
+      ${F("doc", "Justificativa", `<textarea data-d="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 4)}
+      ${F("doc", "Observação", `<textarea data-d="observacao" rows="2">${esc(x.observacao || "")}</textarea>`, 4)}</div>
+      <datalist id="indPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist><div class="isv mut" data-dmsg></div></div>`;
+    const msg = d.querySelector("[data-dmsg]");
+    d.querySelectorAll("[data-d]").forEach((el) => { const ini = el.value; el.onchange = async () => { if (el.value === ini) return; const o = { [el.dataset.d]: el.value.trim() || null }; if (o.razao_social !== undefined) o.beneficiario = o.razao_social;
+      msg.textContent = "Salvando…"; const tr = document.querySelector(`#indPg tr.iw[data-iw="${x.id}"]`);
+      try { if (tr && T.k) await salvarLinha(T, tr, o); else await gravar("gab_itens", { id: x.id, ...o }); msg.textContent = "Salvo"; setTimeout(() => { msg.textContent = ""; }, 1500); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } }; }); }
   d.classList.add("on"); d.querySelector("[data-ixd]").onclick = () => { IND.det = null; desenharInd(); };
 }
 // ---------- página ----------

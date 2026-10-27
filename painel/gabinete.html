@@ -209,7 +209,7 @@ body.dm-escuro .dm2{ --sf:#171C20; --tl:#1B2125; --bd:#272D33; --tx:#E6E9EB; --m
 .itw{ overflow-x:auto; } .itb{ width:100%; border-collapse:collapse; } .itb th, .itb td{ padding:9px 12px; border-bottom:1px solid var(--bd); text-align:left; font-size:12.5px; vertical-align:top; } .itb th{ font-size:11px; color:var(--mu); font-weight:500; } .itb .r{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; } .itb .n{ color:var(--mu); width:18px; } .itb .ar{ color:#A4ABB1; width:12px; } .itb .st{ color:var(--mu); white-space:nowrap; }
 .itb tr.ir{ cursor:pointer; } .itb tr.ir:hover td, .itb tr.ir.on td{ background:#fff; } .itb tr.ie td{ color:#A4ABB1; cursor:pointer; } .itb tr.ie:hover td{ color:var(--tx); } .itb tr.itt td{ font-weight:600; border-bottom:0; }
 #indDet{ position:fixed; top:0; right:0; bottom:0; width:460px; max-width:94vw; background:var(--sf); border-left:1px solid var(--bd); box-shadow:-14px 0 34px rgba(0,0,0,.1); transform:translateX(105%); transition:transform .35s ease; overflow:auto; z-index:2; } #indDet.on{ transform:none; } #indDet{ padding-top:34px; } .ix{ top:4px !important; }
-#indDet .dm2{ margin:0; border-radius:0; } #indDet .bnt{ grid-template-columns:1fr 1fr; } #indDet .tl2.w2, #indDet .tl2.w4{ grid-column:span 2; } .ix{ position:absolute; top:10px; right:12px; z-index:3; background:none; border:0; font-size:22px; color:var(--mu); cursor:pointer; }
+#indDet .dm2{ margin:0; border-radius:0; padding:8px 22px 30px; } .isv{ margin-top:10px; font-size:12px; } #indDet .bnt{ grid-template-columns:1fr 1fr; } #indDet .tl2.w2, #indDet .tl2.w4{ grid-column:span 2; } .ix{ position:absolute; top:10px; right:12px; z-index:3; background:none; border:0; font-size:22px; color:var(--mu); cursor:pointer; }
 @media (max-width:760px){ .icapa{ grid-template-columns:1fr 1fr; } .itb .hm{ display:none; } }
 body.dm-escuro #indPg{ --sf:#171C20; --tl:#1B2125; --bd:#272D33; --tx:#E6E9EB; --mu:#8C939A; background:#171C20; color:#E6E9EB; } body.dm-escuro .ianos button.on, body.dm-escuro .itags button.on{ background:#E6E9EB; color:#0B0D0E; } body.dm-escuro .itags button{ background:#272D33; color:#C9CED2; } body.dm-escuro .ibar{ background:#272D33; } body.dm-escuro .ibar i{ background:#E6E9EB; } body.dm-escuro .icd div, body.dm-escuro .iacs button{ background:#1B2125; } body.dm-escuro .itb tr.ir:hover td, body.dm-escuro .itb tr.ir.on td{ background:#20272C; }
 .itb.ied td{ padding:4px 6px; vertical-align:middle; } .itb.ied td.n{ padding-left:12px; } .ied input, .ied select, .ied textarea{ width:100%; box-sizing:border-box; background:transparent; border:1px solid transparent; border-radius:8px; padding:7px 8px; font:500 12.5px Inter; color:var(--tx); outline:none; resize:none; } .ied textarea{ font-weight:400; line-height:1.4; overflow:hidden; min-width:220px; }
@@ -239,7 +239,7 @@ body.dm-escuro .iseg, body.dm-escuro .iqk button{ background:#272D33; } body.dm-
 <script src="gabinete-adicionar.js?cb=14"></script>
 <script src="gabinete-planilha.js?cb=2"></script>
 <script src="gabinete-cotas.js?cb=18"></script>
-<script src="gabinete-indicar.js?cb=7"></script>
+<script src="gabinete-indicar.js?cb=8"></script>
 <script src="sino-menu.js?cb=10"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */
 (function(){ var b=document.querySelector(".mnub"), m=document.querySelector(".mnu"); if(!b||!m) return;
