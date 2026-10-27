@@ -341,7 +341,7 @@ function mtab() {
     ${L.length > S.mlim ? `<button class="btn sec mais" id="mmais">Mostrar mais (${L.length - S.mlim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> linhas · ${fm(L.filter((r) => !supr(r)).reduce((s, r) => s + (+r.valor || 0), 0))}${L.some(supr) ? ` · ${L.filter(supr).length} suprimidas fora da soma` : ""}</div>`;
   const m = $("#mmais"); if (m) m.onclick = () => { S.mlim += 200; mtab(); };
   $("#mtab").querySelectorAll("th[data-mo]").forEach((th) => th.onclick = () => { const k = th.dataset.mo; S.mord = S.mord && S.mord[0] === k ? (S.mord[1] < 0 ? null : [k, -1]) : [k, 1]; mtab(); });
-  $("#mtab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { S.maberto = S.maberto === tr.dataset.id ? null : tr.dataset.id; if (S.maberto) try { localStorage.setItem("gab_visto_" + S.maberto, new Date().toISOString()); } catch (e) {} mtab(); });
+  $("#mtab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { if (S.pend && S.pend.id === S.maberto && Object.keys(S.pend.v).length) { S.pend.aviso = 1; mtab(); return; } S.pend = null; S.maberto = S.maberto === tr.dataset.id ? null : tr.dataset.id; if (S.maberto) try { localStorage.setItem("gab_visto_" + S.maberto, new Date().toISOString()); } catch (e) {} mtab(); });
   const d = $("#mtab .det"); if (d) ligarMeuDet(d, MEU.find((r) => mk(r) === S.maberto));
 }
 // ---------- item do Controle aberto: andamento oficial (quando ligado a uma emenda do portal), dados da planilha,
@@ -394,6 +394,7 @@ function caderneta(r) {
   const L = []; let cur = null;
   String(r.observacao || "").split(/\n/).forEach((ln) => { const t = ln.trim(); if (!t) { if (cur) cur.sep = 1; return; }
     const m = t.match(/^[(→\-–•*\s]*(\d{1,2}\/\d{1,2}(?:\/\d{2,4})?)\)?\s*[-–→,:.]?\s*(.*)$/);
+    if (m && /^\(/.test(t) && /\)$/.test(m[2])) m[2] = m[2].slice(0, -1).trim();
     if (m) { cur = { d: m[1], t: m[2] }; L.push(cur); } else if (cur && !cur.sep) cur.t += " " + t; else { cur = { d: "", t }; L.push(cur); } });
   (r.notas || []).forEach((n) => L.push({ d: dtBR(n.em), t: n.t }));
   return L;
@@ -409,23 +410,25 @@ function detalheMeu(r) {
   const ori = (k) => r._orig && k in r._orig ? `<span class="fx" title="${esc((r.corr || {}).nota || "corrigido")}"></span>` : "";
   const was = (k) => r._orig && k in r._orig ? `<s>${esc(r._orig[k] || "—")}</s> · ` : "";
   const sef = /^\d+$/.test(String(r.numero || "")) ? `${r.ano}EP${String(r.numero).padStart(6, "0")}` : "";
-  const tile = (k, rot, v, sub, cls) => `<div class="tl2${cls ? " " + cls : ""}"><span class="tk">${ic(k)}${rot}</span><span class="tv">${v}${sub ? `<small>${sub}</small>` : ""}</span></div>`;
+  const tile = (k, rot, v, sub, cls, ed) => `<div class="tl2${cls ? " " + cls : ""}${ed ? " ed" : ""}"${ed ? ` data-ed="${ed}" title="Clique para editar"` : ""}><span class="tk">${ic(k)}${rot}</span><span class="tv">${v}${sub ? `<small>${sub}</small>` : ""}</span></div>`;
   const leiV = leiDe(r) ? `${esc(leiDe(r).replace(/^Lei nº /, "Lei "))}${r.lei_url ? ` <a class="lnk2" href="${esc(r.lei_url)}" target="_blank" rel="noopener" title="Abrir a lei">↗</a>` : ""}` : `<span class="mut">+ adicionar</span>`;
   const bento = `<div class="bnt">
-    ${tile("pino", "Município", `${esc(frase(r.municipio || "—"))}${ori("municipio")}`, `${was("municipio")}${esc(regDe(r) || "")}`)}
-    ${tile("hash", "Emenda", r.num_lei || r.numero ? `${esc(r.num_lei || r.numero)}${ori("numero")}` : `<span class="mut">sem número</span>`, `${was("numero")}${sef ? "SEF " + sef : ""}`)}
-    ${tile("lei", "Base legal", leiV, esc([r.pl && r.pl.replace(/^PL nº /, "PL "), r.origem].filter(Boolean).join(" · ")), "w2")}
-    ${tile("pred", "Beneficiário", esc(r.beneficiario || "—"), esc([r.funcao, instrNome(r.modalidade), r.natureza, r.processo].filter(Boolean).join(" · ")), "w2")}
+    ${tile("pino", "Município", `${esc(frase(r.municipio || "—"))}${ori("municipio")}`, `${was("municipio")}${esc(regDe(r) || "")}`, "", "municipio")}
+    ${tile("hash", "Emenda", r.num_lei || r.numero ? `${esc(r.num_lei || r.numero)}${ori("numero")}` : `<span class="mut">sem número</span>`, `${was("numero")}${sef ? "SEF " + sef : ""}`, "", "num_lei,numero")}
+    ${tile("lei", "Base legal", leiV, esc([r.pl && r.pl.replace(/^PL nº /, "PL "), r.origem].filter(Boolean).join(" · ")), "w2", "lei,pl,lei_url")}
+    ${tile("pred", "Beneficiário", esc(r.beneficiario || "—"), esc([r.funcao, instrNome(r.modalidade), r.natureza, r.processo].filter(Boolean).join(" · ")), "w2", "beneficiario,processo")}
     ${["lider", "tecnico"].map((p) => { const L = contato(r, p); return `<div class="tl2"><span class="tk">${ic("pessoa")}${p === "lider" ? "Líder" : "Técnico"}${L.length > 1 ? "s" : ""}</span><span class="tv">${L.map((c) => `<span class="pes1">${esc(c.nome || "—")}${c.tel ? `<small>${esc(c.tel)}</small>` : ""}</span>`).join("")}<button class="mut lk0" data-editar2>+ ${L.length ? "pessoa" : "adicionar"}</button></span></div>`; }).join("")}</div>`;
   const cad = caderneta(r), hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
   const caderno = `<div class="bnt cad"><div class="tl2 w4"><span class="tk">${ic("balao")}Observação${r.obs_em ? ` · atualizada em ${dtBR(r.obs_em)}` : ""}</span>
-      <div class="cdn">${cad.map((n) => `<span class="cd">${esc(n.d || "—")}</span><span class="ct2">${esc(n.t)}</span>`).join("")}
-      <input class="cd" data-cdd value="${hoje}" aria-label="Data"><span class="ct2 cnova"><input data-cdt placeholder="Nova anotação…"><button class="lk0" data-cds>Anotar</button></span></div></div></div>`;
-  return `<div class="dm2"><div class="dh"><div><div class="dst"><i class="${pagoTudo ? "ok" : es.ver ? "vv" : ""}"></i>${esc(titulo)}</div><div class="dsub">${rc(r.valor)} · ${nf(pct, 0)}% pago · ${esc(instrNome(r.modalidade) || "instrumento não informado")} · exercício ${esc(r.ano || "—")}</div></div>
+      <div class="cdn">${(S.cadAll === mk(r) ? cad : cad.slice(-2)).map((n) => `<span class="cd">${esc(n.d || "—")}</span><span class="ct2">${esc(n.t)}</span>`).join("")}
+      <input class="cd" data-cdd value="${hoje}" aria-label="Data"><span class="ct2 cnova"><input data-cdt placeholder="Nova anotação…"><button class="lk0" data-cds>Anotar</button></span></div>
+      ${cad.length > 2 ? `<button class="lk0 cmais2" data-cadall>${S.cadAll === mk(r) ? "mostrar só as 2 últimas" : `ver as ${cad.length} anotações`}</button>` : ""}</div></div>`;
+  const pend = S.pend && S.pend.id === mk(r);
+  return `<div class="dm2">${pend ? `<div class="dpend${S.pend.aviso ? " av2" : ""}"><span>Alterações não salvas${S.pend.aviso ? " · salve ou descarte antes de fechar" : ""}</span><button class="lk0" data-pdesc>Descartar</button><button class="btnp" data-psalva>Salvar</button></div>` : ""}<div class="dh"><div><div class="dst"><i class="${pagoTudo ? "ok" : es.ver ? "vv" : ""}"></i>${esc(titulo)}</div><div class="dsub">${rc(r.valor)} · ${nf(pct, 0)}% pago · ${esc(instrNome(r.modalidade) || "instrumento não informado")} · exercício ${esc(r.ano || "—")}</div></div>
       <div class="dac"><span class="av" data-msg></span><button class="${r.atencao ? "on" : ""}" data-atencao title="${r.atencao ? "Tirar a atenção" : "Marcar para atenção"}">${ic("band")}</button><button data-editar title="Editar">${ic("lapis")}</button><button data-subst title="${e ? "Substituir emenda do portal" : "Ligar a uma emenda do portal"}">${ic("elo")}</button><button data-excl title="Excluir">${ic("lixo")}</button></div></div>
     ${step}${bento}${caderno}
-    <div class="tgs3">${(r.tags || []).map((t) => `<span>${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<button class="add" data-etq>+ etiqueta</button></div>
-    <div class="nova" hidden><input data-nova list="adTags2" placeholder="Nova ou existente"><datalist id="adTags2">${todasTags().map((t) => `<option value="${esc(t)}">`).join("")}</datalist><button class="btn sec" data-addtag>Colar</button></div>
+    <div class="tgs3">${(r.tags || []).map((t) => `<span>${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<span class="tgin" hidden><input data-nova placeholder="etiqueta…" autocomplete="off"></span><button class="add" data-etq>+ etiqueta</button></div>
+    <div class="tgsug" hidden></div>
     ${r.corr && r.corr.nota ? `<div class="dfx"><span class="fx"></span>Corrigido na revisão · ${esc(r.corr.nota)}</div>` : ""}</div>`;
 }
 async function gravaMeu(r, campos) {
@@ -439,10 +442,26 @@ function ligarMeuDet(d, r) {
   const anotar = async () => { const t = cdt.value.trim(), d = a.querySelector("[data-cdd]").value.trim(); if (!t) return; msg.textContent = "Salvando…";
     try { await gravaMeu(r, { observacao: (r.observacao ? r.observacao.replace(/\s+$/, "") + "\n\n" : "") + (d ? d + " - " : "") + t, obs_em: new Date().toISOString() }); try { localStorage.setItem("gab_visto_" + mk(r), new Date().toISOString()); } catch (e) {} mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
   if (cds) { cds.onclick = anotar; cdt.onkeydown = (ev) => { if (ev.key === "Enter") anotar(); }; }
-  a.querySelector("[data-etq]").onclick = () => { const n = a.querySelector(".nova"); n.hidden = false; n.querySelector("input").focus(); };
+  const ca = a.querySelector("[data-cadall]"); if (ca) ca.onclick = () => { S.cadAll = S.cadAll === mk(r) ? null : mk(r); mtab(); };
+  const tin = a.querySelector(".tgin"), sug = a.querySelector(".tgsug"), inp0 = a.querySelector("[data-nova]");
+  const mostraSug = () => { const q = norm(inp0.value), L = todasTags().filter((t) => !(r.tags || []).includes(t) && (!q || norm(t).includes(q))).slice(0, 12);
+    sug.hidden = !L.length && !q; sug.innerHTML = L.map((t) => `<button data-sug="${esc(t)}">${esc(t)}</button>`).join("") + (q && !todasTags().some((t) => norm(t) === q) ? `<button data-sug="${esc(inp0.value.trim())}" class="nv">+ criar “${esc(inp0.value.trim())}”</button>` : "");
+    sug.querySelectorAll("[data-sug]").forEach((b) => b.onmousedown = (ev) => { ev.preventDefault(); inp0.value = b.dataset.sug; addT(); }); };
+  a.querySelector("[data-etq]").onclick = () => { tin.hidden = false; a.querySelector("[data-etq]").hidden = true; inp0.focus(); mostraSug(); };
+  inp0.oninput = mostraSug; inp0.onblur = () => setTimeout(() => { if (!inp0.value) { tin.hidden = true; sug.hidden = true; a.querySelector("[data-etq]").hidden = false; } }, 150);
+  a.querySelectorAll("[data-ed]").forEach((t) => t.onclick = (ev) => { if (ev.target.closest("a,button,input")) return; if (t.querySelector("input")) return;
+    const campos = t.dataset.ed.split(","), rot = { municipio: "Município", num_lei: "Nº na lei", numero: "Código SEF", lei: "Lei", pl: "Projeto de lei", lei_url: "Link da lei", beneficiario: "Beneficiário", processo: "Processo" };
+    const val = (c) => S.pend && S.pend.id === mk(r) && c in S.pend.v ? S.pend.v[c] : r[c] || "";
+    t.querySelector(".tv").innerHTML = campos.map((c) => `<input class="edi" data-ec="${c}" value="${esc(val(c))}" placeholder="${rot[c]}"${c === "municipio" ? ' list="dlMun2"' : ""}>`).join("") + (campos.includes("municipio") ? `<datalist id="dlMun2">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>` : "");
+    t.querySelectorAll("[data-ec]").forEach((i) => { i.oninput = () => { S.pend = S.pend && S.pend.id === mk(r) ? S.pend : { id: mk(r), v: {} }; S.pend.v[i.dataset.ec] = i.value.trim(); const bar = a.querySelector(".dpend"); if (!bar) { a.insertAdjacentHTML("afterbegin", `<div class="dpend"><span>Alterações não salvas</span><button class="lk0" data-pdesc>Descartar</button><button class="btnp" data-psalva>Salvar</button></div>`); ligPend(); } }; });
+    t.querySelector("[data-ec]").focus(); });
+  const ligPend = () => { const ds = a.querySelector("[data-pdesc]"), sv = a.querySelector("[data-psalva]"); if (ds) ds.onclick = () => { S.pend = null; mtab(); };
+    if (sv) sv.onclick = async () => { msg.textContent = "Salvando…"; const v = { ...S.pend.v }; if (v.municipio) { const mm = BASE.mun.find((x) => norm(x.n) === norm(v.municipio)); if (mm && mm.assoc) v.regiao = mm.assoc; }
+      Object.keys(v).forEach((k) => { if (v[k] === "") v[k] = null; }); try { await gravaMeu(r, v); S.pend = null; mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } }; };
+  ligPend();
   const addT = async () => { const v = a.querySelector("[data-nova]").value.trim(); if (!v || (r.tags || []).includes(v)) return; msg.textContent = "Salvando…";
     try { await gravaMeu(r, { tags: [...(r.tags || []), v] }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
-  a.querySelector("[data-addtag]").onclick = addT; a.querySelector("[data-nova]").onkeydown = (ev) => { if (ev.key === "Enter") addT(); };
+  const at0 = a.querySelector("[data-addtag]"); if (at0) at0.onclick = addT; a.querySelector("[data-nova]").onkeydown = (ev) => { if (ev.key === "Enter") addT(); if (ev.key === "Escape") { ev.target.value = ""; ev.target.blur(); } };
   a.querySelectorAll("[data-xtag]").forEach((b) => b.onclick = async () => { try { await gravaMeu(r, { tags: (r.tags || []).filter((t) => t !== b.dataset.xtag) }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } });
   a.querySelector("[data-atencao]").onclick = async () => { try { await gravaMeu(r, { atencao: !r.atencao }); mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
   a.querySelectorAll("[data-editar2]").forEach((b) => b.onclick = () => a.querySelector("[data-editar]").click());
