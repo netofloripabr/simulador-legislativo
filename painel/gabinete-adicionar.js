@@ -54,13 +54,13 @@ const refTxt = (r) => r ? `${fm(r.rec)} · ${ni(r.v22)} → ${ni(r.v26)} votos${
 // ---------- botão verde: só a entrada. As listas e os itens aparecem dentro de "Meu controle" ----------
 function adicionarHtml() {
   if (!(PODE && proprio())) return "";
-  return `<div class="adw"><button class="adbtn" id="adBtn" title="Adicionar item ou lista" aria-label="Adicionar">+</button><div class="admenu" id="adMenu" hidden><button data-ad="item"><b>Item</b><span>Uma indicação, no formulário padrão</span></button><button data-ad="lista"><b>Lista</b><span>Formulário de indicações em Google Planilhas, gerado no seu Drive</span></button></div></div>`;
+  return `<div class="adw"><button class="adbtn" id="adBtn" title="Indicação de recursos" aria-label="Adicionar">+</button><div class="admenu" id="adMenu" hidden><button data-ad="item"><b>Item</b><span>Uma indicação, no formulário padrão</span></button><button data-ad="lista"><b>Lista</b><span>Formulário de indicações em Google Planilhas, gerado no seu Drive</span></button></div></div>`;
 }
 // filtro "Lista" de Meu controle: a planilha importada, cada lista criada e os itens avulsos
 const opsListas = () => [["", "Planilha do gabinete"], ...AD.listas.map((l) => [l.id, l.apelido || l.origem]), ...(AD.itens.some((x) => !x.lista_id) ? [["avulsos", "Itens avulsos"]] : [])];
 function ligarAdicionar() {
   const b = $("#adBtn"); if (!b) return; const m = $("#adMenu");
-  b.onclick = (e) => { e.stopPropagation(); m.hidden = !m.hidden; }; document.addEventListener("click", () => { if (m) m.hidden = true; }, { once: true });
+  b.onclick = (e) => { e.stopPropagation(); if (typeof abrirInd === "function") return abrirInd(); m.hidden = !m.hidden; }; document.addEventListener("click", () => { if (m) m.hidden = true; }, { once: true });
   m.onclick = (e) => { e.stopPropagation(); const o = e.target.closest("[data-ad]"); if (!o) return; m.hidden = true; o.dataset.ad === "item" ? formItem({ lista_id: S.lista && S.lista !== "avulsos" ? S.lista : null }) : formLista(); };
   const fl = $("#fLista"); if (fl) fl.onchange = (e) => { S.lista = e.target.value || null; desenhar(); };
   const p = $("#lpainel"); if (!p) return;

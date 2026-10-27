@@ -36,7 +36,7 @@ function itensCotas() {
 }
 // cotas legais com valor disponível cadastrado pela administração (fixas): excesso de arrecadação 2026 (LDO 2026, art. 30:
 // 1,55% do crescimento da RCL, só Saúde) = R$ 718.997,79 por parlamentar, até 7 indicações, prazo 28/10/2026
-const COTAS_LEGAIS = { 2026: { EX: { disp: 718997.79, max: 7, prazo: "2026-10-28T18:00", base: "LDO 2026 (Lei 19.401/2025), art. 30" } } };
+const COTAS_LEGAIS = { 2026: { EX: { disp: 718997.79, max: 7, min: 100000, areas: ["Saúde"], prazo: "2026-10-28T18:00", base: "LDO 2026 (Lei 19.401/2025), art. 30", doc: "Of. 004/2026 CFT · LDO 2026 art. 30", entrega: "via SEI" } } };
 function dispDoAno(ano, t) {
   const leg = COTAS_LEGAIS[ano] || {}, dl = t ? (leg[t] || {}).disp || 0 : Object.values(leg).reduce((s, x) => s + (x.disp || 0), 0);
   return dl || (typeof AD !== "undefined" ? AD.listas : []).filter((L) => anoLista(L) === ano && (!t || tipoLista(L) === t)).reduce((s, L) => s + ((L.regras || {}).disp || 0), 0); }

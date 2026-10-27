@@ -193,6 +193,25 @@ body.dm-escuro .dm2{ --sf:#171C20; --tl:#1B2125; --bd:#272D33; --tx:#E6E9EB; --m
 .mnub{ position:relative; } .mnub .mluz{ position:absolute; top:4px; right:4px; width:8px; height:8px; border-radius:50%; background:#34E84A; box-shadow:0 0 0 0 rgba(52,232,74,.6); animation:mluz 2.4s ease-in-out infinite; } @keyframes mluz{ 0%,100%{ opacity:.45; box-shadow:0 0 0 0 rgba(52,232,74,.5); } 50%{ opacity:1; box-shadow:0 0 0 5px rgba(52,232,74,0); } }
 .mnu a.mnot{ display:flex; align-items:center; gap:8px; } .mnu a.mnot em{ margin-left:auto; font-style:normal; font:800 11px Inter; color:#0B0D0E; background:#34E84A; border-radius:999px; padding:1px 7px; }
 @media (max-width:900px){ .kpis{ grid-template-columns:repeat(2,minmax(0,1fr)); } .mapa,.dg{ grid-template-columns:1fr; } .tb .hm{ display:none; } }
+/* página de Indicação (gabinete-indicar.js): desliza da direita, padrão claro do item */
+#indPg{ position:fixed; inset:0; z-index:70; background:#EEF0F2; color:#1D2226; transform:translateX(100%); transition:transform .45s ease; overflow:auto; font-family:Inter,system-ui,sans-serif; --sf:#EEF0F2; --tl:#F8F9FA; --bd:#DEE2E5; --tx:#1D2226; --mu:#6E767D; --or:#E8822A; }
+#indPg.on{ transform:none; } body.ind-on{ overflow:hidden; } @media (prefers-reduced-motion:reduce){ #indPg{ transition:none; } }
+.ipg{ max-width:980px; margin:0 auto; padding:18px 16px 60px; } .ivolta{ background:none; border:0; color:var(--mu); font:500 13px Inter; cursor:pointer; padding:0; }
+.ihd{ display:flex; align-items:baseline; gap:12px; margin:10px 0 14px; flex-wrap:wrap; } .ihd h2{ margin:0; font-size:22px; font-weight:600; letter-spacing:-.02em; } .ihd span{ color:var(--mu); font-size:12.5px; }
+.ianos{ display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; } .ianos button, .itags button{ font:500 12.5px Inter; padding:6px 14px; border-radius:999px; background:var(--tl); border:1px solid var(--bd); color:var(--tx); cursor:pointer; } .ianos button.on{ background:#1D2226; color:#fff; border-color:#1D2226; }
+.icapa{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--bd); border:1px solid var(--bd); border-radius:14px; overflow:hidden; } .icapa .t{ background:var(--tl); padding:12px 15px; display:flex; flex-direction:column; gap:5px; } .icapa .w2{ grid-column:span 2; }
+.iv{ font-size:18px; font-weight:600; font-variant-numeric:tabular-nums; } .iv small{ display:block; font-size:11.5px; font-weight:400; color:var(--mu); margin-top:2px; } .ibar{ height:7px; border-radius:9px; background:#DDE1E4; overflow:hidden; } .ibar i{ display:block; height:100%; background:#1D2226; }
+.icd{ display:flex; gap:6px; } .icd div{ background:#fff; border:1px solid var(--bd); border-radius:9px; width:52px; padding:5px 0; text-align:center; } .icd b{ display:block; font-size:18px; color:var(--or); font-variant-numeric:tabular-nums; } .icd span{ font-size:10px; color:var(--mu); } .ifim{ color:#C0392B; font-weight:600; }
+.itags{ display:flex; gap:6px; flex-wrap:wrap; margin:16px 0 10px; } .itags button{ background:#DDE1E4; border-color:transparent; color:#3A4146; } .itags button.on{ background:#1D2226; color:#fff; } .itags button small{ margin-left:6px; opacity:.7; }
+.itags button.o{ background:#FBE7D5; color:#9A4E10; } .itags button.o:before{ content:""; display:inline-block; width:6px; height:6px; border-radius:50%; background:currentColor; margin-right:7px; vertical-align:1px; } .itags button.o.on{ background:var(--or); color:#fff; } .itags button.nw{ background:none; border:1px dashed #B8BEC3; color:var(--mu); }
+.isheet{ background:var(--tl); border:1px solid var(--bd); border-radius:14px; overflow:hidden; } .iinf{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 14px; font-size:12px; color:var(--mu); border-bottom:1px solid var(--bd); } .iinf b{ color:#9A4E10; font-weight:600; }
+.iacs{ margin-left:auto; display:flex; gap:6px; } .iacs button{ font:500 12px Inter; background:#fff; border:1px solid var(--bd); border-radius:999px; padding:5px 12px; cursor:pointer; color:var(--tx); }
+.itw{ overflow-x:auto; } .itb{ width:100%; border-collapse:collapse; } .itb th, .itb td{ padding:9px 12px; border-bottom:1px solid var(--bd); text-align:left; font-size:12.5px; vertical-align:top; } .itb th{ font-size:11px; color:var(--mu); font-weight:500; } .itb .r{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; } .itb .n{ color:var(--mu); width:18px; } .itb .ar{ color:#A4ABB1; width:12px; } .itb .st{ color:var(--mu); white-space:nowrap; }
+.itb tr.ir{ cursor:pointer; } .itb tr.ir:hover td, .itb tr.ir.on td{ background:#fff; } .itb tr.ie td{ color:#A4ABB1; cursor:pointer; } .itb tr.ie:hover td{ color:var(--tx); } .itb tr.itt td{ font-weight:600; border-bottom:0; }
+#indDet{ position:fixed; top:0; right:0; bottom:0; width:460px; max-width:94vw; background:var(--sf); border-left:1px solid var(--bd); box-shadow:-14px 0 34px rgba(0,0,0,.1); transform:translateX(105%); transition:transform .35s ease; overflow:auto; z-index:2; } #indDet.on{ transform:none; } #indDet{ padding-top:34px; } .ix{ top:4px !important; }
+#indDet .dm2{ margin:0; border-radius:0; } #indDet .bnt{ grid-template-columns:1fr 1fr; } #indDet .tl2.w2, #indDet .tl2.w4{ grid-column:span 2; } .ix{ position:absolute; top:10px; right:12px; z-index:3; background:none; border:0; font-size:22px; color:var(--mu); cursor:pointer; }
+@media (max-width:760px){ .icapa{ grid-template-columns:1fr 1fr; } .itb .hm{ display:none; } }
+body.dm-escuro #indPg{ --sf:#171C20; --tl:#1B2125; --bd:#272D33; --tx:#E6E9EB; --mu:#8C939A; background:#171C20; color:#E6E9EB; } body.dm-escuro .ianos button.on, body.dm-escuro .itags button.on{ background:#E6E9EB; color:#0B0D0E; } body.dm-escuro .itags button{ background:#272D33; color:#C9CED2; } body.dm-escuro .ibar{ background:#272D33; } body.dm-escuro .ibar i{ background:#E6E9EB; } body.dm-escuro .icd div, body.dm-escuro .iacs button{ background:#1B2125; } body.dm-escuro .itb tr.ir:hover td, body.dm-escuro .itb tr.ir.on td{ background:#20272C; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -204,9 +223,10 @@ body.dm-escuro .dm2{ --sf:#171C20; --tl:#1B2125; --bd:#272D33; --tx:#E6E9EB; --m
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="gabinete.js?cb=65"></script>
-<script src="gabinete-adicionar.js?cb=11"></script>
+<script src="gabinete-adicionar.js?cb=12"></script>
 <script src="gabinete-planilha.js?cb=2"></script>
-<script src="gabinete-cotas.js?cb=15"></script>
+<script src="gabinete-cotas.js?cb=16"></script>
+<script src="gabinete-indicar.js?cb=2"></script>
 <script src="sino-menu.js?cb=10"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */
 (function(){ var b=document.querySelector(".mnub"), m=document.querySelector(".mnu"); if(!b||!m) return;
