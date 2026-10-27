@@ -334,6 +334,15 @@ function mfiltradas() {
     if (S.met) { const e = etapasStatus(r.status_manual); if (S.met === "s" ? e.d : !e.d) return false; if (S.met === "v" && !e.ver) return false; if (/^\d$/.test(S.met) && (e.d.lastIndexOf(true) !== +S.met)) return false; }
     return true; });
 }
+// janela no meio da tela, com o fundo desfocado: salvar ou descartar antes de fechar o item
+function confirmarPend() {
+  let w = document.getElementById("cfPend"); if (w) w.remove();
+  document.body.insertAdjacentHTML("beforeend", `<div id="cfPend" class="cfp"><div class="cfb"><b>Salvar as alterações?</b><p>Você mudou ${Object.keys(S.pend.v).length} campo(s) deste item e ainda não salvou.</p><div><button class="lk0" data-cfx>Continuar editando</button><button class="lk0" data-cfd>Descartar</button><button class="btnp" data-cfs>Salvar</button></div></div></div>`);
+  w = document.getElementById("cfPend"); const fecha = () => w.remove();
+  w.querySelector("[data-cfx]").onclick = fecha; w.onclick = (e) => { if (e.target === w) fecha(); };
+  w.querySelector("[data-cfd]").onclick = () => { fecha(); S.pend = null; S.maberto = null; mtab(); };
+  w.querySelector("[data-cfs]").onclick = () => { fecha(); const b = document.querySelector(".dm2 [data-psalva]"); if (b) b.click(); };
+}
 function mtab() {
   const L = mfiltradas();
   if (S.mord) { const c = MCOL.find((x) => x[0] === S.mord[0]), d = S.mord[1]; L.sort((a, b) => { const x = c[2](a), y = c[2](b); return (x > y ? 1 : x < y ? -1 : 0) * d; }); }
@@ -341,7 +350,7 @@ function mtab() {
     ${L.length > S.mlim ? `<button class="btn sec mais" id="mmais">Mostrar mais (${L.length - S.mlim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> linhas · ${fm(L.filter((r) => !supr(r)).reduce((s, r) => s + (+r.valor || 0), 0))}${L.some(supr) ? ` · ${L.filter(supr).length} suprimidas fora da soma` : ""}</div>`;
   const m = $("#mmais"); if (m) m.onclick = () => { S.mlim += 200; mtab(); };
   $("#mtab").querySelectorAll("th[data-mo]").forEach((th) => th.onclick = () => { const k = th.dataset.mo; S.mord = S.mord && S.mord[0] === k ? (S.mord[1] < 0 ? null : [k, -1]) : [k, 1]; mtab(); });
-  $("#mtab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { if (S.pend && S.pend.id === S.maberto && Object.keys(S.pend.v).length) { S.pend.aviso = 1; mtab(); return; } S.pend = null; S.maberto = S.maberto === tr.dataset.id ? null : tr.dataset.id; if (S.maberto) try { localStorage.setItem("gab_visto_" + S.maberto, new Date().toISOString()); } catch (e) {} mtab(); });
+  $("#mtab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { if (S.pend && S.pend.id === S.maberto && Object.keys(S.pend.v).length) { confirmarPend(); return; } S.pend = null; S.maberto = S.maberto === tr.dataset.id ? null : tr.dataset.id; if (S.maberto) try { localStorage.setItem("gab_visto_" + S.maberto, new Date().toISOString()); } catch (e) {} mtab(); });
   const d = $("#mtab .det"); if (d) ligarMeuDet(d, MEU.find((r) => mk(r) === S.maberto));
 }
 // ---------- item do Controle aberto: andamento oficial (quando ligado a uma emenda do portal), dados da planilha,
@@ -413,6 +422,7 @@ function detalheMeu(r) {
   const tile = (k, rot, v, sub, cls, ed) => `<div class="tl2${cls ? " " + cls : ""}${ed ? " ed" : ""}"${ed ? ` data-ed="${ed}" title="Clique para editar"` : ""}><span class="tk">${ic(k)}${rot}</span><span class="tv">${v}${sub ? `<small>${sub}</small>` : ""}</span></div>`;
   const leiV = leiDe(r) ? `${esc(leiDe(r).replace(/^Lei nº /, "Lei "))}${r.lei_url ? ` <a class="lnk2" href="${esc(r.lei_url)}" target="_blank" rel="noopener" title="Abrir a lei">↗</a>` : ""}` : `<span class="mut">+ adicionar</span>`;
   const bento = `<div class="bnt">
+    ${tile("doc", "Objeto", objHtml(r) || '<span class="mut">+ adicionar</span>', "", "w4 obj", "objeto")}
     ${tile("pino", "Município", `${esc(frase(r.municipio || "—"))}${ori("municipio")}`, `${was("municipio")}${esc(regDe(r) || "")}`, "", "municipio")}
     ${tile("hash", "Emenda", r.num_lei || r.numero ? `${esc(r.num_lei || r.numero)}${ori("numero")}` : `<span class="mut">sem número</span>`, `${was("numero")}${sef ? "SEF " + sef : ""}`, "", "num_lei,numero")}
     ${tile("lei", "Base legal", leiV, esc([r.pl && r.pl.replace(/^PL nº /, "PL "), r.origem].filter(Boolean).join(" · ")), "w2", "lei,pl,lei_url")}
@@ -423,9 +433,9 @@ function detalheMeu(r) {
       <div class="cdn">${(S.cadAll === mk(r) ? cad : cad.slice(-2)).map((n) => `<span class="cd">${esc(n.d || "—")}</span><span class="ct2">${esc(n.t)}</span>`).join("")}
       <input class="cd" data-cdd value="${hoje}" aria-label="Data"><span class="ct2 cnova"><input data-cdt placeholder="Nova anotação…"><button class="lk0" data-cds>Anotar</button></span></div>
       ${cad.length > 2 ? `<button class="lk0 cmais2" data-cadall>${S.cadAll === mk(r) ? "mostrar só as 2 últimas" : `ver as ${cad.length} anotações`}</button>` : ""}</div></div>`;
-  const pend = S.pend && S.pend.id === mk(r);
-  return `<div class="dm2">${pend ? `<div class="dpend${S.pend.aviso ? " av2" : ""}"><span>Alterações não salvas${S.pend.aviso ? " · salve ou descarte antes de fechar" : ""}</span><button class="lk0" data-pdesc>Descartar</button><button class="btnp" data-psalva>Salvar</button></div>` : ""}<div class="dh"><div><div class="dst"><i class="${pagoTudo ? "ok" : es.ver ? "vv" : ""}"></i>${esc(titulo)}</div><div class="dsub">${rc(r.valor)} · ${nf(pct, 0)}% pago · ${esc(instrNome(r.modalidade) || "instrumento não informado")} · exercício ${esc(r.ano || "—")}</div></div>
-      <div class="dac"><span class="av" data-msg></span><button class="${r.atencao ? "on" : ""}" data-atencao title="${r.atencao ? "Tirar a atenção" : "Marcar para atenção"}">${ic("band")}</button><button data-editar title="Editar">${ic("lapis")}</button><button data-subst title="${e ? "Substituir emenda do portal" : "Ligar a uma emenda do portal"}">${ic("elo")}</button><button data-excl title="Excluir">${ic("lixo")}</button></div></div>
+  const pend = S.pend && S.pend.id === mk(r) && Object.keys(S.pend.v).length;
+  return `<div class="dm2"><div class="dh"><div><div class="dst"><i class="${pagoTudo ? "ok" : es.ver ? "vv" : ""}"></i>${esc(titulo)}</div><div class="dsub">${rc(r.valor)} · ${nf(pct, 0)}% pago · ${esc(instrNome(r.modalidade) || "instrumento não informado")} · exercício ${esc(r.ano || "—")}</div></div>
+      <div class="dac"><span class="av" data-msg></span><span class="dpend2"${pend ? "" : " hidden"}><button class="lk0" data-pdesc>Descartar</button><button class="btnp" data-psalva>Salvar</button></span><button class="${r.atencao ? "on" : ""}" data-atencao title="${r.atencao ? "Tirar a atenção" : "Marcar para atenção"}">${ic("band")}</button><button data-editar title="Editar">${ic("lapis")}</button><button data-subst title="${e ? "Substituir emenda do portal" : "Ligar a uma emenda do portal"}">${ic("elo")}</button><button data-excl title="Excluir">${ic("lixo")}</button></div></div>
     ${step}${bento}${caderno}
     <div class="tgs3">${(r.tags || []).map((t) => `<span>${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<span class="tgin" hidden><input data-nova placeholder="etiqueta…" autocomplete="off"></span><button class="add" data-etq>+ etiqueta</button></div>
     <div class="tgsug" hidden></div>
@@ -450,13 +460,14 @@ function ligarMeuDet(d, r) {
   a.querySelector("[data-etq]").onclick = () => { tin.hidden = false; a.querySelector("[data-etq]").hidden = true; inp0.focus(); mostraSug(); };
   inp0.oninput = mostraSug; inp0.onblur = () => setTimeout(() => { if (!inp0.value) { tin.hidden = true; sug.hidden = true; a.querySelector("[data-etq]").hidden = false; } }, 150);
   a.querySelectorAll("[data-ed]").forEach((t) => t.onclick = (ev) => { if (ev.target.closest("a,button,input")) return; if (t.querySelector("input")) return;
-    const campos = t.dataset.ed.split(","), rot = { municipio: "Município", num_lei: "Nº na lei", numero: "Código SEF", lei: "Lei", pl: "Projeto de lei", lei_url: "Link da lei", beneficiario: "Beneficiário", processo: "Processo" };
+    const campos = t.dataset.ed.split(","), rot = { objeto: "Novo objeto (o anterior fica tachado no histórico)", municipio: "Município", num_lei: "Nº na lei", numero: "Código SEF", lei: "Lei", pl: "Projeto de lei", lei_url: "Link da lei", beneficiario: "Beneficiário", processo: "Processo" };
     const val = (c) => S.pend && S.pend.id === mk(r) && c in S.pend.v ? S.pend.v[c] : r[c] || "";
-    t.querySelector(".tv").innerHTML = campos.map((c) => `<input class="edi" data-ec="${c}" value="${esc(val(c))}" placeholder="${rot[c]}"${c === "municipio" ? ' list="dlMun2"' : ""}>`).join("") + (campos.includes("municipio") ? `<datalist id="dlMun2">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>` : "");
-    t.querySelectorAll("[data-ec]").forEach((i) => { i.oninput = () => { S.pend = S.pend && S.pend.id === mk(r) ? S.pend : { id: mk(r), v: {} }; S.pend.v[i.dataset.ec] = i.value.trim(); const bar = a.querySelector(".dpend"); if (!bar) { a.insertAdjacentHTML("afterbegin", `<div class="dpend"><span>Alterações não salvas</span><button class="lk0" data-pdesc>Descartar</button><button class="btnp" data-psalva>Salvar</button></div>`); ligPend(); } }; });
+    t.querySelector(".tv").innerHTML = campos.map((c) => c === "objeto" ? `<textarea class="edi" data-ec="objeto" rows="2" placeholder="${rot[c]}">${esc(val(c))}</textarea>` : `<input class="edi" data-ec="${c}" value="${esc(val(c))}" placeholder="${rot[c]}"${c === "municipio" ? ' list="dlMun2"' : ""}>`).join("") + (campos.includes("municipio") ? `<datalist id="dlMun2">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>` : "");
+    t.querySelectorAll("[data-ec]").forEach((i) => { i.oninput = () => { S.pend = S.pend && S.pend.id === mk(r) ? S.pend : { id: mk(r), v: {} }; S.pend.v[i.dataset.ec] = i.value.trim(); a.querySelector(".dpend2").hidden = false; }; });
     t.querySelector("[data-ec]").focus(); });
   const ligPend = () => { const ds = a.querySelector("[data-pdesc]"), sv = a.querySelector("[data-psalva]"); if (ds) ds.onclick = () => { S.pend = null; mtab(); };
-    if (sv) sv.onclick = async () => { msg.textContent = "Salvando…"; const v = { ...S.pend.v }; if (v.municipio) { const mm = BASE.mun.find((x) => norm(x.n) === norm(v.municipio)); if (mm && mm.assoc) v.regiao = mm.assoc; }
+    if (sv) sv.onclick = async () => { msg.textContent = "Salvando…"; const v = { ...S.pend.v };
+      if ("objeto" in v && v.objeto && v.objeto !== r.objeto && r.objeto) v.objeto_fmt = (r.objeto_fmt ? r.objeto_fmt.replace(/\s+$/, "").replace(/(^|\n\n)(?!~~)([^\n][\s\S]*)$/, "$1~~$2~~") : "~~" + r.objeto + "~~") + "\n\n" + v.objeto; if (v.municipio) { const mm = BASE.mun.find((x) => norm(x.n) === norm(v.municipio)); if (mm && mm.assoc) v.regiao = mm.assoc; }
       Object.keys(v).forEach((k) => { if (v[k] === "") v[k] = null; }); try { await gravaMeu(r, v); S.pend = null; mtab(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } }; };
   ligPend();
   const addT = async () => { const v = a.querySelector("[data-nova]").value.trim(); if (!v || (r.tags || []).includes(v)) return; msg.textContent = "Salvando…";
