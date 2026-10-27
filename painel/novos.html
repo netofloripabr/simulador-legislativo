@@ -205,6 +205,13 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .acf{ font-style:normal; color:#F5A623; font-weight:600; white-space:nowrap; }
 /* celular deitado: nomes à esquerda, mapa à direita (sem sobrepor) */
 @media (orientation:landscape) and (max-height:520px){ .capa2{ display:block; position:relative; height:calc(100vh - 56px); } .capaD{ position:absolute !important; inset:0 !important; height:auto !important; border:0 !important; } .capaE{ position:absolute !important; left:0 !important; top:0 !important; width:42% !important; height:100% !important; } .capa2 .roda{ height:100% !important; } .capa2 .roda li{ text-align:left; transform-origin:left center; font-size:22px; padding:2px 0 2px 18px; } .capa2 .roda li.on .vt{ display:inline; margin-left:.6em; font-size:.42em; } }
+.qs{ margin:14px 0 6px; border:1px solid rgba(242,244,245,.12); border-radius:16px; padding:14px 16px; } .qsh{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px; } .qsh b{ font-size:15px; } .qsh small{ font-size:11.5px; color:var(--ter); } .qss{ font-size:9.5px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; border:1px solid currentColor; border-radius:999px; padding:2px 9px; }
+.qsb{ display:flex; gap:22px; flex-wrap:wrap; margin-bottom:12px; } .qsb b{ display:block; font-size:12px; margin-bottom:5px; } .qsb em{ font-style:normal; font-weight:500; color:var(--ter); font-size:11px; } .qsb small{ display:block; font-size:11px; color:var(--ter); margin-top:4px; } .qsb .fora small{ color:#E8822A; }
+.qsr{ display:inline-flex; gap:3px; } .qsr i{ width:22px; height:22px; border-radius:6px; background:rgba(242,244,245,.08); color:var(--ter); font:700 11px/22px Inter; text-align:center; font-style:normal; } .qsr i.on{ background:#F2F4F5; color:#0B0D0E; } .qsb .fora .qsr i.on{ background:#E8822A; color:#0B0D0E; }
+.qsbar{ display:flex; border-radius:10px; overflow:hidden; gap:2px; margin-bottom:12px; } .qsbar div{ padding:7px 9px; min-width:0; color:#fff; } .qsbar div.eu{ box-shadow:inset 0 0 0 2px #F2F4F5; } .qsbar b{ display:block; font-size:16px; font-weight:900; line-height:1.1; } .qsbar span{ display:block; font-size:10px; opacity:.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.qsc{ display:grid; grid-template-columns:1.6fr 1fr; gap:18px; } .qst{ width:100%; border-collapse:collapse; font-size:12px; font-variant-numeric:tabular-nums; } .qst th{ font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); text-align:left; padding:5px 6px; border-bottom:1px solid rgba(242,244,245,.35); font-weight:600; } .qst td{ padding:6px; border-bottom:1px solid rgba(242,244,245,.07); } .qst tr.eu td{ background:rgba(242,244,245,.06); font-weight:700; } .qst tr.tt td{ font-weight:800; border-bottom:0; }
+.qsd{ display:inline-block; border-radius:50%; vertical-align:-1px; flex:none; } .qsf span{ display:block; font-size:11px; color:var(--ter); margin:2px 0 5px; } .qsf div{ display:flex; gap:3px; flex-wrap:wrap; margin-bottom:10px; }
+@media (max-width:700px){ .qsc{ grid-template-columns:1fr; } }
 </style>
 <script src="uf.js?cb=8"></script>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
@@ -242,7 +249,7 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="novos-uf.js?cb=18"></script>
-<script src="novos.js?cb=211"></script>
+<script src="novos.js?cb=212"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="sino-menu.js?cb=10"></script>
 </body>
