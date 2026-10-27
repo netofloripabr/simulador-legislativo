@@ -349,14 +349,12 @@ function ligarPolitica(c) {
       const Q = [...VG].sort((a, b) => (a.k === "minoria") - (b.k === "minoria") || dep(b) - dep(a)), s1 = (o, z) => `<i class="qsd" style="width:${z}px;height:${z}px;${o.bloco ? orbita(o.cor) : "background:" + o.cor}"></i>`;
       const regua = (d) => `<span class="qsr">${[5, 6, 7, 8, 9, 10].map((k) => `<i class="${k <= d ? "on" : ""}">${k}</i>`).join("")}</span>`;
       const bl = [...BLOCOS.map((g) => ({ g, m: 0 })), ...(BLOCO.length > 1 ? [{ g: BLOCO, m: 1 }] : [])];
-      const fil = (n, kk) => Q.map((o) => Array.from({ length: (n === T9 ? o.v9 : o.v7) / kk }, () => s1(o, 14)).join("")).join("");
       $("#quoc").innerHTML = `<div class="qs"><div class="qsh"><span class="qss">Simulação</span><b>Quadro do cenário</b><small>o mesmo do quadro impresso, atualizado a cada bloco</small></div>
         ${bl.length ? `<div class="qsb">${bl.map(({ g, m }) => { const d = somaD(g), ok = d >= 5 && d <= 10; return `<div class="${ok ? "" : "fora"}"><b>${esc(g.join(" + "))}${m ? " <em>em montagem</em>" : ""}</b>${regua(d)}<small>${d} deputados${ok ? "" : " · fora do intervalo de 5 a 10"}</small></div>`; }).join("")}</div>` : ""}
         <div class="qsbar">${Q.map((o) => { const t = o.v9 + o.v7; return `<div style="flex:${t};background:${o.cor}"${o.eu ? ' class="eu"' : ""} title="${esc(o.nome)}: ${t}"><b>${t}</b><span>${esc(o.k === "minoria" ? "Minoria" : o.g.join(" + "))}</span></div>`; }).join("")}</div>
-        <div class="qsc"><table class="qst"><tr><th>Bancada ou bloco</th><th>Dep.</th><th>De ${T9} (÷ 5)</th><th>De ${T7} (÷ 6,6)</th><th>Nas ${K9 + K7}</th></tr>
+        <div><table class="qst"><tr><th>Bancada ou bloco</th><th>Dep.</th><th>De ${T9} (÷ 5)</th><th>De ${T7} (÷ 6,6)</th><th>Nas ${K9 + K7}</th></tr>
         ${Q.map((o) => `<tr class="${o.eu ? "eu" : ""}"><td>${s1(o, 10)} ${esc(o.k === "minoria" ? "Minoria (" + o.g.join(", ") + ")" : o.g.join(" + "))}</td><td>${dep(o)}</td><td>${o.k === "minoria" ? "" : f2(dep(o) / 5) + " → "}<b>${o.v9 / K9}</b></td><td>${o.k === "minoria" ? "" : f2(dep(o) / 6.6) + " → "}<b>${o.v7 / K7}</b></td><td><b>${o.v9 + o.v7}</b></td></tr>`).join("")}
-        <tr class="tt"><td>Total</td><td>${Q.reduce((t, o) => t + dep(o), 0)}</td><td><b>${Q.reduce((t, o) => t + o.v9, 0) / K9}</b></td><td><b>${Q.reduce((t, o) => t + o.v7, 0) / K7}</b></td><td><b>${Q.reduce((t, o) => t + o.v9 + o.v7, 0)}</b> de ${TT}</td></tr></table>
-        <div class="qsf"><span>Comissão de ${T9}</span><div>${fil(T9, K9)}</div><span>Comissão de ${T7}</span><div>${fil(T7, K7)}</div></div></div></div>`; }
+        <tr class="tt"><td>Total</td><td>${Q.reduce((t, o) => t + dep(o), 0)}</td><td><b>${Q.reduce((t, o) => t + o.v9, 0) / K9}</b></td><td><b>${Q.reduce((t, o) => t + o.v7, 0) / K7}</b></td><td><b>${Q.reduce((t, o) => t + o.v9 + o.v7, 0)}</b> de ${TT}</td></tr></table></div></div>`; }
     if (!VG.some((o) => o.k === ATIVO)) ATIVO = VG[0].k;
     COLOC = ALOC[chave(meu)] || ALOC.minoria || Array(K9 + K7).fill(0); // o caderno imprime a distribuição do grupo do parlamentar
     const ocup = (q) => VG.reduce((t, o) => t + ALOC[o.k][q], 0), at = VG.find((o) => o.k === ATIVO);
