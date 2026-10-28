@@ -159,7 +159,7 @@ function ligarLinha(tr, T) {
   tr.querySelectorAll("[data-bt]").forEach((b) => b.onclick = () => { const t = b.dataset.bt, ins = BTIPO.find((q) => q[0] === t)[2], cur = x() || {};
     salvarLinha(T, tr, { benef_tipo: t, modalidade: g.mods.includes(ins) ? ins : cur.modalidade || null, beneficiario: t === "ent" ? cur.razao_social || null : benefAuto(t, { ...cur, area: cur.area }, g) }); });
   { const g2 = regrasInd(T), x0 = () => AD.itens.find((y) => y.id === tr.dataset.iw) || {};
-    const qm = tr.querySelector("[data-qm]"); if (qm) qm.onclick = (e) => { e.stopPropagation(); popLista(qm, g2.mods.map((m) => [m, MOD_I[m] || "doc2", (SIG_I[m] ? SIG_I[m] + " · " : "") + m]), x0().modalidade, (v) => salvarLinha(T, tr, { modalidade: v })); };
+    const qm = tr.querySelector("[data-qm]"); if (qm) qm.onclick = (e) => { e.stopPropagation(); popLista(qm, ["Transferência Especial", "Convênio", "Execução Direta"].filter((m) => g2.mods.includes(m)).map((m) => [m, MOD_I[m] || "doc2", (SIG_I[m] ? SIG_I[m] + " · " : "") + m]), x0().modalidade, (v) => salvarLinha(T, tr, { modalidade: v })); };
     const qf = tr.querySelector("[data-qf]"); if (qf) qf.onclick = (e) => { e.stopPropagation(); popLista(qf, g2.areas.map((a) => [a, AREA_I[a] || "plan", a]), x0().area, (v) => salvarLinha(T, tr, { area: v })); }; }
   tr.querySelectorAll("[data-bm]").forEach((b) => b.onclick = () => salvarLinha(T, tr, { modalidade: b.dataset.bm }));
   tr.querySelectorAll("[data-ba]").forEach((b) => b.onclick = () => salvarLinha(T, tr, { area: b.dataset.ba }));
@@ -349,7 +349,7 @@ function detForm(x, T, g) {
     const S2 = (f, ops, v) => `<select data-d="${f}"><option value="">—</option>${ops.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}${v && !ops.includes(v) ? `<option selected>${esc(v)}</option>` : ""}</select>`, t = tipoDe(x);
     return `<div class="dm2 fm2 iexpd">
       <div class="bnt">
-      ${tipoDe(x) === "ent" ? F("hash", "CNPJ", I("cnpj", x.cnpj, "00.000.000/0000-00"), 2) + F("pred", "Razão social", I("razao_social", x.razao_social || x.beneficiario), 2) : ""}${F("selo", "Modalidade (todas)", S2("modalidade", g.mods, x.modalidade), 2)}${g.trava ? "" : F("lei", "Função", S2("area", g.areas, x.area), 2)}${F("moeda", "Natureza", S2("natureza", ["Investimento", "Custeio"], x.natureza), 2)}${F("ok", "Status", S2("status", STATUS, x.status || "Em análise"), 2)}
+      ${tipoDe(x) === "ent" ? F("hash", "CNPJ", I("cnpj", x.cnpj, "00.000.000/0000-00"), 2) + F("pred", "Razão social", I("razao_social", x.razao_social || x.beneficiario), 2) : ""}${g.trava ? "" : F("lei", "Função", S2("area", g.areas, x.area), 2)}${F("moeda", "Natureza", S2("natureza", ["Investimento", "Custeio"], x.natureza), 2)}${F("ok", "Status", S2("status", STATUS, x.status || "Em análise"), 2)}
       ${F("pessoa", "Líder", I("lideranca", x.lideranca, "Escolha ou digite", "indPes"), 2)}${F("pessoa", "Contato", I("contato", x.contato, "Telefone ou e-mail"), 2)}
       ${F("band", "Prioridade", S2("prioridade", PRIOR, x.prioridade), 2)}${F("lei", "Lei / PL", I("pl", x.pl, "PL nº 0633/2026"), 2)}
       ${F("doc", "Justificativa", `<textarea data-d="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 4)}
