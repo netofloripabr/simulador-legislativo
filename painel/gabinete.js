@@ -243,7 +243,7 @@ const supr = (r) => /^Suprimida/.test(r.status_manual || "");
 function meu() {
   if (!PODE) return `<div class="obra">Entre com a sua conta para ver o seu controle.</div>`;
   if (S.lista && typeof opsListas === "function" && !opsListas().some((o) => o[0] === S.lista)) S.lista = null;
-  const fLista = typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista", opsListas(), S.lista || "") : "";
+  const fLista = ""; // o Controle é uma lista única; a lista de origem (Indicação) virou um filtro no funil
   const ad = typeof adicionarHtml === "function" ? adicionarHtml() : "", topoC = (f) => `<p class="lead" style="margin-top:14px">O controle do gabinete: emendas, convênios e recursos informais, inclusive os que não aparecem no portal. Visível só para você.</p><div class="leqs cbar">${f}${ad}</div>`;
   if (!MEU.length) return topoC(fLista) + blocoPrivado();
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
@@ -276,19 +276,20 @@ const MF = [["reg", "Região", (r) => regDe(r)], ["mun", "Município", (r) => r.
 const LUPA_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>';
 const FUNIL_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>';
 function mfiltros() {
-  S.mf = S.mf || {}; const nf = [S.mori, S.met, ...Object.values(S.mf)].filter(Boolean).length, n = nf + (S.mq ? 1 : 0);
+  S.mf = S.mf || {}; const nf = [S.mori, S.met, S.lista, ...Object.values(S.mf)].filter(Boolean).length, n = nf + (S.mq ? 1 : 0);
   const ops = (f) => [...new Set(MEU.flatMap((r) => [].concat(f(r) || [])).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR"));
   const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar</button>` : ""}${S.mtool || ""}<button class="filb ico${S.mpa || S.mq ? " on" : ""}" id="lupB" title="Pesquisar" aria-label="Pesquisar">${LUPA_I}</button><button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar" aria-label="Filtrar">${FUNIL_I}${nf ? `<b>${nf}</b>` : ""}</button>${S.mad || ""}</div>`;
   $("#mfil").innerHTML = `${S.mpa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Pesquisar município, objeto, processo, observação ou etiqueta" value="${esc(S.mq || "")}"></div>` : ""}
-    ${S.mfa ? `<div class="mfp mfg">${leq("fOri", "Origem", [["", "Todas"], ...ops((r) => sigla(r.origem)).map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}
+    ${S.mfa ? `<div class="mfp mfg">${leq("fOri", "Origem", [["", "Todas"], ...ops((r) => sigla(r.origem)).map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}${typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista de indicação", [["", "Todas"], ...opsListas().slice(1)], S.lista || "") : ""}
       ${MF.map(([k, t, f]) => leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o]), ...(["mod", "fun", "reg"].includes(k) ? [["(vazio)", "Não informado"]] : [])], S.mf[k] || "")).join("")}${S.mf.num ? leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num) : ""}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}
       ${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens</button>` : ""}<button class="filb ico borr" id="filBorr" title="Limpar filtros" aria-label="Limpar filtros"${n ? "" : " disabled"}><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 2.5l4 4-6.5 6.5H4.5l-2-2z M6.5 5.5l4 4 M7 13h6.5"/></svg></button></div>` : ""}`;
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   if (typeof ligarAdicionar === "function") ligarAdicionar();
   $("#lupB").onclick = () => { S.mpa = !S.mpa; mfiltros(); const b = $("#mbusca"); if (b) b.focus(); };
   $("#filB").onclick = () => { S.mfa = !S.mfa; mfiltros(); };
-  const bz = $("#filBorr"); if (bz) bz.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.mf = {}; mfiltros(); mtab(); };
-  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.mf = {}; mfiltros(); mtab(); };
+  const fl0 = $("#fLista"); if (fl0) fl0.onchange = (e) => { S.lista = e.target.value || null; mfiltros(); mtab(); };
+  const bz = $("#filBorr"); if (bz) bz.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; mfiltros(); mtab(); };
+  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; mfiltros(); mtab(); };
   const eg = $("#etqG"); if (eg) eg.onclick = () => etiquetarGrupo(mfiltradas());
   const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); const t = $("#mtool .filx"); if (!!S.mq !== !!t) { mfiltros(); const b = $("#mbusca"); b.focus(); b.setSelectionRange(b.value.length, b.value.length); } };
   const fo = $("#fOri"); if (fo) fo.onchange = (e) => { S.mori = e.target.value; mfiltros(); mtab(); };
