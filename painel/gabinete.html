@@ -245,6 +245,8 @@ body.dm-escuro .itb tr.iexp > td{ background:#1B2125; }
 .ilin{ display:flex; align-items:center; gap:4px; } .ilin .iseg{ margin:0 !important; } .iqb{ width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center; border:0; border-radius:9px; background:#E4E7E9; color:var(--tx); cursor:pointer; padding:0; flex:none; } .iqb:hover{ background:#D6DADD; } .iqb .ici{ width:16px; height:16px; } .iqb.fix{ background:#FBE7D5; color:#9A4E10; cursor:default; } .iq0{ font:500 9.5px Inter; color:var(--mu); line-height:1; }
 .iplst{ width:280px; } .iplst .ipl button{ justify-content:flex-start; align-items:center; gap:9px; } .iplst .ipl button.on{ background:#1D2226; color:#fff; }
 body.dm-escuro .iqb{ background:#272D33; }
+.iplst .ipl button.off{ opacity:.38; cursor:not-allowed; } .iplst .ipl button.off:hover{ background:none; } .iplst .ipl button small{ margin-left:auto; font-size:10.5px; color:#6E767D; } .iplst .ipl button.on{ background:#fff !important; color:var(--tx) !important; box-shadow:0 1px 3px rgba(0,0,0,.12); font-weight:600; }
+.iseg{ background:#E4E7E9; } .iseg button.on{ background:#fff !important; color:#1D2226 !important; box-shadow:0 1px 3px rgba(0,0,0,.14); } body.dm-escuro .iseg button.on{ background:#3A4248 !important; color:#F2F4F5 !important; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -259,7 +261,7 @@ body.dm-escuro .iqb{ background:#272D33; }
 <script src="gabinete-adicionar.js?cb=14"></script>
 <script src="gabinete-planilha.js?cb=2"></script>
 <script src="gabinete-cotas.js?cb=20"></script>
-<script src="gabinete-indicar.js?cb=29"></script>
+<script src="gabinete-indicar.js?cb=30"></script>
 <script src="sino-menu.js?cb=10"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */
 (function(){ var b=document.querySelector(".mnub"), m=document.querySelector(".mnu"); if(!b||!m) return;
