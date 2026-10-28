@@ -1810,5 +1810,11 @@ const MIGRACOES_INDEX = [
     "gab_itens.benef_tipo"
    ]
   ]
+ },
+ {
+  "num": 87,
+  "arquivo": "migracao-87-notificacao-conferencia-gabinete.sql",
+  "descricao": "Migração 87 (28/10/2026): tipo de notificação 'conferencia_gabinete' para o sino receber o resumo da rotina",
+  "objetos": []
  }
 ];
