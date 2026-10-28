@@ -89,7 +89,7 @@ function linhaInd(T, g, x, i, semExp) {
   const t = x ? tipoDe(x) : "", v = x ? +x.valor || 0 : 0;
   const ck = x ? [[x.municipio, "município"], [x.objeto, "objeto"], [t, "quem recebe"], [g.min ? v >= g.min : v > 0, g.min ? "valor ≥ " + rc(g.min) : "valor"], ...(t === "ent" ? [[String(x.cnpj || "").replace(/\D/g, "").length === 14, "CNPJ"], [x.razao_social || x.beneficiario, "razão social"]] : [])] : [];
   const quem = t === "ent" ? ""
-    : t ? `<input class="iauto" value="${esc(x.beneficiario || benefAuto(t, x, g))}" data-c="beneficiario" title="Preenchido pelo tipo; pode editar">` : "";
+    : "";
   return `<tr class="iw${x && IND.det === "a:" + x.id ? " on" : ""}" data-iw="${x ? x.id : ""}"><td class="n">${i + 1}</td>
     <td class="itp"><div class="ilin"><div class="iseg" title="Ente">${BTIPO.map(([k, l]) => `<button data-bt="${k}" class="${t === k ? "on" : ""}" title="${l}" aria-label="${l}">${ici(k)}</button>`).join("")}</div>
       <button class="iqb" data-qm title="Modalidade: ${esc(x && x.modalidade || "escolher")}">${x && x.modalidade ? ici(MOD_I[x.modalidade] || "doc2") : '<span class="iq0">mod.</span>'}</button>${g.trava ? `<button class="iqb" data-qf title="Função ${esc(g.trava)} · definida pela cota">${ici(AREA_I[g.trava] || "plan")}</button>` : `<button class="iqb" data-qf title="Função: ${esc(x && x.area || "escolher")}">${x && x.area ? ici(AREA_I[x.area] || "plan") : '<span class="iq0">função</span>'}</button>`}</div></td>
@@ -115,7 +115,7 @@ function planInd(T) {
     <tr class="itt"><td></td><td colspan="3">Total · ${R.length} itens</td><td class="r">${ni(Math.round(tot))}</td><td colspan="2" class="hm"></td></tr></tbody></table></div>`;
   const it = R.map((x) => AD.itens.find((y) => "a:" + y.id === x.id)), vaz = g.max ? Math.min(g.max > 10 ? 3 : g.max, Math.max(0, g.max - it.length)) : 1; // cota grande (LOA, 120): só 3 linhas em branco por vez
   return `<div class="iinf">${inf}${trava}${outras}${acs}</div><datalist id="indMun">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>
-    <div class="itw"><table class="itb ied"><thead><tr><th></th><th>Ente · modalidade · função</th><th>Município</th><th>Beneficiário · objeto</th><th class="r">Valor (R$)</th><th></th></tr></thead><tbody>
+    <div class="itw"><table class="itb ied"><thead><tr><th></th><th>Ente · modalidade · função</th><th>Município</th><th>Objeto</th><th class="r">Valor (R$)</th><th></th></tr></thead><tbody>
     ${it.map((x, i) => linhaInd(T, g, x, i)).join("")}${Array.from({ length: vaz }, (_, i) => linhaInd(T, g, null, it.length + i)).join("")}
     <tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>`;
 }
@@ -157,7 +157,7 @@ function ligarLinha(tr, T) {
       salvarLinha(T, tr, o); };
     if (el.tagName === "TEXTAREA") { const aj = () => { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }; el.addEventListener("input", aj); aj(); el.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); el.blur(); } }; } });
   tr.querySelectorAll("[data-bt]").forEach((b) => b.onclick = () => { const t = b.dataset.bt, ins = BTIPO.find((q) => q[0] === t)[2], cur = x() || {};
-    salvarLinha(T, tr, { benef_tipo: t, modalidade: g.mods.includes(ins) ? ins : cur.modalidade || null, beneficiario: t === "ent" ? cur.razao_social || null : benefAuto(t, { ...cur, area: cur.area }, g) }); });
+    salvarLinha(T, tr, { benef_tipo: t, modalidade: g.mods.includes(ins) ? ins : cur.modalidade || null, beneficiario: t === "ent" ? cur.razao_social || null : null }); });
   { const g2 = regrasInd(T), x0 = () => AD.itens.find((y) => y.id === tr.dataset.iw) || {};
     const qm = tr.querySelector("[data-qm]"); if (qm) qm.onclick = (e) => { e.stopPropagation(); popLista(qm, ["Transferência Especial", "Convênio", "Execução Direta"].map((m) => [m, MOD_I[m] || "doc2", SIG_I[m] + " · " + m, g2.mods.includes(m)]), x0().modalidade, (v) => salvarLinha(T, tr, { modalidade: v })); };
     const qf = tr.querySelector("[data-qf]"); if (qf) qf.onclick = (e) => { e.stopPropagation(); popLista(qf, AREAS.map((q) => q[1]).map((a) => [a, AREA_I[a] || "plan", a, g2.areas.includes(a)]), x0().area || g2.trava, (v) => salvarLinha(T, tr, { area: v })); }; }
@@ -406,7 +406,7 @@ function desenharInd() {
 function avisoCad(titulo, html, botao) { return new Promise((ok) => { let w = document.getElementById("cfCad"); if (w) w.remove();
   document.body.insertAdjacentHTML("beforeend", `<div id="cfCad" class="cfp"><div class="cfb icfb"><b>${titulo}</b><div class="icft">${html}</div><div><button class="lk0" data-x>Cancelar</button><button class="btnp ibtv" data-ok>${botao}</button></div></div></div>`);
   w = document.getElementById("cfCad"); const fim = (v) => { w.remove(); ok(v); }; w.querySelector("[data-x]").onclick = () => fim(false); w.onclick = (e) => { if (e.target === w) fim(false); }; w.querySelector("[data-ok]").onclick = () => fim(true); }); }
-const linhaCtl = (x, T, ori, obs) => ({ ano: IND.ano, origem: ori, municipio: x.municipio, regiao: regDe(x) || null, beneficiario: tipoDe(x) === "ent" ? [x.razao_social || x.beneficiario, x.cnpj ? "CNPJ " + x.cnpj : ""].filter(Boolean).join(" · ") : x.beneficiario, objeto: x.objeto, funcao: x.area || regrasInd(T).trava || null, modalidade: SIG_I[x.modalidade] || x.modalidade || null, valor: +x.valor || null, natureza: x.natureza || null, pl: x.pl || null, ...(obs ? { status_manual: "🔄 Indicada", observacao: obs, notas: { indicacao: x.id } } : {}) });
+const linhaCtl = (x, T, ori, obs) => ({ ano: IND.ano, origem: ori, municipio: String(x.municipio || "").toUpperCase(), tags: T.L && T.L.apelido ? [T.L.apelido] : null, regiao: regDe(x) || null, beneficiario: tipoDe(x) === "ent" ? [x.razao_social || x.beneficiario, x.cnpj ? "CNPJ " + x.cnpj : ""].filter(Boolean).join(" · ") : tipoDe(x) === "est" ? "Estado" : "Município", objeto: x.objeto, funcao: x.area || regrasInd(T).trava || null, modalidade: SIG_I[x.modalidade] || x.modalidade || null, valor: +x.valor || null, natureza: x.natureza || null, pl: x.pl || null, ...(obs ? { status_manual: "🔄 Indicada", observacao: obs, notas: { indicacao: x.id } } : {}) });
 async function fecharLista(T) {
   const it = (T.L ? AD.itens.filter((x) => x.lista_id === T.L.id) : []).filter(cheia), nov = it.filter((x) => !x.chave_emenda), vel = it.filter((x) => x.chave_emenda);
   if (!it.length) { await avisoCad("Nada para fechar", "<p>A lista ainda não tem emendas preenchidas.</p>", "Entendi"); return; }
