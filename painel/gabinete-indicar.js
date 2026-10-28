@@ -108,7 +108,7 @@ function planInd(T) {
   const inf = c ? `<b>Cota fixa do administrador</b> · ${esc(c.doc || c.base || "")}${c.min ? ` · mín. ${fm(c.min)}` : ""}${c.max ? ` · até ${c.max} emendas` : ""}${c.saude ? ` · Saúde no mínimo ${c.saude * 100}%` : ""}${c.abre && new Date(c.abre) > new Date() ? ` · abre em ${new Date(c.abre).toLocaleDateString("pt-BR")}` : ""}`
     : T.k === "plan" ? "Planilha do gabinete · itens do exercício " + IND.ano : T.k === "avulsos" ? "Indicações fora de lista" : `Lista do gabinete · ${esc(T.L.origem || "")}`;
   const outras = !c && edita ? (() => { const sv = S.cesc; S.cesc = "imp"; const ind = itensCotas().filter((x) => x.ano === IND.ano).reduce((s, x) => s + x.v, 0); S.cesc = sv; const q = QUOTA[IND.ano]; return q ? `<span class="isal">Impositivas ${IND.ano}: saldo <b>${rc(Math.max(0, q - ind))}</b></span>` : ""; })() : "";
-  const acs = edita && (T.L || T.cota) ? `<span class="iacs">${T.L ? `<button data-ireg>${ici("regras")}Regras</button>` : ""}<button data-idoc>${ici("impr")}Documento</button><button data-ixls>${ici("plan")}Planilha de indicação</button></span>` : "";
+  const acs = edita && (T.L || T.cota) ? `<span class="iacs">${T.L ? `<button data-ireg>${ici("regras")}Regras</button>` : ""}<button data-idoc>${ici("impr")}Documento</button><button data-ixls>${ici("plan")}Planilha de indicação</button><button data-ictl title="Depois de entregue: cria as emendas no Controle de Recursos">${ici("te")}Levar ao Controle</button></span>` : "";
   const trava = edita && g.trava ? `<span class="itrava">Área travada: <b>${esc(g.trava)}</b>${(AREAS.find((a) => a[1] === g.trava) || [])[0] ? ` · subação ${AREAS.find((a) => a[1] === g.trava)[0]}` : ""}</span>` : "";
   if (!edita) return `<div class="iinf">${inf}</div><div class="itw"><table class="itb"><thead><tr><th></th><th>Município</th><th>Objeto</th><th>Instr.</th><th class="r">Valor</th><th class="hm">Status</th><th></th></tr></thead><tbody>
     ${R.map((x, i) => `<tr class="ir${IND.det === x.id ? " on" : ""}" data-ir="${esc(x.id)}"><td class="n">${i + 1}</td><td>${esc(x.mun || "—")}</td><td class="ob">${esc(frase(x.obj || ""))}</td><td>${esc(x.ins)}</td><td class="r">${ni(Math.round(x.v))}</td><td class="hm st">${esc(x.st)}</td><td class="ar">›</td></tr>`).join("")}
@@ -393,7 +393,21 @@ function desenharInd() {
   const rg = p.querySelector("[data-ireg]"); if (rg) rg.onclick = () => formLista(T.L);
   const dc = p.querySelector("[data-idoc]"); if (dc) dc.onclick = () => documentoInd(T);
   const xl = p.querySelector("[data-ixls]"); if (xl) xl.onclick = () => xlsxInd(T);
+  const ct = p.querySelector("[data-ictl]"); if (ct) ct.onclick = () => levarControle(T, ct);
 }
+// depois de entregue ao Orçamento: cada indicação preenchida vira uma emenda no Controle (gab_recursos), com status "Indicada",
+// e a indicação fica marcada como Enviado e ligada a ela (chave_emenda) — não duplica se clicar de novo
+async function levarControle(T, btn) {
+  const it = (T.L ? AD.itens.filter((x) => x.lista_id === T.L.id) : []).filter((x) => cheia(x) && !x.chave_emenda);
+  if (!it.length) { btn.textContent = "Nada novo para levar"; return; }
+  if (btn.dataset.ok !== "1") { btn.dataset.ok = "1"; btn.textContent = `Confirmar: ${it.length} emenda${it.length > 1 ? "s" : ""} ao Controle`; return; }
+  const c = T.cota || {}, ori = c.t === "EX" ? "Emenda impositiva (Excesso da receita)" : c.t === "AN" ? "Emenda impositiva" : (T.L && T.L.origem) || "Emenda impositiva", hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+  const rows = it.map((x) => ({ ano: IND.ano, origem: ori, municipio: x.municipio, regiao: regDe(x) || null, beneficiario: tipoDe(x) === "ent" ? [x.razao_social || x.beneficiario, x.cnpj ? "CNPJ " + x.cnpj : ""].filter(Boolean).join(" · ") : x.beneficiario, objeto: x.objeto, funcao: x.area || regrasInd(T).trava || null, modalidade: SIG_I[x.modalidade] || x.modalidade || null, valor: +x.valor || null, natureza: x.natureza || null, status_manual: "🔄 Indicada", pl: x.pl || null, observacao: `${hoje} - Indicada ao setor de Orçamento${c.doc ? " (" + c.doc + ")" : ""}.` + (x.observacao ? "\n\n" + x.observacao : ""), notas: { indicacao: x.id } }));
+  btn.textContent = "Levando…";
+  try { const { data, error } = await supabaseClient.from("gab_recursos").insert(rows).select("id,notas"); if (error) throw error;
+    for (const r of data) await gravar("gab_itens", { id: r.notas.indicacao, status: "Enviado", chave_emenda: r.id });
+    if (typeof lerPrivado === "function") { MEU = []; await lerPrivado(); } btn.textContent = `${data.length} no Controle ✓`; desenhar();
+  } catch (er) { btn.textContent = "Erro: " + (er.message || er); } }
 function abrirInd() {
   IND.aberto = true; desenharInd(); const p = $("#indPg"); document.body.classList.add("ind-on");
   requestAnimationFrame(() => p.classList.add("on")); clearInterval(IND.tick); IND.tick = setInterval(contador, 1000);
