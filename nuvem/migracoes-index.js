@@ -1816,5 +1816,16 @@ const MIGRACOES_INDEX = [
   "arquivo": "migracao-87-notificacao-conferencia-gabinete.sql",
   "descricao": "Migração 87 (28/10/2026): tipo de notificação 'conferencia_gabinete' para o sino receber o resumo da rotina",
   "objetos": []
+ },
+ {
+  "num": 88,
+  "arquivo": "migracao-88-gabinete-indicacao-id.sql",
+  "descricao": "Migração 88 (28/10/2026): vínculo da emenda do Controle (gab_recursos) com a indicação de origem (gab_itens).",
+  "objetos": [
+   [
+    "column",
+    "gab_recursos.indicacao_id"
+   ]
+  ]
  }
 ];

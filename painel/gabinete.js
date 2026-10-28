@@ -242,9 +242,9 @@ const mk = (r) => r.id || "p" + (r.origem_planilha ?? MEU.indexOf(r));
 const supr = (r) => /^Suprimida/.test(r.status_manual || "");
 function meu() {
   if (!PODE) return `<div class="obra">Entre com a sua conta para ver o seu controle.</div>`;
+  if (S.lista && typeof opsListas === "function" && !opsListas().some((o) => o[0] === S.lista)) S.lista = null;
   const fLista = typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista", opsListas(), S.lista || "") : "";
   const ad = typeof adicionarHtml === "function" ? adicionarHtml() : "", topoC = (f) => `<p class="lead" style="margin-top:14px">O controle do gabinete: emendas, convênios e recursos informais, inclusive os que não aparecem no portal. Visível só para você.</p><div class="leqs cbar">${f}${ad}</div>`;
-  if (S.lista && typeof painelLista === "function") return topoC(fLista) + painelLista();
   if (!MEU.length) return topoC(fLista) + blocoPrivado();
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
@@ -322,7 +322,7 @@ const visto = (r) => { try { return localStorage.getItem("gab_visto_" + mk(r)) |
 const balao = (r) => { const ul = (r.notas || []).slice(-1)[0];
   if (r.atencao) return ["at", 4, "Marcado para atenção"]; if (r.obs_em && r.obs_em > visto(r)) return ["nv", 3, "Observação atualizada: " + (r.observacao || "")]; if (ul && ul.em > visto(r)) return ["nv", 3, "Nova nota: " + ul.t]; if (r.observacao || (r.notas || []).length) return ["tem", 2, r.observacao || ul.t]; return ["", 1, "Sem observação"]; };
 function mfiltradas() {
-  const q = norm(S.mq); return MEU.filter((r) => { if (S.mano && r.ano !== S.mano) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
+  const q = norm(S.mq); return MEU.filter((r) => { if (S.mano && r.ano !== S.mano) return false; if (S.lista && typeof listaDaLinha === "function" && listaDaLinha(r) !== S.lista) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
     if (S.mori && sigla(r.origem) !== S.mori) return false;
     const F = S.mf || {}; const vz = (k, cheio) => F[k] === "(vazio)" ? !cheio : null;
     if (vz("mod", r.modalidade) === false || vz("fun", r.funcao) === false || vz("reg", regDe(r)) === false) return false;

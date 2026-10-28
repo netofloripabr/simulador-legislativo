@@ -57,7 +57,10 @@ function adicionarHtml() {
   return `<div class="adw"><button class="adbtn" id="adBtn" title="Indicação de recursos" aria-label="Adicionar">+</button><div class="admenu" id="adMenu" hidden><button data-ad="item"><b>Item</b><span>Uma indicação, no formulário padrão</span></button><button data-ad="lista"><b>Lista</b><span>Formulário de indicações em Google Planilhas, gerado no seu Drive</span></button></div></div>`;
 }
 // filtro "Lista" de Meu controle: a planilha importada, cada lista criada e os itens avulsos
-const opsListas = () => [["", "Planilha do gabinete"], ...AD.listas.map((l) => [l.id, l.apelido || l.origem]), ...(AD.itens.some((x) => !x.lista_id) ? [["avulsos", "Itens avulsos"]] : [])];
+// filtro "Lista" do Controle (28/10/2026): o Controle é uma planilha só; as listas da Indicação viram só um filtro das emendas
+// que vieram delas (levadas ao Controle pelo cadeado), já no formato do Controle
+const listaDaLinha = (r) => { const i = r && r.indicacao_id; if (!i) return null; const x = AD.itens.find((y) => y.id === i); return x ? x.lista_id : null; };
+const opsListas = () => [["", "Toda a planilha"], ...AD.listas.filter((l) => (typeof MEU !== "undefined" ? MEU : []).some((r) => listaDaLinha(r) === l.id)).map((l) => [l.id, l.apelido || l.origem])];
 function ligarAdicionar() {
   const b = $("#adBtn"); if (!b) return; const m = $("#adMenu");
   b.onclick = (e) => { e.stopPropagation(); if (typeof abrirInd === "function") return abrirInd(); m.hidden = !m.hidden; }; document.addEventListener("click", () => { if (m) m.hidden = true; }, { once: true });
@@ -147,7 +150,7 @@ function formItem(x) {
     m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), msg = m.querySelector("[data-msg]");
       if (!o.municipio || !o.objeto || !o.valor) { msg.textContent = "Preencha município, objeto e valor."; return; }
       o.valor = +o.valor; msg.textContent = "Salvando…";
-      try { await gravar("gab_itens", { ...(x.id ? { id: x.id } : {}), ...o }); fechar(); S.aba = "meu"; S.lista = o.lista_id || "avulsos"; desenhar(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+      try { await gravar("gab_itens", { ...(x.id ? { id: x.id } : {}), ...o }); fechar(); S.aba = "meu"; desenhar(); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
     const ap = m.querySelector("[data-apaga]"); if (ap) ap.onclick = async () => { if (ap.dataset.ok !== "1") { ap.dataset.ok = "1"; ap.textContent = "Confirmar exclusão"; return; } await apagar("gab_itens", x.id); fechar(); desenhar(); };
   });
 }
@@ -167,7 +170,7 @@ function formLista(L) {
     m.querySelector("[data-salva]").onclick = async () => { const o = lerCampos(m), msg = m.querySelector("[data-msg]"); if (!o.origem) { msg.textContent = "Informe a origem legal."; return; }
       const regras = { disp: o.disp ? +o.disp : null, min: o.min ? +o.min : null, max: o.max ? +o.max : null, prazo: o.prazo || "", areas: [...m.querySelectorAll("[data-area]:checked")].map((c) => c.value) };
       msg.textContent = "Salvando…";
-      try { const nl = await gravar("gab_listas", { ...(L.id ? { id: L.id } : {}), origem: o.origem, apelido: o.apelido, modelo: (m.querySelector("[data-mod].on") || {}).dataset?.mod || L.modelo || null, regras }); fechar(); S.aba = "meu"; S.lista = nl.id; desenhar(); if (typeof abrirGerarPlanilha === "function" && !L.id) abrirGerarPlanilha(nl); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
+      try { const nl = await gravar("gab_listas", { ...(L.id ? { id: L.id } : {}), origem: o.origem, apelido: o.apelido, modelo: (m.querySelector("[data-mod].on") || {}).dataset?.mod || L.modelo || null, regras }); fechar(); S.aba = "meu"; desenhar(); if (typeof abrirGerarPlanilha === "function" && !L.id) abrirGerarPlanilha(nl); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } };
     const ap = m.querySelector("[data-apaga]"); if (ap) ap.onclick = async () => { if (ap.dataset.ok !== "1") { ap.dataset.ok = "1"; ap.textContent = "Confirmar: apaga a lista e os itens"; return; } await apagar("gab_listas", L.id); fechar(); S.lista = null; desenhar(); };
   });
 }
