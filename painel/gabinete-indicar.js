@@ -42,7 +42,7 @@ function barraSeg(c, it, tot) {
   const pc = (v) => Math.min(100, v / c.disp * 100), mS = c.disp * c.saude, mF = c.fundam ? c.disp * c.fundam : 0;
   const ok = (v, m) => v >= m - .005, lin = (cor, rot, v, m) => `<span><i style="background:${cor}"></i>${rot} <b>${rc(v)}</b>${m ? ` de ${rc(m)} ${ok(v, m) ? '<em class="ok">✓ atingido</em>' : `<em>faltam ${rc(m - v)}</em>`}` : ""}</span>`;
   return `<div class="t w4 iseg4"><div class="isbar"><i style="width:${pc(sd)}%;background:#1D2226"></i><i style="width:${pc(fd)}%;background:#6E767D"></i><i style="width:${pc(Math.max(0, ou))}%;background:#B3B9BE"></i>
-    <b class="imk${ok(sd, mS) ? " ok" : ""}" style="left:${c.saude * 100}%"><span>Saúde ${c.saude * 100}%</span></b>${mF ? `<b class="imk b2${ok(fd, mF) ? " ok" : ""}" style="left:${Math.min(100, pc(sd) + c.fundam * 100)}%" title="o FUNDAM começa onde termina a Saúde e precisa chegar a este marcador"><span>+ FUNDAM ${c.fundam * 100}%</span></b>` : ""}</div>
+    <b class="imk${ok(sd, mS) ? " ok" : ""}" style="left:${c.saude * 100}%"><span>Saúde ${c.saude * 100}%</span></b>${mF ? `<b class="imk b2${ok(fd, mF) ? " ok" : ""}" style="left:${Math.min(100, Math.max(pc(sd), c.saude * 100) + c.fundam * 100)}%" title="o FUNDAM começa onde termina a Saúde e precisa chegar a este marcador"><span>+ FUNDAM ${c.fundam * 100}%</span></b>` : ""}</div>
     <div class="islg">${lin("#1D2226", "Saúde", sd, mS)}${lin("#6E767D", "FUNDAM", fd, mF)}${lin("#B3B9BE", "Demais áreas", Math.max(0, ou), 0)}<span class="mut">${rc(tot)} de ${rc(c.disp)} · ${Math.round(tot / c.disp * 100)}%</span></div></div>`;
 }
 function contador() {
@@ -73,9 +73,12 @@ function objetosRef(q) {
 // ícones da página (traço fino, cor herdada)
 const ICI = { mun: '<path d="M2.5 13.5h11M4 13.5V6.5l4-3 4 3v7M6.5 13.5v-3h3v3"/>', ent: '<path d="M8 13.2S2.8 10 2.8 6.4A2.6 2.6 0 0 1 8 5a2.6 2.6 0 0 1 5.2 1.4C13.2 10 8 13.2 8 13.2z"/>', est: '<path d="M8 2.5l5 2v3.6c0 3-2.2 4.9-5 5.9-2.8-1-5-2.9-5-5.9V4.5z"/>',
   min: '<path d="M8 3v8M4.5 7.5L8 11l3.5-3.5M3.5 13.5h9"/>', sal: '<path d="M2.5 8h11M9.5 4.5L13 8l-3.5 3.5M2.5 3.5v9"/>', seta: '<path d="M4 6l4 4 4-4"/>', x: '<path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/>',
-  regras: '<path d="M3 4.5h10M3 8h10M3 11.5h10"/><circle cx="6" cy="4.5" r="1.3"/><circle cx="10.5" cy="8" r="1.3"/><circle cx="5" cy="11.5" r="1.3"/>', impr: '<path d="M4.5 6V2.5h7V6M4.5 11.5H3V6h10v5.5h-1.5M4.5 9.5h7v4h-7z"/>', plan: '<path d="M2.5 3h11v10h-11zM2.5 6.5h11M2.5 10h11M6.5 3v10"/>', lixo: '<path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5"/>' };
+  regras: '<path d="M3 4.5h10M3 8h10M3 11.5h10"/><circle cx="6" cy="4.5" r="1.3"/><circle cx="10.5" cy="8" r="1.3"/><circle cx="5" cy="11.5" r="1.3"/>', impr: '<path d="M4.5 6V2.5h7V6M4.5 11.5H3V6h10v5.5h-1.5M4.5 9.5h7v4h-7z"/>', plan: '<path d="M2.5 3h11v10h-11zM2.5 6.5h11M2.5 10h11M6.5 3v10"/>', sau: '<path d="M6.5 2.5h3v4h4v3h-4v4h-3v-4h-4v-3h4z"/>', edu: '<path d="M2.5 4.5l5.5-2 5.5 2-5.5 2zM4.5 5.5v4c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5v-4M13.5 4.5v4"/>', fun: '<path d="M2.5 13.5h11M3.5 13.5v-6h3v6M6.5 13.5V4.5h3v9M9.5 13.5v-4h3v4"/>', agr: '<path d="M8 13.5V7M8 7c0-2.5 2-4.5 5-4.5 0 3-2 4.5-5 4.5zM8 9c0-2-1.6-3.5-4.5-3.5C3.5 8 5 9 8 9z"/>', inf: '<path d="M5 13.5l2-11M11 13.5l-2-11M8 4v1.5M8 7.5v1.5M8 11v1.5"/>', seg: '<path d="M8 2l1.6 3.4 3.7.4-2.8 2.5.8 3.7L8 10.2 4.7 12l.8-3.7L2.7 5.8l3.7-.4z"/>', soc: '<circle cx="5.5" cy="5.5" r="2"/><circle cx="10.5" cy="5.5" r="2"/><path d="M2 12.5c.4-2 1.8-3 3.5-3s3.1 1 3.5 3M7.5 12.5c.4-2 1.5-3 3-3s2.8 1 3.2 3"/>', lixo: '<path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5"/>' };
 const ici = (k) => `<svg class="ici" viewBox="0 0 16 16" aria-hidden="true">${ICI[k]}</svg>`;
 const SIG_I = { "Transferência Especial": "TE", "Convênio": "CO", "Execução Direta": "ED", "Convênio Simplificado": "CS", "Termo de Fomento": "TF", "Termo de Colaboração": "TC", "Acordo de Cooperação": "AC" };
+// modalidades na linha: as três principais (TE, CO, ED) + a atual, se for outra; as demais ficam no detalhamento
+const modsCurtas = (g, x) => { const P = ["Transferência Especial", "Convênio", "Execução Direta"].filter((m) => g.mods.includes(m)); return x && x.modalidade && !P.includes(x.modalidade) ? [...P, x.modalidade] : P; };
+const AREA_I = { "Saúde": "sau", "Educação": "edu", "FUNDAM": "fun", "Agricultura": "agr", "Infraestrutura e Mobilidade": "inf", "Segurança Pública": "seg", "Fundo Social": "soc" };
 const BTIPO = [["mun", "Município", "Transferência Especial"], ["ent", "Entidade", "Convênio"], ["est", "Estado", "Execução Direta"]];
 const tipoDe = (x) => x.benef_tipo || (x.modalidade === "Transferência Especial" ? "mun" : /Convênio|Termo|Acordo/.test(x.modalidade || "") ? "ent" : x.modalidade === "Execução Direta" ? "est" : "");
 const benefAuto = (t, x, g) => { const a = AREAS.find((q) => q[1] === (x.area || g.trava)) || [];
@@ -87,17 +90,18 @@ function linhaInd(T, g, x, i, semExp) {
   const quem = t === "ent" ? ""
     : t ? `<input class="iauto" value="${esc(x.beneficiario || benefAuto(t, x, g))}" data-c="beneficiario" title="Preenchido pelo tipo; pode editar">` : "";
   return `<tr class="iw${x && IND.det === "a:" + x.id ? " on" : ""}" data-iw="${x ? x.id : ""}"><td class="n">${i + 1}</td>
-    <td class="itp"><div class="iseg">${BTIPO.map(([k, l]) => `<button data-bt="${k}" class="${t === k ? "on" : ""}" title="${l}" aria-label="${l}">${ici(k)}</button>`).join("")}</div>${x ? `<select data-c="modalidade" class="iins" title="${esc(x.modalidade || "Instrumento")}"><option value=""${x.modalidade ? "" : " selected"}>—</option>${g.mods.concat(g.mods.includes(x.modalidade) || !x.modalidade ? [] : [x.modalidade]).map((m) => `<option value="${esc(m)}"${x.modalidade === m ? " selected" : ""}>${esc(SIG_I[m] || m)}</option>`).join("")}</select>` : ""}</td>
+    <td class="itp"><div class="iseg" title="Ente">${BTIPO.map(([k, l]) => `<button data-bt="${k}" class="${t === k ? "on" : ""}" title="${l}" aria-label="${l}">${ici(k)}</button>`).join("")}</div>
+      <div class="iseg ism" title="Modalidade">${modsCurtas(g, x).map((m) => `<button data-bm="${esc(m)}" class="${x && x.modalidade === m ? "on" : ""}" title="${esc(m)}">${esc(SIG_I[m] || m)}</button>`).join("")}</div>
+      <div class="iseg isf" title="Função">${g.trava ? `<button class="on fix" title="${esc(g.trava)} · travada pela cota">${ici(AREA_I[g.trava] || "plan")}<span>${esc(g.trava)}</span></button>` : g.areas.map((a) => `<button data-ba="${esc(a)}" class="${x && x.area === a ? "on" : ""}" title="${esc(a)}">${ici(AREA_I[a] || "plan")}</button>`).join("")}</div></td>
     <td><input data-c="municipio" list="indMun" value="${esc(x ? x.municipio || "" : "")}" placeholder="${x ? "Município" : "indicar"}"></td>
     <td class="iob"><div class="iqm">${quem}</div><div><textarea data-c="objeto" rows="1" placeholder="Objeto">${esc(x ? x.objeto || "" : "")}</textarea><button class="imais" data-iobj title="Objetos de referência">+</button></div></td>
-    ${g.trava ? "" : `<td><select data-c="area"><option value=""></option>${g.areas.map((a) => `<option${x && x.area === a ? " selected" : ""}>${esc(a)}</option>`).join("")}</select></td>`}
     <td class="r iv2"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"></td>
     <td class="iac">${x ? `<button data-iexp class="iseta${IND.det === "a:" + x.id ? " ab" : ""}" title="Detalhar">${ici("seta")}</button>` : ""}</td></tr>
-    ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}" data-ick="${x.id}"><td></td><td colspan="${g.trava ? 5 : 6}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
-    ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${g.trava ? 6 : 7}">${detForm(x, T, g)}</td></tr>` : ""}`;
+    ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}" data-ick="${x.id}"><td></td><td colspan="${5}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
+    ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${6}">${detForm(x, T, g)}</td></tr>` : ""}`;
 }
 function rodapeInd(T, g, it) { it = it.filter(cheia); const tot = it.reduce((s, x) => s + (+x.valor || 0), 0);
-  return `<td></td><td colspan="${g.trava ? 3 : 4}">Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}${g.disp ? `<small class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou " + moeda(tot - g.disp) : "saldo " + moeda(g.disp - tot)}</small>` : ""}</td><td></td>`; }
+  return `<td></td><td colspan="${3}">Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}${g.disp ? `<small class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou " + moeda(tot - g.disp) : "saldo " + moeda(g.disp - tot)}</small>` : ""}</td><td></td>`; }
 function planInd(T) {
   if (!T) return `<div class="iinf">Nenhuma lista neste ano. Use “+ nova lista” para começar.</div>`;
   const R = linhasInd(T), c = T.cota, tot = R.reduce((s, x) => s + x.v, 0), edita = T.k !== "plan", g = regrasInd(T);
@@ -111,7 +115,7 @@ function planInd(T) {
     <tr class="itt"><td></td><td colspan="3">Total · ${R.length} itens</td><td class="r">${ni(Math.round(tot))}</td><td colspan="2" class="hm"></td></tr></tbody></table></div>`;
   const it = R.map((x) => AD.itens.find((y) => "a:" + y.id === x.id)), vaz = g.max ? Math.min(g.max > 10 ? 3 : g.max, Math.max(0, g.max - it.length)) : 1; // cota grande (LOA, 120): só 3 linhas em branco por vez
   return `<div class="iinf">${inf}${trava}${outras}${acs}</div><datalist id="indMun">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>
-    <div class="itw"><table class="itb ied"><thead><tr><th></th><th>Quem recebe · instrumento</th><th>Município</th><th>Beneficiário · objeto</th>${g.trava ? "" : "<th>Área</th>"}<th class="r">Valor (R$)</th><th></th></tr></thead><tbody>
+    <div class="itw"><table class="itb ied"><thead><tr><th></th><th>Ente · modalidade · função</th><th>Município</th><th>Beneficiário · objeto</th><th class="r">Valor (R$)</th><th></th></tr></thead><tbody>
     ${it.map((x, i) => linhaInd(T, g, x, i)).join("")}${Array.from({ length: vaz }, (_, i) => linhaInd(T, g, null, it.length + i)).join("")}
     <tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>`;
 }
@@ -154,6 +158,8 @@ function ligarLinha(tr, T) {
     if (el.tagName === "TEXTAREA") { const aj = () => { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; }; el.addEventListener("input", aj); aj(); el.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); el.blur(); } }; } });
   tr.querySelectorAll("[data-bt]").forEach((b) => b.onclick = () => { const t = b.dataset.bt, ins = BTIPO.find((q) => q[0] === t)[2], cur = x() || {};
     salvarLinha(T, tr, { benef_tipo: t, modalidade: g.mods.includes(ins) ? ins : cur.modalidade || null, beneficiario: t === "ent" ? cur.razao_social || null : benefAuto(t, { ...cur, area: cur.area }, g) }); });
+  tr.querySelectorAll("[data-bm]").forEach((b) => b.onclick = () => salvarLinha(T, tr, { modalidade: b.dataset.bm }));
+  tr.querySelectorAll("[data-ba]").forEach((b) => b.onclick = () => salvarLinha(T, tr, { area: b.dataset.ba }));
   tr.querySelectorAll("[data-iq]").forEach((b) => b.onclick = () => { const it = T.L ? AD.itens.filter((y) => y.lista_id === T.L.id && y.id !== tr.dataset.iw) : [];
     const v = b.dataset.iq === "min" ? g.min : Math.max(0, Math.round((g.disp - it.reduce((s, y) => s + (+y.valor || 0), 0)) * 100) / 100); salvarLinha(T, tr, { valor: v }); });
   const abre = () => { if (!tr.dataset.iw) return; IND.det = IND.det === "a:" + tr.dataset.iw ? null : "a:" + tr.dataset.iw; desenharInd(); };
@@ -332,7 +338,7 @@ function detForm(x, T, g) {
     const S2 = (f, ops, v) => `<select data-d="${f}"><option value="">—</option>${ops.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}${v && !ops.includes(v) ? `<option selected>${esc(v)}</option>` : ""}</select>`, t = tipoDe(x);
     return `<div class="dm2 fm2 iexpd">
       <div class="bnt">
-      ${tipoDe(x) === "ent" ? F("hash", "CNPJ", I("cnpj", x.cnpj, "00.000.000/0000-00"), 2) + F("pred", "Razão social", I("razao_social", x.razao_social || x.beneficiario), 2) : ""}${F("moeda", "Natureza", S2("natureza", ["Investimento", "Custeio"], x.natureza), 2)}${F("ok", "Status", S2("status", STATUS, x.status || "Em análise"), 2)}
+      ${tipoDe(x) === "ent" ? F("hash", "CNPJ", I("cnpj", x.cnpj, "00.000.000/0000-00"), 2) + F("pred", "Razão social", I("razao_social", x.razao_social || x.beneficiario), 2) : ""}${F("selo", "Modalidade (todas)", S2("modalidade", g.mods, x.modalidade), 2)}${g.trava ? "" : F("lei", "Função", S2("area", g.areas, x.area), 2)}${F("moeda", "Natureza", S2("natureza", ["Investimento", "Custeio"], x.natureza), 2)}${F("ok", "Status", S2("status", STATUS, x.status || "Em análise"), 2)}
       ${F("pessoa", "Líder", I("lideranca", x.lideranca, "Escolha ou digite", "indPes"), 2)}${F("pessoa", "Contato", I("contato", x.contato, "Telefone ou e-mail"), 2)}
       ${F("band", "Prioridade", S2("prioridade", PRIOR, x.prioridade), 2)}${F("lei", "Lei / PL", I("pl", x.pl, "PL nº 0633/2026"), 2)}
       ${F("doc", "Justificativa", `<textarea data-d="justificativa" rows="2" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 4)}
