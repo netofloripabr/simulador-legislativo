@@ -14,3 +14,4 @@ nuvem/backup/
 
 # dados públicos de emendas: publicados no ramo dados-emendas pela rotina diária
 dados/gabinete/
+.conferencia/
