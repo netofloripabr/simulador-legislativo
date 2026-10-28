@@ -84,7 +84,7 @@ const moeda = (v) => (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 
 function linhaInd(T, g, x, i, semExp) {
   const t = x ? tipoDe(x) : "", v = x ? +x.valor || 0 : 0;
   const ck = x ? [[x.municipio, "município"], [x.objeto, "objeto"], [t, "quem recebe"], [g.min ? v >= g.min : v > 0, g.min ? "valor ≥ " + rc(g.min) : "valor"], ...(t === "ent" ? [[String(x.cnpj || "").replace(/\D/g, "").length === 14, "CNPJ"], [x.razao_social || x.beneficiario, "razão social"]] : [])] : [];
-  const quem = t === "ent" ? `<div class="irz"><input data-c="razao_social" data-ent autocomplete="off" value="${esc(x.razao_social || x.beneficiario || "")}" placeholder="Razão social: digite para buscar">${x.cnpj ? `<small class="mut">CNPJ ${esc(x.cnpj)}</small>` : ""}</div>`
+  const quem = t === "ent" ? ""
     : t ? `<input class="iauto" value="${esc(x.beneficiario || benefAuto(t, x, g))}" data-c="beneficiario" title="Preenchido pelo tipo; pode editar">` : "";
   return `<tr class="iw${x && IND.det === "a:" + x.id ? " on" : ""}" data-iw="${x ? x.id : ""}"><td class="n">${i + 1}</td>
     <td class="itp"><div class="iseg">${BTIPO.map(([k, l]) => `<button data-bt="${k}" class="${t === k ? "on" : ""}" title="${l}" aria-label="${l}">${ici(k)}</button>`).join("")}</div>${t ? `<select data-c="modalidade" class="iins" title="${esc(x.modalidade || "")}">${g.mods.concat(g.mods.includes(x.modalidade) || !x.modalidade ? [] : [x.modalidade]).map((m) => `<option value="${esc(m)}"${x.modalidade === m ? " selected" : ""}>${esc(SIG_I[m] || m)}</option>`).join("")}</select>` : ""}</td>
@@ -162,7 +162,6 @@ function ligarLinha(tr, T) {
   const l = tr.querySelector("[data-ilimpa]"); if (l) l.onclick = async () => { if (l.dataset.ok !== "1") { l.dataset.ok = "1"; l.textContent = "limpar?"; l.classList.add("ok"); setTimeout(() => { l.dataset.ok = ""; l.innerHTML = ici("x"); l.classList.remove("ok"); }, 3000); return; }
     try { await apagar("gab_itens", tr.dataset.iw); if (IND.det === "a:" + tr.dataset.iw) IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
   tr.querySelector("[data-iobj]").onclick = (e) => { e.stopPropagation(); popObjeto(tr, T); };
-  const en = tr.querySelector("[data-ent]"); if (en) ligarEntidade(en, tr, T);
 }
 function marcaAtiva(id) { if (!id || IND.ativa === id) return; IND.ativa = id; document.querySelectorAll("#indPg tr.ick").forEach((r) => r.classList.toggle("vis", r.dataset.ick === id || IND.det === "a:" + r.dataset.ick)); }
 function ligarPlan(p, T) { p.querySelectorAll("tr.iw").forEach((tr) => ligarLinha(tr, T));
@@ -173,7 +172,7 @@ async function entidades() { if (ENTS) return ENTS; await lerTodas(); const M = 
   TODAS.forEach((e) => { const d = String(e.doc || "").replace(/\D/g, ""); if (d.length !== 14 || /Prefeitura|Munic/i.test(e.tben || "")) return; const k = d;
     (M[k] = M[k] || { nome: e.benef, cnpj: d.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5"), mun: e.mun, n: 0, v: 0 }).n++; M[k].v += +e.v || 0; });
   return (ENTS = Object.values(M)); }
-function ligarEntidade(inp, tr, T) {
+function ligarEntidade(inp, tr, T, det) {
   let pop = null; const fecha = () => { if (pop) { pop.remove(); pop = null; } };
   const mostra = async () => { const q = norm(inp.value || "").split(/\s+/).filter((w) => w.length > 1); if (!q.length) { fecha(); return; }
     const E = await entidades(), mun = norm((tr.querySelector('[data-c="municipio"]') || {}).value || "");
@@ -183,6 +182,7 @@ function ligarEntidade(inp, tr, T) {
     const r = inp.getBoundingClientRect(); pop.style.top = Math.min(r.bottom + 4, innerHeight - 320) + "px"; pop.style.left = Math.max(12, Math.min(r.left, innerWidth - 450)) + "px";
     pop.innerHTML = `<div class="ipl">${L.map((e, i) => `<button data-en="${i}"><span><b>${esc(e.nome)}</b><small>${esc(e.mun)} · CNPJ ${esc(e.cnpj)}</small></span><small>${e.n}×</small></button>`).join("")}</div>`;
     pop.querySelectorAll("[data-en]").forEach((b) => b.onmousedown = (ev) => { ev.preventDefault(); const e = L[+b.dataset.en], x = AD.itens.find((y) => y.id === tr.dataset.iw) || {}; fecha();
+      inp.value = e.nome; const cj = det && det.querySelector('[data-d="cnpj"]'); if (cj) cj.value = e.cnpj;
       salvarLinha(T, tr, { razao_social: e.nome, beneficiario: e.nome, cnpj: e.cnpj, ...(x.municipio ? {} : { municipio: e.mun }) }); }); };
   let tm; inp.addEventListener("input", () => { clearTimeout(tm); tm = setTimeout(mostra, 180); });
   inp.addEventListener("blur", () => setTimeout(fecha, 150)); inp.addEventListener("keydown", (e) => { if (e.key === "Escape") fecha(); });
@@ -338,6 +338,7 @@ function detForm(x, T, g) {
       <datalist id="indPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist><div class="idrod"><span class="isv mut" data-dmsg></span><button class="ilix" data-ilimpa title="Excluir esta emenda">${ici("lixo")}Excluir emenda</button></div></div>`;
 }
 function ligarDet(d, x, T) {
+    { const en = d.querySelector('[data-d="razao_social"]'), tr = document.querySelector(`#indPg tr.iw[data-iw="${x.id}"]`); if (en && tr) { en.placeholder = "Digite para buscar entidades já atendidas"; en.autocomplete = "off"; ligarEntidade(en, tr, T, d); } }
     const lx = d.querySelector("[data-ilimpa]"); if (lx) lx.onclick = async () => { if (lx.dataset.ok !== "1") { lx.dataset.ok = "1"; lx.innerHTML = ici("lixo") + "Confirmar exclusão"; lx.classList.add("ok"); setTimeout(() => { lx.dataset.ok = ""; lx.innerHTML = ici("lixo") + "Excluir emenda"; lx.classList.remove("ok"); }, 4000); return; }
       try { await apagar("gab_itens", x.id); IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
     const msg = d.querySelector("[data-dmsg]");
