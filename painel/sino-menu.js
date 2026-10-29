@@ -36,7 +36,8 @@ function poeGabinete(){ document.querySelectorAll("a[href^='gabinete']").forEach
     var ufa=document.querySelector(".sl-uf"), cg=document.querySelector(".cgBox .cgTab");
     if(ufa&&cg){ var rw=cg.parentNode.classList.contains("cgRow")?cg.parentNode:null; if(!rw){ rw=document.createElement("div"); rw.className="cgRow"; cg.before(rw); rw.appendChild(cg); } if(ufa.parentNode!==rw) rw.appendChild(ufa); ufa.style.marginLeft=""; var sv0=t.querySelector(".sl-nav")||t.querySelector(".mnuw"); if(sv0) sv0.style.marginLeft="auto"; return; }
     var uf2=t.querySelector(".sl-uf"), mw=t.querySelector(".mnuw"), alvo=mw; while(alvo&&alvo.parentNode!==t) alvo=alvo.parentNode; if(uf2&&alvo&&uf2.nextElementSibling!==alvo) alvo.before(uf2);
-    if(uf2) uf2.style.marginLeft="auto"; else { var sv=t.querySelector(".sl-nav")||mw; if(sv) sv.style.marginLeft="auto"; }
+    // o estado vai para a direita, junto do menu: zera a margem automática que a lista de Parlamentares deixou no menu (senão o espaço se divide e o "SC" fica no meio)
+    if(uf2){ uf2.style.marginLeft="auto"; [t.querySelector(".sl-nav"), mw].forEach(function(x){ if(x&&x!==uf2) x.style.marginLeft=""; }); } else { var sv=t.querySelector(".sl-nav")||mw; if(sv) sv.style.marginLeft="auto"; }
   }
   var go=function(){ montar(); var t=document.getElementById("topoSL"); if(t) new MutationObserver(function(){ montar(); }).observe(t,{childList:true,subtree:true}); var ap=document.getElementById("app"); if(ap) new MutationObserver(function(){ montar(); }).observe(ap,{childList:true}); };
   document.readyState==="loading"?document.addEventListener("DOMContentLoaded",go):go();

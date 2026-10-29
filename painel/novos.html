@@ -213,6 +213,14 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .qsd{ display:inline-block; border-radius:50%; vertical-align:-1px; flex:none; } .qsf span{ display:block; font-size:11px; color:var(--ter); margin:2px 0 5px; } .qsf div{ display:flex; gap:3px; flex-wrap:wrap; margin-bottom:10px; }
 @media (max-width:700px){ .qsc{ grid-template-columns:1fr; } }
 .vbt{ font-size:11px; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:var(--sec); margin:18px 0 6px; } .vbt small{ text-transform:none; letter-spacing:0; font-weight:400; color:var(--ter); margin-left:6px; } .vbl{ font-size:13px; color:var(--sec); line-height:1.55; margin:4px 0 8px; } .qtab.vbr td small{ display:block; }
+.vbs{ margin-top:6px; } .vbctl{ display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; margin-bottom:16px; } .vbctl > span{ font-size:12.5px; color:var(--ter); }
+.vbseg{ display:inline-flex; background:rgba(242,244,245,.05); border-radius:10px; padding:2px; } .vbseg button{ border:0; background:none; color:var(--ter); font:500 12.5px Inter; padding:7px 11px; border-radius:8px; cursor:pointer; } .vbseg button.on{ background:rgba(242,244,245,.12); color:var(--texto); }
+.vbk{ display:flex; gap:28px; flex-wrap:wrap; } .vbk small{ display:block; font-size:12px; color:var(--ter); } .vbk b{ display:block; font:800 24px/1.2 Inter; color:var(--texto); } .vbk b.pos{ color:#34E84A; } .vbk b.neg{ color:#E8432A; } .vbk em{ display:block; font-style:normal; font-size:11.5px; color:var(--ter); }
+.vbbar{ display:flex; height:22px; border-radius:7px; overflow:hidden; background:rgba(242,244,245,.06); margin:14px 0 6px; } .vbbar i{ display:block; height:100%; transition:width .3s; }
+.vbit{ display:grid; grid-template-columns:12px minmax(0,1fr) minmax(90px,160px) 130px; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid rgba(242,244,245,.07); } .vbit > i{ width:10px; height:10px; border-radius:3px; } .vbit span small{ display:block; font-size:11.5px; color:var(--ter); } .vbit input[type=range]{ width:100%; accent-color:#A9AEB3; } .vbit input:disabled{ opacity:.3; }
+.vbv{ text-align:right; } .vbv b{ font-weight:700; } .vbv small{ display:block; font-size:11px; color:var(--ter); }
+.vbfora{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px; } .vbfora div{ background:rgba(242,244,245,.04); border-radius:10px; padding:10px 12px; font-size:12px; color:var(--ter); } .vbfora b{ display:block; font-size:13px; color:var(--texto); font-weight:600; }
+@media (max-width:640px){ .vbit{ grid-template-columns:12px minmax(0,1fr) 110px; } .vbit input{ grid-column:2/-1; } }
 </style>
 <script src="uf.js?cb=8"></script>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
@@ -250,8 +258,8 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="../nuvem/config.js?cb=2"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="novos-uf.js?cb=18"></script>
-<script src="novos.js?cb=215"></script>
+<script src="novos.js?cb=217"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
-<script src="sino-menu.js?cb=10"></script>
+<script src="sino-menu.js?cb=11"></script>
 </body>
 </html>
