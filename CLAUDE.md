@@ -185,6 +185,14 @@ conversa antiga:
   devem ser confirmadas normalmente — essa autorização é sobre o fluxo de
   trabalho git deste projeto, não um cheque em branco geral.
 
+## Transferência e infraestrutura
+
+`TRANSFERENCIA.md` lista onde cada parte vive (GitHub, Pages, Supabase,
+Edge Functions, rotinas), as contas a transferir, o que só existe no
+computador (fora do git) e o que ficou de fora da cópia do Supabase em
+18/10/2026. Ao mudar serviço, conta, rotina ou pasta ignorada pelo git,
+atualizar esse arquivo junto.
+
 ## Histórico
 
 Este projeto começou como um único arquivo HTML no claude.ai e foi dividido

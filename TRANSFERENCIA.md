@@ -1,0 +1,197 @@
+# Transferência e manutenção do projeto
+
+Guia para quem assume o SEL (ou para um computador novo): onde cada parte
+vive, o que precisa ser entregue além do GitHub, como montar o ambiente e o
+que conferir. Nasceu do checkup geral de 29/10/2026 — os achados daquele dia
+estão no fim. **Este repositório é público**: nenhuma senha, token ou chave
+secreta entra aqui, só onde cada coisa está guardada.
+
+## 1. Mapa: onde cada parte vive
+
+| Parte | Onde | Observação |
+|---|---|---|
+| Código do site + dados públicos | GitHub `netofloripabr/simulador-legislativo`, ramo `main` | Fonte da verdade do código |
+| Site publicado | GitHub Pages — `netofloripabr.github.io/simulador-legislativo` | Publica sozinho a cada push no `main` |
+| Emendas (dados públicos SC) | GitHub, ramo `dados-emendas` | Sobrescrito todo dia pela rotina (seção 6); localmente fica em `dados/gabinete/` (fora do git) |
+| Banco, contas de usuário, regras de acesso | Supabase, projeto `uxqxhvzeptuedyggwguh`, organização **SimulaLEGIS** (plano gratuito) | O endereço e a chave pública estão em `nuvem/config.js` |
+| Projeto Supabase antigo | `qgjfkpsjveatonziwkvj` | **Bloqueado** (egress e logs). Não usar; só referência histórica |
+| Funções da nuvem (Edge Functions) | Código em `nuvem/funcoes/` e `nuvem/edge-functions/` | **Não estão publicadas no projeto novo** (seção 5) |
+| Pagamentos | Mercado Pago (token nas *Secrets* das Edge Functions do Supabase) | Economia desligada desde a migração 53 |
+| Material interno | Só no computador: `marketing/`, `nuvem/backup/`, `Outros documentos/`, `apresentacao/`, logo | Fora do GitHub (seção 3) |
+
+## 2. Contas e acessos a transferir
+
+Cada uma é entregue **pelo dono da conta**, no próprio serviço — nunca por
+arquivo ou mensagem com senha.
+
+- [ ] **GitHub** — conta `netofloripabr`. Adicionar o novo responsável como
+  colaborador do repositório (Settings → Collaborators) ou transferir o
+  repositório. Atenção: transferir muda o endereço do GitHub Pages.
+- [ ] **Supabase** — organização SimulaLEGIS. Convidar o novo responsável
+  como membro (Organization → Team). A senha do banco fica só no painel
+  (Project Settings → Database).
+- [ ] **Admin do app** — o painel do administrador vale para quem está na
+  tabela `admins` do banco. Incluir o novo responsável lá.
+- [ ] **Login com Google** — o provedor Google está configurado no Supabase
+  (Authentication → Providers), com um cliente OAuth no Google Cloud do dono
+  atual. Se a conta Google mudar, recriar o cliente e atualizar no Supabase.
+- [ ] **Mercado Pago** — credenciais de produção da conta do dono. Só importa
+  se a economia for religada.
+- [ ] **Claude** — os conectores (Supabase, GitHub) são por conta; quem
+  assumir conecta os seus.
+
+## 3. O que NÃO está no GitHub — precisa de backup separado
+
+Conferido em 29/10/2026 (cerca de 130 MB não versionados + pastas ignoradas
+de propósito). Para transferir, copie a pasta `SEL` inteira para um HD externo
+ou uma nuvem **privada** — não basta clonar o GitHub.
+
+| Pasta / arquivo | Tamanho | Por que está fora | Cuidado |
+|---|---|---|---|
+| `marketing/` | ~249 MB | Estratégia interna; repositório é público (decisão 28/08) | Privado |
+| `nuvem/backup/` | ~33 MB | Cópia do banco de 18/10 (estrutura, dados **e contas**) | **Sensível** — dado pessoal (LGPD). Só em lugar criptografado |
+| `dados/fotos/sc-2024/` | ~19 MB, 2.423 fotos | Nunca foi versionada | A tela de Resultados procura `dados/fotos/sc-{ano}/`; sem elas o site mostra só a inicial |
+| `Outros documentos/` | ~64 MB | Cadernos, boas-vindas, cenários, prints | — |
+| `apresentacao/` (PDFs AMFRI, AMVE, cadernos) | parte de ~31 MB | Material de apresentação | — |
+| `Logo.ai`, `Logo/` | — | Arquivos de design | — |
+| `_proto-*.html`, `painel/mesa-*.html`, `cmp-live-*.png` | — | Protótipos e prints de estudo | Podem ser descartados |
+| `copiar-supabase.command`, `restaurar-no-novo.command` | — | Scripts da migração de 18/10 | Ver seção 5 |
+| `dados/gabinete/` | ~6 MB | Vem do ramo `dados-emendas` | Recuperável do GitHub |
+
+Para conferir de novo o que está fora do git:
+```bash
+git status --short
+```
+
+## 4. Montar um computador novo (Mac)
+
+1. Ferramentas de desenvolvimento (git e Python 3):
+   ```bash
+   xcode-select --install
+   ```
+2. **Node.js** (versão LTS, instalador em nodejs.org) — usado pelos testes
+   e por `ferramentas/conferir_split_interface.js`.
+3. Clonar o repositório (precisa de acesso SSH ao GitHub configurado):
+   ```bash
+   git clone git@github.com:netofloripabr/simulador-legislativo.git ~/Desktop/SEL
+   ```
+4. Copiar por cima, do backup, as pastas da seção 3.
+5. Abrir localmente: dois cliques em `index.html`, ou o servidor do preview
+   (`.claude/launch.json`, porta 8765):
+   ```bash
+   python3 -m http.server 8765
+   ```
+6. Só se for restaurar ou copiar banco: `libpq` (psql/pg_dump), que os scripts
+   `.command` esperam em `/opt/homebrew/opt/libpq/bin` (Homebrew).
+7. Conferir que tudo funciona:
+   ```bash
+   node testes/eleitoral.test.js
+   ```
+   ```bash
+   node testes/pontuacao.test.js
+   ```
+
+## 5. Supabase — estado atual e o que falta reativar
+
+Em 18/10/2026 o banco foi copiado do projeto antigo (bloqueado) para o novo
+com `copiar-supabase.command` / `restaurar-no-novo.command`. Essa cópia levou
+**só o schema `public` e as contas**. Por isso:
+
+- **Migrações 2 a 70** existem de fato no banco, mas não aparecem no histórico
+  do Supabase (vieram pela cópia). As 71 a 88 foram aplicadas pelo MCP e
+  aparecem. A aba **Rotinas** do painel admin confere objeto por objeto, então
+  mostra o estado real.
+- **Ficou de fora da cópia** (conferido em 29/10/2026):
+  - bucket de arquivos `apuracao` e a regra `apuracao_bucket_leitura`
+    (migração 54);
+  - extensões `pg_cron` e `pg_net` e o agendamento `apuracao-tse`;
+  - as 4 Edge Functions: `apuracao-tse`, `bots-aplicar`, `criar-pagamento`,
+    `webhook-mercadopago`;
+  - a URL da rotina de apuração em `config_privada` ainda aponta para o
+    **projeto antigo**.
+
+Para reativar a apuração ao vivo numa próxima eleição:
+1. Reaplicar a parte de bucket/cron das migrações 54, 56, 58 e 59 (pelo MCP do
+   Supabase, `apply_migration`).
+2. Publicar `nuvem/funcoes/apuracao-tse/index.ts` como Edge Function.
+3. Atualizar `apuracao_rotina_url` em `config_privada` para o projeto novo.
+4. Seguir `nuvem/funcoes/apuracao-tse/LEIA-ME.md`.
+5. **Antes de ligar, dimensionar logs e chamadas** (REGRA DE OURO do
+   CLAUDE.md): o cron de 20 s foi o que bloqueou o projeto antigo por logs.
+   Ligar só durante a apuração e desligar em seguida.
+
+Funções de pagamento e bots: instruções no topo de cada `index.ts`. As de
+pagamento precisam da secret `MERCADOPAGO_ACCESS_TOKEN`; a
+`webhook-mercadopago` precisa de "Verify JWT" desligado.
+
+**Tabelas novas** criadas a partir de 30/10/2026 precisam de GRANT explícito
+(ver CLAUDE.md). Se o banco for recriado do zero pelos arquivos
+`nuvem/migracao-*.sql`, rodar os GRANTs de todas as tabelas antes de abrir o app.
+
+**Limites do plano gratuito:** 500 MB de banco (em 29/10 usava 36 MB), 1 GB de
+storage, 5 GB de egress/mês, 1 GB de logs.
+
+## 6. Rotinas automáticas
+
+| Rotina | Onde roda | Frequência |
+|---|---|---|
+| Sincronizar emendas | GitHub Actions (`.github/workflows/sync-emendas.yml`) → ramo `dados-emendas` | Diária, 06:30 (Brasília). Usa só o token automático do GitHub — não precisa de segredo |
+| Atas de convenção SC | Agente `.claude/agents/atualizador-atas-2026.md` | Era diária no período de convenções |
+| Atas dos demais estados | Agente `.claude/agents/atualizador-atas-nacional-2026.md` | Era semanal |
+| Apuração TSE | pg_cron + Edge Function | **Desativada** (seção 5) |
+
+Em 29/10/2026 nenhuma tarefa agendada do Claude estava cadastrada neste
+computador. Se as rotinas de atas voltarem a ser necessárias, recriá-las a
+partir dos arquivos dos agentes.
+
+## 7. Qual documento ler para quê
+
+| Arquivo | Para quê |
+|---|---|
+| `CLAUDE.md` | Regras de trabalho: estrutura, regras eleitorais, checklist antes de entregar, Supabase, permissões |
+| `README.md` | Visão geral, como abrir, pastas |
+| `PROJETO.md` | Visão de produto, tipos de usuário, roteiro, decisões em aberto |
+| `TRANSFERENCIA.md` | Este guia: serviços, contas, backups, ambiente |
+| `BACKLOG.md`, `STATUS.md` | Pendências por tela e status do redesenho |
+| `DESIGN.md` | Padrões visuais |
+| `ENGENHARIA.md`, `ORIENTACAO.md` | Lógica dos faders e do preenchimento guiado |
+| `MONETIZACAO.md`, `RANQUEAMENTO.md` | Economia de créditos e pontuação |
+| `TESTES.md` | Roteiro de testes manuais por tipo de usuário |
+| `dados/correcoes-nomes.md`, `ferramentas/LEIA-ME-dados-2022.md` | Origem e correções dos dados oficiais |
+| `.claude/agents/*.md` | Agentes de apoio (checklist de entrega, conferência de dados, revisão da regra eleitoral, verificação visual) |
+
+Atenção: `README.md`, `PROJETO.md` e `STATUS.md` foram atualizados pela última
+vez em 07/09/2026 — antes da troca do Supabase (18/10) e do módulo Gabinete
+(`painel/gabinete*`, migrações 71 a 88, outubro). Em caso de conflito, vale o
+`CLAUDE.md` e este guia.
+
+## 8. Checklist de transferência
+
+- [ ] Backup completo da pasta `SEL` (seção 3), com `nuvem/backup/` em lugar
+  criptografado.
+- [ ] `git status` sem commits pendentes de envio (`git log origin/main..HEAD`
+  vazio).
+- [ ] Acessos da seção 2 concedidos e testados pelo novo responsável.
+- [ ] Novo responsável incluído na tabela `admins` e vendo o painel admin.
+- [ ] Computador novo montado (seção 4) e os dois testes passando.
+- [ ] Painel admin → **Rotinas**: migrações todas aplicadas (exceto as "sem
+  verificação").
+- [ ] Painel admin → **Erros**: nenhum erro aberto relevante.
+- [ ] Decisão registrada sobre a apuração ao vivo e as funções de pagamento:
+  reativar ou deixar desligadas (seção 5).
+
+## 9. Checkup de 29/10/2026 — resultado
+
+- Código: 10.682 arquivos versionados idênticos ao último envio ao GitHub;
+  nada alterado ou apagado.
+- `index.html`: 97 arquivos referenciados, todos existem; `?cb=972` em todas
+  as tags.
+- Testes `eleitoral` e `pontuacao`: passaram.
+- Sintaxe: 110 arquivos JS sem erro (`interface/`, `nuvem/`, `calculo/`,
+  `dados/`, `painel/`, `dados/estados/`).
+- Banco: 40 tabelas, 99 contas, 36 MB. Dos objetos das migrações 2–88, só
+  falta `apuracao_bucket_leitura` (ver seção 5).
+- Segurança: só a chave pública (`sb_publishable_…`) aparece no repositório.
+- Numeração das migrações: 21–24 têm dois arquivos cada e não existe a 44 —
+  histórico, tratado pelo índice (`nuvem/migracoes-index.js`).
+- Pendências abertas: as da seção 5 e o backup da seção 3.

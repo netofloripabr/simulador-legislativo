@@ -14,6 +14,10 @@ Legislativo 2026" (sem nenhum vínculo com a ALESC de verdade — ver
 Para a visão de produto (usuários, objetivos, roteiro de fases, decisões
 em aberto), veja [`PROJETO.md`](PROJETO.md).
 
+Para assumir o projeto ou montar um computador novo (serviços, contas,
+o que não está no GitHub e precisa de backup, Supabase), veja
+[`TRANSFERENCIA.md`](TRANSFERENCIA.md).
+
 ## Como abrir
 
 Dê duplo-clique em `index.html`. Ele abre no seu navegador normalmente —
