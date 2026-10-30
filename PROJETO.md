@@ -1,5 +1,12 @@
 # Projeto — Documento de Definição (Simulador/Prospecção Parlamentar 2026)
 
+> **Nota (29/10/2026).** Este documento registra a visão de produto até
+> 07/09/2026. Depois disso o site passou a abrir pelos painéis parlamentares
+> (`painel/`: Parlamentares, Ranking, Gabinete, Corrida da Mesa — outubro/2026),
+> que não estão descritos aqui, e as Fases 5–6 (eleição e pós-eleição) já
+> passaram. Visão nova só com decisão do dono do projeto; estado técnico atual
+> em `README.md` e `TRANSFERENCIA.md`.
+
 > Este documento organiza a visão do projeto item por item, os pontos que
 > ainda precisam de decisão antes de avançar na arquitetura técnica, e um
 > roteiro faseado com checkboxes. É a referência viva do projeto — deve ser

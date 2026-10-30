@@ -63,6 +63,31 @@ Para conferir de novo o que está fora do git:
 git status --short
 ```
 
+### Como fazer o backup (recomendação de 29/10/2026)
+
+O disco deste Mac é criptografado (FileVault ligado), então as cópias locais
+já estão protegidas. Falta uma **segunda cópia fora do computador**. O jeito
+recomendado é uma imagem de disco criptografada (AES-256) da pasta `SEL`
+inteira (~1 GB, inclui o histórico do git):
+
+```bash
+hdiutil create -encryption AES-256 -srcfolder ~/Desktop/SEL -volname "SEL-backup" -format UDZO ~/Documents/SEL-backup-$(date +%Y-%m-%d).dmg
+```
+
+- O comando pede uma senha **duas vezes**. Guarde essa senha num gerenciador
+  de senhas (ex.: Senhas do macOS / iCloud). **Sem ela, o backup não abre
+  nunca mais** — não há como recuperar.
+- Depois, copie o arquivo `.dmg` gerado em `Documentos` para **dois lugares**:
+  um HD/pendrive externo e uma nuvem (Google Drive ou iCloud Drive). Como o
+  arquivo é criptografado, pode ficar na nuvem sem expor as contas de usuários.
+- Para abrir: dois cliques no `.dmg` e digitar a senha.
+- Refazer depois de mudanças grandes, ou uma vez por mês. Pode apagar as
+  imagens antigas quando a nova estiver nos dois lugares.
+
+`nuvem/backup/` só é necessário para restaurar o banco de 18/10/2026. Se o
+Supabase novo seguir saudável, o dono pode decidir apagá-lo do computador
+depois que estiver dentro do backup criptografado.
+
 ## 4. Montar um computador novo (Mac)
 
 1. Ferramentas de desenvolvimento (git e Python 3):
@@ -71,7 +96,7 @@ git status --short
    ```
 2. **Node.js** (versão LTS) — usado pelos testes e por
    `ferramentas/conferir_split_interface.js`. Ou o instalador `.pkg` de
-   nodejs.org (pede a senha do Mac), ou — como no Mac atual, 30/10/2026,
+   nodejs.org (pede a senha do Mac), ou — como no Mac atual, 29/10/2026,
    v26.13.0 — o arquivo `node-vXX-darwin-arm64.tar.xz` de nodejs.org/dist,
    conferido contra o `SHASUMS256.txt` oficial e extraído em
    `~/.local/node` (sem senha), com esta linha no `~/.zprofile`:
@@ -102,7 +127,7 @@ git status --short
    node testes/pontuacao.test.js
    ```
 
-## 5. Supabase — estado atual e o que falta reativar
+## 5. Supabase — estado atual e o que está desligado
 
 Em 18/10/2026 o banco foi copiado do projeto antigo (bloqueado) para o novo
 com `copiar-supabase.command` / `restaurar-no-novo.command`. Essa cópia levou
@@ -120,6 +145,11 @@ com `copiar-supabase.command` / `restaurar-no-novo.command`. Essa cópia levou
     `webhook-mercadopago`;
   - a URL da rotina de apuração em `config_privada` ainda aponta para o
     **projeto antigo**.
+
+**Decisão do dono (29/10/2026): fica tudo desligado** — a apuração ao vivo
+não tem função por enquanto. Conferido no banco: `apuracao_ativa = false` e
+`economia_ativa = false` (créditos/pagamentos também desligados), então
+nada no site depende das peças acima. Não reativar sem novo pedido.
 
 Para reativar a apuração ao vivo numa próxima eleição:
 1. Reaplicar a parte de bucket/cron das migrações 54, 56, 58 e 59 (pelo MCP do
@@ -149,7 +179,7 @@ storage, 5 GB de egress/mês, 1 GB de logs.
 | Sincronizar emendas | GitHub Actions (`.github/workflows/sync-emendas.yml`) → ramo `dados-emendas` | Diária, 06:30 (Brasília). Usa só o token automático do GitHub — não precisa de segredo |
 | Atas de convenção SC | Agente `.claude/agents/atualizador-atas-2026.md` | Era diária no período de convenções |
 | Atas dos demais estados | Agente `.claude/agents/atualizador-atas-nacional-2026.md` | Era semanal |
-| Apuração TSE | pg_cron + Edge Function | **Desativada** (seção 5) |
+| Apuração TSE | pg_cron + Edge Function | **Desligada por decisão** (seção 5) |
 
 Em 29/10/2026 nenhuma tarefa agendada do Claude estava cadastrada neste
 computador. Se as rotinas de atas voltarem a ser necessárias, recriá-las a
@@ -171,10 +201,10 @@ partir dos arquivos dos agentes.
 | `dados/correcoes-nomes.md`, `ferramentas/LEIA-ME-dados-2022.md` | Origem e correções dos dados oficiais |
 | `.claude/agents/*.md` | Agentes de apoio (checklist de entrega, conferência de dados, revisão da regra eleitoral, verificação visual) |
 
-Atenção: `README.md`, `PROJETO.md` e `STATUS.md` foram atualizados pela última
-vez em 07/09/2026 — antes da troca do Supabase (18/10) e do módulo Gabinete
-(`painel/gabinete*`, migrações 71 a 88, outubro). Em caso de conflito, vale o
-`CLAUDE.md` e este guia.
+Situação dos documentos (29/10/2026): `README.md` foi atualizado (inclui os
+painéis de outubro). `PROJETO.md` guarda a visão de produto até 07/09 e
+`STATUS.md` está arquivado — os dois têm um aviso no topo. Em caso de
+conflito, vale o `CLAUDE.md` e este guia.
 
 ## 8. Checklist de transferência
 
@@ -188,8 +218,8 @@ vez em 07/09/2026 — antes da troca do Supabase (18/10) e do módulo Gabinete
 - [ ] Painel admin → **Rotinas**: migrações todas aplicadas (exceto as "sem
   verificação").
 - [ ] Painel admin → **Erros**: nenhum erro aberto relevante.
-- [ ] Decisão registrada sobre a apuração ao vivo e as funções de pagamento:
-  reativar ou deixar desligadas (seção 5).
+- [x] Decisão registrada sobre a apuração ao vivo e as funções de pagamento:
+  desligadas (29/10/2026, seção 5).
 
 ## 9. Checkup de 29/10/2026 — resultado
 
@@ -205,4 +235,5 @@ vez em 07/09/2026 — antes da troca do Supabase (18/10) e do módulo Gabinete
 - Segurança: só a chave pública (`sb_publishable_…`) aparece no repositório.
 - Numeração das migrações: 21–24 têm dois arquivos cada e não existe a 44 —
   histórico, tratado pelo índice (`nuvem/migracoes-index.js`).
-- Pendências abertas: as da seção 5 e o backup da seção 3.
+- Pendência aberta: o backup criptografado da seção 3. Apuração e funções da
+  nuvem: desligadas por decisão (seção 5).

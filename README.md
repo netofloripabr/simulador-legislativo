@@ -1,10 +1,13 @@
 # Simulador Eleitoral Legislativo (SEL)
 
-Simulador de projeção eleitoral 2026 para cargos legislativos — hoje só
-Santa Catarina (Deputado Estadual, Deputado Federal, Senador) — com base
-nos dados reais de 2022 (TSE). Site estático (`index.html` + arquivos
-`.js`/`.css`), sem build step, hospedado no GitHub Pages, com contas de
-usuário e dados compartilhados reais via Supabase.
+**SimulaLEGIS** — começou como simulador de projeção eleitoral 2026 para
+cargos legislativos (Deputado Estadual, Deputado Federal, Senador, com base
+nos dados reais de 2022 do TSE) e, desde outubro/2026, abre pelos **painéis
+parlamentares** (pasta `painel/`): Parlamentares, Ranking/“Santa Catarina em
+pontos”, Gabinete e Corrida da Mesa. Foco em Santa Catarina (ALESC, 40
+vagas), com parte dos painéis também para SP. Site estático (HTML + `.js`/
+`.css`), sem build step, hospedado no GitHub Pages, com contas de usuário e
+dados compartilhados via Supabase.
 
 **"SEL" é só um apelido curto** pra facilitar conversa e nome de pasta —
 não muda o nome público do site, que continua "Simulador Eleitoral —
@@ -20,9 +23,11 @@ o que não está no GitHub e precisa de backup, Supabase), veja
 
 ## Como abrir
 
-Dê duplo-clique em `index.html`. Ele abre no seu navegador normalmente —
-não precisa instalar nada nem rodar servidor. O site publicado de verdade
-fica em `netofloripabr.github.io/simulador-legislativo`.
+Dê duplo-clique em `index.html` (o simulador) ou em `painel/novos.html`
+(Parlamentares). Algumas telas leem arquivos de `dados/` e funcionam melhor
+com o servidor local do preview — ver `TRANSFERENCIA.md`, seção 4. O site
+publicado fica em `netofloripabr.github.io/simulador-legislativo`; o
+endereço sem parâmetros redireciona para os painéis.
 
 ## Estrutura das pastas
 
@@ -49,14 +54,22 @@ SEL/
 │                            quociente partidário, sobras (D'Hondt) —
 │                            nada de tela aqui
 ├── interface/
-│   ├── app.js             → tela do "modo simulador" original (mais
-│   │                         simples, sem conta/nuvem)
-│   └── 00-estado.js … 99-inicio.js → telas do modo principal, divididas
-│                            por tela em 07/09/2026 (ordem no index.html): cadastro,
-│                             login, seleção de candidatos, revisão,
-│                             Minhas Listas, Grupos, Médias — é o maior
-│                             arquivo do projeto, onde a maioria das
-│                             mudanças acontece
+│   └── 00-estado.js … 99-inicio.js → telas do simulador, um arquivo por
+│                            tela (divididas em 07/09/2026; ordem no
+│                            index.html): acesso, painel da conta, admin,
+│                            listas, grupos, duelos, seleção, revisão,
+│                            resultados. (O antigo app.js foi removido em
+│                            18/08/2026.)
+├── painel/                → painéis parlamentares, páginas próprias:
+│   ├── novos.html/.js     → Parlamentares (Eleitoral, Legislativo,
+│   │                        Administrativo de cada eleito)
+│   ├── index.html, painel.js → "Santa Catarina em pontos" e Ranking
+│   ├── gabinete.*         → Gabinete · Controle de Recursos (emendas)
+│   ├── mesa.html/.js      → Corrida da Mesa (chapa e comissões)
+│   └── relatorio.js, uf.js, sino-menu.js, topo.css → comuns aos painéis
+│                            (mesa-*.html soltos são protótipos locais)
+├── testes/                → testes automáticos da regra eleitoral e da
+│                            pontuação (node testes/eleitoral.test.js)
 ├── nuvem/
 │   ├── cliente.js, config.js → conexão com o Supabase (banco de dados)
 │   ├── autenticacao.js   → cadastro/login/CPF
@@ -66,12 +79,15 @@ SEL/
 │   │                        salvar/editar/depositar)
 │   ├── grupos.js          → criar grupo, entrar com código, comparação
 │   ├── creditos.js        → sistema de créditos (2ª lista/grupo em diante)
-│   └── migracao-N-*.sql  → histórico de mudanças no banco de dados, na
-│                            ordem que devem ser coladas no SQL Editor do
-│                            Supabase (a numeração é cronológica)
-├── ferramentas/           → scripts Python que baixam e processam atas
-│                            de convenção do TSE (rodados pelas rotinas
-│                            automáticas diárias/semanais)
+│   ├── edge-functions/, funcoes/ → código das funções da nuvem
+│   │                        (apuração, pagamentos, bots — hoje desligadas)
+│   └── migracao-N-*.sql  → histórico de mudanças no banco de dados
+│                            (numeração cronológica; aplicadas pelo MCP do
+│                            Supabase — ver CLAUDE.md)
+├── ferramentas/           → scripts (Python/Node) que baixam e tratam
+│                            dados do TSE, atas, emendas e conferem o
+│                            projeto
+├── .github/workflows/     → rotina diária de emendas (GitHub Actions)
 └── ATAS/                  → PDFs baixados das atas de convenção,
                              1 pasta por estado
 ```
@@ -104,10 +120,10 @@ navegador daquele computador.
 
 ## Limitações conhecidas
 
-- O cálculo de vagas (QP + sobras) não verifica o mínimo de votação
-  nominal por candidato (10%/20% do QE) exigido por lei — em disputas
-  muito apertadas pela última cadeira, pode divergir em 1 vaga do
-  resultado oficial.
+- O cálculo de vagas segue a regra de 2026: sobras pelo método das médias
+  sem piso de votos (o STF derrubou o piso de 80%/20% do QE em fev/2024).
+  O mínimo nominal de 10% do QE (art. 108) existe no cálculo como opção,
+  mas o app não liga. Detalhes no CLAUDE.md e em `testes/eleitoral.test.js`.
 - Nomes de candidatos vêm do arquivo bruto do TSE (nome de registro, nem
   sempre o "nome de urna"). Alguns já foram corrigidos manualmente (ver
   `dados/correcoes-nomes.md`); se achar outro estranho, avise.

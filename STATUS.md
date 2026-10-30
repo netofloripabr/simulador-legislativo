@@ -1,5 +1,9 @@
 # Status de orientações — redesenho visual
 
+> **Arquivado (29/10/2026).** Registro do redesenho visual de agosto–setembro
+> de 2026, sem atualização desde 07/09. Não reflete o estado atual; serve só de
+> histórico. Estado atual do projeto: `README.md` e `TRANSFERENCIA.md`.
+
 Espelho local do documento de orientações do usuário (Google Docs,
 formato Imagem / Orientações / Retorno). Existe porque a integração de
 Google Drive que tenho só lê o texto do documento por padrão — as imagens
