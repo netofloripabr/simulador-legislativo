@@ -2,12 +2,14 @@
 // Confere o split de interface/prospeccao.js em interface/NN-*.js (07/09/2026).
 // Sem dependências. Rodar da raiz do repo: node ferramentas/conferir_split_interface.js
 //
-// (a) Concatena os arquivos novos na ordem em que aparecem no index.html e
-//     compara com `git show <ref>:interface/prospeccao.js` (ref = argumento
-//     opcional, padrão HEAD): o multiconjunto de linhas não-vazias (ignorando
-//     só os cabeçalhos de 3-5 linhas no topo de cada arquivo novo) tem que
-//     ser IDÊNTICO — mesmas linhas, mesmas quantidades. Só a ordem pode
-//     diferir (blocos realocados).
+// (a) SÓ com argumento <ref> (ex.: 7b71a21b^, o commit de antes do split):
+//     concatena os arquivos novos na ordem em que aparecem no index.html e
+//     compara com `git show <ref>:interface/prospeccao.js`: o multiconjunto
+//     de linhas não-vazias (ignorando só os cabeçalhos de 3-5 linhas no topo
+//     de cada arquivo novo) tem que ser IDÊNTICO — mesmas linhas, mesmas
+//     quantidades. Só a ordem pode diferir (blocos realocados). Servia pro
+//     dia do split; desde então o código mudou e o prospeccao.js não existe
+//     mais no HEAD, então sem argumento (uso do dia a dia) a (a) é pulada.
 // (b) Lista toda declaração de topo (function/async function/const/let/var/
 //     class, coluna 0) por arquivo e falha se um nome aparece em 2 arquivos.
 // (c) Lista os statements de topo que NÃO são declaração (coluna 0, fora de
@@ -21,7 +23,7 @@ const path = require("path");
 const { execSync } = require("child_process");
 
 const raiz = path.resolve(__dirname, "..");
-const ref = process.argv[2] || "HEAD";
+const ref = process.argv[2] || null; // sem ref: pula a (a)
 let falhou = false;
 const falha = (m) => { falhou = true; console.log("FALHA: " + m); };
 
@@ -43,14 +45,6 @@ function multiconjunto(linhas) {
   }
   return mapa;
 }
-let original;
-try {
-  original = execSync(`git show ${ref}:interface/prospeccao.js`, { cwd: raiz, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
-} catch (e) {
-  falha(`não consegui ler ${ref}:interface/prospeccao.js do git`);
-  process.exit(1);
-}
-const origLinhas = original.split("\n");
 const novasLinhas = [];
 const conteudoPorArquivo = {};
 for (const a of arquivos) {
@@ -59,26 +53,38 @@ for (const a of arquivos) {
   // cabeçalho novo: bloco inicial de linhas "// " até a primeira linha vazia (máx. 6)
   let i = 0;
   while (i < ls.length && i < 6 && ls[i].startsWith("//")) i++;
-  if (i === 0 || i > 5) falha(`${a}: cabeçalho esperado de 1-5 linhas de comentário no topo (achei ${i})`);
+  // só importa pra (a): é o que ela descarta; arquivos criados depois do split têm cabeçalho livre
+  if (ref && (i === 0 || i > 5)) falha(`${a}: cabeçalho esperado de 1-5 linhas de comentário no topo (achei ${i})`);
   conteudoPorArquivo[a] = ls.slice(i);
   novasLinhas.push(...ls.slice(i));
 }
-const mo = multiconjunto(origLinhas);
-const mn = multiconjunto(novasLinhas);
-let sobra = 0, faltam = 0;
-for (const [l, n] of mo) {
-  const k = mn.get(l) || 0;
-  if (k < n) { faltam += n - k; if (faltam <= 10) console.log(`  falta (${n - k}x): ${l.slice(0, 100)}`); }
+if (!ref) {
+  console.log("\n(a) pulada — sem <ref> (só faz sentido comparando com o commit de antes do split)");
+} else {
+  let original;
+  try {
+    original = execSync(`git show ${ref}:interface/prospeccao.js`, { cwd: raiz, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  } catch (e) {
+    falha(`não consegui ler ${ref}:interface/prospeccao.js do git`);
+    process.exit(1);
+  }
+  const mo = multiconjunto(original.split("\n"));
+  const mn = multiconjunto(novasLinhas);
+  let sobra = 0, faltam = 0;
+  for (const [l, n] of mo) {
+    const k = mn.get(l) || 0;
+    if (k < n) { faltam += n - k; if (faltam <= 10) console.log(`  falta (${n - k}x): ${l.slice(0, 100)}`); }
+  }
+  for (const [l, n] of mn) {
+    const k = mo.get(l) || 0;
+    if (k < n) { sobra += n - k; if (sobra <= 10) console.log(`  sobra (${n - k}x): ${l.slice(0, 100)}`); }
+  }
+  const totalOrig = [...mo.values()].reduce((s, n) => s + n, 0);
+  const totalNovo = [...mn.values()].reduce((s, n) => s + n, 0);
+  console.log(`\n(a) Linhas não-vazias: original ${totalOrig}, novos ${totalNovo}; faltando ${faltam}, sobrando ${sobra}`);
+  if (faltam || sobra) falha("(a) o conteúdo não é idêntico como multiconjunto de linhas");
+  else console.log("(a) OK — mesmas linhas, mesmas quantidades");
 }
-for (const [l, n] of mn) {
-  const k = mo.get(l) || 0;
-  if (k < n) { sobra += n - k; if (sobra <= 10) console.log(`  sobra (${n - k}x): ${l.slice(0, 100)}`); }
-}
-const totalOrig = [...mo.values()].reduce((s, n) => s + n, 0);
-const totalNovo = [...mn.values()].reduce((s, n) => s + n, 0);
-console.log(`\n(a) Linhas não-vazias: original ${totalOrig}, novos ${totalNovo}; faltando ${faltam}, sobrando ${sobra}`);
-if (faltam || sobra) falha("(a) o conteúdo não é idêntico como multiconjunto de linhas");
-else console.log("(a) OK — mesmas linhas, mesmas quantidades");
 
 // ---- (b) declarações de topo ----
 const reDecl = /^(?:async\s+function|function|const|let|var|class)\s+([A-Za-z_$][\w$]*)/;
@@ -142,5 +148,5 @@ for (const a of arquivos) {
 console.log(`\n(c) Statements de topo (não-declaração), na ordem de carga:`);
 for (const s of statementsTopo) console.log(`    ${s.arquivo}:${s.linha}  ${s.texto}`);
 
-console.log(falhou ? "\nRESULTADO: FALHOU" : "\nRESULTADO: OK (a, b passaram; conferir (c) a olho)");
+console.log(falhou ? "\nRESULTADO: FALHOU" : `\nRESULTADO: OK (${ref ? "a, b passaram" : "b passou"}; conferir (c) a olho)`);
 process.exit(falhou ? 1 : 0);
