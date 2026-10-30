@@ -69,21 +69,32 @@ git status --short
    ```bash
    xcode-select --install
    ```
-2. **Node.js** (versão LTS, instalador em nodejs.org) — usado pelos testes
-   e por `ferramentas/conferir_split_interface.js`.
-3. Clonar o repositório (precisa de acesso SSH ao GitHub configurado):
+2. **Node.js** (versão LTS) — usado pelos testes e por
+   `ferramentas/conferir_split_interface.js`. Ou o instalador `.pkg` de
+   nodejs.org (pede a senha do Mac), ou — como no Mac atual, 30/10/2026,
+   v26.13.0 — o arquivo `node-vXX-darwin-arm64.tar.xz` de nodejs.org/dist,
+   conferido contra o `SHASUMS256.txt` oficial e extraído em
+   `~/.local/node` (sem senha), com esta linha no `~/.zprofile`:
+   ```bash
+   export PATH="$HOME/.local/node/bin:$PATH"
+   ```
+3. Acesso ao GitHub por SSH: gerar a chave (`ssh-keygen -t ed25519`) e
+   cadastrar a parte pública (`~/.ssh/id_ed25519.pub`) em
+   github.com/settings/ssh/new, na conta dona do repositório. Conferir com
+   `ssh -T git@github.com`.
+4. Clonar o repositório:
    ```bash
    git clone git@github.com:netofloripabr/simulador-legislativo.git ~/Desktop/SEL
    ```
-4. Copiar por cima, do backup, as pastas da seção 3.
-5. Abrir localmente: dois cliques em `index.html`, ou o servidor do preview
+5. Copiar por cima, do backup, as pastas da seção 3.
+6. Abrir localmente: dois cliques em `index.html`, ou o servidor do preview
    (`.claude/launch.json`, porta 8765):
    ```bash
    python3 -m http.server 8765
    ```
-6. Só se for restaurar ou copiar banco: `libpq` (psql/pg_dump), que os scripts
+7. Só se for restaurar ou copiar banco: `libpq` (psql/pg_dump), que os scripts
    `.command` esperam em `/opt/homebrew/opt/libpq/bin` (Homebrew).
-7. Conferir que tudo funciona:
+8. Conferir que tudo funciona:
    ```bash
    node testes/eleitoral.test.js
    ```
