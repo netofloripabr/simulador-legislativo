@@ -13,7 +13,7 @@ function voltarDeLoginOuCadastro() {
   pcState.erro = "";
   pcState.cadRascunho = null;
   // veio da página Parlamentares (aviso de login): o voltar devolve pra lá (15/10/2026)
-  try { const v = localStorage.getItem("sl_volta"); if (v && /\/painel\//.test(v)) { localStorage.removeItem("sl_volta"); location.href = v; return; } } catch (e) {}
+  try { const v = localStorage.getItem("sl_volta"); if (v && /\/painel\//.test(v)) { localStorage.removeItem("sl_volta"); location.href = v.replace(/#.*access_token=.*$/, ""); return; } } catch (e) {}
   if (pcState.estado) { pcState.tela = "painel-convidado"; } else { pcState.tela = "landing"; }
   renderColaborativo();
 }

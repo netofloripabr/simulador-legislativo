@@ -31,7 +31,7 @@ async function initColaborativo() {
     if (!pcState.souAdmin) supabaseClient.rpc("solicitar_acesso_parlamentares").then(() => {}, () => {});
     // Volta para a página de onde a pessoa saiu para entrar (ex.: Corrida da Mesa,
     // painel/mesa.html grava "sl_volta" antes de mandar pro login) — 08/10/2026
-    try { const v = localStorage.getItem("sl_volta"); if (v) { localStorage.removeItem("sl_volta"); location.href = v; return; } } catch (e) {}
+    try { const v = localStorage.getItem("sl_volta"); if (v) { localStorage.removeItem("sl_volta"); location.href = v.replace(/#.*access_token=.*$/, ""); return; } } catch (e) {}
     // Página inicial = Parlamentares também para quem está logado (15/10/2026);
     // o simulador abre pelo menu de lá (?capa=1) ou por qualquer link com parâmetro.
     if (!location.search && !location.hash) { location.replace("painel/novos.html"); return; }
