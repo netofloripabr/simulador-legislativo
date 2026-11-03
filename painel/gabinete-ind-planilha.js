@@ -176,12 +176,17 @@ async function xlsxInd(T) {
 }
 // envia o .xlsx ao Drive já convertido em Planilha Google (escopo drive.file: o sistema só enxerga o que ele mesmo criou) e põe o mapa
 async function googleInd(T) {
-  const token = await tokenGoogle(); if (!token) { try { sessionStorage.setItem("gab_ind_google", JSON.stringify({ ano: IND.ano, tag: IND.tag })); } catch (e) {} await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.href.split("#")[0], scopes: ESCOPO_DRIVE, queryParams: { access_type: "online", prompt: "consent" } } }); return null; }
+  const marca = ["gab_ind_google", JSON.stringify({ ano: IND.ano, tag: IND.tag, criar: 1 })];
+  const token = await tokenGoogle(); if (!token) { if (!pedirDriveDeNovo()) throw new Error("SEM_AUTORIZACAO"); await autorizarDrive(marca); return null; }
   const { wb, nome, pr1 } = await montarPlanilhaInd(T), buf = await wb.xlsx.writeBuffer(), bd = "slb" + Date.now();
   const meta = { name: nome.replace(/_/g, " "), mimeType: "application/vnd.google-apps.spreadsheet" };
   const corpo = new Blob([`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\r\n\r\n`, buf, `\r\n--${bd}--`]);
   const up = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id", { method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "multipart/related; boundary=" + bd }, body: corpo });
-  const f = await up.json(); if (!up.ok) throw new Error((f.error && f.error.message) || up.status);
+  const f = await up.json();
+  if (!up.ok) { const msg = (f.error && f.error.message) || String(up.status);
+    // token vencido ou sem o escopo do Drive: esquece e pede a autorização de novo (no máximo uma vez a cada 3 min, para não virar ciclo)
+    if ((up.status === 401 || up.status === 403) && !/has not been used|is disabled|SERVICE_DISABLED/i.test(msg)) { esquecerTokenGoogle(); if (pedirDriveDeNovo()) { await autorizarDrive(marca); return null; } throw new Error("SEM_AUTORIZACAO"); }
+    throw new Error(msg); }
   const base = `https://sheets.googleapis.com/v4/spreadsheets/${f.id}`, ss = await (await fetch(base + "?fields=sheets.properties", { headers: { Authorization: "Bearer " + token } })).json();
   const sid = (t) => ((ss.sheets || []).find((s) => s.properties.title === t) || {}).properties?.sheetId;
   const P = sid("Por município"), src = (c0) => ({ sourceRange: { sources: [{ sheetId: P, startRowIndex: 3, endRowIndex: pr1, startColumnIndex: c0, endColumnIndex: c0 + 1 }] } });
@@ -191,14 +196,14 @@ async function googleInd(T) {
 }
 function abrirPlanilhaInd(T) {
   const url = T.L && (T.L.regras || {}).planilha_google, logado = !!(typeof SESS !== "undefined" && SESS);
-  avisoPlan(`<b>Planilha de indicação</b><div class="icft"><p>Abas <b>Indicação</b> (o formulário, com listas de escolha e conferência por linha), <b>Painel</b> (esta indicação e todo o histórico do mandato, com filtros), <b>Por município</b> e <b>Orçamento</b> (modelo oficial). Depois de preenchida, volta para cá com <b>Importar planilha</b>.</p>
+  return avisoPlan(`<b>Planilha de indicação</b><div class="icft"><p>Abas <b>Indicação</b> (o formulário, com listas de escolha e conferência por linha), <b>Painel</b> (esta indicação e todo o histórico do mandato, com filtros), <b>Por município</b> e <b>Orçamento</b> (modelo oficial). Depois de preenchida, volta para cá com <b>Importar planilha</b>.</p>
     ${url ? `<p><a href="${esc(url)}" target="_blank" rel="noopener">Abrir a planilha já criada no Google</a></p>` : ""}<p class="mut" style="font-size:12px">No Google a aba Painel ganha o mapa. Na primeira vez o Google pede autorização para o sistema criar arquivos no seu Drive; ele só enxerga as planilhas que ele mesmo criar.</p></div>
     <div><button class="lk0" data-x>Fechar</button><button class="btn sec" data-xl>Baixar .xlsx</button><button class="btnp ibtv" data-gg${logado ? "" : ' disabled title="Entre com a conta Google para usar o Drive"'}>${url ? "Criar outra no Google" : "Criar no meu Google Drive"}</button></div><span class="mut" data-msg style="font-size:12px"></span>`, async (w) => {
     w.querySelector("[data-xl]").onclick = async () => { w.querySelector("[data-msg]").textContent = "Gerando…"; try { await xlsxInd(T); w.remove(); } catch (er) { w.querySelector("[data-msg]").textContent = "Não foi possível gerar: " + (er.message || er); } };
     const gg = w.querySelector("[data-gg]"); if (gg) gg.onclick = async () => { const m = w.querySelector("[data-msg]"); m.textContent = "Criando no Google Drive…";
       try { const u = await googleInd(T); if (!u) return; if (T.L) T.L = await gravar("gab_listas", { id: T.L.id, regras: { ...(T.L.regras || {}), planilha_google: u } }); m.innerHTML = `Pronto. <a href="${esc(u)}" target="_blank" rel="noopener">Abrir a planilha</a>`; window.open(u, "_blank"); }
       catch (er) { if (/has not been used in project|is disabled|SERVICE_DISABLED/i.test(er.message)) { m.innerHTML = "O Google ainda não liberou a criação de planilhas para este site (falta ativar a API do Google Drive e a do Google Planilhas no projeto do Google Cloud do sistema). Enquanto isso, use <b>Baixar .xlsx</b> e abra no Google Planilhas."; return; }
-        m.textContent = /401|invalid|credential|insufficient/i.test(er.message) ? "A autorização do Google expirou. Clique de novo para entrar." : "Não foi possível criar: " + (er.message || er); if (/401|invalid|credential|insufficient/i.test(er.message)) { try { await supabaseClient.auth.refreshSession(); } catch (e) {} } } };
+        m.innerHTML = er.message === "SEM_AUTORIZACAO" ? "O Google não devolveu a autorização do Drive. Saia do site, entre de novo com a conta Google e tente outra vez; enquanto isso, use <b>Baixar .xlsx</b>." : esc("Não foi possível criar: " + (er.message || er)); } };
   });
 }
 // janela simples no padrão do cadeado (cfp/cfb)
@@ -285,4 +290,4 @@ async function gravarImp(w, T, entra, modo) {
 }
 // volta do login do Google (autorização do Drive): reabre a Indicação na mesma lista
 window.addEventListener("load", () => { let p = null; try { p = JSON.parse(sessionStorage.getItem("gab_ind_google") || "null"); sessionStorage.removeItem("gab_ind_google"); } catch (e) {}
-  if (p) setTimeout(() => { if (typeof abrirInd !== "function") return; IND.ano = p.ano; IND.tag = p.tag; abrirInd(); const T = etiquetas(IND.ano).find((t) => t.k === IND.tag); if (T) abrirPlanilhaInd(T); }, 2500); });
+  if (p) setTimeout(() => { if (typeof abrirInd !== "function") return; IND.ano = p.ano; IND.tag = p.tag; abrirInd(); const T = etiquetas(IND.ano).find((t) => t.k === IND.tag); if (!T) return; const w = abrirPlanilhaInd(T), gg = w && w.querySelector("[data-gg]"); if (p.criar && gg && !gg.disabled) gg.click(); }, 2500); });

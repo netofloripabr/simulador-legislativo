@@ -7,15 +7,24 @@
 
 const ESCOPO_DRIVE = "https://www.googleapis.com/auth/drive.file";
 
+// token do Google com o escopo do Drive: o da sessão (só existe logo depois do login com Google) ou o guardado por
+// nuvem/cliente.js / abaixo no retorno da autorização (vale ~50 min; a renovação do login do Supabase não o devolve)
+function tokenGuardado() { try { const g = JSON.parse(localStorage.getItem("sl_gtoken") || "null"); return g && g.ate > Date.now() ? g.t : null; } catch (e) { return null; } }
+function esquecerTokenGoogle() { try { localStorage.removeItem("sl_gtoken"); } catch (e) {} }
 async function tokenGoogle() {
   const { data } = await supabaseClient.auth.getSession(); const s = data && data.session;
-  return s && s.provider_token ? s.provider_token : null;
+  if (s && s.provider_token) { try { localStorage.setItem("sl_gtoken", JSON.stringify({ t: s.provider_token, ate: Date.now() + 50 * 60 * 1000 })); } catch (e) {} return s.provider_token; }
+  return tokenGuardado();
 }
-// pede o acesso ao Drive: refaz o login Google com o escopo extra e volta para esta página
-async function pedirDrive() {
-  try { sessionStorage.setItem("gab_gerar_planilha", "1"); } catch (e) {}
-  await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.href.split("#")[0], scopes: ESCOPO_DRIVE, queryParams: { access_type: "online", prompt: "consent" } } });
+if (supabaseClient) supabaseClient.auth.onAuthStateChange((ev, s) => { if (s && s.provider_token) { try { localStorage.setItem("sl_gtoken", JSON.stringify({ t: s.provider_token, ate: Date.now() + 50 * 60 * 1000 })); } catch (e) {} } });
+// pede o acesso ao Drive: refaz o login Google com o escopo extra. O Supabase só aceita voltar para a página inicial;
+// de lá nuvem/cliente.js devolve a pessoa para esta página (sl_volta_google). Uma tentativa a cada 3 min, para não virar ciclo.
+function pedirDriveDeNovo() { let t = 0; try { t = +sessionStorage.getItem("sl_gtentou") || 0; } catch (e) {} return Date.now() - t > 3 * 60 * 1000; }
+async function autorizarDrive(marca) {
+  try { sessionStorage.setItem("sl_gtentou", String(Date.now())); sessionStorage.setItem("sl_volta_google", location.href.split("#")[0]); if (marca) sessionStorage.setItem(marca[0], marca[1]); } catch (e) {}
+  await supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: new URL("../", location.href).href, scopes: ESCOPO_DRIVE, queryParams: { access_type: "online", prompt: "consent" } } });
 }
+async function pedirDrive() { await autorizarDrive(["gab_gerar_planilha", "1"]); }
 async function gapi(token, url, corpo) {
   const r = await fetch(url, { method: "POST", headers: { Authorization: "Bearer " + token, "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
   const j = await r.json(); if (!r.ok) throw new Error((j.error && j.error.message) || r.status); return j;
