@@ -101,17 +101,21 @@ function valoresCapa() {
   return { v: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), top: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), rot: (x) => "R$ " + nf(x, 0) + " por voto" };
 }
 function capa(nm) {
-  const L = E0, tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), mun = new Set(L.map((e) => e.mun)).size;
-  // faixa de cota (02/11/2026): o total indicado em uma barra no padrão das Cotas, segmentada pela função (linha verde = pago); o resto numa linha
-  const anoE = (e) => +e.ano || +String(e.k || "").slice(0, 4), anos = [...new Set(L.map(anoE).filter(Boolean))].sort(), TN = ["#DADDE0", "#AEB3B8", "#868C92", "#62686E", "#474D52"];
-  const G = {}; L.forEach((e) => { const f = funCapa(e); G[f] = (G[f] || 0) + (e.v || 0); });
+  // valor total (03/11/2026): no próprio gabinete, tudo o que está no Controle (impositivas + convênios/negociados, como "Tudo" das Cotas,
+  // sem as listas ainda em indicação); fora dele (ou sem a planilha), só as emendas impositivas do portal da SEF
+  let I = null; if (proprio() && MEU.length && typeof itensCotas === "function") { const sv = S.cesc; S.cesc = "tudo"; try { I = itensCotas().filter((i) => !i.plan); } finally { S.cesc = sv; } if (!I.length) I = null; }
+  const R = I ? I.map((i) => ({ v: i.v, p: i.pago, ano: i.ano, f: i.area, mun: norm(i.mun) })) : E0.map((e) => ({ v: e.v || 0, p: e.vp || 0, ano: +e.ano || +String(e.k || "").slice(0, 4), f: funCapa(e), mun: norm(e.mun) }));
+  const tv = R.reduce((s, x) => s + x.v, 0), tp = R.reduce((s, x) => s + x.p, 0), mun = new Set(R.map((x) => x.mun).filter((m) => m && m !== "—")).size;
+  const anos = [...new Set(R.map((x) => x.ano).filter(Boolean))].sort(), TN = ["#DADDE0", "#AEB3B8", "#868C92", "#62686E", "#474D52"];
+  const G = {}; R.forEach((x) => { const f = x.f && x.f !== "Não informado" ? x.f : "Outras"; G[f] = (G[f] || 0) + x.v; });
   let seg = Object.entries(G).filter(([f]) => f !== "Outras").sort((a, b) => b[1] - a[1]); const resto = seg.slice(4).reduce((s, x) => s + x[1], 0) + (G.Outras || 0); seg = seg.slice(0, 4); if (resto) seg.push(["Outras", resto]);
+  const L = R;
   // conceito B (03/11/2026): o nome sozinho no alto; embaixo dois cartões translúcidos sobre o mapa (Recursos e Votos);
   // o aviso da cota aberta vira uma faixa fina no topo do quadro e o interruptor do mapa fica no canto do próprio mapa
-  const cRec = tv ? `<div class="gcard"><div class="k">Recursos · ${anos[0]}-${String(anos.slice(-1)[0]).slice(2)}</div><div class="v">${esc(fm(tv))}</div>
+  const cRec = tv ? `<div class="gcard"><div class="k">Recursos · ${anos[0]}-${String(anos.slice(-1)[0]).slice(2)}${I ? " · total" : " · impositivas"}</div><div class="v">${esc(fm(tv))}</div>
     <div class="gbar">${seg.map(([, v], i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]}"></i>`).join("")}</div><div class="gpg" style="width:${tp / tv * 100}%"></div>
     <div class="gleg">${seg.map(([f, v], i) => `<span><i style="background:${TN[i % 5]}"></i>${esc(f)} <em>${esc(fm(v))}</em></span>`).join("")}<span><i style="background:#34E84A"></i>pago <em>${nf(tp / tv * 100)}%</em></span></div></div>` : "";
-  const cVot = `<div class="gcard"><div class="k">Votos · 2026</div><div class="v a">${ni(PARL.t)}</div><div class="gmini"><div><span>Municípios atendidos</span><span>${ni(mun)}</span></div><div><span>Emendas</span><span>${ni(L.length)}</span></div>${tv ? `<div><span>Pago até hoje</span><span class="vd">${nf(tp / tv * 100, 1)}%</span></div>` : ""}</div></div>`;
+  const cVot = `<div class="gcard"><div class="k">Votos · 2026</div><div class="v a">${ni(PARL.t)}</div><div class="gmini"><div><span>Municípios atendidos</span><span>${ni(mun)}</span></div><div><span>${I ? "Emendas e convênios" : "Emendas"}</span><span>${ni(L.length)}</span></div>${tv ? `<div><span>Pago até hoje</span><span class="vd">${nf(tp / tv * 100, 1)}%</span></div>` : ""}</div></div>`;
   return `<section class="ghero" id="ghero">${avisoCota()}<div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
     <div class="gsw" id="glc" role="group" aria-label="Mapa"><em class="gswl"${S.lc === "rec" ? "" : " hidden"}><b class="az"></b>indicado <b class="vd"></b>pago</em><div class="gswb${S.lc === "rec" ? " r" : ""}"><i></i><button data-lc="votos" class="${S.lc === "rec" ? "" : "on"}">Votos</button><button data-lc="rec" class="${S.lc === "rec" ? "on" : ""}">Recursos</button></div></div>
     <div class="gtxt"><div class="gid"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div></div>
