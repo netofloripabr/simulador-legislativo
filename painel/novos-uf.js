@@ -4,7 +4,7 @@
 // Usa as mesmas classes visuais do Legislativo/Administrativo de SC (novos.html).
 let CARG = null, LEGUF = null, ADMUF = null, ESTUF = null, ESTCASA = null, ORCA = null;
 async function carregarUF() {
-  ORCA = await fetch(`../dados/painel/orcamento-assembleias.json?v=1`).then((r) => r.json()).catch(() => null);
+  ORCA = await fetch(`../dados/painel/orcamento-assembleias.json?v=2`).then((r) => r.json()).catch(() => null);
   if (UF === "sc") { CARG = await fetch(`../dados/painel/alesc-cargos.json?v=1`).then((r) => r.json()).catch(() => null); return; } const c = UFI.casa.toLowerCase();
   ESTUF = await fetch(`../dados/painel/${c}-estrutura.json?v=1`).then((r) => r.json()).catch(() => null);
   ESTCASA = await fetch(`../dados/painel/${c}-estruturas-casa.json?v=1`).then((r) => r.json()).catch(() => null);
@@ -201,25 +201,20 @@ function ligarGabUF(c) {
 const valR = (v) => v >= 1e9 ? "R$ " + (v / 1e9).toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 }) + "B" : "R$ " + (v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " mi";
 function orcPainel() {
   const O = ORCA && ORCA[UF]; if (!O) return "";
-  const anos = Object.keys(O.loa).sort(), atual = anos[anos.length - 1], loa = O.loa[atual], sv = O.servidores || {}, svUF = UF === "sp" && ESTUF ? ESTUF.casa || {} : {};
-  const tot = sv.total || svUF.total_ativos_todos_regimes, ef = sv.efetivos || svUF.servidores_efetivos, cm = sv.comissionados || svUF.comissionados;
-  // padrão das Cotas (03/11/2026): uma barra arredondada por ano = previsto (dotação na LOA); o executado é um ponto
-  // em cada barra, ligado de ano a ano por uma linha que corta o gráfico na transversal
-  const mx = Math.max(...anos.map((a) => Math.max(O.loa[a] || 0, (O.executado || {})[a] || 0))), cor = getComputedStyle(document.documentElement).getPropertyValue("--a").trim() || "#34E84A";
-  const W = 600, RH = 32, X0 = 48, BW = 440, H = anos.length * RH + 26, xv = (v) => X0 + v / mx * BW, yc = (i) => i * RH + RH / 2, bi = (v) => (v / 1e9).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
-  const pts = anos.map((a, i) => (O.executado || {})[a] ? [xv(O.executado[a]), yc(i)] : null).filter(Boolean);
-  const barras = anos.map((a, i) => { const L = O.loa[a] || 0, E = (O.executado || {})[a], ant = O.loa[anos[i - 1]], d = ant ? (L - ant) / ant : null;
-    return `<text x="0" y="${yc(i) + 4}" font-size="13" font-weight="700" fill="#F2F4F5">${a}</text><rect x="${X0}" y="${yc(i) - 7}" width="${(xv(L) - X0).toFixed(1)}" height="14" rx="7" fill="rgba(242,244,245,.16)"><title>${a} · previsto ${valR(L)}</title></rect>
-      <text x="${W}" y="${yc(i) + 1}" text-anchor="end" font-size="13" font-weight="700" fill="#F2F4F5">${bi(L)}</text><text x="${W}" y="${yc(i) + 13}" text-anchor="end" font-size="10" fill="${E ? cor : "#7E848A"}">${E ? Math.round(E / L * 100) + "%" : "em execução"}${d != null ? `<tspan fill="#7E848A"> · ${d >= 0 ? "▲" : "▼"} ${Math.abs(Math.round(d * 100))}%</tspan>` : ""}</text>`; }).join("");
-  const linhaE = pts.length > 1 ? `<polyline points="${pts.map(([x, y]) => x.toFixed(1) + "," + y).join(" ")}" fill="none" stroke="${cor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : "";
-  const pontos = anos.map((a, i) => { const E = (O.executado || {})[a]; return E ? `<circle cx="${xv(E).toFixed(1)}" cy="${yc(i)}" r="4" fill="${cor}" stroke="#0E1113" stroke-width="1.5"><title>${a} · executado ${valR(E)} (${Math.round(E / O.loa[a] * 100)}% do previsto)</title></circle>` : ""; }).join("");
-  const regua = [0, 1].map((f) => `<text x="${X0 + f * BW}" y="${H - 6}" text-anchor="${f ? (f === 1 ? "end" : "middle") : "start"}" font-size="9" fill="#7E848A">${f ? "R$ " + bi(mx * f) + " bi" : "0"}</text>`).join("") + `<line x1="${X0}" x2="${X0 + BW}" y1="${H - 18}" y2="${H - 18}" stroke="rgba(242,244,245,.12)"/>`;
-  const ref1 = mx > 1e9 ? `<line x1="${xv(1e9).toFixed(1)}" x2="${xv(1e9).toFixed(1)}" y1="2" y2="${H - 18}" stroke="rgba(242,244,245,.55)" stroke-width="1.2" stroke-dasharray="3 3"/><text x="${xv(1e9).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="9" font-weight="700" fill="#F2F4F5">R$ 1 bi</text>` : "";
-  const leg = `<span style="display:inline-block;width:16px;height:8px;border-radius:999px;background:rgba(242,244,245,.16);vertical-align:0"></span> <b>Previsto</b>: dotação na Lei Orçamentária, em bilhões &nbsp; <svg width="22" height="10" style="vertical-align:-1px"><line x1="1" x2="21" y1="5" y2="5" stroke="${cor}" stroke-width="2"/><circle cx="11" cy="5" r="3.5" fill="${cor}"/></svg> <b>Executado</b>: o que foi de fato gasto`;
-  const e25 = (O.executado || {})[anos[anos.length - 2]], l25 = O.loa[anos[anos.length - 2]];
-  return `<table class="qtab">${linha(`Orçamento da Assembleia em ${atual}`, "dotação na Lei Orçamentária Anual (o que a Casa pode gastar no ano)", valR(loa))}${e25 ? linha(`Executado em ${anos[anos.length - 2]}`, `${O.executado_tipo && /empenh/i.test(O.executado_tipo) ? "despesa empenhada" : "despesa realizada"} · ${Math.round(e25 / l25 * 100)}% da dotação`, valR(e25)) : ""}${tot ? linha("Servidores ativos", `${ef ? ef.toLocaleString("pt-BR") + " efetivos e " : ""}${cm ? cm.toLocaleString("pt-BR") + " em comissão" : ""}`, tot.toLocaleString("pt-BR")) : ""}</table>
-    <p style="margin-top:14px"><b>Últimos 10 anos</b> · previsto × executado, em bilhões de reais da época</p><p class="nota" style="margin:4px 0 8px">${leg}</p><div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" style="width:100%;min-width:420px;height:auto;display:block">${barras}${ref1}${linhaE}${pontos}${regua}</svg></div>
-    <p class="nota">Tipo de execução: ${esc(O.executado_tipo || "")}. O ano corrente ainda não tem execução fechada. Fontes oficiais de cada ano no botão "i".</p>`;
+  const anos = Object.keys(O.loa).sort(), atual = anos[anos.length - 1], ult = [...anos].reverse().find((a) => (O.executado || {})[a]), sv = O.servidores || {}, svUF = UF === "sp" && ESTUF ? ESTUF.casa || {} : {};
+  const tot = sv.total || svUF.total_ativos_todos_regimes, ef = sv.efetivos || svUF.servidores_efetivos, cm = sv.comissionados || svUF.comissionados, F = O.fracao;
+  const bi = (v) => "R$ " + (v / 1e9).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " bi", mi = (v) => "R$ " + (v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + " mi", pc = (v) => (v >= 0 ? "+" : "−") + Math.abs(v * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%";
+  const L = (a) => O.loa[a] || 0, E = (a) => (O.executado || {})[a], inc = (i) => i ? L(anos[i]) / L(anos[i - 1]) - 1 : null;
+  const cresc = L(atual) / L(anos[0]) - 1, cagr = Math.pow(L(atual) / L(anos[0]), 1 / (anos.length - 1)) - 1, mx = Math.max(...anos.map(L));
+  // números do ano: fração, duodécimo, valor nominal (dotação na LOA) e o que foi usado (despesa empenhada)
+  const kp = [F ? [F.pct.toLocaleString("pt-BR") + "%", "da receita líquida", "Fração"] : null, [mi(L(atual) / 12), "por mês", "Duodécimo " + atual], [bi(L(atual)), `${pc(inc(anos.length - 1))} sobre ${anos[anos.length - 2]}`, "Nominal " + atual],
+    ult ? [Math.round(E(ult) / L(ult) * 100) + "%", `${bi(E(ult))} de ${bi(L(ult)).replace("R$ ", "")}`, "Usado " + ult] : null].filter(Boolean);
+  const linhas = anos.map((a, i) => { const e = E(a), u = e ? e / L(a) : null, d = inc(i);
+    return `<div class="odl"><b class="oda">${a}</b><div class="odt" style="width:${(L(a) / mx * 100).toFixed(1)}%">${e ? `<i style="width:${(u * 100).toFixed(1)}%"></i>` : `<i class="cor"></i>`}</div>
+      <span class="odv"><b>${bi(L(a))}</b><small>${e ? `usado ${Math.round(u * 100)}%` : "em execução"}</small></span><span class="odi${d == null ? " z" : d >= .1 ? " al" : ""}">${d == null ? "—" : pc(d)}</span></div>`; }).join("");
+  return `<div class="odk">${kp.map(([v, s2, t]) => `<div><span>${t}</span><b>${v}</b><small>${s2}</small></div>`).join("")}</div>
+    <div class="odh"><span>Ano</span><span>Valor nominal · <em>usado</em></span><span></span><span>Incremento</span></div><div class="odc">${linhas}</div>
+    <p class="nota">${F ? `<b>Duodécimo</b>: a cada mês o Estado repassa à Assembleia ${F.pct.toLocaleString("pt-BR")}% da ${esc(F.base)} do mês anterior (${esc(F.regra)}). ` : ""}<b>Valor nominal</b>: dotação inicial na Lei Orçamentária, em reais de cada ano. <b>Usado</b>: ${esc(O.executado_tipo || "despesa executada")}. Em ${anos.length - 1} anos o valor nominal cresceu ${pc(cresc)} (${pc(cagr)} ao ano, em média, sem descontar a inflação).${tot ? ` Servidores ativos: ${tot.toLocaleString("pt-BR")}${ef ? ` (${ef.toLocaleString("pt-BR")} efetivos e ${cm.toLocaleString("pt-BR")} em comissão)` : ""}.` : ""}${F && F.nota ? " " + esc(F.nota) + "." : ""}</p>`;
 }
 const orcFontes = () => { const O = ORCA && ORCA[UF]; return O ? Object.entries(O.fontes || {}).map(([a, u]) => `${a}: <a href="${esc(u)}" target="_blank" rel="noopener">fonte</a>`).join(" · ") : ""; };
 
