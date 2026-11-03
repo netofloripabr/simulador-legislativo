@@ -80,7 +80,7 @@ function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio()
   $("#app").innerHTML = `${capa(nm)}
     ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
   const tv = $("#trocaV"); if (tv) tv.onclick = (e) => { e.preventDefault(); escolha(true); };
-  $("#glc").onchange = (e) => { S.lc = e.target.value; capaLente(); };
+  $("#glc").onclick = (e) => { const b = e.target.closest("[data-lc]"); if (!b || b.dataset.lc === S.lc) return; S.lc = b.dataset.lc; const g = $("#glc"); g.querySelector(".gswb").classList.toggle("r", S.lc === "rec"); g.querySelectorAll("[data-lc]").forEach((x) => x.classList.toggle("on", x === b)); g.querySelector(".gswl").hidden = S.lc !== "rec"; capaLente(); };
   if (!GH || !document.body.contains($("#gCv")) || !GH.vivo) { capaMapa(); GH.vivo = true; }
   leque(); ligarCapaCliques(); ligarAvisoCota(); if (typeof ligarAdicionar === "function") ligarAdicionar();
   blocos();
@@ -96,26 +96,32 @@ const LENTES = [["votos", "Votos 2026"], ["rec", "Recursos 2023-26"], ["pago", "
 function valoresCapa() {
   const A = agregado(E0), val = EST.val || [];
   if (S.lc === "votos") return { v: BASE.mun.map((m, i) => val[i] ? (PARL.v[i] || 0) / val[i] : 0), top: BASE.mun.map((m, i) => PARL.v[i] || 0), rot: (x) => ni(x) + " votos" };
-  if (S.lc === "rec") return { v: BASE.mun.map((m, i) => (A[i] || {}).v || 0), top: BASE.mun.map((m, i) => (A[i] || {}).v || 0), rot: fm };
+  if (S.lc === "rec") return { v: BASE.mun.map((m, i) => (A[i] || {}).v || 0), g: BASE.mun.map((m, i) => A[i] && A[i].v ? Math.min(1, (A[i].vp || 0) / A[i].v) : 0), top: BASE.mun.map((m, i) => (A[i] || {}).v || 0), rot: fm, rotI: (i) => `${fm((A[i] || {}).v || 0)} · ${nf(A[i] && A[i].v ? A[i].vp / A[i].v * 100 : 0)}% pago` };
   if (S.lc === "pago") return { v: BASE.mun.map((m, i) => A[i] && A[i].v ? A[i].vp / A[i].v : 0), top: BASE.mun.map((m, i) => (A[i] || {}).vp || 0), rot: (x) => fm(x) + " pagos" };
   return { v: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), top: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), rot: (x) => "R$ " + nf(x, 0) + " por voto" };
 }
 function capa(nm) {
   const L = E0, tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), mun = new Set(L.map((e) => e.mun)).size;
-  // faixa de cota (02/11/2026): o total indicado em uma barra no padrão das Cotas (um pedaço por ano, linha verde = pago); o resto numa linha
-  const anoE = (e) => +e.ano || +String(e.k || "").slice(0, 4), anos = [...new Set(L.map(anoE).filter(Boolean))].sort(), TN = ["#E4E7E9", "#B0B5BA", "#7E848A", "#545A60", "#3E4449"];
-  const pa = anos.map((a) => L.filter((e) => anoE(e) === a).reduce((s, e) => s + (e.v || 0), 0));
+  // faixa de cota (02/11/2026): o total indicado em uma barra no padrão das Cotas, segmentada pela função (linha verde = pago); o resto numa linha
+  const anoE = (e) => +e.ano || +String(e.k || "").slice(0, 4), anos = [...new Set(L.map(anoE).filter(Boolean))].sort(), TN = ["#DADDE0", "#AEB3B8", "#868C92", "#62686E", "#474D52"];
+  const G = {}; L.forEach((e) => { const f = funCapa(e); G[f] = (G[f] || 0) + (e.v || 0); });
+  let seg = Object.entries(G).filter(([f]) => f !== "Outras").sort((a, b) => b[1] - a[1]); const resto = seg.slice(4).reduce((s, x) => s + x[1], 0) + (G.Outras || 0); seg = seg.slice(0, 4); if (resto) seg.push(["Outras", resto]);
   const faixa = tv ? `<div class="gcota"><div class="gcab2"><b>${fm(tv)}</b><span>indicado em emendas · ${anos[0]}-${String(anos.slice(-1)[0]).slice(2)}</span></div>
-    <div class="gbar">${pa.map((v, i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]};${i % 5 > 1 ? "color:#F2F4F5" : ""}" title="${anos[i]} · ${esc(fm(v))}">${v / tv > .14 ? `${anos[i]} · ${esc(fm(v))}` : ""}</i>`).join("")}</div>
-    <div class="gpg" style="width:${tp / tv * 100}%"></div><div class="gleg"><span><b>${nf(tp / tv * 100, 1)}% pago</b> · ${esc(fm(tp))} até hoje</span></div></div>` : "";
-  const kp = [[ni(PARL.t), "votos em 2026", 1], [ni(L.length), "emendas"], [ni(mun), "municípios atendidos"], [PARL.t && tv ? "R$ " + ni(Math.round(tv / PARL.t)) : "—", "por voto"]];
+    <div class="gbar">${seg.map(([f, v], i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]};${i % 5 > 2 ? "color:#EEF0F1" : ""}">${v / tv > .15 ? esc(f) : ""}</i>`).join("")}</div>
+    <div class="gpg" style="width:${tp / tv * 100}%"></div>
+    <div class="gleg">${seg.map(([f, v], i) => `<span><i style="background:${TN[i % 5]}"></i>${esc(f)} ${esc(fm(v))}</span>`).join("")}<span class="gpgt"><b>${nf(tp / tv * 100, 1)}% pago</b> · ${esc(fm(tp))}</span></div></div>` : "";
+  const kp = [[ni(PARL.t), "votos em 2026", 1], [ni(L.length), "emendas"], [ni(mun), "municípios atendidos"]];
   return `<section class="ghero" id="ghero"><div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
     <div class="gtxt"><div class="gid"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div></div>
     <h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
     ${faixa}<div class="pops gkp">${kp.map(([v, r, a], k) => `<div style="animation-delay:${.4 + k * .3}s"><b class="${a ? "a" : ""}">${esc(String(v))}</b><span>${esc(r)}</span></div>`).join("")}</div>${avisoCota()}
-    <div class="leqs glc">${leq("glc", "Mapa", LENTES, S.lc)}</div>
+    <div class="gsw" id="glc" role="group" aria-label="Mapa"><span>Mapa</span><div class="gswb${S.lc === "rec" ? " r" : ""}"><i></i><button data-lc="votos" class="${S.lc === "rec" ? "" : "on"}">Votos 2026</button><button data-lc="rec" class="${S.lc === "rec" ? "on" : ""}">Recursos</button></div><em class="gswl"${S.lc === "rec" ? "" : " hidden"}><b class="az"></b>indicado <b class="vd"></b>pago</em></div>
     ${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section>`;
 }
+// função da emenda na capa: a da planilha do gabinete quando a emenda está ligada a ela; senão, estimada pelo objeto
+const FUN_CAPA = { "Infraestrutura e Mobilidade": "Infraestrutura", "Segurança Pública": "Segurança", "Fundo Social": "Social", "Esporte, cultura e lazer": "Esporte e cultura" };
+function funCapa(e) { const r = PRIV && e.k && PRIV[e.k], f = r && r.funcao ? FUN_I.find(([re]) => re.test(r.funcao)) : null;
+  if (f) return f[1].replace(/ \(.*\)/, ""); const a = typeof piArea === "function" ? piArea(e.obj, e.tben) : "Outras"; return FUN_CAPA[a] || a; }
 // aviso da cota aberta (prazo correndo) no topo: contagem regressiva e atalho para a página de Indicação
 function avisoCota() {
   if (typeof COTAS_LEGAIS === "undefined" || typeof abrirInd !== "function" || !proprio() || !(PODE || LOCAL)) return "";
@@ -130,6 +136,7 @@ function ligarAvisoCota() {
   cd(); clearInterval(ligarAvisoCota.t); ligarAvisoCota.t = setInterval(() => { if (document.body.contains(a)) cd(); else clearInterval(ligarAvisoCota.t); }, 30000);
   a.querySelector("button").onclick = () => { IND.ano = +ano; IND.tag = "cota:" + t; IND.det = null; abrirInd(); };
 }
+const AZ_REC = [61, 123, 255], VD_REC = [52, 232, 74];
 let gRaf = null, GH = null;
 function capaMapa() {
   const cv = $("#gCv"); if (!cv) return; cancelAnimationFrame(gRaf);
@@ -140,25 +147,29 @@ function capaMapa() {
   const P = (lo, la) => [ox + (lo - lo0) * K * Sx, oy + (la0 - la) * Sx], k = Math.min(w, h) / 560, cont = new Path2D();
   BASE.contorno.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
   const refEl = Math.max(...BASE.mun.map((m) => m.el)) / 4;
-  const B = BASE.mun.map((m, i) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / refEl)) * k * .9, t0: 0, t1: 0, nasce: (Math.sin((i + 1) * 12.9898) * 43758.5453 % 1 + 1) % 1 * 2.2 }; });
+  const B = BASE.mun.map((m, i) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / refEl)) * k * .9, t0: 0, t1: 0, g0: 0, g1: 0, nasce: (Math.sin((i + 1) * 12.9898) * 43758.5453 % 1 + 1) % 1 * 2.2 }; });
   const ord = [...B.keys()].sort((a, b) => BASE.mun[b].el - BASE.mun[a].el), rgb = hexRgb(COR_P[PARL.p] || "#2B5FD9"), ne = [58, 64, 70], t0 = performance.now();
   GH = { B, w, h, ini: t0, top: [] };
   const quadro = (agora) => { if (!document.body.contains(cv)) return; const t = (agora - t0) / 1000, e1 = Math.min(1, (agora - GH.ini) / 650), ee = 1 - Math.pow(1 - e1, 3);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); ctx.globalAlpha = Math.min(1, t / 1.2); ctx.fillStyle = "rgba(242,244,245,.03)"; ctx.fill(cont); ctx.strokeStyle = "rgba(242,244,245,.06)"; ctx.lineWidth = .6; ctx.stroke(cont);
-    for (const i of ord) { const b = B[i], e0 = Math.min(1, Math.max(0, (t - b.nasce) / .7)); if (!e0) continue; const e = 1 - Math.pow(1 - e0, 3), tt = b.t0 + (b.t1 - b.t0) * ee, col = tt < .02 ? ne : ne.map((v, q) => Math.round(v + (rgb[q] - v) * Math.min(1, .25 + tt)));
-      ctx.globalAlpha = (.22 + .72 * tt) * e; ctx.shadowColor = `rgba(${rgb},${.8 * tt})`; ctx.shadowBlur = 16 * tt; ctx.fillStyle = `rgb(${col})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (.4 + .6 * e) * (.8 + .3 * tt), 0, 6.2832); ctx.fill(); }
-    ctx.shadowBlur = 0; GH.top.forEach((i, q) => { const b = B[i], v = (Math.sin(t * 1.4 + q) + 1) / 2; if (t < 2.6) return; ctx.globalAlpha = .25 * v; ctx.fillStyle = `rgb(${rgb})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1.2 + .5 * v), 0, 6.2832); ctx.fill(); });
+    // Recursos: azul = indicado (intensidade pelo valor); verde por dentro = a parte paga (área proporcional)
+    const rec = S.lc === "rec", cr = rec ? AZ_REC : rgb;
+    for (const i of ord) { const b = B[i], e0 = Math.min(1, Math.max(0, (t - b.nasce) / .7)); if (!e0) continue; const e = 1 - Math.pow(1 - e0, 3), tt = b.t0 + (b.t1 - b.t0) * ee, gg = b.g0 + (b.g1 - b.g0) * ee, col = tt < .02 ? ne : ne.map((v, q) => Math.round(v + (cr[q] - v) * Math.min(1, .25 + tt)));
+      const rr = b.r * (.4 + .6 * e) * (.8 + .3 * tt);
+      ctx.globalAlpha = (.22 + .72 * tt) * e; ctx.shadowColor = `rgba(${cr},${.8 * tt})`; ctx.shadowBlur = 16 * tt; ctx.fillStyle = `rgb(${col})`; ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, 6.2832); ctx.fill();
+      if (gg > .01 && tt > .02) { ctx.globalAlpha = (.35 + .55 * tt) * e; ctx.shadowColor = `rgba(${VD_REC},${.7 * tt})`; ctx.shadowBlur = 10 * tt; ctx.fillStyle = `rgb(${VD_REC})`; ctx.beginPath(); ctx.arc(b.x, b.y, rr * Math.sqrt(gg), 0, 6.2832); ctx.fill(); } }
+    ctx.shadowBlur = 0; GH.top.forEach((i, q) => { const b = B[i], v = (Math.sin(t * 1.4 + q) + 1) / 2; if (t < 2.6) return; ctx.globalAlpha = .25 * v; ctx.fillStyle = `rgb(${cr})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1.2 + .5 * v), 0, 6.2832); ctx.fill(); });
     ctx.globalAlpha = 1; gRaf = requestAnimationFrame(quadro); };
   gRaf = requestAnimationFrame(quadro); capaLente();
 }
 function capaLente() {
   if (!GH) return; const agora = performance.now(), e1 = Math.min(1, (agora - GH.ini) / 650), ee = 1 - Math.pow(1 - e1, 3);
-  GH.B.forEach((b) => { b.t0 = b.t0 + (b.t1 - b.t0) * ee; });
+  GH.B.forEach((b) => { b.t0 = b.t0 + (b.t1 - b.t0) * ee; b.g0 = b.g0 + (b.g1 - b.g0) * ee; });
   const X = valoresCapa(), e95 = [...X.v].sort((a, b) => a - b)[Math.floor(X.v.length * .95)] || 1;
-  GH.B.forEach((b, i) => { b.t1 = Math.min(1, X.v[i] / e95); }); GH.ini = agora;
+  GH.B.forEach((b, i) => { b.t1 = Math.min(1, X.v[i] / e95); b.g1 = X.g ? X.g[i] : 0; }); GH.ini = agora;
   const ordT = [...X.top.keys()].sort((a, b) => X.top[b] - X.top[a]); GH.top = ordT.slice(0, 5);
   const i1 = ordT[0], b1 = GH.B[i1]; if (!X.top[i1]) { $("#gEtq").innerHTML = ""; return; }
-  GH.i1 = i1; $("#gEtq").innerHTML = `<div class="etq" data-cid="${esc(BASE.mun[i1].n)}" title="Ver as emendas de ${esc(BASE.mun[i1].n)}" style="left:${b1.x}px;top:${b1.y - b1.r}px;animation-delay:.4s, 1.1s"><span>${esc(BASE.mun[i1].n)}</span><b>${esc(X.rot(X.top[i1]))}</b></div>`;
+  GH.i1 = i1; $("#gEtq").innerHTML = `<div class="etq" data-cid="${esc(BASE.mun[i1].n)}" title="Ver as emendas de ${esc(BASE.mun[i1].n)}" style="left:${b1.x}px;top:${b1.y - b1.r}px;animation-delay:.4s, 1.1s"><span>${esc(BASE.mun[i1].n)}</span><b>${esc(X.rotI ? X.rotI(i1) : X.rot(X.top[i1]))}</b></div>`;
 }
 // leque de títulos no topo (mesmo papel da navegação de seções de Parlamentares): abre e leva ao título
 // aparência dos itens do Controle (claro, padrão; ou escuro), escolhida no menu e guardada neste navegador
