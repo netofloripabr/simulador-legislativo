@@ -197,7 +197,8 @@ function abrirPlanilhaInd(T) {
     w.querySelector("[data-xl]").onclick = async () => { w.querySelector("[data-msg]").textContent = "Gerando…"; try { await xlsxInd(T); w.remove(); } catch (er) { w.querySelector("[data-msg]").textContent = "Não foi possível gerar: " + (er.message || er); } };
     const gg = w.querySelector("[data-gg]"); if (gg) gg.onclick = async () => { const m = w.querySelector("[data-msg]"); m.textContent = "Criando no Google Drive…";
       try { const u = await googleInd(T); if (!u) return; if (T.L) T.L = await gravar("gab_listas", { id: T.L.id, regras: { ...(T.L.regras || {}), planilha_google: u } }); m.innerHTML = `Pronto. <a href="${esc(u)}" target="_blank" rel="noopener">Abrir a planilha</a>`; window.open(u, "_blank"); }
-      catch (er) { m.textContent = /401|invalid|credential|insufficient/i.test(er.message) ? "A autorização do Google expirou. Clique de novo para entrar." : "Não foi possível criar: " + (er.message || er); if (/401|invalid|credential|insufficient/i.test(er.message)) { try { await supabaseClient.auth.refreshSession(); } catch (e) {} } } };
+      catch (er) { if (/has not been used in project|is disabled|SERVICE_DISABLED/i.test(er.message)) { m.innerHTML = "O Google ainda não liberou a criação de planilhas para este site (falta ativar a API do Google Drive e a do Google Planilhas no projeto do Google Cloud do sistema). Enquanto isso, use <b>Baixar .xlsx</b> e abra no Google Planilhas."; return; }
+        m.textContent = /401|invalid|credential|insufficient/i.test(er.message) ? "A autorização do Google expirou. Clique de novo para entrar." : "Não foi possível criar: " + (er.message || er); if (/401|invalid|credential|insufficient/i.test(er.message)) { try { await supabaseClient.auth.refreshSession(); } catch (e) {} } } };
   });
 }
 // janela simples no padrão do cadeado (cfp/cfb)
