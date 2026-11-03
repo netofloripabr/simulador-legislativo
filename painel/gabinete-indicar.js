@@ -73,7 +73,7 @@ function objetosRef(q) {
 // ícones da página (traço fino, cor herdada)
 const ICI = { mun: '<path d="M3 7h10v6.5H3zM5 2.5h6v2.6H5zM8 5.1V7M7 13.5v-2.5h2v2.5M4.8 9h1.4M9.8 9h1.4"/>', ent: '<path d="M2.5 7.5L8 3l5.5 4.5M4 6.3v7.2h8V6.3"/><path d="M8 11.6s-2-1.2-2-2.5a1 1 0 0 1 2-.4 1 1 0 0 1 2 .4c0 1.3-2 2.5-2 2.5z"/>', est: '<path d="M3.5 2.2v11.6M3.5 3h9.5M3.5 10h9.5"/><path d="M8.25 4.1l2.4 2.4-2.4 2.4-2.4-2.4z"/>',
   min: '<path d="M8 3v8M4.5 7.5L8 11l3.5-3.5M3.5 13.5h9"/>', sal: '<path d="M2.5 8h11M9.5 4.5L13 8l-3.5 3.5M2.5 3.5v9"/>', seta: '<path d="M4 6l4 4 4-4"/>', x: '<path d="M4.5 4.5l7 7M11.5 4.5l-7 7"/>',
-  regras: '<path d="M3 4.5h10M3 8h10M3 11.5h10"/><circle cx="6" cy="4.5" r="1.3"/><circle cx="10.5" cy="8" r="1.3"/><circle cx="5" cy="11.5" r="1.3"/>', impr: '<path d="M4.5 6V2.5h7V6M4.5 11.5H3V6h10v5.5h-1.5M4.5 9.5h7v4h-7z"/>', plan: '<path d="M2.5 3h11v10h-11zM2.5 6.5h11M2.5 10h11M6.5 3v10"/>', sau: '<path d="M6.5 2.5h3v4h4v3h-4v4h-3v-4h-4v-3h4z"/>', edu: '<path d="M2.5 4.5l5.5-2 5.5 2-5.5 2zM4.5 5.5v4c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5v-4M13.5 4.5v4"/>', fun: '<path d="M2.5 13.5h11M3.5 13.5v-6h3v6M6.5 13.5V4.5h3v9M9.5 13.5v-4h3v4"/>', agr: '<path d="M8 13.5V7M8 7c0-2.5 2-4.5 5-4.5 0 3-2 4.5-5 4.5zM8 9c0-2-1.6-3.5-4.5-3.5C3.5 8 5 9 8 9z"/>', inf: '<path d="M5 13.5l2-11M11 13.5l-2-11M8 4v1.5M8 7.5v1.5M8 11v1.5"/>', seg: '<path d="M8 2.3l4.8 1.9v3.6c0 2.9-2.1 4.8-4.8 5.9-2.7-1.1-4.8-3-4.8-5.9V4.2z"/><path d="M8 5.6l.8 1.5 1.7.2-1.2 1.2.3 1.7L8 9.4l-1.6.8.3-1.7-1.2-1.2 1.7-.2z"/>', soc: '<circle cx="5.5" cy="5.5" r="2"/><circle cx="10.5" cy="5.5" r="2"/><path d="M2 12.5c.4-2 1.8-3 3.5-3s3.1 1 3.5 3M7.5 12.5c.4-2 1.5-3 3-3s2.8 1 3.2 3"/>', te: '<path d="M2.5 8h9M8.5 4.5L12 8l-3.5 3.5M13.5 3.5v9"/>', co: '<path d="M4.5 2.5h5l2 2v9h-7zM6.3 9.3l1.3 1.3 2.4-2.6"/>', ed: '<path d="M2.5 8h6M6.5 5.5L9 8l-2.5 2.5M10.5 3.5h3v9h-3"/>', doc2: '<path d="M4.5 2.5h5l2 2v9h-7zM6.5 8h3M6.5 10.5h2"/>', cad: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2M8 9.6v1.4"/>', cadab: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 4.9-.7M8 9.6v1.4"/>', lixo: '<path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5"/>' };
+  regras: '<path d="M3 4.5h10M3 8h10M3 11.5h10"/><circle cx="6" cy="4.5" r="1.3"/><circle cx="10.5" cy="8" r="1.3"/><circle cx="5" cy="11.5" r="1.3"/>', impr: '<path d="M4.5 6V2.5h7V6M4.5 11.5H3V6h10v5.5h-1.5M4.5 9.5h7v4h-7z"/>', plan: '<path d="M2.5 3h11v10h-11zM2.5 6.5h11M2.5 10h11M6.5 3v10"/>', sau: '<path d="M6.5 2.5h3v4h4v3h-4v4h-3v-4h-4v-3h4z"/>', edu: '<path d="M2.5 4.5l5.5-2 5.5 2-5.5 2zM4.5 5.5v4c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5v-4M13.5 4.5v4"/>', fun: '<path d="M2.5 13.5h11M3.5 13.5v-6h3v6M6.5 13.5V4.5h3v9M9.5 13.5v-4h3v4"/>', agr: '<path d="M8 13.5V7M8 7c0-2.5 2-4.5 5-4.5 0 3-2 4.5-5 4.5zM8 9c0-2-1.6-3.5-4.5-3.5C3.5 8 5 9 8 9z"/>', inf: '<path d="M5 13.5l2-11M11 13.5l-2-11M8 4v1.5M8 7.5v1.5M8 11v1.5"/>', seg: '<path d="M8 2.3l4.8 1.9v3.6c0 2.9-2.1 4.8-4.8 5.9-2.7-1.1-4.8-3-4.8-5.9V4.2z"/><path d="M8 5.6l.8 1.5 1.7.2-1.2 1.2.3 1.7L8 9.4l-1.6.8.3-1.7-1.2-1.2 1.7-.2z"/>', soc: '<circle cx="5.5" cy="5.5" r="2"/><circle cx="10.5" cy="5.5" r="2"/><path d="M2 12.5c.4-2 1.8-3 3.5-3s3.1 1 3.5 3M7.5 12.5c.4-2 1.5-3 3-3s2.8 1 3.2 3"/>', te: '<path d="M2.5 8h9M8.5 4.5L12 8l-3.5 3.5M13.5 3.5v9"/>', co: '<path d="M4.5 2.5h5l2 2v9h-7zM6.3 9.3l1.3 1.3 2.4-2.6"/>', ed: '<path d="M2.5 8h6M6.5 5.5L9 8l-2.5 2.5M10.5 3.5h3v9h-3"/>', doc2: '<path d="M4.5 2.5h5l2 2v9h-7zM6.5 8h3M6.5 10.5h2"/>', cad: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2M8 9.6v1.4"/>', cadab: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.2"/><path d="M5.5 7V5a2.5 2.5 0 0 1 4.9-.7M8 9.6v1.4"/>', lixo: '<path d="M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5"/>', borr: '<path d="M9.3 2.8l3.9 3.9-6.2 6.3H4.3L2.6 11.3a1 1 0 0 1 0-1.4z M6.2 5.9l3.9 3.9 M7 13h6.5"/>', mais: '<path d="M8 3.5v9M3.5 8h9"/>' };
 const ici = (k) => `<svg class="ici" viewBox="0 0 16 16" aria-hidden="true">${ICI[k]}</svg>`;
 const SIG_I = { "Transferência Especial": "TE", "Convênio": "CO", "Execução Direta": "ED", "Convênio Simplificado": "CS", "Termo de Fomento": "TF", "Termo de Colaboração": "TC", "Acordo de Cooperação": "AC" };
 // modalidades na linha: as três principais (TE, CO, ED) + a atual, se for outra; as demais ficam no detalhamento
@@ -96,7 +96,7 @@ function linhaInd(T, g, x, i, semExp) {
     <td><input data-c="municipio" list="indMun" value="${esc(x ? x.municipio || "" : "")}" placeholder="${x ? "Município" : "indicar"}"></td>
     <td class="iob"><div class="iqm">${quem}</div><div><textarea data-c="objeto" rows="1" placeholder="Objeto">${esc(x ? x.objeto || "" : "")}</textarea><button class="imais" data-iobj title="Objetos de referência">+</button></div></td>
     <td class="r iv2"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"></td>
-    <td class="iac">${x ? `<button data-iexp class="iseta${IND.det === "a:" + x.id ? " ab" : ""}" title="Detalhar">${ici("seta")}</button>` : ""}</td></tr>
+    <td class="iac">${x ? `<button data-iborr class="iborr" title="Apagar esta linha">${ici("borr")}</button><button data-iexp class="iseta${IND.det === "a:" + x.id ? " ab" : ""}" title="Detalhar">${ici("seta")}</button>` : ""}</td></tr>
     ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}" data-ick="${x.id}"><td></td><td colspan="${5}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
     ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${6}">${detForm(x, T, g)}</td></tr>` : ""}`;
 }
@@ -113,11 +113,11 @@ function planInd(T) {
   if (!edita) return `<div class="iinf">${inf}</div><div class="itw"><table class="itb"><thead><tr><th></th><th>Município</th><th>Objeto</th><th>Instr.</th><th class="r">Valor</th><th class="hm">Status</th><th></th></tr></thead><tbody>
     ${R.map((x, i) => `<tr class="ir${IND.det === x.id ? " on" : ""}" data-ir="${esc(x.id)}"><td class="n">${i + 1}</td><td>${esc(x.mun || "—")}</td><td class="ob">${esc(frase(x.obj || ""))}</td><td>${esc(x.ins)}</td><td class="r">${ni(Math.round(x.v))}</td><td class="hm st">${esc(x.st)}</td><td class="ar">›</td></tr>`).join("")}
     <tr class="itt"><td></td><td colspan="3">Total · ${R.length} itens</td><td class="r">${ni(Math.round(tot))}</td><td colspan="2" class="hm"></td></tr></tbody></table></div>`;
-  const it = R.map((x) => AD.itens.find((y) => "a:" + y.id === x.id)), vaz = g.max ? Math.min(g.max > 10 ? 3 : g.max, Math.max(0, g.max - it.length)) : 1; // cota grande (LOA, 120): só 3 linhas em branco por vez
+  const it = R.map((x) => AD.itens.find((y) => "a:" + y.id === x.id)), vaz = Math.min(g.max ? Math.max(0, g.max - it.length) : 999, (g.max ? Math.min(g.max > 10 ? 3 : g.max, Math.max(0, g.max - it.length)) : 1) + (IND.extra || 0)); // cota grande (LOA, 120): 3 linhas em branco + as incluídas no botão
   return `<div class="iinf">${inf}${trava}${outras}${acs}</div><datalist id="indMun">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>
     <div class="itw"><table class="itb ied"><thead><tr><th></th><th>Ente · modalidade · função</th><th>Município</th><th>Objeto</th><th class="r">Valor (R$)</th><th></th></tr></thead><tbody>
     ${it.map((x, i) => linhaInd(T, g, x, i)).join("")}${Array.from({ length: vaz }, (_, i) => linhaInd(T, g, null, it.length + i)).join("")}
-    <tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>`;
+    <tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>${!g.max || it.length + vaz < g.max ? `<div class="iinc"><button class="ilix" data-iinc title="Incluir uma linha em branco no fim da lista">${ici("mais")}Incluir linha</button></div>` : ""}`;
 }
 // ---------- edição direto na planilha: grava a célula e redesenha SÓ a linha (não perde o que está sendo digitado nas outras e não pula de campo) ----------
 const numBR = (s) => +String(s || "").replace(/[^\d,]/g, "").replace(",", ".") || 0;
@@ -135,6 +135,7 @@ async function salvarLinha(T, tr, campos) {
   try { const L = await garantirLista(T);
     const reg = x ? { id: x.id, ...campos } : { lista_id: L ? L.id : null, tipo: T.cota ? "Emenda impositiva" : null, status: "Em análise", ...(g.trava ? { area: g.trava } : {}), ...campos };
     const pr = gravar("gab_itens", reg); if (!x) tr._cria = pr; const nx = await pr; tr._cria = null;
+    if (campos.valor != null && Math.abs((+nx.valor || 0) - campos.valor) > .005) alert("O valor digitado não foi gravado (ficou " + rc(+nx.valor || 0) + "). Confira a linha e digite de novo.");
     const ativo = document.activeElement, campoAt = ativo && tr.contains(ativo) ? ativo.dataset.c : null, sel = ativo && ativo.selectionStart;
     const i = [...tr.parentNode.querySelectorAll("tr.iw")].indexOf(tr), ck = tr.nextElementSibling && tr.nextElementSibling.classList.contains("ick") ? tr.nextElementSibling : null;
     const tmp = document.createElement("tbody"); tmp.innerHTML = linhaInd(T, g, nx, i, true); if (ck) ck.remove();
@@ -173,6 +174,9 @@ function ligarLinha(tr, T) {
   const l = tr.querySelector("[data-ilimpa]"); if (l) l.onclick = async () => { if (l.dataset.ok !== "1") { l.dataset.ok = "1"; l.textContent = "limpar?"; l.classList.add("ok"); setTimeout(() => { l.dataset.ok = ""; l.innerHTML = ici("x"); l.classList.remove("ok"); }, 3000); return; }
     try { await apagar("gab_itens", tr.dataset.iw); if (IND.det === "a:" + tr.dataset.iw) IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
   tr.querySelector("[data-iobj]").onclick = (e) => { e.stopPropagation(); popObjeto(tr, T); };
+  const bo = tr.querySelector("[data-iborr]"); if (bo) bo.onclick = async (e) => { e.stopPropagation(); const y = x(); if (!y) return;
+    const ok = await avisoCad("Apagar esta linha?", `<p>A emenda ${y.municipio ? `de <b>${esc(y.municipio)}</b>` : "desta linha"}${+y.valor ? ` (${rc(+y.valor)})` : ""} sai da lista. Não dá para desfazer.</p>${y.chave_emenda ? `<p class="mut">Ela já foi levada ao Controle de Recursos; a linha de lá continua e só pode ser apagada no Controle.</p>` : ""}`, `${ici("borr")}Apagar linha`, true);
+    if (!ok) return; try { await apagar("gab_itens", y.id); if (IND.det === "a:" + y.id) IND.det = null; desenharInd(); } catch (er) { alert("Não foi possível apagar: " + (er.message || er)); } };
 }
 function marcaAtiva(id) { if (!id || IND.ativa === id) return; IND.ativa = id; document.querySelectorAll("#indPg tr.ick").forEach((r) => r.classList.toggle("vis", r.dataset.ick === id || IND.det === "a:" + r.dataset.ick)); }
 function ligarPlan(p, T) {
@@ -181,6 +185,7 @@ function ligarPlan(p, T) {
     const f = (T.L.regras || {}).fechada_em; sh.querySelector(".iinf").insertAdjacentHTML("afterend", `<div class="ifbar">${ici("cad")}Lista fechada${f ? " em " + new Date(f).toLocaleDateString("pt-BR") : ""} e incluída no Controle de Recursos. Para editar, use “Fechada · reabrir”.</div>`);
     p.querySelectorAll("tr.iexp").forEach((r) => { const x = AD.itens.find((y) => y.id === r.dataset.iexpw); if (x) ligarDet(r, x, T); }); return; }
   p.querySelectorAll("tr.iw").forEach((tr) => ligarLinha(tr, T));
+  const inc = p.querySelector("[data-iinc]"); if (inc) inc.onclick = () => { IND.extra = (IND.extra || 0) + 1; desenharInd(); const v = [...document.querySelectorAll("#indPg tr.iw[data-iw='']")].pop(); if (v) { v.scrollIntoView({ block: "center" }); const m = v.querySelector('[data-c="municipio"]'); if (m) m.focus(); } };
   p.querySelectorAll("tr.iexp").forEach((r) => { const x = AD.itens.find((y) => y.id === r.dataset.iexpw); if (x) ligarDet(r, x, T); }); }
 // entidades já atendidas por emendas (portal da SEF, todos os deputados 2023-26): nome, CNPJ, município e quantas vezes recebeu
 let ENTS = null;
@@ -293,8 +298,8 @@ function desenharInd() {
     <div class="isheet">${planInd(T)}</div></div><div id="indDet"></div>`;
   contador(); detInd();
   p.querySelector("[data-ivolta]").onclick = fecharInd;
-  p.querySelectorAll("[data-iano]").forEach((b) => b.onclick = () => { IND.ano = +b.dataset.iano; IND.tag = null; IND.det = null; desenharInd(); });
-  p.querySelectorAll("[data-itag]").forEach((b) => b.onclick = () => { IND.tag = b.dataset.itag; IND.det = null; desenharInd(); });
+  p.querySelectorAll("[data-iano]").forEach((b) => b.onclick = () => { IND.ano = +b.dataset.iano; IND.tag = null; IND.det = null; IND.extra = 0; desenharInd(); });
+  p.querySelectorAll("[data-itag]").forEach((b) => b.onclick = () => { IND.tag = b.dataset.itag; IND.det = null; IND.extra = 0; desenharInd(); });
   p.querySelector("[data-inlista]").onclick = () => formLista();
   p.querySelectorAll("[data-ir]").forEach((r) => r.onclick = () => { IND.det = IND.det === r.dataset.ir ? null : r.dataset.ir; desenharInd(); });
   if (T && T.k !== "plan") ligarPlan(p, T);
@@ -307,8 +312,8 @@ function desenharInd() {
 // cadeado da lista (28/10/2026): FECHAR leva as emendas ao Controle de Recursos (novas viram linhas com status "Indicada";
 // as já levadas são atualizadas com o que mudou) e trava a lista; REABRIR destrava para editar — as emendas continuam no
 // Controle e, ao fechar de novo, recebem as alterações. Mudanças feitas direto no Controle não voltam para a lista.
-function avisoCad(titulo, html, botao) { return new Promise((ok) => { let w = document.getElementById("cfCad"); if (w) w.remove();
-  document.body.insertAdjacentHTML("beforeend", `<div id="cfCad" class="cfp"><div class="cfb icfb"><b>${titulo}</b><div class="icft">${html}</div><div><button class="lk0" data-x>Cancelar</button><button class="btnp ibtv" data-ok>${botao}</button></div></div></div>`);
+function avisoCad(titulo, html, botao, perigo) { return new Promise((ok) => { let w = document.getElementById("cfCad"); if (w) w.remove();
+  document.body.insertAdjacentHTML("beforeend", `<div id="cfCad" class="cfp"><div class="cfb icfb"><b>${titulo}</b><div class="icft">${html}</div><div><button class="lk0" data-x>Cancelar</button><button class="btnp ${perigo ? "ibtd" : "ibtv"}" data-ok>${botao}</button></div></div></div>`);
   w = document.getElementById("cfCad"); const fim = (v) => { w.remove(); ok(v); }; w.querySelector("[data-x]").onclick = () => fim(false); w.onclick = (e) => { if (e.target === w) fim(false); }; w.querySelector("[data-ok]").onclick = () => fim(true); }); }
 const linhaCtl = (x, T, ori, obs) => ({ ano: IND.ano, origem: ori, municipio: String(x.municipio || "").toUpperCase(), tags: T.L && T.L.apelido ? [T.L.apelido] : null, regiao: regDe(x) || null, beneficiario: tipoDe(x) === "ent" ? [x.razao_social || x.beneficiario, x.cnpj ? "CNPJ " + x.cnpj : ""].filter(Boolean).join(" · ") : tipoDe(x) === "est" ? "Estado" : "Município", objeto: x.objeto, funcao: x.area || regrasInd(T).trava || null, modalidade: SIG_I[x.modalidade] || x.modalidade || null, valor: +x.valor || null, natureza: x.natureza || null, pl: x.pl || null, ...(obs ? { status_manual: "🔄 Indicada", observacao: obs, indicacao_id: x.id } : {}) });
 async function fecharLista(T) {
