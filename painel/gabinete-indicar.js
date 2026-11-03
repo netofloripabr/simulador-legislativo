@@ -117,7 +117,7 @@ function planInd(T) {
   return `<div class="iinf">${inf}${trava}${outras}${acs}</div><datalist id="indMun">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>
     <div class="itw"><table class="itb ied"><thead><tr><th></th><th>Ente · modalidade · função</th><th>Município</th><th>Objeto</th><th class="r">Valor (R$)</th><th></th></tr></thead><tbody>
     ${it.map((x, i) => linhaInd(T, g, x, i)).join("")}${Array.from({ length: vaz }, (_, i) => linhaInd(T, g, null, it.length + i)).join("")}
-    <tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>${!g.max || it.length + vaz < g.max ? `<div class="iinc"><button class="ilix" data-iinc title="Incluir uma linha em branco no fim da lista">${ici("mais")}Incluir linha</button></div>` : ""}`;
+    ${!g.max || it.length + vaz < g.max ? `<tr class="iincr"><td></td><td colspan="5"><button class="iinc" data-iinc>${ici("mais")}Incluir linha</button></td></tr>` : ""}<tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>`;
 }
 // ---------- edição direto na planilha: grava a célula e redesenha SÓ a linha (não perde o que está sendo digitado nas outras e não pula de campo) ----------
 const numBR = (s) => +String(s || "").replace(/[^\d,]/g, "").replace(",", ".") || 0;
