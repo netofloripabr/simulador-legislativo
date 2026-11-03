@@ -106,16 +106,17 @@ function capa(nm) {
   const anoE = (e) => +e.ano || +String(e.k || "").slice(0, 4), anos = [...new Set(L.map(anoE).filter(Boolean))].sort(), TN = ["#DADDE0", "#AEB3B8", "#868C92", "#62686E", "#474D52"];
   const G = {}; L.forEach((e) => { const f = funCapa(e); G[f] = (G[f] || 0) + (e.v || 0); });
   let seg = Object.entries(G).filter(([f]) => f !== "Outras").sort((a, b) => b[1] - a[1]); const resto = seg.slice(4).reduce((s, x) => s + x[1], 0) + (G.Outras || 0); seg = seg.slice(0, 4); if (resto) seg.push(["Outras", resto]);
-  const faixa = tv ? `<div class="gcota"><div class="gcab2"><b>${fm(tv)}</b><span>indicado em emendas · ${anos[0]}-${String(anos.slice(-1)[0]).slice(2)}</span></div>
-    <div class="gbar">${seg.map(([f, v], i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]};${i % 5 > 2 ? "color:#EEF0F1" : ""}">${v / tv > .15 ? esc(f) : ""}</i>`).join("")}</div>
-    <div class="gpg" style="width:${tp / tv * 100}%"></div>
-    <div class="gleg">${seg.map(([f, v], i) => `<span><i style="background:${TN[i % 5]}"></i>${esc(f)} ${esc(fm(v))}</span>`).join("")}<span class="gpgt"><b>${nf(tp / tv * 100, 1)}% pago</b> · ${esc(fm(tp))}</span></div></div>` : "";
-  const kp = [[ni(PARL.t), "votos em 2026", 1], [ni(L.length), "emendas"], [ni(mun), "municípios atendidos"]];
-  return `<section class="ghero" id="ghero"><div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
+  // conceito B (03/11/2026): o nome sozinho no alto; embaixo dois cartões translúcidos sobre o mapa (Recursos e Votos);
+  // o aviso da cota aberta vira uma faixa fina no topo do quadro e o interruptor do mapa fica no canto do próprio mapa
+  const cRec = tv ? `<div class="gcard"><div class="k">Recursos · ${anos[0]}-${String(anos.slice(-1)[0]).slice(2)}</div><div class="v">${esc(fm(tv))}</div>
+    <div class="gbar">${seg.map(([, v], i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]}"></i>`).join("")}</div><div class="gpg" style="width:${tp / tv * 100}%"></div>
+    <div class="gleg">${seg.map(([f, v], i) => `<span><i style="background:${TN[i % 5]}"></i>${esc(f)} <em>${esc(fm(v))}</em></span>`).join("")}<span><i style="background:#34E84A"></i>pago <em>${nf(tp / tv * 100)}%</em></span></div></div>` : "";
+  const cVot = `<div class="gcard"><div class="k">Votos · 2026</div><div class="v a">${ni(PARL.t)}</div><div class="gmini"><div><span>Municípios atendidos</span><span>${ni(mun)}</span></div><div><span>Emendas</span><span>${ni(L.length)}</span></div>${tv ? `<div><span>Pago até hoje</span><span class="vd">${nf(tp / tv * 100, 1)}%</span></div>` : ""}</div></div>`;
+  return `<section class="ghero" id="ghero">${avisoCota()}<div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
+    <div class="gsw" id="glc" role="group" aria-label="Mapa"><em class="gswl"${S.lc === "rec" ? "" : " hidden"}><b class="az"></b>indicado <b class="vd"></b>pago</em><div class="gswb${S.lc === "rec" ? " r" : ""}"><i></i><button data-lc="votos" class="${S.lc === "rec" ? "" : "on"}">Votos</button><button data-lc="rec" class="${S.lc === "rec" ? "on" : ""}">Recursos</button></div></div>
     <div class="gtxt"><div class="gid"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div></div>
     <h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
-    ${faixa}<div class="pops gkp">${kp.map(([v, r, a], k) => `<div style="animation-delay:${.4 + k * .3}s"><b class="${a ? "a" : ""}">${esc(String(v))}</b><span>${esc(r)}</span></div>`).join("")}</div>${avisoCota()}
-    <div class="gsw" id="glc" role="group" aria-label="Mapa"><span>Mapa</span><div class="gswb${S.lc === "rec" ? " r" : ""}"><i></i><button data-lc="votos" class="${S.lc === "rec" ? "" : "on"}">Votos 2026</button><button data-lc="rec" class="${S.lc === "rec" ? "on" : ""}">Recursos</button></div><em class="gswl"${S.lc === "rec" ? "" : " hidden"}><b class="az"></b>indicado <b class="vd"></b>pago</em></div>
+    <div class="gcards">${cRec}${cVot}</div>
     ${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section>`;
 }
 // função da emenda na capa: a da planilha do gabinete quando a emenda está ligada a ela; senão, estimada pelo objeto
@@ -128,11 +129,11 @@ function avisoCota() {
   const ag = new Date(), [ano, t, c] = Object.entries(COTAS_LEGAIS).flatMap(([a, o]) => Object.entries(o).map(([t2, c2]) => [+a, t2, c2])).find(([, , c2]) => c2.prazo && new Date(c2.prazo) > ag && (!c2.abre || new Date(c2.abre) <= ag)) || [];
   if (!c) return "";
   const Lc = typeof AD !== "undefined" && typeof listaDaCota === "function" ? listaDaCota(ano, t) : null, n = Lc ? AD.itens.filter((x) => x.lista_id === Lc.id && (x.municipio || +x.valor)).length : 0;
-  return `<div class="gloa" data-gcota="${ano}|${t}"><div class="t"><b>${esc((typeof cotaNome !== "undefined" && cotaNome[t]) || t)} ${ano} · indicação aberta</b><span>${esc(fm(c.disp))} disponíveis · ${n} de ${c.max || "—"} emendas · fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}</span></div><div class="icd" data-prazo="${esc(c.prazo)}"></div><button class="btn">Indicar ›</button></div>`;
+  return `<div class="gloa" data-gcota="${ano}|${t}"><b>${esc((typeof cotaNome !== "undefined" && cotaNome[t]) || t)} ${ano} · indicação aberta</b><span class="gld">${esc(fm(c.disp))} disponíveis · ${n} de ${c.max || "—"} emendas · fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}</span><span class="icd" data-prazo="${esc(c.prazo)}"></span><button class="btn">Indicar ›</button></div>`;
 }
 function ligarAvisoCota() {
   const a = $("#ghero [data-gcota]"); if (!a) return; const [ano, t] = a.dataset.gcota.split("|");
-  const cd = () => { const e = a.querySelector(".icd"), s = Math.max(0, (new Date(e.dataset.prazo) - new Date()) / 1000); e.innerHTML = [[Math.floor(s / 86400), "dias"], [Math.floor(s % 86400 / 3600), "h"], [Math.floor(s % 3600 / 60), "min"]].map(([v, u]) => `<div><b>${String(v).padStart(2, "0")}</b><span>${u}</span></div>`).join(""); };
+  const cd = () => { const e = a.querySelector(".icd"), s = Math.max(0, (new Date(e.dataset.prazo) - new Date()) / 1000); e.innerHTML = [[Math.floor(s / 86400), "d"], [Math.floor(s % 86400 / 3600), "h"], [Math.floor(s % 3600 / 60), "min"]].map(([v, u]) => `<b>${String(v).padStart(2, "0")}</b><span>${u}</span>`).join(""); };
   cd(); clearInterval(ligarAvisoCota.t); ligarAvisoCota.t = setInterval(() => { if (document.body.contains(a)) cd(); else clearInterval(ligarAvisoCota.t); }, 30000);
   a.querySelector("button").onclick = () => { IND.ano = +ano; IND.tag = "cota:" + t; IND.det = null; abrirInd(); };
 }
