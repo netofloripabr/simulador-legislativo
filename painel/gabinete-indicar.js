@@ -108,7 +108,7 @@ function planInd(T) {
   const inf = c ? `<b>Cota fixa do administrador</b> · ${esc(c.doc || c.base || "")}${c.min ? ` · mín. ${fm(c.min)}` : ""}${c.max ? ` · até ${c.max} emendas` : ""}${c.saude ? ` · Saúde no mínimo ${c.saude * 100}%` : ""}${c.abre && new Date(c.abre) > new Date() ? ` · abre em ${new Date(c.abre).toLocaleDateString("pt-BR")}` : ""}`
     : T.k === "plan" ? "Planilha do gabinete · itens do exercício " + IND.ano : T.k === "avulsos" ? "Indicações fora de lista" : `Lista do gabinete · ${esc(T.L.origem || "")}`;
   const outras = !c && edita ? (() => { const sv = S.cesc; S.cesc = "imp"; const ind = itensCotas().filter((x) => x.ano === IND.ano).reduce((s, x) => s + x.v, 0); S.cesc = sv; const q = QUOTA[IND.ano]; return q ? `<span class="isal">Impositivas ${IND.ano}: saldo <b>${rc(Math.max(0, q - ind))}</b></span>` : ""; })() : "";
-  const acs = edita && (T.L || T.cota) ? `<span class="iacs">${T.L ? `<button data-ireg>${ici("regras")}Regras</button>` : ""}<button data-idoc>${ici("impr")}Documento</button><button data-ixls>${ici("plan")}Planilha de indicação</button>${T.L && (T.L.regras || {}).fechada ? `<button class="icad fech" data-icad title="Lista fechada e no Controle de Recursos. Clique para reabrir e editar.">${ici("cad")}Fechada · reabrir</button>` : `<button class="icad" data-icad title="Fechar a lista e levar as emendas ao Controle de Recursos">${ici("cadab")}Fechar lista</button>`}</span>` : "";
+  const acs = edita && (T.L || T.cota) ? `<span class="iacs">${T.L ? `<button data-ireg>${ici("regras")}Regras</button>` : ""}<button data-idoc>${ici("impr")}Documento</button><button data-ixls>${ici("plan")}Planilha de indicação</button>${T.L && (T.L.regras || {}).fechada ? "" : `<button data-iimp>${ici("min")}Importar planilha</button>`}${T.L && (T.L.regras || {}).fechada ? `<button class="icad fech" data-icad title="Lista fechada e no Controle de Recursos. Clique para reabrir e editar.">${ici("cad")}Fechada · reabrir</button>` : `<button class="icad" data-icad title="Fechar a lista e levar as emendas ao Controle de Recursos">${ici("cadab")}Fechar lista</button>`}</span>` : "";
   const trava = edita && g.trava ? `<span class="itrava">Área travada: <b>${esc(g.trava)}</b>${(AREAS.find((a) => a[1] === g.trava) || [])[0] ? ` · subação ${AREAS.find((a) => a[1] === g.trava)[0]}` : ""}</span>` : "";
   if (!edita) return `<div class="iinf">${inf}</div><div class="itw"><table class="itb"><thead><tr><th></th><th>Município</th><th>Objeto</th><th>Instr.</th><th class="r">Valor</th><th class="hm">Status</th><th></th></tr></thead><tbody>
     ${R.map((x, i) => `<tr class="ir${IND.det === x.id ? " on" : ""}" data-ir="${esc(x.id)}"><td class="n">${i + 1}</td><td>${esc(x.mun || "—")}</td><td class="ob">${esc(frase(x.obj || ""))}</td><td>${esc(x.ins)}</td><td class="r">${ni(Math.round(x.v))}</td><td class="hm st">${esc(x.st)}</td><td class="ar">›</td></tr>`).join("")}
@@ -250,104 +250,7 @@ function documentoInd(T) {
   <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app</span><span>${dt} ${hr}</span></div></div><script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`;
   const w = window.open("", "_blank"); if (!w) { alert("Libere as janelas pop-up para gerar o documento."); return; } w.document.write(html); w.document.close();
 }
-// planilha-painel (27/10/2026): formulário de indicação em Excel/Google Planilhas que se atualiza sozinho ao preencher — capa com
-// barras de progresso (cota, Saúde, FUNDAM), soma por área e top municípios; aba Indicações com listas suspensas e conferência por linha;
-// aba Por município (soma, nº de emendas, histórico e votos); aba Orçamento no modelo oficial, montada por fórmula. Sem macros.
-async function xlsxInd(T) {
-  const L = T.L, g = regrasInd(T), c = T.cota || {}, it = L ? AD.itens.filter((x) => x.lista_id === L.id && cheia(x)) : [];
-  if (!window.ExcelJS) await new Promise((ok, er) => { const s = document.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"; s.onload = ok; s.onerror = er; document.head.appendChild(s); });
-  const wb = new ExcelJS.Workbook(); wb.creator = "SimulaLEGIS"; wb.calcProperties.fullCalcOnLoad = true;
-  const ESC = "FF1D2226", MUT = "FF6E767D", BD = "FFDEE2E5", SF = "FFEEF0F2", TL = "FFF8F9FA", OR = "FFE8822A", VD = "FF1FA845";
-  const fill = (c) => ({ type: "pattern", pattern: "solid", fgColor: { argb: c } }), fino = { style: "thin", color: { argb: BD } }, R$ = '"R$" #,##0.00', PCT = "0%";
-  const N = Math.max(g.max || 0, it.length + 20, 30), r0 = 6, r1 = r0 + N - 1, rng = (col) => `'Indicações'!$${col}$${r0}:$${col}$${r1}`;
-  const disp = g.disp || 0, tit = `${T.nome} · ${IND.ano}`, muns = BASE.mun.map((m) => m.n).sort((a, b) => a.localeCompare(b, "pt-BR"));
-  // ---- Listas (apoio das listas suspensas e das fórmulas)
-  const pn = wb.addWorksheet("Painel", { views: [{ showGridLines: false }] }), ws = wb.addWorksheet("Indicações", { views: [{ state: "frozen", ySplit: r0 - 1, xSplit: 3, showGridLines: false }] }),
-    pm = wb.addWorksheet("Por município", { views: [{ state: "frozen", ySplit: 3, showGridLines: false }] }), oc = wb.addWorksheet("Orçamento", { views: [{ showGridLines: false }] }), ls = wb.addWorksheet("Listas", { state: "hidden" });
-  ls.getCell("A1").value = "Município"; muns.forEach((m, i) => { ls.getCell(2 + i, 1).value = m; });
-  ls.getCell("C1").value = "Área"; ls.getCell("D1").value = "Subação"; ls.getCell("E1").value = "Órgão"; ls.getCell("F1").value = "UO";
-  g.areas.forEach((a, i) => { const q = AREAS.find((x) => x[1] === a) || []; ls.getCell(2 + i, 3).value = a; ls.getCell(2 + i, 4).value = q[0] ? +q[0] : ""; ls.getCell(2 + i, 5).value = q[2] || ""; ls.getCell(2 + i, 6).value = q[3] || ""; });
-  ls.getCell("H1").value = "Quem recebe"; ls.getCell("I1").value = "Instrumento"; BTIPO.forEach(([, l, ins], i) => { ls.getCell(2 + i, 8).value = l; ls.getCell(2 + i, 9).value = ins; });
-  ls.getCell("K1").value = "Instrumentos"; g.mods.forEach((m, i) => { ls.getCell(2 + i, 11).value = m; });
-  ls.getCell("M1").value = "Natureza"; ["Custeio", "Investimento"].forEach((m, i) => { ls.getCell(2 + i, 13).value = m; });
-  const nA = g.areas.length + 1, AR = `Listas!$C$2:$F$${nA}`;
-  // ---- Indicações (o formulário)
-  const COLS = [["Nº", 5], ["Quem recebe", 13], ["Município", 20], ["Área", 16], ["Natureza", 12], ["Objeto", 46], ["Beneficiário", 30], ["CNPJ (convênio)", 19], ["Razão social (convênio)", 30], ["Valor (R$)", 16], ["Instrumento", 22], ["Trocar instrumento", 20], ["Subação", 9], ["Órgão", 8], ["UO", 8], ["Líder", 20], ["Observação", 30], ["Conferência", 22]];
-  ws.columns = COLS.map(([, w]) => ({ width: w }));
-  ws.mergeCells("A1:R1"); ws.getCell("A1").value = tit; ws.getCell("A1").font = { size: 16, bold: true, color: { argb: ESC } };
-  ws.mergeCells("A2:R2"); ws.getCell("A2").value = [c.doc || (L && L.origem) || "", g.min ? "mínimo R$ " + moeda(g.min) + " por emenda" : "", g.max ? "até " + g.max + " emendas" : "", g.trava ? "área " + g.trava : "", c.prazo ? "prazo " + new Date(c.prazo).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : ""].filter(Boolean).join(" · "); ws.getCell("A2").font = { size: 10, color: { argb: MUT } };
-  ws.mergeCells("A3:R3"); ws.getCell("A3").value = "Preencha as linhas: Quem recebe define o instrumento (Município → TE, Entidade → Convênio, Estado → Execução Direta); Subação, Órgão e UO saem da Área. A aba Painel atualiza sozinha."; ws.getCell("A3").font = { size: 9, italic: true, color: { argb: MUT } };
-  const h = ws.getRow(r0 - 1); h.values = COLS.map(([t]) => t); h.height = 30; h.eachCell((cl) => { cl.fill = fill(ESC); cl.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 }; cl.alignment = { vertical: "middle", horizontal: "center", wrapText: true }; });
-  for (let k = 0; k < N; k++) { const r = r0 + k, x = it[k], row = ws.getRow(r), t = x ? tipoDe(x) : "";
-    row.getCell(1).value = k + 1;
-    if (x) { row.getCell(2).value = (BTIPO.find((b) => b[0] === t) || [])[1] || ""; row.getCell(3).value = x.municipio || ""; row.getCell(4).value = x.area || g.trava || ""; row.getCell(5).value = x.natureza || ""; row.getCell(6).value = frase(x.objeto || ""); row.getCell(7).value = x.beneficiario || ""; row.getCell(8).value = x.cnpj || ""; row.getCell(9).value = x.razao_social || ""; row.getCell(10).value = +x.valor || null; row.getCell(16).value = x.lideranca || ""; row.getCell(17).value = x.observacao || "";
-      const auto = (BTIPO.find((b) => b[0] === t) || [])[2]; if (x.modalidade && x.modalidade !== auto) row.getCell(12).value = x.modalidade; }
-    else if (g.trava) row.getCell(4).value = g.trava;
-    row.getCell(11).value = { formula: `IF(L${r}<>"",L${r},IF(B${r}="","",IFERROR(VLOOKUP(B${r},Listas!$H$2:$I$4,2,FALSE),"")))` };
-    row.getCell(13).value = { formula: `IF(D${r}="","",IFERROR(VLOOKUP(D${r},${AR},2,FALSE),""))` };
-    row.getCell(14).value = { formula: `IF(D${r}="","",IFERROR(VLOOKUP(D${r},${AR},3,FALSE),""))` };
-    row.getCell(15).value = { formula: `IF(D${r}="","",IFERROR(VLOOKUP(D${r},${AR},4,FALSE),""))` };
-    row.getCell(18).value = { formula: `IF(AND(C${r}="",J${r}=""),"",IF(C${r}="","falta município",IF(F${r}="","falta objeto",IF(B${r}="","falta quem recebe",IF(J${r}<${g.min || 0},"abaixo do mínimo",IF(AND(B${r}="Entidade",LEN(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(H${r},".",""),"/",""),"-",""))<>14),"falta CNPJ","✓ ok"))))))` };
-    row.getCell(2).dataValidation = { type: "list", allowBlank: true, formulae: ["Listas!$H$2:$H$4"] };
-    row.getCell(3).dataValidation = { type: "list", allowBlank: true, formulae: [`Listas!$A$2:$A$${muns.length + 1}`], showErrorMessage: true, errorTitle: "Município", error: "Escolha um município de SC da lista." };
-    row.getCell(4).dataValidation = { type: "list", allowBlank: true, formulae: [`Listas!$C$2:$C$${nA}`] };
-    row.getCell(5).dataValidation = { type: "list", allowBlank: true, formulae: ["Listas!$M$2:$M$3"] };
-    row.getCell(12).dataValidation = { type: "list", allowBlank: true, formulae: [`Listas!$K$2:$K$${g.mods.length + 1}`] };
-    row.getCell(10).numFmt = R$;
-    row.eachCell({ includeEmpty: true }, (cl, n) => { cl.border = { bottom: fino }; cl.alignment = { vertical: "top", wrapText: [6, 7, 9, 17].includes(n) }; cl.font = { size: 10, color: { argb: [11, 13, 14, 15, 18].includes(n) ? MUT : ESC } }; if (k % 2) cl.fill = fill(TL); });
-    [11, 13, 14, 15, 18].forEach((n) => { row.getCell(n).fill = fill(SF); }); }
-  const tr = ws.getRow(r1 + 1); tr.getCell(9).value = "TOTAL"; tr.getCell(10).value = { formula: `SUM(J${r0}:J${r1})` }; tr.getCell(10).numFmt = R$; tr.font = { bold: true }; tr.eachCell((cl) => { cl.border = { top: { style: "medium", color: { argb: ESC } } }; });
-  ws.addConditionalFormatting({ ref: `J${r0}:J${r1}`, rules: [{ type: "expression", formulae: [`AND(J${r0}<>"",J${r0}<${g.min || 0})`], style: { font: { color: { argb: "FFC0392B" }, bold: true }, fill: fill("FFFDE7E3") } }] });
-  ws.addConditionalFormatting({ ref: `R${r0}:R${r1}`, rules: [{ type: "containsText", operator: "containsText", text: "✓", style: { font: { color: { argb: VD }, bold: true } } }, { type: "containsText", operator: "containsText", text: "falta", style: { font: { color: { argb: OR }, bold: true } } }, { type: "containsText", operator: "containsText", text: "mínimo", style: { font: { color: { argb: "FFC0392B" }, bold: true } } }] });
-  // ---- Por município (soma do que foi indicado aqui + histórico do mandato e votos)
-  pm.columns = [{ width: 24 }, { width: 18 }, { width: 18 }, { width: 10 }, { width: 18 }, { width: 12 }, { width: 12 }, { width: 3 }];
-  pm.mergeCells("A1:G1"); pm.getCell("A1").value = "Indicações por município"; pm.getCell("A1").font = { size: 15, bold: true };
-  const ph = pm.getRow(3); ph.values = ["Município", "Região", "Indicado nesta lista", "Emendas", "Já indicado 2023-26", "Votos 2022", "Votos 2026"]; ph.eachCell((cl) => { cl.fill = fill(ESC); cl.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 }; cl.alignment = { vertical: "middle", wrapText: true }; }); ph.height = 28;
-  muns.forEach((m, i) => { const r = 4 + i, row = pm.getRow(r), rf = refCidade(m) || {};
-    row.values = [m, regDe({ municipio: m }) || "", { formula: `SUMIF(${rng("C")},A${r},${rng("J")})` }, { formula: `COUNTIF(${rng("C")},A${r})` }, rf.rec || 0, rf.v22 || 0, rf.v26 || 0, { formula: `C${r}+ROW()/1000000000` }];
-    row.getCell(3).numFmt = R$; row.getCell(5).numFmt = R$; row.getCell(6).numFmt = "#,##0"; row.getCell(7).numFmt = "#,##0"; row.getCell(8).font = { color: { argb: "FFFFFFFF" }, size: 6 };
-    row.eachCell({ includeEmpty: true }, (cl, n) => { if (n < 8) { cl.border = { bottom: fino }; cl.font = { size: 10, color: { argb: n === 2 ? MUT : ESC }, bold: n === 3 }; } }); });
-  const pr1 = 3 + muns.length; pm.getColumn(8).hidden = true;
-  pm.addConditionalFormatting({ ref: `C4:C${pr1}`, rules: [{ type: "dataBar", cfvo: [{ type: "num", value: 0 }, { type: "max" }], color: { argb: ESC }, gradient: false }] });
-  pm.addConditionalFormatting({ ref: `E4:E${pr1}`, rules: [{ type: "dataBar", cfvo: [{ type: "num", value: 0 }, { type: "max" }], color: { argb: "FFB3B9BE" }, gradient: false }] });
-  // ---- Painel (capa): números, barras que enchem, Saúde/FUNDAM, por área e top 10 municípios
-  pn.columns = [{ width: 3 }, { width: 22 }, { width: 18 }, { width: 18 }, { width: 44 }, { width: 18 }, { width: 3 }];
-  const bar = (p) => `REPT("█",ROUND(MAX(0,MIN(1,${p}))*30,0))&REPT("░",30-ROUND(MAX(0,MIN(1,${p}))*30,0))`;
-  pn.mergeCells("B2:F2"); pn.getCell("B2").value = "SimulaLEGIS · Gabinete · Indicação de recursos"; pn.getCell("B2").font = { size: 9, bold: true, color: { argb: MUT } };
-  pn.mergeCells("B3:F3"); pn.getCell("B3").value = tit; pn.getCell("B3").font = { size: 22, bold: true, color: { argb: ESC } };
-  pn.mergeCells("B4:F4"); pn.getCell("B4").value = `${PARL.u || ""} · ${PARL.p || ""} · ${c.doc || (L && L.origem) || ""}`; pn.getCell("B4").font = { size: 10, color: { argb: MUT } };
-  const kp = [["Disponível", disp || "", R$], ["Indicado", { formula: `SUM(${rng("J")})` }, R$], ["Saldo", { formula: `C7-C8` }, R$], ["Emendas", { formula: `COUNTIF(${rng("J")},">0")` }, "0"], ["Uso da cota", { formula: `IF(C7=0,0,C8/C7)` }, PCT]];
-  kp.forEach(([k, v, f], i) => { const r = 7 + i; pn.getCell(r, 2).value = k; pn.getCell(r, 2).font = { size: 10, color: { argb: MUT } }; const cl = pn.getCell(r, 3); cl.value = v; cl.numFmt = f; cl.font = { size: 14, bold: true, color: { argb: ESC } }; });
-  pn.getCell("D10").value = g.max ? `de ${g.max}` : ""; pn.getCell("D10").font = { color: { argb: MUT } };
-  pn.getCell("E11").value = { formula: bar("C11") }; pn.getCell("E11").font = { name: "Consolas", size: 11, color: { argb: ESC } };
-  pn.getCell("E9").value = { formula: `IF(C9<0,"passou do disponível",IF(C9=0,"cota fechada","ainda livre"))` }; pn.getCell("E9").font = { bold: true, color: { argb: OR } };
-  let r = 14; const tituloP = (t) => { pn.mergeCells(r, 2, r, 6); pn.getCell(r, 2).value = t; pn.getCell(r, 2).font = { size: 12, bold: true, color: { argb: ESC } }; pn.getCell(r, 2).border = { bottom: { style: "medium", color: { argb: ESC } } }; r += 1; };
-  if (g.saude || c.fundam) { tituloP("Mínimos por área");
-    ["Área", "Indicado", "Mínimo", "Progresso", "Situação"].forEach((t, i) => { const cl = pn.getCell(r, 2 + i); cl.value = t; cl.font = { size: 9, bold: true, color: { argb: MUT } }; }); r++;
-    [["Saúde", g.saude], ["FUNDAM", c.fundam]].filter(([, p]) => p).forEach(([a, p]) => { pn.getCell(r, 2).value = `${a} (${p * 100}%)`; pn.getCell(r, 3).value = { formula: `SUMIF(${rng("D")},"${a}",${rng("J")})` }; pn.getCell(r, 4).value = { formula: `C7*${p}` }; pn.getCell(r, 5).value = { formula: bar(`IF(D${r}=0,0,C${r}/D${r})`) }; pn.getCell(r, 6).value = { formula: `IF(C${r}>=D${r}-0.005,"✓ atingido","faltam "&TEXT(D${r}-C${r},"#,##0.00"))` };
-      [3, 4].forEach((n) => { pn.getCell(r, n).numFmt = R$; }); pn.getCell(r, 5).font = { name: "Consolas", color: { argb: ESC } }; pn.getCell(r, 6).font = { bold: true }; r++; });
-    pn.addConditionalFormatting({ ref: `F16:F${r - 1}`, rules: [{ type: "containsText", operator: "containsText", text: "✓", style: { font: { color: { argb: VD }, bold: true } } }, { type: "containsText", operator: "containsText", text: "faltam", style: { font: { color: { argb: "FFC0392B" }, bold: true } } }] }); r++; }
-  tituloP("Por área"); const ra0 = r;
-  g.areas.forEach((a) => { pn.getCell(r, 2).value = a; pn.getCell(r, 3).value = { formula: `SUMIF(${rng("D")},B${r},${rng("J")})` }; pn.getCell(r, 3).numFmt = R$; pn.getCell(r, 4).value = { formula: `IF($C$8=0,0,C${r}/$C$8)` }; pn.getCell(r, 4).numFmt = PCT; pn.getCell(r, 5).value = { formula: bar(`D${r}`) }; pn.getCell(r, 5).font = { name: "Consolas", color: { argb: "FF4A5258" } }; r++; });
-  r++; tituloP("Os 10 municípios com mais recurso nesta lista");
-  for (let k = 1; k <= 10; k++, r++) { pn.getCell(r, 2).value = { formula: `IF(LARGE('Por município'!$H$4:$H$${pr1},${k})<1,"",INDEX('Por município'!$A$4:$A$${pr1},MATCH(LARGE('Por município'!$H$4:$H$${pr1},${k}),'Por município'!$H$4:$H$${pr1},0)))` };
-    pn.getCell(r, 3).value = { formula: `IF(B${r}="","",SUMIF(${rng("C")},B${r},${rng("J")}))` }; pn.getCell(r, 3).numFmt = R$; pn.getCell(r, 4).value = { formula: `IF(OR(B${r}="",$C$8=0),"",C${r}/$C$8)` }; pn.getCell(r, 4).numFmt = PCT;
-    pn.getCell(r, 5).value = { formula: `IF(B${r}="","",${bar(`D${r}`)})` }; pn.getCell(r, 5).font = { name: "Consolas", color: { argb: "FF4A5258" } }; }
-  for (let i = 7; i < r; i++) pn.getRow(i).height = 18;
-  // ---- Orçamento: o modelo oficial, montado por fórmula a partir das indicações
-  oc.columns = [8, 50, 14, 16, 22, 22, 10, 14, 20, 34].map((w) => ({ width: w }));
-  oc.mergeCells("A1:J1"); oc.getCell("A1").value = (L && L.origem) || tit; oc.getCell("A1").font = { size: 13, bold: true };
-  [["Gabinete", "GAB DEP " + norm(PARL.u || "").toUpperCase()], ["Valor disponível", { formula: "Painel!C7" }], ["Saldo", { formula: "Painel!C9" }]].forEach(([k, v], i) => { oc.getCell(3 + i, 1).value = k; oc.getCell(3 + i, 1).font = { bold: true, size: 9, color: { argb: MUT } }; oc.mergeCells(3 + i, 1, 3 + i, 2); oc.getCell(3 + i, 3).value = v; oc.getCell(3 + i, 3).numFmt = R$; });
-  const oh = oc.getRow(7); oh.values = ["Emenda", "Objeto", "Subação deduzida", "Valor", "Modalidade", "Município", "Órgão", "Unidade orçamentária", "CNPJ", "Razão Social"]; oh.eachCell((cl) => { cl.fill = fill(ESC); cl.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 }; cl.alignment = { wrapText: true, vertical: "middle" }; }); oh.height = 28;
-  for (let k = 0; k < N; k++) { const s2 = r0 + k, row = oc.getRow(8 + k), q = (f) => ({ formula: `IF('Indicações'!$J$${s2}="","",${f})` });
-    row.values = [q(`'Indicações'!A${s2}`), q(`'Indicações'!F${s2}`), q(`'Indicações'!M${s2}`), q(`'Indicações'!J${s2}`), q(`'Indicações'!K${s2}`), q(`'Indicações'!C${s2}`), q(`'Indicações'!N${s2}`), q(`'Indicações'!O${s2}`), q(`IF('Indicações'!K${s2}="Convênio",'Indicações'!H${s2},"")`), q(`IF('Indicações'!K${s2}="Convênio",'Indicações'!I${s2},"")`)];
-    row.getCell(4).numFmt = R$; row.eachCell({ includeEmpty: true }, (cl, n) => { cl.border = { bottom: fino }; cl.alignment = { vertical: "top", wrapText: n === 2 || n === 10 }; cl.font = { size: 10 }; }); }
-  const ot = oc.getRow(8 + N); ot.getCell(1).value = "TOTAL"; ot.getCell(4).value = { formula: `SUM(D8:D${7 + N})` }; ot.getCell(4).numFmt = R$; ot.font = { bold: true };
-  // ordem das abas: Painel, Indicações, Por município, Orçamento, Listas (oculta)
-  wb.views = [{ activeTab: 0, firstSheet: 0 }];
-  const buf = await wb.xlsx.writeBuffer(), a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
-  a.download = `Indicacao-${(L ? L.apelido || "lista" : T.nome).replace(/[^\w-]+/g, "_")}-${norm(PARL.u || "").replace(/ /g, "_")}.xlsx`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-}
+// a planilha de indicação (.xlsx / Google Drive) e a importação ficam em gabinete-ind-planilha.js (02/11/2026)
 // detalhamento da emenda dentro da própria linha (expansão), em vez de painel lateral (27/10/2026)
 function detForm(x, T, g) {
     const F = (k, rot, html, w) => `<label class="tl2 fc2${w ? " w" + w : ""}"><span class="tk">${ic(k)}${rot}</span>${html}</label>`, I = (f, v, ph = "", l = "") => `<input data-d="${f}" value="${esc(v ?? "")}" placeholder="${esc(ph)}"${l ? ` list="${l}"` : ""}>`;
@@ -397,7 +300,8 @@ function desenharInd() {
   if (T && T.k !== "plan") ligarPlan(p, T);
   const rg = p.querySelector("[data-ireg]"); if (rg) rg.onclick = () => formLista(T.L);
   const dc = p.querySelector("[data-idoc]"); if (dc) dc.onclick = () => documentoInd(T);
-  const xl = p.querySelector("[data-ixls]"); if (xl) xl.onclick = () => xlsxInd(T);
+  const xl = p.querySelector("[data-ixls]"); if (xl) xl.onclick = () => abrirPlanilhaInd(T);
+  const im = p.querySelector("[data-iimp]"); if (im) im.onclick = () => importarInd(T);
   const cd = p.querySelector("[data-icad]"); if (cd) cd.onclick = () => (T.L && (T.L.regras || {}).fechada ? reabrirLista(T) : fecharLista(T));
 }
 // cadeado da lista (28/10/2026): FECHAR leva as emendas ao Controle de Recursos (novas viram linhas com status "Indicada";

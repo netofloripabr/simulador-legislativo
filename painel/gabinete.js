@@ -82,7 +82,7 @@ function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio()
   const tv = $("#trocaV"); if (tv) tv.onclick = (e) => { e.preventDefault(); escolha(true); };
   $("#glc").onchange = (e) => { S.lc = e.target.value; capaLente(); };
   if (!GH || !document.body.contains($("#gCv")) || !GH.vivo) { capaMapa(); GH.vivo = true; }
-  leque(); ligarCapaCliques(); if (typeof ligarAdicionar === "function") ligarAdicionar();
+  leque(); ligarCapaCliques(); ligarAvisoCota(); if (typeof ligarAdicionar === "function") ligarAdicionar();
   blocos();
   $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
   $("#abas").onclick = (e) => { if (e.target.closest("#mapaBt")) { S.mapa = !S.mapa; desenhar(); return; } const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
@@ -102,13 +102,33 @@ function valoresCapa() {
 }
 function capa(nm) {
   const L = E0, tv = L.reduce((s, e) => s + (e.v || 0), 0), tp = L.reduce((s, e) => s + (e.vp || 0), 0), mun = new Set(L.map((e) => e.mun)).size;
-  const pops = [[ni(PARL.t), "votos em 2026", 1], [fm(tv), "indicado em emendas 2023-26"], [tv ? nf(tp / tv * 100) + "%" : "—", "já pago"], [ni(L.length), "emendas"], [mun, "municípios atendidos"], [fm(tp), "pago até hoje"]];
+  // faixa de cota (02/11/2026): o total indicado em uma barra no padrão das Cotas (um pedaço por ano, linha verde = pago); o resto numa linha
+  const anoE = (e) => +e.ano || +String(e.k || "").slice(0, 4), anos = [...new Set(L.map(anoE).filter(Boolean))].sort(), TN = ["#E4E7E9", "#B0B5BA", "#7E848A", "#545A60", "#3E4449"];
+  const pa = anos.map((a) => L.filter((e) => anoE(e) === a).reduce((s, e) => s + (e.v || 0), 0));
+  const faixa = tv ? `<div class="gcota"><div class="gcab2"><b>${fm(tv)}</b><span>indicado em emendas · ${anos[0]}-${String(anos.slice(-1)[0]).slice(2)}</span></div>
+    <div class="gbar">${pa.map((v, i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]};${i % 5 > 1 ? "color:#F2F4F5" : ""}" title="${anos[i]} · ${esc(fm(v))}">${v / tv > .14 ? `${anos[i]} · ${esc(fm(v))}` : ""}</i>`).join("")}</div>
+    <div class="gpg" style="width:${tp / tv * 100}%"></div><div class="gleg"><span><b>${nf(tp / tv * 100, 1)}% pago</b> · ${esc(fm(tp))} até hoje</span></div></div>` : "";
+  const kp = [[ni(PARL.t), "votos em 2026", 1], [ni(L.length), "emendas"], [ni(mun), "municípios atendidos"], [PARL.t && tv ? "R$ " + ni(Math.round(tv / PARL.t)) : "—", "por voto"]];
   return `<section class="ghero" id="ghero"><div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
-    <div class="gtxt"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho" style="margin-top:14px">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div>
+    <div class="gtxt"><div class="gid"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div></div>
     <h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
-    <div class="pops">${pops.map(([v, r, a], k) => `<div style="animation-delay:${.4 + k * .35}s"><b class="${a ? "a" : ""}">${esc(String(v))}</b><span>${esc(r)}</span></div>`).join("")}</div>
+    ${faixa}<div class="pops gkp">${kp.map(([v, r, a], k) => `<div style="animation-delay:${.4 + k * .3}s"><b class="${a ? "a" : ""}">${esc(String(v))}</b><span>${esc(r)}</span></div>`).join("")}</div>${avisoCota()}
     <div class="leqs glc">${leq("glc", "Mapa", LENTES, S.lc)}</div>
     ${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section>`;
+}
+// aviso da cota aberta (prazo correndo) no topo: contagem regressiva e atalho para a página de Indicação
+function avisoCota() {
+  if (typeof COTAS_LEGAIS === "undefined" || typeof abrirInd !== "function" || !proprio() || !(PODE || LOCAL)) return "";
+  const ag = new Date(), [ano, t, c] = Object.entries(COTAS_LEGAIS).flatMap(([a, o]) => Object.entries(o).map(([t2, c2]) => [+a, t2, c2])).find(([, , c2]) => c2.prazo && new Date(c2.prazo) > ag && (!c2.abre || new Date(c2.abre) <= ag)) || [];
+  if (!c) return "";
+  const Lc = typeof AD !== "undefined" && typeof listaDaCota === "function" ? listaDaCota(ano, t) : null, n = Lc ? AD.itens.filter((x) => x.lista_id === Lc.id && (x.municipio || +x.valor)).length : 0;
+  return `<div class="gloa" data-gcota="${ano}|${t}"><div class="t"><b>${esc((typeof cotaNome !== "undefined" && cotaNome[t]) || t)} ${ano} · indicação aberta</b><span>${esc(fm(c.disp))} disponíveis · ${n} de ${c.max || "—"} emendas · fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}</span></div><div class="icd" data-prazo="${esc(c.prazo)}"></div><button class="btn">Indicar ›</button></div>`;
+}
+function ligarAvisoCota() {
+  const a = $("#ghero [data-gcota]"); if (!a) return; const [ano, t] = a.dataset.gcota.split("|");
+  const cd = () => { const e = a.querySelector(".icd"), s = Math.max(0, (new Date(e.dataset.prazo) - new Date()) / 1000); e.innerHTML = [[Math.floor(s / 86400), "dias"], [Math.floor(s % 86400 / 3600), "h"], [Math.floor(s % 3600 / 60), "min"]].map(([v, u]) => `<div><b>${String(v).padStart(2, "0")}</b><span>${u}</span></div>`).join(""); };
+  cd(); clearInterval(ligarAvisoCota.t); ligarAvisoCota.t = setInterval(() => { if (document.body.contains(a)) cd(); else clearInterval(ligarAvisoCota.t); }, 30000);
+  a.querySelector("button").onclick = () => { IND.ano = +ano; IND.tag = "cota:" + t; IND.det = null; abrirInd(); };
 }
 let gRaf = null, GH = null;
 function capaMapa() {
