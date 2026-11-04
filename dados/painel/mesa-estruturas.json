@@ -2522,24 +2522,24 @@
    "cargos": [
     {
      "c": "Secretário do Colegiado de Bancada",
-     "d": "bancadas partidárias · PL/GAS, níveis 01 a 100",
-     "q": "até 15 cargos",
-     "idx": 477.867735
+     "d": "bancadas partidárias · PL/GAS, níveis 01 a 120",
+     "q": "até 20 cargos",
+     "idx": 683.856532
     },
     {
      "c": "Secretário do Colegiado de Bancada",
      "d": "bancada regional com 1 a 6 deputados · PL/GAS",
      "q": "1 cargo",
-     "idx": 36.1341
+     "idx": 39.570453
     },
     {
      "c": "Secretário do Colegiado de Bancada",
      "d": "bancada regional com 7 ou mais deputados · PL/GAS",
      "q": "2 cargos",
-     "idx": 72.2682
+     "idx": 79.140906
     }
    ],
-   "base": "Res. 002/2006, Anexo IX-E (Grupo de Atividades de Assessoramento Parlamentar – Colegiado de Bancada), redação da LC 828/2023"
+   "base": "Res. 002/2006, Anexo IX-E (Colegiado de Bancada): bancadas regionais na redação de 10/04/2024 (Diário da Assembleia nº 8.542) e bancadas partidárias na de 22/04/2025 (Diário nº 8.789: 20 cargos, índice 683,856532)"
   },
   "Lideranças": {
    "itens": [
