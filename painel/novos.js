@@ -7,6 +7,9 @@ const fm = (v) => "R$ " + (v >= 1e9 ? (v / 1e9).toLocaleString("pt-BR", { minimu
 const DV = "20261016a";
 // cargo da página (18/10/2026): estadual ou federal, como o estado (?c=federal, senão o desta aba); federal = só o Eleitoral
 const CARGO = (() => { let v = new URLSearchParams(location.search).get("c"); if (!/^(estadual|federal)$/.test(v || "")) { try { v = sessionStorage.getItem("sl_cargo"); } catch (e) {} } if (!/^(estadual|federal)$/.test(v || "")) v = "estadual"; try { sessionStorage.setItem("sl_cargo", v); } catch (e) {} return v; })();
+// ?so=adm: só a seção Administrativo, sem capa nem topo, para o painel Gabinete embutir (mesmo código nas duas páginas)
+const SO_ADM = new URLSearchParams(location.search).get("so") === "adm";
+if (SO_ADM) document.documentElement.classList.add("emb-adm");
 const FED = CARGO === "federal", CARGO_R = FED ? "Deputado federal" : "Deputado estadual", CG_LBL = { estadual: "Dep. Estadual", federal: "Dep. Federal" };
 const foto = (n, cg = CARGO) => `../dados/fotos/${UF}-2026/${cg}/${n}.jpg`;
 // lista de candidatos de outro cargo (comparações cruzadas no caderno e no mapa da cidade)
@@ -66,7 +69,7 @@ const ir = (n) => { history.pushState(null, "", "?c=" + CARGO + "&d=" + n); perf
 
 // ---------------- perfil ----------------
 function perfil(n) {
-  const c = D.c.find((x) => x.n === n); if (!c) return telaSelecao(); window._cAtual = c; try { if (!FED) localStorage.setItem("sl_dep", n); } catch (e) {}
+  const c = D.c.find((x) => x.n === n); if (!c) return telaSelecao(); window._cAtual = c; if (SO_ADM) return perfilAdm(c); try { if (!FED) localStorage.setItem("sl_dep", n); } catch (e) {}
   tingir(COR_P[c.p] || "#34E84A");
   const E = eleitos(), pos = E.findIndex((x) => x.n === n) + 1, idx = [...Array(N).keys()], ordM = idx.filter((i) => c.v[i]).sort((a, b) => c.v[b] - c.v[a]), i0 = ordM[0];
   const posBase = D.c.filter((x) => (x.v[i0] || 0) > c.v[i0]).length + 1, pctMax = Math.max(...idx.map((i) => D.val[i] ? c.v[i] / D.val[i] : 0)), iPct = idx.find((i) => D.val[i] && c.v[i] / D.val[i] === pctMax);
@@ -86,6 +89,17 @@ function perfil(n) {
   { const q0 = new URLSearchParams(location.search); if (q0.has("pdf")) { window._pdfSem = (q0.get("sem") || "").split("|").filter(Boolean); setTimeout(() => caderno(c, ordM), 600); } } // ?pdf=1&sem=Título|Título: abre só o caderno (para gerar PDF)
   travaLogin().then(verificarAcesso);
   clearInterval(window._salvaPainelT); window._salvaPainelT = setInterval(salvarPainelLocal, 4000);
+}
+// modo embutido (?so=adm): só o Administrativo; a altura vai para a página de fora (postMessage) e o perfil do servidor
+// abre perto do clique (a janela fixa ficaria no meio de um iframe alto)
+function perfilAdm(c) {
+  tingir(COR_P[c.p] || "#34E84A");
+  $("#app").innerHTML = UFI.completo ? secAdministrativo(c) : `<p class="nota">O Administrativo de ${esc(UFI.nome)} está em preparação.</p>`;
+  if (UFI.completo) { ligarGabinete(c); ligarVerbas(c); ocupacaoGab(c); ligarLideranca(c); }
+  revelar(); travaLogin().then(verificarAcesso);
+  const avisa = () => { try { parent.postMessage({ slEmb: "adm", h: Math.ceil(($("#app") || document.body).getBoundingClientRect().bottom + 24) }, location.origin); } catch (e) {} };
+  new ResizeObserver(avisa).observe($("#app") || document.body); avisa();
+  document.addEventListener("click", (e) => { window._embY = e.pageY; }, true);
 }
 // SP e outros estados (etapa 1): Legislativo e Administrativo ainda em preparação
 const emPreparo = () => ["s2", "s3"].map((id, k) => cabSec(id, "0" + (k + 2), k ? "Administrativo" : "Legislativo", k ? `Subsídio, verbas, gabinete e estrutura da ${UFI.casa}.` : `Regimento, comissões, proposições e prazos da ${UFI.casa}.`) + `<div class="bloco rv"><h3>Em preparação</h3><p>Esta parte de ${esc(UFI.nome)} está sendo levantada nas fontes oficiais da ${esc(UFI.casa)} e entra na próxima etapa. Por enquanto, o Eleitoral de ${esc(UFI.nome)} já está completo.</p></div></div></div></section>`).join("");
@@ -229,7 +243,7 @@ function ligarVerbas(c) {
 function secAdministrativo(c) {
   const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, I = EST.indenizatorias || {};
   const L = (a, b, d = "") => `<tr><td>${a}${d ? `<small>${d}</small>` : ""}</td><td>${b}</td></tr>`;
-  return cabSec("s3", "03", "Administrativo", "O que o mandato recebe e o que pode estruturar: subsídio, gabinete, verbas e a estrutura da Casa.") +
+  return cabSec("s3", "03", "Administrativo", "O que o mandato recebe e o que pode estruturar: subsídio, gabinete, verbas e a transparência da Casa.") +
     `<div class="bloco rv"><h3>Subsídio e verbas do parlamentar</h3><p>Valores mensais (contracheques e normas de 2026).</p><table class="qtab">
       ${L("Subsídio", fm(PA.subsidio || 0), "Lei 18.642/2023")}${L("Gestão Executiva", fm((PA.subsidio || 0) * (PA.gestao_demais || 0)), "45% do subsídio (50% para o Presidente da Mesa) · LC 828/2023")}${L("Auxílio Saúde", fm(PA.aux_saude || 0), "15% do subsídio")}${L("Auxílio Alimentação", fm(PA.aux_alim || 0))}</table></div>
     <div class="bloco rv"><h3>Estrutura do gabinete</h3><p>O que pode ser nomeado e custeado: a cota de nomeações dos Secretários Parlamentares e o que fica fora dela.</p><div id="gabCota">${quadroCota(window._gabQ = { rot: "Cota de nomeações", tot: G.cota || 0, comp: `até ${G.cargos || 27} Secretários Parlamentares PL/GAB · Res. 002/2006, Anexo IX-F`, anoNota: "teto mensal; não acumula", vagas: { rot: "Secretários Parlamentares", n: G.cargos || 27, u: null },
@@ -458,7 +472,10 @@ function ligarPolitica(c) {
         const nSai = I.filter((x) => !volta(x.coord)).length; L.innerHTML = `${nSai ? `<p class="ffsai"><b>${nSai}</b> ${filtro === "Vigente" ? (UF === "sc" ? "frentes e fóruns vigentes" : "frentes vigentes") : "registros nesta lista"} têm coordenador que não estará na legislatura 2027: ficam sujeitos a nova coordenação.</p>` : ""}<div class="chips fff">${["Vigente", "Concluída", "Arquivado", "Todas"].map((k) => `<button data-ff="${k}" class="${k === filtro ? "on" : ""}">${k === "Vigente" ? "Vigentes" : k === "Concluída" ? "Concluídas" : k === "Arquivado" ? "Arquivadas" : "Todas"} · ${cnt(k)}</button>`).join("")}</div><p class="nota">Vigente: em andamento. Concluída: prazo vencido. ${UF === "sc" ? "Arquivada: arquivada no eLegis." : ""} Passe o mouse sobre uma frente para ver os membros.</p>` + bloco("Frentes parlamentares", I.filter((x) => !/F[óo]rum/.test(x.tipo))) + bloco("Fóruns parlamentares", I.filter((x) => /F[óo]rum/.test(x.tipo)));
         L.querySelector(".fff").onclick = (e) => { const b = e.target.closest("[data-ff]"); if (b) { filtro = b.dataset.ff; pinta(); } }; };
       pinta(); } };
-  // liderança (seção Administrativo)
+  ligarLideranca(c);
+}
+// liderança (seção Administrativo): separada para o modo embutido do Gabinete, que não tem o Legislativo
+function ligarLideranca(c) {
   const T = (EST.liderancas || {}).tabela || {}, nb = nbanc(c.p), e = T[Math.min(9, nb)] || {}, F = ((EST.liderancas || {}).folha || {})[c.p];
   const tabLid = `<table class="qtab"><tr><td>Bancada<small>deputados do ${esc(c.p)} em 2027</small></td><td>${nb}</td></tr><tr><td>Cargos da liderança<small>Secretário Parlamentar PL/GAL · Res. 002/2006, Anexo IX-C</small></td><td>até ${e.cargos || "—"}</td></tr><tr><td>Cota mensal da liderança<small>índice de cota × R$ 356,34</small></td><td>${fm(e.cota || 0)}</td></tr>${F ? `<tr><td>Folha atual da liderança<small>contracheques 09/2026</small></td><td>${fm(F)}</td></tr>` : ""}<tr><td>Adicional de cota do líder<small>Ato da Mesa 066/2024, não cumulativo</small></td><td>${fm(((EST.cota_custeio || {}).ad_pres_lider) || 0)}</td></tr></table>`;
   window._lidTabela = tabLid; // o caderno impresso usa a tabela (fundo branco)
@@ -538,12 +555,12 @@ function ecUn(l, F, nomes) { const u = ECJ.un[l], ks = F[l] || [], t = ecArv(l, 
 function ecGrupo(nome, ext, ls, F, nomes) { const t = ecSoma(ls.map((l) => ecArv(l, F)));
   return `<details class="ec-g">${ecLinha(esc(nome), `${t.n} · ${ls.length} ${ls.length > 1 ? "unidades" : "unidade"}${ext ? " · " + esc(ext) : ""}`, t)}<div class="ec-us">${ls.map((l) => ecUn(l, F, nomes)).join("")}</div></details>`; }
 const ICO_FIL = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h12l-4.6 5.4v4.3l-2.8-1.4V8.9z"/></svg>`;
-const ecTopo = () => `<input type="radio" name="ecv" id="ecMod" class="ec-rd" checked><input type="radio" name="ecv" id="ecOrg" class="ec-rd"><h3>A estrutura da Casa</h3>`;
+const ecTopo = () => `<input type="radio" name="ecv" id="ecMod" class="ec-rd" checked><input type="radio" name="ecv" id="ecOrg" class="ec-rd"><h3>Transparência</h3>`;
 // filtro: no cabeçalho da lista, na ponta esquerda (coluna do nome)
 const ecFiltro = () => `<details class="ec-flt"><summary title="Organizar">${ICO_FIL}<span>Organizar</span><span class="ec-on"></span></summary><div class="ec-flm"><b>Organizar por</b>
       <label for="ecMod" class="o-mod"><i></i>Tipo de unidade<small>coordenadorias, gerências, lideranças…</small></label><label for="ecOrg" class="o-org"><i></i>Organograma da ALESC<small>cada setor com as unidades que respondem a ele</small></label></div></details>`;
 function ecMontar(el) { const B = document.getElementById("ecasa");
-  el.innerHTML = `<p class="ec-sub">Vagas ocupadas / previstas · valor aplicado / cota. Toque para abrir.<span class="ec-sorg"> Organizado pelo organograma (Res. 001/2006, art. 2º).</span></p>
+  el.innerHTML = `<p class="ec-sub">A estrutura da Casa: vagas ocupadas / previstas · valor aplicado / cota. Toque para abrir.<span class="ec-sorg"> Organizado pelo organograma (Res. 001/2006, art. 2º).</span></p>
     <div class="ec-cab"><span>${ecFiltro()}</span><span>Vagas ocupadas/previstas</span><span>Valor aplicado/cota (R$)</span><span></span></div>
     <div class="ec-vmod">${ECJ.tipo.map(([g, ls]) => ecGrupo(g, "", ls, {})).join("")}</div>
     <div class="ec-vorg">${ECJ.org.map(([st, ext, ls]) => ecGrupo(st, ext, ls, ECJ.filhos, ECJ.nomes_org)).join("")}</div>
@@ -760,7 +777,7 @@ async function caderno(c, ordM, foco) {
   <div class="mnb">${(() => { const par = PA.subsidio * (1 + PA.gestao_demais) + PA.aux_saude + PA.aux_alim, gab = G.cota + G.chefe + G.retrib, ver = C.base + C.moradia, tot = par + gab + ver;
     return `${h3("O mandato em números", fm(tot) + "/mês")}<div class="mng">${[["Parlamentar", par, "subsídio, Gestão Executiva e auxílios"], ["Gabinete", gab, "cota cheia de 27 secretários, chefe e gratificações"], ["Verbas", ver, "cota de custeio e moradia"]].map(([t, v, d]) => `<div><span>${t}</span><b>${fm(v)}</b><small>${d}</small><i style="width:${v / tot * 100}%"></i></div>`).join("")}<div class="t"><span>Total mensal</span><b>${fm(tot)}</b><small>${fm(tot * 12)} por ano · ${fm(tot * 48)} na legislatura</small></div></div><p class="tx">Capacidade máxima. Funções extras (Mesa, presidência de comissão, liderança) somam a isso.</p>`; })()}</div>
   ${(() => { const GR = Object.entries(EST.grupos || {}).filter(([g, L]) => !/Comiss/.test(g) && L.length), tt = GR.reduce((s2, [, L]) => s2 + L.reduce((a2, x) => a2 + x.t, 0), 0);
-    return `<div class="csb">${h3("A estrutura da Casa", fm(tt) + "/mês")}<p class="tx">Secretarias, diretorias, coordenadorias e gerências: comissionados, funções e gratificações por estrutura (contracheques 09/2026).</p><div class="csg">${GR.map(([g, L]) => `<div class="csx"><div class="csh"><b>${esc(g)}</b><span>${L.length} estruturas · ${fm(L.reduce((a2, x) => a2 + x.t, 0))}</span></div>${L.map((x) => `<div class="csl"><span>${esc(x.n)}<small>${x.cc[0]} comiss. · ${x.fc[0]} FC/FG · ${x.fg[0]} grat.</small></span><b>${fm(x.t)}</b></div>`).join("")}</div>`).join("")}</div></div>`; })()}
+    return `<div class="csb">${h3("Transparência", fm(tt) + "/mês")}<p class="tx">Secretarias, diretorias, coordenadorias e gerências: comissionados, funções e gratificações por estrutura (contracheques 09/2026).</p><div class="csg">${GR.map(([g, L]) => `<div class="csx"><div class="csh"><b>${esc(g)}</b><span>${L.length} estruturas · ${fm(L.reduce((a2, x) => a2 + x.t, 0))}</span></div>${L.map((x) => `<div class="csl"><span>${esc(x.n)}<small>${x.cc[0]} comiss. · ${x.fc[0]} FC/FG · ${x.fg[0]} grat.</small></span><b>${fm(x.t)}</b></div>`).join("")}</div>`).join("")}</div></div>`; })()}
   <div class="pg" id="gabForm">${sec("Anexo", "Folha para preencher à mão: nomes, níveis e valores, conferindo a cota de nomeações.")}${h3("Simulador de gabinete para preencher")}
     <div class="gfc"><div><span>Cota de nomeações</span><b>${fm(COTA_GAB)}</b></div><div><span>Chefe de Gabinete · PL/DAS-7</span><b>${fm(G.chefe)}</b><small>fora da cota</small></div><div><span>Usado</span><b class="ln"></b></div><div><span>Saldo</span><b class="ln"></b></div></div>
     <table class="gf"><tr><th>Nº</th><th>Nome</th><th>Função / lotação</th><th>Nível GAB</th><th>FC</th><th>Valor mensal</th></tr>${Array.from({ length: G.cargos || 27 }, (_, k) => `<tr><td>${k + 1}</td><td></td><td></td><td></td><td></td><td></td></tr>`).join("")}<tr class="tt"><td></td><td colspan="4">Total</td><td></td></tr></table>
@@ -783,7 +800,7 @@ async function caderno(c, ordM, foco) {
   const OFF = new Set(foco || window._pdfSem ? [] : (lerP(c).cadOff || ["Anexo"]));
   const TRAVA = ACESSO !== "liberado" && !window._pdfSem;
   if (!foco && !(lerP(c).cadOff)) { const L2 = estrutura(new DOMParser().parseFromString(html, "text/html")); L2.forEach((g) => g.subs.forEach((h, si) => { if (/^Por município · detalhado/.test(h.firstChild.textContent)) OFF.add(g.t + "/" + si); })); }
-  if (TRAVA && !foco) { const L1 = estrutura(new DOMParser().parseFromString(html, "text/html")); L1.forEach((g) => g.subs.forEach((h, si) => { if (/^(Subsídio e verbas|A estrutura da Casa)/.test(h.firstChild.textContent)) OFF.add(g.t + "/" + si); })); }
+  if (TRAVA && !foco) { const L1 = estrutura(new DOMParser().parseFromString(html, "text/html")); L1.forEach((g) => g.subs.forEach((h, si) => { if (/^(Subsídio e verbas|Transparência)/.test(h.firstChild.textContent)) OFF.add(g.t + "/" + si); })); }
   if (foco) { const L0 = estrutura(new DOMParser().parseFromString(html, "text/html")); L0.forEach((g) => { if (g.t === "Anexo") return; if (g.t !== "Administrativo") { OFF.add(g.t); return; } g.subs.forEach((h, si) => { if (!h.textContent.startsWith(foco)) OFF.add(g.t + "/" + si); }); }); }
   const aplica = (doc) => { if (!doc) return; doc.querySelectorAll("[data-off]").forEach((x) => { x.style.display = ""; x.removeAttribute("data-off"); }); const esc2 = (x) => { x.style.display = "none"; x.setAttribute("data-off", ""); };
     estrutura(doc).forEach((g, gi) => { const gOff = OFF.has(g.t); let vis = 0; g.subs.forEach((h, si) => { if (gOff || OFF.has(g.t + "/" + si)) nosDe(h).forEach(esc2); else vis++; }); if (gOff || (g.subs.length && !vis)) esc2(g.el); });
@@ -894,10 +911,10 @@ function decorarAdm() { const c = window._cAtual; if (!c || !$("#s3") || UF !== 
     "Estrutura do gabinete": [gab, `Base: Res. 002/2006 Anexo IX-F (LC 870/2025) para os cargos do gabinete; LC 858/2024 para o Chefe de Gabinete (PL/DAS-7). <b>Cota de nomeações</b>: teto mensal para até 27 Secretários Parlamentares. <b>Chefe de Gabinete</b>: cargo PL/DAS-7 (R$ 20.173,54, rubrica "Chefia de gabinete") mais a Gratificação de Exercício (Res. 002/2006 art. 20, R$ 15.404,97), conferidos no contracheque de 09/2026, mais os auxílios. O adicional por tempo de serviço é pessoal e não entra. <b>Auxílios dos servidores</b>: todo servidor, inclusive comissionado, recebe auxílio-saúde (Ato da Mesa 002/2015, art. 3º, II: valor da faixa etária, R$ 1.416 até 47 anos, R$ 2.160 de 48 a 59 e R$ 3.480 a partir de 60, ou 15% da remuneração; o app usa o maior entre a primeira faixa e os 15%) e auxílio-alimentação; não compõem a cota de gabinete, mas fazem parte do valor percebido. O auxílio-alimentação usa o valor pago aos deputados em 09/2026 (R$ 3.144,21), a confirmar para servidores. Adicionais pessoais (tempo de serviço, vantagens) podem aumentar o contracheque. Referência real: a folha bruta média de um gabinete em 09/2026 foi de R$ 223,3 mil (mín. 174,0 mil, máx. 279,8 mil). <b>Cota de custeio</b>: verba para diárias, passagens, telefone, divulgação, escritório e veículo; o saldo acumula no ano. ${BR}`],
     "Simulador de gabinete": [COTA_GAB, `Base: tabela de níveis PL/GAB (120 níveis, índice × R$ ${nf(GAB_VAL, 2)}) e cota de 525,27 pontos (Res. 002/2006 Anexo IX-F). O simulador soma o nível escolhido para cada pessoa e compara com a cota. Chefe de Gabinete fica fora da cota. Valores brutos.`],
     "Liderança": [lid, `Base: Res. 002/2006 Anexo IX-C (cargos e cota da liderança conforme o tamanho da bancada; 9 ou mais deputados = 14 cargos), índice de cota × R$ 356,34; folha atual das lideranças pelos contracheques de 09/2026; adicional do líder no Ato da Mesa 066/2024. Valores brutos.`],
-    "A estrutura da Casa": [casa, `Inclui Mesa Diretora, Casa Militar, colegiados de bancada e lideranças. Orçamento: dotação inicial na LOA de SC e despesa empenhada até dezembro (relatórios "Execução Orçamentária por UO" da SEF/SC e da ALESC, UO 01001), anos 2017 a 2026; servidores pelo filtro de vínculo do portal da transparência da ALESC (17/10/2026). Estruturas: contracheques de 09/2026 do portal da transparência da ALESC (1ª aba, valor bruto), somados por lotação. Cargos comissionados, funções de confiança (FC/FG) e gratificações de exercício por estrutura. Não inclui gabinetes parlamentares nem comissões. ${BR}`],
+    "Transparência": [casa, `Inclui Mesa Diretora, Casa Militar, colegiados de bancada e lideranças. Orçamento: dotação inicial na LOA de SC e despesa empenhada até dezembro (relatórios "Execução Orçamentária por UO" da SEF/SC e da ALESC, UO 01001), anos 2017 a 2026; servidores pelo filtro de vínculo do portal da transparência da ALESC (17/10/2026). Estruturas: contracheques de 09/2026 do portal da transparência da ALESC (1ª aba, valor bruto), somados por lotação. Cargos comissionados, funções de confiança (FC/FG) e gratificações de exercício por estrutura. Não inclui gabinetes parlamentares nem comissões. ${BR}`],
     "O mandato em números": [par + gab + C.base + C.moradia, `Soma das três partes na capacidade máxima: parlamentar (subsídio, Gestão Executiva e auxílios), gabinete (cota cheia, chefe e gratificações) e verbas (cota de custeio e moradia). Funções extras (Mesa, presidência de comissão, liderança) somam a isso. ${BR}`] };
   document.querySelectorAll("#s3 .bloco > h3").forEach((h) => { if (h.querySelector(".adt, .ib")) return; const k = Object.keys(M2).find((t) => h.textContent.trim().startsWith(t)); if (!k) return; const [v, tx] = M2[k];
-    h.insertAdjacentHTML("beforeend", `${k === "A estrutura da Casa" ? `<span class="adt adt0"></span>` : `<span class="adt">${fm(v)}<small>/mês</small></span>`}<button class="ib" title="Base dos dados">i</button>`); // Casa: sem o total no título (04/11/2026)
+    h.insertAdjacentHTML("beforeend", `${k === "Transparência" ? `<span class="adt adt0"></span>` : `<span class="adt">${fm(v)}<small>/mês</small></span>`}<button class="ib" title="Base dos dados">i</button>`); // Casa: sem o total no título (04/11/2026)
     h.insertAdjacentHTML("afterend", `<div class="ibx" hidden>${tx}</div>`);
     h.querySelector(".ib:not(.imp)").onclick = (e) => { e.stopPropagation(); const b = h.parentElement, x = b.querySelector(".ibx"); b.classList.remove("fech"); x.hidden = !x.hidden; }; }); }
 function revelar() { setTimeout(setaFlutuante, 2500); document.querySelectorAll(".bloco").forEach((b) => b.classList.add("fech"));

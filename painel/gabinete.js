@@ -68,17 +68,21 @@ async function salvarContato(c) { const ex = AGENDA.find((x) => norm(x.nome) ===
   return n; }
 async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient.from("gab_recursos").select("*").order("origem_planilha", { nullsFirst: false }); (data || []).forEach(aplicarCorr); MEU = data || []; PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
 
+// Administrativo (04/11/2026): a mesma seção da página Parlamentares, embutida (novos.html?so=adm), para o parlamentar
+// aberto no painel. Um código só: o que muda num bloco de Parlamentares muda aqui também. A altura vem por postMessage.
+const corpoAdm = () => `<iframe class="admEmb" id="admEmb" title="Administrativo" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&v=1"></iframe>`;
+addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data || e.data.slEmb !== "adm") return; const f = $("#admEmb"); if (f) f.style.height = Math.max(200, +e.data.h || 0) + "px"; });
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
 const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos por você. Transparência: os dados divulgados pelo estado."],
-  ["rh", "RH", "Equipe do gabinete, cargos, lotação e a cota de nomeações."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
+  ["rh", "Administrativo", "A estrutura do gabinete e o que o mandato recebe e pode estruturar: subsídio, verbas, liderança e a transparência da Casa."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
   ["ele", "Eleitoral", "Base eleitoral, lideranças e a relação entre votos e presença do mandato."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."]];
 function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio() && PODE)) S.aba = "geral";
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
   const nm = PARL.u.split(" "), EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
   $("#app").innerHTML = `${capa(nm)}
-    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
+    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : k === "rh" ? corpoAdm() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
   const tv = $("#trocaV"); if (tv) tv.onclick = (e) => { e.preventDefault(); escolha(true); };
   $("#glc").onclick = (e) => { const b = e.target.closest("[data-lc]"); if (!b || b.dataset.lc === S.lc) return; S.lc = b.dataset.lc; const g = $("#glc"); g.querySelector(".gswb").classList.toggle("r", S.lc === "rec"); g.querySelectorAll("[data-lc]").forEach((x) => x.classList.toggle("on", x === b)); g.querySelector(".gswl").hidden = S.lc !== "rec"; capaLente(); };
   if (!GH || !document.body.contains($("#gCv")) || !GH.vivo) { capaMapa(); GH.vivo = true; }

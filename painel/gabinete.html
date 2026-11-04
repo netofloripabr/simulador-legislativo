@@ -285,6 +285,8 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .relov{ position:fixed; inset:0; z-index:60; background:rgba(5,7,6,.82); backdrop-filter:blur(6px); display:flex; flex-direction:column; padding:20px; } .relov .bar{ display:flex; gap:10px; justify-content:flex-end; max-width:1000px; width:100%; margin:0 auto 10px; } .relov .cadT{ margin-right:auto; align-self:center; color:#8A9096; font:600 11px "Inter"; letter-spacing:.12em; text-transform:uppercase; } .relov .bar{ max-width:1250px; } .cadCorpo{ flex:1; display:flex; gap:14px; width:100%; max-width:1250px; margin:0 auto; min-height:0; } .cadSel{ width:230px; flex:none; overflow:auto; background:var(--card,#141819); border:1px solid var(--linha); border-radius:14px; padding:14px; } .cadSel .cg1{ margin-bottom:14px; } .cadSel label{ display:flex; gap:8px; align-items:flex-start; font:500 12.5px/1.35 "Inter"; color:var(--sec); padding:4px 0 4px 18px; cursor:pointer; } .cadSel label.gt{ padding-left:0; font-weight:800; color:var(--pri,#F2F4F5); font-size:14px; } .cadSel .cmd input{ font:13px Inter; color:var(--texto); background:#0F1314; border:1px solid var(--linha); border-radius:8px; padding:6px 8px; margin:4px 0 6px; } .cmdl{ display:flex; flex-wrap:wrap; gap:6px; } .cmdl span{ font-size:12px; color:var(--sec); border:1px solid var(--linha); border-radius:999px; padding:2px 4px 2px 10px; } .cmdl button{ background:none; border:0; color:var(--ter); cursor:pointer; font-size:14px; } .cadSel input{ accent-color:var(--a); margin-top:2px; } @media (max-width:760px){ .cadCorpo{ flex-direction:column; } .cadSel{ width:auto; max-height:34vh; } }
 .cadSel .cgsl{ display:flex; gap:4px; align-items:center; } .cadSel .cgsl input{ flex:1; min-width:0; } .cadSel .cgsl button{ background:none; border:0; color:var(--ter); font-size:16px; cursor:pointer; padding:0 4px; } .cadSel .cgsl button:hover{ color:var(--texto); }
 .relov iframe{ flex:1; width:100%; margin:0; border:0; border-radius:14px; background:#fff; }
+
+.admEmb{ display:block; width:100%; height:900px; border:0; background:transparent; color-scheme:dark; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -295,7 +297,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
-<script src="gabinete.js?cb=75"></script>
+<script src="gabinete.js?cb=76"></script>
 <script src="gabinete-adicionar.js?cb=17"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=21"></script>

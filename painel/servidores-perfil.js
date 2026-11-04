@@ -75,11 +75,13 @@
   async function abrir(mat) {
     css(); mat = +mat; let ov = document.getElementById("svOv"); if (!ov) { ov = document.createElement("div"); ov.id = "svOv"; ov.className = "svov"; document.body.appendChild(ov); }
     ov.innerHTML = `<div class="svmd"><p class="nota">Carregando…</p></div>`; ov.style.display = "flex";
+    // embutido no Gabinete (iframe alto): a janela abre perto do clique, não no meio do iframe
+    const emb = document.documentElement.classList.contains("emb-adm"), topo = () => { if (emb) { const m = ov.querySelector(".svmd"); if (m) m.style.marginTop = Math.max(16, (window._embY || 0) - 140) + "px"; } }; topo();
     let D; try { D = await carregar(mat); } catch (e) { ov.innerHTML = `<div class="svmd"><div class="mh"><b>Servidor</b><button class="x" data-svx>×</button></div><p class="nota">Não foi possível abrir: ${esc(e.message || e)}</p></div>`; return; }
     const { sv, atos, cc, notas, sbn, mesmo } = D, sec = (t, s, h, ab) => `<details${ab ? " open" : ""}><summary>${t}<small>${s}</small><i>▾</i></summary><div>${h}</div></details>`;
     ov.innerHTML = `<div class="svmd"><div class="mh"><div><b>${esc(tit(sv.nome))}</b><small>${esc(sv.vinculo || "")}${sv.lotacao ? " · " + esc(sv.lotacao) : ""}</small></div><button class="x" data-svx>×</button></div>
       <div class="pf"><span>Matrícula <b>${sv.matricula}</b></span><span class="st${sv.situacao !== "ativo" ? " ex" : ""}">${esc(sv.situacao)}</span>${sv.ultimo_visto ? `<span>no portal até <b>${dt(sv.ultimo_visto)}</b></span>` : ""}</div>
-      ${sec("Contracheque", cc[0] ? "referência " + esc(cc[0].referencia) : "sem leitura", tabContracheque(cc[0]), true)}${sec("Histórico de movimentação", atos.length + " ato" + (atos.length === 1 ? "" : "s"), tabHistorico(atos))}${sec("Notas", notas.length + " nota" + (notas.length === 1 ? "" : "s"), tabNotas(mat, notas))}${sec("Mesmo sobrenome", mesmo.length + " pessoa" + (mesmo.length === 1 ? "" : "s") + (sbn.length ? " · " + sbn.map(tit).join(", ") : ""), tabSobrenome(sbn, mesmo))}</div>`;
+      ${sec("Contracheque", cc[0] ? "referência " + esc(cc[0].referencia) : "sem leitura", tabContracheque(cc[0]), true)}${sec("Histórico de movimentação", atos.length + " ato" + (atos.length === 1 ? "" : "s"), tabHistorico(atos))}${sec("Notas", notas.length + " nota" + (notas.length === 1 ? "" : "s"), tabNotas(mat, notas))}${sec("Mesmo sobrenome", mesmo.length + " pessoa" + (mesmo.length === 1 ? "" : "s") + (sbn.length ? " · " + sbn.map(tit).join(", ") : ""), tabSobrenome(sbn, mesmo))}</div>`; topo();
   }
   async function buscar(q) { const c = sb(); q = String(q || "").trim(); if (!c || q.length < 2) return [];
     const r = /^\d+$/.test(q) ? await c.from("adm_servidores").select("matricula, nome, vinculo, lotacao, situacao").eq("matricula", +q) : await c.from("adm_servidores").select("matricula, nome, vinculo, lotacao, situacao").ilike("nome", `%${q.toUpperCase()}%`).order("nome").limit(50);
