@@ -2241,7 +2241,7 @@
   "aux_alim": 3144.21,
   "nota": "Subsídio: Lei 18.642/2023. Gestão Executiva (verba indenizatória, sem IR): LC 828/2023 art. 18, redação Lei 19.606/2025 — 50% Presidente da Mesa; 45% demais membros da Mesa, Presidente da Escola do Legislativo e membros com função administrativa reconhecida por Ato da Mesa; não cumulativa. Empenho de 09/2026 (R$ 627.681,93) = 1×50% + 39×45%: todos os 40 recebem. Auxílio Saúde 15% do subsídio (Ato da Mesa 002/2015) e Auxílio Alimentação (Ato da Mesa 021/2025 art. 11), contracheque 09/2026."
  },
- "gabinetes_mesa_fonte": "Folha real: contracheques 09/2026 por lotação. Cota legal: Res. 002/2006 Anexo IX-B (redação LC 870/2025), Secretário Parlamentar PL/GAM, índice de cota máxima × R$ 1.129,43.",
+ "gabinetes_mesa_fonte": "Folha real: contracheques 09/2026 por lotação. Cota legal: Res. 002/2006 Anexo IX-B (redação LC 870/2025), Secretário Parlamentar PL/GAM, índice de cota máxima × R$ 356,34.",
  "gastos_gabinete": {
   "fonte": "Dados abertos ALESC, gabinetes parlamentares, jan-out/2026 (média mensal nos meses com lançamento). Só deputados em exercício na legislatura atual.",
   "dep": {
@@ -2454,5 +2454,213 @@
  "cota_gap": {
   "valor_indice": 356.34,
   "ref": "Cotas do Grupo de Assessoramento Parlamentar (Anexos IX-B, IX-C, IX-F): índice da lei × 1,2016 (reajustes aplicados aos índices de quota: LC 858/2024 art. 28 e seguintes) × R$ 296,55 (valor do índice dos cargos PL/GAB, PL/GAL, PL/GAM nos contracheques 09/2026). Conferência: gabinetes cheios somam 525,27 pontos = 437,1396 × 1,2016; Liderança do PL (14 cargos) 573,3 de 581,5."
+ },
+ "outras_estruturas": {
+  "Casa Militar": {
+   "itens": [
+    {
+     "n": "Assessoria do Corpo de Bombeiros Militar",
+     "serv": 6,
+     "cc": 0,
+     "t": 45961.91
+    },
+    {
+     "n": "Casa Militar",
+     "serv": 109,
+     "cc": 0,
+     "t": 1327264.63
+    }
+   ],
+   "cargos": "Ligada à Chefia de Gabinete da Presidência. Policiais e bombeiros militares cedidos pelo Estado; sem tabela própria de cargos em comissão na Res. 002/2006.",
+   "base": ""
+  },
+  "Colegiados de Bancada": {
+   "itens": [
+    {
+     "n": "Colegiado de Bancada (bancadas partidárias)",
+     "serv": 20,
+     "cc": 20,
+     "t": 270653.93
+    },
+    {
+     "n": "Bancada da Grande Florianópolis",
+     "serv": 1,
+     "cc": 1,
+     "t": 14239.27
+    },
+    {
+     "n": "Bancada do Norte",
+     "serv": 2,
+     "cc": 2,
+     "t": 28064.63
+    },
+    {
+     "n": "Bancada do Oeste",
+     "serv": 2,
+     "cc": 2,
+     "t": 28167.24
+    },
+    {
+     "n": "Bancada do Sul",
+     "serv": 2,
+     "cc": 2,
+     "t": 29245.42
+    },
+    {
+     "n": "Bancada do Vale do Itajaí",
+     "serv": 2,
+     "cc": 2,
+     "t": 28063.81
+    },
+    {
+     "n": "Bancada Serrana",
+     "serv": 1,
+     "cc": 1,
+     "t": 13824.54
+    }
+   ],
+   "cargos": [
+    [
+     "Secretário do Colegiado de Bancada · bancadas partidárias",
+     "PL/GAS · níveis 01 a 100 · índice de cota máxima 477,87",
+     "até 15"
+    ],
+    [
+     "Secretário do Colegiado de Bancada · bancada regional com 1 a 6 deputados",
+     "PL/GAS · índice 36,13",
+     "1"
+    ],
+    [
+     "Secretário do Colegiado de Bancada · bancada regional com 7 ou mais deputados",
+     "PL/GAS · índice 72,27",
+     "2"
+    ]
+   ],
+   "base": "Res. 002/2006, Anexo IX-E (Grupo de Atividades de Assessoramento Parlamentar – Colegiado de Bancada), redação da LC 828/2023"
+  },
+  "Lideranças": {
+   "itens": [
+    {
+     "n": "Liderança do PL",
+     "serv": 14,
+     "cc": 14,
+     "t": 192148.31
+    },
+    {
+     "n": "Liderança do MDB",
+     "serv": 11,
+     "cc": 11,
+     "t": 170366.86
+    },
+    {
+     "n": "Liderança do PT",
+     "serv": 8,
+     "cc": 8,
+     "t": 118282.73
+    },
+    {
+     "n": "Liderança do PSD",
+     "serv": 9,
+     "cc": 9,
+     "t": 111383.52
+    },
+    {
+     "n": "Liderança do PP",
+     "serv": 8,
+     "cc": 8,
+     "t": 105986.11
+    },
+    {
+     "n": "Liderança do REPUBLICANOS",
+     "serv": 7,
+     "cc": 7,
+     "t": 66695.04
+    },
+    {
+     "n": "Liderança do UNIÃO",
+     "serv": 6,
+     "cc": 6,
+     "t": 63333.95
+    },
+    {
+     "n": "Liderança do PDT",
+     "serv": 6,
+     "cc": 6,
+     "t": 45434.91
+    },
+    {
+     "n": "Liderança do PSOL",
+     "serv": 5,
+     "cc": 5,
+     "t": 45121.82
+    },
+    {
+     "n": "Liderança do PODEMOS",
+     "serv": 6,
+     "cc": 6,
+     "t": 41640.03
+    },
+    {
+     "n": "Liderança do NOVO",
+     "serv": 5,
+     "cc": 5,
+     "t": 38589.82
+    },
+    {
+     "n": "Liderança do PSDB",
+     "serv": 3,
+     "cc": 3,
+     "t": 32978.4
+    }
+   ],
+   "cargos": [
+    [
+     "Secretário Parlamentar de liderança · bancada de 1 deputado",
+     "PL/GAL · níveis 1 a 120 · índice 93,14",
+     "até 6"
+    ],
+    [
+     "2 deputados",
+     "índice 167,94",
+     "até 7"
+    ],
+    [
+     "3 deputados",
+     "índice 251,71",
+     "até 8"
+    ],
+    [
+     "4 deputados",
+     "índice 289,61",
+     "até 9"
+    ],
+    [
+     "5 deputados",
+     "índice 312,08",
+     "até 10"
+    ],
+    [
+     "6 deputados",
+     "índice 371,52",
+     "até 11"
+    ],
+    [
+     "7 deputados",
+     "índice 382,72",
+     "até 12"
+    ],
+    [
+     "8 deputados",
+     "índice 393,67",
+     "até 13"
+    ],
+    [
+     "9 ou mais deputados",
+     "índice 483,92",
+     "até 14"
+    ]
+   ],
+   "base": "Res. 002/2006, Anexo IX-C (Grupo de Atividades de Assessoramento Parlamentar – Liderança), redação do Ato da Mesa 106/2024; níveis pela LC 870/2025. O número de cargos e a cota crescem com o tamanho da bancada."
+  }
  }
 }
