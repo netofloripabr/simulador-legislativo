@@ -217,6 +217,8 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .vbseg{ display:inline-flex; background:rgba(242,244,245,.05); border-radius:10px; padding:2px; } .vbseg button{ border:0; background:none; color:var(--ter); font:500 12.5px Inter; padding:7px 11px; border-radius:8px; cursor:pointer; } .vbseg button.on{ background:rgba(242,244,245,.12); color:var(--texto); }
 .vbk{ display:flex; gap:28px; flex-wrap:wrap; } .vbk small{ display:block; font-size:12px; color:var(--ter); } .vbk b{ display:block; font:800 24px/1.2 Inter; color:var(--texto); } .vbk b.pos{ color:#34E84A; } .vbk b.neg{ color:#E8432A; } .vbk em{ display:block; font-style:normal; font-size:11.5px; color:var(--ter); }
 .vbbar{ display:flex; height:22px; border-radius:7px; overflow:hidden; background:rgba(242,244,245,.06); margin:14px 0 6px; } .vbbar i{ display:block; height:100%; transition:width .3s; } .vbbar.vbc{ height:14px; border-radius:999px; gap:2px; background:none; }
+.vbdots{ display:flex; flex-wrap:wrap; gap:5px; margin:8px 0 4px; } .vbdots i{ width:13px; height:13px; border-radius:50%; background:#B0B5BA; } .vbdots i.v{ background:none; border:1.5px dashed #7E848A; box-sizing:border-box; } .vbdots i.x{ background:#E8822A; }
+.vbbar.vbu{ gap:0; } .vbbar.vbu i{ border-radius:999px 0 0 999px; } .vbbar.vbu s{ flex:1; border:1.5px dashed rgba(242,244,245,.35); border-left:0; border-radius:0 999px 999px 0; box-sizing:border-box; } .vbit.on span:first-of-type{ color:var(--texto); font-weight:700; }
 .vbleg{ display:flex; flex-wrap:wrap; gap:6px 18px; font-size:12.5px; color:var(--ter); margin-bottom:6px; } .vbleg span{ display:inline-flex; align-items:center; gap:6px; } .vbleg i{ width:10px; height:10px; border-radius:3px; } .vbleg b{ color:var(--texto); font-weight:600; }
 .vbh{ display:grid; grid-template-columns:12px minmax(0,1fr) minmax(90px,200px) 150px; gap:12px; font-size:11px; color:var(--ter); padding:2px 0 4px; } .vbh span:last-child{ text-align:right; }
 .vbtb{ position:relative; height:10px; border-radius:999px; background:rgba(242,244,245,.06); overflow:hidden; } .vbtb i{ position:absolute; left:0; top:0; bottom:0; border-radius:999px; } .vbtb s{ position:absolute; left:0; top:0; bottom:0; border:1.5px dashed rgba(242,244,245,.35); border-radius:999px; box-sizing:border-box; }
@@ -267,7 +269,7 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="novos-uf.js?cb=25"></script>
 <script src="servidores-perfil.js?cb=2"></script>
-<script src="novos.js?cb=223"></script>
+<script src="novos.js?cb=226"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="sino-menu.js?cb=11"></script>
 </body>
