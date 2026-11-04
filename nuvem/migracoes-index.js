@@ -1928,5 +1928,27 @@ const MIGRACOES_INDEX = [
     "adm_carga"
    ]
   ]
+ },
+ {
+  "num": 92,
+  "arquivo": "migracao-92-servidores-carga-data.sql",
+  "descricao": "Migração 92 (04/11/2026): a releitura (tipo \"acoes\" da adm_carga) também corrige a data do ato. O leitor pegav",
+  "objetos": [
+   [
+    "function",
+    "adm_carga"
+   ]
+  ]
+ },
+ {
+  "num": 93,
+  "arquivo": "migracao-93-servidores-carga-nomes.sql",
+  "descricao": "Migração 93 (04/11/2026): na carga dos atos, a pessoa que vem só com o nome (nomeação de quem ainda não tinha",
+  "objetos": [
+   [
+    "function",
+    "adm_carga"
+   ]
+  ]
  }
 ];

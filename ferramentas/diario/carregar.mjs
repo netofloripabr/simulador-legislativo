@@ -41,5 +41,5 @@ if (!so || so === "atos") {
   await lote("servidores", [...fora.entries()].map(([m, o]) => ({ m, nome: o.nome, sit: o.ap ? "aposentado" : o.sai ? "exonerado" : "desconhecido", portal: false })), 500);
   await lote("atos", A, 150);
   // releitura: atualiza as ações dos atos que já estavam gravados (o leitor aprende verbos novos com o tempo)
-  await lote("acoes", A.map((a) => ({ edicao: a.edicao, tipo: a.tipo, numero: a.numero, acoes: a.acoes, disposicao: a.disposicao, efeito: a.efeito })), 1000);
+  await lote("acoes", A.map((a) => ({ edicao: a.edicao, tipo: a.tipo, numero: a.numero, acoes: a.acoes, disposicao: a.disposicao, efeito: a.efeito, data: a.data })), 1000);
 }

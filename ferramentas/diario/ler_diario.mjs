@@ -44,7 +44,8 @@ function separarAtos(txt) {
 
 function analisar(a) {
   const texto = a.linhas.join(" ").replace(/\s+/g, " ").trim(), T = norm(texto);
-  const data = dataPt(a.cab) || dataPt(texto.slice(0, 200));
+  // data do ato: só a do cabeçalho ("PORTARIA N° 1335, de 11 de abril de 2025"); no texto aparecem datas de normas citadas
+  const data = dataPt(a.cab) || (/^de\s+\d/i.test(texto) ? dataPt(texto.slice(0, 40)) : null);
   const aut = (texto.match(/^(O|A)\s+([A-ZÀ-Ý][A-ZÀ-Ý\s-]{5,}?)\s+DA ASSEMBLEIA LEGISLATIVA/) || [])[2] || (/^A MESA DA ASSEMBLEIA/i.test(texto) ? "MESA" : null);
   const depois = T.split("RESOLVE")[1] || T;
   // formas que não começam por verbo no infinitivo: "ficam designados" (fiscais de contrato), "fica revogada", "concede"
