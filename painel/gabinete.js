@@ -70,7 +70,7 @@ async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient
 
 // Administrativo (04/11/2026): a mesma seção da página Parlamentares, embutida (novos.html?so=adm), para o parlamentar
 // aberto no painel. Um código só: o que muda num bloco de Parlamentares muda aqui também. A altura vem por postMessage.
-const corpoAdm = () => `<iframe class="admEmb" id="admEmb" title="Administrativo" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&v=1"></iframe>`;
+const corpoAdm = () => { setTimeout(() => { if (typeof rhGabinete === "function") rhGabinete(); }, 0); return `<div class="rhb" id="rhB"><h3 onclick="this.parentElement.classList.toggle('fech')">RH - Gabinete<small>${proprio() && PODE ? "salvo na conta do gabinete" : ""}</small></h3><div id="rhGab"><p class="rh-nt">Carregando…</p></div></div><iframe class="admEmb" id="admEmb" title="Administrativo" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&v=2"></iframe>`; };
 addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data || e.data.slEmb !== "adm") return; const f = $("#admEmb"); if (f) f.style.height = Math.max(200, +e.data.h || 0) + "px"; });
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha

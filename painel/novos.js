@@ -24,7 +24,7 @@ let M, N, CONT, D, VAL, EST, FF = { itens: [] }, A22 = {}, AB = { painel: 0 };
 // auxílio-saúde do servidor (Ato da Mesa 002/2015, art. 3º, II): valor da faixa etária do Anexo I (R$ 1.416 até 47 anos; 2.160 de 48 a 59; 3.480 a partir de 60) ou 15% da remuneração; usamos o maior entre a 1ª faixa e os 15%
 const BEN_SAU = 0.15, SAU_MIN = 1416, saude = (rem) => Math.max(SAU_MIN, rem * BEN_SAU), benAlim = () => ((EST && EST.parlamentar) || {}).aux_alim || 0, comBen = (rem, n) => rem + n * (saude(rem / Math.max(1, n)) + benAlim());
 const SAL_MIN = 1621; // salário mínimo nacional 2026: nível GAB abaixo dele não pode ser nomeado
-const GAB_IDX = [1.6863,1.7441,1.8039,1.8658,1.9298,1.9959,2.0644,2.1352,2.2084,2.2841,2.3624,2.4434,2.5272,2.6139,2.7035,2.7962,2.8992,2.9912,3.0938,3.1999,3.3096,3.4231,3.5405,3.6619,3.7875,3.9173,4.0517,4.1906,4.3343,4.4829,4.6366,4.7956,4.9600,5.1301,5.3060,5.4879,5.6761,5.8708,6.0721,6.2803,6.4956,6.7184,6.9487,7.1870,7.4334,7.6890,7.9527,8.2253,8.5074,8.7991,9.1008,9.4129,9.7356,10.0695,10.4147,10.7718,11.1412,11.5232,11.9183,12.3270,12.7498,13.1871,13.6394,14.1072,15.0901,15.6077,16.1430,16.6967,17.2694,17.8617,18.9334,20.0694,21.2735,22.5499,23.9029,25.6503,27.3976,29.1449,30.8922,32.6395,34.3868,36.1341,37.8814,39.6287,41.3760,43.1233,44.8706,46.6179,48.3652,50.1125,51.8598,53.6071,55.3544,57.1017,58.8490,60.5963,62.3436,64.0909,65.8382,67.5873,69.3364,71.0855,72.8346,74.5837,76.3328,78.0819,79.8310,81.5801,83.3292,85.0783,86.8274,88.5765,90.3256,92.0747,93.8238,95.5729,97.3220,99.0711,100.8202,102.5693], GAB_VAL = 296.55, COTA_GAB = 525.27 * 296.55;
+// GAB_IDX, GAB_VAL e COTA_GAB: painel/tabelas-alesc.js (o Gabinete usa as mesmas)
 
 async function carregar() {
   const [b, d, e] = await Promise.all([fetch(`../dados/painel/${UF}-base.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/${UF}-${CARGO}.json?v=${DV}`).then((r) => r.json()), fetch(`../dados/painel/mesa-estruturas.json?v=15`).then((r) => r.json()).catch(() => ({}))]);
@@ -95,7 +95,7 @@ function perfil(n) {
 function perfilAdm(c) {
   tingir(COR_P[c.p] || "#34E84A");
   $("#app").innerHTML = UFI.completo ? secAdministrativo(c) : `<p class="nota">O Administrativo de ${esc(UFI.nome)} está em preparação.</p>`;
-  if (UFI.completo) { ligarGabinete(c); ligarVerbas(c); ocupacaoGab(c); ligarLideranca(c); }
+  if (UFI.completo) { const gs = $("#gabSim"); if (gs) gs.remove(); /* no Gabinete, o RH - Gabinete (salvo na conta) substitui o simulador */ ligarVerbas(c); ocupacaoGab(c); ligarLideranca(c); }
   revelar(); travaLogin().then(verificarAcesso);
   const avisa = () => { try { parent.postMessage({ slEmb: "adm", h: Math.ceil(($("#app") || document.body).getBoundingClientRect().bottom + 24) }, location.origin); } catch (e) {} };
   new ResizeObserver(avisa).observe($("#app") || document.body); avisa();

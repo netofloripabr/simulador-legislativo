@@ -1999,5 +1999,24 @@ const MIGRACOES_INDEX = [
     "adm_rotina_chaves"
    ]
   ]
+ },
+ {
+  "num": 97,
+  "arquivo": "migracao-97-gabinete-cargos.sql",
+  "descricao": "Migração 97 (04/11/2026): painel Gabinete › Administrativo › RH - Gabinete.",
+  "objetos": [
+   [
+    "table",
+    "gab_cargos"
+   ],
+   [
+    "index",
+    "gab_cargos_dono"
+   ],
+   [
+    "policy",
+    "gab_cargos_dono"
+   ]
+  ]
  }
 ];
