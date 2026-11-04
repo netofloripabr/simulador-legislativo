@@ -1965,5 +1965,39 @@ const MIGRACOES_INDEX = [
     "adm_estrutura_nomes"
    ]
   ]
+ },
+ {
+  "num": 95,
+  "arquivo": "migracao-95-rotina-servidores.sql",
+  "descricao": "Migração 95 (04/11/2026) · rotina automática de servidores (Diário diário + portal mensal)",
+  "objetos": [
+   [
+    "function",
+    "adm_carga_ok"
+   ],
+   [
+    "function",
+    "adm_rotina_aviso"
+   ],
+   [
+    "function",
+    "adm_rotina_chaves"
+   ]
+  ]
+ },
+ {
+  "num": 96,
+  "arquivo": "migracao-96-rotina-saidas.sql",
+  "descricao": "Migração 96 (04/11/2026) · rotina mensal do portal: quem saiu da lista",
+  "objetos": [
+   [
+    "function",
+    "adm_rotina_saidas"
+   ],
+   [
+    "function",
+    "adm_rotina_chaves"
+   ]
+  ]
  }
 ];

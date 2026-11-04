@@ -559,7 +559,7 @@ function ecNomes(B) { if (typeof servidorNomesChave !== "function") return;
   servidorNomesChave(ks).then((N) => { if (!N) return; B.querySelectorAll("[data-eck]").forEach((x) => { const p = N[x.dataset.eck]; if (!p) return; x.textContent = p.n; x.dataset.svab = p.m; x.classList.add("adm"); }); }).catch(() => {}); }
 function secCasa() {
   setTimeout(async () => { const el = document.getElementById("ecIn"); if (!el) return;
-    try { ECJ = ECJ || await fetch("../dados/painel/estrutura-casa.json?v=2").then((r) => r.json()); ecMontar(el); } catch (e) { el.innerHTML = `<p class="nota">Não foi possível carregar a estrutura.</p>`; } }, 0);
+    try { ECJ = ECJ || await fetch("../dados/painel/estrutura-casa.json?v=" + new Date().toISOString().slice(0, 7)).then((r) => r.json()); ecMontar(el); } catch (e) { el.innerHTML = `<p class="nota">Não foi possível carregar a estrutura.</p>`; } }, 0);
   return `<div class="bloco rv" id="ecasa">${ecTopo()}<div id="ecIn"><p class="nota">Carregando…</p></div></div>`; }
 
 // ---------- patrimônio do mandato (capacidade máxima) ----------

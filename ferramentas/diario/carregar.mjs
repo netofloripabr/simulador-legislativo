@@ -7,7 +7,7 @@
 import fs from "node:fs"; import path from "node:path";
 const RAIZ = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../.."), DIR = path.join(RAIZ, "ferramentas/diario/_cache");
 const cfg = fs.readFileSync(path.join(RAIZ, "nuvem/config.js"), "utf8"), URL_ = cfg.match(/SUPABASE_URL = "([^"]+)"/)[1], KEY = cfg.match(/SUPABASE_PUBLISHABLE_KEY = "([^"]+)"/)[1];
-const CHAVE = fs.readFileSync(path.join(DIR, "chave"), "utf8").trim();
+const CHAVE = fs.readFileSync(path.join(DIR, process.env.CARGA_CHAVE_ARQ || "chave"), "utf8").trim();   // rotina.mjs usa a chave de 1 ano (chave-rotina)
 const [so, desde] = process.argv.slice(2);
 async function enviar(tipo, dados) {
   for (let t = 1; t <= 3; t++) {

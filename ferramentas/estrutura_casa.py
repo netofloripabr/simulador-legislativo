@@ -3,7 +3,7 @@
 # Para cada lotação: vagas previstas pela norma (Res. 002/2006 e alterações; Atos da Mesa), quem ocupa cada uma
 # (deduzido pelo valor do contracheque), o valor aplicado e a cota. Duas organizações: por tipo de unidade e pelo
 # organograma (prefixo da lotação no portal = a quem a unidade responde, Res. 001/2006, art. 2º).
-# Rodar depois de atualizar o cache do portal:  python3 ferramentas/estrutura_casa.py
+# Rodar depois de atualizar o cache do portal:  python3 ferramentas/estrutura_casa.py [mm/aaaa]  (a rotina mensal faz isso)
 import json, re, html, math, os
 R = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/'
 L = json.load(open(R + 'ferramentas/diario/_cache/portal-lista.json'))
@@ -233,7 +233,8 @@ def ord_set(ls):
 EXT = {d: 'Diretoria-Geral' for d in DIR.values()}; EXT['Diretoria-Geral'] = 'Gabinete da Presidência'; EXT['Chefia de Gabinete da Presidência'] = 'Gabinete da Presidência'
 org = ''.join(bloco_g(st, EXT.get(st, ''), ord_set(RA[st]), FO, NOMES) for st in SET if st in RA)
 assert 'Outras' not in RA, RA.get('Outras')
-REF = '10/2026'
+import sys
+REF = sys.argv[1] if len(sys.argv) > 1 else '10/2026'   # a rotina mensal passa a referência do portal
 J = {'ref': REF, 'fonte': 'Portal da transparência da ALESC (lotação e contracheque ' + REF + '); vagas pela Res. 002/2006 e alterações (Anexos II-A, IX-B a IX-H; LC de 04/2024 e 04/2025) e Atos da Mesa (768/2025). Ocupante deduzido pelo valor do cargo no contracheque.',
      'un': {l: {'r': NOMES.get(l) or rotulo_un(l), 'o': u['obs'], 'n': u['n'], 'V': u['nV'], 'U': u['nU'], 'us': round(u['usado'], 2), 'c': round(u['cota'], 2), 'sc': u['semcota'], 't': round(u['t'], 2), 'P': u['posts'], 'X': u['outros']} for l, u in UN.items()},
      'tipo': [[g, ordem(ls)] for g, ls in sorted(grupos.items(), key=lambda kv: -sum(UN[l]['t'] for l in kv[1]))],
