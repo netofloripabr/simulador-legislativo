@@ -8,7 +8,7 @@
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const rs = (v) => "R$ " + (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const num = (s) => +String(s || "").replace(/[R$\s.]/g, "").replace(",", ".") || 0;
-  const tit = (s) => String(s || "").toLowerCase().replace(/(^|\s)(\S)/g, (m, a, b) => a + b.toUpperCase()).replace(/\b(Da|De|Do|Das|Dos|E)\b/g, (m) => m.toLowerCase());
+  const tit = (s) => String(s || "").toLowerCase().replace(/(^|\s)(\S)/g, (m, a, b) => a + b.toUpperCase()).replace(/\b(Da|De|Do|Das|Dos|E)\b/g, (m) => m.toLowerCase()).replace(/^(Lideran\S* do) (.+)$/, (m, a, b) => a + " " + b.toUpperCase()); // sigla do partido em maiúsculas
   const dt = (d) => (d ? d.split("-").reverse().join("/") : "—");
   const PART = new Set(["DA", "DE", "DO", "DAS", "DOS", "E", "FILHO", "FILHA", "NETO", "NETA", "JUNIOR", "SOBRINHO"]);
   // sobrenomes de família: sem o 1º nome e partículas; até 3 palavras fica o último, com 4 ou mais os dois últimos
@@ -130,5 +130,13 @@
       ${L.map((x) => `<tr><td style="padding:8px 10px;border-bottom:1px solid #262C31"><button data-svab="${x.matricula}" style="background:none;border:0;color:#F2F4F5;font:inherit;font-weight:600;cursor:pointer;padding:0;text-align:left;text-decoration:underline;text-decoration-color:#262C31;text-underline-offset:3px">${esc(tit(x.nome))}</button><small style="display:block;color:#7E848A">${esc(x.vinculo || "")}${x.lotacao !== S.data[0].lotacao ? " · " + esc(x.lotacao) : ""}</small></td><td style="padding:8px 10px;border-bottom:1px solid #262C31;color:#7E848A">${esc(x.cg)}</td><td style="padding:8px 10px;border-bottom:1px solid #262C31;text-align:right;white-space:nowrap">${x.v ? rs(x.v) : "—"}</td><td style="padding:8px 10px;border-bottom:1px solid #262C31;text-align:right;color:#7E848A">${x.cota ? "sim" : "não"}</td></tr>`).join("")}</tbody></table></div></details>`;
     return { u: D.length, v: D.reduce((s, x) => s + x.v, 0), total: L.length, ref: (L.find((x) => x.ref) || {}).ref, html: tbl }; }
   window.servidorGabinete = gabinete;
+  // estrutura da Casa (só admin): quem está em cada lotação, com o bruto do contracheque do mês do arquivo, para pôr o
+  // nome no lugar de "ocupada". ~1.100 pessoas: (matrícula, nome, lotação) + (matrícula, bruto) ≈ 110 KB por abertura.
+  async function nomesCasa(lots, ref) { const c = sb(); if (!c || !lots.length) return null; const se = (await c.auth.getSession()).data.session; if (!se) return null; const ok = await c.rpc("gab_pode"); if (!ok.data) return null;
+    const S = []; for (let i = 0; ; i += 1000) { const r = await c.from("adm_servidores").select("matricula, nome, lotacao").in("lotacao", lots).eq("no_portal", true).order("matricula").range(i, i + 999); if (r.error) return null; S.push(...(r.data || [])); if ((r.data || []).length < 1000) break; }
+    const B = {}; for (let i = 0; i < S.length; i += 200) { const r = await c.from("adm_contracheques").select("matricula, bruto").eq("referencia", ref).in("matricula", S.slice(i, i + 200).map((x) => x.matricula)); (r.data || []).forEach((x) => { B[x.matricula] = +x.bruto || 0; }); }
+    const N = {}; S.forEach((x) => { (N[x.lotacao] = N[x.lotacao] || []).push({ m: x.matricula, n: tit(x.nome), b: B[x.matricula] || 0 }); });
+    return N; }
+  window.servidorNomesCasa = nomesCasa;
   window.servidorAbrir = abrir; window.servidorBuscar = buscar;
 })();

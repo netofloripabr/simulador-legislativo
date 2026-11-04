@@ -188,6 +188,9 @@ storage, 5 GB de egress/mês, 1 GB de logs.
 2. Leitura do portal da transparência (lista de servidores e contracheques) para `_cache/portal-lista.json` e `_cache/portal-contracheques.json`.
 3. `node ferramentas/diario/carregar.mjs` — envia ao banco pela função `adm_carga`, que só aceita a chave temporária de `_cache/chave`
    (o banco guarda só o hash, com validade de 24 h; gerar uma nova chave a cada carga e gravar o hash em `adm_carga_chaves`).
+4. `python3 ferramentas/estrutura_casa.py` — regera `dados/painel/estrutura-casa.json` (A estrutura da Casa, em Parlamentares:
+   vagas pela norma, ocupação e valores). O arquivo é público e não leva nome nem matrícula; o nome aparece só para o admin,
+   casado no banco pela lotação e pelo bruto. Se a referência do portal mudar, ajustar `REF` no script e subir o `?v=` em `painel/novos.js`.
 A pasta `ferramentas/diario/_cache/` fica **fora do git** (tem nomes de servidores; o repositório é público) e fora do backup do
 GitHub: se o computador se perder, os dados continuam no Supabase e a pasta pode ser refeita lendo o Diário de novo.
 

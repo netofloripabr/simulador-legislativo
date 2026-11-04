@@ -233,6 +233,32 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 .odc{ display:grid; gap:9px; } .oda{ font-size:13px; } .odt{ height:12px; border-radius:999px; background:rgba(242,244,245,.14); overflow:hidden; min-width:6px; } .odt i{ display:block; height:100%; background:var(--a); border-radius:999px; } .odt i.cor{ width:100%; background:repeating-linear-gradient(135deg,rgba(242,244,245,.10) 0 4px,transparent 4px 8px); }
 .odv{ text-align:right; } .odv b{ display:block; font-size:13.5px; font-variant-numeric:tabular-nums; } .odv small{ font-size:11px; color:var(--ter); } .odi{ text-align:right; font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--sec); } .odi.al{ color:var(--a); } .odi.z{ color:var(--ter); font-weight:400; }
 @media (max-width:700px){ .odk{ grid-template-columns:1fr 1fr; } } @media (max-width:560px){ .odh, .odl{ grid-template-columns:38px minmax(0,1fr) 92px 50px; gap:8px; } .odk b{ font-size:19px; } }
+
+/* A estrutura da Casa (04/11/2026): número acima da barra, centralizado; mesma lógica em vagas e valores */
+#ecasa .ec-rd{ position:absolute; opacity:0; pointer-events:none; }
+.ec-hd{ display:flex; align-items:center; justify-content:space-between; gap:12px; } .ec-hd h3{ margin:0; }
+.ec-flt{ position:relative; } .ec-flt>summary{ list-style:none; display:grid; place-items:center; width:34px; height:34px; border-radius:10px; border:1px solid var(--linha); color:var(--sec); cursor:pointer; position:relative; } .ec-flt>summary::-webkit-details-marker{ display:none; } .ec-flt>summary:hover,.ec-flt[open]>summary{ background:var(--sup2); color:var(--texto); }
+.ec-on{ position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%; background:#FF9F43; display:none; } #ecOrg:checked~.ec-hd .ec-on{ display:block; }
+.ec-flm{ position:absolute; right:0; top:40px; z-index:5; width:270px; background:var(--sup2); border:1px solid var(--linha); border-radius:14px; padding:10px; box-shadow:0 12px 32px rgba(0,0,0,.45); } .ec-flm>b{ display:block; font-size:11px; font-weight:500; color:var(--ter); padding:2px 6px 8px; }
+.ec-flm label{ display:grid; grid-template-columns:16px 1fr; column-gap:10px; padding:8px 6px; border-radius:9px; cursor:pointer; font-size:13.5px; font-weight:500; } .ec-flm label:hover{ background:rgba(255,255,255,.04); } .ec-flm label small{ grid-column:2; color:var(--ter); font-size:11.5px; font-weight:400; }
+.ec-flm label i{ grid-row:1/3; width:14px; height:14px; margin-top:2px; border-radius:50%; border:1.5px solid var(--ter); box-sizing:border-box; } #ecMod:checked~.ec-hd .o-mod i,#ecOrg:checked~.ec-hd .o-org i{ border:4px solid var(--texto); }
+.ec-vorg,.ec-sorg{ display:none; } #ecOrg:checked~.ec-vorg{ display:block; } #ecOrg:checked~.ec-vmod{ display:none; } #ecOrg:checked~.ec-sub .ec-sorg{ display:inline; }
+.ec-sub{ color:var(--ter); font-size:12.5px; margin:16px 0 14px; }
+.ec-cab,.ec-g>summary,.ec-u>summary{ display:grid; grid-template-columns:minmax(0,1fr) 133px 133px 12px; gap:28px; align-items:center; }
+.ec-cab{ font-size:11px; color:var(--ter); padding:0 2px 6px; } .ec-cab span:nth-child(2),.ec-cab span:nth-child(3){ text-align:center; white-space:nowrap; margin:0 -14px; }
+.ec-g>summary,.ec-u>summary{ list-style:none; cursor:pointer; padding:14px 2px; } .ec-g>summary::-webkit-details-marker,.ec-u>summary::-webkit-details-marker{ display:none; }
+.ec-g,.ec-u{ border-top:1px solid var(--linha); } .ec-g:last-of-type{ border-bottom:1px solid var(--linha); } .ec-u{ margin-left:18px; } .ec-u>summary{ padding:11px 2px; }
+.ec-nm{ font-weight:600; font-size:15px; } .ec-u .ec-nm{ font-size:13.5px; font-weight:500; } .ec-nm small{ display:flex; align-items:center; gap:4px; color:var(--ter); font-size:11.5px; font-weight:400; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ec-oc{ display:flex; flex-direction:column-reverse; gap:6px; } .ec-oc b{ text-align:center; font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; } .ec-oc b em{ font-style:normal; color:var(--ter); font-weight:500; font-size:12px; }
+.ec-tr{ display:block; height:6px; border-radius:999px; border:1px dashed #4a5056; position:relative; overflow:hidden; } .ec-tr i{ position:absolute; left:-1px; top:-1px; bottom:-1px; border-radius:999px; background:var(--sec); } .ec-tr.x i{ background:#FF9F43; } .ec-tr.vz{ border-color:#33393e; }
+.ec-sem{ color:var(--ter); font-size:12px; text-align:center; flex-direction:column; }
+.ec-ch{ width:7px; height:7px; border-right:1.5px solid var(--ter); border-bottom:1.5px solid var(--ter); transform:rotate(45deg); margin-top:-4px; transition:transform .2s; } details[open]>summary .ec-ch{ transform:rotate(-135deg); margin-top:3px; }
+.ec-us{ padding:0 0 8px; } .ec-cp{ padding:0 0 14px 18px; }
+.ec-tb{ width:100%; border-collapse:collapse; font-size:13px; } .ec-tb th{ font-size:11px; font-weight:500; color:var(--ter); text-align:left; padding:6px 8px; border-bottom:1px solid var(--linha); } .ec-tb td{ padding:8px; border-bottom:1px solid var(--linha); vertical-align:top; }
+.ec-tb .r{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; color:var(--sec); } .ec-tb .mu{ color:var(--ter); } .ec-tb tr.vz td{ color:var(--ter); } .ec-vg{ display:inline-block; border:1px dashed #4a5056; border-radius:999px; padding:0 8px; font-size:11.5px; }
+.ec-pn{ font-weight:500; color:var(--sec); } .ec-pn.adm{ color:var(--texto); cursor:pointer; text-decoration:underline; text-decoration-color:var(--linha); text-underline-offset:3px; }
+.ec-eq>summary{ list-style:none; cursor:pointer; padding:10px 8px; font-size:12px; color:var(--ter); } .ec-eq>summary::-webkit-details-marker{ display:none; } .ec-eq>summary::before{ content:"+ "; } .ec-eq[open]>summary::before{ content:"− "; }
+@media(max-width:700px){ .ec-g>summary,.ec-u>summary{ grid-template-columns:minmax(0,1fr) minmax(0,1fr) 12px; gap:10px 16px; } .ec-nm{ grid-column:1/3; } .ec-g>summary>.ec-oc:nth-of-type(2),.ec-u>summary>.ec-oc:nth-of-type(2){ grid-column:1; grid-row:2; } .ec-g>summary>.ec-oc:nth-of-type(3),.ec-u>summary>.ec-oc:nth-of-type(3){ grid-column:2; grid-row:2; } .ec-ch{ grid-column:3; grid-row:1; } .ec-cab{ display:none; } .ec-u{ margin-left:8px; } .ec-cp{ padding-left:8px; } }
 </style>
 <script src="uf.js?cb=8"></script>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
@@ -270,8 +296,8 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="novos-uf.js?cb=25"></script>
-<script src="servidores-perfil.js?cb=6"></script>
-<script src="novos.js?cb=230"></script>
+<script src="servidores-perfil.js?cb=7"></script>
+<script src="novos.js?cb=231"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="sino-menu.js?cb=11"></script>
 </body>

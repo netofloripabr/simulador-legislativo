@@ -515,28 +515,50 @@ function ligarGabinete(c) {
 
 // ---------- estrutura administrativa da Casa (sanfona por grupo) ----------
 const rs2 = (v) => "R$ " + (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-// gabinetes da Mesa Diretora (Presidência à 4ª Secretaria): folha real por lotação e cota legal de nomeações (03/11/2026)
-const MESA_ROT = { "Presidente": "Gabinete da Presidência", "1º Vice-Presidente": "1ª Vice-Presidência", "2º Vice-Presidente": "2ª Vice-Presidência", "1º Secretário": "1ª Secretaria", "2º Secretário": "2ª Secretaria", "3º Secretário": "3ª Secretaria", "4º Secretário": "4ª Secretaria" };
-// estrutura → clique → quem está nomeado: uma linha por gabinete (bonequinho com a quantidade e a folha do mês); o detalhe
-// legal (cargos, índices, fonte) fica no "i". Para o admin, abrir a linha mostra vagas, cota e os nomeados (servidores-perfil.js).
 const ICO_PES = `<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="5" r="2.8"/><path d="M2.8 14c.6-2.9 2.7-4.4 5.2-4.4s4.6 1.5 5.2 4.4"/></svg>`;
-const pessoas = (n) => `<span class="pes" title="${n} pessoa${n === 1 ? "" : "s"}">${ICO_PES}${n}</span>`;
-function mesaCasa() { const GM = Object.entries(EST.gabinetes_mesa || {}); if (!GM.length) return ""; window.GAB_IDX = GAB_IDX; window.GAB_VAL = GAB_VAL;
-  const CHEFE_GP = 41845.49; // contracheque 09/2026, lotação GP - Chefia de Gabinete da Presidência
-  setTimeout(async () => { if (typeof servidorMesaCorpos !== "function") return; const R = await servidorMesaCorpos().catch(() => null); if (!R) return;
-    document.querySelectorAll("#mesaG .mg").forEach((g) => { const r = R[g.dataset.k]; if (!r) return; g.querySelector(".mgb").innerHTML = r.html; const c = g.querySelector(".pes"); if (c) c.outerHTML = pessoas(r.n); g.querySelector(".mgv").textContent = fm(r.tot) + "/mês"; g.classList.add("adm"); }); }, 0);
-  const info = `Cargos de cada gabinete — Res. 002/2006, Anexo IX-B (redação LC 870/2025): Secretário Parlamentar PL/GAM, níveis 01 a 120; Presidência até 20 cargos (índice de cota 724,03 · ${rs2((EST.gabinetes_mesa.Presidente || {}).cota || 0)}/mês); Vice-Presidências e Secretarias até 9 cada (índice 226,74 · ${rs2((EST.gabinetes_mesa["1º Secretário"] || {}).cota || 0)}/mês). É um gabinete a mais, além do gabinete parlamentar do deputado da Mesa. Chefe de Gabinete da Presidência: PL/DAS-8 (Anexo II-A), com gratificação de exercício equivalente a FC-7 (${rs2(15404.97)}, art. 20, I); o DAS-8 não tem índice no Anexo VII-A, por isso o valor (${rs2(CHEFE_GP)}) é o do contracheque. À Presidência se ligam as Secretarias da Presidência, a Casa Militar e a Coordenadoria de Eventos. ${esc(EST.gabinetes_mesa_fonte || "")}`;
-  const cap = (k) => k === "Presidente" ? `Chefe de Gabinete da Presidência e até 20 Secretários Parlamentares · cota ${rs2((EST.gabinetes_mesa.Presidente || {}).cota || 0)}/mês` : `até 9 Secretários Parlamentares · cota ${rs2((EST.gabinetes_mesa[k] || {}).cota || 0)}/mês`;
-  return `<details class="cas"><summary><span>Mesa Diretora <button class="ib" style="position:static;margin-left:6px;vertical-align:1px" title="Cargos, cotas e fonte" onclick="event.preventDefault(); event.stopPropagation(); const d=this.closest('details'); d.open=true; const x=d.querySelector('.mgi'); x.hidden=!x.hidden">i</button></span><i>${pessoas(GM.reduce((s2, [, x]) => s2 + x.serv, 0))}</i><b>${fm(GM.reduce((s2, [, x]) => s2 + x.t, 0))}/mês</b></summary>
-    <div class="ibx mgi" hidden style="margin:0 0 10px">${info}</div>
-    <div id="mesaG">${GM.map(([k, x]) => `<div class="mg" data-k="${esc(k)}"><button class="mgh" data-mg><span>${esc(MESA_ROT[k] || k)}</span>${pessoas(x.serv)}<b class="mgv">${fm(x.t)}/mês</b><i></i></button><div class="mgb" hidden><p class="nota" style="margin:0 0 10px">${cap(k)}</p></div></div>`).join("")}</div></details>`; }
-// Casa Militar, Colegiados de Bancada e Lideranças: lotações da folha 09/2026 que não entram nos grupos administrativos
-function outrasCasa() { const OE = Object.entries(EST.outras_estruturas || {}), VIC = (EST.valor_indice_cota || {}).valor || 356.34; return OE.map(([g, o]) => {
-  const L = o.itens || [], cg = Array.isArray(o.cargos) ? `<div class="ccg">${o.base ? `<button class="ib" title="Base legal" onclick="event.preventDefault(); event.stopPropagation(); const x=this.parentElement.querySelector('.ibx'); x.hidden=!x.hidden">i</button><div class="ibx" hidden>${esc(o.base)}</div>` : ""}<table class="qtab">${o.cargos.map((x) => `<tr><td>${esc(x.c)}<small>${esc(x.d)} · ${esc(x.q)} · índice de cota ${nf(x.idx, 2)}</small></td><td>${rs2(x.idx * VIC)}<small>cota máxima/mês</small></td></tr>`).join("")}</table><p class="ccu">Unidades e folha atual (contracheques 09/2026)</p></div>` : o.cargos ? `<p class="nota">${esc(o.cargos)}</p>` : "";
-  return `<details class="cas"><summary><span>${esc(g)}</span><i>${L.length} ${L.length === 1 ? "unidade" : "unidades"}</i><b>${fm(L.reduce((s2, x) => s2 + x.t, 0))}/mês</b></summary>${cg}<table class="qtab">${L.map((x) => `<tr><td>${esc(x.n)}</td><td style="width:70px">${pessoas(x.serv)}</td><td>${fm(x.t)}</td></tr>`).join("")}</table></details>`; }).join(""); }
-document.addEventListener("click", (e) => { const b = e.target.closest("[data-mg]"); if (!b) return; const g = b.parentElement, c = g.querySelector(".mgb"); c.hidden = !c.hidden; g.classList.toggle("on", !c.hidden); });
-function secCasa() { const GR = Object.entries(EST.grupos || {}).filter(([g, L]) => !/Comiss/.test(g) && L.length);
-  return `<div class="bloco rv"><h3>A estrutura da Casa</h3>${typeof orcPainel === "function" ? orcPainel() : ""}<p style="margin-top:16px">Mesa Diretora, secretarias, diretorias, coordenadorias, gerências, Casa Militar, colegiados e lideranças: cargos comissionados, funções e gratificações por estrutura (contracheques 09/2026).</p>${mesaCasa()}${GR.map(([g, L]) => `<details class="cas"><summary><span>${esc(g)}</span><i>${L.length} estruturas</i><b>${fm(L.reduce((s2, x) => s2 + x.t, 0))}/mês</b></summary>${typeof cargosCasa === "function" ? cargosCasa(g) : ""}<table class="qtab">${L.map((x) => `<tr><td>${esc(x.n)}<small>${x.cc[0]} comissionados · ${x.fc[0]} FC/FG · ${x.fg[0]} grat. exercício</small></td><td>${fm(x.t)}</td></tr>`).join("")}</table></details>`).join("")}${outrasCasa()}</div>`; }
+// A estrutura da Casa (04/11/2026): cada linha = vagas ocupadas/previstas e valor aplicado/cota, número acima da barra.
+// Dados: dados/painel/estrutura-casa.json (ferramentas/estrutura_casa.py, do portal da transparência). Filtro: por tipo
+// de unidade ou pelo organograma. Nomes só para o admin (servidorNomes, servidores-perfil.js); o nome abre o perfil.
+let ECJ = null;
+const ecv = (v) => v >= 1e6 ? nf(v / 1e6, 2) + " mi" : Math.round(v / 1e3).toLocaleString("pt-BR") + " mil";
+const ecSoma = (us) => us.reduce((a, u) => ({ V: a.V + u.V, U: a.U + u.U, us: a.us + u.us, c: a.c + u.c, t: a.t + u.t, n: a.n + u.n, sc: a.sc && u.sc }), { V: 0, U: 0, us: 0, c: 0, t: 0, n: 0, sc: true });
+function ecArv(l, F) { return ecSoma([ECJ.un[l], ...(F[l] || []).map((k) => ecArv(k, F))]); }
+const ecBar = (a, b, x) => `<span class="ec-tr${x ? " x" : ""}"><i style="width:${b ? Math.min(100, a / b * 100).toFixed(1) : 0}%"></i></span>`;
+const ecOc = (r) => r.V ? `<span class="ec-oc">${ecBar(r.U, r.V, r.U > r.V)}<b>${r.U}<em>/${r.V}</em></b></span>` : `<span class="ec-oc ec-sem">sem vagas próprias</span>`;
+const ecVl = (r) => r.c ? `<span class="ec-oc">${ecBar(r.us, r.c, r.us > r.c)}<b>${ecv(r.us)}<em>/${ecv(r.c)}</em></b></span>` : `<span class="ec-oc"><span class="ec-tr vz"></span><b>${ecv(r.t)}<em>/sem cota</em></b></span>`;
+const ecLinha = (nome, sub, r) => `<summary><span class="ec-nm">${nome}<small>${ICO_PES}${sub}</small></span>${ecOc(r)}${ecVl(r)}<i class="ec-ch"></i></summary>`;
+const ecPes = (o, b) => o ? `<b class="ec-pn" data-ecb="${b}">ocupada</b>` : `<span class="ec-vg">vaga livre</span>`;
+function ecCorpo(u) {
+  const P = u.P.map(([cg, o, b]) => `<tr class="${o ? "" : "vz"}"><td>${esc(cg)}</td><td>${ecPes(o, b)}</td><td class="r">${b ? fm(b) : "—"}</td></tr>`).join("");
+  const X = u.X.map(([cg, b]) => `<tr><td class="mu">${esc(cg)}</td><td><b class="ec-pn" data-ecb="${b}">pessoa</b></td><td class="r">${b ? fm(b) : "—"}</td></tr>`).join("");
+  return (P ? `<table class="ec-tb"><thead><tr><th>Cargo</th><th>Ocupante</th><th class="r">Bruto</th></tr></thead><tbody>${P}</tbody></table>` : "") + (X ? `<details class="ec-eq"><summary>${P ? "Outras pessoas na unidade" : "Pessoas na unidade"} · ${u.X.length}</summary><table class="ec-tb"><tbody>${X}</tbody></table></details>` : ""); }
+function ecUn(l, F, nomes) { const u = ECJ.un[l], ks = F[l] || [], t = ecArv(l, F);
+  const sub = t.n + (ks.length ? ` · ${ks.length} ${ks.length > 1 ? "subunidades" : "subunidade"}` : "") + (u.o ? " · " + esc(u.o) : "");
+  return `<details class="ec-u" data-ecl="${esc(l)}">${ecLinha(esc((nomes && nomes[l]) || u.r), sub, t)}<div class="ec-cp">${ecCorpo(u)}${ks.map((k) => ecUn(k, F, nomes)).join("")}</div></details>`; }
+function ecGrupo(nome, ext, ls, F, nomes) { const t = ecSoma(ls.map((l) => ecArv(l, F)));
+  return `<details class="ec-g">${ecLinha(esc(nome), `${t.n} · ${ls.length} ${ls.length > 1 ? "unidades" : "unidade"}${ext ? " · " + esc(ext) : ""}`, t)}<div class="ec-us">${ls.map((l) => ecUn(l, F, nomes)).join("")}</div></details>`; }
+const ICO_FIL = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h12l-4.6 5.4v4.3l-2.8-1.4V8.9z"/></svg>`;
+function ecMontar(el) {
+  el.innerHTML = `<input type="radio" name="ecv" id="ecMod" class="ec-rd" checked><input type="radio" name="ecv" id="ecOrg" class="ec-rd">
+    <div class="ec-hd"><h3>A estrutura da Casa</h3><details class="ec-flt"><summary title="Organizar">${ICO_FIL}<span class="ec-on"></span></summary><div class="ec-flm"><b>Organizar por</b>
+      <label for="ecMod" class="o-mod"><i></i>Tipo de unidade<small>coordenadorias, gerências, lideranças…</small></label><label for="ecOrg" class="o-org"><i></i>Organograma da ALESC<small>cada setor com as unidades que respondem a ele</small></label></div></details></div>
+    ${typeof orcPainel === "function" ? orcPainel() : ""}
+    <p class="ec-sub">Vagas ocupadas / previstas · valor aplicado / cota. Toque para abrir.<span class="ec-sorg"> Organizado pelo organograma (Res. 001/2006, art. 2º).</span></p>
+    <div class="ec-cab"><span></span><span>Vagas ocupadas/previstas</span><span>Valor aplicado/cota (R$)</span><span></span></div>
+    <div class="ec-vmod">${ECJ.tipo.map(([g, ls]) => ecGrupo(g, "", ls, {})).join("")}</div>
+    <div class="ec-vorg">${ECJ.org.map(([st, ext, ls]) => ecGrupo(st, ext, ls, ECJ.filhos, ECJ.nomes_org)).join("")}</div>
+    <p class="nota">${esc(ECJ.fonte)} Sem cota própria, a cota é o valor legal dos cargos previstos.</p>`;
+  el.querySelectorAll(".ec-flm label").forEach((x) => x.addEventListener("click", () => setTimeout(() => { el.querySelector(".ec-flt").open = false; }, 0)));
+  // admin: troca "ocupada"/"pessoa" pelo nome (abre o perfil); visitante continua vendo só a estrutura
+  // (o arquivo público não tem matrícula: casa pela lotação e pelo bruto do contracheque, a pessoa só é usada uma vez)
+  if (typeof servidorNomesCasa === "function") servidorNomesCasa(Object.keys(ECJ.un), ECJ.ref).then((N) => { if (!N) return;
+    el.querySelectorAll("[data-ecl]").forEach((u) => { const L = (N[u.dataset.ecl] || []).slice(); u.querySelectorAll(":scope > .ec-cp > table [data-ecb], :scope > .ec-cp > .ec-eq [data-ecb]").forEach((x) => {
+      const b = +x.dataset.ecb, i = L.findIndex((p) => Math.abs(p.b - b) < 0.02); if (i < 0) return; const p = L.splice(i, 1)[0]; x.textContent = p.n; x.dataset.svab = p.m; x.classList.add("adm"); }); }); }).catch(() => {});
+}
+function secCasa() {
+  setTimeout(async () => { const el = document.getElementById("ecasa"); if (!el) return;
+    try { ECJ = ECJ || await fetch("../dados/painel/estrutura-casa.json?v=1").then((r) => r.json()); ecMontar(el); } catch (e) { el.innerHTML = `<h3>A estrutura da Casa</h3><p class="nota">Não foi possível carregar a estrutura.</p>`; } }, 0);
+  return `<div class="bloco rv" id="ecasa"><h3>A estrutura da Casa</h3><p class="nota">Carregando…</p></div>`; }
 
 // ---------- patrimônio do mandato (capacidade máxima) ----------
 function secPatrimonio(c) { const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {};
