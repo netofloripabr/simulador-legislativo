@@ -538,12 +538,13 @@ function ecUn(l, F, nomes) { const u = ECJ.un[l], ks = F[l] || [], t = ecArv(l, 
 function ecGrupo(nome, ext, ls, F, nomes) { const t = ecSoma(ls.map((l) => ecArv(l, F)));
   return `<details class="ec-g">${ecLinha(esc(nome), `${t.n} · ${ls.length} ${ls.length > 1 ? "unidades" : "unidade"}${ext ? " · " + esc(ext) : ""}`, t)}<div class="ec-us">${ls.map((l) => ecUn(l, F, nomes)).join("")}</div></details>`; }
 const ICO_FIL = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h12l-4.6 5.4v4.3l-2.8-1.4V8.9z"/></svg>`;
-// o título e o filtro ficam no próprio bloco (o h3 abre e fecha a aba; o filtro fica antes da seta, sem acionar a aba)
-const ecTopo = () => `<input type="radio" name="ecv" id="ecMod" class="ec-rd" checked><input type="radio" name="ecv" id="ecOrg" class="ec-rd"><h3>A estrutura da Casa<details class="ec-flt" onclick="event.stopPropagation()"><summary title="Organizar">${ICO_FIL}<span class="ec-on"></span></summary><div class="ec-flm"><b>Organizar por</b>
-      <label for="ecMod" class="o-mod"><i></i>Tipo de unidade<small>coordenadorias, gerências, lideranças…</small></label><label for="ecOrg" class="o-org"><i></i>Organograma da ALESC<small>cada setor com as unidades que respondem a ele</small></label></div></details></h3>`;
+const ecTopo = () => `<input type="radio" name="ecv" id="ecMod" class="ec-rd" checked><input type="radio" name="ecv" id="ecOrg" class="ec-rd"><h3>A estrutura da Casa</h3>`;
+// filtro: no cabeçalho da lista, na ponta esquerda (coluna do nome)
+const ecFiltro = () => `<details class="ec-flt"><summary title="Organizar">${ICO_FIL}<span>Organizar</span><span class="ec-on"></span></summary><div class="ec-flm"><b>Organizar por</b>
+      <label for="ecMod" class="o-mod"><i></i>Tipo de unidade<small>coordenadorias, gerências, lideranças…</small></label><label for="ecOrg" class="o-org"><i></i>Organograma da ALESC<small>cada setor com as unidades que respondem a ele</small></label></div></details>`;
 function ecMontar(el) { const B = document.getElementById("ecasa");
   el.innerHTML = `<p class="ec-sub">Vagas ocupadas / previstas · valor aplicado / cota. Toque para abrir.<span class="ec-sorg"> Organizado pelo organograma (Res. 001/2006, art. 2º).</span></p>
-    <div class="ec-cab"><span></span><span>Vagas ocupadas/previstas</span><span>Valor aplicado/cota (R$)</span><span></span></div>
+    <div class="ec-cab"><span>${ecFiltro()}</span><span>Vagas ocupadas/previstas</span><span>Valor aplicado/cota (R$)</span><span></span></div>
     <div class="ec-vmod">${ECJ.tipo.map(([g, ls]) => ecGrupo(g, "", ls, {})).join("")}</div>
     <div class="ec-vorg">${ECJ.org.map(([st, ext, ls]) => ecGrupo(st, ext, ls, ECJ.filhos, ECJ.nomes_org)).join("")}</div>
     <p class="nota">${esc(ECJ.fonte)} Sem cota própria, a cota é o valor legal dos cargos previstos.</p>
