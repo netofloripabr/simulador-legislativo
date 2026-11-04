@@ -183,35 +183,36 @@ function verbasHtml(C, I, L) {
 // simulador da cota (29/10/2026, protótipo aprovado): cargo e moradia definem o bolo do mês; cada despesa reembolsável ocupa um
 // pedaço da mesma barra, com limite próprio quando há; embaixo, o que a Casa paga direto (fora do bolo). Ajustes ficam no rascunho
 const fxR = (v) => "R$ " + (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const VB_IT = (I) => [["Comunicação e mídias", "divulgação; vedada 120 dias antes da eleição", 15000, 40000, "sem teto próprio"], ["Consultoria e pesquisa", "contrato e escopo", 6000, 30000, "por contrato: limite da dispensa"], ["Escritório de apoio 1", "aluguel, condomínio, IPTU, contas", I.escritorio_lim || 3960, I.escritorio_lim || 3960, `até ${fxR(I.escritorio_lim || 3960)}/mês`], ["Escritório de apoio 2", "mesmas despesas", 0, I.escritorio_lim || 3960, `até ${fxR(I.escritorio_lim || 3960)}/mês`], ["Veículo próprio", "indenização · Ato 238/2014", Math.round(I.veiculo_proprio || 10335), Math.round(I.veiculo_proprio || 10335), `${fxR(I.veiculo_proprio || 0)}/mês`], ["Moradia na Capital", "locação ou hospedagem em Florianópolis", 0, 0, "usa a parcela de moradia"], ["Internet via satélite", "1 kit por gabinete (ex.: Starlink)", 350, 1000, "1 serviço por gabinete"], ["Tecnologia", "software de gestão, áudio e vídeo", 1200, 8000, "sem teto próprio"], ["Capacitação do deputado", "evento ligado ao mandato", 0, 5000, "sem teto próprio"], ["Coworking", "exceto cidade com escritório", 0, 3000, "vedado onde há escritório"]];
 const VB_COR = ["#534AB7", "#7F77DD", "#AFA9EC", "#0F6E56", "#1D9E75", "#5DCAA5", "#993C1D", "#D85A30", "#BA7517", "#888780"];
+// verbas indenizatórias: mostra a cota (o bolo do mês e o teto de cada despesa dentro dele), não uma simulação de uso.
+// teto: [valor fixo ou null = sem teto próprio, até o bolo]. Valores de EST.indenizatorias / cota_custeio (Ato da Mesa 066/2024).
+const VB_TETO = (I, C, mo) => [["Comunicação e mídias", "divulgação; vedada 120 dias antes da eleição", null, "sem teto próprio"], ["Consultoria e pesquisa", "contrato e escopo", null, "por contrato, até o limite da dispensa"], ["Escritório de apoio 1", "aluguel, condomínio, IPTU, contas", I.escritorio_lim || 3960, "por mês"], ["Escritório de apoio 2", "mesmas despesas", I.escritorio_lim || 3960, "por mês"], ["Veículo próprio", "indenização · Ato 238/2014", Math.round(I.veiculo_proprio || 10335), "por mês"], ["Moradia na Capital", "locação ou hospedagem em Florianópolis", mo ? Math.round(C.moradia || 0) : 0, mo ? "parcela de moradia" : "sem direito"], ["Internet via satélite", "1 kit por gabinete (ex.: Starlink)", null, "1 serviço por gabinete"], ["Tecnologia", "software de gestão, áudio e vídeo", null, "sem teto próprio"], ["Capacitação do deputado", "evento ligado ao mandato", null, "sem teto próprio"], ["Coworking", "exceto cidade com escritório", null, "vedado onde há escritório"]];
 function verbasSim(C, I) {
   const seg = (id, ops) => `<div class="vbseg" id="${id}">${ops.map(([v, t]) => `<button data-v="${v}">${t}</button>`).join("")}</div>`;
   return `<div class="vbs" id="vbSim"><div class="vbctl"><span>Cargo</span>${seg("vbCg", [[0, "Sem cargo"], [1, "Líder ou pres. de comissão"], [2, "Mesa"]])}<span>Moradia na Capital</span>${seg("vbMo", [[1, "Tem direito"], [0, "Não"]])}</div>
-    <div class="vbk"><div><small>Cota do mês</small><b data-vb="tot"></b><em data-vb="comp"></em></div><div><small>Usado na simulação</small><b data-vb="uso"></b></div><div><small>Saldo do mês</small><b data-vb="sal"></b><em>acumula no ano · zera em janeiro</em></div></div>
-    <div class="vbbar" data-vb="bar"></div><p class="vbl" data-vb="leg"></p>
-    <div class="vbt">Reembolsável · tudo sai do mesmo bolo <small>art. 4º</small></div><div data-vb="lista"></div>
+    <div class="vbk"><div><small>Cota do mês</small><b data-vb="tot"></b><em data-vb="comp"></em></div><div><small>No ano</small><b data-vb="ano"></b><em>o saldo de um mês passa para o seguinte · zera em janeiro</em></div></div>
+    <div class="vbbar vbc" data-vb="bar"></div><div class="vbleg" data-vb="leg"></div>
+    <div class="vbt">Reembolsável · tudo sai do mesmo bolo <small>art. 4º</small></div><div class="vbh"><span></span><span>Despesa</span><span>Teto dentro da cota</span><span>Limite</span></div><div data-vb="lista"></div>
+    <p class="vbl" data-vb="nota"></p>
     <div class="vbt">Fora do bolo · a Casa paga direto <small>art. 3º</small></div>
     <div class="vbfora"><div><b>Passagens e diárias</b>conforme portaria vigente</div><div><b>Locação de veículo</b>${fxR(I.veiculo_locado || 0)} por veículo/mês</div><div><b>Telefonia e correios</b>contrato da Casa</div><div><b>Gráfica e material</b>serviços gráficos e consumo</div><div><b>Combustível</b>dos veículos locados</div><div><b>Assinaturas e capacitação</b>de servidores</div></div>
     <p class="vbl"><b>Como pedir:</b> pagar, juntar nota fiscal discriminada e comprovante bancário em nome do deputado, preencher o Requerimento Padrão de Reembolso e lançar no sistema de cotas e no SEI até o último dia útil do mês seguinte (um processo por mês por grupo de despesa). Vedado material permanente. Contratações dos incisos I a XI do art. 4º respeitam o limite da dispensa (Lei 14.133, art. 75, II).</p></div>`;
 }
 function ligarVerbas(c) {
-  const w = $("#vbSim"); if (!w) return; const C = EST.cota_custeio || {}, I = EST.indenizatorias || {}, IT = VB_IT(I), AD = [0, C.ad_pres_lider || 0, C.ad_mesa || 0];
-  const sv = lerP(c).verbas || {}; let cg = sv.cg ?? 0, mo = sv.mo ?? 1; const val = IT.map((x, i) => Array.isArray(sv.val) && sv.val[i] != null ? sv.val[i] : x[2]);
-  const q = (k) => w.querySelector(`[data-vb="${k}"]`), grava = () => gravarP(c, { verbas: { cg, mo, val } });
-  const desenhaLista = () => { IT[5][3] = mo ? Math.round(C.moradia || 0) : 0; if (!mo) val[5] = 0;
-    q("lista").innerHTML = IT.map((x, i) => `<div class="vbit"><i style="background:${VB_COR[i]}"></i><span>${x[0]}<small>${x[1]}</small></span><input type="range" min="0" max="${x[3]}" step="50" value="${Math.min(val[i], x[3])}" data-i="${i}"${x[3] ? "" : " disabled"} aria-label="${x[0]}"><span class="vbv"><b data-vv="${i}">${fm(val[i])}</b><small>${x[4]}</small></span></div>`).join("");
-    q("lista").querySelectorAll("input").forEach((r) => { r.oninput = () => { val[+r.dataset.i] = +r.value; calc(); }; r.onchange = grava; }); };
-  const calc = () => { const tot = (C.base || 0) + AD[cg] + (mo ? C.moradia || 0 : 0), uso = val.reduce((a, b) => a + b, 0), sal = tot - uso, den = Math.max(tot, uso) || 1;
-    q("tot").textContent = fm(tot); q("comp").textContent = `básica ${fm(C.base || 0)}${cg ? " + adicional " + fm(AD[cg]) : ""}${mo ? " + moradia " + fm(C.moradia || 0) : ""}`;
-    q("uso").textContent = fm(uso); q("sal").textContent = fm(sal); q("sal").className = sal < 0 ? "neg" : "pos";
-    q("bar").innerHTML = val.map((v, i) => `<i style="width:${v / den * 100}%;background:${VB_COR[i]}" title="${IT[i][0]}: ${fm(v)}"></i>`).join("");
-    q("leg").textContent = sal < 0 ? `Passou ${fm(-sal)} da cota do mês: só cabe se houver saldo acumulado dos meses anteriores.` : `${Math.round(uso / tot * 100)}% da cota usada · saldo de ${fm(sal)} no mês, ${fm(sal * 12)} se repetir o ano todo.`;
-    val.forEach((v, i) => { const e = w.querySelector(`[data-vv="${i}"]`); if (e) e.textContent = fm(v); }); };
+  const w = $("#vbSim"); if (!w) return; const C = EST.cota_custeio || {}, I = EST.indenizatorias || {}, AD = [0, C.ad_pres_lider || 0, C.ad_mesa || 0];
+  const sv = lerP(c).verbas || {}; let cg = sv.cg ?? 0, mo = sv.mo ?? 1;
+  const q = (k) => w.querySelector(`[data-vb="${k}"]`), grava = () => gravarP(c, { verbas: { cg, mo } });
+  const calc = () => { const P = [["Cota básica", C.base || 0, "#7E848A"], ...(cg ? [[cg === 2 ? "Adicional da Mesa" : "Adicional de líder ou presidente de comissão", AD[cg], "#B0B5BA"]] : []), ...(mo ? [["Moradia na Capital", C.moradia || 0, "#545A60"]] : [])], tot = P.reduce((s2, x) => s2 + x[1], 0) || 1, IT = VB_TETO(I, C, mo);
+    q("tot").textContent = fm(tot); q("ano").textContent = fm(tot * 12); q("comp").textContent = P.map((x) => `${x[0].toLowerCase()} ${fm(x[1])}`).join(" + ");
+    q("bar").innerHTML = P.map((x) => `<i style="width:${x[1] / tot * 100}%;background:${x[2]}" title="${x[0]}: ${fm(x[1])}"></i>`).join("");
+    q("leg").innerHTML = P.map((x) => `<span><i style="background:${x[2]}"></i>${x[0]} <b>${fm(x[1])}</b></span>`).join("");
+    // cada despesa: o teto próprio ocupa a parte cheia da barra; sem teto próprio, a barra pontilhada mostra que pode usar o bolo inteiro
+    q("lista").innerHTML = IT.map(([n, d, t, nota], i) => `<div class="vbit"><i style="background:${VB_COR[i]}"></i><span>${n}<small>${d}</small></span><div class="vbtb">${t == null ? `<s style="width:100%"></s>` : t ? `<i style="width:${Math.max(1.5, Math.min(100, t / tot * 100)).toFixed(1)}%;background:${VB_COR[i]}"></i>` : ""}</div><span class="vbv"><b>${t == null ? "até a cota" : t ? fm(t) : "—"}</b><small>${t ? `${nota} · ${Math.round(t / tot * 100)}% da cota` : nota}</small></span></div>`).join("");
+    q("nota").innerHTML = `Barra cheia: teto próprio da despesa, em proporção à cota de ${fm(tot)}. Barra pontilhada: sem teto próprio — pode usar o saldo do bolo, respeitado o limite da dispensa nas contratações.`; };
   const marca = (id, v) => w.querySelectorAll(`#${id} button`).forEach((b) => b.classList.toggle("on", +b.dataset.v === v));
   w.querySelector("#vbCg").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; cg = +b.dataset.v; marca("vbCg", cg); calc(); grava(); };
-  w.querySelector("#vbMo").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; mo = +b.dataset.v; marca("vbMo", mo); desenhaLista(); calc(); grava(); };
-  marca("vbCg", cg); marca("vbMo", mo); desenhaLista(); calc();
+  w.querySelector("#vbMo").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; mo = +b.dataset.v; marca("vbMo", mo); calc(); grava(); };
+  marca("vbCg", cg); marca("vbMo", mo); calc();
 }
 function secAdministrativo(c) {
   const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, I = EST.indenizatorias || {};
