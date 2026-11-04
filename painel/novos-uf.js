@@ -207,12 +207,10 @@ function orcPainel() {
   const L = (a) => O.loa[a] || 0, E = (a) => (O.executado || {})[a], inc = (i) => i ? L(anos[i]) / L(anos[i - 1]) - 1 : null;
   const cresc = L(atual) / L(anos[0]) - 1, cagr = Math.pow(L(atual) / L(anos[0]), 1 / (anos.length - 1)) - 1, mx = Math.max(...anos.map(L));
   // números do ano: fração, duodécimo, valor nominal (dotação na LOA) e o que foi usado (despesa empenhada)
-  const kp = [F ? [F.pct.toLocaleString("pt-BR") + "%", "da receita líquida", "Fração"] : null, [mi(L(atual) / 12), "por mês", "Duodécimo " + atual], [bi(L(atual)), `${pc(inc(anos.length - 1))} sobre ${anos[anos.length - 2]}`, "Nominal " + atual],
-    ult ? [Math.round(E(ult) / L(ult) * 100) + "%", `${bi(E(ult))} de ${bi(L(ult)).replace("R$ ", "")}`, "Usado " + ult] : null].filter(Boolean);
   const linhas = anos.map((a, i) => { const e = E(a), u = e ? e / L(a) : null, d = inc(i);
     return `<div class="odl"><b class="oda">${a}</b><div class="odt" style="width:${(L(a) / mx * 100).toFixed(1)}%">${e ? `<i style="width:${(u * 100).toFixed(1)}%"></i>` : `<i class="cor"></i>`}</div>
       <span class="odv"><b>${bi(L(a))}</b><small>${e ? `usado ${Math.round(u * 100)}%` : "em execução"}</small></span><span class="odi${d == null ? " z" : d >= .1 ? " al" : ""}">${d == null ? "—" : pc(d)}</span></div>`; }).join("");
-  return `<div class="odk">${kp.map(([v, s2, t]) => `<div><span>${t}</span><b>${v}</b><small>${s2}</small></div>`).join("")}</div>
+  return `<div class="odtt"><b>Duodécimo ${atual} · ${mi(L(atual) / 12)} por mês</b><span>${F ? `${F.pct.toLocaleString("pt-BR")}% da ${esc(F.base)} · ` : ""}${bi(L(atual))} no ano${ult ? ` · ${Math.round(E(ult) / L(ult) * 100)}% usado em ${ult}` : ""}</span></div>
     <div class="odh"><span>Ano</span><span>Valor nominal · <em>usado</em></span><span></span><span>Incremento</span></div><div class="odc">${linhas}</div>
     <p class="nota">${F ? `<b>Duodécimo</b>: a cada mês o Estado repassa à Assembleia ${F.pct.toLocaleString("pt-BR")}% da ${esc(F.base)} do mês anterior (${esc(F.regra)}). ` : ""}<b>Valor nominal</b>: dotação inicial na Lei Orçamentária, em reais de cada ano. <b>Usado</b>: ${esc(O.executado_tipo || "despesa executada")}. Em ${anos.length - 1} anos o valor nominal cresceu ${pc(cresc)} (${pc(cagr)} ao ano, em média, sem descontar a inflação).${tot ? ` Servidores ativos: ${tot.toLocaleString("pt-BR")}${ef ? ` (${ef.toLocaleString("pt-BR")} efetivos e ${cm.toLocaleString("pt-BR")} em comissão)` : ""}.` : ""}${F && F.nota ? " " + esc(F.nota) + "." : ""}</p>`;
 }
