@@ -236,14 +236,14 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 
 /* A estrutura da Casa (04/11/2026): número acima da barra, centralizado; mesma lógica em vagas e valores */
 #ecasa .ec-rd{ position:absolute; opacity:0; pointer-events:none; }
-.ec-hd{ display:flex; align-items:center; justify-content:space-between; gap:12px; } .ec-hd h3{ margin:0; }
+#ecasa > h3 .ec-flt{ order:5; margin-left:16px; font-size:14px; letter-spacing:0; } #ecasa > h3[data-bl]::after{ order:6; margin-left:22px; } #ecasa.fech .ec-flt{ display:none; }
 .ec-flt{ position:relative; } .ec-flt>summary{ list-style:none; display:grid; place-items:center; width:34px; height:34px; border-radius:10px; border:1px solid var(--linha); color:var(--sec); cursor:pointer; position:relative; } .ec-flt>summary::-webkit-details-marker{ display:none; } .ec-flt>summary:hover,.ec-flt[open]>summary{ background:var(--sup2); color:var(--texto); }
-.ec-on{ position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%; background:#FF9F43; display:none; } #ecOrg:checked~.ec-hd .ec-on{ display:block; }
+.ec-on{ position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%; background:#FF9F43; display:none; } #ecOrg:checked~h3 .ec-on{ display:block; }
 .ec-flm{ position:absolute; right:0; top:40px; z-index:5; width:270px; background:var(--sup2); border:1px solid var(--linha); border-radius:14px; padding:10px; box-shadow:0 12px 32px rgba(0,0,0,.45); } .ec-flm>b{ display:block; font-size:11px; font-weight:500; color:var(--ter); padding:2px 6px 8px; }
 .ec-flm label{ display:grid; grid-template-columns:16px 1fr; column-gap:10px; padding:8px 6px; border-radius:9px; cursor:pointer; font-size:13.5px; font-weight:500; } .ec-flm label:hover{ background:rgba(255,255,255,.04); } .ec-flm label small{ grid-column:2; color:var(--ter); font-size:11.5px; font-weight:400; }
-.ec-flm label i{ grid-row:1/3; width:14px; height:14px; margin-top:2px; border-radius:50%; border:1.5px solid var(--ter); box-sizing:border-box; } #ecMod:checked~.ec-hd .o-mod i,#ecOrg:checked~.ec-hd .o-org i{ border:4px solid var(--texto); }
-.ec-vorg,.ec-sorg{ display:none; } #ecOrg:checked~.ec-vorg{ display:block; } #ecOrg:checked~.ec-vmod{ display:none; } #ecOrg:checked~.ec-sub .ec-sorg{ display:inline; }
-.ec-sub{ color:var(--ter); font-size:12.5px; margin:16px 0 14px; }
+.ec-flm label i{ grid-row:1/3; width:14px; height:14px; margin-top:2px; border-radius:50%; border:1.5px solid var(--ter); box-sizing:border-box; } #ecMod:checked~h3 .o-mod i,#ecOrg:checked~h3 .o-org i{ border:4px solid var(--texto); }
+.ec-vorg,.ec-sorg{ display:none; } #ecOrg:checked~.blc .ec-vorg{ display:block; } #ecOrg:checked~.blc .ec-vmod{ display:none; } #ecOrg:checked~.blc .ec-sorg{ display:inline; }
+.ec-sub{ color:var(--ter); font-size:12.5px; margin:6px 0 14px; } .ec-orc{ margin-top:28px; padding-top:22px; border-top:1px solid var(--linha); }
 .ec-cab,.ec-g>summary,.ec-u>summary{ display:grid; grid-template-columns:minmax(0,1fr) 133px 133px 12px; gap:28px; align-items:center; }
 .ec-cab{ font-size:11px; color:var(--ter); padding:0 2px 6px; } .ec-cab span:nth-child(2),.ec-cab span:nth-child(3){ text-align:center; white-space:nowrap; margin:0 -14px; }
 .ec-g>summary,.ec-u>summary{ list-style:none; cursor:pointer; padding:14px 2px; } .ec-g>summary::-webkit-details-marker,.ec-u>summary::-webkit-details-marker{ display:none; }
@@ -297,7 +297,7 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="novos-uf.js?cb=25"></script>
 <script src="servidores-perfil.js?cb=7"></script>
-<script src="novos.js?cb=231"></script>
+<script src="novos.js?cb=232"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="sino-menu.js?cb=11"></script>
 </body>

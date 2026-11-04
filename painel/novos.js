@@ -538,17 +538,17 @@ function ecUn(l, F, nomes) { const u = ECJ.un[l], ks = F[l] || [], t = ecArv(l, 
 function ecGrupo(nome, ext, ls, F, nomes) { const t = ecSoma(ls.map((l) => ecArv(l, F)));
   return `<details class="ec-g">${ecLinha(esc(nome), `${t.n} · ${ls.length} ${ls.length > 1 ? "unidades" : "unidade"}${ext ? " · " + esc(ext) : ""}`, t)}<div class="ec-us">${ls.map((l) => ecUn(l, F, nomes)).join("")}</div></details>`; }
 const ICO_FIL = `<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3.5h12l-4.6 5.4v4.3l-2.8-1.4V8.9z"/></svg>`;
-function ecMontar(el) {
-  el.innerHTML = `<input type="radio" name="ecv" id="ecMod" class="ec-rd" checked><input type="radio" name="ecv" id="ecOrg" class="ec-rd">
-    <div class="ec-hd"><h3>A estrutura da Casa</h3><details class="ec-flt"><summary title="Organizar">${ICO_FIL}<span class="ec-on"></span></summary><div class="ec-flm"><b>Organizar por</b>
-      <label for="ecMod" class="o-mod"><i></i>Tipo de unidade<small>coordenadorias, gerências, lideranças…</small></label><label for="ecOrg" class="o-org"><i></i>Organograma da ALESC<small>cada setor com as unidades que respondem a ele</small></label></div></details></div>
-    ${typeof orcPainel === "function" ? orcPainel() : ""}
-    <p class="ec-sub">Vagas ocupadas / previstas · valor aplicado / cota. Toque para abrir.<span class="ec-sorg"> Organizado pelo organograma (Res. 001/2006, art. 2º).</span></p>
+// o título e o filtro ficam no próprio bloco (o h3 abre e fecha a aba; o filtro fica antes da seta, sem acionar a aba)
+const ecTopo = () => `<input type="radio" name="ecv" id="ecMod" class="ec-rd" checked><input type="radio" name="ecv" id="ecOrg" class="ec-rd"><h3>A estrutura da Casa<details class="ec-flt" onclick="event.stopPropagation()"><summary title="Organizar">${ICO_FIL}<span class="ec-on"></span></summary><div class="ec-flm"><b>Organizar por</b>
+      <label for="ecMod" class="o-mod"><i></i>Tipo de unidade<small>coordenadorias, gerências, lideranças…</small></label><label for="ecOrg" class="o-org"><i></i>Organograma da ALESC<small>cada setor com as unidades que respondem a ele</small></label></div></details></h3>`;
+function ecMontar(el) { const B = document.getElementById("ecasa");
+  el.innerHTML = `<p class="ec-sub">Vagas ocupadas / previstas · valor aplicado / cota. Toque para abrir.<span class="ec-sorg"> Organizado pelo organograma (Res. 001/2006, art. 2º).</span></p>
     <div class="ec-cab"><span></span><span>Vagas ocupadas/previstas</span><span>Valor aplicado/cota (R$)</span><span></span></div>
     <div class="ec-vmod">${ECJ.tipo.map(([g, ls]) => ecGrupo(g, "", ls, {})).join("")}</div>
     <div class="ec-vorg">${ECJ.org.map(([st, ext, ls]) => ecGrupo(st, ext, ls, ECJ.filhos, ECJ.nomes_org)).join("")}</div>
-    <p class="nota">${esc(ECJ.fonte)} Sem cota própria, a cota é o valor legal dos cargos previstos.</p>`;
-  el.querySelectorAll(".ec-flm label").forEach((x) => x.addEventListener("click", () => setTimeout(() => { el.querySelector(".ec-flt").open = false; }, 0)));
+    <p class="nota">${esc(ECJ.fonte)} Sem cota própria, a cota é o valor legal dos cargos previstos.</p>
+    ${typeof orcPainel === "function" ? `<div class="ec-orc">${orcPainel()}</div>` : ""}`;
+  B.querySelectorAll(".ec-flm label").forEach((x) => x.addEventListener("click", () => setTimeout(() => { B.querySelector(".ec-flt").open = false; }, 0)));
   // admin: troca "ocupada"/"pessoa" pelo nome (abre o perfil); visitante continua vendo só a estrutura
   // (o arquivo público não tem matrícula: casa pela lotação e pelo bruto do contracheque, a pessoa só é usada uma vez)
   if (typeof servidorNomesCasa === "function") servidorNomesCasa(Object.keys(ECJ.un), ECJ.ref).then((N) => { if (!N) return;
@@ -556,9 +556,9 @@ function ecMontar(el) {
       const b = +x.dataset.ecb, i = L.findIndex((p) => Math.abs(p.b - b) < 0.02); if (i < 0) return; const p = L.splice(i, 1)[0]; x.textContent = p.n; x.dataset.svab = p.m; x.classList.add("adm"); }); }); }).catch(() => {});
 }
 function secCasa() {
-  setTimeout(async () => { const el = document.getElementById("ecasa"); if (!el) return;
-    try { ECJ = ECJ || await fetch("../dados/painel/estrutura-casa.json?v=1").then((r) => r.json()); ecMontar(el); } catch (e) { el.innerHTML = `<h3>A estrutura da Casa</h3><p class="nota">Não foi possível carregar a estrutura.</p>`; } }, 0);
-  return `<div class="bloco rv" id="ecasa"><h3>A estrutura da Casa</h3><p class="nota">Carregando…</p></div>`; }
+  setTimeout(async () => { const el = document.getElementById("ecIn"); if (!el) return;
+    try { ECJ = ECJ || await fetch("../dados/painel/estrutura-casa.json?v=1").then((r) => r.json()); ecMontar(el); } catch (e) { el.innerHTML = `<p class="nota">Não foi possível carregar a estrutura.</p>`; } }, 0);
+  return `<div class="bloco rv" id="ecasa">${ecTopo()}<div id="ecIn"><p class="nota">Carregando…</p></div></div>`; }
 
 // ---------- patrimônio do mandato (capacidade máxima) ----------
 function secPatrimonio(c) { const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {};
