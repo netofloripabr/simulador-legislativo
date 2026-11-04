@@ -2520,21 +2520,24 @@
     }
    ],
    "cargos": [
-    [
-     "Secretário do Colegiado de Bancada · bancadas partidárias",
-     "PL/GAS · níveis 01 a 100 · índice de cota máxima 477,87",
-     "até 15"
-    ],
-    [
-     "Secretário do Colegiado de Bancada · bancada regional com 1 a 6 deputados",
-     "PL/GAS · índice 36,13",
-     "1"
-    ],
-    [
-     "Secretário do Colegiado de Bancada · bancada regional com 7 ou mais deputados",
-     "PL/GAS · índice 72,27",
-     "2"
-    ]
+    {
+     "c": "Secretário do Colegiado de Bancada",
+     "d": "bancadas partidárias · PL/GAS, níveis 01 a 100",
+     "q": "até 15 cargos",
+     "idx": 477.867735
+    },
+    {
+     "c": "Secretário do Colegiado de Bancada",
+     "d": "bancada regional com 1 a 6 deputados · PL/GAS",
+     "q": "1 cargo",
+     "idx": 36.1341
+    },
+    {
+     "c": "Secretário do Colegiado de Bancada",
+     "d": "bancada regional com 7 ou mais deputados · PL/GAS",
+     "q": "2 cargos",
+     "idx": 72.2682
+    }
    ],
    "base": "Res. 002/2006, Anexo IX-E (Grupo de Atividades de Assessoramento Parlamentar – Colegiado de Bancada), redação da LC 828/2023"
   },
@@ -2614,53 +2617,66 @@
     }
    ],
    "cargos": [
-    [
-     "Secretário Parlamentar de liderança · bancada de 1 deputado",
-     "PL/GAL · níveis 1 a 120 · índice 93,14",
-     "até 6"
-    ],
-    [
-     "2 deputados",
-     "índice 167,94",
-     "até 7"
-    ],
-    [
-     "3 deputados",
-     "índice 251,71",
-     "até 8"
-    ],
-    [
-     "4 deputados",
-     "índice 289,61",
-     "até 9"
-    ],
-    [
-     "5 deputados",
-     "índice 312,08",
-     "até 10"
-    ],
-    [
-     "6 deputados",
-     "índice 371,52",
-     "até 11"
-    ],
-    [
-     "7 deputados",
-     "índice 382,72",
-     "até 12"
-    ],
-    [
-     "8 deputados",
-     "índice 393,67",
-     "até 13"
-    ],
-    [
-     "9 ou mais deputados",
-     "índice 483,92",
-     "até 14"
-    ]
+    {
+     "c": "Liderança com 1 deputado",
+     "d": "Secretário Parlamentar · PL/GAL, níveis 1 a 120",
+     "q": "até 6 cargos",
+     "idx": 93.143386
+    },
+    {
+     "c": "Liderança com 2 deputados",
+     "d": "Secretário Parlamentar · PL/GAL, níveis 1 a 120",
+     "q": "até 7 cargos",
+     "idx": 167.941016
+    },
+    {
+     "c": "Liderança com 3 deputados",
+     "d": "Secretário Parlamentar · PL/GAL, níveis 1 a 120",
+     "q": "até 8 cargos",
+     "idx": 251.708013
+    },
+    {
+     "c": "Liderança com 4 deputados",
+     "d": "Secretário Parlamentar · PL/GAL, níveis 1 a 120",
+     "q": "até 9 cargos",
+     "idx": 289.606998
+    },
+    {
+     "c": "Liderança com 5 deputados",
+     "d": "Secretário Parlamentar · PL/GAL, níveis 1 a 120",
+     "q": "até 10 cargos",
+     "idx": 312.084407
+    },
+    {
+     "c": "Liderança com 6 deputados",
+     "d": "Secretário Parlamentar · PL/GAL, níveis 1 a 120",
+     "q": "até 11 cargos",
+     "idx": 371.52249
+    },
+    {
+     "c": "Liderança com 7 deputados",
+     "d": "Secretário Parlamentar · PL/GAL, níveis 1 a 120",
+     "q": "até 12 cargos",
+     "idx": 382.722095
+    },
+    {
+     "c": "Liderança com 8 deputados",
+     "d": "Secretário Parlamentar · PL/GAL, níveis 1 a 120",
+     "q": "até 13 cargos",
+     "idx": 393.674565
+    },
+    {
+     "c": "Liderança com 9 ou mais deputados",
+     "d": "Secretário Parlamentar · PL/GAL, níveis 1 a 120",
+     "q": "até 14 cargos",
+     "idx": 483.924058
+    }
    ],
    "base": "Res. 002/2006, Anexo IX-C (Grupo de Atividades de Assessoramento Parlamentar – Liderança), redação do Ato da Mesa 106/2024; níveis pela LC 870/2025. O número de cargos e a cota crescem com o tamanho da bancada."
   }
+ },
+ "valor_indice_cota": {
+  "valor": 356.34,
+  "fonte": "valor do ponto de índice das cotas de nomeação (Res. 002/2006, Anexos IX), o mesmo que reproduz a cota da Mesa e da Liderança na folha 09/2026"
  }
 }

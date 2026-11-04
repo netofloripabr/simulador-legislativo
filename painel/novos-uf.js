@@ -5,7 +5,7 @@
 let CARG = null, LEGUF = null, ADMUF = null, ESTUF = null, ESTCASA = null, ORCA = null;
 async function carregarUF() {
   ORCA = await fetch(`../dados/painel/orcamento-assembleias.json?v=2`).then((r) => r.json()).catch(() => null);
-  if (UF === "sc") { CARG = await fetch(`../dados/painel/alesc-cargos.json?v=1`).then((r) => r.json()).catch(() => null); return; } const c = UFI.casa.toLowerCase();
+  if (UF === "sc") { CARG = await fetch(`../dados/painel/alesc-cargos.json?v=2`).then((r) => r.json()).catch(() => null); return; } const c = UFI.casa.toLowerCase();
   ESTUF = await fetch(`../dados/painel/${c}-estrutura.json?v=1`).then((r) => r.json()).catch(() => null);
   ESTCASA = await fetch(`../dados/painel/${c}-estruturas-casa.json?v=1`).then((r) => r.json()).catch(() => null);
   [LEGUF, ADMUF] = await Promise.all([fetch(`../dados/painel/${c}-legislativo.json?v=2`).then((r) => r.json()).catch(() => null), fetch(`../dados/painel/${c}-administrativo.json?v=2`).then((r) => r.json()).catch(() => null)]);
@@ -222,5 +222,5 @@ function cargosCasa(g) { const L = CARG && CARG.grupos && CARG.grupos[g]; if (!L
   const bases = L.map((t) => `<b>${esc(t.tipo)}</b>: ${esc(t.base)}${t.cargos.length ? " · " + t.cargos.map((c) => `${esc(c.cargo)} (${esc(c.nivel)}): ${esc(c.base)}`).join("; ") : ""}`).join("<br>");
   return `<div class="ccg"><button class="ib" title="Base legal" onclick="event.preventDefault(); event.stopPropagation(); const x=this.parentElement.querySelector('.ibx'); x.hidden=!x.hidden">i</button><div class="ibx" hidden>${bases}<br><br>${esc(CARG.metodo)}</div>
     ${L.map((t) => `<p class="ccf"><b>${esc(t.tipo)}</b> · ${esc(t.formato)}</p>${t.cargos.length ? `<table class="qtab">${t.cargos.map((c) => { const tot = (c.venc || 0) + (c.grat || 0);
-      return `<tr><td>${esc(c.cargo)}<small>${esc(c.nivel)} · ${esc(String(c.qtd))} por unidade${c.venc ? ` · vencimento ${rs(c.venc)}` : ""}${c.grat ? ` + gratificação de exercício ${esc(c.grat_nivel || "")} ${rs(c.grat)}` : ""}</small></td><td>${c.venc ? rs(tot) : '<em class="acf">a confirmar</em>'}</td></tr>`; }).join("")}</table>` : `<p class="nota">Sem cargo de comando próprio na Resolução 002/2006.</p>`}`).join("")}
+      return `<tr><td>${esc(c.cargo)}<small>${esc(c.nivel)} · ${esc(String(c.qtd))}${c.cota_idx ? " cargos · índice de cota " + c.cota_idx.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) : " por unidade"}${c.venc ? ` · vencimento ${rs(c.venc)}` : ""}${c.grat ? ` + gratificação de exercício ${esc(c.grat_nivel || "")} ${rs(c.grat)}` : ""}</small></td><td>${c.venc ? rs(tot) : c.cota_idx ? `${rs(c.cota_idx * 356.34)}<small>cota máxima/mês</small>` : '<em class="acf">a confirmar</em>'}</td></tr>`; }).join("")}</table>` : `<p class="nota">Sem cargo de comando próprio na Resolução 002/2006.</p>`}`).join("")}
     <p class="ccu">Unidades e folha atual (contracheques 09/2026)</p></div>`; }

@@ -92,21 +92,23 @@
      },
      {
       "cargo": "Secretário Parlamentar (Secretaria da Mulher)",
-      "nivel": "PL/GAR 01 a 120",
-      "qtd": 6,
+      "nivel": "PL/GAR · níveis 01 a 120",
+      "qtd": "até 6",
       "venc": null,
       "grat": null,
       "grat_nivel": null,
-      "base": "Anexo IX-G (LC 870/2025)"
+      "base": "Res. 002/2006, Anexo IX-G (Ato da Mesa 106/2024; níveis LC 870/2025)",
+      "cota_idx": 167.8053
      },
      {
       "cargo": "Secretário Parlamentar (Secretaria da Família)",
-      "nivel": "PL/GAF 01 a 120",
-      "qtd": 4,
+      "nivel": "PL/GAF · níveis 01 a 120",
+      "qtd": "até 4",
       "venc": null,
       "grat": null,
       "grat_nivel": null,
-      "base": "Anexo IX-H (LC 870/2025)"
+      "base": "Res. 002/2006, Anexo IX-H (Ato da Mesa 106/2024; níveis LC 870/2025)",
+      "cota_idx": 83.9026
      }
     ]
    }
