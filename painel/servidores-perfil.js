@@ -98,7 +98,7 @@
   const MESA_L = [["GP - CHEFIA DE GABINETE DA PRESIDENCIA", "Chefia de Gabinete da Presidência", 0, 0], ["GABINETE DA PRESIDENCIA", "Gabinete da Presidência", 20, 258001.68], ["MD - 1ª VICE-PRESIDENCIA", "1ª Vice-Presidência", 9, 80797.67], ["MD - 2ª VICE-PRESIDENCIA", "2ª Vice-Presidência", 9, 80797.67], ["MD - 1ª SECRETARIA", "1ª Secretaria", 9, 80797.67], ["MD - 2ª SECRETARIA", "2ª Secretaria", 9, 80797.67], ["MD - 3ª SECRETARIA", "3ª Secretaria", 9, 80797.67], ["MD - 4ª SECRETARIA", "4ª Secretaria", 9, 80797.67]];
   const DAS = { 12726.42: "DAS-3", 16340.59: "DAS-5", 18232.39: "DAS-6", 20173.54: "DAS-7" };
   const nivel = (v) => { const I = window.GAB_IDX, V = window.GAB_VAL || 296.55; if (!I || !v) return null; let b = null, e = 2; I.forEach((x, i) => { const d = Math.abs(x * V - v); if (d < e) { e = d; b = i + 1; } }); return b; };
-  async function mesaNomes() { const c = sb(); if (!c) return null; const ok = await c.rpc("gab_pode"); if (!ok.data) return null;
+  async function mesaNomes() { const c = sb(); if (!c) return null; const se = (await c.auth.getSession()).data.session; if (!se) return null; const ok = await c.rpc("gab_pode"); if (!ok.data) return null;
     const S = await c.from("adm_servidores").select("matricula, nome, lotacao").in("lotacao", MESA_L.map((x) => x[0])).eq("no_portal", true); if (S.error || !(S.data || []).length) return null;
     const C = await c.from("adm_contracheques").select("matricula, referencia, cargo_valor, gravado_em").in("matricula", S.data.map((x) => x.matricula)).order("gravado_em", { ascending: false });
     const ult = {}; (C.data || []).forEach((x) => { if (!ult[x.matricula]) ult[x.matricula] = x; });
