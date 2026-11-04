@@ -108,6 +108,25 @@ async function montarAdminProblemas() {
     </div>`).join("");
 }
 
+// Seção "Servidores" (migração 89, 04/11/2026): busca qualquer servidor da ALESC por nome ou matrícula e abre o perfil
+// (contracheque, histórico do Diário, notas pessoais, mesmo sobrenome) — o perfil vem de painel/servidores-perfil.js.
+function montarAdminServidores() {
+  return `<div class="glass-card"><div style="font-size:14px; font-weight:700; margin:0 0 4px 2px;">Servidores da ALESC</div>
+    <div class="pc-sub" style="margin:0 0 10px 2px;">Nome ou matrícula. Inclui exonerados e aposentados; as notas são pessoais (só quem escreveu vê).</div>
+    <input id="pcAdminServBusca" type="search" placeholder="Buscar servidor" autocomplete="off" style="width:100%;">
+    <div id="pcAdminServRes" style="margin-top:10px;"></div></div>`;
+}
+function ligarAdminServidores() {
+  const inp = document.getElementById("pcAdminServBusca"), res = document.getElementById("pcAdminServRes"); if (!inp) return;
+  let t = null;
+  inp.addEventListener("input", () => { clearTimeout(t); t = setTimeout(async () => {
+    if (typeof servidorBuscar !== "function") { res.innerHTML = `<div class="pc-sub">Perfil de servidores não carregou.</div>`; return; }
+    const L = await servidorBuscar(inp.value);
+    res.innerHTML = L.length ? L.map((x) => `<button class="ghost" data-svab="${x.matricula}" style="width:100%; display:flex; justify-content:space-between; gap:10px; text-align:left; margin-bottom:6px;"><span><b>${escaparAtributoHtml(x.nome)}</b><br><span class="pc-sub">matrícula ${x.matricula} · ${escaparAtributoHtml(x.vinculo || "")}${x.situacao !== "ativo" ? " · " + escaparAtributoHtml(x.situacao) : ""}</span></span><span class="pc-sub" style="text-align:right;">${escaparAtributoHtml(x.lotacao || "")}</span></button>`).join("") : inp.value.trim().length >= 2 ? `<div class="pc-sub">Ninguém encontrado.</div>` : "";
+  }, 250); });
+  inp.focus();
+}
+
 // Seção "Erros" — erros de JS capturados por nuvem/telemetria.js (migração
 // 50). Abertos primeiro; "resolvido" marca resolvido_em e re-renderiza.
 async function montarAdminErros() {
@@ -787,6 +806,7 @@ async function renderAdminPainel() {
     { id: "acessos", label: "Acessos" },
     { id: "pesquisa", label: "Pesquisa" },
     { id: "financeiro", label: "Financeiro" },
+    { id: "servidores", label: "Servidores" },
     { id: "rotinas", label: "Rotinas" },
     { id: "bots", label: "Bots" },
     { id: "analitico", label: "Analítico" },
@@ -803,6 +823,7 @@ async function renderAdminPainel() {
   else if (pcState.adminSecao === "financeiro") conteudoSecao = await montarAdminFinanceiro();
   else if (pcState.adminSecao === "bots") conteudoSecao = await montarAdminBots();
   else if (pcState.adminSecao === "analitico") conteudoSecao = await montarAdminAnalitico();
+  else if (pcState.adminSecao === "servidores") conteudoSecao = montarAdminServidores();
   else conteudoSecao = await montarAdminRotinas();
 
   el.innerHTML = `
@@ -816,6 +837,7 @@ async function renderAdminPainel() {
     pcState.subaba = "menu";
     renderAppColaborativo();
   });
+  if (pcState.adminSecao === "servidores") ligarAdminServidores();
   document.querySelectorAll("[data-pc-admin-secao]").forEach((btn) => {
     btn.addEventListener("click", () => {
       pcState.adminSecao = btn.getAttribute("data-pc-admin-secao");

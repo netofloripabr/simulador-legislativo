@@ -1827,5 +1827,106 @@ const MIGRACOES_INDEX = [
     "gab_recursos.indicacao_id"
    ]
   ]
+ },
+ {
+  "num": 89,
+  "arquivo": "migracao-89-servidores-alesc.sql",
+  "descricao": "Migração 89 (04/11/2026): Servidores da ALESC e atos administrativos do Diário da Assembleia.",
+  "objetos": [
+   [
+    "table",
+    "adm_servidores"
+   ],
+   [
+    "index",
+    "adm_servidores_lot_idx"
+   ],
+   [
+    "table",
+    "adm_atos"
+   ],
+   [
+    "index",
+    "adm_atos_data_idx"
+   ],
+   [
+    "index",
+    "adm_atos_acoes_idx"
+   ],
+   [
+    "table",
+    "adm_ato_pessoas"
+   ],
+   [
+    "index",
+    "adm_ato_pessoas_mat_idx"
+   ],
+   [
+    "index",
+    "adm_ato_pessoas_nome_idx"
+   ],
+   [
+    "index",
+    "adm_ato_pessoas_ato_idx"
+   ],
+   [
+    "table",
+    "adm_contracheques"
+   ],
+   [
+    "table",
+    "adm_notas"
+   ],
+   [
+    "index",
+    "adm_notas_autor_idx"
+   ],
+   [
+    "policy",
+    "adm_servidores_admin"
+   ],
+   [
+    "policy",
+    "adm_atos_admin"
+   ],
+   [
+    "policy",
+    "adm_ato_pessoas_admin"
+   ],
+   [
+    "policy",
+    "adm_contracheques_admin"
+   ],
+   [
+    "policy",
+    "adm_notas_dono"
+   ]
+  ]
+ },
+ {
+  "num": 90,
+  "arquivo": "migracao-90-servidores-carga.sql",
+  "descricao": "Migração 90 (04/11/2026): entrada de carga dos servidores e atos do Diário (migração 89).",
+  "objetos": [
+   [
+    "table",
+    "adm_carga_chaves"
+   ],
+   [
+    "function",
+    "adm_carga"
+   ]
+  ]
+ },
+ {
+  "num": 91,
+  "arquivo": "migracao-91-servidores-carga-acoes.sql",
+  "descricao": "Migração 91 (04/11/2026): adm_carga ganha o tipo \"acoes\" — quando o leitor do Diário aprende verbos novos",
+  "objetos": [
+   [
+    "function",
+    "adm_carga"
+   ]
+  ]
  }
 ];

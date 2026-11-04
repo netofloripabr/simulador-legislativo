@@ -15,3 +15,6 @@ nuvem/backup/
 # dados públicos de emendas: publicados no ramo dados-emendas pela rotina diária
 dados/gabinete/
 .conferencia/
+
+# Diário da Assembleia: PDFs e textos baixados pela ferramenta (dados com nomes de servidores, não versionar)
+ferramentas/diario/_cache/

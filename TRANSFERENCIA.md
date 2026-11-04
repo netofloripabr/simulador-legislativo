@@ -180,6 +180,16 @@ storage, 5 GB de egress/mês, 1 GB de logs.
 | Atas de convenção SC | Agente `.claude/agents/atualizador-atas-2026.md` | Era diária no período de convenções |
 | Atas dos demais estados | Agente `.claude/agents/atualizador-atas-nacional-2026.md` | Era semanal |
 | Apuração TSE | pg_cron + Edge Function | **Desligada por decisão** (seção 5) |
+| Servidores da ALESC e atos do Diário (migrações 89–91) | Manual, no computador: `ferramentas/diario/` (ver abaixo) | Mensal, quando o administrador quiser. Sem cron |
+
+**Servidores e Diário (desde 04/11/2026).** Três passos, no Mac, a partir da pasta do projeto:
+1. Lista de edições novas do Diário em `ferramentas/diario/_cache/edicoes.json` (lida do site da ALESC) e
+   `node ferramentas/diario/ler_diario.mjs ferramentas/diario/_cache/edicoes.json` — baixa só as edições que faltam e separa os atos.
+2. Leitura do portal da transparência (lista de servidores e contracheques) para `_cache/portal-lista.json` e `_cache/portal-contracheques.json`.
+3. `node ferramentas/diario/carregar.mjs` — envia ao banco pela função `adm_carga`, que só aceita a chave temporária de `_cache/chave`
+   (o banco guarda só o hash, com validade de 24 h; gerar uma nova chave a cada carga e gravar o hash em `adm_carga_chaves`).
+A pasta `ferramentas/diario/_cache/` fica **fora do git** (tem nomes de servidores; o repositório é público) e fora do backup do
+GitHub: se o computador se perder, os dados continuam no Supabase e a pasta pode ser refeita lendo o Diário de novo.
 
 Em 29/10/2026 nenhuma tarefa agendada do Claude estava cadastrada neste
 computador. Se as rotinas de atas voltarem a ser necessárias, recriá-las a
