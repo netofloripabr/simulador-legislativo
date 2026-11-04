@@ -10,6 +10,8 @@ L = json.load(open(R + 'ferramentas/diario/_cache/portal-lista.json'))
 CC = json.load(open(R + 'ferramentas/diario/_cache/portal-contracheques.json'))
 M = json.load(open(R + 'dados/painel/mesa-estruturas.json'))
 IDX = json.loads(re.search(r'const GAB_IDX = (\[[^\]]*\])', open(R + 'painel/novos.js').read()).group(1)); VAL = 296.55; VIC = 356.34
+# chaves anônimas (matrícula → HMAC do banco), fora do git; regerar com a consulta em TRANSFERENCIA.md
+CHV = json.load(open(R + 'ferramentas/diario/_cache/chaves-estrutura.json'))
 def num(s):
     t = re.sub(r'[^0-9,-]', '', str(s or ''))
     try: return float(t.replace(',', '.')) if t not in ('', '-') else 0.0
@@ -152,9 +154,11 @@ def unidade(g, lot, P):
     lin = ''.join('<tr class="' + ('' if p else 'vz') + '"><td>' + esc(rot_cargo(cg, p)) + '</td><td>' + (nome(p) if p else VAGA) + '</td><td class="r">' + (fm(p['bruto']) if p and p['bruto'] else '—') + '</td></tr>' for cg, p in ocup)
     eq = ''.join('<tr><td class="mu">' + esc(rotulo(p)) + '</td><td>' + nome(p) + '</td><td class="r">' + (fm(p['bruto']) if p['bruto'] else '—') + '</td></tr>' for p in sorted(livres, key=lambda p: -p['bruto']))
     corpo = ('<table class="tb"><thead><tr><th>Cargo</th><th>Ocupante</th><th class="r">Bruto</th></tr></thead><tbody>' + lin + '</tbody></table>' if lin else '') + (('<details class="eq"><summary>' + ('Outras pessoas na unidade' if lin else 'Pessoas na unidade') + ' · ' + str(len(livres)) + '</summary><table class="tb"><tbody>' + eq + '</tbody></table></details>') if eq else '')
-    # sem matrícula nem nome (o repositório é público): só ocupada/livre e o bruto; o admin casa o nome pelo banco (lotação + bruto)
-    posts = [[rot_cargo(cg, p), 1 if p else 0, round(p['bruto'], 2) if p else 0] for cg, p in ocup]
-    outros = [[rotulo(p), round(p['bruto'], 2)] for p in sorted(livres, key=lambda p: -p['bruto'])]
+    # sem matrícula nem nome (o repositório é público): cada pessoa vai com a chave anônima do banco (migração 94),
+    # que só a função adm_estrutura_nomes (admin) transforma em nome; '' = vaga livre, '?' = ocupada sem chave
+    ch = lambda p: CHV.get(str(int(p['m'])), '?')
+    posts = [[rot_cargo(cg, p), ch(p) if p else '', round(p['bruto'], 2) if p else 0] for cg, p in ocup]
+    outros = [[rotulo(p), ch(p), round(p['bruto'], 2)] for p in sorted(livres, key=lambda p: -p['bruto'])]
     return {'posts': posts, 'outros': outros, 'semcota': not V or cota0 is None, 'nV': nV, 'nU': nU, 'usado': usado, 'cota': cota or 0, 't': t, 'n': len(P), 'obs': obs, 'corpo': corpo, 'lot': lot}
 ICO = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="5" r="2.8"/><path d="M2.8 14c.6-2.9 2.7-4.4 5.2-4.4s4.6 1.5 5.2 4.4"/></svg>'
 def ocupa(u, n):

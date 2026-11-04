@@ -190,7 +190,10 @@ storage, 5 GB de egress/mês, 1 GB de logs.
    (o banco guarda só o hash, com validade de 24 h; gerar uma nova chave a cada carga e gravar o hash em `adm_carga_chaves`).
 4. `python3 ferramentas/estrutura_casa.py` — regera `dados/painel/estrutura-casa.json` (A estrutura da Casa, em Parlamentares:
    vagas pela norma, ocupação e valores). O arquivo é público e não leva nome nem matrícula; o nome aparece só para o admin,
-   casado no banco pela lotação e pelo bruto. Se a referência do portal mudar, ajustar `REF` no script e subir o `?v=` em `painel/novos.js`.
+   pela chave anônima de cada pessoa (HMAC da matrícula com o segredo da tabela `adm_segredos`, migração 94; só a função
+   `adm_estrutura_nomes` devolve o nome, e só para admin). O script lê as chaves de `ferramentas/diario/_cache/chaves-estrutura.json`
+   (fora do git); se entrar gente nova, regerar esse arquivo com a consulta de `matricula:chave` de `adm_servidores` (mesma
+   expressão da função). Se a referência do portal mudar, ajustar `REF` no script e subir o `?v=` em `painel/novos.js`.
 A pasta `ferramentas/diario/_cache/` fica **fora do git** (tem nomes de servidores; o repositório é público) e fora do backup do
 GitHub: se o computador se perder, os dados continuam no Supabase e a pasta pode ser refeita lendo o Diário de novo.
 

@@ -1950,5 +1950,20 @@ const MIGRACOES_INDEX = [
     "adm_carga"
    ]
   ]
+ },
+ {
+  "num": 94,
+  "arquivo": "migracao-94-estrutura-chaves.sql",
+  "descricao": "Migração 94 (04/11/2026) · A estrutura da Casa: chave estável por servidor no arquivo público",
+  "objetos": [
+   [
+    "table",
+    "adm_segredos"
+   ],
+   [
+    "function",
+    "adm_estrutura_nomes"
+   ]
+  ]
  }
 ];

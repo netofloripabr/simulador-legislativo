@@ -527,10 +527,10 @@ const ecBar = (a, b, x) => `<span class="ec-tr${x ? " x" : ""}"><i style="width:
 const ecOc = (r) => r.V ? `<span class="ec-oc">${ecBar(r.U, r.V, r.U > r.V)}<b>${r.U}<em>/${r.V}</em></b></span>` : `<span class="ec-oc ec-sem">sem vagas próprias</span>`;
 const ecVl = (r) => r.c ? `<span class="ec-oc">${ecBar(r.us, r.c, r.us > r.c)}<b>${ecv(r.us)}<em>/${ecv(r.c)}</em></b></span>` : `<span class="ec-oc"><span class="ec-tr vz"></span><b>${ecv(r.t)}<em>/sem cota</em></b></span>`;
 const ecLinha = (nome, sub, r) => `<summary><span class="ec-nm">${nome}<small>${ICO_PES}${sub}</small></span>${ecOc(r)}${ecVl(r)}<i class="ec-ch"></i></summary>`;
-const ecPes = (o, b) => o ? `<b class="ec-pn" data-ecb="${b}">ocupada</b>` : `<span class="ec-vg">vaga livre</span>`;
+const ecPes = (k) => k ? `<b class="ec-pn" data-eck="${k}">ocupada</b>` : `<span class="ec-vg">vaga livre</span>`;
 function ecCorpo(u) {
-  const P = u.P.map(([cg, o, b]) => `<tr class="${o ? "" : "vz"}"><td>${esc(cg)}</td><td>${ecPes(o, b)}</td><td class="r">${b ? fm(b) : "—"}</td></tr>`).join("");
-  const X = u.X.map(([cg, b]) => `<tr><td class="mu">${esc(cg)}</td><td><b class="ec-pn" data-ecb="${b}">pessoa</b></td><td class="r">${b ? fm(b) : "—"}</td></tr>`).join("");
+  const P = u.P.map(([cg, k, b]) => `<tr class="${k ? "" : "vz"}"><td>${esc(cg)}</td><td>${ecPes(k)}</td><td class="r">${b ? fm(b) : "—"}</td></tr>`).join("");
+  const X = u.X.map(([cg, k, b]) => `<tr><td class="mu">${esc(cg)}</td><td><b class="ec-pn" data-eck="${k}">pessoa</b></td><td class="r">${b ? fm(b) : "—"}</td></tr>`).join("");
   return (P ? `<table class="ec-tb"><thead><tr><th>Cargo</th><th>Ocupante</th><th class="r">Bruto</th></tr></thead><tbody>${P}</tbody></table>` : "") + (X ? `<details class="ec-eq"><summary>${P ? "Outras pessoas na unidade" : "Pessoas na unidade"} · ${u.X.length}</summary><table class="ec-tb"><tbody>${X}</tbody></table></details>` : ""); }
 function ecUn(l, F, nomes) { const u = ECJ.un[l], ks = F[l] || [], t = ecArv(l, F);
   const sub = t.n + (ks.length ? ` · ${ks.length} ${ks.length > 1 ? "subunidades" : "subunidade"}` : "") + (u.o ? " · " + esc(u.o) : "");
@@ -551,14 +551,15 @@ function ecMontar(el) { const B = document.getElementById("ecasa");
     ${typeof orcPainel === "function" ? `<div class="ec-orc">${orcPainel()}</div>` : ""}`;
   B.querySelectorAll(".ec-flm label").forEach((x) => x.addEventListener("click", () => setTimeout(() => { B.querySelector(".ec-flt").open = false; }, 0)));
   // admin: troca "ocupada"/"pessoa" pelo nome (abre o perfil); visitante continua vendo só a estrutura
-  // (o arquivo público não tem matrícula: casa pela lotação e pelo bruto do contracheque, a pessoa só é usada uma vez)
-  if (typeof servidorNomesCasa === "function") servidorNomesCasa(Object.keys(ECJ.un), ECJ.ref).then((N) => { if (!N) return;
-    el.querySelectorAll("[data-ecl]").forEach((u) => { const L = (N[u.dataset.ecl] || []).slice(); u.querySelectorAll(":scope > .ec-cp > table [data-ecb], :scope > .ec-cp > .ec-eq [data-ecb]").forEach((x) => {
-      const b = +x.dataset.ecb, i = L.findIndex((p) => Math.abs(p.b - b) < 0.02); if (i < 0) return; const p = L.splice(i, 1)[0]; x.textContent = p.n; x.dataset.svab = p.m; x.classList.add("adm"); }); }); }).catch(() => {});
+  // admin: cada pessoa tem uma chave anônima no arquivo; o banco devolve o nome só para o admin (migração 94)
+  ecNomes(B);
 }
+function ecNomes(B) { if (typeof servidorNomesChave !== "function") return;
+  const ks = [...new Set([...B.querySelectorAll("[data-eck]")].map((x) => x.dataset.eck).filter((k) => k && k !== "?"))];
+  servidorNomesChave(ks).then((N) => { if (!N) return; B.querySelectorAll("[data-eck]").forEach((x) => { const p = N[x.dataset.eck]; if (!p) return; x.textContent = p.n; x.dataset.svab = p.m; x.classList.add("adm"); }); }).catch(() => {}); }
 function secCasa() {
   setTimeout(async () => { const el = document.getElementById("ecIn"); if (!el) return;
-    try { ECJ = ECJ || await fetch("../dados/painel/estrutura-casa.json?v=1").then((r) => r.json()); ecMontar(el); } catch (e) { el.innerHTML = `<p class="nota">Não foi possível carregar a estrutura.</p>`; } }, 0);
+    try { ECJ = ECJ || await fetch("../dados/painel/estrutura-casa.json?v=2").then((r) => r.json()); ecMontar(el); } catch (e) { el.innerHTML = `<p class="nota">Não foi possível carregar a estrutura.</p>`; } }, 0);
   return `<div class="bloco rv" id="ecasa">${ecTopo()}<div id="ecIn"><p class="nota">Carregando…</p></div></div>`; }
 
 // ---------- patrimônio do mandato (capacidade máxima) ----------
@@ -880,7 +881,7 @@ function aplicarTrava() { const ok = ACESSO === "liberado"; document.querySelect
   s3.querySelectorAll(".bloco").forEach((b) => { const t0 = (b.querySelector(":scope > h3")?.firstChild?.textContent || "").trim(); if (!/^(Subsídio e verbas|A estrutura da Casa)/.test(t0)) return; const tw = document.createTreeWalker(b, NodeFilter.SHOW_TEXT), L = []; while (tw.nextNode()) if (!tw.currentNode.parentNode.closest("svg") && RE.test(tw.currentNode.nodeValue)) L.push(tw.currentNode); RE.lastIndex = 0;
     b.querySelectorAll("svg title, svg text").forEach((x) => { if (!/^\d{4}$/.test(x.textContent)) x.remove(); }); /* gráfico do orçamento: tira os valores, mantém os anos */
     L.forEach((t) => { const sp = document.createElement("span"); sp.innerHTML = esc(t.nodeValue).replace(RE, `<i class="vcad" title="Valor restrito">${CADEADO}</i>`); t.replaceWith(sp); });
-    b.querySelectorAll(".adt, .pat b, .ibx").forEach((x) => { if (x.classList.contains("ibx")) return; x.innerHTML = `<i class="vcad" title="Valor restrito">${CADEADO}</i>`; }); });
+    b.querySelectorAll(".adt:not(.adt0), .pat b, .ibx").forEach((x) => { if (x.classList.contains("ibx")) return; x.innerHTML = `<i class="vcad" title="Valor restrito">${CADEADO}</i>`; }); });
 }
 function decorarAdm() { const c = window._cAtual; if (!c || !$("#s3") || UF !== "sc") return; const PA = EST.parlamentar || {}, G = EST.gabinete_parlamentar || {}, C = EST.cota_custeio || {}, F = (window.FOLHA_GAB || {});
   const par = PA.subsidio * (1 + PA.gestao_demais) + PA.aux_saude + PA.aux_alim, gab = G.cota + G.chefe + G.retrib, T = (EST.liderancas || {}).tabela || {}, lid = (T[Math.min(9, nbanc(c.p))] || {}).cota || 0;
@@ -895,8 +896,8 @@ function decorarAdm() { const c = window._cAtual; if (!c || !$("#s3") || UF !== 
     "Liderança": [lid, `Base: Res. 002/2006 Anexo IX-C (cargos e cota da liderança conforme o tamanho da bancada; 9 ou mais deputados = 14 cargos), índice de cota × R$ 356,34; folha atual das lideranças pelos contracheques de 09/2026; adicional do líder no Ato da Mesa 066/2024. Valores brutos.`],
     "A estrutura da Casa": [casa, `Inclui Mesa Diretora, Casa Militar, colegiados de bancada e lideranças. Orçamento: dotação inicial na LOA de SC e despesa empenhada até dezembro (relatórios "Execução Orçamentária por UO" da SEF/SC e da ALESC, UO 01001), anos 2017 a 2026; servidores pelo filtro de vínculo do portal da transparência da ALESC (17/10/2026). Estruturas: contracheques de 09/2026 do portal da transparência da ALESC (1ª aba, valor bruto), somados por lotação. Cargos comissionados, funções de confiança (FC/FG) e gratificações de exercício por estrutura. Não inclui gabinetes parlamentares nem comissões. ${BR}`],
     "O mandato em números": [par + gab + C.base + C.moradia, `Soma das três partes na capacidade máxima: parlamentar (subsídio, Gestão Executiva e auxílios), gabinete (cota cheia, chefe e gratificações) e verbas (cota de custeio e moradia). Funções extras (Mesa, presidência de comissão, liderança) somam a isso. ${BR}`] };
-  document.querySelectorAll("#s3 .bloco > h3").forEach((h) => { if (h.querySelector(".adt")) return; const k = Object.keys(M2).find((t) => h.textContent.trim().startsWith(t)); if (!k) return; const [v, tx] = M2[k];
-    h.insertAdjacentHTML("beforeend", `<span class="adt">${fm(v)}<small>/mês</small></span><button class="ib" title="Base dos dados">i</button>`);
+  document.querySelectorAll("#s3 .bloco > h3").forEach((h) => { if (h.querySelector(".adt, .ib")) return; const k = Object.keys(M2).find((t) => h.textContent.trim().startsWith(t)); if (!k) return; const [v, tx] = M2[k];
+    h.insertAdjacentHTML("beforeend", `${k === "A estrutura da Casa" ? `<span class="adt adt0"></span>` : `<span class="adt">${fm(v)}<small>/mês</small></span>`}<button class="ib" title="Base dos dados">i</button>`); // Casa: sem o total no título (04/11/2026)
     h.insertAdjacentHTML("afterend", `<div class="ibx" hidden>${tx}</div>`);
     h.querySelector(".ib:not(.imp)").onclick = (e) => { e.stopPropagation(); const b = h.parentElement, x = b.querySelector(".ibx"); b.classList.remove("fech"); x.hidden = !x.hidden; }; }); }
 function revelar() { setTimeout(setaFlutuante, 2500); document.querySelectorAll(".bloco").forEach((b) => b.classList.add("fech"));
