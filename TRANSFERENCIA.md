@@ -54,7 +54,7 @@ ou uma nuvem **privada** — não basta clonar o GitHub.
 | `Outros documentos/` | ~64 MB | Cadernos, boas-vindas, cenários, prints | — |
 | `apresentacao/` (PDFs AMFRI, AMVE, cadernos) | parte de ~31 MB | Material de apresentação | — |
 | `Logo.ai`, `Logo/` | — | Arquivos de design | — |
-| `_proto-*.html`, `painel/mesa-*.html`, `cmp-live-*.png` | — | Protótipos e prints de estudo | Podem ser descartados |
+| `prototipos/` (protótipos `_proto-*.html`, versões `mesa-*.html`, prints) | — | Protótipos e prints de estudo, fora do git (alguns têm nomes de servidores) | Podem ser descartados |
 | `copiar-supabase.command`, `restaurar-no-novo.command` | — | Scripts da migração de 18/10 | Ver seção 5 |
 | `dados/gabinete/` | ~6 MB | Vem do ramo `dados-emendas` | Recuperável do GitHub |
 

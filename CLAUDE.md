@@ -158,6 +158,17 @@ contador de abertos, botão "resolvido" marca `resolvido_em`).
 - Migração que só faz UPDATE/INSERT/DROP não tem objeto verificável e
   aparece como "sem verificação" (hoje só a 3).
 
+## Mapa do site e organização (desde 04/11/2026)
+
+O usuário se perde com facilidade na estrutura do site. A lista oficial do que existe, onde está e para onde vai é
+`ferramentas/mapa/mapa.json` (páginas → títulos → blocos, com situação, quem vê, arquivo e mudança combinada).
+- **Antes** de qualquer mudança de estrutura (página, título, seção ou bloco novo; mover, renomear, juntar), chamar
+  o agente `organizador-do-site`: ele diz onde a mudança entra e se já existe algo parecido.
+- **Depois**, atualizar o `mapa.json`, rodar `python3 ferramentas/mapa/gerar_mapa.py` (precisa dar 0 divergências) e
+  republicar o **Mapa do SimulaLEGIS** (Artifact privado, sempre o mesmo link:
+  https://claude.ai/artifact/9k3sdg92LdhCCQ72LU9TdG).
+- Protótipos e versões de teste vão para `prototipos/` (fora do git), nunca na raiz nem em `painel/`.
+
 ## Visão de produto e roteiro
 
 Veja `PROJETO.md` para a visão completa (tipos de usuário, objetivos, modelo
