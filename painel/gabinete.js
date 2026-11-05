@@ -401,7 +401,7 @@ function mfiltros() {
 }
 // função como ícone (saúde, educação, FUNDAM, agricultura, infraestrutura, segurança, social); etiqueta abaixo = natureza (investimento/custeio)
 const FUN_I = [[/sa[uú]de/i, "Saúde", '<path d="M6 2.5h4v3.5h3.5v4H10v3.5H6V10H2.5V6H6z"/>'], [/educa/i, "Educação", '<path d="M1.5 6L8 3l6.5 3L8 9z M4.5 7.5V11c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5V7.5 M14.5 6v3.5"/>'],
-  [/fundam|munic/i, "FUNDAM (municípios)", '<path d="M2 13.5h12 M3 13.5V7l5-3.5L13 7v6.5 M6.5 13.5V10h3v3.5"/>'], [/agric/i, "Agricultura", '<path d="M8 14V7 M8 7c0-2.5 2-4 4.5-4 0 2.5-2 4-4.5 4z M8 9.5C8 7.5 6.5 6 4 6c0 2 1.5 3.5 4 3.5z"/>'],
+  [/fundam|munic/i, "FUNDAM (municípios)", '<path d="M2 6.2L8 2.8l6 3.4z M2.5 13.5h11 M3.2 12h9.6 M4 6.8V12 M6.7 6.8V12 M9.3 6.8V12 M12 6.8V12"/>'], [/agric/i, "Agricultura", '<path d="M8 14V7 M8 7c0-2.5 2-4 4.5-4 0 2.5-2 4-4.5 4z M8 9.5C8 7.5 6.5 6 4 6c0 2 1.5 3.5 4 3.5z"/>'],
   [/infra|mobil/i, "Infraestrutura", '<path d="M5 14l1.5-11 M11 14L9.5 3 M8 4v1.5 M8 7.5V9 M8 11v1.5"/>'], [/segur/i, "Segurança", '<path d="M8 2l5 2v4c0 3-2.2 5-5 6-2.8-1-5-3-5-6V4z"/>'], [/social|assist/i, "Social", '<path d="M8 13.5S2.5 10 2.5 6.3A2.8 2.8 0 0 1 8 5a2.8 2.8 0 0 1 5.5 1.3C13.5 10 8 13.5 8 13.5z"/>']];
 const funHtml = (r) => { const f = FUN_I.find(([re]) => re.test(r.funcao || "")); const nat = r.natureza ? `<span class="nat">${esc(r.natureza)}</span>` : "";
   return f ? `<span class="fun" title="${esc(r.funcao)}"><svg viewBox="0 0 16 16">${f[2]}</svg><em>${f[1].replace(/ \(.*\)/, "")}</em></span>${nat}` : `${esc(r.funcao || "—")}${nat}`; };
