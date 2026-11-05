@@ -21,23 +21,27 @@ function relFiltro() { const F = S.mf || {}, P = [];
 // somas do detalhamento
 function relSomas(L0) { const L = L0.filter((x) => !x.sup), g = (f) => { const M = {}; L.forEach((x) => { const k = f(x); const o = M[k] = M[k] || { n: 0, v: 0, p: 0 }; o.n++; o.v += x.v; o.p += x.p; }); return Object.entries(M).sort((a, b) => b[1].v - a[1].v); };
   const v = L.reduce((s, x) => s + x.v, 0), p = L.reduce((s, x) => s + x.p, 0);
-  return { n: L.length, ns: L0.length - L.length, vs: L0.filter((x) => x.sup).reduce((s, x) => s + x.v, 0), v, p, ap: v - p, mun: new Set(L.map((x) => norm(x.mun))).size, ins: g((x) => x.ins), fun: g((x) => x.fun), pg: [["Pago ou executado", L.filter((x) => x.p >= x.v && x.v > 0)], ["Pago em parte", L.filter((x) => x.p > 0 && x.p < x.v)], ["A pagar", L.filter((x) => !x.p)]].map(([t, A]) => [t, { n: A.length, v: A.reduce((s, x) => s + x.v, 0), p: A.reduce((s, x) => s + x.p, 0) }]), ori: [...new Map(L.filter((x) => x.ori).map((x) => [x.ori, x.oriT])).entries()] }; }
+  return { n: L.length, ns: L0.length - L.length, vs: L0.filter((x) => x.sup).reduce((s, x) => s + x.v, 0), v, p, ap: v - p, mun: new Set(L.map((x) => norm(x.mun))).size, ins: g((x) => x.ins), fun: g((x) => x.fun), mns: g((x) => x.mun), pg: [["Pago ou executado", L.filter((x) => x.p >= x.v && x.v > 0)], ["Pago em parte", L.filter((x) => x.p > 0 && x.p < x.v)], ["A pagar", L.filter((x) => !x.p)]].map(([t, A]) => [t, { n: A.length, v: A.reduce((s, x) => s + x.v, 0), p: A.reduce((s, x) => s + x.p, 0) }]), ori: [...new Map(L.filter((x) => x.ori).map((x) => [x.ori, x.oriT])).entries()] }; }
 
+const REL_P = [["res", "Totais", "valor, pago, a pagar e quantidade"], ["pg", "Pago × a pagar", "pago, pago em parte e a pagar"], ["ins", "Por instrumento", "transferência especial, convênio…"], ["fun", "Por função", "saúde, educação, FUNDAM…"], ["mun", "Por município", "soma de cada cidade do filtro"], ["leg", "Legendas", "siglas de origem e etapas"]];
+const relPartes = () => { try { const v = JSON.parse(localStorage.getItem("gab_rel_partes") || "null"); if (Array.isArray(v)) return new Set(v); } catch (e) {} return new Set(["res", "pg", "ins", "fun", "leg"]); };
 // ---------- janela de opções ----------
-function relAbrir() { document.getElementById("relOv")?.remove(); const L = relLinhas(); let fmt = "pdf", det = true;
+function relAbrir() { document.getElementById("relOv")?.remove(); const L = relLinhas(); let fmt = "pdf", det = true, PT = relPartes();
   const ov = Object.assign(document.createElement("div"), { id: "relOv", className: "relov2" });
   const pinta = () => { ov.innerHTML = `<div class="relmd" role="dialog" aria-label="Imprimir ou exportar"><div class="relh"><b>Imprimir ou exportar</b><button class="relx" data-rx aria-label="Fechar">×</button></div>
     <p class="relf"><span>Conforme o filtro</span>${esc(relFiltro())} · <b>${ni(L.length)} ${L.length === 1 ? "item" : "itens"}</b></p>
     <div class="relg"><span>Formato</span><div class="relop">${[["pdf", "Imprimir / PDF", "documento no padrão SimulaLEGIS"], ["xlsx", "Excel", "planilha .xlsx"]].map(([k, t, d]) => `<button data-fmt="${k}" class="${fmt === k ? "on" : ""}"><b>${t}</b><small>${d}</small></button>`).join("")}</div></div>
     <div class="relg"><span>Incluir o detalhamento?</span><div class="relop">${[[true, "Sim", "somas por instrumento, função e pago × a pagar, e as legendas no fim"], [false, "Não", "só a lista"]].map(([k, t, d]) => `<button data-det="${k}" class="${det === k ? "on" : ""}"><b>${t}</b><small>${d}</small></button>`).join("")}</div></div>
+    ${det ? `<div class="relg"><span>O que entra no detalhamento</span><div class="relck">${REL_P.map(([k, t, d]) => `<button data-pt="${k}" class="${PT.has(k) ? "on" : ""}" aria-pressed="${PT.has(k)}"><i></i><b>${t}</b><small>${d}</small></button>`).join("")}</div></div>` : ""}
     <div class="relb"><button class="btn sec" data-rx>Cancelar</button><button class="btn" data-rgo${L.length ? "" : " disabled"}>${fmt === "pdf" ? "Gerar o documento" : "Baixar a planilha"}</button></div></div>`; };
   pinta(); document.body.appendChild(ov);
   ov.onclick = async (e) => { const t = e.target; if (t === ov || t.closest("[data-rx]")) { ov.remove(); return; }
     const f = t.closest("[data-fmt]"); if (f) { fmt = f.dataset.fmt; pinta(); return; } const d = t.closest("[data-det]"); if (d) { det = d.dataset.det === "true"; pinta(); return; }
-    const g = t.closest("[data-rgo]"); if (g && !g.disabled) { g.disabled = true; try { if (fmt === "pdf") relPDF(L, det); else await relXLSX(L, det); ov.remove(); } catch (er) { g.disabled = false; alert("Não foi possível gerar: " + (er.message || er)); } } }; }
+    const pt = t.closest("[data-pt]"); if (pt) { const k = pt.dataset.pt; PT.has(k) ? PT.delete(k) : PT.add(k); try { localStorage.setItem("gab_rel_partes", JSON.stringify([...PT])); } catch (er) {} if (!PT.size) det = false; pinta(); return; }
+    const g = t.closest("[data-rgo]"); if (g && !g.disabled) { g.disabled = true; try { const P = det ? PT : new Set(); if (fmt === "pdf") relPDF(L, P); else await relXLSX(L, P); ov.remove(); } catch (er) { g.disabled = false; alert("Não foi possível gerar: " + (er.message || er)); } } }; }
 
 // ---------- documento (PDF pela impressão do navegador) ----------
-function relPDF(L, det) { const T = relSomas(L), ag = new Date(), dt = ag.toLocaleDateString("pt-BR"), hr = ag.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+function relPDF(L, P) { const det = P && P.size, tem = (k) => P && P.has(k); const T = relSomas(L), ag = new Date(), dt = ag.toLocaleDateString("pt-BR"), hr = ag.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const pc = (a, b) => b ? nf(a / b * 100, 1) + "%" : "—";
   const lin = (x, i) => `<div class="di-linha"><span class="di-pos">${i + 1}</span><span class="di-cand"><span class="di-n">${esc(x.mun)}</span><span class="di-p">${esc([x.reg, x.ano].filter(Boolean).join(" · "))}</span></span><span class="di-obj">${esc(x.obj || "—")}<small>${esc([x.fun, x.ins, x.ori].filter((y) => y && !/^N[aã]o informad/.test(y)).join(" · "))}${x.proc ? " · " + esc(x.proc) : ""}</small></span><span class="di-st">${esc(x.st)}</span><span class="di-votos"><b>${ni(Math.round(x.v))}</b>${x.p ? `<small>${x.p >= x.v ? "pago" : "pago " + ni(Math.round(x.p))}</small>` : ""}</span></div>`;
   const tab = (tit, R, tot) => `<div class="di-bloco"><div class="di-st2">${tit}</div><div class="di-tl di-th"><span>Item</span><span>Qtde.</span><span>Valor (R$)</span><span>Pago</span><span>Parte</span></div>${R.map(([k, o]) => `<div class="di-tl"><span>${esc(k)}<i style="width:${tot ? (o.v / tot * 100).toFixed(1) : 0}%"></i></span><span>${ni(o.n)}</span><span>${ni(Math.round(o.v))}</span><span>${pc(o.p, o.v)}</span><span>${pc(o.v, tot)}</span></div>`).join("")}</div>`;
@@ -70,17 +74,18 @@ function relPDF(L, det) { const T = relSomas(L), ag = new Date(), dt = ag.toLoca
   <div class="di-tot"><span>Total · ${ni(T.n)} ${T.n === 1 ? "recurso" : "recursos"}</span><b>${brl(T.v)}</b></div>
   ${T.ns ? `<div class="di-st2" style="margin-top:14px">Suprimidas · fora das contas · ${ni(T.ns)} ${T.ns === 1 ? "item" : "itens"} · ${brl(T.vs)}</div>${L.filter((x) => x.sup).map(lin).join("")}` : ""}
   ${det ? `<div class="di-det"><div class="di-tit">Detalhamento</div><div class="di-sub">Somas do que está no filtro: ${esc(relFiltro())}.</div>
-    <div class="di-rres"><div><b>${brl(T.v)}</b><span>valor total</span></div><div class="ok"><b>${brl(T.p)}</b><span>pago · ${pc(T.p, T.v)}</span></div><div><b>${brl(T.ap)}</b><span>a pagar · ${pc(T.ap, T.v)}</span></div><div><b>${ni(T.n)}</b><span>recursos</span></div></div>
-    ${tab("Pago × a pagar", T.pg.filter(([, o]) => o.n), T.v)}
-    <div class="di-grade">${tab("Por instrumento", T.ins, T.v)}${tab("Por função", T.fun, T.v)}</div>
-    <div class="di-grade"><div class="di-bloco"><div class="di-st2">Legenda · origem</div><div class="di-leg">${T.ori.map(([s, t]) => `<b>${esc(s)}</b><span>${esc(t)}</span>`).join("") || "<span>—</span>"}</div></div>
-      <div class="di-bloco"><div class="di-st2">Legenda · etapa</div><div class="di-leg">${ST.map(([s, t]) => `<b>${esc(s)}</b><span>${esc(t)}</span>`).join("")}</div></div></div>
+    ${tem("res") ? `<div class="di-rres"><div><b>${brl(T.v)}</b><span>valor total</span></div><div class="ok"><b>${brl(T.p)}</b><span>pago · ${pc(T.p, T.v)}</span></div><div><b>${brl(T.ap)}</b><span>a pagar · ${pc(T.ap, T.v)}</span></div><div><b>${ni(T.n)}</b><span>recursos</span></div></div>` : ""}
+    ${tem("pg") ? tab("Pago × a pagar", T.pg.filter(([, o]) => o.n), T.v) : ""}
+    ${tem("ins") || tem("fun") ? `<div class="di-grade">${tem("ins") ? tab("Por instrumento", T.ins, T.v) : ""}${tem("fun") ? tab("Por função", T.fun, T.v) : ""}</div>` : ""}
+    ${tem("mun") ? tab("Por município", T.mns, T.v) : ""}
+    ${tem("leg") ? `<div class="di-grade"><div class="di-bloco"><div class="di-st2">Legenda · origem</div><div class="di-leg">${T.ori.map(([s, t]) => `<b>${esc(s)}</b><span>${esc(t)}</span>`).join("") || "<span>—</span>"}</div></div>
+      <div class="di-bloco"><div class="di-st2">Legenda · etapa</div><div class="di-leg">${ST.map(([s, t]) => `<b>${esc(s)}</b><span>${esc(t)}</span>`).join("")}</div></div></div>` : ""}
     <div class="di-rod">Valores em reais. "Parte" é a fatia de cada item no valor total do filtro; "Pago" é quanto daquele item já foi pago. Pago vem do portal da SEF quando a emenda está ligada ao Controle; nos demais, da etapa registrada pelo gabinete.</div></div>` : ""}
   <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app · uso interno do gabinete</span><span>${dt} ${hr}</span></div></div><script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`;
   const w = window.open("", "_blank"); if (!w) throw new Error("libere as janelas pop-up do navegador para este site"); w.document.write(html); w.document.close(); }
 
 // ---------- planilha Excel ----------
-async function relXLSX(L, det) { await piExcel(); const T = relSomas(L), wb = new ExcelJS.Workbook(); wb.creator = "SimulaLEGIS";
+async function relXLSX(L, P) { const det = P && P.size, tem = (k) => P && P.has(k); await piExcel(); const T = relSomas(L), wb = new ExcelJS.Workbook(); wb.creator = "SimulaLEGIS";
   const ws = wb.addWorksheet("Recursos", { views: [{ state: "frozen", ySplit: 4 }] }), V = "#,##0.00", B = { bold: true };
   ws.addRow([`Controle de Recursos · ${PARL.u || ""} (${PARL.p || ""})`]).font = { bold: true, size: 14 };
   ws.addRow([`Filtro: ${relFiltro()} · gerado em ${new Date().toLocaleString("pt-BR")}`]).font = { color: { argb: "FF6B7178" } }; ws.addRow([]);
@@ -94,11 +99,11 @@ async function relXLSX(L, det) { await piExcel(); const T = relSomas(L), wb = ne
   [5, 6, 22, 16, 52, 18, 20, 9, 14, 16, 30, 16, 16].forEach((w, i) => { ws.getColumn(i + 1).width = w; }); ws.autoFilter = { from: { row: 4, column: 1 }, to: { row: 4, column: 13 } };
   if (det) { const wd = wb.addWorksheet("Detalhamento"); wd.getColumn(1).width = 34; [2, 3, 4, 5].forEach((c) => { wd.getColumn(c).width = 16; });
     wd.addRow(["Detalhamento · " + relFiltro()]).font = { bold: true, size: 13 }; wd.addRow([]);
-    const res = [["Valor total", T.v], ["Pago", T.p], ["A pagar", T.ap], ["Recursos", T.n], ["Municípios", T.mun]]; res.forEach(([k, v]) => { const r = wd.addRow([k, v]); r.getCell(1).font = B; if (k !== "Recursos" && k !== "Municípios") r.getCell(2).numFmt = V; }); wd.addRow([]);
+    const res = tem("res") ? [["Valor total", T.v], ["Pago", T.p], ["A pagar", T.ap], ["Recursos", T.n], ["Municípios", T.mun]] : []; res.forEach(([k, v]) => { const r = wd.addRow([k, v]); r.getCell(1).font = B; if (k !== "Recursos" && k !== "Municípios") r.getCell(2).numFmt = V; }); wd.addRow([]);
     const bloco = (tit, R) => { wd.addRow([tit]).font = { bold: true, size: 12 }; const h = wd.addRow(["Item", "Quantidade", "Valor (R$)", "Pago (R$)", "Parte do total"]); h.font = B;
       R.forEach(([k, o]) => { const r = wd.addRow([k, o.n, o.v, o.p, T.v ? o.v / T.v : 0]); r.getCell(3).numFmt = V; r.getCell(4).numFmt = V; r.getCell(5).numFmt = "0.0%"; }); wd.addRow([]); };
-    bloco("Pago × a pagar", T.pg.filter(([, o]) => o.n)); bloco("Por instrumento", T.ins); bloco("Por função", T.fun);
-    wd.addRow(["Legenda · origem"]).font = { bold: true, size: 12 }; T.ori.forEach(([s, t]) => wd.addRow([s, t]));
+    if (tem("pg")) bloco("Pago × a pagar", T.pg.filter(([, o]) => o.n)); if (tem("ins")) bloco("Por instrumento", T.ins); if (tem("fun")) bloco("Por função", T.fun); if (tem("mun")) bloco("Por município", T.mns);
+    if (tem("leg")) { wd.addRow(["Legenda · origem"]).font = { bold: true, size: 12 }; T.ori.forEach(([s, t]) => wd.addRow([s, t])); }
     wd.addRow([]); wd.addRow(["Pago vem do portal da SEF quando a emenda está ligada ao Controle; nos demais, da etapa registrada pelo gabinete."]).font = { italic: true, color: { argb: "FF6B7178" } }; }
   const buf = await wb.xlsx.writeBuffer(), a = document.createElement("a"), nome = `Controle de Recursos - ${PARL.u || "gabinete"} - ${new Date().toISOString().slice(0, 10)}.xlsx`;
   a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); }

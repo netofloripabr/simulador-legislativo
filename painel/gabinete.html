@@ -380,6 +380,10 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .relop{ display:grid; grid-template-columns:1fr 1fr; gap:8px; } .relop button{ text-align:left; border:1px solid var(--linha); border-radius:14px; background:none; color:var(--texto); font:inherit; padding:10px 12px; cursor:pointer; }
 .relop button b{ display:block; font-size:14px; } .relop button small{ display:block; color:var(--ter); font-size:11.5px; margin-top:2px; line-height:1.35; } .relop button.on{ border-color:var(--a); background:rgba(var(--a-rgb),.12); }
 .relb{ display:flex; justify-content:flex-end; gap:8px; margin-top:6px; }
+.relck{ display:grid; grid-template-columns:1fr 1fr; gap:6px; } .relck button{ display:grid; grid-template-columns:18px 1fr; column-gap:8px; text-align:left; border:1px solid var(--linha); border-radius:12px; background:none; color:var(--texto); font:inherit; padding:8px 10px; cursor:pointer; }
+.relck i{ grid-row:1/3; width:16px; height:16px; margin-top:1px; border-radius:5px; border:1.5px solid var(--ter); } .relck button.on i{ background:var(--a); border-color:var(--a); box-shadow:inset 0 0 0 3px var(--sup); }
+.relck b{ font-size:13px; } .relck small{ color:var(--ter); font-size:11px; line-height:1.3; } .relck button.on{ border-color:rgba(var(--a-rgb),.5); }
+@media(max-width:520px){ .relck{ grid-template-columns:1fr; } }
 @media(max-width:520px){ .relop{ grid-template-columns:1fr; } }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
@@ -400,7 +404,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="gabinete-indicar.js?cb=45"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
-<script src="gabinete-relatorio.js?cb=2"></script>
+<script src="gabinete-relatorio.js?cb=3"></script>
 <script src="sino-menu.js?cb=11"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */
 (function(){ var b=document.querySelector(".mnub"), m=document.querySelector(".mnu"); if(!b||!m) return;
