@@ -67,6 +67,18 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
   const insS = (x) => { const g = typeof instrSig === "function" ? instrSig(x.r.modalidade) : ""; return MOD_OK.includes(g) ? g : "—"; };
   // parcelado (pago em parte): mini fracionador com a porcentagem paga, antes do valor
   const frac = (x) => { if (!(x.p > 0 && x.p < x.v)) return ""; const q = x.p / x.v, c = 2 * Math.PI * 5; return `<span class="di-fr" title="pago ${brl(x.p)} · ${Math.min(99, Math.floor(q * 100))}%"><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" class="t"/><circle cx="7" cy="7" r="5" class="f" stroke-dasharray="${(q * c).toFixed(2)} ${c.toFixed(2)}"/></svg></span>`; };
+  const partes = (o) => { const s2 = sigla(o) || "", [a, b] = s2.startsWith("EI") ? ["EI", s2.slice(5)] : s2 === "CS" ? ["CONV", "CS"] : s2 === "CONV" ? ["CONV", ""] : [s2 || "—", ""]; return [a, b, a === "EI" ? "ei" : a === "CONV" ? "cv" : "ou"]; };
+  const etq = ([a, b, cl], t) => `<span class="pt-eto ${cl}"${t ? ` title="${esc(t)}"` : ""}><b>${esc(a)}</b>${b ? `<span>${esc(b)}</span>` : ""}</span>`;
+  const val = (x) => { const c = x.sup ? "ap" : x.v > 0 && x.p >= x.v ? "pg" : x.p > 0 ? "pp" : "ap"; return `<span class="pt-val ${c}" title="${c === "pg" ? "Pago" : c === "pp" ? "Pago em parte: " + brl(x.p) : "A pagar"}">R$ ${rs(x.v)}</span>`; };
+  const funT = (x) => { const f = (typeof FUN_I !== "undefined" ? FUN_I : []).find(([re]) => re.test(x.r.funcao || "") || re.test(x.fun || "")); return f ? `<svg viewBox="0 0 16 16" class="pt-fi"><title>${esc(f[1])}</title>${f[2]}</svg><small>${esc(f[1].replace(/ \(.*\)/, ""))}</small>` : `<span class="pt-mu">—</span>`; };
+  const ORI_T = { "EI|AN": "Emenda impositiva · LOA", "EI|EX": "Emenda impositiva · excesso de receita", "EI|BC": "Emenda impositiva · bancada regional", "EI|0,55": "Emenda impositiva · adicional 0,55%", "CONV|CS": "Convênio simplificado", "CONV|": "Convênio", "Outros|": "Outros (informal)" };
+  const seta = (k) => { const a = S.mord ? S.mord[0] === k : k === "ano"; return `<i>${a ? ((S.mord ? S.mord[1] : 1) > 0 ? "↑" : "↓") : "↕"}</i>`; };
+  const thead = `<thead><tr>${[["", "#"], ["ano", "Ano"], ["", "Origem"], ["mun", "Município"], ["obj", "Objeto"], ["fun", "Função"], ["mod", "Mod."], ["v", "R$"], ["st", "Status"]].map(([k, t], i) => `<th class="c${i}">${t}${k ? seta(k) : ""}</th>`).join("")}</tr></thead>`;
+  const lin2 = (x, i) => `<tr${x.sup ? ' class="sup"' : ""}><td class="c0">${i + 1}</td><td class="c1">${esc(String(x.ano || "—"))}</td><td class="c2">${etq(partes(x.r.origem), x.r.origem)}</td>
+    <td class="c3"><b>${esc(x.mun)}</b><small>${esc(x.reg)}</small></td>
+    <td class="c4">${x.objAnt ? `<s>${esc(x.objAnt)}</s>` : ""}${esc(x.obj || "—")}${x.proc ? `<small>${esc(x.proc.replace(/\s+/g, " "))}</small>` : ""}</td>
+    <td class="c5">${funT(x)}</td><td class="c6">${insS(x) === "—" ? `<span class="pt-mu">—</span>` : esc(insS(x))}</td><td class="c7">${val(x)}</td><td class="c8">${x.sup ? `<span class="pt-mu">supr.</span>` : relIcs(x)}</td></tr>`;
+  const tabela = (A) => `<table class="pt">${thead}<tbody>${A.map(lin2).join("")}</tbody></table>`;
   const lin = (x, i) => `<div class="di-linha${x.sup ? " di-sup" : ""}"><span class="di-pos">${i + 1}</span><span class="di-or">${oriHtml(x)}</span><span class="di-ano">${esc(String(x.ano || "—"))}</span><span class="di-cand"><span class="di-n">${esc(x.mun)}</span><span class="di-p">${esc(x.reg)}</span></span><span class="di-obj">${x.objAnt ? `<s class="di-ant">${esc(x.objAnt)}</s>` : ""}${esc(x.obj || "—")}${x.proc ? `<small>${esc(x.proc)}</small>` : ""}</span><span class="di-fn">${funI(x)}</span><span class="di-in">${insS(x) === "—" ? `<span class="di-mu">—</span>` : esc(insS(x))}</span><span class="di-et">${x.sup ? `<span class="di-mu">supr.</span>` : relIcs(x)}</span><span class="di-votos">${rs(x.v)}</span></div>`;
   // legenda (1ª página, abaixo dos totais): só o que aparece na lista
   const usados = (f) => [...new Set(L.map(f).filter(Boolean))];
@@ -77,7 +89,9 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
     ${fL.length ? `<div><b>Função</b>${fL.map((f) => `<span><svg viewBox="0 0 16 16" class="di-fi">${f[2]}</svg>${esc(f[1])}</span>`).join("")}</div>` : ""}
     ${iL.length ? `<div><b>Modalidade</b>${iL.map(([s2, n]) => `<span><em>${esc(s2)}</em>${esc(n)}</span>`).join("")}</div>` : ""}
     <div><b>Etapa</b>${[[{ d: [1, 0, 0] }, "indicada"], [{ d: [1, 1, 0] }, "portaria ou termo"], [{ d: [1, 1, 1] }, "pago ou executado"], [{ d: [1, 1, 0], pp: 1 }, "pago em parte"], [{ d: [1, 0, 0], tv: 1 }, "travada (conferir)"]].map(([o, t]) => `<span>${ICS(o)}${t}</span>`).join("")}</div>
-    ${T.ori.length ? `<div><b>Origem</b>${[...new Map(T.ori.map(([s2, t]) => /^EI/.test(s2) ? ["EI", "Emenda impositiva (abaixo: excesso de receita, bancada regional ou adicional 0,55%, quando não é a da LOA)"] : [s2, t])).entries()].map(([s2, t]) => `<span><em>${esc(s2)}</em>${esc(t)}</span>`).join("")}</div>` : ""}</div>` : "";
+    ${(() => { const M = new Map(); L.forEach((x) => { const p2 = partes(x.r.origem); M.set(p2[0] + "|" + p2[1], p2); }); const K = Object.keys(ORI_T);
+      return M.size ? `<div class="pt-lg"><b>Origem</b>${[...M].sort((a, b) => (K.indexOf(a[0]) + 1 || 99) - (K.indexOf(b[0]) + 1 || 99)).map(([k, p2]) => `<span>${etq(p2)}${esc(ORI_T[k] || p2[0])}</span>`).join("")}</div>` : ""; })()}
+    <div class="pt-lg"><b>Valor</b><span><span class="pt-val pg">R$</span>Pago</span><span><span class="pt-val pp">R$</span>Pago em parte</span><span><span class="pt-val ap">R$</span>A pagar</span></div></div>` : "";
   // pagamento: uma barra só (pago, pago em parte, a pagar) e, no detalhamento, uma tabela com o que foi indicado, pago e o que falta
   const pgP = T.pg.find((x) => x[0] === "Pago ou executado")[1], pgM = T.pg.find((x) => x[0] === "Pago em parte")[1], pgA = T.pg.find((x) => x[0] === "A pagar")[1];
   const barra = `<div class="di-pag"><div class="di-pbar"><i class="b1" style="width:${T.v ? (pgP.v / T.v * 100).toFixed(1) : 0}%"></i><i class="b2" style="width:${T.v ? (pgM.v / T.v * 100).toFixed(1) : 0}%"></i></div>
@@ -87,7 +101,7 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
     <div class="di-tp di-tt"><span>Total</span><span>${ni(T.n)}</span><span>${rs(T.v)}</span><span>${rs(T.p)}</span><span>${rs(T.ap)}</span><span>100%</span></div></div>`;
   const tab = (tit, R) => `<div class="di-bloco"><div class="di-st2">${tit}</div><div class="di-tl di-th"><span>Item</span><span>Projetos</span><span>Valor (R$)</span><span>Pago (R$)</span><span>% pago</span></div>${R.map(([k, o]) => `<div class="di-tl"><span>${esc(k)}<i style="width:${T.v ? (o.v / T.v * 100).toFixed(1) : 0}%"></i></span><span>${ni(o.n)}</span><span>${rs(o.v)}</span><span>${rs(o.p)}</span><span>${pc(o.p, o.v)}</span></div>`).join("")}</div>`;
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Controle de Recursos · ${esc(PARL.u || "")}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"><style>
-  @page{size:A4;margin:14mm 12mm} body{font-family:Inter,system-ui,sans-serif;color:#111;margin:0} .di-pag{position:relative;padding:0 3px}*{box-sizing:border-box}.di-votos{width:84px}.di-obj{min-width:0;overflow-wrap:anywhere}
+  @page{size:A4;margin:14mm 12mm} body{font-family:Inter,system-ui,sans-serif;color:#111;margin:0} .di-folha{position:relative;padding:0 3px}*{box-sizing:border-box}.di-votos{width:84px}.di-obj{min-width:0;overflow-wrap:anywhere}
   .di-agua{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}.di-agua span{font-size:110px;font-weight:800;color:rgba(0,0,0,.035);transform:rotate(-24deg)}
   .di-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.di-wm{font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1}.di-wm span{color:#1FA83A}.di-wmsub{font-size:7px;font-weight:800;letter-spacing:.2em;color:#6B7178;text-transform:uppercase;margin-top:3px}
   .di-meta{text-align:right;font-size:9px;color:#3F454B;line-height:1.5}.di-regra{margin:10px 0 14px;height:2px;background:#A9AEB3;position:relative}.di-regra:after{content:"";position:absolute;left:0;right:0;top:4px;height:1px;background:#D3D6D8}
@@ -116,16 +130,37 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
   .di-tl,.di-tp{display:grid;gap:6px;font-size:9px;padding:4px 0;border-bottom:.5px solid #DCDFE2;align-items:center;font-variant-numeric:tabular-nums}.di-tl{grid-template-columns:minmax(0,1fr) 40px 66px 66px 38px}.di-tp{grid-template-columns:minmax(0,1fr) 50px 90px 90px 90px 56px}
   .di-tl span:nth-child(n+2),.di-tp span:nth-child(n+2){text-align:right}.di-tl span:first-child{position:relative;padding-bottom:3px}.di-tl span:first-child i{position:absolute;left:0;bottom:0;height:2px;background:#1FA83A;opacity:.6;border-radius:2px}
   .di-th{font-size:7px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7178;border-bottom:1px solid #C9CDD1}.di-tt{font-weight:800;border-top:1px solid #A9AEB3;border-bottom:0}
-  .di-rod{margin-top:18px;font-size:8px;color:#6B7178;line-height:1.5}.di-pagfoot{display:flex;justify-content:space-between;font-size:7.5px;color:#9AA0A4;border-top:.5px solid #DCDFE2;margin-top:16px;padding-top:6px}</style></head><body><div class="di-agua"><span>SimulaLEGIS</span></div><div class="di-pag">
+  .di-rod{margin-top:18px;font-size:8px;color:#6B7178;line-height:1.5}.di-pagfoot{display:flex;justify-content:space-between;font-size:7.5px;color:#9AA0A4;border-top:.5px solid #DCDFE2;margin-top:16px;padding-top:6px}
+  .pt{width:100%;border-collapse:collapse;margin-top:6px;font-size:9.5px}
+  .pt thead th{font-size:7px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;text-align:left;padding:7px 6px;border-bottom:1.5px solid #A9AEB3;white-space:nowrap}
+  .pt th i{font-style:normal;margin-left:3px;color:#B5BABE}
+  .pt td{padding:8px 6px;border-bottom:.5px solid #DCDFE2;vertical-align:middle}.pt tr{page-break-inside:avoid}.pt thead{display:table-header-group}
+  .pt .c0{width:18px;color:#9AA0A4;text-align:right;padding-right:2px}.pt td.c1{width:34px;text-align:center;font-weight:600;font-size:10px}.pt .c2{width:58px;text-align:center}
+  .pt .c3{width:86px}.pt .c3 b{display:block;font-weight:600;font-size:10px}.pt .c3 small{display:block;color:#9AA0A4;font-size:8px;margin-top:1px}
+  .pt .c4{overflow-wrap:anywhere}.pt .c4 s{display:block;color:#9AA0A4;font-size:8.5px;margin-bottom:2px}.pt .c4 small{display:block;color:#9AA0A4;font-size:7.5px;margin-top:2px}
+  .pt .c5{width:48px;text-align:center}.pt .c5 small{display:block;font-size:5.8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6B7178;margin-top:2px}
+  .pt td.c6{width:32px;text-align:center;font-weight:800;color:#3F454B}.pt .c7{width:80px;text-align:right;white-space:nowrap}.pt .c8{width:52px;text-align:center}
+  .pt th.c1,.pt th.c2,.pt th.c5,.pt th.c6,.pt th.c8{text-align:center}.pt th.c7{text-align:right}
+  .pt-fi{width:14px;height:14px;fill:none;stroke:#3F454B;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto}.pt-mu{color:#C2C6C9}
+  .pt-eto{display:inline-grid;grid-template-columns:1fr 1fr;width:54px;border-radius:4px;overflow:hidden;font-size:7.5px;font-weight:700;letter-spacing:.03em;line-height:1;flex:none}
+  .pt-eto b,.pt-eto span{display:flex;align-items:center;justify-content:center;padding:3px 0}.pt-eto b:only-child{grid-column:span 2}
+  .pt-eto.ei b{background:#3F454B;color:#fff}.pt-eto.ei span{background:#E4E7E9;color:#3F454B}.pt-eto.cv b{background:#8A9096;color:#fff;font-size:7px}.pt-eto.cv span{background:#EEF0F1;color:#3F454B}
+  .pt-eto.ou b{background:#fff;color:#6B7178;box-shadow:inset 0 0 0 1px #DCDFE2;border-radius:4px}
+  .pt-val{display:inline-block;min-width:66px;text-align:right;padding:3px 6px;border-radius:4px;font-size:9px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .pt-val.pg{background:#1FA83A;color:#fff}.pt-val.pp{background:#DDF3E1;color:#157A2B;box-shadow:inset 0 0 0 1px #9BD8A8}.pt-val.ap{background:#E4E7E9;color:#3F454B}
+  .pt .di-ics{justify-content:center}.pt tr.sup td{color:#9AA0A4}.pt tr.sup .pt-val{background:#F3F5F6;color:#9AA0A4;text-decoration:line-through}
+  .pt-lg{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}.pt-lg > b{flex-basis:100%;font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}
+  .pt-lg > span{display:inline-flex;align-items:center;gap:5px}.pt-lg .pt-val{min-width:0;padding:3px 5px}
+  .di-lgs .pt-eto{display:inline-grid;gap:0}.di-lgs .pt-eto b,.di-lgs .pt-eto span{display:flex;flex-basis:auto;gap:0;font-size:7.5px;letter-spacing:.03em;text-transform:none}
+  .di-lgs .pt-eto.ei b,.di-lgs .pt-eto.cv b{color:#fff}.di-lgs .pt-eto.cv b{font-size:7px}.di-lgs .pt-eto.ei span,.di-lgs .pt-eto.cv span{color:#3F454B}.di-lgs .pt-eto.ou b{color:#6B7178}</style></head><body><div class="di-agua"><span>SimulaLEGIS</span></div><div class="di-folha">
   <div class="di-cab"><div><div class="di-wm">Simula<span>LEGIS</span></div><div class="di-wmsub">Gabinete · Controle de Recursos</div></div><div class="di-meta"><b>${esc(PARL.u || "")}</b> · ${esc(PARL.p || "")}<br>gerado em ${dt} às ${hr}</div></div><div class="di-regra"></div>
   <div class="di-tit">Controle de Recursos</div><div class="di-sub"><b>Filtro:</b> ${esc(relFiltro())}</div>
   <div class="di-rres"><div><b>${brl(T.v)}</b><span>valor total</span></div><div class="ok"><b>${brl(T.p)}</b><span>pago · ${pc(T.p, T.v)}</span></div><div><b>${brl(T.ap)}</b><span>a pagar · ${pc(T.ap, T.v)}</span></div><div><b>${ni(T.n)}</b><span>${T.n === 1 ? "projeto" : "projetos"} · ${ni(T.mun)} ${T.mun === 1 ? "município" : "municípios"}</span></div></div>
   ${barra}
-  <div class="di-linha di-hdr"><span class="di-pos">#</span><span class="di-or">Origem</span><span class="di-ano">${relSeta("ano")}Ano</span><span class="di-cand">${relSeta("cand")}Município</span><span class="di-obj">${relSeta("obj")}Objeto</span><span class="di-fn">${relSeta("fn")}Função</span><span class="di-in">${relSeta("in")}Mod.</span><span class="di-et">${relSeta("et")}Etapa</span><span class="di-votos">${relSeta("votos")}Valor R$</span></div>
-  ${L.map(lin).join("")}
+  ${tabela(L)}
   <div class="di-tot"><span>Total · ${proj(T.n)}</span><b>${brl(T.v)}</b></div>
   ${legenda}
-  ${LS.length ? `<div class="di-st2" style="margin-top:14px">Suprimidas · fora das contas · ${ni(LS.length)} ${LS.length === 1 ? "item" : "itens"} · ${brl(T.vs)}</div>${LS.map(lin).join("")}` : ""}
+  ${LS.length ? `<div class="di-st2" style="margin-top:14px">Suprimidas · fora das contas · ${ni(LS.length)} ${LS.length === 1 ? "item" : "itens"} · ${brl(T.vs)}</div>${tabela(LS)}` : ""}
   ${det ? `<div class="di-det"><div class="di-tit">Detalhamento</div><div class="di-sub">Somas do que está no filtro: ${esc(relFiltro())}.</div>
     ${tem("pg") ? tabPg : ""}
     ${tem("ins") || tem("fun") ? `<div class="di-grade">${tem("ins") ? tab("Por instrumento", T.ins) : ""}${tem("fun") ? tab("Por função", T.fun) : ""}</div>` : ""}
