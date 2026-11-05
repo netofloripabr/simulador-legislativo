@@ -347,6 +347,18 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .grn{ margin:10px 0 0; color:var(--ter); font-size:12px; }
 .gchip small{ font-weight:500; color:var(--sec); font-size:11px; }
 @media(max-width:700px){ .grtb th:nth-child(4), .grtb td:nth-child(4){ display:none; } .grtb .vv{ min-width:0; } }
+
+/* cartões da capa com ícones (05/11/2026): área = símbolo do painel de indicação; o nome aparece ao passar o mouse */
+.gico{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.gi{ display:inline-flex; align-items:center; gap:7px; padding:5px 10px 5px 5px; border-radius:999px; background:rgba(242,244,245,.05); border:1px solid var(--linha); font-size:12.5px; color:var(--texto); font-variant-numeric:tabular-nums; }
+.gi b{ width:24px; height:24px; border-radius:50%; display:grid; place-items:center; background:color-mix(in srgb, var(--c) 22%, transparent); color:var(--c); }
+.gi svg, .gl svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+.gi em{ font-style:normal; } .gi.pg b{ background:rgba(52,232,74,.16); color:#34E84A; } .gi.pg em{ color:#34E84A; }
+.gvl{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 16px; } #gcards{ grid-template-columns:1.05fr 1fr; } .gtxt{ max-width:720px; } .gl small{ overflow:visible; } .gl small em{ font-size:11px; }
+.gl{ display:grid; grid-template-columns:26px 1fr; grid-template-rows:auto auto; column-gap:8px; align-items:center; min-width:0; }
+.gl b{ grid-row:1/3; width:26px; height:26px; border-radius:8px; display:grid; place-items:center; background:rgba(242,244,245,.05); color:var(--sec); }
+.gl span{ font-size:15px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; } .gl small{ font-size:11px; color:var(--ter); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.gl em{ font-style:normal; font-size:11.5px; font-weight:600; } .gl em.vd, .gl i.vd{ color:#34E84A; font-style:normal; } .gl em.ng{ color:#FF9F43; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -358,7 +370,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=81"></script>
+<script src="gabinete.js?cb=84"></script>
 <script src="gabinete-rh.js?cb=2"></script>
 <script src="gabinete-adicionar.js?cb=18"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
