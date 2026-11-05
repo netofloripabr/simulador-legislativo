@@ -117,20 +117,32 @@ function regioes() { if (REGS) return REGS; const G = {}; REGS = [];
 function capa(nm) {
   return `<section class="ghero" id="ghero">${avisoCota()}<div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
     <div class="gsw" id="glc" role="group" aria-label="Mapa"><em class="gswl"${S.lc === "rec" ? "" : " hidden"}><b class="az"></b>indicado <b class="vd"></b>pago</em>
-      <div class="gbus${S.reg ? " ab" : ""}" id="gbus"><div class="gbin"><input id="gbq" placeholder="Município ou região" autocomplete="off" aria-label="Buscar município ou região"><div class="gsug" id="gsug" hidden></div></div>${S.reg ? `<span class="gchip" title="${esc(REG_T[S.reg.t])}">${esc(S.reg.n)}<button id="gbx" title="Voltar ao total" aria-label="Limpar a seleção">×</button></span>` : ""}<button class="glupa" id="glupa" title="Buscar município ou região" aria-label="Buscar município ou região"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6 14 14"/></svg></button></div>
+      <div class="gbus${S.reg ? " ab" : ""}" id="gbus"><div class="gbin"><input id="gbq" placeholder="Município ou região" autocomplete="off" aria-label="Buscar município ou região"><div class="gsug" id="gsug" hidden></div></div>${S.reg ? `<span class="gchip" title="${esc(REG_T[S.reg.t])}">${esc(S.reg.n)}${S.reg.t !== "mun" ? `<small>${esc(REG_T[S.reg.t].replace(" de municípios", ""))}</small>` : ""}<button id="gbx" title="Voltar ao total" aria-label="Limpar a seleção">×</button></span>` : ""}<button class="glupa" id="glupa" title="Buscar município ou região" aria-label="Buscar município ou região"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6 14 14"/></svg></button></div>
       <div class="gswb${S.lc === "rec" ? " r" : ""}"><i></i><button data-lc="votos" class="${S.lc === "rec" ? "" : "on"}">Votos</button><button data-lc="rec" class="${S.lc === "rec" ? "on" : ""}">Recursos</button></div></div>
     <div class="gtxt"><div class="gid"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div></div>
     <h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
     <div class="gcards" id="gcards">${cartoesCapa()}</div>
-    ${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section>`;
+    ${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section><div class="grank" id="grank">${rankReg()}</div>`;
 }
+// ranking da região: os 5 municípios com mais votos (e "ver os outros"), com 2022 e os recursos de cada um
+function rankReg() { if (!S.reg || S.reg.t === "mun") return "";
+  const [R0] = itensCapa(), RM = {}; R0.forEach((x) => { const o = RM[x.mun] = RM[x.mun] || { v: 0, p: 0, n: 0 }; o.v += x.v; o.p += x.p; o.n++; });
+  const L = [...S.reg.ix].map((i) => ({ i, m: BASE.mun[i], v: PARL.v[i] || 0, v22: tem22() ? PARL.v22[i] || 0 : null, r: RM[norm(BASE.mun[i].n)] || { v: 0, p: 0, n: 0 } })).sort((a, b) => b.v - a.v || b.r.v - a.r.v);
+  const tot = L.reduce((s2, x) => s2 + x.v, 0) || 1, mx = Math.max(1, ...L.map((x) => x.v)), ver = S.rankTodos ? L : L.slice(0, 5), c22 = tem22();
+  const lin = (x, k) => { const d = x.v22 ? (x.v - x.v22) / x.v22 * 100 : null; return `<tr data-ri="${x.i}"><td class="po">${k + 1}</td><td><b>${esc(x.m.n)}</b></td><td class="vv"><span class="gb" style="--w:${(x.v / mx * 100).toFixed(1)}%"></span><b>${ni(x.v)}</b><small>${nf(x.v / tot * 100, 1)}% da região</small></td>${c22 ? `<td class="n2">${x.v22 ? ni(x.v22) : "—"}${d != null ? `<small class="${d >= 0 ? "vd" : "ng"}">${d >= 0 ? "+" : ""}${nf(d, 0)}%</small>` : ""}</td>` : ""}<td class="n2">${x.r.v ? esc(fm(x.r.v)) : "—"}${x.r.v ? `<small>${x.r.n} ${x.r.n === 1 ? "emenda" : "emendas"} · ${nf(x.r.p / x.r.v * 100, 0)}% pago</small>` : ""}</td></tr>`; };
+  return `<div class="grk"><div class="grh"><div><span class="k">Ranking da região · ${esc(REG_T[S.reg.t])}</span><h3>${esc(S.reg.n)}<small>${L.length} municípios · ${ni(tot)} votos</small></h3></div>${L.length > 5 ? `<button class="grt" id="grt">${S.rankTodos ? "Mostrar só os 5 primeiros" : `Ver os outros ${L.length - 5}`}</button>` : ""}</div>
+    <table class="grtb"><thead><tr><th></th><th>Município</th><th>Votos 2026</th>${c22 ? "<th>2022</th>" : ""}<th>Recursos</th></tr></thead><tbody>${ver.map(lin).join("")}</tbody></table>
+    <p class="grn">Toque num município para ver só ele.</p></div>`; }
+// valor total (03/11/2026): no próprio gabinete, tudo o que está no Controle (impositivas + convênios/negociados, como "Tudo" das Cotas,
+// sem as listas ainda em indicação); fora dele (ou sem a planilha), só as emendas impositivas do portal da SEF
+function itensCapa() { let I = null; if (proprio() && MEU.length && typeof itensCotas === "function") { const sv = S.cesc; S.cesc = "tudo"; try { I = itensCotas().filter((i) => !i.plan); } finally { S.cesc = sv; } if (!I.length) I = null; }
+  return [I ? I.map((i) => ({ v: i.v, p: i.pago, ano: i.ano, f: i.area, mun: norm(i.mun) })) : E0.map((e) => ({ v: e.v || 0, p: e.vp || 0, ano: +e.ano || +String(e.k || "").slice(0, 4), f: funCapa(e), mun: norm(e.mun) })), I]; }
+const tem22 = () => PARL && PARL.t22 > 0 && Array.isArray(PARL.v22);
 function cartoesCapa(sem) {
-  // valor total (03/11/2026): no próprio gabinete, tudo o que está no Controle (impositivas + convênios/negociados, como "Tudo" das Cotas,
-  // sem as listas ainda em indicação); fora dele (ou sem a planilha), só as emendas impositivas do portal da SEF
-  let I = null; if (proprio() && MEU.length && typeof itensCotas === "function") { const sv = S.cesc; S.cesc = "tudo"; try { I = itensCotas().filter((i) => !i.plan); } finally { S.cesc = sv; } if (!I.length) I = null; }
-  const R0 = I ? I.map((i) => ({ v: i.v, p: i.pago, ano: i.ano, f: i.area, mun: norm(i.mun) })) : E0.map((e) => ({ v: e.v || 0, p: e.vp || 0, ano: +e.ano || +String(e.k || "").slice(0, 4), f: funCapa(e), mun: norm(e.mun) }));
+  const [R0, I] = itensCapa();
   const anos0 = [...new Set(R0.map((x) => x.ano).filter(Boolean))].sort(), R = S.reg ? R0.filter((x) => S.reg.ns.has(x.mun)) : R0, onde = S.reg ? " · " + esc(S.reg.n) : "";
   const vR = S.reg ? [...S.reg.ix].reduce((s2, i) => s2 + (PARL.v[i] || 0), 0) : PARL.t, an = sem ? " sa" : "";
+  const v22 = tem22() ? (S.reg ? [...S.reg.ix].reduce((s2, i) => s2 + (PARL.v22[i] || 0), 0) : PARL.t22) : null, dv = v22 ? (vR - v22) / v22 * 100 : null;
   const tv = R.reduce((s, x) => s + x.v, 0), tp = R.reduce((s, x) => s + x.p, 0), mun = new Set(R.map((x) => x.mun).filter((m) => m && m !== "—")).size;
   const anos = anos0, TN = ["#DADDE0", "#AEB3B8", "#868C92", "#62686E", "#474D52"];
   const G = {}; R.forEach((x) => { const f = x.f && x.f !== "Não informado" ? x.f : "Outras"; G[f] = (G[f] || 0) + x.v; });
@@ -141,7 +153,7 @@ function cartoesCapa(sem) {
   const cRec = `<div class="gcard${an}"><div class="k">Recursos · ${anos[0] || ""}-${String(anos.slice(-1)[0] || "").slice(2)}${S.reg ? onde : I ? " · total" : " · impositivas"}</div>${tv ? `<div class="v">${esc(fm(tv))}</div>
     <div class="gbar">${seg.map(([, v], i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]}"></i>`).join("")}</div><div class="gpg" style="width:${tp / tv * 100}%"></div>
     <div class="gleg">${seg.map(([f, v], i) => `<span><i style="background:${TN[i % 5]}"></i>${esc(f)} <em>${esc(fm(v))}</em></span>`).join("")}<span><i style="background:#34E84A"></i>pago <em>${nf(tp / tv * 100)}%</em></span></div>` : `<div class="v gvz">R$ 0</div><p class="gnada">Nenhum recurso indicado ${S.reg ? "para " + esc(S.reg.n) : "ainda"}.</p>`}</div>`;
-  const cVot = `<div class="gcard${an}"><div class="k">Votos · 2026${onde}</div><div class="v a">${ni(vR)}</div><div class="gmini">${S.reg ? `<div><span>Dos votos do mandato</span><span>${nf(vR / (PARL.t || 1) * 100, 1)}%</span></div>${S.reg.t !== "mun" ? `<div><span>Municípios da região</span><span>${ni(S.reg.ix.size)}</span></div>` : ""}` : ""}<div><span>Municípios atendidos</span><span>${ni(mun)}</span></div><div><span>${I ? "Emendas e convênios" : "Emendas"}</span><span>${ni(L.length)}</span></div>${tv ? `<div><span>Pago até hoje</span><span class="vd">${nf(tp / tv * 100, 1)}%</span></div>` : ""}</div></div>`;
+  const cVot = `<div class="gcard${an}"><div class="k">Votos · 2026${onde}</div><div class="v a">${ni(vR)}</div><div class="gmini">${v22 != null ? `<div><span>Em 2022</span><span>${ni(v22)} <em class="${dv >= 0 ? "vd" : "ng"}">${dv >= 0 ? "+" : ""}${nf(dv, 1)}%</em></span></div>` : ""}${S.reg ? `<div><span>Dos votos do mandato</span><span>${nf(vR / (PARL.t || 1) * 100, 1)}%</span></div>${S.reg.t !== "mun" ? `<div><span>Municípios da região</span><span>${ni(S.reg.ix.size)}</span></div>` : ""}` : ""}<div><span>Municípios atendidos</span><span>${ni(mun)}</span></div><div><span>${I ? "Emendas e convênios" : "Emendas"}</span><span>${ni(L.length)}</span></div>${tv ? `<div><span>Pago até hoje</span><span class="vd">${nf(tp / tv * 100, 1)}%</span></div>` : ""}</div></div>`;
   return cRec + cVot;
 }
 // função da emenda na capa: a da planilha do gabinete quando a emenda está ligada a ela; senão, estimada pelo objeto
@@ -220,9 +232,12 @@ function irCidade(nome) {
   S.fech.rec = false; S.aba = "geral"; S.outro = null; S.ano = 0; S.busca = nome; S.lim = 60; desenhar();
   const c = $("#busca"); if (c) { c.value = nome; tabela(); c.closest(".bx").scrollIntoView({ behavior: "smooth", block: "start" }); }
 }
-function selReg(r) { S.reg = r || null; const g = $("#gcards"); if (g) g.innerHTML = cartoesCapa(true); capaLente(); ligarBusca(); }
+function selReg(r) { if ((r || null) !== S.reg) S.rankTodos = false; S.reg = r || null; const g = $("#gcards"); if (g) g.innerHTML = cartoesCapa(true); pintaRank(); capaLente(); ligarBusca(); }
+function pintaRank() { const k = $("#grank"); if (!k) return; k.innerHTML = rankReg(); k.classList.toggle("ab", !!k.innerHTML);
+  const t = $("#grt"); if (t) t.onclick = () => { S.rankTodos = !S.rankTodos; pintaRank(); };
+  k.querySelectorAll("[data-ri]").forEach((tr) => tr.onclick = () => selReg(regioes().find((x) => x.t === "mun" && x.ix.has(+tr.dataset.ri)))); }
 function ligarBusca() { const w = $("#gbus"); if (!w) return;
-  w.querySelector(".gchip")?.remove(); if (S.reg) w.querySelector(".gbin").insertAdjacentHTML("afterend", `<span class="gchip" title="${esc(REG_T[S.reg.t])}">${esc(S.reg.n)}<button id="gbx" title="Voltar ao total" aria-label="Limpar a seleção">×</button></span>`);
+  w.querySelector(".gchip")?.remove(); if (S.reg) w.querySelector(".gbin").insertAdjacentHTML("afterend", `<span class="gchip" title="${esc(REG_T[S.reg.t])}">${esc(S.reg.n)}${S.reg.t !== "mun" ? `<small>${esc(REG_T[S.reg.t].replace(" de municípios", ""))}</small>` : ""}<button id="gbx" title="Voltar ao total" aria-label="Limpar a seleção">×</button></span>`);
   const q = $("#gbq"), sug = $("#gsug"), x = $("#gbx");
   $("#glupa").onclick = () => { const ab = !w.classList.contains("ab") || !w.classList.contains("dig"); w.classList.add("ab", "dig"); if (ab) setTimeout(() => q.focus(), 60); else { w.classList.remove("dig"); sug.hidden = true; if (!S.reg) w.classList.remove("ab"); } };
   if (x) x.onclick = () => { q.value = ""; sug.hidden = true; w.classList.remove("dig"); selReg(null); w.classList.remove("ab"); };
@@ -233,7 +248,7 @@ function ligarBusca() { const w = $("#gbus"); if (!w) return;
   const escolhe = (r) => { q.value = ""; sug.hidden = true; w.classList.remove("dig"); selReg(r); };
   sug.onmousedown = (e) => { const b = e.target.closest("[data-rg]"); if (!b) return; e.preventDefault(); escolhe(sug._L[+b.dataset.rg]); };
   q.onblur = () => setTimeout(() => { sug.hidden = true; if (!q.value) { w.classList.remove("dig"); if (!S.reg) w.classList.remove("ab"); } }, 150); }
-function ligarCapaCliques() { ligarBusca();
+function ligarCapaCliques() { ligarBusca(); pintaRank();
   const et = $("#gEtq"); if (et) et.onclick = (e) => { const d = e.target.closest("[data-cid]"); if (d) irCidade(d.dataset.cid); };
   const cv = $("#gCv"); if (cv) { cv.onclick = (e) => { if (!GH) return; const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; let m = -1, md = 1e9;
     GH.B.forEach((b, i) => { const d = Math.hypot(b.x - x, b.y - y); if (d < Math.max(b.r, 8) && d < md) { md = d; m = i; } }); if (m >= 0) selReg(S.reg && S.reg.t === "mun" && S.reg.ix.has(m) ? null : regioes().find((r) => r.t === "mun" && r.ix.has(m))); };
