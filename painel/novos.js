@@ -1039,6 +1039,10 @@ function heroMapa(c, ordM) {
 }
 
 (async () => {
+  // 05/11/2026: quem tem gabinete liberado e chega aqui como primeira página da aba (favorito, endereço digitado ou a
+  // volta do login) abre no Gabinete; navegar para Parlamentares pelo menu (novos.html?v=8) continua aqui.
+  if (window._primeiraEntrada && !location.search && typeof supabaseClient !== "undefined" && supabaseClient) {
+    try { const s = (await supabaseClient.auth.getSession()).data.session; if (s && (await supabaseClient.rpc("gab_pode")).data) { location.replace("gabinete.html"); return; } } catch (e) {} }
   await carregar();
   const d = new URLSearchParams(location.search).get("d");
   d ? perfil(d) : telaSelecao();
