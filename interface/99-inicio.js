@@ -21,7 +21,11 @@ const _dueloPendente = _paramsIniciais.get("duelo");
 if (_dueloPendente) localStorage.setItem("sl_duelo_pendente", _dueloPendente.trim().toUpperCase());
 
 document.getElementById("modoColaborativoWrap").style.display = "block";
-if (_perfilCompartilhado) {
+// 05/11/2026: o sistema exige conta para tudo, inclusive links compartilhados (?ver=). Sem sessão salva, guarda o
+// link (sl_volta) e abre a tela de entrar; depois do login a pessoa volta para o link.
+const _temSessaoSalva = (() => { try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^sb-.*-auth-token$/.test(k)) { const s = JSON.parse(localStorage.getItem(k) || "null"); if (s && s.refresh_token) return true; } } } catch (e) {} return false; })();
+if (_perfilCompartilhado && !_temSessaoSalva) { try { localStorage.setItem("sl_volta", location.href); } catch (e) {} location.replace(location.pathname + "?entrar=1"); }
+else if (_perfilCompartilhado) {
   pcState.iniciado = true;
   pcState.tela = "compartilhado";
   pcState.verPerfilId = _perfilCompartilhado;
