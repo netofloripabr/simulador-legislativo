@@ -662,7 +662,7 @@ function ranking(L) {
 function filtradas() { const q = norm(S.busca); return doAno().filter((e) => S.et.has(e.et) && (!S.mod || e.mod === S.mod) && (!q || norm([e.mun, e.obj, e.benef, e.k, e.n, e.assoc].join(" ")).includes(q))); }
 // ---------- Carteira (inspirada na planilha do gabinete): município primeiro, valor e pago numa barra só,
 // etapa compacta; ao abrir: linha do tempo vertical, código, processo SCC, origem e anotações editáveis ----------
-const frase = (t) => { t = String(t || "").trim().replace(/\s+/g, " "); return t ? t[0].toUpperCase() + t.slice(1).toLowerCase() : ""; };
+const frase = (t) => { t = String(t || "").trim().replace(/\s+/g, " ").toLowerCase(); return t.replace(/^([^\p{L}]*)(\p{L})/u, (m, a, b) => a + b.toUpperCase()); };
 const ORIGEM = { "Emenda LOA": ["Emenda impositiva", "prevista na Lei Orçamentária Anual (LOA) do ano, dentro da cota individual de cada deputado"], "Emenda 0.55%": ["Emenda impositiva adicional (0,55%)", "parcela adicional de emendas individuais, calculada sobre a receita, aprovada em lei específica do ano"], "Excesso": ["Excesso de arrecadação", "recurso extra, distribuído quando a receita do Estado supera a prevista na LOA"] };
 const ETQ = { 1: ["Indicada", "#8A9096"], 2: ["Empenhada", "#8FA8E8"], 3: ["Em pagamento", "#C6E62A"], 4: ["Paga", "#34E84A"], 5: ["Impedida", "#E8432A"] };
 function tabela() {
