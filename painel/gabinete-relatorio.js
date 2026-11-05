@@ -18,7 +18,11 @@ function relPago(r) { const v = +r.valor || 0, n = String(r.numero || ""), K = /
   return e ? Math.min(v || e.vp || 0, e.vp || 0) : es.d && es.d[2] ? v : 0; }
 function relLinhas() { return mfiltradas().map((r) => { const v = +r.valor || 0, es = etapasStatus(r.status_manual);
   return { r, ano: +r.ano || "", mun: r.municipio || "—", reg: regDe(r) || "", obj: relObj(r).atual, objAnt: relObj(r).ant, fun: (typeof funDe === "function" ? funDe(r) : r.funcao) || "Não informada", ins: instrNome(r.modalidade) || "Não informado", ori: sigla(r.origem) || "", oriT: r.origem || "", st: es.t, sup: es.t === "Suprimida", v, p: es.t === "Suprimida" ? 0 : relPago(r), proc: r.processo || "", ben: r.beneficiario || "" }; })
-  .sort((a, b) => (a.ano || 0) - (b.ano || 0) || a.mun.localeCompare(b.mun, "pt-BR") || b.v - a.v); }
+  .sort((a, b) => { const o = S.mord && typeof MCOL !== "undefined" && MCOL.find((c) => c[0] === S.mord[0]); if (o) { const x = o[2](a.r), y = o[2](b.r), c = (x > y ? 1 : x < y ? -1 : 0) * S.mord[1]; if (c) return c; }
+    return (a.ano || 0) - (b.ano || 0) || a.mun.localeCompare(b.mun, "pt-BR") || b.v - a.v; }); }
+// seta de ordem no cabeçalho: ↑ crescente, ↓ decrescente, na coluna que define a ordem
+const REL_COL = { ano: "cand", mun: "cand", obj: "obj", pr: "obj", fun: "fn", mod: "in", st: "et", v: "votos" };
+const relSeta = (col) => { const k = S.mord ? S.mord[0] : "ano", d = S.mord ? S.mord[1] : 1; return REL_COL[k] === col ? `<i class="di-seta">${d > 0 ? "↑" : "↓"}</i>` : ""; };
 // o que está no filtro, em texto (vai no cabeçalho do documento e da planilha)
 function relFiltro() { const F = S.mf || {}, P = [];
   if (S.mano) P.push("ano " + S.mano); if (F.mun && F.mun.length) P.push((F.mun.length > 1 ? "municípios " : "município ") + F.mun.join(", "));
@@ -97,7 +101,7 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
   .di-pos{width:14px;flex:none;color:#6B7178;font-size:9px;text-align:right}.di-cand{width:82px;flex:none}.di-n{display:block;font-size:10px;font-weight:600}.di-p{display:block;font-size:7px;color:#9AA0A4;letter-spacing:.04em;text-transform:uppercase;margin-top:1px}
   .di-obj{flex:1;font-size:9.5px;line-height:1.4}.di-obj small{display:block;color:#6B7178;font-size:7.5px;margin-top:2px}
   .di-fn,.di-in,.di-et{flex:none;display:flex;align-items:center;justify-content:center;height:15px}.di-fn{width:30px}.di-in{width:30px;font-size:8.5px;font-weight:800;color:#3F454B}.di-et{width:46px}
-  .di-mu{font-size:9px;line-height:1;color:#9AA0A4;font-weight:400}.di-ant{display:block;color:#9AA0A4;text-decoration:line-through;font-size:8.5px;margin-bottom:2px}
+  .di-mu{font-size:9px;line-height:1;color:#9AA0A4;font-weight:400}.di-seta{font-style:normal;color:#1FA83A;margin-right:3px;font-weight:800}.di-ant{display:block;color:#9AA0A4;text-decoration:line-through;font-size:8.5px;margin-bottom:2px}
   .di-hdr > span, .di-hdr .di-votos, .di-hdr .di-in{font-size:7px !important;font-weight:800 !important;letter-spacing:.06em;text-transform:uppercase;color:#6B7178 !important;height:auto;background:none;border:0}
   .di-fr{display:inline-flex}.di-fr svg{width:11px;height:11px;transform:rotate(-90deg)}.di-fr .t{fill:none;stroke:#DCDFE2;stroke-width:2.4}.di-fr .f{fill:none;stroke:#1FA83A;stroke-width:2.4}
   .di-fi{width:13px;height:13px;fill:none;stroke:#3F454B;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}.di-mu{font-size:8px;color:#9AA0A4}
@@ -116,7 +120,7 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
   <div class="di-tit">Controle de Recursos</div><div class="di-sub"><b>Filtro:</b> ${esc(relFiltro())}</div>
   <div class="di-rres"><div><b>${brl(T.v)}</b><span>valor total</span></div><div class="ok"><b>${brl(T.p)}</b><span>pago · ${pc(T.p, T.v)}</span></div><div><b>${brl(T.ap)}</b><span>a pagar · ${pc(T.ap, T.v)}</span></div><div><b>${ni(T.n)}</b><span>${T.n === 1 ? "projeto" : "projetos"} · ${ni(T.mun)} ${T.mun === 1 ? "município" : "municípios"}</span></div></div>
   ${barra}
-  <div class="di-linha di-hdr"><span class="di-pos">#</span><span class="di-or">Origem</span><span class="di-cand">Município</span><span class="di-obj">Objeto</span><span class="di-fn">Função</span><span class="di-in">Mod.</span><span class="di-et">Etapa</span><span class="di-votos">Valor R$</span></div>
+  <div class="di-linha di-hdr"><span class="di-pos">#</span><span class="di-or">Origem</span><span class="di-cand">${relSeta("cand")}Município</span><span class="di-obj">${relSeta("obj")}Objeto</span><span class="di-fn">${relSeta("fn")}Função</span><span class="di-in">${relSeta("in")}Mod.</span><span class="di-et">${relSeta("et")}Etapa</span><span class="di-votos">${relSeta("votos")}Valor R$</span></div>
   ${L.map(lin).join("")}
   <div class="di-tot"><span>Total · ${proj(T.n)}</span><b>${brl(T.v)}</b></div>
   ${legenda}
