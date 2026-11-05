@@ -75,7 +75,8 @@
      "filhos": [
       {"nome": "Capa do gabinete: cartões Recursos e Votos, mapa e lupa", "status": "pronto", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "function ligarBusca", "nota": "A lupa (ao lado de Votos/Recursos) busca município ou região (associação, micro, mesorregião); os cartões e o mapa passam a mostrar só a área. Clicar no mapa seleciona o município. Com região escolhida, a capa abre embaixo o ranking dos municípios (5 primeiros e ver os outros), com votos 2026, 2022 e recursos."},
       {"nome": "Controle de Recursos (Controle, Cotas e Transparência SC)", "status": "pronto", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "Controle de Recursos", "dados": "banco: gab_recursos, gab_demandas; dados/gabinete (emendas públicas, todo dia)", "filhos": [
-        {"nome": "Controle (dados do gabinete)", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "\"Controle\""},
+        {"nome": "Controle (dados do gabinete)", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "\"Controle\"", "nota": "Filtros com vários municípios; impressora ao lado da borracha: PDF ou Excel do que está no filtro, com detalhamento opcional."},
+        {"nome": "Imprimir ou exportar (PDF e Excel)", "status": "pronto", "arquivo": "painel/gabinete-relatorio.js", "ancora": "function relAbrir"},
         {"nome": "Cotas", "status": "pronto", "arquivo": "painel/gabinete-cotas.js", "ancora": "function"},
         {"nome": "Transparência SC (dados oficiais)", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "Transparência SC"},
         {"nome": "Outros deputados", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "Outros deputad"},
