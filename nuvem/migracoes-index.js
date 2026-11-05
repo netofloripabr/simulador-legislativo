@@ -2018,5 +2018,56 @@ const MIGRACOES_INDEX = [
     "gab_cargos_dono"
    ]
   ]
+ },
+ {
+  "num": 98,
+  "arquivo": "migracao-98-gabinete-por-parlamentar.sql",
+  "descricao": "Migração 98 (05/11/2026): dados privados do Gabinete separados por parlamentar.",
+  "objetos": [
+   [
+    "index",
+    "gab_recursos_parl"
+   ],
+   [
+    "index",
+    "gab_listas_parl"
+   ],
+   [
+    "function",
+    "gab_poe_parlamentar"
+   ],
+   [
+    "trigger",
+    "gab_recursos_parl"
+   ],
+   [
+    "trigger",
+    "gab_demandas_parl"
+   ],
+   [
+    "trigger",
+    "gab_listas_parl"
+   ],
+   [
+    "trigger",
+    "gab_itens_parl"
+   ],
+   [
+    "column",
+    "gab_recursos.parlamentar"
+   ],
+   [
+    "column",
+    "gab_demandas.parlamentar"
+   ],
+   [
+    "column",
+    "gab_listas.parlamentar"
+   ],
+   [
+    "column",
+    "gab_itens.parlamentar"
+   ]
+  ]
  }
 ];

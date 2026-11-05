@@ -17,7 +17,8 @@ let DSEL = DURL || null, VINC = null; // VINC: parlamentar vinculado à conta (g
 const COR_P = { "NOVO": "#F37021", "PL": "#3D7BFF", "PT/PC do B/PV": "#E5383B", "MDB": "#34C759", "UNIÃO/PP": "#2FB5E8", "PSD": "#2B5FD9", "REPUBLICANOS": "#4D8DFF", "PODE": "#3FB37F", "PDT": "#E5484D", "PSOL/REDE": "#F5B700", "PSB": "#F2A900" };
 const hexRgb = (h) => { h = h.replace("#", ""); return [0, 2, 4].map((k) => parseInt(h.slice(k, k + 2), 16)); };
 let PARL = null; // parlamentar aberto: { n, u, p, t }
-const proprio = () => PARL && PARL.n === DEP.n;
+// "próprio" = o gabinete vinculado à conta (gab_vinculo), qualquer deputado; sem vínculo, o mandato original (05/11/2026)
+const proprio = () => PARL && PARL.n === (VINC || DEP.n);
 const ETAPAS = [null, ["Indicada", "#5C6268"], ["Empenhada", "#8FA8E8"], ["Em pagamento", "#C6E62A"], ["Paga", "#34E84A"], ["Impedimento técnico", "#E8432A"]];
 const etapa = (e) => (e.imped && /impedimento/i.test(e.imped)) ? 5 : (e.v > 0 && (e.vp || 0) >= e.v * 0.995) ? 4 : (e.vl > 0 || e.vp > 0) ? 3 : (e.ve > 0 || (e.pagamentos_sef || []).length) ? 2 : 1;
 const S = { lc: "votos", aba: "meu", mapa: false, outro: null, oano: 2026, oord: "v", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
@@ -34,7 +35,7 @@ async function iniciar() {
   PARL = est.c.find((c) => c.n === DSEL) || est.c.find((c) => c.n === DEP.n);
   const cr = hexRgb(COR_P[PARL.p] || "#2B5FD9"); document.documentElement.style.setProperty("--a", COR_P[PARL.p] || "#2B5FD9"); document.documentElement.style.setProperty("--a-rgb", cr.join(","));
   VOT = PARL.v || [];
-  if (proprio()) { E = m.emendas.map((e) => ({ ...e, et: etapa(e) })); const ix = {}; BASE.mun.forEach((x, i) => { ix[norm(x.n)] = i; }); E.forEach((e) => { e.mi = ix[norm(e.mun)]; }); }
+  if (PARL.n === DEP.n) { E = m.emendas.map((e) => ({ ...e, et: etapa(e) })); const ix = {}; BASE.mun.forEach((x, i) => { ix[norm(x.n)] = i; }); E.forEach((e) => { e.mi = ix[norm(e.mun)]; }); }
   else { await lerTodas(); const ds = casaDep(PARL); E = TODAS.filter((e) => ds.has(e.dep)); }
   E0 = E; V0 = VOT;
   try { if (PODE && proprio()) await lerPrivado(); } catch (e) {}
@@ -66,7 +67,7 @@ async function salvarContato(c) { const ex = AGENDA.find((x) => norm(x.nome) ===
   if (LOCAL && !SESS) { n.id = "l" + Date.now() + Math.random(); AGENDA.push(n); try { localStorage.setItem("gab_agenda", JSON.stringify(AGENDA)); } catch (e) {} }
   else { const { data, error } = await supabaseClient.from("gab_contatos").insert(n).select().single(); if (error) throw error; n = data; AGENDA.push(n); }
   return n; }
-async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient.from("gab_recursos").select("*").order("origem_planilha", { nullsFirst: false }); (data || []).forEach(aplicarCorr); MEU = data || []; PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
+async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient.from("gab_recursos").select("*").eq("parlamentar", PARL.n).order("origem_planilha", { nullsFirst: false }); (data || []).forEach(aplicarCorr); MEU = data || []; PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
 
 // Administrativo (04/11/2026): a mesma seção da página Parlamentares, embutida (novos.html?so=adm), para o parlamentar
 // aberto no painel. Um código só: o que muda num bloco de Parlamentares muda aqui também. A altura vem por postMessage.
@@ -244,7 +245,7 @@ function geral() {
   return `<p class="lead" style="margin-top:14px">Dados oficiais do Portal da Transparência SC e da SEF, só para consulta: as emendas do mandato e o andamento (empenho, liquidação, pagamento e OB), atualizado todo dia. O controle do gabinete fica na aba Controle.</p>
     <div class="fonte">Fontes: Portal da Transparência SC e painel de emendas da SEF${META.coletado_em ? ` · coletado em ${esc(dtBR(META.coletado_em))} ${esc(String(META.coletado_em).slice(11, 16))}` : ""}.</div>
     <div class="leqs">${leq("fAno", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.ano)}</div>
-    <div class="funil">${[1, 2, 3, 4, 5].map((k) => cont[k] ? `<i style="width:${cont[k] / L.length * 100}%;background:${ETAPAS[k][1]}" title="${ETAPAS[k][0]}: ${cont[k]}"></i>` : "").join("")}</div>
+    <div class="funil">${[1, 2, 3, 4, 5].map((k) => cont[k] ? `<i data-et="${k}" class="${S.et.has(k) ? "" : "off"}" style="width:${cont[k] / L.length * 100}%;background:${ETAPAS[k][1]};cursor:pointer" title="${ETAPAS[k][0]}: ${cont[k]} · clique para ver só esta etapa"></i>` : "").join("")}</div>
     <div class="funilL">${[1, 2, 3, 4, 5].map((k) => `<span data-et="${k}" class="${S.et.has(k) ? "" : "off"}"><i style="background:${ETAPAS[k][1]}"></i>${ETAPAS[k][0]} <b>${cont[k]}</b></span>`).join("")}</div>
     <section class="bx"><div class="bxh"><h2>Emendas no portal</h2><p>Só consulta. Clique numa emenda para ver a linha do tempo.</p></div>
       <div class="ctl"><input id="busca" placeholder="Município, objeto, beneficiário ou nº" value="${esc(S.busca)}"><select id="mod"><option value="">Todas as modalidades</option>${[...new Set(E.map((e) => e.mod).filter(Boolean))].sort().map((m) => `<option ${S.mod === m ? "selected" : ""}>${esc(m)}</option>`).join("")}</select></div>
@@ -253,7 +254,9 @@ function geral() {
 function ligarGeral() {
   const vo = $("#voltaO"); if (vo) vo.onclick = () => { S.outro = null; desenhar(); };
   $("#fAno").onchange = (e) => { S.ano = +e.target.value; S.aberto = null; desenhar(); };
-  $("#corpoAba").querySelectorAll("[data-et]").forEach((b) => b.onclick = () => { const k = +b.dataset.et; S.et.has(k) ? S.et.delete(k) : S.et.add(k); desenhar(); });
+  // etapa: com todas marcadas, o clique mostra SÓ aquela; com seleção, o clique soma ou tira; tirar a última volta a todas
+  $("#corpoAba").querySelectorAll("[data-et]").forEach((b) => b.onclick = () => { const k = +b.dataset.et, todas = S.et.size === 5;
+    if (todas) S.et = new Set([k]); else if (S.et.has(k)) { S.et.delete(k); if (!S.et.size) S.et = new Set([1, 2, 3, 4, 5]); } else S.et.add(k); desenhar(); });
   const lt = $("#lentes"); if (lt) lt.onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); };
   $("#busca").oninput = (e) => { S.busca = e.target.value; S.lim = 60; tabela(); };
   $("#mod").onchange = (e) => { S.mod = e.target.value; tabela(); };

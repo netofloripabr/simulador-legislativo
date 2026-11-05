@@ -23,7 +23,7 @@ const AD = { listas: [], itens: [], ok: false };
 // ---------- dados: Supabase com sessão; sem sessão (computador local), guarda no navegador ----------
 const nuvemAd = () => SESS && supabaseClient;
 async function lerAdicionar() {
-  if (nuvemAd()) { const [l, i] = await Promise.all([supabaseClient.from("gab_listas").select("*").order("criado_em"), supabaseClient.from("gab_itens").select("*").order("criado_em")]); AD.listas = l.data || []; AD.itens = i.data || []; }
+  if (nuvemAd()) { const [l, i] = await Promise.all([supabaseClient.from("gab_listas").select("*").eq("parlamentar", PARL.n).order("criado_em"), supabaseClient.from("gab_itens").select("*").eq("parlamentar", PARL.n).order("criado_em")]); AD.listas = l.data || []; AD.itens = i.data || []; }
   else { try { const x = JSON.parse(localStorage.getItem("gab_ad_local") || "{}"); AD.listas = x.listas || []; AD.itens = x.itens || []; } catch (e) {} }
   AD.ok = true;
 }
