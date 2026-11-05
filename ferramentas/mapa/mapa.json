@@ -9,13 +9,14 @@
     ["04/11/2026", "Rotina automática de servidores: Diário todo dia 22h30, portal todo dia 10."],
     ["04/11/2026", "Organização: este mapa é a lista oficial; o agente organizador-do-site é consultado antes de mudar a estrutura; protótipos ficam em prototipos/."],
     ["04/11/2026", "RH - Gabinete fase 3: funções do parlamentar trazem sozinhas a estrutura pela norma; remover a função remove as indicações dela (com confirmação)."],
-    ["04/11/2026", "Fase 4: o Gabinete › Eleitoral mostra o Eleitoral de Parlamentares (mesmo código, embutido). Faltam no Gabinete: Processo legislativo e Mailing."]
+    ["04/11/2026", "Fase 4: o Gabinete › Eleitoral mostra o Eleitoral de Parlamentares (mesmo código, embutido). Faltam no Gabinete: Processo legislativo e Mailing."],
+    ["05/11/2026", "Página inicial de quem tem gabinete liberado = Gabinete. Menu em palco ficou como referência visual (prototipos/_proto-menu.html); a estrutura atual das páginas continua."]
   ],
   "paginas": [
     {"id": "app", "nome": "Simulador (área principal)", "url": "index.html", "quem": "visitante", "status": "pronto", "arquivo": "index.html", "ancora": "Simulador Eleitoral",
      "nota": "Palpite eleitoral 2026, listas, grupos e duelos. Foco da fase eleitoral; depois da eleição vira porta de entrada.",
      "filhos": [
-      {"nome": "Abertura e escolha do estado", "status": "pronto", "quem": "visitante", "arquivo": "interface/10-boot.js", "ancora": "renderLanding"},
+      {"nome": "Abertura e escolha do estado", "status": "pronto", "quem": "visitante", "arquivo": "interface/10-boot.js", "ancora": "renderLanding", "nota": "Quem entra pelo endereço do site: visitante vai para o painel de SC (Ranking); logado vai para Parlamentares; quem tem gabinete liberado vai direto para o Gabinete (05/11/2026)."},
       {"nome": "Entrar, cadastro e perfil", "status": "pronto", "quem": "visitante", "arquivo": "interface/20-acesso.js", "ancora": "renderTelaLogin"},
       {"nome": "Painel principal (Lobby)", "status": "pronto", "quem": "cadastrado", "arquivo": "interface/30-painel.js", "ancora": "renderPainelPrincipal"},
       {"nome": "Montar o palpite (Senador e Deputados)", "status": "pronto", "quem": "visitante", "arquivo": "interface/80-selecao.js", "ancora": "faderDepHtml"},
