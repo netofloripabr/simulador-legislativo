@@ -107,28 +107,42 @@ function valoresCapa() {
   if (S.lc === "pago") return { v: BASE.mun.map((m, i) => A[i] && A[i].v ? A[i].vp / A[i].v : 0), top: BASE.mun.map((m, i) => (A[i] || {}).vp || 0), rot: (x) => fm(x) + " pagos" };
   return { v: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), top: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), rot: (x) => "R$ " + nf(x, 0) + " por voto" };
 }
+// lupa da capa (05/11/2026): município ou região (associação, microrregião, mesorregião) escolhidos na busca ou no
+// mapa; os cartões Recursos e Votos passam a mostrar só aquela área e o mapa apaga o resto
+const REG_T = { mun: "município", assoc: "associação de municípios", micro: "microrregião", meso: "mesorregião" };
+let REGS = null;
+function regioes() { if (REGS) return REGS; const G = {}; REGS = [];
+  BASE.mun.forEach((m, i) => { REGS.push({ t: "mun", n: m.n, ix: new Set([i]) }); ["assoc", "micro", "meso"].forEach((k) => { if (!m[k]) return; const c = k + "|" + m[k]; (G[c] = G[c] || { t: k, n: m[k], ix: new Set() }).ix.add(i); }); });
+  REGS.push(...Object.values(G)); REGS.forEach((r) => { r.ns = new Set([...r.ix].map((i) => norm(BASE.mun[i].n))); r.q = norm(r.n); if (r.t !== "mun") r.ns.add(r.q); /* recurso lançado na própria associação (ex.: AMVE) */ }); return REGS; }
 function capa(nm) {
+  return `<section class="ghero" id="ghero">${avisoCota()}<div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
+    <div class="gsw" id="glc" role="group" aria-label="Mapa"><em class="gswl"${S.lc === "rec" ? "" : " hidden"}><b class="az"></b>indicado <b class="vd"></b>pago</em>
+      <div class="gbus${S.reg ? " ab" : ""}" id="gbus"><div class="gbin"><input id="gbq" placeholder="Município ou região" autocomplete="off" aria-label="Buscar município ou região"><div class="gsug" id="gsug" hidden></div></div>${S.reg ? `<span class="gchip" title="${esc(REG_T[S.reg.t])}">${esc(S.reg.n)}<button id="gbx" title="Voltar ao total" aria-label="Limpar a seleção">×</button></span>` : ""}<button class="glupa" id="glupa" title="Buscar município ou região" aria-label="Buscar município ou região"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6 14 14"/></svg></button></div>
+      <div class="gswb${S.lc === "rec" ? " r" : ""}"><i></i><button data-lc="votos" class="${S.lc === "rec" ? "" : "on"}">Votos</button><button data-lc="rec" class="${S.lc === "rec" ? "on" : ""}">Recursos</button></div></div>
+    <div class="gtxt"><div class="gid"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div></div>
+    <h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
+    <div class="gcards" id="gcards">${cartoesCapa()}</div>
+    ${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section>`;
+}
+function cartoesCapa(sem) {
   // valor total (03/11/2026): no próprio gabinete, tudo o que está no Controle (impositivas + convênios/negociados, como "Tudo" das Cotas,
   // sem as listas ainda em indicação); fora dele (ou sem a planilha), só as emendas impositivas do portal da SEF
   let I = null; if (proprio() && MEU.length && typeof itensCotas === "function") { const sv = S.cesc; S.cesc = "tudo"; try { I = itensCotas().filter((i) => !i.plan); } finally { S.cesc = sv; } if (!I.length) I = null; }
-  const R = I ? I.map((i) => ({ v: i.v, p: i.pago, ano: i.ano, f: i.area, mun: norm(i.mun) })) : E0.map((e) => ({ v: e.v || 0, p: e.vp || 0, ano: +e.ano || +String(e.k || "").slice(0, 4), f: funCapa(e), mun: norm(e.mun) }));
+  const R0 = I ? I.map((i) => ({ v: i.v, p: i.pago, ano: i.ano, f: i.area, mun: norm(i.mun) })) : E0.map((e) => ({ v: e.v || 0, p: e.vp || 0, ano: +e.ano || +String(e.k || "").slice(0, 4), f: funCapa(e), mun: norm(e.mun) }));
+  const anos0 = [...new Set(R0.map((x) => x.ano).filter(Boolean))].sort(), R = S.reg ? R0.filter((x) => S.reg.ns.has(x.mun)) : R0, onde = S.reg ? " · " + esc(S.reg.n) : "";
+  const vR = S.reg ? [...S.reg.ix].reduce((s2, i) => s2 + (PARL.v[i] || 0), 0) : PARL.t, an = sem ? " sa" : "";
   const tv = R.reduce((s, x) => s + x.v, 0), tp = R.reduce((s, x) => s + x.p, 0), mun = new Set(R.map((x) => x.mun).filter((m) => m && m !== "—")).size;
-  const anos = [...new Set(R.map((x) => x.ano).filter(Boolean))].sort(), TN = ["#DADDE0", "#AEB3B8", "#868C92", "#62686E", "#474D52"];
+  const anos = anos0, TN = ["#DADDE0", "#AEB3B8", "#868C92", "#62686E", "#474D52"];
   const G = {}; R.forEach((x) => { const f = x.f && x.f !== "Não informado" ? x.f : "Outras"; G[f] = (G[f] || 0) + x.v; });
   let seg = Object.entries(G).filter(([f]) => f !== "Outras").sort((a, b) => b[1] - a[1]); const resto = seg.slice(4).reduce((s, x) => s + x[1], 0) + (G.Outras || 0); seg = seg.slice(0, 4); if (resto) seg.push(["Outras", resto]);
   const L = R;
   // conceito B (03/11/2026): o nome sozinho no alto; embaixo dois cartões translúcidos sobre o mapa (Recursos e Votos);
   // o aviso da cota aberta vira uma faixa fina no topo do quadro e o interruptor do mapa fica no canto do próprio mapa
-  const cRec = tv ? `<div class="gcard"><div class="k">Recursos · ${anos[0]}-${String(anos.slice(-1)[0]).slice(2)}${I ? " · total" : " · impositivas"}</div><div class="v">${esc(fm(tv))}</div>
+  const cRec = `<div class="gcard${an}"><div class="k">Recursos · ${anos[0] || ""}-${String(anos.slice(-1)[0] || "").slice(2)}${S.reg ? onde : I ? " · total" : " · impositivas"}</div>${tv ? `<div class="v">${esc(fm(tv))}</div>
     <div class="gbar">${seg.map(([, v], i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]}"></i>`).join("")}</div><div class="gpg" style="width:${tp / tv * 100}%"></div>
-    <div class="gleg">${seg.map(([f, v], i) => `<span><i style="background:${TN[i % 5]}"></i>${esc(f)} <em>${esc(fm(v))}</em></span>`).join("")}<span><i style="background:#34E84A"></i>pago <em>${nf(tp / tv * 100)}%</em></span></div></div>` : "";
-  const cVot = `<div class="gcard"><div class="k">Votos · 2026</div><div class="v a">${ni(PARL.t)}</div><div class="gmini"><div><span>Municípios atendidos</span><span>${ni(mun)}</span></div><div><span>${I ? "Emendas e convênios" : "Emendas"}</span><span>${ni(L.length)}</span></div>${tv ? `<div><span>Pago até hoje</span><span class="vd">${nf(tp / tv * 100, 1)}%</span></div>` : ""}</div></div>`;
-  return `<section class="ghero" id="ghero">${avisoCota()}<div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
-    <div class="gsw" id="glc" role="group" aria-label="Mapa"><em class="gswl"${S.lc === "rec" ? "" : " hidden"}><b class="az"></b>indicado <b class="vd"></b>pago</em><div class="gswb${S.lc === "rec" ? " r" : ""}"><i></i><button data-lc="votos" class="${S.lc === "rec" ? "" : "on"}">Votos</button><button data-lc="rec" class="${S.lc === "rec" ? "on" : ""}">Recursos</button></div></div>
-    <div class="gtxt"><div class="gid"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div></div>
-    <h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
-    <div class="gcards">${cRec}${cVot}</div>
-    ${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section>`;
+    <div class="gleg">${seg.map(([f, v], i) => `<span><i style="background:${TN[i % 5]}"></i>${esc(f)} <em>${esc(fm(v))}</em></span>`).join("")}<span><i style="background:#34E84A"></i>pago <em>${nf(tp / tv * 100)}%</em></span></div>` : `<div class="v gvz">R$ 0</div><p class="gnada">Nenhum recurso indicado ${S.reg ? "para " + esc(S.reg.n) : "ainda"}.</p>`}</div>`;
+  const cVot = `<div class="gcard${an}"><div class="k">Votos · 2026${onde}</div><div class="v a">${ni(vR)}</div><div class="gmini">${S.reg ? `<div><span>Dos votos do mandato</span><span>${nf(vR / (PARL.t || 1) * 100, 1)}%</span></div>${S.reg.t !== "mun" ? `<div><span>Municípios da região</span><span>${ni(S.reg.ix.size)}</span></div>` : ""}` : ""}<div><span>Municípios atendidos</span><span>${ni(mun)}</span></div><div><span>${I ? "Emendas e convênios" : "Emendas"}</span><span>${ni(L.length)}</span></div>${tv ? `<div><span>Pago até hoje</span><span class="vd">${nf(tp / tv * 100, 1)}%</span></div>` : ""}</div></div>`;
+  return cRec + cVot;
 }
 // função da emenda na capa: a da planilha do gabinete quando a emenda está ligada a ela; senão, estimada pelo objeto
 const FUN_CAPA = { "Infraestrutura e Mobilidade": "Infraestrutura", "Segurança Pública": "Segurança", "Fundo Social": "Social", "Esporte, cultura e lazer": "Esporte e cultura" };
@@ -167,10 +181,11 @@ function capaMapa() {
     // Recursos: azul = indicado (intensidade pelo valor); verde por dentro = a parte paga (área proporcional)
     const rec = S.lc === "rec", cr = rec ? AZ_REC : rgb;
     for (const i of ord) { const b = B[i], e0 = Math.min(1, Math.max(0, (t - b.nasce) / .7)); if (!e0) continue; const e = 1 - Math.pow(1 - e0, 3), tt = b.t0 + (b.t1 - b.t0) * ee, gg = b.g0 + (b.g1 - b.g0) * ee, col = tt < .02 ? ne : ne.map((v, q) => Math.round(v + (cr[q] - v) * Math.min(1, .25 + tt)));
-      const rr = b.r * (.4 + .6 * e) * (.8 + .3 * tt);
-      ctx.globalAlpha = (.22 + .72 * tt) * e; ctx.shadowColor = `rgba(${cr},${.8 * tt})`; ctx.shadowBlur = 16 * tt; ctx.fillStyle = `rgb(${col})`; ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, 6.2832); ctx.fill();
-      if (gg > .01 && tt > .02) { ctx.globalAlpha = (.35 + .55 * tt) * e; ctx.shadowColor = `rgba(${VD_REC},${.7 * tt})`; ctx.shadowBlur = 10 * tt; ctx.fillStyle = `rgb(${VD_REC})`; ctx.beginPath(); ctx.arc(b.x, b.y, rr * Math.sqrt(gg), 0, 6.2832); ctx.fill(); } }
-    ctx.shadowBlur = 0; GH.top.forEach((i, q) => { const b = B[i], v = (Math.sin(t * 1.4 + q) + 1) / 2; if (t < 2.6) return; ctx.globalAlpha = .25 * v; ctx.fillStyle = `rgb(${cr})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1.2 + .5 * v), 0, 6.2832); ctx.fill(); });
+      const rr = b.r * (.4 + .6 * e) * (.8 + .3 * tt), fo = S.reg && !S.reg.ix.has(i) ? .16 : 1;
+      ctx.globalAlpha = (.22 + .72 * tt) * e * fo; ctx.shadowColor = `rgba(${cr},${.8 * tt})`; ctx.shadowBlur = 16 * tt; ctx.fillStyle = `rgb(${col})`; ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, 6.2832); ctx.fill();
+      if (gg > .01 && tt > .02) { ctx.globalAlpha = (.35 + .55 * tt) * e * fo; ctx.shadowColor = `rgba(${VD_REC},${.7 * tt})`; ctx.shadowBlur = 10 * tt; ctx.fillStyle = `rgb(${VD_REC})`; ctx.beginPath(); ctx.arc(b.x, b.y, rr * Math.sqrt(gg), 0, 6.2832); ctx.fill(); } }
+    ctx.shadowBlur = 0; if (S.reg) for (const i of S.reg.ix) { const b = B[i]; ctx.globalAlpha = .9; ctx.strokeStyle = `rgba(${cr},.9)`; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(b.x, b.y, Math.max(3, b.r * .9), 0, 6.2832); ctx.stroke(); }
+    GH.top.forEach((i, q) => { const b = B[i], v = (Math.sin(t * 1.4 + q) + 1) / 2; if (t < 2.6) return; ctx.globalAlpha = .25 * v; ctx.fillStyle = `rgb(${cr})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1.2 + .5 * v), 0, 6.2832); ctx.fill(); });
     ctx.globalAlpha = 1; gRaf = requestAnimationFrame(quadro); };
   gRaf = requestAnimationFrame(quadro); capaLente();
 }
@@ -179,9 +194,11 @@ function capaLente() {
   GH.B.forEach((b) => { b.t0 = b.t0 + (b.t1 - b.t0) * ee; b.g0 = b.g0 + (b.g1 - b.g0) * ee; });
   const X = valoresCapa(), e95 = [...X.v].sort((a, b) => a - b)[Math.floor(X.v.length * .95)] || 1;
   GH.B.forEach((b, i) => { b.t1 = Math.min(1, X.v[i] / e95); b.g1 = X.g ? X.g[i] : 0; }); GH.ini = agora;
+  if (S.reg) X.top = X.top.map((x, i) => S.reg.ix.has(i) ? x : 0);
   const ordT = [...X.top.keys()].sort((a, b) => X.top[b] - X.top[a]); GH.top = ordT.slice(0, 5);
   const i1 = ordT[0], b1 = GH.B[i1]; if (!X.top[i1]) { $("#gEtq").innerHTML = ""; return; }
-  GH.i1 = i1; $("#gEtq").innerHTML = `<div class="etq" data-cid="${esc(BASE.mun[i1].n)}" title="Ver as emendas de ${esc(BASE.mun[i1].n)}" style="left:${b1.x}px;top:${b1.y - b1.r}px;animation-delay:.4s, 1.1s"><span>${esc(BASE.mun[i1].n)}</span><b>${esc(X.rotI ? X.rotI(i1) : X.rot(X.top[i1]))}</b></div>`;
+  const reg = S.reg && S.reg.t !== "mun", tot = reg ? [...S.reg.ix].reduce((s2, i) => s2 + (X.top[i] || 0), 0) : 0;
+  GH.i1 = i1; $("#gEtq").innerHTML = `<div class="etq" data-cid="${esc(reg ? S.reg.n : BASE.mun[i1].n)}" title="Ver as emendas de ${esc(reg ? S.reg.n : BASE.mun[i1].n)}" style="left:${b1.x}px;top:${b1.y - b1.r}px;animation-delay:.4s, 1.1s"><span>${esc(reg ? S.reg.n : BASE.mun[i1].n)}</span><b>${esc(reg ? X.rot(tot) : X.rotI ? X.rotI(i1) : X.rot(X.top[i1]))}</b></div>`;
 }
 // leque de títulos no topo (mesmo papel da navegação de seções de Parlamentares): abre e leva ao título
 // aparência dos itens do Controle (claro, padrão; ou escuro), escolhida no menu e guardada neste navegador
@@ -203,10 +220,23 @@ function irCidade(nome) {
   S.fech.rec = false; S.aba = "geral"; S.outro = null; S.ano = 0; S.busca = nome; S.lim = 60; desenhar();
   const c = $("#busca"); if (c) { c.value = nome; tabela(); c.closest(".bx").scrollIntoView({ behavior: "smooth", block: "start" }); }
 }
-function ligarCapaCliques() {
+function selReg(r) { S.reg = r || null; const g = $("#gcards"); if (g) g.innerHTML = cartoesCapa(true); capaLente(); ligarBusca(); }
+function ligarBusca() { const w = $("#gbus"); if (!w) return;
+  w.querySelector(".gchip")?.remove(); if (S.reg) w.querySelector(".gbin").insertAdjacentHTML("afterend", `<span class="gchip" title="${esc(REG_T[S.reg.t])}">${esc(S.reg.n)}<button id="gbx" title="Voltar ao total" aria-label="Limpar a seleção">×</button></span>`);
+  const q = $("#gbq"), sug = $("#gsug"), x = $("#gbx");
+  $("#glupa").onclick = () => { const ab = !w.classList.contains("ab") || !w.classList.contains("dig"); w.classList.add("ab", "dig"); if (ab) setTimeout(() => q.focus(), 60); else { w.classList.remove("dig"); sug.hidden = true; if (!S.reg) w.classList.remove("ab"); } };
+  if (x) x.onclick = () => { q.value = ""; sug.hidden = true; w.classList.remove("dig"); selReg(null); w.classList.remove("ab"); };
+  const mostra = () => { const t = norm(q.value); if (t.length < 2) { sug.hidden = true; return; }
+    const L = regioes().filter((r) => r.q.includes(t)).sort((a, b) => (a.q.startsWith(t) ? 0 : 1) - (b.q.startsWith(t) ? 0 : 1) || (a.t === "mun" ? 1 : 0) - (b.t === "mun" ? 1 : 0) || a.n.localeCompare(b.n, "pt-BR")).slice(0, 8);
+    sug.innerHTML = L.length ? L.map((r, k) => `<button data-rg="${k}"><b>${esc(r.n)}</b><small>${esc(REG_T[r.t])}${r.t !== "mun" ? " · " + r.ix.size + " municípios" : ""}</small></button>`).join("") : `<p>Nenhum município ou região com esse nome.</p>`; sug.hidden = false; sug._L = L; };
+  q.oninput = mostra; q.onkeydown = (e) => { if (e.key === "Enter" && sug._L && sug._L[0]) { e.preventDefault(); escolhe(sug._L[0]); } if (e.key === "Escape") { sug.hidden = true; q.blur(); } };
+  const escolhe = (r) => { q.value = ""; sug.hidden = true; w.classList.remove("dig"); selReg(r); };
+  sug.onmousedown = (e) => { const b = e.target.closest("[data-rg]"); if (!b) return; e.preventDefault(); escolhe(sug._L[+b.dataset.rg]); };
+  q.onblur = () => setTimeout(() => { sug.hidden = true; if (!q.value) { w.classList.remove("dig"); if (!S.reg) w.classList.remove("ab"); } }, 150); }
+function ligarCapaCliques() { ligarBusca();
   const et = $("#gEtq"); if (et) et.onclick = (e) => { const d = e.target.closest("[data-cid]"); if (d) irCidade(d.dataset.cid); };
   const cv = $("#gCv"); if (cv) { cv.onclick = (e) => { if (!GH) return; const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; let m = -1, md = 1e9;
-    GH.B.forEach((b, i) => { const d = Math.hypot(b.x - x, b.y - y); if (d < Math.max(b.r, 8) && d < md) { md = d; m = i; } }); if (m >= 0) irCidade(BASE.mun[m].n); };
+    GH.B.forEach((b, i) => { const d = Math.hypot(b.x - x, b.y - y); if (d < Math.max(b.r, 8) && d < md) { md = d; m = i; } }); if (m >= 0) selReg(S.reg && S.reg.t === "mun" && S.reg.ix.has(m) ? null : regioes().find((r) => r.t === "mun" && r.ix.has(m))); };
     cv.onmousemove = (e) => { if (!GH) return; const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; cv.style.cursor = GH.B.some((b) => Math.hypot(b.x - x, b.y - y) < Math.max(b.r, 8)) ? "pointer" : ""; }; }
 }
 // todo bloco com título (Mapa, Carteira...) abre e fecha pelo próprio título; o estado fica guardado na sessão da página
