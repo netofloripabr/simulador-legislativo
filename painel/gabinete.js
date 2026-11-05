@@ -41,7 +41,7 @@ async function iniciar() {
   try { if (PODE && proprio()) await lerPrivado(); } catch (e) {}
   try { if ((PODE || LOCAL) && proprio() && typeof lerAdicionar === "function") await lerAdicionar(); } catch (e) {}
   // área restrita: por enquanto só administradores (no computador local, liberado para testes)
-  if (LOCAL && !MEU.length) { try { MEU = await (await fetch("../dados/gabinete/_priv-teste.json")).json(); PRIV = {}; MEU.forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = MEU.length; PODE = true; } catch (e) {} }
+  if (LOCAL && !MEU.length) { try { MEU = await (await fetch("../dados/gabinete/_priv-teste.json")).json(); MEU.forEach((r) => { r.municipio = nomeMun(r.municipio); }); PRIV = {}; MEU.forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = MEU.length; PODE = true; } catch (e) {} }
   desenhar();
 }
 function restrito() { $("#app").innerHTML = `<div style="max-width:560px;margin:12vh auto"><div class="olho">Gabinete</div><h1 style="font-size:44px">Área restrita.</h1><p class="lead">O painel Gabinete está em construção e, por enquanto, é liberado só para a administração.${SESS ? "" : " Se você tem acesso, entre com a sua conta."}</p>${SESS ? "" : `<p><a class="btn" href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}" style="display:inline-block;text-decoration:none;margin-top:12px">Entrar</a></p>`}</div>`;  }
@@ -67,7 +67,7 @@ async function salvarContato(c) { const ex = AGENDA.find((x) => norm(x.nome) ===
   if (LOCAL && !SESS) { n.id = "l" + Date.now() + Math.random(); AGENDA.push(n); try { localStorage.setItem("gab_agenda", JSON.stringify(AGENDA)); } catch (e) {} }
   else { const { data, error } = await supabaseClient.from("gab_contatos").insert(n).select().single(); if (error) throw error; n = data; AGENDA.push(n); }
   return n; }
-async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient.from("gab_recursos").select("*").eq("parlamentar", PARL.n).order("origem_planilha", { nullsFirst: false }); (data || []).forEach(aplicarCorr); MEU = data || []; PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
+async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient.from("gab_recursos").select("*").eq("parlamentar", PARL.n).order("origem_planilha", { nullsFirst: false }); (data || []).forEach((r) => { aplicarCorr(r); r.municipio = nomeMun(r.municipio); }); MEU = data || []; PRIV = {}; (data || []).forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = (data || []).length; }
 
 // Administrativo (04/11/2026): a mesma seção da página Parlamentares, embutida (novos.html?so=adm), para o parlamentar
 // aberto no painel. Um código só: o que muda num bloco de Parlamentares muda aqui também. A altura vem por postMessage.
@@ -373,13 +373,15 @@ function etiquetarGrupo(L) {
 const MF = [["reg", "Região", (r) => regDe(r)], ["mun", "Município", (r) => r.municipio], ["lid", "Líder", (r) => [...contato(r, "lider").map((c) => c.nome), r.lideranca]], ["fun", "Função", (r) => r.funcao], ["mod", "Instrumento", (r) => instrNome(r.modalidade)], ["ben", "Beneficiário", (r) => r.beneficiario], ["tag", "Etiqueta", (r) => r.tags]];
 const LUPA_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>';
 const FUNIL_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>';
+let NOME_MUN = null;
+function nomeMun(x) { if (!x) return x; if (!NOME_MUN) { NOME_MUN = {}; (BASE && BASE.mun || []).forEach((m) => { NOME_MUN[norm(m.n)] = m.n; }); } return NOME_MUN[norm(x)] || x; }
 function mfiltros() {
-  S.mf = S.mf || {}; const nf = [S.mori, S.met, S.lista, ...Object.values(S.mf)].filter(Boolean).length, n = nf + (S.mq ? 1 : 0);
-  const ops = (f) => [...new Set(MEU.flatMap((r) => [].concat(f(r) || [])).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR"));
+  S.mf = S.mf || {}; if (S.mf.mun && !Array.isArray(S.mf.mun)) S.mf.mun = [S.mf.mun]; const nf = [S.mori, S.met, S.lista, ...Object.values(S.mf)].filter((v) => Array.isArray(v) ? v.length : v).length, n = nf + (S.mq ? 1 : 0);
+  const ops = (f) => { const M = new Map(); MEU.flatMap((r) => [].concat(f(r) || [])).filter(Boolean).forEach((o) => { const k = norm(o); if (!M.has(k)) M.set(k, nomeMun(o)); }); return [...M.values()].sort((a, b) => String(a).localeCompare(String(b), "pt-BR")); };
   const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar</button>` : ""}${S.mtool || ""}<button class="filb ico${S.mpa || S.mq ? " on" : ""}" id="lupB" title="Pesquisar" aria-label="Pesquisar">${LUPA_I}</button><button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar" aria-label="Filtrar">${FUNIL_I}${nf ? `<b>${nf}</b>` : ""}</button>${S.mad || ""}</div>`;
   $("#mfil").innerHTML = `${S.mpa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Pesquisar município, objeto, processo, observação ou etiqueta" value="${esc(S.mq || "")}"></div>` : ""}
     ${S.mfa ? `<div class="mfp mfg">${leq("fOri", "Origem", [["", "Todas"], ...ops((r) => sigla(r.origem)).map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}${typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista de indicação", [["", "Todas"], ...opsListas().slice(1)], S.lista || "") : ""}
-      ${MF.map(([k, t, f]) => leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o]), ...(["mod", "fun", "reg"].includes(k) ? [["(vazio)", "Não informado"]] : [])], S.mf[k] || "")).join("")}${S.mf.num ? leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num) : ""}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}
+      ${MF.map(([k, t, f]) => k === "mun" ? `<div class="mfmun">${leq("mf_mun", t, [["", (S.mf.mun || []).length ? "Adicionar outro…" : "Todos"], ...ops(f).filter((o) => !(S.mf.mun || []).some((m) => norm(m) === norm(o))).map((o) => [o, o])], "")}${(S.mf.mun || []).length ? `<div class="mfchips">${S.mf.mun.map((m, i) => `<span>${esc(m)}<button data-xmun="${i}" title="Tirar ${esc(m)}" aria-label="Tirar ${esc(m)}">×</button></span>`).join("")}</div>` : ""}</div>` : leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o]), ...(["mod", "fun", "reg"].includes(k) ? [["(vazio)", "Não informado"]] : [])], S.mf[k] || "")).join("")}${S.mf.num ? leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num) : ""}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}
       ${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens</button>` : ""}<button class="filb ico borr" id="filBorr" title="Limpar filtros" aria-label="Limpar filtros"${n ? "" : " disabled"}><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 2.5l4 4-6.5 6.5H4.5l-2-2z M6.5 5.5l4 4 M7 13h6.5"/></svg></button></div>` : ""}`;
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   if (typeof ligarAdicionar === "function") ligarAdicionar();
@@ -392,7 +394,9 @@ function mfiltros() {
   const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); const t = $("#mtool .filx"); if (!!S.mq !== !!t) { mfiltros(); const b = $("#mbusca"); b.focus(); b.setSelectionRange(b.value.length, b.value.length); } };
   const fo = $("#fOri"); if (fo) fo.onchange = (e) => { S.mori = e.target.value; mfiltros(); mtab(); };
   const fe = $("#fEt"); if (fe) fe.onchange = (e) => { S.met = e.target.value; mfiltros(); mtab(); };
-  [...MF.map(([k]) => k), "obs", "num"].forEach((k) => { const s = $("#mf_" + k); if (s) s.onchange = (e) => { S.mf[k] = e.target.value; mfiltros(); mtab(); }; });
+  [...MF.map(([k]) => k).filter((k) => k !== "mun"), "obs", "num"].forEach((k) => { const s = $("#mf_" + k); if (s) s.onchange = (e) => { S.mf[k] = e.target.value; mfiltros(); mtab(); }; });
+  const smun = $("#mf_mun"); if (smun) smun.onchange = (e) => { const v = e.target.value; if (!v) return; S.mf.mun = [...(S.mf.mun || []), v]; mfiltros(); mtab(); };
+  document.querySelectorAll("#mfil [data-xmun]").forEach((b) => b.onclick = () => { S.mf.mun.splice(+b.dataset.xmun, 1); mfiltros(); mtab(); });
 }
 // função como ícone (saúde, educação, FUNDAM, agricultura, infraestrutura, segurança, social); etiqueta abaixo = natureza (investimento/custeio)
 const FUN_I = [[/sa[uú]de/i, "Saúde", '<path d="M6 2.5h4v3.5h3.5v4H10v3.5H6V10H2.5V6H6z"/>'], [/educa/i, "Educação", '<path d="M1.5 6L8 3l6.5 3L8 9z M4.5 7.5V11c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5V7.5 M14.5 6v3.5"/>'],
@@ -429,7 +433,7 @@ function mfiltradas() {
     if (vz("mod", r.modalidade) === false || vz("fun", r.funcao) === false || vz("reg", regDe(r)) === false) return false;
     if (F.num === "(vazio)" && (/^\d+$/.test(String(r.numero || "")) || !/^EI/.test(sigla(r.origem)))) return false;
     if (F.lid && !contato(r, "lider").some((c) => c.nome === F.lid) && r.lideranca !== F.lid) return false;
-    if (F.reg && F.reg !== "(vazio)" && regDe(r) !== F.reg) return false; if (F.mun && r.municipio !== F.mun) return false; if (F.fun && F.fun !== "(vazio)" && r.funcao !== F.fun) return false;
+    if (F.reg && F.reg !== "(vazio)" && regDe(r) !== F.reg) return false; if (F.mun && F.mun.length && !F.mun.some((m) => norm(m) === norm(r.municipio))) return false; if (F.fun && F.fun !== "(vazio)" && r.funcao !== F.fun) return false;
     if (F.mod && F.mod !== "(vazio)" && instrNome(r.modalidade) !== F.mod) return false; if (F.tag && !(r.tags || []).includes(F.tag)) return false; if (F.ben && r.beneficiario !== F.ben) return false;
     if (F.obs === "com" && !r.observacao) return false; if (F.obs === "sem" && r.observacao) return false; if (F.obs === "at" && !r.atencao) return false;
     if (S.met) { const e = etapasStatus(r.status_manual); if (S.met === "s" ? e.d : !e.d) return false; if (S.met === "v" && !e.ver) return false; if (/^\d$/.test(S.met) && (e.d.lastIndexOf(true) !== +S.met)) return false; }
