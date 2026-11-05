@@ -91,6 +91,11 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 .gsecs{ display:flex; gap:2px; } .gsecs a{ font:700 12.5px "Inter"; color:var(--sec); text-decoration:none; padding:7px 10px; border-radius:999px; } .gsecs a:hover{ color:var(--texto); background:rgba(242,244,245,.05); }
 .escL{ display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:8px; } .escL button{ display:flex; align-items:center; gap:10px; text-align:left; padding:8px 10px; border-radius:12px; border:1px solid var(--linha); background:var(--sup); cursor:pointer; } .escL button:hover{ border-color:var(--c); } .escL img{ width:34px; height:34px; border-radius:50%; object-fit:cover; object-position:50% 18%; box-shadow:0 0 0 2px var(--c); } .escL b{ display:block; font-size:13px; } .escL span{ display:block; font-size:11px; color:var(--ter); }
 @media (max-width:760px){ .ghero{ height:auto; min-height:0; } .ghero canvas{ position:relative; height:46vh; } .gtxt{ position:relative; }  }
+.ghero{ overflow:clip; } /* não rola por dentro (o foco no campo da lupa fazia a capa "andar") */
+/* tela estreita (05/11/2026): nome do parlamentar no alto, mapa embaixo dele crescendo com a largura (proporção do estado), depois os botões e os cartões */
+@media (max-width:760px){ .ghero{ display:flex; flex-direction:column; padding-top:18px; } .ghero .gtxt{ display:contents; }
+  .ghero .gid{ order:1; padding:0 18px; } .ghero h1{ order:2; padding:0 18px; margin-top:12px !important; } .ghero canvas{ order:3; height:auto; aspect-ratio:4 / 3; width:100%; }
+  .ghero .gsw{ order:4; } .ghero .gcards{ order:5; padding:0 18px; margin-top:6px; } .ghero .gvinc{ order:6; padding:0 18px 26px; } .ghero > .gloa{ order:0; } }
 .leqs{ display:flex; gap:8px; flex-wrap:wrap; margin:20px 0 4px; } .leq{ display:inline-flex; align-items:center; gap:8px; padding:4px 6px 4px 14px; border:1px solid var(--linha); border-radius:999px; background:var(--sup); } .leq span{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:600; } .leq select{ appearance:none; background:var(--sup2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23A9AEB3' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 10px center; border:0; border-radius:999px; padding:6px 28px 6px 12px; font-weight:700; font-size:13px; color:var(--texto); cursor:pointer; }
 .bx.fech > :not(.bxh){ display:none !important; } .bx.fech .bxh{ margin-bottom:0; } .bxh .tgs{ align-self:center; }
 #tab{ overflow-x:auto; } .tb.ct td{ vertical-align:top; } .anot textarea, .anot input{ font-family:inherit; color:var(--texto); } .tb.ct td b{ font-weight:700; } .vp{ width:150px; } .vp b{ display:block; } .vb{ display:block; height:5px; border-radius:3px; background:var(--sup2); margin:5px 0 3px auto; width:110px; overflow:hidden; } .vb i{ display:block; height:100%; background:#34E84A; border-radius:3px; } .vp small{ text-align:right; }
@@ -370,7 +375,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=89"></script>
+<script src="gabinete.js?cb=90"></script>
 <script src="gabinete-rh.js?cb=2"></script>
 <script src="gabinete-adicionar.js?cb=18"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
