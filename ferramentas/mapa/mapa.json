@@ -7,7 +7,8 @@
     ["04/11/2026", "Gabinete: só gabinetes liberados pelo admin; cada um vê e edita o seu. RH - Gabinete salvo na conta (banco)."],
     ["04/11/2026", "\"A estrutura da Casa\" passa a se chamar Transparência e é subseção do Administrativo."],
     ["04/11/2026", "Rotina automática de servidores: Diário todo dia 22h30, portal todo dia 10."],
-    ["04/11/2026", "Organização: este mapa é a lista oficial; o agente organizador-do-site é consultado antes de mudar a estrutura; protótipos ficam em prototipos/. Fase 3 do RH - Gabinete pausada até o mapa estar em uso."]
+    ["04/11/2026", "Organização: este mapa é a lista oficial; o agente organizador-do-site é consultado antes de mudar a estrutura; protótipos ficam em prototipos/."],
+    ["04/11/2026", "RH - Gabinete fase 3: funções do parlamentar trazem sozinhas a estrutura pela norma; remover a função remove as indicações dela (com confirmação)."]
   ],
   "paginas": [
     {"id": "app", "nome": "Simulador (área principal)", "url": "index.html", "quem": "visitante", "status": "pronto", "arquivo": "index.html", "ancora": "Simulador Eleitoral",
@@ -74,11 +75,11 @@
         {"nome": "Transparência SC (dados oficiais)", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "Transparência SC"},
         {"nome": "Outros deputados", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "Outros deputad"},
         {"nome": "Indicar (planilha de indicação e links dos líderes)", "status": "prototipo", "arquivo": "painel/gabinete-indicar.js", "ancora": "function", "nota": "Links por líder: só protótipo, não implementado."}]},
-      {"nome": "Administrativo (era RH)", "status": "construcao", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "\"Administrativo\"", "filhos": [
-        {"nome": "RH - Gabinete", "status": "construcao", "arquivo": "painel/gabinete-rh.js", "ancora": "function rhDesenhar", "dados": "banco: gab_cargos (migração 97)", "nota": "Fase 2 pronta (4 grupos, adicionar/editar/remover). Fase 3 pausada: funções do parlamentar criarem sozinhas a estrutura que trazem.", "filhos": [
+      {"nome": "Administrativo (era RH)", "status": "pronto", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "\"Administrativo\"", "filhos": [
+        {"nome": "RH - Gabinete", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "function rhDesenhar", "dados": "banco: gab_cargos (migração 97)", "nota": "Salvo na conta. As funções do parlamentar (líder, Mesa, presidente ou membro de comissão) criam sozinhas as vagas que trazem em Cargos da ALESC somados.", "filhos": [
           {"nome": "Cargos do parlamentar", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "Cargos do parlamentar"},
           {"nome": "Gabinete parlamentar", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "Gabinete parlamentar"},
-          {"nome": "Cargos da ALESC somados", "status": "construcao", "arquivo": "painel/gabinete-rh.js", "ancora": "Cargos da ALESC somados", "nota": "Fase 3: liderança, Mesa e comissão entram sozinhas a partir das funções do parlamentar."},
+          {"nome": "Cargos da ALESC somados", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "function rhDerivadas", "nota": "Uma subunidade por estrutura trazida (Liderança, gabinete da Mesa, comissão) e o que veio do catálogo."},
           {"nome": "Outros cargos", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "Outros cargos"}]},
         {"nome": "Blocos do Administrativo de Parlamentares (embutidos)", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "so=adm", "nota": "Subsídio e verbas, Estrutura do gabinete, Verbas, Liderança, Transparência, O mandato em números."}]},
       {"nome": "Processo legislativo", "status": "planejado", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "Processo legislativo"},
