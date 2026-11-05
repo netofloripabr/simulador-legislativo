@@ -28,7 +28,7 @@ function itensCotas() {
   const L = MEU.filter((r) => r.ano && !supr(r)).map((r) => {
     const t = tipoCota(r), e = /^\d+$/.test(String(r.numero || "")) && K[`${r.ano}-${String(r.numero).padStart(6, "0")}`], es = etapasStatus(r.status_manual), v = +r.valor || 0;
     const pago = e ? Math.min(v || e.vp || 0, e.vp || 0) : es.d && es.d[2] ? v : 0;
-    return { r, ano: +r.ano, v, t, ori: COTA_T[t][0], area: funDe(r), instr: instrNome(r.modalidade) || "Não informado", reg: regDe(r) || "Sem região", mun: r.municipio ? frase(r.municipio) : "—", obj: r.objeto, pago, sef: !!e };
+    return { r, ano: +r.ano, v, t, ori: COTA_T[t][0], area: funDe(r), instr: instrNome(r.modalidade) || "Não informado", reg: regDe(r) || "Sem região", mun: r.municipio ? frase(r.municipio) : "—", obj: objAtual(r), pago, sef: !!e };
   });
   (typeof AD !== "undefined" ? AD.itens : []).filter((x) => !x.chave_emenda).forEach((x) => { const Lr = AD.listas.find((l) => l.id === x.lista_id), a = Lr ? anoLista(Lr) : 0; if (a < 2000) return; const t = tipoLista(Lr);
     L.push({ x, ano: a, v: +x.valor || 0, t, ori: COTA_T[t][0], area: funDe(x), instr: x.modalidade || "Não informado", reg: regDe(x) || "Sem região", mun: x.municipio ? frase(x.municipio) : "—", obj: x.objeto, pago: 0, plan: 1 }); });

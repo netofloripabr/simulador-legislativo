@@ -4,13 +4,17 @@
 // e as legendas no fim do documento. Usa os globais de gabinete.js (MEU, S, E0, PARL, mfiltradas, sigla, etapasStatus,
 // instrNome, regDe, frase, norm, esc, fm, nf, ni) e de gabinete-cotas.js (funDe) e gabinete-ind-planilha.js (piExcel).
 const REL_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 6V2.5h7V6"/><rect x="2" y="6" width="12" height="5.5" rx="1.2"/><path d="M4.5 9.5h7v4h-7z"/></svg>';
+function relObj(r) { const f = r.objeto_fmt; if (!f || !/~~/.test(f)) return { ant: "", atual: frase(r.objeto || "") };
+  const ant = [...f.matchAll(/~~([\s\S]*?)~~/g)].map((m) => m[1].trim()).filter(Boolean).join(" · "), atual = f.replace(/~~[\s\S]*?~~/g, " ").replace(/\s+/g, " ").trim();
+  return { ant: frase(ant), atual: frase(atual) }; }
+const MOD_OK = ["TE", "CO", "CS", "ED", "TF", "TC", "AC"]; // modalidades de verdade; "Outros" e vazio viram traço
 const brl = (v) => "R$ " + (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // pago de cada linha: o portal da SEF quando a emenda está ligada (número + ano); senão o status da planilha
 function relPago(r) { const v = +r.valor || 0, n = String(r.numero || ""), K = /^\d+$/.test(n) ? `${r.ano}-${n.padStart(6, "0")}` : null, e = K && (E0 || []).find((x) => x.k === K), es = etapasStatus(r.status_manual);
   return e ? Math.min(v || e.vp || 0, e.vp || 0) : es.d && es.d[2] ? v : 0; }
 function relLinhas() { return mfiltradas().map((r) => { const v = +r.valor || 0, es = etapasStatus(r.status_manual);
-  return { r, ano: +r.ano || "", mun: r.municipio || "—", reg: regDe(r) || "", obj: frase(r.objeto || ""), fun: (typeof funDe === "function" ? funDe(r) : r.funcao) || "Não informada", ins: instrNome(r.modalidade) || "Não informado", ori: sigla(r.origem) || "", oriT: r.origem || "", st: es.t, sup: es.t === "Suprimida", v, p: es.t === "Suprimida" ? 0 : relPago(r), proc: r.processo || "", ben: r.beneficiario || "" }; })
+  return { r, ano: +r.ano || "", mun: r.municipio || "—", reg: regDe(r) || "", obj: relObj(r).atual, objAnt: relObj(r).ant, fun: (typeof funDe === "function" ? funDe(r) : r.funcao) || "Não informada", ins: instrNome(r.modalidade) || "Não informado", ori: sigla(r.origem) || "", oriT: r.origem || "", st: es.t, sup: es.t === "Suprimida", v, p: es.t === "Suprimida" ? 0 : relPago(r), proc: r.processo || "", ben: r.beneficiario || "" }; })
   .sort((a, b) => (a.ano || 0) - (b.ano || 0) || a.mun.localeCompare(b.mun, "pt-BR") || b.v - a.v); }
 // o que está no filtro, em texto (vai no cabeçalho do documento e da planilha)
 function relFiltro() { const F = S.mf || {}, P = [];
@@ -53,8 +57,10 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
   const pc = (a, b) => b ? nf(a / b * 100, 1) + "%" : "—", rs = (v) => ni(Math.round(v || 0)), proj = (n) => `${ni(n)} ${n === 1 ? "projeto" : "projetos"}`;
   // função como ícone (o mesmo da plataforma) e instrumento como sigla
   const funI = (x) => { const f = (typeof FUN_I !== "undefined" ? FUN_I : []).find(([re]) => re.test(x.r.funcao || "") || re.test(x.fun || "")); return f ? `<svg viewBox="0 0 16 16" class="di-fi" aria-label="${esc(f[1])}"><title>${esc(f[1])}</title>${f[2]}</svg>` : `<span class="di-mu">—</span>`; };
-  const insS = (x) => (typeof instrSig === "function" ? instrSig(x.r.modalidade) : "") || "—";
-  const lin = (x, i) => `<div class="di-linha${x.sup ? " di-sup" : ""}"><span class="di-pos">${i + 1}</span><span class="di-cand"><span class="di-n">${esc(x.mun)}</span><span class="di-p">${esc([x.reg, x.ano].filter(Boolean).join(" · "))}</span></span><span class="di-obj">${esc(x.obj || "—")}${x.ori || x.proc ? `<small>${esc([x.ori, x.proc].filter(Boolean).join(" · "))}</small>` : ""}</span><span class="di-fn">${funI(x)}</span><span class="di-in">${esc(insS(x))}</span><span class="di-et">${x.sup ? `<span class="di-mu">suprimida</span>` : relIcs(x)}</span><span class="di-votos">${rs(x.v)}</span></div>`;
+  const insS = (x) => { const g = typeof instrSig === "function" ? instrSig(x.r.modalidade) : ""; return MOD_OK.includes(g) ? g : "—"; };
+  // parcelado (pago em parte): mini fracionador com a porcentagem paga, antes do valor
+  const frac = (x) => { if (!(x.p > 0 && x.p < x.v)) return ""; const q = x.p / x.v, c = 2 * Math.PI * 5; return `<span class="di-fr" title="pago ${brl(x.p)}"><svg viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" class="t"/><circle cx="7" cy="7" r="5" class="f" stroke-dasharray="${(q * c).toFixed(2)} ${c.toFixed(2)}"/></svg>${Math.min(99, Math.floor(q * 100))}%</span>`; };
+  const lin = (x, i) => `<div class="di-linha${x.sup ? " di-sup" : ""}"><span class="di-pos">${i + 1}</span><span class="di-cand"><span class="di-n">${esc(x.mun)}</span><span class="di-p">${esc([x.reg, x.ano].filter(Boolean).join(" · "))}</span></span><span class="di-obj">${x.objAnt ? `<s class="di-ant">${esc(x.objAnt)}</s>` : ""}${esc(x.obj || "—")}${x.ori || x.proc ? `<small>${esc([x.ori, x.proc].filter(Boolean).join(" · "))}</small>` : ""}</span><span class="di-fn">${funI(x)}</span><span class="di-in">${insS(x) === "—" ? `<span class="di-mu">—</span>` : esc(insS(x))}</span><span class="di-et">${x.sup ? `<span class="di-mu">supr.</span>` : relIcs(x)}</span><span class="di-votos">${frac(x)}<b>${rs(x.v)}</b></span></div>`;
   // legenda (1ª página, abaixo dos totais): só o que aparece na lista
   const usados = (f) => [...new Set(L.map(f).filter(Boolean))];
   const fL = usados((x) => { const f = (typeof FUN_I !== "undefined" ? FUN_I : []).find(([re]) => re.test(x.r.funcao || "") || re.test(x.fun || "")); return f ? f[1] : ""; }).map((n) => FUN_I.find((f) => f[1] === n));
@@ -62,7 +68,7 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
   const ICS = (o) => `<span class="di-ics">${(typeof ST_I !== "undefined" ? ST_I : []).map((p, k) => `<svg viewBox="0 0 16 16" class="${o.tv && k === 1 ? "tv" : o.d[k] ? (k === 2 ? "pg" : "on") : o.pp && k === 2 ? "pp" : ""}">${p}</svg>`).join("")}</span>`;
   const legenda = tem("leg") ? `<div class="di-lgs">
     ${fL.length ? `<div><b>Função</b>${fL.map((f) => `<span><svg viewBox="0 0 16 16" class="di-fi">${f[2]}</svg>${esc(f[1])}</span>`).join("")}</div>` : ""}
-    ${iL.length ? `<div><b>Instrumento</b>${iL.map(([s2, n]) => `<span><em>${esc(s2)}</em>${esc(n)}</span>`).join("")}</div>` : ""}
+    ${iL.length ? `<div><b>Modalidade</b>${iL.map(([s2, n]) => `<span><em>${esc(s2)}</em>${esc(n)}</span>`).join("")}</div>` : ""}
     <div><b>Etapa</b>${[[{ d: [1, 0, 0] }, "indicada"], [{ d: [1, 1, 0] }, "portaria ou termo"], [{ d: [1, 1, 1] }, "pago ou executado"], [{ d: [1, 1, 0], pp: 1 }, "pago em parte"], [{ d: [1, 0, 0], tv: 1 }, "travada (conferir)"]].map(([o, t]) => `<span>${ICS(o)}${t}</span>`).join("")}</div>
     ${T.ori.length ? `<div><b>Origem</b>${T.ori.map(([s2, t]) => `<span><em>${esc(s2)}</em>${esc(t)}</span>`).join("")}</div>` : ""}</div>` : "";
   // pagamento: uma barra só (pago, pago em parte, a pagar) e, no detalhamento, uma tabela com o que foi indicado, pago e o que falta
@@ -82,18 +88,21 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
   .di-rres{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 8px}.di-rres div{border:1px solid #DCDFE2;border-radius:6px;padding:6px 8px;background:#F3F5F6}.di-rres b{display:block;font-size:13px;font-variant-numeric:tabular-nums}.di-rres span{font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}.di-rres .ok b{color:#1FA83A}
   .di-pag{margin:0 0 12px}.di-pbar{display:flex;height:7px;border-radius:999px;overflow:hidden;background:#E6E8EA}.di-pbar i.b1,.di-pleg i.b1{background:#1FA83A}.di-pbar i.b2,.di-pleg i.b2{background:#8FD49D}
   .di-pleg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:8px;color:#3F454B;margin-top:4px}.di-pleg i{display:inline-block;width:8px;height:8px;border-radius:2px;background:#E6E8EA;margin-right:4px;vertical-align:-1px}
-  .di-lgs{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;border:1px solid #DCDFE2;border-radius:6px;padding:7px 9px;margin:0 0 14px;font-size:8px;color:#3F454B}.di-lgs > div{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px}.di-lgs b{flex-basis:100%;font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}
+  .di-lgs{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;border:1px solid #DCDFE2;border-radius:6px;padding:7px 9px;margin:12px 0 14px;page-break-inside:avoid;font-size:8px;color:#3F454B}.di-lgs > div{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px}.di-lgs b{flex-basis:100%;font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}
   .di-lgs span{display:inline-flex;align-items:center;gap:4px}.di-lgs em{font-style:normal;font-weight:800;color:#111}
-  .di-linha{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:.5px solid #DCDFE2;page-break-inside:avoid}.di-hdr{border-bottom:1.5px solid #A9AEB3;font-size:7px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7178;align-items:flex-end}
-  .di-pos{width:18px;flex:none;color:#6B7178;font-size:9px;text-align:right}.di-cand{width:96px;flex:none}.di-n{display:block;font-size:10px;font-weight:600}.di-p{display:block;font-size:7px;color:#9AA0A4;letter-spacing:.04em;text-transform:uppercase;margin-top:1px}
+  .di-linha{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:.5px solid #DCDFE2;page-break-inside:avoid}.di-hdr{border-bottom:1.5px solid #A9AEB3;font-size:7px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7178;align-items:flex-end}
+  .di-pos{width:14px;flex:none;color:#6B7178;font-size:9px;text-align:right}.di-cand{width:82px;flex:none}.di-n{display:block;font-size:10px;font-weight:600}.di-p{display:block;font-size:7px;color:#9AA0A4;letter-spacing:.04em;text-transform:uppercase;margin-top:1px}
   .di-obj{flex:1;font-size:9.5px;line-height:1.4}.di-obj small{display:block;color:#6B7178;font-size:7.5px;margin-top:2px}
-  .di-fn{width:30px;flex:none;text-align:center}.di-in{width:32px;flex:none;text-align:center;font-size:8.5px;font-weight:800;color:#3F454B}.di-et{width:46px;flex:none}
-  .di-fi{width:12px;height:12px;fill:none;stroke:#3F454B;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}.di-mu{font-size:8px;color:#9AA0A4}
+  .di-fn,.di-in,.di-et{flex:none;display:flex;align-items:center;justify-content:center;height:15px}.di-fn{width:30px}.di-in{width:30px;font-size:8.5px;font-weight:800;color:#3F454B}.di-et{width:46px}
+  .di-mu{font-size:9px;line-height:1;color:#9AA0A4;font-weight:400}.di-ant{display:block;color:#9AA0A4;text-decoration:line-through;font-size:8.5px;margin-bottom:2px}
+  .di-hdr > span, .di-hdr .di-votos, .di-hdr .di-in{font-size:7px !important;font-weight:800 !important;letter-spacing:.06em;text-transform:uppercase;color:#6B7178 !important;height:auto;background:none;border:0}
+  .di-fr{display:inline-flex;align-items:center;gap:3px;font-size:7.5px;font-weight:700;color:#1FA83A;margin-right:6px}.di-fr svg{width:11px;height:11px;transform:rotate(-90deg)}.di-fr .t{fill:none;stroke:#DCDFE2;stroke-width:2.4}.di-fr .f{fill:none;stroke:#1FA83A;stroke-width:2.4}
+  .di-fi{width:13px;height:13px;fill:none;stroke:#3F454B;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}.di-mu{font-size:8px;color:#9AA0A4}
   .di-ics{display:inline-flex;gap:3px}.di-ics svg{width:11px;height:11px;fill:none;stroke:#C9CDD1;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.di-ics svg.on{stroke:#111}.di-ics svg.pg{stroke:#1FA83A}.di-ics svg.pp{stroke:#1FA83A;stroke-dasharray:2 1.6}.di-ics svg.tv{stroke:#E8432A}
-  .di-votos{flex:none;width:80px;background:#F3F5F6;border:1px solid #DCDFE2;border-radius:6px;padding:4px 8px;text-align:right;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums}.di-hdr .di-votos{background:none;border:0;font-weight:800}
+  .di-votos{flex:none;width:96px;display:flex;align-items:center;justify-content:flex-end;background:#F3F5F6;border:1px solid #DCDFE2;border-radius:6px;padding:4px 8px;text-align:right;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums}.di-hdr .di-votos{background:none;border:0;font-weight:800}
   .di-sup{color:#9AA0A4}.di-sup .di-n,.di-sup .di-votos{color:#9AA0A4;font-weight:500}
   .di-tot{display:flex;justify-content:space-between;font-weight:800;font-size:11px;padding:8px 0;border-top:1.5px solid #A9AEB3;margin-top:2px}.di-tot b{color:#1FA83A}
-  .di-det{break-before:page;page-break-before:always}.di-grade{display:grid;grid-template-columns:1fr 1fr;gap:14px}.di-bloco{page-break-inside:avoid;margin-bottom:14px}
+  .di-det{break-before:page;page-break-before:always}@media screen{.di-det{margin-top:56px;padding-top:28px;border-top:1px dashed #C9CDD1}}.di-det .di-tit{margin-bottom:2px}.di-det .di-bloco{margin-bottom:22px}.di-det .di-sub{margin-bottom:16px}.di-grade{display:grid;grid-template-columns:1fr 1fr;gap:14px}.di-bloco{page-break-inside:avoid;margin-bottom:14px}
   .di-st2{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;margin:0 0 4px;padding-bottom:4px;border-bottom:1.5px solid #A9AEB3}
   .di-tl,.di-tp{display:grid;gap:6px;font-size:9px;padding:4px 0;border-bottom:.5px solid #DCDFE2;align-items:center;font-variant-numeric:tabular-nums}.di-tl{grid-template-columns:minmax(0,1fr) 40px 66px 66px 38px}.di-tp{grid-template-columns:minmax(0,1fr) 50px 90px 90px 90px 56px}
   .di-tl span:nth-child(n+2),.di-tp span:nth-child(n+2){text-align:right}.di-tl span:first-child{position:relative;padding-bottom:3px}.di-tl span:first-child i{position:absolute;left:0;bottom:0;height:2px;background:#1FA83A;opacity:.6;border-radius:2px}
@@ -102,10 +111,11 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
   <div class="di-cab"><div><div class="di-wm">Simula<span>LEGIS</span></div><div class="di-wmsub">Gabinete · Controle de Recursos</div></div><div class="di-meta"><b>${esc(PARL.u || "")}</b> · ${esc(PARL.p || "")}<br>gerado em ${dt} às ${hr}</div></div><div class="di-regra"></div>
   <div class="di-tit">Controle de Recursos</div><div class="di-sub"><b>Filtro:</b> ${esc(relFiltro())}</div>
   <div class="di-rres"><div><b>${brl(T.v)}</b><span>valor total</span></div><div class="ok"><b>${brl(T.p)}</b><span>pago · ${pc(T.p, T.v)}</span></div><div><b>${brl(T.ap)}</b><span>a pagar · ${pc(T.ap, T.v)}</span></div><div><b>${ni(T.n)}</b><span>${T.n === 1 ? "projeto" : "projetos"} · ${ni(T.mun)} ${T.mun === 1 ? "município" : "municípios"}</span></div></div>
-  ${barra}${legenda}
-  <div class="di-linha di-hdr"><span class="di-pos">#</span><span class="di-cand">Município</span><span class="di-obj">Objeto</span><span class="di-fn">Função</span><span class="di-in">Instr.</span><span class="di-et">Etapa</span><span class="di-votos">Valor R$</span></div>
+  ${barra}
+  <div class="di-linha di-hdr"><span class="di-pos">#</span><span class="di-cand">Município</span><span class="di-obj">Objeto</span><span class="di-fn">Função</span><span class="di-in">Mod.</span><span class="di-et">Etapa</span><span class="di-votos">Valor R$</span></div>
   ${L.map(lin).join("")}
   <div class="di-tot"><span>Total · ${proj(T.n)}</span><b>${brl(T.v)}</b></div>
+  ${legenda}
   ${LS.length ? `<div class="di-st2" style="margin-top:14px">Suprimidas · fora das contas · ${ni(LS.length)} ${LS.length === 1 ? "item" : "itens"} · ${brl(T.vs)}</div>${LS.map(lin).join("")}` : ""}
   ${det ? `<div class="di-det"><div class="di-tit">Detalhamento</div><div class="di-sub">Somas do que está no filtro: ${esc(relFiltro())}.</div>
     ${tem("pg") ? tabPg : ""}
@@ -120,12 +130,14 @@ async function relXLSX(L, P, comSup) { const det = P && P.size, tem = (k) => P &
   const ws = wb.addWorksheet("Recursos", { views: [{ state: "frozen", ySplit: 4 }] }), V = "#,##0.00", B = { bold: true };
   ws.addRow([`Controle de Recursos · ${PARL.u || ""} (${PARL.p || ""})`]).font = { bold: true, size: 14 };
   ws.addRow([`Filtro: ${relFiltro()} · gerado em ${new Date().toLocaleString("pt-BR")}`]).font = { color: { argb: "FF6B7178" } }; ws.addRow([]);
-  const cab = ws.addRow(["#", "Ano", "Município", "Região", "Objeto", "Função", "Instrumento", "Origem", "Etapa", "Processo", "Beneficiário", "Valor (R$)", "Pago (R$)"]);
+  const cab = ws.addRow(["#", "Ano", "Município", "Região", "Objeto", "Função", "Modalidade", "Origem", "Etapa", "Processo", "Beneficiário", "Valor (R$)", "Pago (R$)"]);
+  const objC = (x) => x.objAnt ? { richText: [{ text: x.objAnt, font: { strike: true, color: { argb: "FF9AA0A4" } } }, { text: "\n" + x.obj }] } : x.obj;
+  const modS = (x) => { const g = typeof instrSig === "function" ? instrSig(x.r.modalidade) : ""; return MOD_OK.includes(g) ? g : ""; };
   cab.font = { bold: true, color: { argb: "FFFFFFFF" } }; cab.eachCell((c) => { c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1B2022" } }; });
   const A = L.filter((x) => !x.sup), Sp = comSup ? L.filter((x) => x.sup) : [];
-  A.forEach((x, i) => ws.addRow([i + 1, x.ano, x.mun, x.reg, x.obj, x.fun, x.ins, x.ori, x.st, x.proc, x.ben, x.v, x.p]));
+  A.forEach((x, i) => { const r = ws.addRow([i + 1, x.ano, x.mun, x.reg, objC(x), x.fun, modS(x), x.ori, x.st, x.proc, x.ben, x.v, x.p]); if (x.objAnt) r.getCell(5).alignment = { wrapText: true }; });
   const tl = ws.addRow(["", "", "Total", "", `${T.n} projetos · ${T.mun} municípios`, "", "", "", "", "", "", T.v, T.p]); tl.font = B;
-  if (Sp.length) { ws.addRow([]); ws.addRow(["", "", "Suprimidas (fora das contas)"]).font = { bold: true, color: { argb: "FF6B7178" } }; Sp.forEach((x, i) => { const r = ws.addRow([i + 1, x.ano, x.mun, x.reg, x.obj, x.fun, x.ins, x.ori, x.st, x.proc, x.ben, x.v, ""]); r.font = { color: { argb: "FF9AA0A4" } }; }); }
+  if (Sp.length) { ws.addRow([]); ws.addRow(["", "", "Suprimidas (fora das contas)"]).font = { bold: true, color: { argb: "FF6B7178" } }; Sp.forEach((x, i) => { const r = ws.addRow([i + 1, x.ano, x.mun, x.reg, objC(x), x.fun, modS(x), x.ori, x.st, x.proc, x.ben, x.v, ""]); r.font = { color: { argb: "FF9AA0A4" } }; }); }
   ws.getColumn(12).numFmt = V; ws.getColumn(13).numFmt = V;
   [5, 6, 22, 16, 52, 18, 20, 9, 14, 16, 30, 16, 16].forEach((w, i) => { ws.getColumn(i + 1).width = w; }); ws.autoFilter = { from: { row: 4, column: 1 }, to: { row: 4, column: 13 } };
   if (det) { const wd = wb.addWorksheet("Detalhamento"); wd.getColumn(1).width = 34; [2, 3, 4, 5].forEach((c) => { wd.getColumn(c).width = 16; });
