@@ -8,8 +8,9 @@ const DV = "20261016a";
 // cargo da página (18/10/2026): estadual ou federal, como o estado (?c=federal, senão o desta aba); federal = só o Eleitoral
 const CARGO = (() => { let v = new URLSearchParams(location.search).get("c"); if (!/^(estadual|federal)$/.test(v || "")) { try { v = sessionStorage.getItem("sl_cargo"); } catch (e) {} } if (!/^(estadual|federal)$/.test(v || "")) v = "estadual"; try { sessionStorage.setItem("sl_cargo", v); } catch (e) {} return v; })();
 // ?so=adm: só a seção Administrativo, sem capa nem topo, para o painel Gabinete embutir (mesmo código nas duas páginas)
-const SO_ADM = new URLSearchParams(location.search).get("so") === "adm";
-if (SO_ADM) document.documentElement.classList.add("emb-adm");
+// ?so=ele: só o Eleitoral (painel Gabinete › Eleitoral, fase 4)
+const SO_ = new URLSearchParams(location.search).get("so"), SO_ADM = SO_ === "adm", SO_ELE = SO_ === "ele";
+if (SO_ADM || SO_ELE) document.documentElement.classList.add("emb-adm");
 const FED = CARGO === "federal", CARGO_R = FED ? "Deputado federal" : "Deputado estadual", CG_LBL = { estadual: "Dep. Estadual", federal: "Dep. Federal" };
 const foto = (n, cg = CARGO) => `../dados/fotos/${UF}-2026/${cg}/${n}.jpg`;
 // lista de candidatos de outro cargo (comparações cruzadas no caderno e no mapa da cidade)
@@ -69,7 +70,7 @@ const ir = (n) => { history.pushState(null, "", "?c=" + CARGO + "&d=" + n); perf
 
 // ---------------- perfil ----------------
 function perfil(n) {
-  const c = D.c.find((x) => x.n === n); if (!c) return telaSelecao(); window._cAtual = c; if (SO_ADM) return perfilAdm(c); try { if (!FED) localStorage.setItem("sl_dep", n); } catch (e) {}
+  const c = D.c.find((x) => x.n === n); if (!c) return telaSelecao(); window._cAtual = c; if (SO_ADM) return perfilAdm(c); if (SO_ELE) return perfilEle(c); try { if (!FED) localStorage.setItem("sl_dep", n); } catch (e) {}
   tingir(COR_P[c.p] || "#34E84A");
   const E = eleitos(), pos = E.findIndex((x) => x.n === n) + 1, idx = [...Array(N).keys()], ordM = idx.filter((i) => c.v[i]).sort((a, b) => c.v[b] - c.v[a]), i0 = ordM[0];
   const posBase = D.c.filter((x) => (x.v[i0] || 0) > c.v[i0]).length + 1, pctMax = Math.max(...idx.map((i) => D.val[i] ? c.v[i] / D.val[i] : 0)), iPct = idx.find((i) => D.val[i] && c.v[i] / D.val[i] === pctMax);
@@ -100,6 +101,14 @@ function perfilAdm(c) {
   const avisa = () => { try { parent.postMessage({ slEmb: "adm", h: Math.ceil(($("#app") || document.body).getBoundingClientRect().bottom + 24) }, location.origin); } catch (e) {} };
   new ResizeObserver(avisa).observe($("#app") || document.body); avisa();
   document.addEventListener("click", (e) => { window._embY = e.pageY; }, true);
+}
+function avisarAltura(tipo) { const avisa = () => { try { parent.postMessage({ slEmb: tipo, h: Math.ceil(($("#app") || document.body).getBoundingClientRect().bottom + 24) }, location.origin); } catch (e) {} };
+  new ResizeObserver(avisa).observe($("#app") || document.body); avisa(); }
+// modo embutido (?so=ele): só o Eleitoral, já aberto (painel completo do parlamentar)
+function perfilEle(c) {
+  tingir(COR_P[c.p] || "#34E84A"); AB.painel = 1;
+  const ordM = [...Array(N).keys()].filter((i) => c.v[i]).sort((a, b) => c.v[b] - c.v[a]); window._ordM = ordM;
+  $("#app").innerHTML = secEleitoral(c); ligarEleitoral(c, ordM); revelar(); avisarAltura("ele");
 }
 // SP e outros estados (etapa 1): Legislativo e Administrativo ainda em preparação
 const emPreparo = () => ["s2", "s3"].map((id, k) => cabSec(id, "0" + (k + 2), k ? "Administrativo" : "Legislativo", k ? `Subsídio, verbas, gabinete e estrutura da ${UFI.casa}.` : `Regimento, comissões, proposições e prazos da ${UFI.casa}.`) + `<div class="bloco rv"><h3>Em preparação</h3><p>Esta parte de ${esc(UFI.nome)} está sendo levantada nas fontes oficiais da ${esc(UFI.casa)} e entra na próxima etapa. Por enquanto, o Eleitoral de ${esc(UFI.nome)} já está completo.</p></div></div></div></section>`).join("");

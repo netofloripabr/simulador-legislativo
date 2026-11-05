@@ -8,7 +8,8 @@
     ["04/11/2026", "\"A estrutura da Casa\" passa a se chamar Transparência e é subseção do Administrativo."],
     ["04/11/2026", "Rotina automática de servidores: Diário todo dia 22h30, portal todo dia 10."],
     ["04/11/2026", "Organização: este mapa é a lista oficial; o agente organizador-do-site é consultado antes de mudar a estrutura; protótipos ficam em prototipos/."],
-    ["04/11/2026", "RH - Gabinete fase 3: funções do parlamentar trazem sozinhas a estrutura pela norma; remover a função remove as indicações dela (com confirmação)."]
+    ["04/11/2026", "RH - Gabinete fase 3: funções do parlamentar trazem sozinhas a estrutura pela norma; remover a função remove as indicações dela (com confirmação)."],
+    ["04/11/2026", "Fase 4: o Gabinete › Eleitoral mostra o Eleitoral de Parlamentares (mesmo código, embutido). Faltam no Gabinete: Processo legislativo e Mailing."]
   ],
   "paginas": [
     {"id": "app", "nome": "Simulador (área principal)", "url": "index.html", "quem": "visitante", "status": "pronto", "arquivo": "index.html", "ancora": "Simulador Eleitoral",
@@ -35,7 +36,7 @@
      "filhos": [
       {"nome": "Outros estados: Legislativo e Administrativo Em preparação", "status": "construcao", "quem": "visitante", "arquivo": "painel/novos.js", "ancora": "const emPreparo", "nota": "SP já tem parte do Legislativo (novos-uf.js); os demais estados mostram só o Eleitoral."},
       {"nome": "Capa do parlamentar (mapa, votos, caderno)", "status": "pronto", "quem": "visitante", "arquivo": "painel/novos.js", "ancora": "heroMapa"},
-      {"nome": "01 · Eleitoral", "status": "pronto", "quem": "visitante", "arquivo": "painel/novos.js", "ancora": "function secEleitoral", "vai_para": "Gabinete › Eleitoral (fase 4)", "filhos": [
+      {"nome": "01 · Eleitoral", "status": "pronto", "quem": "visitante", "arquivo": "painel/novos.js", "ancora": "function secEleitoral", "nota": "A mesma seção aparece no Gabinete › Eleitoral (novos.html?so=ele).", "filhos": [
         {"nome": "Painel completo embutido (ranking e mapa)", "status": "pronto", "quem": "visitante", "arquivo": "painel/novos.js", "ancora": "index.html?embed=1"}]},
       {"nome": "02 · Legislativo", "status": "pronto", "quem": "cadastrado", "arquivo": "painel/novos.js", "ancora": "function secLegislativo", "filhos": [
         {"nome": "Calendário do mandato", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Calendário do mandato"},
@@ -83,7 +84,7 @@
           {"nome": "Outros cargos", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "Outros cargos"}]},
         {"nome": "Blocos do Administrativo de Parlamentares (embutidos)", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "so=adm", "nota": "Subsídio e verbas, Estrutura do gabinete, Verbas, Liderança, Transparência, O mandato em números."}]},
       {"nome": "Processo legislativo", "status": "planejado", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "Processo legislativo"},
-      {"nome": "Eleitoral", "status": "planejado", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "\"Eleitoral\"", "nota": "Fase 4: recebe o Eleitoral de Parlamentares."},
+      {"nome": "Eleitoral", "status": "pronto", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "so=ele", "nota": "O Eleitoral de Parlamentares (painel completo do parlamentar), embutido: novos.html?so=ele."},
       {"nome": "Mailing", "status": "planejado", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "\"Mailing\""}]},
 
     {"id": "rotinas", "nome": "Rotinas automáticas (bastidor)", "quem": "admin", "status": "pronto", "arquivo": "ferramentas/diario/rotina.mjs", "ancora": "async function diario",
