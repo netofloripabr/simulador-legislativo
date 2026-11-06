@@ -428,6 +428,16 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 #mtab.claro .av{ color:#3F454B; } #mtab.claro .mais{ color:#111; }
 /* títulos alinhados com os dados: a seta não ocupa espaço, fica logo depois do nome */
 .pz th{ position:relative; } .pz th i{ position:absolute; margin-left:4px; } #mtab .pz th.c7{ text-align:right !important; } #mtab .pz th.c7 i{ position:static; margin:0 4px 0 0; } #mtab .pz th.c1, #mtab .pz th.c2, #mtab .pz th.c5, #mtab .pz th.c6{ text-align:center !important; } #mtab .pz th.c0{ text-align:right !important; }
+
+/* Controle (06/11): dados sem negrito; colunas do tamanho do conteúdo e o Objeto com o resto; R$ centrado sobre a etiqueta */
+#mtab .pz td, #mtab .pz td b, #mtab .pz td .modc, #mtab .pz .pz-val{ font-weight:400; }
+#mtab .pz .pz-eto b, #mtab .pz .pz-eto span{ font-weight:500; }
+#mtab .pz th, #mtab .pz td{ width:1%; white-space:nowrap; padding-left:11px; padding-right:11px; }
+#mtab .pz .c4{ width:auto; white-space:normal; min-width:200px; }
+#mtab .pz .c3{ white-space:normal; min-width:110px; } #mtab .pz .c10{ white-space:normal; min-width:90px; max-width:170px; }
+#mtab .pz td.c7, #mtab .pz th.c7{ text-align:center !important; } #mtab .pz th.c7 i{ position:absolute; margin:0 0 0 4px; }
+#mtab .pz td.c9{ padding-left:6px; padding-right:6px; }
+#mtab .pz td small{ font-weight:400; } #mtab .pz .c11{ white-space:normal; min-width:96px; max-width:120px; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -439,7 +449,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=101"></script>
+<script src="gabinete.js?cb=102"></script>
 <script src="gabinete-rh.js?cb=2"></script>
 <script src="gabinete-adicionar.js?cb=18"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
