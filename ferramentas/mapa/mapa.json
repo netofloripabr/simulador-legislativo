@@ -49,6 +49,10 @@
   [
    "06/11/2026",
    "Controle do Gabinete segue o padrão do documento impresso; planilha pode ser escura ou branca (interruptor) e os filtros menos usados ficam atrás do botão '…'."
+  ],
+  [
+   "06/11/2026",
+   "Filtros do Controle viram listas de valores marcáveis (como no Google Planilhas); em Cotas, 'Evolução do total' e 'Por tipo de cota' viram um painel só, 'Cotas por ano', com 4 formatos."
   ]
  ],
  "paginas": [
@@ -404,7 +408,7 @@
        "status": "pronto",
        "arquivo": "painel/gabinete.js",
        "ancora": "\"Controle\"",
-       "nota": "Tabela no padrão do documento impresso (# · Ano · Origem · Município · Objeto · Função · Mod. · R$ · Status · Processo · balão · Observações), todas as colunas sempre visíveis. Filtros: 1ª linha Município, Região, Origem e Mod., mais botão '…' com os demais (Etapa, Lista, Líder, Função, Beneficiário, Etiqueta, Nº da emenda, Observação, Etiquetar em grupo); borracha e impressora na 1ª linha.",
+       "nota": "Tabela no padrão do documento impresso (# · Ano · Origem · Município · Objeto · Função · Mod. · R$ · Status · Processo · balão · Observações), todas as colunas sempre visíveis. Filtros: 1ª linha Município, Região, Origem e Mod., mais botão '…' com os demais (Etapa, Lista, Líder, Função, Beneficiário, Etiqueta, Nº da emenda, Observação, Etiquetar em grupo); borracha e impressora na 1ª linha. Município, Região, Origem, Mod., Líder, Função, Beneficiário e Etiqueta funcionam como no Google Planilhas: abrem a lista de todos os valores já marcados, com pesquisa, quantidade, 'Selecionar tudo' e 'Limpar' (desmarcar esconde); Etapa, Lista de indicação e Observação seguem listas simples. No detalhe do item (clicar na linha), as etiquetas e o '+ etiqueta' ficam entre a linha do tempo e o Objeto.",
        "filhos": [
         {
          "nome": "Barra das 5 etapas (clicável para filtrar)",
@@ -433,7 +437,16 @@
        "nome": "Cotas",
        "status": "pronto",
        "arquivo": "painel/gabinete-cotas.js",
-       "ancora": "function"
+       "ancora": "painelCotas",
+       "filhos": [
+        {
+         "nome": "Cotas por ano (painel de gráficos)",
+         "status": "pronto",
+         "arquivo": "painel/gabinete-cotas.js",
+         "ancora": "painelCotas",
+         "nota": "Junta os antigos 'Evolução do total' e 'Por tipo de cota'. Quatro formatos em abas: Bullet (padrão, valor x quota), Barras empilhadas, Área empilhada e 100%. Filtros 'Tipo de cota' e 'Separar por' (tipo, área, instrumento, região, município). Clicar no ano abre a lista de indicações; clicar numa parte filtra."
+        }
+       ]
       },
       {
        "nome": "Transparência SC (dados oficiais)",
