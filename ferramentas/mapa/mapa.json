@@ -1,103 +1,567 @@
 {
-  "_leia": "Mapa do site SimulaLEGIS: a lista oficial do que existe, onde está e para onde vai. Fonte de verdade da organização. Quem mantém: o agente organizador-do-site (.claude/agents/organizador-do-site.md). Depois de editar, rodar: python3 ferramentas/mapa/gerar_mapa.py (confere com o código e gera ferramentas/mapa/mapa.html). Campos: status = pronto | construcao | prototipo | planejado | pausado; quem = visitante | cadastrado | gabinete (liberado pelo admin) | admin; arquivo + ancora = onde o item está no código (o gerador confere se o texto da âncora existe no arquivo); vai_para = mudança combinada com o usuário.",
-  "atualizado": "2026-11-04",
-  "decisoes": [
-    ["04/11/2026", "Pós-eleição: o centro do projeto passa a ser o painel Gabinete (vertente administrativa para o usuário cadastrado)."],
-    ["04/11/2026", "Parlamentares continua público; o Gabinete mostra as mesmas seções (mesmo código, embutido) junto com os dados do próprio gabinete."],
-    ["04/11/2026", "Gabinete: só gabinetes liberados pelo admin; cada um vê e edita o seu. RH - Gabinete salvo na conta (banco)."],
-    ["04/11/2026", "\"A estrutura da Casa\" passa a se chamar Transparência e é subseção do Administrativo."],
-    ["04/11/2026", "Rotina automática de servidores: Diário todo dia 22h30, portal todo dia 10."],
-    ["04/11/2026", "Organização: este mapa é a lista oficial; o agente organizador-do-site é consultado antes de mudar a estrutura; protótipos ficam em prototipos/."],
-    ["04/11/2026", "RH - Gabinete fase 3: funções do parlamentar trazem sozinhas a estrutura pela norma; remover a função remove as indicações dela (com confirmação)."],
-    ["04/11/2026", "Fase 4: o Gabinete › Eleitoral mostra o Eleitoral de Parlamentares (mesmo código, embutido). Faltam no Gabinete: Processo legislativo e Mailing."],
-    ["05/11/2026", "Página inicial de quem tem gabinete liberado = Gabinete. Menu em palco ficou como referência visual (prototipos/_proto-menu.html); a estrutura atual das páginas continua."],
-    ["05/11/2026", "O sistema exige cadastro: nada abre sem conta, nem links compartilhados (painel/exige-conta.js e a entrada do app). Legislativo, Administrativo e valores continuam com liberação do admin."],
-    ["05/11/2026", "Gabinete serve a qualquer deputado vinculado: Controle, Cotas, Indicar e o aviso da LOA valem para o parlamentar da conta; os dados privados ficam separados por parlamentar (migração 98)."]
+ "_leia": "Mapa do site SimulaLEGIS: a lista oficial do que existe, onde está e para onde vai. Fonte de verdade da organização. Quem mantém: o agente organizador-do-site (.claude/agents/organizador-do-site.md). Depois de editar, rodar: python3 ferramentas/mapa/gerar_mapa.py (confere com o código e gera ferramentas/mapa/mapa.html). Campos: status = pronto | construcao | prototipo | planejado | pausado; quem = visitante | cadastrado | gabinete (liberado pelo admin) | admin; arquivo + ancora = onde o item está no código (o gerador confere se o texto da âncora existe no arquivo); vai_para = mudança combinada com o usuário.",
+ "atualizado": "2026-11-04",
+ "decisoes": [
+  [
+   "04/11/2026",
+   "Pós-eleição: o centro do projeto passa a ser o painel Gabinete (vertente administrativa para o usuário cadastrado)."
   ],
-  "paginas": [
-    {"id": "app", "nome": "Simulador (área principal)", "url": "index.html", "quem": "cadastrado", "status": "pronto", "arquivo": "index.html", "ancora": "Simulador Eleitoral",
-     "nota": "Palpite eleitoral 2026, listas, grupos e duelos. Foco da fase eleitoral; depois da eleição vira porta de entrada.",
+  [
+   "04/11/2026",
+   "Parlamentares continua público; o Gabinete mostra as mesmas seções (mesmo código, embutido) junto com os dados do próprio gabinete."
+  ],
+  [
+   "04/11/2026",
+   "Gabinete: só gabinetes liberados pelo admin; cada um vê e edita o seu. RH - Gabinete salvo na conta (banco)."
+  ],
+  [
+   "04/11/2026",
+   "\"A estrutura da Casa\" passa a se chamar Transparência e é subseção do Administrativo."
+  ],
+  [
+   "04/11/2026",
+   "Rotina automática de servidores: Diário todo dia 22h30, portal todo dia 10."
+  ],
+  [
+   "04/11/2026",
+   "Organização: este mapa é a lista oficial; o agente organizador-do-site é consultado antes de mudar a estrutura; protótipos ficam em prototipos/."
+  ],
+  [
+   "04/11/2026",
+   "RH - Gabinete fase 3: funções do parlamentar trazem sozinhas a estrutura pela norma; remover a função remove as indicações dela (com confirmação)."
+  ],
+  [
+   "04/11/2026",
+   "Fase 4: o Gabinete › Eleitoral mostra o Eleitoral de Parlamentares (mesmo código, embutido). Faltam no Gabinete: Processo legislativo e Mailing."
+  ],
+  [
+   "05/11/2026",
+   "Página inicial de quem tem gabinete liberado = Gabinete. Menu em palco ficou como referência visual (prototipos/_proto-menu.html); a estrutura atual das páginas continua."
+  ],
+  [
+   "05/11/2026",
+   "O sistema exige cadastro: nada abre sem conta, nem links compartilhados (painel/exige-conta.js e a entrada do app). Legislativo, Administrativo e valores continuam com liberação do admin."
+  ],
+  [
+   "05/11/2026",
+   "Gabinete serve a qualquer deputado vinculado: Controle, Cotas, Indicar e o aviso da LOA valem para o parlamentar da conta; os dados privados ficam separados por parlamentar (migração 98)."
+  ],
+  [
+   "06/11/2026",
+   "Controle do Gabinete segue o padrão do documento impresso; planilha pode ser escura ou branca (interruptor) e os filtros menos usados ficam atrás do botão '…'."
+  ]
+ ],
+ "paginas": [
+  {
+   "id": "app",
+   "nome": "Simulador (área principal)",
+   "url": "index.html",
+   "quem": "cadastrado",
+   "status": "pronto",
+   "arquivo": "index.html",
+   "ancora": "Simulador Eleitoral",
+   "nota": "Palpite eleitoral 2026, listas, grupos e duelos. Foco da fase eleitoral; depois da eleição vira porta de entrada.",
+   "filhos": [
+    {
+     "nome": "Abertura e escolha do estado",
+     "status": "pronto",
+     "quem": "visitante",
+     "arquivo": "interface/10-boot.js",
+     "ancora": "renderLanding",
+     "nota": "Sem conta, toda entrada abre a tela de entrar ou se cadastrar (inclusive links compartilhados, que voltam depois do login). Logado vai para Parlamentares; com gabinete liberado, direto para o Gabinete (05/11/2026)."
+    },
+    {
+     "nome": "Entrar, cadastro e perfil",
+     "status": "pronto",
+     "quem": "visitante",
+     "arquivo": "interface/20-acesso.js",
+     "ancora": "renderTelaLogin"
+    },
+    {
+     "nome": "Painel principal (Lobby)",
+     "status": "pronto",
+     "quem": "cadastrado",
+     "arquivo": "interface/30-painel.js",
+     "ancora": "renderPainelPrincipal"
+    },
+    {
+     "nome": "Montar o palpite (Senador e Deputados)",
+     "status": "pronto",
+     "quem": "visitante",
+     "arquivo": "interface/80-selecao.js",
+     "ancora": "faderDepHtml"
+    },
+    {
+     "nome": "Revisão e disputa das sobras",
+     "status": "pronto",
+     "quem": "visitante",
+     "arquivo": "interface/90-revisao.js",
+     "ancora": "renderRevisaoDeposito"
+    },
+    {
+     "nome": "Minhas listas e compartilhar",
+     "status": "pronto",
+     "quem": "cadastrado",
+     "arquivo": "interface/50-listas.js",
+     "ancora": "executarSalvarLista"
+    },
+    {
+     "nome": "Grupos privados",
+     "status": "pronto",
+     "quem": "cadastrado",
+     "arquivo": "interface/60-grupos.js",
+     "ancora": "montarComparacaoGrupo"
+    },
+    {
+     "nome": "Desafios 1×1 (duelos)",
+     "status": "pronto",
+     "quem": "cadastrado",
+     "arquivo": "interface/70-duelos.js",
+     "ancora": "function"
+    },
+    {
+     "nome": "Carteira, loja e notificações",
+     "status": "pronto",
+     "quem": "cadastrado",
+     "arquivo": "interface/30-painel.js",
+     "ancora": "carteira"
+    },
+    {
+     "nome": "Painel do administrador",
+     "status": "pronto",
+     "quem": "admin",
+     "arquivo": "interface/40-admin.js",
+     "ancora": "montarAdminServidores",
      "filhos": [
-      {"nome": "Abertura e escolha do estado", "status": "pronto", "quem": "visitante", "arquivo": "interface/10-boot.js", "ancora": "renderLanding", "nota": "Sem conta, toda entrada abre a tela de entrar ou se cadastrar (inclusive links compartilhados, que voltam depois do login). Logado vai para Parlamentares; com gabinete liberado, direto para o Gabinete (05/11/2026)."},
-      {"nome": "Entrar, cadastro e perfil", "status": "pronto", "quem": "visitante", "arquivo": "interface/20-acesso.js", "ancora": "renderTelaLogin"},
-      {"nome": "Painel principal (Lobby)", "status": "pronto", "quem": "cadastrado", "arquivo": "interface/30-painel.js", "ancora": "renderPainelPrincipal"},
-      {"nome": "Montar o palpite (Senador e Deputados)", "status": "pronto", "quem": "visitante", "arquivo": "interface/80-selecao.js", "ancora": "faderDepHtml"},
-      {"nome": "Revisão e disputa das sobras", "status": "pronto", "quem": "visitante", "arquivo": "interface/90-revisao.js", "ancora": "renderRevisaoDeposito"},
-      {"nome": "Minhas listas e compartilhar", "status": "pronto", "quem": "cadastrado", "arquivo": "interface/50-listas.js", "ancora": "executarSalvarLista"},
-      {"nome": "Grupos privados", "status": "pronto", "quem": "cadastrado", "arquivo": "interface/60-grupos.js", "ancora": "montarComparacaoGrupo"},
-      {"nome": "Desafios 1×1 (duelos)", "status": "pronto", "quem": "cadastrado", "arquivo": "interface/70-duelos.js", "ancora": "function"},
-      {"nome": "Carteira, loja e notificações", "status": "pronto", "quem": "cadastrado", "arquivo": "interface/30-painel.js", "ancora": "carteira"},
-      {"nome": "Painel do administrador", "status": "pronto", "quem": "admin", "arquivo": "interface/40-admin.js", "ancora": "montarAdminServidores",
+      {
+       "nome": "Servidores (busca e perfil do servidor)",
+       "status": "pronto",
+       "quem": "admin",
+       "arquivo": "interface/40-admin.js",
+       "ancora": "Servidores da ALESC",
+       "dados": "banco: adm_servidores, adm_atos, adm_contracheques, adm_notas"
+      },
+      {
+       "nome": "Rotinas (migrações e tarefas)",
+       "status": "pronto",
+       "quem": "admin",
+       "arquivo": "interface/40-admin.js",
+       "ancora": "Rotinas"
+      },
+      {
+       "nome": "Erros do navegador",
+       "status": "pronto",
+       "quem": "admin",
+       "arquivo": "interface/40-admin.js",
+       "ancora": "Erros"
+      },
+      {
+       "nome": "Acessos (liberar Parlamentares e Gabinete)",
+       "status": "pronto",
+       "quem": "admin",
+       "arquivo": "interface/40-admin.js",
+       "ancora": "Acessos"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "parlamentares",
+   "nome": "Parlamentares",
+   "url": "painel/novos.html",
+   "quem": "cadastrado",
+   "status": "pronto",
+   "arquivo": "painel/novos.js",
+   "ancora": "secAdministrativo",
+   "nota": "Consulta pública por parlamentar. Legislativo e Administrativo pedem conta; valores em R$ pedem liberação.",
+   "filhos": [
+    {
+     "nome": "Outros estados: Legislativo e Administrativo Em preparação",
+     "status": "construcao",
+     "quem": "visitante",
+     "arquivo": "painel/novos.js",
+     "ancora": "const emPreparo",
+     "nota": "SP já tem parte do Legislativo (novos-uf.js); os demais estados mostram só o Eleitoral."
+    },
+    {
+     "nome": "Capa do parlamentar (mapa, votos, caderno)",
+     "status": "pronto",
+     "quem": "visitante",
+     "arquivo": "painel/novos.js",
+     "ancora": "heroMapa"
+    },
+    {
+     "nome": "01 · Eleitoral",
+     "status": "pronto",
+     "quem": "visitante",
+     "arquivo": "painel/novos.js",
+     "ancora": "function secEleitoral",
+     "nota": "A mesma seção aparece no Gabinete › Eleitoral (novos.html?so=ele).",
+     "filhos": [
+      {
+       "nome": "Painel completo embutido (ranking e mapa)",
+       "status": "pronto",
+       "quem": "visitante",
+       "arquivo": "painel/novos.js",
+       "ancora": "index.html?embed=1"
+      }
+     ]
+    },
+    {
+     "nome": "02 · Legislativo",
+     "status": "pronto",
+     "quem": "cadastrado",
+     "arquivo": "painel/novos.js",
+     "ancora": "function secLegislativo",
+     "filhos": [
+      {
+       "nome": "Calendário do mandato",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Calendário do mandato"
+      },
+      {
+       "nome": "Rotina semanal",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Rotina semanal"
+      },
+      {
+       "nome": "Votação e quórum",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Votação e quórum"
+      },
+      {
+       "nome": "Trilha das propostas",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Trilha das propostas"
+      },
+      {
+       "nome": "Tipos de proposição",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Tipos de proposição"
+      },
+      {
+       "nome": "Prazos de análise",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Prazos de análise"
+      },
+      {
+       "nome": "Orçamento e emendas impositivas",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Orçamento e emendas impositivas"
+      },
+      {
+       "nome": "ALESC26 (composição da Casa)",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "ALESC26"
+      },
+      {
+       "nome": "Comissões",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Comissões: "
+      },
+      {
+       "nome": "Frentes e fóruns parlamentares",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Frentes e fóruns parlamentares"
+      },
+      {
+       "nome": "Eventos: audiências, seminários e sessões",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Eventos: audiências"
+      }
+     ]
+    },
+    {
+     "nome": "03 · Administrativo",
+     "status": "pronto",
+     "quem": "cadastrado",
+     "arquivo": "painel/novos.js",
+     "ancora": "function secAdministrativo",
+     "nota": "A mesma seção aparece no Gabinete › Administrativo (novos.html?so=adm).",
+     "filhos": [
+      {
+       "nome": "Subsídio e verbas do parlamentar",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Subsídio e verbas do parlamentar"
+      },
+      {
+       "nome": "Estrutura do gabinete (cota de nomeações)",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Estrutura do gabinete"
+      },
+      {
+       "nome": "Verbas indenizatórias",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Verbas indenizatórias"
+      },
+      {
+       "nome": "Simulador de gabinete",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "Simulador de gabinete",
+       "nota": "Só em Parlamentares, salvo no navegador. No Gabinete foi substituído pelo RH - Gabinete."
+      },
+      {
+       "nome": "Liderança do partido",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "function ligarLideranca"
+      },
+      {
+       "nome": "Transparência (era A estrutura da Casa)",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "<h3>Transparência</h3>",
+       "dados": "dados/painel/estrutura-casa.json (rotina mensal do portal)",
        "filhos": [
-        {"nome": "Servidores (busca e perfil do servidor)", "status": "pronto", "quem": "admin", "arquivo": "interface/40-admin.js", "ancora": "Servidores da ALESC", "dados": "banco: adm_servidores, adm_atos, adm_contracheques, adm_notas"},
-        {"nome": "Rotinas (migrações e tarefas)", "status": "pronto", "quem": "admin", "arquivo": "interface/40-admin.js", "ancora": "Rotinas"},
-        {"nome": "Erros do navegador", "status": "pronto", "quem": "admin", "arquivo": "interface/40-admin.js", "ancora": "Erros"},
-        {"nome": "Acessos (liberar Parlamentares e Gabinete)", "status": "pronto", "quem": "admin", "arquivo": "interface/40-admin.js", "ancora": "Acessos"}]}]},
-
-    {"id": "parlamentares", "nome": "Parlamentares", "url": "painel/novos.html", "quem": "cadastrado", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "secAdministrativo",
-     "nota": "Consulta pública por parlamentar. Legislativo e Administrativo pedem conta; valores em R$ pedem liberação.",
+        {
+         "nome": "Estrutura da Casa: por tipo de unidade ou organograma",
+         "status": "pronto",
+         "arquivo": "painel/novos.js",
+         "ancora": "Organograma da ALESC"
+        },
+        {
+         "nome": "Duodécimo (no fim da seção)",
+         "status": "pronto",
+         "arquivo": "painel/novos.js",
+         "ancora": "ec-orc"
+        }
+       ]
+      },
+      {
+       "nome": "O mandato em números",
+       "status": "pronto",
+       "arquivo": "painel/novos.js",
+       "ancora": "O mandato em números"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ranking",
+   "nome": "Ranking",
+   "url": "painel/index.html",
+   "quem": "cadastrado",
+   "status": "pronto",
+   "arquivo": "painel/index.html",
+   "ancora": "Ranking dos candidatos",
+   "nota": "Ranking dos candidatos e mapa de Santa Catarina em pontos. É o painel que Parlamentares › Eleitoral embute."
+  },
+  {
+   "id": "mesa",
+   "nome": "Mesa (Corrida da Mesa)",
+   "url": "painel/mesa.html",
+   "quem": "cadastrado",
+   "status": "pronto",
+   "arquivo": "painel/mesa.js",
+   "ancora": "Jogo da ",
+   "nota": "Simulação da eleição da Mesa Diretora e das estruturas da Mesa."
+  },
+  {
+   "id": "gabinete",
+   "nome": "Gabinete",
+   "url": "painel/gabinete.html",
+   "quem": "gabinete",
+   "status": "construcao",
+   "arquivo": "painel/gabinete.js",
+   "ancora": "const TITULOS",
+   "nota": "Centro do projeto depois da eleição. Cada conta liberada fica vinculada a um parlamentar.",
+   "filhos": [
+    {
+     "nome": "Capa do gabinete: cartões Recursos e Votos, mapa e lupa",
+     "status": "pronto",
+     "quem": "gabinete",
+     "arquivo": "painel/gabinete.js",
+     "ancora": "function ligarBusca",
+     "nota": "A lupa (ao lado de Votos/Recursos) busca município ou região (associação, micro, mesorregião); os cartões e o mapa passam a mostrar só a área. Clicar no mapa seleciona o município. Com região escolhida, a capa abre embaixo o ranking dos municípios (5 primeiros e ver os outros), com votos 2026, 2022 e recursos."
+    },
+    {
+     "nome": "Controle de Recursos (Controle, Cotas e Transparência SC)",
+     "status": "pronto",
+     "quem": "gabinete",
+     "arquivo": "painel/gabinete.js",
+     "ancora": "Controle de Recursos",
+     "dados": "banco: gab_recursos, gab_demandas; dados/gabinete (emendas públicas, todo dia)",
      "filhos": [
-      {"nome": "Outros estados: Legislativo e Administrativo Em preparação", "status": "construcao", "quem": "visitante", "arquivo": "painel/novos.js", "ancora": "const emPreparo", "nota": "SP já tem parte do Legislativo (novos-uf.js); os demais estados mostram só o Eleitoral."},
-      {"nome": "Capa do parlamentar (mapa, votos, caderno)", "status": "pronto", "quem": "visitante", "arquivo": "painel/novos.js", "ancora": "heroMapa"},
-      {"nome": "01 · Eleitoral", "status": "pronto", "quem": "visitante", "arquivo": "painel/novos.js", "ancora": "function secEleitoral", "nota": "A mesma seção aparece no Gabinete › Eleitoral (novos.html?so=ele).", "filhos": [
-        {"nome": "Painel completo embutido (ranking e mapa)", "status": "pronto", "quem": "visitante", "arquivo": "painel/novos.js", "ancora": "index.html?embed=1"}]},
-      {"nome": "02 · Legislativo", "status": "pronto", "quem": "cadastrado", "arquivo": "painel/novos.js", "ancora": "function secLegislativo", "filhos": [
-        {"nome": "Calendário do mandato", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Calendário do mandato"},
-        {"nome": "Rotina semanal", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Rotina semanal"},
-        {"nome": "Votação e quórum", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Votação e quórum"},
-        {"nome": "Trilha das propostas", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Trilha das propostas"},
-        {"nome": "Tipos de proposição", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Tipos de proposição"},
-        {"nome": "Prazos de análise", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Prazos de análise"},
-        {"nome": "Orçamento e emendas impositivas", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Orçamento e emendas impositivas"},
-        {"nome": "ALESC26 (composição da Casa)", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "ALESC26"},
-        {"nome": "Comissões", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Comissões: "},
-        {"nome": "Frentes e fóruns parlamentares", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Frentes e fóruns parlamentares"},
-        {"nome": "Eventos: audiências, seminários e sessões", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Eventos: audiências"}]},
-      {"nome": "03 · Administrativo", "status": "pronto", "quem": "cadastrado", "arquivo": "painel/novos.js", "ancora": "function secAdministrativo", "nota": "A mesma seção aparece no Gabinete › Administrativo (novos.html?so=adm).", "filhos": [
-        {"nome": "Subsídio e verbas do parlamentar", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Subsídio e verbas do parlamentar"},
-        {"nome": "Estrutura do gabinete (cota de nomeações)", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Estrutura do gabinete"},
-        {"nome": "Verbas indenizatórias", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Verbas indenizatórias"},
-        {"nome": "Simulador de gabinete", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Simulador de gabinete", "nota": "Só em Parlamentares, salvo no navegador. No Gabinete foi substituído pelo RH - Gabinete."},
-        {"nome": "Liderança do partido", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "function ligarLideranca"},
-        {"nome": "Transparência (era A estrutura da Casa)", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "<h3>Transparência</h3>", "dados": "dados/painel/estrutura-casa.json (rotina mensal do portal)", "filhos": [
-          {"nome": "Estrutura da Casa: por tipo de unidade ou organograma", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "Organograma da ALESC"},
-          {"nome": "Duodécimo (no fim da seção)", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "ec-orc"}]},
-        {"nome": "O mandato em números", "status": "pronto", "arquivo": "painel/novos.js", "ancora": "O mandato em números"}]}]},
-
-    {"id": "ranking", "nome": "Ranking", "url": "painel/index.html", "quem": "cadastrado", "status": "pronto", "arquivo": "painel/index.html", "ancora": "Ranking dos candidatos",
-     "nota": "Ranking dos candidatos e mapa de Santa Catarina em pontos. É o painel que Parlamentares › Eleitoral embute."},
-
-    {"id": "mesa", "nome": "Mesa (Corrida da Mesa)", "url": "painel/mesa.html", "quem": "cadastrado", "status": "pronto", "arquivo": "painel/mesa.js", "ancora": "Jogo da ",
-     "nota": "Simulação da eleição da Mesa Diretora e das estruturas da Mesa."},
-
-    {"id": "gabinete", "nome": "Gabinete", "url": "painel/gabinete.html", "quem": "gabinete", "status": "construcao", "arquivo": "painel/gabinete.js", "ancora": "const TITULOS",
-     "nota": "Centro do projeto depois da eleição. Cada conta liberada fica vinculada a um parlamentar.",
+      {
+       "nome": "Controle (dados do gabinete)",
+       "status": "pronto",
+       "arquivo": "painel/gabinete.js",
+       "ancora": "\"Controle\"",
+       "nota": "Tabela no padrão do documento impresso (# · Ano · Origem · Município · Objeto · Função · Mod. · R$ · Status · Processo · balão · Observações), todas as colunas sempre visíveis. Filtros: 1ª linha Município, Região, Origem e Mod., mais botão '…' com os demais (Etapa, Lista, Líder, Função, Beneficiário, Etiqueta, Nº da emenda, Observação, Etiquetar em grupo); borracha e impressora na 1ª linha.",
+       "filhos": [
+        {
+         "nome": "Barra das 5 etapas (clicável para filtrar)",
+         "status": "pronto",
+         "arquivo": "painel/gabinete.js",
+         "ancora": "const ETAPAS",
+         "nota": "Indicada, Empenhada, Em pagamento, Paga, Impedimento técnico; a mesma da Transparência SC, acima da tabela."
+        },
+        {
+         "nome": "Interruptor fundo escuro/branco da tabela (lua/sol)",
+         "status": "pronto",
+         "arquivo": "painel/gabinete.js",
+         "ancora": "gab_ctl_claro",
+         "nota": "Fica à esquerda do seletor de Ano; a escolha fica guardada no navegador."
+        }
+       ]
+      },
+      {
+       "nome": "Imprimir ou exportar (PDF e Excel)",
+       "status": "pronto",
+       "arquivo": "painel/gabinete-relatorio.js",
+       "ancora": "function relAbrir",
+       "nota": "Relatório do Controle (PDF/Excel) no novo padrão de documento impresso, com as cores de fundo."
+      },
+      {
+       "nome": "Cotas",
+       "status": "pronto",
+       "arquivo": "painel/gabinete-cotas.js",
+       "ancora": "function"
+      },
+      {
+       "nome": "Transparência SC (dados oficiais)",
+       "status": "pronto",
+       "arquivo": "painel/gabinete.js",
+       "ancora": "Transparência SC"
+      },
+      {
+       "nome": "Outros deputados",
+       "status": "pronto",
+       "arquivo": "painel/gabinete.js",
+       "ancora": "Outros deputad"
+      },
+      {
+       "nome": "Indicar (planilha de indicação e links dos líderes)",
+       "status": "prototipo",
+       "arquivo": "painel/gabinete-indicar.js",
+       "ancora": "function",
+       "nota": "Links por líder: só protótipo, não implementado."
+      }
+     ]
+    },
+    {
+     "nome": "Administrativo (era RH)",
+     "status": "pronto",
+     "quem": "gabinete",
+     "arquivo": "painel/gabinete.js",
+     "ancora": "\"Administrativo\"",
      "filhos": [
-      {"nome": "Capa do gabinete: cartões Recursos e Votos, mapa e lupa", "status": "pronto", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "function ligarBusca", "nota": "A lupa (ao lado de Votos/Recursos) busca município ou região (associação, micro, mesorregião); os cartões e o mapa passam a mostrar só a área. Clicar no mapa seleciona o município. Com região escolhida, a capa abre embaixo o ranking dos municípios (5 primeiros e ver os outros), com votos 2026, 2022 e recursos."},
-      {"nome": "Controle de Recursos (Controle, Cotas e Transparência SC)", "status": "pronto", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "Controle de Recursos", "dados": "banco: gab_recursos, gab_demandas; dados/gabinete (emendas públicas, todo dia)", "filhos": [
-        {"nome": "Controle (dados do gabinete)", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "\"Controle\"", "nota": "Filtros com vários municípios; impressora ao lado da borracha: PDF ou Excel do que está no filtro, com detalhamento opcional."},
-        {"nome": "Imprimir ou exportar (PDF e Excel)", "status": "pronto", "arquivo": "painel/gabinete-relatorio.js", "ancora": "function relAbrir"},
-        {"nome": "Cotas", "status": "pronto", "arquivo": "painel/gabinete-cotas.js", "ancora": "function"},
-        {"nome": "Transparência SC (dados oficiais)", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "Transparência SC"},
-        {"nome": "Outros deputados", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "Outros deputad"},
-        {"nome": "Indicar (planilha de indicação e links dos líderes)", "status": "prototipo", "arquivo": "painel/gabinete-indicar.js", "ancora": "function", "nota": "Links por líder: só protótipo, não implementado."}]},
-      {"nome": "Administrativo (era RH)", "status": "pronto", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "\"Administrativo\"", "filhos": [
-        {"nome": "RH - Gabinete", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "function rhDesenhar", "dados": "banco: gab_cargos (migração 97)", "nota": "Salvo na conta. As funções do parlamentar (líder, Mesa, presidente ou membro de comissão) criam sozinhas as vagas que trazem em Cargos da ALESC somados.", "filhos": [
-          {"nome": "Cargos do parlamentar", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "Cargos do parlamentar"},
-          {"nome": "Gabinete parlamentar", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "Gabinete parlamentar"},
-          {"nome": "Cargos da ALESC somados", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "function rhDerivadas", "nota": "Uma subunidade por estrutura trazida (Liderança, gabinete da Mesa, comissão) e o que veio do catálogo."},
-          {"nome": "Outros cargos", "status": "pronto", "arquivo": "painel/gabinete-rh.js", "ancora": "Outros cargos"}]},
-        {"nome": "Blocos do Administrativo de Parlamentares (embutidos)", "status": "pronto", "arquivo": "painel/gabinete.js", "ancora": "so=adm", "nota": "Subsídio e verbas, Estrutura do gabinete, Verbas, Liderança, Transparência, O mandato em números."}]},
-      {"nome": "Processo legislativo", "status": "planejado", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "Processo legislativo"},
-      {"nome": "Eleitoral", "status": "pronto", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "so=ele", "nota": "O Eleitoral de Parlamentares (painel completo do parlamentar), embutido: novos.html?so=ele."},
-      {"nome": "Mailing", "status": "planejado", "quem": "gabinete", "arquivo": "painel/gabinete.js", "ancora": "\"Mailing\""}]},
-
-    {"id": "rotinas", "nome": "Rotinas automáticas (bastidor)", "quem": "admin", "status": "pronto", "arquivo": "ferramentas/diario/rotina.mjs", "ancora": "async function diario",
-     "nota": "Não é tela: atualiza os dados que as telas usam.",
-     "filhos": [
-      {"nome": "Diário da Assembleia: todo dia 22h30", "status": "pronto", "arquivo": "ferramentas/diario/rotina.mjs", "ancora": "async function diario", "dados": "tarefa agendada alesc-diario-servidores"},
-      {"nome": "Portal da transparência: todo dia 10", "status": "pronto", "arquivo": "ferramentas/diario/rotina.mjs", "ancora": "async function portal", "dados": "tarefa agendada alesc-portal-servidores"},
-      {"nome": "Emendas públicas (gabinete): todo dia", "status": "pronto", "arquivo": "ferramentas/sync_emendas.py", "ancora": "def"}]}
-  ],
-  "prototipos": "Protótipos e versões de teste ficam em prototipos/ (fora do caminho, não vão para o ar como página do menu)."
+      {
+       "nome": "RH - Gabinete",
+       "status": "pronto",
+       "arquivo": "painel/gabinete-rh.js",
+       "ancora": "function rhDesenhar",
+       "dados": "banco: gab_cargos (migração 97)",
+       "nota": "Salvo na conta. As funções do parlamentar (líder, Mesa, presidente ou membro de comissão) criam sozinhas as vagas que trazem em Cargos da ALESC somados.",
+       "filhos": [
+        {
+         "nome": "Cargos do parlamentar",
+         "status": "pronto",
+         "arquivo": "painel/gabinete-rh.js",
+         "ancora": "Cargos do parlamentar"
+        },
+        {
+         "nome": "Gabinete parlamentar",
+         "status": "pronto",
+         "arquivo": "painel/gabinete-rh.js",
+         "ancora": "Gabinete parlamentar"
+        },
+        {
+         "nome": "Cargos da ALESC somados",
+         "status": "pronto",
+         "arquivo": "painel/gabinete-rh.js",
+         "ancora": "function rhDerivadas",
+         "nota": "Uma subunidade por estrutura trazida (Liderança, gabinete da Mesa, comissão) e o que veio do catálogo."
+        },
+        {
+         "nome": "Outros cargos",
+         "status": "pronto",
+         "arquivo": "painel/gabinete-rh.js",
+         "ancora": "Outros cargos"
+        }
+       ]
+      },
+      {
+       "nome": "Blocos do Administrativo de Parlamentares (embutidos)",
+       "status": "pronto",
+       "arquivo": "painel/gabinete.js",
+       "ancora": "so=adm",
+       "nota": "Subsídio e verbas, Estrutura do gabinete, Verbas, Liderança, Transparência, O mandato em números."
+      }
+     ]
+    },
+    {
+     "nome": "Processo legislativo",
+     "status": "planejado",
+     "quem": "gabinete",
+     "arquivo": "painel/gabinete.js",
+     "ancora": "Processo legislativo"
+    },
+    {
+     "nome": "Eleitoral",
+     "status": "pronto",
+     "quem": "gabinete",
+     "arquivo": "painel/gabinete.js",
+     "ancora": "so=ele",
+     "nota": "O Eleitoral de Parlamentares (painel completo do parlamentar), embutido: novos.html?so=ele."
+    },
+    {
+     "nome": "Mailing",
+     "status": "planejado",
+     "quem": "gabinete",
+     "arquivo": "painel/gabinete.js",
+     "ancora": "\"Mailing\""
+    }
+   ]
+  },
+  {
+   "id": "rotinas",
+   "nome": "Rotinas automáticas (bastidor)",
+   "quem": "admin",
+   "status": "pronto",
+   "arquivo": "ferramentas/diario/rotina.mjs",
+   "ancora": "async function diario",
+   "nota": "Não é tela: atualiza os dados que as telas usam.",
+   "filhos": [
+    {
+     "nome": "Diário da Assembleia: todo dia 22h30",
+     "status": "pronto",
+     "arquivo": "ferramentas/diario/rotina.mjs",
+     "ancora": "async function diario",
+     "dados": "tarefa agendada alesc-diario-servidores"
+    },
+    {
+     "nome": "Portal da transparência: todo dia 10",
+     "status": "pronto",
+     "arquivo": "ferramentas/diario/rotina.mjs",
+     "ancora": "async function portal",
+     "dados": "tarefa agendada alesc-portal-servidores"
+    },
+    {
+     "nome": "Emendas públicas (gabinete): todo dia",
+     "status": "pronto",
+     "arquivo": "ferramentas/sync_emendas.py",
+     "ancora": "def"
+    }
+   ]
+  }
+ ],
+ "prototipos": "Protótipos e versões de teste ficam em prototipos/ (fora do caminho, não vão para o ar como página do menu)."
 }
