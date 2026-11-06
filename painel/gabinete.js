@@ -376,31 +376,63 @@ function etiquetarGrupo(L) {
     m.querySelector("[data-salva]").onclick = () => run(false); m.querySelector("[data-tira]").onclick = () => run(true); });
 }
 // pesquisa (lupa: texto livre) e filtro (funil: os campos da planilha) são botões separados
+// filtro como no Google Planilhas (06/11/2026): cada filtro abre a lista de todos os valores, já marcados; desmarcar
+// esconde. S.mx[k] = conjunto do que está DESMARCADO (norm do valor; "" = não informado). Vazio = mostra tudo.
+const MX = [["mun", "Município", (r) => [nomeMun(r.municipio)]], ["reg", "Região", (r) => [regDe(r)]], ["ori", "Origem", (r) => [sigla(r.origem)]], ["mod", "Mod.", (r) => [instrNome(r.modalidade)]],
+  ["lid", "Líder", (r) => [...contato(r, "lider").map((c) => c.nome), r.lideranca]], ["fun", "Função", (r) => [r.funcao]], ["ben", "Beneficiário", (r) => [r.beneficiario]], ["tag", "Etiqueta", (r) => r.tags || []]];
+const mxVals = (k, r) => { const m = MX.find((x) => x[0] === k), V = [...new Set((m[2](r) || []).filter(Boolean).map(String))]; return V.length ? V : [""]; };
+const mxPassa = (r, pula) => { const X = S.mx || {}; return MX.every(([k]) => k === pula || !X[k] || !X[k].size || mxVals(k, r).some((v) => !X[k].has(norm(v)))); };
+// todas as opções de um filtro: [chave, rótulo]; "" (não informado) por último
+const mxOps = (k) => { const M = new Map(); MEU.forEach((r) => mxVals(k, r).forEach((v) => { const c = norm(v); if (!M.has(c)) M.set(c, v || "(não informado)"); }));
+  return [...M].sort((a, b) => (a[0] === "") - (b[0] === "") || String(a[1]).localeCompare(String(b[1]), "pt-BR")); };
+// filtros antigos (de um valor só, vindos das Cotas ou de links) viram "só este marcado"
+function mxMigrar() { S.mx = S.mx || {}; const so = (k, v) => { if (v == null || v === "" || (Array.isArray(v) && !v.length)) return; const quer = new Set([].concat(v).map((x) => x === "(vazio)" ? "" : norm(x))); S.mx[k] = new Set(mxOps(k).map(([c]) => c).filter((c) => !quer.has(c))); };
+  S.mf = S.mf || {}; ["mun", "reg", "mod", "lid", "fun", "ben", "tag"].forEach((k) => { if (S.mf[k] != null && S.mf[k] !== "") { so(k, k === "mod" && S.mf[k] !== "(vazio)" ? S.mf[k] : S.mf[k]); delete S.mf[k]; } });
+  if (S.mori) { so("ori", S.mori); S.mori = ""; } }
+const mxRot = (k) => { const X = (S.mx || {})[k], O = mxOps(k); if (!X || !X.size) return "Todos"; const fic = O.filter(([c]) => !X.has(c)); return !fic.length ? "Nenhum" : fic.length === 1 ? fic[0][1] : `${fic.length} de ${O.length}`; };
+const mxBtn = (k) => { const m = MX.find((x) => x[0] === k), on = S.mx && S.mx[k] && S.mx[k].size; return `<button class="leq mxb${on ? " on" : ""}" data-mx="${k}" aria-haspopup="true"><span>${m[1]}</span><b>${esc(mxRot(k))}</b></button>`; };
+function mxAbrir(btn) { document.getElementById("mxPop")?.remove(); const k = btn.dataset.mx; S.mx = S.mx || {}; const X = S.mx[k] = S.mx[k] || new Set();
+  const cont = {}; MEU.filter((r) => mxPassa(r, k)).forEach((r) => mxVals(k, r).forEach((v) => { const c = norm(v); cont[c] = (cont[c] || 0) + 1; }));
+  const O = mxOps(k), pop = document.createElement("div"); pop.id = "mxPop"; pop.className = "mxp";
+  const lista = (q) => O.filter(([, t]) => !q || norm(t).includes(norm(q))).map(([c, t]) => `<label><input type="checkbox" data-c="${esc(c)}"${X.has(c) ? "" : " checked"}><span>${esc(t)}</span><i>${cont[c] || 0}</i></label>`).join("") || `<p class="mxv">Nada encontrado.</p>`;
+  pop.innerHTML = `<input class="mxq" placeholder="Pesquisar" autocomplete="off"><div class="mxa"><button data-mxt>Selecionar tudo</button><button data-mxl>Limpar</button><span>${O.length - X.size} de ${O.length}</span></div><div class="mxl">${lista("")}</div><div class="mxf"><button class="btnp" data-mxok>OK</button></div>`;
+  document.body.appendChild(pop); const R = btn.getBoundingClientRect(); pop.style.top = (R.bottom + window.scrollY + 6) + "px"; pop.style.left = Math.max(8, Math.min(R.left + window.scrollX, window.innerWidth - pop.offsetWidth - 8)) + "px";
+  const atual = () => { btn.querySelector("b").textContent = mxRot(k); btn.classList.toggle("on", !!X.size); pop.querySelector(".mxa span").textContent = `${O.length - X.size} de ${O.length}`; S.mlim = 80; mtab(); };
+  const liga = () => pop.querySelectorAll("input[data-c]").forEach((i) => i.onchange = () => { if (i.checked) X.delete(i.dataset.c); else X.add(i.dataset.c); atual(); });
+  liga(); const q = pop.querySelector(".mxq"); q.oninput = () => { pop.querySelector(".mxl").innerHTML = lista(q.value); liga(); }; q.focus();
+  // com pesquisa, "selecionar tudo"/"limpar" valem só para o que aparece na lista (como na planilha)
+  const vis = () => [...pop.querySelectorAll("input[data-c]")].map((i) => i.dataset.c);
+  pop.querySelector("[data-mxt]").onclick = () => { vis().forEach((c) => X.delete(c)); pop.querySelectorAll("input[data-c]").forEach((i) => i.checked = true); atual(); };
+  pop.querySelector("[data-mxl]").onclick = () => { vis().forEach((c) => X.add(c)); pop.querySelectorAll("input[data-c]").forEach((i) => i.checked = false); atual(); };
+  const fecha = () => { pop.remove(); document.removeEventListener("mousedown", fora, true); document.removeEventListener("keydown", esc2, true); mfiltros(); };
+  const fora = (e) => { if (!pop.contains(e.target) && !btn.contains(e.target)) fecha(); }, esc2 = (e) => { if (e.key === "Escape") fecha(); };
+  pop.querySelector("[data-mxok]").onclick = fecha; setTimeout(() => { document.addEventListener("mousedown", fora, true); document.addEventListener("keydown", esc2, true); }, 0); }
 const MF = [["reg", "Região", (r) => regDe(r)], ["mun", "Município", (r) => r.municipio], ["lid", "Líder", (r) => [...contato(r, "lider").map((c) => c.nome), r.lideranca]], ["fun", "Função", (r) => r.funcao], ["mod", "Mod.", (r) => instrNome(r.modalidade)], ["ben", "Beneficiário", (r) => r.beneficiario], ["tag", "Etiqueta", (r) => r.tags]];
 const LUPA_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>';
 const FUNIL_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>';
 let NOME_MUN = null;
 function nomeMun(x) { if (!x) return x; if (!NOME_MUN) { NOME_MUN = {}; (BASE && BASE.mun || []).forEach((m) => { NOME_MUN[norm(m.n)] = m.n; }); } return NOME_MUN[norm(x)] || x; }
 function mfiltros() {
-  S.mf = S.mf || {}; if (S.mf.mun && !Array.isArray(S.mf.mun)) S.mf.mun = [S.mf.mun]; const nf = [S.mori, S.met, S.lista, S.cet && S.cet.size < 5, ...Object.values(S.mf)].filter((v) => Array.isArray(v) ? v.length : v).length, n = nf + (S.mq ? 1 : 0);
+  mxMigrar(); S.mf = S.mf || {}; if (S.mf.mun && !Array.isArray(S.mf.mun)) S.mf.mun = [S.mf.mun]; const nf = [S.mori, S.met, S.lista, S.cet && S.cet.size < 5, ...Object.values(S.mf), ...Object.values(S.mx || {}).map((x) => x && x.size)].filter((v) => Array.isArray(v) ? v.length : v).length, n = nf + (S.mq ? 1 : 0);
   const ops = (f) => { const M = new Map(); MEU.flatMap((r) => [].concat(f(r) || [])).filter(Boolean).forEach((o) => { const k = norm(o); if (!M.has(k)) M.set(k, nomeMun(o)); }); return [...M.values()].sort((a, b) => String(a).localeCompare(String(b), "pt-BR")); };
   const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar</button>` : ""}${S.aba === "meu" ? PZ_TGL() : ""}${S.mtool || ""}<button class="filb ico${S.mpa || S.mq ? " on" : ""}" id="lupB" title="Pesquisar" aria-label="Pesquisar">${LUPA_I}</button><button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar" aria-label="Filtrar">${FUNIL_I}${nf ? `<b>${nf}</b>` : ""}</button>${S.mad || ""}</div>`;
   $("#mfil").innerHTML = `${S.mpa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Pesquisar município, objeto, processo, observação ou etiqueta" value="${esc(S.mq || "")}"></div>` : ""}
     ${S.mfa ? (() => { const sel = (k) => { const m = MF.find((x) => x[0] === k), [, t, f] = m; return k === "mun" ? leq("mf_mun", t, [["", (S.mf.mun || []).length ? "Adicionar outro…" : "Todos"], ...ops(f).filter((o) => !(S.mf.mun || []).some((m2) => norm(m2) === norm(o))).map((o) => [o, o])], "") : leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o]), ...(["mod", "fun", "reg"].includes(k) ? [["(vazio)", "Não informado"]] : [])], S.mf[k] || ""); };
       const oriS = leq("fOri", "Origem", [["", "Todas"], ...ops((r) => sigla(r.origem)).map((o) => [o, o])], S.mori || "");
-      const nMais = [S.met, S.lista, S.mf.lid, S.mf.fun, S.mf.ben, S.mf.tag, S.mf.num, S.mf.obs].filter(Boolean).length;
-      const mais = `${leq("fEt", "Etapa", ETF, S.met || "")}${typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista de indicação", [["", "Todas"], ...opsListas().slice(1)], S.lista || "") : ""}${["lid", "fun", "ben", "tag"].map(sel).join("")}${S.mf.num ? leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num) : ""}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}`;
-      return `<div class="mfp mfg">${sel("mun")}${sel("reg")}${oriS}${sel("mod")}<button class="mfmais${S.mfx ? " on" : ""}" id="mfMais" title="${S.mfx ? "Fechar os outros filtros" : "Mais filtros: etapa, líder, função, beneficiário, etiqueta, observação"}" aria-expanded="${!!S.mfx}">…${nMais ? `<b>${nMais}</b>` : ""}</button>
-      <button class="filb ico borr" id="filBorr" title="Limpar filtros" aria-label="Limpar filtros"${n ? "" : " disabled"}><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 2.5l4 4-6.5 6.5H4.5l-2-2z M6.5 5.5l4 4 M7 13h6.5"/></svg></button>${typeof relAbrir === "function" ? `<button class="filb ico" id="relB" title="Imprimir ou exportar o que está no filtro" aria-label="Imprimir ou exportar">${REL_I}</button>` : ""}</div>${S.mfx ? `<div class="mfp mfg mfg2">${mais}${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens</button>` : ""}</div>` : ""}`; })() : ""}${(S.mf.mun || []).length ? `<div class="mfchips">${S.mf.mun.map((m, i) => `<span>${esc(m)}<button data-xmun="${i}" title="Tirar ${esc(m)}" aria-label="Tirar ${esc(m)}">×</button></span>`).join("")}</div>` : ""}`;
+      const nMais = [S.met, S.lista, S.mf.num, S.mf.obs, ...["lid", "fun", "ben", "tag"].map((k) => S.mx[k] && S.mx[k].size)].filter(Boolean).length;
+      const mais = `${leq("fEt", "Etapa", ETF, S.met || "")}${typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista de indicação", [["", "Todas"], ...opsListas().slice(1)], S.lista || "") : ""}${["lid", "fun", "ben", "tag"].map(mxBtn).join("")}${S.mf.num ? leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num) : ""}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}`;
+      return `<div class="mfp mfg">${["mun", "reg", "ori", "mod"].map(mxBtn).join("")}<button class="mfmais${S.mfx ? " on" : ""}" id="mfMais" title="${S.mfx ? "Fechar os outros filtros" : "Mais filtros: etapa, líder, função, beneficiário, etiqueta, observação"}" aria-expanded="${!!S.mfx}">…${nMais ? `<b>${nMais}</b>` : ""}</button>
+      <button class="filb ico borr" id="filBorr" title="Limpar filtros" aria-label="Limpar filtros"${n ? "" : " disabled"}><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 2.5l4 4-6.5 6.5H4.5l-2-2z M6.5 5.5l4 4 M7 13h6.5"/></svg></button>${typeof relAbrir === "function" ? `<button class="filb ico" id="relB" title="Imprimir ou exportar o que está no filtro" aria-label="Imprimir ou exportar">${REL_I}</button>` : ""}</div>${S.mfx ? `<div class="mfp mfg mfg2">${mais}${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens</button>` : ""}</div>` : ""}`; })() : ""}`;
   const pzT = $("#pzTema"); if (pzT) pzT.onclick = () => { try { localStorage.setItem("gab_ctl_claro", pzClaro() ? "0" : "1"); } catch (e) {} mtab(); };
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   if (typeof ligarAdicionar === "function") ligarAdicionar();
   $("#lupB").onclick = () => { S.mpa = !S.mpa; mfiltros(); const b = $("#mbusca"); if (b) b.focus(); };
   $("#filB").onclick = () => { S.mfa = !S.mfa; mfiltros(); };
+  document.querySelectorAll("#mfil [data-mx]").forEach((b) => b.onclick = () => mxAbrir(b));
   const mm = $("#mfMais"); if (mm) mm.onclick = () => { S.mfx = !S.mfx; mfiltros(); };
   const fl0 = $("#fLista"); if (fl0) fl0.onchange = (e) => { S.lista = e.target.value || null; mfiltros(); mtab(); };
-  const bz = $("#filBorr"); if (bz) bz.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.cet = new Set([1, 2, 3, 4, 5]); mfiltros(); mtab(); };
-  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.cet = new Set([1, 2, 3, 4, 5]); mfiltros(); mtab(); };
+  const bz = $("#filBorr"); if (bz) bz.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.mx = {}; S.cet = new Set([1, 2, 3, 4, 5]); mfiltros(); mtab(); };
+  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.mx = {}; S.cet = new Set([1, 2, 3, 4, 5]); mfiltros(); mtab(); };
   const eg = $("#etqG"); if (eg) eg.onclick = () => etiquetarGrupo(mfiltradas());
   const rb = $("#relB"); if (rb) rb.onclick = () => relAbrir();
   const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); const t = $("#mtool .filx"); if (!!S.mq !== !!t) { mfiltros(); const b = $("#mbusca"); b.focus(); b.setSelectionRange(b.value.length, b.value.length); } };
@@ -441,7 +473,7 @@ const balao = (r) => { const ul = (r.notas || []).slice(-1)[0];
 // desempate: o que entrou depois (indicações levadas ao Controle) vem primeiro; o resto segue a ordem da planilha
 const recente = (a, b) => (a.origem_planilha == null) - (b.origem_planilha == null) ? (a.origem_planilha == null ? -1 : 1) : String(b.criado_em || "").localeCompare(String(a.criado_em || "")) * (a.origem_planilha == null ? 1 : 0) || (a.origem_planilha ?? 0) - (b.origem_planilha ?? 0);
 function mfiltradas(semBarra) {
-  const q = norm(S.mq); return MEU.filter((r) => { if (!semBarra && S.cet && S.cet.size < 5 && !S.cet.has(ctlEt(r))) return false; if (S.mano && r.ano !== S.mano) return false; if (S.lista && typeof listaDaLinha === "function" && listaDaLinha(r) !== S.lista) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
+  const q = norm(S.mq); return MEU.filter((r) => { if (!semBarra && S.cet && S.cet.size < 5 && !S.cet.has(ctlEt(r))) return false; if (!mxPassa(r)) return false; if (S.mano && r.ano !== S.mano) return false; if (S.lista && typeof listaDaLinha === "function" && listaDaLinha(r) !== S.lista) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
     if (S.mori && sigla(r.origem) !== S.mori) return false;
     const F = S.mf || {}; const vz = (k, cheio) => F[k] === "(vazio)" ? !cheio : null;
     if (vz("mod", r.modalidade) === false || vz("fun", r.funcao) === false || vz("reg", regDe(r)) === false) return false;
