@@ -458,6 +458,27 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .mxl label{ display:flex; align-items:center; gap:9px; padding:5px 4px; border-radius:6px; cursor:pointer; } .mxl label:hover{ background:rgba(242,244,245,.05); }
 .mxl input{ accent-color:#2B5FD9; width:15px; height:15px; margin:0; } .mxl span{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .mxl i{ font-style:normal; color:#8A9096; font-size:11.5px; font-variant-numeric:tabular-nums; }
 .mxv{ color:#8A9096; padding:8px 4px; margin:0; } .mxf{ display:flex; justify-content:flex-end; padding-top:8px; } .mxf .btnp{ padding:6px 18px; }
+
+/* Cotas · painel único (06/11/2026) */
+.pcq{ padding:22px 24px 16px; }
+.pctop{ display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap; }
+.pcfmt{ display:inline-flex; background:rgba(242,244,245,.05); border-radius:999px; padding:3px; gap:2px; }
+.pcfmt button{ background:none; border:0; color:#A9AEB3; font:600 12px Inter; padding:7px 14px; border-radius:999px; cursor:pointer; }
+.pcfmt button.on{ background:#F2F4F5; color:#0B0D0E; }
+.pcf{ display:flex; flex-direction:column; gap:8px; margin:16px 0 4px; }
+.pcf > div{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.pcf .lb{ font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#6B7178; width:104px; flex:none; }
+.pcf button{ background:none; border:1px solid rgba(242,244,245,.1); color:#A9AEB3; border-radius:999px; padding:5px 12px; font:600 12px Inter; cursor:pointer; }
+.pcf button:hover{ color:#F2F4F5; border-color:rgba(242,244,245,.3); } .pcf button.on{ background:rgba(242,244,245,.12); color:#F2F4F5; border-color:rgba(242,244,245,.35); }
+.pcpq{ font-size:13px; color:#8A9096; margin:14px 0 6px; }
+.pcsvg{ width:100%; height:auto; display:block; overflow:visible; font-family:Inter,system-ui,sans-serif; }
+.pcsvg text{ fill:#C9CDD1; font-size:12px; } .pcsvg .mu{ fill:#6B7178; font-size:11.5px; } .pcsvg .fo{ fill:#F2F4F5; font-weight:700; font-size:14px; } .pcsvg .ano{ fill:#D9DCDE; font-weight:700; font-size:14px; }
+.pcsvg .pcrow:hover .ano{ fill:#fff; } .pcsvg [data-pseg]:hover{ filter:brightness(1.15); }
+.pclg{ display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:10px; font-size:12px; color:#A9AEB3; }
+.pclg i{ width:12px; height:12px; border-radius:3px; display:inline-block; margin-right:6px; vertical-align:-2px; }
+.pclg .q i{ border-radius:0; width:14px; height:0; border-top:2px dashed #E8705A; vertical-align:3px; } .pclg .p i{ background:#34E84A; box-shadow:0 0 6px rgba(52,232,74,.7); height:4px; vertical-align:2px; }
+.pclg button{ background:none; border:0; color:inherit; font:inherit; cursor:pointer; padding:0; } .pclg button:hover{ color:#F2F4F5; }
+.pcpart{ margin-top:4px; } .pcdica{ font-size:11.5px; color:#5E656B; margin:10px 0 0; } .pcload{ color:#6B7178; padding:40px 0; text-align:center; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -473,7 +494,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="gabinete-rh.js?cb=2"></script>
 <script src="gabinete-adicionar.js?cb=18"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
-<script src="gabinete-cotas.js?cb=22"></script>
+<script src="gabinete-cotas.js?cb=23"></script>
 <script src="gabinete-indicar.js?cb=46"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
