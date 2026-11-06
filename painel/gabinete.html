@@ -209,7 +209,7 @@ body.dm-escuro .dm2{ --sf:#171C20; --tl:#1B2125; --bd:#272D33; --tx:#E6E9EB; --m
 .mods{ display:flex; gap:6px; flex-wrap:wrap; } .mods button{ border:1px solid var(--linha); background:none; color:var(--sec); border-radius:999px; padding:7px 14px; cursor:pointer; font-weight:600; } .mods button.on{ background:#F2F4F5; color:#0B0D0E; }
 .ars{ display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:13px; color:var(--sec); } .mrod{ display:flex; align-items:center; gap:8px; margin-top:18px; } .mrod .av{ margin-right:auto; }
 @media (max-width:700px){ .fg{ grid-template-columns:1fr; } .adbar{ flex-direction:column-reverse; } }
-#mtab{ overflow-x:auto; } .tb.mt td{ font-size:12.5px; } @media (max-width:600px){ .kpis b{ font-size:19px; } .tb.mt td:nth-child(6), .tb.mt th:nth-child(6){ display:none; } } .tb tr.sup td{ opacity:.45; } .tb .tg{ font-size:10px; }
+#mtab{ overflow-x:auto; } .tb.mt td{ font-size:12.5px; } @media (max-width:600px){ .kpis b{ font-size:19px; } .tb.mt:not(.pz) td:nth-child(6), .tb.mt:not(.pz) th:nth-child(6){ display:none; } } .tb tr.sup td{ opacity:.45; } .tb .tg{ font-size:10px; }
 .mnuw{ position:relative; display:inline-flex; margin-left:6px; } .mnub{ width:34px; height:34px; border-radius:50%; border:1px solid rgba(242,244,245,.18); background:none; color:var(--texto,#F2F4F5); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .mnu{ position:absolute; right:0; top:42px; z-index:60; min-width:250px; background:#14191A; border:1px solid rgba(242,244,245,.09); border-radius:14px; padding:6px; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,.55); } .mnu[hidden]{ display:none; } .mnu a{ font:700 13px Inter; border-radius:10px; padding:9px 12px; color:#F2F4F5; text-decoration:none; } .mnu a:hover{ background:rgba(242,244,245,.06); } .mnu a small{ display:block; font-weight:500; font-size:11.5px; color:#6B7178; } .mnu .mconta, .mnu .msim{ border-bottom:1px solid rgba(242,244,245,.09); border-radius:10px 10px 0 0; margin-bottom:4px; } .mnu .msim{ color:#34E84A; } .mnu a.msair{ color:#A9AEB3; font-weight:600; font-size:12.5px; }
 .mnub{ position:relative; } .mnub .mluz{ position:absolute; top:4px; right:4px; width:8px; height:8px; border-radius:50%; background:#34E84A; box-shadow:0 0 0 0 rgba(52,232,74,.6); animation:mluz 2.4s ease-in-out infinite; } @keyframes mluz{ 0%,100%{ opacity:.45; box-shadow:0 0 0 0 rgba(52,232,74,.5); } 50%{ opacity:1; box-shadow:0 0 0 5px rgba(52,232,74,0); } }
@@ -385,6 +385,47 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .relck b{ font-size:13px; } .relck small{ color:var(--ter); font-size:11px; line-height:1.3; } .relck button.on{ border-color:rgba(var(--a-rgb),.5); }
 @media(max-width:520px){ .relck{ grid-template-columns:1fr; } }
 @media(max-width:520px){ .relop{ grid-template-columns:1fr; } }
+/* Controle no padrão do impresso (06/11/2026) */
+  .pz{table-layout:auto}.pz th{font-size:10px;letter-spacing:.14em;font-weight:700;padding:12px 8px}.pz th i{font-style:normal;margin-left:4px;opacity:.55}.pz th.on i{opacity:1;color:#34E84A}
+  .pz td{vertical-align:middle;padding:14px 8px}
+  .pz .c0{width:26px;color:var(--ter);text-align:right;font-size:12px;padding-right:4px}
+  .pz td.c1{width:52px;text-align:center;font-weight:700;font-size:14px}
+  .pz .c2{width:84px;text-align:center}
+  .pz .c3{width:130px}.pz .c3 b{display:block;font-weight:600;font-size:14px}.pz .c3 small{margin-top:2px}
+  .pz .c4{min-width:220px;line-height:1.4}.pz .c4 .obj-ant{display:block;color:var(--ter);font-size:12px;margin-bottom:3px}.pz .c4 small{margin-top:4px;font-size:11px;letter-spacing:.02em}
+  .pz .c5{width:70px;text-align:center}.pz .c5 svg{width:18px;height:18px;display:block;margin:0 auto}.pz .c5 .fnl{display:block;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ter);margin-top:4px}
+  .pz td.c6{width:46px;text-align:center;font-weight:800;color:var(--sec,#C9CDD1)}
+  .pz .c7{width:120px;text-align:right;white-space:nowrap}.pz th.c7{text-align:right}
+  .pz .c8{width:96px}.pz .c11{width:96px;white-space:nowrap}.pz .c11 b{font-weight:600}.pz .c11 small{margin-top:2px}.pz .c9{width:30px;text-align:center}.pz .c10{min-width:110px}
+  .pz th.c1,.pz th.c2,.pz th.c5,.pz th.c6{text-align:center}
+  .pz-eto{display:inline-grid;grid-template-columns:1fr 1fr;width:76px;border-radius:6px;overflow:hidden;font-size:10.5px;font-weight:700;letter-spacing:.03em;line-height:1}
+  .pz-eto b,.pz-eto span{display:flex;align-items:center;justify-content:center;padding:5px 0}.pz-eto b:only-child{grid-column:span 2}
+  .pz-eto.ei b{background:#D9DCDE;color:#0C0E0F}.pz-eto.ei span{background:rgba(242,244,245,.08);color:#C9CDD1}
+  .pz-eto.cv b{background:#6B7178;color:#F2F4F5;font-size:9.5px}.pz-eto.cv span{background:rgba(242,244,245,.06);color:#C9CDD1}
+  .pz-eto.ou b{color:#9AA0A4;box-shadow:inset 0 0 0 1px rgba(242,244,245,.18);border-radius:6px}
+  .pz-val{display:inline-block;min-width:104px;text-align:right;padding:6px 10px;border-radius:6px;font-size:13px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .pz-val.pg{background:#1F9E3A;color:#fff}.pz-val.pp{background:rgba(52,232,74,.12);color:#5FE873;box-shadow:inset 0 0 0 1px rgba(52,232,74,.45)}.pz-val.ap{background:rgba(242,244,245,.08);color:#D9DCDE}
+  .pz-mu{color:var(--ter);font-weight:400;opacity:.6}.pz tr.sup .pz-val{text-decoration:line-through}
+  .pz-val .cm, .pz-val small{display:inline;font-size:inherit;color:inherit}
+  /* interruptor e versão em branco do Controle */
+.pz-tgl{ display:flex; justify-content:flex-end; margin:0 0 8px; }
+.pz-tgl button{ display:inline-flex; align-items:center; gap:8px; background:none; border:0; color:var(--sec); font:600 12px Inter; cursor:pointer; padding:4px 2px; }
+.pz-tgl i{ width:30px; height:17px; border-radius:999px; background:#2A2F33; position:relative; transition:background .15s; }
+.pz-tgl i:after{ content:""; position:absolute; top:2px; left:2px; width:13px; height:13px; border-radius:50%; background:#8A9096; transition:left .15s, background .15s; }
+.pz-tgl button[aria-checked="true"] i{ background:#1F9E3A; } .pz-tgl button[aria-checked="true"] i:after{ left:15px; background:#fff; }
+#mtab.claro{ --linha:#DCDFE2; --texto:#111; --sec:#3F454B; --ter:#6B7178; background:#fff; color:#111; border-radius:14px; padding:14px 16px 10px; color-scheme:light; }
+#mtab.claro .pz-tgl button{ color:#3F454B; } #mtab.claro .pz-tgl i{ background:#DCDFE2; }
+#mtab.claro .tb th{ color:#6B7178; border-bottom:1.5px solid #A9AEB3; } #mtab.claro .tb td{ border-bottom:.5px solid #DCDFE2; }
+#mtab.claro .tb tr.r:hover td{ background:#F6F7F8; } #mtab.claro .tb tr.ab td{ background:#EEF2FB; }
+#mtab.claro .pz-eto.ei b{ background:#3F454B; color:#fff; } #mtab.claro .pz-eto.ei span{ background:#E4E7E9; color:#3F454B; }
+#mtab.claro .pz-eto.cv b{ background:#8A9096; color:#fff; } #mtab.claro .pz-eto.cv span{ background:#EEF0F1; color:#3F454B; }
+#mtab.claro .pz-eto.ou b{ color:#6B7178; box-shadow:inset 0 0 0 1px #DCDFE2; }
+#mtab.claro .pz-val.pg{ background:#1FA83A; color:#fff; } #mtab.claro .pz-val.pp{ background:#DDF3E1; color:#157A2B; box-shadow:inset 0 0 0 1px #9BD8A8; } #mtab.claro .pz-val.ap{ background:#E4E7E9; color:#3F454B; }
+#mtab.claro .stx svg{ stroke:#C9CDD1; } #mtab.claro .stx svg.f{ stroke:#1FA83A; } #mtab.claro .stx svg.v{ stroke:#E8432A; }
+#mtab.claro .obs{ color:#C2C6C9; } #mtab.claro .obs.tem{ color:#111; } #mtab.claro .obs.nv{ color:#1FA83A; }
+#mtab.claro .tg{ color:#3F454B; border-color:#DCDFE2; } #mtab.claro .pz th.on i{ color:#1FA83A; }
+#mtab.claro tr.det > td{ background:#0B0F0D; --linha:rgba(242,244,245,.09); --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178; color:#F2F4F5; color-scheme:dark; border-radius:10px; }
+#mtab.claro .av{ color:#3F454B; } #mtab.claro .mais{ color:#111; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -396,7 +437,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=98"></script>
+<script src="gabinete.js?cb=99"></script>
 <script src="gabinete-rh.js?cb=2"></script>
 <script src="gabinete-adicionar.js?cb=18"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
