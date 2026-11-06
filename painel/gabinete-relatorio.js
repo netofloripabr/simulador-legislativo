@@ -27,7 +27,7 @@ const relSeta = (col) => { const k = S.mord ? S.mord[0] : "ano", d = S.mord ? S.
 function relFiltro() { const F = S.mf || {}, P = [];
   if (S.mano) P.push("ano " + S.mano); if (F.mun && F.mun.length) P.push((F.mun.length > 1 ? "municípios " : "município ") + F.mun.join(", "));
   [["reg", "região"], ["lid", "líder"], ["fun", "função"], ["mod", "instrumento"], ["ben", "beneficiário"], ["tag", "etiqueta"]].forEach(([k, t]) => { if (F[k]) P.push(t + " " + (F[k] === "(vazio)" ? "não informada" : F[k])); });
-  if (S.mori) P.push("origem " + S.mori); if (S.met) P.push("etapa " + S.met); if (S.lista) P.push("lista de indicação"); if (F.obs) P.push({ com: "com observação", sem: "sem observação", at: "marcadas para atenção" }[F.obs] || "");
+  if (S.mori) P.push("origem " + S.mori); if (S.cet && S.cet.size < 5 && typeof ETAPAS !== "undefined") P.push((S.cet.size > 1 ? "etapas " : "etapa ") + [...S.cet].sort().map((k) => ETAPAS[k][0].toLowerCase()).join(", ")); if (S.met) P.push("etapa " + S.met); if (S.lista) P.push("lista de indicação"); if (F.obs) P.push({ com: "com observação", sem: "sem observação", at: "marcadas para atenção" }[F.obs] || "");
   if (S.mq) P.push(`busca "${S.mq}"`); return P.filter(Boolean).join(" · ") || "todos os recursos do Controle"; }
 // somas do detalhamento
 function relSomas(L0) { const L = L0.filter((x) => !x.sup), g = (f) => { const M = {}; L.forEach((x) => { const k = f(x); const o = M[k] = M[k] || { n: 0, v: 0, p: 0 }; o.n++; o.v += x.v; o.p += x.p; }); return Object.entries(M).sort((a, b) => b[1].v - a[1].v); };

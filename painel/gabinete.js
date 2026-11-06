@@ -331,6 +331,12 @@ function etapasStatus(s) {
   const k = fim || and("(A ?Pagar|Execu)") ? 2 : inst || and("(Portaria|Aguardando)") ? 1 : 0;
   return { t, d, ver, k };
 }
+// etapa do Controle nas 5 etapas da Transparência (barra clicável): portal da SEF quando a emenda está ligada (nº + ano);
+// senão, pela etapa registrada: 🛑 travada = impedimento técnico; pago/executado = paga; a pagar/em execução = em pagamento;
+// portaria/termo = empenhada; o resto = indicada. Suprimida fica fora da barra.
+function ctlEt(r) { const es = etapasStatus(r.status_manual); if (!es.d) return 0;
+  const n = String(r.numero || ""), K = /^\d+$/.test(n) ? `${r.ano}-${n.padStart(6, "0")}` : null, e = K && (typeof E0 !== "undefined" ? E0 || [] : []).find((x) => x.k === K);
+  if (e && e.et) return e.et; if (es.ver) return 5; if (es.d[2]) return 4; if (es.k === 2) return 3; if (es.d[1] || es.k === 1) return 2; return 1; }
 // ícones das 3 etapas (indicação, portaria, pago): acendem as etapas feitas; vermelho = a etapa travada (🛑). A palavra só com o item aberto
 const ST_I = ['<path d="M4 2.5h6l2.5 2.5v8.5H4z M10 2.5V5h2.5 M6 8h4.5 M6 10.5h3"/>', '<circle cx="8" cy="6.5" r="3.5"/><path d="M5.8 9.3L5 14l3-1.6 3 1.6-.8-4.7"/>', '<circle cx="8" cy="8" r="5.5"/><path d="M9.8 6.2c-.4-.6-1-.9-1.8-.9-1 0-1.8.5-1.8 1.3 0 1.9 3.7 1 3.7 2.9 0 .8-.8 1.3-1.9 1.3-.8 0-1.5-.3-1.9-1 M8 4v1.3 M8 10.8V12"/>'];
 const ST_N = ["Indicada", "Portaria", "Pago / executado"];
@@ -348,7 +354,7 @@ function meu() {
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
   S.mtool = fLista + leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano); S.mad = ad;
   return `
-    <section class="bx"><div id="mfil"></div><div id="mtab"></div></section>`;
+    <section class="bx"><div id="mfil"></div><div id="mbar" class="mbar"></div><div id="mtab"></div></section>`;
 }
 function ligarMeu() {
   if ($("#mfil")) mfiltros();
@@ -370,27 +376,31 @@ function etiquetarGrupo(L) {
     m.querySelector("[data-salva]").onclick = () => run(false); m.querySelector("[data-tira]").onclick = () => run(true); });
 }
 // pesquisa (lupa: texto livre) e filtro (funil: os campos da planilha) são botões separados
-const MF = [["reg", "Região", (r) => regDe(r)], ["mun", "Município", (r) => r.municipio], ["lid", "Líder", (r) => [...contato(r, "lider").map((c) => c.nome), r.lideranca]], ["fun", "Função", (r) => r.funcao], ["mod", "Instrumento", (r) => instrNome(r.modalidade)], ["ben", "Beneficiário", (r) => r.beneficiario], ["tag", "Etiqueta", (r) => r.tags]];
+const MF = [["reg", "Região", (r) => regDe(r)], ["mun", "Município", (r) => r.municipio], ["lid", "Líder", (r) => [...contato(r, "lider").map((c) => c.nome), r.lideranca]], ["fun", "Função", (r) => r.funcao], ["mod", "Mod.", (r) => instrNome(r.modalidade)], ["ben", "Beneficiário", (r) => r.beneficiario], ["tag", "Etiqueta", (r) => r.tags]];
 const LUPA_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>';
 const FUNIL_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5z"/></svg>';
 let NOME_MUN = null;
 function nomeMun(x) { if (!x) return x; if (!NOME_MUN) { NOME_MUN = {}; (BASE && BASE.mun || []).forEach((m) => { NOME_MUN[norm(m.n)] = m.n; }); } return NOME_MUN[norm(x)] || x; }
 function mfiltros() {
-  S.mf = S.mf || {}; if (S.mf.mun && !Array.isArray(S.mf.mun)) S.mf.mun = [S.mf.mun]; const nf = [S.mori, S.met, S.lista, ...Object.values(S.mf)].filter((v) => Array.isArray(v) ? v.length : v).length, n = nf + (S.mq ? 1 : 0);
+  S.mf = S.mf || {}; if (S.mf.mun && !Array.isArray(S.mf.mun)) S.mf.mun = [S.mf.mun]; const nf = [S.mori, S.met, S.lista, S.cet && S.cet.size < 5, ...Object.values(S.mf)].filter((v) => Array.isArray(v) ? v.length : v).length, n = nf + (S.mq ? 1 : 0);
   const ops = (f) => { const M = new Map(); MEU.flatMap((r) => [].concat(f(r) || [])).filter(Boolean).forEach((o) => { const k = norm(o); if (!M.has(k)) M.set(k, nomeMun(o)); }); return [...M.values()].sort((a, b) => String(a).localeCompare(String(b), "pt-BR")); };
   const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar</button>` : ""}${S.aba === "meu" ? PZ_TGL() : ""}${S.mtool || ""}<button class="filb ico${S.mpa || S.mq ? " on" : ""}" id="lupB" title="Pesquisar" aria-label="Pesquisar">${LUPA_I}</button><button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar" aria-label="Filtrar">${FUNIL_I}${nf ? `<b>${nf}</b>` : ""}</button>${S.mad || ""}</div>`;
   $("#mfil").innerHTML = `${S.mpa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Pesquisar município, objeto, processo, observação ou etiqueta" value="${esc(S.mq || "")}"></div>` : ""}
-    ${S.mfa ? `<div class="mfp mfg">${leq("fOri", "Origem", [["", "Todas"], ...ops((r) => sigla(r.origem)).map((o) => [o, o])], S.mori || "")}${leq("fEt", "Etapa", ETF, S.met || "")}${typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista de indicação", [["", "Todas"], ...opsListas().slice(1)], S.lista || "") : ""}
-      ${MF.map(([k, t, f]) => k === "mun" ? leq("mf_mun", t, [["", (S.mf.mun || []).length ? "Adicionar outro…" : "Todos"], ...ops(f).filter((o) => !(S.mf.mun || []).some((m) => norm(m) === norm(o))).map((o) => [o, o])], "") : leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o]), ...(["mod", "fun", "reg"].includes(k) ? [["(vazio)", "Não informado"]] : [])], S.mf[k] || "")).join("")}${S.mf.num ? leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num) : ""}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}
-      ${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens</button>` : ""}<button class="filb ico borr" id="filBorr" title="Limpar filtros" aria-label="Limpar filtros"${n ? "" : " disabled"}><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 2.5l4 4-6.5 6.5H4.5l-2-2z M6.5 5.5l4 4 M7 13h6.5"/></svg></button>${typeof relAbrir === "function" ? `<button class="filb ico" id="relB" title="Imprimir ou exportar o que está no filtro" aria-label="Imprimir ou exportar">${REL_I}</button>` : ""}</div>` : ""}${(S.mf.mun || []).length ? `<div class="mfchips">${S.mf.mun.map((m, i) => `<span>${esc(m)}<button data-xmun="${i}" title="Tirar ${esc(m)}" aria-label="Tirar ${esc(m)}">×</button></span>`).join("")}</div>` : ""}`;
+    ${S.mfa ? (() => { const sel = (k) => { const m = MF.find((x) => x[0] === k), [, t, f] = m; return k === "mun" ? leq("mf_mun", t, [["", (S.mf.mun || []).length ? "Adicionar outro…" : "Todos"], ...ops(f).filter((o) => !(S.mf.mun || []).some((m2) => norm(m2) === norm(o))).map((o) => [o, o])], "") : leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o]), ...(["mod", "fun", "reg"].includes(k) ? [["(vazio)", "Não informado"]] : [])], S.mf[k] || ""); };
+      const oriS = leq("fOri", "Origem", [["", "Todas"], ...ops((r) => sigla(r.origem)).map((o) => [o, o])], S.mori || "");
+      const nMais = [S.met, S.lista, S.mf.lid, S.mf.fun, S.mf.ben, S.mf.tag, S.mf.num, S.mf.obs].filter(Boolean).length;
+      const mais = `${leq("fEt", "Etapa", ETF, S.met || "")}${typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista de indicação", [["", "Todas"], ...opsListas().slice(1)], S.lista || "") : ""}${["lid", "fun", "ben", "tag"].map(sel).join("")}${S.mf.num ? leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num) : ""}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}`;
+      return `<div class="mfp mfg">${sel("mun")}${sel("reg")}${oriS}${sel("mod")}<button class="mfmais${S.mfx ? " on" : ""}" id="mfMais" title="${S.mfx ? "Fechar os outros filtros" : "Mais filtros: etapa, líder, função, beneficiário, etiqueta, observação"}" aria-expanded="${!!S.mfx}">…${nMais ? `<b>${nMais}</b>` : ""}</button>
+      <button class="filb ico borr" id="filBorr" title="Limpar filtros" aria-label="Limpar filtros"${n ? "" : " disabled"}><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 2.5l4 4-6.5 6.5H4.5l-2-2z M6.5 5.5l4 4 M7 13h6.5"/></svg></button>${typeof relAbrir === "function" ? `<button class="filb ico" id="relB" title="Imprimir ou exportar o que está no filtro" aria-label="Imprimir ou exportar">${REL_I}</button>` : ""}</div>${S.mfx ? `<div class="mfp mfg mfg2">${mais}${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens</button>` : ""}</div>` : ""}`; })() : ""}${(S.mf.mun || []).length ? `<div class="mfchips">${S.mf.mun.map((m, i) => `<span>${esc(m)}<button data-xmun="${i}" title="Tirar ${esc(m)}" aria-label="Tirar ${esc(m)}">×</button></span>`).join("")}</div>` : ""}`;
   const pzT = $("#pzTema"); if (pzT) pzT.onclick = () => { try { localStorage.setItem("gab_ctl_claro", pzClaro() ? "0" : "1"); } catch (e) {} mtab(); };
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
   if (typeof ligarAdicionar === "function") ligarAdicionar();
   $("#lupB").onclick = () => { S.mpa = !S.mpa; mfiltros(); const b = $("#mbusca"); if (b) b.focus(); };
   $("#filB").onclick = () => { S.mfa = !S.mfa; mfiltros(); };
+  const mm = $("#mfMais"); if (mm) mm.onclick = () => { S.mfx = !S.mfx; mfiltros(); };
   const fl0 = $("#fLista"); if (fl0) fl0.onchange = (e) => { S.lista = e.target.value || null; mfiltros(); mtab(); };
-  const bz = $("#filBorr"); if (bz) bz.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; mfiltros(); mtab(); };
-  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; mfiltros(); mtab(); };
+  const bz = $("#filBorr"); if (bz) bz.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.cet = new Set([1, 2, 3, 4, 5]); mfiltros(); mtab(); };
+  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.cet = new Set([1, 2, 3, 4, 5]); mfiltros(); mtab(); };
   const eg = $("#etqG"); if (eg) eg.onclick = () => etiquetarGrupo(mfiltradas());
   const rb = $("#relB"); if (rb) rb.onclick = () => relAbrir();
   const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); const t = $("#mtool .filx"); if (!!S.mq !== !!t) { mfiltros(); const b = $("#mbusca"); b.focus(); b.setSelectionRange(b.value.length, b.value.length); } };
@@ -430,8 +440,8 @@ const balao = (r) => { const ul = (r.notas || []).slice(-1)[0];
   if (r.atencao) return ["at", 4, "Marcado para atenção"]; if (r.obs_em && r.obs_em > visto(r)) return ["nv", 3, "Observação atualizada: " + (r.observacao || "")]; if (ul && ul.em > visto(r)) return ["nv", 3, "Nova nota: " + ul.t]; if (r.observacao || (r.notas || []).length) return ["tem", 2, r.observacao || ul.t]; return ["", 1, "Sem observação"]; };
 // desempate: o que entrou depois (indicações levadas ao Controle) vem primeiro; o resto segue a ordem da planilha
 const recente = (a, b) => (a.origem_planilha == null) - (b.origem_planilha == null) ? (a.origem_planilha == null ? -1 : 1) : String(b.criado_em || "").localeCompare(String(a.criado_em || "")) * (a.origem_planilha == null ? 1 : 0) || (a.origem_planilha ?? 0) - (b.origem_planilha ?? 0);
-function mfiltradas() {
-  const q = norm(S.mq); return MEU.filter((r) => { if (S.mano && r.ano !== S.mano) return false; if (S.lista && typeof listaDaLinha === "function" && listaDaLinha(r) !== S.lista) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
+function mfiltradas(semBarra) {
+  const q = norm(S.mq); return MEU.filter((r) => { if (!semBarra && S.cet && S.cet.size < 5 && !S.cet.has(ctlEt(r))) return false; if (S.mano && r.ano !== S.mano) return false; if (S.lista && typeof listaDaLinha === "function" && listaDaLinha(r) !== S.lista) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
     if (S.mori && sigla(r.origem) !== S.mori) return false;
     const F = S.mf || {}; const vz = (k, cheio) => F[k] === "(vazio)" ? !cheio : null;
     if (vz("mod", r.modalidade) === false || vz("fun", r.funcao) === false || vz("reg", regDe(r)) === false) return false;
@@ -465,8 +475,15 @@ const PZ_COLS = [["", "#", "c0"], ["ano", "Ano", "c1"], ["ori", "Origem", "c2"],
 const pzClaro = () => { try { return localStorage.getItem("gab_ctl_claro") === "1"; } catch (e) { return false; } };
 // interruptor escuro/claro da planilha: lua no botão quando escuro, sol quando claro (sem legenda)
 const PZ_TGL = () => `<button class="pz-sw" id="pzTema" role="switch" aria-checked="${pzClaro()}" aria-label="Planilha em fundo branco" title="Fundo escuro ou branco"><i><svg class="lua" viewBox="0 0 16 16"><path d="M13 9.6A5.5 5.5 0 0 1 6.4 3a5.5 5.5 0 1 0 6.6 6.6z"/></svg><svg class="sol" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.8"/><path d="M8 1.5v1.6M8 12.9v1.6M1.5 8h1.6M12.9 8h1.6M3.4 3.4l1.1 1.1M11.5 11.5l1.1 1.1M3.4 12.6l1.1-1.1M11.5 4.5l1.1-1.1"/></svg></i></button>`;
+function mbarra() { const b = $("#mbar"); if (!b) return; S.cet = S.cet || new Set([1, 2, 3, 4, 5]);
+  const B = mfiltradas(true), cont = [0, 0, 0, 0, 0, 0]; B.forEach((r) => { const k = ctlEt(r); if (k) cont[k]++; }); const tot = cont.reduce((a, c) => a + c, 0);
+  b.innerHTML = tot ? `<div class="funil">${[1, 2, 3, 4, 5].map((k) => cont[k] ? `<i data-cet="${k}" class="${S.cet.has(k) ? "" : "off"}" style="width:${cont[k] / tot * 100}%;background:${ETAPAS[k][1]};cursor:pointer" title="${ETAPAS[k][0]}: ${cont[k]} · clique para ver só esta etapa"></i>` : "").join("")}</div>
+    <div class="funilL">${[1, 2, 3, 4, 5].map((k) => `<span data-cet="${k}" class="${S.cet.has(k) ? "" : "off"}"><i style="background:${ETAPAS[k][1]}"></i>${ETAPAS[k][0]} <b>${cont[k]}</b></span>`).join("")}</div>` : "";
+  // como na Transparência: com todas marcadas, o clique mostra SÓ aquela; com seleção, soma ou tira; tirar a última volta a todas
+  b.querySelectorAll("[data-cet]").forEach((x) => x.onclick = () => { const k = +x.dataset.cet, todas = S.cet.size === 5;
+    if (todas) S.cet = new Set([k]); else if (S.cet.has(k)) { S.cet.delete(k); if (!S.cet.size) S.cet = new Set([1, 2, 3, 4, 5]); } else S.cet.add(k); S.mlim = 80; mtab(); mfiltros(); }); }
 function mtab() {
-  const L = mfiltradas(); $("#mtab").classList.toggle("claro", pzClaro()); const tg = $("#pzTema"); if (tg) tg.setAttribute("aria-checked", String(pzClaro()));
+  mbarra(); const L = mfiltradas(); $("#mtab").classList.toggle("claro", pzClaro()); const tg = $("#pzTema"); if (tg) tg.setAttribute("aria-checked", String(pzClaro()));
   if (S.mord) { const c = MCOL.find((x) => x[0] === S.mord[0]), d = S.mord[1]; L.sort((a, b) => { const x = c[2](a), y = c[2](b); return (x > y ? 1 : x < y ? -1 : 0) * d || recente(a, b); }); }
   $("#mtab").innerHTML = `<table class="tb mt ct pz"><thead><tr>${PZ_COLS.map(([k, t, c]) => `<th${k ? ` data-mo="${k}"` : ""} class="so ${c}${S.mord && S.mord[0] === k ? " on" : ""}">${(() => { const i = k && t ? `<i>${S.mord && S.mord[0] === k ? (S.mord[1] > 0 ? "↑" : "↓") : "↕"}</i>` : ""; return t + i; })()}</th>`).join("")}</tr></thead><tbody>${L.slice(0, S.mlim).map((r, i) => `<tr class="r${supr(r) ? " sup" : ""}${S.maberto === mk(r) ? " ab" : ""}" data-id="${esc(mk(r))}">
     <td class="c0">${i + 1}</td><td class="c1">${corrHtml(r, "ano", (v) => esc(v || ""))}</td><td class="c2">${pzEtq(r)}</td>
