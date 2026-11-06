@@ -583,9 +583,10 @@ function detalheMeu(r) {
   const pend = S.pend && S.pend.id === mk(r) && Object.keys(S.pend.v).length;
   return `<div class="dm2"><div class="dh"><div><div class="dst"><i class="${pagoTudo ? "ok" : es.ver ? "vv" : ""}"></i>${esc(titulo)}</div><div class="dsub">${rc(r.valor)} · ${nf(pct, 0)}% pago · ${esc(instrNome(r.modalidade) || "instrumento não informado")} · exercício ${esc(r.ano || "—")}</div></div>
       <div class="dac"><span class="av" data-msg></span><span class="dpend2"${pend ? "" : " hidden"}><button class="lk0" data-pdesc>Descartar</button><button class="btnp" data-psalva>Salvar</button></span><button class="${r.atencao ? "on" : ""}" data-atencao title="${r.atencao ? "Tirar a atenção" : "Marcar para atenção"}">${ic("band")}</button><button data-editar title="Editar">${ic("lapis")}</button><button data-subst title="${e ? "Substituir emenda do portal" : "Ligar a uma emenda do portal"}">${ic("elo")}</button><button data-excl title="Excluir">${ic("lixo")}</button></div></div>
-    ${step}${bento}${caderno}
-    <div class="tgs3">${(r.tags || []).map((t) => `<span>${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<span class="tgin" hidden><input data-nova placeholder="etiqueta…" autocomplete="off"></span><button class="add" data-etq>+ etiqueta</button></div>
+    ${step}
+    <div class="tgs3 tgs-top">${(r.tags || []).map((t) => `<span>${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<span class="tgin" hidden><input data-nova placeholder="etiqueta…" autocomplete="off"></span><button class="add" data-etq>+ etiqueta</button></div>
     <div class="tgsug" hidden></div>
+    ${bento}${caderno}
     ${r.corr && r.corr.nota ? `<div class="dfx"><span class="fx"></span>Corrigido na revisão · ${esc(r.corr.nota)}</div>` : ""}</div>`;
 }
 async function gravaMeu(r, campos) {
