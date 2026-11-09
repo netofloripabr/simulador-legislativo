@@ -35,10 +35,10 @@ function relSomas(L0) { const L = L0.filter((x) => !x.sup), g = (f) => { const M
   const v = L.reduce((s, x) => s + x.v, 0), p = L.reduce((s, x) => s + x.p, 0);
   return { n: L.length, ns: L0.length - L.length, vs: L0.filter((x) => x.sup).reduce((s, x) => s + x.v, 0), v, p, ap: v - p, mun: new Set(L.map((x) => norm(x.mun))).size, ins: g((x) => x.ins), fun: g((x) => x.fun), mns: g((x) => x.mun), pg: [["Pago ou executado", L.filter((x) => x.p >= x.v && x.v > 0)], ["Pago em parte", L.filter((x) => x.p > 0 && x.p < x.v)], ["A pagar", L.filter((x) => !x.p)]].map(([t, A]) => [t, { n: A.length, v: A.reduce((s, x) => s + x.v, 0), p: A.reduce((s, x) => s + x.p, 0) }]), ori: [...new Map(L.filter((x) => x.ori).map((x) => [x.ori, x.oriT])).entries()] }; }
 
-const REL_P = [["pg", "Situação do pagamento", "indicado, pago e o que falta"], ["ins", "Por instrumento", "transferência especial, convênio…"], ["fun", "Por função", "saúde, educação, FUNDAM…"], ["mun", "Por município", "soma de cada cidade do filtro"], ["leg", "Legendas", "função, instrumento, etapa e origem (na 1ª página)"], ["sup", "Suprimidas", "lista à parte, fora das contas"]];
+const REL_P = [["pg", "Situação do pagamento", "indicado, pago e o que falta"], ["ins", "Por instrumento", "transferência especial, convênio…"], ["fun", "Por função", "saúde, educação, FUNDAM…"], ["mun", "Por município", "soma de cada cidade do filtro"], ["graf", "Gráficos", "cotas por ano, por tipo e por área, como no painel Cotas"], ["leg", "Legendas", "função, instrumento, etapa e origem (na 1ª página)"], ["sup", "Suprimidas", "lista à parte, fora das contas"]];
 const relPartes = () => { try { const v = JSON.parse(localStorage.getItem("gab_rel_partes") || "null"); if (Array.isArray(v)) return new Set(v); } catch (e) {} return new Set(["pg", "ins", "fun", "leg"]); };
 // ---------- janela de opções ----------
-function relAbrir() { document.getElementById("relOv")?.remove(); const L = relLinhas(); let fmt = "pdf", det = true, PT = relPartes();
+function relAbrir() { document.getElementById("relOv")?.remove(); const L = relLinhas(); let fmt = "pdf", det = true, PT = relPartes(); if (typeof pcD3 === "function") pcD3();
   const ov = Object.assign(document.createElement("div"), { id: "relOv", className: "relov2" });
   const ck = (A) => A.map(([k, t, d]) => `<button data-pt="${k}" class="${PT.has(k) ? "on" : ""}" aria-pressed="${PT.has(k)}"><i></i><b>${t}</b><small>${d}</small></button>`).join("");
   const pinta = () => { ov.innerHTML = `<div class="relmd" role="dialog" aria-label="Imprimir ou exportar"><div class="relh"><b>Imprimir ou exportar</b><button class="relx" data-rx aria-label="Fechar">×</button></div>
@@ -52,7 +52,7 @@ function relAbrir() { document.getElementById("relOv")?.remove(); const L = relL
   ov.onclick = async (e) => { const t = e.target; if (t === ov || t.closest("[data-rx]")) { ov.remove(); return; }
     const f = t.closest("[data-fmt]"); if (f) { fmt = f.dataset.fmt; pinta(); return; } const d = t.closest("[data-det]"); if (d) { det = d.dataset.det === "true"; pinta(); return; }
     const pt = t.closest("[data-pt]"); if (pt) { const k = pt.dataset.pt; PT.has(k) ? PT.delete(k) : PT.add(k); try { localStorage.setItem("gab_rel_partes", JSON.stringify([...PT])); } catch (er) {} pinta(); return; }
-    const g = t.closest("[data-rgo]"); if (g && !g.disabled) { g.disabled = true; try { const P = new Set([...PT].filter((k) => det || k === "leg" || k === "sup")); if (fmt === "pdf") relPDF(L, P, PT.has("sup")); else await relXLSX(L, P, PT.has("sup")); ov.remove(); } catch (er) { g.disabled = false; alert("Não foi possível gerar: " + (er.message || er)); } } }; }
+    const g = t.closest("[data-rgo]"); if (g && !g.disabled) { g.disabled = true; try { const P = new Set([...PT].filter((k) => det || k === "leg" || k === "sup")); if (fmt === "pdf") await relPDF(L, P, PT.has("sup")); else await relXLSX(L, P, PT.has("sup")); ov.remove(); } catch (er) { g.disabled = false; alert("Não foi possível gerar: " + (er.message || er)); } } }; }
 
 // ícones das 3 etapas (os mesmos do Controle: indicação, portaria, pago) no lugar da palavra "pago": aceso = feito;
 // pago em parte = moeda em contorno verde; vermelho = etapa travada (🛑). No papel a diferença sobrevive pela forma
@@ -60,7 +60,22 @@ function relIcs(x) { const e = etapasStatus(x.r.status_manual), d = (e.d || [fal
   const trav = e.ver ? Math.min(2, d.lastIndexOf(true) + 1) : -1, P = typeof ST_I !== "undefined" ? ST_I : [];
   return `<span class="di-ics" title="${esc(e.t)}${parte ? " · pago " + brl(x.p) : ""}">${P.map((p, k) => `<svg viewBox="0 0 16 16" class="${k === trav ? "tv" : d[k] ? (k === 2 ? "pg" : "on") : k === 2 && parte ? "pp" : ""}">${p}</svg>`).join("")}</span>`; }
 // ---------- documento (PDF pela impressão do navegador) ----------
-function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", "ins", "fun", "mun"].some(tem), L = L0.filter((x) => !x.sup), LS = comSup ? L0.filter((x) => x.sup) : [];
+// ---------- gráficos ao final (mesmos itens do filtro, no formato do painel Cotas; cores para papel branco) ----------
+function relGraficos(L) { if (typeof pcDados !== "function" || typeof itensCotas !== "function" || !window.d3) return "";
+  const R = new Set(L.map((x) => x.r)), guard = { ctipo: S.ctipo, cfil: S.cfil, cdim: S.cdim, cesc: S.cesc };
+  try { S.cesc = "tudo"; S.ctipo = "TODOS"; S.cfil = []; const I = itensCotas().filter((i) => i.r && R.has(i.r)); if (!I.length) return "";
+    const a0 = Math.min(...I.map((i) => i.ano)), a1 = Math.max(...I.map((i) => i.ano)), anos = []; for (let a = a0; a <= a1; a++) anos.push(a);
+    S.cdim = "ori"; const D1 = pcDados(anos, I); S.cdim = "area"; const D2 = pcDados(anos, I);
+    const partes = (D) => `<div class="pclg">${D.partes.map((k) => `<span><i style="background:${D.cor[k]}"></i>${esc(D.nome(k))}</span>`).join("")}</div>`;
+    const bloco = (tit, perg, corpo) => `<div class="di-bloco gr-bloco"><div class="di-st2">${tit}</div><p class="gr-q">${perg}</p>${corpo}</div>`;
+    return `<div class="di-det gr"><div class="di-tit">Gráficos</div><div class="di-sub">Os mesmos ${ni(I.length)} itens do filtro, em valores indicados por ano. Formatos do painel Cotas (FT Visual Vocabulary).</div>
+      ${bloco("Cotas por ano · bullet", "Cada ano bateu a quota? Quanto já foi pago?", pcBullet(D1))}
+      ${D1.partes.length > 1 ? bloco("Por tipo de cota · barras empilhadas", "Quanto foi cada ano e de que tipo? Cheio é o que já foi pago; listrado, o que falta.", pcEmpilhada(D1) + partes(D1)) : ""}
+      ${bloco("Por área · 100%", "Como cada ano se divide entre as áreas?", pcCem(D2) + partes(D2))}</div>`;
+  } finally { Object.assign(S, guard); } }
+async function relPDF(L0, P, comSup) { const w = window.open("", "_blank"); if (!w) throw new Error("libere as janelas pop-up do navegador para este site");
+  if (P && P.has("graf") && typeof pcD3 === "function") { w.document.write('<p style="font:14px Inter,system-ui,sans-serif;color:#6B7178;padding:24px">Montando o documento…</p>'); await pcD3(); }
+  const tem = (k) => P && P.has(k), det = ["pg", "ins", "fun", "mun"].some(tem), L = L0.filter((x) => !x.sup), LS = comSup ? L0.filter((x) => x.sup) : [];
   const T = relSomas(L0), ag = new Date(), dt = ag.toLocaleDateString("pt-BR"), hr = ag.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   const pc = (a, b) => b ? nf(a / b * 100, 1) + "%" : "—", rs = (v) => ni(Math.round(v || 0)), proj = (n) => `${ni(n)} ${n === 1 ? "projeto" : "projetos"}`;
   // função como ícone (o mesmo da plataforma) e instrumento como sigla
@@ -133,6 +148,12 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
   .di-th{font-size:7px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7178;border-bottom:1px solid #C9CDD1}.di-tt{font-weight:800;border-top:1px solid #A9AEB3;border-bottom:0}
   .di-rod{margin-top:18px;font-size:8px;color:#6B7178;line-height:1.5}.di-pagfoot{display:flex;justify-content:space-between;font-size:7.5px;color:#9AA0A4;border-top:.5px solid #DCDFE2;margin-top:16px;padding-top:6px}
   .pt{width:100%;border-collapse:collapse;margin-top:6px;font-size:9.5px}
+  .gr-bloco{page-break-inside:avoid;margin-bottom:26px}.gr-q{font-size:8.5px;color:#6B7178;margin:2px 0 8px}
+  .pcsvg{width:100%;height:auto;display:block;overflow:visible;font-family:Inter,system-ui,sans-serif}.pcsvg text{fill:#3F454B;font-size:12px}.pcsvg .mu{fill:#6B7178;font-size:11.5px}.pcsvg .fo,.pcsvg .ano{fill:#111;font-weight:700;font-size:14px}
+  .pcsvg [stroke="rgba(242,244,245,.05)"]{stroke:#DCDFE2}.pcsvg [fill="rgba(242,244,245,.045)"]{fill:#EDF0F2}.pcsvg [stroke="#14191A"]{stroke:#fff}
+  .pcsvg [fill="#34E84A"]{fill:#1FA83A}.pcsvg [stroke="#34E84A"]{stroke:#1FA83A}.pcsvg [filter]{filter:none}.pcsvg tspan[fill="#5FE873"]{fill:#1FA83A}.pcsvg tspan[fill="#C9CDD1"]{fill:#6B7178}
+  .pclg{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:8.5px;color:#3F454B}.pclg i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:-1px;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}
+  .pclg i[style*="242,244,245"]{background:#EDF0F2 !important}.pclg .q i{border-radius:0;width:12px;height:0;border-top:2px dashed #E8705A;box-shadow:none;vertical-align:2px}.pclg .p i{background:#1FA83A;height:4px;vertical-align:1px;box-shadow:none}
   .pt thead th{font-size:7px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;text-align:left;padding:7px 6px;border-bottom:1.5px solid #A9AEB3;white-space:nowrap}
   .pt th i{font-style:normal;margin-left:3px;color:#B5BABE}
   .pt td{padding:8px 6px;border-bottom:.5px solid #DCDFE2;vertical-align:middle}.pt tr{page-break-inside:avoid}.pt thead{display:table-header-group}
@@ -167,8 +188,9 @@ function relPDF(L0, P, comSup) { const tem = (k) => P && P.has(k), det = ["pg", 
     ${tem("ins") || tem("fun") ? `<div class="di-grade">${tem("ins") ? tab("Por instrumento", T.ins) : ""}${tem("fun") ? tab("Por função", T.fun) : ""}</div>` : ""}
     ${tem("mun") ? tab("Por município", T.mns) : ""}
     <div class="di-rod">Valores em reais. "Pago" vem do portal da SEF quando a emenda está ligada ao Controle; nos demais, da etapa registrada pelo gabinete.${LS.length ? "" : " Suprimidas ficam fora deste documento."}</div></div>` : ""}
+  ${tem("graf") ? relGraficos(L) : ""}
   <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app · uso interno do gabinete</span><span>${dt} ${hr}</span></div></div><script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`;
-  const w = window.open("", "_blank"); if (!w) throw new Error("libere as janelas pop-up do navegador para este site"); w.document.write(html); w.document.close(); }
+  w.document.open(); w.document.write(html); w.document.close(); }
 
 // ---------- planilha Excel ----------
 async function relXLSX(L, P, comSup) { const det = P && P.size, tem = (k) => P && P.has(k); await piExcel(); const T = relSomas(L), wb = new ExcelJS.Workbook(); wb.creator = "SimulaLEGIS";
