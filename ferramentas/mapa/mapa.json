@@ -69,6 +69,10 @@
   [
    "11/11/2026",
    "Blocos das comissões são montados arrastando e soltando as etiquetas dos partidos no Quadro do cenário (Eleições 2026 › Comissões)."
+  ],
+  [
+   "11/11/2026",
+   "Segunda exceção à regra de 05/11 (nada aberto sem login): a Calculadora das comissões é pública, acessada só por link e fora do menu."
   ]
  ],
  "paginas": [
@@ -401,6 +405,16 @@
    "arquivo": "painel/mesa.js",
    "ancora": "Jogo da ",
    "nota": "Simulação da eleição da Mesa Diretora e das estruturas da Mesa."
+  },
+  {
+   "id": "calculadora-comissoes",
+   "nome": "Calculadora das comissões (só por link)",
+   "url": "painel/calculadora-comissoes.html",
+   "quem": "visitante",
+   "status": "pronto",
+   "arquivo": "painel/calculadora-comissoes.html",
+   "ancora": "Calculadora das comissões",
+   "nota": "Fora do menu, para compartilhar por link. Arrastar partidos, barra de assentos, tabela, cenários salvos no navegador de quem usa e 'Copiar link deste cenário' (#c=, validado ao ler). Bancadas lidas de dados/painel/sc-estadual.json. A lógica é uma CÓPIA da do Quadro do cenário (painel/novos.js): quem corrigir um lado corrige o outro."
   },
   {
    "id": "gabinete",

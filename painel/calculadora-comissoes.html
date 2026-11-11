@@ -163,12 +163,14 @@ const assin = (Gs) => Gs.map(chave).sort().join("/");
 function barraCen() {
   const at = ATV != null && CENS[ATV], mod = at && assin(at.blocos) !== assin(G);
   $("#cen").innerHTML = `<div class="cenS"><button class="cnovo" data-c="novo" title="Começar de novo: cada partido sozinho">+ Novo</button><span class="ct">Cenários</span>${CENS.map((x, i) => `<span class="cch${i === ATV ? " on" : ""}${i === ATV && mod ? " mod" : ""}"><button data-c="abre" data-i="${i}" title="Abrir este cenário">${esc(x.nome)}</button><button class="x" data-c="apaga" data-i="${i}" title="Apagar">×</button></span>`).join("") || "<small>nenhum salvo</small>"}
-    <input id="cenNm" placeholder="${at ? "Nome para salvar como novo" : "Nome do cenário"}" maxlength="40"><button class="cico${mod || !at ? " on" : ""}" data-c="${at ? "atualiza" : "salva"}"${at && !mod ? " disabled" : ""} title="${at ? (mod ? `Salvar as alterações em “${esc(at.nome)}”` : "Sem alterações para salvar") : "Salvar cenário"}">${DISCO}</button>${at ? `<button class="cico" data-c="salva" title="Salvar como um cenário novo (use o nome ao lado)">${DISCO}<b>+</b></button>` : ""}</div>`;
+    <input id="cenNm" placeholder="${at ? "Nome para salvar como novo" : "Nome do cenário"}" maxlength="40"><button class="cico${mod || !at ? " on" : ""}" data-c="${at ? "atualiza" : "salva"}"${at && !mod ? " disabled" : ""} title="${at ? (mod ? `Salvar as alterações em “${esc(at.nome)}”` : "Sem alterações para salvar") : "Salvar cenário"}">${DISCO}</button>${at ? `<button class="cico" data-c="salva" title="Salvar como um cenário novo (use o nome ao lado)">${DISCO}<b>+</b></button>` : ""}<button class="cico" data-c="imprime" title="Imprimir os cenários">${IMPR}</button></div>`;
 }
+const IMPR = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 6V2.5h7V6"/><rect x="2" y="6" width="12" height="5.5" rx="1.2"/><path d="M4.5 9.5h7v4h-7z"/></svg>`;
 const DISCO = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h8l2.5 2.5v8.5h-11z"/><path d="M5 2.5v3.5h5V2.5M5 13.5V9.5h6v4"/></svg>`;
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 $("#cen").addEventListener("click", (e) => {
   const b = e.target.closest("[data-c]"); if (!b) return; const c = b.dataset.c, i = +b.dataset.i;
+  if (c === "imprime") { escolherImpressao(); return; }
   if (c === "salva") { const nm = ($("#cenNm").value || "").trim() || `Cenário ${CENS.length + 1}`; CENS.push({ nome: nm, blocos: G.map((g) => [...g]), em: new Date().toISOString() }); ATV = CENS.length - 1; msg("ok", `Cenário <b>${esc(nm)}</b> salvo.`); }
   else if (c === "atualiza") { CENS[ATV].blocos = G.map((g) => [...g]); CENS[ATV].em = new Date().toISOString(); msg("ok", `Alterações salvas em <b>${esc(CENS[ATV].nome)}</b>.`); }
   else if (c === "abre") { HIST.push(G.map((g) => [...g])); G = CENS[i].blocos.map((g) => [...g]); ATV = i; desenhar(); msg("", `Cenário <b>${esc(CENS[i].nome)}</b> aberto.`); }
@@ -176,6 +178,74 @@ $("#cen").addEventListener("click", (e) => {
   else if (c === "novo") { HIST.push(G.map((g) => [...g])); G = Object.keys(BAN).map((p) => [p]); ATV = null; desenhar(); msg("", "Cenário novo: cada partido sozinho. Arraste para montar os blocos."); }
   guarda(); barraCen();
 });
+
+
+// ---------------- impressão (mesmo documento do painel: um quadro por cenário + comparação) ----------------
+function escolherImpressao() {
+  const T = CENS.map((x) => ({ nome: x.nome, blocos: x.blocos })); if (!CENS.some((x) => assin(x.blocos) === assin(G))) T.unshift({ nome: "Cenário atual (não salvo)", blocos: G.map((g) => [...g]) });
+  if (T.length < 2) return imprimir(T);
+  const sel = new Set(T.map((_, i) => i)), ov = document.createElement("div");
+  ov.style.cssText = "position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px";
+  const curto = (p) => String(p).split("/")[0];
+  const pinta = () => { ov.innerHTML = `<div role="dialog" aria-label="Escolher os cenários" style="background:#14191A;color:#F2F4F5;border:1px solid #2A3034;border-radius:16px;width:min(460px,100%);max-height:86vh;display:flex;flex-direction:column">
+      <div style="padding:16px 18px 6px;display:flex;align-items:baseline;gap:10px"><b style="font-size:16px">Imprimir cenários</b><small style="color:#8A9096">${sel.size} de ${T.length} marcados</small>
+        <button data-tudo style="margin-left:auto;background:none;border:0;color:#9DB8FF;font:600 12.5px Inter,sans-serif;cursor:pointer">${sel.size === T.length ? "desmarcar todos" : "marcar todos"}</button></div>
+      <div style="overflow:auto;padding:4px 10px 8px">${T.map((x, i) => { const bl = x.blocos.filter((g) => g.length > 1); return `<label style="display:flex;gap:10px;align-items:flex-start;padding:9px 8px;border-radius:10px;cursor:pointer${sel.has(i) ? ";background:rgba(242,244,245,.05)" : ""}"><input type="checkbox" data-i="${i}" ${sel.has(i) ? "checked" : ""} style="margin-top:3px;accent-color:#3D7BFF;width:16px;height:16px">
+        <span><b style="font-weight:600">${i + 1}. ${esc(x.nome)}</b><small style="display:block;color:#8A9096;font-size:12px">${bl.length ? bl.map((g) => g.map(curto).join(" + ")).join(" · ") : "sem blocos"}</small></span></label>`; }).join("")}</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;padding:12px 18px 16px;border-top:1px solid #2A3034"><button data-fec style="background:none;border:1px solid #2A3034;color:#F2F4F5;border-radius:999px;padding:8px 16px;font:600 13px Inter,sans-serif;cursor:pointer">Cancelar</button><button data-ok${sel.size ? "" : " disabled"} style="background:#34E84A;border:0;color:#0B0D0E;border-radius:999px;padding:8px 16px;font:700 13px Inter,sans-serif;cursor:pointer">Gerar o documento</button></div></div>`; };
+  pinta(); document.body.appendChild(ov);
+  ov.onclick = (e) => { const t = e.target; if (t === ov || t.closest("[data-fec]")) { ov.remove(); return; }
+    if (t.closest("[data-tudo]")) { if (sel.size === T.length) sel.clear(); else T.forEach((_, i) => sel.add(i)); pinta(); return; }
+    if (t.closest("[data-ok]") && sel.size) { ov.remove(); imprimir(T.filter((_, i) => sel.has(i))); } };
+  ov.onchange = (e) => { const i = e.target.dataset.i; if (i == null) return; sel.has(+i) ? sel.delete(+i) : sel.add(+i); pinta(); };
+}
+function imprimir(L) {
+  const curto = (p) => String(p).split("/")[0], TOT = 176, f2 = (v) => v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), fq = (q) => q.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+  const orb = (cor) => { const c2 = encodeURIComponent(cor); return `background:center/100% 100% no-repeat url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%224.6%22 fill=%22${c2}%22/%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%229.3%22 fill=%22none%22 stroke=%22${c2}%22 stroke-width=%222.4%22 stroke-dasharray=%2246 12.4%22 transform=%22rotate(-112 12 12)%22/%3E%3Ccircle cx=%225.4%22 cy=%225.4%22 r=%222.5%22 fill=%22${c2}%22/%3E%3C/svg%3E')`; };
+  const calc = (bl) => { const Q = quadro(bl), pq = bl.filter((g) => dep(g) < 5).flat(), N = pq.reduce((t, p) => t + BAN[p], 0);
+    const Gs = Q.linhas.map((l) => ({ g: l.g, rot: l.g.map(curto).join(" + "), comp: l.g.length > 1 ? l.g.map((p) => `${curto(p)} ${BAN[p]}`).join(" · ") : "", cor: corG(l.g), bloco: l.g.length > 1, d: l.d, dtx: String(l.d), e9: l.e9, e7: l.e7, v9: l.u9, v7: l.u7, tot: l.t }));
+    if (Q.min) Gs.push({ g: pq, min: true, rot: "Minoria", comp: `conjunto de ${pq.length} bancadas com menos de 5 · ${pq.map((p) => `${curto(p)} ${BAN[p]}`).join(", ")} · 1 vaga em conjunto`, cor: "#8A9096", d: Q.min.d, dtx: pq.map((p) => BAN[p]).join("+"), e9: null, e7: null, v9: 1, v7: 1, tot: Q.min.t });
+    const alerta = pq.length > 1 && N >= 5 && N <= 10 ? `As bancadas da minoria (${pq.map(curto).join(", ")}) somam ${N} deputados e dividem 1 vaga por comissão. Juntas, poderiam formar um bloco.` : "";
+    return { G: Gs, q9: Q.R9.q, q7: Q.R7.q, alerta }; };
+  const C = L.map((x) => ({ ...x, ...calc(x.blocos) }));
+  const sim = (o, sz = 11) => `<i class="s" style="width:${sz}px;height:${sz}px;${o.bloco ? orb(o.cor) : "background:" + o.cor}"></i>`;
+  const ass = (o, n) => `<span class="ass">${Array.from({ length: n }, () => sim(o, 9)).join("")}</span>`, fil = (G, k) => `<span class="ass">${G.flatMap((o) => Array.from({ length: k === 9 ? o.v9 : o.v7 }, () => sim(o, 11))).join("")}</span>`;
+  const cenario = (x, k) => `<section class="cen"><div class="ch"><span class="n">${k + 1}</span><div><h2>${esc(x.nome)}</h2><div class="comp">${x.blocos.some((g) => g.length > 1) ? "Blocos: " + x.blocos.filter((g) => g.length > 1).map((b) => b.map(curto).join(" + ")).join(" · ") : "sem blocos"}</div></div></div>
+      <div class="barra">${x.G.map((o) => `<div style="flex:${o.tot};background:${o.cor}"><b>${o.tot}</b><span>${esc(o.rot)}</span></div>`).join("")}</div>
+      <table><thead><tr class="g"><th></th><th></th><th class="sp"></th><th class="bx" colspan="3">Comissões de 9 · 4 comissões</th><th class="sp"></th><th class="bx" colspan="3">Comissões de 7 · 20 comissões</th><th class="sp"></th><th class="bx" colspan="2">Nas 24 comissões</th></tr>
+        <tr class="c"><th class="l">Bancada ou bloco</th><th>Dep.</th><th class="sp"></th><th>÷ ${fq(x.q9)}</th><th>vagas</th><th class="l">em cada comissão</th><th class="sp"></th><th>÷ ${fq(x.q7)}</th><th>vagas</th><th class="l">em cada comissão</th><th class="sp"></th><th>assentos</th><th>%</th></tr></thead>
+      <tbody>${x.G.map((o) => `<tr><td class="l nm">${sim(o)} ${esc(o.rot)}${o.comp ? `<small>${esc(o.comp)}</small>` : ""}</td><td>${o.dtx}</td><td class="sp"></td>
+        <td class="fr">${o.e9 == null ? "—" : f2(o.e9)}</td><td><b>${o.v9}</b></td><td class="as">${ass(o, o.v9)}</td><td class="sp"></td>
+        <td class="fr">${o.e7 == null ? "—" : f2(o.e7)}</td><td><b>${o.v7}</b></td><td class="as">${ass(o, o.v7)}</td><td class="sp"></td><td class="tt">${o.tot}</td><td class="pc">${f2(o.tot / TOT * 100).replace(/,(\d)\d$/, ",$1")}%</td></tr>`).join("")}</tbody>
+      <tfoot><tr><td class="l">Total</td><td>${x.G.reduce((t, o) => t + o.d, 0)}</td><td class="sp"></td><td></td><td>${x.G.reduce((t, o) => t + o.v9, 0)}</td><td class="as">${fil(x.G, 9)}</td><td class="sp"></td><td></td><td>${x.G.reduce((t, o) => t + o.v7, 0)}</td><td class="as">${fil(x.G, 7)}</td><td class="sp"></td><td class="tt">${x.G.reduce((t, o) => t + o.tot, 0)}</td><td>100%</td></tr></tfoot></table>${x.alerta ? `<p class="al">${esc(x.alerta)}</p>` : ""}</section>`;
+  const comparacao = () => { if (C.length < 2) return ""; const P = Object.keys(BAN);
+    return `<section class="cen"><div class="ch"><span class="n">=</span><div><h2>Comparação dos cenários</h2><div class="comp">Assentos nas 24 comissões do grupo em que cada partido está, em cada cenário; a variação é contra o cenário 1.</div></div></div>
+      <table class="cmp"><thead><tr class="c"><th class="l">Partido</th>${C.map((x, i) => `<th>${i + 1}. ${esc(x.nome)}</th>`).join("")}</tr></thead><tbody>${P.map((p) => { const cel = C.map((x) => x.G.find((o) => o.g.includes(p)));
+        return `<tr><td class="l nm">${esc(curto(p))} <small>${BAN[p]} dep.</small></td>${cel.map((o, i) => { if (!o) return "<td>—</td>"; const d0 = cel[0] ? o.tot - cel[0].tot : 0;
+          return `<td>${sim(o, 9)} <b>${o.tot}</b> <span class="rt">${esc(o.rot)}</span>${i ? `<small class="${d0 > 0 ? "up" : d0 < 0 ? "dn" : ""}">${d0 > 0 ? "+" : ""}${d0 || "igual"}</small>` : ""}</td>`; }).join("")}</tr>`; }).join("")}</tbody></table></section>`; };
+  const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Cenários das comissões</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><style>@page{size:A4 landscape;margin:11mm 12mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    body{margin:0;font:11px/1.4 Inter,system-ui,sans-serif;color:#0B0D0E}.olho{font-size:7.5px;letter-spacing:.16em;text-transform:uppercase;color:#6B7178;font-weight:700}h1{font-size:24px;font-weight:900;letter-spacing:-.04em;margin:3px 0 2px}.lead{color:#3F454B;margin:0;font-size:10px}
+    .regra{height:2px;background:#A9AEB3;margin:10px 0 12px;position:relative}.regra:after{content:"";position:absolute;left:0;right:0;top:4px;height:1px;background:#D3D6D8}
+    .ler{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:10px;margin-bottom:12px}.ler>div{border:1px solid #DCDFE2;border-radius:8px;padding:8px 10px;background:#F7F8F9}.ler b{display:block;font-size:10.5px}.ler span{font-size:8.5px;color:#6B7178;line-height:1.45;display:block;margin-top:2px}
+    .leg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:8.5px;color:#3F454B;margin-top:5px}.leg span{display:inline-flex;align-items:center;gap:5px}i.s{display:inline-block;border-radius:50%;flex:none}
+    .cen{border:1px solid #DCDFE2;border-radius:10px;padding:9px 12px 7px;margin-bottom:8px;break-inside:avoid}.ch{display:flex;align-items:baseline;gap:10px;margin-bottom:7px}.ch .n{width:20px;height:20px;border-radius:50%;background:#0B0D0E;color:#fff;font:800 10px/20px Inter,sans-serif;text-align:center;flex:none;align-self:center}
+    .ch h2{font-size:14px;font-weight:800;margin:0;letter-spacing:-.01em}.ch .comp{font-size:8.5px;color:#6B7178}.up{color:#1F9E3B}.dn{color:#C6363B}
+    .barra{display:flex;gap:3px;height:34px;margin:0 0 8px}.barra div{border-radius:6px;color:#fff;padding:4px 7px;display:flex;flex-direction:column;justify-content:center;min-width:0;overflow:hidden}.barra b{font-size:13px;font-weight:900;line-height:1}.barra span{font-size:7px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+    table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}thead th{font-size:6.8px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#6B7178;text-align:right;padding:3px 6px 4px;white-space:nowrap}
+    thead tr.g th{padding-bottom:1px;text-align:center;color:#3F454B}thead tr.g th.bx{border-bottom:1.5px solid #3F454B}thead tr.c th{border-bottom:1px solid #0B0D0E}th.l,td.l{text-align:left}
+    td{padding:4px 6px;border-bottom:.5px solid #E6E8EA;text-align:right;white-space:nowrap}td.nm{font-weight:600}td.nm small{color:#9AA0A4;font-weight:500;font-size:8px;margin-left:4px}td.as{text-align:left;width:1%}.ass{display:inline-flex;gap:2px;vertical-align:middle}
+    td.sp,th.sp{width:10px;padding:0;border-bottom:0}td b{font-weight:800}td.fr{color:#6B7178}td.tt{font-size:12px;font-weight:900}td.pc{color:#6B7178}
+    tfoot td{font-weight:800;border-top:1px solid #0B0D0E;border-bottom:0}tfoot td.sp{border-top:0}.cmp th,.cmp td{text-align:center}.cmp th.l,.cmp td.l{text-align:left}.cmp td{padding:3px 6px}.cmp td b{font-size:12px}.cmp .rt{color:#6B7178;font-size:8.5px}.cmp td small{font-size:8.5px;font-weight:800;margin-left:6px}
+    .rod{font-size:8px;color:#6B7178;line-height:1.5;margin-top:8px}.al{margin:7px 0 2px;padding:6px 9px;border-radius:6px;background:#FFF6DD;border:1px solid #F0D58A;color:#6B5310;font-size:9px;line-height:1.45}</style></head><body>
+    <div class="olho">Comissões permanentes · ALESC · ${new Date().toLocaleDateString("pt-BR")}</div><h1>Cenários das comissões</h1>
+    <p class="lead">Um quadro por cenário: a barra mostra os ${TOT} assentos das 24 comissões; a tabela junta as comissões de 9 e de 7 lado a lado, com a conta e os assentos de cada grupo na mesma linha.</p><div class="regra"></div>
+    <div class="ler"><div><b>Comissões de 9 membros · 4</b><span>CCJ, Finanças, Trabalho e Ética. Vagas: deputados do grupo ÷ 5 (÷ 4,4 se não sobrar bancada pequena fora de bloco).</span></div><div><b>Comissões de 7 membros · 20</b><span>As demais. Vagas: deputados do grupo ÷ 6,6 (÷ 5,7 sem bancada pequena fora de bloco).</span></div>
+      <div><b>Como as vagas fecham</b><span>A parte inteira é vaga certa; as que faltam vão às maiores frações. Só bancadas ou blocos com 5 ou mais entram; as menores, fora de blocos, formam a minoria, com 1 vaga por comissão. Regimento, arts. 29 e 30.</span><div class="leg"><span>${sim({ cor: "#6B7178" })} partido sozinho</span><span>${sim({ cor: "#6B7178", bloco: true })} bloco (cor do maior partido)</span><span>${sim({ cor: "#8A9096" })} minoria</span></div></div></div>
+    ${C.map(cenario).join("")}${comparacao()}<p class="rod">Bancadas pelos eleitos de 2026 (TSE). Cálculo conferido na tabela oficial "Quociente · 1º de fevereiro de 2027". SimulaLEGIS · Calculadora das comissões.</p></body></html>`;
+  const ov = document.createElement("div"); ov.style.cssText = "position:fixed;inset:0;z-index:100;background:#0B0F0D;display:flex;flex-direction:column";
+  ov.innerHTML = `<div style="display:flex;gap:8px;justify-content:flex-end;padding:10px 14px;border-bottom:1px solid var(--linha)"><button data-imp class="bcria">Imprimir</button><button data-fec class="bcria sec">Fechar</button></div><iframe style="flex:1;border:0;background:#fff"></iframe>`;
+  document.body.appendChild(ov); const f = ov.querySelector("iframe"); f.srcdoc = html; ov.querySelector("[data-imp]").onclick = () => f.contentWindow.print(); ov.querySelector("[data-fec]").onclick = () => ov.remove();
+}
 
 // ---------------- arrastar (ponteiro: mouse e toque) ----------------
 let ARR = null;
