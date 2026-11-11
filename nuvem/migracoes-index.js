@@ -2069,5 +2069,16 @@ const MIGRACOES_INDEX = [
     "gab_itens.parlamentar"
    ]
   ]
+ },
+ {
+  "num": 99,
+  "arquivo": "migracao-99-gabinete-vinculo-aberto.sql",
+  "descricao": "Migração 99 (11/11/2026): \"Seu Gabinete\" para qualquer conta (Etapa 1 do Gabinete como página inicial).",
+  "objetos": [
+   [
+    "policy",
+    "gab_vinculo_dono"
+   ]
+  ]
  }
 ];

@@ -32,10 +32,10 @@ async function initColaborativo() {
     // Volta para a página de onde a pessoa saiu para entrar (ex.: Corrida da Mesa,
     // painel/mesa.html grava "sl_volta" antes de mandar pro login) — 08/10/2026
     try { const v = localStorage.getItem("sl_volta"); if (v) { localStorage.removeItem("sl_volta"); location.href = v.replace(/#.*access_token=.*$/, ""); return; } } catch (e) {}
-    // Página inicial: quem tem gabinete liberado (gab_pode, migração 71) abre direto no Gabinete — o centro do projeto
-    // depois da eleição (05/11/2026); os demais logados abrem em Parlamentares (15/10/2026). O simulador abre pelo menu
-    // (?capa=1) ou por qualquer link com parâmetro.
-    if (!location.search && !location.hash) { let gab = false; try { gab = !!(await supabaseClient.rpc("gab_pode")).data; } catch (e) {} location.replace(gab ? "painel/gabinete.html" : "painel/novos.html"); return; }
+    // Página inicial: toda conta abre no Gabinete (11/11/2026; antes só quem tinha gab_pode, e os demais em
+    // Parlamentares, hoje "Eleições 2026"). No 1º acesso o Gabinete pede o parlamentar ("Seu Gabinete"). O simulador
+    // abre pelo menu do admin (?capa=1) ou por qualquer link com parâmetro.
+    if (!location.search && !location.hash) { location.replace("painel/gabinete.html"); return; }
     // Saldo REAL da carteira (creditos_conta) — pcState.perfil vem da
     // tabela "perfis", que não tem essa coluna: sem esta carga, todo
     // "saldo: X" da interface (slot trancado, gates) mostrava 0 pra

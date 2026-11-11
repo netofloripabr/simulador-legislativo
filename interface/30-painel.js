@@ -585,8 +585,8 @@ async function renderPainelPrincipal() {
 
     <div class="lb2">
     <header class="lb2-topo">
-      <a class="lb2-wm" href="painel/novos.html" title="Início: Parlamentares" style="text-decoration:none;color:inherit"><b>Simula</b>LEGIS</a><span class="lb2-sep">Simulador 2026 · ${pcState.perfil && pcState.perfil.escopo === "partido" ? esc2(pcState.perfil.partido_escopo) : "chapa completa"}</span>
-      <nav class="lb2-vistas"><a href="painel/novos.html">Parlamentares</a><a href="painel/index.html#ranking">Ranking</a><a href="painel/mesa.html">Mesa</a></nav>
+      <a class="lb2-wm" href="painel/gabinete.html" title="Início: Gabinete" style="text-decoration:none;color:inherit"><b>Simula</b>LEGIS</a><span class="lb2-sep">Simulador 2026 · ${pcState.perfil && pcState.perfil.escopo === "partido" ? esc2(pcState.perfil.partido_escopo) : "chapa completa"}</span>
+      <nav class="lb2-vistas"><a href="painel/gabinete.html">Gabinete</a><a href="painel/novos.html">Eleições 2026</a><a href="painel/index.html#ranking">Ranking</a><a href="painel/mesa.html">Mesa</a></nav>
       <span class="lb2-icones">
         ${pcState.perfil && ECONOMIA_ATIVA ? `<button class="lb2-cred" id="pcBtnSaldoTopo" title="Seus créditos">${iconeSvg("credito", 13)}<span>${Number((pcState.perfil && pcState.perfil.creditos) || 0)}</span></button>` : ""}
         <button class="lb2-ic" id="pcBtnConvidarTopo" title="Convidar amigos">${iconeSvg("convidar", 16)}</button>
@@ -614,7 +614,7 @@ async function renderPainelPrincipal() {
       <div class="lb2-prog">
         <p style="margin:0; color:#A9AEB3; font-size:15px;">Confira o resultado oficial de Santa Catarina, os duelos e os grupos. Os painéis mostram o mandato 2027–2031 de cada eleito.</p>
         <button class="lb2-btn" id="pcBtnResHeroi">Ver o resultado 2026 →</button>
-        <a class="lb2-lnk" href="painel/novos.html" style="text-decoration:none;">Painel Parlamentares</a>
+        <a class="lb2-lnk" href="painel/novos.html" style="text-decoration:none;">Painel Eleições 2026</a>
       </div>
     </section>
 
@@ -634,7 +634,7 @@ async function renderPainelPrincipal() {
     </section>
 
     <section class="lb2-sec"><div class="lb2-sh"><h2>Painéis</h2><p>Resultado e mandato 2027–2031.</p></div>
-      <div class="lb2-paineis"><a href="painel/novos.html"><b>Parlamentares</b><span>Eleitoral, Legislativo e Administrativo de cada eleito</span></a><a href="painel/index.html#ranking"><b>Ranking</b><span>Todos os candidatos de SC, 2026 × 2022</span></a><a href="painel/mesa.html"><b>Mesa</b><span>Monte a chapa e as comissões</span></a></div>
+      <div class="lb2-paineis"><a href="painel/gabinete.html"><b>Gabinete</b><span>O painel do seu gabinete</span></a><a href="painel/novos.html"><b>Eleições 2026</b><span>Eleitoral, Legislativo e Administrativo de cada eleito</span></a><a href="painel/index.html#ranking"><b>Ranking</b><span>Todos os candidatos de SC, 2026 × 2022</span></a><a href="painel/mesa.html"><b>Mesa</b><span>Monte a chapa e as comissões</span></a></div>
     </section>
 `; })()}
     </div>

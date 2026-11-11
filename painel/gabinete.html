@@ -59,6 +59,7 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 .tgs::before{ content:""; width:8px; height:8px; border:solid currentColor; border-width:0 2px 2px 0; transform:translateY(-2px) rotate(45deg); transition:transform .2s; } .tgs.ab::before{ transform:translateY(2px) rotate(-135deg); } .tgs{ display:inline-flex; align-items:center; justify-content:center; flex:none; width:30px; height:30px; border-radius:50%; border:1px solid var(--linha); background:none; color:var(--ter); font:600 18px/1 "Inter"; cursor:pointer; }
 .secao.fech .corpoT{ display:none; } .secao.fech{ padding:22px 0 46px; }
 .abas{ margin-top:22px; } .abas button{ font-size:14px; padding:8px 16px; }
+.abas .abtr{ align-self:center; font-size:12px; color:var(--sec); padding:7px 12px; border:1px dashed var(--linha); border-radius:999px; opacity:.75; cursor:default; }
 .obra{ margin-top:16px; padding:16px 18px; border:1px dashed rgba(242,244,245,.14); border-radius:12px; color:var(--ter); font-size:13.5px; }
 .tb.ot td{ position:relative; } .tb.ot th[data-oo]{ cursor:pointer; } .tb.ot .br{ position:absolute; left:8px; bottom:3px; height:2px; background:var(--a); border-radius:2px; max-width:calc(100% - 16px); } .gcab{ display:flex; gap:20px; align-items:flex-start; } .gft{ width:72px; height:72px; border-radius:50%; object-fit:cover; object-position:50% 18%; box-shadow:0 0 0 2.5px var(--a); flex:none; margin-top:8px; } .trp{ margin-top:14px; background:var(--sup2); border:1px solid var(--linha); border-radius:999px; padding:8px 14px; font-size:13px; } @media (max-width:600px){ .gft{ width:52px; height:52px; } } .gcapa{ display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); gap:28px; align-items:center; padding:10px 0 40px; } .gcapa h1{ font-size:clamp(44px,7vw,84px); margin:6px 0 22px; } .gcapa h1 i{ color:var(--a); }
 .pops{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px 0; } .pops div{ padding:2px 16px; border-left:1px solid var(--linha); display:flex; flex-direction:column; } .pops div:nth-child(3n+1){ border-left:0; padding-left:0; } .pops b{ font-size:26px; font-weight:800; letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums; } .pops b.a{ color:var(--a); } .pops span{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); margin-top:6px; line-height:1.4; }
@@ -484,13 +485,13 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <link rel="stylesheet" href="topo.css?cb=16">
 </head>
 <body>
-<header class="topo" id="topoSL"><a class="wm" href="novos.html?v=8"><b>Simula</b>LEGIS</a><nav class="sl-nav"><a href="novos.html?v=8">Parlamentares</a><a href="index.html?v=8#ranking">Ranking</a><a href="mesa.html?v=8">Mesa</a><a href="gabinete.html" class="on">Gabinete</a><span class="mnuw"><button class="mnub" aria-label="Menu" title="Menu"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button><span class="mnu" hidden><a href="../?entrar=1" class="mconta" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}">Entrar ou cadastrar<small>login com e-mail ou Google</small></a><a href="../?capa=1" class="msim">Sistema SimulaLEGIS<small>resultado, duelos, grupos e suas listas</small></a><a href="novos.html?v=8">Parlamentares</a><a href="index.html?v=8#ranking">Ranking</a><a href="mesa.html?v=8">Mesa</a></span></span></nav></header>
+<header class="topo" id="topoSL"><a class="wm" href="gabinete.html"><b>Simula</b>LEGIS</a><nav class="sl-nav"><a href="novos.html?v=8">Eleições 2026</a><a href="index.html?v=8#ranking">Ranking</a><a href="mesa.html?v=8">Mesa</a><a href="gabinete.html" class="on">Gabinete</a><span class="mnuw"><button class="mnub" aria-label="Menu" title="Menu"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button><span class="mnu" hidden><a href="../?entrar=1" class="mconta" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}">Entrar ou cadastrar<small>login com e-mail ou Google</small></a><a href="../?capa=1" class="msim">Sistema SimulaLEGIS<small>resultado, duelos, grupos e suas listas</small></a><a href="novos.html?v=8">Eleições 2026</a><a href="index.html?v=8#ranking">Ranking</a><a href="mesa.html?v=8">Mesa</a></span></span></nav></header>
 <main class="pg" id="app"><p style="color:#6B7178">Carregando…</p></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=106"></script>
+<script src="gabinete.js?cb=107"></script>
 <script src="gabinete-rh.js?cb=2"></script>
 <script src="gabinete-adicionar.js?cb=18"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
@@ -499,7 +500,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>
-<script src="sino-menu.js?cb=11"></script>
+<script src="sino-menu.js?cb=12"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */
 (function(){ var b=document.querySelector(".mnub"), m=document.querySelector(".mnu"); if(!b||!m) return;
   b.onclick=function(e){ e.stopPropagation(); m.hidden=!m.hidden; }; document.addEventListener("click",function(e){ if(!e.target.closest(".mnuw")) m.hidden=true; });

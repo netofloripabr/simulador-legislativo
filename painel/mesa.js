@@ -23,9 +23,9 @@ async function iniciar() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (!session) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">Entre na sua conta para acessar o jogo.</p><a href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}">Entrar</a></div>`; return; }
   UID = session.user.id;
-  const { data: pode } = await supabaseClient.rpc("pode_acessar_mesa");
-  if (!pode) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">O acesso à Corrida da Mesa é liberado pelo administrador. Peça a liberação informando o e-mail da sua conta.</p><a href="./">Voltar ao painel</a></div>`; return; }
+  // 11/11/2026: a Mesa é só do administrador (antes: área "mesa" liberada por conta, pode_acessar_mesa)
   const { data: admin } = await supabaseClient.rpc("sou_admin");
+  if (admin !== true) { app.innerHTML = `<div class="bloq"><h1>Corrida da <i>Mesa.</i></h1><p style="color:#A9AEB3">Este painel está disponível só para a administração.</p><a href="gabinete.html">Ir para o seu Gabinete</a></div>`; return; }
   const [d, e, a] = await Promise.all([fetch(`../dados/painel/${UF}-estadual.json?v=20261008a`).then((r) => r.json()), SC ? fetch("../dados/painel/mesa-estruturas.json?v=12").then((r) => r.json()) : fetch(`../dados/painel/${UFI.casa.toLowerCase()}-estruturas-casa.json?v=1`).then((r) => r.json()).catch(() => ({ grupos: {} })), fetch(SC ? "../dados/painel/alesc-estrutura.json?v=3" : `../dados/painel/${UFI.casa.toLowerCase()}-mesa.json?v=1`).then((r) => r.json())]);
   if (!SC) { const cs = UFI.casa.toLowerCase(); [ADM_SP, EST_SP] = await Promise.all([fetch(`../dados/painel/${cs}-administrativo.json?v=2`).then((r) => r.json()).catch(() => ({})), fetch(`../dados/painel/${cs}-estrutura.json?v=1`).then((r) => r.json()).catch(() => ({}))]);
     const L = (a.comissoes || {}).lista || []; a.comissoes = L.map((x) => ({ nome: x.nome })); L.forEach((x) => { const k = x.nome.replace(/^Comissão /, "").replace(/^(de|dos|das|da|do) /, ""); TAM[k[0].toUpperCase() + k.slice(1)] = x.membros; });
