@@ -9,6 +9,8 @@ try { window._primeiraEntrada = !sessionStorage.getItem("sl_entrou"); sessionSto
 (function () {
   try {
     if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return;
+    // 11/11/2026: Eleições 2026 (novos.html) é aberta ao visitante sem conta; as áreas restritas dela têm trava própria
+    if (/\/novos\.html$/.test(location.pathname) && !/[?&]so=/.test(location.search)) return;
     var ok = false;
     for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (/^sb-.*-auth-token$/.test(k)) { var s = JSON.parse(localStorage.getItem(k) || "null"); if (s && (s.refresh_token || (s.currentSession && s.currentSession.refresh_token))) { ok = true; break; } } }
     if (ok) return;

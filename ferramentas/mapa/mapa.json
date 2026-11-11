@@ -57,6 +57,10 @@
   [
    "11/11/2026",
    "Gabinete é a página inicial de toda conta logada (substitui as decisões de 04/11 'só gabinetes liberados' e 05/11 'página inicial'); no primeiro acesso a pessoa escolhe 'Seu Gabinete'. Não-admin vê só as funções públicas; Controle, Cotas, Indicar, Caderno e RH seguem admin. 'Parlamentares' passa a se chamar 'Eleições 2026'. Mesa e 'Sistema SimulaLEGIS' (menu) só para administrador. Etapa 2 planejada: equipe do gabinete com papéis Responsável/Editor/Leitor."
+  ],
+  [
+   "11/11/2026",
+   "Visitante sem conta entra em 'Eleições 2026' (painel/novos.html), única página aberta antes do login (substitui, só para esta página, a regra de 05/11 'nada fica aberto para quem não entrou'). Depois do login, a página inicial é o Gabinete."
   ]
  ],
  "paginas": [
@@ -178,11 +182,11 @@
    "id": "parlamentares",
    "nome": "Eleições 2026",
    "url": "painel/novos.html",
-   "quem": "cadastrado",
+   "quem": "visitante",
    "status": "pronto",
    "arquivo": "painel/novos.js",
    "ancora": "secAdministrativo",
-   "nota": "Consulta pública por parlamentar. Legislativo e Administrativo pedem conta; valores em R$ pedem liberação.",
+   "nota": "Consulta pública por parlamentar. Única página aberta antes do login (11/11/2026): o visitante que abre o endereço do site cai aqui. Legislativo e Administrativo pedem conta; valores em R$ pedem liberação.",
    "filhos": [
     {
      "nome": "Outros estados: Legislativo e Administrativo Em preparação",

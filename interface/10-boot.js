@@ -150,6 +150,9 @@ async function initColaborativo() {
     // 05/11/2026: o sistema exige conta — sem sessão, qualquer entrada (endereço do site, convite de duelo, link
     // com parâmetro) abre a tela de entrar ou se cadastrar. Antes: visitante caía no painel de SC ou na capa.
     if (_paramsIniciais.toString() && !_paramsIniciais.get("entrar")) { try { if (!localStorage.getItem("sl_volta")) localStorage.setItem("sl_volta", location.href); } catch (e) {} }
+    // 11/11/2026: o visitante sem conta que abre o endereço do site (sem parâmetro) entra em Eleições 2026, a única
+    // página aberta antes do login; o Gabinete e o resto continuam exigindo conta.
+    if (!location.search && !location.hash) { location.replace("painel/novos.html"); return; }
     pcState.tela = "login";
   }
   renderColaborativo();
