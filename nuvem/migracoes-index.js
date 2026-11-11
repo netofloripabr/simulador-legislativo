@@ -2080,5 +2080,100 @@ const MIGRACOES_INDEX = [
     "gab_vinculo_dono"
    ]
   ]
+ },
+ {
+  "num": 100,
+  "arquivo": "migracao-100-gabinete-equipe.sql",
+  "descricao": "Migração 100 (11/11/2026): equipe do gabinete (Etapa 2, desenho aprovado pelo usuário em 11/11/2026).",
+  "objetos": [
+   [
+    "table",
+    "gab_equipe"
+   ],
+   [
+    "index",
+    "gab_equipe_aberta"
+   ],
+   [
+    "index",
+    "gab_equipe_perfil"
+   ],
+   [
+    "index",
+    "gab_equipe_parl"
+   ],
+   [
+    "function",
+    "gab_papel"
+   ],
+   [
+    "function",
+    "gab_le"
+   ],
+   [
+    "function",
+    "gab_edita"
+   ],
+   [
+    "function",
+    "gab_gere"
+   ],
+   [
+    "policy",
+    "gab_equipe_ver"
+   ],
+   [
+    "function",
+    "gab_avisar_gestores"
+   ],
+   [
+    "function",
+    "gab_pedir_entrada"
+   ],
+   [
+    "function",
+    "gab_autorizar_origem"
+   ],
+   [
+    "function",
+    "gab_decidir_pedido"
+   ],
+   [
+    "function",
+    "gab_mudar_papel"
+   ],
+   [
+    "function",
+    "gab_remover"
+   ],
+   [
+    "function",
+    "gab_equipe_lista"
+   ],
+   [
+    "function",
+    "gab_meus_gabinetes"
+   ],
+   [
+    "function",
+    "gab_autorizacoes_pendentes"
+   ],
+   [
+    "index",
+    "if"
+   ],
+   [
+    "function",
+    "gab_carimbo"
+   ],
+   [
+    "trigger",
+    "gab_contatos_parl"
+   ],
+   [
+    "column",
+    "gab_contatos.parlamentar"
+   ]
+  ]
  }
 ];

@@ -96,7 +96,7 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 /* tela estreita (05/11/2026): nome do parlamentar no alto, mapa embaixo dele crescendo com a largura (proporção do estado), depois os botões e os cartões */
 @media (max-width:760px){ .ghero{ display:flex; flex-direction:column; padding-top:18px; } .ghero .gtxt{ display:contents; }
   .ghero .gid{ order:1; padding:0 18px; } .ghero h1{ order:2; padding:0 18px; margin-top:12px !important; } .ghero canvas{ order:3; height:auto; aspect-ratio:4 / 3; width:100%; }
-  .ghero .gsw{ order:4; } .ghero .gcards{ order:5; padding:0 18px; margin-top:6px; } .ghero .gvinc{ order:6; padding:0 18px 26px; } .ghero > .gloa{ order:0; } }
+  .ghero .gsw{ order:4; } .ghero .gcards{ order:5; padding:0 18px; margin-top:6px; } .ghero .gvinc{ order:6; padding:0 18px 26px; } .ghero .geq{ order:6; padding:0 18px; margin-top:4px; } .ghero > .gloa{ order:0; } }
 .leqs{ display:flex; gap:8px; flex-wrap:wrap; margin:20px 0 4px; } .leq{ display:inline-flex; align-items:center; gap:8px; padding:4px 6px 4px 14px; border:1px solid var(--linha); border-radius:999px; background:var(--sup); } .leq span{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:600; } .leq select{ appearance:none; background:var(--sup2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23A9AEB3' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 10px center; border:0; border-radius:999px; padding:6px 28px 6px 12px; font-weight:700; font-size:13px; color:var(--texto); cursor:pointer; }
 .bx.fech > :not(.bxh){ display:none !important; } .bx.fech .bxh{ margin-bottom:0; } .bxh .tgs{ align-self:center; }
 #tab{ overflow-x:auto; } .tb.ct td{ vertical-align:top; } .anot textarea, .anot input{ font-family:inherit; color:var(--texto); } .tb.ct td b{ font-weight:700; } .vp{ width:150px; } .vp b{ display:block; } .vb{ display:block; height:5px; border-radius:3px; background:var(--sup2); margin:5px 0 3px auto; width:110px; overflow:hidden; } .vb i{ display:block; height:100%; background:#34E84A; border-radius:3px; } .vp small{ text-align:right; }
@@ -480,6 +480,21 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .pclg .q i{ border-radius:0; width:14px; height:0; border-top:2px dashed #E8705A; vertical-align:3px; } .pclg .p i{ background:#34E84A; box-shadow:0 0 6px rgba(52,232,74,.7); height:4px; vertical-align:2px; }
 .pclg button{ background:none; border:0; color:inherit; font:inherit; cursor:pointer; padding:0; } .pclg button:hover{ color:#F2F4F5; }
 .pcpart{ margin-top:4px; } .pcdica{ font-size:11.5px; color:#5E656B; margin:10px 0 0; } .pcload{ color:#6B7178; padding:40px 0; text-align:center; }
+
+/* Equipe do gabinete (gabinete-equipe.js, 11/11/2026) — Leitor: sem os botões de alterar */
+.gab-leitor [data-excl],.gab-leitor [data-subst],.gab-leitor [data-xtag],.gab-leitor .tgin,.gab-leitor .anot [data-salvar],.gab-leitor .anot [data-addnota],.gab-leitor [data-salva],.gab-leitor #impArq{ display:none !important; }
+.geq{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:14px 0 0; font-size:12.5px; color:var(--sec); }
+.geq .geqp b{ color:var(--a); } .geqb{ border:1px solid var(--a); background:none; color:inherit; border-radius:999px; padding:5px 12px; font:600 12px/1 inherit; cursor:pointer; }
+.geqb.sec{ border-color:var(--linha); } .geqb em{ font-style:normal; background:var(--a); color:#0B0D0E; border-radius:999px; padding:1px 6px; margin-left:6px; font-size:11px; }
+.geqo{ width:100%; font-size:12px; color:var(--ter); } .geqo a{ color:var(--sec); }
+.eqbox{ max-height:62vh; overflow:auto; padding:2px 2px 8px; } .eqsec{ margin:6px 0 18px; } .eqsec h4{ margin:0 0 8px; font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--ter); }
+.eqtx{ margin:0 0 10px; font-size:13px; color:var(--sec); line-height:1.45; }
+.eqln{ display:flex; align-items:center; gap:8px; padding:9px 0; border-top:1px solid var(--linha); } .eqln .eqn{ flex:1; min-width:0; font-weight:600; } .eqln .eqn small{ display:block; font-weight:400; color:var(--ter); font-size:11.5px; margin-top:2px; }
+.eqln select{ font:inherit; font-size:12px; padding:4px 6px; border-radius:6px; } .eqln .btn{ padding:6px 12px; font-size:12px; } .eqln .btn[disabled]{ opacity:.4; cursor:not-allowed; }
+.eqeu{ display:inline !important; margin-left:4px; color:var(--a) !important; } .eqpl{ font-size:12px; color:var(--sec); }
+.eqpap{ display:grid; gap:8px; margin:0 0 12px; } .eqpap label{ display:flex; gap:8px; align-items:baseline; padding:10px 12px; border:1px solid var(--linha); border-radius:10px; cursor:pointer; } .eqpap small{ color:var(--ter); }
+.eqleg{ display:grid; gap:4px; font-size:11.5px; color:var(--ter); border-top:1px solid var(--linha); padding-top:10px; } .eqleg b{ color:var(--sec); }
+.eqalt{ font-size:11.5px; color:var(--ter); margin-top:8px; } .eqalt b{ color:var(--sec); }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -491,12 +506,13 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=107"></script>
-<script src="gabinete-rh.js?cb=2"></script>
-<script src="gabinete-adicionar.js?cb=18"></script>
+<script src="gabinete.js?cb=108"></script>
+<script src="gabinete-rh.js?cb=3"></script>
+<script src="gabinete-adicionar.js?cb=19"></script>
+<script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=24"></script>
-<script src="gabinete-indicar.js?cb=46"></script>
+<script src="gabinete-indicar.js?cb=47"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>

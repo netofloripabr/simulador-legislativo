@@ -17,8 +17,13 @@ let DSEL = DURL || null, VINC = null; // VINC: parlamentar vinculado à conta (g
 const COR_P = { "NOVO": "#F37021", "PL": "#3D7BFF", "PT/PC do B/PV": "#E5383B", "MDB": "#34C759", "UNIÃO/PP": "#2FB5E8", "PSD": "#2B5FD9", "REPUBLICANOS": "#4D8DFF", "PODE": "#3FB37F", "PDT": "#E5484D", "PSOL/REDE": "#F5B700", "PSB": "#F2A900" };
 const hexRgb = (h) => { h = h.replace("#", ""); return [0, 2, 4].map((k) => parseInt(h.slice(k, k + 2), 16)); };
 let PARL = null; // parlamentar aberto: { n, u, p, t }
-// "próprio" = o gabinete vinculado à conta (gab_vinculo), qualquer deputado; sem vínculo, o mandato original (05/11/2026)
-const proprio = () => PARL && PARL.n === (VINC || DEP.n);
+// "próprio" (11/11/2026, migração 100): a conta tem papel na equipe do gabinete aberto (gab_papel); o admin do site vale
+// como Responsável de todos. Sem sessão no computador local (testes): o gabinete vinculado neste navegador.
+let PAPEL = null, ADM = false, MEUS = [];
+const proprio = () => !!PARL && (LOCAL && !SESS ? PARL.n === (VINC || DEP.n) : !!PAPEL);
+const EDITA = () => (LOCAL && !SESS) || PAPEL === "responsavel" || PAPEL === "editor";
+const LEITOR_MSG = "Seu papel nesta equipe é Leitor: você consulta, mas não altera.";
+const exigeEditar = () => { if (!EDITA()) throw new Error(LEITOR_MSG); };
 const ETAPAS = [null, ["Indicada", "#5C6268"], ["Empenhada", "#8FA8E8"], ["Em pagamento", "#C6E62A"], ["Paga", "#34E84A"], ["Impedimento técnico", "#E8432A"]];
 const etapa = (e) => (e.imped && /impedimento/i.test(e.imped)) ? 5 : (e.v > 0 && (e.vp || 0) >= e.v * 0.995) ? 4 : (e.vl > 0 || e.vp > 0) ? 3 : (e.ve > 0 || (e.pagamentos_sef || []).length) ? 2 : 1;
 const S = { lc: "votos", aba: "meu", mapa: false, outro: null, oano: 2026, oord: "v", fech: {}, mq: "", mano: 0, mlim: 80, ano: 0, lente: "rec", busca: "", mod: "", et: new Set([1, 2, 3, 4, 5]), aberto: null, ord: ["v", -1], lim: 60 };
@@ -27,24 +32,31 @@ let MEU = [], TODAS = null, E0 = [], V0 = [], EST = null, E = [], META = {}, BAS
 async function iniciar() {
   const [m, mt, b, est] = await Promise.all([fetch(PUB + "mandato-napoleao.json").then((r) => r.json()), fetch(PUB + "meta.json").then((r) => r.json()).catch(() => ({})), fetch("../dados/painel/sc-base.json").then((r) => r.json()), fetch("../dados/painel/sc-estadual.json").then((r) => r.json())]);
   META = mt; BASE = b; EST = est;
-  try { SESS = supabaseClient ? (await supabaseClient.auth.getSession()).data.session : null; if (SESS) { const r = await supabaseClient.rpc("gab_pode"); PODE = !!r.data; const v = await supabaseClient.from("gab_vinculo").select("parlamentar").maybeSingle(); VINC = v.data ? v.data.parlamentar : null; } } catch (e) {}
-  // 11/11/2026 (Etapa 1): o Gabinete é a página inicial de toda conta. Sem ser admin (PODE), abre só o que é público;
-  // Controle, Cotas, Indicar, Caderno e RH seguem exigindo PODE (gab_pode, migração 71) até existir a equipe do gabinete.
+  try { SESS = supabaseClient ? (await supabaseClient.auth.getSession()).data.session : null; if (SESS) { const r = await supabaseClient.rpc("gab_pode"); ADM = !!r.data; const v = await supabaseClient.from("gab_vinculo").select("parlamentar").maybeSingle(); VINC = v.data ? v.data.parlamentar : null; } } catch (e) {}
+  // 11/11/2026: o Gabinete é a página inicial de toda conta. O que é privado (Controle, Cotas, Indicar, Caderno, RH,
+  // Contatos) só aparece para quem tem papel na equipe do gabinete aberto (PODE = tem papel; ver gabinete-equipe.js).
   if (!SESS && !LOCAL) return restrito();
+  // ?pedido=<id> (vem do sino): abre o gabinete do pedido e a janela da equipe
+  const PED = new URLSearchParams(location.search).get("pedido");
+  if (PED && SESS) { try { const q = await supabaseClient.from("gab_equipe").select("parlamentar").eq("id", PED).maybeSingle(); if (q.data) DSEL = q.data.parlamentar; } catch (e) {} }
   if (LOCAL && !VINC) { try { VINC = localStorage.getItem("gab_vinc_local"); } catch (e) {} }
   if (!VINC) return escolha(); // sem vínculo, a conta escolhe primeiro o próprio gabinete
   DSEL = DSEL || VINC;
   PARL = est.c.find((c) => c.n === DSEL) || est.c.find((c) => c.n === DEP.n);
   const cr = hexRgb(COR_P[PARL.p] || "#2B5FD9"); document.documentElement.style.setProperty("--a", COR_P[PARL.p] || "#2B5FD9"); document.documentElement.style.setProperty("--a-rgb", cr.join(","));
   VOT = PARL.v || [];
+  if (SESS) { try { const [pa, mg] = await Promise.all([supabaseClient.rpc("gab_papel", { p: PARL.n }), supabaseClient.rpc("gab_meus_gabinetes")]); PAPEL = pa.data || null; MEUS = mg.data || []; } catch (e) {} PODE = !!PAPEL; }
   if (PARL.n === DEP.n) { E = m.emendas.map((e) => ({ ...e, et: etapa(e) })); const ix = {}; BASE.mun.forEach((x, i) => { ix[norm(x.n)] = i; }); E.forEach((e) => { e.mi = ix[norm(e.mun)]; }); }
   else { await lerTodas(); const ds = casaDep(PARL); E = TODAS.filter((e) => ds.has(e.dep)); }
   E0 = E; V0 = VOT;
   try { if (PODE && proprio()) await lerPrivado(); } catch (e) {}
-  try { if ((PODE || LOCAL) && proprio() && typeof lerAdicionar === "function") await lerAdicionar(); } catch (e) {}
+  try { if ((PODE || LOCAL) && proprio() && EDITA() && typeof lerAdicionar === "function") await lerAdicionar(); } catch (e) {}
+  try { if (SESS && typeof lerEquipe === "function") await lerEquipe(); } catch (e) {}
   // área restrita: por enquanto só administradores (no computador local, liberado para testes)
   if (LOCAL && !MEU.length) { try { MEU = await (await fetch("../dados/gabinete/_priv-teste.json")).json(); MEU.forEach((r) => { r.municipio = nomeMun(r.municipio); }); PRIV = {}; MEU.forEach((r) => { if (r.chave) PRIV[r.chave] = r; }); PRIV._n = MEU.length; PODE = true; window.GAB_TESTE = true; document.body.insertAdjacentHTML("afterbegin", `<div style="position:sticky;top:0;z-index:50;background:#FFE9A8;color:#5A4500;font:700 12px/1.3 system-ui;padding:6px 12px;text-align:center">Cópia de teste neste computador: planilha antiga, sem as mudanças recentes. Os dados reais estão no site publicado.</div>`); } catch (e) {} }
   desenhar();
+  document.body.classList.toggle("gab-leitor", PAPEL === "leitor");
+  if (PED && typeof abrirEquipe === "function") abrirEquipe();
 }
 function restrito() { $("#app").innerHTML = `<div style="max-width:560px;margin:12vh auto"><div class="olho">Gabinete</div><h1 style="font-size:44px">Seu Gabinete.</h1><p class="lead">Entre com a sua conta para abrir o painel do seu gabinete.</p>${SESS ? "" : `<p><a class="btn" href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}" style="display:inline-block;text-decoration:none;margin-top:12px">Entrar</a></p>`}</div>`;  }
 // primeira vez: a conta escolhe o parlamentar do gabinete; depois o painel abre sempre nele
@@ -63,9 +75,9 @@ const aplicarCorr = (r) => { if (!r.corr || r._orig) return r; r._orig = {}; Obj
 const corrHtml = (r, k, html) => r._orig && k in r._orig ? `${html(r._orig[k])}<small class="corr" title="${esc((r.corr || {}).nota || "")}">→ ${html(r[k])}</small>` : html(r[k]);
 let AGENDA = [];
 const pessoaLinha = (c) => `<div class="pl1"><select data-pp><option value="lider"${c.papel === "lider" ? " selected" : ""}>Líder</option><option value="tecnico"${c.papel === "tecnico" ? " selected" : ""}>Técnico</option><option value="outro"${c.papel === "outro" ? " selected" : ""}>Outro</option></select><input data-pn list="dlAgenda" value="${esc(c.nome || "")}" placeholder="Nome (escolha da agenda ou digite um novo)"><input data-pt value="${esc(c.tel || "")}" placeholder="Telefone"><button type="button" class="x" data-px title="Remover">×</button></div>`;
-async function lerAgenda() { try { if (LOCAL && !SESS) AGENDA = JSON.parse(localStorage.getItem("gab_agenda") || "[]"); else { const { data } = await supabaseClient.from("gab_contatos").select("*").order("nome"); AGENDA = data || []; } } catch (e) { AGENDA = []; } }
-async function salvarContato(c) { const ex = AGENDA.find((x) => norm(x.nome) === norm(c.nome)); if (ex) { if (c.tel && !ex.tel) { ex.tel = c.tel; if (!(LOCAL && !SESS)) await supabaseClient.from("gab_contatos").update({ tel: c.tel }).eq("id", ex.id); } return ex; }
-  let n = { nome: c.nome, papel: c.papel, tel: c.tel || null };
+async function lerAgenda() { try { if (LOCAL && !SESS) AGENDA = JSON.parse(localStorage.getItem("gab_agenda") || "[]"); else { const { data } = await supabaseClient.from("gab_contatos").select("*").eq("parlamentar", PARL.n).order("nome"); AGENDA = data || []; } } catch (e) { AGENDA = []; } }
+async function salvarContato(c) { exigeEditar(); const ex = AGENDA.find((x) => norm(x.nome) === norm(c.nome)); if (ex) { if (c.tel && !ex.tel) { ex.tel = c.tel; if (!(LOCAL && !SESS)) await supabaseClient.from("gab_contatos").update({ tel: c.tel }).eq("id", ex.id); } return ex; }
+  let n = { nome: c.nome, papel: c.papel, tel: c.tel || null, parlamentar: PARL.n };
   if (LOCAL && !SESS) { n.id = "l" + Date.now() + Math.random(); AGENDA.push(n); try { localStorage.setItem("gab_agenda", JSON.stringify(AGENDA)); } catch (e) {} }
   else { const { data, error } = await supabaseClient.from("gab_contatos").insert(n).select().single(); if (error) throw error; n = data; AGENDA.push(n); }
   return n; }
@@ -79,7 +91,7 @@ const corpoEle = () => `<iframe class="admEmb" id="eleEmb" title="Eleitoral" loa
 addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data) return; const f = e.data.slEmb === "adm" ? $("#admEmb") : e.data.slEmb === "ele" ? $("#eleEmb") : null; if (f) f.style.height = Math.max(200, +e.data.h || 0) + "px"; });
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
-const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos por você. Transparência: os dados divulgados pelo estado."],
+const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos pela equipe do gabinete. Transparência: os dados divulgados pelo estado."],
   ["rh", "Administrativo", "A estrutura do gabinete e o que o mandato recebe e pode estruturar: subsídio, verbas, liderança e a transparência da Casa."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
   ["ele", "Eleitoral", "Onde estão os votos do mandato: mapa, distribuição, perfil das cidades, comparação e ranking."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."]];
 function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio() && PODE)) S.aba = "geral";
@@ -124,7 +136,7 @@ function capa(nm) {
     <div class="gtxt"><div class="gid"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div></div>
     <h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
     <div class="gcards" id="gcards">${cartoesCapa()}</div>
-    ${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section><div class="grank" id="grank">${rankReg()}</div>`;
+    ${typeof equipeFaixa === "function" ? equipeFaixa() : ""}${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section><div class="grank" id="grank">${rankReg()}</div>`;
 }
 // ranking da região: os 5 municípios com mais votos (e "ver os outros"), com 2022 e os recursos de cada um
 function rankReg() { if (!S.reg || S.reg.t === "mun") return "";
@@ -172,7 +184,7 @@ function funCapa(e) { const r = PRIV && e.k && PRIV[e.k], f = r && r.funcao ? FU
   if (f) return f[1].replace(/ \(.*\)/, ""); const a = typeof piArea === "function" ? piArea(e.obj, e.tben) : "Outras"; return FUN_CAPA[a] || a; }
 // aviso da cota aberta (prazo correndo) no topo: contagem regressiva e atalho para a página de Indicação
 function avisoCota() {
-  if (typeof COTAS_LEGAIS === "undefined" || typeof abrirInd !== "function" || !proprio() || !(PODE || LOCAL)) return "";
+  if (typeof COTAS_LEGAIS === "undefined" || typeof abrirInd !== "function" || !proprio() || !(PODE || LOCAL) || !EDITA()) return "";
   const ag = new Date(), [ano, t, c] = Object.entries(COTAS_LEGAIS).flatMap(([a, o]) => Object.entries(o).map(([t2, c2]) => [+a, t2, c2])).find(([, , c2]) => c2.prazo && new Date(c2.prazo) > ag && (!c2.abre || new Date(c2.abre) <= ag)) || [];
   if (!c) return "";
   const Lc = typeof AD !== "undefined" && typeof listaDaCota === "function" ? listaDaCota(ano, t) : null, n = Lc ? AD.itens.filter((x) => x.lista_id === Lc.id && (x.municipio || +x.valor)).length : 0;
@@ -273,7 +285,7 @@ function blocos() {
     hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; S.bxf[k] = !S.bxf[k]; bx.classList.toggle("fech", S.bxf[k]); hd.querySelector(".tgs").classList.toggle("ab", !S.bxf[k]); }; });
 }
 function corpoRec() {
-  return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"], ["cotas", "Cotas"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}${proprio() && !PODE && !LOCAL ? `<span class="abtr" title="Controle, Cotas e Indicar são do time do gabinete. A equipe do gabinete está em preparação.">Controle e Cotas · em breve para a equipe</span>` : ""}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o painel de indicadores"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13.5h12 M4 11V7 M8 11V3 M12 11V8"/></svg>Painel</button>${proprio() && (PODE || LOCAL) && MEU.length && typeof cadernoGab === "function" ? `<button id="cadBt" class="mapab" title="Caderno de recursos para imprimir: escolha as seções"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h7.5L13 5v8.5H3z M10.5 2.5V5H13 M5.5 8h5 M5.5 10.5h5"/></svg>Caderno</button>` : ""}</div>${S.aba === "meu" ? '<div id="mtool"></div>' : ""}</div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : S.aba === "cotas" ? cotas() : outros()}</div>`;
+  return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"], ["cotas", "Cotas"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}${SESS && !PAPEL ? `<span class="abtr" title="Controle, Cotas, Indicar e Contatos são da equipe do gabinete. Peça para entrar pelo botão Equipe no alto da página.">Controle e Cotas · só para a equipe do gabinete</span>` : ""}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o painel de indicadores"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13.5h12 M4 11V7 M8 11V3 M12 11V8"/></svg>Painel</button>${proprio() && (PODE || LOCAL) && MEU.length && typeof cadernoGab === "function" ? `<button id="cadBt" class="mapab" title="Caderno de recursos para imprimir: escolha as seções"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h7.5L13 5v8.5H3z M10.5 2.5V5H13 M5.5 8h5 M5.5 10.5h5"/></svg>Caderno</button>` : ""}</div>${S.aba === "meu" ? '<div id="mtool"></div>' : ""}</div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : S.aba === "cotas" ? cotas() : outros()}</div>`;
 }
 // mapa: só abre quando o botão Mapa da faixa das abas é selecionado; mostra as emendas oficiais do recorte atual
 function blocoMapa() {
@@ -351,7 +363,7 @@ function meu() {
   if (S.lista && typeof opsListas === "function" && !opsListas().some((o) => o[0] === S.lista)) S.lista = null;
   const fLista = ""; // o Controle é uma lista única; a lista de origem (Indicação) virou um filtro no funil
   const ad = typeof adicionarHtml === "function" ? adicionarHtml() : "", topoC = (f) => `<p class="lead" style="margin-top:14px">O controle do gabinete: emendas, convênios e recursos informais, inclusive os que não aparecem no portal. Visível só para você.</p><div class="leqs cbar">${f}${ad}</div>`;
-  if (!MEU.length) return topoC(fLista) + blocoPrivado();
+  if (!MEU.length) return topoC(fLista) + (EDITA() ? blocoPrivado() : `<div class="obra">O controle deste gabinete ainda está vazio.</div>`);
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
   S.mtool = fLista + leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano); S.mad = ad;
@@ -621,9 +633,10 @@ function detalheMeu(r) {
     <div class="tgs3 tgs-top">${(r.tags || []).map((t) => `<span>${esc(t)}<button data-xtag="${esc(t)}" title="Tirar etiqueta">×</button></span>`).join("")}<span class="tgin" hidden><input data-nova placeholder="etiqueta…" autocomplete="off"></span><button class="add" data-etq>+ etiqueta</button></div>
     <div class="tgsug" hidden></div>
     ${bento}${caderno}
+    ${typeof quemAlterou === "function" ? quemAlterou(r) : ""}
     ${r.corr && r.corr.nota ? `<div class="dfx"><span class="fx"></span>Corrigido na revisão · ${esc(r.corr.nota)}</div>` : ""}</div>`;
 }
-async function gravaMeu(r, campos) {
+async function gravaMeu(r, campos) { exigeEditar();
   if (LOCAL && !SESS) { Object.assign(r, campos); }
   else { const { error } = await supabaseClient.from("gab_recursos").update({ ...campos, atualizado_em: new Date().toISOString() }).eq("id", r.id); if (error) throw error; Object.assign(r, campos); }
   if (r.chave) PRIV[r.chave] = r;
@@ -698,7 +711,7 @@ function ligarMeuDet(d, r) {
       m.querySelector("[data-salva]").onclick = () => ok(m.querySelector('[data-f="nova"]').value.trim());
       m.querySelector("[data-solta]").onclick = () => ok(null); }); };
   a.querySelectorAll("[data-subst]").forEach((b) => b.onclick = subst);
-  const ex = a.querySelector("[data-excl]"); ex.onclick = async () => { if (ex.dataset.ok !== "1") { ex.dataset.ok = "1"; ex.textContent = "Confirmar exclusão"; return; }
+  const ex = a.querySelector("[data-excl]"); ex.onclick = async () => { if (!EDITA()) { msg.textContent = LEITOR_MSG; return; } if (ex.dataset.ok !== "1") { ex.dataset.ok = "1"; ex.textContent = "Confirmar exclusão"; return; }
     try { if (!(LOCAL && !SESS)) { const { error } = await supabaseClient.from("gab_recursos").delete().eq("id", r.id); if (error) throw error; }
       MEU.splice(MEU.indexOf(r), 1); if (r.chave && PRIV[r.chave] === r) delete PRIV[r.chave]; S.maberto = null; desenhar(); } catch (er) { msg.textContent = "Não foi possível excluir: " + (er.message || er); } };
 }
@@ -779,10 +792,10 @@ function ligarNotas(d) {
   const salvar = async (novaNota) => {
     const p = PRIV[k] || {}, campos = { lideranca: a.querySelector('[data-f="lideranca"]').value.trim() || null, observacao: a.querySelector('[data-f="observacao"]').value.trim() || null, notas: [...(p.notas || []), ...(novaNota ? [{ t: novaNota, em: new Date().toISOString() }] : [])] };
     msg.textContent = "Salvando…";
-    try {
+    try { exigeEditar();
       if (LOCAL && !SESS) { PRIV[k] = { ...p, ...campos }; }
       else if (p.id) { const { error } = await supabaseClient.from("gab_recursos").update({ ...campos, atualizado_em: new Date().toISOString() }).eq("id", p.id); if (error) throw error; PRIV[k] = { ...p, ...campos }; }
-      else { const { data, error } = await supabaseClient.from("gab_recursos").insert({ chave: k, ano: e0.ano, origem: e0.tipo, municipio: e0.mun, objeto: e0.obj, valor: e0.v, modalidade: e0.mod, ...campos }).select().single(); if (error) throw error; PRIV[k] = data; MEU.push(data); }
+      else { const { data, error } = await supabaseClient.from("gab_recursos").insert({ parlamentar: PARL.n, chave: k, ano: e0.ano, origem: e0.tipo, municipio: e0.mun, objeto: e0.obj, valor: e0.v, modalidade: e0.mod, ...campos }).select().single(); if (error) throw error; PRIV[k] = data; MEU.push(data); }
       msg.textContent = "Salvo."; if (novaNota) tabela();
     } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); }
   };
@@ -793,7 +806,7 @@ function ligarNotas(d) {
 // ---------- camada privada: importar a planilha do gabinete ----------
 function blocoPrivado() {
   const n = PRIV ? PRIV._n : 0;
-  return `<div class="bx" style="margin-top:18px"><div class="bxh" style="margin-bottom:6px"><h2 style="font-size:20px">Dados do gabinete</h2><p>visíveis só para você</p></div>
+  return `<div class="bx" style="margin-top:18px"><div class="bxh" style="margin-bottom:6px"><h2 style="font-size:20px">Dados do gabinete</h2><p>visíveis só para a equipe do gabinete</p></div>
     ${n ? `<div class="av"><b>${n}</b> recursos da planilha ligados às emendas oficiais. As anotações aparecem dentro de cada emenda.</div>` : `<div class="av">Importe a planilha "Controle de Recursos" (.xlsx). As abas EM Consolidado e Demandas são gravadas só na sua conta.</div><p style="margin:10px 0 0"><input type="file" id="impArq" accept=".xlsx" hidden><button class="btn" id="impBtn">Importar planilha</button> <span class="av" id="impMsg"></span></p>`}</div>`;
 }
 async function importar() {
@@ -806,8 +819,8 @@ async function importar() {
         return { ano, origem: tx(r[1]) && tx(r[1]).replace(/\s+/g, " "), numero: nr, chave: ano && nr && /^\d+$/.test(nr) ? `${ano}-${nr.padStart(6, "0")}` : null, municipio: tx(r[4]), regiao: tx(r[5]), beneficiario: tx(r[6]), objeto: tx(r[7]), funcao: tx(r[8]), modalidade: tx(r[9]), valor: nu(r[10]), status_manual: tx(r[11]), info_pl: tx(r[12]), processo: tx(r[13]), observacao: tx(r[14]), tags: tx(r[15]) ? tx(r[15]).split(",").map((t) => t.trim()).filter(Boolean) : null, orientacao: tx(r[16]), publicacao: tx(r[17]), empenho: tx(r[18]), liquidacao: tx(r[19]), pagamento: tx(r[20]), ob: tx(r[21]), data_pagamento: dt(r[22]), origem_planilha: typeof r[0] === "number" ? r[0] : null }; });
       const Dm = wb.Sheets["Demandas"] ? linhas("Demandas", 2).filter((r) => r[2] || r[5]).map((r) => ({ ano: typeof r[1] === "number" ? r[1] : null, municipio: tx(r[2]), regiao: tx(r[3]), valor: nu(r[4]), objeto: tx(r[5]), demandante: tx(r[6]), data_cadastro: dt(r[7]), observacao: tx(r[8]) })) : [];
       msg.textContent = `Gravando ${R.length} recursos e ${Dm.length} demandas…`;
-      for (let i = 0; i < R.length; i += 200) { const { error } = await supabaseClient.from("gab_recursos").insert(R.slice(i, i + 200)); if (error) throw error; }
-      for (let i = 0; i < Dm.length; i += 200) { const { error } = await supabaseClient.from("gab_demandas").insert(Dm.slice(i, i + 200)); if (error) throw error; }
+      for (let i = 0; i < R.length; i += 200) { const { error } = await supabaseClient.from("gab_recursos").insert(R.slice(i, i + 200).map((x) => ({ ...x, parlamentar: PARL.n }))); if (error) throw error; }
+      for (let i = 0; i < Dm.length; i += 200) { const { error } = await supabaseClient.from("gab_demandas").insert(Dm.slice(i, i + 200).map((x) => ({ ...x, parlamentar: PARL.n }))); if (error) throw error; }
       await lerPrivado(); desenhar();
     } catch (er) { msg.textContent = "Não foi possível importar: " + (er.message || er); } };
   inp.click();

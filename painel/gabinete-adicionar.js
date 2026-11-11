@@ -29,15 +29,15 @@ async function lerAdicionar() {
 }
 const guardaLocal = () => { try { localStorage.setItem("gab_ad_local", JSON.stringify({ listas: AD.listas, itens: AD.itens })); } catch (e) {} };
 const novoId = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
-async function gravar(tab, reg) {
+async function gravar(tab, reg) { exigeEditar();
   const col = tab === "gab_listas" ? AD.listas : AD.itens, agora = new Date().toISOString();
   if (nuvemAd()) {
-    const q = reg.id ? supabaseClient.from(tab).update({ ...reg, atualizado_em: agora }).eq("id", reg.id) : supabaseClient.from(tab).insert(reg);
+    const q = reg.id ? supabaseClient.from(tab).update({ ...reg, atualizado_em: agora }).eq("id", reg.id) : supabaseClient.from(tab).insert({ parlamentar: PARL.n, ...reg });
     const { data, error } = await q.select().single(); if (error) throw error; reg = data;
   } else { reg = { ...(reg.id ? col.find((x) => x.id === reg.id) || {} : {}), ...reg, id: reg.id || novoId(), atualizado_em: agora, criado_em: reg.criado_em || agora }; }
   const k = col.findIndex((x) => x.id === reg.id); k >= 0 ? (col[k] = reg) : col.push(reg); if (!nuvemAd()) guardaLocal(); return reg;
 }
-async function apagar(tab, id) {
+async function apagar(tab, id) { exigeEditar();
   if (nuvemAd()) { const { error } = await supabaseClient.from(tab).delete().eq("id", id); if (error) throw error; }
   if (tab === "gab_listas") { AD.listas = AD.listas.filter((x) => x.id !== id); AD.itens = AD.itens.filter((x) => x.lista_id !== id); } else AD.itens = AD.itens.filter((x) => x.id !== id);
   if (!nuvemAd()) guardaLocal();
@@ -53,7 +53,7 @@ const refTxt = (r) => r ? `${fm(r.rec)} · ${ni(r.v22)} → ${ni(r.v26)} votos${
 
 // ---------- botão verde: só a entrada. As listas e os itens aparecem dentro de "Meu controle" ----------
 function adicionarHtml() {
-  if (!(PODE && proprio())) return "";
+  if (!(PODE && proprio() && EDITA())) return "";
   return `<div class="adw"><button class="adbtn" id="adBtn" title="Indicação de recursos" aria-label="Adicionar">+</button><div class="admenu" id="adMenu" hidden><button data-ad="item"><b>Item</b><span>Uma indicação, no formulário padrão</span></button><button data-ad="lista"><b>Lista</b><span>Formulário de indicações em Google Planilhas, gerado no seu Drive</span></button></div></div>`;
 }
 // filtro "Lista" de Meu controle: a planilha importada, cada lista criada e os itens avulsos

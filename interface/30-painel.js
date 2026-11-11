@@ -807,6 +807,7 @@ async function renderNotificacoes() {
         <div class="pc-notif-titulo">${n.titulo}</div>
         ${n.corpo ? `<div class="pc-notif-desc">${n.corpo}</div>` : ""}
         ${n.tipo === "acesso_parlamentares" && n.referencia_id ? blocoPedido(n) : ""}
+        ${n.tipo === "gab_equipe" && n.referencia_id ? `<a class="pc-notif-acao" href="painel/gabinete.html?pedido=${encodeURIComponent(n.referencia_id)}" style="text-decoration:none;display:inline-block">Abrir a equipe</a>` : ""}
         ${n.tipo === "desafio_recebido" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver duelo</button>` : ""}
         ${n.tipo === "desafio_aceito" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Ver o duelo selado</button>` : ""}
         ${n.tipo === "desafio_lembrete" ? `<button class="pc-notif-acao" data-pc-ver-desafio="${n.referencia_id}">Reenviar o convite</button>` : ""}

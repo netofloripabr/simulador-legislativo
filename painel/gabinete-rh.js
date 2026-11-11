@@ -6,7 +6,7 @@
 let RHC = [], RHE = null, RHAB = {}, RHF = null; // linhas gravadas · tabelas (mesa-estruturas + catálogo) · grupos abertos · formulário aberto
 const rhGab = (n) => n >= 1 && n <= GAB_IDX.length ? GAB_IDX[n - 1] * GAB_VAL : 0;
 const rhMil = (v) => v >= 1e6 ? (v / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " mi" : Math.round(v / 1e3).toLocaleString("pt-BR") + " mil";
-const rhLocal = () => LOCAL && !SESS, rhPode = () => proprio() && (PODE || rhLocal());
+const rhLocal = () => LOCAL && !SESS, rhPode = () => proprio() && (PODE || rhLocal()) && EDITA();
 // funções do parlamentar e o que cada uma soma (fase 3: somar sozinho; por ora a descrição pela norma)
 const RH_PAR = [["mesa_pres", "Presidente da Mesa", "Gabinete da Presidência: até 20 Secretários Parlamentares PL/GAM e Chefe de Gabinete PL/DAS-8 · Gestão Executiva de 50% · adicional da Mesa na cota de custeio"],
   ["mesa", "Membro da Mesa (Vice-Presidente ou Secretário)", "gabinete da Mesa: até 9 Secretários Parlamentares PL/GAM · adicional da Mesa na cota de custeio"],
