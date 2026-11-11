@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Calculadora das comissões · ALESC</title>
+<meta name="description" content="Monte blocos partidários arrastando e veja as vagas nas comissões permanentes da ALESC (legislatura 2027–2031).">
+<style>
+@font-face{ font-family:"Inter"; src:url(../fontes/InterVariable.woff2) format("woff2"); font-weight:100 900; font-display:swap; }
+:root{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --linha:rgba(242,244,245,.09); --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178; --ok:#34E84A; --no:#E8432A; color-scheme:dark; }
+*{ box-sizing:border-box; } html,body{ margin:0; background:var(--fundo); color:var(--texto); font:15px/1.5 "Inter",system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+.pg{ max-width:1080px; margin:0 auto; padding:28px 16px 80px; }
+.olho{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); }
+h1{ font-size:34px; letter-spacing:-.03em; margin:6px 0 6px; } .lead{ color:var(--sec); margin:0 0 20px; max-width:720px; }
+.card{ border:1px solid var(--linha); border-radius:18px; background:var(--sup); padding:22px 24px; }
+.cab{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; } .tag{ border:1.5px solid var(--texto); border-radius:999px; padding:3px 12px; font-size:11px; font-weight:800; letter-spacing:.14em; }
+.cab h2{ margin:0; font-size:22px; } .cab span.s{ color:var(--ter); font-size:14px; }
+.acoes{ margin-left:auto; display:flex; gap:8px; } .acoes button{ background:none; border:1px solid var(--linha); color:var(--sec); border-radius:999px; padding:6px 12px; font:600 12px/1 inherit; cursor:pointer; } .acoes button:hover{ color:var(--texto); border-color:var(--sec); } .acoes button:disabled{ opacity:.35; cursor:default; }
+.barra{ display:flex; gap:4px; margin:20px 0 6px; height:78px; } .barra div{ border-radius:10px; padding:10px 14px; overflow:hidden; white-space:nowrap; transition:flex-grow .35s ease; min-width:0; }
+.barra b{ display:block; font-size:24px; line-height:1.1; } .barra small{ font-size:12px; opacity:.92; text-overflow:ellipsis; overflow:hidden; display:block; }
+.barra .mn{ background:#8A9096; box-shadow:inset 0 0 0 2px #fff; }
+table{ width:100%; border-collapse:collapse; margin-top:14px; } th{ text-align:left; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:600; padding:10px 10px; border-bottom:1px solid rgba(242,244,245,.22); }
+td{ padding:10px; border-bottom:1px solid var(--linha); vertical-align:middle; } td.n{ font-variant-numeric:tabular-nums; white-space:nowrap; } td.n b{ font-weight:700; }
+tr.alvo td{ transition:background .15s; } tr.alvo.ok td{ background:rgba(52,232,74,.09); } tr.alvo.no td{ background:rgba(232,67,42,.10); }
+tr.alvo.ok td:first-child{ box-shadow:inset 3px 0 0 var(--ok); } tr.alvo.no td:first-child{ box-shadow:inset 3px 0 0 var(--no); }
+tr.mnr td{ background:rgba(255,255,255,.025); } tr.form td{ background:repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 8px,transparent 8px 16px); }
+tr.mud td.n.t{ color:#FFD84D; } td .dl{ font-size:11.5px; font-weight:600; margin-left:6px; } .dl.up{ color:var(--ok); } .dl.dn{ color:#FF7A66; }
+.qv{ display:inline-grid; grid-template-columns:2.5em 1.4em 1.1em; align-items:baseline; } .qv span{ text-align:right; } .qv i{ font-style:normal; text-align:center; color:var(--sec); } .qv b{ text-align:right; }
+tr.tot td{ font-weight:700; border-bottom:0; }
+.grp{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; } .grp .rot{ font-size:12px; color:var(--ter); margin-right:2px; }
+.chip{ display:inline-flex; align-items:center; gap:6px; padding:5px 10px 5px 8px; border-radius:999px; background:var(--sup2); border:1px solid var(--linha); font-size:13px; font-weight:600; cursor:grab; user-select:none; touch-action:none; transition:transform .12s, opacity .12s, box-shadow .12s; }
+.chip:hover{ border-color:rgba(242,244,245,.3); transform:translateY(-1px); } .chip i{ width:10px; height:10px; border-radius:50%; flex:none; } .chip em{ font-style:normal; color:var(--sec); font-weight:500; font-variant-numeric:tabular-nums; }
+.chip.trava{ cursor:not-allowed; } .chip.trava:hover{ transform:none; } .chip.sai{ opacity:.28; }
+.chip.alvo.ok{ box-shadow:0 0 0 2px var(--ok); } .chip.alvo.no{ box-shadow:0 0 0 2px var(--no); }
+body.arr{ user-select:none; -webkit-user-select:none; cursor:grabbing; }
+.fant{ position:fixed; z-index:50; pointer-events:none; transform:translate(-50%,-60%) rotate(-3deg) scale(1.08); box-shadow:0 12px 30px rgba(0,0,0,.5); cursor:grabbing; }
+.alca{ width:22px; height:22px; border-radius:50%; display:inline-grid; place-items:center; cursor:grab; touch-action:none; border:1px dashed rgba(242,244,245,.25); } .alca i{ width:10px; height:10px; border-radius:50%; background:var(--c); box-shadow:0 0 0 3px rgba(0,0,0,.25), 0 0 0 4.5px var(--c); } .alca:hover{ border-color:var(--sec); }
+.cico{ width:34px; height:34px; border-radius:50%; border:1px solid var(--linha); background:none; color:var(--sec); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; position:relative; } .cico:hover{ color:var(--texto); border-color:var(--sec); } .cico.on{ color:#0B0D0E; background:var(--ok); border-color:var(--ok); } .cico:disabled{ opacity:.35; cursor:default; } .cico b{ position:absolute; right:3px; top:2px; font-size:11px; line-height:1; }
+.novo td{ border-bottom:0; } .novo .zona{ border:1.5px dashed rgba(242,244,245,.22); border-radius:12px; padding:12px; text-align:center; color:var(--ter); font-size:13px; }
+.novo.alvo.ok .zona{ border-color:var(--ok); color:var(--ok); background:rgba(52,232,74,.06); }
+.msg{ position:sticky; bottom:14px; margin-top:16px; min-height:46px; display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:12px; background:#1F2527; border:1px solid var(--linha); font-size:13.5px; color:var(--sec); box-shadow:0 10px 30px rgba(0,0,0,.35); }
+.msg.ok{ border-color:rgba(52,232,74,.5); color:var(--texto); } .msg.no{ border-color:rgba(232,67,42,.6); color:var(--texto); } .msg b{ color:var(--texto); }
+.msg .ic{ width:20px; height:20px; border-radius:50%; flex:none; display:grid; place-items:center; font-size:12px; font-weight:800; background:var(--sup2); }
+.msg.ok .ic{ background:var(--ok); color:#0B0D0E; } .msg.no .ic{ background:var(--no); color:#fff; }
+.al{ margin-top:14px; padding:10px 14px; border-radius:10px; background:rgba(255,216,77,.08); border:1px solid rgba(255,216,77,.35); color:#FFE79A; font-size:13px; }
+.rod{ margin-top:22px; font-size:12px; color:var(--ter); line-height:1.6; } .rod a{ color:var(--sec); }
+.regras{ margin-top:22px; display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px; } .regras div{ background:var(--sup); border:1px solid var(--linha); border-radius:12px; padding:12px 14px; font-size:12.5px; color:var(--sec); } .regras b{ color:var(--texto); display:block; margin-bottom:3px; }
+@media (max-width:720px){ .pg{ padding:18px 12px 70px; } h1{ font-size:26px; } .card{ padding:16px 12px; } th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){ display:none; } .barra{ height:64px; } .barra b{ font-size:18px; } .barra div{ padding:8px; } }
+
+/* cenários salvos (mesmo desenho da barra do site: + Novo · Cenários · nome · Salvar) */
+.cenS{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:16px 0 0; padding:10px 12px; border:1px solid var(--linha); border-radius:12px; }
+.cnovo{ font:700 13px "Inter"; color:var(--texto); background:none; border:1px solid rgba(242,244,245,.25); border-radius:999px; padding:7px 14px; cursor:pointer; } .cnovo:hover{ border-color:var(--texto); }
+.cenS .ct{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:700; margin-right:4px; } .cenS small{ color:var(--ter); font-size:12px; }
+.cch{ display:inline-flex; border:1px solid var(--linha); border-radius:999px; overflow:hidden; } .cch button{ font:600 12.5px "Inter"; background:none; border:0; color:var(--texto); padding:6px 10px; cursor:pointer; }
+.cch button.x{ color:var(--ter); padding:6px 9px; border-left:1px solid var(--linha); } .cch button:hover{ background:rgba(242,244,245,.05); }
+.cch.on{ border-color:var(--ok); } .cch.on button:first-child{ color:var(--ok); } .cch.on.mod button:first-child::after{ content:" · alterado"; color:#FFD84D; font-weight:500; }
+.cch button.x.ok{ color:#fff; background:var(--no); }
+#cenNm{ font:13px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:999px; padding:7px 12px; margin-left:auto; min-width:0; flex:0 1 200px; }
+.bcria{ font:700 13px "Inter"; color:#0B0D0E; background:var(--ok); border:0; border-radius:999px; padding:8px 16px; cursor:pointer; } .bcria.sec{ background:none; color:var(--texto); border:1px solid rgba(242,244,245,.25); }
+@media (max-width:720px){ #cenNm{ flex:1 1 100%; margin-left:0; } }
+</style></head><body><div class="pg">
+<div class="olho">SimulaLEGIS · ALESC · legislatura 2027–2031</div>
+<h1>Calculadora das comissões.</h1>
+<p class="lead">Quantas vagas cada bancada ou bloco teria nas 24 comissões permanentes (4 de 9 membros e 20 de 7). Arraste a etiqueta de um partido para outra linha da tabela. Enquanto você arrasta, a linha fica verde se cabe ou vermelha se não cabe, e a barra e o aviso de baixo mostram como ficariam os assentos. Para criar um bloco, solte um partido sobre outro. Para tirar do bloco, solte na <b>Minoria</b>; para desfazer o bloco inteiro, arraste pelo símbolo no começo da linha.</p>
+<div class="card">
+  <div class="cab"><span class="tag">SIMULAÇÃO</span><h2>Quadro do cenário</h2><span class="s">atualizado a cada partido que você move</span>
+    <div class="acoes"><button id="desf" disabled>Desfazer</button><button id="lnk" title="Copia um link que abre esta calculadora já com o cenário da tela">Copiar link deste cenário</button></div></div>
+  <div id="cen"></div>
+  <div class="barra" id="barra"></div>
+  <div id="al"></div>
+  <table><thead><tr><th>Bancada ou bloco</th><th>Dep.</th><th id="h9">De 9</th><th id="h7">De 7</th><th>Nas 24</th></tr></thead><tbody id="tb"></tbody></table>
+  <div class="msg" id="msg"><span class="ic">↔</span><span>Pegue um partido pela etiqueta e arraste.</span></div>
+</div>
+<div class="regras">
+  <div><b>Bloco: de 5 a 10 deputados</b>Juntar só vale até 10 (Regimento, art. 20 §3º). Por isso o PL, com 16, não recebe nem entra em bloco.</div>
+  <div><b>Minoria</b>Bancadas com menos de 5 fora de bloco formam um conjunto com 1 vaga em cada comissão (art. 29).</div>
+  <div><b>Bloco em formação</b>Partidos juntos que ainda não somam 5 ficam tracejados: até completar 5, contam como minoria.</div>
+  <div><b>Conta das vagas</b>Deputados ÷ quociente, parte inteira e as maiores frações; empate vai para a bancada maior (art. 30).</div>
+</div>
+<p class="rod">Bancadas: deputados estaduais eleitos em 2026 (TSE), pelo partido da eleição. Regras: Regimento Interno da ALESC (Resolução 001/2019), arts. 20, 29 e 30; quociente conferido na tabela oficial "Quociente · 1º de fevereiro de 2027". Os cenários salvos ficam só neste navegador. Material de apoio, sem vínculo oficial com a Assembleia. · <a href="../">SimulaLEGIS</a></p>
+</div>
+<script>
+let BAN = { "PL": 16, "PT/PC do B/PV": 5, "UNIÃO/PP": 4, "MDB": 4, "REPUBLICANOS": 3, "PSD": 3, "PODE": 2, "PSOL/REDE": 1, "NOVO": 1, "PDT": 1 };
+const COR = { "PL": "#3D7BFF", "PT/PC do B/PV": "#E5383B", "MDB": "#34C759", "UNIÃO/PP": "#17B8C9", "PSD": "#1E4FB0", "REPUBLICANOS": "#8E6CF0", "PODE": "#7BC67E", "NOVO": "#A3B53A", "PSOL/REDE": "#F28C28", "PDT": "#E8579B" };
+let G = Object.keys(BAN).map((p) => [p]), HIST = [];
+// cenário vindo no link (#c=PL~PODE+REPUBLICANOS~...): dado de fora, só aceita partidos que existem e cada um uma vez
+function lerLink() { const m = location.hash.match(/[#&]c=([^&]*)/); if (!m) return null; try { const vis = new Set(), L = decodeURIComponent(m[1]).split("~").map((g) => g.split("+").filter((p) => BAN[p] && !vis.has(p) && vis.add(p))).filter((g) => g.length && g.reduce((t, p) => t + BAN[p], 0) <= 10 || g.length === 1);
+  Object.keys(BAN).filter((p) => !vis.has(p)).forEach((p) => L.push([p])); return L.length ? L : null; } catch (e) { return null; } }
+const linkDe = (Gs) => location.href.split("#")[0] + "#c=" + encodeURIComponent(Gs.map((g) => g.join("+")).join("~"));
+const $ = (s) => document.querySelector(s), dep = (g) => g.reduce((s, p) => s + BAN[p], 0), nome = (g) => [...g].sort((a, b) => BAN[b] - BAN[a]).join(" + "), chave = (g) => [...g].sort().join("|");
+const fr = (x) => x.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// cor do bloco: a do maior partido (empate: o primeiro da lista)
+const corG = (g) => COR[[...g].sort((a, b) => BAN[b] - BAN[a])[0]];
+const tipo = (g) => dep(g) >= 5 ? (g.length > 1 ? "bloco" : "bancada") : g.length > 1 ? "formando" : "pequena";
+// mesma conta do painel (vagasRI, painel/novos.js): quociente com 1 casa para baixo; desconta a vaga da minoria só se ela existe
+function vagasRI(grupos, n, k) {
+  const gr = grupos.map((g) => ({ g, d: dep(g) })), Gd = gr.filter((x) => x.d >= 5), pq = gr.filter((x) => x.d > 0 && x.d < 5);
+  const q = Math.floor(40 / (n - (pq.length ? 1 : 0)) * 10) / 10;
+  Gd.forEach((x) => { x.e = x.d / q; x.u = Math.floor(x.e); }); let r = n - (pq.length ? 1 : 0) - Gd.reduce((s, x) => s + x.u, 0);
+  const ord = [...Gd].sort((a, b) => (b.e - Math.floor(b.e)) - (a.e - Math.floor(a.e)) || b.d - a.d); for (let i = 0; r > 0 && ord.length; i++, r--) ord[i % ord.length].u++;
+  const L = Gd.map((x) => ({ g: x.g, d: x.d, e: x.e, u: x.u, v: k * x.u })); return { q, L, min: pq.length ? { d: pq.reduce((s, x) => s + x.d, 0), v: k } : null };
+}
+// bloco em formação (< 5) não é bloco: cada partido dele conta como bancada pequena
+function quadro(Gs) {
+  const C = Gs.flatMap((g) => g.length > 1 && dep(g) < 5 ? g.map((p) => [p]) : [g]), R9 = vagasRI(C, 9, 4), R7 = vagasRI(C, 7, 20);
+  const linhas = Gs.filter((g) => dep(g) >= 5).map((g) => { const a = R9.L.find((x) => x.g === g), b = R7.L.find((x) => x.g === g); return { g, d: dep(g), e9: a.e, u9: a.u, e7: b.e, u7: b.u, t: a.v + b.v }; }).sort((x, y) => y.t - x.t || y.d - x.d);
+  const peq = Gs.filter((g) => dep(g) < 5);
+  return { R9, R7, linhas, form: peq.filter((g) => g.length > 1), soltas: peq.filter((g) => g.length === 1).map((g) => g[0]), min: R9.min ? { d: R9.min.d, t: R9.min.v + R7.min.v } : null };
+}
+// mover os itens (um partido, ou o bloco inteiro pela alça) para o alvo: índice de um grupo ou "min" (tirar do bloco)
+function mover(Gs, it, alvo) {
+  const S = Gs.find((g) => g.includes(it[0])), ni = dep(it), todo = it.length === S.length && it.length > 1, rot = todo ? `o bloco <b>${nome(it)}</b>` : `<b>${it[0]}</b>`;
+  if (alvo === "min") {
+    if (S.length === 1) { const p = S[0]; return { ok: false, neutro: true, msg: BAN[p] >= 5 ? `<b>${p}</b> já está sozinho, como bancada de ${BAN[p]}: com 5 ou mais, não é minoria (art. 29).` : `<b>${p}</b> já está na minoria.` }; }
+    if (todo) { const G2 = Gs.filter((g) => g !== S).concat(S.map((p) => [p])), gr = S.filter((p) => BAN[p] >= 5), pq = S.filter((p) => BAN[p] < 5);
+      return { ok: true, G2, msg: `O bloco <b>${nome(S)}</b> se desfaz.${pq.length ? ` ${pq.join(", ")} ${pq.length > 1 ? "vão" : "vai"} para a minoria.` : ""}${gr.length ? ` ${gr.map((p) => `${p} (${BAN[p]})`).join(", ")} ${gr.length > 1 ? "ficam sozinhos" : "fica sozinho"}, como bancada própria: com 5 ou mais, não é minoria.` : ""}` }; }
+    const p = it[0], np = BAN[p], G2 = Gs.map((g) => g === S ? g.filter((x) => x !== p) : g).concat([[p]]), resto = S.filter((x) => x !== p), dr = dep(resto);
+    return { ok: true, G2, msg: `<b>${p}</b> (${np}) sai de ${nome(S)} e ${np >= 5 ? "fica sozinho, como bancada própria: com 5 ou mais, não é minoria (art. 29)" : "vai para a minoria"}.${resto.length > 1 && dr < 5 ? ` O que sobra (${nome(resto)}, ${dr}) deixa de ser bloco.` : resto.length === 1 && dr < 5 ? ` ${resto[0]} (${dr}) fica sozinho e também vai para a minoria.` : ""}` };
+  }
+  const T = Gs[alvo]; if (!T || T === S) return { ok: false, neutro: true, msg: T ? `Já está em ${nome(T)}.` : "" };
+  if (ni > 10) return { ok: false, msg: `${rot} tem ${ni} deputados: um bloco vai até 10 (art. 20 §3º).` };
+  const tot = dep(T) + ni; if (tot > 10) return { ok: false, msg: `<b>${nome(T)}</b> (${dep(T)}) + ${rot} (${ni}) = ${tot}: passa de 10 deputados (art. 20 §3º).` };
+  const G2 = Gs.map((g) => g === S ? g.filter((x) => !it.includes(x)) : g === T ? [...g, ...it] : g).filter((g) => g.length);
+  return { ok: true, G2, msg: tot >= 5 ? `Juntar ${rot} a ${nome(T)}: bloco de <b>${tot}</b> deputados.` : `Juntar ${rot} a ${nome(T)}: ${tot} deputados, bloco em formação (faltam ${5 - tot}).` };
+}
+const qv = (e, v) => `<span class="qv"><span>${e}</span><i>${e ? "→" : ""}</i><b>${v}</b></span>`;
+const tira = (Gs, p) => Gs.map((g) => g.filter((x) => x !== p)).filter((g) => g.length);
+
+// ---------------- desenho ----------------
+const chip = (p, tr) => `<span class="chip${BAN[p] > 10 ? " trava" : ""}" data-p="${p}"${tr ? ` data-alvo="${tr}"` : ""}><i style="background:${COR[p]}"></i>${p}<em>${BAN[p]}</em></span>`;
+function barra(Gs) { const Q = quadro(Gs); $("#barra").innerHTML = Q.linhas.map((l) => `<div style="flex-grow:${l.t};background:${corG(l.g)}"><b>${l.t}</b><small>${nome(l.g)}</small></div>`).join("") + (Q.min ? `<div class="mn" style="flex-grow:${Q.min.t}"><b>${Q.min.t}</b><small>Minoria</small></div>` : ""); }
+// o que muda nos assentos (Nas 24) entre o cenário atual e o da prévia
+function mudancas(G2) { const a = {}, b = {}, put = (o, Q) => { Q.linhas.forEach((l) => { o[nome(l.g)] = l.t; }); if (Q.min) o["Minoria"] = Q.min.t; };
+  put(a, quadro(G)); put(b, quadro(G2)); const L = [];
+  Object.keys(b).forEach((k) => { if (a[k] !== b[k]) L.push(`${k} <b>${a[k] ?? 0} → ${b[k]}</b>`); }); Object.keys(a).forEach((k) => { if (!(k in b)) L.push(`${k} <b>${a[k]} → 0</b>`); });
+  return L.length ? "<br><span style='color:var(--ter)'>Nas 24:</span> " + L.join(" · ") : "<br><span style='color:var(--ter)'>Nas 24: os assentos não mudam.</span>"; }
+function desenhar(prev) {
+  if (prev) { barra(prev.G2); return; }
+  const Gs = prev ? prev.G2 : G, Q = quadro(Gs), Q0 = quadro(G), antes = {}; Q0.linhas.forEach((l) => { antes[chave(l.g)] = l.t; }); const minA = Q0.min ? Q0.min.t : 0;
+  const idx = (g) => Gs.indexOf(g), dl = (a, b) => a === b ? "" : `<span class="dl ${b > a ? "up" : "dn"}">${b > a ? "+" : "−"}${Math.abs(b - a)}</span>`;
+  $("#h9").textContent = `De 9 (÷ ${String(Q.R9.q).replace(".", ",")})`; $("#h7").textContent = `De 7 (÷ ${String(Q.R7.q).replace(".", ",")})`;
+  let h = Q.linhas.map((l) => { const a = antes[chave(l.g)] ?? 0, mud = prev && a !== l.t;
+    return `<tr class="${mud ? "mud" : ""}" data-alvo="${idx(l.g)}"><td><div class="grp">${l.g.length > 1 ? `<span class="alca" data-bloco="${idx(l.g)}" title="Arraste o bloco inteiro (solte na Minoria para desfazer)" style="--c:${corG(l.g)}"><i></i></span>` : ""}${l.g.map((p) => chip(p)).join("")}</div></td><td class="n">${l.d}</td><td class="n">${qv(fr(l.e9), l.u9)}</td><td class="n">${qv(fr(l.e7), l.u7)}</td><td class="n t"><b>${l.t}</b>${prev ? dl(a, l.t) : ""}</td></tr>`; }).join("");
+  h += Q.form.map((g) => `<tr class="form" data-alvo="${idx(g)}"><td><div class="grp"><span class="alca" data-bloco="${idx(g)}" title="Arraste o bloco inteiro" style="--c:${corG(g)}"><i></i></span><span class="rot">em formação</span>${g.map((p) => chip(p)).join("")}</div></td><td class="n">${dep(g)}</td><td class="n" colspan="2" style="color:var(--ter)">faltam ${5 - dep(g)} para virar bloco · conta como minoria</td><td class="n">—</td></tr>`).join("");
+  if (Q.min || Q.soltas.length) { const t = Q.min ? Q.min.t : 0;
+    h += `<tr class="mnr" data-alvo="min"><td><div class="grp"><span class="rot">Minoria</span>${Q.soltas.map((p) => chip(p, idx(Gs.find((g) => g.length === 1 && g[0] === p)))).join("")}${Q.form.length ? `<span class="rot">+ ${Q.form.map(nome).join(", ")}</span>` : ""}</div></td><td class="n">${Q.min ? Q.min.d : 0}</td><td class="n">${qv("", 1)}</td><td class="n">${qv("", 1)}</td><td class="n t"><b>${t}</b>${prev ? dl(minA, t) : ""}</td></tr>`; }
+  else h += `<tr class="mnr" data-alvo="min"><td colspan="5" style="color:var(--ter)">Minoria vazia: solte aqui um partido para tirá-lo do bloco</td></tr>`;
+  const tot = Q.linhas.reduce((s, l) => s + l.t, 0) + (Q.min ? Q.min.t : 0);
+  h += `<tr class="tot"><td>Total</td><td class="n">40</td><td class="n">${qv("", 9)}</td><td class="n">${qv("", 7)}</td><td class="n">${tot} de 176</td></tr>`;
+  $("#tb").innerHTML = h;
+  barra(Gs);
+  // minoria grande: as pequenas somam 5+ e podiam virar bloco
+  const pq = [...Q.soltas, ...Q.form.flat()], N = pq.reduce((s, p) => s + BAN[p], 0);
+  $("#al").innerHTML = !prev && pq.length > 1 && N >= 5 && N <= 10 ? `<div class="al">As bancadas da minoria (${pq.join(", ")}) somam ${N} deputados e dividem 1 vaga. Arraste uma sobre a outra para formar um bloco.</div>` : "";
+  $("#desf").disabled = !HIST.length;
+  if (typeof barraCen === "function") { barraCen(); guarda(); }
+}
+
+
+// ---------------- cenários salvos ----------------
+// no protótipo ficam neste navegador; no site, junto dos outros dados do painel (gravarP, mesmo lugar dos cenários de hoje)
+const CHV = "calc_comissoes_alesc"; let CENS = [], ATV = null;
+try { const v = JSON.parse(localStorage.getItem(CHV) || "{}"); CENS = Array.isArray(v.cens) ? v.cens : []; ATV = v.atv ?? null; if (Array.isArray(v.atual) && v.atual.flat().every((p) => BAN[p])) G = v.atual; } catch (e) {}
+const guarda = () => { try { localStorage.setItem(CHV, JSON.stringify({ cens: CENS, atv: ATV, atual: G })); } catch (e) {} };
+const assin = (Gs) => Gs.map(chave).sort().join("/");
+function barraCen() {
+  const at = ATV != null && CENS[ATV], mod = at && assin(at.blocos) !== assin(G);
+  $("#cen").innerHTML = `<div class="cenS"><button class="cnovo" data-c="novo" title="Começar de novo: cada partido sozinho">+ Novo</button><span class="ct">Cenários</span>${CENS.map((x, i) => `<span class="cch${i === ATV ? " on" : ""}${i === ATV && mod ? " mod" : ""}"><button data-c="abre" data-i="${i}" title="Abrir este cenário">${esc(x.nome)}</button><button class="x" data-c="apaga" data-i="${i}" title="Apagar">×</button></span>`).join("") || "<small>nenhum salvo</small>"}
+    <input id="cenNm" placeholder="${at ? "Nome para salvar como novo" : "Nome do cenário"}" maxlength="40"><button class="cico${mod || !at ? " on" : ""}" data-c="${at ? "atualiza" : "salva"}"${at && !mod ? " disabled" : ""} title="${at ? (mod ? `Salvar as alterações em “${esc(at.nome)}”` : "Sem alterações para salvar") : "Salvar cenário"}">${DISCO}</button>${at ? `<button class="cico" data-c="salva" title="Salvar como um cenário novo (use o nome ao lado)">${DISCO}<b>+</b></button>` : ""}</div>`;
+}
+const DISCO = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h8l2.5 2.5v8.5h-11z"/><path d="M5 2.5v3.5h5V2.5M5 13.5V9.5h6v4"/></svg>`;
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+$("#cen").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-c]"); if (!b) return; const c = b.dataset.c, i = +b.dataset.i;
+  if (c === "salva") { const nm = ($("#cenNm").value || "").trim() || `Cenário ${CENS.length + 1}`; CENS.push({ nome: nm, blocos: G.map((g) => [...g]), em: new Date().toISOString() }); ATV = CENS.length - 1; msg("ok", `Cenário <b>${esc(nm)}</b> salvo.`); }
+  else if (c === "atualiza") { CENS[ATV].blocos = G.map((g) => [...g]); CENS[ATV].em = new Date().toISOString(); msg("ok", `Alterações salvas em <b>${esc(CENS[ATV].nome)}</b>.`); }
+  else if (c === "abre") { HIST.push(G.map((g) => [...g])); G = CENS[i].blocos.map((g) => [...g]); ATV = i; desenhar(); msg("", `Cenário <b>${esc(CENS[i].nome)}</b> aberto.`); }
+  else if (c === "apaga") { if (b.dataset.ok !== "1") { b.dataset.ok = "1"; b.classList.add("ok"); b.title = "Clique de novo para apagar"; b.textContent = "apagar?"; return; } const nm = CENS[i].nome; CENS.splice(i, 1); ATV = ATV === i ? null : ATV > i ? ATV - 1 : ATV; msg("", `Cenário <b>${esc(nm)}</b> apagado.`); }
+  else if (c === "novo") { HIST.push(G.map((g) => [...g])); G = Object.keys(BAN).map((p) => [p]); ATV = null; desenhar(); msg("", "Cenário novo: cada partido sozinho. Arraste para montar os blocos."); }
+  guarda(); barraCen();
+});
+
+// ---------------- arrastar (ponteiro: mouse e toque) ----------------
+let ARR = null;
+function msg(tipo, txt) { const m = $("#msg"); m.className = "msg" + (tipo ? " " + tipo : ""); m.innerHTML = `<span class="ic">${tipo === "ok" ? "✓" : tipo === "no" ? "×" : "↔"}</span><span>${txt}</span>`; }
+function alvoEm(x, y) { const el = document.elementFromPoint(x, y); if (!el) return null; const c = el.closest(".chip[data-alvo]") || el.closest("[data-alvo]"); return c; }
+document.addEventListener("pointerdown", (e) => {
+  const al = e.target.closest(".alca"), c = al || e.target.closest(".chip"); if (!c || e.button > 0) return;
+  const it = al ? [...G[+al.dataset.bloco]] : [c.dataset.p], p = it.length > 1 ? nome(it) : it[0];
+  if (!al && BAN[p] > 10) { msg("no", `<b>${p}</b> tem ${BAN[p]} deputados: um bloco vai até 10 (art. 20 §3º). Ele fica sozinho.`); return; }
+  e.preventDefault(); let f; if (al) { f = document.createElement("span"); f.className = "chip"; f.innerHTML = `<i style="background:${corG(it)}"></i>${p}<em>${dep(it)}</em>`; } else { f = c.cloneNode(true); f.removeAttribute("data-alvo"); } f.classList.add("fant"); document.body.appendChild(f);
+  if (al) al.closest("tr").querySelectorAll(".chip").forEach((x) => x.classList.add("sai"));
+  ARR = { p, it, f, el: null, r: null, x0: e.clientX, y0: e.clientY }; document.body.classList.add("arr"); c.classList.add("sai"); mexe(e);
+});
+function mexe(e) {
+  if (!ARR) return; ARR.f.style.left = e.clientX + "px"; ARR.f.style.top = e.clientY + "px";
+  const a = alvoEm(e.clientX, e.clientY), k = a ? a.dataset.alvo : null; if (a === ARR.el) return;
+  if (ARR.el) ARR.el.classList.remove("alvo", "ok", "no"); ARR.el = a; ARR.r = null;
+  if (!a) { barra(G); msg("", `Arrastando <b>${ARR.p}</b> (${dep(ARR.it)}). Solte numa linha da tabela.`); return; }
+  const r = mover(G, ARR.it, isNaN(+k) ? k : +k); ARR.r = r; barra(r.ok ? r.G2 : G);
+  if (!r.neutro) a.classList.add("alvo", r.ok ? "ok" : "no"); msg(r.neutro ? "" : r.ok ? "ok" : "no", r.msg + (r.ok ? mudancas(r.G2) : ""));
+}
+const marcaSai = () => document.querySelectorAll(`.chip[data-p="${CSS.escape(ARR.p)}"]`).forEach((x) => x.classList.add("sai"));
+document.addEventListener("pointermove", mexe);
+document.addEventListener("pointerup", () => {
+  if (!ARR) return; const { r, f, p } = ARR; f.remove(); ARR = null; document.body.classList.remove("arr");
+  if (r && r.ok) { const mu = mudancas(r.G2); HIST.push(G.map((g) => [...g])); G = r.G2; desenhar(); msg("ok", r.msg.replace(/^Juntar/, "Feito: juntar") + mu); }
+  else { desenhar(); if (r && !r.ok && !r.neutro) msg("no", r.msg + " Nada mudou."); else msg("", "Pegue um partido pela etiqueta e arraste."); }
+});
+$("#desf").onclick = () => { if (!HIST.length) return; G = HIST.pop(); desenhar(); msg("", "Desfeito."); };
+$("#lnk").onclick = async () => { const u = linkDe(G); try { await navigator.clipboard.writeText(u); msg("ok", "Link copiado. Quem abrir verá este mesmo cenário."); } catch (e) { prompt("Copie o link:", u); } };
+// início: bancadas dos eleitos de 2026 (mesmo arquivo do site); cenário do link, senão o último deste navegador
+(async () => { try { const d = await (await fetch("../dados/painel/sc-estadual.json")).json(), B = {}; d.c.filter((c) => /^eleito/i.test(c.s || "")).forEach((c) => { B[c.p] = (B[c.p] || 0) + 1; });
+    if (Object.values(B).reduce((t, n) => t + n, 0) === 40) { BAN = Object.fromEntries(Object.entries(B).sort((a, b) => b[1] - a[1])); if (!G.flat().every((p) => BAN[p]) || G.flat().length !== Object.keys(BAN).length) G = Object.keys(BAN).map((p) => [p]); } } catch (e) {}
+  const L = lerLink(); if (L) { G = L; ATV = null; history.replaceState(null, "", location.pathname + location.search); msg("", "Cenário aberto pelo link. Arraste para mudar; salve para guardar neste navegador."); }
+  desenhar(); })();
+</script></body></html>
