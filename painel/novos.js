@@ -340,9 +340,26 @@ COLOC = Array(K9 + K7).fill(0);
 // impressão dos cenários (11/11/2026, protótipo aprovado): um quadro por cenário com a barra dos assentos nas 24 comissões e UMA tabela
 // em que as comissões de 9 e de 7 ficam lado a lado (conta, vagas e os assentos desenhados na mesma linha do grupo); no fim, a comparação
 // partido × cenário. Substitui o desenho de 20/10 (fileiras afastadas por comissão + cálculo separado no pé).
+// antes de imprimir (11/11/2026): escolher os cenários; todos vêm marcados (com um cenário só, imprime direto)
 function imprimirCenarios(c, ps) {
-  const L = [...CENS.map((x) => ({ nome: x.nome, blocos: x.blocos }))], atual = JSON.stringify(BLOCOS);
-  if (!CENS.some((x) => JSON.stringify(x.blocos) === atual)) L.unshift({ nome: "Cenário atual (não salvo)", blocos: BLOCOS.map((g) => g.slice()) });
+  const T = [...CENS.map((x) => ({ nome: x.nome, blocos: x.blocos }))], atual = JSON.stringify(BLOCOS);
+  if (!CENS.some((x) => JSON.stringify(x.blocos) === atual)) T.unshift({ nome: "Cenário atual (não salvo)", blocos: BLOCOS.map((g) => g.slice()) });
+  if (T.length < 2) return imprimirCenariosSel(c, ps, T);
+  const curto = (p) => String(p).split("/")[0], sel = new Set(T.map((_, i) => i)), ov = document.createElement("div");
+  ov.style.cssText = "position:fixed;inset:0;z-index:2147483000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px";
+  const pinta = () => { ov.innerHTML = `<div role="dialog" aria-label="Escolher os cenários" style="background:#14191A;color:#F2F4F5;border:1px solid #2A3034;border-radius:16px;width:min(460px,100%);max-height:86vh;display:flex;flex-direction:column;font:14px/1.4 Inter,system-ui,sans-serif">
+      <div style="padding:16px 18px 6px;display:flex;align-items:baseline;gap:10px"><b style="font-size:16px">Imprimir cenários</b><small style="color:#8A9096">${sel.size} de ${T.length} marcados</small>
+        <button data-tudo style="margin-left:auto;background:none;border:0;color:#9DB8FF;font:600 12.5px Inter,sans-serif;cursor:pointer">${sel.size === T.length ? "desmarcar todos" : "marcar todos"}</button></div>
+      <div style="overflow:auto;padding:4px 10px 8px">${T.map((x, i) => `<label style="display:flex;gap:10px;align-items:flex-start;padding:9px 8px;border-radius:10px;cursor:pointer${sel.has(i) ? ";background:rgba(242,244,245,.05)" : ""}"><input type="checkbox" data-i="${i}" ${sel.has(i) ? "checked" : ""} style="margin-top:3px;accent-color:#3D7BFF;width:16px;height:16px">
+        <span><b style="font-weight:600">${i + 1}. ${esc(x.nome)}</b><small style="display:block;color:#8A9096;font-size:12px">${x.blocos.length ? x.blocos.map((b) => b.map(curto).join(" + ")).join(" · ") : "sem blocos"}</small></span></label>`).join("")}</div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;padding:12px 18px 16px;border-top:1px solid #2A3034"><button class="btn sec" data-fec>Cancelar</button><button class="btn" data-ok${sel.size ? "" : " disabled"}>Gerar o documento</button></div></div>`; };
+  pinta(); document.body.appendChild(ov);
+  ov.onclick = (e) => { const t = e.target; if (t === ov || t.closest("[data-fec]")) { ov.remove(); return; }
+    if (t.closest("[data-tudo]")) { if (sel.size === T.length) sel.clear(); else T.forEach((_, i) => sel.add(i)); pinta(); return; }
+    if (t.closest("[data-ok]") && sel.size) { ov.remove(); imprimirCenariosSel(c, ps, T.filter((_, i) => sel.has(i))); } };
+  ov.onchange = (e) => { const i = e.target.dataset.i; if (i == null) return; sel.has(+i) ? sel.delete(+i) : sel.add(+i); pinta(); };
+}
+function imprimirCenariosSel(c, ps, L) {
   const dep = (g) => g.reduce((t, p) => t + nbanc(p), 0), TOT = T9 * K9 + T7 * K7, curto = (p) => String(p).split("/")[0];
   let Q9 = 0, Q7 = 0;
   const calc = (bl) => { const us = new Set(bl.flat()), grupos = [...bl, ...ps.filter((p) => !us.has(p)).map((p) => [p])], R9 = vagas(grupos, T9, K9), R7 = vagas(grupos, T7, K7), CG = coresGrupos(grupos); Q9 = R9.q; Q7 = R7.q;
