@@ -294,7 +294,7 @@
          "status": "pronto",
          "arquivo": "painel/novos.js",
          "ancora": "Quadro do cenário",
-         "nota": "Etiquetas dos partidos arrastáveis entre as linhas: juntar até 10 deputados na ALESC (limite derivado do número de vagas da UF); soltar na Minoria tira do bloco (5 ou mais fica bancada própria); arrastar pelo símbolo leva o bloco inteiro e, na Minoria, desfaz. Bloco em formação com menos de 5 conta como minoria. O seletor de etiquetas, '+ Criar bloco' e a lixeira continuam por enquanto, convivendo com o arrastar. Barra de cenários: cenário aberto marcado, aviso 'alterado', ícone de salvar (salvar alterações ou salvar como novo) e apagar pede confirmação. Sem banco: cenários salvos nas preferências."
+         "nota": "Etiquetas dos partidos arrastáveis entre as linhas: juntar até 10 deputados na ALESC (limite derivado do número de vagas da UF); soltar na Minoria tira do bloco (5 ou mais fica bancada própria); arrastar pelo símbolo leva o bloco inteiro e, na Minoria, desfaz. Bloco em formação com menos de 5 conta como minoria. O seletor antigo de etiquetas, '+ Criar bloco', a lixeira e os cartões dos grupos saíram (11/11/2026); tocar numa linha do quadro escolhe o grupo que distribui as vagas nas comissões. Barra de cenários (no alto do Quadro): cenário aberto marcado, aviso 'alterado', ícone de salvar (salvar alterações ou salvar como novo) e apagar pede confirmação. Sem banco: cenários salvos nas preferências."
         }
        ]
       },
