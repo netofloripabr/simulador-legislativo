@@ -1,6 +1,6 @@
 {
  "_leia": "Mapa do site SimulaLEGIS: a lista oficial do que existe, onde está e para onde vai. Fonte de verdade da organização. Quem mantém: o agente organizador-do-site (.claude/agents/organizador-do-site.md). Depois de editar, rodar: python3 ferramentas/mapa/gerar_mapa.py (confere com o código e gera ferramentas/mapa/mapa.html). Campos: status = pronto | construcao | prototipo | planejado | pausado; quem = visitante | cadastrado | gabinete (liberado pelo admin) | admin; arquivo + ancora = onde o item está no código (o gerador confere se o texto da âncora existe no arquivo); vai_para = mudança combinada com o usuário.",
- "atualizado": "2026-11-04",
+ "atualizado": "2026-11-11",
  "decisoes": [
   [
    "04/11/2026",
@@ -53,6 +53,10 @@
   [
    "06/11/2026",
    "Filtros do Controle viram listas de valores marcáveis (como no Google Planilhas); em Cotas, 'Evolução do total' e 'Por tipo de cota' viram um painel só, 'Cotas por ano', com 4 formatos."
+  ],
+  [
+   "11/11/2026",
+   "Gabinete é a página inicial de toda conta logada (substitui as decisões de 04/11 'só gabinetes liberados' e 05/11 'página inicial'); no primeiro acesso a pessoa escolhe 'Seu Gabinete'. Não-admin vê só as funções públicas; Controle, Cotas, Indicar, Caderno e RH seguem admin. 'Parlamentares' passa a se chamar 'Eleições 2026'. Mesa e 'Sistema SimulaLEGIS' (menu) só para administrador. Etapa 2 planejada: equipe do gabinete com papéis Responsável/Editor/Leitor."
   ]
  ],
  "paginas": [
@@ -64,7 +68,7 @@
    "status": "pronto",
    "arquivo": "index.html",
    "ancora": "Simulador Eleitoral",
-   "nota": "Palpite eleitoral 2026, listas, grupos e duelos. Foco da fase eleitoral; depois da eleição vira porta de entrada.",
+   "nota": "Palpite eleitoral 2026, listas, grupos e duelos. Foco da fase eleitoral; depois da eleição vira porta de entrada. O link \"Sistema SimulaLEGIS\" do menu aparece só para administrador; o app continua abrindo por URL.",
    "filhos": [
     {
      "nome": "Abertura e escolha do estado",
@@ -72,7 +76,7 @@
      "quem": "visitante",
      "arquivo": "interface/10-boot.js",
      "ancora": "renderLanding",
-     "nota": "Sem conta, toda entrada abre a tela de entrar ou se cadastrar (inclusive links compartilhados, que voltam depois do login). Logado vai para Parlamentares; com gabinete liberado, direto para o Gabinete (05/11/2026)."
+     "nota": "Sem conta, toda entrada abre a tela de entrar ou se cadastrar (inclusive links compartilhados, que voltam depois do login). Logado vai para o Gabinete; com gabinete liberado, direto para o Gabinete (05/11/2026)."
     },
     {
      "nome": "Entrar, cadastro e perfil",
@@ -172,7 +176,7 @@
   },
   {
    "id": "parlamentares",
-   "nome": "Parlamentares",
+   "nome": "Eleições 2026",
    "url": "painel/novos.html",
    "quem": "cadastrado",
    "status": "pronto",
@@ -318,7 +322,7 @@
        "status": "pronto",
        "arquivo": "painel/novos.js",
        "ancora": "Simulador de gabinete",
-       "nota": "Só em Parlamentares, salvo no navegador. No Gabinete foi substituído pelo RH - Gabinete."
+       "nota": "Só em Eleições 2026, salvo no navegador. No Gabinete foi substituído pelo RH - Gabinete."
       },
       {
        "nome": "Liderança do partido",
@@ -365,13 +369,13 @@
    "status": "pronto",
    "arquivo": "painel/index.html",
    "ancora": "Ranking dos candidatos",
-   "nota": "Ranking dos candidatos e mapa de Santa Catarina em pontos. É o painel que Parlamentares › Eleitoral embute."
+   "nota": "Ranking dos candidatos e mapa de Santa Catarina em pontos. É o painel que Eleições 2026 › Eleitoral embute."
   },
   {
    "id": "mesa",
    "nome": "Mesa (Corrida da Mesa)",
    "url": "painel/mesa.html",
-   "quem": "cadastrado",
+   "quem": "admin",
    "status": "pronto",
    "arquivo": "painel/mesa.js",
    "ancora": "Jogo da ",
@@ -381,16 +385,25 @@
    "id": "gabinete",
    "nome": "Gabinete",
    "url": "painel/gabinete.html",
-   "quem": "gabinete",
+   "quem": "cadastrado",
    "status": "construcao",
    "arquivo": "painel/gabinete.js",
    "ancora": "const TITULOS",
-   "nota": "Centro do projeto depois da eleição. Cada conta liberada fica vinculada a um parlamentar.",
+   "nota": "Página inicial de toda conta logada. Cada conta fica vinculada a um parlamentar. Não-admin vê só as funções públicas (Transparência SC, Outros deputados, Eleitoral, Legislativo, Administrativo público); Controle, Cotas, Indicar, Caderno e RH seguem só admin (\"em breve para a equipe\").",
    "filhos": [
+    {
+     "nome": "Seu Gabinete · primeiro acesso",
+     "quem": "cadastrado",
+     "status": "pronto",
+     "arquivo": "painel/gabinete.js",
+     "ancora": "primeiro acesso",
+     "dados": "gab_vinculo (migração 99 liberou a gravação a qualquer conta)",
+     "nota": "No primeiro acesso a pessoa escolhe o parlamentar do seu gabinete; dá para trocar depois."
+    },
     {
      "nome": "Capa do gabinete: cartões Recursos e Votos, mapa e lupa",
      "status": "pronto",
-     "quem": "gabinete",
+     "quem": "cadastrado",
      "arquivo": "painel/gabinete.js",
      "ancora": "function ligarBusca",
      "nota": "A lupa (ao lado de Votos/Recursos) busca município ou região (associação, micro, mesorregião); os cartões e o mapa passam a mostrar só a área. Clicar no mapa seleciona o município. Com região escolhida, a capa abre embaixo o ranking dos municípios (5 primeiros e ver os outros), com votos 2026, 2022 e recursos."
@@ -398,7 +411,7 @@
     {
      "nome": "Controle de Recursos (Controle, Cotas e Transparência SC)",
      "status": "pronto",
-     "quem": "gabinete",
+     "quem": "cadastrado",
      "arquivo": "painel/gabinete.js",
      "ancora": "Controle de Recursos",
      "dados": "banco: gab_recursos, gab_demandas; dados/gabinete (emendas públicas, todo dia)",
@@ -424,14 +437,16 @@
          "ancora": "gab_ctl_claro",
          "nota": "Fica à esquerda do seletor de Ano; a escolha fica guardada no navegador."
         }
-       ]
+       ],
+       "quem": "admin"
       },
       {
        "nome": "Imprimir ou exportar (PDF e Excel)",
        "status": "pronto",
        "arquivo": "painel/gabinete-relatorio.js",
        "ancora": "function relAbrir",
-       "nota": "Relatório do Controle (PDF/Excel) no novo padrão de documento impresso, com as cores de fundo."
+       "nota": "Relatório do Controle (PDF/Excel) no novo padrão de documento impresso, com as cores de fundo.",
+       "quem": "admin"
       },
       {
        "nome": "Cotas",
@@ -446,33 +461,37 @@
          "ancora": "painelCotas",
          "nota": "Junta os antigos 'Evolução do total' e 'Por tipo de cota'. Quatro formatos em abas: Bullet (padrão, valor x quota), Barras empilhadas, Área empilhada e 100%. Filtros 'Tipo de cota' e 'Separar por' (tipo, área, instrumento, região, município). Clicar no ano abre a lista de indicações; clicar numa parte filtra."
         }
-       ]
+       ],
+       "quem": "admin"
       },
       {
        "nome": "Transparência SC (dados oficiais)",
        "status": "pronto",
        "arquivo": "painel/gabinete.js",
-       "ancora": "Transparência SC"
+       "ancora": "Transparência SC",
+       "quem": "cadastrado"
       },
       {
        "nome": "Outros deputados",
        "status": "pronto",
        "arquivo": "painel/gabinete.js",
-       "ancora": "Outros deputad"
+       "ancora": "Outros deputad",
+       "quem": "cadastrado"
       },
       {
        "nome": "Indicar (planilha de indicação e links dos líderes)",
        "status": "prototipo",
        "arquivo": "painel/gabinete-indicar.js",
        "ancora": "function",
-       "nota": "Links por líder: só protótipo, não implementado."
+       "nota": "Links por líder: só protótipo, não implementado.",
+       "quem": "admin"
       }
      ]
     },
     {
      "nome": "Administrativo (era RH)",
      "status": "pronto",
-     "quem": "gabinete",
+     "quem": "cadastrado",
      "arquivo": "painel/gabinete.js",
      "ancora": "\"Administrativo\"",
      "filhos": [
@@ -509,7 +528,8 @@
          "arquivo": "painel/gabinete-rh.js",
          "ancora": "Outros cargos"
         }
-       ]
+       ],
+       "quem": "admin"
       },
       {
        "nome": "Blocos do Administrativo de Parlamentares (embutidos)",
@@ -523,17 +543,17 @@
     {
      "nome": "Processo legislativo",
      "status": "planejado",
-     "quem": "gabinete",
+     "quem": "cadastrado",
      "arquivo": "painel/gabinete.js",
      "ancora": "Processo legislativo"
     },
     {
      "nome": "Eleitoral",
      "status": "pronto",
-     "quem": "gabinete",
+     "quem": "cadastrado",
      "arquivo": "painel/gabinete.js",
      "ancora": "so=ele",
-     "nota": "O Eleitoral de Parlamentares (painel completo do parlamentar), embutido: novos.html?so=ele."
+     "nota": "O Eleitoral de Eleições 2026 (painel completo do parlamentar), embutido: novos.html?so=ele."
     },
     {
      "nome": "Mailing",
