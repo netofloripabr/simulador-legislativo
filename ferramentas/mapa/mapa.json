@@ -56,11 +56,15 @@
   ],
   [
    "11/11/2026",
-   "Gabinete é a página inicial de toda conta logada (substitui as decisões de 04/11 'só gabinetes liberados' e 05/11 'página inicial'); no primeiro acesso a pessoa escolhe 'Seu Gabinete'. Não-admin vê só as funções públicas; Controle, Cotas, Indicar, Caderno e RH seguem admin. 'Parlamentares' passa a se chamar 'Eleições 2026'. Mesa e 'Sistema SimulaLEGIS' (menu) só para administrador. Etapa 2 planejada: equipe do gabinete com papéis Responsável/Editor/Leitor."
+   "Gabinete é a página inicial de toda conta logada (substitui as decisões de 04/11 'só gabinetes liberados' e 05/11 'página inicial'); no primeiro acesso a pessoa escolhe 'Seu Gabinete'. Não-admin vê só as funções públicas; Controle, Cotas, Indicar, Caderno e RH seguem admin. 'Parlamentares' passa a se chamar 'Eleições 2026'. Mesa e 'Sistema SimulaLEGIS' (menu) só para administrador. Controle, Cotas, Indicar, Caderno e RH passam à equipe do gabinete (Etapa 2)."
   ],
   [
    "11/11/2026",
    "Visitante sem conta entra em 'Eleições 2026' (painel/novos.html), única página aberta antes do login (substitui, só para esta página, a regra de 05/11 'nada fica aberto para quem não entrou'). Depois do login, a página inicial é o Gabinete."
+  ],
+  [
+   "11/11/2026",
+   "Etapa 2 feita: dados privados pertencem ao gabinete. Papéis: Responsável (aprova, muda papel, remove, nomeia outro Responsável; o admin libera o 1º e vale como Responsável de todos), Editor e Leitor. Quem já está noutro gabinete precisa também da autorização do Responsável de lá."
   ]
  ],
  "paginas": [
@@ -393,7 +397,7 @@
    "status": "construcao",
    "arquivo": "painel/gabinete.js",
    "ancora": "const TITULOS",
-   "nota": "Página inicial de toda conta logada. Cada conta fica vinculada a um parlamentar. Não-admin vê só as funções públicas (Transparência SC, Outros deputados, Eleitoral, Legislativo, Administrativo público); Controle, Cotas, Indicar, Caderno e RH seguem só admin (\"em breve para a equipe\").",
+   "nota": "Página inicial de toda conta logada. Cada conta fica vinculada a um parlamentar. Não-admin vê só as funções públicas (Transparência SC, Outros deputados, Eleitoral, Legislativo, Administrativo público); Controle, Cotas, Indicar, Caderno e RH são só da equipe do gabinete (Responsável, Editor, Leitor).",
    "filhos": [
     {
      "nome": "Seu Gabinete · primeiro acesso",
@@ -403,6 +407,15 @@
      "ancora": "primeiro acesso",
      "dados": "gab_vinculo (migração 99 liberou a gravação a qualquer conta)",
      "nota": "No primeiro acesso a pessoa escolhe o parlamentar do seu gabinete; dá para trocar depois."
+    },
+    {
+     "nome": "Equipe do gabinete",
+     "quem": "cadastrado",
+     "status": "pronto",
+     "arquivo": "painel/gabinete-equipe.js",
+     "ancora": "Equipe",
+     "dados": "migração 100",
+     "nota": "Faixa no alto da capa (seu papel, botão Equipe, pedir para entrar, seus outros gabinetes) e janela Equipe (pedidos, autorizar outro gabinete, membros, mudar papel, remover, sair). Aviso no sino com botão Abrir a equipe."
     },
     {
      "nome": "Capa do gabinete: cartões Recursos e Votos, mapa e lupa",
@@ -425,7 +438,7 @@
        "status": "pronto",
        "arquivo": "painel/gabinete.js",
        "ancora": "\"Controle\"",
-       "nota": "Tabela no padrão do documento impresso (# · Ano · Origem · Município · Objeto · Função · Mod. · R$ · Status · Processo · balão · Observações), todas as colunas sempre visíveis. Filtros: 1ª linha Município, Região, Origem e Mod., mais botão '…' com os demais (Etapa, Lista, Líder, Função, Beneficiário, Etiqueta, Nº da emenda, Observação, Etiquetar em grupo); borracha e impressora na 1ª linha. Município, Região, Origem, Mod., Líder, Função, Beneficiário e Etiqueta funcionam como no Google Planilhas: abrem a lista de todos os valores já marcados, com pesquisa, quantidade, 'Selecionar tudo' e 'Limpar' (desmarcar esconde); Etapa, Lista de indicação e Observação seguem listas simples. No detalhe do item (clicar na linha), as etiquetas e o '+ etiqueta' ficam entre a linha do tempo e o Objeto.",
+       "nota": "Tabela no padrão do documento impresso (# · Ano · Origem · Município · Objeto · Função · Mod. · R$ · Status · Processo · balão · Observações), todas as colunas sempre visíveis. Filtros: 1ª linha Município, Região, Origem e Mod., mais botão '…' com os demais (Etapa, Lista, Líder, Função, Beneficiário, Etiqueta, Nº da emenda, Observação, Etiquetar em grupo); borracha e impressora na 1ª linha. Município, Região, Origem, Mod., Líder, Função, Beneficiário e Etiqueta funcionam como no Google Planilhas: abrem a lista de todos os valores já marcados, com pesquisa, quantidade, 'Selecionar tudo' e 'Limpar' (desmarcar esconde); Etapa, Lista de indicação e Observação seguem listas simples. No detalhe do item (clicar na linha), as etiquetas e o '+ etiqueta' ficam entre a linha do tempo e o Objeto. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar. Itens mostram \"Alterado por … em …\".",
        "filhos": [
         {
          "nome": "Barra das 5 etapas (clicável para filtrar)",
@@ -442,15 +455,15 @@
          "nota": "Fica à esquerda do seletor de Ano; a escolha fica guardada no navegador."
         }
        ],
-       "quem": "admin"
+       "quem": "cadastrado"
       },
       {
        "nome": "Imprimir ou exportar (PDF e Excel)",
        "status": "pronto",
        "arquivo": "painel/gabinete-relatorio.js",
        "ancora": "function relAbrir",
-       "nota": "Relatório do Controle (PDF/Excel) no novo padrão de documento impresso, com as cores de fundo.",
-       "quem": "admin"
+       "nota": "Relatório do Controle (PDF/Excel) no novo padrão de documento impresso, com as cores de fundo. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar.",
+       "quem": "cadastrado"
       },
       {
        "nome": "Cotas",
@@ -466,7 +479,8 @@
          "nota": "Junta os antigos 'Evolução do total' e 'Por tipo de cota'. Quatro formatos em abas: Bullet (padrão, valor x quota), Barras empilhadas, Área empilhada e 100%. Filtros 'Tipo de cota' e 'Separar por' (tipo, área, instrumento, região, município). Clicar no ano abre a lista de indicações; clicar numa parte filtra."
         }
        ],
-       "quem": "admin"
+       "quem": "cadastrado",
+       "nota": " Só para a equipe do gabinete; Leitor só consulta e não vê Indicar."
       },
       {
        "nome": "Transparência SC (dados oficiais)",
@@ -487,8 +501,8 @@
        "status": "prototipo",
        "arquivo": "painel/gabinete-indicar.js",
        "ancora": "function",
-       "nota": "Links por líder: só protótipo, não implementado.",
-       "quem": "admin"
+       "nota": "Links por líder: só protótipo, não implementado. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar.",
+       "quem": "cadastrado"
       }
      ]
     },
@@ -505,7 +519,7 @@
        "arquivo": "painel/gabinete-rh.js",
        "ancora": "function rhDesenhar",
        "dados": "banco: gab_cargos (migração 97)",
-       "nota": "Salvo na conta. As funções do parlamentar (líder, Mesa, presidente ou membro de comissão) criam sozinhas as vagas que trazem em Cargos da ALESC somados.",
+       "nota": "Salvo na conta. As funções do parlamentar (líder, Mesa, presidente ou membro de comissão) criam sozinhas as vagas que trazem em Cargos da ALESC somados. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar.",
        "filhos": [
         {
          "nome": "Cargos do parlamentar",
@@ -533,7 +547,7 @@
          "ancora": "Outros cargos"
         }
        ],
-       "quem": "admin"
+       "quem": "cadastrado"
       },
       {
        "nome": "Blocos do Administrativo de Parlamentares (embutidos)",
@@ -564,7 +578,8 @@
      "status": "planejado",
      "quem": "gabinete",
      "arquivo": "painel/gabinete.js",
-     "ancora": "\"Mailing\""
+     "ancora": "\"Mailing\"",
+     "nota": " Se for privado, só para a equipe do gabinete."
     }
    ]
   },
