@@ -61,7 +61,7 @@ body.arr{ user-select:none; -webkit-user-select:none; cursor:grabbing; }
 <p class="lead">Quantas vagas cada bancada ou bloco teria nas 24 comissões permanentes (4 de 9 membros e 20 de 7). Arraste a etiqueta de um partido para outra linha da tabela. Enquanto você arrasta, a linha fica verde se cabe ou vermelha se não cabe, e a barra e o aviso de baixo mostram como ficariam os assentos. Para criar um bloco, solte um partido sobre outro. Para tirar do bloco, solte na <b>Minoria</b>; para desfazer o bloco inteiro, arraste pelo símbolo no começo da linha.</p>
 <div class="card">
   <div class="cab"><span class="tag">SIMULAÇÃO</span><h2>Quadro do cenário</h2><span class="s">atualizado a cada partido que você move</span>
-    <div class="acoes"><button id="desf" disabled>Desfazer</button><button id="lnk" title="Copia um link que abre esta calculadora já com o cenário da tela">Copiar link deste cenário</button></div></div>
+    <div class="acoes"><button id="desf" disabled>Desfazer</button><button id="lnk" title="Copia o endereço desta calculadora para mandar a outra pessoa">Copiar link da calculadora</button></div></div>
   <div id="cen"></div>
   <div class="barra" id="barra"></div>
   <div id="al"></div>
@@ -275,7 +275,7 @@ document.addEventListener("pointerup", () => {
   else { desenhar(); if (r && !r.ok && !r.neutro) msg("no", r.msg + " Nada mudou."); else msg("", "Pegue um partido pela etiqueta e arraste."); }
 });
 $("#desf").onclick = () => { if (!HIST.length) return; G = HIST.pop(); desenhar(); msg("", "Desfeito."); };
-$("#lnk").onclick = async () => { const u = linkDe(G); try { await navigator.clipboard.writeText(u); msg("ok", "Link copiado. Quem abrir verá este mesmo cenário."); } catch (e) { prompt("Copie o link:", u); } };
+$("#lnk").onclick = async () => { const u = location.href.split("#")[0]; try { await navigator.clipboard.writeText(u); msg("ok", "Link da calculadora copiado. Quem abrir começa com cada partido sozinho e monta os próprios blocos."); } catch (e) { prompt("Copie o link:", u); } };
 // início: bancadas dos eleitos de 2026 (mesmo arquivo do site); cenário do link, senão o último deste navegador
 (async () => { try { const d = await (await fetch("../dados/painel/sc-estadual.json")).json(), B = {}; d.c.filter((c) => /^eleito/i.test(c.s || "")).forEach((c) => { B[c.p] = (B[c.p] || 0) + 1; });
     if (Object.values(B).reduce((t, n) => t + n, 0) === 40) { BAN = Object.fromEntries(Object.entries(B).sort((a, b) => b[1] - a[1])); if (!G.flat().every((p) => BAN[p]) || G.flat().length !== Object.keys(BAN).length) G = Object.keys(BAN).map((p) => [p]); } } catch (e) {}
