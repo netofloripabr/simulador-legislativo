@@ -12,7 +12,7 @@ h1{ font-size:34px; letter-spacing:-.03em; margin:6px 0 6px; } .lead{ color:var(
 .card{ border:1px solid var(--linha); border-radius:18px; background:var(--sup); padding:22px 24px; }
 .cab{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; } .tag{ border:1.5px solid var(--texto); border-radius:999px; padding:3px 12px; font-size:11px; font-weight:800; letter-spacing:.14em; }
 .cab h2{ margin:0; font-size:22px; } .cab span.s{ color:var(--ter); font-size:14px; }
-.acoes{ margin-left:auto; display:flex; gap:8px; } .acoes button{ background:none; border:1px solid var(--linha); color:var(--sec); border-radius:999px; padding:6px 12px; font:600 12px/1 inherit; cursor:pointer; } .acoes button:hover{ color:var(--texto); border-color:var(--sec); } .acoes button:disabled{ opacity:.35; cursor:default; }
+.acoes{ margin-left:auto; display:flex; gap:8px; } .acoes button svg{ vertical-align:-2px; margin-right:6px; } .acoes button{ background:none; border:1px solid var(--linha); color:var(--sec); border-radius:999px; padding:6px 12px; font:600 12px/1 inherit; cursor:pointer; } .acoes button:hover{ color:var(--texto); border-color:var(--sec); } .acoes button:disabled{ opacity:.35; cursor:default; }
 .barra{ display:flex; gap:4px; margin:20px 0 6px; height:78px; } .barra div{ border-radius:10px; padding:10px 14px; overflow:hidden; white-space:nowrap; transition:flex-grow .35s ease; min-width:0; }
 .barra b{ display:block; font-size:24px; line-height:1.1; } .barra small{ font-size:12px; opacity:.92; text-overflow:ellipsis; overflow:hidden; display:block; }
 .barra .mn{ background:#8A9096; box-shadow:inset 0 0 0 2px #fff; }
@@ -55,13 +55,34 @@ body.arr{ user-select:none; -webkit-user-select:none; cursor:grabbing; }
 #cenNm{ font:13px "Inter"; color:var(--texto); background:var(--sup2); border:1px solid var(--linha); border-radius:999px; padding:7px 12px; margin-left:auto; min-width:0; flex:0 1 200px; }
 .bcria{ font:700 13px "Inter"; color:#0B0D0E; background:var(--ok); border:0; border-radius:999px; padding:8px 16px; cursor:pointer; } .bcria.sec{ background:none; color:var(--texto); border:1px solid rgba(242,244,245,.25); }
 @media (max-width:720px){ #cenNm{ flex:1 1 100%; margin-left:0; } }
+
+/* ---- celular (11/11/2026): versão enxuta, sem avisos fixos; o aviso só aparece enquanto arrasta ---- */
+@media (max-width:720px){
+  html,body{ overflow-x:hidden; }
+  .pg{ padding:14px 12px 40px; } .olho{ font-size:10px; } h1{ font-size:24px; margin:4px 0 2px; } .lead{ display:none; }
+  .card{ border:0; background:none; padding:0; border-radius:0; }
+  .cab{ gap:8px; } .cab .tag, .cab h2, .cab span.s{ display:none; } .acoes{ margin-left:0; width:100%; justify-content:flex-end; }
+  .acoes button{ width:34px; height:34px; padding:0; display:inline-grid; place-items:center; } .acoes button svg{ margin:0; } .acoes .tx{ display:none; }
+  .cenS{ flex-wrap:nowrap; gap:6px; padding:8px; margin-top:8px; overflow:hidden; } .cenS .ct, #cenNm{ display:none; }
+  .cenS > .cnovo{ padding:6px 10px; font-size:12px; flex:none; } .cenS .chs{ display:flex; gap:6px; overflow-x:auto; flex:1 1 auto; min-width:0; scrollbar-width:none; } .cenS .chs::-webkit-scrollbar{ display:none; }
+  .cch{ flex:none; } .cch button{ font-size:12px; padding:5px 8px; } .cico{ width:32px; height:32px; flex:none; }
+  .barra{ height:40px; gap:3px; margin:12px 0 4px; } .barra div{ padding:4px 6px; border-radius:7px; display:flex; align-items:center; } .barra b{ font-size:15px; } .barra small{ display:none; }
+  #al{ display:none; }
+  table{ margin-top:6px; } th{ padding:8px 6px; font-size:10px; letter-spacing:.08em; } td{ padding:8px 6px; }
+  th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){ display:none; } td.n{ font-size:14px; width:1%; text-align:right; } th:nth-child(2),th:nth-child(5){ text-align:right; }
+  .grp{ gap:5px; } .chip{ font-size:12px; padding:4px 8px 4px 7px; gap:5px; } .chip i{ width:8px; height:8px; } .grp .rot{ font-size:11px; } .alca{ width:20px; height:20px; }
+  tr.form td.n[colspan]{ display:none; }
+  .msg{ display:none; position:fixed; left:12px; right:12px; bottom:12px; margin:0; font-size:12.5px; z-index:40; }
+  body.arr .msg{ display:flex; } .msg br, .msg br ~ *{ display:none; }
+  .regras{ display:none; } .rod{ font-size:11px; }
+}
 </style></head><body><div class="pg">
 <div class="olho">SimulaLEGIS · ALESC · legislatura 2027–2031</div>
 <h1>Calculadora das comissões.</h1>
 <p class="lead">Quantas vagas cada bancada ou bloco teria nas 24 comissões permanentes (4 de 9 membros e 20 de 7). Arraste a etiqueta de um partido para outra linha da tabela. Enquanto você arrasta, a linha fica verde se cabe ou vermelha se não cabe, e a barra e o aviso de baixo mostram como ficariam os assentos. Para criar um bloco, solte um partido sobre outro. Para tirar do bloco, solte na <b>Minoria</b>; para desfazer o bloco inteiro, arraste pelo símbolo no começo da linha.</p>
 <div class="card">
   <div class="cab"><span class="tag">SIMULAÇÃO</span><h2>Quadro do cenário</h2><span class="s">atualizado a cada partido que você move</span>
-    <div class="acoes"><button id="desf" disabled>Desfazer</button><button id="lnk" title="Copia o endereço desta calculadora para mandar a outra pessoa">Copiar link da calculadora</button></div></div>
+    <div class="acoes"><button id="desf" disabled title="Desfazer"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 3.5 2.5 6.5l3 3"/><path d="M2.5 6.5h7a4 4 0 0 1 0 8h-2"/></svg><span class="tx">Desfazer</span></button><button id="lnk" title="Copiar o link desta calculadora"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6.8 9.2a3 3 0 0 0 4.3 0l2.2-2.2a3 3 0 0 0-4.3-4.3l-.9.9"/><path d="M9.2 6.8a3 3 0 0 0-4.3 0L2.7 9a3 3 0 0 0 4.3 4.3l.9-.9"/></svg><span class="tx">Copiar link da calculadora</span></button></div></div>
   <div id="cen"></div>
   <div class="barra" id="barra"></div>
   <div id="al"></div>
@@ -162,7 +183,7 @@ const guarda = () => { try { localStorage.setItem(CHV, JSON.stringify({ cens: CE
 const assin = (Gs) => Gs.map(chave).sort().join("/");
 function barraCen() {
   const at = ATV != null && CENS[ATV], mod = at && assin(at.blocos) !== assin(G);
-  $("#cen").innerHTML = `<div class="cenS"><button class="cnovo" data-c="novo" title="Começar de novo: cada partido sozinho">+ Novo</button><span class="ct">Cenários</span>${CENS.map((x, i) => `<span class="cch${i === ATV ? " on" : ""}${i === ATV && mod ? " mod" : ""}"><button data-c="abre" data-i="${i}" title="Abrir este cenário">${esc(x.nome)}</button><button class="x" data-c="apaga" data-i="${i}" title="Apagar">×</button></span>`).join("") || "<small>nenhum salvo</small>"}
+  $("#cen").innerHTML = `<div class="cenS"><button class="cnovo" data-c="novo" title="Começar de novo: cada partido sozinho">+ Novo</button><span class="ct">Cenários</span><span class="chs">${CENS.map((x, i) => `<span class="cch${i === ATV ? " on" : ""}${i === ATV && mod ? " mod" : ""}"><button data-c="abre" data-i="${i}" title="Abrir este cenário">${esc(x.nome)}</button><button class="x" data-c="apaga" data-i="${i}" title="Apagar">×</button></span>`).join("") || "<small>nenhum salvo</small>"}</span>
     <input id="cenNm" placeholder="${at ? "Nome para salvar como novo" : "Nome do cenário"}" maxlength="40"><button class="cico${mod || !at ? " on" : ""}" data-c="${at ? "atualiza" : "salva"}"${at && !mod ? " disabled" : ""} title="${at ? (mod ? `Salvar as alterações em “${esc(at.nome)}”` : "Sem alterações para salvar") : "Salvar cenário"}">${DISCO}</button>${at ? `<button class="cico" data-c="salva" title="Salvar como um cenário novo (use o nome ao lado)">${DISCO}<b>+</b></button>` : ""}<button class="cico" data-c="imprime" title="Imprimir os cenários">${IMPR}</button></div>`;
 }
 const IMPR = `<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 6V2.5h7V6"/><rect x="2" y="6" width="12" height="5.5" rx="1.2"/><path d="M4.5 9.5h7v4h-7z"/></svg>`;
@@ -171,7 +192,7 @@ const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 $("#cen").addEventListener("click", (e) => {
   const b = e.target.closest("[data-c]"); if (!b) return; const c = b.dataset.c, i = +b.dataset.i;
   if (c === "imprime") { escolherImpressao(); return; }
-  if (c === "salva") { const nm = ($("#cenNm").value || "").trim() || `Cenário ${CENS.length + 1}`; CENS.push({ nome: nm, blocos: G.map((g) => [...g]), em: new Date().toISOString() }); ATV = CENS.length - 1; msg("ok", `Cenário <b>${esc(nm)}</b> salvo.`); }
+  if (c === "salva") { const inp = $("#cenNm"); let nm = (inp.value || "").trim(); if (!nm && !inp.offsetParent) { const r = prompt("Nome do cenário", `Cenário ${CENS.length + 1}`); if (r === null) return; nm = r.trim(); } nm = nm || `Cenário ${CENS.length + 1}`; CENS.push({ nome: nm, blocos: G.map((g) => [...g]), em: new Date().toISOString() }); ATV = CENS.length - 1; msg("ok", `Cenário <b>${esc(nm)}</b> salvo.`); }
   else if (c === "atualiza") { CENS[ATV].blocos = G.map((g) => [...g]); CENS[ATV].em = new Date().toISOString(); msg("ok", `Alterações salvas em <b>${esc(CENS[ATV].nome)}</b>.`); }
   else if (c === "abre") { HIST.push(G.map((g) => [...g])); G = CENS[i].blocos.map((g) => [...g]); ATV = i; desenhar(); msg("", `Cenário <b>${esc(CENS[i].nome)}</b> aberto.`); }
   else if (c === "apaga") { if (b.dataset.ok !== "1") { b.dataset.ok = "1"; b.classList.add("ok"); b.title = "Clique de novo para apagar"; b.textContent = "apagar?"; return; } const nm = CENS[i].nome; CENS.splice(i, 1); ATV = ATV === i ? null : ATV > i ? ATV - 1 : ATV; msg("", `Cenário <b>${esc(nm)}</b> apagado.`); }
@@ -249,7 +270,7 @@ function imprimir(L) {
 
 // ---------------- arrastar (ponteiro: mouse e toque) ----------------
 let ARR = null;
-function msg(tipo, txt) { const m = $("#msg"); m.className = "msg" + (tipo ? " " + tipo : ""); m.innerHTML = `<span class="ic">${tipo === "ok" ? "✓" : tipo === "no" ? "×" : "↔"}</span><span>${txt}</span>`; }
+function msg(tipo, txt) { if (matchMedia("(max-width:720px)").matches) txt = String(txt).split("<br>")[0]; const m = $("#msg"); m.className = "msg" + (tipo ? " " + tipo : ""); m.innerHTML = `<span class="ic">${tipo === "ok" ? "✓" : tipo === "no" ? "×" : "↔"}</span><span>${txt}</span>`; }
 function alvoEm(x, y) { const el = document.elementFromPoint(x, y); if (!el) return null; const c = el.closest(".chip[data-alvo]") || el.closest("[data-alvo]"); return c; }
 document.addEventListener("pointerdown", (e) => {
   const al = e.target.closest(".alca"), c = al || e.target.closest(".chip"); if (!c || e.button > 0) return;
