@@ -57,6 +57,7 @@ body.arr{ user-select:none; -webkit-user-select:none; cursor:grabbing; }
 @media (max-width:720px){ #cenNm{ flex:1 1 100%; margin-left:0; } }
 
 .ns{ display:none; }
+.xbl{ width:22px; height:22px; border-radius:50%; border:1px solid var(--linha); background:none; color:var(--ter); font:600 14px/1 inherit; cursor:pointer; display:inline-grid; place-items:center; padding:0; } .xbl:hover{ color:#fff; background:var(--no); border-color:var(--no); }
 /* ---- celular (11/11/2026, refeito): compacto, mas com as vagas por comissão; partidos um embaixo do outro; cada grupo com a sua cor ---- */
 @media (max-width:720px){
   html,body{ overflow-x:hidden; }
@@ -78,6 +79,7 @@ body.arr{ user-select:none; -webkit-user-select:none; cursor:grabbing; }
   .qv{ display:inline; } .qv span, .qv i{ display:none; } .dl{ display:none; }
   .grp{ flex-direction:column; align-items:flex-start; gap:5px; } .chip{ font-size:12px; padding:4px 9px 4px 7px; gap:5px; } .chip i{ width:8px; height:8px; } .grp .rot{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); }
   .alca{ width:20px; height:20px; position:absolute; margin:0; } .grp:has(.alca){ position:relative; padding-left:26px; } .grp .alca{ left:0; top:2px; }
+  .grp .xbl{ position:absolute; right:-2px; top:0; } .grp:has(.xbl){ position:relative; width:100%; padding-right:26px; }
   .msg{ display:none; position:fixed; left:12px; right:12px; bottom:12px; margin:0; font-size:12.5px; z-index:40; }
   body.arr .msg{ display:flex; }
   .regras{ display:none; } .rod{ font-size:11px; }
@@ -166,10 +168,10 @@ function desenhar(prev) {
   const idx = (g) => Gs.indexOf(g), dl = (a, b) => a === b ? "" : `<span class="dl ${b > a ? "up" : "dn"}">${b > a ? "+" : "−"}${Math.abs(b - a)}</span>`;
   $("#h9").innerHTML = `<span class="nf">De 9 (÷ ${String(Q.R9.q).replace(".", ",")})</span><span class="ns">De 9</span>`; $("#h7").innerHTML = `<span class="nf">De 7 (÷ ${String(Q.R7.q).replace(".", ",")})</span><span class="ns">De 7</span>`;
   let h = Q.linhas.map((l) => { const a = antes[chave(l.g)] ?? 0, mud = prev && a !== l.t;
-    return `<tr class="${mud ? "mud" : ""}" data-alvo="${idx(l.g)}" style="--gc:${corG(l.g)}"><td><div class="grp">${l.g.length > 1 ? `<span class="alca" data-bloco="${idx(l.g)}" title="Arraste o bloco inteiro (solte na Minoria para desfazer)" style="--c:${corG(l.g)}"><i></i></span>` : ""}${l.g.map((p) => chip(p)).join("")}</div></td><td class="n">${l.d}</td><td class="n">${qv(fr(l.e9), l.u9)}</td><td class="n">${qv(fr(l.e7), l.u7)}</td><td class="n t"><b>${l.t}</b>${prev ? dl(a, l.t) : ""}</td></tr>`; }).join("");
-  h += Q.form.map((g) => `<tr class="form" data-alvo="${idx(g)}" style="--gc:#5C6268"><td><div class="grp"><span class="alca" data-bloco="${idx(g)}" title="Arraste o bloco inteiro" style="--c:${corG(g)}"><i></i></span><span class="rot">em formação</span>${g.map((p) => chip(p)).join("")}</div></td><td class="n">${dep(g)}</td><td class="n" colspan="2" style="color:var(--ter)"><span class="nf">faltam ${5 - dep(g)} para virar bloco · conta como minoria</span><span class="ns">faltam ${5 - dep(g)}</span></td><td class="n">—</td></tr>`).join("");
+    return `<tr class="${mud ? "mud" : ""}" data-alvo="${idx(l.g)}" style="--gc:${corG(l.g)}"><td><div class="grp">${l.g.length > 1 ? `<span class="alca" data-bloco="${idx(l.g)}" title="Arraste o bloco inteiro (solte na Minoria para desfazer)" style="--c:${corG(l.g)}"><i></i></span>` : ""}${l.g.map((p) => chip(p)).join("")}${l.g.length > 1 ? `<button class="xbl" data-desfaz="${idx(l.g)}" title="Desfazer o bloco: os partidos voltam a ficar sozinhos" aria-label="Desfazer o bloco">×</button>` : ""}</div></td><td class="n">${l.d}</td><td class="n">${qv(fr(l.e9), l.u9)}</td><td class="n">${qv(fr(l.e7), l.u7)}</td><td class="n t"><b>${l.t}</b>${prev ? dl(a, l.t) : ""}</td></tr>`; }).join("");
+  h += Q.form.map((g) => `<tr class="form" data-alvo="${idx(g)}" style="--gc:#5C6268"><td><div class="grp"><span class="alca" data-bloco="${idx(g)}" title="Arraste o bloco inteiro" style="--c:${corG(g)}"><i></i></span><span class="rot">em formação</span>${g.map((p) => chip(p)).join("")}<button class="xbl" data-desfaz="${idx(g)}" title="Desfazer o bloco: os partidos voltam a ficar sozinhos" aria-label="Desfazer o bloco">×</button></div></td><td class="n">${dep(g)}</td><td class="n" colspan="2" style="color:var(--ter)"><span class="nf">faltam ${5 - dep(g)} para virar bloco · conta como minoria</span><span class="ns">faltam ${5 - dep(g)}</span></td><td class="n">—</td></tr>`).join("");
   if (Q.min || Q.soltas.length) { const t = Q.min ? Q.min.t : 0;
-    h += `<tr class="mnr" data-alvo="min" style="--gc:#8A9096"><td><div class="grp"><span class="rot">Minoria</span>${Q.soltas.map((p) => chip(p, idx(Gs.find((g) => g.length === 1 && g[0] === p)))).join("")}${Q.form.length ? `<span class="rot">+ ${Q.form.map(nome).join(", ")}</span>` : ""}</div></td><td class="n">${Q.min ? Q.min.d : 0}</td><td class="n">${qv("", 1)}</td><td class="n">${qv("", 1)}</td><td class="n t"><b>${t}</b>${prev ? dl(minA, t) : ""}</td></tr>`; }
+    h += `<tr class="mnr" data-alvo="min" style="--gc:#8A9096"><td><div class="grp"><span class="rot">Minoria</span>${Q.soltas.map((p) => chip(p, idx(Gs.find((g) => g.length === 1 && g[0] === p)))).join("")}${Q.form.length ? `<span class="rot">+ ${Q.form.map((g) => g.map((p) => CURTO[p] || p).join(" + ")).join(", ")}</span>` : ""}</div></td><td class="n">${Q.min ? Q.min.d : 0}</td><td class="n">${qv("", 1)}</td><td class="n">${qv("", 1)}</td><td class="n t"><b>${t}</b>${prev ? dl(minA, t) : ""}</td></tr>`; }
   else h += `<tr class="mnr" data-alvo="min"><td colspan="5" style="color:var(--ter)">Minoria vazia: solte aqui um partido para tirá-lo do bloco</td></tr>`;
   const tot = Q.linhas.reduce((s, l) => s + l.t, 0) + (Q.min ? Q.min.t : 0);
   h += `<tr class="tot"><td>Total</td><td class="n">40</td><td class="n">${qv("", 9)}</td><td class="n">${qv("", 7)}</td><td class="n">${tot}<span class="nf"> de 176</span></td></tr>`;
@@ -303,6 +305,8 @@ document.addEventListener("pointerup", () => {
   if (r && r.ok) { const mu = mudancas(r.G2); HIST.push(G.map((g) => [...g])); G = r.G2; desenhar(); msg("ok", r.msg.replace(/^Juntar/, "Feito: juntar") + mu); }
   else { desenhar(); if (r && !r.ok && !r.neutro) msg("no", r.msg + " Nada mudou."); else msg("", "Pegue um partido pela etiqueta e arraste."); }
 });
+document.addEventListener("click", (e) => { const b = e.target.closest("[data-desfaz]"); if (!b) return; const g = G[+b.dataset.desfaz]; if (!g || g.length < 2) return;
+  const r = mover(G, [...g], "min"); if (!r.ok) return; HIST.push(G.map((x) => [...x])); G = r.G2; desenhar(); msg("ok", r.msg); });
 $("#desf").onclick = () => { if (!HIST.length) return; G = HIST.pop(); desenhar(); msg("", "Desfeito."); };
 $("#lnk").onclick = async () => { const u = location.href.split("#")[0]; try { await navigator.clipboard.writeText(u); msg("ok", "Link da calculadora copiado. Quem abrir começa com cada partido sozinho e monta os próprios blocos."); } catch (e) { prompt("Copie o link:", u); } };
 // início: bancadas dos eleitos de 2026 (mesmo arquivo do site); cenário do link, senão o último deste navegador
