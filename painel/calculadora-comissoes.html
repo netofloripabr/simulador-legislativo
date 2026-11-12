@@ -42,7 +42,7 @@ body.arr{ user-select:none; -webkit-user-select:none; cursor:grabbing; }
 .al{ margin-top:14px; padding:10px 14px; border-radius:10px; background:rgba(255,216,77,.08); border:1px solid rgba(255,216,77,.35); color:#FFE79A; font-size:13px; }
 .rod{ margin-top:22px; font-size:12px; color:var(--ter); line-height:1.6; } .rod a{ color:var(--sec); }
 .regras{ margin-top:22px; display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:10px; } .regras div{ background:var(--sup); border:1px solid var(--linha); border-radius:12px; padding:12px 14px; font-size:12.5px; color:var(--sec); } .regras b{ color:var(--texto); display:block; margin-bottom:3px; }
-@media (max-width:720px){ .pg{ padding:18px 12px 70px; } h1{ font-size:26px; } .card{ padding:16px 12px; } th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){ display:none; } .barra{ height:64px; } .barra b{ font-size:18px; } .barra div{ padding:8px; } }
+@media (max-width:720px){ .pg{ padding:18px 12px 70px; } h1{ font-size:26px; } .card{ padding:16px 12px; } .barra{ height:64px; } .barra b{ font-size:18px; } .barra div{ padding:8px; } }
 
 /* cenários salvos (mesmo desenho da barra do site: + Novo · Cenários · nome · Salvar) */
 .cenS{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:16px 0 0; padding:10px 12px; border:1px solid var(--linha); border-radius:12px; }
@@ -56,9 +56,11 @@ body.arr{ user-select:none; -webkit-user-select:none; cursor:grabbing; }
 .bcria{ font:700 13px "Inter"; color:#0B0D0E; background:var(--ok); border:0; border-radius:999px; padding:8px 16px; cursor:pointer; } .bcria.sec{ background:none; color:var(--texto); border:1px solid rgba(242,244,245,.25); }
 @media (max-width:720px){ #cenNm{ flex:1 1 100%; margin-left:0; } }
 
-/* ---- celular (11/11/2026): versão enxuta, sem avisos fixos; o aviso só aparece enquanto arrasta ---- */
+.ns{ display:none; }
+/* ---- celular (11/11/2026, refeito): compacto, mas com as vagas por comissão; partidos um embaixo do outro; cada grupo com a sua cor ---- */
 @media (max-width:720px){
   html,body{ overflow-x:hidden; }
+  .nf{ display:none; } .ns{ display:inline; }
   .pg{ padding:14px 12px 40px; } .olho{ font-size:10px; } h1{ font-size:24px; margin:4px 0 2px; } .lead{ display:none; }
   .card{ border:0; background:none; padding:0; border-radius:0; }
   .cab{ gap:8px; } .cab .tag, .cab h2, .cab span.s{ display:none; } .acoes{ margin-left:0; width:100%; justify-content:flex-end; }
@@ -68,12 +70,16 @@ body.arr{ user-select:none; -webkit-user-select:none; cursor:grabbing; }
   .cch{ flex:none; } .cch button{ font-size:12px; padding:5px 8px; } .cico{ width:32px; height:32px; flex:none; }
   .barra{ height:40px; gap:3px; margin:12px 0 4px; } .barra div{ padding:4px 6px; border-radius:7px; display:flex; align-items:center; } .barra b{ font-size:15px; } .barra small{ display:none; }
   #al{ display:none; }
-  table{ margin-top:6px; } th{ padding:8px 6px; font-size:10px; letter-spacing:.08em; } td{ padding:8px 6px; }
-  th:nth-child(3),td:nth-child(3),th:nth-child(4),td:nth-child(4){ display:none; } td.n{ font-size:14px; width:1%; text-align:right; } th:nth-child(2),th:nth-child(5){ text-align:right; }
-  .grp{ gap:5px; } .chip{ font-size:12px; padding:4px 8px 4px 7px; gap:5px; } .chip i{ width:8px; height:8px; } .grp .rot{ font-size:11px; } .alca{ width:20px; height:20px; }
-  tr.form td.n[colspan]{ display:none; }
+  table{ margin-top:6px; border-collapse:separate; border-spacing:0 6px; } thead th{ padding:6px 4px; font-size:9.5px; letter-spacing:.04em; border-bottom:0; text-align:right; white-space:nowrap; } thead th:first-child{ text-align:left; padding-left:12px; }
+  tbody td{ padding:10px 4px; border-bottom:0; background:var(--sup); vertical-align:middle; } tbody td:first-child{ border-radius:12px 0 0 12px; box-shadow:inset 4px 0 0 var(--gc, #3F454B); padding-left:12px; } tbody td:last-child{ border-radius:0 12px 12px 0; padding-right:10px; }
+  tr.mnr td{ background:#171C1D; } tr.form td{ background:repeating-linear-gradient(135deg,rgba(255,255,255,.03) 0 8px,var(--sup) 8px 16px); }
+  tr.tot td{ background:none; box-shadow:none; padding-top:8px; } tr.alvo.ok td{ background:rgba(52,232,74,.12); } tr.alvo.no td{ background:rgba(232,67,42,.14); }
+  td.n{ font-size:14px; width:1%; text-align:right; white-space:nowrap; } td.n.t b{ font-size:15px; }
+  .qv{ display:inline; } .qv span, .qv i{ display:none; } .dl{ display:none; }
+  .grp{ flex-direction:column; align-items:flex-start; gap:5px; } .chip{ font-size:12px; padding:4px 9px 4px 7px; gap:5px; } .chip i{ width:8px; height:8px; } .grp .rot{ font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); }
+  .alca{ width:20px; height:20px; position:absolute; margin:0; } .grp:has(.alca){ position:relative; padding-left:26px; } .grp .alca{ left:0; top:2px; }
   .msg{ display:none; position:fixed; left:12px; right:12px; bottom:12px; margin:0; font-size:12.5px; z-index:40; }
-  body.arr .msg{ display:flex; } .msg br, .msg br ~ *{ display:none; }
+  body.arr .msg{ display:flex; }
   .regras{ display:none; } .rod{ font-size:11px; }
 }
 </style></head><body><div class="pg">
@@ -86,7 +92,7 @@ body.arr{ user-select:none; -webkit-user-select:none; cursor:grabbing; }
   <div id="cen"></div>
   <div class="barra" id="barra"></div>
   <div id="al"></div>
-  <table><thead><tr><th>Bancada ou bloco</th><th>Dep.</th><th id="h9">De 9</th><th id="h7">De 7</th><th>Nas 24</th></tr></thead><tbody id="tb"></tbody></table>
+  <table><thead><tr><th>Bancada ou bloco</th><th>Dep.</th><th id="h9">De 9</th><th id="h7">De 7</th><th><span class="nf">Nas 24</span><span class="ns">Cadeiras</span></th></tr></thead><tbody id="tb"></tbody></table>
   <div class="msg" id="msg"><span class="ic">↔</span><span>Pegue um partido pela etiqueta e arraste.</span></div>
 </div>
 <div class="regras">
@@ -145,7 +151,9 @@ const qv = (e, v) => `<span class="qv"><span>${e}</span><i>${e ? "→" : ""}</i>
 const tira = (Gs, p) => Gs.map((g) => g.filter((x) => x !== p)).filter((g) => g.length);
 
 // ---------------- desenho ----------------
-const chip = (p, tr) => `<span class="chip${BAN[p] > 10 ? " trava" : ""}" data-p="${p}"${tr ? ` data-alvo="${tr}"` : ""}><i style="background:${COR[p]}"></i>${p}<em>${BAN[p]}</em></span>`;
+// nome curto para a versão compacta (celular): REP, PT, UNIÃO, PSOL
+const CURTO = { "REPUBLICANOS": "REP", "PT/PC do B/PV": "PT", "UNIÃO/PP": "UNIÃO", "PSOL/REDE": "PSOL" };
+const chip = (p, tr) => `<span class="chip${BAN[p] > 10 ? " trava" : ""}" data-p="${p}"${tr ? ` data-alvo="${tr}"` : ""}><i style="background:${COR[p]}"></i><span class="nf">${p}</span><span class="ns">${CURTO[p] || p}</span><em>${BAN[p]}</em></span>`;
 function barra(Gs) { const Q = quadro(Gs); $("#barra").innerHTML = Q.linhas.map((l) => `<div style="flex-grow:${l.t};background:${corG(l.g)}"><b>${l.t}</b><small>${nome(l.g)}</small></div>`).join("") + (Q.min ? `<div class="mn" style="flex-grow:${Q.min.t}"><b>${Q.min.t}</b><small>Minoria</small></div>` : ""); }
 // o que muda nos assentos (Nas 24) entre o cenário atual e o da prévia
 function mudancas(G2) { const a = {}, b = {}, put = (o, Q) => { Q.linhas.forEach((l) => { o[nome(l.g)] = l.t; }); if (Q.min) o["Minoria"] = Q.min.t; };
@@ -156,15 +164,15 @@ function desenhar(prev) {
   if (prev) { barra(prev.G2); return; }
   const Gs = prev ? prev.G2 : G, Q = quadro(Gs), Q0 = quadro(G), antes = {}; Q0.linhas.forEach((l) => { antes[chave(l.g)] = l.t; }); const minA = Q0.min ? Q0.min.t : 0;
   const idx = (g) => Gs.indexOf(g), dl = (a, b) => a === b ? "" : `<span class="dl ${b > a ? "up" : "dn"}">${b > a ? "+" : "−"}${Math.abs(b - a)}</span>`;
-  $("#h9").textContent = `De 9 (÷ ${String(Q.R9.q).replace(".", ",")})`; $("#h7").textContent = `De 7 (÷ ${String(Q.R7.q).replace(".", ",")})`;
+  $("#h9").innerHTML = `<span class="nf">De 9 (÷ ${String(Q.R9.q).replace(".", ",")})</span><span class="ns">De 9</span>`; $("#h7").innerHTML = `<span class="nf">De 7 (÷ ${String(Q.R7.q).replace(".", ",")})</span><span class="ns">De 7</span>`;
   let h = Q.linhas.map((l) => { const a = antes[chave(l.g)] ?? 0, mud = prev && a !== l.t;
-    return `<tr class="${mud ? "mud" : ""}" data-alvo="${idx(l.g)}"><td><div class="grp">${l.g.length > 1 ? `<span class="alca" data-bloco="${idx(l.g)}" title="Arraste o bloco inteiro (solte na Minoria para desfazer)" style="--c:${corG(l.g)}"><i></i></span>` : ""}${l.g.map((p) => chip(p)).join("")}</div></td><td class="n">${l.d}</td><td class="n">${qv(fr(l.e9), l.u9)}</td><td class="n">${qv(fr(l.e7), l.u7)}</td><td class="n t"><b>${l.t}</b>${prev ? dl(a, l.t) : ""}</td></tr>`; }).join("");
-  h += Q.form.map((g) => `<tr class="form" data-alvo="${idx(g)}"><td><div class="grp"><span class="alca" data-bloco="${idx(g)}" title="Arraste o bloco inteiro" style="--c:${corG(g)}"><i></i></span><span class="rot">em formação</span>${g.map((p) => chip(p)).join("")}</div></td><td class="n">${dep(g)}</td><td class="n" colspan="2" style="color:var(--ter)">faltam ${5 - dep(g)} para virar bloco · conta como minoria</td><td class="n">—</td></tr>`).join("");
+    return `<tr class="${mud ? "mud" : ""}" data-alvo="${idx(l.g)}" style="--gc:${corG(l.g)}"><td><div class="grp">${l.g.length > 1 ? `<span class="alca" data-bloco="${idx(l.g)}" title="Arraste o bloco inteiro (solte na Minoria para desfazer)" style="--c:${corG(l.g)}"><i></i></span>` : ""}${l.g.map((p) => chip(p)).join("")}</div></td><td class="n">${l.d}</td><td class="n">${qv(fr(l.e9), l.u9)}</td><td class="n">${qv(fr(l.e7), l.u7)}</td><td class="n t"><b>${l.t}</b>${prev ? dl(a, l.t) : ""}</td></tr>`; }).join("");
+  h += Q.form.map((g) => `<tr class="form" data-alvo="${idx(g)}" style="--gc:#5C6268"><td><div class="grp"><span class="alca" data-bloco="${idx(g)}" title="Arraste o bloco inteiro" style="--c:${corG(g)}"><i></i></span><span class="rot">em formação</span>${g.map((p) => chip(p)).join("")}</div></td><td class="n">${dep(g)}</td><td class="n" colspan="2" style="color:var(--ter)"><span class="nf">faltam ${5 - dep(g)} para virar bloco · conta como minoria</span><span class="ns">faltam ${5 - dep(g)}</span></td><td class="n">—</td></tr>`).join("");
   if (Q.min || Q.soltas.length) { const t = Q.min ? Q.min.t : 0;
-    h += `<tr class="mnr" data-alvo="min"><td><div class="grp"><span class="rot">Minoria</span>${Q.soltas.map((p) => chip(p, idx(Gs.find((g) => g.length === 1 && g[0] === p)))).join("")}${Q.form.length ? `<span class="rot">+ ${Q.form.map(nome).join(", ")}</span>` : ""}</div></td><td class="n">${Q.min ? Q.min.d : 0}</td><td class="n">${qv("", 1)}</td><td class="n">${qv("", 1)}</td><td class="n t"><b>${t}</b>${prev ? dl(minA, t) : ""}</td></tr>`; }
+    h += `<tr class="mnr" data-alvo="min" style="--gc:#8A9096"><td><div class="grp"><span class="rot">Minoria</span>${Q.soltas.map((p) => chip(p, idx(Gs.find((g) => g.length === 1 && g[0] === p)))).join("")}${Q.form.length ? `<span class="rot">+ ${Q.form.map(nome).join(", ")}</span>` : ""}</div></td><td class="n">${Q.min ? Q.min.d : 0}</td><td class="n">${qv("", 1)}</td><td class="n">${qv("", 1)}</td><td class="n t"><b>${t}</b>${prev ? dl(minA, t) : ""}</td></tr>`; }
   else h += `<tr class="mnr" data-alvo="min"><td colspan="5" style="color:var(--ter)">Minoria vazia: solte aqui um partido para tirá-lo do bloco</td></tr>`;
   const tot = Q.linhas.reduce((s, l) => s + l.t, 0) + (Q.min ? Q.min.t : 0);
-  h += `<tr class="tot"><td>Total</td><td class="n">40</td><td class="n">${qv("", 9)}</td><td class="n">${qv("", 7)}</td><td class="n">${tot} de 176</td></tr>`;
+  h += `<tr class="tot"><td>Total</td><td class="n">40</td><td class="n">${qv("", 9)}</td><td class="n">${qv("", 7)}</td><td class="n">${tot}<span class="nf"> de 176</span></td></tr>`;
   $("#tb").innerHTML = h;
   barra(Gs);
   // minoria grande: as pequenas somam 5+ e podiam virar bloco
