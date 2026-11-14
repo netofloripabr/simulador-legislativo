@@ -20,6 +20,7 @@
   const CSS = `.svov{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
   .svmd{background:#15191C;color:#F2F4F5;border:1px solid #262C31;border-radius:18px;width:100%;max-width:680px;max-height:90vh;overflow:auto;padding:18px 20px;font:14px/1.45 Inter,system-ui,sans-serif}
   .svmd .mh{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.svmd .mh b{font-size:18px;display:block}.svmd .mh small{color:#7E848A}
+  .svmd .tps{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.svmd .tp{background:#1E2327;border:1px solid #262C31;color:#B0B5BA;border-radius:999px;padding:5px 11px;font:600 12px/1 Inter,system-ui,sans-serif;cursor:pointer}.svmd .tp em{font-style:normal;font-weight:500;color:#7E848A;margin-left:6px}.svmd .tp.on{background:#F2F4F5;border-color:#F2F4F5;color:#15191C}.svmd .tp.on em{color:#545A60}
   .svmd .x{background:#1E2327;border:0;color:#F2F4F5;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;flex:none}
   .svmd .pf{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:#B0B5BA;margin:6px 0 4px}.svmd .pf b{color:#F2F4F5;font-weight:600}
   .svmd .st{font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;background:#1E2327;color:#B0B5BA}.svmd .st.ex{background:rgba(255,159,67,.12);color:#FF9F43}
@@ -62,9 +63,15 @@
       <tr class="tt"><td>Líquido + auxílios<small>auxílios são indenizatórios: sem IR nem previdência</small></td><td class="r">${rs(liq + sd + ALIM)}</td></tr></tbody></table></div>
       <p class="nota">Fonte: portal da transparência da ALESC, contracheque ${esc(cc.referencia)}.</p>`;
   }
+  const MOV = new Set(["NOMEAR", "EXONERAR", "ALTERAR NÍVEL", "LOTAR", "POSICIONAR", "PROMOVER", "DISPENSAR", "CEDER", "COLOCAR À DISPOSIÇÃO", "RETORNAR", "REMOVER", "REDISTRIBUIR", "ENQUADRAR", "APOSENTAR", "AFASTAR", "FAZER CESSAR"]);
+  const tipoAto = (a) => { const ac = a.acoes || []; return ac.includes("FISCAL DE CONTRATO") ? "fis" : a.disposicao || ac.some((x) => MOV.has(x)) ? "mov" : "out"; };
   function tabHistorico(atos) {
     if (!atos.length) return `<p class="nota">Nenhum ato encontrado no Diário da Assembleia (2019 em diante) para esta matrícula.</p>`;
-    return `<div class="tw"><table><thead><tr><th>Data</th><th>Ação</th><th>Cargo · nível</th><th>Lotação</th><th>Ato</th></tr></thead><tbody>${atos.map((a) => `<tr><td class="d">${dt(a.efeito || a.data_ato)}</td><td><b>${esc((a.acoes || []).join(", ") || "—")}</b>${a.disposicao ? "<small>disposição / cessão</small>" : ""}</td><td class="mu">${esc(a.cargo || "")}${a.nivel ? `<small>${a.nivel_de ? esc(a.nivel_de) + " → " : ""}${esc(a.nivel)}</small>` : (a.codigos || []).length ? `<small>${esc(a.codigos.join(", "))}</small>` : ""}</td><td class="mu">${esc((a.lotacoes || []).join(" · "))}</td><td><a href="${esc(a.url)}" target="_blank" rel="noopener" style="color:#B0B5BA">${esc(tit(a.tipo))} ${esc(a.numero)}</a><small>Diário ${esc(a.edicao)} · ${dt(a.publicado)}</small></td></tr>`).join("")}</tbody></table></div>
+    // etiquetas por tipo de ato (14/11/2026): Movimentação (nomear, exonerar, nível, lotação, cessão…), Fiscal de contrato e Outros
+    const N = { mov: 0, fis: 0, out: 0 }; atos.forEach((a) => { a._tp = tipoAto(a); N[a._tp]++; });
+    const ini = N.mov ? "mov" : N.fis ? "fis" : "out";
+    const chips = [["mov", "Movimentação"], ["fis", "Fiscal de contrato"], ["out", "Outros"]].filter(([k]) => N[k]).map(([k, t]) => `<button class="tp${k === ini ? " on" : ""}" data-svtp="${k}">${t}<em>${N[k]}</em></button>`).join("") + `<button class="tp" data-svtp="todos">Todos<em>${atos.length}</em></button>`;
+    return `<div class="tps">${chips}</div><div class="tw"><table><thead><tr><th>Data</th><th>Ação</th><th>Cargo · nível</th><th>Lotação</th><th>Ato</th></tr></thead><tbody>${atos.map((a) => `<tr data-tp="${a._tp}"${a._tp === ini ? "" : " hidden"}><td class="d">${dt(a.efeito || a.data_ato)}</td><td><b>${esc((a.acoes || []).join(", ") || "—")}</b>${a.disposicao ? "<small>disposição / cessão</small>" : ""}</td><td class="mu">${esc(a.cargo || "")}${a.nivel ? `<small>${a.nivel_de ? esc(a.nivel_de) + " → " : ""}${esc(a.nivel)}</small>` : (a.codigos || []).length ? `<small>${esc(a.codigos.join(", "))}</small>` : ""}</td><td class="mu">${esc((a.lotacoes || []).join(" · "))}</td><td><a href="${esc(a.url)}" target="_blank" rel="noopener" style="color:#B0B5BA">${esc(tit(a.tipo))} ${esc(a.numero)}</a><small>Diário ${esc(a.edicao)} · ${dt(a.publicado)}</small></td></tr>`).join("")}</tbody></table></div>
       <p class="nota">Cada linha é um ato publicado no Diário da Assembleia; o link abre a edição.</p>`;
   }
   function tabNotas(mat, notas) { return `${notas.length ? notas.map((n) => `<div class="nt">${esc(n.texto)}<small>${new Date(n.criado_em).toLocaleDateString("pt-BR")}<button data-svdel="${n.id}">apagar</button></small></div>`).join("") : `<p class="nota" style="margin-top:0">Nenhuma nota sua ainda. As notas são pessoais: só você vê.</p>`}
@@ -90,6 +97,7 @@
   document.addEventListener("click", async (e) => {
     const t = e.target;
     if (t.closest("[data-svx]") || t.id === "svOv") { document.getElementById("svOv").style.display = "none"; return; }
+    const tp = t.closest("[data-svtp]"); if (tp) { const box = tp.closest("details") || document; box.querySelectorAll("[data-svtp]").forEach((x) => x.classList.toggle("on", x === tp)); box.querySelectorAll("tr[data-tp]").forEach((r) => { r.hidden = tp.dataset.svtp !== "todos" && r.dataset.tp !== tp.dataset.svtp; }); return; }
     const ab = t.closest("[data-svab]"); if (ab) { e.preventDefault(); abrir(ab.dataset.svab); return; }
     const nt = t.closest("[data-svnt]"); if (nt) { const tx = document.getElementById("svNt").value.trim(); if (!tx) return; const r = await sb().from("adm_notas").insert({ matricula: +nt.dataset.svnt, texto: tx }); if (r.error) { alert("Não gravou: " + r.error.message); return; } await abrir(nt.dataset.svnt); document.querySelectorAll("#svOv details")[2].open = true; return; }
     const dl = t.closest("[data-svdel]"); if (dl) { if (!confirm("Apagar esta nota?")) return; await sb().from("adm_notas").delete().eq("id", +dl.dataset.svdel); const m = document.querySelector("[data-svnt]").dataset.svnt; await abrir(m); document.querySelectorAll("#svOv details")[2].open = true; }

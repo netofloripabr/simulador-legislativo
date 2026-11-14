@@ -96,9 +96,9 @@ addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
 const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos pela equipe do gabinete. Transparência: os dados divulgados pelo estado."],
-  ["rh", "Administrativo", "A estrutura do gabinete registrada pela equipe: cargos do parlamentar, gabinete parlamentar, cargos da ALESC somados e outros cargos."],
-  ["alesc", "ALESC (Transparência)", "O que a Assembleia divulga sobre o mandato: subsídio e verbas, estrutura do gabinete e quem está lotado, liderança e a estrutura da Casa."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
-  ["ele", "Eleitoral", "Onde estão os votos do mandato: mapa, distribuição, perfil das cidades, comparação e ranking."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."]];
+  ["rh", "Administrativo", "A estrutura do gabinete registrada pela equipe: cargos do parlamentar, gabinete parlamentar, cargos da ALESC somados e outros cargos."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
+  ["ele", "Eleitoral", "Onde estão os votos do mandato: mapa, distribuição, perfil das cidades, comparação e ranking."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."],
+  ["alesc", "ALESC (Transparência)", "O que a Assembleia divulga sobre o mandato: subsídio e verbas, estrutura do gabinete e quem está lotado, liderança e a estrutura da Casa."]];
 function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio() && PODE)) S.aba = "geral";
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
