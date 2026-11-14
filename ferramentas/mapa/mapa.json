@@ -89,6 +89,10 @@
   [
    "14/11/2026",
    "Gabinete › ALESC (Transparência) ganha o bloco Diário Oficial (movimentação diária do Diário da ALESC e atos da Mesa), só admin, acima dos blocos embutidos."
+  ],
+  [
+   "14/11/2026",
+   "Agenda do mandato (prazos, comissões, plenário, feriados, bases e eventos da equipe) entra no Gabinete › Administrativo, como primeiro bloco, acima do RH - Gabinete."
   ]
  ],
  "paginas": [
@@ -558,6 +562,15 @@
      "ancora": "\"Administrativo\"",
      "filhos": [
       {
+       "nome": "Agenda",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete-agenda.js",
+       "ancora": "corpoAgenda",
+       "dados": "banco: gab_agenda (migração 101); JSON: dados/painel/prazos-casa.json, agenda-alesc.json, sc-aniversarios.json",
+       "nota": "Primeiro bloco do Administrativo, acima do RH - Gabinete. Calendário do mês e lista dos próximos 30 dias (ou do dia clicado). Etiquetas: Prazos, Comissões, Plenário, Bases, Equipe, Feriados e datas, Eventos da Casa (desligada por padrão). Prazos das emendas impositivas vêm das Cotas; prazos da Casa do Ato da Mesa 428/2026; feriados calculados. Aniversários das cidades: parcial, 33 de 295 (a Wikipédia limitou as consultas). A equipe cadastra eventos próprios; os dados públicos são só leitura."
+      },
+      {
        "nome": "RH - Gabinete",
        "status": "pronto",
        "arquivo": "painel/gabinete-rh.js",
@@ -603,7 +616,7 @@
        "nota": "Embutido de Eleições 2026 (novos.html?so=gab), logo abaixo do RH - Gabinete, já aberto. Mudar lá muda aqui. Voltou do título ALESC em 14/11/2026."
       }
      ],
-     "nota": "A estrutura do gabinete: o RH registrado pela equipe (RH - Gabinete) e a estrutura pela ALESC, com a cota de nomeações e quem está lotado."
+     "nota": "A agenda do mandato e a estrutura do gabinete: o RH registrado pela equipe e a estrutura pela ALESC, com a cota de nomeações e quem está lotado."
     },
     {
      "nome": "Processo legislativo",
@@ -685,6 +698,14 @@
      "status": "pronto",
      "arquivo": "ferramentas/sync_emendas.py",
      "ancora": "def"
+    },
+    {
+     "nome": "Agenda da Assembleia: todo dia 22h30",
+     "status": "pronto",
+     "quem": "admin",
+     "arquivo": "ferramentas/agenda/agenda.mjs",
+     "ancora": "agenda",
+     "dados": "gera dados/painel/agenda-alesc.json; roda dentro da tarefa alesc-diario-servidores"
     }
    ]
   }
