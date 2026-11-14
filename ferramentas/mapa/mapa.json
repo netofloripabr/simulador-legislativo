@@ -85,6 +85,10 @@
   [
    "14/11/2026",
    "Estrutura do gabinete (cota de nomeações e Quem está lotado) volta ao Administrativo, abaixo do RH - Gabinete. ALESC (Transparência) fica com Subsídio e verbas, Verbas indenizatórias, Liderança, estrutura da Casa e O mandato em números."
+  ],
+  [
+   "14/11/2026",
+   "Gabinete › ALESC (Transparência) ganha o bloco Diário Oficial (movimentação diária do Diário da ALESC e atos da Mesa), só admin, acima dos blocos embutidos."
   ]
  ],
  "paginas": [
@@ -633,6 +637,15 @@
      "dados": "Transparência da ALESC e normas",
      "nota": "O que a Assembleia divulga sobre o mandato. Leitura, nada é gravado. É o último título da página (depois de Mailing), com o atalho ALESC no alto.",
      "filhos": [
+      {
+       "nome": "Diário Oficial (movimentação diária e atos da Mesa)",
+       "status": "pronto",
+       "quem": "admin",
+       "arquivo": "painel/gabinete-diario.js",
+       "ancora": "corpoDiario",
+       "dados": "banco: adm_atos, adm_ato_pessoas (rotina do Diário, 22h30)",
+       "nota": "Fica no topo, acima dos blocos embutidos; só admin (os demais não veem). Uma ficha por edição, da mais recente para a mais antiga: Nomeações, Exonerações, À disposição e cessões, Nível salarial, Outros atos funcionais e Atos da Mesa e administrativos. Marcar como lido leva a edição para Lidas (só neste navegador); consulta 3 semanas por vez com Carregar mais. O nome abre o perfil do servidor."
+      },
       {
        "nome": "Blocos embutidos de Eleições 2026 › Administrativo (sem Estrutura do gabinete)",
        "status": "pronto",
