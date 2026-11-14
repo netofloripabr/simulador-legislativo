@@ -176,13 +176,19 @@ function cartoesCapa(sem) {
   const L = R;
   // conceito B (03/11/2026): o nome sozinho no alto; embaixo dois cartões translúcidos sobre o mapa (Recursos e Votos);
   // o aviso da cota aberta vira uma faixa fina no topo do quadro e o interruptor do mapa fica no canto do próprio mapa
-  const cRec = `<div class="gcard${an}"><div class="k">Recursos · ${anos[0] || ""}-${String(anos.slice(-1)[0] || "").slice(2)}${S.reg ? onde : I ? " · total" : " · impositivas"}</div>${tv ? `<div class="v">${esc(fm(tv))}</div>
+  // 14/11/2026: os dois cartões minimizam (botão no canto); o estado fica guardado no navegador (gab_capa_min)
+  const MIN = capaMin(), tg = (k) => `<button class="gmin" data-gmin="${k}" title="${MIN.has(k) ? "Abrir" : "Minimizar"}" aria-label="${MIN.has(k) ? "Abrir" : "Minimizar"}" aria-expanded="${!MIN.has(k)}"></button>`;
+  const cRec = `<div class="gcard${an}${MIN.has("rec") ? " min" : ""}" data-gcard="rec"><div class="k">Recursos · ${anos[0] || ""}-${String(anos.slice(-1)[0] || "").slice(2)}${S.reg ? onde : I ? " · total" : " · impositivas"}${tg("rec")}</div>${tv ? `<div class="v">${esc(fm(tv))}</div>
     <div class="gbar">${seg.map(([, v], i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]}"></i>`).join("")}</div><div class="gpg" style="width:${tp / tv * 100}%"></div>
     <div class="gico">${seg.map(([f, v], i) => `<span class="gi" title="${esc(f)}: ${esc(fm(v))}" style="--c:${TN[i % 5]}"><b>${icoA(f)}</b><em>${esc(fm(v))}</em></span>`).join("")}<span class="gi gnum" title="${I ? "Emendas e convênios" : "Emendas"} · ${ni(mun)} municípios atendidos"><b>${icoV("emendas")}</b><em>${ni(L.length)}</em></span><span class="gi gok" title="Pago até hoje: ${nf(tp / tv * 100, 1)}%"><b>${icoV("pago")}</b><em>${nf(tp / tv * 100)}%</em></span></div>` : `<div class="v gvz">R$ 0</div><p class="gnada">Nenhum recurso indicado ${S.reg ? "para " + esc(S.reg.n) : "ainda"}.</p>`}</div>`;
   const lv = (k, v, r, t, x = "") => `<div class="gl" title="${esc(t)}"><b>${icoV(k)}</b><span>${v}${x}</span><small>${r}</small></div>`;
-  const cVot = `<div class="gcard${an}"><div class="k">Votos · 2026${onde}</div><div class="v a">${ni(vR)}</div><div class="gvl">${v22 != null ? lv("v22", ni(v22), `em 2022 · <em class="${dv >= 0 ? "vd" : "ng"}">${dv >= 0 ? "+" : ""}${nf(dv, 1)}%</em>`, "Votos em 2022 e a variação até 2026") : ""}${S.reg ? lv("parte", nf(vR / (PARL.t || 1) * 100, 1) + "%", "do mandato", "Parte dos votos do mandato") + (S.reg.t !== "mun" ? lv("regiao", ni(S.reg.ix.size), "municípios", "Municípios da região") : "") : ""}</div></div>`;
+  const cVot = `<div class="gcard${an}${MIN.has("vot") ? " min" : ""}" data-gcard="vot"><div class="k">Votos · 2026${onde}${tg("vot")}</div><div class="v a">${ni(vR)}</div><div class="gvl">${v22 != null ? lv("v22", ni(v22), `em 2022 · <em class="${dv >= 0 ? "vd" : "ng"}">${dv >= 0 ? "+" : ""}${nf(dv, 1)}%</em>`, "Votos em 2022 e a variação até 2026") : ""}${S.reg ? lv("parte", nf(vR / (PARL.t || 1) * 100, 1) + "%", "do mandato", "Parte dos votos do mandato") + (S.reg.t !== "mun" ? lv("regiao", ni(S.reg.ix.size), "municípios", "Municípios da região") : "") : ""}</div></div>`;
   return cRec + cVot;
 }
+function capaMin() { try { return new Set(JSON.parse(localStorage.getItem("gab_capa_min") || "[]")); } catch (e) { return new Set(); } }
+document.addEventListener("click", (e) => { const b = e.target.closest("[data-gmin]"); if (!b) return; e.preventDefault(); e.stopPropagation();
+  const k = b.dataset.gmin, M = capaMin(); M.has(k) ? M.delete(k) : M.add(k); try { localStorage.setItem("gab_capa_min", JSON.stringify([...M])); } catch (x) {}
+  const c = b.closest(".gcard"); c.classList.toggle("min", M.has(k)); b.title = b.ariaLabel = M.has(k) ? "Abrir" : "Minimizar"; b.setAttribute("aria-expanded", String(!M.has(k))); }, true);
 // função da emenda na capa: a da planilha do gabinete quando a emenda está ligada a ela; senão, estimada pelo objeto
 const FUN_CAPA = { "Infraestrutura e Mobilidade": "Infraestrutura", "Segurança Pública": "Segurança", "Fundo Social": "Social", "Esporte, cultura e lazer": "Esporte e cultura" };
 function funCapa(e) { const r = PRIV && e.k && PRIV[e.k], f = r && r.funcao ? FUN_I.find(([re]) => re.test(r.funcao)) : null;

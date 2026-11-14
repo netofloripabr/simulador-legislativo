@@ -70,7 +70,10 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 .gft{ width:64px; height:64px; border-radius:50%; object-fit:cover; object-position:50% 18%; box-shadow:0 0 0 2.5px var(--a), 0 10px 30px -8px rgba(var(--a-rgb),.8); }
 .pops div{ opacity:0; transform:scale(0); transform-origin:left bottom; animation:popB .7s cubic-bezier(.2,1.4,.4,1) forwards; } @keyframes popB{ 0%{ opacity:0; transform:scale(0); } 70%{ opacity:1; transform:scale(1.08); } 100%{ opacity:1; transform:none; } }
 .gtxt .gid{ display:flex; align-items:center; gap:14px; } .gtxt .gid .olho{ margin:0; } .gtxt h1{ font-size:clamp(42px,6vw,78px); margin:16px 0 0; } .gtxt{ max-width:620px; }
-.gcards{ display:grid; grid-template-columns:1.35fr 1fr; gap:12px; margin-top:34px; }
+.gcards{ display:grid; grid-template-columns:1.35fr 1fr; gap:12px; margin-top:34px; align-items:start; }
+.gcard .k{ display:flex; align-items:center; gap:8px; } .gmin{ margin-left:auto; flex:none; width:26px; height:26px; margin-top:-4px; margin-right:-6px; border-radius:50%; border:0; background:transparent; cursor:pointer; position:relative; } .gmin:hover{ background:rgba(242,244,245,.08); }
+.gmin::after{ content:""; position:absolute; left:50%; top:50%; width:7px; height:7px; border:solid var(--ter); border-width:0 2px 2px 0; transform:translate(-50%,-30%) rotate(-135deg); transition:transform .2s; } .gcard.min .gmin::after{ transform:translate(-50%,-70%) rotate(45deg); }
+.gcard.min{ padding-bottom:14px; } .gcard.min > :not(.k):not(.v){ display:none; } .gcard.min .v{ font-size:20px; margin:6px 0 0; }
 .gcard{ background:rgba(20,24,27,.72); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border:1px solid var(--linha); border-radius:18px; padding:18px 18px 16px; opacity:0; animation:gcardA .8s cubic-bezier(.2,.8,.2,1) .35s forwards; } .gcard + .gcard{ animation-delay:.5s; } @keyframes gcardA{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
 .gcard .k{ font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); font-weight:500; } .gcard .v{ font-size:28px; font-weight:600; letter-spacing:-.02em; margin:8px 0 14px; font-variant-numeric:tabular-nums; white-space:nowrap; } .gcard .v.a{ color:var(--a); }
 .gbar{ display:flex; gap:2px; height:8px; border-radius:999px; overflow:hidden; background:rgba(242,244,245,.06); } .gbar i{ display:block; height:100%; transform-origin:left; animation:gbarA 1.1s .5s cubic-bezier(.2,.8,.2,1) both; } @keyframes gbarA{ from{ transform:scaleX(0); } }
@@ -542,7 +545,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=113"></script>
+<script src="gabinete.js?cb=114"></script>
 <script src="gabinete-rh.js?cb=3"></script>
 <script src="gabinete-diario.js?cb=2"></script>
 <script src="gabinete-agenda.js?cb=1"></script>
