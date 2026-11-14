@@ -77,6 +77,10 @@
   [
    "14/11/2026",
    "Gabinete: a estrutura que vem da Transparência/normas sai do Administrativo e vai para o título novo ALESC (Transparência). Administrativo fica só com RH - Gabinete. Atenção: não confundir com a subseção Transparência (estrutura da Casa) da Eleições 2026 nem com Transparência SC do Controle de Recursos."
+  ],
+  [
+   "14/11/2026",
+   "ALESC (Transparência) passa a ser o último título do Gabinete, depois de Mailing."
   ]
  ],
  "paginas": [
@@ -167,7 +171,8 @@
        "quem": "admin",
        "arquivo": "interface/40-admin.js",
        "ancora": "Servidores da ALESC",
-       "dados": "banco: adm_servidores, adm_atos, adm_contracheques, adm_notas"
+       "dados": "banco: adm_servidores, adm_atos, adm_contracheques, adm_notas",
+       "nota": "Histórico de movimentação com etiquetas por tipo de ato (Movimentação, Fiscal de contrato, Outros, Todos); abre em Movimentação (14/11/2026). Mesmo perfil no Quem está lotado do Gabinete."
       },
       {
        "nome": "Rotinas (migrações e tarefas)",
@@ -584,24 +589,6 @@
      "nota": "Só o que a equipe do gabinete registra (RH - Gabinete). Os blocos da Transparência foram para o título ALESC (Transparência) em 14/11/2026."
     },
     {
-     "nome": "ALESC (Transparência)",
-     "status": "pronto",
-     "quem": "cadastrado",
-     "arquivo": "painel/gabinete.js",
-     "ancora": "corpoAlesc",
-     "dados": "Transparência da ALESC e normas (adm_servidores para Quem está lotado, só admin)",
-     "nota": "O que a Assembleia divulga sobre o mandato. Leitura, nada é gravado. Fica logo depois de Administrativo.",
-     "filhos": [
-      {
-       "nome": "Blocos embutidos de Eleições 2026 › Administrativo",
-       "status": "pronto",
-       "arquivo": "painel/gabinete.js",
-       "ancora": "so=adm",
-       "nota": "Subsídio e verbas do parlamentar, Estrutura do gabinete (cota de nomeações; abre sozinha, com Quem está lotado só para admin), Verbas indenizatórias, Simulador de gabinete, Liderança do partido, Transparência (estrutura da Casa e Duodécimo), O mandato em números. Mesmo código da Eleições 2026: mudar lá muda aqui. Não confundir com Transparência SC (Controle de Recursos)."
-      }
-     ]
-    },
-    {
      "nome": "Processo legislativo",
      "status": "planejado",
      "quem": "cadastrado",
@@ -623,6 +610,24 @@
      "arquivo": "painel/gabinete.js",
      "ancora": "\"Mailing\"",
      "nota": " Se for privado, só para a equipe do gabinete."
+    },
+    {
+     "nome": "ALESC (Transparência)",
+     "status": "pronto",
+     "quem": "cadastrado",
+     "arquivo": "painel/gabinete.js",
+     "ancora": "corpoAlesc",
+     "dados": "Transparência da ALESC e normas (adm_servidores para Quem está lotado, só admin)",
+     "nota": "O que a Assembleia divulga sobre o mandato. Leitura, nada é gravado. É o último título da página (depois de Mailing), com o atalho ALESC no alto.",
+     "filhos": [
+      {
+       "nome": "Blocos embutidos de Eleições 2026 › Administrativo",
+       "status": "pronto",
+       "arquivo": "painel/gabinete.js",
+       "ancora": "so=adm",
+       "nota": "Subsídio e verbas do parlamentar, Estrutura do gabinete (cota de nomeações; abre sozinha, com Quem está lotado só para admin), Verbas indenizatórias, Simulador de gabinete, Liderança do partido, Transparência (estrutura da Casa e Duodécimo), O mandato em números. Mesmo código da Eleições 2026: mudar lá muda aqui. Não confundir com Transparência SC (Controle de Recursos)."
+      }
+     ]
     }
    ]
   },
