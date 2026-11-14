@@ -297,6 +297,22 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .rhb{ background:var(--sup); border:1px solid var(--linha); border-radius:20px; padding:22px; margin:0 var(--emb-x, 16px) 16px; }
 .rhb > h3{ margin:0; font-size:22px; letter-spacing:-.03em; display:flex; align-items:center; gap:10px; cursor:pointer; } .rhb > h3 small{ margin-left:auto; font-size:12px; font-weight:400; letter-spacing:0; color:var(--ter); }
 .rhb > h3::after{ content:""; width:8px; height:8px; border:solid var(--ter); border-width:0 2px 2px 0; transform:translateY(2px) rotate(-135deg); transition:transform .2s; margin-right:4px; } .rhb.fech > h3::after{ transform:translateY(-2px) rotate(45deg); } .rhb.fech > #rhGab{ display:none; }
+.rhb.fech > #dioC{ display:none; }
+#dioC .rh-sub{ margin:8px 0 14px; } .dio-lk{ background:none; border:0; color:var(--texto); font:inherit; font-weight:600; text-decoration:underline; text-underline-offset:3px; cursor:pointer; padding:0; } .dio-lk[disabled]{ color:var(--ter); cursor:default; }
+.dio-ed{ border:1px solid var(--linha); border-radius:16px; margin:0 0 12px; background:var(--sup2); }
+.dio-cb{ display:grid; grid-template-columns:minmax(0,auto) minmax(0,1fr) auto; gap:16px; align-items:center; padding:14px 16px; }
+.dio-cb b{ font-size:15px; display:block; } .dio-cb small{ color:var(--ter); font-size:12px; }
+.dio-ct{ display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; } .dio-ct span{ font-size:11.5px; color:var(--sec); background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:3px 9px; }
+.dio-bt{ background:var(--texto); color:var(--fundo); border:0; border-radius:999px; padding:7px 13px; font:600 12px/1 inherit; font-family:inherit; cursor:pointer; white-space:nowrap; }
+.dio-ed.lido{ background:transparent; } .dio-ed.lido .dio-bt{ background:transparent; color:var(--sec); border:1px solid var(--linha); } .dio-ed.lido .dio-cb b{ color:var(--sec); }
+.dio-cp{ padding:0 16px 14px; border-top:1px solid var(--linha); } .dio-cp h5{ margin:14px 0 6px; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ter); font-weight:600; }
+.dio-tw{ overflow-x:auto; } .dio-tw table{ width:100%; border-collapse:collapse; font-size:12.5px; table-layout:fixed; } .dio-tw td:nth-child(1){ width:28%; } .dio-tw td:nth-child(2){ width:24%; } .dio-tw td:nth-child(4){ width:14%; } .dio-tw td{ padding:7px 8px 7px 0; border-bottom:1px solid var(--linha); vertical-align:top; } .dio-tw tr:last-child td{ border-bottom:0; }
+.dio-tw td small{ display:block; color:var(--ter); font-size:11px; } .dio-tw td.mu{ color:var(--sec); } .dio-tw td.r{ text-align:right; white-space:nowrap; } .dio-tw a, .dio-ms a{ color:var(--sec); }
+.dio-pn{ background:none; border:0; padding:0; color:var(--texto); font:inherit; font-weight:600; cursor:pointer; text-align:left; text-decoration:underline; text-decoration-color:var(--linha); text-underline-offset:3px; }
+.dio-ms{ list-style:none; margin:0; padding:0; font-size:12.5px; } .dio-ms li{ display:grid; grid-template-columns:130px minmax(0,1fr); gap:10px; padding:6px 0; border-bottom:1px solid var(--linha); } .dio-ms li:last-child{ border-bottom:0; } .dio-ms span{ color:var(--sec); }
+.dio-li{ margin:6px 0 10px; } .dio-li > summary{ cursor:pointer; color:var(--sec); font-size:13px; padding:8px 0; } .dio-mais{ margin-top:6px; font-size:13px; }
+@media (max-width:720px){ .dio-cb{ grid-template-columns:1fr auto; } .dio-ct{ grid-column:1 / -1; justify-content:flex-start; order:3; } .dio-ms li{ grid-template-columns:1fr; gap:2px; } .dio-tw td.mu:nth-child(3){ display:none; } }
+
 .rh-sub{ color:var(--ter); font-size:12.5px; margin:10px 0 14px; }
 .rh-cab,.rh-g>summary{ display:grid; grid-template-columns:minmax(0,1fr) 133px 133px 12px; gap:28px; align-items:center; }
 .rh-cab{ font-size:11px; color:var(--ter); padding:0 2px 8px; } .rh-cab > span:nth-child(2),.rh-cab > span:nth-child(3){ text-align:center; white-space:nowrap; margin:0 -14px; }
@@ -506,8 +522,10 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=111"></script>
+<script src="gabinete.js?cb=112"></script>
 <script src="gabinete-rh.js?cb=3"></script>
+<script src="gabinete-diario.js?cb=1"></script>
+<script src="servidores-perfil.js?cb=10"></script>
 <script src="gabinete-adicionar.js?cb=19"></script>
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>

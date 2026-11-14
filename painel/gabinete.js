@@ -89,7 +89,7 @@ const corpoAdm = () => { setTimeout(() => { if (typeof rhGabinete === "function"
 // ALESC (Transparência), 14/11/2026: o que a Casa e o portal da transparência dizem do mandato (subsídio, verbas, liderança,
 // estrutura da Casa; a Estrutura do gabinete com quem está lotado fica no Administrativo, ?so=gab) sai do Administrativo para um título próprio. O Administrativo
 // fica só com o que o gabinete registra (RH - Gabinete). Mesmo embutido de Parlamentares (novos.html?so=adm).
-const corpoAlesc = () => `<iframe class="admEmb" id="admEmb" title="ALESC (Transparência)" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&sem=gab&v=4"></iframe>`;
+const corpoAlesc = () => `${typeof corpoDiario === "function" ? corpoDiario() : ""}<iframe class="admEmb" id="admEmb" title="ALESC (Transparência)" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&sem=gab&v=4"></iframe>`;
 // Eleitoral (fase 4): o Eleitoral de Parlamentares (painel completo do parlamentar), embutido do mesmo jeito
 const corpoEle = () => `<iframe class="admEmb" id="eleEmb" title="Eleitoral" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=ele&v=1"></iframe>`;
 addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data) return; const f = e.data.slEmb === "adm" ? $("#admEmb") : e.data.slEmb === "gab" ? $("#gabEmb") : e.data.slEmb === "ele" ? $("#eleEmb") : null; if (f) f.style.height = Math.max(200, +e.data.h || 0) + "px"; });
