@@ -5,7 +5,7 @@
 // pela rotina do Diário (ferramentas/diario/rotina.mjs, todo dia 22h30). Só administrador (RLS gab_pode); para os
 // demais o bloco não aparece. Consulta por janela de 3 semanas (~150 atos, ~100 KB); "Carregar mais" busca a anterior.
 // Lidas: no navegador (localStorage gab_dio_lidos). Usa os globais de gabinete.js (ADM, SESS, esc) e o supabaseClient.
-let DIO = { atos: [], ate: null, carregando: false, erro: "", fim: false };
+let DIO = { atos: [], ate: null, carregando: false, erro: "", fim: false, f: new Set() }; // f: filtros por tipo (vazio = tudo)
 const DIO_JANELA = 21; // dias por consulta
 const dioLidos = () => { try { return new Set(JSON.parse(localStorage.getItem("gab_dio_lidos") || "[]")); } catch (e) { return new Set(); } };
 const dioGrava = (S) => { try { localStorage.setItem("gab_dio_lidos", JSON.stringify([...S].slice(-400))); } catch (e) {} };
@@ -13,6 +13,8 @@ const dioIso = (d) => d.toISOString().slice(0, 10);
 const dioTit = (s) => String(s || "").toLowerCase().replace(/(^|\s)(\S)/g, (m, a, b) => a + b.toUpperCase()).replace(/\b(Da|De|Do|Das|Dos|E)\b/g, (m) => m.toLowerCase());
 const dioDia = (s) => { const d = new Date(s + "T12:00:00"); return d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" }); };
 // grupos das movimentações funcionais (mesmo critério das etiquetas do perfil do servidor)
+const DIO_ROT = { nom: ["nomeação", "nomeações"], exo: ["exoneração", "exonerações"], disp: ["à disposição ou cessão", "à disposição e cessões"], niv: ["nível salarial", "níveis salariais"], out: ["outro ato funcional", "outros atos funcionais"], mesa: ["ato administrativo", "atos administrativos"] };
+const dioRot = (k, n) => DIO_ROT[k][n === 1 ? 0 : 1];
 const DIO_G = [["nom", "Nomeações"], ["exo", "Exonerações"], ["disp", "À disposição e cessões"], ["niv", "Nível salarial"], ["out", "Outros atos funcionais"]];
 function dioGrupo(a) { const ac = a.acoes || [];
   // (o campo disposicao do ato não serve aqui: vem marcado também em licenças e fiscais; vale a ação)
@@ -42,14 +44,21 @@ async function dioCarregar(mais) {
 function dioFicha(ed, L, lido) {
   const fun = L.filter((a) => (a.adm_ato_pessoas || []).length), mesa = L.filter((a) => !(a.adm_ato_pessoas || []).length);
   const G = {}; fun.forEach((a) => { const g = dioGrupo(a); (G[g] = G[g] || []).push(a); });
-  const conta = DIO_G.filter(([k]) => G[k]).map(([k, t]) => `<span>${G[k].reduce((s, a) => s + a.adm_ato_pessoas.length, 0)} ${t.toLowerCase()}</span>`).join("") + (mesa.length ? `<span>${mesa.length} ${mesa.length > 1 ? "atos administrativos" : "ato administrativo"}</span>` : "");
+  const F = DIO.f, ve = (k) => !F.size || F.has(k), qt = (k) => (k === "mesa" ? mesa.length : G[k].reduce((s, a) => s + a.adm_ato_pessoas.length, 0));
+  const tem = [...DIO_G.filter(([k]) => G[k]).map(([k]) => k), ...(mesa.length ? ["mesa"] : [])]; if (F.size && !tem.some(ve)) return "";
+  const conta = tem.map((k) => `<button class="dio-f${F.has(k) ? " on" : ""}" data-diof="${k}">${qt(k)} ${dioRot(k, qt(k))}</button>`).join("");
   const lk = (a) => `<a href="${esc(a.url || "#")}" target="_blank" rel="noopener">${esc(dioTit(a.tipo))} ${esc(a.numero || "")}</a>`;
   const linha = (a, p) => `<tr><td>${typeof servidorAbrir === "function" && p.matricula && p.nome ? `<button class="dio-pn" data-svab="${p.matricula}">${esc(dioTit(p.nome))}</button>` : `<b>${p.nome ? esc(dioTit(p.nome)) : "nome não identificado"}</b>`}<small>${esc((a.acoes || []).map((x) => x.toLowerCase()).join(", "))}</small></td><td class="mu">${esc(a.cargo || "")}${p.nivel ? `<small>nível ${p.nivel_de ? esc(p.nivel_de) + " → " : ""}${esc(p.nivel)}</small>` : ""}</td><td class="mu">${esc((a.lotacoes || []).join(" · "))}</td><td class="r">${lk(a)}</td></tr>`;
-  const corpo = DIO_G.filter(([k]) => G[k]).map(([k, t]) => `<h5>${t}</h5><div class="dio-tw"><table>${G[k].flatMap((a) => a.adm_ato_pessoas.map((p) => linha(a, p))).join("")}</table></div>`).join("")
-    + (mesa.length ? `<h5>Atos da Mesa e administrativos</h5><ul class="dio-ms">${mesa.map((a) => `<li>${lk(a)}<span>${esc(dioResumo(a.texto)) || "—"}</span></li>`).join("")}</ul>` : "");
+  const corpo = DIO_G.filter(([k]) => G[k] && ve(k)).map(([k, t]) => `<h5>${t}</h5><div class="dio-tw"><table>${G[k].flatMap((a) => a.adm_ato_pessoas.map((p) => linha(a, p))).join("")}</table></div>`).join("")
+    + (mesa.length && ve("mesa") ? `<h5>Atos da Mesa e administrativos</h5><ul class="dio-ms">${mesa.map((a) => `<li>${lk(a)}<span>${esc(dioResumo(a.texto)) || "—"}</span></li>`).join("")}</ul>` : "");
   return `<div class="dio-ed${lido ? " lido" : ""}" data-dioed="${ed}"><div class="dio-cb"><div><b>Diário nº ${ed}</b><small>${esc(dioDia(L[0].publicado))} · ${L.length} ${L.length > 1 ? "atos" : "ato"}</small></div>
     <div class="dio-ct">${conta}</div><button class="dio-bt" data-diolido="${ed}">${lido ? "Reabrir" : "Marcar como lido"}</button></div>${lido ? "" : `<div class="dio-cp">${corpo}</div>`}</div>`; }
 
+// filtros no alto: os mesmos tipos das fichas, somando as edições carregadas; clicar liga e desliga (mais de um vale)
+function dioBarra() { const T = { nom: 0, exo: 0, disp: 0, niv: 0, out: 0, mesa: 0 };
+  DIO.atos.forEach((a) => { const n = (a.adm_ato_pessoas || []).length; if (n) T[dioGrupo(a)] += n; else T.mesa++; });
+  const ks = Object.keys(T).filter((k) => T[k]); if (!ks.length) return "";
+  return `<div class="dio-fb"><span>Filtrar</span>${ks.map((k) => `<button class="dio-f${DIO.f.has(k) ? " on" : ""}" data-diof="${k}">${T[k]} ${dioRot(k, T[k])}</button>`).join("")}${DIO.f.size ? `<button class="dio-lk" data-diof="limpar">mostrar tudo</button>` : ""}</div>`; }
 function dioDesenhar() { const el = document.getElementById("dioC"); if (!el) return;
   if (!DIO.atos.length && DIO.carregando) { el.innerHTML = `<p class="rh-nt">Carregando o Diário…</p>`; return; }
   if (DIO.erro && !DIO.atos.length) { el.innerHTML = `<p class="rh-nt">Não foi possível ler o Diário: ${esc(DIO.erro)}</p>`; return; }
@@ -58,6 +67,7 @@ function dioDesenhar() { const el = document.getElementById("dioC"); if (!el) re
   const ab = eds.filter((e) => !S.has(+e)), li = eds.filter((e) => S.has(+e));
   const sub = document.querySelector("#dioB > h3 small"); if (sub) sub.textContent = ab.length ? `${ab.length} ${ab.length > 1 ? "edições não lidas" : "edição não lida"}` : "tudo lido";
   el.innerHTML = `<p class="rh-sub">A movimentação funcional de cada edição do Diário da Assembleia e um resumo dos atos da Mesa, da mais recente para a mais antiga. Ao marcar uma edição como lida, ela fecha e vai para o fim.${ab.length > 1 ? ` <button class="dio-lk" data-diotodos>Marcar todas como lidas</button>` : ""}</p>
+    ${dioBarra()}
     ${ab.map((e) => dioFicha(e, E[e], false)).join("") || `<p class="rh-nt">Nenhuma edição por ler neste período.</p>`}
     ${li.length ? `<details class="dio-li"><summary>Lidas · ${li.length}</summary>${li.map((e) => dioFicha(e, E[e], true)).join("")}</details>` : ""}
     <div class="dio-mais">${DIO.fim ? `<span class="rh-nt">Não há edições mais antigas gravadas.</span>` : `<button class="dio-lk" data-diomais${DIO.carregando ? " disabled" : ""}>${DIO.carregando ? "Carregando…" : `Carregar mais ${DIO_JANELA / 7} semanas (antes de ${DIO.ate ? DIO.ate.split("-").reverse().join("/") : ""})`}</button>`}</div>`; }
@@ -66,7 +76,8 @@ function dioDesenhar() { const el = document.getElementById("dioC"); if (!el) re
 function corpoDiario() { if (!ADM || !SESS) return ""; setTimeout(() => { if (!DIO.atos.length && !DIO.erro) dioCarregar(); else dioDesenhar(); }, 0);
   return `<div class="rhb" id="dioB"><h3 onclick="this.parentElement.classList.toggle('fech')">Diário Oficial<small></small></h3><div id="dioC"><p class="rh-nt">Carregando o Diário…</p></div></div>`; }
 
-document.addEventListener("click", (e) => { const t = e.target.closest("[data-diolido],[data-diotodos],[data-diomais]"); if (!t || !t.closest("#dioB")) return; e.preventDefault();
+document.addEventListener("click", (e) => { const t = e.target.closest("[data-diolido],[data-diotodos],[data-diomais],[data-diof]"); if (!t || !t.closest("#dioB")) return; e.preventDefault();
+  if (t.dataset.diof) { const k = t.dataset.diof; if (k === "limpar") DIO.f.clear(); else DIO.f.has(k) ? DIO.f.delete(k) : DIO.f.add(k); dioDesenhar(); return; }
   if (t.dataset.diomais != null) { dioCarregar(true); return; }
   const S = dioLidos();
   if (t.dataset.diotodos != null) [...new Set(DIO.atos.map((a) => a.edicao))].forEach((x) => S.add(x));

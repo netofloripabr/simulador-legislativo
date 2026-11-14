@@ -320,7 +320,9 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .dio-ed{ border:1px solid var(--linha); border-radius:16px; margin:0 0 12px; background:var(--sup2); }
 .dio-cb{ display:grid; grid-template-columns:minmax(0,auto) minmax(0,1fr) auto; gap:16px; align-items:center; padding:14px 16px; }
 .dio-cb b{ font-size:15px; display:block; } .dio-cb small{ color:var(--ter); font-size:12px; }
-.dio-ct{ display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; } .dio-ct span{ font-size:11.5px; color:var(--sec); background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:3px 9px; }
+.dio-ct{ display:flex; flex-wrap:wrap; gap:6px; justify-content:flex-end; }
+.dio-f{ font:500 11.5px/1 inherit; font-family:inherit; color:var(--sec); background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:5px 10px; cursor:pointer; } .dio-f:hover{ border-color:var(--ter); color:var(--texto); } .dio-f.on{ background:var(--texto); border-color:var(--texto); color:var(--fundo); }
+.dio-fb{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0 0 14px; } .dio-fb > span{ font-size:11px; color:var(--ter); text-transform:uppercase; letter-spacing:.06em; margin-right:4px; } .dio-fb .dio-lk{ font-size:12px; margin-left:6px; }
 .dio-bt{ background:var(--texto); color:var(--fundo); border:0; border-radius:999px; padding:7px 13px; font:600 12px/1 inherit; font-family:inherit; cursor:pointer; white-space:nowrap; }
 .dio-ed.lido{ background:transparent; } .dio-ed.lido .dio-bt{ background:transparent; color:var(--sec); border:1px solid var(--linha); } .dio-ed.lido .dio-cb b{ color:var(--sec); }
 .dio-cp{ padding:0 16px 14px; border-top:1px solid var(--linha); } .dio-cp h5{ margin:14px 0 6px; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ter); font-weight:600; }
@@ -542,7 +544,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="tabelas-alesc.js?cb=1"></script>
 <script src="gabinete.js?cb=113"></script>
 <script src="gabinete-rh.js?cb=3"></script>
-<script src="gabinete-diario.js?cb=1"></script>
+<script src="gabinete-diario.js?cb=2"></script>
 <script src="gabinete-agenda.js?cb=1"></script>
 <script src="servidores-perfil.js?cb=10"></script>
 <script src="gabinete-adicionar.js?cb=19"></script>

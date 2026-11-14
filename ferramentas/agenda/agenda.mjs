@@ -80,8 +80,12 @@ const arq = path.join(RAIZ, SAIDA), antes = fs.existsSync(arq) ? JSON.parse(fs.r
 const igual = antes && JSON.stringify({ ...antes, gerado: 0 }) === JSON.stringify({ ...novo, gerado: 0 });
 fs.writeFileSync(arq, JSON.stringify(novo));
 log(`${Object.keys(C).length} comissões, ${R.length} reuniões, ${S.length} sessões, ${G.length} da agenda geral → ${eventos.length} itens${igual ? " (sem mudança)" : ""}`);
-if (!process.argv.includes("--sem-publicar") && !igual) {
+// o aniversarios.py (rodado antes, na mesma tarefa) também grava dados/painel/sc-aniversarios.json: publica junto
+const ANIV = "dados/painel/sc-aniversarios.json", gst = (f) => execFileSync("git", ["status", "--porcelain", f], { cwd: RAIZ, encoding: "utf8" }).trim();
+const mudouAniv = !process.argv.includes("--sem-publicar") && !!gst(ANIV);
+if (!process.argv.includes("--sem-publicar") && (!igual || mudouAniv)) {
   const g = (a) => execFileSync("git", a, { cwd: RAIZ, encoding: "utf8", env: { ...process.env, GIT_SSH_COMMAND: `ssh -o ConnectTimeout=20 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -o Hostname=ssh.github.com -p 443 -o UserKnownHostsFile=${path.join(CACHE, "known_hosts_github")} -o StrictHostKeyChecking=yes` } });
-  g(["add", SAIDA]); g(["commit", "-m", `Agenda da ALESC: ${eventos.length} itens até ${novo.ate.split("-").reverse().join("/")} (rotina diária)`, "--", SAIDA]);
+  const arqs = [...(!igual ? [SAIDA] : []), ...(mudouAniv ? [ANIV] : [])];
+  g(["add", ...arqs]); g(["commit", "-m", `Agenda da ALESC: ${eventos.length} itens até ${novo.ate.split("-").reverse().join("/")}${mudouAniv ? " · aniversários das cidades" : ""} (rotina diária)`, "--", ...arqs]);
   try { g(["push", "-q", "origin", "HEAD:main"]); log("publicada"); } catch (e) { log("commit feito, push falhou (" + String(e.message).slice(0, 120) + ")"); }
 }
