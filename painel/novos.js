@@ -232,7 +232,9 @@ function verbasSim(C, I) {
 }
 // ocupação real do gabinete (só admin, dados da migração 89): as bolinhas e a cota passam a mostrar quem está nomeado
 async function ocupacaoGab(c) { if (typeof servidorGabinete !== "function" || !window._gabQ) return; window.GAB_IDX = GAB_IDX; window.GAB_VAL = GAB_VAL; const R = await servidorGabinete(c.u).catch(() => null), el = $("#gabCota"); if (!R || !el) return;
-  el.innerHTML = quadroCota({ ...window._gabQ, vagas: { ...window._gabQ.vagas, u: R.u }, usado: { rot: `Usado hoje (${R.ref || "portal"})`, v: R.v }, nota: `Visão de administrador: ${R.u} Secretários Parlamentares na cota e ${R.total - R.u} pessoa${R.total - R.u === 1 ? "" : "s"} fora dela (chefe, cedidos ou sem nível identificado). Bolinha cheia = vaga ocupada; vazada = livre.` }) + R.html; }
+  el.innerHTML = quadroCota({ ...window._gabQ, vagas: { ...window._gabQ.vagas, u: R.u }, usado: { rot: `Usado hoje (${R.ref || "portal"})`, v: R.v }, nota: `Visão de administrador: ${R.u} Secretários Parlamentares na cota e ${R.total - R.u} pessoa${R.total - R.u === 1 ? "" : "s"} fora dela (chefe, cedidos ou sem nível identificado). Bolinha cheia = vaga ocupada; vazada = livre.` }) + R.html;
+  // no Gabinete › ALESC (Transparência), a relação de quem está lotado já vem aberta (14/11/2026)
+  if (SO_ADM) { const b = el.closest(".bloco"); if (b) b.classList.remove("fech"); const d = el.querySelector("details.svgb"); if (d) d.open = true; } }
 function ligarVerbas(c) {
   const w = $("#vbSim"); if (!w) return; const C = EST.cota_custeio || {}, I = EST.indenizatorias || {}, AD = [0, C.ad_pres_lider || 0, C.ad_mesa || 0];
   const sv = lerP(c).verbas || {}; let cg = sv.cg ?? 0, mo = sv.mo ?? 1;

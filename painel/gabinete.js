@@ -85,21 +85,26 @@ async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient
 
 // Administrativo (04/11/2026): a mesma seção da página Parlamentares, embutida (novos.html?so=adm), para o parlamentar
 // aberto no painel. Um código só: o que muda num bloco de Parlamentares muda aqui também. A altura vem por postMessage.
-const corpoAdm = () => { setTimeout(() => { if (typeof rhGabinete === "function") rhGabinete(); }, 0); return `<div class="rhb" id="rhB"><h3 onclick="this.parentElement.classList.toggle('fech')">RH - Gabinete<small>${proprio() && PODE ? "salvo na conta do gabinete" : ""}</small></h3><div id="rhGab"><p class="rh-nt">Carregando…</p></div></div><iframe class="admEmb" id="admEmb" title="Administrativo" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&v=2"></iframe>`; };
+const corpoAdm = () => { setTimeout(() => { if (typeof rhGabinete === "function") rhGabinete(); }, 0); return `<div class="rhb" id="rhB"><h3 onclick="this.parentElement.classList.toggle('fech')">RH - Gabinete<small>${proprio() && PODE ? "salvo na conta do gabinete" : ""}</small></h3><div id="rhGab"><p class="rh-nt">Carregando…</p></div></div>`; };
+// ALESC (Transparência), 14/11/2026: o que a Casa e o portal da transparência dizem do mandato (subsídio, verbas, estrutura do
+// gabinete com quem está lotado, liderança, estrutura da Casa) sai do Administrativo para um título próprio. O Administrativo
+// fica só com o que o gabinete registra (RH - Gabinete). Mesmo embutido de Parlamentares (novos.html?so=adm).
+const corpoAlesc = () => `<iframe class="admEmb" id="admEmb" title="ALESC (Transparência)" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&v=3"></iframe>`;
 // Eleitoral (fase 4): o Eleitoral de Parlamentares (painel completo do parlamentar), embutido do mesmo jeito
 const corpoEle = () => `<iframe class="admEmb" id="eleEmb" title="Eleitoral" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=ele&v=1"></iframe>`;
 addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data) return; const f = e.data.slEmb === "adm" ? $("#admEmb") : e.data.slEmb === "ele" ? $("#eleEmb") : null; if (f) f.style.height = Math.max(200, +e.data.h || 0) + "px"; });
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
 const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos pela equipe do gabinete. Transparência: os dados divulgados pelo estado."],
-  ["rh", "Administrativo", "A estrutura do gabinete e o que o mandato recebe e pode estruturar: subsídio, verbas, liderança e a transparência da Casa."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
+  ["rh", "Administrativo", "A estrutura do gabinete registrada pela equipe: cargos do parlamentar, gabinete parlamentar, cargos da ALESC somados e outros cargos."],
+  ["alesc", "ALESC (Transparência)", "O que a Assembleia divulga sobre o mandato: subsídio e verbas, estrutura do gabinete e quem está lotado, liderança e a estrutura da Casa."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
   ["ele", "Eleitoral", "Onde estão os votos do mandato: mapa, distribuição, perfil das cidades, comparação e ranking."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."]];
 function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio() && PODE)) S.aba = "geral";
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
   const nm = PARL.u.split(" "), EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
   $("#app").innerHTML = `${capa(nm)}
-    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : k === "rh" ? corpoAdm() : k === "ele" ? corpoEle() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
+    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : k === "rh" ? corpoAdm() : k === "alesc" ? corpoAlesc() : k === "ele" ? corpoEle() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
   const tv = $("#trocaV"); if (tv) tv.onclick = (e) => { e.preventDefault(); escolha(true); };
   $("#glc").onclick = (e) => { const b = e.target.closest("[data-lc]"); if (!b || b.dataset.lc === S.lc) return; S.lc = b.dataset.lc; const g = $("#glc"); g.querySelector(".gswb").classList.toggle("r", S.lc === "rec"); g.querySelectorAll("[data-lc]").forEach((x) => x.classList.toggle("on", x === b)); g.querySelector(".gswl").hidden = S.lc !== "rec"; capaLente(); };
   if (!GH || !document.body.contains($("#gCv")) || !GH.vivo) { capaMapa(); GH.vivo = true; }
@@ -246,7 +251,7 @@ function temaItens() {
 function leque() { temaItens();
   let nv = document.querySelector(".gsecs"); if (!nv) { nv = document.createElement("nav"); nv.className = "gsecs"; document.querySelector(".topo .wm").after(nv); }
   if (window.slTrilho) slTrilho();
-  nv.innerHTML = TITULOS.map(([k, t]) => `<a href="#t-${k}" data-gt="${k}">${t.replace("Controle de Recursos", "Recursos").replace("Processo legislativo", "Legislativo")}</a>`).join("");
+  nv.innerHTML = TITULOS.map(([k, t]) => `<a href="#t-${k}" data-gt="${k}">${t.replace("Controle de Recursos", "Recursos").replace("Processo legislativo", "Legislativo").replace("ALESC (Transparência)", "ALESC")}</a>`).join("");
   nv.onclick = (e) => { const a = e.target.closest("[data-gt]"); if (!a) return; e.preventDefault(); const k = a.dataset.gt, sec = $("#t-" + k); S.fech[k] = false; sec.classList.remove("fech"); sec.querySelector(".tgs").classList.add("ab"); sec.scrollIntoView({ behavior: "smooth" }); };
 }
 // clicar numa cidade da capa (etiqueta ou bolha) abre Controle de Recursos com a carteira filtrada nela
