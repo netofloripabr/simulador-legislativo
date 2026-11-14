@@ -9,7 +9,8 @@ const DV = "20261016a";
 const CARGO = (() => { let v = new URLSearchParams(location.search).get("c"); if (!/^(estadual|federal)$/.test(v || "")) { try { v = sessionStorage.getItem("sl_cargo"); } catch (e) {} } if (!/^(estadual|federal)$/.test(v || "")) v = "estadual"; try { sessionStorage.setItem("sl_cargo", v); } catch (e) {} return v; })();
 // ?so=adm: só a seção Administrativo, sem capa nem topo, para o painel Gabinete embutir (mesmo código nas duas páginas)
 // ?so=ele: só o Eleitoral (painel Gabinete › Eleitoral, fase 4)
-const SO_ = new URLSearchParams(location.search).get("so"), SO_ADM = SO_ === "adm", SO_ELE = SO_ === "ele";
+// ?so=gab (14/11/2026): só o bloco Estrutura do gabinete (Gabinete › Administrativo); ?so=adm&sem=gab: o resto (Gabinete › ALESC)
+const SO_Q = new URLSearchParams(location.search), SO_ = SO_Q.get("so"), SO_GAB = SO_ === "gab", SO_ADM = SO_ === "adm" || SO_GAB, SO_ELE = SO_ === "ele", SO_SEMGAB = SO_Q.get("sem") === "gab";
 if (SO_ADM || SO_ELE) document.documentElement.classList.add("emb-adm");
 const FED = CARGO === "federal", CARGO_R = FED ? "Deputado federal" : "Deputado estadual", CG_LBL = { estadual: "Dep. Estadual", federal: "Dep. Federal" };
 const foto = (n, cg = CARGO) => `../dados/fotos/${UF}-2026/${cg}/${n}.jpg`;
@@ -96,9 +97,11 @@ function perfil(n) {
 function perfilAdm(c) {
   tingir(COR_P[c.p] || "#34E84A");
   $("#app").innerHTML = UFI.completo ? secAdministrativo(c) : `<p class="nota">O Administrativo de ${esc(UFI.nome)} está em preparação.</p>`;
+  if (UFI.completo) { const bg = ($("#gabCota") || {}).closest ? $("#gabCota").closest(".bloco") : null;
+    if (SO_GAB) { $("#app").querySelectorAll(".bloco").forEach((b) => { if (b !== bg) b.remove(); }); document.documentElement.classList.add("emb-gab"); } else if (SO_SEMGAB && bg) bg.remove(); }
   if (UFI.completo) { const gs = $("#gabSim"); if (gs) gs.remove(); /* no Gabinete, o RH - Gabinete (salvo na conta) substitui o simulador */ ligarVerbas(c); ocupacaoGab(c); ligarLideranca(c); }
-  revelar(); travaLogin().then(verificarAcesso);
-  const avisa = () => { try { parent.postMessage({ slEmb: "adm", h: Math.ceil(($("#app") || document.body).getBoundingClientRect().bottom + 24) }, location.origin); } catch (e) {} };
+  revelar(); if (SO_GAB) { const g = $("#gabCota"); if (g) g.closest(".bloco").classList.remove("fech"); } travaLogin().then(verificarAcesso);
+  const avisa = () => { try { parent.postMessage({ slEmb: SO_GAB ? "gab" : "adm", h: Math.ceil(($("#app") || document.body).getBoundingClientRect().bottom + 24) }, location.origin); } catch (e) {} };
   new ResizeObserver(avisa).observe($("#app") || document.body); avisa();
   document.addEventListener("click", (e) => { window._embY = e.pageY; }, true);
 }

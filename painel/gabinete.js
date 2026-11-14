@@ -85,20 +85,20 @@ async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient
 
 // Administrativo (04/11/2026): a mesma seção da página Parlamentares, embutida (novos.html?so=adm), para o parlamentar
 // aberto no painel. Um código só: o que muda num bloco de Parlamentares muda aqui também. A altura vem por postMessage.
-const corpoAdm = () => { setTimeout(() => { if (typeof rhGabinete === "function") rhGabinete(); }, 0); return `<div class="rhb" id="rhB"><h3 onclick="this.parentElement.classList.toggle('fech')">RH - Gabinete<small>${proprio() && PODE ? "salvo na conta do gabinete" : ""}</small></h3><div id="rhGab"><p class="rh-nt">Carregando…</p></div></div>`; };
-// ALESC (Transparência), 14/11/2026: o que a Casa e o portal da transparência dizem do mandato (subsídio, verbas, estrutura do
-// gabinete com quem está lotado, liderança, estrutura da Casa) sai do Administrativo para um título próprio. O Administrativo
+const corpoAdm = () => { setTimeout(() => { if (typeof rhGabinete === "function") rhGabinete(); }, 0); return `<div class="rhb" id="rhB"><h3 onclick="this.parentElement.classList.toggle('fech')">RH - Gabinete<small>${proprio() && PODE ? "salvo na conta do gabinete" : ""}</small></h3><div id="rhGab"><p class="rh-nt">Carregando…</p></div></div><iframe class="admEmb" id="gabEmb" title="Estrutura do gabinete" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=gab&v=1"></iframe>`; };
+// ALESC (Transparência), 14/11/2026: o que a Casa e o portal da transparência dizem do mandato (subsídio, verbas, liderança,
+// estrutura da Casa; a Estrutura do gabinete com quem está lotado fica no Administrativo, ?so=gab) sai do Administrativo para um título próprio. O Administrativo
 // fica só com o que o gabinete registra (RH - Gabinete). Mesmo embutido de Parlamentares (novos.html?so=adm).
-const corpoAlesc = () => `<iframe class="admEmb" id="admEmb" title="ALESC (Transparência)" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&v=3"></iframe>`;
+const corpoAlesc = () => `<iframe class="admEmb" id="admEmb" title="ALESC (Transparência)" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&sem=gab&v=4"></iframe>`;
 // Eleitoral (fase 4): o Eleitoral de Parlamentares (painel completo do parlamentar), embutido do mesmo jeito
 const corpoEle = () => `<iframe class="admEmb" id="eleEmb" title="Eleitoral" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=ele&v=1"></iframe>`;
-addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data) return; const f = e.data.slEmb === "adm" ? $("#admEmb") : e.data.slEmb === "ele" ? $("#eleEmb") : null; if (f) f.style.height = Math.max(200, +e.data.h || 0) + "px"; });
+addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data) return; const f = e.data.slEmb === "adm" ? $("#admEmb") : e.data.slEmb === "gab" ? $("#gabEmb") : e.data.slEmb === "ele" ? $("#eleEmb") : null; if (f) f.style.height = Math.max(200, +e.data.h || 0) + "px"; });
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
 const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos pela equipe do gabinete. Transparência: os dados divulgados pelo estado."],
-  ["rh", "Administrativo", "A estrutura do gabinete registrada pela equipe: cargos do parlamentar, gabinete parlamentar, cargos da ALESC somados e outros cargos."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
+  ["rh", "Administrativo", "A estrutura do gabinete: o RH registrado pela equipe e a estrutura pela ALESC, com a cota de nomeações e quem está lotado."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
   ["ele", "Eleitoral", "Onde estão os votos do mandato: mapa, distribuição, perfil das cidades, comparação e ranking."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."],
-  ["alesc", "ALESC (Transparência)", "O que a Assembleia divulga sobre o mandato: subsídio e verbas, estrutura do gabinete e quem está lotado, liderança e a estrutura da Casa."]];
+  ["alesc", "ALESC (Transparência)", "O que a Assembleia divulga sobre o mandato: subsídio e verbas, verbas indenizatórias, liderança, a estrutura da Casa e o mandato em números."]];
 function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio() && PODE)) S.aba = "geral";
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
