@@ -2175,5 +2175,40 @@ const MIGRACOES_INDEX = [
     "gab_contatos.parlamentar"
    ]
   ]
+ },
+ {
+  "num": 101,
+  "arquivo": "migracao-101-gabinete-agenda.sql",
+  "descricao": "Migração 101 (14/11/2026): eventos que a equipe do gabinete cadastra na Agenda (Gabinete › Administrativo › Ag",
+  "objetos": [
+   [
+    "table",
+    "gab_agenda"
+   ],
+   [
+    "index",
+    "gab_agenda_parl_data"
+   ],
+   [
+    "trigger",
+    "gab_agenda_carimbo"
+   ],
+   [
+    "policy",
+    "gab_agenda_ver"
+   ],
+   [
+    "policy",
+    "gab_agenda_incluir"
+   ],
+   [
+    "policy",
+    "gab_agenda_alterar"
+   ],
+   [
+    "policy",
+    "gab_agenda_apagar"
+   ]
+  ]
  }
 ];

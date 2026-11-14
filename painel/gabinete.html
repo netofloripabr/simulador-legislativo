@@ -298,6 +298,24 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .rhb > h3{ margin:0; font-size:22px; letter-spacing:-.03em; display:flex; align-items:center; gap:10px; cursor:pointer; } .rhb > h3 small{ margin-left:auto; font-size:12px; font-weight:400; letter-spacing:0; color:var(--ter); }
 .rhb > h3::after{ content:""; width:8px; height:8px; border:solid var(--ter); border-width:0 2px 2px 0; transform:translateY(2px) rotate(-135deg); transition:transform .2s; margin-right:4px; } .rhb.fech > h3::after{ transform:translateY(-2px) rotate(45deg); } .rhb.fech > #rhGab{ display:none; }
 .rhb.fech > #dioC{ display:none; }
+.rhb.fech > #agC{ display:none; }
+.ag-tps{ display:flex; flex-wrap:wrap; gap:6px; margin:14px 0 16px; } .ag-tps .tp{ display:inline-flex; align-items:center; gap:6px; background:var(--sup2); border:1px solid var(--linha); color:var(--sec); border-radius:999px; padding:6px 11px; font:600 12px/1 inherit; font-family:inherit; cursor:pointer; } .ag-tps .tp.on{ background:var(--texto); color:var(--fundo); border-color:var(--texto); } .ag-tps .tp i{ width:8px; height:8px; border-radius:50%; }
+.ag-c-prazo{ background:#E8822A; } .ag-c-comissao{ background:#2B5FD9; } .ag-c-plenario{ background:#7B5BD6; } .ag-c-base{ background:#34E84A; } .ag-c-equipe{ background:#C6E62A; } .ag-c-data{ background:#E8432A; } .ag-c-casa{ background:#6B7178; }
+.ag-gr{ display:grid; grid-template-columns:minmax(280px, 380px) minmax(0,1fr); gap:24px; align-items:start; }
+.ag-nav{ display:flex; align-items:center; gap:10px; margin-bottom:8px; } .ag-nav b{ font-size:15px; text-transform:capitalize; min-width:130px; text-align:center; } .ag-nav button[data-agm]{ background:var(--sup2); border:1px solid var(--linha); color:var(--texto); width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:16px; }
+.ag-ch, .ag-cg{ display:grid; grid-template-columns:repeat(7, 1fr); gap:3px; } .ag-ch span{ font-size:10.5px; color:var(--ter); text-align:center; padding:4px 0; text-transform:uppercase; letter-spacing:.04em; }
+.ag-d{ position:relative; aspect-ratio:1 / .9; background:var(--sup2); border:1px solid transparent; border-radius:9px; color:var(--texto); font-family:inherit; cursor:pointer; padding:5px 4px; display:flex; flex-direction:column; align-items:center; justify-content:space-between; }
+.ag-d b{ font-size:13px; font-weight:600; } .ag-d.fora{ opacity:.35; } .ag-d.hoje{ border-color:var(--texto); } .ag-d.sel{ background:var(--texto); color:var(--fundo); } .ag-d.fer b{ color:#E8432A; } .ag-d.sel.fer b{ color:#E8432A; }
+.ag-d em{ position:absolute; top:3px; right:5px; font-style:normal; font-size:9px; color:var(--ter); } .ag-pt{ display:flex; gap:2px; } .ag-pt i{ width:5px; height:5px; border-radius:50%; }
+.ag-ref{ margin-top:12px; font-size:12px; color:var(--sec); line-height:1.6; } .ag-ref b{ color:var(--ter); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; margin-right:4px; }
+.ag-lt{ margin:6px 0 10px; font-size:14px; text-transform:capitalize; color:var(--sec); font-weight:600; }
+.ag-dia{ display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; padding:10px 0; border-top:1px solid var(--linha); } .ag-dia.hoje .ag-dt b{ color:var(--ok); }
+.ag-dt{ text-align:center; line-height:1.1; } .ag-dt b{ display:block; font-size:22px; letter-spacing:-.03em; } .ag-dt span{ display:block; font-size:11px; color:var(--sec); text-transform:uppercase; } .ag-dt small{ font-size:10.5px; color:var(--ter); }
+.ag-its{ display:flex; flex-direction:column; gap:8px; } .ag-it{ display:grid; grid-template-columns:78px minmax(0,1fr) auto auto; gap:10px; align-items:start; font-size:13px; }
+.ag-h{ color:var(--sec); font-variant-numeric:tabular-nums; font-size:12px; padding-top:1px; } .ag-tx b{ font-weight:600; } .ag-it.forte .ag-tx b{ color:#E8822A; } .ag-tx small{ display:block; color:var(--ter); font-size:11.5px; margin-top:2px; } .ag-tx a{ display:inline-block; margin-top:3px; font-size:11.5px; color:var(--sec); }
+.ag-tg{ font-size:10.5px; font-weight:600; color:#0B0F0D; border-radius:999px; padding:3px 8px; white-space:nowrap; } .ag-tg.ag-c-casa, .ag-tg.ag-c-comissao, .ag-tg.ag-c-plenario{ color:#F2F4F5; }
+@media (max-width:820px){ .ag-gr{ grid-template-columns:1fr; } .ag-it{ grid-template-columns:62px minmax(0,1fr) auto; } .ag-it .ag-tg{ display:none; } }
+
 #dioC .rh-sub{ margin:8px 0 14px; } .dio-lk{ background:none; border:0; color:var(--texto); font:inherit; font-weight:600; text-decoration:underline; text-underline-offset:3px; cursor:pointer; padding:0; } .dio-lk[disabled]{ color:var(--ter); cursor:default; }
 .dio-ed{ border:1px solid var(--linha); border-radius:16px; margin:0 0 12px; background:var(--sup2); }
 .dio-cb{ display:grid; grid-template-columns:minmax(0,auto) minmax(0,1fr) auto; gap:16px; align-items:center; padding:14px 16px; }
@@ -522,9 +540,10 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=112"></script>
+<script src="gabinete.js?cb=113"></script>
 <script src="gabinete-rh.js?cb=3"></script>
 <script src="gabinete-diario.js?cb=1"></script>
+<script src="gabinete-agenda.js?cb=1"></script>
 <script src="servidores-perfil.js?cb=10"></script>
 <script src="gabinete-adicionar.js?cb=19"></script>
 <script src="gabinete-equipe.js?cb=1"></script>

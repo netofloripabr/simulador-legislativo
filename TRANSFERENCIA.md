@@ -181,6 +181,7 @@ storage, 5 GB de egress/mês, 1 GB de logs.
 | Atas dos demais estados | Agente `.claude/agents/atualizador-atas-nacional-2026.md` | Era semanal |
 | Apuração TSE | pg_cron + Edge Function | **Desligada por decisão** (seção 5) |
 | Servidores da ALESC e atos do Diário (migrações 89–96) | Tarefas agendadas do Claude neste Mac: `alesc-diario-servidores` (todo dia 22h30) e `alesc-portal-servidores` (dia 10, 23h), que rodam `ferramentas/diario/rotina.mjs diario` / `portal` | Desde 04/11/2026. Só rodam com o app do Claude aberto (se fechado, rodam ao abrir). Sem cron no banco |
+| Agenda da ALESC (Gabinete › Administrativo › Agenda) | A mesma tarefa `alesc-diario-servidores` (22h30) roda depois `ferramentas/agenda/agenda.mjs`: lê comissões, composição e Plenário no e-Legis e a agenda da Casa (alesc.sc.gov.br/agenda), grava `dados/painel/agenda-alesc.json` (~30 KB) e faz commit só desse arquivo quando muda | Desde 14/11/2026. Não usa o Supabase. Arquivos fixos ao lado: `dados/painel/prazos-casa.json` (prazos do Diário, à mão) e `dados/painel/sc-aniversarios.json` (Wikipédia/Wikidata, parcial). Eventos da equipe: tabela `gab_agenda` (migração 101) |
 
 **Rotina automática (desde 04/11/2026).** `node ferramentas/diario/rotina.mjs diario` faz os passos 1 e 3 só para as
 edições novas e avisa os administradores no sino (`adm_rotina_aviso`); `rotina.mjs portal` faz os passos 2, 3 e 4, marca quem
