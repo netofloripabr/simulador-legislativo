@@ -1,6 +1,6 @@
 {
  "_leia": "Mapa do site SimulaLEGIS: a lista oficial do que existe, onde está e para onde vai. Fonte de verdade da organização. Quem mantém: o agente organizador-do-site (.claude/agents/organizador-do-site.md). Depois de editar, rodar: python3 ferramentas/mapa/gerar_mapa.py (confere com o código e gera ferramentas/mapa/mapa.html). Campos: status = pronto | construcao | prototipo | planejado | pausado; quem = visitante | cadastrado | gabinete (liberado pelo admin) | admin; arquivo + ancora = onde o item está no código (o gerador confere se o texto da âncora existe no arquivo); vai_para = mudança combinada com o usuário.",
- "atualizado": "2026-11-11",
+ "atualizado": "2026-11-14",
  "decisoes": [
   [
    "04/11/2026",
@@ -73,6 +73,10 @@
   [
    "11/11/2026",
    "Segunda exceção à regra de 05/11 (nada aberto sem login): a Calculadora das comissões é pública, acessada só por link e fora do menu."
+  ],
+  [
+   "14/11/2026",
+   "Gabinete: a estrutura que vem da Transparência/normas sai do Administrativo e vai para o título novo ALESC (Transparência). Administrativo fica só com RH - Gabinete. Atenção: não confundir com a subseção Transparência (estrutura da Casa) da Eleições 2026 nem com Transparência SC do Controle de Recursos."
   ]
  ],
  "paginas": [
@@ -575,13 +579,25 @@
         }
        ],
        "quem": "cadastrado"
-      },
+      }
+     ],
+     "nota": "Só o que a equipe do gabinete registra (RH - Gabinete). Os blocos da Transparência foram para o título ALESC (Transparência) em 14/11/2026."
+    },
+    {
+     "nome": "ALESC (Transparência)",
+     "status": "pronto",
+     "quem": "cadastrado",
+     "arquivo": "painel/gabinete.js",
+     "ancora": "corpoAlesc",
+     "dados": "Transparência da ALESC e normas (adm_servidores para Quem está lotado, só admin)",
+     "nota": "O que a Assembleia divulga sobre o mandato. Leitura, nada é gravado. Fica logo depois de Administrativo.",
+     "filhos": [
       {
-       "nome": "Blocos do Administrativo de Parlamentares (embutidos)",
+       "nome": "Blocos embutidos de Eleições 2026 › Administrativo",
        "status": "pronto",
        "arquivo": "painel/gabinete.js",
        "ancora": "so=adm",
-       "nota": "Subsídio e verbas, Estrutura do gabinete, Verbas, Liderança, Transparência, O mandato em números."
+       "nota": "Subsídio e verbas do parlamentar, Estrutura do gabinete (cota de nomeações; abre sozinha, com Quem está lotado só para admin), Verbas indenizatórias, Simulador de gabinete, Liderança do partido, Transparência (estrutura da Casa e Duodécimo), O mandato em números. Mesmo código da Eleições 2026: mudar lá muda aqui. Não confundir com Transparência SC (Controle de Recursos)."
       }
      ]
     },
