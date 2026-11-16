@@ -169,6 +169,14 @@ O usuário se perde com facilidade na estrutura do site. A lista oficial do que 
   https://claude.ai/artifact/9k3sdg92LdhCCQ72LU9TdG).
 - Protótipos e versões de teste vão para `prototipos/` (fora do git), nunca na raiz nem em `painel/`.
 
+## Padrão visual do Gabinete — capa com mapa 3D (desde 16/11/2026)
+
+A nova capa do Gabinete (mapa 3D + vidro) tem padrão próprio, documentado em `DESIGN-GABINETE.md`: tokens, componentes,
+mapa (entorno, marcadores, rampas de 7 níveis), análises prontas, comportamentos aprovados e o roteiro de conferência.
+Qualquer tela ou mudança no Gabinete segue esse arquivo; item marcado como *decisão* só muda com o usuário. Ao mudar o
+protótipo (`prototipos/capa-3d/`, Artifact https://claude.ai/artifact/FKr8X3amqheSdw6ERpTBat), atualizar o documento na
+mesma mudança. O `DESIGN.md` continua valendo para o simulador.
+
 ## Visão de produto e roteiro
 
 Veja `PROJETO.md` para a visão completa (tipos de usuário, objetivos, modelo

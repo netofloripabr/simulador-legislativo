@@ -10,6 +10,8 @@ Regra de ouro do documento: todo valor aqui foi conferido direto em
 (18/08/2026). Se o código mudar e este arquivo não acompanhar, **o código
 manda** — abra uma tarefa pra atualizar aqui, não confie cegamente nisto.
 
+> **Gabinete (capa com mapa 3D, vidro):** padrão próprio desde 16/11/2026 — ver `DESIGN-GABINETE.md`.
+
 ---
 
 ## 0. O que é "identidade 2.0 — Fader" em uma frase

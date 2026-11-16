@@ -55,6 +55,7 @@ ou uma nuvem **privada** — não basta clonar o GitHub.
 | `apresentacao/` (PDFs AMFRI, AMVE, cadernos) | parte de ~31 MB | Material de apresentação | — |
 | `Logo.ai`, `Logo/` | — | Arquivos de design | — |
 | `prototipos/` (protótipos `_proto-*.html`, versões `mesa-*.html`, prints) | — | Protótipos e prints de estudo, fora do git (alguns têm nomes de servidores) | Podem ser descartados |
+| `prototipos/capa-3d/` (capa do Gabinete com mapa 3D: `capa-v2.html`, `mapa/mapa-sc.html`, mosaicos de relevo/satélite ≈ 28 MB, `emendas-mun.json`) | — | Única cópia do código da nova capa até ela ir para o site (padrão em `DESIGN-GABINETE.md`; cópia também no Artifact privado) | **Fazer backup** — não descartar |
 | `copiar-supabase.command`, `restaurar-no-novo.command` | — | Scripts da migração de 18/10 | Ver seção 5 |
 | `dados/gabinete/` | ~6 MB | Vem do ramo `dados-emendas` | Recuperável do GitHub |
 
