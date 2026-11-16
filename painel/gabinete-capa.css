@@ -1,0 +1,188 @@
+/* Capa do Gabinete · mapa 3D com vidro (16/11/2026). Copiado do protótipo aprovado (prototipos/capa-3d/capa-v2.html),
+   com tudo preso a .g3d para não se misturar ao resto da página. Padrões e decisões: DESIGN-GABINETE.md. */
+.g3d{ --fundo:#0B0F0D; --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178; --linha:rgba(242,244,245,.12); --or:#E8822A; --az:#5B83F0; --vd:#34E84A; --vidro:rgba(22,27,30,.42); --vidro-b:rgba(255,255,255,.14); }
+.g3d *{ box-sizing:border-box; }
+.g3d, .g3d{ margin:0; background:var(--fundo); color:var(--texto); font:14px/1.45 Inter,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+.g3d button{ font:inherit; color:inherit; }
+.g3d .vidro{ background:var(--vidro); -webkit-backdrop-filter:blur(18px) saturate(1.3); backdrop-filter:blur(18px) saturate(1.3); border:1px solid var(--vidro-b); box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 20px 50px -24px rgba(0,0,0,.7); }
+.g3d{ position:relative; height:min(84vh,760px); min-height:580px; overflow:hidden; }
+.g3d iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+.g3d .vela{ position:absolute; inset:0; pointer-events:none; z-index:1; background:linear-gradient(0deg, rgba(11,15,13,.7) 0%, rgba(11,15,13,0) 18%), linear-gradient(180deg, rgba(11,15,13,.55) 0%, rgba(11,15,13,0) 12%), linear-gradient(90deg, rgba(11,15,13,.5) 0%, rgba(11,15,13,0) 30%); }
+.g3d .id{ position:absolute; z-index:4; left:24px; top:22px; max-width:30vw; min-width:230px; display:flex; flex-direction:column; gap:8px; }
+.g3d .card{ border-radius:20px; padding:14px 16px; }
+.g3d .quem{ display:flex; gap:12px; align-items:center; background:none; border:0; padding:0; cursor:pointer; text-align:left; width:100%; }
+.g3d .ft{ border-radius:50%; object-fit:cover; object-position:50% 18%; box-shadow:0 0 0 2px rgba(255,255,255,.55), 0 8px 24px -8px rgba(0,0,0,.6); display:block; flex:none; }
+.g3d .nome{ margin:0; font-weight:900; text-transform:uppercase; line-height:.9; letter-spacing:-.02em; white-space:nowrap; padding-top:.08em; flex:none; }
+.g3d .nome span{ display:block; }
+.g3d .nome .l1{ padding-top:.1em; }
+.g3d .nome .l2{ background:linear-gradient(90deg,#FFFFFF 0%,#B9BEC2 60%,#8A9096 100%); -webkit-background-clip:text; background-clip:text; color:transparent; margin-top:2px; }
+.g3d .troca{ margin-left:auto; align-self:flex-start; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; color:var(--ter); transition:.2s; }
+.g3d .quem:hover .troca{ color:var(--texto); background:rgba(255,255,255,.08); }
+.g3d .cargo{ text-shadow:0 1px 8px rgba(0,0,0,.9); margin:-1px 6px 0; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--sec); white-space:nowrap; }
+.g3d .lista{ display:none; border-radius:16px; padding:8px; }
+.g3d .id.aberta .lista{ display:block; }
+.g3d .lista input{ width:100%; background:rgba(255,255,255,.06); border:1px solid var(--vidro-b); border-radius:999px; padding:7px 12px; color:var(--texto); font:13px Inter; outline:none; margin-bottom:6px; }
+.g3d .lista button{ display:flex; align-items:center; gap:10px; width:100%; background:none; border:0; border-radius:10px; padding:6px 8px; cursor:pointer; text-align:left; font-size:13px; color:var(--sec); }
+.g3d .lista button:hover{ background:rgba(255,255,255,.06); color:var(--texto); }
+.g3d .lista button i{ width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,.1); display:grid; place-items:center; font-style:normal; font-size:10px; font-weight:700; color:var(--texto); }
+.g3d .lista button small{ margin-left:auto; color:var(--ter); font-size:11px; }
+.g3d .painel{ position:absolute; z-index:4; left:24px; bottom:22px; border-radius:20px; padding:14px 16px 14px; transition:padding .2s; }
+.g3d .pcab{ display:flex; align-items:center; gap:8px; }
+.g3d .pcab .tit{ font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--sec); font-weight:600; }
+.g3d .pcab .resumo{ display:none; font-size:12.5px; color:var(--texto); font-weight:600; white-space:nowrap; }
+.g3d .pcab .resumo span{ color:var(--ter); margin:0 6px; }
+.g3d .min{ margin-left:auto; width:24px; height:24px; border-radius:50%; border:1px solid var(--vidro-b); background:rgba(255,255,255,.04); display:grid; place-items:center; cursor:pointer; color:var(--sec); flex:none; }
+.g3d .min:hover{ color:var(--texto); }
+.g3d .min svg{ transition:transform .2s; }
+.g3d .painel.mini .min svg{ transform:rotate(180deg); }
+.g3d .painel:not(.mini) #c3min, .g3d .ferr .fcab .min, .g3d .anal .fcab .min{ position:absolute; top:-12px; right:-12px; width:28px !important; height:28px !important; margin:0 !important; background:#1B2022 !important; border:1px solid rgba(255,255,255,.28) !important; box-shadow:0 6px 16px rgba(0,0,0,.45); z-index:2; color:var(--texto); }
+.g3d.esfera .painel #c3min{ position:static; box-shadow:none; background:none !important; border:0 !important; }
+.g3d .linha1 .ferr, .g3d .linha1 .anal{ overflow:visible !important; max-height:none !important; }
+.g3d .ferr .sub{ max-height:calc(100vh - 560px); overflow:auto; }
+.g3d .anal .alista{ max-height:calc(100vh - 560px); overflow:auto; }
+.g3d .pcorpo{ margin-top:12px; }
+.g3d .painel.mini{ padding:9px 10px 9px 16px; }
+.g3d .painel.mini .pcorpo{ display:none; }
+.g3d .painel.mini .tit{ display:none; }
+.g3d .painel.mini .resumo{ display:block; }
+.g3d .bloco + .bloco{ margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,.08); }
+.g3d .bloco small{ display:block; font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ter); font-weight:600; }
+.g3d .bloco .v{ display:flex; align-items:baseline; gap:10px; margin:4px 0 8px; }
+.g3d .bloco .v b{ font-size:22px; font-weight:700; letter-spacing:-.02em; white-space:nowrap; }
+.g3d .barra{ display:flex; gap:2px; height:5px; border-radius:3px; overflow:hidden; }
+.g3d .barra i{ display:block; }
+.g3d .leg{ display:flex; gap:12px; margin-top:8px; font-size:11px; color:var(--sec); white-space:nowrap; }
+.g3d .leg i{ display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px; vertical-align:0; }
+.g3d .mini3{ display:grid; grid-template-columns:repeat(3, auto); justify-content:space-between; gap:10px; margin-top:10px; }
+.g3d .mini3 div{ font-size:10.5px; color:var(--ter); white-space:nowrap; }
+.g3d .mini3 b{ display:block; font-size:13px; color:var(--texto); font-weight:600; }
+.g3d .pcorpo{ display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); column-gap:22px; }
+.g3d .pcorpo .bloco + .bloco{ margin-top:0; padding-top:0; border-top:0; padding-left:22px; border-left:1px solid rgba(255,255,255,.08); }
+.g3d .bloco .vv{ flex-direction:column; align-items:flex-start; gap:6px; }
+.g3d .ferr .fcab{ display:flex; align-items:center; gap:8px; margin:0 0 10px; font-size:11.5px; font-weight:700; color:var(--texto); }
+.g3d .ferr .fcab #c3reset{ margin-left:auto; }
+.g3d .ferr .fcab span, .g3d .ferr .fcab button{ white-space:nowrap; }
+.g3d .ferr{ width:330px !important; }
+.g3d .ferr .fcab .min, .g3d .anal .fcab .min{ margin-left:8px; width:24px; height:24px; padding:0; border-radius:50%; display:grid; place-items:center; }
+.g3d .ferr .fcab button{ background:none; border:1px solid var(--vidro-b); color:var(--sec); border-radius:999px; padding:3px 10px; font-size:10.5px; cursor:pointer; }
+.g3d .ferr .fcab button:hover{ color:var(--texto); }
+.g3d .ferr .vista{ display:inline-flex; align-items:center; gap:7px; }
+.g3d .ferr .vista svg{ width:13px; height:13px; }
+.g3d .ferr .vista small{ color:var(--ter); font-size:10px; }
+.g3d .ferr .outros{ margin:14px -14px 0; width:calc(100% + 28px); display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(255,255,255,.04); border:0; border-top:1px solid rgba(255,255,255,.08); border-radius:0; padding:9px 14px; color:var(--texto); font:600 12px Inter, sans-serif; cursor:pointer; }
+.g3d .ferr .outros em{ margin-left:auto; font-style:normal; font-size:10.5px; color:#B9A6F0; font-weight:600; }
+.g3d .ferr .outros svg{ width:11px; height:11px; flex:none; transform:rotate(90deg); transition:transform .2s; }
+.g3d .ferr .outros.on svg{ transform:rotate(-90deg); }
+.g3d .ferr .outros em{ margin-left:0 !important; }
+.g3d .ferr .outros.on{ border-color:rgba(255,255,255,.35); }
+.g3d .ferr .sub{ display:none; position:static; width:auto; border-radius:0; padding:12px 0 14px; background:none; border:0; border-top:1px solid rgba(255,255,255,.08); box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
+.g3d .ferr .sub.aberta{ display:block; }
+.g3d .ferr .sub .dica{ margin:-4px 0 10px; font-size:10.5px; color:var(--ter); }
+.g3d .ferr .sub [data-gr="tema"] button.on{ background:#8467D2; border-color:#8467D2; color:#fff; }
+.g3d .ferr{ overflow:auto !important; max-height:calc(100vh - 230px) !important; background:rgba(18,22,26,.88); padding-bottom:0 !important; }
+.g3d.esfera .painel{ width:42px !important; height:42px; padding:0 !important; border-radius:50%; display:grid; place-items:center; }
+.g3d.esfera .painel .pcorpo, .g3d.esfera .painel .tit, .g3d.esfera .painel .resumo{ display:none !important; }
+.g3d.esfera .painel .pcab{ display:contents; }
+.g3d.esfera .painel .min{ margin:0; width:42px; height:42px; border:0; background:none; }
+.g3d.esfera .painel .min svg{ transform:rotate(180deg); }
+.g3d .sw.compacto .subv{ display:none; }
+.g3d .linha1.emAnal #c3lupa, .g3d .linha1.emAnal #c3btF{ display:none; }
+.g3d .apill{ position:absolute; left:50%; bottom:22px; transform:translateX(-50%); z-index:6; display:none; align-items:center; gap:2px; height:42px; border-radius:999px; padding:0 6px 0 14px; }
+.g3d .apill.on{ display:flex; }
+.g3d .apill > svg{ width:15px; height:15px; color:var(--texto); margin-right:4px; }
+.g3d .apill button{ background:none; border:0; color:var(--sec); font:600 12.5px Inter, sans-serif; cursor:pointer; padding:6px 8px; border-radius:999px; }
+.g3d .apill .an{ background:var(--texto); color:#0B0F0D; padding:7px 14px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.g3d .apill .ap{ font-size:16px; line-height:1; }
+.g3d .apill button:hover{ color:var(--texto); }
+.g3d .apill .an:hover{ color:#0B0F0D; }
+.g3d .apill .ax{ margin-left:2px; }
+.g3d .anal .outros{ margin:12px -14px 0; width:calc(100% + 28px); display:flex; align-items:center; justify-content:center; gap:8px; background:rgba(255,255,255,.04); border:0; border-top:1px solid rgba(255,255,255,.08); padding:9px 14px; color:var(--texto); font:600 12px Inter, sans-serif; cursor:pointer; }
+.g3d .anal .outros svg{ width:11px; height:11px; transform:rotate(90deg); transition:transform .2s; }
+.g3d .anal .outros.on svg{ transform:rotate(-90deg); }
+.g3d .anal .alista{ margin-top:6px; }
+.g3d .anal{ display:none; position:absolute; right:0; bottom:calc(100% + 40px); width:380px; max-height:calc(100vh - 230px); overflow:auto; border-radius:18px; padding:12px 14px 14px; background:rgba(18,22,26,.9); }
+.g3d .anal.aberta{ display:block; }
+.g3d .anal .fcab{ display:flex; align-items:center; margin:0 0 10px; font-size:12px; font-weight:700; }
+.g3d .anal .fcab .min{ margin-left:auto !important; }
+.g3d .anal .fcab button{ background:none; border:1px solid var(--vidro-b); color:var(--sec); border-radius:50%; width:24px; height:24px; cursor:pointer; }
+.g3d .achips{ display:flex; flex-wrap:wrap; gap:5px; }
+.g3d .achips button{ background:rgba(255,255,255,.06); border:1px solid var(--vidro-b); border-radius:999px; padding:5px 10px; font-size:11px; font-weight:600; color:#C9CDD1; cursor:pointer; }
+.g3d .achips button.on{ background:var(--texto); color:#0B0F0D; border-color:var(--texto); }
+.g3d .anal .dica{ margin:10px 0 6px; font-size:10.5px; color:var(--ter); line-height:1.4; }
+.g3d .alista{ list-style:none; margin:0; padding:0; }
+.g3d .alista li{ display:grid; grid-template-columns:20px 1fr auto; align-items:center; gap:8px; padding:6px 4px; border-top:1px solid rgba(255,255,255,.06); font-size:12px; cursor:pointer; border-radius:8px; }
+.g3d .alista li:hover{ background:rgba(255,255,255,.05); }
+.g3d .alista li i{ font-style:normal; color:var(--ter); font-size:10.5px; text-align:right; }
+.g3d .alista li b{ font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.g3d .alista li span{ text-align:right; font-weight:700; white-space:nowrap; }
+.g3d .alista li small{ display:block; font-weight:400; font-size:10px; color:var(--ter); }
+.g3d .alista li.cab{ display:block; cursor:default; border:0; padding:10px 4px 2px; font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ter); font-weight:600; }
+.g3d .alista li.cab:hover{ background:none; }
+.g3d .ferr .g button:disabled{ opacity:.4; cursor:default; }
+.g3d .ferr{ max-height:min(70vh, 560px); overflow:auto; }
+.g3d .ferr .g button.cam{ padding:5px 9px; display:inline-grid; place-items:center; }
+.g3d .ferr .g button.cam svg{ width:15px; height:15px; }
+@media (max-width:1100px){.g3d .pcorpo{ display:block; }
+.g3d .pcorpo .bloco + .bloco{ margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,.08); padding-left:0; border-left:0; }}
+.g3d.claro .vidro{ background:rgba(14,18,20,.8); }
+.g3d.claro .legm{ background:rgba(14,18,20,.78); border-radius:999px; padding:5px 12px; text-shadow:none; }
+.g3d.claro .cargo{ color:#3A4046; text-shadow:none; }
+.g3d .vcols{ display:grid; grid-template-columns:auto auto; justify-content:start; column-gap:28px; margin-top:6px; }
+.g3d .vcols em{ display:block; font-style:normal; font-size:10.5px; color:var(--ter); letter-spacing:.06em; }
+.g3d .vcols b{ display:block; font-size:22px; font-weight:700; letter-spacing:-.02em; margin:1px 0 8px; }
+.g3d .vcols .ant b{ color:var(--sec); font-weight:600; }
+.g3d .chip{ font-size:10.5px; font-weight:700; color:var(--or); background:rgba(232,130,42,.12); border-radius:999px; padding:2px 8px; white-space:nowrap; }
+.g3d .ctrl{ position:absolute; z-index:5; right:24px; bottom:22px; display:grid; grid-template-columns:auto auto; align-items:center; column-gap:10px; row-gap:10px; }
+.g3d .ctrl > .legm{ position:absolute; right:0; bottom:calc(100% + 10px); white-space:nowrap; }
+.g3d .ctrl > .sw, .g3d .ctrl > .linha1{ justify-self:end; }
+.g3d .linha1{ display:flex; align-items:center; gap:8px; }
+.g3d .bt{ width:42px; height:42px; border-radius:50%; display:grid; place-items:center; cursor:pointer; flex:none; }
+.g3d .bt svg{ width:16px; height:16px; }
+.g3d .bt.on{ background:var(--texto); color:#0B0F0D; border-color:var(--texto); }
+.g3d .lupa{ height:42px; width:42px; border-radius:999px; display:flex; align-items:center; gap:10px; padding:0 13px; cursor:pointer; overflow:hidden; transition:width .3s ease; }
+.g3d .lupa svg{ width:15px; height:15px; flex:none; }
+.g3d .lupa input{ background:none; border:0; outline:none; color:var(--texto); font:13px Inter; width:100%; opacity:0; transition:opacity .2s; }
+.g3d .lupa.aberta{ width:280px; cursor:text; }
+.g3d .lupa.aberta input{ opacity:1; }
+.g3d .sw{ display:flex; align-items:center; gap:2px; border-radius:999px; padding:4px; height:42px; }
+.g3d .sw > button{ background:none; border:0; padding:7px 14px; border-radius:999px; font-weight:600; font-size:12.5px; color:var(--sec); cursor:pointer; }
+.g3d .sw > button.on{ background:var(--texto); color:#0B0F0D; }
+.g3d .subv{ display:flex; align-items:center; gap:2px; margin-left:4px; padding-left:8px; border-left:1px solid var(--vidro-b); }
+.g3d .subv button{ background:none; border:0; padding:5px 10px; border-radius:999px; font-size:11.5px; font-weight:600; color:var(--ter); cursor:pointer; }
+.g3d .subv button.on{ color:var(--texto); background:rgba(255,255,255,.1); }
+.g3d .sw.rec .subv{ display:none; }
+.g3d .legm{ font-size:11px; color:var(--sec); display:flex; gap:12px; text-shadow:0 1px 6px rgba(0,0,0,.9); }
+.g3d .legm .lfx{ display:inline-flex; gap:2px; margin:0 6px; vertical-align:middle; }
+.g3d .legm .lfx b{ width:14px; height:8px; border-radius:2px; }
+.g3d .legm i{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; }
+.g3d .ferr{ display:none; position:absolute; right:0; bottom:calc(100% + 40px); width:300px; border-radius:18px; padding:12px 14px; }
+.g3d .ferr.aberta{ display:block; }
+.g3d .ferr h5{ margin:0 0 6px; font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ter); font-weight:600; }
+.g3d .ferr .g + h5{ margin-top:12px; }
+.g3d .ferr .g{ display:flex; flex-wrap:wrap; gap:5px; }
+.g3d .ferr .g button{ background:rgba(255,255,255,.06); border:1px solid var(--vidro-b); border-radius:999px; padding:5px 11px; font-size:11.5px; font-weight:600; color:#C9CDD1; cursor:pointer; }
+.g3d .ferr .g button.on{ background:var(--texto); color:#0B0F0D; border-color:var(--texto); }
+.g3d .linha1{ position:static; }
+@media (max-width:820px){.g3d .id{ max-width:none; left:16px; }
+.g3d .painel{ left:16px; bottom:150px; }
+.g3d .ctrl{ right:16px; }
+.g3d .subv button{ padding:5px 7px; }}
+/* --- ajustes da página real --- */
+#capa3d{ position:relative; }
+.g3d{ background:#0B0F0D; }
+.g3d .nome{ font-size:inherit; }
+.g3d .chip.sobe{ color:var(--vd); background:rgba(52,232,74,.12); }
+.g3d .bloco .leg{ white-space:normal; }
+/* aviso da cota aberta: a faixa fica no alto e o cartão desce */
+.g3d .gloa{ z-index:7; }
+
+/* faixa da equipe e "Explorando outro gabinete" abaixo do cartão */
+.g3d .c3info:empty{ display:none; }
+.g3d .c3info{ margin:0 2px; }
+.g3d .geq{ margin:2px 0 0; padding:9px 12px; border-radius:16px; background:rgba(22,27,30,.55); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border:1px solid var(--vidro-b); font-size:12px; gap:6px 10px; }
+.g3d .geqo{ font-size:11.5px; }
+.g3d .gvinc{ margin:6px 4px 0; font-size:12px; color:var(--sec); text-shadow:0 1px 8px rgba(0,0,0,.9); } .g3d .gvinc a{ color:var(--texto); }
+/* tela estreita: cartão no alto, painel acima dos controles */
+@media (max-width:760px){ .g3d{ height:min(92vh,760px); min-height:620px; } .g3d .id{ top:14px; left:12px; min-width:0; max-width:calc(100vw - 24px); }
+  .g3d .painel{ left:12px; right:12px; bottom:76px; width:auto !important; } .g3d .ctrl{ right:12px; bottom:14px; } .g3d .lupa.aberta{ width:min(260px, 60vw); } .g3d .ferr, .g3d .anal{ width:min(330px, calc(100vw - 24px)) !important; } }
+.g3d.comCota .ferr, .g3d.comCota .anal{ max-height:calc(100vh - 320px) !important; }

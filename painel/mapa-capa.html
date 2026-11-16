@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mapa 3D da capa do Gabinete</title>
+<!-- Produção (16/11/2026): o mapa 3D da capa do Gabinete (painel/gabinete.html o embute em iframe, ?fundo=1).
+     Padrões e decisões em DESIGN-GABINETE.md. Derivado do protótipo prototipos/capa-3d/mapa/mapa-sc.html. -->
+<!-- PROTÓTIPO v4 (06/11/2026): um motor só — estado, região e cidade são todos blocos (maquete) no mesmo ângulo isométrico.
+     4 controles: Área (busca/clique/trilha), Base (Gesso | Satélite), Dado (Nenhum | Votação % ou nº | 2022×2026 | Eleitorado em picos,
+     só no estado) e Camadas (Rodovias tracejadas, Rios, Cidades). Municípios de uma região em degraus (os do norte mais altos), sombras,
+     legendas em colunas com linhas guia, clicáveis. Fontes: relevo AWS Terrain Tiles (SRTM); imagem Esri World Imagery; malha IBGE
+     (qualidade máxima simplificada); rodovias e rios OpenStreetMap; votos sc-estadual.json. Fora do git. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="../dados/regioes-sc.js"></script>
+<style>
+:root{--tx:#3B2F27;--sec:#6E5C50;--ter:#8A776A;--linha:rgba(59,47,39,.14)}
+html,body{margin:0;height:100%;color:var(--tx);font:14px/1.45 Inter,system-ui,sans-serif;overflow:hidden;background:radial-gradient(110% 90% at 55% 45%,#F7F0E8 0%,#EFE2D6 55%,#E3D2C4 100%)}
+#cena{position:fixed;inset:0}#cena:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 100% at 55% 50%,transparent 62%,rgba(120,90,70,.16) 100%)}
+svg#guias{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+#rot{position:fixed;inset:0;pointer-events:none;z-index:3}
+.cl{position:absolute;pointer-events:auto;cursor:pointer;white-space:nowrap;background:rgba(255,255,255,.88);border:1px solid var(--linha);border-radius:10px;padding:4px 10px;font-size:11.5px;color:var(--sec);box-shadow:0 2px 8px rgba(59,47,39,.08);transform:translateY(-50%)}
+.cl b{color:var(--tx);font-weight:700;margin-right:6px}.cl .v{font-weight:700;color:var(--tx)}.cl.esq{transform:translate(-100%,-50%)}
+.cl.ab{padding:8px 12px;white-space:normal;width:190px}.cl.ab .lin{display:flex;justify-content:space-between;border-top:1px solid var(--linha);padding:2px 0;font-size:11.5px}.cl.ab .lin span:last-child{color:var(--tx);font-weight:600}
+.cl .up{color:#1C8A35!important}.cl .dn{color:#C2512F!important}.cl button{margin-top:6px;background:var(--tx);color:#F6EEE6;border:0;border-radius:999px;padding:4px 10px;font:600 11px Inter;cursor:pointer}
+.tit{position:fixed;left:26px;top:20px;z-index:4;max-width:360px}
+.trilha{font-size:12px;color:var(--ter);margin-bottom:6px}.trilha a{color:var(--sec);cursor:pointer;text-decoration:none;border-bottom:1px dotted var(--ter)}.trilha a:hover{color:var(--tx)}
+.tit h2{margin:0;font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.05}.tit .d{font-size:12.5px;color:var(--sec);margin-top:4px}.tit .n{font-size:26px;font-weight:800;margin-top:2px}
+.tit .s{font-size:12.5px;color:var(--sec)}.tit .up{color:#1C8A35}.tit .dn{color:#C2512F}
+.busca{position:fixed;right:22px;top:20px;z-index:4}.busca input{width:230px;background:rgba(255,255,255,.72);border:1px solid var(--linha);color:var(--tx);border-radius:999px;padding:9px 15px;font:13px Inter;backdrop-filter:blur(8px)}
+.ctl{position:fixed;left:20px;bottom:18px;z-index:4;display:flex;flex-direction:column;gap:7px;background:rgba(255,255,255,.6);backdrop-filter:blur(10px);border:1px solid var(--linha);border-radius:16px;padding:12px 14px;max-width:min(560px,calc(100vw - 40px))}
+body.capa{background:transparent!important}body.capa.mostraCtl>.ctl{display:flex!important;left:auto;right:24px;bottom:132px}body.esc .ctl{background:rgba(22,27,30,.55);border-color:rgba(255,255,255,.14);color:#F2F4F5;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}body.esc .ctl button{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#C9CDD1}body.esc .ctl button.on{background:#F2F4F5;color:#0B0F0D;border-color:#F2F4F5}body.esc .ctl .lb{color:#8A9096}body.esc #cena:after{display:none}body.capa>*:not(#cena){display:none!important}body.capa>#rot:not(#x),body.capa>#guias:not(#x){display:block!important}.cl.ab.largo{width:330px}.cl .recl{cursor:pointer}.cl .recl span:first-child{color:#1E3A9C!important;font-weight:600}.cl .recl em{font-style:normal;font-size:10px}.eml{max-height:250px;overflow:auto;margin:2px 0 6px;padding-right:4px}.em{display:grid;grid-template-columns:1fr auto;gap:1px 10px;padding:6px 0;border-top:1px solid var(--linha);font-size:11px;white-space:normal;line-height:1.3}.em b{font-weight:600;color:var(--tx)}.em span{font-weight:700;text-align:right;color:var(--tx);white-space:nowrap}.em small{color:var(--sec);font-size:10px}.em i{justify-self:end;align-self:start;font-style:normal;font-size:9.5px;font-weight:700;border-radius:999px;padding:1px 8px;white-space:nowrap}.em i.ok{background:#DDF5E0;color:#1B7A3A}.em i.par{background:#FFF1CC;color:#8A5A00}.em i.nao{background:#FDE3DA;color:#B23A1F}.em i.ina{background:#ECECEC;color:#777}body.capa .cl.ab{background:#fff;box-shadow:0 8px 28px rgba(0,0,0,.35)}body.capa .cl:not(.tab){background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.3);color:#3B2F27}body.capa .cl:not(.tab) .v{color:#1E3A9C;font-weight:600}
+.ctl{transition:padding .2s;padding-right:38px!important}.ctl.mini{padding-right:6px!important}.ctl .ctl-min{position:absolute;top:8px;right:8px;width:24px;height:24px;padding:0;border-radius:50%;font:600 14px/1 Inter;display:flex;align-items:center;justify-content:center}
+.ctl .ctl-abre{display:none}.ctl.mini{padding:6px}.ctl.mini>*:not(.ctl-abre){display:none!important}.ctl.mini .ctl-abre{display:inline-flex;align-items:center;gap:6px}.ctl.mini .ctl-abre::before{content:"";width:12px;height:2px;background:currentColor;box-shadow:0 -4px 0 currentColor,0 4px 0 currentColor}
+.ctl div{display:flex;gap:5px;flex-wrap:wrap;align-items:center}.ctl .lb{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ter);width:70px}
+.ctl button{background:rgba(255,255,255,.5);border:1px solid rgba(59,47,39,.18);color:#5A4A3F;border-radius:999px;padding:5px 11px;font:600 11.5px Inter;cursor:pointer}.ctl button.on{background:var(--tx);color:#F6EEE6;border-color:var(--tx)}.ctl button:disabled{opacity:.35;cursor:default}
+.cr a{color:inherit;text-decoration:underline dotted}.leg{border-top:1px solid var(--linha);padding-top:7px;font-size:11.5px;color:var(--sec);display:block!important}.leg .bar{height:8px;border-radius:4px;margin:5px 0 3px;max-width:320px}.leg .ends{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ter);max-width:320px}.leg b{color:var(--tx)}.leg .cr{font-size:10px;color:var(--ter);margin-top:4px}
+.elem{border-top:1px solid var(--linha);padding-top:6px}.elem summary{cursor:pointer;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ter);list-style:none}.elem summary:before{content:"▸ ";}.elem[open] summary:before{content:"▾ ";}.elem>div{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+.cl.dentro{transform:translate(-50%,-50%);background:rgba(255,255,255,.82)}
+.tabcab,.cl.tab{grid-template-columns:1fr 66px 62px;column-gap:8px;align-items:center}
+.tabcab{position:absolute;display:grid;background:rgba(255,255,255,.94);border:1px solid var(--linha);border-bottom:0;border-radius:10px 10px 0 0;padding:7px 12px 5px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--sec);pointer-events:none}
+.tabcab span:not(:first-child),.cl.tab span{text-align:right}
+.cl.tab{border-radius:0;box-shadow:none;background:rgba(255,255,255,.94);border-top:0;padding:4px 12px;transform:translateY(-50%);box-sizing:border-box}
+.cl.tab b{margin:0;overflow:hidden;text-overflow:ellipsis;font-weight:600}.cl.tab span{color:var(--tx);font-variant-numeric:tabular-nums}
+.cl.tab.fim{border-radius:0 0 10px 10px}.cl.tab:hover{background:#FFF7EE}
+.cl.tab.sel{background:#fff;box-shadow:inset 0 0 0 1.5px var(--csel),0 4px 14px rgba(59,47,39,.12);border-radius:6px;position:absolute;z-index:2}.cl.tab.sel:hover{background:#fff}
+.tabcab{box-sizing:border-box}.cl.tab{transform:none;transition:opacity .2s}
+.cl.tab.apaga{opacity:.45}.cl.tab.apaga:hover{opacity:.85}
+.cl.tab .sub{grid-column:1/-1;margin:6px 0 4px;padding-top:2px;white-space:normal}
+.cl.tab .sub .lin{display:flex;justify-content:space-between;border-top:1px solid rgba(var(--csel-rgb),.22);padding:3px 0;font-size:11.5px}.cl.tab .sub .lin span{text-align:left;color:var(--sec)}.cl.tab .sub .lin span:last-child{font-weight:600;text-align:right;color:var(--tx)}
+.cl.tab .sub button{margin-top:6px}
+.st{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:5;color:var(--sec);font-size:13px;background:rgba(255,255,255,.7);padding:8px 14px;border-radius:999px;display:none}
+</style></head><body>
+<div id="cena"></div><svg id="guias"></svg><div id="rot"></div>
+<div class="tit" id="tit"></div>
+<div class="busca"><input id="bq" list="bl" placeholder="Buscar cidade, região ou estado…" autocomplete="off"><datalist id="bl"></datalist></div>
+<div class="ctl"><button class="ctl-min" type="button" title="Minimizar os filtros" aria-label="Minimizar os filtros">–</button><button class="ctl-abre" type="button" title="Mostrar os filtros">Filtros</button>
+  <div><span class="lb">Base</span><button data-base="sat" class="on">Satélite</button><button data-base="gesso">Neutro</button></div>
+  <div><span class="lb">Vista</span><button data-vista="auto" class="on">Automática</button><button data-vista="padrao">Isométrica</button><button data-vista="alta">Alta</button><button data-vista="sul">Do sul</button><button data-vista="cima">De cima</button></div>
+  <div><span class="lb">Dado</span><button data-dado="nenhum" class="on">Nenhum</button><button data-dado="voto">Votação</button><button data-dado="dif">2022 × 2026</button><button data-dado="ele">Eleitorado em picos</button></div>
+  <details class="elem"><summary>Elementos</summary><div><button data-cam="rod">Rodovias</button><button data-cam="rio">Rios</button><button data-cam="cid">Cidades</button></div></details>
+  <div class="leg" id="leg"></div>
+</div>
+<div class="st" id="st">montando…</div>
+<script>
+(async () => {
+  const GEO = "../dados/mapas/capa-3d/";
+  const PARL = { n: new URLSearchParams(location.search).get("d") || "55777", nome: "" }, st = document.getElementById("st");
+  const espera = (t) => { st.textContent = t; st.style.display = t ? "block" : "none"; };
+  espera("carregando os dados…");
+  const [G, B, E, VR, TERRA] = await Promise.all([fetch(GEO + "sc-municipios-detalhe.geojson").then((r) => r.json()), fetch("../dados/painel/sc-base.json").then((r) => r.json()), fetch("../dados/painel/sc-estadual.json").then((r) => r.json()), Promise.resolve({ rod: [], rio: [] })   /* rodovias e rios só quando alguém liga a camada (montar) */, fetch(GEO + "sc-terra.json").then((r) => r.json()).catch(() => null)]);
+  // ---------- dados ----------
+  const REG = {}; MUNICIPIOS_SC_REGIOES.forEach((m) => { REG[m.chave] = m; });
+  const CAND = E.c.find((c) => c.n === PARL.n) || { v: [], v22: [], t: 0, t22: 0 };
+  // sc-base.json põe a sede destes dois no município vizinho (Bela Vista do Toldo / Novo Horizonte); aqui usamos a sede de cada um, conferida dentro do próprio contorno IBGE
+  const SEDE = { CANOINHAS: [-50.3900, -26.1766], "SAO LOURENCO DO OESTE": [-52.8509, -26.3589] };
+  B.mun.forEach((m) => { const s = SEDE[m.k]; if (s) { m.lon = s[0]; m.lat = s[1]; } });
+  const MU = B.mun.map((m, i) => ({ i, k: m.k, nome: m.n, lon: +m.lon, lat: +m.lat, el: +m.el || 0, val: E.val[i] || 0, vot: CAND.v[i] || 0, v22: (CAND.v22 || [])[i] || 0, r: REG[m.k] || {} }));
+  const FEAT = {}; G.features.forEach((f) => { const m = MUNICIPIOS_SC_REGIOES.find((x) => x.ibge === f.properties.ibge); const k = m ? MU.findIndex((x) => x.k === m.chave) : -1; if (k >= 0) FEAT[k] = f; });
+  const aneis = (k) => { const f = FEAT[k]; if (!f) return []; return (f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates).flat(); };
+  const share = (m) => m.val ? m.vot / m.val : 0, qtl = (A, p) => { const s = [...A].sort((a, b) => a - b); return s[Math.floor(s.length * p)] || 1; };
+  const S97 = qtl(MU.map(share), .97), VMAX = Math.max(...MU.map((m) => m.vot)), DMAX = Math.max(...MU.map((m) => Math.abs(m.vot - m.v22))) || 1, ELMAX = Math.max(...MU.map((m) => m.el)), MEDIA = CAND.t / E.val.reduce((s, x) => s + x, 0);
+  const fmt = (n) => Math.round(n).toLocaleString("pt-BR"), pct = (x) => (x * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%", sinal = (d) => (d >= 0 ? "+" : "−") + fmt(Math.abs(d));
+  window.__rampas = { voto: ["#CFEFFA", "#A6DDF5", "#7CC4EE", "#559FE3", "#3A7AD6", "#2A57C0", "#1E3A9C"],
+    up: ["#DDF5E0", "#BCEBC4", "#94DCA2", "#66C97D", "#3FB25D", "#259445", "#16722F"], dn: ["#FDE3DA", "#F9C3B2", "#F49E86", "#EA765C", "#D9553D", "#BB3A26", "#922818"],
+    pago: ["#DDF5E0", "#BCEBC4", "#94DCA2", "#66C97D", "#3FB25D", "#259445", "#16722F"], apagar: ["#FDEBD2", "#FBD3A3", "#F8B771", "#F29A45", "#E37E26", "#C76416", "#9E4D10"],
+    tema: ["#EEE6FB", "#DACCF6", "#C0ABEE", "#A288E2", "#8467D2", "#6849BB", "#4D3399"] };
+  let TEMA = null; const DEST = new Map(); let ANAL = null, ANT = null, RES = 0, BASE_ANTES = null; const EXP = new Set(); let EMEN = null;   // EXP: balões com a lista de emendas aberta   // largura reservada à direita (quadro de análises aberto)   // análises da capa: município → texto do rótulo   // camada temática da capa (dado social do município), ou null
+  const norm2 = (t) => String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+  // ---------- estado da tela (uma fonte só: tudo é redesenhado a partir dela) ----------
+  const S = { niv: "uf", nome: "Santa Catarina", base: "sat", dado: "nenhum", vt: "pct", vista: "auto", cam: { rod: false, rio: false, cid: false }, abertas: new Set(), sel: null };
+  const NIVN = { uf: "Estado", meso: "Mesorregião", micro: "Microrregião", assoc: "Associação", mun: "Município" };
+  const doGrupo = () => S.niv === "uf" ? MU.map((m) => m.i) : S.niv === "mun" ? [MU.findIndex((m) => m.nome === S.nome)] : MU.filter((m) => m.r[S.niv] === S.nome).map((m) => m.i);
+  // ---------- cores do dado ----------
+  const mix = (a, b, t) => a.map((x, i) => x + (b[i] - x) * t), BR = [236, 232, 225], AZ = [43, 95, 217], VE = [31, 168, 58], VM = [222, 96, 64];
+  const corDado = (m) => { if (S.dado === "voto") return S.vt === "pct" ? mix(BR, AZ, Math.pow(Math.min(1, share(m) / S97), .6)) : mix(BR, AZ, Math.pow(m.vot / VMAX, .42));
+    if (S.dado === "dif") { const d = m.vot - m.v22, t = Math.pow(Math.abs(d) / DMAX, .45); return d >= 0 ? mix(BR, VE, t) : mix(BR, VM, t); } if (S.dado === "ele") return mix(BR, AZ, Math.pow(Math.min(1, share(m) / S97), .6)); return null; };
+  const valorDado = (m) => S.dado === "voto" || S.dado === "nenhum" ? `${fmt(m.vot)} votos · ${pct(share(m))}` : S.dado === "dif" ? sinal(m.vot - m.v22) : S.dado === "ele" ? fmt(m.el) + " eleitores" : `${fmt(m.vot)} votos`;
+  // ---------- cena ----------
+  const CAPA = new URLSearchParams(location.search).get("capa"); if (CAPA) document.body.classList.add("capa");
+  // fundo da capa do site (protótipo 14/11/2026): ?fundo=1 esconde painel e legendas; ?tema=escuro combina com o Gabinete;
+  // ?esq=, ?dir=, ?topo=, ?baixo= (frações da tela) dizem onde o mapa deve caber
+  const QPF = new URLSearchParams(location.search), FUNDO = QPF.get("fundo"), ESC = QPF.get("tema") === "escuro", FE = -1 + (+QPF.get("esq") || 0) * 2, FB = -1 + (+QPF.get("baixo") || .06) * 2;
+  if (FUNDO) document.body.classList.add("capa"); if (ESC) document.body.classList.add("esc");
+  const FILT_FORA = ESC ? "grayscale(.45) brightness(.74) contrast(.95) saturate(.7)" : "grayscale(.55) brightness(1.42) contrast(.78) saturate(.75)", VEU = ESC ? "rgba(11,15,13,.22)" : "rgba(246,241,234,.48)", NEV = ESC ? "11,15,13" : "239,226,214", AGUA = ESC ? [40, 70, 100] : [150, 196, 226];
+  const box = document.getElementById("cena"), ren = new THREE.WebGLRenderer({ antialias: true, alpha: true }); ren.setPixelRatio(CAPA ? 2.5 : Math.min(2, devicePixelRatio || 1)); ren.setSize(innerWidth, innerHeight); ren.setClearColor(0, 0);
+  ren.outputEncoding = THREE.sRGBEncoding; ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap; box.appendChild(ren.domElement);
+  const cena = new THREE.Scene(), cam = new THREE.PerspectiveCamera(16, innerWidth / innerHeight, 1, 60000); cam.up.set(0, 0, 1);
+  const ctr = new THREE.OrbitControls(cam, ren.domElement); ctr.enableDamping = true; ctr.dampingFactor = .08; ctr.enableRotate = false; ctr.screenSpacePanning = false;
+  ctr.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN }; ctr.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+  cena.add(new THREE.HemisphereLight(0xffffff, 0x8a7c70, .62));
+  const sol = new THREE.DirectionalLight(0xfff4e6, 1.05); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048); sol.shadow.bias = -.0004; sol.shadow.normalBias = .02; cena.add(sol); cena.add(sol.target);
+  const LON0 = -50.5, LAT0 = -27.3, KX = 111.32 * Math.cos(LAT0 * Math.PI / 180), KY = 110.57, wx = (lon) => (lon - LON0) * KX, wy = (lat) => (lat - LAT0) * KY;   // 1 unidade = 1 km
+  // ---------- texturas fixas ----------
+  const canvas = (w, h) => Object.assign(document.createElement("canvas"), { width: w, height: h });
+  const SOLO = (() => { const Wt = 1024, Ht = 512, c = canvas(Wt, Ht), g = c.getContext("2d"), im = g.createImageData(Wt, Ht), d = im.data, hs = (x, y) => { const v = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return v - Math.floor(v); };
+    const ns = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), w = yf * yf * (3 - 2 * yf); return (hs(xi, yi) * (1 - u) + hs(xi + 1, yi) * u) * (1 - w) + (hs(xi, yi + 1) * (1 - u) + hs(xi + 1, yi + 1) * u) * w; }, fbm = (x, y) => ns(x, y) * .5 + ns(x * 2.1, y * 2.1) * .3 + ns(x * 4.3, y * 4.3) * .2;
+    const C = [[0, [74, 62, 38]], [.05, [92, 70, 46]], [.12, [150, 112, 76]], [.3, [176, 136, 96]], [.45, [140, 102, 70]], [.6, [190, 152, 108]], [.78, [124, 90, 62]], [1, [104, 76, 54]]], cor = (t) => { for (let k = 1; k < C.length; k++) if (t <= C[k][0]) { const [t0, a] = C[k - 1], [t1, b] = C[k], f = (t - t0) / (t1 - t0); return a.map((x, i) => x + (b[i] - x) * f); } return C[C.length - 1][1]; };
+    for (let y = 0; y < Ht; y++) for (let x = 0; x < Wt; x++) { const t = Math.max(0, Math.min(1, y / Ht + (fbm(x / 140, y / 90) - .5) * .09 + Math.sin(x / 90) * .012)), c0 = cor(t), gr = (hs(x * .37, y * .73) - .5) * 26 + (fbm(x / 6, y / 4) - .5) * 30, pd = hs(Math.floor(x / 5), Math.floor(y / 5)) > .985 && t > .15 ? 38 : 0, o = (y * Wt + x) * 4;
+      d[o] = Math.max(0, Math.min(255, c0[0] + gr + pd)); d[o + 1] = Math.max(0, Math.min(255, c0[1] + gr * .9 + pd)); d[o + 2] = Math.max(0, Math.min(255, c0[2] + gr * .8 + pd * .8)); d[o + 3] = 255; }
+    g.putImageData(im, 0, 0); for (let x = 0; x < Wt; x += 2) { const h = 6 + hs(x, 3) * 10; g.strokeStyle = `rgba(${70 + hs(x, 9) * 40},${90 + hs(x, 5) * 50},${40 + hs(x, 7) * 20},.8)`; g.lineWidth = 1.4; g.beginPath(); g.moveTo(x, 0); g.lineTo(x + (hs(x, 1) - .5) * 4, h); g.stroke(); }
+    const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t; })();
+  const NUVEM = (() => { const c = canvas(256, 160), g = c.getContext("2d"); for (let k = 0; k < 9; k++) { const x = 50 + Math.random() * 156, y = 50 + Math.random() * 60, r = 28 + Math.random() * 30, gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, "rgba(255,255,255,.85)"); gr.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gr; g.fillRect(0, 0, 256, 160); } return new THREE.CanvasTexture(c); })();
+  const SOMBRA = (() => { const c = canvas(256, 256), g = c.getContext("2d"), r = g.createRadialGradient(128, 128, 40, 128, 128, 128); r.addColorStop(0, "rgba(70,50,35,.35)"); r.addColorStop(.6, "rgba(70,50,35,.14)"); r.addColorStop(1, "rgba(70,50,35,0)"); g.fillStyle = r; g.fillRect(0, 0, 256, 256); return new THREE.CanvasTexture(c); })();
+  const BUSSOLA = (() => { const c = canvas(256, 256), g = c.getContext("2d"); g.strokeStyle = "rgba(59,47,39,.7)"; g.lineWidth = 5; g.beginPath(); g.arc(128, 128, 96, 0, 6.283); g.stroke();
+    [[0, "#C2512F", 110], [Math.PI, "#3B2F27", 70], [Math.PI / 2, "#3B2F27", 70], [-Math.PI / 2, "#3B2F27", 70]].forEach(([a, cc, l]) => { g.save(); g.translate(128, 128); g.rotate(a); g.fillStyle = cc; g.beginPath(); g.moveTo(0, -l); g.lineTo(13, 0); g.lineTo(-13, 0); g.fill(); g.restore(); });
+    g.fillStyle = "#3B2F27"; g.font = "bold 32px Inter"; g.textAlign = "center"; g.fillText("N", 128, 26); return new THREE.CanvasTexture(c); })();
+  // ---------- blocos de relevo e imagem (com memória) ----------
+  const tx = (lon, z) => (lon + 180) / 360 * 2 ** z, ty = (lat, z) => { const r = lat * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * 2 ** z; };
+  const cache = {}; const carregaIm = (src) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = src; });
+  // versão publicada: relevo (AWS Terrain, z10) e satélite (EOxCloudless, z10) de SC vêm de mosaicos embutidos, pois o link não acessa servidores externos
+  // protótipo entorno (14/11/2026): três mosaicos por camada, do mais largo e grosso ao mais fino (SC em z10); cada pedaço
+  // pedido é montado do mais grosso para o mais fino, e o mais fino cobre o que tiver
+  // pedaços de 256 px (16/11/2026, ferramentas/capa3d/fatiar.swift): cada visita baixa só o que a vista usa. Níveis 4, 7, 8 e 10;
+  // um pedaço pedido no nível z é montado do mais grosso ao mais fino com os níveis ≤ lim e ≤ z + fin (fin limita quantos
+  // pedaços finos entram: z+1 → 4 por pedaço, z+2 → 16). Relevo sem suavizar (a altura está codificada nas cores).
+  const TB = "../dados/mapas/capa-3d/", NIV = [4, 7, 8, 10]; let IDX = null; const indice = () => IDX || (IDX = fetch(TB + "indice.json").then((r) => r.json()).catch(() => null));
+  const peca = (tipo, z, x, y) => { const k = tipo + z + "/" + x + "-" + y; return cache[k] || (cache[k] = (async () => { const I = await indice(), n = I && I.niveis[tipo][z]; if (!n || x < n[0] || y < n[1] || x >= n[0] + n[2] || y >= n[1] + n[3]) return null;
+    const ext = tipo === "sat" && !(I.png_parciais || []).includes(`sat/${z}/${x}-${y}`) ? "jpg" : "png"; return carregaIm(`${TB}${tipo}/${z}/${x}-${y}.${ext}`); })()); };
+  const bloco = (url, lim = 99, fin = 1) => cache[url + "|" + lim + "|" + fin] || (cache[url + "|" + lim + "|" + fin] = (async () => { let m = url.match(/terrarium\/(\d+)\/(\d+)\/(\d+)/), tipo = "rel", z, x, y; if (m) [z, x, y] = m.slice(1).map(Number); else { m = url.match(/\/g\/(\d+)\/(\d+)\/(\d+)/) || url.match(/tile\/(\d+)\/(\d+)\/(\d+)/); if (!m) return null; tipo = "sat"; [z, y, x] = m.slice(1).map(Number); }
+    const c = canvas(256, 256), g = c.getContext("2d"); let ok = false; g.imageSmoothingEnabled = tipo === "sat";
+    for (const L of NIV) { if (L > lim || L > z + fin) continue;
+      if (L <= z) { const k = 2 ** (z - L), X = Math.floor(x / k), Y = Math.floor(y / k), im = await peca(tipo, L, X, Y); if (!im) continue; const s2 = 256 / k; g.drawImage(im, (x - X * k) * s2, (y - Y * k) * s2, s2, s2, 0, 0, 256, 256); ok = true; }
+      else { const k = 2 ** (L - z), s2 = 256 / k, ims = await Promise.all([...Array(k * k).keys()].map((q) => peca(tipo, L, x * k + q % k, y * k + Math.floor(q / k)))); ims.forEach((im, q) => { if (!im) return; g.drawImage(im, 0, 0, 256, 256, (q % k) * s2, Math.floor(q / k) * s2, s2, s2); ok = true; }); } }
+    return ok ? c : null; })());
+  const relevo = async (bb, nmax = 12, lim = 99) => { let z = 12; for (; z > 3; z--) { const n = (Math.floor(tx(bb[2], z)) - Math.floor(tx(bb[0], z)) + 1) * (Math.floor(ty(bb[1], z)) - Math.floor(ty(bb[3], z)) + 1); if (n <= nmax) break; } z = Math.min(z, 10);
+    const X0 = Math.floor(tx(bb[0], z)), X1 = Math.floor(tx(bb[2], z)), Y0 = Math.floor(ty(bb[3], z)), Y1 = Math.floor(ty(bb[1], z)), T = {};
+    await Promise.all([...Array((X1 - X0 + 1) * (Y1 - Y0 + 1)).keys()].map(async (q) => { const x = X0 + q % (X1 - X0 + 1), y = Y0 + Math.floor(q / (X1 - X0 + 1)), im = await bloco(`https://elevation-tiles-prod.s3.amazonaws.com/terrarium/${z}/${x}/${y}.png`, lim, 1);
+      if (im) { const c = canvas(256, 256).getContext("2d", { willReadFrequently: true }); c.drawImage(im, 0, 0); T[`${x}/${y}`] = c.getImageData(0, 0, 256, 256).data; } }));
+    return (lon, lat) => { const fx = tx(lon, z), fy = ty(lat, z), d = T[`${Math.floor(fx)}/${Math.floor(fy)}`]; if (!d) return 0; const i = (Math.min(255, Math.floor((fy % 1) * 256)) * 256 + Math.min(255, Math.floor((fx % 1) * 256))) * 4; return Math.max(0, d[i] * 256 + d[i + 1] + d[i + 2] / 256 - 32768); }; };
+  // imagem de satélite: EOxCloudless 2016 (Sentinel-2, CC BY 4.0, uso livre com crédito) por padrão; ?img=esri volta à Esri só para comparar no computador
+  const IMG = new URLSearchParams(location.search).get("img") === "esri" ? "esri" : "eox";
+  // lim (15/11/2026): o entorno usa só os mosaicos grossos — o fino (z10) só cobre SC e tem outro tom, e a emenda aparecia como um retângulo escuro a sudoeste
+  const satelite = async (bb, SW, SH, lim = 99, fin = 1) => { let z = IMG === "eox" ? 14 : 16; for (; z > 3; z--) if (tx(bb[2], z) - tx(bb[0], z) <= (CAPA ? 14 : 6)) break; z = Math.min(z, 10);
+    const X0 = Math.floor(tx(bb[0], z)), X1 = Math.floor(tx(bb[2], z)), Y0 = Math.floor(ty(bb[3], z)), Y1 = Math.floor(ty(bb[1], z)), mc = canvas((X1 - X0 + 1) * 256, (Y1 - Y0 + 1) * 256), m2 = mc.getContext("2d"); let ok = 0; m2.fillStyle = "#cfc8bd"; m2.fillRect(0, 0, mc.width, mc.height);
+    await Promise.all([...Array((X1 - X0 + 1) * (Y1 - Y0 + 1)).keys()].map(async (q) => { const x = X0 + q % (X1 - X0 + 1), y = Y0 + Math.floor(q / (X1 - X0 + 1)), im = await bloco(IMG === "eox" ? `https://tiles.maps.eox.at/wmts/1.0.0/s2cloudless_3857/default/g/${z}/${y}/${x}.jpg` : `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`, lim, fin); if (im) { m2.drawImage(im, (x - X0) * 256, (y - Y0) * 256); ok++; } }));
+    if (!ok) return null; const out = canvas(SW, SH), o = out.getContext("2d"), sx0 = (tx(bb[0], z) - X0) * 256, sw = (tx(bb[2], z) - tx(bb[0], z)) * 256;
+    for (let y = 0; y < SH; y++) { const la = bb[3] - (y + .5) / SH * (bb[3] - bb[1]); o.drawImage(mc, sx0, (ty(la, z) - Y0) * 256, sw, 1, 0, y, SW, 1); } return out; };
+  // ---------- montar o bloco da área ----------
+  let ATUAL = null, VEZ = 0;
+  const montar = async () => { if ((S.cam.rod || S.cam.rio) && !VR.ok) { try { Object.assign(VR, await (await fetch(GEO + "sc-vias-rios.json")).json()); } catch (e) {} VR.ok = 1; }
+    const vez = ++VEZ, L = doGrupo().filter((k) => k >= 0), noL = new Set(L), uf = S.niv === "uf";
+    // limites: retângulo proporcional à área, com folga (no estado, folga menor)
+    let lo0 = 999, la0 = 999, lo1 = -999, la1 = -999; L.forEach((k) => aneis(k).forEach((ring) => ring.forEach(([lo, la]) => { if (lo < lo0) lo0 = lo; if (lo > lo1) lo1 = lo; if (la < la0) la0 = la; if (la > la1) la1 = la; })));
+    const COS = Math.cos((la0 + la1) / 2 * Math.PI / 180), cLo = (lo0 + lo1) / 2, cLa = (la0 + la1) / 2, fol = uf ? 1.06 : CAPA ? 1.16 : 1.36; let hw = (lo1 - lo0) * COS / 2 * fol + .012, hh = (la1 - la0) / 2 * fol + .012;
+    const AMX = uf ? 2.4 : 1.8; if (hw / hh > AMX) hh = hw / AMX; if (hw / hh < .6) hw = hh * .6; const bb = [cLo - hw / COS, cLa - hh, cLo + hw / COS, cLa + hh], wLon = bb[2] - bb[0], wLat = bb[3] - bb[1];
+    espera("baixando o relevo…"); const alt = await relevo(bb); if (vez !== VEZ) return;
+    const asp = (wLon * COS) / wLat, NMAX = innerWidth < 700 ? 200 : 300, NX = Math.round(asp >= 1 ? NMAX : NMAX * asp), NY = Math.round(asp >= 1 ? NMAX / asp : NMAX);
+    const lonDe = (i) => bb[0] + (i + .5) / NX * wLon, latDe = (j) => bb[3] - (j + .5) / NY * wLat;
+    // município de cada célula (desenho exato dos polígonos)
+    const rc = canvas(NX * 2, NY * 2).getContext("2d", { willReadFrequently: true }); Object.keys(FEAT).forEach((k) => { const n = +k + 1; rc.fillStyle = `rgb(${n & 255},${n >> 8},90)`; rc.beginPath(); aneis(+k).forEach((ring) => ring.forEach(([lo, la], i) => { const X = (lo - bb[0]) / wLon * NX * 2, Y = (bb[3] - la) / wLat * NY * 2; i ? rc.lineTo(X, Y) : rc.moveTo(X, Y); })); rc.fill(); });
+    const RD = rc.getImageData(0, 0, NX * 2, NY * 2).data, quem = (i, j) => { for (let r = 0; r < 3; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { const X = i * 2 + 1 + dx, Y = j * 2 + 1 + dy; if (X < 0 || Y < 0 || X >= NX * 2 || Y >= NY * 2) continue; const o = (Y * NX * 2 + X) * 4;
+      if (r === 0 && RD[o + 3] < 128) return -1; if (RD[o + 3] > 200 && RD[o + 2] === 90) { const k = RD[o] + (RD[o + 1] << 8) - 1; if (k >= 0 && k < MU.length) return k; } } return -1; };
+    const KK = new Int32Array(NX * NY), ALT = new Float32Array(NX * NY); for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) { KK[j * NX + i] = quem(i, j); ALT[j * NX + i] = alt(lonDe(i), latDe(j)); }
+    // alturas (push/pull): a base é só o relevo; a área escolhida vira uma "tampa" separada, levantada e recortada no contorno exato.
+    // Assim o terreno vizinho não se deforma, e por baixo da tampa a parede é de solo.
+    const tamKm = Math.max(wLon * KX * COS / Math.cos(LAT0 * Math.PI / 180), wLat * KY), EXF = uf ? 2.8 : 1.06, DP = tamKm * .06, L0 = tamKm * (uf ? .007 : .0115);
+    const lats = L.map((k) => MU[k].lat), lmin = Math.min(...lats), lmax = Math.max(...lats), LIFT = {}; L.forEach((k) => { LIFT[k] = uf || L.length === 1 ? L0 : L0 * (.6 + 1.6 * (lmax > lmin ? (MU[k].lat - lmin) / (lmax - lmin) : .5)); });
+    const PIC = new Float32Array(NX * NY); if (S.niv !== "mun" && S.dado === "ele") { const sg = NX * (uf ? .009 : .018), ALVO = uf ? MU : L.map((k) => MU[k]), ELM = uf ? ELMAX : Math.max(1, ...ALVO.map((m) => m.el)); ALVO.forEach((m) => { const cx = (m.lon - bb[0]) / wLon * NX, cy = (bb[3] - m.lat) / wLat * NY, h = m.el / ELM * tamKm * (uf ? .14 : .1), rr = Math.ceil(sg * 3.5);
+      for (let y = Math.max(0, (cy | 0) - rr); y < Math.min(NY, (cy | 0) + rr); y++) for (let x = Math.max(0, (cx | 0) - rr); x < Math.min(NX, (cx | 0) + rr); x++) PIC[y * NX + x] += h * Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (2 * sg * sg)); }); }
+    const AG = new Uint8Array(NX * NY), agua = (q) => AG[q] === 1, zB = (q) => (agua(q) ? .25 : .4 + ALT[q] / 1000 * EXF) + PIC[q];
+    // máscara fina (≈1200 px no lado maior): terra = relevo acima de 0,5 m. Ela recorta a tampa, levanta as paredes e pinta a água,
+    // em vez da grade grossa de 300 células (que deixava degraus, furos na planície e paredes soltas no mar).
+    const MW = Math.round(asp >= 1 ? 1200 : 1200 * asp), MH = Math.round(asp >= 1 ? 1200 / asp : 1200), MN = MW * MH;
+    // terra = linha da costa real (OSM, com as lagoas grandes recortadas); fora da faixa coberta, tudo é terra. Sem o arquivo, cai no relevo.
+    const LM = new Uint8Array(MN);
+    if (TERRA) { const tc = canvas(MW, MH).getContext("2d", { willReadFrequently: true }), [t0, t1, t2, t3] = TERRA.bb, X = (lo) => (lo - bb[0]) / wLon * MW, Y = (la) => (bb[3] - la) / wLat * MH;
+      tc.fillStyle = "#000"; tc.fillRect(0, 0, MW, MH); tc.globalCompositeOperation = "destination-out"; tc.fillRect(X(t0), Y(t3), X(t2) - X(t0), Y(t1) - Y(t3)); tc.globalCompositeOperation = "source-over";
+      tc.beginPath(); TERRA.p.forEach((pl) => pl.forEach((r) => { for (let i = 0; i < r.length; i += 2) { const x = X(r[i]), y = Y(r[i + 1]); i ? tc.lineTo(x, y) : tc.moveTo(x, y); } tc.closePath(); })); tc.fill("evenodd");
+      const TD = tc.getImageData(0, 0, MW, MH).data; for (let q = 0; q < MN; q++) LM[q] = TD[q * 4 + 3] > 127 ? 1 : 0; }
+    else for (let y = 0; y < MH; y++) { const la = bb[3] - (y + .5) / MH * wLat; for (let x = 0; x < MW; x++) LM[y * MW + x] = alt(bb[0] + (x + .5) / MW * wLon, la) > .5 ? 1 : 0; }
+    // limpeza: some ilhotas e pedras muito pequenas, fecha furinhos de terra baixa (sem mexer no que encosta na borda do bloco)
+    const limpa = (M, minT, minF) => { const vis = new Uint8Array(MN), pilha = new Int32Array(MN); for (let s = 0; s < MN; s++) { if (vis[s]) continue; const v = M[s]; let n = 0, topo = 0, borda = false; const comp = []; pilha[topo++] = s; vis[s] = 1;
+        while (topo) { const q = pilha[--topo]; comp.push(q); n++; const x = q % MW, y = (q / MW) | 0; if (x === 0 || y === 0 || x === MW - 1 || y === MH - 1) borda = true;
+          if (x > 0 && !vis[q - 1] && M[q - 1] === v) { vis[q - 1] = 1; pilha[topo++] = q - 1; } if (x < MW - 1 && !vis[q + 1] && M[q + 1] === v) { vis[q + 1] = 1; pilha[topo++] = q + 1; }
+          if (y > 0 && !vis[q - MW] && M[q - MW] === v) { vis[q - MW] = 1; pilha[topo++] = q - MW; } if (y < MH - 1 && !vis[q + MW] && M[q + MW] === v) { vis[q + MW] = 1; pilha[topo++] = q + MW; } }
+        if (v ? n < minT : (!borda && n < minF)) comp.forEach((q) => { M[q] = v ? 0 : 1; }); } };
+    const MIN = Math.round(MN * .00018); limpa(LM, MIN, MIN);
+    // água na grade grossa (altura da base) também pela máscara, para tudo usar a mesma costa
+    for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) AG[j * NX + i] = LM[Math.min(MH - 1, Math.floor((j + .5) / NY * MH)) * MW + Math.min(MW - 1, Math.floor((i + .5) / NX * MW))] ? 0 : 1;
+    const ac = canvas(MW, MH).getContext("2d", { willReadFrequently: true }); ac.fillStyle = "#000"; ac.beginPath(); L.forEach((k) => aneis(k).forEach((ring) => ring.forEach(([lo, la], i) => { const X = (lo - bb[0]) / wLon * MW, Y = (bb[3] - la) / wLat * MH; i ? ac.lineTo(X, Y) : ac.moveTo(X, Y); }))); ac.fill();
+    const AD = ac.getImageData(0, 0, MW, MH).data, AM = new Uint8Array(MN); for (let q = 0; q < MN; q++) AM[q] = LM[q] && AD[q * 4 + 3] > 127 ? 1 : 0; limpa(AM, MIN, MIN);
+    // versão suavizada (duas passadas de média 3×3): o contorno da tampa e o das paredes saem da mesma curva, sem escadinha
+    const suave = (M) => { let A = Float32Array.from(M); for (let p = 0; p < 2; p++) { const B2 = new Float32Array(MN); for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) { let s = 0, n = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const a = x + dx, b = y + dy; if (a < 0 || b < 0 || a >= MW || b >= MH) continue; s += A[b * MW + a]; n++; } B2[y * MW + x] = s / n; } A = B2; } return A; };
+    const FA = suave(AM), FL = suave(LM);
+    const mascara = (F, inv) => { const c = canvas(MW, MH), x2 = c.getContext("2d"), id = x2.createImageData(MW, MH); for (let q = 0; q < MN; q++) { const a = inv ? 1 - F[q] : F[q]; id.data[q * 4 + 3] = Math.max(0, Math.min(255, Math.round((a - .5) * 4 * 255 + 127.5))); } x2.putImageData(id, 0, 0); return c; };
+    // altura da tampa em cada ponto: a do município da área mais próximo (evita rampas na borda; fora do contorno a tampa é invisível)
+    const LV = new Float32Array(NX * NY); for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) { const q = j * NX + i; if (noL.has(KK[q])) { LV[q] = LIFT[KK[q]]; continue; }
+      let best = 0; for (let r = 1; r <= 3 && !best; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { const a = i + dx, b = j + dy; if (a >= 0 && b >= 0 && a < NX && b < NY && noL.has(KK[b * NX + a])) best = Math.max(best, LIFT[KK[b * NX + a]]); } LV[q] = best; }
+    const cel = (lo, la) => Math.max(0, Math.min(NY - 1, Math.floor((bb[3] - la) / wLat * NY))) * NX + Math.max(0, Math.min(NX - 1, Math.floor((lo - bb[0]) / wLon * NX)));
+    const zBl = (lo, la) => zB(cel(lo, la)), zEm = (lo, la) => { const q = cel(lo, la); return zB(q) + (noL.has(KK[q]) && !agua(q) ? LV[q] : 0); };
+    // superfícies: base e tampa (mesma grade, mesma textura; a tampa só aparece dentro da área)
+    const P = new Float32Array(NX * NY * 3), PC = new Float32Array(NX * NY * 3), UV = new Float32Array(NX * NY * 2), I = []; let zMax = 0;
+    for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) { const q = j * NX + i, z = zB(q), zc = z + LV[q]; if (zc > zMax) zMax = zc; P[q * 3] = PC[q * 3] = wx(lonDe(i)); P[q * 3 + 1] = PC[q * 3 + 1] = wy(latDe(j)); P[q * 3 + 2] = z; PC[q * 3 + 2] = zc; UV[q * 2] = (i + .5) / NX; UV[q * 2 + 1] = 1 - (j + .5) / NY; }
+    for (let j = 0; j < NY - 1; j++) for (let i = 0; i < NX - 1; i++) { const a = j * NX + i, b = a + 1, c = a + NX, d = c + 1; I.push(a, c, b, b, c, d); }
+    const gs = new THREE.BufferGeometry(); gs.setAttribute("position", new THREE.BufferAttribute(P, 3)); gs.setAttribute("uv", new THREE.BufferAttribute(UV, 2)); gs.setIndex(I); gs.computeVertexNormals();
+    const gcap = new THREE.BufferGeometry(); gcap.setAttribute("position", new THREE.BufferAttribute(PC, 3)); gcap.setAttribute("uv", new THREE.BufferAttribute(UV, 2)); gcap.setIndex(I); gcap.computeVertexNormals();
+    // laterais do bloco e paredes da tampa: solo
+    const parede = (pts, z0f, z1f, ulen) => { const WP = [], WU = []; let u = 0; for (let s = 0; s + 1 < pts.length; s++) { const [x1, y1, a1, b1] = pts[s], [x2, y2, a2, b2] = pts[s + 1], du = Math.hypot(x2 - x1, y2 - y1) / ulen;
+        [[x1, y1, a1, u, 0], [x2, y2, b2, u + du, 1], [x2, y2, a2, u + du, 0], [x1, y1, a1, u, 0], [x1, y1, b1, u, 1], [x2, y2, b2, u + du, 1]].forEach(([x, y, z, uu, v]) => { WP.push(x, y, z); WU.push(uu, 1 - v * z0f); }); u += du; }
+      const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(WP, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(WU, 2)); g.computeVertexNormals(); return g; };
+    const bordaB = []; const pB = (i, j) => { const q = j * NX + i; bordaB.push([P[q * 3], P[q * 3 + 1], P[q * 3 + 2], -DP]); };
+    for (let i = 0; i < NX; i++) pB(i, 0); for (let j = 1; j < NY; j++) pB(NX - 1, j); for (let i = NX - 2; i >= 0; i--) pB(i, NY - 1); for (let j = NY - 2; j >= 0; j--) pB(0, j);
+    const gPar = parede(bordaB, 1, 0, tamKm / 1.6), degraus = [];
+    // parede só onde a tampa é mais alta que o vizinho (borda da área com terra de fora, ou degrau entre municípios); nada sobre a água
+    // degrau interno: só entre dois municípios da área com alturas diferentes (a borda de fora vem da máscara, logo abaixo)
+    const temDegrau = (lo, la, h) => { const q0 = cel(lo, la), i = q0 % NX, j = (q0 / NX) | 0; if (agua(q0)) return false; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const a = i + dx, b = j + dy; if (a < 0 || b < 0 || a >= NX || b >= NY) continue; const q = b * NX + a; if (noL.has(KK[q]) && !agua(q) && LIFT[KK[q]] < h - 1e-6) return true; } return false; };
+    { // contorno da tampa: marching squares no limiar 0,5 da máscara suavizada; topo e pé da parede interpolados nas duas superfícies
+      const zIn = (A, mx, my) => { const gx = Math.max(0, Math.min(NX - 1.001, mx / MW * NX - .5)), gy = Math.max(0, Math.min(NY - 1.001, my / MH * NY - .5)), i = gx | 0, j = gy | 0, fx = gx - i, fy = gy - j, z = (a, b) => A[((j + b) * NX + i + a) * 3 + 2];
+        return z(0, 0) * (1 - fx) * (1 - fy) + z(1, 0) * fx * (1 - fy) + z(0, 1) * (1 - fx) * fy + z(1, 1) * fx * fy; };
+      const WP = [], WU = [], ul = tamKm / 6, pw = (mx, my) => [wx(bb[0] + (mx + .5) / MW * wLon), wy(bb[3] - (my + .5) / MH * wLat)];
+      const seg = (ax, ay, bx, by) => { const [x1, y1] = pw(ax, ay), [x2, y2] = pw(bx, by), t1 = zIn(PC, ax, ay), t2 = zIn(PC, bx, by), b1 = zIn(P, ax, ay) - .02, b2 = zIn(P, bx, by) - .02, u1 = (x1 + y1) / ul, u2 = (x2 + y2) / ul;
+        [[x1, y1, b1, u1, 0], [x2, y2, t2, u2, 1], [x2, y2, b2, u2, 0], [x1, y1, b1, u1, 0], [x1, y1, t1, u1, 1], [x2, y2, t2, u2, 1]].forEach(([x, y, z, u, v]) => { WP.push(x, y, z); WU.push(u, 1 - v * .22); }); };
+      const f = (x, y) => FA[y * MW + x] - .5, it = (a, b) => a / (a - b);
+      for (let y = 0; y < MH - 1; y++) for (let x = 0; x < MW - 1; x++) { const a = f(x, y), b = f(x + 1, y), c = f(x + 1, y + 1), d = f(x, y + 1), k = (a > 0) | ((b > 0) << 1) | ((c > 0) << 2) | ((d > 0) << 3); if (k === 0 || k === 15) continue;
+        const T = [x + it(a, b), y], R = [x + 1, y + it(b, c)], B3 = [x + it(d, c), y + 1], E2 = [x, y + it(a, d)], S2 = (p, q) => seg(p[0], p[1], q[0], q[1]);
+        switch (k) { case 1: case 14: S2(E2, T); break; case 2: case 13: S2(T, R); break; case 3: case 12: S2(E2, R); break; case 4: case 11: S2(R, B3); break; case 6: case 9: S2(T, B3); break; case 7: case 8: S2(E2, B3); break; case 5: S2(E2, T); S2(R, B3); break; case 10: S2(T, R); S2(B3, E2); break; } }
+      if (WP.length) { const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(WP, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(WU, 2)); g.computeVertexNormals(); degraus.push(g); } }
+    L.forEach((k) => aneis(k).forEach((ring) => { let per = 0; for (let i = 1; i < ring.length; i++) per += Math.hypot((ring[i][0] - ring[i - 1][0]) * KX * COS / Math.cos(LAT0 * Math.PI / 180), (ring[i][1] - ring[i - 1][1]) * KY); if (per < tamKm * .015) return;
+      let tr = []; const fecha = () => { if (tr.length > 1) degraus.push(parede(tr, .22, 0, tamKm / 6)); tr = []; };
+      ring.forEach(([lo, la]) => { if (lo <= bb[0] || lo >= bb[2] || la <= bb[1] || la >= bb[3] || !temDegrau(lo, la, LIFT[k])) { fecha(); return; } const zb = zBl(lo, la); tr.push([wx(lo), wy(la), zb + LIFT[k], zb - .02]); }); fecha(); }));
+    // textura do topo (gesso ou satélite + dado + camadas)
+    const TXM = CAPA ? 4096 : 2048, SW = Math.round(asp >= 1 ? TXM : TXM * asp), SH = Math.round(asp >= 1 ? TXM / asp : TXM), XY = ([lo, la]) => [(lo - bb[0]) / wLon * SW, (bb[3] - la) / wLat * SH];
+    let sat = null; if (S.base === "sat") { espera("baixando a imagem de satélite…"); sat = await satelite(bb, SW, SH); if (vez !== VEZ) return; }
+    const mA = mascara(FA), mT = mascara(FL), mW = mascara(FL, true);
+    // desenha algo numa folha à parte e só deixa passar onde a máscara deixa (terra, ou só a área)
+    const soTerra = (m, fn) => { const c = canvas(SW, SH), t = c.getContext("2d"); fn(t); t.globalCompositeOperation = "destination-in"; t.imageSmoothingEnabled = true; t.drawImage(m, 0, 0, SW, SH); o.drawImage(c, 0, 0); };
+    const tex = canvas(SW, SH), o = tex.getContext("2d"), cam2 = (ks) => { const p = new Path2D(); ks.forEach((k) => aneis(k).forEach((ring) => ring.forEach((c, i) => { const [x, y] = XY(c); i ? p.lineTo(x, y) : p.moveTo(x, y); }))); return p; };
+    const vis = Object.keys(FEAT).map(Number).filter((k) => { const m = MU[k]; return Math.abs(m.lon - cLo) < wLon && Math.abs(m.lat - cLa) < wLat; }), pArea = cam2(L), pSC = cam2(vis), lw = Math.max(SW, SH) / 1150;
+    if (sat) { o.filter = FILT_FORA; o.drawImage(sat, 0, 0); o.filter = "none"; o.fillStyle = VEU; o.fillRect(0, 0, SW, SH); soTerra(mA, (t) => { t.filter = "saturate(1.15) contrast(1.05)"; t.drawImage(sat, 0, 0); t.filter = "none"; }); }
+    else { const gc = canvas(NX, NY), g2 = gc.getContext("2d"), id = g2.createImageData(NX, NY); for (let q = 0; q < NX * NY; q++) { const c = KK[q] < 0 ? [216, 210, 201] : [224, 218, 209]; id.data.set([...c, 255], q * 4); } g2.putImageData(id, 0, 0);
+      o.imageSmoothingEnabled = true; o.drawImage(gc, 0, 0, SW, SH); soTerra(mT, (t) => { t.fillStyle = "#E2DCD2"; t.fill(pSC); }); soTerra(mA, (t) => { t.fillStyle = FUNDO ? "#F3EFE8" : "#E9D6B4"; t.fillRect(0, 0, SW, SH); });
+      // relevo sombreado (sol de noroeste, 45°) multiplicado por cima: dá volume ao tom liso, como uma maquete de papel
+      const cs = tamKm * 1000 / NX, ex = uf ? 5 : 2.2, zen = Math.PI / 4, azm = 135 * Math.PI / 180, hc = canvas(NX, NY), h2 = hc.getContext("2d"), hd = h2.createImageData(NX, NY), A2 = (i, j) => ALT[Math.max(0, Math.min(NY - 1, j)) * NX + Math.max(0, Math.min(NX - 1, i))];
+      for (let j = 0; j < NY; j++) for (let i = 0; i < NX; i++) { const dx = (A2(i + 1, j) - A2(i - 1, j)) / (2 * cs) * ex, dy = (A2(i, j + 1) - A2(i, j - 1)) / (2 * cs) * ex, sl = Math.atan(Math.hypot(dx, dy)), as = Math.atan2(dy, -dx);
+        const s = Math.cos(zen) * Math.cos(sl) + Math.sin(zen) * Math.sin(sl) * Math.cos(azm - as), v = Math.round(255 * (FUNDO ? Math.max(.66, Math.min(1, .7 + .3 * s / Math.cos(zen))) : Math.max(.38, Math.min(1, .42 + .58 * s / Math.cos(zen))))); hd.data.set([v, v * .985 | 0, v * .965 | 0, 255], (j * NX + i) * 4); }
+      h2.putImageData(hd, 0, 0); o.globalCompositeOperation = "multiply"; o.imageSmoothingEnabled = true; o.drawImage(hc, 0, 0, SW, SH); o.globalCompositeOperation = "source-over"; }
+    soTerra(mW, (t) => { t.fillStyle = sat ? `rgba(${AGUA},.47)` : "rgba(170,200,222,.75)"; t.fillRect(0, 0, SW, SH); });
+    // dado: no gesso, cor cheia; no satélite, uma faixa fina na borda de dentro de cada município
+    const corD = (m) => { const c = corDado(m); return c ? `rgb(${c.map(Math.round).join(",")})` : null; };
+    // recursos (só no modo capa do relatório): cada município tingido pela cor do candidato conforme o valor recebido
+    const REC = window.__capaRec || {}, REC_MAX = Math.max(1, ...Object.values(REC));
+    // formato "área" da capa (15/11/2026): o próprio município é tingido conforme a lente (votos, 2022, variação, recursos)
+    // 16/11/2026 (pedido do usuário): 7 níveis; o tom mais claro é também o mais transparente e o mais escuro o mais opaco.
+    // Recursos: verde (mais pago) e laranja (mais a pagar), no lugar do azul. Temas (dados sociais etc.): roxo.
+    const AR = window.__area; if (AR) { const SOC = window.__social || {}, soc = (m) => SOC[norm2(m.nome)];
+      const vv = (m) => { if (AR.tema) { const x = soc(m); return x ? +x[AR.tema] || 0 : 0; } const r = AR.rec && AR.rec[m.nome]; return AR.tipo === "rec" ? (r ? r[0] : 0) : AR.tipo === "v22" ? m.v22 : AR.tipo === "var" ? m.vot - m.v22 : m.vot; };
+      const ORD = MU.map((m) => Math.abs(vv(m))).filter((v) => v > 0).sort((a, b) => a - b);
+      const nivel = (v) => { let lo = 0, hi = ORD.length; while (lo < hi) { const md = (lo + hi) >> 1; if (ORD[md] < v) lo = md + 1; else hi = md; } return Math.min(6, Math.floor(lo / ORD.length * 7)); };
+      const ALF = [.62, .68, .74, .8, .86, .91, .96], RAMPA = window.__rampas;
+      soTerra(mT, (t) => (uf ? vis : L).forEach((k) => { if (AR.anal) { const c = AR.anal.cores[MU[k].nome]; if (c) { t.globalAlpha = .9; t.fillStyle = c; t.fill(cam2([k])); t.globalAlpha = 1; } return; } const m = MU[k], v = vv(m); if (!v) return; const p = cam2([k]), f = nivel(Math.abs(v));
+        if (AR.tema) t.fillStyle = RAMPA.tema[f];
+        else if (AR.tipo === "var") t.fillStyle = (v > 0 ? RAMPA.up : RAMPA.dn)[f];
+        else if (AR.tipo === "rec") { const r = AR.rec[m.nome]; t.fillStyle = (r[1] / r[0] >= .5 ? RAMPA.pago : RAMPA.apagar)[f]; }
+        else t.fillStyle = RAMPA.voto[f];
+        t.globalAlpha = ALF[f] * (AR.tipo === "v22" && !AR.tema ? .85 : 1);
+        t.fill(p); t.globalAlpha = 1; })); }
+    if (S.dado !== "nenhum" && !AR) soTerra(mT, (t) => (uf ? vis : L).forEach((k) => { const m = MU[k], p = cam2([k]);
+      if (S.dado === "rec") { const v = REC[m.k] || 0; if (!v) return; t.fillStyle = `rgba(${RGB_SEL},${(.16 + .62 * Math.sqrt(v / REC_MAX)).toFixed(3)})`; t.fill(p); return; }
+      if (!sat) { const c = corD(m); if (c) { t.fillStyle = c; t.fill(p); } return; }
+      if (S.dado === "dif") { const d = m.vot - m.v22; if (!d) return; const a = .12 + .3 * Math.pow(Math.abs(d) / DMAX, .45); t.fillStyle = d > 0 ? `rgba(40,190,80,${a})` : `rgba(230,70,50,${a})`; t.fill(p); } }));
+    // divisas: vizinhos finos, área um pouco mais marcada — só em terra (o limite do IBGE dentro da baía não aparece)
+    soTerra(mT, (t) => { t.lineJoin = "round"; t.strokeStyle = sat ? "rgba(255,255,255,.4)" : "rgba(90,74,63,.22)"; t.lineWidth = lw * .9; t.stroke(pSC);
+      if (!uf) { t.strokeStyle = sat ? "rgba(255,255,255,.55)" : "rgba(59,47,39,.35)"; t.lineWidth = lw * 1; t.stroke(pArea); } });
+    if (S.cam.rio) { o.strokeStyle = sat ? "rgba(140,195,240,.85)" : "rgba(80,140,205,.8)"; o.lineWidth = lw * (uf ? .7 : 1.5); VR.rio.forEach((l) => { const p = l.p; o.beginPath(); for (let i = 0; i < p.length; i += 2) { const [x, y] = XY([p[i], p[i + 1]]); i ? o.lineTo(x, y) : o.moveTo(x, y); } o.stroke(); }); }
+    if (S.cam.rod) { const fr = uf ? .45 : 1; o.setLineDash([lw * 7 * fr, lw * 7 * fr]); [[1, "rgba(250,205,40,.85)", 2.4], [2, "rgba(250,205,40,.55)", 1.5]].forEach(([t, cc, w]) => { o.strokeStyle = cc; o.lineWidth = lw * w * fr; VR.rod.forEach((l) => { if (l.t !== t) return; const p = l.p; o.beginPath(); for (let i = 0; i < p.length; i += 2) { const [x, y] = XY([p[i], p[i + 1]]); i ? o.lineTo(x, y) : o.moveTo(x, y); } o.stroke(); }); }); o.setLineDash([]); }
+    if (S.cam.cid) vis.forEach((k) => { const m = MU[k], [x, y] = XY([m.lon, m.lat]); o.fillStyle = "#fff"; o.beginPath(); o.arc(x, y, lw * (uf ? 2.4 : 3.6), 0, 6.283); o.fill(); o.fillStyle = "#3B2F27"; o.beginPath(); o.arc(x, y, lw * (uf ? 1.4 : 2.1), 0, 6.283); o.fill(); });
+    // fluidez (14/11/2026): o topo do bloco fica transparente aos poucos perto das bordas, menos o território de SC,
+    // que continua inteiro; por baixo, o entorno na mesma altura completa a paisagem sem a marca do retângulo
+    { const fm = canvas(SW, SH), fg = fm.getContext("2d"), fe = Math.min(SW, SH) * .14; if (!FUNDO) { fg.filter = `blur(${fe * .55}px)`; fg.fillStyle = "#000"; fg.fillRect(fe, fe, SW - fe * 2, SH - fe * 2); fg.filter = "none"; }
+      const recorteCapa = FUNDO && !uf;   // capa num recorte (região/cidade): os municípios vizinhos de SC somem aos poucos na borda, sem o quadrado   // na capa (FUNDO), fora de SC fica só o entorno: a borda do bloco aparecia como um retângulo (15/11/2026)
+      fg.fillStyle = "#000"; fg.fill(pSC); fg.lineWidth = lw * 3; fg.strokeStyle = "#000"; fg.stroke(pSC);
+      if (recorteCapa) { const fr = canvas(SW, SH), rg = fr.getContext("2d"); rg.filter = `blur(${fe * .55}px)`; rg.fillStyle = "#000"; rg.fillRect(fe, fe, SW - fe * 2, SH - fe * 2); fg.globalCompositeOperation = "destination-in"; fg.drawImage(fr, 0, 0); fg.globalCompositeOperation = "source-over"; }
+      o.globalCompositeOperation = "destination-in"; o.drawImage(fm, 0, 0); o.globalCompositeOperation = "source-over"; }
+    const tTop = new THREE.CanvasTexture(tex); tTop.encoding = THREE.sRGBEncoding; tTop.anisotropy = ren.capabilities.getMaxAnisotropy();
+    const capC = canvas(SW, SH), cc = capC.getContext("2d"); cc.drawImage(tex, 0, 0); cc.globalCompositeOperation = "destination-in"; cc.imageSmoothingEnabled = true; cc.drawImage(mA, 0, 0, SW, SH); cc.globalCompositeOperation = "source-over";
+    const tCap = new THREE.CanvasTexture(capC); tCap.encoding = THREE.sRGBEncoding; tCap.anisotropy = ren.capabilities.getMaxAnisotropy();
+    // ---------- entorno (protótipo 14/11/2026): o terreno continua além do bloco até onde o zoom alcança, cada vez mais
+    // desfocado e apagado conforme se afasta do mapa central (anéis de desfoque crescente + névoa na cor do fundo) ----------
+    espera("montando o entorno…");
+    const EXT = 6, bbE = [cLo - hw / COS * EXT, Math.max(-58, cLa - hh * EXT), cLo + hw / COS * EXT, Math.min(8, cLa + hh * EXT)], wLonE = bbE[2] - bbE[0], wLatE = bbE[3] - bbE[1];
+    const altE = await relevo(bbE, 40, 4);   // entorno: só o relevo grosso (z4) — fica desfocado de qualquer jeito if (vez !== VEZ) return;
+    const aspE = (wLonE * COS) / wLatE, TE = 1536, SWE = Math.round(aspE >= 1 ? TE : TE * aspE), SHE = Math.round(aspE >= 1 ? TE / aspE : TE);
+    let baseE = null; if (sat || FUNDO) { const sE = await satelite(bbE, SWE, SHE, 7, 2); if (vez !== VEZ) return;   // capa: na base Neutro só o estado fica neutro; em volta continua o satélite (16/11/2026)
+      // mesmo tratamento que o bloco dá ao que fica fora da área (cinza claro e véu), para a emenda não aparecer
+      if (sE) { baseE = canvas(SWE, SHE); const gb = baseE.getContext("2d"); gb.filter = FILT_FORA; gb.drawImage(sE, 0, 0); gb.filter = "none"; gb.fillStyle = VEU; gb.fillRect(0, 0, SWE, SHE);
+        // água com o mesmo azul-claro do bloco (máscara pelo relevo: até 0,5 m é mar)
+        const GX = 480, GY = Math.round(480 * SHE / SWE), mc = canvas(GX, GY), mg = mc.getContext("2d"), md = mg.createImageData(GX, GY);
+        for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) if (altE(bbE[0] + (i + .5) / GX * wLonE, bbE[3] - (j + .5) / GY * wLatE) <= .5) md.data.set([...AGUA, 120], (j * GX + i) * 4);
+        mg.putImageData(md, 0, 0); gb.imageSmoothingEnabled = true; gb.drawImage(mc, 0, 0, SWE, SHE); } }
+    if (!baseE) { // gesso: relevo sombreado na cor do papel, mar um pouco mais frio
+      const GX = 360, GY = Math.round(360 * SHE / SWE), A2 = new Float32Array(GX * GY); for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) A2[j * GX + i] = altE(bbE[0] + (i + .5) / GX * wLonE, bbE[3] - (j + .5) / GY * wLatE);
+      const cg = canvas(GX, GY), gg = cg.getContext("2d"), im = gg.createImageData(GX, GY), kk = 6 / Math.max(1, wLonE * KX * COS / Math.cos(LAT0 * Math.PI / 180) / GX);
+      for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) { const q = j * GX + i, a = A2[q], o = q * 4; if (a <= .5) { im.data.set([190, 206, 218, 255], o); continue; }
+        const dx = A2[j * GX + Math.min(GX - 1, i + 1)] - A2[j * GX + Math.max(0, i - 1)], dy = A2[Math.min(GY - 1, j + 1) * GX + i] - A2[Math.max(0, j - 1) * GX + i], sh = FUNDO ? 1 : Math.max(.88, Math.min(1.06, 1 + (-dx + dy) * kk / 900));
+        im.data.set(FUNDO ? [Math.min(255, 238 * sh), Math.min(255, 235 * sh), Math.min(255, 229 * sh), 255] : [Math.min(255, 218 * sh), Math.min(255, 211 * sh), Math.min(255, 201 * sh), 255], o); }
+      gg.putImageData(im, 0, 0); baseE = canvas(SWE, SHE); const gb = baseE.getContext("2d"); gb.imageSmoothingQuality = "high"; gb.drawImage(cg, 0, 0, SWE, SHE); }
+    const outE = canvas(SWE, SHE), go = outE.getContext("2d"), cxT = (cLo - bbE[0]) / wLonE * SWE, cyT = (bbE[3] - cLa) / wLatE * SHE, r0 = Math.max(SWE, SHE) / (2 * EXT);
+    go.drawImage(baseE, 0, 0);
+    // anéis: [desfoque em px da textura, raio (em tamanhos do bloco) a partir do qual vale inteiro]
+    let ant = 1; (ESC ? [[1, 1.05], [2.5, 1.45], [5, 2], [9, 2.7], [15, 3.5], [24, 4.5]] : [[1.5, 1.0], [4, 1.3], [9, 1.75], [16, 2.35], [28, 3.2], [44, 4.4]]).forEach(([b, m]) => { const L2 = canvas(SWE, SHE), lg = L2.getContext("2d"); lg.filter = `blur(${b}px)`; lg.drawImage(baseE, -b * 2, -b * 2, SWE + b * 4, SHE + b * 4); lg.filter = "none";
+      lg.globalCompositeOperation = "destination-in"; const gr = lg.createRadialGradient(cxT, cyT, r0 * ant, cxT, cyT, r0 * m); gr.addColorStop(0, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(0,0,0,1)"); lg.fillStyle = gr; lg.fillRect(0, 0, SWE, SHE); go.drawImage(L2, 0, 0); ant = m; });
+    // névoa na cor do fundo e borda que some
+    const nv = go.createRadialGradient(cxT, cyT, r0 * .8, cxT, cyT, r0 * 3.6); nv.addColorStop(0, `rgba(${NEV},0)`); nv.addColorStop(.55, `rgba(${NEV},${ESC ? .25 : .45})`); nv.addColorStop(1, `rgba(${NEV},${ESC ? .7 : .9})`); go.fillStyle = nv; go.fillRect(0, 0, SWE, SHE);
+    go.globalCompositeOperation = "destination-in"; const fa = go.createRadialGradient(cxT, cyT, r0 * 2.2, cxT, cyT, r0 * 5.2); fa.addColorStop(0, "rgba(0,0,0,1)"); fa.addColorStop(1, "rgba(0,0,0,0)"); go.fillStyle = fa; go.fillRect(0, 0, SWE, SHE); go.globalCompositeOperation = "source-over";
+    const tEnt = new THREE.CanvasTexture(outE); tEnt.encoding = THREE.sRGBEncoding; tEnt.anisotropy = ren.capabilities.getMaxAnisotropy();
+    // malha do entorno: mesma escala de altura do bloco, um pouco abaixo dele (embaixo do bloco, mais fundo, para não brigar)
+    const NE = innerWidth < 700 ? 140 : 220, NXE = aspE >= 1 ? NE : Math.round(NE * aspE), NYE = aspE >= 1 ? Math.round(NE / aspE) : NE, PE = new Float32Array((NXE + 1) * (NYE + 1) * 3), UE = new Float32Array((NXE + 1) * (NYE + 1) * 2), IE = [];
+    for (let j = 0; j <= NYE; j++) for (let i = 0; i <= NXE; i++) { const lo = bbE[0] + i / NXE * wLonE, la = bbE[3] - j / NYE * wLatE, a = altE(lo, la), q = j * (NXE + 1) + i, dentro = lo > bb[0] && lo < bb[2] && la > bb[1] && la < bb[3];
+      PE[q * 3] = wx(lo); PE[q * 3 + 1] = wy(la); PE[q * 3 + 2] = (a > .5 ? .4 + a / 1000 * EXF : .25) - .35; UE[q * 2] = i / NXE; UE[q * 2 + 1] = 1 - j / NYE; }
+    for (let j = 0; j < NYE; j++) for (let i = 0; i < NXE; i++) { const a = j * (NXE + 1) + i, b = a + 1, c = a + NXE + 1, d = c + 1; IE.push(a, c, b, b, c, d); }
+    const gE = new THREE.BufferGeometry(); gE.setAttribute("position", new THREE.BufferAttribute(PE, 3)); gE.setAttribute("uv", new THREE.BufferAttribute(UE, 2)); gE.setIndex(IE); gE.computeVertexNormals();
+    if (vez !== VEZ) return;
+    // troca a cena de uma vez
+    if (ATUAL) { ATUAL.objs.forEach((x) => { cena.remove(x); x.geometry && x.geometry.dispose(); }); }
+    const objs = [], add = (x) => { cena.add(x); objs.push(x); return x; }, matSolo = new THREE.MeshStandardMaterial({ map: SOLO, roughness: 1, metalness: 0, side: THREE.DoubleSide });
+    const topo = add(new THREE.Mesh(gs, new THREE.MeshStandardMaterial({ map: tTop, roughness: .95, metalness: 0, transparent: true }))); topo.receiveShadow = true; topo.renderOrder = 1;
+    const tampa = add(new THREE.Mesh(gcap, new THREE.MeshStandardMaterial({ map: tCap, roughness: .95, metalness: 0, alphaTest: .5 }))); tampa.castShadow = tampa.receiveShadow = true;
+    const ent = add(new THREE.Mesh(gE, new THREE.MeshStandardMaterial({ map: tEnt, roughness: 1, metalness: 0, transparent: true, depthWrite: false }))); ent.receiveShadow = false; ent.renderOrder = -1;   // 15/11/2026: receber sombra criava quadrados com listras diagonais (limite e "acne" da sombra) e uma borda fantasma do litoral no mar
+    degraus.forEach((g) => { const m = add(new THREE.Mesh(g, matSolo)); m.castShadow = m.receiveShadow = true; });
+    const cx0 = wx(cLo), cy0 = wy(cLa), sx = wLon * KX * COS / Math.cos(LAT0 * Math.PI / 180), sy = wLat * KY;
+    const bu = CAPA || FUNDO ? { position: new THREE.Vector3() } : add(new THREE.Mesh(new THREE.PlaneGeometry(Math.min(sx, sy) * .16, Math.min(sx, sy) * .16), new THREE.MeshBasicMaterial({ map: BUSSOLA, transparent: true, depthWrite: false }))); bu.position.set(cx0 - sx * .62, cy0 - sy * .4, -DP - .03);
+    const nuv = []; for (let k = 0; k < (CAPA || FUNDO ? 0 : 4); k++) { const pl = add(new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: NUVEM, transparent: true, opacity: .35, depthWrite: false }))); const s2 = sx * (.28 + Math.random() * .2); pl.scale.set(s2, s2 * .62, 1); pl.position.set(cx0 - sx * .5 + Math.random() * sx, cy0 - sy * .4 + Math.random() * sy * .8, zMax + sx * (.02 + k * .006)); pl.userData = { v: sx * (.00025 + Math.random() * .00025), cx: cx0, lw: sx }; pl.renderOrder = 5; nuv.push(pl); }
+    // luz e sombra ajustadas ao tamanho do bloco
+    sol.position.set(cx0 - sx * .9, cy0 + sy * .8, tamKm * 1.2); sol.target.position.set(cx0, cy0, 0); const sc = sol.shadow.camera, ext = Math.max(sx, sy) * .9; Object.assign(sc, { left: -ext, right: ext, top: ext, bottom: -ext, near: 1, far: tamKm * 5 }); sc.updateProjectionMatrix();
+    const capBase = canvas(SW, SH); capBase.getContext("2d").drawImage(capC, 0, 0);
+    ATUAL = { objs, nuv, L, bb, KK, NX, NY, wLon, wLat, zEm, topo, tampa, cx0, cy0, sx, sy, DP, zMax, uf, capC, capBase, tCap, cam2, lw, sat: !!sat, SW, SH }; realce();
+    enquadrar(); titulo(); legenda(); espera(""); if (window.__marcRe) window.__marcRe();
+  };
+  // ---------- câmera padrão: isométrica de sudoeste, 35°, o bloco inteiro na tela com folga ----------
+  const VISTAS = { padrao: [245, 35], alta: [245, 58], sul: [270, 50], cima: [270, 88] };
+  let voo = null, DIR = new THREE.Vector3(); const acertaDir = () => { const v = S.vista === "auto" ? (S.niv === "uf" ? "sul" : "padrao") : S.vista, [az, el] = VISTAS[v], a = az * Math.PI / 180, e = el * Math.PI / 180; DIR.set(Math.cos(a) * Math.cos(e), Math.sin(a) * Math.cos(e), Math.sin(e)).normalize(); };
+  const enquadrar = () => { acertaDir(); const A = ATUAL, C = [];
+    // na capa, o que cabe na moldura é o contorno do estado (não o bloco com folga): fica igual em qualquer tamanho de tela
+    if (FUNDO) A.L.forEach((k) => aneis(k).forEach((ring) => ring.forEach((p, i) => { if (i % 4 === 0) C.push(new THREE.Vector3(wx(p[0]), wy(p[1]), A.zEm(p[0], p[1]))); })));
+    else [-.5, .5].forEach((a) => [-.5, .5].forEach((b) => [-A.DP, A.zMax].forEach((z) => C.push(new THREE.Vector3(A.cx0 + a * A.sx, A.cy0 + b * A.sy, z)))));
+    // base da câmera (direita e cima na tela) — com a lente estreita, a projeção é praticamente ortográfica
+    const rgt = new THREE.Vector3().crossVectors(DIR, new THREE.Vector3(0, 0, 1)).normalize().negate(), up2 = new THREE.Vector3().crossVectors(rgt, DIR).negate().normalize();
+    let u0 = 1e9, u1 = -1e9, v0 = 1e9, v1 = -1e9; C.forEach((p) => { const u = p.dot(rgt), v = p.dot(up2); u0 = Math.min(u0, u); u1 = Math.max(u1, u); v0 = Math.min(v0, v); v1 = Math.max(v1, v); });
+    // área livre da tela (em NDC): título em cima, painel embaixo, legendas à direita
+    // duas arrumações possíveis: bloco acima do painel (largura toda) ou ao lado dele (altura toda); fica a que deixa o bloco maior
+    const ctlR = document.querySelector(".ctl").getBoundingClientRect(), topo = FUNDO ? 1 - (+QPF.get("topo") || .06) * 2 : CAPA ? 1 - 24 / innerHeight * 2 : 1 - Math.min(.6, (Math.max(120, document.getElementById("tit").getBoundingClientRect().bottom) + 14) / innerHeight * 2), dir = FUNDO ? 1 - (+QPF.get("dir") || .03) * 2 : CAPA ? 1 - (24 / innerWidth + (+new URLSearchParams(location.search).get("dir") || 0)) * 2 : 1 - Math.min(.5, (S.niv !== "uf" && S.niv !== "mun" ? 300 : 200) / innerWidth * 2), t = Math.tan(cam.fov * Math.PI / 360);
+    const rDe = (e, b) => Math.max((u1 - u0) / ((dir - e) * cam.aspect * t), (v1 - v0) / ((topo - b) * t)) * (FUNDO ? 1 : 1.04);
+    const eA = -1 + (innerWidth > 900 ? 40 : 14) / innerWidth * 2, bA = -1 + (ctlR.height + 26) / innerHeight * 2, eB = -1 + (ctlR.right + 16) / innerWidth * 2, bB = -1 + 30 / innerHeight * 2;
+    const rA = rDe(eA, bA), rB = dir - eB > .5 ? rDe(eB, bB) : 1e9, [esq, baixo, r] = FUNDO ? [FE, FB, rDe(FE, FB) * (+QPF.get("aprox") || 1)] : rB < rA * .97 ? [eB, bB, rB] : [eA, bA, rA];
+    const hw = r * t * cam.aspect, hh = r * t, cx = (esq + dir) / 2, cy = (topo + baixo) / 2, cen = new THREE.Vector3(A.cx0, A.cy0, (A.zMax - A.DP) / 2), uc = (u0 + u1) / 2 - cen.dot(rgt), vc = (v0 + v1) / 2 - cen.dot(up2);
+    const tgt = cen.clone().addScaledVector(rgt, uc - cx * hw).addScaledVector(up2, vc - cy * hh);
+    voo = { t: 0, p0: cam.position.clone(), c0: ctr.target.clone(), p1: tgt.clone().addScaledVector(DIR, r), c1: tgt.clone() }; if (CAPA || !cam.position.lengthSq()) { cam.position.copy(voo.p1); ctr.target.copy(voo.c1); voo = null; } ctr.maxDistance = r * (FUNDO ? 1.8 : 3); ctr.minDistance = r * (FUNDO ? .3 : .2); };
+  // ---------- título e trilha ----------
+  const titulo = () => { const L = ATUAL.L, s = (f) => L.reduce((a, k) => a + f(MU[k]), 0), vt = s((m) => m.vot), v2 = s((m) => m.v22), va = s((m) => m.val), m0 = MU[L[0]];
+    const tr = [["uf", "Santa Catarina"]]; if (S.niv !== "uf") { const ref = S.niv === "mun" ? m0.r : { meso: S.niv === "meso" ? S.nome : m0.r.meso, micro: S.niv === "micro" ? S.nome : null, assoc: S.niv === "assoc" ? S.nome : null };
+      if (ref.meso) tr.push(["meso", ref.meso]); if (S.niv === "mun" && ref.assoc) tr.push(["assoc", ref.assoc]); if (S.niv === "assoc" && ref.assoc) tr.push(["assoc", ref.assoc]); if (S.niv === "micro") tr.push(["micro", S.nome]); if (S.niv === "mun") tr.push(["mun", m0.nome]); }
+    document.getElementById("tit").innerHTML = `<div class="trilha">${tr.map(([n, t], i) => i < tr.length - 1 ? `<a data-ir="${n}|${t}">${t}</a>` : `<span>${NIVN[n]}</span>`).join(" › ")}</div><h2>${S.niv === "mun" ? m0.nome : S.nome}</h2>
+      <div class="d">Eleições 2026 · ${PARL.nome}</div><div class="n">${fmt(vt)} votos</div><div class="s">${va ? pct(vt / va) + " dos válidos · " : ""}<span class="${vt >= v2 ? "up" : "dn"}">${sinal(vt - v2)} vs 2022</span> · ${fmt(s((m) => m.el))} eleitores${L.length > 1 ? ` · ${L.length} municípios` : ""}</div>`;
+    document.querySelectorAll("[data-ir]").forEach((a) => a.onclick = () => { const [n, t] = a.dataset.ir.split("|"); ir(n, t); }); };
+  const legenda = () => { const g = document.getElementById("leg"); const L = { nenhum: `<b>Sem dado</b> · só o relevo e as camadas`,
+      voto: `<span style="display:flex;gap:4px;margin-bottom:5px"><button data-vt="pct" class="${S.vt === "pct" ? "on" : ""}">% dos válidos</button><button data-vt="nom" class="${S.vt === "nom" ? "on" : ""}">nº de votos</button></span><b>Votação</b> de ${PARL.nome}<div class="bar" style="background:linear-gradient(90deg,#ECE8E1,#2B5FD9)"></div><div class="ends"><span>0</span><span>${S.vt === "pct" ? "média " + pct(MEDIA) : ""}</span><span>${S.vt === "pct" ? pct(S97) + "+" : fmt(VMAX)}</span></div>`,
+      dif: `<b>2026 × 2022</b> · votos ganhos ou perdidos<div class="bar" style="background:linear-gradient(90deg,#DE6040,#ECE8E1,#1FA83A)"></div><div class="ends"><span>−${fmt(DMAX)}</span><span>0</span><span>+${fmt(DMAX)}</span></div>`,
+      ele: `<b>Eleitorado em picos</b> · altura = eleitores (no estado e nas regiões); cor = % dos válidos` }[S.dado];
+    g.innerHTML = L + `<div class="cr">${S.base === "sat" ? (IMG === "eox" ? 'imagem <a href="https://cloudless.eox.at" target="_blank" rel="noopener">EOxCloudless 2016</a> por EOX IT Services GmbH (contém dados modificados Copernicus Sentinel 2016), CC BY 4.0 · ' : "imagem © Esri, Vantor, Earthstar Geographics · ") : ""}costa, rodovias e rios © OpenStreetMap · malha IBGE · relevo SRTM</div>`;
+    g.querySelectorAll("[data-vt]").forEach((b) => b.onclick = () => { S.vt = b.dataset.vt; montar(); }); };
+  // ---------- legendas dos municípios: colunas à esquerda e à direita, com linhas guia; clicar abre e fecha ----------
+  const rotEl = document.getElementById("rot"), guias = document.getElementById("guias");
+  const quais = () => { const A = ATUAL; if (!A) return []; if (FUNDO && DEST.size && !ehRegiao()) { const L = [...DEST.keys()]; S.abertas.forEach((k) => { if (!L.includes(k)) L.push(k); }); return L; } let L = FUNDO && !document.body.classList.contains("mostraAn") ? [] : A.uf ? [...MU].sort((a, b) => (S.dado === "ele" ? b.el - a.el : b.vot - a.vot)).slice(0, 8).map((m) => m.i) : A.L.slice(); S.abertas.forEach((k) => { if (!L.includes(k)) L.push(k); }); return L.filter((k) => k >= 0); };
+  // capa: recursos indicados e o tema ligado entram no balão
+  const TEMAS_ROT = { pop_2022: ["População (2022)", (v) => fmt(v)], renda_pc_media: ["Renda per capita", (v) => "R$ " + fmt(v)], pct_pop_pbf: ["Pop. no Bolsa Família", (v) => v + "%"], pct_evangelicos: ["Evangélicos", (v) => v + "%"], pct_catolicos: ["Católicos", (v) => v + "%"], pct_urbana: ["População urbana", (v) => v + "%"], pct_mulheres_eleit: ["Mulheres no eleitorado", (v) => v + "%"], pct_16_24_eleit: ["Eleitores de 16 a 24", (v) => v + "%"], pct_60mais_eleit: ["Eleitores 60+", (v) => v + "%"], pct_superior_eleit: ["Eleitores com superior", (v) => v + "%"] };
+  const extraCartao = (m) => { let h = ""; const r = window.__recCapa && window.__recCapa[m.nome]; if (r) { h += `<div class="lin recl" data-recl title="Ver as emendas"><span>Recursos indicados <em>${EXP.has(m.i) ? "▾" : "▸"}</em></span><span>R$ ${(r[0] / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 2 })} mi</span></div><div class="lin"><span>Já pago</span><span>${Math.round(r[1] / r[0] * 100)}%</span></div>`;
+      if (EXP.has(m.i)) { const L = EMEN ? EMEN[m.nome] || [] : null; const mil = (v) => v >= 1e6 ? "R$ " + (v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + " mi" : "R$ " + Math.round(v / 1e3).toLocaleString("pt-BR") + " mil";
+        h += '<div class="eml">' + (L == null ? '<div class="em"><small>carregando…</small></div>' : L.map(([ano, n, obj, ben, v, vp, sit]) => { const f = v ? vp / v : 0, st = sit === "Inativo" ? ["ina", "inativa"] : f >= .995 ? ["ok", "pago"] : f > 0 ? ["par", Math.round(f * 100) + "% pago"] : ["nao", "a pagar"];
+          return `<div class="em"><b>${ano} · ${obj}</b><span>${mil(v)}</span><small>${ben}</small><i class="${st[0]}">${st[1]}</i></div>`; }).join("")) + "</div>"; } }
+    if (TEMA && window.__social) { const x = window.__social[norm2(m.nome)], d = TEMAS_ROT[TEMA]; if (x && d && x[TEMA] != null) h += `<div class="lin"><span>${d[0]}</span><span>${d[1](x[TEMA])}</span></div>`; } return h; };
+  const cartaoMun = (m) => `<b>${m.nome}</b><div class="lin"><span>Votos 2026</span><span>${fmt(m.vot)}</span></div><div class="lin"><span>Votos 2022</span><span>${fmt(m.v22)}</span></div><div class="lin"><span>Diferença</span><span class="${m.vot >= m.v22 ? "up" : "dn"}">${sinal(m.vot - m.v22)}</span></div><div class="lin"><span>% dos válidos</span><span>${pct(share(m))}</span></div><div class="lin"><span>Eleitores</span><span>${fmt(m.el)}</span></div>${extraCartao(m)}${S.niv !== "mun" ? `<button data-rec="${m.i}">ver o recorte</button>` : ""}`;
+  const ehRegiao = () => S.niv !== "uf" && S.niv !== "mun";
+  // colunas da tabela da região, conforme o dado escolhido
+  const colunas = () => S.dado === "dif" ? ["2026", "× 2022"] : S.dado === "ele" ? ["Eleitores", "%"] : ["Votos", "%"];
+  const celulas = (m) => { if (S.dado === "dif") return [fmt(m.vot), sinal(m.vot - m.v22)]; if (S.dado === "ele") { const tot = (ATUAL ? ATUAL.L : []).reduce((s, k) => s + MU[k].el, 0) || 1; return [fmt(m.el), pct(m.el / tot)]; } return [fmt(m.vot), pct(share(m))]; };
+  let ROT = []; const refazRotulos = () => { rotEl.innerHTML = ""; const reg = ehRegiao();
+    if (reg && !(FUNDO && !quais().length)) { const cab = document.createElement("div");   /* capa: sem cidades listadas, sem o cabeçalho vazio da tabela */ cab.id = "tabcab"; cab.className = "tabcab"; const [c1, c2] = colunas(); cab.innerHTML = `<span>Município</span><span>${c1}</span><span>${c2}</span>`; rotEl.appendChild(cab);
+    }
+    ROT = quais().map((k) => { const m = MU[k], d = document.createElement("div");
+      if (reg) { const [a, b] = celulas(m), sel = S.sel === k; d.className = "cl tab" + (sel ? " sel" : S.sel != null ? " apaga" : "");
+        d.innerHTML = `<b>${m.nome}</b><span>${a}</span><span>${b}</span>` + (sel ? `<div class="sub">${cartaoMun(m).replace(/^<b>[^<]*<\/b>/, "")}</div>` : "");
+        d.onclick = (e) => { const r = e.target.closest("[data-rec]"); if (r) { e.stopPropagation(); ir("mun", MU[+r.dataset.rec].nome); return; } S.sel = S.sel === k ? null : k; refazRotulos(); realce(); }; }
+      else { d.className = "cl" + (S.abertas.has(k) ? " ab" : "") + (S.abertas.has(k) && EXP.has(k) ? " largo" : ""); d.innerHTML = S.abertas.has(k) ? cartaoMun(m) : `<b>${m.nome}</b><span class="v">${DEST.has(k) ? DEST.get(k) : valorDado(m)}</span>`;
+        d.onclick = (e) => { if (e.target.closest("[data-recl]")) { e.stopPropagation(); togRec(k); return; } if (e.target.closest(".eml")) { e.stopPropagation(); return; } const r = e.target.closest("[data-rec]"); if (r) { e.stopPropagation(); ir("mun", MU[+r.dataset.rec].nome); return; } alterna(k); }; }
+      rotEl.appendChild(d); return { k, d }; }); };
+  const CORP = [[/NOVO/, "#F37021"], [/PSOL/, "#F5B700"], [/\bPT\b/, "#E5383B"], [/PDT/, "#E5484D"], [/PSB/, "#F2A900"], [/\bPL\b/, "#3D7BFF"], [/REPUBLICANOS/, "#4D8DFF"], [/MDB/, "#34C759"], [/UNI[ÃA]O|\bPP\b/, "#2FB5E8"], [/PSD/, "#2B5FD9"], [/PODE/, "#3FB37F"], [/PSDB/, "#1E6FD9"], [/CIDADANIA/, "#E4007C"], [/REDE/, "#00A5A5"], [/MISS[ÃA]O/, "#9B6CF0"], [/PRD|SOLIDARIEDADE/, "#E8833A"]];
+  const COR_SEL = (CORP.find(([re]) => re.test(String(CAND.p || "").toUpperCase())) || [0, "#E8822A"])[1], RGB_SEL = [1, 3, 5].map((i) => parseInt(COR_SEL.slice(i, i + 2), 16)).join(",");
+  document.documentElement.style.setProperty("--csel", COR_SEL); document.documentElement.style.setProperty("--csel-rgb", RGB_SEL);
+  const realce = () => { const A = ATUAL; if (!A || !A.capC) return; const c = A.capC.getContext("2d"); c.save(); c.globalCompositeOperation = "copy"; c.drawImage(A.capBase, 0, 0); c.restore();
+    const k = S.sel; if (k != null && A.L.includes(k)) { const p = A.cam2([k]), lw = A.lw, sp = lw * 8; c.save(); c.clip(p); c.globalCompositeOperation = "source-atop";
+      c.strokeStyle = A.sat ? "rgba(255,255,255,.55)" : "rgba(255,255,255,.85)"; c.lineWidth = lw * 1.5; c.beginPath(); for (let d = -A.SH; d < A.SW; d += sp) { c.moveTo(d, 0); c.lineTo(d + A.SH, A.SH); } c.stroke();
+      c.shadowColor = "rgba(0,0,0,.35)"; c.shadowBlur = lw * 2; c.strokeStyle = "#fff"; c.lineWidth = lw * 2.4; c.stroke(p); c.restore(); }
+    A.tCap.needsUpdate = true; };
+  const togRec = async (k) => { if (EXP.has(k)) EXP.delete(k); else { EXP.add(k); if (!EMEN) { refazRotulos(); try { EMEN = (parent !== window && parent.emendasPorMunicipio && parent.emendasPorMunicipio()) || {}; } catch (e) { EMEN = {}; } } } refazRotulos(); };
+  const alterna = (k) => { if (S.abertas.has(k)) S.abertas.delete(k); else S.abertas.add(k); refazRotulos(); };
+  const desenhaRotulos = () => { const A = ATUAL; if (!A) return; const v = new THREE.Vector3(), pts = ROT.map((r) => { const m = MU[r.k]; v.set(wx(m.lon), wy(m.lat), A.zEm(m.lon, m.lat)).project(cam); return { ...r, x: (v.x + 1) / 2 * innerWidth, y: (1 - v.y) / 2 * innerHeight, ok: v.z < 1 }; });
+    let bx0 = 1e9, bx1 = -1e9; [[-.5, -.5], [.5, -.5], [-.5, .5], [.5, .5]].forEach(([a, b]) => { v.set(A.cx0 + a * A.sx, A.cy0 + b * A.sy, 0).project(cam); const x = (v.x + 1) / 2 * innerWidth; bx0 = Math.min(bx0, x); bx1 = Math.max(bx1, x); });
+    const linha = S.base === "sat" ? "rgba(255,255,255,.92)" : "rgba(59,47,39,.55)", sombra = S.base === "sat" ? ' style="filter:drop-shadow(0 0 1.5px rgba(0,0,0,.55))"' : "", ocup = [], painel = document.querySelector(".ctl").getBoundingClientRect(), titR = document.getElementById("tit").getBoundingClientRect();
+    const bate = (l, t, w, h) => ocup.some((r) => l < r.l + r.w + 4 && l + w + 4 > r.l && t < r.t + r.h + 3 && t + h + 3 > r.t) || (l < painel.right && l + w > painel.left && t + h > painel.top) || (l < titR.right && t < titR.bottom) || (FUNDO && (l < Math.min(560, innerWidth * .3) || (t + h > innerHeight - 200 && l + w > innerWidth - 520)));   // capa: não cobrir o cartão, o painel e os controles
+    // região: lista à direita da página, na ordem de cima para baixo das cidades na tela (as linhas quase não se cruzam)
+    if (ehRegiao()) { const vis2 = pts.filter((p) => p.ok).sort((a, b) => a.y - b.y); pts.forEach((p) => { if (!p.ok) p.d.style.display = "none"; });
+      const cab = document.getElementById("tabcab"), TW = 286; vis2.forEach((p) => { p.d.style.display = "grid"; p.d.style.width = TW + "px"; });
+      const hs = vis2.map((p) => p.d.offsetHeight || 26), comum = vis2.find((p) => p.k !== S.sel), hh = comum ? comum.d.offsetHeight || 26 : 26, hc = cab ? cab.offsetHeight || 26 : 0, n = vis2.length, alto = hc + hs.reduce((a, b) => a + b, 0), topo0 = 84, fundo = innerHeight - 24;
+      const meioY = n ? vis2.reduce((s, p) => s + p.y, 0) / n : innerHeight / 2, yT = Math.max(topo0, Math.min(fundo - alto, meioY - alto / 2)), lx = innerWidth - TW - 22;
+      if (cab) { cab.style.left = lx + "px"; cab.style.top = yT + "px"; cab.style.width = TW + "px"; }
+      // linhas sutis; a do município escolhido vai por último (por cima), em laranja e mais grossa
+      const temSel = vis2.some((p) => p.k === S.sel), fina = S.base === "sat" ? `rgba(255,255,255,${temSel ? .22 : .5})` : `rgba(59,47,39,${temSel ? .14 : .3})`; let svg = "", svgSel = "", yy = yT + hc;
+      vis2.forEach((p, i) => { const y = yy + hh / 2, sel = S.sel === p.k; p.d.classList.toggle("fim", i === n - 1); p.d.style.left = lx + "px"; p.d.style.top = yy + "px"; yy += hs[i]; const cx = lx - 30;
+        const d = `M${p.x},${p.y} C${(p.x + cx) / 2},${p.y} ${(p.x + cx) / 2},${y} ${cx},${y} L${lx},${y}`;
+        if (sel) svgSel = `<path d="${d}" fill="none" stroke="${COR_SEL}" stroke-width="2.2"${sombra}/><circle cx="${p.x}" cy="${p.y}" r="4.2" fill="${COR_SEL}" stroke="#fff" stroke-width="1.6"/>`;
+        else svg += `<path d="${d}" fill="none" stroke="${fina}" stroke-width=".8"/><circle cx="${p.x}" cy="${p.y}" r="2.2" fill="rgba(255,255,255,${temSel ? .5 : .9})" stroke="rgba(59,47,39,${temSel ? .3 : .6})" stroke-width="1"/>`; });
+      guias.innerHTML = svg + svgSel; return; }
+    // 1º: no próprio município (centralizada na sede), em ordem de votos, se couber sem bater em nada
+    const fora = []; [...pts].sort((a, b) => MU[b.k].vot - MU[a.k].vot).forEach((p) => { const w = p.d.offsetWidth || 120, h = p.d.offsetHeight || 24, l = p.x - w / 2, t = p.y - h / 2;
+      if (p.ok && !S.abertas.has(p.k) && !bate(l, t, w, h) && l > 8 && l + w < innerWidth - RES - 8) { ocup.push({ l, t, w, h }); p.d.className = p.d.className.replace(/ ?(esq|dentro)/g, "") + " dentro"; p.d.style.left = p.x + "px"; p.d.style.top = p.y + "px"; p.d.style.display = "block"; p.dentro = true; } else fora.push(p); });
+    // 2º: o resto em colunas fora do bloco, com linha guia
+    const meio = (bx0 + bx1) / 2, cE = Math.max(14, bx0 - 10), cD = Math.min(innerWidth - RES - 14, bx1 + 10), lados = { e: [], d: [] }; fora.forEach((p) => (p.x < meio ? lados.e : lados.d).push(p));
+    let svg = "";
+    // capa (16/11/2026): o balão do município clicado abre ao lado da própria cidade (à direita; se não couber, à esquerda), não numa coluna
+    if (FUNDO) { [lados.e, lados.d].forEach((arr) => { for (let i = arr.length - 1; i >= 0; i--) { const p = arr[i]; if (!S.abertas.has(p.k)) continue; arr.splice(i, 1); p.d.className = p.d.className.replace(/ ?(dentro|esq)/g, "");
+      const w = p.d.offsetWidth || 190, h = p.d.offsetHeight || 160, dir = p.x + 30 + w < innerWidth - 16, l = dir ? p.x + 30 : p.x - 30 - w, y = Math.max(h / 2 + 16, Math.min(innerHeight - h / 2 - 16, p.y));
+      p.d.style.left = l + "px"; p.d.style.top = y + "px"; p.d.style.display = p.ok ? "block" : "none"; const ex = dir ? l : l + w;
+      svg += `<path d="M${p.x},${p.y} L${ex},${y}" fill="none" stroke="#fff" stroke-width="1.4"${sombra}/><circle cx="${p.x}" cy="${p.y}" r="3.4" fill="#fff" stroke="#1E3A9C" stroke-width="1.6"/>`; } }); }
+    Object.entries(lados).forEach(([lado, arr]) => { arr.sort((a, b) => a.y - b.y); let ult = -1e9; arr.forEach((p) => { p.d.className = p.d.className.replace(/ ?dentro/g, ""); const h = p.d.offsetHeight || 24; let y = Math.max(p.y, ult + h / 2 + 6); y = Math.max(y, 130); ult = y + h / 2; const colX = lado === "e" ? cE : cD;
+        const w = p.d.offsetWidth || 120, cx2 = lado === "e" ? Math.max(w + 14, colX) : Math.min(innerWidth - RES - w - 14, colX);
+        p.d.classList.toggle("esq", lado === "e"); p.d.style.left = cx2 + "px"; p.d.style.top = y + "px"; p.d.style.display = p.ok ? "block" : "none";
+        const ex = lado === "e" ? cx2 + 14 : cx2 - 14; svg += `<path d="M${p.x},${p.y} L${ex},${y} L${cx2},${y}" fill="none" stroke="${linha}" stroke-width="1.2"${sombra}/><circle cx="${p.x}" cy="${p.y}" r="2.8" fill="#fff" stroke="#3B2F27" stroke-width="1.2"/>`; }); });
+    guias.innerHTML = svg; };
+  // ---------- navegação ----------
+  const ir = (niv, nome) => { if (FUNDO) { if (niv === "mun") { if (BASE_ANTES == null) BASE_ANTES = S.base; S.base = "sat"; } else if (BASE_ANTES != null) { S.base = BASE_ANTES; BASE_ANTES = null; } } S.niv = niv; S.nome = nome; S.abertas.clear(); S.sel = null; if (FUNDO) try { parent.postMessage({ mapa3d: "recorte", niv, nome }, "*"); } catch (e) {}   /* a capa acompanha o recorte (números e ranking da região) */ document.querySelector('[data-dado="ele"]').disabled = niv === "mun"; if (niv === "mun" && S.dado === "ele") { S.dado = "voto"; marca("[data-dado]", "voto"); } montar().then(() => { if (FUNDO && niv === "mun") { const k = MU.findIndex((m) => m.nome === nome); if (k >= 0) S.abertas.add(k); } refazRotulos(); }); };
+  const marca = (sel, val) => document.querySelectorAll(sel).forEach((b) => b.classList.toggle("on", Object.values(b.dataset)[0] === val));
+  const ctlEl = document.querySelector(".ctl"), poeMini = (sim) => { ctlEl.classList.toggle("mini", sim); try { localStorage.setItem("mapa-sc-filtros-mini", sim ? "1" : ""); } catch (e) {} if (ATUAL) enquadrar(); };
+  ctlEl.querySelector(".ctl-min").onclick = () => poeMini(true); ctlEl.querySelector(".ctl-abre").onclick = () => poeMini(false);
+  try { if (localStorage.getItem("mapa-sc-filtros-mini")) ctlEl.classList.add("mini"); } catch (e) {}
+  document.querySelectorAll("[data-base]").forEach((b) => b.onclick = () => { S.base = b.dataset.base; marca("[data-base]", S.base); montar(); });
+  document.querySelectorAll("[data-dado]").forEach((b) => b.onclick = () => { if (b.disabled) return; S.dado = b.dataset.dado; marca("[data-dado]", S.dado); montar().then(refazRotulos); });
+  document.querySelectorAll("[data-vista]").forEach((b) => b.onclick = () => { S.vista = b.dataset.vista; marca("[data-vista]", S.vista); if (ATUAL) enquadrar(); });
+  document.querySelectorAll("[data-cam]").forEach((b) => b.onclick = () => { const k = b.dataset.cam; S.cam[k] = !S.cam[k]; b.classList.toggle("on", S.cam[k]); montar(); });
+  // busca única: cidade, associação, micro, meso e estado
+  const REGS = [["assoc", "associação"], ["micro", "microrregião"], ["meso", "mesorregião"]].flatMap(([k, t]) => [...new Set(MU.map((m) => m.r[k]).filter(Boolean))].sort().map((n) => [`${n} · ${t}`, k, n]));
+  document.getElementById("bl").innerHTML = `<option value="Santa Catarina · estado">` + [...MU].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")).map((m) => `<option value="${m.nome}">`).join("") + REGS.map(([v]) => `<option value="${v}">`).join("");
+  const bq = document.getElementById("bq"), acha = (parcial) => { const t = norm2(bq.value); if (!t) return; if (t.startsWith("santa catarina")) return ir("uf", "Santa Catarina"); const rg = REGS.find(([v]) => norm2(v) === t); if (rg) return ir(rg[1], rg[2]);
+    const m = MU.find((x) => norm2(x.nome) === t) || (parcial && MU.find((x) => norm2(x.nome).startsWith(t))); if (m) { bq.value = m.nome; ir("mun", m.nome); } };
+  bq.addEventListener("change", () => { acha(false); bq.blur(); }); bq.addEventListener("keydown", (e) => { if (e.key === "Enter") { acha(true); bq.blur(); } });
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && document.activeElement !== bq) ir("uf", "Santa Catarina"); });
+  // clicar num município do bloco abre/fecha a legenda dele
+  const ray = new THREE.Raycaster(), mou = new THREE.Vector2(); let baixo = null;
+  const munSob = (e) => { if (!ATUAL) return -1; mou.set(e.clientX / innerWidth * 2 - 1, -e.clientY / innerHeight * 2 + 1); ray.setFromCamera(mou, cam); const h = ray.intersectObjects([ATUAL.tampa, ATUAL.topo])[0]; if (!h || !h.uv) return -1; const A = ATUAL, i = Math.min(A.NX - 1, Math.floor(h.uv.x * A.NX)), j = Math.min(A.NY - 1, Math.floor((1 - h.uv.y) * A.NY)); return A.KK[j * A.NX + i]; };
+  ren.domElement.addEventListener("pointerdown", (e) => { baixo = [e.clientX, e.clientY]; });
+  ren.domElement.addEventListener("pointerup", (e) => { if (!baixo || Math.hypot(e.clientX - baixo[0], e.clientY - baixo[1]) > 4) return; const k = munSob(e); if (k >= 0) alterna(k); });
+  ren.domElement.addEventListener("pointermove", (e) => { if (e.buttons) return; ren.domElement.style.cursor = munSob(e) >= 0 ? "pointer" : "grab"; });
+  addEventListener("resize", () => { cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); ren.setSize(innerWidth, innerHeight); if (ATUAL) enquadrar(); });
+  // laço
+  const loop = () => { if (voo) { voo.t = Math.min(1, voo.t + .045); const e = 1 - Math.pow(1 - voo.t, 3); cam.position.lerpVectors(voo.p0, voo.p1, e); ctr.target.lerpVectors(voo.c0, voo.c1, e); if (voo.t >= 1) voo = null; }
+    if (ATUAL) ATUAL.nuv.forEach((n) => { n.position.x += n.userData.v; const d = (n.position.x - n.userData.cx) / (n.userData.lw * .55); n.material.opacity = Math.max(0, .342 * (1 - d * d)); if (d > 1) n.position.x = n.userData.cx - n.userData.lw * .55; });
+    if (window.__marcTick) window.__marcTick(); ctr.update(); ren.render(cena, cam); desenhaRotulos(); requestAnimationFrame(loop); };
+  requestAnimationFrame(loop); document.querySelector('[data-dado="ele"]').disabled = false; if (!CAPA && !FUNDO) { await montar(); refazRotulos(); }
+  window.__v4 = { S, ir, montar, get A() { return ATUAL; }, cam, ctr, foto: () => { ctr.update(); ren.render(cena, cam); return ren.domElement.toDataURL("image/png"); },
+    // pontos de cada município da área na imagem (0–1), para a capa do relatório ligar a tabela a eles
+    pontos: () => { const A = ATUAL; if (!A) return []; const v = new THREE.Vector3(); return A.L.map((k) => { const m = MU[k]; v.set(wx(m.lon), wy(m.lat), A.zEm(m.lon, m.lat)).project(cam); return { k: m.k, nome: m.nome, x: (v.x + 1) / 2, y: (1 - v.y) / 2 }; }); } };
+  if (CAPA) { const QP = new URLSearchParams(location.search); S.vista = "padrao"; if (QP.get("base") === "neutro") S.base = "gesso";
+    if (QP.get("rec")) { for (let t = 0; t < 100 && !window.__capaRec; t++) await new Promise((ok) => setTimeout(ok, 100)); S.dado = "rec"; } const ach = MUNICIPIOS_SC_REGIOES.find((m) => m.assoc === CAPA); S.nome = CAPA; S.niv = "assoc"; await montar(); cam.zoom = .97; cam.updateProjectionMatrix(); window.__v4.capaPronta = !!ach; }
+  // marcadores (protótipo da capa, 14/11/2026): bolhas por município sobre o terreno, como na capa atual — votos (cor do
+  // partido, tamanho pela votação) ou recursos (azul = indicado, verde por dentro = a parte paga). Sprites com brilho.
+  // marcadores v2: discos deitados sobre o terreno (acompanham a perspectiva), textura de 512 px com borda fina nítida,
+  // miolo em degradê (mais claro no centro) e um halo suave em volta; o "pago" é um disco verde menor por dentro
+  // marcadores v3 (15/11/2026): disco de vidro (miolo translúcido, aro branco fino, ponto central), 512 px; em Recursos,
+  // um arco verde por fora mostra quanto já foi pago (0–100%, em passos de 5%).
+  const fimTx = (c) => { const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = ren.capabilities.getMaxAnisotropy(); t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; return t; };
+  const disco = (cor, alfa, pago) => { const N = 512, c = canvas(N, N), g = c.getContext("2d"), R = N / 2, r = R * .6;
+    const hg = g.createRadialGradient(R, R, r * .95, R, R, R); hg.addColorStop(0, `rgba(${cor},.30)`); hg.addColorStop(.5, `rgba(${cor},.08)`); hg.addColorStop(1, `rgba(${cor},0)`); g.fillStyle = hg; g.fillRect(0, 0, N, N);
+    const dg = g.createRadialGradient(R - r * .35, R - r * .4, r * .02, R, R, r); dg.addColorStop(0, `rgba(255,255,255,${alfa * .55})`); dg.addColorStop(.35, `rgba(${cor},${alfa * .7})`); dg.addColorStop(1, `rgba(${cor},${alfa * .38})`);
+    g.beginPath(); g.arc(R, R, r, 0, 6.2832); g.fillStyle = dg; g.fill();
+    g.lineWidth = N * .022; g.strokeStyle = `rgba(255,255,255,${.55 + alfa * .4})`; g.stroke();
+    g.beginPath(); g.arc(R, R, N * .035, 0, 6.2832); g.fillStyle = `rgba(255,255,255,${alfa})`; g.fill();
+    if (pago != null) { g.lineCap = "round"; g.lineWidth = N * .05; g.beginPath(); g.arc(R, R, r + N * .055, 0, 6.2832); g.strokeStyle = "rgba(255,255,255,.14)"; g.stroke();
+      if (pago > 0) { g.beginPath(); g.arc(R, R, r + N * .055, -1.5708, -1.5708 + 6.2832 * pago); g.strokeStyle = "rgba(52,232,74,.98)"; g.shadowColor = "rgba(52,232,74,.8)"; g.shadowBlur = N * .03; g.stroke(); } }
+    return fimTx(c); };
+  const AZM = "70,125,245", VDM = "52,210,90", VMM = "240,95,65";
+  const TX = { voto: disco(AZM, .95), v22: disco(AZM, .6), up: disco(VDM, .95), dn: disco(VMM, .95) }, TXP = {};
+  const txPago = (p) => { const k = Math.round(Math.max(0, Math.min(1, p)) * 20); return TXP[k] || (TXP[k] = disco(AZM, .95, k / 20)); };
+  const PL = new THREE.PlaneGeometry(1, 1);
+  let MARC = [], marcUlt = null;
+  const marcadores = (tipo, rec) => { marcUlt = [tipo, rec]; MARC.forEach((s) => { cena.remove(s); s.material.dispose(); }); MARC = []; PINOS = []; const A = ATUAL; if (!A || !tipo) return;
+    // área: remonta o mapa com os municípios tingidos (montar chama __marcRe de novo; a chave evita repetir)
+    // 16/11/2026: disco, municípios pintados e relevo do eleitorado ligam e desligam cada um por si (combináveis);
+    // um tema de "Outros" sempre pinta os municípios
+    const pinta = MARC_ON.pinta || !!TEMA || !!ANAL, chave = (pinta ? tipo + (rec ? "r" : "") + (TEMA || "") + (ANAL ? "A" + ANAL.id : "") : "-") + "|" + (MARC_ON.relevo ? "R" : ""); window.__recCapa = rec;
+    if (chave !== AREA_CH) { AREA_CH = chave; window.__area = pinta ? { tipo, rec, tema: TEMA, anal: ANAL } : null; S.dado = MARC_ON.relevo ? "ele" : (QPF.get("dado") || "nenhum"); montar(); return; }
+    if (!MARC_ON.disco) return;
+    const L = MU.map((m, k) => { const r = rec && rec[m.nome]; return { k, v: tipo === "rec" ? (r ? r[0] : 0) : tipo === "v22" ? m.v22 : tipo === "var" ? Math.abs(m.vot - m.v22) : m.vot, sob: m.vot >= m.v22, p: tipo === "rec" && r ? r[1] / r[0] : 0 }; }).filter((x) => x.v > 0 && (A.uf || A.L.includes(x.k))), vmax = Math.max(...L.map((x) => x.v));
+    const R0 = Math.max(A.sx, A.sy) * .1;
+    // os maiores por baixo, os menores por cima (nenhum some debaixo de outro)
+    L.sort((a, b) => b.v - a.v).forEach((x, n) => { const m = MU[x.k], s = R0 * (.12 + .88 * Math.sqrt(x.v / vmax)), z = A.zEm(m.lon, m.lat) + .8 + n * .002;
+      R0P = R0 * .7; if (FORMA === "balao") { balao(A, m, x, tipo, s, R0, vmax); return; } if (FORMA === "pino") { pino(A, m, x, tipo, s); return; }
+      const tx = tipo === "rec" ? txPago(x.p) : TX[tipo === "var" ? (x.sob ? "up" : "dn") : tipo === "v22" ? "v22" : "voto"];
+      // depthTest desligado: o disco fica sempre por cima do relevo (antes as serras cortavam os maiores, ex. Blumenau)
+      const d = new THREE.Mesh(PL, new THREE.MeshBasicMaterial({ map: tx, transparent: true, depthWrite: false, depthTest: false })); d.scale.set(s, s, 1); d.position.set(wx(m.lon), wy(m.lat), z); d.renderOrder = 5 + n * .001; cena.add(d); MARC.push(d); }); };
+  // formato balão (15/11/2026, ideia do usuário): esfera de vidro flutuando, do tamanho proporcional ao valor, presa por um
+  // fio fino ao núcleo do município (ponto no chão). Os maiores flutuam mais alto, para não engolir os vizinhos; a esfera
+  // projeta sombra no relevo. Em Recursos, um anel verde no equador do balão mostra quanto já foi pago.
+  let FORMA = "disco"; const MARC_ON = (() => { const f = new URLSearchParams(location.search).get("marcas"); return f ? { disco: f.includes("disco"), pinta: f.includes("pinta"), relevo: f.includes("relevo") } : { disco: true, pinta: false, relevo: false }; })();
+  const ESF = new THREE.SphereGeometry(1, 40, 28), ANEIS = {}, PONTO = disco("255,255,255", 1);
+  const COR = { voto: 0x3A6BEA, v22: 0x3A6BEA, rec: 0x3A6BEA, up: 0x36C95E, dn: 0xEC5F42 };
+  const anel = (p) => { const k = Math.max(1, Math.round(p * 20)); return ANEIS[k] || (ANEIS[k] = new THREE.TorusGeometry(1.12, .07, 10, 72, 6.2832 * k / 20)); };
+  const balao = (A, m, x, tipo, s, R0, vmax) => { const X = wx(m.lon), Y = wy(m.lat), zg = A.zEm(m.lon, m.lat), rb = s * .3, zb = zg + R0 * .35 + rb * 2.2;
+    const tom = tipo === "var" ? (x.sob ? "up" : "dn") : tipo;
+    const mat = new THREE.MeshStandardMaterial({ color: COR[tom], roughness: .22, metalness: .08, emissive: COR[tom], emissiveIntensity: .12, transparent: true, opacity: tipo === "v22" ? .62 : .93 });
+    const b = new THREE.Mesh(ESF, mat); b.scale.setScalar(rb); b.position.set(X, Y, zb); b.castShadow = true; b.renderOrder = 6; cena.add(b); MARC.push(b);
+    // brilho: um disco branco pequeno e desfocado no alto da esfera, voltado para a câmera
+    const br = new THREE.Sprite(new THREE.SpriteMaterial({ map: BRILHO, transparent: true, depthWrite: false, opacity: .75 })); br.scale.setScalar(rb * .9); br.position.set(X - rb * .3, Y + rb * .25, zb + rb * .45); br.renderOrder = 7; cena.add(br); MARC.push(br);
+    const fio = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(X, Y, zg + .5), new THREE.Vector3(X, Y, zb - rb)]), new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: .5 })); fio.renderOrder = 5; cena.add(fio); MARC.push(fio);
+    const pt = new THREE.Mesh(PL, new THREE.MeshBasicMaterial({ map: PONTO, transparent: true, depthWrite: false, depthTest: false })); pt.scale.setScalar(R0 * .045); pt.position.set(X, Y, zg + .8); pt.renderOrder = 5; cena.add(pt); MARC.push(pt);
+    if (tipo === "rec") { const tr = new THREE.Mesh(new THREE.TorusGeometry(1.12, .035, 8, 72), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .18 })); tr.scale.setScalar(rb); tr.position.set(X, Y, zb); cena.add(tr); MARC.push(tr);
+      if (x.p > .01) { const g = new THREE.Mesh(anel(Math.min(1, x.p)), new THREE.MeshBasicMaterial({ color: 0x34E84A })); g.scale.setScalar(rb); g.position.set(X, Y, zb); g.rotation.z = Math.PI / 2; cena.add(g); MARC.push(g); } } };
+  // formato pino (15/11/2026, referência do usuário): o marcador clássico de mapa em 3D — gota com furo, borda arredondada,
+  // ponta cravada no núcleo do município, tamanho proporcional ao valor; sempre de frente para a câmera.
+  let PINOS = [], AREA_CH = null, R0P = 1; window.__marcTick = () => { PINOS.forEach((p) => p.quaternion.copy(cam.quaternion)); };
+  const GPINO = (() => { const d = 1.75, a = Math.acos(1 / d), sh = new THREE.Shape(); sh.moveTo(0, 0); sh.lineTo(Math.cos(-Math.PI / 2 + a) * 1, d + Math.sin(-Math.PI / 2 + a)); sh.absarc(0, d, 1, -Math.PI / 2 + a, 3 * Math.PI / 2 - a, false); sh.lineTo(0, 0);
+    const fu = new THREE.Path(); fu.absarc(0, d, .42, 0, Math.PI * 2, true); sh.holes.push(fu);
+    const g = new THREE.ExtrudeGeometry(sh, { depth: .42, bevelEnabled: true, bevelThickness: .2, bevelSize: .16, bevelSegments: 8, curveSegments: 64 }); g.translate(0, .16, -.21); g.computeVertexNormals(); return g; })();
+  const pino = (A, m, x, tipo, s) => { const X = wx(m.lon), Y = wy(m.lat), zg = A.zEm(m.lon, m.lat), k = Math.min(s, R0P) * .2, tom = tipo === "var" ? (x.sob ? "up" : "dn") : tipo;
+    const mat = new THREE.MeshStandardMaterial({ color: COR[tom], roughness: .38, metalness: .05, emissive: COR[tom], emissiveIntensity: .1, transparent: tipo === "v22", opacity: tipo === "v22" ? .65 : 1 });
+    const p = new THREE.Mesh(GPINO, mat); p.scale.setScalar(k); p.position.set(X, Y, zg); p.castShadow = true; cena.add(p); MARC.push(p); PINOS.push(p);
+    if (tipo === "rec" && x.p > .01) { const g = new THREE.Mesh(new THREE.TorusGeometry(.62, .1, 10, 64, 6.2832 * Math.min(1, x.p)), new THREE.MeshBasicMaterial({ color: 0x34E84A })); g.rotation.z = Math.PI / 2; g.position.set(0, 1.75 + .16, .44); p.add(g); } };
+  const BRILHO = (() => { const N = 128, c = canvas(N, N), g = c.getContext("2d"), h = g.createRadialGradient(N / 2, N / 2, 0, N / 2, N / 2, N / 2); h.addColorStop(0, "rgba(255,255,255,.9)"); h.addColorStop(.35, "rgba(255,255,255,.25)"); h.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = h; g.fillRect(0, 0, N, N); return fimTx(c); })();
+  window.__marcRe = () => { if (marcUlt) marcadores(...marcUlt); };
+  Object.assign(window.__v4, { marcadores, painel: (on) => { document.body.classList.toggle("mostraAn", on); refazRotulos(); }, busca: (t) => { bq.value = t; acha(true); }, nomes: () => [...MU.map((m) => m.nome).sort((a, b) => a.localeCompare(b)), ...REGS.map((r) => r[0])], inicio: () => ir("uf", "Santa Catarina"), abre: (n) => alterna(MU.findIndex((m) => m.nome === n)),
+    dados: () => MU.map((m) => ({ nome: m.nome, vot: m.vot, v22: m.v22, el: m.el, pct: share(m), regiao: m.r.assoc || "" })),
+    // modo análise (16/11/2026): limpa o mapa (sem disco, votos, relevo ou tema) e pinta só as cidades da análise; ao sair, volta como estava
+    analise: (o) => { if (o && !ANAL) ANT = { ...MARC_ON, tema: TEMA }; if (o) { MARC_ON.disco = MARC_ON.pinta = MARC_ON.relevo = false; TEMA = null; } else if (ANT) { const { tema, ...mk } = ANT; Object.assign(MARC_ON, mk); TEMA = tema; ANT = null; }
+      ANAL = o || null; DEST.clear(); (o ? o.rotulos || [] : []).forEach(([n, t]) => { const k = MU.findIndex((m) => m.nome === n); if (k >= 0) DEST.set(k, t); }); if (marcUlt) marcadores(...marcUlt); refazRotulos(); },
+    reserva: (px) => { RES = px || 0; refazRotulos(); }, destaca: (lista) => { DEST.clear(); (lista || []).forEach(([n, t]) => { const k = MU.findIndex((m) => m.nome === n); if (k >= 0) DEST.set(k, t); }); refazRotulos(); }, tema: async (c) => { if (c && !window.__social) { const j = await (await fetch("../dados/painel/sc-social.json")).json(); window.__social = Object.fromEntries(Object.entries(j.mun).map(([n, v]) => [norm2(n), v])); } TEMA = c || null; if (marcUlt) marcadores(...marcUlt); }, onde: () => S.niv === "uf" ? "" : S.nome, base: async (b) => { S.base = b; BASE_ANTES = null; await montar(); }, vista: (v) => { S.vista = v; enquadrar(); }, camada: async (c, on) => { S.cam[c] = on; await montar(); }, recentra: () => enquadrar(), forma: (f) => { FORMA = f; if (marcUlt) marcadores(...marcUlt); }, marcas: (o) => { Object.assign(MARC_ON, o); if (marcUlt) marcadores(...marcUlt); }, paleta: (c) => { window.__pal = c; AREA_CH = null; if (marcUlt) marcadores(...marcUlt); } });
+  if (FUNDO) { if (QPF.get("cid")) S.cam.cid = true; S.dado = QPF.get("dado") || "voto"; if (QPF.get("base") === "neutro") S.base = "gesso"; await montar(); try { parent.postMessage({ mapa3d: "pronto" }, "*"); } catch (e) {} }
+})();
+</script></body></html>

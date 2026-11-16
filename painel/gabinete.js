@@ -58,9 +58,9 @@ async function iniciar() {
   document.body.classList.toggle("gab-leitor", PAPEL === "leitor");
   if (PED && typeof abrirEquipe === "function") abrirEquipe();
 }
-function restrito() { $("#app").innerHTML = `<div style="max-width:560px;margin:12vh auto"><div class="olho">Gabinete</div><h1 style="font-size:44px">Seu Gabinete.</h1><p class="lead">Entre com a sua conta para abrir o painel do seu gabinete.</p>${SESS ? "" : `<p><a class="btn" href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}" style="display:inline-block;text-decoration:none;margin-top:12px">Entrar</a></p>`}</div>`;  }
+function restrito() { if (typeof c3Fora === "function") c3Fora(); $("#app").innerHTML = `<div style="max-width:560px;margin:12vh auto"><div class="olho">Gabinete</div><h1 style="font-size:44px">Seu Gabinete.</h1><p class="lead">Entre com a sua conta para abrir o painel do seu gabinete.</p>${SESS ? "" : `<p><a class="btn" href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}" style="display:inline-block;text-decoration:none;margin-top:12px">Entrar</a></p>`}</div>`;  }
 // primeira vez: a conta escolhe o parlamentar do gabinete; depois o painel abre sempre nele
-function escolha(trocar) {
+function escolha(trocar) { if (typeof c3Fora === "function") c3Fora();
   const EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
   $("#app").innerHTML = `<div style="max-width:760px;margin:6vh auto 0"><div class="olho">Seu Gabinete · ${trocar ? "trocar o parlamentar" : "primeiro acesso"}</div><h1 style="font-size:48px">Qual é o seu gabinete?</h1>
     <p class="lead">Escolha o parlamentar. O Gabinete passa a ser a sua página inicial e abre sempre nele; dá para trocar depois.</p><input id="escB" class="trp" style="width:100%;margin:18px 0 10px" placeholder="Buscar pelo nome"><div class="escL" id="escL"></div></div>`;
@@ -102,47 +102,26 @@ const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos p
 function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio() && PODE)) S.aba = "geral";
   // aba Outros deputados com um deputado escolhido: a Análise geral passa a mostrar as emendas dele
   if (S.aba === "outros" && S.outro && TODAS) { E = TODAS.filter((e) => e.dep === S.outro); const c = EST.c.find((x) => norm(x.u) === norm(S.outro) || norm(x.nome) === norm(S.outro)); VOT = c ? c.v : []; } else { E = E0; VOT = V0; }
-  const nm = PARL.u.split(" "), EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
-  $("#app").innerHTML = `${capa(nm)}
+  const EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
+  capa3d();   // capa 3D (gabinete-capa.js), fora de #app: montada uma vez, aqui só os números
+  $("#app").innerHTML = `<div class="grank" id="grank"></div>
     ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : k === "rh" ? corpoAdm() : k === "alesc" ? corpoAlesc() : k === "ele" ? corpoEle() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
-  const tv = $("#trocaV"); if (tv) tv.onclick = (e) => { e.preventDefault(); escolha(true); };
-  $("#glc").onclick = (e) => { const b = e.target.closest("[data-lc]"); if (!b || b.dataset.lc === S.lc) return; S.lc = b.dataset.lc; const g = $("#glc"); g.querySelector(".gswb").classList.toggle("r", S.lc === "rec"); g.querySelectorAll("[data-lc]").forEach((x) => x.classList.toggle("on", x === b)); g.querySelector(".gswl").hidden = S.lc !== "rec"; capaLente(); };
-  if (!GH || !document.body.contains($("#gCv")) || !GH.vivo) { capaMapa(); GH.vivo = true; }
-  leque(); ligarCapaCliques(); ligarAvisoCota(); if (typeof ligarAdicionar === "function") ligarAdicionar();
+  leque(); pintaRank(); ligarAvisoCota(); if (typeof ligarAdicionar === "function") ligarAdicionar();
   blocos();
   $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
   $("#abas").onclick = (e) => { if (e.target.closest("#cadBt")) { cadernoGab(); return; } if (e.target.closest("#mapaBt")) { S.mapa = !S.mapa; desenhar(); return; } const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
   if (S.mapa && S.aba !== "geral" && !(S.aba === "outros" && S.outro)) { const lt = $("#lentes"); if (lt) lt.onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); }; }
   if (S.aba === "geral" || (S.aba === "outros" && S.outro)) ligarGeral(); else if (S.aba === "meu") ligarMeu(); else if (S.aba === "cotas") ligarCotas(); else ligarOutros();
 }
-// capa do gabinete: mesma dinâmica da capa de Parlamentares (mapa animado, números saltando, a cidade de
-// destaque fora do mapa), com filtros que trocam o que o mapa mostra
+// filtro em pílula (Ano, Origem, Etapa…) usado nas abas do Controle de Recursos
 const leq = (id, tit, ops, cur) => `<label class="leq"><span>${tit}</span><select id="${id}">${ops.map(([v, r]) => `<option value="${v}"${String(v) === String(cur) ? " selected" : ""}>${r}</option>`).join("")}</select></label>`;
-const LENTES = [["votos", "Votos 2026"], ["rec", "Recursos 2023-26"], ["pago", "% pago"], ["rpv", "R$ por voto"]];
-function valoresCapa() {
-  const A = agregado(E0), val = EST.val || [];
-  if (S.lc === "votos") return { v: BASE.mun.map((m, i) => val[i] ? (PARL.v[i] || 0) / val[i] : 0), top: BASE.mun.map((m, i) => PARL.v[i] || 0), rot: (x) => ni(x) + " votos" };
-  if (S.lc === "rec") return { v: BASE.mun.map((m, i) => (A[i] || {}).v || 0), g: BASE.mun.map((m, i) => A[i] && A[i].v ? Math.min(1, (A[i].vp || 0) / A[i].v) : 0), top: BASE.mun.map((m, i) => (A[i] || {}).v || 0), rot: fm, rotI: (i) => `${fm((A[i] || {}).v || 0)} · ${nf(A[i] && A[i].v ? A[i].vp / A[i].v * 100 : 0)}% pago` };
-  if (S.lc === "pago") return { v: BASE.mun.map((m, i) => A[i] && A[i].v ? A[i].vp / A[i].v : 0), top: BASE.mun.map((m, i) => (A[i] || {}).vp || 0), rot: (x) => fm(x) + " pagos" };
-  return { v: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), top: BASE.mun.map((m, i) => A[i] && PARL.v[i] ? A[i].v / PARL.v[i] : 0), rot: (x) => "R$ " + nf(x, 0) + " por voto" };
-}
-// lupa da capa (05/11/2026): município ou região (associação, microrregião, mesorregião) escolhidos na busca ou no
-// mapa; os cartões Recursos e Votos passam a mostrar só aquela área e o mapa apaga o resto
+// recortes da capa (05/11/2026; mapa 3D desde 16/11/2026): município ou região (associação, microrregião, mesorregião)
+// escolhidos no mapa; o painel do mandato e o ranking da região passam a mostrar só aquela área
 const REG_T = { mun: "município", assoc: "associação de municípios", micro: "microrregião", meso: "mesorregião" };
 let REGS = null;
 function regioes() { if (REGS) return REGS; const G = {}; REGS = [];
   BASE.mun.forEach((m, i) => { REGS.push({ t: "mun", n: m.n, ix: new Set([i]) }); ["assoc", "micro", "meso"].forEach((k) => { if (!m[k]) return; const c = k + "|" + m[k]; (G[c] = G[c] || { t: k, n: m[k], ix: new Set() }).ix.add(i); }); });
   REGS.push(...Object.values(G)); REGS.forEach((r) => { r.ns = new Set([...r.ix].map((i) => norm(BASE.mun[i].n))); r.q = norm(r.n); if (r.t !== "mun") r.ns.add(r.q); /* recurso lançado na própria associação (ex.: AMVE) */ }); return REGS; }
-function capa(nm) {
-  return `<section class="ghero" id="ghero">${avisoCota()}<div class="luz"></div><canvas id="gCv"></canvas><div id="gEtq"></div>
-    <div class="gsw" id="glc" role="group" aria-label="Mapa"><em class="gswl"${S.lc === "rec" ? "" : " hidden"}><b class="az"></b>indicado <b class="vd"></b>pago</em>
-      <div class="gbus${S.reg ? " ab" : ""}" id="gbus"><div class="gbin"><input id="gbq" placeholder="Município ou região" autocomplete="off" aria-label="Buscar município ou região"><div class="gsug" id="gsug" hidden></div></div>${S.reg ? `<span class="gchip" title="${esc(REG_T[S.reg.t])}">${esc(S.reg.n)}${S.reg.t !== "mun" ? `<small>${esc(REG_T[S.reg.t].replace(" de municípios", ""))}</small>` : ""}<button id="gbx" title="Voltar ao total" aria-label="Limpar a seleção">×</button></span>` : ""}<button class="glupa" id="glupa" title="Buscar município ou região" aria-label="Buscar município ou região"><svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6 14 14"/></svg></button></div>
-      <div class="gswb${S.lc === "rec" ? " r" : ""}"><i></i><button data-lc="votos" class="${S.lc === "rec" ? "" : "on"}">Votos</button><button data-lc="rec" class="${S.lc === "rec" ? "on" : ""}">Recursos</button></div></div>
-    <div class="gtxt"><div class="gid"><img class="gft" src="../dados/fotos/sc-2026/estadual/${PARL.n}.jpg" alt="" onerror="this.remove()"><div class="olho">Gabinete · Deputado estadual · SC · ${esc(PARL.p)}</div></div>
-    <h1>${esc(nm.length > 1 ? nm.slice(0, -1).join(" ") + " " : "")}<i>${esc(nm.slice(-1)[0])}.</i></h1>
-    <div class="gcards" id="gcards">${cartoesCapa()}</div>
-    ${typeof equipeFaixa === "function" ? equipeFaixa() : ""}${DURL && DURL !== VINC ? `<p class="gvinc">Explorando outro gabinete · <a href="gabinete.html">voltar ao seu</a></p>` : `<p class="gvinc"><a href="#" id="trocaV">Alterar o parlamentar vinculado</a></p>`}</div></section><div class="grank" id="grank">${rankReg()}</div>`;
-}
 // ranking da região: os 5 municípios com mais votos (e "ver os outros"), com 2022 e os recursos de cada um
 function rankReg() { if (!S.reg || S.reg.t === "mun") return "";
   const [R0] = itensCapa(), RM = {}; R0.forEach((x) => { const o = RM[x.mun] = RM[x.mun] || { v: 0, p: 0, n: 0 }; o.v += x.v; o.p += x.p; o.n++; });
@@ -156,39 +135,7 @@ function rankReg() { if (!S.reg || S.reg.t === "mun") return "";
 // sem as listas ainda em indicação); fora dele (ou sem a planilha), só as emendas impositivas do portal da SEF
 function itensCapa() { let I = null; if (proprio() && MEU.length && typeof itensCotas === "function") { const sv = S.cesc; S.cesc = "tudo"; try { I = itensCotas().filter((i) => !i.plan); } finally { S.cesc = sv; } if (!I.length) I = null; }
   return [I ? I.map((i) => ({ v: i.v, p: i.pago, ano: i.ano, f: i.area, mun: norm(i.mun) })) : E0.map((e) => ({ v: e.v || 0, p: e.vp || 0, ano: +e.ano || +String(e.k || "").slice(0, 4), f: funCapa(e), mun: norm(e.mun) })), I]; }
-// ícones dos cartões (05/11/2026): as áreas usam o mesmo símbolo do painel de indicação (ICI, gabinete-indicar.js)
-const AREA_RE = [[/sa[uú]de/i, "sau"], [/educa/i, "edu"], [/fundam|munic/i, "fun"], [/agric/i, "agr"], [/infra|mobil/i, "inf"], [/segur/i, "seg"], [/social/i, "soc"]];
-const ICV = { outras: '<circle cx="4" cy="8" r="1.2"/><circle cx="8" cy="8" r="1.2"/><circle cx="12" cy="8" r="1.2"/>', pago: '<circle cx="8" cy="8" r="5.5"/><path d="M5.6 8.2l1.7 1.7 3.2-3.4"/>',
-  v22: '<path d="M3 8a5 5 0 1 0 1.5-3.6M3 2.8v2.6h2.6"/><path d="M8 5.5V8l1.8 1.2"/>', parte: '<circle cx="8" cy="8" r="5.5"/><path d="M8 2.5V8h5.5"/>', regiao: '<path d="M8 14s4.5-4.2 4.5-7.5a4.5 4.5 0 0 0-9 0C3.5 9.8 8 14 8 14Z"/><circle cx="8" cy="6.5" r="1.6"/>',
-  atend: '<path d="M8 14s4.5-4.2 4.5-7.5a4.5 4.5 0 0 0-9 0C3.5 9.8 8 14 8 14Z"/><path d="M6 6.6l1.4 1.4 2.6-2.8"/>', emendas: '<path d="M4 2h5.5L12 4.5V14H4Z"/><path d="M9.5 2v2.5H12M6 8h4M6 10.5h4"/>' };
-const icoA = (f) => { const k = (AREA_RE.find(([re]) => re.test(f)) || [])[1]; const d = k && typeof ICI !== "undefined" ? ICI[k] : ICV.outras; return `<svg viewBox="0 0 16 16" aria-hidden="true">${d}</svg>`; };
-const icoV = (k) => `<svg viewBox="0 0 16 16" aria-hidden="true">${ICV[k]}</svg>`;
 const tem22 = () => PARL && PARL.t22 > 0 && Array.isArray(PARL.v22);
-function cartoesCapa(sem) {
-  const [R0, I] = itensCapa();
-  const anos0 = [...new Set(R0.map((x) => x.ano).filter(Boolean))].sort(), R = S.reg ? R0.filter((x) => S.reg.ns.has(x.mun)) : R0, onde = S.reg ? " · " + esc(S.reg.n) : "";
-  const vR = S.reg ? [...S.reg.ix].reduce((s2, i) => s2 + (PARL.v[i] || 0), 0) : PARL.t, an = sem ? " sa" : "";
-  const v22 = tem22() ? (S.reg ? [...S.reg.ix].reduce((s2, i) => s2 + (PARL.v22[i] || 0), 0) : PARL.t22) : null, dv = v22 ? (vR - v22) / v22 * 100 : null;
-  const tv = R.reduce((s, x) => s + x.v, 0), tp = R.reduce((s, x) => s + x.p, 0), mun = new Set(R.map((x) => x.mun).filter((m) => m && m !== "—")).size;
-  const anos = anos0, TN = ["#DADDE0", "#AEB3B8", "#868C92", "#62686E", "#474D52"];
-  const G = {}; R.forEach((x) => { const f = x.f && x.f !== "Não informado" ? x.f : "Outras"; G[f] = (G[f] || 0) + x.v; });
-  let seg = Object.entries(G).filter(([f]) => f !== "Outras").sort((a, b) => b[1] - a[1]); const resto = seg.slice(4).reduce((s, x) => s + x[1], 0) + (G.Outras || 0); seg = seg.slice(0, 4); if (resto) seg.push(["Outras", resto]);
-  const L = R;
-  // conceito B (03/11/2026): o nome sozinho no alto; embaixo dois cartões translúcidos sobre o mapa (Recursos e Votos);
-  // o aviso da cota aberta vira uma faixa fina no topo do quadro e o interruptor do mapa fica no canto do próprio mapa
-  // 14/11/2026: os dois cartões minimizam (botão no canto); o estado fica guardado no navegador (gab_capa_min)
-  const MIN = capaMin(), tg = (k) => `<button class="gmin" data-gmin="${k}" title="${MIN.has(k) ? "Abrir" : "Minimizar"}" aria-label="${MIN.has(k) ? "Abrir" : "Minimizar"}" aria-expanded="${!MIN.has(k)}"></button>`;
-  const cRec = `<div class="gcard${an}${MIN.has("rec") ? " min" : ""}" data-gcard="rec"><div class="k">Recursos · ${anos[0] || ""}-${String(anos.slice(-1)[0] || "").slice(2)}${S.reg ? onde : I ? " · total" : " · impositivas"}${tg("rec")}</div>${tv ? `<div class="v">${esc(fm(tv))}</div>
-    <div class="gbar">${seg.map(([, v], i) => `<i style="width:${v / tv * 100}%;background:${TN[i % 5]}"></i>`).join("")}</div><div class="gpg" style="width:${tp / tv * 100}%"></div>
-    <div class="gico">${seg.map(([f, v], i) => `<span class="gi" title="${esc(f)}: ${esc(fm(v))}" style="--c:${TN[i % 5]}"><b>${icoA(f)}</b><em>${esc(fm(v))}</em></span>`).join("")}<span class="gi gnum" title="${I ? "Emendas e convênios" : "Emendas"} · ${ni(mun)} municípios atendidos"><b>${icoV("emendas")}</b><em>${ni(L.length)}</em></span><span class="gi gok" title="Pago até hoje: ${nf(tp / tv * 100, 1)}%"><b>${icoV("pago")}</b><em>${nf(tp / tv * 100)}%</em></span></div>` : `<div class="v gvz">R$ 0</div><p class="gnada">Nenhum recurso indicado ${S.reg ? "para " + esc(S.reg.n) : "ainda"}.</p>`}</div>`;
-  const lv = (k, v, r, t, x = "") => `<div class="gl" title="${esc(t)}"><b>${icoV(k)}</b><span>${v}${x}</span><small>${r}</small></div>`;
-  const cVot = `<div class="gcard${an}${MIN.has("vot") ? " min" : ""}" data-gcard="vot"><div class="k">Votos · 2026${onde}${tg("vot")}</div><div class="v a">${ni(vR)}</div><div class="gvl">${v22 != null ? lv("v22", ni(v22), `em 2022 · <em class="${dv >= 0 ? "vd" : "ng"}">${dv >= 0 ? "+" : ""}${nf(dv, 1)}%</em>`, "Votos em 2022 e a variação até 2026") : ""}${S.reg ? lv("parte", nf(vR / (PARL.t || 1) * 100, 1) + "%", "do mandato", "Parte dos votos do mandato") + (S.reg.t !== "mun" ? lv("regiao", ni(S.reg.ix.size), "municípios", "Municípios da região") : "") : ""}</div></div>`;
-  return cRec + cVot;
-}
-function capaMin() { try { return new Set(JSON.parse(localStorage.getItem("gab_capa_min") || "[]")); } catch (e) { return new Set(); } }
-document.addEventListener("click", (e) => { const b = e.target.closest("[data-gmin]"); if (!b) return; e.preventDefault(); e.stopPropagation();
-  const k = b.dataset.gmin, M = capaMin(); M.has(k) ? M.delete(k) : M.add(k); try { localStorage.setItem("gab_capa_min", JSON.stringify([...M])); } catch (x) {}
-  const c = b.closest(".gcard"); c.classList.toggle("min", M.has(k)); b.title = b.ariaLabel = M.has(k) ? "Abrir" : "Minimizar"; b.setAttribute("aria-expanded", String(!M.has(k))); }, true);
 // função da emenda na capa: a da planilha do gabinete quando a emenda está ligada a ela; senão, estimada pelo objeto
 const FUN_CAPA = { "Infraestrutura e Mobilidade": "Infraestrutura", "Segurança Pública": "Segurança", "Fundo Social": "Social", "Esporte, cultura e lazer": "Esporte e cultura" };
 function funCapa(e) { const r = PRIV && e.k && PRIV[e.k], f = r && r.funcao ? FUN_I.find(([re]) => re.test(r.funcao)) : null;
@@ -207,44 +154,6 @@ function ligarAvisoCota() {
   cd(); clearInterval(ligarAvisoCota.t); ligarAvisoCota.t = setInterval(() => { if (document.body.contains(a)) cd(); else clearInterval(ligarAvisoCota.t); }, 30000);
   a.querySelector("button").onclick = () => { IND.ano = +ano; IND.tag = "cota:" + t; IND.det = null; abrirInd(); };
 }
-const AZ_REC = [61, 123, 255], VD_REC = [52, 232, 74];
-let gRaf = null, GH = null;
-function capaMapa() {
-  const cv = $("#gCv"); if (!cv) return; cancelAnimationFrame(gRaf);
-  const r0 = cv.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), w = r0.width, h = r0.height; cv.width = w * dpr; cv.height = h * dpr; const ctx = cv.getContext("2d");
-  const movel = innerWidth < 760, cx = movel ? { x0: 16, y0: 16, x1: w - 16, y1: h - 16 } : { x0: w * .42, y0: h * .06, x1: w * .97, y1: h * .94 };
-  let lo0 = 1e9, lo1 = -1e9, la0 = -1e9, la1 = 1e9; BASE.contorno.forEach((an) => an.forEach((r) => r.forEach(([lo, la]) => { lo0 = Math.min(lo0, lo); lo1 = Math.max(lo1, lo); la0 = Math.max(la0, la); la1 = Math.min(la1, la); })));
-  const K = Math.cos(27.5 * Math.PI / 180), Sx = Math.min((cx.x1 - cx.x0) / ((lo1 - lo0) * K), (cx.y1 - cx.y0) / (la0 - la1)), ox = cx.x0 + ((cx.x1 - cx.x0) - (lo1 - lo0) * K * Sx) / 2, oy = cx.y0 + ((cx.y1 - cx.y0) - (la0 - la1) * Sx) / 2;
-  const P = (lo, la) => [ox + (lo - lo0) * K * Sx, oy + (la0 - la) * Sx], k = Math.min(w, h) / 560, cont = new Path2D();
-  BASE.contorno.forEach((an) => an.forEach((r) => { r.forEach(([lo, la], j) => { const [x, y] = P(lo, la); j ? cont.lineTo(x, y) : cont.moveTo(x, y); }); cont.closePath(); }));
-  const refEl = Math.max(...BASE.mun.map((m) => m.el)) / 4;
-  const B = BASE.mun.map((m, i) => { const [x, y] = P(m.lon, m.lat); return { x, y, r: (1.2 + 26 * Math.sqrt(m.el / refEl)) * k * .9, t0: 0, t1: 0, g0: 0, g1: 0, nasce: (Math.sin((i + 1) * 12.9898) * 43758.5453 % 1 + 1) % 1 * 2.2 }; });
-  const ord = [...B.keys()].sort((a, b) => BASE.mun[b].el - BASE.mun[a].el), rgb = hexRgb(COR_P[PARL.p] || "#2B5FD9"), ne = [58, 64, 70], t0 = performance.now();
-  GH = { B, w, h, ini: t0, top: [] };
-  const quadro = (agora) => { if (!document.body.contains(cv)) return; const t = (agora - t0) / 1000, e1 = Math.min(1, (agora - GH.ini) / 650), ee = 1 - Math.pow(1 - e1, 3);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h); ctx.globalAlpha = Math.min(1, t / 1.2); ctx.fillStyle = "rgba(242,244,245,.03)"; ctx.fill(cont); ctx.strokeStyle = "rgba(242,244,245,.06)"; ctx.lineWidth = .6; ctx.stroke(cont);
-    // Recursos: azul = indicado (intensidade pelo valor); verde por dentro = a parte paga (área proporcional)
-    const rec = S.lc === "rec", cr = rec ? AZ_REC : rgb;
-    for (const i of ord) { const b = B[i], e0 = Math.min(1, Math.max(0, (t - b.nasce) / .7)); if (!e0) continue; const e = 1 - Math.pow(1 - e0, 3), tt = b.t0 + (b.t1 - b.t0) * ee, gg = b.g0 + (b.g1 - b.g0) * ee, col = tt < .02 ? ne : ne.map((v, q) => Math.round(v + (cr[q] - v) * Math.min(1, .25 + tt)));
-      const rr = b.r * (.4 + .6 * e) * (.8 + .3 * tt), fo = S.reg && !S.reg.ix.has(i) ? .16 : 1;
-      ctx.globalAlpha = (.22 + .72 * tt) * e * fo; ctx.shadowColor = `rgba(${cr},${.8 * tt})`; ctx.shadowBlur = 16 * tt; ctx.fillStyle = `rgb(${col})`; ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, 6.2832); ctx.fill();
-      if (gg > .01 && tt > .02) { ctx.globalAlpha = (.35 + .55 * tt) * e * fo; ctx.shadowColor = `rgba(${VD_REC},${.7 * tt})`; ctx.shadowBlur = 10 * tt; ctx.fillStyle = `rgb(${VD_REC})`; ctx.beginPath(); ctx.arc(b.x, b.y, rr * Math.sqrt(gg), 0, 6.2832); ctx.fill(); } }
-    ctx.shadowBlur = 0; if (S.reg) for (const i of S.reg.ix) { const b = B[i]; ctx.globalAlpha = .9; ctx.strokeStyle = `rgba(${cr},.9)`; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(b.x, b.y, Math.max(3, b.r * .9), 0, 6.2832); ctx.stroke(); }
-    GH.top.forEach((i, q) => { const b = B[i], v = (Math.sin(t * 1.4 + q) + 1) / 2; if (t < 2.6) return; ctx.globalAlpha = .25 * v; ctx.fillStyle = `rgb(${cr})`; ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1.2 + .5 * v), 0, 6.2832); ctx.fill(); });
-    ctx.globalAlpha = 1; gRaf = requestAnimationFrame(quadro); };
-  gRaf = requestAnimationFrame(quadro); capaLente();
-}
-function capaLente() {
-  if (!GH) return; const agora = performance.now(), e1 = Math.min(1, (agora - GH.ini) / 650), ee = 1 - Math.pow(1 - e1, 3);
-  GH.B.forEach((b) => { b.t0 = b.t0 + (b.t1 - b.t0) * ee; b.g0 = b.g0 + (b.g1 - b.g0) * ee; });
-  const X = valoresCapa(), e95 = [...X.v].sort((a, b) => a - b)[Math.floor(X.v.length * .95)] || 1;
-  GH.B.forEach((b, i) => { b.t1 = Math.min(1, X.v[i] / e95); b.g1 = X.g ? X.g[i] : 0; }); GH.ini = agora;
-  if (S.reg) X.top = X.top.map((x, i) => S.reg.ix.has(i) ? x : 0);
-  const ordT = [...X.top.keys()].sort((a, b) => X.top[b] - X.top[a]); GH.top = ordT.slice(0, 5);
-  const i1 = ordT[0], b1 = GH.B[i1]; if (!X.top[i1]) { $("#gEtq").innerHTML = ""; return; }
-  const reg = S.reg && S.reg.t !== "mun", tot = reg ? [...S.reg.ix].reduce((s2, i) => s2 + (X.top[i] || 0), 0) : 0;
-  GH.i1 = i1; $("#gEtq").innerHTML = `<div class="etq" data-cid="${esc(reg ? S.reg.n : BASE.mun[i1].n)}" title="Ver as emendas de ${esc(reg ? S.reg.n : BASE.mun[i1].n)}" style="left:${b1.x + (($("#gCv") || {}).offsetLeft || 0)}px;top:${b1.y - b1.r + (($("#gCv") || {}).offsetTop || 0)}px;animation-delay:.4s, 1.1s"><span>${esc(reg ? S.reg.n : BASE.mun[i1].n)}</span><b>${esc(reg ? X.rot(tot) : X.rotI ? X.rotI(i1) : X.rot(X.top[i1]))}</b></div>`;
-}
 // leque de títulos no topo (mesmo papel da navegação de seções de Parlamentares): abre e leva ao título
 // aparência dos itens do Controle (claro, padrão; ou escuro), escolhida no menu e guardada neste navegador
 function temaItens() {
@@ -260,33 +169,12 @@ function leque() { temaItens();
   nv.innerHTML = TITULOS.map(([k, t]) => `<a href="#t-${k}" data-gt="${k}">${t.replace("Controle de Recursos", "Recursos").replace("Processo legislativo", "Legislativo").replace("ALESC (Transparência)", "ALESC")}</a>`).join("");
   nv.onclick = (e) => { const a = e.target.closest("[data-gt]"); if (!a) return; e.preventDefault(); const k = a.dataset.gt, sec = $("#t-" + k); S.fech[k] = false; sec.classList.remove("fech"); sec.querySelector(".tgs").classList.add("ab"); sec.scrollIntoView({ behavior: "smooth" }); };
 }
-// clicar numa cidade da capa (etiqueta ou bolha) abre Controle de Recursos com a carteira filtrada nela
-function irCidade(nome) {
-  S.fech.rec = false; S.aba = "geral"; S.outro = null; S.ano = 0; S.busca = nome; S.lim = 60; desenhar();
-  const c = $("#busca"); if (c) { c.value = nome; tabela(); c.closest(".bx").scrollIntoView({ behavior: "smooth", block: "start" }); }
-}
-function selReg(r) { if ((r || null) !== S.reg) S.rankTodos = false; S.reg = r || null; const g = $("#gcards"); if (g) g.innerHTML = cartoesCapa(true); pintaRank(); capaLente(); ligarBusca(); }
+// recorte (município ou região): números da capa e ranking acompanham; vaiMapa leva o mapa 3D ao mesmo recorte
+function selReg(r, vaiMapa = true) { if ((r || null) !== S.reg) S.rankTodos = false; S.reg = r || null; if (typeof c3Painel === "function") c3Painel(); pintaRank();
+  if (vaiMapa && typeof c3M === "function") { const v = c3M(); if (v) { if (!r) v.inicio(); else v.busca(r.t === "mun" ? r.n : `${r.n} · ${C3_REGN[r.t]}`); } } }
 function pintaRank() { const k = $("#grank"); if (!k) return; k.innerHTML = rankReg(); k.classList.toggle("ab", !!k.innerHTML);
   const t = $("#grt"); if (t) t.onclick = () => { S.rankTodos = !S.rankTodos; pintaRank(); };
   k.querySelectorAll("[data-ri]").forEach((tr) => tr.onclick = () => selReg(regioes().find((x) => x.t === "mun" && x.ix.has(+tr.dataset.ri)))); }
-function ligarBusca() { const w = $("#gbus"); if (!w) return;
-  w.querySelector(".gchip")?.remove(); if (S.reg) w.querySelector(".gbin").insertAdjacentHTML("afterend", `<span class="gchip" title="${esc(REG_T[S.reg.t])}">${esc(S.reg.n)}${S.reg.t !== "mun" ? `<small>${esc(REG_T[S.reg.t].replace(" de municípios", ""))}</small>` : ""}<button id="gbx" title="Voltar ao total" aria-label="Limpar a seleção">×</button></span>`);
-  const q = $("#gbq"), sug = $("#gsug"), x = $("#gbx");
-  $("#glupa").onclick = () => { const ab = !w.classList.contains("ab") || !w.classList.contains("dig"); w.classList.add("ab", "dig"); if (ab) setTimeout(() => q.focus(), 60); else { w.classList.remove("dig"); sug.hidden = true; if (!S.reg) w.classList.remove("ab"); } };
-  if (x) x.onclick = () => { q.value = ""; sug.hidden = true; w.classList.remove("dig"); selReg(null); w.classList.remove("ab"); };
-  const mostra = () => { const t = norm(q.value); if (t.length < 2) { sug.hidden = true; return; }
-    const L = regioes().filter((r) => r.q.includes(t)).sort((a, b) => (a.q.startsWith(t) ? 0 : 1) - (b.q.startsWith(t) ? 0 : 1) || (a.t === "mun" ? 1 : 0) - (b.t === "mun" ? 1 : 0) || a.n.localeCompare(b.n, "pt-BR")).slice(0, 8);
-    sug.innerHTML = L.length ? L.map((r, k) => `<button data-rg="${k}"><b>${esc(r.n)}</b><small>${esc(REG_T[r.t])}${r.t !== "mun" ? " · " + r.ix.size + " municípios" : ""}</small></button>`).join("") : `<p>Nenhum município ou região com esse nome.</p>`; sug.hidden = false; sug._L = L; };
-  q.oninput = mostra; q.onkeydown = (e) => { if (e.key === "Enter" && sug._L && sug._L[0]) { e.preventDefault(); escolhe(sug._L[0]); } if (e.key === "Escape") { sug.hidden = true; q.blur(); } };
-  const escolhe = (r) => { q.value = ""; sug.hidden = true; w.classList.remove("dig"); selReg(r); };
-  sug.onmousedown = (e) => { const b = e.target.closest("[data-rg]"); if (!b) return; e.preventDefault(); escolhe(sug._L[+b.dataset.rg]); };
-  q.onblur = () => setTimeout(() => { sug.hidden = true; if (!q.value) { w.classList.remove("dig"); if (!S.reg) w.classList.remove("ab"); } }, 150); }
-function ligarCapaCliques() { ligarBusca(); pintaRank();
-  const et = $("#gEtq"); if (et) et.onclick = (e) => { const d = e.target.closest("[data-cid]"); if (d) irCidade(d.dataset.cid); };
-  const cv = $("#gCv"); if (cv) { cv.onclick = (e) => { if (!GH) return; const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; let m = -1, md = 1e9;
-    GH.B.forEach((b, i) => { const d = Math.hypot(b.x - x, b.y - y); if (d < Math.max(b.r, 8) && d < md) { md = d; m = i; } }); if (m >= 0) selReg(S.reg && S.reg.t === "mun" && S.reg.ix.has(m) ? null : regioes().find((r) => r.t === "mun" && r.ix.has(m))); };
-    cv.onmousemove = (e) => { if (!GH) return; const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; cv.style.cursor = GH.B.some((b) => Math.hypot(b.x - x, b.y - y) < Math.max(b.r, 8)) ? "pointer" : ""; }; }
-}
 // todo bloco com título (Mapa, Carteira...) abre e fecha pelo próprio título; o estado fica guardado na sessão da página
 function blocos() {
   S.bxf = S.bxf || {};

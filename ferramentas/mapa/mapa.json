@@ -1,6 +1,6 @@
 {
  "_leia": "Mapa do site SimulaLEGIS: a lista oficial do que existe, onde está e para onde vai. Fonte de verdade da organização. Quem mantém: o agente organizador-do-site (.claude/agents/organizador-do-site.md). Depois de editar, rodar: python3 ferramentas/mapa/gerar_mapa.py (confere com o código e gera ferramentas/mapa/mapa.html). Campos: status = pronto | construcao | prototipo | planejado | pausado; quem = visitante | cadastrado | gabinete (liberado pelo admin) | admin; arquivo + ancora = onde o item está no código (o gerador confere se o texto da âncora existe no arquivo); vai_para = mudança combinada com o usuário.",
- "atualizado": "2026-11-14",
+ "atualizado": "2026-11-16",
  "decisoes": [
   [
    "04/11/2026",
@@ -93,6 +93,10 @@
   [
    "14/11/2026",
    "Agenda do mandato (prazos, comissões, plenário, feriados, bases e eventos da equipe) entra no Gabinete › Administrativo, como primeiro bloco, acima do RH - Gabinete."
+  ],
+  [
+   "16/11/2026",
+   "A capa do Gabinete passa a ser a capa 3D (mapa 3D + vidro), aprovada pelo usuário; sai o desenho antigo com bolhas, os cartões Recursos/Votos, a lupa antiga e o link 'Alterar o parlamentar vinculado' (trocar o parlamentar agora é clicar no nome). Padrão em DESIGN-GABINETE.md."
   ]
  ],
  "paginas": [
@@ -466,12 +470,71 @@
      "nota": "Faixa no alto da capa (seu papel, botão Equipe, pedir para entrar, seus outros gabinetes) e janela Equipe (pedidos, autorizar outro gabinete, membros, mudar papel, remover, sair). Aviso no sino com botão Abrir a equipe."
     },
     {
-     "nome": "Capa do gabinete: cartões Recursos e Votos, mapa e lupa",
+     "nome": "Capa do gabinete (mapa 3D)",
      "status": "pronto",
      "quem": "cadastrado",
-     "arquivo": "painel/gabinete.js",
-     "ancora": "function ligarBusca",
-     "nota": "A lupa (ao lado de Votos/Recursos) busca município ou região (associação, micro, mesorregião); os cartões e o mapa passam a mostrar só a área. Clicar no mapa seleciona o município. Com região escolhida, a capa abre embaixo o ranking dos municípios (5 primeiros e ver os outros), com votos 2026, 2022 e recursos."
+     "arquivo": "painel/gabinete-capa.js",
+     "ancora": "function capa3d",
+     "dados": "painel/mapa-capa.html (mapa 3D num iframe), dados/mapas/capa-3d/ (pedaços do mapa); montada uma vez fora do #app, em #capa3d",
+     "nota": "Capa aprovada em 16/11/2026: mapa 3D de Santa Catarina com painéis de vidro. Quem vê: toda conta com gabinete (público do gabinete aberto). Clicar no mapa seleciona o município; busca de cidade ou região recorta a área. Padrão visual: DESIGN-GABINETE.md.",
+     "filhos": [
+      {
+       "nome": "Cartão do parlamentar",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete-capa.js",
+       "ancora": "function c3Html",
+       "nota": "Alto à esquerda: foto e nome em duas linhas; clicar no nome abre a escolha do parlamentar (troca o vínculo). Abaixo: cargo, faixa da equipe e, ao explorar outro gabinete, 'voltar ao seu'."
+      },
+      {
+       "nome": "Mandato em números (capa)",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete-capa.js",
+       "ancora": "function c3Painel",
+       "nota": "Embaixo à esquerda, minimizável: recursos indicados (total, % pago, emendas, municípios, município com mais recurso) e votos 2026/2022 com variação. Com cidade ou região escolhida, mostra só a área."
+      },
+      {
+       "nome": "Controles do mapa",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete-capa.js",
+       "ancora": "function c3Botoes",
+       "nota": "Embaixo à direita: busca de cidade/região; Ferramentas do mapa (marcadores Disco/Votos/Relevo do eleitorado, base Satélite/Neutro, vista, Outros: rodovias/rios/cidades e dados sociais/econômicos); seletor Votos (2026/2022/Variação) ou Recursos."
+      },
+      {
+       "nome": "Análises prontas",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete-capa.js",
+       "ancora": "function c3Entra",
+       "nota": "R$ por voto melhor/pior, maiores aumentos/quedas, regiões, potencial, bases fiéis; com ranking e pílula ‹ › no centro."
+      },
+      {
+       "nome": "Balão do município",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete-capa.js",
+       "ancora": "function c3Info",
+       "nota": "No mapa: votos, % dos válidos, eleitores, recursos indicados e lista das emendas (abre ao clicar em Recursos indicados)."
+      },
+      {
+       "nome": "Ranking da região",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete.js",
+       "ancora": "function rankReg",
+       "nota": "Abaixo da capa: ao escolher região, os municípios (5 primeiros e ver os outros) com votos 2026, 2022 e recursos; segue o recorte do mapa."
+      },
+      {
+       "nome": "Aviso da cota",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete.js",
+       "ancora": "function avisoCota",
+       "nota": "Faixa no alto da capa, só para quem edita o gabinete."
+      }
+     ]
     },
     {
      "nome": "Controle de Recursos (Controle, Cotas e Transparência SC)",

@@ -1,6 +1,7 @@
 # Padrões da Capa do Gabinete — mapa 3D + vidro (identidade 3.0)
 
-Documento de **referência técnica e de design** da nova capa do Gabinete (protótipo aprovado em 14–16/11/2026).
+Documento de **referência técnica e de design** da capa do Gabinete (protótipo aprovado em 14–16/11/2026; **no site
+desde 16/11/2026**, em `painel/gabinete.html`).
 Serve para três coisas:
 
 1. **Construir** qualquer tela nova do Gabinete no mesmo padrão (tokens, componentes, comportamentos).
@@ -24,10 +25,11 @@ O `DESIGN.md` continua valendo para o simulador (identidade 2.0 "Fader"). Este a
 | Imagens de comparação de cada etapa | `prototipos/capa-3d/*.jpg` |
 | Mosaicos de relevo e satélite (≈ 28 MB, fora do git) | `prototipos/capa-3d/mapa/relevo-{4,7,10-a,10-b}.png`, `satelite-{4,7,10}.jpg` |
 | Ferramentas de captura (no git) | `ferramentas/capa3d/foto-tela.mjs`, `ferramentas/capa3d/avalia.mjs` (§10) |
-| Capa em produção hoje (ainda a antiga) | `painel/gabinete.html` + `painel/gabinete.js` |
+| **Capa no site (16/11/2026)** | `painel/gabinete-capa.js` + `painel/gabinete-capa.css` (capa), `painel/mapa-capa.html` (mapa, em iframe), `painel/gabinete.js` (`selReg`, `rankReg`, `itensCapa`, `avisoCota`) |
+| Pedaços do mapa no site (≈ 35 MB, 833 de 256 px) | `dados/mapas/capa-3d/{rel,sat}/{4,7,8,10}/x-y.{png,jpg}` + `indice.json`, contornos/terra/vias; gerados por `ferramentas/capa3d/fatiar.swift` |
 
-Atenção: **o protótipo ainda não está no site**. Ele só existe no computador (pasta `prototipos/`, fora do git) e no
-Artifact. Levar para o site é uma tarefa à parte (ver §11) — e é ela que vai pôr o código no git.
+O protótipo (`prototipos/` + Artifact) continua sendo o lugar de **testar ideias**; o que for aprovado é levado para
+os arquivos do site acima. As diferenças do site para o protótipo estão na §1.2-site.
 
 ---
 
@@ -77,6 +79,30 @@ capa-v2.html  (página: cabeçalho, cartão, painel do mandato, controles, quadr
 | `painel(on)` | (legado) rótulos de análise do protótipo original |
 
 ---
+
+### 1.2-site Como a capa entrou no site (16/11/2026)
+
+- **A capa fica fora de `#app`**, num `<div id="capa3d">` logo antes dele. `desenhar()` redesenha `#app` a cada clique;
+  se a capa estivesse dentro, o iframe seria recriado e o 3D recarregaria. `capa3d()` monta a capa **uma vez por
+  parlamentar** e, nas outras chamadas, só atualiza o painel do mandato, a faixa da equipe e o aviso da cota.
+  `escolha()` e `restrito()` tiram a capa da tela (`c3Fora()`).
+- **CSS isolado**: tudo preso a `.g3d` (`gabinete-capa.css`); ids com prefixo `c3` (`c3mapa`, `c3painel`…). A legenda
+  em faixas usa `.lfx` (a página já tem `.fx`). As escolhas ficam em `gab_capa_ferr` e `gab_capa_painel_mini`.
+- **Dados reais**: recursos de `itensCapa()` (no próprio gabinete, o Controle inteiro; fora dele, as impositivas do
+  portal); votos de `PARL.v` / `PARL.v22` (sem 2022, somem o 2022, a Variação e as análises que dependem dele). O mapa
+  recebe `{município: [indicado, pago]}` com a chave igual ao nome em `BASE.mun`. O balão pega a lista de emendas em
+  `parent.emendasPorMunicipio()`, montada de `E0` (texto já escapado).
+- **Recorte ligado nos dois sentidos**: o mapa avisa `postMessage({ mapa3d: "recorte", niv, nome })` ao mudar de área;
+  a capa chama `selReg(r, false)` (painel e ranking `#grank` seguem). Clicar num município do ranking chama
+  `selReg(r)`, que leva o mapa ao mesmo recorte (`v.busca`).
+- **Trocar o parlamentar**: clicar no nome chama `escolha(true)` (troca o vínculo). O link "Alterar o parlamentar
+  vinculado" saiu. Explorando outro gabinete (`?d=`), aparece "voltar ao seu" abaixo do cartão.
+- **Aviso da cota**: faixa no alto da capa (`avisoCota`); o cartão desce a altura da faixa.
+- **Tela estreita (< 760px)**: o painel do mandato começa minimizado (só "R$ … · … votos"), para o mapa aparecer.
+- **Download** (medido em 16/11/2026, primeira visita, Chrome sem cache): o mapa acrescenta ≈ 4,2 MB de pedaços
+  (rel 8: 1,4 · sat 7: 1,3 · sat 8: 0,6 · rel 7: 0,5 · rel 4: 0,3 · sat 4: 0,1) + ≈ 0,4 MB de contornos e terra
+  (comprimidos pelo GitHub Pages) + Three.js 0,1 MB. Rodovias e rios (0,2 MB comprimidos) só baixam quando a camada é
+  ligada.
 
 ## 2. Tokens
 
@@ -296,6 +322,9 @@ O 1º colocado leva o tom mais forte, o 10º o mais claro. O corte de cada anál
 | `mapa/dados/emendas-mun.json` | `dados/gabinete/mandato-napoleao.json` (**fora do git**) | lista de emendas por município; **não subir ao repositório público** sem decidir antes |
 | `sc-municipios-detalhe.geojson`, `sc-terra.json`, `sc-vias-rios.json` | já usados pelo mapa original | contornos, terra, rodovias e rios |
 
+No site, `recursos-mun.json` e `emendas-mun.json` **não existem**: a capa monta os dois na hora, a partir dos dados
+que a página já carrega (`itensCapa()` e `E0`) — nada novo foi publicado.
+
 Redes Femininas e Vereadores Mirins: **sem dado** — os botões ficam desligados até chegar a lista (cidade + nome da
 presidente). Não inventar cidades nem nomes.
 
@@ -339,6 +368,9 @@ presidente). Não inventar cidades nem nomes.
 3. Conferir **em imagem** pelo menos: padrão, ferramentas abertas com "Outros", uma análise ativa, uma cidade
    escolhida com as emendas abertas, base Neutro e tela estreita (≈ 1180px).
 4. Publicar o Artifact (mesmo link) e copiar os arquivos para `prototipos/capa-3d/`.
+5. **No site**: servidor local em `127.0.0.1` (o Gabinete libera o modo de teste) com `localStorage.gab_vinc_local =
+   "55777"`, abrir `painel/gabinete.html` e conferir o mesmo roteiro, mais: um recorte de região (painel e ranking
+   seguem) e o console sem erros. Subir o `?cb=` de `gabinete-capa.js`/`.css` em `gabinete.html` a cada mudança.
 
 ### Erros que já aconteceram (não repetir)
 | Erro | Causa | Como evitar |
@@ -350,16 +382,18 @@ presidente). Não inventar cidades nem nomes.
 | Quadrados listrados e borda fantasma no mar | entorno recebendo sombra | `ent.receiveShadow = false` |
 | Retângulo escuro a sudoeste | emenda do mosaico z10 com o z7 | entorno só até z7 |
 | Padrão novo não aparecia | escolhas antigas guardadas no navegador | trocar o nome da chave do `localStorage` |
+| Capa recarregando o 3D a cada clique | iframe dentro de `#app`, que `desenhar()` refaz | capa fora de `#app` (§1.2-site) |
+| Estilo da página vazando na capa | classes iguais (`.fx`, `.leg`, `.cab`…) | tudo preso a `.g3d`; trocar o nome quando a página já usa |
+| Cabeçalho vazio de tabela num recorte | a tabela da região é criada mesmo sem cidades listadas na capa | só criar o cabeçalho se houver linhas |
 | Balão translúcido sobre o cartão | coluna lateral de rótulos + degradê escuro da capa | balão ao lado da cidade e zonas proibidas (`bate`) |
 
 ---
 
 ## 11. O que falta
 
-- **Levar a capa para o site** (`painel/gabinete.html`): integrar o mapa, os dados reais por parlamentar (hoje os
-  números do cartão e do painel são fixos), a fonte local e os mosaicos (hospedar em `dados/` — ver REGRA DE OURO de
-  capacidade no `CLAUDE.md`). Antes, chamar o agente `organizador-do-site`.
+- ~~Levar a capa para o site~~ — feito em 16/11/2026 (§1.2-site).
 - Listas de **Redes Femininas** e **Vereadores Mirins**.
 - Cruzar com a **lista de contatos**, **prefeito (partido)** e **vereadores** no balão.
-- Versão para celular (abaixo de 820px) ainda não desenhada.
+- Versão para celular: no site, abaixo de 760px o painel começa minimizado e os quadros encolhem; um desenho próprio
+  para celular ainda não foi feito.
 - Rótulos de análise muito próximos ainda podem se sobrepor um pouco.
