@@ -57,6 +57,8 @@ h1{ font-weight:900; font-size:clamp(40px,6.5vw,72px); letter-spacing:-.055em; l
 .secao .tag{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:18px 22px; border:1px solid rgba(242,244,245,.06); background:rgba(242,244,245,.018); border-radius:16px; cursor:pointer; } .secao .tag:hover{ border-color:rgba(242,244,245,.13); }
 .secao .tag h2{ margin:0; font-size:clamp(28px,4.4vw,48px); font-weight:900; letter-spacing:-.05em; line-height:.95; } .secao .tag .lead{ flex:1; min-width:240px; font-size:14px; margin:0 0 0 10px; }
 .tgs::before{ content:""; width:8px; height:8px; border:solid currentColor; border-width:0 2px 2px 0; transform:translateY(-2px) rotate(45deg); transition:transform .2s; } .tgs.ab::before{ transform:translateY(2px) rotate(-135deg); } .tgs{ display:inline-flex; align-items:center; justify-content:center; flex:none; width:30px; height:30px; border-radius:50%; border:1px solid var(--linha); background:none; color:var(--ter); font:600 18px/1 "Inter"; cursor:pointer; }
+/* 17/11/2026: todos os blocos de uma seção no mesmo recuo (16 px) e com 12 px de espaço entre o cabeçalho e cada bloco */
+.secao .corpoT{ display:flex; flex-direction:column; gap:12px; padding-top:12px; } .secao .corpoT > .rhb{ margin:0 16px !important; } .secao .corpoT > iframe{ margin:0; }
 .secao.fech .corpoT{ display:none; } .secao.fech{ padding:22px 0 46px; }
 .abas{ margin-top:22px; } .abas button{ font-size:14px; padding:8px 16px; }
 .abas .abtr{ align-self:center; font-size:12px; color:var(--sec); padding:7px 12px; border:1px dashed var(--linha); border-radius:999px; opacity:.75; cursor:default; }
@@ -296,6 +298,23 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .cadSel .cgsl{ display:flex; gap:4px; align-items:center; } .cadSel .cgsl input{ flex:1; min-width:0; } .cadSel .cgsl button{ background:none; border:0; color:var(--ter); font-size:16px; cursor:pointer; padding:0 4px; } .cadSel .cgsl button:hover{ color:var(--texto); }
 .relov iframe{ flex:1; width:100%; margin:0; border:0; border-radius:14px; background:#fff; }
 
+/* Administrativo › RH do gabinete (gabinete-rh.js, 17/11/2026): equipe registrada, botão "+", filtro e totais por natureza */
+.rhb > h3[data-bk]{ cursor:pointer; } .rhb.fech > :not(h3){ display:none !important; } #rhB .admEmb{ margin-top:12px; } .blk-rec #c-rec{ margin-top:14px; }
+#rhLista{ margin-top:18px; border-top:1px solid var(--linha); padding-top:18px; }
+.eq-cab{ display:flex; align-items:flex-start; gap:14px; } .eq-cab h4{ margin:0; color:var(--texto); font-size:16px; letter-spacing:-.02em; } .eq-cab p{ margin:3px 0 0; color:var(--sec); font-size:13px; }
+.eq-mais{ margin-left:auto; flex:none; width:38px; height:38px; border-radius:50%; border:0; background:#34E84A; color:#07230C; font:700 22px/1 Inter, system-ui, sans-serif; cursor:pointer; } .eq-mais:hover{ filter:brightness(1.08); }
+.eq-f{ margin:14px 0 4px; padding:14px; border:1px solid var(--linha); border-radius:14px; background:rgba(242,244,245,.02); }
+.eq-fg{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px 12px; } .eq-fg label{ display:flex; flex-direction:column; gap:5px; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--ter); } .eq-fg .eq-obs{ grid-column:1 / -1; }
+.eq-fg input, .eq-fg select, .eq-fg textarea{ background:var(--sup2, #1B2022); border:1px solid rgba(242,244,245,.14); border-radius:10px; color:var(--texto); padding:9px 11px; font:14px Inter, system-ui, sans-serif; text-transform:none; letter-spacing:0; }
+.eq-fb{ display:flex; gap:8px; align-items:center; margin-top:12px; } .eq-fb span{ flex:1; } .eq-fb .eq-del{ color:#E8432A; }
+.eq-chs{ display:flex; flex-wrap:wrap; gap:6px; margin:16px 0 10px; } .eq-ch{ background:rgba(242,244,245,.05); border:1px solid rgba(242,244,245,.12); border-radius:999px; color:var(--sec); padding:6px 12px; font:600 12.5px Inter, system-ui, sans-serif; cursor:pointer; }
+.eq-ch b{ margin-left:6px; color:var(--ter); font-weight:600; } .eq-ch.on{ background:var(--texto); color:#0B0F0D; border-color:var(--texto); } .eq-ch.on b{ color:#3F454B; }
+.eq-nts{ display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:8px; margin-bottom:12px; } .eq-nts div{ border:1px solid var(--linha); border-radius:12px; padding:10px 12px; }
+.eq-nts span{ display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ter); font-weight:600; } .eq-nts b{ display:block; font-size:18px; margin-top:3px; font-variant-numeric:tabular-nums; } .eq-nts small{ color:var(--sec); }
+.eq-t{ width:100%; border-collapse:collapse; font-size:13.5px; } .eq-t th{ text-align:left; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); font-weight:600; padding:8px 10px; border-bottom:1px solid var(--linha); }
+.eq-t td{ padding:10px; border-bottom:1px solid rgba(242,244,245,.06); vertical-align:top; } .eq-t .n{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; } .eq-t tr[data-rhed]{ cursor:pointer; } .eq-t tbody tr[data-rhed]:hover{ background:rgba(242,244,245,.03); }
+.eq-t tfoot td{ font-weight:700; border-bottom:0; } .eq-nat{ font-size:11.5px; border:1px solid rgba(242,244,245,.18); border-radius:999px; padding:2px 9px; white-space:nowrap; } .eq-o{ color:var(--sec); }
+@media (max-width:760px){ .eq-fg{ grid-template-columns:1fr 1fr; } .eq-t th:nth-child(5), .eq-t td:nth-child(5){ display:none; } }
 /* Administrativo › RH - Gabinete (gabinete-rh.js): mesmo desenho dos blocos de Parlamentares e da Transparência */
 .rhb{ background:var(--sup); border:1px solid var(--linha); border-radius:20px; padding:22px; margin:0 var(--emb-x, 16px) 16px; }
 .rhb > h3{ margin:0; font-size:22px; letter-spacing:-.03em; display:flex; align-items:center; gap:10px; cursor:pointer; } .rhb > h3 small{ margin-left:auto; font-size:12px; font-weight:400; letter-spacing:0; color:var(--ter); }
@@ -491,6 +510,17 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 .mxb{ cursor:pointer; font:inherit; color:var(--texto); padding:4px 6px 4px 14px; }
 .mxb b{ display:inline-block; background:var(--sup2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23A9AEB3' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 10px center; border-radius:999px; padding:6px 28px 6px 12px; font-weight:700; font-size:13px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .mxb.on{ border-color:var(--a); } .mxb.on b{ color:#fff; background-color:rgba(var(--a-rgb),.35); }
+/* filtro pelo título da coluna, como no Google Planilhas (17/11/2026) */
+.hfm{ position:absolute; z-index:90; width:290px; background:#1B2022; border:1px solid rgba(242,244,245,.12); border-radius:14px; box-shadow:0 18px 40px rgba(0,0,0,.45); padding:8px; color:#F2F4F5; font:13px Inter, system-ui, sans-serif; }
+.hfm .hfh{ font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#8A9096; padding:4px 8px 6px; }
+.hfm .hfo{ display:block; width:100%; text-align:left; background:none; border:0; color:#F2F4F5; font:inherit; padding:7px 8px; border-radius:8px; cursor:pointer; } .hfm .hfo:hover{ background:rgba(242,244,245,.06); }
+.hfm .hft{ border-top:1px solid rgba(242,244,245,.1); margin:6px 0 4px; padding:8px 8px 2px; font-weight:600; }
+.hfm .hfa{ display:flex; gap:12px; padding:0 8px 6px; } .hfm .hfa button{ background:none; border:0; padding:0; color:#7AA2FF; font:12px Inter, system-ui, sans-serif; cursor:pointer; }
+.hfm .hfq{ width:calc(100% - 16px); margin:0 8px 6px; background:#14191A; border:1px solid rgba(242,244,245,.14); border-radius:8px; color:#F2F4F5; padding:7px 9px; font:13px Inter, system-ui, sans-serif; }
+.hfm .hfl{ max-height:240px; overflow:auto; padding:0 4px; } .hfm .hfl label{ display:grid; grid-template-columns:16px minmax(0,1fr) auto; gap:8px; align-items:center; padding:5px 4px; border-radius:6px; cursor:pointer; } .hfm .hfl label:hover{ background:rgba(242,244,245,.05); }
+.hfm .hfl span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .hfm .hfl small{ color:#8A9096; font-variant-numeric:tabular-nums; } .hfm .hfl p{ color:#8A9096; margin:6px 4px; }
+.hfm .hfb{ display:flex; justify-content:flex-end; gap:8px; border-top:1px solid rgba(242,244,245,.1); margin-top:6px; padding:8px 4px 2px; }
+th .hfi{ display:inline-flex; vertical-align:-3px; margin-left:4px; color:#34E84A; } th .hfi svg{ width:13px; height:13px; } th[data-mo]{ cursor:pointer; }
 .mxp{ position:absolute; z-index:80; width:300px; background:#1B2022; border:1px solid rgba(242,244,245,.12); border-radius:14px; box-shadow:0 18px 40px rgba(0,0,0,.45); padding:10px; color:#F2F4F5; font:13px Inter; }
 .mxq{ width:100%; box-sizing:border-box; background:#0F1314; border:1px solid rgba(242,244,245,.12); border-radius:9px; color:#F2F4F5; padding:8px 10px; font:13px Inter; }
 .mxa{ display:flex; gap:12px; align-items:center; margin:8px 2px 6px; font-size:12px; } .mxa button{ background:none; border:0; color:#8FB0F5; cursor:pointer; padding:0; font:600 12px Inter; } .mxa span{ margin-left:auto; color:#8A9096; }
@@ -537,7 +567,7 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
-<link rel="stylesheet" href="gabinete-capa.css?cb=3">
+<link rel="stylesheet" href="gabinete-capa.css?cb=4">
 </head>
 <body>
 <header class="topo" id="topoSL"><a class="wm" href="gabinete.html"><b>Simula</b>LEGIS</a><nav class="sl-nav"><a href="novos.html?v=8">Eleições 2026</a><a href="index.html?v=8#ranking">Ranking</a><a href="mesa.html?v=8">Mesa</a><a href="gabinete.html" class="on">Gabinete</a><span class="mnuw"><button class="mnub" aria-label="Menu" title="Menu"><svg viewBox="0 0 16 16" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></button><span class="mnu" hidden><a href="../?entrar=1" class="mconta" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}">Entrar ou cadastrar<small>login com e-mail ou Google</small></a><a href="../?capa=1" class="msim">Sistema SimulaLEGIS<small>resultado, duelos, grupos e suas listas</small></a><a href="novos.html?v=8">Eleições 2026</a><a href="index.html?v=8#ranking">Ranking</a><a href="mesa.html?v=8">Mesa</a></span></span></nav></header>
@@ -546,10 +576,10 @@ body.dm-escuro .idrop b, body.dm-escuro .irsm b{ color:inherit; } body.dm-escuro
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=115"></script>
-<script src="gabinete-capa.js?cb=2"></script>
-<script src="gabinete-rh.js?cb=3"></script>
-<script src="gabinete-diario.js?cb=2"></script>
+<script src="gabinete.js?cb=117"></script>
+<script src="gabinete-capa.js?cb=3"></script>
+<script src="gabinete-rh.js?cb=4"></script>
+<script src="gabinete-diario.js?cb=3"></script>
 <script src="gabinete-agenda.js?cb=1"></script>
 <script src="servidores-perfil.js?cb=10"></script>
 <script src="gabinete-adicionar.js?cb=19"></script>

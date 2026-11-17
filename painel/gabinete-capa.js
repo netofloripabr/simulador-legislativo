@@ -32,12 +32,13 @@ function capa3d() {
 
 function c3Html() {
   const nm = PARL.u.split(" "), l1 = nm.length > 1 ? nm.slice(0, -1).join(" ") : nm[0], l2 = nm.length > 1 ? nm.slice(-1)[0] : "";
-  const q = `fundo=1&tema=escuro&dado=nenhum&marcas=disco&cid=1&esq=.12&dir=.07&topo=.14&baixo=.19&d=${encodeURIComponent(PARL.n)}`;
+  const q = `fundo=1&tema=escuro&dado=nenhum&marcas=disco&cid=1&esq=.12&dir=.07&topo=.14&baixo=.19&d=${encodeURIComponent(PARL.n)}&v=2`;   // v: versão do mapa (cache)
   return `<section class="g3d" id="ghero">
   <iframe id="c3mapa" src="mapa-capa.html?${q}" title="Mapa de Santa Catarina em 3D"></iframe>
   <div class="vela"></div>
   <div class="id" id="c3id">
     <div class="card vidro"><button class="quem" id="c3quem" title="Trocar o parlamentar"><img class="ft" id="c3ft" src="../dados/fotos/sc-2026/estadual/${esc(PARL.n)}.jpg" alt="" onerror="this.style.visibility='hidden'"><h1 class="nome" id="c3nome"><span class="l1">${esc(l1)}</span><span class="l2">${esc(l2)}</span></h1><span class="troca">${C3_SVG.seta}</span></button></div>
+    <div class="lista vidro" id="c3lista"><input placeholder="Buscar parlamentar" aria-label="Buscar parlamentar" autocomplete="off"><div class="c3ll"></div></div>
     <div class="cargo">Deputado estadual · SC · ${esc(PARL.p)}</div>
     <div class="c3info" id="c3info"></div>
   </div>
@@ -63,7 +64,7 @@ function c3Html() {
         <div class="fcab"><span>Ferramentas do mapa</span><button id="c3reset" title="Volta tudo ao padrão">Restaurar padrão</button><button class="min" data-min aria-label="Minimizar" title="Minimizar">${C3_SVG.seta}</button></div>
         <h5>Marcadores · ligue e desligue</h5><div class="g" data-gr="marca"><button class="on" data-v="disco">Disco</button><button data-v="pinta" title="Pinta cada município pela lente escolhida (votos ou recursos)">Votos</button><button data-v="relevo">Relevo do eleitorado</button></div>
         <h5>Base</h5><div class="g" data-gr="base"><button class="on" data-v="sat">Satélite</button><button data-v="gesso">Neutro</button></div>
-        <h5>Vista</h5><div class="g"><button id="c3vistaBt" class="vista" title="Clique para alternar a vista"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13 8a5 5 0 1 1-1.5-3.5"/><path d="M11.8 1.8v2.9H8.9"/></svg><span>Automática</span><small>1/5</small></button><button class="cam" data-recentra title="Voltar ao enquadramento (Santa Catarina inteira)" aria-label="Voltar ao enquadramento"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 5.5h2.6l1.2-1.8h4.4l1.2 1.8H14v7H2z"/><circle cx="8" cy="8.9" r="2.3"/></svg></button></div>
+        <h5>Vista</h5><div class="g"><button id="c3vistaBt" class="vista" title="Clique para alternar a vista"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M13 8a5 5 0 1 1-1.5-3.5"/><path d="M11.8 1.8v2.9H8.9"/></svg><span>Automática</span><small>1/5</small></button><button class="cam" data-recentra title="Travar a vista nesta posição" aria-label="Travar a vista"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2 5.5h2.6l1.2-1.8h4.4l1.2 1.8H14v7H2z"/><circle cx="8" cy="8.9" r="2.3"/></svg></button></div>
         <button class="outros" id="c3outrosBt"><span>Outros</span><em id="c3outrosOn"></em>${C3_SVG.lado}</button>
         <div class="sub" id="c3sub">
           <div class="fcab"><span>Outros · camadas e dados</span></div>
@@ -179,9 +180,10 @@ function c3Entra(id) { const a = C3_ANALISES.find((x) => x.id === id), v = c3M()
   $("#ghero .linha1").classList.add("emAnal"); $("#ghero").classList.add("esfera"); c3FechaFerr(); c3Marca(); }
 function c3Sai() { C3.anal = null; C3.legAnal = null; const v = c3M(); if (v) { v.analise(null); v.reserva(0); } c3$("apill").classList.remove("on"); c3$("btA").style.display = ""; $("#ghero .linha1").classList.remove("emAnal"); $("#ghero").classList.remove("esfera");
   c3$("anal").classList.remove("aberta"); c3$("btA").classList.remove("on"); c3$("achips").querySelectorAll("button").forEach((b) => b.classList.remove("on")); c3$("rankBt").hidden = true; c3$("alista").hidden = true; c3$("rankBt").classList.remove("on"); c3Marca(); c3Ajusta(); }
-const c3FechaFerr = () => { c3$("ferr").classList.remove("aberta"); c3$("btF").classList.remove("on"); };
-const c3AbreQuadro = () => { c3FechaFerr(); c3$("anal").classList.add("aberta"); const v = c3M(); if (v) v.reserva(c3$("anal").offsetWidth + 34); };
-const c3FechaAnal = () => { c3$("anal").classList.remove("aberta"); c3$("btA").classList.remove("on"); const v = c3M(); if (v) v.reserva(0); };
+const c3Vao = () => { const v = c3M(); if (!v || !v.vao) return; const f = c3$("ferr"), a = c3$("anal"), q = f.classList.contains("aberta") ? f : a.classList.contains("aberta") ? a : null; v.vao(q ? q.offsetWidth + 24 : 0); };   // mapa no espaço livre ao lado do quadro aberto (17/11/2026)
+const c3FechaFerr = () => { c3$("ferr").classList.remove("aberta"); c3$("btF").classList.remove("on"); c3Vao(); };
+const c3AbreQuadro = () => { c3FechaFerr(); c3$("anal").classList.add("aberta"); const v = c3M(); if (v) v.reserva(c3$("anal").offsetWidth + 34); c3Vao(); };
+const c3FechaAnal = () => { c3$("anal").classList.remove("aberta"); c3$("btA").classList.remove("on"); const v = c3M(); if (v) v.reserva(0); c3Vao(); };
 
 // painel minimizável (lembrado no navegador)
 function c3Mini(m) { const p = c3$("painel"); p.classList.toggle("mini", m); p.style.width = m ? "" : innerWidth > 1100 ? "min(600px, 46vw)" : c3$("id").style.width; try { localStorage.setItem("gab_capa_painel_mini", m ? "1" : "0"); } catch (e) {} }
@@ -190,7 +192,15 @@ function c3Ligar() {
   C3.lente = "voto"; C3.anal = null; C3.legAnal = null;
   C3.EST = (() => { try { return { ...JSON.parse(JSON.stringify(C3_PADRAO)), ...JSON.parse(localStorage.getItem("gab_capa_ferr") || "{}") }; } catch (e) { return JSON.parse(JSON.stringify(C3_PADRAO)); } })();
   if (document.fonts) document.fonts.ready.then(c3Ajusta);
-  c3$("quem").onclick = (e) => { e.stopPropagation(); c3Fora(); escolha(true); };
+  // trocar o parlamentar (17/11/2026): lista com busca e rolagem embaixo do cartão, como na capa antiga (não a página inteira)
+  c3$("quem").onclick = (e) => { e.stopPropagation(); const id = c3$("id"), L = c3$("lista"); id.classList.toggle("aberta"); if (!id.classList.contains("aberta")) return;
+    const EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR")), inp = L.querySelector("input"), ll = L.querySelector(".c3ll");
+    const pinta = () => { const q = norm(inp.value); ll.innerHTML = EL.filter((c) => !q || norm(c.u + " " + c.p).includes(q)).map((c) => `<button data-n="${esc(c.n)}"${c.n === PARL.n ? ' class="on"' : ""}><i style="background:${COR_P[c.p] || "#8A9096"}">${esc(c.u.split(" ").map((w) => w[0]).slice(0, 2).join(""))}</i>${esc(c.u)}<small>${esc(c.p)}</small></button>`).join("") || `<p class="mu">Nada encontrado.</p>`; };
+    inp.value = ""; pinta(); inp.oninput = pinta; inp.focus();
+    ll.onclick = async (ev) => { const b = ev.target.closest("[data-n]"); if (!b) return; if (b.dataset.n === PARL.n) { id.classList.remove("aberta"); return; } b.disabled = true;
+      try { if (SESS) { const { error } = await supabaseClient.from("gab_vinculo").upsert({ dono: SESS.user.id, parlamentar: b.dataset.n, atualizado_em: new Date().toISOString() }); if (error) throw error; } else localStorage.setItem("gab_vinc_local", b.dataset.n); } catch (er) { b.disabled = false; alert("Não foi possível salvar o vínculo: " + (er.message || er)); return; }
+      location.href = "gabinete.html"; }; };
+  c3$("lista").onclick = (e) => e.stopPropagation();
   try { const g = localStorage.getItem("gab_capa_painel_mini"); if (g === "1" || (g == null && innerWidth < 760)) c3Mini(true); } catch (e) {}   // tela estreita: começa minimizado (o mapa aparece)
   c3$("min").onclick = () => { const h = $("#ghero"); if (h.classList.contains("esfera")) { h.classList.remove("esfera"); c3Mini(false); return; } c3Mini(!c3$("painel").classList.contains("mini")); };
   // busca: a cidade ou a região escolhida vira o recorte do mapa (o mapa avisa de volta e os números acompanham)
@@ -203,12 +213,12 @@ function c3Ligar() {
     else { b.parentElement.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); C3.lente = b.dataset.a; }
     c3Marca(); };
   const ferr = c3$("ferr"), anal = c3$("anal"), btA = c3$("btA"), sub = c3$("sub"), alista = c3$("alista"), rankBt = c3$("rankBt");
-  c3$("btF").onclick = (e) => { e.stopPropagation(); if (anal.classList.contains("aberta")) c3FechaAnal(); ferr.classList.toggle("aberta"); c3$("btF").classList.toggle("on", ferr.classList.contains("aberta")); };
+  c3$("btF").onclick = (e) => { e.stopPropagation(); if (anal.classList.contains("aberta")) c3FechaAnal(); ferr.classList.toggle("aberta"); c3$("btF").classList.toggle("on", ferr.classList.contains("aberta")); c3Vao(); };
   c3$("outrosBt").onclick = (e) => { e.stopPropagation(); sub.classList.toggle("aberta"); c3$("outrosBt").classList.toggle("on", sub.classList.contains("aberta")); if (sub.classList.contains("aberta")) setTimeout(() => ferr.scrollTo({ top: ferr.scrollHeight, behavior: "smooth" }), 30); };
   c3$("reset").onclick = async (e) => { e.stopPropagation(); C3.EST = JSON.parse(JSON.stringify(C3_PADRAO)); c3Guarda(); await c3Aplica(false); const v = c3M(); if (v) { v.inicio(); v.recentra(); } li.value = ""; };
   c3$("vistaBt").onclick = (e) => { e.stopPropagation(); const i = C3_VISTAS.findIndex(([k]) => k === C3.EST.vista); C3.EST.vista = C3_VISTAS[(i + 1) % C3_VISTAS.length][0]; c3Guarda(); c3Botoes(); const v = c3M(); if (v) v.vista(C3.EST.vista); };
   ferr.onclick = async (e) => { e.stopPropagation(); if (e.target.closest("[data-min]")) { c3FechaFerr(); return; } const b = e.target.closest("button"); if (!b || b.disabled || !b.parentElement.dataset.gr && b.dataset.recentra == null) return; const v = c3M(); if (!v) return; const E = C3.EST;
-    if (b.dataset.recentra != null) { if (v.onde()) v.inicio(); else v.recentra(); li.value = ""; return; }
+    if (b.dataset.recentra != null) { const on = v.trava(!v.travada()); b.classList.toggle("on", on); b.title = on ? "Vista travada: abrir quadros ou trocar ferramentas não mexe no mapa. Clique para destravar." : "Travar a vista nesta posição"; return; }
     const g = b.parentElement.dataset.gr, x = b.dataset.v;
     if (g === "cam") { E.cam[x] = !E.cam[x]; c3Guarda(); c3Botoes(); await v.camada(x, E.cam[x]); return; }
     if (g === "tema") { E.tema = E.tema === x ? null : x; C3.tema = E.tema; c3Guarda(); c3Botoes(); await v.tema(C3.tema); c3Marca(); return; }
@@ -225,8 +235,11 @@ function c3Ligar() {
   if (!C3.ligado) { C3.ligado = true;
     document.addEventListener("click", (e) => { if (!c3$("ferr") || e.target.closest("#ghero .linha1")) return; c3FechaFerr(); });
     addEventListener("resize", c3Ajusta);
+    document.addEventListener("keydown", (e) => { if (e.key !== "Escape" || !$("#ghero") || document.getElementById("hfm") || document.getElementById("mxPop")) return; const id = c3$("id"); if (id && id.classList.contains("aberta")) { id.classList.remove("aberta"); return; } if (/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || "") && !document.activeElement.closest("#ghero")) return; const v = c3M(); if (v && v.onde && v.onde()) { v.inicio(); const i = $("#ghero #c3lupa input"); if (i) i.value = ""; } });
+    document.addEventListener("click", (e) => { const id = c3$("id"); if (id && !e.target.closest("#c3id")) id.classList.remove("aberta"); });
     addEventListener("message", (e) => { const d = e.data; if (!d || !d.mapa3d || e.source !== c3W()) return;
       if (d.mapa3d === "pronto") c3Aplica(true);
+      if (d.mapa3d === "trava") { const c = $("#ghero [data-recentra]"); if (c) { c.classList.toggle("on", !!d.on); c.title = "Travar a vista nesta posição"; } }
       // recorte escolhido no próprio mapa (busca, clique em "ver o recorte", câmera): números, ranking e região acompanham
       if (d.mapa3d === "recorte") { const r = d.niv === "uf" ? null : regioes().find((x) => x.t === d.niv && x.n === d.nome) || null; if (r !== S.reg) selReg(r, false); } }); }
 }

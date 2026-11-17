@@ -202,12 +202,21 @@ Abre acima da linha de controles, colado à direita; 330px; vidro opaco. Conteú
    **Relevo do eleitorado**. Qualquer combinação. *Decisão 16/11.*
 3. **Base** — Satélite / Neutro.
 4. **Vista** — um botão só que **alterna** a cada toque: Automática → Isométrica → Alta → Do sul → De cima (mostra
-   "1/5"); ao lado, o botão de câmera (volta ao enquadramento de SC). *Decisão 16/11.*
+   "1/5"); ao lado, o botão de câmera, que **trava a vista**: o usuário ajusta o mapa e clica; a partir daí abrir quadros
+   ou trocar ferramentas não mexe na câmera. Escolher outro recorte (busca, cidade, região) enquadra normalmente e solta a
+   trava. *Decisões 16/11 e 17/11.*
 5. **Alça "Outros"** no pé do quadro (seta para baixo). Abre **para baixo, dentro do quadro**, com: **Camadas**
    (Rodovias, Rios, Cidades — combináveis), **Sociais** (População, População urbana, Evangélicos, Católicos),
    **Econômicos** (Renda per capita, Bolsa Família), **Demais** (Eleitoras, Jovens 16–24, Eleitores 60+, Ensino
    superior; Redes femininas e Vereadores mirins desligados até haver lista). Um dado por vez; tocar de novo volta à
    votação; o dado ligado aparece na própria alça. *Decisões 16/11.*
+
+### 4.3b Comportamentos da capa (17/11/2026)
+- **Espaço livre**: com o quadro de ferramentas ou de análises aberto, o mapa se enquadra na área que sobra ao lado
+  dele (`__v4.vao(px)`); ao fechar, volta. Com a vista travada, não se mexe. *Decisão 17/11.*
+- **Trocar o parlamentar**: clicar no nome abre uma lista com busca e rolagem embaixo do cartão (como na capa antiga),
+  não a página inteira "Qual é o seu gabinete?". *Decisão 17/11.*
+- **Esc**: em qualquer lugar da página fecha a lista de troca; senão desfaz o recorte e volta a SC inteira. *17/11.*
 
 ### 4.4 Padrão (estado inicial) e escolhas guardadas
 - **Padrão**: marcador **Disco**, base **Satélite**, vista **Automática**, camada **Cidades** ligada, sem tema.

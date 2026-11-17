@@ -264,6 +264,8 @@ ol.vt{ list-style:none; margin:6px 0 0; padding:0 0 0 18px; border-left:2px soli
 html.emb-adm, html.emb-adm body{ background:transparent; } html.emb-adm .topo, html.emb-adm #netoC, html.emb-adm #setaF, html.emb-adm .rod{ display:none !important; }
 html.emb-adm #s3 > .wrap > .tag, html.emb-adm #s1 > .wrap > .tag{ display:none; } html.emb-adm #s1, html.emb-adm #s1 > .wrap{ padding-top:0; margin-top:0; } html.emb-adm #s3, html.emb-adm #s3 > .wrap{ padding-top:0; margin-top:0; } html.emb-adm main, html.emb-adm #app{ padding-top:0; }
 html.emb-adm .svov{ align-items:flex-start; }
+/* embutido no Gabinete (17/11/2026): blocos no mesmo recuo e espaçamento dos blocos do próprio Gabinete (16 px, 12 px entre eles), sem a linha da seção */
+html.emb-adm .wrap{ max-width:none; padding:0 16px; } html.emb-gab .wrap{ padding:0; } html.emb-gab .bloco{ background:none; border:0; padding:0; margin:0; } html.emb-gab .bloco > h3{ display:none !important; } html.emb-gab .bloco .blc{ display:block !important; }   /* no Gabinete o título "RH do gabinete" é do bloco de fora */ html.emb-adm .secao{ border-top:0; padding-bottom:0; } html.emb-adm .bloco{ margin-bottom:12px; }
 
 /* Quadro do cenário: montar blocos arrastando (11/11/2026, protótipo prototipos/comissoes-arrastar.html) */
 .qsgr{ display:inline-flex; flex-wrap:wrap; gap:6px; align-items:center; } .qsrot{ font-size:12px; color:var(--ter); margin-right:2px; }
@@ -321,7 +323,7 @@ ol.trm{ list-style:none; margin:8px 0 0; padding:0 0 0 18px; border-left:2px dot
 <script src="novos-uf.js?cb=25"></script>
 <script src="servidores-perfil.js?cb=10"></script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="novos.js?cb=251"></script>
+<script src="novos.js?cb=253"></script>
 <script src="../nuvem/visitas.js?cb=2"></script>
 <script src="sino-menu.js?cb=12"></script>
 </body>

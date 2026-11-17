@@ -186,3 +186,5 @@
 @media (max-width:760px){ .g3d{ height:min(92vh,760px); min-height:620px; } .g3d .id{ top:14px; left:12px; min-width:0; max-width:calc(100vw - 24px); }
   .g3d .painel{ left:12px; right:12px; bottom:76px; width:auto !important; } .g3d .ctrl{ right:12px; bottom:14px; } .g3d .lupa.aberta{ width:min(260px, 60vw); } .g3d .ferr, .g3d .anal{ width:min(330px, calc(100vw - 24px)) !important; } }
 .g3d.comCota .ferr, .g3d.comCota .anal{ max-height:calc(100vh - 320px) !important; }
+/* 17/11/2026: lista de troca do parlamentar (parlamentar atual marcado) e a lista com rolagem */
+.g3d .lista .c3ll{ max-height:min(52vh, 420px); overflow:auto; } .g3d .lista button.on{ color:var(--texto); background:rgba(255,255,255,.08); } .g3d .lista .mu{ color:var(--ter); font-size:12px; margin:6px 8px; }

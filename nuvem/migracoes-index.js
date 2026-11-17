@@ -2210,5 +2210,16 @@ const MIGRACOES_INDEX = [
     "gab_agenda_apagar"
    ]
   ]
+ },
+ {
+  "num": 102,
+  "arquivo": "migracao-102-gabinete-rh-natureza.sql",
+  "descricao": "Migração 102 (17/11/2026): Gabinete › Administrativo › RH do gabinete.",
+  "objetos": [
+   [
+    "column",
+    "gab_cargos.natureza"
+   ]
+  ]
  }
 ];

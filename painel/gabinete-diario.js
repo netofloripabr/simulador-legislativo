@@ -1,4 +1,4 @@
-// Gabinete › ALESC (Transparência) › Diário Oficial (14/11/2026). Leitura diária do Diário da Assembleia: uma ficha por
+// Gabinete › ALESC (Transparência) › Diário ALESC (14/11/2026; renomeado de "Diário Oficial" em 17/11/2026). Leitura diária do Diário da Assembleia: uma ficha por
 // edição, da mais recente para a mais antiga, com as movimentações funcionais (nomeação, exoneração, à disposição,
 // nível salarial e outros atos funcionais) e um resumo dos atos da Mesa/Presidência sem servidor (licenças, cronogramas,
 // regras). Cada edição pode ser marcada como lida (fecha e vai para o fim). Dados: adm_atos e adm_ato_pessoas, gravados
@@ -74,7 +74,7 @@ function dioDesenhar() { const el = document.getElementById("dioC"); if (!el) re
 
 // chamado ao desenhar o título ALESC: só monta o bloco para o administrador; carrega uma vez
 function corpoDiario() { if (!ADM || !SESS) return ""; setTimeout(() => { if (!DIO.atos.length && !DIO.erro) dioCarregar(); else dioDesenhar(); }, 0);
-  return `<div class="rhb" id="dioB"><h3 onclick="this.parentElement.classList.toggle('fech')">Diário Oficial<small></small></h3><div id="dioC"><p class="rh-nt">Carregando o Diário…</p></div></div>`; }
+  return `<div class="rhb" id="dioB"><h3 onclick="this.parentElement.classList.toggle('fech')">Diário ALESC<small></small></h3><div id="dioC"><p class="rh-nt">Carregando o Diário…</p></div></div>`; }
 
 document.addEventListener("click", (e) => { const t = e.target.closest("[data-diolido],[data-diotodos],[data-diomais],[data-diof]"); if (!t || !t.closest("#dioB")) return; e.preventDefault();
   if (t.dataset.diof) { const k = t.dataset.diof; if (k === "limpar") DIO.f.clear(); else DIO.f.has(k) ? DIO.f.delete(k) : DIO.f.add(k); dioDesenhar(); return; }

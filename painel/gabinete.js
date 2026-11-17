@@ -85,18 +85,20 @@ async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient
 
 // Administrativo (04/11/2026): a mesma seção da página Parlamentares, embutida (novos.html?so=adm), para o parlamentar
 // aberto no painel. Um código só: o que muda num bloco de Parlamentares muda aqui também. A altura vem por postMessage.
-const corpoAdm = () => { setTimeout(() => { if (typeof rhGabinete === "function") rhGabinete(); }, 0); return `${typeof corpoAgenda === "function" ? corpoAgenda() : ""}<div class="rhb" id="rhB"><h3 onclick="this.parentElement.classList.toggle('fech')">RH - Gabinete<small>${proprio() && PODE ? "salvo na conta do gabinete" : ""}</small></h3><div id="rhGab"><p class="rh-nt">Carregando…</p></div></div><iframe class="admEmb" id="gabEmb" title="Estrutura do gabinete" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=gab&v=1"></iframe>`; };
+// Administrativo (17/11/2026): Controle de Recursos (1º bloco), Agenda e RH do gabinete. O RH junta a estrutura pela ALESC
+// (embutida de Parlamentares, novos.html?so=gab) com a equipe registrada pelo gabinete (gabinete-rh.js, botão "+").
+const corpoAdm = () => { setTimeout(() => { if (typeof rhGabinete === "function") rhGabinete(); }, 0);
+  return `<div class="rhb blk-rec${S.fech.recB ? " fech" : ""}" id="recB"><h3 data-bk="recB">Controle de Recursos<small>Controle, Cotas, Transparência SC e outros deputados</small></h3><div id="c-rec">${corpoRec()}</div></div>${typeof corpoAgenda === "function" ? corpoAgenda() : ""}<div class="rhb${S.fech.rhB ? " fech" : ""}" id="rhB"><h3 data-bk="rhB">RH do gabinete<small>estrutura pela ALESC e equipe registrada</small></h3><iframe class="admEmb" id="gabEmb" title="RH do gabinete · estrutura pela ALESC" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=gab&v=4"></iframe><div id="rhLista"><p class="rh-nt">Carregando…</p></div></div>`; };
 // ALESC (Transparência), 14/11/2026: o que a Casa e o portal da transparência dizem do mandato (subsídio, verbas, liderança,
 // estrutura da Casa; a Estrutura do gabinete com quem está lotado fica no Administrativo, ?so=gab) sai do Administrativo para um título próprio. O Administrativo
 // fica só com o que o gabinete registra (RH - Gabinete). Mesmo embutido de Parlamentares (novos.html?so=adm).
-const corpoAlesc = () => `${typeof corpoDiario === "function" ? corpoDiario() : ""}<iframe class="admEmb" id="admEmb" title="ALESC (Transparência)" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&sem=gab&v=4"></iframe>`;
+const corpoAlesc = () => `${typeof corpoDiario === "function" ? corpoDiario() : ""}<iframe class="admEmb" id="admEmb" title="ALESC (Transparência)" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=adm&sem=gab&v=5"></iframe>`;
 // Eleitoral (fase 4): o Eleitoral de Parlamentares (painel completo do parlamentar), embutido do mesmo jeito
 const corpoEle = () => `<iframe class="admEmb" id="eleEmb" title="Eleitoral" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=ele&v=1"></iframe>`;
 addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data) return; const f = e.data.slEmb === "adm" ? $("#admEmb") : e.data.slEmb === "gab" ? $("#gabEmb") : e.data.slEmb === "ele" ? $("#eleEmb") : null; if (f) f.style.height = Math.max(200, +e.data.h || 0) + "px"; });
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
-const TITULOS = [["rec", "Controle de Recursos", "Controle: os dados inseridos pela equipe do gabinete. Transparência: os dados divulgados pelo estado."],
-  ["rh", "Administrativo", "A agenda do mandato e a estrutura do gabinete: o RH registrado pela equipe e a estrutura pela ALESC, com a cota de nomeações e quem está lotado."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
+const TITULOS = [["rh", "Administrativo", "O controle dos recursos do mandato, a agenda e o RH do gabinete: a estrutura pela ALESC e a equipe registrada pelo gabinete."], ["pl", "Processo legislativo", "Proposições, relatorias, pareceres e prazos do mandato."],
   ["ele", "Eleitoral", "Onde estão os votos do mandato: mapa, distribuição, perfil das cidades, comparação e ranking."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."],
   ["alesc", "ALESC (Transparência)", "O que a Assembleia divulga sobre o mandato: subsídio e verbas, verbas indenizatórias, liderança, a estrutura da Casa e o mandato em números."]];
 function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio() && PODE)) S.aba = "geral";
@@ -105,9 +107,10 @@ function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio()
   const EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
   capa3d();   // capa 3D (gabinete-capa.js), fora de #app: montada uma vez, aqui só os números
   $("#app").innerHTML = `<div class="grank" id="grank"></div>
-    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rec" ? corpoRec() : k === "rh" ? corpoAdm() : k === "alesc" ? corpoAlesc() : k === "ele" ? corpoEle() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
+    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rh" ? corpoAdm() : k === "alesc" ? corpoAlesc() : k === "ele" ? corpoEle() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
   leque(); pintaRank(); ligarAvisoCota(); if (typeof ligarAdicionar === "function") ligarAdicionar();
   blocos();
+  $("#app").querySelectorAll("[data-bk]").forEach((h) => h.onclick = () => { const b = h.parentElement, k = h.dataset.bk; S.fech[k] = !b.classList.contains("fech"); b.classList.toggle("fech", S.fech[k]); });
   $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
   $("#abas").onclick = (e) => { if (e.target.closest("#cadBt")) { cadernoGab(); return; } if (e.target.closest("#mapaBt")) { S.mapa = !S.mapa; desenhar(); return; } const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
   if (S.mapa && S.aba !== "geral" && !(S.aba === "outros" && S.outro)) { const lt = $("#lentes"); if (lt) lt.onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); }; }
@@ -166,8 +169,8 @@ function temaItens() {
 function leque() { temaItens();
   let nv = document.querySelector(".gsecs"); if (!nv) { nv = document.createElement("nav"); nv.className = "gsecs"; document.querySelector(".topo .wm").after(nv); }
   if (window.slTrilho) slTrilho();
-  nv.innerHTML = TITULOS.map(([k, t]) => `<a href="#t-${k}" data-gt="${k}">${t.replace("Controle de Recursos", "Recursos").replace("Processo legislativo", "Legislativo").replace("ALESC (Transparência)", "ALESC")}</a>`).join("");
-  nv.onclick = (e) => { const a = e.target.closest("[data-gt]"); if (!a) return; e.preventDefault(); const k = a.dataset.gt, sec = $("#t-" + k); S.fech[k] = false; sec.classList.remove("fech"); sec.querySelector(".tgs").classList.add("ab"); sec.scrollIntoView({ behavior: "smooth" }); };
+  nv.innerHTML = [["rec", "Recursos"], ...TITULOS].map(([k, t]) => `<a href="#t-${k}" data-gt="${k}">${t.replace("Processo legislativo", "Legislativo").replace("ALESC (Transparência)", "ALESC")}</a>`).join("");
+  nv.onclick = (e) => { const a = e.target.closest("[data-gt]"); if (!a) return; e.preventDefault(); let k = a.dataset.gt; if (k === "rec") { k = "rh"; S.fech.recB = false; const rb = $("#recB"); if (rb) rb.classList.remove("fech"); } const sec = $("#t-" + k); S.fech[k] = false; sec.classList.remove("fech"); sec.querySelector(".tgs").classList.add("ab"); sec.scrollIntoView({ behavior: "smooth" }); };
 }
 // recorte (município ou região): números da capa e ranking acompanham; vaiMapa leva o mapa 3D ao mesmo recorte
 function selReg(r, vaiMapa = true) { if ((r || null) !== S.reg) S.rankTodos = false; S.reg = r || null; if (typeof c3Painel === "function") c3Painel(); pintaRank();
@@ -265,7 +268,7 @@ function meu() {
   if (!MEU.length) return topoC(fLista) + (EDITA() ? blocoPrivado() : `<div class="obra">O controle deste gabinete ainda está vazio.</div>`);
   const anos = [...new Set(MEU.map((r) => r.ano).filter(Boolean))].sort(), A = MEU.filter((r) => !S.mano || r.ano === S.mano), at = A.filter((r) => !supr(r)), sp = A.filter(supr);
   const tot = at.reduce((s, r) => s + (+r.valor || 0), 0), pago = at.filter((r) => r.ob || /pago|executado/i.test(r.status_manual || "")).reduce((s, r) => s + (+r.valor || 0), 0);
-  S.mtool = fLista + leq("fMano", "Ano", [[0, "Todos"], ...anos.map((a) => [a, a])], S.mano); S.mad = ad;
+  S.mtool = fLista; S.manos = anos; S.mad = ad;   // 17/11/2026: o Ano saiu da barra de cima e virou o 1º filtro do painel
   return `
     <section class="bx"><div id="mfil"></div><div id="mbar" class="mbar"></div><div id="mtab"></div></section>`;
 }
@@ -326,15 +329,15 @@ const FUNIL_I = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" str
 let NOME_MUN = null;
 function nomeMun(x) { if (!x) return x; if (!NOME_MUN) { NOME_MUN = {}; (BASE && BASE.mun || []).forEach((m) => { NOME_MUN[norm(m.n)] = m.n; }); } return NOME_MUN[norm(x)] || x; }
 function mfiltros() {
-  mxMigrar(); S.mf = S.mf || {}; if (S.mf.mun && !Array.isArray(S.mf.mun)) S.mf.mun = [S.mf.mun]; const nf = [S.mori, S.met, S.lista, S.cet && S.cet.size < 5, ...Object.values(S.mf), ...Object.values(S.mx || {}).map((x) => x && x.size)].filter((v) => Array.isArray(v) ? v.length : v).length, n = nf + (S.mq ? 1 : 0);
+  mxMigrar(); S.mf = S.mf || {}; if (S.mf.mun && !Array.isArray(S.mf.mun)) S.mf.mun = [S.mf.mun]; const nf = [S.mano, S.mori, S.met, S.lista, ...Object.values(S.hf || {}).map((x) => x && x.size + 1), S.cet && S.cet.size < 5, ...Object.values(S.mf), ...Object.values(S.mx || {}).map((x) => x && x.size)].filter((v) => Array.isArray(v) ? v.length : v).length, n = nf + (S.mq ? 1 : 0);
   const ops = (f) => { const M = new Map(); MEU.flatMap((r) => [].concat(f(r) || [])).filter(Boolean).forEach((o) => { const k = norm(o); if (!M.has(k)) M.set(k, nomeMun(o)); }); return [...M.values()].sort((a, b) => String(a).localeCompare(String(b), "pt-BR")); };
   const tb = $("#mtool"); if (tb) tb.innerHTML = `<div class="mfb">${n ? `<button class="filx" id="filX">Limpar</button>` : ""}${S.aba === "meu" ? PZ_TGL() : ""}${S.mtool || ""}<button class="filb ico${S.mpa || S.mq ? " on" : ""}" id="lupB" title="Pesquisar" aria-label="Pesquisar">${LUPA_I}</button><button class="filb ico${S.mfa ? " on" : ""}" id="filB" title="Filtrar" aria-label="Filtrar">${FUNIL_I}${nf ? `<b>${nf}</b>` : ""}</button>${S.mad || ""}</div>`;
   $("#mfil").innerHTML = `${S.mpa ? `<div class="ctl mfp"><input id="mbusca" placeholder="Pesquisar município, objeto, processo, observação ou etiqueta" value="${esc(S.mq || "")}"></div>` : ""}
     ${S.mfa ? (() => { const sel = (k) => { const m = MF.find((x) => x[0] === k), [, t, f] = m; return k === "mun" ? leq("mf_mun", t, [["", (S.mf.mun || []).length ? "Adicionar outro…" : "Todos"], ...ops(f).filter((o) => !(S.mf.mun || []).some((m2) => norm(m2) === norm(o))).map((o) => [o, o])], "") : leq("mf_" + k, t, [["", "Todos"], ...ops(f).map((o) => [o, o]), ...(["mod", "fun", "reg"].includes(k) ? [["(vazio)", "Não informado"]] : [])], S.mf[k] || ""); };
       const oriS = leq("fOri", "Origem", [["", "Todas"], ...ops((r) => sigla(r.origem)).map((o) => [o, o])], S.mori || "");
-      const nMais = [S.met, S.lista, S.mf.num, S.mf.obs, ...["lid", "fun", "ben", "tag"].map((k) => S.mx[k] && S.mx[k].size)].filter(Boolean).length;
-      const mais = `${leq("fEt", "Etapa", ETF, S.met || "")}${typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista de indicação", [["", "Todas"], ...opsListas().slice(1)], S.lista || "") : ""}${["lid", "fun", "ben", "tag"].map(mxBtn).join("")}${S.mf.num ? leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num) : ""}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}`;
-      return `<div class="mfp mfg">${["mun", "reg", "ori", "mod"].map(mxBtn).join("")}<button class="mfmais${S.mfx ? " on" : ""}" id="mfMais" title="${S.mfx ? "Fechar os outros filtros" : "Mais filtros: etapa, líder, função, beneficiário, etiqueta, observação"}" aria-expanded="${!!S.mfx}">…${nMais ? `<b>${nMais}</b>` : ""}</button>
+      const nMais = [S.lista, S.mf.num, S.mf.obs, ...["fun", "ben", "tag"].map((k) => S.mx[k] && S.mx[k].size)].filter(Boolean).length;
+      const mais = `${typeof opsListas === "function" && opsListas().length > 1 ? leq("fLista", "Lista de indicação", [["", "Todas"], ...opsListas().slice(1)], S.lista || "") : ""}${["fun", "ben", "tag"].map(mxBtn).join("")}${leq("mf_num", "Nº da emenda", [["", "Todos"], ["(vazio)", "Sem número (impositivas)"]], S.mf.num || "")}${leq("mf_obs", "Observação", [["", "Todas"], ["com", "Com observação"], ["sem", "Sem observação"], ["at", "Marcadas para atenção"]], S.mf.obs || "")}`;
+      return `<div class="mfp mfg">${leq("fMano", "Ano", [[0, "Todos"], ...(S.manos || []).map((a) => [a, a])], S.mano || 0)}${leq("fEt", "Status", ETF, S.met || "")}${["mun", "reg", "ori", "mod", "lid"].map(mxBtn).join("")}<button class="mfmais${S.mfx ? " on" : ""}" id="mfMais" title="${S.mfx ? "Fechar os outros filtros" : "Mais filtros: lista, função, beneficiário, etiqueta, nº da emenda, observação"}" aria-expanded="${!!S.mfx}">…${nMais ? `<b>${nMais}</b>` : ""}</button>
       <button class="filb ico borr" id="filBorr" title="Limpar filtros" aria-label="Limpar filtros"${n ? "" : " disabled"}><svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 2.5l4 4-6.5 6.5H4.5l-2-2z M6.5 5.5l4 4 M7 13h6.5"/></svg></button>${typeof relAbrir === "function" ? `<button class="filb ico" id="relB" title="Imprimir ou exportar o que está no filtro" aria-label="Imprimir ou exportar">${REL_I}</button>` : ""}</div>${S.mfx ? `<div class="mfp mfg mfg2">${mais}${n ? `<button class="btn sec" id="etqG">Etiquetar os ${ni(mfiltradas().length)} itens</button>` : ""}</div>` : ""}`; })() : ""}`;
   const pzT = $("#pzTema"); if (pzT) pzT.onclick = () => { try { localStorage.setItem("gab_ctl_claro", pzClaro() ? "0" : "1"); } catch (e) {} mtab(); };
   const fm0 = $("#fMano"); if (fm0) fm0.onchange = (e) => { S.mano = +e.target.value; desenhar(); };
@@ -344,8 +347,8 @@ function mfiltros() {
   document.querySelectorAll("#mfil [data-mx]").forEach((b) => b.onclick = () => mxAbrir(b));
   const mm = $("#mfMais"); if (mm) mm.onclick = () => { S.mfx = !S.mfx; mfiltros(); };
   const fl0 = $("#fLista"); if (fl0) fl0.onchange = (e) => { S.lista = e.target.value || null; mfiltros(); mtab(); };
-  const bz = $("#filBorr"); if (bz) bz.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.mx = {}; S.cet = new Set([1, 2, 3, 4, 5]); mfiltros(); mtab(); };
-  const x = $("#filX"); if (x) x.onclick = () => { S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.mx = {}; S.cet = new Set([1, 2, 3, 4, 5]); mfiltros(); mtab(); };
+  const bz = $("#filBorr"); if (bz) bz.onclick = () => { const ano = S.mano; S.mano = 0; S.hf = {}; S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.mx = {}; S.cet = new Set([1, 2, 3, 4, 5]); if (ano) { desenhar(); return; } mfiltros(); mtab(); };
+  const x = $("#filX"); if (x) x.onclick = () => { const ano = S.mano; S.mano = 0; S.hf = {}; S.mq = ""; S.mori = ""; S.met = ""; S.lista = null; S.mf = {}; S.mx = {}; S.cet = new Set([1, 2, 3, 4, 5]); if (ano) { desenhar(); return; } mfiltros(); mtab(); };
   const eg = $("#etqG"); if (eg) eg.onclick = () => etiquetarGrupo(mfiltradas());
   const rb = $("#relB"); if (rb) rb.onclick = () => relAbrir();
   const bi = $("#mbusca"); if (bi) bi.oninput = (e) => { S.mq = e.target.value; S.mlim = 80; mtab(); const t = $("#mtool .filx"); if (!!S.mq !== !!t) { mfiltros(); const b = $("#mbusca"); b.focus(); b.setSelectionRange(b.value.length, b.value.length); } };
@@ -386,7 +389,7 @@ const balao = (r) => { const ul = (r.notas || []).slice(-1)[0];
 // desempate: o que entrou depois (indicações levadas ao Controle) vem primeiro; o resto segue a ordem da planilha
 const recente = (a, b) => (a.origem_planilha == null) - (b.origem_planilha == null) ? (a.origem_planilha == null ? -1 : 1) : String(b.criado_em || "").localeCompare(String(a.criado_em || "")) * (a.origem_planilha == null ? 1 : 0) || (a.origem_planilha ?? 0) - (b.origem_planilha ?? 0);
 function mfiltradas(semBarra) {
-  const q = norm(S.mq); return MEU.filter((r) => { if (!semBarra && S.cet && S.cet.size < 5 && !S.cet.has(ctlEt(r))) return false; if (!mxPassa(r)) return false; if (S.mano && r.ano !== S.mano) return false; if (S.lista && typeof listaDaLinha === "function" && listaDaLinha(r) !== S.lista) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
+  const q = norm(S.mq); return MEU.filter((r) => { if (!semBarra && S.cet && S.cet.size < 5 && !S.cet.has(ctlEt(r))) return false; if (!mxPassa(r)) return false; if (!hfPassa(r)) return false; if (S.mano && r.ano !== S.mano) return false; if (S.lista && typeof listaDaLinha === "function" && listaDaLinha(r) !== S.lista) return false; if (q && !norm([r.municipio, r.objeto, r.numero, r.processo, (r.tags || []).join(" "), r.origem, r.observacao].join(" ")).includes(q)) return false;
     if (S.mori && sigla(r.origem) !== S.mori) return false;
     const F = S.mf || {}; const vz = (k, cheio) => F[k] === "(vazio)" ? !cheio : null;
     if (vz("mod", r.modalidade) === false || vz("fun", r.funcao) === false || vz("reg", regDe(r)) === false) return false;
@@ -427,10 +430,36 @@ function mbarra() { const b = $("#mbar"); if (!b) return; S.cet = S.cet || new S
   // como na Transparência: com todas marcadas, o clique mostra SÓ aquela; com seleção, soma ou tira; tirar a última volta a todas
   b.querySelectorAll("[data-cet]").forEach((x) => x.onclick = () => { const k = +x.dataset.cet, todas = S.cet.size === 5;
     if (todas) S.cet = new Set([k]); else if (S.cet.has(k)) { S.cet.delete(k); if (!S.cet.size) S.cet = new Set([1, 2, 3, 4, 5]); } else S.cet.add(k); S.mlim = 80; mtab(); mfiltros(); }); }
+// filtro pelo título da coluna, como no Google Planilhas (17/11/2026): clicar no título abre ordenar A→Z / Z→A e
+// "Filtrar por valores" (pesquisa, selecionar tudo/limpar, valores com a contagem). Soma com os outros filtros (S.hf).
+const stRot = (r) => { const e = etapasStatus(r.status_manual); if (!e.d) return "Suprimida"; if (e.ver) return "Verificar"; return ["Só indicada", "Com portaria", "Pago / executado"][Math.max(0, e.d.lastIndexOf(true))]; };
+const HF_VAL = { ano: (r) => String(r.ano || "(vazio)"), ori: (r) => sigla(r.origem) || "(vazio)", mun: (r) => nomeMun(r.municipio) || "(vazio)", obj: (r) => r.objeto || "(vazio)", fun: (r) => r.funcao || "(vazio)",
+  mod: (r) => instrNome(r.modalidade) || "(vazio)", v: (r) => "R$ " + ni(+r.valor || 0), st: stRot, pr: (r) => r.processo || "(vazio)", inf: (r) => (r.tags || []).length ? r.tags : ["(sem etiqueta)"] };
+const hfVals = (k, r) => [].concat(HF_VAL[k] ? HF_VAL[k](r) : []);
+const hfPassa = (r) => !S.hf || Object.entries(S.hf).every(([k, set]) => !set || hfVals(k, r).some((v) => set.has(v)));
+const hfFecha = () => { const m = document.getElementById("hfm"); if (m) m.remove(); document.removeEventListener("mousedown", hfFora, true); document.removeEventListener("keydown", hfEsc, true); };
+const hfFora = (e) => { if (!e.target.closest("#hfm")) hfFecha(); }, hfEsc = (e) => { if (e.key === "Escape") { e.stopPropagation(); hfFecha(); } };
+function hfAbrir(th, k) { hfFecha(); S.hf = S.hf || {};
+  const cont = new Map(); MEU.forEach((r) => hfVals(k, r).forEach((v) => cont.set(v, (cont.get(v) || 0) + 1)));
+  const num = k === "ano" || k === "v", nv = (v) => +String(v).replace(/\D/g, "") || 0, vals = [...cont.keys()].sort((a, b) => num ? nv(a) - nv(b) : String(a).localeCompare(String(b), "pt-BR"));
+  const sel = new Set(S.hf[k] || vals), tit = (PZ_COLS.find((c) => c[0] === k) || [])[1] || "", m = document.createElement("div"); m.id = "hfm"; m.className = "hfm";
+  m.innerHTML = `<div class="hfh">${esc(tit)}</div><button class="hfo" data-o="1">${num ? "Ordenar do menor ao maior" : "Ordenar de A → Z"}</button><button class="hfo" data-o="-1">${num ? "Ordenar do maior ao menor" : "Ordenar de Z → A"}</button>
+    <div class="hft">Filtrar por valores</div><div class="hfa"><button data-t="1">Selecionar tudo</button><button data-t="0">Limpar</button></div><input class="hfq" placeholder="Pesquisar" aria-label="Pesquisar valores"><div class="hfl"></div>
+    <div class="hfb"><button class="btn sec" data-c>Cancelar</button><button class="btn" data-ok>OK</button></div>`;
+  const lista = () => { const q = norm(m.querySelector(".hfq").value); m.querySelector(".hfl").innerHTML = vals.filter((v) => !q || norm(v).includes(q)).map((v) => `<label><input type="checkbox" value="${esc(v)}"${sel.has(v) ? " checked" : ""}><span>${esc(v)}</span><small>${cont.get(v)}</small></label>`).join("") || `<p>Nada encontrado.</p>`; };
+  document.body.appendChild(m); lista(); const r = th.getBoundingClientRect(); m.style.top = (r.bottom + scrollY + 4) + "px"; m.style.left = Math.max(8, Math.min(r.left + scrollX, scrollX + innerWidth - m.offsetWidth - 8)) + "px";
+  m.querySelector(".hfq").oninput = lista; m.querySelector(".hfq").focus();
+  m.onchange = (e) => { const c = e.target.closest("input[type=checkbox]"); if (c) c.checked ? sel.add(c.value) : sel.delete(c.value); };
+  m.onclick = (e) => { const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.o) { S.mord = [k, +b.dataset.o]; hfFecha(); mtab(); return; }
+    if (b.dataset.t) { const q = norm(m.querySelector(".hfq").value); vals.filter((v) => !q || norm(v).includes(q)).forEach((v) => b.dataset.t === "1" ? sel.add(v) : sel.delete(v)); lista(); return; }
+    if (b.hasAttribute("data-c")) { hfFecha(); return; }
+    if (b.hasAttribute("data-ok")) { if (vals.every((v) => sel.has(v))) delete S.hf[k]; else S.hf[k] = new Set(sel); hfFecha(); mfiltros(); mtab(); } };
+  setTimeout(() => { document.addEventListener("mousedown", hfFora, true); document.addEventListener("keydown", hfEsc, true); }, 0); }
 function mtab() {
   mbarra(); const L = mfiltradas(); $("#mtab").classList.toggle("claro", pzClaro()); const tg = $("#pzTema"); if (tg) tg.setAttribute("aria-checked", String(pzClaro()));
-  if (S.mord) { const c = MCOL.find((x) => x[0] === S.mord[0]), d = S.mord[1]; L.sort((a, b) => { const x = c[2](a), y = c[2](b); return (x > y ? 1 : x < y ? -1 : 0) * d || recente(a, b); }); }
-  $("#mtab").innerHTML = `<table class="tb mt ct pz"><thead><tr>${PZ_COLS.map(([k, t, c]) => `<th${k ? ` data-mo="${k}"` : ""} class="so ${c}${S.mord && S.mord[0] === k ? " on" : ""}">${(() => { const i = k && t ? `<i>${S.mord && S.mord[0] === k ? (S.mord[1] > 0 ? "↑" : "↓") : "↕"}</i>` : ""; return t + i; })()}</th>`).join("")}</tr></thead><tbody>${L.slice(0, S.mlim).map((r, i) => `<tr class="r${supr(r) ? " sup" : ""}${S.maberto === mk(r) ? " ab" : ""}" data-id="${esc(mk(r))}">
+  if (S.mord) { const c = MCOL.find((x) => x[0] === S.mord[0]) || [S.mord[0], "", (r) => norm(hfVals(S.mord[0], r).join(" "))], d = S.mord[1]; L.sort((a, b) => { const x = c[2](a), y = c[2](b); return (x > y ? 1 : x < y ? -1 : 0) * d || recente(a, b); }); }
+  $("#mtab").innerHTML = `<table class="tb mt ct pz"><thead><tr>${PZ_COLS.map(([k, t, c]) => `<th${k ? ` data-mo="${k}"` : ""} class="so ${c}${S.mord && S.mord[0] === k ? " on" : ""}">${(() => { const i = k && t ? `<i>${S.mord && S.mord[0] === k ? (S.mord[1] > 0 ? "↑" : "↓") : "↕"}</i>` : ""; return t + i + (S.hf && S.hf[k] ? `<b class="hfi" title="Filtrado">${FUNIL_I}</b>` : ""); })()}</th>`).join("")}</tr></thead><tbody>${L.slice(0, S.mlim).map((r, i) => `<tr class="r${supr(r) ? " sup" : ""}${S.maberto === mk(r) ? " ab" : ""}" data-id="${esc(mk(r))}">
     <td class="c0">${i + 1}</td><td class="c1">${corrHtml(r, "ano", (v) => esc(v || ""))}</td><td class="c2">${pzEtq(r)}</td>
     <td class="c3"><b>${corrHtml(r, "municipio", (v) => esc(v || ""))}</b><small>${esc(regDe(r))}</small></td>
     <td class="c4">${objHtml(r)}</td><td class="c5">${pzFun(r)}</td>
@@ -441,7 +470,7 @@ function mtab() {
     <td class="c10">${(r.tags || []).length ? `<small>${r.tags.map((t) => `<span class="tg">${esc(t)}</span>`).join("")}</small>` : ""}</td></tr>${S.maberto === mk(r) ? `<tr class="det"><td colspan="${PZ_COLS.length}">${detalheMeu(r)}</td></tr>` : ""}`).join("")}</tbody></table>
     ${L.length > S.mlim ? `<button class="btn sec mais" id="mmais">Mostrar mais (${L.length - S.mlim})</button>` : ""}<div class="av"><b>${ni(L.length)}</b> linhas · ${fm(L.filter((r) => !supr(r)).reduce((s, r) => s + (+r.valor || 0), 0))}${L.some(supr) ? ` · ${L.filter(supr).length} suprimidas fora da soma` : ""}</div>`;
   const m = $("#mmais"); if (m) m.onclick = () => { S.mlim += 200; mtab(); };
-  $("#mtab").querySelectorAll("th[data-mo]").forEach((th) => th.onclick = () => { const k = th.dataset.mo; S.mord = S.mord && S.mord[0] === k ? (S.mord[1] < 0 ? null : [k, -1]) : [k, 1]; mtab(); });
+  $("#mtab").querySelectorAll("th[data-mo]").forEach((th) => th.onclick = (e) => { e.stopPropagation(); if (HF_VAL[th.dataset.mo]) hfAbrir(th, th.dataset.mo); else { const k = th.dataset.mo; S.mord = S.mord && S.mord[0] === k ? (S.mord[1] < 0 ? null : [k, -1]) : [k, 1]; mtab(); } });
   $("#mtab").querySelectorAll("tr.r").forEach((tr) => tr.onclick = () => { if (S.pend && S.pend.id === S.maberto && Object.keys(S.pend.v).length) { confirmarPend(); return; } S.pend = null; S.maberto = S.maberto === tr.dataset.id ? null : tr.dataset.id; if (S.maberto) try { localStorage.setItem("gab_visto_" + S.maberto, new Date().toISOString()); } catch (e) {} mtab(); });
   const d = $("#mtab .det"); if (d) ligarMeuDet(d, MEU.find((r) => mk(r) === S.maberto));
 }

@@ -1,6 +1,6 @@
 {
  "_leia": "Mapa do site SimulaLEGIS: a lista oficial do que existe, onde está e para onde vai. Fonte de verdade da organização. Quem mantém: o agente organizador-do-site (.claude/agents/organizador-do-site.md). Depois de editar, rodar: python3 ferramentas/mapa/gerar_mapa.py (confere com o código e gera ferramentas/mapa/mapa.html). Campos: status = pronto | construcao | prototipo | planejado | pausado; quem = visitante | cadastrado | gabinete (liberado pelo admin) | admin; arquivo + ancora = onde o item está no código (o gerador confere se o texto da âncora existe no arquivo); vai_para = mudança combinada com o usuário.",
- "atualizado": "2026-11-16",
+ "atualizado": "2026-11-17",
  "decisoes": [
   [
    "04/11/2026",
@@ -97,6 +97,10 @@
   [
    "16/11/2026",
    "A capa do Gabinete passa a ser a capa 3D (mapa 3D + vidro), aprovada pelo usuário; sai o desenho antigo com bolhas, os cartões Recursos/Votos, a lupa antiga e o link 'Alterar o parlamentar vinculado' (trocar o parlamentar agora é clicar no nome). Padrão em DESIGN-GABINETE.md."
+  ],
+  [
+   "17/11/2026",
+   "Controle de Recursos deixa de ser título próprio e passa a ser o 1º bloco do Gabinete › Administrativo (ordem: Controle de Recursos, Agenda, RH do gabinete); substitui a decisão de 14/11 de Agenda primeiro. O atalho Recursos do topo continua. 'RH - Gabinete' apagado: 'Estrutura do gabinete' virou 'RH do gabinete' (estrutura pela ALESC embutida mais Equipe registrada com natureza do vínculo). 'Diário Oficial' vira 'Diário ALESC'; 'Liderança do PSD' vira 'Liderança'."
   ]
  ],
  "paginas": [
@@ -537,87 +541,6 @@
      ]
     },
     {
-     "nome": "Controle de Recursos (Controle, Cotas e Transparência SC)",
-     "status": "pronto",
-     "quem": "cadastrado",
-     "arquivo": "painel/gabinete.js",
-     "ancora": "Controle de Recursos",
-     "dados": "banco: gab_recursos, gab_demandas; dados/gabinete (emendas públicas, todo dia)",
-     "filhos": [
-      {
-       "nome": "Controle (dados do gabinete)",
-       "status": "pronto",
-       "arquivo": "painel/gabinete.js",
-       "ancora": "\"Controle\"",
-       "nota": "Tabela no padrão do documento impresso (# · Ano · Origem · Município · Objeto · Função · Mod. · R$ · Status · Processo · balão · Observações), todas as colunas sempre visíveis. Filtros: 1ª linha Município, Região, Origem e Mod., mais botão '…' com os demais (Etapa, Lista, Líder, Função, Beneficiário, Etiqueta, Nº da emenda, Observação, Etiquetar em grupo); borracha e impressora na 1ª linha. Município, Região, Origem, Mod., Líder, Função, Beneficiário e Etiqueta funcionam como no Google Planilhas: abrem a lista de todos os valores já marcados, com pesquisa, quantidade, 'Selecionar tudo' e 'Limpar' (desmarcar esconde); Etapa, Lista de indicação e Observação seguem listas simples. No detalhe do item (clicar na linha), as etiquetas e o '+ etiqueta' ficam entre a linha do tempo e o Objeto. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar. Itens mostram \"Alterado por … em …\".",
-       "filhos": [
-        {
-         "nome": "Barra das 5 etapas (clicável para filtrar)",
-         "status": "pronto",
-         "arquivo": "painel/gabinete.js",
-         "ancora": "const ETAPAS",
-         "nota": "Indicada, Empenhada, Em pagamento, Paga, Impedimento técnico; a mesma da Transparência SC, acima da tabela."
-        },
-        {
-         "nome": "Interruptor fundo escuro/branco da tabela (lua/sol)",
-         "status": "pronto",
-         "arquivo": "painel/gabinete.js",
-         "ancora": "gab_ctl_claro",
-         "nota": "Fica à esquerda do seletor de Ano; a escolha fica guardada no navegador."
-        }
-       ],
-       "quem": "cadastrado"
-      },
-      {
-       "nome": "Imprimir ou exportar (PDF e Excel)",
-       "status": "pronto",
-       "arquivo": "painel/gabinete-relatorio.js",
-       "ancora": "function relAbrir",
-       "nota": "Relatório do Controle (PDF/Excel) no novo padrão de documento impresso, com as cores de fundo. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar.",
-       "quem": "cadastrado"
-      },
-      {
-       "nome": "Cotas",
-       "status": "pronto",
-       "arquivo": "painel/gabinete-cotas.js",
-       "ancora": "painelCotas",
-       "filhos": [
-        {
-         "nome": "Cotas por ano (painel de gráficos)",
-         "status": "pronto",
-         "arquivo": "painel/gabinete-cotas.js",
-         "ancora": "painelCotas",
-         "nota": "Junta os antigos 'Evolução do total' e 'Por tipo de cota'. Quatro formatos em abas: Bullet (padrão, valor x quota), Barras empilhadas, Área empilhada e 100%. Filtros 'Tipo de cota' e 'Separar por' (tipo, área, instrumento, região, município). Clicar no ano abre a lista de indicações; clicar numa parte filtra."
-        }
-       ],
-       "quem": "cadastrado",
-       "nota": " Só para a equipe do gabinete; Leitor só consulta e não vê Indicar."
-      },
-      {
-       "nome": "Transparência SC (dados oficiais)",
-       "status": "pronto",
-       "arquivo": "painel/gabinete.js",
-       "ancora": "Transparência SC",
-       "quem": "cadastrado"
-      },
-      {
-       "nome": "Outros deputados",
-       "status": "pronto",
-       "arquivo": "painel/gabinete.js",
-       "ancora": "Outros deputad",
-       "quem": "cadastrado"
-      },
-      {
-       "nome": "Indicar (planilha de indicação e links dos líderes)",
-       "status": "prototipo",
-       "arquivo": "painel/gabinete-indicar.js",
-       "ancora": "function",
-       "nota": "Links por líder: só protótipo, não implementado. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar.",
-       "quem": "cadastrado"
-      }
-     ]
-    },
-    {
      "nome": "Administrativo (era RH)",
      "status": "pronto",
      "quem": "cadastrado",
@@ -625,61 +548,124 @@
      "ancora": "\"Administrativo\"",
      "filhos": [
       {
+       "nome": "Controle de Recursos (Controle, Cotas, Transparência SC e Outros deputados)",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete.js",
+       "ancora": "Controle de Recursos",
+       "dados": "banco: gab_recursos, gab_demandas; dados/gabinete (emendas públicas, todo dia)",
+       "filhos": [
+        {
+         "nome": "Controle (dados do gabinete)",
+         "status": "pronto",
+         "arquivo": "painel/gabinete.js",
+         "ancora": "\"Controle\"",
+         "nota": "Tabela no padrão do documento impresso (# · Ano · Origem · Município · Objeto · Função · Mod. · R$ · Status · Processo · balão · Observações), todas as colunas sempre visíveis. Filtros: 1ª linha Município, Região, Origem e Mod., mais botão '…' com os demais (Etapa, Lista, Líder, Função, Beneficiário, Etiqueta, Nº da emenda, Observação, Etiquetar em grupo); borracha e impressora na 1ª linha. Município, Região, Origem, Mod., Líder, Função, Beneficiário e Etiqueta funcionam como no Google Planilhas: abrem a lista de todos os valores já marcados, com pesquisa, quantidade, 'Selecionar tudo' e 'Limpar' (desmarcar esconde); Etapa, Lista de indicação e Observação seguem listas simples. No detalhe do item (clicar na linha), as etiquetas e o '+ etiqueta' ficam entre a linha do tempo e o Objeto. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar. Itens mostram \"Alterado por … em …\".",
+         "filhos": [
+          {
+           "nome": "Barra das 5 etapas (clicável para filtrar)",
+           "status": "pronto",
+           "arquivo": "painel/gabinete.js",
+           "ancora": "const ETAPAS",
+           "nota": "Indicada, Empenhada, Em pagamento, Paga, Impedimento técnico; a mesma da Transparência SC, acima da tabela."
+          },
+          {
+           "nome": "Interruptor fundo escuro/branco da tabela (lua/sol)",
+           "status": "pronto",
+           "arquivo": "painel/gabinete.js",
+           "ancora": "gab_ctl_claro",
+           "nota": "Fica à esquerda do seletor de Ano; a escolha fica guardada no navegador."
+          }
+         ],
+         "quem": "cadastrado"
+        },
+        {
+         "nome": "Imprimir ou exportar (PDF e Excel)",
+         "status": "pronto",
+         "arquivo": "painel/gabinete-relatorio.js",
+         "ancora": "function relAbrir",
+         "nota": "Relatório do Controle (PDF/Excel) no novo padrão de documento impresso, com as cores de fundo. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar.",
+         "quem": "cadastrado"
+        },
+        {
+         "nome": "Cotas",
+         "status": "pronto",
+         "arquivo": "painel/gabinete-cotas.js",
+         "ancora": "painelCotas",
+         "filhos": [
+          {
+           "nome": "Cotas por ano (painel de gráficos)",
+           "status": "pronto",
+           "arquivo": "painel/gabinete-cotas.js",
+           "ancora": "painelCotas",
+           "nota": "Junta os antigos 'Evolução do total' e 'Por tipo de cota'. Quatro formatos em abas: Bullet (padrão, valor x quota), Barras empilhadas, Área empilhada e 100%. Filtros 'Tipo de cota' e 'Separar por' (tipo, área, instrumento, região, município). Clicar no ano abre a lista de indicações; clicar numa parte filtra."
+          }
+         ],
+         "quem": "cadastrado",
+         "nota": " Só para a equipe do gabinete; Leitor só consulta e não vê Indicar."
+        },
+        {
+         "nome": "Transparência SC (dados oficiais)",
+         "status": "pronto",
+         "arquivo": "painel/gabinete.js",
+         "ancora": "Transparência SC",
+         "quem": "cadastrado"
+        },
+        {
+         "nome": "Outros deputados",
+         "status": "pronto",
+         "arquivo": "painel/gabinete.js",
+         "ancora": "Outros deputad",
+         "quem": "cadastrado"
+        },
+        {
+         "nome": "Indicar (planilha de indicação e links dos líderes)",
+         "status": "prototipo",
+         "arquivo": "painel/gabinete-indicar.js",
+         "ancora": "function",
+         "nota": "Links por líder: só protótipo, não implementado. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar.",
+         "quem": "cadastrado"
+        }
+       ],
+       "nota": "Primeiro bloco do Administrativo (era título próprio até 17/11/2026). O atalho Recursos do topo continua e leva ao Administrativo com o Controle aberto. Filtros principais: Ano, Status, Município, Região, Origem, Mod. e Líder; clicar no título da coluna ordena e filtra por valores, como no Google Planilhas."
+      },
+      {
        "nome": "Agenda",
        "status": "pronto",
        "quem": "cadastrado",
        "arquivo": "painel/gabinete-agenda.js",
        "ancora": "corpoAgenda",
        "dados": "banco: gab_agenda (migração 101); JSON: dados/painel/prazos-casa.json, agenda-alesc.json, sc-aniversarios.json",
-       "nota": "Primeiro bloco do Administrativo, acima do RH - Gabinete. Calendário do mês e lista dos próximos 30 dias (ou do dia clicado). Etiquetas: Prazos, Comissões, Plenário, Bases, Equipe, Feriados e datas, Eventos da Casa (desligada por padrão). Prazos das emendas impositivas vêm das Cotas; prazos da Casa do Ato da Mesa 428/2026; feriados calculados. Aniversários das cidades: parcial, 33 de 295 (a Wikipédia limitou as consultas). A equipe cadastra eventos próprios; os dados públicos são só leitura."
+       "nota": "Segundo bloco do Administrativo, depois do Controle de Recursos. Calendário do mês e lista dos próximos 30 dias (ou do dia clicado). Etiquetas: Prazos, Comissões, Plenário, Bases, Equipe, Feriados e datas, Eventos da Casa (desligada por padrão). Prazos das emendas impositivas vêm das Cotas; prazos da Casa do Ato da Mesa 428/2026; feriados calculados. Aniversários das cidades: parcial, 33 de 295 (a Wikipédia limitou as consultas). A equipe cadastra eventos próprios; os dados públicos são só leitura."
       },
       {
-       "nome": "RH - Gabinete",
+       "nome": "RH do gabinete",
        "status": "pronto",
        "arquivo": "painel/gabinete-rh.js",
        "ancora": "function rhDesenhar",
-       "dados": "banco: gab_cargos (migração 97)",
-       "nota": "Salvo na conta. As funções do parlamentar (líder, Mesa, presidente ou membro de comissão) criam sozinhas as vagas que trazem em Cargos da ALESC somados. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar.",
+       "dados": "banco: gab_cargos (migrações 97 e 102, coluna natureza); adm_servidores (Quem está lotado, só admin)",
+       "nota": "Só a equipe do gabinete vê. Dentro: a estrutura pela ALESC (cota de nomeações e Quem está lotado), embutida de Eleições 2026 (novos.html?so=gab) sem título próprio, e a Equipe registrada pelo gabinete: botão +, formulário Nome, Cargo, Natureza (Comissionado, À disposição, Terceirizado, Estagiário ou outra escrita), Valor e Observação, com filtro e totais por natureza. Em Parlamentares o bloco continua Estrutura do gabinete.",
        "filhos": [
         {
-         "nome": "Cargos do parlamentar",
+         "nome": "Estrutura pela ALESC (embutida, sem título próprio)",
          "status": "pronto",
-         "arquivo": "painel/gabinete-rh.js",
-         "ancora": "Cargos do parlamentar"
+         "quem": "cadastrado",
+         "arquivo": "painel/gabinete.js",
+         "ancora": "so=gab",
+         "nota": "Mudar em Eleições 2026 muda aqui."
         },
         {
-         "nome": "Gabinete parlamentar",
+         "nome": "Equipe registrada pelo gabinete",
          "status": "pronto",
+         "quem": "cadastrado",
          "arquivo": "painel/gabinete-rh.js",
-         "ancora": "Gabinete parlamentar"
-        },
-        {
-         "nome": "Cargos da ALESC somados",
-         "status": "pronto",
-         "arquivo": "painel/gabinete-rh.js",
-         "ancora": "function rhDerivadas",
-         "nota": "Uma subunidade por estrutura trazida (Liderança, gabinete da Mesa, comissão) e o que veio do catálogo."
-        },
-        {
-         "nome": "Outros cargos",
-         "status": "pronto",
-         "arquivo": "painel/gabinete-rh.js",
-         "ancora": "Outros cargos"
+         "ancora": "Equipe registrada"
         }
        ],
        "quem": "cadastrado"
-      },
-      {
-       "nome": "Estrutura do gabinete (cota de nomeações e Quem está lotado)",
-       "status": "pronto",
-       "quem": "cadastrado",
-       "arquivo": "painel/gabinete.js",
-       "ancora": "so=gab",
-       "dados": "adm_servidores (Quem está lotado, só admin)",
-       "nota": "Embutido de Eleições 2026 (novos.html?so=gab), logo abaixo do RH - Gabinete, já aberto. Mudar lá muda aqui. Voltou do título ALESC em 14/11/2026."
       }
      ],
-     "nota": "A agenda do mandato e a estrutura do gabinete: o RH registrado pela equipe e a estrutura pela ALESC, com a cota de nomeações e quem está lotado."
+     "nota": "Controle de Recursos, Agenda do mandato e RH do gabinete (equipe registrada e estrutura pela ALESC)."
     },
     {
      "nome": "Processo legislativo",
@@ -714,7 +700,7 @@
      "nota": "O que a Assembleia divulga sobre o mandato. Leitura, nada é gravado. É o último título da página (depois de Mailing), com o atalho ALESC no alto.",
      "filhos": [
       {
-       "nome": "Diário Oficial (movimentação diária e atos da Mesa)",
+       "nome": "Diário ALESC (movimentação diária e atos da Mesa)",
        "status": "pronto",
        "quem": "admin",
        "arquivo": "painel/gabinete-diario.js",
@@ -727,7 +713,7 @@
        "status": "pronto",
        "arquivo": "painel/gabinete.js",
        "ancora": "so=adm&sem=gab",
-       "nota": "Subsídio e verbas do parlamentar, Verbas indenizatórias, Liderança do partido, Transparência (estrutura da Casa e Duodécimo), O mandato em números. Mesmo código da Eleições 2026: mudar lá muda aqui. Não confundir com Transparência SC (Controle de Recursos)."
+       "nota": "Subsídio e verbas do parlamentar, Verbas indenizatórias, Liderança (era Liderança do PSD), Transparência (estrutura da Casa e Duodécimo), O mandato em números. Mesmo código da Eleições 2026: mudar lá muda aqui. Não confundir com Transparência SC (Controle de Recursos)."
       }
      ]
     }
