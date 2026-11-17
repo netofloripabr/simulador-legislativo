@@ -91,6 +91,17 @@ depois que estiver dentro do backup criptografado.
 
 ## 4. Montar um computador novo (Mac)
 
+> **GitHub pela porta 443 (desde 16/11/2026):** algumas redes (a da ALESC, por exemplo) bloqueiam a porta 22 e o
+> `git push` falha com "Operation timed out". O Mac atual tem em `~/.ssh/config` o bloco abaixo, que faz o SSH do
+> GitHub usar `ssh.github.com:443` em qualquer rede. Num Mac novo, criar o mesmo arquivo e rodar
+> `ssh -T git@github.com` uma vez, conferindo a impressão digital com a página oficial "GitHub's SSH key fingerprints".
+> ```
+> Host github.com
+>   Hostname ssh.github.com
+>   Port 443
+>   User git
+> ```
+
 1. Ferramentas de desenvolvimento (git e Python 3):
    ```bash
    xcode-select --install
