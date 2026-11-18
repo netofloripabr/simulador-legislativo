@@ -1,0 +1,162 @@
+<title>Comissões · tramitação</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Layout: cabeçalho de seção → números → faixa das comissões (clicável) → filtros → lista com o fluxo de cada proposição
+   (ou quadro por comissão). Padrão do painel das emendas do Gabinete: grafite, Inter, pílulas, etiquetas neutras. */
+:root{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#232A2C; --linha:rgba(242,244,245,.09); --linha2:rgba(242,244,245,.16);
+  --texto:#F2F4F5; --sec:#A9AEB3; --ter:#6B7178; --a:#5B83F0; --ok:#34E84A; --okb:rgba(52,232,74,.14); --or:#E8822A; --erro:#E8432A; color-scheme:dark; }
+*{ box-sizing:border-box; } body{ margin:0; background:var(--fundo); color:var(--texto); font:14px/1.45 Inter, system-ui, -apple-system, sans-serif; -webkit-font-smoothing:antialiased; }
+button, input, select{ font:inherit; color:inherit; }
+.pg{ max-width:1320px; margin:0 auto; padding-block:28px 60px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
+.tag{ display:flex; align-items:center; gap:18px; flex-wrap:wrap; padding:18px 22px; border:1px solid rgba(242,244,245,.06); background:rgba(242,244,245,.018); border-radius:16px; }
+.tag h1{ margin:0; font-size:clamp(30px,4.4vw,48px); font-weight:900; letter-spacing:-.05em; line-height:.95; } .tag p{ flex:1; min-width:240px; margin:0; color:var(--sec); max-width:70ch; }
+.tag .at{ font-size:11px; color:var(--ter); white-space:nowrap; }
+/* números */
+.kpi{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:10px; margin:18px 0 0; }
+.kpi button{ text-align:left; background:var(--sup); border:1px solid var(--linha); border-radius:14px; padding:12px 14px; cursor:pointer; transition:border-color .15s; }
+.kpi button:hover{ border-color:var(--linha2); } .kpi button.on{ border-color:var(--texto); }
+.kpi b{ display:block; font-size:26px; font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; } .kpi span{ font-size:10.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); }
+.kpi small{ display:block; color:var(--sec); font-size:12px; margin-top:2px; }
+/* faixa das comissões */
+.st{ font-size:10.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); margin:24px 0 8px; display:flex; justify-content:space-between; }
+.coms{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px; }
+.com{ text-align:left; background:var(--sup); border:1px solid var(--linha); border-radius:14px; padding:10px 12px; cursor:pointer; display:grid; gap:4px; transition:border-color .15s, background .15s; }
+.com:hover{ border-color:var(--linha2); } .com.on{ background:var(--texto); color:#0B0F0D; border-color:var(--texto); } .com.on .cn, .com.on .cd{ color:#3F454B; }
+.com .cs{ display:flex; align-items:baseline; justify-content:space-between; gap:6px; } .com .cs b{ font-size:15px; font-weight:800; letter-spacing:-.01em; } .com .cs em{ font-style:normal; font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; }
+.com .cn{ font-size:11.5px; color:var(--sec); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .com .cd{ font-size:10.5px; color:var(--ter); }
+.cbar{ display:flex; height:5px; border-radius:3px; overflow:hidden; background:var(--sup3); gap:1px; } .cbar i{ display:block; } .com.on .cbar{ background:#D3D6D8; }
+.lg{ display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--sec); margin-top:8px; } .lg i{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
+/* filtros */
+.bar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:22px 0 10px; position:sticky; top:0; z-index:5; padding:10px 0; background:linear-gradient(var(--fundo) 80%, rgba(11,15,13,0)); }
+.busca{ flex:1 1 260px; display:flex; align-items:center; gap:8px; background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:0 14px; height:40px; }
+.busca input{ flex:1; background:none; border:0; outline:none; font-size:13.5px; } .busca svg{ width:15px; height:15px; color:var(--ter); flex:none; }
+.leq{ display:inline-flex; align-items:center; gap:8px; padding:4px 6px 4px 14px; border:1px solid var(--linha); border-radius:999px; background:var(--sup); height:40px; }
+.leq span{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:600; } .leq select{ background:var(--sup2); border:0; border-radius:999px; padding:6px 10px; font-size:13px; font-weight:600; max-width:200px; }
+.vis{ display:flex; gap:2px; background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:3px; height:40px; } .vis button{ background:none; border:0; border-radius:999px; padding:0 14px; color:var(--sec); font-weight:600; cursor:pointer; font-size:13px; } .vis button.on{ background:var(--texto); color:#0B0F0D; }
+.limpa{ background:none; border:0; color:var(--a); cursor:pointer; font-size:12.5px; padding:0 6px; }
+.res{ font-size:12.5px; color:var(--sec); margin:2px 0 10px; } .res b{ color:var(--texto); }
+/* lista */
+.lista{ background:var(--sup); border:1px solid var(--linha); border-radius:18px; overflow:hidden; }
+.cab, .lin{ display:grid; grid-template-columns:118px minmax(0,1fr) 150px 150px 140px 210px; gap:14px; align-items:center; padding:12px 16px; }
+.cab{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:600; border-bottom:1px solid var(--linha); background:rgba(242,244,245,.015); }
+.cab button{ background:none; border:0; padding:0; font:inherit; color:inherit; letter-spacing:inherit; text-transform:inherit; cursor:pointer; text-align:left; } .cab button i{ font-style:normal; margin-left:4px; color:#3A4045; } .cab button.on, .cab button.on i{ color:var(--texto); }
+.lin{ border-bottom:1px solid rgba(242,244,245,.05); cursor:pointer; transition:background .12s; } .lin:hover{ background:rgba(242,244,245,.025); } .lin.ab{ background:rgba(242,244,245,.035); }
+.eto{ display:inline-grid; grid-template-columns:auto auto; border-radius:6px; overflow:hidden; font-size:11px; font-weight:700; letter-spacing:.02em; line-height:1; }
+.eto b{ background:#E6E8EA; color:#0B0F0D; padding:5px 7px; } .eto span{ background:var(--sup3); color:var(--texto); padding:5px 7px; font-variant-numeric:tabular-nums; }
+.eto.plc b{ background:#B9BEC2; } .eto.pec b{ background:#7E848A; color:#fff; } .eto.out b{ background:#3F454B; color:#fff; }
+.prot{ display:block; font-size:11px; color:var(--ter); margin-top:6px; }
+.obj b{ display:block; font-weight:600; font-size:14px; line-height:1.35; text-wrap:pretty; } .obj .vb{ display:inline-block; font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--sec); border:1px solid var(--linha2); border-radius:999px; padding:1px 7px; margin-right:6px; vertical-align:2px; }
+.obj small{ display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; color:var(--ter); font-size:12px; margin-top:3px; }
+.aut{ font-size:13px; color:var(--sec); } .aut small{ display:block; font-size:11px; color:var(--ter); }
+.na b{ display:inline-block; font-size:12px; font-weight:800; background:var(--texto); color:#0B0F0D; border-radius:6px; padding:3px 7px; } .na small{ display:block; font-size:11px; color:var(--ter); margin-top:5px; }
+.idade{ font-variant-numeric:tabular-nums; font-weight:700; } .idade.v{ color:var(--sec); } .idade.m{ color:#E9C46A; } .idade.l{ color:var(--or); }
+.rel{ font-size:13px; } .rel small{ display:block; font-size:11px; color:var(--ter); } .rel .sem{ color:var(--ter); font-style:italic; }
+/* fluxo das comissões */
+.fl{ display:flex; align-items:center; flex-wrap:wrap; gap:0; row-gap:6px; }
+.fl .p{ display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; letter-spacing:.02em; border-radius:999px; padding:3px 8px; border:1px solid var(--linha2); color:var(--ter); white-space:nowrap; }
+.fl .p.ok{ background:var(--okb); border-color:rgba(52,232,74,.35); color:#8FE89B; } .fl .p.ok::before{ content:"✓"; font-size:10px; }
+.fl .p.atual{ background:var(--texto); border-color:var(--texto); color:#0B0F0D; box-shadow:0 0 0 3px rgba(242,244,245,.12); }
+.fl .p.falta{ border-style:dashed; }
+.fl .ln{ width:10px; height:1px; background:var(--linha2); } .fl .ln.ok{ background:rgba(52,232,74,.45); }
+/* detalhe */
+.det{ grid-column:1 / -1; display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:18px; padding:4px 0 8px; cursor:default; }
+.det h4{ margin:0 0 8px; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); font-weight:600; } .det p{ margin:0 0 10px; color:var(--sec); }
+.passos{ display:grid; gap:6px; } .passo{ display:grid; grid-template-columns:56px minmax(0,1fr) auto; gap:10px; align-items:start; border:1px solid var(--linha); border-radius:12px; padding:8px 10px; }
+.passo .ps{ font-weight:800; font-size:12px; } .passo .pn{ font-size:12.5px; } .passo .pn small{ display:block; color:var(--ter); font-size:11.5px; } .passo .pr{ text-align:right; font-size:11.5px; color:var(--sec); white-space:nowrap; }
+.passo.ok{ border-color:rgba(52,232,74,.28); } .passo.ok .ps{ color:#8FE89B; } .passo.atual{ border-color:var(--texto); } .passo.falta{ border-style:dashed; opacity:.75; }
+.tl{ list-style:none; margin:0; padding:0; border-left:1px solid var(--linha2); margin-left:4px; } .tl li{ position:relative; padding:0 0 8px 14px; font-size:12px; color:var(--sec); }
+.tl li::before{ content:""; position:absolute; left:-4px; top:5px; width:7px; height:7px; border-radius:50%; background:var(--sup3); border:1px solid var(--linha2); } .tl li:last-child::before{ background:var(--texto); }
+.tl li b{ color:var(--texto); font-weight:600; font-variant-numeric:tabular-nums; margin-right:6px; } .lk{ color:var(--a); font-size:12.5px; text-decoration:none; } .lk:hover{ text-decoration:underline; }
+.mais{ display:block; width:100%; background:none; border:0; border-top:1px solid var(--linha); padding:14px; color:var(--sec); font-weight:600; cursor:pointer; } .mais:hover{ color:var(--texto); }
+.vazio{ padding:40px 16px; text-align:center; color:var(--ter); }
+/* quadro por comissão */
+.quadro{ display:grid; grid-auto-flow:column; grid-auto-columns:minmax(270px, 1fr); gap:10px; overflow-x:auto; padding-bottom:10px; }
+.qc{ background:var(--sup); border:1px solid var(--linha); border-radius:16px; display:flex; flex-direction:column; max-height:78vh; min-width:0; }
+.qc > h3{ margin:0; padding:12px 14px; font-size:14px; display:flex; justify-content:space-between; gap:8px; border-bottom:1px solid var(--linha); } .qc > h3 small{ color:var(--ter); font-weight:600; }
+.qc .qs{ overflow:auto; padding:8px; display:grid; gap:6px; align-content:start; }
+.card{ background:var(--sup2); border:1px solid var(--linha); border-radius:12px; padding:9px 10px; display:grid; gap:6px; cursor:pointer; } .card:hover{ border-color:var(--linha2); }
+.card .t{ display:flex; justify-content:space-between; gap:8px; align-items:center; } .card b{ font-size:12.5px; font-weight:600; line-height:1.35; } .card small{ font-size:11px; color:var(--ter); }
+@media (max-width:1100px){ .cab{ display:none; } .lin{ grid-template-columns:minmax(0,1fr) auto; gap:8px 12px; } .lin > .obj{ grid-column:1 / -1; order:-1; } .lin > .aut, .lin > .rel{ font-size:12px; } .lin > .fl{ grid-column:1 / -1; } .det{ grid-template-columns:minmax(0,1fr); } .kpi{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+<main class="pg">
+  <section class="tag"><h1>Comissões</h1><p>As proposições que estão hoje nas comissões permanentes da ALESC: onde cada uma está, quem relata, há quanto tempo e o caminho que ainda falta.</p><span class="at" id="at"></span></section>
+  <div class="kpi" id="kpi"></div>
+  <div class="st"><span>Por comissão · toque para filtrar</span><span id="stc"></span></div>
+  <div class="coms" id="coms"></div>
+  <div class="lg"><span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span></div>
+  <div class="bar" id="bar">
+    <label class="busca"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="m10.5 10.5 3.5 3.5"/></svg><input id="q" placeholder="Buscar número, autor, relator ou assunto" aria-label="Buscar" autocomplete="off"></label>
+    <label class="leq"><span>Tipo</span><select id="fTipo"></select></label>
+    <label class="leq"><span>Tema</span><select id="fTema"></select></label>
+    <label class="leq"><span>Relator</span><select id="fRel"></select></label>
+    <label class="leq"><span>Autor</span><select id="fAut"></select></label>
+    <label class="leq"><span>Na comissão há</span><select id="fIdade"><option value="">Qualquer tempo</option><option value="0">Até 30 dias</option><option value="1">31 a 90 dias</option><option value="2">Mais de 90 dias</option></select></label>
+    <div class="vis" role="group" aria-label="Visão"><button data-v="lista" class="on">Lista</button><button data-v="quadro">Quadro</button></div>
+    <button class="limpa" id="limpa">Limpar filtros</button>
+  </div>
+  <div class="res" id="res"></div>
+  <div id="vista"></div>
+</main>
+<script>
+const D = /*DADOS*/null;
+const $ = (s) => document.querySelector(s), esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+const ni = (n) => (n || 0).toLocaleString("pt-BR"), br = (d) => d ? d.split("-").reverse().join("/") : "—";
+const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const F = { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["dias", -1], vis: "lista", lim: 60, ab: null };
+const faixa = (d) => d == null ? "" : d <= 30 ? "v" : d <= 90 ? "m" : "l";
+const ETQ = { PL: "", PLC: "plc", PEC: "pec" };
+const etq = (x) => `<span class="eto ${ETQ[x.tipo] ?? "out"}"><b>${esc(x.tipo)}</b><span>${esc(x.num)}/${esc(x.ano)}</span></span>`;
+const fluxo = (x) => `<div class="fl">${x.fluxo.map((c, i) => `${i ? `<i class="ln${x.fluxo[i - 1].st === "ok" ? " ok" : ""}"></i>` : ""}<span class="p ${c.st}" title="${esc(c.n)}${c.st === "ok" ? " · aprovada" + (c.par ? " (" + c.par + ")" : "") : c.st === "atual" ? " · está aqui" : " · ainda vai"}">${esc(c.s)}</span>`).join("")}</div>`;
+// filtros
+const passa = (x, sem) => (!F.com || x.com === F.com || sem === "com") && (!F.tipo || x.tipo === F.tipo) && (!F.tema || x.tema === F.tema) && (!F.rel || (F.rel === "(sem)" ? !x.rel : x.rel === F.rel)) && (!F.aut || x.autor === F.aut)
+  && (F.idade === "" || faixa(x.dias) === ["v", "m", "l"][+F.idade]) && (!F.kpi || (F.kpi === "sem" ? !x.rel : F.kpi === "com" ? !!x.rel : F.kpi === "velhas" ? x.dias > 90 : F.kpi === "andou" ? x.fluxo.some((c) => c.st === "ok") : true))
+  && (!F.q || norm([x.tipo, x.num + "/" + x.ano, x.autor, x.rel, x.resumo, x.ementa, x.com].join(" ")).includes(norm(F.q)));
+const ORD = { num: (x) => +x.ano * 1e5 + +x.num, obj: (x) => norm(x.resumo), aut: (x) => norm(x.autor), com: (x) => norm(x.com), rel: (x) => norm(x.rel || "~"), dias: (x) => x.dias ?? -1, fl: (x) => x.fluxo.filter((c) => c.st === "ok").length };
+function kpis(L) { const sem = L.filter((x) => !x.rel).length, v = L.filter((x) => x.dias > 90).length, an = L.filter((x) => x.fluxo.some((c) => c.st === "ok")).length;
+  const k = [["", "Em tramitação", L.length, "em " + new Set(L.map((x) => x.com)).size + " comissões"], ["com", "Com relator", L.length - sem, Math.round((L.length - sem) / Math.max(1, L.length) * 100) + "% do total"], ["sem", "Aguardando relator", sem, "sem relator designado"], ["velhas", "Há mais de 90 dias", v, "paradas na mesma comissão"], ["andou", "Já aprovadas em 1+", an, "comissão no caminho"]];
+  $("#kpi").innerHTML = k.map(([id, t, n, s]) => `<button data-k="${id}" class="${F.kpi === id ? "on" : ""}"><span>${t}</span><b>${ni(n)}</b><small>${s}</small></button>`).join(""); }
+function comissoes() { const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
+  $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
+    return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
+  $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; }
+function opcoes() { const S = (id, vals, t) => { const el = $(id), v = el.value; el.innerHTML = `<option value="">${t}</option>` + vals.map(([k, r]) => `<option value="${esc(k)}">${esc(r)}</option>`).join(""); el.value = v; };
+  const cont = (f) => { const M = new Map(); D.L.forEach((x) => { const k = f(x); if (k) M.set(k, (M.get(k) || 0) + 1); }); return [...M].sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, `${k} (${n})`]); };
+  S("#fTipo", cont((x) => x.tipo), "Todos"); S("#fTema", cont((x) => x.tema), "Todos"); S("#fRel", [["(sem)", "Sem relator (" + D.L.filter((x) => !x.rel).length + ")"], ...cont((x) => x.rel).sort((a, b) => a[0].localeCompare(b[0], "pt-BR"))], "Todos"); S("#fAut", cont((x) => x.autor).sort((a, b) => a[0].localeCompare(b[0], "pt-BR")), "Todos"); }
+function detalhe(x) { return `<div class="det" onclick="event.stopPropagation()"><div><h4>Ementa</h4><p>${esc(x.ementa)}</p>
+    <h4>Caminho nas comissões</h4><div class="passos">${x.fluxo.map((c) => `<div class="passo ${c.st}"><span class="ps">${esc(c.s)}</span><span class="pn">${esc(c.n)}<small>${c.rel ? "Relator: " + esc(c.rel) + (c.dist ? " · desde " + br(c.dist) : "") : c.st === "falta" ? "ainda não distribuída" : "aguardando relator"}${c.part ? " · " + esc(c.part) : ""}</small></span><span class="pr">${c.st === "ok" ? `<b style="color:#8FE89B">${esc(c.par || "Concluída")}</b>${c.concl ? "<br>" + br(c.concl) : ""}` : c.st === "atual" ? "está aqui" : "a tramitar"}</span></div>`).join("")}</div></div>
+    <div><h4>Tramitação</h4><ul class="tl">${x.tram.map(([d, s, p]) => `<li><b>${br(d)}</b>${esc(s)}${p ? ` · <span style="color:var(--ter)">${esc(p)}</span>` : ""}</li>`).join("")}</ul>
+    <a class="lk" href="https://portalelegis.alesc.sc.gov.br/proposicoes/${esc(x.id)}/tramitacoes" target="_blank" rel="noopener">Abrir no e-Legis ↗</a></div></div>`; }
+function linha(x) { const d = x.dias;
+  return `<div class="lin${F.ab === x.id ? " ab" : ""}" data-id="${esc(x.id)}"><div>${etq(x)}<span class="prot">protocolo ${br(x.prot)}</span></div>
+    <div class="obj"><b>${x.verbo ? `<span class="vb">${esc(x.verbo)}</span>` : ""}${esc(x.resumo)}</b><small>${esc(x.ementa)}</small></div>
+    <div class="aut">${esc(x.autor)}<small>${esc(x.tema)}</small></div>
+    <div class="na"><b title="${esc(x.com)}">${esc(x.csig)}</b><small>desde ${br(x.chegou)} · <span class="idade ${faixa(d)}">${d == null ? "—" : d + " dias"}</span></small></div>
+    <div class="rel">${x.rel ? esc(x.rel) + `<small>desde ${br(x.relDist)}</small>` : `<span class="sem">aguardando relator</span>`}</div>
+    ${fluxo(x)}${F.ab === x.id ? detalhe(x) : ""}</div>`; }
+function desenhar() { kpis(D.L.filter((x) => !F.com || x.com === F.com)); comissoes();
+  const L = D.L.filter((x) => passa(x)); const [k, s] = F.ord; L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); });
+  $("#res").innerHTML = `<b>${ni(L.length)}</b> de ${ni(D.L.length)} proposições${F.com ? " em " + esc(F.com) : ""}`;
+  const col = (id, t) => `<button data-o="${id}" class="${F.ord[0] === id ? "on" : ""}">${t}<i>${F.ord[0] === id ? (F.ord[1] > 0 ? "↑" : "↓") : "↕"}</i></button>`;
+  if (F.vis === "lista") $("#vista").innerHTML = `<div class="lista"><div class="cab">${col("num", "Proposição")}${col("obj", "Objetivo")}${col("aut", "Autor · tema")}${col("dias", "Na comissão")}${col("rel", "Relator")}${col("fl", "Caminho nas comissões")}</div>
+    ${L.slice(0, F.lim).map(linha).join("") || `<div class="vazio">Nada com estes filtros.</div>`}${L.length > F.lim ? `<button class="mais" id="mais">Mostrar mais ${ni(Math.min(60, L.length - F.lim))} de ${ni(L.length - F.lim)}</button>` : ""}</div>`;
+  else { const C = (F.com ? [F.com] : D.coms.map((c) => c[0])).filter((c) => L.some((x) => x.com === c));
+    $("#vista").innerHTML = `<div class="quadro">${C.map((c) => { const A = L.filter((x) => x.com === c); return `<section class="qc"><h3>${esc(c)}<small>${ni(A.length)}</small></h3><div class="qs">${A.slice(0, 80).map((x) => `<div class="card" data-id="${esc(x.id)}"><div class="t">${etq(x)}<span class="idade ${faixa(x.dias)}" style="font-size:11.5px">${x.dias ?? "—"} d</span></div><b>${esc(x.resumo)}</b><small>${esc(x.autor)} · ${x.rel ? "relator " + esc(x.rel) : "aguardando relator"}</small>${fluxo(x)}</div>`).join("")}${A.length > 80 ? `<small style="padding:6px;color:var(--ter)">+ ${A.length - 80} na lista</small>` : ""}</div></section>`; }).join("")}</div>`; }
+}
+// eventos
+document.addEventListener("click", (e) => { const t = e.target;
+  const k = t.closest("[data-k]"); if (k) { F.kpi = F.kpi === k.dataset.k ? "" : k.dataset.k; F.lim = 60; desenhar(); return; }
+  const c = t.closest("[data-c]"); if (c) { F.com = F.com === c.dataset.c ? "" : c.dataset.c; F.lim = 60; desenhar(); return; }
+  const o = t.closest("[data-o]"); if (o) { const id = o.dataset.o; F.ord = F.ord[0] === id ? [id, -F.ord[1]] : [id, id === "dias" || id === "fl" ? -1 : 1]; desenhar(); return; }
+  const v = t.closest("[data-v]"); if (v) { F.vis = v.dataset.v; document.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b === v)); desenhar(); return; }
+  if (t.closest("#mais")) { F.lim += 60; desenhar(); return; }
+  if (t.closest("#limpa")) { Object.assign(F, { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", lim: 60 }); ["#q", "#fTipo", "#fTema", "#fRel", "#fAut", "#fIdade"].forEach((s) => $(s).value = ""); desenhar(); return; }
+  const r = t.closest("[data-id]"); if (r) { const id = r.dataset.id; if (F.vis === "quadro") { F.vis = "lista"; document.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b.dataset.v === "lista")); F.q = ""; }
+    F.ab = F.ab === id ? null : id; const i = D.L.findIndex((x) => x.id === id); desenhar(); const el = document.querySelector(`.lin[data-id="${CSS.escape(id)}"]`); if (el) el.scrollIntoView({ block: "nearest" }); } });
+$("#q").oninput = (e) => { F.q = e.target.value; F.lim = 60; desenhar(); };
+[["#fTipo", "tipo"], ["#fTema", "tema"], ["#fRel", "rel"], ["#fAut", "aut"], ["#fIdade", "idade"]].forEach(([s, k]) => $(s).onchange = (e) => { F[k] = e.target.value; F.lim = 60; desenhar(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && F.ab) { F.ab = null; desenhar(); } });
+$("#at").textContent = "e-Legis · atualizado em " + new Date(D.gerado).toLocaleDateString("pt-BR") + " às " + new Date(D.gerado).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+opcoes(); desenhar();
+</script>
