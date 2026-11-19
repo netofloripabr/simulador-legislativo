@@ -46,9 +46,13 @@ const dias = (a, b) => a && b ? Math.round((new Date(b) - new Date(a)) / 864e5) 
 
 const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\d+)\/(\d{4})/) || [0, p.cod, "", ""]).slice(1);
   const chegou = [...(p.tram || [])].reverse().find((t) => t.para === p.setor), [verbo, txt] = resumo(p.ementa);
-  const C = (p.comissoes || []).map((c) => { const r = c.relatores[c.relatores.length - 1] || null, st = c.parecer ? "ok" : c.nome === p.setor ? "atual" : r && r.concl ? "ok" : "falta";
+  // a comissão onde a proposição está agora só conta como aprovada se alguma comissão DEPOIS dela já concluiu (então é um retorno);
+  // senão é a etapa atual, mesmo com parecer do relator já registrado (antes disso aparecia "CCJ ok … CCJ agora" sem ter saído da CCJ)
+  const CC = p.comissoes || [], iS = CC.findIndex((c) => c.nome === p.setor), feita = (c) => !!(c.parecer || (c.relatores[c.relatores.length - 1] || {}).concl);
+  const voltou = iS >= 0 && CC.slice(iS + 1).some(feita);
+  const C = CC.map((c, i) => { const r = c.relatores[c.relatores.length - 1] || null, st = i === iS && !voltou ? "atual" : feita(c) ? "ok" : "falta";
     return { s: sig(c.nome), n: curto(c.nome), st, rel: r ? r.relator : null, dist: r ? r.dist : null, concl: r ? r.concl : null, par: c.parecer ? c.parecer.res.replace(/^Parecer /, "") : null, part: c.parecer ? c.parecer.txt : null }; });
-  if (!C.some((c) => c.st === "atual")) C.push({ s: sig(p.setor), n: curto(p.setor), st: "atual", rel: null });
+  if (!C.some((c) => c.st === "atual")) C.push({ s: sig(p.setor), n: curto(p.setor), st: "atual", rel: null, volta: voltou ? 1 : undefined });
   const atual = C.find((c) => c.st === "atual");
   return { id: p.id, tipo: tipo.replace(/\.$/, ""), num: String(+num || num), ano, autor: (p.autoria || "").replace(/^Deputad[oa] /, ""), ementa: caixa(p.ementa || ""), verbo, resumo: corta(caixa(txt), 150), tema: tema(p.ementa), prot: p.entrada,
     com: curto(p.setor), csig: sig(p.setor), chegou: chegou ? chegou.d : null, dias: dias(chegou ? chegou.d : null, HOJE), rel: atual ? atual.rel : null, relDist: atual ? atual.dist : null, sit: p.situacao, fluxo: C,
