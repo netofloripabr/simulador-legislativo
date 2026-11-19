@@ -129,6 +129,7 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .rtp i:first-child{ border-radius:5px 0 0 5px; } .cmp .rtp i:last-of-type{ border-radius:0 5px 5px 0; }
 .cmp .rtp i span{ font-size:9.5px; font-weight:800; letter-spacing:.02em; white-space:nowrap; }
 .cmp .rtp .r-lei{ background:#3A4045; color:#C9CDD1; }
+.cmp .rtp .r-arq{ background:repeating-linear-gradient(45deg,#3A2E1E 0 3px,#2A2218 3px 6px); color:#C9A97A; }
 .cmp .rtp .r-sem{ background:repeating-linear-gradient(45deg,#2A2F33 0 3px,#202427 3px 6px); color:#8A9096; }
 .cmp .rtp .r-ok{ background:#647C96; color:#F2F4F5; }
 .cmp .rtp .r-ps{ background:#2E3B4B; }
@@ -206,6 +207,7 @@ body.dm-escuro .cmp .dx .alerta{ background:#2B2213; border-color:#5A4521; color
 .cmp .dx .gth b{ color:var(--tx); font-weight:600; }
 .cmp .dx .gtb{ display:flex; height:22px; border-radius:6px; overflow:hidden; gap:2px; }
 .cmp .dx .gtb i{ display:flex; align-items:center; justify-content:center; font-style:normal; font-size:10.5px; font-weight:700; color:#fff; min-width:6px; white-space:nowrap; overflow:hidden; }
+.cmp .dx .gtb .aq{ background:repeating-linear-gradient(45deg,#E9DCC6 0 3px,#F3EBDD 3px 6px); color:#7A5B2E; }
 .cmp .dx .gtb .sm{ background:repeating-linear-gradient(45deg,#D3D8DB 0 3px,#E6E9EC 3px 6px); color:#6E767D; }
 .cmp .dx .gtb .ex{ background:#B9C0C5; color:#3E454B; }
 .cmp .dx .gtb .ok{ background:var(--ac); }
@@ -474,7 +476,19 @@ function passos(x) { const n = x.fluxo.length, at = Math.max(0, x.fluxo.findInde
 // tempo por etapa: protocolo → 1ª comissão (leitura e despacho), cada comissão concluída, intervalo, comissão atual
 // o rito da proposição em trechos de tempo (20/11/2026): leitura (do protocolo até chegar à 1ª comissão, com a data em que foi lida),
 // cada comissão concluída, intervalo entre comissões, a comissão atual e, dentro dela, o pedido de vista aberto; depois, as que faltam
-function rito(x) { const S = [], ok = x.fluxo.filter((c) => c.st === "ok" && c.concl).sort((a, b) => a.concl < b.concl ? -1 : 1); let cur = x.prot;
+// com o histórico inteiro (x.h, desde 20/11/2026): cada trecho real — leitura, comissões (incluindo o tempo com o relator), arquivamento,
+// coordenadorias — até a comissão atual, onde entra a vista
+function ritoH(x) { const H = x.h, S = [], nomeC = (s) => (D.coms.find((c) => c[1] === s) || [s])[0];
+  H.forEach(([lab, ini], i) => { const fim = H[i + 1] ? H[i + 1][1] : HOJE, d = dd(ini, fim) || 0, ult = i === H.length - 1;
+    if (lab === "out") S.push(i === 0 ? { k: "lei", d, s: "Leitura", a: ini, b: fim, t: `Protocolo ${br(x.prot)}${x.lido ? " · lido no Expediente em " + br(x.lido) : ""} · até ${br(fim)}` } : { k: "ps", d, s: "", a: ini, b: fim, t: `Expediente e coordenadorias: ${br(ini)} a ${br(fim)}` });
+    else if (lab === "arq") S.push({ k: "arq", d, s: "arquivada", a: ini, b: fim, t: `Arquivada (fim de legislatura): ${br(ini)} a ${br(fim)} · desarquivada depois` });
+    else if (ult && lab === x.csig) { const dv = x.vista ? Math.min(d, dd(x.vista.d, HOJE) || 0) : 0;
+      S.push({ k: "atual", d: d - dv, s: lab, a: ini, b: x.vista ? x.vista.d : HOJE, t: `${x.com}: desde ${br(ini)} (${ni(d)} dias)${x.rel ? " · relator " + x.rel : " · aguardando relator"}` });
+      if (dv) S.push({ k: "vs", d: dv, s: "vista", a: x.vista.d, b: HOJE, t: `Pedido de vista · ${x.vista.quem || "deputado"} · desde ${br(x.vista.d)} (${ni(dv)} dias)${x.vista.re ? " · " + x.vista.re : ""}` }); }
+    else S.push({ k: "ok", d, s: lab, a: ini, b: fim, t: `${nomeC(lab)}: ${br(ini)} a ${br(fim)} (${ni(d)} dias)` }); });
+  const at0 = x.fluxo.findIndex((c) => c.st === "atual"), falta = x.fluxo.filter((c, i) => c.st === "falta" && i > at0);
+  return { S: S.filter((e) => e.d > 0 || e.k === "atual"), falta, tot: S.reduce((s, e) => s + e.d, 0) || 1 }; }
+function rito(x) { if (x.h && x.h.length && x.h[x.h.length - 1][0] === x.csig) return ritoH(x); const S = [], ok = x.fluxo.filter((c) => c.st === "ok" && c.concl).sort((a, b) => a.concl < b.concl ? -1 : 1); let cur = x.prot;
   const ini = [x.entrou, ok[0] && ok[0].dist, x.chegou].filter(Boolean).sort()[0];
   // leitura: do protocolo até a leitura no Expediente (ou até a 1ª comissão, quando é curto); período longo sem nenhum registro no
   // e-Legis (proposições antigas, anteriores ao sistema) aparece à parte, como "sem registro"
@@ -489,7 +503,7 @@ function rito(x) { const S = [], ok = x.fluxo.filter((c) => c.st === "ok" && c.c
   if (dv) S.push({ k: "vs", d: dv, s: "vista", a: x.vista.d, b: HOJE, t: `Pedido de vista · ${x.vista.quem || "deputado"} · desde ${br(x.vista.d)} (${ni(dv)} dias)${x.vista.re ? " · " + x.vista.re : ""}` });
   const at0 = x.fluxo.findIndex((c) => c.st === "atual"), falta = x.fluxo.filter((c, i) => c.st === "falta" && i > at0);
   return { S, falta, tot: S.reduce((s, e) => s + e.d, 0) || 1 }; }
-function tempo(x) { const { S, tot } = rito(x), cl = { lei: "ex", sem: "sm", ok: "ok", ps: "ps", atual: "atual", vs: "vs" };
+function tempo(x) { const { S, tot } = rito(x), cl = { lei: "ex", sem: "sm", arq: "aq", ok: "ok", ps: "ps", atual: "atual", vs: "vs" };
   return `<div class="gt"><div class="gth"><span>Tempo de tramitação por etapa</span><b>${ni(x.casa)} dias na Assembleia</b></div><div class="gtb">${S.map((e) => `<i class="${cl[e.k]}" style="flex:${Math.max(e.d, tot / 80)}" title="${esc(e.t)}">${e.d / tot > .14 ? esc(e.k === "vs" ? "Vista · " + (x.vista.quem || "") : e.s) + " · " + e.d + "d" : e.d / tot > .05 ? e.d + "d" : ""}</i>`).join("")}</div><div class="gtl"><span>${x.lido ? "lido " + br(x.lido) : "protocolo " + br(x.prot)}</span><span>hoje · ${br(HOJE)}</span></div></div>`; }
 const tile = (k, r, v, s, c) => `<div class="tl2"><span class="tk">${ic(k)}${r}</span><span class="tv ${c || ""}">${v}${s ? `<small>${s}</small>` : ""}</span></div>`;
 function dispositivos(Z) { const d = Z && Z.disp; if (!d) return "";

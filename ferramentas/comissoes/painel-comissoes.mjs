@@ -52,6 +52,17 @@ function vistas(p) { const T = (p.tram || []).filter((t) => t.d), V = T.filter((
   const ult = V[V.length - 1], fim = T.find((t) => t.d >= ult.d && t !== ult && T.indexOf(t) > T.indexOf(ult) && /devolv|resolvid|voto vista|vista coletiva devolvida/i.test(t.sit + " " + (t.obs || "")));
   const aberta = /vista/i.test(p.situacao || "") && !fim;
   return { vistas: h, ...(aberta ? { vista: { quem: quemVista(ult.obs) || "", d: ult.d, re: h[h.length - 1][2] } } : {}) }; }
+// histórico do rito (20/11/2026): a tramitação inteira (processo físico antigo + e-Legis) em trechos [onde, desde]: sigla da comissão
+// (o tempo com o relator no gabinete conta para a comissão), "arq" (arquivada até o desarquivamento) e "out" (expediente, coordenadorias);
+// trechos de menos de 5 dias se juntam ao anterior
+function historico(p) { const T = [...(p.legado || []), ...(p.tram || [])].filter((t) => t.d && t.sit); if (!T.length) return null;
+  const R = []; let com = null, arq = false;
+  for (const t of T) { const loc = t.para || t.de || "", s = t.sit; let lab;
+    if (/desarquiv/i.test(s)) { arq = false; lab = "out"; } else if (arq || /^Arquivad|Arquive-se/i.test(s)) { arq = true; lab = "arq"; }
+    else if (/^Comiss[ãa]o/i.test(loc)) lab = com = sig(loc); else if (/Gabinete/i.test(loc) && com) lab = com; else lab = "out";
+    if (!R.length || R[R.length - 1][0] !== lab) R.push([lab, t.d]); }
+  const M = []; R.forEach((r, i) => { const fim = R[i + 1] ? R[i + 1][1] : HOJE; if (M.length && dias(r[1], fim) < 5 && i < R.length - 1) return; if (M.length && M[M.length - 1][0] === r[0]) return; M.push(r); });
+  return M; }
 const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\d+)\/(\d{4})/) || [0, p.cod, "", ""]).slice(1);
   const chegou = [...(p.tram || [])].reverse().find((t) => t.para === p.setor), [verbo, txt] = resumo(p.ementa);
   // a comissão onde a proposição está agora só conta como aprovada se alguma comissão DEPOIS dela já concluiu (então é um retorno);
@@ -64,8 +75,9 @@ const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\
   const atual = C.find((c) => c.st === "atual");
   return { id: p.id, tipo: tipo.replace(/\.$/, ""), num: String(+num || num), ano, autor: (p.autoria || "").replace(/^Deputad[oa] /, ""), ementa: caixa(p.ementa || ""), verbo, resumo: corta(caixa(txt), 150), tema: tema(p.ementa), prot: p.entrada,
     com: curto(p.setor), csig: sig(p.setor), chegou: chegou ? chegou.d : null, dias: dias(chegou ? chegou.d : null, HOJE), rel: atual ? atual.rel : null, relDist: atual ? atual.dist : null, sit: p.situacao, fluxo: C,
-    entrou: ((p.tram || []).find((t) => /^Comiss[ãa]o/i.test(t.para || "") && t.d) || {}).d || null,
-    lido: ((p.tram || []).find((t) => /^Lido no Expediente/i.test(t.sit || "")) || {}).d || null,
+    h: historico(p) || undefined,
+    entrou: ([...(p.legado || []), ...(p.tram || [])].find((t) => /^Comiss[ãa]o/i.test(t.para || "") && t.d) || {}).d || null,
+    lido: ([...(p.legado || []), ...(p.tram || [])].find((t) => /^Lido no Expediente/i.test(t.sit || "")) || {}).d || null,
     tram: (p.tram || []).filter((t) => t.d && t.sit).map((t) => t.obs ? [t.d, t.sit, t.para, t.obs.slice(0, 220)] : [t.d, t.sit, t.para]), ...vistas(p) }; });
 { const nv = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(), C = {};
   const todos = L.flatMap((x) => (x.vistas || []).flatMap((v) => (v[1] || "").split(", "))).filter(Boolean); todos.forEach((n) => { const k = nv(n); C[k] = C[k] || {}; C[k][n] = (C[k][n] || 0) + 1; });
