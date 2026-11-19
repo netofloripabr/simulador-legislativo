@@ -34,6 +34,9 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .cvis{ display:inline-flex; gap:2px; background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:2px; }
 .cmp .cvis button{ background:none; border:0; border-radius:999px; padding:4px 11px; color:var(--sec); font-size:11px; font-weight:600; letter-spacing:.02em; text-transform:none; cursor:pointer; }
 .cmp .cvis button.on{ background:var(--texto); color:#0B0F0D; }
+.cmp .gr2{ background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:14px 14px 4px; overflow-x:auto; }
+.cmp .gr2 svg{ min-width:860px; }
+.cmp .gr2 .pcrow:hover .ano{ fill:#fff; }
 .cmp .gr{ display:flex; gap:0; background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:16px 12px 12px; overflow-x:auto; }
 .cmp .gr .gg{ display:flex; gap:4px; align-items:stretch; }
 .cmp .gr .gg:first-child{ flex:4 1 0; } .cmp .gr .gg:last-child{ flex:20 1 0; }
@@ -330,15 +333,30 @@ function kpis(L) { const sem = L.filter((x) => !x.rel).length, v = L.filter((x) 
 // gráfico das comissões na ordem da composição (altura pela raiz da quantidade, para a CCJ não achatar as demais) (as 4 de 9 membros primeiro) e barras empilhadas pelo tempo na comissão (19/11/2026)
 const ORD9 = ["CCJ", "CFT", "CTA", "CED"], ORD7 = ["CAG", "CAM", "CCA", "CPD", "CDPI", "CDH", "CEC", "CEd", "CDCon", "CPA", "CPCD", "CDC", "CRI", "CSa", "CSP", "CTI", "CTu", "CEL", "CBA", "CMA"];
 const CURTO = { CCJ: "CCJ", CFT: "Finanças", CTA: "Trabalho", CED: "Ética", CAG: "Agricultura", CAM: "Assuntos Mun.", CCA: "Criança", CPD: "Deficiência", CDPI: "Idoso", CDH: "Dir. Humanos", CEC: "Economia", CEd: "Educação", CDCon: "Consumidor", CPA: "Pesca", CPCD: "Drogas", CDC: "Defesa Civil", CRI: "Rel. Inst.", CSa: "Saúde", CSP: "Segurança", CTI: "Transportes", CTu: "Turismo", CEL: "Esportes", CBA: "Animal", CMA: "Meio Ambiente" };
-const FX = [["até 90 dias", (d) => d <= 90, "#A9AEB3"], ["91 a 365 dias", (d) => d > 90 && d <= 365, "#E9C46A"], ["mais de 365 dias", (d) => d > 365, "#E8822A"]];
-function grade() { const B = D.L.filter((x) => passa(x, "com")), por = (s) => B.filter((x) => x.csig === s), mx = Math.max(1, ...[...ORD9, ...ORD7].map((s) => por(s).length));
-  const nome = (s) => (D.coms.find((c) => c[1] === s) || [s])[0];
-  const col = (s) => { const A = por(s), n = A.length, c = nome(s), h = n ? Math.max(5, Math.sqrt(n / mx) * 150) : 0, vs = A.filter((x) => x.vista).length;
-    return `<button class="gc${F.com === c ? " on" : F.com ? " of" : ""}" data-c="${esc(c)}" title="${esc(c)} · ${ni(n)} proposições${n ? " · " + FX.map(([r, f]) => A.filter((x) => f(x.dias || 0)).length + " " + r).join(", ") : ""}${vs ? " · " + vs + " em vista" : ""}">
-      <span class="gn">${esc(CURTO[s] || s)}</span><span class="gcol" style="--alt:176px"><span class="gq">${ni(n)}</span><span class="gb" style="--h:${h.toFixed(0)}px">${FX.map(([, f, cor]) => { const k = A.filter((x) => f(x.dias || 0)).length; return k ? `<i style="flex:${k};background:${cor}"></i>` : ""; }).join("")}</span></span>${vs ? `<span class="gv" title="${vs} em vista"></span>` : `<span class="gs">&nbsp;</span>`}</button>`; };
-  return `<div class="gr"><div class="gg">${ORD9.map(col).join("")}</div><div class="gg">${ORD7.map(col).join("")}</div></div>`; }
-function comissoes() { if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c}"></i>na comissão há ${r}</span>`).join("") + `<span><i style="background:#E8A23A;border-radius:50%"></i>com pedido de vista</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
-  $("#coms").className = "coms"; $("#lgc").innerHTML = `<span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span>`; const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
+// mesmo desenho dos gráficos das Cotas (pcEmpilhada em gabinete-cotas.js): faixas da rampa azul-acinzentada, cheio = com relator,
+// listrado = aguardando relator, traço escuro entre as partes, total em cima, grade tracejada. Eixo em raiz quadrada (marcado no eixo)
+// para a CCJ, com quase 700, não achatar as demais.
+const FX = [["até 90 dias", (d) => d <= 90, "#C9D4DE"], ["91 a 365 dias", (d) => d > 90 && d <= 365, "#647C96"], ["mais de 365 dias", (d) => d > 365, "#2E3B4B"]];
+function grade() { const B = D.L.filter((x) => passa(x, "com")), por = (s) => B.filter((x) => x.csig === s), nome = (s) => (D.coms.find((c) => c[1] === s) || [s])[0];
+  const S = [...ORD9, ...ORD7], N = S.map((s) => por(s).length), mx = Math.max(1, ...N), W = 1180, H = 400, m = { l: 46, r: 14, t: 58, b: 104 }, gap = 26;
+  const bw = (W - m.l - m.r - gap) / S.length, xo = (k) => m.l + k * bw + (k >= ORD9.length ? gap : 0), yv = (v) => H - m.b - Math.sqrt(v / mx) * (H - m.b - m.t);
+  const tk = [0, 10, 50, 150, 400, 700].filter((v) => v <= mx * 1.05);
+  const pat = FX.map(([, , c], i) => `<pattern id="cmph${i}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="${c}" opacity=".14"/><line x1="0" y1="0" x2="0" y2="6" stroke="${c}" stroke-width="2.2"/></pattern>`).join("");
+  const col = (s, k) => { const A = por(s), n = A.length, c = nome(s), x0 = xo(k) + bw * .2, w = bw * .6, vs = A.filter((x) => x.vista).length, of = F.com && F.com !== c; let acc = 0;
+    const segs = FX.map(([r, f], i) => { const Q = A.filter((x) => f(x.dias || 0)); if (!Q.length) return ""; const cr = Q.filter((x) => x.rel).length, hT = (H - m.b) - (n ? yv(n) : H - m.b), pz = (v) => (H - m.b) - (v / n) * hT, y0 = pz(acc), y1 = pz(acc + Q.length), yc = pz(acc + cr); acc += Q.length;
+      return `<g data-pseg="${i}"><rect x="${x0}" y="${y1}" width="${w}" height="${Math.max(0, y0 - y1)}" fill="url(#cmph${i})"/><rect x="${x0}" y="${yc}" width="${w}" height="${Math.max(0, y0 - yc)}" fill="${FX[i][2]}"/><line x1="${x0}" x2="${x0 + w}" y1="${y1}" y2="${y1}" stroke="#14191A" stroke-width="2"/><title>${esc(c)} · na comissão há ${r}: ${Q.length} (${cr} com relator, ${Q.length - cr} aguardando)</title></g>`; }).join("");
+    return `<g class="pcrow${F.com === c ? " on" : ""}" data-c="${esc(c)}" style="cursor:pointer${of ? ";opacity:.35" : ""}"><rect x="${xo(k)}" y="${m.t - 20}" width="${bw}" height="${H - m.t + 20}" fill="transparent"/>${segs}
+      <text class="fo" x="${x0 + w / 2}" y="${(n ? yv(n) : H - m.b) - 8}" text-anchor="middle">${n}</text>
+      ${vs ? `<circle cx="${x0 + w / 2}" cy="${H - m.b + 12}" r="4" fill="#E8705A"><title>${vs} em vista</title></circle>` : ""}
+      <text class="ano" x="${x0 + w / 2}" y="${H - m.b + 26}" text-anchor="end" transform="rotate(-42 ${x0 + w / 2} ${H - m.b + 26})" style="font-size:12px;font-weight:${F.com === c ? 800 : 600}">${esc(CURTO[s] || s)}</text><title>${esc(c)}: ${n} proposições${vs ? " · " + vs + " em vista" : ""}</title></g>`; };
+  const sep = xo(ORD9.length) - gap / 2;
+  return `<div class="gr2"><svg viewBox="0 0 ${W} ${H}" class="pcsvg"><defs>${pat}</defs>
+    ${tk.map((v) => `<line x1="${m.l}" x2="${W - m.r}" y1="${yv(v)}" y2="${yv(v)}" stroke="rgba(242,244,245,.05)" stroke-dasharray="2 4"/><text class="mu" x="${m.l - 10}" y="${yv(v) + 4}" text-anchor="end">${v}</text>`).join("")}
+    <line x1="${sep}" x2="${sep}" y1="2" y2="${H - m.b}" stroke="rgba(242,244,245,.12)" stroke-dasharray="3 4"/>
+    <text class="mu" x="${m.l}" y="14">Comissões de 9 membros</text><text class="mu" x="${sep + 12}" y="14">Comissões de 7 membros</text>
+    ${S.map(col).join("")}</svg></div>`; }
+function comissoes() { if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c};box-shadow:inset 0 0 0 1px rgba(242,244,245,.18)"></i>na comissão há ${r}</span>`).join("") + `<span><i style="background:#C9D4DE"></i>cheio = com relator</span><span><i style="background:repeating-linear-gradient(45deg,#C9D4DE 0 2px,transparent 2px 5px)"></i>listrado = aguardando relator</span><span><i style="background:#E8705A;border-radius:50%"></i>com pedido de vista</span><span style="color:var(--ter)">altura da barra em raiz quadrada do total, para as comissões menores aparecerem; as partes dentro da barra são proporcionais</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
+  $("#coms").className = "coms"; $("#lgc").className = "lg"; $("#lgc").innerHTML = `<span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span>`; const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
   $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
     return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cmd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
   $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; }
