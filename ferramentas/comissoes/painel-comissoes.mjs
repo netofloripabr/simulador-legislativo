@@ -59,11 +59,13 @@ const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\
   const CC = p.comissoes || [], iS = CC.findIndex((c) => c.nome === p.setor), feita = (c) => !!(c.parecer || (c.relatores[c.relatores.length - 1] || {}).concl);
   const voltou = iS >= 0 && CC.slice(iS + 1).some(feita);
   const C = CC.map((c, i) => { const r = c.relatores[c.relatores.length - 1] || null, st = i === iS && !voltou ? "atual" : feita(c) ? "ok" : "falta";
-    return { s: sig(c.nome), n: curto(c.nome), st, rel: r ? r.relator : null, dist: r ? r.dist : null, concl: r ? r.concl : null, par: c.parecer ? c.parecer.res.replace(/^Parecer /, "") : null, part: c.parecer ? c.parecer.txt : null }; });
+    return { s: sig(c.nome), n: curto(c.nome), st, rels: c.relatores.length > 1 ? c.relatores.map((q) => [q.relator, q.dist, q.concl]) : undefined, rel: r ? r.relator : null, dist: r ? r.dist : null, concl: r ? r.concl : null, par: c.parecer ? c.parecer.res.replace(/^Parecer /, "") : null, part: c.parecer ? c.parecer.txt : null }; });
   if (!C.some((c) => c.st === "atual")) C.push({ s: sig(p.setor), n: curto(p.setor), st: "atual", rel: null, volta: voltou ? 1 : undefined });
   const atual = C.find((c) => c.st === "atual");
   return { id: p.id, tipo: tipo.replace(/\.$/, ""), num: String(+num || num), ano, autor: (p.autoria || "").replace(/^Deputad[oa] /, ""), ementa: caixa(p.ementa || ""), verbo, resumo: corta(caixa(txt), 150), tema: tema(p.ementa), prot: p.entrada,
     com: curto(p.setor), csig: sig(p.setor), chegou: chegou ? chegou.d : null, dias: dias(chegou ? chegou.d : null, HOJE), rel: atual ? atual.rel : null, relDist: atual ? atual.dist : null, sit: p.situacao, fluxo: C,
+    entrou: ((p.tram || []).find((t) => /^Comiss[ãa]o/i.test(t.para || "") && t.d) || {}).d || null,
+    lido: ((p.tram || []).find((t) => /^Lido no Expediente/i.test(t.sit || "")) || {}).d || null,
     tram: (p.tram || []).filter((t) => t.d && t.sit).map((t) => t.obs ? [t.d, t.sit, t.para, t.obs.slice(0, 220)] : [t.d, t.sit, t.para]), ...vistas(p) }; });
 { const nv = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(), C = {};
   const todos = L.flatMap((x) => (x.vistas || []).flatMap((v) => (v[1] || "").split(", "))).filter(Boolean); todos.forEach((n) => { const k = nv(n); C[k] = C[k] || {}; C[k][n] = (C[k][n] || 0) + 1; });
