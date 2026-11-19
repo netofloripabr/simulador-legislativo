@@ -6,6 +6,11 @@ Cada proposição tem um arquivo `ferramentas/comissoes/resumos/{id}.json`, escr
 `textos.mjs`). Os dados de tramitação (autor, comissão, relator, datas) vêm de `dados/painel/alesc-comissoes-tram.json`
 e NÃO entram no resumo (o painel já os mostra). Depois de escrever, rodar `node ferramentas/comissoes/juntar-resumos.mjs`.
 
+**Quem escreve (desde 19/11/2026):** `resumos-local.mjs`, com o Gemma 4 12B rodando no próprio Mac (Ollama), usando este
+arquivo inteiro como instrução — mudar uma regra aqui muda os próximos resumos. Os 522 primeiros foram escritos pelo Claude;
+os do Gemma levam `"ia": "gemma4:12b"`. Escolha feita pelo usuário depois da comparação de 10 proposições (Claude × ChatGPT ×
+Gemma) em `prototipos/comissoes-tramitacao/comparacao-resumos.html`.
+
 ## Regras de escrita
 
 - Português simples, para quem não é da área. Nada de "dispõe sobre", "no âmbito do Estado", "dá outras providências".
