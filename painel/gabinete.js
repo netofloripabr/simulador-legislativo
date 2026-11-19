@@ -36,6 +36,7 @@ async function iniciar() {
   // 11/11/2026: o Gabinete é a página inicial de toda conta. O que é privado (Controle, Cotas, Indicar, Caderno, RH,
   // Contatos) só aparece para quem tem papel na equipe do gabinete aberto (PODE = tem papel; ver gabinete-equipe.js).
   if (!SESS && !LOCAL) return restrito();
+  abasLer();
   // ?pedido=<id> (vem do sino): abre o gabinete do pedido e a janela da equipe
   const PED = new URLSearchParams(location.search).get("pedido");
   if (PED && SESS) { try { const q = await supabaseClient.from("gab_equipe").select("parlamentar").eq("id", PED).maybeSingle(); if (q.data) DSEL = q.data.parlamentar; } catch (e) {} }
@@ -88,7 +89,7 @@ async function lerPrivado() { lerAgenda(); const { data } = await supabaseClient
 // Administrativo (17/11/2026): Controle de Recursos (1º bloco), Agenda e RH do gabinete. O RH junta a estrutura pela ALESC
 // (embutida de Parlamentares, novos.html?so=gab) com a equipe registrada pelo gabinete (gabinete-rh.js, botão "+").
 const corpoAdm = () => { setTimeout(() => { if (typeof rhGabinete === "function") rhGabinete(); }, 0);
-  return `<div class="rhb blk-rec${S.fech.recB ? " fech" : ""}" id="recB"><h3 data-bk="recB">Controle de Recursos<small>Controle, Cotas, Transparência SC e outros deputados</small></h3><div id="c-rec">${corpoRec()}</div></div>${typeof corpoAgenda === "function" ? corpoAgenda() : ""}<div class="rhb${S.fech.rhB ? " fech" : ""}" id="rhB"><h3 data-bk="rhB">RH do gabinete<small>estrutura pela ALESC e equipe registrada</small></h3><iframe class="admEmb" id="gabEmb" title="RH do gabinete · estrutura pela ALESC" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=gab&v=4"></iframe><div id="rhLista"><p class="rh-nt">Carregando…</p></div></div>`; };
+  return `<div class="rhb blk-rec${S.fech.recB !== false ? " fech" : ""}" id="recB"><h3 data-bk="recB">Controle de Recursos<small>Controle, Cotas, Transparência SC e outros deputados</small></h3><div id="c-rec">${corpoRec()}</div></div>${typeof corpoAgenda === "function" ? corpoAgenda() : ""}<div class="rhb${S.fech.rhB !== false ? " fech" : ""}" id="rhB"><h3 data-bk="rhB">RH do gabinete<small>estrutura pela ALESC e equipe registrada</small></h3><iframe class="admEmb" id="gabEmb" title="RH do gabinete · estrutura pela ALESC" loading="lazy" src="novos.html?c=estadual&d=${encodeURIComponent(PARL.n)}&so=gab&v=4"></iframe><div id="rhLista"><p class="rh-nt">Carregando…</p></div></div>`; };
 // ALESC (Transparência), 14/11/2026: o que a Casa e o portal da transparência dizem do mandato (subsídio, verbas, liderança,
 // estrutura da Casa; a Estrutura do gabinete com quem está lotado fica no Administrativo, ?so=gab) sai do Administrativo para um título próprio. O Administrativo
 // fica só com o que o gabinete registra (RH - Gabinete). Mesmo embutido de Parlamentares (novos.html?so=adm).
@@ -110,9 +111,9 @@ function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio()
     ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rh" ? corpoAdm() : k === "alesc" ? corpoAlesc() : k === "ele" ? corpoEle() : k === "pl" && typeof corpoPL === "function" ? corpoPL() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
   leque(); pintaRank(); ligarAvisoCota(); if (typeof ligarAdicionar === "function") ligarAdicionar();
   blocos();
-  $("#app").querySelectorAll("[data-bk]").forEach((h) => h.onclick = () => { const b = h.parentElement, k = h.dataset.bk; S.fech[k] = !b.classList.contains("fech"); b.classList.toggle("fech", S.fech[k]); if (k === "cmpB" && !S.fech[k] && typeof cmpAbrir === "function") cmpAbrir(); });
+  $("#app").querySelectorAll("[data-bk]").forEach((h) => h.onclick = () => { const b = h.parentElement, k = h.dataset.bk; S.fech[k] = !b.classList.contains("fech"); abasSalvar(); b.classList.toggle("fech", S.fech[k]); if (k === "cmpB" && !S.fech[k] && typeof cmpAbrir === "function") cmpAbrir(); });
   if (S.fech.cmpB === false && typeof cmpAbrir === "function") cmpAbrir();
-  $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
+  $("#app").querySelectorAll("[data-t]").forEach((h) => h.onclick = () => { const k = h.dataset.t, sec = h.parentElement; S.fech[k] = !sec.classList.contains("fech"); abasSalvar(); sec.classList.toggle("fech", S.fech[k]); h.querySelector(".tgs").classList.toggle("ab", !S.fech[k]); });
   $("#abas").onclick = (e) => { if (e.target.closest("#cadBt")) { cadernoGab(); return; } if (e.target.closest("#mapaBt")) { S.mapa = !S.mapa; desenhar(); return; } const b = e.target.closest("[data-aba]"); if (!b) return; S.aba = b.dataset.aba; S.outro = null; desenhar(); };
   if (S.mapa && S.aba !== "geral" && !(S.aba === "outros" && S.outro)) { const lt = $("#lentes"); if (lt) lt.onclick = (e) => { const b = e.target.closest("[data-l]"); if (!b) return; S.lente = b.dataset.l; desenhar(); }; }
   if (S.aba === "geral" || (S.aba === "outros" && S.outro)) ligarGeral(); else if (S.aba === "meu") ligarMeu(); else if (S.aba === "cotas") ligarCotas(); else ligarOutros();
@@ -171,7 +172,7 @@ function leque() { temaItens();
   let nv = document.querySelector(".gsecs"); if (!nv) { nv = document.createElement("nav"); nv.className = "gsecs"; document.querySelector(".topo .wm").after(nv); }
   if (window.slTrilho) slTrilho();
   nv.innerHTML = [["rec", "Recursos"], ...TITULOS].map(([k, t]) => `<a href="#t-${k}" data-gt="${k}">${t.replace("Processo legislativo", "Legislativo").replace("ALESC (Transparência)", "ALESC")}</a>`).join("");
-  nv.onclick = (e) => { const a = e.target.closest("[data-gt]"); if (!a) return; e.preventDefault(); let k = a.dataset.gt; if (k === "rec") { k = "rh"; S.fech.recB = false; const rb = $("#recB"); if (rb) rb.classList.remove("fech"); } const sec = $("#t-" + k); S.fech[k] = false; sec.classList.remove("fech"); sec.querySelector(".tgs").classList.add("ab"); sec.scrollIntoView({ behavior: "smooth" }); };
+  nv.onclick = (e) => { const a = e.target.closest("[data-gt]"); if (!a) return; e.preventDefault(); let k = a.dataset.gt; if (k === "rec") { k = "rh"; S.fech.recB = false; abasSalvar(); const rb = $("#recB"); if (rb) rb.classList.remove("fech"); } const sec = $("#t-" + k); S.fech[k] = false; abasSalvar(); sec.classList.remove("fech"); sec.querySelector(".tgs").classList.add("ab"); sec.scrollIntoView({ behavior: "smooth" }); };
 }
 // recorte (município ou região): números da capa e ranking acompanham; vaiMapa leva o mapa 3D ao mesmo recorte
 function selReg(r, vaiMapa = true) { if ((r || null) !== S.reg) S.rankTodos = false; S.reg = r || null; if (typeof c3Painel === "function") c3Painel(); pintaRank();
@@ -179,13 +180,20 @@ function selReg(r, vaiMapa = true) { if ((r || null) !== S.reg) S.rankTodos = fa
 function pintaRank() { const k = $("#grank"); if (!k) return; k.innerHTML = rankReg(); k.classList.toggle("ab", !!k.innerHTML);
   const t = $("#grt"); if (t) t.onclick = () => { S.rankTodos = !S.rankTodos; pintaRank(); };
   k.querySelectorAll("[data-ri]").forEach((tr) => tr.onclick = () => selReg(regioes().find((x) => x.t === "mun" && x.ix.has(+tr.dataset.ri)))); }
-// todo bloco com título (Mapa, Carteira...) abre e fecha pelo próprio título; o estado fica guardado na sessão da página
+// abas (seções, blocos e quadros) abertas ou fechadas (20/11/2026, pedido do usuário): tudo fechado a cada login novo; ao recarregar a
+// página ou trabalhando nela, fica como o usuário deixou. Guardado neste navegador com a "marca" do login (último acesso da conta):
+// um login novo muda a marca e o estado volta ao padrão (fechado).
+const ABAS_K = "gab_abas", abasMarca = () => SESS ? `${SESS.user.id}|${SESS.user.last_sign_in_at || ""}` : "local";
+function abasLer() { try { const st = LOCAL && !SESS ? sessionStorage : localStorage, o = JSON.parse(st.getItem(ABAS_K) || "null");
+  if (o && o.m === abasMarca()) { S.fech = o.fech || {}; S.bxf = o.bxf || {}; } else st.removeItem(ABAS_K); } catch (e) {} }
+function abasSalvar() { try { (LOCAL && !SESS ? sessionStorage : localStorage).setItem(ABAS_K, JSON.stringify({ m: abasMarca(), fech: S.fech, bxf: S.bxf || {} })); } catch (e) {} }
+// todo bloco com título (Mapa, Carteira...) abre e fecha pelo próprio título; fechado por padrão (bxf[k] === false = aberto)
 function blocos() {
   S.bxf = S.bxf || {};
   document.querySelectorAll(".bx").forEach((bx) => { const hd = bx.querySelector(".bxh"); if (!hd || hd.dataset.tg) return; hd.dataset.tg = 1;
-    const k = (hd.querySelector("h2") || {}).textContent || ""; hd.insertAdjacentHTML("afterbegin", `<button class="tgs${S.bxf[k] ? "" : " ab"}" title="Recolher ou abrir"></button>`);
-    bx.classList.toggle("fech", !!S.bxf[k]); hd.style.cursor = "pointer";
-    hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; S.bxf[k] = !S.bxf[k]; bx.classList.toggle("fech", S.bxf[k]); hd.querySelector(".tgs").classList.toggle("ab", !S.bxf[k]); }; });
+    const k = (hd.querySelector("h2") || {}).textContent || ""; hd.insertAdjacentHTML("afterbegin", `<button class="tgs${S.bxf[k] !== false ? "" : " ab"}" title="Recolher ou abrir"></button>`);
+    bx.classList.toggle("fech", S.bxf[k] !== false); hd.style.cursor = "pointer";
+    hd.onclick = (e) => { if (e.target.closest("input,select,a")) return; const f = !bx.classList.contains("fech"); S.bxf[k] = f; bx.classList.toggle("fech", f); hd.querySelector(".tgs").classList.toggle("ab", !f); abasSalvar(); }; });
 }
 function corpoRec() {
   return `<div class="abar"><div class="chips abas" id="abas">${[...(proprio() && PODE ? [["meu", "Controle"], ["cotas", "Cotas"]] : []), ["geral", "Transparência SC"], ["outros", "Outros deputados"]].map(([k, r]) => `<button data-aba="${k}" class="${S.aba === k ? "on" : ""}">${r}</button>`).join("")}${SESS && !PAPEL ? `<span class="abtr" title="Controle, Cotas, Indicar e Contatos são da equipe do gabinete. Peça para entrar pelo botão Equipe no alto da página.">Controle e Cotas · só para a equipe do gabinete</span>` : ""}<button id="mapaBt" class="mapab${S.mapa ? " on" : ""}" title="Abrir ou fechar o painel de indicadores"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 13.5h12 M4 11V7 M8 11V3 M12 11V8"/></svg>Painel</button>${proprio() && (PODE || LOCAL) && MEU.length && typeof cadernoGab === "function" ? `<button id="cadBt" class="mapab" title="Caderno de recursos para imprimir: escolha as seções"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M3 2.5h7.5L13 5v8.5H3z M10.5 2.5V5H13 M5.5 8h5 M5.5 10.5h5"/></svg>Caderno</button>` : ""}</div>${S.aba === "meu" ? '<div id="mtool"></div>' : ""}</div>${S.mapa ? blocoMapa() : ""}<div id="corpoAba">${S.aba === "geral" ? geral() : S.aba === "meu" ? meu() : S.aba === "cotas" ? cotas() : outros()}</div>`;
