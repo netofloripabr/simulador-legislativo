@@ -72,7 +72,7 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .cab button i{ font-style:normal; margin-left:4px; color:#3A4045; }
 .cmp .cab button.on,.cmp .cab button.on i{ color:var(--texto); }
 .cmp .lin{ border-bottom:1px solid rgba(242,244,245,.05); cursor:pointer; transition:background .12s; }
-.cmp .vst{ display:inline-block; margin-top:5px; font-size:10.5px; font-weight:700; letter-spacing:.02em; color:#F0C67A; background:rgba(232,162,58,.12); border:1px solid rgba(232,162,58,.35); border-radius:999px; padding:2px 8px; }
+.cmp .vst{ display:inline-block; white-space:nowrap; margin-top:5px; font-size:10.5px; font-weight:700; letter-spacing:.02em; color:#F0C67A; background:rgba(232,162,58,.12); border:1px solid rgba(232,162,58,.35); border-radius:999px; padding:2px 8px; }
 .cmp .com2 b{ display:inline-block; font-size:12px; font-weight:800; background:var(--texto); color:#0B0F0D; border-radius:6px; padding:3px 7px; margin-right:4px; }
 .cmp .lin:hover{ background:rgba(242,244,245,.025); }
 .cmp .lin.ab{ background:rgba(242,244,245,.035); }

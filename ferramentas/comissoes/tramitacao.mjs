@@ -36,7 +36,8 @@ let i = 0;
 for (const p of EMCOM) { i++;
   const arq = join(CACHE, p.id + ".json"); let D = existsSync(arq) ? JSON.parse(readFileSync(arq, "utf8")) : null;
   if (!D || D.setor !== p.setor || D.situacao !== p.situacao || !D.v2) {
-    const tr = await pegar(`${EL}/proposicoes/${p.id}/tramitacoes`); await espera(500); const ct = await pegar(`${EL}/proposicoes/${p.id}/comissoes-tramitar`); await espera(500);
+    let tr, ct; try { tr = await pegar(`${EL}/proposicoes/${p.id}/tramitacoes`); await espera(500); ct = await pegar(`${EL}/proposicoes/${p.id}/comissoes-tramitar`); await espera(500); }
+    catch (e) { log(`${p.id}: falha na leitura (${String(e.cause?.code || e.message).slice(0, 60)}), fica o que já estava guardado`); if (D) { Object.assign(p, D); continue; } await espera(5000); continue; }
     // tramitações: cada item tem a situação, a data e o caminho origem › destino
     const T = []; for (const li of tr.split('<li class="timeline-item').slice(1)) { const sit = limpa((li.match(/<p class="mb-1 fw-bold">([\s\S]*?)<\/p>/) || [])[1]), d = iso((li.match(/<small>\s*(\d{2}\/\d{2}\/\d{4})\s*<\/small>/) || [])[1]);
       const sm = [...li.matchAll(/<small class="text-center">([\s\S]*?)<\/small>/g)].map((x) => limpa(x[1]));

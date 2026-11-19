@@ -45,7 +45,8 @@ const tema = (e) => (TEMAS.find(([, re]) => re.test(e)) || ["Outros"])[0];
 const dias = (a, b) => a && b ? Math.round((new Date(b) - new Date(a)) / 864e5) : null, HOJE = new Date().toISOString().slice(0, 10);
 
 // pedidos de vista (19/11/2026): quem pediu sai da observação da tramitação ("Vista ao Deputado Fulano, solicitada na 13ª reunião…")
-const quemVista = (s) => { const m = String(s || "").match(/Vistas? (?:ao|à|aos|às|para o|para a)s? (?:Deputad[oa]s?|Dep\.?)\s+(.+?)(?:,|\s+solicitad|\s+na\s+\d|\.\s|$)/i); return m ? m[1].replace(/\s+e\s+/g, ", ").trim() : null; };
+const quemVista = (s) => { const m = String(s || "").match(/Vistas?\s+(?:ao|à|a|aos|às|para o|para a)s?\s+(?:Deputad[oa]s?|Dep\.?)\s+(.+?)(?:,\s*solicitad|\s+solicitad|,\s*ap[óo]s\s|\s+na\s+\d|\.\s|$)/i) || String(s || "").match(/com vista d[oa]s?\s+(?:Deputad[oa]s?)\s+(.+?)(?:\.\s|\.?$)/i); if (!m) return null;
+  return m[1].split(/\s*,\s*|\s+e\s+/).map((n) => n.replace(/^(?:Deputad[oa]s?|Dep\.?)\s+/i, "").replace(/[.;]+$/, "").trim()).filter(Boolean).join(", ") || null; };
 function vistas(p) { const T = (p.tram || []).filter((t) => t.d), V = T.filter((t) => /^Vista ao/i.test(t.sit) || /vista ao|vista à|vistas aos/i.test(t.obs || ""));
   if (!V.length) return {}; const h = V.map((t) => [t.d, quemVista(t.obs) || "", (t.obs || "").match(/\d+ª reuni[ãa]o[^,]*/i)?.[0] || ""]);
   const ult = V[V.length - 1], fim = T.find((t) => t.d >= ult.d && t !== ult && T.indexOf(t) > T.indexOf(ult) && /devolv|resolvid|voto vista|vista coletiva devolvida/i.test(t.sit + " " + (t.obs || "")));
@@ -64,6 +65,10 @@ const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\
   return { id: p.id, tipo: tipo.replace(/\.$/, ""), num: String(+num || num), ano, autor: (p.autoria || "").replace(/^Deputad[oa] /, ""), ementa: caixa(p.ementa || ""), verbo, resumo: corta(caixa(txt), 150), tema: tema(p.ementa), prot: p.entrada,
     com: curto(p.setor), csig: sig(p.setor), chegou: chegou ? chegou.d : null, dias: dias(chegou ? chegou.d : null, HOJE), rel: atual ? atual.rel : null, relDist: atual ? atual.dist : null, sit: p.situacao, fluxo: C,
     tram: (p.tram || []).filter((t) => t.d && t.sit).map((t) => t.obs ? [t.d, t.sit, t.para, t.obs.slice(0, 220)] : [t.d, t.sit, t.para]), ...vistas(p) }; });
+{ const nv = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(), C = {};
+  const todos = L.flatMap((x) => (x.vistas || []).flatMap((v) => (v[1] || "").split(", "))).filter(Boolean); todos.forEach((n) => { const k = nv(n); C[k] = C[k] || {}; C[k][n] = (C[k][n] || 0) + 1; });
+  const can = (s) => (s || "").split(", ").filter(Boolean).map((n) => { const o = C[nv(n)]; return o ? Object.entries(o).sort((a, b) => b[1] - a[1])[0][0] : n; }).join(", ");
+  L.forEach((x) => { (x.vistas || []).forEach((v) => { v[1] = can(v[1]); }); if (x.vista) x.vista.quem = can(x.vista.quem); }); }
 const COMS = [...new Set(L.map((x) => x.com))].sort((a, b) => L.filter((x) => x.com === b).length - L.filter((x) => x.com === a).length);
 const dados = { gerado, total: L.length, coms: COMS.map((c) => [c, sig(c)]), L };
 
