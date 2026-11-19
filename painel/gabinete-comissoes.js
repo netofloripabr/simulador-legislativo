@@ -34,6 +34,24 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .cvis{ display:inline-flex; gap:2px; background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:2px; }
 .cmp .cvis button{ background:none; border:0; border-radius:999px; padding:4px 11px; color:var(--sec); font-size:11px; font-weight:600; letter-spacing:.02em; text-transform:none; cursor:pointer; }
 .cmp .cvis button.on{ background:var(--texto); color:#0B0F0D; }
+.cmp .gr3{ display:flex; gap:18px; background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:14px 14px 10px; overflow-x:auto; }
+.cmp .gg3 > small{ display:block; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); margin:0 0 6px 2px; }
+.cmp .gg3 > div{ display:flex; gap:6px; }
+.cmp .gg3:first-child{ flex:4 1 0; } .cmp .gg3:last-child{ flex:20 1 0; }
+.cmp .gg3:first-child{ padding-right:18px; border-right:1px dashed var(--linha2); }
+.cmp .tb{ flex:1 1 34px; min-width:32px; display:flex; flex-direction:column; align-items:center; gap:5px; background:none; border:0; padding:0; cursor:pointer; color:inherit; }
+.cmp .tb.of{ opacity:.35; }
+.cmp .tq{ font-size:13px; font-weight:800; font-variant-numeric:tabular-nums; }
+.cmp .tt{ position:relative; width:26px; height:170px; border-radius:13px; background:#0C0E10; border:1px solid #23262A; box-shadow:inset 0 2px 6px rgba(0,0,0,.6); overflow:hidden; display:flex; align-items:flex-end;
+  background-image:repeating-linear-gradient(0deg, transparent 0 calc(10% - 1px), rgba(138,144,150,.14) calc(10% - 1px) 10%); }
+.cmp .tb:hover .tt{ border-color:#3A4045; } .cmp .tb.on .tt{ border-color:var(--texto); box-shadow:inset 0 2px 6px rgba(0,0,0,.6), 0 0 0 2px rgba(242,244,245,.15); }
+.cmp .tf{ width:100%; display:flex; flex-direction:column-reverse; border-radius:12px; overflow:hidden; gap:2px; box-shadow:inset 0 1px 0 rgba(255,255,255,.18); }
+.cmp .tf i{ display:flex; flex-direction:column; min-height:3px; }
+.cmp .tf i u{ display:block; background:repeating-linear-gradient(45deg, var(--c) 0 2px, rgba(0,0,0,0) 2px 5px), color-mix(in srgb, var(--c) 22%, transparent); }
+.cmp .tf i em{ display:block; background:linear-gradient(90deg, color-mix(in srgb, var(--c) 82%, #000) , var(--c) 45%, color-mix(in srgb, var(--c) 88%, #000)); }
+.cmp .tv2{ width:7px; height:7px; border-radius:50%; background:#E8705A; } .cmp .tv0{ height:7px; }
+.cmp .tn{ writing-mode:vertical-rl; transform:rotate(180deg); font-size:11.5px; color:var(--sec); height:96px; text-align:left; white-space:nowrap; }
+.cmp .tb.on .tn{ color:var(--texto); font-weight:700; }
 .cmp .gr2{ background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:14px 14px 4px; overflow-x:auto; }
 .cmp .gr2 svg{ min-width:860px; }
 .cmp .gr2 .pcrow:hover .ano{ fill:#fff; }
@@ -69,13 +87,32 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .res{ font-size:12.5px; color:var(--sec); margin:2px 0 10px; }
 .cmp .res b{ color:var(--texto); }
 .cmp .lista{ background:var(--sup); border:1px solid var(--linha); border-radius:18px; overflow:hidden; }
-.cmp .cab,.cmp .lin{ display:grid; grid-template-columns:118px minmax(0,1fr) 150px 100px 140px 140px 200px; gap:14px; align-items:center; padding:12px 16px; }
+.cmp .cab,.cmp .lin{ display:grid; grid-template-columns:84px minmax(0,1.7fr) minmax(120px,.7fr) 210px minmax(110px,.6fr) 190px; gap:14px; align-items:center; padding:12px 16px; }
 .cmp .cab{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:600; border-bottom:1px solid var(--linha); background:rgba(242,244,245,.015); }
 .cmp .cab button{ background:none; border:0; padding:0; font:inherit; color:inherit; letter-spacing:inherit; text-transform:inherit; cursor:pointer; text-align:left; }
 .cmp .cab button i{ font-style:normal; margin-left:4px; color:#3A4045; }
 .cmp .cab button.on,.cmp .cab button.on i{ color:var(--texto); }
 .cmp .lin{ border-bottom:1px solid rgba(242,244,245,.05); cursor:pointer; transition:background .12s; }
-.cmp .vst{ display:inline-block; white-space:nowrap; margin-top:5px; font-size:10.5px; font-weight:700; letter-spacing:.02em; color:#F0C67A; background:rgba(232,162,58,.12); border:1px solid rgba(232,162,58,.35); border-radius:999px; padding:2px 8px; }
+.cmp .cmeto.pe{ grid-template-columns:1fr; width:64px; text-align:center; }
+.cmp .cmeto.pe b{ padding:5px 0 4px; font-size:11.5px; letter-spacing:.06em; }
+.cmp .cmeto.pe span{ padding:6px 0; font-size:12.5px; font-weight:800; }
+.cmp .le .prot{ display:block; font-size:10.5px; color:var(--ter); margin-top:7px; line-height:1.35; width:64px; text-align:center; }
+.cmp .obj b{ text-align:left; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.cmp .cab2{ display:flex; gap:10px; align-items:center; }
+.cmp .cab2 button{ font-size:10px !important; }
+.cmp .tmp{ font-variant-numeric:tabular-nums; }
+.cmp .tmh{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-size:13px; }
+.cmp .tmh span{ display:inline-flex; gap:5px; align-items:baseline; }
+.cmp .tmh em{ font-style:normal; font-size:10.5px; font-weight:800; background:var(--texto); color:#0B0F0D; border-radius:4px; padding:1px 5px; }
+.cmp .tml{ position:relative; display:flex; height:6px; border-radius:3px; background:var(--sup3); margin:7px 0 4px; }
+.cmp .tml i{ display:block; height:100%; }
+.cmp .tml .tma{ background:#3A4045; border-radius:3px 0 0 3px; }
+.cmp .tml .tmc{ border-radius:0 3px 3px 0; background:#A9AEB3; }
+.cmp .tml .tmc.m{ background:#E9C46A; } .cmp .tml .tmc.l{ background:#E8822A; }
+.cmp .tml s{ position:absolute; top:50%; width:8px; height:8px; margin:-4px 0 0 -4px; border-radius:50%; background:var(--sup); border:1.5px solid #A9AEB3; }
+.cmp .tml s.hj{ background:var(--texto); border-color:var(--texto); }
+.cmp .tmd{ display:flex; justify-content:space-between; font-size:10px; color:var(--ter); }
+.cmp .vst{ display:block; width:max-content; max-width:100%; white-space:normal; line-height:1.3; margin-top:5px; font-size:10.5px; font-weight:700; letter-spacing:.02em; color:#F0C67A; background:rgba(232,162,58,.12); border:1px solid rgba(232,162,58,.35); border-radius:999px; padding:2px 8px; }
 .cmp .com2 b{ display:inline-block; font-size:12px; font-weight:800; background:var(--texto); color:#0B0F0D; border-radius:6px; padding:3px 7px; margin-right:4px; }
 .cmp .lin:hover{ background:rgba(242,244,245,.025); }
 .cmp .lin.ab{ background:rgba(242,244,245,.035); }
@@ -266,18 +303,17 @@ body.dm-escuro .cmp .dx .vbox{ background:#2B2213; border-color:#5A4521; color:#
 .cmp .card b{ font-size:12.5px; font-weight:600; line-height:1.35; }
 .cmp .card small{ font-size:11px; color:var(--ter); }
 @media (max-width:1100px){.cmp .cab{ display:none; }
-.cmp .lin{ grid-template-columns:repeat(4, minmax(0,1fr)); grid-template-areas:"le le le le" "obj obj obj obj" "aut casa com rel" "fl fl fl fl"; gap:10px 16px; padding:14px 16px; }
-.cmp .lin > .le{ grid-area:le; display:flex; align-items:center; gap:10px; }
-.cmp .lin > .le .prot{ margin:0; }
+.cmp .lin{ grid-template-columns:76px repeat(3, minmax(0,1fr)); grid-template-areas:"le obj obj obj" "le aut tmw rel" "le fl fl fl"; gap:10px 16px; padding:14px 16px; align-items:start; }
+.cmp .lin > .le{ grid-area:le; }
 .cmp .lin > .obj{ grid-area:obj; }
-.cmp .lin > .aut{ grid-area:aut; } .cmp .lin > .casa2{ grid-area:casa; } .cmp .lin > .com2{ grid-area:com; } .cmp .lin > .rel{ grid-area:rel; }
+.cmp .lin > .aut{ grid-area:aut; } .cmp .lin > .tmw{ grid-area:tmw; } .cmp .lin > .rel{ grid-area:rel; }
 .cmp .lin > .fl{ grid-area:fl; }
 .cmp .lin > .dx{ grid-column:1 / -1; }
 .cmp .lin > [data-r]{ font-size:12.5px; border-left:1px solid var(--linha); padding-left:10px; }
 .cmp .lin > [data-r]::before{ content:attr(data-r); display:block; font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); margin-bottom:3px; }
 .cmp .det{ grid-template-columns:minmax(0,1fr); }
 .cmp .kpi{ grid-template-columns:repeat(3, minmax(0,1fr)); }}
-@media (max-width:700px){ .cmp .lin{ grid-template-columns:repeat(2, minmax(0,1fr)); grid-template-areas:"le le" "obj obj" "aut casa" "com rel" "fl fl"; } .cmp .kpi{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
+@media (max-width:700px){ .cmp .lin{ grid-template-columns:76px minmax(0,1fr); grid-template-areas:"le obj" "le aut" "le tmw" "le rel" "fl fl"; } .cmp .kpi{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 @media (prefers-reduced-motion:reduce){}`;
 let CMP_D = null, CMP_R = null;
 const corpoPL = () => `<div class="rhb${S.fech.cmpB === false ? "" : " fech"}" id="cmpB"><h3 data-bk="cmpB">Comissões · proposições em tramitação<small id="cmpAt">proposições nas comissões permanentes · e-Legis</small></h3><div id="cmpC"><p class="rh-nt">Carregando…</p></div></div>`;
@@ -320,7 +356,7 @@ const temaDe = (x) => (RES[x.id] && RES[x.id].t && RES[x.id].t[0] && RES[x.id].t
 const SIGN = new Map(D.coms.map(([c, s]) => [c, s])), sigDe = (nome) => { const n = String(nome || "").replace(/^Comiss[ãa]o (de |da |do |dos |das )?/i, ""); for (const [c, s] of SIGN) if (n.startsWith(c) || c.startsWith(n)) return s; return n; };
 const faixa = (d) => d == null ? "" : d <= 30 ? "v" : d <= 90 ? "m" : "l";
 const ETQ = { PL: "", PLC: "plc", PEC: "pec" };
-const etq = (x) => `<span class="cmeto ${ETQ[x.tipo] ?? "out"}"><b>${esc(x.tipo)}</b><span>${esc(x.num)}/${esc(x.ano)}</span></span>`;
+const etq = (x, pe) => `<span class="cmeto ${ETQ[x.tipo] ?? "out"}${pe ? " pe" : ""}"><b>${esc(x.tipo)}</b><span>${esc(x.num)}/${esc(x.ano)}</span></span>`;
 const fluxo = (x) => `<div class="fl">${x.fluxo.map((c, i) => `${i ? `<i class="ln${x.fluxo[i - 1].st === "ok" ? " ok" : ""}"></i>` : ""}<span class="p ${c.st}" title="${esc(c.n)}${c.st === "ok" ? " · aprovada" + (c.par ? " (" + c.par + ")" : "") : c.st === "atual" ? " · está aqui" : " · ainda vai"}">${esc(c.s)}</span>`).join("")}</div>`;
 // filtros
 const passa = (x, sem) => (!F.com || x.com === F.com || sem === "com") && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.rel || (F.rel === "(sem)" ? !x.rel : x.rel === F.rel)) && (!F.aut || x.autor === F.aut)
@@ -337,25 +373,18 @@ const CURTO = { CCJ: "CCJ", CFT: "Finanças", CTA: "Trabalho", CED: "Ética", CA
 // listrado = aguardando relator, traço escuro entre as partes, total em cima, grade tracejada. Eixo em raiz quadrada (marcado no eixo)
 // para a CCJ, com quase 700, não achatar as demais.
 const FX = [["até 90 dias", (d) => d <= 90, "#C9D4DE"], ["91 a 365 dias", (d) => d > 90 && d <= 365, "#647C96"], ["mais de 365 dias", (d) => d > 365, "#2E3B4B"]];
+// colunas de mesma altura (20/11/2026, pedido do usuário): um tubo arredondado com fundo fundo (como as barras do sistema de
+// palpites) e o preenchimento subindo de baixo, nas cores das Cotas; o nível do preenchimento é a raiz da quantidade em relação
+// à maior comissão (para as pequenas aparecerem), as partes dentro dele são proporcionais
 function grade() { const B = D.L.filter((x) => passa(x, "com")), por = (s) => B.filter((x) => x.csig === s), nome = (s) => (D.coms.find((c) => c[1] === s) || [s])[0];
-  const S = [...ORD9, ...ORD7], N = S.map((s) => por(s).length), mx = Math.max(1, ...N), W = 1180, H = 400, m = { l: 46, r: 14, t: 58, b: 104 }, gap = 26;
-  const bw = (W - m.l - m.r - gap) / S.length, xo = (k) => m.l + k * bw + (k >= ORD9.length ? gap : 0), yv = (v) => H - m.b - Math.sqrt(v / mx) * (H - m.b - m.t);
-  const tk = [0, 10, 50, 150, 400, 700].filter((v) => v <= mx * 1.05);
-  const pat = FX.map(([, , c], i) => `<pattern id="cmph${i}" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="${c}" opacity=".14"/><line x1="0" y1="0" x2="0" y2="6" stroke="${c}" stroke-width="2.2"/></pattern>`).join("");
-  const col = (s, k) => { const A = por(s), n = A.length, c = nome(s), x0 = xo(k) + bw * .2, w = bw * .6, vs = A.filter((x) => x.vista).length, of = F.com && F.com !== c; let acc = 0;
-    const segs = FX.map(([r, f], i) => { const Q = A.filter((x) => f(x.dias || 0)); if (!Q.length) return ""; const cr = Q.filter((x) => x.rel).length, hT = (H - m.b) - (n ? yv(n) : H - m.b), pz = (v) => (H - m.b) - (v / n) * hT, y0 = pz(acc), y1 = pz(acc + Q.length), yc = pz(acc + cr); acc += Q.length;
-      return `<g data-pseg="${i}"><rect x="${x0}" y="${y1}" width="${w}" height="${Math.max(0, y0 - y1)}" fill="url(#cmph${i})"/><rect x="${x0}" y="${yc}" width="${w}" height="${Math.max(0, y0 - yc)}" fill="${FX[i][2]}"/><line x1="${x0}" x2="${x0 + w}" y1="${y1}" y2="${y1}" stroke="#14191A" stroke-width="2"/><title>${esc(c)} · na comissão há ${r}: ${Q.length} (${cr} com relator, ${Q.length - cr} aguardando)</title></g>`; }).join("");
-    return `<g class="pcrow${F.com === c ? " on" : ""}" data-c="${esc(c)}" style="cursor:pointer${of ? ";opacity:.35" : ""}"><rect x="${xo(k)}" y="${m.t - 20}" width="${bw}" height="${H - m.t + 20}" fill="transparent"/>${segs}
-      <text class="fo" x="${x0 + w / 2}" y="${(n ? yv(n) : H - m.b) - 8}" text-anchor="middle">${n}</text>
-      ${vs ? `<circle cx="${x0 + w / 2}" cy="${H - m.b + 12}" r="4" fill="#E8705A"><title>${vs} em vista</title></circle>` : ""}
-      <text class="ano" x="${x0 + w / 2}" y="${H - m.b + 26}" text-anchor="end" transform="rotate(-42 ${x0 + w / 2} ${H - m.b + 26})" style="font-size:12px;font-weight:${F.com === c ? 800 : 600}">${esc(CURTO[s] || s)}</text><title>${esc(c)}: ${n} proposições${vs ? " · " + vs + " em vista" : ""}</title></g>`; };
-  const sep = xo(ORD9.length) - gap / 2;
-  return `<div class="gr2"><svg viewBox="0 0 ${W} ${H}" class="pcsvg"><defs>${pat}</defs>
-    ${tk.map((v) => `<line x1="${m.l}" x2="${W - m.r}" y1="${yv(v)}" y2="${yv(v)}" stroke="rgba(242,244,245,.05)" stroke-dasharray="2 4"/><text class="mu" x="${m.l - 10}" y="${yv(v) + 4}" text-anchor="end">${v}</text>`).join("")}
-    <line x1="${sep}" x2="${sep}" y1="2" y2="${H - m.b}" stroke="rgba(242,244,245,.12)" stroke-dasharray="3 4"/>
-    <text class="mu" x="${m.l}" y="14">Comissões de 9 membros</text><text class="mu" x="${sep + 12}" y="14">Comissões de 7 membros</text>
-    ${S.map(col).join("")}</svg></div>`; }
-function comissoes() { if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c};box-shadow:inset 0 0 0 1px rgba(242,244,245,.18)"></i>na comissão há ${r}</span>`).join("") + `<span><i style="background:#C9D4DE"></i>cheio = com relator</span><span><i style="background:repeating-linear-gradient(45deg,#C9D4DE 0 2px,transparent 2px 5px)"></i>listrado = aguardando relator</span><span><i style="background:#E8705A;border-radius:50%"></i>com pedido de vista</span><span style="color:var(--ter)">altura da barra em raiz quadrada do total, para as comissões menores aparecerem; as partes dentro da barra são proporcionais</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
+  const mx = Math.max(1, ...[...ORD9, ...ORD7].map((s) => por(s).length));
+  const col = (s) => { const A = por(s), n = A.length, c = nome(s), nv = n ? Math.max(6, Math.sqrt(n / mx) * 100) : 0, vs = A.filter((x) => x.vista).length, cr = A.filter((x) => x.rel).length;
+    const segs = FX.map(([r, f, cor], i) => { const Q = A.filter((x) => f(x.dias || 0)); if (!Q.length) return ""; const k = Q.filter((x) => x.rel).length;
+      return `<i style="flex:${Q.length};--c:${cor}" title="${esc(c)} · há ${r} na comissão: ${Q.length} (${k} com relator)"><u style="flex:${Q.length - k}"></u><em style="flex:${k}"></em></i>`; }).join("");
+    return `<button class="tb${F.com === c ? " on" : F.com ? " of" : ""}" data-c="${esc(c)}" title="${esc(c)}: ${n} proposições · ${cr} com relator${vs ? " · " + vs + " em vista" : ""}">
+      <span class="tq">${n}</span><span class="tt"><span class="tf" style="height:${nv.toFixed(1)}%">${segs}</span></span>${vs ? `<span class="tv2" title="${vs} em vista"></span>` : `<span class="tv0"></span>`}<span class="tn">${esc(CURTO[s] || s)}</span></button>`; };
+  return `<div class="gr3"><div class="gg3"><small>9 membros</small><div>${ORD9.map(col).join("")}</div></div><div class="gg3"><small>7 membros</small><div>${ORD7.map(col).join("")}</div></div></div>`; }
+function comissoes() { if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c};box-shadow:inset 0 0 0 1px rgba(242,244,245,.18)"></i>na comissão há ${r}</span>`).join("") + `<span><i style="background:#C9D4DE"></i>cheio = com relator</span><span><i style="background:repeating-linear-gradient(45deg,#C9D4DE 0 2px,transparent 2px 5px)"></i>listrado = aguardando relator</span><span><i style="background:#E8705A;border-radius:50%"></i>com pedido de vista</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
   $("#coms").className = "coms"; $("#lgc").className = "lg"; $("#lgc").innerHTML = `<span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span>`; const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
   $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
     return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cmd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
@@ -429,13 +458,19 @@ function detalhe(x) { const Z = RES[x.id] || null, c = x.fluxo.find((f) => f.st 
     <div class="cx"><div class="cxh">${ic("bal")}Por quê</div><div class="txt">${esc(Z.pq || "")}</div>${Z.fund && Z.fund.length ? `<div class="cxh" style="margin:14px 0 6px">${ic("lei")}Fundamentos citados</div><div class="fd">${Z.fund.map((f) => `<span>${esc(f)}</span>`).join("")}</div>` : ""}</div></div>` : `<div style="height:12px"></div>`}
   <div class="base">${linhaTempo(x)}${relacionadas(x, Z)}</div>
   ${Z ? "" : `<div class="aviso">O resumo desta proposição (o que muda e por quê) ainda está sendo preparado a partir do texto do projeto.</div>`}</div>`; }
-function linha(x) { const d = x.dias, v = x.vista;
-  return `<div class="lin${F.ab === x.id ? " ab" : ""}" data-id="${esc(x.id)}"><div class="le">${etq(x)}<span class="prot">protocolo ${br(x.prot)}</span></div>
+// linha (20/11/2026): etiqueta em pé (tipo em cima, número/ano embaixo); tempo na Assembleia e na comissão numa linha do tempo
+// compacta (protocolo → chegada na comissão → hoje); detalhes ficam no "title" (passar o mouse) e no detalhe ao clicar
+function tempoMini(x) { const c = x.casa || 0, d = Math.min(c, x.dias || 0), pa = c ? Math.max(2, (c - d) / c * 100) : 0;
+  const tit = `Na Assembleia desde ${br(x.prot)} (${ni(c)} dias) · na ${x.com} desde ${br(x.chegou)} (${ni(d)} dias)${x.vista ? ` · em vista desde ${br(x.vista.d)}` : ""}`;
+  return `<div class="tmp" title="${esc(tit)}"><div class="tmh"><b class="idade ${c > 365 ? "l" : c > 180 ? "m" : "v"}">${ni(c)} d</b><span><em>${esc(x.csig)}</em><b class="idade ${faixa(d)}">${ni(d)} d</b></span></div>
+    <div class="tml"><i class="tma" style="width:${pa.toFixed(1)}%"></i><i class="tmc ${faixa(d)}" style="width:${(100 - pa).toFixed(1)}%"></i><s style="left:0"></s><s style="left:${pa.toFixed(1)}%"></s><s class="hj" style="left:100%"></s></div>
+    <div class="tmd"><span>${br(x.prot).slice(3)}</span><span>${br(x.chegou).slice(3)}</span><span>hoje</span></div></div>`; }
+function linha(x) { const v = x.vista;
+  return `<div class="lin${F.ab === x.id ? " ab" : ""}" data-id="${esc(x.id)}"><div class="le">${etq(x, 1)}<span class="prot">protocolo<br>${br(x.prot)}</span></div>
     <div class="obj"><b>${esc(RES[x.id] ? RES[x.id].m : x.resumo)}</b><small>${esc(x.ementa)}</small></div>
     <div class="aut" data-r="Autor · tema">${esc(x.autor)}<small>${esc(temaDe(x))}</small></div>
-    <div class="na casa2" data-r="Na Assembleia"><span class="idade ${x.casa > 365 ? "l" : x.casa > 180 ? "m" : "v"}">${ni(x.casa)} dias</span><small>desde ${br(x.prot)}</small></div>
-    <div class="na com2" data-r="Na comissão"><b title="${esc(x.com)}">${esc(x.csig)}</b> <span class="idade ${faixa(d)}">${d == null ? "—" : ni(d) + " dias"}</span><small>desde ${br(x.chegou)}</small></div>
-    <div class="rel" data-r="Relator">${x.rel ? esc(x.rel) + `<small>desde ${br(x.relDist)}</small>` : `<span class="sem">aguardando relator</span>`}${v ? `<span class="vst" title="Pedido de vista${v.re ? " · " + esc(v.re) : ""}">vista · ${esc(v.quem || "deputado")} · ${ni(dd(v.d, HOJE))} d</span>` : ""}</div>
+    <div class="tmw" data-r="Tempo">${tempoMini(x)}</div>
+    <div class="rel" data-r="Relator">${x.rel ? esc(x.rel) : `<span class="sem">aguardando relator</span>`}${v ? `<span class="vst" title="Pedido de vista desde ${br(v.d)}${v.re ? " · " + esc(v.re) : ""}">vista · ${esc(v.quem || "deputado")}</span>` : ""}</div>
     ${fluxo(x)}${F.ab === x.id ? detalhe(x) : ""}</div>`; }
 const filtradas = () => { const L = D.L.filter((x) => passa(x)), [k, s] = F.ord; return L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); }); };
 const filtroTxt = () => [F.com, F.tipo, F.tema, F.rel && (F.rel === "(sem)" ? "sem relator" : "relator " + F.rel), F.aut && "autor " + F.aut, F.idade !== "" && ["até 30 dias", "31 a 90 dias", "mais de 90 dias"][+F.idade] + " na comissão", F.kpi && { com: "com relator", sem: "aguardando relator", velhas: "mais de 90 dias", vista: "em vista", andou: "já aprovadas em 1+" }[F.kpi], F.q && `busca “${F.q}”`].filter(Boolean).join(" · ") || "todas as proposições em comissão";
@@ -443,7 +478,7 @@ function desenhar() { kpis(D.L.filter((x) => !F.com || x.com === F.com)); comiss
   const L = D.L.filter((x) => passa(x)); const [k, s] = F.ord; L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); });
   $("#res").innerHTML = `<b>${ni(L.length)}</b> de ${ni(D.L.length)} proposições${F.com ? " em " + esc(F.com) : ""}`;
   const col = (id, t) => `<button data-o="${id}" class="${F.ord[0] === id ? "on" : ""}">${t}<i>${F.ord[0] === id ? (F.ord[1] > 0 ? "↑" : "↓") : "↕"}</i></button>`;
-  if (F.vis === "lista") $("#vista").innerHTML = `<div class="lista"><div class="cab">${col("num", "Proposição")}${col("obj", "Objetivo")}${col("aut", "Autor · tema")}${col("casa", "Na Assembleia")}${col("dias", "Na comissão")}${col("rel", "Relator")}${col("fl", "Caminho nas comissões")}</div>
+  if (F.vis === "lista") $("#vista").innerHTML = `<div class="lista"><div class="cab">${col("num", "Proposição")}${col("obj", "Objetivo")}${col("aut", "Autor · tema")}<span class="cab2">Tempo ${col("casa", "casa")}${col("dias", "comissão")}</span>${col("rel", "Relator")}${col("fl", "Caminho nas comissões")}</div>
     ${L.slice(0, F.lim).map(linha).join("") || `<div class="vazio">Nada com estes filtros.</div>`}${L.length > F.lim ? `<button class="mais" id="mais">Mostrar mais ${ni(Math.min(60, L.length - F.lim))} de ${ni(L.length - F.lim)}</button>` : ""}</div>`;
   else { const C = (F.com ? [F.com] : D.coms.map((c) => c[0])).filter((c) => L.some((x) => x.com === c));
     $("#vista").innerHTML = `<div class="quadro">${C.map((c) => { const A = L.filter((x) => x.com === c).sort((a, b) => (b.casa || 0) - (a.casa || 0)), md = A.length ? Math.round(A.reduce((s, x) => s + (x.casa || 0), 0) / A.length) : 0; return `<section class="qc"><h3>${esc(c)}<small>${ni(A.length)} · média ${ni(md)} dias na casa</small></h3><div class="qs">${A.slice(0, 80).map((x) => `<div class="card" data-id="${esc(x.id)}"><div class="t">${etq(x)}<span style="font-size:11.5px;text-align:right"><b class="idade ${x.casa > 365 ? "l" : x.casa > 180 ? "m" : "v"}">${ni(x.casa)} d</b> <span style="color:var(--ter)">na casa</span></span></div><b>${esc(RES[x.id] ? RES[x.id].m : x.resumo)}</b><span class="tbar" title="${ni(x.casa)} dias na Assembleia, ${x.dias ?? 0} nesta comissão"><i style="flex:${Math.max(0, (x.casa || 0) - (x.dias || 0))};background:#3A4045"></i><i style="flex:${x.dias || 0};background:${x.dias > 90 ? "#E8822A" : "#A9AEB3"}"></i></span><small>${esc(x.autor)} · ${x.rel ? "relator " + esc(x.rel) : "aguardando relator"}</small>${fluxo(x)}</div>`).join("")}${A.length > 80 ? `<small style="padding:6px;color:var(--ter)">+ ${A.length - 80} na lista</small>` : ""}</div></section>`; }).join("")}</div>`; }
