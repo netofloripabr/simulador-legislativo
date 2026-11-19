@@ -44,6 +44,13 @@ const TEMAS = [["Utilidade pública", /utilidade p[úu]blica/i], ["Patrimônio e
 const tema = (e) => (TEMAS.find(([, re]) => re.test(e)) || ["Outros"])[0];
 const dias = (a, b) => a && b ? Math.round((new Date(b) - new Date(a)) / 864e5) : null, HOJE = new Date().toISOString().slice(0, 10);
 
+// pedidos de vista (19/11/2026): quem pediu sai da observação da tramitação ("Vista ao Deputado Fulano, solicitada na 13ª reunião…")
+const quemVista = (s) => { const m = String(s || "").match(/Vistas? (?:ao|à|aos|às|para o|para a)s? (?:Deputad[oa]s?|Dep\.?)\s+(.+?)(?:,|\s+solicitad|\s+na\s+\d|\.\s|$)/i); return m ? m[1].replace(/\s+e\s+/g, ", ").trim() : null; };
+function vistas(p) { const T = (p.tram || []).filter((t) => t.d), V = T.filter((t) => /^Vista ao/i.test(t.sit) || /vista ao|vista à|vistas aos/i.test(t.obs || ""));
+  if (!V.length) return {}; const h = V.map((t) => [t.d, quemVista(t.obs) || "", (t.obs || "").match(/\d+ª reuni[ãa]o[^,]*/i)?.[0] || ""]);
+  const ult = V[V.length - 1], fim = T.find((t) => t.d >= ult.d && t !== ult && T.indexOf(t) > T.indexOf(ult) && /devolv|resolvid|voto vista|vista coletiva devolvida/i.test(t.sit + " " + (t.obs || "")));
+  const aberta = /vista/i.test(p.situacao || "") && !fim;
+  return { vistas: h, ...(aberta ? { vista: { quem: quemVista(ult.obs) || "", d: ult.d, re: h[h.length - 1][2] } } : {}) }; }
 const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\d+)\/(\d{4})/) || [0, p.cod, "", ""]).slice(1);
   const chegou = [...(p.tram || [])].reverse().find((t) => t.para === p.setor), [verbo, txt] = resumo(p.ementa);
   // a comissão onde a proposição está agora só conta como aprovada se alguma comissão DEPOIS dela já concluiu (então é um retorno);
@@ -56,7 +63,7 @@ const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\
   const atual = C.find((c) => c.st === "atual");
   return { id: p.id, tipo: tipo.replace(/\.$/, ""), num: String(+num || num), ano, autor: (p.autoria || "").replace(/^Deputad[oa] /, ""), ementa: caixa(p.ementa || ""), verbo, resumo: corta(caixa(txt), 150), tema: tema(p.ementa), prot: p.entrada,
     com: curto(p.setor), csig: sig(p.setor), chegou: chegou ? chegou.d : null, dias: dias(chegou ? chegou.d : null, HOJE), rel: atual ? atual.rel : null, relDist: atual ? atual.dist : null, sit: p.situacao, fluxo: C,
-    tram: (p.tram || []).filter((t) => t.d && t.sit).map((t) => [t.d, t.sit, t.para]) }; });
+    tram: (p.tram || []).filter((t) => t.d && t.sit).map((t) => t.obs ? [t.d, t.sit, t.para, t.obs.slice(0, 220)] : [t.d, t.sit, t.para]), ...vistas(p) }; });
 const COMS = [...new Set(L.map((x) => x.com))].sort((a, b) => L.filter((x) => x.com === b).length - L.filter((x) => x.com === a).length);
 const dados = { gerado, total: L.length, coms: COMS.map((c) => [c, sig(c)]), L };
 

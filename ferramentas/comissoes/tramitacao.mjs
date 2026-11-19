@@ -35,18 +35,21 @@ log(`em comissão: ${EMCOM.length}`);
 let i = 0;
 for (const p of EMCOM) { i++;
   const arq = join(CACHE, p.id + ".json"); let D = existsSync(arq) ? JSON.parse(readFileSync(arq, "utf8")) : null;
-  if (!D || D.setor !== p.setor || D.situacao !== p.situacao) {
+  if (!D || D.setor !== p.setor || D.situacao !== p.situacao || !D.v2) {
     const tr = await pegar(`${EL}/proposicoes/${p.id}/tramitacoes`); await espera(500); const ct = await pegar(`${EL}/proposicoes/${p.id}/comissoes-tramitar`); await espera(500);
     // tramitações: cada item tem a situação, a data e o caminho origem › destino
     const T = []; for (const li of tr.split('<li class="timeline-item').slice(1)) { const sit = limpa((li.match(/<p class="mb-1 fw-bold">([\s\S]*?)<\/p>/) || [])[1]), d = iso((li.match(/<small>\s*(\d{2}\/\d{2}\/\d{4})\s*<\/small>/) || [])[1]);
-      const sm = [...li.matchAll(/<small class="text-center">([\s\S]*?)<\/small>/g)].map((x) => limpa(x[1])); T.push({ sit, d, de: sm[0] || null, para: sm[1] || null }); }
+      const sm = [...li.matchAll(/<small class="text-center">([\s\S]*?)<\/small>/g)].map((x) => limpa(x[1]));
+      // observação da tramitação (ex.: "Vista ao Deputado Fulano, solicitada na 13ª reunião…"), desde 19/11/2026
+      const obs = limpa((li.match(/<p class="mb-1 text-primary fst-italic">\s*<small>([\s\S]*?)<\/small>/) || [])[1]) || null;
+      T.push({ sit, d, de: sm[0] || null, para: sm[1] || null, ...(obs ? { obs } : {}) }); }
     // comissões a tramitar: nome, relatores (nome, distribuído, concluído) e parecer
     const C = []; for (const li of ct.split('<li class="timeline-item').slice(1)) { const nome = limpa((li.match(/<p class="mb-2 fw-bold">([\s\S]*?)<\/p>/) || [])[1]); if (!nome) continue;
       const rows = [...li.matchAll(/<div class="row">\s*<div class="col-4 col-lg-8 text-nowrap">([\s\S]*?)<\/div>\s*<div class="col-4 col-lg-2 text-nowrap">([\s\S]*?)<\/div>\s*<div class="col-4 col-lg-2 text-nowrap">([\s\S]*?)<\/div>/g)].map((r) => ({ relator: limpa(r[1]), dist: iso(r[2]), concl: iso(r[3]) }));
       const pb = li.match(/<div class="flex-grow-1">\s*<strong>([\s\S]*?)<\/strong>(?:<br>)?\s*<em[^>]*>([\s\S]*?)<\/em>\s*<\/div>\s*<div class="text-end">([\s\S]*?)<\/div>/);
       const parecer = pb && limpa(pb[1]) !== "-" ? { res: limpa(pb[1]), txt: limpa(pb[2]), d: iso(pb[3]) } : null;
       C.push({ nome, aguarda: /aguardando distribui/i.test(li), relatores: rows, parecer }); }
-    D = { ...p, tram: T, comissoes: C }; writeFileSync(arq, JSON.stringify(D)); }
+    D = { ...p, tram: T, comissoes: C, v2: 1 }; writeFileSync(arq, JSON.stringify(D)); }
   Object.assign(p, D);
   if (i % 25 === 0) log(`detalhes: ${i}/${EMCOM.length}`); }
 

@@ -9,7 +9,7 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .tag h1{ margin:0; font-size:clamp(30px,4.4vw,48px); font-weight:900; letter-spacing:-.05em; line-height:.95; }
 .cmp .tag p{ flex:1; min-width:240px; margin:0; color:var(--sec); max-width:70ch; }
 .cmp .tag .at{ font-size:11px; color:var(--ter); white-space:nowrap; }
-.cmp .kpi{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:10px; margin:18px 0 0; }
+.cmp .kpi{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:10px; margin:18px 0 0; }
 .cmp .kpi button{ text-align:left; background:var(--sup); border:1px solid var(--linha); border-radius:14px; padding:12px 14px; cursor:pointer; transition:border-color .15s; }
 .cmp .kpi button:hover{ border-color:var(--linha2); }
 .cmp .kpi button.on{ border-color:var(--texto); }
@@ -30,6 +30,26 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .cbar{ display:flex; height:5px; border-radius:3px; overflow:hidden; background:var(--sup3); gap:1px; }
 .cmp .cbar i{ display:block; }
 .cmp .com.on .cbar{ background:#D3D6D8; }
+.cmp .stdir{ display:flex; align-items:center; gap:12px; }
+.cmp .cvis{ display:inline-flex; gap:2px; background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:2px; }
+.cmp .cvis button{ background:none; border:0; border-radius:999px; padding:4px 11px; color:var(--sec); font-size:11px; font-weight:600; letter-spacing:.02em; text-transform:none; cursor:pointer; }
+.cmp .cvis button.on{ background:var(--texto); color:#0B0F0D; }
+.cmp .gr{ display:flex; gap:0; background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:16px 12px 12px; overflow-x:auto; }
+.cmp .gr .gg{ display:flex; gap:4px; align-items:stretch; }
+.cmp .gr .gg:first-child{ flex:4 1 0; } .cmp .gr .gg:last-child{ flex:20 1 0; }
+.cmp .gr .gg + .gg{ margin-left:14px; padding-left:14px; border-left:1px solid var(--linha2); }
+.cmp .gr .gc{ flex:1 1 30px; min-width:30px; display:flex; flex-direction:column; align-items:center; gap:6px; background:none; border:0; padding:0; cursor:pointer; border-radius:8px; }
+.cmp .gr .gc:hover .gb{ outline:1px solid var(--linha2); }
+.cmp .gr .gc.on .gb{ outline:2px solid var(--texto); }
+.cmp .gr .gc.of{ opacity:.35; }
+.cmp .gr .gn{ writing-mode:vertical-rl; transform:rotate(180deg); font-size:11.5px; color:var(--sec); height:104px; text-align:left; white-space:nowrap; }
+.cmp .gr .gc.on .gn{ color:var(--texto); font-weight:700; }
+.cmp .gr .gq{ font-size:12px; font-weight:800; font-variant-numeric:tabular-nums; }
+.cmp .gr .gb{ width:22px; height:var(--h); display:flex; flex-direction:column-reverse; border-radius:5px; overflow:hidden; gap:1px; }
+.cmp .gr .gb i{ display:block; width:100%; }
+.cmp .gr .gs{ font-size:10px; color:var(--ter); }
+.cmp .gr .gv{ width:7px; height:7px; border-radius:50%; background:#E8A23A; }
+.cmp .gr .gcol{ display:flex; flex-direction:column; align-items:center; gap:4px; height:var(--alt); justify-content:flex-end; }
 .cmp .lg{ display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--sec); margin-top:8px; }
 .cmp .lg i{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
 .cmp .bar{ top:64px !important; display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:22px 0 10px; position:sticky; top:0; z-index:5; padding:10px 0; background:linear-gradient(var(--fundo) 80%, rgba(11,15,13,0)); }
@@ -52,6 +72,8 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .cab button i{ font-style:normal; margin-left:4px; color:#3A4045; }
 .cmp .cab button.on,.cmp .cab button.on i{ color:var(--texto); }
 .cmp .lin{ border-bottom:1px solid rgba(242,244,245,.05); cursor:pointer; transition:background .12s; }
+.cmp .vst{ display:inline-block; margin-top:5px; font-size:10.5px; font-weight:700; letter-spacing:.02em; color:#F0C67A; background:rgba(232,162,58,.12); border:1px solid rgba(232,162,58,.35); border-radius:999px; padding:2px 8px; }
+.cmp .com2 b{ display:inline-block; font-size:12px; font-weight:800; background:var(--texto); color:#0B0F0D; border-radius:6px; padding:3px 7px; margin-right:4px; }
 .cmp .lin:hover{ background:rgba(242,244,245,.025); }
 .cmp .lin.ab{ background:rgba(242,244,245,.035); }
 .cmp .casa{ display:block; font-size:11px; color:var(--ter); margin-top:5px; }
@@ -110,6 +132,10 @@ body.dm-escuro .cmp .dx .alerta{ background:#2B2213; border-color:#5A4521; color
 .cmp .dx .gtb .ok{ background:var(--ac); }
 .cmp .dx .gtb .ps{ background:#D3D8DB; color:#3E454B; }
 .cmp .dx .gtb .atual{ background:var(--cz); }
+.cmp .dx .gtb .vs{ background:#E8A23A; color:#3B2606; }
+.cmp .dx .tlr.vs .tlv i{ background:#E8A23A; border-color:#E8A23A; box-shadow:0 0 0 4px rgba(232,162,58,.18); }
+.cmp .dx .vbox{ display:flex; gap:10px; align-items:center; background:#FFF4E2; border:1px solid #F3D29C; color:#7A4B06; border-radius:12px; padding:9px 12px; font-size:12.5px; margin:12px 0 0; }
+body.dm-escuro .cmp .dx .vbox{ background:#2B2213; border-color:#5A4521; color:#F0C67A; }
 .cmp .dx .gtl{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--mu); margin-top:5px; font-variant-numeric:tabular-nums; }
 .cmp .dx .bnt{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--bd); border:1px solid var(--bd); border-radius:14px; overflow:hidden; }
 .cmp .dx .tl2{ background:var(--tl); padding:11px 14px; display:flex; flex-direction:column; gap:6px; min-width:0; }
@@ -237,12 +263,18 @@ body.dm-escuro .cmp .dx .alerta{ background:#2B2213; border-color:#5A4521; color
 .cmp .card b{ font-size:12.5px; font-weight:600; line-height:1.35; }
 .cmp .card small{ font-size:11px; color:var(--ter); }
 @media (max-width:1100px){.cmp .cab{ display:none; }
-.cmp .lin{ grid-template-columns:minmax(0,1fr) auto; gap:8px 12px; }
-.cmp .lin > .obj{ grid-column:1 / -1; order:-1; }
-.cmp .lin > .aut,.cmp .lin > .rel{ font-size:12px; }
-.cmp .lin > .fl{ grid-column:1 / -1; }
+.cmp .lin{ grid-template-columns:repeat(4, minmax(0,1fr)); grid-template-areas:"le le le le" "obj obj obj obj" "aut casa com rel" "fl fl fl fl"; gap:10px 16px; padding:14px 16px; }
+.cmp .lin > .le{ grid-area:le; display:flex; align-items:center; gap:10px; }
+.cmp .lin > .le .prot{ margin:0; }
+.cmp .lin > .obj{ grid-area:obj; }
+.cmp .lin > .aut{ grid-area:aut; } .cmp .lin > .casa2{ grid-area:casa; } .cmp .lin > .com2{ grid-area:com; } .cmp .lin > .rel{ grid-area:rel; }
+.cmp .lin > .fl{ grid-area:fl; }
+.cmp .lin > .dx{ grid-column:1 / -1; }
+.cmp .lin > [data-r]{ font-size:12.5px; border-left:1px solid var(--linha); padding-left:10px; }
+.cmp .lin > [data-r]::before{ content:attr(data-r); display:block; font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); margin-bottom:3px; }
 .cmp .det{ grid-template-columns:minmax(0,1fr); }
-.cmp .kpi{ grid-template-columns:repeat(2, minmax(0,1fr)); }}
+.cmp .kpi{ grid-template-columns:repeat(3, minmax(0,1fr)); }}
+@media (max-width:700px){ .cmp .lin{ grid-template-columns:repeat(2, minmax(0,1fr)); grid-template-areas:"le le" "obj obj" "aut casa" "com rel" "fl fl"; } .cmp .kpi{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 @media (prefers-reduced-motion:reduce){}`;
 let CMP_D = null, CMP_R = null;
 const corpoPL = () => `<div class="rhb${S.fech.cmpB === false ? "" : " fech"}" id="cmpB"><h3 data-bk="cmpB">Comissões · proposições em tramitação<small id="cmpAt">proposições nas comissões permanentes · e-Legis</small></h3><div id="cmpC"><p class="rh-nt">Carregando…</p></div></div>`;
@@ -254,9 +286,9 @@ async function cmpAbrir() { const R = document.getElementById("cmpC"); if (!R ||
   R.innerHTML = `<div class="cmp">
   
   <div class="kpi" id="kpi"></div>
-  <div class="st"><span>Por comissão · toque para filtrar</span><span id="stc"></span></div>
+  <div class="st"><span>Por comissão · toque para filtrar</span><span class="stdir"><span id="stc"></span><span class="cvis" role="group" aria-label="Formato"><button data-cv="cartoes" class="on">Cartões</button><button data-cv="grade">Gráfico</button></span></span></div>
   <div class="coms" id="coms"></div>
-  <div class="lg"><span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span></div>
+  <div class="lg" id="lgc"></div>
   <div class="bar" id="bar">
     <label class="busca"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="m10.5 10.5 3.5 3.5"/></svg><input id="q" placeholder="Buscar número, autor, relator ou assunto" aria-label="Buscar" autocomplete="off"></label>
     <label class="leq"><span>Tipo</span><select id="fTipo"></select></label>
@@ -277,7 +309,7 @@ function cmpIniciar(D, R, RES) {
 const $ = (s) => R.querySelector(s), esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const ni = (n) => (n || 0).toLocaleString("pt-BR"), br = (d) => d ? d.split("-").reverse().join("/") : "—";
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const F = { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
+const F = { cv: "cartoes", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
 const HOJE = new Date().toISOString().slice(0, 10), dd = (a, b) => a && b ? Math.max(0, Math.round((new Date(b) - new Date(a)) / 864e5)) : null;
 D.L.forEach((x) => { x.casa = dd(x.prot, HOJE); });
 // tema: o do resumo (1º nível) quando existe; senão o da classificação automática pela ementa
@@ -289,13 +321,24 @@ const etq = (x) => `<span class="cmeto ${ETQ[x.tipo] ?? "out"}"><b>${esc(x.tipo)
 const fluxo = (x) => `<div class="fl">${x.fluxo.map((c, i) => `${i ? `<i class="ln${x.fluxo[i - 1].st === "ok" ? " ok" : ""}"></i>` : ""}<span class="p ${c.st}" title="${esc(c.n)}${c.st === "ok" ? " · aprovada" + (c.par ? " (" + c.par + ")" : "") : c.st === "atual" ? " · está aqui" : " · ainda vai"}">${esc(c.s)}</span>`).join("")}</div>`;
 // filtros
 const passa = (x, sem) => (!F.com || x.com === F.com || sem === "com") && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.rel || (F.rel === "(sem)" ? !x.rel : x.rel === F.rel)) && (!F.aut || x.autor === F.aut)
-  && (F.idade === "" || faixa(x.dias) === ["v", "m", "l"][+F.idade]) && (!F.kpi || (F.kpi === "sem" ? !x.rel : F.kpi === "com" ? !!x.rel : F.kpi === "velhas" ? x.dias > 90 : F.kpi === "andou" ? x.fluxo.some((c) => c.st === "ok") : true))
-  && (!F.q || norm([x.tipo, x.num + "/" + x.ano, x.autor, x.rel, x.resumo, x.ementa, x.com, RES[x.id] ? RES[x.id].m + " " + (RES[x.id].t || []).flat().join(" ") : ""].join(" ")).includes(norm(F.q)));
+  && (F.idade === "" || faixa(x.dias) === ["v", "m", "l"][+F.idade]) && (!F.kpi || (F.kpi === "sem" ? !x.rel : F.kpi === "com" ? !!x.rel : F.kpi === "velhas" ? x.dias > 90 : F.kpi === "vista" ? !!x.vista : F.kpi === "andou" ? x.fluxo.some((c) => c.st === "ok") : true))
+  && (!F.q || norm([x.tipo, x.num + "/" + x.ano, x.autor, x.rel, x.vista ? "vista " + x.vista.quem : "", x.resumo, x.ementa, x.com, RES[x.id] ? RES[x.id].m + " " + (RES[x.id].t || []).flat().join(" ") : ""].join(" ")).includes(norm(F.q)));
 const ORD = { num: (x) => +x.ano * 1e5 + +x.num, obj: (x) => norm(x.resumo), aut: (x) => norm(x.autor), com: (x) => norm(x.com), rel: (x) => norm(x.rel || "~"), dias: (x) => x.dias ?? -1, casa: (x) => x.casa ?? -1, fl: (x) => x.fluxo.filter((c) => c.st === "ok").length };
 function kpis(L) { const sem = L.filter((x) => !x.rel).length, v = L.filter((x) => x.dias > 90).length, an = L.filter((x) => x.fluxo.some((c) => c.st === "ok")).length;
-  const k = [["", "Em tramitação", L.length, "em " + new Set(L.map((x) => x.com)).size + " comissões"], ["com", "Com relator", L.length - sem, Math.round((L.length - sem) / Math.max(1, L.length) * 100) + "% do total"], ["sem", "Aguardando relator", sem, "sem relator designado"], ["velhas", "Há mais de 90 dias", v, "paradas na mesma comissão"], ["andou", "Já aprovadas em 1+", an, "comissão no caminho"]];
+  const k = [["", "Em tramitação", L.length, "em " + new Set(L.map((x) => x.com)).size + " comissões"], ["com", "Com relator", L.length - sem, Math.round((L.length - sem) / Math.max(1, L.length) * 100) + "% do total"], ["sem", "Aguardando relator", sem, "sem relator designado"], ["velhas", "Há mais de 90 dias", v, "paradas na mesma comissão"], ["vista", "Em vista", L.filter((x) => x.vista).length, "pedido de vista aberto"], ["andou", "Já aprovadas em 1+", an, "comissão no caminho"]];
   $("#kpi").innerHTML = k.map(([id, t, n, s]) => `<button data-k="${id}" class="${F.kpi === id ? "on" : ""}"><span>${t}</span><b>${ni(n)}</b><small>${s}</small></button>`).join(""); }
-function comissoes() { const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
+// gráfico das comissões na ordem da composição (altura pela raiz da quantidade, para a CCJ não achatar as demais) (as 4 de 9 membros primeiro) e barras empilhadas pelo tempo na comissão (19/11/2026)
+const ORD9 = ["CCJ", "CFT", "CTA", "CED"], ORD7 = ["CAG", "CAM", "CCA", "CPD", "CDPI", "CDH", "CEC", "CEd", "CDCon", "CPA", "CPCD", "CDC", "CRI", "CSa", "CSP", "CTI", "CTu", "CEL", "CBA", "CMA"];
+const CURTO = { CCJ: "CCJ", CFT: "Finanças", CTA: "Trabalho", CED: "Ética", CAG: "Agricultura", CAM: "Assuntos Mun.", CCA: "Criança", CPD: "Deficiência", CDPI: "Idoso", CDH: "Dir. Humanos", CEC: "Economia", CEd: "Educação", CDCon: "Consumidor", CPA: "Pesca", CPCD: "Drogas", CDC: "Defesa Civil", CRI: "Rel. Inst.", CSa: "Saúde", CSP: "Segurança", CTI: "Transportes", CTu: "Turismo", CEL: "Esportes", CBA: "Animal", CMA: "Meio Ambiente" };
+const FX = [["até 90 dias", (d) => d <= 90, "#A9AEB3"], ["91 a 365 dias", (d) => d > 90 && d <= 365, "#E9C46A"], ["mais de 365 dias", (d) => d > 365, "#E8822A"]];
+function grade() { const B = D.L.filter((x) => passa(x, "com")), por = (s) => B.filter((x) => x.csig === s), mx = Math.max(1, ...[...ORD9, ...ORD7].map((s) => por(s).length));
+  const nome = (s) => (D.coms.find((c) => c[1] === s) || [s])[0];
+  const col = (s) => { const A = por(s), n = A.length, c = nome(s), h = n ? Math.max(5, Math.sqrt(n / mx) * 150) : 0, vs = A.filter((x) => x.vista).length;
+    return `<button class="gc${F.com === c ? " on" : F.com ? " of" : ""}" data-c="${esc(c)}" title="${esc(c)} · ${ni(n)} proposições${n ? " · " + FX.map(([r, f]) => A.filter((x) => f(x.dias || 0)).length + " " + r).join(", ") : ""}${vs ? " · " + vs + " em vista" : ""}">
+      <span class="gn">${esc(CURTO[s] || s)}</span><span class="gcol" style="--alt:176px"><span class="gq">${ni(n)}</span><span class="gb" style="--h:${h.toFixed(0)}px">${FX.map(([, f, cor]) => { const k = A.filter((x) => f(x.dias || 0)).length; return k ? `<i style="flex:${k};background:${cor}"></i>` : ""; }).join("")}</span></span>${vs ? `<span class="gv" title="${vs} em vista"></span>` : `<span class="gs">&nbsp;</span>`}</button>`; };
+  return `<div class="gr"><div class="gg">${ORD9.map(col).join("")}</div><div class="gg">${ORD7.map(col).join("")}</div></div>`; }
+function comissoes() { if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c}"></i>na comissão há ${r}</span>`).join("") + `<span><i style="background:#E8A23A;border-radius:50%"></i>com pedido de vista</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
+  $("#coms").className = "coms"; $("#lgc").innerHTML = `<span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span>`; const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
   $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
     return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cmd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
   $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; }
@@ -311,7 +354,7 @@ const P = { ok: '<path d="M3.5 8.5l3 3 6-7"/>', rel: '<circle cx="8" cy="5.5" r=
   troca: '<path d="M3 5.5h9l-2.5-2.5 M13 10.5H4l2.5 2.5"/>', band: '<path d="M4 14V2.5 M4 3h8l-1.5 3L12 9H4"/>', entra: '<path d="M2.5 8h8 M7.5 5l3 3-3 3 M11 3h2.5v10H11"/>', fecha: '<path d="M4 6l4 4 4-4"/>' };
 const ic = (k) => `<svg viewBox="0 0 16 16" class="i">${P[k] || P.doc}</svg>`;
 const EL = "https://portalelegis.alesc.sc.gov.br";
-const situacao = (x) => /emenda/i.test(x.sit) ? `Análise de emenda na ${x.csig}` : /vista/i.test(x.sit) ? `Pedido de vista na ${x.csig}` : /dilig/i.test(x.sit) ? `Em diligência · ${x.csig}` : x.rel ? `Aguardando parecer na ${x.csig}` : `Aguardando relator na ${x.csig}`;
+const situacao = (x) => /emenda/i.test(x.sit) ? `Análise de emenda na ${x.csig}` : x.vista ? `Em vista · ${x.vista.quem || "deputado"} · ${x.csig}` : /vista/i.test(x.sit) ? `Pedido de vista na ${x.csig}` : /dilig/i.test(x.sit) ? `Em diligência · ${x.csig}` : x.rel ? `Aguardando parecer na ${x.csig}` : `Aguardando relator na ${x.csig}`;
 const iniciais = (n) => String(n || "").split(/\s+/).filter((s) => s.length > 2 || /^[A-Z]/.test(s)).slice(0, 2).map((s) => s[0]).join("").toUpperCase();
 function anel(x) { const d = x.dias || 0, q = Math.min(1, d / 365), c = 2 * Math.PI * 34, cor = d > 90 ? "#5E666D" : "#9AA1A7";
   return `<div class="anel"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" fill="none" stroke="#DEE2E5" stroke-width="7"/><circle cx="42" cy="42" r="34" fill="none" stroke="${cor}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(q * c).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 42 42)"/>${d > 90 ? `<circle cx="42" cy="42" r="34" fill="none" stroke="#E8A23A" stroke-width="7" stroke-dasharray="1.5 ${c.toFixed(1)}" stroke-dashoffset="${(-(90 / 365) * c).toFixed(1)}" transform="rotate(-90 42 42)"/>` : ""}<text x="42" y="45" text-anchor="middle" font-size="20" font-weight="700" fill="currentColor">${d}</text><text x="42" y="58" text-anchor="middle" font-size="9" fill="#8C939A">dias</text></svg><small>na comissão atual${d > 90 ? "<br>passou de 90" : ""}</small></div>`; }
@@ -322,7 +365,8 @@ function tempo(x) { const S = [], ok = x.fluxo.filter((c) => c.st === "ok" && c.
   const ini = (ok[0] && ok[0].dist) || x.chegou; if (ini && dd(cur, ini)) S.push(["ex", dd(cur, ini), "Leitura e despacho"]); if (ini && ini > cur) cur = ini;
   ok.forEach((c) => { const n = dd(cur, c.concl); if (n) S.push(["ok", n, c.s]); if (c.concl > cur) cur = c.concl; });
   if (x.chegou && x.chegou > cur && dd(cur, x.chegou) > 2) { S.push(["ps", dd(cur, x.chegou), "Entre comissões"]); cur = x.chegou; }
-  S.push(["atual", x.dias || 0, x.csig]); const tot = S.reduce((s, e) => s + e[1], 0) || 1;
+  const dv = x.vista ? Math.min(x.dias || 0, dd(x.vista.d, HOJE) || 0) : 0;
+  if (dv) { S.push(["atual", (x.dias || 0) - dv, x.csig]); S.push(["vs", dv, "Vista · " + (x.vista.quem || "deputado")]); } else S.push(["atual", x.dias || 0, x.csig]); const tot = S.reduce((s, e) => s + e[1], 0) || 1;
   return `<div class="gt"><div class="gth"><span>Tempo de tramitação por etapa</span><b>${ni(x.casa)} dias na Assembleia</b></div><div class="gtb">${S.map(([c, d, n]) => `<i class="${c}" style="flex:${Math.max(d, tot / 80)}" title="${esc(n)}: ${d} dias">${d / tot > .14 ? esc(n) + " · " + d + "d" : d / tot > .05 ? d + "d" : ""}</i>`).join("")}</div><div class="gtl"><span>protocolo ${br(x.prot)}</span><span>hoje · ${br(HOJE)}</span></div></div>`; }
 const tile = (k, r, v, s, c) => `<div class="tl2"><span class="tk">${ic(k)}${r}</span><span class="tv ${c || ""}">${v}${s ? `<small>${s}</small>` : ""}</span></div>`;
 function dispositivos(Z) { const d = Z && Z.disp; if (!d) return "";
@@ -331,14 +375,16 @@ function dispositivos(Z) { const d = Z && Z.disp; if (!d) return "";
 function avanco(x) { const n = x.fluxo.length, ok = x.fluxo.filter((c) => c.st === "ok").length;
   return `<div class="tl2 w2"><span class="tk">${ic("seta")}Avanço nas comissões</span><div class="avn"><b>${ok}/${n}</b><span>${ok === 1 ? "comissão aprovou" : "comissões aprovaram"}</span></div><div class="avs">${x.fluxo.map((c) => `<span class="${c.st}"><i>${c.st === "ok" ? ic("ok") : ""}${esc(c.s)}</i><small>${c.st === "ok" ? "aprovou" : c.st === "atual" ? (c.volta ? "voltou" : "agora") : "falta"}</small></span>`).join("")}</div></div>`; }
 const SIT = [[/Lido no Expediente/i, "Lido no Expediente"], [/Publicado no Di[áa]rio/i, "Publicado no Diário"], [/Aguardando aprecia[çc][ãa]o pela Comiss[ãa]o/i, "@chegou"], [/Aguardando An[áa]lise de Emenda/i, "Volta para análise de emenda"],
-  [/Vista/i, "Pedido de vista"], [/Dilig[êe]ncia solicitad|Em Dilig/i, "Diligência pedida"], [/Respondida a Dilig/i, "Diligência respondida"], [/apensad|tramita[çc][ãa]o conjunta/i, "Tramitação conjunta"], [/Requerimento.*APROVADO/i, "Requerimento aprovado"], [/Parecer/i, null], [/Devolvid/i, "Devolvido"]];
+  [/^Vista ao/i, "@vista"], [/devolv.*vista|vista.*devolv|Pedido de vista resolvido/i, "Vista devolvida"], [/Voto vista/i, null], [/Dilig[êe]ncia solicitad|Em Dilig/i, "Diligência pedida"], [/Respondida a Dilig/i, "Diligência respondida"], [/apensad|tramita[çc][ãa]o conjunta/i, "Tramitação conjunta"], [/Requerimento.*APROVADO/i, "Requerimento aprovado"], [/Parecer/i, null], [/Devolvid/i, "Devolvido"]];
 function eventos(x) { const E = [{ d: x.prot, t: "Protocolado", s: x.autor }];
-  x.tram.forEach(([d, s, para]) => { const m = SIT.find(([re]) => re.test(s)); if (!m) return; const t = m[1] === "@chegou" ? `Chegou à ${sigDe(para)}` : m[1] || s; E.push({ d, t, s: m[1] === "@chegou" ? para : para || "" }); });
+  x.tram.forEach(([d, s, para, obs]) => { const m = SIT.find(([re]) => re.test(s)); if (!m) return; const t = m[1] === "@chegou" ? `Chegou à ${sigDe(para)}` : m[1] === "@vista" ? "Pedido de vista" : m[1] || s;
+    const q = obs && (obs.match(/Vistas? (?:ao|à|aos|às)s? (?:Deputad[oa]s?|Dep\.?)\s+(.+?)(?:,|\s+solicitad|$)/i) || [])[1];
+    E.push({ d, t: m[1] === "@vista" && q ? `Pedido de vista · ${q}` : t, s: m[1] === "@chegou" ? para : m[1] === "@vista" ? ((obs || "").match(/\d+ª reuni[ãa]o[^,]*/i) || [para])[0] : obs && obs.length < 140 ? obs : para || "", vs: m[1] === "@vista" }); });
   x.fluxo.forEach((c) => { if (c.dist) E.push({ d: c.dist, t: `Relator na ${c.s}`, s: c.rel || "" }); if (c.st === "ok" && c.concl) E.push({ d: c.concl, t: `${c.s} conclui`, s: c.par ? "parecer " + c.par.toLowerCase() : "" }); });
   const vis = new Set(), U = E.filter((e) => e.d).sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : 0).filter((e) => { const k = e.d + e.t; if (vis.has(k)) return false; vis.add(k); return true; });
   const L = U.length > 9 ? [U[0], { nota: 1, t: `${U.length - 8} passos antes`, s: "ver todos no e-Legis" }, ...U.slice(-7)] : U;
-  const prox = !x.rel ? `Relator na ${x.csig}` : /vista/i.test(x.sit) ? `Volta da vista na ${x.csig}` : `Parecer da ${x.csig}`;
-  return [...L.map((e, i) => ({ ...e, cl: e.nota ? "on nt" : i === L.length - 1 ? "cur" : "on" })), { t: prox, s: "próximo passo", cl: "pd" }]; }
+  const prox = !x.rel ? `Relator na ${x.csig}` : x.vista || /vista/i.test(x.sit) ? `Devolução da vista${x.vista && x.vista.quem ? " · " + x.vista.quem : ""}` : `Parecer da ${x.csig}`;
+  return [...L.map((e, i) => ({ ...e, cl: e.nota ? "on nt" : i === L.length - 1 ? "cur" + (e.vs ? " vs" : "") : "on" + (e.vs ? " vs" : "") })), { t: prox, s: "próximo passo", cl: "pd" }]; }
 function linhaTempo(x) { const E = eventos(x);
   return `<div class="tlq"><div class="tlh"><span>Linha do tempo</span><b>${esc(situacao(x))}</b></div>${E.map((e, i) => `<div class="tlr ${e.cl}"><div class="tlv">${e.d ? `<span class="tld">${br(e.d).slice(0, 6) + br(e.d).slice(8)}</span>` : ""}<i></i>${i < E.length - 1 ? "<s></s>" : ""}</div><div class="tlc"><b>${esc(e.t)}</b>${e.s ? `<span>${esc(e.s)}</span>` : ""}</div></div>`).join("")}</div>`; }
 function relacionadas(x, Z) { const A = [[EL + "/proposicoes/" + x.id, "elo", "Página no e-Legis", "tramitação, documentos e emendas"]];
@@ -352,6 +398,8 @@ function detalhe(x) { const Z = RES[x.id] || null, c = x.fluxo.find((f) => f.st 
   <div class="dh"><div><div class="dst"><i></i>${esc(situacao(x))}</div><div class="dsub"><a href="${EL}/proposicoes/${esc(x.id)}" target="_blank" rel="noopener">${esc(x.tipo)} ${esc(x.num)}/${esc(x.ano)} ${ic("ext")}</a><span>${esc(x.autor)}</span></div></div>
     <div class="dac"><button data-ficha="${esc(x.id)}" title="Imprimir a ficha">${ic("impr")}</button><button data-fecha title="Fechar (Esc)">${ic("fecha")}</button></div></div>
   <div class="mch"><div><h2>${esc(Z ? Z.m : x.resumo)}</h2><p>${esc(Z ? Z.f : x.ementa)}</p>${Z && Z.t ? `<div class="tms">${Z.t.map((q) => `<span class="tm"><span>${esc(q[0])}</span>${q[1] ? `<span>${esc(q.slice(1).filter(Boolean).join(" › "))}</span>` : ""}</span>`).join("")}</div>` : ""}</div>${anel(x)}</div>
+  ${x.vista ? `<div class="vbox">${ic("relog")}<span><b>Pedido de vista${x.vista.quem ? " · " + esc(x.vista.quem) : ""}</b> desde ${br(x.vista.d)} (${ni(dd(x.vista.d, HOJE))} dias)${x.vista.re ? " · " + esc(x.vista.re) : ""}</span></div>` : ""}
+  ${(x.vistas || []).length > (x.vista ? 1 : 0) ? `<div class="aviso" style="margin-top:6px">Vistas anteriores: ${(x.vistas || []).slice(0, x.vista ? -1 : undefined).map(([d, q]) => `${esc(q || "deputado")} (${br(d)})`).join(" · ")}</div>` : ""}
   ${alerta ? `<div class="alerta">${ic("relog")}${esc(alerta)}</div>` : ""}
   ${passos(x)}${tempo(x)}
   <div class="bnt">${tile("din", "Impacto fiscal", Z && Z.fis ? esc(Z.fis[0]) : "—", Z && Z.fis ? esc(Z.fis[1] || "") : "a ler no projeto", Z && Z.fis && /^(nenhum|R\$ 0)/i.test(Z.fis[0]) ? "ok0" : "")}
@@ -363,16 +411,16 @@ function detalhe(x) { const Z = RES[x.id] || null, c = x.fluxo.find((f) => f.st 
     <div class="cx"><div class="cxh">${ic("bal")}Por quê</div><div class="txt">${esc(Z.pq || "")}</div>${Z.fund && Z.fund.length ? `<div class="cxh" style="margin:14px 0 6px">${ic("lei")}Fundamentos citados</div><div class="fd">${Z.fund.map((f) => `<span>${esc(f)}</span>`).join("")}</div>` : ""}</div></div>` : `<div style="height:12px"></div>`}
   <div class="base">${linhaTempo(x)}${relacionadas(x, Z)}</div>
   ${Z ? "" : `<div class="aviso">O resumo desta proposição (o que muda e por quê) ainda está sendo preparado a partir do texto do projeto.</div>`}</div>`; }
-function linha(x) { const d = x.dias;
-  return `<div class="lin${F.ab === x.id ? " ab" : ""}" data-id="${esc(x.id)}"><div>${etq(x)}<span class="prot">protocolo ${br(x.prot)}</span></div>
-    <div class="obj"><b>${RES[x.id] ? esc(RES[x.id].m) : (x.verbo ? `<span class="cmvb">${esc(x.verbo)}</span>` : "") + esc(x.resumo)}</b><small>${esc(x.ementa)}</small></div>
-    <div class="aut">${esc(x.autor)}<small>${esc(temaDe(x))}</small></div>
-    <div class="na"><span class="idade ${x.casa > 365 ? "l" : x.casa > 180 ? "m" : "v"}">${ni(x.casa)} dias</span><small>desde ${br(x.prot)}</small></div>
-    <div class="na"><b title="${esc(x.com)}">${esc(x.csig)}</b><small>desde ${br(x.chegou)} · <span class="idade ${faixa(d)}">${d == null ? "—" : d + " dias"}</span></small></div>
-    <div class="rel">${x.rel ? esc(x.rel) + `<small>desde ${br(x.relDist)}</small>` : `<span class="sem">aguardando relator</span>`}</div>
+function linha(x) { const d = x.dias, v = x.vista;
+  return `<div class="lin${F.ab === x.id ? " ab" : ""}" data-id="${esc(x.id)}"><div class="le">${etq(x)}<span class="prot">protocolo ${br(x.prot)}</span></div>
+    <div class="obj"><b>${esc(RES[x.id] ? RES[x.id].m : x.resumo)}</b><small>${esc(x.ementa)}</small></div>
+    <div class="aut" data-r="Autor · tema">${esc(x.autor)}<small>${esc(temaDe(x))}</small></div>
+    <div class="na casa2" data-r="Na Assembleia"><span class="idade ${x.casa > 365 ? "l" : x.casa > 180 ? "m" : "v"}">${ni(x.casa)} dias</span><small>desde ${br(x.prot)}</small></div>
+    <div class="na com2" data-r="Na comissão"><b title="${esc(x.com)}">${esc(x.csig)}</b> <span class="idade ${faixa(d)}">${d == null ? "—" : ni(d) + " dias"}</span><small>desde ${br(x.chegou)}</small></div>
+    <div class="rel" data-r="Relator">${x.rel ? esc(x.rel) + `<small>desde ${br(x.relDist)}</small>` : `<span class="sem">aguardando relator</span>`}${v ? `<span class="vst" title="Pedido de vista${v.re ? " · " + esc(v.re) : ""}">vista · ${esc(v.quem || "deputado")} · ${ni(dd(v.d, HOJE))} d</span>` : ""}</div>
     ${fluxo(x)}${F.ab === x.id ? detalhe(x) : ""}</div>`; }
 const filtradas = () => { const L = D.L.filter((x) => passa(x)), [k, s] = F.ord; return L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); }); };
-const filtroTxt = () => [F.com, F.tipo, F.tema, F.rel && (F.rel === "(sem)" ? "sem relator" : "relator " + F.rel), F.aut && "autor " + F.aut, F.idade !== "" && ["até 30 dias", "31 a 90 dias", "mais de 90 dias"][+F.idade] + " na comissão", F.kpi && { com: "com relator", sem: "aguardando relator", velhas: "mais de 90 dias", andou: "já aprovadas em 1+" }[F.kpi], F.q && `busca “${F.q}”`].filter(Boolean).join(" · ") || "todas as proposições em comissão";
+const filtroTxt = () => [F.com, F.tipo, F.tema, F.rel && (F.rel === "(sem)" ? "sem relator" : "relator " + F.rel), F.aut && "autor " + F.aut, F.idade !== "" && ["até 30 dias", "31 a 90 dias", "mais de 90 dias"][+F.idade] + " na comissão", F.kpi && { com: "com relator", sem: "aguardando relator", velhas: "mais de 90 dias", vista: "em vista", andou: "já aprovadas em 1+" }[F.kpi], F.q && `busca “${F.q}”`].filter(Boolean).join(" · ") || "todas as proposições em comissão";
 function desenhar() { kpis(D.L.filter((x) => !F.com || x.com === F.com)); comissoes();
   const L = D.L.filter((x) => passa(x)); const [k, s] = F.ord; L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); });
   $("#res").innerHTML = `<b>${ni(L.length)}</b> de ${ni(D.L.length)} proposições${F.com ? " em " + esc(F.com) : ""}`;
@@ -384,6 +432,7 @@ function desenhar() { kpis(D.L.filter((x) => !F.com || x.com === F.com)); comiss
 }
 // eventos
 R.addEventListener("click", (e) => { const t = e.target;
+  const cvb = t.closest("[data-cv]"); if (cvb) { F.cv = cvb.dataset.cv; R.querySelectorAll("[data-cv]").forEach((b) => b.classList.toggle("on", b === cvb)); try { localStorage.setItem("cmp_cv", F.cv); } catch (e) {} comissoes(); return; }
   const k = t.closest("[data-k]"); if (k) { F.kpi = F.kpi === k.dataset.k ? "" : k.dataset.k; F.lim = 60; desenhar(); return; }
   const c = t.closest("[data-c]"); if (c) { F.com = F.com === c.dataset.c ? "" : c.dataset.c; F.lim = 60; desenhar(); return; }
   const o = t.closest("[data-o]"); if (o) { const id = o.dataset.o; F.ord = F.ord[0] === id ? [id, -F.ord[1]] : [id, id === "dias" || id === "fl" || id === "casa" ? -1 : 1]; desenhar(); return; }
@@ -402,6 +451,7 @@ $("#q").oninput = (e) => { F.q = e.target.value; F.lim = 60; desenhar(); };
 [["#fTipo", "tipo"], ["#fTema", "tema"], ["#fRel", "rel"], ["#fAut", "aut"], ["#fIdade", "idade"]].forEach(([s, k]) => $(s).onchange = (e) => { F[k] = e.target.value; F.lim = 60; desenhar(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && F.ab && document.body.contains(R)) { F.ab = null; desenhar(); } });
 const at = document.getElementById("cmpAt"); if (at) at.textContent = "e-Legis · atualizado em " + new Date(D.gerado).toLocaleDateString("pt-BR") + " às " + new Date(D.gerado).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+try { const v = localStorage.getItem("cmp_cv"); if (v === "grade") { F.cv = v; R.querySelectorAll("[data-cv]").forEach((b) => b.classList.toggle("on", b.dataset.cv === v)); } } catch (e) {}
 opcoes(); desenhar();
 
 }
@@ -422,7 +472,7 @@ function cmpImprimir(L, o, D, RES) { const w = window.open("", "_blank"); if (!w
   const cam = (x) => `<span class="cam">${x.fluxo.map((c) => `<i class="${c.st === "ok" ? "ok" : c.st === "atual" ? "at" : ""}">${esc(c.s)}</i>`).join("")}</span>`;
   const comR = L.filter((x) => x.rel).length, v90 = L.filter((x) => x.dias > 90).length, mdC = L.length ? Math.round(L.reduce((s, x) => s + (x.casa || 0), 0) / L.length) : 0;
   const linhas = L.map((x, i) => { const Z = RES[x.id], t = tm(x); return `<tr><td class="c0">${i + 1}</td><td class="c1">${eto(x)}</td><td class="c3"><b>${esc(Z ? Z.m : x.resumo)}</b><small>${esc(x.autor)}</small><span class="tg2">${esc(t.filter(Boolean).join(" › "))}</span></td>
-    <td class="c4"><svg viewBox="0 0 16 16" class="pt-fi">${ico(t[0])}</svg><small>${esc(curto(t[0]))}</small></td><td class="c5">${cam(x)}</td><td class="c6"><span class="rl2${x.rel ? "" : " vz"}">${esc(x.rel || "sem relator")}${x.rel && x.relDist ? `<small>desde ${br(x.relDist)}</small>` : ""}</span></td>
+    <td class="c4"><svg viewBox="0 0 16 16" class="pt-fi">${ico(t[0])}</svg><small>${esc(curto(t[0]))}</small></td><td class="c5">${cam(x)}</td><td class="c6"><span class="rl2${x.rel ? "" : " vz"}">${esc(x.rel || "sem relator")}${x.rel && x.relDist ? `<small>desde ${br(x.relDist)}</small>` : ""}${x.vista ? `<em class="vs2">vista · ${esc(x.vista.quem || "deputado")}</em>` : ""}</span></td>
     <td class="c8"><span class="pt-val${x.casa > 365 ? " lg" : ""}">${ni(x.casa)} d</span></td><td class="c7"><span class="pt-val${x.dias > 90 ? " lg" : ""}">${ni(x.dias)} d</span></td></tr>`; }).join("");
   const usados = [...new Set(L.map((x) => tm(x)[0]))];
   const tipos = [...new Set(L.map((x) => x.tipo))], TN = { PL: "Projeto de lei", PLC: "Projeto de lei complementar", PEC: "Proposta de emenda à Constituição", MSV: "Mensagem de veto", PRS: "Projeto de resolução", PDL: "Projeto de decreto legislativo" };
@@ -437,7 +487,7 @@ function cmpImprimir(L, o, D, RES) { const w = window.open("", "_blank"); if (!w
       <div><div class="fst">Linha do tempo</div>${ev.map(([d, s]) => `<div class="fil ok"><em>${br(d)}</em><span>${esc(s)}</span></div>`).join("")}<div class="fil"><em>—</em><span>${x.rel ? "Parecer da " + esc(x.csig) : "Relator na " + esc(x.csig)}</span></div></div></div></div>`; };
   const cab = `<div class="di-cab"><div><div class="di-wm">Simula<span>LEGIS</span></div><div class="di-wmsub">Gabinete · Processo legislativo</div></div><div class="di-meta"><b>Comissões permanentes da ALESC</b><br>gerado em ${dt} às ${hr} · dados do e-Legis de ${new Date(D.gerado).toLocaleDateString("pt-BR")}</div></div><div class="di-regra"></div>`;
   const lista = `${cab}<div class="di-tit">Proposições em tramitação nas comissões</div><div class="di-sub"><b>Filtro:</b> ${esc(o.filtro || "")} · ordem da tela</div>
-  <div class="di-rres"><div><b>${ni(L.length)}</b><span>em tramitação</span></div><div class="ok"><b>${ni(comR)}</b><span>com relator · ${L.length ? Math.round(comR / L.length * 100) : 0}%</span></div><div><b>${ni(v90)}</b><span>há mais de 90 dias na comissão</span></div><div><b>${ni(mdC)} dias</b><span>média na Assembleia</span></div></div>
+  <div class="di-rres"><div><b>${ni(L.length)}</b><span>em tramitação</span></div><div class="ok"><b>${ni(comR)}</b><span>com relator · ${L.length ? Math.round(comR / L.length * 100) : 0}%</span></div><div><b>${ni(v90)}</b><span>há mais de 90 dias na comissão${L.some((x) => x.vista) ? " · " + ni(L.filter((x) => x.vista).length) + " em vista" : ""}</span></div><div><b>${ni(mdC)} dias</b><span>média na Assembleia</span></div></div>
   <div class="di-pbar"><i class="b1" style="width:${L.length ? comR / L.length * 100 : 0}%"></i><i class="b3" style="width:${L.length ? (L.length - comR) / L.length * 100 : 0}%"></i></div>
   <div class="di-pleg"><span><i class="b1"></i>Com relator ${ni(comR)}</span><span><i class="b3"></i>Aguardando relator ${ni(L.length - comR)}</span></div>
   <table class="pt"><thead><tr><th class="c0">#</th><th class="c1">Proposição</th><th class="c3">Resumo</th><th class="c4">Tema</th><th class="c5">Caminho nas comissões</th><th class="c6">Relator</th><th class="c8">Na casa</th><th class="c7">Na comissão</th></tr></thead><tbody>${linhas}</tbody></table>
@@ -465,7 +515,7 @@ function cmpImprimir(L, o, D, RES) { const w = window.open("", "_blank"); if (!w
   .pt-eto b,.pt-eto span{display:flex;align-items:center;justify-content:center;padding:3px 5px;min-width:22px}.pt-eto.pl b{background:#3F454B;color:#fff}.pt-eto.pl span{background:#E4E7E9;color:#3F454B}.pt-eto.ou b{background:#8A9096;color:#fff}.pt-eto.ou span{background:#EEF0F1;color:#3F454B}
   .cam{display:inline-flex;gap:2px;align-items:center;flex-wrap:wrap}.cam i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:6px;font-weight:800;height:13px;min-width:20px;padding:0 2px;border-radius:3px;border:1px dashed #C2C6C9;color:#9AA0A4;background:#fff}
   .cam i.ok{background:#1FA83A;border:1px solid #1FA83A;color:#fff}.cam i.at{background:#3F454B;border:1px solid #3F454B;color:#fff}
-  .rl2{font-size:9px;font-weight:600}.rl2 small{display:block;font-size:7.5px;color:#9AA0A4;font-weight:400}.rl2.vz{color:#9AA0A4;font-weight:400}
+  .vs2{display:block;font-style:normal;font-size:7px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#3F454B;border:1px solid #A9AEB3;border-radius:3px;padding:1px 4px;margin-top:2px;width:max-content}.rl2{font-size:9px;font-weight:600}.rl2 small{display:block;font-size:7.5px;color:#9AA0A4;font-weight:400}.rl2.vz{color:#9AA0A4;font-weight:400}
   .pt-val{display:inline-block;white-space:nowrap;min-width:42px;text-align:right;padding:3px 6px;border-radius:4px;font-size:9px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;background:#E4E7E9;color:#3F454B}.pt-val.lg{background:#3F454B;color:#fff}
   .di-lgs{display:grid;grid-template-columns:1fr 1fr;gap:7px 18px;border:1px solid #DCDFE2;border-radius:6px;padding:7px 9px;margin:12px 0 0;font-size:8px;color:#3F454B;page-break-inside:avoid}.di-lgs>div{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px}.di-lgs b{flex-basis:100%;font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}
   .di-lgs span{display:inline-flex;align-items:center;gap:4px}.di-lgs .pt-fi{width:12px;height:12px;margin:0}.di-lgs .pt-eto b,.di-lgs .pt-eto span{display:flex}
