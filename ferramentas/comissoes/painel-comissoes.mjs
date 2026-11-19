@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-const AQUI = dirname(fileURLToPath(import.meta.url)), RAIZ = join(AQUI, "../.."), SAI = process.argv[2] || join(RAIZ, "prototipos/comissoes-tramitacao/painel.html");
+const AQUI = dirname(fileURLToPath(import.meta.url)), RAIZ = join(AQUI, "../.."), SAI = (process.argv[2] !== "--json" && process.argv[2]) || join(RAIZ, "prototipos/comissoes-tramitacao/painel.html");
 const ARQ = join(RAIZ, "dados/painel/alesc-tramitacao.json");
 let P, gerado;
 if (existsSync(ARQ)) { const J = JSON.parse(readFileSync(ARQ, "utf8")); P = J.proposicoes; gerado = J.gerado; }
@@ -56,5 +56,9 @@ const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\
 const COMS = [...new Set(L.map((x) => x.com))].sort((a, b) => L.filter((x) => x.com === b).length - L.filter((x) => x.com === a).length);
 const dados = { gerado, total: L.length, coms: COMS.map((c) => [c, sig(c)]), L };
 
+// --json <arquivo>: só os dados prontos para o site (o painel do Gabinete lê este arquivo); tramitação só os 10 últimos passos
+if (process.argv.includes("--json")) { const out = process.argv[process.argv.indexOf("--json") + 1];
+  dados.L.forEach((x) => { x.tram = x.tram.slice(-10); x.fluxo.forEach((c) => { Object.keys(c).forEach((k) => c[k] == null && delete c[k]); }); Object.keys(x).forEach((k) => x[k] == null && delete x[k]); });
+  writeFileSync(out, JSON.stringify(dados)); console.log("ok", out, dados.L.length); process.exit(0); }
 const html = readFileSync(join(AQUI, "painel-comissoes.html"), "utf8").replace("/*DADOS*/null", JSON.stringify(dados));
 writeFileSync(SAI, html); console.log("ok", SAI, L.length, "proposições");

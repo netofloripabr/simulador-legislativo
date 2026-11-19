@@ -1,6 +1,6 @@
 {
  "_leia": "Mapa do site SimulaLEGIS: a lista oficial do que existe, onde está e para onde vai. Fonte de verdade da organização. Quem mantém: o agente organizador-do-site (.claude/agents/organizador-do-site.md). Depois de editar, rodar: python3 ferramentas/mapa/gerar_mapa.py (confere com o código e gera ferramentas/mapa/mapa.html). Campos: status = pronto | construcao | prototipo | planejado | pausado; quem = visitante | cadastrado | gabinete (liberado pelo admin) | admin; arquivo + ancora = onde o item está no código (o gerador confere se o texto da âncora existe no arquivo); vai_para = mudança combinada com o usuário.",
- "atualizado": "2026-11-17",
+ "atualizado": "2026-11-18",
  "decisoes": [
   [
    "04/11/2026",
@@ -101,6 +101,10 @@
   [
    "17/11/2026",
    "Controle de Recursos deixa de ser título próprio e passa a ser o 1º bloco do Gabinete › Administrativo (ordem: Controle de Recursos, Agenda, RH do gabinete); substitui a decisão de 14/11 de Agenda primeiro. O atalho Recursos do topo continua. 'RH - Gabinete' apagado: 'Estrutura do gabinete' virou 'RH do gabinete' (estrutura pela ALESC embutida mais Equipe registrada com natureza do vínculo). 'Diário Oficial' vira 'Diário ALESC'; 'Liderança do PSD' vira 'Liderança'."
+  ],
+  [
+   "18/11/2026",
+   "Gabinete › Processo legislativo sai de planejado e ganha o primeiro bloco, Comissões · proposições em tramitação (dados atualizados toda noite, leitura para qualquer conta cadastrada)."
   ]
  ],
  "paginas": [
@@ -669,10 +673,22 @@
     },
     {
      "nome": "Processo legislativo",
-     "status": "planejado",
+     "status": "construcao",
      "quem": "cadastrado",
      "arquivo": "painel/gabinete.js",
-     "ancora": "Processo legislativo"
+     "ancora": "Processo legislativo",
+     "nota": "Primeiro bloco no ar: Comissões · proposições em tramitação. Os demais blocos do processo legislativo ainda estão planejados.",
+     "filhos": [
+      {
+       "nome": "Comissões · proposições em tramitação",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete-comissoes.js",
+       "ancora": "Comissões · proposições em tramitação",
+       "dados": "dados/painel/alesc-comissoes-tram.json (gerado toda noite por ferramentas/comissoes/rotina.mjs, passo 4 da tarefa das 22h30; o bruto alesc-tramitacao.json fica fora do git)",
+       "nota": "Números (em tramitação, com/sem relator, mais de 90 dias, já aprovadas em 1 ou mais comissões), faixa das comissões clicável, filtros (busca, tipo, tema, relator, autor, tempo na comissão), lista ordenável com o caminho nas comissões, detalhe (ementa, passos com relator e parecer, tramitação, link e-Legis) e visão Quadro. Leitura, nada é gravado. Protótipo: prototipos/comissoes-tramitacao/painel.html (Artifact 1YxSqZ9HV3EGLn2gXXPnKs)."
+      }
+     ]
     },
     {
      "nome": "Eleitoral",

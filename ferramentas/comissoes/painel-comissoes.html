@@ -22,9 +22,9 @@ button, input, select{ font:inherit; color:inherit; }
 .st{ font-size:10.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); margin:24px 0 8px; display:flex; justify-content:space-between; }
 .coms{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:8px; }
 .com{ text-align:left; background:var(--sup); border:1px solid var(--linha); border-radius:14px; padding:10px 12px; cursor:pointer; display:grid; gap:4px; transition:border-color .15s, background .15s; }
-.com:hover{ border-color:var(--linha2); } .com.on{ background:var(--texto); color:#0B0F0D; border-color:var(--texto); } .com.on .cn, .com.on .cd{ color:#3F454B; }
+.com:hover{ border-color:var(--linha2); } .com.on{ background:var(--texto); color:#0B0F0D; border-color:var(--texto); } .com.on .cn, .com.on .cmd{ color:#3F454B; }
 .com .cs{ display:flex; align-items:baseline; justify-content:space-between; gap:6px; } .com .cs b{ font-size:15px; font-weight:800; letter-spacing:-.01em; } .com .cs em{ font-style:normal; font-size:20px; font-weight:800; font-variant-numeric:tabular-nums; }
-.com .cn{ font-size:11.5px; color:var(--sec); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .com .cd{ font-size:10.5px; color:var(--ter); }
+.com .cn{ font-size:11.5px; color:var(--sec); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .com .cmd{ font-size:10.5px; color:var(--ter); }
 .cbar{ display:flex; height:5px; border-radius:3px; overflow:hidden; background:var(--sup3); gap:1px; } .cbar i{ display:block; } .com.on .cbar{ background:#D3D6D8; }
 .lg{ display:flex; gap:14px; flex-wrap:wrap; font-size:11.5px; color:var(--sec); margin-top:8px; } .lg i{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:-1px; }
 /* filtros */
@@ -42,11 +42,11 @@ button, input, select{ font:inherit; color:inherit; }
 .cab{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:600; border-bottom:1px solid var(--linha); background:rgba(242,244,245,.015); }
 .cab button{ background:none; border:0; padding:0; font:inherit; color:inherit; letter-spacing:inherit; text-transform:inherit; cursor:pointer; text-align:left; } .cab button i{ font-style:normal; margin-left:4px; color:#3A4045; } .cab button.on, .cab button.on i{ color:var(--texto); }
 .lin{ border-bottom:1px solid rgba(242,244,245,.05); cursor:pointer; transition:background .12s; } .lin:hover{ background:rgba(242,244,245,.025); } .lin.ab{ background:rgba(242,244,245,.035); }
-.eto{ display:inline-grid; grid-template-columns:auto auto; border-radius:6px; overflow:hidden; font-size:11px; font-weight:700; letter-spacing:.02em; line-height:1; }
-.eto b{ background:#E6E8EA; color:#0B0F0D; padding:5px 7px; } .eto span{ background:var(--sup3); color:var(--texto); padding:5px 7px; font-variant-numeric:tabular-nums; }
-.eto.plc b{ background:#B9BEC2; } .eto.pec b{ background:#7E848A; color:#fff; } .eto.out b{ background:#3F454B; color:#fff; }
+.cmeto{ display:inline-grid; grid-template-columns:auto auto; border-radius:6px; overflow:hidden; font-size:11px; font-weight:700; letter-spacing:.02em; line-height:1; }
+.cmeto b{ background:#E6E8EA; color:#0B0F0D; padding:5px 7px; } .cmeto span{ background:var(--sup3); color:var(--texto); padding:5px 7px; font-variant-numeric:tabular-nums; }
+.cmeto.plc b{ background:#B9BEC2; } .cmeto.pec b{ background:#7E848A; color:#fff; } .cmeto.out b{ background:#3F454B; color:#fff; }
 .prot{ display:block; font-size:11px; color:var(--ter); margin-top:6px; }
-.obj b{ display:block; font-weight:600; font-size:14px; line-height:1.35; text-wrap:pretty; } .obj .vb{ display:inline-block; font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--sec); border:1px solid var(--linha2); border-radius:999px; padding:1px 7px; margin-right:6px; vertical-align:2px; }
+.obj b{ display:block; font-weight:600; font-size:14px; line-height:1.35; text-wrap:pretty; } .obj .cmvb{ display:inline-block; font-size:10px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; color:var(--sec); border:1px solid var(--linha2); border-radius:999px; padding:1px 7px; margin-right:6px; vertical-align:2px; }
 .obj small{ display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; color:var(--ter); font-size:12px; margin-top:3px; }
 .aut{ font-size:13px; color:var(--sec); } .aut small{ display:block; font-size:11px; color:var(--ter); }
 .na b{ display:inline-block; font-size:12px; font-weight:800; background:var(--texto); color:#0B0F0D; border-radius:6px; padding:3px 7px; } .na small{ display:block; font-size:11px; color:var(--ter); margin-top:5px; }
@@ -107,7 +107,7 @@ const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toL
 const F = { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["dias", -1], vis: "lista", lim: 60, ab: null };
 const faixa = (d) => d == null ? "" : d <= 30 ? "v" : d <= 90 ? "m" : "l";
 const ETQ = { PL: "", PLC: "plc", PEC: "pec" };
-const etq = (x) => `<span class="eto ${ETQ[x.tipo] ?? "out"}"><b>${esc(x.tipo)}</b><span>${esc(x.num)}/${esc(x.ano)}</span></span>`;
+const etq = (x) => `<span class="cmeto ${ETQ[x.tipo] ?? "out"}"><b>${esc(x.tipo)}</b><span>${esc(x.num)}/${esc(x.ano)}</span></span>`;
 const fluxo = (x) => `<div class="fl">${x.fluxo.map((c, i) => `${i ? `<i class="ln${x.fluxo[i - 1].st === "ok" ? " ok" : ""}"></i>` : ""}<span class="p ${c.st}" title="${esc(c.n)}${c.st === "ok" ? " · aprovada" + (c.par ? " (" + c.par + ")" : "") : c.st === "atual" ? " · está aqui" : " · ainda vai"}">${esc(c.s)}</span>`).join("")}</div>`;
 // filtros
 const passa = (x, sem) => (!F.com || x.com === F.com || sem === "com") && (!F.tipo || x.tipo === F.tipo) && (!F.tema || x.tema === F.tema) && (!F.rel || (F.rel === "(sem)" ? !x.rel : x.rel === F.rel)) && (!F.aut || x.autor === F.aut)
@@ -119,7 +119,7 @@ function kpis(L) { const sem = L.filter((x) => !x.rel).length, v = L.filter((x) 
   $("#kpi").innerHTML = k.map(([id, t, n, s]) => `<button data-k="${id}" class="${F.kpi === id ? "on" : ""}"><span>${t}</span><b>${ni(n)}</b><small>${s}</small></button>`).join(""); }
 function comissoes() { const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
   $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
-    return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
+    return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cmd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
   $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; }
 function opcoes() { const S = (id, vals, t) => { const el = $(id), v = el.value; el.innerHTML = `<option value="">${t}</option>` + vals.map(([k, r]) => `<option value="${esc(k)}">${esc(r)}</option>`).join(""); el.value = v; };
   const cont = (f) => { const M = new Map(); D.L.forEach((x) => { const k = f(x); if (k) M.set(k, (M.get(k) || 0) + 1); }); return [...M].sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, `${k} (${n})`]); };
@@ -130,7 +130,7 @@ function detalhe(x) { return `<div class="det" onclick="event.stopPropagation()"
     <a class="lk" href="https://portalelegis.alesc.sc.gov.br/proposicoes/${esc(x.id)}/tramitacoes" target="_blank" rel="noopener">Abrir no e-Legis ↗</a></div></div>`; }
 function linha(x) { const d = x.dias;
   return `<div class="lin${F.ab === x.id ? " ab" : ""}" data-id="${esc(x.id)}"><div>${etq(x)}<span class="prot">protocolo ${br(x.prot)}</span></div>
-    <div class="obj"><b>${x.verbo ? `<span class="vb">${esc(x.verbo)}</span>` : ""}${esc(x.resumo)}</b><small>${esc(x.ementa)}</small></div>
+    <div class="obj"><b>${x.verbo ? `<span class="cmvb">${esc(x.verbo)}</span>` : ""}${esc(x.resumo)}</b><small>${esc(x.ementa)}</small></div>
     <div class="aut">${esc(x.autor)}<small>${esc(x.tema)}</small></div>
     <div class="na"><b title="${esc(x.com)}">${esc(x.csig)}</b><small>desde ${br(x.chegou)} · <span class="idade ${faixa(d)}">${d == null ? "—" : d + " dias"}</span></small></div>
     <div class="rel">${x.rel ? esc(x.rel) + `<small>desde ${br(x.relDist)}</small>` : `<span class="sem">aguardando relator</span>`}</div>
