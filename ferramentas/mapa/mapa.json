@@ -105,6 +105,10 @@
   [
    "18/11/2026",
    "Gabinete › Processo legislativo sai de planejado e ganha o primeiro bloco, Comissões · proposições em tramitação (dados atualizados toda noite, leitura para qualquer conta cadastrada)."
+  ],
+  [
+   "18/11/2026",
+   "Comissões · proposições em tramitação ganha detalhe por proposição no padrão do Controle de Recursos (resumo baseado em ementa + dispositivos + justificativa; status das comissões por cor: verde aprovado com ícone, cinza onde está, branco ainda passará; 'quem é afetado' retirado; temas em níveis para filtrar; linha do tempo em cinza). A visão 'Quadro' vira 'Por comissão', ordenada pelo tempo na casa, e a ordem padrão da lista passa a ser a coluna 'Na Assembleia'."
   ]
  ],
  "paginas": [
@@ -685,8 +689,8 @@
        "quem": "cadastrado",
        "arquivo": "painel/gabinete-comissoes.js",
        "ancora": "Comissões · proposições em tramitação",
-       "dados": "dados/painel/alesc-comissoes-tram.json (gerado toda noite por ferramentas/comissoes/rotina.mjs, passo 4 da tarefa das 22h30; o bruto alesc-tramitacao.json fica fora do git)",
-       "nota": "Números (em tramitação, com/sem relator, mais de 90 dias, já aprovadas em 1 ou mais comissões), faixa das comissões clicável, filtros (busca, tipo, tema, relator, autor, tempo na comissão), lista ordenável com o caminho nas comissões, detalhe (ementa, passos com relator e parecer, tramitação, link e-Legis) e visão Quadro. Leitura, nada é gravado. Protótipo: prototipos/comissoes-tramitacao/painel.html (Artifact 1YxSqZ9HV3EGLn2gXXPnKs)."
+       "dados": "dados/painel/alesc-comissoes-tram.json (gerado toda noite por ferramentas/comissoes/rotina.mjs, passo 4 da tarefa das 22h30; o bruto alesc-tramitacao.json fica fora do git) e dados/painel/alesc-comissoes-resumos.json (resumos escritos a partir do texto do projeto; regras em ferramentas/comissoes/RESUMOS.md; um arquivo por proposição em ferramentas/comissoes/resumos/; textos baixados por ferramentas/comissoes/textos.mjs, cache fora do git; a rotina das 22h30 baixa os textos novos e a tarefa agendada escreve até 25 resumos novos por noite)",
+       "nota": "Números (em tramitação, com/sem relator, mais de 90 dias, já aprovadas em 1 ou mais comissões), faixa das comissões clicável, filtros (busca, tipo, tema em níveis, relator, autor, tempo na comissão), lista ordenável com o caminho nas comissões e a coluna 'Na Assembleia' (dias desde o protocolo, ordem padrão). Visões: Lista e 'Por comissão' (colunas por comissão, ordenadas pelo tempo na casa). Clicar numa proposição abre o detalhe no padrão do Controle de Recursos: situação, link e-Legis, manchete e resumo, temas (ex.: Tributação e finanças › ICMS › Isenção), anel de dias na comissão, barra das comissões (verde aprovou, cinza agora, branco falta), barra de tempo por etapa, quadros (impacto fiscal, norma, relator, protocolo, dispositivos, avanço), 'O que muda', 'Por quê' com fundamentos, linha do tempo e documentos relacionados; botão de imprimir a ficha. Botão Imprimir no topo: relatório A4 no padrão do Controle (lista; opção lista + fichas, até 60 proposições). Corrigido: 177 proposições mostravam a mesma comissão duas vezes; 'voltou' só aparece quando voltou de fato (12 casos, emenda na CCJ). Leitura, nada é gravado. Protótipo: prototipos/comissoes-tramitacao/painel.html (Artifact 1YxSqZ9HV3EGLn2gXXPnKs)."
       }
      ]
     },
