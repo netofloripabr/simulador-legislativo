@@ -216,15 +216,28 @@ function popLista(btn, itens, atual, escolhe) {
   pop.querySelectorAll("[data-li]:not([disabled])").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); pop.remove(); escolhe(itens[+b.dataset.li][0]); });
   setTimeout(() => document.addEventListener("click", function f(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("click", f); } }), 0);
 }
+// objetos de referência (20/11/2026): primeiro o Portfólio de emendas (389 objetos padronizados da Transferência Especial,
+// art. 9º, §4º, da LC 898/2026; dados/painel/portfolio-objetos.json), depois os objetos já usados pelo gabinete. Ao escolher um
+// objeto do Portfólio, a natureza (Capital ou Custeio) também é preenchida quando é uma só.
+let PORTF = null;
+async function lerPortfolio() { if (!PORTF) { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=2")).json(); PORTF = j.O.map(([area, cat, obj, nat, org, desc]) => ({ area, cat, obj, nat, org, desc })); } catch (e) { PORTF = []; } } return PORTF; }
 function popObjeto(tr, T) {
   document.querySelectorAll(".ipop").forEach((x) => x.remove());
   const b = tr.querySelector("[data-iobj]"), r = b.getBoundingClientRect(), pop = document.createElement("div"); pop.className = "ipop";
-  const g = regrasInd(T); pop.innerHTML = `<input placeholder="Pesquisar objetos já usados (ex.: saúde)" value="${esc(g.trava ? g.trava.toLowerCase() : "")}"><div class="ipl"></div>`;
-  $("#indPg").appendChild(pop); pop.style.top = Math.min(r.bottom + 6, innerHeight - 340) + "px"; pop.style.left = Math.max(12, Math.min(r.left - 300, innerWidth - 440)) + "px";
-  const q = pop.querySelector("input"), l = pop.querySelector(".ipl");
-  const lista = () => { const O = objetosRef(q.value); l.innerHTML = O.length ? O.map(([t, n]) => `<button data-o="${esc(t)}"><span>${esc(t)}</span><small>${n}×</small></button>`).join("") : `<div class="mut" style="padding:10px">Nenhum objeto com esse termo.</div>`;
-    l.querySelectorAll("[data-o]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); pop.remove(); salvarLinha(T, tr, { objeto: o.dataset.o }); }); };
-  q.oninput = lista; lista(); q.focus(); q.select();
+  let aba = "port";
+  pop.innerHTML = `<div class="ipab"><button data-ab="port" class="on">Portfólio</button><button data-ab="hist">Já usados pelo gabinete</button></div><input placeholder="Pesquisar (ex.: ambulância, pavimentação, saúde)"><div class="ipl"></div>`;
+  $("#indPg").appendChild(pop); pop.style.top = Math.min(r.bottom + 6, innerHeight - 420) + "px"; pop.style.left = Math.max(12, Math.min(r.left - 300, innerWidth - 500)) + "px";
+  const q = pop.querySelector("input"), l = pop.querySelector(".ipl"), nn = (s) => norm(s || "");
+  const escolhe = (o, nat) => { pop.remove(); salvarLinha(T, tr, { objeto: o, ...(nat ? { natureza: nat } : {}) }); };
+  const lista = async () => { const w = nn(q.value).split(/\s+/).filter(Boolean);
+    if (aba === "hist") { const O = objetosRef(q.value); l.innerHTML = O.length ? O.map(([t2, n]) => `<button data-o="${esc(t2)}"><span>${esc(t2)}</span><small>${n}×</small></button>`).join("") : `<div class="mut" style="padding:10px">Nenhum objeto com esse termo.</div>`;
+      l.querySelectorAll("[data-o]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); escolhe(o.dataset.o); }); return; }
+    const P = (await lerPortfolio()).filter((o) => w.every((k) => nn([o.obj, o.area, o.cat, o.desc, o.org].join(" ")).includes(k)));
+    const G = {}; P.forEach((o) => (G[o.area] = G[o.area] || []).push(o));
+    l.innerHTML = P.length ? Object.entries(G).map(([a, L]) => `<div class="ipga">${esc(a)} <small>${L.length}</small></div>` + L.slice(0, w.length ? 80 : 12).map((o) => `<button data-p="${esc(o.obj)}" data-n="${esc(/ ou /.test(o.nat) ? "" : o.nat)}" title="${esc(o.desc)}"><span>${esc(o.obj)}<em>${esc([o.cat, o.nat, o.org].filter(Boolean).join(" · "))}</em></span></button>`).join("") + (!w.length && L.length > 12 ? `<div class="mut" style="padding:4px 10px 8px;font-size:11.5px">+ ${L.length - 12} · pesquise para ver</div>` : "")).join("") : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`;
+    l.querySelectorAll("[data-p]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); escolhe(o.dataset.p, o.dataset.n); }); };
+  pop.querySelectorAll("[data-ab]").forEach((bt) => bt.onclick = (ev) => { ev.stopPropagation(); aba = bt.dataset.ab; pop.querySelectorAll("[data-ab]").forEach((x) => x.classList.toggle("on", x === bt)); q.placeholder = aba === "hist" ? "Pesquisar objetos já usados (ex.: saúde)" : "Pesquisar (ex.: ambulância, pavimentação, saúde)"; lista(); q.focus(); });
+  q.oninput = lista; lista(); q.focus();
   setTimeout(() => document.addEventListener("click", function f(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("click", f); } }), 0);
 }
 // ---------- saída: documento no padrão do palpite e planilha .xlsx no modelo do Orçamento ----------
