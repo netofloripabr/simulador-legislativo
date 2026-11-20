@@ -2221,5 +2221,48 @@ const MIGRACOES_INDEX = [
     "gab_cargos.natureza"
    ]
   ]
+ },
+ {
+  "num": 103,
+  "arquivo": "migracao-103-gabinete-links-lider.sql",
+  "descricao": "Migração 103 (20/11/2026): Indicação de recursos › links dos líderes.",
+  "objetos": [
+   [
+    "table",
+    "gab_links"
+   ],
+   [
+    "index",
+    "gab_links_lista"
+   ],
+   [
+    "policy",
+    "gab_links_equipe"
+   ],
+   [
+    "table",
+    "gab_link_propostas"
+   ],
+   [
+    "index",
+    "gab_link_propostas_item"
+   ],
+   [
+    "policy",
+    "gab_link_propostas_equipe"
+   ],
+   [
+    "function",
+    "link_abrir"
+   ],
+   [
+    "function",
+    "link_salvar"
+   ],
+   [
+    "function",
+    "link_enviar"
+   ]
+  ]
  }
 ];

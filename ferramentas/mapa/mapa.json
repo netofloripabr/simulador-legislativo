@@ -1,6 +1,6 @@
 {
  "_leia": "Mapa do site SimulaLEGIS: a lista oficial do que existe, onde está e para onde vai. Fonte de verdade da organização. Quem mantém: o agente organizador-do-site (.claude/agents/organizador-do-site.md). Depois de editar, rodar: python3 ferramentas/mapa/gerar_mapa.py (confere com o código e gera ferramentas/mapa/mapa.html). Campos: status = pronto | construcao | prototipo | planejado | pausado; quem = visitante | cadastrado | gabinete (liberado pelo admin) | admin; arquivo + ancora = onde o item está no código (o gerador confere se o texto da âncora existe no arquivo); vai_para = mudança combinada com o usuário.",
- "atualizado": "2026-11-18",
+ "atualizado": "2026-11-20",
  "decisoes": [
   [
    "04/11/2026",
@@ -109,6 +109,10 @@
   [
    "18/11/2026",
    "Comissões · proposições em tramitação ganha detalhe por proposição no padrão do Controle de Recursos (resumo baseado em ementa + dispositivos + justificativa; status das comissões por cor: verde aprovado com ícone, cinza onde está, branco ainda passará; 'quem é afetado' retirado; temas em níveis para filtrar; linha do tempo em cinza). A visão 'Quadro' vira 'Por comissão', ordenada pelo tempo na casa, e a ordem padrão da lista passa a ser a coluna 'Na Assembleia'."
+  ],
+  [
+   "20/11/2026",
+   "O líder preenche a indicação 'sem precisar logar': a página 'Indicar com o líder' abre só por link com código, fora do menu, e vê apenas as emendas daquele link até o prazo. É mais uma exceção à regra de 05/11 (nada aberto sem login), junto com a Calculadora das comissões."
   ]
  ],
  "paginas": [
@@ -454,6 +458,17 @@
    "nota": "Fora do menu, para compartilhar por link. Arrastar partidos, barra de assentos, tabela, cenários salvos no navegador de quem usa e 'Copiar link deste cenário' (#c=, validado ao ler). Bancadas lidas de dados/painel/sc-estadual.json. A lógica é uma CÓPIA da do Quadro do cenário (painel/novos.js): quem corrigir um lado corrige o outro."
   },
   {
+   "id": "indicar-lider",
+   "nome": "Indicar com o líder (link público)",
+   "url": "painel/indicar-lider.html?t=CÓDIGO",
+   "quem": "visitante",
+   "status": "pronto",
+   "arquivo": "painel/indicar-lider.html",
+   "ancora": "Indicação de emendas",
+   "dados": "banco: gab_links, gab_link_propostas (migração 103); funções link_abrir, link_salvar, link_enviar liberadas para anon",
+   "nota": "Fora do menu. Qualquer pessoa com o link, sem login (não carrega exige-conta.js). O líder só vê as emendas daquele link, pelo código, e só até o prazo; o que preenche vira proposta para a equipe aceitar ou recusar no Indicar do Gabinete."
+  },
+  {
    "id": "gabinete",
    "nome": "Gabinete",
    "url": "painel/gabinete.html",
@@ -628,11 +643,12 @@
         },
         {
          "nome": "Indicar (planilha de indicação e links dos líderes)",
-         "status": "prototipo",
+         "status": "pronto",
          "arquivo": "painel/gabinete-indicar.js",
          "ancora": "function",
-         "nota": "Links por líder: só protótipo, não implementado. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar.",
-         "quem": "cadastrado"
+         "nota": "Faixa 'Links' (um botão por líder com % preenchido; menu: copiar, WhatsApp, abrir para acompanhar, mudar prazo, fechar/reabrir; '+ link · líder' e '+ link avulso'). Coluna 'Etapa' com ícone único (gerado, aberto, preenchido, enviado, aceito), legenda e links ao tocar. Proposta do líder em azul embaixo do objeto, com ✓ aceitar (grava na emenda) e ✕ recusar. Botão 'Colunas' liga/desliga colunas (guardado no navegador). Orientações longas viraram o botão 'i' (cota fixa e lista fechada). Código dos links em painel/gabinete-ind-links.js. Só para a equipe do gabinete; Leitor só consulta e não vê Indicar. A página que o líder usa é 'Indicar com o líder (link público)'.",
+         "quem": "cadastrado",
+         "dados": "banco: gab_links, gab_link_propostas (migração 103); funções link_abrir, link_salvar e link_enviar"
         }
        ],
        "nota": "Primeiro bloco do Administrativo (era título próprio até 17/11/2026). O atalho Recursos do topo continua e leva ao Administrativo com o Controle aberto. Filtros principais: Ano, Status, Município, Região, Origem, Mod. e Líder; clicar no título da coluna ordena e filtra por valores, como no Google Planilhas."

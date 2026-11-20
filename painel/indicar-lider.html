@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Indicação de emendas</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+@font-face{font-family:"Inter";src:url(../fontes/InterVariable.woff2) format("woff2");font-weight:100 900;font-display:swap}
+*{box-sizing:border-box}
+button,input,textarea,select{font-family:inherit}
+:root{--sf:#EEF0F2;--tl:#F8F9FA;--bd:#DEE2E5;--tx:#1D2226;--mu:#6E767D;--or:#E8822A}
+body{margin:0;background:var(--sf);color:var(--tx);font-family:Inter,system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:18px 16px 110px}
+.mut{color:var(--mu)}
+.org{font-size:12.5px;color:var(--mu)}
+/* cabeçalho, como o da Indicação de recursos */
+.ihd{display:flex;align-items:center;gap:10px;margin:10px 0 14px;flex-wrap:wrap}.ihd h2{margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em}.ihd span{color:var(--mu);font-size:12.5px}
+.ii{width:22px;height:22px;border-radius:50%;border:1px solid var(--bd);background:var(--tl);color:var(--mu);font-weight:600;font-size:12px;line-height:1;font-style:italic;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;position:relative}
+.ii:hover,.ii.on{border-color:var(--tx);color:var(--tx)}
+.ipop{position:absolute;z-index:30;max-width:340px;background:var(--tl);border:1px solid var(--bd);border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.14);padding:12px 14px;font-size:12.5px;line-height:1.5;color:var(--tx)}
+.ipop b{font-weight:600}
+/* capa: três quadros iguais aos da planilha */
+.icapa{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--bd);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.icapa .t{background:var(--tl);padding:12px 15px;display:flex;flex-direction:column;gap:5px}
+.tk{font-size:11.5px;color:var(--mu)}
+.iv{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}.iv small{display:block;font-size:11.5px;font-weight:400;color:var(--mu);margin-top:2px}
+.ibar{height:7px;border-radius:9px;background:#DDE1E4;overflow:hidden}.ibar i{display:block;height:100%;background:#1D2226}
+.icd{display:flex;gap:6px}.icd div{background:#fff;border:1px solid var(--bd);border-radius:9px;width:52px;padding:5px 0;text-align:center}.icd b{display:block;font-size:18px;color:var(--or);font-variant-numeric:tabular-nums}.icd span{font-size:10px;color:var(--mu)}
+/* cartão por emenda */
+.it{background:var(--tl);border:1px solid var(--bd);border-radius:14px;padding:12px 14px 14px;margin-bottom:10px}
+.ih{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.nn{font-size:12.5px;color:var(--mu);min-width:16px;font-variant-numeric:tabular-nums}
+.it.feito .nn{color:#1FA845;font-weight:600}
+.ih .m{font-size:14px;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+.ch{font-weight:500;font-size:12px;border-radius:999px;padding:4px 11px;background:#DDE1E4;color:#3A4146;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.ch svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.ch.v{background:#1D2226;color:#fff}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+.fl{display:block;font-size:11px;color:var(--mu);font-weight:500;padding:4px 0 0 8px}
+.ed{display:block;width:100%;background:transparent;border:1px solid transparent;border-radius:8px;padding:7px 8px;font-weight:500;font-size:13px;color:var(--tx);outline:none}
+.ed:hover{border-color:var(--bd)}.ed:focus{border-color:#1D2226;background:#fff}
+.seg{display:inline-flex;gap:6px;padding:4px 0 0 8px}.seg button{font-weight:500;font-size:12.5px;padding:5px 13px;border-radius:999px;background:#fff;border:1px solid var(--bd);color:var(--tx);cursor:pointer}.seg button.on{background:#1D2226;color:#fff;border-color:#1D2226}
+.obj{display:flex;align-items:center;gap:10px;margin-top:6px;padding:9px 8px 0;border-top:1px solid var(--bd)}
+.obj .o{flex:1;min-width:0;font-size:13px;font-weight:500;line-height:1.4}
+.obj .o.vz{color:var(--mu);font-weight:400}
+.obj .o small{display:block;font-size:11px;color:var(--mu);font-weight:400;margin-top:2px}
+.tg{font-weight:500;font-size:11px;border-radius:999px;padding:2px 8px;background:#FBE7D5;color:#9A4E10;white-space:nowrap;vertical-align:1px;margin-left:4px}
+.tg.p{background:#E3EAF5;color:#2F5D8A}
+.bt{font-weight:500;font-size:12.5px;padding:6px 14px;border-radius:999px;background:#1D2226;color:#fff;border:1px solid #1D2226;cursor:pointer;white-space:nowrap}
+.bt.s{background:#fff;color:var(--tx);border-color:var(--bd)}
+.lk0{background:none;border:0;color:var(--mu);font-weight:500;font-size:12px;cursor:pointer;padding:6px 8px;text-decoration:underline;text-underline-offset:2px}
+/* escolha no portfólio, mesmo popup da planilha */
+.pp{position:fixed;inset:0;background:rgba(10,12,14,.35);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.pb{background:var(--tl);width:100%;max-width:620px;max-height:86vh;border-radius:16px 16px 0 0;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+@media(min-width:700px){.pp{align-items:center}.pb{border-radius:16px}}
+.pb .hh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.pb h3{margin:0;font-size:15px;font-weight:600}
+.pb input{border:1px solid var(--bd);border-radius:999px;padding:8px 14px;font-weight:500;font-size:13px;outline:none;background:#fff}
+.pl{overflow:auto;display:flex;flex-direction:column;padding-bottom:6px}
+.ipga{font-size:11px;color:var(--mu);font-weight:500;padding:10px 10px 4px}
+.po{text-align:left;border:0;border-bottom:1px solid var(--bd);background:none;padding:9px 10px;cursor:pointer;font-weight:500;font-size:13px;color:var(--tx)}
+.po:hover{background:#fff}.po em{display:block;font-style:normal;color:var(--mu);font-size:11.5px;margin-top:2px;font-weight:400}
+.po.out{color:var(--mu);border-bottom:0}
+/* barra de envio */
+.env{position:fixed;left:0;right:0;bottom:0;background:var(--tl);border-top:1px solid var(--bd);padding:10px 16px;display:flex;justify-content:center}
+.env > div{max-width:860px;width:100%;display:flex;align-items:center;gap:14px}
+.env .pr{flex:1;font-size:12.5px;color:var(--mu)}.env .pr b{color:var(--tx);font-weight:600;font-size:14px}
+.env .ibar{margin-top:6px}.env .ibar i{background:#1FA845}
+/* confirmação ✓ ✕ */
+.cfp{position:fixed;inset:0;z-index:40;background:rgba(10,12,14,.35);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
+.cfb{background:var(--tl);border-radius:16px;padding:22px 24px 18px;max-width:380px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.cfb b{font-size:17px;font-weight:600}.cfb p{color:var(--mu);font-size:13px;margin:6px 0 18px}
+.cfb > div{display:flex;justify-content:flex-end;gap:10px}
+.vxb{width:44px;height:44px;border-radius:50%;border:1px solid var(--bd);background:#fff;color:var(--mu);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.vxb.v{background:#1D2226;border-color:#1D2226;color:#fff}
+.fim{text-align:center;padding:60px 16px}.fim b{font-size:20px;font-weight:600}
+@media(max-width:600px){.icapa{grid-template-columns:1fr 1fr}.icapa .w2{grid-column:span 2}.g2{grid-template-columns:1fr}.chips{margin-left:0;width:100%}}
+
+/* cartão: cabeçalho, linha de campos, objeto e justificativa */
+.ih .m{font-size:16.8px;font-weight:600;letter-spacing:-.01em}
+.ch.v{background:#1FA845;color:#fff}
+.lin{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-bottom:8px}
+.cx{display:flex;flex-direction:column;gap:3px}
+.cx .fl{padding:0 0 0 8px}
+.ed{border-color:var(--bd);background:#fff}
+.sw{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 4px;font-size:12.5px;font-weight:500;color:var(--mu);cursor:pointer;user-select:none;background:none;border:0}
+.sw .on{color:var(--tx)}
+.sw .tr{width:34px;height:20px;border-radius:999px;background:#1D2226;position:relative;flex:none;transition:background .2s}
+.sw .tr:after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s}
+.sw.ent .tr:after{transform:translateX(14px)}
+.sel{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:1px solid var(--bd);background:#fff;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:500;color:var(--tx);cursor:pointer}
+.sel:hover{border-color:#1D2226}
+.sel .o{flex:1;min-width:0;line-height:1.4}.sel .o.vz{color:var(--mu);font-weight:400}
+.sel .ca{color:var(--mu);font-size:11px;flex:none}
+textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
+.it.feito .sel{border-color:#BFE3C9}
+.msg{text-align:center;padding:70px 16px;color:var(--mu)}.msg b{display:block;color:var(--tx);font-size:18px;font-weight:600;margin-bottom:6px}
+.sv{font-size:11.5px;color:var(--mu);white-space:nowrap}.sv.er{color:#C0392B}
+.dec{font-size:11.5px;color:var(--mu);margin:0 0 6px 8px}.dec b{color:#1F7A34;font-weight:600}
+.it.trv .sel,.it.trv .ed,.it.trv .sw{pointer-events:none;opacity:.75}
+</style></head><body><main id="app"></main>
+<datalist id="muns"></datalist>
+<script>
+// Indicação de emendas por link (20/11/2026): página PÚBLICA, sem login. O gabinete manda indicar-lider.html?t=TOKEN
+// a um líder (ou a uma pessoa só). Tudo passa pelas funções link_abrir / link_salvar / link_enviar (migração 103),
+// que conferem o token, o prazo e se a emenda é do link. Portfólio e municípios vêm do próprio site (GitHub Pages).
+const SB = "https://uxqxhvzeptuedyggwguh.supabase.co", KEY = "sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph";
+const TOKEN = new URLSearchParams(location.search).get("t") || "";
+const rpc = async (f, a) => { const r = await fetch(`${SB}/rest/v1/rpc/${f}`, { method: "POST", headers: { apikey: KEY, Authorization: "Bearer " + KEY, "Content-Type": "application/json" }, body: JSON.stringify(a) });
+  const j = await r.json().catch(() => null); if (!r.ok) throw new Error((j && j.message) || "erro " + r.status); return j; };
+const rc = (v) => v >= 1e6 ? "R$ " + (v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + "M" : "R$ " + Math.round(v / 1e3) + " mil";
+const ni = (v) => Math.round(+v || 0).toLocaleString("pt-BR");
+const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const CAD = '<svg viewBox="0 0 12 12"><rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5"/></svg>';
+// área da emenda (como está no gabinete) → áreas do Portfólio; FUNDAM ou sem área = tudo que não é Saúde
+const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
+let L = null, IT = [], ST = [], PORT = [], MUN = [], FECHA = null, ABERTO = false;
+const feito = (s) => !!s.obj;
+const grupo = (x) => x.area === "Saúde" ? "Saúde" : "FUNDAM";
+function compat(x) { const A = AREA_P[x.area]; return PORT.filter(([area, , , nat]) => (A ? A.includes(area) : x.area === "Saúde" ? area === "Saúde" : area !== "Saúde") && (!x.natureza || nat === x.natureza || / ou /.test(nat))); }
+const INFO = () => `Para cada emenda, escolha o <b>objeto</b> no Portfólio. Se precisar, ajuste o <b>município</b> ou quem recebe (<b>município ou entidade</b>) e use a <b>justificativa</b> para explicar.<br><br>Área, tipo de despesa e valor foram definidos pelo gabinete e não mudam aqui. Tudo o que você preenche fica salvo sozinho; ao terminar, toque em <b>Enviar ao gabinete</b>. ${ABERTO ? `Até ${FECHA.toLocaleDateString("pt-BR")}, ${FECHA.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}, você pode voltar a este link e mudar.` : ""}`;
+function cont() { const s = Math.max(0, (FECHA - new Date()) / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
+  return ABERTO && s ? `<div class="icd"><div><b>${d}</b><span>dias</span></div><div><b>${String(h).padStart(2, "0")}</b><span>horas</span></div><div><b>${String(m).padStart(2, "0")}</b><span>min</span></div></div>` : `<b style="color:#C0392B;font-weight:600">Link encerrado</b>`; }
+const prazoTx = () => `Prazo · ${FECHA.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}, ${FECHA.getHours()}h${FECHA.getMinutes() ? String(FECHA.getMinutes()).padStart(2, "0") : ""}`;
+const msg = (t, s) => { document.getElementById("app").innerHTML = `<div class="msg"><b>${t}</b>${s || ""}</div>`; };
+async function iniciar() {
+  if (!TOKEN) return msg("Link incompleto", "Peça ao gabinete para enviar o link de novo.");
+  msg("Carregando…");
+  try { const [l, p, b] = await Promise.all([rpc("link_abrir", { p_token: TOKEN }), fetch("../dados/painel/portfolio-objetos.json?v=2").then((r) => r.json()), fetch("../dados/painel/sc-base.json").then((r) => r.json())]);
+    if (!l) return msg("Link inválido", "Este link não existe mais. Peça ao gabinete um link novo.");
+    L = l; IT = l.itens || []; PORT = p.O; MUN = b.mun.map((m) => m.n); FECHA = new Date(l.prazo); ABERTO = !!l.aberto;
+    const P = {}; (l.propostas || []).forEach((x) => { P[x.item_id] = x; });
+    ST = IT.map((x) => { const q = P[x.id]; return q ? { mun: q.municipio || x.municipio || "", bt: q.benef_tipo || (x.benef_tipo === "ent" ? "ent" : "mun"), ben: q.beneficiario || "", cnpj: q.cnpj || "", obj: q.objeto || null, fonte: q.objeto_fonte || "", com: q.justificativa || "", status: q.status }
+      : { mun: x.municipio || "", bt: x.benef_tipo === "ent" ? "ent" : "mun", ben: x.benef_tipo === "ent" ? x.beneficiario || "" : "", cnpj: x.benef_tipo === "ent" ? x.cnpj || "" : "", obj: null, fonte: "", com: "", status: "" }; });
+    document.getElementById("muns").innerHTML = MUN.map((m) => `<option value="${esc(m)}">`).join("");
+    render(); setInterval(() => { const c = document.querySelector(".icapa .w2"); if (c) c.innerHTML = `<span class="tk">${prazoTx()}</span>${cont()}`; }, 30000);
+  } catch (e) { msg("Não foi possível abrir", "Confira a internet e recarregue a página. (" + esc(e.message) + ")"); } }
+const trava = (s) => !ABERTO || s.status === "aceito" || s.status === "recusado";
+function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i]) ? +x.valor || 0 : 0), 0);
+  const [org, tit] = String(L.titulo || "").includes(" · ") ? L.titulo.split(" · ") : ["", L.titulo || "Emendas"];
+  document.getElementById("app").innerHTML = `
+  ${org ? `<div class="org">${esc(org)}</div>` : ""}
+  <div class="ihd"><h2>${esc(tit)}</h2><span>${esc(L.nome)}</span><button class="ii" data-info aria-label="Como preencher">i</button></div>
+  <div class="icapa">
+    <div class="t"><span class="tk">Cota</span><span class="iv">${rc(COTA)}<small>${IT.length} ${IT.length === 1 ? "emenda" : "emendas"}</small></span></div>
+    <div class="t"><span class="tk">Utilizado</span><span class="iv">${rc(uso)}<small>${F} de ${IT.length} com objeto</small></span><div class="ibar"><i style="width:${COTA ? uso / COTA * 100 : 0}%"></i></div></div>
+    <div class="t w2"><span class="tk">${prazoTx()}</span>${cont()}</div>
+  </div>
+  ${IT.map((x, i) => { const s = ST[i], ok = feito(s), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
+    <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span><div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
+    ${s.status === "aceito" ? `<div class="dec"><b>✓ Aceito pelo gabinete</b></div>` : s.status === "recusado" ? `<div class="dec">O gabinete não aceitou esta proposta.</div>` : ""}
+    <div class="lin"><label class="cx"><span class="fl">${ent ? "Município da entidade" : "Município"}</span><input class="ed" list="muns" data-mun="${i}" value="${esc(s.mun)}" ${tv ? "disabled" : ""}></label>
+      <div class="cx"><span class="fl">Quem recebe</span><button class="sw${ent ? " ent" : ""}" data-bt="${i}" role="switch" aria-checked="${ent}" ${tv ? "disabled" : ""}><span class="${ent ? "" : "on"}">Município</span><span class="tr"></span><span class="${ent ? "on" : ""}">Entidade</span></button></div></div>
+    ${ent ? `<div class="lin" style="grid-template-columns:minmax(0,1fr) 190px"><label class="cx"><span class="fl">Entidade</span><input class="ed" data-ben="${i}" value="${esc(s.ben)}" placeholder="Razão social" ${tv ? "disabled" : ""}></label><label class="cx"><span class="fl">CNPJ</span><input class="ed" data-cnpj="${i}" value="${esc(s.cnpj)}" placeholder="00.000.000/0000-00" inputmode="numeric" ${tv ? "disabled" : ""}></label></div>` : ""}
+    <div class="cx" style="margin-bottom:8px"><span class="fl">Objeto</span><button class="sel" data-esc="${i}" ${tv ? "disabled" : ""}><span class="o${ok ? "" : " vz"}">${s.obj ? `${esc(s.obj)}${s.fonte === "gab" ? `<span class="tg">Item do gabinete</span>` : s.fonte === "outro" ? `<span class="tg">sugestão · fora do Portfólio</span>` : `<span class="tg p">Portfólio</span>`}` : "Escolha o objeto"}</span><span class="ca">▾</span></button></div>
+    <label class="cx"><span class="fl">Justificativa</span><textarea class="ed" data-com="${i}" rows="2" placeholder="Informe os detalhes" ${tv ? "disabled" : ""}>${esc(s.com)}</textarea></label>
+  </div>`; }).join("")}`;
+  document.getElementById("env")?.remove();
+  const pend = ST.some((s) => s.obj && s.status === "rascunho");
+  document.body.insertAdjacentHTML("beforeend", `<div class="env" id="env"><div><div class="pr"><b>${F} de ${IT.length}</b> com objeto <span class="sv" id="sv">${L.enviado_em && !pend ? "· enviado ao gabinete" : ""}</span><div class="ibar"><i style="width:${IT.length ? F / IT.length * 100 : 0}%"></i></div></div>${ABERTO ? `<button class="bt" id="enviar">${L.enviado_em ? "Enviar de novo" : "Enviar ao gabinete"}</button>` : ""}</div></div>`);
+  liga(); }
+// grava sozinho (rascunho) ~0,8 s depois da última mudança na emenda
+const TM = {};
+function salvar(i) { clearTimeout(TM[i]); const sv = document.getElementById("sv"); if (sv) { sv.className = "sv"; sv.textContent = "· salvando…"; }
+  TM[i] = setTimeout(async () => { const s = ST[i];
+    try { await rpc("link_salvar", { p_token: TOKEN, p_item: IT[i].id, p_dados: { municipio: s.mun, benef_tipo: s.bt, beneficiario: s.bt === "ent" ? s.ben : "", cnpj: s.bt === "ent" ? s.cnpj : "", objeto: s.obj || "", objeto_fonte: s.fonte, justificativa: s.com } });
+      s.status = "rascunho"; const v = document.getElementById("sv"); if (v) { v.className = "sv"; v.textContent = "· salvo"; } const b = document.getElementById("enviar"); if (b && L.enviado_em) b.textContent = "Enviar de novo";
+    } catch (e) { const v = document.getElementById("sv"); if (v) { v.className = "sv er"; v.textContent = "· não salvou: " + e.message; } } }, 800); }
+function liga() { const A = document.getElementById("app");
+  A.querySelectorAll("[data-mun]").forEach((e) => e.onchange = () => { ST[+e.dataset.mun].mun = e.value.trim(); salvar(+e.dataset.mun); render(); });
+  A.querySelectorAll("[data-bt]").forEach((e) => e.onclick = () => { const i = +e.dataset.bt, s = ST[i]; s.bt = s.bt === "ent" ? "mun" : "ent"; salvar(i); render(); });
+  A.querySelectorAll("[data-ben]").forEach((e) => e.oninput = () => { ST[+e.dataset.ben].ben = e.value; salvar(+e.dataset.ben); });
+  A.querySelectorAll("[data-cnpj]").forEach((e) => e.oninput = () => { ST[+e.dataset.cnpj].cnpj = e.value; salvar(+e.dataset.cnpj); });
+  A.querySelectorAll("[data-com]").forEach((e) => e.oninput = () => { ST[+e.dataset.com].com = e.value; salvar(+e.dataset.com); });
+  A.querySelectorAll("[data-esc]").forEach((e) => e.onclick = () => escolher(+e.dataset.esc));
+  A.querySelector("[data-info]").onclick = (ev) => info(ev.currentTarget);
+  const en = document.getElementById("enviar"); if (en) en.onclick = async () => { const f = ST.filter(feito).length;
+    if (!(await confirmaVX("Enviar ao gabinete?", `${f} de ${IT.length} emendas com objeto.`))) return;
+    try { await Promise.all(Object.keys(TM).map((i) => new Promise((ok) => setTimeout(ok, 900)))); await rpc("link_enviar", { p_token: TOKEN }); L.enviado_em = new Date().toISOString(); ST.forEach((s) => { if (s.status === "rascunho") s.status = "enviado"; });
+      document.getElementById("env").remove(); A.innerHTML = `<div class="fim"><div style="font-size:40px">✓</div><b>Enviado ao gabinete</b><p class="mut">Até ${FECHA.toLocaleDateString("pt-BR")}, ${FECHA.getHours()}h, você pode voltar a este link e mudar.</p><button class="bt s" id="volta">Ver as emendas</button></div>`; document.getElementById("volta").onclick = render;
+    } catch (e) { alert("Não foi possível enviar: " + e.message); } }; }
+function info(b) { const ja = document.getElementById("ipop"); if (ja) { ja.remove(); b.classList.remove("on"); return; }
+  const r = b.getBoundingClientRect(); b.classList.add("on");
+  document.body.insertAdjacentHTML("beforeend", `<div class="ipop" id="ipop" style="top:${r.bottom + scrollY + 8}px;left:${Math.max(12, Math.min(r.left + scrollX - 20, innerWidth - 352))}px">${INFO()}</div>`);
+  setTimeout(() => document.addEventListener("click", function f(e) { if (!e.target.closest("#ipop")) { document.getElementById("ipop")?.remove(); b.classList.remove("on"); document.removeEventListener("click", f); } }), 0); }
+function escolher(i) { const x = IT[i], C = compat(x);
+  document.body.insertAdjacentHTML("beforeend", `<div class="pp" id="pp"><div class="pb"><div class="hh"><h3>Objeto · ${esc(ST[i].mun)}</h3><span class="mut" style="font-size:12px">${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}${x.natureza ? " · " + x.natureza.toLowerCase() : ""}</span></div>
+    <input id="pq" placeholder="Pesquisar"><div class="pl" id="pl"></div></div></div>`);
+  const p = document.getElementById("pp"), q = document.getElementById("pq"), l = document.getElementById("pl"), fecha = () => { p.remove(); document.removeEventListener("keydown", k); };
+  const k = (e) => { if (e.key === "Escape") fecha(); };
+  const usa = (o) => { Object.assign(ST[i], o); salvar(i); fecha(); render(); };
+  const lista = () => { const w = norm(q.value).split(/\s+/).filter(Boolean), ok = (t) => w.every((kk) => norm(t).includes(kk)), R = C.filter((o) => ok(o[2] + " " + o[1] + " " + o[5]));
+    const gab = x.objeto && ok(x.objeto) ? `<div class="ipga">Do gabinete</div><button class="po" data-gab>${esc(x.objeto)} <span class="tg">Item do gabinete</span></button>` : "";
+    l.innerHTML = gab + `<div class="ipga">Portfólio · ${R.length}</div>` + R.slice(0, 150).map((o, j) => `<button class="po" data-o="${C.indexOf(o)}">${esc(o[2])}<em>${esc([o[1], o[3], o[4]].filter(Boolean).join(" · "))}</em></button>`).join("") + `<button class="po out" data-outro>Nenhum serve · sugerir outro objeto</button>`;
+    l.querySelector("[data-gab]")?.addEventListener("click", () => usa({ obj: x.objeto, fonte: "gab" }));
+    l.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => usa({ obj: C[+b.dataset.o][2], fonte: "port" }));
+    l.querySelector("[data-outro]").onclick = () => { const t = prompt("Descreva o objeto que você sugere:", ST[i].fonte === "outro" ? ST[i].obj : ""); if (t && t.trim()) usa({ obj: t.trim(), fonte: "outro" }); else fecha(); }; };
+  q.oninput = lista; lista(); q.focus(); p.onclick = (e) => { if (e.target === p) fecha(); }; document.addEventListener("keydown", k); }
+function confirmaVX(t, tx) { return new Promise((ok) => { const I1 = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>', I2 = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>';
+  document.activeElement && document.activeElement.blur(); document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="cf"><div class="cfb"><b>${t}</b><p>${tx}</p><div><button class="vxb" data-x aria-label="Cancelar">${I2}</button><button class="vxb v" data-v aria-label="Confirmar">${I1}</button></div></div></div>`);
+  const w = document.getElementById("cf"), fim = (v) => { w.remove(); document.removeEventListener("keydown", k, true); ok(v); }, k = (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); fim(false); } if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); fim(true); } };
+  document.addEventListener("keydown", k, true); w.querySelector("[data-x]").onclick = () => fim(false); w.querySelector("[data-v]").onclick = () => fim(true); }); }
+iniciar();
+</script></body></html>

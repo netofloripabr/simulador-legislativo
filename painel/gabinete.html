@@ -593,6 +593,29 @@ th .hfi{ display:inline-flex; vertical-align:-3px; margin-left:4px; color:#34E84
 .eqpap{ display:grid; gap:8px; margin:0 0 12px; } .eqpap label{ display:flex; gap:8px; align-items:baseline; padding:10px 12px; border:1px solid var(--linha); border-radius:10px; cursor:pointer; } .eqpap small{ color:var(--ter); }
 .eqleg{ display:grid; gap:4px; font-size:11.5px; color:var(--ter); border-top:1px solid var(--linha); padding-top:10px; } .eqleg b{ color:var(--sec); }
 .eqalt{ font-size:11.5px; color:var(--ter); margin-top:8px; } .eqalt b{ color:var(--sec); }
+
+/* Indicação › links dos líderes (gabinete-ind-links.js, 20/11/2026): faixa Links, coluna Etapa (ícone único), proposta ✓ ✕, Colunas, "i" */
+#indPg .ii{ width:20px; height:20px; border-radius:50%; border:1px solid var(--bd); background:var(--tl); color:var(--mu); font:italic 600 11px/1 Inter; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; padding:0; vertical-align:-4px; margin-left:4px; }
+#indPg .ii:hover, #indPg .ii.on{ border-color:var(--tx); color:var(--tx); }
+.lks{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; padding:9px 14px; border-bottom:1px solid var(--bd); } .lks .tt{ font-size:11px; color:var(--mu); margin-right:4px; }
+.lkc{ display:inline-flex; align-items:center; gap:7px; font:500 12px Inter; background:#fff; border:1px solid var(--bd); border-radius:999px; padding:4px 11px 4px 5px; cursor:pointer; color:var(--tx); } .lkc:hover, .lkc.on{ border-color:var(--tx); } .lkc small{ color:var(--mu); font-weight:500; } .lkc.nw{ border-style:dashed; color:var(--mu); padding-left:11px; background:none; } .lkc .rg{ width:20px; height:20px; flex:none; }
+.lke{ background:none; border:0; padding:2px; border-radius:999px; cursor:pointer; display:inline-flex; } .lke:hover, .lke.on{ background:#fff; box-shadow:0 0 0 1px var(--bd); }
+.lke .bd, .lkleg .bd{ position:relative; width:30px; height:30px; display:block; } .lke svg.an{ position:absolute; inset:0; width:30px; height:30px; } .lke .ic{ position:absolute; inset:6px; border-radius:50%; display:flex; align-items:center; justify-content:center; } .lke .ic svg{ width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.itb.ied td.ietp{ width:1%; text-align:center; } .itb.ied td.ilid{ font-size:12px; color:var(--mu); white-space:nowrap; padding-left:12px; }
+.iob > div.lkp{ display:block; } .lkp{ font-size:11.5px; color:#2F5D8A; margin:4px 8px 2px; line-height:1.45; } .lkp b{ font-weight:600; } .lkp em{ font-style:normal; background:#FBE7D5; color:#9A4E10; border-radius:999px; padding:1px 7px; font-size:10.5px; } .lkp small{ display:block; color:var(--mu); font-size:11px; margin-top:2px; }
+.lkvx{ display:inline-flex; gap:4px; margin-left:6px; vertical-align:middle; } .lkvx button{ width:26px; height:26px; border-radius:50%; border:1px solid var(--bd); background:#fff; color:var(--mu); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; padding:0; } .lkvx button.v{ background:#1D2226; border-color:#1D2226; color:#fff; } .lkvx svg{ width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.lkm{ position:fixed; z-index:6; background:#F8F9FA; color:#1D2226; border:1px solid var(--bd); border-radius:12px; box-shadow:0 14px 34px rgba(0,0,0,.14); padding:6px; min-width:240px; max-width:calc(100vw - 24px); font-family:Inter; }
+.lkm .h{ padding:8px 10px 6px; font-size:12px; color:var(--mu); line-height:1.45; } .lkm .h b{ display:block; color:#1D2226; font-size:13.5px; font-weight:600; }
+.lkm > button{ display:flex; align-items:center; gap:8px; width:100%; text-align:left; font:500 12.5px Inter; background:none; border:0; border-radius:8px; padding:8px 10px; cursor:pointer; color:#1D2226; } .lkm > button:hover{ background:#fff; } .lkm > button svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; color:var(--mu); } .lkm > button.apg{ color:#C0392B; }
+.lkm hr{ border:0; border-top:1px solid var(--bd); margin:4px 6px; }
+.lkm.inf{ max-width:330px; padding:12px 14px; font-size:12.5px; line-height:1.5; } .lkm.inf b{ font-weight:600; }
+.lkleg{ display:flex; flex-direction:column; gap:2px; padding:2px 4px 6px; } .lkleg div{ display:flex; align-items:center; gap:9px; padding:5px 6px; border-radius:8px; font-size:12px; color:var(--mu); } .lkleg div.at{ background:#fff; color:#1D2226; font-weight:500; box-shadow:0 0 0 1px var(--bd); } .lkleg div.fe{ color:#1D2226; } .lkleg small{ margin-left:auto; font-size:11px; color:var(--mu); font-weight:400; }
+.lkleg .ep{ width:20px; height:20px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#E4E7E9; color:#AEB4B9; flex:none; } .lkleg .ep.f{ background:#1D2226; color:#fff; } .lkleg .ep.ok{ background:#1FA845; color:#fff; } .lkleg .ep svg{ width:11px; height:11px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.lkcol{ display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:8px; font-size:12.5px; cursor:pointer; } .lkcol:hover{ background:#fff; } .lkcol span small{ display:block; color:var(--mu); font-size:11px; }
+.lkcol input{ appearance:none; -webkit-appearance:none; width:30px; height:18px; border-radius:999px; background:#D3D8DB; position:relative; margin:0; cursor:pointer; flex:none; transition:background .2s; } .lkcol input:after{ content:""; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#fff; transition:transform .2s; } .lkcol input:checked{ background:#1D2226; } .lkcol input:checked:after{ transform:translateX(12px); }
+.lkm.av{ width:380px; } .lkin{ width:calc(100% - 12px); margin:0 6px 6px; box-sizing:border-box; border:1px solid var(--bd); border-radius:9px; padding:8px 11px; font:500 13px Inter; outline:none; background:#fff; } .lkls{ max-height:300px; overflow:auto; } .lkft{ display:flex; justify-content:flex-end; padding:6px; } .lkok{ display:inline-flex; align-items:center; gap:6px; font:500 12.5px Inter; background:#1D2226; color:#fff; border:0; border-radius:999px; padding:7px 14px; cursor:pointer; } .lkok svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; }
+.lktoast{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%); z-index:95; background:#1D2226; color:#fff; font:500 13px Inter; padding:10px 16px; border-radius:999px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+body.dm-escuro .lkc, body.dm-escuro .lkvx button, body.dm-escuro .lkin{ background:#1B2125; } body.dm-escuro .lkm{ background:#1B2125; color:#E6E9EB; } body.dm-escuro .lkm .h b, body.dm-escuro .lkm > button, body.dm-escuro .lkleg div.fe, body.dm-escuro .lkleg div.at{ color:#E6E9EB; } body.dm-escuro .lkm > button:hover, body.dm-escuro .lkleg div.at, body.dm-escuro .lkcol:hover, body.dm-escuro .lke:hover{ background:#20272C; } body.dm-escuro .lkp{ color:#8FB3D4; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -616,7 +639,8 @@ th .hfi{ display:inline-flex; vertical-align:-3px; margin-left:4px; color:#34E84
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=55"></script>
+<script src="gabinete-indicar.js?cb=56"></script>
+<script src="gabinete-ind-links.js?cb=1"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>
