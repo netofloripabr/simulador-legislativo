@@ -17,7 +17,7 @@ function renderAppColaborativo() {
       <div><h2 style="margin:0;">Olá, ${pcState.perfil ? pcState.perfil.nome : "visitante"}</h2>
       <div class="pc-sub" style="margin:4px 0 0;">${pcState.perfil && pcState.perfil.escopo === "partido" ? `Prevendo: ${pcState.perfil.partido_escopo}` : "Prevendo: chapa completa"}</div></div>
       <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-        <button class="pc-mini-btn" id="pcBtnHomeCardGenerico" title="Ir pro início">${iconeSvg("home", 18)}</button>
+        <button class="pc-mini-btn" id="pcBtnHomeCardGenerico" title="Início: Gabinete (capa com o mapa)">${iconeSvg("home", 18)}</button>
         ${pcState.perfil ? `<button class="pc-mini-btn" id="pcBtnAbrirPerfil" title="Menu">${iconeSvg("perfil", 18)}</button>` : ""}
       </div>
     </div>`}
@@ -25,10 +25,8 @@ function renderAppColaborativo() {
   `;
   if (!semCardGenerico) {
     const btnHomeGenerico = document.getElementById("pcBtnHomeCardGenerico");
-    if (btnHomeGenerico) btnHomeGenerico.addEventListener("click", () => {
-      pcState.subaba = "painel";
-      renderAppColaborativo();
-    });
+    // 20/11/2026 (pedido do usuário): a casinha leva à página inicial do painel, a capa do Gabinete com o mapa
+    if (btnHomeGenerico) btnHomeGenerico.addEventListener("click", () => { location.href = "painel/gabinete.html"; });
   }
   if (pcState.perfil && !semCardGenerico) {
     document.getElementById("pcBtnAbrirPerfil").addEventListener("click", () => {
