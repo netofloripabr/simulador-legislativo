@@ -169,7 +169,7 @@ async function salvarLinha(T, tr, campos) {
     const pr = gravar("gab_itens", reg); if (!x) tr._cria = pr; const nx = await pr; tr._cria = null;
     if (campos.valor != null && Math.abs((+nx.valor || 0) - campos.valor) > .005) alert("O valor digitado não foi gravado (ficou " + rc(+nx.valor || 0) + "). Confira a linha e digite de novo.");
     const ativo = document.activeElement, campoAt = ativo && tr.contains(ativo) ? ativo.dataset.c : null, sel = ativo && ativo.selectionStart;
-    const i = [...tr.parentNode.querySelectorAll("tr.iw")].indexOf(tr), ck = tr.nextElementSibling && tr.nextElementSibling.classList.contains("ick") ? tr.nextElementSibling : null;
+    const doL = T.L ? AD.itens.filter((y) => y.lista_id === T.L.id) : T.k === "avulsos" ? AD.itens.filter((y) => !y.lista_id) : [], i0 = doL.findIndex((y) => y.id === nx.id), i = i0 >= 0 ? i0 : [...tr.parentNode.querySelectorAll("tr.iw")].indexOf(tr), ck = tr.nextElementSibling && tr.nextElementSibling.classList.contains("ick") ? tr.nextElementSibling : null;
     const tmp = document.createElement("tbody"); tmp.innerHTML = linhaInd(T, g, nx, i, true); if (ck) ck.remove();
     const novos = [...tmp.children]; tr.replaceWith(...novos); ligarLinha(novos[0], T);
     if (campoAt) { const el = novos[0].querySelector(`[data-c="${campoAt}"]`); if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch (e) {} } }

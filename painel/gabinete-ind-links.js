@@ -67,14 +67,21 @@ const linkDoLider = (n) => LK.links.filter((l) => l.lideranca === n).pop();
 // botão "Links" (20/11/2026) ao lado de Colunas: abre o quadro com os links dos líderes (ativos e a gerar) e o avulso
 function botaoLinks(T) { const at = LK.links.filter((l) => !encerrado(l)).length, esp = LK.props.filter((p) => p.status === "enviado").length;
   return `<button data-ilinks title="Links dos líderes">${lsv("lnk")}Links${at ? ` <small>${at}</small>` : ""}${esp ? `<i class="lkdot" title="${esp} para você aceitar"></i>` : ""}</button>`; }
-function quadroLinks(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>Links dos líderes</b>toque num líder para gerar o link de todas as emendas dele; nos já gerados, copiar, prazo e fechar</div>${faixaLinks(T)}`, "lkm lkq");
+function quadroLinks(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>Links dos líderes</b>toque num nome para gerar o link de todas as emendas dele (pelo líder ou pelo contato); nos já gerados, copiar, prazo e fechar</div>${faixaLinks(T)}`, "lkm lkq");
   m.querySelectorAll("[data-lkl]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); const l = LK.links.find((y) => y.id === x.dataset.lkl); if (l) { fechaLk(); menuLink(b, l, T); } });
   m.querySelectorAll("[data-lknovo]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); fechaLk(); novoLinkLider(T, x.dataset.lknovo); });
+  m.querySelectorAll("[data-lkcon]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); fechaLk(); novoLinkContato(T, x.dataset.lkcon); });
   const av = m.querySelector("[data-lkav]"); if (av) av.onclick = (e) => { e.stopPropagation(); fechaLk(); novoLinkAvulso(T, b); }; }
+function contatosLista(T) { const C = {}; AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x) && x.contato).forEach((x) => String(x.contato).split(/\s*,\s*/).filter(Boolean).forEach((n) => { C[n] = (C[n] || 0) + 1; }));
+  return Object.entries(C).sort((a, b) => b[1] - a[1]).map(([n]) => n); }
+const itensDoContato = (T, n) => AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x) && String(x.contato || "").split(/\s*,\s*/).includes(n)).map((x) => x.id);
+async function novoLinkContato(T, n) { try { const l = await gerarLink(T, n, "contato:" + n, itensDoContato(T, n)); await copiar(linkUrl(l), `Link de ${n} gerado e copiado`); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } }
 function faixaLinks(T) { if (!T.L || !SESS) return "";
-  const lid = lideresLista(T), av = LK.links.filter((l) => !l.lideranca);
+  const lid = lideresLista(T), con = contatosLista(T), av = LK.links.filter((l) => !l.lideranca);
   const bt = (l) => `<button class="lkc" data-lkl="${l.id}">${anelLk(pctLink(l))}${esc(l.nome)}<small>${pctLink(l)}% · ${estadoLink(l)}</small></button>`;
-  return `<div class="lks">${lid.map((n) => { const l = linkDoLider(n); return l ? bt(l) : `<button class="lkc nw" data-lknovo="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("")}${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
+  return `<div class="lkst">Por líder</div><div class="lks">${lid.map((n) => { const l = linkDoLider(n); return l ? bt(l) : `<button class="lkc nw" data-lknovo="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("") || `<span class="mut" style="font-size:12px">nenhuma emenda com líder</span>`}</div>
+    <div class="lkst">Por contato</div><div class="lks">${con.map((n) => { const l = linkDoLider("contato:" + n); return l ? bt(l) : `<button class="lkc nw" data-lkcon="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("") || `<span class="mut" style="font-size:12px">nenhuma emenda com contato</span>`}</div>
+    <div class="lkst">Avulsos</div><div class="lks">${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
 // ---------- colunas que ligam e desligam ----------
 const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["etq", "Etiqueta"], ["lid", "Líder e contato"], ["obs", "Observações"], ["etp", "Etapa"]];
 let COLS_OFF = (() => { try { return JSON.parse(localStorage.getItem("ind_cols") || '["lid"]'); } catch (e) { return ["lid"]; } })();
@@ -132,10 +139,10 @@ function legendaE(b, x, T) { const e = etapaItem(x), L = linksDoItem(x.id), p = 
   const m = abreLk(b, `<div class="h"><b>${esc(x.municipio || "—")}${l ? " · " + esc(l.nome) : ""}</b>${l ? "link " + estadoLink(l) + (l.aberto_em ? ` · aberto ${l.acessos}×` : "") : "ainda sem link"}</div>
     <div class="lkleg">${ETP.map(([k, t], j) => { const fe = j < e.n, at = j === e.n - 1, xx = e.x && j === 4; return `<div class="${at ? "at" : fe ? "fe" : ""}"><span class="ep ${xx ? "f" : fe ? (j === 4 ? "ok" : "f") : ""}">${lsv(xx ? "x" : k)}</span>${xx ? "Recusado por você" : t}${at ? "<small>agora</small>" : ""}</div>`; }).join("")}</div><hr>
     ${l ? `${x.lideranca && linkDoLider(x.lideranca) && linkDoLider(x.lideranca) !== l ? `<button data-m="lid">${lsv("cop")}Copiar link de ${esc(x.lideranca)}</button>` : ""}<button data-m="cop">${lsv("cop")}Copiar link de ${esc(l.nome)}</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button>` : ""}
-    <button data-m="um">${lsv("lnk")}Gerar link só desta emenda</button>${!l && x.lideranca && !linkDoLider(x.lideranca) ? `<button data-m="nl">${lsv("lnk")}Gerar link de ${esc(x.lideranca)}</button>` : ""}`);
+    <button data-m="um">${lsv("lnk")}Gerar link só desta emenda</button>${x.lideranca && !linkDoLider(x.lideranca) ? `<button data-m="nl">${lsv("lnk")}Gerar link do líder ${esc(x.lideranca)}</button>` : ""}${String(x.contato || "").split(/\s*,\s*/).filter((n) => n && !linkDoLider("contato:" + n)).map((n) => `<button data-m="nc" data-nc="${esc(n)}">${lsv("lnk")}Gerar link do contato ${esc(n)}</button>`).join("")}`);
   m.querySelectorAll("[data-m]").forEach((y) => y.onclick = () => { const a = y.dataset.m; fechaLk();
     if (a === "lid") copiar(linkUrl(linkDoLider(x.lideranca))); if (a === "cop") copiar(linkUrl(l)); if (a === "abr") window.open(linkUrl(l), "_blank", "noopener");
-    if (a === "um") novoLinkItem(T, x); if (a === "nl") novoLinkLider(T, x.lideranca); }); }
+    if (a === "um") novoLinkItem(T, x); if (a === "nl") novoLinkLider(T, x.lideranca); if (a === "nc") novoLinkContato(T, y.dataset.nc); }); }
 // aceitar: os campos da proposta vão para a emenda; recusar: só marca
 async function decidir(id, aceita, T) { const p = LK.props.find((q) => q.id === id); if (!p) return; const x = AD.itens.find((y) => y.id === p.item_id); if (!x) return;
   try { if (aceita) { const g = regrasInd(T), t = p.benef_tipo || tipoDe(x) || "mun", ins = t === "ent" ? "Convênio" : "Transferência Especial", o = {};
