@@ -2275,5 +2275,11 @@ const MIGRACOES_INDEX = [
     "gab_itens.marca"
    ]
   ]
+ },
+ {
+  "num": 105,
+  "arquivo": "migracao-105-gabinete-etiqueta-indicacao.sql",
+  "descricao": "Migração 105 (20/11/2026): Indicação › a \"cor e status\" vira ETIQUETA livre, como as listas suspensas colorida",
+  "objetos": []
  }
 ];

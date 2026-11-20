@@ -76,7 +76,7 @@ function faixaLinks(T) { if (!T.L || !SESS) return "";
   const bt = (l) => `<button class="lkc" data-lkl="${l.id}">${anelLk(pctLink(l))}${esc(l.nome)}<small>${pctLink(l)}% · ${estadoLink(l)}</small></button>`;
   return `<div class="lks">${lid.map((n) => { const l = linkDoLider(n); return l ? bt(l) : `<button class="lkc nw" data-lknovo="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("")}${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
 // ---------- colunas que ligam e desligam ----------
-const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["lid", "Líder e contato"], ["obs", "Observações"], ["etp", "Etapa"]];
+const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["etq", "Etiqueta"], ["lid", "Líder e contato"], ["obs", "Observações"], ["etp", "Etapa"]];
 let COLS_OFF = (() => { try { return JSON.parse(localStorage.getItem("ind_cols") || '["lid"]'); } catch (e) { return ["lid"]; } })();
 const colOn = (k) => !COLS_OFF.includes(k);
 const nColInd = () => 1 + COLS_IND.filter(([k]) => colOn(k)).length; // nº e colunas visíveis
@@ -158,7 +158,7 @@ function ligarLinks(p, T) {
   p.querySelectorAll("[data-lkac]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidir(b.dataset.lkac, true, T); });
   p.querySelectorAll("[data-lkrec]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidir(b.dataset.lkrec, false, T); });
   p.querySelectorAll("[data-ihf]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); abreFx(b, T); });
-  p.querySelectorAll("[data-imk]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.imk); if (x && T && T.L) popMarca(b, x, T); });
+  p.querySelectorAll("[data-ietq]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.ietq); if (x && T && T.L) popEtq(b, x, T); });
   p.querySelectorAll("[data-iobs]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.iobs); if (x) popObs(b, x, T); });
   const lb = p.querySelector("[data-ilinks]"); if (lb) lb.onclick = (e) => { e.stopPropagation(); quadroLinks(lb, T); };
   const cl = p.querySelector("[data-icols]"); if (cl) cl.onclick = (e) => { e.stopPropagation(); menuCols(cl); };
@@ -170,17 +170,14 @@ function ligarLinks(p, T) {
 const OBS_IND = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2.5 3h11v8h-6l-3 2.5V11h-2z"/></svg>';
 const notasInd = (x) => typeof caderneta === "function" ? caderneta(x) : String(x.observacao || "").split(/\n+/).filter(Boolean).map((t) => ({ d: "", t }));
 function balaoInd(x) { const n = notasInd(x), ul = n[n.length - 1];
-  const mk = MARCAS.find((q) => q[0] === x.marca);
-  return `<button class="iobs${n.length ? " tem" : ""}${mk ? " mk" : ""}"${mk ? ` style="--mk:${mk[1]}"` : ""} data-iobs="${x.id}" title="${esc(ul ? ul.t : "Sem observação")}" aria-label="Observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}</button>`; }
+  return `<button class="iobs${n.length ? " tem" : ""}" data-iobs="${x.id}" title="${esc(ul ? ul.t : "Sem observação")}" aria-label="Observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}</button>`; }
 function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
   const des = () => { const n = notasInd(x); return `<div class="h"><b>Observações · ${esc(x.municipio || "—")}</b>${x.chave_emenda ? "já levada ao Controle de Recursos; lá continuam as anotações" : "vão junto para o Controle de Recursos ao fechar a lista"}</div>
-    <div class="iobmk">${MARCAS.map(([k, c]) => `<button class="${x.marca === k ? "on" : ""}" data-omk="${k}" title="${esc(nomeMarca(T, k))}" style="--mk:${c}"><i></i><span>${esc(nomeMarca(T, k))}</span></button>`).join("")}<button class="${x.marca ? "" : "on"} sem" data-omk="" title="Sem cor"><i></i><span>Sem cor</span></button></div>
+    <div class="iobmk"><span>Etiqueta</span>${celEtq(x, T)}</div>
     <div class="iobl">${n.length ? n.map((k) => `<div><span>${esc(k.d || "—")}</span><p>${esc(k.t)}</p></div>`).join("") : `<div class="mut" style="padding:4px 10px 8px;font-size:12px">Nenhuma anotação ainda.</div>`}</div>
     ${fech ? "" : `<div class="iobn"><input class="iobd" value="${hoje}" aria-label="Data"><input class="iobt" placeholder="Nova anotação…"><button class="lkok" data-anota>Anotar</button></div>`}`; };
   const m = abreLk(b, des(), "lkm iobm"), liga = () => {
-    m.querySelectorAll("[data-omk]").forEach((o) => o.onclick = async (e) => { e.stopPropagation(); const k = o.dataset.omk || null; if (k === (x.marca || null)) return;
-      try { const nx = await gravar("gab_itens", { id: x.id, marca: k }); Object.assign(x, nx); const y = $("#indPg").scrollTop; fechaLk(); desenharInd(); $("#indPg").scrollTop = y;
-        const b2 = $(`#indPg [data-iobs="${x.id}"]`); if (b2) popObs(b2, x, T); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } });
+    const et = m.querySelector(".iobmk [data-ietq]"); if (et) et.onclick = (e) => { e.stopPropagation(); popEtq(et, x, T, () => { const b2 = $(`#indPg [data-iobs="${x.id}"]`); if (b2) popObs(b2, AD.itens.find((z) => z.id === x.id) || x, T); }); };
     const bt = m.querySelector("[data-anota]"); if (!bt) return; const it = m.querySelector(".iobt");
     const anota = async () => { const t = it.value.trim(), d = m.querySelector(".iobd").value.trim(); if (!t) return it.focus(); bt.disabled = true;
       try { const nx = await gravar("gab_itens", { id: x.id, observacao: (x.observacao ? x.observacao.replace(/\s+$/, "") + "\n\n" : "") + (d ? d + " - " : "") + t }); Object.assign(x, nx);
@@ -190,34 +187,58 @@ function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje 
     bt.onclick = anota; it.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); anota(); } }; setTimeout(() => it.focus(), 0); };
   liga(); }
 
-// ---------- cor e status pessoal da emenda (20/11/2026, migração 104) ----------
-// Toque no número da linha: escolhe a cor; a linha fica levemente tingida e o número vira uma pílula colorida.
-// Os nomes dos status são da lista (regras.marcas) e podem ser renomeados ali mesmo.
-const MARCAS = [["verde", "#1FA845", "Resolvido · falta enviar"], ["amarelo", "#D9A400", "Em andamento"], ["laranja", "#E8822A", "Atenção"], ["vermelho", "#D64545", "Crítico"], ["azul", "#2F5D8A", "Aguardando retorno"]];
-const nomeMarca = (T, k) => ((T && T.L && (T.L.regras || {}).marcas) || {})[k] || (MARCAS.find((q) => q[0] === k) || [])[2] || "";
-function popMarca(b, x, T) { let edita = false;
-  const des = () => { const it = AD.itens.filter((y) => y.lista_id === (T.L && T.L.id));
-    return `<div class="h"><b>Cor e status · ${esc(x.municipio || "—")}</b>a cor pinta a linha; o nome do status vale para a lista toda</div>
-    <div class="imkl">${MARCAS.map(([k, c]) => `<div class="${x.marca === k ? "at" : ""}" data-mk="${k}"><i style="background:${c}"></i>${edita ? `<input data-mkn="${k}" value="${esc(nomeMarca(T, k))}">` : `<span>${esc(nomeMarca(T, k))}</span>`}<small>${it.filter((y) => y.marca === k).length || ""}</small></div>`).join("")}
-      <div data-mk="" class="${x.marca ? "" : "at"}"><i class="sem"></i><span>Sem cor</span></div></div>
-    <div class="lkft">${edita ? `<button class="lkok" data-mksal>Salvar nomes</button>` : `<button class="lk0" data-mkren>Renomear os status</button>`}</div>`; };
-  const m = abreLk(b, des(), "lkm imkm");
+// ---------- etiquetas da emenda (20/11/2026, migrações 104 e 105) ----------
+// Como as listas suspensas coloridas do Google Planilhas: a equipe cria etiquetas (nome + cor da paleta) e marca cada
+// emenda com uma. A emenda guarda o nome (gab_itens.marca); nome e cor ficam na lista (regras.etiquetas). A linha fica
+// levemente tingida na cor da etiqueta. Coluna própria "Etiqueta", que liga e desliga em Colunas e tem filtro.
+const ETQ_PAL = [["cinza", "#E3E6E8", "#3E454B"], ["vermelho", "#FBD9D5", "#9B2C20"], ["laranja", "#FCE3CC", "#9A4E10"], ["amarelo", "#FBF0C2", "#7A5D00"], ["verde", "#D5F0DC", "#17692F"],
+  ["turquesa", "#CDEFEA", "#0F6359"], ["azul", "#D6E4F7", "#1F4E85"], ["roxo", "#E6DDF7", "#5A3A99"], ["rosa", "#F8D9EA", "#94285F"], ["marrom", "#EADFD6", "#6A4A33"]];
+const ETQ_INI = [["Resolvido · falta enviar", "verde"], ["Em andamento", "amarelo"], ["Atenção", "laranja"], ["Crítico", "vermelho"], ["Aguardando retorno", "azul"]].map(([n, c]) => ({ n, c }));
+const etiquetasL = (T) => ((T && T.L && (T.L.regras || {}).etiquetas) || ETQ_INI);
+const corEtq = (c) => ETQ_PAL.find((q) => q[0] === c) || ETQ_PAL[0];
+const etqDe = (T, x) => x && x.marca ? (etiquetasL(T).find((e) => e.n === x.marca) || { n: x.marca, c: "cinza" }) : null;
+const chipEtq = (e, extra = "") => { const [, bg, fg] = corEtq(e.c); return `<span class="ietq" style="--eb:${bg};--ef:${fg}"${extra}>${esc(e.n)}</span>`; };
+function celEtq(x, T) { if (!x) return ""; const e = etqDe(T, x);
+  return `<button class="ietb${e ? "" : " vz"}" data-ietq="${x.id}" title="${e ? esc(e.n) + " · toque para trocar" : "Pôr uma etiqueta"}">${e ? chipEtq(e) : "+ etiqueta"}</button>`; }
+async function salvaEtqs(T, L2, ren) { // grava as etiquetas da lista e, se renomeou, troca o nome nas emendas
+  T.L = await gravar("gab_listas", { id: T.L.id, regras: { ...(T.L.regras || {}), etiquetas: L2 } });
+  for (const [de, para] of ren) { const ids = AD.itens.filter((y) => y.lista_id === T.L.id && y.marca === de).map((y) => y.id); if (!ids.length) continue;
+    const { error } = await supabaseClient.from("gab_itens").update({ marca: para }).in("id", ids); if (error) throw error; AD.itens.forEach((y) => { if (ids.includes(y.id)) y.marca = para; }); } }
+// a caixinha das etiquetas: escolher, criar (nome + cor) e editar (renomear, trocar cor, apagar)
+function popEtq(b, x, T, depois) { let edita = false, cor = "azul";
+  const usar = async (n) => { fechaLk(); try { await gravar("gab_itens", { id: x.id, marca: n }); const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; if (depois) depois(); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } };
+  const pal = (sel, attr) => `<div class="ietp">${ETQ_PAL.map(([k, bg, fg]) => `<button class="${k === sel ? "on" : ""}" ${attr}="${k}" title="${k}" style="--eb:${bg};--ef:${fg}"></button>`).join("")}</div>`;
+  const des = () => { const L = etiquetasL(T), it = AD.itens.filter((y) => y.lista_id === (T.L && T.L.id));
+    return `<div class="h"><b>Etiqueta · ${esc(x.municipio || "—")}</b>${edita ? "renomeie, troque a cor ou apague; vale para a lista toda" : "escolha uma ou crie uma nova"}</div>
+    ${edita ? `<div class="ietl ed">${L.map((e, i) => `<div data-ei="${i}"><input value="${esc(e.n)}" data-en="${i}">${pal(e.c, `data-ec${i}`)}<button class="ietx" data-edel="${i}" title="Apagar etiqueta">×</button></div>`).join("")}</div>
+      <div class="lkft"><button class="lk0" data-ecanc>Cancelar</button><button class="lkok" data-esal>Salvar</button></div>`
+    : `<div class="ietl">${L.map((e) => `<button class="${x.marca === e.n ? "at" : ""}" data-eus="${esc(e.n)}">${chipEtq(e)}<small>${it.filter((y) => y.marca === e.n).length || ""}</small></button>`).join("")}<button class="${x.marca ? "" : "at"}" data-eus=""><span class="ietq sem">Sem etiqueta</span></button></div>
+      <div class="ietn"><input placeholder="Nova etiqueta…" maxlength="60" data-enova>${pal(cor, "data-encor")}<div class="lkft"><button class="lk0" data-eedit>Editar etiquetas</button><button class="lkok" data-ecria>Criar e usar</button></div></div>`}`; };
+  const m = abreLk(b, des(), "lkm ietm");
   const liga = () => {
-    m.querySelectorAll("[data-mk]").forEach((d) => d.onclick = async (e) => { if (edita || e.target.tagName === "INPUT") return; const k = d.dataset.mk || null; fechaLk();
-      try { await gravar("gab_itens", { id: x.id, marca: k }); const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } });
-    const rn = m.querySelector("[data-mkren]"); if (rn) rn.onclick = (e) => { e.stopPropagation(); edita = true; m.innerHTML = des(); liga(); m.querySelector("input").focus(); };
-    const sv = m.querySelector("[data-mksal]"); if (sv) sv.onclick = async (e) => { e.stopPropagation(); const nm = {}; m.querySelectorAll("[data-mkn]").forEach((i) => { const v = i.value.trim(); if (v) nm[i.dataset.mkn] = v; });
-      try { T.L = await gravar("gab_listas", { id: T.L.id, regras: { ...(T.L.regras || {}), marcas: nm } }); edita = false; m.innerHTML = des(); liga(); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } }; };
-  liga(); }
+    m.querySelectorAll("[data-eus]").forEach((o) => o.onclick = (e) => { e.stopPropagation(); usar(o.dataset.eus || null); });
+    m.querySelectorAll("[data-encor]").forEach((o) => o.onclick = (e) => { e.stopPropagation(); cor = o.dataset.encor; m.querySelectorAll("[data-encor]").forEach((z) => z.classList.toggle("on", z === o)); });
+    const nv = m.querySelector("[data-enova]"), cria = async () => { const n = nv.value.trim(); if (!n) return nv.focus(); const L = etiquetasL(T);
+      try { if (!L.some((e) => e.n === n)) await salvaEtqs(T, [...L, { n, c: cor }], []); usar(n); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } };
+    if (nv) { nv.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); cria(); } }; m.querySelector("[data-ecria]").onclick = (e) => { e.stopPropagation(); cria(); }; }
+    const ed = m.querySelector("[data-eedit]"); if (ed) ed.onclick = (e) => { e.stopPropagation(); edita = true; m.innerHTML = des(); liga(); };
+    if (edita) { const L = etiquetasL(T).map((e) => ({ ...e, de: e.n })), apag = new Set();
+      L.forEach((e, i) => m.querySelectorAll(`[data-ec${i}]`).forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); e.c = o.getAttribute(`data-ec${i}`); m.querySelectorAll(`[data-ec${i}]`).forEach((z) => z.classList.toggle("on", z === o)); }));
+      m.querySelectorAll("[data-edel]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); const i = +o.dataset.edel; apag.add(i); m.querySelector(`[data-ei="${i}"]`).classList.add("del"); });
+      m.querySelector("[data-ecanc]").onclick = (ev) => { ev.stopPropagation(); edita = false; m.innerHTML = des(); liga(); };
+      m.querySelector("[data-esal]").onclick = async (ev) => { ev.stopPropagation(); m.querySelectorAll("[data-en]").forEach((i) => { L[+i.dataset.en].n = i.value.trim() || L[+i.dataset.en].de; });
+        const fica = L.filter((e, i) => !apag.has(i)), ren = fica.filter((e) => e.n !== e.de).map((e) => [e.de, e.n]);
+        try { await salvaEtqs(T, fica.map(({ n, c }) => ({ n, c })), ren); edita = false; const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; const b2 = $(`#indPg [data-ietq="${x.id}"]`); if (b2) popEtq(b2, AD.itens.find((z) => z.id === x.id) || x, T, depois); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } }; }
+  }; liga(); }
 
 // ---------- filtros nos títulos das colunas (20/11/2026), como no Controle de Recursos ----------
 // Toque no título: abre a lista de valores daquela coluna, com pesquisa, "Selecionar tudo" e "Limpar" (desmarcar esconde).
 // Ente · mod. · função e Líder · contato abrem as listas de cada parte. Com filtro ligado, as linhas vazias somem.
 IND.fx = IND.fx || {};
 const ROT_ENTE = { mun: "Município", ent: "Entidade", est: "Estado" };
-const FXK = { mk: [["mk", "Cor e status"]], ent: [["ente", "Ente"], ["mod", "Modalidade"], ["fun", "Função"], ["des", "Despesa"]], mun: [["mun", "Município"]], obj: [["obj", "Objeto"]], lid: [["lid", "Líder"], ["con", "Contato"]], obs: [["mk", "Cor e status"], ["obs", "Observações"]], etp: [["etp", "Etapa"]] };
+const FXK = { etq: [["mk", "Etiqueta"]], ent: [["ente", "Ente"], ["mod", "Modalidade"], ["fun", "Função"], ["des", "Despesa"]], mun: [["mun", "Município"]], obj: [["obj", "Objeto"]], lid: [["lid", "Líder"], ["con", "Contato"]], obs: [["obs", "Observações"], ["mk", "Etiqueta"]], etp: [["etp", "Etapa"]] };
 function valFx(k, x, T) { switch (k) {
-  case "mk": return x.marca ? nomeMarca(T, x.marca) : "Sem cor"; case "ente": return ROT_ENTE[tipoDe(x)] || ""; case "mod": return x.modalidade || ""; case "fun": return x.area || regrasInd(T).trava || "";
+  case "mk": return x.marca || "Sem etiqueta"; case "ente": return ROT_ENTE[tipoDe(x)] || ""; case "mod": return x.modalidade || ""; case "fun": return x.area || regrasInd(T).trava || "";
   case "des": return x.natureza || ""; case "mun": return x.municipio || ""; case "obj": return x.objeto || ""; case "lid": return x.lideranca || ""; case "con": return x.contato || "";
   case "obs": return notasInd(x).length ? "Com observação" : "Sem observação"; case "etp": return TXT_E(etapaItem(x)).split(" · ")[0]; } return ""; }
 const temFx = () => Object.values(IND.fx || {}).some((s) => s && s.size);

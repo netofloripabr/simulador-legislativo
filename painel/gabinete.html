@@ -698,6 +698,22 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 .iobmk button i{ width:9px; height:9px; border-radius:50%; background:var(--mk); } .iobmk button.sem i{ border:1.5px dashed #B8BEC3; background:none; box-sizing:border-box; }
 .iobmk button.on{ background:var(--mk, #1D2226); border-color:var(--mk, #1D2226); color:#fff; } .iobmk button.on i{ background:#fff; } .iobmk button.sem.on{ background:#1D2226; border-color:#1D2226; } .iobmk button.sem.on i{ border-color:#fff; }
 .iobs.mk{ color:var(--mk) !important; }
+
+/* etiquetas da emenda (20/11/2026), como as listas coloridas do Google Planilhas */
+.ietq{ display:inline-block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:middle; background:var(--eb); color:var(--ef); font:600 11.5px Inter; border-radius:999px; padding:3px 10px; }
+.ietq.sem{ background:none; color:var(--mu); border:1px dashed #B8BEC3; font-weight:500; }
+#indPg .ietb{ background:none; border:0; padding:2px; border-radius:999px; cursor:pointer; max-width:100%; } #indPg .ietb.vz{ color:#B3B9BE; font:500 11.5px Inter; padding:4px 8px; opacity:0; } #indPg tr.iw:hover .ietb.vz, #indPg .ietb.vz:focus{ opacity:1; } #indPg .ietb.vz:hover{ color:var(--tx); background:#fff; box-shadow:0 0 0 1px var(--bd); }
+#indPg .itb.ied th[data-col="etq"]{ width:150px; } #indPg .itb.ied td.ietc{ padding-left:8px; }
+#indPg .itb tr.iw.mk > td, #indPg .itb tr.ick.mk > td{ background:color-mix(in srgb, var(--mk) 45%, transparent); }
+#indPg .itb tr.iw.mk > td:first-child, #indPg .itb tr.ick.mk > td:first-child{ box-shadow:inset 3px 0 0 var(--mkf); }
+.lkm.ietm{ width:330px; } .ietl{ display:flex; flex-direction:column; padding:2px 4px 6px; max-height:260px; overflow:auto; } .ietl > button{ display:flex; align-items:center; gap:8px; background:none; border:0; border-radius:8px; padding:5px 6px; cursor:pointer; text-align:left; } .ietl > button:hover, .ietl > button.at{ background:#fff; } .ietl > button.at{ box-shadow:0 0 0 1px var(--bd); } .ietl small{ margin-left:auto; color:var(--mu); font-size:11px; }
+.ietn{ border-top:1px solid var(--bd); padding:8px 6px 2px; } .ietn input, .ietl.ed input{ width:100%; box-sizing:border-box; border:1px solid var(--bd); border-radius:8px; padding:7px 9px; font:500 12.5px Inter; outline:none; background:#fff; color:#1D2226; } .ietn input:focus, .ietl.ed input:focus{ border-color:#1D2226; }
+.ietp{ display:flex; gap:5px; flex-wrap:wrap; margin:7px 0 2px; } .ietp button{ width:20px; height:20px; border-radius:50%; border:1.5px solid var(--ef); background:var(--eb); cursor:pointer; padding:0; } .ietp button.on{ box-shadow:0 0 0 2px #fff, 0 0 0 3.5px var(--ef); }
+.ietl.ed > div{ display:grid; grid-template-columns:1fr 22px; gap:2px 6px; padding:6px 4px; border-bottom:1px solid var(--bd); } .ietl.ed .ietp{ grid-column:1; margin:4px 0 0; } .ietl.ed > div.del{ opacity:.35; } .ietx{ background:none; border:0; color:var(--mu); font-size:16px; cursor:pointer; }
+.iobmk{ display:flex !important; align-items:center; gap:8px; padding:2px 10px 8px !important; font-size:11.5px; color:var(--mu); }
+
+#indPg textarea.ijust{ min-height:120px !important; resize:vertical; }
+#indPg .itb.ied th[data-col="etq"]{ width:140px !important; } #indPg .itb.ied th[data-col="mun"]{ width:14% !important; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -721,8 +737,8 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=64"></script>
-<script src="gabinete-ind-links.js?cb=7"></script>
+<script src="gabinete-indicar.js?cb=66"></script>
+<script src="gabinete-ind-links.js?cb=8"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>
