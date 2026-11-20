@@ -375,7 +375,19 @@ function abrirInd() {
   requestAnimationFrame(() => p.classList.add("on")); clearInterval(IND.tick); IND.tick = setInterval(contador, 1000);
 }
 function fecharInd() { IND.aberto = false; const p = $("#indPg"); if (p) p.classList.remove("on"); document.body.classList.remove("ind-on"); clearInterval(IND.tick); }
-document.addEventListener("keydown", (e) => { if (e.key === "Escape" && IND.aberto && $("#adModal")?.hidden !== false) { IND.det ? (IND.det = null, desenharInd()) : fecharInd(); } });
+// confirmação padrão (20/11/2026, pedido do usuário): caixa com pergunta e botões de ícone ✓ (confirma) e ✕ (cancela);
+// Esc ou clique fora cancela, Enter confirma
+function confirmaVX(titulo, texto) { return new Promise((ok) => { document.getElementById("cfVX")?.remove();
+  const ICv = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>', ICx = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>';
+  document.body.insertAdjacentHTML("beforeend", `<div id="cfVX" class="cfp"><div class="cfb cfvx" role="dialog" aria-modal="true"><b>${titulo}</b>${texto ? `<p>${texto}</p>` : ""}<div><button class="vxb x" data-x title="Cancelar (Esc)" aria-label="Cancelar">${ICx}</button><button class="vxb v" data-v title="Confirmar (Enter)" aria-label="Confirmar">${ICv}</button></div></div></div>`);
+  const w = document.getElementById("cfVX"), fim = (v) => { document.removeEventListener("keydown", tk, true); w.remove(); ok(v); };
+  const tk = (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); fim(false); } else if (e.key === "Enter") { e.preventDefault(); e.stopImmediatePropagation(); fim(true); } };
+  document.addEventListener("keydown", tk, true); w.onclick = (e) => { if (e.target === w) fim(false); };
+  w.querySelector("[data-x]").onclick = () => fim(false); w.querySelector("[data-v]").onclick = () => fim(true); w.querySelector("[data-v]").focus(); }); }
+// Esc na página de Indicação: fecha o detalhe aberto; sem detalhe, pergunta antes de sair da página
+document.addEventListener("keydown", async (e) => { if (e.key !== "Escape" || !IND.aberto || $("#adModal")?.hidden === false || document.getElementById("cfVX") || document.querySelector(".cfp")) return;
+  if (IND.det) { IND.det = null; desenharInd(); return; }
+  if (await confirmaVX("Deseja mesmo sair?", "Você volta ao Controle de Recursos. O que já foi indicado continua salvo.")) fecharInd(); });
 // quando o Controle redesenha (salvou item, lista, anotação), a página aberta acompanha
 (() => { const d0 = desenhar; desenhar = function () { d0.apply(this, arguments); if (IND.aberto) desenharInd(); };
   const m0 = mtab; mtab = function () { m0.apply(this, arguments); if (IND.aberto) detInd(); }; })();
