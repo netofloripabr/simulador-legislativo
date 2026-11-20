@@ -222,7 +222,7 @@ async function salvaEtqs(T, L2, ren) { // grava as etiquetas da lista e, se reno
 // a caixinha das etiquetas: escolher, criar (nome + cor) e editar (renomear, trocar cor, apagar)
 function popEtq(b, x, T, depois) { let edita = false, cor = "azul";
   const usar = async (n) => { fechaLk(); try { await gravar("gab_itens", { id: x.id, marca: n }); const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; if (depois) depois(); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } };
-  const pal = (sel, attr) => `<div class="ietp">${ETQ_PAL.map(([k, bg, fg]) => `<button class="${k === sel ? "on" : ""}" ${attr}="${k}" title="${k}" style="--eb:${bg};--ef:${fg}"></button>`).join("")}</div>`;
+  const pal = (sel, attr) => `<div class="ietpal">${ETQ_PAL.map(([k, bg, fg]) => `<button class="${k === sel ? "on" : ""}" ${attr}="${k}" title="${k}" style="--eb:${bg};--ef:${fg}"></button>`).join("")}</div>`;
   const des = () => { const L = etiquetasL(T), it = AD.itens.filter((y) => y.lista_id === (T.L && T.L.id));
     return `<div class="h"><b>Etiqueta · ${esc(x.municipio || "—")}</b>${edita ? "renomeie, troque a cor ou apague; vale para a lista toda" : "escolha uma ou crie uma nova"}</div>
     ${edita ? `<div class="ietl ed">${L.map((e, i) => `<div data-ei="${i}"><input value="${esc(e.n)}" data-en="${i}">${pal(e.c, `data-ec${i}`)}<button class="ietx" data-edel="${i}" title="Apagar etiqueta">×</button></div>`).join("")}</div>
