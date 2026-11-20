@@ -117,7 +117,8 @@ function linhaInd(T, g, x, i, semExp) {
   const ck = x ? [[x.municipio, "município"], [x.objeto, "objeto"], [t, "quem recebe"], [g.min ? v >= g.min : v > 0, g.min ? "valor ≥ " + rc(g.min) : "valor"], [x.natureza, "custeio ou capital"], ...(t === "ent" ? [[String(x.cnpj || "").replace(/\D/g, "").length === 14, "CNPJ"], [x.razao_social || x.beneficiario, "razão social"]] : [])] : [];
   const quem = t === "ent" ? ""
     : "";
-  return `<tr class="iw${x && IND.det === "a:" + x.id ? " on" : ""}" data-iw="${x ? x.id : ""}"><td class="n">${i + 1}</td>
+  const mk = x && MARCAS.find((q) => q[0] === x.marca);
+  return `<tr class="iw${x && IND.det === "a:" + x.id ? " on" : ""}${mk ? " mk" : ""}" data-iw="${x ? x.id : ""}"${mk ? ` style="--mk:${mk[1]}"` : ""}><td class="n">${x ? `<button class="imkn${mk ? " on" : ""}" data-imk="${x.id}" title="${mk ? esc(nomeMarca(T, mk[0])) + " · toque para mudar" : "Colorir e dar um status"}" aria-label="Cor e status">${i + 1}</button>` : i + 1}</td>
     <td class="itp" data-col="ent"><div class="ilin"><div class="iseg" title="Ente">${BTIPO.map(([k, l]) => `<button data-bt="${k}" class="${t === k ? "on" : ""}" title="${l}" aria-label="${l}">${ici(k)}</button>`).join("")}</div>
       <div class="iqs"><button class="iqb${x && x.modalidade ? " on" : ""}${modFora(x) ? " warn" : ""}" data-qm title="Modalidade: ${esc(x && x.modalidade || "escolher")}${modFora(x) ? ` · o usual para ${esc((BTIPO.find((q) => q[0] === tipoDe(x)) || [])[1] || "")} é ${esc(modEsperada(x))}` : ""}">${x && x.modalidade ? ici(MOD_I[x.modalidade] || "doc2") : '<span class="iq0">mod.</span>'}</button>${g.trava ? `<button class="iqb on" data-qf title="Função ${esc(g.trava)} · definida pela cota">${ici(AREA_I[g.trava] || "plan")}</button>` : `<button class="iqb${x && x.area ? " on" : ""}" data-qf title="Função: ${esc(x && x.area || "escolher")}">${x && x.area ? ici(AREA_I[x.area] || "plan") : '<span class="iq0">função</span>'}</button>`}<button class="iqb${x && x.natureza ? " on" : ""}" data-qn title="Despesa: ${esc(x && x.natureza || "custeio ou capital")}">${x && x.natureza ? ici(x.natureza === "Capital" ? "cap" : "cus") : '<span class="iq0">desp.</span>'}</button></div></div></div></td>
     <td data-col="mun"><input data-c="municipio" list="indMun" value="${esc(x ? x.municipio || "" : "")}" placeholder="${x ? "Município" : "indicar"}"></td>
@@ -125,7 +126,7 @@ function linhaInd(T, g, x, i, semExp) {
     <td class="r iv2" data-col="val"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"></td>
     <td class="ilid" data-col="lid">${x ? `<input data-c="lideranca" list="indPes" value="${esc(x.lideranca || "")}" placeholder="Líder" title="Quem indicou a emenda"><input data-c="contato" class="icont" value="${esc(x.contato || "")}" placeholder="Contato" title="Quem está tocando o processo">` : ""}</td><td class="iobsc" data-col="obs">${x ? balaoInd(x) : ""}</td><td class="ietp" data-col="etp">${celEtapa(x)}</td>
 </tr>
-    ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}" data-ick="${x.id}"><td></td><td colspan="${nColInd() - 1}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
+    ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}${mk ? " mk" : ""}" data-ick="${x.id}"${mk ? ` style="--mk:${mk[1]}"` : ""}><td></td><td colspan="${nColInd() - 1}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
     ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${nColInd()}">${detForm(x, T, g)}</td></tr>` : ""}`;
 }
 function rodapeInd(T, g, it) { it = it.filter(cheia); const tot = it.reduce((s, x) => s + (+x.valor || 0), 0);
@@ -146,9 +147,9 @@ function planInd(T) {
     <tr class="itt"><td></td><td colspan="3">Total · ${R.length} itens</td><td class="r">${ni(Math.round(tot))}</td><td colspan="2" class="hm"></td></tr></tbody></table></div>`;
   const it = R.map((x) => AD.itens.find((y) => "a:" + y.id === x.id)), vaz = Math.min(g.max ? Math.max(0, g.max - it.length) : 999, (g.max ? Math.min(g.max > 10 ? 3 : g.max, Math.max(0, g.max - it.length)) : 1) + (IND.extra || 0)); // cota grande (LOA, 120): 3 linhas em branco + as incluídas no botão
   return `<div class="iinf">${inf}${trava}${outras}${acs}</div><datalist id="indPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist><datalist id="indMun">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>
-    <div class="itw"><table class="itb ied"><thead><tr><th></th><th data-col="ent">Ente · mod. · função</th><th data-col="mun">Município</th><th data-col="obj">Objeto</th><th class="r" data-col="val">Valor (R$)</th><th data-col="lid">Líder · contato</th><th data-col="obs" title="Observações">Obs.</th><th data-col="etp">Etapa</th></tr></thead><tbody>
-    ${it.map((x, i) => linhaInd(T, g, x, i)).join("")}${Array.from({ length: vaz }, (_, i) => linhaInd(T, g, null, it.length + i)).join("")}
-    ${!g.max || it.length + vaz < g.max ? `<tr class="iincr"><td></td><td colspan="${nColInd() - 1}"><button class="iinc" data-iinc>${ici("mais")}Incluir linha</button></td></tr>` : ""}<tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>`;
+    <div class="itw"><table class="itb ied"><thead><tr><th>${thFx("mk", "#", T)}</th><th data-col="ent">${thFx("ent", "Ente · mod. · função", T)}</th><th data-col="mun">${thFx("mun", "Município", T)}</th><th data-col="obj">${thFx("obj", "Objeto", T)}</th><th class="r" data-col="val">Valor (R$)</th><th data-col="lid">${thFx("lid", "Líder · contato", T)}</th><th data-col="obs" title="Observações">${thFx("obs", "Obs.", T)}</th><th data-col="etp">${thFx("etp", "Etapa", T)}</th></tr></thead><tbody>
+    ${it.map((x, i) => [x, i]).filter(([x]) => passaFx(x, T)).map(([x, i]) => linhaInd(T, g, x, i)).join("")}${temFx() ? "" : Array.from({ length: vaz }, (_, i) => linhaInd(T, g, null, it.length + i)).join("")}
+    ${!temFx() && (!g.max || it.length + vaz < g.max) ? `<tr class="iincr"><td></td><td colspan="${nColInd() - 1}"><button class="iinc" data-iinc>${ici("mais")}Incluir linha</button></td></tr>` : ""}<tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>`;
 }
 // ---------- edição direto na planilha: grava a célula e redesenha SÓ a linha (não perde o que está sendo digitado nas outras e não pula de campo) ----------
 const numBR = (s) => +String(s || "").replace(/[^\d,]/g, "").replace(",", ".") || 0;
@@ -213,7 +214,7 @@ function ligarLinha(tr, T) {
 }
 function marcaAtiva(id) { if (!id || IND.ativa === id) return; IND.ativa = id; document.querySelectorAll("#indPg tr.ick").forEach((r) => r.classList.toggle("vis", r.dataset.ick === id || IND.det === "a:" + r.dataset.ick)); }
 function ligarPlan(p, T) {
-  if (T.L && (T.L.regras || {}).fechada) { const sh = p.querySelector(".isheet"); sh.classList.add("ifech"); sh.querySelectorAll("tr.iw:not([data-iw=''])").forEach((tr) => { tr.querySelectorAll("input,select,textarea,button:not([data-lke]):not([data-iobs])").forEach((el) => { el.disabled = true; }); tr.onclick = (e) => { if (e.target.closest("[data-lke],[data-iobs]")) return; IND.det = IND.det === "a:" + tr.dataset.iw ? null : "a:" + tr.dataset.iw; desenharInd(); }; });
+  if (T.L && (T.L.regras || {}).fechada) { const sh = p.querySelector(".isheet"); sh.classList.add("ifech"); sh.querySelectorAll("tr.iw:not([data-iw=''])").forEach((tr) => { tr.querySelectorAll("input,select,textarea,button:not([data-lke]):not([data-iobs]):not([data-imk])").forEach((el) => { el.disabled = true; }); tr.onclick = (e) => { if (e.target.closest("[data-lke],[data-iobs],[data-imk]")) return; IND.det = IND.det === "a:" + tr.dataset.iw ? null : "a:" + tr.dataset.iw; desenharInd(); }; });
     sh.querySelectorAll("tr.iw[data-iw=''], tr.ick").forEach((r) => r.remove()); sh.querySelectorAll("textarea").forEach((t) => { t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; }); sh.querySelectorAll("tr.iexp input, tr.iexp select, tr.iexp textarea, tr.iexp button").forEach((el) => { el.disabled = true; });
     const f = (T.L.regras || {}).fechada_em; sh.querySelector(".iinf").insertAdjacentHTML("afterend", `<div class="ifbar">${ici("cad")}Lista fechada${f ? " em " + new Date(f).toLocaleDateString("pt-BR") : ""} ${botaoI("fech", "Sobre a lista fechada")}</div>`);
     IND.infos = { ...(IND.infos || {}), fech: "A lista foi incluída no Controle de Recursos e está travada. Para editar, toque no cadeado fechado, no alto da planilha." }; ligarLinks(p, T);
@@ -350,8 +351,8 @@ function desenharInd() {
     <div class="isheet">${planInd(T)}</div></div><div id="indDet"></div>`;
   contador(); detInd();
   p.querySelector("[data-ivolta]").onclick = fecharInd;
-  p.querySelectorAll("[data-iano]").forEach((b) => b.onclick = () => { IND.ano = +b.dataset.iano; IND.tag = null; IND.det = null; IND.extra = 0; desenharInd(); });
-  p.querySelectorAll("[data-itag]").forEach((b) => b.onclick = () => { IND.tag = b.dataset.itag; IND.det = null; IND.extra = 0; desenharInd(); });
+  p.querySelectorAll("[data-iano]").forEach((b) => b.onclick = () => { IND.ano = +b.dataset.iano; IND.tag = null; IND.det = null; IND.extra = 0; IND.fx = {}; desenharInd(); });
+  p.querySelectorAll("[data-itag]").forEach((b) => b.onclick = () => { IND.tag = b.dataset.itag; IND.det = null; IND.extra = 0; IND.fx = {}; desenharInd(); });
   p.querySelector("[data-inlista]").onclick = () => formLista();
   p.querySelectorAll("[data-ir]").forEach((r) => r.onclick = () => { IND.det = IND.det === r.dataset.ir ? null : r.dataset.ir; desenharInd(); });
   if (T && T.k !== "plan") { ligarPlan(p, T); if (!(T.L && (T.L.regras || {}).fechada)) ligarLinks(p, T); }

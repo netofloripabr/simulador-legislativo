@@ -157,6 +157,8 @@ function ligarLinks(p, T) {
   p.querySelectorAll("[data-lke]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.lke); if (x) legendaE(b, x, T); });
   p.querySelectorAll("[data-lkac]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidir(b.dataset.lkac, true, T); });
   p.querySelectorAll("[data-lkrec]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidir(b.dataset.lkrec, false, T); });
+  p.querySelectorAll("[data-ihf]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); abreFx(b, T); });
+  p.querySelectorAll("[data-imk]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.imk); if (x && T && T.L) popMarca(b, x, T); });
   p.querySelectorAll("[data-iobs]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.iobs); if (x) popObs(b, x, T); });
   const lb = p.querySelector("[data-ilinks]"); if (lb) lb.onclick = (e) => { e.stopPropagation(); quadroLinks(lb, T); };
   const cl = p.querySelector("[data-icols]"); if (cl) cl.onclick = (e) => { e.stopPropagation(); menuCols(cl); };
@@ -168,12 +170,18 @@ function ligarLinks(p, T) {
 const OBS_IND = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2.5 3h11v8h-6l-3 2.5V11h-2z"/></svg>';
 const notasInd = (x) => typeof caderneta === "function" ? caderneta(x) : String(x.observacao || "").split(/\n+/).filter(Boolean).map((t) => ({ d: "", t }));
 function balaoInd(x) { const n = notasInd(x), ul = n[n.length - 1];
-  return `<button class="iobs${n.length ? " tem" : ""}" data-iobs="${x.id}" title="${esc(ul ? ul.t : "Sem observação")}" aria-label="Observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}</button>`; }
+  const mk = MARCAS.find((q) => q[0] === x.marca);
+  return `<button class="iobs${n.length ? " tem" : ""}${mk ? " mk" : ""}"${mk ? ` style="--mk:${mk[1]}"` : ""} data-iobs="${x.id}" title="${esc(ul ? ul.t : "Sem observação")}" aria-label="Observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}</button>`; }
 function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
   const des = () => { const n = notasInd(x); return `<div class="h"><b>Observações · ${esc(x.municipio || "—")}</b>${x.chave_emenda ? "já levada ao Controle de Recursos; lá continuam as anotações" : "vão junto para o Controle de Recursos ao fechar a lista"}</div>
+    <div class="iobmk">${MARCAS.map(([k, c]) => `<button class="${x.marca === k ? "on" : ""}" data-omk="${k}" title="${esc(nomeMarca(T, k))}" style="--mk:${c}"><i></i><span>${esc(nomeMarca(T, k))}</span></button>`).join("")}<button class="${x.marca ? "" : "on"} sem" data-omk="" title="Sem cor"><i></i><span>Sem cor</span></button></div>
     <div class="iobl">${n.length ? n.map((k) => `<div><span>${esc(k.d || "—")}</span><p>${esc(k.t)}</p></div>`).join("") : `<div class="mut" style="padding:4px 10px 8px;font-size:12px">Nenhuma anotação ainda.</div>`}</div>
     ${fech ? "" : `<div class="iobn"><input class="iobd" value="${hoje}" aria-label="Data"><input class="iobt" placeholder="Nova anotação…"><button class="lkok" data-anota>Anotar</button></div>`}`; };
-  const m = abreLk(b, des(), "lkm iobm"), liga = () => { const bt = m.querySelector("[data-anota]"); if (!bt) return; const it = m.querySelector(".iobt");
+  const m = abreLk(b, des(), "lkm iobm"), liga = () => {
+    m.querySelectorAll("[data-omk]").forEach((o) => o.onclick = async (e) => { e.stopPropagation(); const k = o.dataset.omk || null; if (k === (x.marca || null)) return;
+      try { const nx = await gravar("gab_itens", { id: x.id, marca: k }); Object.assign(x, nx); const y = $("#indPg").scrollTop; fechaLk(); desenharInd(); $("#indPg").scrollTop = y;
+        const b2 = $(`#indPg [data-iobs="${x.id}"]`); if (b2) popObs(b2, x, T); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } });
+    const bt = m.querySelector("[data-anota]"); if (!bt) return; const it = m.querySelector(".iobt");
     const anota = async () => { const t = it.value.trim(), d = m.querySelector(".iobd").value.trim(); if (!t) return it.focus(); bt.disabled = true;
       try { const nx = await gravar("gab_itens", { id: x.id, observacao: (x.observacao ? x.observacao.replace(/\s+$/, "") + "\n\n" : "") + (d ? d + " - " : "") + t }); Object.assign(x, nx);
         m.innerHTML = des(); liga(); const nb = $(`#indPg [data-iobs="${x.id}"]`); if (nb) { nb.outerHTML = balaoInd(x); const b2 = $(`#indPg [data-iobs="${x.id}"]`); b2.classList.add("on"); b2.onclick = (e) => { e.stopPropagation(); popObs(b2, x, T); }; }
@@ -181,3 +189,54 @@ function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje 
       } catch (e) { alert("Não foi possível salvar: " + (e.message || e)); bt.disabled = false; } };
     bt.onclick = anota; it.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); anota(); } }; setTimeout(() => it.focus(), 0); };
   liga(); }
+
+// ---------- cor e status pessoal da emenda (20/11/2026, migração 104) ----------
+// Toque no número da linha: escolhe a cor; a linha fica levemente tingida e o número vira uma pílula colorida.
+// Os nomes dos status são da lista (regras.marcas) e podem ser renomeados ali mesmo.
+const MARCAS = [["verde", "#1FA845", "Resolvido · falta enviar"], ["amarelo", "#D9A400", "Em andamento"], ["laranja", "#E8822A", "Atenção"], ["vermelho", "#D64545", "Crítico"], ["azul", "#2F5D8A", "Aguardando retorno"]];
+const nomeMarca = (T, k) => ((T && T.L && (T.L.regras || {}).marcas) || {})[k] || (MARCAS.find((q) => q[0] === k) || [])[2] || "";
+function popMarca(b, x, T) { let edita = false;
+  const des = () => { const it = AD.itens.filter((y) => y.lista_id === (T.L && T.L.id));
+    return `<div class="h"><b>Cor e status · ${esc(x.municipio || "—")}</b>a cor pinta a linha; o nome do status vale para a lista toda</div>
+    <div class="imkl">${MARCAS.map(([k, c]) => `<div class="${x.marca === k ? "at" : ""}" data-mk="${k}"><i style="background:${c}"></i>${edita ? `<input data-mkn="${k}" value="${esc(nomeMarca(T, k))}">` : `<span>${esc(nomeMarca(T, k))}</span>`}<small>${it.filter((y) => y.marca === k).length || ""}</small></div>`).join("")}
+      <div data-mk="" class="${x.marca ? "" : "at"}"><i class="sem"></i><span>Sem cor</span></div></div>
+    <div class="lkft">${edita ? `<button class="lkok" data-mksal>Salvar nomes</button>` : `<button class="lk0" data-mkren>Renomear os status</button>`}</div>`; };
+  const m = abreLk(b, des(), "lkm imkm");
+  const liga = () => {
+    m.querySelectorAll("[data-mk]").forEach((d) => d.onclick = async (e) => { if (edita || e.target.tagName === "INPUT") return; const k = d.dataset.mk || null; fechaLk();
+      try { await gravar("gab_itens", { id: x.id, marca: k }); const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } });
+    const rn = m.querySelector("[data-mkren]"); if (rn) rn.onclick = (e) => { e.stopPropagation(); edita = true; m.innerHTML = des(); liga(); m.querySelector("input").focus(); };
+    const sv = m.querySelector("[data-mksal]"); if (sv) sv.onclick = async (e) => { e.stopPropagation(); const nm = {}; m.querySelectorAll("[data-mkn]").forEach((i) => { const v = i.value.trim(); if (v) nm[i.dataset.mkn] = v; });
+      try { T.L = await gravar("gab_listas", { id: T.L.id, regras: { ...(T.L.regras || {}), marcas: nm } }); edita = false; m.innerHTML = des(); liga(); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } }; };
+  liga(); }
+
+// ---------- filtros nos títulos das colunas (20/11/2026), como no Controle de Recursos ----------
+// Toque no título: abre a lista de valores daquela coluna, com pesquisa, "Selecionar tudo" e "Limpar" (desmarcar esconde).
+// Ente · mod. · função e Líder · contato abrem as listas de cada parte. Com filtro ligado, as linhas vazias somem.
+IND.fx = IND.fx || {};
+const ROT_ENTE = { mun: "Município", ent: "Entidade", est: "Estado" };
+const FXK = { mk: [["mk", "Cor e status"]], ent: [["ente", "Ente"], ["mod", "Modalidade"], ["fun", "Função"], ["des", "Despesa"]], mun: [["mun", "Município"]], obj: [["obj", "Objeto"]], lid: [["lid", "Líder"], ["con", "Contato"]], obs: [["mk", "Cor e status"], ["obs", "Observações"]], etp: [["etp", "Etapa"]] };
+function valFx(k, x, T) { switch (k) {
+  case "mk": return x.marca ? nomeMarca(T, x.marca) : "Sem cor"; case "ente": return ROT_ENTE[tipoDe(x)] || ""; case "mod": return x.modalidade || ""; case "fun": return x.area || regrasInd(T).trava || "";
+  case "des": return x.natureza || ""; case "mun": return x.municipio || ""; case "obj": return x.objeto || ""; case "lid": return x.lideranca || ""; case "con": return x.contato || "";
+  case "obs": return notasInd(x).length ? "Com observação" : "Sem observação"; case "etp": return TXT_E(etapaItem(x)).split(" · ")[0]; } return ""; }
+const temFx = () => Object.values(IND.fx || {}).some((s) => s && s.size);
+const passaFx = (x, T, menos) => Object.entries(IND.fx || {}).every(([k, s]) => k === menos || !s || !s.size || !s.has(norm(valFx(k, x, T))));
+const fxGrupoOn = (g) => FXK[g].some(([k]) => IND.fx[k] && IND.fx[k].size);
+const thFx = (g, rot, T) => `<button class="ihf${fxGrupoOn(g) ? " on" : ""}" data-ihf="${g}" title="Filtrar por ${esc(rot)}">${rot}<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 3h8L7 6.5V10L5 9V6.5z"/></svg></button>`;
+function abreFx(b, T) { document.getElementById("ifxPop")?.remove(); const g = b.dataset.ihf, it = AD.itens.filter((x) => x.lista_id === (T.L && T.L.id) && cheia(x));
+  const secs = FXK[g].map(([k, rot]) => { const M = new Map(), C = {}; it.forEach((x) => { const v = valFx(k, x, T), c = norm(v); if (!M.has(c)) M.set(c, v || "(não informado)"); if (passaFx(x, T, k)) C[c] = (C[c] || 0) + 1; });
+    IND.fx[k] = IND.fx[k] || new Set(); return { k, rot, O: [...M].sort((a, b2) => (a[0] === "") - (b2[0] === "") || String(a[1]).localeCompare(String(b2[1]), "pt-BR")), C }; });
+  const pop = document.createElement("div"); pop.id = "ifxPop"; pop.className = "ifx";
+  const lista = (q) => secs.map((s) => { const L = s.O.filter(([, tx]) => !q || norm(tx).includes(norm(q))); return L.length ? `${secs.length > 1 ? `<div class="ifxt">${s.rot}</div>` : ""}${L.map(([c, tx]) => `<label><input type="checkbox" data-k="${s.k}" data-c="${esc(c)}"${IND.fx[s.k].has(c) ? "" : " checked"}><span>${esc(tx)}</span><i>${s.C[c] || 0}</i></label>`).join("")}` : ""; }).join("") || `<p class="mut" style="padding:8px 4px;margin:0">Nada encontrado.</p>`;
+  pop.innerHTML = `<input class="ifxq" placeholder="Pesquisar" autocomplete="off"><div class="ifxa"><button data-t="1">Selecionar tudo</button><button data-t="0">Limpar</button></div><div class="ifxl">${lista("")}</div><div class="ifxf"><button class="lk0" data-fxz>Tirar todos os filtros</button><button class="lkok" data-fxok>OK</button></div>`;
+  $("#indPg").appendChild(pop); const r = b.getBoundingClientRect(); pop.style.top = Math.min(r.bottom + 6, innerHeight - pop.offsetHeight - 12) + "px"; pop.style.left = Math.max(12, Math.min(r.left, innerWidth - pop.offsetWidth - 12)) + "px";
+  const redesenha = () => { const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; };
+  const liga = () => pop.querySelectorAll("input[data-c]").forEach((i) => i.onchange = () => { const S = IND.fx[i.dataset.k]; i.checked ? S.delete(i.dataset.c) : S.add(i.dataset.c); });
+  const q = pop.querySelector(".ifxq"); q.oninput = () => { pop.querySelector(".ifxl").innerHTML = lista(q.value); liga(); }; liga(); setTimeout(() => q.focus(), 0);
+  pop.querySelectorAll("[data-t]").forEach((x) => x.onclick = () => pop.querySelectorAll("input[data-c]").forEach((i) => { i.checked = x.dataset.t === "1"; i.onchange(); }));
+  const fecha = () => { pop.remove(); document.removeEventListener("mousedown", fora, true); document.removeEventListener("keydown", tk, true); redesenha(); };
+  const fora = (e) => { if (!pop.contains(e.target)) fecha(); }, tk = (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); fecha(); } if (e.key === "Enter" && e.target !== q) fecha(); };
+  pop.querySelector("[data-fxok]").onclick = fecha; pop.querySelector("[data-fxz]").onclick = () => { IND.fx = {}; fecha(); };
+  q.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); const vis = [...pop.querySelectorAll("input[data-c]")]; if (q.value && vis.length) { secs.forEach((s) => s.O.forEach(([c]) => IND.fx[s.k].add(c))); vis.forEach((i) => IND.fx[i.dataset.k].delete(i.dataset.c)); } fecha(); } };
+  setTimeout(() => { document.addEventListener("mousedown", fora, true); document.addEventListener("keydown", tk, true); }, 0); }

@@ -636,7 +636,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 #indPg .ilin .ici, #indPg .iqs .ici{ width:14px !important; height:14px !important; } #indPg .iqs .iq0{ font-size:8.5px; }
 #indPg .itb.ied{ table-layout:fixed; min-width:880px; }
 #indPg .itb.ied th{ vertical-align:bottom; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-#indPg .itb.ied th:first-child{ width:26px; } #indPg .itb.ied th[data-col="ent"]{ width:134px; } #indPg .itb.ied th[data-col="mun"]{ width:16%; }
+#indPg .itb.ied th:first-child{ width:42px; } #indPg .itb.ied td.n{ padding-left:8px !important; padding-right:4px !important; text-align:center; } #indPg .itb.ied th[data-col="ent"]{ width:134px; } #indPg .itb.ied th[data-col="mun"]{ width:16%; }
 #indPg .itb.ied th[data-col="val"]{ width:128px; } #indPg .itb.ied th[data-col="lid"]{ width:150px; } #indPg .itb.ied th[data-col="obs"], #indPg .itb.ied th[data-col="etp"]{ width:62px; text-align:center; padding-left:4px; padding-right:4px; } #indPg .itb.ied td[data-col="etp"]{ padding-right:12px; }
 #indPg .ied td[data-col="mun"] input{ min-width:0 !important; } #indPg .ied td.iob textarea{ min-width:0 !important; }
 #indPg .ied td.r input{ width:100% !important; }
@@ -667,6 +667,37 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 
 /* modalidade diferente da esperada para o ente: borda laranja suave */
 #indPg .iqs .iqb.warn{ box-shadow:0 0 0 1.5px #F2B27A, 0 1px 3px rgba(0,0,0,.1) !important; }
+
+/* cor e status pessoal da emenda (20/11/2026): número em pílula colorida, linha levemente tingida e faixa à esquerda */
+#indPg .imkn{ min-width:22px; height:22px; padding:0 6px; border-radius:999px; border:1px dashed transparent; background:none; color:var(--mu); font:500 12px Inter; cursor:pointer; font-variant-numeric:tabular-nums; }
+#indPg .imkn:hover{ border-color:var(--bd); background:#fff; }
+#indPg .imkn.on{ background:var(--mk); color:#fff; border-color:var(--mk); font-weight:600; }
+#indPg .itb tr.iw.mk > td, #indPg .itb tr.ick.mk > td{ background:color-mix(in srgb, var(--mk) 7%, transparent); }
+#indPg .itb tr.iw.mk > td:first-child, #indPg .itb tr.ick.mk > td:first-child{ box-shadow:inset 3px 0 0 var(--mk); }
+.lkm.imkm{ width:300px; } .imkl{ padding:2px 4px 4px; } .imkl > div{ display:flex; align-items:center; gap:9px; padding:7px 8px; border-radius:8px; font-size:12.5px; cursor:pointer; }
+.imkl > div:hover{ background:#fff; } .imkl > div.at{ background:#fff; box-shadow:0 0 0 1px var(--bd); font-weight:500; }
+.imkl i{ width:12px; height:12px; border-radius:50%; flex:none; } .imkl i.sem{ border:1.5px dashed #B8BEC3; box-sizing:border-box; }
+.imkl small{ margin-left:auto; color:var(--mu); font-size:11px; } .imkl input{ flex:1; min-width:0; border:1px solid var(--bd); border-radius:7px; padding:5px 8px; font:500 12.5px Inter; outline:none; background:#fff; color:#1D2226; }
+
+/* filtros nos títulos da planilha de Indicação (20/11/2026) */
+#indPg .ihf{ background:none; border:0; padding:2px 4px; margin:-2px -4px; border-radius:6px; font:inherit; color:inherit; cursor:pointer; display:inline-flex; align-items:center; gap:4px; max-width:100%; }
+#indPg .ihf svg{ width:10px; height:10px; fill:none; stroke:currentColor; stroke-width:1.3; stroke-linejoin:round; opacity:.45; flex:none; } #indPg .ihf:hover{ background:#fff; color:var(--tx); } #indPg .ihf:hover svg{ opacity:.8; }
+#indPg .ihf.on{ color:#2F5D8A; font-weight:600; } #indPg .ihf.on svg{ opacity:1; fill:#2F5D8A; stroke:#2F5D8A; }
+.ifx{ position:fixed; z-index:6; width:300px; background:#F8F9FA; color:#1D2226; border:1px solid var(--bd); border-radius:12px; box-shadow:0 14px 34px rgba(0,0,0,.16); padding:10px; font:13px Inter; }
+.ifxq{ width:100%; box-sizing:border-box; border:1px solid var(--bd); border-radius:9px; padding:8px 10px; font:500 13px Inter; outline:none; background:#fff; color:#1D2226; } .ifxq:focus{ border-color:#1D2226; }
+.ifxa{ display:flex; gap:12px; margin:8px 2px 6px; } .ifxa button{ background:none; border:0; color:#2F5D8A; cursor:pointer; padding:0; font:600 12px Inter; }
+.ifxl{ max-height:300px; overflow:auto; border-top:1px solid var(--bd); border-bottom:1px solid var(--bd); padding:4px 0; }
+.ifxl label{ display:flex; align-items:center; gap:9px; padding:5px 4px; border-radius:6px; cursor:pointer; font-size:12.5px; } .ifxl label:hover{ background:#fff; }
+.ifxl input{ accent-color:#1D2226; width:15px; height:15px; margin:0; } .ifxl span{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .ifxl i{ font-style:normal; color:var(--mu); font-size:11.5px; font-variant-numeric:tabular-nums; }
+.ifxt{ font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--mu); padding:8px 4px 3px; }
+.ifxf{ display:flex; justify-content:space-between; align-items:center; padding-top:8px; }
+
+/* cor e status dentro da caixa de Observações (20/11/2026) */
+.iobmk{ display:flex; flex-wrap:wrap; gap:4px; padding:2px 6px 8px; }
+.iobmk button{ display:inline-flex; align-items:center; gap:6px; font:500 11.5px Inter; background:#fff; border:1px solid var(--bd); border-radius:999px; padding:4px 10px 4px 7px; cursor:pointer; color:#1D2226; }
+.iobmk button i{ width:9px; height:9px; border-radius:50%; background:var(--mk); } .iobmk button.sem i{ border:1.5px dashed #B8BEC3; background:none; box-sizing:border-box; }
+.iobmk button.on{ background:var(--mk, #1D2226); border-color:var(--mk, #1D2226); color:#fff; } .iobmk button.on i{ background:#fff; } .iobmk button.sem.on{ background:#1D2226; border-color:#1D2226; } .iobmk button.sem.on i{ border-color:#fff; }
+.iobs.mk{ color:var(--mk) !important; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -690,8 +721,8 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=61"></script>
-<script src="gabinete-ind-links.js?cb=4"></script>
+<script src="gabinete-indicar.js?cb=64"></script>
+<script src="gabinete-ind-links.js?cb=7"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>

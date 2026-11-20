@@ -2264,5 +2264,16 @@ const MIGRACOES_INDEX = [
     "link_enviar"
    ]
   ]
+ },
+ {
+  "num": 104,
+  "arquivo": "migracao-104-gabinete-marca-indicacao.sql",
+  "descricao": "Migração 104 (20/11/2026): Indicação de recursos › cor e status pessoal da emenda.",
+  "objetos": [
+   [
+    "column",
+    "gab_itens.marca"
+   ]
+  ]
  }
 ];
