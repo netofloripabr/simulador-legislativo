@@ -69,7 +69,7 @@ function faixaLinks(T) { if (!T.L || !SESS) return "";
   const bt = (l) => `<button class="lkc" data-lkl="${l.id}">${anelLk(pctLink(l))}${esc(l.nome)}<small>${pctLink(l)}% · ${estadoLink(l)}</small></button>`;
   return `<div class="lks"><span class="tt">Links</span>${lid.map((n) => { const l = linkDoLider(n); return l ? bt(l) : `<button class="lkc nw" data-lknovo="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("")}${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
 // ---------- colunas que ligam e desligam ----------
-const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["lid", "Líder"], ["etp", "Etapa"]];
+const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["lid", "Líder e contato"], ["obs", "Observações"], ["etp", "Etapa"]];
 let COLS_OFF = (() => { try { return JSON.parse(localStorage.getItem("ind_cols") || '["lid"]'); } catch (e) { return ["lid"]; } })();
 const colOn = (k) => !COLS_OFF.includes(k);
 const nColInd = () => 2 + COLS_IND.filter(([k]) => colOn(k)).length; // nº, colunas visíveis e ações
@@ -150,6 +150,26 @@ function ligarLinks(p, T) {
   p.querySelectorAll("[data-lke]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.lke); if (x) legendaE(b, x, T); });
   p.querySelectorAll("[data-lkac]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidir(b.dataset.lkac, true, T); });
   p.querySelectorAll("[data-lkrec]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidir(b.dataset.lkrec, false, T); });
+  p.querySelectorAll("[data-iobs]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.iobs); if (x) popObs(b, x, T); });
   const cl = p.querySelector("[data-icols]"); if (cl) cl.onclick = (e) => { e.stopPropagation(); menuCols(cl); };
   p.querySelectorAll("[data-iinfo]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); infoI(b, (IND.infos || {})[b.dataset.iinfo] || ""); });
 }
+
+// ---------- balão de Observações (20/11/2026): o mesmo do Controle de Recursos. As anotações começam aqui, ficam em
+// gab_itens.observacao (caderneta: "dd/mm/aa - texto") e vão junto para o Controle quando a lista é fechada.
+const OBS_IND = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2.5 3h11v8h-6l-3 2.5V11h-2z"/></svg>';
+const notasInd = (x) => typeof caderneta === "function" ? caderneta(x) : String(x.observacao || "").split(/\n+/).filter(Boolean).map((t) => ({ d: "", t }));
+function balaoInd(x) { const n = notasInd(x), ul = n[n.length - 1];
+  return `<button class="iobs${n.length ? " tem" : ""}" data-iobs="${x.id}" title="${esc(ul ? ul.t : "Sem observação")}" aria-label="Observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}</button>`; }
+function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+  const des = () => { const n = notasInd(x); return `<div class="h"><b>Observações · ${esc(x.municipio || "—")}</b>${x.chave_emenda ? "já levada ao Controle de Recursos; lá continuam as anotações" : "vão junto para o Controle de Recursos ao fechar a lista"}</div>
+    <div class="iobl">${n.length ? n.map((k) => `<div><span>${esc(k.d || "—")}</span><p>${esc(k.t)}</p></div>`).join("") : `<div class="mut" style="padding:4px 10px 8px;font-size:12px">Nenhuma anotação ainda.</div>`}</div>
+    ${fech ? "" : `<div class="iobn"><input class="iobd" value="${hoje}" aria-label="Data"><input class="iobt" placeholder="Nova anotação…"><button class="lkok" data-anota>Anotar</button></div>`}`; };
+  const m = abreLk(b, des(), "lkm iobm"), liga = () => { const bt = m.querySelector("[data-anota]"); if (!bt) return; const it = m.querySelector(".iobt");
+    const anota = async () => { const t = it.value.trim(), d = m.querySelector(".iobd").value.trim(); if (!t) return it.focus(); bt.disabled = true;
+      try { const nx = await gravar("gab_itens", { id: x.id, observacao: (x.observacao ? x.observacao.replace(/\s+$/, "") + "\n\n" : "") + (d ? d + " - " : "") + t }); Object.assign(x, nx);
+        m.innerHTML = des(); liga(); const nb = $(`#indPg [data-iobs="${x.id}"]`); if (nb) { nb.outerHTML = balaoInd(x); const b2 = $(`#indPg [data-iobs="${x.id}"]`); b2.classList.add("on"); b2.onclick = (e) => { e.stopPropagation(); popObs(b2, x, T); }; }
+        m.querySelector(".iobt") && m.querySelector(".iobt").focus();
+      } catch (e) { alert("Não foi possível salvar: " + (e.message || e)); bt.disabled = false; } };
+    bt.onclick = anota; it.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); anota(); } }; setTimeout(() => it.focus(), 0); };
+  liga(); }

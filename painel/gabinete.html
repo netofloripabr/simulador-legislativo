@@ -616,6 +616,17 @@ th .hfi{ display:inline-flex; vertical-align:-3px; margin-left:4px; color:#34E84
 .lkm.av{ width:380px; } .lkin{ width:calc(100% - 12px); margin:0 6px 6px; box-sizing:border-box; border:1px solid var(--bd); border-radius:9px; padding:8px 11px; font:500 13px Inter; outline:none; background:#fff; } .lkls{ max-height:300px; overflow:auto; } .lkft{ display:flex; justify-content:flex-end; padding:6px; } .lkok{ display:inline-flex; align-items:center; gap:6px; font:500 12.5px Inter; background:#1D2226; color:#fff; border:0; border-radius:999px; padding:7px 14px; cursor:pointer; } .lkok svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; }
 .lktoast{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%); z-index:95; background:#1D2226; color:#fff; font:500 13px Inter; padding:10px 16px; border-radius:999px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
 body.dm-escuro .lkc, body.dm-escuro .lkvx button, body.dm-escuro .lkin{ background:#1B2125; } body.dm-escuro .lkm{ background:#1B2125; color:#E6E9EB; } body.dm-escuro .lkm .h b, body.dm-escuro .lkm > button, body.dm-escuro .lkleg div.fe, body.dm-escuro .lkleg div.at{ color:#E6E9EB; } body.dm-escuro .lkm > button:hover, body.dm-escuro .lkleg div.at, body.dm-escuro .lkcol:hover, body.dm-escuro .lke:hover{ background:#20272C; } body.dm-escuro .lkp{ color:#8FB3D4; }
+
+/* Indicação (20/11/2026): ente em cima, modalidade/função/despesa embaixo; botão preenchido com o marcador claro; Líder e contato; balão de Observações */
+#indPg .ilin{ flex-direction:column; align-items:flex-start; gap:4px; } #indPg .iqs{ display:flex; gap:4px; }
+#indPg .iqb.on{ background:#fff !important; color:#1D2226 !important; box-shadow:0 1px 3px rgba(0,0,0,.14); }
+body.dm-escuro #indPg .iqb.on{ background:#3A4248 !important; color:#F2F4F5 !important; }
+.itb.ied td.ilid{ min-width:130px; padding-left:6px; } .itb.ied td.ilid input{ display:block; } .itb.ied td.ilid input.icont{ font-weight:400; color:var(--mu); font-size:12px; padding-top:3px; }
+.itb.ied td.iobsc{ width:1%; text-align:center; }
+.iobs{ background:none; border:0; padding:4px; border-radius:8px; cursor:pointer; color:#C2C6C9; display:inline-flex; align-items:center; gap:2px; } .iobs.tem{ color:#1D2226; } .iobs:hover, .iobs.on{ background:#fff; box-shadow:0 0 0 1px var(--bd); } .iobs small{ font-size:10px; color:var(--mu); }
+body.dm-escuro .iobs.tem{ color:#E6E9EB; }
+.lkm.iobm{ width:380px; } .iobl{ max-height:260px; overflow:auto; padding:0 4px 4px; } .iobl div{ display:grid; grid-template-columns:64px 1fr; gap:8px; padding:6px; border-top:1px solid var(--bd); } .iobl span{ font-size:11px; color:var(--mu); font-variant-numeric:tabular-nums; padding-top:1px; } .iobl p{ margin:0; font-size:12.5px; line-height:1.45; white-space:pre-wrap; }
+.iobn{ display:flex; gap:6px; padding:6px; border-top:1px solid var(--bd); } .iobn input{ border:1px solid var(--bd); border-radius:9px; padding:7px 9px; font:500 12.5px Inter; outline:none; background:#fff; color:#1D2226; min-width:0; } .iobn .iobd{ width:76px; flex:none; } .iobn .iobt{ flex:1; } .iobn input:focus{ border-color:#1D2226; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -639,8 +650,8 @@ body.dm-escuro .lkc, body.dm-escuro .lkvx button, body.dm-escuro .lkin{ backgrou
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=56"></script>
-<script src="gabinete-ind-links.js?cb=1"></script>
+<script src="gabinete-indicar.js?cb=57"></script>
+<script src="gabinete-ind-links.js?cb=2"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>
