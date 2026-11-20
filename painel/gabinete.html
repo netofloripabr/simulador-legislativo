@@ -729,6 +729,12 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 #indPg .itb.ied{ min-width:1080px !important; }
 #indPg .lke{ flex:none; } #indPg .lke .bd{ width:30px !important; min-width:30px; height:30px; flex:none; } #indPg .lke svg.an{ width:30px !important; height:30px !important; }
 #indPg .itb.ied td.ietp{ width:auto; padding-left:4px; padding-right:12px; overflow:visible; }
+
+/* ícone da Etapa com tamanho fixo (34 × 34), redondo em qualquer navegador e largura de coluna */
+#indPg .lke{ display:inline-grid !important; place-items:center; width:34px !important; min-width:34px !important; height:34px !important; padding:0 !important; border-radius:50% !important; box-sizing:border-box; flex:none; }
+#indPg .lke .bd{ position:relative; display:block; width:30px !important; min-width:30px !important; max-width:30px; height:30px !important; }
+#indPg .lke .ic{ position:absolute; top:6px; left:6px; width:18px; height:18px; border-radius:50%; }
+#indPg .itb.ied th[data-col="etp"], #indPg .itb.ied td[data-col="etp"]{ min-width:62px; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
