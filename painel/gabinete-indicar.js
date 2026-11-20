@@ -120,13 +120,13 @@ function linhaInd(T, g, x, i, semExp) {
     <td class="iob" data-col="obj"><div class="iqm">${quem}</div><div><textarea data-c="objeto" rows="1" placeholder="Objeto">${esc(x ? x.objeto || "" : "")}</textarea><button class="imais" data-iobj title="Objetos de referência">+</button></div>${celProposta(x, T.L && (T.L.regras || {}).fechada)}</td>
     <td class="r iv2" data-col="val"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"></td>
     <td class="ilid" data-col="lid">${x ? `<input data-c="lideranca" list="indPes" value="${esc(x.lideranca || "")}" placeholder="Líder" title="Quem indicou a emenda"><input data-c="contato" class="icont" value="${esc(x.contato || "")}" placeholder="Contato" title="Quem está tocando o processo">` : ""}</td><td class="iobsc" data-col="obs">${x ? balaoInd(x) : ""}</td><td class="ietp" data-col="etp">${celEtapa(x)}</td>
-    <td class="iac">${x ? `<button data-iborr class="iborr" title="Apagar esta linha">${ici("borr")}</button><button data-iexp class="iseta${IND.det === "a:" + x.id ? " ab" : ""}" title="Detalhar">${ici("seta")}</button>` : ""}</td></tr>
+</tr>
     ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}" data-ick="${x.id}"><td></td><td colspan="${nColInd() - 1}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
     ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${nColInd()}">${detForm(x, T, g)}</td></tr>` : ""}`;
 }
 function rodapeInd(T, g, it) { it = it.filter(cheia); const tot = it.reduce((s, x) => s + (+x.valor || 0), 0);
   const ant = ["ent", "mun", "obj"].filter(colOn).length;
-  return `<td></td>${ant ? `<td colspan="${ant}">` : "<td>"}Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}${g.disp ? `<small class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou " + moeda(tot - g.disp) : "saldo " + moeda(g.disp - tot)}</small>` : ""}</td><td data-col="lid"></td><td data-col="obs"></td><td data-col="etp"></td><td></td>`; }
+  return `<td></td>${ant ? `<td colspan="${ant}">` : "<td>"}Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}${g.disp ? `<small class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou " + moeda(tot - g.disp) : "saldo " + moeda(g.disp - tot)}</small>` : ""}</td><td data-col="lid"></td><td data-col="obs"></td><td data-col="etp"></td>`; }
 function planInd(T) {
   if (!T) return `<div class="iinf">Nenhuma lista neste ano. Use “+ nova lista” para começar.</div>`;
   const R = linhasInd(T), c = T.cota, tot = R.reduce((s, x) => s + x.v, 0), edita = T.k !== "plan", g = regrasInd(T);
@@ -142,7 +142,7 @@ function planInd(T) {
     <tr class="itt"><td></td><td colspan="3">Total · ${R.length} itens</td><td class="r">${ni(Math.round(tot))}</td><td colspan="2" class="hm"></td></tr></tbody></table></div>`;
   const it = R.map((x) => AD.itens.find((y) => "a:" + y.id === x.id)), vaz = Math.min(g.max ? Math.max(0, g.max - it.length) : 999, (g.max ? Math.min(g.max > 10 ? 3 : g.max, Math.max(0, g.max - it.length)) : 1) + (IND.extra || 0)); // cota grande (LOA, 120): 3 linhas em branco + as incluídas no botão
   return `<div class="iinf">${inf}${trava}${outras}${acs}</div>${faixaLinks(T)}<datalist id="indPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist><datalist id="indMun">${BASE.mun.map((m) => `<option value="${esc(m.n)}">`).join("")}</datalist>
-    <div class="itw"><table class="itb ied"><thead><tr><th></th><th data-col="ent">Ente · modalidade · função</th><th data-col="mun">Município</th><th data-col="obj">Objeto</th><th class="r" data-col="val">Valor (R$)</th><th data-col="lid">Líder · contato</th><th data-col="obs" title="Observações">Obs.</th><th data-col="etp">Etapa</th><th></th></tr></thead><tbody>
+    <div class="itw"><table class="itb ied"><thead><tr><th></th><th data-col="ent">Ente · mod. · função</th><th data-col="mun">Município</th><th data-col="obj">Objeto</th><th class="r" data-col="val">Valor (R$)</th><th data-col="lid">Líder · contato</th><th data-col="obs" title="Observações">Obs.</th><th data-col="etp">Etapa</th></tr></thead><tbody>
     ${it.map((x, i) => linhaInd(T, g, x, i)).join("")}${Array.from({ length: vaz }, (_, i) => linhaInd(T, g, null, it.length + i)).join("")}
     ${!g.max || it.length + vaz < g.max ? `<tr class="iincr"><td></td><td colspan="${nColInd() - 1}"><button class="iinc" data-iinc>${ici("mais")}Incluir linha</button></td></tr>` : ""}<tr class="itt" id="indRod">${rodapeInd(T, g, it)}</tr></tbody></table></div>`;
 }
@@ -198,7 +198,7 @@ function ligarLinha(tr, T) {
   const abre = () => { if (!tr.dataset.iw) return; IND.det = IND.det === "a:" + tr.dataset.iw ? null : "a:" + tr.dataset.iw; desenharInd(); };
   const sx = tr.querySelector("[data-iexp]"); if (sx) sx.onclick = (e) => { e.stopPropagation(); abre(); };
   // abre o detalhamento ao tocar no espaço vazio da linha (fundo da célula), nunca em campo, botão ou texto preenchido
-  tr.onclick = (e) => { if (e.target === tr || (e.target.tagName === "TD" && !e.target.classList.contains("n"))) abre(); };
+  tr.onclick = (e) => { if (e.target === tr || (e.target.tagName === "TD" && !e.target.classList.contains("n")) || (e.target.closest("td.iob") && !e.target.closest("textarea,button,input,a"))) abre(); };
   tr.addEventListener("focusin", () => marcaAtiva(tr.dataset.iw));
   const l = tr.querySelector("[data-ilimpa]"); if (l) l.onclick = async () => { if (l.dataset.ok !== "1") { l.dataset.ok = "1"; l.textContent = "limpar?"; l.classList.add("ok"); setTimeout(() => { l.dataset.ok = ""; l.innerHTML = ici("x"); l.classList.remove("ok"); }, 3000); return; }
     try { await apagar("gab_itens", tr.dataset.iw); if (IND.det === "a:" + tr.dataset.iw) IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
@@ -209,7 +209,7 @@ function ligarLinha(tr, T) {
 }
 function marcaAtiva(id) { if (!id || IND.ativa === id) return; IND.ativa = id; document.querySelectorAll("#indPg tr.ick").forEach((r) => r.classList.toggle("vis", r.dataset.ick === id || IND.det === "a:" + r.dataset.ick)); }
 function ligarPlan(p, T) {
-  if (T.L && (T.L.regras || {}).fechada) { const sh = p.querySelector(".isheet"); sh.classList.add("ifech"); sh.querySelectorAll("tr.iw:not([data-iw=''])").forEach((tr) => { tr.querySelectorAll("input,select,textarea,button:not([data-iexp])").forEach((el) => { el.disabled = true; }); const sx = tr.querySelector("[data-iexp]"); if (sx) sx.onclick = (e) => { e.stopPropagation(); IND.det = IND.det === "a:" + tr.dataset.iw ? null : "a:" + tr.dataset.iw; desenharInd(); }; });
+  if (T.L && (T.L.regras || {}).fechada) { const sh = p.querySelector(".isheet"); sh.classList.add("ifech"); sh.querySelectorAll("tr.iw:not([data-iw=''])").forEach((tr) => { tr.querySelectorAll("input,select,textarea,button:not([data-lke]):not([data-iobs])").forEach((el) => { el.disabled = true; }); tr.onclick = (e) => { if (e.target.closest("[data-lke],[data-iobs]")) return; IND.det = IND.det === "a:" + tr.dataset.iw ? null : "a:" + tr.dataset.iw; desenharInd(); }; });
     sh.querySelectorAll("tr.iw[data-iw=''], tr.ick").forEach((r) => r.remove()); sh.querySelectorAll("textarea").forEach((t) => { t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; }); sh.querySelectorAll("tr.iexp input, tr.iexp select, tr.iexp textarea, tr.iexp button").forEach((el) => { el.disabled = true; });
     const f = (T.L.regras || {}).fechada_em; sh.querySelector(".iinf").insertAdjacentHTML("afterend", `<div class="ifbar">${ici("cad")}Lista fechada${f ? " em " + new Date(f).toLocaleDateString("pt-BR") : ""} ${botaoI("fech", "Sobre a lista fechada")}</div>`);
     IND.infos = { ...(IND.infos || {}), fech: "A lista foi incluída no Controle de Recursos e está travada. Para editar, use <b>Fechada · reabrir</b>." }; ligarLinks(p, T);
@@ -314,8 +314,10 @@ function detForm(x, T, g) {
 }
 function ligarDet(d, x, T) {
     { const en = d.querySelector('[data-d="razao_social"]'), tr = document.querySelector(`#indPg tr.iw[data-iw="${x.id}"]`); if (en && tr) { en.placeholder = "Digite para buscar entidades já atendidas"; en.autocomplete = "off"; ligarEntidade(en, tr, T, d); } }
-    const lx = d.querySelector("[data-ilimpa]"); if (lx) lx.onclick = async () => { if (lx.dataset.ok !== "1") { lx.dataset.ok = "1"; lx.innerHTML = ici("lixo") + "Confirmar exclusão"; lx.classList.add("ok"); setTimeout(() => { lx.dataset.ok = ""; lx.innerHTML = ici("lixo") + "Excluir emenda"; lx.classList.remove("ok"); }, 4000); return; }
-      try { await apagar("gab_itens", x.id); IND.det = null; desenharInd(); } catch (er) { alert(er.message || er); } };
+    // excluir a emenda agora só pelo detalhamento (20/11/2026), com a confirmação ✓ ✕
+    const lx = d.querySelector("[data-ilimpa]"); if (lx) lx.onclick = async () => {
+      if (!(await confirmaVX("Excluir esta emenda?", `${x.municipio ? esc(x.municipio) : "A linha"}${+x.valor ? " · " + rc(+x.valor) : ""} sai da lista. Não dá para desfazer.${x.chave_emenda ? " A linha que já foi para o Controle de Recursos continua lá." : ""}`))) return;
+      try { await apagar("gab_itens", x.id); IND.det = null; desenharInd(); } catch (er) { alert("Não foi possível excluir: " + (er.message || er)); } };
     const msg = d.querySelector("[data-dmsg]");
     d.querySelectorAll("[data-d]").forEach((el) => { const ini = el.value; el.onchange = async () => { if (el.value === ini) return; const o = { [el.dataset.d]: el.value.trim() || null }; if (o.razao_social !== undefined) o.beneficiario = o.razao_social;
       msg.textContent = "Salvando…"; const tr = document.querySelector(`#indPg tr.iw[data-iw="${x.id}"]`);

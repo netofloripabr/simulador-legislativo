@@ -72,7 +72,7 @@ function faixaLinks(T) { if (!T.L || !SESS) return "";
 const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["lid", "Líder e contato"], ["obs", "Observações"], ["etp", "Etapa"]];
 let COLS_OFF = (() => { try { return JSON.parse(localStorage.getItem("ind_cols") || '["lid"]'); } catch (e) { return ["lid"]; } })();
 const colOn = (k) => !COLS_OFF.includes(k);
-const nColInd = () => 2 + COLS_IND.filter(([k]) => colOn(k)).length; // nº, colunas visíveis e ações
+const nColInd = () => 1 + COLS_IND.filter(([k]) => colOn(k)).length; // nº e colunas visíveis
 function menuCols(b) { fechaLk(); b.classList.add("on");
   abreLk(b, `<div class="h"><b>Colunas</b>escolha o que aparece na planilha</div>${COLS_IND.map(([k, n]) => `<label class="lkcol"><input type="checkbox" data-cc="${k}" ${colOn(k) ? "checked" : ""}>${n}</label>`).join("")}`, "lkm cols");
   document.querySelectorAll("[data-cc]").forEach((x) => x.onchange = () => { COLS_OFF = x.checked ? COLS_OFF.filter((k) => k !== x.dataset.cc) : [...COLS_OFF, x.dataset.cc];

@@ -627,6 +627,20 @@ body.dm-escuro #indPg .iqb.on{ background:#3A4248 !important; color:#F2F4F5 !imp
 body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 .lkm.iobm{ width:380px; } .iobl{ max-height:260px; overflow:auto; padding:0 4px 4px; } .iobl div{ display:grid; grid-template-columns:64px 1fr; gap:8px; padding:6px; border-top:1px solid var(--bd); } .iobl span{ font-size:11px; color:var(--mu); font-variant-numeric:tabular-nums; padding-top:1px; } .iobl p{ margin:0; font-size:12.5px; line-height:1.45; white-space:pre-wrap; }
 .iobn{ display:flex; gap:6px; padding:6px; border-top:1px solid var(--bd); } .iobn input{ border:1px solid var(--bd); border-radius:9px; padding:7px 9px; font:500 12.5px Inter; outline:none; background:#fff; color:#1D2226; min-width:0; } .iobn .iobd{ width:76px; flex:none; } .iobn .iobt{ flex:1; } .iobn input:focus{ border-color:#1D2226; }
+
+/* Indicação (20/11/2026, 2): botões do ente/mod./função/despesa menores e com as duas linhas da mesma largura (98 px);
+   colunas com proporção fixa; sem lixeira e seta na linha (excluir só no detalhamento) */
+#indPg .ilin .iseg{ height:30px !important; padding:2px !important; gap:2px !important; border-radius:9px !important; }
+#indPg .ilin .iseg button{ width:30px !important; height:26px !important; border-radius:7px !important; }
+#indPg .iqs{ gap:4px; } #indPg .iqs .iqb{ width:30px !important; height:30px !important; border-radius:9px !important; }
+#indPg .ilin .ici, #indPg .iqs .ici{ width:14px !important; height:14px !important; } #indPg .iqs .iq0{ font-size:8.5px; }
+#indPg .itb.ied{ table-layout:fixed; min-width:880px; }
+#indPg .itb.ied th{ vertical-align:bottom; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#indPg .itb.ied th:first-child{ width:26px; } #indPg .itb.ied th[data-col="ent"]{ width:134px; } #indPg .itb.ied th[data-col="mun"]{ width:16%; }
+#indPg .itb.ied th[data-col="val"]{ width:128px; } #indPg .itb.ied th[data-col="lid"]{ width:150px; } #indPg .itb.ied th[data-col="obs"], #indPg .itb.ied th[data-col="etp"]{ width:62px; text-align:center; padding-left:4px; padding-right:4px; } #indPg .itb.ied td[data-col="etp"]{ padding-right:12px; }
+#indPg .ied td[data-col="mun"] input{ min-width:0 !important; } #indPg .ied td.iob textarea{ min-width:0 !important; }
+#indPg .ied td.r input{ width:100% !important; }
+#indPg .ifech textarea:disabled, #indPg .ifech input:disabled{ pointer-events:none; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -650,8 +664,8 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=57"></script>
-<script src="gabinete-ind-links.js?cb=2"></script>
+<script src="gabinete-indicar.js?cb=58"></script>
+<script src="gabinete-ind-links.js?cb=3"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>
