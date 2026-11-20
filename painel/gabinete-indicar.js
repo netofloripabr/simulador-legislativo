@@ -50,7 +50,14 @@ function barraSeg(c, it, tot) {
   const ic = (k) => `<div class="q5i"><svg viewBox="0 0 20 20">${ICQ[k]}</svg></div>`;
   const div = (o, tit) => o.t ? `<div class="q5s"><div class="q5sh"><span>${tit}</span><b>capital ${pc(o.cap, o.t)}%</b></div><div class="q5b q5fino"><div class="q5f" style="width:100%">${["cap", "cus", "def"].map((k) => o[k] ? `<i style="flex:${o[k]};background:${CN[k]}"></i>` : "").join("")}</div></div>
     <div class="q5l"><span><i style="background:${CN.cap}"></i>capital <b>${rc(o.cap)}</b></span><span><i style="background:${CN.cus}"></i>custeio <b>${rc(o.cus)}</b></span>${o.def ? `<span><i style="background:${CN.def}"></i>a definir <b>${rc(o.def)}</b></span>` : ""}</div></div>` : "";
-  const grupo = (nome, k, o, frac, sub) => { if (!frac) return ""; const m = c.disp * frac, ok = o.t >= m - .005, esc = Math.max(o.t, m) * 1.05;
+  // regra do usuário (20/11/2026): a cota é metade Saúde (mínimo) e metade FUNDAM, que reúne toda função que não é Saúde;
+  // o FUNDAM mostra quanto da sua metade já foi usado (livre ou acima), sem "mínimo de 20%"
+  const grupo = (nome, k, o, frac, sub, parte) => { if (!frac) return ""; const m = c.disp * frac, ok = o.t >= m - .005, esc = Math.max(o.t, m) * 1.05;
+    if (parte) { const ac = o.t > m + .005;
+      return `<div class="q5k${ac ? " fl" : ""}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
+      <div class="q5n"><b>${pc(o.t, m)}%</b><small>da metade do FUNDAM</small><span class="q5c${ac ? " fl" : ""}">${ac ? "acima em " + rc(o.t - m) : "livre " + rc(m - o.t)}</span></div>
+      <div class="q5b"><div class="q5f" style="width:${(Math.min(o.t, esc) / esc * 100).toFixed(1)}%"><i style="flex:1;background:#2A2F33"></i></div>${ac ? `<b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b>` : ""}</div>
+      <div class="q5ft"><span><em>${rc(o.t)}</em></span><span>metade da cota <em>${rc(m)}</em></span></div>${div(o, "Investimento e custeio")}</div>`; }
     return `<div class="q5k ${ok ? "ok" : "fl"}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
       <div class="q5n"><b>${pc(o.t, m)}%</b><small>do mínimo</small><span class="q5c ${ok ? "ok" : "fl"}">${ok ? "✓ atingido" : "faltam " + rc(m - o.t)}</span></div>
       <div class="q5b"><div class="q5f" style="width:${(o.t / esc * 100).toFixed(1)}%"><i style="flex:1;background:${ok ? "#1FA845" : "#2A2F33"}"></i></div><b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b></div>
@@ -59,7 +66,7 @@ function barraSeg(c, it, tot) {
       <div class="q5n"><b>${pc(tot, c.disp)}%</b><small>${rc(tot)} indicados</small><span class="q5c">${tot <= c.disp ? "livre " + rc(c.disp - tot) : "acima em " + rc(tot - c.disp)}</span></div>
       <div class="q5b"><div class="q5f" style="width:${Math.min(100, tot / c.disp * 100).toFixed(1)}%"><i style="flex:1;background:#2A2F33"></i></div></div>
       ${div(A, "Investimento e custeio · de tudo o que foi indicado")}</div>
-    ${c.saude || c.fundam ? `<div class="q5tr"></div><div class="q5g">${grupo("Saúde", "sau", S, c.saude, `mínimo de ${Math.round(c.saude * 100)}% da cota`)}${grupo("FUNDAM", "fun", F, c.fundam, `mínimo de ${Math.round((c.fundam || 0) * 100)}% · inclui as subáreas`)}</div>` : ""}</div>`;
+    ${c.saude ? `<div class="q5tr"></div><div class="q5g">${grupo("Saúde", "sau", S, c.saude, `mínimo de ${Math.round(c.saude * 100)}% da cota`)}${grupo("FUNDAM", "fun", F, 1 - (c.saude || 0), `${Math.round((1 - (c.saude || 0)) * 100)}% da cota · todas as funções que não são Saúde`, true)}</div>` : ""}</div>`;
 }
 function contador() {
   document.querySelectorAll("#indPg .icd[data-prazo]").forEach((e) => { const p = e.dataset.prazo; if (!p) { e.innerHTML = ""; return; }
