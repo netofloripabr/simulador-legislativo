@@ -33,6 +33,29 @@ async function lerLinks(T, forca) {
   } catch (e) { console.warn("links dos líderes:", e.message || e); return false; } finally { LK.lendo = null; } })();
   return LK.lendo;
 }
+const MSG_LINK = `Olá.
+
+Segue o link para indicação das emendas impositivas que você conquistou junto ao mandato do Deputado {deputado}.
+
+{link}
+
+Este ano o procedimento é um pouco diferente.
+
+O Poder Executivo enviou uma lista de objetos e vai exigir que a emenda esteja alinhada a eles.
+
+Para facilitar, separamos os itens da área que você escolheu. Basta selecionar o objeto de acordo com a área.
+
+Se houver qualquer dúvida, sigo à disposição.`;
+const msgLinkModelo = () => { const L = AD.listas.find((x) => x.id === LK.lista); return (L && (L.regras || {}).msg_link) || MSG_LINK; };
+const msgLink = (l) => msgLinkModelo().replace(/\{link\}/g, linkUrl(l)).replace(/\{nome\}/g, l.nome).replace(/\{deputado\}/g, String((PARL && PARL.u) || "").split(" ")[0]).replace(/\{prazo\}/g, fmtP(l.prazo));
+const copiarMsg = (l, aviso) => copiar(msgLink(l), aviso || "Mensagem com o link copiada");
+function editarMsg(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>Mensagem que acompanha o link</b>vai junto ao copiar e no WhatsApp · {link} = o endereço, {nome} = quem recebe, {deputado}, {prazo}</div>
+    <textarea class="lkmsg" rows="14">${esc(msgLinkModelo())}</textarea><div class="lkft"><button class="lk0" data-mpad>Voltar ao padrão</button><button class="lkok" data-msal>Salvar</button></div>`, "lkm lkmm");
+  const ta = m.querySelector("textarea");
+  m.querySelector("[data-mpad]").onclick = (e) => { e.stopPropagation(); ta.value = MSG_LINK; };
+  m.querySelector("[data-msal]").onclick = async (e) => { e.stopPropagation(); const v = ta.value.trim();
+    if (!/\{link\}/.test(v)) return alert("Inclua {link} no texto, no lugar onde o endereço deve aparecer.");
+    try { T.L = await gravar("gab_listas", { id: T.L.id, regras: { ...(T.L.regras || {}), msg_link: v === MSG_LINK ? null : v } }); fechaLk(); toastLk("Mensagem salva"); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } }; }
 const linkUrl = (l) => new URL("indicar-lider.html?t=" + encodeURIComponent(l.token), location.href).href;
 const encerrado = (l) => l.fechado || new Date(l.prazo) <= new Date();
 const estadoLink = (l) => encerrado(l) ? "fechado" : l.enviado_em ? "enviado" : l.aberto_em ? "ativo" : "gerado";
@@ -67,7 +90,8 @@ const linkDoLider = (n) => LK.links.filter((l) => l.lideranca === n).pop();
 // botão "Links" (20/11/2026) ao lado de Colunas: abre o quadro com os links dos líderes (ativos e a gerar) e o avulso
 function botaoLinks(T) { const at = LK.links.filter((l) => !encerrado(l)).length, esp = LK.props.filter((p) => p.status === "enviado").length;
   return `<button data-ilinks title="Links dos líderes">${lsv("lnk")}Links${at ? ` <small>${at}</small>` : ""}${esp ? `<i class="lkdot" title="${esp} para você aceitar"></i>` : ""}</button>`; }
-function quadroLinks(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>Links dos líderes</b>toque num nome para gerar o link de todas as emendas dele (pelo líder ou pelo contato); nos já gerados, copiar, prazo e fechar</div>${faixaLinks(T)}`, "lkm lkq");
+function quadroLinks(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>Links dos líderes</b>toque num nome para gerar o link de todas as emendas dele (pelo líder ou pelo contato); nos já gerados, copiar, prazo e fechar</div>${faixaLinks(T)}<div class="lkft"><button class="lk0" data-lkmsg>Mensagem que acompanha o link</button></div>`, "lkm lkq");
+  m.querySelector("[data-lkmsg]").onclick = (e) => { e.stopPropagation(); editarMsg(b, T); };
   m.querySelectorAll("[data-lkl]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); const l = LK.links.find((y) => y.id === x.dataset.lkl); if (l) { fechaLk(); menuLink(b, l, T); } });
   m.querySelectorAll("[data-lknovo]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); fechaLk(); novoLinkLider(T, x.dataset.lknovo); });
   m.querySelectorAll("[data-lkcon]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); fechaLk(); novoLinkContato(T, x.dataset.lkcon); });
@@ -75,7 +99,7 @@ function quadroLinks(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>L
 function contatosLista(T) { const C = {}; AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x) && x.contato).forEach((x) => String(x.contato).split(/\s*,\s*/).filter(Boolean).forEach((n) => { C[n] = (C[n] || 0) + 1; }));
   return Object.entries(C).sort((a, b) => b[1] - a[1]).map(([n]) => n); }
 const itensDoContato = (T, n) => AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x) && String(x.contato || "").split(/\s*,\s*/).includes(n)).map((x) => x.id);
-async function novoLinkContato(T, n) { try { const l = await gerarLink(T, n, "contato:" + n, itensDoContato(T, n)); await copiar(linkUrl(l), `Link de ${n} gerado e copiado`); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } }
+async function novoLinkContato(T, n) { try { const l = await gerarLink(T, n, "contato:" + n, itensDoContato(T, n)); await copiarMsg(l, `Link de ${n} gerado · mensagem copiada`); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } }
 function faixaLinks(T) { if (!T.L || !SESS) return "";
   const lid = lideresLista(T), con = contatosLista(T), av = LK.links.filter((l) => !l.lideranca);
   const bt = (l) => `<button class="lkc" data-lkl="${l.id}">${anelLk(pctLink(l))}${esc(l.nome)}<small>${pctLink(l)}% · ${estadoLink(l)}</small></button>`;
@@ -109,25 +133,25 @@ async function gerarLink(T, nome, lideranca, itens) { exigeEditar();
   const { data, error } = await supabaseClient.from("gab_links").insert({ parlamentar: PARL.n, lista_id: T.L.id, nome, lideranca, itens, prazo: prazoPadrao(T), titulo: `Gabinete do dep. ${PARL.u || PARL.n} · Emendas ${T.nome}` }).select().single();
   if (error) throw error; LK.links.push(data); return data; }
 async function novoLinkLider(T, n) { try { const it = AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x) && x.lideranca === n).map((x) => x.id);
-    const l = await gerarLink(T, n, n, it); await copiar(linkUrl(l), `Link de ${n} gerado e copiado`); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } }
+    const l = await gerarLink(T, n, n, it); await copiarMsg(l, `Link de ${n} gerado · mensagem copiada`); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } }
 async function novoLinkItem(T, x) { const n = prompt("Nome de quem vai receber o link desta emenda:", x.lideranca || ""); if (!n || !n.trim()) return;
-  try { const l = await gerarLink(T, n.trim(), null, [x.id]); await copiar(linkUrl(l), "Link desta emenda gerado e copiado"); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } }
+  try { const l = await gerarLink(T, n.trim(), null, [x.id]); await copiarMsg(l, "Link desta emenda gerado · mensagem copiada"); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } }
 function novoLinkAvulso(T, b) { const it = AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x));
   const m = abreLk(b, `<div class="h"><b>Link avulso</b>para uma pessoa, com as emendas marcadas</div><input class="lkin" id="lkNome" placeholder="Nome de quem recebe"><div class="lkls">${it.map((x) => `<label class="lkcol"><input type="checkbox" value="${x.id}"><span>${esc(x.municipio || "—")}<small>${esc(frase(x.objeto || "").slice(0, 70))} · ${rc(+x.valor || 0)}</small></span></label>`).join("")}</div><div class="lkft"><button class="lkok" id="lkGera">${lsv("lnk")}Gerar e copiar</button></div>`, "lkm av");
   m.querySelector("#lkGera").onclick = async () => { const n = m.querySelector("#lkNome").value.trim(), ids = [...m.querySelectorAll("input[type=checkbox]:checked")].map((c) => c.value);
     if (!n) return m.querySelector("#lkNome").focus(); if (!ids.length) return alert("Marque pelo menos uma emenda.");
-    try { const l = await gerarLink(T, n, null, ids); fechaLk(); await copiar(linkUrl(l), `Link de ${n} gerado e copiado`); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } };
+    try { const l = await gerarLink(T, n, null, ids); fechaLk(); await copiarMsg(l, `Link de ${n} gerado · mensagem copiada`); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } };
   setTimeout(() => m.querySelector("#lkNome").focus(), 0); }
 const fmtP = (d) => new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(",", ",");
 function menuLink(b, l, T) { const st = estadoLink(l), q = propsDe(l);
   const quando = l.enviado_em ? "enviado " + fmtP(l.enviado_em) : l.aberto_em ? `aberto ${l.acessos}× · último ${fmtP(l.ult_acesso || l.aberto_em)}` : "ainda não aberto";
   const m = abreLk(b, `<div class="h"><b>${esc(l.nome)} · ${pctLink(l)}%</b>${l.itens.length} ${l.itens.length === 1 ? "emenda" : "emendas"} · ${quando}<br>${encerrado(l) ? "link fechado" : "fecha em " + fmtP(l.prazo)}${q.filter((p) => p.status === "enviado").length ? ` · <b style="display:inline;font-size:12px">${q.filter((p) => p.status === "enviado").length} para você aceitar</b>` : ""}</div>
-    <button data-m="cop">${lsv("cop")}Copiar link</button><button data-m="wpp">${lsv("wpp")}Enviar pelo WhatsApp</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button><hr>
+    <button data-m="msg">${lsv("cop")}Copiar mensagem com o link</button><button data-m="cop">${lsv("lnk")}Copiar só o link</button><button data-m="wpp">${lsv("wpp")}Enviar pelo WhatsApp</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button><hr>
     <button data-m="prz">${lsv("rel")}Mudar o prazo</button><button data-m="fec">${lsv("cad")}${l.fechado ? "Reabrir o link" : "Fechar o link agora"}</button>${st === "gerado" && !q.length ? `<button data-m="apg" class="apg">${lsv("x")}Apagar o link</button>` : ""}`);
   const up = async (o) => { const { error } = await supabaseClient.from("gab_links").update(o).eq("id", l.id); if (error) throw error; Object.assign(l, o); };
   m.querySelectorAll("[data-m]").forEach((x) => x.onclick = async () => { const a = x.dataset.m; fechaLk();
-    try { if (a === "cop") await copiar(linkUrl(l));
-      if (a === "wpp") window.open("https://wa.me/?text=" + encodeURIComponent(`Olá, ${l.nome}! Seguem as emendas para você escolher o objeto até ${fmtP(l.prazo)}: ${linkUrl(l)}`), "_blank", "noopener");
+    try { if (a === "cop") await copiar(linkUrl(l)); if (a === "msg") await copiarMsg(l);
+      if (a === "wpp") window.open("https://wa.me/?text=" + encodeURIComponent(msgLink(l)), "_blank", "noopener");
       if (a === "abr") window.open(linkUrl(l), "_blank", "noopener");
       if (a === "prz") { const d = new Date(l.prazo), ini = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
         const v = prompt("Novo prazo (dia/mês/ano hora:min):", ini); if (!v) return; const k = v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/); if (!k) return alert("Use o formato 23/11/2026 13:00.");
@@ -141,7 +165,7 @@ function legendaE(b, x, T) { const e = etapaItem(x), L = linksDoItem(x.id), p = 
     ${l ? `${x.lideranca && linkDoLider(x.lideranca) && linkDoLider(x.lideranca) !== l ? `<button data-m="lid">${lsv("cop")}Copiar link de ${esc(x.lideranca)}</button>` : ""}<button data-m="cop">${lsv("cop")}Copiar link de ${esc(l.nome)}</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button>` : ""}
     <button data-m="um">${lsv("lnk")}Gerar link só desta emenda</button>${x.lideranca && !linkDoLider(x.lideranca) ? `<button data-m="nl">${lsv("lnk")}Gerar link do líder ${esc(x.lideranca)}</button>` : ""}${String(x.contato || "").split(/\s*,\s*/).filter((n) => n && !linkDoLider("contato:" + n)).map((n) => `<button data-m="nc" data-nc="${esc(n)}">${lsv("lnk")}Gerar link do contato ${esc(n)}</button>`).join("")}`);
   m.querySelectorAll("[data-m]").forEach((y) => y.onclick = () => { const a = y.dataset.m; fechaLk();
-    if (a === "lid") copiar(linkUrl(linkDoLider(x.lideranca))); if (a === "cop") copiar(linkUrl(l)); if (a === "abr") window.open(linkUrl(l), "_blank", "noopener");
+    if (a === "lid") copiarMsg(linkDoLider(x.lideranca)); if (a === "cop") copiarMsg(l); if (a === "abr") window.open(linkUrl(l), "_blank", "noopener");
     if (a === "um") novoLinkItem(T, x); if (a === "nl") novoLinkLider(T, x.lideranca); if (a === "nc") novoLinkContato(T, y.dataset.nc); }); }
 // aceitar: os campos da proposta vão para a emenda; recusar: só marca
 async function decidir(id, aceita, T) { const p = LK.props.find((q) => q.id === id); if (!p) return; const x = AD.itens.find((y) => y.id === p.item_id); if (!x) return;
