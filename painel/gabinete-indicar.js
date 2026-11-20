@@ -39,14 +39,15 @@ function capaInd(T) {
 // barra única da cota (LOA): enche com Saúde, FUNDAM e demais áreas; marcadores no mínimo de Saúde (LDO art. 33) e na faixa do FUNDAM
 // quadro das cotas (20/11/2026): barra empilhada com os marcadores da lei + um anel por exigência (Saúde, FUNDAM) e o uso do total
 function barraSeg(c, it, tot) {
-  const soma = (f) => it.filter(f).reduce((s, x) => s + (+x.valor || 0), 0), sd = soma((x) => x.area === "Saúde"), fd = soma((x) => x.area === "FUNDAM"), ou = Math.max(0, tot - sd - fd);
+  // regra (usuário, 20/11/2026): só há Saúde e FUNDAM; as demais áreas são subáreas do FUNDAM e contam para ele
+  const soma = (f) => it.filter(f).reduce((s, x) => s + (+x.valor || 0), 0), sd = soma((x) => x.area === "Saúde"), fd = Math.max(0, tot - sd), ou = 0;
   const pc = (v) => Math.min(100, v / c.disp * 100), mS = c.disp * c.saude, mF = c.fundam ? c.disp * c.fundam : 0, ok = (v, m) => v >= m - .005;
   const anel = (q, cor, txt) => { const C = 2 * Math.PI * 21, f = Math.max(0, Math.min(1, q)); return `<svg viewBox="0 0 52 52" class="iang"><circle cx="26" cy="26" r="21" fill="none" stroke="#E4E7E9" stroke-width="6"/><circle cx="26" cy="26" r="21" fill="none" stroke="${cor}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(f * C).toFixed(1)} ${C.toFixed(1)}" transform="rotate(-90 26 26)"/><text x="26" y="30" text-anchor="middle">${txt}</text></svg>`; };
   const card = (cor, rot, v, m, sub) => { const q = m ? v / m : v / c.disp, atg = m && ok(v, m);
     return `<div class="icq${m ? (atg ? " ok" : " fl") : ""}">${anel(q, m ? (atg ? "#1FA845" : cor) : cor, Math.min(999, Math.round(q * 100)) + "%")}<div><span class="icr"><i style="background:${cor}"></i>${rot}</span><b>${rc(v)}</b><small>${m ? (atg ? `<em class="ok">✓ mínimo de ${rc(m)} atingido</em>` : `de ${rc(m)} · <em>faltam ${rc(m - v)}</em>`) : sub}</small></div></div>`; };
   return `<div class="t w4 iseg4"><div class="isbar"><i style="width:${pc(sd)}%;background:#1D2226"></i><i style="width:${pc(fd)}%;background:#6E767D"></i><i style="width:${pc(ou)}%;background:#B3B9BE"></i>
     <b class="imk${ok(sd, mS) ? " ok" : ""}" style="left:${c.saude * 100}%"><span>Saúde ${c.saude * 100}%</span></b>${mF ? `<b class="imk b2${ok(fd, mF) ? " ok" : ""}" style="left:${Math.min(100, Math.max(pc(sd), c.saude * 100) + c.fundam * 100)}%" title="o FUNDAM começa onde termina a Saúde e precisa chegar a este marcador"><span>+ FUNDAM ${c.fundam * 100}%</span></b>` : ""}</div>
-    <div class="icqs">${card("#1D2226", "Saúde", sd, mS)}${mF ? card("#6E767D", "FUNDAM", fd, mF) : ""}${card("#B3B9BE", "Demais áreas", ou, 0, `${Math.round(ou / c.disp * 100)}% da cota`)}
+    <div class="icqs" style="grid-template-columns:repeat(3,minmax(0,1fr))">${card("#1D2226", "Saúde", sd, mS)}${mF ? card("#6E767D", "FUNDAM", fd, mF) : ""}
       <div class="icq tot">${anel(tot / c.disp, "#1D2226", Math.round(tot / c.disp * 100) + "%")}<div><span class="icr">Indicado</span><b>${rc(tot)}</b><small>de ${rc(c.disp)} · ${tot < c.disp ? `<em class="lv">livre ${rc(c.disp - tot)}</em>` : `<em>acima em ${rc(tot - c.disp)}</em>`}</small></div></div></div></div>`;
 }
 function contador() {
