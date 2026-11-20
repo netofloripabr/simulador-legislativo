@@ -714,6 +714,14 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 
 #indPg textarea.ijust{ min-height:120px !important; resize:vertical; }
 #indPg .itb.ied th[data-col="etq"]{ width:140px !important; } #indPg .itb.ied th[data-col="mun"]{ width:14% !important; }
+
+/* cor do balão de Observações (20/11/2026) */
+#indPg .iobs.cor{ color:#fff !important; background:var(--bc); box-shadow:none; } #indPg .iobs.cor small{ color:#fff; }
+.iobh{ display:flex; align-items:flex-start; gap:10px; } .iobh > span:first-child{ flex:1; min-width:0; }
+.iobc{ display:flex; gap:5px; align-items:center; padding-top:2px; flex:none; } .iobc button{ width:18px; height:18px; border-radius:50%; border:0; background:var(--bc); cursor:pointer; padding:0; opacity:.55; } .iobc button:hover{ opacity:1; }
+.iobc button.on{ opacity:1; box-shadow:0 0 0 2px #fff, 0 0 0 3.5px var(--bc); } .iobc button.sem{ background:none; color:var(--mu); font-size:14px; line-height:1; opacity:1; width:16px; }
+
+.iobmk .ietb.vz{ opacity:1 !important; color:var(--mu) !important; font:500 11.5px Inter; border:1px dashed #B8BEC3 !important; padding:3px 9px !important; background:none; border-radius:999px; cursor:pointer; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -738,7 +746,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
 <script src="gabinete-indicar.js?cb=66"></script>
-<script src="gabinete-ind-links.js?cb=8"></script>
+<script src="gabinete-ind-links.js?cb=9"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>

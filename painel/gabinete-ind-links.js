@@ -168,15 +168,23 @@ function ligarLinks(p, T) {
 // ---------- balão de Observações (20/11/2026): o mesmo do Controle de Recursos. As anotações começam aqui, ficam em
 // gab_itens.observacao (caderneta: "dd/mm/aa - texto") e vão junto para o Controle quando a lista é fechada.
 const OBS_IND = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M2.5 3h11v8h-6l-3 2.5V11h-2z"/></svg>';
+// cor do balão (20/11/2026, migração 106): vermelho, amarelo ou verde, independente da etiqueta
+const COR_BAL = { vermelho: ["#D64545", "Vermelho · esperando retorno"], amarelo: ["#D9A400", "Amarelo · em andamento"], verde: ["#1FA845", "Verde · resolvido"] };
 const notasInd = (x) => typeof caderneta === "function" ? caderneta(x) : String(x.observacao || "").split(/\n+/).filter(Boolean).map((t) => ({ d: "", t }));
 function balaoInd(x) { const n = notasInd(x), ul = n[n.length - 1];
-  return `<button class="iobs${n.length ? " tem" : ""}" data-iobs="${x.id}" title="${esc(ul ? ul.t : "Sem observação")}" aria-label="Observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}</button>`; }
+  const oc = COR_BAL[x.obs_cor];
+  return `<button class="iobs${n.length ? " tem" : ""}${oc ? " cor" : ""}"${oc ? ` style="--bc:${oc[0]}"` : ""} data-iobs="${x.id}" title="${esc((oc ? oc[1] + " · " : "") + (ul ? ul.t : "Sem observação"))}" aria-label="Observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}</button>`; }
 function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
-  const des = () => { const n = notasInd(x); return `<div class="h"><b>Observações · ${esc(x.municipio || "—")}</b>${x.chave_emenda ? "já levada ao Controle de Recursos; lá continuam as anotações" : "vão junto para o Controle de Recursos ao fechar a lista"}</div>
+  const des = () => { const n = notasInd(x); return `<div class="h iobh"><span><b>Observações · ${esc(x.municipio || "—")}</b>${x.chave_emenda ? "já levada ao Controle de Recursos; lá continuam as anotações" : "vão junto para o Controle de Recursos ao fechar a lista"}</span>
+    <span class="iobc">${Object.entries(COR_BAL).map(([k, [c, rot]]) => `<button class="${x.obs_cor === k ? "on" : ""}" data-obc="${k}" style="--bc:${c}" title="${rot}" aria-label="${rot}"></button>`).join("")}${x.obs_cor ? `<button class="sem" data-obc="" title="Tirar a cor" aria-label="Tirar a cor">×</button>` : ""}</span></div>
     <div class="iobmk"><span>Etiqueta</span>${celEtq(x, T)}</div>
     <div class="iobl">${n.length ? n.map((k) => `<div><span>${esc(k.d || "—")}</span><p>${esc(k.t)}</p></div>`).join("") : `<div class="mut" style="padding:4px 10px 8px;font-size:12px">Nenhuma anotação ainda.</div>`}</div>
     ${fech ? "" : `<div class="iobn"><input class="iobd" value="${hoje}" aria-label="Data"><input class="iobt" placeholder="Nova anotação…"><button class="lkok" data-anota>Anotar</button></div>`}`; };
   const m = abreLk(b, des(), "lkm iobm"), liga = () => {
+    m.querySelectorAll("[data-obc]").forEach((o) => o.onclick = async (e) => { e.stopPropagation(); const k = o.dataset.obc || null; if (k === (x.obs_cor || null)) return;
+      try { const nx = await gravar("gab_itens", { id: x.id, obs_cor: k }); Object.assign(x, nx); m.innerHTML = des(); liga();
+        const nb = $(`#indPg [data-iobs="${x.id}"]`); if (nb) { nb.outerHTML = balaoInd(x); const b2 = $(`#indPg [data-iobs="${x.id}"]`); b2.classList.add("on"); b2.onclick = (ev) => { ev.stopPropagation(); popObs(b2, x, T); }; }
+      } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } });
     const et = m.querySelector(".iobmk [data-ietq]"); if (et) et.onclick = (e) => { e.stopPropagation(); popEtq(et, x, T, () => { const b2 = $(`#indPg [data-iobs="${x.id}"]`); if (b2) popObs(b2, AD.itens.find((z) => z.id === x.id) || x, T); }); };
     const bt = m.querySelector("[data-anota]"); if (!bt) return; const it = m.querySelector(".iobt");
     const anota = async () => { const t = it.value.trim(), d = m.querySelector(".iobd").value.trim(); if (!t) return it.focus(); bt.disabled = true;
@@ -236,11 +244,11 @@ function popEtq(b, x, T, depois) { let edita = false, cor = "azul";
 // Ente · mod. · função e Líder · contato abrem as listas de cada parte. Com filtro ligado, as linhas vazias somem.
 IND.fx = IND.fx || {};
 const ROT_ENTE = { mun: "Município", ent: "Entidade", est: "Estado" };
-const FXK = { etq: [["mk", "Etiqueta"]], ent: [["ente", "Ente"], ["mod", "Modalidade"], ["fun", "Função"], ["des", "Despesa"]], mun: [["mun", "Município"]], obj: [["obj", "Objeto"]], lid: [["lid", "Líder"], ["con", "Contato"]], obs: [["obs", "Observações"], ["mk", "Etiqueta"]], etp: [["etp", "Etapa"]] };
+const FXK = { etq: [["mk", "Etiqueta"]], ent: [["ente", "Ente"], ["mod", "Modalidade"], ["fun", "Função"], ["des", "Despesa"]], mun: [["mun", "Município"]], obj: [["obj", "Objeto"]], lid: [["lid", "Líder"], ["con", "Contato"]], obs: [["obc", "Cor do balão"], ["obs", "Observações"], ["mk", "Etiqueta"]], etp: [["etp", "Etapa"]] };
 function valFx(k, x, T) { switch (k) {
   case "mk": return x.marca || "Sem etiqueta"; case "ente": return ROT_ENTE[tipoDe(x)] || ""; case "mod": return x.modalidade || ""; case "fun": return x.area || regrasInd(T).trava || "";
   case "des": return x.natureza || ""; case "mun": return x.municipio || ""; case "obj": return x.objeto || ""; case "lid": return x.lideranca || ""; case "con": return x.contato || "";
-  case "obs": return notasInd(x).length ? "Com observação" : "Sem observação"; case "etp": return TXT_E(etapaItem(x)).split(" · ")[0]; } return ""; }
+  case "obs": return notasInd(x).length ? "Com observação" : "Sem observação"; case "obc": return x.obs_cor ? COR_BAL[x.obs_cor][1] : "Sem cor"; case "etp": return TXT_E(etapaItem(x)).split(" · ")[0]; } return ""; }
 const temFx = () => Object.values(IND.fx || {}).some((s) => s && s.size);
 const passaFx = (x, T, menos) => Object.entries(IND.fx || {}).every(([k, s]) => k === menos || !s || !s.size || !s.has(norm(valFx(k, x, T))));
 const fxGrupoOn = (g) => FXK[g].some(([k]) => IND.fx[k] && IND.fx[k].size);

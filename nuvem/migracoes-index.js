@@ -2281,5 +2281,16 @@ const MIGRACOES_INDEX = [
   "arquivo": "migracao-105-gabinete-etiqueta-indicacao.sql",
   "descricao": "Migração 105 (20/11/2026): Indicação › a \"cor e status\" vira ETIQUETA livre, como as listas suspensas colorida",
   "objetos": []
+ },
+ {
+  "num": 106,
+  "arquivo": "migracao-106-gabinete-cor-balao.sql",
+  "descricao": "Migração 106 (20/11/2026): Indicação › cor do balão de Observações. A equipe pinta o balão da emenda de vermel",
+  "objetos": [
+   [
+    "column",
+    "gab_itens.obs_cor"
+   ]
+  ]
  }
 ];
