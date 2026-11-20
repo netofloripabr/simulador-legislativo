@@ -60,16 +60,35 @@ async function iniciar() {
   if (PED && typeof abrirEquipe === "function") abrirEquipe();
 }
 function restrito() { if (typeof c3Fora === "function") c3Fora(); $("#app").innerHTML = `<div style="max-width:560px;margin:12vh auto"><div class="olho">Gabinete</div><h1 style="font-size:44px">Seu Gabinete.</h1><p class="lead">Entre com a sua conta para abrir o painel do seu gabinete.</p>${SESS ? "" : `<p><a class="btn" href="../?entrar=1" onclick="try{localStorage.setItem('sl_volta',location.href)}catch(e){}" style="display:inline-block;text-decoration:none;margin-top:12px">Entrar</a></p>`}</div>`;  }
-// primeira vez: a conta escolhe o parlamentar do gabinete; depois o painel abre sempre nele
+// primeira vez: a conta escolhe o parlamentar do gabinete; depois o painel abre sempre nele.
+// Escolha em roda de nomes (20/11/2026), o mesmo modelo da capa de Eleições 2026 (novos.js · telaSelecao): só os nomes,
+// em ordem alfabética, o do centro em destaque e os demais menores e desfocados; tocar no destacado (ou Enter) escolhe.
 function escolha(trocar) { if (typeof c3Fora === "function") c3Fora();
   const EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
-  $("#app").innerHTML = `<div style="max-width:760px;margin:6vh auto 0"><div class="olho">Seu Gabinete · ${trocar ? "trocar o parlamentar" : "primeiro acesso"}</div><h1 style="font-size:48px">Qual é o seu gabinete?</h1>
-    <p class="lead">Escolha o parlamentar. O Gabinete passa a ser a sua página inicial e abre sempre nele; dá para trocar depois.</p><input id="escB" class="trp" style="width:100%;margin:18px 0 10px" placeholder="Buscar pelo nome"><div class="escL" id="escL"></div></div>`;
-  const L = (q) => { $("#escL").innerHTML = EL.filter((c) => !q || norm(c.u + " " + c.p).includes(norm(q))).map((c) => `<button data-n="${c.n}" style="--c:${COR_P[c.p] || "#8A9096"}"><img src="../dados/fotos/sc-2026/estadual/${c.n}.jpg" alt="" onerror="this.style.visibility='hidden'"><b>${esc(c.u)}</b><span>${esc(c.p)}</span></button>`).join(""); };
-  L(""); $("#escB").oninput = (e) => L(e.target.value);
-  $("#escL").onclick = async (e) => { const b = e.target.closest("[data-n]"); if (!b) return; b.disabled = true;
-    try { if (SESS) { const { error } = await supabaseClient.from("gab_vinculo").upsert({ dono: SESS.user.id, parlamentar: b.dataset.n, atualizado_em: new Date().toISOString() }); if (error) throw error; } else localStorage.setItem("gab_vinc_local", b.dataset.n); } catch (er) { alert("Não foi possível salvar o vínculo: " + (er.message || er)); return; }
+  $("#app").innerHTML = `<div class="gesc"><div class="olho">Seu Gabinete · ${trocar ? "trocar o parlamentar" : "primeiro acesso"}</div><h1 style="font-size:48px">Qual é o seu gabinete?</h1>
+    <p class="lead">Escolha o parlamentar. O Gabinete passa a ser a sua página inicial e abre sempre nele; dá para trocar depois.</p>
+    <input id="escB" class="trp" style="width:100%;margin:18px 0 6px" placeholder="Buscar pelo nome" autocomplete="off">
+    <div class="groda" id="groda"><ol>${EL.map((c) => `<li data-n="${c.n}">${esc(c.u)}<small>${esc(c.p)}</small></li>`).join("")}</ol></div>
+    <div class="gescp"><button class="btn" id="escOk"></button><div class="dica">role ou use ↑ ↓ · toque no nome em destaque ou Enter</div></div></div>`;
+  const rd = $("#groda"), L = [...rd.querySelectorAll("li")]; let atual = null;
+  const pintar = () => { const m = rd.getBoundingClientRect().top + rd.clientHeight / 2, h = L[0].offsetHeight || 50; let melhor = null, dm = 1e9;
+    L.forEach((li) => { const r = li.getBoundingClientRect(), d = (r.top + r.height / 2 - m) / h, a = Math.abs(d); if (a < dm) { dm = a; melhor = li; }
+      li.style.transform = `scale(${Math.max(.5, 1 - a * .125) + .2 * Math.max(0, 1 - a)})`; li.style.filter = a < .5 ? "none" : `blur(${Math.min(6, (a - .4) * 1.4).toFixed(2)}px)`; li.style.opacity = a > 4.5 ? 0 : Math.max(.12, 1 - a * .2); });
+    if (melhor && melhor !== atual) { atual = melhor; L.forEach((x) => x.classList.toggle("on", x === atual)); const c = EL.find((x) => x.n === atual.dataset.n); $("#escOk").textContent = `Abrir o gabinete de ${c.u} ›`; } };
+  const vai = (li, suave) => li && li.scrollIntoView({ behavior: suave ? "smooth" : "auto", block: "center" });
+  const salvar = async (n) => { const b = $("#escOk"); b.disabled = true;
+    try { if (SESS) { const { error } = await supabaseClient.from("gab_vinculo").upsert({ dono: SESS.user.id, parlamentar: n, atualizado_em: new Date().toISOString() }); if (error) throw error; } else localStorage.setItem("gab_vinc_local", n); } catch (er) { b.disabled = false; alert("Não foi possível salvar o vínculo: " + (er.message || er)); return; }
     location.href = "gabinete.html"; };
+  rd.addEventListener("scroll", () => requestAnimationFrame(pintar), { passive: true });
+  rd.onclick = (e) => { const li = e.target.closest("li"); if (!li) return; if (li === atual) return salvar(li.dataset.n); vai(li, true); };
+  $("#escOk").onclick = () => atual && salvar(atual.dataset.n);
+  $("#escB").oninput = (e) => { const q = norm(e.target.value); if (!q) return; const li = L.find((x) => norm(x.textContent).startsWith(q)) || L.find((x) => norm(x.textContent).includes(q)); vai(li, true); };
+  $("#escB").onkeydown = (e) => { if (e.key === "Enter" && atual) { e.preventDefault(); salvar(atual.dataset.n); } };
+  onkeydown = (e) => { if (!$("#groda") || e.target.id === "escB") return; if (e.key === "Enter" && atual) salvar(atual.dataset.n);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); vai(L[L.indexOf(atual) + (e.key === "ArrowDown" ? 1 : -1)], true); } };
+  // folga em cima e embaixo = metade da roda: o 1º e o último nome também param no centro
+  { const ol = rd.querySelector("ol"), pd = Math.max(0, rd.clientHeight / 2 - (L[0].offsetHeight || 40) / 2); ol.style.paddingTop = ol.style.paddingBottom = pd + "px"; }
+  const ja = trocar && PARL ? L.find((x) => x.dataset.n === PARL.n) : null; vai(ja || L[Math.floor(L.length / 2)]); pintar(); requestAnimationFrame(pintar);
 }
 // correções da revisão: o original fica em r._orig e o sistema passa a usar o valor corrigido (corr)
 const aplicarCorr = (r) => { if (!r.corr || r._orig) return r; r._orig = {}; Object.keys(r.corr).filter((k) => k !== "nota").forEach((k) => { r._orig[k] = r[k]; r[k] = r.corr[k]; }); return r; };

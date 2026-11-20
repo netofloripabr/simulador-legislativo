@@ -485,7 +485,7 @@
      "arquivo": "painel/gabinete.js",
      "ancora": "primeiro acesso",
      "dados": "gab_vinculo (migração 99 liberou a gravação a qualquer conta)",
-     "nota": "No primeiro acesso a pessoa escolhe o parlamentar do seu gabinete; dá para trocar depois."
+     "nota": "No primeiro acesso a pessoa escolhe o parlamentar do seu gabinete numa roda de nomes (o mesmo modelo da capa de Eleições 2026: só os nomes, o do centro em destaque, com busca); dá para trocar depois."
     },
     {
      "nome": "Equipe do gabinete",

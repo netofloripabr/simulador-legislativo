@@ -641,6 +641,24 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 #indPg .ied td[data-col="mun"] input{ min-width:0 !important; } #indPg .ied td.iob textarea{ min-width:0 !important; }
 #indPg .ied td.r input{ width:100% !important; }
 #indPg .ifech textarea:disabled, #indPg .ifech input:disabled{ pointer-events:none; }
+
+/* escolha do gabinete em roda de nomes (20/11/2026), mesmo modelo da capa de Eleições 2026 */
+.gesc{ max-width:760px; margin:6vh auto 0; }
+.groda{ position:relative; height:min(46vh,420px); overflow-y:auto; scroll-snap-type:y mandatory; scrollbar-width:none; -webkit-mask-image:linear-gradient(transparent, #000 25%, #000 75%, transparent); mask-image:linear-gradient(transparent, #000 25%, #000 75%, transparent); }
+.groda::-webkit-scrollbar{ display:none; }
+.groda ol{ list-style:none; margin:0; padding:0; }
+.groda li{ scroll-snap-align:center; font:900 clamp(26px,4.2vw,44px)/1.15 Inter; letter-spacing:-.045em; color:#F2F4F5; cursor:pointer; padding:2px 0; white-space:nowrap; transform-origin:left center; will-change:transform,filter,opacity; }
+.groda li.on{ color:var(--a); }
+.groda li small{ display:none; font-weight:400; font-size:.4em; letter-spacing:0; color:var(--sec); margin-left:.7em; vertical-align:.35em; }
+.groda li.on small{ display:inline; }
+.gescp{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-top:10px; } .gescp .dica{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ter); }
+/* Indicação: o "+" dos objetos de referência aparece no canto do quadro do objeto só ao editar a linha */
+#indPg td.iob > div:last-child{ position:relative; }
+#indPg td.iob .imais{ position:absolute; top:-9px; right:-9px; width:22px; height:22px; min-width:0; padding:0; border-radius:50%; background:#fff; border:1px solid var(--bd); box-shadow:0 1px 3px rgba(0,0,0,.12); color:#1D2226; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .15s; z-index:1; }
+#indPg tr.iw:focus-within td.iob .imais, #indPg td.iob:hover .imais{ opacity:1; pointer-events:auto; }
+#indPg td.iob textarea{ width:100%; }
+/* Fechar lista: só o cadeado */
+#indPg .iacs .icad{ padding:5px 9px !important; } #indPg .iacs .icad .ici{ margin:0 !important; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -653,7 +671,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="../nuvem/config.js?cb=3"></script>
 <script>const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;</script>
 <script src="tabelas-alesc.js?cb=1"></script>
-<script src="gabinete.js?cb=119"></script>
+<script src="gabinete.js?cb=120"></script>
 <script src="gabinete-capa.js?cb=3"></script>
 <script src="gabinete-rh.js?cb=4"></script>
 <script src="gabinete-comissoes.js?cb=10"></script>
@@ -664,7 +682,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=58"></script>
+<script src="gabinete-indicar.js?cb=59"></script>
 <script src="gabinete-ind-links.js?cb=3"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
