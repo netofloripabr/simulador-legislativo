@@ -659,6 +659,11 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 #indPg td.iob textarea{ width:100%; }
 /* Fechar lista: só o cadeado */
 #indPg .iacs .icad{ padding:5px 9px !important; } #indPg .iacs .icad .ici{ margin:0 !important; }
+
+/* botão Links (ao lado de Colunas) e o quadro dos links */
+#indPg .iacs [data-ilinks]{ display:inline-flex; align-items:center; gap:5px; position:relative; } #indPg .iacs [data-ilinks] svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; } #indPg .iacs [data-ilinks] small{ color:var(--mu); font-weight:500; }
+.lkdot{ position:absolute; top:-2px; right:-2px; width:8px; height:8px; border-radius:50%; background:#2F5D8A; box-shadow:0 0 0 2px #fff; }
+.lkm.lkq{ width:520px; } .lkm.lkq .lks{ border:0; padding:4px 6px 8px; }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -682,8 +687,8 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=59"></script>
-<script src="gabinete-ind-links.js?cb=3"></script>
+<script src="gabinete-indicar.js?cb=60"></script>
+<script src="gabinete-ind-links.js?cb=4"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>

@@ -64,10 +64,17 @@ const anelLk = (p) => { const r = 8, C = 2 * Math.PI * r; return `<svg class="rg
 function lideresLista(T) { const C = {}; AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x) && x.lideranca).forEach((x) => { C[x.lideranca] = (C[x.lideranca] || 0) + 1; });
   return Object.entries(C).sort((a, b) => b[1] - a[1]).map(([n]) => n); }
 const linkDoLider = (n) => LK.links.filter((l) => l.lideranca === n).pop();
+// botão "Links" (20/11/2026) ao lado de Colunas: abre o quadro com os links dos líderes (ativos e a gerar) e o avulso
+function botaoLinks(T) { const at = LK.links.filter((l) => !encerrado(l)).length, esp = LK.props.filter((p) => p.status === "enviado").length;
+  return `<button data-ilinks title="Links dos líderes">${lsv("lnk")}Links${at ? ` <small>${at}</small>` : ""}${esp ? `<i class="lkdot" title="${esp} para você aceitar"></i>` : ""}</button>`; }
+function quadroLinks(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>Links dos líderes</b>toque num líder para gerar o link de todas as emendas dele; nos já gerados, copiar, prazo e fechar</div>${faixaLinks(T)}`, "lkm lkq");
+  m.querySelectorAll("[data-lkl]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); const l = LK.links.find((y) => y.id === x.dataset.lkl); if (l) { fechaLk(); menuLink(b, l, T); } });
+  m.querySelectorAll("[data-lknovo]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); fechaLk(); novoLinkLider(T, x.dataset.lknovo); });
+  const av = m.querySelector("[data-lkav]"); if (av) av.onclick = (e) => { e.stopPropagation(); fechaLk(); novoLinkAvulso(T, b); }; }
 function faixaLinks(T) { if (!T.L || !SESS) return "";
   const lid = lideresLista(T), av = LK.links.filter((l) => !l.lideranca);
   const bt = (l) => `<button class="lkc" data-lkl="${l.id}">${anelLk(pctLink(l))}${esc(l.nome)}<small>${pctLink(l)}% · ${estadoLink(l)}</small></button>`;
-  return `<div class="lks"><span class="tt">Links</span>${lid.map((n) => { const l = linkDoLider(n); return l ? bt(l) : `<button class="lkc nw" data-lknovo="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("")}${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
+  return `<div class="lks">${lid.map((n) => { const l = linkDoLider(n); return l ? bt(l) : `<button class="lkc nw" data-lknovo="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("")}${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
 // ---------- colunas que ligam e desligam ----------
 const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["lid", "Líder e contato"], ["obs", "Observações"], ["etp", "Etapa"]];
 let COLS_OFF = (() => { try { return JSON.parse(localStorage.getItem("ind_cols") || '["lid"]'); } catch (e) { return ["lid"]; } })();
@@ -151,6 +158,7 @@ function ligarLinks(p, T) {
   p.querySelectorAll("[data-lkac]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidir(b.dataset.lkac, true, T); });
   p.querySelectorAll("[data-lkrec]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidir(b.dataset.lkrec, false, T); });
   p.querySelectorAll("[data-iobs]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.iobs); if (x) popObs(b, x, T); });
+  const lb = p.querySelector("[data-ilinks]"); if (lb) lb.onclick = (e) => { e.stopPropagation(); quadroLinks(lb, T); };
   const cl = p.querySelector("[data-icols]"); if (cl) cl.onclick = (e) => { e.stopPropagation(); menuCols(cl); };
   p.querySelectorAll("[data-iinfo]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); infoI(b, (IND.infos || {})[b.dataset.iinfo] || ""); });
 }
