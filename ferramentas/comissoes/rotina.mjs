@@ -20,7 +20,7 @@ try {
   execFileSync("node", [join(AQUI, "painel-comissoes.mjs"), "--json", join(RAIZ, SAIDA)], { cwd: RAIZ, stdio: "inherit" });
   try { execFileSync("node", [join(AQUI, "textos.mjs")], { cwd: RAIZ, stdio: "inherit", timeout: 30 * 60e3 }); } catch (e) { log("textos: " + String(e.message).slice(0, 120)); }
   // resumos das novas pelo Gemma 4 no próprio Mac (Ollama), sem custo; no máximo 100 por noite e nunca depois das 6h30
-  try { execFileSync("node", [join(AQUI, "resumos-local.mjs"), "--max", "100", "--ate", "06:30", "--pausa", "5"], { cwd: RAIZ, stdio: "inherit", timeout: 4 * 3600e3 }); } catch (e) { log("resumos: " + String(e.message).slice(0, 120)); }
+  try { execFileSync("node", [join(AQUI, "resumos-local.mjs"), "--max", "100", "--ate", "06:30", "--pausa", "20"], { cwd: RAIZ, stdio: "inherit", timeout: 4 * 3600e3 }); } catch (e) { log("resumos: " + String(e.message).slice(0, 120)); }
   execFileSync("node", [join(AQUI, "juntar-resumos.mjs")], { cwd: RAIZ, stdio: "inherit" });
 } catch (e) { log("erro na coleta (" + String(e.message).slice(0, 160) + ")"); process.exit(1); }
 const D = ler(), mudou = semHora(D) !== antes || lerR() !== antesR;

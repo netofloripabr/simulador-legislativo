@@ -11,7 +11,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 const AQUI = dirname(fileURLToPath(import.meta.url)), RAIZ = join(AQUI, "../.."), RS = join(AQUI, "resumos"), TX = join(AQUI, "_cache/textos"), LOG = join(RAIZ, "ferramentas/diario/_cache/rotina.log");
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
-const MAX = +arg("--max", 0) || Infinity, ATE = arg("--ate", ""), PUB = +arg("--publicar-a-cada", 0), PAUSA = +arg("--pausa", 5) * 1000, MODELO = arg("--modelo", "gemma4:12b");
+const MAX = +arg("--max", 0) || Infinity, ATE = arg("--ate", ""), PUB = +arg("--publicar-a-cada", 0), PAUSA = +arg("--pausa", 20) * 1000, MODELO = arg("--modelo", "gemma4:12b"), CTX = +arg("--ctx", 8192);
+// 20/11/2026: mais leve para o Mac de 16 GB, com a MESMA qualidade. Antes todo projeto usava num_ctx 24576 e o modelo
+// ocupava 16 GB (o Mac inteiro). Agora o espaço é do tamanho de cada projeto: 8192 para os curtos (8 em cada 10, ~7,7 GB)
+// e só o necessário (até 16384) para os longos — o texto continua indo inteiro até 30 mil caracteres, como antes.
+// A pausa entre proposições subiu de 5 para 20 s e o modelo sai da memória 1 min depois de terminar.
 const OL = "http://localhost:11434", BIN = "/Applications/Ollama.app/Contents/Resources/ollama";
 const log = (s) => { const l = `[${new Date().toLocaleString("pt-BR")}] resumos: ${s}`; console.log(l); try { appendFileSync(LOG, l + "\n"); } catch (e) {} };
 const espera = (ms) => new Promise((ok) => setTimeout(ok, ms));
@@ -37,8 +41,9 @@ const confere = (z) => { const e = []; if (!z || typeof z !== "object") return [
   if (z.muda && !Array.isArray(z.muda)) delete z.muda; if (z.m && z.m.length > 120) z.m = z.m.slice(0, 118).replace(/\s+\S*$/, "") + "…"; return e; };
 async function resumir(x) { const t = JSON.parse(readFileSync(join(TX, x.id + ".json"), "utf8")), txt = limpa(t.texto || "").trim();
   const user = `${x.tipo} ${x.num}/${x.ano} · autor: ${x.autor}\nEmenta: ${x.ementa}\n\n${txt.length > 200 ? "Texto do projeto (PDF):\n" + txt.slice(0, 30000) : "O texto do PDF veio vazio: escreva só a partir da ementa e marque \"base\": \"ementa\"."}`;
+  const ctx = Math.min(Math.max(CTX, Math.ceil(((SYS.length + user.length) / 2.8 + 2800) / 2048) * 2048), 16384);   // tokens ≈ caracteres ÷ 2,8 + resposta
   for (let k = 1; k <= 2; k++) { const r = await fetch(OL + "/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(10 * 60e3),
-      body: JSON.stringify({ model: MODELO, stream: false, format: "json", think: false, keep_alive: "10m", options: { num_ctx: 24576, temperature: 0.2, num_predict: 2500 }, messages: [{ role: "system", content: SYS }, { role: "user", content: user }] }) });
+      body: JSON.stringify({ model: MODELO, stream: false, format: "json", think: false, keep_alive: "1m", options: { num_ctx: ctx, temperature: 0.2, num_predict: 2500 }, messages: [{ role: "system", content: SYS }, { role: "user", content: user }] }) });
     const j = await r.json(); if (!r.ok) throw new Error(r.status + " " + JSON.stringify(j).slice(0, 160));
     let z; try { z = JSON.parse(String(j.message.content).trim().replace(/^```(json)?\s*|\s*```$/g, "")); } catch (e) { z = null; }
     const e = confere(z); if (!e.length) { if (txt.length <= 200) z.base = "ementa"; return { ...z, ia: MODELO }; }
