@@ -282,6 +282,10 @@ function popEtq(b, x, T, depois) { let edita = false, cor = "azul";
 // Toque no título: abre a lista de valores daquela coluna, com pesquisa, "Selecionar tudo" e "Limpar" (desmarcar esconde).
 // Ente · mod. · função e Líder · contato abrem as listas de cada parte. Com filtro ligado, as linhas vazias somem.
 IND.fx = IND.fx || {};
+// os filtros ficam guardados no navegador, por lista (chave = a etiqueta da lista), e voltam ao recarregar a página
+function fxLer(tag) { try { const o = (JSON.parse(localStorage.getItem("ind_fx") || "{}"))[tag] || {}; const r = {}; Object.entries(o).forEach(([k, v]) => { r[k] = new Set(v); }); return r; } catch (e) { return {}; } }
+function fxSalva() { try { const all = JSON.parse(localStorage.getItem("ind_fx") || "{}"), o = {}; Object.entries(IND.fx || {}).forEach(([k, s]) => { if (s && s.size) o[k] = [...s]; });
+  if (Object.keys(o).length) all[IND.tag] = o; else delete all[IND.tag]; localStorage.setItem("ind_fx", JSON.stringify(all)); } catch (e) {} }
 const ROT_ENTE = { mun: "Município", ent: "Entidade", est: "Estado" };
 const FXK = { etq: [["mk", "Etiqueta"]], ent: [["ente", "Ente"], ["mod", "Modalidade"], ["fun", "Função"], ["des", "Despesa"]], mun: [["mun", "Município"]], obj: [["obj", "Objeto"]], lid: [["lid", "Líder"], ["con", "Contato"]], obs: [["obc", "Cor do balão"], ["obs", "Observações"], ["mk", "Etiqueta"]], etp: [["etp", "Etapa"]] };
 function valFx(k, x, T) { switch (k) {
@@ -304,7 +308,7 @@ function abreFx(b, T) { document.getElementById("ifxPop")?.remove(); const g = b
   const ligaSec = () => pop.querySelectorAll("[data-st]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); const [k, v] = x.dataset.st.split("|"); pop.querySelectorAll(`input[data-k="${k}"]`).forEach((i) => { i.checked = v === "1"; i.onchange(); }); });
   const q = pop.querySelector(".ifxq"); q.oninput = () => { pop.querySelector(".ifxl").innerHTML = lista(q.value); liga(); ligaSec(); }; liga(); ligaSec(); setTimeout(() => q.focus(), 0);
   pop.querySelectorAll("[data-t]").forEach((x) => x.onclick = () => pop.querySelectorAll("input[data-c]").forEach((i) => { i.checked = x.dataset.t === "1"; i.onchange(); }));
-  const fecha = () => { if (secs.length > 1 && secs.some((s) => IND.fx[s.k].size && IND.fx[s.k].size < s.O.length)) secs.forEach((s) => { if (s.O.length && IND.fx[s.k].size >= s.O.length) IND.fx[s.k].clear(); });
+  const fecha = () => { setTimeout(fxSalva, 0); if (secs.length > 1 && secs.some((s) => IND.fx[s.k].size && IND.fx[s.k].size < s.O.length)) secs.forEach((s) => { if (s.O.length && IND.fx[s.k].size >= s.O.length) IND.fx[s.k].clear(); });
     pop.remove(); document.removeEventListener("mousedown", fora, true); document.removeEventListener("keydown", tk, true); redesenha(); };
   const fora = (e) => { if (!pop.contains(e.target)) fecha(); }, tk = (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); fecha(); } if (e.key === "Enter" && e.target !== q) fecha(); };
   pop.querySelector("[data-fxok]").onclick = fecha; pop.querySelector("[data-fxz]").onclick = () => { IND.fx = {}; fecha(); };

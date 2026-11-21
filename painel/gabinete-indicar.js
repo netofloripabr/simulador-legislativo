@@ -352,6 +352,7 @@ function desenharInd() {
   let p = $("#indPg"); if (!p) { p = document.createElement("div"); p.id = "indPg"; document.body.appendChild(p); }
   const A = anosInd(); if (!IND.ano || !A.includes(IND.ano)) IND.ano = A.includes(anoAtual()) ? anoAtual() : A[0];
   const TS = etiquetas(IND.ano); let T = TS.find((t) => t.k === IND.tag); if (!T) { T = TS.find((t) => t.cota && t.cota.prazo && new Date(t.cota.prazo) > new Date()) || TS[0]; IND.tag = T ? T.k : null; }
+  if (IND.fxTag !== IND.tag) { IND.fx = fxLer(IND.tag); IND.fxTag = IND.tag; }   // filtros guardados de cada lista voltam ao abrir (20/11/2026)
   p.innerHTML = `<div class="ipg"><button class="ivolta" data-ivolta>‹ Controle de Recursos</button>
     <div class="ihd"><h2>Indicação de recursos</h2><span>${esc([PARL.u, PARL.p].filter(Boolean).join(" · "))}</span></div>
     <div class="ianos">${A.map((a) => `<button class="${a === IND.ano ? "on" : ""}" data-iano="${a}">${a}</button>`).join("")}</div>
@@ -360,8 +361,8 @@ function desenharInd() {
     <div class="isheet">${planInd(T)}</div></div><div id="indDet"></div>`;
   contador(); detInd();
   p.querySelector("[data-ivolta]").onclick = fecharInd;
-  p.querySelectorAll("[data-iano]").forEach((b) => b.onclick = () => { IND.ano = +b.dataset.iano; IND.tag = null; IND.det = null; IND.extra = 0; IND.fx = {}; desenharInd(); });
-  p.querySelectorAll("[data-itag]").forEach((b) => b.onclick = () => { IND.tag = b.dataset.itag; IND.det = null; IND.extra = 0; IND.fx = {}; desenharInd(); });
+  p.querySelectorAll("[data-iano]").forEach((b) => b.onclick = () => { IND.ano = +b.dataset.iano; IND.tag = null; IND.det = null; IND.extra = 0; IND.fxTag = null; desenharInd(); });
+  p.querySelectorAll("[data-itag]").forEach((b) => b.onclick = () => { IND.tag = b.dataset.itag; IND.det = null; IND.extra = 0; IND.fxTag = null; desenharInd(); });
   p.querySelector("[data-inlista]").onclick = () => formLista();
   p.querySelectorAll("[data-ir]").forEach((r) => r.onclick = () => { IND.det = IND.det === r.dataset.ir ? null : r.dataset.ir; desenharInd(); });
   if (T && T.k !== "plan") { ligarPlan(p, T); if (!(T.L && (T.L.regras || {}).fechada)) ligarLinks(p, T); }
