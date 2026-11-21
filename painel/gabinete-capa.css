@@ -195,3 +195,6 @@
 .g3d .ferr #c3rlista{ max-height:none; }
 
 .g3d .ferr .sub{ max-height:calc(100vh - 600px) !important; }
+
+/* interruptor Votos | Recursos (20/11/2026): na vertente Recursos aparecem as leituras de recursos no lugar de 2026/2022/Variação */
+.g3d .sw:not(.rec) .subr{ display:none; } .g3d .sw.rec .subr{ display:flex; } .g3d .sw.rec.compacto .subr{ display:none; }

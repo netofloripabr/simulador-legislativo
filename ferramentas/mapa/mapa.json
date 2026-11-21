@@ -117,6 +117,10 @@
   [
    "20/11/2026",
    "Capa do Gabinete: o botão 'Recursos' do seletor Votos/Recursos sai; as leituras de recursos (total indicado, falta pagar, % pago, R$ por voto, por ano e por origem, com lista) ficam em Ferramentas do mapa › Outros › Recursos. Substitui a decisão de 16/11 'Votos | Recursos'."
+  ],
+  [
+   "20/11/2026",
+   "Capa do Gabinete (2ª do dia, substitui a anterior): o interruptor Votos | Recursos volta. Cada vertente tem as suas opções e muda as ferramentas: em Recursos, Outros mostra a seção Recursos (ano, origem, lista); em Votos, os dados sociais e econômicos."
   ]
  ],
  "paginas": [
@@ -531,7 +535,7 @@
        "quem": "cadastrado",
        "arquivo": "painel/gabinete-capa.js",
        "ancora": "function c3Botoes",
-       "nota": "Embaixo à direita: busca de cidade/região; Ferramentas do mapa (marcadores Disco/Votos/Relevo do eleitorado, base Satélite/Neutro, vista, Outros: Recursos (pinta por total indicado, falta pagar, % pago ou R$ por voto, com ano, origem impositivas × convênios e a lista dos 10 primeiros), rodovias/rios/cidades e dados sociais/econômicos); seletor Votos (2026/2022/Variação). O 'Recursos' do seletor saiu em 20/11/2026."
+       "nota": "Embaixo à direita: busca de cidade/região; Ferramentas do mapa (marcadores Disco/Votos/Relevo do eleitorado, base Satélite/Neutro, vista, Outros: Recursos (pinta por total indicado, falta pagar, % pago ou R$ por voto, com ano, origem impositivas × convênios e a lista dos 10 primeiros), rodovias/rios/cidades e dados sociais/econômicos); interruptor Votos | Recursos: Votos (2026/2022/Variação) ou Recursos (total, falta pagar, % pago, R$ por voto); a vertente também muda o que aparece em Outros."
       },
       {
        "nome": "Análises prontas",

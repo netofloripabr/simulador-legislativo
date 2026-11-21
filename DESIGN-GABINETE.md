@@ -167,7 +167,7 @@ Uma família: **Inter**. Pesos usados: 400, 500, 600, 700, 800, 900.
 │ DEPUTADO ESTADUAL · SC · PSD                                            │
 │                         [ mapa 3D de fundo ]                            │
 │                                                       legenda (direita) │
-│ ┌ painel do mandato ┐        [pílula da análise]   (🔍)(🔧)(▥) [Votos]          │
+│ ┌ painel do mandato ┐        [pílula da análise]   (🔍)(🔧)(▥) [Votos|Recursos] │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -177,7 +177,7 @@ Uma família: **Inter**. Pesos usados: 400, 500, 600, 700, 800, 900.
 - **Painel do mandato**: embaixo à esquerda. Largo por padrão (`min(600px, 46vw)`), **Recursos à esquerda e Votos à
   direita**; abaixo de 1100px empilha. Votos em **duas colunas: 2026 | 2022**, com "−5,3% vs 2022" abaixo de 2026.
   Minimizável (lembrado em `capa_painel_mini`); minimizado vira a linha "R$ 82,05 mi · 34.949 votos". *Decisões 15–16/11.*
-- **Linha de controles**: embaixo à direita, na ordem **busca · ferramentas · análise · Votos**. A legenda
+- **Linha de controles**: embaixo à direita, na ordem **busca · ferramentas · análise · Votos/Recursos**. A legenda
   fica **acima** da linha, alinhada à direita (fora da grade, para a linha não esticar). *Decisão 16/11.*
 - **Cabeçalho**: menu em pílula transparente; a cota aberta é uma pílula discreta na continuação do cabeçalho.
 
@@ -189,11 +189,13 @@ Uma família: **Inter**. Pesos usados: 400, 500, 600, 700, 800, 900.
 Círculo de 42px, vidro; ícone de traço 1.5px, 15px. Ativo: fundo `--texto`, ícone escuro.
 Busca: só o ícone; ao clicar expande para 280px com o campo e as sugestões (cidades e regiões).
 
-### 4.2 Seletor Votos (`.sw`)
-Pílula de vidro com segmentos; ativo = fundo `--texto`.
-- **Só "Votos"** (fechado por padrão). O antigo "Recursos" (mais a pagar × mais pago) **saiu**: as leituras de recursos
-  ficam em Ferramentas › Outros › **Recursos** (§4.3). *Decisão 20/11 (substitui a de 16/11 "Votos | Recursos").*
-- Tocar em **Votos** abre 2026 / 2022 / Variação; tocar de novo fecha (a escolha continua valendo).
+### 4.2 Interruptor Votos | Recursos (`.sw`)
+Pílula de vidro com segmentos; ativo = fundo `--texto`. *Decisão 20/11 (2ª versão do dia; substitui "só Votos").*
+- Duas **vertentes**. **Votos**: opções 2026 · 2022 · Variação. **Recursos**: opções Total indicado · Falta pagar ·
+  % pago · R$ por voto (pintam o mapa como em §4.3, Outros › Recursos).
+- Tocar na vertente já ativa abre ou fecha as opções; trocar de vertente abre as opções da nova (fechado por padrão).
+- A vertente muda também as **ferramentas**: em Recursos, Outros mostra a seção Recursos (leitura, ano, origem, lista) e
+  esconde os dados sociais/econômicos; em Votos, o contrário. Camadas valem nas duas.
 
 ### 4.3 Quadro de ferramentas (`.ferr`)
 Abre acima da linha de controles, colado à direita; 330px; vidro opaco. Conteúdo, nesta ordem:
@@ -211,7 +213,7 @@ Abre acima da linha de controles, colado à direita; 330px; vidro opaco. Conteú
    **Econômicos** (Renda per capita, Bolsa Família), **Demais** (Eleitoras, Jovens 16–24, Eleitores 60+, Ensino
    superior; Redes femininas e Vereadores mirins desligados até haver lista). Um dado por vez; tocar de novo volta à
    votação; o dado ligado aparece na própria alça. *Decisões 16/11.*
-   **Recursos** (*decisão 20/11*): pinta os municípios por **Total indicado** (rampa `voto`), **Falta pagar** (`apagar`),
+   **Recursos** (*decisão 20/11*; só aparece na vertente Recursos do interruptor): pinta os municípios por **Total indicado** (rampa `voto`), **Falta pagar** (`apagar`),
    **% pago** (`pago`) ou **R$ por voto** (`up`; só cidades com ≥ 50 votos; menor = melhor = mais escuro). Uma leitura por
    vez (tocar de novo desliga); ao ligar, aparecem **o ano** (Todos os anos, 2023…) e **a origem** (Todas · Emendas
    impositivas · Convênios e outros — só quando há as duas) e a **lista dos 10 primeiros** (toque abre a cidade). O mapa
@@ -353,7 +355,7 @@ presidente). Não inventar cidades nem nomes.
 
 - Escolhas das ferramentas guardadas no navegador; "Restaurar padrão" volta a Disco + Satélite + Automática + Cidades.
 - Marcadores independentes; um tema de "Outros" sempre pinta os municípios.
-- Seletor só com Votos; tocar abre/fecha 2026 · 2022 · Variação.
+- Interruptor Votos | Recursos: cada vertente tem as suas opções e muda as ferramentas (Outros › Recursos × dados sociais).
 - Outros › Recursos: uma leitura por vez (total, falta pagar, % pago, R$ por voto), com ano e origem; lista dos 10
   primeiros abre a cidade; desliga temas e análises (e é desligada por eles).
 - Análise: limpa o mapa, pinta as cidades, vira pílula central com ‹ › ×, recolhe busca/ferramentas, painel vira esfera.
