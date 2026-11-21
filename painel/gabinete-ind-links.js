@@ -110,10 +110,12 @@ function faixaLinks(T) { if (!T.L || !SESS) return "";
     <div class="lkst">Por contato</div><div class="lks">${con.map((n) => { const l = linkDoLider("contato:" + n); return l ? bt(l) : `<button class="lkc nw" data-lkcon="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("") || `<span class="mut" style="font-size:12px">nenhuma emenda com contato</span>`}</div>
     <div class="lkst">Avulsos</div><div class="lks">${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
 // ---------- colunas que ligam e desligam ----------
-const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["etq", "Etiqueta"], ["lid", "Líder e contato"], ["obs", "Observações"], ["etp", "Etapa"]];
-let COLS_OFF = (() => { try { return JSON.parse(localStorage.getItem("ind_cols") || '["lid"]'); } catch (e) { return ["lid"]; } })();
+const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["etq", "Etiqueta"], ["lid", "Líder e contato"], ["obs", "Observações"], ["etp", "Etapa"], ["jus", "Justificativa (no objeto)"]];
+let COLS_OFF = (() => { try { const v = JSON.parse(localStorage.getItem("ind_cols") || '["lid","jus"]'); if (!localStorage.getItem("ind_cols_jus")) { localStorage.setItem("ind_cols_jus", "1"); if (!v.includes("jus")) v.push("jus"); } return v; } catch (e) { return ["lid", "jus"]; } })();
 const colOn = (k) => !COLS_OFF.includes(k);
-const nColInd = () => 1 + COLS_IND.filter(([k]) => colOn(k)).length; // nº e colunas visíveis
+const nColInd = () => 1 + COLS_IND.filter(([k]) => k !== "jus" && colOn(k)).length; // nº e colunas visíveis (a justificativa vai dentro do objeto)
+// botão "Justificativa" (20/11/2026): liga e desliga o texto da justificativa embaixo do objeto, em todas as linhas
+const botaoJus = () => `<button data-ijus class="${colOn("jus") ? "on" : ""}" title="Mostrar ou esconder a justificativa embaixo de cada objeto">${lsv("lap")}Justificativa</button>`;
 function menuCols(b) { fechaLk(); b.classList.add("on");
   abreLk(b, `<div class="h"><b>Colunas</b>escolha o que aparece na planilha</div>${COLS_IND.map(([k, n]) => `<label class="lkcol"><input type="checkbox" data-cc="${k}" ${colOn(k) ? "checked" : ""}>${n}</label>`).join("")}`, "lkm cols");
   document.querySelectorAll("[data-cc]").forEach((x) => x.onchange = () => { COLS_OFF = x.checked ? COLS_OFF.filter((k) => k !== x.dataset.cc) : [...COLS_OFF, x.dataset.cc];
@@ -196,6 +198,7 @@ function ligarLinks(p, T) {
   p.querySelectorAll("[data-ietq]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.ietq); if (x && T && T.L) popEtq(b, x, T); });
   p.querySelectorAll("[data-iobs]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.iobs); if (x) popObs(b, x, T); });
   const lb = p.querySelector("[data-ilinks]"); if (lb) lb.onclick = (e) => { e.stopPropagation(); quadroLinks(lb, T); };
+  const ju = p.querySelector("[data-ijus]"); if (ju) ju.onclick = (e) => { e.stopPropagation(); COLS_OFF = colOn("jus") ? [...COLS_OFF, "jus"] : COLS_OFF.filter((k) => k !== "jus"); try { localStorage.setItem("ind_cols", JSON.stringify(COLS_OFF)); } catch (er) {} const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; };
   const cl = p.querySelector("[data-icols]"); if (cl) cl.onclick = (e) => { e.stopPropagation(); menuCols(cl); };
   p.querySelectorAll("[data-iinfo]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); infoI(b, (IND.infos || {})[b.dataset.iinfo] || ""); });
 }
