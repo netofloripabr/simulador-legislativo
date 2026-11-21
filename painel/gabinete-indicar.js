@@ -256,18 +256,27 @@ function popLista(btn, itens, atual, escolhe) {
 // objeto do Portfólio, a natureza (Capital ou Custeio) também é preenchida quando é uma só.
 let PORTF = null;
 async function lerPortfolio() { if (!PORTF) { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=2")).json(); PORTF = j.O.map(([area, cat, obj, nat, org, desc]) => ({ area, cat, obj, nat, org, desc })); } catch (e) { PORTF = []; } } return PORTF; }
+// Portfólio limitado à função e à despesa da emenda (20/11/2026): Educação mostra só Educação (e Educação Especial), Saúde
+// só Saúde, FUNDAM ou sem função tudo que não é Saúde; com custeio/capital marcado, só os objetos dessa despesa.
+// "ver todo o Portfólio" tira o limite.
+const AREA_PORT = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
+const portCompat = (o, area, nat) => { const A = AREA_PORT[area]; return (A ? A.includes(o.area) : area ? o.area !== "Saúde" : true) && (!nat || o.nat === nat || / ou /.test(o.nat)); };
 function popObjeto(tr, T) {
   document.querySelectorAll(".ipop").forEach((x) => x.remove());
+  const x0 = AD.itens.find((y) => y.id === tr.dataset.iw) || {}, areaX = x0.area || regrasInd(T).trava || "", natX = x0.natureza === "Investimento" ? "Capital" : x0.natureza || ""; let todos = !areaX && !natX;
   const b = tr.querySelector("[data-iobj]"), r = b.getBoundingClientRect(), pop = document.createElement("div"); pop.className = "ipop";
   let aba = "port";
-  pop.innerHTML = `<div class="ipab"><button data-ab="port" class="on">Portfólio</button><button data-ab="hist">Já usados pelo gabinete</button></div><input placeholder="Pesquisar (ex.: ambulância, pavimentação, saúde)"><div class="ipl"></div>`;
+  pop.innerHTML = `<div class="ipab"><button data-ab="port" class="on">Portfólio</button><button data-ab="hist">Já usados pelo gabinete</button></div><div class="iplim" ${todos ? "hidden" : ""}></div><input placeholder="Pesquisar (ex.: ambulância, pavimentação, saúde)"><div class="ipl"></div>`;
   $("#indPg").appendChild(pop); pop.style.top = Math.min(r.bottom + 6, innerHeight - 420) + "px"; pop.style.left = Math.max(12, Math.min(r.left - 300, innerWidth - 500)) + "px";
   const q = pop.querySelector("input"), l = pop.querySelector(".ipl"), nn = (s) => norm(s || "");
   const escolhe = (o, nat) => { pop.remove(); salvarLinha(T, tr, { objeto: o, ...(nat ? { natureza: nat } : {}) }); };
   const lista = async () => { const w = nn(q.value).split(/\s+/).filter(Boolean);
     if (aba === "hist") { const O = objetosRef(q.value); l.innerHTML = O.length ? O.map(([t2, n]) => `<button data-o="${esc(t2)}"><span>${esc(t2)}</span><small>${n}×</small></button>`).join("") : `<div class="mut" style="padding:10px">Nenhum objeto com esse termo.</div>`;
       l.querySelectorAll("[data-o]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); escolhe(o.dataset.o); }); return; }
-    const P = (await lerPortfolio()).filter((o) => w.every((k) => nn([o.obj, o.area, o.cat, o.desc, o.org].join(" ")).includes(k)));
+    const lim = pop.querySelector(".iplim"); lim.hidden = aba !== "port" || (!areaX && !natX);
+    lim.innerHTML = todos ? `Todo o Portfólio · <button data-lim>só ${esc([areaX, natX.toLowerCase()].filter(Boolean).join(" · "))}</button>` : `Só ${esc([areaX === "FUNDAM" ? "FUNDAM (tudo que não é Saúde)" : areaX, natX.toLowerCase()].filter(Boolean).join(" · "))} · <button data-lim>ver todo o Portfólio</button>`;
+    lim.querySelector("[data-lim]").onclick = (ev) => { ev.stopPropagation(); todos = !todos; lista(); };
+    const P = (await lerPortfolio()).filter((o) => (todos || portCompat(o, areaX, natX)) && w.every((k) => nn([o.obj, o.area, o.cat, o.desc, o.org].join(" ")).includes(k)));
     const G = {}; P.forEach((o) => (G[o.area] = G[o.area] || []).push(o));
     l.innerHTML = P.length ? Object.entries(G).map(([a, L]) => `<div class="ipga">${esc(a)} <small>${L.length}</small></div>` + L.slice(0, w.length ? 80 : 12).map((o) => `<button data-p="${esc(o.obj)}" data-n="${esc(/ ou /.test(o.nat) ? "" : o.nat)}" title="${esc(o.desc)}"><span>${esc(o.obj)}<em>${esc([o.cat, o.nat, o.org].filter(Boolean).join(" · "))}</em></span></button>`).join("") + (!w.length && L.length > 12 ? `<div class="mut" style="padding:4px 10px 8px;font-size:11.5px">+ ${L.length - 12} · pesquise para ver</div>` : "")).join("") : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`;
     l.querySelectorAll("[data-p]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); escolhe(o.dataset.p, o.dataset.n); }); };
