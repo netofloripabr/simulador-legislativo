@@ -126,7 +126,7 @@ function linhaInd(T, g, x, i, semExp) {
     <td class="r iv2" data-col="val"><input data-c="valor" inputmode="numeric" class="${x && g.min && v && v < g.min ? "ierr" : ""}" value="${v ? moeda(v) : ""}" placeholder="0,00"></td>
     <td class="ietc" data-col="etq">${celEtq(x, T)}</td><td class="ilid" data-col="lid">${x ? `<input data-c="lideranca" list="indPes" value="${esc(x.lideranca || "")}" placeholder="Líder" title="Quem indicou a emenda"><input data-c="contato" class="icont" value="${esc(x.contato || "")}" placeholder="Contato" title="Quem está tocando o processo">` : ""}</td><td class="iobsc" data-col="obs">${x ? balaoInd(x) : ""}</td><td class="ietp" data-col="etp">${celEtapa(x)}</td>
 </tr>
-    ${ck.length ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}${mk ? " mk" : ""}" data-ick="${x.id}"${mk ? ` style="--mk:${mk[1]};--mkf:${mk[2]}"` : ""}><td></td><td colspan="${nColInd() - 1}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
+    ${ck.length && ck.some(([ok]) => !ok) ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}${mk ? " mk" : ""}" data-ick="${x.id}"${mk ? ` style="--mk:${mk[1]};--mkf:${mk[2]}"` : ""}><td></td><td colspan="${nColInd() - 1}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
     ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${nColInd()}">${detForm(x, T, g)}</td></tr>` : ""}`;
 }
 function rodapeInd(T, g, it) { it = it.filter(cheia); const tot = it.reduce((s, x) => s + (+x.valor || 0), 0);
