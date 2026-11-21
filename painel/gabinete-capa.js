@@ -68,7 +68,7 @@ function c3Html() {
         <button class="outros" id="c3outrosBt"><span>Outros</span><em id="c3outrosOn"></em>${C3_SVG.lado}</button>
         <div class="sub" id="c3sub">
           <div class="fcab"><span>Outros · camadas e dados</span></div>
-          <div id="c3recBl" hidden><h5>Recursos</h5><div class="g" data-gr="recm"><button data-v="tot" title="Onde houve mais recurso indicado">Total indicado</button><button data-v="apg" title="Onde falta pagar mais">Falta pagar</button><button data-v="pct" title="Quanto do indicado já foi pago">% pago</button><button data-v="rpv" title="Recurso indicado ÷ votos 2026 (só cidades com pelo menos 50 votos)">R$ por voto</button></div>
+          <div id="c3recBl" hidden><h5>Recursos</h5><div class="g" data-gr="recm"><button data-v="tot" title="Onde houve mais recurso indicado">Mais recurso</button><button data-v="min" title="Onde houve menos recurso indicado">Menos recurso</button><button data-v="pct" title="Quanto do indicado já foi pago">Mais pago</button><button data-v="apg" title="Onde falta pagar mais">Menos pago</button><button data-v="rpv" title="Recurso indicado ÷ votos 2026 (só cidades com pelo menos 50 votos)">R$ por voto</button></div>
           <div class="rsub" id="c3rsub" hidden><div class="g" data-gr="reca" id="c3ranos"></div><div class="g" data-gr="reco" id="c3rori"></div><p class="dica" id="c3rnota"></p><ol class="alista" id="c3rlista"></ol></div></div>
           <h5>Camadas</h5><div class="g" data-gr="cam"><button data-v="rod">Rodovias</button><button data-v="rio">Rios</button><button data-v="cid">Cidades</button></div>
           <div id="c3temBl"><p class="dica" style="margin-top:12px">Dados abaixo: um por vez, por cima das camadas. Clique de novo para voltar à votação.</p>
@@ -78,7 +78,7 @@ function c3Html() {
         </div>
       </div>
     </div>
-    <div class="sw vidro compacto" id="c3sw"><button class="on" data-l="v">Votos</button><span class="subv"><button class="on" data-a="voto">2026</button>${tem22() ? '<button data-a="v22">2022</button><button data-a="var">Variação</button>' : ""}</span><button data-l="r">Recursos</button><span class="subv subr">${Object.entries(C3_RECM).map(([k, [n]]) => `<button data-r="${k}">${n}</button>`).join("")}</span></div>
+    <div class="sw vidro compacto" id="c3sw"><button class="on" data-l="v">Votos</button><span class="subv"><button class="on" data-a="voto">2026</button>${tem22() ? '<button data-a="v22">2022</button><button data-a="var">Variação</button>' : ""}</span><button data-l="r">Recursos</button><span class="subv subr">${Object.entries(C3_RECM).map(([k, [n]]) => `<button data-r="${k}" class="ric" title="${n}" aria-label="${n}">${C3_RECI[k]}</button>`).join("")}</span></div>
   </div>
   <div class="apill vidro" id="c3apill">${C3_SVG.graf}<button class="ap" data-p="-1" aria-label="Análise anterior">‹</button><button class="an" id="c3apNome"></button><button class="ap" data-p="1" aria-label="Próxima análise">›</button><button class="ax" id="c3apSai" title="Sair da análise (o mapa volta como estava)">×</button></div>
 </section>`;
@@ -148,7 +148,9 @@ async function c3Aplica(inicio) { const v = c3M(); if (!v) return; const E = C3.
 // ----- Outros › Recursos (20/11/2026): pinta os municípios por total indicado, falta pagar, % pago ou R$ por voto, com ano e
 // origem (emendas impositivas × convênios e outros); a lista mostra os municípios dessa leitura e abre a cidade ao tocar.
 // Substitui o "Recursos" do seletor Votos/Recursos (mais a pagar × mais pago), que saiu a pedido do usuário.
-const C3_RECM = { tot: ["Total indicado", "voto", "mais recurso"], apg: ["Falta pagar", "apagar", "falta pagar mais"], pct: ["% pago", "pago", "mais pago"], rpv: ["R$ por voto", "up", "melhor R$ por voto"] };
+const C3_RECM = { tot: ["Mais recurso", "voto", "mais recurso"], min: ["Menos recurso", "voto", "menos recurso"], rpv: ["R$ por voto", "up", "melhor R$ por voto"], pct: ["Mais pago", "pago", "mais pago"], apg: ["Menos pago (falta pagar)", "apagar", "falta pagar mais"] };
+// no interruptor, só ícones (20/11/2026): ↑ mais recurso · ↓ menos recurso · R$/V · +pago · −pago; o nome aparece ao passar o mouse
+const C3_RECI = { tot: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 13V3M4 7l4-4 4 4"/></svg>', min: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v10M4 9l4 4 4-4"/></svg>', rpv: "R$/V", pct: "+pago", apg: "−pago" };
 const C3_IMP = new Set(["AN", "0,55", "EX"]);
 function c3RecDados() { const [R0, I] = itensCapa(), ix = {}, o = {}; BASE.mun.forEach((m) => { ix[norm(m.n)] = m.n; });
   R0.filter((x) => (!C3.recAno || x.ano === +C3.recAno) && (!C3.recOri || (C3.recOri === "imp") === C3_IMP.has(x.t))).forEach((x) => { const n = ix[x.mun]; if (!n || !x.v) return; const r = o[n] || (o[n] = [0, 0, 0]); r[0] += x.v; r[1] += x.p || 0; r[2]++; });
@@ -164,14 +166,14 @@ function c3RecPinta() { const v = c3M(); const D = c3RecUI(); if (!v) return;
   if (C3.anal) c3Sai();
   const M = C3.recM, vot = {}; c3dd().forEach((x) => { vot[x.nome] = x.vot; });
   let L = Object.entries(D.o).map(([n, [ind, pg, q]]) => ({ n, ind, pg, q, ap: Math.max(0, ind - pg), pc: ind ? pg / ind : 0, rpv: vot[n] >= C3_MIN_VOT ? ind / vot[n] : null }));
-  if (M === "tot") L = L.sort((a, b) => b.ind - a.ind); if (M === "apg") L = L.filter((x) => x.ap > 0).sort((a, b) => b.ap - a.ap);
+  if (M === "tot") L = L.sort((a, b) => b.ind - a.ind); if (M === "min") L = L.sort((a, b) => a.ind - b.ind); if (M === "apg") L = L.filter((x) => x.ap > 0).sort((a, b) => b.ap - a.ap);
   if (M === "pct") L = L.sort((a, b) => b.pc - a.pc || b.ind - a.ind); if (M === "rpv") L = L.filter((x) => x.rpv != null).sort((a, b) => a.rpv - b.rpv);
-  const val = (x) => M === "tot" ? fm(x.ind) : M === "apg" ? fm(x.ap) : M === "pct" ? nf(x.pc * 100, 0) + "%" : "R$ " + c3n(x.rpv) + "/voto";
-  const sub = (x) => M === "rpv" ? `${c3mi(x.ind)} · ${c3n(vot[x.n])} votos` : `${x.q} ${x.q === 1 ? "emenda" : "emendas"} · ${fm(x.ind)} indicados${M !== "tot" ? "" : " · " + nf(x.pc * 100, 0) + "% pago"}`;
+  const val = (x) => M === "tot" || M === "min" ? fm(x.ind) : M === "apg" ? fm(x.ap) : M === "pct" ? nf(x.pc * 100, 0) + "%" : "R$ " + c3n(x.rpv) + "/voto";
+  const sub = (x) => M === "rpv" ? `${c3mi(x.ind)} · ${c3n(vot[x.n])} votos` : `${x.q} ${x.q === 1 ? "emenda" : "emendas"} · ${fm(x.ind)} indicados${M === "tot" || M === "min" ? " · " + nf(x.pc * 100, 0) + "% pago" : ""}`;
   const rampa = c3Rampas()[C3_RECM[M][1]], cores = {}, n = L.length; L.forEach((x, i) => { cores[x.n] = rampa[6 - Math.min(6, Math.floor(i * 7 / Math.max(n, 1)))]; });
   v.analise({ id: "rec:" + M + C3.recAno + C3.recOri, cores, rotulos: L.slice(0, 10).map((x) => [x.n, val(x)]) });
   const fil = [C3.recAno || "", C3.recOri === "imp" ? "emendas impositivas" : C3.recOri === "con" ? "convênios e outros" : ""].filter(Boolean).join(" · ");
-  C3.legAnal = "menos" + c3fx(rampa) + `${C3_RECM[M][2]} <span>${fil ? "· " + fil + " " : ""}· sem cor = sem emenda</span>`;
+  C3.legAnal = (M === "min" ? "mais recurso" : "menos") + c3fx(rampa) + `${C3_RECM[M][2]} <span>${fil ? "· " + fil + " " : ""}· sem cor = sem emenda</span>`;
   c3$("rnota").textContent = n ? `${n} ${n === 1 ? "município" : "municípios"}${fil ? " · " + fil : ""}. Toque num nome para abrir a cidade.` : "Nenhum município com esse recorte.";
   v.reserva(c3$("ferr").classList.contains("aberta") ? c3$("ferr").offsetWidth + 34 : 0);   // rótulos no espaço livre, sem passar por trás do quadro
   c3$("rlista").innerHTML = L.slice(0, 10).map((x, i) => `<li data-n="${esc(x.n)}"><i>${i + 1}</i><b>${esc(x.n)}</b><span>${val(x)}<small>${sub(x)}</small></span></li>`).join("");

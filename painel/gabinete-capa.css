@@ -198,3 +198,7 @@
 
 /* interruptor Votos | Recursos (20/11/2026): na vertente Recursos aparecem as leituras de recursos no lugar de 2026/2022/Variação */
 .g3d .sw:not(.rec) .subr{ display:none; } .g3d .sw.rec .subr{ display:flex; } .g3d .sw.rec.compacto .subr{ display:none; }
+
+/* leituras de Recursos no interruptor: só ícones (setas, R$/V, +pago, −pago) */
+.g3d .subr .ric{ display:inline-flex; align-items:center; justify-content:center; min-width:30px; height:28px; padding:0 8px !important; font-size:11px; font-weight:700; letter-spacing:-.01em; white-space:nowrap; }
+.g3d .subr .ric svg{ width:14px; height:14px; }

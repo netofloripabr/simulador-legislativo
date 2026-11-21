@@ -191,8 +191,9 @@ Busca: só o ícone; ao clicar expande para 280px com o campo e as sugestões (c
 
 ### 4.2 Interruptor Votos | Recursos (`.sw`)
 Pílula de vidro com segmentos; ativo = fundo `--texto`. *Decisão 20/11 (2ª versão do dia; substitui "só Votos").*
-- Duas **vertentes**. **Votos**: opções 2026 · 2022 · Variação. **Recursos**: opções Total indicado · Falta pagar ·
-  % pago · R$ por voto (pintam o mapa como em §4.3, Outros › Recursos).
+- Duas **vertentes**. **Votos**: opções 2026 · 2022 · Variação. **Recursos**: opções **só com ícones** — ↑ mais recurso ·
+  ↓ menos recurso · R$/V (R$ por voto) · +pago · −pago (falta pagar); o nome aparece ao passar o mouse. Pintam o mapa como
+  em §4.3, Outros › Recursos. *Decisão 20/11.*
 - Tocar na vertente já ativa abre ou fecha as opções; trocar de vertente abre as opções da nova (fechado por padrão).
 - A vertente muda também as **ferramentas**: em Recursos, Outros mostra a seção Recursos (leitura, ano, origem, lista) e
   esconde os dados sociais/econômicos; em Votos, o contrário. Camadas valem nas duas.
