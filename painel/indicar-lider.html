@@ -110,6 +110,13 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
   background-size:100% 100%, 200% 100%; background-repeat:no-repeat, repeat-x; animation:brilho 4s linear infinite; }
 @media (prefers-reduced-motion:reduce){ .it .sel.pree{ animation:none !important; } }
 .trv .sel.pree, .trv textarea.ed.pree{ border-color:var(--bd) !important; box-shadow:none; }
+/* objeto fora do Portfólio (20/11/2026): texto cinza claro, etiqueta vermelha e aviso; Enviar fica apagado até resolver */
+.sel .o.inc{ color:#A4ABB1; font-weight:400; text-decoration:line-through; text-decoration-color:rgba(164,171,177,.6); }
+.tg.x{ background:#FBE3DF; color:#B23A2A; text-decoration:none; display:inline-block; }
+.avi{ margin:6px 4px 0; font-size:12px; font-weight:500; color:#B23A2A; display:flex; gap:6px; align-items:center; } .avi:before{ content:"!"; width:16px; height:16px; border-radius:50%; background:#B23A2A; color:#fff; font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; flex:none; }
+.bt.off{ opacity:.45; }
+@keyframes chama{ 0%,100%{ box-shadow:none; } 30%{ box-shadow:0 0 0 4px rgba(178,58,42,.25); } }
+.it.chama{ animation:chama 1.2s ease-in-out 2; }
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
 <script>
@@ -128,7 +135,11 @@ const CAD = '<svg viewBox="0 0 12 12"><rect x="2.5" y="5.5" width="7" height="5"
 // área da emenda (como está no gabinete) → áreas do Portfólio; FUNDAM ou sem área = tudo que não é Saúde
 const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
 let L = null, IT = [], ST = [], PORT = [], MUN = [], FECHA = null, ABERTO = false;
-const feito = (s) => !!s.obj;
+// só vale objeto do Portfólio compatível com a área e a despesa da emenda (20/11/2026); outro texto (inclusive o que veio da
+// planilha do gabinete) aparece em cinza claro com o aviso, não conta como preenchido e impede o envio
+const portOk = (i, obj) => !!obj && compat(IT[i]).some((o) => norm(o[2]) === norm(obj));
+const feito = (s, i) => portOk(i, s.obj);
+const incomp = (s, i) => !!s.obj && !portOk(i, s.obj);
 const grupo = (x) => x.area === "Saúde" ? "Saúde" : "FUNDAM";
 function compat(x) { const A = AREA_P[x.area]; return PORT.filter(([area, , , nat]) => (A ? A.includes(area) : x.area === "Saúde" ? area === "Saúde" : area !== "Saúde") && (!x.natureza || nat === x.natureza || / ou /.test(nat))); }
 const INFO = () => `As emendas já vêm com o que o gabinete preparou. Você preenche só os campos com borda escura: o <b>objeto</b> (do Portfólio) e a <b>justificativa</b>.<br><br>Município, quem recebe, área, tipo de despesa e valor foram definidos pelo gabinete e não mudam aqui. Tudo o que você preenche fica salvo sozinho; ao terminar, toque em <b>Enviar ao gabinete</b>. ${ABERTO ? `Até ${FECHA.toLocaleDateString("pt-BR")}, ${FECHA.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}, você pode voltar a este link e mudar.` : ""}`;
@@ -149,7 +160,7 @@ async function iniciar() {
     render(); setInterval(() => { const c = document.querySelector(".icapa .w2"); if (c) c.innerHTML = `<span class="tk">${prazoTx()}</span>${cont()}`; }, 30000);
   } catch (e) { msg("Não foi possível abrir", "Confira a internet e recarregue a página. (" + esc(e.message) + ")"); } }
 const trava = (s) => !ABERTO || s.status === "aceito" || s.status === "recusado";
-function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i]) ? +x.valor || 0 : 0), 0);
+function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i], i) ? +x.valor || 0 : 0), 0);
   const [org, tit] = String(L.titulo || "").includes(" · ") ? L.titulo.split(" · ") : ["", L.titulo || "Emendas"];
   document.getElementById("app").innerHTML = `
   ${org ? `<div class="org">${esc(org)}</div>` : ""}
@@ -159,13 +170,13 @@ function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) =
     <div class="t"><span class="tk">Utilizado</span><span class="iv">${rc(uso)}<small>${F} de ${IT.length} com objeto</small></span><div class="ibar"><i style="width:${COTA ? uso / COTA * 100 : 0}%"></i></div></div>
     <div class="t w2"><span class="tk">${prazoTx()}</span>${cont()}</div>
   </div>
-  ${IT.map((x, i) => { const s = ST[i], ok = feito(s), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
+  ${IT.map((x, i) => { const s = ST[i], ok = feito(s, i), inc = incomp(s, i), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
     <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span><div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
     ${s.status === "aceito" ? `<div class="dec"><b>✓ Aceito pelo gabinete</b></div>` : s.status === "recusado" ? `<div class="dec">O gabinete não aceitou esta proposta.</div>` : ""}
     <div class="lin"><label class="cx"><span class="fl">${ent ? "Município da entidade" : "Município"}</span><input class="ed trav" list="muns" data-mun="${i}" value="${esc(s.mun)}" disabled title="Definido pelo gabinete"></label>
       <div class="cx"><span class="fl">Quem recebe</span><button class="sw trav${ent ? " ent" : ""}" data-bt="${i}" role="switch" aria-checked="${ent}" disabled title="Definido pelo gabinete"><span class="${ent ? "" : "on"}">Município</span><span class="tr"></span><span class="${ent ? "on" : ""}">Entidade</span></button></div></div>
     ${ent ? `<div class="lin" style="grid-template-columns:minmax(0,1fr) 190px"><label class="cx"><span class="fl">Entidade</span><input class="ed trav" data-ben="${i}" value="${esc(s.ben)}" placeholder="Razão social" disabled title="Definido pelo gabinete"></label><label class="cx"><span class="fl">CNPJ</span><input class="ed trav" data-cnpj="${i}" value="${esc(s.cnpj)}" placeholder="00.000.000/0000-00" inputmode="numeric" disabled title="Definido pelo gabinete"></label></div>` : ""}
-    <div class="cx" style="margin-bottom:8px"><span class="fl">Objeto</span><button class="sel pree" data-esc="${i}" ${tv ? "disabled" : ""}><span class="o${ok ? "" : " vz"}">${s.obj ? `${esc(s.obj)}${s.fonte === "gab" ? `<span class="tg">Item do gabinete</span>` : s.fonte === "outro" ? `<span class="tg">sugestão · fora do Portfólio</span>` : `<span class="tg p">Portfólio</span>`}` : "Escolha o objeto"}</span><span class="ca">▾</span></button></div>
+    <div class="cx" style="margin-bottom:8px"><span class="fl">Objeto</span><button class="sel pree" data-esc="${i}" ${tv ? "disabled" : ""}><span class="o${ok ? "" : inc ? " inc" : " vz"}">${s.obj ? `${esc(s.obj)}${inc ? `<span class="tg x">fora do Portfólio</span>` : s.fonte === "gab" ? `<span class="tg">Item do gabinete</span>` : `<span class="tg p">Portfólio</span>`}` : "Escolha o objeto"}</span><span class="ca">▾</span></button>${inc && !tv ? `<div class="avi">Este item não é compatível. Selecione um item do portfólio.</div>` : ""}</div>
     <label class="cx"><span class="fl">Justificativa</span><textarea class="ed pree" data-com="${i}" rows="2" placeholder="Informe os detalhes" ${tv ? "disabled" : ""}>${esc(s.com)}</textarea></label>
   </div>`; }).join("")}`;
   document.getElementById("env")?.remove();
@@ -187,14 +198,17 @@ function liga() { const A = document.getElementById("app");
   A.querySelectorAll("[data-com]").forEach((e) => e.oninput = () => { ST[+e.dataset.com].com = e.value; salvar(+e.dataset.com); });
   A.querySelectorAll("[data-esc]").forEach((e) => e.onclick = () => escolher(+e.dataset.esc));
   A.querySelector("[data-info]").onclick = (ev) => info(ev.currentTarget);
-  const en = document.getElementById("enviar"); if (en) en.onclick = async () => { const f = ST.filter(feito).length;
+  const falta = () => IT.map((x, i) => i).filter((i) => !trava(ST[i]) && !feito(ST[i], i));
+  const en = document.getElementById("enviar"); if (en) { en.classList.toggle("off", falta().length > 0); en.onclick = async () => { const f = ST.filter(feito).length, F2 = falta();
+    if (F2.length) { const c = document.querySelectorAll(".it")[F2[0]]; if (c) { c.scrollIntoView({ behavior: "smooth", block: "center" }); c.classList.remove("chama"); void c.offsetWidth; c.classList.add("chama"); }
+      const v = document.getElementById("sv"); if (v) { v.className = "sv er"; v.textContent = `· falta escolher o objeto do Portfólio em ${F2.length} ${F2.length === 1 ? "emenda" : "emendas"}`; } return; }
     if (!(await confirmaVX("Enviar ao gabinete?", `${f} de ${IT.length} emendas com objeto.`))) return;
     try { await Promise.all(Object.keys(TM).map((i) => new Promise((ok) => setTimeout(ok, 900))));
       for (let i = 0; i < IT.length; i++) { const s = ST[i]; if (s.status || trava(s)) continue;
         await rpc("link_salvar", { p_token: TOKEN, p_item: IT[i].id, p_dados: { municipio: s.mun, benef_tipo: s.bt, beneficiario: s.bt === "ent" ? s.ben : "", cnpj: s.bt === "ent" ? s.cnpj : "", objeto: s.obj || "", objeto_fonte: s.fonte, justificativa: s.com } }); s.status = "rascunho"; }
       await rpc("link_enviar", { p_token: TOKEN }); L.enviado_em = new Date().toISOString(); ST.forEach((s) => { if (s.status === "rascunho") s.status = "enviado"; });
       document.getElementById("env").remove(); A.innerHTML = `<div class="fim"><div style="font-size:40px">✓</div><b>Enviado ao gabinete</b><p class="mut">Até ${FECHA.toLocaleDateString("pt-BR")}, ${FECHA.getHours()}h, você pode voltar a este link e mudar.</p><button class="bt s" id="volta">Ver as emendas</button></div>`; document.getElementById("volta").onclick = render;
-    } catch (e) { alert("Não foi possível enviar: " + e.message); } }; }
+    } catch (e) { alert("Não foi possível enviar: " + e.message); } }; } }
 function info(b) { const ja = document.getElementById("ipop"); if (ja) { ja.remove(); b.classList.remove("on"); return; }
   const r = b.getBoundingClientRect(); b.classList.add("on");
   document.body.insertAdjacentHTML("beforeend", `<div class="ipop" id="ipop" style="top:${r.bottom + scrollY + 8}px;left:${Math.max(12, Math.min(r.left + scrollX - 20, innerWidth - 352))}px">${INFO()}</div>`);
@@ -206,11 +220,11 @@ function escolher(i) { const x = IT[i], C = compat(x);
   const k = (e) => { if (e.key === "Escape") fecha(); };
   const usa = (o) => { Object.assign(ST[i], o); salvar(i); fecha(); render(); };
   const lista = () => { const w = norm(q.value).split(/\s+/).filter(Boolean), ok = (t) => w.every((kk) => norm(t).includes(kk)), R = C.filter((o) => ok(o[2] + " " + o[1] + " " + o[5]));
-    const gab = x.objeto && ok(x.objeto) ? `<div class="ipga">Do gabinete</div><button class="po" data-gab>${esc(x.objeto)} <span class="tg">Item do gabinete</span></button>` : "";
-    l.innerHTML = gab + `<div class="ipga">Portfólio · ${R.length}</div>` + R.slice(0, 150).map((o, j) => `<button class="po" data-o="${C.indexOf(o)}">${esc(o[2])}<em>${esc([o[1], o[3], o[4]].filter(Boolean).join(" · "))}</em></button>`).join("") + `<button class="po out" data-outro>Nenhum serve · sugerir outro objeto</button>`;
+    const gab = x.objeto && ok(x.objeto) && portOk(i, x.objeto) ? `<div class="ipga">Do gabinete</div><button class="po" data-gab>${esc(x.objeto)} <span class="tg">Item do gabinete</span></button>` : "";
+    l.innerHTML = gab + `<div class="ipga">Portfólio · ${R.length}</div>` + R.slice(0, 150).map((o, j) => `<button class="po" data-o="${C.indexOf(o)}">${esc(o[2])}<em>${esc([o[1], o[3], o[4]].filter(Boolean).join(" · "))}</em></button>`).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
     l.querySelector("[data-gab]")?.addEventListener("click", () => usa({ obj: x.objeto, fonte: "gab" }));
     l.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => usa({ obj: C[+b.dataset.o][2], fonte: "port" }));
-    l.querySelector("[data-outro]").onclick = () => { const t = prompt("Descreva o objeto que você sugere:", ST[i].fonte === "outro" ? ST[i].obj : ""); if (t && t.trim()) usa({ obj: t.trim(), fonte: "outro" }); else fecha(); }; };
+  };
   q.oninput = lista; lista(); q.focus(); p.onclick = (e) => { if (e.target === p) fecha(); }; document.addEventListener("keydown", k); }
 function confirmaVX(t, tx) { return new Promise((ok) => { const I1 = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>', I2 = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>';
   document.activeElement && document.activeElement.blur(); document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="cf"><div class="cfb"><b>${t}</b><p>${tx}</p><div><button class="vxb" data-x aria-label="Cancelar">${I2}</button><button class="vxb v" data-v aria-label="Confirmar">${I1}</button></div></div></div>`);
