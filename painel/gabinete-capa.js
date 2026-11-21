@@ -3,7 +3,7 @@
 // e a capa fala direto com ele (contentWindow.__v4).
 // A capa fica FORA de #app (em #capa3d, logo antes): desenhar() redesenha #app a cada clique e o iframe não pode ser
 // recriado (o 3D recarregaria). Ela é montada uma vez por parlamentar; depois só os números, a faixa e o aviso mudam.
-const C3 = { n: null, REC: null, lente: "voto", MARCAS: { disco: true, pinta: false, relevo: false }, tema: null, DD: null, anal: null, EST: null, ligado: false };
+const C3 = { n: null, REC: null, recM: null, recAno: "", recOri: "", lente: "voto", MARCAS: { disco: true, pinta: false, relevo: false }, tema: null, DD: null, anal: null, EST: null, ligado: false };
 const c3$ = (id) => document.getElementById("c3" + id);
 const c3W = () => { const f = c3$("mapa"); try { return f && f.contentWindow; } catch (e) { return null; } };
 const c3M = () => { const w = c3W(); return w && w.__v4; };
@@ -27,7 +27,7 @@ function capa3d() {
   let box = $("#capa3d"); if (!box) { box = document.createElement("div"); box.id = "capa3d"; $("#app").before(box); }
   if (C3.n !== PARL.n) { C3.n = PARL.n; C3.DD = null; C3.REC = null; box.innerHTML = c3Html(); c3Ligar(); }
   c3Info(); c3Painel(); c3Cota();
-  const rec = c3Rec(); if (JSON.stringify(rec) !== JSON.stringify(C3.REC)) { C3.REC = rec; C3.DD = null; c3Marca(); }
+  const rec = c3Rec(); if (JSON.stringify(rec) !== JSON.stringify(C3.REC)) { C3.REC = rec; C3.DD = null; if (C3.recM) c3RecPinta(); else c3Marca(); }
 }
 
 function c3Html() {
@@ -68,6 +68,8 @@ function c3Html() {
         <button class="outros" id="c3outrosBt"><span>Outros</span><em id="c3outrosOn"></em>${C3_SVG.lado}</button>
         <div class="sub" id="c3sub">
           <div class="fcab"><span>Outros · camadas e dados</span></div>
+          <h5>Recursos</h5><div class="g" data-gr="recm"><button data-v="tot" title="Onde houve mais recurso indicado">Total indicado</button><button data-v="apg" title="Onde falta pagar mais">Falta pagar</button><button data-v="pct" title="Quanto do indicado já foi pago">% pago</button><button data-v="rpv" title="Recurso indicado ÷ votos 2026 (só cidades com pelo menos 50 votos)">R$ por voto</button></div>
+          <div class="rsub" id="c3rsub" hidden><div class="g" data-gr="reca" id="c3ranos"></div><div class="g" data-gr="reco" id="c3rori"></div><p class="dica" id="c3rnota"></p><ol class="alista" id="c3rlista"></ol></div>
           <h5>Camadas</h5><div class="g" data-gr="cam"><button data-v="rod">Rodovias</button><button data-v="rio">Rios</button><button data-v="cid">Cidades</button></div>
           <p class="dica" style="margin-top:12px">Dados abaixo: um por vez, por cima das camadas. Clique de novo para voltar à votação.</p>
           <h5>Sociais</h5><div class="g" data-gr="tema"><button data-v="pop_2022">População</button><button data-v="pct_urbana">População urbana</button><button data-v="pct_evangelicos">Evangélicos</button><button data-v="pct_catolicos">Católicos</button></div>
@@ -76,7 +78,7 @@ function c3Html() {
         </div>
       </div>
     </div>
-    <div class="sw vidro compacto" id="c3sw"><button class="on" data-l="v">Votos</button><span class="subv"><button class="on" data-a="voto">2026</button>${tem22() ? '<button data-a="v22">2022</button><button data-a="var">Variação</button>' : ""}</span><button data-l="r">Recursos</button></div>
+    <div class="sw vidro compacto" id="c3sw"><button class="on" data-l="v">Votos</button><span class="subv"><button class="on" data-a="voto">2026</button>${tem22() ? '<button data-a="v22">2022</button><button data-a="var">Variação</button>' : ""}</span></div>
   </div>
   <div class="apill vidro" id="c3apill">${C3_SVG.graf}<button class="ap" data-p="-1" aria-label="Análise anterior">‹</button><button class="an" id="c3apNome"></button><button class="ap" data-p="1" aria-label="Próxima análise">›</button><button class="ax" id="c3apSai" title="Sair da análise (o mapa volta como estava)">×</button></div>
 </section>`;
@@ -136,12 +138,42 @@ const c3Guarda = () => { try { localStorage.setItem("gab_capa_ferr", JSON.string
 function c3Botoes() { const ferr = c3$("ferr"), E = C3.EST; ferr.querySelectorAll('[data-gr="marca"] button').forEach((x) => x.classList.toggle("on", !!E.marcas[x.dataset.v])); ferr.querySelectorAll('[data-gr="base"] button').forEach((x) => x.classList.toggle("on", x.dataset.v === E.base));
   ferr.querySelectorAll('[data-gr="cam"] button').forEach((x) => x.classList.toggle("on", !!E.cam[x.dataset.v])); ferr.querySelectorAll('[data-gr="tema"] button').forEach((x) => x.classList.toggle("on", x.dataset.v === E.tema));
   const i = Math.max(0, C3_VISTAS.findIndex(([k]) => k === E.vista)); c3$("vistaBt").querySelector("span").textContent = C3_VISTAS[i][1]; c3$("vistaBt").querySelector("small").textContent = `${i + 1}/${C3_VISTAS.length}`;
-  c3$("outrosOn").textContent = E.tema ? C3_TEMA[E.tema] : ""; }
+  c3$("outrosOn").textContent = C3.recM ? C3_RECM[C3.recM][0] : E.tema ? C3_TEMA[E.tema] : ""; }
 async function c3Aplica(inicio) { const v = c3M(); if (!v) return; const E = C3.EST; c3Botoes(); C3.MARCAS = E.marcas; C3.tema = E.tema;
   if (!inicio || JSON.stringify(E.marcas) !== JSON.stringify(C3_PADRAO.marcas)) v.marcas(E.marcas); if (!inicio || E.base !== "sat") await v.base(E.base);
   for (const c of ["rod", "rio", "cid"]) if (!inicio || !!E.cam[c] !== !!C3_PADRAO.cam[c]) await v.camada(c, !!E.cam[c]);
   if (!inicio || E.tema) await v.tema(E.tema); v.vista(E.vista); c3Marca();
   if (S.reg) selReg(S.reg, true); }   // um recorte escolhido antes do mapa ficar pronto
+
+// ----- Outros › Recursos (20/11/2026): pinta os municípios por total indicado, falta pagar, % pago ou R$ por voto, com ano e
+// origem (emendas impositivas × convênios e outros); a lista mostra os municípios dessa leitura e abre a cidade ao tocar.
+// Substitui o "Recursos" do seletor Votos/Recursos (mais a pagar × mais pago), que saiu a pedido do usuário.
+const C3_RECM = { tot: ["Total indicado", "voto", "mais recurso"], apg: ["Falta pagar", "apagar", "falta pagar mais"], pct: ["% pago", "pago", "mais pago"], rpv: ["R$ por voto", "up", "melhor R$ por voto"] };
+const C3_IMP = new Set(["AN", "0,55", "EX"]);
+function c3RecDados() { const [R0, I] = itensCapa(), ix = {}, o = {}; BASE.mun.forEach((m) => { ix[norm(m.n)] = m.n; });
+  R0.filter((x) => (!C3.recAno || x.ano === +C3.recAno) && (!C3.recOri || (C3.recOri === "imp") === C3_IMP.has(x.t))).forEach((x) => { const n = ix[x.mun]; if (!n || !x.v) return; const r = o[n] || (o[n] = [0, 0, 0]); r[0] += x.v; r[1] += x.p || 0; r[2]++; });
+  return { o, I, anos: [...new Set(R0.map((x) => x.ano).filter(Boolean))].sort(), oris: new Set(R0.map((x) => C3_IMP.has(x.t) ? "imp" : "con")) }; }
+function c3RecUI() { const D = c3RecDados(), sub = c3$("rsub"); if (!sub) return D; sub.hidden = !C3.recM;
+  c3$("ranos").innerHTML = `<button data-v="" class="${C3.recAno ? "" : "on"}">Todos os anos</button>` + D.anos.map((a) => `<button data-v="${a}" class="${String(C3.recAno) === String(a) ? "on" : ""}">${a}</button>`).join("");
+  c3$("rori").innerHTML = D.oris.size > 1 ? `<button data-v="" class="${C3.recOri ? "" : "on"}">Todas as origens</button><button data-v="imp" class="${C3.recOri === "imp" ? "on" : ""}">Emendas impositivas</button><button data-v="con" class="${C3.recOri === "con" ? "on" : ""}">Convênios e outros</button>` : "";
+  c3$("ferr").querySelectorAll('[data-gr="recm"] button').forEach((x) => x.classList.toggle("on", x.dataset.v === C3.recM)); return D; }
+function c3RecPinta() { const v = c3M(); const D = c3RecUI(); if (!v) return;
+  if (!C3.recM) { if (!C3.anal) { v.analise(null); v.reserva(0); C3.legAnal = null; } c3$("rlista").innerHTML = ""; c3Botoes(); c3Marca(); return; }
+  if (C3.anal) c3Sai();
+  const M = C3.recM, vot = {}; c3dd().forEach((x) => { vot[x.nome] = x.vot; });
+  let L = Object.entries(D.o).map(([n, [ind, pg, q]]) => ({ n, ind, pg, q, ap: Math.max(0, ind - pg), pc: ind ? pg / ind : 0, rpv: vot[n] >= C3_MIN_VOT ? ind / vot[n] : null }));
+  if (M === "tot") L = L.sort((a, b) => b.ind - a.ind); if (M === "apg") L = L.filter((x) => x.ap > 0).sort((a, b) => b.ap - a.ap);
+  if (M === "pct") L = L.sort((a, b) => b.pc - a.pc || b.ind - a.ind); if (M === "rpv") L = L.filter((x) => x.rpv != null).sort((a, b) => a.rpv - b.rpv);
+  const val = (x) => M === "tot" ? fm(x.ind) : M === "apg" ? fm(x.ap) : M === "pct" ? nf(x.pc * 100, 0) + "%" : "R$ " + c3n(x.rpv) + "/voto";
+  const sub = (x) => M === "rpv" ? `${c3mi(x.ind)} · ${c3n(vot[x.n])} votos` : `${x.q} ${x.q === 1 ? "emenda" : "emendas"} · ${fm(x.ind)} indicados${M !== "tot" ? "" : " · " + nf(x.pc * 100, 0) + "% pago"}`;
+  const rampa = c3Rampas()[C3_RECM[M][1]], cores = {}, n = L.length; L.forEach((x, i) => { cores[x.n] = rampa[6 - Math.min(6, Math.floor(i * 7 / Math.max(n, 1)))]; });
+  v.analise({ id: "rec:" + M + C3.recAno + C3.recOri, cores, rotulos: L.slice(0, 10).map((x) => [x.n, val(x)]) });
+  const fil = [C3.recAno || "", C3.recOri === "imp" ? "emendas impositivas" : C3.recOri === "con" ? "convênios e outros" : ""].filter(Boolean).join(" · ");
+  C3.legAnal = "menos" + c3fx(rampa) + `${C3_RECM[M][2]} <span>${fil ? "· " + fil + " " : ""}· sem cor = sem emenda</span>`;
+  c3$("rnota").textContent = n ? `${n} ${n === 1 ? "município" : "municípios"}${fil ? " · " + fil : ""}. Toque num nome para abrir a cidade.` : "Nenhum município com esse recorte.";
+  v.reserva(c3$("ferr").classList.contains("aberta") ? c3$("ferr").offsetWidth + 34 : 0);   // rótulos no espaço livre, sem passar por trás do quadro
+  c3$("rlista").innerHTML = L.slice(0, 10).map((x, i) => `<li data-n="${esc(x.n)}"><i>${i + 1}</i><b>${esc(x.n)}</b><span>${val(x)}<small>${sub(x)}</small></span></li>`).join("");
+  c3Botoes(); c3Marca(); }
 
 // Análises prontas (16/11/2026): rankings estratégicos; os 10 municípios da análise viram rótulos no mapa
 const c3n = (n) => Math.round(n).toLocaleString("pt-BR"), c3mi = (v) => "R$ " + (v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + " mi", c3pc = (x) => (x * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%";
@@ -170,7 +202,7 @@ const c3Rampa = (tom) => { const R = c3Rampas(); return { bom: R.up, ruim: R.dn,
 const c3CorRank = (tom, i, n) => c3Rampa(tom)[6 - Math.floor(i * 7 / Math.max(n, 1))];
 function c3Lista(L) { let i = 0, j = 0; c3$("alista").innerHTML = L.map((x) => x.cab ? (j = 0, `<li class="cab">${x.cab}</li>`) : `<li data-n="${esc(x.n)}"${x.reg ? ' data-reg="1"' : ""}><i>${x.reg ? ++j : ++i}</i><b>${esc(x.n)}</b><span>${x.v}<small>${x.s}</small></span></li>`).join("") || '<li class="cab">Nada para mostrar com esse corte.</li>'; }
 // escolher uma análise: o mapa limpa e pinta só as cidades (ou regiões) dela; o botão vira a pílula com ‹ ›
-function c3Entra(id) { const a = C3_ANALISES.find((x) => x.id === id), v = c3M(); if (!a || !v) return; C3.anal = id; const tom = C3_TOM[id], L = a.lista(), cores = {}, rot = [];
+function c3Entra(id) { const a = C3_ANALISES.find((x) => x.id === id), v = c3M(); if (!a || !v) return; if (C3.recM) { C3.recM = null; c3RecUI(); c3$("rlista").innerHTML = ""; } C3.anal = id; const tom = C3_TOM[id], L = a.lista(), cores = {}, rot = [];
   if (tom === "reg") { const ups = L.slice(1, 6), dns = L.slice(7); c3dd().forEach((m) => { const iu = ups.findIndex((x) => x.n === m.regiao), id2 = dns.findIndex((x) => x.n === m.regiao); if (iu >= 0) cores[m.nome] = c3CorRank("bom", iu, 5); else if (id2 >= 0) cores[m.nome] = c3CorRank("ruim", id2, 5); });
     C3.legAnal = "maior aumento" + c3fx(c3Rampa("bom").slice(2).reverse()) + "&nbsp;" + c3fx(c3Rampa("ruim").slice(2)) + "maior queda <span>· associações de municípios</span>"; }
   else { const it = L.filter((x) => !x.cab); it.forEach((x, i) => { cores[x.n] = c3CorRank(tom, i, it.length); rot.push([x.n, x.v]); }); C3.legAnal = "1º" + c3fx([...c3Rampa(tom)].reverse()) + `${it.length}º <span>· ${a.nome}</span>`; }
@@ -181,7 +213,7 @@ function c3Entra(id) { const a = C3_ANALISES.find((x) => x.id === id), v = c3M()
 function c3Sai() { C3.anal = null; C3.legAnal = null; const v = c3M(); if (v) { v.analise(null); v.reserva(0); } c3$("apill").classList.remove("on"); c3$("btA").style.display = ""; $("#ghero .linha1").classList.remove("emAnal"); $("#ghero").classList.remove("esfera");
   c3$("anal").classList.remove("aberta"); c3$("btA").classList.remove("on"); c3$("achips").querySelectorAll("button").forEach((b) => b.classList.remove("on")); c3$("rankBt").hidden = true; c3$("alista").hidden = true; c3$("rankBt").classList.remove("on"); c3Marca(); c3Ajusta(); }
 const c3Vao = () => { const v = c3M(); if (!v || !v.vao) return; const f = c3$("ferr"), a = c3$("anal"), q = f.classList.contains("aberta") ? f : a.classList.contains("aberta") ? a : null; v.vao(q ? q.offsetWidth + 24 : 0); };   // mapa no espaço livre ao lado do quadro aberto (17/11/2026)
-const c3FechaFerr = () => { c3$("ferr").classList.remove("aberta"); c3$("btF").classList.remove("on"); c3Vao(); };
+const c3FechaFerr = () => { c3$("ferr").classList.remove("aberta"); c3$("btF").classList.remove("on"); if (C3.recM && !C3.anal) { const v = c3M(); if (v) v.reserva(0); } c3Vao(); };
 const c3AbreQuadro = () => { c3FechaFerr(); c3$("anal").classList.add("aberta"); const v = c3M(); if (v) v.reserva(c3$("anal").offsetWidth + 34); c3Vao(); };
 const c3FechaAnal = () => { c3$("anal").classList.remove("aberta"); c3$("btA").classList.remove("on"); const v = c3M(); if (v) v.reserva(0); c3Vao(); };
 
@@ -209,24 +241,27 @@ function c3Ligar() {
   const vai = () => { const v = c3M(); if (v && li.value.trim()) v.busca(li.value.trim()); }; li.addEventListener("change", vai); li.addEventListener("keydown", (e) => { if (e.key === "Enter") vai(); }); li.onblur = () => { if (!li.value) lupa.classList.remove("aberta"); };
   const sw = c3$("sw");
   sw.onclick = (e) => { e.stopPropagation(); /* 2026/2022/Variação fechados por padrão; tocar em Votos já ativo abre ou fecha; Recursos fecha */ const bv = e.target.closest("[data-l=v]"); if (bv && bv.classList.contains("on")) { sw.classList.toggle("compacto"); return; } if (e.target.closest("[data-l=r]")) sw.classList.add("compacto"); const b = e.target.closest("button"); if (!b) return;
-    if (b.dataset.l) { sw.querySelectorAll(":scope > button").forEach((x) => x.classList.toggle("on", x === b)); sw.classList.toggle("rec", b.dataset.l === "r"); C3.lente = b.dataset.l === "r" ? "rec" : sw.querySelector(".subv .on").dataset.a; }
+    if (b.dataset.l) { sw.querySelectorAll(":scope > button").forEach((x) => x.classList.toggle("on", x === b)); sw.classList.toggle("rec", b.dataset.l === "r"); C3.lente = sw.querySelector(".subv .on").dataset.a; }
     else { b.parentElement.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); C3.lente = b.dataset.a; }
     c3Marca(); };
   const ferr = c3$("ferr"), anal = c3$("anal"), btA = c3$("btA"), sub = c3$("sub"), alista = c3$("alista"), rankBt = c3$("rankBt");
-  c3$("btF").onclick = (e) => { e.stopPropagation(); if (anal.classList.contains("aberta")) c3FechaAnal(); ferr.classList.toggle("aberta"); c3$("btF").classList.toggle("on", ferr.classList.contains("aberta")); c3Vao(); };
+  c3$("btF").onclick = (e) => { e.stopPropagation(); if (anal.classList.contains("aberta")) c3FechaAnal(); ferr.classList.toggle("aberta"); c3$("btF").classList.toggle("on", ferr.classList.contains("aberta")); if (C3.recM) { const v = c3M(); if (v) v.reserva(ferr.classList.contains("aberta") ? ferr.offsetWidth + 34 : 0); } c3Vao(); };
   c3$("outrosBt").onclick = (e) => { e.stopPropagation(); sub.classList.toggle("aberta"); c3$("outrosBt").classList.toggle("on", sub.classList.contains("aberta")); if (sub.classList.contains("aberta")) setTimeout(() => ferr.scrollTo({ top: ferr.scrollHeight, behavior: "smooth" }), 30); };
-  c3$("reset").onclick = async (e) => { e.stopPropagation(); C3.EST = JSON.parse(JSON.stringify(C3_PADRAO)); c3Guarda(); await c3Aplica(false); const v = c3M(); if (v) { v.inicio(); v.recentra(); } li.value = ""; };
+  c3$("reset").onclick = async (e) => { e.stopPropagation(); if (C3.recM) { C3.recM = null; C3.recAno = ""; C3.recOri = ""; c3RecPinta(); } C3.EST = JSON.parse(JSON.stringify(C3_PADRAO)); c3Guarda(); await c3Aplica(false); const v = c3M(); if (v) { v.inicio(); v.recentra(); } li.value = ""; };
   c3$("vistaBt").onclick = (e) => { e.stopPropagation(); const i = C3_VISTAS.findIndex(([k]) => k === C3.EST.vista); C3.EST.vista = C3_VISTAS[(i + 1) % C3_VISTAS.length][0]; c3Guarda(); c3Botoes(); const v = c3M(); if (v) v.vista(C3.EST.vista); };
   ferr.onclick = async (e) => { e.stopPropagation(); if (e.target.closest("[data-min]")) { c3FechaFerr(); return; } const b = e.target.closest("button"); if (!b || b.disabled || !b.parentElement.dataset.gr && b.dataset.recentra == null) return; const v = c3M(); if (!v) return; const E = C3.EST;
     if (b.dataset.recentra != null) { const on = v.trava(!v.travada()); b.classList.toggle("on", on); b.title = on ? "Vista travada: abrir quadros ou trocar ferramentas não mexe no mapa. Clique para destravar." : "Travar a vista nesta posição"; return; }
     const g = b.parentElement.dataset.gr, x = b.dataset.v;
+    if (g === "recm") { C3.recM = C3.recM === x ? null : x; if (C3.recM && E.tema) { E.tema = null; C3.tema = null; c3Guarda(); await v.tema(null); } c3RecPinta(); return; }
+    if (g === "reca") { C3.recAno = x; c3RecPinta(); return; } if (g === "reco") { C3.recOri = x; c3RecPinta(); return; }
     if (g === "cam") { E.cam[x] = !E.cam[x]; c3Guarda(); c3Botoes(); await v.camada(x, E.cam[x]); return; }
-    if (g === "tema") { E.tema = E.tema === x ? null : x; C3.tema = E.tema; c3Guarda(); c3Botoes(); await v.tema(C3.tema); c3Marca(); return; }
+    if (g === "tema") { if (C3.recM) { C3.recM = null; c3RecPinta(); } E.tema = E.tema === x ? null : x; C3.tema = E.tema; c3Guarda(); c3Botoes(); await v.tema(C3.tema); c3Marca(); return; }
     if (g === "marca") { E.marcas = { ...E.marcas, [x]: !E.marcas[x] }; C3.MARCAS = E.marcas; c3Guarda(); c3Botoes(); v.marcas(E.marcas); c3Marca(); }
     if (g === "base") { E.base = x; c3Guarda(); c3Botoes(); await v.base(x); } };
   c3$("achips").innerHTML = c3Analises().map((a) => `<button data-a="${a.id}">${a.nome}</button>`).join("");
   c3$("achips").onclick = (e) => { e.stopPropagation(); const b = e.target.closest("button"); if (b) c3Entra(b.dataset.a); };
   rankBt.onclick = (e) => { e.stopPropagation(); alista.hidden = !alista.hidden; rankBt.classList.toggle("on", !alista.hidden); if (!alista.hidden) setTimeout(() => anal.scrollTo({ top: anal.scrollHeight, behavior: "smooth" }), 30); };
+  c3$("rlista").onclick = (e) => { e.stopPropagation(); const li2 = e.target.closest("li[data-n]"); const v = c3M(); if (li2 && v) v.abre(li2.dataset.n); };
   alista.onclick = (e) => { e.stopPropagation(); const li2 = e.target.closest("li[data-n]"); if (!li2) return; const v = c3M(); if (!v) return; if (li2.dataset.reg) v.busca(li2.dataset.n + " · associação"); else v.abre(li2.dataset.n); };
   c3$("analFecha").onclick = (e) => { e.stopPropagation(); c3FechaAnal(); };
   anal.onclick = (e) => e.stopPropagation();

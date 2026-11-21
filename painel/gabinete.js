@@ -158,7 +158,7 @@ function rankReg() { if (!S.reg || S.reg.t === "mun") return "";
 // valor total (03/11/2026): no próprio gabinete, tudo o que está no Controle (impositivas + convênios/negociados, como "Tudo" das Cotas,
 // sem as listas ainda em indicação); fora dele (ou sem a planilha), só as emendas impositivas do portal da SEF
 function itensCapa() { let I = null; if (proprio() && MEU.length && typeof itensCotas === "function") { const sv = S.cesc; S.cesc = "tudo"; try { I = itensCotas().filter((i) => !i.plan); } finally { S.cesc = sv; } if (!I.length) I = null; }
-  return [I ? I.map((i) => ({ v: i.v, p: i.pago, ano: i.ano, f: i.area, mun: norm(i.mun) })) : E0.map((e) => ({ v: e.v || 0, p: e.vp || 0, ano: +e.ano || +String(e.k || "").slice(0, 4), f: funCapa(e), mun: norm(e.mun) })), I]; }
+  return [I ? I.map((i) => ({ v: i.v, p: i.pago, ano: i.ano, f: i.area, mun: norm(i.mun), t: i.t })) : E0.map((e) => ({ v: e.v || 0, p: e.vp || 0, ano: +e.ano || +String(e.k || "").slice(0, 4), f: funCapa(e), mun: norm(e.mun), t: "AN" })), I]; }
 const tem22 = () => PARL && PARL.t22 > 0 && Array.isArray(PARL.v22);
 // função da emenda na capa: a da planilha do gabinete quando a emenda está ligada a ela; senão, estimada pelo objeto
 const FUN_CAPA = { "Infraestrutura e Mobilidade": "Infraestrutura", "Segurança Pública": "Segurança", "Fundo Social": "Social", "Esporte, cultura e lazer": "Esporte e cultura" };

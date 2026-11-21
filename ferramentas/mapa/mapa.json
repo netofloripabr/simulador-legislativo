@@ -113,6 +113,10 @@
   [
    "20/11/2026",
    "O líder preenche a indicação 'sem precisar logar': a página 'Indicar com o líder' abre só por link com código, fora do menu, e vê apenas as emendas daquele link até o prazo. É mais uma exceção à regra de 05/11 (nada aberto sem login), junto com a Calculadora das comissões."
+  ],
+  [
+   "20/11/2026",
+   "Capa do Gabinete: o botão 'Recursos' do seletor Votos/Recursos sai; as leituras de recursos (total indicado, falta pagar, % pago, R$ por voto, por ano e por origem, com lista) ficam em Ferramentas do mapa › Outros › Recursos. Substitui a decisão de 16/11 'Votos | Recursos'."
   ]
  ],
  "paginas": [
@@ -527,7 +531,7 @@
        "quem": "cadastrado",
        "arquivo": "painel/gabinete-capa.js",
        "ancora": "function c3Botoes",
-       "nota": "Embaixo à direita: busca de cidade/região; Ferramentas do mapa (marcadores Disco/Votos/Relevo do eleitorado, base Satélite/Neutro, vista, Outros: rodovias/rios/cidades e dados sociais/econômicos); seletor Votos (2026/2022/Variação) ou Recursos."
+       "nota": "Embaixo à direita: busca de cidade/região; Ferramentas do mapa (marcadores Disco/Votos/Relevo do eleitorado, base Satélite/Neutro, vista, Outros: Recursos (pinta por total indicado, falta pagar, % pago ou R$ por voto, com ano, origem impositivas × convênios e a lista dos 10 primeiros), rodovias/rios/cidades e dados sociais/econômicos); seletor Votos (2026/2022/Variação). O 'Recursos' do seletor saiu em 20/11/2026."
       },
       {
        "nome": "Análises prontas",
