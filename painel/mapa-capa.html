@@ -267,8 +267,9 @@ body.capa{background:transparent!important}body.capa.mostraCtl>.ctl{display:flex
       // 20/11/2026 (pedido do usuário): a cor compara cada município só com os da ÁREA NA TELA (o estado inteiro ou o recorte).
       // Antes a régua era sempre o estado: num recorte, o mais votado da região (ex.: Santa Terezinha na AMAVI) ficava num tom
       // médio. Nível = posição do valor entre os da área, em 7 faixas (o maior da área = o tom mais escuro).
-      const KV = (uf ? vis : L), ORD = KV.map((k) => Math.abs(vv(MU[k]))).filter((v) => v > 0).sort((a, b) => a - b);
-      const nivel = (v) => { let lo = 0, hi = ORD.length; while (lo < hi) { const md = (lo + hi) >> 1; if (ORD[md] < v) lo = md + 1; else hi = md; } return Math.min(6, Math.floor(lo / Math.max(1, ORD.length - 1) * 6.999)); };
+      // Estado inteiro: exatamente a régua de antes (todos os municípios de SC). Recorte: só os municípios do recorte.
+      const ORD = (uf ? MU.map((m) => vv(m)) : L.map((k) => vv(MU[k]))).map(Math.abs).filter((v) => v > 0).sort((a, b) => a - b);
+      const nivel = (v) => { let lo = 0, hi = ORD.length; while (lo < hi) { const md = (lo + hi) >> 1; if (ORD[md] < v) lo = md + 1; else hi = md; } return uf ? Math.min(6, Math.floor(lo / ORD.length * 7)) : Math.min(6, Math.floor(lo / Math.max(1, ORD.length - 1) * 6.999)); };
       const ALF = [.62, .68, .74, .8, .86, .91, .96], RAMPA = window.__rampas;
       soTerra(mT, (t) => (uf ? vis : L).forEach((k) => { if (AR.anal) { const c = AR.anal.cores[MU[k].nome]; if (c) { t.globalAlpha = .9; t.fillStyle = c; t.fill(cam2([k])); t.globalAlpha = 1; } return; } const m = MU[k], v = vv(m); if (!v) return; const p = cam2([k]), f = nivel(Math.abs(v));
         if (AR.tema) t.fillStyle = RAMPA.tema[f];
