@@ -202,3 +202,8 @@
 /* leituras de Recursos no interruptor: só ícones (setas, R$/V, +pago, −pago) */
 .g3d .subr .ric{ display:inline-flex; align-items:center; justify-content:center; min-width:30px; height:28px; padding:0 8px !important; font-size:11px; font-weight:700; letter-spacing:-.01em; white-space:nowrap; }
 .g3d .subr .ric svg{ width:14px; height:14px; }
+
+/* legenda visual + botão "Nomes" (20/11/2026) */
+.g3d .legm{ align-items:center; pointer-events:auto; } .g3d .legm .lgso{ display:inline-flex; align-items:center; gap:8px; }
+.g3d .legm .lgn{ background:rgba(255,255,255,.06); border:1px solid var(--vidro-b); color:var(--sec); border-radius:999px; padding:3px 10px; font:600 10.5px Inter; cursor:pointer; }
+.g3d .legm .lgn:hover{ color:var(--texto); } .g3d .legm .lgn.on{ background:var(--texto); color:#0B0F0D; border-color:var(--texto); }

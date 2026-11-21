@@ -3,7 +3,7 @@
 // e a capa fala direto com ele (contentWindow.__v4).
 // A capa fica FORA de #app (em #capa3d, logo antes): desenhar() redesenha #app a cada clique e o iframe não pode ser
 // recriado (o 3D recarregaria). Ela é montada uma vez por parlamentar; depois só os números, a faixa e o aviso mudam.
-const C3 = { n: null, REC: null, recM: null, recAno: "", recOri: "", lente: "voto", MARCAS: { disco: true, pinta: false, relevo: false }, tema: null, DD: null, anal: null, EST: null, ligado: false };
+const C3 = { n: null, REC: null, nomes: (() => { try { return localStorage.getItem("gab_capa_nomes") === "1"; } catch (e) { return false; } })(), recM: null, recAno: "", recOri: "", lente: "voto", MARCAS: { disco: true, pinta: false, relevo: false }, tema: null, DD: null, anal: null, EST: null, ligado: false };
 const c3$ = (id) => document.getElementById("c3" + id);
 const c3W = () => { const f = c3$("mapa"); try { return f && f.contentWindow; } catch (e) { return null; } };
 const c3M = () => { const w = c3W(); return w && w.__v4; };
@@ -129,8 +129,13 @@ const c3fx = (cs) => '<span class="lfx">' + cs.map((c) => `<b style="background:
 const c3Rampas = () => { const w = c3W(); return w && w.__rampas; };
 const c3LegA = () => { const R = c3Rampas(); if (!R) return {}; return { voto: "menos" + c3fx(R.voto) + "mais votos 2026 <span>· sem cor = sem voto</span>", v22: "menos" + c3fx(R.voto) + "mais votos 2022 <span>· sem cor = sem voto</span>", var: "caiu" + c3fx([...R.dn].reverse()) + c3fx(R.up) + "cresceu", rec: "mais a pagar" + c3fx([...R.apagar].reverse().slice(0, 4)) + c3fx(R.pago.slice(3)) + "mais pago <span>· sem cor = sem emenda</span>" }; };
 const C3_TEMA = { pop_2022: "população", renda_pc_media: "renda per capita", pct_pop_pbf: "% no Bolsa Família", pct_evangelicos: "% evangélicos", pct_mulheres_eleit: "% mulheres no eleitorado", pct_16_24_eleit: "% eleitores de 16 a 24", pct_60mais_eleit: "% eleitores 60+", pct_superior_eleit: "% eleitores com superior", pct_urbana: "% população urbana", pct_catolicos: "% católicos" };
+// mapa visual (20/11/2026): por padrão a legenda mostra só as cores e o mapa não põe os nomes das cidades; o botão "Nomes"
+// mostra os textos da legenda e os rótulos (os 10 primeiros) — a escolha fica guardada no navegador.
+function c3Leg(html) { if (C3.nomes) return html + `<button class="lgn on" data-nomes title="Esconder os nomes">Nomes</button>`;
+  const d = document.createElement("div"); d.innerHTML = html; const so = [...d.querySelectorAll(".lfx, i")].map((e) => e.outerHTML).join("");
+  return `<span class="lgso">${so}</span><button class="lgn" data-nomes title="Mostrar os nomes das cidades e a legenda">Nomes</button>`; }
 function c3Marca() { const v = c3M(), lg = c3$("legm"); if (!v || !v.marcadores || !lg) return; v.marcadores(C3.lente, C3.REC || {}); const R = c3Rampas();
-  lg.innerHTML = C3.legAnal ? C3.legAnal : C3.tema && R ? "menor" + c3fx(R.tema) + "maior " + C3_TEMA[C3.tema] : (C3.MARCAS.pinta ? (c3LegA()[C3.lente] || "") : C3.MARCAS.disco ? C3_LEG[C3.lente] : "") + (C3.MARCAS.relevo ? "<span>· altura = eleitorado</span>" : ""); }
+  lg.innerHTML = c3Leg(C3.legAnal ? C3.legAnal : C3.tema && R ? "menor" + c3fx(R.tema) + "maior " + C3_TEMA[C3.tema] : (C3.MARCAS.pinta ? (c3LegA()[C3.lente] || "") : C3.MARCAS.disco ? C3_LEG[C3.lente] : "") + (C3.MARCAS.relevo ? "<span>· altura = eleitorado</span>" : "")); }
 // ferramentas (16/11/2026): as escolhas ficam guardadas no navegador até "Restaurar padrão"
 const C3_VISTAS = [["auto", "Automática"], ["padrao", "Isométrica"], ["alta", "Alta"], ["sul", "Do sul"], ["cima", "De cima"]];
 const C3_PADRAO = { marcas: { disco: true, pinta: false, relevo: false }, base: "sat", vista: "auto", cam: { cid: true }, tema: null };
@@ -171,7 +176,7 @@ function c3RecPinta() { const v = c3M(); const D = c3RecUI(); if (!v) return;
   const val = (x) => M === "tot" || M === "min" ? fm(x.ind) : M === "apg" ? fm(x.ap) : M === "pct" ? nf(x.pc * 100, 0) + "%" : "R$ " + c3n(x.rpv) + "/voto";
   const sub = (x) => M === "rpv" ? `${c3mi(x.ind)} · ${c3n(vot[x.n])} votos` : `${x.q} ${x.q === 1 ? "emenda" : "emendas"} · ${fm(x.ind)} indicados${M === "tot" || M === "min" ? " · " + nf(x.pc * 100, 0) + "% pago" : ""}`;
   const rampa = c3Rampas()[C3_RECM[M][1]], cores = {}, n = L.length; L.forEach((x, i) => { cores[x.n] = rampa[6 - Math.min(6, Math.floor(i * 7 / Math.max(n, 1)))]; });
-  v.analise({ id: "rec:" + M + C3.recAno + C3.recOri, cores, rotulos: L.slice(0, 10).map((x) => [x.n, val(x)]) });
+  v.analise({ id: "rec:" + M + C3.recAno + C3.recOri + (C3.nomes ? "n" : ""), cores, rotulos: C3.nomes ? L.slice(0, 10).map((x) => [x.n, val(x)]) : [] });
   const fil = [C3.recAno || "", C3.recOri === "imp" ? "emendas impositivas" : C3.recOri === "con" ? "convênios e outros" : ""].filter(Boolean).join(" · ");
   C3.legAnal = (M === "min" ? "mais recurso" : "menos") + c3fx(rampa) + `${C3_RECM[M][2]} <span>${fil ? "· " + fil + " " : ""}· sem cor = sem emenda</span>`;
   c3$("rnota").textContent = n ? `${n} ${n === 1 ? "município" : "municípios"}${fil ? " · " + fil : ""}. Toque num nome para abrir a cidade.` : "Nenhum município com esse recorte.";
@@ -210,7 +215,7 @@ function c3Entra(id) { const a = C3_ANALISES.find((x) => x.id === id), v = c3M()
   if (tom === "reg") { const ups = L.slice(1, 6), dns = L.slice(7); c3dd().forEach((m) => { const iu = ups.findIndex((x) => x.n === m.regiao), id2 = dns.findIndex((x) => x.n === m.regiao); if (iu >= 0) cores[m.nome] = c3CorRank("bom", iu, 5); else if (id2 >= 0) cores[m.nome] = c3CorRank("ruim", id2, 5); });
     C3.legAnal = "maior aumento" + c3fx(c3Rampa("bom").slice(2).reverse()) + "&nbsp;" + c3fx(c3Rampa("ruim").slice(2)) + "maior queda <span>· associações de municípios</span>"; }
   else { const it = L.filter((x) => !x.cab); it.forEach((x, i) => { cores[x.n] = c3CorRank(tom, i, it.length); rot.push([x.n, x.v]); }); C3.legAnal = "1º" + c3fx([...c3Rampa(tom)].reverse()) + `${it.length}º <span>· ${a.nome}</span>`; }
-  v.analise({ id, cores, rotulos: rot }); c3Lista(L);
+  v.analise({ id: id + (C3.nomes ? "n" : ""), cores, rotulos: C3.nomes ? rot : [] }); c3Lista(L);
   c3$("achips").querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.a === id)); c3$("anota").textContent = a.nota(); c3$("rankBt").hidden = false;
   c3$("apNome").textContent = C3_CURTO[id] || a.nome; c3$("apNome").title = a.nome + " · clique para ver o quadro"; c3$("apill").classList.add("on"); c3$("btA").style.display = "none";
   $("#ghero .linha1").classList.add("emAnal"); $("#ghero").classList.add("esfera"); c3FechaFerr(); c3Marca(); }
@@ -243,6 +248,8 @@ function c3Ligar() {
   const lupa = c3$("lupa"), li = lupa.querySelector("input");
   lupa.onclick = () => { lupa.classList.add("aberta"); li.focus(); const v = c3M(), dl = c3$("lugares"); if (v && v.nomes && !dl.children.length) dl.innerHTML = v.nomes().map((n) => `<option value="${esc(n)}">`).join(""); };
   const vai = () => { const v = c3M(); if (v && li.value.trim()) v.busca(li.value.trim()); }; li.addEventListener("change", vai); li.addEventListener("keydown", (e) => { if (e.key === "Enter") vai(); }); li.onblur = () => { if (!li.value) lupa.classList.remove("aberta"); };
+  c3$("legm").onclick = (e) => { if (!e.target.closest("[data-nomes]")) return; e.stopPropagation(); C3.nomes = !C3.nomes; try { localStorage.setItem("gab_capa_nomes", C3.nomes ? "1" : "0"); } catch (er) {}
+    if (C3.anal) c3Entra(C3.anal); else if (C3.recM) c3RecPinta(); else c3Marca(); };
   const sw = c3$("sw");
   // interruptor Votos | Recursos (20/11/2026): cada vertente tem as suas opções (Votos: 2026 · 2022 · Variação; Recursos: total,
   // falta pagar, % pago, R$ por voto) e muda também as ferramentas (Outros mostra Recursos ou os dados sociais). Tocar na

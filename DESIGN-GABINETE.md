@@ -264,6 +264,10 @@ Linhas: Votos 2026, Votos 2022, Diferença (verde/vermelho), % dos válidos, Ele
 - O ranking não aparece aberto: fica numa **alça "Ranking"** no pé do quadro.
 
 ### 4.8 Legenda
+**Visual por padrão** (*decisão 20/11*): a legenda mostra só as cores (a barra de 7 níveis ou os pontos) e o mapa não
+põe os nomes das cidades. O botão **Nomes**, ao lado da legenda, mostra os textos da legenda e os rótulos dos 10 primeiros
+(análises e Recursos); tocar de novo esconde. A escolha fica guardada no navegador (`gab_capa_nomes`).
+
 Texto 11px `--sec`, com amostras de cor em retângulos de 14×8px. Sempre explica o "sem cor"
 ("sem cor = sem voto", "sem cor = sem emenda").
 
