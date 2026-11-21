@@ -319,7 +319,7 @@ function detForm(x, T, g) {
     const S2 = (f, ops, v) => `<select data-d="${f}"><option value="">—</option>${ops.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}${v && !ops.includes(v) ? `<option selected>${esc(v)}</option>` : ""}</select>`, t = tipoDe(x);
     return `<div class="dm2 fm2 iexpd">
       <div class="bnt">
-      ${tipoDe(x) === "ent" ? F("hash", "CNPJ", I("cnpj", x.cnpj, "00.000.000/0000-00"), 2) + F("pred", "Razão social", I("razao_social", x.razao_social || x.beneficiario), 2) : ""}${g.trava ? "" : F("lei", "Função", S2("area", g.areas, x.area), 2)}${F("moeda", "Natureza", S2("natureza", ["Investimento", "Custeio"], x.natureza), 2)}${F("ok", "Status", S2("status", STATUS, x.status || "Em análise"), 2)}
+      ${tipoDe(x) === "ent" ? F("hash", "CNPJ", I("cnpj", x.cnpj, "00.000.000/0000-00"), 2) + F("pred", "Razão social", I("razao_social", x.razao_social || x.beneficiario), 2) : ""}${g.trava ? "" : F("lei", "Função", S2("area", g.areas, x.area), 2)}${F("ok", "Status", S2("status", STATUS, x.status || "Em análise"), 2)}
       ${F("pessoa", "Líder", I("lideranca", x.lideranca, "Escolha ou digite", "indPes"), 2)}${F("pessoa", "Contato", I("contato", x.contato, "Quem está tocando o processo"), 2)}
       ${F("band", "Prioridade", S2("prioridade", PRIOR, x.prioridade), 2)}${F("lei", "Lei / PL", I("pl", x.pl, "PL nº 0633/2026"), 2)}
       ${F("doc", "Justificativa", `<textarea data-d="justificativa" rows="5" class="ijust" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 4)}
