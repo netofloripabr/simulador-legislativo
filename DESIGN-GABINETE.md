@@ -313,6 +313,8 @@ Texto 11px `--sec`, com amostras de cor em retângulos de 14×8px. Sempre explic
 | `tema` (dados de "Outros") | `#EEE6FB #DACCF6 #C0ABEE #A288E2 #8467D2 #6849BB #4D3399` |
 
 Opacidade por nível: `.62 .68 .74 .80 .86 .91 .96` (2022 a 85% disso).
+**Régua da cor = a área na tela** (*decisão 20/11*): cada município é comparado só com os do recorte (ou do estado
+inteiro, sem recorte); o nível é a posição do valor entre eles, em 7 faixas — o maior da área fica no tom mais escuro.
 Recursos (Outros › Recursos, 20/11): Total indicado = `voto`; Falta pagar = `apagar`; % pago = `pago`; R$ por voto =
 `up`. O nível vem da posição no ranking da leitura (7 faixas iguais, a 1ª é a mais escura).
 *Decisão 16/11: manter o azul; 7 níveis; roxo para temas. 20/11: o "Recursos" do seletor (≥ 50% pago = `pago`, senão

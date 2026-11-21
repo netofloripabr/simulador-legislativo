@@ -62,8 +62,8 @@ function barraSeg(c, it, tot) {
       <div class="q5n"><b>${pc(o.t, m)}%</b><small>do mínimo</small><span class="q5c ${ok ? "ok" : "fl"}">${ok ? "✓ atingido" : "faltam " + rc(m - o.t)}</span></div>
       <div class="q5b"><div class="q5f" style="width:${(o.t / esc * 100).toFixed(1)}%"><i style="flex:1;background:${ok ? "#1FA845" : "#2A2F33"}"></i></div><b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b></div>
       <div class="q5ft"><span><em>${rc(o.t)}</em></span><span>mínimo <em>${rc(m)}</em></span></div>${div(o, "Investimento e custeio")}</div>`; };
-  return `<div class="t w4 q5"><div class="q5k"><div class="q5t">${ic("cota")}<span><b>Cota indicada</b>${rc(c.disp)} para indicar</span></div>
-      <div class="q5n"><b>${pc(tot, c.disp)}%</b><small>${rc(tot)} indicados</small><span class="q5c">${tot <= c.disp ? "livre " + rc(c.disp - tot) : "acima em " + rc(tot - c.disp)}</span></div>
+  return `<div class="t w4 q5"><div class="q5k"><div class="q5t">${ic("cota")}<span><b>Cota indicada</b>R$ ${moeda(c.disp)} para indicar</span></div>
+      <div class="q5n"><b>${pc(tot, c.disp)}%</b><small>R$ ${moeda(tot)} indicados</small><span class="q5c">${tot <= c.disp ? "livre R$ " + moeda(c.disp - tot) : "acima em R$ " + moeda(tot - c.disp)}</span></div>
       <div class="q5b"><div class="q5f" style="width:${Math.min(100, tot / c.disp * 100).toFixed(1)}%"><i style="flex:1;background:#2A2F33"></i></div></div>
       ${div(A, "Investimento e custeio · de tudo o que foi indicado")}</div>
     ${c.saude ? `<div class="q5tr"></div><div class="q5g">${grupo("Saúde", "sau", S, c.saude, `mínimo de ${Math.round(c.saude * 100)}% da cota`)}${grupo("FUNDAM", "fun", F, 1 - (c.saude || 0), `${Math.round((1 - (c.saude || 0)) * 100)}% da cota · todas as funções que não são Saúde`, true)}</div>` : ""}</div>`;

@@ -32,7 +32,7 @@ function capa3d() {
 
 function c3Html() {
   const nm = PARL.u.split(" "), l1 = nm.length > 1 ? nm.slice(0, -1).join(" ") : nm[0], l2 = nm.length > 1 ? nm.slice(-1)[0] : "";
-  const q = `fundo=1&tema=escuro&dado=nenhum&marcas=disco&cid=1&esq=.12&dir=.07&topo=.14&baixo=.19&d=${encodeURIComponent(PARL.n)}&v=2`;   // v: versão do mapa (cache)
+  const q = `fundo=1&tema=escuro&dado=nenhum&marcas=disco&cid=1&esq=.12&dir=.07&topo=.14&baixo=.19&d=${encodeURIComponent(PARL.n)}&v=4`;   // v: versão do mapa (cache)
   return `<section class="g3d" id="ghero">
   <iframe id="c3mapa" src="mapa-capa.html?${q}" title="Mapa de Santa Catarina em 3D"></iframe>
   <div class="vela"></div>
