@@ -151,7 +151,7 @@ const fmtP = (d) => new Date(d).toLocaleString("pt-BR", { day: "2-digit", month:
 function menuLink(b, l, T) { const st = estadoLink(l), q = propsDe(l);
   const quando = l.enviado_em ? "enviado " + fmtP(l.enviado_em) : l.aberto_em ? `aberto ${l.acessos}× · último ${fmtP(l.ult_acesso || l.aberto_em)}` : "ainda não aberto";
   const m = abreLk(b, `<div class="h"><b>${esc(l.nome)} · ${pctLink(l)}%</b>${l.itens.length} ${l.itens.length === 1 ? "emenda" : "emendas"} · ${quando}<br>${encerrado(l) ? "link fechado" : "fecha em " + fmtP(l.prazo)}${q.filter((p) => p.status === "enviado").length ? ` · <b style="display:inline;font-size:12px">${q.filter((p) => p.status === "enviado").length} para você aceitar</b>` : ""}</div>
-    <button data-m="msg">${lsv("cop")}Copiar mensagem com o link</button><button data-m="cop">${lsv("lnk")}Copiar só o link</button><button data-m="wpp">${lsv("wpp")}Enviar pelo WhatsApp</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button><hr>
+    <button data-m="msg">${lsv("cop")}Copiar mensagem com o link</button><button data-m="cop">${lsv("lnk")}Copiar só o link</button><button data-m="wpp">${lsv("wpp")}Enviar pelo WhatsApp</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button><button data-m="cert">${lsv("chk")}Imprimir certificado</button><hr>
     <button data-m="lmp">${lsv("lap")}${l.limpo ? "Abre limpo · passar a preenchido" : "Abre preenchido · passar a limpo"}</button><button data-m="prz">${lsv("rel")}Mudar o prazo</button><button data-m="fec">${lsv("cad")}${l.fechado ? "Reabrir o link" : "Fechar o link agora"}</button>${st === "gerado" && !q.length ? `<button data-m="apg" class="apg">${lsv("x")}Apagar o link</button>` : ""}`);
   const up = async (o) => { const { error } = await supabaseClient.from("gab_links").update(o).eq("id", l.id); if (error) throw error; Object.assign(l, o); };
   m.querySelectorAll("[data-m]").forEach((x) => x.onclick = async () => { const a = x.dataset.m; fechaLk();
@@ -161,6 +161,7 @@ function menuLink(b, l, T) { const st = estadoLink(l), q = propsDe(l);
       if (a === "prz") { const d = new Date(l.prazo), ini = `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
         const v = prompt("Novo prazo (dia/mês/ano hora:min):", ini); if (!v) return; const k = v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/); if (!k) return alert("Use o formato 23/11/2026 13:00.");
         await up({ prazo: new Date(+k[3], +k[2] - 1, +k[1], +k[4], +k[5]).toISOString(), fechado: false }); desenharInd(); }
+      if (a === "cert") certificado(l, T);
       if (a === "lmp") { await up({ limpo: !l.limpo }); toastLk(l.limpo ? "O link abre limpo (sem objeto)" : "O link abre preenchido"); }
       if (a === "fec") { await up({ fechado: !l.fechado }); desenharInd(); toastLk(l.fechado ? "Link fechado" : "Link reaberto"); }
       if (a === "apg") { if (!(await confirmaVX("Apagar este link?", `O link de ${l.nome} deixa de funcionar.`))) return; const { error } = await supabaseClient.from("gab_links").delete().eq("id", l.id); if (error) throw error; LK.links = LK.links.filter((y) => y !== l); desenharInd(); }
@@ -168,11 +169,11 @@ function menuLink(b, l, T) { const st = estadoLink(l), q = propsDe(l);
 function legendaE(b, x, T) { const e = etapaItem(x), L = linksDoItem(x.id), p = propItem(x.id), l = (p && L.find((y) => y.id === p.link_id)) || L[L.length - 1];
   const m = abreLk(b, `<div class="h"><b>${esc(x.municipio || "—")}${l ? " · " + esc(l.nome) : ""}</b>${l ? "link " + estadoLink(l) + (l.aberto_em ? ` · aberto ${l.acessos}×` : "") : "ainda sem link"}</div>
     <div class="lkleg">${ETP.map(([k, t], j) => { const fe = j < e.n, at = j === e.n - 1, xx = e.x && j === 4; return `<div class="${at ? "at" : fe ? "fe" : ""}"><span class="ep ${xx ? "f" : fe ? (j === 4 ? "ok" : "f") : ""}">${lsv(xx ? "x" : k)}</span>${xx ? "Recusado por você" : t}${at ? "<small>agora</small>" : ""}</div>`; }).join("")}</div><hr>
-    ${l ? `${x.lideranca && linkDoLider(x.lideranca) && linkDoLider(x.lideranca) !== l ? `<button data-m="lid">${lsv("cop")}Copiar link de ${esc(x.lideranca)}</button>` : ""}<button data-m="cop">${lsv("cop")}Copiar link de ${esc(l.nome)}</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button>` : ""}
+    ${l ? `${x.lideranca && linkDoLider(x.lideranca) && linkDoLider(x.lideranca) !== l ? `<button data-m="lid">${lsv("cop")}Copiar link de ${esc(x.lideranca)}</button>` : ""}<button data-m="cop">${lsv("cop")}Copiar link de ${esc(l.nome)}</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button><button data-m="cert">${lsv("chk")}Imprimir certificado</button>` : ""}
     <button data-m="um">${lsv("lnk")}Gerar link só desta emenda</button>${x.lideranca && !linkDoLider(x.lideranca) ? `<button data-m="nl">${lsv("lnk")}Gerar link do líder ${esc(x.lideranca)}</button>` : ""}${String(x.contato || "").split(/\s*,\s*/).filter((n) => n && !linkDoLider("contato:" + n)).map((n) => `<button data-m="nc" data-nc="${esc(n)}">${lsv("lnk")}Gerar link do contato ${esc(n)}</button>`).join("")}`);
   m.querySelectorAll("[data-m]").forEach((y) => y.onclick = () => { const a = y.dataset.m; fechaLk();
     if (a === "lid") copiarMsg(linkDoLider(x.lideranca)); if (a === "cop") copiarMsg(l); if (a === "abr") window.open(linkUrl(l), "_blank", "noopener");
-    if (a === "um") novoLinkItem(T, x); if (a === "nl") novoLinkLider(T, x.lideranca); if (a === "nc") novoLinkContato(T, y.dataset.nc); }); }
+    if (a === "cert") certificado(l, T); if (a === "um") novoLinkItem(T, x); if (a === "nl") novoLinkLider(T, x.lideranca); if (a === "nc") novoLinkContato(T, y.dataset.nc); }); }
 // aceitar: os campos da proposta vão para a emenda; recusar: só marca
 async function decidir(id, aceita, T) { const p = LK.props.find((q) => q.id === id); if (!p) return; const x = AD.itens.find((y) => y.id === p.item_id); if (!x) return;
   try { if (aceita) { const g = regrasInd(T), t = p.benef_tipo || tipoDe(x) || "mun", ins = t === "ent" ? "Convênio" : "Transferência Especial", o = {};
@@ -309,3 +310,95 @@ function abreFx(b, T) { document.getElementById("ifxPop")?.remove(); const g = b
   pop.querySelector("[data-fxok]").onclick = fecha; pop.querySelector("[data-fxz]").onclick = () => { IND.fx = {}; fecha(); };
   q.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); const vis = [...pop.querySelectorAll("input[data-c]")]; if (q.value && vis.length) { secs.forEach((s) => s.O.forEach(([c]) => IND.fx[s.k].add(c))); vis.forEach((i) => IND.fx[i.dataset.k].delete(i.dataset.c)); } fecha(); } };
   setTimeout(() => { document.addEventListener("mousedown", fora, true); document.addEventListener("keydown", tk, true); }, 0); }
+
+// ---------- certificado de indicação (20/11/2026, protótipo aprovado: prototipos/indicacao/certificado.html) ----------
+// Documento A4 no padrão do impresso do Controle: confirma o envio do link e mostra cada emenda como no link (município,
+// área, despesa, valor, quem recebe, objeto, justificativa) com a situação de cada uma; declaração, assinaturas e código.
+function certificado(l, T) { const w = window.open("", "_blank"); if (!w) { alert("Libere as janelas pop-up do navegador para este site."); return; }
+  const IT = l.itens.map((id) => AD.itens.find((x) => x.id === id)).filter(Boolean), P = {}; propsDe(l).forEach((p) => { P[p.item_id] = p; });
+  const e2 = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;"), brl = (v) => "R$ " + (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const dh = (d) => { const x = new Date(d); return x.toLocaleDateString("pt-BR") + " às " + x.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }); };
+  const OK = '<svg viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+  const tot = IT.reduce((s, x) => s + (+x.valor || 0), 0), sa = IT.filter((x) => x.area === "Saúde").reduce((s, x) => s + (+x.valor || 0), 0), ac = IT.filter((x) => (P[x.id] || {}).status === "aceito").length;
+  const muns = new Set(IT.map((x) => x.municipio).filter(Boolean)).size, env = l.enviado_em, cod = String(l.id).replace(/-/g, "").slice(0, 12).toUpperCase().replace(/(.{4})/g, "$1 ").trim();
+  const sit = (x) => { const p = P[x.id] || {}; return p.status === "aceito" ? `<span class="ac">${OK}aceita${p.decidido_em ? " em " + dh(p.decidido_em) : ""}</span>` : p.status === "recusado" ? `<span class="ac" style="color:#B23A2A">recusada pelo gabinete</span>` : p.status === "enviado" ? `<span class="ac" style="color:#6B7178">aguardando o gabinete</span>` : `<span class="ac" style="color:#9AA0A4">não enviada</span>`; };
+  const ben = (x) => tipoDe(x) === "ent" ? (x.razao_social || x.beneficiario || "Entidade") + (x.cnpj ? " · CNPJ " + x.cnpj : "") : x.beneficiario || (tipoDe(x) === "est" ? "Estado" : "Município de " + (x.municipio || ""));
+  const lista = T && T.nome ? (T.cota ? "Emendas impositivas · " : "") + T.nome + " " + IND.ano : "Indicação de recursos";
+  const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Certificado de indicação · ${e2(l.nome)}</title><style>
+@font-face{font-family:"Inter";src:url(${new URL("../fontes/InterVariable.woff2", location.href).href}) format("woff2");font-weight:100 900}
+@page{size:A4;margin:14mm 12mm}
+*{box-sizing:border-box;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+body{margin:0;background:#E9ECEE;font-family:Inter,system-ui,sans-serif;color:#111}
+.barra{position:sticky;top:0;z-index:2;display:flex;justify-content:center;gap:10px;padding:12px;background:#E9ECEE}
+.barra button{font:600 13px Inter,system-ui,sans-serif;background:#1D2226;color:#fff;border:0;border-radius:999px;padding:9px 18px;cursor:pointer}
+.barra span{align-self:center;font-size:12px;color:#6B7178}
+.folha{position:relative;width:210mm;min-height:297mm;margin:0 auto 30px;background:#fff;padding:14mm 13mm 12mm;box-shadow:0 10px 40px rgba(0,0,0,.12);overflow:hidden}
+@media print{body{background:#fff}.barra{display:none}.folha{width:auto;min-height:0;margin:0;padding:0;box-shadow:none}}
+.agua{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}.agua span{font-size:120px;font-weight:800;color:rgba(0,0,0,.03);transform:rotate(-24deg)}
+/* cabeçalho no padrão do documento impresso do Controle */
+.cab{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.wm{font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1}.wm span{color:#1FA83A}
+.wmsub{font-size:7px;font-weight:800;letter-spacing:.2em;color:#6B7178;text-transform:uppercase;margin-top:3px}
+.meta{text-align:right;font-size:9px;color:#3F454B;line-height:1.5}
+.regra{margin:10px 0 16px;height:2px;background:#A9AEB3;position:relative}.regra:after{content:"";position:absolute;left:0;right:0;top:4px;height:1px;background:#D3D6D8}
+/* selo e título */
+.topo{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:start}
+.olho{font-size:8px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#1FA83A}
+.tit{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:4px 0 2px}
+.sub{font-size:10px;color:#3F454B;line-height:1.55;max-width:118mm}.sub b{color:#111}
+.selo{width:92px;height:92px;border-radius:50%;border:2px solid #1FA83A;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#1FA83A;position:relative}
+.selo:before{content:"";position:absolute;inset:4px;border-radius:50%;border:1px dashed #8FD49D}
+.selo svg{width:26px;height:26px;fill:none;stroke:#1FA83A;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.selo b{font-size:8px;font-weight:800;letter-spacing:.12em;margin-top:3px}.selo small{font-size:7px;color:#3F454B;margin-top:1px}
+/* totais */
+.res{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:14px 0 6px}
+.res div{border:1px solid #DCDFE2;border-radius:6px;padding:7px 9px;background:#F3F5F6}
+.res b{display:block;font-size:14px;font-variant-numeric:tabular-nums}.res span{font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}
+.res .ok b{color:#1FA83A}
+.pbar{display:flex;height:6px;border-radius:999px;overflow:hidden;background:#E6E8EA;margin:6px 0 4px}.pbar i{display:block;height:100%}
+.pleg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:8px;color:#3F454B}.pleg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.st2{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;margin:16px 0 6px;padding-bottom:4px;border-bottom:1.5px solid #A9AEB3;display:flex;justify-content:space-between}
+/* cartão de cada emenda, no mesmo padrão do link */
+.it{border:1px solid #DCDFE2;border-radius:8px;padding:8px 10px 9px;margin-bottom:6px;page-break-inside:avoid;position:relative}
+.it:before{content:"";position:absolute;left:-1px;top:8px;bottom:8px;width:3px;border-radius:3px;background:#1FA83A}
+.ih{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.nn{font-size:9px;color:#9AA0A4;width:12px;text-align:right}
+.m{font-size:12px;font-weight:700}
+.chips{display:flex;gap:4px;margin-left:auto;align-items:center}
+.ch{font-size:7.5px;font-weight:700;letter-spacing:.03em;border-radius:999px;padding:3px 8px;background:#E4E7E9;color:#3F454B;white-space:nowrap}
+.ch.v{background:#1FA83A;color:#fff;font-size:8.5px;font-variant-numeric:tabular-nums}
+.gr{display:grid;grid-template-columns:110px 1fr;gap:3px 10px;font-size:9px;line-height:1.45;padding-left:20px}
+.gr dt{font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9AA0A4;padding-top:2px}
+.gr dd{margin:0;color:#111}.gr dd.o{font-weight:600}.gr dd small{color:#6B7178}
+.tg{font-size:7px;font-weight:700;border-radius:999px;padding:1px 6px;background:#E3EAF5;color:#2F5D8A;margin-left:4px;vertical-align:1px}
+.ac{display:inline-flex;align-items:center;gap:4px;font-size:7.5px;font-weight:700;color:#1FA83A;margin-left:auto}
+.ac svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.tot{display:flex;justify-content:space-between;font-weight:800;font-size:11px;padding:8px 2px;border-top:1.5px solid #A9AEB3;margin-top:8px}.tot b{color:#1FA83A}
+/* declaração, assinaturas e código */
+.dec{margin-top:16px;font-size:9px;color:#3F454B;line-height:1.6;border:1px solid #DCDFE2;border-radius:8px;padding:9px 11px;background:#F8F9FA;page-break-inside:avoid}.dec b{color:#111}
+.ass{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:34px;page-break-inside:avoid}
+.ass div{border-top:1px solid #3F454B;padding-top:5px;font-size:8.5px;color:#3F454B;text-align:center}.ass b{display:block;color:#111;font-size:9.5px}
+.rod{display:flex;justify-content:space-between;align-items:center;font-size:7.5px;color:#9AA0A4;border-top:.5px solid #DCDFE2;margin-top:22px;padding-top:6px}
+.cod{font-family:ui-monospace,monospace;letter-spacing:.06em;color:#3F454B}
+.nota{max-width:210mm;margin:0 auto 40px;font-size:12px;color:#6B7178;line-height:1.5;padding:0 4px}
+@media print{.nota{display:none}}
+ .it:before{background:var(--b,#1FA83A)} </style></head><body>
+  <div class="barra"><button onclick="print()">Imprimir ou salvar PDF</button></div><div class="folha"><div class="agua"><span>SimulaLEGIS</span></div>
+  <div class="cab"><div><div class="wm">Simula<span>LEGIS</span></div><div class="wmsub">Gabinete · indicação de recursos</div></div>
+    <div class="meta"><b>Dep. ${e2(PARL.u || PARL.n)}${PARL.p ? " · " + e2(PARL.p) : ""}</b><br>${e2(lista)}<br>emitido em ${new Date().toLocaleDateString("pt-BR")}</div></div>
+  <div class="regra"></div>
+  <div class="topo"><div><div class="olho">Certificado de indicação</div><div class="tit">Emendas indicadas por ${e2(l.nome)}</div>
+    <div class="sub">${env ? `Certificamos que <b>${e2(l.nome)}</b> enviou ao gabinete, em <b>${dh(env)}</b>, a indicação das <b>${IT.length} ${IT.length === 1 ? "emenda" : "emendas"}</b> abaixo, no valor total de <b>${brl(tot)}</b>, com o objeto escolhido no Portfólio do Poder Executivo.${ac === IT.length ? " As indicações foram conferidas e <b>aceitas pelo gabinete</b>." : ` O gabinete aceitou <b>${ac} de ${IT.length}</b>.`}` : `<b>${e2(l.nome)}</b> ainda não enviou as indicações deste link. Este documento mostra a situação atual das <b>${IT.length} emendas</b> (${brl(tot)}).`}</div></div>
+    <div class="selo"${env ? "" : ' style="border-color:#A9AEB3;color:#6B7178"'}>${env ? OK : ""}<b>${env ? "ENVIADO" : "NÃO ENVIADO"}</b><small>${env ? new Date(env).toLocaleDateString("pt-BR") : ""}</small></div></div>
+  <div class="res"><div><b>${brl(tot)}</b><span>valor indicado</span></div><div><b>${IT.length}</b><span>emendas</span></div><div class="ok"><b>${ac} de ${IT.length}</b><span>aceitas pelo gabinete</span></div><div><b>${muns}</b><span>${muns === 1 ? "município" : "municípios"}</span></div></div>
+  <div class="pbar"><i style="width:${tot ? sa / tot * 100 : 0}%;background:#3F454B"></i><i style="width:${tot ? (tot - sa) / tot * 100 : 0}%;background:#A9AEB3"></i></div>
+  <div class="pleg"><span><i style="background:#3F454B"></i>Saúde ${brl(sa)}</span><span><i style="background:#A9AEB3"></i>FUNDAM ${brl(tot - sa)}</span></div>
+  <div class="st2"><span>Emendas</span><span>${IT.length} ${IT.length === 1 ? "item" : "itens"}</span></div>
+  ${IT.map((x, i) => `<div class="it"${(P[x.id] || {}).status === "aceito" ? "" : ' style="--b:#A9AEB3"'}><div class="ih"><span class="nn">${i + 1}</span><span class="m">${e2(x.municipio || "—")}</span>${sit(x)}<div class="chips" style="margin-left:10px"><span class="ch">${x.area === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + e2(x.area) : "")}</span>${x.natureza ? `<span class="ch">${e2(x.natureza)}</span>` : ""}<span class="ch v">${brl(x.valor)}</span></div></div>
+    <dl class="gr"><dt>Quem recebe</dt><dd>${e2(ben(x))}${x.modalidade ? ` <small>· ${e2(x.modalidade)}</small>` : ""}</dd><dt>Objeto</dt><dd class="o">${e2(x.objeto || "—")}</dd>${x.justificativa ? `<dt>Justificativa</dt><dd>${e2(x.justificativa).replace(/\n/g, "<br>")}</dd>` : ""}</dl></div>`).join("")}
+  <div class="tot"><span>Total · ${IT.length} ${IT.length === 1 ? "emenda" : "emendas"}</span><b>${brl(tot)}</b></div>
+  <div class="dec">Este documento confirma o envio das indicações por meio do link individual gerado pelo gabinete do <b>Deputado ${e2(PARL.u || PARL.n)}</b> e a situação de cada emenda na conferência do gabinete. Os valores, as áreas e o tipo de despesa foram definidos pelo gabinete; o objeto segue o Portfólio de objetos padronizados do Poder Executivo.</div>
+  <div class="ass"><div><b>${e2(l.nome)}</b>indicação</div><div><b>Gabinete do Dep. ${e2(PARL.u || PARL.n)}</b>conferência e aceite</div></div>
+  <div class="rod"><span>SimulaLEGIS · certificado gerado pelo sistema</span><span>código de conferência <span class="cod">${cod}</span></span></div></div>
+  <script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`;
+  w.document.write(html); w.document.close(); }
