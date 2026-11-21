@@ -2292,5 +2292,31 @@ const MIGRACOES_INDEX = [
     "gab_itens.obs_cor"
    ]
   ]
+ },
+ {
+  "num": 107,
+  "arquivo": "migracao-107-link-abrir-justificativa.sql",
+  "descricao": "Migração 107 (20/11/2026): o link do líder passa a abrir JÁ PREENCHIDO com o que o gabinete revisou na planilh",
+  "objetos": [
+   [
+    "function",
+    "link_abrir"
+   ]
+  ]
+ },
+ {
+  "num": 108,
+  "arquivo": "migracao-108-link-limpo.sql",
+  "descricao": "Migração 108 (20/11/2026): o gabinete escolhe, por link, se ele abre PREENCHIDO com o que está na planilha (pa",
+  "objetos": [
+   [
+    "function",
+    "link_abrir"
+   ],
+   [
+    "column",
+    "gab_links.limpo"
+   ]
+  ]
  }
 ];

@@ -118,7 +118,7 @@ let L = null, IT = [], ST = [], PORT = [], MUN = [], FECHA = null, ABERTO = fals
 const feito = (s) => !!s.obj;
 const grupo = (x) => x.area === "Saúde" ? "Saúde" : "FUNDAM";
 function compat(x) { const A = AREA_P[x.area]; return PORT.filter(([area, , , nat]) => (A ? A.includes(area) : x.area === "Saúde" ? area === "Saúde" : area !== "Saúde") && (!x.natureza || nat === x.natureza || / ou /.test(nat))); }
-const INFO = () => `Para cada emenda, escolha o <b>objeto</b> no Portfólio. Se precisar, ajuste o <b>município</b> ou quem recebe (<b>município ou entidade</b>) e use a <b>justificativa</b> para explicar.<br><br>Área, tipo de despesa e valor foram definidos pelo gabinete e não mudam aqui. Tudo o que você preenche fica salvo sozinho; ao terminar, toque em <b>Enviar ao gabinete</b>. ${ABERTO ? `Até ${FECHA.toLocaleDateString("pt-BR")}, ${FECHA.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}, você pode voltar a este link e mudar.` : ""}`;
+const INFO = () => `As emendas já vêm com o que o gabinete preparou. Confira cada uma; se precisar, troque o <b>objeto</b> pelo do Portfólio. Se precisar, ajuste o <b>município</b> ou quem recebe (<b>município ou entidade</b>) e use a <b>justificativa</b> para explicar.<br><br>Área, tipo de despesa e valor foram definidos pelo gabinete e não mudam aqui. Tudo o que você preenche fica salvo sozinho; ao terminar, toque em <b>Enviar ao gabinete</b>. ${ABERTO ? `Até ${FECHA.toLocaleDateString("pt-BR")}, ${FECHA.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}, você pode voltar a este link e mudar.` : ""}`;
 function cont() { const s = Math.max(0, (FECHA - new Date()) / 1000), d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60);
   return ABERTO && s ? `<div class="icd"><div><b>${d}</b><span>dias</span></div><div><b>${String(h).padStart(2, "0")}</b><span>horas</span></div><div><b>${String(m).padStart(2, "0")}</b><span>min</span></div></div>` : `<b style="color:#C0392B;font-weight:600">Link encerrado</b>`; }
 const prazoTx = () => `Prazo · ${FECHA.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}, ${FECHA.getHours()}h${FECHA.getMinutes() ? String(FECHA.getMinutes()).padStart(2, "0") : ""}`;
@@ -131,7 +131,7 @@ async function iniciar() {
     L = l; IT = l.itens || []; PORT = p.O; MUN = b.mun.map((m) => m.n); FECHA = new Date(l.prazo); ABERTO = !!l.aberto;
     const P = {}; (l.propostas || []).forEach((x) => { P[x.item_id] = x; });
     ST = IT.map((x) => { const q = P[x.id]; return q ? { mun: q.municipio || x.municipio || "", bt: q.benef_tipo || (x.benef_tipo === "ent" ? "ent" : "mun"), ben: q.beneficiario || "", cnpj: q.cnpj || "", obj: q.objeto || null, fonte: q.objeto_fonte || "", com: q.justificativa || "", status: q.status }
-      : { mun: x.municipio || "", bt: x.benef_tipo === "ent" ? "ent" : "mun", ben: x.benef_tipo === "ent" ? x.beneficiario || "" : "", cnpj: x.benef_tipo === "ent" ? x.cnpj || "" : "", obj: null, fonte: "", com: "", status: "" }; });
+      : { mun: x.municipio || "", bt: x.benef_tipo === "ent" ? "ent" : "mun", ben: x.benef_tipo === "ent" ? x.beneficiario || "" : "", cnpj: x.benef_tipo === "ent" ? x.cnpj || "" : "", obj: !l.limpo && x.objeto || null, fonte: !l.limpo && x.objeto ? "gab" : "", com: l.limpo ? "" : x.justificativa || "", status: "" }; });   // link "limpo": sem objeto e sem justificativa   // sem proposta: já vem com o que o gabinete revisou (20/11/2026)
     document.getElementById("muns").innerHTML = MUN.map((m) => `<option value="${esc(m)}">`).join("");
     render(); setInterval(() => { const c = document.querySelector(".icapa .w2"); if (c) c.innerHTML = `<span class="tk">${prazoTx()}</span>${cont()}`; }, 30000);
   } catch (e) { msg("Não foi possível abrir", "Confira a internet e recarregue a página. (" + esc(e.message) + ")"); } }
@@ -176,7 +176,10 @@ function liga() { const A = document.getElementById("app");
   A.querySelector("[data-info]").onclick = (ev) => info(ev.currentTarget);
   const en = document.getElementById("enviar"); if (en) en.onclick = async () => { const f = ST.filter(feito).length;
     if (!(await confirmaVX("Enviar ao gabinete?", `${f} de ${IT.length} emendas com objeto.`))) return;
-    try { await Promise.all(Object.keys(TM).map((i) => new Promise((ok) => setTimeout(ok, 900)))); await rpc("link_enviar", { p_token: TOKEN }); L.enviado_em = new Date().toISOString(); ST.forEach((s) => { if (s.status === "rascunho") s.status = "enviado"; });
+    try { await Promise.all(Object.keys(TM).map((i) => new Promise((ok) => setTimeout(ok, 900))));
+      for (let i = 0; i < IT.length; i++) { const s = ST[i]; if (s.status || trava(s)) continue;
+        await rpc("link_salvar", { p_token: TOKEN, p_item: IT[i].id, p_dados: { municipio: s.mun, benef_tipo: s.bt, beneficiario: s.bt === "ent" ? s.ben : "", cnpj: s.bt === "ent" ? s.cnpj : "", objeto: s.obj || "", objeto_fonte: s.fonte, justificativa: s.com } }); s.status = "rascunho"; }
+      await rpc("link_enviar", { p_token: TOKEN }); L.enviado_em = new Date().toISOString(); ST.forEach((s) => { if (s.status === "rascunho") s.status = "enviado"; });
       document.getElementById("env").remove(); A.innerHTML = `<div class="fim"><div style="font-size:40px">✓</div><b>Enviado ao gabinete</b><p class="mut">Até ${FECHA.toLocaleDateString("pt-BR")}, ${FECHA.getHours()}h, você pode voltar a este link e mudar.</p><button class="bt s" id="volta">Ver as emendas</button></div>`; document.getElementById("volta").onclick = render;
     } catch (e) { alert("Não foi possível enviar: " + e.message); } }; }
 function info(b) { const ja = document.getElementById("ipop"); if (ja) { ja.remove(); b.classList.remove("on"); return; }
