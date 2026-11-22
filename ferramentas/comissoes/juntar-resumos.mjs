@@ -19,7 +19,12 @@ for (const f of existsSync(RS) ? readdirSync(RS) : []) { const id = f.replace(/\
     z.d = docs.filter((d) => BOM.test(d.tipo)).sort((a, b) => rk(a) - rk(b)).slice(0, 5).map((d) => [d.doc, d.tipo, d.nome.slice(0, 80), d.d]); }
   R[id] = z; }
 writeFileSync(join(RAIZ, "dados/painel/alesc-comissoes-resumos.json"), JSON.stringify({ gerado: new Date().toISOString(), n: Object.keys(R).length, R }));
+const STATUS = gravaStatus(RAIZ, { resumos: new Date().toISOString(), resumos_n: Object.keys(R).length });
 console.log(`resumos: ${Object.keys(R).length} de ${D.L.length} proposições`);
 if (process.argv.includes("--faltam")) { const F = D.L.filter((x) => !R[x.id]); console.log(`faltam ${F.length}:`); F.forEach((x) => console.log(`${x.id}\t${x.tipo} ${x.num}/${x.ano}\t${existsSync(join(TX, x.id + ".json")) ? "com texto" : "sem texto"}`)); }
-if (process.argv.includes("--publicar")) { const g = (a) => execFileSync("git", a, { cwd: RAIZ, encoding: "utf8" }), A = ["dados/painel/alesc-comissoes-resumos.json", "ferramentas/comissoes/resumos"];
+if (process.argv.includes("--publicar")) { const g = (a) => execFileSync("git", a, { cwd: RAIZ, encoding: "utf8" }), A = ["dados/painel/alesc-comissoes-resumos.json", "dados/painel/alesc-comissoes-status.json", "ferramentas/comissoes/resumos"];
   g(["add", ...A]); if (g(["diff", "--cached", "--name-only", "--", ...A]).trim()) { g(["commit", "-m", `Comissões da ALESC: resumos de ${Object.keys(R).length} proposições\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`, "--", ...A]); try { g(["push", "-q", "origin", "HEAD:main"]); console.log("publicado"); } catch (e) { console.log("commit feito, push falhou"); } } else console.log("nada novo para publicar"); }
+
+// situação para o título "Processo legislativo" do Gabinete (22/11/2026): arquivo pequeno com a data da última coleta,
+// da última verificação e dos resumos — o site lê este, sem baixar os 2,4 MB de dados
+function gravaStatus(raiz, o) { const f = raiz + "/dados/painel/alesc-comissoes-status.json"; let s = {}; try { s = JSON.parse(readFileSync(f, "utf8")); } catch (e) {} writeFileSync(f, JSON.stringify({ ...s, ...o })); return f; }

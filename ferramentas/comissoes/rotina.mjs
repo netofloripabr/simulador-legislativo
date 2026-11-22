@@ -6,7 +6,7 @@
 // 4) se o conteúdo mudou (ignorando a hora), faz o commit só desses arquivos e publica. Não toca no Supabase.
 // Capacidade (aprovada pelo usuário em 18/11/2026): ~160 páginas da lista + as proposições que mudaram, uma por vez; 1 commit/dia no máximo.
 import { execFileSync } from "node:child_process";
-import { readFileSync, existsSync, appendFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, appendFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 const AQUI = dirname(fileURLToPath(import.meta.url)), RAIZ = join(AQUI, "../.."), SAIDA = "dados/painel/alesc-comissoes-tram.json", RES = "dados/painel/alesc-comissoes-resumos.json", LOG = join(RAIZ, "ferramentas/diario/_cache/rotina.log");
@@ -24,9 +24,15 @@ try {
   execFileSync("node", [join(AQUI, "juntar-resumos.mjs")], { cwd: RAIZ, stdio: "inherit" });
 } catch (e) { log("erro na coleta (" + String(e.message).slice(0, 160) + ")"); process.exit(1); }
 const D = ler(), mudou = semHora(D) !== antes || lerR() !== antesR;
+const STATUS = gravaStatus(RAIZ, { coleta: D.gerado, total: D.L.length, verificado: new Date().toISOString(), mudou });
 log(`${D.L.length} proposições em comissão${mudou ? "" : " (sem mudança)"}`);
+if (!mudou && !process.argv.includes("--sem-publicar")) { try { const g = (a) => execFileSync("git", a, { cwd: RAIZ, encoding: "utf8" }); g(["add", STATUS]); g(["commit", "-m", "Comissões da ALESC: verificado, sem mudança (rotina diária)", "--", STATUS]); g(["push", "-q", "origin", "HEAD:main"]); } catch (e) {} }
 if (mudou && !process.argv.includes("--sem-publicar")) {
   const g = (a) => execFileSync("git", a, { cwd: RAIZ, encoding: "utf8" });
-  g(["add", SAIDA, RES, "ferramentas/comissoes/resumos"]); g(["commit", "-m", `Comissões da ALESC: ${D.L.length} proposições em tramitação (rotina diária)`, "--", SAIDA, RES, "ferramentas/comissoes/resumos"]);
+  g(["add", SAIDA, RES, STATUS, "ferramentas/comissoes/resumos"]); g(["commit", "-m", `Comissões da ALESC: ${D.L.length} proposições em tramitação (rotina diária)`, "--", SAIDA, RES, STATUS, "ferramentas/comissoes/resumos"]);
   try { g(["push", "-q", "origin", "HEAD:main"]); log("publicado"); } catch (e) { log("commit feito, push falhou (" + String(e.message).slice(0, 120) + ")"); }
 }
+
+// situação para o título "Processo legislativo" do Gabinete (22/11/2026): arquivo pequeno com a data da última coleta,
+// da última verificação e dos resumos — o site lê este, sem baixar os 2,4 MB de dados
+function gravaStatus(raiz, o) { const f = raiz + "/dados/painel/alesc-comissoes-status.json"; let s = {}; try { s = JSON.parse(readFileSync(f, "utf8")); } catch (e) {} writeFileSync(f, JSON.stringify({ ...s, ...o })); return f; }

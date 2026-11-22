@@ -118,6 +118,16 @@ const corpoEle = () => `<iframe class="admEmb" id="eleEmb" title="Eleitoral" loa
 addEventListener("message", (e) => { if (e.origin !== location.origin || !e.data) return; const f = e.data.slEmb === "adm" ? $("#admEmb") : e.data.slEmb === "gab" ? $("#gabEmb") : e.data.slEmb === "ele" ? $("#eleEmb") : null; if (f) f.style.height = Math.max(200, +e.data.h || 0) + "px"; });
 const doAno = () => E.filter((e) => !S.ano || e.ano === S.ano);
 // títulos do Gabinete (mesmo formato da página Parlamentares): cada um é uma seção que abre e fecha
+// aviso de atualização no título "Processo legislativo" (22/11/2026): lê o arquivo pequeno de situação que a rotina da noite
+// grava (dados/painel/alesc-comissoes-status.json): data da última coleta no e-Legis, da última verificação e dos resumos
+let PL_ST = null;
+async function plAtu() { const el = document.getElementById("plAtu"); if (!el) return;
+  try { if (!PL_ST) PL_ST = await (await fetch("../dados/painel/alesc-comissoes-status.json?h=" + Math.floor(Date.now() / 36e5))).json(); } catch (e) { return; }
+  const s = PL_ST, dh = (d) => { const x = new Date(d); return x.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) + " às " + x.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h"); };
+  const ult = s.verificado || s.coleta, horas = (Date.now() - new Date(ult)) / 36e5, emDia = horas < 30;
+  el.className = "gatu" + (emDia ? "" : " velho");
+  el.innerHTML = `<i></i>Atualizado em ${dh(s.coleta)}${s.verificado && new Date(s.verificado) - new Date(s.coleta) > 36e5 ? ` · conferido em ${dh(s.verificado)}` : ""}`;
+  el.title = `${(s.total || 0).toLocaleString("pt-BR")} proposições em tramitação · ${(s.resumos_n || 0).toLocaleString("pt-BR")} com resumo${s.resumos ? " (resumos de " + dh(s.resumos) + ")" : ""}${emDia ? "" : " · a rotina da noite não roda há mais de um dia"}`; }
 const TITULOS = [["rh", "Administrativo", "O controle dos recursos do mandato, a agenda e o RH do gabinete: a estrutura pela ALESC e a equipe registrada pelo gabinete."], ["pl", "Processo legislativo", "As proposições que tramitam nas comissões permanentes da ALESC: onde cada uma está, quem relata e o caminho que falta."],
   ["ele", "Eleitoral", "Onde estão os votos do mandato: mapa, distribuição, perfil das cidades, comparação e ranking."], ["mail", "Mailing", "Contatos de prefeituras, entidades e lideranças, com histórico de atendimento."],
   ["alesc", "ALESC (Transparência)", "O que a Assembleia divulga sobre o mandato: subsídio e verbas, verbas indenizatórias, liderança, a estrutura da Casa e o mandato em números."]];
@@ -127,8 +137,8 @@ function desenhar() {  if ((S.aba === "meu" || S.aba === "cotas") && !(proprio()
   const EL = EST.c.filter((c) => /^eleito/i.test(c.s || "")).sort((a, b) => a.u.localeCompare(b.u, "pt-BR"));
   capa3d();   // capa 3D (gabinete-capa.js), fora de #app: montada uma vez, aqui só os números
   $("#app").innerHTML = `<div class="grank" id="grank"></div>
-    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2><p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rh" ? corpoAdm() : k === "alesc" ? corpoAlesc() : k === "ele" ? corpoEle() : k === "pl" && typeof corpoPL === "function" ? corpoPL() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
-  leque(); pintaRank(); ligarAvisoCota(); if (typeof ligarAdicionar === "function") ligarAdicionar();
+    ${TITULOS.map(([k, t, d], i) => `<section class="secao${S.fech[k] ?? true ? " fech" : ""}" id="t-${k}"><div class="tag" data-t="${k}"><button class="tgs${S.fech[k] ?? true ? "" : " ab"}" title="Recolher ou abrir"></button><h2>${t}</h2>${k === "pl" ? `<span class="gatu" id="plAtu"></span>` : ""}<p class="lead">${d}</p></div><div class="corpoT" id="c-${k}">${k === "rh" ? corpoAdm() : k === "alesc" ? corpoAlesc() : k === "ele" ? corpoEle() : k === "pl" && typeof corpoPL === "function" ? corpoPL() : `<div class="obra">Em construção. Este título entra no mesmo formato assim que começarmos a trabalhar nele.</div>`}</div></section>`).join("")}`;
+  leque(); pintaRank(); ligarAvisoCota(); plAtu(); if (typeof ligarAdicionar === "function") ligarAdicionar();
   blocos();
   $("#app").querySelectorAll("[data-bk]").forEach((h) => h.onclick = () => { const b = h.parentElement, k = h.dataset.bk; S.fech[k] = !b.classList.contains("fech"); abasSalvar(); b.classList.toggle("fech", S.fech[k]); if (k === "cmpB" && !S.fech[k] && typeof cmpAbrir === "function") cmpAbrir(); });
   if (S.fech.cmpB === false && typeof cmpAbrir === "function") cmpAbrir();
