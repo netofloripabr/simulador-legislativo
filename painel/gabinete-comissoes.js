@@ -31,8 +31,8 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .cbar i{ display:block; }
 .cmp .com.on .cbar{ background:#D3D6D8; }
 .cmp .stdir{ display:flex; align-items:center; gap:12px; }
-.cmp .cvis{ display:inline-flex; gap:2px; background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:2px; }
-.cmp .cvis button{ background:none; border:0; border-radius:999px; padding:4px 11px; color:var(--sec); font-size:11px; font-weight:600; letter-spacing:.02em; text-transform:none; cursor:pointer; }
+.cmp .cvis{ display:inline-flex; gap:3px; background:var(--sup); border:1px solid var(--linha2); border-radius:999px; padding:3px; }
+.cmp .cvis button{ background:none; border:0; border-radius:999px; padding:8px 18px; color:var(--sec); font-size:13.5px; font-weight:700; letter-spacing:.02em; text-transform:none; cursor:pointer; }
 .cmp .cvis button.on{ background:var(--texto); color:#0B0F0D; }
 .cmp .rkw{ background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:14px; }
 .cmp .rkc{ margin:0 0 10px; font-size:12px; color:var(--ter); } .cmp .rkc b{ color:var(--texto); }
@@ -87,6 +87,13 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .hm-t{ display:flex; align-items:center; justify-content:flex-end; padding-right:6px; font-size:12px; font-variant-numeric:tabular-nums; color:var(--sec); } .cmp .hm-cab .hm-t{ font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ter); }
 .cmp .hm-sum{ border-top:1px solid var(--linha); padding-top:4px; margin-top:2px; } .cmp .hm-sum .hm-t, .cmp .hm-sum .hm-n{ font-weight:700; color:var(--texto); justify-content:center; } .cmp .hm-sum .hm-n{ justify-content:flex-start; cursor:default; } .cmp .hm-sum .hm-t:last-child{ justify-content:flex-end; }
 .cmp .hm-sw{ display:inline-flex; gap:2px; background:var(--sup2); border:1px solid var(--linha2); border-radius:999px; padding:3px; } .cmp .hm-sw button{ background:none; border:0; border-radius:999px; padding:5px 13px; color:var(--sec); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; } .cmp .hm-sw button.on{ background:var(--texto); color:#0B0F0D; }
+.cmp .leq select.lw{ width:150px; max-width:150px; }
+.cmp .vsm{ margin-top:16px; border-top:1px solid var(--linha); padding-top:12px; } .cmp .vsm-h b{ display:block; font-size:13.5px; color:var(--texto); } .cmp .vsm-h span{ font-size:12px; color:var(--ter); }
+.cmp .vsm-g{ display:flex; gap:14px; align-items:flex-end; height:150px; margin-top:12px; padding:0 4px; border-bottom:1px solid var(--linha2); }
+.cmp .vsm-c{ flex:1 1 0; max-width:90px; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:4px; position:relative; }
+.cmp .vsm-c b{ font-size:12.5px; color:var(--texto); font-variant-numeric:tabular-nums; } .cmp .vsm-c small{ position:absolute; bottom:-20px; font-size:11px; color:var(--ter); white-space:nowrap; }
+.cmp .vsm-b{ width:26px; display:flex; flex-direction:column; gap:2px; border-radius:5px 5px 0 0; overflow:hidden; min-height:2px; } .cmp .vsm-b i{ display:block; background:#3569AE; } .cmp .vsm-b i.ab{ background:#E8A23A; }
+.cmp .vsm-l{ display:flex; gap:14px; margin-top:28px; font-size:11.5px; color:var(--sec); } .cmp .vsm-l i{ display:inline-block; width:10px; height:10px; border-radius:3px; background:#3569AE; margin-right:5px; vertical-align:-1px; } .cmp .vsm-l i.ab{ background:#E8A23A; }
 .cmp .hm-mais{ margin-top:8px; background:none; border:0; color:var(--a); font:inherit; font-size:12.5px; cursor:pointer; }
 .cmp .hgr{ display:flex; flex-direction:column; gap:14px; background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:12px 12px 8px; }
 .cmp .hh, .cmp .hb{ display:grid; grid-template-columns:minmax(120px,190px) minmax(0,1fr) 78px 64px; gap:12px; align-items:center; }
@@ -420,19 +427,18 @@ async function cmpAbrir() { const R = document.getElementById("cmpC"); if (!R ||
   R.innerHTML = `<div class="cmp">
   
   <div class="kpi" id="kpi"></div>
-  <div class="st"><span>Por comissão · toque para filtrar</span><span class="stdir"><span id="stc"></span><span class="cvis" role="group" aria-label="Formato"><button data-cv="cartoes" class="on">Cartões</button><button data-cv="grade">Gráfico</button><button data-cv="rank">Ranking</button></span></span></div>
+  <div class="st"><span>Por comissão · toque para filtrar</span><span class="stdir"><span id="stc"></span><span class="cvis" role="group" aria-label="Formato"><button data-cv="cartoes" class="on">Card</button><button data-cv="grade">Tempo</button><button data-cv="rank">Ranking</button></span></span></div>
   <div class="coms" id="coms"></div>
   <div class="lg" id="lgc"></div>
   <div class="bar" id="bar">
     <label class="busca ico" id="buscaL" title="Buscar"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="m10.5 10.5 3.5 3.5"/></svg><input id="q" placeholder="Buscar número, autor, relator ou assunto" aria-label="Buscar" autocomplete="off"></label>
     <label class="leq"><span class="lq" title="Tipo" aria-label="Tipo"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2h6l3 3v9H4z M10 2v3h3 M6 8.5h5 M6 11h3.5"/></svg></span><select id="fTipo"></select></label>
-    <label class="leq"><span class="lq" title="Tema" aria-label="Tema"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.3V2.5h5.8l5.7 5.7-5.8 5.8z"/><circle cx="5.4" cy="5.4" r="1"/></svg></span><select id="fTema"></select></label>
-    <label class="leq"><span class="lq" title="Relator" aria-label="Relator"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.6"/><path d="M3 14c.6-2.8 2.6-4.2 5-4.2s4.4 1.4 5 4.2"/></svg></span><select id="fRel"></select></label>
-    <label class="leq"><span class="lq" title="Autor" aria-label="Autor"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 2.9l2.5 2.5-7.6 7.6-3.1.6.6-3.1z M9.2 4.3l2.5 2.5"/></svg></span><select id="fAut"></select></label>
+    <label class="leq"><span class="lq" title="Tema" aria-label="Tema"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8.3V2.5h5.8l5.7 5.7-5.8 5.8z"/><circle cx="5.4" cy="5.4" r="1"/></svg></span><select id="fTema" class="lw"></select></label>
+    <label class="leq"><span class="lq" title="Relator" aria-label="Relator"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.6"/><path d="M3 14c.6-2.8 2.6-4.2 5-4.2s4.4 1.4 5 4.2"/></svg></span><select id="fRel" class="lw"></select></label>
+    <label class="leq"><span class="lq" title="Autor" aria-label="Autor"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 2.9l2.5 2.5-7.6 7.6-3.1.6.6-3.1z M9.2 4.3l2.5 2.5"/></svg></span><select id="fAut" class="lw"></select></label>
     <label class="leq"><span class="lq" title="Na comissão há" aria-label="Na comissão há"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2h7 M4.5 14h7 M5.5 2c0 3.2 5 3.8 5 6s-5 2.8-5 6 M10.5 2c0 3.2-5 3.8-5 6s5 2.8 5 6"/></svg></span><select id="fIdade"><option value="">Qualquer tempo</option><option value="0">Até 30 dias</option><option value="1">31 a 90 dias</option><option value="2">Mais de 90 dias</option></select></label>
-    <div class="vis" role="group" aria-label="Visão"><button data-v="lista" class="on">Lista</button><button data-v="quadro">Por comissão</button></div>
     <button class="futb" id="futB" aria-pressed="false" title="Mostrar, no fim da lista, as proposições já distribuídas para a comissão escolhida que ainda não chegaram nela"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3l2 1.5"/><path d="M13.5 2.5v3h-3"/></svg>Futuro</button>
-    <button class="imp" id="impB" title="Imprimir o que está filtrado"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 6V2h8v4 M4 12H2.5V6.5h11V12H12 M4 10h8v4H4z"/></svg>Imprimir</button>
+    <button class="imp" id="impB" title="Imprimir o que está filtrado"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 6V2h8v4 M4 12H2.5V6.5h11V12H12 M4 10h8v4H4z"/></svg></button>
     <button class="limpa" id="limpa">Limpar filtros</button>
   </div>
   <div class="res" id="res"></div>
@@ -480,6 +486,16 @@ const FX = [["até 90 dias", (d) => d <= 90, "#2F6DB5"], ["91 a 365 dias", (d) =
 // (mais forte = mais volume), com o número escrito. Vale para a comissão escolhida na faixa ou para todas. Tocar numa
 // célula filtra a lista por aquele relator e aquela faixa; no nome, só o relator; no título da coluna, só a faixa.
 const HX = [["até 30 dias", 0, 30], ["31 a 90", 31, 90], ["91 a 180", 91, 180], ["181 a 365", 181, 365], ["1 a 2 anos", 366, 730], ["mais de 2 anos", 731, 1e9]];
+// vistas por semestre (23/11/2026): todos os pedidos de vista registrados no e-Legis (abertos e já devolvidos), por
+// semestre em que foram pedidos; colunas no tempo, da esquerda (mais antigo) para a direita; valem a comissão e os filtros
+function vistasPeriodo(base) { const C = new Map();
+  base.forEach((x) => (x.vistas || []).forEach(([d, q]) => { const k = d.slice(0, 4) + "·" + (+d.slice(5, 7) <= 6 ? "1º sem" : "2º sem"), ab = x.vista && x.vista.d === d;
+    const o = C.get(k) || { a: 0, f: 0 }; ab ? o.a++ : o.f++; C.set(k, o); }));
+  const K = [...C.keys()].sort(), mx = Math.max(1, ...K.map((k) => C.get(k).a + C.get(k).f));
+  if (!K.length) return "";
+  return `<div class="vsm"><div class="vsm-h"><b>Pedidos de vista por semestre</b><span>quando foram pedidos · abertos e já devolvidos</span></div><div class="vsm-g">${K.map((k) => { const o = C.get(k), n = o.a + o.f;
+    return `<div class="vsm-c" title="${k}: ${n} pedidos de vista (${o.a} ainda abertos, ${o.f} devolvidos)"><b>${ni(n)}</b><span class="vsm-b" style="height:${(n / mx * 100).toFixed(1)}%"><i class="ab" style="flex:${o.a}"></i><i style="flex:${o.f}"></i></span><small>${k}</small></div>`; }).join("")}</div>
+    <div class="vsm-l"><span><i class="ab"></i>ainda aberto</span><span><i></i>já devolvido</span></div></div>`; }
 function grade() {
   const base = D.L.filter((x) => (!F.com || x.com === F.com) && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.aut || x.autor === F.aut)
     && (!F.q || norm([x.tipo, x.num, x.ano, x.autor, x.rel, x.resumo, x.ementa].join(" ")).includes(norm(F.q))));
@@ -498,6 +514,7 @@ function grade() {
     <div class="hm-g"><div class="hm-r hm-cab"><span></span>${HX.map(([t, a], i) => `<button class="hm-x${F.fx && F.fx[0] === a ? " on" : ""}" data-hx="${i}">${t}</button>`).join("")}<span class="hm-t">total</span></div>
     ${ver.map(lin).join("")}
     <div class="hm-r hm-sum"><span class="hm-n">Total</span>${col.map((n) => `<span class="hm-t">${ni(n)}</span>`).join("")}<span class="hm-t">${ni(B2.length)}</span></div></div>
+    ${VIS ? vistasPeriodo(base) : ""}
     ${L.length > 14 ? `<button class="hm-mais" data-hall>${F.hall ? "Mostrar só os 14 com mais proposições" : `Ver todos os ${L.length} ${VIS ? "deputados" : "relatores"}`}</button>` : ""}</div>`; }
 
 // ranking (20/11/2026): relatores (designados, relataram, relatorias abertas, dias com a relatoria aberta), pedidos de vista abertos
