@@ -193,6 +193,21 @@ td.ac{width:70px}
 .icd{display:flex;gap:6px}.icd div{background:#fff;border:1px solid var(--bd);border-radius:9px;width:52px;padding:5px 0;text-align:center}.icd b{display:block;font-size:18px;color:var(--or);font-variant-numeric:tabular-nums}.icd span{font-size:10px;color:var(--mu)}
 .gfim{color:#C0392B;font-weight:600;font-size:13px}
 
+/* quadro em duas leituras (23/11): área (Saúde × FUNDAM) e despesa (capital × custeio) */
+.qinv{margin-top:12px;padding:10px 12px;border:1px solid var(--bd);border-radius:12px;background:#fff;cursor:pointer}.qinv:hover,.ar:hover{border-color:#B9C0C5}.qinv.on,.ar.on{border-color:#1D2226;box-shadow:0 0 0 1px #1D2226}
+.ars{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11.5px;color:var(--mu);margin-bottom:6px}.ars b{color:var(--tx);font-weight:600;white-space:nowrap}
+.chip{font:700 10.5px Inter;border-radius:999px;padding:3px 8px;white-space:nowrap;background:#E4E7E9;color:#3E454B}.chip.ok{background:#DDF3E1;color:#17883A}.chip.fl{background:#FDEBDD;color:#C0561B}
+.qdb{position:relative;display:flex;gap:2px;height:7px;border-radius:4px;background:#E4E7E9}.qdb i{display:block;height:100%;border-radius:2px}
+.qdb i.cap,.qdl i.cap{background:#2F5D8A}.qdb i.cus,.qdl i.cus{background:#8FB3D4}.qdb i.def,.qdl i.def{background:#D3D8DB}
+.qdb b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:#E8822A;box-shadow:0 0 0 2px #fff}
+.qdl{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:11px;color:#3E454B;margin-top:6px}.qdl i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.qar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.ar{padding:10px 12px;border:1px solid var(--bd);border-radius:12px;background:#fff;cursor:pointer;min-width:0}
+.arh{display:flex;align-items:center;gap:8px}.arn{flex:1;min-width:0}.arn b{display:block;font-size:13.5px}.arn small{display:block;font-size:11px;color:var(--mu)}
+.ar.ok .mi{background:#DDF3E1;color:#17883A}.ar.fl .mi{background:#FDEBDD;color:#C0561B}
+.arb{position:relative;height:8px;border-radius:4px;background:#E4E7E9;margin:10px 0 10px}.arb i{display:block;height:100%;border-radius:4px;background:#2A2F33}.ar.ok .arb i{background:#1FA845}
+.arb b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:#E8822A;box-shadow:0 0 0 2px #fff}
+@media(max-width:700px){.qar{gap:6px}.ar,.qinv{padding:9px 9px}.arh{flex-wrap:wrap;gap:5px}.arh .chip{order:3;flex-basis:100%;text-align:center}.ars{flex-wrap:wrap}.qdl{font-size:10.5px;gap:2px 8px}}
 .erro{max-width:420px;margin:60px auto;background:var(--tl);border:1px solid var(--bd);border-radius:16px;padding:22px 24px;font-size:13px;color:var(--mu);line-height:1.5}.erro b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
@@ -237,22 +252,30 @@ const regDe = (x) => x.mun ? REG[x.mun] || "Outra" : "Sem município";
 
 // quadro enxuto (pedido 22/11): uma faixa com cota, indicado, livre e emendas; uma barra; três metas em linha
 function quadro(L) {
+  // duas leituras separadas (pedido 23/11, como no painel de Indicação): ÁREA (Saúde × FUNDAM, metades da cota) e
+  // DESPESA (capital/investimento × custeio, meta de 70% em investimento), esta no geral e dentro de cada área
   const val = (x) => +x.v || 0, tot = L.reduce((s, x) => s + val(x), 0), totO = ORIG.reduce((s, x) => s + val(x), 0);
-  const sau = L.filter((x) => x.area === "Saúde").reduce((s, x) => s + val(x), 0), fun = tot - sau;
-  const cap = L.filter((x) => x.nat === "Capital").reduce((s, x) => s + val(x), 0), def = L.filter((x) => !x.nat).reduce((s, x) => s + val(x), 0);
-  const p = (v, d) => d ? (v / d * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 }) + "%" : "0%", livre = COTA - tot;
-  const okS = sau >= COTA * SAUDE - .005, okF = fun <= COTA * (1 - SAUDE) + .005, okC = tot && cap / tot >= META_CAP;
-  const meta = (ok, nome, atual, regra, extra, k) => `<div class="mt ${ok ? "ok" : "fl"}${MD === k ? " on" : ""}" data-md="${k}" role="button" title="Ver o detalhamento"><span class="mi">${ok ? "✓" : "!"}</span><span><b>${nome} ${atual}</b> ${regra}${extra ? `<small>${extra}</small>` : ""}</span><span class="mv">${MD === k ? "▴" : "▾"}</span></div>`;
+  const grp = (f) => { const o = { cap: 0, cus: 0, def: 0, t: 0 }; L.filter(f).forEach((x) => { const k = x.nat === "Capital" ? "cap" : x.nat === "Custeio" ? "cus" : "def"; o[k] += val(x); o.t += val(x); }); return o; };
+  const S = grp((x) => x.area === "Saúde"), F = grp((x) => x.area !== "Saúde"), A = { cap: S.cap + F.cap, cus: S.cus + F.cus, def: S.def + F.def, t: tot };
+  const p = (v, d) => d ? (v / d * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 }) + "%" : "0%", livre = COTA - tot, mS = COTA * SAUDE, mF = COTA * (1 - SAUDE);
+  const okS = S.t >= mS - .005, okF = F.t <= mF + .005, okC = tot && A.cap / tot >= META_CAP;
+  const desp = (o, meta) => `<div class="qdb"><i class="cap" style="flex:${o.cap}"></i><i class="cus" style="flex:${o.cus}"></i><i class="def" style="flex:${o.def}"></i>${meta ? `<b style="left:${meta * 100}%" title="meta: ${Math.round(meta * 100)}% em investimento"></b>` : ""}</div>
+    <div class="qdl"><span><i class="cap"></i>capital ${rcc(o.cap)}</span><span><i class="cus"></i>custeio ${rcc(o.cus)}</span>${o.def ? `<span><i class="def"></i>a definir ${rcc(o.def)}</span>` : ""}</div>`;
+  const area = (k, nome, o, m, ok, sub, chip) => { const esc2 = Math.max(o.t, m) * 1.04 || 1;
+    return `<div class="ar ${ok ? "ok" : "fl"}${MD === k ? " on" : ""}" data-md="${k}" role="button" title="Ver o detalhamento">
+      <div class="arh"><span class="mi">${ok ? "✓" : "!"}</span><span class="arn"><b>${nome} ${p(o.t, COTA)}</b><small>${sub}</small></span><span class="chip ${ok ? "ok" : "fl"}">${chip}</span></div>
+      <div class="arb"><i style="width:${(Math.min(o.t, esc2) / esc2 * 100).toFixed(1)}%"></i><b style="left:${(m / esc2 * 100).toFixed(1)}%"></b></div>
+      <div class="ars"><span>Investimento e custeio</span><b>capital ${p(o.cap, o.t)}</b></div>${desp(o)}</div>`; };
   return `<div class="qd">
     <div class="qn"><div><span>Cota</span><b>${rcc(COTA)}</b></div>
       <div><span>Indicado</span><b>${rcc(tot)} <em>${p(tot, COTA)}</em></b>${tot !== totO ? `<small class="dif">${tot > totO ? "+" : "−"}${rcc(Math.abs(tot - totO))} nas mudanças</small>` : ""}</div>
       <div><span>${livre < 0 ? "Acima da cota" : "Livre"}</span><b class="${livre < 0 ? "neg" : "pos"}">${rcc(Math.abs(livre))}</b></div>
       <div><span>Emendas</span><b>${L.length} <em>de ${MAXE}</em></b></div></div>
-    <div class="qb"><i class="s" style="width:${Math.min(100, sau / COTA * 100)}%" title="Saúde ${rcc(sau)}"></i><i class="f" style="width:${Math.min(100 - Math.min(100, sau / COTA * 100), fun / COTA * 100)}%" title="Demais áreas ${rcc(fun)}"></i><b style="left:${SAUDE * 100}%" title="mínimo da Saúde"></b></div>
-    <div class="ql"><span><i class="s"></i>Saúde</span><span><i class="f"></i>demais áreas (FUNDAM)</span><span><i class="m"></i>mínimo da Saúde</span></div>
-    <div class="qm">${meta(okS, "Saúde", p(sau, COTA), `· mínimo ${Math.round(SAUDE * 100)}%`, okS ? "" : "faltam " + rcc(COTA * SAUDE - sau), "sau")}
-      ${meta(okC, "Investimento", p(cap, tot), `· meta ${Math.round(META_CAP * 100)}%`, def ? rcc(def) + " com despesa a definir" : "", "inv")}
-      ${meta(okF, "FUNDAM", p(fun, COTA), `· até ${Math.round((1 - SAUDE) * 100)}%`, okF ? "livre " + rcc(COTA * (1 - SAUDE) - fun) : "acima em " + rcc(fun - COTA * (1 - SAUDE)), "fun")}</div>${MD ? detalhe(L, MD, tot, sau, cap) : ""}</div>`;
+    <div class="qb"><i class="s" style="width:${Math.min(100, tot / COTA * 100)}%"></i></div>
+    <div class="qinv${MD === "inv" ? " on" : ""}" data-md="inv" role="button" title="Ver o detalhamento"><div class="ars"><span>Investimento e custeio · de tudo o que foi indicado</span><span class="chip ${okC ? "ok" : "fl"}">${okC ? "✓ " : ""}investimento ${p(A.cap, tot)} · meta ${Math.round(META_CAP * 100)}%</span></div>${desp(A, META_CAP)}</div>
+    <div class="qar">${area("sau", "Saúde", S, mS, okS, `mínimo ${Math.round(SAUDE * 100)}% da cota`, okS ? "✓ atingido" : "faltam " + rcc(mS - S.t))}
+      ${area("fun", "FUNDAM", F, mF, okF, `até ${Math.round((1 - SAUDE) * 100)}% · demais áreas`, okF ? "livre " + rcc(mF - F.t) : "acima em " + rcc(F.t - mF))}</div>
+    ${MD ? detalhe(L, MD, tot, S.t, A.cap) : ""}</div>`;
 }
 
 // detalhamento de uma meta: linhas com valor, % e emendas; tocar numa linha filtra a tabela
