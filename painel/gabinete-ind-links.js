@@ -114,9 +114,9 @@ function faixaLinks(T) { if (!T.L || !SESS) return "";
     <div class="lkst">Por contato</div><div class="lks">${con.map((n) => { const l = linkDoLider("contato:" + n); return l ? bt(l) : `<button class="lkc nw" data-lkcon="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("") || `<span class="mut" style="font-size:12px">nenhuma emenda com contato</span>`}</div>
     <div class="lkst">Avulsos</div><div class="lks">${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
 // ---------- colunas que ligam e desligam ----------
-const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["etq", "Etiqueta"], ["lid", "Líder e contato"], ["obs", "Observações"], ["etp", "Etapa"], ["jus", "Justificativa (no objeto)"]];
+const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["lid", "Líder e contato"], ["obs", "Etiqueta e observações"], ["etp", "Etapa"], ["jus", "Justificativa (no objeto)"]];
 let COLS_OFF = (() => { try { const v = JSON.parse(localStorage.getItem("ind_cols") || '["lid","jus"]'); if (!localStorage.getItem("ind_cols_jus")) { localStorage.setItem("ind_cols_jus", "1"); if (!v.includes("jus")) v.push("jus"); } return v; } catch (e) { return ["lid", "jus"]; } })();
-const colOn = (k) => !COLS_OFF.includes(k);
+const colOn = (k) => k !== "etq" && !COLS_OFF.includes(k);   // a etiqueta foi para a coluna das observações (23/11/2026)
 const nColInd = () => 1 + COLS_IND.filter(([k]) => k !== "jus" && colOn(k)).length; // nº e colunas visíveis (a justificativa vai dentro do objeto)
 // botão "Justificativa" (20/11/2026): liga e desliga o texto da justificativa embaixo do objeto, em todas as linhas
 const botaoJus = () => `<button data-ijus class="${colOn("jus") ? "on" : ""}" title="Mostrar ou esconder a justificativa embaixo de cada objeto">${lsv("lap")}Justificativa</button>`;
@@ -218,25 +218,31 @@ const OBS_IND = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" str
 // cor do balão (20/11/2026, migração 106): vermelho, amarelo ou verde, independente da etiqueta
 const COR_BAL = { vermelho: ["#D64545", "Vermelho · esperando retorno"], amarelo: ["#D9A400", "Amarelo · em andamento"], verde: ["#1FA845", "Verde · resolvido"] };
 const notasInd = (x) => typeof caderneta === "function" ? caderneta(x) : String(x.observacao || "").split(/\n+/).filter(Boolean).map((t) => ({ d: "", t }));
-function balaoInd(x) { const n = notasInd(x), ul = n[n.length - 1];
-  const oc = COR_BAL[x.obs_cor];
-  return `<button class="iobs${n.length ? " tem" : ""}${oc ? " cor" : ""}"${oc ? ` style="--bc:${oc[0]}"` : ""} data-iobs="${x.id}" title="${esc((oc ? oc[1] + " · " : "") + (ul ? ul.t : "Sem observação"))}" aria-label="Observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}</button>`; }
+// etiqueta e observação na mesma área (23/11/2026): o balão é o bloco de notas e a cor dele é a etiqueta (nome + cor
+// escolhidos pela equipe); a cor antiga do balão (obs_cor) só aparece enquanto a emenda não tem etiqueta
+function balaoInd(x, T) { const n = notasInd(x), ul = n[n.length - 1], e = x && x.marca ? etqDe(T || IND_T(), x) : null, oc = !e && COR_BAL[x.obs_cor];
+  const cor = e ? corEtq(e.c)[2] : oc ? oc[0] : "";
+  return `<button class="iobs${n.length ? " tem" : ""}${cor ? " cor" : ""}${e ? " etq" : ""}"${cor ? ` style="--bc:${cor}${e ? ";--eb:" + corEtq(e.c)[1] + ";--ef:" + corEtq(e.c)[2] : ""}"` : ""} data-iobs="${x.id}" title="${esc((e ? e.n + " · " : oc ? oc[1] + " · " : "") + (ul ? ul.t : "Sem observação"))}" aria-label="Etiqueta e observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}${e ? `<em>${esc(e.n)}</em>` : ""}</button>`; }
+const IND_T = () => (typeof indTags === "function" ? (indTags().find((t) => t.k === IND.tag) || null) : null);
 function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
-  const des = () => { const n = notasInd(x); return `<div class="h iobh"><span><b>Observações · ${esc(x.municipio || "—")}</b>${x.chave_emenda ? "já levada ao Controle de Recursos; lá continuam as anotações" : "vão junto para o Controle de Recursos ao fechar a lista"}</span>
-    <span class="iobc">${Object.entries(COR_BAL).map(([k, [c, rot]]) => `<button class="${x.obs_cor === k ? "on" : ""}" data-obc="${k}" style="--bc:${c}" title="${rot}" aria-label="${rot}"></button>`).join("")}${x.obs_cor ? `<button class="sem" data-obc="" title="Tirar a cor" aria-label="Tirar a cor">×</button>` : ""}</span></div>
-    <div class="iobmk"><span>Etiqueta</span>${celEtq(x, T)}</div>
+  const des = () => { const n = notasInd(x); return `<div class="h iobh"><span><b>Etiqueta e observações · ${esc(x.municipio || "—")}</b>${x.chave_emenda ? "já levada ao Controle de Recursos; lá continuam as anotações" : "vão junto para o Controle de Recursos ao fechar a lista"}</span>
+</div>
+    <div class="iobet">${etiquetasL(T).map((e) => `<button class="${x.marca === e.n ? "at" : ""}" data-obe="${esc(e.n)}" title="${x.marca === e.n ? "Tirar a etiqueta" : "Usar esta etiqueta"}">${chipEtq(e)}</button>`).join("")}${fech ? "" : `<button class="iobnv" data-ietq="${x.id}" title="Criar, renomear ou trocar a cor das etiquetas">+ nova / editar</button>`}</div>
     <div class="iobl">${n.length ? n.map((k) => `<div><span>${esc(k.d || "—")}</span><p>${esc(k.t)}</p></div>`).join("") : `<div class="mut" style="padding:4px 10px 8px;font-size:12px">Nenhuma anotação ainda.</div>`}</div>
     ${fech ? "" : `<div class="iobn"><input class="iobd" value="${hoje}" aria-label="Data"><input class="iobt" placeholder="Nova anotação…"><button class="lkok" data-anota>Anotar</button></div>`}`; };
   const m = abreLk(b, des(), "lkm iobm"), liga = () => {
     m.querySelectorAll("[data-obc]").forEach((o) => o.onclick = async (e) => { e.stopPropagation(); const k = o.dataset.obc || null; if (k === (x.obs_cor || null)) return;
       try { const nx = await gravar("gab_itens", { id: x.id, obs_cor: k }); Object.assign(x, nx); m.innerHTML = des(); liga();
-        const nb = $(`#indPg [data-iobs="${x.id}"]`); if (nb) { nb.outerHTML = balaoInd(x); const b2 = $(`#indPg [data-iobs="${x.id}"]`); b2.classList.add("on"); b2.onclick = (ev) => { ev.stopPropagation(); popObs(b2, x, T); }; }
+        const nb = $(`#indPg [data-iobs="${x.id}"]`); if (nb) { nb.outerHTML = balaoInd(x, T); const b2 = $(`#indPg [data-iobs="${x.id}"]`); b2.classList.add("on"); b2.onclick = (ev) => { ev.stopPropagation(); popObs(b2, x, T); }; }
       } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } });
-    const et = m.querySelector(".iobmk [data-ietq]"); if (et) et.onclick = (e) => { e.stopPropagation(); popEtq(et, x, T, () => { const b2 = $(`#indPg [data-iobs="${x.id}"]`); if (b2) popObs(b2, AD.itens.find((z) => z.id === x.id) || x, T); }); };
+    m.querySelectorAll("[data-obe]").forEach((o) => o.onclick = async (e) => { e.stopPropagation(); const k = x.marca === o.dataset.obe ? null : o.dataset.obe;
+      try { const nx = await gravar("gab_itens", { id: x.id, marca: k, obs_cor: null }); Object.assign(x, nx); m.innerHTML = des(); liga(); const y = $("#indPg").scrollTop; const nb = $(`#indPg [data-iobs="${x.id}"]`); if (nb) { const tr = nb.closest("tr"); nb.outerHTML = balaoInd(x, T); const b2 = $(`#indPg [data-iobs="${x.id}"]`); b2.classList.add("on"); b2.onclick = (ev) => { ev.stopPropagation(); popObs(b2, x, T); }; if (tr) { const ce = corEtq((etqDe(T, x) || {}).c || "cinza"); tr.classList.toggle("mk", !!x.marca); if (x.marca) { tr.style.setProperty("--mk", ce[1]); tr.style.setProperty("--mkf", ce[2]); } } } $("#indPg").scrollTop = y; }
+      catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } });
+    const et = m.querySelector(".iobet [data-ietq]"); if (et) et.onclick = (e) => { e.stopPropagation(); popEtq(et, x, T, () => { const b2 = $(`#indPg [data-iobs="${x.id}"]`); if (b2) popObs(b2, AD.itens.find((z) => z.id === x.id) || x, T); }); };
     const bt = m.querySelector("[data-anota]"); if (!bt) return; const it = m.querySelector(".iobt");
     const anota = async () => { const t = it.value.trim(), d = m.querySelector(".iobd").value.trim(); if (!t) return it.focus(); bt.disabled = true;
       try { const nx = await gravar("gab_itens", { id: x.id, observacao: (x.observacao ? x.observacao.replace(/\s+$/, "") + "\n\n" : "") + (d ? d + " - " : "") + t }); Object.assign(x, nx);
-        m.innerHTML = des(); liga(); const nb = $(`#indPg [data-iobs="${x.id}"]`); if (nb) { nb.outerHTML = balaoInd(x); const b2 = $(`#indPg [data-iobs="${x.id}"]`); b2.classList.add("on"); b2.onclick = (e) => { e.stopPropagation(); popObs(b2, x, T); }; }
+        m.innerHTML = des(); liga(); const nb = $(`#indPg [data-iobs="${x.id}"]`); if (nb) { nb.outerHTML = balaoInd(x, T); const b2 = $(`#indPg [data-iobs="${x.id}"]`); b2.classList.add("on"); b2.onclick = (e) => { e.stopPropagation(); popObs(b2, x, T); }; }
         m.querySelector(".iobt") && m.querySelector(".iobt").focus();
       } catch (e) { alert("Não foi possível salvar: " + (e.message || e)); bt.disabled = false; } };
     bt.onclick = anota; it.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); anota(); } }; setTimeout(() => it.focus(), 0); };
@@ -295,7 +301,7 @@ function fxLer(tag) { try { const o = (JSON.parse(localStorage.getItem("ind_fx")
 function fxSalva() { try { const all = JSON.parse(localStorage.getItem("ind_fx") || "{}"), o = {}; Object.entries(IND.fx || {}).forEach(([k, s]) => { if (s && s.size) o[k] = [...s]; });
   if (Object.keys(o).length) all[IND.tag] = o; else delete all[IND.tag]; localStorage.setItem("ind_fx", JSON.stringify(all)); } catch (e) {} }
 const ROT_ENTE = { mun: "Município", ent: "Entidade", est: "Estado" };
-const FXK = { etq: [["mk", "Etiqueta"]], ent: [["ente", "Ente"], ["mod", "Modalidade"], ["fun", "Função"], ["des", "Despesa"]], mun: [["mun", "Município"]], obj: [["obj", "Objeto"]], lid: [["lid", "Líder"], ["con", "Contato"]], obs: [["obc", "Cor do balão"], ["obs", "Observações"], ["mk", "Etiqueta"]], etp: [["etp", "Etapa"]] };
+const FXK = { etq: [["mk", "Etiqueta"]], ent: [["ente", "Ente"], ["mod", "Modalidade"], ["fun", "Função"], ["des", "Despesa"]], mun: [["mun", "Município"]], obj: [["obj", "Objeto"]], lid: [["lid", "Líder"], ["con", "Contato"]], obs: [["mk", "Etiqueta"], ["obs", "Observações"]], etp: [["etp", "Etapa"]] };
 function valFx(k, x, T) { switch (k) {
   case "mk": return x.marca || "Sem etiqueta"; case "ente": return ROT_ENTE[tipoDe(x)] || ""; case "mod": return x.modalidade || ""; case "fun": return x.area || regrasInd(T).trava || "";
   case "des": return x.natureza || ""; case "mun": return x.municipio || ""; case "obj": return x.objeto || ""; case "lid": return x.lideranca || ""; case "con": return x.contato || "";
