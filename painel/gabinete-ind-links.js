@@ -129,7 +129,8 @@ let LKF = null; // quem fecha a caixinha ao tocar fora (só uma por vez)
 function fechaLk() { if (LKF) { document.removeEventListener("click", LKF); LKF = null; } document.querySelectorAll(".lkm").forEach((x) => x.remove()); document.querySelectorAll("#indPg .lkon, #indPg .on.lkc, #indPg .on.lke, #indPg .on.ii").forEach((x) => x.classList.remove("on", "lkon")); }
 function abreLk(b, html, cls) { const m = document.createElement("div"); m.className = cls || "lkm"; m.innerHTML = html; $("#indPg").appendChild(m);
   const r = b.getBoundingClientRect(), w = m.offsetWidth, h = m.offsetHeight; m.style.left = Math.max(12, Math.min(r.left, innerWidth - w - 12)) + "px"; m.style.top = (r.bottom + h + 12 > innerHeight ? Math.max(12, r.top - h - 6) : r.bottom + 6) + "px";
-  b.classList.add("on"); setTimeout(() => { if (!m.isConnected) return; LKF = (e) => { if (!m.contains(e.target)) fechaLk(); }; document.addEventListener("click", LKF); }, 0); return m; }
+  // uma caixinha aberta de dentro de outra (ex.: Etiqueta dentro de Observações) não pode ser fechada pelo "toque fora" da primeira (23/11/2026)
+  b.classList.add("on"); setTimeout(() => { if (!m.isConnected) return; if (LKF) document.removeEventListener("click", LKF); LKF = (e) => { if (!e.target.closest || !e.target.closest(".lkm")) fechaLk(); }; document.addEventListener("click", LKF); }, 0); return m; }
 // "i": orientação curta em vez de texto longo na tela
 function infoI(b, html) { const ja = document.querySelector(".lkm.inf"); fechaLk(); if (ja && ja._b === b) return; const m = abreLk(b, html, "lkm inf"); m._b = b; }
 const botaoI = (k, rot) => `<button class="ii" data-iinfo="${k}" aria-label="${esc(rot || "Mais informações")}">i</button>`;
