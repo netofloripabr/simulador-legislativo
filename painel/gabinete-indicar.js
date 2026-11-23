@@ -314,6 +314,17 @@ function documentoInd(T) {
 }
 // a planilha de indicação (.xlsx / Google Drive) e a importação ficam em gabinete-ind-planilha.js (02/11/2026)
 // detalhamento da emenda dentro da própria linha (expansão), em vez de painel lateral (27/10/2026)
+// justificativa sugerida (23/11/2026): com modalidade e objeto escolhidos, o campo vazio mostra em cinza claro um texto
+// montado a partir do objeto, do município (ou da entidade) e da área; "Usar a sugestão" copia para o campo
+function sugJust(x) { if (!x || !x.modalidade || !String(x.objeto || "").trim()) return "";
+  const ob = String(x.objeto).trim(), o = /^[A-ZÁÉÍÓÚ][a-záéíóúãõâêôç]/.test(ob) ? ob[0].toLowerCase() + ob.slice(1) : ob, mun = x.municipio || "", ent = tipoDe(x) === "ent" && (x.razao_social || x.beneficiario);
+  const ini = /Execu[çc][ãa]o Direta/i.test(x.modalidade) ? "Execução direta pelo Estado para " : ent ? `Apoio financeiro à entidade ${ent} para ` : "Apoio financeiro para ";
+  const A = { "Saúde": `, para uso das Unidades Básicas de Saúde e setores vinculados à Secretaria Municipal de Saúde${mun ? " de " + mun : ""}, para melhor atendimento do usuário.`,
+    "Educação": `, em benefício das unidades escolares${mun ? " de " + mun : ""}, para melhoria das condições de ensino e aprendizagem.`,
+    "Agricultura": `, em apoio aos produtores rurais${mun ? " de " + mun : ""}, para fortalecimento da produção agropecuária.`,
+    "Infraestrutura e Mobilidade": `, para melhoria da infraestrutura e da mobilidade${mun ? " em " + mun : ""}, em benefício da população.`,
+    "Segurança Pública": `, para reforço das ações de segurança pública${mun ? " em " + mun : ""}.` };
+  return ini + o + (A[x.area] || `, para atendimento das necessidades da população${mun ? " de " + mun : ""}.`); }
 function detForm(x, T, g) {
     const F = (k, rot, html, w) => `<label class="tl2 fc2${w ? " w" + w : ""}"><span class="tk">${ic(k)}${rot}</span>${html}</label>`, I = (f, v, ph = "", l = "") => `<input data-d="${f}" value="${esc(v ?? "")}" placeholder="${esc(ph)}"${l ? ` list="${l}"` : ""}>`;
     const S2 = (f, ops, v) => `<select data-d="${f}"><option value="">—</option>${ops.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}${v && !ops.includes(v) ? `<option selected>${esc(v)}</option>` : ""}</select>`, t = tipoDe(x);
@@ -322,7 +333,7 @@ function detForm(x, T, g) {
       ${tipoDe(x) === "ent" ? F("hash", "CNPJ", I("cnpj", x.cnpj, "00.000.000/0000-00"), 2) + F("pred", "Razão social", I("razao_social", x.razao_social || x.beneficiario), 2) : ""}${g.trava ? "" : F("lei", "Função", S2("area", g.areas, x.area), 2)}${F("ok", "Status", S2("status", STATUS, x.status || "Em análise"), 2)}
       ${F("pessoa", "Líder", I("lideranca", x.lideranca, "Escolha ou digite", "indPes"), 2)}${F("pessoa", "Contato", I("contato", x.contato, "Quem está tocando o processo"), 2)}
       ${F("band", "Prioridade", S2("prioridade", PRIOR, x.prioridade), 2)}${F("lei", "Lei / PL", I("pl", x.pl, "PL nº 0633/2026"), 2)}
-      ${F("doc", "Justificativa", `<textarea data-d="justificativa" rows="5" class="ijust" placeholder="Por que esta indicação">${esc(x.justificativa || "")}</textarea>`, 4)}
+      ${(() => { const sg = !x.justificativa && sugJust(x); return F("doc", `Justificativa${sg ? `<button type="button" class="isug" data-isug title="Copia a sugestão para o campo">usar a sugestão</button>` : ""}`, `<textarea data-d="justificativa" rows="5" class="ijust${sg ? " sug" : ""}" placeholder="${esc(sg || "Por que esta indicação")}">${esc(x.justificativa || "")}</textarea>`, 4); })()}
       ${F("doc", "Observação", `<textarea data-d="observacao" rows="2">${esc(x.observacao || "")}</textarea>`, 4)}</div>
       <datalist id="indPes">${pessoas().map((n) => `<option value="${esc(n)}">`).join("")}</datalist><div class="idrod"><span class="isv mut" data-dmsg></span><button class="ilix" data-ilimpa title="Excluir esta emenda">${ici("lixo")}Excluir emenda</button></div></div>`;
 }
@@ -333,6 +344,7 @@ function ligarDet(d, x, T) {
       if (!(await confirmaVX("Excluir esta emenda?", `${x.municipio ? esc(x.municipio) : "A linha"}${+x.valor ? " · " + rc(+x.valor) : ""} sai da lista. Não dá para desfazer.${x.chave_emenda ? " A linha que já foi para o Controle de Recursos continua lá." : ""}`))) return;
       try { await apagar("gab_itens", x.id); IND.det = null; desenharInd(); } catch (er) { alert("Não foi possível excluir: " + (er.message || er)); } };
     const msg = d.querySelector("[data-dmsg]");
+    const su = d.querySelector("[data-isug]"); if (su) su.onclick = (e) => { e.preventDefault(); const ta = d.querySelector('[data-d="justificativa"]'); ta.value = ta.placeholder; ta.classList.remove("sug"); su.remove(); ta.dispatchEvent(new Event("change")); ta.focus(); };
     d.querySelectorAll("[data-d]").forEach((el) => { const ini = el.value; el.onchange = async () => { if (el.value === ini) return; const o = { [el.dataset.d]: el.value.trim() || null }; if (o.razao_social !== undefined) o.beneficiario = o.razao_social;
       msg.textContent = "Salvando…"; const tr = document.querySelector(`#indPg tr.iw[data-iw="${x.id}"]`);
       try { if (tr && T.k) await salvarLinha(T, tr, o); else await gravar("gab_itens", { id: x.id, ...o }); msg.textContent = "Salvo"; setTimeout(() => { msg.textContent = ""; }, 1500); } catch (er) { msg.textContent = "Não foi possível salvar: " + (er.message || er); } }; });
