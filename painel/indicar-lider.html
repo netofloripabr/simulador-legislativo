@@ -163,7 +163,7 @@ async function iniciar() {
     ST = IT.map((x) => { const q0 = P[x.id], dec = q0 && (q0.status === "aceito" || q0.status === "recusado"), q = dec ? null : q0; return q ? { mun: q.municipio || x.municipio || "", bt: q.benef_tipo || (x.benef_tipo === "ent" ? "ent" : "mun"), ben: q.beneficiario || "", cnpj: q.cnpj || "", obj: q.objeto || null, fonte: q.objeto_fonte || "", com: q.justificativa || "", status: q.status }
       : { mun: x.municipio || "", bt: x.benef_tipo === "ent" ? "ent" : "mun", ben: x.benef_tipo === "ent" ? x.beneficiario || "" : "", cnpj: x.benef_tipo === "ent" ? x.cnpj || "" : "", obj: !l.limpo && x.objeto || null, fonte: !l.limpo && x.objeto ? "gab" : "", com: l.limpo ? "" : x.justificativa || "", status: dec ? q0.status : "" }; });   // link "limpo": sem objeto e sem justificativa   // sem proposta: já vem com o que o gabinete revisou (20/11/2026)
     document.getElementById("muns").innerHTML = MUN.map((m) => `<option value="${esc(m)}">`).join("");
-    render(); setInterval(() => { const c = document.querySelector(".icapa .w2"); if (c) c.innerHTML = `<span class="tk">${prazoTx()}</span>${cont()}`; }, 30000);
+    render(); if (!window.__tk) window.__tk = setInterval(() => { const c = document.querySelector(".icapa .w2"); if (c) c.innerHTML = `<span class="tk">${prazoTx()}</span>${cont()}`; }, 30000);
   } catch (e) { msg("Não foi possível abrir", "Confira a internet e recarregue a página. (" + esc(e.message) + ")"); } }
 // trancado depois de enviar (migração 113): só o gabinete reabre
 // etiqueta e recado do gabinete (migração 114): mesmas cores das etiquetas da planilha (ETQ_PAL em gabinete-ind-links.js)
@@ -248,5 +248,12 @@ function confirmaVX(t, tx) { return new Promise((ok) => { const I1 = '<svg viewB
   document.activeElement && document.activeElement.blur(); document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="cf"><div class="cfb"><b>${t}</b><p>${tx}</p><div><button class="vxb" data-x aria-label="Cancelar">${I2}</button><button class="vxb v" data-v aria-label="Confirmar">${I1}</button></div></div></div>`);
   const w = document.getElementById("cf"), fim = (v) => { w.remove(); document.removeEventListener("keydown", k, true); ok(v); }, k = (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); fim(false); } if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); fim(true); } };
   document.addEventListener("keydown", k, true); w.querySelector("[data-x]").onclick = () => fim(false); w.querySelector("[data-v]").onclick = () => fim(true); }); }
+// o link acompanha a planilha do gabinete (23/11/2026): ao voltar para a aba, relê emendas, valores, etiquetas e recados;
+// sem polling (regra de capacidade), no máximo a cada 20 s, e nunca no meio de uma digitação, de um salvamento ou com a lista de objetos aberta
+let ULT = Date.now();
+async function reler() { if (document.hidden || !L || Date.now() - ULT < 20000) return; const a = document.activeElement;
+  if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return; if (document.getElementById("ipop") || document.querySelector(".cfp, .cfm")) return;
+  if (/salvando/.test(document.getElementById("sv")?.textContent || "")) return; ULT = Date.now(); const y = scrollY; await iniciar(); scrollTo(0, y); }
+document.addEventListener("visibilitychange", reler); addEventListener("focus", reler);
 iniciar();
 </script></body></html>

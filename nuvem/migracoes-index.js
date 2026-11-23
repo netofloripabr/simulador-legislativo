@@ -2471,5 +2471,16 @@ const MIGRACOES_INDEX = [
     "link_salvar"
    ]
   ]
+ },
+ {
+  "num": 116,
+  "arquivo": "migracao-116-gestor-etiqueta-recado.sql",
+  "descricao": "Migração 116 (23/11/2026): Link Gestor mostra a ETIQUETA e o RECADO de cada emenda (botão \"Comentários\" na pág",
+  "objetos": [
+   [
+    "function",
+    "gestor_abrir"
+   ]
+  ]
  }
 ];
