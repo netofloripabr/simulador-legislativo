@@ -134,6 +134,16 @@ td.ac{width:92px;white-space:nowrap;text-align:right}
 .dt{margin-top:10px;background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
 .dn{font-size:12px;color:var(--mu);margin:8px 0 0}.dn b{color:var(--tx)}
 .novab{margin-left:auto}
+.fxb{background:none;border:0;padding:2px;margin-left:3px;cursor:pointer;color:#A9AEB3;vertical-align:-2px;line-height:0}.fxb svg,.ib svg.fx{width:11px;height:11px}.fxb svg{fill:none;stroke:currentColor;stroke-width:1.3;stroke-linejoin:round}.fxb.on{color:#1D2226}.fxb.on svg{fill:#1D2226}
+.ib[data-fx] svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.2;stroke-linejoin:round}.ib[data-fx].on{background:#1D2226;color:#fff;border-color:#1D2226}.ib[data-fx].on svg{fill:#fff}
+.fxs{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:8px 2px 0;font-size:13px}.fxs b{color:#2F5D8A}.fxs span{font-weight:700;font-variant-numeric:tabular-nums}.fxs small{color:#7A8085}.fxs button{margin-left:auto;background:none;border:0;color:#2F5D8A;font:600 12px Inter,sans-serif;cursor:pointer}
+.gfx{position:fixed;z-index:60;width:300px;max-width:calc(100vw - 24px);background:#F8F9FA;color:#1D2226;border:1px solid #DCDFE2;border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.16);padding:10px;font:13px Inter,sans-serif;box-sizing:border-box}
+.gfxq{width:100%;box-sizing:border-box;border:1px solid #DCDFE2;border-radius:9px;padding:8px 10px;font:500 13px Inter,sans-serif;outline:none;background:#fff;color:#1D2226}.gfxq:focus{border-color:#1D2226}
+.gfxa{display:flex;gap:12px;margin:8px 2px 6px}.gfxa button,.gfxt button{background:none;border:0;color:#2F5D8A;cursor:pointer;padding:0;font:600 12px Inter,sans-serif}
+.gfxl{max-height:300px;overflow:auto;border-top:1px solid #DCDFE2;border-bottom:1px solid #DCDFE2;padding:4px 0}.gfxl label{display:flex;align-items:center;gap:9px;padding:5px 4px;border-radius:6px;cursor:pointer;font-size:12.5px}.gfxl label:hover{background:#fff}
+.gfxl input{accent-color:#1D2226;width:15px;height:15px;margin:0}.gfxl span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gfxl i{font-style:normal;color:#7A8085;font-size:11.5px;font-variant-numeric:tabular-nums}
+.gfxt{display:flex;align-items:center;justify-content:space-between;font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#7A8085;padding:8px 4px 3px}.gfxt span{text-transform:none;letter-spacing:0;font-weight:500}
+.gfxf{display:flex;justify-content:space-between;align-items:center;padding-top:8px}.gfz{background:none;border:0;color:#7A8085;cursor:pointer;font:500 12px Inter,sans-serif;padding:0}.gfok{background:#1D2226;color:#fff;border:0;border-radius:999px;padding:7px 16px;font:600 12.5px Inter,sans-serif;cursor:pointer}
 table{min-width:0;table-layout:auto}
 th,td{padding:9px 10px}
 th:first-child,td:first-child{padding-left:14px}th:last-child,td:last-child{padding-right:12px}
@@ -295,6 +305,34 @@ const CAMPOS = ["mun", "obj", "area", "nat", "v", "lid", "con", "jus", "ben", "r
 const vivas = () => ST.filter((x) => x._st !== "x");
 const mudou = (x, c) => { const o = ORIG.find((y) => y.id === x.id); return !!o && x._st !== "n" && String(o[c] ?? "") !== String(x[c] ?? ""); };
 const pend = () => ST.filter((x) => x._st);
+// filtro nos títulos das colunas, no padrão da planilha do gabinete (23/11/2026): toque no funil abre os valores da coluna com
+// pesquisa, "Selecionar tudo" e "Limpar"; desmarcar esconde. Fica guardado no navegador. Em cartões, o funil da barra abre todos.
+const FXG = { mun: [["mun", "Município"], ["reg", "Região"]], obj: [["obj", "Objeto"]], area: [["area", "Área"], ["nat", "Despesa"]], lid: [["lid", "Líder"]] };
+let FX = (() => { try { const o = JSON.parse(localStorage.getItem("gestor_fx") || "{}"), r = {}; Object.entries(o).forEach(([k, v]) => { r[k] = new Set(v); }); return r; } catch (e) { return {}; } })();
+const valG = (k, x) => k === "reg" ? regDe(x) : x[k] || "";
+const temFx = () => Object.values(FX).some((q) => q && q.size);
+const passaFx = (x, menos) => Object.entries(FX).every(([k, q]) => k === menos || !q || !q.size || !q.has(norm(valG(k, x))));
+const fxSalva = () => { try { const o = {}; Object.entries(FX).forEach(([k, q]) => { if (q && q.size) o[k] = [...q]; }); localStorage.setItem("gestor_fx", JSON.stringify(o)); } catch (e) {} };
+const fxOn = (g) => (g === "all" ? Object.values(FXG).flat() : FXG[g]).some(([k]) => FX[k] && FX[k].size);
+const FUNIL = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 3h8L7 6.5V10L5 9V6.5z"/></svg>';
+const thF = (g) => `<button class="fxb${fxOn(g) ? " on" : ""}" data-fx="${g}" title="Filtrar" aria-label="Filtrar">${FUNIL}</button>`;
+function abreFxG(b, g) { document.getElementById("gfx")?.remove(); const it = ST.filter((x) => x._st !== "x"), keys = g === "all" ? Object.values(FXG).flat() : FXG[g];
+  const secs = keys.map(([k, rot]) => { const M = new Map(), C = {}; it.forEach((x) => { const v = valG(k, x), c = norm(v); if (!M.has(c)) M.set(c, v || "(não informado)"); if (passaFx(x, k)) C[c] = (C[c] || 0) + 1; });
+    FX[k] = FX[k] || new Set(); return { k, rot, O: [...M].sort((a, b2) => (a[0] === "") - (b2[0] === "") || String(a[1]).localeCompare(String(b2[1]), "pt-BR")), C }; });
+  const pop = document.createElement("div"); pop.id = "gfx"; pop.className = "gfx";
+  const lista = (q) => secs.map((x) => { const L = x.O.filter(([, tx]) => !q || norm(tx).includes(norm(q))); return L.length ? `${secs.length > 1 ? `<div class="gfxt">${x.rot}<span><button data-st="${x.k}|1">todos</button> · <button data-st="${x.k}|0">limpar</button></span></div>` : ""}${L.map(([c, tx]) => `<label><input type="checkbox" data-k="${x.k}" data-c="${esc(c)}"${FX[x.k].has(c) ? "" : " checked"}><span>${esc(tx)}</span><i>${x.C[c] || 0}</i></label>`).join("")}` : ""; }).join("") || `<p style="padding:8px 4px;margin:0;color:#7A8085">Nada encontrado.</p>`;
+  pop.innerHTML = `<input class="gfxq" placeholder="Pesquisar" autocomplete="off"><div class="gfxa"><button data-t="1">Selecionar tudo</button><button data-t="0">Limpar</button></div><div class="gfxl">${lista("")}</div><div class="gfxf"><button class="gfz" data-fxz>Tirar todos os filtros</button><button class="gfok" data-fxok>OK</button></div>`;
+  document.body.appendChild(pop); const r = b.getBoundingClientRect(); pop.style.top = Math.max(12, Math.min(r.bottom + 6, innerHeight - pop.offsetHeight - 12)) + "px"; pop.style.left = Math.max(12, Math.min(r.left, innerWidth - pop.offsetWidth - 12)) + "px";
+  const liga2 = () => pop.querySelectorAll("input[data-c]").forEach((i) => i.onchange = () => { const S = FX[i.dataset.k]; i.checked ? S.delete(i.dataset.c) : S.add(i.dataset.c); });
+  const ligaSec = () => pop.querySelectorAll("[data-st]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); const [k, v] = x.dataset.st.split("|"); pop.querySelectorAll(`input[data-k="${k}"]`).forEach((i) => { i.checked = v === "1"; i.onchange(); }); });
+  const q = pop.querySelector(".gfxq"); q.oninput = () => { pop.querySelector(".gfxl").innerHTML = lista(q.value); liga2(); ligaSec(); }; liga2(); ligaSec(); setTimeout(() => q.focus(), 0);
+  pop.querySelectorAll("[data-t]").forEach((x) => x.onclick = () => pop.querySelectorAll("input[data-c]").forEach((i) => { i.checked = x.dataset.t === "1"; i.onchange(); }));
+  const fecha = () => { secs.forEach((x) => { if (x.O.length && FX[x.k].size >= x.O.length && secs.length > 1 && secs.some((y) => FX[y.k].size && FX[y.k].size < y.O.length)) FX[x.k].clear(); });
+    fxSalva(); pop.remove(); document.removeEventListener("mousedown", fora, true); document.removeEventListener("keydown", tk, true); redesenha(); };
+  const fora = (e) => { if (!pop.contains(e.target)) fecha(); }, tk = (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); fecha(); } if (e.key === "Enter" && e.target !== q) fecha(); };
+  pop.querySelector("[data-fxok]").onclick = fecha; pop.querySelector("[data-fxz]").onclick = () => { FX = {}; secs.forEach((x) => { FX[x.k] = new Set(); }); fecha(); };
+  q.onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); const vis = [...pop.querySelectorAll("input[data-c]")]; if (q.value && vis.length) { secs.forEach((x) => x.O.forEach(([c]) => FX[x.k].add(c))); vis.forEach((i) => FX[i.dataset.k].delete(i.dataset.c)); } fecha(); } };
+  setTimeout(() => { document.addEventListener("mousedown", fora, true); document.addEventListener("keydown", tk, true); }, 0); }
 const regDe = (x) => x.mun === "SC" ? "Estado (SC)" : x.mun ? REG[x.mun] || "Outra" : "Sem município";
 
 // quadro enxuto (pedido 22/11): uma faixa com cota, indicado, livre e emendas; uma barra; três metas em linha
@@ -347,15 +385,15 @@ const cel = (x, c, h) => mudou(x, c) ? `<span class="mud">${h}</span>` : h;
 
 function render() { const L = vivas(), tot = L.reduce((s, x) => s + (+x.v || 0), 0), P = pend();
   const GR = grupoPor(L, regDe), GL = grupoPor(L, (x) => x.lid);
-  const vis = ST.map((x, i) => [x, i]).filter(([x]) => (!FL || (FL[0] === "p" ? FL[2](x) : (FL[0] === "r" ? regDe(x) : x.lid || "Sem líder") === FL[1])) && (!Q || norm(CAMPOS.map((c) => x[c]).join(" ") + " " + regDe(x)).includes(norm(Q))));
+  const vis = ST.map((x, i) => [x, i]).filter(([x]) => (!FL || (FL[0] === "p" ? FL[2](x) : (FL[0] === "r" ? regDe(x) : x.lid || "Sem líder") === FL[1])) && (!Q || norm(CAMPOS.map((c) => x[c]).join(" ") + " " + regDe(x)).includes(norm(Q))) && passaFx(x));
   if (ORD) { const [c, d] = ORD, k = (x) => c === "n" ? (x._st === "n" ? -1 : ORIG.findIndex((o) => o.id === x.id)) : c === "v" ? +x.v || 0 : c === "reg" ? norm(regDe(x)) : norm(x[c] || ""); vis.sort((a, b) => { const A = k(a[0]), B = k(b[0]); return (A > B ? 1 : A < B ? -1 : 0) * d; }); }
   document.getElementById("app").innerHTML = `<div class="cab"><div class="cabt"><div class="org">${esc(GAB)}</div>
   <div class="ihd"><h2>${esc(NOMEL)}</h2><span>Link Gestor</span><button class="ii" data-info>i</button></div></div><div class="gcr" id="gcr">${cronometro()}</div></div>
   ${quadro(L)}
   ${DIST ? `<div class="seg2"><div class="cx"><div class="cxh"><b>Por região</b><span>associação de municípios · % · valor · emendas</span></div>${barras(GR, "r", verTodasR, tot)}</div>
     <div class="cx"><div class="cxh"><b>Por líder</b><span>% · valor · emendas</span></div>${barras(GL, "l", verTodosL, tot)}</div></div>` : ""}
-  <div class="tool"><input class="busca" id="q" placeholder="Buscar município, região, objeto, líder…" value="${esc(Q)}"><button class="ib${DIST ? " on" : ""}" data-dist title="% distribuição por região e líder" aria-label="% distribuição">${ici("pizza")}</button>${FL ? `<span class="fil">${FL[0] === "r" ? "Região" : FL[0] === "p" ? "Filtro" : "Líder"}: ${esc(FL[1])} · <button data-sf>tirar filtro</button></span>` : ""}<button class="ib" data-imp title="Imprimir" aria-label="Imprimir">${ici("impr")}</button><button class="ib" data-vis title="${CARDS ? "Ver em tabela" : "Ver em cartões"}" aria-label="${CARDS ? "Ver em tabela" : "Ver em cartões"}">${ici(CARDS ? "tabela" : "cartoes")}</button>${ABERTO ? `<button class="novab" data-nova title="Nova emenda" aria-label="Nova emenda">${ici("mais")}</button>` : ""}</div>
-  <div class="sheet${CARDS ? " cards" : ""}"><table><thead><tr><th data-o="n" style="text-align:right">Nº${ORD && ORD[0] === "n" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="mun">Município${ORD && ORD[0] === "mun" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="obj">Objeto${ORD && ORD[0] === "obj" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="area" style="text-align:center">Área · desp.${ORD && ORD[0] === "area" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="v" style="text-align:right">Valor (R$)${ORD && ORD[0] === "v" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="lid">Líder${ORD && ORD[0] === "lid" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th></th></tr></thead><tbody>
+  <div class="tool"><input class="busca" id="q" placeholder="Buscar município, região, objeto, líder…" value="${esc(Q)}"><button class="ib${DIST ? " on" : ""}" data-dist title="% distribuição por região e líder" aria-label="% distribuição">${ici("pizza")}</button>${FL ? `<span class="fil">${FL[0] === "r" ? "Região" : FL[0] === "p" ? "Filtro" : "Líder"}: ${esc(FL[1])} · <button data-sf>tirar filtro</button></span>` : ""}<button class="ib${fxOn("all") ? " on" : ""}" data-fx="all" title="Filtrar" aria-label="Filtrar">${FUNIL}</button><button class="ib" data-imp title="Imprimir" aria-label="Imprimir">${ici("impr")}</button><button class="ib" data-vis title="${CARDS ? "Ver em tabela" : "Ver em cartões"}" aria-label="${CARDS ? "Ver em tabela" : "Ver em cartões"}">${ici(CARDS ? "tabela" : "cartoes")}</button>${ABERTO ? `<button class="novab" data-nova title="Nova emenda" aria-label="Nova emenda">${ici("mais")}</button>` : ""}</div>
+  <div class="sheet${CARDS ? " cards" : ""}"><table><thead><tr><th data-o="n" style="text-align:right">Nº${ORD && ORD[0] === "n" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="mun">Município${ORD && ORD[0] === "mun" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}${thF("mun")}</th><th data-o="obj">Objeto${ORD && ORD[0] === "obj" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}${thF("obj")}</th><th data-o="area" style="text-align:center">Área · desp.${ORD && ORD[0] === "area" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}${thF("area")}</th><th data-o="v" style="text-align:right">Valor (R$)${ORD && ORD[0] === "v" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="lid">Líder${ORD && ORD[0] === "lid" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}${thF("lid")}</th><th></th></tr></thead><tbody>
   ${vis.map(([x, i]) => `<tr class="${x._st === "n" ? "nova" : x._st === "x" ? "exc" : ""}" data-i="${i}"><td class="n">${x._st === "n" ? "+" : ORIG.findIndex((o) => o.id === x.id) + 1}</td>
     <td class="mu">${cel(x, "mun", esc(x.mun || "—"))}<small>${x.mun === "SC" ? "Estado" : esc(x.mun ? REG[x.mun] || "" : "")}${x.ben === "ent" ? ` · entidade${x.rs ? ": " + esc(x.rs) : ""}` : ""}</small>${x._st === "m" ? `<span class="tag m">alterada</span>` : x._st === "n" ? `<span class="tag nw">nova</span>` : x._st === "x" ? `<span class="tag x">excluir</span>` : ""}</td>
     <td class="ob">${cel(x, "obj", esc(x.obj || "—"))}${(x._st === "n" || (x._st === "m" && ["obj", "area", "nat"].some((c) => mudou(x, c)))) && foraPort(x) ? FORA : ""}</td>
@@ -364,6 +402,7 @@ function render() { const L = vivas(), tot = L.reduce((s, x) => s + (+x.v || 0),
     <td class="ld">${cel(x, "lid", esc(x.lid || "—"))}</td>
     <td class="ac">${pendDe(x) ? `<span class="tag ag" title="${esc(pendTxt(pendDe(x)))}">enviada</span>` : ""}${x._st === "x" || x._st === "m" ? `<button class="ab" data-des title="Desfazer">↺</button>` : ""}${x._st !== "x" && ABERTO ? `<button class="ab" data-ed title="Editar">${ici("lapis")}</button><button class="ab lx" data-del title="${x._st === "n" ? "Tirar esta emenda nova" : "Excluir"}">${ici("lixo")}</button>` : ""}</td></tr>`).join("")}
   </tbody></table></div>
+  ${temFx() ? (() => { const F = vis.map(([x]) => x).filter((x) => x._st !== "x"); return `<div class="fxs"><b>Filtrado · ${F.length} ${F.length === 1 ? "emenda" : "emendas"}</b><span>R$ ${moeda(F.reduce((t, x) => t + (+x.v || 0), 0))}</span><small>total da lista · ${L.length} · R$ ${moeda(tot)}</small><button data-fxz2>tirar filtros</button></div>`; })() : ""}
   ${pendHtml()}<p class="nota">${ABERTO ? "Nada é gravado direto na lista: as mudanças ficam marcadas (laranja = alterado, verde = nova, riscado = excluir) e seguem juntas para o gabinete validar. O quadro de cima já mostra o efeito das mudanças. Esta página lê a lista do gabinete cada vez que é aberta ou atualizada." : "Este link está fechado: a lista aparece só para consulta. Peça ao gabinete para reabrir se precisar mudar algo."}</p>`;
   document.getElementById("env")?.remove();
   const nm = P.filter((x) => x._st === "m").length, nn = P.filter((x) => x._st === "n").length, nx = P.filter((x) => x._st === "x").length;
@@ -453,6 +492,8 @@ function liga() { const A = document.getElementById("app");
   A.querySelector("[data-min]").onclick = () => { MIN = !MIN; if (MIN) MD = null; try { localStorage.setItem("gestor_min", MIN ? "1" : "0"); } catch (e) {} redesenha(); };
   A.querySelector("[data-vis]").onclick = () => { CARDS = !CARDS; try { localStorage.setItem("gestor_vis", CARDS ? "c" : "t"); } catch (e) {} redesenha(); };
   A.querySelector("[data-dist]").onclick = () => { DIST = !DIST; redesenha(); };
+  A.querySelectorAll("[data-fx]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); abreFxG(b, b.dataset.fx); });
+  const fz2 = A.querySelector("[data-fxz2]"); if (fz2) fz2.onclick = () => { FX = {}; fxSalva(); redesenha(); };
   const sf = A.querySelector("[data-sf]"); if (sf) sf.onclick = () => { FL = null; redesenha(); };
   const q = A.querySelector("#q"); q.oninput = () => { Q = q.value; const p = q.selectionStart; redesenha(); const q2 = document.getElementById("q"); q2.focus(); q2.setSelectionRange(p, p); };
   const nv = A.querySelector("[data-nova]"); if (nv) nv.onclick = () => card(null);
@@ -575,15 +616,24 @@ function pendHtml() { if (!PEND.length) return "";
   const nome = (p) => { const x = ORIG.find((y) => y.id === p.item_id), d = p.dados || {}; return p.acao === "incluir" ? `Nova · ${esc(d.municipio || "sem município")} · ${esc(d.objeto || "")} · ${rc(d.valor || 0)}` : `${p.acao === "excluir" ? "Excluir" : "Alterar"} · ${esc(x ? x.mun || "—" : "emenda")} · ${esc(x ? x.obj || "" : "")}`; };
   return `<div class="pend"><b>Enviadas, aguardando o gabinete</b><span>${PEND.length} ${PEND.length === 1 ? "mudança" : "mudanças"} · o gabinete aceita ou recusa cada uma</span>${PEND.map((p) => `<div class="pl"><span class="tag ${p.acao === "incluir" ? "nw" : p.acao === "excluir" ? "x" : "m"}">${p.acao === "incluir" ? "nova" : p.acao === "excluir" ? "excluir" : "alterada"}</span><span class="pt">${nome(p)}</span>${ABERTO ? `<button class="ab lx" data-desiste="${p.id}" title="Desistir desta mudança">${ici("x")}</button>` : ""}</div>`).join("")}</div>`; }
 async function desistir(id) { if (!confirm("Desistir desta mudança enviada?")) return; try { await rpc("gestor_desistir", { p_token: TOKEN, p_id: id }); await carregar(); } catch (e) { alert("Não foi possível: " + (e.message || e)); } }
-async function carregar() { const [l, pj] = await Promise.all([rpc("gestor_abrir", { p_token: TOKEN }), PORT.length ? null : fetch("../dados/painel/portfolio-objetos.json?v=2").then((r) => r.json()).catch(() => null)]); if (pj) PORT = pj.O || []; if (!l) throw new Error("link inválido");
+async function carregar(junta) { const [l, pj] = await Promise.all([rpc("gestor_abrir", { p_token: TOKEN }), PORT.length ? null : fetch("../dados/painel/portfolio-objetos.json?v=2").then((r) => r.json()).catch(() => null)]); if (pj) PORT = pj.O || []; if (!l) throw new Error("link inválido");
   LK = l; ABERTO = !!l.aberto; PEND = l.pendentes || []; const c = l.cota || {}; COTA = +c.disp || 0; MAXE = +c.max || 0; SAUDE = c.saude != null ? +c.saude : .5;
   NOMEL = "Emendas " + (l.lista || ""); GAB = String(l.titulo || "").split(" · ")[0]; document.title = NOMEL + " · Link Gestor";
-  ORIG = (l.itens || []).map(doBanco); ST = ORIG.map((x) => ({ ...x, _st: "" }));
+  // ao voltar para a aba (junta), a lista vem de novo do gabinete: o que o gestor está mexendo e ainda não enviou fica como está (23/11/2026)
+  const NOVO = (l.itens || []).map(doBanco);
+  if (junta) { const loc = new Map(ST.filter((x) => x._st && x._st !== "n").map((x) => [x.id, x])), novas = ST.filter((x) => x._st === "n");
+    ORIG = NOVO; ST = [...novas, ...NOVO.map((o) => loc.get(o.id) || { ...o, _st: "" })]; }
+  else { ORIG = NOVO; ST = ORIG.map((x) => ({ ...x, _st: "" })); }
   document.getElementById("muns").innerHTML = Object.keys(REG).sort().map((m) => `<option value="${esc(m)}">`).join("");
   document.getElementById("lids").innerHTML = [...new Set(ORIG.map((x) => x.lid).filter(Boolean))].sort().map((m) => `<option value="${esc(m)}">`).join("");
   redesenha(); }
 (async () => { const A = document.getElementById("app");
   if (!TOKEN) { A.innerHTML = '<div class="erro"><b>Link incompleto</b>Peça ao gabinete o link completo.</div>'; return; }
   A.innerHTML = '<p class="nota">Abrindo a lista…</p>';
+  // sem polling (regra de capacidade): atualiza só quando a pessoa volta para a aba, no máximo uma vez a cada 20 s, e nunca no meio de uma edição
+  let ult = Date.now(); const reler = async () => { if (document.hidden || !LK || Date.now() - ult < 20000) return;
+    const a = document.activeElement; if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return; if (document.querySelector(".cfp, .ipop, #cd")) return;
+    ult = Date.now(); try { await carregar(true); } catch (e) {} };
+  document.addEventListener("visibilitychange", reler); addEventListener("focus", reler);
   try { await carregar(); } catch (e) { A.innerHTML = `<div class="erro"><b>Não foi possível abrir</b>${/inválido/.test(e.message) ? "Este link não existe ou foi apagado pelo gabinete." : esc(e.message || e)}</div>`; } })();
 </script></body></html>
