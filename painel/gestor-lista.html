@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Link Gestor · emendas</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+@font-face{font-family:"Inter";src:url(../fontes/InterVariable.woff2) format("woff2");font-weight:100 900;font-display:swap}
+*{box-sizing:border-box} button,input,select,textarea{font-family:inherit}
+:root{--sf:#EEF0F2;--tl:#F8F9FA;--bd:#DEE2E5;--tx:#1D2226;--mu:#6E767D;--ok:#1FA845;--or:#E8822A;--az:#2F5D8A}
+body{margin:0;background:var(--sf);color:var(--tx);font-family:Inter,system-ui,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:18px 16px 110px}
+.org{font-size:12.5px;color:var(--mu)}
+.ihd{display:flex;align-items:center;gap:10px;margin:8px 0 14px;flex-wrap:wrap}.ihd h2{margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em}.ihd span{color:var(--mu);font-size:12.5px}
+.ii{width:22px;height:22px;border-radius:50%;border:1px solid var(--bd);background:var(--tl);color:var(--mu);font-weight:600;font-size:12px;font-style:italic;cursor:pointer;padding:0}
+.ipop{position:absolute;z-index:30;max-width:360px;background:var(--tl);border:1px solid var(--bd);border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.14);padding:12px 14px;font-size:12.5px;line-height:1.5}
+.ici{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:-2px}
+/* quadro da cota: mesmo padrão do painel de Indicação (barraSeg) */
+.q5{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:12px}
+.q5k{background:#F8F9FA;border:1px solid #DEE2E5;border-radius:16px;padding:16px 18px}
+.q5k.ok{border-color:#BFE3C9}.q5k.ok .q5i{background:#DDF3E1;color:#17883A}.q5k.fl .q5i{background:#FDEBDD;color:#C0561B}
+.q5t{display:flex;align-items:center;gap:10px}.q5t span{font:500 12.5px Inter;color:#6E767D;line-height:1.25}.q5t span b{display:block;color:#1D2226;font:600 14px Inter}
+.q5i{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#E4E7E9;color:#3E454B;flex:none}
+.q5i svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.q5n{display:flex;align-items:baseline;gap:8px;margin:12px 0 10px;flex-wrap:wrap}
+.q5n b{font:800 32px Inter;letter-spacing:-.035em;line-height:1;font-variant-numeric:tabular-nums;color:#1D2226}.q5n small{font:400 12.5px Inter;color:#6E767D}
+.q5c{margin-left:auto;font:700 11px Inter;border-radius:999px;padding:3px 9px;white-space:nowrap;background:#E4E7E9;color:#3E454B}
+.q5c.ok{background:#DDF3E1;color:#17883A}.q5c.fl{background:#FDEBDD;color:#C0561B}
+.q5b{position:relative;height:12px;border-radius:6px;background:#E4E7E9}.q5b.q5fino{height:8px;border-radius:4px}
+.q5f{position:absolute;left:0;top:0;bottom:0;border-radius:inherit;display:flex;gap:2px;overflow:hidden}.q5f i{display:block;height:100%}
+.q5m{position:absolute;top:-5px;bottom:-5px;width:3px;margin-left:-1.5px;border-radius:2px;background:#E8822A;box-shadow:0 0 0 2px #F8F9FA}
+.q5m.ok{background:#1FA845}
+.q5ft{display:flex;justify-content:space-between;font:400 11.5px Inter;color:#6E767D;margin-top:6px;font-variant-numeric:tabular-nums}.q5ft em{font-style:normal;font-weight:700;color:#1D2226}
+.q5s{margin-top:14px;padding-top:12px;border-top:1px dashed #DEE2E5}
+.q5sh{display:flex;justify-content:space-between;align-items:center;gap:8px;font:400 12px Inter;color:#6E767D;margin-bottom:8px}.q5sh b{color:#1D2226;font-weight:600}
+.q5sh .q5c{margin-left:0}
+.q5l{display:flex;flex-wrap:wrap;gap:4px 14px;font:400 11.5px Inter;color:#3E454B;margin-top:7px;font-variant-numeric:tabular-nums}
+.q5l i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}.q5l b{font-weight:600}
+.dif{font:700 11px Inter;color:var(--or)}
+/* quadro enxuto da cota (22/11) */
+.qd{background:var(--tl);border:1px solid var(--bd);border-radius:16px;padding:16px 18px}
+.qn{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.qn span{display:block;font-size:11.5px;color:var(--mu)}
+.qn b{display:block;font-size:20px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:2px}
+.qn b em{font-style:normal;font-size:13px;font-weight:500;color:var(--mu);letter-spacing:0}
+.qn b.pos{color:#17883A}.qn b.neg{color:#C0392B}
+.qn small{display:block;font-size:11px;margin-top:2px}
+.qb{position:relative;height:10px;border-radius:5px;background:#E4E7E9;margin:14px 0 6px;display:flex;gap:2px}
+.qb i{display:block;height:100%;border-radius:5px}.qb i.s{background:#2A2F33}.qb i.f{background:#8E959B}
+.qb b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:#E8822A;box-shadow:0 0 0 2px var(--tl)}
+.ql{display:flex;gap:14px;font-size:11px;color:var(--mu)}.ql i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.ql i.s{background:#2A2F33}.ql i.f{background:#8E959B}.ql i.m{background:#E8822A;width:3px}
+.qm{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--bd)}
+.mt{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:var(--mu);padding:7px 12px 7px 8px;border-radius:12px;background:#fff;border:1px solid var(--bd);flex:1;min-width:200px}
+.mt b{color:var(--tx);font-weight:600}.mt small{display:block;font-size:11px;margin-top:1px}
+.mi{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:none}
+.mt.ok .mi{background:#DDF3E1;color:#17883A}.mt.fl .mi{background:#FDEBDD;color:#C0561B}
+.mt.fl small{color:#C0561B}
+.selr{border:1px solid var(--bd);border-radius:999px;padding:8px 12px;font-size:12.5px;background:#fff;color:var(--tx);outline:none}
+th[data-o]{cursor:pointer;user-select:none}th[data-o]:hover{color:var(--tx)}
+@media(max-width:700px){.qn{grid-template-columns:1fr 1fr}}
+
+/* segmentação (etiqueta % distribuição) */
+.seg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 0}
+.cx{background:var(--tl);border:1px solid var(--bd);border-radius:14px;padding:12px 15px}
+.cxh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}.cxh b{font-size:13px;font-weight:600}.cxh span{font-size:11.5px;color:var(--mu)}
+.br{display:grid;grid-template-columns:120px minmax(0,1fr) 46px 84px 24px;gap:8px;align-items:center;font-size:12px;padding:3px 4px;cursor:pointer;border-radius:6px}
+.br:hover{background:#fff}.br.on{background:#fff;box-shadow:0 0 0 1px var(--bd)}
+.br .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.br .t{height:8px;border-radius:5px;background:#E4E7E9;overflow:hidden}.br .t i{display:block;height:100%;background:#1D2226;border-radius:5px}
+.br .p{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.br .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--mu)}.br .q{color:var(--mu);font-size:11px;text-align:right}
+.mais{font-size:11.5px;color:var(--mu);background:none;border:0;cursor:pointer;padding:4px 0 0;text-decoration:underline;text-underline-offset:2px}
+/* barra de ferramentas e tabela */
+.tool{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:16px 0 10px}
+.busca{flex:1;min-width:200px;border:1px solid var(--bd);border-radius:999px;padding:8px 14px;font-size:13px;background:#fff;outline:none}
+.etq{font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:999px;background:#fff;border:1px solid var(--bd);cursor:pointer;color:var(--tx);display:inline-flex;gap:6px;align-items:center}
+.etq.on{background:#1D2226;color:#fff;border-color:#1D2226}
+.fil{font-size:12px;color:var(--az);font-weight:500}.fil button{background:none;border:0;color:var(--mu);cursor:pointer;text-decoration:underline}
+.novab{width:36px;height:36px;border-radius:50%;border:0;background:#1FA845;color:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(31,168,69,.35)}
+.novab .ici{width:18px;height:18px;stroke-width:2}
+.novab:hover{background:#17883A}
+.sheet{background:var(--tl);border:1px solid var(--bd);border-radius:14px;overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:900px}
+th{font-size:11px;color:var(--mu);font-weight:500;text-align:left;padding:9px 8px;border-bottom:1px solid var(--bd);white-space:nowrap;position:sticky;top:0;background:var(--tl)}
+td{padding:8px;border-bottom:1px solid var(--bd);font-size:12.5px;vertical-align:top;line-height:1.4}
+td.n{color:var(--mu);width:34px;text-align:right;font-variant-numeric:tabular-nums}
+td.mu{width:140px;font-weight:500}td.mu small{display:block;color:var(--mu);font-weight:400;font-size:11px}
+td.ob{min-width:300px}
+td.vl{width:120px;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.ld{width:110px}
+td.ic{width:44px;text-align:center}
+.icb{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#E4E7E9;color:#3E454B}
+.icb.vz{background:transparent;border:1px dashed #C9CED2;color:#B3B9BE;font-size:11px}
+.icb.cap{background:#DCE6F0;color:#2F5D8A}.icb.cus{background:#E7EFF7;color:#5D86AD}
+.mud{background:#FFF4E8;box-shadow:inset 0 0 0 1px #F4C79A;border-radius:6px}
+span.mud{padding:1px 4px}
+tr.nova td{background:#EEF8F0}tr.nova td.n{color:var(--ok);font-weight:700}
+tr.exc td{opacity:.45}tr.exc td.ob,tr.exc td.mu,tr.exc td.vl{text-decoration:line-through}
+td.ac{width:92px;white-space:nowrap;text-align:right}
+.ab{width:30px;height:30px;border-radius:8px;border:0;background:none;cursor:pointer;color:var(--mu);display:inline-flex;align-items:center;justify-content:center}
+.ab:hover{background:#fff;color:var(--tx)}.ab.lx:hover{color:#C0392B}
+.tag{display:block;font-size:10.5px;font-weight:600;border-radius:999px;padding:2px 7px;margin-top:4px;text-align:center}
+.tag.m{background:#FDEBD8;color:#9A4E10}.tag.nw{background:#DDF3E1;color:#17883A}.tag.x{background:#FBE3DF;color:#B23A2A}
+/* rodapé de envio */
+.env{position:fixed;left:0;right:0;bottom:0;background:var(--tl);border-top:1px solid var(--bd);padding:10px 16px;display:flex;justify-content:center;z-index:5}
+.env > div{max-width:1180px;width:100%;display:flex;align-items:center;gap:14px}
+.env .pr{flex:1;font-size:12.5px;color:var(--mu)}.env .pr b{color:var(--tx);font-weight:600;font-size:14px}
+.bt{font-size:13px;font-weight:500;padding:9px 16px;border-radius:999px;background:#1D2226;color:#fff;border:0;cursor:pointer}.bt.s{background:#fff;color:var(--tx);border:1px solid var(--bd)}
+.bt:disabled{opacity:.4;cursor:default}
+/* caixas (card da emenda e confirmação) */
+.cfp{position:fixed;inset:0;z-index:40;background:rgba(10,12,14,.35);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
+.cfb{background:var(--tl);border-radius:16px;padding:22px 24px 18px;max-width:440px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.35);max-height:calc(100vh - 32px);overflow:auto}
+.cfb.lg{max-width:560px}
+.cfb > b{font-size:17px;font-weight:600}.cfb p{color:var(--mu);font-size:13px;margin:6px 0 10px;line-height:1.5}.cfb ul{font-size:12.5px;margin:0 0 16px;padding-left:18px;line-height:1.6}
+.cfb .bb{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.vxb{width:44px;height:44px;border-radius:50%;border:1px solid var(--bd);background:#fff;color:var(--mu);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}.vxb.v{background:#1D2226;border-color:#1D2226;color:#fff}
+.fm{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin-top:14px}
+.fm label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:var(--mu);font-weight:500}
+.fm label.w{grid-column:1/-1}
+.fm label i{font-style:normal;color:#C0392B}
+.fm input,.fm textarea{border:1px solid var(--bd);border-radius:10px;padding:9px 11px;font-size:13.5px;background:#fff;color:var(--tx);outline:none;font-weight:500}
+.fm textarea{resize:vertical;min-height:64px;line-height:1.45}
+.fm input:focus,.fm textarea:focus{border-color:#1D2226}
+.fm .er{border-color:#E06A55;background:#FFF5F3}
+.opc{display:flex;gap:6px;flex-wrap:wrap}
+.opc button{border:1px solid var(--bd);background:#fff;border-radius:10px;padding:7px 10px;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;gap:6px;align-items:center;color:var(--tx)}
+.opc button.on{background:#1D2226;color:#fff;border-color:#1D2226}
+.sep{grid-column:1/-1;border-top:1px dashed var(--bd);padding-top:10px;font-size:11.5px;color:var(--mu)}
+.msg{font-size:12px;color:#C0392B;margin-top:10px;min-height:16px}
+.nota{font-size:12px;color:var(--mu);margin:14px 2px 0;line-height:1.5}
+@media(max-width:900px){.q5{grid-template-columns:1fr}.seg2{grid-template-columns:1fr}.fm{grid-template-columns:1fr}}
+/* v4 (22/11): metas clicáveis, + à direita, tabela com espaçamento único e cartões no celular */
+.mt{cursor:pointer;align-items:center}.mt:hover{border-color:#B9C0C5}.mt.on{border-color:#1D2226;box-shadow:0 0 0 1px #1D2226}
+.mt > span:nth-child(2){flex:1}.mv{color:var(--mu);font-size:12px}
+.dt{margin-top:10px;background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 14px}
+.dn{font-size:12px;color:var(--mu);margin:8px 0 0}.dn b{color:var(--tx)}
+.novab{margin-left:auto}
+table{min-width:0;table-layout:auto}
+th,td{padding:9px 10px}
+th:first-child,td:first-child{padding-left:14px}th:last-child,td:last-child{padding-right:12px}
+td.n{width:36px;padding-right:0;text-align:left}th[data-o="n"]{text-align:left !important}
+td.mu{width:150px}
+td.ob{min-width:0}
+td.cl{width:78px;text-align:center;white-space:nowrap}td.cl .icb + .icb,td.cl span + span{margin-left:4px}
+td.vl{width:112px}
+td.ld{width:90px}
+td.ac{width:70px}
+.ab{width:28px;height:28px}
+.tag{display:inline-block;margin:4px 0 0}
+@media(max-width:700px){
+  main{padding:12px 12px 110px}
+  .qn b{font-size:17px}
+  .mt{min-width:0;flex-basis:100%}
+  .tool{gap:6px}.busca{min-width:0;flex-basis:100%}.selr{flex:1}
+  .br{grid-template-columns:90px minmax(0,1fr) 36px 70px 20px;gap:6px}
+  .sheet{overflow:visible;background:none;border:0}
+  table,tbody,tr,td{display:block}thead{display:none}
+  tr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"mu mu vl" "ob ob ob" "cl ld ac";gap:6px 10px;background:var(--tl);border:1px solid var(--bd);border-radius:14px;padding:12px 12px 8px;margin-bottom:8px}
+  td{border:0;padding:0 !important;width:auto !important}
+  td.n{display:none}td.mu{grid-area:mu}td.vl{grid-area:vl;font-size:14px}td.ob{grid-area:ob}
+  td.cl{grid-area:cl;text-align:left}td.ld{grid-area:ld;align-self:center;color:var(--mu)}td.ac{grid-area:ac}
+  td.mu small{display:inline;margin-left:6px}
+  tr.nova{background:#EEF8F0}tr.nova td{background:none}
+}
+.icb{vertical-align:middle}
+.sec{font-size:11.5px;font-weight:600;color:var(--tx);margin-bottom:-4px}.fm .w{grid-column:1/-1}
+.ckg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ck{flex-direction:row !important;align-items:flex-start;gap:8px !important;border:1px solid var(--bd);border-radius:10px;padding:9px 10px;background:#fff;cursor:pointer}
+.ck input{margin:2px 0 0;accent-color:#1D2226}.ck b{display:block;font-size:12.5px;color:var(--tx);font-weight:600}.ck small{font-size:11px;color:var(--mu);font-weight:400}
+@media(max-width:700px){.ckg{grid-template-columns:1fr}}
+/* Link Gestor: mudanças já enviadas e mensagens */
+.pend{background:var(--tl);border:1px solid var(--bd);border-radius:14px;padding:12px 14px;margin-top:12px}
+.pend > b{font-size:13px;font-weight:600;margin-right:8px}.pend > span{font-size:11.5px;color:var(--mu)}
+.pend .pl{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--bd);margin-top:6px;font-size:12.5px}
+.pend .pl .tag{margin:0;flex:none}.pend .pl .pt{flex:1;min-width:0}
+.tag.ag{background:#E3EAF5;color:#2F5D8A;cursor:help}
+.erro{max-width:420px;margin:60px auto;background:var(--tl);border:1px solid var(--bd);border-radius:16px;padding:22px 24px;font-size:13px;color:var(--mu);line-height:1.5}.erro b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
+</style></head><body><main id="app"></main>
+<datalist id="muns"></datalist><datalist id="lids"></datalist>
+<script src="../dados/regioes-sc.js"></script>
+<script>
+const ICI={"sau":"<path d=\"M6.5 2.5h3v4h4v3h-4v4h-3v-4h-4v-3h4z\"/>","edu":"<path d=\"M2.5 4.5l5.5-2 5.5 2-5.5 2zM4.5 5.5v4c1 1 2.2 1.5 3.5 1.5s2.5-.5 3.5-1.5v-4M13.5 4.5v4\"/>","fun":"<path d=\"M2.5 13.5h11M3.5 13.5v-6h3v6M6.5 13.5V4.5h3v9M9.5 13.5v-4h3v4\"/>","agr":"<path d=\"M8 13.5V7M8 7c0-2.5 2-4.5 5-4.5 0 3-2 4.5-5 4.5zM8 9c0-2-1.6-3.5-4.5-3.5C3.5 8 5 9 8 9z\"/>","inf":"<path d=\"M5 13.5l2-11M11 13.5l-2-11M8 4v1.5M8 7.5v1.5M8 11v1.5\"/>","seg":"<path d=\"M8 2.3l4.8 1.9v3.6c0 2.9-2.1 4.8-4.8 5.9-2.7-1.1-4.8-3-4.8-5.9V4.2z\"/><path d=\"M8 5.6l.8 1.5 1.7.2-1.2 1.2.3 1.7L8 9.4l-1.6.8.3-1.7-1.2-1.2 1.7-.2z\"/>","soc":"<circle cx=\"5.5\" cy=\"5.5\" r=\"2\"/><circle cx=\"10.5\" cy=\"5.5\" r=\"2\"/><path d=\"M2 12.5c.4-2 1.8-3 3.5-3s3.1 1 3.5 3M7.5 12.5c.4-2 1.5-3 3-3s2.8 1 3.2 3\"/>","cus":"<path d=\"M12.5 5.5A5 5 0 1 0 13 9\"/><path d=\"M13 2.8v2.9h-2.9\"/><path d=\"M8 5.6v4.8M9.6 6.6c-.3-.5-.9-.8-1.6-.8-.9 0-1.6.5-1.6 1.2 0 1.6 3.2.8 3.2 2.4 0 .7-.7 1.2-1.6 1.2-.7 0-1.3-.3-1.6-.8\"/>","cap":"<path d=\"M2.5 13.5h11M3.5 13.5V6.8L8 3.5l4.5 3.3v6.7\"/><path d=\"M6.3 13.5V9.7h3.4v3.8\"/>","lixo":"<path d=\"M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.8 6.5v4.5M9.2 6.5v4.5\"/>","mais":"<path d=\"M8 3.5v9M3.5 8h9\"/>","plan":"<path d=\"M2.5 3h11v10h-11zM2.5 6.5h11M2.5 10h11M6.5 3v10\"/>","te":"<path d=\"M2.5 8h9M8.5 4.5L12 8l-3.5 3.5M13.5 3.5v9\"/>","co":"<path d=\"M4.5 2.5h5l2 2v9h-7zM6.3 9.3l1.3 1.3 2.4-2.6\"/>","ed":"<path d=\"M2.5 8h6M6.5 5.5L9 8l-2.5 2.5M10.5 3.5h3v9h-3\"/>","impr":"<path d=\"M4.5 6V2.5h7V6M4.5 11.5H3V6h10v5.5h-1.5M4.5 9.5h7v4h-7z\"/>","x":"<path d=\"M4.5 4.5l7 7M11.5 4.5l-7 7\"/>"};
+const PTCSS="\n  @page{size:A4;margin:14mm 12mm} *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important} body{font-family:Inter,system-ui,sans-serif;color:#111;margin:0} .di-folha{position:relative;padding:0 3px}*{box-sizing:border-box}.di-votos{width:84px}.di-obj{min-width:0;overflow-wrap:anywhere}\n  .di-agua{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}.di-agua span{font-size:110px;font-weight:800;color:rgba(0,0,0,.035);transform:rotate(-24deg)}\n  .di-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.di-wm{font-size:18px;font-weight:800;letter-spacing:-.01em;line-height:1}.di-wm span{color:#1FA83A}.di-wmsub{font-size:7px;font-weight:800;letter-spacing:.2em;color:#6B7178;text-transform:uppercase;margin-top:3px}\n  .di-meta{text-align:right;font-size:9px;color:#3F454B;line-height:1.5}.di-regra{margin:10px 0 14px;height:2px;background:#A9AEB3;position:relative}.di-regra:after{content:\"\";position:absolute;left:0;right:0;top:4px;height:1px;background:#D3D6D8}\n  .di-tit{font-size:16px;font-weight:800}.di-sub{font-size:9.5px;color:#3F454B;margin:2px 0 10px;line-height:1.45}.di-sub b{color:#111}\n  .di-rres{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 8px}.di-rres div{border:1px solid #DCDFE2;border-radius:6px;padding:6px 8px;background:#F3F5F6}.di-rres b{display:block;font-size:13px;font-variant-numeric:tabular-nums}.di-rres span{font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}.di-rres .ok b{color:#1FA83A}\n  .di-pag{margin:0 0 12px}.di-pbar{display:flex;height:7px;border-radius:999px;overflow:hidden;background:#E6E8EA}.di-pbar i.b1,.di-pleg i.b1{background:#1FA83A}.di-pbar i.b2,.di-pleg i.b2{background:#8FD49D}\n  .di-pleg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:8px;color:#3F454B;margin-top:4px}.di-pleg i{display:inline-block;width:8px;height:8px;border-radius:2px;background:#E6E8EA;margin-right:4px;vertical-align:-1px}\n  .di-lgs{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;border:1px solid #DCDFE2;border-radius:6px;padding:7px 9px;margin:12px 0 14px;page-break-inside:avoid;font-size:8px;color:#3F454B}.di-lgs > div{display:flex;flex-wrap:wrap;align-items:center;gap:3px 10px}.di-lgs b{flex-basis:100%;font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}\n  .di-lgs span{display:inline-flex;align-items:center;gap:4px}.di-lgs em{font-style:normal;font-weight:800;color:#111}\n  .di-linha{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:.5px solid #DCDFE2;page-break-inside:avoid}.di-hdr{border-bottom:1.5px solid #A9AEB3;font-size:7px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7178;align-items:flex-end}\n  .di-pos{width:14px;flex:none;color:#6B7178;font-size:9px;text-align:right}.di-cand{width:82px;flex:none}.di-n{display:block;font-size:10px;font-weight:600}.di-p{display:block;font-size:7px;color:#9AA0A4;letter-spacing:.04em;text-transform:uppercase;margin-top:1px}\n  .di-obj{flex:1;font-size:9.5px;line-height:1.4}.di-obj small{display:block;color:#6B7178;font-size:7.5px;margin-top:2px}\n  .di-fn,.di-in,.di-et{flex:none;display:flex;align-items:center;justify-content:center;height:15px}.di-fn{width:30px}.di-in{width:30px;font-size:8.5px;font-weight:800;color:#3F454B}.di-et{width:46px}\n  .di-mu{font-size:9px;line-height:1;color:#9AA0A4;font-weight:400}.di-seta{font-style:normal;color:#1FA83A;margin-right:3px;font-weight:800}.di-linha:not(.di-hdr) .di-pos,.di-linha:not(.di-hdr) .di-or,.di-linha:not(.di-hdr) .di-ano{line-height:13px !important;padding-top:0 !important}.di-or,.di-ano{text-align:center}.di-pos{width:10px !important;text-align:right !important;font-size:9px}.di-or{width:30px !important;margin-left:5px}.di-ano{width:24px !important;margin-left:5px;margin-right:14px}.di-or small{line-height:9px}\n  .di-fn{flex-direction:column;height:auto !important;min-height:15px}.di-fl{display:block;font-size:5.5px;font-weight:800;letter-spacing:.04em;color:#6B7178;margin-top:1px;line-height:1}.di-ant{display:block;color:#9AA0A4;text-decoration:line-through;font-size:8.5px;margin-bottom:2px}\n  .di-hdr > span, .di-hdr .di-votos, .di-hdr .di-in{font-size:7px !important;font-weight:800 !important;letter-spacing:.06em;text-transform:uppercase;color:#6B7178 !important;height:auto;background:none;border:0}\n  .di-fr{display:inline-flex}.di-fr svg{width:11px;height:11px;transform:rotate(-90deg)}.di-fr .t{fill:none;stroke:#DCDFE2;stroke-width:2.4}.di-fr .f{fill:none;stroke:#1FA83A;stroke-width:2.4}\n  .di-fi{width:13px;height:13px;fill:none;stroke:#3F454B;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}.di-mu{font-size:8px;color:#9AA0A4}\n  .di-ics{display:inline-flex;gap:3px}.di-ics svg{width:11px;height:11px;fill:none;stroke:#C9CDD1;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.di-ics svg.on{stroke:#111}.di-ics svg.pg{stroke:#1FA83A}.di-ics svg.pp{stroke:#1FA83A;stroke-dasharray:2 1.6}.di-ics svg.tv{stroke:#E8432A}\n  .di-ano{width:30px;flex:none;font-size:9px;font-weight:600;color:#3F454B;padding-top:1px;white-space:nowrap}.di-or{width:40px;flex:none;font-size:8px;font-weight:800;color:#3F454B;line-height:1.25;padding-top:2px;white-space:nowrap}.di-or small{display:block;font-size:6.5px;font-weight:600;color:#9AA0A4;letter-spacing:.02em}.di-frw{width:12px;flex:none;display:flex;align-items:center;justify-content:center;height:15px}\n  .di-votos{flex:none;width:66px;display:flex;align-items:center;justify-content:flex-end;background:#F3F5F6;border:1px solid #DCDFE2;border-radius:6px;padding:4px 8px;text-align:right;font-size:10px;font-weight:700;font-variant-numeric:tabular-nums}.di-hdr .di-votos{background:none;border:0;font-weight:800}\n  .di-sup{color:#9AA0A4}.di-sup .di-n,.di-sup .di-votos{color:#9AA0A4;font-weight:500}\n  .di-tot{display:flex;justify-content:space-between;font-weight:800;font-size:11px;padding:8px 0;border-top:1.5px solid #A9AEB3;margin-top:2px}.di-tot b{color:#1FA83A}\n  .di-det{break-before:page;page-break-before:always}@media screen{.di-det{margin-top:56px;padding-top:28px;border-top:1px dashed #C9CDD1}}.di-det .di-tit{margin-bottom:2px}.di-det .di-bloco{margin-bottom:22px}.di-det .di-sub{margin-bottom:16px}.di-grade{display:grid;grid-template-columns:1fr 1fr;gap:14px}.di-bloco{page-break-inside:avoid;margin-bottom:14px}\n  .di-st2{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;margin:0 0 4px;padding-bottom:4px;border-bottom:1.5px solid #A9AEB3}\n  .di-tl,.di-tp{display:grid;gap:6px;font-size:9px;padding:4px 0;border-bottom:.5px solid #DCDFE2;align-items:center;font-variant-numeric:tabular-nums}.di-tl{grid-template-columns:minmax(0,1fr) 40px 66px 66px 38px}.di-tp{grid-template-columns:minmax(0,1fr) 50px 90px 90px 90px 56px}\n  .di-tl span:nth-child(n+2),.di-tp span:nth-child(n+2){text-align:right}.di-tl span:first-child{position:relative;padding-bottom:3px}.di-tl span:first-child i{position:absolute;left:0;bottom:0;height:2px;background:#1FA83A;opacity:.6;border-radius:2px}\n  .di-th{font-size:7px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7178;border-bottom:1px solid #C9CDD1}.di-tt{font-weight:800;border-top:1px solid #A9AEB3;border-bottom:0}\n  .di-rod{margin-top:18px;font-size:8px;color:#6B7178;line-height:1.5}.di-pagfoot{display:flex;justify-content:space-between;font-size:7.5px;color:#9AA0A4;border-top:.5px solid #DCDFE2;margin-top:16px;padding-top:6px}\n  .pt{width:100%;border-collapse:collapse;margin-top:6px;font-size:9.5px}\n  .gr-bloco{page-break-inside:avoid;margin-bottom:26px}.gr-q{font-size:8.5px;color:#6B7178;margin:2px 0 8px}\n  .pcsvg{width:100%;height:auto;display:block;overflow:visible;font-family:Inter,system-ui,sans-serif}.pcsvg text{fill:#3F454B;font-size:12px}.pcsvg .mu{fill:#6B7178;font-size:11.5px}.pcsvg .fo,.pcsvg .ano{fill:#111;font-weight:700;font-size:14px}\n  .pcsvg [stroke=\"rgba(242,244,245,.05)\"]{stroke:#DCDFE2}.pcsvg [fill=\"rgba(242,244,245,.045)\"]{fill:#EDF0F2}.pcsvg [stroke=\"#14191A\"]{stroke:#fff}\n  .pcsvg [fill=\"#34E84A\"]{fill:#1FA83A}.pcsvg [stroke=\"#34E84A\"]{stroke:#1FA83A}.pcsvg [filter]{filter:none}.pcsvg tspan[fill=\"#5FE873\"]{fill:#1FA83A}.pcsvg tspan[fill=\"#C9CDD1\"]{fill:#6B7178}\n  .pclg{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:8.5px;color:#3F454B}.pclg i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:-1px;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}\n  .pclg i[style*=\"242,244,245\"]{background:#EDF0F2 !important}.pclg .q i{border-radius:0;width:12px;height:0;border-top:2px dashed #E8705A;box-shadow:none;vertical-align:2px}.pclg .p i{background:#1FA83A;height:4px;vertical-align:1px;box-shadow:none}\n  .pt thead th{font-size:7px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;text-align:left;padding:7px 6px;border-bottom:1.5px solid #A9AEB3;white-space:nowrap}\n  .pt th i{font-style:normal;margin-left:3px;color:#B5BABE}\n  .pt td{padding:8px 6px;border-bottom:.5px solid #DCDFE2;vertical-align:middle}.pt tr{page-break-inside:avoid}.pt thead{display:table-header-group}\n  .pt .c0{width:18px;color:#9AA0A4;text-align:right;padding-right:2px}.pt td.c1{width:34px;text-align:center;font-weight:600;font-size:10px}.pt .c2{width:58px;text-align:center}\n  .pt .c3{width:86px}.pt .c3 b{display:block;font-weight:600;font-size:10px}.pt .c3 small{display:block;color:#9AA0A4;font-size:8px;margin-top:1px}\n  .pt .c4{overflow-wrap:anywhere}.pt .c4 s{display:block;color:#9AA0A4;font-size:8.5px;margin-bottom:2px}.pt .c4 small{display:block;color:#9AA0A4;font-size:7.5px;margin-top:2px}\n  .pt .c5{width:48px;text-align:center}.pt .c5 small{display:block;font-size:5.8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6B7178;margin-top:2px}\n  .pt td.c6{width:32px;text-align:center;font-weight:800;color:#3F454B}.pt .c7{width:80px;text-align:right;white-space:nowrap}.pt .c8{width:52px;text-align:center}\n  .pt th.c1,.pt th.c2,.pt th.c5,.pt th.c6,.pt th.c8{text-align:center}.pt th.c7{text-align:right}\n  .pt-fi{width:14px;height:14px;fill:none;stroke:#3F454B;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto}.pt-mu{color:#C2C6C9}\n  .pt-eto{display:inline-grid;grid-template-columns:1fr 1fr;width:54px;border-radius:4px;overflow:hidden;font-size:7.5px;font-weight:700;letter-spacing:.03em;line-height:1;flex:none}\n  .pt-eto b,.pt-eto span{display:flex;align-items:center;justify-content:center;padding:3px 0}.pt-eto b:only-child{grid-column:span 2}\n  .pt-eto.ei b{background:#3F454B;color:#fff}.pt-eto.ei span{background:#E4E7E9;color:#3F454B}.pt-eto.cv b{background:#8A9096;color:#fff;font-size:7px}.pt-eto.cv span{background:#EEF0F1;color:#3F454B}\n  .pt-eto.ou b{background:#fff;color:#6B7178;box-shadow:inset 0 0 0 1px #DCDFE2;border-radius:4px}\n  .pt-val{display:inline-block;min-width:66px;text-align:right;padding:3px 6px;border-radius:4px;font-size:9px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}\n  .pt-val.pg{background:#1FA83A;color:#fff}.pt-val.pp{background:#DDF3E1;color:#157A2B;box-shadow:inset 0 0 0 1px #9BD8A8}.pt-val.ap{background:#E4E7E9;color:#3F454B}\n  .pt .di-ics{justify-content:center}.pt tr.sup td{color:#9AA0A4}.pt tr.sup .pt-val{background:#F3F5F6;color:#9AA0A4;text-decoration:line-through}\n  .pt-lg{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px}.pt-lg > b{flex-basis:100%;font-size:7px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}\n  .pt-lg > span{display:inline-flex;align-items:center;gap:5px}.pt-lg .pt-val{min-width:0;padding:3px 5px}\n  .di-lgs .pt-eto{display:inline-grid;gap:0}.di-lgs .pt-eto b,.di-lgs .pt-eto span{display:flex;flex-basis:auto;gap:0;font-size:7.5px;letter-spacing:.03em;text-transform:none}\n  .di-lgs .pt-eto.ei b,.di-lgs .pt-eto.cv b{color:#fff}.di-lgs .pt-eto.cv b{font-size:7px}.di-lgs .pt-eto.ei span,.di-lgs .pt-eto.cv span{color:#3F454B}.di-lgs .pt-eto.ou b{color:#6B7178}";
+// Link Gestor (22/11/2026, migração 109): página PÚBLICA, sem login. O gabinete manda gestor-lista.html?t=TOKEN a uma
+// pessoa de confiança, que vê a lista INTEIRA da Indicação (ex.: LOA 2027) e pode alterar, incluir e excluir emendas.
+// Nada grava na lista: as mudanças vão por gestor_enviar e o gabinete aceita ✓ ou recusa ✕ cada uma na planilha.
+// O quadro da cota repete a conta da planilha (painel/gabinete-indicar.js, barraSeg): mudar a regra lá = mudar aqui.
+// Protótipo aprovado: prototipos/indicacao/edicao-compartilhada.html.
+const SB = "https://uxqxhvzeptuedyggwguh.supabase.co", KEY = "sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph";
+const TOKEN = new URLSearchParams(location.search).get("t") || "";
+const rpc = async (f, a) => { const r = await fetch(`${SB}/rest/v1/rpc/${f}`, { method: "POST", headers: { apikey: KEY, Authorization: "Bearer " + KEY, "Content-Type": "application/json" }, body: JSON.stringify(a) });
+  const j = await r.json().catch(() => null); if (!r.ok) throw new Error((j && j.message) || "erro " + r.status); return j; };
+let COTA = 0, MAXE = 0, SAUDE = 0.5; const META_CAP = 0.7;   // meta de investimento combinada com o usuário (22/11/2026)
+const REG = Object.fromEntries((typeof MUNICIPIOS_SC_REGIOES !== "undefined" ? MUNICIPIOS_SC_REGIOES : []).map((m) => [m.nome, m.assoc]));
+let LK = null, ABERTO = false, PEND = [], NOMEL = "", GAB = "";
+const AREAS = [["Saúde", "sau"], ["Educação", "edu"], ["Agricultura", "agr"], ["Infraestrutura e Mobilidade", "inf"], ["Segurança Pública", "seg"], ["FUNDAM", "fun"], ["Fundo Social", "soc"]];
+const NATS = [["Capital", "cap", "investimento"], ["Custeio", "cus", "custeio"]];
+ICI.lapis = '<path d="M10.6 2.9l2.5 2.5-7.6 7.6-3.1.6.6-3.1z"/><path d="M9.2 4.3l2.5 2.5"/>';
+const ici = (k) => `<svg class="ici" viewBox="0 0 16 16">${ICI[k] || ""}</svg>`;
+let ORIG = [], ST = [];   // _st: "" | "m" alterado | "n" nova | "x" excluir
+let FL = null, Q = "", DIST = false, ORD = null, MD = null, DP = [], verTodasR = false, verTodosL = false, nNova = 0;
+const moeda = (v) => (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const rc = (v) => "R$ " + moeda(v);
+const rcc = (v) => Math.abs(v) >= 1e6 ? "R$ " + (v / 1e6).toLocaleString("pt-BR", { maximumFractionDigits: 2 }) + " mi" : "R$ " + Math.round(v / 1e3) + " mil";
+const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const numBR = (s) => +String(s || "").replace(/[^\d,]/g, "").replace(",", ".") || 0;
+const CAMPOS = ["mun", "obj", "area", "nat", "v", "lid", "con"];
+const vivas = () => ST.filter((x) => x._st !== "x");
+const mudou = (x, c) => { const o = ORIG.find((y) => y.id === x.id); return !!o && x._st !== "n" && String(o[c] ?? "") !== String(x[c] ?? ""); };
+const pend = () => ST.filter((x) => x._st);
+const regDe = (x) => x.mun ? REG[x.mun] || "Outra" : "Sem município";
+
+// quadro enxuto (pedido 22/11): uma faixa com cota, indicado, livre e emendas; uma barra; três metas em linha
+function quadro(L) {
+  const val = (x) => +x.v || 0, tot = L.reduce((s, x) => s + val(x), 0), totO = ORIG.reduce((s, x) => s + val(x), 0);
+  const sau = L.filter((x) => x.area === "Saúde").reduce((s, x) => s + val(x), 0), fun = tot - sau;
+  const cap = L.filter((x) => x.nat === "Capital").reduce((s, x) => s + val(x), 0), def = L.filter((x) => !x.nat).reduce((s, x) => s + val(x), 0);
+  const p = (v, d) => d ? (v / d * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 }) + "%" : "0%", livre = COTA - tot;
+  const okS = sau >= COTA * SAUDE - .005, okF = fun <= COTA * (1 - SAUDE) + .005, okC = tot && cap / tot >= META_CAP;
+  const meta = (ok, nome, atual, regra, extra, k) => `<div class="mt ${ok ? "ok" : "fl"}${MD === k ? " on" : ""}" data-md="${k}" role="button" title="Ver o detalhamento"><span class="mi">${ok ? "✓" : "!"}</span><span><b>${nome} ${atual}</b> ${regra}${extra ? `<small>${extra}</small>` : ""}</span><span class="mv">${MD === k ? "▴" : "▾"}</span></div>`;
+  return `<div class="qd">
+    <div class="qn"><div><span>Cota</span><b>${rcc(COTA)}</b></div>
+      <div><span>Indicado</span><b>${rcc(tot)} <em>${p(tot, COTA)}</em></b>${tot !== totO ? `<small class="dif">${tot > totO ? "+" : "−"}${rcc(Math.abs(tot - totO))} nas mudanças</small>` : ""}</div>
+      <div><span>${livre < 0 ? "Acima da cota" : "Livre"}</span><b class="${livre < 0 ? "neg" : "pos"}">${rcc(Math.abs(livre))}</b></div>
+      <div><span>Emendas</span><b>${L.length} <em>de ${MAXE}</em></b></div></div>
+    <div class="qb"><i class="s" style="width:${Math.min(100, sau / COTA * 100)}%" title="Saúde ${rcc(sau)}"></i><i class="f" style="width:${Math.min(100 - Math.min(100, sau / COTA * 100), fun / COTA * 100)}%" title="Demais áreas ${rcc(fun)}"></i><b style="left:${SAUDE * 100}%" title="mínimo da Saúde"></b></div>
+    <div class="ql"><span><i class="s"></i>Saúde</span><span><i class="f"></i>demais áreas (FUNDAM)</span><span><i class="m"></i>mínimo da Saúde</span></div>
+    <div class="qm">${meta(okS, "Saúde", p(sau, COTA), `· mínimo ${Math.round(SAUDE * 100)}%`, okS ? "" : "faltam " + rcc(COTA * SAUDE - sau), "sau")}
+      ${meta(okC, "Investimento", p(cap, tot), `· meta ${Math.round(META_CAP * 100)}%`, def ? rcc(def) + " com despesa a definir" : "", "inv")}
+      ${meta(okF, "FUNDAM", p(fun, COTA), `· até ${Math.round((1 - SAUDE) * 100)}%`, okF ? "livre " + rcc(COTA * (1 - SAUDE) - fun) : "acima em " + rcc(fun - COTA * (1 - SAUDE)), "fun")}</div>${MD ? detalhe(L, MD, tot, sau, cap) : ""}</div>`;
+}
+
+// detalhamento de uma meta: linhas com valor, % e emendas; tocar numa linha filtra a tabela
+function detalhe(L, k, tot, sau, cap) { const val = (x) => +x.v || 0, nd = (x) => x.nat === "Capital" ? "Investimento" : x.nat === "Custeio" ? "Custeio" : "Despesa a definir";
+  let tit, nota, base, chave;
+  if (k === "sau") { tit = "Saúde por despesa"; base = (x) => x.area === "Saúde"; chave = nd; const f = COTA * SAUDE - sau; nota = f > 0 ? `Para chegar ao mínimo faltam <b>${rcc(f)}</b> em Saúde.` : "Mínimo da Saúde atingido."; }
+  else if (k === "inv") { tit = "Tudo o que foi indicado, por despesa"; base = () => true; chave = nd; const f = tot * META_CAP - cap; nota = f > 0 ? `Para a meta de ${Math.round(META_CAP * 100)}% faltam <b>${rcc(f)}</b> em investimento. Definir a despesa das emendas "a definir" pode resolver boa parte.` : "Meta de investimento atingida."; }
+  else { tit = "FUNDAM por área"; base = (x) => x.area !== "Saúde"; chave = (x) => x.area || "Área a definir"; const l = COTA * (1 - SAUDE) - (tot - sau); nota = l >= 0 ? `Ainda cabem <b>${rcc(l)}</b> nas áreas fora da Saúde.` : `As áreas fora da Saúde passaram <b>${rcc(-l)}</b> da metade da cota.`; }
+  const G = {}; L.filter(base).forEach((x) => { const c = chave(x); (G[c] = G[c] || { v: 0, n: 0 }); G[c].v += val(x); G[c].n++; });
+  const E = Object.entries(G).sort((a, b) => b[1].v - a[1].v), soma = E.reduce((s, e) => s + e[1].v, 0), max = E.length ? E[0][1].v : 1;
+  DP = E.map(([c]) => [c, (x) => base(x) && chave(x) === c]);
+  return `<div class="dt"><div class="cxh"><b>${tit}</b><span>% · valor · emendas · toque para ver na tabela</span></div>${E.map(([c, g], j) => `<div class="br${FL && FL[0] === "p" && FL[1] === c ? " on" : ""}" data-p="${j}"><span class="n">${esc(c)}</span><span class="t"><i style="width:${g.v / max * 100}%"></i></span><span class="p">${soma ? Math.round(g.v / soma * 100) : 0}%</span><span class="v">${rcc(g.v)}</span><span class="q">${g.n}</span></div>`).join("")}<p class="dn">${nota}</p></div>`; }
+
+// ---------- distribuição por região e por líder (etiqueta % distribuição) ----------
+function grupoPor(L, chave) { const G = {}; L.forEach((x) => { const k = chave(x) || "Sem líder"; (G[k] = G[k] || { v: 0, n: 0 }); G[k].v += +x.v || 0; G[k].n++; }); return Object.entries(G).sort((a, b) => b[1].v - a[1].v); }
+function barras(G, tipo, todas, tot) { const max = G.length ? G[0][1].v : 1, L = todas ? G : G.slice(0, 7);
+  return L.map(([n, g]) => `<div class="br${FL && FL[0] === tipo && FL[1] === n ? " on" : ""}" data-f="${tipo}|${esc(n)}"><span class="n">${esc(n)}</span><span class="t"><i style="width:${g.v / max * 100}%"></i></span><span class="p">${tot ? (g.v / tot * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) : 0}%</span><span class="v">${rcc(g.v)}</span><span class="q">${g.n}</span></div>`).join("") + (G.length > 7 ? `<button class="mais" data-mais="${tipo}">${todas ? "mostrar menos" : `ver todas (${G.length})`}</button>` : ""); }
+
+const icArea = (x) => { const a = AREAS.find((q) => q[0] === x.area); return a ? `<span class="icb" title="${esc(a[0])}">${ici(a[1])}</span>` : `<span class="icb vz" title="Área a definir">—</span>`; };
+const icNat = (x) => { const a = NATS.find((q) => q[0] === x.nat); return a ? `<span class="icb ${a[1]}" title="${a[0]} (${a[2]})">${ici(a[1])}</span>` : `<span class="icb vz" title="Despesa a definir">—</span>`; };
+const cel = (x, c, h) => mudou(x, c) ? `<span class="mud">${h}</span>` : h;
+
+function render() { const L = vivas(), tot = L.reduce((s, x) => s + (+x.v || 0), 0), P = pend();
+  const GR = grupoPor(L, regDe), GL = grupoPor(L, (x) => x.lid);
+  const vis = ST.map((x, i) => [x, i]).filter(([x]) => (!FL || (FL[0] === "p" ? FL[2](x) : (FL[0] === "r" ? regDe(x) : x.lid || "Sem líder") === FL[1])) && (!Q || norm(CAMPOS.map((c) => x[c]).join(" ") + " " + regDe(x)).includes(norm(Q))));
+  if (ORD) { const [c, d] = ORD, k = (x) => c === "n" ? (x._st === "n" ? -1 : ORIG.findIndex((o) => o.id === x.id)) : c === "v" ? +x.v || 0 : c === "reg" ? norm(regDe(x)) : norm(x[c] || ""); vis.sort((a, b) => { const A = k(a[0]), B = k(b[0]); return (A > B ? 1 : A < B ? -1 : 0) * d; }); }
+  document.getElementById("app").innerHTML = `<div class="org">${esc(GAB)}</div>
+  <div class="ihd"><h2>${esc(NOMEL)}</h2><span>Link Gestor${LK.prazo ? " · " + (ABERTO ? "aberto até " + new Date(LK.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "fechado") : ""}</span><button class="ii" data-info>i</button></div>
+  ${quadro(L)}
+  ${DIST ? `<div class="seg2"><div class="cx"><div class="cxh"><b>Por região</b><span>associação de municípios · % · valor · emendas</span></div>${barras(GR, "r", verTodasR, tot)}</div>
+    <div class="cx"><div class="cxh"><b>Por líder</b><span>% · valor · emendas</span></div>${barras(GL, "l", verTodosL, tot)}</div></div>` : ""}
+  <div class="tool"><input class="busca" id="q" placeholder="Buscar município, região, objeto, líder…" value="${esc(Q)}"><button class="etq${DIST ? " on" : ""}" data-dist>% distribuição</button>${FL ? `<span class="fil">${FL[0] === "r" ? "Região" : FL[0] === "p" ? "Filtro" : "Líder"}: ${esc(FL[1])} · <button data-sf>tirar filtro</button></span>` : ""}<button class="etq" data-imp title="Imprimir">${ici("impr")}Imprimir</button>${ABERTO ? `<button class="novab" data-nova title="Nova emenda" aria-label="Nova emenda">${ici("mais")}</button>` : ""}</div>
+  <div class="sheet"><table><thead><tr><th data-o="n" style="text-align:right">Nº${ORD && ORD[0] === "n" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="mun">Município${ORD && ORD[0] === "mun" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="obj">Objeto${ORD && ORD[0] === "obj" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="area" style="text-align:center">Área · desp.${ORD && ORD[0] === "area" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="v" style="text-align:right">Valor (R$)${ORD && ORD[0] === "v" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="lid">Líder${ORD && ORD[0] === "lid" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th></th></tr></thead><tbody>
+  ${vis.map(([x, i]) => `<tr class="${x._st === "n" ? "nova" : x._st === "x" ? "exc" : ""}" data-i="${i}"><td class="n">${x._st === "n" ? "+" : ORIG.findIndex((o) => o.id === x.id) + 1}</td>
+    <td class="mu">${cel(x, "mun", esc(x.mun || "—"))}<small>${esc(x.mun ? REG[x.mun] || "" : "")}</small>${x._st === "m" ? `<span class="tag m">alterada</span>` : x._st === "n" ? `<span class="tag nw">nova</span>` : x._st === "x" ? `<span class="tag x">excluir</span>` : ""}</td>
+    <td class="ob">${cel(x, "obj", esc(x.obj || "—"))}</td>
+    <td class="cl">${cel(x, "area", icArea(x))}${cel(x, "nat", icNat(x))}</td>
+    <td class="vl">${cel(x, "v", moeda(x.v))}</td>
+    <td class="ld">${cel(x, "lid", esc(x.lid || "—"))}</td>
+    <td class="ac">${pendDe(x) ? `<span class="tag ag" title="${esc(pendTxt(pendDe(x)))}">enviada</span>` : ""}${x._st === "x" || x._st === "m" ? `<button class="ab" data-des title="Desfazer">↺</button>` : ""}${x._st !== "x" && ABERTO ? `<button class="ab" data-ed title="Editar">${ici("lapis")}</button><button class="ab lx" data-del title="${x._st === "n" ? "Tirar esta emenda nova" : "Excluir"}">${ici("lixo")}</button>` : ""}</td></tr>`).join("")}
+  </tbody></table></div>
+  ${pendHtml()}<p class="nota">${ABERTO ? "Nada é gravado direto na lista: as mudanças ficam marcadas (laranja = alterado, verde = nova, riscado = excluir) e seguem juntas para o gabinete validar. O quadro de cima já mostra o efeito das mudanças. Esta página lê a lista do gabinete cada vez que é aberta ou atualizada." : "Este link está fechado: a lista aparece só para consulta. Peça ao gabinete para reabrir se precisar mudar algo."}</p>`;
+  document.getElementById("env")?.remove();
+  const nm = P.filter((x) => x._st === "m").length, nn = P.filter((x) => x._st === "n").length, nx = P.filter((x) => x._st === "x").length;
+  document.body.insertAdjacentHTML("beforeend", `<div class="env" id="env"><div><div class="pr">${P.length ? `<b>${P.length} ${P.length === 1 ? "mudança" : "mudanças"}</b> aguardando envio · ${[nm && nm + " alterada" + (nm > 1 ? "s" : ""), nn && nn + " nova" + (nn > 1 ? "s" : ""), nx && nx + " para excluir"].filter(Boolean).join(" · ")}` : (ABERTO ? (PEND.length ? `Nenhuma mudança nova · ${PEND.length} enviada${PEND.length > 1 ? "s" : ""} aguardando o gabinete` : "Nenhuma mudança ainda") : "Link fechado · só consulta")}</div>${P.length ? `<button class="bt s" data-desall>Desfazer tudo</button>` : ""}<button class="bt" data-env ${P.length ? "" : "disabled"}>Enviar para validação</button></div></div>`);
+  liga(); }
+const redesenha = () => { const y = scrollY; render(); scrollTo(0, y); };
+
+// ---------- card da emenda (nova ou editar): valor, objeto e líder obrigatórios ----------
+function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova = i == null;
+  let area = x.area, nat = x.nat;
+  document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="cd"><div class="cfb lg"><b>${nova ? "Nova emenda" : "Editar emenda"}</b><p>${nova ? "Os campos com <b style='color:#C0392B'>*</b> são obrigatórios: valor, objeto e líder. O resto pode ficar para depois." : "As alterações ficam marcadas até o gabinete validar."}</p>
+    <div class="fm">
+      <label><span>Valor (R$) <i>*</i></span><input id="f_v" inputmode="numeric" placeholder="0,00" value="${x.v ? moeda(x.v) : ""}"></label>
+      <label><span>Líder <i>*</i></span><input id="f_lid" list="lids" placeholder="Nome do líder" value="${esc(x.lid || (nova && FL && FL[0] === "l" ? FL[1] : ""))}"></label>
+      <label class="w"><span>Objeto <i>*</i></span><textarea id="f_obj" placeholder="O que a emenda vai custear">${esc(x.obj || "")}</textarea></label>
+      <div class="sep">Opcional</div>
+      <label>Município<input id="f_mun" list="muns" placeholder="Município" value="${esc(x.mun || "")}"></label>
+      <label>Contato<input id="f_con" placeholder="Nome e cargo" value="${esc(x.con || "")}"></label>
+      <label class="w">Área<div class="opc" id="f_area">${AREAS.map(([n, k]) => `<button type="button" data-a="${esc(n)}" class="${n === area ? "on" : ""}">${ici(k)}${n}</button>`).join("")}</div></label>
+      <label class="w">Despesa<div class="opc" id="f_nat">${NATS.map(([n, k, d]) => `<button type="button" data-n="${n}" class="${n === nat ? "on" : ""}">${ici(k)}${n === "Capital" ? "Capital · investimento" : n}</button>`).join("")}</div></label>
+    </div><div class="msg" id="f_msg"></div>
+    <div class="bb"><button class="vxb" data-x title="Cancelar">✕</button><button class="vxb v" data-v title="Confirmar">✓</button></div></div></div>`);
+  const w = document.getElementById("cd"), $ = (s) => w.querySelector(s);
+  w.querySelectorAll("[data-a]").forEach((b) => b.onclick = () => { area = area === b.dataset.a ? null : b.dataset.a; w.querySelectorAll("[data-a]").forEach((o) => o.classList.toggle("on", o.dataset.a === area)); });
+  w.querySelectorAll("[data-n]").forEach((b) => b.onclick = () => { nat = nat === b.dataset.n ? null : b.dataset.n; w.querySelectorAll("[data-n]").forEach((o) => o.classList.toggle("on", o.dataset.n === nat)); });
+  const fecha = () => { w.remove(); document.removeEventListener("keydown", tecla); };
+  const tecla = (e) => { if (e.key === "Escape") fecha(); };
+  document.addEventListener("keydown", tecla);
+  $("[data-x]").onclick = fecha;
+  $("[data-v]").onclick = () => { const v = numBR($("#f_v").value), obj = $("#f_obj").value.trim(), lid = $("#f_lid").value.trim();
+    [["#f_v", v > 0], ["#f_obj", obj], ["#f_lid", lid]].forEach(([s, ok]) => $(s).classList.toggle("er", !ok));
+    if (!(v > 0 && obj && lid)) { $("#f_msg").textContent = "Falta preencher: " + [!(v > 0) && "valor", !obj && "objeto", !lid && "líder"].filter(Boolean).join(", ") + "."; return; }
+    const d = { v, obj, lid, mun: $("#f_mun").value.trim() || null, con: $("#f_con").value.trim() || null, area, nat };
+    if (nova) ST.unshift({ id: "novo" + ++nNova, ...d, _st: "n" });
+    else { Object.assign(x, d); if (x._st !== "n") x._st = CAMPOS.some((k) => mudou(x, k)) ? "m" : ""; }
+    fecha(); redesenha(); };
+  (nova ? $("#f_v") : $("#f_obj")).focus(); }
+
+function liga() { const A = document.getElementById("app");
+  A.querySelectorAll("tr[data-i]").forEach((tr) => { const i = +tr.dataset.i, x = ST[i];
+    const e = tr.querySelector("[data-ed]"); if (e) e.onclick = () => card(i);
+    const d = tr.querySelector("[data-del]"); if (d) d.onclick = () => { if (x._st === "n") ST.splice(i, 1); else x._st = "x"; redesenha(); };
+    const u = tr.querySelector("[data-des]"); if (u) u.onclick = () => { Object.assign(x, ORIG.find((o) => o.id === x.id), { _st: "" }); redesenha(); }; });
+  A.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { const [t, n] = b.dataset.f.split("|"); FL = FL && FL[0] === t && FL[1] === n ? null : [t, n]; redesenha(); });
+  A.querySelectorAll("[data-mais]").forEach((b) => b.onclick = () => { if (b.dataset.mais === "r") verTodasR = !verTodasR; else verTodosL = !verTodosL; redesenha(); });
+  A.querySelectorAll("[data-md]").forEach((b) => b.onclick = () => { MD = MD === b.dataset.md ? null : b.dataset.md; redesenha(); });
+  A.querySelectorAll("[data-p]").forEach((b) => b.onclick = () => { const [c, f] = DP[+b.dataset.p]; FL = FL && FL[0] === "p" && FL[1] === c ? null : ["p", c, f]; redesenha(); });
+  A.querySelectorAll("th[data-o]").forEach((t) => t.onclick = () => { const c = t.dataset.o; ORD = !ORD || ORD[0] !== c ? [c, c === "v" ? -1 : 1] : ORD[1] === (c === "v" ? -1 : 1) ? [c, -ORD[1]] : null; redesenha(); });
+  A.querySelector("[data-dist]").onclick = () => { DIST = !DIST; redesenha(); };
+  const sf = A.querySelector("[data-sf]"); if (sf) sf.onclick = () => { FL = null; redesenha(); };
+  const q = A.querySelector("#q"); q.oninput = () => { Q = q.value; const p = q.selectionStart; redesenha(); const q2 = document.getElementById("q"); q2.focus(); q2.setSelectionRange(p, p); };
+  const nv = A.querySelector("[data-nova]"); if (nv) nv.onclick = () => card(null);
+  A.querySelectorAll("[data-desiste]").forEach((b) => b.onclick = () => desistir(b.dataset.desiste));
+  A.querySelector("[data-imp]").onclick = opcImprimir;
+  A.querySelector("[data-info]").onclick = (e) => { const ja = document.getElementById("ipop"); if (ja) return ja.remove(); const r = e.currentTarget.getBoundingClientRect();
+    document.body.insertAdjacentHTML("beforeend", `<div class="ipop" id="ipop" style="top:${r.bottom + scrollY + 8}px;left:${r.left + scrollX - 20}px">Esta é a lista completa das emendas desta lista. Ela acompanha a lista mestra do gabinete: o que o gabinete muda lá aparece aqui ao abrir ou atualizar a página.<br><br>Use o <b>lápis</b> para editar, a <b>lixeira</b> para excluir e o <b>+ verde</b> para incluir uma emenda nova. As mudanças ficam marcadas e só valem depois que o gabinete <b>validar</b>: envie quando terminar.<br><br>A etiqueta <b>% distribuição</b> mostra o peso de cada região e de cada líder; toque num deles para filtrar a tabela.</div>`); };
+  const da = document.querySelector("[data-desall]"); if (da) da.onclick = () => { ST.splice(0, ST.length, ...ORIG.map((x) => ({ ...x, _st: "" }))); redesenha(); };
+  document.querySelector("[data-env]").onclick = () => { const P = pend();
+    document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="cf"><div class="cfb"><b>Enviar para validação?</b><p>O gabinete recebe as mudanças e aprova ou recusa cada uma. Até lá, a lista oficial continua como está.</p><ul>${P.slice(0, 6).map((x) => `<li>${x._st === "n" ? "Nova" : x._st === "x" ? "Excluir" : "Alterar"} · ${esc(x.mun || "sem município")} · ${rcc(+x.v || 0)}</li>`).join("")}${P.length > 6 ? `<li>e mais ${P.length - 6}</li>` : ""}</ul><div class="bb"><button class="vxb" data-x>✕</button><button class="vxb v" data-v>✓</button></div></div></div>`);
+    const w = document.getElementById("cf"), fecha = () => { w.remove(); document.removeEventListener("keydown", tecla); }, tecla = (e) => { if (e.key === "Escape") fecha(); };
+    document.addEventListener("keydown", tecla); w.querySelector("[data-x]").onclick = fecha;
+    w.querySelector("[data-v]").onclick = async () => { const bv = w.querySelector("[data-v]"); bv.disabled = true;
+      try { const n = await rpc("gestor_enviar", { p_token: TOKEN, p_mud: payload(P) }); fecha(); await carregar(); document.getElementById("env").querySelector(".pr").innerHTML = `<b style="color:var(--ok)">✓ Enviado</b> · o gabinete vai validar ${n === 1 ? "a mudança" : "as " + n + " mudanças"}`; }
+      catch (e) { bv.disabled = false; alert("Não foi possível enviar: " + (e.message || e)); } }; }; }
+
+// ---------- impressão (padrão do relatório do Controle: relPDF / classes pt-* e di-*) ----------
+const ORG_OPC = [["tela", "Como está na tela"], ["n", "Nº da lista"], ["mun", "Município"], ["reg", "Região"], ["lid", "Líder"], ["v", "Valor (maior primeiro)"], ["area", "Área"]];
+const GRP_OPC = [["", "Sem agrupar"], ["reg", "Região"], ["lid", "Líder"], ["area", "Área"], ["nat", "Despesa"]];
+let IMP = { painel: true, dist: true, leg: true, mud: true, org: "tela", grp: "" };
+function opcImprimir() { const P = pend();
+  const chk = (k, t, d) => `<label class="ck"><input type="checkbox" data-k="${k}"${IMP[k] ? " checked" : ""}><span><b>${t}</b>${d ? `<small>${d}</small>` : ""}</span></label>`;
+  const sel = (k, L) => `<div class="opc" data-s="${k}">${L.map(([v, t]) => `<button type="button" data-v="${v}" class="${IMP[k] === v ? "on" : ""}">${t}</button>`).join("")}</div>`;
+  document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="im"><div class="cfb lg"><b>Imprimir</b><p>O documento sai no padrão dos relatórios do gabinete. Escolha o que entra e como organizar.</p>
+    <div class="fm"><div class="w sec">Incluir</div>
+      <div class="w ckg">${chk("painel", "Painel da cota", "cota, indicado, livre, emendas e as três metas")}${chk("dist", "Distribuição", "por região e por líder")}${chk("leg", "Legenda", "ícones de área e etiquetas de despesa")}${P.length ? chk("mud", "Minhas mudanças", `${P.length} ainda não validada${P.length > 1 ? "s" : ""}, marcadas no documento`) : ""}</div>
+      <div class="w sec">Organizar por</div><div class="w">${sel("org", ORG_OPC)}</div>
+      <div class="w sec">Agrupar</div><div class="w">${sel("grp", GRP_OPC)}</div></div>
+    <div class="bb"><button class="vxb" data-x title="Cancelar">✕</button><button class="vxb v" data-v title="Gerar o documento">✓</button></div></div></div>`);
+  const w = document.getElementById("im"), fecha = () => { w.remove(); document.removeEventListener("keydown", tecla); }, tecla = (e) => { if (e.key === "Escape") fecha(); };
+  document.addEventListener("keydown", tecla);
+  w.querySelectorAll("[data-k]").forEach((c) => c.onchange = () => { IMP[c.dataset.k] = c.checked; });
+  w.querySelectorAll("[data-s]").forEach((g) => g.querySelectorAll("button").forEach((b) => b.onclick = () => { IMP[g.dataset.s] = b.dataset.v; g.querySelectorAll("button").forEach((o) => o.classList.toggle("on", o === b)); }));
+  w.querySelector("[data-x]").onclick = fecha;
+  w.querySelector(".vxb.v").onclick = () => { fecha(); documento(); }; }
+
+function documento() { const win = window.open("", "_blank"); if (!win) return alert("Libere as janelas pop-up do navegador para imprimir.");
+  const comMud = IMP.mud && pend().length, base = comMud ? ST.filter((x) => x._st !== "x" || true) : ORIG.map((x) => ({ ...x, _st: "" }));
+  const L = base.filter((x) => x._st !== "x"), val = (x) => +x.v || 0, tot = L.reduce((s, x) => s + val(x), 0);
+  const ag = new Date(), dt = ag.toLocaleDateString("pt-BR"), hr = ag.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const pc = (a, b) => b ? Math.round(a / b * 100) + "%" : "—", nome = (o, v) => (o.find((q) => q[0] === v) || [, ""])[1];
+  const areaDe = (x) => x.area || "Área a definir", natDe = (x) => x.nat === "Capital" ? "Investimento" : x.nat === "Custeio" ? "Custeio" : "Despesa a definir";
+  // ordem
+  let R = base.slice(); const nOrig = (x) => { const i = ORIG.findIndex((o) => o.id === x.id); return i < 0 ? 1e6 : i; };
+  const ordem = IMP.org === "tela" ? (ORD ? ORD : ["n", 1]) : [IMP.org, IMP.org === "v" ? -1 : 1];
+  const kk = (x) => ordem[0] === "n" ? nOrig(x) : ordem[0] === "v" ? val(x) : ordem[0] === "reg" ? norm(regDe(x)) + norm(x.mun) : norm(x[ordem[0]] || "~");
+  R.sort((a, b) => { const A = kk(a), B = kk(b); return (A > B ? 1 : A < B ? -1 : nOrig(a) - nOrig(b)) * (A === B ? 1 : ordem[1]); });
+  // grupos
+  const gk = { reg: regDe, lid: (x) => x.lid || "Sem líder", area: areaDe, nat: natDe }[IMP.grp];
+  let blocos = [["", R]];
+  if (gk) { const M = new Map(); R.forEach((x) => { const k = gk(x); if (!M.has(k)) M.set(k, []); M.get(k).push(x); });
+    blocos = [...M].sort((a, b) => b[1].filter((x) => x._st !== "x").reduce((s, x) => s + val(x), 0) - a[1].filter((x) => x._st !== "x").reduce((s, x) => s + val(x), 0)); }
+  // células
+  const AR = Object.fromEntries(AREAS), svg = (k) => `<svg viewBox="0 0 16 16" class="pt-fi">${ICI[k] || ""}</svg>`;
+  const areaC = (x) => x.area ? `${svg(AR[x.area])}<small>${esc(x.area === "Infraestrutura e Mobilidade" ? "Infraestr." : x.area === "Segurança Pública" ? "Segurança" : x.area)}</small>` : `<span class="pt-mu">—</span>`;
+  const natC = (x) => x.nat === "Capital" ? `<span class="pt-eto ei"><b>CAP</b><span>INV</span></span>` : x.nat === "Custeio" ? `<span class="pt-eto cv"><b>CUST</b></span>` : `<span class="pt-eto ou"><b>a definir</b></span>`;
+  const antigo = (x, c) => { if (!comMud || x._st !== "m") return ""; const o = ORIG.find((y) => y.id === x.id); return o && String(o[c] ?? "") !== String(x[c] ?? "") ? (c === "v" ? `<s>R$ ${moeda(o.v)}</s>` : `<s>${esc(o[c] || "—")}</s>`) : ""; };
+  const marca = (x) => !comMud || !x._st ? "" : `<span class="mk ${x._st}">${x._st === "n" ? "nova" : x._st === "x" ? "excluir" : "alterada"}</span>`;
+  let n = 0;
+  const linha = (x) => `<tr class="${x._st === "x" ? "sup" : ""}"><td class="c0">${x._st === "n" ? "+" : ++n}</td>
+    <td class="c3">${antigo(x, "mun")}<b>${esc(x.mun || "—")}</b><small>${esc(x.mun ? REG[x.mun] || "" : "")}</small>${marca(x)}</td>
+    <td class="c4">${antigo(x, "obj")}${esc(x.obj || "—")}</td><td class="c5">${areaC(x)}</td><td class="c2">${natC(x)}</td>
+    <td class="c7">${antigo(x, "v")}<span class="pt-val ap">R$ ${moeda(x.v)}</span></td><td class="cl">${antigo(x, "lid")}${esc(x.lid || "—")}</td></tr>`;
+  const seta = (k) => `<i>${ordem[0] === k ? (ordem[1] > 0 ? "↑" : "↓") : "↕"}</i>`;
+  const thead = `<thead><tr><th class="c0">#</th><th class="c3">Município${seta(ordem[0] === "reg" ? "reg" : "mun")}</th><th class="c4">Objeto${seta("obj")}</th><th class="c5">Área${seta("area")}</th><th class="c2">Despesa${seta("nat")}</th><th class="c7">R${seta("v")}</th><th class="cl">Líder${seta("lid")}</th></tr></thead>`;
+  const corpo = blocos.map(([g, A]) => { const viv = A.filter((x) => x._st !== "x"), s = viv.reduce((t, x) => t + val(x), 0);
+    return (g ? `<tr class="gh"><td colspan="7"><b>${esc(g)}</b><span>${viv.length} ${viv.length === 1 ? "emenda" : "emendas"} · R$ ${moeda(s)} · ${pc(s, tot)}</span></td></tr>` : "") + A.map(linha).join(""); }).join("");
+  // painel
+  const sau = L.filter((x) => x.area === "Saúde").reduce((s, x) => s + val(x), 0), fun = tot - sau, cap = L.filter((x) => x.nat === "Capital").reduce((s, x) => s + val(x), 0), def = L.filter((x) => !x.nat).reduce((s, x) => s + val(x), 0), livre = COTA - tot;
+  const okS = sau >= COTA * SAUDE - .005, okF = fun <= COTA * (1 - SAUDE) + .005, okC = tot && cap / tot >= META_CAP;
+  const meta = (ok, t, d) => `<div class="${ok ? "ok" : "fl"}"><i>${ok ? "✓" : "!"}</i><span><b>${t}</b>${d}</span></div>`;
+  const painel = IMP.painel ? `<div class="di-rres"><div><b>R$ ${moeda(COTA)}</b><span>cota · emendas impositivas</span></div><div><b>R$ ${moeda(tot)}</b><span>indicado · ${pc(tot, COTA)} da cota</span></div><div class="${livre < 0 ? "ac" : "ok"}"><b>R$ ${moeda(Math.abs(livre))}</b><span>${livre < 0 ? "acima da cota" : "livre para indicar"}</span></div><div><b>${L.length} de ${MAXE}</b><span>emendas indicadas</span></div></div>
+    <div class="di-pag"><div class="di-pbar cota"><i class="s" style="width:${Math.min(100, sau / COTA * 100).toFixed(1)}%"></i><i class="f" style="width:${Math.min(100 - Math.min(100, sau / COTA * 100), fun / COTA * 100).toFixed(1)}%"></i><b style="left:${SAUDE * 100}%"></b></div>
+    <div class="di-pleg"><span><i class="s"></i>Saúde ${pc(sau, COTA)} · R$ ${moeda(sau)}</span><span><i class="f"></i>Demais áreas (FUNDAM) ${pc(fun, COTA)} · R$ ${moeda(fun)}</span><span><i class="m"></i>mínimo da Saúde (${Math.round(SAUDE * 100)}% da cota)</span></div></div>
+    <div class="mts">${meta(okS, `Saúde ${pc(sau, COTA)} · mínimo ${Math.round(SAUDE * 100)}%`, okS ? "mínimo atingido" : "faltam R$ " + moeda(COTA * SAUDE - sau))}${meta(okC, `Investimento ${pc(cap, tot)} · meta ${Math.round(META_CAP * 100)}%`, def ? `R$ ${moeda(def)} com despesa a definir` : okC ? "meta atingida" : "")}${meta(okF, `FUNDAM ${pc(fun, COTA)} · até ${Math.round((1 - SAUDE) * 100)}%`, okF ? "livre R$ " + moeda(COTA * (1 - SAUDE) - fun) : "acima em R$ " + moeda(fun - COTA * (1 - SAUDE)))}</div>` : "";
+  const tabD = (tit, G) => `<div class="di-bloco"><div class="di-st2">${tit}</div><div class="di-tl di-th"><span>Item</span><span>Emendas</span><span>Valor (R$)</span><span>%</span></div>${G.map(([k, o]) => `<div class="di-tl"><span>${esc(k)}<i style="width:${tot ? (o.v / tot * 100).toFixed(1) : 0}%"></i></span><span>${o.n}</span><span>${moeda(o.v)}</span><span>${pc(o.v, tot)}</span></div>`).join("")}</div>`;
+  const dist = IMP.dist ? `<div class="di-grade">${tabD("Por região", grupoPor(L, regDe))}${tabD("Por líder", grupoPor(L, (x) => x.lid))}</div>` : "";
+  const aU = [...new Set(L.map((x) => x.area).filter(Boolean))], nU = [...new Set(L.map((x) => x.nat || ""))];
+  const leg = IMP.leg ? `<div class="di-lgs">${aU.length ? `<div class="pt-lg"><b>Área</b>${aU.map((a) => `<span><svg viewBox="0 0 16 16" class="di-fi">${ICI[AR[a]]}</svg>${esc(a)}</span>`).join("")}</div>` : ""}
+    <div class="pt-lg"><b>Despesa</b>${nU.map((k) => `<span>${natC({ nat: k || null })}${k === "Capital" ? "Capital · investimento" : k === "Custeio" ? "Custeio" : "a definir"}</span>`).join("")}</div>
+    ${comMud ? `<div class="pt-lg"><b>Mudanças ainda não validadas</b><span><span class="mk n">nova</span>incluída</span><span><span class="mk m">alterada</span>valor anterior riscado acima</span><span><span class="mk x">excluir</span>fora das somas</span></div>` : ""}</div>` : "";
+  const org = [IMP.org === "tela" ? (ORD ? "como na tela" : "Nº da lista") : nome(ORG_OPC, IMP.org), IMP.grp ? "agrupado por " + nome(GRP_OPC, IMP.grp).toLowerCase() : ""].filter(Boolean).join(" · ");
+  const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(NOMEL)} · ${dt}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"><style>${PTCSS}
+    .di-rres div.ok b{color:#1FA83A}.di-rres div.ac b{color:#C0392B}
+    .di-pbar.cota{position:relative;overflow:visible;gap:1px}.di-pbar.cota i{display:block;height:100%}.di-pbar.cota i.s,.di-pleg i.s{background:#3F454B}.di-pbar.cota i.f,.di-pleg i.f{background:#A9AEB3}.di-pbar.cota i.s{border-radius:999px 0 0 999px}
+    .di-pbar.cota b{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:#E8822A}.di-pleg i.m{background:#E8822A;width:2px}
+    .mts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 14px}.mts div{display:flex;gap:6px;align-items:flex-start;border:1px solid #DCDFE2;border-radius:6px;padding:6px 8px;font-size:8.5px;color:#3F454B}
+    .mts b{display:block;font-size:9.5px;color:#111}.mts i{font-style:normal;width:14px;height:14px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;flex:none}
+    .mts .ok i{background:#DDF3E1;color:#157A2B}.mts .fl i{background:#FDEBDD;color:#C0561B}.mts .fl span{color:#C0561B}.mts .fl b{color:#111}
+    .di-tl{grid-template-columns:minmax(0,1fr) 46px 80px 36px}
+    .pt .cl{width:62px;font-size:9px}.pt .c2{width:58px}.pt .c5{width:52px}.pt .c3{width:92px}.pt td s{display:block;color:#9AA0A4;font-size:8px;margin-bottom:2px;font-weight:400}
+    .pt tr.gh td{background:#F3F5F6;padding:6px;border-bottom:1px solid #C9CDD1;font-size:9px}.pt tr.gh b{font-size:10px;margin-right:8px}.pt tr.gh span{color:#6B7178}
+    .pt tr.sup td{text-decoration:line-through}.mk{display:inline-block;margin-top:3px;font-size:6.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;padding:2px 4px;line-height:1}
+    .mk.n{background:#DDF3E1;color:#157A2B}.mk.m{background:#FDEBD8;color:#9A4E10}.mk.x{background:#EEF0F1;color:#6B7178}
+  </style></head><body><div class="di-agua"><span>SimulaLEGIS</span></div><div class="di-folha">
+  <div class="di-cab"><div><div class="di-wm">Simula<span>LEGIS</span></div><div class="di-wmsub">Gabinete · ${esc(NOMEL)}</div></div><div class="di-meta"><b>${esc(GAB)}</b><br>gerado em ${dt} às ${hr}</div></div><div class="di-regra"></div>
+  <div class="di-tit">${esc(NOMEL)}</div><div class="di-sub"><b>Organização:</b> ${esc(org)} · <b>${comMud ? "com as mudanças ainda não validadas" : "lista oficial"}</b></div>
+  ${painel}${dist}
+  <table class="pt">${thead}<tbody>${corpo}</tbody></table>
+  <div class="di-tot"><span>Total · ${L.length} ${L.length === 1 ? "emenda" : "emendas"}</span><b>R$ ${moeda(tot)}</b></div>
+  ${leg}
+  <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app · uso interno do gabinete</span><span>${dt} ${hr}</span></div></div><script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`;
+  win.document.open(); win.document.write(html); win.document.close(); }
+
+// ---------- dados ----------
+const doBanco = (x) => ({ id: x.id, mun: x.municipio || null, obj: x.objeto || null, area: x.area || null, nat: x.natureza === "Investimento" ? "Capital" : x.natureza || null, v: +x.valor || 0, lid: x.lideranca || null, con: x.contato || null });
+const COL = { mun: "municipio", obj: "objeto", area: "area", nat: "natureza", v: "valor", lid: "lideranca", con: "contato" };
+// mudanças locais → [{acao, item_id, dados, limpar}] para gestor_enviar
+function payload(P) { return P.map((x) => { if (x._st === "x") return { acao: "excluir", item_id: x.id };
+  const d = {}, limpar = []; CAMPOS.forEach((c) => { const v = x[c]; if (x._st === "m" && !mudou(x, c)) return; if (v == null || v === "") { if (x._st === "m") limpar.push(COL[c]); } else d[COL[c]] = c === "v" ? +v : v; });
+  return x._st === "n" ? { acao: "incluir", dados: d } : { acao: "alterar", item_id: x.id, dados: d, limpar }; }); }
+const pendDe = (x) => PEND.find((p) => p.item_id && p.item_id === x.id);
+const pendTxt = (p) => p.acao === "excluir" ? "Pedido de exclusão enviado, aguardando o gabinete" : "Alteração enviada, aguardando o gabinete: " + Object.entries(p.dados || {}).map(([k, v]) => `${k} = ${v == null ? "(vazio)" : k === "valor" ? moeda(v) : v}`).join(" · ");
+function pendHtml() { if (!PEND.length) return "";
+  const nome = (p) => { const x = ORIG.find((y) => y.id === p.item_id), d = p.dados || {}; return p.acao === "incluir" ? `Nova · ${esc(d.municipio || "sem município")} · ${esc(d.objeto || "")} · ${rc(d.valor || 0)}` : `${p.acao === "excluir" ? "Excluir" : "Alterar"} · ${esc(x ? x.mun || "—" : "emenda")} · ${esc(x ? x.obj || "" : "")}`; };
+  return `<div class="pend"><b>Enviadas, aguardando o gabinete</b><span>${PEND.length} ${PEND.length === 1 ? "mudança" : "mudanças"} · o gabinete aceita ou recusa cada uma</span>${PEND.map((p) => `<div class="pl"><span class="tag ${p.acao === "incluir" ? "nw" : p.acao === "excluir" ? "x" : "m"}">${p.acao === "incluir" ? "nova" : p.acao === "excluir" ? "excluir" : "alterada"}</span><span class="pt">${nome(p)}</span>${ABERTO ? `<button class="ab lx" data-desiste="${p.id}" title="Desistir desta mudança">${ici("x")}</button>` : ""}</div>`).join("")}</div>`; }
+async function desistir(id) { if (!confirm("Desistir desta mudança enviada?")) return; try { await rpc("gestor_desistir", { p_token: TOKEN, p_id: id }); await carregar(); } catch (e) { alert("Não foi possível: " + (e.message || e)); } }
+async function carregar() { const l = await rpc("gestor_abrir", { p_token: TOKEN }); if (!l) throw new Error("link inválido");
+  LK = l; ABERTO = !!l.aberto; PEND = l.pendentes || []; const c = l.cota || {}; COTA = +c.disp || 0; MAXE = +c.max || 0; SAUDE = c.saude != null ? +c.saude : .5;
+  NOMEL = "Emendas " + (l.lista || ""); GAB = String(l.titulo || "").split(" · ")[0]; document.title = NOMEL + " · Link Gestor";
+  ORIG = (l.itens || []).map(doBanco); ST = ORIG.map((x) => ({ ...x, _st: "" }));
+  document.getElementById("muns").innerHTML = Object.keys(REG).sort().map((m) => `<option value="${esc(m)}">`).join("");
+  document.getElementById("lids").innerHTML = [...new Set(ORIG.map((x) => x.lid).filter(Boolean))].sort().map((m) => `<option value="${esc(m)}">`).join("");
+  redesenha(); }
+(async () => { const A = document.getElementById("app");
+  if (!TOKEN) { A.innerHTML = '<div class="erro"><b>Link incompleto</b>Peça ao gabinete o link completo.</div>'; return; }
+  A.innerHTML = '<p class="nota">Abrindo a lista…</p>';
+  try { await carregar(); } catch (e) { A.innerHTML = `<div class="erro"><b>Não foi possível abrir</b>${/inválido/.test(e.message) ? "Este link não existe ou foi apagado pelo gabinete." : esc(e.message || e)}</div>`; } })();
+</script></body></html>

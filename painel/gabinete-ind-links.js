@@ -6,7 +6,7 @@
 //  - proposta enviada aparece em azul embaixo do objeto, com ✓ (aceita: os campos vão para a emenda) e ✕ (recusa);
 //  - botão "Colunas": liga e desliga colunas da planilha (guardado no navegador).
 // Leitura: 2 consultas pequenas ao abrir a lista (no máx. 1 vez por minuto); nada de polling.
-const LK = { lista: null, links: [], props: [], lido: 0, lendo: null };
+const LK = { lista: null, links: [], props: [], gestor: null, gprops: [], lido: 0, lendo: null };
 const LKI = {
   lnk: '<path d="M6.5 9.5l3-3M5 7.5L3.8 8.7a2.5 2.5 0 0 0 3.5 3.5L8.5 11M11 8.5l1.2-1.2a2.5 2.5 0 0 0-3.5-3.5L7.5 5"/>',
   rel: '<circle cx="8" cy="8" r="5.2"/><path d="M8 5.2V8l2 1.3"/>',
@@ -26,10 +26,12 @@ async function lerLinks(T, forca) {
   if (!forca && LK.lista === T.L.id && Date.now() - LK.lido < 60000) return false;
   if (LK.lendo) return LK.lendo;
   LK.lendo = (async () => { try {
-    const { data: L, error } = await supabaseClient.from("gab_links").select("id,token,nome,lideranca,itens,titulo,prazo,fechado,limpo,criado_em,aberto_em,ult_acesso,acessos,enviado_em").eq("lista_id", T.L.id).order("criado_em");
+    const { data: L, error } = await supabaseClient.from("gab_links").select("id,token,nome,lideranca,itens,titulo,prazo,fechado,limpo,criado_em,aberto_em,ult_acesso,acessos,enviado_em,tipo,cota").eq("lista_id", T.L.id).order("criado_em");
     if (error) throw error; let P = [];
     if (L.length) { const r = await supabaseClient.from("gab_link_propostas").select("*").in("link_id", L.map((l) => l.id)); if (r.error) throw r.error; P = r.data || []; }
-    LK.lista = T.L.id; LK.links = L || []; LK.props = P; LK.lido = Date.now(); return true;
+    // Link Gestor (migração 109) fica à parte: não entra na Etapa, nos links dos líderes nem nas propostas deles
+    const G = (L || []).find((l) => l.tipo === "gestor") || null;
+    LK.lista = T.L.id; LK.links = (L || []).filter((l) => l.tipo !== "gestor"); LK.gestor = G; LK.props = P.filter((p) => !G || p.link_id !== G.id); LK.gprops = G ? P.filter((p) => p.link_id === G.id) : []; LK.lido = Date.now(); return true;
   } catch (e) { console.warn("links dos líderes:", e.message || e); return false; } finally { LK.lendo = null; } })();
   return LK.lendo;
 }
@@ -90,11 +92,13 @@ function lideresLista(T) { const C = {}; AD.itens.filter((x) => x.lista_id === T
   return Object.entries(C).sort((a, b) => b[1] - a[1]).map(([n]) => n); }
 const linkDoLider = (n) => LK.links.filter((l) => l.lideranca === n).pop();
 // botão "Links" (20/11/2026) ao lado de Colunas: abre o quadro com os links dos líderes (ativos e a gerar) e o avulso
-function botaoLinks(T) { const at = LK.links.filter((l) => !encerrado(l)).length, esp = LK.props.filter((p) => p.status === "enviado").length;
+function botaoLinks(T) { const at = LK.links.filter((l) => !encerrado(l)).length, esp = LK.props.filter((p) => p.status === "enviado").length + (typeof gPend === "function" && LK.gestor ? gPend().length : 0);
   return `<button data-ilinks title="Links dos líderes">${lsv("lnk")}Links${at ? ` <small>${at}</small>` : ""}${esp ? `<i class="lkdot" title="${esp} para você aceitar"></i>` : ""}</button>`; }
-function quadroLinks(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>Links dos líderes</b>toque num nome para gerar o link de todas as emendas dele (pelo líder ou pelo contato); nos já gerados, copiar, prazo e fechar</div><div class="lkmodo">Link novo abre <button data-lkm="0" class="${novoLimpo() ? "" : "on"}">preenchido</button><button data-lkm="1" class="${novoLimpo() ? "on" : ""}">limpo</button><small>${novoLimpo() ? "sem objeto e sem justificativa" : "com o objeto, o município e a justificativa da planilha"}</small></div>${faixaLinks(T)}<div class="lkft"><button class="lk0" data-lkmsg>Mensagem que acompanha o link</button></div>`, "lkm lkq");
+function quadroLinks(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>Links dos líderes</b>toque num nome para gerar o link de todas as emendas dele (pelo líder ou pelo contato); nos já gerados, copiar, prazo e fechar</div>${typeof secaoGestor === "function" ? secaoGestor(T) : ""}<div class="lkmodo">Link novo abre <button data-lkm="0" class="${novoLimpo() ? "" : "on"}">preenchido</button><button data-lkm="1" class="${novoLimpo() ? "on" : ""}">limpo</button><small>${novoLimpo() ? "sem objeto e sem justificativa" : "com o objeto, o município e a justificativa da planilha"}</small></div>${faixaLinks(T)}<div class="lkft"><button class="lk0" data-lkmsg>Mensagem que acompanha o link</button></div>`, "lkm lkq");
   m.querySelectorAll("[data-lkm]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); try { localStorage.setItem("ind_link_limpo", x.dataset.lkm); } catch (er) {} quadroLinks(b, T); });
   m.querySelector("[data-lkmsg]").onclick = (e) => { e.stopPropagation(); editarMsg(b, T); };
+  const gn = m.querySelector("[data-gnovo]"); if (gn) gn.onclick = (e) => { e.stopPropagation(); fechaLk(); novoGestor(T); };
+  const gm = m.querySelector("[data-gmenu]"); if (gm) gm.onclick = (e) => { e.stopPropagation(); fechaLk(); menuGestor(b, T); };
   m.querySelectorAll("[data-lkl]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); const l = LK.links.find((y) => y.id === x.dataset.lkl); if (l) { fechaLk(); menuLink(b, l, T); } });
   m.querySelectorAll("[data-lknovo]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); fechaLk(); novoLinkLider(T, x.dataset.lknovo); });
   m.querySelectorAll("[data-lkcon]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); fechaLk(); novoLinkContato(T, x.dataset.lkcon); });
@@ -202,6 +206,7 @@ function ligarLinks(p, T) {
   const ju = p.querySelector("[data-ijus]"); if (ju) ju.onclick = (e) => { e.stopPropagation(); COLS_OFF = colOn("jus") ? [...COLS_OFF, "jus"] : COLS_OFF.filter((k) => k !== "jus"); try { localStorage.setItem("ind_cols", JSON.stringify(COLS_OFF)); } catch (er) {} const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; };
   const cl = p.querySelector("[data-icols]"); if (cl) cl.onclick = (e) => { e.stopPropagation(); menuCols(cl); };
   p.querySelectorAll("[data-iinfo]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); infoI(b, (IND.infos || {})[b.dataset.iinfo] || ""); });
+  if (typeof ligarGestor === "function") ligarGestor(p, T);
 }
 
 // ---------- balão de Observações (20/11/2026): o mesmo do Controle de Recursos. As anotações começam aqui, ficam em

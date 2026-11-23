@@ -2318,5 +2318,52 @@ const MIGRACOES_INDEX = [
     "gab_links.limpo"
    ]
   ]
+ },
+ {
+  "num": 109,
+  "arquivo": "migracao-109-link-gestor.sql",
+  "descricao": "Migração 109 (22/11/2026): Indicação de recursos › LINK GESTOR.",
+  "objetos": [
+   [
+    "index",
+    "gab_links_um_gestor"
+   ],
+   [
+    "index",
+    "gab_link_propostas_link"
+   ],
+   [
+    "function",
+    "gestor_abrir"
+   ],
+   [
+    "function",
+    "gestor_enviar"
+   ],
+   [
+    "function",
+    "gestor_desistir"
+   ],
+   [
+    "column",
+    "gab_links.tipo"
+   ],
+   [
+    "column",
+    "gab_links.cota"
+   ],
+   [
+    "column",
+    "gab_link_propostas.acao"
+   ],
+   [
+    "column",
+    "gab_link_propostas.dados"
+   ],
+   [
+    "column",
+    "gab_link_propostas.antes"
+   ]
+  ]
  }
 ];
