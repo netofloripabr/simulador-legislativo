@@ -72,6 +72,15 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .tvs{ display:none; }
 .cmp .tvn{ font-size:10.5px; font-weight:600; color:#E8A23A; height:14px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; } .cmp .tvn::before{ content:""; width:6px; height:6px; border-radius:50%; background:#E8A23A; } .cmp .tv0{ height:14px; }
 .cmp .tq{ font-size:12.5px; font-weight:700; }
+.cmp .hgr{ display:flex; flex-direction:column; gap:14px; background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:12px 12px 8px; }
+.cmp .hh, .cmp .hb{ display:grid; grid-template-columns:minmax(120px,190px) minmax(0,1fr) 78px 64px; gap:12px; align-items:center; }
+.cmp .hh{ font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); padding:0 8px 4px; border-bottom:1px solid var(--linha); margin-bottom:2px; } .cmp .hh span:nth-child(n+3){ text-align:right; letter-spacing:.04em; }
+.cmp .hb{ width:100%; background:none; border:0; border-radius:8px; padding:5px 8px; cursor:pointer; color:inherit; text-align:left; font:inherit; } .cmp .hb:hover{ background:var(--sup2); } .cmp .hb.on{ background:var(--sup3); box-shadow:inset 0 0 0 1px var(--linha2); } .cmp .hb.of{ opacity:.4; }
+.cmp .hn{ font-size:12.5px; color:var(--sec); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .cmp .hn b{ display:inline-block; min-width:44px; color:var(--texto); font-weight:700; font-size:12px; }
+.cmp .hbar{ display:flex; align-items:center; gap:8px; min-width:0; } .cmp .hf{ display:flex; gap:2px; height:10px; min-width:0; } .cmp .hf i{ display:block; height:100%; min-width:2px; } .cmp .hf i:last-child{ border-radius:0 4px 4px 0; }
+.cmp .hbar em{ font-style:normal; font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--texto); flex:none; }
+.cmp .hx{ text-align:right; font-size:12.5px; font-variant-numeric:tabular-nums; color:var(--sec); } .cmp .hx.z, .cmp .hb.z .hbar em{ color:var(--ter); opacity:.6; } .cmp .hx.vs{ color:#E8A23A; font-weight:600; }
+@media (max-width:700px){ .cmp .hh, .cmp .hb{ grid-template-columns:minmax(0,1fr) 54px 46px; } .cmp .hh span:nth-child(2){ display:none; } .cmp .hn{ grid-column:1; } .cmp .hbar{ grid-column:1 / -1; grid-row:2; } }
 .cmp .tn{ writing-mode:vertical-rl; transform:rotate(180deg); font-size:11.5px; color:var(--sec); height:96px; text-align:left; white-space:nowrap; }
 .cmp .tb.on .tn{ color:var(--texto); font-weight:700; }
 .cmp .gr2{ background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:14px 14px 4px; overflow-x:auto; }
@@ -444,19 +453,25 @@ const CURTO = { CCJ: "CCJ", CFT: "Finanças", CTA: "Trabalho", CED: "Ética", CA
 // mesmo desenho dos gráficos das Cotas (pcEmpilhada em gabinete-cotas.js): faixas da rampa azul-acinzentada, cheio = com relator,
 // listrado = aguardando relator, traço escuro entre as partes, total em cima, grade tracejada. Eixo em raiz quadrada (marcado no eixo)
 // para a CCJ, com quase 700, não achatar as demais.
-const FX = [["até 90 dias", (d) => d <= 90, "#BFD3EA"], ["91 a 365 dias", (d) => d > 90 && d <= 365, "#6E9BD1"], ["mais de 365 dias", (d) => d > 365, "#2F6DB5"]];
+const FX = [["até 90 dias", (d) => d <= 90, "#2F6DB5"], ["91 a 365 dias", (d) => d > 90 && d <= 365, "#6E9BD1"], ["mais de 365 dias", (d) => d > 365, "#BFD3EA"]];
 // colunas de mesma altura (20/11/2026, pedido do usuário): um tubo arredondado com fundo fundo (como as barras do sistema de
 // palpites) e o preenchimento subindo de baixo, nas cores das Cotas; o nível do preenchimento é a raiz da quantidade em relação
 // à maior comissão (para as pequenas aparecerem), as partes dentro dele são proporcionais
+// gráfico das comissões (23/11/2026, refeito pelo guia de gráficos): muitas categorias com nome longo → barras
+// HORIZONTAIS, da maior para a menor, num eixo só (sem escala própria por grupo); cada barra dividida pelo tempo na
+// comissão (partes em ordem: até 90 dias, 91 a 365, mais de 365); ao lado, os números que importam — total, sem
+// relator e em vista — em colunas alinhadas, em vez de listras e pontos dentro da barra. Toque na linha filtra a lista.
 function grade() { const B = D.L.filter((x) => passa(x, "com")), por = (s) => B.filter((x) => x.csig === s), nome = (s) => (D.coms.find((c) => c[1] === s) || [s])[0];
-  // escala própria em cada grupo (9 e 7 membros): a CCJ sozinha achataria as comissões menores; o número em cima dá o total
-  const mxG = (G) => Math.max(1, ...G.map((s) => por(s).length));
-  let mx = 1; const col = (s) => { const A = por(s), n = A.length, c = nome(s), nv = n ? Math.max(1.5, n / mx * 100) : 0, vs = A.filter((x) => x.vista).length, cr = A.filter((x) => x.rel).length;
-    const segs = FX.map(([r, f, cor], i) => { const Q = A.filter((x) => f(x.dias || 0)); if (!Q.length) return ""; const k = Q.filter((x) => x.rel).length;
-      return `<i style="flex:${Q.length};--c:${cor}" title="${esc(c)} · há ${r} na comissão: ${Q.length} (${k} com relator)"><u style="flex:${Q.length - k}"></u><em style="flex:${k}"></em></i>`; }).join("");
-    return `<button class="tb${F.com === c ? " on" : F.com ? " of" : ""}" data-c="${esc(c)}" title="${esc(c)}: ${n} proposições · ${cr} com relator${vs ? " · " + vs + " em vista" : ""}">
-      <span class="tq">${n}</span><span class="tt"><span class="tf" style="height:${nv.toFixed(1)}%">${segs}</span>${vs ? `<b class="tvs" style="height:${(vs / n * nv).toFixed(1)}%" title="${vs} de ${n} em pedido de vista"></b>` : ""}</span>${vs ? `<span class="tvn" title="${vs} em pedido de vista">${vs}</span>` : `<span class="tv0"></span>`}<span class="tn">${esc(CURTO[s] || s)}</span></button>`; };
-  return `<div class="gr3"><div class="gg3"><small>9 membros</small><div>${(mx = mxG(ORD9), ORD9.map(col).join(""))}</div></div><div class="gg3"><small>7 membros · escala própria</small><div>${(mx = mxG(ORD7), ORD7.map(col).join(""))}</div></div></div>`; }
+  const mx = Math.max(1, ...[...ORD9, ...ORD7].map((s) => por(s).length));
+  const lin = (s) => { const A = por(s), n = A.length, c = nome(s), sr = A.filter((x) => !x.rel).length, vs = A.filter((x) => x.vista).length;
+    const seg = FX.map(([r, f, cor]) => { const k = A.filter((x) => f(x.dias || 0)).length; return k ? `<i style="flex:${k};background:${cor}" title="${esc(c)} · há ${r} na comissão: ${k}"></i>` : ""; }).join("");
+    return `<button class="hb${F.com === c ? " on" : F.com ? " of" : ""}${n ? "" : " z"}" data-c="${esc(c)}" title="${esc(c)}: ${n} proposições · ${n - sr} com relator · ${sr} aguardando relator${vs ? " · " + vs + " em vista" : ""}">
+      <span class="hn"><b>${esc(s)}</b>${esc(c)}</span>
+      <span class="hbar"><span class="hf" style="width:${(n / mx * 100).toFixed(2)}%">${seg}</span><em>${ni(n)}</em></span>
+      <span class="hx${sr ? "" : " z"}">${ni(sr)}</span><span class="hx${vs ? " vs" : " z"}">${ni(vs)}</span></button>`; };
+  const grupo = (t, G) => `<div class="hg"><div class="hh"><span>${t}</span><span></span><span>sem relator</span><span>em vista</span></div>${G.slice().sort((p, q) => por(q).length - por(p).length).map(lin).join("")}</div>`;
+  return `<div class="hgr">${grupo("Comissões de 9 membros", ORD9)}${grupo("Comissões de 7 membros", ORD7)}</div>`; }
+
 // ranking (20/11/2026): relatores (designados, relataram, relatorias abertas, dias com a relatoria aberta), pedidos de vista abertos
 // e autores, dentro da comissão escolhida (filtro do topo) ou em todas; mais ou menos; clicar no nome filtra a lista
 const RKM = { rel: [["des", "designados"], ["fez", "relataram"], ["abe", "relatorias abertas"], ["dia", "dias com a relatoria aberta (média)"]], vis: [["n", "vistas abertas"], ["dia", "dias em vista (média)"]], aut: [["n", "em tramitação"], ["l", "há mais de 365 dias na comissão"], ["dia", "dias na Assembleia (média)"]] };
@@ -480,7 +495,7 @@ function ranking() { const B = D.L.filter((x) => passa(x, "com")), naCom = (c) =
     ${card("vis", "Pedidos de vista abertos", R2, (o) => `${o.n} em vista · ${o.dn ? Math.round(o.dsum / o.dn) : 0} dias em média`)}
     ${card("aut", "Autores", R3, (o) => `${o.n} em tramitação · ${o.l} há mais de 365 dias na comissão · ${o.dn ? Math.round(o.dsum / o.dn) : 0} dias na Assembleia em média`)}</div></div>`; }
 function comissoes() { if (F.cv === "rank") { $("#coms").innerHTML = ranking(); $("#coms").className = ""; $("#lgc").className = "lg"; $("#lgc").innerHTML = ""; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
-  if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c}"></i>na comissão há ${r}</span>`).join("") + `<span><i style="background:color-mix(in srgb, #6E9BD1 42%, #14191A)"></i>tom mais claro = aguardando relator</span><span><i style="background:#E8A23A;border-radius:50%;width:7px;height:7px"></i>em pedido de vista</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
+  if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c}"></i>na comissão há ${r}</span>`).join(""); $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
   $("#coms").className = "coms"; $("#lgc").className = "lg"; $("#lgc").innerHTML = `<span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span>`; const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
   $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
     return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cmd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
