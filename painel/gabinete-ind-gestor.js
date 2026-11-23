@@ -13,9 +13,11 @@ async function gSincCota(T) { const l = LK.gestor; if (!l || !EDITA()) return; c
   const { error } = await supabaseClient.from("gab_links").update({ cota: c }).eq("id", l.id); if (!error) l.cota = c; }
 // ---------- seção no quadro Links ----------
 function secaoGestor(T) { const l = LK.gestor, n = gPend().length;
-  if (!l) return `<div class="lkst">Link Gestor</div><div class="lks"><button class="lkc nw" data-gnovo>+ Link Gestor · editar a lista inteira</button></div>`;
-  const st = encerrado(l) ? "fechado" : l.enviado_em ? "enviou " + fmtP(l.enviado_em) : l.aberto_em ? "aberto " + l.acessos + "×" : "ainda não aberto";
-  return `<div class="lkst">Link Gestor</div><div class="lks"><button class="lkc" data-gmenu>${lsv("lnk")}${esc(l.nome)}<small>${st}${n ? ` · <b>${n} para revisar</b>` : ""}</small></button></div>`; }
+  // mesma arte dos botões dos líderes (anel + nome + situação); o anel mostra se há mudanças para revisar
+  const exp = `<div class="lkgx">Abre sempre com a lista atual, como está aqui. Quem recebe pode editar, incluir e excluir; cada mudança chega para você aceitar ✓ ou recusar ✕.</div>`;
+  if (!l) return `<div class="lkst">Link Gestor · a lista inteira</div><div class="lks"><button class="lkc nw" data-gnovo>+ Link Gestor</button></div>${exp}`;
+  const st = encerrado(l) ? "fechado" : n ? n + " para revisar" : l.enviado_em ? "enviou " + fmtP(l.enviado_em) : l.aberto_em ? "aberto " + l.acessos + "×" : "gerado";
+  return `<div class="lkst">Link Gestor · a lista inteira</div><div class="lks"><button class="lkc" data-gmenu>${anelLk(n ? 50 : l.aberto_em ? 100 : 0)}${esc(l.nome)}<small>${st}</small></button></div>${exp}`; }
 async function novoGestor(T) { const n = prompt("Nome de quem vai receber o Link Gestor (vê e edita a lista inteira):", ""); if (!n || !n.trim()) return;
   try { exigeEditar(); const { data, error } = await supabaseClient.from("gab_links").insert({ parlamentar: PARL.n, lista_id: T.L.id, nome: n.trim(), lideranca: null, itens: [], tipo: "gestor", cota: gCota(T),
       prazo: prazoPadrao(T), titulo: `Gabinete do dep. ${PARL.u || PARL.n} · Emendas ${T.nome}` }).select().single();
