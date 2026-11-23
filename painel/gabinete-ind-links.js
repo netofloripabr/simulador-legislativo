@@ -124,6 +124,12 @@ let COLS_OFF = (() => { try { const v = JSON.parse(localStorage.getItem("ind_col
 const colOn = (k) => !COLS_OFF.includes(k);   // coluna Etiqueta: liga e desliga no botão "Etiquetas" (23/11/2026); o balão já leva a cor dela
 const nColInd = () => 1 + COLS_IND.filter(([k]) => k !== "jus" && colOn(k)).length; // nº e colunas visíveis (a justificativa vai dentro do objeto)
 // botão "Justificativa" (20/11/2026): liga e desliga o texto da justificativa embaixo do objeto, em todas as linhas
+// baixar o Portfólio (23/11/2026): planilha (CSV, abre no Excel/Planilhas) gerada da mesma lista usada na escolha do objeto
+async function baixarPortfolio() { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=2")).json(), q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const txt = [["Área", "Categoria", "Objeto", "Despesa", "Órgão", "Descrição"], ...(j.O || [])].map((r) => r.map(q).join(";")).join("\r\n");
+  const a = document.createElement("a"); a.href = window.URL.createObjectURL(new Blob(["\ufeff" + txt], { type: "text/csv;charset=utf-8" })); a.download = "portfolio-emendas.csv"; document.body.appendChild(a); a.click(); setTimeout(() => { window.URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  } catch (e) { alert("Não foi possível baixar o Portfólio: " + (e.message || e)); } }
+const ICO_BX = '<svg viewBox="0 0 16 16" aria-hidden="true" class="ibx"><path d="M8 2.5v8M4.5 7L8 10.5 11.5 7M3 13.5h10"/></svg>';
 // botão "Etiquetas" (23/11/2026): mostra ou esconde a coluna própria da etiqueta (o balão das observações continua na cor dela)
 const botaoEtqCol = () => `<button data-ietqcol class="${colOn("etq") ? "on" : ""}" title="Mostrar ou esconder a coluna das etiquetas">${lsv("tag")}Etiquetas</button>`;
 const botaoJus = () => `<button data-ijus class="${colOn("jus") ? "on" : ""}" title="Mostrar ou esconder a justificativa embaixo de cada objeto">${lsv("lap")}Justificativa</button>`;
@@ -213,6 +219,7 @@ function ligarLinks(p, T) {
   p.querySelectorAll("[data-ietq]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.ietq); if (x && T && T.L) popEtq(b, x, T); });
   p.querySelectorAll("[data-iobs]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.iobs); if (x) popObs(b, x, T); });
   const lb = p.querySelector("[data-ilinks]"); if (lb) lb.onclick = (e) => { e.stopPropagation(); quadroLinks(lb, T); };
+  const bp = p.querySelector("[data-iport]"); if (bp) bp.onclick = (e) => { e.stopPropagation(); baixarPortfolio(); };
   const ec = p.querySelector("[data-ietqcol]"); if (ec) ec.onclick = (e) => { e.stopPropagation(); COLS_OFF = colOn("etq") ? [...COLS_OFF, "etq"] : COLS_OFF.filter((k) => k !== "etq"); try { localStorage.setItem("ind_cols", JSON.stringify(COLS_OFF)); } catch (er) {} const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; };
   const ju = p.querySelector("[data-ijus]"); if (ju) ju.onclick = (e) => { e.stopPropagation(); COLS_OFF = colOn("jus") ? [...COLS_OFF, "jus"] : COLS_OFF.filter((k) => k !== "jus"); try { localStorage.setItem("ind_cols", JSON.stringify(COLS_OFF)); } catch (er) {} const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; };
   const cl = p.querySelector("[data-icols]"); if (cl) cl.onclick = (e) => { e.stopPropagation(); menuCols(cl); };

@@ -12,6 +12,7 @@ main{max-width:860px;margin:0 auto;padding:18px 16px 110px}
 .mut{color:var(--mu)}
 .org{font-size:12.5px;color:var(--mu)}
 /* cabeçalho, como o da Indicação de recursos */
+.bxp{margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--bd);border-radius:999px;padding:6px 13px;font:600 12.5px Inter,sans-serif;color:#1D2226;cursor:pointer}.bxp svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .ihd{display:flex;align-items:center;gap:10px;margin:10px 0 14px;flex-wrap:wrap}.ihd h2{margin:0;font-size:22px;font-weight:600;letter-spacing:-.02em}.ihd span{color:var(--mu);font-size:12.5px}
 .ii{width:22px;height:22px;border-radius:50%;border:1px solid var(--bd);background:var(--tl);color:var(--mu);font-weight:600;font-size:12px;line-height:1;font-style:italic;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;position:relative}
 .ii:hover,.ii.on{border-color:var(--tx);color:var(--tx)}
@@ -170,13 +171,19 @@ async function iniciar() {
 const ETQ_PAL = { cinza: ["#E3E6E8", "#3E454B"], vermelho: ["#FBD9D5", "#9B2C20"], laranja: ["#FCE3CC", "#9A4E10"], amarelo: ["#FBF0C2", "#7A5D00"], verde: ["#D5F0DC", "#17692F"], turquesa: ["#CDEFEA", "#0F6359"], azul: ["#D6E4F7", "#1F4E85"], roxo: ["#E6DDF7", "#5A3A99"], rosa: ["#F8D9EA", "#94285F"], marrom: ["#EADFD6", "#6A4A33"] };
 const ETQ_INI = { "Resolvido · falta enviar": "verde", "Em andamento": "amarelo", "Atenção": "laranja", "Crítico": "vermelho", "Aguardando retorno": "azul" };
 const etqChip = (e) => { if (!e || !e.n) return ""; const [bg, fg] = ETQ_PAL[e.c || ETQ_INI[e.n] || "cinza"] || ETQ_PAL.cinza; return `<span class="etq" style="background:${bg};color:${fg}">${esc(e.n)}</span>`; };
+// baixar o Portfólio (23/11/2026): planilha (CSV, abre no Excel/Planilhas) gerada da mesma lista usada na escolha do objeto
+async function baixarPortfolio() { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=2")).json(), q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const txt = [["Área", "Categoria", "Objeto", "Despesa", "Órgão", "Descrição"], ...(j.O || [])].map((r) => r.map(q).join(";")).join("\r\n");
+  const a = document.createElement("a"); a.href = window.URL.createObjectURL(new Blob(["\ufeff" + txt], { type: "text/csv;charset=utf-8" })); a.download = "portfolio-emendas.csv"; document.body.appendChild(a); a.click(); setTimeout(() => { window.URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  } catch (e) { alert("Não foi possível baixar o Portfólio: " + (e.message || e)); } }
+const ICO_BX = '<svg viewBox="0 0 16 16" aria-hidden="true" class="ibx"><path d="M8 2.5v8M4.5 7L8 10.5 11.5 7M3 13.5h10"/></svg>';
 const trava = (s) => !ABERTO || !!L.travado || s.status === "aceito" || s.status === "recusado";
 const CADF = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
 function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i], i) ? +x.valor || 0 : 0), 0);
   const [org, tit] = String(L.titulo || "").includes(" · ") ? L.titulo.split(" · ") : ["", L.titulo || "Emendas"];
   document.getElementById("app").innerHTML = `
   ${org ? `<div class="org">${esc(org)}</div>` : ""}
-  <div class="ihd"><h2>${esc(tit)}</h2><span>${esc(L.nome)}</span><button class="ii" data-info aria-label="Como preencher">i</button></div>
+  <div class="ihd"><h2>${esc(tit)}</h2><span>${esc(L.nome)}</span><button class="ii" data-info aria-label="Como preencher">i</button><button class="bxp" data-port title="Baixar a lista de objetos do Portfólio">${ICO_BX}Portfólio</button></div>
   <div class="icapa">
     <div class="t"><span class="tk">Cota</span><span class="iv">${rc(COTA)}<small>${IT.length} ${IT.length === 1 ? "emenda" : "emendas"}</small></span></div>
     <div class="t"><span class="tk">Utilizado</span><span class="iv">${rc(uso)}<small>${F} de ${IT.length} com objeto</small></span><div class="ibar"><i style="width:${COTA ? uso / COTA * 100 : 0}%"></i></div></div>
@@ -211,6 +218,7 @@ function liga() { const A = document.getElementById("app");
   A.querySelectorAll("[data-com]").forEach((e) => e.oninput = () => { ST[+e.dataset.com].com = e.value; salvar(+e.dataset.com); });
   A.querySelectorAll("[data-esc]").forEach((e) => e.onclick = () => escolher(+e.dataset.esc));
   A.querySelector("[data-info]").onclick = (ev) => info(ev.currentTarget);
+  A.querySelector("[data-port]").onclick = () => baixarPortfolio();
   const falta = () => IT.map((x, i) => i).filter((i) => !trava(ST[i]) && !feito(ST[i], i));
   const rb = document.getElementById("reabrir"); if (rb) rb.onclick = async () => {
     if (L.pedido_reabrir_em) { await confirmaVX("Pedido já enviado", "O gabinete já recebeu o seu pedido para reabrir. Assim que autorizar, este link volta a ficar editável (atualize a página)."); return; }
