@@ -94,6 +94,15 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .vsm-c b{ font-size:12.5px; color:var(--texto); font-variant-numeric:tabular-nums; } .cmp .vsm-c small{ position:absolute; bottom:-20px; font-size:11px; color:var(--ter); white-space:nowrap; }
 .cmp .vsm-b{ width:26px; display:flex; flex-direction:column; gap:2px; border-radius:5px 5px 0 0; overflow:hidden; min-height:2px; } .cmp .vsm-b i{ display:block; background:#3569AE; } .cmp .vsm-b i.ab{ background:#E8A23A; }
 .cmp .vsm-l{ display:flex; gap:14px; margin-top:28px; font-size:11.5px; color:var(--sec); } .cmp .vsm-l i{ display:inline-block; width:10px; height:10px; border-radius:3px; background:#3569AE; margin-right:5px; vertical-align:-1px; } .cmp .vsm-l i.ab{ background:#E8A23A; }
+.cmp .cdt{ grid-column:1 / -1; background:var(--sup2); border:1px solid var(--linha2); border-radius:16px; padding:14px 16px; display:flex; flex-direction:column; gap:12px; cursor:default; }
+.cmp .cdt-h{ display:flex; justify-content:space-between; gap:12px; align-items:flex-start; } .cmp .cdt-h b{ display:block; font-size:16px; color:var(--texto); } .cmp .cdt-h span{ font-size:12px; color:var(--ter); }
+.cmp .cdt-x{ width:30px; height:30px; border-radius:50%; border:1px solid var(--linha2); background:var(--sup); color:var(--sec); font-size:16px; cursor:pointer; flex:none; }
+.cmp .cdt-k{ display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:8px; } .cmp .cdt-k div{ background:var(--sup); border:1px solid var(--linha); border-radius:12px; padding:9px 11px; } .cmp .cdt-k b{ display:block; font-size:20px; color:var(--texto); font-variant-numeric:tabular-nums; } .cmp .cdt-k span{ font-size:11.5px; color:var(--ter); }
+.cmp .cdt-t{ overflow-x:auto; } .cmp .cdt-t table{ width:100%; border-collapse:collapse; font-size:12.5px; min-width:520px; } .cmp .cdt-t th, .cmp .cdt-t td{ padding:7px 8px; border-bottom:1px solid var(--linha); text-align:right; font-variant-numeric:tabular-nums; }
+.cmp .cdt-t thead th{ font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ter); font-weight:600; } .cmp .cdt-t tbody th{ text-align:left; color:var(--texto); font-weight:600; } .cmp .cdt-t tbody th small{ display:block; font-weight:400; font-size:11px; color:var(--ter); } .cmp .cdt-t td{ color:var(--sec); }
+.cmp .cdt-r{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12px; color:var(--sec); align-items:baseline; } .cmp .cdt-r b{ flex-basis:100%; font-size:12.5px; color:var(--texto); } .cmp .cdt-r em{ font-style:normal; color:var(--texto); font-weight:600; }
+.cmp .cdt-n{ font-size:11.5px; color:var(--ter); line-height:1.45; }
+@media (max-width:700px){ .cmp .cdt-k{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 .cmp .hm-mais{ margin-top:8px; background:none; border:0; color:var(--a); font:inherit; font-size:12.5px; cursor:pointer; }
 .cmp .hgr{ display:flex; flex-direction:column; gap:14px; background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:12px 12px 8px; }
 .cmp .hh, .cmp .hb{ display:grid; grid-template-columns:minmax(120px,190px) minmax(0,1fr) 78px 64px; gap:12px; align-items:center; }
@@ -496,6 +505,26 @@ function vistasPeriodo(base) { const C = new Map();
   return `<div class="vsm"><div class="vsm-h"><b>Pedidos de vista por semestre</b><span>quando foram pedidos · abertos e já devolvidos</span></div><div class="vsm-g">${K.map((k) => { const o = C.get(k), n = o.a + o.f;
     return `<div class="vsm-c" title="${k}: ${n} pedidos de vista (${o.a} ainda abertos, ${o.f} devolvidos)"><b>${ni(n)}</b><span class="vsm-b" style="height:${(n / mx * 100).toFixed(1)}%"><i class="ab" style="flex:${o.a}"></i><i style="flex:${o.f}"></i></span><small>${k}</small></div>`; }).join("")}</div>
     <div class="vsm-l"><span><i class="ab"></i>ainda aberto</span><span><i></i>já devolvido</span></div></div>`; }
+// detalhe da comissão (23/11/2026): ao tocar no Card, além de filtrar a lista, abre um quadro com os números da comissão.
+// Por ano: SÓ as proposições que ainda tramitam na Assembleia (o e-Legis não traz as já encerradas nestes dados); reuniões e
+// relatorias vêm da agenda e das pautas da comissão desde 2023 (alesc-comissoes.json).
+function detCom(c) { const sg = (D.coms.find((k) => k[0] === c) || [, c])[1], A = D.L.filter((x) => x.com === c), n = A.length;
+  const K = ((CMP_C && CMP_C.comissoes) || []).find((k) => norm(k.nome).endsWith(norm(c)) || norm(k.nome).includes(norm(c))), M = membrosDe(c);
+  const anos = ["2023", "2024", "2025", "2026"], ano = (d) => d ? (d.slice(0, 4) < "2023" ? "antes" : d.slice(0, 4)) : null, cont = () => ({ antes: 0, 2023: 0, 2024: 0, 2025: 0, 2026: 0 });
+  const ch = cont(), ap = cont(), pa = cont();
+  D.L.forEach((x) => { (x.h || []).forEach(([s2, d]) => { if (s2 === sg && ano(d) in ch) ch[ano(d)]++; }); x.fluxo.forEach((f) => { if (f.s === sg && f.st === "ok" && f.concl && ano(f.concl) in ap) ap[ano(f.concl)]++; }); });
+  A.forEach((x) => { const a = ano(x.chegou || x.entrou); if (a in pa) pa[a]++; });
+  const reu = (K && K.reunioes && K.reunioes.por_ano) || {}, sem = A.filter((x) => !x.rel).length, vs = A.filter((x) => x.vista).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0, ano1 = A.filter((x) => x.dias > 365).length;
+  const tem = (o) => Object.values(o).some(Boolean), col = ["antes", ...anos], cab = col.map((a) => `<th>${a === "antes" ? "antes de 2023" : a}</th>`).join("");
+  const lin = (t, o, sub) => `<tr><th>${t}${sub ? `<small>${sub}</small>` : ""}</th>${col.map((a) => `<td>${o[a] ? ni(o[a]) : "—"}</td>`).join("")}</tr>`;
+  const abertas = {}; A.forEach((x) => { if (x.rel) abertas[x.rel] = (abertas[x.rel] || 0) + 1; });
+  const rel = ((K && K.relatorias) || []).slice(0, 6);
+  return `<div class="cdt"><div class="cdt-h"><div><b>${esc(sg)} · ${esc(c)}</b><span>${K ? `presidente ${esc(K.presidente || "—")} · vice ${esc(K.vice || "—")} · ${M.length} membros${K.partidos ? " · " + Object.entries(K.partidos).map(([p, q]) => p + (q > 1 ? " " + q : "")).join(", ") : ""}` : ""}</span></div><button class="cdt-x" data-c="${esc(c)}" title="Fechar e tirar o filtro">×</button></div>
+    <div class="cdt-k"><div><b>${ni(n)}</b><span>em tramitação aqui agora</span></div><div><b>${ni(sem)}</b><span>aguardando relator</span></div><div><b>${ni(vs)}</b><span>em pedido de vista</span></div><div><b>${ni(md)}</b><span>dias na comissão (média)</span></div><div><b>${ni(ano1)}</b><span>há mais de 1 ano aqui</span></div></div>
+    <div class="cdt-t"><table><thead><tr><th></th>${cab}</tr></thead><tbody>
+      ${lin("Chegaram à comissão", ch, "das que ainda tramitam")}${lin("Aprovadas aqui", ap, "parecer votado na comissão")}${lin("Ainda paradas aqui", pa, "pelo ano em que chegaram")}${tem(reu) ? lin("Reuniões", { antes: 0, ...reu }, "agenda da comissão") : ""}</tbody></table></div>
+    ${rel.length ? `<div class="cdt-r"><b>Quem mais relatou desde 2023</b>${rel.map((r) => `<span><em>${esc(r.deputado)}</em> ${ni(r.materias)} matérias${abertas[r.deputado] ? ` · ${abertas[r.deputado]} abertas agora` : ""}</span>`).join("")}</div>` : ""}
+    <small class="cdt-n">Por ano: só as proposições que ainda tramitam na Assembleia; as já encerradas (lei, arquivadas, rejeitadas) não estão nestes dados. Uma proposição que voltou à comissão conta de novo em "chegaram".</small></div>`; }
 function grade() {
   const base = D.L.filter((x) => (!F.com || x.com === F.com) && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.aut || x.autor === F.aut)
     && (!F.q || norm([x.tipo, x.num, x.ano, x.autor, x.rel, x.resumo, x.ementa].join(" ")).includes(norm(F.q))));
@@ -544,6 +573,7 @@ function comissoes() { if (F.cv === "rank") { $("#coms").innerHTML = ranking(); 
   $("#coms").className = "coms"; $("#lgc").className = "lg"; $("#lgc").innerHTML = `<span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span>`; const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
   $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
     return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cmd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
+  if (F.com) $("#coms").insertAdjacentHTML("afterbegin", detCom(F.com));
   $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; }
 function opcoes() { const S = (id, vals, t) => { const el = $(id), v = el.value; el.innerHTML = `<option value="">${t}</option>` + vals.map(([k, r]) => `<option value="${esc(k)}">${esc(r)}</option>`).join(""); el.value = v; };
   const cont = (f) => { const M = new Map(); D.L.forEach((x) => { const k = f(x); if (k) M.set(k, (M.get(k) || 0) + 1); }); return [...M].sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, `${k} (${n})`]); };
