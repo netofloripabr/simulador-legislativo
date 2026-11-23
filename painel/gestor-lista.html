@@ -228,7 +228,6 @@ td.ac{width:70px}
 /* card compacto (23/11): linhas de 2, SC, interruptor Entidade, áreas em ícones */
 .lin2{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}.lin2 > label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:var(--mu);font-weight:500;min-width:0}
 .lin2 .cr{grid-column:auto}.mrow{display:flex;gap:6px}.mrow input{flex:1;min-width:0}
-.scb{border:1px solid var(--bd);background:#fff;border-radius:10px;padding:0 12px;font-weight:700;font-size:12.5px;cursor:pointer;color:var(--tx)}.scb.on{background:#1D2226;color:#fff;border-color:#1D2226}
 .sw{flex-direction:row !important;align-items:center;gap:8px !important;align-self:end;padding-bottom:9px;cursor:pointer;color:var(--tx) !important;font-size:12.5px !important}
 .sw input{position:absolute;opacity:0;width:0;height:0}.sw i{width:34px;height:20px;border-radius:999px;background:#D3D8DB;position:relative;transition:background .15s;flex:none}
 .sw i:after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
@@ -237,6 +236,14 @@ td.ac{width:70px}
 .adr{display:grid;grid-template-columns:auto auto;justify-content:start;gap:10px 22px}.adr > label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;color:var(--mu);font-weight:500}
 .opc.ic button{padding:7px 9px}.opc.ic button .ici{width:16px;height:16px}.opc.ic button.nm{font-weight:600}
 @media(max-width:700px){.lin2{grid-template-columns:1fr 1fr}.adr{grid-template-columns:1fr}}
+/* município com lista própria; orientação em destaque; confirmar verde (23/11) */
+.mbox{position:relative}.mbox input{width:100%}
+.sug{position:absolute;left:0;right:0;top:100%;margin-top:4px;z-index:5;background:#fff;border:1px solid var(--bd);border-radius:10px;box-shadow:0 10px 24px rgba(0,0,0,.12);max-height:260px;overflow:auto}.sug[hidden]{display:none}
+.sug button{display:flex;justify-content:space-between;gap:8px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--bd);background:none;padding:9px 11px;font-size:13px;font-weight:500;cursor:pointer;color:var(--tx)}.sug button:hover{background:var(--tl)}.sug small{color:var(--mu);font-weight:400;font-size:11px}.sug .sv{padding:9px 11px;font-size:12px;color:var(--mu)}
+.ori{background:#FFF6E5;border:1.5px solid #F2B45C;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:7px}
+.orh{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:#8A4B0F}.orh .ici{width:16px;height:16px}
+.ori textarea{border-color:#F2C98A;background:#fff;min-height:70px}
+.vxb.v{background:#1FA845;border-color:#1FA845;color:#fff}.vxb.v:hover{background:#17883A;border-color:#17883A}
 .erro{max-width:420px;margin:60px auto;background:var(--tl);border:1px solid var(--bd);border-radius:16px;padding:22px 24px;font-size:13px;color:var(--mu);line-height:1.5}.erro b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
@@ -284,7 +291,7 @@ const rcc = (v) => Math.abs(v) >= 1e6 ? "R$ " + (v / 1e6).toLocaleString("pt-BR"
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const numBR = (s) => +String(s || "").replace(/[^\d,]/g, "").replace(",", ".") || 0;
-const CAMPOS = ["mun", "obj", "area", "nat", "v", "lid", "con", "jus", "ben", "rs", "cnpj"];
+const CAMPOS = ["mun", "obj", "area", "nat", "v", "lid", "con", "jus", "ben", "rs", "cnpj", "ori"];
 const vivas = () => ST.filter((x) => x._st !== "x");
 const mudou = (x, c) => { const o = ORIG.find((y) => y.id === x.id); return !!o && x._st !== "n" && String(o[c] ?? "") !== String(x[c] ?? ""); };
 const pend = () => ST.filter((x) => x._st);
@@ -375,7 +382,7 @@ function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova
   document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="cd"><div class="cfb lg"><b>${nova ? "Nova emenda" : "Editar emenda"}</b><p>Preencha na ordem. Os campos com <b style='color:#C0392B'>*</b> são obrigatórios.${nova ? "" : " As alterações ficam marcadas até o gabinete validar."}</p>
     <div class="fm">
       ${passo(1, "Onde")}
-      <div class="w lin2"><label class="cr"><span>Município ou SC</span><div class="mrow"><input id="f_mun" list="muns" placeholder="Município (opcional)" value="${esc(x.mun || "")}"><button type="button" class="scb${x.mun === "SC" ? " on" : ""}" id="f_sc" title="Emenda para o Estado de Santa Catarina">SC</button></div></label>
+      <div class="w lin2"><label class="cr"><span>Município</span><div class="mbox"><input id="f_mun" autocomplete="off" placeholder="Digite o município (opcional)" value="${esc(x.mun || "")}"><div class="sug" id="f_sug" hidden></div></div></label>
         <label class="sw"><input type="checkbox" id="f_ent"${ent ? " checked" : ""}><i></i>Entidade</label></div>
       <div class="w lin2 ent" id="f_entx"${ent ? "" : " hidden"}><label>Razão social<input id="f_rs" placeholder="Nome da entidade (opcional)" value="${esc(x.rs || "")}"></label><label class="cn">CNPJ<input id="f_cnpj" inputmode="numeric" placeholder="00.000.000/0000-00" value="${esc(x.cnpj || "")}"></label></div>
       ${passo(2, "Valor e líder")}
@@ -387,6 +394,7 @@ function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova
       ${passo(4, "Objeto")}
       <label class="w"><span>Objeto <i>*</i> <small class="fh" id="f_ph"></small></span><textarea id="f_obj" placeholder="Escolha na lista abaixo ou escreva">${esc(x.obj || "")}</textarea></label>
       <div class="w pfw"><span id="f_fora"></span><div class="pfx"><div class="pfo" id="f_po"></div></div></div>
+      <div class="w ori"><div class="orh">${ici("ed")}Orientação para o Neto</div><textarea id="f_ori" placeholder="Algo que o Neto precisa saber sobre esta emenda (opcional)">${esc(x.ori || "")}</textarea></div>
       ${passo(5, "Opcional")}
       <label class="w">Justificativa<textarea id="f_jus" placeholder="Por que esta emenda">${esc(x.jus || "")}</textarea></label>
       <label class="w">Contato<input id="f_con" placeholder="Nome e cargo de quem acompanha" value="${esc(x.con || "")}"></label>
@@ -394,8 +402,14 @@ function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova
     <div class="bb"><button class="vxb" data-x title="Cancelar">✕</button><button class="vxb v" data-v title="Confirmar">✓</button></div></div></div>`);
   const w = document.getElementById("cd"), $ = (s) => w.querySelector(s);
   // SC = emenda para o Estado; Entidade abre razão social e CNPJ
-  $("#f_sc").onclick = () => { const on = $("#f_mun").value.trim() !== "SC"; $("#f_mun").value = on ? "SC" : ""; $("#f_sc").classList.toggle("on", on); };
-  $("#f_mun").addEventListener("input", () => $("#f_sc").classList.toggle("on", $("#f_mun").value.trim() === "SC"));
+  // lista própria de municípios (os 295 de SC, com a região): filtra ao digitar, toque escolhe
+  const MUNS = Object.keys(REG).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  const sug = () => { const q = norm($("#f_mun").value.trim()), b = $("#f_sug");
+    if (!q || MUNS.some((m) => m === $("#f_mun").value.trim())) { b.hidden = true; return; }
+    const L = MUNS.filter((m) => norm(m).startsWith(q)).concat(MUNS.filter((m) => !norm(m).startsWith(q) && norm(m).includes(q))).slice(0, 8);
+    b.innerHTML = L.map((m) => `<button type="button" data-m="${esc(m)}">${esc(m)}<small>${esc(REG[m] || "")}</small></button>`).join("") || '<div class="sv">Nenhum município com esse nome</div>'; b.hidden = false;
+    b.querySelectorAll("[data-m]").forEach((o) => o.onmousedown = (e) => { e.preventDefault(); $("#f_mun").value = o.dataset.m; b.hidden = true; }); };
+  $("#f_mun").addEventListener("input", sug); $("#f_mun").addEventListener("focus", sug); $("#f_mun").addEventListener("blur", () => setTimeout(() => { $("#f_sug").hidden = true; }, 120));
   $("#f_ent").onchange = () => { ent = $("#f_ent").checked; $("#f_entx").hidden = !ent; if (ent) $("#f_rs").focus(); };
   // lista do Portfólio: aparece já filtrada por área e despesa; o texto do objeto refina a lista
   const pf = () => { const po = $("#f_po");
@@ -419,7 +433,7 @@ function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova
     const R = [["#f_v", v > 0, "valor"], ["#f_lid", lid, "líder"], ["#f_area", area, "área"], ["#f_nat", nat, "despesa"], ["#f_obj", obj, "objeto"]];
     R.forEach(([s, ok]) => $(s).classList.toggle("er", !ok)); const falta = R.filter((r) => !r[1]).map((r) => r[2]);
     if (falta.length) { $("#f_msg").textContent = "Falta preencher: " + falta.join(", ") + "."; return; }
-    const d = { v, obj, lid, mun: $("#f_mun").value.trim() || null, con: $("#f_con").value.trim() || null, jus: $("#f_jus").value.trim() || null, area, nat,
+    const d = { v, obj, lid, mun: $("#f_mun").value.trim() || null, con: $("#f_con").value.trim() || null, jus: $("#f_jus").value.trim() || null, ori: $("#f_ori").value.trim() || null, area, nat,
       ben: ent ? "ent" : x.ben ? "mun" : null, rs: ent ? $("#f_rs").value.trim() || null : null, cnpj: ent ? $("#f_cnpj").value.trim() || null : null };
     if (nova) ST.unshift({ id: "novo" + ++nNova, ...d, _st: "n" });
     else { Object.assign(x, d); if (x._st !== "n") x._st = CAMPOS.some((k) => mudou(x, k)) ? "m" : ""; }
@@ -550,10 +564,10 @@ function cronometro() { if (!LK || !LK.prazo) return ""; const F = new Date(LK.p
 setInterval(() => { const c = document.getElementById("gcr"); if (c) c.innerHTML = cronometro(); if (ABERTO && LK && new Date(LK.prazo) <= new Date()) { ABERTO = false; redesenha(); } }, 30000);
 // ---------- dados ----------
 const doBanco = (x) => ({ id: x.id, mun: x.municipio || null, obj: x.objeto || null, area: x.area || null, nat: x.natureza === "Investimento" ? "Capital" : x.natureza || null, v: +x.valor || 0, lid: x.lideranca || null, con: x.contato || null, jus: x.justificativa || null, ben: x.benef_tipo || null, rs: x.razao_social || null, cnpj: x.cnpj || null });
-const COL = { mun: "municipio", obj: "objeto", area: "area", nat: "natureza", v: "valor", lid: "lideranca", con: "contato", jus: "justificativa", ben: "benef_tipo", rs: "razao_social", cnpj: "cnpj" };
+const COL = { mun: "municipio", obj: "objeto", area: "area", nat: "natureza", v: "valor", lid: "lideranca", con: "contato", jus: "justificativa", ben: "benef_tipo", rs: "razao_social", cnpj: "cnpj", ori: "orientacao" };
 // mudanças locais → [{acao, item_id, dados, limpar}] para gestor_enviar
 function payload(P) { return P.map((x) => { if (x._st === "x") return { acao: "excluir", item_id: x.id };
-  const d = {}, limpar = []; CAMPOS.forEach((c) => { const v = x[c]; if (x._st === "m" && !mudou(x, c)) return; if (v == null || v === "") { if (x._st === "m") limpar.push(COL[c]); } else d[COL[c]] = c === "v" ? +v : v; });
+  const d = {}, limpar = []; CAMPOS.forEach((c) => { const v = x[c]; if (x._st === "m" && !mudou(x, c)) return; if (v == null || v === "") { if (x._st === "m" && c !== "ori") limpar.push(COL[c]); } else d[COL[c]] = c === "v" ? +v : v; });
   return x._st === "n" ? { acao: "incluir", dados: d } : { acao: "alterar", item_id: x.id, dados: d, limpar }; }); }
 const pendDe = (x) => PEND.find((p) => p.item_id && p.item_id === x.id);
 const pendTxt = (p) => p.acao === "excluir" ? "Pedido de exclusão enviado, aguardando o gabinete" : "Alteração enviada, aguardando o gabinete: " + Object.entries(p.dados || {}).map(([k, v]) => `${k} = ${v == null ? "(vazio)" : k === "valor" ? moeda(v) : v}`).join(" · ");
@@ -565,7 +579,7 @@ async function carregar() { const [l, pj] = await Promise.all([rpc("gestor_abrir
   LK = l; ABERTO = !!l.aberto; PEND = l.pendentes || []; const c = l.cota || {}; COTA = +c.disp || 0; MAXE = +c.max || 0; SAUDE = c.saude != null ? +c.saude : .5;
   NOMEL = "Emendas " + (l.lista || ""); GAB = String(l.titulo || "").split(" · ")[0]; document.title = NOMEL + " · Link Gestor";
   ORIG = (l.itens || []).map(doBanco); ST = ORIG.map((x) => ({ ...x, _st: "" }));
-  document.getElementById("muns").innerHTML = `<option value="SC">Estado de Santa Catarina</option>` + Object.keys(REG).sort().map((m) => `<option value="${esc(m)}">`).join("");
+  document.getElementById("muns").innerHTML = Object.keys(REG).sort().map((m) => `<option value="${esc(m)}">`).join("");
   document.getElementById("lids").innerHTML = [...new Set(ORIG.map((x) => x.lid).filter(Boolean))].sort().map((m) => `<option value="${esc(m)}">`).join("");
   redesenha(); }
 (async () => { const A = document.getElementById("app");

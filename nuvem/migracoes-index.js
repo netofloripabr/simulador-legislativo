@@ -2395,5 +2395,16 @@ const MIGRACOES_INDEX = [
     "gestor_enviar"
    ]
   ]
+ },
+ {
+  "num": 112,
+  "arquivo": "migracao-112-gestor-orientacao.sql",
+  "descricao": "Migração 112 (23/11/2026): Link Gestor › \"Orientação para o Neto\". No card, a pessoa do Link Gestor escreve um",
+  "objetos": [
+   [
+    "function",
+    "gestor_enviar"
+   ]
+  ]
  }
 ];
