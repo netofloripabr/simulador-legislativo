@@ -2406,5 +2406,36 @@ const MIGRACOES_INDEX = [
     "gestor_enviar"
    ]
   ]
+ },
+ {
+  "num": 113,
+  "arquivo": "migracao-113-link-trancado.sql",
+  "descricao": "Migração 113 (23/11/2026): link do líder TRANCA ao enviar. Depois de \"Enviar ao gabinete\" o líder vê o botão v",
+  "objetos": [
+   [
+    "function",
+    "link_abrir"
+   ],
+   [
+    "function",
+    "link_salvar"
+   ],
+   [
+    "function",
+    "link_enviar"
+   ],
+   [
+    "function",
+    "link_pedir_reabrir"
+   ],
+   [
+    "column",
+    "gab_links.travado"
+   ],
+   [
+    "column",
+    "gab_links.pedido_reabrir_em"
+   ]
+  ]
  }
 ];

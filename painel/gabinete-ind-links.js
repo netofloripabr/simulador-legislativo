@@ -26,7 +26,7 @@ async function lerLinks(T, forca) {
   if (!forca && LK.lista === T.L.id && Date.now() - LK.lido < 60000) return false;
   if (LK.lendo) return LK.lendo;
   LK.lendo = (async () => { try {
-    const { data: L, error } = await supabaseClient.from("gab_links").select("id,token,nome,lideranca,itens,titulo,prazo,fechado,limpo,criado_em,aberto_em,ult_acesso,acessos,enviado_em,tipo,cota").eq("lista_id", T.L.id).order("criado_em");
+    const { data: L, error } = await supabaseClient.from("gab_links").select("id,token,nome,lideranca,itens,titulo,prazo,fechado,limpo,criado_em,aberto_em,ult_acesso,acessos,enviado_em,tipo,cota,travado,pedido_reabrir_em").eq("lista_id", T.L.id).order("criado_em");
     if (error) throw error; let P = [];
     if (L.length) { const r = await supabaseClient.from("gab_link_propostas").select("*").in("link_id", L.map((l) => l.id)); if (r.error) throw r.error; P = r.data || []; }
     // Link Gestor (migração 109) fica à parte: não entra na Etapa, nos links dos líderes nem nas propostas deles
@@ -92,7 +92,7 @@ function lideresLista(T) { const C = {}; AD.itens.filter((x) => x.lista_id === T
   return Object.entries(C).sort((a, b) => b[1] - a[1]).map(([n]) => n); }
 const linkDoLider = (n) => LK.links.filter((l) => l.lideranca === n).pop();
 // botão "Links" (20/11/2026) ao lado de Colunas: abre o quadro com os links dos líderes (ativos e a gerar) e o avulso
-function botaoLinks(T) { const at = LK.links.filter((l) => !encerrado(l)).length, esp = LK.props.filter((p) => p.status === "enviado").length + (typeof gPend === "function" && LK.gestor ? gPend().length : 0);
+function botaoLinks(T) { const at = LK.links.filter((l) => !encerrado(l)).length, esp = LK.props.filter((p) => p.status === "enviado").length + LK.links.filter((l) => l.pedido_reabrir_em).length + (typeof gPend === "function" && LK.gestor ? gPend().length : 0);
   return `<button data-ilinks title="Links dos líderes">${lsv("lnk")}Links${at ? ` <small>${at}</small>` : ""}${esp ? `<i class="lkdot" title="${esp} para você aceitar"></i>` : ""}</button>`; }
 function quadroLinks(b, T) { fechaLk(); const m = abreLk(b, `<div class="h"><b>Links</b>o Link Gestor dá acesso à lista inteira; os links dos líderes, só às emendas de cada um</div>${typeof secaoGestor === "function" ? secaoGestor(T) + `<div class="lksep"></div>` : ""}<div class="lkst">Links dos líderes</div><div class="lkmodo">Link novo do líder abre <button data-lkm="0" class="${novoLimpo() ? "" : "on"}">preenchido</button><button data-lkm="1" class="${novoLimpo() ? "on" : ""}">limpo</button><small>${novoLimpo() ? "sem objeto e sem justificativa" : "com o objeto, o município e a justificativa da planilha"}</small></div>${faixaLinks(T)}<div class="lkft"><button class="lk0" data-lkmsg>Mensagem que acompanha o link</button></div>`, "lkm lkq");
   m.querySelectorAll("[data-lkm]").forEach((x) => x.onclick = (e) => { e.stopPropagation(); try { localStorage.setItem("ind_link_limpo", x.dataset.lkm); } catch (er) {} quadroLinks(b, T); });
@@ -109,7 +109,7 @@ const itensDoContato = (T, n) => AD.itens.filter((x) => x.lista_id === T.L.id &&
 async function novoLinkContato(T, n) { try { const l = await gerarLink(T, n, "contato:" + n, itensDoContato(T, n)); await copiarMsg(l, `Link de ${n} gerado · mensagem copiada`); desenharInd(); } catch (e) { alert("Não foi possível gerar o link: " + (e.message || e)); } }
 function faixaLinks(T) { if (!T.L || !SESS) return "";
   const lid = lideresLista(T), con = contatosLista(T), av = LK.links.filter((l) => !l.lideranca);
-  const bt = (l) => `<button class="lkc" data-lkl="${l.id}">${anelLk(pctLink(l))}${esc(l.nome)}<small>${pctLink(l)}% · ${estadoLink(l)}</small></button>`;
+  const bt = (l) => `<button class="lkc${l.pedido_reabrir_em ? " pede" : ""}" data-lkl="${l.id}">${anelLk(pctLink(l))}${esc(l.nome)}<small>${l.pedido_reabrir_em ? "<b>pede para reabrir</b>" : `${pctLink(l)}% · ${estadoLink(l)}${l.travado ? " · trancado" : ""}`}</small></button>`;
   return `<div class="lkst">Por líder</div><div class="lks">${lid.map((n) => { const l = linkDoLider(n); return l ? bt(l) : `<button class="lkc nw" data-lknovo="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("") || `<span class="mut" style="font-size:12px">nenhuma emenda com líder</span>`}</div>
     <div class="lkst">Por contato</div><div class="lks">${con.map((n) => { const l = linkDoLider("contato:" + n); return l ? bt(l) : `<button class="lkc nw" data-lkcon="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("") || `<span class="mut" style="font-size:12px">nenhuma emenda com contato</span>`}</div>
     <div class="lkst">Avulsos</div><div class="lks">${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
@@ -155,7 +155,7 @@ const fmtP = (d) => new Date(d).toLocaleString("pt-BR", { day: "2-digit", month:
 function menuLink(b, l, T) { const st = estadoLink(l), q = propsDe(l);
   const quando = l.enviado_em ? "enviado " + fmtP(l.enviado_em) : l.aberto_em ? `aberto ${l.acessos}× · último ${fmtP(l.ult_acesso || l.aberto_em)}` : "ainda não aberto";
   const m = abreLk(b, `<div class="h"><b>${esc(l.nome)} · ${pctLink(l)}%</b>${l.itens.length} ${l.itens.length === 1 ? "emenda" : "emendas"} · ${quando}<br>${encerrado(l) ? "link fechado" : "fecha em " + fmtP(l.prazo)}${q.filter((p) => p.status === "enviado").length ? ` · <b style="display:inline;font-size:12px">${q.filter((p) => p.status === "enviado").length} para você aceitar</b>` : ""}</div>
-    <button data-m="msg">${lsv("cop")}Copiar mensagem com o link</button><button data-m="cop">${lsv("lnk")}Copiar só o link</button><button data-m="wpp">${lsv("wpp")}Enviar pelo WhatsApp</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button><button data-m="cert">${lsv("chk")}Imprimir certificado</button><hr>
+    ${l.pedido_reabrir_em ? `<button data-m="reab" class="lkdest">${lsv("cad")}Autorizar reabertura · pedido em ${fmtP(l.pedido_reabrir_em)}</button><hr>` : l.travado ? `<button data-m="reab">${lsv("cad")}Reabrir para ${esc(l.nome)} editar</button><hr>` : ""}<button data-m="msg">${lsv("cop")}Copiar mensagem com o link</button><button data-m="cop">${lsv("lnk")}Copiar só o link</button><button data-m="wpp">${lsv("wpp")}Enviar pelo WhatsApp</button><button data-m="abr">${lsv("olh")}Abrir para acompanhar</button><button data-m="cert">${lsv("chk")}Imprimir certificado</button><hr>
     <button data-m="lmp">${lsv("lap")}${l.limpo ? "Abre limpo · passar a preenchido" : "Abre preenchido · passar a limpo"}</button><button data-m="prz">${lsv("rel")}Mudar o prazo</button><button data-m="fec">${lsv("cad")}${l.fechado ? "Reabrir o link" : "Fechar o link agora"}</button>${st === "gerado" && !q.length ? `<button data-m="apg" class="apg">${lsv("x")}Apagar o link</button>` : ""}`);
   const up = async (o) => { const { error } = await supabaseClient.from("gab_links").update(o).eq("id", l.id); if (error) throw error; Object.assign(l, o); };
   m.querySelectorAll("[data-m]").forEach((x) => x.onclick = async () => { const a = x.dataset.m; fechaLk();
@@ -166,6 +166,8 @@ function menuLink(b, l, T) { const st = estadoLink(l), q = propsDe(l);
         const v = prompt("Novo prazo (dia/mês/ano hora:min):", ini); if (!v) return; const k = v.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/); if (!k) return alert("Use o formato 23/11/2026 13:00.");
         await up({ prazo: new Date(+k[3], +k[2] - 1, +k[1], +k[4], +k[5]).toISOString(), fechado: false }); desenharInd(); }
       if (a === "cert") certificado(l, T);
+      // link do líder trancado ao enviar (migração 113): só o gabinete reabre
+      if (a === "reab") { if (!(await confirmaVX("Reabrir o link?", `${l.nome} volta a poder mudar e enviar de novo as emendas deste link. O que você já aceitou continua aceito.`))) return; await up({ travado: false, pedido_reabrir_em: null }); desenharInd(); toastLk("Link reaberto · " + l.nome + " já pode editar"); }
       if (a === "lmp") { await up({ limpo: !l.limpo }); toastLk(l.limpo ? "O link abre limpo (sem objeto)" : "O link abre preenchido"); }
       if (a === "fec") { await up({ fechado: !l.fechado }); desenharInd(); toastLk(l.fechado ? "Link fechado" : "Link reaberto"); }
       if (a === "apg") { if (!(await confirmaVX("Apagar este link?", `O link de ${l.nome} deixa de funcionar.`))) return; const { error } = await supabaseClient.from("gab_links").delete().eq("id", l.id); if (error) throw error; LK.links = LK.links.filter((y) => y !== l); desenharInd(); }

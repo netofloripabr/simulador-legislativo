@@ -63,6 +63,7 @@ main{max-width:860px;margin:0 auto;padding:18px 16px 110px}
 .env{position:fixed;left:0;right:0;bottom:0;background:var(--tl);border-top:1px solid var(--bd);padding:10px 16px;display:flex;justify-content:center}
 .env > div{max-width:860px;width:100%;display:flex;align-items:center;gap:14px}
 .env .pr{flex:1;font-size:12.5px;color:var(--mu)}.env .pr b{color:var(--tx);font-weight:600;font-size:14px}
+.bt.tr{background:#DDF3E1;color:#17883A;border-color:#BFE3C9;display:inline-flex;align-items:center;gap:7px}.bt.tr:hover{background:#CDEFD5}
 .env .ibar{margin-top:6px}.env .ibar i{background:#1FA845}
 /* confirmação ✓ ✕ */
 .cfp{position:fixed;inset:0;z-index:40;background:rgba(10,12,14,.35);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
@@ -159,7 +160,9 @@ async function iniciar() {
     document.getElementById("muns").innerHTML = MUN.map((m) => `<option value="${esc(m)}">`).join("");
     render(); setInterval(() => { const c = document.querySelector(".icapa .w2"); if (c) c.innerHTML = `<span class="tk">${prazoTx()}</span>${cont()}`; }, 30000);
   } catch (e) { msg("Não foi possível abrir", "Confira a internet e recarregue a página. (" + esc(e.message) + ")"); } }
-const trava = (s) => !ABERTO || s.status === "aceito" || s.status === "recusado";
+// trancado depois de enviar (migração 113): só o gabinete reabre
+const trava = (s) => !ABERTO || !!L.travado || s.status === "aceito" || s.status === "recusado";
+const CADF = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
 function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i], i) ? +x.valor || 0 : 0), 0);
   const [org, tit] = String(L.titulo || "").includes(" · ") ? L.titulo.split(" · ") : ["", L.titulo || "Emendas"];
   document.getElementById("app").innerHTML = `
@@ -181,7 +184,7 @@ function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) =
   </div>`; }).join("")}`;
   document.getElementById("env")?.remove();
   const pend = ST.some((s) => s.obj && s.status === "rascunho");
-  document.body.insertAdjacentHTML("beforeend", `<div class="env" id="env"><div><div class="pr"><b>${F} de ${IT.length}</b> com objeto <span class="sv" id="sv">${L.enviado_em && !pend ? "· enviado ao gabinete" : ""}</span><div class="ibar"><i style="width:${IT.length ? F / IT.length * 100 : 0}%"></i></div></div>${ABERTO ? `<button class="bt" id="enviar">${L.enviado_em ? "Enviar de novo" : "Enviar ao gabinete"}</button>` : ""}</div></div>`);
+  document.body.insertAdjacentHTML("beforeend", `<div class="env" id="env"><div><div class="pr"><b>${F} de ${IT.length}</b> com objeto <span class="sv" id="sv">${L.travado ? (L.pedido_reabrir_em ? "· reabertura pedida, aguardando o gabinete" : "· enviado ao gabinete") : L.enviado_em && !pend ? "· enviado ao gabinete" : ""}</span><div class="ibar"><i style="width:${IT.length ? F / IT.length * 100 : 0}%"></i></div></div>${ABERTO ? (L.travado ? `<button class="bt tr" id="reabrir" title="${L.pedido_reabrir_em ? "Pedido de reabertura enviado ao gabinete" : "Enviado e trancado · toque para pedir para reabrir"}">${CADF}${L.pedido_reabrir_em ? "Aguardando o gabinete" : "Enviado"}</button>` : `<button class="bt" id="enviar">${L.enviado_em ? "Enviar de novo" : "Enviar ao gabinete"}</button>`) : ""}</div></div>`);
   liga(); }
 // grava sozinho (rascunho) ~0,8 s depois da última mudança na emenda
 const TM = {};
@@ -199,6 +202,11 @@ function liga() { const A = document.getElementById("app");
   A.querySelectorAll("[data-esc]").forEach((e) => e.onclick = () => escolher(+e.dataset.esc));
   A.querySelector("[data-info]").onclick = (ev) => info(ev.currentTarget);
   const falta = () => IT.map((x, i) => i).filter((i) => !trava(ST[i]) && !feito(ST[i], i));
+  const rb = document.getElementById("reabrir"); if (rb) rb.onclick = async () => {
+    if (L.pedido_reabrir_em) { await confirmaVX("Pedido já enviado", "O gabinete já recebeu o seu pedido para reabrir. Assim que autorizar, este link volta a ficar editável (atualize a página)."); return; }
+    if (!(await confirmaVX("Reabrir para editar?", "Para mudar o que já enviou, o gabinete precisa autorizar a reabertura. Quer pedir agora?"))) return;
+    try { const r = await rpc("link_pedir_reabrir", { p_token: TOKEN }); if (r === "aberto") { L.travado = false; } else L.pedido_reabrir_em = new Date().toISOString(); render(); }
+    catch (e) { alert("Não foi possível pedir: " + e.message); } };
   const en = document.getElementById("enviar"); if (en) { en.classList.toggle("off", falta().length > 0); en.onclick = async () => { const f = ST.filter(feito).length, F2 = falta();
     if (F2.length) { const c = document.querySelectorAll(".it")[F2[0]]; if (c) { c.scrollIntoView({ behavior: "smooth", block: "center" }); c.classList.remove("chama"); void c.offsetWidth; c.classList.add("chama"); }
       const v = document.getElementById("sv"); if (v) { v.className = "sv er"; v.textContent = `· falta escolher o objeto do Portfólio em ${F2.length} ${F2.length === 1 ? "emenda" : "emendas"}`; } return; }
@@ -206,8 +214,8 @@ function liga() { const A = document.getElementById("app");
     try { await Promise.all(Object.keys(TM).map((i) => new Promise((ok) => setTimeout(ok, 900))));
       for (let i = 0; i < IT.length; i++) { const s = ST[i]; if (s.status || trava(s)) continue;
         await rpc("link_salvar", { p_token: TOKEN, p_item: IT[i].id, p_dados: { municipio: s.mun, benef_tipo: s.bt, beneficiario: s.bt === "ent" ? s.ben : "", cnpj: s.bt === "ent" ? s.cnpj : "", objeto: s.obj || "", objeto_fonte: s.fonte, justificativa: s.com } }); s.status = "rascunho"; }
-      await rpc("link_enviar", { p_token: TOKEN }); L.enviado_em = new Date().toISOString(); ST.forEach((s) => { if (s.status === "rascunho") s.status = "enviado"; });
-      document.getElementById("env").remove(); A.innerHTML = `<div class="fim"><div style="font-size:40px">✓</div><b>Enviado ao gabinete</b><p class="mut">Até ${FECHA.toLocaleDateString("pt-BR")}, ${FECHA.getHours()}h, você pode voltar a este link e mudar.</p><button class="bt s" id="volta">Ver as emendas</button></div>`; document.getElementById("volta").onclick = render;
+      await rpc("link_enviar", { p_token: TOKEN }); L.enviado_em = new Date().toISOString(); L.travado = true; L.pedido_reabrir_em = null; ST.forEach((s) => { if (s.status === "rascunho") s.status = "enviado"; });
+      document.getElementById("env").remove(); A.innerHTML = `<div class="fim"><div style="font-size:40px">✓</div><b>Enviado ao gabinete</b><p class="mut">O link ficou trancado com o que você enviou. Para mudar algo, toque no cadeado e peça ao gabinete para reabrir.</p><button class="bt s" id="volta">Ver as emendas</button></div>`; document.getElementById("volta").onclick = render;
     } catch (e) { alert("Não foi possível enviar: " + e.message); } }; } }
 function info(b) { const ja = document.getElementById("ipop"); if (ja) { ja.remove(); b.classList.remove("on"); return; }
   const r = b.getBoundingClientRect(); b.classList.add("on");
