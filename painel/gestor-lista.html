@@ -300,7 +300,7 @@ ICI.lapis = '<path d="M10.6 2.9l2.5 2.5-7.6 7.6-3.1.6.6-3.1z"/><path d="M9.2 4.3
 const ETQ_PAL = { cinza: ["#E3E6E8", "#3E454B"], vermelho: ["#FBD9D5", "#9B2C20"], laranja: ["#FCE3CC", "#9A4E10"], amarelo: ["#FBF0C2", "#7A5D00"], verde: ["#D5F0DC", "#17692F"], turquesa: ["#CDEFEA", "#0F6359"], azul: ["#D6E4F7", "#1F4E85"], roxo: ["#E6DDF7", "#5A3A99"], rosa: ["#F8D9EA", "#94285F"], marrom: ["#EADFD6", "#6A4A33"] };
 const ETQ_INI = { "Resolvido · falta enviar": "verde", "Em andamento": "amarelo", "Atenção": "laranja", "Crítico": "vermelho", "Aguardando retorno": "azul" };
 const corEtq = (e) => e && e.n ? ETQ_PAL[e.c || ETQ_INI[e.n] || "cinza"] || ETQ_PAL.cinza : null;
-let COM = (() => { try { return localStorage.getItem("gestor_com") === "1"; } catch (e) { return false; } })();
+let COM = (() => { try { return localStorage.getItem("gestor_com2") !== "0"; } catch (e) { return true; } })();   // ligado por padrão (23/11/2026)
 const BALAO = '<svg class="ici" viewBox="0 0 16 16"><path d="M2.5 3.5h11v7.5H7l-3 2.5V11H2.5z"/></svg>';
 const comCel = (x) => { const c = corEtq(x.etq); return `${c ? `<span class="etq" style="background:${c[0]};color:${c[1]}">${esc(x.etq.n)}</span>` : ""}${x.nota ? `<span class="rec">${esc(x.nota)}</span>` : ""}${!c && !x.nota ? `<span class="sem">—</span>` : ""}`; };
 const ici = (k) => `<svg class="ici" viewBox="0 0 16 16">${ICI[k] || ""}</svg>`;
@@ -503,7 +503,7 @@ function liga() { const A = document.getElementById("app");
   A.querySelector("[data-min]").onclick = () => { MIN = !MIN; if (MIN) MD = null; try { localStorage.setItem("gestor_min", MIN ? "1" : "0"); } catch (e) {} redesenha(); };
   A.querySelector("[data-vis]").onclick = () => { CARDS = !CARDS; try { localStorage.setItem("gestor_vis", CARDS ? "c" : "t"); } catch (e) {} redesenha(); };
   A.querySelector("[data-dist]").onclick = () => { DIST = !DIST; redesenha(); };
-  const cb = A.querySelector("[data-com]"); if (cb) cb.onclick = () => { COM = !COM; try { localStorage.setItem("gestor_com", COM ? "1" : "0"); } catch (e) {} redesenha(); };
+  const cb = A.querySelector("[data-com]"); if (cb) cb.onclick = () => { COM = !COM; try { localStorage.setItem("gestor_com2", COM ? "1" : "0"); } catch (e) {} redesenha(); };
   A.querySelectorAll("[data-fx]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); abreFxG(b, b.dataset.fx); });
   const fz2 = A.querySelector("[data-fxz2]"); if (fz2) fz2.onclick = () => { FX = {}; fxSalva(); redesenha(); };
   const sf = A.querySelector("[data-sf]"); if (sf) sf.onclick = () => { FL = null; redesenha(); };
