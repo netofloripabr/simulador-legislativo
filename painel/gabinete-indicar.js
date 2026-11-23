@@ -129,9 +129,10 @@ function linhaInd(T, g, x, i, semExp) {
     ${ck.length && ck.some(([ok]) => !ok) ? `<tr class="ick${IND.det === "a:" + x.id || IND.ativa === x.id ? " vis" : ""}${mk ? " mk" : ""}" data-ick="${x.id}"${mk ? ` style="--mk:${mk[1]};--mkf:${mk[2]}"` : ""}><td></td><td colspan="${nColInd() - 1}">${ck.map(([ok, l]) => `<span class="${ok ? "ok" : "no"}">${ok ? "✓" : "•"} ${l}</span>`).join("")}</td></tr>` : ""}
     ${x && !semExp && IND.det === "a:" + x.id ? `<tr class="iexp" data-iexpw="${x.id}"><td colspan="${nColInd()}">${detForm(x, T, g)}</td></tr>` : ""}`;
 }
+// com filtro ligado (23/11/2026), o rodapé soma só o que está filtrado e mostra o total da lista embaixo
 function rodapeInd(T, g, it) { it = it.filter(cheia); const tot = it.reduce((s, x) => s + (+x.valor || 0), 0);
-  const ant = ["ent", "mun", "obj"].filter(colOn).length;
-  return `<td></td>${ant ? `<td colspan="${ant}">` : "<td>"}Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</td><td class="r">${moeda(tot)}${g.disp ? `<small class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou " + moeda(tot - g.disp) : "saldo " + moeda(g.disp - tot)}</small>` : ""}</td><td data-col="etq"></td><td data-col="lid"></td><td data-col="obs"></td><td data-col="etp"></td>`; }
+  const ant = ["ent", "mun", "obj"].filter(colOn).length, fx = typeof temFx === "function" && temFx(), F = fx ? it.filter((x) => passaFx(x, T)) : it, totF = F.reduce((s, x) => s + (+x.valor || 0), 0);
+  return `<td></td>${ant ? `<td colspan="${ant}">` : "<td>"}${fx ? `<b class="ifxs">Filtrado · ${F.length} ${F.length === 1 ? "item" : "itens"}</b><small class="mut">total da lista · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}</small>` : `Total · ${it.length} ${it.length === 1 ? "item" : "itens"}${g.max ? ` de ${g.max}` : ""}`}</td><td class="r">${fx ? `<b class="ifxs">${moeda(totF)}</b><small class="mut">de ${moeda(tot)}</small>` : ""}${fx ? "" : moeda(tot)}${g.disp ? `<small class="${tot > g.disp + .005 ? "ierr" : "mut"}">${tot > g.disp + .005 ? "passou " + moeda(tot - g.disp) : "saldo " + moeda(g.disp - tot)}</small>` : ""}</td><td data-col="etq"></td><td data-col="lid"></td><td data-col="obs"></td><td data-col="etp"></td>`; }
 function planInd(T) {
   if (!T) return `<div class="iinf">Nenhuma lista neste ano. Use “+ nova lista” para começar.</div>`;
   const R = linhasInd(T), c = T.cota, tot = R.reduce((s, x) => s + x.v, 0), edita = T.k !== "plan", g = regrasInd(T);
