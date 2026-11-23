@@ -149,17 +149,33 @@ td.ac{width:70px}
 @media(max-width:700px){
   main{padding:12px 12px 110px}
   .qn b{font-size:17px}
-  .mt{min-width:0;flex-basis:100%}
-  .tool{gap:6px}.busca{min-width:0;flex-basis:100%}.selr{flex:1}
   .br{grid-template-columns:90px minmax(0,1fr) 36px 70px 20px;gap:6px}
-  .sheet{overflow:visible;background:none;border:0}
-  table,tbody,tr,td{display:block}thead{display:none}
-  tr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"mu mu vl" "ob ob ob" "cl ld ac";gap:6px 10px;background:var(--tl);border:1px solid var(--bd);border-radius:14px;padding:12px 12px 8px;margin-bottom:8px}
-  td{border:0;padding:0 !important;width:auto !important}
-  td.n{display:none}td.mu{grid-area:mu}td.vl{grid-area:vl;font-size:14px}td.ob{grid-area:ob}
-  td.cl{grid-area:cl;text-align:left}td.ld{grid-area:ld;align-self:center;color:var(--mu)}td.ac{grid-area:ac}
-  td.mu small{display:inline;margin-left:6px}
-  tr.nova{background:#EEF8F0}tr.nova td{background:none}
+}
+/* cartões (botão cartão/tabela, 22/11) */
+.sheet.cards{overflow:visible;background:none;border:0}
+.sheet.cards table,.sheet.cards tbody,.sheet.cards tr,.sheet.cards td{display:block}.sheet.cards thead{display:none}
+.sheet.cards tr{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"mu mu vl" "ob ob ob" "cl ld ac";gap:6px 10px;background:var(--tl);border:1px solid var(--bd);border-radius:14px;padding:12px 12px 8px;margin-bottom:8px}
+.sheet.cards td{border:0;padding:0 !important;width:auto !important}
+.sheet.cards td.n{display:none}.sheet.cards td.mu{grid-area:mu}.sheet.cards td.vl{grid-area:vl;font-size:14px}.sheet.cards td.ob{grid-area:ob}
+.sheet.cards td.cl{grid-area:cl;text-align:left}.sheet.cards td.ld{grid-area:ld;align-self:center;color:var(--mu)}.sheet.cards td.ac{grid-area:ac}
+.sheet.cards td.mu small{display:inline;margin-left:6px}
+.sheet.cards tr.nova{background:#EEF8F0}.sheet.cards tr.nova td{background:none}
+@media(min-width:900px){.sheet.cards tbody{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}}
+.sheet:not(.cards) table{min-width:760px}
+/* cabeçalho com cronômetro na mesma linha; barra de ferramentas numa linha só; metas lado a lado */
+.cab{display:flex;align-items:center;gap:12px;margin-bottom:14px}.cabt{flex:1;min-width:0}.cab .ihd{margin:6px 0 0;flex-wrap:nowrap}.cab .ihd h2{min-width:0}
+.tool{flex-wrap:wrap}.busca{min-width:0;flex:1}.fil{order:9;flex-basis:100%}
+.ib{width:38px;height:38px;border-radius:50%;border:1px solid var(--bd);background:#fff;color:var(--tx);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:none;padding:0}
+.ib .ici{width:17px;height:17px}.ib:hover{border-color:#1D2226}.ib.on{background:#1D2226;color:#fff;border-color:#1D2226}
+.novab{flex:none;width:38px;height:38px}
+.qm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.qm .mt{min-width:0}
+@media(max-width:700px){
+  .cab .ihd h2{font-size:17px;line-height:1.2}.cab .ihd span{display:none}
+  .gcr{flex-direction:column;align-items:flex-end;gap:3px;width:auto !important;margin:0 !important}.gcr .tk{font-size:10.5px;white-space:nowrap}
+  .icd{gap:4px}.icd div{width:38px;padding:3px 0;border-radius:8px}.icd b{font-size:15px}.icd span{font-size:9px}
+  .qm{gap:6px}.mt{flex-direction:column;align-items:flex-start !important;gap:4px;padding:8px 8px 7px;font-size:11px;position:relative}
+  .mt b{font-size:12px;display:block}.mt small{font-size:10.5px}.mt .mi{width:18px;height:18px}.mv{position:absolute;right:7px;top:7px}
+  .tool{gap:6px}.ib,.novab{width:36px;height:36px}
 }
 .icb{vertical-align:middle}
 .sec{font-size:11.5px;font-weight:600;color:var(--tx);margin-bottom:-4px}.fm .w{grid-column:1/-1}
@@ -173,10 +189,10 @@ td.ac{width:70px}
 .pend .pl{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--bd);margin-top:6px;font-size:12.5px}
 .pend .pl .tag{margin:0;flex:none}.pend .pl .pt{flex:1;min-width:0}
 .tag.ag{background:#E3EAF5;color:#2F5D8A;cursor:help}
-.gcr{margin-left:auto;display:flex;align-items:center;gap:10px}.gcr .tk{font-size:11.5px;color:var(--mu)}
+.gcr{display:flex;align-items:center;gap:10px;flex:none}.gcr .tk{font-size:11.5px;color:var(--mu)}
 .icd{display:flex;gap:6px}.icd div{background:#fff;border:1px solid var(--bd);border-radius:9px;width:52px;padding:5px 0;text-align:center}.icd b{display:block;font-size:18px;color:var(--or);font-variant-numeric:tabular-nums}.icd span{font-size:10px;color:var(--mu)}
 .gfim{color:#C0392B;font-weight:600;font-size:13px}
-@media(max-width:700px){.gcr{margin-left:0;width:100%;justify-content:space-between}}
+
 .erro{max-width:420px;margin:60px auto;background:var(--tl);border:1px solid var(--bd);border-radius:16px;padding:22px 24px;font-size:13px;color:var(--mu);line-height:1.5}.erro b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
@@ -195,6 +211,11 @@ const rpc = async (f, a) => { const r = await fetch(`${SB}/rest/v1/rpc/${f}`, { 
   const j = await r.json().catch(() => null); if (!r.ok) throw new Error((j && j.message) || "erro " + r.status); return j; };
 let COTA = 0, MAXE = 0, SAUDE = 0.5; const META_CAP = 0.7;   // meta de investimento combinada com o usuário (22/11/2026)
 const REG = Object.fromEntries((typeof MUNICIPIOS_SC_REGIOES !== "undefined" ? MUNICIPIOS_SC_REGIOES : []).map((m) => [m.nome, m.assoc]));
+// visualização: cartões (padrão no celular) ou tabela (padrão no computador); a escolha fica no navegador
+let CARDS = (() => { try { const v = localStorage.getItem("gestor_vis"); if (v) return v === "c"; } catch (e) {} return innerWidth < 700; })();
+ICI.pizza = '<circle cx="8" cy="8" r="5.5"/><path d="M8 2.5V8h5.5"/>';
+ICI.cartoes = '<rect x="2.5" y="2.5" width="11" height="4.5" rx="1.2"/><rect x="2.5" y="9" width="11" height="4.5" rx="1.2"/>';
+ICI.tabela = '<rect x="2.5" y="3" width="11" height="10" rx="1.2"/><path d="M2.5 6.5h11M2.5 9.8h11M6.5 6.5V13"/>';
 let LK = null, ABERTO = false, PEND = [], NOMEL = "", GAB = "";
 const AREAS = [["Saúde", "sau"], ["Educação", "edu"], ["Agricultura", "agr"], ["Infraestrutura e Mobilidade", "inf"], ["Segurança Pública", "seg"], ["FUNDAM", "fun"], ["Fundo Social", "soc"]];
 const NATS = [["Capital", "cap", "investimento"], ["Custeio", "cus", "custeio"]];
@@ -258,13 +279,13 @@ function render() { const L = vivas(), tot = L.reduce((s, x) => s + (+x.v || 0),
   const GR = grupoPor(L, regDe), GL = grupoPor(L, (x) => x.lid);
   const vis = ST.map((x, i) => [x, i]).filter(([x]) => (!FL || (FL[0] === "p" ? FL[2](x) : (FL[0] === "r" ? regDe(x) : x.lid || "Sem líder") === FL[1])) && (!Q || norm(CAMPOS.map((c) => x[c]).join(" ") + " " + regDe(x)).includes(norm(Q))));
   if (ORD) { const [c, d] = ORD, k = (x) => c === "n" ? (x._st === "n" ? -1 : ORIG.findIndex((o) => o.id === x.id)) : c === "v" ? +x.v || 0 : c === "reg" ? norm(regDe(x)) : norm(x[c] || ""); vis.sort((a, b) => { const A = k(a[0]), B = k(b[0]); return (A > B ? 1 : A < B ? -1 : 0) * d; }); }
-  document.getElementById("app").innerHTML = `<div class="org">${esc(GAB)}</div>
-  <div class="ihd"><h2>${esc(NOMEL)}</h2><span>Link Gestor</span><button class="ii" data-info>i</button><div class="gcr" id="gcr">${cronometro()}</div></div>
+  document.getElementById("app").innerHTML = `<div class="cab"><div class="cabt"><div class="org">${esc(GAB)}</div>
+  <div class="ihd"><h2>${esc(NOMEL)}</h2><span>Link Gestor</span><button class="ii" data-info>i</button></div></div><div class="gcr" id="gcr">${cronometro()}</div></div>
   ${quadro(L)}
   ${DIST ? `<div class="seg2"><div class="cx"><div class="cxh"><b>Por região</b><span>associação de municípios · % · valor · emendas</span></div>${barras(GR, "r", verTodasR, tot)}</div>
     <div class="cx"><div class="cxh"><b>Por líder</b><span>% · valor · emendas</span></div>${barras(GL, "l", verTodosL, tot)}</div></div>` : ""}
-  <div class="tool"><input class="busca" id="q" placeholder="Buscar município, região, objeto, líder…" value="${esc(Q)}"><button class="etq${DIST ? " on" : ""}" data-dist>% distribuição</button>${FL ? `<span class="fil">${FL[0] === "r" ? "Região" : FL[0] === "p" ? "Filtro" : "Líder"}: ${esc(FL[1])} · <button data-sf>tirar filtro</button></span>` : ""}<button class="etq" data-imp title="Imprimir">${ici("impr")}Imprimir</button>${ABERTO ? `<button class="novab" data-nova title="Nova emenda" aria-label="Nova emenda">${ici("mais")}</button>` : ""}</div>
-  <div class="sheet"><table><thead><tr><th data-o="n" style="text-align:right">Nº${ORD && ORD[0] === "n" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="mun">Município${ORD && ORD[0] === "mun" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="obj">Objeto${ORD && ORD[0] === "obj" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="area" style="text-align:center">Área · desp.${ORD && ORD[0] === "area" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="v" style="text-align:right">Valor (R$)${ORD && ORD[0] === "v" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="lid">Líder${ORD && ORD[0] === "lid" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th></th></tr></thead><tbody>
+  <div class="tool"><input class="busca" id="q" placeholder="Buscar município, região, objeto, líder…" value="${esc(Q)}"><button class="ib${DIST ? " on" : ""}" data-dist title="% distribuição por região e líder" aria-label="% distribuição">${ici("pizza")}</button>${FL ? `<span class="fil">${FL[0] === "r" ? "Região" : FL[0] === "p" ? "Filtro" : "Líder"}: ${esc(FL[1])} · <button data-sf>tirar filtro</button></span>` : ""}<button class="ib" data-imp title="Imprimir" aria-label="Imprimir">${ici("impr")}</button><button class="ib" data-vis title="${CARDS ? "Ver em tabela" : "Ver em cartões"}" aria-label="${CARDS ? "Ver em tabela" : "Ver em cartões"}">${ici(CARDS ? "tabela" : "cartoes")}</button>${ABERTO ? `<button class="novab" data-nova title="Nova emenda" aria-label="Nova emenda">${ici("mais")}</button>` : ""}</div>
+  <div class="sheet${CARDS ? " cards" : ""}"><table><thead><tr><th data-o="n" style="text-align:right">Nº${ORD && ORD[0] === "n" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="mun">Município${ORD && ORD[0] === "mun" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="obj">Objeto${ORD && ORD[0] === "obj" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="area" style="text-align:center">Área · desp.${ORD && ORD[0] === "area" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="v" style="text-align:right">Valor (R$)${ORD && ORD[0] === "v" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="lid">Líder${ORD && ORD[0] === "lid" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th></th></tr></thead><tbody>
   ${vis.map(([x, i]) => `<tr class="${x._st === "n" ? "nova" : x._st === "x" ? "exc" : ""}" data-i="${i}"><td class="n">${x._st === "n" ? "+" : ORIG.findIndex((o) => o.id === x.id) + 1}</td>
     <td class="mu">${cel(x, "mun", esc(x.mun || "—"))}<small>${esc(x.mun ? REG[x.mun] || "" : "")}</small>${x._st === "m" ? `<span class="tag m">alterada</span>` : x._st === "n" ? `<span class="tag nw">nova</span>` : x._st === "x" ? `<span class="tag x">excluir</span>` : ""}</td>
     <td class="ob">${cel(x, "obj", esc(x.obj || "—"))}</td>
@@ -321,6 +342,7 @@ function liga() { const A = document.getElementById("app");
   A.querySelectorAll("[data-md]").forEach((b) => b.onclick = () => { MD = MD === b.dataset.md ? null : b.dataset.md; redesenha(); });
   A.querySelectorAll("[data-p]").forEach((b) => b.onclick = () => { const [c, f] = DP[+b.dataset.p]; FL = FL && FL[0] === "p" && FL[1] === c ? null : ["p", c, f]; redesenha(); });
   A.querySelectorAll("th[data-o]").forEach((t) => t.onclick = () => { const c = t.dataset.o; ORD = !ORD || ORD[0] !== c ? [c, c === "v" ? -1 : 1] : ORD[1] === (c === "v" ? -1 : 1) ? [c, -ORD[1]] : null; redesenha(); });
+  A.querySelector("[data-vis]").onclick = () => { CARDS = !CARDS; try { localStorage.setItem("gestor_vis", CARDS ? "c" : "t"); } catch (e) {} redesenha(); };
   A.querySelector("[data-dist]").onclick = () => { DIST = !DIST; redesenha(); };
   const sf = A.querySelector("[data-sf]"); if (sf) sf.onclick = () => { FL = null; redesenha(); };
   const q = A.querySelector("#q"); q.oninput = () => { Q = q.value; const p = q.selectionStart; redesenha(); const q2 = document.getElementById("q"); q2.focus(); q2.setSelectionRange(p, p); };
