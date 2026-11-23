@@ -220,6 +220,11 @@ td.ac{width:70px}
 .pfc{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);padding:8px 6px 3px}
 .pfi{text-align:left;border:0;border-bottom:1px solid var(--bd);background:none;padding:7px 6px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--tx)}.pfi:hover{background:var(--tl)}.pfi small{display:block;color:var(--mu);font-weight:400;font-size:11px;margin-top:1px}
 .fh{font-weight:400;color:var(--mu);font-size:11px}
+/* card em passos (23/11) */
+.pss{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);margin:4px 0 -4px;padding-top:10px;border-top:1px dashed var(--bd)}
+.pss:first-child{border-top:0;padding-top:0}.pss span{width:18px;height:18px;border-radius:50%;background:#1D2226;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;letter-spacing:0}
+.opc.er button{border-color:#E06A55;background:#FFF5F3}.pfx{max-height:none}.pfo{max-height:210px}.pfc.vz{text-transform:none;letter-spacing:0;font-weight:500;font-size:12px;padding:8px 6px}
+.pfi.on{background:#EEF8F0}
 .erro{max-width:420px;margin:60px auto;background:var(--tl);border:1px solid var(--bd);border-radius:16px;padding:22px 24px;font-size:13px;color:var(--mu);line-height:1.5}.erro b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
@@ -347,46 +352,54 @@ function render() { const L = vivas(), tot = L.reduce((s, x) => s + (+x.v || 0),
   liga(); }
 const redesenha = () => { const y = scrollY; render(); scrollTo(0, y); };
 
-// ---------- card da emenda (nova ou editar): valor, objeto e líder obrigatórios ----------
+// card da emenda (nova ou editar) em ordem lógica (23/11/2026): 1 valor e líder · 2 município · 3 área e despesa ·
+// 4 objeto (com a lista do Portfólio já filtrada pela área e pela despesa; texto livre vale, com etiqueta vermelha) ·
+// 5 justificativa e contato (opcionais). Obrigatórios: valor, líder, município, área, despesa e objeto.
 function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova = i == null;
   let area = x.area, nat = x.nat;
-  document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="cd"><div class="cfb lg"><b>${nova ? "Nova emenda" : "Editar emenda"}</b><p>${nova ? "Os campos com <b style='color:#C0392B'>*</b> são obrigatórios: valor, objeto e líder. O resto pode ficar para depois." : "As alterações ficam marcadas até o gabinete validar."}</p>
+  const passo = (n, t) => `<div class="w pss"><span>${n}</span>${t}</div>`;
+  document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="cd"><div class="cfb lg"><b>${nova ? "Nova emenda" : "Editar emenda"}</b><p>Preencha na ordem. Os campos com <b style='color:#C0392B'>*</b> são obrigatórios.${nova ? "" : " As alterações ficam marcadas até o gabinete validar."}</p>
     <div class="fm">
+      ${passo(1, "Valor e líder")}
       <label><span>Valor (R$) <i>*</i></span><input id="f_v" inputmode="numeric" placeholder="0,00" value="${x.v ? moeda(x.v) : ""}"></label>
       <label><span>Líder <i>*</i></span><input id="f_lid" list="lids" placeholder="Nome do líder" value="${esc(x.lid || (nova && FL && FL[0] === "l" ? FL[1] : ""))}"></label>
-      <label class="w">Área <small class="fh">filtra o Portfólio</small><div class="opc" id="f_area">${AREAS.map(([n, k]) => `<button type="button" data-a="${esc(n)}" class="${n === area ? "on" : ""}">${ici(k)}${n}</button>`).join("")}</div></label>
-      <label class="w">Despesa<div class="opc" id="f_nat">${NATS.map(([n, k, d]) => `<button type="button" data-n="${n}" class="${n === nat ? "on" : ""}">${ici(k)}${n === "Capital" ? "Capital · investimento" : n}</button>`).join("")}</div></label>
-      <label class="w"><span>Objeto <i>*</i></span><textarea id="f_obj" placeholder="O que a emenda vai custear">${esc(x.obj || "")}</textarea></label>
-      <div class="w pfw"><div class="pfl"><button type="button" class="pfb" id="f_pb"></button><span id="f_fora"></span></div><div class="pfx" id="f_px" hidden><input id="f_pq" placeholder="Buscar no Portfólio…"><div class="pfo" id="f_po"></div></div></div>
-      <label class="w">Justificativa<textarea id="f_jus" placeholder="Por que esta emenda (opcional)">${esc(x.jus || "")}</textarea></label>
-      <div class="sep">Opcional</div>
-      <label>Município<input id="f_mun" list="muns" placeholder="Município" value="${esc(x.mun || "")}"></label>
-      <label>Contato<input id="f_con" placeholder="Nome e cargo" value="${esc(x.con || "")}"></label>
-
+      ${passo(2, "Onde")}
+      <label class="w"><span>Município <i>*</i></span><input id="f_mun" list="muns" placeholder="Município" value="${esc(x.mun || "")}"></label>
+      ${passo(3, "Área e despesa")}
+      <label class="w"><span>Área <i>*</i></span><div class="opc" id="f_area">${AREAS.map(([n, k]) => `<button type="button" data-a="${esc(n)}" class="${n === area ? "on" : ""}">${ici(k)}${n}</button>`).join("")}</div></label>
+      <label class="w"><span>Despesa <i>*</i></span><div class="opc" id="f_nat">${NATS.map(([n, k]) => `<button type="button" data-n="${n}" class="${n === nat ? "on" : ""}">${ici(k)}${n === "Capital" ? "Capital · investimento" : n}</button>`).join("")}</div></label>
+      ${passo(4, "Objeto")}
+      <label class="w"><span>Objeto <i>*</i> <small class="fh" id="f_ph"></small></span><textarea id="f_obj" placeholder="Escolha na lista abaixo ou escreva">${esc(x.obj || "")}</textarea></label>
+      <div class="w pfw"><span id="f_fora"></span><div class="pfx"><div class="pfo" id="f_po"></div></div></div>
+      ${passo(5, "Opcional")}
+      <label class="w">Justificativa<textarea id="f_jus" placeholder="Por que esta emenda">${esc(x.jus || "")}</textarea></label>
+      <label class="w">Contato<input id="f_con" placeholder="Nome e cargo de quem acompanha" value="${esc(x.con || "")}"></label>
     </div><div class="msg" id="f_msg"></div>
     <div class="bb"><button class="vxb" data-x title="Cancelar">✕</button><button class="vxb v" data-v title="Confirmar">✓</button></div></div></div>`);
   const w = document.getElementById("cd"), $ = (s) => w.querySelector(s);
-  w.querySelectorAll("[data-a]").forEach((b) => b.onclick = () => { area = area === b.dataset.a ? null : b.dataset.a; w.querySelectorAll("[data-a]").forEach((o) => o.classList.toggle("on", o.dataset.a === area)); });
-  w.querySelectorAll("[data-n]").forEach((b) => b.onclick = () => { nat = nat === b.dataset.n ? null : b.dataset.n; w.querySelectorAll("[data-n]").forEach((o) => o.classList.toggle("on", o.dataset.n === nat)); });
-  // Portfólio do card: filtra pela área e pela despesa escolhidas; etiqueta vermelha quando o objeto não está nele
-  const pf = () => { const L = compatP(area, nat), q = norm($("#f_pq").value), V = L.filter((o) => !q || norm(o[2] + " " + o[1] + " " + o[5]).includes(q));
-    $("#f_pb").innerHTML = `${ici("plan")}Portfólio · ${L.length} ${L.length === 1 ? "item" : "itens"}${area || nat ? " de " + [area, nat === "Capital" ? "capital" : nat ? "custeio" : ""].filter(Boolean).join(" · ") : ""}`;
-    let cat = ""; $("#f_po").innerHTML = V.slice(0, 200).map((o) => (o[1] !== cat ? `<div class="pfc">${esc(cat = o[1])}</div>` : "") + `<button type="button" class="pfi" data-o="${esc(o[2])}">${esc(o[2])}<small>${esc(o[0])} · ${esc(o[3])}${o[5] ? " · " + esc(o[5]) : ""}</small></button>`).join("") || '<div class="pfc">Nenhum item com esse filtro.</div>';
-    $("#f_po").querySelectorAll("[data-o]").forEach((b) => b.onclick = () => { $("#f_obj").value = b.dataset.o; $("#f_px").hidden = true; marca(); });
+  // lista do Portfólio: aparece já filtrada por área e despesa; o texto do objeto refina a lista
+  const pf = () => { const po = $("#f_po");
+    if (!area || !nat) { $("#f_ph").textContent = ""; po.innerHTML = `<div class="pfc vz">Escolha a área e a despesa para ver os itens do Portfólio.</div>`; marca(); return; }
+    const L = compatP(area, nat), q = norm($("#f_obj").value).split(/\s+/).filter((p) => p.length > 2), V = q.length ? L.filter((o) => q.every((p) => norm(o[2] + " " + o[1] + " " + o[5]).includes(p))) : L, M = V.length ? V : L;
+    $("#f_ph").textContent = `· ${L.length} ${L.length === 1 ? "item" : "itens"} do Portfólio para ${area} · ${nat === "Capital" ? "capital" : "custeio"}`;
+    let cat = ""; po.innerHTML = (q.length && !V.length ? `<div class="pfc vz">Nada parecido no Portfólio · todos os itens desta área e despesa:</div>` : "") + M.slice(0, 200).map((o) => (o[1] !== cat ? `<div class="pfc">${esc(cat = o[1])}</div>` : "") + `<button type="button" class="pfi${norm(o[2]) === norm($("#f_obj").value) ? " on" : ""}" data-o="${esc(o[2])}">${esc(o[2])}<small>${esc(o[3])}${o[5] ? " · " + esc(o[5]) : ""}</small></button>`).join("") || `<div class="pfc vz">O Portfólio não tem itens para esta área e despesa.</div>`;
+    po.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => { $("#f_obj").value = b.dataset.o; $("#f_obj").classList.remove("er"); pf(); });
     marca(); };
-  const marca = () => { const o = $("#f_obj").value.trim(); $("#f_fora").innerHTML = o && PORT.length && !noPort(o, area, nat) ? FORA : ""; };
-  $("#f_pb").onclick = () => { $("#f_px").hidden = !$("#f_px").hidden; if (!$("#f_px").hidden) $("#f_pq").focus(); };
-  $("#f_pq").oninput = pf; $("#f_obj").oninput = marca;
-  w.querySelectorAll("[data-a],[data-n]").forEach((b) => b.addEventListener("click", pf));
+  const marca = () => { const o = $("#f_obj").value.trim(); $("#f_fora").innerHTML = o && PORT.length && area && nat && !noPort(o, area, nat) ? FORA : ""; };
+  w.querySelectorAll("[data-a]").forEach((b) => b.onclick = () => { area = area === b.dataset.a ? null : b.dataset.a; w.querySelectorAll("[data-a]").forEach((o) => o.classList.toggle("on", o.dataset.a === area)); $("#f_area").classList.remove("er"); pf(); });
+  w.querySelectorAll("[data-n]").forEach((b) => b.onclick = () => { nat = nat === b.dataset.n ? null : b.dataset.n; w.querySelectorAll("[data-n]").forEach((o) => o.classList.toggle("on", o.dataset.n === nat)); $("#f_nat").classList.remove("er"); pf(); });
+  $("#f_obj").oninput = pf;
+  w.querySelectorAll("input, textarea").forEach((el) => el.addEventListener("input", () => el.classList.remove("er")));
   pf();
   const fecha = () => { w.remove(); document.removeEventListener("keydown", tecla); };
   const tecla = (e) => { if (e.key === "Escape") fecha(); };
   document.addEventListener("keydown", tecla);
   $("[data-x]").onclick = fecha;
-  $("[data-v]").onclick = () => { const v = numBR($("#f_v").value), obj = $("#f_obj").value.trim(), lid = $("#f_lid").value.trim();
-    [["#f_v", v > 0], ["#f_obj", obj], ["#f_lid", lid]].forEach(([s, ok]) => $(s).classList.toggle("er", !ok));
-    if (!(v > 0 && obj && lid)) { $("#f_msg").textContent = "Falta preencher: " + [!(v > 0) && "valor", !obj && "objeto", !lid && "líder"].filter(Boolean).join(", ") + "."; return; }
-    const d = { v, obj, lid, mun: $("#f_mun").value.trim() || null, con: $("#f_con").value.trim() || null, jus: $("#f_jus").value.trim() || null, area, nat };
+  $("[data-v]").onclick = () => { const v = numBR($("#f_v").value), obj = $("#f_obj").value.trim(), lid = $("#f_lid").value.trim(), mun = $("#f_mun").value.trim();
+    const R = [["#f_v", v > 0, "valor"], ["#f_lid", lid, "líder"], ["#f_mun", mun, "município"], ["#f_area", area, "área"], ["#f_nat", nat, "despesa"], ["#f_obj", obj, "objeto"]];
+    R.forEach(([s, ok]) => $(s).classList.toggle("er", !ok)); const falta = R.filter((r) => !r[1]).map((r) => r[2]);
+    if (falta.length) { $("#f_msg").textContent = "Falta preencher: " + falta.join(", ") + "."; return; }
+    const d = { v, obj, lid, mun, con: $("#f_con").value.trim() || null, jus: $("#f_jus").value.trim() || null, area, nat };
     if (nova) ST.unshift({ id: "novo" + ++nNova, ...d, _st: "n" });
     else { Object.assign(x, d); if (x._st !== "n") x._st = CAMPOS.some((k) => mudou(x, k)) ? "m" : ""; }
     fecha(); redesenha(); };
