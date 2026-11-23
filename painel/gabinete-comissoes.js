@@ -59,15 +59,19 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .tb{ flex:1 1 34px; min-width:32px; display:flex; flex-direction:column; align-items:center; gap:5px; background:none; border:0; padding:0; cursor:pointer; color:inherit; }
 .cmp .tb.of{ opacity:.35; }
 .cmp .tq{ font-size:13px; font-weight:800; font-variant-numeric:tabular-nums; }
-.cmp .tt{ position:relative; width:26px; height:170px; border-radius:13px; background:#0C0E10; border:1px solid #23262A; box-shadow:inset 0 2px 6px rgba(0,0,0,.6); overflow:hidden; display:flex; align-items:flex-end;
-  background-image:repeating-linear-gradient(0deg, transparent 0 calc(10% - 1px), rgba(138,144,150,.14) calc(10% - 1px) 10%); }
-.cmp .tb:hover .tt{ border-color:#3A4045; } .cmp .tb.on .tt{ border-color:var(--texto); box-shadow:inset 0 2px 6px rgba(0,0,0,.6), 0 0 0 2px rgba(242,244,245,.15); }
-.cmp .tf{ width:100%; display:flex; flex-direction:column-reverse; border-radius:12px; overflow:hidden; gap:2px; box-shadow:inset 0 1px 0 rgba(255,255,255,.18); }
-.cmp .tf i{ display:flex; flex-direction:column; min-height:3px; }
-.cmp .tf i u{ display:block; background:repeating-linear-gradient(45deg, var(--c) 0 2px, rgba(0,0,0,0) 2px 5px), color-mix(in srgb, var(--c) 22%, transparent); }
-.cmp .tf i em{ display:block; background:linear-gradient(90deg, color-mix(in srgb, var(--c) 82%, #000) , var(--c) 45%, color-mix(in srgb, var(--c) 88%, #000)); }
-.cmp .tvs{ position:absolute; right:3px; bottom:3px; width:5px; border-radius:3px; background:repeating-linear-gradient(0deg,#E8A23A 0 3px,#B97A1E 3px 5px); box-shadow:0 0 0 1.5px #0C0E10; }
-.cmp .tvn{ font-size:9.5px; font-weight:700; color:#F0C67A; height:12px; white-space:nowrap; } .cmp .tv0{ height:12px; }
+/* gráfico das comissões, versão limpa (23/11/2026): barra fina arredondada sobre uma linha de base comum, sem tubo,
+   brilho ou listras; empilha o tempo na comissão em três tons de um azul (mais escuro = mais antigo); a parte sem
+   relator é o mesmo tom mais claro; pedido de vista vira um ponto âmbar com o número embaixo */
+.cmp .tt{ position:relative; width:14px; height:170px; display:flex; align-items:flex-end; }
+.cmp .tt::after{ content:""; position:absolute; left:-10px; right:-10px; bottom:-1px; border-bottom:1px solid var(--linha2); }
+.cmp .tb:hover .tf{ filter:brightness(1.15); } .cmp .tb.on .tf{ box-shadow:0 0 0 2px var(--fundo), 0 0 0 3.5px var(--texto); }
+.cmp .tf{ width:100%; display:flex; flex-direction:column-reverse; border-radius:7px 7px 2px 2px; overflow:hidden; gap:2px; }
+.cmp .tf i{ display:flex; flex-direction:column; min-height:2px; }
+.cmp .tf i u{ display:block; background:color-mix(in srgb, var(--c) 42%, var(--sup)); }
+.cmp .tf i em{ display:block; background:var(--c); }
+.cmp .tvs{ display:none; }
+.cmp .tvn{ font-size:10.5px; font-weight:600; color:#E8A23A; height:14px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; } .cmp .tvn::before{ content:""; width:6px; height:6px; border-radius:50%; background:#E8A23A; } .cmp .tv0{ height:14px; }
+.cmp .tq{ font-size:12.5px; font-weight:700; }
 .cmp .tn{ writing-mode:vertical-rl; transform:rotate(180deg); font-size:11.5px; color:var(--sec); height:96px; text-align:left; white-space:nowrap; }
 .cmp .tb.on .tn{ color:var(--texto); font-weight:700; }
 .cmp .gr2{ background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:14px 14px 4px; overflow-x:auto; }
@@ -95,6 +99,7 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .busca{ flex:1 1 260px; display:flex; align-items:center; gap:8px; background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:0 14px; height:40px; }
 .cmp .busca input{ flex:1; background:none; border:0; outline:none; font-size:13.5px; }
 .cmp .busca svg{ width:15px; height:15px; color:var(--ter); flex:none; }
+.busca.ico{ flex:0 0 40px; width:40px; padding:0; justify-content:center; cursor:pointer; transition:flex-basis .15s; } .busca.ico input{ display:none; } .busca.ico.on{ flex:1 1 260px; width:auto; padding:0 14px; justify-content:flex-start; cursor:text; } .busca.ico.on input{ display:block; }
 .cmp .leq{ display:inline-flex; align-items:center; gap:8px; padding:4px 6px 4px 14px; border:1px solid var(--linha); border-radius:999px; background:var(--sup); height:40px; }
 .cmp .leq span{ font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ter); font-weight:600; }
 .cmp .leq select{ background:var(--sup2); border:0; border-radius:999px; padding:6px 10px; font-size:13px; font-weight:600; max-width:200px; }
@@ -225,7 +230,25 @@ body.dm-escuro .cmp .dx .vbox{ background:#2B2213; border-color:#5A4521; color:#
 .cmp .dx .gtl{ display:flex; justify-content:space-between; font-size:10.5px; color:var(--mu); margin-top:5px; font-variant-numeric:tabular-nums; }
 .cmp .dx .bnt{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; background:var(--bd); border:1px solid var(--bd); border-radius:14px; overflow:hidden; }
 .cmp .dx .tl2{ background:var(--tl); padding:11px 14px; display:flex; flex-direction:column; gap:6px; min-width:0; }
-.cmp .dx .tl2.w2{ grid-column:span 2; }
+.cmp .dx .tl2.w2{ grid-column:span 2; } .tl2.w4{ grid-column:1 / -1; }
+/* relator e votação (23/11) */
+.qrl{ display:flex; align-items:center; gap:10px; } .qrl b{ display:block; font-size:14px; color:var(--tx); } .qrl small{ display:block; font-size:11.5px; color:var(--mu); }
+.qri{ width:30px; height:30px; border-radius:50%; background:var(--tx); color:var(--sf); display:inline-flex; align-items:center; justify-content:center; flex:none; } .qri .i{ width:15px; height:15px; stroke:currentColor; }
+.qrv{ border-top:1px dashed var(--bd); padding-top:8px; margin-top:4px; } .qrh{ display:flex; gap:8px; align-items:baseline; font-size:12px; color:var(--mu); margin-bottom:6px; } .qrh b{ font-size:12px; color:var(--tx); }
+.qrm{ display:flex; flex-wrap:wrap; gap:5px; } .qrm i{ width:16px; height:16px; border-radius:50%; background:#D3D8DB; display:block; } .qrm i.fv{ background:var(--ac); } .qrm i.ct{ background:#D64545; } .qrm i.es{ background:transparent; border:1.5px dashed #AEB5BA; }
+.qrn{ display:flex; flex-wrap:wrap; gap:2px 12px; font-size:11.5px; color:var(--mu); margin-top:6px; } .qrn .c{ color:#B23A2A; } .qrn .f{ color:#17883A; } .qr0{ font-size:12px; color:var(--mu); }
+/* linha do tempo com ícones e degraus (23/11) */
+.tlr{ display:grid !important; grid-template-columns:52px calc(22px + var(--nv, 0) * 12px) minmax(0,1fr) !important; gap:0 8px !important; padding-top:6px !important; }
+.tld{ position:static !important; transform:none !important; text-align:right; padding-top:4px; font-size:11px; color:var(--mu); font-variant-numeric:tabular-nums; white-space:nowrap; }
+.tlv{ position:relative; display:flex !important; flex-direction:column; align-items:flex-end !important; }
+.tli{ width:22px; height:22px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:var(--tq); border:1.5px solid #9AA1A7; color:var(--mu); flex:none; position:relative; z-index:1; } .tli .i{ width:12px; height:12px; stroke:currentColor; }
+.tlv s{ align-self:flex-end; margin:3px 10px 0 0 !important; flex:1; border-left:1.5px dashed #AEB5BA; min-height:12px; }
+.tlr.on .tli{ background:rgba(31,168,69,.12); border-color:var(--ac); color:var(--ac); } .tlr.on .tlv s{ border-left-style:solid; border-color:rgba(31,168,69,.6); }
+.tlr.cur .tli{ background:var(--cz); border-color:var(--cz); color:#fff; } .tlr.vs .tli{ background:#FDF1DE; border-color:#E8A23A; color:#B97A1E; }
+.tlr.nt .tli{ background:var(--tq); border-color:var(--cz); color:var(--cz); } .tlr.pd .tli{ border-style:dashed; }
+.tlr.sobe .tlv::before{ content:""; position:absolute; right:10px; top:-6px; width:12px; height:17px; border-left:1.5px solid rgba(31,168,69,.6); border-bottom:1.5px solid rgba(31,168,69,.6); border-bottom-left-radius:7px; }
+.tlr.sobe.pd .tlv::before, .tlr.sobe.cur .tlv::before{ border-color:#AEB5BA; }
+.tlv i{ display:none; }
 .cmp .dx .tk{ display:flex; align-items:flex-start; gap:7px; font-size:11px; color:var(--mu); line-height:1.3; }
 .cmp .dx .tv{ font-size:15px; font-weight:600; line-height:1.3; overflow-wrap:anywhere; }
 .cmp .dx .tv small{ display:block; font-size:11.5px; color:var(--mu); font-weight:400; margin-top:3px; line-height:1.35; }
@@ -361,12 +384,12 @@ body.dm-escuro .cmp .dx .vbox{ background:#2B2213; border-color:#5A4521; color:#
 .cmp .kpi{ grid-template-columns:repeat(3, minmax(0,1fr)); }}
 @media (max-width:700px){ .cmp .lin{ grid-template-columns:76px minmax(0,1fr); grid-template-areas:"le obj" "le aut" "le tmw" "le rel"; } .cmp .kpi{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
 @media (prefers-reduced-motion:reduce){}`;
-let CMP_D = null, CMP_R = null;
+let CMP_D = null, CMP_R = null, CMP_C = null;   // CMP_C: composição das comissões (alesc-comissoes.json), para o quórum
 const corpoPL = () => `<div class="rhb${S.fech.cmpB === false ? "" : " fech"}" id="cmpB"><h3 data-bk="cmpB">Comissões · proposições em tramitação<small id="cmpAt">proposições nas comissões permanentes · e-Legis</small></h3><div id="cmpC"><p class="rh-nt">Carregando…</p></div></div>`;
 async function cmpAbrir() { const R = document.getElementById("cmpC"); if (!R || R.dataset.ok) return; R.dataset.ok = "1";
   if (!document.getElementById("cmpCss")) { const st = document.createElement("style"); st.id = "cmpCss"; st.textContent = CMP_CSS; document.head.appendChild(st); }
   const v = new Date().toISOString().slice(0, 10);
-  try { if (!CMP_D) [CMP_D, CMP_R] = await Promise.all([fetch("../dados/painel/alesc-comissoes-tram.json?v=" + v).then((r) => r.json()), fetch("../dados/painel/alesc-comissoes-resumos.json?v=" + v).then((r) => r.ok ? r.json() : { R: {} }).catch(() => ({ R: {} }))]); }
+  try { if (!CMP_D) [CMP_D, CMP_R] = await Promise.all([fetch("../dados/painel/alesc-comissoes-tram.json?v=" + v).then((r) => r.json()), fetch("../dados/painel/alesc-comissoes-resumos.json?v=" + v).then((r) => r.ok ? r.json() : { R: {} }).catch(() => ({ R: {} }))]); if (!CMP_C) CMP_C = await fetch("../dados/painel/alesc-comissoes.json?v=" + v).then((r) => r.ok ? r.json() : null).catch(() => null); }
   catch (e) { R.innerHTML = `<p class="rh-nt">Não foi possível carregar as comissões.</p>`; delete R.dataset.ok; return; }
   R.innerHTML = `<div class="cmp">
   
@@ -375,7 +398,7 @@ async function cmpAbrir() { const R = document.getElementById("cmpC"); if (!R ||
   <div class="coms" id="coms"></div>
   <div class="lg" id="lgc"></div>
   <div class="bar" id="bar">
-    <label class="busca"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="m10.5 10.5 3.5 3.5"/></svg><input id="q" placeholder="Buscar número, autor, relator ou assunto" aria-label="Buscar" autocomplete="off"></label>
+    <label class="busca ico" id="buscaL" title="Buscar"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.6"/><path d="m10.5 10.5 3.5 3.5"/></svg><input id="q" placeholder="Buscar número, autor, relator ou assunto" aria-label="Buscar" autocomplete="off"></label>
     <label class="leq"><span>Tipo</span><select id="fTipo"></select></label>
     <label class="leq"><span>Tema</span><select id="fTema"></select></label>
     <label class="leq"><span>Relator</span><select id="fRel"></select></label>
@@ -421,18 +444,19 @@ const CURTO = { CCJ: "CCJ", CFT: "Finanças", CTA: "Trabalho", CED: "Ética", CA
 // mesmo desenho dos gráficos das Cotas (pcEmpilhada em gabinete-cotas.js): faixas da rampa azul-acinzentada, cheio = com relator,
 // listrado = aguardando relator, traço escuro entre as partes, total em cima, grade tracejada. Eixo em raiz quadrada (marcado no eixo)
 // para a CCJ, com quase 700, não achatar as demais.
-const FX = [["até 90 dias", (d) => d <= 90, "#C9D4DE"], ["91 a 365 dias", (d) => d > 90 && d <= 365, "#647C96"], ["mais de 365 dias", (d) => d > 365, "#2E3B4B"]];
+const FX = [["até 90 dias", (d) => d <= 90, "#BFD3EA"], ["91 a 365 dias", (d) => d > 90 && d <= 365, "#6E9BD1"], ["mais de 365 dias", (d) => d > 365, "#2F6DB5"]];
 // colunas de mesma altura (20/11/2026, pedido do usuário): um tubo arredondado com fundo fundo (como as barras do sistema de
 // palpites) e o preenchimento subindo de baixo, nas cores das Cotas; o nível do preenchimento é a raiz da quantidade em relação
 // à maior comissão (para as pequenas aparecerem), as partes dentro dele são proporcionais
 function grade() { const B = D.L.filter((x) => passa(x, "com")), por = (s) => B.filter((x) => x.csig === s), nome = (s) => (D.coms.find((c) => c[1] === s) || [s])[0];
-  const mx = Math.max(1, ...[...ORD9, ...ORD7].map((s) => por(s).length));
-  const col = (s) => { const A = por(s), n = A.length, c = nome(s), nv = n ? Math.max(6, Math.sqrt(n / mx) * 100) : 0, vs = A.filter((x) => x.vista).length, cr = A.filter((x) => x.rel).length;
+  // escala própria em cada grupo (9 e 7 membros): a CCJ sozinha achataria as comissões menores; o número em cima dá o total
+  const mxG = (G) => Math.max(1, ...G.map((s) => por(s).length));
+  let mx = 1; const col = (s) => { const A = por(s), n = A.length, c = nome(s), nv = n ? Math.max(1.5, n / mx * 100) : 0, vs = A.filter((x) => x.vista).length, cr = A.filter((x) => x.rel).length;
     const segs = FX.map(([r, f, cor], i) => { const Q = A.filter((x) => f(x.dias || 0)); if (!Q.length) return ""; const k = Q.filter((x) => x.rel).length;
       return `<i style="flex:${Q.length};--c:${cor}" title="${esc(c)} · há ${r} na comissão: ${Q.length} (${k} com relator)"><u style="flex:${Q.length - k}"></u><em style="flex:${k}"></em></i>`; }).join("");
     return `<button class="tb${F.com === c ? " on" : F.com ? " of" : ""}" data-c="${esc(c)}" title="${esc(c)}: ${n} proposições · ${cr} com relator${vs ? " · " + vs + " em vista" : ""}">
-      <span class="tq">${n}</span><span class="tt"><span class="tf" style="height:${nv.toFixed(1)}%">${segs}</span>${vs ? `<b class="tvs" style="height:${(vs / n * nv).toFixed(1)}%" title="${vs} de ${n} em pedido de vista"></b>` : ""}</span>${vs ? `<span class="tvn">${vs} vista${vs > 1 ? "s" : ""}</span>` : `<span class="tv0"></span>`}<span class="tn">${esc(CURTO[s] || s)}</span></button>`; };
-  return `<div class="gr3"><div class="gg3"><small>9 membros</small><div>${ORD9.map(col).join("")}</div></div><div class="gg3"><small>7 membros</small><div>${ORD7.map(col).join("")}</div></div></div>`; }
+      <span class="tq">${n}</span><span class="tt"><span class="tf" style="height:${nv.toFixed(1)}%">${segs}</span>${vs ? `<b class="tvs" style="height:${(vs / n * nv).toFixed(1)}%" title="${vs} de ${n} em pedido de vista"></b>` : ""}</span>${vs ? `<span class="tvn" title="${vs} em pedido de vista">${vs}</span>` : `<span class="tv0"></span>`}<span class="tn">${esc(CURTO[s] || s)}</span></button>`; };
+  return `<div class="gr3"><div class="gg3"><small>9 membros</small><div>${(mx = mxG(ORD9), ORD9.map(col).join(""))}</div></div><div class="gg3"><small>7 membros · escala própria</small><div>${(mx = mxG(ORD7), ORD7.map(col).join(""))}</div></div></div>`; }
 // ranking (20/11/2026): relatores (designados, relataram, relatorias abertas, dias com a relatoria aberta), pedidos de vista abertos
 // e autores, dentro da comissão escolhida (filtro do topo) ou em todas; mais ou menos; clicar no nome filtra a lista
 const RKM = { rel: [["des", "designados"], ["fez", "relataram"], ["abe", "relatorias abertas"], ["dia", "dias com a relatoria aberta (média)"]], vis: [["n", "vistas abertas"], ["dia", "dias em vista (média)"]], aut: [["n", "em tramitação"], ["l", "há mais de 365 dias na comissão"], ["dia", "dias na Assembleia (média)"]] };
@@ -456,7 +480,7 @@ function ranking() { const B = D.L.filter((x) => passa(x, "com")), naCom = (c) =
     ${card("vis", "Pedidos de vista abertos", R2, (o) => `${o.n} em vista · ${o.dn ? Math.round(o.dsum / o.dn) : 0} dias em média`)}
     ${card("aut", "Autores", R3, (o) => `${o.n} em tramitação · ${o.l} há mais de 365 dias na comissão · ${o.dn ? Math.round(o.dsum / o.dn) : 0} dias na Assembleia em média`)}</div></div>`; }
 function comissoes() { if (F.cv === "rank") { $("#coms").innerHTML = ranking(); $("#coms").className = ""; $("#lgc").className = "lg"; $("#lgc").innerHTML = ""; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
-  if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c};box-shadow:inset 0 0 0 1px rgba(242,244,245,.18)"></i>na comissão há ${r}</span>`).join("") + `<span><i style="background:#C9D4DE"></i>cheio = com relator</span><span><i style="background:repeating-linear-gradient(45deg,#C9D4DE 0 2px,transparent 2px 5px)"></i>listrado = aguardando relator</span><span><i style="background:repeating-linear-gradient(0deg,#E8A23A 0 3px,#B97A1E 3px 5px);width:5px"></i>em pedido de vista (parte do total)</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
+  if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c}"></i>na comissão há ${r}</span>`).join("") + `<span><i style="background:color-mix(in srgb, #6E9BD1 42%, #14191A)"></i>tom mais claro = aguardando relator</span><span><i style="background:#E8A23A;border-radius:50%;width:7px;height:7px"></i>em pedido de vista</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
   $("#coms").className = "coms"; $("#lgc").className = "lg"; $("#lgc").innerHTML = `<span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span>`; const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
   $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
     return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cmd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
@@ -470,7 +494,7 @@ const P = { ok: '<path d="M3.5 8.5l3 3 6-7"/>', rel: '<circle cx="8" cy="5.5" r=
   mais: '<path d="M8 3v10 M3 8h10"/>', proib: '<circle cx="8" cy="8" r="5.5"/><path d="M4.2 11.8l7.6-7.6"/>', lei: '<path d="M8 2v12 M3 5h10 M3 5l-2 5h4z M13 5l-2 5h4z M5 14h6"/>', seta: '<path d="M6 3l5 5-5 5"/>',
   ext: '<path d="M9 3h4v4 M13 3L7 9 M11 9.5V13H3V5h3.5"/>', doc: '<path d="M4 2h6l3 3v9H4z M10 2v3h3 M6 8h5 M6 11h5"/>', elo: '<path d="M7 9a3 3 0 0 0 4.2 0l2-2a3 3 0 0 0-4.2-4.2l-.8.8 M9 7a3 3 0 0 0-4.2 0l-2 2a3 3 0 0 0 4.2 4.2l.8-.8"/>',
   bal: '<path d="M3 3h10v7H7l-3 3v-3H3z"/>', impr: '<path d="M4 6V2h8v4 M4 12H2.5V6.5h11V12H12 M4 10h8v4H4z"/>', relog: '<circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.2l2 1.3"/>', menos: '<path d="M3 8h10"/>',
-  troca: '<path d="M3 5.5h9l-2.5-2.5 M13 10.5H4l2.5 2.5"/>', band: '<path d="M4 14V2.5 M4 3h8l-1.5 3L12 9H4"/>', entra: '<path d="M2.5 8h8 M7.5 5l3 3-3 3 M11 3h2.5v10H11"/>', fecha: '<path d="M4 6l4 4 4-4"/>' };
+  troca: '<path d="M3 5.5h9l-2.5-2.5 M13 10.5H4l2.5 2.5"/>', band: '<path d="M4 14V2.5 M4 3h8l-1.5 3L12 9H4"/>', entra: '<path d="M2.5 8h8 M7.5 5l3 3-3 3 M11 3h2.5v10H11"/>', olho: '<path d="M1.5 8s2.4-4.5 6.5-4.5S14.5 8 14.5 8s-2.4 4.5-6.5 4.5S1.5 8 1.5 8z"/><circle cx="8" cy="8" r="1.8"/>', lupa: '<circle cx="7" cy="7" r="4.2"/><path d="M10.2 10.2l3.3 3.3"/>', req: '<path d="M4 2h6l3 3v9H4z M10 2v3h3 M6 10l1.5 1.5L11 8"/>', jornal: '<path d="M2.5 3.5h9v9h-9z M11.5 6h2v6.5h-11 M4.5 6h5 M4.5 8.5h5 M4.5 11h3"/>', fecha: '<path d="M4 6l4 4 4-4"/>' };
 const ic = (k) => `<svg viewBox="0 0 16 16" class="i">${P[k] || P.doc}</svg>`;
 const EL = "https://portalelegis.alesc.sc.gov.br";
 const situacao = (x) => /emenda/i.test(x.sit) ? `Análise de emenda na ${x.csig}` : x.vista ? `Em vista · ${x.vista.quem || "deputado"} · ${x.csig}` : /vista/i.test(x.sit) ? `Pedido de vista na ${x.csig}` : /dilig/i.test(x.sit) ? `Em diligência · ${x.csig}` : x.rel ? `Aguardando parecer na ${x.csig}` : `Aguardando relator na ${x.csig}`;
@@ -512,11 +536,27 @@ function rito(x) { if (x.h && x.h.length && x.h[x.h.length - 1][0] === x.csig) r
 function tempo(x) { const { S, tot } = rito(x), cl = { lei: "ex", sem: "sm", arq: "aq", ok: "ok", ps: "ps", atual: "atual", vs: "vs" };
   return `<div class="gt"><div class="gth"><span>Tempo de tramitação por etapa</span><b>${ni(x.casa)} dias na Assembleia</b></div><div class="gtb">${S.map((e) => `<i class="${cl[e.k]}" style="flex:${Math.max(e.d, tot / 80)}" title="${esc(e.t)}">${e.d / tot > .14 ? esc(e.k === "vs" ? "Vista · " + (x.vista.quem || "") : e.s) + " · " + e.d + "d" : e.d / tot > .05 ? e.d + "d" : ""}</i>`).join("")}</div><div class="gtl"><span>${x.lido ? "lido " + br(x.lido) : "protocolo " + br(x.prot)}</span><span>hoje · ${br(HOJE)}</span></div></div>`; }
 const tile = (k, r, v, s, c) => `<div class="tl2"><span class="tk">${ic(k)}${r}</span><span class="tv ${c || ""}">${v}${s ? `<small>${s}</small>` : ""}</span></div>`;
-function dispositivos(Z) { const d = Z && Z.disp; if (!d) return "";
-  const B = (d.b || []).map((b) => typeof b === "string" ? `<i>${esc(b)}</i>` : b[0] === "→" ? "<em>→</em>" : `<i class="${b[1] || ""}">${esc(b[0])}</i>`).join("");
-  return `<div class="tl2 w2"><span class="tk">${ic("lista")}Dispositivos · ${d.art} ${d.art === 1 ? "artigo" : "artigos"}</span>${B ? `<div class="dsp">${B}</div>` : ""}<span class="tv" style="font-size:12px;font-weight:500"><small style="margin:0">${esc(d.txt || "")}</small></span></div>`; }
-function avanco(x) { const n = x.fluxo.length, ok = x.fluxo.filter((c) => c.st === "ok").length;
-  return `<div class="tl2 w2"><span class="tk">${ic("seta")}Avanço nas comissões</span><div class="avn"><b>${ok}/${n}</b><span>${ok === 1 ? "comissão aprovou" : "comissões aprovaram"}</span></div><div class="avs">${x.fluxo.map((c) => `<span class="${c.st}"><i>${c.st === "ok" ? ic("ok") : ""}${esc(c.s)}</i><small>${c.st === "ok" ? "aprovou" : c.st === "atual" ? (c.volta ? "voltou" : "agora") : "falta"}</small></span>`).join("")}</div></div>`; }
+function dispositivos(Z) { const d = Z && Z.disp; if (!d) return "";   // só quantos são (23/11/2026)
+  return `<div class="tl2"><span class="tk">${ic("lista")}Dispositivos</span><span class="tv">${d.art} ${d.art === 1 ? "artigo" : "artigos"}${d.txt ? `<small>${esc(String(d.txt).replace(/^\d+ artigos? · /, ""))}</small>` : ""}</span></div>`; }
+// relator e quórum (23/11/2026): relator da comissão atual e, para cada votação de parecer registrada no e-Legis, os
+// membros da comissão (alesc-comissoes.json) em bolinhas, com os votos contrários em vermelho. O e-Legis não informa
+// quantos estavam presentes; "por unanimidade" = todos os presentes a favor.
+function membrosDe(nome) { const C = (CMP_C && CMP_C.comissoes) || [], n = norm(nome), k = C.find((c) => norm(c.nome).endsWith(n) || norm(c.nome).includes(n));
+  return k ? [...new Set([k.presidente, k.vice, ...(k.membros || [])].filter(Boolean))] : []; }
+function votacoes(x) { const V = [];
+  x.tram.forEach(([d, sit, para, obs]) => { if (!/Parecer|Relat[óo]rio/i.test(sit) || !/unanim|maioria/i.test(obs || "")) return;
+    const contra = ((obs.match(/votos? contr[áa]rios? d[oa]s? (.+)$/i) || [])[1] || "").split(/,|\s+e\s+/).map((q) => q.replace(/^\s*(Dep\.|Deputad[oa]s?)\s*/i, "").replace(/[.;]\s*$/, "").trim()).filter(Boolean);
+    V.push({ d, com: String(para || "").replace(/^Comiss[ãa]o (de |da |do |dos |das )?/i, ""), sig: sigDe(para), ok: !/rejeitad/i.test(sit + " " + obs), un: /unanim/i.test(obs), contra, txt: sit.replace(/\s+/g, " ") }); });
+  return V.sort((a, b) => a.d < b.d ? -1 : 1); }
+function assentos(M, contra, cl) { const nc = contra.map(norm), L = M.length ? M : contra;
+  return `<span class="qrm">${L.map((m) => `<i class="${nc.some((c) => norm(m).includes(c) || c.includes(norm(m))) ? "ct" : cl}" title="${esc(m)}"></i>`).join("")}${M.length ? "" : ""}</span>`; }
+function votacao(x) { const V = votacoes(x), Ma = membrosDe(x.com);
+  const rel = `<div class="qrl"><span class="qri">${ic("rel")}</span><span><b>${x.rel ? esc(x.rel) : "Relator a designar"}</b><small>${x.rel ? "relator na " + esc(x.csig) + (x.relDist ? " desde " + br(x.relDist) : "") : "há " + (x.dias ?? "—") + " dias na " + esc(x.csig) + " sem relator"}</small></span></div>`;
+  const agora = V.some((v) => v.sig === x.csig) ? "" : `<div class="qrv"><div class="qrh"><b>${esc(x.csig)}</b><span>aguardando votação${Ma.length ? " · " + Ma.length + " membros" : ""}</span></div>${assentos(Ma, [], "es")}</div>`;
+  const feitas = V.map((v) => { const M = membrosDe(v.com), nf = M.length ? M.length - v.contra.length : null;
+    return `<div class="qrv"><div class="qrh"><b>${esc(v.sig)}</b><span>${br(v.d)} · ${v.ok ? "aprovado" : "rejeitado"} ${v.un ? "por unanimidade" : "por maioria"}</span></div>${assentos(M, v.contra, v.ok ? "fv" : "es")}
+      <div class="qrn">${M.length ? `<span>${M.length} membros</span>` : ""}<span class="c">${!v.un && !v.contra.length ? "contrários não identificados no e-Legis" : v.contra.length + " " + (v.contra.length === 1 ? "contrário" : "contrários") + (v.contra.length ? ": " + esc(v.contra.join(", ")) : "")}</span><span class="f">${v.un ? "favoráveis: todos os presentes" : "demais presentes a favor"}</span><span>presentes: não informado</span></div></div>`; }).join("");
+  return `<div class="tl2 w4"><span class="tk">${ic("rel")}Relator e votação</span>${rel}${agora}${feitas || (agora ? "" : "")}${!V.length ? `<small class="qr0">Nenhuma votação de parecer registrada ainda.</small>` : ""}</div>`; }
 const SIT = [[/Lido no Expediente/i, "Lido no Expediente"], [/Publicado no Di[áa]rio/i, "Publicado no Diário"], [/Aguardando aprecia[çc][ãa]o pela Comiss[ãa]o/i, "@chegou"], [/Aguardando An[áa]lise de Emenda/i, "Volta para análise de emenda"],
   [/^Vista ao/i, "@vista"], [/devolv.*vista|vista.*devolv|Pedido de vista resolvido/i, "Vista devolvida"], [/Voto vista/i, null], [/Dilig[êe]ncia solicitad|Em Dilig/i, "Diligência pedida"], [/Respondida a Dilig/i, "Diligência respondida"], [/apensad|tramita[çc][ãa]o conjunta/i, "Tramitação conjunta"], [/Requerimento.*APROVADO/i, "Requerimento aprovado"], [/Parecer/i, null], [/Devolvid/i, "Devolvido"]];
 function eventos(x) { const E = [{ d: x.prot, t: "Protocolado", s: x.autor }];
@@ -524,12 +564,15 @@ function eventos(x) { const E = [{ d: x.prot, t: "Protocolado", s: x.autor }];
     const q = obs && (obs.match(/Vistas? (?:ao|à|aos|às)s? (?:Deputad[oa]s?|Dep\.?)\s+(.+?)(?:,|\s+solicitad|$)/i) || [])[1];
     E.push({ d, t: m[1] === "@vista" && q ? `Pedido de vista · ${q}` : t, s: m[1] === "@chegou" ? para : m[1] === "@vista" ? ((obs || "").match(/\d+ª reuni[ãa]o[^,]*/i) || [para])[0] : obs && obs.length < 140 ? obs : para || "", vs: m[1] === "@vista" }); });
   x.fluxo.forEach((c) => { if (c.dist) E.push({ d: c.dist, t: `Relator na ${c.s}`, s: c.rel || "" }); if (c.st === "ok" && c.concl) E.push({ d: c.concl, t: `${c.s} conclui`, s: c.par ? "parecer " + c.par.toLowerCase() : "" }); });
-  const vis = new Set(), U = E.filter((e) => e.d).sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : 0).filter((e) => { const k = e.d + e.t; if (vis.has(k)) return false; vis.add(k); return true; });
-  const L = U.length > 9 ? [U[0], { nota: 1, t: `${U.length - 8} passos antes`, s: "ver todos no e-Legis" }, ...U.slice(-7)] : U;
+  const vis = new Set(), ORDT = (t) => /conclui|Parecer|Requerimento/i.test(t) ? 0 : /^Chegou/.test(t) ? 2 : 1, U = E.filter((e) => e.d).sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : ORDT(a.t) - ORDT(b.t)).filter((e) => { const k = e.d + e.t; if (vis.has(k)) return false; vis.add(k); return true; });
+  let nv = 0; U.forEach((e) => { if (/^Chegou à/.test(e.t)) nv++; e.nv = nv; e.k = tlIcone(e.t); });   // nível = em qual comissão está (sobe um degrau a cada chegada)
+  const L = U.length > 9 ? [U[0], { nota: 1, t: `${U.length - 8} passos antes`, s: "ver todos no e-Legis", nv: U[U.length - 7].nv, k: "lista" }, ...U.slice(-7)] : U;
   const prox = !x.rel ? `Relator na ${x.csig}` : x.vista || /vista/i.test(x.sit) ? `Devolução da vista${x.vista && x.vista.quem ? " · " + x.vista.quem : ""}` : `Parecer da ${x.csig}`;
-  return [...L.map((e, i) => ({ ...e, cl: e.nota ? "on nt" : i === L.length - 1 ? "cur" + (e.vs ? " vs" : "") : "on" + (e.vs ? " vs" : "") })), { t: prox, s: "próximo passo", cl: "pd" }]; }
+  return [...L.map((e, i) => ({ ...e, cl: e.nota ? "on nt" : i === L.length - 1 ? "cur" + (e.vs ? " vs" : "") : "on" + (e.vs ? " vs" : "") })), { t: prox, s: "próximo passo", cl: "pd", nv: (L[L.length - 1] || {}).nv || 0, k: /^Relator/.test(prox) ? "rel" : /vista/i.test(prox) ? "olho" : "relog" }]; }
+// ícone padrão por tipo de passo da linha do tempo
+function tlIcone(t) { return /^Protocolado/.test(t) ? "doc" : /^Chegou/.test(t) ? "entra" : /^Relator/.test(t) ? "rel" : /vista/i.test(t) ? "olho" : /Dilig/i.test(t) ? "lupa" : /conclui|Parecer/i.test(t) ? "ok" : /Requerimento/i.test(t) ? "req" : /conjunta/i.test(t) ? "elo" : /Devolvid|Volta/i.test(t) ? "troca" : /Lido|Publicado/i.test(t) ? "jornal" : "seta"; }
 function linhaTempo(x) { const E = eventos(x);
-  return `<div class="tlq"><div class="tlh"><span>Linha do tempo</span><b>${esc(situacao(x))}</b></div>${E.map((e, i) => `<div class="tlr ${e.cl}"><div class="tlv">${e.d ? `<span class="tld">${br(e.d).slice(0, 6) + br(e.d).slice(8)}</span>` : ""}<i></i>${i < E.length - 1 ? "<s></s>" : ""}</div><div class="tlc"><b>${esc(e.t)}</b>${e.s ? `<span>${esc(e.s)}</span>` : ""}</div></div>`).join("")}</div>`; }
+  return `<div class="tlq"><div class="tlh"><span>Linha do tempo</span><b>${esc(situacao(x))}</b></div>${E.map((e, i) => `<div class="tlr ${e.cl}${i && (e.nv || 0) > (E[i - 1].nv || 0) ? " sobe" : ""}" style="--nv:${Math.min(6, e.nv || 0)}"><span class="tld">${e.d ? br(e.d).slice(0, 6) + br(e.d).slice(8) : ""}</span><div class="tlv"><span class="tli">${ic(e.k || "seta")}</span>${i < E.length - 1 ? "<s></s>" : ""}</div><div class="tlc"><b>${esc(e.t)}</b>${e.s ? `<span>${esc(e.s)}</span>` : ""}</div></div>`).join("")}</div>`; }
 function relacionadas(x, Z) { const A = [[EL + "/proposicoes/" + x.id, "elo", "Página no e-Legis", "tramitação, documentos e emendas"]];
   ((Z && Z.d) || []).forEach(([doc, tipo, nome, d]) => A.push([EL + "/documentos/" + doc, "doc", tipo || "Documento", [nome, d ? br(d) : ""].filter(Boolean).join(" · ")]));
   ((Z && Z.rel) || []).forEach(([t, s]) => A.push(["", /PL|PEC|PLC/.test(t) ? "entra" : "lei", t, s]));
@@ -547,9 +590,8 @@ function detalhe(x) { const Z = RES[x.id] || null, c = x.fluxo.find((f) => f.st 
   ${passos(x)}${tempo(x)}
   <div class="bnt">${tile("din", "Impacto fiscal", Z && Z.fis ? esc(Z.fis[0]) : "—", Z && Z.fis ? esc(Z.fis[1] || "") : "a ler no projeto", Z && Z.fis && /^(nenhum|R\$ 0)/i.test(Z.fis[0]) ? "ok0" : "")}
     ${tile("lei", Z && Z.lei ? Z.lei[2] || "Norma alterada" : "Norma", Z && Z.lei ? esc(Z.lei[0]) : "—", Z && Z.lei ? esc(Z.lei[1] || "") : "")}
-    ${tile("rel", "Relator na " + esc(x.csig), x.rel ? `<span class="av">${esc(iniciais(x.rel))}</span>${esc(x.rel)}` : `<span class="av vz">?</span>A designar`, x.rel ? "designado em " + br(x.relDist) : `há ${x.dias ?? "—"} dias sem relator`)}
     ${tile("cal", "Protocolo", br(x.prot), `há ${ni(x.casa)} dias na Assembleia`)}
-    ${dispositivos(Z) || `<div class="tl2 w2"><span class="tk">${ic("lista")}Ementa</span><span class="tv" style="font-size:13px;font-weight:400;line-height:1.5">${esc(x.ementa)}</span></div>`}${avanco(x)}</div>
+    ${dispositivos(Z) || tile("lista", "Dispositivos", "—", "a ler no projeto")}${votacao(x)}</div>
   ${Z ? `<div class="dois"><div class="cx"><div class="cxh">${ic("lista")}O que muda</div>${(Z.muda || []).map(([k, a, b]) => { const [ik, cl] = MI[k] || ["seta", ""]; return `<div class="it"><span class="ic ${cl}">${ic(ik)}</span><span>${esc(a)}${b ? `<small>${esc(b)}</small>` : ""}</span></div>`; }).join("")}</div>
     <div class="cx"><div class="cxh">${ic("bal")}Por quê</div><div class="txt">${esc(Z.pq || "")}</div>${Z.fund && Z.fund.length ? `<div class="cxh" style="margin:14px 0 6px">${ic("lei")}Fundamentos citados</div><div class="fd">${Z.fund.map((f) => `<span>${esc(f)}</span>`).join("")}</div>` : ""}</div></div>` : `<div style="height:12px"></div>`}
   <div class="base">${linhaTempo(x)}${relacionadas(x, Z)}</div>
@@ -618,6 +660,9 @@ R.addEventListener("click", (e) => { const t = e.target;
   const r = t.closest("[data-id]"); if (r) { const id = r.dataset.id; if (F.vis === "quadro") { F.vis = "lista"; R.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b.dataset.v === "lista")); F.q = ""; }
     F.ab = F.ab === id ? null : id; const i = D.L.findIndex((x) => x.id === id); desenhar(); const el = R.querySelector(`.lin[data-id="${CSS.escape(id)}"]`); if (el) el.scrollIntoView({ block: "nearest" }); } });
 $("#q").oninput = (e) => { F.q = e.target.value; F.lim = 60; desenhar(); };
+// busca só com o ícone (23/11/2026): abre ao tocar; fecha ao sair se estiver vazia
+$("#buscaL").addEventListener("mousedown", () => { const l = $("#buscaL"); if (!l.classList.contains("on")) { l.classList.add("on"); setTimeout(() => $("#q").focus(), 0); } });
+$("#q").addEventListener("blur", () => { if (!$("#q").value.trim()) $("#buscaL").classList.remove("on"); });
 [["#fTipo", "tipo"], ["#fTema", "tema"], ["#fRel", "rel"], ["#fAut", "aut"], ["#fIdade", "idade"]].forEach(([s, k]) => $(s).onchange = (e) => { F[k] = e.target.value; F.lim = 60; desenhar(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && F.ab && document.body.contains(R)) { F.ab = null; desenhar(); } });
 const at = document.getElementById("cmpAt"); if (at) at.textContent = "e-Legis · atualizado em " + new Date(D.gerado).toLocaleDateString("pt-BR") + " às " + new Date(D.gerado).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
