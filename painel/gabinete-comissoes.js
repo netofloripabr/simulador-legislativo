@@ -72,6 +72,21 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .tvs{ display:none; }
 .cmp .tvn{ font-size:10.5px; font-weight:600; color:#E8A23A; height:14px; white-space:nowrap; display:inline-flex; align-items:center; gap:4px; } .cmp .tvn::before{ content:""; width:6px; height:6px; border-radius:50%; background:#E8A23A; } .cmp .tv0{ height:14px; }
 .cmp .tq{ font-size:12.5px; font-weight:700; }
+/* mapa de calor relator × tempo (23/11, 3ª versão) — um tom só, do fraco ao forte */
+.cmp .hm{ background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:14px 14px 10px; overflow-x:auto; }
+.cmp .hm-h{ margin:0 0 10px 2px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; } .cmp .hm-s{ background:var(--sup2); color:var(--texto); border:1px solid var(--linha2); border-radius:999px; padding:7px 12px; font:inherit; font-size:12.5px; max-width:100%; } .cmp .hm-h b{ display:block; font-size:14px; color:var(--texto); } .cmp .hm-h span{ font-size:12px; color:var(--ter); }
+.cmp .hm-g{ display:flex; flex-direction:column; gap:3px; min-width:620px; }
+.cmp .hm-r{ display:grid; grid-template-columns:minmax(140px,1.4fr) repeat(6, minmax(52px,1fr)) 56px; gap:3px; align-items:stretch; }
+.cmp .hm-n{ background:none; border:0; color:var(--sec); font:inherit; font-size:12.5px; text-align:left; padding:0 6px; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; border-radius:6px; }
+.cmp .hm-n:hover{ color:var(--texto); background:var(--sup2); } .cmp .hm-r.on .hm-n{ color:var(--texto); font-weight:700; } .cmp .hm-r.sem .hm-n{ color:#E8A23A; font-weight:600; }
+.cmp .hm-c{ height:30px; border:0; border-radius:5px; font:inherit; font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; cursor:pointer; background:rgba(242,244,245,.035); color:var(--texto); }
+.cmp .hm-c:disabled{ cursor:default; } .cmp .hm-c:not(:disabled):hover{ outline:1.5px solid var(--texto); outline-offset:-1.5px; } .cmp .hm-c.on{ outline:2px solid var(--texto); outline-offset:-2px; }
+.cmp .s1, .cmp .hm-k.s1{ background:#1C3048; } .cmp .s2, .cmp .hm-k.s2{ background:#24497A; } .cmp .s3, .cmp .hm-k.s3{ background:#3569AE; } .cmp .s4, .cmp .hm-k.s4{ background:#8DB6EA; color:#0B0F0D; }
+.cmp .hm-k{ display:inline-block; width:22px; height:12px; border-radius:3px; }
+.cmp .hm-x{ background:none; border:0; font:inherit; font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--ter); padding:4px 2px; cursor:pointer; border-radius:6px; } .cmp .hm-x:hover{ color:var(--texto); } .cmp .hm-x.on{ color:var(--texto); background:var(--sup3); }
+.cmp .hm-t{ display:flex; align-items:center; justify-content:flex-end; padding-right:6px; font-size:12px; font-variant-numeric:tabular-nums; color:var(--sec); } .cmp .hm-cab .hm-t{ font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ter); }
+.cmp .hm-sum{ border-top:1px solid var(--linha); padding-top:4px; margin-top:2px; } .cmp .hm-sum .hm-t, .cmp .hm-sum .hm-n{ font-weight:700; color:var(--texto); justify-content:center; } .cmp .hm-sum .hm-n{ justify-content:flex-start; cursor:default; } .cmp .hm-sum .hm-t:last-child{ justify-content:flex-end; }
+.cmp .hm-mais{ margin-top:8px; background:none; border:0; color:var(--a); font:inherit; font-size:12.5px; cursor:pointer; }
 .cmp .hgr{ display:flex; flex-direction:column; gap:14px; background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:12px 12px 8px; }
 .cmp .hh, .cmp .hb{ display:grid; grid-template-columns:minmax(120px,190px) minmax(0,1fr) 78px 64px; gap:12px; align-items:center; }
 .cmp .hh{ font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ter); padding:0 8px 4px; border-bottom:1px solid var(--linha); margin-bottom:2px; } .cmp .hh span:nth-child(n+3){ text-align:right; letter-spacing:.04em; }
@@ -427,7 +442,7 @@ function cmpIniciar(D, R, RES) {
 const $ = (s) => R.querySelector(s), esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const ni = (n) => (n || 0).toLocaleString("pt-BR"), br = (d) => d ? d.split("-").reverse().join("/") : "—";
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const F = { fut: false, flim: { p: 30, m: 30 }, cv: "cartoes", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
+const F = { fx: null, hall: false, fut: false, flim: { p: 30, m: 30 }, cv: "cartoes", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
 const HOJE = new Date().toISOString().slice(0, 10), dd = (a, b) => a && b ? Math.max(0, Math.round((new Date(b) - new Date(a)) / 864e5)) : null;
 D.L.forEach((x) => { x.casa = dd(x.prot, HOJE); });
 // tema: o do resumo (1º nível) quando existe; senão o da classificação automática pela ementa
@@ -441,7 +456,7 @@ const etq = (x, pe) => `<span class="cmeto${pe ? " pe" : ""}"><b style="backgrou
 const fluxo = (x) => `<div class="fl">${x.fluxo.map((c, i) => `${i ? `<i class="ln${x.fluxo[i - 1].st === "ok" ? " ok" : ""}"></i>` : ""}<span class="p ${c.st}" title="${esc(c.n)}${c.st === "ok" ? " · aprovada" + (c.par ? " (" + c.par + ")" : "") : c.st === "atual" ? " · está aqui" : " · ainda vai"}">${esc(c.s)}</span>`).join("")}</div>`;
 // filtros
 const passa = (x, sem) => (!F.com || x.com === F.com || sem === "com") && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.rel || (F.rel === "(sem)" ? !x.rel : x.rel === F.rel)) && (!F.aut || x.autor === F.aut)
-  && (F.idade === "" || faixa(x.dias) === ["v", "m", "l"][+F.idade]) && (!F.kpi || (F.kpi === "sem" ? !x.rel : F.kpi === "com" ? !!x.rel : F.kpi === "velhas" ? x.dias > 90 : F.kpi === "vista" ? !!x.vista : F.kpi === "andou" ? x.fluxo.some((c) => c.st === "ok") : true))
+  && (F.idade === "" || faixa(x.dias) === ["v", "m", "l"][+F.idade]) && (!F.fx || ((x.dias || 0) >= F.fx[0] && (x.dias || 0) <= F.fx[1])) && (!F.kpi || (F.kpi === "sem" ? !x.rel : F.kpi === "com" ? !!x.rel : F.kpi === "velhas" ? x.dias > 90 : F.kpi === "vista" ? !!x.vista : F.kpi === "andou" ? x.fluxo.some((c) => c.st === "ok") : true))
   && (!F.q || norm([x.tipo, x.num + "/" + x.ano, x.autor, x.rel, x.vista ? "vista " + x.vista.quem : "", x.resumo, x.ementa, x.com, RES[x.id] ? RES[x.id].m + " " + (RES[x.id].t || []).flat().join(" ") : ""].join(" ")).includes(norm(F.q)));
 const ORD = { num: (x) => +x.ano * 1e5 + +x.num, obj: (x) => norm(x.resumo), aut: (x) => norm(x.autor), com: (x) => norm(x.com), rel: (x) => norm(x.rel || "~"), dias: (x) => x.dias ?? -1, casa: (x) => x.casa ?? -1, fl: (x) => x.fluxo.filter((c) => c.st === "ok").length };
 function kpis(L) { const sem = L.filter((x) => !x.rel).length, v = L.filter((x) => x.dias > 90).length, an = L.filter((x) => x.fluxo.some((c) => c.st === "ok")).length;
@@ -457,20 +472,28 @@ const FX = [["até 90 dias", (d) => d <= 90, "#2F6DB5"], ["91 a 365 dias", (d) =
 // colunas de mesma altura (20/11/2026, pedido do usuário): um tubo arredondado com fundo fundo (como as barras do sistema de
 // palpites) e o preenchimento subindo de baixo, nas cores das Cotas; o nível do preenchimento é a raiz da quantidade em relação
 // à maior comissão (para as pequenas aparecerem), as partes dentro dele são proporcionais
-// gráfico das comissões (23/11/2026, refeito pelo guia de gráficos): muitas categorias com nome longo → barras
-// HORIZONTAIS, da maior para a menor, num eixo só (sem escala própria por grupo); cada barra dividida pelo tempo na
-// comissão (partes em ordem: até 90 dias, 91 a 365, mais de 365); ao lado, os números que importam — total, sem
-// relator e em vista — em colunas alinhadas, em vez de listras e pontos dentro da barra. Toque na linha filtra a lista.
-function grade() { const B = D.L.filter((x) => passa(x, "com")), por = (s) => B.filter((x) => x.csig === s), nome = (s) => (D.coms.find((c) => c[1] === s) || [s])[0];
-  const mx = Math.max(1, ...[...ORD9, ...ORD7].map((s) => por(s).length));
-  const lin = (s) => { const A = por(s), n = A.length, c = nome(s), sr = A.filter((x) => !x.rel).length, vs = A.filter((x) => x.vista).length;
-    const seg = FX.map(([r, f, cor]) => { const k = A.filter((x) => f(x.dias || 0)).length; return k ? `<i style="flex:${k};background:${cor}" title="${esc(c)} · há ${r} na comissão: ${k}"></i>` : ""; }).join("");
-    return `<button class="hb${F.com === c ? " on" : F.com ? " of" : ""}${n ? "" : " z"}" data-c="${esc(c)}" title="${esc(c)}: ${n} proposições · ${n - sr} com relator · ${sr} aguardando relator${vs ? " · " + vs + " em vista" : ""}">
-      <span class="hn"><b>${esc(s)}</b>${esc(c)}</span>
-      <span class="hbar"><span class="hf" style="width:${(n / mx * 100).toFixed(2)}%">${seg}</span><em>${ni(n)}</em></span>
-      <span class="hx${sr ? "" : " z"}">${ni(sr)}</span><span class="hx${vs ? " vs" : " z"}">${ni(vs)}</span></button>`; };
-  const grupo = (t, G) => `<div class="hg"><div class="hh"><span>${t}</span><span></span><span>sem relator</span><span>em vista</span></div>${G.slice().sort((p, q) => por(q).length - por(p).length).map(lin).join("")}</div>`;
-  return `<div class="hgr">${grupo("Comissões de 9 membros", ORD9)}${grupo("Comissões de 7 membros", ORD7)}</div>`; }
+// "Gráfico" (23/11/2026, 3ª versão, pedido do usuário): o que se quer ver é o VOLUME PARADO na comissão, segmentado
+// por relator e por tempo. Forma escolhida pelo guia de gráficos: MAPA DE CALOR (grade), linhas = relator ("Aguardando
+// relator" no topo), colunas = há quanto tempo está na comissão; cada célula = quantas proposições, cor de um só tom
+// (mais forte = mais volume), com o número escrito. Vale para a comissão escolhida na faixa ou para todas. Tocar numa
+// célula filtra a lista por aquele relator e aquela faixa; no nome, só o relator; no título da coluna, só a faixa.
+const HX = [["até 30 dias", 0, 30], ["31 a 90", 31, 90], ["91 a 180", 91, 180], ["181 a 365", 181, 365], ["1 a 2 anos", 366, 730], ["mais de 2 anos", 731, 1e9]];
+function grade() {
+  const base = D.L.filter((x) => (!F.com || x.com === F.com) && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.aut || x.autor === F.aut)
+    && (!F.q || norm([x.tipo, x.num, x.ano, x.autor, x.rel, x.resumo, x.ementa].join(" ")).includes(norm(F.q))));
+  const ci = (d) => HX.findIndex(([, a, b]) => (d || 0) >= a && (d || 0) <= b), R = new Map();
+  base.forEach((x) => { const k = x.rel || "(sem)"; if (!R.has(k)) R.set(k, Array(HX.length).fill(0)); R.get(k)[ci(x.dias)]++; });
+  const tot = (v) => v.reduce((p, q) => p + q, 0), L = [...R].sort((p, q) => (p[0] === "(sem)" ? -1 : q[0] === "(sem)" ? 1 : tot(q[1]) - tot(p[1])));
+  const mx = Math.max(1, ...L.flatMap(([, v]) => v)), passo = (v) => !v ? 0 : v / mx > .5 ? 4 : v / mx > .25 ? 3 : v / mx > .1 ? 2 : 1;
+  const ver = F.hall ? L : L.slice(0, 14), col = HX.map((_, i) => tot(L.map(([, v]) => v[i])));
+  const sel = (k, i) => (F.rel === k || (!F.rel && false)) && F.fx && F.fx[0] === HX[i][1];
+  const lin = ([k, v]) => `<div class="hm-r${k === "(sem)" ? " sem" : ""}${F.rel === k ? " on" : ""}"><button class="hm-n" data-hr="${esc(k)}" title="Filtrar a lista por ${k === "(sem)" ? "aguardando relator" : esc(k)}">${k === "(sem)" ? "Aguardando relator" : esc(k)}</button>
+      ${v.map((n, i) => `<button class="hm-c s${passo(n)}${sel(k, i) ? " on" : ""}" data-hc="${esc(k)}|${i}" title="${k === "(sem)" ? "Aguardando relator" : esc(k)} · ${HX[i][0]} na comissão: ${n}"${n ? "" : " disabled"}>${n ? ni(n) : ""}</button>`).join("")}<span class="hm-t">${ni(tot(v))}</span></div>`;
+  return `<div class="hm"><div class="hm-h"><div><b>Proposições paradas por relator e tempo na comissão</b><span>${ni(base.length)} proposições · toque numa célula para ver na lista</span></div><select class="hm-s" data-hcom aria-label="Comissão"><option value="">Todas as comissões</option>${D.coms.map(([c, sg]) => `<option value="${esc(c)}"${F.com === c ? " selected" : ""}>${esc(sg)} · ${esc(c)}</option>`).join("")}</select></div>
+    <div class="hm-g"><div class="hm-r hm-cab"><span></span>${HX.map(([t, a], i) => `<button class="hm-x${F.fx && F.fx[0] === a ? " on" : ""}" data-hx="${i}">${t}</button>`).join("")}<span class="hm-t">total</span></div>
+    ${ver.map(lin).join("")}
+    <div class="hm-r hm-sum"><span class="hm-n">Total</span>${col.map((n) => `<span class="hm-t">${ni(n)}</span>`).join("")}<span class="hm-t">${ni(base.length)}</span></div></div>
+    ${L.length > 14 ? `<button class="hm-mais" data-hall>${F.hall ? "Mostrar só os 14 com mais proposições" : `Ver todos os ${L.length} relatores`}</button>` : ""}</div>`; }
 
 // ranking (20/11/2026): relatores (designados, relataram, relatorias abertas, dias com a relatoria aberta), pedidos de vista abertos
 // e autores, dentro da comissão escolhida (filtro do topo) ou em todas; mais ou menos; clicar no nome filtra a lista
@@ -495,7 +518,7 @@ function ranking() { const B = D.L.filter((x) => passa(x, "com")), naCom = (c) =
     ${card("vis", "Pedidos de vista abertos", R2, (o) => `${o.n} em vista · ${o.dn ? Math.round(o.dsum / o.dn) : 0} dias em média`)}
     ${card("aut", "Autores", R3, (o) => `${o.n} em tramitação · ${o.l} há mais de 365 dias na comissão · ${o.dn ? Math.round(o.dsum / o.dn) : 0} dias na Assembleia em média`)}</div></div>`; }
 function comissoes() { if (F.cv === "rank") { $("#coms").innerHTML = ranking(); $("#coms").className = ""; $("#lgc").className = "lg"; $("#lgc").innerHTML = ""; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
-  if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = FX.map(([r, , c]) => `<span><i style="background:${c}"></i>na comissão há ${r}</span>`).join(""); $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
+  if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = `<span>menos</span>${[1, 2, 3, 4].map((k) => `<span><i class="hm-k s${k}"></i></span>`).join("")}<span>mais proposições paradas</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
   $("#coms").className = "coms"; $("#lgc").className = "lg"; $("#lgc").innerHTML = `<span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span>`; const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
   $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
     return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cmd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
@@ -627,7 +650,7 @@ function linha(x) {
     <div class="rel" data-r="Relator">${x.rel ? esc(x.rel) : `<span class="sem">aguardando relator</span>`}</div>
     ${F.ab === x.id ? detalhe(x) : ""}</div>`; }
 const filtradas = () => { const L = D.L.filter((x) => passa(x)), [k, s] = F.ord; return L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); }); };
-const filtroTxt = () => [F.com, F.tipo, F.tema, F.rel && (F.rel === "(sem)" ? "sem relator" : "relator " + F.rel), F.aut && "autor " + F.aut, F.idade !== "" && ["até 30 dias", "31 a 90 dias", "mais de 90 dias"][+F.idade] + " na comissão", F.kpi && { com: "com relator", sem: "aguardando relator", velhas: "mais de 90 dias", vista: "em vista", andou: "já aprovadas em 1+" }[F.kpi], F.q && `busca “${F.q}”`].filter(Boolean).join(" · ") || "todas as proposições em comissão";
+const filtroTxt = () => [F.com, F.tipo, F.tema, F.rel && (F.rel === "(sem)" ? "sem relator" : "relator " + F.rel), F.aut && "autor " + F.aut, F.fx && "na comissão há " + (HX.find((h) => h[1] === F.fx[0]) || [""])[0], F.idade !== "" && ["até 30 dias", "31 a 90 dias", "mais de 90 dias"][+F.idade] + " na comissão", F.kpi && { com: "com relator", sem: "aguardando relator", velhas: "mais de 90 dias", vista: "em vista", andou: "já aprovadas em 1+" }[F.kpi], F.q && `busca “${F.q}”`].filter(Boolean).join(" · ") || "todas as proposições em comissão";
 function desenhar() { kpis(D.L.filter((x) => !F.com || x.com === F.com)); comissoes();
   const L = D.L.filter((x) => passa(x)); const [k, s] = F.ord; L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); });
   $("#res").innerHTML = `<b>${ni(L.length)}</b> de ${ni(D.L.length)} proposições${F.com ? " em " + esc(F.com) : ""}`;
@@ -650,6 +673,7 @@ function futuro() {
   return `<section class="futs"><h3>Propostas designadas para esta comissão<small>${ni(L.length)} ${L.length === 1 ? "proposição distribuída" : "proposições distribuídas"} para ${esc(F.com)} que ainda não ${L.length === 1 ? "chegou" : "chegaram"}</small></h3>
     ${L.length ? bloco("p", "Próxima parada", P, "a próxima comissão do caminho é esta") + bloco("m", "Mais adiante", M, "passam antes por outras comissões") : `<div class="vazio">Nenhuma proposição a caminho desta comissão com estes filtros.</div>`}</section>`; }
 // eventos
+R.addEventListener("change", (e) => { const s = e.target.closest("[data-hcom]"); if (s) { F.com = s.value; F.lim = 60; F.flim = { p: 30, m: 30 }; desenhar(); } });
 R.addEventListener("click", (e) => { const t = e.target;
   const rkm = t.closest("[data-rkm]"); if (rkm) { const [k, m] = rkm.dataset.rkm.split("|"); F.rk[k] = m; comissoes(); return; }
   const rko = t.closest("[data-rko]"); if (rko) { F.rk.o[rko.dataset.rko] *= -1; comissoes(); return; }
@@ -663,6 +687,11 @@ R.addEventListener("click", (e) => { const t = e.target;
   const o = t.closest("[data-o]"); if (o) { const id = o.dataset.o; F.ord = F.ord[0] === id ? [id, -F.ord[1]] : [id, id === "dias" || id === "fl" || id === "casa" ? -1 : 1]; desenhar(); return; }
   const v = t.closest("[data-v]"); if (v) { F.vis = v.dataset.v; R.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b === v)); desenhar(); return; }
   if (t.closest("#mais")) { F.lim += 60; desenhar(); return; }
+  const hc = t.closest("[data-hc]"); if (hc) { const [k, i] = hc.dataset.hc.split("|"), h = HX[+i], ja = F.rel === k && F.fx && F.fx[0] === h[1];
+    F.rel = ja ? "" : k; F.fx = ja ? null : [h[1], h[2]]; $("#fRel").value = F.rel; F.lim = 60; desenhar(); if (!ja) $("#res").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  const hr = t.closest("[data-hr]"); if (hr) { F.rel = F.rel === hr.dataset.hr ? "" : hr.dataset.hr; F.fx = null; $("#fRel").value = F.rel; F.lim = 60; desenhar(); return; }
+  const hx = t.closest("[data-hx]"); if (hx) { const h = HX[+hx.dataset.hx]; F.fx = F.fx && F.fx[0] === h[1] ? null : [h[1], h[2]]; F.lim = 60; desenhar(); return; }
+  if (t.closest("[data-hall]")) { F.hall = !F.hall; comissoes(); return; }
   const fm = t.closest("[data-fmais]"); if (fm) { F.flim[fm.dataset.fmais] += 30; desenhar(); return; }
   const fb = t.closest("#futB"); if (fb) { F.fut = !F.fut; fb.classList.toggle("on", F.fut); fb.setAttribute("aria-pressed", F.fut); desenhar(); if (F.fut) { const f = R.querySelector(".futs"); if (f) f.scrollIntoView({ behavior: "smooth", block: "start" }); } return; }
   if (t.closest("[data-fecha]")) { F.ab = null; desenhar(); return; }
@@ -671,7 +700,7 @@ R.addEventListener("click", (e) => { const t = e.target;
     const mm = document.createElement("div"); mm.className = "impm"; mm.innerHTML = `<button data-imp="l">Lista<small>${ni(L.length)} proposições, uma por linha</small></button><button data-imp="f"${L.length > 60 ? " disabled style=\"opacity:.45\"" : ""}>Lista e fichas<small>${L.length > 60 ? "filtre até 60 proposições para incluir as fichas" : "uma ficha por proposição depois da lista"}</small></button>`;
     mm.style.left = b.offsetLeft + "px"; mm.style.top = b.offsetTop + b.offsetHeight + 6 + "px"; b.parentNode.appendChild(mm); return; }
   const im = t.closest("[data-imp]"); if (im) { if (im.disabled) return; R.querySelector(".impm").remove(); cmpImprimir(filtradas(), { fichas: im.dataset.imp === "f", filtro: filtroTxt() }, D, RES); return; }
-  if (t.closest("#limpa")) { Object.assign(F, { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", lim: 60 }); ["#q", "#fTipo", "#fTema", "#fRel", "#fAut", "#fIdade"].forEach((s) => $(s).value = ""); desenhar(); return; }
+  if (t.closest("#limpa")) { Object.assign(F, { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", fx: null, lim: 60 }); ["#q", "#fTipo", "#fTema", "#fRel", "#fAut", "#fIdade"].forEach((s) => $(s).value = ""); desenhar(); return; }
   const r = t.closest("[data-id]"); if (r) { const id = r.dataset.id; if (F.vis === "quadro") { F.vis = "lista"; R.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b.dataset.v === "lista")); F.q = ""; }
     F.ab = F.ab === id ? null : id; const i = D.L.findIndex((x) => x.id === id); desenhar(); const el = R.querySelector(`.lin[data-id="${CSS.escape(id)}"]`); if (el) el.scrollIntoView({ block: "nearest" }); } });
 $("#q").oninput = (e) => { F.q = e.target.value; F.lim = 60; desenhar(); };
