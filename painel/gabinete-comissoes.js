@@ -86,6 +86,7 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .hm-x{ background:none; border:0; font:inherit; font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--ter); padding:4px 2px; cursor:pointer; border-radius:6px; } .cmp .hm-x:hover{ color:var(--texto); } .cmp .hm-x.on{ color:var(--texto); background:var(--sup3); }
 .cmp .hm-t{ display:flex; align-items:center; justify-content:flex-end; padding-right:6px; font-size:12px; font-variant-numeric:tabular-nums; color:var(--sec); } .cmp .hm-cab .hm-t{ font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ter); }
 .cmp .hm-sum{ border-top:1px solid var(--linha); padding-top:4px; margin-top:2px; } .cmp .hm-sum .hm-t, .cmp .hm-sum .hm-n{ font-weight:700; color:var(--texto); justify-content:center; } .cmp .hm-sum .hm-n{ justify-content:flex-start; cursor:default; } .cmp .hm-sum .hm-t:last-child{ justify-content:flex-end; }
+.cmp .hm-sw{ display:inline-flex; gap:2px; background:var(--sup2); border:1px solid var(--linha2); border-radius:999px; padding:3px; } .cmp .hm-sw button{ background:none; border:0; border-radius:999px; padding:5px 13px; color:var(--sec); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; } .cmp .hm-sw button.on{ background:var(--texto); color:#0B0F0D; }
 .cmp .hm-mais{ margin-top:8px; background:none; border:0; color:var(--a); font:inherit; font-size:12.5px; cursor:pointer; }
 .cmp .hgr{ display:flex; flex-direction:column; gap:14px; background:var(--sup); border:1px solid var(--linha); border-radius:16px; padding:12px 12px 8px; }
 .cmp .hh, .cmp .hb{ display:grid; grid-template-columns:minmax(120px,190px) minmax(0,1fr) 78px 64px; gap:12px; align-items:center; }
@@ -442,7 +443,7 @@ function cmpIniciar(D, R, RES) {
 const $ = (s) => R.querySelector(s), esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const ni = (n) => (n || 0).toLocaleString("pt-BR"), br = (d) => d ? d.split("-").reverse().join("/") : "—";
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const F = { fx: null, hall: false, fut: false, flim: { p: 30, m: 30 }, cv: "cartoes", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
+const F = { hm: "rel", vq: "", fx: null, hall: false, fut: false, flim: { p: 30, m: 30 }, cv: "cartoes", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
 const HOJE = new Date().toISOString().slice(0, 10), dd = (a, b) => a && b ? Math.max(0, Math.round((new Date(b) - new Date(a)) / 864e5)) : null;
 D.L.forEach((x) => { x.casa = dd(x.prot, HOJE); });
 // tema: o do resumo (1º nível) quando existe; senão o da classificação automática pela ementa
@@ -456,7 +457,7 @@ const etq = (x, pe) => `<span class="cmeto${pe ? " pe" : ""}"><b style="backgrou
 const fluxo = (x) => `<div class="fl">${x.fluxo.map((c, i) => `${i ? `<i class="ln${x.fluxo[i - 1].st === "ok" ? " ok" : ""}"></i>` : ""}<span class="p ${c.st}" title="${esc(c.n)}${c.st === "ok" ? " · aprovada" + (c.par ? " (" + c.par + ")" : "") : c.st === "atual" ? " · está aqui" : " · ainda vai"}">${esc(c.s)}</span>`).join("")}</div>`;
 // filtros
 const passa = (x, sem) => (!F.com || x.com === F.com || sem === "com") && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.rel || (F.rel === "(sem)" ? !x.rel : x.rel === F.rel)) && (!F.aut || x.autor === F.aut)
-  && (F.idade === "" || faixa(x.dias) === ["v", "m", "l"][+F.idade]) && (!F.fx || ((x.dias || 0) >= F.fx[0] && (x.dias || 0) <= F.fx[1])) && (!F.kpi || (F.kpi === "sem" ? !x.rel : F.kpi === "com" ? !!x.rel : F.kpi === "velhas" ? x.dias > 90 : F.kpi === "vista" ? !!x.vista : F.kpi === "andou" ? x.fluxo.some((c) => c.st === "ok") : true))
+  && (F.idade === "" || faixa(x.dias) === ["v", "m", "l"][+F.idade]) && (!F.vq || (x.vista && ((x.vista.quem || "(?)") === F.vq))) && (!F.fx || (F.hm === "vis" ? (x.vista && dd(x.vista.d, HOJE) >= F.fx[0] && dd(x.vista.d, HOJE) <= F.fx[1]) : ((x.dias || 0) >= F.fx[0] && (x.dias || 0) <= F.fx[1]))) && (!F.kpi || (F.kpi === "sem" ? !x.rel : F.kpi === "com" ? !!x.rel : F.kpi === "velhas" ? x.dias > 90 : F.kpi === "vista" ? !!x.vista : F.kpi === "andou" ? x.fluxo.some((c) => c.st === "ok") : true))
   && (!F.q || norm([x.tipo, x.num + "/" + x.ano, x.autor, x.rel, x.vista ? "vista " + x.vista.quem : "", x.resumo, x.ementa, x.com, RES[x.id] ? RES[x.id].m + " " + (RES[x.id].t || []).flat().join(" ") : ""].join(" ")).includes(norm(F.q)));
 const ORD = { num: (x) => +x.ano * 1e5 + +x.num, obj: (x) => norm(x.resumo), aut: (x) => norm(x.autor), com: (x) => norm(x.com), rel: (x) => norm(x.rel || "~"), dias: (x) => x.dias ?? -1, casa: (x) => x.casa ?? -1, fl: (x) => x.fluxo.filter((c) => c.st === "ok").length };
 function kpis(L) { const sem = L.filter((x) => !x.rel).length, v = L.filter((x) => x.dias > 90).length, an = L.filter((x) => x.fluxo.some((c) => c.st === "ok")).length;
@@ -481,19 +482,22 @@ const HX = [["até 30 dias", 0, 30], ["31 a 90", 31, 90], ["91 a 180", 91, 180],
 function grade() {
   const base = D.L.filter((x) => (!F.com || x.com === F.com) && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.aut || x.autor === F.aut)
     && (!F.q || norm([x.tipo, x.num, x.ano, x.autor, x.rel, x.resumo, x.ementa].join(" ")).includes(norm(F.q))));
+  // modo Vista (interruptor Relatoria | Vista): linhas = quem pediu vista, colunas = há quanto tempo a vista está aberta
+  const VIS = F.hm === "vis", B2 = VIS ? base.filter((x) => x.vista) : base, quem = (x) => VIS ? ((x.vista && x.vista.quem) || "(?)") : x.rel || "(sem)", dias = (x) => VIS ? dd(x.vista.d, HOJE) : x.dias;
   const ci = (d) => HX.findIndex(([, a, b]) => (d || 0) >= a && (d || 0) <= b), R = new Map();
-  base.forEach((x) => { const k = x.rel || "(sem)"; if (!R.has(k)) R.set(k, Array(HX.length).fill(0)); R.get(k)[ci(x.dias)]++; });
+  B2.forEach((x) => { const k = quem(x); if (!R.has(k)) R.set(k, Array(HX.length).fill(0)); R.get(k)[ci(dias(x))]++; });
   const tot = (v) => v.reduce((p, q) => p + q, 0), L = [...R].sort((p, q) => (p[0] === "(sem)" ? -1 : q[0] === "(sem)" ? 1 : tot(q[1]) - tot(p[1])));
+  const rot = (k) => k === "(sem)" ? "Aguardando relator" : k === "(?)" ? "Não identificado" : k, ativo = (k) => VIS ? F.vq === k : F.rel === k;
   const mx = Math.max(1, ...L.flatMap(([, v]) => v)), passo = (v) => !v ? 0 : v / mx > .5 ? 4 : v / mx > .25 ? 3 : v / mx > .1 ? 2 : 1;
   const ver = F.hall ? L : L.slice(0, 14), col = HX.map((_, i) => tot(L.map(([, v]) => v[i])));
-  const sel = (k, i) => (F.rel === k || (!F.rel && false)) && F.fx && F.fx[0] === HX[i][1];
-  const lin = ([k, v]) => `<div class="hm-r${k === "(sem)" ? " sem" : ""}${F.rel === k ? " on" : ""}"><button class="hm-n" data-hr="${esc(k)}" title="Filtrar a lista por ${k === "(sem)" ? "aguardando relator" : esc(k)}">${k === "(sem)" ? "Aguardando relator" : esc(k)}</button>
-      ${v.map((n, i) => `<button class="hm-c s${passo(n)}${sel(k, i) ? " on" : ""}" data-hc="${esc(k)}|${i}" title="${k === "(sem)" ? "Aguardando relator" : esc(k)} · ${HX[i][0]} na comissão: ${n}"${n ? "" : " disabled"}>${n ? ni(n) : ""}</button>`).join("")}<span class="hm-t">${ni(tot(v))}</span></div>`;
-  return `<div class="hm"><div class="hm-h"><div><b>Proposições paradas por relator e tempo na comissão</b><span>${ni(base.length)} proposições · toque numa célula para ver na lista</span></div><select class="hm-s" data-hcom aria-label="Comissão"><option value="">Todas as comissões</option>${D.coms.map(([c, sg]) => `<option value="${esc(c)}"${F.com === c ? " selected" : ""}>${esc(sg)} · ${esc(c)}</option>`).join("")}</select></div>
+  const sel = (k, i) => ativo(k) && F.fx && F.fx[0] === HX[i][1];
+  const lin = ([k, v]) => `<div class="hm-r${k === "(sem)" ? " sem" : ""}${ativo(k) ? " on" : ""}"><button class="hm-n" data-hr="${esc(k)}" title="Filtrar a lista por ${esc(rot(k))}">${esc(rot(k))}</button>
+      ${v.map((n, i) => `<button class="hm-c s${passo(n)}${sel(k, i) ? " on" : ""}" data-hc="${esc(k)}|${i}" title="${esc(rot(k))} · ${HX[i][0]} ${VIS ? "em vista" : "na comissão"}: ${n}"${n ? "" : " disabled"}>${n ? ni(n) : ""}</button>`).join("")}<span class="hm-t">${ni(tot(v))}</span></div>`;
+  return `<div class="hm"><div class="hm-h"><div><b>${VIS ? "Pedidos de vista abertos por deputado e tempo em vista" : "Proposições paradas por relator e tempo na comissão"}</b><span>${ni(B2.length)} ${VIS ? "vistas abertas" : "proposições"} · toque numa célula para ver na lista</span></div><span class="hm-sw" role="group" aria-label="Ver por"><button data-hm="rel" class="${VIS ? "" : "on"}">Relatoria</button><button data-hm="vis" class="${VIS ? "on" : ""}">Vista</button></span><select class="hm-s" data-hcom aria-label="Comissão"><option value="">Todas as comissões</option>${D.coms.map(([c, sg]) => `<option value="${esc(c)}"${F.com === c ? " selected" : ""}>${esc(sg)} · ${esc(c)}</option>`).join("")}</select></div>
     <div class="hm-g"><div class="hm-r hm-cab"><span></span>${HX.map(([t, a], i) => `<button class="hm-x${F.fx && F.fx[0] === a ? " on" : ""}" data-hx="${i}">${t}</button>`).join("")}<span class="hm-t">total</span></div>
     ${ver.map(lin).join("")}
-    <div class="hm-r hm-sum"><span class="hm-n">Total</span>${col.map((n) => `<span class="hm-t">${ni(n)}</span>`).join("")}<span class="hm-t">${ni(base.length)}</span></div></div>
-    ${L.length > 14 ? `<button class="hm-mais" data-hall>${F.hall ? "Mostrar só os 14 com mais proposições" : `Ver todos os ${L.length} relatores`}</button>` : ""}</div>`; }
+    <div class="hm-r hm-sum"><span class="hm-n">Total</span>${col.map((n) => `<span class="hm-t">${ni(n)}</span>`).join("")}<span class="hm-t">${ni(B2.length)}</span></div></div>
+    ${L.length > 14 ? `<button class="hm-mais" data-hall>${F.hall ? "Mostrar só os 14 com mais proposições" : `Ver todos os ${L.length} ${VIS ? "deputados" : "relatores"}`}</button>` : ""}</div>`; }
 
 // ranking (20/11/2026): relatores (designados, relataram, relatorias abertas, dias com a relatoria aberta), pedidos de vista abertos
 // e autores, dentro da comissão escolhida (filtro do topo) ou em todas; mais ou menos; clicar no nome filtra a lista
@@ -518,7 +522,7 @@ function ranking() { const B = D.L.filter((x) => passa(x, "com")), naCom = (c) =
     ${card("vis", "Pedidos de vista abertos", R2, (o) => `${o.n} em vista · ${o.dn ? Math.round(o.dsum / o.dn) : 0} dias em média`)}
     ${card("aut", "Autores", R3, (o) => `${o.n} em tramitação · ${o.l} há mais de 365 dias na comissão · ${o.dn ? Math.round(o.dsum / o.dn) : 0} dias na Assembleia em média`)}</div></div>`; }
 function comissoes() { if (F.cv === "rank") { $("#coms").innerHTML = ranking(); $("#coms").className = ""; $("#lgc").className = "lg"; $("#lgc").innerHTML = ""; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
-  if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = `<span>menos</span>${[1, 2, 3, 4].map((k) => `<span><i class="hm-k s${k}"></i></span>`).join("")}<span>mais proposições paradas</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
+  if (F.cv === "grade") { $("#coms").innerHTML = grade(); $("#coms").className = ""; $("#lgc").className = "pclg"; $("#lgc").innerHTML = `<span>menos</span>${[1, 2, 3, 4].map((k) => `<span><i class="hm-k s${k}"></i></span>`).join("")}<span>mais volume</span>`; $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; return; }
   $("#coms").className = "coms"; $("#lgc").className = "lg"; $("#lgc").innerHTML = `<span><i style="background:#5B83F0"></i>com relator</span><span><i style="background:#3A4045"></i>aguardando relator</span><span><i style="background:#E8822A"></i>há mais de 90 dias na comissão</span>`; const B = D.L.filter((x) => passa(x, "com")), mx = Math.max(1, ...D.coms.map(([c]) => B.filter((x) => x.com === c).length));
   $("#coms").innerHTML = D.coms.map(([c, s]) => { const A = B.filter((x) => x.com === c), n = A.length, cr = A.filter((x) => x.rel).length, v = A.filter((x) => x.dias > 90).length, md = n ? Math.round(A.reduce((t, x) => t + (x.dias || 0), 0) / n) : 0;
     return `<button class="com${F.com === c ? " on" : ""}" data-c="${esc(c)}" title="${esc(c)}"><span class="cs"><b>${esc(s)}</b><em>${ni(n)}</em></span><span class="cn">${esc(c)}</span><span class="cbar" style="width:${Math.max(6, n / mx * 100)}%"><i style="flex:${cr - Math.min(cr, v)};background:#5B83F0"></i><i style="flex:${n - cr - Math.max(0, v - cr)};background:#3A4045"></i><i style="flex:${v};background:#E8822A"></i></span><span class="cmd">${n ? `média de ${md} dias na comissão` : "nada com estes filtros"}</span></button>`; }).join("");
@@ -650,7 +654,7 @@ function linha(x) {
     <div class="rel" data-r="Relator">${x.rel ? esc(x.rel) : `<span class="sem">aguardando relator</span>`}</div>
     ${F.ab === x.id ? detalhe(x) : ""}</div>`; }
 const filtradas = () => { const L = D.L.filter((x) => passa(x)), [k, s] = F.ord; return L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); }); };
-const filtroTxt = () => [F.com, F.tipo, F.tema, F.rel && (F.rel === "(sem)" ? "sem relator" : "relator " + F.rel), F.aut && "autor " + F.aut, F.fx && "na comissão há " + (HX.find((h) => h[1] === F.fx[0]) || [""])[0], F.idade !== "" && ["até 30 dias", "31 a 90 dias", "mais de 90 dias"][+F.idade] + " na comissão", F.kpi && { com: "com relator", sem: "aguardando relator", velhas: "mais de 90 dias", vista: "em vista", andou: "já aprovadas em 1+" }[F.kpi], F.q && `busca “${F.q}”`].filter(Boolean).join(" · ") || "todas as proposições em comissão";
+const filtroTxt = () => [F.com, F.tipo, F.tema, F.rel && (F.rel === "(sem)" ? "sem relator" : "relator " + F.rel), F.aut && "autor " + F.aut, F.vq && "vista de " + (F.vq === "(?)" ? "não identificado" : F.vq), F.fx && (F.hm === "vis" ? "em vista há " : "na comissão há ") + (HX.find((h) => h[1] === F.fx[0]) || [""])[0], F.idade !== "" && ["até 30 dias", "31 a 90 dias", "mais de 90 dias"][+F.idade] + " na comissão", F.kpi && { com: "com relator", sem: "aguardando relator", velhas: "mais de 90 dias", vista: "em vista", andou: "já aprovadas em 1+" }[F.kpi], F.q && `busca “${F.q}”`].filter(Boolean).join(" · ") || "todas as proposições em comissão";
 function desenhar() { kpis(D.L.filter((x) => !F.com || x.com === F.com)); comissoes();
   const L = D.L.filter((x) => passa(x)); const [k, s] = F.ord; L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); });
   $("#res").innerHTML = `<b>${ni(L.length)}</b> de ${ni(D.L.length)} proposições${F.com ? " em " + esc(F.com) : ""}`;
@@ -687,9 +691,13 @@ R.addEventListener("click", (e) => { const t = e.target;
   const o = t.closest("[data-o]"); if (o) { const id = o.dataset.o; F.ord = F.ord[0] === id ? [id, -F.ord[1]] : [id, id === "dias" || id === "fl" || id === "casa" ? -1 : 1]; desenhar(); return; }
   const v = t.closest("[data-v]"); if (v) { F.vis = v.dataset.v; R.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b === v)); desenhar(); return; }
   if (t.closest("#mais")) { F.lim += 60; desenhar(); return; }
-  const hc = t.closest("[data-hc]"); if (hc) { const [k, i] = hc.dataset.hc.split("|"), h = HX[+i], ja = F.rel === k && F.fx && F.fx[0] === h[1];
+  const hm = t.closest("[data-hm]"); if (hm) { F.hm = hm.dataset.hm; F.rel = ""; F.vq = ""; F.fx = null; F.kpi = ""; $("#fRel").value = ""; F.hall = false; desenhar(); return; }
+  const hc = t.closest("[data-hc]"); if (hc && F.hm === "vis") { const [k, i] = hc.dataset.hc.split("|"), h = HX[+i], ja = F.vq === k && F.fx && F.fx[0] === h[1]; F.vq = ja ? "" : k; F.fx = ja ? null : [h[1], h[2]]; F.kpi = ja ? "" : "vista"; F.lim = 60; desenhar(); if (!ja) $("#res").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  if (hc) { const [k, i] = hc.dataset.hc.split("|"), h = HX[+i], ja = F.rel === k && F.fx && F.fx[0] === h[1];
     F.rel = ja ? "" : k; F.fx = ja ? null : [h[1], h[2]]; $("#fRel").value = F.rel; F.lim = 60; desenhar(); if (!ja) $("#res").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  const hrv = t.closest("[data-hr]"); if (hrv && F.hm === "vis") { const k = hrv.dataset.hr; F.vq = F.vq === k ? "" : k; F.fx = null; F.kpi = F.vq ? "vista" : ""; F.lim = 60; desenhar(); return; }
   const hr = t.closest("[data-hr]"); if (hr) { F.rel = F.rel === hr.dataset.hr ? "" : hr.dataset.hr; F.fx = null; $("#fRel").value = F.rel; F.lim = 60; desenhar(); return; }
+  const hxv = t.closest("[data-hx]"); if (hxv && F.hm === "vis") { const h = HX[+hxv.dataset.hx]; F.fx = F.fx && F.fx[0] === h[1] ? null : [h[1], h[2]]; F.kpi = F.fx || F.vq ? "vista" : ""; F.lim = 60; desenhar(); return; }
   const hx = t.closest("[data-hx]"); if (hx) { const h = HX[+hx.dataset.hx]; F.fx = F.fx && F.fx[0] === h[1] ? null : [h[1], h[2]]; F.lim = 60; desenhar(); return; }
   if (t.closest("[data-hall]")) { F.hall = !F.hall; comissoes(); return; }
   const fm = t.closest("[data-fmais]"); if (fm) { F.flim[fm.dataset.fmais] += 30; desenhar(); return; }
@@ -700,7 +708,7 @@ R.addEventListener("click", (e) => { const t = e.target;
     const mm = document.createElement("div"); mm.className = "impm"; mm.innerHTML = `<button data-imp="l">Lista<small>${ni(L.length)} proposições, uma por linha</small></button><button data-imp="f"${L.length > 60 ? " disabled style=\"opacity:.45\"" : ""}>Lista e fichas<small>${L.length > 60 ? "filtre até 60 proposições para incluir as fichas" : "uma ficha por proposição depois da lista"}</small></button>`;
     mm.style.left = b.offsetLeft + "px"; mm.style.top = b.offsetTop + b.offsetHeight + 6 + "px"; b.parentNode.appendChild(mm); return; }
   const im = t.closest("[data-imp]"); if (im) { if (im.disabled) return; R.querySelector(".impm").remove(); cmpImprimir(filtradas(), { fichas: im.dataset.imp === "f", filtro: filtroTxt() }, D, RES); return; }
-  if (t.closest("#limpa")) { Object.assign(F, { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", fx: null, lim: 60 }); ["#q", "#fTipo", "#fTema", "#fRel", "#fAut", "#fIdade"].forEach((s) => $(s).value = ""); desenhar(); return; }
+  if (t.closest("#limpa")) { Object.assign(F, { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", fx: null, vq: "", lim: 60 }); ["#q", "#fTipo", "#fTema", "#fRel", "#fAut", "#fIdade"].forEach((s) => $(s).value = ""); desenhar(); return; }
   const r = t.closest("[data-id]"); if (r) { const id = r.dataset.id; if (F.vis === "quadro") { F.vis = "lista"; R.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b.dataset.v === "lista")); F.q = ""; }
     F.ab = F.ab === id ? null : id; const i = D.L.findIndex((x) => x.id === id); desenhar(); const el = R.querySelector(`.lin[data-id="${CSS.escape(id)}"]`); if (el) el.scrollIntoView({ block: "nearest" }); } });
 $("#q").oninput = (e) => { F.q = e.target.value; F.lim = 60; desenhar(); };
