@@ -186,7 +186,8 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .rtp .r-ok{ background:#647C96; color:#F2F4F5; }
 .cmp .rtp .r-ps{ background:#2E3B4B; }
 .cmp .rtp .r-atual{ background:#C9D4DE; color:#14191A; }
-.cmp .rtp .r-vs{ background:repeating-linear-gradient(45deg,#E8A23A 0 3px,#B97A1E 3px 6px); color:#2B1A03; }
+.cmp .rtp .r-vs{ background:#F2C94C; color:#2B1A03; }
+.cmp .rtp .vk, .cmp .dx .gtb .vk{ position:absolute; top:-3px; bottom:-3px; width:4px; margin-left:-2px; border-radius:2px; background:#F2C94C; box-shadow:0 0 0 1.5px var(--sup); z-index:1; }
 .cmp .rtp s{ position:absolute; right:-4px; top:50%; width:9px; height:9px; margin-top:-4.5px; border-radius:50%; background:var(--texto); border:2px solid var(--sup); }
 .cmp .rtb u{ text-decoration:none; font-size:9.5px; font-weight:700; color:var(--ter); border:1px dashed var(--linha2); border-radius:4px; padding:1px 4px; height:16px; display:inline-flex; align-items:center; }
 .cmp .rtb u:first-of-type{ margin-left:6px; }
@@ -217,6 +218,7 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .impm button{ text-align:left; background:none; border:0; border-radius:8px; padding:8px 10px; color:var(--texto); cursor:pointer; font-size:13px; }
 .cmp .impm button small{ display:block; color:var(--ter); font-size:11.5px; }
 .cmp .impm button:hover{ background:rgba(242,244,245,.06); }
+.cmp .impm .impq{ display:flex; gap:8px; align-items:flex-start; border-top:1px solid var(--linha2); margin-top:4px; padding:9px 10px 6px; font-size:13px; color:var(--texto); cursor:pointer; } .cmp .impm .impq input{ margin-top:2px; accent-color:#1FA83A; } .cmp .impm .impq small{ display:block; color:var(--ter); font-size:11.5px; }
 .cmp .dx{ grid-column:1 / -1; cursor:default; --sf:#EEF0F2; --tl:#F8F9FA; --bd:#DEE2E5; --tx:#1D2226; --mu:#6E767D; --ac:#1FA845; --cz:#5E666D; --tq:#E3E7EA; background:var(--sf); color:var(--tx); border-radius:16px; padding:20px 22px 18px; margin:4px 0 8px; container-type:inline-size; }
 body.dm-escuro .cmp .dx{ --sf:#171C20; --tl:#1B2125; --bd:#272D33; --tx:#E6E9EB; --mu:#8C939A; --ac:#4FE36A; --cz:#9AA1A7; --tq:#20262A; }
 .cmp .dx svg.i{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; flex:none; }
@@ -257,7 +259,7 @@ body.dm-escuro .cmp .dx .alerta{ background:#2B2213; border-color:#5A4521; color
 .cmp .dx .gt{ background:var(--tl); border:1px solid var(--bd); border-radius:12px; padding:12px 14px 10px; margin-bottom:12px; }
 .cmp .dx .gth{ display:flex; justify-content:space-between; gap:8px; font-size:11px; color:var(--mu); margin-bottom:8px; }
 .cmp .dx .gth b{ color:var(--tx); font-weight:600; }
-.cmp .dx .gtb{ display:flex; height:22px; border-radius:6px; overflow:hidden; gap:2px; }
+.cmp .dx .gtb{ position:relative; display:flex; height:22px; border-radius:6px; gap:2px; } .cmp .dx .gtb i:first-child{ border-radius:6px 0 0 6px; } .cmp .dx .gtb i:last-of-type{ border-radius:0 6px 6px 0; } .cmp .dx .gtb .vk{ top:-2px; bottom:-2px; }
 .cmp .dx .gtb i{ display:flex; align-items:center; justify-content:center; font-style:normal; font-size:10.5px; font-weight:700; color:#fff; min-width:6px; white-space:nowrap; overflow:hidden; }
 .cmp .dx .gtb .aq{ background:repeating-linear-gradient(45deg,#E9DCC6 0 3px,#F3EBDD 3px 6px); color:#7A5B2E; }
 .cmp .dx .gtb .sm{ background:repeating-linear-gradient(45deg,#D3D8DB 0 3px,#E6E9EC 3px 6px); color:#6E767D; }
@@ -265,7 +267,7 @@ body.dm-escuro .cmp .dx .alerta{ background:#2B2213; border-color:#5A4521; color
 .cmp .dx .gtb .ok{ background:var(--ac); }
 .cmp .dx .gtb .ps{ background:#D3D8DB; color:#3E454B; }
 .cmp .dx .gtb .atual{ background:var(--cz); }
-.cmp .dx .gtb .vs{ background:#E8A23A; color:#3B2606; }
+.cmp .dx .gtb .vs{ background:#F2C94C; color:#3B2606; }
 .cmp .dx .tlr.vs .tlv i{ background:#E8A23A; border-color:#E8A23A; box-shadow:0 0 0 4px rgba(232,162,58,.18); }
 .cmp .dx .vbox{ display:flex; gap:10px; align-items:center; background:#FFF4E2; border:1px solid #F3D29C; color:#7A4B06; border-radius:12px; padding:9px 12px; font-size:12.5px; margin:12px 0 0; }
 body.dm-escuro .cmp .dx .vbox{ background:#2B2213; border-color:#5A4521; color:#F0C67A; }
@@ -525,6 +527,13 @@ function detCom(c) { const sg = (D.coms.find((k) => k[0] === c) || [, c])[1], A 
       ${lin("Chegaram à comissão", ch, "das que ainda tramitam")}${lin("Aprovadas aqui", ap, "parecer votado na comissão")}${lin("Ainda paradas aqui", pa, "pelo ano em que chegaram")}${tem(reu) ? lin("Reuniões", { antes: 0, ...reu }, "agenda da comissão") : ""}</tbody></table></div>
     ${rel.length ? `<div class="cdt-r"><b>Quem mais relatou desde 2023</b>${rel.map((r) => `<span><em>${esc(r.deputado)}</em> ${ni(r.materias)} matérias${abertas[r.deputado] ? ` · ${abertas[r.deputado]} abertas agora` : ""}</span>`).join("")}</div>` : ""}
     <small class="cdt-n">Por ano: só as proposições que ainda tramitam na Assembleia; as já encerradas (lei, arquivadas, rejeitadas) não estão nestes dados. Uma proposição que voltou à comissão conta de novo em "chegaram".</small></div>`; }
+// quadro relator × tempo para o fim do relatório (23/11/2026): mesma conta da visão Tempo, sobre as proposições impressas
+function quadroDe(L) { const VIS = F.hm === "vis", B2 = VIS ? L.filter((x) => x.vista) : L, quem = (x) => VIS ? ((x.vista && x.vista.quem) || "(?)") : x.rel || "(sem)", dias = (x) => VIS ? dd(x.vista.d, HOJE) : x.dias;
+  const ci = (d) => HX.findIndex(([, a, b]) => (d || 0) >= a && (d || 0) <= b), R = new Map();
+  B2.forEach((x) => { const k = quem(x); if (!R.has(k)) R.set(k, Array(HX.length).fill(0)); R.get(k)[ci(dias(x))]++; });
+  const tot = (v) => v.reduce((p, q) => p + q, 0), rows = [...R].sort((p, q) => (p[0] === "(sem)" ? -1 : q[0] === "(sem)" ? 1 : tot(q[1]) - tot(p[1])));
+  return { VIS, HX: HX.map((h) => h[0]), rows: rows.map(([k, v]) => [k === "(sem)" ? "Aguardando relator" : k === "(?)" ? "Não identificado" : k, v, tot(v)]), col: HX.map((_, i) => tot(rows.map(([, v]) => v[i]))), n: B2.length }; }
+const barraDe = (x) => { const { S, tot } = rito(x); return { S: S.map((e) => ({ k: e.k, d: e.d, s: e.s, t: e.t })), tot, mk: vistaMarcas(x, S, tot, 60), ini: x.lido ? "lido " + br(x.lido).slice(3) : br(x.prot).slice(3) }; };
 function grade() {
   const base = D.L.filter((x) => (!F.com || x.com === F.com) && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.aut || x.autor === F.aut)
     && (!F.q || norm([x.tipo, x.num, x.ano, x.autor, x.rel, x.resumo, x.ementa].join(" ")).includes(norm(F.q))));
@@ -623,8 +632,15 @@ function rito(x) { if (x.h && x.h.length && x.h[x.h.length - 1][0] === x.csig) r
   if (dv) S.push({ k: "vs", d: dv, s: "vista", a: x.vista.d, b: HOJE, t: `Pedido de vista · ${x.vista.quem || "deputado"} · desde ${br(x.vista.d)} (${ni(dv)} dias)${x.vista.re ? " · " + x.vista.re : ""}` });
   const at0 = x.fluxo.findIndex((c) => c.st === "atual"), falta = x.fluxo.filter((c, i) => c.st === "falta" && i > at0);
   return { S, falta, tot: S.reduce((s, e) => s + e.d, 0) || 1 }; }
-function tempo(x) { const { S, tot } = rito(x), cl = { lei: "ex", sem: "sm", arq: "aq", ok: "ok", ps: "ps", atual: "atual", vs: "vs" };
-  return `<div class="gt"><div class="gth"><span>Tempo de tramitação por etapa</span><b>${ni(x.casa)} dias na Assembleia</b></div><div class="gtb">${S.map((e) => `<i class="${cl[e.k]}" style="flex:${Math.max(e.d, tot / 80)}" title="${esc(e.t)}">${e.d / tot > .14 ? esc(e.k === "vs" ? "Vista · " + (x.vista.quem || "") : e.s) + " · " + e.d + "d" : e.d / tot > .05 ? e.d + "d" : ""}</i>`).join("")}</div><div class="gtl"><span>${x.lido ? "lido " + br(x.lido) : "protocolo " + br(x.prot)}</span><span>hoje · ${br(HOJE)}</span></div></div>`; }
+// vistas em amarelo na barra (23/11/2026): a vista aberta já é o trecho amarelo no fim; as anteriores viram uma marca amarela no
+// ponto da barra em que foram pedidas (mesmo peso de cada trecho que a barra usa)
+function vistaMarcas(x, S, tot, div) { const W = S.map((e) => Math.max(e.d, tot / div)), SW = W.reduce((a, b) => a + b, 0) || 1, out = [];
+  (x.vistas || []).forEach(([d, q]) => { if (!d || (x.vista && d === x.vista.d)) return; let acc = 0;
+    for (let i = 0; i < S.length; i++) { const e = S[i]; if (e.a && e.b && d >= e.a && d <= e.b) { out.push({ p: (acc + W[i] * Math.min(1, (dd(e.a, d) || 0) / Math.max(1, e.d))) / SW * 100, t: `Pedido de vista · ${q || "deputado"} · ${br(d)}` }); return; } acc += W[i]; } });
+  return out; }
+const marcasHtml = (M) => M.map((m) => `<b class="vk" style="left:${m.p.toFixed(1)}%" title="${esc(m.t)}"></b>`).join("");
+function tempo(x) { const { S, tot } = rito(x), mk = marcasHtml(vistaMarcas(x, S, tot, 80)), cl = { lei: "ex", sem: "sm", arq: "aq", ok: "ok", ps: "ps", atual: "atual", vs: "vs" };
+  return `<div class="gt"><div class="gth"><span>Tempo de tramitação por etapa</span><b>${ni(x.casa)} dias na Assembleia</b></div><div class="gtb">${mk}${S.map((e) => `<i class="${cl[e.k]}" style="flex:${Math.max(e.d, tot / 80)}" title="${esc(e.t)}">${e.d / tot > .14 ? esc(e.k === "vs" ? "Vista · " + (x.vista.quem || "") : e.s) + " · " + e.d + "d" : e.d / tot > .05 ? e.d + "d" : ""}</i>`).join("")}</div><div class="gtl"><span>${x.lido ? "lido " + br(x.lido) : "protocolo " + br(x.prot)}</span><span>hoje · ${br(HOJE)}</span></div></div>`; }
 const tile = (k, r, v, s, c) => `<div class="tl2"><span class="tk">${ic(k)}${r}</span><span class="tv ${c || ""}">${v}${s ? `<small>${s}</small>` : ""}</span></div>`;
 function dispositivos(Z) { const d = Z && Z.disp; if (!d) return "";   // só quantos são (23/11/2026)
   return `<div class="tl2"><span class="tk">${ic("lista")}Dispositivos</span><span class="tv">${d.art} ${d.art === 1 ? "artigo" : "artigos"}${d.txt ? `<small>${esc(String(d.txt).replace(/^\d+ artigos? · /, ""))}</small>` : ""}</span></div>`; }
@@ -690,9 +706,9 @@ function detalhe(x) { const Z = RES[x.id] || null, c = x.fluxo.find((f) => f.st 
 // compacta (protocolo → chegada na comissão → hoje); detalhes ficam no "title" (passar o mouse) e no detalhe ao clicar
 // linha (20/11/2026): rito numa barra só (leitura, comissões, vista, hoje e as que faltam); números em texto normal, cor só no desenho;
 // detalhes de cada trecho ao passar o mouse; a versão completa abre no detalhe
-function ritoMini(x) { const { S, falta, tot } = rito(x);
+function ritoMini(x) { const { S, falta, tot } = rito(x), mk = marcasHtml(vistaMarcas(x, S, tot, 60));
   return `<div class="rt"><div class="rth"><b>${ni(x.casa)} d</b><span class="rtc"><em>${esc(x.csig)}</em>${ni(x.dias)} d</span></div>
-    <div class="rtb"><div class="rtp">${S.map((e) => `<i class="r-${e.k}" style="flex:${Math.max(e.d, tot / 60)}" title="${esc(e.t)}">${e.d / tot > .16 && e.s ? `<span>${esc(e.s)}</span>` : ""}</i>`).join("")}<s title="hoje"></s></div>${falta.map((c) => `<u title="${esc(c.n)} · ainda vai">${esc(c.s)}</u>`).join("")}</div>
+    <div class="rtb"><div class="rtp">${mk}${S.map((e) => `<i class="r-${e.k}" style="flex:${Math.max(e.d, tot / 60)}" title="${esc(e.t)}">${e.d / tot > .16 && e.s ? `<span>${esc(e.s)}</span>` : ""}</i>`).join("")}<s title="hoje"></s></div>${falta.map((c) => `<u title="${esc(c.n)} · ainda vai">${esc(c.s)}</u>`).join("")}</div>
     <div class="rtl"><span>${x.lido ? "lido " + br(x.lido).slice(3) : br(x.prot).slice(3)}</span><span>hoje</span></div></div>`; }
 function linha(x) {
   return `<div class="lin${F.ab === x.id ? " ab" : ""}" data-id="${esc(x.id)}"><div class="le">${etq(x, 1)}</div>
@@ -751,11 +767,12 @@ R.addEventListener("click", (e) => { const t = e.target;
   const fm = t.closest("[data-fmais]"); if (fm) { F.flim[fm.dataset.fmais] += 30; desenhar(); return; }
   const fb = t.closest("#futB"); if (fb) { F.fut = !F.fut; fb.classList.toggle("on", F.fut); fb.setAttribute("aria-pressed", F.fut); desenhar(); if (F.fut) { const f = R.querySelector(".futs"); if (f) f.scrollIntoView({ behavior: "smooth", block: "start" }); } return; }
   if (t.closest("[data-fecha]")) { F.ab = null; desenhar(); return; }
-  const fi = t.closest("[data-ficha]"); if (fi) { cmpImprimir([D.L.find((x) => x.id === fi.dataset.ficha)], { fichas: 1, so: 1 }, D, RES); return; }
+  const fi = t.closest("[data-ficha]"); if (fi) { cmpImprimir([D.L.find((x) => x.id === fi.dataset.ficha)], { fichas: 1, so: 1, barra: barraDe }, D, RES); return; }
   if (t.closest("#impB")) { const m = R.querySelector(".impm"); if (m) { m.remove(); return; } const b = t.closest("#impB"), L = filtradas();
-    const mm = document.createElement("div"); mm.className = "impm"; mm.innerHTML = `<button data-imp="l">Lista<small>${ni(L.length)} proposições, uma por linha</small></button><button data-imp="f"${L.length > 60 ? " disabled style=\"opacity:.45\"" : ""}>Lista e fichas<small>${L.length > 60 ? "filtre até 60 proposições para incluir as fichas" : "uma ficha por proposição depois da lista"}</small></button>`;
+    const mm = document.createElement("div"); mm.className = "impm"; mm.innerHTML = `<button data-imp="l">Lista<small>${ni(L.length)} proposições, uma por linha</small></button><button data-imp="f"${L.length > 60 ? " disabled style=\"opacity:.45\"" : ""}>Lista e fichas<small>${L.length > 60 ? "filtre até 60 proposições para incluir as fichas" : "uma ficha por proposição depois da lista"}</small></button><label class="impq"><input type="checkbox" id="impQ"${F.impQ ? " checked" : ""}><span>Quadro ${F.hm === "vis" ? "vista" : "relator"} × tempo no final<small>com as proposições do recorte atual</small></span></label>`;
     mm.style.left = b.offsetLeft + "px"; mm.style.top = b.offsetTop + b.offsetHeight + 6 + "px"; b.parentNode.appendChild(mm); return; }
-  const im = t.closest("[data-imp]"); if (im) { if (im.disabled) return; R.querySelector(".impm").remove(); cmpImprimir(filtradas(), { fichas: im.dataset.imp === "f", filtro: filtroTxt() }, D, RES); return; }
+  const im = t.closest("[data-imp]"); if (im) { if (im.disabled) return; const qd = R.querySelector("#impQ"); F.impQ = !!(qd && qd.checked); R.querySelector(".impm").remove(); const L2 = filtradas();
+    cmpImprimir(L2, { fichas: im.dataset.imp === "f", filtro: filtroTxt(), barra: barraDe, quadro: F.impQ ? quadroDe(L2) : null }, D, RES); return; }
   if (t.closest("#limpa")) { Object.assign(F, { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", fx: null, vq: "", lim: 60 }); ["#q", "#fTipo", "#fTema", "#fRel", "#fAut", "#fIdade"].forEach((s) => $(s).value = ""); desenhar(); return; }
   const r = t.closest("[data-id]"); if (r) { const id = r.dataset.id; if (F.vis === "quadro") { F.vis = "lista"; R.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b.dataset.v === "lista")); F.q = ""; }
     F.ab = F.ab === id ? null : id; const i = D.L.findIndex((x) => x.id === id); desenhar(); const el = R.querySelector(`.lin[data-id="${CSS.escape(id)}"]`); if (el) el.scrollIntoView({ block: "nearest" }); } });
@@ -785,10 +802,13 @@ function cmpImprimir(L, o, D, RES) { const w = window.open("", "_blank"); if (!w
   const tm = (x) => { const Z = RES[x.id]; return Z && Z.t && Z.t[0] ? Z.t[0] : [x.tema]; }, ico = (t) => CMP_TEMAS[t] || CMP_TI0, curto = (t) => String(t).split(/[ ,]/)[0].toUpperCase().slice(0, 10);
   const eto = (x) => `<span class="pt-eto ${x.tipo === "PL" ? "pl" : "ou"}"><b>${esc(x.tipo)}</b><span>${esc(x.num)}/${esc(String(x.ano).slice(2))}</span></span>`;
   const cam = (x) => `<span class="cam">${x.fluxo.map((c) => `<i class="${c.st === "ok" ? "ok" : c.st === "atual" ? "at" : ""}">${esc(c.s)}</i>`).join("")}</span>`;
+  // linha do tempo impressa (23/11/2026): a mesma barra da tela (leitura, comissões, arquivada, comissão atual) com a vista em amarelo
+  const barra = (x) => { if (!o.barra) return ""; const B = o.barra(x);
+    return `<div class="tlb"><div class="tlp">${B.mk.map((m) => `<b style="left:${m.p.toFixed(1)}%" title="${esc(m.t)}"></b>`).join("")}${B.S.map((e) => `<i class="t-${e.k}" style="flex:${Math.max(e.d, B.tot / 60)}">${e.d / B.tot > .14 && e.s ? `<span>${esc(e.k === "vs" ? "vista" : e.s)}</span>` : ""}</i>`).join("")}</div><div class="tll"><span>${esc(B.ini)}</span><span>hoje</span></div></div>`; };
   const comR = L.filter((x) => x.rel).length, v90 = L.filter((x) => x.dias > 90).length, mdC = L.length ? Math.round(L.reduce((s, x) => s + (x.casa || 0), 0) / L.length) : 0;
-  const linhas = L.map((x, i) => { const Z = RES[x.id], t = tm(x); return `<tr><td class="c0">${i + 1}</td><td class="c1">${eto(x)}</td><td class="c3"><b>${esc(Z ? Z.m : x.resumo)}</b><small>${esc(x.autor)}</small><span class="tg2">${esc(t.filter(Boolean).join(" › "))}</span></td>
+  const linhas = L.map((x, i) => { const Z = RES[x.id], t = tm(x); return `<tbody class="pi${o.barra ? " cb" : ""}"><tr><td class="c0">${i + 1}</td><td class="c1">${eto(x)}</td><td class="c3"><b>${esc(Z ? Z.m : x.resumo)}</b><small>${esc(x.autor)}</small><span class="tg2">${esc(t.filter(Boolean).join(" › "))}</span></td>
     <td class="c4"><svg viewBox="0 0 16 16" class="pt-fi">${ico(t[0])}</svg><small>${esc(curto(t[0]))}</small></td><td class="c5">${cam(x)}</td><td class="c6"><span class="rl2${x.rel ? "" : " vz"}">${esc(x.rel || "sem relator")}${x.rel && x.relDist ? `<small>desde ${br(x.relDist)}</small>` : ""}${x.vista ? `<em class="vs2">vista · ${esc(x.vista.quem || "deputado")}</em>` : ""}</span></td>
-    <td class="c8"><span class="pt-val${x.casa > 365 ? " lg" : ""}">${ni(x.casa)} d</span></td><td class="c7"><span class="pt-val${x.dias > 90 ? " lg" : ""}">${ni(x.dias)} d</span></td></tr>`; }).join("");
+    <td class="c8"><span class="pt-val${x.casa > 365 ? " lg" : ""}">${ni(x.casa)} d</span></td><td class="c7"><span class="pt-val${x.dias > 90 ? " lg" : ""}">${ni(x.dias)} d</span></td></tr>${o.barra ? `<tr class="tlr"><td></td><td></td><td colspan="6">${barra(x)}</td></tr>` : ""}</tbody>`; }).join("");
   const usados = [...new Set(L.map((x) => tm(x)[0]))];
   const tipos = [...new Set(L.map((x) => x.tipo))], TN = { PL: "Projeto de lei", PLC: "Projeto de lei complementar", PEC: "Proposta de emenda à Constituição", MSV: "Mensagem de veto", PRS: "Projeto de resolução", PDL: "Projeto de decreto legislativo" };
   const ficha = (x) => { const Z = RES[x.id], t = Z && Z.t ? Z.t : [[x.tema]];
@@ -797,7 +817,7 @@ function cmpImprimir(L, o, D, RES) { const w = window.open("", "_blank"); if (!w
     <h3>${esc(Z ? Z.m : x.resumo)}</h3><p>${esc(Z ? Z.f : x.ementa)}</p>
     <div style="margin-bottom:8px">${t.map((q) => `<span class="tm2"><b>${esc(q[0])}</b>${q[1] ? `<span>${esc(q.slice(1).filter(Boolean).join(" › "))}</span>` : ""}</span>`).join("")}</div>
     <div class="fic"><div><b>${esc(Z && Z.fis ? Z.fis[0] : "—")}</b><span>impacto fiscal</span></div><div><b>${esc(x.rel || "a designar")}</b><span>relator na ${esc(x.csig)}</span></div><div><b>${ni(x.dias)} dias</b><span>na comissão</span></div><div><b>${ni(x.casa)} dias</b><span>na Assembleia · desde ${br(x.prot)}</span></div></div>
-    <div style="margin-bottom:8px">${cam(x)}</div>
+    <div style="margin-bottom:8px">${cam(x)}</div>${o.barra ? `<div style="margin-bottom:10px">${barra(x)}</div>` : ""}
     <div class="fi2"><div>${Z ? `<div class="fst">O que muda${Z.disp ? " · " + esc(Z.disp.txt || Z.disp.art + " artigos") : ""}</div><ul class="fiu">${(Z.muda || []).map(([, a, b]) => `<li>${esc(a)}${b ? ` <span style="color:#7A8085">(${esc(b)})</span>` : ""}</li>`).join("")}</ul><div class="fst" style="margin-top:8px">Por quê</div><p style="margin:0">${esc(Z.pq || "")}</p>` : `<div class="fst">Ementa</div><p style="margin:0">${esc(x.ementa)}</p>`}</div>
       <div><div class="fst">Linha do tempo</div>${ev.map(([d, s]) => `<div class="fil ok"><em>${br(d)}</em><span>${esc(s)}</span></div>`).join("")}<div class="fil"><em>—</em><span>${x.rel ? "Parecer da " + esc(x.csig) : "Relator na " + esc(x.csig)}</span></div></div></div></div>`; };
   const cab = `<div class="di-cab"><div><div class="di-wm">Simula<span>LEGIS</span></div><div class="di-wmsub">Gabinete · Processo legislativo</div></div><div class="di-meta"><b>Comissões permanentes da ALESC</b><br>gerado em ${dt} às ${hr} · dados do e-Legis de ${new Date(D.gerado).toLocaleDateString("pt-BR")}</div></div><div class="di-regra"></div>`;
@@ -805,10 +825,11 @@ function cmpImprimir(L, o, D, RES) { const w = window.open("", "_blank"); if (!w
   <div class="di-rres"><div><b>${ni(L.length)}</b><span>em tramitação</span></div><div class="ok"><b>${ni(comR)}</b><span>com relator · ${L.length ? Math.round(comR / L.length * 100) : 0}%</span></div><div><b>${ni(v90)}</b><span>há mais de 90 dias na comissão${L.some((x) => x.vista) ? " · " + ni(L.filter((x) => x.vista).length) + " em vista" : ""}</span></div><div><b>${ni(mdC)} dias</b><span>média na Assembleia</span></div></div>
   <div class="di-pbar"><i class="b1" style="width:${L.length ? comR / L.length * 100 : 0}%"></i><i class="b3" style="width:${L.length ? (L.length - comR) / L.length * 100 : 0}%"></i></div>
   <div class="di-pleg"><span><i class="b1"></i>Com relator ${ni(comR)}</span><span><i class="b3"></i>Aguardando relator ${ni(L.length - comR)}</span></div>
-  <table class="pt"><thead><tr><th class="c0">#</th><th class="c1">Proposição</th><th class="c3">Resumo</th><th class="c4">Tema</th><th class="c5">Caminho nas comissões</th><th class="c6">Relator</th><th class="c8">Na casa</th><th class="c7">Na comissão</th></tr></thead><tbody>${linhas}</tbody></table>
+  <table class="pt"><thead><tr><th class="c0">#</th><th class="c1">Proposição</th><th class="c3">Resumo</th><th class="c4">Tema</th><th class="c5">Caminho nas comissões</th><th class="c6">Relator</th><th class="c8">Na casa</th><th class="c7">Na comissão</th></tr></thead>${linhas}</table>
   <div class="di-lgs"><div><b>Tema</b>${usados.map((t) => `<span><svg viewBox="0 0 16 16" class="pt-fi">${ico(t)}</svg>${esc(t)}</span>`).join("")}</div>
     <div><b>Caminho</b><span class="cam"><i class="ok">CCJ</i></span>já aprovou<span class="cam"><i class="at">CCJ</i></span>está agora<span class="cam"><i>CFT</i></span>ainda passará</div>
     <div><b>Tipo</b>${tipos.map((t) => `<span>${eto({ tipo: t, num: "nº", ano: "  " }).replace("nº/  ", "nº")}${esc(TN[t] || t)}</span>`).join("")}</div>
+    ${o.barra ? `<div style="grid-column:1/-1"><b>Linha do tempo</b><span><i class="lgq t-lei"></i>leitura</span><span><i class="lgq t-ok"></i>comissão concluída</span><span><i class="lgq t-ps"></i>expediente e coordenadorias</span><span><i class="lgq t-arq"></i>arquivada</span><span><i class="lgq t-atual"></i>comissão atual</span><span><i class="lgq t-vs"></i>pedido de vista (marca: vista anterior)</span></div>` : ""}
     <div><b>Dias</b><span><span class="pt-val">37 d</span>até 90 na comissão · até 365 na casa</span><span><span class="pt-val lg">236 d</span>acima disso</span></div></div>`;
   const css = `@page{size:A4;margin:14mm 12mm} *{box-sizing:border-box;-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important} body{font-family:Inter,system-ui,sans-serif;color:#111;margin:0} .folha{position:relative;padding:0 3px}
   .di-agua{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0}.di-agua span{font-size:110px;font-weight:800;color:rgba(0,0,0,.03);transform:rotate(-24deg)}
@@ -841,8 +862,27 @@ function cmpImprimir(L, o, D, RES) { const w = window.open("", "_blank"); if (!w
   .fic{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px}.fic div{background:#F3F5F6;border:1px solid #DCDFE2;border-radius:5px;padding:5px 7px}.fic b{display:block;font-size:10.5px}.fic span{font-size:6.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#6B7178}
   .fi2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fst{font-size:7px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;border-bottom:1.5px solid #A9AEB3;padding-bottom:3px;margin-bottom:4px}
   .fil{font-size:9px;line-height:1.45;padding:3px 0;border-bottom:.5px solid #DCDFE2;display:grid;grid-template-columns:48px 1fr;gap:6px}.fil em{font-style:normal;color:#9AA0A4;font-variant-numeric:tabular-nums}.fil.ok em{color:#1FA83A;font-weight:700}
-  .fiu{font-size:9px;line-height:1.45;margin:0;padding-left:12px}.tm2{display:inline-flex;font-size:7px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border:1px solid #DCDFE2;border-radius:3px;overflow:hidden;margin-right:4px}.tm2 b{background:#3F454B;color:#fff;padding:2px 4px}.tm2 span{padding:2px 4px;color:#6B7178}`;
+  .fiu{font-size:9px;line-height:1.45;margin:0;padding-left:12px}.tm2{display:inline-flex;font-size:7px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;border:1px solid #DCDFE2;border-radius:3px;overflow:hidden;margin-right:4px}.tm2 b{background:#3F454B;color:#fff;padding:2px 4px}.tm2 span{padding:2px 4px;color:#6B7178}
+  .pt tbody.pi{page-break-inside:avoid;break-inside:avoid}.pt tbody.cb tr:first-child td{border-bottom:0;padding-bottom:3px}.pt tr.tlr td{padding:0 5px 8px}
+  .tlb{max-width:100%}.tlp{position:relative;display:flex;gap:1.5px;height:9px}.tlp i{display:flex;align-items:center;justify-content:center;min-width:2px;overflow:hidden;font-style:normal}.tlp i:first-of-type{border-radius:3px 0 0 3px}.tlp i:last-of-type{border-radius:0 3px 3px 0}
+  .tlp i span{font-size:5.8px;font-weight:800;letter-spacing:.03em;white-space:nowrap;text-transform:uppercase}.tlp b{position:absolute;top:-2px;bottom:-2px;width:3px;margin-left:-1.5px;border-radius:1px;background:#E0A800;box-shadow:0 0 0 1px #fff;z-index:1}
+  .tll{display:flex;justify-content:space-between;font-size:6.5px;color:#9AA0A4;margin-top:2px}
+  .t-lei{background:#C9CDD1;color:#3F454B}.t-sem{background:repeating-linear-gradient(45deg,#DCDFE2 0 2px,#F3F5F6 2px 4px);color:#6B7178}.t-arq{background:repeating-linear-gradient(45deg,#D9C7A6 0 2px,#F1E8D8 2px 4px);color:#6B4F22}
+  .t-ok{background:#1FA83A;color:#fff}.t-ps{background:#A9AEB3;color:#fff}.t-atual{background:#3F454B;color:#fff}.t-vs{background:#F2C94C;color:#3B2606}
+  .lgq{display:inline-block;width:14px;height:7px;border-radius:2px}
+  .qd{break-before:page;page-break-before:always}@media screen{.qd{margin-top:56px;padding-top:28px;border-top:1px dashed #C9CDD1}}
+  .qt{width:100%;border-collapse:separate;border-spacing:3px;font-size:9px}.qt th{font-size:6.8px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B7178;text-align:center;padding:4px 2px;white-space:nowrap}.qt th.qn{text-align:left}
+  .qt td{text-align:center;padding:0}.qt td.qn{text-align:left;font-weight:600;padding-right:8px;white-space:nowrap}.qt td.qn.sem{color:#B45309}.qt .qtt{text-align:right;font-weight:700;width:40px;padding-right:4px}
+  .qt td span{display:block;height:17px;line-height:17px;border-radius:3px;font-weight:700;font-variant-numeric:tabular-nums}.q0{background:#F6F7F8}.q1{background:#E4E7E9;color:#3F454B}.q2{background:#A9AEB3;color:#fff}.q3{background:#6B7178;color:#fff}.q4{background:#3F454B;color:#fff}
+  .qt tr.qs td{font-weight:800;border-top:1.5px solid #A9AEB3;padding-top:4px}.qt tr{page-break-inside:avoid}`;
+  const Q = o.quadro, qPasso = (v, mx) => !v ? 0 : v / mx > .5 ? 4 : v / mx > .25 ? 3 : v / mx > .1 ? 2 : 1;
+  const quadro = !Q ? "" : (() => { const mx = Math.max(1, ...Q.rows.flatMap((r) => r[1]));
+    return `<div class="qd">${cab}<div class="di-tit">${Q.VIS ? "Pedidos de vista abertos por deputado e tempo em vista" : "Proposições paradas por relator e tempo na comissão"}</div><div class="di-sub"><b>Recorte:</b> ${esc(o.filtro || "todas")} · ${ni(Q.n)} ${Q.VIS ? "vistas abertas" : "proposições"}</div>
+    <table class="qt"><thead><tr><th class="qn">${Q.VIS ? "Deputado" : "Relator"}</th>${Q.HX.map((h) => `<th>${esc(h)}</th>`).join("")}<th class="qtt">Total</th></tr></thead><tbody>
+    ${Q.rows.map(([k, v, t]) => `<tr><td class="qn${k === "Aguardando relator" ? " sem" : ""}">${esc(k)}</td>${v.map((n) => `<td><span class="q${qPasso(n, mx)}">${n ? ni(n) : ""}</span></td>`).join("")}<td class="qtt">${ni(t)}</td></tr>`).join("")}
+    <tr class="qs"><td class="qn">Total</td>${Q.col.map((n) => `<td>${ni(n)}</td>`).join("")}<td class="qtt">${ni(Q.n)}</td></tr></tbody></table>
+    <div class="di-pleg" style="margin-top:8px"><span><i style="background:#E4E7E9"></i>poucas</span><span><i style="background:#A9AEB3"></i></span><span><i style="background:#6B7178"></i></span><span><i style="background:#3F454B"></i>mais proposições na célula</span></div></div>`; })();
   const corpo = o.so ? `${cab}<div class="di-tit">Ficha da proposição</div><div class="di-sub">${esc(L[0].tipo)} ${esc(L[0].num)}/${esc(L[0].ano)} · situação em ${new Date(D.gerado).toLocaleDateString("pt-BR")}</div>${ficha(L[0])}`
-    : lista + (o.fichas ? `<div class="fichas">${cab}<div class="di-tit">Fichas das proposições</div><div class="di-sub">Uma ficha por proposição, na mesma ordem da lista.</div>${L.map(ficha).join("")}</div>` : "");
+    : lista + (o.fichas ? `<div class="fichas">${cab}<div class="di-tit">Fichas das proposições</div><div class="di-sub">Uma ficha por proposição, na mesma ordem da lista.</div>${L.map(ficha).join("")}</div>` : "") + quadro;
   w.document.open(); w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Comissões da ALESC · proposições em tramitação</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"><style>${css}</style></head><body><div class="di-agua"><span>SimulaLEGIS</span></div><div class="folha">${corpo}
     <div class="di-pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app · uso interno do gabinete · fonte: e-Legis (ALESC)</span><span>${dt} ${hr}</span></div></div><script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`); w.document.close(); }
