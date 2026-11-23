@@ -208,6 +208,8 @@ td.ac{width:70px}
 .arb{position:relative;height:8px;border-radius:4px;background:#E4E7E9;margin:10px 0 10px}.arb i{display:block;height:100%;border-radius:4px;background:#2A2F33}.ar.ok .arb i{background:#1FA845}
 .arb b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:#E8822A;box-shadow:0 0 0 2px #fff}
 @media(max-width:700px){.qar{gap:6px}.ar,.qinv{padding:9px 9px}.arh{flex-wrap:wrap;gap:5px}.arh .chip{order:3;flex-basis:100%;text-align:center}.ars{flex-wrap:wrap}.qdl{font-size:10.5px;gap:2px 8px}}
+.qd{position:relative}.qmin{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:1px solid var(--bd);background:#fff;color:var(--mu);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}.qmin:hover{border-color:#1D2226;color:var(--tx)}
+.qd .qn{padding-right:30px}.qd.min .qb{margin-bottom:0}
 .erro{max-width:420px;margin:60px auto;background:var(--tl);border:1px solid var(--bd);border-radius:16px;padding:22px 24px;font-size:13px;color:var(--mu);line-height:1.5}.erro b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
@@ -231,6 +233,8 @@ let CARDS = (() => { try { const v = localStorage.getItem("gestor_vis"); if (v) 
 ICI.pizza = '<circle cx="8" cy="8" r="5.5"/><path d="M8 2.5V8h5.5"/>';
 ICI.cartoes = '<rect x="2.5" y="2.5" width="11" height="4.5" rx="1.2"/><rect x="2.5" y="9" width="11" height="4.5" rx="1.2"/>';
 ICI.tabela = '<rect x="2.5" y="3" width="11" height="10" rx="1.2"/><path d="M2.5 6.5h11M2.5 9.8h11M6.5 6.5V13"/>';
+// quadro da cota minimizado: fica só a primeira parte (números e barra da cota); escolha guardada no navegador
+let MIN = (() => { try { return localStorage.getItem("gestor_min") === "1"; } catch (e) { return false; } })();
 let LK = null, ABERTO = false, PEND = [], NOMEL = "", GAB = "";
 const AREAS = [["Saúde", "sau"], ["Educação", "edu"], ["Agricultura", "agr"], ["Infraestrutura e Mobilidade", "inf"], ["Segurança Pública", "seg"], ["FUNDAM", "fun"], ["Fundo Social", "soc"]];
 const NATS = [["Capital", "cap", "investimento"], ["Custeio", "cus", "custeio"]];
@@ -266,16 +270,16 @@ function quadro(L) {
       <div class="arh"><span class="mi">${ok ? "✓" : "!"}</span><span class="arn"><b>${nome} ${p(o.t, COTA)}</b><small>${sub}</small></span><span class="chip ${ok ? "ok" : "fl"}">${chip}</span></div>
       <div class="arb"><i style="width:${(Math.min(o.t, esc2) / esc2 * 100).toFixed(1)}%"></i><b style="left:${(m / esc2 * 100).toFixed(1)}%"></b></div>
       <div class="ars"><span>Investimento e custeio</span><b>capital ${p(o.cap, o.t)}</b></div>${desp(o)}</div>`; };
-  return `<div class="qd">
+  return `<div class="qd${MIN ? " min" : ""}"><button class="qmin" data-min title="${MIN ? "Mostrar metas e despesas" : "Minimizar"}" aria-label="${MIN ? "Mostrar metas e despesas" : "Minimizar"}">${MIN ? "▾" : "▴"}</button>
     <div class="qn"><div><span>Cota</span><b>${rcc(COTA)}</b></div>
       <div><span>Indicado</span><b>${rcc(tot)} <em>${p(tot, COTA)}</em></b>${tot !== totO ? `<small class="dif">${tot > totO ? "+" : "−"}${rcc(Math.abs(tot - totO))} nas mudanças</small>` : ""}</div>
       <div><span>${livre < 0 ? "Acima da cota" : "Livre"}</span><b class="${livre < 0 ? "neg" : "pos"}">${rcc(Math.abs(livre))}</b></div>
       <div><span>Emendas</span><b>${L.length} <em>de ${MAXE}</em></b></div></div>
     <div class="qb"><i class="s" style="width:${Math.min(100, tot / COTA * 100)}%"></i></div>
-    <div class="qinv${MD === "inv" ? " on" : ""}" data-md="inv" role="button" title="Ver o detalhamento"><div class="ars"><span>Investimento e custeio · de tudo o que foi indicado</span><span class="chip ${okC ? "ok" : "fl"}">${okC ? "✓ " : ""}investimento ${p(A.cap, tot)} · meta ${Math.round(META_CAP * 100)}%</span></div>${desp(A, META_CAP)}</div>
+    ${MIN ? "" : `<div class="qinv${MD === "inv" ? " on" : ""}" data-md="inv" role="button" title="Ver o detalhamento"><div class="ars"><span>Investimento e custeio · de tudo o que foi indicado</span><span class="chip ${okC ? "ok" : "fl"}">${okC ? "✓ " : ""}investimento ${p(A.cap, tot)} · meta ${Math.round(META_CAP * 100)}%</span></div>${desp(A, META_CAP)}</div>
     <div class="qar">${area("sau", "Saúde", S, mS, okS, `mínimo ${Math.round(SAUDE * 100)}% da cota`, okS ? "✓ atingido" : "faltam " + rcc(mS - S.t))}
       ${area("fun", "FUNDAM", F, mF, okF, `até ${Math.round((1 - SAUDE) * 100)}% · demais áreas`, okF ? "livre " + rcc(mF - F.t) : "acima em " + rcc(F.t - mF))}</div>
-    ${MD ? detalhe(L, MD, tot, S.t, A.cap) : ""}</div>`;
+    ${MD ? detalhe(L, MD, tot, S.t, A.cap) : ""}`}</div>`;
 }
 
 // detalhamento de uma meta: linhas com valor, % e emendas; tocar numa linha filtra a tabela
@@ -365,6 +369,7 @@ function liga() { const A = document.getElementById("app");
   A.querySelectorAll("[data-md]").forEach((b) => b.onclick = () => { MD = MD === b.dataset.md ? null : b.dataset.md; redesenha(); });
   A.querySelectorAll("[data-p]").forEach((b) => b.onclick = () => { const [c, f] = DP[+b.dataset.p]; FL = FL && FL[0] === "p" && FL[1] === c ? null : ["p", c, f]; redesenha(); });
   A.querySelectorAll("th[data-o]").forEach((t) => t.onclick = () => { const c = t.dataset.o; ORD = !ORD || ORD[0] !== c ? [c, c === "v" ? -1 : 1] : ORD[1] === (c === "v" ? -1 : 1) ? [c, -ORD[1]] : null; redesenha(); });
+  A.querySelector("[data-min]").onclick = () => { MIN = !MIN; if (MIN) MD = null; try { localStorage.setItem("gestor_min", MIN ? "1" : "0"); } catch (e) {} redesenha(); };
   A.querySelector("[data-vis]").onclick = () => { CARDS = !CARDS; try { localStorage.setItem("gestor_vis", CARDS ? "c" : "t"); } catch (e) {} redesenha(); };
   A.querySelector("[data-dist]").onclick = () => { DIST = !DIST; redesenha(); };
   const sf = A.querySelector("[data-sf]"); if (sf) sf.onclick = () => { FL = null; redesenha(); };
