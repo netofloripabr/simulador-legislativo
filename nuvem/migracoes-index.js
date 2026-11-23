@@ -2452,5 +2452,24 @@ const MIGRACOES_INDEX = [
     "gab_itens.nota_lider"
    ]
   ]
+ },
+ {
+  "num": 115,
+  "arquivo": "migracao-115-link-itens-ao-vivo.sql",
+  "descricao": "Migração 115 (23/11/2026): link do líder acompanha a planilha AO VIVO.",
+  "objetos": [
+   [
+    "function",
+    "link_itens_atuais"
+   ],
+   [
+    "function",
+    "link_abrir"
+   ],
+   [
+    "function",
+    "link_salvar"
+   ]
+  ]
  }
 ];

@@ -17,7 +17,8 @@ const LKI = {
   cop: '<rect x="5.5" y="5.5" width="7.5" height="7.5" rx="1.5"/><path d="M10.5 5.5V4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v5.5a1 1 0 0 0 1 1h1.5"/>',
   olh: '<path d="M1.8 8S4 3.8 8 3.8 14.2 8 14.2 8 12 12.2 8 12.2 1.8 8 1.8 8z"/><circle cx="8" cy="8" r="2"/>',
   cad: '<rect x="3.5" y="7" width="9" height="6.5" rx="1.2"/><path d="M5.5 7V5.2a2.5 2.5 0 0 1 5 0V7"/>',
-  wpp: '<path d="M3 13l.9-2.6A5 5 0 1 1 5.7 12z"/>' };
+  wpp: '<path d="M3 13l.9-2.6A5 5 0 1 1 5.7 12z"/>',
+  tag: '<path d="M2.8 3.6v3.6l6 6 4.4-4.4-6-6H3.6a.8.8 0 0 0-.8.8z"/><circle cx="5.6" cy="5.6" r=".9"/>' };
 const lsv = (k) => `<svg viewBox="0 0 16 16" aria-hidden="true">${LKI[k]}</svg>`;
 const ETP = [["lnk", "Link gerado"], ["rel", "Link aberto pelo líder"], ["lap", "Emenda preenchida"], ["env", "Enviado ao gabinete"], ["chk", "Aceito por você"]];
 // ---------- dados ----------
@@ -31,7 +32,11 @@ async function lerLinks(T, forca) {
     if (L.length) { const r = await supabaseClient.from("gab_link_propostas").select("*").in("link_id", L.map((l) => l.id)); if (r.error) throw r.error; P = r.data || []; }
     // Link Gestor (migração 109) fica à parte: não entra na Etapa, nos links dos líderes nem nas propostas deles
     const G = (L || []).find((l) => l.tipo === "gestor") || null;
-    LK.lista = T.L.id; LK.links = (L || []).filter((l) => l.tipo !== "gestor"); LK.gestor = G; LK.props = P.filter((p) => !G || p.link_id !== G.id); LK.gprops = G ? P.filter((p) => p.link_id === G.id) : []; LK.lido = Date.now(); return true;
+    LK.lista = T.L.id; LK.links = (L || []).filter((l) => l.tipo !== "gestor");
+    // link de líder/contato acompanha a planilha ao vivo (migração 115, link_itens_atuais): aqui também
+    LK.links.forEach((l) => { if (!l.lideranca) return; const ant = l.itens || [], pos = (id) => { const k = ant.indexOf(id); return k < 0 ? 1e5 : k; };
+      l.itens = AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x) && (l.lideranca.startsWith("contato:") ? String(x.contato || "").split(/\s*,\s*/).includes(l.lideranca.slice(8)) : x.lideranca === l.lideranca))
+        .sort((a, b) => pos(a.id) - pos(b.id) || String(a.criado_em || "").localeCompare(String(b.criado_em || ""))).map((x) => x.id); }); LK.gestor = G; LK.props = P.filter((p) => !G || p.link_id !== G.id); LK.gprops = G ? P.filter((p) => p.link_id === G.id) : []; LK.lido = Date.now(); return true;
   } catch (e) { console.warn("links dos líderes:", e.message || e); return false; } finally { LK.lendo = null; } })();
   return LK.lendo;
 }
@@ -114,11 +119,13 @@ function faixaLinks(T) { if (!T.L || !SESS) return "";
     <div class="lkst">Por contato</div><div class="lks">${con.map((n) => { const l = linkDoLider("contato:" + n); return l ? bt(l) : `<button class="lkc nw" data-lkcon="${esc(n)}">+ link · ${esc(n)}</button>`; }).join("") || `<span class="mut" style="font-size:12px">nenhuma emenda com contato</span>`}</div>
     <div class="lkst">Avulsos</div><div class="lks">${av.map(bt).join("")}<button class="lkc nw" data-lkav>+ link avulso</button></div>`; }
 // ---------- colunas que ligam e desligam ----------
-const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["lid", "Líder e contato"], ["obs", "Etiqueta e observações"], ["etp", "Etapa"], ["jus", "Justificativa (no objeto)"]];
-let COLS_OFF = (() => { try { const v = JSON.parse(localStorage.getItem("ind_cols") || '["lid","jus"]'); if (!localStorage.getItem("ind_cols_jus")) { localStorage.setItem("ind_cols_jus", "1"); if (!v.includes("jus")) v.push("jus"); } return v; } catch (e) { return ["lid", "jus"]; } })();
-const colOn = (k) => k !== "etq" && !COLS_OFF.includes(k);   // a etiqueta foi para a coluna das observações (23/11/2026)
+const COLS_IND = [["ent", "Ente · modalidade · função"], ["mun", "Município"], ["obj", "Objeto"], ["val", "Valor"], ["lid", "Líder e contato"], ["etq", "Etiqueta"], ["obs", "Etiqueta e observações"], ["etp", "Etapa"], ["jus", "Justificativa (no objeto)"]];
+let COLS_OFF = (() => { try { const v = JSON.parse(localStorage.getItem("ind_cols") || '["lid","jus"]'); if (!localStorage.getItem("ind_cols_jus")) { localStorage.setItem("ind_cols_jus", "1"); if (!v.includes("jus")) v.push("jus"); } if (!localStorage.getItem("ind_cols_etq2")) { localStorage.setItem("ind_cols_etq2", "1"); if (!v.includes("etq")) v.push("etq"); localStorage.setItem("ind_cols", JSON.stringify(v)); } return v; } catch (e) { return ["lid", "jus", "etq"]; } })();
+const colOn = (k) => !COLS_OFF.includes(k);   // coluna Etiqueta: liga e desliga no botão "Etiquetas" (23/11/2026); o balão já leva a cor dela
 const nColInd = () => 1 + COLS_IND.filter(([k]) => k !== "jus" && colOn(k)).length; // nº e colunas visíveis (a justificativa vai dentro do objeto)
 // botão "Justificativa" (20/11/2026): liga e desliga o texto da justificativa embaixo do objeto, em todas as linhas
+// botão "Etiquetas" (23/11/2026): mostra ou esconde a coluna própria da etiqueta (o balão das observações continua na cor dela)
+const botaoEtqCol = () => `<button data-ietqcol class="${colOn("etq") ? "on" : ""}" title="Mostrar ou esconder a coluna das etiquetas">${lsv("tag")}Etiquetas</button>`;
 const botaoJus = () => `<button data-ijus class="${colOn("jus") ? "on" : ""}" title="Mostrar ou esconder a justificativa embaixo de cada objeto">${lsv("lap")}Justificativa</button>`;
 function menuCols(b) { fechaLk(); b.classList.add("on");
   abreLk(b, `<div class="h"><b>Colunas</b>escolha o que aparece na planilha</div>${COLS_IND.map(([k, n]) => `<label class="lkcol"><input type="checkbox" data-cc="${k}" ${colOn(k) ? "checked" : ""}>${n}</label>`).join("")}`, "lkm cols");
@@ -206,6 +213,7 @@ function ligarLinks(p, T) {
   p.querySelectorAll("[data-ietq]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.ietq); if (x && T && T.L) popEtq(b, x, T); });
   p.querySelectorAll("[data-iobs]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const x = AD.itens.find((y) => y.id === b.dataset.iobs); if (x) popObs(b, x, T); });
   const lb = p.querySelector("[data-ilinks]"); if (lb) lb.onclick = (e) => { e.stopPropagation(); quadroLinks(lb, T); };
+  const ec = p.querySelector("[data-ietqcol]"); if (ec) ec.onclick = (e) => { e.stopPropagation(); COLS_OFF = colOn("etq") ? [...COLS_OFF, "etq"] : COLS_OFF.filter((k) => k !== "etq"); try { localStorage.setItem("ind_cols", JSON.stringify(COLS_OFF)); } catch (er) {} const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; };
   const ju = p.querySelector("[data-ijus]"); if (ju) ju.onclick = (e) => { e.stopPropagation(); COLS_OFF = colOn("jus") ? [...COLS_OFF, "jus"] : COLS_OFF.filter((k) => k !== "jus"); try { localStorage.setItem("ind_cols", JSON.stringify(COLS_OFF)); } catch (er) {} const y = $("#indPg").scrollTop; desenharInd(); $("#indPg").scrollTop = y; };
   const cl = p.querySelector("[data-icols]"); if (cl) cl.onclick = (e) => { e.stopPropagation(); menuCols(cl); };
   p.querySelectorAll("[data-iinfo]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); infoI(b, (IND.infos || {})[b.dataset.iinfo] || ""); });
@@ -222,7 +230,7 @@ const notasInd = (x) => typeof caderneta === "function" ? caderneta(x) : String(
 // escolhidos pela equipe); a cor antiga do balão (obs_cor) só aparece enquanto a emenda não tem etiqueta
 function balaoInd(x, T) { const n = notasInd(x), ul = n[n.length - 1], e = x && x.marca ? etqDe(T || IND_T(), x) : null, oc = !e && COR_BAL[x.obs_cor];
   const cor = e ? corEtq(e.c)[2] : oc ? oc[0] : "";
-  return `<button class="iobs${n.length ? " tem" : ""}${cor ? " cor" : ""}${e ? " etq" : ""}"${cor ? ` style="--bc:${cor}${e ? ";--eb:" + corEtq(e.c)[1] + ";--ef:" + corEtq(e.c)[2] : ""}"` : ""} data-iobs="${x.id}" title="${esc((e ? e.n + " · " : oc ? oc[1] + " · " : "") + (ul ? ul.t : "Sem observação"))}" aria-label="Etiqueta e observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}${e ? `<em>${esc(e.n)}</em>` : ""}</button>`; }
+  return `<button class="iobs${n.length ? " tem" : ""}${cor ? " cor" : ""}"${cor ? ` style="--bc:${cor}"` : ""} data-iobs="${x.id}" title="${esc((e ? e.n + " · " : oc ? oc[1] + " · " : "") + (ul ? ul.t : "Sem observação"))}" aria-label="Etiqueta e observações">${OBS_IND}${n.length > 1 ? `<small>${n.length}</small>` : ""}</button>`; }
 const IND_T = () => (typeof indTags === "function" ? (indTags().find((t) => t.k === IND.tag) || null) : null);
 function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
   const des = () => { const n = notasInd(x); return `<div class="h iobh"><span><b>Etiqueta e observações · ${esc(x.municipio || "—")}</b>${x.chave_emenda ? "já levada ao Controle de Recursos; lá continuam as anotações" : "vão junto para o Controle de Recursos ao fechar a lista"}</span>

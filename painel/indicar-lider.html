@@ -158,8 +158,10 @@ async function iniciar() {
     if (!l) return msg("Link inválido", "Este link não existe mais. Peça ao gabinete um link novo.");
     L = l; IT = l.itens || []; PORT = p.O; MUN = b.mun.map((m) => m.n); FECHA = new Date(l.prazo); ABERTO = !!l.aberto;
     const P = {}; (l.propostas || []).forEach((x) => { P[x.item_id] = x; });
-    ST = IT.map((x) => { const q = P[x.id]; return q ? { mun: q.municipio || x.municipio || "", bt: q.benef_tipo || (x.benef_tipo === "ent" ? "ent" : "mun"), ben: q.beneficiario || "", cnpj: q.cnpj || "", obj: q.objeto || null, fonte: q.objeto_fonte || "", com: q.justificativa || "", status: q.status }
-      : { mun: x.municipio || "", bt: x.benef_tipo === "ent" ? "ent" : "mun", ben: x.benef_tipo === "ent" ? x.beneficiario || "" : "", cnpj: x.benef_tipo === "ent" ? x.cnpj || "" : "", obj: !l.limpo && x.objeto || null, fonte: !l.limpo && x.objeto ? "gab" : "", com: l.limpo ? "" : x.justificativa || "", status: "" }; });   // link "limpo": sem objeto e sem justificativa   // sem proposta: já vem com o que o gabinete revisou (20/11/2026)
+    // proposta já decidida (aceita ou recusada) não manda mais na tela (23/11/2026): a planilha do gabinete é a verdade e o link
+    // mostra o que está nela agora; a proposta só vale enquanto o líder ainda está mexendo (rascunho) ou esperando (enviado)
+    ST = IT.map((x) => { const q0 = P[x.id], dec = q0 && (q0.status === "aceito" || q0.status === "recusado"), q = dec ? null : q0; return q ? { mun: q.municipio || x.municipio || "", bt: q.benef_tipo || (x.benef_tipo === "ent" ? "ent" : "mun"), ben: q.beneficiario || "", cnpj: q.cnpj || "", obj: q.objeto || null, fonte: q.objeto_fonte || "", com: q.justificativa || "", status: q.status }
+      : { mun: x.municipio || "", bt: x.benef_tipo === "ent" ? "ent" : "mun", ben: x.benef_tipo === "ent" ? x.beneficiario || "" : "", cnpj: x.benef_tipo === "ent" ? x.cnpj || "" : "", obj: !l.limpo && x.objeto || null, fonte: !l.limpo && x.objeto ? "gab" : "", com: l.limpo ? "" : x.justificativa || "", status: dec ? q0.status : "" }; });   // link "limpo": sem objeto e sem justificativa   // sem proposta: já vem com o que o gabinete revisou (20/11/2026)
     document.getElementById("muns").innerHTML = MUN.map((m) => `<option value="${esc(m)}">`).join("");
     render(); setInterval(() => { const c = document.querySelector(".icapa .w2"); if (c) c.innerHTML = `<span class="tk">${prazoTx()}</span>${cont()}`; }, 30000);
   } catch (e) { msg("Não foi possível abrir", "Confira a internet e recarregue a página. (" + esc(e.message) + ")"); } }
