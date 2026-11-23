@@ -228,6 +228,7 @@ function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje 
   const des = () => { const n = notasInd(x); return `<div class="h iobh"><span><b>Etiqueta e observações · ${esc(x.municipio || "—")}</b>${x.chave_emenda ? "já levada ao Controle de Recursos; lá continuam as anotações" : "vão junto para o Controle de Recursos ao fechar a lista"}</span>
 </div>
     <div class="iobet">${etiquetasL(T).map((e) => `<button class="${x.marca === e.n ? "at" : ""}" data-obe="${esc(e.n)}" title="${x.marca === e.n ? "Tirar a etiqueta" : "Usar esta etiqueta"}">${chipEtq(e)}</button>`).join("")}${fech ? "" : `<button class="iobnv" data-ietq="${x.id}" title="Criar, renomear ou trocar a cor das etiquetas">+ nova / editar</button>`}</div>
+    <label class="iobld"><span>Recado para o líder <small>aparece para o líder no link, junto com a etiqueta</small></span><textarea data-nlid rows="2" placeholder="Ex.: Item conferido e pronto, não precisa mexer"${fech ? " disabled" : ""}>${esc(x.nota_lider || "")}</textarea></label>
     <div class="iobl">${n.length ? n.map((k) => `<div><span>${esc(k.d || "—")}</span><p>${esc(k.t)}</p></div>`).join("") : `<div class="mut" style="padding:4px 10px 8px;font-size:12px">Nenhuma anotação ainda.</div>`}</div>
     ${fech ? "" : `<div class="iobn"><input class="iobd" value="${hoje}" aria-label="Data"><input class="iobt" placeholder="Nova anotação…"><button class="lkok" data-anota>Anotar</button></div>`}`; };
   const m = abreLk(b, des(), "lkm iobm"), liga = () => {
@@ -238,6 +239,9 @@ function popObs(b, x, T) { const fech = T.L && (T.L.regras || {}).fechada, hoje 
     m.querySelectorAll("[data-obe]").forEach((o) => o.onclick = async (e) => { e.stopPropagation(); const k = x.marca === o.dataset.obe ? null : o.dataset.obe;
       try { const nx = await gravar("gab_itens", { id: x.id, marca: k, obs_cor: null }); Object.assign(x, nx); m.innerHTML = des(); liga(); const y = $("#indPg").scrollTop; const nb = $(`#indPg [data-iobs="${x.id}"]`); if (nb) { const tr = nb.closest("tr"); nb.outerHTML = balaoInd(x, T); const b2 = $(`#indPg [data-iobs="${x.id}"]`); b2.classList.add("on"); b2.onclick = (ev) => { ev.stopPropagation(); popObs(b2, x, T); }; if (tr) { const ce = corEtq((etqDe(T, x) || {}).c || "cinza"); tr.classList.toggle("mk", !!x.marca); if (x.marca) { tr.style.setProperty("--mk", ce[1]); tr.style.setProperty("--mkf", ce[2]); } } } $("#indPg").scrollTop = y; }
       catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } });
+    // recado para o líder (migração 114): grava ao sair do campo
+    const nl = m.querySelector("[data-nlid]"); if (nl) { nl.onclick = (e) => e.stopPropagation(); nl.onchange = async () => { const v = nl.value.trim() || null; if (v === (x.nota_lider || null)) return;
+      try { const nx = await gravar("gab_itens", { id: x.id, nota_lider: v }); Object.assign(x, nx); toastLk("Recado para o líder salvo"); } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); } }; }
     const et = m.querySelector(".iobet [data-ietq]"); if (et) et.onclick = (e) => { e.stopPropagation(); popEtq(et, x, T, () => { const b2 = $(`#indPg [data-iobs="${x.id}"]`); if (b2) popObs(b2, AD.itens.find((z) => z.id === x.id) || x, T); }); };
     const bt = m.querySelector("[data-anota]"); if (!bt) return; const it = m.querySelector(".iobt");
     const anota = async () => { const t = it.value.trim(), d = m.querySelector(".iobd").value.trim(); if (!t) return it.focus(); bt.disabled = true;

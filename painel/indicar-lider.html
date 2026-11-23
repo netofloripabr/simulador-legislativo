@@ -45,6 +45,7 @@ main{max-width:860px;margin:0 auto;padding:18px 16px 110px}
 .obj .o small{display:block;font-size:11px;color:var(--mu);font-weight:400;margin-top:2px}
 .tg{font-weight:500;font-size:11px;border-radius:999px;padding:2px 8px;background:#FBE7D5;color:#9A4E10;white-space:nowrap;vertical-align:1px;margin-left:4px}
 .tg.p{background:#E3EAF5;color:#2F5D8A}
+.tg.ok{background:#D5F0DC;color:#17692F;font-weight:600}
 .bt{font-weight:500;font-size:12.5px;padding:6px 14px;border-radius:999px;background:#1D2226;color:#fff;border:1px solid #1D2226;cursor:pointer;white-space:nowrap}
 .bt.s{background:#fff;color:var(--tx);border-color:var(--bd)}
 .lk0{background:none;border:0;color:var(--mu);font-weight:500;font-size:12px;cursor:pointer;padding:6px 8px;text-decoration:underline;text-underline-offset:2px}
@@ -63,6 +64,8 @@ main{max-width:860px;margin:0 auto;padding:18px 16px 110px}
 .env{position:fixed;left:0;right:0;bottom:0;background:var(--tl);border-top:1px solid var(--bd);padding:10px 16px;display:flex;justify-content:center}
 .env > div{max-width:860px;width:100%;display:flex;align-items:center;gap:14px}
 .env .pr{flex:1;font-size:12.5px;color:var(--mu)}.env .pr b{color:var(--tx);font-weight:600;font-size:14px}
+.etq{font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.rec{background:#EEF3F9;border:1px solid #C9D8EA;border-radius:10px;padding:8px 11px;margin:0 0 8px;font-size:12.5px;color:#1D2226;line-height:1.45}.rec b{display:block;font-size:11px;color:#2F5D8A;margin-bottom:2px}
 .bt.tr{background:#DDF3E1;color:#17883A;border-color:#BFE3C9;display:inline-flex;align-items:center;gap:7px}.bt.tr:hover{background:#CDEFD5}
 .env .ibar{margin-top:6px}.env .ibar i{background:#1FA845}
 /* confirmação ✓ ✕ */
@@ -161,6 +164,10 @@ async function iniciar() {
     render(); setInterval(() => { const c = document.querySelector(".icapa .w2"); if (c) c.innerHTML = `<span class="tk">${prazoTx()}</span>${cont()}`; }, 30000);
   } catch (e) { msg("Não foi possível abrir", "Confira a internet e recarregue a página. (" + esc(e.message) + ")"); } }
 // trancado depois de enviar (migração 113): só o gabinete reabre
+// etiqueta e recado do gabinete (migração 114): mesmas cores das etiquetas da planilha (ETQ_PAL em gabinete-ind-links.js)
+const ETQ_PAL = { cinza: ["#E3E6E8", "#3E454B"], vermelho: ["#FBD9D5", "#9B2C20"], laranja: ["#FCE3CC", "#9A4E10"], amarelo: ["#FBF0C2", "#7A5D00"], verde: ["#D5F0DC", "#17692F"], turquesa: ["#CDEFEA", "#0F6359"], azul: ["#D6E4F7", "#1F4E85"], roxo: ["#E6DDF7", "#5A3A99"], rosa: ["#F8D9EA", "#94285F"], marrom: ["#EADFD6", "#6A4A33"] };
+const ETQ_INI = { "Resolvido · falta enviar": "verde", "Em andamento": "amarelo", "Atenção": "laranja", "Crítico": "vermelho", "Aguardando retorno": "azul" };
+const etqChip = (e) => { if (!e || !e.n) return ""; const [bg, fg] = ETQ_PAL[e.c || ETQ_INI[e.n] || "cinza"] || ETQ_PAL.cinza; return `<span class="etq" style="background:${bg};color:${fg}">${esc(e.n)}</span>`; };
 const trava = (s) => !ABERTO || !!L.travado || s.status === "aceito" || s.status === "recusado";
 const CADF = '<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>';
 function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i], i) ? +x.valor || 0 : 0), 0);
@@ -174,12 +181,13 @@ function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) =
     <div class="t w2"><span class="tk">${prazoTx()}</span>${cont()}</div>
   </div>
   ${IT.map((x, i) => { const s = ST[i], ok = feito(s, i), inc = incomp(s, i), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
-    <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span><div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
+    <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span>${etqChip(x.etq)}<div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
+    ${x.nota_lider ? `<div class="rec"><b>Recado do gabinete</b>${esc(x.nota_lider)}</div>` : ""}
     ${s.status === "aceito" ? `<div class="dec"><b>✓ Aceito pelo gabinete</b></div>` : s.status === "recusado" ? `<div class="dec">O gabinete não aceitou esta proposta.</div>` : ""}
     <div class="lin"><label class="cx"><span class="fl">${ent ? "Município da entidade" : "Município"}</span><input class="ed trav" list="muns" data-mun="${i}" value="${esc(s.mun)}" disabled title="Definido pelo gabinete"></label>
       <div class="cx"><span class="fl">Quem recebe</span><button class="sw trav${ent ? " ent" : ""}" data-bt="${i}" role="switch" aria-checked="${ent}" disabled title="Definido pelo gabinete"><span class="${ent ? "" : "on"}">Município</span><span class="tr"></span><span class="${ent ? "on" : ""}">Entidade</span></button></div></div>
     ${ent ? `<div class="lin" style="grid-template-columns:minmax(0,1fr) 190px"><label class="cx"><span class="fl">Entidade</span><input class="ed trav" data-ben="${i}" value="${esc(s.ben)}" placeholder="Razão social" disabled title="Definido pelo gabinete"></label><label class="cx"><span class="fl">CNPJ</span><input class="ed trav" data-cnpj="${i}" value="${esc(s.cnpj)}" placeholder="00.000.000/0000-00" inputmode="numeric" disabled title="Definido pelo gabinete"></label></div>` : ""}
-    <div class="cx" style="margin-bottom:8px"><span class="fl">Objeto</span><button class="sel pree" data-esc="${i}" ${tv ? "disabled" : ""}><span class="o${ok ? "" : inc ? " inc" : " vz"}">${s.obj ? `${esc(s.obj)}${inc ? `<span class="tg x">fora do Portfólio</span>` : s.fonte === "gab" ? `<span class="tg">Item do gabinete</span>` : `<span class="tg p">Portfólio</span>`}` : "Escolha o objeto"}</span><span class="ca">▾</span></button>${inc && !tv ? `<div class="avi">Este item não é compatível. Selecione um item do portfólio.</div>` : ""}</div>
+    <div class="cx" style="margin-bottom:8px"><span class="fl">Objeto</span><button class="sel pree" data-esc="${i}" ${tv ? "disabled" : ""}><span class="o${ok ? "" : inc ? " inc" : " vz"}">${s.obj ? `${esc(s.obj)}${inc ? `<span class="tg x">fora do Portfólio</span>` : `<span class="tg ok">Portfólio ✅</span>`}` : "Escolha o objeto"}</span><span class="ca">▾</span></button>${inc && !tv ? `<div class="avi">Este item não é compatível. Selecione um item do portfólio.</div>` : ""}</div>
     <label class="cx"><span class="fl">Justificativa</span><textarea class="ed pree" data-com="${i}" rows="2" placeholder="Informe os detalhes" ${tv ? "disabled" : ""}>${esc(s.com)}</textarea></label>
   </div>`; }).join("")}`;
   document.getElementById("env")?.remove();

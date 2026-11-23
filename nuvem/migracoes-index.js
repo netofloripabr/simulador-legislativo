@@ -2437,5 +2437,20 @@ const MIGRACOES_INDEX = [
     "gab_links.pedido_reabrir_em"
    ]
   ]
+ },
+ {
+  "num": 114,
+  "arquivo": "migracao-114-link-etiqueta-recado.sql",
+  "descricao": "Migração 114 (23/11/2026): o líder vê, em cada emenda do link, a ETIQUETA que o gabinete deu (ex.: verde \"Reso",
+  "objetos": [
+   [
+    "function",
+    "link_abrir"
+   ],
+   [
+    "column",
+    "gab_itens.nota_lider"
+   ]
+  ]
  }
 ];
