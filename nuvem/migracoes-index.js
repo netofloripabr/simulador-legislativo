@@ -2365,5 +2365,20 @@ const MIGRACOES_INDEX = [
     "gab_link_propostas.antes"
    ]
   ]
+ },
+ {
+  "num": 110,
+  "arquivo": "migracao-110-gestor-justificativa.sql",
+  "descricao": "Migração 110 (23/11/2026): Link Gestor › justificativa. A pessoa do Link Gestor também escreve a justificativa",
+  "objetos": [
+   [
+    "function",
+    "gestor_abrir"
+   ],
+   [
+    "function",
+    "gestor_enviar"
+   ]
+  ]
  }
 ];

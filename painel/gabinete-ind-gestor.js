@@ -3,9 +3,13 @@
 // alterar | incluir | excluir, campos em "dados") e o gabinete aceita ✓ ou recusa ✕ aqui: na linha da emenda (alterar
 // e excluir) e no quadro "Revisar" (todas, inclusive as novas). Depende de gabinete-ind-links.js (LK, abreLk, copiar…).
 const gestorUrl = (l) => new URL("gestor-lista.html?t=" + encodeURIComponent(l.token), location.href).href;
-const G_COL = { municipio: "Município", objeto: "Objeto", area: "Área", natureza: "Despesa", valor: "Valor", lideranca: "Líder", contato: "Contato" };
+const G_COL = { municipio: "Município", objeto: "Objeto", area: "Área", natureza: "Despesa", valor: "Valor", lideranca: "Líder", contato: "Contato", justificativa: "Justificativa" };
 const gPend = () => (LK.gprops || []).filter((p) => p.status === "enviado");
 const gPendItem = (id) => gPend().find((p) => p.item_id === id);
+// objeto proposto fora do Portfólio compatível com a área e a despesa (mesma regra da planilha: portCompat)
+const gFora = (d, x) => { const obj = d.objeto !== undefined ? d.objeto : x && x.objeto; if (!obj || !PORTF || !PORTF.length || typeof portCompat !== "function") return false;
+  const area = d.area !== undefined ? d.area : x && x.area, nat = d.natureza !== undefined ? d.natureza : x && x.natureza; return !PORTF.some((o) => portCompat(o, area, nat) && norm(o.obj) === norm(obj)); };
+const gForaTag = (p, x) => p.acao !== "excluir" && gFora(p.dados || {}, x) ? ` <em class="gfp">fora do Portfólio</em>` : "";
 const gVal = (k, v) => v == null || v === "" ? "(vazio)" : k === "valor" ? "R$ " + moeda(+v) : String(v);
 // cota da lista gravada no link (a página pública não tem as regras da planilha); atualiza quando muda
 const gCota = (T) => { const g = regrasInd(T); return { disp: g.disp || null, max: g.max || null, saude: g.saude || null }; };
@@ -49,9 +53,9 @@ function faixaGestor(T) { if (!T || !T.L || !LK.gestor || LK.lista !== T.L.id) r
   return `<div class="gfx"><span>${lsv("lnk")}<b>Link Gestor · ${esc(LK.gestor.nome)}</b> enviou ${P.length} ${P.length === 1 ? "mudança" : "mudanças"}: ${t}</span><button data-grev>Revisar</button></div>`; }
 function difGestor(p, x) { const d = p.dados || {}, a = p.antes || (x ? { municipio: x.municipio, objeto: x.objeto, area: x.area, natureza: x.natureza, valor: x.valor, lideranca: x.lideranca, contato: x.contato } : {});
   if (p.acao === "excluir") return "<b>excluir esta emenda</b>";
-  if (p.acao === "incluir") return Object.keys(G_COL).filter((k) => d[k] != null).map((k) => `${G_COL[k].toLowerCase()}: <b>${esc(gVal(k, d[k]))}</b>`).join(" · ");
+  if (p.acao === "incluir") return Object.keys(G_COL).filter((k) => d[k] != null).map((k) => `${G_COL[k].toLowerCase()}: <b>${esc(gVal(k, d[k]))}</b>`).join(" · ") + gForaTag(p, null);
   const L = Object.keys(d).filter((k) => G_COL[k] && String(d[k] ?? "") !== String(a[k] ?? "")).map((k) => `${G_COL[k].toLowerCase()}: <s>${esc(gVal(k, a[k]))}</s> → <b>${esc(gVal(k, d[k]))}</b>`);
-  return L.join(" · ") || "<b>mantém o que está</b>"; }
+  return (L.join(" · ") || "<b>mantém o que está</b>") + gForaTag(p, x); }
 function celGestor(x, fech) { if (!x || !LK.gestor) return ""; const p = gPendItem(x.id); if (!p) return "";
   return `<div class="lkp gst"><span class="gtg ${p.acao}">${p.acao === "excluir" ? "excluir" : "alterada"}</span> Link Gestor: ${difGestor(p, x)}${fech ? `<small>Reabra a lista para aceitar.</small>` : `<span class="lkvx"><button data-grec="${p.id}" title="Recusar" aria-label="Recusar">${lsv("x")}</button><button class="v" data-gac="${p.id}" title="Aceitar" aria-label="Aceitar">${lsv("chk")}</button></span>`}</div>`; }
 // ---------- decidir ----------
@@ -66,7 +70,7 @@ async function decidirGestor(id, aceita, T, quieto) { const p = (LK.gprops || []
     if (!quieto) { desenharInd(); toastLk(aceita ? "Mudança aceita · lista atualizada" : "Mudança recusada"); } return true;
   } catch (e) { alert("Não foi possível: " + (e.message || e)); return false; } }
 // quadro "Revisar": todas as mudanças enviadas, com ✓ ✕ por linha e aceitar/recusar todas
-function revisarGestor(T) { document.getElementById("gRev")?.remove(); const P = gPend(); if (!P.length) return toastLk("Nada para revisar");
+async function revisarGestor(T) { if (typeof lerPortfolio === "function") await lerPortfolio(); document.getElementById("gRev")?.remove(); const P = gPend(); if (!P.length) return toastLk("Nada para revisar");
   const fech = !!(T.L.regras || {}).fechada, nome = (p) => { const x = AD.itens.find((y) => y.id === p.item_id), d = p.dados || {}; return p.acao === "incluir" ? `${esc(d.municipio || "sem município")}` : x ? esc(x.municipio || "—") + `<small>${esc(String(x.objeto || "").slice(0, 90))}</small>` : "emenda"; };
   const w = document.createElement("div"); w.id = "gRev"; w.className = "grv";
   w.innerHTML = `<div class="grb"><div class="grh"><b>Mudanças do Link Gestor</b><span>${esc(LK.gestor.nome)} · ${P.length} para revisar · nada muda na lista até você aceitar</span><button class="grx" data-gx title="Fechar">${lsv("x")}</button></div>
@@ -81,7 +85,7 @@ function revisarGestor(T) { document.getElementById("gRev")?.remove(); const P =
   w.querySelectorAll("[data-gtodas]").forEach((b) => b.onclick = async () => { const ac = b.dataset.gtodas === "1", L = gPend();
     if (!(await confirmaVX(ac ? "Aceitar todas as mudanças?" : "Recusar todas as mudanças?", ac ? `${L.length} ${L.length === 1 ? "mudança entra" : "mudanças entram"} na lista agora.` : `${L.length} ${L.length === 1 ? "mudança é descartada" : "mudanças são descartadas"}.`))) return;
     for (const p of L) { if (!(await decidirGestor(p.id, ac, T, true))) break; tira(p.id); } desenharInd(); toastLk(ac ? "Mudanças aceitas · lista atualizada" : "Mudanças recusadas"); }); }
-function ligarGestor(p, T) {
+function ligarGestor(p, T) { if (LK.gestor && typeof lerPortfolio === "function" && !PORTF) lerPortfolio().then(() => { if (gPend().length && IND.aberto) desenharInd(); });
   p.querySelectorAll("[data-gac]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidirGestor(b.dataset.gac, true, T); });
   p.querySelectorAll("[data-grec]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); decidirGestor(b.dataset.grec, false, T); });
   const r = p.querySelector("[data-grev]"); if (r) r.onclick = (e) => { e.stopPropagation(); revisarGestor(T); };

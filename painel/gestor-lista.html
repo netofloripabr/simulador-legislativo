@@ -210,6 +210,16 @@ td.ac{width:70px}
 @media(max-width:700px){.qar{gap:6px}.ar,.qinv{padding:9px 9px}.arh{flex-wrap:wrap;gap:5px}.arh .chip{order:3;flex-basis:100%;text-align:center}.ars{flex-wrap:wrap}.qdl{font-size:10.5px;gap:2px 8px}}
 .qd{position:relative}.qmin{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:1px solid var(--bd);background:#fff;color:var(--mu);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}.qmin:hover{border-color:#1D2226;color:var(--tx)}
 .qd .qn{padding-right:30px}.qd.min .qb{margin-bottom:0}
+/* Portfólio e etiqueta "fora do portfólio" (23/11) */
+.fp{display:inline-block;margin-top:4px;font-size:10.5px;font-weight:600;border-radius:999px;padding:2px 8px;background:#FBE3DF;color:#B23A2A}
+.pfw{display:flex;flex-direction:column;gap:6px;margin-top:-6px}.pfl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.pfl .fp{margin:0}
+.pfb{border:1px solid var(--bd);background:#fff;border-radius:999px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;gap:6px;align-items:center;color:var(--tx)}.pfb:hover{border-color:#1D2226}
+.pfx{border:1px solid var(--bd);border-radius:12px;background:#fff;padding:8px}.pfx[hidden]{display:none}
+.pfx input{width:100%;border:1px solid var(--bd);border-radius:999px;padding:7px 12px;font-size:12.5px;outline:none;margin-bottom:6px}
+.pfo{max-height:240px;overflow:auto;display:flex;flex-direction:column}
+.pfc{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);padding:8px 6px 3px}
+.pfi{text-align:left;border:0;border-bottom:1px solid var(--bd);background:none;padding:7px 6px;font-size:12.5px;font-weight:500;cursor:pointer;color:var(--tx)}.pfi:hover{background:var(--tl)}.pfi small{display:block;color:var(--mu);font-weight:400;font-size:11px;margin-top:1px}
+.fh{font-weight:400;color:var(--mu);font-size:11px}
 .erro{max-width:420px;margin:60px auto;background:var(--tl);border:1px solid var(--bd);border-radius:16px;padding:22px 24px;font-size:13px;color:var(--mu);line-height:1.5}.erro b{display:block;color:var(--tx);font-size:16px;margin-bottom:4px}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
@@ -235,6 +245,15 @@ ICI.cartoes = '<rect x="2.5" y="2.5" width="11" height="4.5" rx="1.2"/><rect x="
 ICI.tabela = '<rect x="2.5" y="3" width="11" height="10" rx="1.2"/><path d="M2.5 6.5h11M2.5 9.8h11M6.5 6.5V13"/>';
 // quadro da cota minimizado: fica só a primeira parte (números e barra da cota); escolha guardada no navegador
 let MIN = (() => { try { return localStorage.getItem("gestor_min") === "1"; } catch (e) { return false; } })();
+// Portfólio (LC 898/2026, dados/painel/portfolio-objetos.json): só vale o objeto compatível com a área e a despesa da
+// emenda — mesma regra da planilha (portCompat em gabinete-indicar.js) e da página do líder; mudar lá = mudar aqui
+let PORT = [];
+const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
+const compatP = (area, nat) => PORT.filter((o) => { const A = AREA_P[area]; return (A ? A.includes(o[0]) : area ? o[0] !== "Saúde" : true) && (!nat || o[3] === nat || / ou /.test(o[3])); });
+const noPort = (obj, area, nat) => !!obj && compatP(area, nat).some((o) => norm(o[2]) === norm(obj));
+const foraPort = (x) => !!x.obj && PORT.length > 0 && !noPort(x.obj, x.area, x.nat);
+// a etiqueta aparece no card e, na tabela, só no que a pessoa incluiu ou mudou (objeto, área ou despesa) — 23/11/2026
+const FORA = '<span class="fp">Este item não está no portfólio.</span>';
 let LK = null, ABERTO = false, PEND = [], NOMEL = "", GAB = "";
 const AREAS = [["Saúde", "sau"], ["Educação", "edu"], ["Agricultura", "agr"], ["Infraestrutura e Mobilidade", "inf"], ["Segurança Pública", "seg"], ["FUNDAM", "fun"], ["Fundo Social", "soc"]];
 const NATS = [["Capital", "cap", "investimento"], ["Custeio", "cus", "custeio"]];
@@ -248,7 +267,7 @@ const rcc = (v) => Math.abs(v) >= 1e6 ? "R$ " + (v / 1e6).toLocaleString("pt-BR"
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const numBR = (s) => +String(s || "").replace(/[^\d,]/g, "").replace(",", ".") || 0;
-const CAMPOS = ["mun", "obj", "area", "nat", "v", "lid", "con"];
+const CAMPOS = ["mun", "obj", "area", "nat", "v", "lid", "con", "jus"];
 const vivas = () => ST.filter((x) => x._st !== "x");
 const mudou = (x, c) => { const o = ORIG.find((y) => y.id === x.id); return !!o && x._st !== "n" && String(o[c] ?? "") !== String(x[c] ?? ""); };
 const pend = () => ST.filter((x) => x._st);
@@ -315,7 +334,7 @@ function render() { const L = vivas(), tot = L.reduce((s, x) => s + (+x.v || 0),
   <div class="sheet${CARDS ? " cards" : ""}"><table><thead><tr><th data-o="n" style="text-align:right">Nº${ORD && ORD[0] === "n" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="mun">Município${ORD && ORD[0] === "mun" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="obj">Objeto${ORD && ORD[0] === "obj" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="area" style="text-align:center">Área · desp.${ORD && ORD[0] === "area" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="v" style="text-align:right">Valor (R$)${ORD && ORD[0] === "v" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th data-o="lid">Líder${ORD && ORD[0] === "lid" ? (ORD[1] > 0 ? " ▲" : " ▼") : ""}</th><th></th></tr></thead><tbody>
   ${vis.map(([x, i]) => `<tr class="${x._st === "n" ? "nova" : x._st === "x" ? "exc" : ""}" data-i="${i}"><td class="n">${x._st === "n" ? "+" : ORIG.findIndex((o) => o.id === x.id) + 1}</td>
     <td class="mu">${cel(x, "mun", esc(x.mun || "—"))}<small>${esc(x.mun ? REG[x.mun] || "" : "")}</small>${x._st === "m" ? `<span class="tag m">alterada</span>` : x._st === "n" ? `<span class="tag nw">nova</span>` : x._st === "x" ? `<span class="tag x">excluir</span>` : ""}</td>
-    <td class="ob">${cel(x, "obj", esc(x.obj || "—"))}</td>
+    <td class="ob">${cel(x, "obj", esc(x.obj || "—"))}${(x._st === "n" || (x._st === "m" && ["obj", "area", "nat"].some((c) => mudou(x, c)))) && foraPort(x) ? FORA : ""}</td>
     <td class="cl">${cel(x, "area", icArea(x))}${cel(x, "nat", icNat(x))}</td>
     <td class="vl">${cel(x, "v", moeda(x.v))}</td>
     <td class="ld">${cel(x, "lid", esc(x.lid || "—"))}</td>
@@ -335,17 +354,31 @@ function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova
     <div class="fm">
       <label><span>Valor (R$) <i>*</i></span><input id="f_v" inputmode="numeric" placeholder="0,00" value="${x.v ? moeda(x.v) : ""}"></label>
       <label><span>Líder <i>*</i></span><input id="f_lid" list="lids" placeholder="Nome do líder" value="${esc(x.lid || (nova && FL && FL[0] === "l" ? FL[1] : ""))}"></label>
+      <label class="w">Área <small class="fh">filtra o Portfólio</small><div class="opc" id="f_area">${AREAS.map(([n, k]) => `<button type="button" data-a="${esc(n)}" class="${n === area ? "on" : ""}">${ici(k)}${n}</button>`).join("")}</div></label>
+      <label class="w">Despesa<div class="opc" id="f_nat">${NATS.map(([n, k, d]) => `<button type="button" data-n="${n}" class="${n === nat ? "on" : ""}">${ici(k)}${n === "Capital" ? "Capital · investimento" : n}</button>`).join("")}</div></label>
       <label class="w"><span>Objeto <i>*</i></span><textarea id="f_obj" placeholder="O que a emenda vai custear">${esc(x.obj || "")}</textarea></label>
+      <div class="w pfw"><div class="pfl"><button type="button" class="pfb" id="f_pb"></button><span id="f_fora"></span></div><div class="pfx" id="f_px" hidden><input id="f_pq" placeholder="Buscar no Portfólio…"><div class="pfo" id="f_po"></div></div></div>
+      <label class="w">Justificativa<textarea id="f_jus" placeholder="Por que esta emenda (opcional)">${esc(x.jus || "")}</textarea></label>
       <div class="sep">Opcional</div>
       <label>Município<input id="f_mun" list="muns" placeholder="Município" value="${esc(x.mun || "")}"></label>
       <label>Contato<input id="f_con" placeholder="Nome e cargo" value="${esc(x.con || "")}"></label>
-      <label class="w">Área<div class="opc" id="f_area">${AREAS.map(([n, k]) => `<button type="button" data-a="${esc(n)}" class="${n === area ? "on" : ""}">${ici(k)}${n}</button>`).join("")}</div></label>
-      <label class="w">Despesa<div class="opc" id="f_nat">${NATS.map(([n, k, d]) => `<button type="button" data-n="${n}" class="${n === nat ? "on" : ""}">${ici(k)}${n === "Capital" ? "Capital · investimento" : n}</button>`).join("")}</div></label>
+
     </div><div class="msg" id="f_msg"></div>
     <div class="bb"><button class="vxb" data-x title="Cancelar">✕</button><button class="vxb v" data-v title="Confirmar">✓</button></div></div></div>`);
   const w = document.getElementById("cd"), $ = (s) => w.querySelector(s);
   w.querySelectorAll("[data-a]").forEach((b) => b.onclick = () => { area = area === b.dataset.a ? null : b.dataset.a; w.querySelectorAll("[data-a]").forEach((o) => o.classList.toggle("on", o.dataset.a === area)); });
   w.querySelectorAll("[data-n]").forEach((b) => b.onclick = () => { nat = nat === b.dataset.n ? null : b.dataset.n; w.querySelectorAll("[data-n]").forEach((o) => o.classList.toggle("on", o.dataset.n === nat)); });
+  // Portfólio do card: filtra pela área e pela despesa escolhidas; etiqueta vermelha quando o objeto não está nele
+  const pf = () => { const L = compatP(area, nat), q = norm($("#f_pq").value), V = L.filter((o) => !q || norm(o[2] + " " + o[1] + " " + o[5]).includes(q));
+    $("#f_pb").innerHTML = `${ici("plan")}Portfólio · ${L.length} ${L.length === 1 ? "item" : "itens"}${area || nat ? " de " + [area, nat === "Capital" ? "capital" : nat ? "custeio" : ""].filter(Boolean).join(" · ") : ""}`;
+    let cat = ""; $("#f_po").innerHTML = V.slice(0, 200).map((o) => (o[1] !== cat ? `<div class="pfc">${esc(cat = o[1])}</div>` : "") + `<button type="button" class="pfi" data-o="${esc(o[2])}">${esc(o[2])}<small>${esc(o[0])} · ${esc(o[3])}${o[5] ? " · " + esc(o[5]) : ""}</small></button>`).join("") || '<div class="pfc">Nenhum item com esse filtro.</div>';
+    $("#f_po").querySelectorAll("[data-o]").forEach((b) => b.onclick = () => { $("#f_obj").value = b.dataset.o; $("#f_px").hidden = true; marca(); });
+    marca(); };
+  const marca = () => { const o = $("#f_obj").value.trim(); $("#f_fora").innerHTML = o && PORT.length && !noPort(o, area, nat) ? FORA : ""; };
+  $("#f_pb").onclick = () => { $("#f_px").hidden = !$("#f_px").hidden; if (!$("#f_px").hidden) $("#f_pq").focus(); };
+  $("#f_pq").oninput = pf; $("#f_obj").oninput = marca;
+  w.querySelectorAll("[data-a],[data-n]").forEach((b) => b.addEventListener("click", pf));
+  pf();
   const fecha = () => { w.remove(); document.removeEventListener("keydown", tecla); };
   const tecla = (e) => { if (e.key === "Escape") fecha(); };
   document.addEventListener("keydown", tecla);
@@ -353,7 +386,7 @@ function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova
   $("[data-v]").onclick = () => { const v = numBR($("#f_v").value), obj = $("#f_obj").value.trim(), lid = $("#f_lid").value.trim();
     [["#f_v", v > 0], ["#f_obj", obj], ["#f_lid", lid]].forEach(([s, ok]) => $(s).classList.toggle("er", !ok));
     if (!(v > 0 && obj && lid)) { $("#f_msg").textContent = "Falta preencher: " + [!(v > 0) && "valor", !obj && "objeto", !lid && "líder"].filter(Boolean).join(", ") + "."; return; }
-    const d = { v, obj, lid, mun: $("#f_mun").value.trim() || null, con: $("#f_con").value.trim() || null, area, nat };
+    const d = { v, obj, lid, mun: $("#f_mun").value.trim() || null, con: $("#f_con").value.trim() || null, jus: $("#f_jus").value.trim() || null, area, nat };
     if (nova) ST.unshift({ id: "novo" + ++nNova, ...d, _st: "n" });
     else { Object.assign(x, d); if (x._st !== "n") x._st = CAMPOS.some((k) => mudou(x, k)) ? "m" : ""; }
     fecha(); redesenha(); };
@@ -482,8 +515,8 @@ function cronometro() { if (!LK || !LK.prazo) return ""; const F = new Date(LK.p
   return ABERTO && s ? `<span class="tk">${tx}</span><div class="icd"><div><b>${d}</b><span>dias</span></div><div><b>${String(h).padStart(2, "0")}</b><span>horas</span></div><div><b>${String(m).padStart(2, "0")}</b><span>min</span></div></div>` : `<span class="tk">${tx}</span><b class="gfim">Link encerrado</b>`; }
 setInterval(() => { const c = document.getElementById("gcr"); if (c) c.innerHTML = cronometro(); if (ABERTO && LK && new Date(LK.prazo) <= new Date()) { ABERTO = false; redesenha(); } }, 30000);
 // ---------- dados ----------
-const doBanco = (x) => ({ id: x.id, mun: x.municipio || null, obj: x.objeto || null, area: x.area || null, nat: x.natureza === "Investimento" ? "Capital" : x.natureza || null, v: +x.valor || 0, lid: x.lideranca || null, con: x.contato || null });
-const COL = { mun: "municipio", obj: "objeto", area: "area", nat: "natureza", v: "valor", lid: "lideranca", con: "contato" };
+const doBanco = (x) => ({ id: x.id, mun: x.municipio || null, obj: x.objeto || null, area: x.area || null, nat: x.natureza === "Investimento" ? "Capital" : x.natureza || null, v: +x.valor || 0, lid: x.lideranca || null, con: x.contato || null, jus: x.justificativa || null });
+const COL = { mun: "municipio", obj: "objeto", area: "area", nat: "natureza", v: "valor", lid: "lideranca", con: "contato", jus: "justificativa" };
 // mudanças locais → [{acao, item_id, dados, limpar}] para gestor_enviar
 function payload(P) { return P.map((x) => { if (x._st === "x") return { acao: "excluir", item_id: x.id };
   const d = {}, limpar = []; CAMPOS.forEach((c) => { const v = x[c]; if (x._st === "m" && !mudou(x, c)) return; if (v == null || v === "") { if (x._st === "m") limpar.push(COL[c]); } else d[COL[c]] = c === "v" ? +v : v; });
@@ -494,7 +527,7 @@ function pendHtml() { if (!PEND.length) return "";
   const nome = (p) => { const x = ORIG.find((y) => y.id === p.item_id), d = p.dados || {}; return p.acao === "incluir" ? `Nova · ${esc(d.municipio || "sem município")} · ${esc(d.objeto || "")} · ${rc(d.valor || 0)}` : `${p.acao === "excluir" ? "Excluir" : "Alterar"} · ${esc(x ? x.mun || "—" : "emenda")} · ${esc(x ? x.obj || "" : "")}`; };
   return `<div class="pend"><b>Enviadas, aguardando o gabinete</b><span>${PEND.length} ${PEND.length === 1 ? "mudança" : "mudanças"} · o gabinete aceita ou recusa cada uma</span>${PEND.map((p) => `<div class="pl"><span class="tag ${p.acao === "incluir" ? "nw" : p.acao === "excluir" ? "x" : "m"}">${p.acao === "incluir" ? "nova" : p.acao === "excluir" ? "excluir" : "alterada"}</span><span class="pt">${nome(p)}</span>${ABERTO ? `<button class="ab lx" data-desiste="${p.id}" title="Desistir desta mudança">${ici("x")}</button>` : ""}</div>`).join("")}</div>`; }
 async function desistir(id) { if (!confirm("Desistir desta mudança enviada?")) return; try { await rpc("gestor_desistir", { p_token: TOKEN, p_id: id }); await carregar(); } catch (e) { alert("Não foi possível: " + (e.message || e)); } }
-async function carregar() { const l = await rpc("gestor_abrir", { p_token: TOKEN }); if (!l) throw new Error("link inválido");
+async function carregar() { const [l, pj] = await Promise.all([rpc("gestor_abrir", { p_token: TOKEN }), PORT.length ? null : fetch("../dados/painel/portfolio-objetos.json?v=2").then((r) => r.json()).catch(() => null)]); if (pj) PORT = pj.O || []; if (!l) throw new Error("link inválido");
   LK = l; ABERTO = !!l.aberto; PEND = l.pendentes || []; const c = l.cota || {}; COTA = +c.disp || 0; MAXE = +c.max || 0; SAUDE = c.saude != null ? +c.saude : .5;
   NOMEL = "Emendas " + (l.lista || ""); GAB = String(l.titulo || "").split(" · ")[0]; document.title = NOMEL + " · Link Gestor";
   ORIG = (l.itens || []).map(doBanco); ST = ORIG.map((x) => ({ ...x, _st: "" }));
