@@ -101,7 +101,12 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .vis{ display:flex; gap:2px; background:var(--sup); border:1px solid var(--linha); border-radius:999px; padding:3px; height:40px; }
 .cmp .vis button{ background:none; border:0; border-radius:999px; padding:0 14px; color:var(--sec); font-weight:600; cursor:pointer; font-size:13px; }
 .cmp .vis button.on{ background:var(--texto); color:#0B0F0D; }
-.cmp .limpa{ background:none; border:0; color:var(--a); cursor:pointer; font-size:12.5px; padding:0 6px; }
+.cmp .futb{ display:inline-flex; align-items:center; gap:6px; height:40px; padding:0 14px; border:1px solid var(--linha); border-radius:999px; background:var(--sup); color:var(--sec); font-weight:600; font-size:13px; cursor:pointer; }
+.futb svg{ width:15px; height:15px; } .futb:hover{ color:var(--texto); } .futb.on{ background:var(--texto); color:#0B0F0D; border-color:var(--texto); }
+.futs{ margin-top:26px; } .futs h3{ margin:0 0 12px; font-size:17px; font-weight:700; letter-spacing:-.01em; } .futs h3 small{ display:block; font-size:12.5px; font-weight:400; color:var(--sec); margin-top:3px; letter-spacing:0; }
+.futg{ margin-bottom:16px; } .futh{ display:flex; align-items:baseline; gap:10px; margin:0 0 8px 2px; font-size:12.5px; color:var(--ter); } .futh b{ font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--sec); }
+.futs .vazio{ background:var(--sup); border:1px solid var(--linha); border-radius:18px; }
+.limpa{ background:none; border:0; color:var(--a); cursor:pointer; font-size:12.5px; padding:0 6px; }
 .cmp .res{ font-size:12.5px; color:var(--sec); margin:2px 0 10px; }
 .cmp .res b{ color:var(--texto); }
 .cmp .lista{ background:var(--sup); border:1px solid var(--linha); border-radius:18px; overflow:hidden; }
@@ -377,6 +382,7 @@ async function cmpAbrir() { const R = document.getElementById("cmpC"); if (!R ||
     <label class="leq"><span>Autor</span><select id="fAut"></select></label>
     <label class="leq"><span>Na comissão há</span><select id="fIdade"><option value="">Qualquer tempo</option><option value="0">Até 30 dias</option><option value="1">31 a 90 dias</option><option value="2">Mais de 90 dias</option></select></label>
     <div class="vis" role="group" aria-label="Visão"><button data-v="lista" class="on">Lista</button><button data-v="quadro">Por comissão</button></div>
+    <button class="futb" id="futB" aria-pressed="false" title="Mostrar, no fim da lista, as proposições já distribuídas para a comissão escolhida que ainda não chegaram nela"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3l2 1.5"/><path d="M13.5 2.5v3h-3"/></svg>Futuro</button>
     <button class="imp" id="impB" title="Imprimir o que está filtrado"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 6V2h8v4 M4 12H2.5V6.5h11V12H12 M4 10h8v4H4z"/></svg>Imprimir</button>
     <button class="limpa" id="limpa">Limpar filtros</button>
   </div>
@@ -389,7 +395,7 @@ function cmpIniciar(D, R, RES) {
 const $ = (s) => R.querySelector(s), esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const ni = (n) => (n || 0).toLocaleString("pt-BR"), br = (d) => d ? d.split("-").reverse().join("/") : "—";
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const F = { cv: "cartoes", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
+const F = { fut: false, flim: { p: 30, m: 30 }, cv: "cartoes", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
 const HOJE = new Date().toISOString().slice(0, 10), dd = (a, b) => a && b ? Math.max(0, Math.round((new Date(b) - new Date(a)) / 864e5)) : null;
 D.L.forEach((x) => { x.casa = dd(x.prot, HOJE); });
 // tema: o do resumo (1º nível) quando existe; senão o da classificação automática pela ementa
@@ -573,7 +579,19 @@ function desenhar() { kpis(D.L.filter((x) => !F.com || x.com === F.com)); comiss
     ${L.slice(0, F.lim).map(linha).join("") || `<div class="vazio">Nada com estes filtros.</div>`}${L.length > F.lim ? `<button class="mais" id="mais">Mostrar mais ${ni(Math.min(60, L.length - F.lim))} de ${ni(L.length - F.lim)}</button>` : ""}</div>`;
   else { const C = (F.com ? [F.com] : D.coms.map((c) => c[0])).filter((c) => L.some((x) => x.com === c));
     $("#vista").innerHTML = `<div class="quadro">${C.map((c) => { const A = L.filter((x) => x.com === c).sort((a, b) => (b.casa || 0) - (a.casa || 0)), md = A.length ? Math.round(A.reduce((s, x) => s + (x.casa || 0), 0) / A.length) : 0; return `<section class="qc"><h3>${esc(c)}<small>${ni(A.length)} · média ${ni(md)} dias na casa</small></h3><div class="qs">${A.slice(0, 80).map((x) => `<div class="card" data-id="${esc(x.id)}"><div class="t">${etq(x)}<span style="font-size:11.5px;text-align:right"><b class="idade ${x.casa > 365 ? "l" : x.casa > 180 ? "m" : "v"}">${ni(x.casa)} d</b> <span style="color:var(--ter)">na casa</span></span></div><b>${esc(RES[x.id] ? RES[x.id].m : x.resumo)}</b><span class="tbar" title="${ni(x.casa)} dias na Assembleia, ${x.dias ?? 0} nesta comissão"><i style="flex:${Math.max(0, (x.casa || 0) - (x.dias || 0))};background:#3A4045"></i><i style="flex:${x.dias || 0};background:${x.dias > 90 ? "#E8822A" : "#A9AEB3"}"></i></span><small>${esc(x.autor)} · ${x.rel ? "relator " + esc(x.rel) : "aguardando relator"}</small>${fluxo(x)}</div>`).join("")}${A.length > 80 ? `<small style="padding:6px;color:var(--ter)">+ ${A.length - 80} na lista</small>` : ""}</div></section>`; }).join("")}</div>`; }
+  if (F.fut) $("#vista").insertAdjacentHTML("beforeend", futuro());
 }
+// "Futuro" (23/11/2026): proposições distribuídas para a comissão escolhida que ainda não chegaram nela (no caminho,
+// situação "falta"), separadas em próxima parada e mais adiante; valem os mesmos filtros (tipo, tema, autor, busca)
+function futuro() {
+  if (!F.com) return `<section class="futs"><h3>Propostas designadas para esta comissão</h3><div class="vazio">Escolha uma comissão na faixa acima para ver as proposições que ainda vão chegar nela.</div></section>`;
+  const ate = (x) => { const i = x.fluxo.findIndex((c) => c.n === F.com), a = x.fluxo.findIndex((c) => c.st === "atual"); return i - Math.max(0, a); };
+  const L = D.L.filter((x) => x.com !== F.com && x.fluxo.some((c) => c.n === F.com && c.st === "falta") && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.aut || x.autor === F.aut) && (!F.q || norm([x.tipo, x.num, x.ano, x.autor, x.rel, x.resumo, x.ementa, RES[x.id] && RES[x.id].m].join(" ")).includes(norm(F.q))))
+    .sort((a, b) => ate(a) - ate(b) || (b.casa || 0) - (a.casa || 0));
+  const P = L.filter((x) => ate(x) === 1), M = L.filter((x) => ate(x) !== 1);
+  const bloco = (k, t, A, sub) => A.length ? `<div class="futg"><div class="futh"><b>${t}</b><span>${ni(A.length)} · ${sub}</span></div><div class="lista">${A.slice(0, F.flim[k]).map(linha).join("")}${A.length > F.flim[k] ? `<button class="mais" data-fmais="${k}">Mostrar mais ${ni(Math.min(30, A.length - F.flim[k]))} de ${ni(A.length - F.flim[k])}</button>` : ""}</div></div>` : "";
+  return `<section class="futs"><h3>Propostas designadas para esta comissão<small>${ni(L.length)} ${L.length === 1 ? "proposição distribuída" : "proposições distribuídas"} para ${esc(F.com)} que ainda não ${L.length === 1 ? "chegou" : "chegaram"}</small></h3>
+    ${L.length ? bloco("p", "Próxima parada", P, "a próxima comissão do caminho é esta") + bloco("m", "Mais adiante", M, "passam antes por outras comissões") : `<div class="vazio">Nenhuma proposição a caminho desta comissão com estes filtros.</div>`}</section>`; }
 // eventos
 R.addEventListener("click", (e) => { const t = e.target;
   const rkm = t.closest("[data-rkm]"); if (rkm) { const [k, m] = rkm.dataset.rkm.split("|"); F.rk[k] = m; comissoes(); return; }
@@ -584,10 +602,12 @@ R.addEventListener("click", (e) => { const t = e.target;
     F.lim = 60; desenhar(); $("#res").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
   const cvb = t.closest("[data-cv]"); if (cvb) { F.cv = cvb.dataset.cv; R.querySelectorAll("[data-cv]").forEach((b) => b.classList.toggle("on", b === cvb)); try { localStorage.setItem("cmp_cv", F.cv); } catch (e) {} comissoes(); return; }
   const k = t.closest("[data-k]"); if (k) { F.kpi = F.kpi === k.dataset.k ? "" : k.dataset.k; F.lim = 60; desenhar(); return; }
-  const c = t.closest("[data-c]"); if (c) { F.com = F.com === c.dataset.c ? "" : c.dataset.c; F.lim = 60; desenhar(); return; }
+  const c = t.closest("[data-c]"); if (c) { F.com = F.com === c.dataset.c ? "" : c.dataset.c; F.lim = 60; F.flim = { p: 30, m: 30 }; desenhar(); return; }
   const o = t.closest("[data-o]"); if (o) { const id = o.dataset.o; F.ord = F.ord[0] === id ? [id, -F.ord[1]] : [id, id === "dias" || id === "fl" || id === "casa" ? -1 : 1]; desenhar(); return; }
   const v = t.closest("[data-v]"); if (v) { F.vis = v.dataset.v; R.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b === v)); desenhar(); return; }
   if (t.closest("#mais")) { F.lim += 60; desenhar(); return; }
+  const fm = t.closest("[data-fmais]"); if (fm) { F.flim[fm.dataset.fmais] += 30; desenhar(); return; }
+  const fb = t.closest("#futB"); if (fb) { F.fut = !F.fut; fb.classList.toggle("on", F.fut); fb.setAttribute("aria-pressed", F.fut); desenhar(); if (F.fut) { const f = R.querySelector(".futs"); if (f) f.scrollIntoView({ behavior: "smooth", block: "start" }); } return; }
   if (t.closest("[data-fecha]")) { F.ab = null; desenhar(); return; }
   const fi = t.closest("[data-ficha]"); if (fi) { cmpImprimir([D.L.find((x) => x.id === fi.dataset.ficha)], { fichas: 1, so: 1 }, D, RES); return; }
   if (t.closest("#impB")) { const m = R.querySelector(".impm"); if (m) { m.remove(); return; } const b = t.closest("#impB"), L = filtradas();
