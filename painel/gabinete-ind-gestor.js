@@ -11,6 +11,8 @@ const gVal = (k, v) => v == null || v === "" ? "(vazio)" : k === "valor" ? "R$ "
 const gCota = (T) => { const g = regrasInd(T); return { disp: g.disp || null, max: g.max || null, saude: g.saude || null }; };
 async function gSincCota(T) { const l = LK.gestor; if (!l || !EDITA()) return; const c = gCota(T); if (JSON.stringify(c) === JSON.stringify(l.cota || {})) return;
   const { error } = await supabaseClient.from("gab_links").update({ cota: c }).eq("id", l.id); if (!error) l.cota = c; }
+// prazo do Link Gestor = encerramento da cota (ex.: LOA 2027 fecha 30/11 às 23:59), não a semana antes como nos líderes
+const gPrazo = (T) => { const p = (T.cota && T.cota.prazo) || (T.L.regras || {}).prazo; return p ? new Date(p).toISOString() : prazoPadrao(T); };
 // ---------- seção no quadro Links ----------
 function secaoGestor(T) { const l = LK.gestor, n = gPend().length;
   // mesma arte dos botões dos líderes (anel + nome + situação); o anel mostra se há mudanças para revisar
@@ -20,7 +22,7 @@ function secaoGestor(T) { const l = LK.gestor, n = gPend().length;
   return `<div class="lkst">Link Gestor · a lista inteira</div><div class="lks"><button class="lkc" data-gmenu>${anelLk(n ? 50 : l.aberto_em ? 100 : 0)}${esc(l.nome)}<small>${st}</small></button></div>${exp}`; }
 async function novoGestor(T) { const n = prompt("Nome de quem vai receber o Link Gestor (vê e edita a lista inteira):", ""); if (!n || !n.trim()) return;
   try { exigeEditar(); const { data, error } = await supabaseClient.from("gab_links").insert({ parlamentar: PARL.n, lista_id: T.L.id, nome: n.trim(), lideranca: null, itens: [], tipo: "gestor", cota: gCota(T),
-      prazo: prazoPadrao(T), titulo: `Gabinete do dep. ${PARL.u || PARL.n} · Emendas ${T.nome}` }).select().single();
+      prazo: gPrazo(T), titulo: `Gabinete do dep. ${PARL.u || PARL.n} · Emendas ${T.nome}` }).select().single();
     if (error) throw error; LK.gestor = data; await copiar(gestorUrl(data), "Link Gestor gerado · link copiado"); desenharInd(); }
   catch (e) { alert("Não foi possível gerar o Link Gestor: " + (e.message || e)); } }
 function menuGestor(b, T) { const l = LK.gestor; if (!l) return; const n = gPend().length;
