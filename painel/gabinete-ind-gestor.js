@@ -3,14 +3,14 @@
 // alterar | incluir | excluir, campos em "dados") e o gabinete aceita ✓ ou recusa ✕ aqui: na linha da emenda (alterar
 // e excluir) e no quadro "Revisar" (todas, inclusive as novas). Depende de gabinete-ind-links.js (LK, abreLk, copiar…).
 const gestorUrl = (l) => new URL("gestor-lista.html?t=" + encodeURIComponent(l.token), location.href).href;
-const G_COL = { municipio: "Município", objeto: "Objeto", area: "Área", natureza: "Despesa", valor: "Valor", lideranca: "Líder", contato: "Contato", justificativa: "Justificativa" };
+const G_COL = { municipio: "Município", objeto: "Objeto", area: "Área", natureza: "Despesa", valor: "Valor", lideranca: "Líder", contato: "Contato", justificativa: "Justificativa", benef_tipo: "Quem recebe", razao_social: "Razão social", cnpj: "CNPJ" };
 const gPend = () => (LK.gprops || []).filter((p) => p.status === "enviado");
 const gPendItem = (id) => gPend().find((p) => p.item_id === id);
 // objeto proposto fora do Portfólio compatível com a área e a despesa (mesma regra da planilha: portCompat)
 const gFora = (d, x) => { const obj = d.objeto !== undefined ? d.objeto : x && x.objeto; if (!obj || !PORTF || !PORTF.length || typeof portCompat !== "function") return false;
   const area = d.area !== undefined ? d.area : x && x.area, nat = d.natureza !== undefined ? d.natureza : x && x.natureza; return !PORTF.some((o) => portCompat(o, area, nat) && norm(o.obj) === norm(obj)); };
 const gForaTag = (p, x) => p.acao !== "excluir" && gFora(p.dados || {}, x) ? ` <em class="gfp">fora do Portfólio</em>` : "";
-const gVal = (k, v) => v == null || v === "" ? "(vazio)" : k === "valor" ? "R$ " + moeda(+v) : String(v);
+const gVal = (k, v) => v == null || v === "" ? "(vazio)" : k === "valor" ? "R$ " + moeda(+v) : k === "benef_tipo" ? (v === "ent" ? "entidade" : "município") : k === "municipio" && v === "SC" ? "SC (Estado)" : String(v);
 // cota da lista gravada no link (a página pública não tem as regras da planilha); atualiza quando muda
 const gCota = (T) => { const g = regrasInd(T); return { disp: g.disp || null, max: g.max || null, saude: g.saude || null }; };
 async function gSincCota(T) { const l = LK.gestor; if (!l || !EDITA()) return; const c = gCota(T); if (JSON.stringify(c) === JSON.stringify(l.cota || {})) return;
@@ -59,13 +59,17 @@ function difGestor(p, x) { const d = p.dados || {}, a = p.antes || (x ? { munici
 function celGestor(x, fech) { if (!x || !LK.gestor) return ""; const p = gPendItem(x.id); if (!p) return "";
   return `<div class="lkp gst"><span class="gtg ${p.acao}">${p.acao === "excluir" ? "excluir" : "alterada"}</span> Link Gestor: ${difGestor(p, x)}${fech ? `<small>Reabra a lista para aceitar.</small>` : `<span class="lkvx"><button data-grec="${p.id}" title="Recusar" aria-label="Recusar">${lsv("x")}</button><button class="v" data-gac="${p.id}" title="Aceitar" aria-label="Aceitar">${lsv("chk")}</button></span>`}</div>`; }
 // ---------- decidir ----------
-const gCampos = (d) => { const o = {}; Object.keys(G_COL).forEach((k) => { if (k in (d || {})) o[k] = k === "valor" ? (d[k] == null ? null : +d[k]) : d[k]; }); return o; };
+const gCampos = (d, T) => { const o = {}; Object.keys(G_COL).forEach((k) => { if (k in (d || {})) o[k] = k === "valor" ? (d[k] == null ? null : +d[k]) : d[k]; });
+  // entidade (convênio) ou município: o nome da entidade vai também em "beneficiário" e a modalidade segue o tipo, como no link do líder
+  if (o.benef_tipo === "ent") { if (o.razao_social) o.beneficiario = o.razao_social; const m = T ? regrasInd(T).mods : []; if (!m.length || m.includes("Convênio")) o.modalidade = "Convênio"; }
+  if (o.benef_tipo === "mun") { o.razao_social = null; o.cnpj = null; const m = T ? regrasInd(T).mods : []; if (!m.length || m.includes("Transferência Especial")) o.modalidade = "Transferência Especial"; }
+  return o; };
 async function decidirGestor(id, aceita, T, quieto) { const p = (LK.gprops || []).find((q) => q.id === id); if (!p || p.status !== "enviado") return false;
   if ((T.L.regras || {}).fechada) { alert("A lista está fechada. Reabra a lista para aceitar ou recusar."); return false; }
   const marca = async (o) => { const { error } = await supabaseClient.from("gab_link_propostas").update({ status: aceita ? "aceito" : "recusado", decidido_em: new Date().toISOString(), decidido_por: SESS.user.id, ...o }).eq("id", p.id); if (error) throw error; Object.assign(p, { status: aceita ? "aceito" : "recusado" }, o); };
   try { if (!aceita) await marca({});
-    else if (p.acao === "alterar") { if (!AD.itens.find((y) => y.id === p.item_id)) throw new Error("a emenda não existe mais"); await gravar("gab_itens", { id: p.item_id, ...gCampos(p.dados) }); await marca({}); }
-    else if (p.acao === "incluir") { const n = await gravar("gab_itens", { lista_id: T.L.id, ...gCampos(p.dados) }); await marca({ item_id: n.id }); }
+    else if (p.acao === "alterar") { if (!AD.itens.find((y) => y.id === p.item_id)) throw new Error("a emenda não existe mais"); await gravar("gab_itens", { id: p.item_id, ...gCampos(p.dados, T) }); await marca({}); }
+    else if (p.acao === "incluir") { const n = await gravar("gab_itens", { lista_id: T.L.id, ...gCampos(p.dados, T) }); await marca({ item_id: n.id }); }
     else if (p.acao === "excluir") { const id2 = p.item_id; await marca({ item_id: null }); if (AD.itens.find((y) => y.id === id2)) await apagar("gab_itens", id2); }
     if (!quieto) { desenharInd(); toastLk(aceita ? "Mudança aceita · lista atualizada" : "Mudança recusada"); } return true;
   } catch (e) { alert("Não foi possível: " + (e.message || e)); return false; } }

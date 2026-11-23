@@ -2380,5 +2380,20 @@ const MIGRACOES_INDEX = [
     "gestor_enviar"
    ]
   ]
+ },
+ {
+  "num": 111,
+  "arquivo": "migracao-111-gestor-entidade.sql",
+  "descricao": "Migração 111 (23/11/2026): Link Gestor › entidade. No card, o município vem primeiro (opcional, aceita \"SC\") e",
+  "objetos": [
+   [
+    "function",
+    "gestor_abrir"
+   ],
+   [
+    "function",
+    "gestor_enviar"
+   ]
+  ]
  }
 ];
