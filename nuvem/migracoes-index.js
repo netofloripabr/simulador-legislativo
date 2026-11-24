@@ -2528,5 +2528,28 @@ const MIGRACOES_INDEX = [
     "gab_itens.nota_gestor_em"
    ]
   ]
+ },
+ {
+  "num": 119,
+  "arquivo": "migracao-119-parecer-gestor.sql",
+  "descricao": "Migração 119 (24/11/2026): PARECER DO GESTOR por emenda (✓ / ✕).",
+  "objetos": [
+   [
+    "function",
+    "gestor_avaliar"
+   ],
+   [
+    "function",
+    "gestor_abrir"
+   ],
+   [
+    "column",
+    "gab_itens.parecer_gestor"
+   ],
+   [
+    "column",
+    "gab_itens.parecer_gestor_em"
+   ]
+  ]
  }
 ];
