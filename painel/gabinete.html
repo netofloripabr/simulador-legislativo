@@ -271,6 +271,11 @@ body.dm-escuro #indPg{ --sf:#171C20; --tl:#1B2125; --bd:#272D33; --tx:#E6E9EB; -
 .icq b{ display:block; font:700 17px Inter; letter-spacing:-.01em; color:#1D2226; margin:1px 0; } .icq small{ display:block; font:400 11.5px Inter; color:#6E767D; line-height:1.35; }
 .icq em{ font-style:normal; color:#C0561B; font-weight:600; } .icq em.ok{ color:#17883A; } .icq em.lv{ color:#1D2226; font-weight:600; }
 @media (max-width:900px){ .icqs{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+#indPg .ipop .ips{ border:1px solid var(--bd); border-radius:10px; overflow:hidden; margin:0 0 8px; background:#fff; }
+#indPg .ipop .ips .ipga{ display:flex; justify-content:space-between; align-items:center; background:#EEF0F2; color:#3E454B; padding:7px 10px; margin:0; border-bottom:1px solid var(--bd); font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; } #indPg .ipop .ips .ipga small{ font-weight:600; letter-spacing:0; color:var(--mu); }
+#indPg .ipop .ips .ipi{ display:block; width:100%; text-align:left; border:0; border-radius:0; margin:0; padding:8px 10px; background:none; cursor:pointer; } #indPg .ipop .ips .ipi + .ipi{ border-top:1px solid #EEF0F2; } #indPg .ipop .ips .ipi:hover{ background:#F7F8F9; }
+#indPg .ipop .ips .ipi span{ font-size:12.5px; font-weight:500; color:#1D2226; } #indPg .ipop .ips .ipi em{ display:block; font-style:normal; font-size:11px; color:var(--mu); margin-top:1px; font-weight:400; }
+#indPg .ipop .ipm{ display:block; width:100%; text-align:left; background:#F7F8F9; border:0; border-top:1px solid #EEF0F2; border-radius:0; color:#2F5D8A; font:600 12px Inter; padding:8px 10px; cursor:pointer; }
 .ipab{ display:flex; gap:4px; margin-bottom:8px; align-items:center; } .ipab .ipbx{ margin-left:auto; display:inline-flex; align-items:center; gap:5px; color:#1D2226 !important; } .ipab .ipbx svg{ width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; } .ipab button{ border:1px solid var(--bd); background:#fff; border-radius:999px; padding:5px 11px; font:600 12px Inter; color:#6E767D; cursor:pointer; } .ipab button.on{ background:#1D2226; border-color:#1D2226; color:#fff; }
 .ipga{ font:700 10.5px Inter; letter-spacing:.1em; text-transform:uppercase; color:#6E767D; padding:10px 10px 4px; } .ipga small{ font-weight:600; letter-spacing:0; }
 .ipl button em{ display:block; font-style:normal; font-size:11px; color:#8A9196; margin-top:2px; font-weight:400; }
@@ -816,7 +821,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=90"></script>
+<script src="gabinete-indicar.js?cb=91"></script>
 <script src="gabinete-ind-links.js?cb=25"></script>
 <script src="gabinete-ind-gestor.js?cb=7"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>

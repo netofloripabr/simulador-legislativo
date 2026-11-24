@@ -269,7 +269,7 @@ function popObjeto(tr, T) {
   document.querySelectorAll(".ipop").forEach((x) => x.remove());
   const x0 = AD.itens.find((y) => y.id === tr.dataset.iw) || {}, areaX = x0.area || regrasInd(T).trava || "", natX = x0.natureza === "Investimento" ? "Capital" : x0.natureza || ""; let todos = !areaX && !natX;
   const b = tr.querySelector("[data-iobj]"), r = b.getBoundingClientRect(), pop = document.createElement("div"); pop.className = "ipop";
-  let aba = "port";
+  let aba = "port"; const ABR = new Set();
   pop.innerHTML = `<div class="ipab"><button data-ab="port" class="on">Portfólio</button><button class="ipbx" data-ipbx title="Baixar a lista de objetos do Portfólio (planilha)">${ICO_BX}Baixar Portfólio</button></div><div class="iplim" ${todos ? "hidden" : ""}></div><input placeholder="Pesquisar (ex.: ambulância, pavimentação, saúde)"><div class="ipl"></div>`;
   $("#indPg").appendChild(pop); pop.style.top = Math.min(r.bottom + 6, innerHeight - 420) + "px"; pop.style.left = Math.max(12, Math.min(r.left - 300, innerWidth - 500)) + "px";
   const q = pop.querySelector("input"), l = pop.querySelector(".ipl"), nn = (s) => norm(s || "");
@@ -281,8 +281,12 @@ function popObjeto(tr, T) {
     lim.innerHTML = todos ? `Todo o Portfólio · <button data-lim>só ${esc([areaX, natX.toLowerCase()].filter(Boolean).join(" · "))}</button>` : `Só ${esc([areaX === "FUNDAM" ? "FUNDAM (tudo que não é Saúde)" : areaX, natX.toLowerCase()].filter(Boolean).join(" · "))} · <button data-lim>ver todo o Portfólio</button>`;
     lim.querySelector("[data-lim]").onclick = (ev) => { ev.stopPropagation(); todos = !todos; lista(); };
     const P = (await lerPortfolio()).filter((o) => (todos || portCompat(o, areaX, natX)) && w.every((k) => nn([o.obj, o.area, o.cat, o.desc, o.org].join(" ")).includes(k)));
-    const G = {}; P.forEach((o) => (G[o.area] = G[o.area] || []).push(o));
-    l.innerHTML = P.length ? Object.entries(G).map(([a, L]) => `<div class="ipga">${esc(a)} <small>${L.length}</small></div>` + L.map((o) => `<button data-p="${esc(o.obj)}" data-n="${esc(/ ou /.test(o.nat) ? "" : o.nat)}" title="${esc(o.desc)}"><span>${esc(o.obj)}<em>${esc([o.cat, o.nat, o.org].filter(Boolean).join(" · "))}</em></span></button>`).join("")).join("") : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`;
+    // mesmo formato da lista do Link Gestor (23/11/2026): seções por categoria (com a área quando é o Portfólio inteiro), 3 primeiros e "ver mais"
+    const G = new Map(); P.forEach((o) => { const k = todos || !areaX ? o.area + " · " + o.cat : o.cat; if (!G.has(k)) G.set(k, []); G.get(k).push(o); });
+    const it = (o) => `<button class="ipi" data-p="${esc(o.obj)}" data-n="${esc(/ ou /.test(o.nat) ? "" : o.nat)}"><span>${esc(o.obj)}<em>${esc([o.nat, o.desc].filter(Boolean).join(" · "))}</em></span></button>`;
+    l.innerHTML = P.length ? [...G].map(([c, A]) => { const ab = w.length || ABR.has(c) || A.length <= 4, ver = ab ? A : A.slice(0, 3);
+      return `<div class="ips"><div class="ipga">${esc(c)}<small>${A.length}</small></div>${ver.map(it).join("")}${A.length > 4 && !w.length ? `<button class="ipm" data-ipm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - 3}`}</button>` : ""}</div>`; }).join("") : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`;
+    l.querySelectorAll("[data-ipm]").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); const c = b.dataset.ipm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = l.scrollTop; lista().then(() => { l.scrollTop = y; }); });
     l.querySelectorAll("[data-p]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); escolhe(o.dataset.p, o.dataset.n); }); };
   // "Baixar Portfólio" no lugar da aba "Já usados pelo gabinete" (23/11/2026)
   pop.querySelector("[data-ipbx]").onclick = (ev) => { ev.stopPropagation(); baixarPortfolio(); };

@@ -58,6 +58,9 @@ main{max-width:860px;margin:0 auto;padding:18px 16px 110px}
 .pb input{border:1px solid var(--bd);border-radius:999px;padding:8px 14px;font-weight:500;font-size:13px;outline:none;background:#fff}
 .pl{overflow:auto;display:flex;flex-direction:column;padding-bottom:6px}
 .ipga{font-size:11px;color:var(--mu);font-weight:500;padding:10px 10px 4px}
+.pfs{border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin:0 0 8px;background:#fff;display:flex;flex-direction:column;flex:none}.pfc{display:flex;justify-content:space-between;align-items:center;background:#EEF0F2;color:#3E454B;padding:7px 10px;border-bottom:1px solid var(--bd);font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}.pfc span{font-weight:600;letter-spacing:0;color:var(--mu)}
+.pfs .po{border-bottom:0}.pfs .po + .po{border-top:1px solid #EEF0F2}.pfs .po:hover{background:#F7F8F9}
+.pfm{display:block;width:100%;text-align:left;background:#F7F8F9;border:0;border-top:1px solid #EEF0F2;color:#2F5D8A;font:600 12px Inter,sans-serif;padding:8px 10px;cursor:pointer}
 .po{text-align:left;border:0;border-bottom:1px solid var(--bd);background:none;padding:9px 10px;cursor:pointer;font-weight:500;font-size:13px;color:var(--tx)}
 .po:hover{background:#fff}.po em{display:block;font-style:normal;color:var(--mu);font-size:11.5px;margin-top:2px;font-weight:400}
 .po.out{color:var(--mu);border-bottom:0}
@@ -244,10 +247,15 @@ function escolher(i) { const x = IT[i], C = compat(x);
     <input id="pq" placeholder="Pesquisar"><div class="pl" id="pl"></div></div></div>`);
   const p = document.getElementById("pp"), q = document.getElementById("pq"), l = document.getElementById("pl"), fecha = () => { p.remove(); document.removeEventListener("keydown", k); };
   const k = (e) => { if (e.key === "Escape") fecha(); };
-  const usa = (o) => { Object.assign(ST[i], o); salvar(i); fecha(); render(); };
+  const usa = (o) => { Object.assign(ST[i], o); salvar(i); fecha(); render(); }, ABR = new Set();
   const lista = () => { const w = norm(q.value).split(/\s+/).filter(Boolean), ok = (t) => w.every((kk) => norm(t).includes(kk)), R = C.filter((o) => ok(o[2] + " " + o[1] + " " + o[5]));
     const gab = x.objeto && ok(x.objeto) && portOk(i, x.objeto) ? `<div class="ipga">Do gabinete</div><button class="po" data-gab>${esc(x.objeto)} <span class="tg">Item do gabinete</span></button>` : "";
-    l.innerHTML = gab + `<div class="ipga">Portfólio · ${R.length}</div>` + R.map((o, j) => `<button class="po" data-o="${C.indexOf(o)}">${esc(o[2])}<em>${esc([o[1], o[3], o[4]].filter(Boolean).join(" · "))}</em></button>`).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
+    // mesmo formato da lista do Link Gestor (23/11/2026): seções por categoria, 3 primeiros e "ver mais"; com pesquisa, tudo que bate
+    const G = new Map(); R.forEach((o) => { if (!G.has(o[1])) G.set(o[1], []); G.get(o[1]).push(o); });
+    const it = (o) => `<button class="po" data-o="${C.indexOf(o)}">${esc(o[2])}<em>${esc([o[3], o[5]].filter(Boolean).join(" · "))}</em></button>`;
+    l.innerHTML = gab + [...G].map(([c, A]) => { const ab = w.length || ABR.has(c) || A.length <= 4, ver = ab ? A : A.slice(0, 3);
+      return `<div class="pfs"><div class="pfc">${esc(c)}<span>${A.length}</span></div>${ver.map(it).join("")}${A.length > 4 && !w.length ? `<button class="pfm" data-pfm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - 3}`}</button>` : ""}</div>`; }).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
+    l.querySelectorAll("[data-pfm]").forEach((b) => b.onclick = () => { const c = b.dataset.pfm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = l.scrollTop; lista(); l.scrollTop = y; });
     l.querySelector("[data-gab]")?.addEventListener("click", () => usa({ obj: x.objeto, fonte: "gab" }));
     l.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => usa({ obj: C[+b.dataset.o][2], fonte: "port" }));
   };
