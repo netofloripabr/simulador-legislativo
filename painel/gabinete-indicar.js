@@ -48,25 +48,30 @@ function barraSeg(c, it, tot) {
   const pc = (v, d) => d ? Math.round(v / d * 100) : 0, CN = { cap: "#2F5D8A", cus: "#8FB3D4", def: "#D3D8DB" };
   const ICQ = { cota: '<path d="M3 16.5h14M5 13.5V9M9 13.5V5M13 13.5V7.5"/>', sau: '<path d="M8 3h4v5h5v4h-5v5H8v-5H3V8h5z"/>', fun: '<path d="M3 17h14M4.5 17V8.5L10 4l5.5 4.5V17"/><path d="M8 17v-4.5h4V17"/>' };
   const ic = (k) => `<div class="q5i"><svg viewBox="0 0 20 20">${ICQ[k]}</svg></div>`;
-  const div = (o, tit) => o.t ? `<div class="q5s"><div class="q5sh"><span>${tit}</span><b>capital ${pc(o.cap, o.t)}%</b></div><div class="q5b q5fino"><div class="q5f" style="width:100%">${["cap", "cus", "def"].map((k) => o[k] ? `<i style="flex:${o[k]};background:${CN[k]}"></i>` : "").join("")}</div></div>
-    <div class="q5l"><span><i style="background:${CN.cap}"></i>capital <b>${rc(o.cap)}</b></span><span><i style="background:${CN.cus}"></i>custeio <b>${rc(o.cus)}</b></span>${o.def ? `<span><i style="background:${CN.def}"></i>a definir <b>${rc(o.def)}</b></span>` : ""}</div></div>` : "";
+  // investimento × custeio (24/11/2026, protótipo J aprovado: prototipos/cota-visual): agulha na meta de 70% de investimento e % que
+  // fecham 100% do indicado (maior resto); "capital" passa a se chamar investimento, como a meta
+  const META_INV = .7, fecha100 = (V) => { const b0 = V.reduce((x, y) => x + y, 0) || 1, r = V.map((v) => v / b0 * 100), b = r.map(Math.floor); let fl = 100 - b.reduce((x, y) => x + y, 0);
+    r.map((v, i) => [v - b[i], i]).sort((x, y) => y[0] - x[0]).forEach(([, i]) => { if (fl > 0) { b[i]++; fl--; } }); return b; };
+  const div = (o, tit) => { if (!o.t) return ""; const P = fecha100([o.cap, o.cus, o.def]), cp = o.cap / o.t, okI = cp >= META_INV - 1e-9, pI = !okI && P[0] >= 70 ? (cp * 100).toFixed(1).replace(".", ",") : P[0];
+    return `<div class="q5s"><div class="q5sh"><span>${tit}</span><span><b>investimento ${pI}%</b> · <span class="${okI ? "q5ok" : "q5al"}">${okI ? "✓ meta 70%" : "meta 70%"}</span></span></div><div class="q5b q5fino"><div class="q5f" style="width:100%">${["cap", "cus", "def"].map((k) => o[k] ? `<i style="flex:${o[k]};background:${CN[k]}"></i>` : "").join("")}</div><b class="q5nd" style="left:70%" title="meta de investimento: 70%"></b></div>
+    <div class="q5l"><span><i style="background:${CN.cap}"></i>investimento <b>${rc(o.cap)}</b> <em>${pI}%</em></span><span><i style="background:${CN.cus}"></i>custeio <b>${rc(o.cus)}</b> <em>${P[1]}%</em></span>${o.def ? `<span><i style="background:${CN.def}"></i>a definir <b>${rc(o.def)}</b> <em>${P[2]}%</em></span>` : ""}</div></div>`; };
   // regra do usuário (20/11/2026): a cota é metade Saúde (mínimo) e metade FUNDAM, que reúne toda função que não é Saúde;
   // o FUNDAM mostra quanto da sua metade já foi usado (livre ou acima), sem "mínimo de 20%"
   const grupo = (nome, k, o, frac, sub, parte) => { if (!frac) return ""; const m = c.disp * frac, ok = o.t >= m - .005, esc = Math.max(o.t, m) * 1.05;
     if (parte) { const ac = o.t > m + .005;
       return `<div class="q5k${ac ? " fl" : ""}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
-      <div class="q5n"><b>${pc(o.t, m)}%</b><small>da metade do FUNDAM</small><span class="q5c${ac ? " fl" : ""}">${ac ? "acima em " + rc(o.t - m) : "livre " + rc(m - o.t)}</span></div>
+      <div class="q5n"><b>${pc(o.t, m)}%</b><small><em>${rc(o.t)}</em> de ${rc(m)}</small><span class="q5c${ac ? " fl" : ""}">${ac ? "acima em " + rc(o.t - m) : "livre " + rc(m - o.t)}</span></div>
       <div class="q5b"><div class="q5f" style="width:${(Math.min(o.t, esc) / esc * 100).toFixed(1)}%"><i style="flex:1;background:#2A2F33"></i></div>${ac ? `<b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b>` : ""}</div>
-      <div class="q5ft"><span><em>${rc(o.t)}</em></span><span>metade da cota <em>${rc(m)}</em></span></div>${div(o, "Investimento e custeio")}</div>`; }
+${div(o, "Investimento e custeio")}</div>`; }
     return `<div class="q5k ${ok ? "ok" : "fl"}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
-      <div class="q5n"><b>${pc(o.t, m)}%</b><small>do mínimo</small><span class="q5c ${ok ? "ok" : "fl"}">${ok ? "✓ atingido" : "faltam " + rc(m - o.t)}</span></div>
+      <div class="q5n"><b>${pc(o.t, m)}%</b><small><em>${rc(o.t)}</em> de ${rc(m)}</small><span class="q5c ${ok ? "ok" : "fl"}">${ok ? "✓ atingido" : "faltam " + rc(m - o.t)}</span></div>
       <div class="q5b"><div class="q5f" style="width:${(o.t / esc * 100).toFixed(1)}%"><i style="flex:1;background:${ok ? "#1FA845" : "#2A2F33"}"></i></div><b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b></div>
-      <div class="q5ft"><span><em>${rc(o.t)}</em></span><span>mínimo <em>${rc(m)}</em></span></div>${div(o, "Investimento e custeio")}</div>`; };
-  return `<div class="t w4 q5"><div class="q5k"><div class="q5t">${ic("cota")}<span><b>Cota indicada</b>R$ ${moeda(c.disp)} para indicar</span></div>
-      <div class="q5n"><b>${pc(tot, c.disp)}%</b><small>R$ ${moeda(tot)} indicados</small><span class="q5c">${tot <= c.disp ? "livre R$ " + moeda(c.disp - tot) : "acima em R$ " + moeda(tot - c.disp)}</span></div>
+${div(o, "Investimento e custeio")}</div>`; };
+  return `<div class="t w4 q5"><div class="q5k"><div class="q5t">${ic("cota")}<span><b>Cota indicada</b></span></div>
+      <div class="q5n"><b>${pc(tot, c.disp)}%</b><small><em>${rc(tot)}</em> de ${rc(c.disp)}</small>${tot > c.disp + .005 ? `<span class="q5c fl">acima em ${rc(tot - c.disp)}</span>` : ""}</div>
       <div class="q5b"><div class="q5f" style="width:${Math.min(100, tot / c.disp * 100).toFixed(1)}%"><i style="flex:1;background:#2A2F33"></i></div></div>
       ${div(A, "Investimento e custeio · de tudo o que foi indicado")}</div>
-    ${c.saude ? `<div class="q5tr"></div><div class="q5g">${grupo("Saúde", "sau", S, c.saude, `mínimo de ${Math.round(c.saude * 100)}% da cota`)}${grupo("FUNDAM", "fun", F, 1 - (c.saude || 0), `${Math.round((1 - (c.saude || 0)) * 100)}% da cota · todas as funções que não são Saúde`, true)}</div>` : ""}</div>`;
+    ${c.saude ? `<div class="q5tr"></div><div class="q5g">${grupo("Saúde", "sau", S, c.saude, `mínimo de ${Math.round(c.saude * 100)}% da cota`)}${grupo("FUNDAM", "fun", F, 1 - (c.saude || 0), `até ${Math.round((1 - (c.saude || 0)) * 100)}% da cota · demais funções`, true)}</div>` : ""}</div>`;
 }
 function contador() {
   document.querySelectorAll("#indPg .icd[data-prazo]").forEach((e) => { const p = e.dataset.prazo; if (!p) { e.innerHTML = ""; return; }
