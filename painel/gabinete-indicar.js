@@ -186,12 +186,16 @@ function atualizarResumoInd(T) { const g = regrasInd(T), it = T.L ? AD.itens.fil
   const r = $("#indRod"); if (r) r.innerHTML = rodapeInd(T, g, it); const cp = $("#indPg .icapa"); if (cp) { cp.innerHTML = capaInd(T); contador(); }
   const tg = $(`#indPg [data-itag="${T.k}"] small`); if (tg && T.cota) tg.textContent = `${it.filter(cheia).length}/${T.cota.max || "—"}`; }
 // justificativa (24/11/2026): até 3 linhas, texto justificado; "ver mais" só aparece quando o texto passa disso
+function ajustaTx(root) { root.querySelectorAll("textarea").forEach((t) => { if (!t.offsetParent) return; t.style.height = "auto"; t.style.height = t.scrollHeight + "px"; }); }
+if (!window.__ajTx) { window.__ajTx = 1; let tm; addEventListener("resize", () => { clearTimeout(tm); tm = setTimeout(() => { const p = document.getElementById("indPg"); if (p) { ajustaTx(p); marcaJus(p); } }, 150); }); }
 function marcaJus(root) { root.querySelectorAll(".ijus").forEach((j) => { j.nextElementSibling && j.nextElementSibling.classList.contains("ijm") && j.nextElementSibling.remove();
   if (j.scrollHeight <= j.clientHeight + 2 && !j.classList.contains("ab")) return; const b = document.createElement("button"); b.className = "ijm"; b.type = "button"; b.textContent = j.classList.contains("ab") ? "ver menos" : "ver mais";
   b.onclick = (e) => { e.stopPropagation(); j.classList.toggle("ab"); b.textContent = j.classList.contains("ab") ? "ver menos" : "ver mais"; }; j.after(b); }); }
 function ligarLinha(tr, T) {
   const g = regrasInd(T), x = () => AD.itens.find((y) => y.id === tr.dataset.iw);
-  requestAnimationFrame(() => marcaJus(tr));
+  // a altura do objeto é recalculada depois que a tabela já tem a largura final (24/11/2026): antes media numa coluna mais estreita
+  // e sobrava um espaço grande entre o objeto e a justificativa
+  requestAnimationFrame(() => { ajustaTx(tr); marcaJus(tr); });
   const mi = tr.querySelector('[data-c="municipio"]'), mv = tr.querySelector(".imv"); if (mi && mv) mi.addEventListener("input", () => { mv.textContent = mi.value; });
   tr.querySelectorAll("[data-c]").forEach((el) => { const ini = el.value, c = el.dataset.c;
     if (c === "valor") { el.oninput = () => { const d = el.value.replace(/\D/g, ""); el.value = d ? moeda(+d / 100) : ""; el.setSelectionRange(el.value.length, el.value.length); };
