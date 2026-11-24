@@ -278,7 +278,9 @@ function popObjeto(tr, T) {
     if (aba === "hist") { const O = objetosRef(q.value); l.innerHTML = O.length ? O.map(([t2, n]) => `<button data-o="${esc(t2)}"><span>${esc(t2)}</span><small>${n}×</small></button>`).join("") : `<div class="mut" style="padding:10px">Nenhum objeto com esse termo.</div>`;
       l.querySelectorAll("[data-o]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); escolhe(o.dataset.o); }); return; }
     const lim = pop.querySelector(".iplim"); lim.hidden = aba !== "port" || (!areaX && !natX);
-    lim.innerHTML = todos ? `Todo o Portfólio · <button data-lim>só ${esc([areaX, natX.toLowerCase()].filter(Boolean).join(" · "))}</button>` : `Só ${esc([areaX === "FUNDAM" ? "FUNDAM (tudo que não é Saúde)" : areaX, natX.toLowerCase()].filter(Boolean).join(" · "))} · <button data-lim>ver todo o Portfólio</button>`;
+    // área e despesa da emenda em destaque, como título da lista (24/11/2026)
+    lim.innerHTML = todos ? `<span class="ipla">${ici("plan")}<b>Todo o Portfólio</b></span><button data-lim>só ${esc([areaX, natX.toLowerCase()].filter(Boolean).join(" · "))}</button>`
+      : `<span class="ipla">${ici(AREA_I[areaX] || "plan")}<b>${esc(areaX === "FUNDAM" ? "FUNDAM" : areaX || "Todas as áreas")}</b>${natX ? `<em>${esc(natX)}</em>` : ""}${areaX === "FUNDAM" ? `<small>tudo que não é Saúde</small>` : ""}</span><button data-lim>ver todo o Portfólio</button>`;
     lim.querySelector("[data-lim]").onclick = (ev) => { ev.stopPropagation(); todos = !todos; lista(); };
     const P = (await lerPortfolio()).filter((o) => (todos || portCompat(o, areaX, natX)) && w.every((k) => nn([o.obj, o.area, o.cat, o.desc, o.org].join(" ")).includes(k)));
     // mesmo formato da lista do Link Gestor (23/11/2026): seções por categoria (com a área quando é o Portfólio inteiro), 3 primeiros e "ver mais"
