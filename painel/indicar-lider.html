@@ -247,7 +247,7 @@ function escolher(i) { const x = IT[i], C = compat(x);
   const usa = (o) => { Object.assign(ST[i], o); salvar(i); fecha(); render(); };
   const lista = () => { const w = norm(q.value).split(/\s+/).filter(Boolean), ok = (t) => w.every((kk) => norm(t).includes(kk)), R = C.filter((o) => ok(o[2] + " " + o[1] + " " + o[5]));
     const gab = x.objeto && ok(x.objeto) && portOk(i, x.objeto) ? `<div class="ipga">Do gabinete</div><button class="po" data-gab>${esc(x.objeto)} <span class="tg">Item do gabinete</span></button>` : "";
-    l.innerHTML = gab + `<div class="ipga">Portfólio · ${R.length}</div>` + R.slice(0, 150).map((o, j) => `<button class="po" data-o="${C.indexOf(o)}">${esc(o[2])}<em>${esc([o[1], o[3], o[4]].filter(Boolean).join(" · "))}</em></button>`).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
+    l.innerHTML = gab + `<div class="ipga">Portfólio · ${R.length}</div>` + R.map((o, j) => `<button class="po" data-o="${C.indexOf(o)}">${esc(o[2])}<em>${esc([o[1], o[3], o[4]].filter(Boolean).join(" · "))}</em></button>`).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
     l.querySelector("[data-gab]")?.addEventListener("click", () => usa({ obj: x.objeto, fonte: "gab" }));
     l.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => usa({ obj: C[+b.dataset.o][2], fonte: "port" }));
   };
