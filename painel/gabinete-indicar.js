@@ -247,11 +247,18 @@ function ligarEntidade(inp, tr, T, det) {
   inp.addEventListener("blur", () => setTimeout(fecha, 150)); inp.addEventListener("keydown", (e) => { if (e.key === "Escape") fecha(); });
 }
 // caixinhas quadradas (modalidade e função): abrem a lista com ícone e nome
+// janelinha presa ao botão que a abriu (24/11/2026): acompanha a linha quando a página ou a planilha rolam; abre para cima
+// quando não cabe embaixo; fecha sozinha se a linha sumir (foi redesenhada)
+function prendePop(pop, b, dx) { const place = (e) => { if (e && e.target && e.target.nodeType === 1 && pop.contains(e.target)) return;
+    if (!pop.isConnected || !b.isConnected) { if (pop.isConnected) pop.remove(); document.removeEventListener("scroll", place, true); removeEventListener("resize", place); return; }
+    const r = b.getBoundingClientRect(), h = pop.offsetHeight, w = pop.offsetWidth; let top = r.bottom + 6; if (top + h > innerHeight - 8 && r.top - h - 6 > 8) top = r.top - h - 6; else if (top + h > innerHeight - 8) top = Math.max(8, innerHeight - 8 - h);
+    pop.style.top = top + "px"; pop.style.left = Math.max(12, Math.min(r.left - (dx || 0), innerWidth - w - 12)) + "px"; };
+  pop._place = place; document.addEventListener("scroll", place, true); addEventListener("resize", place); place(); }
 function popLista(btn, itens, atual, escolhe) {
   document.querySelectorAll(".ipop").forEach((x) => x.remove()); const pop = document.createElement("div"); pop.className = "ipop iplst"; $("#indPg").appendChild(pop);
-  const r = btn.getBoundingClientRect(); pop.style.top = Math.min(r.bottom + 4, innerHeight - 330) + "px"; pop.style.left = Math.max(12, Math.min(r.left, innerWidth - 300)) + "px";
   pop.innerHTML = `<div class="ipl">${itens.map(([v, ic2, rot, ok = true], i) => `<button data-li="${i}" class="${v === atual ? "on" : ""}${ok ? "" : " off"}"${ok ? (v === atual ? ' title="Toque de novo para tirar"' : "") : ' disabled title="Não permitido nesta cota"'}>${ici(ic2)}<span>${esc(rot)}</span>${ok ? "" : "<small>não permitido</small>"}</button>`).join("")}</div>`;
   // tocar de novo na opção já marcada tira a marcação e volta ao neutro (23/11/2026)
+  prendePop(pop, btn, 0);
   pop.querySelectorAll("[data-li]:not([disabled])").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); pop.remove(); const v = itens[+b.dataset.li][0]; escolhe(v === atual ? null : v); });
   setTimeout(() => document.addEventListener("click", function f(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("click", f); } }), 0);
 }
@@ -271,7 +278,7 @@ function popObjeto(tr, T) {
   const b = tr.querySelector("[data-iobj]"), r = b.getBoundingClientRect(), pop = document.createElement("div"); pop.className = "ipop";
   let aba = "port"; const ABR = new Set();
   pop.innerHTML = `<div class="ipab"><button data-ab="port" class="on">Portfólio</button><button class="ipbx" data-ipbx title="Baixar a lista de objetos do Portfólio (planilha)">${ICO_BX}Baixar Portfólio</button></div><div class="iplim" ${todos ? "hidden" : ""}></div><input placeholder="Pesquisar (ex.: ambulância, pavimentação, saúde)"><div class="ipl"></div>`;
-  $("#indPg").appendChild(pop); pop.style.top = Math.min(r.bottom + 6, innerHeight - 420) + "px"; pop.style.left = Math.max(12, Math.min(r.left - 300, innerWidth - 500)) + "px";
+  $("#indPg").appendChild(pop); prendePop(pop, b, 300);
   const q = pop.querySelector("input"), l = pop.querySelector(".ipl"), nn = (s) => norm(s || "");
   const escolhe = (o, nat) => { pop.remove(); salvarLinha(T, tr, { objeto: o, ...(nat ? { natureza: nat } : {}) }); };
   const lista = async () => { const w = nn(q.value).split(/\s+/).filter(Boolean);
@@ -289,6 +296,7 @@ function popObjeto(tr, T) {
     l.innerHTML = P.length ? [...G].map(([c, A]) => { const ab = w.length || ABR.has(c) || A.length <= 4, ver = ab ? A : A.slice(0, 3);
       return `<div class="ips"><div class="ipga">${esc(c)}<small>${A.length}</small></div>${ver.map(it).join("")}${A.length > 4 && !w.length ? `<button class="ipm" data-ipm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - 3}`}</button>` : ""}</div>`; }).join("") : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`;
     l.querySelectorAll("[data-ipm]").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); const c = b.dataset.ipm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = l.scrollTop; lista().then(() => { l.scrollTop = y; }); });
+    if (pop._place) pop._place();
     l.querySelectorAll("[data-p]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); escolhe(o.dataset.p, o.dataset.n); }); };
   // "Baixar Portfólio" no lugar da aba "Já usados pelo gabinete" (23/11/2026)
   pop.querySelector("[data-ipbx]").onclick = (ev) => { ev.stopPropagation(); baixarPortfolio(); };
