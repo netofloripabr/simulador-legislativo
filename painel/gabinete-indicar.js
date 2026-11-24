@@ -250,8 +250,9 @@ function ligarEntidade(inp, tr, T, det) {
 function popLista(btn, itens, atual, escolhe) {
   document.querySelectorAll(".ipop").forEach((x) => x.remove()); const pop = document.createElement("div"); pop.className = "ipop iplst"; $("#indPg").appendChild(pop);
   const r = btn.getBoundingClientRect(); pop.style.top = Math.min(r.bottom + 4, innerHeight - 330) + "px"; pop.style.left = Math.max(12, Math.min(r.left, innerWidth - 300)) + "px";
-  pop.innerHTML = `<div class="ipl">${itens.map(([v, ic2, rot, ok = true], i) => `<button data-li="${i}" class="${v === atual ? "on" : ""}${ok ? "" : " off"}"${ok ? "" : ' disabled title="Não permitido nesta cota"'}>${ici(ic2)}<span>${esc(rot)}</span>${ok ? "" : "<small>não permitido</small>"}</button>`).join("")}</div>`;
-  pop.querySelectorAll("[data-li]:not([disabled])").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); pop.remove(); escolhe(itens[+b.dataset.li][0]); });
+  pop.innerHTML = `<div class="ipl">${itens.map(([v, ic2, rot, ok = true], i) => `<button data-li="${i}" class="${v === atual ? "on" : ""}${ok ? "" : " off"}"${ok ? (v === atual ? ' title="Toque de novo para tirar"' : "") : ' disabled title="Não permitido nesta cota"'}>${ici(ic2)}<span>${esc(rot)}</span>${ok ? "" : "<small>não permitido</small>"}</button>`).join("")}</div>`;
+  // tocar de novo na opção já marcada tira a marcação e volta ao neutro (23/11/2026)
+  pop.querySelectorAll("[data-li]:not([disabled])").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); pop.remove(); const v = itens[+b.dataset.li][0]; escolhe(v === atual ? null : v); });
   setTimeout(() => document.addEventListener("click", function f(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("click", f); } }), 0);
 }
 // objetos de referência (20/11/2026): primeiro o Portfólio de emendas (389 objetos padronizados da Transferência Especial,
