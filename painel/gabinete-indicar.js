@@ -59,13 +59,13 @@ function barraSeg(c, it, tot) {
   // o FUNDAM mostra quanto da sua metade já foi usado (livre ou acima), sem "mínimo de 20%"
   const grupo = (nome, k, o, frac, sub, parte) => { if (!frac) return ""; const m = c.disp * frac, ok = o.t >= m - .005, esc = Math.max(o.t, m) * 1.05;
     if (parte) { const ac = o.t > m + .005;
-      return `<div class="q5k${ac ? " fl" : ""}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
+      return `<div class="q5k a-${k}${ac ? " fl" : ""}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
       <div class="q5n"><b>${pc(o.t, m)}%</b><small><em>${rc(o.t)}</em> de ${rc(m)}</small><span class="q5c${ac ? " fl" : ""}">${ac ? "acima em " + rc(o.t - m) : "livre " + rc(m - o.t)}</span></div>
-      <div class="q5b"><div class="q5f" style="width:${(Math.min(o.t, esc) / esc * 100).toFixed(1)}%"><i style="flex:1;background:#34506B"></i></div>${ac ? `<b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b>` : ""}</div>
+      <div class="q5b"><div class="q5f" style="width:${(Math.min(o.t, esc) / esc * 100).toFixed(1)}%"><i style="flex:1;background:#4F8A72"></i></div>${ac ? `<b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b>` : ""}</div>
 ${div(o, "Investimento e custeio")}</div>`; }
-    return `<div class="q5k ${ok ? "ok" : "fl"}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
+    return `<div class="q5k a-${k} ${ok ? "ok" : "fl"}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
       <div class="q5n"><b>${pc(o.t, m)}%</b><small><em>${rc(o.t)}</em> de ${rc(m)}</small><span class="q5c ${ok ? "ok" : "fl"}">${ok ? "✓ atingido" : "faltam " + rc(m - o.t)}</span></div>
-      <div class="q5b"><div class="q5f" style="width:${(o.t / esc * 100).toFixed(1)}%"><i style="flex:1;background:${ok ? "#4F8A72" : "#34506B"}"></i></div><b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b></div>
+      <div class="q5b"><div class="q5f" style="width:${(o.t / esc * 100).toFixed(1)}%"><i style="flex:1;background:${k === "sau" ? "#B86F52" : "#4F8A72"}"></i></div><b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b></div>
 ${div(o, "Investimento e custeio")}</div>`; };
   return `<div class="t w4 q5"><div class="q5k"><div class="q5t">${ic("cota")}<span><b>Cota indicada</b></span></div>
       <div class="q5n"><b>${pc(tot, c.disp)}%</b><small><em>${rc(tot)}</em> de ${rc(c.disp)}</small>${tot > c.disp + .005 ? `<span class="q5c fl">acima em ${rc(tot - c.disp)}</span>` : ""}</div>

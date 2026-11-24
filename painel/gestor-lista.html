@@ -212,7 +212,7 @@ td.ac{width:70px}
 /* quadro em duas leituras (23/11): área (Saúde × FUNDAM) e despesa (capital × custeio) */
 .qinv{margin-top:12px;padding:10px 12px;border:1px solid var(--bd);border-radius:12px;background:#fff;cursor:pointer}.qinv:hover,.ar:hover{border-color:#B9C0C5}.qinv.on,.ar.on{border-color:#1D2226;box-shadow:0 0 0 1px #1D2226}
 .ars{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11.5px;color:var(--mu);margin-bottom:6px}.ars b{color:var(--tx);font-weight:600;white-space:nowrap}
-.chip{font:700 10.5px Inter;border-radius:999px;padding:3px 8px;white-space:nowrap;background:#E4E7E9;color:#3E454B}.chip.ok{background:#E3EFE9;color:#3D7A61}.chip.fl{background:#F7E7DC;color:#A65A2C}
+.chip{font:700 10.5px Inter;border-radius:999px;padding:3px 8px;white-space:nowrap;background:#E4E7E9;color:#3E454B}.chip.ok{background:#E3EFE9;color:#3D7A61}.chip.fl{background:#F6ECD6;color:#8A5A0B}
 .qdb{position:relative;display:flex;gap:2px;height:7px;border-radius:4px;background:#E9EDF1}.qdb i{display:block;height:100%;border-radius:2px}
 .qdb i.cap,.qdl i.cap{background:#3A5F86}.qdb i.cus,.qdl i.cus{background:#93AECB}.qdb i.def,.qdl i.def{background:#D5DCE3}
 .qdb b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:#1E2B38;box-shadow:0 0 0 2px #fff}
@@ -220,9 +220,11 @@ td.ac{width:70px}
 .qar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .ar{padding:10px 12px;border:1px solid var(--bd);border-radius:12px;background:#fff;cursor:pointer;min-width:0}
 .arh{display:flex;align-items:center;gap:8px}.arn{flex:1;min-width:0}.arn b{display:block;font-size:13.5px}.arn small{display:block;font-size:11px;color:var(--mu)}
-.ar.ok .mi{background:#E3EFE9;color:#3D7A61}.ar.fl .mi{background:#F7E7DC;color:#A65A2C}
-.arb{position:relative;height:8px;border-radius:4px;background:#E9EDF1;margin:10px 0 10px}.arb i{display:block;height:100%;border-radius:4px;background:#34506B}.ar.ok .arb i{background:#4F8A72}
-.arb b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:#C2703D;box-shadow:0 0 0 2px #fff}
+.ar.ok .mi{background:#E3EFE9;color:#3D7A61}.ar.fl .mi{background:#F6ECD6;color:#8A5A0B}
+/* uma cor por área (24/11/2026): cota total ardósia, Saúde argila, FUNDAM sálvia; marcadores de mínimo/limite e meta em azul-escuro neutro */
+.ar.a-sau{border-left:3px solid #B86F52}.ar.a-fun{border-left:3px solid #4F8A72}
+.arb{position:relative;height:8px;border-radius:4px;background:#E9EDF1;margin:10px 0 10px}.arb i{display:block;height:100%;border-radius:4px;background:#34506B}.ar.a-sau .arb i{background:#B86F52}.ar.a-fun .arb i{background:#4F8A72}
+.arb b{position:absolute;top:-4px;bottom:-4px;width:3px;margin-left:-1.5px;border-radius:2px;background:#1E2B38;box-shadow:0 0 0 2px #fff}
 @media(max-width:700px){.qar{gap:6px}.ar,.qinv{padding:9px 9px}.arh{flex-wrap:wrap;gap:5px}.arh .chip{order:3;flex-basis:100%;text-align:center}.ars{flex-wrap:wrap}.qdl{font-size:10.5px;gap:2px 8px}}
 .qd{position:relative}.qmin{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;border:1px solid var(--bd);background:#fff;color:var(--mu);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}.qmin:hover{border-color:#1D2226;color:var(--tx)}
 .qd .qn{padding-right:30px}.qd.min .qb{margin-bottom:0}
@@ -382,7 +384,7 @@ function quadro(L) {
   const desp = (o, meta) => `<div class="qdb"><i class="cap" style="flex:${o.cap}"></i><i class="cus" style="flex:${o.cus}"></i><i class="def" style="flex:${o.def}"></i>${meta ? `<b style="left:${meta * 100}%" title="meta: ${Math.round(meta * 100)}% em investimento"></b>` : ""}</div>
     <div class="qdl"><span><i class="cap"></i>capital ${rcc(o.cap)}</span><span><i class="cus"></i>custeio ${rcc(o.cus)}</span>${o.def ? `<span><i class="def"></i>a definir ${rcc(o.def)}</span>` : ""}</div>`;
   const area = (k, nome, o, m, ok, sub, chip) => { const esc2 = Math.max(o.t, m) * 1.04 || 1;
-    return `<div class="ar ${ok ? "ok" : "fl"}${MD === k ? " on" : ""}" data-md="${k}" role="button" title="Ver o detalhamento">
+    return `<div class="ar a-${k} ${ok ? "ok" : "fl"}${MD === k ? " on" : ""}" data-md="${k}" role="button" title="Ver o detalhamento">
       <div class="arh"><span class="mi">${ok ? "✓" : "!"}</span><span class="arn"><b>${nome} ${p(o.t, COTA)}</b><small>${sub}</small></span><span class="chip ${ok ? "ok" : "fl"}">${chip}</span></div>
       <div class="arb"><i style="width:${(Math.min(o.t, esc2) / esc2 * 100).toFixed(1)}%"></i><b style="left:${(m / esc2 * 100).toFixed(1)}%"></b></div>
       <div class="ars"><span>Investimento e custeio</span><b>capital ${p(o.cap, o.t)}</b></div>${desp(o)}</div>`; };
