@@ -801,6 +801,26 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 .gatu{ display:inline-flex; align-items:center; gap:6px; margin-left:12px; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:500; color:var(--sec); background:rgba(255,255,255,.05); border:1px solid var(--linha); vertical-align:middle; white-space:nowrap; }
 .gatu:empty{ display:none; } .gatu i{ width:7px; height:7px; border-radius:50%; background:#34E84A; box-shadow:0 0 0 3px rgba(52,232,74,.15); }
 .gatu.velho i{ background:#E8822A; box-shadow:0 0 0 3px rgba(232,130,42,.18); }
+
+/* balão de avisos (24/11/2026, gabinete-avisos.js) */
+.gavb{ position:fixed; right:18px; bottom:18px; z-index:90; display:flex; align-items:center; gap:4px; font-family:Inter,system-ui,sans-serif; animation:gavIn .35s cubic-bezier(.2,1.2,.4,1); }
+@keyframes gavIn{ from{ opacity:0; transform:translateY(12px) scale(.96); } to{ opacity:1; transform:none; } }
+.gavb .gavo{ position:relative; display:flex; align-items:center; gap:10px; max-width:320px; background:#1D2226; color:#fff; border:0; border-radius:999px; padding:10px 18px 10px 12px; cursor:pointer; box-shadow:0 10px 28px rgba(0,0,0,.28); text-align:left; }
+.gavb .gavo svg{ width:22px; height:22px; flex:none; fill:none; stroke:#F2C94C; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.gavb .gavt{ display:flex; flex-direction:column; min-width:0; } .gavb .gavt b{ font-size:13px; } .gavb .gavt small{ font-size:11.5px; color:#B8BEC3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px; }
+.gavb .gavo i{ position:absolute; top:-4px; left:22px; min-width:18px; height:18px; border-radius:999px; background:#E5484D; color:#fff; font:700 10.5px/18px Inter,sans-serif; text-align:center; font-style:normal; padding:0 5px; box-shadow:0 0 0 2px #1D2226; }
+.gavb .gavx{ width:30px; height:30px; border-radius:50%; border:0; background:#fff; color:#3E454B; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.2); display:flex; align-items:center; justify-content:center; padding:0; }
+.gavb .gavx svg, .gavp .gavh button svg{ width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+.gavp{ position:fixed; right:18px; bottom:80px; z-index:91; width:380px; max-width:calc(100vw - 24px); max-height:min(70vh, 560px); display:flex; flex-direction:column; background:#F8F9FA; color:#1D2226; border:1px solid #DCDFE2; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,.3); font-family:Inter,system-ui,sans-serif; overflow:hidden; }
+.gavp .gavh{ display:flex; align-items:center; gap:8px; padding:12px 14px; border-bottom:1px solid #DCDFE2; background:#fff; } .gavp .gavh b{ font-size:15px; } .gavp .gavh span{ font-size:12px; color:#7A8085; flex:1; }
+.gavp .gavh button{ width:28px; height:28px; border-radius:50%; border:1px solid #DCDFE2; background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; color:#3E454B; }
+.gavp .gavl{ overflow:auto; padding:10px; display:flex; flex-direction:column; gap:8px; }
+.gavp .gavi{ background:#fff; border:1px solid #DCDFE2; border-radius:12px; padding:10px 12px; } .gavp .gavi.nv{ border-left:3px solid #F2C94C; }
+.gavp .gavq{ display:flex; gap:8px; align-items:baseline; } .gavp .gavq b{ font-size:13px; flex:1; } .gavp .gavq small{ font-size:11px; color:#7A8085; white-space:nowrap; }
+.gavp .gavi p{ margin:4px 0 8px; font-size:12.5px; line-height:1.45; color:#3E454B; }
+.gavp .gava{ display:flex; gap:6px; justify-content:flex-end; } .gavp .gava button{ border-radius:999px; font:600 12px Inter,sans-serif; padding:6px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; }
+.gavp .gavir{ background:#fff; border:1px solid #DCDFE2; color:#1D2226; } .gavp .gavok{ background:#1FA845; border:1px solid #1FA845; color:#fff; } .gavp .gavok svg{ width:13px; height:13px; fill:none; stroke:#fff; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+@media (max-width:600px){ .gavb{ right:12px; bottom:12px; } .gavb .gavt small{ max-width:160px; } .gavp{ right:12px; bottom:70px; } }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -830,6 +850,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-ind-planilha.js?cb=4"></script>
 <script src="gabinete-caderno.js?cb=7"></script>
 <script src="gabinete-relatorio.js?cb=20"></script>
+<script src="gabinete-avisos.js?cb=1"></script>
 <script src="sino-menu.js?cb=12"></script>
 <script>/* menu do topo: abre/fecha, conta logada, Sair e sino (igual às outras páginas) */
 (function(){ var b=document.querySelector(".mnub"), m=document.querySelector(".mnu"); if(!b||!m) return;

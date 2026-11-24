@@ -2482,5 +2482,28 @@ const MIGRACOES_INDEX = [
     "gestor_abrir"
    ]
   ]
+ },
+ {
+  "num": 117,
+  "arquivo": "migracao-117-avisos-links.sql",
+  "descricao": "Migração 117 (24/11/2026): AVISOS dos links + \"Resolvido\" nas notificações.",
+  "objetos": [
+   [
+    "index",
+    "notificacoes_abertas"
+   ],
+   [
+    "function",
+    "link_enviar"
+   ],
+   [
+    "function",
+    "gestor_enviar"
+   ],
+   [
+    "column",
+    "notificacoes.resolvida_em"
+   ]
+  ]
  }
 ];
