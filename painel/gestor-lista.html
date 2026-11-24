@@ -79,6 +79,11 @@ th[data-o]{cursor:pointer;user-select:none}th[data-o]:hover{color:var(--tx)}
 .novab .ici{width:18px;height:18px;stroke-width:2}
 .novab:hover{background:#17883A}
 .sheet{background:var(--tl);border:1px solid var(--bd);border-radius:14px;overflow:auto}
+/* cabeçalho da tabela fica fixo ao rolar (24/11/2026): no computador a tabela não rola por dentro (clip) e o título gruda no topo da
+   página; no celular, onde a tabela rola de lado, ela ganha altura máxima e o título gruda dentro dela */
+.sheet:not(.cards) thead th{z-index:4;box-shadow:0 1px 0 var(--bd)}
+@media(min-width:1000px){.sheet:not(.cards){overflow:clip}}
+@media(max-width:999px){.sheet:not(.cards){max-height:78vh}}
 table{width:100%;border-collapse:collapse;min-width:900px}
 th{font-size:11px;color:var(--mu);font-weight:500;text-align:left;padding:9px 8px;border-bottom:1px solid var(--bd);white-space:nowrap;position:sticky;top:0;background:var(--tl)}
 td{padding:8px;border-bottom:1px solid var(--bd);font-size:12.5px;vertical-align:top;line-height:1.4}
@@ -138,9 +143,10 @@ td.ac{width:92px;white-space:nowrap;text-align:right}
 .ib[data-com] svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round}.ib[data-com].on{background:#1D2226;color:#fff;border-color:#1D2226}
 tr.mk td{background:color-mix(in srgb,var(--mkf) 55%,#fff) !important}tr.mk td:first-child{box-shadow:inset 3px 0 0 var(--mk)}
 td.cm{min-width:150px;max-width:240px}td.cm .etq{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap;margin:0 0 3px}td.cm .rec{display:block;font-size:12px;color:#B3261E;font-weight:600;line-height:1.35}td.cm .sem{color:#B3B9BE}
-.gpv{display:flex;align-items:center;gap:5px;margin-top:4px;flex-wrap:wrap}.gpb{width:26px;height:26px;flex:none;border-radius:8px;border:1px solid #D3D8DB;background:#fff;color:#7A8085;font:700 13px Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.gpv{display:flex;align-items:center;gap:5px;margin-top:4px;flex-wrap:wrap}.gpb{width:24px;height:24px;flex:none;border-radius:8px;border:1px solid #D3D8DB;background:#fff;color:#7A8085;font:700 13px Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
 .gpb.ok:hover{border-color:#4F8A72;color:#3D7A61}.gpb.nao:hover{border-color:#B4532E;color:#B4532E}.gpb.ok.on{background:#4F8A72;border-color:#4F8A72;color:#fff}.gpb.nao.on{background:#B4532E;border-color:#B4532E;color:#fff}
-.gpv .gcm{margin-top:0}.gcmp .bt.nao{background:#B4532E;border-color:#B4532E}.gcmp textarea.er{border-color:#B4532E;box-shadow:0 0 0 2px #F6E0D6}
+.gpb.cm svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round}.gpb.cm.on{background:#EEF3F9;border-color:#C9D8EA;color:#2F5D8A}.gpb.cm:hover{border-color:#2F5D8A;color:#2F5D8A}
+.gct{display:block;margin-top:3px;font-size:12px;line-height:1.35;color:#2F5D8A;cursor:pointer}.gct b{font-weight:700}.gpv .etq{margin:0}.gcmp .bt.nao{background:#B4532E;border-color:#B4532E}.gcmp textarea.er{border-color:#B4532E;box-shadow:0 0 0 2px #F6E0D6}
 .gcm{display:block;text-align:left;margin-top:4px;background:none;border:1px dashed #B8C7D9;border-radius:8px;padding:4px 9px;font:600 11.5px Inter,sans-serif;color:#2F5D8A;cursor:pointer}.gcm.on{border:1px solid #C9D8EA;background:#EEF3F9;font-weight:500;font-size:12px;color:#1D2226;line-height:1.35}.gcm.on b{display:block;font-size:10.5px;color:#2F5D8A;text-transform:uppercase;letter-spacing:.04em}
 .gcmp{position:fixed;z-index:70;width:340px;max-width:calc(100vw - 24px);background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:0 18px 44px rgba(0,0,0,.2);padding:12px;display:flex;flex-direction:column;gap:6px;font-family:Inter,sans-serif}.gcmp small{color:var(--mu);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gcmp textarea{width:100%;box-sizing:border-box;border:1px solid var(--bd);border-radius:9px;padding:8px 10px;font:13px Inter,sans-serif;resize:vertical}.gcmp div{display:flex;gap:6px;justify-content:flex-end}
 .fxb{background:none;border:0;padding:2px;margin-left:3px;cursor:pointer;color:#A9AEB3;vertical-align:-2px;line-height:0}.fxb svg,.ib svg.fx{width:11px;height:11px}.fxb svg{fill:none;stroke:currentColor;stroke-width:1.3;stroke-linejoin:round}.fxb.on{color:#1D2226}.fxb.on svg{fill:#1D2226}
@@ -314,11 +320,15 @@ const corEtq = (e) => e && e.n ? ETQ_PAL[e.c || ETQ_INI[e.n] || "cinza"] || ETQ_
 let COM = (() => { try { return localStorage.getItem("gestor_com2") !== "0"; } catch (e) { return true; } })();   // ligado por padrão (23/11/2026)
 const BALAO = '<svg class="ici" viewBox="0 0 16 16"><path d="M2.5 3.5h11v7.5H7l-3 2.5V11H2.5z"/></svg>';
 // comentário do gestor (24/11/2026, migração 118): fica na mesma coluna, em azul, e chega ao gabinete com aviso
+// coluna Comentários compacta (24/11/2026): numa linha a etiqueta, ✓ ✕ e o balão de comentar; embaixo, o recado do gabinete (vermelho)
+// e o comentário do gestor (azul), em texto corrido, sem caixas
+const BAL = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7.5H7l-3 2.5V11H2.5z"/></svg>';
 const comCel = (x) => { const c = corEtq(x.etq), nova = x._st === "n";
-  return `${c ? `<span class="etq" style="background:${c[0]};color:${c[1]}">${esc(x.etq.n)}</span>` : ""}${x.nota ? `<span class="rec">${esc(x.nota)}</span>` : ""}`
-    + (nova ? "" : `<div class="gpv">${ABERTO ? `<button class="gpb ok${x.pa === "ok" ? " on" : ""}" data-gpv="ok" title="${x.pa === "ok" ? "Tirar o ✓" : "De acordo com esta emenda"}" aria-label="De acordo">✓</button><button class="gpb nao${x.pa === "nao" ? " on" : ""}" data-gpv="nao" title="${x.pa === "nao" ? "Tirar o ✕" : "Não de acordo (precisa comentar)"}" aria-label="Não de acordo">✕</button>` : x.pa ? `<span class="gpb ${x.pa} on">${x.pa === "ok" ? "✓" : "✕"}</span>` : ""}`
-      + (!x.ng && ABERTO ? `<button class="gcm" data-gcm>+ comentar</button>` : "") + `</div>`
-      + (x.ng ? `<button class="gcm on" data-gcm title="Editar o seu comentário"><b>Seu comentário</b>${esc(x.ng)}</button>` : !ABERTO && !c && !x.nota && !x.pa ? `<span class="sem">—</span>` : "")); };
+  const bts = nova ? "" : ABERTO ? `<button class="gpb ok${x.pa === "ok" ? " on" : ""}" data-gpv="ok" title="${x.pa === "ok" ? "Tirar o ✓" : "De acordo com esta emenda"}" aria-label="De acordo">✓</button><button class="gpb nao${x.pa === "nao" ? " on" : ""}" data-gpv="nao" title="${x.pa === "nao" ? "Tirar o ✕" : "Não de acordo (precisa comentar)"}" aria-label="Não de acordo">✕</button><button class="gpb cm${x.ng ? " on" : ""}" data-gcm title="${x.ng ? "Editar o seu comentário" : "Comentar"}" aria-label="Comentar">${BAL}</button>`
+    : x.pa ? `<span class="gpb ${x.pa} on">${x.pa === "ok" ? "✓" : "✕"}</span>` : "";
+  const l1 = (c ? `<span class="etq" style="background:${c[0]};color:${c[1]}">${esc(x.etq.n)}</span>` : "") + bts;
+  return (l1 ? `<div class="gpv">${l1}</div>` : "") + (x.nota ? `<span class="rec">${esc(x.nota)}</span>` : "")
+    + (x.ng ? `<span class="gct"${ABERTO ? ' data-gcm role="button" title="Editar o seu comentário"' : ""}><b>Você:</b> ${esc(x.ng)}</span>` : "") + (!l1 && !x.nota && !x.ng ? `<span class="sem">—</span>` : ""); };
 // parecer do gestor (24/11/2026, migração 119): ✓ de acordo; ✕ não de acordo, exige comentário; tocar de novo tira
 async function gravaParecer(x, pa, texto) { await rpc("gestor_avaliar", { p_token: TOKEN, p_item: x.id, p_parecer: pa || "", p_texto: texto || null }); const v = texto ? texto.trim() : null;
   [ST, ORIG].forEach((A) => { const y = A.find((z) => z.id === x.id); if (y) { y.pa = pa || null; if (v) { y.ng = v; y.ngEm = new Date().toISOString(); } } }); redesenha(); }
