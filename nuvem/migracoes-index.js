@@ -2505,5 +2505,28 @@ const MIGRACOES_INDEX = [
     "notificacoes.resolvida_em"
    ]
   ]
+ },
+ {
+  "num": 118,
+  "arquivo": "migracao-118-comentario-gestor.sql",
+  "descricao": "Migração 118 (24/11/2026): COMENTÁRIO DO GESTOR por emenda.",
+  "objetos": [
+   [
+    "function",
+    "gestor_comentar"
+   ],
+   [
+    "function",
+    "gestor_abrir"
+   ],
+   [
+    "column",
+    "gab_itens.nota_gestor"
+   ],
+   [
+    "column",
+    "gab_itens.nota_gestor_em"
+   ]
+  ]
  }
 ];
