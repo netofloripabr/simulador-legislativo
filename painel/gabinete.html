@@ -787,6 +787,12 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 
 /* justificativa embaixo do objeto (botão "Justificativa") */
 #indPg td.iob > div.ijus{ display:block; font-size:11.5px; line-height:1.45; color:var(--mu); margin:2px 8px 4px; white-space:pre-wrap; }
+#indPg td.iob > div.ijus{ display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; text-align:justify; hyphens:auto; -webkit-hyphens:auto; white-space:normal; }
+#indPg td.iob > div.ijus.ab{ display:block; -webkit-line-clamp:unset; white-space:pre-wrap; }
+#indPg .ijm{ display:inline-block; background:none; border:0; padding:0; margin:0 8px 4px; font:600 11px Inter; color:#2F5D8A; cursor:pointer; }
+/* município quebra linha (24/11/2026): fora de edição mostra o texto inteiro; ao tocar, o campo de digitação aparece por cima */
+#indPg .imw{ position:relative; min-height:34px; display:flex; align-items:center; } #indPg .imw .imv{ display:block; padding:6px 8px; font:600 13px Inter; color:#1D2226; line-height:1.3; white-space:normal; word-break:break-word; pointer-events:none; }
+#indPg .imw .imv:empty{ display:none; } #indPg .imw:not(:focus-within) .imv:not(:empty) ~ input, #indPg .imw:not(:focus-within) input:not(:placeholder-shown){ position:absolute; inset:0; opacity:0; } #indPg .imw:focus-within .imv{ display:none; }
 #indPg .iacs .inov{ margin-left:auto; width:34px; height:34px; padding:0 !important; border-radius:50% !important; border:0 !important; background:#1FA845 !important; color:#fff !important; display:inline-flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(31,168,69,.35); cursor:pointer; } #indPg .iacs .inov svg{ width:16px; height:16px; stroke:#fff; } #indPg .iacs .inov:hover{ background:#178C39 !important; }
 #indPg .iacs [data-iport] svg{ width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
 #indPg .iacs [data-ijus], #indPg .iacs [data-ietqcol]{ display:inline-flex; align-items:center; gap:5px; } #indPg .iacs [data-ijus] svg, #indPg .iacs [data-ietqcol] svg{ width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
@@ -848,7 +854,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=96"></script>
+<script src="gabinete-indicar.js?cb=97"></script>
 <script src="gabinete-ind-links.js?cb=26"></script>
 <script src="gabinete-ind-gestor.js?cb=7"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
