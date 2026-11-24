@@ -45,7 +45,7 @@ function barraSeg(c, it, tot) {
   const val = (x) => +x.valor || 0, nat = (x) => x.natureza === "Capital" ? "cap" : x.natureza === "Custeio" ? "cus" : "def";
   const grp = (f) => { const o = { cap: 0, cus: 0, def: 0, t: 0 }; it.filter(f).forEach((x) => { o[nat(x)] += val(x); o.t += val(x); }); return o; };
   const S = grp((x) => x.area === "Saúde"), F = grp((x) => x.area !== "Saúde"), A = { cap: S.cap + F.cap, cus: S.cus + F.cus, def: S.def + F.def, t: S.t + F.t };
-  const pc = (v, d) => d ? Math.round(v / d * 100) : 0, CN = { cap: "#2F5D8A", cus: "#8FB3D4", def: "#D3D8DB" };
+  const pc = (v, d) => d ? Math.round(v / d * 100) : 0, CN = { cap: "#3A5F86", cus: "#93AECB", def: "#D5DCE3" };   // paleta harmonizada (24/11/2026): ardósia, sálvia e terracota
   const ICQ = { cota: '<path d="M3 16.5h14M5 13.5V9M9 13.5V5M13 13.5V7.5"/>', sau: '<path d="M8 3h4v5h5v4h-5v5H8v-5H3V8h5z"/>', fun: '<path d="M3 17h14M4.5 17V8.5L10 4l5.5 4.5V17"/><path d="M8 17v-4.5h4V17"/>' };
   const ic = (k) => `<div class="q5i"><svg viewBox="0 0 20 20">${ICQ[k]}</svg></div>`;
   // investimento × custeio (24/11/2026, protótipo J aprovado: prototipos/cota-visual): agulha na meta de 70% de investimento e % que
@@ -61,15 +61,15 @@ function barraSeg(c, it, tot) {
     if (parte) { const ac = o.t > m + .005;
       return `<div class="q5k${ac ? " fl" : ""}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
       <div class="q5n"><b>${pc(o.t, m)}%</b><small><em>${rc(o.t)}</em> de ${rc(m)}</small><span class="q5c${ac ? " fl" : ""}">${ac ? "acima em " + rc(o.t - m) : "livre " + rc(m - o.t)}</span></div>
-      <div class="q5b"><div class="q5f" style="width:${(Math.min(o.t, esc) / esc * 100).toFixed(1)}%"><i style="flex:1;background:#2A2F33"></i></div>${ac ? `<b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b>` : ""}</div>
+      <div class="q5b"><div class="q5f" style="width:${(Math.min(o.t, esc) / esc * 100).toFixed(1)}%"><i style="flex:1;background:#34506B"></i></div>${ac ? `<b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b>` : ""}</div>
 ${div(o, "Investimento e custeio")}</div>`; }
     return `<div class="q5k ${ok ? "ok" : "fl"}"><div class="q5t">${ic(k)}<span><b>${nome}</b>${sub}</span></div>
       <div class="q5n"><b>${pc(o.t, m)}%</b><small><em>${rc(o.t)}</em> de ${rc(m)}</small><span class="q5c ${ok ? "ok" : "fl"}">${ok ? "✓ atingido" : "faltam " + rc(m - o.t)}</span></div>
-      <div class="q5b"><div class="q5f" style="width:${(o.t / esc * 100).toFixed(1)}%"><i style="flex:1;background:${ok ? "#1FA845" : "#2A2F33"}"></i></div><b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b></div>
+      <div class="q5b"><div class="q5f" style="width:${(o.t / esc * 100).toFixed(1)}%"><i style="flex:1;background:${ok ? "#4F8A72" : "#34506B"}"></i></div><b class="q5m" style="left:${(m / esc * 100).toFixed(1)}%"></b></div>
 ${div(o, "Investimento e custeio")}</div>`; };
   return `<div class="t w4 q5"><div class="q5k"><div class="q5t">${ic("cota")}<span><b>Cota indicada</b></span></div>
       <div class="q5n"><b>${pc(tot, c.disp)}%</b><small><em>${rc(tot)}</em> de ${rc(c.disp)}</small>${tot > c.disp + .005 ? `<span class="q5c fl">acima em ${rc(tot - c.disp)}</span>` : ""}</div>
-      <div class="q5b"><div class="q5f" style="width:${Math.min(100, tot / c.disp * 100).toFixed(1)}%"><i style="flex:1;background:#2A2F33"></i></div></div>
+      <div class="q5b"><div class="q5f" style="width:${Math.min(100, tot / c.disp * 100).toFixed(1)}%"><i style="flex:1;background:#34506B"></i></div></div>
       ${div(A, "Investimento e custeio · de tudo o que foi indicado")}</div>
     ${c.saude ? `<div class="q5tr"></div><div class="q5g">${grupo("Saúde", "sau", S, c.saude, `mínimo de ${Math.round(c.saude * 100)}% da cota`)}${grupo("FUNDAM", "fun", F, 1 - (c.saude || 0), `até ${Math.round((1 - (c.saude || 0)) * 100)}% da cota · demais funções`, true)}</div>` : ""}</div>`;
 }
