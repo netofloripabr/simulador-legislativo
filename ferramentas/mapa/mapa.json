@@ -125,6 +125,10 @@
   [
    "22/11/2026",
    "Link Gestor aprovado: uma pessoa de confiança vê e edita a lista de indicação inteira por link, sem login (página 'Gestor da lista'). É a 4ª exceção à regra de 05/11 (nada aberto sem login), junto com a Calculadora das comissões e o Indicar com o líder. As mudanças voltam para a planilha marcadas (alterada / nova / excluir) e só valem depois do ✓ aceitar; o Link Gestor fica fora da coluna Etapa, dos links dos líderes e do certificado."
+  ],
+  [
+   "24/11/2026",
+   "Balão de avisos no Gabinete: avisos do link do líder, do Link Gestor e pedidos de reabrir aparecem num balão flutuante, com 'Resolvido' por aviso (usa a tabela notificacoes, migração 117)."
   ]
  ],
  "paginas": [
@@ -478,7 +482,7 @@
    "arquivo": "painel/indicar-lider.html",
    "ancora": "Indicação de emendas",
    "dados": "banco: gab_links, gab_link_propostas (migração 103); funções link_abrir, link_salvar, link_enviar liberadas para anon",
-   "nota": "Fora do menu. Qualquer pessoa com o link, sem login (não carrega exige-conta.js). O líder só vê as emendas daquele link, pelo código, e só até o prazo; o que preenche vira proposta para a equipe aceitar ou recusar no Indicar do Gabinete. Ao enviar, o link tranca e só reabre com autorização do gabinete (migração 113). ETIQUETA E RECADO (23/11/2026): cada emenda mostra a etiqueta que o gabinete deu (mesma cor da planilha) e, quando houver, o quadro 'Recado do gabinete'. O objeto escolhido do Portfólio (inclusive o que o gabinete já preencheu) aparece com etiqueta verde 'Portfólio ✅'; o que não é do Portfólio segue 'fora do Portfólio' em vermelho. Migração 114 (nota_lider em gab_itens; link_abrir devolve etiqueta e recado). AO VIVO (23/11/2026): a cada abertura o link pega as emendas que hoje são daquele líder/contato (migração 115, link_itens_atuais); antes guardava a lista do dia da criação. Proposta já aceita ou recusada não se sobrepõe mais ao que está na planilha (a planilha é a verdade). RELÊ AO VOLTAR (23/11/2026): sempre que o líder volta para a aba, relê a planilha (emendas, valores, etiquetas, recados), no máximo a cada 20 s, sem polling, nunca no meio de digitação ou salvamento. BOTÃO PORTFÓLIO (23/11/2026): no topo, ao lado do 'i', baixa a lista de objetos do Portfólio em planilha (portfolio-emendas.csv)."
+   "nota": "Fora do menu. Qualquer pessoa com o link, sem login (não carrega exige-conta.js). O líder só vê as emendas daquele link, pelo código, e só até o prazo; o que preenche vira proposta para a equipe aceitar ou recusar no Indicar do Gabinete. Ao enviar, o link tranca e só reabre com autorização do gabinete (migração 113). ETIQUETA E RECADO (23/11/2026): cada emenda mostra a etiqueta que o gabinete deu (mesma cor da planilha) e, quando houver, o quadro 'Recado do gabinete'. O objeto escolhido do Portfólio (inclusive o que o gabinete já preencheu) aparece com etiqueta verde 'Portfólio ✅'; o que não é do Portfólio segue 'fora do Portfólio' em vermelho. Migração 114 (nota_lider em gab_itens; link_abrir devolve etiqueta e recado). AO VIVO (23/11/2026): a cada abertura o link pega as emendas que hoje são daquele líder/contato (migração 115, link_itens_atuais); antes guardava a lista do dia da criação. Proposta já aceita ou recusada não se sobrepõe mais ao que está na planilha (a planilha é a verdade). RELÊ AO VOLTAR (23/11/2026): sempre que o líder volta para a aba, relê a planilha (emendas, valores, etiquetas, recados), no máximo a cada 20 s, sem polling, nunca no meio de digitação ou salvamento. BOTÃO PORTFÓLIO (23/11/2026): no topo, ao lado do 'i', baixa a lista de objetos do Portfólio em planilha (portfolio-emendas.csv). 24/11/2026: ao enviar, o líder agora também gera aviso no gabinete (balão de avisos da capa; migração 117)."
   },
   {
    "id": "gestor-lista",
@@ -489,7 +493,7 @@
    "arquivo": "painel/gestor-lista.html",
    "ancora": "Link Gestor",
    "dados": "banco: gab_links (tipo 'gestor'), gab_link_propostas (migração 109); funções gestor_abrir, gestor_enviar, gestor_desistir liberadas para anon",
-   "nota": "Fora do menu. Quem tem o link, sem login (não carrega exige-conta.js), vê a lista inteira e propõe editar, incluir e excluir (lápis, lixeira, + verde; valor, objeto e líder obrigatórios). Quadro da cota (cota, indicado, livre, emendas; metas Saúde 50% mínimo, Investimento 70% meta, FUNDAM até 50%, clicáveis com detalhamento), % distribuição por região e líder, busca, ordenação por coluna, Imprimir no padrão de relatório, cartões no celular e lista 'enviadas, aguardando o gabinete' com desistir. Nada muda na lista oficial antes do ✓ da equipe, no Indicar do Gabinete. A conta da cota repete a da planilha (barraSeg em painel/gabinete-indicar.js): mudar num lado muda no outro. Protótipo: prototipos/indicacao/edicao-compartilhada.html. Relê a lista do gabinete ao voltar para a aba (no máximo a cada 20 s, sem polling, nunca no meio de uma edição), mantendo as mudanças ainda não enviadas. Filtro por coluna no padrão da planilha (funil em Município/Região, Objeto, Área/Despesa e Líder; o funil da barra abre todos, útil nos cartões), guardado no navegador, com a linha 'Filtrado · N emendas · R$' e o total da lista. COMENTÁRIOS (23/11/2026): botão de balão 'Comentários' na barra liga/desliga a coluna Comentários (etiqueta do gabinete na cor da planilha e recado em vermelho) e pinta a linha na cor da etiqueta; a escolha fica guardada no navegador. Migração 116 (gestor_abrir devolve etq e nota_lider). Observações internas continuam só do gabinete. BOTÃO PORTFÓLIO (23/11/2026): ícone de download na barra baixa a lista de objetos do Portfólio (portfolio-emendas.csv)."
+   "nota": "Fora do menu. Quem tem o link, sem login (não carrega exige-conta.js), vê a lista inteira e propõe editar, incluir e excluir (lápis, lixeira, + verde; valor, objeto e líder obrigatórios). Quadro da cota (cota, indicado, livre, emendas; metas Saúde 50% mínimo, Investimento 70% meta, FUNDAM até 50%, clicáveis com detalhamento), % distribuição por região e líder, busca, ordenação por coluna, Imprimir no padrão de relatório, cartões no celular e lista 'enviadas, aguardando o gabinete' com desistir. Nada muda na lista oficial antes do ✓ da equipe, no Indicar do Gabinete. A conta da cota repete a da planilha (barraSeg em painel/gabinete-indicar.js): mudar num lado muda no outro. Protótipo: prototipos/indicacao/edicao-compartilhada.html. Relê a lista do gabinete ao voltar para a aba (no máximo a cada 20 s, sem polling, nunca no meio de uma edição), mantendo as mudanças ainda não enviadas. Filtro por coluna no padrão da planilha (funil em Município/Região, Objeto, Área/Despesa e Líder; o funil da barra abre todos, útil nos cartões), guardado no navegador, com a linha 'Filtrado · N emendas · R$' e o total da lista. COMENTÁRIOS (23/11/2026): botão de balão 'Comentários' na barra liga/desliga a coluna Comentários (etiqueta do gabinete na cor da planilha e recado em vermelho) e pinta a linha na cor da etiqueta; a escolha fica guardada no navegador. Migração 116 (gestor_abrir devolve etq e nota_lider). Observações internas continuam só do gabinete. BOTÃO PORTFÓLIO (23/11/2026): ícone de download na barra baixa a lista de objetos do Portfólio (portfolio-emendas.csv). 24/11/2026: ao enviar, o gestor agora também gera aviso no gabinete (balão de avisos da capa; migração 117)."
   },
   {
    "id": "gabinete",
@@ -583,6 +587,15 @@
        "arquivo": "painel/gabinete.js",
        "ancora": "function avisoCota",
        "nota": "Faixa no alto da capa, só para quem edita o gabinete."
+      },
+      {
+       "nome": "Balão de avisos",
+       "status": "pronto",
+       "quem": "cadastrado",
+       "arquivo": "painel/gabinete-avisos.js",
+       "ancora": "function painel",
+       "dados": "tabela notificacoes (tipo gab_equipe), coluna resolvida_em (migração 117); link_enviar e gestor_enviar passam a avisar o gabinete",
+       "nota": "Canto inferior direito, em painel/gabinete.html. Aparece quando há aviso do gabinete dos últimos 30 dias ainda não resolvido (líder enviou pelo link, gestor enviou pelo Link Gestor, pedido de reabrir). Os avisos vão para os responsáveis da equipe ou, sem equipe, para os admins. Tocar abre a janela 'Avisos' com cada aviso (título, quando, texto) e os botões 'Abrir a Indicação' (quando é de link) e 'Resolvido' (grava resolvida_em e lida_em). Abrir a janela conta como lido no sino do topo. O 'x' esconde o balão até chegar aviso novo. Lê ao abrir a página e ao voltar para a aba (no máximo a cada 60 s), sem polling."
       }
      ]
     },
