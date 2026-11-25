@@ -293,6 +293,7 @@ td.ac{width:70px}
 .q7mid{ display:inline-flex; flex-direction:column; align-items:center; background:var(--q7tk); border-radius:12px; padding:8px 16px; } .q7mid small{ justify-content:center; } .q7mid b{ font-size:15px; margin-top:2px; }
 @media (max-width:620px){ .q7{ padding:20px !important; } .q7rd{ grid-template-columns:1fr 1fr; } .q7rd > div:nth-child(2){ grid-column:1/-1; grid-row:2; text-align:left; } .q7h{ flex-direction:column; align-items:flex-start; } }
 .q7g{ margin-top:14px; padding:8px 28px 28px !important; } .q7k{ cursor:pointer; border-radius:12px; } .q7k:hover{ background:#F6F8FA; } .q7k.on{ box-shadow:0 0 0 2px var(--q7tx); }
+/* Portfólio: objetos incluídos em 25/11/2026 em verde até 31/12/2026 */ .pfi.pfnv{ background:#EAF7EE; box-shadow:inset 3px 0 0 #1FA83A; } .nvt{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#1FA83A; border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:1px; } .nvc{ font-style:normal; color:#1FA83A; font-weight:700; }
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
 <script src="../dados/regioes-sc.js"></script>
@@ -319,8 +320,8 @@ ICI.tabela = '<rect x="2.5" y="3" width="11" height="10" rx="1.2"/><path d="M2.5
 let MIN = (() => { try { return localStorage.getItem("gestor_min") === "1"; } catch (e) { return false; } })();
 // Portfólio (LC 898/2026, dados/painel/portfolio-objetos.json): só vale o objeto compatível com a área e a despesa da
 // emenda — mesma regra da planilha (portCompat em gabinete-indicar.js) e da página do líder; mudar lá = mudar aqui
-let PORT = [];
-const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
+let PORT = [], NV = false;
+const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca", "Pesca e Aquicultura"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
 const compatP = (area, nat) => PORT.filter((o) => { const A = AREA_P[area]; return (A ? A.includes(o[0]) : area ? o[0] !== "Saúde" : true) && (!nat || o[3] === nat || / ou /.test(o[3])); });
 const noPort = (obj, area, nat) => !!obj && compatP(area, nat).some((o) => norm(o[2]) === norm(obj));
 // convênio (entidade) não segue o Portfólio, que é só da Transferência Especial (25/11/2026): nunca marca "fora do portfólio"
@@ -364,8 +365,8 @@ function editaComentario(b, x, nao) { document.getElementById("gcmP")?.remove();
     p.querySelectorAll("button").forEach((q) => q.disabled = true); try { await gravaParecer(x, "nao", ta.value); fecha(); } catch (e) { p.querySelectorAll("button").forEach((q) => q.disabled = false); alert("Não foi possível marcar: " + (e.message || e)); } }; const cx = p.querySelector("[data-cx]"); if (cx) cx.onclick = () => grava("");
   ta.onkeydown = (e) => { if (e.key === "Escape") fecha(); }; }
 // baixar o Portfólio (23/11/2026): planilha (CSV, abre no Excel/Planilhas) gerada da mesma lista usada na escolha do objeto
-async function baixarPortfolio() { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=2")).json(), q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
-  const txt = [["Área", "Categoria", "Objeto", "Despesa", "Órgão", "Descrição"], ...(j.O || [])].map((r) => r.map(q).join(";")).join("\r\n");
+async function baixarPortfolio() { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=3")).json(), q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const txt = [["Área", "Categoria", "Objeto", "Despesa", "Órgão", "Descrição", "Novo"], ...(j.O || []).map((r) => [...r.slice(0, 6), r[6] ? "novo até 31/12/2026" : ""])].map((r) => r.map(q).join(";")).join("\r\n");
   const a = document.createElement("a"); a.href = window.URL.createObjectURL(new Blob(["\ufeff" + txt], { type: "text/csv;charset=utf-8" })); a.download = "portfolio-emendas.csv"; document.body.appendChild(a); a.click(); setTimeout(() => { window.URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   } catch (e) { alert("Não foi possível baixar o Portfólio: " + (e.message || e)); } }
 const ICO_BX = '<svg viewBox="0 0 16 16" aria-hidden="true" class="ibx"><path d="M8 2.5v8M4.5 7L8 10.5 11.5 7M3 13.5h10"/></svg>';
@@ -545,9 +546,9 @@ function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova
     const L = compatP(area, nat), q = norm($("#f_obj").value).split(/\s+/).filter((p) => p.length > 2), V = q.length ? L.filter((o) => q.every((p) => norm(o[2] + " " + o[1] + " " + o[5]).includes(p))) : L, M = V.length ? V : L;
     $("#f_ph").textContent = `· ${L.length} ${L.length === 1 ? "item" : "itens"} do Portfólio para ${area} · ${nat === "Capital" ? "capital" : "custeio"}`;
     const busca = q.length && V.length, G = new Map(); M.forEach((o) => { if (!G.has(o[1])) G.set(o[1], []); G.get(o[1]).push(o); });
-    const it = (o) => `<button type="button" class="pfi${norm(o[2]) === norm($("#f_obj").value) ? " on" : ""}" data-o="${esc(o[2])}">${esc(o[2])}<small>${esc(o[3])}${o[5] ? " · " + esc(o[5]) : ""}</small></button>`;
+    const it = (o) => `<button type="button" class="pfi${norm(o[2]) === norm($("#f_obj").value) ? " on" : ""}${NV && o[6] ? " pfnv" : ""}" data-o="${esc(o[2])}"${NV && o[6] ? ' title="Incluído no Portfólio em 25/11/2026"' : ""}>${NV && o[6] ? '<b class="nvt">Novo</b>' : ""}${esc(o[2])}<small>${esc(o[3])}${o[5] ? " · " + esc(o[5]) : ""}</small></button>`;
     po.innerHTML = (q.length && !V.length ? `<div class="pfc vz">Nada parecido no Portfólio · todos os itens desta área e despesa:</div>` : "") + [...G].map(([c, A]) => { const ab = busca || ABR.has(c) || A.length <= N0 + 1, ver = ab ? A : A.slice(0, N0);
-      return `<div class="pfs"><div class="pfc">${esc(c)}<span>${A.length}</span></div>${ver.map(it).join("")}${A.length > N0 + 1 && !busca ? `<button type="button" class="pfm" data-pfm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - N0} de ${esc(c.toLowerCase())}`}</button>` : ""}</div>`; }).join("") || `<div class="pfc vz">O Portfólio não tem itens para esta área e despesa.</div>`;
+      return `<div class="pfs"><div class="pfc">${esc(c)}<span>${A.length}${NV && A.some((o) => o[6]) ? ` · <i class="nvc">${A.filter((o) => o[6]).length} ${A.filter((o) => o[6]).length === 1 ? "novo" : "novos"}</i>` : ""}</span></div>${ver.map(it).join("")}${A.length > N0 + 1 && !busca ? `<button type="button" class="pfm" data-pfm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - N0} de ${esc(c.toLowerCase())}`}</button>` : ""}</div>`; }).join("") || `<div class="pfc vz">O Portfólio não tem itens para esta área e despesa.</div>`;
     po.querySelectorAll("[data-pfm]").forEach((b) => b.onclick = () => { const c = b.dataset.pfm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = po.scrollTop; pf(); po.scrollTop = y; });
     po.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => { $("#f_obj").value = b.dataset.o; $("#f_obj").classList.remove("er"); pf(); });
     marca(); };
@@ -716,7 +717,7 @@ function pendHtml() { if (!PEND.length) return "";
   const nome = (p) => { const x = ORIG.find((y) => y.id === p.item_id), d = p.dados || {}; return p.acao === "incluir" ? `Nova · ${esc(d.municipio || "sem município")} · ${esc(d.objeto || "")} · ${rc(d.valor || 0)}` : `${p.acao === "excluir" ? "Excluir" : "Alterar"} · ${esc(x ? x.mun || "—" : "emenda")} · ${esc(x ? x.obj || "" : "")}`; };
   return `<div class="pend"><b>Enviadas, aguardando o gabinete</b><span>${PEND.length} ${PEND.length === 1 ? "mudança" : "mudanças"} · o gabinete aceita ou recusa cada uma</span>${PEND.map((p) => `<div class="pl"><span class="tag ${p.acao === "incluir" ? "nw" : p.acao === "excluir" ? "x" : "m"}">${p.acao === "incluir" ? "nova" : p.acao === "excluir" ? "excluir" : "alterada"}</span><span class="pt">${nome(p)}</span>${ABERTO ? `<button class="ab lx" data-desiste="${p.id}" title="Desistir desta mudança">${ici("x")}</button>` : ""}</div>`).join("")}</div>`; }
 async function desistir(id) { if (!confirm("Desistir desta mudança enviada?")) return; try { await rpc("gestor_desistir", { p_token: TOKEN, p_id: id }); await carregar(); } catch (e) { alert("Não foi possível: " + (e.message || e)); } }
-async function carregar(junta) { const [l, pj] = await Promise.all([rpc("gestor_abrir", { p_token: TOKEN }), PORT.length ? null : fetch("../dados/painel/portfolio-objetos.json?v=2").then((r) => r.json()).catch(() => null)]); if (pj) PORT = pj.O || []; if (!l) throw new Error("link inválido");
+async function carregar(junta) { const [l, pj] = await Promise.all([rpc("gestor_abrir", { p_token: TOKEN }), PORT.length ? null : fetch("../dados/painel/portfolio-objetos.json?v=3").then((r) => r.json()).catch(() => null)]); if (pj) { PORT = pj.O || []; NV = !pj.novoAte || new Date() <= new Date(pj.novoAte + "T23:59:59-03:00"); } if (!l) throw new Error("link inválido");
   LK = l; ABERTO = !!l.aberto; PEND = l.pendentes || []; const c = l.cota || {}; COTA = +c.disp || 0; MAXE = +c.max || 0; SAUDE = c.saude != null ? +c.saude : .5;
   NOMEL = "Emendas " + (l.lista || ""); GAB = String(l.titulo || "").split(" · ")[0]; document.title = NOMEL + " · Link Gestor";
   // ao voltar para a aba (junta), a lista vem de novo do gabinete: o que o gestor está mexendo e ainda não enviou fica como está (23/11/2026)

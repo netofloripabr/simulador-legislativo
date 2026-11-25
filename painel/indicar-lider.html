@@ -125,6 +125,7 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 .bt.off{ opacity:.45; }
 @keyframes chama{ 0%,100%{ box-shadow:none; } 30%{ box-shadow:0 0 0 4px rgba(178,58,42,.25); } }
 .it.chama{ animation:chama 1.2s ease-in-out 2; }
+/* Portfólio: objetos incluídos em 25/11/2026 em verde até 31/12/2026 */ .po.ponv{ background:#EAF7EE; box-shadow:inset 3px 0 0 #1FA83A; } .nvt{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#1FA83A; border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:1px; } .nvc{ font-style:normal; color:#1FA83A; font-weight:700; }
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
 <script>
@@ -141,8 +142,8 @@ const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const CAD = '<svg viewBox="0 0 12 12"><rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5"/></svg>';
 // área da emenda (como está no gabinete) → áreas do Portfólio; FUNDAM ou sem área = tudo que não é Saúde
-const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
-let L = null, IT = [], ST = [], PORT = [], MUN = [], FECHA = null, ABERTO = false;
+const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca", "Pesca e Aquicultura"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
+let NV = false, L = null, IT = [], ST = [], PORT = [], MUN = [], FECHA = null, ABERTO = false;
 // só vale objeto do Portfólio compatível com a área e a despesa da emenda (20/11/2026); outro texto (inclusive o que veio da
 // planilha do gabinete) aparece em cinza claro com o aviso, não conta como preenchido e impede o envio
 // convênio (entidade) não segue o Portfólio (25/11/2026): qualquer objeto vale e não aparece "fora do Portfólio"
@@ -160,9 +161,9 @@ const msg = (t, s) => { document.getElementById("app").innerHTML = `<div class="
 async function iniciar() {
   if (!TOKEN) return msg("Link incompleto", "Peça ao gabinete para enviar o link de novo.");
   msg("Carregando…");
-  try { const [l, p, b] = await Promise.all([rpc("link_abrir", { p_token: TOKEN }), fetch("../dados/painel/portfolio-objetos.json?v=2").then((r) => r.json()), fetch("../dados/painel/sc-base.json").then((r) => r.json())]);
+  try { const [l, p, b] = await Promise.all([rpc("link_abrir", { p_token: TOKEN }), fetch("../dados/painel/portfolio-objetos.json?v=3").then((r) => r.json()), fetch("../dados/painel/sc-base.json").then((r) => r.json())]);
     if (!l) return msg("Link inválido", "Este link não existe mais. Peça ao gabinete um link novo.");
-    L = l; IT = l.itens || []; PORT = p.O; MUN = b.mun.map((m) => m.n); FECHA = new Date(l.prazo); ABERTO = !!l.aberto;
+    L = l; IT = l.itens || []; PORT = p.O; NV = !p.novoAte || new Date() <= new Date(p.novoAte + "T23:59:59-03:00"); MUN = b.mun.map((m) => m.n); FECHA = new Date(l.prazo); ABERTO = !!l.aberto;
     const P = {}; (l.propostas || []).forEach((x) => { P[x.item_id] = x; });
     // proposta já decidida (aceita ou recusada) não manda mais na tela (23/11/2026): a planilha do gabinete é a verdade e o link
     // mostra o que está nela agora; a proposta só vale enquanto o líder ainda está mexendo (rascunho) ou esperando (enviado)
@@ -177,8 +178,8 @@ const ETQ_PAL = { cinza: ["#E3E6E8", "#3E454B"], vermelho: ["#FBD9D5", "#9B2C20"
 const ETQ_INI = { "Resolvido · falta enviar": "verde", "Em andamento": "amarelo", "Atenção": "laranja", "Crítico": "vermelho", "Aguardando retorno": "azul" };
 const etqChip = (e) => { if (!e || !e.n) return ""; const [bg, fg] = ETQ_PAL[e.c || ETQ_INI[e.n] || "cinza"] || ETQ_PAL.cinza; return `<span class="etq" style="background:${bg};color:${fg}">${esc(e.n)}</span>`; };
 // baixar o Portfólio (23/11/2026): planilha (CSV, abre no Excel/Planilhas) gerada da mesma lista usada na escolha do objeto
-async function baixarPortfolio() { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=2")).json(), q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
-  const txt = [["Área", "Categoria", "Objeto", "Despesa", "Órgão", "Descrição"], ...(j.O || [])].map((r) => r.map(q).join(";")).join("\r\n");
+async function baixarPortfolio() { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=3")).json(), q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const txt = [["Área", "Categoria", "Objeto", "Despesa", "Órgão", "Descrição", "Novo"], ...(j.O || []).map((r) => [...r.slice(0, 6), r[6] ? "novo até 31/12/2026" : ""])].map((r) => r.map(q).join(";")).join("\r\n");
   const a = document.createElement("a"); a.href = window.URL.createObjectURL(new Blob(["\ufeff" + txt], { type: "text/csv;charset=utf-8" })); a.download = "portfolio-emendas.csv"; document.body.appendChild(a); a.click(); setTimeout(() => { window.URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   } catch (e) { alert("Não foi possível baixar o Portfólio: " + (e.message || e)); } }
 const ICO_BX = '<svg viewBox="0 0 16 16" aria-hidden="true" class="ibx"><path d="M8 2.5v8M4.5 7L8 10.5 11.5 7M3 13.5h10"/></svg>';
@@ -254,9 +255,9 @@ function escolher(i) { const x = IT[i], C = compat(x);
     const gab = x.objeto && ok(x.objeto) && portOk(i, x.objeto) ? `<div class="ipga">Do gabinete</div><button class="po" data-gab>${esc(x.objeto)} <span class="tg">Item do gabinete</span></button>` : "";
     // mesmo formato da lista do Link Gestor (23/11/2026): seções por categoria, 3 primeiros e "ver mais"; com pesquisa, tudo que bate
     const G = new Map(); R.forEach((o) => { if (!G.has(o[1])) G.set(o[1], []); G.get(o[1]).push(o); });
-    const it = (o) => `<button class="po" data-o="${C.indexOf(o)}">${esc(o[2])}<em>${esc([o[3], o[5]].filter(Boolean).join(" · "))}</em></button>`;
+    const it = (o) => `<button class="po${NV && o[6] ? " ponv" : ""}" data-o="${C.indexOf(o)}"${NV && o[6] ? ' title="Incluído no Portfólio em 25/11/2026"' : ""}>${NV && o[6] ? '<b class="nvt">Novo</b>' : ""}${esc(o[2])}<em>${esc([o[3], o[5]].filter(Boolean).join(" · "))}</em></button>`;
     l.innerHTML = gab + [...G].map(([c, A]) => { const ab = w.length || ABR.has(c) || A.length <= 4, ver = ab ? A : A.slice(0, 3);
-      return `<div class="pfs"><div class="pfc">${esc(c)}<span>${A.length}</span></div>${ver.map(it).join("")}${A.length > 4 && !w.length ? `<button class="pfm" data-pfm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - 3}`}</button>` : ""}</div>`; }).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
+      return `<div class="pfs"><div class="pfc">${esc(c)}<span>${A.length}${NV && A.some((o) => o[6]) ? ` · <i class="nvc">${A.filter((o) => o[6]).length} ${A.filter((o) => o[6]).length === 1 ? "novo" : "novos"}</i>` : ""}</span></div>${ver.map(it).join("")}${A.length > 4 && !w.length ? `<button class="pfm" data-pfm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - 3}`}</button>` : ""}</div>`; }).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
     l.querySelectorAll("[data-pfm]").forEach((b) => b.onclick = () => { const c = b.dataset.pfm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = l.scrollTop; lista(); l.scrollTop = y; });
     l.querySelector("[data-gab]")?.addEventListener("click", () => usa({ obj: x.objeto, fonte: "gab" }));
     l.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => usa({ obj: C[+b.dataset.o][2], fonte: "port" }));

@@ -125,8 +125,8 @@ const colOn = (k) => !COLS_OFF.includes(k);   // coluna Etiqueta: liga e desliga
 const nColInd = () => 1 + COLS_IND.filter(([k]) => k !== "jus" && colOn(k)).length; // nº e colunas visíveis (a justificativa vai dentro do objeto)
 // botão "Justificativa" (20/11/2026): liga e desliga o texto da justificativa embaixo do objeto, em todas as linhas
 // baixar o Portfólio (23/11/2026): planilha (CSV, abre no Excel/Planilhas) gerada da mesma lista usada na escolha do objeto
-async function baixarPortfolio() { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=2")).json(), q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
-  const txt = [["Área", "Categoria", "Objeto", "Despesa", "Órgão", "Descrição"], ...(j.O || [])].map((r) => r.map(q).join(";")).join("\r\n");
+async function baixarPortfolio() { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=3")).json(), q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+  const txt = [["Área", "Categoria", "Objeto", "Despesa", "Órgão", "Descrição", "Novo"], ...(j.O || []).map((r) => [...r.slice(0, 6), r[6] ? "novo até 31/12/2026" : ""])].map((r) => r.map(q).join(";")).join("\r\n");
   const a = document.createElement("a"); a.href = window.URL.createObjectURL(new Blob(["\ufeff" + txt], { type: "text/csv;charset=utf-8" })); a.download = "portfolio-emendas.csv"; document.body.appendChild(a); a.click(); setTimeout(() => { window.URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   } catch (e) { alert("Não foi possível baixar o Portfólio: " + (e.message || e)); } }
 const ICO_BX = '<svg viewBox="0 0 16 16" aria-hidden="true" class="ibx"><path d="M8 2.5v8M4.5 7L8 10.5 11.5 7M3 13.5h10"/></svg>';

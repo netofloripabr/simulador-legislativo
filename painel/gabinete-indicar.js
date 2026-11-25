@@ -269,15 +269,15 @@ function popLista(btn, itens, atual, escolhe) {
   pop.querySelectorAll("[data-li]:not([disabled])").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); pop.remove(); const v = itens[+b.dataset.li][0]; escolhe(v === atual ? null : v); });
   setTimeout(() => document.addEventListener("click", function f(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("click", f); } }), 0);
 }
-// objetos de referência (20/11/2026): primeiro o Portfólio de emendas (389 objetos padronizados da Transferência Especial,
+// objetos de referência (20/11/2026; lista nova de 678 objetos em 25/11/2026 — os 289 incluídos ficam em verde, "Novo", até 31/12/2026, campo novoAte do JSON): primeiro o Portfólio de emendas (389 objetos padronizados da Transferência Especial,
 // art. 9º, §4º, da LC 898/2026; dados/painel/portfolio-objetos.json), depois os objetos já usados pelo gabinete. Ao escolher um
 // objeto do Portfólio, a natureza (Capital ou Custeio) também é preenchida quando é uma só.
 let PORTF = null;
-async function lerPortfolio() { if (!PORTF) { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=2")).json(); PORTF = j.O.map(([area, cat, obj, nat, org, desc]) => ({ area, cat, obj, nat, org, desc })); } catch (e) { PORTF = []; } } return PORTF; }
+async function lerPortfolio() { if (!PORTF) { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=3")).json(); const nv = !j.novoAte || new Date() <= new Date(j.novoAte + "T23:59:59-03:00"); PORTF = j.O.map(([area, cat, obj, nat, org, desc, novo]) => ({ area, cat, obj, nat, org, desc, novo: !!novo && nv })); } catch (e) { PORTF = []; } } return PORTF; }
 // Portfólio limitado à função e à despesa da emenda (20/11/2026): Educação mostra só Educação (e Educação Especial), Saúde
 // só Saúde, FUNDAM ou sem função tudo que não é Saúde; com custeio/capital marcado, só os objetos dessa despesa.
 // "ver todo o Portfólio" tira o limite.
-const AREA_PORT = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
+const AREA_PORT = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca", "Pesca e Aquicultura"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
 const portCompat = (o, area, nat) => { const A = AREA_PORT[area]; return (A ? A.includes(o.area) : area ? o.area !== "Saúde" : true) && (!nat || o.nat === nat || / ou /.test(o.nat)); };
 function popObjeto(tr, T) {
   document.querySelectorAll(".ipop").forEach((x) => x.remove());
@@ -299,9 +299,9 @@ function popObjeto(tr, T) {
     const P = (await lerPortfolio()).filter((o) => (todos || portCompat(o, areaX, natX)) && w.every((k) => nn([o.obj, o.area, o.cat, o.desc, o.org].join(" ")).includes(k)));
     // mesmo formato da lista do Link Gestor (23/11/2026): seções por categoria (com a área quando é o Portfólio inteiro), 3 primeiros e "ver mais"
     const G = new Map(); P.forEach((o) => { const k = todos || !areaX ? o.area + " · " + o.cat : o.cat; if (!G.has(k)) G.set(k, []); G.get(k).push(o); });
-    const it = (o) => `<button class="ipi" data-p="${esc(o.obj)}" data-n="${esc(/ ou /.test(o.nat) ? "" : o.nat)}"><span>${esc(o.obj)}<em>${esc([o.nat, o.desc].filter(Boolean).join(" · "))}</em></span></button>`;
+    const it = (o) => `<button class="ipi${o.novo ? " ipnv" : ""}" data-p="${esc(o.obj)}" data-n="${esc(/ ou /.test(o.nat) ? "" : o.nat)}"${o.novo ? ' title="Incluído no Portfólio em 25/11/2026"' : ""}><span>${o.novo ? '<b class="ipnvt">Novo</b>' : ""}${esc(o.obj)}<em>${esc([o.nat, o.desc].filter(Boolean).join(" · "))}</em></span></button>`;
     l.innerHTML = P.length ? [...G].map(([c, A]) => { const ab = w.length || ABR.has(c) || A.length <= 4, ver = ab ? A : A.slice(0, 3);
-      return `<div class="ips"><div class="ipga">${esc(c)}<small>${A.length}</small></div>${ver.map(it).join("")}${A.length > 4 && !w.length ? `<button class="ipm" data-ipm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - 3}`}</button>` : ""}</div>`; }).join("") : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`;
+      return `<div class="ips"><div class="ipga">${esc(c)}<small>${A.length}${A.some((o) => o.novo) ? ` · <span class="ipnvc">${A.filter((o) => o.novo).length} ${A.filter((o) => o.novo).length === 1 ? "novo" : "novos"}</span>` : ""}</small></div>${ver.map(it).join("")}${A.length > 4 && !w.length ? `<button class="ipm" data-ipm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - 3}`}</button>` : ""}</div>`; }).join("") : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`;
     l.querySelectorAll("[data-ipm]").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); const c = b.dataset.ipm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = l.scrollTop; lista().then(() => { l.scrollTop = y; }); });
     if (pop._place) pop._place();
     l.querySelectorAll("[data-p]").forEach((o) => o.onclick = (ev) => { ev.stopPropagation(); escolhe(o.dataset.p, o.dataset.n); }); };
