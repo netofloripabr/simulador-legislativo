@@ -168,10 +168,11 @@ async function salvarLinha(T, tr, campos) {
     if (campos.valor != null && Math.abs((+nx.valor || 0) - campos.valor) > .005) alert("O valor digitado não foi gravado (ficou " + rc(+nx.valor || 0) + "). Confira a linha e digite de novo.");
     const ativo = document.activeElement, campoAt = ativo && tr.contains(ativo) ? ativo.dataset.c : null, sel = ativo && ativo.selectionStart;
     const doL = T.L ? AD.itens.filter((y) => y.lista_id === T.L.id) : T.k === "avulsos" ? AD.itens.filter((y) => !y.lista_id) : [], i0 = doL.findIndex((y) => y.id === nx.id), i = i0 >= 0 ? i0 : [...tr.parentNode.querySelectorAll("tr.iw")].indexOf(tr), ck = tr.nextElementSibling && tr.nextElementSibling.classList.contains("ick") ? tr.nextElementSibling : null;
+    const fixa = typeof window.indFixaLinha === "function" ? window.indFixaLinha(tr) : null;   // a linha fica no mesmo ponto da tela (25/11/2026)
     const tmp = document.createElement("tbody"); tmp.innerHTML = linhaInd(T, g, nx, i, true); if (ck) ck.remove();
     const novos = [...tmp.children]; tr.replaceWith(...novos); ligarLinha(novos[0], T); if (typeof ligarLinks === "function") novos.forEach((n) => ligarLinks(n, T));   // religa Observações, Etapa e Etiqueta da linha redesenhada
-    if (campoAt) { const el = novos[0].querySelector(`[data-c="${campoAt}"]`); if (el) { el.focus(); try { el.setSelectionRange(sel, sel); } catch (e) {} } }
-    atualizarResumoInd(T);
+    if (campoAt) { const el = novos[0].querySelector(`[data-c="${campoAt}"]`); if (el) { el.focus({ preventScroll: true }); try { el.setSelectionRange(sel, sel); } catch (e) {} } }
+    atualizarResumoInd(T); if (fixa) fixa();
   } catch (er) { alert("Não foi possível salvar: " + (er.message || er)); }
 }
 function atualizarResumoInd(T) { const g = regrasInd(T), it = T.L ? AD.itens.filter((x) => x.lista_id === T.L.id) : T.k === "avulsos" ? AD.itens.filter((x) => !x.lista_id) : [];
@@ -470,6 +471,10 @@ document.addEventListener("keydown", async (e) => { if (e.key !== "Escape" || !I
   // no celular a tabela rola dentro da própria caixa (.itw); no computador, a página (#indPg)
   const rolador = (p, el) => { const w = el.closest(".itw"); return w && w.scrollHeight > w.clientHeight + 2 && getComputedStyle(w).overflowY !== "visible" && getComputedStyle(w).overflowY !== "clip" ? w : p; };
   const repoe = (p, A) => { const el = p.querySelector(A.s); if (!el) return; const sc = rolador(p, el), d = el.getBoundingClientRect().top - p.getBoundingClientRect().top - A.top; if (Math.abs(d) > 1) sc.scrollTop += d; };
+  // a linha gravada é redesenhada no lugar (salvarLinha), sem passar pelo desenharInd: mesma trava, presa à própria linha
+  window.indFixaLinha = (tr) => { const p = document.getElementById("indPg"); if (!p || !tr || !tr.dataset.iw) return null; ANC = { id: tr.dataset.iw, t: Date.now() };
+    const A = { s: sel(tr.dataset.iw), top: tr.getBoundingClientRect().top - p.getBoundingClientRect().top };
+    return () => { repoe(p, A); requestAnimationFrame(() => { repoe(p, A); requestAnimationFrame(() => repoe(p, A)); }); setTimeout(() => repoe(p, A), 180); }; };
   desenharInd = function () { const p = document.getElementById("indPg"), A = p && IND.aberto && p.querySelector("tr.iw") ? ancora(p) : null, r = d0.apply(this, arguments);
     if (A && p) { repoe(p, A); requestAnimationFrame(() => { repoe(p, A); requestAnimationFrame(() => repoe(p, A)); }); setTimeout(() => repoe(p, A), 180); } return r; };
 })();
