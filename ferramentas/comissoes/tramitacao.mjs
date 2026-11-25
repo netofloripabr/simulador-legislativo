@@ -34,11 +34,12 @@ function lerTram(tr) { const T = []; for (const li of tr.split('<li class="timel
       // observação da tramitação (ex.: "Vista ao Deputado Fulano, solicitada na 13ª reunião…"), desde 19/11/2026
       const obs = limpa((li.match(/<p class="mb-1 text-primary fst-italic">\s*<small>([\s\S]*?)<\/small>/) || [])[1]) || null;
       T.push({ sit, d, de: sm[0] || null, para: sm[1] || null, ...(obs ? { obs } : {}) }); } return T.filter((x) => x.sit || x.d); }
-// 2) detalhes das que estão numa comissão
+// 2) detalhes de TODAS as não arquivadas (25/11/2026: antes só as que estavam numa comissão; as do Governador, TCE, TJ…
+//    que esperam leitura no Expediente, na Coordenadoria das Comissões ou em gabinetes ficavam de fora do painel)
 const EMCOM = LISTA.filter((p) => /^Comiss[ãa]o/i.test(p.setor || ""));
-log(`em comissão: ${EMCOM.length}`);
+log(`em comissão: ${EMCOM.length} · fora das comissões: ${LISTA.length - EMCOM.length}`);
 let i = 0;
-for (const p of EMCOM) { i++;
+for (const p of LISTA) { i++;
   const arq = join(CACHE, p.id + ".json"); let D = existsSync(arq) ? JSON.parse(readFileSync(arq, "utf8")) : null;
   if (!D || D.setor !== p.setor || D.situacao !== p.situacao || !D.v2 || (!D.v3 && (D.tram || []).some((x) => !x.sit && !x.d))) {
     let tr, ct; try { tr = await pegar(`${EL}/proposicoes/${p.id}/tramitacoes`); await espera(500); ct = await pegar(`${EL}/proposicoes/${p.id}/comissoes-tramitar`); await espera(500); }
@@ -57,7 +58,7 @@ for (const p of EMCOM) { i++;
       C.push({ nome, aguarda: /aguardando distribui/i.test(li), relatores: rows, parecer }); }
     D = { ...p, tram: T, ...(legado ? { legado } : {}), comissoes: C, v2: 1, v3: 1 }; writeFileSync(arq, JSON.stringify(D)); }
   Object.assign(p, D);
-  if (i % 25 === 0) log(`detalhes: ${i}/${EMCOM.length}`); }
+  if (i % 25 === 0) log(`detalhes: ${i}/${LISTA.length}`); }
 
-writeFileSync(join(RAIZ, "dados/painel/alesc-tramitacao.json"), JSON.stringify({ fonte: "ALESC — e-Legis (portalelegis.alesc.sc.gov.br): proposições não arquivadas, abas Tramitações e Comissões a tramitar", gerado: new Date().toISOString(), total_nao_arquivadas: LISTA.length, proposicoes: EMCOM }));
-log(`ok: ${EMCOM.length} proposições em comissão → dados/painel/alesc-tramitacao.json`);
+writeFileSync(join(RAIZ, "dados/painel/alesc-tramitacao.json"), JSON.stringify({ fonte: "ALESC — e-Legis (portalelegis.alesc.sc.gov.br): proposições não arquivadas, abas Tramitações e Comissões a tramitar", gerado: new Date().toISOString(), total_nao_arquivadas: LISTA.length, proposicoes: LISTA }));
+log(`ok: ${LISTA.length} proposições (${EMCOM.length} em comissão) → dados/painel/alesc-tramitacao.json`);

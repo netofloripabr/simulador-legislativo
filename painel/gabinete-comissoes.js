@@ -176,6 +176,7 @@ const CMP_CSS = `.cmp{ --fundo:#0B0F0D; --sup:#14191A; --sup2:#1B2022; --sup3:#2
 .cmp .rtc{ display:inline-flex; gap:5px; align-items:baseline; color:var(--sec); }
 .cmp .rtc em{ font-style:normal; font-size:10.5px; font-weight:800; background:var(--texto); color:#0B0F0D; border-radius:4px; padding:1px 5px; }
 .cmp .rtb{ display:flex; align-items:center; gap:3px; margin:6px 0 4px; }
+.cmp .fora1{ font-size:12.5px; color:var(--texto); margin:6px 0 4px; } .cmp .fora1 span{ color:var(--ter); } .cmp .fora2{ display:flex; gap:4px; flex-wrap:wrap; margin-bottom:4px; } .cmp .fora2 u{ text-decoration:none; font-size:10.5px; font-weight:700; border:1px dashed var(--linha2); border-radius:6px; padding:1px 6px; color:var(--ter); } .cmp .fora2.sm{ font-size:11.5px; color:var(--ter); }
 .cmp .rtp{ position:relative; flex:1; display:flex; gap:2px; height:16px; }
 .cmp .rtp i{ display:flex; align-items:center; justify-content:center; height:100%; min-width:3px; overflow:hidden; }
 .cmp .rtp i:first-child{ border-radius:5px 0 0 5px; } .cmp .rtp i:last-of-type{ border-radius:0 5px 5px 0; }
@@ -449,6 +450,7 @@ async function cmpAbrir() { const R = document.getElementById("cmpC"); if (!R ||
     <label class="leq"><span class="lq" title="Relator" aria-label="Relator"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="5.5" r="2.6"/><path d="M3 14c.6-2.8 2.6-4.2 5-4.2s4.4 1.4 5 4.2"/></svg></span><select id="fRel" class="lw"></select></label>
     <label class="leq"><span class="lq" title="Autor" aria-label="Autor"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 2.9l2.5 2.5-7.6 7.6-3.1.6.6-3.1z M9.2 4.3l2.5 2.5"/></svg></span><select id="fAut" class="lw"></select></label>
     <label class="leq"><span class="lq" title="Na comissão há" aria-label="Na comissão há"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 2h7 M4.5 14h7 M5.5 2c0 3.2 5 3.8 5 6s-5 2.8-5 6 M10.5 2c0 3.2-5 3.8-5 6s5 2.8 5 6"/></svg></span><select id="fIdade"><option value="">Qualquer tempo</option><option value="0">Até 30 dias</option><option value="1">31 a 90 dias</option><option value="2">Mais de 90 dias</option></select></label>
+    <label class="leq"><span class="lq" title="Onde está" aria-label="Onde está"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14.5s4.5-4.2 4.5-8a4.5 4.5 0 0 0-9 0c0 3.8 4.5 8 4.5 8z"/><circle cx="8" cy="6.5" r="1.6"/></svg></span><select id="fOnde"><option value="">Nas comissões</option><option value="fora">Fora das comissões</option><option value="todas">Todas</option></select></label>
     <button class="futb" id="futB" aria-pressed="false" title="Mostrar, no fim da lista, as proposições já distribuídas para a comissão escolhida que ainda não chegaram nela"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3l2 1.5"/><path d="M13.5 2.5v3h-3"/></svg>Futuro</button>
     <button class="imp" id="impB" title="Imprimir o que está filtrado"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 6V2h8v4 M4 12H2.5V6.5h11V12H12 M4 10h8v4H4z"/></svg></button>
     <button class="limpa" id="limpa">Limpar filtros</button>
@@ -462,9 +464,13 @@ function cmpIniciar(D, R, RES) {
 const $ = (s) => R.querySelector(s), esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 const ni = (n) => (n || 0).toLocaleString("pt-BR"), br = (d) => d ? d.split("-").reverse().join("/") : "—";
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-const F = { hm: "rel", vq: "", fx: null, hall: false, fut: false, flim: { p: 30, m: 30 }, cv: "cartoes", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
+const F = { onde: "", hm: "rel", vq: "", fx: null, hall: false, fut: false, flim: { p: 30, m: 30 }, cv: "cartoes", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", ord: ["casa", -1], vis: "lista", lim: 60, ab: null };
 const HOJE = new Date().toISOString().slice(0, 10), dd = (a, b) => a && b ? Math.max(0, Math.round((new Date(b) - new Date(a)) / 864e5)) : null;
 D.L.forEach((x) => { x.casa = dd(x.prot, HOJE); });
+// fora das comissões (25/11/2026): proposições não arquivadas que estão no Expediente, na Coordenadoria das Comissões, em
+// gabinetes ou secretarias (muitas do Governador, TCE, TJ). Ficam à parte (D.F) e entram na lista pelo filtro "Onde está".
+if (!D.F) { D.F = D.L.filter((x) => x.fora); D.L = D.L.filter((x) => !x.fora); }
+const fonte = () => F.onde === "fora" ? D.F : F.onde === "todas" ? D.L.concat(D.F) : D.L;
 // tema: o do resumo (1º nível) quando existe; senão o da classificação automática pela ementa
 const temaDe = (x) => (RES[x.id] && RES[x.id].t && RES[x.id].t[0] && RES[x.id].t[0][0]) || x.tema;
 const SIGN = new Map(D.coms.map(([c, s]) => [c, s])), sigDe = (nome) => { const n = String(nome || "").replace(/^Comiss[ãa]o (de |da |do |dos |das )?/i, ""); for (const [c, s] of SIGN) if (n.startsWith(c) || c.startsWith(n)) return s; return n; };
@@ -534,7 +540,7 @@ function quadroDe(L) { const VIS = F.hm === "vis", B2 = VIS ? L.filter((x) => x.
   B2.forEach((x) => { const k = quem(x); if (!R.has(k)) R.set(k, Array(HX.length).fill(0)); R.get(k)[ci(dias(x))]++; });
   const tot = (v) => v.reduce((p, q) => p + q, 0), rows = [...R].sort((p, q) => (p[0] === "(sem)" ? -1 : q[0] === "(sem)" ? 1 : tot(q[1]) - tot(p[1])));
   return { VIS, HX: HX.map((h) => h[0]), rows: rows.map(([k, v]) => [k === "(sem)" ? "Aguardando relator" : k === "(?)" ? "Não identificado" : k, v, tot(v)]), col: HX.map((_, i) => tot(rows.map(([, v]) => v[i]))), n: B2.length }; }
-const barraDe = (x) => { const { S, tot } = rito(x); return { S: S.map((e) => ({ k: e.k, d: e.d, s: e.s, t: e.t })), tot, mk: vistaMarcas(x, S, tot, 60), ini: x.lido ? "lido " + br(x.lido).slice(3) : br(x.prot).slice(3) }; };
+const barraDe = (x) => { if (x.fora) return null; const { S, tot } = rito(x); return { S: S.map((e) => ({ k: e.k, d: e.d, s: e.s, t: e.t })), tot, mk: vistaMarcas(x, S, tot, 60), ini: x.lido ? "lido " + br(x.lido).slice(3) : br(x.prot).slice(3) }; };
 function grade() {
   const base = D.L.filter((x) => (!F.com || x.com === F.com) && (!F.tipo || x.tipo === F.tipo) && (!F.tema || temaDe(x) === F.tema) && (!F.aut || x.autor === F.aut)
     && (!F.q || norm([x.tipo, x.num, x.ano, x.autor, x.rel, x.resumo, x.ementa].join(" ")).includes(norm(F.q))));
@@ -586,7 +592,7 @@ function comissoes() { if (F.cv === "rank") { $("#coms").innerHTML = ranking(); 
   if (F.com) $("#coms").insertAdjacentHTML("afterbegin", detCom(F.com));
   $("#stc").textContent = F.com ? "filtrando: " + F.com : ""; }
 function opcoes() { const S = (id, vals, t) => { const el = $(id), v = el.value; el.innerHTML = `<option value="">${t}</option>` + vals.map(([k, r]) => `<option value="${esc(k)}">${esc(r)}</option>`).join(""); el.value = v; };
-  const cont = (f) => { const M = new Map(); D.L.forEach((x) => { const k = f(x); if (k) M.set(k, (M.get(k) || 0) + 1); }); return [...M].sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, `${k} (${n})`]); };
+  const cont = (f) => { const M = new Map(); D.L.concat(D.F || []).forEach((x) => { const k = f(x); if (k) M.set(k, (M.get(k) || 0) + 1); }); return [...M].sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, `${k} (${n})`]); };
   S("#fTipo", cont((x) => x.tipo), "Todos"); S("#fTema", cont(temaDe), "Todos"); S("#fRel", [["(sem)", "Sem relator (" + D.L.filter((x) => !x.rel).length + ")"], ...cont((x) => x.rel).sort((a, b) => a[0].localeCompare(b[0], "pt-BR"))], "Todos"); S("#fAut", cont((x) => x.autor).sort((a, b) => a[0].localeCompare(b[0], "pt-BR")), "Todos"); }
 // ---------- detalhe (mesmo padrão do item do Controle de Recursos) ----------
 const P = { ok: '<path d="M3.5 8.5l3 3 6-7"/>', rel: '<circle cx="8" cy="5.5" r="2.6"/><path d="M3 14c.6-2.8 2.6-4.2 5-4.2s4.4 1.4 5 4.2"/>', cal: '<rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11 M5.5 2v3 M10.5 2v3"/>',
@@ -715,14 +721,19 @@ function linha(x) {
   return `<div class="lin${F.ab === x.id ? " ab" : ""}" data-id="${esc(x.id)}"><div class="le">${etq(x, 1)}</div>
     <div class="obj"><b>${esc(RES[x.id] ? RES[x.id].m : x.resumo)}</b><small>${esc(x.ementa)}</small></div>
     <div class="aut" data-r="Autor · tema">${esc(x.autor)}<small>${esc(temaDe(x))}</small></div>
-    <div class="tmw" data-r="Tramitação">${ritoMini(x)}</div>
-    <div class="rel" data-r="Relator">${x.rel ? esc(x.rel) : `<span class="sem">aguardando relator</span>`}</div>
-    ${F.ab === x.id ? detalhe(x) : ""}</div>`; }
-const filtradas = () => { const L = D.L.filter((x) => passa(x)), [k, s] = F.ord; return L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); }); };
-const filtroTxt = () => [F.com, F.tipo, F.tema, F.rel && (F.rel === "(sem)" ? "sem relator" : "relator " + F.rel), F.aut && "autor " + F.aut, F.vq && "vista de " + (F.vq === "(?)" ? "não identificado" : F.vq), F.fx && (F.hm === "vis" ? "em vista há " : "na comissão há ") + (HX.find((h) => h[1] === F.fx[0]) || [""])[0], F.idade !== "" && ["até 30 dias", "31 a 90 dias", "mais de 90 dias"][+F.idade] + " na comissão", F.kpi && { com: "com relator", sem: "aguardando relator", velhas: "mais de 90 dias", vista: "em vista", andou: "já aprovadas em 1+" }[F.kpi], F.q && `busca “${F.q}”`].filter(Boolean).join(" · ") || "todas as proposições em comissão";
+    <div class="tmw" data-r="${x.fora ? "Onde está" : "Tramitação"}">${x.fora ? foraMini(x) : ritoMini(x)}</div>
+    <div class="rel" data-r="Relator">${x.fora ? `<span class="sem">—</span>` : x.rel ? esc(x.rel) : `<span class="sem">aguardando relator</span>`}</div>
+    ${F.ab === x.id && !x.fora ? detalhe(x) : ""}</div>`; }
+// proposição fora das comissões: onde está, a situação, há quanto tempo, e as comissões que ainda vai percorrer (se já distribuída)
+function foraMini(x) { const prox = (x.fluxo || []).filter((c) => c.st !== "ok");
+  return `<div class="rt"><div class="rth"><b>${ni(x.casa)} d</b><span class="rtc"><em>${esc(x.csig)}</em>${x.dias != null ? ni(x.dias) + " d" : ""}</span></div>
+    <div class="fora1">${esc(x.local || "")}${x.sit ? ` · <span>${esc(x.sit)}</span>` : ""}</div>${prox.length ? `<div class="fora2">${prox.map((c) => `<u title="${esc(c.n)} · ainda vai">${esc(c.s)}</u>`).join("")}</div>` : `<div class="fora2 sm">ainda sem comissões distribuídas</div>`}
+    <div class="rtl"><span>${x.lido ? "lido " + br(x.lido).slice(3) : "protocolo " + br(x.prot).slice(3)}</span><span>hoje</span></div></div>`; }
+const filtradas = () => { const L = fonte().filter((x) => passa(x)), [k, s] = F.ord; return L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); }); };
+const filtroTxt = () => [F.onde === "fora" ? "fora das comissões" : F.onde === "todas" ? "nas comissões e fora delas" : "", F.com, F.tipo, F.tema, F.rel && (F.rel === "(sem)" ? "sem relator" : "relator " + F.rel), F.aut && "autor " + F.aut, F.vq && "vista de " + (F.vq === "(?)" ? "não identificado" : F.vq), F.fx && (F.hm === "vis" ? "em vista há " : "na comissão há ") + (HX.find((h) => h[1] === F.fx[0]) || [""])[0], F.idade !== "" && ["até 30 dias", "31 a 90 dias", "mais de 90 dias"][+F.idade] + " na comissão", F.kpi && { com: "com relator", sem: "aguardando relator", velhas: "mais de 90 dias", vista: "em vista", andou: "já aprovadas em 1+" }[F.kpi], F.q && `busca “${F.q}”`].filter(Boolean).join(" · ") || "todas as proposições em comissão";
 function desenhar() { kpis(D.L.filter((x) => !F.com || x.com === F.com)); comissoes();
-  const L = D.L.filter((x) => passa(x)); const [k, s] = F.ord; L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); });
-  $("#res").innerHTML = `<b>${ni(L.length)}</b> de ${ni(D.L.length)} proposições${F.com ? " em " + esc(F.com) : ""}`;
+  const L = fonte().filter((x) => passa(x)); const [k, s] = F.ord; L.sort((a, b) => { const p = ORD[k](a), q = ORD[k](b); return (p > q ? 1 : p < q ? -1 : 0) * s || ORD.dias(b) - ORD.dias(a); });
+  $("#res").innerHTML = `<b>${ni(L.length)}</b> de ${ni(fonte().length)} proposições${F.com ? " em " + esc(F.com) : F.onde === "fora" ? " fora das comissões" : F.onde === "todas" ? " (nas comissões e fora delas)" : ""}`;
   const col = (id, t) => `<button data-o="${id}" class="${F.ord[0] === id ? "on" : ""}">${t}<i>${F.ord[0] === id ? (F.ord[1] > 0 ? "↑" : "↓") : "↕"}</i></button>`;
   if (F.vis === "lista") $("#vista").innerHTML = `<div class="lista"><div class="cab">${col("num", "Proposição")}${col("obj", "Objetivo")}${col("aut", "Autor · tema")}<span class="cab2">Tramitação ${col("casa", "casa")}${col("dias", "comissão")}${col("fl", "caminho")}</span>${col("rel", "Relator")}</div>
     ${L.slice(0, F.lim).map(linha).join("") || `<div class="vazio">Nada com estes filtros.</div>`}${L.length > F.lim ? `<button class="mais" id="mais">Mostrar mais ${ni(Math.min(60, L.length - F.lim))} de ${ni(L.length - F.lim)}</button>` : ""}</div>`;
@@ -779,14 +790,14 @@ R.addEventListener("click", (e) => { const t = e.target;
     mm.style.left = b.offsetLeft + "px"; mm.style.top = b.offsetTop + b.offsetHeight + 6 + "px"; b.parentNode.appendChild(mm); return; }
   const im = t.closest("[data-imp]"); if (im) { if (im.disabled) return; const qd = R.querySelector("#impQ"); F.impQ = !!(qd && qd.checked); R.querySelector(".impm").remove(); const L2 = filtradas();
     cmpImprimir(L2, { fichas: im.dataset.imp === "f", filtro: filtroTxt(), barra: barraDe, quadro: F.impQ ? quadroDe(L2) : null, futuro: F.fut ? futuroListas() : null }, D, RES); return; }
-  if (t.closest("#limpa")) { Object.assign(F, { com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", fx: null, vq: "", lim: 60 }); ["#q", "#fTipo", "#fTema", "#fRel", "#fAut", "#fIdade"].forEach((s) => $(s).value = ""); desenhar(); return; }
+  if (t.closest("#limpa")) { Object.assign(F, { onde: "", com: "", q: "", tipo: "", tema: "", rel: "", aut: "", idade: "", kpi: "", fx: null, vq: "", lim: 60 }); ["#q", "#fOnde", "#fTipo", "#fTema", "#fRel", "#fAut", "#fIdade"].forEach((s) => $(s).value = ""); desenhar(); return; }
   const r = t.closest("[data-id]"); if (r) { const id = r.dataset.id; if (F.vis === "quadro") { F.vis = "lista"; R.querySelectorAll("[data-v]").forEach((b) => b.classList.toggle("on", b.dataset.v === "lista")); F.q = ""; }
     F.ab = F.ab === id ? null : id; const i = D.L.findIndex((x) => x.id === id); desenhar(); const el = R.querySelector(`.lin[data-id="${CSS.escape(id)}"]`); if (el) el.scrollIntoView({ block: "nearest" }); } });
 $("#q").oninput = (e) => { F.q = e.target.value; F.lim = 60; desenhar(); };
 // busca só com o ícone (23/11/2026): abre ao tocar; fecha ao sair se estiver vazia
 $("#buscaL").addEventListener("mousedown", () => { const l = $("#buscaL"); if (!l.classList.contains("on")) { l.classList.add("on"); setTimeout(() => $("#q").focus(), 0); } });
 $("#q").addEventListener("blur", () => { if (!$("#q").value.trim()) $("#buscaL").classList.remove("on"); });
-[["#fTipo", "tipo"], ["#fTema", "tema"], ["#fRel", "rel"], ["#fAut", "aut"], ["#fIdade", "idade"]].forEach(([s, k]) => $(s).onchange = (e) => { F[k] = e.target.value; F.lim = 60; desenhar(); });
+[["#fOnde", "onde"], ["#fTipo", "tipo"], ["#fTema", "tema"], ["#fRel", "rel"], ["#fAut", "aut"], ["#fIdade", "idade"]].forEach(([s, k]) => $(s).onchange = (e) => { F[k] = e.target.value; F.lim = 60; desenhar(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && F.ab && document.body.contains(R)) { F.ab = null; desenhar(); } });
 const at = document.getElementById("cmpAt"); if (at) at.textContent = "e-Legis · atualizado em " + new Date(D.gerado).toLocaleDateString("pt-BR") + " às " + new Date(D.gerado).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 try { const v = localStorage.getItem("cmp_cv"); if (v === "grade" || v === "rank") { F.cv = v; R.querySelectorAll("[data-cv]").forEach((b) => b.classList.toggle("on", b.dataset.cv === v)); } } catch (e) {}
@@ -809,7 +820,7 @@ function cmpImprimir(L, o, D, RES) { const w = window.open("", "_blank"); if (!w
   const eto = (x) => `<span class="pt-eto ${x.tipo === "PL" ? "pl" : "ou"}"><b>${esc(x.tipo)}</b><span>${esc(x.num)}/${esc(String(x.ano).slice(2))}</span></span>`;
   const cam = (x) => `<span class="cam">${x.fluxo.map((c) => `<i class="${c.st === "ok" ? "ok" : c.st === "atual" ? "at" : ""}">${esc(c.s)}</i>`).join("")}</span>`;
   // linha do tempo impressa (23/11/2026): a mesma barra da tela (leitura, comissões, arquivada, comissão atual) com a vista em amarelo
-  const barra = (x) => { if (!o.barra) return ""; const B = o.barra(x);
+  const barra = (x) => { if (!o.barra) return ""; const B = o.barra(x); if (!B) return `<div class="tlb" style="font-size:8px;color:#6B7178">fora das comissões · ${esc(x.local || "")}${x.sit ? " · " + esc(x.sit) : ""}</div>`;
     return `<div class="tlb"><div class="tlp">${B.mk.map((m) => `<b style="left:${m.p.toFixed(1)}%" title="${esc(m.t)}"></b>`).join("")}${B.S.map((e) => `<i class="t-${e.k}" style="flex:${Math.max(e.d, B.tot / 60)}">${e.d / B.tot > .14 && e.s ? `<span>${esc(e.k === "vs" ? "vista" : e.s)}</span>` : ""}</i>`).join("")}</div><div class="tll"><span>${esc(B.ini)}</span><span>hoje</span></div></div>`; };
   const comR = L.filter((x) => x.rel).length, v90 = L.filter((x) => x.dias > 90).length, mdC = L.length ? Math.round(L.reduce((s, x) => s + (x.casa || 0), 0) / L.length) : 0;
   const linhasDe = (LL) => LL.map((x, i) => { const Z = RES[x.id], t = tm(x); return `<tbody class="pi${o.barra ? " cb" : ""}"><tr><td class="c0">${i + 1}</td><td class="c1">${eto(x)}</td><td class="c3"><b>${esc(Z ? Z.m : x.resumo)}</b><small>${esc(x.autor)}</small><span class="tg2">${esc(t.filter(Boolean).join(" › "))}</span></td>

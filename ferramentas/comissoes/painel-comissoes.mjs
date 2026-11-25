@@ -42,6 +42,8 @@ const TEMAS = [["Utilidade pública", /utilidade p[úu]blica/i], ["Patrimônio e
   ["Tributos e finanças", /tribut|imposto|icms|ipva|fiscal|or[çc]ament|cr[ée]dito suplementar|fundo/i], ["Servidores", /servidor|cargo|carreira|remunera|vencimento|quadro de pessoal/i], ["Meio ambiente", /ambient|clim|res[íi]duo|[áa]gua|florest/i],
   ["Pessoas com deficiência", /defici[êe]ncia|autis|tea\b/i], ["Mulheres e família", /mulher|fam[íi]lia|g[êe]nero|gestant|m[ãa]es?\b/i], ["Trânsito e transporte", /tr[âa]nsito|rodovi|transporte|ve[íi]culo/i]];
 const tema = (e) => (TEMAS.find(([, re]) => re.test(e)) || ["Outros"])[0];
+const setorCurto = (s) => { s = String(s || ""); return /expediente/i.test(s) ? "Expediente" : /coordenadoria das comiss/i.test(s) ? "Coord. Comissões" : /diretoria legislativa/i.test(s) ? "Dir. Legislativa"
+  : /^gabinete/i.test(s) ? "Gabinete" : /plen[áa]rio|ordem do dia/i.test(s) ? "Plenário" : /secretaria/i.test(s) ? "Secretaria" : /procuradoria/i.test(s) ? "Procuradoria" : s.split(" ")[0] || "—"; };
 const dias = (a, b) => a && b ? Math.round((new Date(b) - new Date(a)) / 864e5) : null, HOJE = new Date().toISOString().slice(0, 10);
 
 // pedidos de vista (19/11/2026): quem pediu sai da observação da tramitação ("Vista ao Deputado Fulano, solicitada na 13ª reunião…")
@@ -71,10 +73,12 @@ const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\
   const voltou = iS >= 0 && CC.slice(iS + 1).some(feita);
   const C = CC.map((c, i) => { const r = c.relatores[c.relatores.length - 1] || null, st = i === iS && !voltou ? "atual" : feita(c) ? "ok" : "falta";
     return { s: sig(c.nome), n: curto(c.nome), st, rels: c.relatores.length > 1 ? c.relatores.map((q) => [q.relator, q.dist, q.concl]) : undefined, rel: r ? r.relator : null, dist: r ? r.dist : null, concl: r ? r.concl : null, par: c.parecer ? c.parecer.res.replace(/^Parecer /, "") : null, part: c.parecer ? c.parecer.txt : null }; });
-  if (!C.some((c) => c.st === "atual")) C.push({ s: sig(p.setor), n: curto(p.setor), st: "atual", rel: null, volta: voltou ? 1 : undefined });
+  // fora das comissões (25/11/2026): Expediente, Coordenadoria das Comissões, gabinetes, secretarias… — sem etapa "atual" no caminho
+  const fora = !/^Comiss[ãa]o/i.test(p.setor || "");
+  if (!fora && !C.some((c) => c.st === "atual")) C.push({ s: sig(p.setor), n: curto(p.setor), st: "atual", rel: null, volta: voltou ? 1 : undefined });
   const atual = C.find((c) => c.st === "atual");
   return { id: p.id, tipo: tipo.replace(/\.$/, ""), num: String(+num || num), ano, autor: (p.autoria || "").replace(/^Deputad[oa] /, ""), ementa: caixa(p.ementa || ""), verbo, resumo: corta(caixa(txt), 150), tema: tema(p.ementa), prot: p.entrada,
-    com: curto(p.setor), csig: sig(p.setor), chegou: chegou ? chegou.d : null, dias: dias(chegou ? chegou.d : null, HOJE), rel: atual ? atual.rel : null, relDist: atual ? atual.dist : null, sit: p.situacao, fluxo: C,
+    com: fora ? null : curto(p.setor), csig: fora ? setorCurto(p.setor) : sig(p.setor), fora: fora ? 1 : undefined, local: fora ? p.setor : undefined, chegou: chegou ? chegou.d : null, dias: dias(chegou ? chegou.d : null, HOJE), rel: atual ? atual.rel : null, relDist: atual ? atual.dist : null, sit: p.situacao, fluxo: C,
     h: historico(p) || undefined,
     entrou: ([...(p.legado || []), ...(p.tram || [])].find((t) => /^Comiss[ãa]o/i.test(t.para || "") && t.d) || {}).d || null,
     lido: ([...(p.legado || []), ...(p.tram || [])].find((t) => /^Lido no Expediente/i.test(t.sit || "")) || {}).d || null,
@@ -83,7 +87,7 @@ const L = P.map((p) => { const [tipo, num, ano] = (p.cod.match(/^([A-Z]+)\.?\/(\
   const todos = L.flatMap((x) => (x.vistas || []).flatMap((v) => (v[1] || "").split(", "))).filter(Boolean); todos.forEach((n) => { const k = nv(n); C[k] = C[k] || {}; C[k][n] = (C[k][n] || 0) + 1; });
   const can = (s) => (s || "").split(", ").filter(Boolean).map((n) => { const o = C[nv(n)]; return o ? Object.entries(o).sort((a, b) => b[1] - a[1])[0][0] : n; }).join(", ");
   L.forEach((x) => { (x.vistas || []).forEach((v) => { v[1] = can(v[1]); }); if (x.vista) x.vista.quem = can(x.vista.quem); }); }
-const COMS = [...new Set(L.map((x) => x.com))].sort((a, b) => L.filter((x) => x.com === b).length - L.filter((x) => x.com === a).length);
+const COMS = [...new Set(L.filter((x) => !x.fora).map((x) => x.com))].sort((a, b) => L.filter((x) => x.com === b).length - L.filter((x) => x.com === a).length);
 const dados = { gerado, total: L.length, coms: COMS.map((c) => [c, sig(c)]), L };
 
 // --json <arquivo>: só os dados prontos para o site (o painel do Gabinete lê este arquivo); tramitação só os 10 últimos passos
