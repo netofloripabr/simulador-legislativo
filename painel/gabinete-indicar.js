@@ -456,3 +456,20 @@ document.addEventListener("keydown", async (e) => { if (e.key !== "Escape" || !I
 // quando o Controle redesenha (salvou item, lista, anotação), a página aberta acompanha
 (() => { const d0 = desenhar; desenhar = function () { d0.apply(this, arguments); if (IND.aberto) desenharInd(); };
   const m0 = mtab; mtab = function () { m0.apply(this, arguments); if (IND.aberto) detInd(); }; })();
+// a tela não pula mais ao mexer numa emenda (25/11/2026): toda vez que a planilha é redesenhada (etiqueta, aceitar proposta,
+// abrir/fechar detalhe, filtro, coluna, links que acabaram de carregar…) a emenda em que a pessoa estava mexendo — a última
+// tocada, a que está com o cursor ou, sem isso, a primeira visível — volta exatamente para o mesmo ponto da tela, inclusive
+// depois que as alturas se acertam (objeto, "ver mais")
+(() => { const d0 = desenharInd; let ANC = null;
+  document.addEventListener("pointerdown", (e) => { const tr = e.target.closest && e.target.closest("#indPg tr.iw[data-iw]"); if (tr && tr.dataset.iw) ANC = { id: tr.dataset.iw, t: Date.now() }; }, true);
+  const sel = (id) => `tr.iw[data-iw="${CSS.escape(id)}"]`;
+  const ancora = (p) => { const pr = p.getBoundingClientRect(), vis = (tr) => { const r = tr.getBoundingClientRect(); return r.bottom > pr.top + 30 && r.top < pr.bottom - 30; }, de = (tr) => ({ s: sel(tr.dataset.iw), top: tr.getBoundingClientRect().top - pr.top });
+    if (ANC && Date.now() - ANC.t < 180000) { const tr = p.querySelector(sel(ANC.id)); if (tr && vis(tr)) return de(tr); }
+    const a = document.activeElement && document.activeElement.closest ? document.activeElement.closest("tr.iw[data-iw]") : null; if (a && a.dataset.iw && vis(a)) return de(a);
+    const v = [...p.querySelectorAll("tr.iw[data-iw]")].find((tr) => tr.dataset.iw && tr.getBoundingClientRect().top >= pr.top); return v ? de(v) : null; };
+  // no celular a tabela rola dentro da própria caixa (.itw); no computador, a página (#indPg)
+  const rolador = (p, el) => { const w = el.closest(".itw"); return w && w.scrollHeight > w.clientHeight + 2 && getComputedStyle(w).overflowY !== "visible" && getComputedStyle(w).overflowY !== "clip" ? w : p; };
+  const repoe = (p, A) => { const el = p.querySelector(A.s); if (!el) return; const sc = rolador(p, el), d = el.getBoundingClientRect().top - p.getBoundingClientRect().top - A.top; if (Math.abs(d) > 1) sc.scrollTop += d; };
+  desenharInd = function () { const p = document.getElementById("indPg"), A = p && IND.aberto && p.querySelector("tr.iw") ? ancora(p) : null, r = d0.apply(this, arguments);
+    if (A && p) { repoe(p, A); requestAnimationFrame(() => { repoe(p, A); requestAnimationFrame(() => repoe(p, A)); }); setTimeout(() => repoe(p, A), 180); } return r; };
+})();
