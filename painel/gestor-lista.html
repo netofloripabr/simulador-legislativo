@@ -305,7 +305,8 @@ let PORT = [];
 const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
 const compatP = (area, nat) => PORT.filter((o) => { const A = AREA_P[area]; return (A ? A.includes(o[0]) : area ? o[0] !== "Saúde" : true) && (!nat || o[3] === nat || / ou /.test(o[3])); });
 const noPort = (obj, area, nat) => !!obj && compatP(area, nat).some((o) => norm(o[2]) === norm(obj));
-const foraPort = (x) => !!x.obj && PORT.length > 0 && !noPort(x.obj, x.area, x.nat);
+// convênio (entidade) não segue o Portfólio, que é só da Transferência Especial (25/11/2026): nunca marca "fora do portfólio"
+const foraPort = (x) => !!x.obj && x.ben !== "ent" && PORT.length > 0 && !noPort(x.obj, x.area, x.nat);
 // a etiqueta aparece no card e, na tabela, só no que a pessoa incluiu ou mudou (objeto, área ou despesa) — 23/11/2026
 const FORA = '<span class="fp">Este item não está no portfólio.</span>';
 let LK = null, ABERTO = false, PEND = [], NOMEL = "", GAB = "";
@@ -507,7 +508,7 @@ function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova
     b.innerHTML = L.map((m) => `<button type="button" data-m="${esc(m)}">${esc(m)}<small>${esc(REG[m] || "")}</small></button>`).join("") || '<div class="sv">Nenhum município com esse nome</div>'; b.hidden = false;
     b.querySelectorAll("[data-m]").forEach((o) => o.onmousedown = (e) => { e.preventDefault(); $("#f_mun").value = o.dataset.m; b.hidden = true; }); };
   $("#f_mun").addEventListener("input", sug); $("#f_mun").addEventListener("focus", sug); $("#f_mun").addEventListener("blur", () => setTimeout(() => { $("#f_sug").hidden = true; }, 120));
-  $("#f_ent").onchange = () => { ent = $("#f_ent").checked; $("#f_entx").hidden = !ent; if (ent) $("#f_rs").focus(); };
+  $("#f_ent").onchange = () => { ent = $("#f_ent").checked; $("#f_entx").hidden = !ent; if (ent) $("#f_rs").focus(); marca(); };
   // lista do Portfólio: aparece já filtrada por área e despesa; o texto do objeto refina a lista
   // lista do Portfólio por seção (23/11/2026): cada categoria mostra os 3 primeiros e "ver mais" abre o resto dela; com pesquisa, tudo que bate
   const ABR = new Set(), N0 = 3;
@@ -522,7 +523,7 @@ function card(i) { const x = i == null ? { area: null, nat: null } : ST[i], nova
     po.querySelectorAll("[data-pfm]").forEach((b) => b.onclick = () => { const c = b.dataset.pfm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = po.scrollTop; pf(); po.scrollTop = y; });
     po.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => { $("#f_obj").value = b.dataset.o; $("#f_obj").classList.remove("er"); pf(); });
     marca(); };
-  const marca = () => { const o = $("#f_obj").value.trim(); $("#f_fora").innerHTML = o && PORT.length && area && nat && !noPort(o, area, nat) ? FORA : ""; };
+  const marca = () => { const o = $("#f_obj").value.trim(); $("#f_fora").innerHTML = o && !ent && PORT.length && area && nat && !noPort(o, area, nat) ? FORA : ""; };
   w.querySelectorAll("[data-a]").forEach((b) => b.onclick = () => { area = area === b.dataset.a ? null : b.dataset.a; w.querySelectorAll("[data-a]").forEach((o) => o.classList.toggle("on", o.dataset.a === area)); $("#f_area").classList.remove("er"); pf(); });
   w.querySelectorAll("[data-n]").forEach((b) => b.onclick = () => { nat = nat === b.dataset.n ? null : b.dataset.n; w.querySelectorAll("[data-n]").forEach((o) => o.classList.toggle("on", o.dataset.n === nat)); $("#f_nat").classList.remove("er"); pf(); });
   $("#f_obj").oninput = pf;

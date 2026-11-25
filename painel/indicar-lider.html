@@ -145,7 +145,9 @@ const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação 
 let L = null, IT = [], ST = [], PORT = [], MUN = [], FECHA = null, ABERTO = false;
 // só vale objeto do Portfólio compatível com a área e a despesa da emenda (20/11/2026); outro texto (inclusive o que veio da
 // planilha do gabinete) aparece em cinza claro com o aviso, não conta como preenchido e impede o envio
-const portOk = (i, obj) => !!obj && compat(IT[i]).some((o) => norm(o[2]) === norm(obj));
+// convênio (entidade) não segue o Portfólio (25/11/2026): qualquer objeto vale e não aparece "fora do Portfólio"
+const convenio = (i) => (ST[i] && ST[i].bt === "ent") || IT[i].benef_tipo === "ent" || IT[i].modalidade === "Convênio";
+const portOk = (i, obj) => !!obj && (convenio(i) || compat(IT[i]).some((o) => norm(o[2]) === norm(obj)));
 const feito = (s, i) => portOk(i, s.obj);
 const incomp = (s, i) => !!s.obj && !portOk(i, s.obj);
 const grupo = (x) => x.area === "Saúde" ? "Saúde" : "FUNDAM";
@@ -199,7 +201,7 @@ function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) =
     <div class="lin"><label class="cx"><span class="fl">${ent ? "Município da entidade" : "Município"}</span><input class="ed trav" list="muns" data-mun="${i}" value="${esc(s.mun)}" disabled title="Definido pelo gabinete"></label>
       <div class="cx"><span class="fl">Quem recebe</span><button class="sw trav${ent ? " ent" : ""}" data-bt="${i}" role="switch" aria-checked="${ent}" disabled title="Definido pelo gabinete"><span class="${ent ? "" : "on"}">Município</span><span class="tr"></span><span class="${ent ? "on" : ""}">Entidade</span></button></div></div>
     ${ent ? `<div class="lin" style="grid-template-columns:minmax(0,1fr) 190px"><label class="cx"><span class="fl">Entidade</span><input class="ed trav" data-ben="${i}" value="${esc(s.ben)}" placeholder="Razão social" disabled title="Definido pelo gabinete"></label><label class="cx"><span class="fl">CNPJ</span><input class="ed trav" data-cnpj="${i}" value="${esc(s.cnpj)}" placeholder="00.000.000/0000-00" inputmode="numeric" disabled title="Definido pelo gabinete"></label></div>` : ""}
-    <div class="cx" style="margin-bottom:8px"><span class="fl">Objeto</span><button class="sel pree" data-esc="${i}" ${tv ? "disabled" : ""}><span class="o${ok ? "" : inc ? " inc" : " vz"}">${s.obj ? `${esc(s.obj)}${inc ? `<span class="tg x">fora do Portfólio</span>` : `<span class="tg ok">Portfólio ✅</span>`}` : "Escolha o objeto"}</span><span class="ca">▾</span></button>${inc && !tv ? `<div class="avi">Este item não é compatível. Selecione um item do portfólio.</div>` : ""}</div>
+    <div class="cx" style="margin-bottom:8px"><span class="fl">Objeto</span><button class="sel pree" data-esc="${i}" ${tv ? "disabled" : ""}><span class="o${ok ? "" : inc ? " inc" : " vz"}">${s.obj ? `${esc(s.obj)}${inc ? `<span class="tg x">fora do Portfólio</span>` : convenio(i) && !compat(IT[i]).some((o) => norm(o[2]) === norm(s.obj)) ? `<span class="tg">Convênio</span>` : `<span class="tg ok">Portfólio ✅</span>`}` : "Escolha o objeto"}</span><span class="ca">▾</span></button>${inc && !tv ? `<div class="avi">Este item não é compatível. Selecione um item do portfólio.</div>` : ""}</div>
     <label class="cx"><span class="fl">Justificativa</span><textarea class="ed pree" data-com="${i}" rows="2" placeholder="Informe os detalhes" ${tv ? "disabled" : ""}>${esc(s.com)}</textarea></label>
   </div>`; }).join("")}`;
   document.getElementById("env")?.remove();

@@ -8,6 +8,7 @@ const gPend = () => (LK.gprops || []).filter((p) => p.status === "enviado");
 const gPendItem = (id) => gPend().find((p) => p.item_id === id);
 // objeto proposto fora do Portfólio compatível com a área e a despesa (mesma regra da planilha: portCompat)
 const gFora = (d, x) => { const obj = d.objeto !== undefined ? d.objeto : x && x.objeto; if (!obj || !PORTF || !PORTF.length || typeof portCompat !== "function") return false;
+  if ((d.benef_tipo !== undefined ? d.benef_tipo : x && x.benef_tipo) === "ent" || (x && x.modalidade === "Convênio")) return false;   // convênio não segue o Portfólio (25/11/2026)
   const area = d.area !== undefined ? d.area : x && x.area, nat = d.natureza !== undefined ? d.natureza : x && x.natureza; return !PORTF.some((o) => portCompat(o, area, nat) && norm(o.obj) === norm(obj)); };
 const gForaTag = (p, x) => p.acao !== "excluir" && (p.acao === "incluir" || ["objeto", "area", "natureza"].some((k) => k in (p.dados || {}))) && gFora(p.dados || {}, x) ? ` <em class="gfp">fora do Portfólio</em>` : "";
 const gVal = (k, v) => v == null || v === "" ? "(vazio)" : k === "valor" ? "R$ " + moeda(+v) : k === "benef_tipo" ? (v === "ent" ? "entidade" : "município") : k === "municipio" && v === "SC" ? "SC (Estado)" : String(v);
