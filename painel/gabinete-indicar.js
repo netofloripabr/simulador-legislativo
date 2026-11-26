@@ -230,7 +230,7 @@ function ligarPlan(p, T) {
     p.querySelectorAll("tr.iexp").forEach((r) => { const x = AD.itens.find((y) => y.id === r.dataset.iexpw); if (x) ligarDet(r, x, T); }); return; }
   p.querySelectorAll("tr.iw").forEach((tr) => ligarLinha(tr, T));
   // "+" verde no topo (23/11/2026): o mesmo "Incluir linha" do fim da tabela, sem precisar rolar até lá
-  const inv = p.querySelector("[data-inov]"); if (inv) inv.onclick = () => { /* o "+" abre o card da emenda nova (25/11/2026) */ if (!p.querySelector("[data-iinc]") && !p.querySelector("#indPg tr.iw[data-iw='']")) return alert("A lista já chegou ao número máximo de emendas."); if (typeof cardNovaEmenda === "function") cardNovaEmenda(T); };
+  const inv = p.querySelector("[data-inov]"); if (inv) inv.onclick = () => { const b = p.querySelector("[data-iinc]"); if (b) b.click(); else alert("A lista já chegou ao número máximo de emendas."); };
   const inc = p.querySelector("[data-iinc]"); if (inc) inc.onclick = () => { if (temFx()) { IND.fx = {}; fxSalva(); } IND.extra = 0; desenharInd(); /* sempre uma linha em branco só (24/11/2026): o botão leva até ela */ const v = [...document.querySelectorAll("#indPg tr.iw[data-iw='']")].pop(); if (v) { v.scrollIntoView({ block: "center" }); const m = v.querySelector('[data-c="municipio"]'); if (m) m.focus(); } };
   p.querySelectorAll("tr.iexp").forEach((r) => { const x = AD.itens.find((y) => y.id === r.dataset.iexpw); if (x) ligarDet(r, x, T); }); }
 // entidades já atendidas por emendas (portal da SEF, todos os deputados 2023-26): nome, CNPJ, município e quantas vezes recebeu
@@ -477,4 +477,21 @@ document.addEventListener("keydown", async (e) => { if (e.key !== "Escape" || !I
     return () => { repoe(p, A); requestAnimationFrame(() => { repoe(p, A); requestAnimationFrame(() => repoe(p, A)); }); setTimeout(() => repoe(p, A), 180); }; };
   desenharInd = function () { const p = document.getElementById("indPg"), A = p && IND.aberto && p.querySelector("tr.iw") ? ancora(p) : null, r = d0.apply(this, arguments);
     if (A && p) { repoe(p, A); requestAnimationFrame(() => { repoe(p, A); requestAnimationFrame(() => repoe(p, A)); }); setTimeout(() => repoe(p, A), 180); } return r; };
+})();
+// balãozinho "ir ao fim" (25/11/2026): na planilha de Indicação, quando a linha em branco (ou o fim da lista) está fora da tela,
+// aparece um balão redondo no canto de baixo; tocar rola até o fim e deixa o cursor no município da linha em branco.
+// Some quando o fim já está visível. Sem polling: só olha a posição ao rolar, ao redimensionar e a cada redesenho.
+(() => { const d0 = desenharInd; let raf = 0;
+  const alvo = () => { const p = document.getElementById("indPg"); if (!p) return null; return [...p.querySelectorAll("tr.iw[data-iw='']")].pop() || p.querySelector("tr.iincr") || [...p.querySelectorAll("tr.iw")].pop() || null; };
+  const confere = () => { raf = 0; let b = document.getElementById("indFim"); const p = document.getElementById("indPg");
+    if (!IND.aberto || !p || !p.querySelector("tr.iw")) { if (b) b.classList.remove("on"); return; }
+    if (!b) { b = document.createElement("button"); b.id = "indFim"; b.type = "button"; b.title = "Ir para o fim da planilha (linha em branco)"; b.setAttribute("aria-label", "Ir para o fim da planilha");
+      b.innerHTML = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5v11M5 10l5 5 5-5"/><path d="M4.5 17h11"/></svg>';
+      b.onclick = () => { const t = alvo(); if (!t) return; t.scrollIntoView({ block: "center", behavior: "smooth" }); const m = t.querySelector('[data-c="municipio"]'); if (m) setTimeout(() => m.focus({ preventScroll: true }), 450); };
+      document.body.appendChild(b); }
+    const t = alvo(), r = t && t.getBoundingClientRect(); b.classList.toggle("on", !!r && r.top > innerHeight - 60); };
+  const pede = () => { if (!raf) raf = requestAnimationFrame(confere); };
+  document.addEventListener("scroll", pede, true); addEventListener("resize", pede);
+  desenharInd = function () { const r = d0.apply(this, arguments); pede(); setTimeout(pede, 250); return r; };
+  const f0 = fecharInd; fecharInd = function () { const r = f0.apply(this, arguments); const b = document.getElementById("indFim"); if (b) b.classList.remove("on"); return r; };
 })();
