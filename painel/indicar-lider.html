@@ -125,6 +125,7 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 .bt.off{ opacity:.45; }
 @keyframes chama{ 0%,100%{ box-shadow:none; } 30%{ box-shadow:0 0 0 4px rgba(178,58,42,.25); } }
 .it.chama{ animation:chama 1.2s ease-in-out 2; }
+/* seções do Portfólio fechadas, título abre/fecha (25/11/2026) */ button.pfc{width:100%;border:0;cursor:pointer;font-family:inherit;text-align:left} button.pfc b{display:inline-flex;align-items:center;gap:6px;font-weight:inherit} .sxch{transition:transform .15s;flex:none} .pfs.ab .sxch{transform:rotate(90deg)} button.pfc:hover{filter:brightness(.97)}
 /* Portfólio: objetos incluídos em 25/11/2026 em verde até 31/12/2026 */ .po.ponv{ background:#EAF7EE; box-shadow:inset 3px 0 0 #1FA83A; } .nvt{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#1FA83A; border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:1px; } .nvc{ font-style:normal; color:#1FA83A; font-weight:700; }
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
@@ -256,8 +257,8 @@ function escolher(i) { const x = IT[i], C = compat(x);
     // mesmo formato da lista do Link Gestor (23/11/2026): seções por categoria, 3 primeiros e "ver mais"; com pesquisa, tudo que bate
     const G = new Map(); R.forEach((o) => { if (!G.has(o[1])) G.set(o[1], []); G.get(o[1]).push(o); });
     const it = (o) => `<button class="po${NV && o[6] ? " ponv" : ""}" data-o="${C.indexOf(o)}"${NV && o[6] ? ' title="Incluído no Portfólio em 25/11/2026"' : ""}>${NV && o[6] ? '<b class="nvt">Novo</b>' : ""}${esc(o[2])}<em>${esc([o[3], o[5]].filter(Boolean).join(" · "))}</em></button>`;
-    l.innerHTML = gab + [...G].map(([c, A]) => { const ab = w.length || ABR.has(c) || A.length <= 4, ver = ab ? A : A.slice(0, 3);
-      return `<div class="pfs"><div class="pfc">${esc(c)}<span>${A.length}${NV && A.some((o) => o[6]) ? ` · <i class="nvc">${A.filter((o) => o[6]).length} ${A.filter((o) => o[6]).length === 1 ? "novo" : "novos"}</i>` : ""}</span></div>${ver.map(it).join("")}${A.length > 4 && !w.length ? `<button class="pfm" data-pfm="${esc(c)}">${ABR.has(c) ? "mostrar menos" : `ver mais ${A.length - 3}`}</button>` : ""}</div>`; }).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
+    l.innerHTML = gab + [...G].map(([c, A]) => { const ab = !!w.length || ABR.has(c);   // seções fechadas; tocar no título abre/fecha; com pesquisa, abertas (25/11/2026)
+      return `<div class="pfs${ab ? " ab" : ""}"><button type="button" class="pfc" data-pfm="${esc(c)}" aria-expanded="${ab}"><b><svg class="sxch" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M4 2.5L7.5 6 4 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(c)}</b><span>${A.length}${NV && A.some((o) => o[6]) ? ` · <i class="nvc">${A.filter((o) => o[6]).length} ${A.filter((o) => o[6]).length === 1 ? "novo" : "novos"}</i>` : ""}</span></button>${ab ? A.map(it).join("") : ""}</div>`; }).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
     l.querySelectorAll("[data-pfm]").forEach((b) => b.onclick = () => { const c = b.dataset.pfm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = l.scrollTop; lista(); l.scrollTop = y; });
     l.querySelector("[data-gab]")?.addEventListener("click", () => usa({ obj: x.objeto, fonte: "gab" }));
     l.querySelectorAll("[data-o]").forEach((b) => b.onclick = () => usa({ obj: C[+b.dataset.o][2], fonte: "port" }));
