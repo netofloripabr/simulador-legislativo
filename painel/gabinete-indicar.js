@@ -478,19 +478,26 @@ document.addEventListener("keydown", async (e) => { if (e.key !== "Escape" || !I
   desenharInd = function () { const p = document.getElementById("indPg"), A = p && IND.aberto && p.querySelector("tr.iw") ? ancora(p) : null, r = d0.apply(this, arguments);
     if (A && p) { repoe(p, A); requestAnimationFrame(() => { repoe(p, A); requestAnimationFrame(() => repoe(p, A)); }); setTimeout(() => repoe(p, A), 180); } return r; };
 })();
-// balãozinho "ir ao fim" (25/11/2026): na planilha de Indicação, quando a linha em branco (ou o fim da lista) está fora da tela,
-// aparece um balão redondo no canto de baixo; tocar rola até o fim e deixa o cursor no município da linha em branco.
-// Some quando o fim já está visível. Sem polling: só olha a posição ao rolar, ao redimensionar e a cada redesenho.
+// balãozinho descer/subir (25/11/2026): na planilha de Indicação, um balão redondo no canto de baixo. Na primeira metade da
+// planilha ele é "descer" (rola até a linha em branco do fim e põe o cursor no município); na segunda metade é "subir" (volta
+// ao começo da planilha, na barra de botões). Some quando o destino já está na tela. Sem polling: só olha a posição ao rolar,
+// ao redimensionar e a cada redesenho.
 (() => { const d0 = desenharInd; let raf = 0;
-  const alvo = () => { const p = document.getElementById("indPg"); if (!p) return null; return [...p.querySelectorAll("tr.iw[data-iw='']")].pop() || p.querySelector("tr.iincr") || [...p.querySelectorAll("tr.iw")].pop() || null; };
-  const confere = () => { raf = 0; let b = document.getElementById("indFim"); const p = document.getElementById("indPg");
-    if (!IND.aberto || !p || !p.querySelector("tr.iw")) { if (b) b.classList.remove("on"); return; }
-    if (!b) { b = document.createElement("button"); b.id = "indFim"; b.type = "button"; b.title = "Ir para o fim da planilha (linha em branco)"; b.setAttribute("aria-label", "Ir para o fim da planilha");
-      b.innerHTML = '<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5v11M5 10l5 5 5-5"/><path d="M4.5 17h11"/></svg>';
-      b.onclick = () => { const t = alvo(); if (!t) return; t.scrollIntoView({ block: "center", behavior: "smooth" }); const m = t.querySelector('[data-c="municipio"]'); if (m) setTimeout(() => m.focus({ preventScroll: true }), 450); };
-      document.body.appendChild(b); }
-    const t = alvo(), r = t && t.getBoundingClientRect(); b.classList.toggle("on", !!r && r.top > innerHeight - 60); };
-  const pede = () => { if (!raf) raf = requestAnimationFrame(confere); };
+  const SV = { desce: '<path d="M10 3.5v11M5 10l5 5 5-5"/><path d="M4.5 17h11"/>', sobe: '<path d="M10 16.5v-11M5 10l5-5 5 5"/><path d="M4.5 3h11"/>' };
+  const fim = (p) => [...p.querySelectorAll("tr.iw[data-iw='']")].pop() || p.querySelector("tr.iincr") || [...p.querySelectorAll("tr.iw")].pop() || null;
+  const confere = () => { raf = 0; let b = document.getElementById("indFim"); const p = document.getElementById("indPg"), sh = p && p.querySelector(".isheet");
+    if (!IND.aberto || !p || !sh || !p.querySelector("tr.iw")) { if (b) b.classList.remove("on"); return; }
+    if (!b) { b = document.createElement("button"); b.id = "indFim"; b.type = "button"; document.body.appendChild(b);
+      b.onclick = () => { const q = document.getElementById("indPg"); if (!q) return;
+        if (b.dataset.m === "sobe") { const s2 = q.querySelector(".isheet"); if (s2) s2.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
+        const t = fim(q); if (!t) return; t.scrollIntoView({ block: "center", behavior: "smooth" }); const m = t.querySelector('[data-c="municipio"]'); if (m) setTimeout(() => m.focus({ preventScroll: true }), 450); }; }
+    const R = sh.getBoundingClientRect(), meio = innerHeight / 2, desce = meio < R.top + R.height / 2, t = fim(p), rt = t && t.getBoundingClientRect();
+    const mostra = R.bottom > 0 && R.top < innerHeight && (desce ? !!rt && rt.top > innerHeight - 60 : R.top < 0);
+    const m = desce ? "desce" : "sobe";
+    if (b.dataset.m !== m) { b.dataset.m = m; b.innerHTML = `<svg viewBox="0 0 20 20" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${SV[m]}</svg>`;
+      b.title = desce ? "Descer até o fim da planilha (linha em branco)" : "Subir até o começo da planilha"; b.setAttribute("aria-label", desce ? "Descer até o fim da planilha" : "Subir até o começo da planilha"); }
+    b.classList.toggle("on", mostra); };
+  const pede = () => { if (!raf) raf = setTimeout(confere, 60); };
   document.addEventListener("scroll", pede, true); addEventListener("resize", pede);
   desenharInd = function () { const r = d0.apply(this, arguments); pede(); setTimeout(pede, 250); return r; };
   const f0 = fecharInd; fecharInd = function () { const r = f0.apply(this, arguments); const b = document.getElementById("indFim"); if (b) b.classList.remove("on"); return r; };
