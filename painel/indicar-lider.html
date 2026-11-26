@@ -143,7 +143,7 @@ const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").
 const norm = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 const CAD = '<svg viewBox="0 0 12 12"><rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5"/></svg>';
 // área da emenda (como está no gabinete) → áreas do Portfólio; FUNDAM ou sem área = tudo que não é Saúde
-const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Agricultura": ["Agricultura e Pesca", "Pesca e Aquicultura"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
+const AREA_P = { "Saúde": ["Saúde"], "Educação": ["Educação", "Educação Especial"], "Educação Especial": ["Educação Especial"], "Agricultura": ["Agricultura e Pesca", "Pesca e Aquicultura"], "Infraestrutura e Mobilidade": ["Infraestrutura", "Portos, Aeroportos e Ferrovias"], "Segurança Pública": ["Segurança Pública", "Defesa Civil"] };
 let NV = false, L = null, IT = [], ST = [], PORT = [], MUN = [], FECHA = null, ABERTO = false;
 // só vale objeto do Portfólio compatível com a área e a despesa da emenda (20/11/2026); outro texto (inclusive o que veio da
 // planilha do gabinete) aparece em cinza claro com o aviso, não conta como preenchido e impede o envio
