@@ -5,7 +5,7 @@
 // os campos do gabinete (liderança, contato, justificativa, prioridade, status, observação) ficam por cima.
 // Usa os globais de gabinete.js ($, esc, ni, nf, fm, norm, S, E0, PARL, EST, BASE, agregado, SESS, LOCAL, desenhar).
 
-const AREAS = [["14240", "Saúde", 48000, 48091], ["14227", "Educação", 45000, 45001], ["", "Educação Especial", "", ""], ["14203", "FUNDAM", 52000, 52090], ["15097", "Agricultura", 44000, 44001], ["15098", "Infraestrutura e Mobilidade", 53000, 53001], ["15100", "Segurança Pública", 16000, 16091], ["15382", "Fundo Social", "", ""]];
+const AREAS = [["14240", "Saúde", 48000, 48091], ["14227", "Educação", 45000, 45001], ["14227", "Educação Especial", 45000, 45021], ["14203", "FUNDAM", 52000, 52090], ["15097", "Agricultura", 44000, 44001], ["15098", "Infraestrutura e Mobilidade", 53000, 53001], ["15100", "Segurança Pública", 16000, 16091], ["15382", "Fundo Social", "", ""]];
 // LDO 2027 (Lei 20.043/2026): art. 32 par. único até 120 emendas, mínimo R$ 100 mil; art. 33 Saúde no MÍNIMO 50%, demais até 50%;
 // art. 34 §4º 70% das transferências especiais em despesa de capital; art. 38 subações (15382 = Fundo Social, UO a confirmar)
 const MODS = ["Transferência Especial", "Convênio", "Convênio Simplificado", "Termo de Fomento", "Termo de Colaboração", "Acordo de Cooperação", "Execução Direta", "Outros"];

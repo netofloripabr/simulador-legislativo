@@ -103,7 +103,7 @@ const AREA_I = { "Saúde": "sau", "Educação": "edu", "Educação Especial": "p
 const BTIPO = [["mun", "Município", "Transferência Especial"], ["ent", "Entidade", "Convênio"], ["est", "Estado", "Execução Direta"]];
 const tipoDe = (x) => x.benef_tipo || (x.modalidade === "Transferência Especial" ? "mun" : /Convênio|Termo|Acordo/.test(x.modalidade || "") ? "ent" : x.modalidade === "Execução Direta" ? "est" : "");
 const benefAuto = (t, x, g) => { const a = AREAS.find((q) => q[1] === (x.area || g.trava)) || [];
-  return t === "mun" ? `${a[1] === "Saúde" ? "Fundo Municipal de Saúde" : "Prefeitura Municipal"} de ${x.municipio || "…"}` : t === "est" ? `${a[1] === "Saúde" ? "Fundo Estadual de Saúde" : "Órgão estadual"}${a[3] ? " · UO " + a[3] : ""}` : ""; };
+  return t === "mun" ? `${a[1] === "Saúde" ? "Fundo Municipal de Saúde" : "Prefeitura Municipal"} de ${x.municipio || "…"}` : t === "est" ? `${a[1] === "Saúde" ? "Fundo Estadual de Saúde" : a[1] === "Educação Especial" ? "Fundação Catarinense de Educação Especial (FCEE)" : "Órgão estadual"}${a[3] ? " · UO " + a[3] : ""}` : ""; };
 // ente → modalidade (20/11/2026): Município = Transferência Especial, Entidade = Convênio, Estado = Execução Direta.
 // Ao escolher o ente a modalidade já vem marcada; dá para trocar, mas a escolha diferente ganha uma borda laranja suave.
 const modEsperada = (x) => (BTIPO.find((q) => q[0] === (x ? tipoDe(x) : "")) || [])[2] || "";
