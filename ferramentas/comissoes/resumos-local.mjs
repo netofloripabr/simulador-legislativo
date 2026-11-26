@@ -32,7 +32,9 @@ const fim = (c) => { if (proc) try { proc.kill(); } catch (e) {} process.exit(c)
 
 const D = JSON.parse(readFileSync(join(RAIZ, "dados/painel/alesc-comissoes-tram.json"), "utf8"));
 const feitos = new Set(readdirSync(RS).map((f) => f.replace(/\.json$/, "")));
-const fila = D.L.filter((x) => !feitos.has(x.id) && existsSync(join(TX, x.id + ".json"))).sort((a, b) => (b.casa || 0) - (a.casa || 0) || (a.prot < b.prot ? -1 : 1)).slice(0, MAX);
+// --externos (26/11/2026): só as de autoria de fora da Assembleia (Governador, tribunais, entidades, iniciativa popular...)
+const EXT = /governador|tribunal|entidade|iniciativa|minist[ée]rio|defensoria|procurador|universidade/i, SO_EXT = process.argv.includes("--externos");
+const fila = D.L.filter((x) => !feitos.has(x.id) && existsSync(join(TX, x.id + ".json")) && (!SO_EXT || EXT.test(x.autor || ""))).sort((a, b) => (b.casa || 0) - (a.casa || 0) || (a.prot < b.prot ? -1 : 1)).slice(0, MAX);
 const regras = readFileSync(join(AQUI, "RESUMOS.md"), "utf8"), ex = ["NxJky", "NmQ6w"].map((i) => readFileSync(join(RS, i + ".json"), "utf8")).join("\n\n");
 const SYS = `Você escreve o resumo de UMA proposição legislativa da ALESC (Santa Catarina) para um painel de gabinete. Siga EXATAMENTE as regras e o formato abaixo. Responda SÓ com o objeto JSON do resumo, sem texto antes ou depois e sem cercas de código.\n\n=== REGRAS (RESUMOS.md) ===\n${regras}\n\n=== DOIS EXEMPLOS APROVADOS ===\n${ex}`;
 const limpa = (t) => t.replace(/Documento assinado[\s\S]{0,400}?\d{2}:\d{2}[.:]?\d*\.?/g, "").replace(/Pág\. \d+ de \d+ - Documento assinado digitalmente[^\n]*\n?/g, "").replace(/Assinaturas do documento[\s\S]*?realizar a conferência\./g, "").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n");
