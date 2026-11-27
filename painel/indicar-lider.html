@@ -256,6 +256,7 @@ async function iniciar() {
 // etiqueta e recado do gabinete (migração 114): mesmas cores das etiquetas da planilha (ETQ_PAL em gabinete-ind-links.js)
 const ETQ_PAL = { cinza: ["#E3E6E8", "#3E454B"], vermelho: ["#FBD9D5", "#9B2C20"], laranja: ["#FCE3CC", "#9A4E10"], amarelo: ["#FBF0C2", "#7A5D00"], verde: ["#D5F0DC", "#17692F"], turquesa: ["#CDEFEA", "#0F6359"], azul: ["#D6E4F7", "#1F4E85"], roxo: ["#E6DDF7", "#5A3A99"], rosa: ["#F8D9EA", "#94285F"], marrom: ["#EADFD6", "#6A4A33"] };
 const ETQ_INI = { "Resolvido · falta enviar": "verde", "Em andamento": "amarelo", "Atenção": "laranja", "Crítico": "vermelho", "Aguardando retorno": "azul" };
+const corEtq = (e) => e && e.n ? ETQ_PAL[e.c || ETQ_INI[e.n] || "cinza"] || ETQ_PAL.cinza : null;   // [fundo, texto] da etiqueta
 const etqChip = (e) => { if (!e || !e.n) return ""; const [bg, fg] = ETQ_PAL[e.c || ETQ_INI[e.n] || "cinza"] || ETQ_PAL.cinza; return `<span class="etq" style="background:${bg};color:${fg}">${esc(e.n)}</span>`; };
 // baixar o Portfólio (23/11/2026): planilha (CSV, abre no Excel/Planilhas) gerada da mesma lista usada na escolha do objeto
 async function baixarPortfolio() { try { const j = await (await fetch("../dados/painel/portfolio-objetos.json?v=3")).json(), q = (v) => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
@@ -318,9 +319,12 @@ function imprimirLider() { const w = window.open("", "_blank"); if (!w) return a
   const css = [...document.querySelectorAll("style")].map((st) => st.textContent).join("\n").replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "").split("}").filter((r) => /\.q7v/.test(r.split("{")[0])).map((r) => r.trim() + "}").join("\n");
   const brl = (v) => "R$ " + (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const lin = IT.map((x, i) => { const s = ST[i], ent = s.bt === "ent", ok = feito(s, i);
-    return `<div class="em"><div class="eh"><span class="n">${i + 1}</span><span class="m"><b>${esc(s.mun || x.municipio || "—")}</b><small>${ent ? "Entidade" + (s.ben ? " · " + esc(s.ben) : "") + (s.cnpj ? " · CNPJ " + esc(s.cnpj) : "") : "Município"}</small></span>
-      <span class="ch">${esc(grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + x.area : ""))}</span>${x.natureza ? `<span class="ch">${esc(x.natureza)}</span>` : ""}<span class="v">${brl(x.valor)}</span></div>
+    const ce = typeof corEtq === "function" ? corEtq(x.etq) : null;   // cor da etiqueta do gabinete (27/11/2026)
+    return `<div class="em${ce ? " mk" : ""}"${ce ? ` style="--mk:${ce[1]};--mkf:${ce[0]}"` : ""}><div class="eh"><span class="n">${i + 1}</span><span class="m"><b>${esc(s.mun || x.municipio || "—")}</b><small>${ent ? "Entidade" + (s.ben ? " · " + esc(s.ben) : "") + (s.cnpj ? " · CNPJ " + esc(s.cnpj) : "") : "Município"}</small></span>
+      ${ce ? `<span class="et" style="background:${ce[0]};color:${ce[1]}">${esc(x.etq.n)}</span>` : ""}<span class="ch">${esc(grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + x.area : ""))}</span>${x.natureza ? `<span class="ch">${esc(x.natureza)}</span>` : ""}<span class="v">${brl(x.valor)}</span></div>
       <div class="eo"><span class="tk">Objeto</span>${s.obj ? esc(s.obj) : `<i>não escolhido</i>`}${!ok && s.obj && !convenio(i) ? ` <span class="fp">fora do Portfólio</span>` : ""}</div>
+      ${x.nota_lider ? `<div class="eo rc"><span class="tk">Nota do gabinete</span>${esc(x.nota_lider).replace(/\n/g, "<br>")}</div>` : ""}
+      ${x.nota_lider_resp || x.parecer_lider ? `<div class="eo"><span class="tk">${esc(x.lider_resp_por || "Líder")}${x.parecer_lider === "ok" ? " · ✓ de acordo" : x.parecer_lider === "nao" ? " · ✕ não de acordo" : ""}</span>${esc(x.nota_lider_resp || "")}</div>` : ""}
       <div class="ej"><span class="tk">Justificativa</span>${s.com ? esc(s.com).replace(/\n/g, "<br>") : `<i>não informada</i>`}</div></div>`; }).join("");
   w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(tit)} · ${esc(L.nome)} · ${dt}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>
 @page{size:A4;margin:14mm 12mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{font-family:Inter,system-ui,sans-serif;color:#111;margin:0;padding:0 3px}
@@ -335,6 +339,7 @@ ${css}
 .eh .ch{font-size:7.5px;font-weight:700;background:#E4E7E9;color:#3F454B;border-radius:4px;padding:3px 6px}.eh .v{font-size:10px;font-weight:700;background:#E4E7E9;border-radius:4px;padding:3px 7px;font-variant-numeric:tabular-nums}
 .eo,.ej{margin:5px 0 0 24px;font-size:9.5px;line-height:1.45}.ej{color:#333}.tk{display:block;font-size:6.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B7178;margin-bottom:1px}.eo i,.ej i{color:#9AA0A4}.fp{font-size:7.5px;font-weight:700;color:#B3261E}
 .tot{display:flex;justify-content:space-between;font-weight:800;font-size:11px;padding:8px 2px;border-top:1.5px solid #A9AEB3;margin-top:2px}.tot b{color:#1FA83A}
+.em.mk{background:color-mix(in srgb,var(--mkf) 45%,#fff);box-shadow:inset 3px 0 0 var(--mk);padding-left:8px;border-radius:2px}.et{font-size:7.5px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap}.rc{color:#B3261E;font-weight:600}
 .pagfoot{display:flex;justify-content:space-between;font-size:7.5px;color:#9AA0A4;border-top:.5px solid #DCDFE2;margin-top:16px;padding-top:6px}
 </style></head><body><div class="agua"><span>SimulaLEGIS</span></div>
 <div class="cab"><div><div class="wm">Simula<span>LEGIS</span></div><div class="wms">${esc(org || "Gabinete")} · Indicação de emendas</div></div><div class="meta"><b>${esc(L.nome)}</b><br>gerado em ${dt} às ${hr}</div></div><div class="regra"></div>
