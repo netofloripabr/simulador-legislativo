@@ -429,7 +429,7 @@ function quadro(L) {
   const grp = (f) => { const o = { cap: 0, cus: 0, def: 0, t: 0 }; L.filter(f).forEach((x) => { const k = x.nat === "Capital" ? "cap" : x.nat === "Custeio" ? "cus" : "def"; o[k] += val(x); o.t += val(x); }); return o; };
   const S = grp((x) => x.area === "Saúde"), F = grp((x) => x.area !== "Saúde"), A = { cap: S.cap + F.cap, cus: S.cus + F.cus, def: S.def + F.def, t: tot };
   const p = (v, d) => d ? (v / d * 100).toLocaleString("pt-BR", { maximumFractionDigits: 0 }) + "%" : "0%", livre = COTA - tot, mS = COTA * SAUDE, mF = COTA * (1 - SAUDE);
-  const okS = S.t >= mS - .005, okF = F.t <= mF + .005, okC = tot && A.cap / tot >= META_CAP;
+  const okS = S.t >= mS - .005, okF = F.t <= mF + .005, okC = COTA && A.cap / COTA >= META_CAP;
   const desp = (o, meta) => `<div class="qdb"><i class="cap" style="flex:${o.cap}"></i><i class="cus" style="flex:${o.cus}"></i><i class="def" style="flex:${o.def}"></i>${meta ? `<b style="left:${meta * 100}%" title="meta: ${Math.round(meta * 100)}% em investimento"></b>` : ""}</div>
     <div class="qdl"><span><i class="cap"></i>capital ${rcc(o.cap)}</span><span><i class="cus"></i>custeio ${rcc(o.cus)}</span>${o.def ? `<span><i class="def"></i>a definir ${rcc(o.def)}</span>` : ""}</div>`;
   const area = (k, nome, o, m, ok, sub, chip) => { const esc2 = Math.max(o.t, m) * 1.04 || 1;
@@ -445,17 +445,17 @@ function quadro(L) {
     <div class="qb"><i class="s" style="width:${Math.min(100, tot / COTA * 100)}%"></i></div>
     ${MIN ? "" : (() => { // mesmo quadro da planilha (P7 · Nórdica, 25/11/2026): vão no centro, agulha na meta; tocar em cada parte abre o detalhamento
       const mi = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mi", pp = (v, d) => d ? Math.round(v / d * 100) + "%" : "0%";
-      const ipv = tot ? A.cap / tot * 100 : 0, okI = ipv >= META_CAP * 100 - 1e-9, ipT = !okI && Math.round(ipv) >= 70 ? ipv.toFixed(1).replace(".", ",") + "%" : Math.round(ipv) + "%", falta = mS - S.t;
+      const ipv = COTA ? A.cap / COTA * 100 : 0, vao = Math.max(0, livre) + A.def, okI = ipv >= META_CAP * 100 - 1e-9, ipT = !okI && Math.round(ipv) >= 70 ? ipv.toFixed(1).replace(".", ",") + "%" : Math.round(ipv) + "%", falta = mS - S.t;
       const tr = (l, k1, r, k2, base, ag, agT) => { const Lp = base ? Math.min(100, l / base * 100) : 0, Rp = base ? Math.min(100 - Lp, r / base * 100) : 0;
         return `<div class="q7tr"><span class="q7gap" style="left:${Lp}%;right:${Rp}%"></span><span class="q7l" style="width:calc(${Lp}% - 4px);background:linear-gradient(90deg,var(--q7${k1}1),var(--q7${k1}2))"></span><span class="q7r" style="width:calc(${Rp}% - 4px);background:linear-gradient(270deg,var(--q7${k2}1),var(--q7${k2}2))"></span><span class="q7ag" style="left:${ag * 100}%"><i>${agT}</i></span></div>`; };
       return `<div class="q7 q7g"><div class="q7bk"><div class="q7lb">Saúde × FUNDAM</div>${tr(S.t, "a", F.t, "b", COTA, SAUDE, Math.round(SAUDE * 100) + "%")}
         <div class="q7rd"><div class="q7k${MD === "sau" ? " on" : ""}" data-md="sau" role="button" title="Ver o detalhamento"><small><i style="background:var(--q7a2)"></i>Saúde</small><b>${mi(S.t)}<span>(${pp(S.t, mS)})</span></b>${falta > .005 ? `<span class="q7ch al">faltam ${mi(falta)}</span>` : `<span class="q7ch ok">✓ mínimo</span>`}</div>
           <div><span class="q7mid"><small>${livre < 0 ? "acima da cota" : "livre"}</small><b>${mi(Math.abs(livre))}<span>(${pp(Math.abs(livre), COTA)})</span></b></span></div>
           <div class="q7k${MD === "fun" ? " on" : ""}" data-md="fun" role="button" title="Ver o detalhamento"><small>FUNDAM<i style="background:var(--q7b2)"></i></small><b>${mi(F.t)}<span>(${pp(F.t, mF)})</span></b>${F.t > mF + .005 ? `<span class="q7ch al">acima ${mi(F.t - mF)}</span>` : `<span class="q7ch ok">livre ${mi(mF - F.t)}</span>`}</div></div></div>
-      <div class="q7bk q7k${MD === "inv" ? " on" : ""}" data-md="inv" role="button" title="Ver o detalhamento"><div class="q7lb">Investimento × custeio</div>${tr(A.cap, "i", A.cus, "c", tot, META_CAP, "meta " + Math.round(META_CAP * 100) + "%")}
+      <div class="q7bk q7k${MD === "inv" ? " on" : ""}" data-md="inv" role="button" title="Ver o detalhamento"><div class="q7lb">Investimento × custeio</div>${tr(A.cap, "i", A.cus, "c", COTA, META_CAP, "meta " + Math.round(META_CAP * 100) + "%")}
         <div class="q7rd"><div><small><i style="background:var(--q7i2)"></i>Investimento</small><b>${mi(A.cap)}<span>(${ipT})</span></b><span class="q7ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span></div>
-          <div><span class="q7mid"><small>a definir</small><b>${mi(A.def)}<span>(${pp(A.def, tot)})</span></b></span></div>
-          <div><small>Custeio<i style="background:var(--q7c2)"></i></small><b>${mi(A.cus)}<span>(${pp(A.cus, tot)})</span></b></div></div></div></div>`; })()}
+          <div><span class="q7mid"><small>${A.def ? "livre + a definir" : "livre"}</small><b>${mi(vao)}<span>(${pp(vao, COTA)})</span></b></span></div>
+          <div><small>Custeio<i style="background:var(--q7c2)"></i></small><b>${mi(A.cus)}<span>(${pp(A.cus, COTA)})</span></b></div></div></div></div>`; })()}
     ${!MIN && MD ? detalhe(L, MD, tot, S.t, A.cap) : ""}</div>`;
 }
 
@@ -463,7 +463,7 @@ function quadro(L) {
 function detalhe(L, k, tot, sau, cap) { const val = (x) => +x.v || 0, nd = (x) => x.nat === "Capital" ? "Investimento" : x.nat === "Custeio" ? "Custeio" : "Despesa a definir";
   let tit, nota, base, chave;
   if (k === "sau") { tit = "Saúde por despesa"; base = (x) => x.area === "Saúde"; chave = nd; const f = COTA * SAUDE - sau; nota = f > 0 ? `Para chegar ao mínimo faltam <b>${rcc(f)}</b> em Saúde.` : "Mínimo da Saúde atingido."; }
-  else if (k === "inv") { tit = "Tudo o que foi indicado, por despesa"; base = () => true; chave = nd; const f = tot * META_CAP - cap; nota = f > 0 ? `Para a meta de ${Math.round(META_CAP * 100)}% faltam <b>${rcc(f)}</b> em investimento. Definir a despesa das emendas "a definir" pode resolver boa parte.` : "Meta de investimento atingida."; }
+  else if (k === "inv") { tit = "Tudo o que foi indicado, por despesa"; base = () => true; chave = nd; const f = COTA * META_CAP - cap; nota = f > 0 ? `Para a meta de ${Math.round(META_CAP * 100)}% faltam <b>${rcc(f)}</b> em investimento. Definir a despesa das emendas "a definir" pode resolver boa parte.` : "Meta de investimento atingida."; }
   else { tit = "FUNDAM por área"; base = (x) => x.area !== "Saúde"; chave = (x) => x.area || "Área a definir"; const l = COTA * (1 - SAUDE) - (tot - sau); nota = l >= 0 ? `Ainda cabem <b>${rcc(l)}</b> nas áreas fora da Saúde.` : `As áreas fora da Saúde passaram <b>${rcc(-l)}</b> da metade da cota.`; }
   const G = {}; L.filter(base).forEach((x) => { const c = chave(x); (G[c] = G[c] || { v: 0, n: 0 }); G[c].v += val(x); G[c].n++; });
   const E = Object.entries(G).sort((a, b) => b[1].v - a[1].v), soma = E.reduce((s, e) => s + e[1].v, 0), max = E.length ? E[0][1].v : 1;
@@ -678,7 +678,7 @@ function documento() { const win = window.open("", "_blank"); if (!win) return a
     return (g ? `<tr class="gh"><td colspan="7"><b>${esc(g)}</b><span>${viv.length} ${viv.length === 1 ? "emenda" : "emendas"} · R$ ${moeda(s)} · ${pc(s, tot)}</span></td></tr>` : "") + A.map(linha).join(""); }).join("");
   // painel
   const sau = L.filter((x) => x.area === "Saúde").reduce((s, x) => s + val(x), 0), fun = tot - sau, cap = L.filter((x) => x.nat === "Capital").reduce((s, x) => s + val(x), 0), def = L.filter((x) => !x.nat).reduce((s, x) => s + val(x), 0), livre = COTA - tot;
-  const okS = sau >= COTA * SAUDE - .005, okF = fun <= COTA * (1 - SAUDE) + .005, okC = tot && cap / tot >= META_CAP;
+  const okS = sau >= COTA * SAUDE - .005, okF = fun <= COTA * (1 - SAUDE) + .005, okC = COTA && cap / COTA >= META_CAP;
   const meta = (ok, t, d) => `<div class="${ok ? "ok" : "fl"}"><i>${ok ? "✓" : "!"}</i><span><b>${t}</b>${d}</span></div>`;
   // quadro da cota igual ao da tela (27/11/2026): cota, indicado, livre, emendas e as duas barras coloridas (Saúde × FUNDAM,
   // investimento × custeio), com o CSS copiado da própria página — mudar o quadro da tela muda o do documento

@@ -50,7 +50,7 @@ function barraSeg(c, it, tot) {
   const grp = (f) => { const o = { cap: 0, cus: 0, def: 0, t: 0 }; it.filter(f).forEach((x) => { o[nat(x)] += val(x); o.t += val(x); }); return o; };
   const S = grp((x) => x.area === "Saúde"), F = grp((x) => x.area !== "Saúde"), A = { cap: S.cap + F.cap, cus: S.cus + F.cus, def: S.def + F.def, t: S.t + F.t };
   const mi = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mi", pc = (v, d) => d ? Math.round(v / d * 100) + "%" : "0%";
-  const D = c.disp, fs = c.saude || .5, mS = D * fs, mF = D - mS, livre = D - tot, falta = mS - S.t, ipv = A.t ? A.cap / A.t * 100 : 0, okI = ipv >= 70 - 1e-9;
+  const D = c.disp, fs = c.saude || .5, mS = D * fs, mF = D - mS, livre = D - tot, falta = mS - S.t, ipv = D ? A.cap / D * 100 : 0, okI = ipv >= 70 - 1e-9, vao = Math.max(0, livre) + A.def;   // 27/11/2026: investimento × custeio também sobre a COTA (como Saúde × FUNDAM)
   const ipT = !okI && Math.round(ipv) >= 70 ? ipv.toFixed(1).replace(".", ",") + "%" : Math.round(ipv) + "%", C = 2 * Math.PI * 18;
   const tr = (l, k1, lt, r, k2, rt, base, ag, agT) => { const Lp = base ? Math.min(100, l / base * 100) : 0, Rp = base ? Math.min(100 - Lp, r / base * 100) : 0;
     return `<div class="q7tr"><span class="q7gap" style="left:${Lp}%;right:${Rp}%"></span><span class="q7l" style="width:calc(${Lp}% - 4px);background:linear-gradient(90deg,var(--q7${k1}1),var(--q7${k1}2))" title="${esc(lt)}"></span><span class="q7r" style="width:calc(${Rp}% - 4px);background:linear-gradient(270deg,var(--q7${k2}1),var(--q7${k2}2))" title="${esc(rt)}"></span><span class="q7ag" style="left:${ag * 100}%"><i>${agT}</i></span></div>`; };
@@ -60,10 +60,10 @@ function barraSeg(c, it, tot) {
       <div class="q7rd"><div><small><i style="background:var(--q7a2)"></i>Saúde</small><b>${mi(S.t)}<span>(${pc(S.t, mS)})</span></b>${falta > .005 ? `<span class="q7ch al">faltam ${mi(falta)}</span>` : `<span class="q7ch ok">✓ mínimo</span>`}</div>
         <div><span class="q7mid"><small>${livre < 0 ? "acima da cota" : "livre"}</small><b>${mi(Math.abs(livre))}<span>(${pc(Math.abs(livre), D)})</span></b></span></div>
         <div><small>FUNDAM<i style="background:var(--q7b2)"></i></small><b>${mi(F.t)}<span>(${pc(F.t, mF)})</span></b>${F.t > mF + .005 ? `<span class="q7ch al">acima ${mi(F.t - mF)}</span>` : `<span class="q7ch ok">livre ${mi(mF - F.t)}</span>`}</div></div></div>
-    <div class="q7bk"><div class="q7lb">Investimento × custeio</div>${tr(A.cap, "i", "investimento " + mi(A.cap), A.cus, "c", "custeio " + mi(A.cus), A.t, .7, "meta 70%")}
+    <div class="q7bk"><div class="q7lb">Investimento × custeio</div>${tr(A.cap, "i", "investimento " + mi(A.cap), A.cus, "c", "custeio " + mi(A.cus), D, .7, "meta 70%")}
       <div class="q7rd"><div><small><i style="background:var(--q7i2)"></i>Investimento</small><b>${mi(A.cap)}<span>(${ipT})</span></b><span class="q7ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span></div>
-        <div><span class="q7mid"><small>a definir</small><b>${mi(A.def)}<span>(${pc(A.def, A.t)})</span></b></span></div>
-        <div><small>Custeio<i style="background:var(--q7c2)"></i></small><b>${mi(A.cus)}<span>(${pc(A.cus, A.t)})</span></b></div></div></div></div>`;
+        <div><span class="q7mid"><small>${A.def ? "livre + a definir" : "livre"}</small><b>${mi(vao)}<span>(${pc(vao, D)})</span></b></span></div>
+        <div><small>Custeio<i style="background:var(--q7c2)"></i></small><b>${mi(A.cus)}<span>(${pc(A.cus, D)})</span></b></div></div></div></div>`;
 }
 function contador() {
   document.querySelectorAll("#indPg .icd[data-prazo]").forEach((e) => { const p = e.dataset.prazo; if (!p) { e.innerHTML = ""; return; }
