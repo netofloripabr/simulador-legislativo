@@ -176,6 +176,13 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 .q7v [data-md]{cursor:pointer}.q7v .q7v-bk[data-md]:hover .q7v-tr,.q7v .q7v-l[data-md]:hover,.q7v .q7v-r[data-md]:hover{filter:brightness(1.08)}
 @media(max-width:620px){.q7v{padding:6px 16px 8px}.q7v-vl{grid-template-columns:1fr 1fr}.q7v-vl .m{grid-column:1/-1;grid-row:2;text-align:center}.q7v-l,.q7v-r{font-size:12px}.q7v-l span,.q7v-r span{display:none}.q7v-ttl{flex-wrap:wrap}}
 .q7v{margin-bottom:16px}.q7v-cd{display:flex;align-items:center;gap:8px}.q7v-cd .icd div{width:46px;padding:3px 0}.q7v-cd .icd b{font-size:15px;color:var(--or)}
+.q7v-det{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:4px 0 6px;padding:14px 0 4px;border-top:1px solid #E5E9F0}.q7v-det[hidden]{display:none}
+.q7v-dg{background:#F6F8FA;border-radius:14px;padding:10px 12px}.q7v-dg > b{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#6B7385;margin-bottom:6px}
+.q7v-dg > div{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:3px 0;border-bottom:1px dashed #E1E5EA}.q7v-dg > div:last-child{border-bottom:0}.q7v-dg span{color:#4C566A}.q7v-dg em{font-style:normal;font-weight:700;color:#2E3440;font-variant-numeric:tabular-nums;white-space:nowrap}
+.q7v-dg .al em{color:#B4532A}.q7v-dg .ok em{color:#1F7D72}.q7v-dg .fo em{font-weight:800}
+.q7v-bt{display:block;margin:2px auto 8px;background:none;border:1px solid #E5E9F0;border-radius:999px;padding:5px 14px;font:600 12px Inter,system-ui,sans-serif;color:#6B7385;cursor:pointer}.q7v-bt:hover{color:#2E3440;border-color:#C9CFD6}
+@media(max-width:620px){.q7v-det{grid-template-columns:1fr}}
+.q7v-det{grid-template-columns:minmax(0,440px)}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
 <script>
@@ -256,6 +263,16 @@ function q7vLinha(o) { const cl = (v) => Math.max(0, Math.min(100, +v || 0)), lp
     <div class="q7v-vl"><div>${fora(o.L, lp)}${o.bl || ""}</div><div class="m">${o.bm || ""}</div><div class="d">${o.R ? fora(o.R, rp) : ""}${o.br || ""}</div></div></div>`; }
 const q7vTxt = (v, p) => `${v}<span>(${p})</span>`;
 const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</span></b></span>`;
+// valores exatos (27/11/2026): botão no pé do quadro abre/fecha uma tabela com os valores em reais e centavos; a escolha vale
+// para todos os quadros da página e sobrevive ao redesenho
+const q7vRS = (v) => (v < 0 ? "−" : "") + "R$ " + Math.abs(+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function q7vDet(G) { const ab = !!window.__q7det;
+  return `<div class="q7v-det"${ab ? "" : " hidden"}>${G.map(([t, L]) => `<div class="q7v-dg"><b>${t}</b>${L.map(([n, v, c]) => `<div class="${c || ""}"><span>${n}</span><em>${q7vRS(v)}</em></div>`).join("")}</div>`).join("")}</div>
+    <button type="button" class="q7v-bt" data-q7det aria-expanded="${ab}">${ab ? "▴ esconder valores exatos" : "▾ ver valores exatos"}</button>`; }
+if (!window.__q7detOn) { window.__q7detOn = 1; document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-q7det]"); if (!b) return;
+  e.preventDefault(); e.stopPropagation(); window.__q7det = !window.__q7det;
+  document.querySelectorAll(".q7v-det").forEach((d) => { d.hidden = !window.__q7det; });
+  document.querySelectorAll("[data-q7det]").forEach((x) => { x.setAttribute("aria-expanded", window.__q7det); x.textContent = window.__q7det ? "▴ esconder valores exatos" : "▾ ver valores exatos"; }); }, true); }
 function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i], i) ? +x.valor || 0 : 0), 0);
   const [org, tit] = String(L.titulo || "").includes(" · ") ? L.titulo.split(" · ") : ["", L.titulo || "Emendas"];
   document.getElementById("app").innerHTML = `
@@ -266,7 +283,7 @@ function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) =
     const falta = COTA - uso, pc = COTA ? Math.round(uso / COTA * 100) + "%" : "0%";
     return `<div class="q7v-ttl"><span>Emendas deste link</span><span class="q7v-cd"><span class="tk">${prazoTx()}</span>${cont()}</span></div><div class="q7v">
     ${q7vLinha({ L: { k: "g", n: "Com objeto", p: COTA ? uso / COTA * 100 : 0, t: q7vTxt(rc(uso), pc) }, lr: `<span class="q7v-lbr">Cota <b>${rc(COTA)}</b></span>`, fim: true,
-      bl: `<small>${F} de ${IT.length} emendas com objeto</small>`, br: falta > .005 ? `<span class="q7v-ch al">falta escolher ${rc(falta)}</span>` : `<span class="q7v-ch ok">✓ todas com objeto</span>` })}</div>`; })()}
+      bl: `<small>${F} de ${IT.length} emendas com objeto</small>`, br: falta > .005 ? `<span class="q7v-ch al">falta escolher ${rc(falta)}</span>` : `<span class="q7v-ch ok">✓ todas com objeto</span>` })}${q7vDet([["Emendas deste link", [["Cota", COTA], ["Com objeto (" + F + " de " + IT.length + ")", uso, "fo"], [falta > .005 ? "Falta escolher" : "Tudo com objeto", Math.max(0, falta), falta > .005 ? "al" : "ok"]]]])}</div>`; })()}
   ${IT.map((x, i) => { const s = ST[i], ok = feito(s, i), inc = incomp(s, i), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
     <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span><div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
     ${comCel(x, i)}

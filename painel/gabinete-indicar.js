@@ -61,7 +61,7 @@ function barraSeg(c, it, tot, T) {
       bl: `<span class="q7v-ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span>`, bm: q7vLivre(A.def ? "livre + a definir" : "livre", mi(vao), pc(vao, D)) })}
     ${q7vLinha({ L: { k: "a", n: "Saúde", p: w(S.t), t: q7vTxt(mi(S.t), pc(S.t, mS)) }, R: { k: "b", n: "FUNDAM", p: w(F.t), t: q7vTxt(mi(F.t), pc(F.t, mF)) }, ag: fs * 100, agT: Math.round(fs * 100) + "%",
       bl: falta > .005 ? `<span class="q7v-ch al">faltam ${mi(falta)}</span>` : `<span class="q7v-ch ok">✓ mínimo</span>`, bm: lv,
-      br: F.t > mF + .005 ? `<span class="q7v-ch al">acima ${mi(F.t - mF)}</span>` : `<span class="q7v-ch ok">livre ${mi(mF - F.t)}</span>` })}</div></div>`;
+      br: F.t > mF + .005 ? `<span class="q7v-ch al">acima ${mi(F.t - mF)}</span>` : `<span class="q7v-ch ok">livre ${mi(mF - F.t)}</span>` })}${q7vDet([["Cota geral", [["Cota", D], ["Indicado · " + it.length + " emendas", tot, "fo"], [livre < 0 ? "Acima da cota" : "Livre", Math.abs(livre), livre < 0 ? "al" : "ok"]]], ["Investimento × custeio", [["Investimento", A.cap, "fo"], ["Custeio", A.cus, "fo"], ["A definir", A.def], ["Meta (70% da cota)", D * .7], [A.cap >= D * .7 - .005 ? "Acima da meta" : "Falta para a meta", Math.abs(A.cap - D * .7), A.cap >= D * .7 - .005 ? "ok" : "al"]]], ["Saúde × FUNDAM", [["Saúde", S.t, "fo"], ["Mínimo da Saúde", mS], [S.t >= mS - .005 ? "Acima do mínimo" : "Faltam na Saúde", Math.abs(S.t - mS), S.t >= mS - .005 ? "ok" : "al"], ["FUNDAM", F.t, "fo"], ["Teto do FUNDAM", mF], [F.t > mF + .005 ? "Acima do teto" : "Livre até o teto", Math.abs(F.t - mF), F.t > mF + .005 ? "al" : "ok"]]]])}</div></div>`;
 }
 // ---------- quadro da cota v4 (27/11/2026, protótipo aprovado: prototipos/quadro-cota-v4) ----------
 // Barras altas e arredondadas com o valor e o (%) DENTRO do preenchimento (tons escuros, texto branco); legenda em cima,
@@ -77,6 +77,16 @@ function q7vLinha(o) { const cl = (v) => Math.max(0, Math.min(100, +v || 0)), lp
     <div class="q7v-vl"><div>${fora(o.L, lp)}${o.bl || ""}</div><div class="m">${o.bm || ""}</div><div class="d">${o.R ? fora(o.R, rp) : ""}${o.br || ""}</div></div></div>`; }
 const q7vTxt = (v, p) => `${v}<span>(${p})</span>`;
 const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</span></b></span>`;
+// valores exatos (27/11/2026): botão no pé do quadro abre/fecha uma tabela com os valores em reais e centavos; a escolha vale
+// para todos os quadros da página e sobrevive ao redesenho
+const q7vRS = (v) => (v < 0 ? "−" : "") + "R$ " + Math.abs(+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function q7vDet(G) { const ab = !!window.__q7det;
+  return `<div class="q7v-det"${ab ? "" : " hidden"}>${G.map(([t, L]) => `<div class="q7v-dg"><b>${t}</b>${L.map(([n, v, c]) => `<div class="${c || ""}"><span>${n}</span><em>${q7vRS(v)}</em></div>`).join("")}</div>`).join("")}</div>
+    <button type="button" class="q7v-bt" data-q7det aria-expanded="${ab}">${ab ? "▴ esconder valores exatos" : "▾ ver valores exatos"}</button>`; }
+if (!window.__q7detOn) { window.__q7detOn = 1; document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-q7det]"); if (!b) return;
+  e.preventDefault(); e.stopPropagation(); window.__q7det = !window.__q7det;
+  document.querySelectorAll(".q7v-det").forEach((d) => { d.hidden = !window.__q7det; });
+  document.querySelectorAll("[data-q7det]").forEach((x) => { x.setAttribute("aria-expanded", window.__q7det); x.textContent = window.__q7det ? "▴ esconder valores exatos" : "▾ ver valores exatos"; }); }, true); }
 function contador() {
   document.querySelectorAll("#indPg .icd[data-prazo]").forEach((e) => { const p = e.dataset.prazo; if (!p) { e.innerHTML = ""; return; }
     let s = Math.max(0, (new Date(p) - new Date()) / 1000); if (!s) { e.innerHTML = `<span class="ifim">Prazo encerrado</span>`; return; }
