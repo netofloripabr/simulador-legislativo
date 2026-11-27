@@ -300,7 +300,7 @@ function popObjeto(tr, T) {
     const P = (await lerPortfolio()).filter((o) => (todos || portCompat(o, areaX, natX)) && w.every((k) => nn([o.obj, o.area, o.cat, o.desc, o.org].join(" ")).includes(k)));
     // mesmo formato da lista do Link Gestor (23/11/2026): seções por categoria (com a área quando é o Portfólio inteiro), 3 primeiros e "ver mais"
     const G = new Map(); P.forEach((o) => { const k = todos || !areaX ? o.area + " · " + o.cat : o.cat; if (!G.has(k)) G.set(k, []); G.get(k).push(o); });
-    const it = (o) => `<button class="ipi${o.novo ? " ipnv" : ""}" data-p="${esc(o.obj)}" data-n="${esc(/ ou /.test(o.nat) ? "" : o.nat)}"${o.novo ? ' title="Incluído no Portfólio em 25/11/2026"' : ""}><span>${o.novo ? '<b class="ipnvt">Novo</b>' : ""}${esc(o.obj)}<em>${esc([o.nat, o.desc].filter(Boolean).join(" · "))}</em></span></button>`;
+    const it = (o) => `<button class="ipi${o.novo ? " ipnv" : ""}" data-p="${esc(o.obj)}" data-n="${esc(/ ou /.test(o.nat) ? "" : o.nat)}"${o.novo ? ' title="Incluído no Portfólio em 25/11/2026"' : ""}><span>${o.novo ? '<b class="ipnvt">Novo</b>' : ""}${esc(o.obj)}<em>${esc([o.nat, o.desc].filter(Boolean).join(" · "))}${CPY(o.desc)}</em></span></button>`;
     l.innerHTML = P.length ? [...G].map(([c, A]) => { const ab = !!w.length || ABR.has(c);   // seções fechadas; tocar no título abre/fecha; com pesquisa, abertas (25/11/2026)
       return `<div class="ips${ab ? " ab" : ""}"><button type="button" class="ipga" data-ipm="${esc(c)}" aria-expanded="${ab}"><span><svg class="sxch" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M4 2.5L7.5 6 4 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(c)}</span><small>${A.length}${A.some((o) => o.novo) ? ` · <span class="ipnvc">${A.filter((o) => o.novo).length} ${A.filter((o) => o.novo).length === 1 ? "novo" : "novos"}</span>` : ""}</small></button>${ab ? A.map(it).join("") : ""}</div>`; }).join("") : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`;
     l.querySelectorAll("[data-ipm]").forEach((b) => b.onclick = (ev) => { ev.stopPropagation(); const c = b.dataset.ipm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = l.scrollTop; lista().then(() => { l.scrollTop = y; }); });
@@ -312,6 +312,12 @@ function popObjeto(tr, T) {
   q.oninput = lista; lista(); q.focus();
   setTimeout(() => document.addEventListener("click", function f(e) { if (!pop.contains(e.target)) { pop.remove(); document.removeEventListener("click", f); } }), 0);
 }
+// botão de copiar a descrição do item do Portfólio (27/11/2026): fica dentro do botão do item, então o clique é pego antes
+// (fase de captura) para copiar sem escolher o objeto
+if (!window.__cpyPf) { window.__cpyPf = 1; document.addEventListener("click", async (e) => { const b = e.target.closest && e.target.closest("[data-cpy]"); if (!b) return;
+  e.preventDefault(); e.stopPropagation(); const t = b.dataset.cpy; try { await navigator.clipboard.writeText(t); } catch (er) { prompt("Copie o texto:", t); return; }
+  b.classList.add("ok"); b.setAttribute("title", "Copiado"); setTimeout(() => { b.classList.remove("ok"); b.setAttribute("title", "Copiar a descrição"); }, 1400); }, true); }
+const CPY = (t) => t ? `<span class="cpy" role="button" tabindex="0" data-cpy="${esc(t)}" title="Copiar a descrição" aria-label="Copiar a descrição"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg><svg class="ck" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg></span>` : "";
 // ---------- saída: documento no padrão do palpite e planilha .xlsx no modelo do Orçamento ----------
 function documentoInd(T) {
   const L = T.L, g = regrasInd(T), it = L ? AD.itens.filter((x) => x.lista_id === L.id && cheia(x)) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), c = T.cota || {};

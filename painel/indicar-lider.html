@@ -127,6 +127,7 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 .it.chama{ animation:chama 1.2s ease-in-out 2; }
 /* seções do Portfólio fechadas, título abre/fecha (25/11/2026) */ button.pfc{width:100%;border:0;cursor:pointer;font-family:inherit;text-align:left} button.pfc b{display:inline-flex;align-items:center;gap:6px;font-weight:inherit} .sxch{transition:transform .15s;flex:none} .pfs.ab .sxch{transform:rotate(90deg)} button.pfc:hover{filter:brightness(.97)}
 /* Portfólio: objetos incluídos em 25/11/2026 em verde até 31/12/2026 */ .po.ponv{ background:#EAF7EE; box-shadow:inset 3px 0 0 #1FA83A; } .nvt{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#1FA83A; border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:1px; } .nvc{ font-style:normal; color:#1FA83A; font-weight:700; }
+.cpy{display:inline-flex;vertical-align:-2px;margin-left:6px;padding:2px;border-radius:5px;color:#6E767D;cursor:pointer;border:1px solid transparent}.cpy:hover{color:#1D2226;border-color:#DEE2E5;background:#fff}.cpy .ck{display:none}.cpy.ok{color:#1FA845}.cpy.ok svg{display:none}.cpy.ok .ck{display:block}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
 <script>
@@ -134,6 +135,12 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 // a um líder (ou a uma pessoa só). Tudo passa pelas funções link_abrir / link_salvar / link_enviar (migração 103),
 // que conferem o token, o prazo e se a emenda é do link. Portfólio e municípios vêm do próprio site (GitHub Pages).
 const SB = "https://uxqxhvzeptuedyggwguh.supabase.co", KEY = "sb_publishable_51xruPXb33u2lkXFuw1jjQ_fK4N-wph";
+// botão de copiar a descrição do item do Portfólio (27/11/2026): fica dentro do botão do item, então o clique é pego antes
+// (fase de captura) para copiar sem escolher o objeto
+if (!window.__cpyPf) { window.__cpyPf = 1; document.addEventListener("click", async (e) => { const b = e.target.closest && e.target.closest("[data-cpy]"); if (!b) return;
+  e.preventDefault(); e.stopPropagation(); const t = b.dataset.cpy; try { await navigator.clipboard.writeText(t); } catch (er) { prompt("Copie o texto:", t); return; }
+  b.classList.add("ok"); b.setAttribute("title", "Copiado"); setTimeout(() => { b.classList.remove("ok"); b.setAttribute("title", "Copiar a descrição"); }, 1400); }, true); }
+const CPY = (t) => t ? `<span class="cpy" role="button" tabindex="0" data-cpy="${esc(t)}" title="Copiar a descrição" aria-label="Copiar a descrição"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg><svg class="ck" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg></span>` : "";
 const TOKEN = new URLSearchParams(location.search).get("t") || "";
 const rpc = async (f, a) => { const r = await fetch(`${SB}/rest/v1/rpc/${f}`, { method: "POST", headers: { apikey: KEY, Authorization: "Bearer " + KEY, "Content-Type": "application/json" }, body: JSON.stringify(a) });
   const j = await r.json().catch(() => null); if (!r.ok) throw new Error((j && j.message) || "erro " + r.status); return j; };
@@ -256,7 +263,7 @@ function escolher(i) { const x = IT[i], C = compat(x);
     const gab = x.objeto && ok(x.objeto) && portOk(i, x.objeto) ? `<div class="ipga">Do gabinete</div><button class="po" data-gab>${esc(x.objeto)} <span class="tg">Item do gabinete</span></button>` : "";
     // mesmo formato da lista do Link Gestor (23/11/2026): seções por categoria, 3 primeiros e "ver mais"; com pesquisa, tudo que bate
     const G = new Map(); R.forEach((o) => { if (!G.has(o[1])) G.set(o[1], []); G.get(o[1]).push(o); });
-    const it = (o) => `<button class="po${NV && o[6] ? " ponv" : ""}" data-o="${C.indexOf(o)}"${NV && o[6] ? ' title="Incluído no Portfólio em 25/11/2026"' : ""}>${NV && o[6] ? '<b class="nvt">Novo</b>' : ""}${esc(o[2])}<em>${esc([o[3], o[5]].filter(Boolean).join(" · "))}</em></button>`;
+    const it = (o) => `<button class="po${NV && o[6] ? " ponv" : ""}" data-o="${C.indexOf(o)}"${NV && o[6] ? ' title="Incluído no Portfólio em 25/11/2026"' : ""}>${NV && o[6] ? '<b class="nvt">Novo</b>' : ""}${esc(o[2])}<em>${esc([o[3], o[5]].filter(Boolean).join(" · "))}${CPY(o[5])}</em></button>`;
     l.innerHTML = gab + [...G].map(([c, A]) => { const ab = !!w.length || ABR.has(c);   // seções fechadas; tocar no título abre/fecha; com pesquisa, abertas (25/11/2026)
       return `<div class="pfs${ab ? " ab" : ""}"><button type="button" class="pfc" data-pfm="${esc(c)}" aria-expanded="${ab}"><b><svg class="sxch" viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M4 2.5L7.5 6 4 9.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${esc(c)}</b><span>${A.length}${NV && A.some((o) => o[6]) ? ` · <i class="nvc">${A.filter((o) => o[6]).length} ${A.filter((o) => o[6]).length === 1 ? "novo" : "novos"}</i>` : ""}</span></button>${ab ? A.map(it).join("") : ""}</div>`; }).join("") + (R.length ? "" : `<div class="mut" style="padding:10px">Nenhum objeto do Portfólio com esse termo.</div>`);
     l.querySelectorAll("[data-pfm]").forEach((b) => b.onclick = () => { const c = b.dataset.pfm; ABR.has(c) ? ABR.delete(c) : ABR.add(c); const y = l.scrollTop; lista(); l.scrollTop = y; });
