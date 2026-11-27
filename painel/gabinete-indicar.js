@@ -53,14 +53,14 @@ function barraSeg(c, it, tot, T) {
   const mi = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mi", mi2 = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " mi";
   const D = c.disp, fs = c.saude || .5, mS = D * fs, mF = D - mS, livre = D - tot, falta = mS - S.t, okI = D && A.cap / D >= .7 - 1e-9, vao = Math.max(0, livre) + A.def;
   const pc = (v, d) => d ? Math.round(v / d * 100) + "%" : "0%", w = (v) => D ? v / D * 100 : 0;
-  const lv = q7vLivre(livre < 0 ? "acima da cota" : "livre", mi(Math.abs(livre)), pc(Math.abs(livre), D));
+  const gl = livre > .005 ? `livre<b>${mi(livre)}</b>` : "", acima = livre < -.005 ? `<span class="q7v-ch al">acima da cota ${mi(-livre)}</span>` : "";
   const prazo = `<span class="q7v-pz">${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</span><div class="icd" data-prazo="${esc(c.prazo || "")}"></div>`;
   return `<div class="t w4 q7v-cx"><div class="q7v-ttl"><span>Emendas impositivas${T && T.nome ? " · " + esc(T.nome) + " " + IND.ano : ""}</span><span class="q7v-cd">${prazo}</span></div><div class="q7v">
-    ${q7vLinha({ L: { k: "g", n: "Indicado", p: w(tot), t: q7vTxt(mi2(tot), pc(tot, D)) }, lr: `<span class="q7v-lbr">Cota <b>${mi2(D)}</b></span>`, fim: true, bl: `<small>${it.length} de ${c.max || "—"} emendas</small>`, bm: lv })}
+    ${q7vLinha({ L: { k: "g", n: "Indicado", p: w(tot), t: q7vTxt(mi2(tot), pc(tot, D)) }, lr: `<span class="q7v-lbr">Cota <b>${mi2(D)}</b></span>`, fim: true, gl, bl: `<small>${it.length} de ${c.max || "—"} emendas</small>`, br: acima })}
     ${q7vLinha({ L: { k: "i", n: "Investimento", p: w(A.cap), t: q7vTxt(mi(A.cap), pc(A.cap, D)) }, R: { k: "c", n: "Custeio", p: w(A.cus), t: q7vTxt(mi(A.cus), pc(A.cus, D)) }, ag: 70, agT: "Meta 70%", agK: "i",
-      bl: `<span class="q7v-ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span>`, bm: q7vLivre(A.def ? "livre + a definir" : "livre", mi(vao), pc(vao, D)) })}
+      bl: `<span class="q7v-ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span>`, gl: vao > .005 ? `${A.def ? "livre + a definir" : "livre"}<b>${mi(vao)}</b>` : "" })}
     ${q7vLinha({ L: { k: "a", n: "Saúde", p: w(S.t), t: q7vTxt(mi(S.t), pc(S.t, D)) }, R: { k: "b", n: "FUNDAM", p: w(F.t), t: q7vTxt(mi(F.t), pc(F.t, D)) }, ag: fs * 100, agT: "Meta " + Math.round(fs * 100) + "%", agK: "a",
-      bl: falta > .005 ? `<span class="q7v-ch al">faltam ${mi(falta)}</span>` : `<span class="q7v-ch ok">✓ mínimo</span>`, bm: lv,
+      bl: falta > .005 ? `<span class="q7v-ch al">faltam ${mi(falta)}</span>` : `<span class="q7v-ch ok">✓ mínimo</span>`, gl,
       br: F.t > mF + .005 ? `<span class="q7v-ch al">acima ${mi(F.t - mF)}</span>` : `<span class="q7v-ch ok">livre ${mi(mF - F.t)}</span>` })}${q7vDet([["Cota geral", [["Cota", D], ["Indicado · " + it.length + " emendas", tot, "fo"], [livre < 0 ? "Acima da cota" : "Livre", Math.abs(livre), livre < 0 ? "al" : "ok"]]], ["Investimento × custeio", [["Investimento", A.cap, "fo"], ["Custeio", A.cus, "fo"], ["A definir", A.def], ["Meta (70% da cota)", D * .7], [A.cap >= D * .7 - .005 ? "Acima da meta" : "Falta para a meta", Math.abs(A.cap - D * .7), A.cap >= D * .7 - .005 ? "ok" : "al"]]], ["Saúde × FUNDAM", [["Saúde", S.t, "fo"], ["Mínimo da Saúde", mS], [S.t >= mS - .005 ? "Acima do mínimo" : "Faltam na Saúde", Math.abs(S.t - mS), S.t >= mS - .005 ? "ok" : "al"], ["FUNDAM", F.t, "fo"], ["Teto do FUNDAM", mF], [F.t > mF + .005 ? "Acima do teto" : "Livre até o teto", Math.abs(F.t - mF), F.t > mF + .005 ? "al" : "ok"]]]])}</div></div>`;
 }
 // ---------- quadro da cota v4 (27/11/2026, protótipo aprovado: prototipos/quadro-cota-v4) ----------
@@ -73,7 +73,7 @@ function q7vLinha(o) { const cl = (v) => Math.max(0, Math.min(100, +v || 0)), lp
   const fill = (lado, p, s) => p > 0 ? `<span class="q7v-${lado}"${s.md ? ` data-md="${s.md}" role="button" title="Ver o detalhamento"` : ""} style="width:calc(${p}% - 6px);background:${gr(s.k, lado === "l" ? 90 : 270)}">${cabe(p) ? s.t : ""}</span>` : "";
   const fora = (s, p) => p > 0 && !cabe(p) ? `<b class="q7v-fo">${s.t}</b>` : "";
   return `<div class="q7v-bk"${o.md ? ` data-md="${o.md}" role="button" title="Ver o detalhamento"` : ""}><div class="q7v-lb"><span>${dot(o.L.k)}${o.L.n}</span>${o.lr || (o.R ? `<span>${o.R.n}${dot(o.R.k)}</span>` : "")}</div>
-    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap" style="left:calc(${lp}% + 8px);right:calc(${rp}% + ${o.R ? 8 : 16}px)"></span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
+    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap${100 - lp - rp >= 14 ? " in" : ""}${(lp + 100 - rp) / 2 > 84 ? " fim" : ""}" style="left:calc(${lp}% + 3px);right:calc(${rp}% + 3px)">${o.gl ? `<em>${o.gl}</em>` : ""}</span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
     <div class="q7v-vl"><div>${fora(o.L, lp)}${o.bl || ""}</div><div class="m">${o.bm || ""}</div><div class="d">${o.R ? fora(o.R, rp) : ""}${o.br || ""}</div></div></div>`; }
 const q7vTxt = (v, p) => `${v}<span>(${p})</span>`;
 const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</span></b></span>`;
@@ -82,11 +82,11 @@ const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</
 const q7vRS = (v) => (v < 0 ? "−" : "") + "R$ " + Math.abs(+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 function q7vDet(G) { const ab = !!window.__q7det;
   return `<div class="q7v-det"${ab ? "" : " hidden"}>${G.map(([t, L]) => `<div class="q7v-dg"><b>${t}</b>${L.map(([n, v, c]) => `<div class="${c || ""}"><span>${n}</span><em>${q7vRS(v)}</em></div>`).join("")}</div>`).join("")}</div>
-    <button type="button" class="q7v-bt" data-q7det aria-expanded="${ab}">${ab ? "▴ esconder valores exatos" : "▾ ver valores exatos"}</button>`; }
+    <button type="button" class="q7v-bt" data-q7det aria-expanded="${ab}" title="${ab ? "Esconder os valores exatos" : "Ver os valores exatos"}" aria-label="Valores exatos">${ab ? "▴" : "▾"}</button>`; }
 if (!window.__q7detOn) { window.__q7detOn = 1; document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-q7det]"); if (!b) return;
   e.preventDefault(); e.stopPropagation(); window.__q7det = !window.__q7det;
   document.querySelectorAll(".q7v-det").forEach((d) => { d.hidden = !window.__q7det; });
-  document.querySelectorAll("[data-q7det]").forEach((x) => { x.setAttribute("aria-expanded", window.__q7det); x.textContent = window.__q7det ? "▴ esconder valores exatos" : "▾ ver valores exatos"; }); }, true); }
+  document.querySelectorAll("[data-q7det]").forEach((x) => { x.setAttribute("aria-expanded", window.__q7det); x.textContent = window.__q7det ? "▴" : "▾"; x.title = window.__q7det ? "Esconder os valores exatos" : "Ver os valores exatos"; }); }, true); }
 function contador() {
   document.querySelectorAll("#indPg .icd[data-prazo]").forEach((e) => { const p = e.dataset.prazo; if (!p) { e.innerHTML = ""; return; }
     let s = Math.max(0, (new Date(p) - new Date()) / 1000); if (!s) { e.innerHTML = `<span class="ifim">Prazo encerrado</span>`; return; }

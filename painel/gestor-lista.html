@@ -339,6 +339,14 @@ td.ac{width:70px}
 .q7v-bt{display:block;margin:2px auto 8px;background:none;border:1px solid #E5E9F0;border-radius:999px;padding:5px 14px;font:600 12px Inter,system-ui,sans-serif;color:#6B7385;cursor:pointer}.q7v-bt:hover{color:#2E3440;border-color:#C9CFD6}
 @media(max-width:620px){.q7v-det{grid-template-columns:1fr}}
 .q7v-ag[style*="--agc"]{width:3px;margin-left:-1.5px;top:-6px;bottom:-6px;opacity:.85}.q7v-ag[style*="--agc"] i{background:color-mix(in srgb,var(--agc) 12%,#fff);color:var(--agc);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--agc) 35%,#fff);font-weight:650}.q7v-ag[style*="--agc"] i::after{border-top-color:color-mix(in srgb,var(--agc) 35%,#fff)}
+/* 27/11/2026: vazio da barra com profundidade e pontos regulares; "livre" dentro dele; seta dos valores exatos à direita */
+.q7v-gap{position:absolute;top:3px;bottom:3px;border:0 !important;transform:none !important;border-radius:999px;background:radial-gradient(circle,#AEB7C4 1.3px,transparent 1.8px) 4px 50%/10px 10px repeat-x,linear-gradient(180deg,#DDE2E8,#E9EDF1);box-shadow:inset 0 2px 5px rgba(16,24,40,.16),inset 0 -1px 0 rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;z-index:1}
+.q7v-gap em{font-style:normal;font-size:11.5px;font-weight:650;color:#4C566A;background:#EEF1F4;border-radius:999px;padding:3px 10px;white-space:nowrap;box-shadow:0 1px 2px rgba(16,24,40,.08)}.q7v-gap em b{color:#2E3440;font-weight:800;margin-left:3px}
+.q7v-gap:not(.in) em{position:absolute;top:calc(100% + 9px);left:50%;transform:translateX(-50%);background:#fff;box-shadow:0 0 0 1px #E1E5EA,0 2px 6px rgba(16,24,40,.08);z-index:3}
+.q7v-gap:not(.in) em::before{content:"";position:absolute;bottom:100%;left:50%;margin-left:-5px;border:5px solid transparent;border-bottom-color:#E1E5EA}
+.q7v-gap.neg em{color:#B4532A}
+.q7v-bt{width:30px;height:30px;padding:0;margin:2px 0 10px auto;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:12px}
+.q7v-gap.fim:not(.in) em{left:auto;right:-6px;transform:none}.q7v-gap.fim:not(.in) em::before{left:auto;right:12px;margin:0}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
 <script src="../dados/regioes-sc.js"></script>
@@ -474,7 +482,7 @@ function q7vLinha(o) { const cl = (v) => Math.max(0, Math.min(100, +v || 0)), lp
   const fill = (lado, p, s) => p > 0 ? `<span class="q7v-${lado}"${s.md ? ` data-md="${s.md}" role="button" title="Ver o detalhamento"` : ""} style="width:calc(${p}% - 6px);background:${gr(s.k, lado === "l" ? 90 : 270)}">${cabe(p) ? s.t : ""}</span>` : "";
   const fora = (s, p) => p > 0 && !cabe(p) ? `<b class="q7v-fo">${s.t}</b>` : "";
   return `<div class="q7v-bk"${o.md ? ` data-md="${o.md}" role="button" title="Ver o detalhamento"` : ""}><div class="q7v-lb"><span>${dot(o.L.k)}${o.L.n}</span>${o.lr || (o.R ? `<span>${o.R.n}${dot(o.R.k)}</span>` : "")}</div>
-    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap" style="left:calc(${lp}% + 8px);right:calc(${rp}% + ${o.R ? 8 : 16}px)"></span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
+    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap${100 - lp - rp >= 14 ? " in" : ""}${(lp + 100 - rp) / 2 > 84 ? " fim" : ""}" style="left:calc(${lp}% + 3px);right:calc(${rp}% + 3px)">${o.gl ? `<em>${o.gl}</em>` : ""}</span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
     <div class="q7v-vl"><div>${fora(o.L, lp)}${o.bl || ""}</div><div class="m">${o.bm || ""}</div><div class="d">${o.R ? fora(o.R, rp) : ""}${o.br || ""}</div></div></div>`; }
 const q7vTxt = (v, p) => `${v}<span>(${p})</span>`;
 const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</span></b></span>`;
@@ -483,11 +491,11 @@ const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</
 const q7vRS = (v) => (v < 0 ? "−" : "") + "R$ " + Math.abs(+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 function q7vDet(G) { const ab = !!window.__q7det;
   return `<div class="q7v-det"${ab ? "" : " hidden"}>${G.map(([t, L]) => `<div class="q7v-dg"><b>${t}</b>${L.map(([n, v, c]) => `<div class="${c || ""}"><span>${n}</span><em>${q7vRS(v)}</em></div>`).join("")}</div>`).join("")}</div>
-    <button type="button" class="q7v-bt" data-q7det aria-expanded="${ab}">${ab ? "▴ esconder valores exatos" : "▾ ver valores exatos"}</button>`; }
+    <button type="button" class="q7v-bt" data-q7det aria-expanded="${ab}" title="${ab ? "Esconder os valores exatos" : "Ver os valores exatos"}" aria-label="Valores exatos">${ab ? "▴" : "▾"}</button>`; }
 if (!window.__q7detOn) { window.__q7detOn = 1; document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-q7det]"); if (!b) return;
   e.preventDefault(); e.stopPropagation(); window.__q7det = !window.__q7det;
   document.querySelectorAll(".q7v-det").forEach((d) => { d.hidden = !window.__q7det; });
-  document.querySelectorAll("[data-q7det]").forEach((x) => { x.setAttribute("aria-expanded", window.__q7det); x.textContent = window.__q7det ? "▴ esconder valores exatos" : "▾ ver valores exatos"; }); }, true); }
+  document.querySelectorAll("[data-q7det]").forEach((x) => { x.setAttribute("aria-expanded", window.__q7det); x.textContent = window.__q7det ? "▴" : "▾"; x.title = window.__q7det ? "Esconder os valores exatos" : "Ver os valores exatos"; }); }, true); }
 // quadro enxuto (pedido 22/11): uma faixa com cota, indicado, livre e emendas; uma barra; três metas em linha
 function quadro(L) {
   // duas leituras separadas (pedido 23/11, como no painel de Indicação): ÁREA (Saúde × FUNDAM, metades da cota) e
@@ -508,14 +516,14 @@ function quadro(L) {
   // barras; tocar em investimento, em Saúde ou em FUNDAM abre o detalhamento; minimizado mostra só a cota geral
   const mi = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mi", mi2 = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " mi";
   const pp = (v, d) => d ? Math.round(v / d * 100) + "%" : "0%", w = (v) => COTA ? v / COTA * 100 : 0, vao = Math.max(0, livre) + A.def, okI = COTA && A.cap / COTA >= META_CAP - 1e-9, falta = mS - S.t;
-  const lv = q7vLivre(livre < 0 ? "acima da cota" : "livre", mi(Math.abs(livre)), pp(Math.abs(livre), COTA));
+  const gl = livre > .005 ? `livre<b>${mi(livre)}</b>` : "", acima = livre < -.005 ? `<span class="q7v-ch al">acima da cota ${mi(-livre)}</span>` : "";
   return `<div class="qd qd4${MIN ? " min" : ""}"><div class="q7v"><button class="qmin" data-min title="${MIN ? "Mostrar metas e despesas" : "Minimizar"}" aria-label="${MIN ? "Mostrar metas e despesas" : "Minimizar"}">${MIN ? "▾" : "▴"}</button>
     ${q7vLinha({ L: { k: "g", n: "Indicado", p: w(tot), t: q7vTxt(mi2(tot), pp(tot, COTA)) }, lr: `<span class="q7v-lbr">Cota <b>${mi2(COTA)}</b></span>`, fim: true,
-      bl: `<small>${L.length} de ${MAXE} emendas</small>`, bm: lv, br: tot !== totO ? `<small class="dif">${tot > totO ? "+" : "−"}${rcc(Math.abs(tot - totO))} nas mudanças</small>` : "" })}
+      gl, bl: `<small>${L.length} de ${MAXE} emendas</small>`, bm: acima, br: tot !== totO ? `<small class="dif">${tot > totO ? "+" : "−"}${rcc(Math.abs(tot - totO))} nas mudanças</small>` : "" })}
     ${MIN ? "" : q7vLinha({ md: "inv", L: { k: "i", n: "Investimento", p: w(A.cap), t: q7vTxt(mi(A.cap), pp(A.cap, COTA)) }, R: { k: "c", n: "Custeio", p: w(A.cus), t: q7vTxt(mi(A.cus), pp(A.cus, COTA)) }, ag: META_CAP * 100, agT: "Meta " + Math.round(META_CAP * 100) + "%", agK: "i",
-      bl: `<span class="q7v-ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span>`, bm: q7vLivre(A.def ? "livre + a definir" : "livre", mi(vao), pp(vao, COTA)) })}
+      bl: `<span class="q7v-ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span>`, gl: vao > .005 ? `${A.def ? "livre + a definir" : "livre"}<b>${mi(vao)}</b>` : "" })}
     ${MIN ? "" : q7vLinha({ L: { k: "a", n: "Saúde", p: w(S.t), t: q7vTxt(mi(S.t), pp(S.t, COTA)), md: "sau" }, R: { k: "b", n: "FUNDAM", p: w(F.t), t: q7vTxt(mi(F.t), pp(F.t, COTA)), md: "fun" }, ag: SAUDE * 100, agT: "Meta " + Math.round(SAUDE * 100) + "%", agK: "a",
-      bl: falta > .005 ? `<span class="q7v-ch al">faltam ${mi(falta)}</span>` : `<span class="q7v-ch ok">✓ mínimo</span>`, bm: lv,
+      bl: falta > .005 ? `<span class="q7v-ch al">faltam ${mi(falta)}</span>` : `<span class="q7v-ch ok">✓ mínimo</span>`, gl,
       br: F.t > mF + .005 ? `<span class="q7v-ch al">acima ${mi(F.t - mF)}</span>` : `<span class="q7v-ch ok">livre ${mi(mF - F.t)}</span>` })}${MIN ? "" : q7vDet([["Cota geral", [["Cota", COTA], ["Indicado · " + L.length + " emendas", tot, "fo"], [livre < 0 ? "Acima da cota" : "Livre", Math.abs(livre), livre < 0 ? "al" : "ok"]]], ["Investimento × custeio", [["Investimento", A.cap, "fo"], ["Custeio", A.cus, "fo"], ["A definir", A.def], ["Meta (70% da cota)", COTA * .7], [A.cap >= COTA * .7 - .005 ? "Acima da meta" : "Falta para a meta", Math.abs(A.cap - COTA * .7), A.cap >= COTA * .7 - .005 ? "ok" : "al"]]], ["Saúde × FUNDAM", [["Saúde", S.t, "fo"], ["Mínimo da Saúde", mS], [S.t >= mS - .005 ? "Acima do mínimo" : "Faltam na Saúde", Math.abs(S.t - mS), S.t >= mS - .005 ? "ok" : "al"], ["FUNDAM", F.t, "fo"], ["Teto do FUNDAM", mF], [F.t > mF + .005 ? "Acima do teto" : "Livre até o teto", Math.abs(F.t - mF), F.t > mF + .005 ? "al" : "ok"]]]])}</div>
     ${!MIN && MD ? detalhe(L, MD, tot, S.t, A.cap) : ""}</div>`;
 }

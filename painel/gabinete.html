@@ -899,6 +899,14 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 .q7v-bt{display:block;margin:2px auto 8px;background:none;border:1px solid #E5E9F0;border-radius:999px;padding:5px 14px;font:600 12px Inter,system-ui,sans-serif;color:#6B7385;cursor:pointer}.q7v-bt:hover{color:#2E3440;border-color:#C9CFD6}
 @media(max-width:620px){.q7v-det{grid-template-columns:1fr}}
 .q7v-ag[style*="--agc"]{width:3px;margin-left:-1.5px;top:-6px;bottom:-6px;opacity:.85}.q7v-ag[style*="--agc"] i{background:color-mix(in srgb,var(--agc) 12%,#fff);color:var(--agc);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--agc) 35%,#fff);font-weight:650}.q7v-ag[style*="--agc"] i::after{border-top-color:color-mix(in srgb,var(--agc) 35%,#fff)}
+/* 27/11/2026: vazio da barra com profundidade e pontos regulares; "livre" dentro dele; seta dos valores exatos à direita */
+.q7v-gap{position:absolute;top:3px;bottom:3px;border:0 !important;transform:none !important;border-radius:999px;background:radial-gradient(circle,#AEB7C4 1.3px,transparent 1.8px) 4px 50%/10px 10px repeat-x,linear-gradient(180deg,#DDE2E8,#E9EDF1);box-shadow:inset 0 2px 5px rgba(16,24,40,.16),inset 0 -1px 0 rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;z-index:1}
+.q7v-gap em{font-style:normal;font-size:11.5px;font-weight:650;color:#4C566A;background:#EEF1F4;border-radius:999px;padding:3px 10px;white-space:nowrap;box-shadow:0 1px 2px rgba(16,24,40,.08)}.q7v-gap em b{color:#2E3440;font-weight:800;margin-left:3px}
+.q7v-gap:not(.in) em{position:absolute;top:calc(100% + 9px);left:50%;transform:translateX(-50%);background:#fff;box-shadow:0 0 0 1px #E1E5EA,0 2px 6px rgba(16,24,40,.08);z-index:3}
+.q7v-gap:not(.in) em::before{content:"";position:absolute;bottom:100%;left:50%;margin-left:-5px;border:5px solid transparent;border-bottom-color:#E1E5EA}
+.q7v-gap.neg em{color:#B4532A}
+.q7v-bt{width:30px;height:30px;padding:0;margin:2px 0 10px auto;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:12px}
+.q7v-gap.fim:not(.in) em{left:auto;right:-6px;transform:none}.q7v-gap.fim:not(.in) em::before{left:auto;right:12px;margin:0}
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -922,7 +930,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=120"></script>
+<script src="gabinete-indicar.js?cb=122"></script>
 <script src="gabinete-ind-links.js?cb=31"></script>
 <script src="gabinete-ind-gestor.js?cb=8"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>

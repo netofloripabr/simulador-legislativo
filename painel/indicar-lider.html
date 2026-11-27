@@ -184,6 +184,14 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 @media(max-width:620px){.q7v-det{grid-template-columns:1fr}}
 .q7v-det{grid-template-columns:minmax(0,440px)}
 .q7v-ag[style*="--agc"]{width:3px;margin-left:-1.5px;top:-6px;bottom:-6px;opacity:.85}.q7v-ag[style*="--agc"] i{background:color-mix(in srgb,var(--agc) 12%,#fff);color:var(--agc);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--agc) 35%,#fff);font-weight:650}.q7v-ag[style*="--agc"] i::after{border-top-color:color-mix(in srgb,var(--agc) 35%,#fff)}
+/* 27/11/2026: vazio da barra com profundidade e pontos regulares; "livre" dentro dele; seta dos valores exatos à direita */
+.q7v-gap{position:absolute;top:3px;bottom:3px;border:0 !important;transform:none !important;border-radius:999px;background:radial-gradient(circle,#AEB7C4 1.3px,transparent 1.8px) 4px 50%/10px 10px repeat-x,linear-gradient(180deg,#DDE2E8,#E9EDF1);box-shadow:inset 0 2px 5px rgba(16,24,40,.16),inset 0 -1px 0 rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;z-index:1}
+.q7v-gap em{font-style:normal;font-size:11.5px;font-weight:650;color:#4C566A;background:#EEF1F4;border-radius:999px;padding:3px 10px;white-space:nowrap;box-shadow:0 1px 2px rgba(16,24,40,.08)}.q7v-gap em b{color:#2E3440;font-weight:800;margin-left:3px}
+.q7v-gap:not(.in) em{position:absolute;top:calc(100% + 9px);left:50%;transform:translateX(-50%);background:#fff;box-shadow:0 0 0 1px #E1E5EA,0 2px 6px rgba(16,24,40,.08);z-index:3}
+.q7v-gap:not(.in) em::before{content:"";position:absolute;bottom:100%;left:50%;margin-left:-5px;border:5px solid transparent;border-bottom-color:#E1E5EA}
+.q7v-gap.neg em{color:#B4532A}
+.q7v-bt{width:30px;height:30px;padding:0;margin:2px 0 10px auto;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:12px}
+.q7v-gap.fim:not(.in) em{left:auto;right:-6px;transform:none}.q7v-gap.fim:not(.in) em::before{left:auto;right:12px;margin:0}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
 <script>
@@ -260,7 +268,7 @@ function q7vLinha(o) { const cl = (v) => Math.max(0, Math.min(100, +v || 0)), lp
   const fill = (lado, p, s) => p > 0 ? `<span class="q7v-${lado}"${s.md ? ` data-md="${s.md}" role="button" title="Ver o detalhamento"` : ""} style="width:calc(${p}% - 6px);background:${gr(s.k, lado === "l" ? 90 : 270)}">${cabe(p) ? s.t : ""}</span>` : "";
   const fora = (s, p) => p > 0 && !cabe(p) ? `<b class="q7v-fo">${s.t}</b>` : "";
   return `<div class="q7v-bk"${o.md ? ` data-md="${o.md}" role="button" title="Ver o detalhamento"` : ""}><div class="q7v-lb"><span>${dot(o.L.k)}${o.L.n}</span>${o.lr || (o.R ? `<span>${o.R.n}${dot(o.R.k)}</span>` : "")}</div>
-    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap" style="left:calc(${lp}% + 8px);right:calc(${rp}% + ${o.R ? 8 : 16}px)"></span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
+    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap${100 - lp - rp >= 14 ? " in" : ""}${(lp + 100 - rp) / 2 > 84 ? " fim" : ""}" style="left:calc(${lp}% + 3px);right:calc(${rp}% + 3px)">${o.gl ? `<em>${o.gl}</em>` : ""}</span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
     <div class="q7v-vl"><div>${fora(o.L, lp)}${o.bl || ""}</div><div class="m">${o.bm || ""}</div><div class="d">${o.R ? fora(o.R, rp) : ""}${o.br || ""}</div></div></div>`; }
 const q7vTxt = (v, p) => `${v}<span>(${p})</span>`;
 const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</span></b></span>`;
@@ -269,11 +277,11 @@ const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</
 const q7vRS = (v) => (v < 0 ? "−" : "") + "R$ " + Math.abs(+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 function q7vDet(G) { const ab = !!window.__q7det;
   return `<div class="q7v-det"${ab ? "" : " hidden"}>${G.map(([t, L]) => `<div class="q7v-dg"><b>${t}</b>${L.map(([n, v, c]) => `<div class="${c || ""}"><span>${n}</span><em>${q7vRS(v)}</em></div>`).join("")}</div>`).join("")}</div>
-    <button type="button" class="q7v-bt" data-q7det aria-expanded="${ab}">${ab ? "▴ esconder valores exatos" : "▾ ver valores exatos"}</button>`; }
+    <button type="button" class="q7v-bt" data-q7det aria-expanded="${ab}" title="${ab ? "Esconder os valores exatos" : "Ver os valores exatos"}" aria-label="Valores exatos">${ab ? "▴" : "▾"}</button>`; }
 if (!window.__q7detOn) { window.__q7detOn = 1; document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-q7det]"); if (!b) return;
   e.preventDefault(); e.stopPropagation(); window.__q7det = !window.__q7det;
   document.querySelectorAll(".q7v-det").forEach((d) => { d.hidden = !window.__q7det; });
-  document.querySelectorAll("[data-q7det]").forEach((x) => { x.setAttribute("aria-expanded", window.__q7det); x.textContent = window.__q7det ? "▴ esconder valores exatos" : "▾ ver valores exatos"; }); }, true); }
+  document.querySelectorAll("[data-q7det]").forEach((x) => { x.setAttribute("aria-expanded", window.__q7det); x.textContent = window.__q7det ? "▴" : "▾"; x.title = window.__q7det ? "Esconder os valores exatos" : "Ver os valores exatos"; }); }, true); }
 function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i], i) ? +x.valor || 0 : 0), 0);
   const [org, tit] = String(L.titulo || "").includes(" · ") ? L.titulo.split(" · ") : ["", L.titulo || "Emendas"];
   document.getElementById("app").innerHTML = `
@@ -283,8 +291,8 @@ function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) =
     // emendas que já têm objeto (valor e % dentro); a cota é a agulha no fim
     const falta = COTA - uso, pc = COTA ? Math.round(uso / COTA * 100) + "%" : "0%";
     return `<div class="q7v-ttl"><span>Emendas deste link</span><span class="q7v-cd"><span class="tk">${prazoTx()}</span>${cont()}</span></div><div class="q7v">
-    ${q7vLinha({ L: { k: "g", n: "Com objeto", p: COTA ? uso / COTA * 100 : 0, t: q7vTxt(rc(uso), pc) }, lr: `<span class="q7v-lbr">Cota <b>${rc(COTA)}</b></span>`, fim: true,
-      bl: `<small>${F} de ${IT.length} emendas com objeto</small>`, br: falta > .005 ? `<span class="q7v-ch al">falta escolher ${rc(falta)}</span>` : `<span class="q7v-ch ok">✓ todas com objeto</span>` })}${q7vDet([["Emendas deste link", [["Cota", COTA], ["Com objeto (" + F + " de " + IT.length + ")", uso, "fo"], [falta > .005 ? "Falta escolher" : "Tudo com objeto", Math.max(0, falta), falta > .005 ? "al" : "ok"]]]])}</div>`; })()}
+    ${q7vLinha({ L: { k: "g", n: "Com objeto", p: COTA ? uso / COTA * 100 : 0, t: q7vTxt(rc(uso), pc) }, lr: `<span class="q7v-lbr">Cota <b>${rc(COTA)}</b></span>`, fim: true, gl: falta > .005 ? `falta escolher<b>${rc(falta)}</b>` : "",
+      bl: `<small>${F} de ${IT.length} emendas com objeto</small>`, br: falta > .005 ? "" : `<span class="q7v-ch ok">✓ todas com objeto</span>` })}${q7vDet([["Emendas deste link", [["Cota", COTA], ["Com objeto (" + F + " de " + IT.length + ")", uso, "fo"], [falta > .005 ? "Falta escolher" : "Tudo com objeto", Math.max(0, falta), falta > .005 ? "al" : "ok"]]]])}</div>`; })()}
   ${IT.map((x, i) => { const s = ST[i], ok = feito(s, i), inc = incomp(s, i), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
     <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span><div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
     ${comCel(x, i)}
