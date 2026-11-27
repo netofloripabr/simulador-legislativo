@@ -864,6 +864,15 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 .q7cbo i::after{ content:""; position:absolute; top:100%; left:50%; margin-left:-4px; border:4px solid transparent; border-top-color:var(--q7tx); } .q7cbo.fim i::after{ left:auto; right:6px; margin:0; } .q7cbo.ini i::after{ left:6px; margin:0; }
 .q7cli{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-top:12px; font-size:12px; color:var(--q7mu); } .q7cli .pos{ color:#3D7A61; font-weight:600; } .q7cli .neg{ color:#A65A2C; font-weight:600; } .q7cli b{ font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; margin-left:3px; }
 @media (max-width:620px){ .q7ctop{ flex-wrap:wrap; } .q7cpz{ order:3; flex-basis:100%; } }
+/* barra da cota total, versão 2 (27/11/2026): a cota é o alvo no FIM da barra (agulha), o preenchimento vai até ela com o
+   tracejado no que falta; embaixo, como nas outras barras: emendas à esquerda, prazo no meio, cota e livre à direita */
+.q7cgp{position:absolute;top:50%;right:14px;border-top:2px dotted #B7BFCC;transform:translateY(-50%)}
+.q7cend{position:absolute;right:-1px;top:-8px;bottom:-8px;width:4px;border-radius:2px;background:#2E3440;box-shadow:0 0 0 3px #fff;z-index:1}
+.q7cro{display:grid;grid-template-columns:1fr auto 1fr;align-items:start;gap:16px;margin-top:18px}
+.q7cro small,.q7cro .tk{display:block;font-size:12px;color:#6B7385;font-weight:500}.q7cro b{display:block;font-size:18px;font-weight:700;margin-top:6px;color:#2E3440;font-variant-numeric:tabular-nums;letter-spacing:-.015em}.q7cro b em{font-style:normal;font-size:14px;font-weight:500;color:#6B7385}
+.q7cro .r{text-align:right}.q7cro .m{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}.q7cro .m .icd div{width:46px;padding:3px 0}.q7cro .m .icd b{font-size:15px;margin-top:0;color:#E8822A}.q7cro .m .icd span{font-size:10px}
+.q7cch{display:inline-block;margin-top:8px;font-size:11.5px;font-weight:650;border-radius:999px;padding:4px 10px}.q7cch.ok{background:#DFF4F1;color:#1F7D72}.q7cch.al{background:#FCE9DF;color:#B4532A}
+@media(max-width:620px){.q7cro{grid-template-columns:1fr 1fr}.q7cro .m{grid-column:1/-1;grid-row:2}}
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -887,7 +896,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=115"></script>
+<script src="gabinete-indicar.js?cb=116"></script>
 <script src="gabinete-ind-links.js?cb=31"></script>
 <script src="gabinete-ind-gestor.js?cb=8"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
