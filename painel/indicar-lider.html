@@ -195,6 +195,11 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 /* 27/11/2026: rebaixo por baixo do preenchimento; preenchimentos e agulhas acima dele */
 .q7v-l,.q7v-r{z-index:2}.q7v-ag,.q7v-end{z-index:4}.q7v-gap{z-index:1;box-sizing:border-box}
 .q7v-bk:has(.q7v-gap:not(.in) em) .q7v-vl{margin-top:40px}
+.q7v-gap.ini:not(.in) em{left:-6px;transform:none}.q7v-gap.ini:not(.in) em::before{left:14px;margin:0}
+.q7v-gap:not(.in) em{font-size:11.5px;padding:4px 11px}
+.q7v-tl{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:18px 0 14px}.q7v-tl small{display:block;font-size:12px;color:#6B7385;font-weight:500}.q7v-tl b{display:block;font-size:20px;font-weight:800;letter-spacing:-.02em;margin-top:4px;color:#2E3440;font-variant-numeric:tabular-nums}.q7v-tl b em{font-style:normal;font-size:13px;font-weight:500;color:#6B7385}.q7v-tl .r{text-align:right}
+.ihd .bxp + .bxp{margin-left:6px}
+.q7v-gap em b{font-size:inherit !important;letter-spacing:0}.q7v-cut{color:transparent !important}.q7v-cut span{display:none}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
 <script>
@@ -257,6 +262,7 @@ async function baixarPortfolio() { try { const j = await (await fetch("../dados/
   const txt = [["Área", "Categoria", "Objeto", "Despesa", "Órgão", "Descrição", "Novo"], ...(j.O || []).map((r) => [...r.slice(0, 6), r[6] ? "novo até 31/12/2026" : ""])].map((r) => r.map(q).join(";")).join("\r\n");
   const a = document.createElement("a"); a.href = window.URL.createObjectURL(new Blob(["\ufeff" + txt], { type: "text/csv;charset=utf-8" })); a.download = "portfolio-emendas.csv"; document.body.appendChild(a); a.click(); setTimeout(() => { window.URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   } catch (e) { alert("Não foi possível baixar o Portfólio: " + (e.message || e)); } }
+const ICO_IMP = '<svg viewBox="0 0 16 16" aria-hidden="true" class="ibx"><path d="M4.5 6V2.5h7V6"/><rect x="2" y="6" width="12" height="5.5" rx="1.2"/><path d="M4.5 9.5h7v4h-7z"/></svg>';
 const ICO_BX = '<svg viewBox="0 0 16 16" aria-hidden="true" class="ibx"><path d="M8 2.5v8M4.5 7L8 10.5 11.5 7M3 13.5h10"/></svg>';
 // 27/11/2026 (migração 121): objeto e justificativa sempre editáveis enquanto o link estiver aberto — mesmo depois de enviar ou de o gabinete decidir
 const trava = (s) => !ABERTO;
@@ -271,12 +277,15 @@ function q7vLinha(o) { const cl = (v) => Math.max(0, Math.min(100, +v || 0)), lp
   const fill = (lado, p, s) => p > 0 ? `<span class="q7v-${lado}"${s.md ? ` data-md="${s.md}" role="button" title="Ver o detalhamento"` : ""} style="width:calc(${p}% - 6px);background:${gr(s.k, lado === "l" ? 90 : 270)}">${cabe(p) ? s.t : ""}</span>` : "";
   const fora = (s, p) => p > 0 && !cabe(p) ? `<b class="q7v-fo">${s.t}</b>` : "";
   return `<div class="q7v-bk"${o.md ? ` data-md="${o.md}" role="button" title="Ver o detalhamento"` : ""}><div class="q7v-lb"><span>${dot(o.L.k)}${o.L.n}</span>${o.lr || (o.R ? `<span>${o.R.n}${dot(o.R.k)}</span>` : "")}</div>
-    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap in${(lp + 100 - rp) / 2 > 84 ? " fim" : ""}" style="left:${lp > 0 ? `calc(${lp}% - 24px)` : "3px"};right:${rp > 0 ? `calc(${rp}% - 24px)` : "3px"};padding:0 ${rp > 0 ? 24 : 0}px 0 ${lp > 0 ? 24 : 0}px">${o.gl ? `<em>${o.gl}</em>` : ""}</span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
+    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap${(lp + 100 - rp) / 2 > 84 ? " fim" : (lp + 100 - rp) / 2 < 16 ? " ini" : ""}" style="left:${lp > 0 ? `calc(${lp}% - 24px)` : "3px"};right:${rp > 0 ? `calc(${rp}% - 24px)` : "3px"};padding:0 ${rp > 0 ? 24 : 0}px 0 ${lp > 0 ? 24 : 0}px">${o.gl ? `<em>${o.gl}</em>` : ""}</span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
     <div class="q7v-vl"><div>${fora(o.L, lp)}${o.bl || ""}</div><div class="m">${o.bm || ""}</div><div class="d">${o.R ? fora(o.R, rp) : ""}${o.br || ""}</div></div></div>`; }
 const q7vTxt = (v, p) => `${v}<span>(${p})</span>`;
 // a etiqueta do vazio fica dentro só se couber; senão sai para baixo (mede depois de desenhar e quando a tela muda de largura)
-function q7vFit() { document.querySelectorAll(".q7v-gap").forEach((g) => { const e = g.querySelector("em"); if (!e) return; g.classList.add("in");
-  const cs = getComputedStyle(g), livre = g.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight); if (e.offsetWidth + 14 > livre) g.classList.remove("in"); }); }
+function q7vFit() { document.querySelectorAll(".q7v-gap").forEach((g) => { const e = g.querySelector("em"); if (!e) return; g.classList.remove("in"); return;
+  const cs = getComputedStyle(g), livre = g.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight); if (e.offsetWidth + 14 > livre) g.classList.remove("in"); });
+  // texto dentro do preenchimento: se não couber, some o (%) e, se ainda não couber, o valor vai para o título (passar o mouse)
+  document.querySelectorAll(".q7v-l,.q7v-r").forEach((f) => { const sp = f.querySelector("span"); if (sp) sp.style.display = ""; f.classList.remove("q7v-cut"); f.style.justifyContent = "flex-start";
+    if (f.scrollWidth > f.clientWidth + 1 && sp) sp.style.display = "none"; if (f.scrollWidth > f.clientWidth + 1) { f.title = f.textContent; f.classList.add("q7v-cut"); } f.style.justifyContent = ""; }); }
 if (!window.__q7fit) { window.__q7fit = 1; let t; const pede = () => { clearTimeout(t); t = setTimeout(q7vFit, 30); };
   new MutationObserver((m) => { if (m.some((r) => [...r.addedNodes].some((n) => n.nodeType === 1 && (n.matches(".q7v,.q7v-cx") || n.querySelector && n.querySelector(".q7v-gap"))))) pede(); }).observe(document.documentElement, { childList: true, subtree: true });
   addEventListener("resize", pede); pede(); }
@@ -291,17 +300,56 @@ if (!window.__q7detOn) { window.__q7detOn = 1; document.addEventListener("click"
   e.preventDefault(); e.stopPropagation(); window.__q7det = !window.__q7det;
   document.querySelectorAll(".q7v-det").forEach((d) => { d.hidden = !window.__q7det; });
   document.querySelectorAll("[data-q7det]").forEach((x) => { x.setAttribute("aria-expanded", window.__q7det); x.textContent = window.__q7det ? "▴" : "▾"; x.title = window.__q7det ? "Esconder os valores exatos" : "Ver os valores exatos"; }); }, true); }
+// quadro do link do líder (27/11/2026): no padrão do painel, mas sem "falta escolher" — o total que o líder indicou e as duas
+// leituras do gabinete (investimento × custeio e Saúde × FUNDAM), com o percentual sobre o total do link; sem agulhas de meta
+// (as metas valem para a cota inteira do gabinete, não para cada líder). Usado na tela e no relatório impresso.
+function quadroLider() { const val = (x) => +x.valor || 0, T = IT.reduce((s, x) => s + val(x), 0), pc = (v) => T ? Math.round(v / T * 100) + "%" : "0%";
+  const soma = (f) => IT.filter(f).reduce((s, x) => s + val(x), 0), cap = soma((x) => x.natureza === "Capital" || x.natureza === "Investimento"), cus = soma((x) => x.natureza === "Custeio"), def = T - cap - cus;
+  const sau = soma((x) => grupo(x) === "Saúde"), fun = T - sau, w = (v) => T ? v / T * 100 : 0, F = ST.filter(feito).length;
+  return `<div class="q7v">
+    <div class="q7v-bk q7v-tl"><div><small>Total indicado</small><b>${q7vRS(T)}</b></div><div class="r"><small>Emendas</small><b>${IT.length} <em>· ${F} com objeto</em></b></div></div>
+    ${q7vLinha({ L: { k: "i", n: "Investimento", p: w(cap), t: q7vTxt(rc(cap), pc(cap)) }, R: { k: "c", n: "Custeio", p: w(cus), t: q7vTxt(rc(cus), pc(cus)) }, gl: def > .005 ? `a definir<b>${rc(def)}</b>` : "" })}
+    ${q7vLinha({ L: { k: "a", n: "Saúde", p: w(sau), t: q7vTxt(rc(sau), pc(sau)) }, R: { k: "b", n: "FUNDAM", p: w(fun), t: q7vTxt(rc(fun), pc(fun)) } })}
+    ${q7vDet([["Total", [["Total indicado", T, "fo"]]], ["Investimento × custeio", [["Investimento", cap, "fo"], ["Custeio", cus, "fo"], ["A definir", def]]], ["Saúde × FUNDAM", [["Saúde", sau, "fo"], ["FUNDAM", fun, "fo"]]]])}</div>`; }
+// relatório impresso do link (27/11/2026): padrão do sistema — cabeçalho, o quadro com as barras e as emendas completas, com a
+// justificativa; usa o que está na tela (inclusive o que ainda não foi enviado)
+function imprimirLider() { const w = window.open("", "_blank"); if (!w) return alert("Libere as janelas pop-up do navegador para imprimir.");
+  const [org, tit] = String(L.titulo || "").includes(" · ") ? L.titulo.split(" · ") : ["", L.titulo || "Emendas"], ag = new Date(), dt = ag.toLocaleDateString("pt-BR"), hr = ag.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const css = [...document.querySelectorAll("style")].map((st) => st.textContent).join("\n").replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "").split("}").filter((r) => /\.q7v/.test(r.split("{")[0])).map((r) => r.trim() + "}").join("\n");
+  const brl = (v) => "R$ " + (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const lin = IT.map((x, i) => { const s = ST[i], ent = s.bt === "ent", ok = feito(s, i);
+    return `<div class="em"><div class="eh"><span class="n">${i + 1}</span><span class="m"><b>${esc(s.mun || x.municipio || "—")}</b><small>${ent ? "Entidade" + (s.ben ? " · " + esc(s.ben) : "") + (s.cnpj ? " · CNPJ " + esc(s.cnpj) : "") : "Município"}</small></span>
+      <span class="ch">${esc(grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + x.area : ""))}</span>${x.natureza ? `<span class="ch">${esc(x.natureza)}</span>` : ""}<span class="v">${brl(x.valor)}</span></div>
+      <div class="eo"><span class="tk">Objeto</span>${s.obj ? esc(s.obj) : `<i>não escolhido</i>`}${!ok && s.obj && !convenio(i) ? ` <span class="fp">fora do Portfólio</span>` : ""}</div>
+      <div class="ej"><span class="tk">Justificativa</span>${s.com ? esc(s.com).replace(/\n/g, "<br>") : `<i>não informada</i>`}</div></div>`; }).join("");
+  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(tit)} · ${esc(L.nome)} · ${dt}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>
+@page{size:A4;margin:14mm 12mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{font-family:Inter,system-ui,sans-serif;color:#111;margin:0;padding:0 3px}
+.agua{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:-1}.agua span{font-size:110px;font-weight:800;color:rgba(0,0,0,.035);transform:rotate(-24deg)}
+.cab{display:flex;align-items:flex-end;justify-content:space-between}.wm{font-size:18px;font-weight:800;line-height:1}.wm span{color:#1FA83A}.wms{font-size:7px;font-weight:800;letter-spacing:.2em;color:#6B7178;text-transform:uppercase;margin-top:3px}
+.meta{text-align:right;font-size:9px;color:#3F454B;line-height:1.5}.regra{margin:10px 0 14px;height:2px;background:#A9AEB3;position:relative}.regra:after{content:"";position:absolute;left:0;right:0;top:4px;height:1px;background:#D3D6D8}
+.tit{font-size:16px;font-weight:800}.sub{font-size:9.5px;color:#3F454B;margin:2px 0 10px}
+${css}
+.q7v{box-shadow:none;padding:2px 16px 4px;border-radius:14px;margin:0 0 14px}.q7v-bk{padding:10px 0 8px}.q7v-tr{height:22px}.q7v-l,.q7v-r{font-size:9px}.q7v-l{padding-left:10px}.q7v-r{padding-right:10px}.q7v-lb{font-size:8.5px;margin-bottom:4px}.q7v-vl{margin-top:4px;min-height:0}.q7v-bt,.q7v-det{display:none!important}.q7v-gap:not(.in) em{font-size:8px;padding:2px 8px;top:calc(100% + 6px)}.q7v-bk:has(.q7v-gap:not(.in) em) .q7v-vl{margin-top:26px}.q7v-tl small{font-size:8px}.q7v-tl b{font-size:13px}.q7v-fo{font-size:9px;margin-bottom:0}.q7v-fo span{font-size:8px}
+.st{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;margin:4px 0 6px;padding-bottom:4px;border-bottom:1.5px solid #A9AEB3}
+.em{border-bottom:.5px solid #DCDFE2;padding:8px 2px 9px;page-break-inside:avoid}.eh{display:flex;align-items:center;gap:8px}.eh .n{width:16px;color:#9AA0A4;font-size:9px;text-align:right}.eh .m{flex:1;min-width:0}.eh .m b{font-size:11px}.eh .m small{display:block;font-size:8px;color:#6B7178;margin-top:1px}
+.eh .ch{font-size:7.5px;font-weight:700;background:#E4E7E9;color:#3F454B;border-radius:4px;padding:3px 6px}.eh .v{font-size:10px;font-weight:700;background:#E4E7E9;border-radius:4px;padding:3px 7px;font-variant-numeric:tabular-nums}
+.eo,.ej{margin:5px 0 0 24px;font-size:9.5px;line-height:1.45}.ej{color:#333}.tk{display:block;font-size:6.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B7178;margin-bottom:1px}.eo i,.ej i{color:#9AA0A4}.fp{font-size:7.5px;font-weight:700;color:#B3261E}
+.tot{display:flex;justify-content:space-between;font-weight:800;font-size:11px;padding:8px 2px;border-top:1.5px solid #A9AEB3;margin-top:2px}.tot b{color:#1FA83A}
+.pagfoot{display:flex;justify-content:space-between;font-size:7.5px;color:#9AA0A4;border-top:.5px solid #DCDFE2;margin-top:16px;padding-top:6px}
+</style></head><body><div class="agua"><span>SimulaLEGIS</span></div>
+<div class="cab"><div><div class="wm">Simula<span>LEGIS</span></div><div class="wms">${esc(org || "Gabinete")} · Indicação de emendas</div></div><div class="meta"><b>${esc(L.nome)}</b><br>gerado em ${dt} às ${hr}</div></div><div class="regra"></div>
+<div class="tit">${esc(tit)} · ${esc(L.nome)}</div><div class="sub">${prazoTx()} · ${IT.length} ${IT.length === 1 ? "emenda" : "emendas"}${L.enviado_em ? " · enviado ao gabinete em " + new Date(L.enviado_em).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : " · ainda não enviado ao gabinete"}</div>
+${quadroLider()}
+<div class="st">Emendas</div>${lin}
+<div class="tot"><span>Total · ${IT.length} ${IT.length === 1 ? "emenda" : "emendas"}</span><b>${brl(IT.reduce((t, x) => t + (+x.valor || 0), 0))}</b></div>
+<div class="pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app · indicação de emendas</span><span>${dt} ${hr}</span></div>
+<script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`); w.document.close(); }
 function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i], i) ? +x.valor || 0 : 0), 0);
   const [org, tit] = String(L.titulo || "").includes(" · ") ? L.titulo.split(" · ") : ["", L.titulo || "Emendas"];
   document.getElementById("app").innerHTML = `
   ${org ? `<div class="org">${esc(org)}</div>` : ""}
-  <div class="ihd"><h2>${esc(tit)}</h2><span>${esc(L.nome)}</span><button class="ii" data-info aria-label="Como preencher">i</button><button class="bxp" data-port title="Baixar a lista de objetos do Portfólio">${ICO_BX}Portfólio</button></div>
-  ${(() => { // quadro da cota v4 (27/11/2026, igual à planilha e ao Link Gestor): prazo fora do cartão; a barra enche com o valor das
-    // emendas que já têm objeto (valor e % dentro); a cota é a agulha no fim
-    const falta = COTA - uso, pc = COTA ? Math.round(uso / COTA * 100) + "%" : "0%";
-    return `<div class="q7v-ttl"><span>Emendas deste link</span><span class="q7v-cd"><span class="tk">${prazoTx()}</span>${cont()}</span></div><div class="q7v">
-    ${q7vLinha({ L: { k: "g", n: "Com objeto", p: COTA ? uso / COTA * 100 : 0, t: q7vTxt(rc(uso), pc) }, lr: `<span class="q7v-lbr">Cota <b>${rc(COTA)}</b></span>`, gl: falta > .005 ? `falta escolher<b>${rc(falta)}</b>` : "",
-      bl: `<small>${F} de ${IT.length} emendas com objeto</small>`, br: falta > .005 ? "" : `<span class="q7v-ch ok">✓ todas com objeto</span>` })}${q7vDet([["Emendas deste link", [["Cota", COTA], ["Com objeto (" + F + " de " + IT.length + ")", uso, "fo"], [falta > .005 ? "Falta escolher" : "Tudo com objeto", Math.max(0, falta), falta > .005 ? "al" : "ok"]]]])}</div>`; })()}
+  <div class="ihd"><h2>${esc(tit)}</h2><span>${esc(L.nome)}</span><button class="ii" data-info aria-label="Como preencher">i</button><button class="bxp" data-imp title="Imprimir o relatório deste link">${ICO_IMP}Imprimir</button><button class="bxp" data-port title="Baixar a lista de objetos do Portfólio">${ICO_BX}Portfólio</button></div>
+  <div class="q7v-ttl"><span>Emendas deste link</span><span class="q7v-cd"><span class="tk">${prazoTx()}</span>${cont()}</span></div>${quadroLider()}
   ${IT.map((x, i) => { const s = ST[i], ok = feito(s, i), inc = incomp(s, i), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
     <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span><div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
     ${comCel(x, i)}
@@ -358,6 +406,7 @@ function liga() { const A = document.getElementById("app");
   A.querySelectorAll("[data-gcm]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); editaComentario(b, +b.dataset.gcm); });
   A.querySelector("[data-info]").onclick = (ev) => info(ev.currentTarget);
   A.querySelector("[data-port]").onclick = () => baixarPortfolio();
+  A.querySelector("[data-imp]").onclick = () => imprimirLider();
   const falta = () => IT.map((x, i) => i).filter((i) => !trava(ST[i]) && !feito(ST[i], i));
   const rb = document.getElementById("reabrir"); if (rb) rb.onclick = async () => {
     if (L.pedido_reabrir_em) { await confirmaVX("Pedido já enviado", "O gabinete já recebeu o seu pedido para reabrir. Assim que autorizar, este link volta a ficar editável (atualize a página)."); return; }
