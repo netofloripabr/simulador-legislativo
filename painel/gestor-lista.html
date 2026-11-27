@@ -297,12 +297,12 @@ td.ac{width:70px}
 /* Portfólio: objetos incluídos em 25/11/2026 em verde até 31/12/2026 */ .pfi.pfnv{ background:#EAF7EE; box-shadow:inset 3px 0 0 #1FA83A; } .nvt{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#1FA83A; border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:1px; } .nvc{ font-style:normal; color:#1FA83A; font-weight:700; }
 .cpy{display:inline-flex;vertical-align:-2px;margin-left:6px;padding:2px;border-radius:5px;color:#6E767D;cursor:pointer;border:1px solid transparent}.cpy:hover{color:#1D2226;border-color:#DEE2E5;background:#fff}.cpy .ck{display:none}.cpy.ok{color:#1FA845}.cpy.ok svg{display:none}.cpy.ok .ck{display:block}
 /* barra da cota total no padrão das barras Saúde × FUNDAM e investimento × custeio (27/11/2026) */
-.q7cota{padding-right:34px}.q7ctop{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.q7ctop small{display:block;font-size:11.5px;color:var(--mu)}.q7ctop b{display:block;font-size:20px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:2px}.q7ctop b em{font-style:normal;font-size:13px;font-weight:500;color:var(--mu);letter-spacing:0}.q7ctop .r{text-align:right}
-.q7ctr{position:relative;height:16px;border-radius:999px;background:#ECEFF4;margin:44px 0 0}.q7cfi{position:absolute;left:2px;top:2px;bottom:2px;border-radius:999px;background:linear-gradient(90deg,#5E6E86,#34506B);min-width:0}
+.qd > .q7tot{margin-top:0}.q7cota .q7ctop{padding-right:30px}.q7ctop{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.q7ctop small{display:block;font-size:12px;color:var(--q7mu);font-weight:500}.q7ctop b{display:block;font-size:18px;font-weight:700;letter-spacing:-.015em;font-variant-numeric:tabular-nums;margin-top:6px;color:var(--q7tx)}.q7ctop b em{font-style:normal;font-size:14px;font-weight:500;color:var(--q7mu);letter-spacing:0}.q7ctop .r{text-align:right}
+.q7ctr{position:relative;height:16px;border-radius:999px;background:var(--q7tk);margin:46px 0 0}.q7cfi{position:absolute;left:2px;top:2px;bottom:2px;border-radius:999px;background:linear-gradient(90deg,#5E6E86,#34506B);min-width:0}
 .q7cbo{position:absolute;bottom:calc(100% + 9px);transform:translateX(-50%);z-index:2}.q7cbo.fim{transform:translateX(-100%)}.q7cbo.ini{transform:translateX(0)}
-.q7cbo i{display:block;position:relative;background:#2E3440;color:#fff;font-style:normal;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:8px;white-space:nowrap;font-variant-numeric:tabular-nums}.q7cbo i b{font-weight:800}
+.q7cbo i{display:block;position:relative;background:var(--q7tx);color:#fff;font-style:normal;font-size:11px;font-weight:600;padding:4px 9px;border-radius:8px;white-space:nowrap;font-variant-numeric:tabular-nums}.q7cbo i b{font-weight:800}
 .q7cbo i::after{content:"";position:absolute;top:100%;left:50%;margin-left:-4px;border:4px solid transparent;border-top-color:#2E3440}.q7cbo.fim i::after{left:auto;right:6px;margin:0}.q7cbo.ini i::after{left:6px;margin:0}
-.q7cli{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:8px;font-size:12px;color:var(--mu)}.q7cli .pos{color:#3D7A61;font-weight:600}.q7cli .neg{color:#A65A2C;font-weight:600}.q7cli b{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-left:3px}
+.q7cli{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:12px;font-size:12px;color:var(--q7mu)}.q7cli .pos{color:#3D7A61;font-weight:600}.q7cli .neg{color:#A65A2C;font-weight:600}.q7cli b{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-left:3px}
 @media(max-width:620px){.q7ctop b{font-size:17px}.q7cbo i{font-size:10.5px;padding:4px 8px}}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
@@ -446,10 +446,10 @@ function quadro(L) {
       <div class="arb"><i style="width:${(Math.min(o.t, esc2) / esc2 * 100).toFixed(1)}%"></i><b style="left:${(m / esc2 * 100).toFixed(1)}%"></b></div>
       <div class="ars"><span>Investimento e custeio</span><b>capital ${p(o.cap, o.t)}</b></div>${desp(o)}</div>`; };
   return `<div class="qd${MIN ? " min" : ""}"><button class="qmin" data-min title="${MIN ? "Mostrar metas e despesas" : "Minimizar"}" aria-label="${MIN ? "Mostrar metas e despesas" : "Minimizar"}">${MIN ? "▾" : "▴"}</button>
-    ${(() => { // barra da cota total no padrão das outras (27/11/2026): trilho arredondado; o indicado enche da esquerda com o valor
+    <div class="q7 q7g q7tot">${(() => { // barra da cota total no padrão das outras (27/11/2026): trilho arredondado; o indicado enche da esquerda com o valor
       // num balão preso ao fim do preenchimento; o livre fica no vão, à direita; cota e emendas numa linha só, em cima
       const uP = COTA ? Math.min(100, tot / COTA * 100) : 0, pos = uP > 78 ? " fim" : uP < 22 ? " ini" : "", mi2 = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " mi";
-      return `<div class="q7cota"><div class="q7ctop"><span><small>Cota</small><b>${mi2(COTA)}</b></span><span class="r"><small>Emendas</small><b>${L.length} <em>de ${MAXE}</em></b></span></div>
+      return `<div class="q7bk q7cota"><div class="q7ctop"><span><small>Cota</small><b>${mi2(COTA)}</b></span><span class="r"><small>Emendas</small><b>${L.length} <em>de ${MAXE}</em></b></span></div>
       <div class="q7ctr"><span class="q7cfi" style="width:calc(${uP}% - 4px)"></span><span class="q7cbo${pos}" style="left:${uP}%"><i>Indicado <b>${mi2(tot)}</b> · ${p(tot, COTA)}</i></span></div>
       <div class="q7cli"><span>${tot !== totO ? `<small class="dif">${tot > totO ? "+" : "−"}${rcc(Math.abs(tot - totO))} nas mudanças</small>` : ""}</span><span class="${livre < 0 ? "neg" : "pos"}">${livre < 0 ? "Acima da cota" : "Livre"} <b>${rcc(Math.abs(livre))}</b></span></div></div>`; })()}
     ${MIN ? "" : (() => { // mesmo quadro da planilha (P7 · Nórdica, 25/11/2026): vão no centro, agulha na meta; tocar em cada parte abre o detalhamento
@@ -457,14 +457,14 @@ function quadro(L) {
       const ipv = COTA ? A.cap / COTA * 100 : 0, vao = Math.max(0, livre) + A.def, okI = ipv >= META_CAP * 100 - 1e-9, ipT = !okI && Math.round(ipv) >= 70 ? ipv.toFixed(1).replace(".", ",") + "%" : Math.round(ipv) + "%", falta = mS - S.t;
       const tr = (l, k1, r, k2, base, ag, agT) => { const Lp = base ? Math.min(100, l / base * 100) : 0, Rp = base ? Math.min(100 - Lp, r / base * 100) : 0;
         return `<div class="q7tr"><span class="q7gap" style="left:${Lp}%;right:${Rp}%"></span><span class="q7l" style="width:calc(${Lp}% - 4px);background:linear-gradient(90deg,var(--q7${k1}1),var(--q7${k1}2))"></span><span class="q7r" style="width:calc(${Rp}% - 4px);background:linear-gradient(270deg,var(--q7${k2}1),var(--q7${k2}2))"></span><span class="q7ag" style="left:${ag * 100}%"><i>${agT}</i></span></div>`; };
-      return `<div class="q7 q7g"><div class="q7bk"><div class="q7lb">Saúde × FUNDAM</div>${tr(S.t, "a", F.t, "b", COTA, SAUDE, Math.round(SAUDE * 100) + "%")}
+      return `<div class="q7bk"><div class="q7lb">Saúde × FUNDAM</div>${tr(S.t, "a", F.t, "b", COTA, SAUDE, Math.round(SAUDE * 100) + "%")}
         <div class="q7rd"><div class="q7k${MD === "sau" ? " on" : ""}" data-md="sau" role="button" title="Ver o detalhamento"><small><i style="background:var(--q7a2)"></i>Saúde</small><b>${mi(S.t)}<span>(${pp(S.t, mS)})</span></b>${falta > .005 ? `<span class="q7ch al">faltam ${mi(falta)}</span>` : `<span class="q7ch ok">✓ mínimo</span>`}</div>
           <div><span class="q7mid"><small>${livre < 0 ? "acima da cota" : "livre"}</small><b>${mi(Math.abs(livre))}<span>(${pp(Math.abs(livre), COTA)})</span></b></span></div>
           <div class="q7k${MD === "fun" ? " on" : ""}" data-md="fun" role="button" title="Ver o detalhamento"><small>FUNDAM<i style="background:var(--q7b2)"></i></small><b>${mi(F.t)}<span>(${pp(F.t, mF)})</span></b>${F.t > mF + .005 ? `<span class="q7ch al">acima ${mi(F.t - mF)}</span>` : `<span class="q7ch ok">livre ${mi(mF - F.t)}</span>`}</div></div></div>
       <div class="q7bk q7k${MD === "inv" ? " on" : ""}" data-md="inv" role="button" title="Ver o detalhamento"><div class="q7lb">Investimento × custeio</div>${tr(A.cap, "i", A.cus, "c", COTA, META_CAP, "meta " + Math.round(META_CAP * 100) + "%")}
         <div class="q7rd"><div><small><i style="background:var(--q7i2)"></i>Investimento</small><b>${mi(A.cap)}<span>(${ipT})</span></b><span class="q7ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span></div>
           <div><span class="q7mid"><small>${A.def ? "livre + a definir" : "livre"}</small><b>${mi(vao)}<span>(${pp(vao, COTA)})</span></b></span></div>
-          <div><small>Custeio<i style="background:var(--q7c2)"></i></small><b>${mi(A.cus)}<span>(${pp(A.cus, COTA)})</span></b></div></div></div></div>`; })()}
+          <div><small>Custeio<i style="background:var(--q7c2)"></i></small><b>${mi(A.cus)}<span>(${pp(A.cus, COTA)})</span></b></div></div></div>`; })()}</div>
     ${!MIN && MD ? detalhe(L, MD, tot, S.t, A.cap) : ""}</div>`;
 }
 

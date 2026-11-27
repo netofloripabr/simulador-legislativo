@@ -27,9 +27,9 @@ function anosInd() {
 function capaInd(T) {
   if (T && T.cota) {
     const c = T.cota, it = T.L ? AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x)) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), livre = c.disp - tot;
-    return `<div class="t"><span class="tk">Disponível</span><span class="iv">R$ ${nf(c.disp, 2)}<small>${esc(c.base || "")}</small></span></div>
-      <div class="t"><span class="tk">Livre</span><span class="iv"${livre < 0 ? ' style="color:#C0392B"' : ""}>${rc(livre)}<small>${it.length} de ${c.max || "—"} emendas</small></span>${c.saude ? "" : `<div class="ibar"><i style="width:${Math.min(100, tot / c.disp * 100)}%"></i></div>`}</div>
-      <div class="t w2"><span class="tk">${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</span><div class="icd" data-prazo="${esc(c.prazo || "")}"></div></div>${c.saude ? barraSeg(c, it, tot) : ""}`;
+    return `${c.saude ? "" : `<div class="t"><span class="tk">Disponível</span><span class="iv">R$ ${nf(c.disp, 2)}<small>${esc(c.base || "")}</small></span></div>
+      <div class="t"><span class="tk">Livre</span><span class="iv"${livre < 0 ? ' style="color:#C0392B"' : ""}>${rc(livre)}<small>${it.length} de ${c.max || "—"} emendas</small></span>${c.saude ? "" : `<div class="ibar"><i style="width:${Math.min(100, tot / c.disp * 100)}%"></i></div>`}</div>`}
+      ${c.saude ? "" : `<div class="t w2"><span class="tk">${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</span><div class="icd" data-prazo="${esc(c.prazo || "")}"></div></div>`}${c.saude ? barraSeg(c, it, tot) : ""}`;
   }
   const a = IND.ano, sv = S.cesc; S.cesc = "imp"; const I = itensCotas().filter((x) => x.ano === a); S.cesc = sv;
   const ind = I.reduce((s, x) => s + x.v, 0), pg = I.reduce((s, x) => s + x.pago, 0), q = (QUOTA[a] || 0) + Object.entries(COTAS_LEGAIS[a] || {}).filter(([t]) => t !== "AN").map(([, c]) => c).reduce((s, c) => s + (c.disp || 0), 0);
@@ -54,8 +54,12 @@ function barraSeg(c, it, tot) {
   const ipT = !okI && Math.round(ipv) >= 70 ? ipv.toFixed(1).replace(".", ",") + "%" : Math.round(ipv) + "%", C = 2 * Math.PI * 18;
   const tr = (l, k1, lt, r, k2, rt, base, ag, agT) => { const Lp = base ? Math.min(100, l / base * 100) : 0, Rp = base ? Math.min(100 - Lp, r / base * 100) : 0;
     return `<div class="q7tr"><span class="q7gap" style="left:${Lp}%;right:${Rp}%"></span><span class="q7l" style="width:calc(${Lp}% - 4px);background:linear-gradient(90deg,var(--q7${k1}1),var(--q7${k1}2))" title="${esc(lt)}"></span><span class="q7r" style="width:calc(${Rp}% - 4px);background:linear-gradient(270deg,var(--q7${k2}1),var(--q7${k2}2))" title="${esc(rt)}"></span><span class="q7ag" style="left:${ag * 100}%"><i>${agT}</i></span></div>`; };
-  return `<div class="t w4 q7"><div class="q7h"><div><small>Emendas impositivas</small><b>Cota de ${mi(D)}</b></div>
-      <div class="q7p"><span>indicado<b>${mi(tot)}</b></span><strong>${pc(tot, D)}</strong><svg class="q7ring" viewBox="0 0 44 44"><circle class="b" cx="22" cy="22" r="18"/><circle class="f" cx="22" cy="22" r="18" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - Math.min(1, tot / D))}" transform="rotate(-90 22 22)"/></svg></div></div>
+  // barra da cota total (27/11/2026, igual ao Link Gestor): cota e emendas numa linha; o indicado enche da esquerda com o valor num
+  // balão preso ao fim do preenchimento; livre embaixo, à direita
+  const uP = D ? Math.min(100, tot / D * 100) : 0, pos = uP > 78 ? " fim" : uP < 22 ? " ini" : "", mi2 = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " mi";
+  return `<div class="t w4 q7"><div class="q7bk q7cota"><div class="q7ctop"><span><small>Emendas impositivas · cota</small><b>${mi2(D)}</b></span><span class="q7cpz"><small>${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</small><div class="icd" data-prazo="${esc(c.prazo || "")}"></div></span><span class="r"><small>Emendas</small><b>${it.length} <em>de ${c.max || "—"}</em></b></span></div>
+      <div class="q7ctr"><span class="q7cfi" style="width:calc(${uP}% - 4px)"></span><span class="q7cbo${pos}" style="left:${uP}%"><i>Indicado <b>${mi2(tot)}</b> · ${pc(tot, D)}</i></span></div>
+      <div class="q7cli"><span></span><span class="${livre < 0 ? "neg" : "pos"}">${livre < 0 ? "Acima da cota" : "Livre"} <b>${rc(Math.abs(livre))}</b></span></div></div>
     <div class="q7bk"><div class="q7lb">Saúde × FUNDAM</div>${tr(S.t, "a", "Saúde " + mi(S.t), F.t, "b", "FUNDAM " + mi(F.t), D, fs, Math.round(fs * 100) + "%")}
       <div class="q7rd"><div><small><i style="background:var(--q7a2)"></i>Saúde</small><b>${mi(S.t)}<span>(${pc(S.t, mS)})</span></b>${falta > .005 ? `<span class="q7ch al">faltam ${mi(falta)}</span>` : `<span class="q7ch ok">✓ mínimo</span>`}</div>
         <div><span class="q7mid"><small>${livre < 0 ? "acima da cota" : "livre"}</small><b>${mi(Math.abs(livre))}<span>(${pc(Math.abs(livre), D)})</span></b></span></div>

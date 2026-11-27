@@ -137,6 +137,16 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 .gct{display:block;background:#F4F7FB;border:1px solid #DCE6F1;border-radius:10px;padding:7px 11px;margin:0 0 8px;font-size:12.5px;line-height:1.4;color:#2F5D8A;cursor:pointer}.gct b{font-weight:700}.gct.nao{background:#FBF1EC;border-color:#F0D3C4;color:#8F3F20}
 .gcmp{position:fixed;z-index:70;width:340px;max-width:calc(100vw - 24px);background:#fff;border:1px solid #DEE2E5;border-radius:14px;box-shadow:0 18px 44px rgba(0,0,0,.2);padding:12px;display:flex;flex-direction:column;gap:6px;font-family:Inter,sans-serif}.gcmp small{color:#6E767D;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gcmp textarea{width:100%;box-sizing:border-box;border:1px solid #DEE2E5;border-radius:9px;padding:8px 10px;font:13px Inter,sans-serif;resize:vertical}.gcmp textarea.er{border-color:#B4532E;box-shadow:0 0 0 2px #F6E0D6}.gcmp div{display:flex;gap:6px;justify-content:flex-end}
 .gcmp button{font:600 12.5px Inter,sans-serif;border-radius:999px;padding:7px 14px;cursor:pointer;border:1px solid #DEE2E5;background:#fff;color:#1D2226}.gcmp button.v{background:#1D2226;border-color:#1D2226;color:#fff}.gcmp button.v.nao{background:#B4532E;border-color:#B4532E}
+/* quadro da cota no padrão do Link Gestor (27/11/2026) */
+.icapa.q7card{display:block;background:#fff;border:1px solid #E5E9F0;border-radius:20px;padding:18px 22px 16px;box-shadow:0 1px 2px rgba(16,24,40,.04),0 12px 32px -16px rgba(16,24,40,.14);color:#2E3440}
+.q7ctop{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}.q7ctop small,.q7cpz .tk{display:block;font-size:12px;color:#6B7385;font-weight:500}.q7ctop b{display:block;font-size:18px;font-weight:700;letter-spacing:-.015em;font-variant-numeric:tabular-nums;margin-top:6px;color:#2E3440}.q7ctop b em{font-style:normal;font-size:14px;font-weight:500;color:#6B7385}.q7ctop .r{text-align:right}
+.q7cpz{display:flex;flex-direction:column;align-items:center;gap:4px}.q7cpz .icd div{width:46px;padding:3px 0}.q7cpz .icd b{font-size:15px;margin-top:0;color:var(--or)}
+.q7ctr{position:relative;height:16px;border-radius:999px;background:#ECEFF4;margin:46px 0 0}.q7cfi{position:absolute;left:2px;top:2px;bottom:2px;border-radius:999px;background:linear-gradient(90deg,#5E6E86,#34506B)}
+.q7cbo{position:absolute;bottom:calc(100% + 9px);transform:translateX(-50%);z-index:2}.q7cbo.fim{transform:translateX(-100%)}.q7cbo.ini{transform:translateX(0)}
+.q7cbo i{display:block;position:relative;background:#2E3440;color:#fff;font-style:normal;font-size:11px;font-weight:600;padding:4px 9px;border-radius:8px;white-space:nowrap;font-variant-numeric:tabular-nums}.q7cbo i b{font-weight:800}
+.q7cbo i::after{content:"";position:absolute;top:100%;left:50%;margin-left:-4px;border:4px solid transparent;border-top-color:#2E3440}.q7cbo.fim i::after{left:auto;right:6px;margin:0}.q7cbo.ini i::after{left:6px;margin:0}
+.q7cli{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:12px;font-size:12px;color:#6B7385}.q7cli .pos{color:#3D7A61;font-weight:600}.q7cli .fa{color:#9A4E10;font-weight:600}.q7cli b{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-left:3px}
+@media(max-width:600px){.q7ctop{flex-wrap:wrap}.q7cpz{order:3;flex-basis:100%;flex-direction:row;justify-content:space-between}.icapa.q7card{padding:16px}}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
 <script>
@@ -208,11 +218,12 @@ function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) =
   document.getElementById("app").innerHTML = `
   ${org ? `<div class="org">${esc(org)}</div>` : ""}
   <div class="ihd"><h2>${esc(tit)}</h2><span>${esc(L.nome)}</span><button class="ii" data-info aria-label="Como preencher">i</button><button class="bxp" data-port title="Baixar a lista de objetos do Portfólio">${ICO_BX}Portfólio</button></div>
-  <div class="icapa">
-    <div class="t"><span class="tk">Cota</span><span class="iv">${rc(COTA)}<small>${IT.length} ${IT.length === 1 ? "emenda" : "emendas"}</small></span></div>
-    <div class="t"><span class="tk">Utilizado</span><span class="iv">${rc(uso)}<small>${F} de ${IT.length} com objeto</small></span><div class="ibar"><i style="width:${COTA ? uso / COTA * 100 : 0}%"></i></div></div>
-    <div class="t w2"><span class="tk">${prazoTx()}</span>${cont()}</div>
-  </div>
+  ${(() => { // quadro da cota no padrão do Link Gestor e da planilha (27/11/2026): cota, prazo e emendas numa linha; a barra enche com o
+    // valor das emendas que já têm objeto, com o valor num balão preso ao fim do preenchimento; o que falta embaixo, à direita
+    const uP = COTA ? Math.min(100, uso / COTA * 100) : 0, pos = uP > 78 ? " fim" : uP < 22 ? " ini" : "", falta = COTA - uso;
+    return `<div class="icapa q7card"><div class="q7ctop"><span><small>Cota</small><b>${rc(COTA)}</b></span><span class="w2 q7cpz"><span class="tk">${prazoTx()}</span>${cont()}</span><span class="r"><small>Com objeto</small><b>${F} <em>de ${IT.length}</em></b></span></div>
+    <div class="q7ctr"><span class="q7cfi" style="width:calc(${uP}% - 4px)"></span><span class="q7cbo${pos}" style="left:${uP}%"><i>Com objeto <b>${rc(uso)}</b> · ${COTA ? Math.round(uso / COTA * 100) : 0}%</i></span></div>
+    <div class="q7cli"><span></span>${falta > .005 ? `<span class="fa">Falta escolher <b>${rc(falta)}</b></span>` : `<span class="pos">✓ Todas com objeto</span>`}</div></div>`; })()}
   ${IT.map((x, i) => { const s = ST[i], ok = feito(s, i), inc = incomp(s, i), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
     <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span><div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
     ${comCel(x, i)}

@@ -855,6 +855,15 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 .q7mid{ display:inline-flex; flex-direction:column; align-items:center; background:var(--q7tk); border-radius:12px; padding:8px 16px; } .q7mid small{ justify-content:center; } .q7mid b{ font-size:15px; margin-top:2px; }
 @media (max-width:620px){ .q7{ padding:20px !important; } .q7rd{ grid-template-columns:1fr 1fr; } .q7rd > div:nth-child(2){ grid-column:1/-1; grid-row:2; text-align:left; } .q7h{ flex-direction:column; align-items:flex-start; } }
 .cpy{display:inline-flex;vertical-align:-2px;margin-left:6px;padding:2px;border-radius:5px;color:#6E767D;cursor:pointer;border:1px solid transparent}.cpy:hover{color:#1D2226;border-color:#DEE2E5;background:#fff}.cpy .ck{display:none}.cpy.ok{color:#1FA845}.cpy.ok svg{display:none}.cpy.ok .ck{display:block}
+/* barra da cota total no padrão das outras barras do quadro (27/11/2026, igual ao Link Gestor) */
+.q7cota{ padding-top:24px !important; } .q7ctop{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; } .q7ctop small{ display:block; font-size:12px; color:var(--q7mu); font-weight:500; } .q7ctop b{ display:block; font-size:18px; font-weight:700; letter-spacing:-.015em; font-variant-numeric:tabular-nums; margin-top:6px; color:var(--q7tx); } .q7ctop b em{ font-style:normal; font-size:14px; font-weight:500; color:var(--q7mu); } .q7ctop .r{ text-align:right; }
+.q7cpz{ display:flex; flex-direction:column; align-items:center; gap:4px; } .q7cpz .icd div{ width:46px; padding:3px 0; } .q7cpz .icd b{ font-size:15px; margin-top:0; color:var(--or); } .q7cpz .icd span{ font-size:10px; }
+.q7ctr{ position:relative; height:16px; border-radius:999px; background:var(--q7tk); margin:46px 0 0; } .q7cfi{ position:absolute; left:2px; top:2px; bottom:2px; border-radius:999px; background:linear-gradient(90deg,#5E6E86,#34506B); }
+.q7cbo{ position:absolute; bottom:calc(100% + 9px); transform:translateX(-50%); z-index:2; } .q7cbo.fim{ transform:translateX(-100%); } .q7cbo.ini{ transform:translateX(0); }
+.q7cbo i{ display:block; position:relative; background:var(--q7tx); color:#fff; font-style:normal; font-size:11px; font-weight:600; padding:4px 9px; border-radius:8px; white-space:nowrap; font-variant-numeric:tabular-nums; } .q7cbo i b{ font-weight:800; }
+.q7cbo i::after{ content:""; position:absolute; top:100%; left:50%; margin-left:-4px; border:4px solid transparent; border-top-color:var(--q7tx); } .q7cbo.fim i::after{ left:auto; right:6px; margin:0; } .q7cbo.ini i::after{ left:6px; margin:0; }
+.q7cli{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-top:12px; font-size:12px; color:var(--q7mu); } .q7cli .pos{ color:#3D7A61; font-weight:600; } .q7cli .neg{ color:#A65A2C; font-weight:600; } .q7cli b{ font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; margin-left:3px; }
+@media (max-width:620px){ .q7ctop{ flex-wrap:wrap; } .q7cpz{ order:3; flex-basis:100%; } }
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -878,7 +887,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=114"></script>
+<script src="gabinete-indicar.js?cb=115"></script>
 <script src="gabinete-ind-links.js?cb=31"></script>
 <script src="gabinete-ind-gestor.js?cb=8"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>
