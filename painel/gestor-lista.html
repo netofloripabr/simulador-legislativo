@@ -347,6 +347,9 @@ td.ac{width:70px}
 .q7v-gap.neg em{color:#B4532A}
 .q7v-bt{width:30px;height:30px;padding:0;margin:2px 0 10px auto;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:12px}
 .q7v-gap.fim:not(.in) em{left:auto;right:-6px;transform:none}.q7v-gap.fim:not(.in) em::before{left:auto;right:12px;margin:0}
+/* 27/11/2026: rebaixo por baixo do preenchimento; preenchimentos e agulhas acima dele */
+.q7v-l,.q7v-r{z-index:2}.q7v-ag,.q7v-end{z-index:4}.q7v-gap{z-index:1;box-sizing:border-box}
+.q7v-bk:has(.q7v-gap:not(.in) em) .q7v-vl{margin-top:40px}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
 <script src="../dados/regioes-sc.js"></script>
@@ -482,9 +485,15 @@ function q7vLinha(o) { const cl = (v) => Math.max(0, Math.min(100, +v || 0)), lp
   const fill = (lado, p, s) => p > 0 ? `<span class="q7v-${lado}"${s.md ? ` data-md="${s.md}" role="button" title="Ver o detalhamento"` : ""} style="width:calc(${p}% - 6px);background:${gr(s.k, lado === "l" ? 90 : 270)}">${cabe(p) ? s.t : ""}</span>` : "";
   const fora = (s, p) => p > 0 && !cabe(p) ? `<b class="q7v-fo">${s.t}</b>` : "";
   return `<div class="q7v-bk"${o.md ? ` data-md="${o.md}" role="button" title="Ver o detalhamento"` : ""}><div class="q7v-lb"><span>${dot(o.L.k)}${o.L.n}</span>${o.lr || (o.R ? `<span>${o.R.n}${dot(o.R.k)}</span>` : "")}</div>
-    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap${100 - lp - rp >= 14 ? " in" : ""}${(lp + 100 - rp) / 2 > 84 ? " fim" : ""}" style="left:calc(${lp}% + 3px);right:calc(${rp}% + 3px)">${o.gl ? `<em>${o.gl}</em>` : ""}</span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
+    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap in${(lp + 100 - rp) / 2 > 84 ? " fim" : ""}" style="left:${lp > 0 ? `calc(${lp}% - 24px)` : "3px"};right:${rp > 0 ? `calc(${rp}% - 24px)` : "3px"};padding:0 ${rp > 0 ? 24 : 0}px 0 ${lp > 0 ? 24 : 0}px">${o.gl ? `<em>${o.gl}</em>` : ""}</span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%${o.agK ? ";--agc:" + Q7V_C[o.agK][1] : ""}"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
     <div class="q7v-vl"><div>${fora(o.L, lp)}${o.bl || ""}</div><div class="m">${o.bm || ""}</div><div class="d">${o.R ? fora(o.R, rp) : ""}${o.br || ""}</div></div></div>`; }
 const q7vTxt = (v, p) => `${v}<span>(${p})</span>`;
+// a etiqueta do vazio fica dentro só se couber; senão sai para baixo (mede depois de desenhar e quando a tela muda de largura)
+function q7vFit() { document.querySelectorAll(".q7v-gap").forEach((g) => { const e = g.querySelector("em"); if (!e) return; g.classList.add("in");
+  const cs = getComputedStyle(g), livre = g.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight); if (e.offsetWidth + 14 > livre) g.classList.remove("in"); }); }
+if (!window.__q7fit) { window.__q7fit = 1; let t; const pede = () => { clearTimeout(t); t = setTimeout(q7vFit, 30); };
+  new MutationObserver((m) => { if (m.some((r) => [...r.addedNodes].some((n) => n.nodeType === 1 && (n.matches(".q7v,.q7v-cx") || n.querySelector && n.querySelector(".q7v-gap"))))) pede(); }).observe(document.documentElement, { childList: true, subtree: true });
+  addEventListener("resize", pede); pede(); }
 const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</span></b></span>`;
 // valores exatos (27/11/2026): botão no pé do quadro abre/fecha uma tabela com os valores em reais e centavos; a escolha vale
 // para todos os quadros da página e sobrevive ao redesenho
