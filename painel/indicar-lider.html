@@ -128,6 +128,13 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 /* seções do Portfólio fechadas, título abre/fecha (25/11/2026) */ button.pfc{width:100%;border:0;cursor:pointer;font-family:inherit;text-align:left} button.pfc b{display:inline-flex;align-items:center;gap:6px;font-weight:inherit} .sxch{transition:transform .15s;flex:none} .pfs.ab .sxch{transform:rotate(90deg)} button.pfc:hover{filter:brightness(.97)}
 /* Portfólio: objetos incluídos em 25/11/2026 em verde até 31/12/2026 */ .po.ponv{ background:#EAF7EE; box-shadow:inset 3px 0 0 #1FA83A; } .nvt{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#1FA83A; border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:1px; } .nvc{ font-style:normal; color:#1FA83A; font-weight:700; }
 .cpy{display:inline-flex;vertical-align:-2px;margin-left:6px;padding:2px;border-radius:5px;color:#6E767D;cursor:pointer;border:1px solid transparent}.cpy:hover{color:#1D2226;border-color:#DEE2E5;background:#fff}.cpy .ck{display:none}.cpy.ok{color:#1FA845}.cpy.ok svg{display:none}.cpy.ok .ck{display:block}
+/* parecer do líder (27/11/2026, migração 120): ✓ de acordo · ✕ não de acordo (com motivo) · comentar — igual ao Link Gestor */
+.gpv{display:flex;align-items:center;gap:5px}.gpb{width:30px;height:30px;flex:none;border-radius:50%;border:1px solid #DEE2E5;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.05);color:#7A8085;font:700 13px Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.gpb.ok:hover{border-color:#4F8A72;color:#3D7A61}.gpb.nao:hover{border-color:#B4532E;color:#B4532E}.gpb.ok.on{background:#4F8A72;border-color:#4F8A72;color:#fff}.gpb.nao.on{background:#B4532E;border-color:#B4532E;color:#fff}
+.gpb.cm svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linejoin:round}.gpb.cm.on{background:#EEF3F9;border-color:#C9D8EA;color:#2F5D8A}.gpb.cm:hover{border-color:#2F5D8A;color:#2F5D8A}
+.gct{display:block;background:#F4F7FB;border:1px solid #DCE6F1;border-radius:10px;padding:7px 11px;margin:0 0 8px;font-size:12.5px;line-height:1.4;color:#2F5D8A;cursor:pointer}.gct b{font-weight:700}.gct.nao{background:#FBF1EC;border-color:#F0D3C4;color:#8F3F20}
+.gcmp{position:fixed;z-index:70;width:340px;max-width:calc(100vw - 24px);background:#fff;border:1px solid #DEE2E5;border-radius:14px;box-shadow:0 18px 44px rgba(0,0,0,.2);padding:12px;display:flex;flex-direction:column;gap:6px;font-family:Inter,sans-serif}.gcmp small{color:#6E767D;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gcmp textarea{width:100%;box-sizing:border-box;border:1px solid #DEE2E5;border-radius:9px;padding:8px 10px;font:13px Inter,sans-serif;resize:vertical}.gcmp textarea.er{border-color:#B4532E;box-shadow:0 0 0 2px #F6E0D6}.gcmp div{display:flex;gap:6px;justify-content:flex-end}
+.gcmp button{font:600 12.5px Inter,sans-serif;border-radius:999px;padding:7px 14px;cursor:pointer;border:1px solid #DEE2E5;background:#fff;color:#1D2226}.gcmp button.v{background:#1D2226;border-color:#1D2226;color:#fff}.gcmp button.v.nao{background:#B4532E;border-color:#B4532E}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
 <script>
@@ -204,8 +211,8 @@ function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) =
     <div class="t w2"><span class="tk">${prazoTx()}</span>${cont()}</div>
   </div>
   ${IT.map((x, i) => { const s = ST[i], ok = feito(s, i), inc = incomp(s, i), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
-    <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span>${etqChip(x.etq)}<div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
-    ${x.nota_lider ? `<div class="rec"><b>Recado do gabinete</b>${esc(x.nota_lider)}</div>` : ""}
+    <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span>${etqChip(x.etq)}<div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div>${parBts(x, i)}</div>
+    ${x.nota_lider ? `<div class="rec"><b>Recado do gabinete</b>${esc(x.nota_lider)}</div>` : ""}${x.nota_lider_resp ? `<span class="gct${x.parecer_lider === "nao" ? " nao" : ""}"${ABERTO ? ` data-gcm="${i}" role="button" title="Editar o comentário"` : ""}><b>${x.lider_resp_por && x.lider_resp_por !== L.nome ? esc(x.lider_resp_por) : "Você"}:</b> ${esc(x.nota_lider_resp)}</span>` : ""}
     ${s.status === "aceito" ? `<div class="dec"><b>✓ Aceito pelo gabinete</b></div>` : s.status === "recusado" ? `<div class="dec">O gabinete não aceitou esta proposta.</div>` : ""}
     <div class="lin"><label class="cx"><span class="fl">${ent ? "Município da entidade" : "Município"}</span><input class="ed trav" list="muns" data-mun="${i}" value="${esc(s.mun)}" disabled title="Definido pelo gabinete"></label>
       <div class="cx"><span class="fl">Quem recebe</span><button class="sw trav${ent ? " ent" : ""}" data-bt="${i}" role="switch" aria-checked="${ent}" disabled title="Definido pelo gabinete"><span class="${ent ? "" : "on"}">Município</span><span class="tr"></span><span class="${ent ? "on" : ""}">Entidade</span></button></div></div>
@@ -217,6 +224,24 @@ function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) =
   const pend = ST.some((s) => s.obj && s.status === "rascunho");
   document.body.insertAdjacentHTML("beforeend", `<div class="env" id="env"><div><div class="pr"><b>${F} de ${IT.length}</b> com objeto <span class="sv" id="sv">${L.travado ? (L.pedido_reabrir_em ? "· reabertura pedida, aguardando o gabinete" : "· enviado ao gabinete") : L.enviado_em && !pend ? "· enviado ao gabinete" : ""}</span><div class="ibar"><i style="width:${IT.length ? F / IT.length * 100 : 0}%"></i></div></div>${ABERTO ? (L.travado ? `<button class="bt tr" id="reabrir" title="${L.pedido_reabrir_em ? "Pedido de reabertura enviado ao gabinete" : "Enviado e trancado · toque para pedir para reabrir"}">${CADF}${L.pedido_reabrir_em ? "Aguardando o gabinete" : "Enviado"}</button>` : `<button class="bt" id="enviar">${L.enviado_em ? "Enviar de novo" : "Enviar ao gabinete"}</button>`) : ""}</div></div>`);
   liga(); }
+// parecer do líder (27/11/2026, migração 120): ✓ / ✕ / comentar, como no Link Gestor; vale mesmo depois de enviado
+const BAL = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7.5H7l-3 2.5V11H2.5z"/></svg>';
+const parBts = (x, i) => ABERTO ? `<div class="gpv"><button class="gpb ok${x.parecer_lider === "ok" ? " on" : ""}" data-gpv="ok" data-i="${i}" title="${x.parecer_lider === "ok" ? "Tirar o ✓" : "De acordo com esta emenda"}" aria-label="De acordo">✓</button><button class="gpb nao${x.parecer_lider === "nao" ? " on" : ""}" data-gpv="nao" data-i="${i}" title="${x.parecer_lider === "nao" ? "Tirar o ✕" : "Não de acordo (precisa comentar)"}" aria-label="Não de acordo">✕</button><button class="gpb cm${x.nota_lider_resp ? " on" : ""}" data-gcm="${i}" title="${x.nota_lider_resp ? "Editar o comentário" : "Comentar para o gabinete"}" aria-label="Comentar">${BAL}</button></div>`
+  : x.parecer_lider ? `<div class="gpv"><span class="gpb ${x.parecer_lider} on">${x.parecer_lider === "ok" ? "✓" : "✕"}</span></div>` : "";
+async function gravaParecer(i, pa, texto) { const x = IT[i]; await rpc("lider_avaliar", { p_token: TOKEN, p_item: x.id, p_parecer: pa || "", p_texto: texto || null });
+  x.parecer_lider = pa || null; const v = texto ? texto.trim() : ""; if (v) { x.nota_lider_resp = v; x.nota_lider_resp_em = new Date().toISOString(); } x.lider_resp_por = L.nome; render(); }
+function editaComentario(b, i, nao) { const x = IT[i]; document.getElementById("gcmP")?.remove(); const p = document.createElement("div"); p.id = "gcmP"; p.className = "gcmp";
+  p.innerHTML = `<b>${nao ? "Por que não está de acordo?" : "Comentário para o gabinete"}</b><small>${esc(x.municipio || "")} · ${esc(x.objeto || "")}</small><textarea rows="4" maxlength="1000" placeholder="Ex.: o município prefere outro objeto">${esc(x.nota_lider_resp || "")}</textarea><div><button data-c0>Cancelar</button>${x.nota_lider_resp && x.parecer_lider !== "nao" ? `<button data-cx>Apagar</button>` : ""}<button class="v${nao ? " nao" : ""}" data-c1>${nao ? "✕ Marcar e enviar" : "Salvar"}</button></div>`;
+  document.body.appendChild(p); const r = b.getBoundingClientRect(); p.style.top = Math.max(12, Math.min(r.bottom + 6, innerHeight - p.offsetHeight - 12)) + "px"; p.style.left = Math.max(12, Math.min(r.right - p.offsetWidth, innerWidth - p.offsetWidth - 12)) + "px";
+  const ta = p.querySelector("textarea"); ta.focus(); const fecha = () => p.remove(), trava = (v) => p.querySelectorAll("button").forEach((q) => q.disabled = v);
+  const grava = async (txt) => { trava(true);
+    try { await rpc("lider_comentar", { p_token: TOKEN, p_item: x.id, p_texto: txt }); const v = (txt || "").trim() || null; x.nota_lider_resp = v; x.nota_lider_resp_em = v ? new Date().toISOString() : null; x.lider_resp_por = L.nome; fecha(); render(); }
+    catch (e) { trava(false); alert("Não foi possível salvar o comentário: " + (e.message || e)); } };
+  p.querySelector("[data-c0]").onclick = fecha;
+  p.querySelector("[data-c1]").onclick = async () => { if (!nao) return grava(ta.value); if (!ta.value.trim()) { ta.focus(); ta.classList.add("er"); return; }
+    trava(true); try { await gravaParecer(i, "nao", ta.value); fecha(); } catch (e) { trava(false); alert("Não foi possível marcar: " + (e.message || e)); } };
+  const cx = p.querySelector("[data-cx]"); if (cx) cx.onclick = () => grava("");
+  ta.onkeydown = (e) => { if (e.key === "Escape") fecha(); }; }
 // grava sozinho (rascunho) ~0,8 s depois da última mudança na emenda
 const TM = {};
 function salvar(i) { clearTimeout(TM[i]); const sv = document.getElementById("sv"); if (sv) { sv.className = "sv"; sv.textContent = "· salvando…"; }
@@ -231,6 +256,11 @@ function liga() { const A = document.getElementById("app");
   A.querySelectorAll("[data-cnpj]").forEach((e) => e.oninput = () => { ST[+e.dataset.cnpj].cnpj = e.value; salvar(+e.dataset.cnpj); });
   A.querySelectorAll("[data-com]").forEach((e) => e.oninput = () => { ST[+e.dataset.com].com = e.value; salvar(+e.dataset.com); });
   A.querySelectorAll("[data-esc]").forEach((e) => e.onclick = () => escolher(+e.dataset.esc));
+  A.querySelectorAll("[data-gpv]").forEach((b) => b.onclick = async (e) => { e.stopPropagation(); const i = +b.dataset.i, x = IT[i], v = b.dataset.gpv;
+    if (x.parecer_lider === v) { try { await gravaParecer(i, null); } catch (er) { alert("Não foi possível: " + (er.message || er)); } return; }
+    if (v === "nao") return editaComentario(b, i, true);
+    try { await gravaParecer(i, "ok"); } catch (er) { alert("Não foi possível: " + (er.message || er)); } });
+  A.querySelectorAll("[data-gcm]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); editaComentario(b, +b.dataset.gcm); });
   A.querySelector("[data-info]").onclick = (ev) => info(ev.currentTarget);
   A.querySelector("[data-port]").onclick = () => baixarPortfolio();
   const falta = () => IT.map((x, i) => i).filter((i) => !trava(ST[i]) && !feito(ST[i], i));

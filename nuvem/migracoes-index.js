@@ -2551,5 +2551,48 @@ const MIGRACOES_INDEX = [
     "gab_itens.parecer_gestor_em"
    ]
   ]
+ },
+ {
+  "num": 120,
+  "arquivo": "migracao-120-parecer-lider.sql",
+  "descricao": "Migração 120 (27/11/2026): PARECER E COMENTÁRIO DO LÍDER (ou contato) por emenda, igual ao do Link Gestor (119",
+  "objetos": [
+   [
+    "function",
+    "lider_link_ok"
+   ],
+   [
+    "function",
+    "lider_avaliar"
+   ],
+   [
+    "function",
+    "lider_comentar"
+   ],
+   [
+    "function",
+    "link_abrir"
+   ],
+   [
+    "column",
+    "gab_itens.parecer_lider"
+   ],
+   [
+    "column",
+    "gab_itens.parecer_lider_em"
+   ],
+   [
+    "column",
+    "gab_itens.nota_lider_resp"
+   ],
+   [
+    "column",
+    "gab_itens.nota_lider_resp_em"
+   ],
+   [
+    "column",
+    "gab_itens.lider_resp_por"
+   ]
+  ]
  }
 ];
