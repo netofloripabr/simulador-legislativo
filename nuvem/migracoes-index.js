@@ -2594,5 +2594,20 @@ const MIGRACOES_INDEX = [
     "gab_itens.lider_resp_por"
    ]
   ]
+ },
+ {
+  "num": 121,
+  "arquivo": "migracao-121-link-sempre-editavel.sql",
+  "descricao": "Migração 121 (27/11/2026): o líder (ou contato) SEMPRE pode alterar o objeto e a justificativa, enquanto o lin",
+  "objetos": [
+   [
+    "function",
+    "link_salvar"
+   ],
+   [
+    "function",
+    "link_enviar"
+   ]
+  ]
  }
 ];
