@@ -350,7 +350,59 @@ if (!window.__cpyPf) { window.__cpyPf = 1; document.addEventListener("click", as
   b.classList.add("ok"); b.setAttribute("title", "Copiado"); setTimeout(() => { b.classList.remove("ok"); b.setAttribute("title", "Copiar a descrição"); }, 1400); }, true); }
 const CPY = (t) => t ? `<span class="cpy" role="button" tabindex="0" data-cpy="${esc(t)}" title="Copiar a descrição" aria-label="Copiar a descrição"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg><svg class="ck" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg></span>` : "";
 // ---------- saída: documento no padrão do palpite e planilha .xlsx no modelo do Orçamento ----------
-function documentoInd(T) {
+// Documento do recorte (27/11/2026): o que está filtrado na planilha (ou a lista inteira), no padrão dos relatórios — cabeçalho,
+// o quadro da cota com as barras (da lista inteira, porque as metas são da cota), as pendências (etiqueta que não é "Pronto"
+// ou emenda sem objeto) e cada emenda completa: etiqueta, nota para o líder/gestor, observações e justificativa.
+function documentoInd(T) { if (!T || !T.L) return documentoIndSimples(T);
+  const w = window.open("", "_blank"); if (!w) return alert("Libere as janelas pop-up do navegador para gerar o documento.");
+  const todos = AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x)), fx = typeof temFx === "function" && temFx(), R = fx ? todos.filter((x) => passaFx(x, T)) : todos;
+  const num = (x) => todos.indexOf(x) + 1, val = (x) => +x.valor || 0, totR = R.reduce((t, x) => t + val(x), 0), totA = todos.reduce((t, x) => t + val(x), 0);
+  const brl = (v) => "R$ " + (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }), ag = new Date(), dt = ag.toLocaleDateString("pt-BR"), hr = ag.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const etq = (x) => { const e = typeof etqDe === "function" ? etqDe(T, x) : null; if (!e) return ""; const c = corEtq(e.c || "cinza"); return `<span class="et" style="background:${c[1]};color:${c[2]}">${esc(e.n)}</span>`; };
+  const pend = (x) => !x.objeto || (x.marca && !/pronto/i.test(x.marca));
+  const notas = (x) => typeof notasInd === "function" ? notasInd(x).filter((k) => !/^Importada da planilha/i.test(k.t)) : [];
+  const ben = (x) => x.benef_tipo === "ent" ? "Entidade" + ((x.razao_social || x.beneficiario) ? " · " + esc(x.razao_social || x.beneficiario) : "") + (x.cnpj ? " · CNPJ " + esc(x.cnpj) : "") : x.benef_tipo === "est" ? "Estado" : "Município";
+  const P = R.filter(pend);
+  const lp = P.map((x) => `<tr><td class="n">${num(x)}</td><td><b>${esc(x.municipio || "—")}</b><small>${esc(x.lideranca || "")}</small></td><td>${x.objeto ? esc(frase(x.objeto)) : `<i>sem objeto</i>`}${x.nota_lider ? `<span class="nt">${esc(x.nota_lider)}</span>` : ""}</td><td class="c">${etq(x)}</td><td class="r">${brl(x.valor)}</td></tr>`).join("");
+  const em = R.map((x) => { const N = notas(x);
+    return `<div class="em${pend(x) ? " pd" : ""}"><div class="eh"><span class="n">${num(x)}</span><span class="m"><b>${esc(x.municipio || "—")}</b><small>${ben(x)}${x.modalidade ? " · " + esc(x.modalidade) : ""}</small></span>${etq(x)}<span class="ch">${esc(x.area || "Área a definir")}</span><span class="ch">${esc(x.natureza || "Despesa a definir")}</span><span class="v">${brl(x.valor)}</span></div>
+      <div class="ln"><span class="tk">Objeto</span>${x.objeto ? esc(frase(x.objeto)) : `<i>não escolhido</i>`}</div>
+      <div class="ln"><span class="tk">Líder · contato</span>${esc([x.lideranca, x.contato].filter(Boolean).join(" · ") || "—")}</div>
+      ${x.nota_lider ? `<div class="ln nt2"><span class="tk">Nota para o líder e o gestor</span>${esc(x.nota_lider).replace(/\n/g, "<br>")}</div>` : ""}
+      ${x.nota_gestor || x.parecer_gestor ? `<div class="ln"><span class="tk">Gestor${x.parecer_gestor === "ok" ? " · ✓ de acordo" : x.parecer_gestor === "nao" ? " · ✕ não de acordo" : ""}</span>${esc(x.nota_gestor || "")}</div>` : ""}
+      ${x.nota_lider_resp || x.parecer_lider ? `<div class="ln"><span class="tk">${esc(x.lider_resp_por || "Líder")}${x.parecer_lider === "ok" ? " · ✓ de acordo" : x.parecer_lider === "nao" ? " · ✕ não de acordo" : ""}</span>${esc(x.nota_lider_resp || "")}</div>` : ""}
+      ${N.length ? `<div class="ln"><span class="tk">Observações</span>${N.map((k) => `<div class="ob">${k.d ? `<b>${esc(k.d)}</b> ` : ""}${esc(k.t)}</div>`).join("")}</div>` : ""}
+      <div class="ln"><span class="tk">Justificativa</span>${x.justificativa ? esc(x.justificativa).replace(/\n/g, "<br>") : `<i>não informada</i>`}</div></div>`; }).join("");
+  const css = [...document.querySelectorAll("style")].map((st) => st.textContent).join("\n").replace(/@media[^{]*\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, "").split("}").filter((r) => /\.q7v/.test(r.split("{")[0])).map((r) => r.trim() + "}").join("\n");
+  const quadro = T.cota && T.cota.saude ? barraSeg(T.cota, todos, totA, T) : "";
+  const filtro = fx ? `Recorte com filtro: ${R.length} de ${todos.length} emendas · ${brl(totR)}` : `Lista completa: ${todos.length} emendas · ${brl(totA)}`;
+  w.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(T.nome)} ${IND.ano} · ${dt}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>
+@page{size:A4;margin:14mm 12mm}*{box-sizing:border-box;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}body{font-family:Inter,system-ui,sans-serif;color:#111;margin:0;padding:0 3px}
+.agua{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:-1}.agua span{font-size:110px;font-weight:800;color:rgba(0,0,0,.035);transform:rotate(-24deg)}
+.cab{display:flex;align-items:flex-end;justify-content:space-between}.wm{font-size:18px;font-weight:800;line-height:1}.wm span{color:#1FA83A}.wms{font-size:7px;font-weight:800;letter-spacing:.2em;color:#6B7178;text-transform:uppercase;margin-top:3px}
+.meta{text-align:right;font-size:9px;color:#3F454B;line-height:1.5}.regra{margin:10px 0 14px;height:2px;background:#A9AEB3;position:relative}.regra:after{content:"";position:absolute;left:0;right:0;top:4px;height:1px;background:#D3D6D8}
+.tit{font-size:16px;font-weight:800}.sub{font-size:9.5px;color:#3F454B;margin:2px 0 12px}
+${css}
+.q7v-cx .icd{display:none}.q7v{box-shadow:none;padding:2px 16px 4px;border-radius:14px;margin:0 0 14px}.q7v-bk{padding:10px 0 8px}.q7v-tr{height:22px}.q7v-l,.q7v-r{font-size:9px}.q7v-l{padding-left:10px}.q7v-r{padding-right:10px}.q7v-lb{font-size:8.5px;margin-bottom:4px}.q7v-lb .q7v-lbr b{font-size:10px}.q7v-vl{margin-top:4px;min-height:0}.q7v-bt,.q7v-det{display:none!important}.q7v-ch{font-size:7.5px;padding:2px 7px}.q7v-gap:not(.in) em{font-size:8px;padding:2px 8px;top:calc(100% + 6px)}.q7v-bk:has(.q7v-gap:not(.in) em) .q7v-vl{margin-top:26px}.q7v-ag i{font-size:7px;padding:1px 5px}.q7v-ttl{font-size:9px;margin:0 2px 6px}.q7v-vl small{font-size:8px}
+.st{font-size:8px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#6B7178;margin:16px 0 6px;padding-bottom:4px;border-bottom:1.5px solid #A9AEB3;page-break-after:avoid}.st span{float:right;letter-spacing:0;text-transform:none;font-weight:600}
+table.pd{width:100%;border-collapse:collapse;font-size:9px}table.pd td{padding:6px 5px;border-bottom:.5px solid #DCDFE2;vertical-align:top}table.pd tr{page-break-inside:avoid}table.pd .n{width:22px;color:#9AA0A4;text-align:right}table.pd td small{display:block;color:#6B7178;font-size:7.5px}table.pd .r{text-align:right;white-space:nowrap;font-weight:700}table.pd .c{width:110px}
+.nt{display:block;margin-top:3px;color:#B3261E;font-weight:600;font-size:8.5px;white-space:pre-line}.et{display:inline-block;font-size:7.5px;font-weight:700;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.em{border-bottom:.5px solid #DCDFE2;padding:8px 2px 9px;page-break-inside:avoid}.em.pd{box-shadow:inset 3px 0 0 #E8822A;padding-left:8px}.eh{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.eh .n{width:18px;color:#9AA0A4;font-size:9px;text-align:right}.eh .m{flex:1;min-width:160px}.eh .m b{font-size:11px}.eh .m small{display:block;font-size:8px;color:#6B7178;margin-top:1px}
+.eh .ch{font-size:7.5px;font-weight:700;background:#E4E7E9;color:#3F454B;border-radius:4px;padding:3px 6px}.eh .v{font-size:10px;font-weight:700;background:#E4E7E9;border-radius:4px;padding:3px 7px;font-variant-numeric:tabular-nums}
+.ln{margin:5px 0 0 24px;font-size:9.5px;line-height:1.45}.ln i{color:#9AA0A4}.tk{display:block;font-size:6.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6B7178;margin-bottom:1px}.nt2{color:#B3261E;font-weight:600}.ob{font-size:9px;color:#333;margin-top:1px}.ob b{color:#6B7178;font-weight:700}
+.tot{display:flex;justify-content:space-between;font-weight:800;font-size:11px;padding:8px 2px;border-top:1.5px solid #A9AEB3;margin-top:2px}.tot b{color:#1FA83A}
+.pagfoot{display:flex;justify-content:space-between;font-size:7.5px;color:#9AA0A4;border-top:.5px solid #DCDFE2;margin-top:16px;padding-top:6px}
+</style></head><body><div class="agua"><span>SimulaLEGIS</span></div>
+<div class="cab"><div><div class="wm">Simula<span>LEGIS</span></div><div class="wms">Gabinete · Indicação de recursos</div></div><div class="meta"><b>${esc(PARL.u || "")}</b>${PARL.p ? " · " + esc(PARL.p) : ""}<br>gerado em ${dt} às ${hr}</div></div><div class="regra"></div>
+<div class="tit">${esc(T.nome)} ${IND.ano}${T.L.origem ? " · " + esc(T.L.origem) : ""}</div><div class="sub">${filtro}</div>
+${quadro}
+<div class="st">Pendências<span>${P.length} ${P.length === 1 ? "emenda" : "emendas"} · ${brl(P.reduce((t, x) => t + val(x), 0))}</span></div>
+${P.length ? `<table class="pd"><tbody>${lp}</tbody></table>` : `<div class="sub">Nenhuma pendência neste recorte.</div>`}
+<div class="st">Emendas${fx ? " do recorte" : ""}<span>${R.length} · ${brl(totR)}</span></div>${em}
+<div class="tot"><span>Total · ${R.length} ${R.length === 1 ? "emenda" : "emendas"}</span><b>${brl(totR)}</b></div>
+<div class="pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app · uso interno do gabinete</span><span>${dt} ${hr}</span></div>
+<script>document.fonts.ready.then(()=>setTimeout(()=>print(),400))<\/script></body></html>`); w.document.close(); }
+function documentoIndSimples(T) {
   const L = T.L, g = regrasInd(T), it = L ? AD.itens.filter((x) => x.lista_id === L.id && cheia(x)) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), c = T.cota || {};
   const ag = new Date(), dt = ag.toLocaleDateString("pt-BR"), hr = ag.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }), tit = T.nome + " · " + IND.ano;
   const lin = (x, i) => `<div class="di-linha"><span class="di-pos">${i + 1}</span><span class="di-cand"><span class="di-n">${esc(x ? x.municipio || "" : "")}</span><span class="di-p">${esc(x ? [x.area || g.trava, x.modalidade].filter(Boolean).join(" · ") : "")}</span></span><span class="di-obj">${esc(x ? frase(x.objeto || "") : "")}${x && (x.beneficiario || x.razao_social) ? `<small>${esc([x.beneficiario || x.razao_social, x.modalidade === "Convênio" ? x.cnpj : ""].filter(Boolean).join(" · "))}</small>` : ""}</span><span class="di-votos"><span class="di-vv di-forte">${x ? ni(Math.round(+x.valor || 0)) : ""}</span></span></div>`;
