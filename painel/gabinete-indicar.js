@@ -29,7 +29,7 @@ function capaInd(T) {
     const c = T.cota, it = T.L ? AD.itens.filter((x) => x.lista_id === T.L.id && cheia(x)) : [], tot = it.reduce((s, x) => s + (+x.valor || 0), 0), livre = c.disp - tot;
     return `${c.saude ? "" : `<div class="t"><span class="tk">Disponível</span><span class="iv">R$ ${nf(c.disp, 2)}<small>${esc(c.base || "")}</small></span></div>
       <div class="t"><span class="tk">Livre</span><span class="iv"${livre < 0 ? ' style="color:#C0392B"' : ""}>${rc(livre)}<small>${it.length} de ${c.max || "—"} emendas</small></span>${c.saude ? "" : `<div class="ibar"><i style="width:${Math.min(100, tot / c.disp * 100)}%"></i></div>`}</div>`}
-      ${c.saude ? "" : `<div class="t w2"><span class="tk">${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</span><div class="icd" data-prazo="${esc(c.prazo || "")}"></div></div>`}${c.saude ? barraSeg(c, it, tot) : ""}`;
+      ${c.saude ? "" : `<div class="t w2"><span class="tk">${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</span><div class="icd" data-prazo="${esc(c.prazo || "")}"></div></div>`}${c.saude ? barraSeg(c, it, tot, T) : ""}`;
   }
   const a = IND.ano, sv = S.cesc; S.cesc = "imp"; const I = itensCotas().filter((x) => x.ano === a); S.cesc = sv;
   const ind = I.reduce((s, x) => s + x.v, 0), pg = I.reduce((s, x) => s + x.pago, 0), q = (QUOTA[a] || 0) + Object.entries(COTAS_LEGAIS[a] || {}).filter(([t]) => t !== "AN").map(([, c]) => c).reduce((s, c) => s + (c.disp || 0), 0);
@@ -45,29 +45,38 @@ function capaInd(T) {
 // topo (número + anel) e duas barras com o vão no centro — Saúde enche da esquerda e FUNDAM da direita (agulha no mínimo da Saúde);
 // investimento enche da esquerda e custeio da direita (agulha na meta de 70%). Valores em R$ x,x mi (%). Natureza vem do botão
 // de cada linha; sem marcação conta como "a definir".
-function barraSeg(c, it, tot) {
+function barraSeg(c, it, tot, T) {
+  // quadro da cota v4 (27/11/2026): ordem cota geral · investimento × custeio · Saúde × FUNDAM; título e prazo fora do cartão
   const val = (x) => +x.valor || 0, nat = (x) => x.natureza === "Capital" ? "cap" : x.natureza === "Custeio" ? "cus" : "def";
   const grp = (f) => { const o = { cap: 0, cus: 0, def: 0, t: 0 }; it.filter(f).forEach((x) => { o[nat(x)] += val(x); o.t += val(x); }); return o; };
   const S = grp((x) => x.area === "Saúde"), F = grp((x) => x.area !== "Saúde"), A = { cap: S.cap + F.cap, cus: S.cus + F.cus, def: S.def + F.def, t: S.t + F.t };
-  const mi = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mi", pc = (v, d) => d ? Math.round(v / d * 100) + "%" : "0%";
-  const D = c.disp, fs = c.saude || .5, mS = D * fs, mF = D - mS, livre = D - tot, falta = mS - S.t, ipv = D ? A.cap / D * 100 : 0, okI = ipv >= 70 - 1e-9, vao = Math.max(0, livre) + A.def;   // 27/11/2026: investimento × custeio também sobre a COTA (como Saúde × FUNDAM)
-  const ipT = !okI && Math.round(ipv) >= 70 ? ipv.toFixed(1).replace(".", ",") + "%" : Math.round(ipv) + "%", C = 2 * Math.PI * 18;
-  const tr = (l, k1, lt, r, k2, rt, base, ag, agT) => { const Lp = base ? Math.min(100, l / base * 100) : 0, Rp = base ? Math.min(100 - Lp, r / base * 100) : 0;
-    return `<div class="q7tr"><span class="q7gap" style="left:${Lp}%;right:${Rp}%"></span><span class="q7l" style="width:calc(${Lp}% - 4px);background:linear-gradient(90deg,var(--q7${k1}1),var(--q7${k1}2))" title="${esc(lt)}"></span><span class="q7r" style="width:calc(${Rp}% - 4px);background:linear-gradient(270deg,var(--q7${k2}1),var(--q7${k2}2))" title="${esc(rt)}"></span><span class="q7ag" style="left:${ag * 100}%"><i>${agT}</i></span></div>`; };
-  // barra da cota total (27/11/2026, igual ao Link Gestor): cota e emendas numa linha; o indicado enche da esquerda com o valor num
-  // balão preso ao fim do preenchimento; livre embaixo, à direita
-  const uP = D ? Math.min(100, tot / D * 100) : 0, pos = uP > 78 ? " fim" : uP < 22 ? " ini" : "", mi2 = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " mi";
-  return `<div class="t w4 q7"><div class="q7bk q7cota"><div class="q7ctr">${uP < 97 ? `<span class="q7cgp" style="left:calc(${uP}% + 6px)"></span>` : ""}<span class="q7cfi" style="width:calc(${uP}% - 4px)"></span><span class="q7cend"></span><span class="q7cbo${pos}" style="left:${uP}%"><i>Indicado <b>${mi2(tot)}</b> · ${pc(tot, D)}</i></span></div>
-      <div class="q7cro"><div><small>Emendas</small><b>${it.length} <em>de ${c.max || "—"}</em></b></div><div class="m"><small>${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</small><div class="icd" data-prazo="${esc(c.prazo || "")}"></div></div><div class="r"><small>Emendas impositivas · cota</small><b>${mi2(D)}</b><span class="q7cch ${livre < 0 ? "al" : "ok"}">${livre < 0 ? "acima " : "livre "}${rc(Math.abs(livre))}</span></div></div></div>
-    <div class="q7bk"><div class="q7lb">Saúde × FUNDAM</div>${tr(S.t, "a", "Saúde " + mi(S.t), F.t, "b", "FUNDAM " + mi(F.t), D, fs, Math.round(fs * 100) + "%")}
-      <div class="q7rd"><div><small><i style="background:var(--q7a2)"></i>Saúde</small><b>${mi(S.t)}<span>(${pc(S.t, mS)})</span></b>${falta > .005 ? `<span class="q7ch al">faltam ${mi(falta)}</span>` : `<span class="q7ch ok">✓ mínimo</span>`}</div>
-        <div><span class="q7mid"><small>${livre < 0 ? "acima da cota" : "livre"}</small><b>${mi(Math.abs(livre))}<span>(${pc(Math.abs(livre), D)})</span></b></span></div>
-        <div><small>FUNDAM<i style="background:var(--q7b2)"></i></small><b>${mi(F.t)}<span>(${pc(F.t, mF)})</span></b>${F.t > mF + .005 ? `<span class="q7ch al">acima ${mi(F.t - mF)}</span>` : `<span class="q7ch ok">livre ${mi(mF - F.t)}</span>`}</div></div></div>
-    <div class="q7bk"><div class="q7lb">Investimento × custeio</div>${tr(A.cap, "i", "investimento " + mi(A.cap), A.cus, "c", "custeio " + mi(A.cus), D, .7, "meta 70%")}
-      <div class="q7rd"><div><small><i style="background:var(--q7i2)"></i>Investimento</small><b>${mi(A.cap)}<span>(${ipT})</span></b><span class="q7ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span></div>
-        <div><span class="q7mid"><small>${A.def ? "livre + a definir" : "livre"}</small><b>${mi(vao)}<span>(${pc(vao, D)})</span></b></span></div>
-        <div><small>Custeio<i style="background:var(--q7c2)"></i></small><b>${mi(A.cus)}<span>(${pc(A.cus, D)})</span></b></div></div></div></div>`;
+  const mi = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mi", mi2 = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " mi";
+  const D = c.disp, fs = c.saude || .5, mS = D * fs, mF = D - mS, livre = D - tot, falta = mS - S.t, okI = D && A.cap / D >= .7 - 1e-9, vao = Math.max(0, livre) + A.def;
+  const pc = (v, d) => d ? Math.round(v / d * 100) + "%" : "0%", w = (v) => D ? v / D * 100 : 0;
+  const lv = q7vLivre(livre < 0 ? "acima da cota" : "livre", mi(Math.abs(livre)), pc(Math.abs(livre), D));
+  const prazo = `<span class="q7v-pz">${c.prazo ? `Fecha ${new Date(c.prazo).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit" })} às ${c.prazo.slice(11, 16)}` : "Sem prazo"}${c.entrega ? " · " + esc(c.entrega) : ""}</span><div class="icd" data-prazo="${esc(c.prazo || "")}"></div>`;
+  return `<div class="t w4 q7v-cx"><div class="q7v-ttl"><span>Emendas impositivas${T && T.nome ? " · " + esc(T.nome) + " " + IND.ano : ""}</span><span class="q7v-cd">${prazo}</span></div><div class="q7v">
+    ${q7vLinha({ L: { k: "g", n: "Indicado", p: w(tot), t: q7vTxt(mi2(tot), pc(tot, D)) }, lr: `<span class="q7v-lbr">Cota <b>${mi2(D)}</b></span>`, fim: true, bl: `<small>${it.length} de ${c.max || "—"} emendas</small>`, bm: lv })}
+    ${q7vLinha({ L: { k: "i", n: "Investimento", p: w(A.cap), t: q7vTxt(mi(A.cap), pc(A.cap, D)) }, R: { k: "c", n: "Custeio", p: w(A.cus), t: q7vTxt(mi(A.cus), pc(A.cus, D)) }, ag: 70, agT: "meta 70%",
+      bl: `<span class="q7v-ch ${okI ? "ok" : "al"}">${okI ? "✓ meta" : "abaixo da meta"}</span>`, bm: q7vLivre(A.def ? "livre + a definir" : "livre", mi(vao), pc(vao, D)) })}
+    ${q7vLinha({ L: { k: "a", n: "Saúde", p: w(S.t), t: q7vTxt(mi(S.t), pc(S.t, mS)) }, R: { k: "b", n: "FUNDAM", p: w(F.t), t: q7vTxt(mi(F.t), pc(F.t, mF)) }, ag: fs * 100, agT: Math.round(fs * 100) + "%",
+      bl: falta > .005 ? `<span class="q7v-ch al">faltam ${mi(falta)}</span>` : `<span class="q7v-ch ok">✓ mínimo</span>`, bm: lv,
+      br: F.t > mF + .005 ? `<span class="q7v-ch al">acima ${mi(F.t - mF)}</span>` : `<span class="q7v-ch ok">livre ${mi(mF - F.t)}</span>` })}</div></div>`;
 }
+// ---------- quadro da cota v4 (27/11/2026, protótipo aprovado: prototipos/quadro-cota-v4) ----------
+// Barras altas e arredondadas com o valor e o (%) DENTRO do preenchimento (tons escuros, texto branco); legenda em cima,
+// agulha da meta/cota, caixinha "livre" e etiquetas embaixo. Mesmo código na planilha (gabinete-indicar.js), no Link
+// Gestor (gestor-lista.html) e no link do líder (indicar-lider.html): mudar num lugar = mudar nos três.
+const Q7V_C = { g: ["#475569", "#1F2F42"], i: ["#3F72C2", "#24508F"], c: ["#3BA3CC", "#1F7FA6"], a: ["#E0703F", "#B9501F"], b: ["#2E9C8E", "#1C7368"] };
+function q7vLinha(o) { const cl = (v) => Math.max(0, Math.min(100, +v || 0)), lp = cl(o.L.p), rp = o.R ? Math.min(100 - lp, cl(o.R.p)) : 0, cabe = (p) => p >= 13;
+  const gr = (k, d) => `linear-gradient(${d}deg,${Q7V_C[k][0]},${Q7V_C[k][1]})`, dot = (k) => `<i style="background:${Q7V_C[k][1]}"></i>`;
+  const fill = (lado, p, s) => p > 0 ? `<span class="q7v-${lado}"${s.md ? ` data-md="${s.md}" role="button" title="Ver o detalhamento"` : ""} style="width:calc(${p}% - 6px);background:${gr(s.k, lado === "l" ? 90 : 270)}">${cabe(p) ? s.t : ""}</span>` : "";
+  const fora = (s, p) => p > 0 && !cabe(p) ? `<b class="q7v-fo">${s.t}</b>` : "";
+  return `<div class="q7v-bk"${o.md ? ` data-md="${o.md}" role="button" title="Ver o detalhamento"` : ""}><div class="q7v-lb"><span>${dot(o.L.k)}${o.L.n}</span>${o.lr || (o.R ? `<span>${o.R.n}${dot(o.R.k)}</span>` : "")}</div>
+    <div class="q7v-tr">${lp + rp < 99 ? `<span class="q7v-gap" style="left:calc(${lp}% + 8px);right:calc(${rp}% + ${o.R ? 8 : 16}px)"></span>` : ""}${fill("l", lp, o.L)}${o.R ? fill("r", rp, o.R) : ""}${o.ag != null ? `<span class="q7v-ag" style="left:${o.ag}%"><i>${o.agT}</i></span>` : ""}${o.fim ? `<span class="q7v-end"></span>` : ""}</div>
+    <div class="q7v-vl"><div>${fora(o.L, lp)}${o.bl || ""}</div><div class="m">${o.bm || ""}</div><div class="d">${o.R ? fora(o.R, rp) : ""}${o.br || ""}</div></div></div>`; }
+const q7vTxt = (v, p) => `${v}<span>(${p})</span>`;
+const q7vLivre = (t, v, p) => `<span class="q7v-mid">${t} <b>${v} <span>(${p})</span></b></span>`;
 function contador() {
   document.querySelectorAll("#indPg .icd[data-prazo]").forEach((e) => { const p = e.dataset.prazo; if (!p) { e.innerHTML = ""; return; }
     let s = Math.max(0, (new Date(p) - new Date()) / 1000); if (!s) { e.innerHTML = `<span class="ifim">Prazo encerrado</span>`; return; }
