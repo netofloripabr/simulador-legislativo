@@ -291,11 +291,19 @@ td.ac{width:70px}
 .q7rd b{ display:block; font-size:18px; font-weight:700; margin-top:6px; letter-spacing:-.015em; color:var(--q7tx); } .q7rd b span{ font-weight:500; color:var(--q7mu); font-size:14px; margin-left:4px; }
 .q7ch{ display:inline-block; margin-top:8px; font-size:11.5px; font-weight:650; border-radius:999px; padding:4px 10px; } .q7ch.al{ background:#FCE9DF; color:#B4532A; } .q7ch.ok{ background:#DFF4F1; color:#1F7D72; }
 .q7mid{ display:inline-flex; flex-direction:column; align-items:center; background:var(--q7tk); border-radius:12px; padding:8px 16px; } .q7mid small{ justify-content:center; } .q7mid b{ font-size:15px; margin-top:2px; }
-@media (max-width:620px){ .q7{ padding:20px !important; } .q7rd{ grid-template-columns:1fr 1fr; } .q7rd > div:nth-child(2){ grid-column:1/-1; grid-row:2; text-align:left; } .q7h{ flex-direction:column; align-items:flex-start; } }
+@media (max-width:620px){ .q7{ padding:20px !important; } .q7rd{ grid-template-columns:1fr 1fr; } .q7rd > div:nth-child(2){ grid-column:1/-1; grid-row:2; text-align:center; } .q7rd .q7mid{ flex-direction:row; align-items:baseline; gap:6px; padding:5px 12px; border-radius:999px; } .q7rd .q7mid b{ margin-top:0; font-size:13px; } .q7rd .q7mid small{ font-size:11.5px; } .q7bk{ padding-top:22px; } .q7bk + .q7bk{ margin-top:22px; } .q7rd{ margin-top:16px; row-gap:10px; } .q7h{ flex-direction:column; align-items:flex-start; } }
 .q7g{ margin-top:14px; padding:8px 28px 28px !important; } .q7k{ cursor:pointer; border-radius:12px; } .q7k:hover{ background:#F6F8FA; } .q7k.on{ box-shadow:0 0 0 2px var(--q7tx); }
 /* seções do Portfólio fechadas, título abre/fecha (25/11/2026) */ .pfs button.pfc{width:100%;border:0;cursor:pointer;font-family:inherit;text-align:left} button.pfc b{display:inline-flex;align-items:center;gap:6px;font-weight:inherit} .sxch{transition:transform .15s;flex:none} .pfs.ab .sxch{transform:rotate(90deg)} button.pfc:hover{filter:brightness(.97)}
 /* Portfólio: objetos incluídos em 25/11/2026 em verde até 31/12/2026 */ .pfi.pfnv{ background:#EAF7EE; box-shadow:inset 3px 0 0 #1FA83A; } .nvt{ display:inline-block; font-size:9.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#1FA83A; border-radius:4px; padding:1px 5px; margin-right:6px; vertical-align:1px; } .nvc{ font-style:normal; color:#1FA83A; font-weight:700; }
 .cpy{display:inline-flex;vertical-align:-2px;margin-left:6px;padding:2px;border-radius:5px;color:#6E767D;cursor:pointer;border:1px solid transparent}.cpy:hover{color:#1D2226;border-color:#DEE2E5;background:#fff}.cpy .ck{display:none}.cpy.ok{color:#1FA845}.cpy.ok svg{display:none}.cpy.ok .ck{display:block}
+/* barra da cota total no padrão das barras Saúde × FUNDAM e investimento × custeio (27/11/2026) */
+.q7cota{padding-right:34px}.q7ctop{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}.q7ctop small{display:block;font-size:11.5px;color:var(--mu)}.q7ctop b{display:block;font-size:20px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:2px}.q7ctop b em{font-style:normal;font-size:13px;font-weight:500;color:var(--mu);letter-spacing:0}.q7ctop .r{text-align:right}
+.q7ctr{position:relative;height:16px;border-radius:999px;background:#ECEFF4;margin:44px 0 0}.q7cfi{position:absolute;left:2px;top:2px;bottom:2px;border-radius:999px;background:linear-gradient(90deg,#5E6E86,#34506B);min-width:0}
+.q7cbo{position:absolute;bottom:calc(100% + 9px);transform:translateX(-50%);z-index:2}.q7cbo.fim{transform:translateX(-100%)}.q7cbo.ini{transform:translateX(0)}
+.q7cbo i{display:block;position:relative;background:#2E3440;color:#fff;font-style:normal;font-size:11.5px;font-weight:600;padding:5px 10px;border-radius:8px;white-space:nowrap;font-variant-numeric:tabular-nums}.q7cbo i b{font-weight:800}
+.q7cbo i::after{content:"";position:absolute;top:100%;left:50%;margin-left:-4px;border:4px solid transparent;border-top-color:#2E3440}.q7cbo.fim i::after{left:auto;right:6px;margin:0}.q7cbo.ini i::after{left:6px;margin:0}
+.q7cli{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:8px;font-size:12px;color:var(--mu)}.q7cli .pos{color:#3D7A61;font-weight:600}.q7cli .neg{color:#A65A2C;font-weight:600}.q7cli b{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;margin-left:3px}
+@media(max-width:620px){.q7ctop b{font-size:17px}.q7cbo i{font-size:10.5px;padding:4px 8px}}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist><datalist id="lids"></datalist>
 <script src="../dados/regioes-sc.js"></script>
@@ -438,11 +446,12 @@ function quadro(L) {
       <div class="arb"><i style="width:${(Math.min(o.t, esc2) / esc2 * 100).toFixed(1)}%"></i><b style="left:${(m / esc2 * 100).toFixed(1)}%"></b></div>
       <div class="ars"><span>Investimento e custeio</span><b>capital ${p(o.cap, o.t)}</b></div>${desp(o)}</div>`; };
   return `<div class="qd${MIN ? " min" : ""}"><button class="qmin" data-min title="${MIN ? "Mostrar metas e despesas" : "Minimizar"}" aria-label="${MIN ? "Mostrar metas e despesas" : "Minimizar"}">${MIN ? "▾" : "▴"}</button>
-    <div class="qn"><div><span>Cota</span><b>${rcc(COTA)}</b></div>
-      <div><span>Indicado</span><b>${rcc(tot)} <em>${p(tot, COTA)}</em></b>${tot !== totO ? `<small class="dif">${tot > totO ? "+" : "−"}${rcc(Math.abs(tot - totO))} nas mudanças</small>` : ""}</div>
-      <div><span>${livre < 0 ? "Acima da cota" : "Livre"}</span><b class="${livre < 0 ? "neg" : "pos"}">${rcc(Math.abs(livre))}</b></div>
-      <div><span>Emendas</span><b>${L.length} <em>de ${MAXE}</em></b></div></div>
-    <div class="qb"><i class="s" style="width:${Math.min(100, tot / COTA * 100)}%"></i></div>
+    ${(() => { // barra da cota total no padrão das outras (27/11/2026): trilho arredondado; o indicado enche da esquerda com o valor
+      // num balão preso ao fim do preenchimento; o livre fica no vão, à direita; cota e emendas numa linha só, em cima
+      const uP = COTA ? Math.min(100, tot / COTA * 100) : 0, pos = uP > 78 ? " fim" : uP < 22 ? " ini" : "", mi2 = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " mi";
+      return `<div class="q7cota"><div class="q7ctop"><span><small>Cota</small><b>${mi2(COTA)}</b></span><span class="r"><small>Emendas</small><b>${L.length} <em>de ${MAXE}</em></b></span></div>
+      <div class="q7ctr"><span class="q7cfi" style="width:calc(${uP}% - 4px)"></span><span class="q7cbo${pos}" style="left:${uP}%"><i>Indicado <b>${mi2(tot)}</b> · ${p(tot, COTA)}</i></span></div>
+      <div class="q7cli"><span>${tot !== totO ? `<small class="dif">${tot > totO ? "+" : "−"}${rcc(Math.abs(tot - totO))} nas mudanças</small>` : ""}</span><span class="${livre < 0 ? "neg" : "pos"}">${livre < 0 ? "Acima da cota" : "Livre"} <b>${rcc(Math.abs(livre))}</b></span></div></div>`; })()}
     ${MIN ? "" : (() => { // mesmo quadro da planilha (P7 · Nórdica, 25/11/2026): vão no centro, agulha na meta; tocar em cada parte abre o detalhamento
       const mi = (v) => "R$ " + ((v || 0) / 1e6).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + " mi", pp = (v, d) => d ? Math.round(v / d * 100) + "%" : "0%";
       const ipv = COTA ? A.cap / COTA * 100 : 0, vao = Math.max(0, livre) + A.def, okI = ipv >= META_CAP * 100 - 1e-9, ipT = !okI && Math.round(ipv) >= 70 ? ipv.toFixed(1).replace(".", ",") + "%" : Math.round(ipv) + "%", falta = mS - S.t;
@@ -710,7 +719,7 @@ function documento() { const win = window.open("", "_blank"); if (!win) return a
     .pt td.c4 .ar{display:block;margin-top:3px;font-size:8.5px;color:#B3261E;font-weight:600;line-height:1.35}.pt td.c4 .ag{display:block;margin-top:2px;font-size:8.5px;color:#2F5D8A;line-height:1.35}.ar b,.ag b{font-weight:800}
     .mk.n{background:#DDF3E1;color:#157A2B}
     ${qCss}
-    .qd{margin:4px 0 14px;padding:10px 12px;border-radius:10px;page-break-inside:avoid;background:#F8F9FA;border:1px solid #DEE2E5}.qd .qn{padding-right:0}.qn span{font-size:8px;color:#6E767D}.qn b{font-size:13px}.qn b em{font-size:9px}.qn small{font-size:7.5px}.qb{height:6px;margin:8px 0 4px}
+    .qd{margin:4px 0 14px;padding:10px 12px;border-radius:10px;page-break-inside:avoid;background:#F8F9FA;border:1px solid #DEE2E5}.q7cota{padding-right:0}.q7ctop small{font-size:8px;color:#6E767D}.q7ctop b{font-size:13px}.q7ctop b em{font-size:9px}.q7ctr{height:10px;margin-top:28px}.q7cbo{bottom:calc(100% + 6px)}.q7cbo i{font-size:7.5px;padding:2px 6px;border-radius:5px}.q7cli{font-size:8px;margin-top:5px}.q7cli b{font-size:10px}.qd .qn{padding-right:0}.qn span{font-size:8px;color:#6E767D}.qn b{font-size:13px}.qn b em{font-size:9px}.qn small{font-size:7.5px}.qb{height:6px;margin:8px 0 4px}
     .q7g{margin-top:8px;padding:4px 16px 14px !important;border-radius:12px;box-shadow:none}.q7k:hover{background:none}.q7bk{padding-top:16px}.q7bk + .q7bk{margin-top:14px}.q7bk > .q7tr{margin-top:20px}
     .q7tr{height:10px}.q7ag{top:-5px;bottom:-5px;width:3px;margin-left:-1.5px;box-shadow:0 0 0 2px #fff}.q7ag i{font-size:7.5px;padding:2px 5px;border-radius:5px;bottom:calc(100% + 5px)}
     .q7rd{margin-top:10px;gap:10px}.q7rd small{font-size:8px;gap:5px}.q7rd small i{width:6px;height:6px}.q7rd b{font-size:11.5px;margin-top:3px}.q7rd b span{font-size:8.5px}.q7ch{font-size:7.5px;padding:2px 7px;margin-top:4px}.q7mid{padding:4px 10px;border-radius:8px}.q7mid b{font-size:10px}.mk.m{background:#FDEBD8;color:#9A4E10}.mk.x{background:#EEF0F1;color:#6B7178}
