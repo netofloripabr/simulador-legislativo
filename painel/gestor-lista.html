@@ -615,13 +615,13 @@ function liga() { const A = document.getElementById("app");
 // ---------- impressão (padrão do relatório do Controle: relPDF / classes pt-* e di-*) ----------
 const ORG_OPC = [["tela", "Como está na tela"], ["n", "Nº da lista"], ["mun", "Município"], ["reg", "Região"], ["lid", "Líder"], ["v", "Valor (maior primeiro)"], ["area", "Área"]];
 const GRP_OPC = [["", "Sem agrupar"], ["reg", "Região"], ["lid", "Líder"], ["area", "Área"], ["nat", "Despesa"]];
-let IMP = { painel: true, dist: true, leg: true, mud: true, org: "tela", grp: "" };
+let IMP = { painel: true, dist: true, leg: true, com: true, mud: true, org: "tela", grp: "" };
 function opcImprimir() { const P = pend();
   const chk = (k, t, d) => `<label class="ck"><input type="checkbox" data-k="${k}"${IMP[k] ? " checked" : ""}><span><b>${t}</b>${d ? `<small>${d}</small>` : ""}</span></label>`;
   const sel = (k, L) => `<div class="opc" data-s="${k}">${L.map(([v, t]) => `<button type="button" data-v="${v}" class="${IMP[k] === v ? "on" : ""}">${t}</button>`).join("")}</div>`;
   document.body.insertAdjacentHTML("beforeend", `<div class="cfp" id="im"><div class="cfb lg"><b>Imprimir</b><p>O documento sai no padrão dos relatórios do gabinete. Escolha o que entra e como organizar.</p>
     <div class="fm"><div class="w sec">Incluir</div>
-      <div class="w ckg">${chk("painel", "Painel da cota", "cota, indicado, livre, emendas e as três metas")}${chk("dist", "Distribuição", "por região e por líder")}${chk("leg", "Legenda", "ícones de área e etiquetas de despesa")}${P.length ? chk("mud", "Minhas mudanças", `${P.length} ainda não validada${P.length > 1 ? "s" : ""}, marcadas no documento`) : ""}</div>
+      <div class="w ckg">${chk("painel", "Painel da cota", "cota, indicado, livre, emendas e as três metas")}${chk("dist", "Distribuição", "por região e por líder")}${chk("com", "Comentários e cores", "a cor da etiqueta na linha, o recado do gabinete e o comentário do gestor")}${chk("leg", "Legenda", "ícones de área e etiquetas de despesa")}${P.length ? chk("mud", "Minhas mudanças", `${P.length} ainda não validada${P.length > 1 ? "s" : ""}, marcadas no documento`) : ""}</div>
       <div class="w sec">Organizar por</div><div class="w">${sel("org", ORG_OPC)}</div>
       <div class="w sec">Agrupar</div><div class="w">${sel("grp", GRP_OPC)}</div></div>
     <div class="bb"><button class="vxb" data-x title="Cancelar">✕</button><button class="vxb v" data-v title="Gerar o documento">✓</button></div></div></div>`);
@@ -655,9 +655,15 @@ function documento() { const win = window.open("", "_blank"); if (!win) return a
   const antigo = (x, c) => { if (!comMud || x._st !== "m") return ""; const o = ORIG.find((y) => y.id === x.id); return o && String(o[c] ?? "") !== String(x[c] ?? "") ? (c === "v" ? `<s>R$ ${moeda(o.v)}</s>` : `<s>${esc(o[c] || "—")}</s>`) : ""; };
   const marca = (x) => !comMud || !x._st ? "" : `<span class="mk ${x._st}">${x._st === "n" ? "nova" : x._st === "x" ? "excluir" : "alterada"}</span>`;
   let n = 0;
-  const linha = (x) => `<tr class="${x._st === "x" ? "sup" : ""}"><td class="c0">${x._st === "n" ? "+" : ++n}</td>
+  // comentários e cores (27/11/2026): a linha leva a cor da etiqueta (como na tela) e, embaixo do objeto, a etiqueta, o
+  // recado do gabinete (vermelho), o parecer ✓/✕ e o comentário do gestor (azul)
+  const ce = (x) => IMP.com ? corEtq(x.etq) : null;
+  const notas = (x) => { if (!IMP.com) return ""; const c = corEtq(x.etq), P = [];
+    if (c || x.pa) P.push(`<span class="an">${c ? `<span class="ae" style="background:${c[0]};color:${c[1]}">${esc(x.etq.n)}</span>` : ""}${x.pa ? `<span class="ap ${x.pa}">${x.pa === "ok" ? "✓ gestor de acordo" : "✕ gestor não de acordo"}</span>` : ""}</span>`);
+    if (x.nota) P.push(`<span class="ar"><b>Gabinete:</b> ${esc(x.nota)}</span>`); if (x.ng) P.push(`<span class="ag"><b>Gestor:</b> ${esc(x.ng)}</span>`); return P.join(""); };
+  const linha = (x) => `<tr class="${x._st === "x" ? "sup" : ""}${ce(x) ? " et" : ""}"${ce(x) ? ` style="--mk:${ce(x)[1]};--mkf:${ce(x)[0]}"` : ""}><td class="c0">${x._st === "n" ? "+" : ++n}</td>
     <td class="c3">${antigo(x, "mun")}<b>${esc(x.mun || "—")}</b><small>${esc(x.mun ? REG[x.mun] || "" : "")}</small>${marca(x)}</td>
-    <td class="c4">${antigo(x, "obj")}${esc(x.obj || "—")}</td><td class="c5">${areaC(x)}</td><td class="c2">${natC(x)}</td>
+    <td class="c4">${antigo(x, "obj")}${esc(x.obj || "—")}${notas(x)}</td><td class="c5">${areaC(x)}</td><td class="c2">${natC(x)}</td>
     <td class="c7">${antigo(x, "v")}<span class="pt-val ap">R$ ${moeda(x.v)}</span></td><td class="cl">${antigo(x, "lid")}${esc(x.lid || "—")}</td></tr>`;
   const seta = (k) => `<i>${ordem[0] === k ? (ordem[1] > 0 ? "↑" : "↓") : "↕"}</i>`;
   const thead = `<thead><tr><th class="c0">#</th><th class="c3">Município${seta(ordem[0] === "reg" ? "reg" : "mun")}</th><th class="c4">Objeto${seta("obj")}</th><th class="c5">Área${seta("area")}</th><th class="c2">Despesa${seta("nat")}</th><th class="c7">R${seta("v")}</th><th class="cl">Líder${seta("lid")}</th></tr></thead>`;
@@ -673,9 +679,10 @@ function documento() { const win = window.open("", "_blank"); if (!win) return a
     <div class="mts">${meta(okS, `Saúde ${pc(sau, COTA)} · mínimo ${Math.round(SAUDE * 100)}%`, okS ? "mínimo atingido" : "faltam R$ " + moeda(COTA * SAUDE - sau))}${meta(okC, `Investimento ${pc(cap, tot)} · meta ${Math.round(META_CAP * 100)}%`, def ? `R$ ${moeda(def)} com despesa a definir` : okC ? "meta atingida" : "")}${meta(okF, `FUNDAM ${pc(fun, COTA)} · até ${Math.round((1 - SAUDE) * 100)}%`, okF ? "livre R$ " + moeda(COTA * (1 - SAUDE) - fun) : "acima em R$ " + moeda(fun - COTA * (1 - SAUDE)))}</div>` : "";
   const tabD = (tit, G) => `<div class="di-bloco"><div class="di-st2">${tit}</div><div class="di-tl di-th"><span>Item</span><span>Emendas</span><span>Valor (R$)</span><span>%</span></div>${G.map(([k, o]) => `<div class="di-tl"><span>${esc(k)}<i style="width:${tot ? (o.v / tot * 100).toFixed(1) : 0}%"></i></span><span>${o.n}</span><span>${moeda(o.v)}</span><span>${pc(o.v, tot)}</span></div>`).join("")}</div>`;
   const dist = IMP.dist ? `<div class="di-grade">${tabD("Por região", grupoPor(L, regDe))}${tabD("Por líder", grupoPor(L, (x) => x.lid))}</div>` : "";
-  const aU = [...new Set(L.map((x) => x.area).filter(Boolean))], nU = [...new Set(L.map((x) => x.nat || ""))];
+  const eU = [...new Map(L.filter((x) => corEtq(x.etq)).map((x) => [x.etq.n, x.etq])).values()], aU = [...new Set(L.map((x) => x.area).filter(Boolean))], nU = [...new Set(L.map((x) => x.nat || ""))];
   const leg = IMP.leg ? `<div class="di-lgs">${aU.length ? `<div class="pt-lg"><b>Área</b>${aU.map((a) => `<span><svg viewBox="0 0 16 16" class="di-fi">${ICI[AR[a]]}</svg>${esc(a)}</span>`).join("")}</div>` : ""}
     <div class="pt-lg"><b>Despesa</b>${nU.map((k) => `<span>${natC({ nat: k || null })}${k === "Capital" ? "Capital · investimento" : k === "Custeio" ? "Custeio" : "a definir"}</span>`).join("")}</div>
+    ${IMP.com && eU.length ? `<div class="pt-lg"><b>Etiquetas</b>${eU.map((e) => { const c = corEtq(e); return `<span><span class="ae" style="background:${c[0]};color:${c[1]}">${esc(e.n)}</span></span>`; }).join("")}</div>` : ""}
     ${comMud ? `<div class="pt-lg"><b>Mudanças ainda não validadas</b><span><span class="mk n">nova</span>incluída</span><span><span class="mk m">alterada</span>valor anterior riscado acima</span><span><span class="mk x">excluir</span>fora das somas</span></div>` : ""}</div>` : "";
   const org = [IMP.org === "tela" ? (ORD ? "como na tela" : "Nº da lista") : nome(ORG_OPC, IMP.org), IMP.grp ? "agrupado por " + nome(GRP_OPC, IMP.grp).toLowerCase() : ""].filter(Boolean).join(" · ");
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(NOMEL)} · ${dt}</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"><style>${PTCSS}
@@ -689,6 +696,10 @@ function documento() { const win = window.open("", "_blank"); if (!win) return a
     .pt .cl{width:62px;font-size:9px}.pt .c2{width:58px}.pt .c5{width:52px}.pt .c3{width:92px}.pt td s{display:block;color:#9AA0A4;font-size:8px;margin-bottom:2px;font-weight:400}
     .pt tr.gh td{background:#F3F5F6;padding:6px;border-bottom:1px solid #C9CDD1;font-size:9px}.pt tr.gh b{font-size:10px;margin-right:8px}.pt tr.gh span{color:#6B7178}
     .pt tr.sup td{text-decoration:line-through}.mk{display:inline-block;margin-top:3px;font-size:6.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;padding:2px 4px;line-height:1}
+    .pt tr.et td{background:color-mix(in srgb,var(--mkf) 55%,#fff)}.pt tr.et td.c0{box-shadow:inset 3px 0 0 var(--mk)}
+    .pt td.c4 .an{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.ae{display:inline-block;font-size:7.5px;font-weight:700;border-radius:999px;padding:1px 7px;line-height:1.5}
+    .ap{font-size:7.5px;font-weight:700}.ap.ok{color:#17692F}.ap.nao{color:#9B2C20}
+    .pt td.c4 .ar{display:block;margin-top:3px;font-size:8.5px;color:#B3261E;font-weight:600;line-height:1.35}.pt td.c4 .ag{display:block;margin-top:2px;font-size:8.5px;color:#2F5D8A;line-height:1.35}.ar b,.ag b{font-weight:800}
     .mk.n{background:#DDF3E1;color:#157A2B}.mk.m{background:#FDEBD8;color:#9A4E10}.mk.x{background:#EEF0F1;color:#6B7178}
   </style></head><body><div class="di-agua"><span>SimulaLEGIS</span></div><div class="di-folha">
   <div class="di-cab"><div><div class="di-wm">Simula<span>LEGIS</span></div><div class="di-wmsub">Gabinete · ${esc(NOMEL)}</div></div><div class="di-meta"><b>${esc(GAB)}</b><br>gerado em ${dt} às ${hr}</div></div><div class="di-regra"></div>
