@@ -913,6 +913,22 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 .q7v-gap.ini:not(.in) em{left:-6px;transform:none}.q7v-gap.ini:not(.in) em::before{left:14px;margin:0}
 .q7v-gap:not(.in) em{font-size:11.5px;padding:4px 11px}
 .q7v-gap em b{font-size:inherit !important;letter-spacing:0}.q7v-cut{color:transparent !important}.q7v-cut span{display:none}
+/* interruptor tabela/cartões (28/11/2026): dois ícones num trilho; o ligado fica escuro */
+.vsw{display:inline-flex;align-items:center;gap:2px;background:#E9ECEF;border-radius:999px;padding:3px;flex:none}.vsw button{width:32px;height:28px;border:0;border-radius:999px;background:none;color:#6E767D;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.vsw button svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}.vsw button.on{background:#fff;color:#1D2226;box-shadow:0 1px 3px rgba(16,24,40,.14)}.vsw button:not(.on):hover{color:#1D2226}
+/* planilha em cartões (28/11/2026): a mesma linha da tabela vira um cartão, com os mesmos campos editáveis */
+#indPg .itw.icards{overflow:visible !important;max-height:none !important}
+#indPg .icards table.itb,#indPg .icards tbody{display:block;width:100%}#indPg .icards thead{display:none}
+#indPg .icards tbody{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px;padding:4px 2px 10px}
+#indPg .icards tbody > tr{display:block}#indPg .icards tr.ick{display:none}
+#indPg .icards tr.iw{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"n mun val" "obj obj obj" "ent ent ent" "etq lid lid" "obs etp etp";gap:8px 10px;align-items:center;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:12px 14px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+#indPg .icards tr.iw > td{display:block;border:0 !important;padding:0 !important;width:auto !important;min-width:0;max-width:none !important;background:none !important}
+#indPg .icards tr.iw.mk{background:color-mix(in srgb,var(--mkf) 55%,#fff);box-shadow:inset 4px 0 0 var(--mk),0 1px 2px rgba(16,24,40,.04)}
+#indPg .icards td.n{grid-area:n;color:var(--mu);font-size:12px}#indPg .icards td[data-col="mun"]{grid-area:mun;font-weight:600}#indPg .icards td[data-col="val"]{grid-area:val;text-align:right;font-weight:700}
+#indPg .icards td[data-col="obj"]{grid-area:obj}#indPg .icards td[data-col="ent"]{grid-area:ent}#indPg .icards td[data-col="etq"]{grid-area:etq}#indPg .icards td[data-col="lid"]{grid-area:lid}#indPg .icards td[data-col="obs"]{grid-area:obs}#indPg .icards td[data-col="etp"]{grid-area:etp;justify-self:end}
+#indPg .icards tr.iexp,#indPg .icards tr:not(.iw):not(.ick){grid-column:1/-1}#indPg .icards tr.iexp > td,#indPg .icards tr:not(.iw):not(.ick) > td{display:block;border:0}
+#indPg .icards tr:not(.iw):not(.ick):not(.iexp){display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:flex-end;padding:6px 4px}#indPg .icards tr:not(.iw):not(.ick):not(.iexp) > td:empty{display:none}
+#indPg .iacs .vsw{margin-left:4px}
 </style>
 <link rel="preload" href="../fontes/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="topo.css?cb=16">
@@ -936,7 +952,7 @@ body.dm-escuro .iobs.tem{ color:#E6E9EB; }
 <script src="gabinete-equipe.js?cb=1"></script>
 <script src="gabinete-planilha.js?cb=3"></script>
 <script src="gabinete-cotas.js?cb=26"></script>
-<script src="gabinete-indicar.js?cb=128"></script>
+<script src="gabinete-indicar.js?cb=129"></script>
 <script src="gabinete-ind-links.js?cb=31"></script>
 <script src="gabinete-ind-gestor.js?cb=8"></script>
 <script src="gabinete-ind-planilha.js?cb=4"></script>

@@ -200,6 +200,17 @@ textarea.ed{resize:vertical;min-height:58px;line-height:1.45;font-weight:400}
 .q7v-tl{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:18px 0 14px}.q7v-tl small{display:block;font-size:12px;color:#6B7385;font-weight:500}.q7v-tl b{display:block;font-size:20px;font-weight:800;letter-spacing:-.02em;margin-top:4px;color:#2E3440;font-variant-numeric:tabular-nums}.q7v-tl b em{font-style:normal;font-size:13px;font-weight:500;color:#6B7385}.q7v-tl .r{text-align:right}
 .ihd .bxp + .bxp{margin-left:6px}
 .q7v-gap em b{font-size:inherit !important;letter-spacing:0}.q7v-cut{color:transparent !important}.q7v-cut span{display:none}
+/* interruptor tabela/cartões (28/11/2026): dois ícones num trilho; o ligado fica escuro */
+.vsw{display:inline-flex;align-items:center;gap:2px;background:#E9ECEF;border-radius:999px;padding:3px;flex:none}.vsw button{width:32px;height:28px;border:0;border-radius:999px;background:none;color:#6E767D;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.vsw button svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}.vsw button.on{background:#fff;color:#1D2226;box-shadow:0 1px 3px rgba(16,24,40,.14)}.vsw button:not(.on):hover{color:#1D2226}
+.ltw{overflow-x:auto;background:#fff;border:1px solid var(--bd);border-radius:16px;margin-bottom:90px}.ltb{width:100%;border-collapse:collapse;min-width:900px;font-size:13px}
+.ltb th{position:sticky;top:0;background:#F6F8FA;text-align:left;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#6E767D;padding:10px 10px;border-bottom:1px solid var(--bd)}.ltb th.r{text-align:right}
+.ltb td{padding:10px;border-bottom:1px solid #EEF0F2;vertical-align:top}.ltb tr:last-child td{border-bottom:0}.ltb td.n{width:28px;color:#9AA0A4;text-align:right}.ltb tr.feito td.n{color:#1FA845;font-weight:700}
+.ltb td.mu{width:150px}.ltb td.mu b{display:block}.ltb td.mu small{display:block;color:#6E767D;font-size:11.5px;margin:2px 0 6px}.ltb td.mu .etq{display:inline-block;font-size:10.5px;padding:2px 8px}
+.ltb td.ob{min-width:240px}.ltb td.ob .sel{width:100%}.ltb td.ob .fx{display:block;color:#B3261E;font-weight:600;margin-top:4px}.ltb td.ob .rec2,.ltb td.ob .gct2{margin-top:6px}
+.ltb td.ad{width:120px}.ltb td.ad .ch{display:inline-block;margin:0 4px 4px 0;font-size:11.5px}.ltb td.vl{width:100px;font-weight:700;white-space:nowrap;text-align:right}.ltb td.ju{min-width:220px}.ltb td.ju textarea{width:100%;font-size:12.5px}.ltb td.ac{width:120px}
+.ltb tr.mk td{background:color-mix(in srgb,var(--mkf) 45%,#fff)}.ltb tr.mk td.n{box-shadow:inset 3px 0 0 var(--mk)}
+.ihd .vsw{margin-left:auto}.ihd .vsw + .bxp{margin-left:6px}
 </style></head><body><main id="app"></main>
 <datalist id="muns"></datalist>
 <script>
@@ -349,13 +360,26 @@ ${quadroLider()}
 <div class="tot"><span>Total · ${IT.length} ${IT.length === 1 ? "emenda" : "emendas"}</span><b>${brl(IT.reduce((t, x) => t + (+x.valor || 0), 0))}</b></div>
 <div class="pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app · indicação de emendas</span><span>${dt} ${hr}</span></div>
 <script>document.fonts.ready.then(()=>setTimeout(()=>print(),300))<\/script></body></html>`); w.document.close(); }
+// visualização em tabela (28/11/2026): uma linha por emenda, com o objeto (abre a escolha do Portfólio), a justificativa
+// editável e os botões ✓ ✕ comentar; o recado do gabinete aparece embaixo do objeto. Os cartões continuam como antes.
+let VIS = (() => { try { return localStorage.getItem("lider_vis") || "c"; } catch (e) { return "c"; } })();
+function tabelaLider() {
+  return `<div class="ltw"><table class="ltb"><thead><tr><th>#</th><th>Município</th><th>Objeto</th><th>Área · despesa</th><th class="r">Valor</th><th>Justificativa</th><th></th></tr></thead><tbody>${IT.map((x, i) => {
+    const s = ST[i], ok = feito(s, i), inc = incomp(s, i), tv = trava(s), ce = corEtq(x.etq);
+    return `<tr class="${ok ? "feito" : ""}${ce ? " mk" : ""}"${ce ? ` style="--mk:${ce[1]};--mkf:${ce[0]}"` : ""}><td class="n">${ok ? "✓" : i + 1}</td>
+      <td class="mu"><b>${esc(s.mun || "—")}</b><small>${s.bt === "ent" ? "Entidade" + (s.ben ? " · " + esc(s.ben) : "") : "Município"}</small>${ce ? `<span class="etq" style="background:${ce[0]};color:${ce[1]}">${esc(x.etq.n)}</span>` : ""}</td>
+      <td class="ob"><button class="sel pree" data-esc="${i}" ${tv ? "disabled" : ""}><span class="o${ok ? "" : inc ? " inc" : " vz"}">${s.obj ? esc(s.obj) : "Escolha o objeto"}</span><span class="ca">▾</span></button>${inc && !tv && !convenio(i) ? `<small class="fx">fora do Portfólio</small>` : ""}${x.nota_lider ? `<span class="rec2">${esc(x.nota_lider)}</span>` : ""}${x.nota_lider_resp ? `<span class="gct2" data-gcm="${i}" role="button"><b>Você:</b> ${esc(x.nota_lider_resp)}</span>` : ""}</td>
+      <td class="ad"><span class="ch">${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${esc(x.natureza)}</span>` : ""}</td>
+      <td class="r vl">${ni(x.valor)}</td>
+      <td class="ju"><textarea class="ed pree" data-com="${i}" rows="2" placeholder="Informe os detalhes" ${tv ? "disabled" : ""}>${esc(s.com)}</textarea></td>
+      <td class="ac">${parBts(x, i)}</td></tr>`; }).join("")}</tbody></table></div>`; }
 function render() { const F = ST.filter(feito).length, COTA = IT.reduce((s, x) => s + (+x.valor || 0), 0), uso = IT.reduce((s, x, i) => s + (feito(ST[i], i) ? +x.valor || 0 : 0), 0);
   const [org, tit] = String(L.titulo || "").includes(" · ") ? L.titulo.split(" · ") : ["", L.titulo || "Emendas"];
   document.getElementById("app").innerHTML = `
   ${org ? `<div class="org">${esc(org)}</div>` : ""}
-  <div class="ihd"><h2>${esc(tit)}</h2><span>${esc(L.nome)}</span><button class="ii" data-info aria-label="Como preencher">i</button><button class="bxp" data-imp title="Imprimir o relatório deste link">${ICO_IMP}Imprimir</button><button class="bxp" data-port title="Baixar a lista de objetos do Portfólio">${ICO_BX}Portfólio</button></div>
+  <div class="ihd"><h2>${esc(tit)}</h2><span>${esc(L.nome)}</span><button class="ii" data-info aria-label="Como preencher">i</button><span class="vsw" title="Ver em tabela ou em cartões"><button type="button" data-lvis="t" class="${VIS === "t" ? "on" : ""}" aria-label="Tabela" title="Tabela"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="3" width="11" height="10" rx="1.2"/><path d="M2.5 6.5h11M2.5 9.8h11M6.5 6.5V13"/></svg></button><button type="button" data-lvis="c" class="${VIS === "t" ? "" : "on"}" aria-label="Cartões" title="Cartões"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2.5" y="2.5" width="4.6" height="4.6" rx="1.1"/><rect x="8.9" y="2.5" width="4.6" height="4.6" rx="1.1"/><rect x="2.5" y="8.9" width="4.6" height="4.6" rx="1.1"/><rect x="8.9" y="8.9" width="4.6" height="4.6" rx="1.1"/></svg></button></span><button class="bxp" data-imp title="Imprimir o relatório deste link">${ICO_IMP}Imprimir</button><button class="bxp" data-port title="Baixar a lista de objetos do Portfólio">${ICO_BX}Portfólio</button></div>
   <div class="q7v-ttl"><span>Emendas deste link</span><span class="q7v-cd"><span class="tk">${prazoTx()}</span>${cont()}</span></div>${quadroLider()}
-  ${IT.map((x, i) => { const s = ST[i], ok = feito(s, i), inc = incomp(s, i), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
+  ${VIS === "t" ? tabelaLider() : IT.map((x, i) => { const s = ST[i], ok = feito(s, i), inc = incomp(s, i), ent = s.bt === "ent", tv = trava(s); return `<div class="it${ok ? " feito" : ""}${tv ? " trv" : ""}">
     <div class="ih"><span class="nn">${ok ? "✓" : i + 1}</span><span class="m">${esc(s.mun || "—")}</span><div class="chips"><span class="ch">${CAD}${grupo(x) === "Saúde" ? "Saúde" : "FUNDAM" + (x.area && x.area !== "FUNDAM" ? " · " + esc(x.area) : "")}</span>${x.natureza ? `<span class="ch">${CAD}${esc(x.natureza)}</span>` : ""}<span class="ch v">${ni(x.valor)}</span></div></div>
     ${comCel(x, i)}
     ${s.status === "aceito" ? `<div class="dec"><b>✓ Aceito pelo gabinete</b> · se mudar, volta para o gabinete conferir</div>` : s.status === "recusado" ? `<div class="dec">O gabinete não aceitou esta proposta · você pode mudar e enviar de novo</div>` : ""}
@@ -412,6 +436,7 @@ function liga() { const A = document.getElementById("app");
   A.querySelector("[data-info]").onclick = (ev) => info(ev.currentTarget);
   A.querySelector("[data-port]").onclick = () => baixarPortfolio();
   A.querySelector("[data-imp]").onclick = () => imprimirLider();
+  A.querySelectorAll("[data-lvis]").forEach((b) => b.onclick = () => { VIS = b.dataset.lvis; try { localStorage.setItem("lider_vis", VIS); } catch (e) {} render(); });
   const falta = () => IT.map((x, i) => i).filter((i) => !trava(ST[i]) && !feito(ST[i], i));
   const rb = document.getElementById("reabrir"); if (rb) rb.onclick = async () => {
     if (L.pedido_reabrir_em) { await confirmaVX("Pedido já enviado", "O gabinete já recebeu o seu pedido para reabrir. Assim que autorizar, este link volta a ficar editável (atualize a página)."); return; }
