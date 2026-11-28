@@ -365,7 +365,7 @@ function documentoInd(T) { if (!T || !T.L) return documentoIndSimples(T);
   const notas = (x) => typeof notasInd === "function" ? notasInd(x).filter((k) => !/^Importada da planilha/i.test(k.t)) : [];
   const ben = (x) => x.benef_tipo === "ent" ? "Entidade" + ((x.razao_social || x.beneficiario) ? " · " + esc(x.razao_social || x.beneficiario) : "") + (x.cnpj ? " · CNPJ " + esc(x.cnpj) : "") : x.benef_tipo === "est" ? "Estado" : "Município";
   const P = R.filter(pend);
-  const lp = P.map((x) => `<tr><td class="n">${num(x)}</td><td><b>${esc(x.municipio || "—")}</b><small>${esc(x.lideranca || "")}</small></td><td>${x.objeto ? esc(frase(x.objeto)) : `<i>sem objeto</i>`}${x.nota_lider ? `<span class="nt">${esc(x.nota_lider)}</span>` : ""}</td><td class="c">${etq(x)}</td><td class="r">${brl(x.valor)}</td></tr>`).join("");
+  const lp = P.map((x) => `<tr><td class="n">${num(x)}</td><td><b>${esc(x.municipio || "—")}</b><small>${esc(x.lideranca || "")}</small></td><td>${x.objeto ? esc(frase(x.objeto)) : `<i>sem objeto</i>`}</td><td class="c">${etq(x)}</td><td class="r">${brl(x.valor)}</td></tr>`).join("");
   const em = R.map((x) => { const N = notas(x);
     return `<div class="em${pend(x) ? " pd" : ""}"><div class="eh"><span class="n">${num(x)}</span><span class="m"><b>${esc(x.municipio || "—")}</b><small>${ben(x)}${x.modalidade ? " · " + esc(x.modalidade) : ""}</small></span>${etq(x)}<span class="ch">${esc(x.area || "Área a definir")}</span><span class="ch">${esc(x.natureza || "Despesa a definir")}</span><span class="v">${brl(x.valor)}</span></div>
       <div class="ln"><span class="tk">Objeto</span>${x.objeto ? esc(frase(x.objeto)) : `<i>não escolhido</i>`}</div>
@@ -399,7 +399,7 @@ table.pd{width:100%;border-collapse:collapse;font-size:9px}table.pd td{padding:6
 <div class="tit">${esc(T.nome)} ${IND.ano}${T.L.origem ? " · " + esc(T.L.origem) : ""}</div><div class="sub">${filtro}</div>
 ${quadro}
 <div class="st">Pendências<span>${P.length} ${P.length === 1 ? "emenda" : "emendas"} · ${brl(P.reduce((t, x) => t + val(x), 0))}</span></div>
-${P.length ? `<table class="pd"><tbody>${lp}</tbody></table>` : `<div class="sub">Nenhuma pendência neste recorte.</div>`}
+${!P.length ? `<div class="sub">Nenhuma pendência neste recorte.</div>` : P.length === R.length ? `<div class="sub">${P.length === 1 ? "A emenda do recorte está pendente" : "Todas as " + P.length + " emendas do recorte estão pendentes"} — notas e detalhes logo abaixo, marcadas com a faixa laranja.</div>` : `<table class="pd"><tbody>${lp}</tbody></table><div class="sub">As notas de cada pendência aparecem no detalhe da emenda, abaixo (faixa laranja).</div>`}
 <div class="st">Emendas${fx ? " do recorte" : ""}<span>${R.length} · ${brl(totR)}</span></div>${em}
 <div class="tot"><span>Total · ${R.length} ${R.length === 1 ? "emenda" : "emendas"}</span><b>${brl(totR)}</b></div>
 <div class="pagfoot"><span><b>Simula</b>LEGIS · documento gerado pelo app · uso interno do gabinete</span><span>${dt} ${hr}</span></div>
